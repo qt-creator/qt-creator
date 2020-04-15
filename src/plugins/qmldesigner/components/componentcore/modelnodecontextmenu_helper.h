@@ -132,16 +132,22 @@ public:
 
     bool isVisible(const SelectionContext &m_selectionState) const override { return m_visibility(m_selectionState); }
     bool isEnabled(const SelectionContext &m_selectionState) const override { return m_enabled(m_selectionState); }
-    QByteArray category() const override { return QByteArray(); }
+    QByteArray category() const override { return m_category; }
     QByteArray menuId() const override { return m_menuId; }
     int priority() const override { return m_priority; }
     Type type() const override { return ContextMenu; }
+
+    void setCategory(const QByteArray &catageoryId)
+    {
+        m_category = catageoryId;
+    }
 
 private:
     const QByteArray m_menuId;
     const int m_priority;
     SelectionContextPredicate m_enabled;
     SelectionContextPredicate m_visibility;
+    QByteArray m_category;
 };
 
 class SeperatorDesignerAction : public AbstractAction

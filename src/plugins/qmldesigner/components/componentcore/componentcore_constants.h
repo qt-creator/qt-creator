@@ -41,6 +41,7 @@ const char anchorsCategory[] = "Anchors";
 const char positionCategory[] = "Position";
 const char layoutCategory[] = "Layout";
 const char flowCategory[] = "Flow";
+const char flowEffectCategory[] = "FlowEffect";
 const char flowConnectionCategory[] = "FlowConnection";
 const char stackedContainerCategory[] = "StackedContainer";
 const char genericToolBarCategory[] = "GenericToolBar";
@@ -86,6 +87,7 @@ const char anchorsCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextM
 const char positionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Position");
 const char layoutCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layout");
 const char flowCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Flow");
+const char flowEffectCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Flow Effects");
 const char stackedContainerCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Stacked Container");
 
 const char cutSelectionDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Cut");
