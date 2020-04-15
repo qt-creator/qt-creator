@@ -381,11 +381,19 @@ void QmlObjectNode::destroy()
             timeline.destroyKeyframesForTarget(subNode);
     }
 
-    if (QmlFlowActionAreaNode::isValidQmlFlowActionAreaNode(modelNode()))
-        QmlFlowActionAreaNode(modelNode()).destroyTarget();
+    bool wasFlowEditorTarget = false;
+    if (QmlFlowTargetNode::isFlowEditorTarget(modelNode())) {
+        QmlFlowTargetNode(modelNode()).destroyTargets();
+        wasFlowEditorTarget = true;
+    }
 
     removeStateOperationsForChildren(modelNode());
+    QmlFlowViewNode root(view()->rootModelNode());
+
     modelNode().destroy();
+
+    if (wasFlowEditorTarget && root.isValid())
+        root.removeDanglingTransitions();
 }
 
 void QmlObjectNode::ensureAliasExport()
