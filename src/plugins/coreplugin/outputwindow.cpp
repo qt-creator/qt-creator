@@ -566,12 +566,10 @@ void Internal::CorePlugin::testOutputFormatter()
             " A trick\n"
             " embedded carriage return\n"
             "handled by B\n";
-    TestFormatterA formatterA;
-    TestFormatterB formatterB;
     OutputFormatter formatter;
     QPlainTextEdit textEdit;
     formatter.setPlainTextEdit(&textEdit);
-    formatter.setLineParsers({&formatterB, &formatterA});
+    formatter.setLineParsers({new TestFormatterB, new TestFormatterA});
 
     // Stress-test the implementation by providing the input in chunks, splitting at all possible
     // offsets.

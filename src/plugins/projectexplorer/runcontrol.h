@@ -238,7 +238,7 @@ public:
     Utils::FilePath targetFilePath() const;
     Utils::FilePath projectFilePath() const;
 
-    QList<Utils::OutputLineParser *> outputParsers() const;
+    QList<Utils::OutputLineParser *> createOutputParsers() const;
     Core::Id runMode() const;
 
     const Runnable &runnable() const;

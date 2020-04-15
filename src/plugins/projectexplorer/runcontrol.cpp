@@ -288,7 +288,6 @@ public:
         q = nullptr;
         qDeleteAll(m_workers);
         m_workers.clear();
-        qDeleteAll(outputParsers);
     }
 
     Q_ENUM(RunControlState)
@@ -333,7 +332,6 @@ public:
     Kit *kit = nullptr; // Not owned.
     QPointer<Target> target; // Not owned.
     QPointer<Project> project; // Not owned.
-    QList<Utils::OutputLineParser *> outputParsers;
     std::function<bool(bool*)> promptToStop;
     std::vector<RunWorkerFactory> m_factories;
 
@@ -383,9 +381,6 @@ void RunControl::setTarget(Target *target)
         d->buildDirectory = bc->buildDirectory();
         d->buildEnvironment = bc->environment();
     }
-
-    QTC_CHECK(d->outputParsers.isEmpty());
-    d->outputParsers = OutputFormatterFactory::createFormatters(target);
 
     setKit(target->kit());
     d->project = target->project();
@@ -828,9 +823,9 @@ void RunControlPrivate::showError(const QString &msg)
         q->appendMessage(msg + '\n', ErrorMessageFormat);
 }
 
-QList<Utils::OutputLineParser *> RunControl::outputParsers() const
+QList<Utils::OutputLineParser *> RunControl::createOutputParsers() const
 {
-    return d->outputParsers;
+    return OutputFormatterFactory::createFormatters(target());
 }
 
 Core::Id RunControl::runMode() const

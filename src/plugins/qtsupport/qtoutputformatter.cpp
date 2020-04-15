@@ -289,17 +289,8 @@ public:
 class TestQtOutputFormatter : public OutputFormatter
 {
 public:
-    TestQtOutputFormatter() : m_parser(new TestQtOutputLineParser)
-    {
-        setLineParsers({m_parser});
-    }
-
-    ~TestQtOutputFormatter() { delete m_parser; }
-
-private:
-    OutputLineParser * const m_parser;
+    TestQtOutputFormatter() { setLineParsers({new TestQtOutputLineParser}); }
 };
-
 
 void QtSupportPlugin::testQtOutputFormatter_data()
 {

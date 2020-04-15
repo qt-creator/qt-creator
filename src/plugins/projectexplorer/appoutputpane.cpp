@@ -154,7 +154,7 @@ AppOutputPane::RunControlTab::RunControlTab(RunControl *runControl, Core::Output
     runControl(runControl), window(w)
 {
     if (runControl && w)
-        w->setLineParsers(runControl->outputParsers());
+        w->setLineParsers(runControl->createOutputParsers());
 }
 
 AppOutputPane::AppOutputPane() :
@@ -404,7 +404,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
         if (tab.runControl)
             tab.runControl->initiateFinish();
         tab.runControl = rc;
-        tab.window->setLineParsers(rc->outputParsers());
+        tab.window->setLineParsers(rc->createOutputParsers());
 
         handleOldOutput(tab.window);
 

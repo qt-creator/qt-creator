@@ -86,7 +86,7 @@ public:
     QPlainTextEdit *plainTextEdit() const;
     void setPlainTextEdit(QPlainTextEdit *plainText);
 
-    void setLineParsers(const QList<OutputLineParser *> &parsers);
+    void setLineParsers(const QList<OutputLineParser *> &parsers); // Takes ownership
 
     void appendMessage(const QString &text, OutputFormat format);
     void flush();

@@ -112,7 +112,7 @@ private:
 
     Utils::OutputFormat m_format;
     Utils::OutputFormatter m_formatter;
-    VcsOutputLineParser m_parser;
+    VcsOutputLineParser *m_parser = nullptr;
 };
 
 OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
@@ -122,7 +122,8 @@ OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
     setUndoRedoEnabled(false);
     setFrameStyle(QFrame::NoFrame);
     m_formatter.setBoldFontEnabled(false);
-    setLineParsers({&m_parser});
+    m_parser = new VcsOutputLineParser;
+    setLineParsers({m_parser});
     auto agg = new Aggregation::Aggregate;
     agg->add(this);
     agg->add(new Core::BaseTextFind(this));
@@ -251,7 +252,7 @@ void OutputWindowPlainTextEdit::appendLinesWithStyle(const QString &s,
 
 VcsOutputLineParser *OutputWindowPlainTextEdit::parser()
 {
-    return &m_parser;
+    return m_parser;
 }
 
 void OutputWindowPlainTextEdit::setFormat(VcsOutputWindow::MessageStyle style)

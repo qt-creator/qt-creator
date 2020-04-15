@@ -67,6 +67,7 @@ OutputFormatter::OutputFormatter()
 
 OutputFormatter::~OutputFormatter()
 {
+    qDeleteAll(d->lineParsers);
     delete d;
 }
 
@@ -85,6 +86,8 @@ void OutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
 
 void OutputFormatter::setLineParsers(const QList<OutputLineParser *> &parsers)
 {
+    flush();
+    qDeleteAll(d->lineParsers);
     d->lineParsers = parsers;
     d->nextParser = nullptr;
 }
