@@ -733,7 +733,6 @@ void QmlFlowTargetNode::assignTargetItem(const QmlFlowTargetNode &node)
                                                         node);
         modelNode().bindingProperty("target").setExpression(transition.validId());
     } else if (isFlowDecision()) {
-        destroyTargets();
         ModelNode sourceNode = modelNode();
 
         if (!QmlVisualNode::isFlowDecision(sourceNode))
