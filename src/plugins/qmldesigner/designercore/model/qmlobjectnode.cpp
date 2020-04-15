@@ -388,6 +388,8 @@ void QmlObjectNode::destroy()
     }
 
     removeStateOperationsForChildren(modelNode());
+    BindingProperty::deleteAllReferencesTo(modelNode());
+
     QmlFlowViewNode root(view()->rootModelNode());
 
     modelNode().destroy();
