@@ -715,6 +715,14 @@ QList<ModelNode> QmlFlowViewNode::transitionsForTarget(const ModelNode &modelNod
     return list;
 }
 
+void QmlFlowViewNode::removeDanglingTransitions()
+{
+    for (const ModelNode &transition : transitions()) {
+        if (!transition.hasBindingProperty("to"))
+            QmlObjectNode(transition).destroy();
+    }
+}
+
 bool QmlFlowTargetNode::isValid() const
 {
      return isFlowEditorTarget(modelNode());
@@ -800,6 +808,26 @@ bool QmlFlowTargetNode::isFlowEditorTarget(const ModelNode &modelNode)
             || QmlItemNode(modelNode).isFlowActionArea()
             || QmlVisualNode::isFlowDecision(modelNode)
             || QmlVisualNode::isFlowWildcard(modelNode);
+}
+
+void QmlFlowTargetNode::removeTransitions()
+{
+    if (!modelNode().hasId())
+        return;
+
+    for (const BindingProperty &property : BindingProperty::findAllReferencesTo(modelNode())) {
+        if (property.isValid() && QmlVisualNode::isFlowTransition(property.parentModelNode()))
+                QmlObjectNode(property.parentModelNode()).destroy();
+    }
+}
+
+void QmlFlowViewNode::removeAllTransitions()
+{
+    if (!isValid())
+        return;
+
+    if (hasProperty("flowTransitions"))
+        removeProperty("flowTransitions");
 }
 
 } //QmlDesigner

@@ -144,6 +144,7 @@ public:
     QmlFlowViewNode flowView() const;
     ModelNode findSourceForDecisionNode() const;
     static bool isFlowEditorTarget(const ModelNode &modelNode);
+    void removeTransitions();
 };
 
 class QMLDESIGNERCORE_EXPORT QmlFlowActionAreaNode : public QmlItemNode
@@ -181,6 +182,8 @@ public:
     const QList<ModelNode> wildcards() const;
     const QList<ModelNode> decicions() const;
     QList<ModelNode> transitionsForTarget(const ModelNode &modelNode);
+    void removeDanglingTransitions();
+    void removeAllTransitions();
 };
 
 
