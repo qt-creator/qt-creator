@@ -50,8 +50,8 @@ QVariant CatchTreeItem::data(int column, int role) const
         switch (type()) {
         case Root:
         case GroupNode:
+        case TestSuite:
         case TestCase:
-        case TestFunction:
             return checked();
         default:
             return QVariant();
@@ -87,7 +87,7 @@ TestTreeItem *CatchTreeItem::find(const TestParseResult *result)
         return findChildByFile(result->fileName);
     case GroupNode:
         return findChildByFile(result->fileName);
-    case TestCase:
+    case TestSuite:
         return findChildByNameAndFile(result->name, result->fileName);
     default:
         return nullptr;
@@ -102,8 +102,8 @@ TestTreeItem *CatchTreeItem::findChild(const TestTreeItem *other)
     case Root:
         return findChildByFileAndType(other->filePath(), other->type());
     case GroupNode:
-        return other->type() == TestCase ? findChildByFile(other->filePath()) : nullptr;
-    case TestCase:
+        return other->type() == TestSuite ? findChildByFile(other->filePath()) : nullptr;
+    case TestSuite:
         return findChildByNameAndFile(other->name(), other->filePath());
     default:
         return nullptr;
@@ -115,8 +115,8 @@ bool CatchTreeItem::modify(const TestParseResult *result)
     QTC_ASSERT(result, return false);
 
     switch (type()) {
+    case TestSuite:
     case TestCase:
-    case TestFunction:
         return modifyTestFunctionContent(result);
     default:
         return false;
@@ -132,7 +132,7 @@ TestTreeItem *CatchTreeItem::createParentGroupNode() const
 
 bool CatchTreeItem::canProvideTestConfiguration() const
 {
-    return type() == TestFunction;
+    return type() == TestCase;
 }
 
 bool CatchTreeItem::canProvideDebugConfiguration() const
@@ -145,7 +145,7 @@ TestConfiguration *CatchTreeItem::testConfiguration() const
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     QTC_ASSERT(project, return nullptr);
 
-    if (type() != TestFunction)
+    if (type() != TestCase)
         return nullptr;
 
     CatchConfiguration *config = nullptr;
@@ -186,7 +186,7 @@ static void collectTestInfo(const TestTreeItem *item,
     }
 
     QTC_ASSERT(childCount != 0, return);
-    QTC_ASSERT(item->type() == TestTreeItem::TestCase, return);
+    QTC_ASSERT(item->type() == TestTreeItem::TestSuite, return);
     if (ignoreCheckState || item->checked() == Qt::Checked) {
         const QString &projectFile = item->childAt(0)->proFile();
         item->forAllChildren([&testCasesForProfile, &projectFile](TestTreeItem *it) {
@@ -196,7 +196,7 @@ static void collectTestInfo(const TestTreeItem *item,
         testCasesForProfile[projectFile].internalTargets.unite(item->internalTargets());
     } else if (item->checked() == Qt::PartiallyChecked) {
         item->forFirstLevelChildren([&testCasesForProfile](TestTreeItem *child) {
-            QTC_ASSERT(child->type() == TestTreeItem::TestFunction, return);
+            QTC_ASSERT(child->type() == TestTreeItem::TestCase, return);
             if (child->checked() == Qt::Checked) {
                 CatchTreeItem *current = static_cast<CatchTreeItem *>(child);
                 testCasesForProfile[child->proFile()].names.append(current->testCasesString());

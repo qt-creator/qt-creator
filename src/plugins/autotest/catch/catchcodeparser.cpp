@@ -48,7 +48,7 @@ CatchCodeParser::CatchCodeParser(const QByteArray &source, const LanguageFeature
 static CatchTestCodeLocationAndType locationAndTypeFromToken(const Token &tkn)
 {
     CatchTestCodeLocationAndType locationAndType;
-    locationAndType.m_type = TestTreeItem::TestFunction;
+    locationAndType.m_type = TestTreeItem::TestCase;
     locationAndType.m_line = tkn.lineno;
     locationAndType.m_column = 0;
     return locationAndType;

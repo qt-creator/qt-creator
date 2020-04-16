@@ -114,7 +114,7 @@ static bool handleCatchDocument(QFutureInterface<TestParseResultPtr> futureInter
     const CatchTestCodeLocationList foundTests = codeParser.findTests();
 
     CatchParseResult *parseResult = new CatchParseResult(framework);
-    parseResult->itemType = TestTreeItem::TestCase;
+    parseResult->itemType = TestTreeItem::TestSuite;
     parseResult->fileName = filePath;
     parseResult->name = filePath;
     parseResult->displayName = filePath;
