@@ -13,6 +13,43 @@ splitterColor=ff151515
 qmlDesignerButtonColor=ff4c4e50
 
 [Colors]
+
+;DS controls theme START
+DScontrolBackground=ff404040
+DScontrolOutline=ff595959
+DStextColor=ffffffff
+DSdisabledTextColor=ff909090
+DSpanelBackground=ff454444
+DShoverHighlight=ff313131
+DScolumnBackground=ff363636
+DSfocusEdit=ff444444
+DSfocusDrag=ff565656
+DScontrolBackgroundPressed=ff7a7a7a
+DScontrolBackgroundChecked=ff565656
+DSinteraction=ff3f91c4
+DSsliderActiveTrack=ff7a7a7a
+DSsliderInactiveTrack=ff4d4d4d
+DSsliderHandle=ff505050
+DSsliderActiveTrackHover=ff7f7f7f
+DSsliderInactiveTrackHover=ff505050
+DSsliderHandleHover=ff7a7a7a
+DSsliderActiveTrackFocus=ffaaaaaa
+DSsliderInactiveTrackFocus=ff7a7a7a
+DSsliderHandleFocus=ff3f91c4
+DSerrorColor=ffdf3a3a
+DScontrolBackgroundDisabled=ff363636
+DScontrolOutlineDisabled=ff4d4d4d
+DStextColorDisabled=ff7a7a7a
+DStextSelectionColor=ff3f91c4
+DStextSelectedTextColor=ffffffff
+DSscrollBarTrack=ff4d4d4d
+DSscrollBarHandle=ff505050
+DScontrolBackgroundInteraction=ff4d4d4d
+DStranslationIndicatorBorder=ff7f7f7f
+DSsectionHeadBackground=ff424242
+DSchangedStateText=ff99ccff
+;DS controls theme END
+
 BackgroundColorAlternate=ff3d3d3d
 BackgroundColorDark=shadowBackground
 BackgroundColorHover=ff515151
