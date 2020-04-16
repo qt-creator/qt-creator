@@ -57,6 +57,7 @@ const char anchorsFillCommandId[] = "AnchorsFill";
 const char anchorsResetCommandId[] = "AnchorsReset";
 const char removePositionerCommandId[] = "RemovePositioner";
 const char createFlowActionAreaCommandId[] = "CreateFlowActionArea";
+const char setFlowStartCommandId[] = "SetFlowStart";
 const char layoutRowPositionerCommandId[] = "LayoutRowPositioner";
 const char layoutColumnPositionerCommandId[] = "LayoutColumnPositioner";
 const char layoutGridPositionerCommandId[] = "LayoutGridPositioner";
@@ -124,6 +125,7 @@ const char layoutGridPositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerCon
 const char layoutFlowPositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Position in Flow");
 const char removePositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Remove Positioner");
 const char createFlowActionAreaDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Create Flow Action");
+const char setFlowStartDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Set Flow Start");
 const char removeLayoutDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Remove Layout");
 
 const char addItemToStackedContainerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add Item");

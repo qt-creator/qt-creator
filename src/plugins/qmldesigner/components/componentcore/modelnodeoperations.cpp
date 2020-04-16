@@ -1100,7 +1100,24 @@ void addFlowEffect(const SelectionContext &selectionContext, const TypeName &typ
                                       container.nodeProperty("effect").reparentHere(effectNode);
                                       view->setSelectedModelNode(effectNode);
                                   }
-                              });
+   });
+}
+
+void setFlowStartItem(const SelectionContext &selectionContext)
+{
+    AbstractView *view = selectionContext.view();
+
+    QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
+    ModelNode node = selectionContext.currentSingleSelectedNode();
+    QTC_ASSERT(node.isValid(), return);
+    QTC_ASSERT(node.metaInfo().isValid(), return);
+    QmlFlowItemNode flowItem(node);
+    QTC_ASSERT(flowItem.isValid(), return);
+    QTC_ASSERT(flowItem.flowView().isValid(), return);
+    view->executeInTransaction("DesignerActionManager:setFlowStartItem",
+                               [&flowItem](){
+        flowItem.flowView().setStartFlowItem(flowItem);
+    });
 }
 
 } // namespace Mode

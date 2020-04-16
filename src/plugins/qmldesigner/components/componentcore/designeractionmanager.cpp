@@ -874,6 +874,17 @@ void DesignerActionManager::createDefaultDesignerActions()
         &isFlowItem,
         &flowOptionVisible));
 
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          setFlowStartCommandId,
+                          setFlowStartDisplayName,
+                          {},
+                          flowCategory,
+                          priorityFirst,
+                          {},
+                          &setFlowStartItem,
+                          &isFlowItem,
+                          &flowOptionVisible));
+
     addDesignerAction(new FlowActionConnectAction(
         flowConnectionCategoryDisplayName,
         flowConnectionCategory,
