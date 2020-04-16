@@ -159,7 +159,7 @@ def verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, e
             elif expectedType == "TextTip":
                 __handleTextTips__(tip, expectedVals, altVal)
             elif expectedType == "WidgetTip":
-                test.warning("Sorry - WidgetTip checks aren't implemented yet.")
+                __handleWidgetTips__(tip, expectedVals)
             sendEvent("QMouseEvent", editor, QEvent.MouseMove, 0, -50, Qt.NoButton, 0)
             waitFor("isNull(tip)", 10000)
 
@@ -227,6 +227,19 @@ def __handleColorTips__(colTip, expectedColor, alternativeColor):
             altColorText = " or '%X'" % uint(alt.rgb())
         test.fail("ColorTip does not match - expected color '%X'%s got '%X'"
                   % (uint(cmp.rgb()), altColorText, uint(rgb.rgb())))
+
+# helper function that handles verification of WidgetTip hoverings
+# param widgetTip the WidgetTip object
+# param expectedVals a dict holding property value pairs that must match
+def __handleWidgetTips__(widgetTip, expectedVals):
+    toplabel = waitForObject("{type='QLabel' objectName='qcWidgetTipTopLabel' visible='1'}")
+    foundText = str(toplabel.text)
+    try:
+        helplabel = waitForObject("{type='QLabel' objectName='qcWidgetTipHelpLabel' visible='1'}", 1000)
+        foundText += str(helplabel.text)
+    except:
+        pass
+    test.compare(foundText, expectedVals["text"])
 
 # function that checks whether all expected properties (including their values)
 # match the given properties
