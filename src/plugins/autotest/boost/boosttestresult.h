@@ -30,6 +30,8 @@
 namespace Autotest {
 namespace Internal {
 
+class BoostTestTreeItem;
+
 class BoostTestResult : public TestResult
 {
 public:
@@ -37,9 +39,12 @@ public:
     const QString outputString(bool selected) const override;
 
     bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const override;
+    const TestTreeItem * findTestTreeItem() const override;
     void setTestSuite(const QString &testSuite) { m_testSuite = testSuite; }
     void setTestCase(const QString &testCase) { m_testCase = testCase; }
 private:
+    bool matches(const BoostTestTreeItem *item) const;
+
     QString m_projectFile;
     QString m_testSuite;
     QString m_testCase;

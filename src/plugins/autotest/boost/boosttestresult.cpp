@@ -24,6 +24,11 @@
 ****************************************************************************/
 
 #include "boosttestresult.h"
+#include "boosttestconstants.h"
+#include "boosttesttreeitem.h"
+#include "..\testframeworkmanager.h"
+
+#include <utils/id.h>
 
 namespace Autotest {
 namespace Internal {
@@ -69,6 +74,41 @@ bool BoostTestResult::isDirectParentOf(const TestResult *other, bool *needsInter
         return boostOther->m_testCase == m_testCase;
     }
     return false;
+}
+
+const TestTreeItem *BoostTestResult::findTestTreeItem() const
+{
+    auto id = Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix(BoostTest::Constants::FRAMEWORK_NAME);
+    ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
+    QTC_ASSERT(framework, return nullptr);
+    const TestTreeItem *rootNode = framework->rootNode();
+    if (!rootNode)
+        return nullptr;
+
+    const auto item = rootNode->findAnyChild([this](const Utils::TreeItem *item) {
+        return matches(static_cast<const BoostTestTreeItem *>(item));
+    });
+    return static_cast<const TestTreeItem *>(item);
+}
+
+bool BoostTestResult::matches(const BoostTestTreeItem *item) const
+{
+    // due to lacking information on the result side and a not fully appropriate tree we
+    // might end up here with a differing set of tests, but it's the best we can do
+    if (!item)
+        return false;
+    if (m_testCase.isEmpty()) // a top level module node
+        return item->proFile() == m_projectFile;
+
+    if (item->state() & BoostTestTreeItem::Parameterized) {
+        if (!m_testCase.startsWith(item->name()))
+            return false;
+    } else {
+        if (item->name() != m_testCase)
+            return false;
+    }
+
+    return item->filePath() == fileName() && item->proFile() == m_projectFile;
 }
 
 } // namespace Internal

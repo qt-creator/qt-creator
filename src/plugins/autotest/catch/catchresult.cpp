@@ -23,6 +23,11 @@
 ****************************************************************************/
 
 #include "catchresult.h"
+#include "catchtreeitem.h"
+
+#include "../testframeworkmanager.h"
+
+#include <utils/id.h>
 
 namespace Autotest {
 namespace Internal {
@@ -55,6 +60,28 @@ bool CatchResult::isDirectParentOf(const TestResult *other, bool *needsIntermedi
         return false;
 
     return name() == catchOther->name();
+}
+
+const TestTreeItem *CatchResult::findTestTreeItem() const
+{
+    auto id = Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix("Catch");
+    ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
+    QTC_ASSERT(framework, return nullptr);
+    const TestTreeItem *rootNode = framework->rootNode();
+    if (!rootNode)
+        return nullptr;
+
+    const QString tcName = name();
+    const QString tcFilePath = fileName();
+    const auto item = rootNode->findAnyChild([&tcName, &tcFilePath](const Utils::TreeItem *item) {
+        const auto treeItem = static_cast<const CatchTreeItem *>(item);
+        if (!treeItem || treeItem->filePath() != tcFilePath)
+            return false;
+        const bool parameterized = treeItem->states() & CatchTreeItem::Parameterized;
+        return parameterized ? tcName.startsWith(treeItem->name() + " - ")
+                             : tcName == treeItem->name();
+    });
+    return static_cast<const TestTreeItem *>(item);
 }
 
 } // namespace Internal

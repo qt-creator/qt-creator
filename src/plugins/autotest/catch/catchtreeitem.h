@@ -46,6 +46,7 @@ public:
         : TestTreeItem(framework, name, filePath, type) {}
 
     void setStates(CatchTreeItem::TestStates state) { m_state = state; }
+    CatchTreeItem::TestStates states() const { return m_state; }
     QString testCasesString() const;
 
     QVariant data(int column, int role) const override;
