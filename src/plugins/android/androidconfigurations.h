@@ -186,6 +186,7 @@ public:
     bool isConnected(const QString &serialNumber) const;
 
     bool useNativeUiTools() const;
+    bool isCmdlineSdkToolsInstalled() const;
 
     bool sdkFullyConfigured() const { return m_sdkFullyConfigured; }
     void setSdkFullyConfigured(bool allEssentialsInstalled) { m_sdkFullyConfigured = allEssentialsInstalled; }
