@@ -59,7 +59,7 @@
             command line arguments to be passed to the executable.
     \endlist
 
-    If you want to run some other Python file than \c main.py,  create a custom
+    If you want to run some other Python file than \c main.py, create a custom
     executable run configuration:
 
     \image qtcreator-python-run-settings-custom-executable.png

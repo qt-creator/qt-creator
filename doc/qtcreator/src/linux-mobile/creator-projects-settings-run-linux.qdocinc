@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -45,8 +45,8 @@
 
     \image qtcreator-run-settings-linux.png "Run settings for Linux-based devices"
 
-    You can specify command line arguments to pass to your application in the
-    \uicontrol Arguments field.
+    You can specify arguments to pass to your application in the
+    \uicontrol {Command line arguments} field.
 
 //! [run settings linux]
 */
