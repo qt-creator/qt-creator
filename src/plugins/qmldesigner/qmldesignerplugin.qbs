@@ -654,6 +654,8 @@ Project {
                 "annotationeditor/annotationcommenttab.ui",
                 "annotationeditor/annotationeditor.cpp",
                 "annotationeditor/annotationeditor.h",
+                "annotationeditor/globalannotationeditor.cpp",
+                "annotationeditor/globalannotationeditor.h",
                 "annotationeditor/annotationeditordialog.cpp",
                 "annotationeditor/annotationeditordialog.h",
                 "annotationeditor/annotationeditordialog.ui",

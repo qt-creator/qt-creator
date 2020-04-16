@@ -431,6 +431,19 @@ void DesignModeWidget::setup()
             m_dockManager->openWorkspace(workspaceComboBox->currentText());
     });
 
+    const QIcon gaIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
+                                                                 Theme::getIconUnicode(Theme::Icon::annotationBubble), 36, 36);
+    toolBar->addAction(gaIcon, tr("Edit global annotation for current file."), [&](){
+        ModelNode node = currentDesignDocument()->rewriterView()->rootModelNode();
+
+        if (node.isValid()) {
+            m_globalAnnotationEditor.setModelNode(node);
+            m_globalAnnotationEditor.showWidget();
+        }
+    });
+
+
+
     viewManager().enableWidgets();
     readSettings();
     show();

@@ -25,64 +25,51 @@
 
 #pragma once
 
-#include <QDialog>
+#include <QObject>
+#include <QtQml>
+#include <QPointer>
 
+#include "annotationeditordialog.h"
 #include "annotation.h"
+
+#include "modelnode.h"
 
 namespace QmlDesigner {
 
-namespace Ui {
-class AnnotationEditorDialog;
-}
-
-class AnnotationEditorDialog : public QDialog
+class GlobalAnnotationEditor : public QObject
 {
     Q_OBJECT
 
 public:
-    enum EditorMode { ItemAnnotation, GlobalAnnotation };
+    explicit GlobalAnnotationEditor(QObject *parent = nullptr);
+    ~GlobalAnnotationEditor();
 
-    explicit AnnotationEditorDialog(QWidget *parent, const QString &targetId, const QString &customId, const Annotation &annotation,
-                                    EditorMode mode = EditorMode::ItemAnnotation);
-    ~AnnotationEditorDialog();
+    Q_INVOKABLE void showWidget();
+    Q_INVOKABLE void showWidget(int x, int y);
+    Q_INVOKABLE void hideWidget();
 
-    void setAnnotation(const Annotation &annotation);
-    Annotation annotation() const;
+    void setModelNode(const ModelNode &modelNode);
+    ModelNode modelNode() const;
 
-    void setCustomId(const QString &customId);
-    QString customId() const;
+    Q_INVOKABLE bool hasAnnotation() const;
 
-    void changeEditorMode(EditorMode mode);
-    EditorMode editorMode() const;
+    Q_INVOKABLE void removeFullAnnotation();
 
 signals:
     void accepted();
+    void canceled();
+    void modelNodeBackendChanged();
+
+    void annotationChanged();
 
 private slots:
     void acceptedClicked();
-    void tabChanged(int index);
-    void commentTitleChanged(const QString &text, QWidget *tab);
+    void cancelClicked();
 
 private:
-    void fillFields();
-    void setupComments();
-    void addComment(const Comment &comment);
-    void removeComment(int index);
+    QPointer<AnnotationEditorDialog> m_dialog;
 
-    void addCommentTab(const Comment &comment);
-    void removeCommentTab(int index);
-    void deleteAllTabs();
-
-private:
-    const QString annotationEditorTitle = {tr("Annotation Editor")};
-    const QString globalEditorTitle = {tr("Global Annotation Editor")};
-    const QString defaultTabName = {tr("Annotation")};
-    Ui::AnnotationEditorDialog *ui;
-
-    QString m_customId;
-    Annotation m_annotation;
-
-    EditorMode m_editorMode;
+    ModelNode m_modelNode;
 };
 
 } //namespace QmlDesigner

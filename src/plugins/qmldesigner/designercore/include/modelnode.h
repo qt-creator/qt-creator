@@ -202,6 +202,11 @@ public:
     void setAnnotation(const Annotation &annotation);
     void removeAnnotation();
 
+    Annotation globalAnnotation() const;
+    bool hasGlobalAnnotation() const;
+    void setGlobalAnnotation(const Annotation &annotation);
+    void removeGlobalAnnotation();
+
     qint32 internalId() const;
 
     void setNodeSource(const QString&);
