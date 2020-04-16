@@ -102,12 +102,14 @@ void CatchCodeParser::handleIdentifier()
                || identifier == "TEMPLATE_PRODUCT_TEST_CASE_SIG") {
         handleParameterizedTestCase(false);
     } else if (identifier == "TEST_CASE_METHOD") {
-        handleFixtureTestCase();
+        handleFixtureOrRegisteredTestCase(true);
     } else if (identifier == "TEMPLATE_TEST_CASE_METHOD_SIG"
                || identifier == "TEMPLATE_PRODUCT_TEST_CASE_METHOD_SIG"
                || identifier == "TEMPLATE_TEST_CASE_METHOD"
                || identifier == "TEMPLATE_LIST_TEST_CASE_METHOD") {
         handleParameterizedTestCase(true);
+    } else if (identifier == "METHOD_AS_TEST_CASE" || identifier == "REGISTER_TEST_CASE") {
+        handleFixtureOrRegisteredTestCase(false);
     }
 }
 
@@ -175,13 +177,18 @@ void CatchCodeParser::handleParameterizedTestCase(bool isFixture)
     m_testCases.append(locationAndType);
 }
 
-void CatchCodeParser::handleFixtureTestCase()
+void CatchCodeParser::handleFixtureOrRegisteredTestCase(bool isFixture)
 {
     if (!skipCommentsUntil(T_LPAREN))
         return;
 
-    if (!skipFixtureParameter())
-        return;
+    if (isFixture) {
+        if (!skipFixtureParameter())
+            return;
+    } else {
+        if (!skipFunctionParameter())
+            return;
+    }
 
     CatchTestCodeLocationAndType locationAndType
             = locationAndTypeFromToken(m_tokens.at(m_currentIndex));
@@ -201,7 +208,8 @@ void CatchCodeParser::handleFixtureTestCase()
 
     locationAndType.m_name = testCaseName;
     locationAndType.tags = parseTags(tagsString);
-    locationAndType.states = CatchTreeItem::Fixture;
+    if (isFixture)
+        locationAndType.states = CatchTreeItem::Fixture;
     m_testCases.append(locationAndType);
 }
 
@@ -264,6 +272,16 @@ bool CatchCodeParser::skipFixtureParameter()
 {
     if (!skipCommentsUntil(T_IDENTIFIER))
         return false;
+    return skipCommentsUntil(T_COMMA);
+}
+
+bool CatchCodeParser::skipFunctionParameter()
+{
+    if (!skipCommentsUntil(T_IDENTIFIER))
+        return false;
+    if (skipCommentsUntil(T_COLON_COLON))
+        return skipFunctionParameter();
+
     return skipCommentsUntil(T_COMMA);
 }
 

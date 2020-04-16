@@ -48,7 +48,8 @@ static bool isCatchTestCaseMacro(const QString &macroName)
         QStringLiteral("TEST_CASE_METHOD"), QStringLiteral("TEMPLATE_TEST_CASE_METHOD_SIG"),
         QStringLiteral("TEMPLATE_PRODUCT_TEST_CASE_METHOD_SIG"),
         QStringLiteral("TEMPLATE_TEST_CASE_METHOD"),
-        QStringLiteral("TEMPLATE_LIST_TEST_CASE_METHOD")
+        QStringLiteral("TEMPLATE_LIST_TEST_CASE_METHOD"),
+        QStringLiteral("METHOD_AS_TEST_CASE"), QStringLiteral("REGISTER_TEST_CASE")
     };
     return validTestCaseMacros.contains(macroName);
 }

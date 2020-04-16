@@ -46,12 +46,13 @@ private:
     void handleIdentifier();
     void handleTestCase(bool isScenario);
     void handleParameterizedTestCase(bool isFixture);
-    void handleFixtureTestCase();
+    void handleFixtureOrRegisteredTestCase(bool isFixture);
 
     QString getStringLiteral(CPlusPlus::Kind &stoppedAtKind);
     bool skipCommentsUntil(CPlusPlus::Kind nextExpectedKind);   // moves currentIndex if succeeds
     CPlusPlus::Kind skipUntilCorrespondingRParen();             // moves currentIndex
     bool skipFixtureParameter();
+    bool skipFunctionParameter();
 
     const QByteArray &m_source;
     const CPlusPlus::LanguageFeatures &m_features;
