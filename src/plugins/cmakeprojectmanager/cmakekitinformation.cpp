@@ -701,7 +701,7 @@ Tasks CMakeGeneratorKitAspect::validate(const Kit *k) const
             addWarning(tr("The selected CMake binary has no server-mode and the CMake "
                           "generator does not generate a CodeBlocks file. "
                           "%1 will not be able to parse CMake projects.")
-                       .arg(Core::Constants::IDE_DISPLAY_NAME));
+                           .arg(Core::Constants::IDE_DISPLAY_NAME));
         }
     }
 
