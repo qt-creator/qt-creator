@@ -79,7 +79,7 @@ public:
     FileInProjectFinder projectFinder;
 };
 
-class QtOutputLineParser : public QObject, public OutputLineParser
+class QtOutputLineParser : public OutputLineParser
 {
 public:
     explicit QtOutputLineParser(Target *target);
@@ -482,11 +482,11 @@ void QtSupportPlugin::testQtOutputFormatter_appendMessage()
     QFETCH(QTextCharFormat, inputFormat);
     QFETCH(QTextCharFormat, outputFormat);
     if (outputFormat == QTextCharFormat())
-        outputFormat = formatter.charFormat(DebugFormat);
+        outputFormat = formatter.charFormat(StdOutFormat);
     if (inputFormat != QTextCharFormat())
         formatter.overrideTextCharFormat(inputFormat);
 
-    formatter.appendMessage(inputText, DebugFormat);
+    formatter.appendMessage(inputText, StdOutFormat);
     formatter.flush();
 
     QCOMPARE(edit.toPlainText(), outputText);
@@ -509,7 +509,7 @@ void QtSupportPlugin::testQtOutputFormatter_appendMixedAssertAndAnsi()
                 "file://test.cpp:123 "
                 "Blue\n";
 
-    formatter.appendMessage(inputText, DebugFormat);
+    formatter.appendMessage(inputText, StdOutFormat);
 
     QCOMPARE(edit.toPlainText(), outputText);
 

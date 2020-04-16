@@ -100,10 +100,10 @@ void GnuMakeParser::emitTask(const ProjectExplorer::Task &task)
 {
     if (task.type == Task::Error) // Assume that all make errors will be follow up errors.
         m_suppressIssues = true;
-    emit addTask(task, 1, 0);
+    scheduleTask(task, 1, 0);
 }
 
-OutputTaskParser::Status GnuMakeParser::handleLine(const QString &line, OutputFormat type)
+OutputLineParser::Result GnuMakeParser::handleLine(const QString &line, OutputFormat type)
 {
     const QString lne = rightTrimmed(line);
     if (type == StdOutFormat) {
@@ -119,19 +119,21 @@ OutputTaskParser::Status GnuMakeParser::handleLine(const QString &line, OutputFo
     }
     QRegularExpressionMatch match = m_errorInMakefile.match(lne);
     if (match.hasMatch()) {
-        Result res = parseDescription(match.captured(5));
+        ProjectExplorer::Result res = parseDescription(match.captured(5));
         if (res.isFatal)
             ++m_fatalErrorCount;
+        LinkSpecs linkSpecs;
         if (!m_suppressIssues) {
-            emitTask(BuildSystemTask(res.type, res.description,
-                                      absoluteFilePath(FilePath::fromUserInput(match.captured(1))),
-                                      match.captured(4).toInt() /* line */));
+            const FilePath file = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
+            const int lineNo = match.captured(4).toInt();
+            addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineNo, match, 1);
+            emitTask(BuildSystemTask(res.type, res.description, file, lineNo));
         }
-        return Status::Done;
+        return {Status::Done, linkSpecs};
     }
     match = m_makeLine.match(lne);
     if (match.hasMatch()) {
-        Result res = parseDescription(match.captured(6));
+        ProjectExplorer::Result res = parseDescription(match.captured(6));
         if (res.isFatal)
             ++m_fatalErrorCount;
         if (!m_suppressIssues)

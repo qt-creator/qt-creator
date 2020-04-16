@@ -66,7 +66,7 @@ Core::Id GccParser::id()
     return Core::Id("ProjectExplorer.OutputParser.Gcc");
 }
 
-QList<OutputTaskParser *> GccParser::gccParserSuite()
+QList<OutputLineParser *> GccParser::gccParserSuite()
 {
     return {new GccParser, new Internal::LldParser, new LdParser};
 }
@@ -84,7 +84,7 @@ void GccParser::flush()
         return;
     Task t = m_currentTask;
     m_currentTask.clear();
-    emit addTask(t, m_lines, 1);
+    scheduleTask(t, m_lines, 1);
     m_lines = 0;
 }
 
@@ -107,11 +107,9 @@ void GccParser::amendDescription(const QString &desc, bool monospaced)
     return;
 }
 
-OutputTaskParser::Status GccParser::handleLine(const QString &line, OutputFormat type)
+OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat type)
 {
     if (type == StdOutFormat) {
-        // TODO: The "flush on channel switch" logic could possibly also done centrally.
-        //       But see MSVC with the stdout/stderr switches because of jom
         flush();
         return Status::NotHandled;
     }
@@ -146,7 +144,6 @@ OutputTaskParser::Status GccParser::handleLine(const QString &line, OutputFormat
 
     match = m_regExp.match(lne);
     if (match.hasMatch()) {
-        Utils::FilePath filename = Utils::FilePath::fromUserInput(match.captured(1));
         int lineno = match.captured(3).toInt();
         Task::TaskType type = Task::Unknown;
         QString description = match.captured(8);
@@ -161,17 +158,21 @@ OutputTaskParser::Status GccParser::handleLine(const QString &line, OutputFormat
         if (match.captured(5).startsWith(QLatin1Char('#')))
             description = match.captured(5) + description;
 
-        newTask(CompileTask(type, description, absoluteFilePath(filename), lineno));
-        return Status::InProgress;
+        const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
+        LinkSpecs linkSpecs;
+        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineno, match, 1);
+        newTask(CompileTask(type, description, filePath, lineno));
+        return {Status::InProgress, linkSpecs};
     }
 
     match = m_regExpIncluded.match(lne);
     if (match.hasMatch()) {
-        newTask(CompileTask(Task::Unknown,
-                            lne.trimmed() /* description */,
-                            absoluteFilePath(Utils::FilePath::fromUserInput(match.captured(1))),
-                            match.captured(3).toInt() /* linenumber */));
-        return Status::InProgress;
+        const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
+        const int lineNo = match.captured(3).toInt();
+        LinkSpecs linkSpecs;
+        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, match, 1);
+        newTask(CompileTask(Task::Unknown, lne.trimmed() /* description */, filePath, lineNo));
+        return {Status::InProgress, linkSpecs};
     } else if (lne.startsWith(' ') && !m_currentTask.isNull()) {
         amendDescription(lne, true);
         return Status::InProgress;
@@ -681,8 +682,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
             << (Tasks()
                 << CompileTask(Task::Unknown,
                                "In file included from <command-line>:0:0:",
-                               FilePath::fromUserInput("<command-line>"),
-                               0)
+                               FilePath::fromUserInput("<command-line>"))
                 << CompileTask(Task::Warning,
                                "\"STUPID_DEFINE\" redefined",
                                FilePath::fromUserInput("./mw.h"),
@@ -1009,8 +1009,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
             << (Tasks()
                 << CompileTask(Task::Unknown,
                                "Note: No relevant classes found. No output generated.",
-                               FilePath::fromUserInput("/home/qtwebkithelpviewer.h"),
-                               0))
+                               FilePath::fromUserInput("/home/qtwebkithelpviewer.h")))
             << QString();
 
     QTest::newRow("GCC 9 output")

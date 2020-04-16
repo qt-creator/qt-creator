@@ -160,8 +160,8 @@ void QbsCleanStep::handleProgress(int value)
 
 void QbsCleanStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type, const QString &message, const QString &file, int line)
 {
-    emit addTask(CompileTask(type, message, Utils::FilePath::fromString(file), line), 1);
     emit addOutput(message, OutputFormat::Stdout);
+    emit addTask(CompileTask(type, message, Utils::FilePath::fromString(file), line), 1);
 }
 
 // --------------------------------------------------------------------

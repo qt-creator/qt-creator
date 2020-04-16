@@ -225,8 +225,6 @@ bool QMakeStep::init()
     pp->setWorkingDirectory(workingDirectory);
     pp->setEnvironment(qmakeBc->environment());
 
-    setOutputParser(new QMakeParser);
-
     QmakeProFileNode *node = static_cast<QmakeProFileNode *>(qmakeBc->project()->rootProjectNode());
     if (qmakeBc->subNodeBuild())
         node = qmakeBc->subNodeBuild();
@@ -252,6 +250,13 @@ bool QMakeStep::init()
     m_scriptTemplate = node->projectType() == ProjectType::ScriptTemplate;
 
     return AbstractProcessStep::init();
+}
+
+void QMakeStep::setupOutputFormatter(OutputFormatter *formatter)
+{
+    formatter->addLineParser(new QMakeParser);
+    m_outputFormatter = formatter;
+    AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
 void QMakeStep::doRun()
@@ -332,7 +337,7 @@ void QMakeStep::runNextCommand()
     case State::IDLE:
         return;
     case State::RUN_QMAKE:
-        setOutputParser(new QMakeParser);
+        m_outputFormatter->setLineParsers({new QMakeParser});
         m_nextState = (m_runMakeQmake ? State::RUN_MAKE_QMAKE_ALL : State::POST_PROCESS);
         startOneCommand(m_qmakeCommand);
         return;
@@ -340,7 +345,7 @@ void QMakeStep::runNextCommand()
         {
             auto *parser = new GnuMakeParser;
             parser->addSearchDir(processParameters()->workingDirectory());
-            setOutputParser(parser);
+            m_outputFormatter->setLineParsers({parser});
             m_nextState = State::POST_PROCESS;
             startOneCommand(m_makeCommand);
         }

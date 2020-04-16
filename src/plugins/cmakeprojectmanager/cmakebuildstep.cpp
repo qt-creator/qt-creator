@@ -197,14 +197,17 @@ bool CMakeBuildStep::init()
     pp->setCommandLine(cmakeCommand(rc));
     pp->resolveAll();
 
-    CMakeParser *cmakeParser = new CMakeParser;
-    cmakeParser->setSourceDirectory(projectDirectory.toString());
-    setOutputParser(cmakeParser);
-    appendOutputParser(new GnuMakeParser);
-    appendOutputParsers(target()->kit()->createOutputParsers());
-    outputParser()->addSearchDir(pp->effectiveWorkingDirectory());
-
     return AbstractProcessStep::init();
+}
+
+void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
+{
+    CMakeParser *cmakeParser = new CMakeParser;
+    cmakeParser->setSourceDirectory(project()->projectDirectory().toString());
+    formatter->addLineParsers({cmakeParser, new GnuMakeParser});
+    formatter->addLineParsers(target()->kit()->createOutputParsers());
+    formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
+    AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
 void CMakeBuildStep::doRun()

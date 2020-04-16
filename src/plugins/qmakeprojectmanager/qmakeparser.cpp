@@ -40,7 +40,7 @@ QMakeParser::QMakeParser() : m_error(QLatin1String("^(.+):(\\d+):\\s(.+)$"))
     m_error.setMinimal(true);
 }
 
-OutputTaskParser::Status QMakeParser::handleLine(const QString &line, OutputFormat type)
+OutputLineParser::Result QMakeParser::handleLine(const QString &line, OutputFormat type)
 {
     if (type != Utils::StdErrFormat)
         return Status::NotHandled;
@@ -49,11 +49,14 @@ OutputTaskParser::Status QMakeParser::handleLine(const QString &line, OutputForm
         QString fileName = m_error.cap(1);
         Task::TaskType type = Task::Error;
         const QString description = m_error.cap(3);
+        int fileNameOffset = m_error.pos(1);
         if (fileName.startsWith(QLatin1String("WARNING: "))) {
             type = Task::Warning;
             fileName = fileName.mid(9);
+            fileNameOffset += 9;
         } else if (fileName.startsWith(QLatin1String("ERROR: "))) {
             fileName = fileName.mid(7);
+            fileNameOffset += 7;
         }
         if (description.startsWith(QLatin1String("note:"), Qt::CaseInsensitive))
             type = Task::Unknown;
@@ -61,23 +64,25 @@ OutputTaskParser::Status QMakeParser::handleLine(const QString &line, OutputForm
             type = Task::Warning;
         else if (description.startsWith(QLatin1String("error:"), Qt::CaseInsensitive))
             type = Task::Error;
-        emit addTask(BuildSystemTask(type,
-                                     description,
-                                     absoluteFilePath(FilePath::fromUserInput(fileName)),
-                                     m_error.cap(2).toInt() /* line */),
-                     1);
-        return Status::Done;
+
+        BuildSystemTask t(type, description, absoluteFilePath(FilePath::fromUserInput(fileName)),
+                          m_error.cap(2).toInt() /* line */);
+        LinkSpecs linkSpecs;
+        addLinkSpecForAbsoluteFilePath(linkSpecs, t.file, t.line, fileNameOffset,
+                                       fileName.length());
+        scheduleTask(t, 1);
+        return {Status::Done, linkSpecs};
     }
     if (lne.startsWith(QLatin1String("Project ERROR: "))
             || lne.startsWith(QLatin1String("ERROR: "))) {
         const QString description = lne.mid(lne.indexOf(QLatin1Char(':')) + 2);
-        emit addTask(BuildSystemTask(Task::Error, description), 1);
+        scheduleTask(BuildSystemTask(Task::Error, description), 1);
         return Status::Done;
     }
     if (lne.startsWith(QLatin1String("Project WARNING: "))
             || lne.startsWith(QLatin1String("WARNING: "))) {
         const QString description = lne.mid(lne.indexOf(QLatin1Char(':')) + 2);
-        emit addTask(BuildSystemTask(Task::Warning, description), 1);
+        scheduleTask(BuildSystemTask(Task::Warning, description), 1);
         return Status::Done;
     }
     return Status::NotHandled;
@@ -174,7 +179,7 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
             << (Tasks()
                 << BuildSystemTask(Task::Unknown,
                         "Note: No relevant classes found. No output generated.",
-                        FilePath::fromUserInput("/home/qtwebkithelpviewer.h"), 0))
+                        FilePath::fromUserInput("/home/qtwebkithelpviewer.h"), -1))
             << QString();
 }
 

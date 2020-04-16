@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "abstractprocessstep.h"
-#include "ansifilterparser.h"
 #include "buildconfiguration.h"
 #include "buildstep.h"
 #include "ioutputparser.h"
@@ -37,8 +36,8 @@
 
 #include <coreplugin/reaper.h>
 
-#include <utils/fileinprojectfinder.h>
 #include <utils/fileutils.h>
+#include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -106,62 +105,23 @@ public:
 
     AbstractProcessStep *q;
     std::unique_ptr<Utils::QtcProcess> m_process;
-    IOutputParser m_outputParser;
     ProcessParameters m_param;
     bool m_ignoreReturnValue = false;
     bool m_lowPriority = false;
     std::unique_ptr<QTextDecoder> stdoutStream;
     std::unique_ptr<QTextDecoder> stderrStream;
+    OutputFormatter *outputFormatter = nullptr;
 };
 
 AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, Core::Id id) :
     BuildStep(bsl, id),
     d(new Private(this))
 {
-    connect(&d->m_outputParser, &IOutputParser::addTask, this,
-            [this](const Task &task, int linkedLines, int skipLines) {
-        // Do not bother to report issues if we do not care about the results of
-        // the buildstep anyway:
-        // TODO: Does that make sense? The user might still want to know that
-        //       something failed, even if it wasn't fatal...
-        if (!d->m_ignoreReturnValue)
-            emit addTask(task, linkedLines, skipLines);
-    });
 }
 
 AbstractProcessStep::~AbstractProcessStep()
 {
     delete d;
-}
-
-/*!
-     Deletes all existing output parsers and starts a new chain with the
-     given parser.
-*/
-void AbstractProcessStep::setOutputParser(OutputTaskParser *parser)
-{
-    d->m_outputParser.setLineParsers({parser});
-}
-
-/*!
-    Appends the given output parser to the existing chain of parsers.
-*/
-void AbstractProcessStep::appendOutputParser(OutputTaskParser *parser)
-{
-    if (!parser)
-        return;
-    d->m_outputParser.addLineParser(parser);
-}
-
-void AbstractProcessStep::appendOutputParsers(const QList<OutputTaskParser *> &parsers)
-{
-    for (OutputTaskParser * const p : parsers)
-        appendOutputParser(p);
-}
-
-IOutputParser *AbstractProcessStep::outputParser() const
-{
-    return &d->m_outputParser;
 }
 
 void AbstractProcessStep::emitFaultyConfigurationMessage()
@@ -194,12 +154,14 @@ void AbstractProcessStep::setIgnoreReturnValue(bool b)
 
 bool AbstractProcessStep::init()
 {
-    Utils::FileInProjectFinder fileFinder;
-    fileFinder.setProjectDirectory(project()->projectDirectory());
-    fileFinder.setProjectFiles(project()->files(Project::AllFiles));
-    d->m_outputParser.addFilter(&Internal::filterAnsiEscapeCodes);
-    d->m_outputParser.setFileFinder(fileFinder);
     return !d->m_process;
+}
+
+void AbstractProcessStep::setupOutputFormatter(OutputFormatter *formatter)
+{
+    formatter->setDemoteErrorsToWarnings(d->m_ignoreReturnValue);
+    d->outputFormatter = formatter;
+    BuildStep::setupOutputFormatter(formatter);
 }
 
 /*!
@@ -257,7 +219,6 @@ void AbstractProcessStep::doRun()
     if (!d->m_process->waitForStarted()) {
         processStartupFailed();
         d->m_process.reset();
-        d->m_outputParser.clear();
         finish(false);
         return;
     }
@@ -285,7 +246,6 @@ void AbstractProcessStep::cleanUp(QProcess *process)
     processFinished(process->exitCode(), process->exitStatus());
     const bool returnValue = processSucceeded(process->exitCode(), process->exitStatus()) || d->m_ignoreReturnValue;
 
-    d->m_outputParser.clear();
     d->m_process.reset();
 
     // Report result
@@ -315,9 +275,6 @@ void AbstractProcessStep::processStarted()
 
 void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus status)
 {
-    d->m_outputParser.flush();
-    d->m_outputParser.clear();
-
     QString command = QDir::toNativeSeparators(d->m_param.effectiveCommand().toString());
     if (status == QProcess::NormalExit && exitCode == 0) {
         emit addOutput(tr("The process \"%1\" exited normally.").arg(command),
@@ -351,7 +308,7 @@ void AbstractProcessStep::processStartupFailed()
 
 bool AbstractProcessStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
 {
-    if (outputParser()->hasFatalErrors())
+    if (d->outputFormatter->hasFatalErrors())
         return false;
 
     return exitCode == 0 && status == QProcess::NormalExit;
@@ -372,7 +329,6 @@ void AbstractProcessStep::processReadyReadStdOutput()
 
 void AbstractProcessStep::stdOutput(const QString &output)
 {
-    d->m_outputParser.handleStdout(output);
     emit addOutput(output, BuildStep::OutputFormat::Stdout, BuildStep::DontAppendNewline);
 }
 
@@ -391,7 +347,6 @@ void AbstractProcessStep::processReadyReadStdError()
 
 void AbstractProcessStep::stdError(const QString &output)
 {
-    d->m_outputParser.handleStderr(output);
     emit addOutput(output, BuildStep::OutputFormat::Stderr, BuildStep::DontAppendNewline);
 }
 

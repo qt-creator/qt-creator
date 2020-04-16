@@ -93,6 +93,24 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
 
     while (!strippedText.isEmpty()) {
         QTC_ASSERT(m_pendingText.isEmpty(), break);
+        if (m_waitingForTerminator) {
+            // We ignore all escape codes taking string arguments.
+            QString terminator = "\x1b\\";
+            int terminatorPos = strippedText.indexOf(terminator);
+            if (terminatorPos == -1 && !m_alternateTerminator.isEmpty()) {
+                terminator = m_alternateTerminator;
+                terminatorPos = strippedText.indexOf(terminator);
+            }
+            if (terminatorPos == -1) {
+                m_pendingText = strippedText;
+                break;
+            }
+            m_waitingForTerminator = false;
+            m_alternateTerminator.clear();
+            strippedText.remove(0, terminatorPos + terminator.length());
+            if (strippedText.isEmpty())
+                break;
+        }
         const int escapePos = strippedText.indexOf(escape.at(0));
         if (escapePos < 0) {
             outputData << FormattedText(strippedText, charFormat);
@@ -111,11 +129,28 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
                 break;
             }
             if (!strippedText.startsWith(escape)) {
-                // not a control sequence
-                m_pendingText.clear();
-                outputData << FormattedText(strippedText.left(1), charFormat);
-                strippedText.remove(0, 1);
-                continue;
+                switch (strippedText.at(1).toLatin1()) {
+                case '\\': // Unexpected terminator sequence.
+                    QTC_CHECK(false);
+                    Q_FALLTHROUGH();
+                case 'N': case 'O': // Ignore unsupported single-character sequences.
+                    strippedText.remove(0, 2);
+                    break;
+                case ']':
+                    m_alternateTerminator = QChar(7);
+                    Q_FALLTHROUGH();
+                case 'P':  case 'X': case '^': case '_':
+                    strippedText.remove(0, 2);
+                    m_waitingForTerminator = true;
+                    break;
+                default:
+                    // not a control sequence
+                    m_pendingText.clear();
+                    outputData << FormattedText(strippedText.left(1), charFormat);
+                    strippedText.remove(0, 1);
+                    continue;
+                }
+                break;
             }
             m_pendingText += strippedText.midRef(0, escape.length());
             strippedText.remove(0, escape.length());

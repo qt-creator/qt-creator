@@ -37,7 +37,7 @@ public:
     NimbleBuildStep(ProjectExplorer::BuildStepList *parentList, Core::Id id);
 
     bool init() override;
-
+    void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
     QString arguments() const;

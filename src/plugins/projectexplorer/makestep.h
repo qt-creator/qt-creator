@@ -54,6 +54,7 @@ public:
     void setAvailableBuildTargets(const QStringList &buildTargets);
 
     bool init() override;
+    void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool buildsTarget(const QString &target) const;
     void setBuildTarget(const QString &target, bool on);

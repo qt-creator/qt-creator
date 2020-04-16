@@ -31,7 +31,7 @@ QT_FORWARD_DECLARE_CLASS(QMenu)
 
 namespace VcsBase {
 
-class VcsOutputLineParser : public QObject, public Utils::OutputLineParser
+class VcsOutputLineParser : public Utils::OutputLineParser
 {
     Q_OBJECT
 public:

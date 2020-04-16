@@ -87,7 +87,7 @@ void SdccParser::amendDescription(const QString &desc)
     ++m_lines;
 }
 
-OutputTaskParser::Status SdccParser::handleLine(const QString &line, OutputFormat type)
+OutputLineParser::Result SdccParser::handleLine(const QString &line, OutputFormat type)
 {
     if (type == StdOutFormat)
         return Status::NotHandled;
@@ -108,7 +108,10 @@ OutputTaskParser::Status SdccParser::handleLine(const QString &line, OutputForma
         const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
         const QString descr = match.captured(MessageTextIndex);
         newTask(CompileTask(type, descr, absoluteFilePath(fileName), lineno));
-        return Status::InProgress;
+        LinkSpecs linkSpecs;
+        addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line, match,
+                                       FilePathIndex);
+        return {Status::InProgress, linkSpecs};
     }
 
     re.setPattern("^(.+\\.\\S+):(\\d+): (Error|error|syntax error): (.+)$");
@@ -122,7 +125,10 @@ OutputTaskParser::Status SdccParser::handleLine(const QString &line, OutputForma
         const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
         const QString descr = match.captured(MessageTextIndex);
         newTask(CompileTask(type, descr, absoluteFilePath(fileName), lineno));
-        return Status::InProgress;
+        LinkSpecs linkSpecs;
+        addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line, match,
+                                       FilePathIndex);
+        return {Status::InProgress, linkSpecs};
     }
 
     re.setPattern("^at (\\d+): (warning|error) \\d+: (.+)$");
@@ -161,7 +167,7 @@ void SdccParser::flush()
 
     Task t = m_lastTask;
     m_lastTask.clear();
-    emit addTask(t, m_lines, 1);
+    scheduleTask(t, m_lines, 1);
     m_lines = 0;
 }
 

@@ -347,14 +347,14 @@ QString WinRtPackageDeploymentStep::defaultWinDeployQtArguments() const
 
 void WinRtPackageDeploymentStep::raiseError(const QString &errorMessage)
 {
-    emit addTask(DeploymentTask(Task::Error, errorMessage), 1);
     emit addOutput(errorMessage, BuildStep::OutputFormat::ErrorMessage);
+    emit addTask(DeploymentTask(Task::Error, errorMessage), 1);
 }
 
 void WinRtPackageDeploymentStep::raiseWarning(const QString &warningMessage)
 {
-    emit addTask(DeploymentTask(Task::Warning, warningMessage), 1);
     emit addOutput(warningMessage, BuildStep::OutputFormat::NormalMessage);
+    emit addTask(DeploymentTask(Task::Warning, warningMessage), 1);
 }
 
 bool WinRtPackageDeploymentStep::parseIconsAndExecutableFromManifest(QString manifestFileName, QStringList *icons, QString *executable)

@@ -307,7 +307,7 @@ void SdccToolChain::addToEnvironment(Environment &env) const
     }
 }
 
-QList<OutputTaskParser *> SdccToolChain::createOutputParsers() const
+QList<Utils::OutputLineParser *> SdccToolChain::createOutputParsers() const
 {
     return {new SdccParser};
 }

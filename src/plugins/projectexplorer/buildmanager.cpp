@@ -46,6 +46,7 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/outputformatter.h>
 #include <utils/runextensions.h>
 #include <utils/stringutils.h>
 
@@ -680,6 +681,7 @@ void BuildManager::nextStep()
         }
 
         static const auto finishedHandler = [](bool success)  {
+            d->m_outputWindow->outputFormatter()->flush();
             d->m_lastStepSucceeded = success;
             disconnect(d->m_currentBuildStep, nullptr, instance(), nullptr);
             BuildManager::nextBuildQueue();
@@ -688,6 +690,8 @@ void BuildManager::nextStep()
                 Qt::QueuedConnection);
         connect(d->m_currentBuildStep, &BuildStep::progress,
                 instance(), &BuildManager::progressChanged);
+        d->m_outputWindow->outputFormatter()->reset();
+        d->m_currentBuildStep->setupOutputFormatter(d->m_outputWindow->outputFormatter());
         d->m_currentBuildStep->run();
     } else {
         d->m_running = false;

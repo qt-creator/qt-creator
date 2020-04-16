@@ -126,12 +126,6 @@ private:
         return true;
     }
 
-    void reset() override
-    {
-        m_inTraceBack = false;
-        m_tasks.clear();
-    }
-
     const QRegularExpression filePattern;
     QList<Task> m_tasks;
     bool m_inTraceBack;

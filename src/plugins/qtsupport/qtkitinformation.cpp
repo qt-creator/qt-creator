@@ -288,7 +288,7 @@ void QtKitAspect::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environ
         version->addToEnvironment(k, env);
 }
 
-QList<OutputTaskParser *> QtKitAspect::createOutputParsers(const Kit *k) const
+QList<Utils::OutputLineParser *> QtKitAspect::createOutputParsers(const Kit *k) const
 {
     if (qtVersion(k))
         return {new Internal::QtTestParser, new QtParser};

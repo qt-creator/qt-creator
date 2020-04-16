@@ -506,7 +506,7 @@ void KeilToolChain::addToEnvironment(Environment &env) const
     }
 }
 
-QList<OutputTaskParser *> KeilToolChain::createOutputParsers() const
+QList<OutputLineParser *> KeilToolChain::createOutputParsers() const
 {
     return {new KeilParser};
 }

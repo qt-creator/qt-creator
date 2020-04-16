@@ -80,9 +80,6 @@ bool IosDsymBuildStep::init()
     // That is mostly so that rebuild works on an already clean project
     setIgnoreReturnValue(m_clean);
 
-    appendOutputParsers(target()->kit()->createOutputParsers());
-    outputParser()->addSearchDir(pp->effectiveWorkingDirectory());
-
     return AbstractProcessStep::init();
 }
 
@@ -187,6 +184,13 @@ bool IosDsymBuildStep::isDefault() const
 void IosDsymBuildStep::doRun()
 {
     AbstractProcessStep::doRun();
+}
+
+void IosDsymBuildStep::setupOutputFormatter(OutputFormatter *formatter)
+{
+    formatter->setLineParsers(target()->kit()->createOutputParsers());
+    formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
+    AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
 BuildStepConfigWidget *IosDsymBuildStep::createConfigWidget()

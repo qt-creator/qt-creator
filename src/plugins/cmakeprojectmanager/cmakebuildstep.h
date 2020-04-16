@@ -83,6 +83,7 @@ private:
     void ctor(ProjectExplorer::BuildStepList *bsl);
 
     bool init() override;
+    void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     void doRun() override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 

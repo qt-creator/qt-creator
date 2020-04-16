@@ -37,6 +37,7 @@
 #include <memory>
 
 namespace ProjectExplorer { class ProjectNode; }
+namespace Utils { class OutputFormatter; }
 
 namespace CMakeProjectManager {
 
@@ -187,7 +188,7 @@ private:
     QList<FileGroup *> m_fileGroups;
 
     CMakeParser *m_cmakeParser = nullptr;
-    ProjectExplorer::IOutputParser m_parser;
+    Utils::OutputFormatter m_parser;
 
 #if defined(WITH_TESTS)
     friend class CMakeProjectPlugin;

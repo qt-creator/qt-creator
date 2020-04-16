@@ -54,7 +54,7 @@ LdParser::LdParser()
     QTC_CHECK(m_regExpGccNames.isValid());
 }
 
-OutputTaskParser::Status LdParser::handleLine(const QString &line, Utils::OutputFormat type)
+Utils::OutputLineParser::Result LdParser::handleLine(const QString &line, Utils::OutputFormat type)
 {
     if (type != Utils::StdErrFormat)
         return Status::NotHandled;
@@ -80,20 +80,24 @@ OutputTaskParser::Status LdParser::handleLine(const QString &line, Utils::Output
         m_incompleteTask.description.append('\n').append(lne);
         static const QRegularExpression locRegExp("    (?<symbol>\\S+) in (?<file>\\S+)");
         const QRegularExpressionMatch match = locRegExp.match(lne);
-        if (match.hasMatch())
-            m_incompleteTask.setFile(Utils::FilePath::fromString(match.captured("file")));
-        return Status::InProgress;
+        LinkSpecs linkSpecs;
+        if (match.hasMatch()) {
+            m_incompleteTask.setFile(absoluteFilePath(Utils::FilePath::fromString(
+                                                          match.captured("file"))));
+            addLinkSpecForAbsoluteFilePath(linkSpecs, m_incompleteTask.file, 0, match, "file");
+        }
+        return {Status::InProgress, linkSpecs};
     }
 
     if (lne.startsWith("collect2:") || lne.startsWith("collect2.exe:")) {
-        emit addTask(CompileTask(Task::Error, lne /* description */), 1);
+        scheduleTask(CompileTask(Task::Error, lne /* description */), 1);
         return Status::Done;
     }
 
     QRegularExpressionMatch match = m_ranlib.match(lne);
     if (match.hasMatch()) {
         QString description = match.captured(2);
-        emit addTask(CompileTask(Task::Warning, description), 1);
+        scheduleTask(CompileTask(Task::Warning, description), 1);
         return Status::Done;
     }
 
@@ -107,7 +111,7 @@ OutputTaskParser::Status LdParser::handleLine(const QString &line, Utils::Output
         } else if (description.startsWith(QLatin1String("fatal: ")))  {
             description = description.mid(7);
         }
-        emit addTask(CompileTask(type, description), 1);
+        scheduleTask(CompileTask(type, description), 1);
         return Status::Done;
     }
 
@@ -117,12 +121,15 @@ OutputTaskParser::Status LdParser::handleLine(const QString &line, Utils::Output
         int lineno = match.captured(7).toInt(&ok);
         if (!ok)
             lineno = -1;
-        Utils::FilePath filename = Utils::FilePath::fromUserInput(match.captured(1));
+        Utils::FilePath filename
+                = absoluteFilePath(Utils::FilePath::fromUserInput(match.captured(1)));
+        int capIndex = 1;
         const QString sourceFileName = match.captured(4);
         if (!sourceFileName.isEmpty()
             && !sourceFileName.startsWith(QLatin1String("(.text"))
             && !sourceFileName.startsWith(QLatin1String("(.data"))) {
-            filename = Utils::FilePath::fromUserInput(sourceFileName);
+            filename = absoluteFilePath(Utils::FilePath::fromUserInput(sourceFileName));
+            capIndex = 4;
         }
         QString description = match.captured(8).trimmed();
         Task::TaskType type = Task::Error;
@@ -137,8 +144,10 @@ OutputTaskParser::Status LdParser::handleLine(const QString &line, Utils::Output
             type = Task::Warning;
             description = description.mid(9);
         }
-        emit addTask(CompileTask(type, description, absoluteFilePath(filename), lineno), 1);
-        return Status::Done;
+        LinkSpecs linkSpecs;
+        addLinkSpecForAbsoluteFilePath(linkSpecs, filename, lineno, match, capIndex);
+        scheduleTask(CompileTask(type, description, filename, lineno), 1);
+        return {Status::Done, linkSpecs};
     }
 
     return Status::NotHandled;
@@ -150,5 +159,5 @@ void LdParser::flush()
         return;
     const Task t = m_incompleteTask;
     m_incompleteTask.clear();
-    emit addTask(t);
+    scheduleTask(t, 1);
 }

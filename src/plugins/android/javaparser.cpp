@@ -51,7 +51,8 @@ void JavaParser::setSourceDirectory(const Utils::FilePath &sourceDirectory)
     m_sourceDirectory = sourceDirectory;
 }
 
-OutputTaskParser::Status JavaParser::handleLine(const QString &line, Utils::OutputFormat type)
+Utils::OutputLineParser::Result JavaParser::handleLine(const QString &line,
+                                                       Utils::OutputFormat type)
 {
     Q_UNUSED(type);
     if (m_javaRegExp.indexIn(line) == -1)
@@ -78,6 +79,8 @@ OutputTaskParser::Status JavaParser::handleLine(const QString &line, Utils::Outp
                      m_javaRegExp.cap(4).trimmed(),
                      absoluteFilePath(file),
                      lineno);
-    emit addTask(task, 1);
-    return Status::Done;
+    LinkSpecs linkSpecs;
+    addLinkSpecForAbsoluteFilePath(linkSpecs, task.file, task.line, m_javaRegExp, 2);
+    scheduleTask(task, 1);
+    return {Status::Done, linkSpecs};
 }

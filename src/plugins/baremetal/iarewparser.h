@@ -48,11 +48,11 @@ private:
 
     bool parseErrorOrFatalErrorDetailsMessage1(const QString &lne);
     bool parseErrorOrFatalErrorDetailsMessage2(const QString &lne);
-    bool parseWarningOrErrorOrFatalErrorDetailsMessage1(const QString &lne);
+    Result parseWarningOrErrorOrFatalErrorDetailsMessage1(const QString &lne);
     bool parseErrorInCommandLineMessage(const QString &lne);
     bool parseErrorMessage1(const QString &lne);
 
-    Status handleLine(const QString &line, Utils::OutputFormat type) final;
+    Result handleLine(const QString &line, Utils::OutputFormat type) final;
     void flush() final;
 
     ProjectExplorer::Task m_lastTask;

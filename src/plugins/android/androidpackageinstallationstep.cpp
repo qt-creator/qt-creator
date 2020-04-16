@@ -60,6 +60,7 @@ public:
 
 private:
     bool init() final;
+    void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     void doRun() final;
 
     QStringList m_androidDirsToClean;
@@ -111,16 +112,20 @@ bool AndroidPackageInstallationStep::init()
     pp->setEnvironment(env);
     pp->setCommandLine(cmd);
 
-    setOutputParser(new GnuMakeParser());
-    appendOutputParsers(target()->kit()->createOutputParsers());
-    outputParser()->addSearchDir(pp->effectiveWorkingDirectory());
-
     m_androidDirsToClean.clear();
     // don't remove gradle's cache, it takes ages to rebuild it.
     m_androidDirsToClean << dirPath + "/assets";
     m_androidDirsToClean << dirPath + "/libs";
 
     return AbstractProcessStep::init();
+}
+
+void AndroidPackageInstallationStep::setupOutputFormatter(OutputFormatter *formatter)
+{
+    formatter->addLineParser(new GnuMakeParser);
+    formatter->addLineParsers(target()->kit()->createOutputParsers());
+    formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
+    AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
 void AndroidPackageInstallationStep::doRun()

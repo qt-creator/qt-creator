@@ -94,17 +94,6 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     const auto parser = new CMakeParser;
     parser->setSourceDirectory(srcDir);
     m_parser.addLineParser(parser);
-    QDir source = QDir(srcDir);
-    connect(&m_parser, &IOutputParser::addTask, this,
-            [source](const Task &task) {
-                if (task.file.isEmpty() || task.file.toFileInfo().isAbsolute()) {
-                    TaskHub::addTask(task);
-                } else {
-                    Task t = task;
-                    t.file = Utils::FilePath::fromString(source.absoluteFilePath(task.file.toString()));
-                    TaskHub::addTask(t);
-                }
-            });
 
     // Always use the sourceDir: If we are triggered because the build directory is getting deleted
     // then we are racing against CMakeCache.txt also getting deleted.
@@ -194,7 +183,7 @@ void CMakeProcess::processStandardError()
 
     static QString rest;
     rest = lineSplit(rest, m_process->readAllStandardError(), [this](const QString &s) {
-        m_parser.handleStderr(s);
+        m_parser.appendMessage(s, Utils::StdErrFormat);
         Core::MessageManager::write(s);
     });
 }

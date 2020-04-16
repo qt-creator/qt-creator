@@ -145,12 +145,12 @@ bool IarParser::parseErrorOrFatalErrorDetailsMessage2(const QString &lne)
     return true;
 }
 
-bool IarParser::parseWarningOrErrorOrFatalErrorDetailsMessage1(const QString &lne)
+OutputLineParser::Result IarParser::parseWarningOrErrorOrFatalErrorDetailsMessage1(const QString &lne)
 {
     const QRegularExpression re("^\"(.+)\",(\\d+)?\\s+(Warning|Error|Fatal error)\\[(.+)\\].+$");
     const QRegularExpressionMatch match = re.match(lne);
     if (!match.hasMatch())
-        return false;
+        return Status::NotHandled;
     enum CaptureIndex { FilePathIndex = 1, LineNumberIndex,
                         MessageTypeIndex, MessageCodeIndex };
     const Utils::FilePath fileName = Utils::FilePath::fromUserInput(
@@ -164,7 +164,10 @@ bool IarParser::parseWarningOrErrorOrFatalErrorDetailsMessage1(const QString &ln
     m_expectDescription = true;
     m_expectSnippet = false;
     m_expectFilePath = false;
-    return true;
+    LinkSpecs linkSpecs;
+    addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line, match,
+                                   FilePathIndex);
+    return {Status::InProgress, linkSpecs};
 }
 
 bool IarParser::parseErrorInCommandLineMessage(const QString &lne)
@@ -190,7 +193,7 @@ bool IarParser::parseErrorMessage1(const QString &lne)
     return true;
 }
 
-OutputTaskParser::Status IarParser::handleLine(const QString &line, OutputFormat type)
+OutputLineParser::Result IarParser::handleLine(const QString &line, OutputFormat type)
 {
     const QString lne = rightTrimmed(line);
     if (type == StdOutFormat) {
@@ -208,8 +211,9 @@ OutputTaskParser::Status IarParser::handleLine(const QString &line, OutputFormat
         return Status::InProgress;
     if (parseErrorOrFatalErrorDetailsMessage2(lne))
         return Status::InProgress;
-    if (parseWarningOrErrorOrFatalErrorDetailsMessage1(lne))
-        return Status::InProgress;
+    const Result res = parseWarningOrErrorOrFatalErrorDetailsMessage1(lne);
+    if (res.status != Status::NotHandled)
+        return res;
 
     if (m_expectFilePath) {
         if (lne.endsWith(']')) {
@@ -256,7 +260,7 @@ void IarParser::flush()
 
     Task t = m_lastTask;
     m_lastTask.clear();
-    emit addTask(t, m_lines, 1);
+    scheduleTask(t, m_lines, 1);
     m_lines = 0;
 }
 

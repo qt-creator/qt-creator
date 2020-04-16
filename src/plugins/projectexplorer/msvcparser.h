@@ -43,10 +43,10 @@ public:
     static Core::Id id();
 
 private:
-    Status handleLine(const QString &line, Utils::OutputFormat type) override;
+    Result handleLine(const QString &line, Utils::OutputFormat type) override;
     void flush() override;
 
-    bool processCompileLine(const QString &line);
+    Result processCompileLine(const QString &line);
 
     QRegularExpression m_compileRegExp;
     QRegularExpression m_additionalInfoRegExp;
@@ -63,7 +63,7 @@ public:
     ClangClParser();
 
 private:
-    Status handleLine(const QString &line, Utils::OutputFormat type) override;
+    Result handleLine(const QString &line, Utils::OutputFormat type) override;
     void flush() override;
 
     const QRegularExpression m_compileRegExp;

@@ -36,7 +36,7 @@ namespace ProjectExplorer {
 
 class TestTerminator;
 
-class PROJECTEXPLORER_EXPORT OutputParserTester : public IOutputParser
+class PROJECTEXPLORER_EXPORT OutputParserTester : public Utils::OutputFormatter
 {
     Q_OBJECT
 
@@ -47,6 +47,7 @@ public:
     };
 
     OutputParserTester();
+    ~OutputParserTester();
 
     // test functions:
     void testParsing(const QString &lines, Channel inputChannel,
@@ -81,7 +82,7 @@ public:
     TestTerminator(OutputParserTester *t);
 
 private:
-    Status handleLine(const QString &line, Utils::OutputFormat type) override;
+    Result handleLine(const QString &line, Utils::OutputFormat type) override;
 
     OutputParserTester *m_tester = nullptr;
 };

@@ -36,6 +36,8 @@
 #include <coreplugin/variablechooser.h>
 
 #include <utils/algorithm.h>
+#include <utils/fileinprojectfinder.h>
+#include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 
@@ -252,6 +254,14 @@ QString BuildStep::fallbackWorkingDirectory() const
     if (buildConfiguration())
         return {Constants::DEFAULT_WORKING_DIR};
     return {Constants::DEFAULT_WORKING_DIR_ALTERNATE};
+}
+
+void BuildStep::setupOutputFormatter(OutputFormatter *formatter)
+{
+    Utils::FileInProjectFinder fileFinder;
+    fileFinder.setProjectDirectory(project()->projectDirectory());
+    fileFinder.setProjectFiles(project()->files(Project::AllFiles));
+    formatter->setFileFinder(fileFinder);
 }
 
 void BuildStep::reportRunResult(QFutureInterface<bool> &fi, bool success)

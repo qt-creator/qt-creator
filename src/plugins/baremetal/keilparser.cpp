@@ -93,12 +93,12 @@ void KeilParser::amendDescription()
 
 // ARM compiler specific parsers.
 
-bool KeilParser::parseArmWarningOrErrorDetailsMessage(const QString &lne)
+OutputLineParser::Result KeilParser::parseArmWarningOrErrorDetailsMessage(const QString &lne)
 {
     const QRegularExpression re("^\"(.+)\", line (\\d+).*:\\s+(Warning|Error):(\\s+|.+)([#|L].+)$");
     const QRegularExpressionMatch match = re.match(lne);
     if (!match.hasMatch())
-        return false;
+        return Status::NotHandled;
     enum CaptureIndex { FilePathIndex = 1, LineNumberIndex,
                         MessageTypeIndex, MessageNoteIndex, DescriptionIndex };
     const Utils::FilePath fileName = Utils::FilePath::fromUserInput(
@@ -107,7 +107,10 @@ bool KeilParser::parseArmWarningOrErrorDetailsMessage(const QString &lne)
     const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
     const QString descr = match.captured(DescriptionIndex);
     newTask(CompileTask(type, descr, absoluteFilePath(fileName), lineno));
-    return true;
+    LinkSpecs linkSpecs;
+    addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line, match,
+                                   FilePathIndex);
+    return {Status::InProgress, linkSpecs};
 }
 
 bool KeilParser::parseArmErrorOrFatalErorrMessage(const QString &lne)
@@ -125,12 +128,12 @@ bool KeilParser::parseArmErrorOrFatalErorrMessage(const QString &lne)
 
 // MCS51 compiler specific parsers.
 
-bool KeilParser::parseMcs51WarningOrErrorDetailsMessage1(const QString &lne)
+OutputLineParser::Result KeilParser::parseMcs51WarningOrErrorDetailsMessage1(const QString &lne)
 {
     const QRegularExpression re("^\\*{3} (WARNING|ERROR) (\\w+) IN LINE (\\d+) OF (.+\\.\\S+): (.+)$");
     const QRegularExpressionMatch match = re.match(lne);
     if (!match.hasMatch())
-        return false;
+        return Status::NotHandled;
     enum CaptureIndex { MessageTypeIndex = 1, MessageCodeIndex, LineNumberIndex,
                         FilePathIndex, MessageTextIndex };
     const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
@@ -140,15 +143,18 @@ bool KeilParser::parseMcs51WarningOrErrorDetailsMessage1(const QString &lne)
     const QString descr = QString("%1: %2").arg(match.captured(MessageCodeIndex),
                                                 match.captured(MessageTextIndex));
     newTask(CompileTask(type, descr, absoluteFilePath(fileName), lineno));
-    return true;
+    LinkSpecs linkSpecs;
+    addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line, match,
+                                   FilePathIndex);
+    return {Status::InProgress, linkSpecs};
 }
 
-bool KeilParser::parseMcs51WarningOrErrorDetailsMessage2(const QString &lne)
+OutputLineParser::Result KeilParser::parseMcs51WarningOrErrorDetailsMessage2(const QString &lne)
 {
     const QRegularExpression re("^\\*{3} (WARNING|ERROR) (#\\w+) IN (\\d+) \\((.+), LINE \\d+\\): (.+)$");
     const QRegularExpressionMatch match = re.match(lne);
     if (!match.hasMatch())
-        return false;
+        return Status::NotHandled;
     enum CaptureIndex { MessageTypeIndex = 1, MessageCodeIndex, LineNumberIndex,
                         FilePathIndex, MessageTextIndex };
     const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
@@ -158,7 +164,10 @@ bool KeilParser::parseMcs51WarningOrErrorDetailsMessage2(const QString &lne)
     const QString descr = QString("%1: %2").arg(match.captured(MessageCodeIndex),
                                                 match.captured(MessageTextIndex));
     newTask(CompileTask(type, descr, absoluteFilePath(fileName), lineno));
-    return true;
+    LinkSpecs linkSpecs;
+    addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line, match,
+                                   FilePathIndex);
+    return {Status::InProgress, linkSpecs};
 }
 
 bool KeilParser::parseMcs51WarningOrFatalErrorMessage(const QString &lne)
@@ -206,15 +215,17 @@ static bool hasDetailsPointer(const QString &trimmedLine)
     return trimmedLine.contains('_');
 }
 
-OutputTaskParser::Status KeilParser::handleLine(const QString &line, OutputFormat type)
+OutputLineParser::Result KeilParser::handleLine(const QString &line, OutputFormat type)
 {
     QString lne = rightTrimmed(line);
     if (type == StdOutFormat) {
         // Check for MSC51 compiler specific patterns.
-        const bool parsed = parseMcs51WarningOrErrorDetailsMessage1(lne)
-                || parseMcs51WarningOrErrorDetailsMessage2(lne);
-        if (parsed)
-            return Status::InProgress;
+        Result res = parseMcs51WarningOrErrorDetailsMessage1(lne);
+        if (res.status != Status::NotHandled)
+            return res;
+        res = parseMcs51WarningOrErrorDetailsMessage2(lne);
+        if (res.status != Status::NotHandled)
+            return res;
         if (parseMcs51WarningOrFatalErrorMessage(lne))
             return Status::InProgress;
         if (parseMcs51FatalErrorMessage2(lne))
@@ -247,8 +258,9 @@ OutputTaskParser::Status KeilParser::handleLine(const QString &line, OutputForma
     }
 
     // Check for ARM compiler specific patterns.
-    if (parseArmWarningOrErrorDetailsMessage(lne))
-        return Status::InProgress;
+    const Result res = parseArmWarningOrErrorDetailsMessage(lne);
+    if (res.status != Status::NotHandled)
+        return res;
     if (parseArmErrorOrFatalErorrMessage(lne))
         return Status::InProgress;
 
@@ -270,7 +282,7 @@ void KeilParser::flush()
 
     Task t = m_lastTask;
     m_lastTask.clear();
-    emit addTask(t, m_lines, 1);
+    scheduleTask(t, m_lines, 1);
     m_lines = 0;
 }
 

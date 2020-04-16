@@ -45,7 +45,7 @@ namespace {
 
 class NimParser : public OutputTaskParser
 {
-    Status handleLine(const QString &lne, Utils::OutputFormat) override
+    Result handleLine(const QString &lne, Utils::OutputFormat) override
     {
         const QString line = lne.trimmed();
         static QRegularExpression regex("(.+.nim)\\((\\d+), (\\d+)\\) (.+)",
@@ -74,9 +74,12 @@ class NimParser : public OutputTaskParser
         else
             return Status::NotHandled;
 
-        emit addTask(CompileTask(type, message, absoluteFilePath(FilePath::fromUserInput(filename)),
-                                 lineNumber));
-        return Status::Done;
+        const CompileTask t(type, message, absoluteFilePath(FilePath::fromUserInput(filename)),
+                            lineNumber);
+        LinkSpecs linkSpecs;
+        addLinkSpecForAbsoluteFilePath(linkSpecs, t.file, t.line, match, 1);
+        scheduleTask(t, 1);
+        return {Status::Done, linkSpecs};
     }
 };
 
@@ -95,16 +98,20 @@ NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList, Core::Id id)
 
 bool NimbleBuildStep::init()
 {
-    auto parser = new NimParser();
-    parser->addSearchDir(project()->projectDirectory());
-    setOutputParser(parser);
-
     ProcessParameters* params = processParameters();
     params->setEnvironment(buildEnvironment());
     params->setMacroExpander(macroExpander());
     params->setWorkingDirectory(project()->projectDirectory());
     params->setCommandLine({QStandardPaths::findExecutable("nimble"), {"build", m_arguments}});
     return AbstractProcessStep::init();
+}
+
+void NimbleBuildStep::setupOutputFormatter(OutputFormatter *formatter)
+{
+    const auto parser = new NimParser();
+    parser->addSearchDir(project()->projectDirectory());
+    formatter->addLineParser(parser);
+    AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
 BuildStepConfigWidget *NimbleBuildStep::createConfigWidget()

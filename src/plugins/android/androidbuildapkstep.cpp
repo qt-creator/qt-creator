@@ -178,22 +178,6 @@ bool AndroidBuildApkStep::init()
         return false;
     }
 
-    auto parser = new JavaParser;
-    parser->setProjectFileList(Utils::transform(target()->project()->files(ProjectExplorer::Project::AllFiles),
-                                                &Utils::FilePath::toString));
-
-    const QString buildKey = target()->activeBuildKey();
-    const ProjectNode *node = target()->project()->findNodeForBuildKey(buildKey);
-
-    QString sourceDirName;
-    if (node)
-        sourceDirName = node->data(Constants::AndroidPackageSourceDir).toString();
-
-    QFileInfo sourceDirInfo(sourceDirName);
-    parser->setSourceDirectory(Utils::FilePath::fromString(sourceDirInfo.canonicalFilePath()));
-    parser->setBuildDirectory(buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY));
-    setOutputParser(parser);
-
     m_openPackageLocationForRun = m_openPackageLocation;
 
     if (m_buildAAB) {
@@ -218,6 +202,8 @@ bool AndroidBuildApkStep::init()
 
     QString outputDir = buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY).toString();
 
+    const QString buildKey = target()->activeBuildKey();
+    const ProjectNode *node = project()->findNodeForBuildKey(buildKey);
     if (node)
         m_inputFile = node->data(Constants::AndroidDeploySettingsFile).toString();
 
@@ -283,6 +269,23 @@ bool AndroidBuildApkStep::init()
     m_argumentsPasswordConcealed = pp2.prettyArguments();
 
     return true;
+}
+
+void AndroidBuildApkStep::setupOutputFormatter(OutputFormatter *formatter)
+{
+    const auto parser = new JavaParser;
+    parser->setProjectFileList(Utils::transform(project()->files(ProjectExplorer::Project::AllFiles),
+                                                &Utils::FilePath::toString));
+    const QString buildKey = target()->activeBuildKey();
+    const ProjectNode *node = project()->findNodeForBuildKey(buildKey);
+    QString sourceDirName;
+    if (node)
+        sourceDirName = node->data(Constants::AndroidPackageSourceDir).toString();
+    QFileInfo sourceDirInfo(sourceDirName);
+    parser->setSourceDirectory(Utils::FilePath::fromString(sourceDirInfo.canonicalFilePath()));
+    parser->setBuildDirectory(buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY));
+    formatter->addLineParser(parser);
+    AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
 void AndroidBuildApkStep::showInGraphicalShell()

@@ -120,7 +120,7 @@ void NimToolChain::setCompilerCommand(const FilePath &compilerCommand)
     parseVersion(compilerCommand, m_version);
 }
 
-QList<OutputTaskParser *> NimToolChain::createOutputParsers() const
+QList<Utils::OutputLineParser *> NimToolChain::createOutputParsers() const
 {
     return {};
 }

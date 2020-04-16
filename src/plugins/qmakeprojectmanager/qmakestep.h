@@ -121,6 +121,7 @@ public:
     QmakeBuildConfiguration *qmakeBuildConfiguration() const;
     QmakeBuildSystem *qmakeBuildSystem() const;
     bool init() override;
+    void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     void doRun() override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     void setForced(bool b);
@@ -192,6 +193,7 @@ private:
     bool m_runMakeQmake = false;
     bool m_scriptTemplate = false;
     QStringList m_selectedAbis;
+    Utils::OutputFormatter *m_outputFormatter = nullptr;
 };
 
 

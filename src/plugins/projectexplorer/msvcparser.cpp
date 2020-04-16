@@ -105,7 +105,7 @@ Core::Id MsvcParser::id()
     return Core::Id("ProjectExplorer.OutputParser.Msvc");
 }
 
-OutputTaskParser::Status MsvcParser::handleLine(const QString &line, OutputFormat type)
+OutputLineParser::Result MsvcParser::handleLine(const QString &line, OutputFormat type)
 {
     if (type == OutputFormat::StdOutFormat) {
         QRegularExpressionMatch match = m_additionalInfoRegExp.match(line);
@@ -137,8 +137,9 @@ OutputTaskParser::Status MsvcParser::handleLine(const QString &line, OutputForma
             return Status::InProgress;
         }
 
-        if (processCompileLine(line))
-            return Status::InProgress;
+        const Result res = processCompileLine(line);
+        if (res.status != Status::NotHandled)
+            return res;
         if (handleNmakeJomMessage(line, &m_lastTask)) {
             m_lines = 1;
             return Status::InProgress;
@@ -148,17 +149,20 @@ OutputTaskParser::Status MsvcParser::handleLine(const QString &line, OutputForma
                     + match.captured(4).trimmed();
             if (!match.captured(1).isEmpty())
                 description.chop(1); // Remove trailing quote
-            m_lastTask = CompileTask(Task::Unknown, description,
-                                     absoluteFilePath(FilePath::fromUserInput(match.captured(2))),
-                                     match.captured(3).toInt() /* linenumber */);
+            const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(2)));
+            const int lineNo = match.captured(3).toInt();
+            LinkSpecs linkSpecs;
+            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, match, 2);
+            m_lastTask = CompileTask(Task::Unknown, description, filePath, lineNo);
             m_lines = 1;
-            return Status::InProgress;
+            return {Status::InProgress, linkSpecs};
         }
         return Status::NotHandled;
     }
 
-    if (processCompileLine(line))
-        return Status::InProgress;
+    const Result res = processCompileLine(line);
+    if (res.status != Status::NotHandled)
+        return res;
     // Jom outputs errors to stderr
     if (handleNmakeJomMessage(line, &m_lastTask)) {
         m_lines = 1;
@@ -167,20 +171,23 @@ OutputTaskParser::Status MsvcParser::handleLine(const QString &line, OutputForma
     return Status::NotHandled;
 }
 
-bool MsvcParser::processCompileLine(const QString &line)
+MsvcParser::Result MsvcParser::processCompileLine(const QString &line)
 {
     flush();
 
     QRegularExpressionMatch match = m_compileRegExp.match(line);
     if (match.hasMatch()) {
         QPair<FilePath, int> position = parseFileName(match.captured(1));
+        const FilePath filePath = absoluteFilePath(position.first);
         m_lastTask = CompileTask(taskType(match.captured(2)),
                                  match.captured(3) + match.captured(4).trimmed(), // description
-                                 absoluteFilePath(position.first), position.second);
+                                 filePath, position.second);
         m_lines = 1;
-        return true;
+        LinkSpecs linkSpecs;
+        addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line, match, 1);
+        return {Status::InProgress, linkSpecs};
     }
-    return false;
+    return Status::NotHandled;
 }
 
 void MsvcParser::flush()
@@ -190,7 +197,7 @@ void MsvcParser::flush()
 
     Task t = m_lastTask;
     m_lastTask.clear();
-    emit addTask(t, m_lines, 1);
+    scheduleTask(t, m_lines, 1);
 }
 
 // --------------------------------------------------------------------------
@@ -220,7 +227,7 @@ static inline bool isClangCodeMarker(const QString &trimmedLine)
                          [] (QChar c) { return c != ' ' && c != '^' && c != '~'; });
 }
 
-OutputTaskParser::Status ClangClParser::handleLine(const QString &line, OutputFormat type)
+OutputLineParser::Result ClangClParser::handleLine(const QString &line, OutputFormat type)
 {
     if (type == StdOutFormat) {
         if (handleNmakeJomMessage(line, &m_lastTask)) {
@@ -257,7 +264,9 @@ OutputTaskParser::Status ClangClParser::handleLine(const QString &line, OutputFo
         m_lastTask = CompileTask(taskType(match.captured(2)), match.captured(3).trimmed(),
                                  absoluteFilePath(position.first), position.second);
         m_linkedLines = 1;
-        return Status::InProgress;
+        LinkSpecs linkSpecs;
+        addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line, match, 1);
+        return {Status::InProgress, linkSpecs};
     }
 
     if (!m_lastTask.isNull()) {
@@ -278,7 +287,7 @@ OutputTaskParser::Status ClangClParser::handleLine(const QString &line, OutputFo
 void ClangClParser::flush()
 {
     if (!m_lastTask.isNull()) {
-        emit addTask(m_lastTask, m_linkedLines, 1);
+        scheduleTask(m_lastTask, m_linkedLines, 1);
         m_lastTask.clear();
     }
 }

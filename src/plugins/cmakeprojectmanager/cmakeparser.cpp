@@ -54,10 +54,13 @@ CMakeParser::CMakeParser()
 
 void CMakeParser::setSourceDirectory(const QString &sourceDir)
 {
+    if (m_sourceDirectory)
+        emit searchDirExpired(FilePath::fromString(m_sourceDirectory.value().path()));
     m_sourceDirectory = QDir(sourceDir);
+    emit addSearchDir(FilePath::fromString(sourceDir));
 }
 
-OutputTaskParser::Status CMakeParser::handleLine(const QString &line, OutputFormat type)
+OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputFormat type)
 {
     if (type != StdErrFormat)
         return Status::NotHandled;
@@ -80,18 +83,23 @@ OutputTaskParser::Status CMakeParser::handleLine(const QString &line, OutputForm
             QString path = m_sourceDirectory ? m_sourceDirectory->absoluteFilePath(
                                QDir::fromNativeSeparators(m_commonError.cap(1)))
                                              : QDir::fromNativeSeparators(m_commonError.cap(1));
-
             m_lastTask = BuildSystemTask(Task::Error,
                                          QString(),
                                          absoluteFilePath(FilePath::fromUserInput(path)),
                                          m_commonError.cap(2).toInt());
             m_lines = 1;
-            return Status::InProgress;
+            LinkSpecs linkSpecs;
+            addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line,
+                                           m_commonError, 1);
+            return {Status::InProgress, linkSpecs};
         } else if (m_nextSubError.indexIn(trimmedLine) != -1) {
             m_lastTask = BuildSystemTask(Task::Error, QString(),
                                          absoluteFilePath(FilePath::fromUserInput(m_nextSubError.cap(1))));
+            LinkSpecs linkSpecs;
+            addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line,
+                                           m_nextSubError, 1);
             m_lines = 1;
-            return Status::InProgress;
+            return {Status::InProgress, linkSpecs};
         } else if (trimmedLine.startsWith(QLatin1String("  ")) && !m_lastTask.isNull()) {
             if (!m_lastTask.description.isEmpty())
                 m_lastTask.description.append(QLatin1Char(' '));
@@ -118,11 +126,15 @@ OutputTaskParser::Status CMakeParser::handleLine(const QString &line, OutputForm
         {
             QRegularExpressionMatch m = m_locationLine.match(trimmedLine);
             QTC_CHECK(m.hasMatch());
-            m_lastTask.file = Utils::FilePath::fromUserInput(trimmedLine.mid(0, m.capturedStart()));
+            m_lastTask.file = absoluteFilePath(FilePath::fromUserInput(
+                                                   trimmedLine.mid(0, m.capturedStart())));
             m_lastTask.line = m.captured(1).toInt();
             m_expectTripleLineErrorData = LINE_DESCRIPTION;
+            LinkSpecs linkSpecs;
+            addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line, 0,
+                                           m.capturedStart());
+            return {Status::InProgress, linkSpecs};
         }
-        return Status::InProgress;
     case LINE_DESCRIPTION:
         m_lastTask.description = trimmedLine;
         if (trimmedLine.endsWith(QLatin1Char('\"')))
@@ -149,7 +161,7 @@ void CMakeParser::flush()
         return;
     Task t = m_lastTask;
     m_lastTask.clear();
-    emit addTask(t, m_lines, 1);
+    scheduleTask(t, m_lines, 1);
     m_lines = 0;
 }
 

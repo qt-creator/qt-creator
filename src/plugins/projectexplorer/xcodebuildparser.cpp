@@ -52,7 +52,7 @@ XcodebuildParser::XcodebuildParser()
     QTC_CHECK(m_buildRe.isValid());
 }
 
-OutputTaskParser::Status XcodebuildParser::handleLine(const QString &line, OutputFormat type)
+OutputLineParser::Result XcodebuildParser::handleLine(const QString &line, OutputFormat type)
 {
     const QString lne = rightTrimmed(line);
     if (type == StdOutFormat) {
@@ -69,12 +69,16 @@ OutputTaskParser::Status XcodebuildParser::handleLine(const QString &line, Outpu
                 return Status::Done;
             }
             if (lne.endsWith(QLatin1String(signatureChangeEndsWithPattern))) {
+                const int filePathEndPos = lne.size()
+                        - QLatin1String(signatureChangeEndsWithPattern).size();
                 CompileTask task(Task::Warning,
                                  tr("Replacing signature"),
                                  absoluteFilePath(FilePath::fromString(
-                                     lne.left(lne.size() - QLatin1String(signatureChangeEndsWithPattern).size()))));
-                emit addTask(task, 1);
-                return Status::Done;
+                                     lne.left(filePathEndPos))));
+                LinkSpecs linkSpecs;
+                addLinkSpecForAbsoluteFilePath(linkSpecs, task.file, task.line, 0, filePathEndPos);
+                scheduleTask(task, 1);
+                return {Status::Done, linkSpecs};
             }
         }
         return Status::NotHandled;
@@ -83,7 +87,7 @@ OutputTaskParser::Status XcodebuildParser::handleLine(const QString &line, Outpu
         ++m_fatalErrorCount;
         m_xcodeBuildParserState = UnknownXcodebuildState;
         // unfortunately the m_lastTarget, m_lastProject might not be in sync
-        emit addTask(CompileTask(Task::Error, tr("Xcodebuild failed.")));
+        scheduleTask(CompileTask(Task::Error, tr("Xcodebuild failed.")), 1);
     }
     if (m_xcodeBuildParserState == OutsideXcodebuild)
         return Status::NotHandled;

@@ -47,7 +47,7 @@ namespace Nim {
 
 class NimParser : public ProjectExplorer::OutputTaskParser
 {
-    Status handleLine(const QString &lne, Utils::OutputFormat) override
+    Result handleLine(const QString &lne, Utils::OutputFormat) override
     {
         const QString line = lne.trimmed();
         static QRegularExpression regex("(.+.nim)\\((\\d+), (\\d+)\\) (.+)",
@@ -76,9 +76,12 @@ class NimParser : public ProjectExplorer::OutputTaskParser
         else
             return Status::NotHandled;
 
-        emit addTask(CompileTask(type, message, absoluteFilePath(FilePath::fromUserInput(filename)),
-                                 lineNumber));
-        return Status::Done;
+        const CompileTask t(type, message, absoluteFilePath(FilePath::fromUserInput(filename)),
+                            lineNumber);
+        LinkSpecs linkSpecs;
+        addLinkSpecForAbsoluteFilePath(linkSpecs, t.file, t.line, match, 1);
+        scheduleTask(t, 1);
+        return {Status::Done, linkSpecs};
     }
 };
 
@@ -100,12 +103,12 @@ NimCompilerBuildStep::NimCompilerBuildStep(BuildStepList *parentList, Core::Id i
     updateProcessParameters();
 }
 
-bool NimCompilerBuildStep::init()
+void NimCompilerBuildStep::setupOutputFormatter(OutputFormatter *formatter)
 {
-    setOutputParser(new NimParser());
-    appendOutputParsers(target()->kit()->createOutputParsers());
-    outputParser()->addSearchDir(processParameters()->effectiveWorkingDirectory());
-    return AbstractProcessStep::init();
+    formatter->addLineParser(new NimParser);
+    formatter->addLineParsers(target()->kit()->createOutputParsers());
+    formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
+    AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
 BuildStepConfigWidget *NimCompilerBuildStep::createConfigWidget()

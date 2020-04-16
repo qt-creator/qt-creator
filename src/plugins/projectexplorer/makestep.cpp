@@ -102,11 +102,15 @@ bool MakeStep::init()
     // That is mostly so that rebuild works on an already clean project
     setIgnoreReturnValue(isClean());
 
-    setOutputParser(new GnuMakeParser());
-    appendOutputParsers(target()->kit()->createOutputParsers());
-    outputParser()->addSearchDir(pp->effectiveWorkingDirectory());
-
     return AbstractProcessStep::init();
+}
+
+void MakeStep::setupOutputFormatter(OutputFormatter *formatter)
+{
+    formatter->addLineParser(new GnuMakeParser());
+    formatter->addLineParsers(target()->kit()->createOutputParsers());
+    formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
+    AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
 void MakeStep::setClean(bool clean)

@@ -23,23 +23,190 @@
 **
 ****************************************************************************/
 
-#include "ansiescapecodehandler.h"
 #include "outputformatter.h"
+
+#include "algorithm.h"
+#include "ansiescapecodehandler.h"
+#include "fileinprojectfinder.h"
 #include "qtcassert.h"
 #include "synchronousprocess.h"
 #include "theme/theme.h"
 
+#include <QDir>
+#include <QFileInfo>
 #include <QPair>
 #include <QPlainTextEdit>
+#include <QPointer>
+#include <QRegExp>
+#include <QRegularExpressionMatch>
 #include <QTextCursor>
 
 #include <numeric>
 
 namespace Utils {
 
-namespace Internal {
+class OutputLineParser::Private
+{
+public:
+    FilePaths searchDirs;
+    QPointer<const OutputLineParser> redirectionDetector;
+    bool skipFileExistsCheck = false;
+    bool demoteErrorsToWarnings = false;
+    FileInProjectFinder *fileFinder = nullptr;
+};
 
-class OutputFormatterPrivate
+OutputLineParser::OutputLineParser() : d(new Private) { }
+
+OutputLineParser::~OutputLineParser() { delete d; }
+
+Q_GLOBAL_STATIC_WITH_ARGS(QString, linkPrefix, {"olpfile://"})
+Q_GLOBAL_STATIC_WITH_ARGS(QString, linkSep, {"::"})
+
+QString OutputLineParser::createLinkTarget(const FilePath &filePath, int line = -1, int column = -1)
+{
+    return *linkPrefix() + filePath.toString() + *linkSep() + QString::number(line)
+            + *linkSep() + QString::number(column);
+}
+
+bool OutputLineParser::isLinkTarget(const QString &target)
+{
+    return target.startsWith(*linkPrefix());
+}
+
+void OutputLineParser::parseLinkTarget(const QString &target, FilePath &filePath, int &line,
+                                       int &column)
+{
+    const QStringList parts = target.mid(linkPrefix()->length()).split(*linkSep());
+    if (parts.isEmpty())
+        return;
+    filePath = FilePath::fromString(parts.first());
+    line = parts.length() > 1 ? parts.at(1).toInt() : 0;
+    column = parts.length() > 2 ? parts.at(2).toInt() : 0;
+}
+
+// The redirection mechanism is needed for broken build tools (e.g. xcodebuild) that get invoked
+// indirectly as part of the build process and redirect their child processes' stderr output
+// to stdout. A parser might be able to detect this condition and inform interested
+// other parsers that they need to interpret stdout data as stderr.
+void OutputLineParser::setRedirectionDetector(const OutputLineParser *detector)
+{
+    d->redirectionDetector = detector;
+}
+
+bool OutputLineParser::needsRedirection() const
+{
+    return d->redirectionDetector && (d->redirectionDetector->hasDetectedRedirection()
+                                      || d->redirectionDetector->needsRedirection());
+}
+
+void OutputLineParser::addSearchDir(const FilePath &dir)
+{
+    d->searchDirs << dir;
+}
+
+void OutputLineParser::dropSearchDir(const FilePath &dir)
+{
+    const int idx = d->searchDirs.lastIndexOf(dir);
+
+    // TODO: This apparently triggers. Find out why and either remove the assertion (if it's legit)
+    //       or fix the culprit.
+    QTC_ASSERT(idx != -1, return);
+
+    d->searchDirs.removeAt(idx);
+}
+
+const FilePaths OutputLineParser::searchDirectories() const
+{
+    return d->searchDirs;
+}
+
+void OutputLineParser::setFileFinder(FileInProjectFinder *finder)
+{
+    d->fileFinder = finder;
+}
+
+void OutputLineParser::setDemoteErrorsToWarnings(bool demote)
+{
+    d->demoteErrorsToWarnings = demote;
+}
+
+bool OutputLineParser::demoteErrorsToWarnings() const
+{
+    return d->demoteErrorsToWarnings;
+}
+
+FilePath OutputLineParser::absoluteFilePath(const FilePath &filePath)
+{
+    if (filePath.isEmpty() || filePath.toFileInfo().isAbsolute())
+        return filePath;
+    FilePaths candidates;
+    for (const FilePath &dir : searchDirectories()) {
+        const FilePath candidate = dir.pathAppended(filePath.toString());
+        if (candidate.exists() || d->skipFileExistsCheck)
+            candidates << candidate;
+    }
+    if (candidates.count() == 1)
+        return FilePath::fromString(QDir::cleanPath(candidates.first().toString()));
+
+    QString fp = filePath.toString();
+    while (fp.startsWith("../"))
+        fp.remove(0, 3);
+    bool found = false;
+    candidates = d->fileFinder->findFile(QUrl::fromLocalFile(fp), &found);
+    if (found && candidates.size() == 1)
+        return candidates.first();
+
+    return filePath;
+}
+
+void OutputLineParser::addLinkSpecForAbsoluteFilePath(OutputLineParser::LinkSpecs &linkSpecs,
+        const FilePath &filePath, int lineNo, int pos, int len)
+{
+    if (filePath.toFileInfo().isAbsolute())
+        linkSpecs.append({pos, len, createLinkTarget(filePath, lineNo)});
+}
+
+void OutputLineParser::addLinkSpecForAbsoluteFilePath(OutputLineParser::LinkSpecs &linkSpecs,
+        const FilePath &filePath, int lineNo, const QRegExp &regex, int capIndex)
+{
+    addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, regex.pos(capIndex),
+                                   regex.cap(capIndex).length());
+}
+
+void OutputLineParser::addLinkSpecForAbsoluteFilePath(OutputLineParser::LinkSpecs &linkSpecs,
+        const FilePath &filePath, int lineNo, const QRegularExpressionMatch &match,
+        int capIndex)
+{
+    addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, match.capturedStart(capIndex),
+                                   match.capturedLength(capIndex));
+}
+void OutputLineParser::addLinkSpecForAbsoluteFilePath(OutputLineParser::LinkSpecs &linkSpecs,
+        const FilePath &filePath, int lineNo, const QRegularExpressionMatch &match,
+                                                      const QString &capName)
+{
+    addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, match.capturedStart(capName),
+                                   match.capturedLength(capName));
+}
+
+QString OutputLineParser::rightTrimmed(const QString &in)
+{
+    int pos = in.length();
+    for (; pos > 0; --pos) {
+        if (!in.at(pos - 1).isSpace())
+            break;
+    }
+    return in.mid(0, pos);
+}
+
+#ifdef WITH_TESTS
+void OutputLineParser::skipFileExistsCheck()
+{
+    d->skipFileExistsCheck = true;
+}
+#endif
+
+
+class OutputFormatter::Private
 {
 public:
     QPlainTextEdit *plainTextEdit = nullptr;
@@ -50,20 +217,13 @@ public:
     optional<QTextCharFormat> formatOverride;
     QList<OutputLineParser *> lineParsers;
     OutputLineParser *nextParser = nullptr;
+    FileInProjectFinder fileFinder;
+    PostPrintAction postPrintAction;
     bool boldFontEnabled = true;
     bool prependCarriageReturn = false;
 };
 
-} // namespace Internal
-
-OutputLineParser::~OutputLineParser()
-{
-}
-
-OutputFormatter::OutputFormatter()
-    : d(new Internal::OutputFormatterPrivate)
-{
-}
+OutputFormatter::OutputFormatter() : d(new Private) { }
 
 OutputFormatter::~OutputFormatter()
 {
@@ -88,8 +248,44 @@ void OutputFormatter::setLineParsers(const QList<OutputLineParser *> &parsers)
 {
     flush();
     qDeleteAll(d->lineParsers);
-    d->lineParsers = parsers;
+    d->lineParsers.clear();
     d->nextParser = nullptr;
+    addLineParsers(parsers);
+}
+
+void OutputFormatter::addLineParsers(const QList<OutputLineParser *> &parsers)
+{
+    for (OutputLineParser * const p : qAsConst(parsers))
+        addLineParser(p);
+}
+
+void OutputFormatter::addLineParser(OutputLineParser *parser)
+{
+    setupLineParser(parser);
+    d->lineParsers << parser;
+}
+
+void OutputFormatter::setupLineParser(OutputLineParser *parser)
+{
+    parser->setFileFinder(&d->fileFinder);
+    connect(parser, &OutputLineParser::newSearchDir, this, &OutputFormatter::addSearchDir);
+    connect(parser, &OutputLineParser::searchDirExpired, this, &OutputFormatter::dropSearchDir);
+}
+
+void OutputFormatter::setFileFinder(const FileInProjectFinder &finder)
+{
+    d->fileFinder = finder;
+}
+
+void OutputFormatter::setDemoteErrorsToWarnings(bool demote)
+{
+    for (OutputLineParser * const p : qAsConst(d->lineParsers))
+        p->setDemoteErrorsToWarnings(demote);
+}
+
+void OutputFormatter::overridePostPrintAction(const PostPrintAction &postPrintAction)
+{
+    d->postPrintAction = postPrintAction;
 }
 
 void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
@@ -98,19 +294,33 @@ void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
     const QList<FormattedText> formattedText = parseAnsi(text, charFmt);
     const QString cleanLine = std::accumulate(formattedText.begin(), formattedText.end(), QString(),
             [](const FormattedText &t1, const FormattedText &t2) { return t1.text + t2.text; });
-    const OutputLineParser::Result res = handleMessage(cleanLine, format);
+    QList<OutputLineParser *> involvedParsers;
+    const OutputLineParser::Result res = handleMessage(cleanLine, format, involvedParsers);
     if (res.newContent) {
         append(res.newContent.value(), charFmt);
         return;
     }
     for (const FormattedText &output : linkifiedText(formattedText, res.linkSpecs))
         append(output.text, output.format);
+    for (OutputLineParser * const p : qAsConst(involvedParsers)) {
+        if (d->postPrintAction)
+            d->postPrintAction(p);
+        else
+            p->runPostPrintActions();
+    }
 }
 
-OutputLineParser::Result OutputFormatter::handleMessage(const QString &text, OutputFormat format)
+OutputLineParser::Result OutputFormatter::handleMessage(const QString &text, OutputFormat format,
+                                                        QList<OutputLineParser *> &involvedParsers)
 {
+    // We only invoke the line parsers for stdout and stderr
+    if (format != StdOutFormat && format != StdErrFormat)
+        return OutputLineParser::Status::NotHandled;
+    const OutputLineParser * const oldNextParser = d->nextParser;
     if (d->nextParser) {
-        const OutputLineParser::Result res = d->nextParser->handleLine(text, format);
+        involvedParsers << d->nextParser;
+        const OutputLineParser::Result res
+                = d->nextParser->handleLine(text, outputTypeForParser(d->nextParser, format));
         switch (res.status) {
         case OutputLineParser::Status::Done:
             d->nextParser = nullptr;
@@ -118,18 +328,22 @@ OutputLineParser::Result OutputFormatter::handleMessage(const QString &text, Out
         case OutputLineParser::Status::InProgress:
             return res;
         case OutputLineParser::Status::NotHandled:
-            QTC_CHECK(false); // TODO: This case will be legal after the merge
             d->nextParser = nullptr;
-            return res;
+            break;
         }
     }
     QTC_CHECK(!d->nextParser);
     for (OutputLineParser * const parser : qAsConst(d->lineParsers)) {
-        const OutputLineParser::Result res = parser->handleLine(text, format);
+        if (parser == oldNextParser) // We tried that one already.
+            continue;
+        const OutputLineParser::Result res
+                = parser->handleLine(text, outputTypeForParser(parser, format));
         switch (res.status) {
         case OutputLineParser::Status::Done:
+            involvedParsers << parser;
             return res;
         case OutputLineParser::Status::InProgress:
+            involvedParsers << parser;
             d->nextParser = parser;
             return res;
         case OutputLineParser::Status::NotHandled:
@@ -137,12 +351,6 @@ OutputLineParser::Result OutputFormatter::handleMessage(const QString &text, Out
         }
     }
     return OutputLineParser::Status::NotHandled;
-}
-
-void OutputFormatter::reset()
-{
-    for (OutputLineParser * const p : d->lineParsers)
-        p->reset();
 }
 
 QTextCharFormat OutputFormatter::charFormat(OutputFormat format) const
@@ -210,6 +418,8 @@ const QList<FormattedText> OutputFormatter::linkifiedText(
 
 void OutputFormatter::append(const QString &text, const QTextCharFormat &format)
 {
+    if (!plainTextEdit())
+        return;
     int startPos = 0;
     int crPos = -1;
     while ((crPos = text.indexOf('\r', startPos)) >= 0)  {
@@ -236,6 +446,11 @@ QTextCharFormat OutputFormatter::linkFormat(const QTextCharFormat &inputFormat, 
 void OutputFormatter::overrideTextCharFormat(const QTextCharFormat &fmt)
 {
     d->formatOverride = fmt;
+}
+
+QList<OutputLineParser *> OutputFormatter::lineParsers() const
+{
+    return d->lineParsers;
 }
 #endif // WITH_TESTS
 
@@ -274,6 +489,8 @@ void OutputFormatter::flushIncompleteLine()
 
 void OutputFormatter::dumpIncompleteLine(const QString &line, OutputFormat format)
 {
+    if (line.isEmpty())
+        return;
     append(line, charFormat(format));
     d->incompleteLine.first.append(line);
     d->incompleteLine.second = format;
@@ -281,6 +498,17 @@ void OutputFormatter::dumpIncompleteLine(const QString &line, OutputFormat forma
 
 void OutputFormatter::handleLink(const QString &href)
 {
+    // We can handle absolute file paths ourselves. Other types of references are forwarded
+    // to the line parsers.
+    if (OutputLineParser::isLinkTarget(href)) {
+        FilePath filePath;
+        int line;
+        int column;
+        OutputLineParser::parseLinkTarget(href, filePath, line, column);
+        QTC_ASSERT(!filePath.isEmpty(), return);
+        emit openInEditorRequested(filePath, line, column);
+        return;
+    }
     for (OutputLineParser * const f : qAsConst(d->lineParsers)) {
         if (f->handleLink(href))
             return;
@@ -289,10 +517,20 @@ void OutputFormatter::handleLink(const QString &href)
 
 void OutputFormatter::clear()
 {
+    if (plainTextEdit())
+        plainTextEdit()->clear();
+}
+
+void OutputFormatter::reset()
+{
     d->prependCarriageReturn = false;
     d->incompleteLine.first.clear();
-    plainTextEdit()->clear();
-    reset();
+    d->nextParser = nullptr;
+    qDeleteAll(d->lineParsers);
+    d->lineParsers.clear();
+    d->fileFinder = FileInProjectFinder();
+    d->formatOverride.reset();
+    d->escapeCodeHandler = AnsiEscapeCodeHandler();
 }
 
 void OutputFormatter::setBoldFontEnabled(bool enabled)
@@ -308,11 +546,44 @@ void OutputFormatter::flush()
     if (!d->incompleteLine.first.isEmpty())
         flushIncompleteLine();
     d->escapeCodeHandler.endFormatScope();
-    reset();
+    for (OutputLineParser * const p : qAsConst(d->lineParsers))
+        p->flush();
+    if (d->nextParser)
+        d->nextParser->runPostPrintActions();
+}
+
+bool OutputFormatter::hasFatalErrors() const
+{
+    return anyOf(d->lineParsers, [](const OutputLineParser *p) {
+        return p->hasFatalErrors();
+    });
+}
+
+void OutputFormatter::addSearchDir(const FilePath &dir)
+{
+    for (OutputLineParser * const p : qAsConst(d->lineParsers))
+        p->addSearchDir(dir);
+}
+
+void OutputFormatter::dropSearchDir(const FilePath &dir)
+{
+    for (OutputLineParser * const p : qAsConst(d->lineParsers))
+        p->dropSearchDir(dir);
+}
+
+OutputFormat OutputFormatter::outputTypeForParser(const OutputLineParser *parser,
+                                                  OutputFormat type) const
+{
+    if (type == StdOutFormat && parser->needsRedirection())
+        return StdErrFormat;
+    return type;
 }
 
 void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
 {
+    if (text.isEmpty())
+        return;
+
     // If we have an existing incomplete line and its format is different from this one,
     // then we consider the two messages unrelated. We re-insert the previous incomplete line,
     // possibly formatted now, and start from scratch with the new input.

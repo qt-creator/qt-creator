@@ -30,10 +30,11 @@
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/msvcparser.h>
 #include <projectexplorer/osparser.h>
+#include <projectexplorer/taskhub.h>
 #include <qmakeprojectmanager/qmakeparser.h>
 #include <qtsupport/qtparser.h>
 #include <utils/fileutils.h>
-
+#include <utils/outputformatter.h>
 
 #include <QIODevice>
 #include <QTextStream>
@@ -54,7 +55,7 @@ CompilerOutputProcessor::~CompilerOutputProcessor()
 
 void CompilerOutputProcessor::start()
 {
-    ProjectExplorer::IOutputParser parser;
+    Utils::OutputFormatter parser;
     parser.addLineParser(new ProjectExplorer::OsParser);
     parser.addLineParser(new QmakeProjectManager::QMakeParser);
     parser.addLineParser(new ProjectExplorer::GnuMakeParser);
@@ -71,10 +72,12 @@ void CompilerOutputProcessor::start()
         break;
     }
 
-    connect(&parser, &ProjectExplorer::IOutputParser::addTask,
+    connect(ProjectExplorer::TaskHub::instance(), &ProjectExplorer::TaskHub::taskAdded,
             this, &CompilerOutputProcessor::handleTask);
-    while (!m_source.atEnd())
-        parser.handleStderr(QString::fromLocal8Bit(m_source.readLine().trimmed()));
+    while (!m_source.atEnd()) {
+        parser.appendMessage(QString::fromLocal8Bit(m_source.readLine().trimmed()),
+                             Utils::StdErrFormat);
+    }
     QCoreApplication::quit();
 }
 

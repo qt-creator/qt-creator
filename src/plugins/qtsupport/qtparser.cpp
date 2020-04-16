@@ -28,8 +28,17 @@
 #include <projectexplorer/task.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-using namespace QtSupport;
+#include <QFileInfo>
+
+#ifdef WITH_TESTS
+#include "qtsupportplugin.h"
+#include <projectexplorer/outputparser_test.h>
+#include <QTest>
+#endif
+
 using namespace ProjectExplorer;
+
+namespace QtSupport {
 
 // opt. drive letter + filename: (2 brackets)
 #define FILE_PATTERN "^(([A-Za-z]:)?[^:]+\\.[^:]+)"
@@ -43,7 +52,7 @@ QtParser::QtParser() :
     m_translationRegExp.setMinimal(true);
 }
 
-OutputTaskParser::Status QtParser::handleLine(const QString &line, Utils::OutputFormat type)
+Utils::OutputLineParser::Result QtParser::handleLine(const QString &line, Utils::OutputFormat type)
 {
     if (type != Utils::StdErrFormat)
         return Status::NotHandled;
@@ -60,20 +69,25 @@ OutputTaskParser::Status QtParser::handleLine(const QString &line, Utils::Output
             type = Task::Warning;
         if (level.compare(QLatin1String("Note"), Qt::CaseInsensitive) == 0)
             type = Task::Unknown;
-        CompileTask task(type, m_mocRegExp.cap(5).trimmed() /* description */,
-                         absoluteFilePath(Utils::FilePath::fromUserInput(m_mocRegExp.cap(1))),
-                         lineno);
-        emit addTask(task, 1);
-        return Status::Done;
+        LinkSpecs linkSpecs;
+        const Utils::FilePath file
+                = absoluteFilePath(Utils::FilePath::fromUserInput(m_mocRegExp.cap(1)));
+        addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineno, m_mocRegExp, 1);
+        CompileTask task(type, m_mocRegExp.cap(5).trimmed() /* description */, file, lineno);
+        scheduleTask(task, 1);
+        return {Status::Done, linkSpecs};
     }
     if (m_translationRegExp.indexIn(lne) > -1) {
         Task::TaskType type = Task::Warning;
         if (m_translationRegExp.cap(1) == QLatin1String("Error"))
             type = Task::Error;
-        CompileTask task(type, m_translationRegExp.cap(2),
-                         absoluteFilePath(Utils::FilePath::fromUserInput(m_translationRegExp.cap(3))));
-        emit addTask(task, 1);
-        return Status::Done;
+        LinkSpecs linkSpecs;
+        const Utils::FilePath file
+                = absoluteFilePath(Utils::FilePath::fromUserInput(m_translationRegExp.cap(3)));
+        addLinkSpecForAbsoluteFilePath(linkSpecs, file, 0, m_translationRegExp, 3);
+        CompileTask task(type, m_translationRegExp.cap(2), file);
+        scheduleTask(task, 1);
+        return {Status::Done, linkSpecs};
     }
     return Status::NotHandled;
 }
@@ -81,14 +95,7 @@ OutputTaskParser::Status QtParser::handleLine(const QString &line, Utils::Output
 // Unit tests:
 
 #ifdef WITH_TESTS
-#   include <QTest>
-
-#   include "qtsupportplugin.h"
-#   include <projectexplorer/projectexplorerconstants.h>
-#   include <projectexplorer/outputparser_test.h>
-
-using namespace ProjectExplorer;
-using namespace QtSupport::Internal;
+namespace Internal {
 
 void QtSupportPlugin::testQtOutputParser_data()
 {
@@ -139,7 +146,7 @@ void QtSupportPlugin::testQtOutputParser_data()
             << QString() << QString()
             << (Tasks() << CompileTask(Task::Warning,
                                                        QLatin1String("No relevant classes found. No output generated."),
-                                                       Utils::FilePath::fromUserInput(QLatin1String("..\\untitled\\errorfile.h")), 0))
+                                                       Utils::FilePath::fromUserInput(QLatin1String("..\\untitled\\errorfile.h")), -1))
             << QString();
     QTest::newRow("moc warning 2")
             << QString::fromLatin1("c:\\code\\test.h(96): Warning: Property declaration ) has no READ accessor function. The property will be invalid.")
@@ -155,7 +162,7 @@ void QtSupportPlugin::testQtOutputParser_data()
             << QString() << QString()
             << (Tasks() << CompileTask(Task::Unknown,
                                                        QLatin1String("No relevant classes found. No output generated."),
-                                                       Utils::FilePath::fromUserInput(QLatin1String("/home/qtwebkithelpviewer.h")), 0))
+                                                       Utils::FilePath::fromUserInput(QLatin1String("/home/qtwebkithelpviewer.h")), -1))
             << QString();
     QTest::newRow("ninja with moc")
             << QString::fromLatin1("E:/sandbox/creator/loaden/src/libs/utils/iwelcomepage.h(54): Error: Undefined interface")
@@ -188,4 +195,8 @@ void QtSupportPlugin::testQtOutputParser()
 
     testbench.testParsing(input, inputChannel, tasks, childStdOutLines, childStdErrLines, outputLines);
 }
+
+} // namespace Internal
 #endif
+
+} // namespace QtSupport

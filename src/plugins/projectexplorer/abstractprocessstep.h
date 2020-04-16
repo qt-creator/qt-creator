@@ -31,8 +31,6 @@
 
 namespace Utils { class FilePath; }
 namespace ProjectExplorer {
-
-class IOutputParser;
 class OutputTaskParser;
 class ProcessParameters;
 
@@ -47,17 +45,13 @@ public:
     bool ignoreReturnValue();
     void setIgnoreReturnValue(bool b);
 
-    void setOutputParser(OutputTaskParser *parser);
-    void appendOutputParser(OutputTaskParser *parser);
-    void appendOutputParsers(const QList<OutputTaskParser *> &parsers);
-    IOutputParser *outputParser() const;
-
     void emitFaultyConfigurationMessage();
 
 protected:
     AbstractProcessStep(BuildStepList *bsl, Core::Id id);
     ~AbstractProcessStep() override;
     bool init() override;
+    void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     void doRun() override;
     void setLowPriority();
     virtual void finish(bool success);

@@ -46,16 +46,16 @@ private:
     void amendDescription();
 
     // ARM compiler specific parsers.
-    bool parseArmWarningOrErrorDetailsMessage(const QString &lne);
+    Result parseArmWarningOrErrorDetailsMessage(const QString &lne);
     bool parseArmErrorOrFatalErorrMessage(const QString &lne);
 
     // MCS51 compiler specific parsers.
-    bool parseMcs51WarningOrErrorDetailsMessage1(const QString &lne);
-    bool parseMcs51WarningOrErrorDetailsMessage2(const QString &lne);
+    Result parseMcs51WarningOrErrorDetailsMessage1(const QString &lne);
+    Result parseMcs51WarningOrErrorDetailsMessage2(const QString &lne);
     bool parseMcs51WarningOrFatalErrorMessage(const QString &lne);
     bool parseMcs51FatalErrorMessage2(const QString &lne);
 
-    Status handleLine(const QString &line, Utils::OutputFormat type) final;
+    Result handleLine(const QString &line, Utils::OutputFormat type) final;
     void flush() final;
 
     ProjectExplorer::Task m_lastTask;

@@ -34,12 +34,12 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/variablechooser.h>
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtversionmanager.h>
 #include <utils/macroexpander.h>
+#include <utils/outputformatter.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -155,7 +155,6 @@ QbsBuildStep::~QbsBuildStep()
     doCancel();
     if (m_session)
         m_session->disconnect(this);
-    delete m_parser;
 }
 
 bool QbsBuildStep::init()
@@ -168,16 +167,17 @@ bool QbsBuildStep::init()
     if (!bc)
         return false;
 
-    delete m_parser;
-    m_parser = new IOutputParser;
-    m_parser->setLineParsers(target()->kit()->createOutputParsers());
-    connect(m_parser, &ProjectExplorer::IOutputParser::addTask, this, &QbsBuildStep::addTask);
-
     m_changedFiles = bc->changedFiles();
     m_activeFileTags = bc->activeFileTags();
     m_products = bc->products();
 
     return true;
+}
+
+void QbsBuildStep::setupOutputFormatter(OutputFormatter *formatter)
+{
+    formatter->addLineParsers(target()->kit()->createOutputParsers());
+    BuildStep::setupOutputFormatter(formatter);
 }
 
 void QbsBuildStep::doRun()
@@ -371,35 +371,24 @@ void QbsBuildStep::handleProcessResult(
         const QStringList &stdErr,
         bool success)
 {
+    Q_UNUSED(workingDir);
     const bool hasOutput = !stdOut.isEmpty() || !stdErr.isEmpty();
     if (success && !hasOutput)
         return;
 
-    if (m_parser)
-        m_parser->addSearchDir(workingDir);
     emit addOutput(executable.toUserOutput() + ' '  + QtcProcess::joinArgs(arguments),
                    OutputFormat::Stdout);
-    for (const QString &line : stdErr) {
-        if (m_parser)
-            m_parser->handleStderr(line + '\n');
+    for (const QString &line : stdErr)
         emit addOutput(line, OutputFormat::Stderr);
-    }
-    for (const QString &line : stdOut) {
-        if (m_parser)
-            m_parser->handleStdout(line + '\n');
+    for (const QString &line : stdOut)
         emit addOutput(line, OutputFormat::Stdout);
-    }
-    if (m_parser) {
-        m_parser->flush();
-        m_parser->dropSearchDir(workingDir);
-    }
 }
 
 void QbsBuildStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type, const QString &message,
                                        const QString &file, int line)
 {
-    emit addTask(CompileTask(type, message, FilePath::fromString(file), line), 1);
     emit addOutput(message, OutputFormat::Stdout);
+    emit addTask(CompileTask(type, message, FilePath::fromString(file), line), 1);
 }
 
 QString QbsBuildStep::buildVariant() const

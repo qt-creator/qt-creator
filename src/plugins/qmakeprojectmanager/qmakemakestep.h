@@ -52,6 +52,7 @@ public:
 private:
     void finish(bool success) override;
     bool init() override;
+    void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     void doRun() override;
     QStringList displayArguments() const override;
 

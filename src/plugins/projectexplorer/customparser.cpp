@@ -129,45 +129,51 @@ Core::Id CustomParser::id()
     return Core::Id("ProjectExplorer.OutputParser.Custom");
 }
 
-OutputTaskParser::Status CustomParser::handleLine(const QString &line, OutputFormat type)
+OutputLineParser::Result CustomParser::handleLine(const QString &line, OutputFormat type)
 {
     const CustomParserExpression::CustomParserChannel channel = type == StdErrFormat
             ? CustomParserExpression::ParseStdErrChannel
             : CustomParserExpression::ParseStdOutChannel;
-    if (parseLine(line, channel))
-        return Status::Done;
-    return Status::NotHandled;
+    return parseLine(line, channel);
 }
 
-bool CustomParser::hasMatch(const QString &line, CustomParserExpression::CustomParserChannel channel,
-                            const CustomParserExpression &expression, Task::TaskType taskType)
+OutputLineParser::Result CustomParser::hasMatch(
+        const QString &line,
+        CustomParserExpression::CustomParserChannel channel,
+        const CustomParserExpression &expression,
+        Task::TaskType taskType
+        )
 {
     if (!(channel & expression.channel()))
-        return false;
+        return Status::NotHandled;
 
     if (expression.pattern().isEmpty())
-        return false;
+        return Status::NotHandled;
 
     const QRegularExpressionMatch match = expression.match(line);
     if (!match.hasMatch())
-        return false;
+        return Status::NotHandled;
 
     const FilePath fileName = absoluteFilePath(FilePath::fromString(
                                                    match.captured(expression.fileNameCap())));
     const int lineNumber = match.captured(expression.lineNumberCap()).toInt();
     const QString message = match.captured(expression.messageCap());
-
-    emit addTask(CompileTask(taskType, message, fileName, lineNumber), 1);
-    return true;
+    LinkSpecs linkSpecs;
+    addLinkSpecForAbsoluteFilePath(linkSpecs, fileName, lineNumber, match,
+                                   expression.fileNameCap());
+    scheduleTask(CompileTask(taskType, message, fileName, lineNumber), 1);
+    return Status::Done;
 }
 
-bool CustomParser::parseLine(const QString &rawLine, CustomParserExpression::CustomParserChannel channel)
+OutputLineParser::Result CustomParser::parseLine(
+        const QString &rawLine,
+        CustomParserExpression::CustomParserChannel channel
+        )
 {
     const QString line = rawLine.trimmed();
-
-    if (hasMatch(line, channel, m_error, Task::Error))
-        return true;
-
+    const Result res = hasMatch(line, channel, m_error, Task::Error);
+    if (res.status != Status::NotHandled)
+        return res;
     return hasMatch(line, channel, m_warning, Task::Warning);
 }
 

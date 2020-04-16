@@ -64,14 +64,6 @@ ServerModeReader::ServerModeReader()
 {
     m_cmakeParser = new CMakeParser;
     m_parser.addLineParser(m_cmakeParser);
-    connect(&m_parser, &IOutputParser::addTask, this, [this](const Task &t) {
-        Task editable(t);
-        if (!editable.file.isEmpty()) {
-            QDir srcDir(m_parameters.sourceDirectory.toString());
-            editable.file = FilePath::fromString(srcDir.absoluteFilePath(editable.file.toString()));
-        }
-        TaskHub::addTask(editable);
-    });
 }
 
 ServerModeReader::~ServerModeReader()
@@ -351,7 +343,7 @@ void ServerModeReader::createNewServer()
     connect(m_cmakeServer.get(), &ServerMode::cmakeMessage, [this](const QString &m) {
         const QStringList lines = m.split('\n');
         for (const QString &l : lines) {
-            m_parser.handleStderr(l);
+            m_parser.appendMessage(l, StdErrFormat);
             Core::MessageManager::write(l);
         }
     });

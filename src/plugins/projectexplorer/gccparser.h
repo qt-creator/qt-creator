@@ -42,7 +42,7 @@ public:
 
     static Core::Id id();
 
-    static QList<OutputTaskParser *> gccParserSuite();
+    static QList<OutputLineParser *> gccParserSuite();
 
 protected:
     void newTask(const Task &task);
@@ -51,7 +51,7 @@ protected:
     void amendDescription(const QString &desc, bool monospaced);
 
 private:
-    Status handleLine(const QString &line, Utils::OutputFormat type) override;
+    Result handleLine(const QString &line, Utils::OutputFormat type) override;
 
     QRegularExpression m_regExp;
     QRegularExpression m_regExpIncluded;

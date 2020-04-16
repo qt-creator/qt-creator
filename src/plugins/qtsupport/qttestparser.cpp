@@ -47,7 +47,7 @@ using namespace Utils;
 namespace QtSupport {
 namespace Internal {
 
-OutputTaskParser::Status QtTestParser::handleLine(const QString &line, OutputFormat type)
+OutputLineParser::Result QtTestParser::handleLine(const QString &line, OutputFormat type)
 {
     if (type != StdOutFormat)
         return Status::NotHandled;
@@ -69,11 +69,14 @@ OutputTaskParser::Status QtTestParser::handleLine(const QString &line, OutputFor
     QTC_CHECK(locationPattern.isValid());
     const QRegularExpressionMatch match = locationPattern.match(theLine);
     if (match.hasMatch()) {
+        LinkSpecs linkSpecs;
         m_currentTask.file = absoluteFilePath(FilePath::fromString(
                     QDir::fromNativeSeparators(match.captured("file"))));
         m_currentTask.line = match.captured("line").toInt();
+        addLinkSpecForAbsoluteFilePath(linkSpecs, m_currentTask.file, m_currentTask.line, match,
+                                       "file");
         emitCurrentTask();
-        return Status::Done;
+        return {Status::Done, linkSpecs};
     }
     m_currentTask.description.append('\n').append(theLine);
     return Status::InProgress;
@@ -82,7 +85,7 @@ OutputTaskParser::Status QtTestParser::handleLine(const QString &line, OutputFor
 void QtTestParser::emitCurrentTask()
 {
     if (!m_currentTask.isNull()) {
-        emit addTask(m_currentTask);
+        scheduleTask(m_currentTask, 1);
         m_currentTask.clear();
     }
 }

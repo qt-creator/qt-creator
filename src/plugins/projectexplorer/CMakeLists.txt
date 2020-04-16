@@ -8,7 +8,6 @@ add_qtc_plugin(ProjectExplorer
     addrunconfigdialog.cpp addrunconfigdialog.h
     allprojectsfilter.cpp allprojectsfilter.h
     allprojectsfind.cpp allprojectsfind.h
-    ansifilterparser.cpp ansifilterparser.h
     applicationlauncher.cpp applicationlauncher.h
     appoutputpane.cpp appoutputpane.h
     baseprojectwizarddialog.cpp baseprojectwizarddialog.h

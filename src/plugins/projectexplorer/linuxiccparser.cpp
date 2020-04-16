@@ -65,7 +65,7 @@ LinuxIccParser::LinuxIccParser() :
     QTC_CHECK(m_pchInfoLine.isValid());
 }
 
-OutputTaskParser::Status LinuxIccParser::handleLine(const QString &line, OutputFormat type)
+OutputLineParser::Result LinuxIccParser::handleLine(const QString &line, OutputFormat type)
 {
     if (type != Utils::StdErrFormat)
         return Status::NotHandled;
@@ -81,10 +81,11 @@ OutputTaskParser::Status LinuxIccParser::handleLine(const QString &line, OutputF
             type = Task::Error;
         else if (category == QLatin1String("warning"))
             type = Task::Warning;
-        m_temporary = CompileTask(type,
-                                  m_firstLine.cap(6).trimmed(),
-                                  absoluteFilePath(Utils::FilePath::fromUserInput(m_firstLine.cap(1))),
-                                  m_firstLine.cap(2).toInt());
+        const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(m_firstLine.cap(1)));
+        const int lineNo = m_firstLine.cap(2).toInt();
+        LinkSpecs linkSpecs;
+        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, m_firstLine, 1);
+        m_temporary = CompileTask(type, m_firstLine.cap(6).trimmed(), filePath, lineNo);
 
         m_lines = 1;
         m_expectFirstLine = false;
@@ -107,7 +108,7 @@ OutputTaskParser::Status LinuxIccParser::handleLine(const QString &line, OutputF
     }
     if (!m_expectFirstLine && line.trimmed().isEmpty()) { // last Line
         m_expectFirstLine = true;
-        emit addTask(m_temporary, m_lines);
+        scheduleTask(m_temporary, m_lines);
         m_temporary = Task();
         return Status::Done;
     }
@@ -129,7 +130,7 @@ Core::Id LinuxIccParser::id()
     return Core::Id("ProjectExplorer.OutputParser.Icc");
 }
 
-QList<OutputTaskParser *> LinuxIccParser::iccParserSuite()
+QList<OutputLineParser *> LinuxIccParser::iccParserSuite()
 {
     return {new LinuxIccParser, new Internal::LldParser, new LdParser};
 }
@@ -140,7 +141,7 @@ void LinuxIccParser::flush()
         return;
     Task t = m_temporary;
     m_temporary.clear();
-    emit addTask(t, m_lines, 1);
+    scheduleTask(t, m_lines, 1);
 }
 
 #ifdef WITH_TESTS
@@ -237,7 +238,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
             << (Tasks()
                 << CompileTask(Task::Unknown,
                                "Note: No relevant classes found. No output generated.",
-                               FilePath::fromUserInput("/home/qtwebkithelpviewer.h"), 0))
+                               FilePath::fromUserInput("/home/qtwebkithelpviewer.h"), -1))
             << QString();
 }
 

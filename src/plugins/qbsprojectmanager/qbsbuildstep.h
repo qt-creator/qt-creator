@@ -30,7 +30,6 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/task.h>
 
-namespace ProjectExplorer { class IOutputParser; }
 namespace Utils { class FancyLineEdit; }
 
 namespace QbsProjectManager {
@@ -81,6 +80,7 @@ signals:
 
 private:
     bool init() override;
+    void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     void doRun() override;
     void doCancel() override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
@@ -134,7 +134,6 @@ private:
     QString m_currentTask;
     int m_maxProgress;
     bool m_lastWasSuccess;
-    ProjectExplorer::IOutputParser *m_parser = nullptr;
     bool m_parsingProject = false;
     bool m_parsingAfterBuild = false;
 

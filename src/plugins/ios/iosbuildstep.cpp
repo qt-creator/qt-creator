@@ -82,6 +82,7 @@ public:
     Utils::FilePath buildCommand() const;
 
     bool init() final;
+    void setupOutputFormatter(Utils::OutputFormatter *formatter);
     void doRun() final;
     bool fromMap(const QVariantMap &map) final;
     QVariantMap toMap() const final;
@@ -222,11 +223,15 @@ bool IosBuildStep::init()
     // That is mostly so that rebuild works on an already clean project
     setIgnoreReturnValue(m_clean);
 
-    setOutputParser(new GnuMakeParser());
-    appendOutputParsers(target()->kit()->createOutputParsers());
-    outputParser()->addSearchDir(pp->effectiveWorkingDirectory());
-
     return AbstractProcessStep::init();
+}
+
+void IosBuildStep::setupOutputFormatter(OutputFormatter *formatter)
+{
+    formatter->addLineParser(new GnuMakeParser);
+    formatter->addLineParsers(target()->kit()->createOutputParsers());
+    formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
+    AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
 QVariantMap IosBuildStep::toMap() const

@@ -42,10 +42,10 @@ public:
     QtParser();
 
 private:
-    Status handleLine(const QString &line, Utils::OutputFormat type) override;
+    Result handleLine(const QString &line, Utils::OutputFormat type) override;
 
     QRegExp m_mocRegExp;
     QRegExp m_translationRegExp;
 };
 
-} // namespace ProjectExplorer
+} // namespace QtSupport

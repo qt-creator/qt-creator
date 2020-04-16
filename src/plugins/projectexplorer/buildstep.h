@@ -44,6 +44,7 @@ namespace Utils {
 class Environment;
 class FilePath;
 class MacroExpander;
+class OutputFormatter;
 } // Utils
 
 namespace ProjectExplorer {
@@ -91,6 +92,8 @@ public:
     Utils::MacroExpander *macroExpander() const;
     QString fallbackWorkingDirectory() const;
 
+    virtual void setupOutputFormatter(Utils::OutputFormatter *formatter);
+
     enum class OutputFormat {
         Stdout, Stderr, // These are for forwarded output from external tools
         NormalMessage, ErrorMessage // These are for messages from Creator itself
@@ -117,8 +120,8 @@ public:
 
 signals:
     /// Adds a \p task to the Issues pane.
-    /// Do note that for linking compile output with tasks, you should first emit the task
-    /// and then emit the output. \p linkedOutput lines will be linked. And the last \p skipLines will
+    /// Do note that for linking compile output with tasks, you should first emit the output
+    /// and then emit the task. \p linkedOutput lines will be linked. And the last \p skipLines will
     /// be skipped.
     void addTask(const ProjectExplorer::Task &task, int linkedOutputLines = 0, int skipLines = 0);
 

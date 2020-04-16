@@ -91,11 +91,11 @@ public:
     static Core::Id id();
 
 private:
-    Status handleLine(const QString &line, Utils::OutputFormat type) override;
+    Result handleLine(const QString &line, Utils::OutputFormat type) override;
 
-    bool hasMatch(const QString &line, CustomParserExpression::CustomParserChannel channel,
-                  const CustomParserExpression &expression, Task::TaskType taskType);
-    bool parseLine(const QString &rawLine, CustomParserExpression::CustomParserChannel channel);
+    Result hasMatch(const QString &line, CustomParserExpression::CustomParserChannel channel,
+                    const CustomParserExpression &expression, Task::TaskType taskType);
+    Result parseLine(const QString &rawLine, CustomParserExpression::CustomParserChannel channel);
 
     CustomParserExpression m_error;
     CustomParserExpression m_warning;

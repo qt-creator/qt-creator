@@ -164,25 +164,6 @@ bool QmakeMakeStep::init()
     pp->setCommandLine(makeCmd);
     pp->resolveAll();
 
-    setOutputParser(new ProjectExplorer::GnuMakeParser());
-    ToolChain *tc = ToolChainKitAspect::cxxToolChain(target()->kit());
-    OutputTaskParser *xcodeBuildParser = nullptr;
-    if (tc && tc->targetAbi().os() == Abi::DarwinOS) {
-        xcodeBuildParser = new XcodebuildParser;
-        appendOutputParser(xcodeBuildParser);
-    }
-    QList<OutputTaskParser *> additionalParsers = target()->kit()->createOutputParsers();
-
-    // make may cause qmake to be run, add last to make sure it has a low priority.
-    additionalParsers << new QMakeParser;
-
-    if (xcodeBuildParser) {
-        for (OutputTaskParser * const p : qAsConst(additionalParsers))
-            p->setRedirectionDetector(xcodeBuildParser);
-    }
-    appendOutputParsers(additionalParsers);
-    outputParser()->addSearchDir(pp->effectiveWorkingDirectory());
-
     auto rootNode = dynamic_cast<QmakeProFileNode *>(project()->rootProjectNode());
     QTC_ASSERT(rootNode, return false);
     m_scriptTarget = rootNode->projectType() == ProjectType::ScriptTemplate;
@@ -197,6 +178,30 @@ bool QmakeMakeStep::init()
     }
 
     return AbstractProcessStep::init();
+}
+
+void QmakeMakeStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
+{
+    formatter->addLineParser(new ProjectExplorer::GnuMakeParser());
+    ToolChain *tc = ToolChainKitAspect::cxxToolChain(target()->kit());
+    OutputTaskParser *xcodeBuildParser = nullptr;
+    if (tc && tc->targetAbi().os() == Abi::DarwinOS) {
+        xcodeBuildParser = new XcodebuildParser;
+        formatter->addLineParser(xcodeBuildParser);
+    }
+    QList<Utils::OutputLineParser *> additionalParsers = target()->kit()->createOutputParsers();
+
+    // make may cause qmake to be run, add last to make sure it has a low priority.
+    additionalParsers << new QMakeParser;
+
+    if (xcodeBuildParser) {
+        for (Utils::OutputLineParser * const p : qAsConst(additionalParsers))
+            p->setRedirectionDetector(xcodeBuildParser);
+    }
+    formatter->addLineParsers(additionalParsers);
+    formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
+
+    AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
 void QmakeMakeStep::doRun()

@@ -26,25 +26,32 @@
 #pragma once
 
 #include "utils_global.h"
+#include "fileutils.h"
 #include "optional.h"
 #include "outputformat.h"
 
 #include <QObject>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
+class QRegExp;
+class QRegularExpressionMatch;
 class QTextCharFormat;
 class QTextCursor;
 QT_END_NAMESPACE
 
 namespace Utils {
-
+class FileInProjectFinder;
 class FormattedText;
 
-class QTCREATOR_UTILS_EXPORT OutputLineParser
+class QTCREATOR_UTILS_EXPORT OutputLineParser : public QObject
 {
+    Q_OBJECT
 public:
-    virtual ~OutputLineParser();
+    OutputLineParser();
+    ~OutputLineParser() override;
 
     enum class Status { Done, InProgress, NotHandled };
     class LinkSpec {
@@ -65,20 +72,62 @@ public:
         optional<QString> newContent; // Hard content override. Only to be used in extreme cases.
     };
 
+    static bool isLinkTarget(const QString &target);
+    static void parseLinkTarget(const QString &target, FilePath &filePath, int &line, int &column);
+
+    void addSearchDir(const Utils::FilePath &dir);
+    void dropSearchDir(const Utils::FilePath &dir);
+    const FilePaths searchDirectories() const;
+
+    void setFileFinder(Utils::FileInProjectFinder *finder);
+
+    void setDemoteErrorsToWarnings(bool demote);
+    bool demoteErrorsToWarnings() const;
+
     // line contains at most one line feed character, and if it does occur, it's the last character.
     // Either way, the input is to be considered "complete" for parsing purposes.
     virtual Result handleLine(const QString &line, OutputFormat format) = 0;
 
     virtual bool handleLink(const QString &href) { Q_UNUSED(href); return false; }
-    virtual void reset() {}
+    virtual bool hasFatalErrors() const { return false; }
+    virtual void flush() {}
+    virtual void runPostPrintActions() {}
+
+    void setRedirectionDetector(const OutputLineParser *detector);
+    bool needsRedirection() const;
+    virtual bool hasDetectedRedirection() const { return false; }
+
+#ifdef WITH_TESTS
+    void skipFileExistsCheck();
+#endif
+
+protected:
+    static QString rightTrimmed(const QString &in);
+    Utils::FilePath absoluteFilePath(const Utils::FilePath &filePath);
+    static QString createLinkTarget(const FilePath &filePath, int line, int column);
+    void addLinkSpecForAbsoluteFilePath(LinkSpecs &linkSpecs, const FilePath &filePath,
+                                        int lineNo, int pos, int len);
+    void addLinkSpecForAbsoluteFilePath(LinkSpecs &linkSpecs, const FilePath &filePath,
+                                        int lineNo, const QRegExp &regex, int capIndex);
+    void addLinkSpecForAbsoluteFilePath(LinkSpecs &linkSpecs, const FilePath &filePath,
+                                        int lineNo, const QRegularExpressionMatch &match,
+                                        int capIndex);
+    void addLinkSpecForAbsoluteFilePath(LinkSpecs &linkSpecs, const FilePath &filePath,
+                                        int lineNo, const QRegularExpressionMatch &match,
+                                        const QString &capName);
+
+signals:
+    void newSearchDir(const Utils::FilePath &dir);
+    void searchDirExpired(const Utils::FilePath &dir);
+
+private:
+    class Private;
+    Private * const d;
 };
-
-
-
-namespace Internal { class OutputFormatterPrivate; }
 
 class QTCREATOR_UTILS_EXPORT OutputFormatter : public QObject
 {
+    Q_OBJECT
 public:
     OutputFormatter();
     ~OutputFormatter() override;
@@ -86,17 +135,33 @@ public:
     QPlainTextEdit *plainTextEdit() const;
     void setPlainTextEdit(QPlainTextEdit *plainText);
 
+    // Forwards to line parsers. Add those before.
+    void addSearchDir(const FilePath &dir);
+    void dropSearchDir(const FilePath &dir);
+
     void setLineParsers(const QList<OutputLineParser *> &parsers); // Takes ownership
+    void addLineParsers(const QList<OutputLineParser *> &parsers);
+    void addLineParser(OutputLineParser *parser);
+
+    void setFileFinder(const FileInProjectFinder &finder);
+    void setDemoteErrorsToWarnings(bool demote);
+
+    using PostPrintAction = std::function<void(OutputLineParser *)>;
+    void overridePostPrintAction(const PostPrintAction &postPrintAction);
 
     void appendMessage(const QString &text, OutputFormat format);
-    void flush();
+    void flush(); // Flushes in-flight data.
+    void clear(); // Clears the text edit, if there is one.
+    void reset(); // Wipes everything except the text edit.
 
     void handleLink(const QString &href);
-    void clear();
     void setBoldFontEnabled(bool enabled);
+
+    bool hasFatalErrors() const;
 
 #ifdef WITH_TESTS
     void overrideTextCharFormat(const QTextCharFormat &fmt);
+    QList<OutputLineParser *> lineParsers() const;
 #endif
 
 #ifndef WITH_TESTS
@@ -105,11 +170,14 @@ private:
     QTextCharFormat charFormat(OutputFormat format) const;
     static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QString &href);
 
+signals:
+    void openInEditorRequested(const FilePath &filePath, int line, int column);
+
 private:
     void doAppendMessage(const QString &text, OutputFormat format);
 
-    OutputLineParser::Result handleMessage(const QString &text, OutputFormat format);
-    void reset();
+    OutputLineParser::Result handleMessage(const QString &text, OutputFormat format,
+                                           QList<OutputLineParser *> &involvedParsers);
 
     void append(const QString &text, const QTextCharFormat &format);
     void initFormats();
@@ -119,8 +187,11 @@ private:
     QList<FormattedText> parseAnsi(const QString &text, const QTextCharFormat &format);
     const QList<Utils::FormattedText> linkifiedText(const QList<FormattedText> &text,
                                                     const OutputLineParser::LinkSpecs &linkSpecs);
+    OutputFormat outputTypeForParser(const OutputLineParser *parser, OutputFormat type) const;
+    void setupLineParser(OutputLineParser *parser);
 
-    Internal::OutputFormatterPrivate *d;
+    class Private;
+    Private * const d;
 };
 
 

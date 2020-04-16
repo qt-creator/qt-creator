@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #include "outputparser_test.h"
+#include "projectexplorer.h"
 #include "task.h"
+#include "taskhub.h"
 
 #if defined(WITH_TESTS)
 
@@ -41,9 +43,14 @@ static inline QByteArray msgFileComparisonFail(const Utils::FilePath &f1, const 
 // test functions:
 OutputParserTester::OutputParserTester()
 {
-    connect(this, &IOutputParser::addTask, this, [this](const Task &t) {
+    connect(TaskHub::instance(), &TaskHub::taskAdded, this, [this](const Task &t) {
         m_receivedTasks.append(t);
     });
+}
+
+OutputParserTester::~OutputParserTester()
+{
+    TaskHub::instance()->disconnect(this);
 }
 
 void OutputParserTester::testParsing(const QString &lines,
@@ -60,9 +67,9 @@ void OutputParserTester::testParsing(const QString &lines,
     reset();
 
     if (inputChannel == STDOUT)
-        handleStdout(lines + '\n');
+        appendMessage(lines + '\n', Utils::StdOutFormat);
     else
-        handleStderr(lines + '\n');
+        appendMessage(lines + '\n', Utils::StdErrFormat);
     flush();
 
     // delete the parser(s) to test
@@ -102,7 +109,7 @@ TestTerminator::TestTerminator(OutputParserTester *t) :
     m_tester(t)
 { }
 
-OutputTaskParser::Status TestTerminator::handleLine(const QString &line, Utils::OutputFormat type)
+Utils::OutputLineParser::Result TestTerminator::handleLine(const QString &line, Utils::OutputFormat type)
 {
     QTC_CHECK(line.endsWith('\n'));
     if (type == Utils::StdOutFormat)
@@ -110,6 +117,64 @@ OutputTaskParser::Status TestTerminator::handleLine(const QString &line, Utils::
     else
         m_tester->m_receivedStdErrChildLine.append(line);
     return Status::Done;
+}
+
+void ProjectExplorerPlugin::testAnsiFilterOutputParser_data()
+{
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<OutputParserTester::Channel>("inputChannel");
+    QTest::addColumn<QString>("childStdOutLines");
+    QTest::addColumn<QString>("childStdErrLines");
+    QTest::addColumn<QString>("outputLines");
+
+    QTest::newRow("pass-through stdout")
+            << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
+            << QString::fromLatin1("Sometext\n") << QString();
+    QTest::newRow("pass-through stderr")
+            << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
+            << QString() << QString::fromLatin1("Sometext\n");
+
+    QString input = QString::fromLatin1("te") + QChar(27) + QString::fromLatin1("Nst");
+    QTest::newRow("ANSI: ESC-N")
+            << input << OutputParserTester::STDOUT
+            << QString::fromLatin1("test\n") << QString();
+    input = QString::fromLatin1("te") + QChar(27) + QLatin1String("^ignored") + QChar(27) + QLatin1String("\\st");
+    QTest::newRow("ANSI: ESC-^ignoredESC-\\")
+            << input << OutputParserTester::STDOUT
+            << QString::fromLatin1("test\n") << QString();
+    input = QString::fromLatin1("te") + QChar(27) + QLatin1String("]0;ignored") + QChar(7) + QLatin1String("st");
+    QTest::newRow("ANSI: window title change")
+            << input << OutputParserTester::STDOUT
+            << QString::fromLatin1("test\n") << QString();
+    input = QString::fromLatin1("te") + QChar(27) + QLatin1String("[Ast");
+    QTest::newRow("ANSI: cursor up")
+            << input << OutputParserTester::STDOUT
+            << QString::fromLatin1("test\n") << QString();
+    input = QString::fromLatin1("te") + QChar(27) + QLatin1String("[2Ast");
+    QTest::newRow("ANSI: cursor up (with int parameter)")
+            << input << OutputParserTester::STDOUT
+            << QString::fromLatin1("test\n") << QString();
+    input = QString::fromLatin1("te") + QChar(27) + QLatin1String("[2;3Hst");
+    QTest::newRow("ANSI: position cursor")
+            << input << OutputParserTester::STDOUT
+            << QString::fromLatin1("test\n") << QString();
+    input = QString::fromLatin1("te") + QChar(27) + QLatin1String("[31;1mst");
+    QTest::newRow("ANSI: bold red")
+            << input << OutputParserTester::STDOUT
+            << QString::fromLatin1("test\n") << QString();
+}
+
+void ProjectExplorerPlugin::testAnsiFilterOutputParser()
+{
+    OutputParserTester testbench;
+    QFETCH(QString, input);
+    QFETCH(OutputParserTester::Channel, inputChannel);
+    QFETCH(QString, childStdOutLines);
+    QFETCH(QString, childStdErrLines);
+
+    testbench.testParsing(input, inputChannel,
+                          Tasks(), childStdOutLines, childStdErrLines,
+                          QString());
 }
 
 } // namespace ProjectExplorer

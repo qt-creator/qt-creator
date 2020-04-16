@@ -47,6 +47,8 @@
 #include <functional>
 #include <memory>
 
+namespace Utils { class OutputLineParser; }
+
 namespace ProjectExplorer {
 
 namespace Internal { class ToolChainPrivate; }
@@ -64,7 +66,6 @@ QString languageId(Language l);
 } // namespace Deprecated
 
 class Abi;
-class OutputTaskParser;
 class ToolChainConfigWidget;
 class ToolChainFactory;
 class Kit;
@@ -150,7 +151,7 @@ public:
     Core::Id language() const;
 
     virtual Utils::FilePath compilerCommand() const = 0;
-    virtual QList<OutputTaskParser *> createOutputParsers() const = 0;
+    virtual QList<Utils::OutputLineParser *> createOutputParsers() const = 0;
 
     virtual bool operator ==(const ToolChain &) const;
 

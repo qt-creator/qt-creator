@@ -11,7 +11,6 @@ HEADERS += projectexplorer.h \
     abi.h \
     abiwidget.h \
     addrunconfigdialog.h \
-    ansifilterparser.h \
     buildaspects.h \
     buildinfo.h \
     buildpropertiessettings.h \
@@ -172,7 +171,6 @@ SOURCES += projectexplorer.cpp \
     abi.cpp \
     abiwidget.cpp \
     addrunconfigdialog.cpp \
-    ansifilterparser.cpp \
     buildaspects.cpp \
     buildinfo.cpp \
     buildpropertiessettingspage.cpp \

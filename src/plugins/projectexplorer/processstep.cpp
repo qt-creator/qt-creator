@@ -35,6 +35,7 @@
 #include "target.h"
 
 #include <utils/fileutils.h>
+#include <utils/outputformatter.h>
 
 using namespace Utils;
 
@@ -53,6 +54,7 @@ public:
     ProcessStep(BuildStepList *bsl, Core::Id id);
 
     bool init() final;
+    void setupOutputFormatter(Utils::OutputFormatter *formatter);
     void setupProcessParameters(ProcessParameters *pp);
 
     BaseStringAspect *m_command;
@@ -100,8 +102,13 @@ ProcessStep::ProcessStep(BuildStepList *bsl, Core::Id id)
 bool ProcessStep::init()
 {
     setupProcessParameters(processParameters());
-    appendOutputParsers(target()->kit()->createOutputParsers());
     return AbstractProcessStep::init();
+}
+
+void ProcessStep::setupOutputFormatter(OutputFormatter *formatter)
+{
+    formatter->addLineParsers(target()->kit()->createOutputParsers());
+    AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
 void ProcessStep::setupProcessParameters(ProcessParameters *pp)

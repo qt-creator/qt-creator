@@ -89,7 +89,7 @@ public:
 
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
     Utils::FilePath compilerCommand() const override;
-    QList<OutputTaskParser *> createOutputParsers() const override;
+    QList<Utils::OutputLineParser *> createOutputParsers() const override;
 
     QString varsBatArg() const { return m_varsBatArg; }
     QString varsBat() const { return m_vcvarsBat; }
@@ -174,7 +174,7 @@ public:
     QStringList suggestedMkspecList() const override;
     void addToEnvironment(Utils::Environment &env) const override;
     Utils::FilePath compilerCommand() const override;
-    QList<OutputTaskParser *> createOutputParsers() const override;
+    QList<Utils::OutputLineParser *> createOutputParsers() const override;
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &data) override;
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;

@@ -26,6 +26,7 @@
 #include "outputwindow.h"
 
 #include "actionmanager/actionmanager.h"
+#include "editormanager/editormanager.h"
 #include "coreconstants.h"
 #include "coreplugin.h"
 #include "icore.h"
@@ -136,6 +137,11 @@ OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget 
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested, this, [this] {
         if (!d->settingsKey.isEmpty())
             Core::ICore::settings()->setValue(d->settingsKey, fontZoom());
+    });
+
+    connect(outputFormatter(), &OutputFormatter::openInEditorRequested, this,
+            [](const Utils::FilePath &fp, int line, int column) {
+        EditorManager::openEditorAt(fp.toString(), line, column);
     });
 
     undoAction->setEnabled(false);
@@ -528,12 +534,10 @@ private:
         return Status::NotHandled;
     }
 
-    void reset() override { m_handling = false; }
-
     bool m_handling = false;
 };
 
-// Handles all lines starting with "B". No continuation logic
+// Handles all lines starting with "B". No continuation logic.
 class TestFormatterB : public OutputLineParser
 {
 private:
@@ -571,18 +575,17 @@ void Internal::CorePlugin::testOutputFormatter()
             " A trick\n"
             " embedded carriage return\n"
             "handled by B\n";
-    OutputFormatter formatter;
-    QPlainTextEdit textEdit;
-    formatter.setPlainTextEdit(&textEdit);
-    formatter.setLineParsers({new TestFormatterB, new TestFormatterA});
 
     // Stress-test the implementation by providing the input in chunks, splitting at all possible
     // offsets.
     for (int i = 0; i < input.length(); ++i) {
-        formatter.appendMessage(input.left(i), NormalMessageFormat);
-        formatter.appendMessage(input.mid(i), NormalMessageFormat);
+        OutputFormatter formatter;
+        QPlainTextEdit textEdit;
+        formatter.setPlainTextEdit(&textEdit);
+        formatter.setLineParsers({new TestFormatterB, new TestFormatterA});
+        formatter.appendMessage(input.left(i), StdOutFormat);
+        formatter.appendMessage(input.mid(i), StdOutFormat);
         QCOMPARE(textEdit.toPlainText(), output);
-        formatter.clear();
     }
 }
 #endif // WITH_TESTS

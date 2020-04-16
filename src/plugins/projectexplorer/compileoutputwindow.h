@@ -37,6 +37,9 @@ QT_BEGIN_NAMESPACE
 class QToolButton;
 QT_END_NAMESPACE
 
+namespace Core { class OutputWindow; }
+namespace Utils { class OutputFormatter; }
+
 namespace ProjectExplorer {
 class Task;
 
@@ -70,7 +73,7 @@ public:
 
     void appendText(const QString &text, BuildStep::OutputFormat format);
 
-    void registerPositionOf(const Task &task, int linkedOutputLines, int skipLines);
+    void registerPositionOf(const Task &task, int linkedOutputLines, int skipLines, int offset = 0);
     bool knowsPositionOf(const Task &task);
     void showPositionOf(const Task &task);
 
@@ -79,6 +82,8 @@ public:
     const CompileOutputSettings &settings() const { return m_settings; }
     void setSettings(const CompileOutputSettings &settings);
 
+    Utils::OutputFormatter *outputFormatter() const;
+
 private:
     void updateFilter() override;
 
@@ -86,7 +91,7 @@ private:
     void storeSettings() const;
     void updateFromSettings();
 
-    CompileOutputTextEdit *m_outputWindow;
+    Core::OutputWindow *m_outputWindow;
     QHash<unsigned int, QPair<int, int>> m_taskPositions;
     ShowOutputTaskHandler *m_handler;
     QToolButton *m_cancelBuildButton;

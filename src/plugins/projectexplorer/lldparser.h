@@ -32,7 +32,7 @@ namespace Internal {
 
 class LldParser : public OutputTaskParser
 {
-    Status handleLine(const QString &line, Utils::OutputFormat type) override;
+    Result handleLine(const QString &line, Utils::OutputFormat type) override;
 };
 
 } // namespace Internal
