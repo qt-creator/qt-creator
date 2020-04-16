@@ -207,9 +207,17 @@ public:
     bool flowHitTest(const QPointF &point) const override;
 
 protected:
-    FormEditorFlowDecisionItem(const QmlItemNode &qmlItemNode, FormEditorScene* scene)
-        : FormEditorFlowItem(qmlItemNode, scene)
+    enum IconType {
+        DecisionIcon,
+        WildcardIcon
+    };
+
+    FormEditorFlowDecisionItem(const QmlItemNode &qmlItemNode,
+                               FormEditorScene* scene,
+                               IconType iconType = DecisionIcon)
+        : FormEditorFlowItem(qmlItemNode, scene), m_iconType(iconType)
     {}
+    IconType m_iconType;
 };
 
 class FormEditorFlowWildcardItem : FormEditorFlowDecisionItem
@@ -221,8 +229,9 @@ public:
 
 protected:
     FormEditorFlowWildcardItem(const QmlItemNode &qmlItemNode, FormEditorScene* scene)
-        : FormEditorFlowDecisionItem(qmlItemNode, scene)
-    {}
+        : FormEditorFlowDecisionItem(qmlItemNode, scene, WildcardIcon)
+    {
+    }
 };
 
 inline int FormEditorItem::type() const
