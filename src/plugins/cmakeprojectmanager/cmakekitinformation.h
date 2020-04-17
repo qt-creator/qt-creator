@@ -83,6 +83,7 @@ public:
     void upgrade(ProjectExplorer::Kit *k) final;
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const final;
     ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *k) const final;
+    void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const final;
 
 private:
     QVariant defaultValue(const ProjectExplorer::Kit *k) const;

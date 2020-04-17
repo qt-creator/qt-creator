@@ -787,6 +787,16 @@ KitAspectWidget *CMakeGeneratorKitAspect::createConfigWidget(Kit *k) const
     return new CMakeGeneratorKitAspectWidget(k, this);
 }
 
+void CMakeGeneratorKitAspect::addToEnvironment(const Kit *k, Utils::Environment &env) const
+{
+    GeneratorInfo info = generatorInfo(k);
+    if (info.generator == "NMake Makefiles JOM") {
+        if (env.searchInPath("jom.exe").exists())
+            return;
+        env.appendOrSetPath(QCoreApplication::applicationDirPath());
+    }
+}
+
 // --------------------------------------------------------------------
 // CMakeConfigurationKitAspect:
 // --------------------------------------------------------------------
