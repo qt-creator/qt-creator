@@ -73,6 +73,8 @@ public:
     QbsBuildSystem *qbsBuildSystem() const;
     QbsBuildStepData stepData() const;
 
+    void dropSession();
+
 signals:
     void qbsConfigurationChanged();
     void qbsBuildOptionsChanged();

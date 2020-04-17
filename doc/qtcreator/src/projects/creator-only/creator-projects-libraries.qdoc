@@ -101,25 +101,24 @@
 
     \section1 Example of Adding Internal Libraries
 
-    The following example describes how to add a statically linked internal
-    library to your project.
+    To add an internal library to your project:
 
     \list 1
 
-        \li Choose \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol Library > \uicontrol {C++ Library} to create the library.
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol Library > \uicontrol {C++ Library}.
 
-            The \uicontrol {Introduction and Product Location} dialog opens.
+        \li Select \uicontrol Choose to open the \uicontrol {Project Location}
+            dialog.
 
-            \image qtcreator-add-library-wizard-ex-1.png "Introduction and Product Location dialog"
-
-        \li In the \uicontrol Type field, select \uicontrol {Statically Linked Library}.
+            \image qtcreator-add-library-wizard-ex-1.png "Project Location dialog"
 
         \li In the \uicontrol Name field, give a name for the library. For example,
             \b mylib.
 
         \li Follow the instructions of the wizard until you get to the
-            \uicontrol {Project Management} dialog. In the \uicontrol {Add to project}
+            \uicontrol {Project Management} dialog. In the
+            \uicontrol {Add as a subproject to project}
             list, select a project. For example, \b myapp.
 
         \li In the \uicontrol Projects view, right-click the project name to open the
@@ -127,9 +126,10 @@
             \uicontrol {Add Library} > \uicontrol {Internal Library} >
             \uicontrol Next.
 
-        \li In the \uicontrol Library field, select \b mylib and click \uicontrol Next.
+        \li In the \uicontrol Library field, select \b mylib, and then select
+            \uicontrol Next.
 
-        \li Click \uicontrol Finish to add the following library declaration to the
+        \li Select \uicontrol Finish to add the following library declaration to the
             project file:
 
             \code
