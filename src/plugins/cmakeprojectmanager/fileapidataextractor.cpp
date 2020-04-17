@@ -312,11 +312,10 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
                                         const FilePath &sourceDirectory)
 {
     RawProjectParts rpps;
+    const QDir sourceDir(sourceDirectory.toString());
 
     int counter = 0;
     for (const TargetDetails &t : input.targetDetails) {
-        QDir sourceDir(sourceDirectory.toString());
-
         bool needPostfix = t.compileGroups.size() > 1;
         int count = 1;
         for (const CompileInfo &ci : t.compileGroups) {
@@ -359,14 +358,15 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
             cxxProjectFlags.commandLineFlags = cProjectFlags.commandLineFlags;
             rpp.setFlagsForCxx(cxxProjectFlags);
 
-            FilePath precompiled_header
-                = FilePath::fromString(findOrDefault(t.sources, [&ending](const SourceInfo &si) {
-                                           return si.path.endsWith(ending);
-                                       }).path);
+            FilePath precompiled_header = FilePath::fromString(
+                findOrDefault(t.sources, [&ending](const SourceInfo &si) {
+                    return si.path.endsWith(ending);
+                }).path);
 
             rpp.setFiles(transform<QList>(ci.sources, [&t, &sourceDir](const int si) {
                 return sourceDir.absoluteFilePath(t.sources[static_cast<size_t>(si)].path);
             }));
+
             if (!precompiled_header.isEmpty()) {
                 if (precompiled_header.toFileInfo().isRelative()) {
                     const FilePath parentDir = FilePath::fromString(sourceDir.absolutePath());
@@ -380,6 +380,22 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
                                                 : ProjectExplorer::BuildTargetType::Library);
             rpps.append(rpp);
             ++count;
+        }
+
+        // Check sources for more files and associate them with the current target
+        const QStringList extraSources = Utils::transform<QList>(
+            Utils::filtered(t.sources, [](const SourceInfo &si) { return si.compileGroup == -1; }),
+            [&sourceDir](const SourceInfo &si) { return sourceDir.absoluteFilePath(si.path); });
+        if (!extraSources.isEmpty()) {
+            RawProjectPart rpp;
+            rpp.setProjectFileLocation(t.sourceDir.pathAppended("CMakeLists.txt").toString());
+            rpp.setBuildSystemTarget(t.name);
+            rpp.setDisplayName(t.id + "_extra");
+
+            rpp.setFiles(extraSources);
+
+            // This is all the information we have :-/
+            rpps.append(rpp);
         }
     }
 

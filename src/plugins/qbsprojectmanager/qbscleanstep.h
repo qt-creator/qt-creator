@@ -46,6 +46,8 @@ public:
 
     QbsBuildStepData stepData() const;
 
+    void dropSession();
+
 private:
     bool init() override;
     void doRun() override;

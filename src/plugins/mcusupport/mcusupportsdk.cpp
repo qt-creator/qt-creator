@@ -60,6 +60,11 @@ McuPackage *createQtForMCUsPackage()
     return result;
 }
 
+static McuToolChainPackage *createDesktopToolChainPackage()
+{
+    return new McuToolChainPackage({}, {}, {}, {}, McuToolChainPackage::TypeDesktop);
+}
+
 static McuToolChainPackage *createArmGccPackage()
 {
     const char envVar[] = "ARMGCC_DIR";
@@ -89,6 +94,50 @@ static McuToolChainPackage *createArmGccPackage()
                 McuToolChainPackage::TypeArmGcc);
     result->setDownloadUrl(
                 "https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads");
+    result->setEnvironmentVariableName(envVar);
+    return result;
+}
+
+static McuToolChainPackage *createGhsToolchainPackage()
+{
+    const char envVar[] = "GHS_COMPILER_DIR";
+
+    const QString defaultPath =
+            qEnvironmentVariableIsSet(envVar) ? qEnvironmentVariable(envVar) : QDir::homePath();
+
+    auto result = new McuToolChainPackage(
+                "Green Hills Compiler",
+                defaultPath,
+                Utils::HostOsInfo::withExecutableSuffix("ccv850"),
+                "GHSToolchain",
+                McuToolChainPackage::TypeGHS);
+    result->setEnvironmentVariableName(envVar);
+    return result;
+}
+
+static McuPackage *createRGLPackage()
+{
+    const char envVar[] = "RGL_DIR";
+
+    QString defaultPath;
+    if (qEnvironmentVariableIsSet(envVar)) {
+        defaultPath = qEnvironmentVariable(envVar);
+    } else if (Utils::HostOsInfo::isWindowsHost()) {
+        defaultPath = QDir::rootPath() + "Renesas_Electronics/D1x_RGL";
+        if (QFileInfo::exists(defaultPath)) {
+            const QFileInfoList subDirs =
+                    QDir(defaultPath).entryInfoList({QLatin1String("rgl_ghs_D1Mx_*")},
+                                                    QDir::Dirs | QDir::NoDotAndDotDot);
+            if (subDirs.count() == 1)
+                defaultPath = subDirs.first().filePath() + '/';
+        }
+    }
+
+    auto result = new McuPackage(
+                "Renesas Graphics Library",
+                defaultPath,
+                {},
+                "RGL");
     result->setEnvironmentVariableName(envVar);
     return result;
 }
@@ -140,21 +189,34 @@ static McuPackage *createEvkbImxrt1050SdkPackage()
     return result;
 }
 
-static McuPackage *createSeggerJLinkPackage()
+static McuPackage *createMcuXpressoIdePackage()
 {
-    QString defaultPath = QString("%{Env:SEGGER_JLINK_SOFTWARE_AND_DOCUMENTATION_PATH}");
-    if (Utils::HostOsInfo::isWindowsHost()) {
-        const QString programPath = findInProgramFiles("/SEGGER/JLink");
-        if (!programPath.isEmpty())
-            defaultPath = programPath;
+    const char envVar[] = "MCUXpressoIDE_PATH";
+
+    QString defaultPath;
+    if (qEnvironmentVariableIsSet(envVar)) {
+        defaultPath = qEnvironmentVariable(envVar);
+    } else if (Utils::HostOsInfo::isWindowsHost()) {
+        defaultPath = QDir::rootPath() + "nxp";
+        if (QFileInfo::exists(defaultPath)) {
+            // If default dir has exactly one sub dir that could be the IDE path, pre-select that.
+            const QFileInfoList subDirs =
+                    QDir(defaultPath).entryInfoList({QLatin1String("MCUXpressoIDE*")},
+                                                    QDir::Dirs | QDir::NoDotAndDotDot);
+            if (subDirs.count() == 1)
+                defaultPath = subDirs.first().filePath() + '/';
+        }
+    } else {
+        defaultPath = "/usr/local/mcuxpressoide/";
     }
+
     auto result = new McuPackage(
-                McuPackage::tr("SEGGER JLink"),
+                "MCUXpresso IDE",
                 defaultPath,
-                Utils::HostOsInfo::withExecutableSuffix("JLink"),
-                "SeggerJLink");
-    result->setDownloadUrl("https://www.segger.com/downloads/jlink");
-    result->setEnvironmentVariableName("SEGGER_JLINK_SOFTWARE_AND_DOCUMENTATION_PATH");
+                Utils::HostOsInfo::withExecutableSuffix("ide/binaries/crt_emu_cm_redlink"),
+                "MCUXpressoIDE");
+    result->setDownloadUrl("https://www.nxp.com/mcuxpresso/ide");
+    result->setEnvironmentVariableName(envVar);
     return result;
 }
 
@@ -162,21 +224,25 @@ void hardcodedTargetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage 
                                  QVector<McuTarget *> *mcuTargets)
 {
     McuToolChainPackage* armGccPackage = Sdk::createArmGccPackage();
+    McuToolChainPackage *ghsToolchainPackage = createGhsToolchainPackage();
+    McuToolChainPackage* desktopToolChainPackage = createDesktopToolChainPackage();
     McuPackage* stm32CubeFwF7SdkPackage = Sdk::createStm32CubeFwF7SdkPackage();
     McuPackage* stm32CubeProgrammerPackage = Sdk::createStm32CubeProgrammerPackage();
     McuPackage* evkbImxrt1050SdkPackage = Sdk::createEvkbImxrt1050SdkPackage();
-    McuPackage* seggerJLinkPackage = Sdk::createSeggerJLinkPackage();
+    McuPackage *mcuXpressoIdePackage = createMcuXpressoIdePackage();
+    McuPackage *rglPackage = createRGLPackage();
 
     QVector<McuPackage*> stmEvalPackages = {
         armGccPackage, stm32CubeProgrammerPackage};
     QVector<McuPackage*> nxpEvalPackages = {
-        armGccPackage, seggerJLinkPackage};
+        armGccPackage, mcuXpressoIdePackage};
     QVector<McuPackage*> renesasEvalPackages = {
-        armGccPackage, seggerJLinkPackage};
+        ghsToolchainPackage, rglPackage};
     QVector<McuPackage*> desktopPackages = {};
     *packages = {
-        armGccPackage, stm32CubeFwF7SdkPackage, stm32CubeProgrammerPackage, evkbImxrt1050SdkPackage,
-        seggerJLinkPackage};
+        armGccPackage, desktopToolChainPackage, ghsToolchainPackage,
+        stm32CubeFwF7SdkPackage, stm32CubeProgrammerPackage, evkbImxrt1050SdkPackage,
+        mcuXpressoIdePackage, rglPackage};
 
     const QString vendorStm = "STM";
     const QString vendorNxp = "NXP";
@@ -192,8 +258,8 @@ void hardcodedTargetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage 
     } targets[] = {
         {vendorNxp, {"MIMXRT1050-EVK"}, nxpEvalPackages, armGccPackage, {16}},
         {vendorNxp, {"MIMXRT1064-EVK"}, nxpEvalPackages, armGccPackage, {16}},
-        {vendorQt, {"Qt"}, desktopPackages, nullptr, {32}},
-        {vendorRenesas, {"RH850-D1M1A"}, renesasEvalPackages, armGccPackage, {32}},
+        {vendorQt, {"Qt"}, desktopPackages, desktopToolChainPackage, {32}},
+        {vendorRenesas, {"RH850-D1M1A"}, renesasEvalPackages, ghsToolchainPackage, {32}},
         {vendorStm, {"STM32F469I-DISCOVERY"}, stmEvalPackages, armGccPackage, {24}},
         {vendorStm, {"STM32F7508-DISCOVERY"}, stmEvalPackages, armGccPackage, {32, 16}},
         {vendorStm, {"STM32F769I-DISCOVERY"}, stmEvalPackages, armGccPackage, {32}},

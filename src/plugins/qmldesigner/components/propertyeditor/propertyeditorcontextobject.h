@@ -90,6 +90,8 @@ public:
     Q_INVOKABLE void hideCursor();
     Q_INVOKABLE void restoreCursor();
 
+    Q_INVOKABLE QStringList styleNamesForFamily(const QString &family);
+
     int majorVersion() const;
     int majorQtQuickVersion() const;
     int minorQtQuickVersion() const;

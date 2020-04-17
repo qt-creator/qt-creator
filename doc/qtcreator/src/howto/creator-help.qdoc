@@ -76,6 +76,25 @@
     To switch to the editor context when you close the last help page, select
     the \uicontrol {Return to editor on closing the last page} check box.
 
+    \section1 Selecting the Help Viewer Backend
+
+    The help viewer backend determines the style sheet that is used to display
+    the help files. A help viewer backend that is based on the \l {QTextBrowser}
+    is used by default. However, it has several issues that have been fixed when
+    using litehtml as the help viewer backend.
+
+    On \macos, you can also use a help viewer backend that is based on the
+    system WebView component.
+
+    To switch the help viewer backend:
+
+    \list 1
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Help >
+        \uicontrol General.
+        \li In the \uicontrol {Viewer backend} field, select a viewer backend.
+        \li Reload the help page to take the new backend to use.
+    \endlist
+
     \section1 Viewing Function Tooltips
 
     To hide function tooltips by default, select \uicontrol Tools >

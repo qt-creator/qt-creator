@@ -512,20 +512,18 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
             addInfo(progressTitle);
             notifyProgress(0, progressTitle);
 
-            // Trigger underlying qmljs snapshot update by making a non-change to the doc
-            model->rewriterView()->textModifier()->replace(0, 0, {});
-
             // There is an inbuilt delay before rewriter change actually updates the data model,
             // so we need to wait for a moment to allow the change to take effect.
             // Otherwise subsequent subcomponent manager update won't detect new imports properly.
             QTimer *timer = new QTimer(parent());
             static int counter;
             counter = 0;
-            timer->callOnTimeout([this, timer, progressTitle, doc]() {
+            timer->callOnTimeout([this, timer, progressTitle, model]() {
                 if (!isCancelled()) {
                     notifyProgress(++counter * 10, progressTitle);
                     if (counter >= 10) {
-                        doc->updateSubcomponentManager();
+                        // Trigger underlying qmljs snapshot update by making a non-change to the doc
+                        model->rewriterView()->textModifier()->replace(0, 0, {});
                         timer->stop();
                         notifyFinished();
                     }
