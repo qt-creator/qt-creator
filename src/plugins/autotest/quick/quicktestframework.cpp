@@ -27,6 +27,9 @@
 #include "quicktestparser.h"
 #include "quicktesttreeitem.h"
 
+#include "../testframeworkmanager.h"
+#include "../qtest/qttestconstants.h"
+
 namespace Autotest {
 namespace Internal {
 
@@ -49,6 +52,14 @@ const char *QuickTestFramework::name() const
 unsigned QuickTestFramework::priority() const
 {
     return 5;
+}
+
+IFrameworkSettings *QuickTestFramework::frameworkSettings()
+{
+    static const Core::Id id
+            = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME);
+    ITestFramework *qtTestFramework = TestFrameworkManager::frameworkForId(id);
+    return qtTestFramework->frameworkSettings();
 }
 
 } // namespace Internal

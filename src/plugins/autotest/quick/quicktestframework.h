@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "../qtest/qttestframework.h"
+#include "../itestframework.h"
 
 namespace Autotest {
 namespace QuickTest {
@@ -38,12 +38,13 @@ const char FRAMEWORK_NAME[]              = "QtQuickTest";
 
 namespace Internal {
 
-class QuickTestFramework : public QtTestFramework
+class QuickTestFramework : public ITestFramework
 {
 public:
-    QuickTestFramework() = default;
+    QuickTestFramework() : ITestFramework(true) {}
     const char *name() const override;
     unsigned priority() const override;
+    IFrameworkSettings *frameworkSettings() override;
 
 protected:
     ITestParser *createTestParser() override;
