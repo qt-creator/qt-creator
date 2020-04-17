@@ -25,6 +25,9 @@
 #include "catchconfiguration.h"
 #include "catchoutputreader.h"
 
+#include "../autotestplugin.h"
+#include "../testsettings.h"
+
 namespace Autotest {
 namespace Internal {
 
@@ -33,15 +36,69 @@ TestOutputReader *CatchConfiguration::outputReader(const QFutureInterface<TestRe
     return new CatchOutputReader(fi, app, buildDirectory(), projectFile());
 }
 
+static QStringList filterInterfering(const QStringList &provided, QStringList *omitted)
+{
+    static const QSet<QString> singleOptions { "-l", "--list-tests",
+                                               "--list-test-names-only",
+                                               "-t", "--list-tags",
+                                               "--list-reporters",
+                                               "-s", "--success",
+                                               "-b", "--break",
+                                               "-e", "--nothrow",
+                                               "-a", "--abort",
+                                               "-#", "--filenames-as-tags",
+                                               "--benchmark-no-analysis",
+                                               "--help"
+                                             };
+    static const QSet<QString> paramOptions { "-o", "--out",
+                                              "-r", "--reporter",
+                                              "-x", "--abortx",
+                                              "-w", "--warn",
+                                              "-d", "--durations",
+                                              "-f", "--input-file",
+                                              "-c", "--section",
+                                              "--wait-for-keypress",
+                                              "--benchmark-samples",
+                                              "--benchmark-resamples",
+                                              "--benchmark-confidence-interval",
+                                              "--benchmark-warmup-time",
+                                              "--use-color"
+                                            };
+
+    QStringList allowed;
+    bool filterNext = false;
+    for (auto arg : provided) {
+        bool interferes = false;
+        if (filterNext) {
+            omitted->append(arg);
+            filterNext = false;
+            continue;
+        }
+        if (singleOptions.contains(arg)) {
+            interferes = true;
+        } else if (paramOptions.contains(arg)) {
+            interferes = true;
+            filterNext = true;
+        }
+        if (!interferes)
+            allowed.append(arg);
+        else if (omitted)
+            omitted->append(arg);
+    }
+    return allowed;
+}
+
 QStringList CatchConfiguration::argumentsForTestRunner(QStringList *omitted) const
 {
-    Q_UNUSED(omitted)
-
     QStringList arguments;
-    arguments << "--reporter" << "xml";
-
     if (testCaseCount())
         arguments << "\"" + testCases().join("\",\"") + "\"";
+    arguments << "--reporter" << "xml";
+
+    if (AutotestPlugin::settings()->processArgs) {
+        arguments << filterInterfering(runnable().commandLineArguments.split(
+                                           ' ', QString::SkipEmptyParts), omitted);
+    }
 
     return arguments;
 }
