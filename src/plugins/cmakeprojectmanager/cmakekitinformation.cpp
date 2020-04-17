@@ -33,10 +33,12 @@
 #include <app/app_version.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/variablechooser.h>
-#include <projectexplorer/task.h>
-#include <projectexplorer/toolchain.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorersettings.h>
+#include <projectexplorer/task.h>
+#include <projectexplorer/toolchain.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -643,6 +645,21 @@ QVariant CMakeGeneratorKitAspect::defaultValue(const Kit *k) const
                 return g.matches("NMake Makefiles", extraGenerator)
                         || g.matches("NMake Makefiles JOM", extraGenerator);
             });
+            if (ProjectExplorerPlugin::projectExplorerSettings().useJom) {
+                it = std::find_if(known.constBegin(),
+                                  known.constEnd(),
+                                  [extraGenerator](const CMakeTool::Generator &g) {
+                                      return g.matches("NMake Makefiles JOM", extraGenerator);
+                                  });
+            }
+
+            if (it == known.constEnd()) {
+                it = std::find_if(known.constBegin(),
+                                  known.constEnd(),
+                                  [extraGenerator](const CMakeTool::Generator &g) {
+                                      return g.matches("NMake Makefiles", extraGenerator);
+                                  });
+            }
         }
     } else {
         // Unix-oid OSes:
