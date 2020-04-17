@@ -160,7 +160,7 @@ def verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, e
                 __handleTextTips__(tip, expectedVals, altVal)
             elif expectedType == "WidgetTip":
                 __handleWidgetTips__(tip, expectedVals)
-            sendEvent("QMouseEvent", editor, QEvent.MouseMove, 0, -50, Qt.NoButton, 0)
+            sendEvent("QMouseEvent", editor, QEvent.MouseMove, 0, 0, Qt.NoButton, 0)
             waitFor("isNull(tip)", 10000)
 
 # helper function that handles verification of TextTip hoverings
