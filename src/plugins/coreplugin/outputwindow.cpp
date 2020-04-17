@@ -221,6 +221,11 @@ void OutputWindow::setLineParsers(const QList<OutputLineParser *> &parsers)
     d->formatter.setLineParsers(parsers);
 }
 
+OutputFormatter *OutputWindow::outputFormatter() const
+{
+    return &d->formatter;
+}
+
 void OutputWindow::showEvent(QShowEvent *e)
 {
     QPlainTextEdit::showEvent(e);

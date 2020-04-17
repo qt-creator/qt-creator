@@ -31,7 +31,6 @@
 #include <coreplugin/find/basetextfind.h>
 #include <coreplugin/outputwindow.h>
 #include <utils/fileutils.h>
-#include <utils/outputformatter.h>
 #include <utils/qtcprocess.h>
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/fontsettings.h>
@@ -111,7 +110,6 @@ private:
     QString identifierUnderCursor(const QPoint &pos, QString *repository = nullptr) const;
 
     Utils::OutputFormat m_format;
-    Utils::OutputFormatter m_formatter;
     VcsOutputLineParser *m_parser = nullptr;
 };
 
@@ -121,7 +119,7 @@ OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
     setReadOnly(true);
     setUndoRedoEnabled(false);
     setFrameStyle(QFrame::NoFrame);
-    m_formatter.setBoldFontEnabled(false);
+    outputFormatter()->setBoldFontEnabled(false);
     m_parser = new VcsOutputLineParser;
     setLineParsers({m_parser});
     auto agg = new Aggregation::Aggregate;
@@ -223,7 +221,7 @@ void OutputWindowPlainTextEdit::appendLines(const QString &s, const QString &rep
 
     const int previousLineCount = document()->lineCount();
 
-    m_formatter.appendMessage(s, m_format);
+    outputFormatter()->appendMessage(s, m_format);
 
     // Scroll down
     moveCursor(QTextCursor::End);
@@ -257,7 +255,7 @@ VcsOutputLineParser *OutputWindowPlainTextEdit::parser()
 
 void OutputWindowPlainTextEdit::setFormat(VcsOutputWindow::MessageStyle style)
 {
-    m_formatter.setBoldFontEnabled(style == VcsOutputWindow::Command);
+    outputFormatter()->setBoldFontEnabled(style == VcsOutputWindow::Command);
 
     switch (style) {
     case VcsOutputWindow::Warning:
