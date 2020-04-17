@@ -31,9 +31,9 @@
 #include <coreplugin/icore.h>
 
 #include <app/app_version.h>
+#include <utils/environment.h>
 
 #include <utils/algorithm.h>
-#include <utils/environment.h>
 
 #include <QDebug>
 #include <QDir>

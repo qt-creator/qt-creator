@@ -26,34 +26,26 @@
 #include "cmakebuildconfiguration.h"
 
 #include "builddirmanager.h"
+#include "cmakebuildsettingswidget.h"
 #include "cmakebuildstep.h"
-#include "cmakeconfigitem.h"
+#include "cmakebuildsystem.h"
 #include "cmakekitinformation.h"
 #include "cmakeprojectconstants.h"
-#include "cmakebuildsettingswidget.h"
 
 #include <android/androidconstants.h>
-
-#include <coreplugin/icore.h>
-
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
-
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtbuildaspects.h>
 #include <qtsupport/qtkitinformation.h>
 
-#include <utils/algorithm.h>
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QLoggingCategory>
 

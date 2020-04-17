@@ -30,6 +30,8 @@
 #include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/task.h>
 
+#include <utils/optional.h>
+
 #include <QDir>
 #include <QRegExp>
 #include <QRegularExpression>

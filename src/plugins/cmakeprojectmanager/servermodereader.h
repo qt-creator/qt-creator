@@ -26,16 +26,22 @@
 #pragma once
 
 #include "builddirreader.h"
+#include "cmakeconfigitem.h"
 #include "servermode.h"
-#include "cmakeparser.h"
+
+#include <projectexplorer/ioutputparser.h>
 
 #include <QList>
+#include <QSet>
 
 #include <memory>
 
 namespace ProjectExplorer { class ProjectNode; }
 
 namespace CMakeProjectManager {
+
+class CMakeParser;
+
 namespace Internal {
 
 class ServerModeReader final : public BuildDirReader

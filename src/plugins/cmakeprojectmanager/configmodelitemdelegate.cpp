@@ -25,14 +25,12 @@
 ****************************************************************************/
 
 #include "configmodelitemdelegate.h"
+
 #include "configmodel.h"
 
 #include <utils/pathchooser.h>
 
-#include <QComboBox>
 #include <QCheckBox>
-#include <QLineEdit>
-#include <QPainter>
 
 namespace CMakeProjectManager {
 

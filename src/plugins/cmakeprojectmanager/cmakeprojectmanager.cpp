@@ -24,20 +24,17 @@
 ****************************************************************************/
 
 #include "cmakeprojectmanager.h"
-#include "cmakebuildconfiguration.h"
+
+#include "cmakebuildsystem.h"
 #include "cmakekitinformation.h"
-#include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
-#include "cmakesettingspage.h"
-#include "cmaketoolmanager.h"
+#include "cmakeprojectconstants.h"
 #include "cmakeprojectnodes.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
@@ -49,8 +46,6 @@
 #include <utils/parameteraction.h>
 
 #include <QAction>
-#include <QDateTime>
-#include <QIcon>
 
 using namespace ProjectExplorer;
 using namespace CMakeProjectManager::Internal;

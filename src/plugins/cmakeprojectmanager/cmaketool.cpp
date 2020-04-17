@@ -24,23 +24,21 @@
 ****************************************************************************/
 
 #include "cmaketool.h"
+
 #include "cmaketoolmanager.h"
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
-#include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QProcess>
 #include <QRegularExpression>
 #include <QSet>
-#include <QTextDocument>
 #include <QUuid>
-#include <QVariantMap>
+
+#include <memory>
 
 namespace CMakeProjectManager {
 

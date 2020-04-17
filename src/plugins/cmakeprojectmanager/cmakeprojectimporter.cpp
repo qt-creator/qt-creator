@@ -31,8 +31,7 @@
 #include "cmaketoolmanager.h"
 
 #include <projectexplorer/buildinfo.h>
-#include <projectexplorer/kit.h>
-#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <qtsupport/qtkitinformation.h>
@@ -40,9 +39,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QDebug>
 #include <QDir>
-#include <QFileInfo>
 #include <QLoggingCategory>
 
 using namespace ProjectExplorer;

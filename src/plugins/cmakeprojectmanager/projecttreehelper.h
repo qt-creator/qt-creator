@@ -25,8 +25,6 @@
 
 #include "cmakeprojectnodes.h"
 
-#include <projectexplorer/projectnodes.h>
-
 #include <utils/fileutils.h>
 
 #include <memory>

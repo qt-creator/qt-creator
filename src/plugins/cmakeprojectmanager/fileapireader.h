@@ -27,14 +27,13 @@
 
 #include "builddirreader.h"
 #include "fileapiparser.h"
-
 #include "cmakeprocess.h"
 
 #include <utils/optional.h>
 
-#include <memory>
-
 #include <QFuture>
+
+#include <memory>
 
 namespace ProjectExplorer {
 class ProjectNode;

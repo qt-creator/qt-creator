@@ -33,6 +33,8 @@
 
 #include <QElapsedTimer>
 #include <QFutureInterface>
+#include <QObject>
+#include <QStringList>
 #include <QTimer>
 
 #include <memory>

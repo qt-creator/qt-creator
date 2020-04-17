@@ -24,38 +24,37 @@
 ****************************************************************************/
 
 #include "cmakekitinformation.h"
+
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectplugin.h"
 #include "cmakespecificsettings.h"
 #include "cmaketool.h"
 #include "cmaketoolmanager.h"
 
-#include <app/app_version.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/variablechooser.h>
-#include <projectexplorer/task.h>
 #include <projectexplorer/toolchain.h>
-#include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
+
+#include <app/app_version.h>
+
 #include <utils/algorithm.h>
 #include <utils/elidinglabel.h>
 #include <utils/environment.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
 #include <QComboBox>
 #include <QDialog>
 #include <QDialogButtonBox>
-#include <QFileInfo>
 #include <QGridLayout>
-#include <QLabel>
 #include <QLineEdit>
 #include <QPlainTextEdit>
 #include <QPointer>
 #include <QPushButton>
-#include <QVariant>
 
 using namespace ProjectExplorer;
 

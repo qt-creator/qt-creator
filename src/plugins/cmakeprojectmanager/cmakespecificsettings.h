@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #pragma once
+
 #include <utils/fileutils.h>
+
 #include <QSettings>
 
 namespace CMakeProjectManager {

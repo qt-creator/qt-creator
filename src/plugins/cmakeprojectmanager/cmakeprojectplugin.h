@@ -25,21 +25,21 @@
 
 #pragma once
 
-#include "cmakespecificsettingspage.h"
-
 #include <extensionsystem/iplugin.h>
 
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeProjectPlugin : public ExtensionSystem::IPlugin
+class CMakeSpecificSettings;
+
+class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CMakeProjectManager.json")
 
 public:
     static CMakeSpecificSettings *projectTypeSpecificSettings();
-    ~CMakeProjectPlugin() override;
+    ~CMakeProjectPlugin();
 
 #ifdef WITH_TESTS
 private slots:
@@ -60,8 +60,8 @@ private slots:
 #endif
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
-    void extensionsInitialized() override;
+    bool initialize(const QStringList &arguments, QString *errorMessage);
+    void extensionsInitialized();
 
     void updateContextActions();
 

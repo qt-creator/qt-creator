@@ -31,7 +31,6 @@
 
 #include <QCoreApplication>
 #include <QFont>
-#include <QString>
 #include <QSortFilterProxyModel>
 
 namespace CMakeProjectManager {

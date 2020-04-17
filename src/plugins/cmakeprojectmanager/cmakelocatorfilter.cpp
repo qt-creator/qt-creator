@@ -24,15 +24,14 @@
 ****************************************************************************/
 
 #include "cmakelocatorfilter.h"
-#include "cmakebuildconfiguration.h"
+
 #include "cmakebuildstep.h"
+#include "cmakebuildsystem.h"
 #include "cmakeproject.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 

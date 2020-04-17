@@ -25,13 +25,6 @@
 
 #include "cmakeautocompleter.h"
 
-#include <QRegExp>
-#include <QTextCursor>
-#include <QTextBlock>
-#include <QDebug>
-
-#include <texteditor/tabsettings.h>
-
 namespace CMakeProjectManager {
 namespace Internal {
 

@@ -25,31 +25,28 @@
 
 #include "cmakeprojectplugin.h"
 
-#include "cmakeeditor.h"
+#include "cmakebuildconfiguration.h"
 #include "cmakebuildstep.h"
+#include "cmakebuildsystem.h"
+#include "cmakeeditor.h"
+#include "cmakekitinformation.h"
+#include "cmakelocatorfilter.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanager.h"
 #include "cmakeprojectnodes.h"
-#include "cmakebuildconfiguration.h"
-#include "cmakeprojectconstants.h"
-#include "cmakelocatorfilter.h"
 #include "cmakesettingspage.h"
-#include "cmaketoolmanager.h"
-#include "cmakekitinformation.h"
 #include "cmakespecificsettings.h"
+#include "cmakespecificsettingspage.h"
+#include "cmaketoolmanager.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
-
-#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/runcontrol.h>
-#include <projectexplorer/target.h>
-
 #include <texteditor/snippets/snippetprovider.h>
 
 #include <utils/parameteraction.h>

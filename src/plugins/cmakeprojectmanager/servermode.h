@@ -25,12 +25,15 @@
 
 #pragma once
 
+#include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 
 #include <QLoggingCategory>
+#include <QObject>
+#include <QTemporaryDir>
 #include <QTimer>
 #include <QVariantMap>
-#include <QTemporaryDir>
 
 #include <memory>
 
@@ -116,7 +119,6 @@ private:
     const int m_minorProtocol = -1;
 
     int m_requestCounter = 0;
-
 };
 
 } // namespace Internal

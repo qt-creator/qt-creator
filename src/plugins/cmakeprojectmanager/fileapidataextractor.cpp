@@ -25,10 +25,8 @@
 
 #include "fileapidataextractor.h"
 
-#include "cmakeprojectnodes.h"
+#include "fileapiparser.h"
 #include "projecttreehelper.h"
-
-#include <projectexplorer/projectnodes.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>

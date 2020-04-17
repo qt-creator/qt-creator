@@ -26,13 +26,11 @@
 #include "fileapiparser.h"
 
 #include <coreplugin/messagemanager.h>
-#include <projectexplorer/headerpath.h>
 #include <projectexplorer/rawprojectpart.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QDir>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>

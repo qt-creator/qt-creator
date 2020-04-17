@@ -23,31 +23,35 @@
 **
 ****************************************************************************/
 
-#include "cmakeprojectconstants.h"
 #include "cmakesettingspage.h"
+
+#include "cmakeprojectconstants.h"
+#include "cmaketool.h"
 #include "cmaketoolmanager.h"
 
-#include <coreplugin/icore.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorericons.h>
+
 #include <utils/detailswidget.h>
-#include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 
+#include <QBoxLayout>
 #include <QCheckBox>
+#include <QCoreApplication>
 #include <QFileInfo>
 #include <QFormLayout>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QString>
 #include <QTreeView>
 #include <QUuid>
-#include <QWidget>
 
 using namespace Utils;
 
@@ -121,7 +125,7 @@ public:
     }
 
     CMakeToolTreeItem(const QString &name,
-                      const Utils::FilePath &executable,
+                      const FilePath &executable,
                       const FilePath &qchFile,
                       bool autoRun,
                       bool autoCreate,

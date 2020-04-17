@@ -29,10 +29,6 @@
 
 #include <coreplugin/id.h>
 
-#include <QList>
-
-#include <memory>
-
 namespace Core { class Id; }
 
 namespace CMakeProjectManager {

@@ -26,12 +26,9 @@
 #pragma once
 
 #include "cmakeconfigitem.h"
-#include "cmakeproject.h"
 #include "configmodel.h"
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/buildtargetinfo.h>
-#include <projectexplorer/deploymentdata.h>
 
 namespace CMakeProjectManager {
 class CMakeProject;

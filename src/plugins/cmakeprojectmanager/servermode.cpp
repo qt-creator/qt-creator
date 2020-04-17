@@ -25,17 +25,10 @@
 
 #include "servermode.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/reaper.h>
 
-#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
-#include <utils/temporarydirectory.h>
 
-#include <QByteArray>
-#include <QCryptographicHash>
-#include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLocalSocket>

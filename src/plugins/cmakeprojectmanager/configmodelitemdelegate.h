@@ -26,10 +26,10 @@
 
 #pragma once
 
+#include <utils/fileutils.h>
+
 #include <QComboBox>
 #include <QStyledItemDelegate>
-
-#include <utils/fileutils.h>
 
 namespace CMakeProjectManager {
 

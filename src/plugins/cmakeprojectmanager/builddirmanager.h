@@ -28,7 +28,6 @@
 #include "builddirparameters.h"
 #include "builddirreader.h"
 #include "cmakebuildtarget.h"
-#include "cmakeconfigitem.h"
 
 #include <projectexplorer/rawprojectpart.h>
 
@@ -36,9 +35,8 @@
 #include <utils/temporarydirectory.h>
 
 #include <QObject>
-#include <QTimer>
+#include <QString>
 
-#include <functional>
 #include <memory>
 #include <unordered_map>
 

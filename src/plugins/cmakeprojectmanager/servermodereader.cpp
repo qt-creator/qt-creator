@@ -25,26 +25,15 @@
 
 #include "servermodereader.h"
 
-#include "cmakebuildconfiguration.h"
-#include "cmakeprojectconstants.h"
-#include "cmakeprojectmanager.h"
-#include "cmakeprojectnodes.h"
-#include "servermode.h"
+#include "cmakeparser.h"
 #include "projecttreehelper.h"
 
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/toolchain.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
 
 #include <utils/algorithm.h>
-#include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
-
-#include <QVector>
 
 using namespace ProjectExplorer;
 using namespace Utils;

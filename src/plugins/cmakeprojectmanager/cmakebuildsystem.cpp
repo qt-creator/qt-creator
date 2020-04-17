@@ -27,32 +27,104 @@
 
 #include "cmakebuildconfiguration.h"
 #include "cmakekitinformation.h"
-#include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectnodes.h"
+#include "cmakeprojectplugin.h"
+#include "cmakespecificsettings.h"
 
 #include <android/androidconstants.h>
-
+#include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <cpptools/cppprojectupdater.h>
+#include <cpptools/cpptoolsconstants.h>
 #include <cpptools/generatedcodemodelsupport.h>
-#include <projectexplorer/kitmanager.h>
-#include <projectexplorer/project.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <qtsupport/qtcppkitinfo.h>
-#include <qtsupport/qtkitinformation.h>
 
+#include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
 #include <utils/mimetypes/mimetype.h>
 #include <utils/qtcassert.h>
 
+#include <QClipboard>
+#include <QDir>
+#include <QGuiApplication>
 #include <QLoggingCategory>
 
 using namespace ProjectExplorer;
 using namespace Utils;
+
+namespace {
+
+void copySourcePathToClipboard(Utils::optional<QString> srcPath,
+                               const ProjectExplorer::ProjectNode *node)
+{
+    QClipboard *clip = QGuiApplication::clipboard();
+
+    QDir projDir{node->filePath().toFileInfo().absoluteFilePath()};
+    clip->setText(QDir::cleanPath(projDir.relativeFilePath(srcPath.value())));
+}
+
+void noAutoAdditionNotify(const QStringList &filePaths, const ProjectExplorer::ProjectNode *node)
+{
+    Utils::optional<QString> srcPath{};
+
+    for (const QString &file : filePaths) {
+        if (Utils::mimeTypeForFile(file).name() == CppTools::Constants::CPP_SOURCE_MIMETYPE) {
+            srcPath = file;
+            break;
+        }
+    }
+
+    if (srcPath) {
+        CMakeProjectManager::Internal::CMakeSpecificSettings *settings
+            = CMakeProjectManager::Internal::CMakeProjectPlugin::projectTypeSpecificSettings();
+        switch (settings->afterAddFileSetting()) {
+        case CMakeProjectManager::Internal::ASK_USER: {
+            bool checkValue{false};
+            QDialogButtonBox::StandardButton reply = Utils::CheckableMessageBox::question(
+                nullptr,
+                QMessageBox::tr("Copy to Clipboard?"),
+                QMessageBox::tr("Files are not automatically added to the "
+                                "CMakeLists.txt file of the CMake project."
+                                "\nCopy the path to the source files to the clipboard?"),
+                "Remember My Choice",
+                &checkValue,
+                QDialogButtonBox::Yes | QDialogButtonBox::No,
+                QDialogButtonBox::Yes);
+            if (checkValue) {
+                if (QDialogButtonBox::Yes == reply)
+                    settings->setAfterAddFileSetting(
+                        CMakeProjectManager::Internal::AfterAddFileAction::COPY_FILE_PATH);
+                else if (QDialogButtonBox::No == reply)
+                    settings->setAfterAddFileSetting(
+                        CMakeProjectManager::Internal::AfterAddFileAction::NEVER_COPY_FILE_PATH);
+
+                settings->toSettings(Core::ICore::settings());
+            }
+
+            if (QDialogButtonBox::Yes == reply) {
+                copySourcePathToClipboard(srcPath, node);
+            }
+            break;
+        }
+
+        case CMakeProjectManager::Internal::COPY_FILE_PATH: {
+            copySourcePathToClipboard(srcPath, node);
+            break;
+        }
+
+        case CMakeProjectManager::Internal::NEVER_COPY_FILE_PATH:
+            break;
+        }
+    }
+}
+
+} // namespace
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -262,6 +334,32 @@ void CMakeBuildSystem::triggerParsing()
     }
 
     m_buildDirManager.parse();
+}
+
+bool CMakeBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const
+{
+    if (dynamic_cast<CMakeTargetNode *>(context))
+        return action == ProjectAction::AddNewFile;
+
+    if (dynamic_cast<CMakeListsNode *>(context))
+        return action == ProjectAction::AddNewFile;
+
+    return BuildSystem::supportsAction(context, action, node);
+}
+
+bool CMakeBuildSystem::addFiles(Node *context, const QStringList &filePaths, QStringList *notAdded)
+{
+    if (auto n = dynamic_cast<CMakeProjectNode *>(context)) {
+        noAutoAdditionNotify(filePaths, n);
+        return true; // Return always true as autoadd is not supported!
+    }
+
+    if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
+        noAutoAdditionNotify(filePaths, n);
+        return true; // Return always true as autoadd is not supported!
+    }
+
+    return BuildSystem::addFiles(context, filePaths, notAdded);
 }
 
 QStringList CMakeBuildSystem::filesGeneratedFrom(const QString &sourceFile) const

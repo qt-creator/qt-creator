@@ -33,14 +33,9 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
 
-#include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/stringutils.h>
 
 #include <QDir>
-#include <QObject>
-#include <QTime>
-#include <QTimer>
 
 namespace CMakeProjectManager {
 namespace Internal {

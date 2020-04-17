@@ -25,40 +25,30 @@
 
 #include "cmakebuildsettingswidget.h"
 
+#include "cmakebuildconfiguration.h"
+#include "cmakebuildsystem.h"
+#include "cmakekitinformation.h"
 #include "configmodel.h"
 #include "configmodelitemdelegate.h"
-#include "cmakekitinformation.h"
-#include "cmakeproject.h"
-#include "cmakebuildconfiguration.h"
 
 #include <coreplugin/find/itemviewfind.h>
-#include <coreplugin/icore.h>
 #include <projectexplorer/buildaspects.h>
-#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtbuildaspects.h>
 
 #include <utils/categorysortfiltermodel.h>
 #include <utils/detailswidget.h>
-#include <utils/fancylineedit.h>
 #include <utils/headerviewstretcher.h>
 #include <utils/infolabel.h>
 #include <utils/itemviews.h>
-#include <utils/pathchooser.h>
 #include <utils/progressindicator.h>
+#include <utils/qtcassert.h>
 
 #include <QBoxLayout>
 #include <QCheckBox>
-#include <QComboBox>
-#include <QFrame>
 #include <QGridLayout>
-#include <QLabel>
 #include <QPushButton>
-#include <QSortFilterProxyModel>
-#include <QSpacerItem>
-#include <QStyledItemDelegate>
 #include <QMenu>
 
 using namespace ProjectExplorer;

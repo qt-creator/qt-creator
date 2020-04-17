@@ -31,12 +31,11 @@
 #include "cmakespecificsettings.h"
 #include "cmaketoolmanager.h"
 
-#include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
 
-#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;

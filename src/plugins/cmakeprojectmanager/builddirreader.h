@@ -27,18 +27,12 @@
 
 #include "builddirparameters.h"
 #include "cmakebuildtarget.h"
-#include "cmakeconfigitem.h"
-#include "cmaketool.h"
 
 #include <projectexplorer/rawprojectpart.h>
 
-#include <utils/environment.h>
-#include <utils/fileutils.h>
-#include <utils/macroexpander.h>
-
-#include <QFutureInterface>
 #include <QObject>
-#include <QVector>
+
+#include <memory>
 
 namespace ProjectExplorer { class FileNode; }
 

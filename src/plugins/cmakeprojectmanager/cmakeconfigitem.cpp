@@ -32,7 +32,8 @@
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
-#include <QString>
+#include <QFile>
+#include <QIODevice>
 
 namespace CMakeProjectManager {
 

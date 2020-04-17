@@ -27,29 +27,20 @@
 
 #include "cmakebuildconfiguration.h"
 #include "cmakebuildstep.h"
-#include "cmakekitinformation.h"
+#include "cmakebuildsystem.h"
 #include "cmakeprojectnodes.h"
-#include "cmaketool.h"
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/kit.h>
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
-#include <projectexplorer/toolchain.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QDir>
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QPointer>
 #include <QPushButton>
-#include <QSet>
 
 #include <app/app_version.h>
 

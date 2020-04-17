@@ -55,6 +55,7 @@ class CMakeBuildConfiguration;
 class CMakeBuildSettingsWidget : public ProjectExplorer::NamedWidget
 {
     Q_OBJECT
+
 public:
     CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc);
 

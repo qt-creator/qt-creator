@@ -33,7 +33,11 @@
 #include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
 
-#include <QObject>
+#include <QDir>
+#include <QString>
+#include <QVector>
+
+#include <vector>
 
 namespace CMakeProjectManager {
 namespace Internal {

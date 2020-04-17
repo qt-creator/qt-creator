@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include <QtGlobal>
-
 namespace CMakeProjectManager {
 namespace Constants {
 
