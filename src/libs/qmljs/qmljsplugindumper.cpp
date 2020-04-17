@@ -34,6 +34,7 @@
 #include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/runextensions.h>
 
 #include <QDir>
 #include <QDirIterator>
@@ -283,35 +284,60 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
         if (!privatePlugin)
             ModelManagerInterface::writeWarning(qmldumpErrorMessage(libraryPath, errorMessages));
         libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError, qmldumpFailedMessage(libraryPath, errorMessages));
+
+        const QByteArray output = process->readAllStandardOutput();
+
+        class CppQmlTypesInfo {
+        public:
+            QString error;
+            QString warning;
+            CppQmlTypesLoader::BuiltinObjects objectsList;
+            QList<ModuleApiInfo> moduleApis;
+            QStringList dependencies;
+        };
+
+        auto watcher = QSharedPointer<QFutureWatcher<CppQmlTypesInfo>>(new QFutureWatcher<CppQmlTypesInfo>());
+
+        connect(watcher.data(), &QFutureWatcher<CppQmlTypesInfo>::finished, this,
+                [this, watcher, libraryInfo, privatePlugin, libraryPath] {
+            CppQmlTypesInfo infos = watcher->result();
+
+            LibraryInfo libInfo = libraryInfo;
+
+            if (!infos.error.isEmpty()) {
+                libInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError,
+                                                        qmldumpErrorMessage(libraryPath, infos.error));
+                if (!privatePlugin)
+                    printParseWarnings(libraryPath, libInfo.pluginTypeInfoError());
+            } else {
+                libInfo.setMetaObjects(infos.objectsList.values());
+                libInfo.setModuleApis(infos.moduleApis);
+                libInfo.setPluginTypeInfoStatus(LibraryInfo::DumpDone);
+            }
+
+            if (!infos.warning.isEmpty())
+                printParseWarnings(libraryPath, infos.warning);
+
+            libInfo.updateFingerprint();
+
+            m_modelManager->updateLibraryInfo(libraryPath, libInfo);
+        });
+
+        auto future = Utils::runAsync([output, libraryPath](QFutureInterface<CppQmlTypesInfo> &future)
+        {
+            CppQmlTypesInfo infos;
+            CppQmlTypesLoader::parseQmlTypeDescriptions(output, &infos.objectsList, &infos.moduleApis, &infos.dependencies,
+                                                        &infos.error, &infos.warning,
+                                                        QLatin1String("<dump of ") + libraryPath + QLatin1Char('>'));
+            future.reportFinished(&infos);
+        });
+
+        watcher->setFuture(future);
+    } else {
+        libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpDone);
+        libraryInfo.updateFingerprint();
+        m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
     }
-
-    const QByteArray output = process->readAllStandardOutput();
-    QString error;
-    QString warning;
-    CppQmlTypesLoader::BuiltinObjects objectsList;
-    QList<ModuleApiInfo> moduleApis;
-    QStringList dependencies;
-    CppQmlTypesLoader::parseQmlTypeDescriptions(output, &objectsList, &moduleApis, &dependencies,
-                                                &error, &warning,
-                                                QLatin1String("<dump of ") + libraryPath + QLatin1Char('>'));
-    if (exitCode == 0) {
-        if (!error.isEmpty()) {
-            libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError,
-                                                qmldumpErrorMessage(libraryPath, error));
-            if (!privatePlugin)
-                printParseWarnings(libraryPath, libraryInfo.pluginTypeInfoError());
-        } else {
-            libraryInfo.setMetaObjects(objectsList.values());
-            libraryInfo.setModuleApis(moduleApis);
-            libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpDone);
-        }
-
-        if (!warning.isEmpty())
-            printParseWarnings(libraryPath, warning);
-    }
-    libraryInfo.updateFingerprint();
-
-    m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
 }
 
 void PluginDumper::qmlPluginTypeDumpError(QProcess::ProcessError)
@@ -344,38 +370,42 @@ void PluginDumper::pluginChanged(const QString &pluginLibrary)
     dump(plugin);
 }
 
-void PluginDumper::loadQmlTypeDescription(const QStringList &paths,
-                                          QStringList &errors,
-                                          QStringList &warnings,
-                                          QList<FakeMetaObject::ConstPtr> &objects,
-                                          QList<ModuleApiInfo> *moduleApi,
-                                          QStringList *dependencies) const {
-    for (const QString &p: paths) {
-        Utils::FileReader reader;
-        if (!reader.fetch(p, QFile::Text)) {
-            errors += reader.errorString();
-            continue;
+QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(const QStringList &paths) const {
+    auto future = Utils::runAsync([=](QFutureInterface<PluginDumper::QmlTypeDescription> &future)
+    {
+        PluginDumper::QmlTypeDescription result;
+
+        for (const QString &p: paths) {
+            Utils::FileReader reader;
+            if (!reader.fetch(p, QFile::Text)) {
+                result.errors += reader.errorString();
+                continue;
+            }
+            QString error;
+            QString warning;
+            CppQmlTypesLoader::BuiltinObjects objs;
+            QList<ModuleApiInfo> apis;
+            QStringList deps;
+            CppQmlTypesLoader::parseQmlTypeDescriptions(reader.data(), &objs, &apis, &deps,
+                                                        &error, &warning, p);
+            if (!error.isEmpty()) {
+                result.errors += tr("Failed to parse \"%1\".\nError: %2").arg(p, error);
+            } else {
+                result.objects += objs.values();
+                result.moduleApis += apis;
+                if (!deps.isEmpty())
+                    result.dependencies += deps;
+            }
+            if (!warning.isEmpty())
+                result.warnings += warning;
         }
-        QString error;
-        QString warning;
-        CppQmlTypesLoader::BuiltinObjects objs;
-        QList<ModuleApiInfo> apis;
-        QStringList deps;
-        CppQmlTypesLoader::parseQmlTypeDescriptions(reader.data(), &objs, &apis, &deps,
-                                                    &error, &warning, p);
-        if (!error.isEmpty()) {
-            errors += tr("Failed to parse \"%1\".\nError: %2").arg(p, error);
-        } else {
-            objects += objs.values();
-            if (moduleApi)
-                *moduleApi += apis;
-            if (!deps.isEmpty())
-                *dependencies += deps;
-        }
-        if (!warning.isEmpty())
-            warnings += warning;
-    }
+
+        future.reportFinished(&result);
+    });
+
+    return future;
 }
+
 /*!
  * \brief Build the path of an existing qmltypes file from a module name.
  * \param name
@@ -421,16 +451,14 @@ QString PluginDumper::buildQmltypesPath(const QString &name) const
  * Recursively load type descriptions of dependencies, collecting results
  * in \a objects.
  */
-void PluginDumper::loadDependencies(const QStringList &dependencies,
-                                    QStringList &errors,
-                                    QStringList &warnings,
-                                    QList<FakeMetaObject::ConstPtr> &objects,
-                                    QSet<QString> *visited) const
+QFuture<PluginDumper::DependencyInfo> PluginDumper::loadDependencies(const QStringList &dependencies,
+                                                                     QSharedPointer<QSet<QString>> visited) const
 {
-    if (dependencies.isEmpty())
-        return;
+    auto iface = QSharedPointer<QFutureInterface<PluginDumper::DependencyInfo>>(new QFutureInterface<PluginDumper::DependencyInfo>);
 
-    QScopedPointer<QSet<QString>> visitedPtr(visited ? visited : new QSet<QString>());
+    if (visited.isNull()) {
+        visited = QSharedPointer<QSet<QString>>(new QSet<QString>());
+    }
 
     QStringList dependenciesPaths;
     QString path;
@@ -438,44 +466,84 @@ void PluginDumper::loadDependencies(const QStringList &dependencies,
         path = buildQmltypesPath(name);
         if (!path.isNull())
             dependenciesPaths << path;
-        visitedPtr->insert(name);
+        visited->insert(name);
     }
-    QStringList newDependencies;
-    loadQmlTypeDescription(dependenciesPaths, errors, warnings, objects, nullptr, &newDependencies);
-    newDependencies = Utils::toList(Utils::toSet(newDependencies) - *visitedPtr);
-    if (!newDependencies.isEmpty())
-        loadDependencies(newDependencies, errors, warnings, objects, visitedPtr.take());
+
+    auto typesWatcher = QSharedPointer<QFutureWatcher<PluginDumper::QmlTypeDescription>>(new QFutureWatcher<PluginDumper::QmlTypeDescription>());
+    connect(typesWatcher.data(), &QFutureWatcher<PluginDumper::QmlTypeDescription>::finished, this, [this, iface, visited, typesWatcher] {
+        QStringList newDependencies = typesWatcher->result().dependencies;
+        newDependencies = Utils::toList(Utils::toSet(newDependencies) - *visited.data());
+
+        if (!newDependencies.isEmpty()) {
+            auto loadWatcher = QSharedPointer<QFutureWatcher<PluginDumper::DependencyInfo>>(new QFutureWatcher<PluginDumper::DependencyInfo>());
+            connect(loadWatcher.data(), &QFutureWatcher<PluginDumper::DependencyInfo>::finished, this, [iface, newDependencies, visited, typesWatcher, loadWatcher] {
+                PluginDumper::DependencyInfo result = loadWatcher->result();
+
+                result.errors += typesWatcher->result().errors;
+                result.objects += typesWatcher->result().objects;
+                result.warnings+= typesWatcher->result().warnings;
+
+                iface->reportFinished(&result);
+            });
+
+            loadWatcher->setFuture(loadDependencies(newDependencies, visited));
+        } else {
+            PluginDumper::DependencyInfo result;
+            result.errors += typesWatcher->result().errors;
+            result.objects += typesWatcher->result().objects;
+            result.warnings+= typesWatcher->result().warnings;
+            iface->reportFinished(&result);
+        }
+    });
+    typesWatcher->setFuture(loadQmlTypeDescription(dependenciesPaths));
+
+    return iface->future();
 }
 
 void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
                                     const QString &libraryPath,
                                     QmlJS::LibraryInfo libraryInfo)
 {
-    QStringList errors;
-    QStringList warnings;
-    QList<FakeMetaObject::ConstPtr> objects;
-    QList<ModuleApiInfo> moduleApis;
-    QStringList dependencies;
+    auto typesWatcher = QSharedPointer<QFutureWatcher<PluginDumper::QmlTypeDescription>>(new QFutureWatcher<PluginDumper::QmlTypeDescription>());
+    connect(typesWatcher.data(), &QFutureWatcher<PluginDumper::QmlTypeDescription>::finished, this, [this, typesWatcher, libraryPath, libraryInfo] {
 
-    loadQmlTypeDescription(qmltypesFilePaths, errors, warnings, objects, &moduleApis, &dependencies);
-    loadDependencies(dependencies, errors, warnings, objects);
+        auto loadWatcher = QSharedPointer<QFutureWatcher<PluginDumper::DependencyInfo>>(new QFutureWatcher<PluginDumper::DependencyInfo>());
+        connect(loadWatcher.data(), &QFutureWatcher<PluginDumper::DependencyInfo>::finished, this, [this, typesWatcher, loadWatcher, libraryPath, libraryInfo] {
 
-    libraryInfo.setMetaObjects(objects);
-    libraryInfo.setModuleApis(moduleApis);
-    libraryInfo.setDependencies(dependencies);
-    if (errors.isEmpty()) {
-        libraryInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileDone);
-    } else {
-        printParseWarnings(libraryPath, errors.join(QLatin1Char('\n')));
-        errors.prepend(tr("Errors while reading typeinfo files:"));
-        libraryInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileError, errors.join(QLatin1Char('\n')));
-    }
+            QStringList deps = typesWatcher->result().dependencies;
+            QStringList errors = typesWatcher->result().errors;
+            QStringList warnings = typesWatcher->result().errors;
+            QList<FakeMetaObject::ConstPtr> objects = typesWatcher->result().objects;
 
-    if (!warnings.isEmpty())
-        printParseWarnings(libraryPath, warnings.join(QLatin1String("\n")));
+            errors += loadWatcher->result().errors;
+            warnings += loadWatcher->result().warnings;
+            objects += loadWatcher->result().objects;
 
-    libraryInfo.updateFingerprint();
-    m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
+            QmlJS::LibraryInfo libInfo = libraryInfo;
+
+            libInfo.setMetaObjects(objects);
+            libInfo.setModuleApis(typesWatcher->result().moduleApis);
+            libInfo.setDependencies(typesWatcher->result().dependencies);
+
+            if (errors.isEmpty()) {
+                libInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileDone);
+            } else {
+                printParseWarnings(libraryPath, errors.join(QLatin1Char('\n')));
+                errors.prepend(tr("Errors while reading typeinfo files:"));
+                libInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileError, errors.join(QLatin1Char('\n')));
+            }
+
+            if (!warnings.isEmpty())
+                printParseWarnings(libraryPath, warnings.join(QLatin1String("\n")));
+
+            libInfo.updateFingerprint();
+            m_modelManager->updateLibraryInfo(libraryPath, libInfo);
+        });
+        if (!typesWatcher->result().dependencies.isEmpty()) {
+            loadWatcher->setFuture(loadDependencies(typesWatcher->result().dependencies, QSharedPointer<QSet<QString>>()));
+        }
+    });
+    typesWatcher->setFuture(loadQmlTypeDescription(qmltypesFilePaths));
 }
 
 void PluginDumper::runQmlDump(const QmlJS::ModelManagerInterface::ProjectInfo &info,

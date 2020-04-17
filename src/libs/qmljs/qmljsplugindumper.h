@@ -71,18 +71,30 @@ private:
         QStringList typeInfoPaths;
     };
 
+    class QmlTypeDescription {
+    public:
+        QStringList errors;
+        QStringList warnings;
+        QList<LanguageUtils::FakeMetaObject::ConstPtr> objects;
+        QList<ModuleApiInfo> moduleApis;
+        QStringList dependencies;
+    };
+
+    class DependencyInfo {
+    public:
+        QStringList errors;
+        QStringList warnings;
+        QList<LanguageUtils::FakeMetaObject::ConstPtr> objects;
+    };
+
     void runQmlDump(const QmlJS::ModelManagerInterface::ProjectInfo &info, const QStringList &arguments, const QString &importPath);
     void dump(const Plugin &plugin);
-    void loadQmlTypeDescription(const QStringList &path, QStringList &errors, QStringList &warnings,
-                                QList<LanguageUtils::FakeMetaObject::ConstPtr> &objects,
-                                QList<ModuleApiInfo> *moduleApi,
-                                QStringList *dependencies) const;
+    QFuture<QmlTypeDescription> loadQmlTypeDescription(const QStringList &path) const;
     QString buildQmltypesPath(const QString &name) const;
-    void loadDependencies(const QStringList &dependencies,
-                          QStringList &errors,
-                          QStringList &warnings,
-                          QList<LanguageUtils::FakeMetaObject::ConstPtr> &objects,
-                          QSet<QString> *visited = nullptr) const;
+
+    QFuture<PluginDumper::DependencyInfo> loadDependencies(const QStringList &dependencies,
+                                                           QSharedPointer<QSet<QString>> visited) const;
+
     void loadQmltypesFile(const QStringList &qmltypesFilePaths,
                           const QString &libraryPath,
                           QmlJS::LibraryInfo libraryInfo);
