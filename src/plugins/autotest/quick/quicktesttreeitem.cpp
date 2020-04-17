@@ -430,15 +430,10 @@ QSet<QString> QuickTestTreeItem::internalTargets() const
 
 void QuickTestTreeItem::markForRemovalRecursively(const QString &filePath)
 {
-    static const Core::Id id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(
-                QuickTest::Constants::FRAMEWORK_NAME);
-    TestTreeItem::markForRemovalRecursively(filePath);
-    ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
-    QTC_ASSERT(framework, return);
-    auto parser = dynamic_cast<QuickTestParser *>(framework->testParser());
+    auto parser = dynamic_cast<QuickTestParser *>(framework()->testParser());
     const QString proFile = parser->projectFileForMainCppFile(filePath);
     if (!proFile.isEmpty()) {
-        TestTreeItem *root = framework->rootNode();
+        TestTreeItem *root = framework()->rootNode();
         root->forAllChildren([proFile](TestTreeItem *it) {
             if (it->proFile() == proFile)
                 it->markForRemoval(true);
