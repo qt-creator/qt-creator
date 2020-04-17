@@ -796,6 +796,12 @@ static QString settingsFile(const QString &baseDir)
            + Core::Constants::IDE_CASED_ID + ".ini";
 }
 
+static QString qtVersionsFile(const QString &baseDir)
+{
+    return baseDir + (baseDir.isEmpty() ? "" : "/") + Core::Constants::IDE_SETTINGSVARIANT_STR + '/'
+           + Core::Constants::IDE_ID + '/' + "qtversion.xml";
+}
+
 static Utils::optional<QString> currentlyLinkedQtDir(bool *hasInstallSettings)
 {
     const QString installSettingsFilePath = settingsFile(Core::ICore::resourcePath());
@@ -883,7 +889,18 @@ void QtOptionsPageWidget::apply()
 const QStringList kSubdirsToCheck = {"",
                                      "Qt Creator.app/Contents/Resources",
                                      "Contents/Resources",
-                                     "Tools/QtCreator/share/qtcreator"};
+                                     "Tools/QtCreator/share/qtcreator",
+                                     "share/qtcreator"};
+
+static QStringList settingsFilesToCheck()
+{
+    return Utils::transform(kSubdirsToCheck, [](const QString &dir) { return settingsFile(dir); });
+}
+
+static QStringList qtversionFilesToCheck()
+{
+    return Utils::transform(kSubdirsToCheck, [](const QString &dir) { return qtVersionsFile(dir); });
+}
 
 static Utils::optional<QString> settingsDirForQtDir(const QString &qtDir)
 {
@@ -891,7 +908,7 @@ static Utils::optional<QString> settingsDirForQtDir(const QString &qtDir)
         return QString(qtDir + '/' + dir);
     });
     const QString validDir = Utils::findOrDefault(dirsToCheck, [](const QString &dir) {
-        return QFile::exists(settingsFile(dir));
+        return QFile::exists(settingsFile(dir)) || QFile::exists(qtVersionsFile(dir));
     });
     if (!validDir.isEmpty())
         return validDir;
@@ -903,10 +920,7 @@ static bool validateQtInstallDir(FancyLineEdit *input, QString *errorString)
     const QString qtDir = input->text();
     if (!settingsDirForQtDir(qtDir)) {
         if (errorString) {
-            const QStringList filesToCheck = Utils::transform(kSubdirsToCheck,
-                                                              [](const QString &dir) {
-                                                                  return settingsFile(dir);
-                                                              });
+            const QStringList filesToCheck = settingsFilesToCheck() + qtversionFilesToCheck();
             *errorString = QtOptionsPageWidget::tr(
                                "<html><body>Qt installation information was not found in \"%1\". "
                                "Choose a directory that contains one of the files <pre>%2</pre>")
