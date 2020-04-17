@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,50 +25,54 @@
 
 #pragma once
 
-#include "testtreeitem.h"
+#include "itestframework.h"
 #include "itestparser.h"
 
 namespace Autotest {
 
-class IFrameworkSettings;
+ITestFramework::ITestFramework(bool activeByDefault)
+    : m_active(activeByDefault)
+{}
 
-class ITestFramework
+ITestFramework::~ITestFramework()
 {
-public:
-    explicit ITestFramework(bool activeByDefault);
-    virtual ~ITestFramework();
+    delete m_testParser;
+}
 
-    virtual const char *name() const = 0;
-    virtual unsigned priority() const = 0;          // should this be modifyable?
+TestTreeItem *ITestFramework::rootNode()
+{
+    if (!m_rootNode)
+        m_rootNode = createRootNode();
+    // These are stored in the TestTreeModel and destroyed on shutdown there.
+    return m_rootNode;
+}
 
-    virtual IFrameworkSettings *frameworkSettings() { return nullptr; }
+ITestParser *ITestFramework::testParser()
+{
+    if (!m_testParser)
+        m_testParser = createTestParser();
+    return m_testParser;
+}
 
-    TestTreeItem *rootNode();
-    ITestParser *testParser();
+Core::Id ITestFramework::settingsId() const
+{
+    return Core::Id(Constants::SETTINGSPAGE_PREFIX)
+            .withSuffix(QString("%1.%2").arg(priority()).arg(QLatin1String(name())));
+}
 
-    Core::Id settingsId() const;
-    Core::Id id() const;
+Core::Id ITestFramework::id() const
+{
+    return Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(name());
+}
 
-    bool active() const { return m_active; }
-    void setActive(bool active) { m_active = active; }
-    bool grouping() const { return m_grouping; }
-    void setGrouping(bool group) { m_grouping = group; }
-    // framework specific tool tip to be displayed on the general settings page
-    virtual QString groupingToolTip() const { return QString(); }
-
-    void resetRootNode();
-
-protected:
-    virtual ITestParser *createTestParser() = 0;
-    virtual TestTreeItem *createRootNode() = 0;
-
-private:
-    TestTreeItem *m_rootNode = nullptr;
-    ITestParser *m_testParser = nullptr;
-    bool m_active = false;
-    bool m_grouping = false;
-};
-
-using TestFrameworks = QList<ITestFramework *>;
+void ITestFramework::resetRootNode()
+{
+    if (!m_rootNode)
+        return;
+    if (m_rootNode->model())
+        static_cast<TestTreeModel *>(m_rootNode->model())->takeItem(m_rootNode);
+    delete m_rootNode;
+    m_rootNode = nullptr;
+}
 
 } // namespace Autotest

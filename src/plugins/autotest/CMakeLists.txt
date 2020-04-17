@@ -40,7 +40,7 @@ add_qtc_plugin(AutoTest
     gtest/gtesttreeitem.cpp gtest/gtesttreeitem.h
     gtest/gtestvisitors.cpp gtest/gtestvisitors.h
     iframeworksettings.h
-    itestframework.h
+    itestframework.cpp itestframework.h
     itestparser.cpp itestparser.h
     projectsettingswidget.cpp projectsettingswidget.h
     qtest/qttest_utils.cpp qtest/qttest_utils.h

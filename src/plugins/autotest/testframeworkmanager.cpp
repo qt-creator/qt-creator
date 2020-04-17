@@ -91,10 +91,4 @@ void TestFrameworkManager::synchronizeSettings(QSettings *s)
     }
 }
 
-Id ITestFramework::settingsId() const
-{
-    return Core::Id(Constants::SETTINGSPAGE_PREFIX)
-            .withSuffix(QString("%1.%2").arg(priority()).arg(QLatin1String(name())));
-}
-
 } // namespace Autotest

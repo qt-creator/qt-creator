@@ -7,6 +7,7 @@ DEFINES += AUTOTEST_LIBRARY
 
 SOURCES += \
     autotestplugin.cpp \
+    itestframework.cpp \
     itestparser.cpp \
     projectsettingswidget.cpp \
     testcodeparser.cpp \
