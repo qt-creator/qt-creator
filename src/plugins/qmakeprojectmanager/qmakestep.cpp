@@ -72,6 +72,7 @@ using namespace Utils;
 namespace {
 const char QMAKE_ARGUMENTS_KEY[] = "QtProjectManager.QMakeBuildStep.QMakeArguments";
 const char QMAKE_FORCED_KEY[] = "QtProjectManager.QMakeBuildStep.QMakeForced";
+const char QMAKE_SELECTED_ABIS_KEY[] = "QtProjectManager.QMakeBuildStep.SelectedAbis";
 }
 
 QMakeStep::QMakeStep(BuildStepList *bsl, Core::Id id)
@@ -353,6 +354,16 @@ void QMakeStep::runNextCommand()
     }
 }
 
+QStringList QMakeStep::selectedAbis() const
+{
+    return m_selectedAbis;
+}
+
+void QMakeStep::setSelectedAbis(const QStringList &selectedAbis)
+{
+    m_selectedAbis = selectedAbis;
+}
+
 void QMakeStep::setUserArguments(const QString &arguments)
 {
     if (m_userArgs == arguments)
@@ -466,6 +477,7 @@ QVariantMap QMakeStep::toMap() const
     QVariantMap map(AbstractProcessStep::toMap());
     map.insert(QMAKE_ARGUMENTS_KEY, m_userArgs);
     map.insert(QMAKE_FORCED_KEY, m_forced);
+    map.insert(QMAKE_SELECTED_ABIS_KEY, m_selectedAbis);
     return map;
 }
 
@@ -473,6 +485,7 @@ bool QMakeStep::fromMap(const QVariantMap &map)
 {
     m_userArgs = map.value(QMAKE_ARGUMENTS_KEY).toString();
     m_forced = map.value(QMAKE_FORCED_KEY, false).toBool();
+    m_selectedAbis = map.value(QMAKE_SELECTED_ABIS_KEY).toStringList();
 
     // Backwards compatibility with < Creator 4.12.
     const QVariant separateDebugInfo
@@ -637,29 +650,26 @@ void QMakeStepConfigWidget::separateDebugInfoChanged()
 
 void QMakeStepConfigWidget::abisChanged()
 {
-    if (m_abisParam.isEmpty())
-        return;
-
-    QStringList args = m_step->extraArguments();
-    for (auto it = args.begin(); it != args.end(); ++it) {
-        if (it->startsWith(m_abisParam)) {
-            args.erase(it);
-            break;
-        }
-    }
-
     QStringList abis;
     for (int i = 0; i < abisListWidget->count(); ++i) {
         auto item = abisListWidget->item(i);
         if (item->checkState() == Qt::CheckState::Checked)
             abis << item->text();
     }
-    if (abis.isEmpty()) {
-        abisListWidget->item(m_preferredAbiIndex)->setCheckState(Qt::CheckState::Checked);
-        return;
+    m_step->setSelectedAbis(abis);
+
+    if (isAndroidKit()) {
+        const QString prefix = "ANDROID_ABIS=";
+        QStringList args = m_step->extraArguments();
+        for (auto it = args.begin(); it != args.end(); ++it) {
+            if (it->startsWith(prefix)) {
+                args.erase(it);
+                break;
+            }
+        }
+        args << prefix + '"' + abis.join(' ') + '"';
+        m_step->setExtraArguments(args);
     }
-    args << QStringLiteral("%1\"%2\"").arg(m_abisParam, abis.join(' '));
-    m_step->setExtraArguments(args);
 
     updateSummaryLabel();
     updateEffectiveQMakeCall();
@@ -705,6 +715,18 @@ void QMakeStepConfigWidget::askForRebuild(const QString &title)
     question->show();
 }
 
+bool QMakeStepConfigWidget::isAndroidKit() const
+{
+    BaseQtVersion *qtVersion = QtKitAspect::qtVersion(m_step->target()->kit());
+    if (!qtVersion)
+        return false;
+
+    const Abis abis = qtVersion->qtAbis();
+    return Utils::anyOf(abis, [](const Abi &abi) {
+        return abi.osFlavor() == Abi::OSFlavor::AndroidLinuxFlavor;
+    });
+}
+
 void QMakeStepConfigWidget::updateSummaryLabel()
 {
     BaseQtVersion *qtVersion = QtKitAspect::qtVersion(m_step->target()->kit());
@@ -712,29 +734,35 @@ void QMakeStepConfigWidget::updateSummaryLabel()
         setSummaryText(tr("<b>qmake:</b> No Qt version set. Cannot run qmake."));
         return;
     }
-    bool enableAbisSelect = qtVersion->qtAbis().size() > 1;
+    const Abis abis = qtVersion->qtAbis();
+    const bool enableAbisSelect = abis.size() > 1;
     abisLabel->setVisible(enableAbisSelect);
     abisListWidget->setVisible(enableAbisSelect);
-    if (enableAbisSelect && abisListWidget->count() != qtVersion->qtAbis().size()) {
+
+    if (enableAbisSelect && abisListWidget->count() != abis.size()) {
         abisListWidget->clear();
-        bool isAndroid = true;
-        m_preferredAbiIndex = -1;
-        for (const auto &abi : qtVersion->qtAbis()) {
-            auto item = new QListWidgetItem{abi.param(), abisListWidget};
-            item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-            item->setCheckState(Qt::Unchecked);
-            isAndroid = isAndroid && abi.osFlavor() == Abi::OSFlavor::AndroidLinuxFlavor;
-            if (isAndroid && (item->text() == "armeabi-v7a" ||
-                              (m_preferredAbiIndex == -1 && item->text() == "arm64-v8a"))) {
-                    m_preferredAbiIndex = abisListWidget->count() - 1;
+        QStringList selectedAbis = m_step->selectedAbis();
+
+        if (selectedAbis.isEmpty() && isAndroidKit()) {
+            // Prefer ARM for Android, prefer 32bit.
+            for (const Abi &abi : abis) {
+                if (abi.param() == "armeabi-v7a")
+                    selectedAbis.append(abi.param());
+            }
+            if (selectedAbis.isEmpty()) {
+                for (const Abi &abi : abis) {
+                    if (abi.param() == "arm64-v8a")
+                        selectedAbis.append(abi.param());
+                }
             }
         }
-        if (isAndroid)
-            m_abisParam = "ANDROID_ABIS=";
 
-        if (m_preferredAbiIndex == -1)
-            m_preferredAbiIndex = 0;
-        abisListWidget->item(m_preferredAbiIndex)->setCheckState(Qt::Checked);
+        for (const Abi &abi : abis) {
+            const QString param = abi.param();
+            auto item = new QListWidgetItem{param, abisListWidget};
+            item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+            item->setCheckState(selectedAbis.contains(param) ? Qt::Checked : Qt::Unchecked);
+        }
         abisChanged();
     }
 
