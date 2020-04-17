@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 Jochen Seemann
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
 **
@@ -24,30 +25,37 @@
 
 #pragma once
 
-#include "../itestframework.h"
-
-#include "catchtestsettings.h"
-#include "catchtestsettingspage.h"
+#include "../iframeworksettings.h"
 
 namespace Autotest {
 namespace Internal {
 
-class CatchFramework : public ITestFramework
+class CatchTestSettings : public IFrameworkSettings
 {
 public:
-    CatchFramework() : ITestFramework(true) {}
+    CatchTestSettings() = default;
+    QString name() const override;
 
-    const char *name() const override;
-    unsigned priority() const override;
+    int abortAfter = 0;
+    int benchmarkSamples = 0;
+    int benchmarkResamples = 0;
+    double confidenceInterval = 0;
+    int benchmarkWarmupTime = 0;
+    bool abortAfterChecked = false;
+    bool samplesChecked = false;
+    bool resamplesChecked = false;
+    bool confidenceIntervalChecked = false;
+    bool warmupChecked = false;
+    bool noAnalysis = false;
+    bool showSuccess = false;
+    bool breakOnFailure = true;
+    bool noThrow = false;
+    bool visibleWhitespace = false;
+    bool warnOnEmpty = false;
 
 protected:
-    ITestParser *createTestParser() override;
-    TestTreeItem *createRootNode() override;
-
-private:
-    IFrameworkSettings * frameworkSettings() override { return &m_settings; }
-    CatchTestSettings m_settings;
-    CatchTestSettingsPage m_settingsPage{&m_settings, settingsId()};
+    void toFrameworkSettings(QSettings *s) const override;
+    void fromFrameworkSettings(const QSettings *s) override;
 };
 
 } // namespace Internal

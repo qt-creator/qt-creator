@@ -1,6 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 Jochen Seemann
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
 **
@@ -24,30 +25,17 @@
 
 #pragma once
 
-#include "../itestframework.h"
-
-#include "catchtestsettings.h"
-#include "catchtestsettingspage.h"
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace Autotest {
 namespace Internal {
 
-class CatchFramework : public ITestFramework
+class CatchTestSettings;
+
+class CatchTestSettingsPage : public Core::IOptionsPage
 {
 public:
-    CatchFramework() : ITestFramework(true) {}
-
-    const char *name() const override;
-    unsigned priority() const override;
-
-protected:
-    ITestParser *createTestParser() override;
-    TestTreeItem *createRootNode() override;
-
-private:
-    IFrameworkSettings * frameworkSettings() override { return &m_settings; }
-    CatchTestSettings m_settings;
-    CatchTestSettingsPage m_settingsPage{&m_settings, settingsId()};
+    CatchTestSettingsPage(CatchTestSettings *settings, Core::Id settingsId);
 };
 
 } // namespace Internal
