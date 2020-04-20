@@ -101,6 +101,8 @@ private:
     void handleParsingSucceeded();
     void handleParsingFailed(const QString &msg);
 
+    void wireUpConnections(const ProjectExplorer::Project *p);
+
     BuildDirManager m_buildDirManager;
 
     ProjectExplorer::TreeScanner m_treeScanner;
