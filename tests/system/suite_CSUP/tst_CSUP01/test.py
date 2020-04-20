@@ -77,7 +77,7 @@ def main():
                          "possible to select one of the suggestions.")
 # Step 4: Insert text "voi" to new line and press Tab.
             resetLine(editorWidget)
-            type(editorWidget, "unsi")
+            type(editorWidget, "unsig")
             try:
                 proposalListView = waitForObject(":popupFrame_Proposal_QListView")
                 waitForObjectItem(proposalListView, "unsigned")
