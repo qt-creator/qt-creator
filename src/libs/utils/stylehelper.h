@@ -93,7 +93,8 @@ public:
     static void tintImage(QImage &img, const QColor &tintColor);
     static QLinearGradient statusBarGradient(const QRect &statusBarRect);
 
-    static QPixmap getIconFromIconFont(const QString &fontName, const QString &iconSymbol, int fontSize, int iconSize);
+    static QIcon getIconFromIconFont(const QString &fontName, const QString &iconSymbol, int fontSize, int iconSize, QColor color);
+    static QIcon getIconFromIconFont(const QString &fontName, const QString &iconSymbol, int fontSize, int iconSize);
 
     static QString dpiSpecificImageFile(const QString &fileName);
     static QString imageFileWithResolution(const QString &fileName, int dpr);

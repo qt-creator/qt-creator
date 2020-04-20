@@ -60,6 +60,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 
 #include <QSettings>
 #include <QToolBar>
@@ -70,6 +71,7 @@
 
 #include <advanceddockingsystem/dockareawidget.h>
 #include <advanceddockingsystem/docksplitter.h>
+#include <advanceddockingsystem/iconprovider.h>
 
 using Core::MiniSplitter;
 using Core::IEditor;
@@ -242,6 +244,26 @@ void DesignModeWidget::setup()
 
     QString sheet = QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/dockwidgets.css"));
     m_dockManager->setStyleSheet(Theme::replaceCssColors(sheet));
+
+    // Setup icons
+    QColor buttonColor(Theme::getColor(Theme::QmlDesigner_TabLight)); // TODO Use correct color roles
+    QColor tabColor(Theme::getColor(Theme::QmlDesigner_TabDark));
+
+    const QString closeUnicode = Theme::getIconUnicode(Theme::Icon::adsClose);
+    const QString menuUnicode = Theme::getIconUnicode(Theme::Icon::adsDropDown);
+    const QString undockUnicode = Theme::getIconUnicode(Theme::Icon::adsDetach);
+
+    const QString fontName = "qtds_propertyIconFont.ttf";
+    const QIcon tabsCloseIcon = Utils::StyleHelper::getIconFromIconFont(fontName, closeUnicode, 28, 28, tabColor);
+    const QIcon menuIcon = Utils::StyleHelper::getIconFromIconFont(fontName, menuUnicode, 28, 28, buttonColor);
+    const QIcon undockIcon = Utils::StyleHelper::getIconFromIconFont(fontName, undockUnicode, 28, 28, buttonColor);
+    const QIcon closeIcon = Utils::StyleHelper::getIconFromIconFont(fontName, closeUnicode, 28, 28, buttonColor);
+
+    m_dockManager->iconProvider().registerCustomIcon(ADS::TabCloseIcon, tabsCloseIcon);
+    m_dockManager->iconProvider().registerCustomIcon(ADS::DockAreaMenuIcon, menuIcon);
+    m_dockManager->iconProvider().registerCustomIcon(ADS::DockAreaUndockIcon, undockIcon);
+    m_dockManager->iconProvider().registerCustomIcon(ADS::DockAreaCloseIcon, closeIcon);
+    m_dockManager->iconProvider().registerCustomIcon(ADS::FloatingWidgetCloseIcon, closeIcon);
 
     // Setup Actions and Menus
     Core::ActionContainer *mwindow = Core::ActionManager::actionContainer(Core::Constants::M_WINDOW);

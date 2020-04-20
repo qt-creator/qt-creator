@@ -51,7 +51,7 @@ namespace ADS {
          */
         IconProviderPrivate(IconProvider *parent);
     };
-    // struct LedArrayPanelPrivate
+    // struct IconProviderPrivate
 
     IconProviderPrivate::IconProviderPrivate(IconProvider *parent)
         : q(parent)

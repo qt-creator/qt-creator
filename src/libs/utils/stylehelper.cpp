@@ -28,6 +28,8 @@
 #include "theme/theme.h"
 #include "hostosinfo.h"
 
+#include <utils/qtcassert.h>
+
 #include <QPixmapCache>
 #include <QPainter>
 #include <QApplication>
@@ -543,31 +545,46 @@ QLinearGradient StyleHelper::statusBarGradient(const QRect &statusBarRect)
     return grad;
 }
 
-QPixmap StyleHelper::getIconFromIconFont(const QString &fontName, const QString &iconSymbol, int fontSize, int iconSize)
+QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QString &iconSymbol, int fontSize, int iconSize, QColor color)
 {
     QFontDatabase a;
 
-    Q_ASSERT(a.hasFamily(fontName));
+    QTC_ASSERT(a.hasFamily(fontName), {});
 
     if (a.hasFamily(fontName)) {
-        QPixmap icon(iconSize, iconSize);
-        icon.fill(Qt::transparent);
-        QPainter painter(&icon);
-        QFont font(fontName);
-        font.setPixelSize(fontSize);
-        QColor penColor = QApplication::palette("QWidget").color(QPalette::Normal, QPalette::ButtonText);
 
-        painter.save();
-        painter.setPen(penColor);
-        painter.setFont(font);
-        painter.drawText(QRectF(0, 0, iconSize, iconSize), iconSymbol);
+        QIcon icon;
+        QSize size(iconSize, iconSize);
 
-        painter.restore();
+        const int maxDpr = qRound(qApp->devicePixelRatio());
+        for (int dpr = 1; dpr <= maxDpr; dpr++) {
+            QPixmap pixmap(size * dpr);
+            pixmap.setDevicePixelRatio(dpr);
+            pixmap.fill(Qt::transparent);
+
+            QFont font(fontName);
+            font.setPixelSize(fontSize * dpr);
+
+            QPainter painter(&pixmap);
+            painter.save();
+            painter.setPen(color);
+            painter.setFont(font);
+            painter.drawText(QRectF(QPoint(0, 0), size), iconSymbol);
+            painter.restore();
+
+            icon.addPixmap(pixmap);
+        }
 
         return icon;
     }
 
     return {};
+}
+
+QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QString &iconSymbol, int fontSize, int iconSize)
+{
+    QColor penColor = QApplication::palette("QWidget").color(QPalette::Normal, QPalette::ButtonText);
+    return getIconFromIconFont(fontName, iconSymbol, fontSize, iconSize, penColor);
 }
 
 QString StyleHelper::dpiSpecificImageFile(const QString &fileName)

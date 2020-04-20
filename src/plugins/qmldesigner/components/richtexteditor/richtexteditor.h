@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <theme.h>
+
 #include <QWidget>
 #include <QToolBar>
 #include <QList>
@@ -66,7 +68,7 @@ private slots:
     void cursorPositionChanged();
 
 private:
-    QPixmap getIcon(const QString &iconName);
+    QIcon getIcon(Theme::Icon icon);
     void mergeFormatOnWordOrSelection(const QTextCharFormat &format);
 
     void fontChanged(const QFont &f);

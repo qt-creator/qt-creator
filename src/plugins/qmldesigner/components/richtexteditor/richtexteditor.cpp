@@ -160,11 +160,11 @@ void RichTextEditor::setTabChangesFocus(bool change)
     ui->textEdit->setTabChangesFocus(change);
 }
 
-QPixmap RichTextEditor::getIcon(const QString &iconName)
+QIcon RichTextEditor::getIcon(Theme::Icon icon)
 {
     const QString fontName = "qtds_propertyIconFont.ttf";
 
-    return Utils::StyleHelper::getIconFromIconFont(fontName, iconName, 36, 36);
+    return Utils::StyleHelper::getIconFromIconFont(fontName, Theme::getIconUnicode(icon), 36, 36);
 }
 
 QString RichTextEditor::richText() const
@@ -276,13 +276,13 @@ void RichTextEditor::tableChanged(const QTextCursor &cursor)
 
 void RichTextEditor::setupEditActions()
 {
-    const QIcon undoIcon(getIcon("\u005F"));
+    const QIcon undoIcon(getIcon(Theme::Icon::undo));
     QAction *actionUndo = ui->toolBar->addAction(undoIcon, tr("&Undo"), ui->textEdit, &QTextEdit::undo);
     actionUndo->setShortcut(QKeySequence::Undo);
     connect(ui->textEdit->document(), &QTextDocument::undoAvailable,
             actionUndo, &QAction::setEnabled);
 
-    const QIcon redoIcon(getIcon("\u0050"));
+    const QIcon redoIcon(getIcon(Theme::Icon::redo));
     QAction *actionRedo = ui->toolBar->addAction(redoIcon, tr("&Redo"), ui->textEdit, &QTextEdit::redo);
     actionRedo->setShortcut(QKeySequence::Redo);
     connect(ui->textEdit->document(), &QTextDocument::redoAvailable,
@@ -296,7 +296,7 @@ void RichTextEditor::setupEditActions()
 
 void RichTextEditor::setupTextActions()
 {
-    const QIcon boldIcon(getIcon("\u004B"));
+    const QIcon boldIcon(getIcon(Theme::Icon::fontStyleBold));
     m_actionTextBold = ui->toolBar->addAction(boldIcon, tr("&Bold"),
                                                      [this](bool checked) {
         QTextCharFormat fmt;
@@ -309,7 +309,7 @@ void RichTextEditor::setupTextActions()
     m_actionTextBold->setFont(bold);
     m_actionTextBold->setCheckable(true);
 
-    const QIcon italicIcon(getIcon("\u004C"));
+    const QIcon italicIcon(getIcon(Theme::Icon::fontStyleItalic));
     m_actionTextItalic = ui->toolBar->addAction(italicIcon, tr("&Italic"),
                                                        [this](bool checked) {
         QTextCharFormat fmt;
@@ -322,7 +322,7 @@ void RichTextEditor::setupTextActions()
     m_actionTextItalic->setFont(italic);
     m_actionTextItalic->setCheckable(true);
 
-    const QIcon underlineIcon(getIcon("\u004E"));
+    const QIcon underlineIcon(getIcon(Theme::Icon::fontStyleUnderline));
     m_actionTextUnderline = ui->toolBar->addAction(underlineIcon, tr("&Underline"),
                                                           [this](bool checked) {
         QTextCharFormat fmt;
@@ -340,7 +340,7 @@ void RichTextEditor::setupTextActions()
 
 void RichTextEditor::setupHyperlinkActions()
 {
-    const QIcon bulletIcon(getIcon("\u0022"));
+    const QIcon bulletIcon(getIcon(Theme::Icon::actionIconBinding));
     m_actionHyperlink = ui->toolBar->addAction(bulletIcon, tr("Hyperlink Settings"), [this]() {
         QTextCursor cursor = ui->textEdit->textCursor();
         QTextCharFormat linkFormat = cursor.charFormat();
@@ -362,25 +362,25 @@ void RichTextEditor::setupHyperlinkActions()
 
 void RichTextEditor::setupAlignActions()
 {
-    const QIcon leftIcon(getIcon("\u0056"));
+    const QIcon leftIcon(getIcon(Theme::Icon::textAlignLeft));
     m_actionAlignLeft = ui->toolBar->addAction(leftIcon, tr("&Left"), [this]() { ui->textEdit->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute); });
     m_actionAlignLeft->setShortcut(Qt::CTRL + Qt::Key_L);
     m_actionAlignLeft->setCheckable(true);
     m_actionAlignLeft->setPriority(QAction::LowPriority);
 
-    const QIcon centerIcon(getIcon("\u0055"));
+    const QIcon centerIcon(getIcon(Theme::Icon::textAlignCenter));
     m_actionAlignCenter = ui->toolBar->addAction(centerIcon, tr("C&enter"), [this]() { ui->textEdit->setAlignment(Qt::AlignHCenter); });
     m_actionAlignCenter->setShortcut(Qt::CTRL + Qt::Key_E);
     m_actionAlignCenter->setCheckable(true);
     m_actionAlignCenter->setPriority(QAction::LowPriority);
 
-    const QIcon rightIcon(getIcon("\u0058"));
+    const QIcon rightIcon(getIcon(Theme::Icon::textAlignRight));
     m_actionAlignRight = ui->toolBar->addAction(rightIcon, tr("&Right"), [this]() { ui->textEdit->setAlignment(Qt::AlignRight | Qt::AlignAbsolute); });
     m_actionAlignRight->setShortcut(Qt::CTRL + Qt::Key_R);
     m_actionAlignRight->setCheckable(true);
     m_actionAlignRight->setPriority(QAction::LowPriority);
 
-    const QIcon fillIcon(getIcon("\u005B"));
+    const QIcon fillIcon(getIcon(Theme::Icon::textFullJustification));
     m_actionAlignJustify = ui->toolBar->addAction(fillIcon, tr("&Justify"), [this]() { ui->textEdit->setAlignment(Qt::AlignJustify); });
     m_actionAlignJustify->setShortcut(Qt::CTRL + Qt::Key_J);
     m_actionAlignJustify->setCheckable(true);
@@ -407,7 +407,7 @@ void RichTextEditor::setupAlignActions()
 
 void RichTextEditor::setupListActions()
 {
-    const QIcon bulletIcon(getIcon("\u005A"));
+    const QIcon bulletIcon(getIcon(Theme::Icon::textBulletList));
     m_actionBulletList = ui->toolBar->addAction(bulletIcon, tr("Bullet List"), [this](bool checked) {
         if (checked) {
             m_actionNumberedList->setChecked(false);
@@ -419,7 +419,7 @@ void RichTextEditor::setupListActions()
     });
     m_actionBulletList->setCheckable(true);
 
-    const QIcon numberedIcon(getIcon("\u005C"));
+    const QIcon numberedIcon(getIcon(Theme::Icon::textNumberedList));
     m_actionNumberedList = ui->toolBar->addAction(numberedIcon, tr("Numbered List"), [this](bool checked) {
         if (checked) {
             m_actionBulletList->setChecked(false);
@@ -493,7 +493,7 @@ void RichTextEditor::setupFontActions()
 
 void RichTextEditor::setupTableActions()
 {
-    const QIcon tableIcon(getIcon("\u0028"));
+    const QIcon tableIcon(getIcon(Theme::Icon::addTable));
     m_actionTableSettings = ui->toolBar->addAction(tableIcon, tr("&Table Settings"), [this](bool checked) {
         ui->tableBar->setVisible(checked);
     });
@@ -503,7 +503,7 @@ void RichTextEditor::setupTableActions()
 
 //table bar:
 
-    const QIcon createTableIcon(getIcon("\u0028"));
+    const QIcon createTableIcon(getIcon(Theme::Icon::addTable));
     m_actionCreateTable = ui->tableBar->addAction(createTableIcon, tr("Create Table"), [this]() {
         QTextCursor cursor = ui->textEdit->textCursor();
         cursorEditBlock(cursor, [&] () {
@@ -512,7 +512,7 @@ void RichTextEditor::setupTableActions()
     });
     m_actionCreateTable->setCheckable(false);
 
-    const QIcon removeTableIcon(getIcon("\u003D"));
+    const QIcon removeTableIcon(getIcon(Theme::Icon::deleteTable));
     m_actionRemoveTable = ui->tableBar->addAction(removeTableIcon, tr("Remove Table"), [this]() {
         QTextCursor cursor = ui->textEdit->textCursor();
         if (QTextTable *currentTable = ui->textEdit->textCursor().currentTable()) {
@@ -525,7 +525,7 @@ void RichTextEditor::setupTableActions()
 
     ui->tableBar->addSeparator();
 
-    const QIcon addRowIcon(getIcon("\u0026")); //addRowAfter
+    const QIcon addRowIcon(getIcon(Theme::Icon::addRowAfter)); //addRowAfter
     m_actionAddRow = ui->tableBar->addAction(addRowIcon, tr("Add Row"), [this]() {
         QTextCursor cursor = ui->textEdit->textCursor();
         if (QTextTable *currentTable = ui->textEdit->textCursor().currentTable()) {
@@ -536,7 +536,7 @@ void RichTextEditor::setupTableActions()
     });
     m_actionAddRow->setCheckable(false);
 
-    const QIcon addColumnIcon(getIcon("\u0023")); //addColumnAfter
+    const QIcon addColumnIcon(getIcon(Theme::Icon::addColumnAfter)); //addColumnAfter
     m_actionAddColumn = ui->tableBar->addAction(addColumnIcon, tr("Add Column"), [this]() {
         QTextCursor cursor = ui->textEdit->textCursor();
         if (QTextTable *currentTable = ui->textEdit->textCursor().currentTable()) {
@@ -547,7 +547,7 @@ void RichTextEditor::setupTableActions()
     });
     m_actionAddColumn->setCheckable(false);
 
-    const QIcon removeRowIcon(getIcon("\u003C"));
+    const QIcon removeRowIcon(getIcon(Theme::Icon::deleteRow));
     m_actionRemoveRow = ui->tableBar->addAction(removeRowIcon, tr("Remove Row"), [this]() {
         QTextCursor cursor = ui->textEdit->textCursor();
         if (QTextTable *currentTable = cursor.currentTable()) {
@@ -571,7 +571,7 @@ void RichTextEditor::setupTableActions()
     });
     m_actionRemoveRow->setCheckable(false);
 
-    const QIcon removeColumnIcon(getIcon("\u003B"));
+    const QIcon removeColumnIcon(getIcon(Theme::Icon::deleteColumn));
     m_actionRemoveColumn = ui->tableBar->addAction(removeColumnIcon, tr("Remove Column"), [this]() {
         QTextCursor cursor = ui->textEdit->textCursor();
         if (QTextTable *currentTable = cursor.currentTable()) {
@@ -595,7 +595,7 @@ void RichTextEditor::setupTableActions()
 
     ui->tableBar->addSeparator();
 
-    const QIcon mergeCellsIcon(getIcon("\u004F"));
+    const QIcon mergeCellsIcon(getIcon(Theme::Icon::mergeCells));
     m_actionMergeCells = ui->tableBar->addAction(mergeCellsIcon, tr("Merge Cells"), [this]() {
         QTextCursor cursor = ui->textEdit->textCursor();
         if (QTextTable *currentTable = cursor.currentTable()) {
@@ -608,7 +608,7 @@ void RichTextEditor::setupTableActions()
     });
     m_actionMergeCells->setCheckable(false);
 
-    const QIcon splitRowIcon(getIcon("\u0052"));
+    const QIcon splitRowIcon(getIcon(Theme::Icon::splitRows));
     m_actionSplitRow = ui->tableBar->addAction(splitRowIcon, tr("Split Row"), [this]() {
         QTextCursor cursor = ui->textEdit->textCursor();
         if (QTextTable *currentTable = cursor.currentTable()) {
@@ -621,7 +621,7 @@ void RichTextEditor::setupTableActions()
     });
     m_actionSplitRow->setCheckable(false);
 
-    const QIcon splitColumnIcon(getIcon("\u0051"));
+    const QIcon splitColumnIcon(getIcon(Theme::Icon::splitColumns));
     m_actionSplitColumn = ui->tableBar->addAction(splitRowIcon, tr("Split Column"), [this]() {
         QTextCursor cursor = ui->textEdit->textCursor();
         if (QTextTable *currentTable = cursor.currentTable()) {

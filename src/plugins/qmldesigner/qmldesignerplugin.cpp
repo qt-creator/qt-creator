@@ -216,6 +216,11 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     if (DesignerSettings::getValue(DesignerSettingsKey::STANDALONE_MODE).toBool())
         GenerateResource::generateMenuEntry();
 
+    QString fontPath = Core::ICore::resourcePath() +
+            QStringLiteral("/qmldesigner/propertyEditorQmlSources/imports/StudioTheme/icons.ttf");
+    if (QFontDatabase::addApplicationFont(fontPath) < 0)
+        qCWarning(qmldesignerLog) << "Could not add font " << fontPath << "to font database";
+
     return true;
 }
 
