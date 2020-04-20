@@ -155,7 +155,8 @@ bool AndroidBuildApkStep::init()
         return false;
 
     const QVersionNumber sdkToolsVersion = AndroidConfigurations::currentConfig().sdkToolsVersion();
-    if (sdkToolsVersion >= gradleScriptRevokedSdkVersion) {
+    if (sdkToolsVersion >= gradleScriptRevokedSdkVersion
+        || AndroidConfigurations::currentConfig().isCmdlineSdkToolsInstalled()) {
         if (!version->sourcePath().pathAppended("src/3rdparty/gradle").exists()) {
             emit addOutput(tr("The installed SDK tools version (%1) does not include Gradle "
                               "scripts. The minimum Qt version required for Gradle build to work "

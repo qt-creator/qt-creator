@@ -944,6 +944,9 @@ bool ModelNode::hasNodeListProperty(const PropertyName &name) const
 
 static bool recursiveAncestor(const ModelNode &possibleAncestor, const ModelNode &node)
 {
+    if (!node.isValid())
+        return false;
+
     if (node.hasParentProperty()) {
         if (node.parentProperty().parentModelNode() == possibleAncestor)
            return true;
