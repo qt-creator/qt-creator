@@ -872,6 +872,7 @@ int Lexer::scanString(ScanStringMode mode)
 {
     QChar quote = (mode == TemplateContinuation) ? QChar(TemplateHead) : QChar(mode);
     bool multilineStringLiteral = false;
+    bool escaped = false;
 
     const QChar *startCode = _codePtr - 1;
     // in case we just parsed a \r, we need to reset this flag to get things working
@@ -880,6 +881,12 @@ int Lexer::scanString(ScanStringMode mode)
 
     if (_engine) {
         while (_codePtr <= _endPtr) {
+            if (escaped) { // former char started an escape sequence
+                escaped = false;
+                _char = *_codePtr++;
+                ++_currentColumnNumber;
+                continue;
+            }
             if (isLineTerminator()) {
                 if ((quote == QLatin1Char('`') || qmlMode()))
                     break;
@@ -887,7 +894,10 @@ int Lexer::scanString(ScanStringMode mode)
                 _errorMessage = QCoreApplication::translate("QmlParser", "Stray newline in string literal");
                 return T_ERROR;
             } else if (_char == QLatin1Char('\\')) {
-                break;
+                if (mode != DoubleQuote && mode != SingleQuote)
+                    break;
+                else // otherwise we need to handle an escape sequence
+                    escaped = true;
             } else if (_char == '$' && quote == QLatin1Char('`')) {
                 break;
             } else if (_char == quote) {
