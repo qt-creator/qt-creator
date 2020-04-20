@@ -61,6 +61,9 @@ private:
     };
 
     void recordTestInformation(const QXmlStreamAttributes &attributes);
+    void recordBenchmarkInformation(const QXmlStreamAttributes &attributes);
+    void recordBenchmarkDetails(const QXmlStreamAttributes &attributes,
+                                const QList<QPair<QString, QString>> &stringAndAttrNames);
     void sendResult(const ResultType result);
 
     void testOutputNodeStarted(TestOutputNodeType type);

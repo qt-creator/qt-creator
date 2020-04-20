@@ -40,6 +40,9 @@ namespace CatchXml {
     const char SectionElement[]        = "Section";
     const char ExpressionElement[]     = "Expression";
     const char ExpandedElement[]       = "Expanded";
+    const char BenchmarkResults[]      = "BenchmarkResults";
+    const char MeanElement[]           = "mean";
+    const char StandardDevElement[]    = "standardDeviation";
     const char SectionResultElement[]  = "OverallResults";
     const char TestCaseResultElement[] = "OverallResult";
 }
@@ -114,6 +117,18 @@ void CatchOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
                     m_currentResult = m_shouldFail ? ResultType::UnexpectedPass : ResultType::Pass;
                 else
                     m_currentResult = m_mayFail || m_shouldFail ? ResultType::ExpectedFail : ResultType::Fail;
+            } else if (m_currentTagName == CatchXml::BenchmarkResults) {
+                recordBenchmarkInformation(m_xmlReader.attributes());
+                m_currentResult = ResultType::Benchmark;
+            } else if (m_currentTagName == CatchXml::MeanElement) {
+                recordBenchmarkDetails(m_xmlReader.attributes(), {{{"mean"}, {"value"}},
+                                                                  {{"low mean"}, {"lowerBound"}},
+                                                                  {{"high mean"}, {"upperBound"}}});
+            } else if (m_currentTagName == CatchXml::StandardDevElement) {
+                recordBenchmarkDetails(m_xmlReader.attributes(), {
+                                           {{"standard deviation"}, {"value"}},
+                                           {{"low std dev"}, {"lowerBound"}},
+                                           {{"high std dev"}, {"upperBound"}}});
             }
             break;
         }
@@ -135,7 +150,8 @@ void CatchOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
                 testOutputNodeFinished(TestCaseNode);
             } else if (currentTag == CatchXml::GroupElement) {
                 testOutputNodeFinished(GroupNode);
-            } else if (currentTag == CatchXml::ExpressionElement) {
+            } else if (currentTag == CatchXml::ExpressionElement
+                       || currentTag == CatchXml::BenchmarkResults) {
                 sendResult(m_currentResult);
                 m_currentExpression.clear();
                 m_testCaseInfo.pop();
@@ -189,6 +205,39 @@ void CatchOutputReader::recordTestInformation(const QXmlStreamAttributes &attrib
     }
 }
 
+void CatchOutputReader::recordBenchmarkInformation(const QXmlStreamAttributes &attributes)
+{
+    QString name = attributes.value("name").toString();
+    QString fileName;
+    int line = 0;
+    if (!m_testCaseInfo.isEmpty()) {
+        fileName = m_testCaseInfo.top().filename;
+        line = m_testCaseInfo.top().line;
+    }
+    m_testCaseInfo.append(TestOutputNode{name, fileName, line});
+
+    m_currentExpression.append(name);
+    recordBenchmarkDetails(attributes, {{{"samples"}, {"samples"}},
+                                        {{"iterations"}, {"iterations"}},
+                                        {{"estimated duration"}, {"estimatedDuration"}}});
+    m_currentExpression.append(" ms");  // ugly
+}
+
+void CatchOutputReader::recordBenchmarkDetails(
+        const QXmlStreamAttributes &attributes,
+        const QList<QPair<QString, QString>> &stringAndAttrNames)
+{
+    m_currentExpression.append('\n');
+    int counter = 0;
+    for (const QPair<QString, QString> &curr : stringAndAttrNames) {
+        m_currentExpression.append(curr.first).append(": ");
+        m_currentExpression.append(attributes.value(curr.second).toString());
+        if (counter < stringAndAttrNames.size() - 1)
+            m_currentExpression.append(", ");
+        ++counter;
+    }
+}
+
 void CatchOutputReader::sendResult(const ResultType result)
 {
     TestResultPtr catchResult = createDefaultResult();
@@ -218,6 +267,8 @@ void CatchOutputReader::sendResult(const ResultType result)
     } else if (result == ResultType::TestEnd) {
         catchResult->setDescription(tr("Finished executing %1 \"%2\"").arg(testOutputNodeToString().toLower())
                                     .arg(catchResult->description()));
+    } else if (result == ResultType::Benchmark) {
+        catchResult->setDescription(m_currentExpression);
     }
 
     reportResult(catchResult);
