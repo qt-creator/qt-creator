@@ -25,6 +25,7 @@
 
 #include "navigatortreemodel.h"
 #include "navigatorview.h"
+#include "qmldesignerplugin.h"
 
 #include <bindingproperty.h>
 #include <designersettings.h>
@@ -49,6 +50,7 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QPointF>
+#include <QDir>
 
 #include <coreplugin/messagebox.h>
 
@@ -555,7 +557,8 @@ void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, i
         ModelNode targetNode(modelNodeForIndex(rowModelIndex));
 
         const QString imageSource = QString::fromUtf8(mimeData->data("application/vnd.bauhaus.libraryresource")); // absolute path
-        const QString imageFileName = imageSource.mid(imageSource.lastIndexOf('/') + 1);
+        const QString imagePath = QmlDesignerPlugin::instance()->documentManager().currentFilePath().toFileInfo().dir().relativeFilePath(imageSource); // relative to .ui.qml file
+
         ModelNode newModelNode;
 
         if (targetNode.isSubclassOf("QtQuick3D.DefaultMaterial")) {
@@ -569,7 +572,7 @@ void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, i
                 // set texture source
                 PropertyName prop = "source";
                 QString type = "QUrl";
-                QVariant val = imageFileName;
+                QVariant val = imagePath;
                 itemLibraryEntry.addProperty(prop, type, val);
 
                 // create a texture
@@ -581,8 +584,9 @@ void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, i
             });
         } else if (targetNode.isSubclassOf("QtQuick3D.Texture")) {
             // if dropping an image on a texture, set the texture source
-            targetNode.variantProperty("source").setValue(imageFileName);
+            targetNode.variantProperty("source").setValue(imagePath);
         } else {
+
             // create an image
             newModelNode = QmlItemNode::createQmlItemNodeFromImage(m_view, imageSource , QPointF(), targetProperty);
         }
