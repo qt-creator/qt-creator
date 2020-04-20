@@ -65,11 +65,6 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Core::Id id)
 {
     m_buildSystem = new CMakeBuildSystem(this);
 
-    setBuildDirectory(shadowBuildDirectory(project()->projectFilePath(),
-                                           target->kit(),
-                                           displayName(),
-                                           BuildConfiguration::Unknown));
-
     buildDirectoryAspect()->setFileDialogOnly(true);
 
     appendInitialBuildStep(Constants::CMAKE_BUILD_STEP_ID);
