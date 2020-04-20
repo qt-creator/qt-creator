@@ -2034,6 +2034,9 @@ FilePaths BaseQtVersionPrivate::qtCorePaths()
                 else if (file.endsWith(".dll")
                          || file.endsWith(QString::fromLatin1(".so.") + versionString)
                          || file.endsWith(".so")
+#if defined(Q_OS_OPENBSD)
+                         || file.contains(QRegularExpression("\\.so\\.[0-9]+\\.[0-9]+$")) // QTCREATORBUG-23818
+#endif
                          || file.endsWith(QLatin1Char('.') + versionString + ".dylib"))
                     dynamicLibs.append(FilePath::fromFileInfo(info));
             }
