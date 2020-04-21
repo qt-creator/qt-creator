@@ -90,6 +90,7 @@ public:
     bool hasAnchors() const;
     QString error() const;
     bool hasError() const;
+    QStringList allStateNames() const;
 
 protected:
     void setProperty(const PropertyName &name, const QVariant &value);
@@ -117,6 +118,7 @@ protected:
     InformationName setInformationAnchor(const PropertyName &sourceAnchorLine, const PropertyName &targetAnchorLine, qint32 targetInstanceId);
     InformationName setInformationInstanceTypeForProperty(const PropertyName &property, const TypeName &type);
     InformationName setInformationHasBindingForProperty(const PropertyName &property, bool hasProperty);
+    InformationName setAllStates(const QStringList &states);
 
     void setParentId(qint32 instanceId);
     void setRenderPixmap(const QImage &image);

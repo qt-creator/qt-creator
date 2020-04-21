@@ -232,6 +232,20 @@ QList<QQuickItem *> QuickItemNodeInstance::allItemsRecursive() const
     return itemList;
 }
 
+QStringList QuickItemNodeInstance::allStates() const
+{
+    QStringList list;
+
+    QList<QObject*> stateList = DesignerSupport::statesForItem(quickItem());
+    for (QObject *state : stateList) {
+        QQmlProperty property(state, "name");
+        if (property.isValid())
+            list.append(property.read().toString());
+    }
+
+    return list;
+}
+
 QRectF QuickItemNodeInstance::contentItemBoundingBox() const
 {
     if (contentItem()) {

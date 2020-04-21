@@ -661,6 +661,14 @@ QList<ServerNodeInstance> ServerNodeInstance::stateInstances() const
     return m_nodeInstance->stateInstances();
 }
 
+QStringList ServerNodeInstance::allStates() const
+{
+    if (isValid())
+        return m_nodeInstance->allStates();
+
+    return {};
+}
+
 Internal::ObjectNodeInstance::Pointer ServerNodeInstance::internalInstance() const
 {
     return m_nodeInstance;

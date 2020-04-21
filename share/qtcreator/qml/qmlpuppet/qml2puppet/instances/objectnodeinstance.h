@@ -148,6 +148,7 @@ public:
 
     virtual void activateState();
     virtual void deactivateState();
+    virtual QStringList allStates() const;
 
     void populateResetHashes();
     bool hasValidResetBinding(const PropertyName &propertyName) const;
