@@ -633,6 +633,8 @@ void UvscEngine::handleUpdateLocation(quint64 address)
 
 void UvscEngine::handleStartExecution()
 {
+    if (state() != InferiorRunRequested)
+        notifyInferiorRunRequested();
     notifyInferiorRunOk();
 }
 
