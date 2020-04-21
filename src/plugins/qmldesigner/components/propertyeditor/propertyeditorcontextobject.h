@@ -46,6 +46,7 @@ class PropertyEditorContextObject : public QObject
 
     Q_PROPERTY(QString specificQmlData READ specificQmlData WRITE setSpecificQmlData NOTIFY specificQmlDataChanged)
     Q_PROPERTY(QString stateName READ stateName WRITE setStateName NOTIFY stateNameChanged)
+    Q_PROPERTY(QStringList allStateNames READ allStateNames WRITE setAllStateNames NOTIFY allStateNamesChanged)
 
     Q_PROPERTY(bool isBaseState READ isBaseState WRITE setIsBaseState NOTIFY isBaseStateChanged)
     Q_PROPERTY(bool selectionChanged READ selectionChanged WRITE setSelectionChanged NOTIFY selectionChangedChanged)
@@ -70,6 +71,7 @@ public:
     QUrl specificsUrl() const {return m_specificsUrl; }
     QString specificQmlData() const {return m_specificQmlData; }
     QString stateName() const {return m_stateName; }
+    QStringList allStateNames() const { return m_allStateNames; }
 
     bool isBaseState() const { return m_isBaseState; }
     bool selectionChanged() const { return m_selectionChanged; }
@@ -114,6 +116,7 @@ signals:
     void specificsUrlChanged();
     void specificQmlDataChanged();
     void stateNameChanged();
+    void allStateNamesChanged();
     void isBaseStateChanged();
     void selectionChangedChanged();
     void backendValuesChanged();
@@ -134,6 +137,8 @@ public slots:
 
      void setStateName(const QString &newStateName);
 
+     void setAllStateNames(const QStringList &allStates);
+
      void setIsBaseState(bool newIsBaseState);
 
      void setSelectionChanged(bool newSelectionChanged);
@@ -151,6 +156,7 @@ private:
 
     QString m_specificQmlData;
     QString m_stateName;
+    QStringList m_allStateNames;
 
     bool m_isBaseState;
     bool m_selectionChanged;

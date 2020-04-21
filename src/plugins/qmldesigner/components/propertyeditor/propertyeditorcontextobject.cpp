@@ -347,6 +347,15 @@ void PropertyEditorContextObject::setStateName(const QString &newStateName)
     emit stateNameChanged();
 }
 
+void PropertyEditorContextObject::setAllStateNames(const QStringList &allStates)
+{
+    if (allStates == m_allStateNames)
+            return;
+
+    m_allStateNames = allStates;
+    emit allStateNamesChanged();
+}
+
 void PropertyEditorContextObject::setIsBaseState(bool newIsBaseState)
 {
     if (newIsBaseState ==  m_isBaseState)
