@@ -55,9 +55,9 @@ InputEventCommand::InputEventCommand(QInputEvent *e)
 
 QDataStream &operator<<(QDataStream &out, const InputEventCommand &command)
 {
-    out << command.type();
+    out << int(command.type());
     out << command.pos();
-    out << command.button();
+    out << int(command.button());
     out << command.buttons();
     out << command.modifiers();
     out << command.angleDelta();
