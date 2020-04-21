@@ -134,13 +134,17 @@ TimelineWidget::TimelineWidget(TimelineView *view)
     sizePolicy1.setHeightForWidth(m_graphicsView->sizePolicy().hasHeightForWidth());
 
     m_rulerView->setObjectName("RulerView");
-    m_rulerView->setScene(graphicsScene());
     m_rulerView->setFixedHeight(TimelineConstants::rulerHeight);
     m_rulerView->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-    m_rulerView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_rulerView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_rulerView->viewport()->installEventFilter(new Eventfilter(this));
     m_rulerView->viewport()->setFocusPolicy(Qt::NoFocus);
+    m_rulerView->setStyleSheet(css);
+    m_rulerView->setFrameShape(QFrame::NoFrame);
+    m_rulerView->setFrameShadow(QFrame::Plain);
+    m_rulerView->setLineWidth(0);
+    m_rulerView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_rulerView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_rulerView->setScene(graphicsScene());
 
     m_graphicsView->setStyleSheet(css);
     m_graphicsView->setObjectName("SceneView");
