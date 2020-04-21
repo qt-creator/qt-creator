@@ -1401,7 +1401,7 @@ ModelManagerInterface::CppDataHash ModelManagerInterface::cppData() const
 LibraryInfo ModelManagerInterface::builtins(const Document::Ptr &doc) const
 {
     const ProjectInfo info = projectInfoForPath(doc->fileName());
-    if (!info.project.isNull() && !info.qtQmlPath.isEmpty())
+    if (!info.qtQmlPath.isEmpty())
         return m_validSnapshot.libraryInfo(info.qtQmlPath);
     return LibraryInfo();
 }
