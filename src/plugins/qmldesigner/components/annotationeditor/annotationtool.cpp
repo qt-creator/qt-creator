@@ -201,7 +201,7 @@ void AnnotationTool::formEditorItemsChanged(const QList<FormEditorItem*> & /*ite
 
 int AnnotationTool::wantHandleItem(const ModelNode & /*modelNode*/) const
 {
-    return 10;
+    return 5;
 }
 
 QString AnnotationTool::name() const

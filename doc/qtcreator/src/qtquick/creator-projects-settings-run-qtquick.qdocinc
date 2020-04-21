@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -33,7 +33,9 @@
 
     \list
 
-        \li In the \uicontrol Arguments field, you can specify command line arguments
+        \li In the \uicontrol {QML Viewer} field, specify the \QQV to use.
+
+        \li In the \uicontrol {Command line arguments} field, specify arguments
             to be passed to the executable.
 
         \li In the \uicontrol {Main QML file}, select the file that \QQV will be

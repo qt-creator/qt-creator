@@ -155,6 +155,9 @@ public:
 
     QVariantMap toMap() const override;
 
+    QStringList selectedAbis() const;
+    void setSelectedAbis(const QStringList &selectedAbis);
+
 signals:
     void userArgumentsChanged();
     void extraArgumentsChanged();
@@ -188,6 +191,7 @@ private:
 
     bool m_runMakeQmake = false;
     bool m_scriptTemplate = false;
+    QStringList m_selectedAbis;
 };
 
 
@@ -217,11 +221,10 @@ private:
 
     void updateSummaryLabel();
     void updateEffectiveQMakeCall();
+    bool isAndroidKit() const;
 
     QMakeStep *m_step = nullptr;
     bool m_ignoreChange = false;
-    int m_preferredAbiIndex = -1;
-    QString m_abisParam;
 
     QLabel *abisLabel = nullptr;
     QComboBox *buildConfigurationComboBox = nullptr;

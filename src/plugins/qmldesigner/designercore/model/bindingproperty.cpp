@@ -199,6 +199,38 @@ QList<ModelNode> BindingProperty::resolveToModelNodeList() const
     return returnList;
 }
 
+void BindingProperty::addModelNodeToArray(const ModelNode &modelNode)
+{
+    if (!isValid())
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    if (isBindingProperty()) {
+        QStringList simplifiedList;
+        if (isList()) {
+            QString string = expression();
+            string.chop(1);
+            string.remove(0, 1);
+            QStringList simplifiedList = commaSeparatedSimplifiedStringList(string);
+            ModelNode node = modelNode;
+            simplifiedList.append(node.validId());
+            setExpression('[' + simplifiedList.join(',') + ']');
+        } else {
+            ModelNode currentNode = resolveToModelNode();
+            if (currentNode.isValid())
+                simplifiedList.append(currentNode.validId());
+        }
+        ModelNode node = modelNode;
+        simplifiedList.append(node.validId());
+        setExpression('[' + simplifiedList.join(',') + ']');
+    } else if (exists()) {
+        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, name());
+    } else {
+        ModelNode node = modelNode;
+        setExpression('[' + node.validId() + ']');
+    }
+
+}
+
 bool BindingProperty::isAliasExport() const
 {
     if (!isValid())

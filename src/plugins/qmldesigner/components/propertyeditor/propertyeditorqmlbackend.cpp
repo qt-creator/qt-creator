@@ -144,10 +144,17 @@ QVariant properDefaultAuxiliaryProperties(const QmlObjectNode &qmlObjectNode,
 
     if (node.hasAuxiliaryData(auxName))
         return node.auxiliaryData(auxName);
-
-    if (propertyName == "color")
+    if (propertyName == "transitionColor")
         return QColor(Qt::red);
-    if (propertyName == "fillColor")
+    if (propertyName == "areaColor")
+        return QColor(Qt::red);
+    if (propertyName == "blockColor")
+        return QColor(Qt::red);
+    if (propertyName == "areaFillColor")
+        return QColor(Qt::transparent);
+    else if (propertyName == "color")
+        return QColor(Qt::red);
+    else if (propertyName == "fillColor")
         return QColor(Qt::transparent);
     else if (propertyName == "width")
         return 4;
@@ -233,6 +240,12 @@ void PropertyEditorQmlBackend::setupAuxiliaryProperties(const QmlObjectNode &qml
         propertyNames.append({"color", "width", "inOffset", "outOffset", "joinConnection"});
     } else if (itemNode.isFlowActionArea()) {
         propertyNames.append({"color", "width", "fillColor", "outOffset", "dash"});
+    } else if (itemNode.isFlowDecision()) {
+        propertyNames.append({"color", "width", "fillColor", "dash"});
+    } else if (itemNode.isFlowWildcard()) {
+        propertyNames.append({"color", "width", "fillColor", "dash"});
+    } else if (itemNode.isFlowView()) {
+        propertyNames.append({"transitionColor", "areaColor", "areaFillColor", "blockColor" });
     }
 
     for (const PropertyName &propertyName : propertyNames) {
