@@ -280,7 +280,16 @@ void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file, const QVar
         return;
     }
 
+    QString originalAssetName = assetName;
     if (targetDir.exists(assetName)) {
+        // If we have a file system with case insensitive filenames, assetName may be
+        // different from the existing name. Modify assetName to ensure exact match to
+        // the overwritten old asset capitalization
+        const QStringList assetDirs = targetDir.entryList({assetName}, QDir::Dirs);
+        if (assetDirs.size() == 1) {
+            assetName = assetDirs[0];
+            targetDirPath = targetDir.filePath(assetName);
+        }
         if (!confirmAssetOverwrite(assetName)) {
             addWarning(tr("Skipped import of existing asset: \"%1\"").arg(assetName));
             return;
@@ -304,6 +313,13 @@ void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file, const QVar
         addError(tr("Failed to import 3D asset with error: %1").arg(errorString),
                  sourceInfo.absoluteFilePath());
         return;
+    }
+
+    if (originalAssetName != assetName) {
+        // Fix the generated qml file name
+        const QString assetQml = originalAssetName + ".qml";
+        if (outDir.exists(assetQml))
+            outDir.rename(assetQml, assetName + ".qml");
     }
 
     QHash<QString, QString> assetFiles;
