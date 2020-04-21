@@ -169,25 +169,35 @@ static void deleteWithoutChildren(const QList<FormEditorItem*> &items)
     }
 }
 
+static bool isFlowNonItem(const QmlItemNode &itemNode)
+{
+    return itemNode.isFlowTransition()
+            || itemNode.isFlowWildcard()
+            || itemNode.isFlowWildcard();
+}
+
 void FormEditorView::removeNodeFromScene(const QmlItemNode &qmlItemNode)
 {
+    QList<FormEditorItem*> removedItemList;
+
     if (qmlItemNode.isValid()) {
         QList<QmlItemNode> nodeList;
         nodeList.append(qmlItemNode.allSubModelNodes());
         nodeList.append(qmlItemNode);
 
-        QList<FormEditorItem*> removedItemList;
-
         removedItemList.append(scene()->itemsForQmlItemNodes(nodeList));
-        m_currentTool->itemsAboutToRemoved(removedItemList);
 
         //The destructor of QGraphicsItem does delete all its children.
         //We have to keep the children if they are not children in the model anymore.
         //Otherwise we delete the children explicitly anyway.
         deleteWithoutChildren(removedItemList);
-    } else if (qmlItemNode.isFlowTransition()) {
-        deleteWithoutChildren(scene()->itemsForQmlItemNodes({qmlItemNode}));
+    } else if (isFlowNonItem(qmlItemNode)) {
+        removedItemList.append(scene()->itemsForQmlItemNodes({qmlItemNode}));
+        deleteWithoutChildren(removedItemList);
     }
+
+    if (!removedItemList.isEmpty())
+        m_currentTool->itemsAboutToRemoved(removedItemList);
 }
 
 void FormEditorView::hideNodeFromScene(const QmlItemNode &qmlItemNode)
@@ -308,6 +318,11 @@ void FormEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& p
                         removedItems.append(item);
                         delete item;
                     }
+                } else if (isFlowNonItem(qmlItemNode)) {
+                    if (FormEditorItem *item = m_scene->itemForQmlItemNode(qmlItemNode)) {
+                        removedItems.append(item);
+                        delete item;
+                    }
                 }
             }
         }
@@ -377,7 +392,7 @@ void FormEditorView::bindingPropertiesChanged(const QList<BindingProperty> &prop
         QmlVisualNode node(property.parentModelNode());
         if (node.isFlowTransition()) {
             FormEditorItem *item = m_scene->itemForQmlItemNode(node.toQmlItemNode());
-            if (item) {
+            if (item && node.hasNodeParent()) {
                 m_scene->reparentItem(node.toQmlItemNode(), node.toQmlItemNode().modelParentItem());
                 m_scene->synchronizeTransformation(item);
                 item->update();

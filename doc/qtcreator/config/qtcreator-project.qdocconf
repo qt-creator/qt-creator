@@ -35,7 +35,8 @@ examples.fileextensions += *.qml *.svg
 HTML.extraimages         = ../../config/images/commercial.png
 qhp.QtCreator.extraFiles = ../../config/images/commercial.png
 
-depends +=    qtwidgets \
+depends +=    qtandroidextras\
+              qtwidgets \
               qtcmake \
               qtcore \
               qtqml \
