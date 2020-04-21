@@ -37,7 +37,7 @@
     name and one or several comments. The comments have a title, author, and
     comment text.
 
-    \image qtquick-annotations.png "Annotations displayed in the Form Editor tab"
+    \image qtquick-annotations.png "Annotations displayed in the Form Editor view"
 
     Annotations are saved in the end of QML files when you save the file. They
     do not affect the QML performance in any way.

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -70,6 +70,7 @@
             \list
                 \li \l{Creating Components}
                 \list
+                    \li \l{Editing 2D Content}
                     \li \l{Creating Buttons}
                     \li \l{Creating Scalable Buttons and Borders}
                 \endlist
