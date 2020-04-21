@@ -179,6 +179,17 @@ void Edit3DView::importsChanged(const QList<Import> &addedImports,
     checkImports();
 }
 
+void Edit3DView::customNotification(const AbstractView *view, const QString &identifier,
+                                    const QList<ModelNode> &nodeList, const QList<QVariant> &data)
+{
+    Q_UNUSED(view)
+    Q_UNUSED(nodeList)
+    Q_UNUSED(data)
+
+    if (identifier == "asset_import_update")
+        resetPuppet();
+}
+
 void Edit3DView::sendInputEvent(QInputEvent *e) const
 {
     if (nodeInstanceView())

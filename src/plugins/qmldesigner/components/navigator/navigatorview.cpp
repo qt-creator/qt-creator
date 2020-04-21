@@ -147,6 +147,17 @@ void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> & prop
     }
 }
 
+void NavigatorView::customNotification(const AbstractView *view, const QString &identifier,
+                                       const QList<ModelNode> &nodeList, const QList<QVariant> &data)
+{
+    Q_UNUSED(view)
+    Q_UNUSED(nodeList)
+    Q_UNUSED(data)
+
+    if (identifier == "asset_import_update")
+        m_currentModelInterface->notifyIconsChanged();
+}
+
 void NavigatorView::handleChangedExport(const ModelNode &modelNode, bool exported)
 {
     const ModelNode rootNode = rootModelNode();
