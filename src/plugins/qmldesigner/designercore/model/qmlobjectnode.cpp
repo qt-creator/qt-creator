@@ -719,4 +719,9 @@ QString QmlObjectNode::simplifiedTypeName() const
     return modelNode().simplifiedTypeName();
 }
 
+QStringList QmlObjectNode::allStateNames() const
+{
+    return nodeInstance().allStateNames();
+}
+
 } //QmlDesigner
