@@ -328,7 +328,7 @@ bool CMakeTool::hasFileApi() const
     return !m_introspection->m_fileApis.isEmpty();
 }
 
-QVector<std::pair<QString, int> > CMakeTool::supportedFileApiObjects() const
+QVector<std::pair<QString, int>> CMakeTool::supportedFileApiObjects() const
 {
     readInformation(QueryType::SERVER_MODE);
     return Utils::transform(m_introspection->m_fileApis, [](const Internal::FileApi &api) { return std::make_pair(api.kind, api.version.first); });
