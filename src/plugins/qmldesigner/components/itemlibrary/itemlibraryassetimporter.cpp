@@ -315,6 +315,9 @@ void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file, const QVar
         return;
     }
 
+    // The importer is reset after every import to avoid issues with it caching various things
+    m_quick3DAssetImporter.reset(new QSSGAssetImportManager);
+
     if (originalAssetName != assetName) {
         // Fix the generated qml file name
         const QString assetQml = originalAssetName + ".qml";
