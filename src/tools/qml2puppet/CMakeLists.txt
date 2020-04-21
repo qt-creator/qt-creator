@@ -98,7 +98,7 @@ extend_qtc_executable(qml2puppet
   DEPENDS Qt5::Quick3D Qt5::Quick3DPrivate
   DEFINES QUICK3D_MODULE
 
-  SOURCES_PREFIX "${SRCDIR}/qmlpuppet/editor3d"
+  SOURCES_PREFIX "${SRCDIR}/qml2puppet/editor3d"
   SOURCES
     generalhelper.cpp generalhelper.h
     mousearea3d.cpp mousearea3d.h
