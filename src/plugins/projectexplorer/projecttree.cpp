@@ -48,6 +48,7 @@
 #include <utils/qtcassert.h>
 
 #include <QApplication>
+#include <QFileInfo>
 #include <QMenu>
 #include <QTimer>
 
@@ -468,6 +469,23 @@ Node *ProjectTree::nodeForFile(const FilePath &fileName)
         }
     }
     return node;
+}
+
+const QList<Node *> ProjectTree::siblingsWithSameBaseName(const Node *fileNode)
+{
+    ProjectNode *productNode = fileNode->parentProjectNode();
+    while (productNode && !productNode->isProduct())
+        productNode = productNode->parentProjectNode();
+    if (!productNode)
+        return {};
+    const QFileInfo fi = fileNode->filePath().toFileInfo();
+    const auto filter = [&fi](const Node *n) {
+        return n->asFileNode()
+                && n->filePath().toFileInfo().dir() == fi.dir()
+                && n->filePath().toFileInfo().completeBaseName() == fi.completeBaseName()
+                && n->filePath().toString() != fi.filePath();
+    };
+    return productNode->findNodes(filter);
 }
 
 void ProjectTree::hideContextMenu()

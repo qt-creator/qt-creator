@@ -82,6 +82,8 @@ public:
     static Project *projectForNode(const Node *node);
     static Node *nodeForFile(const Utils::FilePath &fileName);
 
+    static const QList<Node *> siblingsWithSameBaseName(const Node *fileNode);
+
     void expandCurrentNodeRecursively();
 
     void collapseAll();
