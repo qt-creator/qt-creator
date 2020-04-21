@@ -61,7 +61,7 @@ public:
 Q_GLOBAL_STATIC(QLibrary, gUvscLibrary)
 Q_GLOBAL_STATIC(QVector<UvscClient *>, gUvscClients)
 
-static QMutex gUvscsGuard(QMutex::NonRecursive);
+static QMutex gUvscsGuard;
 
 static QStringList childrenINamesOf(const QString &parentIName, const QStringList &allINames)
 {
