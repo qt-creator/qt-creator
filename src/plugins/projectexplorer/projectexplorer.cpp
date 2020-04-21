@@ -156,6 +156,7 @@
 #include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPair>
 #include <QThreadPool>
 #include <QTimer>
 
@@ -3604,38 +3605,54 @@ void ProjectExplorerPluginPrivate::removeFile()
     QTC_ASSERT(currentNode && currentNode->asFileNode(), return);
 
     const Utils::FilePath filePath = currentNode->filePath();
+    using NodeAndPath = QPair<const Node *, Utils::FilePath>;
+    QList<NodeAndPath> filesToRemove{qMakePair(currentNode, currentNode->filePath())};
+    QList<NodeAndPath> siblings;
+    for (const Node * const n : ProjectTree::siblingsWithSameBaseName(currentNode))
+        siblings << qMakePair(n, n->filePath());
+
     Utils::RemoveFileDialog removeFileDialog(filePath.toString(), ICore::mainWindow());
+    if (removeFileDialog.exec() != QDialog::Accepted)
+        return;
 
-    if (removeFileDialog.exec() == QDialog::Accepted) {
-        const bool deleteFile = removeFileDialog.isDeleteFileChecked();
+    const bool deleteFile = removeFileDialog.isDeleteFileChecked();
 
-        // Re-read the current node, in case the project is re-parsed while the dialog is open
-        if (!ProjectTree::hasNode(currentNode)) {
+    const QMessageBox::StandardButton reply = QMessageBox::question(
+                Core::ICore::mainWindow(), tr("Remove More Files?"),
+                tr("Would you like to remove these files as well?\n    %1")
+                .arg(Utils::transform<QStringList>(siblings, [](const NodeAndPath &np) {
+        return np.second.toFileInfo().fileName();
+    }).join("\n    ")));
+    if (reply == QMessageBox::Yes)
+        filesToRemove << siblings;
+
+    for (const NodeAndPath &file : filesToRemove) {
+        // Nodes can become invalid if the project was re-parsed while the dialog was open
+        if (!ProjectTree::hasNode(file.first)) {
             QMessageBox::warning(ICore::mainWindow(), tr("Removing File Failed"),
-                                 tr("File %1 was not removed, because the project has changed "
+                                 tr("File \"%1\" was not removed, because the project has changed "
                                     "in the meantime.\nPlease try again.")
-                                 .arg(filePath.toUserOutput()));
+                                 .arg(file.second.toUserOutput()));
             return;
         }
 
         // remove from project
-        FolderNode *folderNode = currentNode->asFileNode()->parentFolderNode();
+        FolderNode *folderNode = file.first->asFileNode()->parentFolderNode();
         QTC_ASSERT(folderNode, return);
 
         const RemovedFilesFromProject status
-                = folderNode->removeFiles(QStringList(filePath.toString()));
+                = folderNode->removeFiles(QStringList(file.second.toString()));
         const bool success = status == RemovedFilesFromProject::Ok
                 || (status == RemovedFilesFromProject::Wildcard
                     && removeFileDialog.isDeleteFileChecked());
         if (!success) {
-            QMessageBox::warning(ICore::mainWindow(), tr("Removing File Failed"),
-                                 tr("Could not remove file %1 from project %2.")
-                                 .arg(filePath.toUserOutput())
-                                 .arg(folderNode->managingProject()->displayName()));
+            TaskHub::addTask(BuildSystemTask(Task::Error,
+                    tr("Could not remove file \"%1\" from project \"%2\".")
+                        .arg(filePath.toUserOutput(), folderNode->managingProject()->displayName()),
+                    folderNode->managingProject()->filePath()));
             if (!deleteFile)
-                return;
+                continue;
         }
-
         FileChangeBlocker changeGuard(filePath.toString());
         FileUtils::removeFile(filePath.toString(), deleteFile);
     }
