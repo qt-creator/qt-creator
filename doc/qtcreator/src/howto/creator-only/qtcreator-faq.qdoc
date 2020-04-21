@@ -213,7 +213,7 @@
 
     \b {How can I make use of my multi-core CPU with \QC?}
 
-    On Linux and \macos, go to \uicontrol Project mode, select your configuration
+    On Linux and \macos, go to \uicontrol Projects mode, select your configuration
     in the \uicontrol {Build Settings}, locate the \uicontrol {Build Steps}, and add the
     following value, where \c{<num>} is the amount of cores in your CPU:
     \c{-j <num>}
