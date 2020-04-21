@@ -740,8 +740,8 @@ void QmlFlowTargetNode::assignTargetItem(const QmlFlowTargetNode &node)
     } else if (isFlowDecision()) {
         ModelNode sourceNode = modelNode();
 
-        if (!QmlVisualNode::isFlowDecision(sourceNode))
-                sourceNode = findSourceForDecisionNode();
+        if (QmlVisualNode::isFlowDecision(sourceNode))
+            sourceNode = findSourceForDecisionNode();
 
         if (sourceNode.isValid()) {
             ModelNode transition = flowView().addTransition(sourceNode,
