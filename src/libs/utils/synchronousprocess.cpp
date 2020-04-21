@@ -89,19 +89,27 @@ static Q_LOGGING_CATEGORY(processLog, "qtc.utils.synchronousprocess", QtWarningM
 // A special QProcess derivative allowing for terminal control.
 class TerminalControllingProcess : public QProcess {
 public:
-    TerminalControllingProcess() = default;
+    TerminalControllingProcess()
+    {
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0) && defined(Q_OS_UNIX)
+        setChildProcessModifier([this]() { maybeSetsid(); });
+#endif
+    }
 
     unsigned flags() const { return m_flags; }
     void setFlags(unsigned tc) { m_flags = tc; }
 
 protected:
-    void setupChildProcess() override;
+    inline void maybeSetsid();
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0) && defined(Q_OS_UNIX)
+    void setupChildProcess() override { maybeSetsid(); }
+#endif
 
 private:
     unsigned m_flags = 0;
 };
 
-void TerminalControllingProcess::setupChildProcess()
+inline void TerminalControllingProcess::maybeSetsid()
 {
 #ifdef Q_OS_UNIX
     // Disable terminal by becoming a session leader.
