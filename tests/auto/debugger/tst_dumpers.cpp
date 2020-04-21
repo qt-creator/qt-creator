@@ -28,11 +28,11 @@
 #include "watchdata.h"
 #include "watchutils.h"
 
+#include <utils/fileutils.h>
 #ifdef Q_OS_WIN
 #include <utils/environment.h>
 #ifdef Q_CC_MSVC
 #include <utils/qtcprocess.h>
-#include <utils/fileutils.h>
 #include <utils/synchronousprocess.h>
 #endif // Q_CC_MSVC
 #endif // Q_OS_WIN
@@ -218,6 +218,12 @@ struct BoostVersion : VersionBase
     explicit BoostVersion(int minimum = 0, int maximum = INT_MAX)
         : VersionBase(minimum, maximum)
     {}
+};
+
+struct ConfigTest
+{
+    QString executable;
+    QStringList arguments;
 };
 
 static QString noValue = "\001";
@@ -962,7 +968,7 @@ public:
     mutable BoostVersion neededBoostVersion; // DEC. 105400 for 1.54.0
     mutable DwarfVersion neededDwarfVersion; // DEC. 105400 for 1.54.0
 
-    mutable QString configTest;
+    mutable ConfigTest configTest;
 
     mutable QString allProfile;      // Overrides anything below if not empty.
     mutable QString allCode;         // Overrides anything below if not empty.
@@ -1288,15 +1294,18 @@ void tst_Dumpers::dumper()
                          + QByteArray::number(data.neededMsvcVersion.max));
     }
 
-    if (!data.configTest.isEmpty()) {
+    if (!data.configTest.executable.isEmpty()) {
         QProcess configTest;
-        configTest.start(data.configTest);
+        configTest.start(data.configTest.executable, data.configTest.arguments);
         QVERIFY(configTest.waitForFinished());
         output = configTest.readAllStandardOutput();
         error = configTest.readAllStandardError();
         if (configTest.exitCode()) {
-            MSKIP_SINGLE("Configure test failed: '"
-                + data.configTest.toUtf8() + "' " + output + ' ' + error);
+            QString msg = "Configure test failed: '"
+                         + data.configTest.executable + ' '
+                         + data.configTest.arguments.join(' ')
+                         +  "' " + output + ' ' + error;
+            MSKIP_SINGLE(msg.toUtf8());
         }
     }
 
@@ -7646,7 +7655,7 @@ void tst_Dumpers::dumper_data()
 
 #ifdef Q_OS_LINUX
     Data f90data;
-    f90data.configTest = "which f95";
+    f90data.configTest = {"which", {"f95"}};
     f90data.allProfile =
         "CONFIG -= qt\n"
         "SOURCES += main.f90\n"
@@ -7684,7 +7693,7 @@ void tst_Dumpers::dumper_data()
     //  touch qt_tst_dumpers_Nim_.../dummy.nimproject
     //  qtcreator qt_tst_dumpers_Nim_*/dummy.nimproject
     Data nimData;
-    nimData.configTest = "which nim";
+    nimData.configTest = {"which", {"nim"}};
     nimData.allProfile =
         "CONFIG -= qt\n"
         "SOURCES += main.nim\n"
