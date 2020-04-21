@@ -67,4 +67,7 @@ Column {
             }
         }
     }
+
+    PaddingSection {
+    }
 }
