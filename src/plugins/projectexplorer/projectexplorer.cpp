@@ -2713,17 +2713,6 @@ ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate()
     m_allProjectDirectoriesFilter.setIsCustomFilter(false);
 }
 
-QString ProjectExplorerPlugin::displayNameForStepId(Id stepId)
-{
-    if (stepId == Constants::BUILDSTEPS_CLEAN)
-        return tr("Clean");
-    if (stepId == Constants::BUILDSTEPS_BUILD)
-        return tr("Build", "Build step");
-    if (stepId == Constants::BUILDSTEPS_DEPLOY)
-        return tr("Deploy");
-    return tr("Build", "Build step");
-}
-
 void ProjectExplorerPluginPrivate::runProjectContextMenu()
 {
     const Node *node = ProjectTree::currentNode();

@@ -850,7 +850,7 @@ bool QmakeBuildConfiguration::regenerateBuildFiles(Node *node)
     qs->setForced(true);
 
     BuildManager::buildList(cleanSteps());
-    BuildManager::appendStep(qs, ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
+    BuildManager::appendStep(qs, BuildManager::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
 
     QmakeProFileNode *proFile = nullptr;
     if (node && node != target()->project()->rootProjectNode())

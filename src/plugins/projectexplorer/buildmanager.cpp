@@ -442,6 +442,20 @@ const Internal::CompileOutputSettings &BuildManager::compileOutputSettings()
     return d->m_outputWindow->settings();
 }
 
+QString BuildManager::displayNameForStepId(Id stepId)
+{
+    if (stepId == Constants::BUILDSTEPS_CLEAN) {
+        //: Displayed name for a "cleaning" build step
+        return tr("Clean");
+    }
+    if (stepId == Constants::BUILDSTEPS_DEPLOY) {
+        //: Displayed name for a deploy step
+        return tr("Deploy");
+    }
+    //: Displayed name for a normal build step
+    return tr("Build");
+}
+
 void BuildManager::cancel()
 {
     if (d->m_running) {
@@ -775,7 +789,7 @@ bool BuildManager::buildLists(const QList<BuildStepList *> bsls, const QStringLi
     QStringList stepListNames;
     for (BuildStepList *list : bsls) {
         steps.append(list->steps());
-        stepListNames.append(ProjectExplorerPlugin::displayNameForStepId(list->id()));
+        stepListNames.append(displayNameForStepId(list->id()));
         d->m_isDeploying = d->m_isDeploying || list->id() == Constants::BUILDSTEPS_DEPLOY;
     }
 

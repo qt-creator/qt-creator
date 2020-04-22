@@ -162,8 +162,6 @@ public:
 
     static void initiateInlineRenaming();
 
-    static QString displayNameForStepId(Core::Id stepId);
-
     static QStringList projectFileGlobs();
 
     static QThreadPool *sharedThreadPool();

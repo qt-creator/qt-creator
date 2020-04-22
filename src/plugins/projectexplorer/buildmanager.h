@@ -91,6 +91,8 @@ public:
     static void setCompileOutputSettings(const Internal::CompileOutputSettings &settings);
     static const Internal::CompileOutputSettings &compileOutputSettings();
 
+    static QString displayNameForStepId(Core::Id stepId);
+
 public slots:
     static void cancel();
     // Shows without focus
