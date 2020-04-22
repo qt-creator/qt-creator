@@ -143,6 +143,13 @@ void BuildDirManager::updateReaderType(const BuildDirParameters &p,
         }
         m_reader = BuildDirReader::createReader(p);
 
+        if (!m_reader) {
+            TaskHub::addTask(BuildSystemTask(
+                Task::Error,
+                tr("The kit does not define a valid CMake tool to parse this project with.")));
+            return;
+        }
+
         connect(m_reader.get(),
                 &BuildDirReader::configurationStarted,
                 this,

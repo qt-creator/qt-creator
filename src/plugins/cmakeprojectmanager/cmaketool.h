@@ -110,7 +110,7 @@ public:
     void setPathMapper(const PathMapper &includePathMapper);
     PathMapper pathMapper() const;
 
-    ReaderType readerType() const;
+    Utils::optional<ReaderType> readerType() const;
 
     static Utils::FilePath searchQchFile(const Utils::FilePath &executable);
 
