@@ -1330,7 +1330,12 @@ void DebuggerEngine::notifyBreakpointInsertOk(const Breakpoint &bp)
 void DebuggerEngine::notifyBreakpointInsertFailed(const Breakpoint &bp)
 {
     QTC_ASSERT(bp, return);
+    GlobalBreakpoint gbp = bp->globalBreakpoint();
     bp->gotoState(BreakpointDead, BreakpointInsertionProceeding);
+    breakHandler()->removeDisassemblerMarker(bp);
+    breakHandler()->destroyItem(bp);
+    QTC_ASSERT(gbp, return);
+    gbp->updateMarker();
 }
 
 void DebuggerEngine::notifyBreakpointRemoveProceeding(const Breakpoint &bp)
