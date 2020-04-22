@@ -168,6 +168,8 @@ public:
     QString kitName(const McuTarget* mcuTarget) const;
 
     QList<ProjectExplorer::Kit *> existingKits(const McuTarget *mcuTargt);
+    static QList<ProjectExplorer::Kit *> outdatedKits();
+    static void removeOutdatedKits();
     ProjectExplorer::Kit *newKit(const McuTarget *mcuTarget);
     void populatePackagesAndTargets();
     static void registerQchFiles();

@@ -61,6 +61,8 @@
 namespace McuSupport {
 namespace Internal {
 
+static const int KIT_VERSION = 1; // Bumps up whenever details in Kit creation change
+
 static QString packagePathFromSettings(const QString &settingsKey, const QString &defaultPath = {})
 {
     QSettings *s = Core::ICore::settings();
@@ -473,6 +475,7 @@ static void setKitProperties(const QString &kitName, ProjectExplorer::Kit *k,
     k->setValue(Constants::KIT_MCUTARGET_MODEL_KEY, mcuTarget->qulPlatform());
     k->setValue(Constants::KIT_MCUTARGET_SDKVERSION_KEY,
                 McuSupportOptions::supportedQulVersion().toString());
+    k->setValue(Constants::KIT_MCUTARGET_KITVERSION_KEY, KIT_VERSION);
     k->setAutoDetected(true);
     k->makeSticky();
     if (mcuTarget->toolChainPackage()->type() == McuToolChainPackage::TypeDesktop)
@@ -611,6 +614,21 @@ QList<ProjectExplorer::Kit *> McuSupportOptions::existingKits(const McuTarget *m
     return Utils::filtered(KitManager::kits(), [&mcuTargetKitName](Kit *kit) {
             return kit->isAutoDetected() && kit->unexpandedDisplayName() == mcuTargetKitName;
     });
+}
+
+QList<ProjectExplorer::Kit *> McuSupportOptions::outdatedKits()
+{
+    return Utils::filtered(ProjectExplorer::KitManager::kits(), [](ProjectExplorer::Kit *kit) {
+        return kit->isAutoDetected()
+                && !kit->value(Constants::KIT_MCUTARGET_VENDOR_KEY).isNull()
+                && kit->value(Constants::KIT_MCUTARGET_KITVERSION_KEY) != KIT_VERSION;
+    });
+}
+
+void McuSupportOptions::removeOutdatedKits()
+{
+    for (auto kit : McuSupportOptions::outdatedKits())
+        ProjectExplorer::KitManager::deregisterKit(kit);
 }
 
 ProjectExplorer::Kit *McuSupportOptions::newKit(const McuTarget *mcuTarget)

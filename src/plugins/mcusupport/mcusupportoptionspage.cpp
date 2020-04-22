@@ -231,6 +231,7 @@ void McuSupportOptionsWidget::apply()
         return;
 
     McuSupportOptions::registerQchFiles();
+    McuSupportOptions::removeOutdatedKits();
 
     const McuTarget *mcuTarget = currentMcuTarget();
     if (!mcuTarget)
