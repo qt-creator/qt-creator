@@ -799,6 +799,10 @@ bool UvscClient::createBreakpoint(const QString &exp, quint32 &tickMark, quint64
     if (!checkConnection())
         return false;
 
+    // Magic workaround to prevent the stalling.
+    if (!controlHiddenBreakpoint(exp))
+        return false;
+
     QByteArray bkparm = UvscUtils::encodeBreakPoint(BRKTYPE_EXEC, exp);
     QByteArray bkrsp(kMaximumBreakpointResponseSize, 0);
     qint32 bkrspLength = bkrsp.size();
@@ -878,6 +882,54 @@ bool UvscClient::disableBreakpoint(quint32 tickMark)
         setError(RuntimeError);
         return false;
     }
+    return true;
+}
+
+bool UvscClient::controlHiddenBreakpoint(const QString &exp)
+{
+    if (!checkConnection())
+        return false;
+
+    // It is a magic workaround to prevent the UVSC bug when the break-point
+    // creation may stall. A problem is that sometime the UVSC_DBG_CREATE_BP
+    // function blocks and returns then with the timeout error when the original
+    // break-point contains the full expression including the line number.
+    //
+    // It can be avoided with helps of creation and then deletion of the
+    // 'fake hidden' break-point with the same expression excluding the line
+    // number, before creation of an original break-point.
+
+    const int slashIndex = exp.lastIndexOf('\\');
+    if (slashIndex == -1 || (slashIndex + 1) == exp.size())
+        return true;
+
+    QByteArray bkrsp(kMaximumBreakpointResponseSize, 0);
+
+    const QString hiddenExp = exp.mid(0, slashIndex);
+    QByteArray bkparm = UvscUtils::encodeBreakPoint(BRKTYPE_EXEC, hiddenExp);
+    qint32 bkrspLength = bkrsp.size();
+    UVSC_STATUS st = ::UVSC_DBG_CREATE_BP(m_descriptor,
+                                          reinterpret_cast<BKPARM *>(bkparm.data()),
+                                          bkparm.size(),
+                                          reinterpret_cast<BKRSP *>(bkrsp.data()),
+                                          &bkrspLength);
+    if (st != UVSC_STATUS_SUCCESS) {
+        setError(RuntimeError);
+        return false;
+    }
+
+    BKCHG bkchg = {};
+    bkchg.type = CHG_KILLBP;
+    bkchg.tickMark = reinterpret_cast<const BKRSP *>(bkrsp.constData())->tickMark;
+    bkrspLength = bkrsp.size();
+    st = ::UVSC_DBG_CHANGE_BP(m_descriptor, &bkchg, sizeof(bkchg),
+                              reinterpret_cast<BKRSP *>(bkrsp.data()),
+                              &bkrspLength);
+    if (st != UVSC_STATUS_SUCCESS) {
+        setError(RuntimeError);
+        return false;
+    }
+
     return true;
 }
 

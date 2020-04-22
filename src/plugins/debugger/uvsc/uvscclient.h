@@ -141,6 +141,8 @@ private:
     void updateLocation(const QByteArray &bpreason);
     bool addressToFileLine(quint64 address, QString &fileName, QString &function, quint32 &line);
 
+    bool controlHiddenBreakpoint(const QString &exp);
+
     qint32 m_descriptor = -1;
     quint64 m_exitAddress = 0;
     UvscError m_error = NoError;
