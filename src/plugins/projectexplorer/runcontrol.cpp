@@ -1604,15 +1604,12 @@ OutputFormatterFactory::~OutputFormatterFactory()
 QList<OutputLineParser *> OutputFormatterFactory::createFormatters(Target *target)
 {
     QList<OutputLineParser *> formatters;
-    for (auto factory : qAsConst(g_outputFormatterFactories)) {
-        if (auto formatter = factory->m_creator(target))
-            formatters << formatter;
-    }
+    for (auto factory : qAsConst(g_outputFormatterFactories))
+        formatters << factory->m_creator(target);
     return formatters;
 }
 
-void OutputFormatterFactory::setFormatterCreator
-    (const std::function<OutputLineParser *(Target *)> &creator)
+void OutputFormatterFactory::setFormatterCreator(const FormatterCreator &creator)
 {
     m_creator = creator;
 }

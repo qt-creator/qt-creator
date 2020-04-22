@@ -331,10 +331,10 @@ PythonRunConfigurationFactory::PythonRunConfigurationFactory()
 
 PythonOutputFormatterFactory::PythonOutputFormatterFactory()
 {
-    setFormatterCreator([](Target *t) -> OutputLineParser * {
+    setFormatterCreator([](Target *t) -> QList<OutputLineParser *> {
         if (t && t->project()->mimeType() == Constants::C_PY_MIMETYPE)
-            return new PythonOutputLineParser;
-        return nullptr;
+            return {new PythonOutputLineParser};
+        return {};
     });
 }
 

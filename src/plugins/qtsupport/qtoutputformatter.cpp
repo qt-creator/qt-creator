@@ -27,6 +27,7 @@
 
 #include "qtkitinformation.h"
 #include "qtsupportconstants.h"
+#include "qttestparser.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/project.h>
@@ -242,9 +243,10 @@ void QtOutputLineParser::updateProjectFileList()
 
 QtOutputFormatterFactory::QtOutputFormatterFactory()
 {
-    setFormatterCreator([](Target *t) -> OutputLineParser * {
-        BaseQtVersion *qt = QtKitAspect::qtVersion(t ? t->kit() : nullptr);
-        return qt ? new QtOutputLineParser(t) : nullptr;
+    setFormatterCreator([](Target *t) -> QList<OutputLineParser *> {
+        if (QtKitAspect::qtVersion(t ? t->kit() : nullptr))
+            return {new QtTestParser, new QtOutputLineParser(t)};
+        return {};
     });
 }
 

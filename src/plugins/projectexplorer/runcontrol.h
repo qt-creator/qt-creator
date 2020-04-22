@@ -312,10 +312,11 @@ public:
     static QList<Utils::OutputLineParser *> createFormatters(Target *target);
 
 protected:
-    void setFormatterCreator(const std::function<Utils::OutputLineParser *(Target *)> &creator);
+    using FormatterCreator = std::function<QList<Utils::OutputLineParser *>(Target *)>;
+    void setFormatterCreator(const FormatterCreator &creator);
 
 private:
-    std::function<Utils::OutputLineParser *(Target *)> m_creator;
+    FormatterCreator m_creator;
 };
 
 } // namespace ProjectExplorer
