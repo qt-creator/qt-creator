@@ -395,6 +395,8 @@ const Value *CppComponentValue::valueForCppName(const QString &typeName) const
         return valueOwner()->realValue();
     } else if (typeName == QLatin1String("QFont")) {
         return valueOwner()->qmlFontObject();
+    } else if (typeName == QLatin1String("QPalette")) {
+        return valueOwner()->qmlPaletteObject();
     } else if (typeName == QLatin1String("QPoint")
             || typeName == QLatin1String("QPointF")
             || typeName == QLatin1String("QVector2D")) {
