@@ -64,7 +64,7 @@
 
     The \uicontrol {Qt Quick Application} wizards for a particular platform add
     the import statements automatically. You can remove import statements in
-    \uicontrol {QML Imports}
+    \uicontrol {QML Imports}.
 
     \uicontrol {Assets} displays the images and other files that you copy
     to the project folder (to the same subfolder as the QML files).
