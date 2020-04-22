@@ -232,6 +232,20 @@ QList<QQuickItem *> QuickItemNodeInstance::allItemsRecursive() const
     return itemList;
 }
 
+QStringList QuickItemNodeInstance::allStates() const
+{
+    QStringList list;
+
+    QList<QObject*> stateList = DesignerSupport::statesForItem(quickItem());
+    for (QObject *state : stateList) {
+        QQmlProperty property(state, "name");
+        if (property.isValid())
+            list.append(property.read().toString());
+    }
+
+    return list;
+}
+
 QRectF QuickItemNodeInstance::contentItemBoundingBox() const
 {
     if (contentItem()) {
@@ -611,8 +625,8 @@ void QuickItemNodeInstance::setPropertyVariant(const PropertyName &name, const Q
     if (ignoredProperties().contains(name))
         return;
 
-    if (name == "state")
-        return; // states are only set by us
+    if (name == "state" && isRootNodeInstance())
+        return; // states on the root item are only set by us
 
     if (name == "height") {
         m_height = value.toDouble();
@@ -649,8 +663,8 @@ void QuickItemNodeInstance::setPropertyBinding(const PropertyName &name, const Q
     if (ignoredProperties().contains(name))
         return;
 
-    if (name == "state")
-        return; // states are only set by us
+    if (name == "state" && isRootNodeInstance())
+        return; // states on the root item are only set by us
 
     if (name.startsWith("anchors.") && isRootNodeInstance())
         return;

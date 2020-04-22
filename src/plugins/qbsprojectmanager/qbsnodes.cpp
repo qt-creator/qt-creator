@@ -142,7 +142,13 @@ QString QbsProductNode::fullDisplayName() const
 
 QString QbsProductNode::buildKey() const
 {
-    return fullDisplayName();
+    return getBuildKey(productData());
+}
+
+QString QbsProductNode::getBuildKey(const QJsonObject &product)
+{
+    return product.value("name").toString() + '.'
+            + product.value("multiplex-configuration-id").toString();
 }
 
 QVariant QbsProductNode::data(Core::Id role) const

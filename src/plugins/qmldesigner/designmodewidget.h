@@ -86,9 +86,6 @@ public:
 
     static QWidget *createProjectExplorerWidget(QWidget *parent);
 
-protected:
-    bool eventFilter(QObject *obj, QEvent *event) override;
-
 private: // functions
     enum InitializeStatus { NotInitialized, Initializing, Initialized };
 

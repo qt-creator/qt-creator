@@ -96,6 +96,7 @@ public:
     void doComponentComplete() override;
 
     QList<QQuickItem*> allItemsRecursive() const override;
+    QStringList allStates() const override;
 
 protected:
     explicit QuickItemNodeInstance(QQuickItem*);

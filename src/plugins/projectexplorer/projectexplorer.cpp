@@ -1568,6 +1568,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         const RunConfiguration * const runConfig = target->activeRunConfiguration();
         QTC_ASSERT(runConfig, return);
         ProjectNode * const productNode = runConfig->productNode();
+        QTC_ASSERT(productNode, return);
         QTC_ASSERT(productNode->isProduct(), return);
         productNode->build();
     });

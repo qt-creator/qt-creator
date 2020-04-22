@@ -212,6 +212,8 @@ bool QuickTestAstVisitor::visit(CPlusPlus::CallAST *ast)
 
                         if (expressionListAST && expressionListAST->value) {
                             const auto *stringLitAST = expressionListAST->value->asStringLiteral();
+                            if (!stringLitAST)
+                                return false;
                             const auto *string
                                     = translationUnit()->stringLiteral(stringLitAST->literal_token);
                             if (string) {

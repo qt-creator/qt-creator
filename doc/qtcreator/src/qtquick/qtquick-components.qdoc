@@ -37,7 +37,7 @@
     \else
     \previouspage creator-using-qt-quick-designer.html
     \endif
-    \nextpage quick-buttons.html
+    \nextpage qtquick-form-editor.html
 
     \title Creating Components
 
@@ -71,7 +71,7 @@
 
     \section1 Adding Components to Designs
 
-    \image qmldesigner-visual-editor.png "Design mode"
+    \image studio-design-mode.png "Design mode"
 
     \list 1
         \li Drag and drop components from the \uicontrol Library (2) to the
@@ -564,10 +564,13 @@
 
     \endlist
 
-    The following sections contain examples of how to create some common
-    components:
+    The following sections contain more information about how to use the
+    \uicontrol {Form Editor} to edit 2D content, as well as examples of
+    how to create some common components using basic QML types:
 
     \list
+
+        \li \l{Editing 2D Content}
 
         \li \l{Creating Buttons}
 

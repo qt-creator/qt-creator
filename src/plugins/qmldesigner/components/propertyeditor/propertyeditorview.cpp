@@ -212,6 +212,10 @@ void PropertyEditorView::changeValue(const QString &name)
         }
     }
 
+    bool forceReset = false;
+    if (name == "state" && castedValue.toString() == "base state")
+        castedValue = "";
+
     if (castedValue.type() == QVariant::Color) {
         QColor color = castedValue.value<QColor>();
         QColor newColor = QColor(color.name());

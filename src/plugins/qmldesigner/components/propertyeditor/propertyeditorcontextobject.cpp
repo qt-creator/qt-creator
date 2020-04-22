@@ -39,6 +39,7 @@
 
 #include <QApplication>
 #include <QCursor>
+#include <QFontDatabase>
 #include <QQmlContext>
 
 #include <coreplugin/icore.h>
@@ -346,6 +347,15 @@ void PropertyEditorContextObject::setStateName(const QString &newStateName)
     emit stateNameChanged();
 }
 
+void PropertyEditorContextObject::setAllStateNames(const QStringList &allStates)
+{
+    if (allStates == m_allStateNames)
+            return;
+
+    m_allStateNames = allStates;
+    emit allStateNamesChanged();
+}
+
 void PropertyEditorContextObject::setIsBaseState(bool newIsBaseState)
 {
     if (newIsBaseState ==  m_isBaseState)
@@ -408,6 +418,12 @@ void PropertyEditorContextObject::restoreCursor()
 
     QCursor::setPos(m_lastPos);
     QApplication::restoreOverrideCursor();
+}
+
+QStringList PropertyEditorContextObject::styleNamesForFamily(const QString &family)
+{
+    const QFontDatabase dataBase;
+    return dataBase.styles(family);
 }
 
 void EasingCurveEditor::registerDeclarativeType()

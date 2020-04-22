@@ -57,6 +57,7 @@
 #include <QFileDialog>
 #include <QFutureWatcher>
 #include <QList>
+#include <QLoggingCategory>
 #include <QMessageBox>
 #include <QModelIndex>
 #include <QSettings>
@@ -66,6 +67,10 @@
 #include <QWidget>
 
 #include <memory>
+
+namespace {
+static Q_LOGGING_CATEGORY(androidsettingswidget, "qtc.android.androidsettingswidget", QtWarningMsg);
+}
 
 namespace Android {
 namespace Internal {
@@ -719,6 +724,10 @@ void AndroidSettingsWidget::onSdkPathChanged()
 {
     auto sdkPath = Utils::FilePath::fromUserInput(m_ui->SDKLocationPathChooser->rawPath());
     m_androidConfig.setSdkLocation(sdkPath);
+    Utils::FilePath currentOpenSslPath = m_androidConfig.openSslLocation();
+    if (currentOpenSslPath.isEmpty() || !currentOpenSslPath.exists())
+        currentOpenSslPath = sdkPath.pathAppended("android_openssl");
+    m_ui->openSslPathChooser->setFileName(currentOpenSslPath);
     // Package reload will trigger validateSdk.
     m_sdkManager->reloadPackages();
 }
@@ -800,8 +809,12 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
 
     const QString openSslRepo("https://github.com/KDAB/android_openssl.git");
     Utils::QtcProcess *gitCloner = new Utils::QtcProcess(this);
-    gitCloner->setCommand(Utils::CommandLine("git", {"clone", openSslRepo, openSslPath.fileName()}));
-    gitCloner->setWorkingDirectory(openSslPath.parentDir().toString());
+    Utils::CommandLine gitCloneCommand("git",
+                            {"clone", "--depth=1", openSslRepo, openSslPath.toString()});
+    gitCloner->setCommand(gitCloneCommand);
+
+    qCDebug(androidsettingswidget) << "Cloning OpenSSL repo: " <<
+                                      gitCloneCommand.toUserOutput();
 
     QDir openSslDir(openSslPath.toString());
     if (openSslDir.exists()) {

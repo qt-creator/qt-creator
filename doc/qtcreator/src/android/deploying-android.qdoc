@@ -319,8 +319,8 @@
 
     \li In the \uicontrol Permissions field, you can specify the permissions that your
     application needs. Starting from Android 6.0 (API 23), permissions have to be
-    requested at runtime (See \l{QtAndroidExtras}{requestPermissionsSync} or
-    \l{QtAndroidExtras}{requestPermissions}). For lower Android API levels,
+    requested at runtime (see \l{QtAndroid::requestPermissionsSync()} or
+    \l{QtAndroid::requestPermissions()}). For lower Android API levels,
     users are asked to grant the permissions when they install the application.
     Android OS then grants the application access to the appropriate data and features.
 

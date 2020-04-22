@@ -45,6 +45,11 @@ T.AbstractButton {
     z: myButton.checked ? 10 : 3
     activeFocusOnTab: false
 
+    onHoveredChanged: {
+        if (parent !== undefined && parent.hover !== undefined)
+            parent.hover = hovered
+    }
+
     background: Rectangle {
         id: buttonBackground
         color: myButton.checked ? StudioTheme.Values.themeControlBackgroundChecked : StudioTheme.Values.themeControlBackground

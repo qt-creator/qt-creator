@@ -285,14 +285,9 @@ void AndroidSdkModel::selectMissingEssentials()
         if (!pendingPkgs.contains((*tool)->sdkStylePath()))
             continue;
 
-        if ((*tool)->type() == AndroidSdkPackage::PlatformToolsPackage)
-            addTool(tool); // Select Platform tools
-        else if ((*tool)->type() == AndroidSdkPackage::BuildToolsPackage)
-            addTool(tool); // Select build tools
-        else if ((*tool)->type() == AndroidSdkPackage::NDKPackage)
-            addTool(tool); // Select NDK Bundle
-
+        addTool(tool);
         pendingPkgs.removeOne((*tool)->sdkStylePath());
+
         if (pendingPkgs.isEmpty())
             break;
     }

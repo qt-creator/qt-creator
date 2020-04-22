@@ -85,6 +85,15 @@ QbsCleanStep::~QbsCleanStep()
         m_session->disconnect(this);
 }
 
+void QbsCleanStep::dropSession()
+{
+    if (m_session) {
+        doCancel();
+        m_session->disconnect(this);
+        m_session = nullptr;
+    }
+}
+
 bool QbsCleanStep::init()
 {
     if (buildSystem()->isParsing() || m_session)

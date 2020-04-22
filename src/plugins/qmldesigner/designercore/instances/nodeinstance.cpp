@@ -76,6 +76,7 @@ public:
     QString errorMessage;
 
     QHash<PropertyName, QPair<PropertyName, qint32> > anchors;
+    QStringList allStates;
 };
 
 NodeInstance::NodeInstance() = default;
@@ -169,6 +170,10 @@ bool NodeInstance::hasError() const
     return !d->errorMessage.isEmpty();
 }
 
+QStringList NodeInstance::allStateNames() const
+{
+    return d->allStates;
+}
 
 bool NodeInstance::isValid() const
 {
@@ -592,6 +597,16 @@ InformationName NodeInstance::setInformationHasBindingForProperty(const Property
     return NoInformationChange;
 }
 
+InformationName NodeInstance::setAllStates(const QStringList &states)
+{
+    if (d->allStates != states) {
+        d->allStates = states;
+        return AllStates;
+    }
+
+    return NoInformationChange;
+}
+
 InformationName NodeInstance::setInformation(InformationName name, const QVariant &information, const QVariant &secondInformation, const QVariant &thirdInformation)
 {
     switch (name) {
@@ -614,6 +629,7 @@ InformationName NodeInstance::setInformation(InformationName name, const QVarian
     case Anchor: return setInformationAnchor(information.toByteArray(), secondInformation.toByteArray(), thirdInformation.value<qint32>());
     case InstanceTypeForProperty: return setInformationInstanceTypeForProperty(information.toByteArray(), secondInformation.toByteArray());
     case HasBindingForProperty: return setInformationHasBindingForProperty(information.toByteArray(), secondInformation.toBool());
+    case AllStates: return setAllStates(information.toStringList());
     case NoName:
     default: break;
     }

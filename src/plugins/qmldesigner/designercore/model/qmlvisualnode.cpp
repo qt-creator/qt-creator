@@ -209,7 +209,18 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
 
     NodeAbstractProperty parentProperty = parentQmlItemNode.defaultNodeAbstractProperty();
 
-    return QmlItemNode::createQmlObjectNode(view, itemLibraryEntry, position, parentProperty);
+
+    NodeHints hints = NodeHints::fromItemLibraryEntry(itemLibraryEntry);
+    const PropertyName forceNonDefaultProperty = hints.forceNonDefaultProperty().toUtf8();
+
+    QmlObjectNode newNode = QmlItemNode::createQmlObjectNode(view, itemLibraryEntry, position, parentProperty);
+
+    if (!forceNonDefaultProperty.isEmpty()) {
+        if (parentQmlItemNode.modelNode().metaInfo().hasProperty(forceNonDefaultProperty))
+            parentQmlItemNode.nodeListProperty(forceNonDefaultProperty).reparentHere(newNode);
+    }
+
+    return newNode;
 }
 
 
@@ -327,17 +338,23 @@ NodeListProperty QmlVisualNode::findSceneNodeProperty(AbstractView *view, qint32
 
 bool QmlVisualNode::isFlowTransition(const ModelNode &node)
 {
-    return node.metaInfo().isValid() && node.metaInfo().isSubclassOf("FlowView.FlowTransition");
+    return node.isValid()
+            && node.metaInfo().isValid()
+            && node.metaInfo().isSubclassOf("FlowView.FlowTransition");
 }
 
 bool QmlVisualNode::isFlowDecision(const ModelNode &node)
 {
-    return node.metaInfo().isValid() && node.metaInfo().isSubclassOf("FlowView.FlowDecision");
+    return node.isValid()
+            && node.metaInfo().isValid()
+            && node.metaInfo().isSubclassOf("FlowView.FlowDecision");
 }
 
 bool QmlVisualNode::isFlowWildcard(const ModelNode &node)
 {
-    return node.metaInfo().isValid() && node.metaInfo().isSubclassOf("FlowView.FlowWildcard");
+    return node.isValid()
+            && node.metaInfo().isValid()
+            && node.metaInfo().isSubclassOf("FlowView.FlowWildcard");
 }
 
 bool QmlVisualNode::isFlowTransition() const

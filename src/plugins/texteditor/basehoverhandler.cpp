@@ -163,10 +163,13 @@ void BaseHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoi
             auto layout = new QVBoxLayout;
             layout->setContentsMargins(0, 0, 0, 0);
             auto label = new QLabel;
+            label->setObjectName("qcWidgetTipTopLabel");
             label->setTextFormat(m_textFormat);
             label->setText(m_toolTip);
             layout->addWidget(label);
-            layout->addWidget(new QLabel("<hr/>" + helpContents));
+            auto helpContentLabel = new QLabel("<hr/>" + helpContents);
+            helpContentLabel->setObjectName("qcWidgetTipHelpLabel");
+            layout->addWidget(helpContentLabel);
             Utils::ToolTip::show(point, layout, editorWidget, helpItem);
         }
     }

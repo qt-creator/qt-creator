@@ -214,10 +214,6 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
                 readSignalOrMethod(component, name == QLatin1String("Method"), fmo);
             else if (name == QLatin1String("Enum"))
                 readEnum(component, fmo);
-            else
-                addWarning(component->firstSourceLocation(),
-                           tr("Expected only Property, Method, Signal and Enum object definitions, not \"%1\".")
-                           .arg(name));
         } else if (script) {
             QString name = toString(script->qualifiedId);
             if (name == QLatin1String("name")) {
@@ -238,14 +234,7 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
                 fmo->setIsCreatable(readBoolBinding(script));
             } else if (name == QLatin1String("isComposite")) {
                 fmo->setIsComposite(readBoolBinding(script));
-            } else {
-                addWarning(script->firstSourceLocation(),
-                           tr("Expected only name, prototype, defaultProperty, attachedType, exports, "
-                              "isSingleton, isCreatable, isComposite and exportMetaObjectRevisions "
-                              "script bindings, not \"%1\".").arg(name));
             }
-        } else {
-            addWarning(member->firstSourceLocation(), tr("Expected only script bindings and object definitions."));
         }
     }
 
@@ -276,12 +265,7 @@ void TypeDescriptionReader::readModuleApi(UiObjectDefinition *ast)
                 apiInfo.version = readNumericVersionBinding(script);
             } else if (name == QLatin1String("name")) {
                 apiInfo.cppName = readStringBinding(script);
-            } else {
-                addWarning(script->firstSourceLocation(),
-                           tr("Expected only uri, version and name script bindings."));
             }
-        } else {
-            addWarning(member->firstSourceLocation(), tr("Expected only script bindings."));
         }
     }
 
@@ -311,8 +295,6 @@ void TypeDescriptionReader::readSignalOrMethod(UiObjectDefinition *ast, bool isM
             QString name = toString(component->qualifiedTypeNameId);
             if (name == QLatin1String("Parameter"))
                 readParameter(component, &fmm);
-            else
-                addWarning(component->firstSourceLocation(), tr("Expected only Parameter object definitions."));
         } else if (script) {
             QString name = toString(script->qualifiedId);
             if (name == QLatin1String("name"))
@@ -321,11 +303,6 @@ void TypeDescriptionReader::readSignalOrMethod(UiObjectDefinition *ast, bool isM
                 fmm.setReturnType(readStringBinding(script));
             else if (name == QLatin1String("revision"))
                 fmm.setRevision(readIntBinding(script));
-            else
-                addWarning(script->firstSourceLocation(), tr("Expected only name and type script bindings."));
-
-        } else {
-            addWarning(member->firstSourceLocation(), tr("Expected only script bindings and object definitions."));
         }
     }
 
@@ -367,8 +344,6 @@ void TypeDescriptionReader::readProperty(UiObjectDefinition *ast, FakeMetaObject
             isList = readBoolBinding(script);
         else if (id == QLatin1String("revision"))
             revision = readIntBinding(script);
-        else
-            addWarning(script->firstSourceLocation(), tr("Expected only type, name, revision, isPointer, isReadonly and isList script bindings."));
     }
 
     if (name.isEmpty() || type.isEmpty()) {
@@ -396,8 +371,6 @@ void TypeDescriptionReader::readEnum(UiObjectDefinition *ast, FakeMetaObject::Pt
             fme.setName(readStringBinding(script));
         else if (name == QLatin1String("values"))
             readEnumValues(script, &fme);
-        else
-            addWarning(script->firstSourceLocation(), tr("Expected only name and values script bindings."));
     }
 
     fmo->addEnum(fme);
@@ -427,8 +400,6 @@ void TypeDescriptionReader::readParameter(UiObjectDefinition *ast, FakeMetaMetho
             // ### unhandled
         } else if (id == QLatin1String("isList")) {
             // ### unhandled
-        } else {
-            addWarning(script->firstSourceLocation(), tr("Expected only name and type script bindings."));
         }
     }
 

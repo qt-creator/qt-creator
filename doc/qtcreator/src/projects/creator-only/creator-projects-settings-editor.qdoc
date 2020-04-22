@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -70,6 +70,8 @@
         \li \l{Indenting Text or Code}
 
         \li \l{File Encoding}
+
+        \li \l{Selecting Line Ending Style}
 
         \li \l{Moving to Symbol Definition or Declaration}
 

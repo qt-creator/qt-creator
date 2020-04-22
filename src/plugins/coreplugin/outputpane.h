@@ -53,6 +53,9 @@ public:
     void ensureSizeHintAsMinimum();
     int nonMaximizedSize() const;
 
+signals:
+    void visibilityChangeRequested(bool visible);
+
 protected:
     void resizeEvent(QResizeEvent *event) override;
     void showEvent(QShowEvent *) override;

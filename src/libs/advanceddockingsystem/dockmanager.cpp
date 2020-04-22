@@ -805,6 +805,7 @@ namespace ADS
             d->m_workspaces.insert(1, clone);
             d->m_workspaceDateTimes
                 .insert(clone, workspaceNameToFileName(clone).toFileInfo().lastModified());
+            emit workspaceListChanged();
             return true;
         }
         return false;

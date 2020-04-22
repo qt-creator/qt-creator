@@ -326,6 +326,10 @@
             \uicontrol {Insert Keyframe} to add a keyframe.
         \li Select keyframes to display the easing curves attached to them.
             To select multiple keyframes, press and hold \key Ctrl.
+        \li To lock an easing curve, hover the mouse over the keyframe in the
+            list, and then select the lock icon.
+        \li To pin an easing curve, hover the mouse over the keyframe in the
+            list, and then select the pin icon.
     \endlist
 
     Your changes are automatically saved when you close the editor.

@@ -121,11 +121,5 @@
     \endtable
 
     * See \l{Running on QNX Devices} for limitations.
-
-    \note Madde support has been removed from \QC 3.0. To develop for Maemo or Harmattan,
-    use \QC 2.8.
-
-    \note BlackBerry 10 support has been removed from \QC 3.5. Use \QC 3.4 instead.
-
 //! [target platforms]
 */

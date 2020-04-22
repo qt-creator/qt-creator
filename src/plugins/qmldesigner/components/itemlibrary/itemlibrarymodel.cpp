@@ -189,9 +189,12 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
         bool forceVisiblity = valid && NodeHints::fromItemLibraryEntry(entry).visibleInLibrary();
 
-        if (m_flowMode) {
-            forceVisiblity = false;
-            isItem = metaInfo.isSubclassOf("FlowView.FlowItem");
+        if (m_flowMode && metaInfo.isValid()) {
+
+            isItem = metaInfo.isSubclassOf("FlowView.FlowItem")
+                    || metaInfo.isSubclassOf("FlowView.FlowWildcard")
+                    || metaInfo.isSubclassOf("FlowView.FlowDecision");
+            forceVisiblity = isItem;
         }
 
 
@@ -270,9 +273,6 @@ void ItemLibraryModel::updateVisibility(bool *changed)
         bool sectionChanged = false;
         bool sectionVisibility = itemLibrarySection->updateSectionVisibility(sectionSearchText,
                                                                              &sectionChanged);
-
-        if (m_flowMode  && itemLibrarySection->sectionName() != "My QML Components")
-            sectionVisibility= false;
 
         *changed |= sectionChanged;
         *changed |= itemLibrarySection->setVisible(sectionVisibility);

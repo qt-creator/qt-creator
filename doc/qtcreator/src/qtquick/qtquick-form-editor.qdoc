@@ -1,0 +1,110 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage index.html
+    \page qtquick-form-editor.html
+    \previouspage quick-components.html
+    \nextpage quick-buttons.html
+
+    \title Editing 2D Content
+
+    You design applications in the \uicontrol {Form Editor} by placing items
+    into it.
+
+    \section1 Snapping to Parent and Sibling Items
+
+    When you are working on a design, you can use snapping to align
+    items in the \uicontrol {Form Editor}. Click the \inlineimage snapping.png
+    button to have the items snap to their parent or sibling items. Snapping
+    lines automatically appear to help you position the items.
+    Click the \inlineimage snapping_and_anchoring.png
+    button to anchor the item to the items that you snap to.
+
+    Choose \uicontrol Tools > \uicontrol Options > \uicontrol {Qt Quick} >
+    \uicontrol {\QMLD} to specify settings for snapping. In the
+    \uicontrol {Parent item padding} field, specify the
+    distance in pixels between the parent item and the snapping lines. In the
+    \uicontrol {Sibling item spacing} field, specify the distance in pixels between
+    sibling items and the snapping lines.
+
+    The following image shows the snapping lines (1) when
+    \uicontrol {Parent item padding} is set to 5 pixels.
+
+    \image qmldesigner-snap-margins.png "Snapping lines on canvas"
+
+    \section1 Hiding Item Boundaries
+
+    The \uicontrol {Form Editor} displays the boundaries of items.
+    To hide them, select the \inlineimage boundingrect.png
+    button.
+
+    \section1 Selecting Items
+
+    When you point the mouse to overlapping items, the frontmost item is
+    selected by default. However, items that do not have any content, such as
+    the mouse area, are typically located in front of items that do have
+    content, such as rectangles or border images. To select items with content
+    by default, click the
+    \inlineimage qmldesigner-only-select-items-with-content.png
+    button.
+
+    \section1 Previewing Component Size
+
+    The width and height of the root item in a QML file determine the size of
+    the component. You can reuse components, such as buttons, in different
+    sizes in other QML files and design UIs for use with different device
+    profiles, screen resolution, or screen orientation. The component size
+    might also be zero (0,0) if its final size is determined by property
+    bindings.
+
+    To experiment with different component sizes, enter values in the
+    \uicontrol {Override Width} and \uicontrol {Override Height} fields (1) on
+    the canvas toolbar. The changes are displayed in the \uicontrol {Form Editor}
+    (2) and in the \uicontrol States view (3), but the property
+    values are not changed permanently in the QML file. You can permanently
+    change the property values in the \uicontrol Properties view (4).
+
+    \image qmldesigner-preview-size.png "Canvas width and height"
+
+    \section1 Specifying Canvas Size
+
+    To change the canvas size, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Qt Quick} > \uicontrol {\QMLD} and
+    specify the canvas width and height in the \uicontrol Canvas group.
+
+    \section1 Refreshing the Form Editor Contents
+
+    When you open QML files in the Design mode, the items in the file are drawn
+    in the \uicontrol {Form Editor}. When you edit the item properties, the QML
+    file and the contents of the editor might get out of sync. For example, when
+    you change the position of an item within a column or a row, the new
+    position might not be displayed correctly in the \uicontrol {Form Editor}.
+
+    To refresh the contents of the \uicontrol {Form Editor}, press \key R or
+    select the \inlineimage reset.png
+    (\uicontrol {Reset View}) button.
+
+*/

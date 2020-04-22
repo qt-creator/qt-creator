@@ -122,35 +122,26 @@ def testHovering():
     else:
         home = "<Home>"
     additionalKeyPresses = [home, "<Right>"]
-    expectedTypes = ["TextTip", "TextTip"]
+    expectedTypes = ["WidgetTip", "WidgetTip"]
     expectedValues = [
-                      {'text':'<table><tr><td valign=middle><p>FocusScope</p><hr/><p>\n<p>Explicitly '
-                       'creates a focus scope </p></p></td><td>&nbsp;&nbsp;<img src=":/utils/tooltip/images/f1.png"></td></tr></table>'},
-                      {'text':'<table><tr><td valign=middle><p>Rectangle</p><hr/><p>\n<p>Paints a filled rectangle with an '
-                       'optional border </p></p></td><td>&nbsp;&nbsp;<img src=":/utils/tooltip/images/f1.png"></td></tr></table>'}
+                      {'text':'FocusScope<hr/>\n<p>Explicitly creates a focus scope.</p>'},
+                      {'text':'Rectangle<hr/>\n<p>Paints a filled rectangle with an optional border.</p>'}
                       ]
-    alternativeValues = [{"text":"<p>FocusScope</p>"}, {"text":"<p>Rectangle</p>"}]
-    verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues, alternativeValues)
+    verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues)
     test.log("Testing hovering properties")
     openDocument(focusDocumentPath % "focus\\.qml")
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     lines = ['focus:\s*true', 'color:\s*"black"', 'states:\s*State\s*\{', 'transitions:\s*Transition\s*\{']
-    expectedTypes = ["TextTip", "TextTip", "TextTip", "TextTip"]
+    expectedTypes = ["TextTip", "WidgetTip", "WidgetTip", "WidgetTip"]
     expectedValues = [
                       {'text':'<table><tr><td valign=middle><p>boolean</p><hr/><p><p>This property indicates whether the item has focus '
                        'within the enclosing focus scope. If true, this item will gain active focus when the enclosing '
                        'focus scope gains active focus. In the following example, <tt>input</tt> will be given active focus '
                        'when <tt>scope</tt> gains active focus.</p></p></td><td>&nbsp;&nbsp;<img src=":/utils/tooltip/images/f1.png"'
                        '></td></tr></table>'},
-                      {'text':'<table><tr><td valign=middle><p>string</p><hr/><p><p>This property holds the color used to fill the rectangle.'
-                       '</p></p></td><td>&nbsp;&nbsp;<img src=":/utils/tooltip/images/f1.png"></td></tr></table>'},
-                      {'text':'<table><tr><td valign=middle><p>State</p><hr/><p><p>This property holds the list of possible states for this item. '
-                       'To change the state of this item, set the state property to one of these states, or set the state property '
-                       'to an empty string to revert the item to its default state.'
-                       '</p></p></td><td>&nbsp;&nbsp;<img src=":/utils/tooltip/images/f1.png"></td></tr></table>'},
-                      {'text':'<table><tr><td valign=middle><p>Transition</p><hr/><p><p>This property holds the list of transitions for this item. '
-                       'These define the transitions to be applied to the item whenever it changes its state.'
-                       '</p></p></td><td>&nbsp;&nbsp;<img src=":/utils/tooltip/images/f1.png"></td></tr></table>'}
+                      {'text':'string'},
+                      {'text':'State'},
+                      {'text':'Transition'}
                       ]
     alternativeValues = [{"text":"<p>boolean</p>"}, {"text":"<p>string</p>"},
                          {"text":"<p>State</p>"}, {"text":"<p>Transition</p>"}]

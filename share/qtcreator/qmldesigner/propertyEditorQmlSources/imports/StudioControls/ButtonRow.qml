@@ -29,8 +29,9 @@ import QtQuick.Templates 2.12 as T
 import StudioTheme 1.0 as StudioTheme
 
 Row {
-    // TODO When using Item as root it won't react to outer layout
-    id: myButtonGroup
+    id: myButtonRow
+
+    property bool hover: false
 
     property alias actionIndicator: actionIndicator
 
@@ -40,12 +41,12 @@ Row {
 
     ActionIndicator {
         id: actionIndicator
-        myControl: myButtonGroup // TODO global hover issue. Can be solved with extra property in ActionIndicator
+        myControl: myButtonRow
         x: 0
         y: 0
         width: actionIndicator.visible ? __actionIndicatorWidth : 0
         height: actionIndicator.visible ? __actionIndicatorHeight : 0
     }
 
-    spacing: -StudioTheme.Values.border // TODO Which one is better? Spacing vs. layout function. ALso depends on root item
+    spacing: -StudioTheme.Values.border
 }

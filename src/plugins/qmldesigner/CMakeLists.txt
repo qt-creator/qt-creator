@@ -5,7 +5,7 @@ add_qtc_plugin(QmlDesigner
   DEFINES
     DESIGNER_CORE_LIBRARY
     IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
-  INCLUDES
+  PUBLIC_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/designercore/include
   PLUGIN_DEPENDS
     Core ProjectExplorer QmlJSEditor QmakeProjectManager QmlProjectManager
@@ -41,7 +41,6 @@ add_qtc_plugin(componentsplugin
   CONDITION TARGET QmlDesigner
   DEPENDS Core QmlDesigner Utils Qt5::Qml
   DEFINES COMPONENTS_LIBRARY
-  INCLUDES ${CMAKE_CURRENT_LIST_DIR}/designercore/include
   SOURCES
     componentsplugin/addtabdesigneraction.cpp componentsplugin/addtabdesigneraction.h
     componentsplugin/addtabtotabviewdialog.cpp componentsplugin/addtabtotabviewdialog.h
@@ -57,7 +56,6 @@ add_qtc_plugin(componentsplugin
 add_qtc_plugin(qmlpreviewplugin
   CONDITION TARGET QmlDesigner
   DEPENDS Core ProjectExplorer QmlDesigner Utils Qt5::Qml
-  INCLUDES ${CMAKE_CURRENT_LIST_DIR}/designercore/include
   SOURCES
     qmlpreviewplugin/qmlpreviewactions.cpp qmlpreviewplugin/qmlpreviewactions.h
     qmlpreviewplugin/qmlpreviewplugin.cpp qmlpreviewplugin/qmlpreviewplugin.h
@@ -70,7 +68,6 @@ add_qtc_plugin(qtquickplugin
   CONDITION TARGET QmlDesigner
   DEPENDS Core QmlDesigner Utils Qt5::Qml
   DEFINES QTQUICK_LIBRARY
-  INCLUDES ${CMAKE_CURRENT_LIST_DIR}/designercore/include
   SOURCES
     qtquickplugin/qtquickplugin.cpp qtquickplugin/qtquickplugin.h
     qtquickplugin/qtquickplugin.qrc

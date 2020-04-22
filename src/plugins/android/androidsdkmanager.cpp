@@ -1,4 +1,4 @@
-/****************************************************************************
+﻿/****************************************************************************
 **
 ** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
@@ -277,6 +277,7 @@ public:
         EmulatorToolsMarker         = 0x400,
         NdkMarker                   = 0x800,
         ExtrasMarker                = 0x1000,
+        CmdlineSdkToolsMarker       = 0x2000,
         SectionMarkers = InstalledPackagesMarker | AvailablePackagesMarkers | AvailableUpdatesMarker
     };
 
@@ -313,6 +314,7 @@ const std::map<SdkManagerOutputParser::MarkerTag, const char *> markerTags {
     {SdkManagerOutputParser::MarkerTag::SystemImageMarker,          "system-images"},
     {SdkManagerOutputParser::MarkerTag::BuildToolsMarker,           "build-tools"},
     {SdkManagerOutputParser::MarkerTag::SdkToolsMarker,             "tools"},
+    {SdkManagerOutputParser::MarkerTag::CmdlineSdkToolsMarker,      "cmdline-tools"},
     {SdkManagerOutputParser::MarkerTag::PlatformToolsMarker,        "platform-tools"},
     {SdkManagerOutputParser::MarkerTag::EmulatorToolsMarker,        "emulator"},
     {SdkManagerOutputParser::MarkerTag::NdkMarker,                  "ndk"},
@@ -594,6 +596,10 @@ void SdkManagerOutputParser::parsePackageData(MarkerTag packageMarker, const QSt
         break;
 
     case MarkerTag::SdkToolsMarker:
+        createPackage(&SdkManagerOutputParser::parseSdkToolsPackage);
+        break;
+
+    case MarkerTag::CmdlineSdkToolsMarker:
         createPackage(&SdkManagerOutputParser::parseSdkToolsPackage);
         break;
 
@@ -882,7 +888,7 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
         return;
     }
 
-    if (m_config.sdkToolsVersion() < sdkManagerIntroVersion) {
+    if (m_config.sdkToolsVersion() < sdkManagerIntroVersion && !m_config.isCmdlineSdkToolsInstalled()) {
         // Old Sdk tools.
         m_packageListingSuccessful = true;
         AndroidToolManager toolManager(m_config);
