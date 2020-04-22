@@ -448,7 +448,7 @@ void QmakeBuildSystem::scheduleAsyncUpdateFile(QmakeProFile *file, QmakeProFile:
 
 void QmakeBuildSystem::scheduleUpdateAllNowOrLater()
 {
-    qCDebug(qmakeBuildSystemLog) <<  __FUNCTION__ << m_firstParseNeeded;
+    qCDebug(qmakeBuildSystemLog) <<  buildTypeName() << __FUNCTION__ << m_firstParseNeeded;
     if (m_firstParseNeeded)
         scheduleUpdateAll(QmakeProFile::ParseNow);
     else
@@ -489,13 +489,14 @@ void QmakeBuildSystem::scheduleUpdateAll(QmakeProFile::AsyncUpdateDelay delay)
 void QmakeBuildSystem::startAsyncTimer(QmakeProFile::AsyncUpdateDelay delay)
 {
     if (!buildConfiguration()->isActive()) {
-        qCDebug(qmakeBuildSystemLog) <<  __FUNCTION__ << "skipped, not active";
+        qCDebug(qmakeBuildSystemLog) <<  buildTypeName() << __FUNCTION__
+                                      << "skipped, not active";
         return;
     }
 
     const int interval = qMin(parseDelay(),
                               delay == QmakeProFile::ParseLater ? UPDATE_INTERVAL : 0);
-    qCDebug(qmakeBuildSystemLog) <<  __FUNCTION__ << interval;
+    qCDebug(qmakeBuildSystemLog) <<  buildTypeName() << __FUNCTION__ << interval;
     requestParseWithCustomDelay(interval);
 }
 
@@ -542,7 +543,8 @@ void QmakeBuildSystem::decrementPendingEvaluateFutures()
             m_guard.markAsSuccess(); // Qmake always returns (some) data, even when it failed:-)
             m_guard = {}; // This triggers emitParsingFinished by destroying the previous guard.
 
-            qCDebug(qmakeBuildSystemLog) <<  __FUNCTION__ << "first parse succeeded";
+            qCDebug(qmakeBuildSystemLog) <<  buildTypeName() << __FUNCTION__
+                                          << "first parse succeeded";
             m_firstParseNeeded = false;
 
             emitBuildSystemUpdated();
@@ -558,7 +560,7 @@ bool QmakeBuildSystem::wasEvaluateCanceled()
 void QmakeBuildSystem::asyncUpdate()
 {
     setParseDelay(UPDATE_INTERVAL);
-    qCDebug(qmakeBuildSystemLog) <<  __FUNCTION__;
+    qCDebug(qmakeBuildSystemLog) <<  buildTypeName() << __FUNCTION__;
 
     if (m_invalidateQmakeVfsContents) {
         m_invalidateQmakeVfsContents = false;
@@ -670,6 +672,11 @@ FilePath QmakeBuildSystem::buildDir(const FilePath &proFilePath) const
                                  ? projectDirectory().toString()
                                  : buildConfigBuildDir;
     return FilePath::fromString(QDir::cleanPath(QDir(buildDir).absoluteFilePath(relativeDir)));
+}
+
+QString QmakeBuildSystem::buildTypeName() const
+{
+    return BuildConfiguration::buildTypeName(buildConfiguration()->buildType());
 }
 
 void QmakeBuildSystem::proFileParseError(const QString &errorMessage)
