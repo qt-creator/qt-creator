@@ -57,6 +57,7 @@ QByteArray encodeProjectData(const QStringList &someNames);
 QByteArray encodeBreakPoint(BKTYPE type, const QString &exp, const QString &cmd = QString());
 QByteArray encodeAmem(quint64 address, quint32 bytesCount);
 QByteArray encodeAmem(quint64 address, const QByteArray &data);
+EXECCMD encodeCommand(const QString &cmd);
 TVAL encodeVoidTval();
 TVAL encodeIntTval(int value);
 TVAL encodeU64Tval(quint64 value);

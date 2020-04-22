@@ -120,6 +120,14 @@ QByteArray encodeAmem(quint64 address, const QByteArray &data)
     return buffer;
 }
 
+EXECCMD encodeCommand(const QString &cmd)
+{
+    EXECCMD exeCmd = {};
+    exeCmd.useEcho = false;
+    exeCmd.command = encodeSstr(cmd);
+    return exeCmd;
+}
+
 TVAL encodeVoidTval()
 {
     TVAL tval = {};

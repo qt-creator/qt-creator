@@ -36,6 +36,7 @@ QT_END_NAMESPACE
 
 // From UVSC api.
 struct STACKENUM;
+struct BKRSP;
 
 namespace Utils { class FilePath; }
 
@@ -142,6 +143,8 @@ private:
     bool addressToFileLine(quint64 address, QString &fileName, QString &function, quint32 &line);
 
     bool controlHiddenBreakpoint(const QString &exp);
+    bool enumerateBreakpoints(std::vector<BKRSP> &bpenums);
+    bool executeCommand(const QString &cmd, QString &output);
 
     qint32 m_descriptor = -1;
     quint64 m_exitAddress = 0;
