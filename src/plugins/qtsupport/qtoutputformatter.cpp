@@ -243,7 +243,7 @@ void QtOutputLineParser::updateProjectFileList()
 QtOutputFormatterFactory::QtOutputFormatterFactory()
 {
     setFormatterCreator([](Target *t) -> OutputLineParser * {
-        BaseQtVersion *qt = QtKitAspect::qtVersion(t->kit());
+        BaseQtVersion *qt = QtKitAspect::qtVersion(t ? t->kit() : nullptr);
         return qt ? new QtOutputLineParser(t) : nullptr;
     });
 }

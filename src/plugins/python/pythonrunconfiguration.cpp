@@ -338,7 +338,7 @@ PythonRunConfigurationFactory::PythonRunConfigurationFactory()
 PythonOutputFormatterFactory::PythonOutputFormatterFactory()
 {
     setFormatterCreator([](Target *t) -> OutputLineParser * {
-        if (t->project()->mimeType() == Constants::C_PY_MIMETYPE)
+        if (t && t->project()->mimeType() == Constants::C_PY_MIMETYPE)
             return new PythonOutputLineParser;
         return nullptr;
     });
