@@ -85,6 +85,8 @@
         \li Add states to apply sets of changes to the properties of one or
             several components in the \uicontrol States view (6). For more
             information, see \l{Adding States}.
+        \li Animate component properties in the \uicontrol Timeline view (7).
+            For more information, see \l{Creating Animations}.
     \endlist
 
     \section1 Using Basic QML Types
