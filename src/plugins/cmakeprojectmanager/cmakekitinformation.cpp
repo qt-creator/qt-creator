@@ -251,9 +251,11 @@ Tasks CMakeKitAspect::validate(const Kit *k) const
     CMakeTool *tool = CMakeKitAspect::cmakeTool(k);
     if (tool) {
         CMakeTool::Version version = tool->version();
-        if (version.major < 3) {
-            result << BuildSystemTask(Task::Warning, tr("CMake version %1 is unsupported. Please update to "
-                                         "version 3.0 or later.").arg(QString::fromUtf8(version.fullVersion)));
+        if (version.major < 3 || (version.major == 3 && version.minor < 7)) {
+            result << BuildSystemTask(Task::Warning,
+                                      tr("CMake version %1 is unsupported. Please update to "
+                                         "version 3.7 or later.")
+                                          .arg(QString::fromUtf8(version.fullVersion)));
         }
     }
     return result;
