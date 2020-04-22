@@ -24,8 +24,8 @@
     <widget class="QToolBar" name="toolBar">
      <property name="iconSize">
       <size>
-       <width>36</width>
-       <height>36</height>
+       <width>20</width>
+       <height>20</height>
       </size>
      </property>
     </widget>
@@ -34,8 +34,8 @@
     <widget class="QToolBar" name="tableBar">
      <property name="iconSize">
       <size>
-       <width>36</width>
-       <height>36</height>
+       <width>20</width>
+       <height>20</height>
       </size>
      </property>
     </widget>

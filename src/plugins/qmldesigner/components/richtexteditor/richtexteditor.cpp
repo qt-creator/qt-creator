@@ -164,7 +164,7 @@ QIcon RichTextEditor::getIcon(Theme::Icon icon)
 {
     const QString fontName = "qtds_propertyIconFont.ttf";
 
-    return Utils::StyleHelper::getIconFromIconFont(fontName, Theme::getIconUnicode(icon), 36, 36);
+    return Utils::StyleHelper::getIconFromIconFont(fontName, Theme::getIconUnicode(icon), 20, 20);
 }
 
 QString RichTextEditor::richText() const
