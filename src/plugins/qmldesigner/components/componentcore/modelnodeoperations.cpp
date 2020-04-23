@@ -1045,7 +1045,7 @@ void addTransition(const SelectionContext &selectionContext)
 
 
         view->executeInTransaction("DesignerActionManager:addTransition",
-                                   [view, targetNode, &sourceNode](){
+                                   [targetNode, &sourceNode](){
                                        sourceNode.assignTargetItem(targetNode);
                                    });
     }

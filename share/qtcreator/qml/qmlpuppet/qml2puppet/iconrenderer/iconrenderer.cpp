@@ -108,7 +108,7 @@ void IconRenderer::setupRender()
             if (m_contentItem->height() > containerItem->height())
                 containerItem->setHeight(m_contentItem->height());
 
-            QTimer::singleShot(0, this, [this, containerItem, is3D]() {
+            QTimer::singleShot(0, this, [this, is3D]() {
                 m_designerSupport.refFromEffectItem(m_quickView->rootObject(), false);
                 QQuickDesignerSupportItems::disableNativeTextRendering(m_quickView->rootObject());
 

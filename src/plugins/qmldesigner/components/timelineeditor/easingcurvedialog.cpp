@@ -204,7 +204,7 @@ bool EasingCurveDialog::apply()
     }
     AbstractView *view = m_frames.first().view();
 
-    return view->executeInTransaction("EasingCurveDialog::apply", [this, view](){
+    return view->executeInTransaction("EasingCurveDialog::apply", [this](){
         auto expression = m_splineEditor->easingCurve().toString();
         for (const auto &frame : m_frames)
             frame.bindingProperty("easing.bezierCurve").setExpression(expression);

@@ -338,7 +338,7 @@ void GraphicsView::contextMenuEvent(QContextMenuEvent *event)
     QAction *insertKeyframeAction = menu.addAction(tr("Insert Keyframe"));
     connect(insertKeyframeAction, &QAction::triggered, insertKeyframes);
 
-    auto deleteKeyframes = [this, event] { m_scene->deleteSelectedKeyframes(); };
+    auto deleteKeyframes = [this] { m_scene->deleteSelectedKeyframes(); };
     QAction *deleteKeyframeAction = menu.addAction(tr("Delete Selected Keyframes"));
     connect(deleteKeyframeAction, &QAction::triggered, deleteKeyframes);
 
