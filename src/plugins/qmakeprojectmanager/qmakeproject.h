@@ -173,13 +173,14 @@ public:
                      QmakeProFileNode *profile,
                      ProjectExplorer::FileNode *buildableFile);
 
-public:
+    Utils::FilePath buildDir(const Utils::FilePath &proFilePath) const;
+    QmakeBuildConfiguration *qmakeBuildConfiguration() const;
+
+    void scheduleUpdateAllNowOrLater();
+
+private:
     void scheduleUpdateAll(QmakeProFile::AsyncUpdateDelay delay);
     void scheduleUpdateAllLater() { scheduleUpdateAll(QmakeProFile::ParseLater); }
-    void scheduleUpdateAllNowOrLater();
-    Utils::FilePath buildDir(const Utils::FilePath &proFilePath) const;
-
-    QmakeBuildConfiguration *qmakeBuildConfiguration() const;
 
     mutable QSet<const QPair<Utils::FilePath, Utils::FilePath>> m_toolChainWarnings;
 
