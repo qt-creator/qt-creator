@@ -36,12 +36,9 @@ namespace Internal {
 
 using namespace CPlusPlus;
 
-CatchCodeParser::CatchCodeParser(const QByteArray &source, const LanguageFeatures &features,
-                                 const Document::Ptr &doc, const Snapshot &snapshot)
+CatchCodeParser::CatchCodeParser(const QByteArray &source, const LanguageFeatures &features)
     : m_source(source)
     , m_features(features)
-    , m_doc(doc)
-    , m_snapshot(snapshot)
 {
 }
 

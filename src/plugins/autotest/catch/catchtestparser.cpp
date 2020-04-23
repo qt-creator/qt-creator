@@ -97,7 +97,6 @@ static bool hasCatchNames(const CPlusPlus::Document::Ptr &document)
 
 static bool handleCatchDocument(QFutureInterface<TestParseResultPtr> futureInterface,
                                 const CPlusPlus::Document::Ptr &doc,
-                                const CPlusPlus::Snapshot &snapshot,
                                 ITestFramework *framework)
 {
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
@@ -111,7 +110,7 @@ static bool handleCatchDocument(QFutureInterface<TestParseResultPtr> futureInter
     const CppTools::ProjectPart::Ptr projectPart = projectParts.first();
     proFile = projectPart->projectFile;
 
-    CatchCodeParser codeParser(fileContent, projectPart->languageFeatures, doc, snapshot);
+    CatchCodeParser codeParser(fileContent, projectPart->languageFeatures);
     const CatchTestCodeLocationList foundTests = codeParser.findTests();
 
     CatchParseResult *parseResult = new CatchParseResult(framework);
@@ -145,7 +144,7 @@ bool CatchTestParser::processDocument(QFutureInterface<TestParseResultPtr> futur
     if (doc.isNull() || !includesCatchHeader(doc, m_cppSnapshot) || !hasCatchNames(doc))
         return false;
 
-    return handleCatchDocument(futureInterface, doc, m_cppSnapshot, framework());
+    return handleCatchDocument(futureInterface, doc, framework());
 }
 
 TestTreeItem *CatchParseResult::createTestTreeItem() const

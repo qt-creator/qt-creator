@@ -27,7 +27,6 @@
 
 #include "catchtreeitem.h"
 
-#include <cplusplus/CppDocument.h>
 #include <cplusplus/SimpleLexer.h>
 
 #include <QByteArray>
@@ -38,8 +37,7 @@ namespace Internal {
 class CatchCodeParser
 {
 public:
-    CatchCodeParser(const QByteArray &source, const CPlusPlus::LanguageFeatures &features,
-                    const CPlusPlus::Document::Ptr &doc, const CPlusPlus::Snapshot &snapshot);
+    CatchCodeParser(const QByteArray &source, const CPlusPlus::LanguageFeatures &features);
     virtual ~CatchCodeParser() = default;
     CatchTestCodeLocationList findTests();
 private:
@@ -56,12 +54,9 @@ private:
 
     const QByteArray &m_source;
     const CPlusPlus::LanguageFeatures &m_features;
-    const CPlusPlus::Document::Ptr &m_doc;
-    const CPlusPlus::Snapshot &m_snapshot;
     CPlusPlus::Tokens m_tokens;
     int m_currentIndex = 0;
     CatchTestCodeLocationList m_testCases;
-    int m_lineNo = 0;
 };
 
 } // namespace Internal
