@@ -61,7 +61,7 @@
 namespace McuSupport {
 namespace Internal {
 
-static const int KIT_VERSION = 1; // Bumps up whenever details in Kit creation change
+static const int KIT_VERSION = 2; // Bumps up whenever details in Kit creation change
 
 static QString packagePathFromSettings(const QString &settingsKey, const QString &defaultPath = {})
 {
@@ -469,17 +469,18 @@ static void setKitProperties(const QString &kitName, ProjectExplorer::Kit *k,
                              const McuTarget* mcuTarget)
 {
     using namespace ProjectExplorer;
+    using namespace Constants;
 
     k->setUnexpandedDisplayName(kitName);
-    k->setValue(Constants::KIT_MCUTARGET_VENDOR_KEY, mcuTarget->vendor());
-    k->setValue(Constants::KIT_MCUTARGET_MODEL_KEY, mcuTarget->qulPlatform());
-    k->setValue(Constants::KIT_MCUTARGET_SDKVERSION_KEY,
-                McuSupportOptions::supportedQulVersion().toString());
-    k->setValue(Constants::KIT_MCUTARGET_KITVERSION_KEY, KIT_VERSION);
+    k->setValue(KIT_MCUTARGET_VENDOR_KEY, mcuTarget->vendor());
+    k->setValue(KIT_MCUTARGET_MODEL_KEY, mcuTarget->qulPlatform());
+    k->setValue(KIT_MCUTARGET_COLORDEPTH_KEY, mcuTarget->colorDepth());
+    k->setValue(KIT_MCUTARGET_SDKVERSION_KEY, McuSupportOptions::supportedQulVersion().toString());
+    k->setValue(KIT_MCUTARGET_KITVERSION_KEY, KIT_VERSION);
     k->setAutoDetected(true);
     k->makeSticky();
     if (mcuTarget->toolChainPackage()->type() == McuToolChainPackage::TypeDesktop)
-        k->setDeviceTypeForIcon(Constants::DEVICE_TYPE);
+        k->setDeviceTypeForIcon(DEVICE_TYPE);
     QSet<Core::Id> irrelevant = {
         SysRootKitAspect::id(),
         QtSupport::QtKitAspect::id()
@@ -609,9 +610,17 @@ QString McuSupportOptions::kitName(const McuTarget *mcuTarget)
 QList<ProjectExplorer::Kit *> McuSupportOptions::existingKits(const McuTarget *mcuTarget)
 {
     using namespace ProjectExplorer;
-    const QString mcuTargetKitName = kitName(mcuTarget);
-    return Utils::filtered(KitManager::kits(), [&mcuTargetKitName](Kit *kit) {
-            return kit->isAutoDetected() && kit->unexpandedDisplayName() == mcuTargetKitName;
+    using namespace Constants;
+    return Utils::filtered(KitManager::kits(), [mcuTarget](Kit *kit) {
+        return kit->isAutoDetected()
+                && kit->value(KIT_MCUTARGET_KITVERSION_KEY) == KIT_VERSION
+                && kit->value(KIT_MCUTARGET_SDKVERSION_KEY) ==
+                   McuSupportOptions::supportedQulVersion().toString()
+                && (!mcuTarget || (
+                        kit->value(KIT_MCUTARGET_VENDOR_KEY) == mcuTarget->vendor()
+                        && kit->value(KIT_MCUTARGET_MODEL_KEY) == mcuTarget->qulPlatform()
+                        && kit->value(KIT_MCUTARGET_COLORDEPTH_KEY) == mcuTarget->colorDepth()
+                        ));
     });
 }
 
