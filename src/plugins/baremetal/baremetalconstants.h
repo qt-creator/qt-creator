@@ -45,6 +45,7 @@ const char GDBSERVER_EBLINK_PROVIDER_ID[] = "BareMetal.GdbServerProvider.EBlink"
 // uVision Debugger Server Provider Ids.
 const char UVSC_SIMULATOR_PROVIDER_ID[] = "BareMetal.UvscServerProvider.Simulator";
 const char UVSC_STLINK_PROVIDER_ID[] = "BareMetal.UvscServerProvider.StLink";
+const char UVSC_JLINK_PROVIDER_ID[] = "BareMetal.UvscServerProvider.JLink";
 
 // Toolchain types.
 const char IAREW_TOOLCHAIN_TYPEID[] = "BareMetal.ToolChain.Iar";

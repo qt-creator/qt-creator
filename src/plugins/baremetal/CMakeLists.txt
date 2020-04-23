@@ -20,6 +20,7 @@ add_qtc_plugin(BareMetal
     debugservers/gdb/eblinkgdbserverprovider.cpp debugservers/gdb/eblinkgdbserverprovider.h
     debugservers/uvsc/simulatoruvscserverprovider.cpp  debugservers/uvsc/simulatoruvscserverprovider.h
     debugservers/uvsc/stlinkuvscserverprovider.cpp debugservers/uvsc/stlinkuvscserverprovider.h
+    debugservers/uvsc/jlinkuvscserverprovider.cpp debugservers/uvsc/jlinkuvscserverprovider.h
     debugservers/uvsc/uvproject.cpp debugservers/uvsc/uvproject.h
     debugservers/uvsc/uvprojectwriter.cpp debugservers/uvsc/uvprojectwriter.h
     debugservers/uvsc/uvscserverprovider.cpp debugservers/uvsc/uvscserverprovider.h
