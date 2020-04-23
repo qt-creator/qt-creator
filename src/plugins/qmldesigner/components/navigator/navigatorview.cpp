@@ -442,7 +442,7 @@ void NavigatorView::updateItemSelection()
     // make sure selected nodes a visible
     foreach (const QModelIndex &selectedIndex, itemSelection.indexes()) {
         if (selectedIndex.column() == 0)
-            expandRecursively(selectedIndex);
+            expandAncestors(selectedIndex);
     }
 }
 
@@ -466,9 +466,9 @@ bool NavigatorView::blockSelectionChangedSignal(bool block)
     return oldValue;
 }
 
-void NavigatorView::expandRecursively(const QModelIndex &index)
+void NavigatorView::expandAncestors(const QModelIndex &index)
 {
-    QModelIndex currentIndex = index;
+    QModelIndex currentIndex = index.parent();
     while (currentIndex.isValid()) {
         if (!treeWidget()->isExpanded(currentIndex))
             treeWidget()->expand(currentIndex);
