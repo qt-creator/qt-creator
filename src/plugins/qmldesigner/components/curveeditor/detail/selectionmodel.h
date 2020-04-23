@@ -59,7 +59,7 @@ public:
 
     std::vector<PropertyTreeItem *> selectedPropertyItems() const;
 
-    void select(const std::vector<TreeItem::Path> &selection);
+    void selectPaths(const std::vector<TreeItem::Path> &selection);
 
 private:
     void changeSelection(const QItemSelection &selected, const QItemSelection &deselected);

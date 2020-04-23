@@ -98,7 +98,7 @@ std::vector<PropertyTreeItem *> SelectionModel::selectedPropertyItems() const
     return items;
 }
 
-void SelectionModel::select(const std::vector<TreeItem::Path> &selection)
+void SelectionModel::selectPaths(const std::vector<TreeItem::Path> &selection)
 {
     for (auto &&path : selection) {
         if (auto *treeModel = qobject_cast<TreeModel *>(model())) {

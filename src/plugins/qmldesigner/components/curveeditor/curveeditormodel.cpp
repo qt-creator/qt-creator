@@ -111,7 +111,7 @@ void CurveEditorModel::reset(const std::vector<TreeItem *> &items)
     graphicsView()->reset(pinned);
 
     if (SelectionModel *sm = selectionModel())
-        sm->select(sel);
+        sm->selectPaths(sel);
 }
 
 } // End namespace DesignTools.
