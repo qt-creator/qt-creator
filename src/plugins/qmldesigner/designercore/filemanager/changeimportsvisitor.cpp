@@ -85,10 +85,25 @@ bool ChangeImportsVisitor::remove(QmlJS::AST::UiProgram *ast, const Import &impo
 
 bool ChangeImportsVisitor::equals(QmlJS::AST::UiImport *ast, const Import &import)
 {
+    bool equal = false;
     if (import.isLibraryImport())
-        return toString(ast->importUri) == import.url();
+        equal = toString(ast->importUri) == import.url();
     else if (import.isFileImport())
-        return ast->fileName == import.file();
-    else
-        return false;
+        equal = ast->fileName == import.file();
+
+    if (equal) {
+        equal = (!ast->version || (ast->version->minorVersion == 0 && ast->version->majorVersion == 0))
+                && import.version().isEmpty();
+        if (!equal && ast->version) {
+            const QStringList versions = import.version().split('.');
+            if (versions.size() >= 1 && versions[0].toInt() == ast->version->majorVersion) {
+                if (versions.size() >= 2)
+                    equal = versions[1].toInt() == ast->version->minorVersion;
+                else
+                    equal = ast->version->minorVersion == 0;
+            }
+        }
+    }
+
+    return equal;
 }
