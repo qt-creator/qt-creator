@@ -178,7 +178,6 @@ public:
     void scheduleUpdateAllLater() { scheduleUpdateAll(QmakeProFile::ParseLater); }
     void scheduleUpdateAllNowOrLater();
     Utils::FilePath buildDir(const Utils::FilePath &proFilePath) const;
-    QString buildTypeName() const;
 
     QmakeBuildConfiguration *qmakeBuildConfiguration() const;
 

@@ -87,6 +87,17 @@ const int UPDATE_INTERVAL = 3000;
 
 static Q_LOGGING_CATEGORY(qmakeBuildSystemLog, "qtc.qmake.buildsystem", QtWarningMsg);
 
+#define TRACE(msg)                                                   \
+    if (qmakeBuildSystemLog().isDebugEnabled()) {                    \
+        qCDebug(qmakeBuildSystemLog)                                 \
+            << qPrintable(buildConfiguration()->displayName())       \
+            << ", guards project: " << int(m_guard.guardsProject())  \
+            << ", isParsing: " << int(isParsing())                   \
+            << ", hasParsingData: " << int(hasParsingData())         \
+            << ", " << __FUNCTION__                                  \
+            << msg;                                                  \
+    }
+
 /// Watches folders for QmakePriFile nodes
 /// use one file system watcher to watch all folders
 /// such minimizing system ressouce usage
@@ -448,7 +459,6 @@ void QmakeBuildSystem::scheduleAsyncUpdateFile(QmakeProFile *file, QmakeProFile:
 
 void QmakeBuildSystem::scheduleUpdateAllNowOrLater()
 {
-    qCDebug(qmakeBuildSystemLog) <<  buildTypeName() << __FUNCTION__ << m_firstParseNeeded;
     if (m_firstParseNeeded)
         scheduleUpdateAll(QmakeProFile::ParseNow);
     else
@@ -462,13 +472,18 @@ QmakeBuildConfiguration *QmakeBuildSystem::qmakeBuildConfiguration() const
 
 void QmakeBuildSystem::scheduleUpdateAll(QmakeProFile::AsyncUpdateDelay delay)
 {
-    if (m_asyncUpdateState == ShuttingDown)
+    if (m_asyncUpdateState == ShuttingDown) {
+        TRACE("suppressed: we are shutting down");
         return;
+    }
 
     if (m_cancelEvaluate) { // we are in progress of canceling
                             // and will start the evaluation after that
+        TRACE("suppressed: was previously canceled");
         return;
     }
+
+    TRACE("firstParseNeeded: " << int(m_firstParseNeeded) << ", delay: " << delay);
 
     rootProFile()->setParseInProgressRecursive(true);
 
@@ -489,14 +504,13 @@ void QmakeBuildSystem::scheduleUpdateAll(QmakeProFile::AsyncUpdateDelay delay)
 void QmakeBuildSystem::startAsyncTimer(QmakeProFile::AsyncUpdateDelay delay)
 {
     if (!buildConfiguration()->isActive()) {
-        qCDebug(qmakeBuildSystemLog) <<  buildTypeName() << __FUNCTION__
-                                      << "skipped, not active";
+        TRACE("skipped, not active")
         return;
     }
 
     const int interval = qMin(parseDelay(),
                               delay == QmakeProFile::ParseLater ? UPDATE_INTERVAL : 0);
-    qCDebug(qmakeBuildSystemLog) <<  buildTypeName() << __FUNCTION__ << interval;
+    TRACE("interval: " << interval);
     requestParseWithCustomDelay(interval);
 }
 
@@ -510,6 +524,7 @@ void QmakeBuildSystem::incrementPendingEvaluateFutures()
             m_guard = guardParsingRun();
     }
     ++m_pendingEvaluateFuturesCount;
+    TRACE("pending inc to: " << m_pendingEvaluateFuturesCount);
     m_asyncUpdateFutureInterface.setProgressRange(m_asyncUpdateFutureInterface.progressMinimum(),
                                                   m_asyncUpdateFutureInterface.progressMaximum() + 1);
 }
@@ -517,9 +532,12 @@ void QmakeBuildSystem::incrementPendingEvaluateFutures()
 void QmakeBuildSystem::decrementPendingEvaluateFutures()
 {
     --m_pendingEvaluateFuturesCount;
+    TRACE("pending dec to: " << m_pendingEvaluateFuturesCount);
 
-    if (!rootProFile())
+    if (!rootProFile()) {
+        TRACE("closing project");
         return; // We are closing the project!
+    }
 
     m_asyncUpdateFutureInterface.setProgressValue(m_asyncUpdateFutureInterface.progressValue() + 1);
     if (m_pendingEvaluateFuturesCount == 0) {
@@ -546,11 +564,11 @@ void QmakeBuildSystem::decrementPendingEvaluateFutures()
             updateDocuments();
             target()->updateDefaultDeployConfigurations();
             m_guard.markAsSuccess(); // Qmake always returns (some) data, even when it failed:-)
+            TRACE("success" << int(m_guard.isSuccess()));
             m_guard = {}; // This triggers emitParsingFinished by destroying the previous guard.
 
-            qCDebug(qmakeBuildSystemLog) <<  buildTypeName() << __FUNCTION__
-                                          << "first parse succeeded";
             m_firstParseNeeded = false;
+            TRACE("first parse succeeded");
 
             emitBuildSystemUpdated();
         }
@@ -565,7 +583,7 @@ bool QmakeBuildSystem::wasEvaluateCanceled()
 void QmakeBuildSystem::asyncUpdate()
 {
     setParseDelay(UPDATE_INTERVAL);
-    qCDebug(qmakeBuildSystemLog) <<  buildTypeName() << __FUNCTION__;
+    TRACE("");
 
     if (m_invalidateQmakeVfsContents) {
         m_invalidateQmakeVfsContents = false;
@@ -677,11 +695,6 @@ FilePath QmakeBuildSystem::buildDir(const FilePath &proFilePath) const
                                  ? projectDirectory().toString()
                                  : buildConfigBuildDir;
     return FilePath::fromString(QDir::cleanPath(QDir(buildDir).absoluteFilePath(relativeDir)));
-}
-
-QString QmakeBuildSystem::buildTypeName() const
-{
-    return BuildConfiguration::buildTypeName(buildConfiguration()->buildType());
 }
 
 void QmakeBuildSystem::proFileParseError(const QString &errorMessage)
