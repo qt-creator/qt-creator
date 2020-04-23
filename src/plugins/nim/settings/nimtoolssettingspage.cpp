@@ -32,9 +32,7 @@
 
 namespace Nim {
 
-NimToolsSettingsWidget::NimToolsSettingsWidget(NimSettings *settings)
-    : ui(new Ui::NimToolsSettingsWidget)
-    , m_settings(settings)
+NimToolsSettingsWidget::NimToolsSettingsWidget() : ui(new Ui::NimToolsSettingsWidget)
 {
     ui->setupUi(this);
     ui->pathWidget->setExpectedKind(Utils::PathChooser::ExistingCommand);
@@ -70,7 +68,7 @@ NimToolsSettingsPage::~NimToolsSettingsPage() = default;
 QWidget *NimToolsSettingsPage::widget()
 {
     if (!m_widget)
-        m_widget.reset(new NimToolsSettingsWidget(m_settings));
+        m_widget.reset(new NimToolsSettingsWidget);
     m_widget->setCommand(m_settings->nimSuggestPath());
     return m_widget.get();
 }

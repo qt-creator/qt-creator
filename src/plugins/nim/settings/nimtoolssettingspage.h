@@ -43,7 +43,7 @@ class NimToolsSettingsWidget : public QWidget
     Q_DECLARE_TR_FUNCTIONS(Nim::ToolSettingsPage)
 
 public:
-    explicit NimToolsSettingsWidget(NimSettings *settings);
+    NimToolsSettingsWidget();
 
     ~NimToolsSettingsWidget();
 
@@ -52,7 +52,6 @@ public:
 
 private:
     Ui::NimToolsSettingsWidget *ui;
-    NimSettings *m_settings = nullptr;
 };
 
 class NimToolsSettingsPage final : public Core::IOptionsPage
