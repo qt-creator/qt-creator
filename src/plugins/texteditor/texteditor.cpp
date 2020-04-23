@@ -193,6 +193,8 @@ private:
             TextEditorWidget::tr("Line: %1, Col: %2")
                 .arg(line)
                 .arg(m_editor->textDocument()->tabSettings().columnAt(block.text(), column) + 1));
+        setToolTip(TextEditorWidget::tr("Cursor position: %1")
+                   .arg(QString::number(cursor.position())));
     }
 
     TextEditorWidget *m_editor;
