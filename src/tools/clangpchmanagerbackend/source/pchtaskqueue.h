@@ -55,7 +55,9 @@ public:
         , m_transactionsInterface(transactionsInterface)
         , m_progressCounter(progressCounter)
         , m_environment(environment)
-    {}
+    {
+        Q_UNUSED(m_transactionsInterface)
+    }
 
     void addSystemPchTasks(PchTasks &&pchTasks) override;
     void addProjectPchTasks(PchTasks &&pchTasks) override;
