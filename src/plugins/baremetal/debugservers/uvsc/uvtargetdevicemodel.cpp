@@ -321,6 +321,8 @@ void DeviceSelectionModel::parseDevice(QXmlStreamReader &in, DeviceSelectionItem
         const QStringRef elementName = in.name();
         if (elementName == "processor") {
             fillCpu(in, child->cpu);
+        } else if (elementName == "debug") {
+            fillSvd(in, child->svd);
         } else if (elementName == "memory") {
             fillMemories(in, child->memories);
         } else if (elementName == "algorithm") {
