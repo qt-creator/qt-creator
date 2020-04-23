@@ -151,6 +151,7 @@ public:
         return {};
     }
 
+    using QAbstractItemModel::itemData;
     virtual QVariant itemData(const ItemData &idata, int column, int role) const
     {
         if (m_dataAccessor)
