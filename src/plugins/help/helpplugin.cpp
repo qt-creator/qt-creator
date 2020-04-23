@@ -373,7 +373,7 @@ HelpWidget *HelpPluginPrivate::createHelpWidget(const Context &context, HelpWidg
             &LocalHelpManager::returnOnCloseChanged,
             widget,
             &HelpWidget::updateCloseButton);
-    connect(widget, &HelpWidget::closeButtonClicked, this, [this, widget] {
+    connect(widget, &HelpWidget::closeButtonClicked, this, [widget] {
         if (widget->widgetStyle() == HelpWidget::SideBarWidget)
             RightPaneWidget::instance()->setShown(false);
         else if (widget->viewerCount() == 1 && LocalHelpManager::returnOnClose())

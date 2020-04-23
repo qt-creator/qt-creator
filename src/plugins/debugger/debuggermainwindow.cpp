@@ -250,7 +250,7 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     m_toolBarDock = dock;
     q->addDockWidget(Qt::BottomDockWidgetArea, m_toolBarDock);
 
-    connect(viewButton, &QAbstractButton::clicked, this, [this, viewButton] {
+    connect(viewButton, &QAbstractButton::clicked, this, [viewButton] {
         ActionContainer *viewsMenu = ActionManager::actionContainer(Core::Constants::M_VIEW_VIEWS);
         viewsMenu->menu()->exec(viewButton->mapToGlobal(QPoint()));
     });

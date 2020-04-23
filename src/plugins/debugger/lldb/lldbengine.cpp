@@ -673,7 +673,7 @@ void LldbEngine::requestModuleSymbols(const QString &moduleName)
 {
     DebuggerCommand cmd("fetchSymbols");
     cmd.arg("module", moduleName);
-    cmd.callback = [this, moduleName](const DebuggerResponse &response) {
+    cmd.callback = [moduleName](const DebuggerResponse &response) {
         const GdbMi &symbols = response.data["symbols"];
         QString moduleName = response.data["module"].data();
         Symbols syms;

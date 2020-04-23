@@ -602,7 +602,7 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
 {
     QTC_ASSERT(m_view, return);
 
-    m_view->executeInTransaction("NavigatorTreeModel::moveNodesInteractive",[this, &parentProperty, modelNodes, targetIndex](){
+    m_view->executeInTransaction("NavigatorTreeModel::moveNodesInteractive",[&parentProperty, modelNodes, targetIndex](){
         const TypeName propertyQmlType = parentProperty.parentModelNode().metaInfo().propertyTypeName(parentProperty.name());
         foreach (const ModelNode &modelNode, modelNodes) {
             if (modelNode.isValid()

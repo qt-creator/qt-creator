@@ -155,7 +155,7 @@ void NavigatorView::handleChangedExport(const ModelNode &modelNode, bool exporte
     if (rootNode.hasProperty(modelNodeId))
         rootNode.removeProperty(modelNodeId);
     if (exported) {
-        executeInTransaction("NavigatorTreeModel:exportItem", [this, modelNode](){
+        executeInTransaction("NavigatorTreeModel:exportItem", [modelNode](){
             QmlObjectNode qmlObjectNode(modelNode);
             qmlObjectNode.ensureAliasExport();
         });

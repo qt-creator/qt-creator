@@ -488,7 +488,7 @@ void DesignDocument::paste()
             }
         }
 
-        rewriterView()->executeInTransaction("DesignDocument::paste1", [this, &view, selectedNodes, targetNode](){
+        rewriterView()->executeInTransaction("DesignDocument::paste1", [&view, selectedNodes, targetNode](){
             QList<ModelNode> pastedNodeList;
 
             int offset = double(qrand()) / RAND_MAX * 20 - 10;

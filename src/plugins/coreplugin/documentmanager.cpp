@@ -275,7 +275,7 @@ DocumentManager::DocumentManager(QObject *parent)
     m_instance = this;
 
     connect(Utils::GlobalFileChangeBlocker::instance(), &Utils::GlobalFileChangeBlocker::stateChanged,
-            this, [this](bool blocked) {
+            this, [](bool blocked) {
         d->m_postponeAutoReload = blocked;
         if (!blocked)
             QTimer::singleShot(500, m_instance, &DocumentManager::checkForReload);
