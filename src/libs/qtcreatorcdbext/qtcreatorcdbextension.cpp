@@ -160,7 +160,7 @@ static const CommandDescription commandDescriptions[] = {
 {"assign","Assigns a value to a variable in current symbol group.",
  "[-t token] [-h] <iname=value>\n"
  "-h    Data are hex-encoded, binary data\n"
- "-u    Data are hex-encoded, UTF16 data"
+ "-e    iname is an hex-encoded expression to be evaluated "
 },
 {"threads","Lists threads in GDBMI format.","[-t token]"},
 {"registers","Lists registers in GDBMI format","[-t token]"},
@@ -819,57 +819,77 @@ extern "C" HRESULT CALLBACK assign(CIDebugClient *client, PCSTR argsIn)
     ExtensionCommandContext exc(client);
 
     std::string errorMessage;
-    bool success = false;
     bool encoded = false;
+    bool evaluateExpression = false;
     int token = 0;
-    do {
-        StringList tokens = commandTokens<StringList>(argsIn, &token);
-        if (tokens.empty()) {
-            errorMessage = singleLineUsage(commandDescriptions[CmdAssign]);
-            break;
-        }
-
+    StringList tokens = commandTokens<StringList>(argsIn, &token);
+    while (!tokens.empty()) {
         if (tokens.front() == "-h") {
             encoded = true;
             tokens.pop_front();
+            continue;
         }
 
-        if (tokens.empty()) {
-            errorMessage = singleLineUsage(commandDescriptions[CmdAssign]);
-            break;
+        if (tokens.front() == "-e") {
+            evaluateExpression = true;
+            tokens.pop_front();
+            continue;
         }
+        break;
+    };
 
-        // Parse 'assign locals.x=5'
-        const std::string::size_type equalsPos = tokens.front().find('=');
-        if (equalsPos == std::string::npos) {
-            errorMessage = singleLineUsage(commandDescriptions[CmdAssign]);
-            break;
-        }
-        const std::string iname = tokens.front().substr(0, equalsPos);
-        const std::string value = tokens.front().substr(equalsPos + 1, tokens.front().size() - equalsPos - 1);
-        // get the symbolgroup
-        int currentFrame = ExtensionContext::instance().symbolGroupFrame();
-        if (currentFrame < 0) {
-            CIDebugControl *control = ExtensionCommandContext::instance()->control();
-            DEBUG_STACK_FRAME frame;
-            if (FAILED(control->GetStackTrace(0, 0, 0, &frame, 1, NULL))) {
-                errorMessage = "No current frame.";
-                break;
+    // Parse 'assign locals.x=5'
+    const std::string::size_type equalsPos = tokens.empty() ? std::string::npos
+                                                            : tokens.front().find('=');
+    if (equalsPos == std::string::npos) {
+        errorMessage = singleLineUsage(commandDescriptions[CmdAssign]);
+    } else {
+        std::string iname = tokens.front().substr(0, equalsPos);
+        const std::string value = tokens.front().substr(equalsPos + 1,
+                                                        tokens.front().size() - equalsPos - 1);
+        SymbolGroup *symGroup = nullptr;
+        if (evaluateExpression) {
+            WatchesSymbolGroup *watchesSymGroup
+                = ExtensionContext::instance().watchesSymbolGroup(exc.symbols(), &errorMessage);
+            std::string tempAssignIname = "watch.tmpassign";
+            if (watchesSymGroup) {
+                if (watchesSymGroup->addWatch(exc.symbols(),
+                                              tempAssignIname,
+                                              stringFromHex(iname),
+                                              &errorMessage)) {
+                    iname = tempAssignIname;
+                    symGroup = watchesSymGroup;
+                }
             }
-            currentFrame = frame.FrameNumber;
+        } else {
+            // get the symbolgroup
+            int currentFrame = ExtensionContext::instance().symbolGroupFrame();
+            if (currentFrame < 0) {
+                CIDebugControl *control = ExtensionCommandContext::instance()->control();
+                DEBUG_STACK_FRAME frame;
+                if (FAILED(control->GetStackTrace(0, 0, 0, &frame, 1, NULL)))
+                    errorMessage = "No current frame.";
+                else
+                    currentFrame = frame.FrameNumber;
+            }
+            if (currentFrame >= 0) {
+                symGroup = ExtensionContext::instance().symbolGroup(exc.symbols(),
+                                                                    exc.threadId(),
+                                                                    currentFrame,
+                                                                    &errorMessage);
+            }
         }
-        SymbolGroup *symGroup = ExtensionContext::instance().symbolGroup(exc.symbols(), exc.threadId(), currentFrame, &errorMessage);
-        if (!symGroup)
-            break;
-        success = symGroup->assign(iname, encoded ? stringFromHex(value) : value,
-                                   SymbolGroupValueContext(exc.dataSpaces(), exc.symbols()),
-                                   &errorMessage);
-    } while (false);
+        if (symGroup
+            && symGroup->assign(iname,
+                                encoded ? stringFromHex(value) : value,
+                                SymbolGroupValueContext(exc.dataSpaces(), exc.symbols()),
+                                &errorMessage)) {
+            ExtensionContext::instance().report('R', token, 0, "assign", "Ok");
+            return S_OK;
+        }
+    }
 
-    if (success)
-        ExtensionContext::instance().report('R', token, 0, "assign", "Ok");
-    else
-        ExtensionContext::instance().report('N', token, 0, "assign", errorMessage.c_str());
+    ExtensionContext::instance().report('N', token, 0, "assign", errorMessage.c_str());
     return S_OK;
 }
 
