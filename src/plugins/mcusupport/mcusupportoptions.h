@@ -132,11 +132,11 @@ class McuTarget : public QObject
 
 public:
     McuTarget(const QString &vendor, const QString &platform, const QVector<McuPackage *> &packages,
-              McuToolChainPackage *toolChainPackage);
+              const McuToolChainPackage *toolChainPackage);
 
     QString vendor() const;
     QVector<McuPackage *> packages() const;
-    McuToolChainPackage *toolChainPackage() const;
+    const McuToolChainPackage *toolChainPackage() const;
     QString qulPlatform() const;
     void setColorDepth(int colorDepth);
     int colorDepth() const;
@@ -146,7 +146,7 @@ private:
     const QString m_vendor;
     const QString m_qulPlatform;
     const QVector<McuPackage*> m_packages;
-    McuToolChainPackage *m_toolChainPackage;
+    const McuToolChainPackage *m_toolChainPackage;
     int m_colorDepth = -1;
 };
 
@@ -165,12 +165,12 @@ public:
     void setQulDir(const Utils::FilePath &dir);
     static Utils::FilePath qulDirFromSettings();
 
-    QString kitName(const McuTarget* mcuTarget) const;
+    static QString kitName(const McuTarget* mcuTarget);
 
-    QList<ProjectExplorer::Kit *> existingKits(const McuTarget *mcuTargt);
+    static QList<ProjectExplorer::Kit *> existingKits(const McuTarget *mcuTarget);
     static QList<ProjectExplorer::Kit *> outdatedKits();
     static void removeOutdatedKits();
-    ProjectExplorer::Kit *newKit(const McuTarget *mcuTarget);
+    static ProjectExplorer::Kit *newKit(const McuTarget *mcuTarget, const McuPackage *qtForMCUsSdk);
     void populatePackagesAndTargets();
     static void registerQchFiles();
     static void registerExamples();
