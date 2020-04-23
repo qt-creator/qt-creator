@@ -23,8 +23,6 @@
 **
 ****************************************************************************/
 
-#pragma once
-
 #include "itestframework.h"
 #include "itestparser.h"
 
