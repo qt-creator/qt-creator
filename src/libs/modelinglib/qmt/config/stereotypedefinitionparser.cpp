@@ -167,16 +167,13 @@ public:
 
     IconCommandParameter() = default;
 
-    IconCommandParameter(int keyword, ShapeValueF::Unit unit, ShapeValueF::Origin origin = ShapeValueF::OriginSmart)
-        : m_keyword(keyword),
-          m_unit(unit),
+    IconCommandParameter(ShapeValueF::Unit unit, ShapeValueF::Origin origin = ShapeValueF::OriginSmart)
+        : m_unit(unit),
           m_origin(origin)
     {
     }
 
-    IconCommandParameter(int keyword, Type type)
-        : m_keyword(keyword),
-          m_type(type)
+    IconCommandParameter(Type type) : m_type(type)
     {
     }
 
@@ -191,7 +188,6 @@ public:
     void setBoolean(bool boolean) { m_boolean = boolean; }
 
 private:
-    int m_keyword = -1;
     Type m_type = ShapeValue;
     ShapeValueF::Unit m_unit = ShapeValueF::UnitAbsolute;
     ShapeValueF::Origin m_origin = ShapeValueF::OriginSmart;
@@ -460,22 +456,22 @@ void StereotypeDefinitionParser::parseIcon()
 
 QPair<int, StereotypeDefinitionParser::IconCommandParameter> StereotypeDefinitionParser::SCALED(int keyword)
 {
-    return qMakePair(keyword, IconCommandParameter(keyword, ShapeValueF::UnitScaled));
+    return qMakePair(keyword, IconCommandParameter(ShapeValueF::UnitScaled));
 }
 
 QPair<int, StereotypeDefinitionParser::IconCommandParameter> StereotypeDefinitionParser::FIX(int keyword)
 {
-    return qMakePair(keyword, IconCommandParameter(keyword, ShapeValueF::UnitRelative));
+    return qMakePair(keyword, IconCommandParameter(ShapeValueF::UnitRelative));
 }
 
 QPair<int, StereotypeDefinitionParser::IconCommandParameter> StereotypeDefinitionParser::ABSOLUTE(int keyword)
 {
-    return qMakePair(keyword, IconCommandParameter(keyword, ShapeValueF::UnitAbsolute));
+    return qMakePair(keyword, IconCommandParameter(ShapeValueF::UnitAbsolute));
 }
 
 QPair<int, StereotypeDefinitionParser::IconCommandParameter> StereotypeDefinitionParser::BOOLEAN(int keyword)
 {
-    return qMakePair(keyword, IconCommandParameter(keyword, IconCommandParameter::Boolean));
+    return qMakePair(keyword, IconCommandParameter(IconCommandParameter::Boolean));
 }
 
 IconShape StereotypeDefinitionParser::parseIconShape()
