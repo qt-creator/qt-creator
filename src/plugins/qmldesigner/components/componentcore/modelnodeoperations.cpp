@@ -77,22 +77,6 @@ namespace QmlDesigner {
 
 const PropertyName auxDataString("anchors_");
 
-static inline QList<QmlItemNode> siblingsForNode(const QmlItemNode &itemNode)
-{
-    QList<QmlItemNode> siblingList;
-
-    if (itemNode.isValid() && itemNode.modelNode().hasParentProperty()) {
-        QList<ModelNode> modelNodes = itemNode.modelNode().parentProperty().parentModelNode().directSubModelNodes();
-        foreach (const ModelNode &node, modelNodes) {
-            QmlItemNode childItemNode = node;
-            if (childItemNode.isValid())
-                siblingList.append(childItemNode);
-        }
-    }
-
-    return siblingList;
-}
-
 static inline void reparentTo(const ModelNode &node, const QmlItemNode &parent)
 {
 
