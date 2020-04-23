@@ -7,6 +7,7 @@ add_qtc_library(QmlJS
     parser/qmljsast.cpp parser/qmljsast_p.h
     parser/qmljsastfwd_p.h
     parser/qmljsastvisitor.cpp parser/qmljsastvisitor_p.h
+    parser/qmljsdiagnosticmessage_p.h
     parser/qmljsengine_p.cpp parser/qmljsengine_p.h
     parser/qmljsglobal_p.h
     parser/qmljsgrammar.cpp parser/qmljsgrammar_p.h
