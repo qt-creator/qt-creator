@@ -3,6 +3,7 @@ add_qtc_library(clangbackend_lib STATIC
   PUBLIC_DEFINES CLANGSUPPORT_BUILD_LIB
   PUBLIC_INCLUDES
     ${CLANG_INCLUDE_DIRS}
+    "${CMAKE_CURRENT_LIST_DIR}"
   SOURCES
     clangasyncjob.h
     clangbackend_global.h

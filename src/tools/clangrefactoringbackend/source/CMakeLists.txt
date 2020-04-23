@@ -10,6 +10,7 @@ add_qtc_library(clangrefactoringbackend_lib STATIC
   PUBLIC_INCLUDES
     ${CLANG_INCLUDE_DIRS}
     "../../clangpchmanagerbackend/source"
+    "${CMAKE_CURRENT_LIST_DIR}"
   SOURCES
     clangquery.cpp clangquery.h
     clangquerygatherer.cpp clangquerygatherer.h
