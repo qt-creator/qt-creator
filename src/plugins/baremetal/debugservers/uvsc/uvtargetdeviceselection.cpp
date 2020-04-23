@@ -27,7 +27,8 @@
 
 #include <QComboBox>
 #include <QDataWidgetMapper>
-#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QLabel>
 #include <QLineEdit>
 
 using namespace Utils;
@@ -65,8 +66,10 @@ constexpr char deviceMemorySizeKeyC[] = "BareMetal.UvscServerProvider.DeviceMemo
 // Device ALGORITHM data keys.
 constexpr char deviceAlgorithmKeyC[] = "BareMetal.UvscServerProvider.DeviceAlgorithm";
 constexpr char deviceAlgorithmPathKeyC[] = "BareMetal.UvscServerProvider.DeviceAlgorithmPath";
-constexpr char deviceAlgorithmStartKeyC[] = "BareMetal.UvscServerProvider.DeviceAlgorithmStart";
-constexpr char deviceAlgorithmSizeKeyC[] = "BareMetal.UvscServerProvider.DeviceAlgorithmSize";
+constexpr char deviceAlgorithmFlashStartKeyC[] = "BareMetal.UvscServerProvider.DeviceAlgorithmStart";
+constexpr char deviceAlgorithmFlashSizeKeyC[] = "BareMetal.UvscServerProvider.DeviceAlgorithmSize";
+constexpr char deviceAlgorithmRamStartKeyC[] = "BareMetal.UvscServerProvider.DeviceAlgorithmRamStart";
+constexpr char deviceAlgorithmRamSizeKeyC[] = "BareMetal.UvscServerProvider.DeviceAlgorithmRamSize";
 constexpr char deviceAlgorithmIndexKeyC[] = "BareMetal.UvscServerProvider.DeviceAlgorithmIndex";
 
 // DeviceSelection
@@ -110,8 +113,10 @@ QVariantMap DeviceSelection::toMap() const
     for (const DeviceSelection::Algorithm &algorithm : qAsConst(algorithms)) {
         QVariantMap m;
         m.insert(deviceAlgorithmPathKeyC, algorithm.path);
-        m.insert(deviceAlgorithmStartKeyC, algorithm.start);
-        m.insert(deviceAlgorithmSizeKeyC, algorithm.size);
+        m.insert(deviceAlgorithmFlashStartKeyC, algorithm.flashStart);
+        m.insert(deviceAlgorithmFlashSizeKeyC, algorithm.flashSize);
+        m.insert(deviceAlgorithmRamStartKeyC, algorithm.ramStart);
+        m.insert(deviceAlgorithmRamSizeKeyC, algorithm.ramSize);
         algorithmList.push_back(m);
     }
     map.insert(deviceAlgorithmKeyC, algorithmList);
@@ -159,8 +164,10 @@ void DeviceSelection::fromMap(const QVariantMap &map)
         const auto m = entry.toMap();
         DeviceSelection::Algorithm algorithm;
         algorithm.path = m.value(deviceAlgorithmPathKeyC).toString();
-        algorithm.start = m.value(deviceAlgorithmStartKeyC).toString();
-        algorithm.size = m.value(deviceAlgorithmSizeKeyC).toString();
+        algorithm.flashStart = m.value(deviceAlgorithmFlashStartKeyC).toString();
+        algorithm.flashSize = m.value(deviceAlgorithmFlashSizeKeyC).toString();
+        algorithm.ramStart = m.value(deviceAlgorithmRamStartKeyC).toString();
+        algorithm.ramSize = m.value(deviceAlgorithmRamSizeKeyC).toString();
         algorithms.push_back(algorithm);
     }
 }
@@ -186,7 +193,9 @@ bool DeviceSelection::Memory::operator==(const Memory &other) const
 
 bool DeviceSelection::Algorithm::operator==(const Algorithm &other) const
 {
-    return path == other.path && start == other.start && size == other.size;
+    return path == other.path
+            && flashStart == other.flashStart && flashSize == other.flashSize
+            && ramStart == other.ramStart && ramSize == other.ramSize;
 }
 
 bool DeviceSelection::operator==(const DeviceSelection &other) const
@@ -297,7 +306,7 @@ void DeviceSelectionMemoryView::refresh()
 class DeviceSelectionAlgorithmItem final : public TreeItem
 {
 public:
-    enum Column { PathColumn, StartColumn, SizeColumn };
+    enum Column { PathColumn, FlashStartColumn, FlashSizeColumn, RamStartColumn, RamSizeColumn };
     explicit DeviceSelectionAlgorithmItem(int index, DeviceSelection &selection)
         : m_index(index), m_selection(selection)
     {}
@@ -308,8 +317,10 @@ public:
             const auto &algorithm = m_selection.algorithms.at(m_index);
             switch (column) {
             case PathColumn: return algorithm.path;
-            case StartColumn: return algorithm.start;
-            case SizeColumn: return algorithm.size;
+            case FlashStartColumn: return algorithm.flashStart;
+            case FlashSizeColumn: return algorithm.flashSize;
+            case RamStartColumn: return algorithm.ramStart;
+            case RamSizeColumn: return algorithm.ramSize;
             }
         }
         return {};
@@ -320,11 +331,17 @@ public:
         if (role == Qt::EditRole) {
             auto &algorithm = m_selection.algorithms.at(m_index);
             switch (column) {
-            case StartColumn:
-                algorithm.start = data.toString();
+            case FlashStartColumn:
+                algorithm.flashStart = data.toString();
                 return true;
-            case SizeColumn:
-                algorithm.size = data.toString();
+            case FlashSizeColumn:
+                algorithm.flashSize = data.toString();
+                return true;
+            case RamStartColumn:
+                algorithm.ramStart = data.toString();
+                return true;
+            case RamSizeColumn:
+                algorithm.ramSize = data.toString();
                 return true;
             }
         }
@@ -334,8 +351,10 @@ public:
     Qt::ItemFlags flags(int column) const final
     {
         Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-        if (column == StartColumn || column == SizeColumn)
+        if (column == FlashStartColumn || column == FlashSizeColumn
+                || column == RamStartColumn || column == RamSizeColumn) {
             flags |= Qt::ItemIsEditable;
+        }
         return flags;
     }
 
@@ -350,7 +369,7 @@ DeviceSelectionAlgorithmModel::DeviceSelectionAlgorithmModel(DeviceSelection &se
                                                              QObject *parent)
     : TreeModel<TreeItem, DeviceSelectionAlgorithmItem>(parent), m_selection(selection)
 {
-    setHeader({tr("Name"), tr("Start"), tr("Size")});
+    setHeader({tr("Name"), tr("FLASH Start"), tr("FLASH Size"), tr("RAM Start"), tr("RAM Size")});
     refresh();
 }
 
@@ -373,25 +392,40 @@ DeviceSelectionAlgorithmView::DeviceSelectionAlgorithmView(DeviceSelection &sele
     : QWidget(parent)
 {
     const auto model = new DeviceSelectionAlgorithmModel(selection, this);
-    const auto layout = new QHBoxLayout;
+    const auto layout = new QGridLayout;
     layout->setContentsMargins(0, 0, 0, 0);
     m_comboBox = new QComboBox;
     m_comboBox->setToolTip(tr("Algorithm path."));
     m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     m_comboBox->setModel(model);
-    layout->addWidget(m_comboBox);
-    const auto startEdit = new QLineEdit;
-    startEdit->setToolTip(tr("Start address."));
-    layout->addWidget(startEdit);
-    const auto sizeEdit = new QLineEdit;
-    sizeEdit->setToolTip(tr("Size."));
-    layout->addWidget(sizeEdit);
+    layout->addWidget(m_comboBox, 0, 0, 1, 0);
+    // Add FLASH area settings.
+    const auto flashLabel = new QLabel(tr("FLASH:"));
+    layout->addWidget(flashLabel, 1, 0);
+    const auto flashStartEdit = new QLineEdit;
+    flashStartEdit->setToolTip(tr("Start address."));
+    layout->addWidget(flashStartEdit, 1, 1);
+    const auto flashSizeEdit = new QLineEdit;
+    flashSizeEdit->setToolTip(tr("Size."));
+    layout->addWidget(flashSizeEdit, 1, 2);
+    // Add RAM area settings.
+    const auto ramLabel = new QLabel(tr("RAM:"));
+    layout->addWidget(ramLabel, 2, 0);
+    const auto ramStartEdit = new QLineEdit;
+    ramStartEdit->setToolTip(tr("Start address."));
+    layout->addWidget(ramStartEdit, 2, 1);
+    const auto ramSizeEdit = new QLineEdit;
+    ramSizeEdit->setToolTip(tr("Size."));
+    layout->addWidget(ramSizeEdit, 2, 2);
+
     setLayout(layout);
 
     const auto mapper = new QDataWidgetMapper(this);
     mapper->setModel(model);
-    mapper->addMapping(startEdit, DeviceSelectionAlgorithmItem::StartColumn);
-    mapper->addMapping(sizeEdit, DeviceSelectionAlgorithmItem::SizeColumn);
+    mapper->addMapping(flashStartEdit, DeviceSelectionAlgorithmItem::FlashStartColumn);
+    mapper->addMapping(flashSizeEdit, DeviceSelectionAlgorithmItem::FlashSizeColumn);
+    mapper->addMapping(ramStartEdit, DeviceSelectionAlgorithmItem::RamStartColumn);
+    mapper->addMapping(ramSizeEdit, DeviceSelectionAlgorithmItem::RamSizeColumn);
 
     connect(m_comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, [mapper, this](int index) {
@@ -403,8 +437,10 @@ DeviceSelectionAlgorithmView::DeviceSelectionAlgorithmView(DeviceSelection &sele
         emit algorithmChanged(-1);
     });
 
-    connect(startEdit, &QLineEdit::editingFinished, mapper, &QDataWidgetMapper::submit);
-    connect(sizeEdit, &QLineEdit::editingFinished, mapper, &QDataWidgetMapper::submit);
+    connect(flashStartEdit, &QLineEdit::editingFinished, mapper, &QDataWidgetMapper::submit);
+    connect(flashSizeEdit, &QLineEdit::editingFinished, mapper, &QDataWidgetMapper::submit);
+    connect(ramStartEdit, &QLineEdit::editingFinished, mapper, &QDataWidgetMapper::submit);
+    connect(ramSizeEdit, &QLineEdit::editingFinished, mapper, &QDataWidgetMapper::submit);
 }
 
 void DeviceSelectionAlgorithmView::setAlgorithm(int index)

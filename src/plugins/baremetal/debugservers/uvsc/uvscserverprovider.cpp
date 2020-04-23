@@ -66,6 +66,17 @@ constexpr int defaultPortNumber = 5101;
 
 // UvscServerProvider
 
+QString UvscServerProvider::buildDllRegistryKey(const DriverSelection &driver)
+{
+    const QFileInfo fi(driver.dll);
+    return fi.baseName();
+}
+
+QString UvscServerProvider::adjustFlashAlgorithmProperty(const QString &property)
+{
+    return property.startsWith("0x") ? property.mid(2) : property;
+}
+
 UvscServerProvider::UvscServerProvider(const QString &id)
     : IDebugServerProvider(id)
 {

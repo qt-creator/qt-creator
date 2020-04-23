@@ -83,6 +83,24 @@ static QStringList findKeilPackFiles(const QString &path)
     return files;
 }
 
+static QStringList findNordicSemiconductorPackFiles(const QString &path)
+{
+    QStringList files;
+    QDirIterator it(path, {"*_DeviceFamilyPack"}, QDir::Dirs);
+    while (it.hasNext()) {
+        const QDir dfpDir(it.next());
+        const QFileInfoList entries = dfpDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot,
+                                                           QDir::Name);
+        if (entries.isEmpty())
+            continue;
+        QDirIterator fit(entries.last().absoluteFilePath(), {"*.pdsc"},
+                         QDir::Files | QDir::NoSymLinks);
+        while (fit.hasNext())
+            files.push_back(fit.next());
+    }
+    return files;
+}
+
 static void fillElementProperty(QXmlStreamReader &in, QString &prop)
 {
     prop = in.readElementText().trimmed();
@@ -115,8 +133,10 @@ static void fillAlgorithms(QXmlStreamReader &in, DeviceSelection::Algorithms &al
     in.skipCurrentElement();
     DeviceSelection::Algorithm algorithm;
     algorithm.path = attrs.value("name").toString();
-    algorithm.start = attrs.value("start").toString();
-    algorithm.size = attrs.value("size").toString();
+    algorithm.flashStart = attrs.value("start").toString();
+    algorithm.flashSize = attrs.value("size").toString();
+    algorithm.ramStart = attrs.value("RAMstart").toString();
+    algorithm.ramSize = attrs.value("RAMsize").toString();
     algorithms.push_back(algorithm);
 }
 
@@ -206,11 +226,13 @@ void DeviceSelectionModel::fillAllPacks(const FilePath &toolsIniFile)
         return;
 
     QStringList allPackFiles;
-    QDirIterator it(packsPath, {"Keil"}, QDir::Dirs | QDir::NoDotAndDotDot);
+    QDirIterator it(packsPath, {"Keil", "NordicSemiconductor"}, QDir::Dirs | QDir::NoDotAndDotDot);
     while (it.hasNext()) {
         const QString path = it.next();
         if (path.endsWith("/Keil"))
             allPackFiles << findKeilPackFiles(path);
+        else if (path.endsWith("/NordicSemiconductor"))
+            allPackFiles << findNordicSemiconductorPackFiles(path);
     }
 
     if (allPackFiles.isEmpty())
@@ -277,6 +299,8 @@ void DeviceSelectionModel::parseFamily(QXmlStreamReader &in, DeviceSelectionItem
         const QStringRef elementName = in.name();
         if (elementName == "processor") {
             fillCpu(in, child->cpu);
+        } else if (elementName == "algorithm") {
+            fillAlgorithms(in, child->algorithms);
         } else if (elementName == "memory") {
             fillMemories(in, child->memories);
         } else if (elementName == "description") {
@@ -325,6 +349,8 @@ void DeviceSelectionModel::parseDevice(QXmlStreamReader &in, DeviceSelectionItem
             fillCpu(in, child->cpu);
         } else if (elementName == "debug") {
             fillSvd(in, child->svd);
+        } else if (elementName == "description") {
+            fillElementProperty(in, child->desc);
         } else if (elementName == "memory") {
             fillMemories(in, child->memories);
         } else if (elementName == "algorithm") {

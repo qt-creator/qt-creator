@@ -84,7 +84,7 @@ DeviceSelectorDetailsPanel::DeviceSelectorDetailsPanel(DeviceSelection &selectio
     m_memoryView = new DeviceSelectionMemoryView(m_selection);
     layout->addRow(tr("Memory:"), m_memoryView);
     m_algorithmView = new DeviceSelectionAlgorithmView(m_selection);
-    layout->addRow(tr("Flash algorithm"), m_algorithmView);
+    layout->addRow(tr("Flash algorithm:"), m_algorithmView);
     m_peripheralDescriptionFileChooser = new Utils::PathChooser(this);
     m_peripheralDescriptionFileChooser->setExpectedKind(Utils::PathChooser::File);
     m_peripheralDescriptionFileChooser->setPromptDialogFilter(
