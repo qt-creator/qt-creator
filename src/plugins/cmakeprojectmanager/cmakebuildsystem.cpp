@@ -359,25 +359,6 @@ void CMakeBuildSystem::clearCMakeCache()
     m_buildDirManager.clearCache();
 }
 
-void CMakeBuildSystem::handleParsingSuccess()
-{
-    QTC_ASSERT(m_waitingForParse, return );
-
-    m_waitingForParse = false;
-
-    combineScanAndParse();
-}
-
-void CMakeBuildSystem::handleParsingError()
-{
-    QTC_CHECK(m_waitingForParse);
-
-    m_waitingForParse = false;
-    m_combinedScanAndParseResult = false;
-
-    combineScanAndParse();
-}
-
 std::unique_ptr<CMakeProjectNode>
     CMakeBuildSystem::generateProjectTree(const QList<const FileNode *> &allFiles)
 {
@@ -539,7 +520,10 @@ void CMakeBuildSystem::handleParsingSucceeded()
     setApplicationTargets(appTargets());
     setDeploymentData(deploymentData());
 
-    handleParsingSuccess();
+    QTC_ASSERT(m_waitingForParse, return );
+    m_waitingForParse = false;
+
+    combineScanAndParse();
 }
 
 void CMakeBuildSystem::handleParsingFailed(const QString &msg)
@@ -551,7 +535,11 @@ void CMakeBuildSystem::handleParsingFailed(const QString &msg)
         m_buildDirManager.takeCMakeConfiguration(errorMessage));
     // ignore errorMessage here, we already got one.
 
-    handleParsingError();
+    QTC_CHECK(m_waitingForParse);
+    m_waitingForParse = false;
+    m_combinedScanAndParseResult = false;
+
+    combineScanAndParse();
 }
 
 void CMakeBuildSystem::wireUpConnections(const Project *p)

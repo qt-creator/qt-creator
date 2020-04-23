@@ -63,34 +63,37 @@ public:
 
     QStringList filesGeneratedFrom(const QString &sourceFile) const final;
 
+    // Actions:
     void runCMake();
     void runCMakeAndScanProjectTree();
-
-    // Context menu actions:
-    void buildCMakeTarget(const QString &buildTarget);
-    // Treescanner states:
-    void handleTreeScanningFinished();
 
     bool persistCMakeState();
     void clearCMakeCache();
 
-    // Parser states:
-    void handleParsingSuccess();
-    void handleParsingError();
+    // Context menu actions:
+    void buildCMakeTarget(const QString &buildTarget);
 
-    CMakeBuildConfiguration *cmakeBuildConfiguration() const;
-
+    // Queries:
     const QList<ProjectExplorer::BuildTargetInfo> appTargets() const;
     QStringList buildTargetTitles() const;
     const QList<CMakeBuildTarget> &buildTargets() const;
     ProjectExplorer::DeploymentData deploymentData() const;
 
+    CMakeBuildConfiguration *cmakeBuildConfiguration() const;
+
 private:
-    std::unique_ptr<CMakeProjectNode> generateProjectTree(
-        const QList<const ProjectExplorer::FileNode *> &allFiles);
+    // Parser states:
+    void handleParsingSuccess();
+    void handleParsingError();
+
+    // Treescanner states:
+    void handleTreeScanningFinished();
 
     // Combining Treescanner and Parser states:
     void combineScanAndParse();
+
+    std::unique_ptr<CMakeProjectNode> generateProjectTree(
+        const QList<const ProjectExplorer::FileNode *> &allFiles);
 
     void checkAndReportError(QString &errorMessage);
 

@@ -45,11 +45,9 @@ graph TD
 
     parse --> FileApiReader::parse
     FileApiReader::parse --> handleParsingSucceeded
-    handleParsingSucceeded --> handleParsingSuccess
+    handleParsingSucceeded --> combineScanAndParse
     FileApiReader::parse --> handleParsingFailed
-    handleParsingFailed --> handleParsingError
-    handleParsingError --> combineScanAndParse
-    handleParsingSuccess --> combineScanAndParse
+    handleParsingFailed --> combineScanAndParse
 
     TreeScanner::asyncScanForFiles --> handleTreeScanningFinished
     handleTreeScanningFinished --> combineScanAndParse
@@ -110,7 +108,6 @@ sequenceDiagram
     alt Return Result from FileApiReader
     FileApiReader ->> BuildDirManager: signal dataAvailable()
     BuildDirManager ->> CMakeBuildSystem: signal dataAvailable() and trigger handleParsingSucceeded()
-    CMakeBuildSystem ->> CMakeBuildSystem: call handleParsingSuccess()
     CMakeBuildSystem ->> BuildDirManager: call takeBuildTargets()
     BuildDirManager ->> FileApiReader: call takeBuildTargets()
     CMakeBuildSystem ->> BuildDirManager: call takeCMakeConfiguration(...)
@@ -118,7 +115,6 @@ sequenceDiagram
     else
     FileApiReader ->> BuildDirManager: signal errorOccurred(...)
     BuildDirManager ->> CMakeBuildSystem: signal errorOccurred(...) and trigger handelParsingFailed(...)
-    CMakeBuildSystem ->> CMakeBuildSystem: call handelParsingError()
     CMakeBuildSystem ->> BuildDirManager: call takeCMakeConfiguration(...)
     BuildDirManager ->> FileApiReader: call takeCMakeConfiguration(....)
     end
