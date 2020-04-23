@@ -112,7 +112,6 @@ namespace {
     const QLatin1String KeystoreLocationKey("KeystoreLocation");
     const QLatin1String AutomaticKitCreationKey("AutomatiKitCreation");
     const QLatin1String PartitionSizeKey("PartitionSize");
-    const QLatin1String ToolchainHostKey("ToolchainHost");
 
     const QLatin1String ArmToolchainPrefix("arm-linux-androideabi");
     const QLatin1String X86ToolchainPrefix("x86");

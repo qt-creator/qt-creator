@@ -62,7 +62,6 @@ const char avdInfoSdcardKey[] = "Sdcard";
 const char avdInfoTargetTypeKey[] = "Target";
 const char avdInfoDeviceKey[] = "Device";
 const char avdInfoSkinKey[] = "Skin";
-const char googleApiTag[] = "google_apis";
 
 const int avdCreateTimeoutMs = 30000;
 
