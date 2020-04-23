@@ -58,7 +58,6 @@ private:
 
 private:
     Ui::IosSettingsWidget *m_ui = nullptr;
-    bool m_saveSettingsRequested = false;
     SimulatorControl *m_simControl = nullptr;
 };
 

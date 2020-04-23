@@ -939,7 +939,6 @@ private:
         DeviceKitAspect::setDeviceId(m_kit, m_model->deviceId(m_comboBox->currentIndex()));
     }
 
-    bool m_isReadOnly = false;
     bool m_ignoreChange = false;
     QComboBox *m_comboBox;
     QPushButton *m_manageButton;

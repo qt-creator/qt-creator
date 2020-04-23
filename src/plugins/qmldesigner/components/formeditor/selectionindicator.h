@@ -57,7 +57,6 @@ private:
 
 private:
     QHash<FormEditorItem*, QGraphicsPolygonItem *> m_indicatorShapeHash;
-    FormEditorItem *m_selectedItem = nullptr;
     QPointer<LayerItem> m_layerItem;
     QCursor m_cursor;
     std::unique_ptr<QGraphicsPolygonItem> m_labelItem;

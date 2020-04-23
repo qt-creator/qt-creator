@@ -41,7 +41,6 @@ using namespace Utils;
 namespace Nim {
 
 const char C_NIMBLEPROJECT_TASKS[] = "Nim.NimbleProject.Tasks";
-const char C_NIMBLEPROJECT_METADATA[] = "Nim.NimbleProject.Metadata";
 
 static std::vector<NimbleTask> parseTasks(const QString &nimblePath, const QString &workingDirectory)
 {
