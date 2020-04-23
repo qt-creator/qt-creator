@@ -115,4 +115,7 @@ Column {
             }
         }
     }
+
+    PaddingSection {
+    }
 }

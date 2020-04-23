@@ -871,6 +871,11 @@ void ObjectNodeInstance::deactivateState()
 {
 }
 
+QStringList ObjectNodeInstance::allStates() const
+{
+    return {};
+}
+
 void ObjectNodeInstance::populateResetHashes()
 {
     QmlPrivateGate::registerCustomData(object());

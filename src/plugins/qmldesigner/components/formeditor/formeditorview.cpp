@@ -545,10 +545,13 @@ void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyN
             if (isInvisible)
                 newNode.deselectNode();
         }
-    } else if (item.isFlowTransition() || item.isFlowItem() || item.isFlowActionArea()) {
+    } else if (item.isFlowTransition() || item.isFlowActionArea()
+               || item.isFlowDecision() || item.isFlowWildcard()) {
         FormEditorItem *editorItem = m_scene->itemForQmlItemNode(item);
         if (editorItem)
             editorItem->update();
+    } else if (item.isFlowView() || item.isFlowItem()) {
+        scene()->update();
     } else if (name == "annotation" || name == "customId") {
         if (FormEditorItem *editorItem = scene()->itemForQmlItemNode(item)) {
             editorItem->update();

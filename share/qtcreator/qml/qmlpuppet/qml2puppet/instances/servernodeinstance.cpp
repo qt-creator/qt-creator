@@ -199,6 +199,18 @@ Internal::ObjectNodeInstance::Pointer ServerNodeInstance::createInstance(QObject
     return instance;
 }
 
+QString static getErrorString(QQmlEngine *engine, const QString &componentPath)
+{
+    QQmlComponent component(engine, componentPath);
+
+    QObject *o = component.create(nullptr);
+    delete o;
+    QString s;
+    for (const QQmlError &error : component.errors())
+        s.append(error.toString());
+    return s;
+}
+
 ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceServer,
                                               const InstanceContainer &instanceContainer,
                                               ComponentWrap componentWrap)
@@ -215,8 +227,11 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
             nodeInstanceServer->sendDebugOutput(DebugOutputCommand::ErrorType, QLatin1String("Custom parser object could not be created."), instanceContainer.instanceId());
     } else if (!instanceContainer.componentPath().isEmpty()) {
         object = Internal::ObjectNodeInstance::createComponent(instanceContainer.componentPath(), nodeInstanceServer->context());
-        if (object == nullptr)
-            nodeInstanceServer->sendDebugOutput(DebugOutputCommand::ErrorType, QString("Component with path %1 could not be created.").arg(instanceContainer.componentPath()), instanceContainer.instanceId());
+        if (object == nullptr) {
+            const QString errors = getErrorString(nodeInstanceServer->engine(), instanceContainer.componentPath());
+            const QString message = QString("Component with path %1 could not be created.\n\n").arg(instanceContainer.componentPath());
+            nodeInstanceServer->sendDebugOutput(DebugOutputCommand::ErrorType, message + errors, instanceContainer.instanceId());
+        }
     } else {
         object = Internal::ObjectNodeInstance::createPrimitive(QString::fromUtf8(instanceContainer.type()), instanceContainer.majorNumber(), instanceContainer.minorNumber(), nodeInstanceServer->context());
         if (object == nullptr)
@@ -644,6 +659,14 @@ qint32 ServerNodeInstance::instanceId() const
 QList<ServerNodeInstance> ServerNodeInstance::stateInstances() const
 {
     return m_nodeInstance->stateInstances();
+}
+
+QStringList ServerNodeInstance::allStates() const
+{
+    if (isValid())
+        return m_nodeInstance->allStates();
+
+    return {};
 }
 
 Internal::ObjectNodeInstance::Pointer ServerNodeInstance::internalInstance() const

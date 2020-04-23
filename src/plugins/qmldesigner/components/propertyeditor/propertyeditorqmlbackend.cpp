@@ -394,7 +394,12 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         contextObject()->setStateName(stateName);
         if (!qmlObjectNode.isValid())
             return;
+
         context()->setContextProperty(QLatin1String("propertyCount"), QVariant(qmlObjectNode.modelNode().properties().count()));
+
+        QStringList stateNames = qmlObjectNode.allStateNames();
+        stateNames.prepend("base state");
+        contextObject()->setAllStateNames(stateNames);
 
         contextObject()->setIsBaseState(qmlObjectNode.isInBaseState());
 

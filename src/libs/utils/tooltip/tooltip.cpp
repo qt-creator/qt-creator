@@ -107,6 +107,7 @@ void ToolTip::show(const QPoint &pos,
             layout->setContentsMargins(0, 0, 0, 0);
             tooltipWidget->setLayout(layout);
             auto label = new QLabel;
+            label->setObjectName("qcWidgetTipTopLabel");
             label->setTextFormat(format);
             label->setText(content);
             layout->addWidget(label);

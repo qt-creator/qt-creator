@@ -1052,16 +1052,17 @@ void addTransition(const SelectionContext &selectionContext)
 {
     if (selectionContext.view()) {
         AbstractView *view = selectionContext.view();
-        QmlFlowItemNode targetItem = selectionContext.targetNode();
-        QmlFlowActionAreaNode actionArea = selectionContext.currentSingleSelectedNode();
+        QmlFlowTargetNode targetNode = selectionContext.targetNode();
+        QmlFlowTargetNode sourceNode = selectionContext.currentSingleSelectedNode();
 
-        QTC_ASSERT(targetItem.isValid(), return);
-        QTC_ASSERT(actionArea.isValid(), return);
+        QTC_ASSERT(targetNode.isValid(), return);
+        QTC_ASSERT(sourceNode.isValid(), return);
+
 
 
         view->executeInTransaction("DesignerActionManager:addTransition",
-                                   [view, targetItem, &actionArea](){
-                                       actionArea.assignTargetFlowItem(targetItem);
+                                   [view, targetNode, &sourceNode](){
+                                       sourceNode.assignTargetItem(targetNode);
                                    });
     }
 }

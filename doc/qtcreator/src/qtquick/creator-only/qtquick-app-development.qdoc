@@ -46,9 +46,8 @@
 
         \li \l {Editing QML Files in Design Mode}
 
-            You can use the \uicontrol {Form Editor} or the
-            \uicontrol {Text Editor} in the Design mode to
-            develop Qt Quick applications.
+            You can use several different editors and views in the
+            Design mode to develop Qt Quick applications.
 
         \li \l {Creating UIs}
 

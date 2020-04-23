@@ -120,6 +120,8 @@ public:
     static QString generateTranslatableText(const QString& text);
     QString simplifiedTypeName() const;
 
+    QStringList allStateNames() const;
+
 protected:
     NodeInstance nodeInstance() const;
     QmlObjectNode nodeForInstance(const NodeInstance &instance) const;

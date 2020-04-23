@@ -1061,6 +1061,7 @@ static QVector<InformationContainer> createInformationVector(const QList<ServerN
             informationVector.append(InformationContainer(instance.instanceId(), PenWidth, instance.penWidth()));
             informationVector.append(InformationContainer(instance.instanceId(), IsAnchoredByChildren, instance.isAnchoredByChildren()));
             informationVector.append(InformationContainer(instance.instanceId(), IsAnchoredBySibling, instance.isAnchoredBySibling()));
+            informationVector.append(InformationContainer(instance.instanceId(), AllStates, instance.allStates()));
 
             informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.fill"), instance.hasAnchor("anchors.fill")));
             informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.centerIn"), instance.hasAnchor("anchors.centerIn")));

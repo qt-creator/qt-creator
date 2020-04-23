@@ -354,8 +354,12 @@ bool isFlowTransitionItem(const SelectionContext &context)
 
 bool isFlowActionItemItem(const SelectionContext &context)
 {
+    const ModelNode selectedNode = context.currentSingleSelectedNode();
+
     return context.singleNodeIsSelected()
-           && QmlFlowActionAreaNode::isValidQmlFlowActionAreaNode(context.currentSingleSelectedNode());
+            && (QmlFlowActionAreaNode::isValidQmlFlowActionAreaNode(selectedNode)
+                || QmlVisualNode::isFlowDecision(selectedNode)
+                || QmlVisualNode::isFlowWildcard(selectedNode));
 }
 
 bool isFlowItemOrTransition(const SelectionContext &context)

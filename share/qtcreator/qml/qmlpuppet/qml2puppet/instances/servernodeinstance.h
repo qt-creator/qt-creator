@@ -164,6 +164,7 @@ public:
     QSharedPointer<Internal::ObjectNodeInstance> internalInstance() const;
 
     QList<ServerNodeInstance> stateInstances() const;
+    QStringList allStates() const;
 
     static bool isSubclassOf(QObject *object, const QByteArray &superTypeName);
 

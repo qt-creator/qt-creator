@@ -34,6 +34,7 @@ enum InformationName
 {
     NoName,
     NoInformationChange = NoName,
+    AllStates,
     Size,
     BoundingRect,
     Transform,

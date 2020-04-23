@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -37,7 +37,7 @@
 
     \title Deploying to Devices
 
-    Deploy configurations in the \uicontrol Project mode
+    Deploy configurations in the \uicontrol Projects mode
     \uicontrol {Run Settings} handle the packaging of the application as an
     executable and copying it to a location you want to run the executable at.
     The files can be copied to a location in the file system of the development

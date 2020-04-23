@@ -4715,14 +4715,19 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("StdUniquePtr")
             << Data("#include <memory>\n"
-                    "#include <string>\n" + fooData,
+                    "#include <string>\n" + fooData +
+
+                    "static Foo *alloc_foo() { return new Foo; }\n"
+                    "static void free_foo(Foo *f) { delete f; }\n",
 
                     "std::unique_ptr<int> p0;\n\n"
                     "std::unique_ptr<int> p1(new int(32));\n\n"
                     "std::unique_ptr<Foo> p2(new Foo);\n\n"
-                    "std::unique_ptr<std::string> p3(new std::string(\"ABC\"));",
+                    "std::unique_ptr<std::string> p3(new std::string(\"ABC\"));\n"
 
-                    "&p0, &p1, &p2, &p3")
+                    "std::unique_ptr<Foo, void(*)(Foo*)> p4{alloc_foo(), free_foo};",
+
+                    "&p0, &p1, &p2, &p3, &p4")
 
                + CoreProfile()
                + Cxx11Profile()
@@ -4731,7 +4736,8 @@ void tst_Dumpers::dumper_data()
                + Check("p0", "(null)", "std::unique_ptr<int, std::default_delete<int> >")
                + Check("p1", "32", "std::unique_ptr<int, std::default_delete<int> >")
                + Check("p2", Pointer(), "std::unique_ptr<Foo, std::default_delete<Foo> >")
-               + Check("p3", "\"ABC\"", "std::unique_ptr<std::string, std::default_delete<std::string> >");
+               + Check("p3", "\"ABC\"", "std::unique_ptr<std::string, std::default_delete<std::string> >")
+               + Check("p4.b", "2", "int");
 
 
     QTest::newRow("StdOnce")

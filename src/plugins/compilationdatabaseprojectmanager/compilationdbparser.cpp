@@ -170,7 +170,7 @@ static FilePath jsonObjectFilename(const QJsonObject &object)
     const QString workingDir = QDir::fromNativeSeparators(object["directory"].toString());
     FilePath fileName = FilePath::fromString(QDir::fromNativeSeparators(object["file"].toString()));
     if (fileName.toFileInfo().isRelative())
-        fileName = FilePath::fromString(workingDir + "/" + fileName.toString()).canonicalPath();
+        fileName = FilePath::fromString(QDir::cleanPath(workingDir + "/" + fileName.toString()));
     return fileName;
 }
 

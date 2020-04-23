@@ -37,7 +37,7 @@
     \else
     \previouspage creator-using-qt-quick-designer.html
     \endif
-    \nextpage quick-buttons.html
+    \nextpage qtquick-form-editor.html
 
     \title Creating Components
 
@@ -64,14 +64,14 @@
 
     The \uicontrol {Qt Quick Application} wizards for a particular platform add
     the import statements automatically. You can remove import statements in
-    \uicontrol {QML Imports}
+    \uicontrol {QML Imports}.
 
     \uicontrol {Assets} displays the images and other files that you copy
     to the project folder (to the same subfolder as the QML files).
 
     \section1 Adding Components to Designs
 
-    \image qmldesigner-visual-editor.png "Design mode"
+    \image studio-design-mode.png "Design mode"
 
     \list 1
         \li Drag and drop components from the \uicontrol Library (2) to the
@@ -85,6 +85,8 @@
         \li Add states to apply sets of changes to the properties of one or
             several components in the \uicontrol States view (6). For more
             information, see \l{Adding States}.
+        \li Animate component properties in the \uicontrol Timeline view (7).
+            For more information, see \l{Creating Animations}.
     \endlist
 
     \section1 Using Basic QML Types
@@ -564,10 +566,13 @@
 
     \endlist
 
-    The following sections contain examples of how to create some common
-    components:
+    The following sections contain more information about how to use the
+    \uicontrol {Form Editor} to edit 2D content, as well as examples of
+    how to create some common components using basic QML types:
 
     \list
+
+        \li \l{Editing 2D Content}
 
         \li \l{Creating Buttons}
 

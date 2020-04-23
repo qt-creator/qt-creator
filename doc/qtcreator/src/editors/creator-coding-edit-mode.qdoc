@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -123,6 +123,15 @@
 
     To switch between Windows line endings (CRLF) and Unix line endings (LF),
     select the ending style on the editor toolbar (6).
+
+    To set the line endings to use for all projects by default, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
+    \uicontrol Behavior, and then select the ending style in the
+    \uicontrol {Default line endings} field.
+
+    To set the line endings to use for a project, select \uicontrol Projects >
+    \uicontrol {Project Settings} > \uicontrol Editor. For more information,
+    see \l {Specifying Editor Settings}.
 
     \section1 Splitting the Editor View
 
