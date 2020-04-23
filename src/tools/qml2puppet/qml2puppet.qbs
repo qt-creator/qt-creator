@@ -1,4 +1,4 @@
-import qbs
+import qbs.Utilities
 import QtcFunctions
 
 QtcTool {
@@ -15,7 +15,16 @@ QtcTool {
             "widgets"
         ]
     }
-    cpp.defines: base.filter(function(d) { return d != "QT_CREATOR"; })
+    Depends { name: "Qt.quick3d-private"; required: false }
+    property bool useQuick3d: Utilities.versionCompare(Qt.core.version, "5.15") >= 0
+                              && Qt["quick3d-private"].present
+
+    cpp.defines: {
+        var defines = base.filter(function(d) { return d != "QT_CREATOR"; });
+        if (useQuick3d)
+            defines.push("QUICK3D_MODULE");
+        return defines;
+    }
     Properties {
         condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("bsd")
         cpp.dynamicLibraries: base.concat("rt")
@@ -204,25 +213,33 @@ QtcTool {
             "instances/servernodeinstance.cpp",
             "instances/servernodeinstance.h",
             "editor3d/generalhelper.cpp",
-            "editor3d/generalhelper.h",
             "editor3d/mousearea3d.cpp",
-            "editor3d/mousearea3d.h",
             "editor3d/camerageometry.cpp",
-            "editor3d/camerageometry.h",
             "editor3d/lightgeometry.cpp",
-            "editor3d/lightgeometry.h",
             "editor3d/gridgeometry.cpp",
-            "editor3d/gridgeometry.h",
             "editor3d/selectionboxgeometry.cpp",
-            "editor3d/selectionboxgeometry.h",
             "editor3d/linegeometry.cpp",
-            "editor3d/linegeometry.h",
             "editor3d/icongizmoimageprovider.cpp",
             "editor3d/icongizmoimageprovider.h",
             "iconrenderer/iconrenderer.cpp",
             "iconrenderer/iconrenderer.h",
             "qml2puppetmain.cpp",
         ]
+
+        Group {
+            name: "3d-only puppet2 headers"
+            files: [
+                "editor3d/camerageometry.h",
+                "editor3d/generalhelper.h",
+                "editor3d/gridgeometry.h",
+                "editor3d/lightgeometry.h",
+                "editor3d/linegeometry.h",
+                "editor3d/selectionboxgeometry.h",
+                "editor3d/mousearea3d.h",
+            ]
+            fileTags: product.useQuick3d ? [] : ["unmocable"]
+            overrideTags: false
+        }
     }
 
     Group {
