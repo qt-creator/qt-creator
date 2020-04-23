@@ -73,8 +73,12 @@ bool ComponentVersion::isValid() const
 
 QString ComponentVersion::toString() const
 {
-    return QString::fromLatin1("%1.%2").arg(QString::number(_major),
-                                            QString::number(_minor));
+    QByteArray temp;
+    QByteArray result;
+    result += temp.setNum(_major);
+    result += '.';
+    result += temp.setNum(_minor);
+    return QString::fromLatin1(result);
 }
 
 void ComponentVersion::addToHash(QCryptographicHash &hash) const
