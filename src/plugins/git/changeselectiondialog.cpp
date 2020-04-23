@@ -74,15 +74,15 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Co
     connect(m_ui->selectFromHistoryButton, &QPushButton::clicked,
             this, &ChangeSelectionDialog::selectCommitFromRecentHistory);
     connect(m_ui->showButton, &QPushButton::clicked,
-            this, std::bind(&ChangeSelectionDialog::accept, this, Show));
+            this, std::bind(&ChangeSelectionDialog::acceptCommand, this, Show));
     connect(m_ui->cherryPickButton, &QPushButton::clicked,
-            this, std::bind(&ChangeSelectionDialog::accept, this, CherryPick));
+            this, std::bind(&ChangeSelectionDialog::acceptCommand, this, CherryPick));
     connect(m_ui->revertButton, &QPushButton::clicked,
-            this, std::bind(&ChangeSelectionDialog::accept, this, Revert));
+            this, std::bind(&ChangeSelectionDialog::acceptCommand, this, Revert));
     connect(m_ui->checkoutButton, &QPushButton::clicked,
-            this, std::bind(&ChangeSelectionDialog::accept, this, Checkout));
+            this, std::bind(&ChangeSelectionDialog::acceptCommand, this, Checkout));
     connect(m_ui->archiveButton, &QPushButton::clicked,
-            this, std::bind(&ChangeSelectionDialog::accept, this, Archive));
+            this, std::bind(&ChangeSelectionDialog::acceptCommand, this, Archive));
 
     if (id == "Git.Revert")
         m_ui->revertButton->setDefault(true);
@@ -149,7 +149,7 @@ ChangeCommand ChangeSelectionDialog::command() const
     return m_command;
 }
 
-void ChangeSelectionDialog::accept(ChangeCommand command)
+void ChangeSelectionDialog::acceptCommand(ChangeCommand command)
 {
     m_command = command;
     QDialog::accept();
