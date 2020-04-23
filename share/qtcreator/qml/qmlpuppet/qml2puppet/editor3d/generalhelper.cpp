@@ -148,7 +148,7 @@ float GeneralHelper::zoomCamera(QQuick3DCamera *camera, float distance, float de
 // Return value contains new lookAt point (xyz) and zoom factor (w)
 QVector4D GeneralHelper::focusObjectToCamera(QQuick3DCamera *camera, float defaultLookAtDistance,
                                              QQuick3DNode *targetObject, QQuick3DViewport *viewPort,
-                                             float oldZoom, bool updateZoom)
+                                             float oldZoom, bool updateZoom, bool closeUp)
 {
     if (!camera)
         return QVector4D(0.f, 0.f, 0.f, 1.f);
@@ -200,7 +200,9 @@ QVector4D GeneralHelper::focusObjectToCamera(QQuick3DCamera *camera, float defau
 
     camera->setPosition(lookAt + newLookVector);
 
-    float newZoomFactor = updateZoom ? qBound(.01f, float(maxExtent / 900.), 100.f) : oldZoom;
+    qreal divisor = closeUp ? 900. : 725.;
+
+    float newZoomFactor = updateZoom ? qBound(.01f, float(maxExtent / divisor), 100.f) : oldZoom;
     float cameraZoomFactor = zoomCamera(camera, 0, defaultLookAtDistance, lookAt, newZoomFactor, false);
 
     return QVector4D(lookAt, cameraZoomFactor);

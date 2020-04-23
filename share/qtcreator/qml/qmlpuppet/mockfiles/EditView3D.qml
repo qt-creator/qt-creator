@@ -146,7 +146,7 @@ Item {
         if (editView) {
             var targetNode = selectionBoxes.length > 0
                     ? selectionBoxes[0].model : null;
-            cameraControl.focusObject(targetNode, editView.camera.eulerRotation, true);
+            cameraControl.focusObject(targetNode, editView.camera.eulerRotation, true, false);
         }
     }
 
