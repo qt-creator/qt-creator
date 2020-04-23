@@ -69,8 +69,6 @@ static Q_LOGGING_CATEGORY(perspectivesLog, "qtc.utils.perspectives", QtWarningMs
 
 namespace Utils {
 
-const int SettingsVersion = 3;
-
 const char LAST_PERSPECTIVE_KEY[]   = "LastPerspective";
 const char MAINWINDOW_KEY[]         = "Debugger.MainWindow";
 const char AUTOHIDE_TITLEBARS_KEY[] = "AutoHideTitleBars";
