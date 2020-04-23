@@ -8,8 +8,6 @@ headerdirs =
 sourcedirs = ../src \
              ../examples/doc \
              ../../qtcreator/src
-# The image folders also need to added by packaging scripts, so inform your
-# local release team about any changes you make.
 imagedirs = ../images \
             ../examples/doc/images \
             ../../qtcreator/images \
