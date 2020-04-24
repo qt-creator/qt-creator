@@ -92,7 +92,7 @@ private:
     std::unique_ptr<QGraphicsLineItem> m_lineItem;
     std::unique_ptr<QGraphicsRectItem> m_rectangleItem1;
     std::unique_ptr<QGraphicsRectItem> m_rectangleItem2;
-    bool m_block = true;
+    bool m_blockEvents = true;
 };
 
 } //QmlDesigner
