@@ -296,11 +296,18 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
             QStringList dependencies;
         };
 
-        auto watcher = QSharedPointer<QFutureWatcher<CppQmlTypesInfo>>(new QFutureWatcher<CppQmlTypesInfo>());
+        auto future = Utils::runAsync([output, libraryPath](QFutureInterface<CppQmlTypesInfo>& future)
+        {
+            CppQmlTypesInfo infos;
+            CppQmlTypesLoader::parseQmlTypeDescriptions(output, &infos.objectsList, &infos.moduleApis, &infos.dependencies,
+                                                        &infos.error, &infos.warning,
+                                                        QLatin1String("<dump of ") + libraryPath + QLatin1Char('>'));
+            future.reportFinished(&infos);
+        });
 
-        connect(watcher.data(), &QFutureWatcher<CppQmlTypesInfo>::finished, this,
-                [this, watcher, libraryInfo, privatePlugin, libraryPath] {
-            CppQmlTypesInfo infos = watcher->result();
+        Utils::onFinished(future, this,
+                [this, libraryInfo, privatePlugin, libraryPath] (const QFuture<CppQmlTypesInfo>& future) {
+            CppQmlTypesInfo infos = future.result();
 
             LibraryInfo libInfo = libraryInfo;
 
@@ -322,17 +329,6 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
 
             m_modelManager->updateLibraryInfo(libraryPath, libInfo);
         });
-
-        auto future = Utils::runAsync([output, libraryPath](QFutureInterface<CppQmlTypesInfo> &future)
-        {
-            CppQmlTypesInfo infos;
-            CppQmlTypesLoader::parseQmlTypeDescriptions(output, &infos.objectsList, &infos.moduleApis, &infos.dependencies,
-                                                        &infos.error, &infos.warning,
-                                                        QLatin1String("<dump of ") + libraryPath + QLatin1Char('>'));
-            future.reportFinished(&infos);
-        });
-
-        watcher->setFuture(future);
     } else {
         libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpDone);
         libraryInfo.updateFingerprint();
@@ -469,81 +465,97 @@ QFuture<PluginDumper::DependencyInfo> PluginDumper::loadDependencies(const QStri
         visited->insert(name);
     }
 
-    auto typesWatcher = QSharedPointer<QFutureWatcher<PluginDumper::QmlTypeDescription>>(new QFutureWatcher<PluginDumper::QmlTypeDescription>());
-    connect(typesWatcher.data(), &QFutureWatcher<PluginDumper::QmlTypeDescription>::finished, this, [this, iface, visited, typesWatcher] {
-        QStringList newDependencies = typesWatcher->result().dependencies;
+    Utils::onFinished(loadQmlTypeDescription(dependenciesPaths), const_cast<PluginDumper*>(this), [=] (const QFuture<PluginDumper::QmlTypeDescription> &typesFuture) {
+        PluginDumper::QmlTypeDescription typesResult = typesFuture.result();
+        QStringList newDependencies = typesResult.dependencies;
         newDependencies = Utils::toList(Utils::toSet(newDependencies) - *visited.data());
-
         if (!newDependencies.isEmpty()) {
-            auto loadWatcher = QSharedPointer<QFutureWatcher<PluginDumper::DependencyInfo>>(new QFutureWatcher<PluginDumper::DependencyInfo>());
-            connect(loadWatcher.data(), &QFutureWatcher<PluginDumper::DependencyInfo>::finished, this, [iface, newDependencies, visited, typesWatcher, loadWatcher] {
-                PluginDumper::DependencyInfo result = loadWatcher->result();
+            Utils::onFinished(loadDependencies(newDependencies, visited),
+                              const_cast<PluginDumper*>(this), [typesResult, iface] (const QFuture<PluginDumper::DependencyInfo> &future) {
+                PluginDumper::DependencyInfo result = future.result();
 
-                result.errors += typesWatcher->result().errors;
-                result.objects += typesWatcher->result().objects;
-                result.warnings+= typesWatcher->result().warnings;
+                result.errors += typesResult.errors;
+                result.objects += typesResult.objects;
+                result.warnings+= typesResult.warnings;
 
                 iface->reportFinished(&result);
             });
 
-            loadWatcher->setFuture(loadDependencies(newDependencies, visited));
         } else {
             PluginDumper::DependencyInfo result;
-            result.errors += typesWatcher->result().errors;
-            result.objects += typesWatcher->result().objects;
-            result.warnings+= typesWatcher->result().warnings;
+            result.errors += typesResult.errors;
+            result.objects += typesResult.objects;
+            result.warnings+= typesResult.warnings;
             iface->reportFinished(&result);
         }
     });
-    typesWatcher->setFuture(loadQmlTypeDescription(dependenciesPaths));
 
     return iface->future();
+}
+
+void PluginDumper::prepareLibraryInfo(LibraryInfo &libInfo,
+                                      const QString &libraryPath,
+                                      const QStringList &deps,
+                                      const QStringList &errors,
+                                      const QStringList &warnings,
+                                      const QList<ModuleApiInfo> &moduleApis,
+                                      QList<FakeMetaObject::ConstPtr> &objects)
+{
+    QStringList errs = errors;
+
+    libInfo.setMetaObjects(objects);
+    libInfo.setModuleApis(moduleApis);
+    libInfo.setDependencies(deps);
+
+    if (errs.isEmpty()) {
+        libInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileDone);
+    } else {
+        printParseWarnings(libraryPath, errors.join(QLatin1Char('\n')));
+        errs.prepend(tr("Errors while reading typeinfo files:"));
+        libInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileError, errs.join(QLatin1Char('\n')));
+    }
+
+    if (!warnings.isEmpty())
+        printParseWarnings(libraryPath, warnings.join(QLatin1String("\n")));
+
+    libInfo.updateFingerprint();
 }
 
 void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
                                     const QString &libraryPath,
                                     QmlJS::LibraryInfo libraryInfo)
 {
-    auto typesWatcher = QSharedPointer<QFutureWatcher<PluginDumper::QmlTypeDescription>>(new QFutureWatcher<PluginDumper::QmlTypeDescription>());
-    connect(typesWatcher.data(), &QFutureWatcher<PluginDumper::QmlTypeDescription>::finished, this, [this, typesWatcher, libraryPath, libraryInfo] {
+    Utils::onFinished(loadQmlTypeDescription(qmltypesFilePaths), this, [=](const QFuture<PluginDumper::QmlTypeDescription> &typesFuture)
+    {
+        PluginDumper::QmlTypeDescription typesResult = typesFuture.result();
+        if (!typesResult.dependencies.isEmpty())
+        {
+            Utils::onFinished(loadDependencies(typesResult.dependencies, QSharedPointer<QSet<QString>>()), this,
+                              [typesResult, libraryInfo, libraryPath, this] (const QFuture<PluginDumper::DependencyInfo> &loadFuture)
+            {
+                PluginDumper::DependencyInfo loadResult = loadFuture.result();
+                QStringList errors = typesResult.errors;
+                QStringList warnings = typesResult.errors;
+                QList<FakeMetaObject::ConstPtr> objects = typesResult.objects;
 
-        auto loadWatcher = QSharedPointer<QFutureWatcher<PluginDumper::DependencyInfo>>(new QFutureWatcher<PluginDumper::DependencyInfo>());
-        connect(loadWatcher.data(), &QFutureWatcher<PluginDumper::DependencyInfo>::finished, this, [this, typesWatcher, loadWatcher, libraryPath, libraryInfo] {
+                errors += loadResult.errors;
+                warnings += loadResult.warnings;
+                objects += loadResult.objects;
 
-            QStringList deps = typesWatcher->result().dependencies;
-            QStringList errors = typesWatcher->result().errors;
-            QStringList warnings = typesWatcher->result().errors;
-            QList<FakeMetaObject::ConstPtr> objects = typesWatcher->result().objects;
-
-            errors += loadWatcher->result().errors;
-            warnings += loadWatcher->result().warnings;
-            objects += loadWatcher->result().objects;
-
+                QmlJS::LibraryInfo libInfo = libraryInfo;
+                prepareLibraryInfo(libInfo, libraryPath, typesResult.dependencies,
+                                   errors, warnings,
+                                   typesResult.moduleApis, objects);
+                m_modelManager->updateLibraryInfo(libraryPath, libInfo);
+            });
+        } else {
             QmlJS::LibraryInfo libInfo = libraryInfo;
-
-            libInfo.setMetaObjects(objects);
-            libInfo.setModuleApis(typesWatcher->result().moduleApis);
-            libInfo.setDependencies(typesWatcher->result().dependencies);
-
-            if (errors.isEmpty()) {
-                libInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileDone);
-            } else {
-                printParseWarnings(libraryPath, errors.join(QLatin1Char('\n')));
-                errors.prepend(tr("Errors while reading typeinfo files:"));
-                libInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileError, errors.join(QLatin1Char('\n')));
-            }
-
-            if (!warnings.isEmpty())
-                printParseWarnings(libraryPath, warnings.join(QLatin1String("\n")));
-
-            libInfo.updateFingerprint();
-            m_modelManager->updateLibraryInfo(libraryPath, libInfo);
-        });
-        if (!typesWatcher->result().dependencies.isEmpty()) {
-            loadWatcher->setFuture(loadDependencies(typesWatcher->result().dependencies, QSharedPointer<QSet<QString>>()));
+            prepareLibraryInfo(libInfo, libraryPath, typesResult.dependencies,
+                               typesResult.errors, typesResult.warnings,
+                               typesResult.moduleApis, typesResult.objects);
+            m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
         }
     });
-    typesWatcher->setFuture(loadQmlTypeDescription(qmltypesFilePaths));
 }
 
 void PluginDumper::runQmlDump(const QmlJS::ModelManagerInterface::ProjectInfo &info,

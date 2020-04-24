@@ -106,6 +106,13 @@ private:
 
 private:
     Utils::FileSystemWatcher *pluginWatcher();
+    void prepareLibraryInfo(LibraryInfo &libInfo,
+                            const QString &libraryPath,
+                            const QStringList &deps,
+                            const QStringList &errors,
+                            const QStringList &warnings,
+                            const QList<ModuleApiInfo> &moduleApis,
+                            QList<LanguageUtils::FakeMetaObject::ConstPtr> &objects);
 
     ModelManagerInterface *m_modelManager;
     Utils::FileSystemWatcher *m_pluginWatcher;
