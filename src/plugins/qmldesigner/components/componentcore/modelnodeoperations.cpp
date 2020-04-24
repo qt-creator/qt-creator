@@ -311,8 +311,10 @@ void resetSize(const SelectionContext &selectionState)
     selectionState.view()->executeInTransaction("DesignerActionManager|resetSize",[selectionState](){
         foreach (ModelNode node, selectionState.selectedModelNodes()) {
             QmlItemNode itemNode(node);
-            itemNode.removeProperty("width");
-            itemNode.removeProperty("height");
+            if (itemNode.isValid()) {
+                itemNode.removeProperty("width");
+                itemNode.removeProperty("height");
+            }
         }
     });
 }
@@ -325,8 +327,10 @@ void resetPosition(const SelectionContext &selectionState)
     selectionState.view()->executeInTransaction("DesignerActionManager|resetPosition",[selectionState](){
         foreach (ModelNode node, selectionState.selectedModelNodes()) {
             QmlItemNode itemNode(node);
-            itemNode.removeProperty("x");
-            itemNode.removeProperty("y");
+            if (itemNode.isValid()) {
+                itemNode.removeProperty("x");
+                itemNode.removeProperty("y");
+            }
         }
     });
 }
@@ -348,7 +352,8 @@ void resetZ(const SelectionContext &selectionState)
     selectionState.view()->executeInTransaction("DesignerActionManager|resetZ",[selectionState](){
         foreach (ModelNode node, selectionState.selectedModelNodes()) {
             QmlItemNode itemNode(node);
-            itemNode.removeProperty("z");
+            if (itemNode.isValid())
+                itemNode.removeProperty("z");
         }
     });
 }
