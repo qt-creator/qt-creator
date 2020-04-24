@@ -71,7 +71,8 @@ void ResizeTool::mouseMoveEvent(const QList<QGraphicsItem*> &,
                                            QGraphicsSceneMouseEvent *event)
 {
     if (m_resizeManipulator.isActive())
-        m_resizeManipulator.update(event->scenePos(), generateUseSnapping(event->modifiers()));
+        m_resizeManipulator.update(event->scenePos(), generateUseSnapping(event->modifiers()),
+                                   event->modifiers());
 }
 
 void ResizeTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
