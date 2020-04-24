@@ -103,11 +103,11 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
 
     m_itemViewQuickWidget->rootContext()->setContextProperties(
         QVector<QQmlContext::PropertyPair>{
-            {"itemLibraryModel", QVariant::fromValue(m_itemLibraryModel.data())},
-            {"itemLibraryIconWidth", m_itemIconSize.width()},
-            {"itemLibraryIconHeight", m_itemIconSize.height()},
-            {"rootView", QVariant::fromValue(this)},
-            {"highlightColor", Utils::StyleHelper::notTooBrightHighlightColor()}
+            {{"itemLibraryModel"}, QVariant::fromValue(m_itemLibraryModel.data())},
+            {{"itemLibraryIconWidth"}, m_itemIconSize.width()},
+            {{"itemLibraryIconHeight"}, m_itemIconSize.height()},
+            {{"rootView"}, QVariant::fromValue(this)},
+            {{"highlightColor"}, Utils::StyleHelper::notTooBrightHighlightColor()}
         }
     );
 
