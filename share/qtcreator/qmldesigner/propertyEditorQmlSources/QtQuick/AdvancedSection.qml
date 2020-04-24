@@ -103,11 +103,14 @@ Section {
             text: qsTr("State")
         }
         SecondColumnLayout {
-            LineEdit {
+
+            ComboBox {
+                Layout.fillWidth: true
                 backendValue: backendValues.state
-                showTranslateCheckBox: false
-                enabled: anchorBackend.hasParent || isBaseState
+                model: allStateNames
+                valueType: ComboBox.String
             }
+
             ExpandingSpacer {
             }
         }
