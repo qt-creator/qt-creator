@@ -28,6 +28,8 @@
 #include "theme/theme.h"
 #include "hostosinfo.h"
 
+#include <utils/qtcassert.h>
+
 #include <QPixmapCache>
 #include <QPainter>
 #include <QApplication>
@@ -35,6 +37,7 @@
 #include <QCommonStyle>
 #include <QStyleOption>
 #include <QWindow>
+#include <QFontDatabase>
 #include <qmath.h>
 
 // Clamps float color values within (0, 255)
@@ -540,6 +543,48 @@ QLinearGradient StyleHelper::statusBarGradient(const QRect &statusBarRect)
     grad.setColorAt(0, startColor);
     grad.setColorAt(1, endColor);
     return grad;
+}
+
+QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QString &iconSymbol, int fontSize, int iconSize, QColor color)
+{
+    QFontDatabase a;
+
+    QTC_ASSERT(a.hasFamily(fontName), {});
+
+    if (a.hasFamily(fontName)) {
+
+        QIcon icon;
+        QSize size(iconSize, iconSize);
+
+        const int maxDpr = qRound(qApp->devicePixelRatio());
+        for (int dpr = 1; dpr <= maxDpr; dpr++) {
+            QPixmap pixmap(size * dpr);
+            pixmap.setDevicePixelRatio(dpr);
+            pixmap.fill(Qt::transparent);
+
+            QFont font(fontName);
+            font.setPixelSize(fontSize * dpr);
+
+            QPainter painter(&pixmap);
+            painter.save();
+            painter.setPen(color);
+            painter.setFont(font);
+            painter.drawText(QRectF(QPoint(0, 0), size), iconSymbol);
+            painter.restore();
+
+            icon.addPixmap(pixmap);
+        }
+
+        return icon;
+    }
+
+    return {};
+}
+
+QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QString &iconSymbol, int fontSize, int iconSize)
+{
+    QColor penColor = QApplication::palette("QWidget").color(QPalette::Normal, QPalette::ButtonText);
+    return getIconFromIconFont(fontName, iconSymbol, fontSize, iconSize, penColor);
 }
 
 QString StyleHelper::dpiSpecificImageFile(const QString &fileName)
