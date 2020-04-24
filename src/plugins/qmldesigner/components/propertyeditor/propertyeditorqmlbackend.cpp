@@ -381,8 +381,8 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         m_backendAnchorBinding.setup(qmlObjectNode.modelNode());
         context()->setContextProperties(
             QVector<QQmlContext::PropertyPair>{
-                {"anchorBackend", QVariant::fromValue(&m_backendAnchorBinding)},
-                {"transaction", QVariant::fromValue(m_propertyEditorTransaction.data())}
+                {{"anchorBackend"}, QVariant::fromValue(&m_backendAnchorBinding)},
+                {{"transaction"}, QVariant::fromValue(m_propertyEditorTransaction.data())}
             }
         );
 
@@ -462,9 +462,9 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
 
     context()->setContextProperties(
         QVector<QQmlContext::PropertyPair>{
-            {"anchorBackend", QVariant::fromValue(&m_backendAnchorBinding)},
-            {"modelNodeBackend", QVariant::fromValue(&m_backendModelNode)},
-            {"transaction", QVariant::fromValue(m_propertyEditorTransaction.data())}
+            {{"anchorBackend"}, QVariant::fromValue(&m_backendAnchorBinding)},
+            {{"modelNodeBackend"}, QVariant::fromValue(&m_backendModelNode)},
+            {{"transaction"}, QVariant::fromValue(m_propertyEditorTransaction.data())}
         }
     );
 

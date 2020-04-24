@@ -104,8 +104,8 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
 
     rootContext()->setContextProperties(
         QVector<QQmlContext::PropertyPair>{
-            {"statesEditorModel", QVariant::fromValue(statesEditorModel)},
-            {"canAddNewStates", true}
+            {{"statesEditorModel"}, QVariant::fromValue(statesEditorModel)},
+            {{"canAddNewStates"}, true}
         }
     );
 
