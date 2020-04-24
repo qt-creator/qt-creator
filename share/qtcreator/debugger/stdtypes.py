@@ -800,7 +800,10 @@ def qdump__std____1__shared_ptr(d, value):
 
 
 def qdump__std__unique_ptr(d, value):
-    p = d.extractPointer(value)
+    if value.type.size() == d.ptrSize():
+        p = d.extractPointer(value)
+    else:
+        _, p = value.split("pp"); # For custom deleters.
     if p == 0:
         d.putValue("(null)")
         d.putNumChild(0)

@@ -8,8 +8,6 @@ headerdirs =
 sourcedirs = ../src \
              ../examples/doc \
              ../../qtcreator/src
-# The image folders also need to added by packaging scripts, so inform your
-# local release team about any changes you make.
 imagedirs = ../images \
             ../examples/doc/images \
             ../../qtcreator/images \
@@ -23,6 +21,7 @@ imagedirs = ../images \
             ../../../src/plugins/help/images \
             ../../../src/plugins/projectexplorer/images \
             ../../../src/plugins/qmldesigner/components/componentcore/images \
+            ../../../src/plugins/qmldesigner/components/edit3d/images \
             ../../../src/plugins/qmldesigner/components/formeditor \
             ../../../src/plugins/qmldesigner/components/navigator \
             ../../../src/plugins/qmldesigner/components/timelineeditor/images \

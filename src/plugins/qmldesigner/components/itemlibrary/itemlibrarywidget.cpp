@@ -101,13 +101,15 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     m_itemViewQuickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_itemLibraryModel = new ItemLibraryModel(this);
 
-    QQmlContext *rootContext = m_itemViewQuickWidget->rootContext();
-    rootContext->setContextProperty(QStringLiteral("itemLibraryModel"), m_itemLibraryModel.data());
-    rootContext->setContextProperty(QStringLiteral("itemLibraryIconWidth"), m_itemIconSize.width());
-    rootContext->setContextProperty(QStringLiteral("itemLibraryIconHeight"), m_itemIconSize.height());
-    rootContext->setContextProperty(QStringLiteral("rootView"), this);
-
-    m_itemViewQuickWidget->rootContext()->setContextProperty(QStringLiteral("highlightColor"), Utils::StyleHelper::notTooBrightHighlightColor());
+    m_itemViewQuickWidget->rootContext()->setContextProperties(
+        QVector<QQmlContext::PropertyPair>{
+            {"itemLibraryModel", QVariant::fromValue(m_itemLibraryModel.data())},
+            {"itemLibraryIconWidth", m_itemIconSize.width()},
+            {"itemLibraryIconHeight", m_itemIconSize.height()},
+            {"rootView", QVariant::fromValue(this)},
+            {"highlightColor", Utils::StyleHelper::notTooBrightHighlightColor()}
+        }
+    );
 
     /* create Resources view and its model */
     m_resourcesFileSystemModel = new CustomFileSystemModel(this);

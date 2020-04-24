@@ -698,6 +698,7 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
     connect(m_runWorker, &ClangToolRunWorker::started, this, &ClangTool::onStarted);
     connect(m_runWorker, &ClangToolRunWorker::runnerFinished,
             this, &ClangTool::updateForCurrentState);
+    connect(m_runControl, &RunControl::destroyed, [this](){ m_runWorker = nullptr; });
 
     // More init and UI update
     m_diagnosticFilterModel->setProject(project);
@@ -1038,6 +1039,8 @@ void ClangTool::onRunControlStopped()
 void ClangTool::update()
 {
     updateForInitialState();
+    if (!m_runWorker)
+        return;
     updateForCurrentState();
 }
 

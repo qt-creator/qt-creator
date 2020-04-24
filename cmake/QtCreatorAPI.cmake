@@ -229,7 +229,11 @@ function(set_public_includes target includes)
     if (NOT IS_ABSOLUTE ${inc_dir})
       set(inc_dir "${CMAKE_CURRENT_SOURCE_DIR}/${inc_dir}")
     endif()
-    target_include_directories(${target} PUBLIC $<BUILD_INTERFACE:${inc_dir}>)
+    file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} ${inc_dir})
+    target_include_directories(${target} PUBLIC
+      $<BUILD_INTERFACE:${inc_dir}>
+      $<INSTALL_INTERFACE:include/${include_dir_relative_path}>
+    )
   endforeach()
 endfunction()
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -52,17 +52,9 @@
     {here}.
 
     \if defined(qtcreator)
-    \section1 Enabling the Timeline Editor
-
-    The \uicontrol Timeline view is not visible in \QC by default. To enable
-    it, select \uicontrol Tools > \uicontrol Options > \uicontrol {Qt Quick} >
-    \uicontrol {Qt Quick Designer} > \uicontrol {Enable Timeline editor}.
-    Select \uicontrol {Restart Now} to restart \QC with the \uicontrol Timeline
-    view visible.
-
     To be able to create timelines, you also need the \l {Qt Quick Timeline}
-    module, which is delivered with Qt 5.14, and later. For more
-   information about adding the module to an older Qt version, see
+    add-on module, which you can install with Qt 5.14, and later. For more
+    information about adding the module to an older Qt version, see
     \l{Adding Qt Quick Timeline Module to Qt Installations}.
     \endif
 
@@ -77,9 +69,7 @@
 
     \list 1
         \li In the \uicontrol Navigator, select the item to animate.
-        \li Select the \uicontrol Timeline tab to open the \uicontrol Timeline
-            view.
-        \li Select the \inlineimage plus.png
+        \li In the \uicontrol Timeline view, select the \inlineimage plus.png
             (\uicontrol {Add Timeline (A)}) button, or press \key {A} to
             specify settings for the timeline and running the animation
             in the \uicontrol {Timeline Settings} dialog.
@@ -144,7 +134,7 @@
     \section1 Managing Keyframes
 
     To animate components in the \uicontrol Timeline view, move to a frame
-    on the timeline and specify changes in the values of a property. \QDS
+    on the timeline and specify changes in the values of a property. \QC
     automatically adds keyframes between two keyframes, and sets their values
     evenly to create an appearance of movement or transformation.
 
@@ -160,7 +150,8 @@
         \li Select the \uicontrol {To Start (Home)}, \uicontrol {Previous (,)},
             or \uicontrol {Next (.)} buttons (3), or use the keyboard shortcuts
             to move to the first, previous, or next frame on the timeline.
-        \li Enter the number of a frame in the field (4) to move to that frame.
+        \li Enter the number of a frame in the current keyframe field (4) to
+            move to that frame.
         \li Select the \uicontrol Previous and \uicontrol Next buttons next to
             a property name on the timeline (5) to move to the previous or next
             keyframe for that property.
@@ -231,13 +222,11 @@
     You can view the animation on the canvas by moving the playhead along the
     timeline.
 
-    \if defined(qtdesignstudio)
     To preview the animation, select the \uicontrol {Play (Space)}
     button or press \key Space. To preview the whole UI, select the
     \inlineimage live_preview.png
     (\uicontrol {Show Live Preview}) button on the canvas toolbar
     or press \key {Alt+P}.
-    \endif
 
     \section1 Editing Easing Curves
 
@@ -247,7 +236,7 @@
     timeline are \e linear, which means that they move from the beginning to
     the end at a constant speed. You can use the \uicontrol {Easing Curve Editor}
     to edit the easing curve between two keyframes. You can also use the more
-    advanced \uicontrol {Curve Editor (C)} to edit the curves for the whole
+    advanced \uicontrol {Animation Curve Editor} to edit the curves for the whole
     animation.
 
     \section2 Attaching Easing Curves to Keyframes
@@ -306,23 +295,24 @@
 
     \section1 Editing Animation Curves
 
-    In the curve editor, you can view and modify the whole animation curve. You
+    In the animation curve editor, you can view and modify the whole animation
+    curve. You
     can insert keyframes to the curve and drag them and the point handlers to
     modify the curve. You can modify the appearance of the curve in the style
     editor.
 
     You can also edit easing curves that you added with the easing curve editor.
 
-    \image studio-curve-editor.png "Curve Editor"
+    \image studio-curve-editor.png "Animation Curve Editor"
 
     To edit animation curves:
 
     \list 1
         \li In the \uicontrol Timeline view, insert at least one keyframe.
         \li Select \inlineimage curveGraphIcon.png
-            (\uicontrol {Curve Editor (C)} on the toolbar or press \key C
-            to open the curve editor.
-        \li Right-click in the curve editor, and select
+            (\uicontrol {Animation Curve Editor}) on the toolbar or press \key C
+            to open the animation curve editor.
+        \li Right-click in the animation curve editor, and select
             \uicontrol {Insert Keyframe} to add a keyframe.
         \li Select keyframes to display the easing curves attached to them.
             To select multiple keyframes, press and hold \key Ctrl.
