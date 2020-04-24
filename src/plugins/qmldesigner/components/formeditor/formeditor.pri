@@ -36,7 +36,8 @@ SOURCES += formeditoritem.cpp \
     contentnoteditableindicator.cpp \
     backgroundaction.cpp \
     formeditortoolbutton.cpp \
-    formeditorannotationicon.cpp
+    formeditorannotationicon.cpp \
+    transitiontool.cpp
 
 HEADERS += formeditorscene.h \
     formeditorwidget.h \
@@ -75,6 +76,7 @@ HEADERS += formeditorscene.h \
     contentnoteditableindicator.h \
     backgroundaction.h \
     formeditortoolbutton.h \
-    formeditorannotationicon.h
+    formeditorannotationicon.h \
+    transitiontool.h
 
 RESOURCES += formeditor.qrc

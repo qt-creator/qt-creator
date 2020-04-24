@@ -311,8 +311,10 @@ void resetSize(const SelectionContext &selectionState)
     selectionState.view()->executeInTransaction("DesignerActionManager|resetSize",[selectionState](){
         foreach (ModelNode node, selectionState.selectedModelNodes()) {
             QmlItemNode itemNode(node);
-            itemNode.removeProperty("width");
-            itemNode.removeProperty("height");
+            if (itemNode.isValid()) {
+                itemNode.removeProperty("width");
+                itemNode.removeProperty("height");
+            }
         }
     });
 }
@@ -325,8 +327,10 @@ void resetPosition(const SelectionContext &selectionState)
     selectionState.view()->executeInTransaction("DesignerActionManager|resetPosition",[selectionState](){
         foreach (ModelNode node, selectionState.selectedModelNodes()) {
             QmlItemNode itemNode(node);
-            itemNode.removeProperty("x");
-            itemNode.removeProperty("y");
+            if (itemNode.isValid()) {
+                itemNode.removeProperty("x");
+                itemNode.removeProperty("y");
+            }
         }
     });
 }
@@ -348,7 +352,8 @@ void resetZ(const SelectionContext &selectionState)
     selectionState.view()->executeInTransaction("DesignerActionManager|resetZ",[selectionState](){
         foreach (ModelNode node, selectionState.selectedModelNodes()) {
             QmlItemNode itemNode(node);
-            itemNode.removeProperty("z");
+            if (itemNode.isValid())
+                itemNode.removeProperty("z");
         }
     });
 }
@@ -1095,7 +1100,24 @@ void addFlowEffect(const SelectionContext &selectionContext, const TypeName &typ
                                       container.nodeProperty("effect").reparentHere(effectNode);
                                       view->setSelectedModelNode(effectNode);
                                   }
-                              });
+   });
+}
+
+void setFlowStartItem(const SelectionContext &selectionContext)
+{
+    AbstractView *view = selectionContext.view();
+
+    QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
+    ModelNode node = selectionContext.currentSingleSelectedNode();
+    QTC_ASSERT(node.isValid(), return);
+    QTC_ASSERT(node.metaInfo().isValid(), return);
+    QmlFlowItemNode flowItem(node);
+    QTC_ASSERT(flowItem.isValid(), return);
+    QTC_ASSERT(flowItem.flowView().isValid(), return);
+    view->executeInTransaction("DesignerActionManager:setFlowStartItem",
+                               [&flowItem](){
+        flowItem.flowView().setStartFlowItem(flowItem);
+    });
 }
 
 } // namespace Mode

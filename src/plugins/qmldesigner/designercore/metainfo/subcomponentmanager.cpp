@@ -420,8 +420,7 @@ void SubComponentManager::parseQuick3DAssetDir(const QString &assetPath)
                     itemLibraryEntry.addHints(hints);
                 }
 
-                if (!model()->metaInfo().itemLibraryInfo()->containsEntry(itemLibraryEntry))
-                    model()->metaInfo().itemLibraryInfo()->addEntries({itemLibraryEntry});
+                model()->metaInfo().itemLibraryInfo()->addEntries({itemLibraryEntry}, true);
             }
         }
     }

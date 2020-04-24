@@ -791,7 +791,7 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
         const QString relative = QString::fromLatin1("%1/%2").arg(
                     semanticInfo.document->path(),
                     text);
-        if (semanticInfo.snapshot.document(relative)) {
+        if (QFileInfo::exists(relative)) {
             link.targetFileName = relative;
             processLinkCallback(link);
             return;

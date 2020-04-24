@@ -664,9 +664,7 @@ QList<QmlFlowItemNode> QmlFlowViewNode::flowItems() const
 
 ModelNode QmlFlowViewNode::addTransition(const QmlFlowTargetNode &from, const QmlFlowTargetNode &to)
 {
-    ModelNode transition = view()->createModelNode("FlowView.FlowTransition", 1, 0);
-
-    nodeListProperty("flowTransitions").reparentHere(transition);
+    ModelNode transition = createTransition();
 
     QmlFlowTargetNode f = from;
     QmlFlowTargetNode t = to;
@@ -684,8 +682,6 @@ const QList<ModelNode> QmlFlowViewNode::transitions() const
         return modelNode().nodeListProperty("flowTransitions").toModelNodeList();
 
     return {};
-
-
 }
 
 const QList<ModelNode> QmlFlowViewNode::wildcards() const
@@ -706,13 +702,12 @@ const QList<ModelNode> QmlFlowViewNode::decicions() const
 
 QList<ModelNode> QmlFlowViewNode::transitionsForTarget(const ModelNode &modelNode)
 {
-    QList<ModelNode> list;
-    for (const ModelNode &transition : transitions()) {
-        if (transition.hasBindingProperty("to")
-                && transition.bindingProperty("to").resolveToModelNode() == modelNode)
-            list.append(transition);
-    }
-    return list;
+    return transitionsForProperty("to", modelNode);
+}
+
+QList<ModelNode> QmlFlowViewNode::transitionsForSource(const ModelNode &modelNode)
+{
+    return transitionsForProperty("from", modelNode);
 }
 
 void QmlFlowViewNode::removeDanglingTransitions()
@@ -828,6 +823,43 @@ void QmlFlowViewNode::removeAllTransitions()
 
     if (hasProperty("flowTransitions"))
         removeProperty("flowTransitions");
+}
+
+void QmlFlowViewNode::setStartFlowItem(const QmlFlowItemNode &flowItem)
+{
+    QTC_ASSERT(flowItem.isValid(), return);
+    QmlFlowItemNode item = flowItem;
+
+    ModelNode transition;
+
+    for (const ModelNode &node : transitionsForSource(modelNode()))
+        transition = node;
+    if (!transition.isValid())
+        transition = createTransition();
+
+    transition.bindingProperty("from").setExpression(modelNode().validId());
+    transition.bindingProperty("to").setExpression(item.validId());
+}
+
+ModelNode QmlFlowViewNode::createTransition()
+{
+    ModelNode transition = view()->createModelNode("FlowView.FlowTransition", 1, 0);
+    nodeListProperty("flowTransitions").reparentHere(transition);
+
+    return transition;
+}
+
+QList<ModelNode> QmlFlowViewNode::transitionsForProperty(const PropertyName &propertyName,
+                                                         const ModelNode &modelNode)
+{
+    QList<ModelNode> list;
+    for (const ModelNode &transition : transitions()) {
+        if (transition.hasBindingProperty(propertyName)
+                && transition.bindingProperty(propertyName).resolveToModelNode() == modelNode)
+            list.append(transition);
+    }
+    return list;
+
 }
 
 } //QmlDesigner

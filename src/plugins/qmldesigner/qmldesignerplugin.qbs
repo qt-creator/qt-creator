@@ -530,6 +530,8 @@ Project {
                 "formeditor/toolbox.h",
                 "formeditor/formeditortoolbutton.cpp",
                 "formeditor/formeditortoolbutton.h",
+                "formeditor/transitiontool.cpp",
+                "formeditor/transitiontool.h",
                 "importmanager/importlabel.cpp",
                 "importmanager/importlabel.h",
                 "importmanager/importmanagercombobox.cpp",

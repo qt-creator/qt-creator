@@ -650,7 +650,7 @@ PropertyName NodeMetaInfoPrivate::defaultPropertyName() const
 
 static inline TypeName stringIdentifier( const TypeName &type, int maj, int min)
 {
-    return type + QString::number(maj).toLatin1() + '_' + QString::number(min).toLatin1();
+    return type + QByteArray::number(maj) + '_' + QByteArray::number(min);
 }
 
 NodeMetaInfoPrivate::Pointer NodeMetaInfoPrivate::create(Model *model, const TypeName &type, int major, int minor)

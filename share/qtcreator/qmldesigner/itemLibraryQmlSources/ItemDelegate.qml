@@ -47,6 +47,8 @@ Item {
             width: itemLibraryIconWidth  // to be set in Qml context
             height: itemLibraryIconHeight   // to be set in Qml context
             source: itemLibraryIconPath     // to be set by model
+
+            cache: false // Allow thumbnail to be dynamically updated
         }
 
         Text {

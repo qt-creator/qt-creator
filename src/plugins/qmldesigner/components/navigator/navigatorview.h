@@ -84,6 +84,8 @@ public:
 
     void bindingPropertiesChanged(const QList<BindingProperty> &propertyList, PropertyChangeFlags) override;
 
+    void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
+
     void handleChangedExport(const ModelNode &modelNode, bool exported);
     bool isNodeInvisible(const ModelNode &modelNode) const;
 
@@ -108,7 +110,7 @@ protected: //functions
     QTreeView *treeWidget() const;
     NavigatorTreeModel *treeModel();
     bool blockSelectionChangedSignal(bool block);
-    void expandRecursively(const QModelIndex &index);
+    void expandAncestors(const QModelIndex &index);
     void reparentAndCatch(NodeAbstractProperty property, const ModelNode &modelNode);
     void setupWidget();
 

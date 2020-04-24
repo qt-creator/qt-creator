@@ -95,6 +95,7 @@ public:
     ObjectValue *_mathObject;
     ObjectValue *_qtObject;
     ObjectValue *_qmlFontObject;
+    ObjectValue *_qmlPaletteObject;
     ObjectValue *_qmlPointObject;
     ObjectValue *_qmlSizeObject;
     ObjectValue *_qmlRectObject;
@@ -496,6 +497,28 @@ SharedValueOwner::SharedValueOwner(SharedValueOwnerKind kind)
     _qmlFontObject->setMember(QLatin1String("kerning"), booleanValue());
     _qmlFontObject->setMember(QLatin1String("preferShaping"), booleanValue());
 
+    _qmlPaletteObject = newObject(/* prototype = */ nullptr);
+    _qmlPaletteObject->setClassName(QLatin1String("palette"));
+    _qmlPaletteObject->setMember(QLatin1String("alternateBase"), colorValue());
+    _qmlPaletteObject->setMember(QLatin1String("base"), colorValue());
+    _qmlPaletteObject->setMember(QLatin1String("brightText"), colorValue());
+    _qmlPaletteObject->setMember(QLatin1String("button"), colorValue());
+    _qmlPaletteObject->setMember(QLatin1String("buttonText"), colorValue());
+    _qmlPaletteObject->setMember(QLatin1String("dark"), colorValue());
+    _qmlPaletteObject->setMember(QLatin1String("highlight"), colorValue());
+    _qmlPaletteObject->setMember(QLatin1String("highlightedText"), colorValue());
+    _qmlPaletteObject->setMember(QLatin1String("light"), colorValue());
+    _qmlPaletteObject->setMember(QLatin1String("link"), colorValue());
+    _qmlPaletteObject->setMember(QLatin1String("linkVisited"), colorValue());
+    _qmlPaletteObject->setMember(QLatin1String("mid"), colorValue());
+    _qmlPaletteObject->setMember(QLatin1String("midlight"), colorValue());
+    _qmlPaletteObject->setMember(QLatin1String("shadow"), colorValue());
+    _qmlPaletteObject->setMember(QLatin1String("text"), colorValue());
+    _qmlPaletteObject->setMember(QLatin1String("toolTipBase"), colorValue());
+    _qmlPaletteObject->setMember(QLatin1String("toolTipText"), colorValue());
+    _qmlPaletteObject->setMember(QLatin1String("window"), colorValue());
+    _qmlPaletteObject->setMember(QLatin1String("windowText"), colorValue());
+
     _qmlPointObject = newObject(/*prototype =*/ nullptr);
     _qmlPointObject->setClassName(QLatin1String("Point"));
     _qmlPointObject->setMember(QLatin1String("x"), numberValue());
@@ -894,6 +917,11 @@ Function *ValueOwner::addFunction(ObjectValue *object, const QString &name, int 
 const ObjectValue *ValueOwner::qmlFontObject()
 {
     return _shared->_qmlFontObject;
+}
+
+const ObjectValue *ValueOwner::qmlPaletteObject()
+{
+    return _shared->_qmlPaletteObject;
 }
 
 const ObjectValue *ValueOwner::qmlPointObject()
