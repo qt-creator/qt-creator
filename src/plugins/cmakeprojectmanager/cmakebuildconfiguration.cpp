@@ -25,7 +25,6 @@
 
 #include "cmakebuildconfiguration.h"
 
-#include "builddirmanager.h"
 #include "cmakebuildsettingswidget.h"
 #include "cmakebuildstep.h"
 #include "cmakebuildsystem.h"

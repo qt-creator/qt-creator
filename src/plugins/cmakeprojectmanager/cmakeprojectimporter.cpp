@@ -25,8 +25,8 @@
 
 #include "cmakeprojectimporter.h"
 
-#include "builddirmanager.h"
 #include "cmakebuildconfiguration.h"
+#include "cmakebuildsystem.h"
 #include "cmakekitinformation.h"
 #include "cmaketoolmanager.h"
 
@@ -229,7 +229,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const Utils::FilePath &impo
     }
 
     QString errorMessage;
-    const CMakeConfig config = BuildDirManager::parseCMakeConfiguration(cacheFile, &errorMessage);
+    const CMakeConfig config = CMakeBuildSystem::parseCMakeCacheDotTxt(cacheFile, &errorMessage);
     if (config.isEmpty() || !errorMessage.isEmpty()) {
         qCDebug(cmInputLog()) << "Failed to read configuration from" << cacheFile << errorMessage;
         return { };

@@ -60,7 +60,6 @@ sequenceDiagram
     participant User
     participant ParseGuard
     participant CMakeBuildSystem
-    participant BuildDirManager
     participant FileApiReader
 
     alt Trigger Parsing
@@ -69,14 +68,12 @@ sequenceDiagram
     User ->> CMakeBuildSystem: Signal from outside the CMakeBuildSystem
     end
     activate CMakeBuildSystem
-    CMakeBuildSystem ->> BuildDirManager: call setParametersAndRequestReparse()
-    activate BuildDirManager
-    BuildDirManager ->> BuildDirManager: Validate parameters
-    BuildDirManager ->> FileApiReader: Construct
+    CMakeBuildSystem ->> CMakeBuildSystem: call setParametersAndRequestReparse()
+    CMakeBuildSystem ->> CMakeBuildSystem: Validate parameters
+    CMakeBuildSystem ->> FileApiReader: Construct
     activate FileApiReader
-    BuildDirManager ->> FileApiReader: call setParameters
-    BuildDirManager ->> CMakeBuildSystem: call request*Reparse()
-    deactivate BuildDirManager
+    CMakeBuildSystem ->> FileApiReader: call setParameters
+    CMakeBuildSystem ->> CMakeBuildSystem: call request*Reparse()
     deactivate CMakeBuildSystem
 
     CMakeBuildSystem ->> CMakeBuildSystem: m_delayedParsingTimer sends timeout() triggering triggerParsing()
@@ -92,10 +89,8 @@ sequenceDiagram
 
     CMakeBuildSystem ->>+ TreeScanner: call asyncScanForFiles()
 
-    CMakeBuildSystem ->>+ BuildDirManager: call parse(...)
-    BuildDirManager ->>+ FileApiReader: call parse(...)
+    CMakeBuildSystem ->>+ FileApiReader: call parse(...)
     FileApiReader ->> FileApiReader: startState()
-    deactivate BuildDirManager
     deactivate CMakeBuildSystem
 
     opt Parse
@@ -106,17 +101,12 @@ sequenceDiagram
     FileApiReader ->> FileApiReader: call endState(...)
 
     alt Return Result from FileApiReader
-    FileApiReader ->> BuildDirManager: signal dataAvailable()
-    BuildDirManager ->> CMakeBuildSystem: signal dataAvailable() and trigger handleParsingSucceeded()
-    CMakeBuildSystem ->> BuildDirManager: call takeBuildTargets()
-    BuildDirManager ->> FileApiReader: call takeBuildTargets()
-    CMakeBuildSystem ->> BuildDirManager: call takeCMakeConfiguration(...)
-    BuildDirManager ->> FileApiReader: call takeCMakeConfiguration(....)
+    FileApiReader ->> CMakeBuildSystem: signal dataAvailable() and trigger handleParsingSucceeded()
+    CMakeBuildSystem ->> FileApiReader: call takeBuildTargets()
+    CMakeBuildSystem ->>  FileApiReader: call takeParsedConfiguration(....)
     else
-    FileApiReader ->> BuildDirManager: signal errorOccurred(...)
-    BuildDirManager ->> CMakeBuildSystem: signal errorOccurred(...) and trigger handelParsingFailed(...)
-    CMakeBuildSystem ->> BuildDirManager: call takeCMakeConfiguration(...)
-    BuildDirManager ->> FileApiReader: call takeCMakeConfiguration(....)
+    FileApiReader ->> CMakeBuildSystem: signal errorOccurred(...) and trigger handelParsingFailed(...)
+    CMakeBuildSystem ->> FileApiReader: call takeParsedConfiguration(....)
     end
 
     deactivate FileApiReader
@@ -132,20 +122,17 @@ sequenceDiagram
     activate CMakeBuildSystem
     opt: Parsing was a success
     CMakeBuildSystem ->> CMakeBuildSystem: call updateProjectData()
-    CMakeBuildSystem ->> BuildDirManager: call projectFilesToWatch()
-    BuildDirManager ->> FileApiReader: call projectFilesToWatch()
-    CMakeBuildSystem ->> BuildDirManager: call createRawProjectParts(...)
-    BuildDirManager ->> FileApiReader: call createRawProjectParts(...)
-    CMakeBuildSystem ->> BuildDirManager: call resetData()
-    BuildDirManager ->> FileApiReader: Destruct
+    CMakeBuildSystem ->> FileApiReader: call projectFilesToWatch()
+    CMakeBuildSystem ->> FileApiReader: call createRawProjectParts(...)
+    CMakeBuildSystem ->> FileApiReader: call resetData()
     CMakeBuildSystem ->> ParseGuard: call markAsSuccess()
     end
-    deactivate FileApiReader
 
     CMakeBuildSystem ->> ParseGuard: Destruct
     deactivate ParseGuard
 
     CMakeBuildSystem ->> CMakeBuildSystem: call emitBuildSystemUpdated()
+    deactivate FileApiReader
     deactivate CMakeBuildSystem
 ```
 

@@ -21,8 +21,6 @@ QtcPlugin {
     files: [
         "builddirparameters.cpp",
         "builddirparameters.h",
-        "builddirmanager.cpp",
-        "builddirmanager.h",
         "cmake_global.h",
         "cmakebuildconfiguration.cpp",
         "cmakebuildconfiguration.h",

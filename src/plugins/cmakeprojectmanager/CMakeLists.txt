@@ -3,7 +3,6 @@ add_qtc_plugin(CMakeProjectManager
   PLUGIN_DEPENDS Core CppTools ProjectExplorer TextEditor QtSupport
   PLUGIN_RECOMMENDS Designer
   SOURCES
-    builddirmanager.cpp builddirmanager.h
     builddirparameters.cpp builddirparameters.h
     cmake_global.h
     cmakeautocompleter.cpp cmakeautocompleter.h

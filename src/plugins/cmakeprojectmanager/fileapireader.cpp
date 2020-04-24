@@ -136,6 +136,8 @@ void FileApiReader::parse(bool forceCMakeRun, bool forceConfiguration)
 
 void FileApiReader::stop()
 {
+    if (m_cmakeProcess)
+        disconnect(m_cmakeProcess.get(), nullptr, this, nullptr);
     m_cmakeProcess.reset();
 }
 

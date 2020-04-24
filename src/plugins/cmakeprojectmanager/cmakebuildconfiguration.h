@@ -35,7 +35,6 @@ class CMakeProject;
 
 namespace Internal {
 
-class BuildDirManager;
 class CMakeBuildSystem;
 class CMakeBuildSettingsWidget;
 
@@ -97,7 +96,6 @@ private:
     friend class CMakeBuildSettingsWidget;
     friend class CMakeBuildSystem;
     friend class CMakeProject;
-    friend class BuildDirManager;
 };
 
 class CMakeProjectImporter;
