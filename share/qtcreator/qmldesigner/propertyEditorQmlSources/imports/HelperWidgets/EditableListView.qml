@@ -51,6 +51,8 @@ Rectangle {
     property real __actionIndicatorWidth: StudioTheme.Values.squareComponentWidth
     property real __actionIndicatorHeight: StudioTheme.Values.height
 
+    property string typeFilter: "QtQuick3D.Material"
+
     color: "transparent"
     border.color: StudioTheme.Values.themeControlOutline
     border.width: StudioTheme.Values.border
@@ -69,7 +71,7 @@ Rectangle {
             validator: RegExpValidator { regExp: /(^[a-z_]\w*|^[A-Z]\w*\.{1}([a-z_]\w*\.?)+)/ }
 
             actionIndicatorVisible: false
-            typeFilter: "QtQuick3D.Material"
+            typeFilter: editableListView.typeFilter
             editText: modelData
             initialModelData: modelData
 

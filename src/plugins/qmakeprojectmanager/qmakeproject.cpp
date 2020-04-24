@@ -500,8 +500,13 @@ void QmakeBuildSystem::startAsyncTimer(QmakeProFile::AsyncUpdateDelay delay)
 
 void QmakeBuildSystem::incrementPendingEvaluateFutures()
 {
-    if (m_pendingEvaluateFuturesCount == 0)
-        m_guard = guardParsingRun();
+    if (m_pendingEvaluateFuturesCount == 0) {
+        // The guard actually might already guard the project if this
+        // here is the re-start of a previously aborted parse due to e.g.
+        // changing build directories while parsing.
+        if (!m_guard.guardsProject())
+            m_guard = guardParsingRun();
+    }
     ++m_pendingEvaluateFuturesCount;
     m_asyncUpdateFutureInterface.setProgressRange(m_asyncUpdateFutureInterface.progressMinimum(),
                                                   m_asyncUpdateFutureInterface.progressMaximum() + 1);

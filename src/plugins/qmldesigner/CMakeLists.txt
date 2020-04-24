@@ -144,6 +144,7 @@ extend_qtc_plugin(QmlDesigner
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX ../../../share/qtcreator/qml/qmlpuppet/interfaces
+  PUBLIC_INCLUDES ../../../share/qtcreator/qml/qmlpuppet/interfaces
   SOURCES
     nodeinstanceserverinterface.cpp
     commondefines.h
@@ -202,6 +203,7 @@ extend_qtc_plugin(QmlDesigner
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/formeditor
+  PUBLIC_INCLUDES components/formeditor
   SOURCES
     abstractcustomtool.cpp abstractcustomtool.h
     abstractformeditortool.cpp abstractformeditortool.h
@@ -258,6 +260,7 @@ extend_qtc_plugin(QmlDesigner
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/integration
+  PUBLIC_INCLUDES components/integration
   SOURCES
     componentaction.cpp componentaction.h
     componentview.cpp componentview.h
@@ -471,6 +474,7 @@ extend_qtc_plugin(QmlDesigner
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX designercore
+  PUBLIC_INCLUDES designercore
   SOURCES
     metainfo/itemlibraryinfo.cpp
     metainfo/metainfo.cpp

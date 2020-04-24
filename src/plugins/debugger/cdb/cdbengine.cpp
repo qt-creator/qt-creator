@@ -929,8 +929,15 @@ void CdbEngine::assignValueInDebugger(WatchItem *w, const QString &expr, const Q
         qWarning("Internal error: assignValueInDebugger: Invalid state or no stack frame.");
         return;
     }
-    runCommand({m_extensionCommandPrefix + "assign -h " + w->iname + '=' + toHex(value.toString()),
-                NoFlags});
+    if (m_pythonVersion > 0x030000 && w->isWatcher()) {
+        runCommand({m_extensionCommandPrefix + "assign -h -e " + toHex(w->expression()) + '='
+                        + toHex(value.toString()),
+                    NoFlags});
+    } else {
+        runCommand({m_extensionCommandPrefix + "assign -h " + w->iname + '=' + toHex(value.toString()),
+                    NoFlags});
+    }
+
     // Update all locals in case we change a union or something pointed to
     // that affects other variables, too.
     updateLocals();

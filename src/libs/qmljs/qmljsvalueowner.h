@@ -82,6 +82,7 @@ public:
 
     // QML objects
     const ObjectValue *qmlFontObject();
+    const ObjectValue *qmlPaletteObject();
     const ObjectValue *qmlPointObject();
     const ObjectValue *qmlSizeObject();
     const ObjectValue *qmlRectObject();
