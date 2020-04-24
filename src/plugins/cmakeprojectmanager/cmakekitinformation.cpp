@@ -33,8 +33,11 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/variablechooser.h>
-#include <projectexplorer/toolchain.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorersettings.h>
+#include <projectexplorer/task.h>
+#include <projectexplorer/toolchain.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -657,6 +660,21 @@ QVariant CMakeGeneratorKitAspect::defaultValue(const Kit *k) const
                                   return g.matches("NMake Makefiles")
                                          || g.matches("NMake Makefiles JOM");
                               });
+            if (ProjectExplorerPlugin::projectExplorerSettings().useJom) {
+                it = std::find_if(known.constBegin(),
+                                  known.constEnd(),
+                                  [](const CMakeTool::Generator &g) {
+                                      return g.matches("NMake Makefiles JOM");
+                                  });
+            }
+
+            if (it == known.constEnd()) {
+                it = std::find_if(known.constBegin(),
+                                  known.constEnd(),
+                                  [](const CMakeTool::Generator &g) {
+                                      return g.matches("NMake Makefiles");
+                                  });
+            }
         }
     } else {
         // Unix-oid OSes:
@@ -782,6 +800,16 @@ KitAspect::ItemList CMakeGeneratorKitAspect::toUserOutput(const Kit *k) const
 KitAspectWidget *CMakeGeneratorKitAspect::createConfigWidget(Kit *k) const
 {
     return new CMakeGeneratorKitAspectWidget(k, this);
+}
+
+void CMakeGeneratorKitAspect::addToEnvironment(const Kit *k, Utils::Environment &env) const
+{
+    GeneratorInfo info = generatorInfo(k);
+    if (info.generator == "NMake Makefiles JOM") {
+        if (env.searchInPath("jom.exe").exists())
+            return;
+        env.appendOrSetPath(QCoreApplication::applicationDirPath());
+    }
 }
 
 // --------------------------------------------------------------------

@@ -238,11 +238,6 @@ QMimeData *ItemLibraryModel::getMimeData(const ItemLibraryEntry &itemLibraryEntr
     return mimeData;
 }
 
-QList<ItemLibrarySection *> ItemLibraryModel::sections() const
-{
-    return m_sections;
-}
-
 void ItemLibraryModel::clearSections()
 {
     qDeleteAll(m_sections);

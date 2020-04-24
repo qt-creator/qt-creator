@@ -102,9 +102,12 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
     setResizeMode(QQuickWidget::SizeRootObjectToView);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    rootContext()->setContextProperty(QStringLiteral("statesEditorModel"), statesEditorModel);
-
-    rootContext()->setContextProperty(QLatin1String("canAddNewStates"), true);
+    rootContext()->setContextProperties(
+        QVector<QQmlContext::PropertyPair>{
+            {{"statesEditorModel"}, QVariant::fromValue(statesEditorModel)},
+            {{"canAddNewStates"}, true}
+        }
+    );
 
     Theme::setupTheme(engine());
 
