@@ -39,6 +39,11 @@ class UvscServerProvider;
 
 namespace Uv {
 
+class DeviceSelection;
+
+// Helper function.
+QString buildPackageId(const DeviceSelection &selection);
+
 // UvProject
 
 class Project final : public Gen::Xml::Project

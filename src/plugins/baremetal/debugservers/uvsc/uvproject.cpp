@@ -111,6 +111,11 @@ static void extractAllFiles(const DebuggerRunTool *runTool, QStringList &include
     }
 }
 
+QString buildPackageId(const DeviceSelection &selection)
+{
+    return buildPackageId(selection.package);
+}
+
 // Project
 
 Project::Project(const UvscServerProvider *provider, DebuggerRunTool *runTool)
