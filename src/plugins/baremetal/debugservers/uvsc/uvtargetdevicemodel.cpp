@@ -147,9 +147,10 @@ static void fillSvd(QXmlStreamReader &in, QString &svd)
 class DeviceSelectionItem final : public TreeItem
 {
 public:
+    enum Type { Root, Package, Family, SubFamily, Device, DeviceVariant };
     enum Column { NameColumn, VersionColumn, VendorNameColumn };
-    explicit DeviceSelectionItem()
-    {}
+    explicit DeviceSelectionItem(const Type &type = Root)
+        : type(type) {}
 
     QVariant data(int column, int role) const final
     {
@@ -170,6 +171,7 @@ public:
         return hasChildren() ? Qt::ItemIsEnabled : (Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     }
 
+    const Type type;
     QString desc;
     QString fullPath;
     QString name;
@@ -235,7 +237,7 @@ void DeviceSelectionModel::parsePackage(const QString &packageFile)
 void DeviceSelectionModel::parsePackage(QXmlStreamReader &in, const QString &packageFile)
 {
     // Create and fill the 'package' item.
-    const auto child = new DeviceSelectionItem;
+    const auto child = new DeviceSelectionItem(DeviceSelectionItem::Package);
     rootItem()->appendChild(child);
     child->fullPath = packageFile;
     child->version = extractPackVersion(packageFile);
@@ -266,7 +268,7 @@ void DeviceSelectionModel::parsePackage(QXmlStreamReader &in, const QString &pac
 void DeviceSelectionModel::parseFamily(QXmlStreamReader &in, DeviceSelectionItem *parent)
 {
     // Create and fill the 'family' item.
-    const auto child = new DeviceSelectionItem;
+    const auto child = new DeviceSelectionItem(DeviceSelectionItem::Family);
     parent->appendChild(child);
     const QXmlStreamAttributes attrs = in.attributes();
     child->name = attrs.value("Dfamily").toString();
@@ -292,7 +294,7 @@ void DeviceSelectionModel::parseFamily(QXmlStreamReader &in, DeviceSelectionItem
 void DeviceSelectionModel::parseSubFamily(QXmlStreamReader &in, DeviceSelectionItem *parent)
 {
     // Create and fill the 'sub-family' item.
-    const auto child = new DeviceSelectionItem;
+    const auto child = new DeviceSelectionItem(DeviceSelectionItem::SubFamily);
     parent->appendChild(child);
     const QXmlStreamAttributes attrs = in.attributes();
     child->name = attrs.value("DsubFamily").toString();
@@ -313,7 +315,7 @@ void DeviceSelectionModel::parseSubFamily(QXmlStreamReader &in, DeviceSelectionI
 void DeviceSelectionModel::parseDevice(QXmlStreamReader &in, DeviceSelectionItem *parent)
 {
     // Create and fill the 'device' item.
-    const auto child = new DeviceSelectionItem;
+    const auto child = new DeviceSelectionItem(DeviceSelectionItem::Device);
     parent->appendChild(child);
     const QXmlStreamAttributes attrs = in.attributes();
     child->name = attrs.value("Dname").toString();
@@ -338,7 +340,7 @@ void DeviceSelectionModel::parseDevice(QXmlStreamReader &in, DeviceSelectionItem
 void DeviceSelectionModel::parseDeviceVariant(QXmlStreamReader &in, DeviceSelectionItem *parent)
 {
     // Create and fill the 'device-variant' item.
-    const auto child = new DeviceSelectionItem;
+    const auto child = new DeviceSelectionItem(DeviceSelectionItem::DeviceVariant);
     parent->appendChild(child);
     const QXmlStreamAttributes attrs = in.attributes();
     child->name = attrs.value("Dvariant").toString();
@@ -393,31 +395,15 @@ DeviceSelection DeviceSelectionView::buildSelection(const DeviceSelectionItem *i
     DeviceSelection::Memories &mems = selection.memories;
     DeviceSelection::Package &pkg = selection.package;
 
-    do {
+    auto extractBaseProps = [&selection, &algs, &cpu, &mems](const DeviceSelectionItem *item) {
         if (selection.name.isEmpty())
             selection.name = item->name;
-        else if (selection.subfamily.isEmpty())
-            selection.subfamily = item->name;
-        else if (selection.family.isEmpty())
-            selection.family = item->name;
-        else if (pkg.name.isEmpty())
-            pkg.name = item->name;
-
         if (selection.desc.isEmpty())
             selection.desc = item->desc;
-        else if (pkg.desc.isEmpty())
-            pkg.desc = item->desc;
-
         if (selection.vendorId.isEmpty())
             selection.vendorId = item->vendorId;
-        else if (pkg.vendorId.isEmpty())
-            pkg.vendorId = item->vendorId;
-
         if (selection.vendorName.isEmpty())
             selection.vendorName = item->vendorName;
-        else if (pkg.vendorName.isEmpty())
-            pkg.vendorName = item->vendorName;
-
         if (selection.svd.isEmpty())
             selection.svd = item->svd;
 
@@ -429,13 +415,6 @@ DeviceSelection DeviceSelectionView::buildSelection(const DeviceSelectionItem *i
             cpu.fpu = item->cpu.fpu;
         if (cpu.mpu.isEmpty())
             cpu.mpu = item->cpu.mpu;
-
-        if (pkg.file.isEmpty())
-            pkg.file = item->fullPath;
-        if (pkg.url.isEmpty())
-            pkg.url = item->url;
-        if (pkg.version.isEmpty())
-            pkg.version = item->version;
 
         // Add only new flash algorithms.
         for (const DeviceSelection::Algorithm &newAlg : item->algorithms) {
@@ -453,6 +432,33 @@ DeviceSelection DeviceSelectionView::buildSelection(const DeviceSelectionItem *i
             });
             if (!contains)
                 mems.push_back(newMem);
+        }
+    };
+
+    auto extractPackageProps = [&pkg](const DeviceSelectionItem *item) {
+        pkg.desc = item->desc;
+        pkg.file = item->fullPath;
+        pkg.name = item->name;
+        pkg.url = item->url;
+        pkg.vendorId = item->vendorId;
+        pkg.vendorName = item->vendorName;
+        pkg.version = item->version;
+    };
+
+    do {
+        if (item->type == DeviceSelectionItem::DeviceVariant
+                || item->type == DeviceSelectionItem::Device) {
+            extractBaseProps(item);
+        } else if (item->type == DeviceSelectionItem::SubFamily) {
+            extractBaseProps(item);
+            if (selection.subfamily.isEmpty())
+                selection.subfamily = item->name;
+        } else if (item->type == DeviceSelectionItem::Family) {
+            extractBaseProps(item);
+            if (selection.family.isEmpty())
+                selection.family = item->name;
+        } else if (item->type == DeviceSelectionItem::Package) {
+            extractPackageProps(item);
         }
     } while ((item->level() > 1) && (item = static_cast<const DeviceSelectionItem *>(item->parent())));
 
