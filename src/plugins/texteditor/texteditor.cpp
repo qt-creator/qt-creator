@@ -107,6 +107,7 @@
 #include <QPropertyAnimation>
 #include <QDrag>
 #include <QSequentialAnimationGroup>
+#include <QScreen>
 #include <QScrollBar>
 #include <QShortcut>
 #include <QStyle>
@@ -1201,7 +1202,11 @@ void TextEditorWidgetPrivate::print(QPrinter *printer)
     QAbstractTextDocumentLayout *layout = doc->documentLayout();
     layout->setPaintDevice(p.device());
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
     int dpiy = p.device()->logicalDpiY();
+#else
+    int dpiy = qRound(QGuiApplication::primaryScreen()->logicalDotsPerInchY());
+#endif
     int margin = int((2/2.54)*dpiy); // 2 cm margins
 
     QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
