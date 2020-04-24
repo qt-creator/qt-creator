@@ -68,6 +68,7 @@ protected:
     explicit BuildStep(BuildStepList *bsl, Core::Id id);
 
 public:
+    ~BuildStep() override;
     virtual bool init() = 0;
     void run();
     void cancel();

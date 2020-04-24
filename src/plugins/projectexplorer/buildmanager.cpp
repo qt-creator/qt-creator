@@ -700,8 +700,7 @@ void BuildManager::nextStep()
             disconnect(d->m_currentBuildStep, nullptr, instance(), nullptr);
             BuildManager::nextBuildQueue();
         };
-        connect(d->m_currentBuildStep, &BuildStep::finished, instance(), finishedHandler,
-                Qt::QueuedConnection);
+        connect(d->m_currentBuildStep, &BuildStep::finished, instance(), finishedHandler);
         connect(d->m_currentBuildStep, &BuildStep::progress,
                 instance(), &BuildManager::progressChanged);
         d->m_outputWindow->outputFormatter()->reset();

@@ -134,6 +134,11 @@ BuildStep::BuildStep(BuildStepList *bsl, Core::Id id) :
     QTC_CHECK(bsl->target() && bsl->target() == this->target());
 }
 
+BuildStep::~BuildStep()
+{
+    emit finished(false);
+}
+
 void BuildStep::run()
 {
     m_cancelFlag = false;
