@@ -312,14 +312,16 @@ QVector<Edit3DAction *> Edit3DView::rightActions() const
 
 void Edit3DView::addQuick3DImport()
 {
-    const QList<Import> imports = model()->possibleImports();
-    for (const auto &import : imports) {
-        if (import.url() == "QtQuick3D") {
-            model()->changeImports({import}, {});
+    if (model()) {
+        const QList<Import> imports = model()->possibleImports();
+        for (const auto &import : imports) {
+            if (import.url() == "QtQuick3D") {
+                model()->changeImports({import}, {});
 
-            // Subcomponent manager update needed to make item library entries appear
-            QmlDesignerPlugin::instance()->currentDesignDocument()->updateSubcomponentManager();
-            return;
+                // Subcomponent manager update needed to make item library entries appear
+                QmlDesignerPlugin::instance()->currentDesignDocument()->updateSubcomponentManager();
+                return;
+            }
         }
     }
     Core::AsynchronousMessageBox::warning(tr("Failed to Add Import"),
