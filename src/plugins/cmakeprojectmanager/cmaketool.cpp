@@ -73,6 +73,8 @@ static QString readerTypeToString(const CMakeTool::ReaderType &type)
     switch (type) {
     case CMakeTool::FileApi:
         return QString(READER_TYPE_FILEAPI);
+    default:
+        return QString();
     }
 }
 
