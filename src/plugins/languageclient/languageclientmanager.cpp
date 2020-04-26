@@ -458,9 +458,9 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
                 clients << startClient(setting);
             }
             for (auto client : clients) {
-                openDocumentWithClient(textDocument, client);
                 if (!m_clientForDocument.contains(textDocument))
                     m_clientForDocument[textDocument] = client;
+                openDocumentWithClient(textDocument, client);
             }
         }
     }
