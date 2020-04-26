@@ -187,6 +187,9 @@ void LanguageClientOutlineWidget::handleResponse(const DocumentUri &uri,
         m_model.setInfo(Utils::get<QList<DocumentSymbol>>(result));
     else
         m_model.clear();
+
+    // The list has changed, update the current items
+    updateSelectionInTree(m_editor->textCursor());
 }
 
 void LanguageClientOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)
@@ -313,6 +316,9 @@ void OutlineComboBox::updateModel(const DocumentUri &resultUri, const DocumentSy
         m_model.setInfo(Utils::get<QList<DocumentSymbol>>(result));
     else
         m_model.clear();
+
+    // The list has changed, update the current item
+    updateEntry();
 }
 
 void OutlineComboBox::updateEntry()
