@@ -1036,13 +1036,52 @@ void Client::showMessageBox(const ShowMessageRequestParams &message, const Messa
     box->show();
 }
 
+void addDiagnosticsSelections(const Diagnostic &diagnostic,
+                              QTextDocument *textDocument,
+                              QList<QTextEdit::ExtraSelection> &extraSelections)
+{
+    QTextCursor cursor(textDocument);
+    cursor.setPosition(::Utils::Text::positionInText(textDocument,
+                                                     diagnostic.range().start().line() + 1,
+                                                     diagnostic.range().start().character() + 1));
+    cursor.setPosition(::Utils::Text::positionInText(textDocument,
+                                                     diagnostic.range().end().line() + 1,
+                                                     diagnostic.range().end().character() + 1),
+                       QTextCursor::KeepAnchor);
+
+    QTextCharFormat format;
+    const TextEditor::FontSettings& fontSettings = TextEditor::TextEditorSettings::instance()->fontSettings();
+    DiagnosticSeverity severity = diagnostic.severity().value_or(DiagnosticSeverity::Warning);
+
+    if (severity == DiagnosticSeverity::Error) {
+        format = fontSettings.toTextCharFormat(TextEditor::C_ERROR);
+    } else {
+        format = fontSettings.toTextCharFormat(TextEditor::C_WARNING);
+    }
+
+    extraSelections.push_back(std::move(QTextEdit::ExtraSelection{cursor, format}));
+}
+
 void Client::showDiagnostics(const DocumentUri &uri)
 {
     const FilePath &filePath = uri.toFilePath();
     if (TextEditor::TextDocument *doc = TextEditor::TextDocument::textDocumentForFilePath(
             uri.toFilePath())) {
-        for (const Diagnostic &diagnostic : m_diagnostics.value(uri))
+        QList<QTextEdit::ExtraSelection> extraSelections;
+
+        for (const Diagnostic &diagnostic : m_diagnostics.value(uri)) {
             doc->addMark(new TextMark(filePath, diagnostic, id()));
+            addDiagnosticsSelections(diagnostic, doc->document(), extraSelections);
+        }
+
+        for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(doc)) {
+            if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor)) {
+                TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
+
+                widget->setExtraSelections(TextEditor::TextEditorWidget::CodeWarningsSelection,
+                                           extraSelections);
+            }
+        }
     }
 }
 
