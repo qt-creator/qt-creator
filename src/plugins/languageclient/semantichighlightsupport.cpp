@@ -66,6 +66,8 @@ static Utils::optional<TextEditor::TextStyle> styleForScopes(const QList<QString
     static const QMap<QString, TextEditor::TextStyle> styleForScopes = {
         {"entity.name", TextEditor::C_TYPE},
         {"entity.name.function", TextEditor::C_FUNCTION},
+        {"entity.name.function.method.static", TextEditor::C_GLOBAL},
+        {"entity.name.function.preprocessor", TextEditor::C_PREPROCESSOR},
         {"entity.name.label", TextEditor::C_LABEL},
         {"keyword", TextEditor::C_KEYWORD},
         {"storage.type", TextEditor::C_KEYWORD},
@@ -76,6 +78,8 @@ static Utils::optional<TextEditor::TextStyle> styleForScopes(const QList<QString
         {"variable.function", TextEditor::C_FUNCTION},
         {"variable.other", TextEditor::C_LOCAL},
         {"variable.other.member", TextEditor::C_FIELD},
+        {"variable.other.field", TextEditor::C_FIELD},
+        {"variable.other.field.static", TextEditor::C_GLOBAL},
         {"variable.parameter", TextEditor::C_LOCAL},
     };
 
