@@ -399,12 +399,22 @@ Utils::Link Location::toLink() const
 {
     if (!isValid(nullptr))
         return Utils::Link();
+
+    // QUrl::FullyDecoded is not supported by QUrl::toString.
+    // Ensure %xx like %20 are really decoded using fromPercentEncoding
+    // Else, a path with spaces would keep its %20 which would cause failure
+    // to open the file by the text editor. This is the cases with compilers in
+    // C:\Programs Files on Windows.
     auto file = uri().toString(QUrl::FullyDecoded | QUrl::PreferLocalFile);
+
+    // fromPercentEncoding convert %xx encoding to raw values and then interpret
+    // the result as utf-8, so toUtf8() must be used here.
+    file = QUrl::fromPercentEncoding(file.toUtf8());
     return Utils::Link(file, range().start().line() + 1, range().start().character());
 }
 
 DocumentUri::DocumentUri(const QString &other)
-    : QUrl(QUrl::fromPercentEncoding(other.toLocal8Bit()))
+    : QUrl(QUrl::fromPercentEncoding(other.toUtf8()))
 { }
 
 DocumentUri::DocumentUri(const Utils::FilePath &other)
