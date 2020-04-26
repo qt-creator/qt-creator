@@ -506,7 +506,14 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
             DidChangeTextDocumentParams::TextDocumentContentChangeEvent change;
             QTextDocument oldDoc(m_openedDocument[document]);
             QTextCursor cursor(&oldDoc);
-            cursor.setPosition(position + charsRemoved);
+            // Workaround https://bugreports.qt.io/browse/QTBUG-80662
+            // The contentsChanged gives a character count that can be wrong for QTextCursor
+            // when there are special characters removed/added (like formating characters).
+            // Also, characterCount return the number of characters + 1 because of the hidden
+            // paragraph separator character.
+            // This implementation is based on QWidgetTextControlPrivate::_q_contentsChanged.
+            // For charsAdded, textAt handles the case itself.
+            cursor.setPosition(qMin(oldDoc.characterCount() - 1, position + charsRemoved));
             cursor.setPosition(position, QTextCursor::KeepAnchor);
             change.setRange(Range(cursor));
             change.setRangeLength(cursor.selectionEnd() - cursor.selectionStart());
