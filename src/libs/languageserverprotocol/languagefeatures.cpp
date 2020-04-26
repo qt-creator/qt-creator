@@ -491,10 +491,24 @@ void SemanticHighlightToken::appendToByteArray(QByteArray &byteArray) const
     byteArray.append(char((scope & 0x00ff)));
 }
 
+Utils::variant<VersionedTextDocumentIdentifier, TextDocumentIdentifier>
+SemanticHighlightingParams::textDocument() const
+{
+    VersionedTextDocumentIdentifier textDocument = fromJsonValue<VersionedTextDocumentIdentifier>(
+        value(textDocumentKey));
+    ErrorHierarchy error;
+    if (!textDocument.isValid(&error)) {
+        return TextDocumentIdentifier(textDocument);
+    } else {
+        return textDocument;
+    }
+}
+
 bool SemanticHighlightingParams::isValid(ErrorHierarchy *error) const
 {
-    return check<VersionedTextDocumentIdentifier>(error, textDocumentKey)
-            && checkArray<SemanticHighlightingInformation>(error, linesKey);
+    return checkVariant<VersionedTextDocumentIdentifier, TextDocumentIdentifier>(error,
+                                                                                 textDocumentKey)
+           && checkArray<SemanticHighlightingInformation>(error, linesKey);
 }
 
 } // namespace LanguageServerProtocol

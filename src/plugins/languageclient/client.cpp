@@ -1215,9 +1215,18 @@ void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
 
 void Client::handleSemanticHighlight(const SemanticHighlightingParams &params)
 {
-    const DocumentUri &uri = params.textDocument().uri();
+    DocumentUri uri;
+    LanguageClientValue<int> version;
+    auto textDocument = params.textDocument();
+
+    if (Utils::holds_alternative<VersionedTextDocumentIdentifier>(textDocument)) {
+        uri = Utils::get<VersionedTextDocumentIdentifier>(textDocument).uri();
+        version = Utils::get<VersionedTextDocumentIdentifier>(textDocument).version();
+    } else {
+        uri = Utils::get<TextDocumentIdentifier>(textDocument).uri();
+    }
+
     m_highlights[uri].clear();
-    const LanguageClientValue<int> &version = params.textDocument().version();
     TextEditor::TextDocument *doc = TextEditor::TextDocument::textDocumentForFilePath(
         uri.toFilePath());
 
