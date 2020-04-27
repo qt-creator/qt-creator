@@ -264,4 +264,12 @@ public:
     }
 };
 
+class CannotConvert : public Exception
+{
+public:
+    CannotConvert(const char *whatErrorHasHappen)
+        : Exception(whatErrorHasHappen)
+    {}
+};
+
 } // namespace Sqlite

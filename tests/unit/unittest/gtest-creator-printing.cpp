@@ -37,6 +37,7 @@
 #include <clangcodemodelservermessages.h>
 #include <clangpathwatcher.h>
 #include <clangrefactoringmessages.h>
+#include <clangtools/clangtoolsdiagnostic.h>
 #include <coreplugin/find/searchresultitem.h>
 #include <coreplugin/locator/ilocatorfilter.h>
 #include <cpptools/usages.h>
@@ -57,6 +58,7 @@
 #include <sourcedependency.h>
 #include <sourcelocationentry.h>
 #include <sourcelocationscontainer.h>
+#include <sqlitevalue.h>
 #include <symbol.h>
 #include <symbolentry.h>
 #include <symbolindexertaskqueue.h>
@@ -64,12 +66,6 @@
 #include <tooltipinfo.h>
 #include <usedmacro.h>
 #include <utils/link.h>
-#include <cpptools/usages.h>
-#include <projectexplorer/projectmacro.h>
-#include <projectexplorer/headerpath.h>
-#include <coreplugin/find/searchresultitem.h>
-#include <coreplugin/locator/ilocatorfilter.h>
-#include <clangtools/clangtoolsdiagnostic.h>
 
 namespace {
 ClangBackEnd::FilePathCaching *filePathCache = nullptr;
@@ -305,6 +301,27 @@ void PrintTo(const Utils::PathString &text, ::std::ostream *os)
 }
 
 } // namespace Utils
+
+namespace Sqlite {
+std::ostream &operator<<(std::ostream &out, const Value &value)
+{
+    out << "(";
+
+    switch (value.type()) {
+    case Sqlite::ValueType::Integer:
+        out << value.toInteger();
+        break;
+    case Sqlite::ValueType::Float:
+        out << value.toFloat();
+        break;
+    case Sqlite::ValueType::String:
+        out << "\"" << value.toStringView() << "\"";
+        break;
+    }
+
+    return out << ")";
+}
+} // namespace Sqlite
 
 namespace ClangBackEnd {
 

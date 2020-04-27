@@ -80,6 +80,7 @@ SOURCES += \
     smallstring-test.cpp \
     sourcerangefilter-test.cpp \
     spydummy.cpp \
+    sqlitevalue-test.cpp \
     symbolindexer-test.cpp \
     symbolsfindfilter-test.cpp \
     stringcache-test.cpp \
@@ -122,7 +123,13 @@ SOURCES += \
     headerpathfilter-test.cpp \
     toolchainargumentscache-test.cpp \
     modifiedtimechecker-test.cpp \
-    readexporteddiagnostics-test.cpp
+    sqlitecolumn-test.cpp \
+    sqlitedatabasebackend-test.cpp \
+    sqlitedatabase-test.cpp \
+    sqlitestatement-test.cpp \
+    sqlitetable-test.cpp \
+    sqlstatementbuilder-test.cpp \
+    createtablesqlstatementbuilder-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -158,7 +165,6 @@ SOURCES += \
     codecompleter-test.cpp \
     codecompletionsextractor-test.cpp \
     completionchunkstotextconverter-test.cpp \
-    createtablesqlstatementbuilder-test.cpp \
     cursor-test.cpp \
     diagnosticset-test.cpp \
     diagnostic-test.cpp \
@@ -168,17 +174,12 @@ SOURCES += \
     skippedsourceranges-test.cpp \
     sourcelocation-test.cpp \
     sourcerange-test.cpp \
-    sqlitecolumn-test.cpp \
-    sqlitedatabasebackend-test.cpp \
-    sqlitedatabase-test.cpp \
-    sqlitestatement-test.cpp \
-    sqlitetable-test.cpp \
-    sqlstatementbuilder-test.cpp \
     token-test.cpp \
     translationunitupdater-test.cpp \
     unsavedfiles-test.cpp \
     unsavedfile-test.cpp \
-    utf8positionfromlinecolumn-test.cpp
+    utf8positionfromlinecolumn-test.cpp \
+    readexporteddiagnostics-test.cpp
 }
 
 !isEmpty(LIBTOOLING_LIBS) {

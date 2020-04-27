@@ -28,6 +28,7 @@
 #include "sqliteglobal.h"
 
 #include "sqliteexception.h"
+#include "sqlitevalue.h"
 
 #include <utils/smallstringvector.h>
 
@@ -67,6 +68,7 @@ public:
     long long fetchLongLongValue(int column) const;
     double fetchDoubleValue(int column) const;
     Utils::SmallStringView fetchSmallStringViewValue(int column) const;
+    ValueView fetchValueView(int column) const;
     template<typename Type>
     Type fetchValue(int column) const;
     int columnCount() const;
@@ -76,11 +78,9 @@ public:
     void bind(int index, long long fetchValue);
     void bind(int index, double fetchValue);
     void bind(int index, Utils::SmallStringView fetchValue);
+    void bind(int index, const Value &fetchValue);
 
-    void bind(int index, uint value)
-    {
-        bind(index, static_cast<long long>(value));
-    }
+    void bind(int index, uint value) { bind(index, static_cast<long long>(value)); }
 
     void bind(int index, long value)
     {
@@ -345,34 +345,16 @@ private:
     struct ValueGetter
     {
         ValueGetter(StatementImplementation &statement, int column)
-            : statement(statement),
-              column(column)
+            : statement(statement)
+            , column(column)
         {}
 
-        operator int()
-        {
-            return statement.fetchIntValue(column);
-        }
-
-        operator long()
-        {
-            return statement.fetchLongValue(column);
-        }
-
-        operator long long()
-        {
-            return statement.fetchLongLongValue(column);
-        }
-
-        operator double()
-        {
-            return statement.fetchDoubleValue(column);
-        }
-
-        operator Utils::SmallStringView()
-        {
-            return statement.fetchSmallStringViewValue(column);
-        }
+        operator int() { return statement.fetchIntValue(column); }
+        operator long() { return statement.fetchLongValue(column); }
+        operator long long() { return statement.fetchLongLongValue(column); }
+        operator double() { return statement.fetchDoubleValue(column); }
+        operator Utils::SmallStringView() { return statement.fetchSmallStringViewValue(column); }
+        operator ValueView() { return statement.fetchValueView(column); }
 
         StatementImplementation &statement;
         int column;

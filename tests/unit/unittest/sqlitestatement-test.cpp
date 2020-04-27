@@ -40,11 +40,12 @@
 
 namespace {
 
-using Sqlite::JournalMode;
-using Sqlite::Exception;
 using Sqlite::Database;
+using Sqlite::Exception;
+using Sqlite::JournalMode;
 using Sqlite::ReadStatement;
 using Sqlite::ReadWriteStatement;
+using Sqlite::Value;
 using Sqlite::WriteStatement;
 
 MATCHER_P3(HasValues, value1, value2, rowid,
@@ -125,7 +126,7 @@ TEST_F(SqliteStatement, CountRows)
 
 TEST_F(SqliteStatement, Value)
 {
-    SqliteTestStatement statement("SELECT name, number FROM test ORDER BY name", database);
+    SqliteTestStatement statement("SELECT name, number, value FROM test ORDER BY name", database);
     statement.next();
 
     statement.next();
@@ -142,6 +143,9 @@ TEST_F(SqliteStatement, Value)
     ASSERT_THAT(statement.fetchValue<Utils::SmallString>(1), "23.3");
     ASSERT_THAT(statement.fetchValue<Utils::PathString>(1), "23.3");
     ASSERT_THAT(statement.fetchSmallStringViewValue(1), "23.3");
+    ASSERT_THAT(statement.fetchValueView(0), Eq("foo"));
+    ASSERT_THAT(statement.fetchValueView(1), Eq(23.3));
+    ASSERT_THAT(statement.fetchValueView(2), Eq(2));
 }
 
 TEST_F(SqliteStatement, ThrowNoValuesToFetchForNotSteppedStatement)
@@ -175,14 +179,14 @@ TEST_F(SqliteStatement, ThrowInvalidColumnFetchedForNotExistingColumn)
     ASSERT_THROW(statement.fetchValue<int>(2), Sqlite::InvalidColumnFetched);
 }
 
-TEST_F(SqliteStatement, ToIntergerValue)
+TEST_F(SqliteStatement, ToIntegerValue)
 {
     auto value = ReadStatement::toValue<int>("SELECT number FROM test WHERE name='foo'", database);
 
     ASSERT_THAT(value, 23);
 }
 
-TEST_F(SqliteStatement, ToLongIntergerValue)
+TEST_F(SqliteStatement, ToLongIntegerValue)
 {
     ASSERT_THAT(ReadStatement::toValue<qint64>("SELECT number FROM test WHERE name='foo'", database), Eq(23));
 }
@@ -319,6 +323,15 @@ TEST_F(SqliteStatement, WriteValues)
     ASSERT_THAT(statement, HasValues("see", "7.23", 1));
 }
 
+TEST_F(SqliteStatement, WriteSqliteValues)
+{
+    WriteStatement statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
+
+    statement.write(Value{"see"}, Value{7.23}, Value{1});
+
+    ASSERT_THAT(statement, HasValues("see", "7.23", 1));
+}
+
 TEST_F(SqliteStatement, BindNamedValues)
 {
     SqliteTestStatement statement("UPDATE test SET name=@name, number=@number WHERE rowid=@id", database);
@@ -373,6 +386,31 @@ TEST_F(SqliteStatement, GetSingleValuesWithoutArguments)
     std::vector<Utils::SmallString> values = statement.values<Utils::SmallString>(3);
 
     ASSERT_THAT(values, ElementsAre("bar", "foo", "poo"));
+}
+
+class FooValue
+{
+public:
+    FooValue(Sqlite::ValueView value)
+        : value(value)
+    {}
+
+    Sqlite::Value value;
+
+    template<typename Type>
+    friend bool operator==(const FooValue &value, const Type &other)
+    {
+        return value.value == other;
+    }
+};
+
+TEST_F(SqliteStatement, GetSingleSqliteValuesWithoutArguments)
+{
+    ReadStatement statement("SELECT number FROM test", database);
+
+    std::vector<FooValue> values = statement.values<FooValue>(3);
+
+    ASSERT_THAT(values, ElementsAre(Eq("blah"), Eq(23.3), Eq(40)));
 }
 
 TEST_F(SqliteStatement, GetStructValuesWithoutArguments)

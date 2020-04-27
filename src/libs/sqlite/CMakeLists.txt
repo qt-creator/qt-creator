@@ -20,6 +20,7 @@ add_qtc_library(Sqlite
     sqlitetable.h
     sqlitetransaction.h
     sqlitewritestatement.cpp sqlitewritestatement.h
+    sqlitevalue.h
     sqlstatementbuilder.cpp sqlstatementbuilder.h
     sqlstatementbuilderexception.h
     utf8string.cpp utf8string.h
