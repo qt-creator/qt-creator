@@ -4,9 +4,9 @@ add_qtc_library(Sqlite
     SQLITE_ENABLE_UNLOCK_NOTIFY SQLITE_ENABLE_COLUMN_METADATA
     BUILD_SQLITE_LIBRARY
   DEPENDS Qt5::Core Threads::Threads ${CMAKE_DL_LIBS}
-  INCLUDES ../3rdparty/sqlite
   PUBLIC_INCLUDES
     "${CMAKE_CURRENT_LIST_DIR}"
+    ../3rdparty/sqlite
   SOURCES
     ../3rdparty/sqlite/sqlite3.c
     createtablesqlstatementbuilder.cpp createtablesqlstatementbuilder.h
