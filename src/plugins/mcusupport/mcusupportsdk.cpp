@@ -220,6 +220,24 @@ static McuPackage *createMcuXpressoIdePackage()
     return result;
 }
 
+static McuPackage *createFreeRTOSSourcesPackage(const QString &envVarPrefix)
+{
+    const QString envVar = envVarPrefix + "_FREERTOS_DIR";
+
+    const QString defaultPath =
+            qEnvironmentVariableIsSet(envVar.toLatin1()) ?
+                qEnvironmentVariable(envVar.toLatin1()) : QDir::homePath();
+
+    auto result = new McuPackage(
+                QString::fromLatin1("FreeRTOS Sources (%1)").arg(envVarPrefix),
+                defaultPath,
+                {},
+                QString::fromLatin1("FreeRTOSSourcePackage_%1").arg(envVarPrefix));
+    result->setDownloadUrl("https://freertos.org");
+    result->setEnvironmentVariableName(envVar);
+    return result;
+}
+
 void hardcodedTargetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage *> *packages,
                                  QVector<McuTarget *> *mcuTargets)
 {
@@ -271,12 +289,15 @@ void hardcodedTargetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage 
     const QString QulTargetTemplate =
             dir.toString() + "/lib/cmake/Qul/QulTargets/QulTargets_%1_%2.cmake";
     for (auto target : targets) {
+        const McuTarget::OS os =
+                target.toolchainPackage->type() == McuToolChainPackage::TypeDesktop
+                ? McuTarget::OS::Desktop : McuTarget::OS::BareMetal;
         for (int colorDepth : target.colorDepths) {
             const QString QulTarget =
                     QulTargetTemplate.arg(target.qulPlatform, QString::number(colorDepth));
             if (!Utils::FilePath::fromUserInput(QulTarget).exists())
                 continue;
-            auto mcuTarget = new McuTarget(target.vendor, target.qulPlatform, target.packages,
+            auto mcuTarget = new McuTarget(target.vendor, target.qulPlatform, os, target.packages,
                                            target.toolchainPackage);
             if (target.colorDepths.count() > 1)
                 mcuTarget->setColorDepth(colorDepth);

@@ -38,6 +38,7 @@ const char KIT_MCUTARGET_MODEL_KEY[] = "McuSupport.McuTargetModel";
 const char KIT_MCUTARGET_SDKVERSION_KEY[] = "McuSupport.McuTargetSdkVersion";
 const char KIT_MCUTARGET_KITVERSION_KEY[] = "McuSupport.McuTargetKitVersion";
 const char KIT_MCUTARGET_COLORDEPTH_KEY[] = "McuSupport.McuTargetColorDepth";
+const char KIT_MCUTARGET_OS_KEY[] = "McuSupport.McuTargetOs";
 
 const char SETTINGS_GROUP[] = "McuSupport";
 const char SETTINGS_KEY_PACKAGE_PREFIX[] = "Package_";
