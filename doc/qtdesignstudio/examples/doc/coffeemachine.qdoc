@@ -1,0 +1,175 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \example CoffeeMachine
+    \ingroup studioexamples
+
+    \title Coffee Machine
+    \brief Illustrates how to use the timeline and states to animate transitions
+    in a UI.
+
+    \image coffee-machine-overview.png
+
+    \e {Coffee Machine} lets users choose the type of coffee to brew.
+    They can determine the ratio of coffee, hot milk, and milk foam by using
+    sliders. The progress of the brewing process is displayed as
+    an animation. When the coffee is ready, the startup screen appears again.
+
+    The \e {ApplicationFlow.ui.qml} file contains all the screens in the
+    UI. We use states to display the appropriate screen in the
+    viewport and the timeline to animate the transitions between and on
+    the screens.
+
+    \section1 Application Flow
+
+    On the startup screen, \e {AnimationFlowForm.ui.qml}, users can select
+    from several types of coffee to fill the empty cup. The selection
+    triggers \c animation1 and \c animation2 in \e {CoffeeButton.qml}.
+
+    \quotefromfile CoffeeMachine/CoffeeButton.qml
+    \skipto PropertyAnimation
+    \printuntil }
+    \printuntil }
+    \dots
+
+    Selecting the coffee type triggers the respective signal handler in
+    \e {SideBar.qml}, which sets the default mix for the selected coffee type.
+    The following code snippet displays the \c {cappuccinoButton.onClicked()}
+    signal handler:
+
+    \quotefromfile CoffeeMachine/SideBar.qml
+    \skipto cappuccinoButton.onClicked
+    \printuntil }
+
+    The \c {sideBar.coffeeSelected()} signal sets \c {applicationFlow.state}
+    in \e {ApplicationFlow.qml} to \c "selection". We will specify the states
+    later.
+
+    \quotefromfile CoffeeMachine/ApplicationFlow.qml
+    \skipto choosingCoffee.sideBar.onCoffeeSelected
+    \printuntil }
+
+    \image coffee-machine-selection.png
+
+    Clicking \uicontrol {Brew me a cup} triggers the
+    \c {choosingCoffee.brewButtonSelection.onClicked}
+    signal handler, which changes the application flow
+    state to \c {"to settings"}:
+
+    \quotefromfile CoffeeMachine/ApplicationFlow.qml
+    \skipto choosingCoffee.brewButtonSelection.onClicked
+    \printuntil }
+
+    Users can use the sliders for the amount of milk and
+    sugar to change the default values.
+
+    \image coffee-machine-modify.png
+
+    Clicking \uicontrol Brew triggers the
+    \c {choosingCoffee.brewButton.onClicked()}
+    signal handler, which sets the application
+    flow state to \c {"to empty cup"}.
+
+    \skipto choosingCoffee.brewButton.onClicked
+    \printuntil }
+
+    \image coffee-machine-emptycup.png
+
+    Clicking on \uicontrol Continue triggers the
+    \c {emptyCup.continueButton.onClicked} signal
+    handler, which sets the application flow status
+    to \c {"to brewing"}.
+
+    \skipto emptyCup.continueButton.onClicked
+    \printuntil }
+
+    When the coffee is ready, the \c {brewing.onFinished} signal handler
+    is triggered. It sets the application flow status to \c "reset", so
+    that the application returns to the startup screen.
+
+    \section1 Using Timelines to Animate Transitions
+
+    The Coffee Machine application screens for choosing coffee, empty cup, and
+    brewing each use custom QML types specified in separate QML files.
+
+    We use the \uicontrol Timeline view to animate the transitions between
+    the screens during the application flow in \e {ApplicationFlow.ui.qml}.
+
+    \image coffee-machine-timeline.png
+
+    Our viewport contains 200 frames, so we select the
+    \inlineimage plus.png "Plus button"
+    button to add a 1200-frame timeline to the root element.
+    We use the default values for all other fields.
+
+    To start recording the transition from the startup screen to the coffee
+    selection screen on the timeline, we select \e choosingCoffee in the
+    \uicontrol Navigator. We check that the playhead is at frame 0, and then
+    select the \inlineimage recordfill.png
+    (\uicontrol {Auto Key (K)}) button (or press \key k).
+
+    At frame 0, we set the X coordinate to 0 in \uicontrol Properties >
+    \uicontrol Geometry > \uicontrol Position. We then move the playhead
+    to 400 frames and set the X coordinate to a negative value.
+
+    \image coffee-machine-properties.png
+
+    When we deselect the record button to stop recording the timeline, the
+    new timeline appears in the view.
+
+    For more information about using the timeline, see \l {Creating Animations}.
+
+    \section1 Using States to Move Between Screens
+
+    We use the \uicontrol States view to determine the contents of the
+    viewport. The animations are run when moving from one state to another.
+
+    \image coffee-machine-states.png
+
+    We create the states by moving from viewport to viewport in
+    \e ApplicationFlow.ui.qml and clicking \inlineimage plus.png "Add button"
+    in the \uicontrol States view.
+
+    We also create states for animations that are run when moving to the
+    \c {"settings"} and \c {"selection"} states.
+
+    We then return to the \uicontrol Timeline view and select
+    \inlineimage animation.png "Timeline Settings button"
+    to open the \uicontrol {Timeline Settings} dialog. We select
+    the \uicontrol Add button to create animations for each part
+    of the timeline. Therefore, the start and end frame of each
+    animation are important, whereas their duration is not.
+
+    \image coffee-machine-timeline-settings.png
+
+    We set the start frame for the \c {"selection"} state to 400 and
+    the end frame to 200, because we are moving back on the timeline to display
+    the selection sidebar.
+
+    In the \uicontrol {Transitions to states} field, we select the state to
+    switch to when the animation ends. In the lower part of the dialog, we
+    bind the states that don't have animations to fixed frames.
+*/
