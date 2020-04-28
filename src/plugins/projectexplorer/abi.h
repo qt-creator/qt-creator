@@ -65,6 +65,7 @@ public:
         Rl78Architecture,
         C166Architecture,
         V850Architecture,
+        Rh850Architecture,
         UnknownArchitecture
     };
 
