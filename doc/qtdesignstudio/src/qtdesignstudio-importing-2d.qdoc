@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Bridge documentation.
@@ -31,12 +31,15 @@
 
     \title Importing 2D Assets
 
+    You can download \QB from the \l{https://marketplace.qt.io/}{Qt Marketplace}.
+
     \image studio-imported-assets.png "Artwork imported into Qt Design Studio"
 
-    You can import assets that you exported with \QB to a \QDS project as image
-    and QML files and edit them in the Design mode. If you make changes to your
-    design in the design tool, you can merge the changes into existing QML files
-    without overwriting the changes you have made in \QDS.
+    \QB enables you to export assets and then import them to a \QDS project
+    as image and QML files for editing in the \uicontrol {Form Editor}. If you
+    make changes to your design in the design tool, you can merge the changes
+    into existing QML files without overwriting the changes you have made in
+    \QDS.
 
     \note Attempting to import assets exported on another system might fail.
 
