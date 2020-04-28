@@ -47,6 +47,7 @@
 #include <QApplication>
 #include <QDir>
 #include <QFileInfo>
+#include <QVector3D>
 
 #include <QLoggingCategory>
 
@@ -294,11 +295,25 @@ void PropertyEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qm
 
 void PropertyEditorQmlBackend::setValue(const QmlObjectNode & , const PropertyName &name, const QVariant &value)
 {
-    PropertyName propertyName = name;
-    propertyName.replace('.', '_');
-    auto propertyValue = qobject_cast<PropertyEditorValue*>(variantToQObject(m_backendValuesPropertyMap.value(QString::fromUtf8(propertyName))));
-    if (propertyValue)
-        propertyValue->setValue(value);
+    if (value.type() == QVariant::Vector3D) {
+        // Vector3D values need to be split into their subcomponents
+        const char *suffix[3] = {"_x", "_y", "_z"};
+        auto vecValue = value.value<QVector3D>();
+        for (int i = 0; i < 3; ++i) {
+            PropertyName subPropName(name.size() + 2, '\0');
+            subPropName.replace(0, name.size(), name);
+            subPropName.replace(name.size(), 2, suffix[i]);
+            auto propertyValue = qobject_cast<PropertyEditorValue *>(variantToQObject(m_backendValuesPropertyMap.value(QString::fromUtf8(subPropName))));
+            if (propertyValue)
+                propertyValue->setValue(QVariant(vecValue[i]));
+        }
+    } else {
+        PropertyName propertyName = name;
+        propertyName.replace('.', '_');
+        auto propertyValue = qobject_cast<PropertyEditorValue *>(variantToQObject(m_backendValuesPropertyMap.value(QString::fromUtf8(propertyName))));
+        if (propertyValue)
+            propertyValue->setValue(value);
+    }
 }
 
 QQmlContext *PropertyEditorQmlBackend::context() {
