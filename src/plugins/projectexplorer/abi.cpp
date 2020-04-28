@@ -729,6 +729,8 @@ QString Abi::toString(const Architecture &a)
         return QLatin1String("v850");
     case Rh850Architecture:
         return QLatin1String("rh850");
+    case RxArchitecture:
+        return QLatin1String("rx");
     case UnknownArchitecture:
         Q_FALLTHROUGH();
     default:
@@ -879,6 +881,8 @@ Abi::Architecture Abi::architectureFromString(const QStringRef &a)
         return V850Architecture;
     if (a == "rh850")
         return Rh850Architecture;
+    if (a == "rx")
+        return RxArchitecture;
     else if (a == "xtensa")
         return XtensaArchitecture;
     if (a == "asmjs")

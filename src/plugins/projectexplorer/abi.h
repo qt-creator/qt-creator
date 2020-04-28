@@ -66,6 +66,7 @@ public:
         C166Architecture,
         V850Architecture,
         Rh850Architecture,
+        RxArchitecture,
         UnknownArchitecture
     };
 
