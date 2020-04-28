@@ -27,24 +27,25 @@
 
 #include "puppetcreator.h"
 
-#include <createinstancescommand.h>
-#include <createscenecommand.h>
-#include <update3dviewstatecommand.h>
-#include <changevaluescommand.h>
-#include <changebindingscommand.h>
 #include <changeauxiliarycommand.h>
+#include <changebindingscommand.h>
 #include <changefileurlcommand.h>
-#include <removeinstancescommand.h>
-#include <clearscenecommand.h>
-#include <removepropertiescommand.h>
-#include <reparentinstancescommand.h>
 #include <changeidscommand.h>
-#include <changestatecommand.h>
-#include <completecomponentcommand.h>
+#include <changelanguagecommand.h>
 #include <changenodesourcecommand.h>
 #include <changeselectioncommand.h>
-#include <puppettocreatorcommand.h>
+#include <changestatecommand.h>
+#include <changevaluescommand.h>
+#include <clearscenecommand.h>
+#include <completecomponentcommand.h>
+#include <createinstancescommand.h>
+#include <createscenecommand.h>
 #include <inputeventcommand.h>
+#include <puppettocreatorcommand.h>
+#include <removeinstancescommand.h>
+#include <removepropertiescommand.h>
+#include <reparentinstancescommand.h>
+#include <update3dviewstatecommand.h>
 #include <view3dactioncommand.h>
 
 #include <informationchangedcommand.h>
@@ -736,6 +737,11 @@ void NodeInstanceServerProxy::inputEvent(const InputEventCommand &command)
 }
 
 void NodeInstanceServerProxy::view3DAction(const View3DActionCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceServerProxy::changeLanguage(const ChangeLanguageCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
 }

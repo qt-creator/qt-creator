@@ -85,6 +85,7 @@ public:
     void benchmark(const QString &message) override;
     void inputEvent(const InputEventCommand &command) override;
     void view3DAction(const View3DActionCommand &command) override;
+    void changeLanguage(const ChangeLanguageCommand &command) override;
 
 protected:
     void writeCommand(const QVariant &command);

@@ -35,28 +35,29 @@
 
 #include "nodeinstanceserverinterface.h"
 
-#include "propertyabstractcontainer.h"
-#include "propertyvaluecontainer.h"
-#include "propertybindingcontainer.h"
-#include "instancecontainer.h"
+#include "changeauxiliarycommand.h"
+#include "changebindingscommand.h"
+#include "changefileurlcommand.h"
+#include "changeidscommand.h"
+#include "changelanguagecommand.h"
+#include "changestatecommand.h"
+#include "changevaluescommand.h"
+#include "clearscenecommand.h"
+#include "completecomponentcommand.h"
 #include "createinstancescommand.h"
 #include "createscenecommand.h"
-#include "update3dviewstatecommand.h"
-#include "changevaluescommand.h"
-#include "changebindingscommand.h"
-#include "changeauxiliarycommand.h"
-#include "changefileurlcommand.h"
-#include "removeinstancescommand.h"
-#include "clearscenecommand.h"
-#include "removepropertiescommand.h"
-#include "reparentinstancescommand.h"
-#include "changeidscommand.h"
-#include "changestatecommand.h"
-#include "completecomponentcommand.h"
-#include "synchronizecommand.h"
-#include "removesharedmemorycommand.h"
-#include "tokencommand.h"
 #include "inputeventcommand.h"
+#include "instancecontainer.h"
+#include "propertyabstractcontainer.h"
+#include "propertybindingcontainer.h"
+#include "propertyvaluecontainer.h"
+#include "removeinstancescommand.h"
+#include "removepropertiescommand.h"
+#include "removesharedmemorycommand.h"
+#include "reparentinstancescommand.h"
+#include "synchronizecommand.h"
+#include "tokencommand.h"
+#include "update3dviewstatecommand.h"
 #include "view3dactioncommand.h"
 
 #include "informationchangedcommand.h"
@@ -324,6 +325,11 @@ void NodeInstanceClientProxy::view3DAction(const View3DActionCommand &command)
     nodeInstanceServer()->view3DAction(command);
 }
 
+void NodeInstanceClientProxy::changeLanguage(const ChangeLanguageCommand &command)
+{
+    nodeInstanceServer()->changeLanguage(command);
+}
+
 void NodeInstanceClientProxy::readDataStream()
 {
     QList<QVariant> commandList;
@@ -490,6 +496,7 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     static const int changeSelectionCommandType = QMetaType::type("ChangeSelectionCommand");
     static const int inputEventCommandType = QMetaType::type("InputEventCommand");
     static const int view3DActionCommandType = QMetaType::type("View3DActionCommand");
+    static const int changeLanguageCommand = QMetaType::type("ChangeLanguageCommand");
 
     const int commandType = command.userType();
 
@@ -539,6 +546,8 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     } else if (commandType == changeSelectionCommandType) {
         ChangeSelectionCommand changeSelectionCommand = command.value<ChangeSelectionCommand>();
         changeSelection(changeSelectionCommand);
+    } else if (command.userType() == changeLanguageCommand) {
+        changeLanguage(command.value<ChangeLanguageCommand>());
     } else {
         Q_ASSERT(false);
     }

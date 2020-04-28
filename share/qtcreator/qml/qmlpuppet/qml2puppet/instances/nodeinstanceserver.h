@@ -112,6 +112,7 @@ public:
     void changeSelection(const ChangeSelectionCommand &command) override;
     void inputEvent(const InputEventCommand &command) override;
     void view3DAction(const View3DActionCommand &command) override;
+    void changeLanguage(const ChangeLanguageCommand &command) override;
 
     ServerNodeInstance instanceForId(qint32 id) const;
     bool hasInstanceForId(qint32 id) const;
