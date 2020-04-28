@@ -29,7 +29,7 @@
 
 #include "propertycontainer.h"
 #include <QPointer>
-#include <QSharedDataPointer>
+#include <memory>
 
 namespace QmlDesigner {
 
@@ -55,7 +55,7 @@ class QMLDESIGNERCORE_EXPORT ItemLibraryEntry
 
 public:
     ItemLibraryEntry();
-    ~ItemLibraryEntry();
+    ~ItemLibraryEntry() = default;
 
     QString name() const;
     TypeName typeName() const;
@@ -68,9 +68,6 @@ public:
     QString qmlPath() const;
     QString qmlSource() const;
     QString requiredImport() const;
-
-    ItemLibraryEntry(const ItemLibraryEntry &other);
-    ItemLibraryEntry& operator=(const ItemLibraryEntry &other);
 
     using Property = QmlDesigner::PropertyContainer;
 
@@ -89,7 +86,7 @@ public:
     void addHints(const QHash<QString, QString> &hints);
 
 private:
-    QSharedDataPointer<Internal::ItemLibraryEntryData> m_data;
+    std::shared_ptr<Internal::ItemLibraryEntryData> m_data;
 };
 
 class QMLDESIGNERCORE_EXPORT ItemLibraryInfo : public QObject

@@ -35,12 +35,9 @@ namespace QmlDesigner {
 
 namespace Internal {
 
-class ItemLibraryEntryData : public QSharedData
+class ItemLibraryEntryData
 {
 public:
-    ItemLibraryEntryData()
-    {}
-
     QString name;
     TypeName typeName;
     QString category;
@@ -56,20 +53,6 @@ public:
 };
 
 } // namespace Internal
-
-//
-// ItemLibraryEntry
-//
-
-ItemLibraryEntry::ItemLibraryEntry(const ItemLibraryEntry &other) = default;
-
-ItemLibraryEntry& ItemLibraryEntry::operator=(const ItemLibraryEntry &other)
-{
-    if (this !=&other)
-        m_data = other.m_data;
-
-    return *this;
-}
 
 void ItemLibraryEntry::setTypeIcon(const QIcon &icon)
 {
@@ -95,8 +78,6 @@ ItemLibraryEntry::ItemLibraryEntry() : m_data(new Internal::ItemLibraryEntryData
 {
     m_data->name.clear();
 }
-
-ItemLibraryEntry::~ItemLibraryEntry() = default;
 
 QString ItemLibraryEntry::name() const
 {
