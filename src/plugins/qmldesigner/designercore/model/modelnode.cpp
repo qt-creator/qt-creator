@@ -1150,6 +1150,35 @@ void ModelNode::removeAnnotation()
     }
 }
 
+Annotation ModelNode::globalAnnotation() const
+{
+    Annotation result;
+    ModelNode root = view()->rootModelNode();
+
+    if (hasGlobalAnnotation())
+        result.fromQString(root.auxiliaryData(globalAnnotationProperty).value<QString>());
+
+    return result;
+}
+
+bool ModelNode::hasGlobalAnnotation() const
+{
+    return view()->rootModelNode().hasAuxiliaryData(globalAnnotationProperty);
+}
+
+void ModelNode::setGlobalAnnotation(const Annotation &annotation)
+{
+    view()->rootModelNode().setAuxiliaryData(globalAnnotationProperty,
+                                             QVariant::fromValue<QString>(annotation.toQString()));
+}
+
+void ModelNode::removeGlobalAnnotation()
+{
+    if (hasGlobalAnnotation()) {
+        view()->rootModelNode().removeAuxiliaryData(globalAnnotationProperty);
+    }
+}
+
 void  ModelNode::setScriptFunctions(const QStringList &scriptFunctionList)
 {
     model()->d->setScriptFunctions(internalNode(), scriptFunctionList);

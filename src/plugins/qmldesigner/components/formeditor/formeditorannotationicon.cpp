@@ -339,7 +339,7 @@ QGraphicsItem *FormEditorAnnotationIcon::createCommentBubble(QRectF rect, const 
     authorItem->update();
 
     QGraphicsTextItem *textItem = new QGraphicsTextItem(frameItem);
-    textItem->setPlainText(text);
+    textItem->setHtml(text);
     textItem->setDefaultTextColor(textColor);
     textItem->setTextWidth(rect.width());
     textItem->setPos(authorItem->x(), authorItem->boundingRect().height() + authorItem->y() + 5);

@@ -104,6 +104,8 @@ private:
     TimelineGraphicsScene *m_graphicsScene;
 
     QPushButton *m_addButton = nullptr;
+
+    QWidget *m_onboardingContainer = nullptr;
 };
 
 } // namespace QmlDesigner

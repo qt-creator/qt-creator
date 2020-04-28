@@ -42,7 +42,7 @@ Item {
 
     function fitAndHideBox() : bool
     {
-        cameraControl.focusObject(selectionBox.model, viewCamera.eulerRotation, true);
+        cameraControl.focusObject(selectionBox.model, viewCamera.eulerRotation, true, true);
         if (cameraControl._zoomFactor < 0.1) {
             view3D.importScene.scale = view3D.importScene.scale.times(10);
             return false;

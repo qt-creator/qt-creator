@@ -32,6 +32,9 @@
 #include "utils/outputformatter.h"
 #include "theme.h"
 
+#include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
+
 #include <QtCore/qfileinfo.h>
 #include <QtCore/qdir.h>
 #include <QtCore/qloggingcategory.h>
@@ -97,6 +100,20 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(const QStringList &im
 
     ui->buttonBox->button(QDialogButtonBox::Close)->setDefault(true);
 
+    QStringList importPaths;
+    auto doc = QmlDesignerPlugin::instance()->currentDesignDocument();
+    if (doc) {
+        Model *model = doc->currentModel();
+        if (model)
+            importPaths = model->importPaths();
+    }
+
+    QString targetDir = defaulTargetDirectory;
+
+    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(doc->fileName());
+    if (currentProject)
+        targetDir = currentProject->projectDirectory().toString();
+
     // Import is always done under known folder. The order of preference for folder is:
     // 1) An existing QUICK_3D_ASSETS_FOLDER under DEFAULT_ASSET_IMPORT_FOLDER project import path
     // 2) An existing QUICK_3D_ASSETS_FOLDER under any project import path
@@ -105,19 +122,11 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(const QStringList &im
     // 5) New QUICK_3D_ASSETS_FOLDER under new DEFAULT_ASSET_IMPORT_FOLDER under project
     const QString defaultAssetFolder = QLatin1String(Constants::DEFAULT_ASSET_IMPORT_FOLDER);
     const QString quick3DFolder = QLatin1String(Constants::QUICK_3D_ASSETS_FOLDER);
-    QString candidatePath = defaulTargetDirectory + defaultAssetFolder + quick3DFolder;
+    QString candidatePath = targetDir + defaultAssetFolder + quick3DFolder;
     int candidatePriority = 5;
-    QStringList importPaths;
-
-    auto doc = QmlDesignerPlugin::instance()->currentDesignDocument();
-    if (doc) {
-        Model *model = doc->currentModel();
-        if (model)
-            importPaths = model->importPaths();
-    }
 
     for (auto importPath : qAsConst(importPaths)) {
-        if (importPath.startsWith(defaulTargetDirectory)) {
+        if (importPath.startsWith(targetDir)) {
             const bool isDefaultFolder = importPath.endsWith(defaultAssetFolder);
             const QString assetFolder = importPath + quick3DFolder;
             const bool exists = QFileInfo(assetFolder).exists();

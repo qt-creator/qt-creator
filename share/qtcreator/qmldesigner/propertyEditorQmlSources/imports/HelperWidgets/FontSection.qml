@@ -68,9 +68,12 @@ Section {
             text: qsTr("Font")
         }
         FontComboBox {
+            id: fontComboBox
             backendValue: fontSection.fontFamily
             Layout.fillWidth: true
             width: 160
+            property string familyName: backendValue.value
+            onFamilyNameChanged: print(styleNamesForFamily(familyName))
         }
 
         Label {
@@ -151,6 +154,7 @@ Section {
             italic: fontSection.italicStyle
             underline: fontSection.underlineStyle
             strikeout: fontSection.strikeoutStyle
+            enabled: !styleComboBox.styleSet
         }
 
         Label {
@@ -175,6 +179,21 @@ Section {
             backendValue: getBackendValue("weight")
             model:  ["Normal", "Light", "ExtraLight", "Thin", "Medium", "DemiBold", "Bold", "ExtraBold", "Black"]
             scope: "Font"
+            enabled: !styleComboBox.styleSet
+        }
+
+        Label {
+            text: qsTr("Style name")
+            toolTip: qsTr("Sets the font's style.")
+        }
+
+        ComboBox {
+            id: styleComboBox
+            property bool styleSet: backendValue.isInModel
+            Layout.fillWidth: true
+            backendValue: getBackendValue("styleName")
+            model: styleNamesForFamily(fontComboBox.familyName)
+            useString: true
         }
 
         Label {
@@ -256,6 +275,18 @@ Section {
                               "In some writing systems, such as Brahmic scripts, this is required in order for the text to be legible, whereas in " +
                               "Latin script,\n it is merely a cosmetic feature. Setting the preferShaping property to false will disable all such features\nwhen they are not required, which will improve performance in most cases.")
             }
+        }
+
+        Label {
+            text: qsTr("Hinting preference")
+            toolTip: qsTr("Sets the preferred hinting on the text.")
+        }
+
+        ComboBox {
+            Layout.fillWidth: true
+            backendValue: getBackendValue("hintingPreference")
+            model: ["PreferDefaultHinting", "PreferNoHinting", "PreferVerticalHinting", "PreferFullHinting"]
+            scope: "Font"
         }
     }
 }

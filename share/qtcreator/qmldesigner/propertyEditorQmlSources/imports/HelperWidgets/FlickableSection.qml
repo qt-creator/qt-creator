@@ -47,7 +47,7 @@ Section {
         SecondColumnLayout {
             ComboBox {
                 backendValue: backendValues.flickableDirection
-                model: ["AutoFlickDirection", "HorizontalFlick", "VerticalFlick", "HorizontalAndVerticalFlick"]
+                model: ["AutoFlickDirection", "AutoFlickIfNeeded", "HorizontalFlick", "VerticalFlick", "HorizontalAndVerticalFlick"]
                 Layout.fillWidth: true
                 scope: "Flickable"
             }
@@ -63,7 +63,7 @@ Section {
         SecondColumnLayout {
             ComboBox {
                 backendValue: backendValues.boundsBehavior
-                model: ["StopAtBounds", "DragOverBounds", "DragAndOvershootBounds"]
+                model: ["StopAtBounds", "DragOverBounds", "OvershootBounds", "DragAndOvershootBounds"]
                 Layout.fillWidth: true
                 scope: "Flickable"
             }
@@ -167,6 +167,23 @@ Section {
         }
 
         Label {
+            text: qsTr("Synchronous drag")
+            tooltip: qsTr("If set to true, then when the mouse or touchpoint moves far enough to begin dragging\n"
+                          + "the content, the content will jump, such that the content pixel which was under the\n"
+                          + "cursor or touchpoint when pressed remains under that point.")
+        }
+
+        SecondColumnLayout {
+            CheckBox {
+                Layout.fillWidth: true
+                backendValue: backendValues.synchronousDrag
+                text: backendValues.synchronousDrag.valueToString
+            }
+            ExpandingSpacer {
+            }
+        }
+
+        Label {
             text: qsTr("Content size")
         }
 
@@ -237,6 +254,45 @@ Section {
 
             SpinBox {
                 backendValue: backendValues.contentY
+                minimumValue: -8000
+                maximumValue: 8000
+                implicitWidth: root.spinBoxWidth
+                Layout.fillWidth: true
+            }
+            ExpandingSpacer {
+            }
+        }
+
+        Label {
+            text: qsTr("Origin")
+        }
+
+        SecondColumnLayout {
+            Label {
+                text: "X"
+                width: root.labelWidth
+            }
+
+            SpinBox {
+                backendValue: backendValues.originX
+                minimumValue: -8000
+                maximumValue: 8000
+                implicitWidth: root.spinBoxWidth
+                Layout.fillWidth: true
+            }
+
+            Item {
+                width: 4
+                height: 4
+            }
+
+            Label {
+                text: "Y"
+                width: root.labelWidth
+            }
+
+            SpinBox {
+                backendValue: backendValues.originY
                 minimumValue: -8000
                 maximumValue: 8000
                 implicitWidth: root.spinBoxWidth

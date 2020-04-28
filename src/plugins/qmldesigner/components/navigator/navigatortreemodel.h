@@ -87,6 +87,7 @@ public:
     void notifyModelNodesRemoved(const QList<ModelNode> &modelNodes) override;
     void notifyModelNodesInserted(const QList<ModelNode> &modelNodes) override;
     void notifyModelNodesMoved(const QList<ModelNode> &modelNodes) override;
+    void notifyIconsChanged() override;
     void setFilter(bool showOnlyVisibleItems) override;
     void resetModel() override;
 

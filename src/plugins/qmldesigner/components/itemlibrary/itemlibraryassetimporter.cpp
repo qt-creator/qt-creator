@@ -280,7 +280,16 @@ void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file, const QVar
         return;
     }
 
+    QString originalAssetName = assetName;
     if (targetDir.exists(assetName)) {
+        // If we have a file system with case insensitive filenames, assetName may be
+        // different from the existing name. Modify assetName to ensure exact match to
+        // the overwritten old asset capitalization
+        const QStringList assetDirs = targetDir.entryList({assetName}, QDir::Dirs);
+        if (assetDirs.size() == 1) {
+            assetName = assetDirs[0];
+            targetDirPath = targetDir.filePath(assetName);
+        }
         if (!confirmAssetOverwrite(assetName)) {
             addWarning(tr("Skipped import of existing asset: \"%1\"").arg(assetName));
             return;
@@ -304,6 +313,16 @@ void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file, const QVar
         addError(tr("Failed to import 3D asset with error: %1").arg(errorString),
                  sourceInfo.absoluteFilePath());
         return;
+    }
+
+    // The importer is reset after every import to avoid issues with it caching various things
+    m_quick3DAssetImporter.reset(new QSSGAssetImportManager);
+
+    if (originalAssetName != assetName) {
+        // Fix the generated qml file name
+        const QString assetQml = originalAssetName + ".qml";
+        if (outDir.exists(assetQml))
+            outDir.rename(assetQml, assetName + ".qml");
     }
 
     QHash<QString, QString> assetFiles;
@@ -512,18 +531,24 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
             addInfo(progressTitle);
             notifyProgress(0, progressTitle);
 
-            // There is an inbuilt delay before rewriter change actually updates the data model,
-            // so we need to wait for a moment to allow the change to take effect.
+            // First we have to wait a while to ensure qmljs detects new files and updates its
+            // internal model. Then we make a non-change to the document to trigger qmljs snapshot
+            // update. There is an inbuilt delay before rewriter change actually updates the data
+            // model, so we need to wait for another moment to allow the change to take effect.
             // Otherwise subsequent subcomponent manager update won't detect new imports properly.
             QTimer *timer = new QTimer(parent());
             static int counter;
             counter = 0;
-            timer->callOnTimeout([this, timer, progressTitle, model]() {
+            timer->callOnTimeout([this, timer, progressTitle, model, doc]() {
                 if (!isCancelled()) {
-                    notifyProgress(++counter * 10, progressTitle);
-                    if (counter >= 10) {
-                        // Trigger underlying qmljs snapshot update by making a non-change to the doc
+                    notifyProgress(++counter * 5, progressTitle);
+                    if (counter == 10) {
                         model->rewriterView()->textModifier()->replace(0, 0, {});
+                    } else if (counter == 19) {
+                        doc->updateSubcomponentManager();
+                    } else if (counter >= 20) {
+                        if (!m_overwrittenImports.isEmpty())
+                            model->rewriterView()->emitCustomNotification("asset_import_update");
                         timer->stop();
                         notifyFinished();
                     }

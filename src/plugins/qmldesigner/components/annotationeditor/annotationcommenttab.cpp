@@ -26,6 +26,8 @@
 #include "annotationcommenttab.h"
 #include "ui_annotationcommenttab.h"
 
+#include "richtexteditor/richtexteditor.h"
+
 namespace QmlDesigner {
 
 AnnotationCommentTab::AnnotationCommentTab(QWidget *parent) :
@@ -33,6 +35,9 @@ AnnotationCommentTab::AnnotationCommentTab(QWidget *parent) :
     ui(new Ui::AnnotationCommentTab)
 {
     ui->setupUi(this);
+
+    m_editor = new RichTextEditor;
+    ui->formLayout->setWidget(3, QFormLayout::FieldRole, m_editor);
 
     connect(ui->titleEdit, &QLineEdit::textEdited,
             this, &AnnotationCommentTab::commentTitleChanged);
@@ -49,7 +54,7 @@ Comment AnnotationCommentTab::currentComment() const
 
     result.setTitle(ui->titleEdit->text().trimmed());
     result.setAuthor(ui->authorEdit->text().trimmed());
-    result.setText(ui->textEdit->toPlainText().trimmed());
+    result.setText(m_editor->richText().trimmed());
 
     if (m_comment.sameContent(result))
         result.setTimestamp(m_comment.timestamp());
@@ -74,7 +79,7 @@ void AnnotationCommentTab::resetUI()
 {
     ui->titleEdit->setText(m_comment.title());
     ui->authorEdit->setText(m_comment.author());
-    ui->textEdit->setText(m_comment.text());
+    m_editor->setRichText(m_comment.text());
 
     if (m_comment.timestamp() > 0)
         ui->timeLabel->setText(m_comment.timestampStr());

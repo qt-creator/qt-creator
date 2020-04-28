@@ -36,6 +36,7 @@
 #include <QScopedPointer>
 
 #include <advanceddockingsystem/dockmanager.h>
+#include <annotationeditor/globalannotationeditor.h>
 
 namespace Core {
     class SideBar;
@@ -120,6 +121,7 @@ private: // variables
 
     ADS::DockManager *m_dockManager = nullptr;
     ADS::DockWidget *m_outputPaneDockWidget = nullptr;
+    GlobalAnnotationEditor m_globalAnnotationEditor;
 };
 
 } // namespace Internal

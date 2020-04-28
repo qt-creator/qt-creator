@@ -64,6 +64,12 @@ void PrintTo(const TextRange &range, ::std::ostream *os);
 } // namespace TextPosition
 } // namespace TextPosition
 
+namespace Sqlite {
+class Value;
+
+std::ostream &operator<<(std::ostream &out, const Value &value);
+} // namespace Sqlite
+
 namespace ProjectExplorer {
 
 enum class MacroType;

@@ -35,6 +35,8 @@ namespace Ui {
 class AnnotationCommentTab;
 }
 
+class RichTextEditor;
+
 class AnnotationCommentTab : public QWidget
 {
     Q_OBJECT
@@ -59,6 +61,7 @@ private slots:
 
 private:
     Ui::AnnotationCommentTab *ui;
+    RichTextEditor *m_editor;
 
     Comment m_comment;
 };

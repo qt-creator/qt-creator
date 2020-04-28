@@ -87,14 +87,15 @@ Item {
     }
 
 
-    function focusObject(targetObject, rotation, updateZoom)
+    function focusObject(targetObject, rotation, updateZoom, closeUp)
     {
         if (!camera)
             return;
 
         camera.eulerRotation = rotation;
         var newLookAtAndZoom = _generalHelper.focusObjectToCamera(
-                    camera, _defaultCameraLookAtDistance, targetObject, view3d, _zoomFactor, updateZoom);
+                    camera, _defaultCameraLookAtDistance, targetObject, view3d, _zoomFactor,
+                    updateZoom, closeUp);
         _lookAtPoint = newLookAtAndZoom.toVector3d();
         _zoomFactor = newLookAtAndZoom.w;
         storeCameraState(0);

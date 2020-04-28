@@ -182,8 +182,13 @@ public:
     const QList<ModelNode> wildcards() const;
     const QList<ModelNode> decicions() const;
     QList<ModelNode> transitionsForTarget(const ModelNode &modelNode);
+    QList<ModelNode> transitionsForSource(const ModelNode &modelNode);
     void removeDanglingTransitions();
     void removeAllTransitions();
+    void setStartFlowItem(const QmlFlowItemNode &flowItem);
+    ModelNode createTransition();
+protected:
+    QList<ModelNode> transitionsForProperty(const PropertyName &propertyName, const ModelNode &modelNode);
 };
 
 
