@@ -10,9 +10,6 @@
     <height>323</height>
    </rect>
   </property>
-  <property name="toolTip">
-   <string>Confidence interval used for bootstrapping.</string>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -149,6 +146,9 @@
         <layout class="QHBoxLayout" name="resamplesHL">
          <item>
           <widget class="QCheckBox" name="resamplesCB">
+           <property name="toolTip">
+            <string>Number of resamples used for statistical bootstrapping.</string>
+           </property>
            <property name="text">
             <string>Benchmark resamples</string>
            </property>
@@ -186,6 +186,9 @@
         <layout class="QHBoxLayout" name="confIntHL">
          <item>
           <widget class="QCheckBox" name="confIntCB">
+           <property name="toolTip">
+            <string>Confidence interval used for statistical bootstrapping.</string>
+           </property>
            <property name="text">
             <string>Benchmark confidence interval</string>
            </property>
