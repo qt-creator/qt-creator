@@ -50,7 +50,7 @@ TestOutputReader::TestOutputReader(const QFutureInterface<TestResultPtr> &future
     };
 
     if (m_testApplication) {
-        connect(m_testApplication, &QProcess::readyRead,
+        connect(m_testApplication, &QProcess::readyReadStandardOutput,
                 this, [chopLineBreak, this] () {
             m_testApplication->setReadChannel(QProcess::StandardOutput);
             while (m_testApplication->canReadLine())
