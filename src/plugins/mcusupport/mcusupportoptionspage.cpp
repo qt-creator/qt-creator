@@ -168,7 +168,7 @@ void McuSupportOptionsWidget::updateStatus()
                     mcuTargetValid ? QString::fromLatin1(
                                          "A kit <b>%1</b> for the selected target can be "
                                          "generated. Press Apply to generate it.")
-                                     .arg(m_options.kitName(mcuTarget))
+                                     .arg(McuSupportOptions::kitName(mcuTarget))
                                    : "Provide the package paths in order to create a kit "
                                      "for your target.");
     }
@@ -231,14 +231,15 @@ void McuSupportOptionsWidget::apply()
         return;
 
     McuSupportOptions::registerQchFiles();
+    McuSupportOptions::removeOutdatedKits();
 
     const McuTarget *mcuTarget = currentMcuTarget();
     if (!mcuTarget)
         return;
 
-    for (auto existingKit : m_options.existingKits(mcuTarget))
+    for (auto existingKit : McuSupportOptions::existingKits(mcuTarget))
         ProjectExplorer::KitManager::deregisterKit(existingKit);
-    m_options.newKit(mcuTarget);
+    McuSupportOptions::newKit(mcuTarget, m_options.qtForMCUsSdkPackage);
 }
 
 void McuSupportOptionsWidget::populateMcuTargetsComboBox()
@@ -246,8 +247,8 @@ void McuSupportOptionsWidget::populateMcuTargetsComboBox()
     m_options.populatePackagesAndTargets();
     m_mcuTargetsComboBox->clear();
     m_mcuTargetsComboBox->addItems(
-                Utils::transform<QStringList>(m_options.mcuTargets, [this](McuTarget *t){
-                    return m_options.kitName(t);
+                Utils::transform<QStringList>(m_options.mcuTargets, [](McuTarget *t) {
+                    return McuSupportOptions::kitName(t);
                 }));
     updateStatus();
 }

@@ -78,7 +78,8 @@ QList<ModelNode> SelectionContext::selectedModelNodes() const
 
 bool SelectionContext::hasSingleSelectedModelNode() const
 {
-    return view()->hasSelectedModelNodes();
+    return view()->hasSingleSelectedModelNode()
+            && firstSelectedModelNode().isValid();
 }
 
 AbstractView *SelectionContext::view() const

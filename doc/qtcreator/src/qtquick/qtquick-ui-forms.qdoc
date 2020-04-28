@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -34,11 +34,7 @@
     \contentspage index.html
     \page creator-quick-ui-forms.html
     \previouspage qtquick-annotations.html
-    \if defined(qtdesignstudio)
-    \nextpage creator-live-preview.html
-    \else
-    \nextpage creator-qml-modules-with-plugins.html
-    \endif
+    \nextpage qtquick-adding-dynamics.html
 
     \title Qt Quick UI Forms
 

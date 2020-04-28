@@ -410,6 +410,9 @@ void NavigatorView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeL
 
 void NavigatorView::updateItemSelection()
 {
+    if (!isAttached())
+        return;
+
     QItemSelection itemSelection;
     foreach (const ModelNode &node, selectedModelNodes()) {
         const QModelIndex index = indexForModelNode(node);

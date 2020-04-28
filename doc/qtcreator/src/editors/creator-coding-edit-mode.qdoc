@@ -130,8 +130,10 @@
     \uicontrol {Default line endings} field.
 
     To set the line endings to use for a project, select \uicontrol Projects >
-    \uicontrol {Project Settings} > \uicontrol Editor. For more information,
-    see \l {Specifying Editor Settings}.
+    \uicontrol {Project Settings} > \uicontrol Editor.
+    \if defined(qtcreator)
+    For more information, see \l {Specifying Editor Settings}.
+    \endif
 
     \section1 Splitting the Editor View
 

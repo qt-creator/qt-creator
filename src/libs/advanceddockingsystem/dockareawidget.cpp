@@ -215,6 +215,7 @@ namespace ADS
         DockManager *m_dockManager = nullptr;
         bool m_updateTitleBarButtons = false;
         DockWidgetAreas m_allowedAreas = AllDockAreas;
+        QSize m_minSizeHint;
 
         /**
          * Private data constructor
@@ -264,6 +265,22 @@ namespace ADS
          * Udpates the enable state of the close and detach button
          */
         void updateTitleBarButtonStates();
+
+        /**
+         * Scans all contained dock widgets for the max. minimum size hint
+         */
+        void updateMinimumSizeHint()
+        {
+            m_minSizeHint = QSize();
+            for (int i = 0; i < m_contentsLayout->count(); ++i)
+            {
+                auto widget = m_contentsLayout->widget(i);
+                m_minSizeHint.setHeight(qMax(m_minSizeHint.height(),
+                                             widget->minimumSizeHint().height()));
+                m_minSizeHint.setWidth(qMax(m_minSizeHint.width(),
+                                            widget->minimumSizeHint().width()));
+            }
+        }
     };
     // struct DockAreaWidgetPrivate
 
@@ -349,6 +366,10 @@ namespace ADS
         d->tabBar()->blockSignals(false);
         tabWidget->setVisible(!dockWidget->isClosed());
         dockWidget->setProperty(INDEX_PROPERTY, index);
+        d->m_minSizeHint.setHeight(qMax(d->m_minSizeHint.height(),
+                                        dockWidget->minimumSizeHint().height()));
+        d->m_minSizeHint.setWidth(qMax(d->m_minSizeHint.width(),
+                                       dockWidget->minimumSizeHint().width()));
         if (activate) {
             setCurrentIndex(index);
         }
@@ -381,6 +402,7 @@ namespace ADS
 
         d->updateTitleBarButtonStates();
         updateTitleBarVisibility();
+        d->updateMinimumSizeHint();
         auto topLevelDockWidget = dockContainerWidget->topLevelDockWidget();
         if (topLevelDockWidget) {
             topLevelDockWidget->emitTopLevelChanged(true);
@@ -682,5 +704,10 @@ namespace ADS
     void DockAreaWidget::closeOtherAreas() { dockContainer()->closeOtherAreas(this); }
 
     DockAreaTitleBar *DockAreaWidget::titleBar() const { return d->m_titleBar; }
+
+    QSize DockAreaWidget::minimumSizeHint() const
+    {
+        return d->m_minSizeHint.isValid() ? d->m_minSizeHint : Super::minimumSizeHint();
+    }
 
 } // namespace ADS

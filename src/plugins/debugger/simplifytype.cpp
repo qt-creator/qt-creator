@@ -118,6 +118,7 @@ QString simplifyType(const QString &typeIn)
         type.remove(0, 7);
 
     type.replace("short int", "short");
+    type.replace("long long int", "long long");
 
     const bool isLibCpp = type.contains("std::__1");
     type.replace("std::__cxx11::", "std::");

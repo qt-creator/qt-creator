@@ -179,12 +179,12 @@ void BaseStringAspect::toMap(QVariantMap &map) const
 
 FilePath BaseStringAspect::filePath() const
 {
-    return FilePath::fromString(d->m_value);
+    return FilePath::fromUserInput(d->m_value);
 }
 
 void BaseStringAspect::setFilePath(const FilePath &val)
 {
-    setValue(val.toString());
+    setValue(val.toUserOutput());
 }
 
 void BaseStringAspect::setLabelText(const QString &labelText)

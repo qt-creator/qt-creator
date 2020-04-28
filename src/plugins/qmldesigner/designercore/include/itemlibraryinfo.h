@@ -29,6 +29,7 @@
 
 #include "propertycontainer.h"
 #include <QPointer>
+#include <QSharedDataPointer>
 
 namespace QmlDesigner {
 
@@ -88,7 +89,7 @@ public:
     void addHints(const QHash<QString, QString> &hints);
 
 private:
-    QExplicitlySharedDataPointer<Internal::ItemLibraryEntryData> m_data;
+    QSharedDataPointer<Internal::ItemLibraryEntryData> m_data;
 };
 
 class QMLDESIGNERCORE_EXPORT ItemLibraryInfo : public QObject
