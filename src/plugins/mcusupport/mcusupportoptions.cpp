@@ -61,6 +61,8 @@
 namespace McuSupport {
 namespace Internal {
 
+static const int KIT_VERSION = 2; // Bumps up whenever details in Kit creation change
+
 static QString packagePathFromSettings(const QString &settingsKey, const QString &defaultPath = {})
 {
     QSettings *s = Core::ICore::settings();
@@ -319,13 +321,13 @@ QVariant McuToolChainPackage::debuggerId() const
 }
 
 McuTarget::McuTarget(const QString &vendor, const QString &platform,
-                     const QVector<McuPackage *> &packages, McuToolChainPackage *toolChainPackage)
+                     const QVector<McuPackage *> &packages,
+                     const McuToolChainPackage *toolChainPackage)
     : m_vendor(vendor)
     , m_qulPlatform(platform)
     , m_packages(packages)
     , m_toolChainPackage(toolChainPackage)
 {
-    QTC_CHECK(m_toolChainPackage == nullptr || m_packages.contains(m_toolChainPackage));
 }
 
 QString McuTarget::vendor() const
@@ -338,7 +340,7 @@ QVector<McuPackage *> McuTarget::packages() const
     return m_packages;
 }
 
-McuToolChainPackage *McuTarget::toolChainPackage() const
+const McuToolChainPackage *McuTarget::toolChainPackage() const
 {
     return m_toolChainPackage;
 }
@@ -467,16 +469,18 @@ static void setKitProperties(const QString &kitName, ProjectExplorer::Kit *k,
                              const McuTarget* mcuTarget)
 {
     using namespace ProjectExplorer;
+    using namespace Constants;
 
     k->setUnexpandedDisplayName(kitName);
-    k->setValue(Constants::KIT_MCUTARGET_VENDOR_KEY, mcuTarget->vendor());
-    k->setValue(Constants::KIT_MCUTARGET_MODEL_KEY, mcuTarget->qulPlatform());
-    k->setValue(Constants::KIT_MCUTARGET_SDKVERSION_KEY,
-                McuSupportOptions::supportedQulVersion().toString());
+    k->setValue(KIT_MCUTARGET_VENDOR_KEY, mcuTarget->vendor());
+    k->setValue(KIT_MCUTARGET_MODEL_KEY, mcuTarget->qulPlatform());
+    k->setValue(KIT_MCUTARGET_COLORDEPTH_KEY, mcuTarget->colorDepth());
+    k->setValue(KIT_MCUTARGET_SDKVERSION_KEY, McuSupportOptions::supportedQulVersion().toString());
+    k->setValue(KIT_MCUTARGET_KITVERSION_KEY, KIT_VERSION);
     k->setAutoDetected(true);
     k->makeSticky();
     if (mcuTarget->toolChainPackage()->type() == McuToolChainPackage::TypeDesktop)
-        k->setDeviceTypeForIcon(Constants::DEVICE_TYPE);
+        k->setDeviceTypeForIcon(DEVICE_TYPE);
     QSet<Core::Id> irrelevant = {
         SysRootKitAspect::id(),
         QtSupport::QtKitAspect::id()
@@ -520,7 +524,7 @@ static void setKitDevice(ProjectExplorer::Kit *k, const McuTarget* mcuTarget)
 }
 
 static void setKitEnvironment(ProjectExplorer::Kit *k, const McuTarget* mcuTarget,
-                              McuPackage *qtForMCUsSdkPackage)
+                              const McuPackage *qtForMCUsSdkPackage)
 {
     using namespace ProjectExplorer;
 
@@ -534,18 +538,17 @@ static void setKitEnvironment(ProjectExplorer::Kit *k, const McuTarget* mcuTarge
             && !CMakeProjectManager::CMakeToolManager::defaultCMakeTool()->hasFileApi())
         pathAdditions.append(QDir::toNativeSeparators(qtForMCUsSdkPackage->path() + "/bin"));
 
-    QVector<McuPackage *> packagesIncludingSdk;
-    packagesIncludingSdk.reserve(mcuTarget->packages().size() + 1);
-    packagesIncludingSdk.append(mcuTarget->packages());
-    packagesIncludingSdk.append(qtForMCUsSdkPackage);
-
-    for (auto package : packagesIncludingSdk) {
+    auto processPackage = [&pathAdditions, &changes](const McuPackage *package) {
         if (package->addToPath())
             pathAdditions.append(QDir::toNativeSeparators(package->path()));
         if (!package->environmentVariableName().isEmpty())
             changes.append({package->environmentVariableName(),
                             QDir::toNativeSeparators(package->path())});
-    }
+    };
+    for (auto package : mcuTarget->packages())
+        processPackage(package);
+    processPackage(qtForMCUsSdkPackage);
+
     pathAdditions.append("${Path}");
     pathAdditions.append(QDir::toNativeSeparators(Core::ICore::libexecPath() + "/clang/bin"));
     const QString path = QLatin1String(Utils::HostOsInfo().isWindowsHost() ? "Path" : "PATH");
@@ -589,7 +592,7 @@ static void setKitQtVersionOptions(ProjectExplorer::Kit *k)
     QtSupport::QtKitAspect::setQtVersion(k, nullptr);
 }
 
-QString McuSupportOptions::kitName(const McuTarget *mcuTarget) const
+QString McuSupportOptions::kitName(const McuTarget *mcuTarget)
 {
     // TODO: get version from qulSdkPackage and insert into name
     const QString colorDepth = mcuTarget->colorDepth() > 0
@@ -604,28 +607,52 @@ QString McuSupportOptions::kitName(const McuTarget *mcuTarget) const
             .arg(supportedQulVersion().toString(), targetName, colorDepth);
 }
 
-QList<ProjectExplorer::Kit *> McuSupportOptions::existingKits(const McuTarget *mcuTargt)
+QList<ProjectExplorer::Kit *> McuSupportOptions::existingKits(const McuTarget *mcuTarget)
 {
     using namespace ProjectExplorer;
-    const QString mcuTargetKitName = kitName(mcuTargt);
-    return Utils::filtered(KitManager::kits(), [&mcuTargetKitName](Kit *kit) {
-            return kit->isAutoDetected() && kit->unexpandedDisplayName() == mcuTargetKitName;
+    using namespace Constants;
+    return Utils::filtered(KitManager::kits(), [mcuTarget](Kit *kit) {
+        return kit->isAutoDetected()
+                && kit->value(KIT_MCUTARGET_KITVERSION_KEY) == KIT_VERSION
+                && kit->value(KIT_MCUTARGET_SDKVERSION_KEY) ==
+                   McuSupportOptions::supportedQulVersion().toString()
+                && (!mcuTarget || (
+                        kit->value(KIT_MCUTARGET_VENDOR_KEY) == mcuTarget->vendor()
+                        && kit->value(KIT_MCUTARGET_MODEL_KEY) == mcuTarget->qulPlatform()
+                        && kit->value(KIT_MCUTARGET_COLORDEPTH_KEY) == mcuTarget->colorDepth()
+                        ));
     });
 }
 
-ProjectExplorer::Kit *McuSupportOptions::newKit(const McuTarget *mcuTarget)
+QList<ProjectExplorer::Kit *> McuSupportOptions::outdatedKits()
+{
+    return Utils::filtered(ProjectExplorer::KitManager::kits(), [](ProjectExplorer::Kit *kit) {
+        return kit->isAutoDetected()
+                && !kit->value(Constants::KIT_MCUTARGET_VENDOR_KEY).isNull()
+                && kit->value(Constants::KIT_MCUTARGET_KITVERSION_KEY) != KIT_VERSION;
+    });
+}
+
+void McuSupportOptions::removeOutdatedKits()
+{
+    for (auto kit : McuSupportOptions::outdatedKits())
+        ProjectExplorer::KitManager::deregisterKit(kit);
+}
+
+ProjectExplorer::Kit *McuSupportOptions::newKit(const McuTarget *mcuTarget,
+                                                const McuPackage *qtForMCUsSdk)
 {
     using namespace ProjectExplorer;
 
-    const auto init = [this, mcuTarget](Kit *k) {
+    const auto init = [mcuTarget, qtForMCUsSdk](Kit *k) {
         KitGuard kitGuard(k);
 
         setKitProperties(kitName(mcuTarget), k, mcuTarget);
         setKitDevice(k, mcuTarget);
         setKitToolchains(k, mcuTarget->toolChainPackage());
         setKitDebugger(k, mcuTarget->toolChainPackage());
-        setKitEnvironment(k, mcuTarget, qtForMCUsSdkPackage);
-        setKitCMakeOptions(k, mcuTarget, qtForMCUsSdkPackage->path());
+        setKitEnvironment(k, mcuTarget, qtForMCUsSdk);
+        setKitCMakeOptions(k, mcuTarget, qtForMCUsSdk->path());
         setKitQtVersionOptions(k);
 
         k->setup();

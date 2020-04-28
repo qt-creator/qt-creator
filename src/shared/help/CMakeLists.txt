@@ -18,6 +18,7 @@ add_qtc_library(shared_help STATIC
     "${PLUGIN_SOURCE_DIR}"
     "${CMAKE_CURRENT_BINARY_DIR}/shared_help_autogen/include${autogen_suffix}"
     "${CMAKE_CURRENT_BINARY_DIR}/"
+    "${CMAKE_CURRENT_LIST_DIR}"
   SOURCES
     bookmarkdialog.ui
     bookmarkmanager.cpp bookmarkmanager.h

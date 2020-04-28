@@ -188,6 +188,7 @@ protected: // reimplements QWidget
     virtual void closeEvent(QCloseEvent *event) override;
     virtual void hideEvent(QHideEvent *event) override;
     virtual void showEvent(QShowEvent *event) override;
+    virtual bool eventFilter(QObject *watched, QEvent *event) override;
 
 public:
     using Super = QWidget;

@@ -3,6 +3,8 @@ add_qtc_library(Modeling
   DEPENDS Qt5::Widgets Utils
   PUBLIC_DEPENDS OptionalSvg
   INCLUDES qtserialization/inc
+  PUBLIC_INCLUDES
+    "${CMAKE_CURRENT_LIST_DIR}"
   SOURCES
     qmt/config/configcontroller.cpp qmt/config/configcontroller.h
     qmt/config/sourcepos.cpp qmt/config/sourcepos.h

@@ -83,6 +83,7 @@ namespace ADS
         QSize m_toolBarIconSizeFloating = QSize(24, 24);
         bool m_isFloatingTopLevel = false;
         QList<QAction *> m_titleBarActions;
+        DockWidget::eMinimumSizeHintMode m_minimumSizeHintMode = DockWidget::MinimumSizeHintFromDockWidget;
 
         /**
          * Private data constructor
@@ -317,6 +318,11 @@ namespace ADS
         }
     }
 
+    void DockWidget::setMinimumSizeHintMode(eMinimumSizeHintMode mode)
+    {
+        d->m_minimumSizeHintMode = mode;
+    }
+
     void DockWidget::toggleView(bool open)
     {
         // If the toggle view action mode is ActionModeShow, then Open is always
@@ -545,7 +551,13 @@ namespace ADS
 
     void DockWidget::setClosedState(bool closed) { d->m_closed = closed; }
 
-    QSize DockWidget::minimumSizeHint() const { return QSize(60, 40); }
+    QSize DockWidget::minimumSizeHint() const
+    {
+        if (d->m_minimumSizeHintMode == DockWidget::MinimumSizeHintFromDockWidget || !d->m_widget)
+            return QSize(60, 40);
+        else
+            return d->m_widget->minimumSizeHint();
+    }
 
     void DockWidget::setFloating()
     {
@@ -587,6 +599,7 @@ namespace ADS
                     floatingWidget->hide();
             }
             deleteDockWidget();
+            emit closed();
         } else {
             toggleView(false);
         }
