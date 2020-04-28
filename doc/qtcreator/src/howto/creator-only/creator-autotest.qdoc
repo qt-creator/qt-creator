@@ -32,11 +32,13 @@
     \title Running Autotests
 
     \QC integrates the \l{Qt Test} framework,
-    \l{https://github.com/google/googletest}{Google C++ Testing Framework}, and
+    \l{https://github.com/google/googletest}{Google C++ Testing Framework},
     \l{https://www.boost.org/doc/libs/1_70_0/libs/test/doc/html/index.html}
-    {Boost.Test} for unit testing applications and libraries. You can use \QC to
-    create, build, and run Qt tests, Qt Quick tests (QML-based Qt tests), Google
-    tests, and Boost tests for your projects.
+    {Boost.Test}, and \l{https://github.com/catchorg/Catch2}
+    {Catch2 test framework} for unit testing applications and libraries.
+    You can use \QC to create, build, and run Qt tests,
+    Qt Quick tests (QML-based Qt tests), Google tests, Boost tests, and
+    Catch2 tests for your projects.
 
     \image qtcreator-autotests.png
 
@@ -175,6 +177,47 @@
     For more information about creating Boost tests, see
     \l{https://www.boost.org/doc/libs/1_70_0/libs/test/doc/html/index.html}
     {Boost.Test}.
+
+    \section2 Creating Catch2 Tests
+
+    To build and run Catch2 tests, you either must have Catch2 libraries and
+    headers installed, or you can use the single include header file provided
+    by the Catch2 repository.
+
+    If the Catch2 headers can be found by the used compiler and build system
+    automatically, you do not need to specify the include directory when
+    creating the test.
+
+    To create a basic Catch2 test:
+
+    \list 1
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol {Other Project} > \uicontrol {Auto Test Project} >
+            \uicontrol Choose to create a project with boilerplate code for a
+            Catch2 test.
+        \li In the \uicontrol {Project and Test Information} dialog, specify
+            settings for the project and test:
+            \list 1
+                \li In the \uicontrol {Test framework} field, select
+                    \uicontrol {Catch2}.
+                \li In the \uicontrol {Test case name} field, specify a name
+                    to be used for the test case file.
+                \li Select the \uicontrol {Use Qt libraries} check box
+                    to use a self defined main function and set up the project
+                    to use Qt features.
+                \li In the \uicontrol {Catch2 include directory (optional)} field,
+                    you may enter a path to the directory that contains the
+                    Catch2 header files.
+                \li In the \uicontrol {Build system} field, select the build
+                    system to use for building the project: qmake, CMake, or
+                    Qbs.
+            \endlist
+    \endlist
+
+    \QC creates the test in the specified project directory.
+    For more information about creating Catch2 tests, see
+    \l{https://github.com/catchorg/Catch2/blob/master/docs/Readme.md}
+    {Catch2}.
 
     \section1 Setting Up the Google C++ Testing Framework
 
@@ -373,6 +416,38 @@
             detect floating point exceptions.
         \li Select the \uicontrol {Detect memory leaks} check box to detect
             memory leaks.
+    \endlist
+
+    \section2 Specifying Settings for Running Catch2 Tests
+    \list 1
+        \li To specify settings for running Catch2 tests, select
+            \uicontrol Tools > \uicontrol Options > \uicontrol {Testing} >
+            \uicontrol {Catch Test}.
+            //! insert image here
+        \li Select the \uicontrol {Show success} check box to show succeeding
+            expressions as well. By default Catch2 will print only fails.
+        \li Select the \uicontrol {Break on failure while debugging} check box
+            to turn failures into debugger breakpoints.
+        \li Select the \uicontrol {Skip throwing assertions} check box to skip
+            any assertion that test for throwing an exception.
+        \li Select the \uicontrol {Visualize whitespace} check box to turn
+            whitespace into escape sequences.
+        \li Select the \uicontrol {Warn on empty tests} check box to get a
+            warning when a test case does not check any assertion.
+        \li Select the \uicontrol {Abort after} check box to abort the test
+            after the number of failures specified inside the spin box.
+        \li Select the \uicontrol {Benchmark samples} check box to specify
+            the number of samples to be collected while running benchmarks.
+        \li Select the \uicontrol {Benchmark resamples} check box to specify
+            the number of resamples to be used for the statistical
+            bootstrapping performed after the benchmarking.
+        \li Select the \uicontrol {Benchmark confidence interval} check box
+            to specify the confidence interval used for the statistical
+            bootstrapping.
+        \li Select the \uicontrol {Benchmark warmup time} check box to specify
+            the warmup time for each test before benchmarking start.
+        \li Select the \uicontrol {Disable analysis} check box to disable the
+            statistical analysis and bootstrapping.
     \endlist
 
     \section1 Viewing Test Output
