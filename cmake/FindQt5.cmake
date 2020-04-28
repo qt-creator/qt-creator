@@ -52,7 +52,7 @@ endforeach()
 
 set(Qt5_FOUND ${Qt6_FOUND})
 
-foreach(tool qmake lrelease)
+foreach(tool qmake lrelease moc)
   if (TARGET Qt6::${tool} AND NOT TARGET Qt5::${tool})
     add_executable(Qt5::${tool} IMPORTED GLOBAL)
     get_target_property(imported_location Qt6::${tool} IMPORTED_LOCATION_RELEASE)
