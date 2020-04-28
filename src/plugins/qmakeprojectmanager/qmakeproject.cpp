@@ -483,6 +483,12 @@ void QmakeBuildSystem::scheduleUpdateAll(QmakeProFile::AsyncUpdateDelay delay)
         return;
     }
 
+    if (!buildConfiguration()->isActive()) {
+        TRACE("firstParseNeeded: " << int(m_firstParseNeeded)
+              << ", suppressed: buildconfig not active");
+        return;
+    }
+
     TRACE("firstParseNeeded: " << int(m_firstParseNeeded) << ", delay: " << delay);
 
     rootProFile()->setParseInProgressRecursive(true);
