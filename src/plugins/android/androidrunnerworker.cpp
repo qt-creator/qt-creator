@@ -48,6 +48,7 @@
 #include <utils/url.h>
 #include <utils/fileutils.h>
 
+#include <QFileInfo>
 #include <QLoggingCategory>
 #include <QTcpServer>
 #include <QThread>
@@ -341,11 +342,11 @@ bool AndroidRunnerWorker::uploadDebugServer(const QString &debugServerFileName)
 
     // Copy gdbserver from temp location to app directory
     if (!runAdb({"shell", "run-as", m_packageName, "cp" , *tempGdbServerPath, debugServerFileName})) {
-        qCDebug(androidRunWorkerLog) << "Gdbserver copy from temp directory failed";
+        qCDebug(androidRunWorkerLog) << "Debug server copy from temp directory failed";
         return false;
     }
     QTC_ASSERT(runAdb({"shell", "run-as", m_packageName, "chmod", "777", debugServerFileName}),
-                   qCDebug(androidRunWorkerLog) << "Gdbserver chmod 777 failed.");
+                   qCDebug(androidRunWorkerLog) << "Debug server chmod 777 failed.");
     return true;
 }
 
@@ -503,6 +504,15 @@ void AndroidRunnerWorker::asyncStartHelper()
         QString debugServerFile;
         if (m_useLldb) {
             debugServerFile = "./lldb-server";
+            // Check lldb-server has been packaged
+            if (!QFileInfo::exists(m_debugServerPath)) {
+                qCDebug(androidRunWorkerLog) << "The lldb-server binary has not been "
+                  "packaged. Maybe sdk_definitions.json does not contain 'lldb;x.y' as "
+                  "sdk_essential_package or LLDB was not installed";
+                emit remoteProcessFinished(tr("lldb-server not found in package."));
+                return;
+            }
+
             uploadDebugServer(debugServerFile);
         } else {
             QString debugServerExecutable = "gdbserver";
