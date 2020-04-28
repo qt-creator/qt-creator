@@ -30,8 +30,8 @@
 
 #include <QSyntaxHighlighter>
 
-namespace KSyntaxHighlighting {
-
+namespace KSyntaxHighlighting
+{
 class SyntaxHighlighterPrivate;
 
 /** A QSyntaxHighlighter implementation for use with QTextDocument.
@@ -73,7 +73,7 @@ public:
     QTextBlock findFoldingRegionEnd(const QTextBlock &startBlock) const;
 
 protected:
-    void highlightBlock(const QString & text) override;
+    void highlightBlock(const QString &text) override;
     void applyFormat(int offset, int length, const Format &format) override;
     void applyFolding(int offset, int length, FoldingRegion region) override;
 

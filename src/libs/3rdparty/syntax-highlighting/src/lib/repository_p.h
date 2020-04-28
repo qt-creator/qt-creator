@@ -31,8 +31,8 @@ QT_BEGIN_NAMESPACE
 class QString;
 QT_END_NAMESPACE
 
-namespace KSyntaxHighlighting {
-
+namespace KSyntaxHighlighting
+{
 class Definition;
 class Repository;
 class Theme;
@@ -42,7 +42,7 @@ class RepositoryPrivate
 public:
     RepositoryPrivate() = default;
 
-    static RepositoryPrivate* get(Repository *repo);
+    static RepositoryPrivate *get(Repository *repo);
 
     void load(Repository *repo);
     void loadSyntaxFolder(Repository *repo, const QString &path);

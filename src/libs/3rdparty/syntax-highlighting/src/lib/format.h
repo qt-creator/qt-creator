@@ -35,8 +35,8 @@ class QString;
 class QXmlStreamReader;
 QT_END_NAMESPACE
 
-namespace KSyntaxHighlighting {
-
+namespace KSyntaxHighlighting
+{
 class DefinitionRef;
 class FormatPrivate;
 
@@ -55,7 +55,7 @@ public:
     Format(const Format &other);
     ~Format();
 
-    Format& operator=(const Format &other);
+    Format &operator=(const Format &other);
 
     /** Returns @c true if this is a valid format, ie. one that
      *  was read from a syntax definition file.

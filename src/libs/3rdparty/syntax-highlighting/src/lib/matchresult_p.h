@@ -26,8 +26,8 @@
 
 #include <QStringList>
 
-namespace KSyntaxHighlighting {
-
+namespace KSyntaxHighlighting
+{
 /**
  * Storage for match result of a Rule.
  * Heavily used internally during highlightLine, therefore completely inline.
@@ -72,7 +72,6 @@ public:
     {
         return m_offset;
     }
-
 
     /**
      * Skip offset of the match

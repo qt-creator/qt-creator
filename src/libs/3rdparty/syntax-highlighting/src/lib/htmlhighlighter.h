@@ -24,11 +24,11 @@
 #ifndef KSYNTAXHIGHLIGHTING_HTMLHIGHLIGHTER_H
 #define KSYNTAXHIGHLIGHTING_HTMLHIGHLIGHTER_H
 
-#include "ksyntaxhighlighting_export.h"
 #include "abstracthighlighter.h"
+#include "ksyntaxhighlighting_export.h"
 
-#include <QString>
 #include <QIODevice>
+#include <QString>
 
 #include <memory>
 
@@ -37,8 +37,8 @@ class QFile;
 class QTextStream;
 QT_END_NAMESPACE
 
-namespace KSyntaxHighlighting {
-
+namespace KSyntaxHighlighting
+{
 class HtmlHighlighterPrivate;
 
 class KSYNTAXHIGHLIGHTING_EXPORT HtmlHighlighter : public AbstractHighlighter

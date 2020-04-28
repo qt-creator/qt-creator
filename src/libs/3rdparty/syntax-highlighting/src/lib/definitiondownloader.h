@@ -29,8 +29,8 @@
 #include <QObject>
 #include <memory>
 
-namespace KSyntaxHighlighting {
-
+namespace KSyntaxHighlighting
+{
 class DefinitionDownloaderPrivate;
 class Repository;
 

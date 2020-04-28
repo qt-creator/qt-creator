@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE language>
+<!DOCTYPE language SYSTEM "language.dtd"
+[
+	<!ENTITY digitPart "[0-9](?:_?[0-9])*">
+	<!ENTITY beforeDigit "(?&lt;![\.\w[:^ascii:]])">
+	<!ENTITY beforePointFloat "(?&lt;![\w[:^ascii:]])">
+]>
 <!-- Python syntax highlightning v0.9 by Per Wigren -->
 <!-- Python syntax highlighting v1.9 by Michael Bueker (improved keyword differentiation) -->
 <!-- Python syntax highlighting v1.97 by Paul Giannaros -->
@@ -14,7 +19,7 @@
 <!-- v2.07 add support for %prog and co, see bug 142832 -->
 <!-- v2.08 add missing overloaders, new Python 3 statements, builtins, and keywords -->
 <!-- v2.29 recognize escape sequenzes correctly -->
-<language name="Python" version="9" style="python" indenter="python" kateversion="5.0" section="Scripts" extensions="*.py;*.pyw;SConstruct;SConscript" mimetype="application/x-python;text/x-python;text/x-python3" casesensitive="1" author="Michael Bueker" license="">
+<language name="Python" version="11" style="python" indenter="python" kateversion="5.0" section="Scripts" extensions="*.py;*.pyw;SConstruct;SConscript;*.FCMacro" mimetype="application/x-python;text/x-python;text/x-python3" casesensitive="1" author="Michael Bueker" license="">
 	<highlighting>
 		<list name="import">
 			<item>import</item>
@@ -65,6 +70,7 @@
 			<item>ascii</item>
 			<item>basestring</item>
 			<item>bin</item>
+			<item>breakpoint</item>
 			<item>bool</item>
 			<item>buffer</item>
 			<item>bytearray</item>
@@ -342,15 +348,17 @@
 				<keyword attribute="Overloaders" String="overloaders" context="#stay"/>
 				<RegExpr attribute="Normal Text" String="[a-zA-Z_][a-zA-Z_0-9]{2,}" context="#stay"/>
 
-				<RegExpr attribute="Complex" String=" ((([0-9]*\.[0-9]+|[0-9]+\.)|([0-9]+|([0-9]*\.[0-9]+|[0-9]+\.))[eE](\+|-)?[0-9]+)|[0-9]+)[jJ]" context="#stay"/>
-				<Float attribute="Float" context="#stay" />
-				<HlCHex attribute="Hex" context="#stay"/>
-				<HlCOct attribute="Octal" context="#stay"/>
-				<Int attribute="Int" context="Int Suffixes"/>
-
-				<RegExpr attribute="Int" String=" ([0-9]+_)+[0-9]+" context="#stay"/>
-				<RegExpr attribute="Float" String=" ([0-9]+_)+[0-9]+\.[0-9]+" context="#stay"/>
-				<RegExpr attribute="Hex" String=" [0-9]x([A-F0-9]+_)+[A-F0-9]+" context="#stay"/>
+				<!-- Complex: 1j ; 1.1j ; 1.j ; .1j ; 1e3j ; 1.1e3j ; 1.e3j ; .1e3j -->
+				<RegExpr attribute="Complex" String="(?:&beforeDigit;&digitPart;(?:\.(?:&digitPart;)?)?|&beforePointFloat;\.&digitPart;)(?:[eE][\+\-]?&digitPart;)?[jJ]\b" context="#stay"/>
+				<!-- Hexadecimal: 0xA1, Binary: 0b01, Octal: 0o71 -->
+				<RegExpr attribute="Hex" String="&beforeDigit;0[xX](?:_?[\da-fA-F])+\b" context="#stay"/>
+				<RegExpr attribute="Binary" String="&beforeDigit;0[bB](?:_?[01])+\b" context="#stay"/>
+				<RegExpr attribute="Octal" String="&beforeDigit;0[oO](?:_?[0-7])+\b" context="#stay"/>
+				<!-- Float: 1.1 ; 1. ; .1 ; 1e3 ; 1.1e3 ; 1.e3 ; .1e3 -->
+				<RegExpr attribute="Float" String="(?:&beforeDigit;&digitPart;(?:\.(?:&digitPart;)?)?|&beforePointFloat;\.&digitPart;)[eE][\+\-]?&digitPart;\b" context="#stay"/>
+				<RegExpr attribute="Float" String="(?:&beforeDigit;&digitPart;\.(?:&digitPart;\b)?|&beforePointFloat;\.&digitPart;\b)" context="#stay"/>
+				<!-- Decimal: 123 ; 000 -->
+				<RegExpr attribute="Int" String="&beforeDigit;(?:[1-9](?:_?\d)*|0(?:_?0)*)[lL]?\b" context="#stay"/>
 
 				<DetectChar attribute="Normal Text" char="{" context="Dictionary" beginRegion="Dictionary"/>
 				<DetectChar attribute="Normal Text" char="[" context="List" beginRegion="List"/>
@@ -362,12 +370,8 @@
 
 				<IncludeRules context="StringVariants" />
 
-				<RegExpr attribute="Decorator" String="@[_a-zA-Z][\._a-zA-Z0-9]*" firstNonSpace="true"/>
+				<RegExpr attribute="Decorator" String="@[_a-zA-Z[:^ascii:]][\._a-zA-Z0-9[:^ascii:]]*" firstNonSpace="true"/>
 				<AnyChar attribute="Operator" String="+*/%\|=;\!&lt;&gt;!^&amp;~-@" context="#stay"/>
-			</context>
-
-			<context name="Int Suffixes" attribute="Int" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">
-				<StringDetect attribute="Int" context="#pop" String="L" insensitive="true"/>
 			</context>
 
 			<context name="#CheckForString" attribute="Normal Text" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">
@@ -661,6 +665,7 @@
 			<itemData name="Int" defStyleNum="dsDecVal" spellChecking="false"/>
 			<itemData name="Hex" defStyleNum="dsBaseN" spellChecking="false"/>
 			<itemData name="Octal" defStyleNum="dsBaseN" spellChecking="false"/>
+			<itemData name="Binary" defStyleNum="dsBaseN" spellChecking="false"/>
 			<itemData name="Complex" defStyleNum="dsOthers" spellChecking="false"/>
 			<itemData name="Comment" defStyleNum="dsComment"/>
 			<itemData name="String" defStyleNum="dsString"/>

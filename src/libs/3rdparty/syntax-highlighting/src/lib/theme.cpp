@@ -37,7 +37,7 @@ Theme::Theme(const Theme &copy)
     m_data = copy.m_data;
 }
 
-Theme::Theme(ThemeData* data)
+Theme::Theme(ThemeData *data)
     : m_data(data)
 {
 }
@@ -64,8 +64,7 @@ QString Theme::name() const
 
 QString Theme::translatedName() const
 {
-    return m_data ? QCoreApplication::instance()->translate("Theme", m_data->name().toUtf8().constData())
-                  : QString();
+    return m_data ? QCoreApplication::instance()->translate("Theme", m_data->name().toUtf8().constData()) : QString();
 }
 
 bool Theme::isReadOnly() const

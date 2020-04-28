@@ -39,7 +39,7 @@
 
    Enhance tr/// and y/// support.
 -->
-<language name="Perl" version="9" kateversion="2.4" section="Scripts" extensions="*.pl;*.PL;*.pm" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPLv2">
+<language name="Perl" version="10" kateversion="2.4" section="Scripts" extensions="*.pl;*.PL;*.pm" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPLv2">
   <highlighting>
     <list name="keywords">
       <item>if</item>
@@ -252,6 +252,7 @@
       <item>rewinddir</item>
       <item>rindex</item>
       <item>rmdir</item>
+      <item>say</item>
       <item>scalar</item>
       <item>seek</item>
       <item>seekdir</item>

@@ -26,8 +26,8 @@
 
 #include <memory>
 
-namespace KSyntaxHighlighting {
-
+namespace KSyntaxHighlighting
+{
 class Definition;
 class DefinitionData;
 class DefinitionPrivate;
@@ -46,7 +46,7 @@ public:
     DefinitionRef();
     explicit DefinitionRef(const Definition &def);
     ~DefinitionRef();
-    DefinitionRef& operator=(const Definition &def);
+    DefinitionRef &operator=(const Definition &def);
 
     Definition definition() const;
 
@@ -71,4 +71,3 @@ private:
 }
 
 #endif
-

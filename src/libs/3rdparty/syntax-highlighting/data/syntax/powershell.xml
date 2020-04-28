@@ -1,7 +1,7 @@
 <!DOCTYPE language SYSTEM "language.dtd">
 <language
   name="PowerShell"
-  version="4"
+  version="5"
   kateversion="5.0"
   extensions="*.ps1;*.ps1m;*.ps1d"
   section="Scripts"
@@ -892,7 +892,12 @@
         <RegExpr attribute="Symbol" context="Member" String="[.]{1,1}" />
         <AnyChar attribute="Symbol" context="#stay" String=":!%&amp;()+,-/.*&lt;=&gt;?[]|~^&#59;"/>
       </context>
+      <context attribute="String Char" lineEndContext="#stay" name="StringEscape">
+        <RegExpr attribute="String Char" String="`[`&quot;0abefnrtv]" context="#stay"/>
+        <RegExpr attribute="String Char" String="`u\{[0-9A-Fa-f]+\}" context="#stay"/>
+      </context>
       <context attribute="String" lineEndContext="#pop" name="String">
+        <IncludeRules context="StringEscape"/>
         <LineContinue attribute="String" context="#pop"/>
         <DetectChar attribute="String" context="#pop" char="&quot;"/>
       </context>
@@ -916,6 +921,7 @@
       <itemData name="Function"     defStyleNum="dsFunction" spellChecking="false"/>
       <itemData name="Data Type"    defStyleNum="dsDataType" spellChecking="false"/>
       <itemData name="String"       defStyleNum="dsString"/>
+      <itemData name="String Char"  defStyleNum="dsChar" spellChecking="false"/>
       <itemData name="HereString"       defStyleNum="dsVerbatimString"/>
       <itemData name="Comment"      defStyleNum="dsComment"/>
       <itemData name="Cmdlets"      defStyleNum="dsBuiltIn" spellChecking="false"/>

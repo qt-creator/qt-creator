@@ -31,13 +31,13 @@
 #include <QSharedData>
 #include <QString>
 
-namespace KSyntaxHighlighting {
-
+namespace KSyntaxHighlighting
+{
 class FormatPrivate : public QSharedData
 {
 public:
     FormatPrivate() = default;
-    static FormatPrivate* detachAndGet(Format &format);
+    static FormatPrivate *detachAndGet(Format &format);
 
     TextStyleData styleOverride(const Theme &theme) const;
     void load(QXmlStreamReader &reader);

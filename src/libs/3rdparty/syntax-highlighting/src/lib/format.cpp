@@ -22,9 +22,9 @@
 */
 
 #include "format.h"
-#include "format_p.h"
 #include "definition.h"
 #include "definitionref_p.h"
+#include "format_p.h"
 #include "textstyledata_p.h"
 #include "themedata_p.h"
 #include "xml_p.h"
@@ -51,7 +51,7 @@ static Theme::TextStyle stringToDefaultFormat(const QStringRef &str)
     return static_cast<Theme::TextStyle>(value);
 }
 
-FormatPrivate* FormatPrivate::detachAndGet(Format &format)
+FormatPrivate *FormatPrivate::detachAndGet(Format &format)
 {
     format.d.detach();
     return format.d.data();
@@ -71,12 +71,13 @@ static QExplicitlySharedDataPointer<FormatPrivate> &sharedDefaultPrivate()
     return def;
 }
 
-Format::Format() : d(sharedDefaultPrivate())
+Format::Format()
+    : d(sharedDefaultPrivate())
 {
 }
 
-Format::Format(const Format &other) :
-    d(other.d)
+Format::Format(const Format &other)
+    : d(other.d)
 {
 }
 
@@ -84,7 +85,7 @@ Format::~Format()
 {
 }
 
-Format& Format::operator=(const Format& other)
+Format &Format::operator=(const Format &other)
 {
     d = other.d;
     return *this;
@@ -112,21 +113,14 @@ Theme::TextStyle Format::textStyle() const
 
 bool Format::isDefaultTextStyle(const Theme &theme) const
 {
-    return (!hasTextColor(theme))
-        && (!hasBackgroundColor(theme))
-        && (selectedTextColor(theme) == theme.selectedTextColor(Theme::Normal))
-        && (selectedBackgroundColor(theme) == theme.selectedBackgroundColor(Theme::Normal))
-        && (isBold(theme) == theme.isBold(Theme::Normal))
-        && (isItalic(theme) == theme.isItalic(Theme::Normal))
-        && (isUnderline(theme) == theme.isUnderline(Theme::Normal))
-        && (isStrikeThrough(theme) == theme.isStrikeThrough(Theme::Normal));
+    return (!hasTextColor(theme)) && (!hasBackgroundColor(theme)) && (selectedTextColor(theme) == theme.selectedTextColor(Theme::Normal)) && (selectedBackgroundColor(theme) == theme.selectedBackgroundColor(Theme::Normal)) &&
+        (isBold(theme) == theme.isBold(Theme::Normal)) && (isItalic(theme) == theme.isItalic(Theme::Normal)) && (isUnderline(theme) == theme.isUnderline(Theme::Normal)) && (isStrikeThrough(theme) == theme.isStrikeThrough(Theme::Normal));
 }
 
 bool Format::hasTextColor(const Theme &theme) const
 {
     const auto overrideStyle = d->styleOverride(theme);
-    return textColor(theme) != theme.textColor(Theme::Normal)
-        && (d->style.textColor || theme.textColor(d->defaultStyle) || overrideStyle.textColor);
+    return textColor(theme) != theme.textColor(Theme::Normal) && (d->style.textColor || theme.textColor(d->defaultStyle) || overrideStyle.textColor);
 }
 
 QColor Format::textColor(const Theme &theme) const
@@ -148,8 +142,7 @@ QColor Format::selectedTextColor(const Theme &theme) const
 bool Format::hasBackgroundColor(const Theme &theme) const
 {
     const auto overrideStyle = d->styleOverride(theme);
-    return backgroundColor(theme) != theme.backgroundColor(Theme::Normal)
-         && (d->style.backgroundColor || theme.backgroundColor(d->defaultStyle) || overrideStyle.backgroundColor);
+    return backgroundColor(theme) != theme.backgroundColor(Theme::Normal) && (d->style.backgroundColor || theme.backgroundColor(d->defaultStyle) || overrideStyle.backgroundColor);
 }
 
 QColor Format::backgroundColor(const Theme &theme) const
@@ -165,8 +158,7 @@ QColor Format::selectedBackgroundColor(const Theme &theme) const
     const auto overrideStyle = d->styleOverride(theme);
     if (overrideStyle.selectedBackgroundColor)
         return overrideStyle.selectedBackgroundColor;
-    return d->style.selectedBackgroundColor ? d->style.selectedBackgroundColor
-                            : theme.selectedBackgroundColor(d->defaultStyle);
+    return d->style.selectedBackgroundColor ? d->style.selectedBackgroundColor : theme.selectedBackgroundColor(d->defaultStyle);
 }
 
 bool Format::isBold(const Theme &theme) const
@@ -246,8 +238,7 @@ bool Format::hasSelectedBackgroundColorOverride() const
     return d->style.selectedBackgroundColor;
 }
 
-
-void FormatPrivate::load(QXmlStreamReader& reader)
+void FormatPrivate::load(QXmlStreamReader &reader)
 {
     name = reader.attributes().value(QStringLiteral("name")).toString();
     defaultStyle = stringToDefaultFormat(reader.attributes().value(QStringLiteral("defStyleNum")));

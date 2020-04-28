@@ -25,9 +25,9 @@
 #include "htmlhighlighter.h"
 #include "definition.h"
 #include "format.h"
+#include "ksyntaxhighlighting_logging.h"
 #include "state.h"
 #include "theme.h"
-#include "ksyntaxhighlighting_logging.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -53,7 +53,7 @@ HtmlHighlighter::~HtmlHighlighter()
 {
 }
 
-void HtmlHighlighter::setOutputFile(const QString& fileName)
+void HtmlHighlighter::setOutputFile(const QString &fileName)
 {
     d->file.reset(new QFile(fileName));
     if (!d->file->open(QFile::WriteOnly | QFile::Truncate)) {
@@ -70,7 +70,7 @@ void HtmlHighlighter::setOutputFile(FILE *fileHandle)
     d->out->setCodec("UTF-8");
 }
 
-void HtmlHighlighter::highlightFile(const QString& fileName, const QString& title)
+void HtmlHighlighter::highlightFile(const QString &fileName, const QString &title)
 {
     QFileInfo fi(fileName);
     QFile f(fileName);
@@ -85,7 +85,7 @@ void HtmlHighlighter::highlightFile(const QString& fileName, const QString& titl
         highlightData(&f, title);
 }
 
-void HtmlHighlighter::highlightData(QIODevice *dev, const QString& title)
+void HtmlHighlighter::highlightData(QIODevice *dev, const QString &title)
 {
     if (!d->out) {
         qCWarning(Log) << "No output stream defined!";
@@ -124,7 +124,7 @@ void HtmlHighlighter::highlightData(QIODevice *dev, const QString& title)
     d->file.reset();
 }
 
-void HtmlHighlighter::applyFormat(int offset, int length, const Format& format)
+void HtmlHighlighter::applyFormat(int offset, int length, const Format &format)
 {
     if (length == 0)
         return;

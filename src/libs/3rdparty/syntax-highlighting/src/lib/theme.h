@@ -28,11 +28,11 @@
 
 #include <QColor>
 #include <QExplicitlySharedDataPointer>
-#include <qobjectdefs.h>
 #include <QTypeInfo>
+#include <qobjectdefs.h>
 
-namespace KSyntaxHighlighting {
-
+namespace KSyntaxHighlighting
+{
 class ThemeData;
 class RepositoryPrivate;
 
@@ -82,7 +82,6 @@ class KSYNTAXHIGHLIGHTING_EXPORT Theme
 {
     Q_GADGET
 public:
-
     // TODO KF6:
     // - make TextStyle an enum class
     // - move out of Theme into KSyntaxHighlighting
@@ -358,7 +357,7 @@ private:
     /**
      * Constructor taking a shared ThemeData instance.
      */
-    explicit Theme(ThemeData* data);
+    explicit Theme(ThemeData *data);
     friend class RepositoryPrivate;
     friend class ThemeData;
 

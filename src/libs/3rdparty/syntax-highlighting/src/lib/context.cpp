@@ -24,9 +24,9 @@
 #include "context_p.h"
 #include "definition_p.h"
 #include "format.h"
+#include "ksyntaxhighlighting_logging.h"
 #include "repository.h"
 #include "rule_p.h"
-#include "ksyntaxhighlighting_logging.h"
 #include "xml_p.h"
 
 #include <QString>
@@ -52,7 +52,7 @@ bool Context::indentationBasedFoldingEnabled() const
     return m_def.definition().indentationBasedFoldingEnabled();
 }
 
-void Context::load(QXmlStreamReader& reader)
+void Context::load(QXmlStreamReader &reader)
 {
     Q_ASSERT(reader.name() == QLatin1String("context"));
     Q_ASSERT(reader.tokenType() == QXmlStreamReader::StartElement);
@@ -68,24 +68,23 @@ void Context::load(QXmlStreamReader& reader)
     reader.readNext();
     while (!reader.atEnd()) {
         switch (reader.tokenType()) {
-            case QXmlStreamReader::StartElement:
-            {
-                auto rule = Rule::create(reader.name());
-                if (rule) {
-                    rule->setDefinition(m_def.definition());
-                    if (rule->load(reader))
-                        m_rules.push_back(rule);
-                } else {
-                    reader.skipCurrentElement();
-                }
-                reader.readNext();
-                break;
+        case QXmlStreamReader::StartElement: {
+            auto rule = Rule::create(reader.name());
+            if (rule) {
+                rule->setDefinition(m_def.definition());
+                if (rule->load(reader))
+                    m_rules.push_back(rule);
+            } else {
+                reader.skipCurrentElement();
             }
-            case QXmlStreamReader::EndElement:
-                return;
-            default:
-                reader.readNext();
-                break;
+            reader.readNext();
+            break;
+        }
+        case QXmlStreamReader::EndElement:
+            return;
+        default:
+            reader.readNext();
+            break;
         }
     }
 }
@@ -133,7 +132,7 @@ void Context::resolveIncludes()
             ++it;
             continue;
         }
-        Context* context = nullptr;
+        Context *context = nullptr;
         auto myDefData = DefinitionData::get(m_def.definition());
         if (inc->definitionName().isEmpty()) { // local include
             context = myDefData->contextByName(inc->contextName());

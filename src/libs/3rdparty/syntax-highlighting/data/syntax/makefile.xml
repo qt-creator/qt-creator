@@ -10,7 +10,7 @@
 <!-- v4 by Alex Richardson <arichardson.kde@gmail.com>
      added bmake support -->
 <language name="Makefile" section="Other"
-          version="7" kateversion="3.4"
+          version="9" kateversion="3.4"
           extensions="GNUmakefile;Makefile;makefile;GNUmakefile.*;Makefile.*;makefile.*;*.mk"
           mimetype="text/x-makefile" priority="11"
           author="Per Wigren (wigren@home.se)" license="">
@@ -185,8 +185,8 @@
         <keyword attribute="Keyword" context="bmake_for_loop" String="bmake_for_stmt" firstNonSpace="true" beginRegion="for"/>
         <keyword attribute="Keyword" context="#stay" String="bmake_endfor_stmt" firstNonSpace="true" endRegion="for"/>
 
-        <RegExpr attribute="Section"  context="prereq" String="^\.[^.][^:]*:"/>
-        <RegExpr attribute="Target"   context="prereq" String="^[^:]*:"/>
+        <RegExpr attribute="Section"  context="prereq" String="^\.[^.][^:]*:" column="0"/>
+        <RegExpr attribute="Target"   context="prereq" String="^[^:]*:" column="0"/>
         <DetectIdentifier/>
         <DetectChar attribute="String" context="string&quot;" char="&quot;"/>
         <DetectChar attribute="String" context="string'" char="'"/>
@@ -203,10 +203,16 @@
         <DetectChar attribute="Comment" context="Comment" char="#"/>
       </context>
 
-      <context name="gmake_else" attribute="Error" lineEndContext="#pop">
+      <context name="gmake_else" attribute="Normal" lineEndContext="#pop">
         <DetectSpaces attribute="Normal"/>
         <keyword attribute="ControlFlow" String="gmake_if_keywords" context="#stay"/>
         <IncludeRules context="strings_and_vars"/>
+        <Detect2Chars attribute="Special" context="#stay" char="\" char1="#"/>
+        <Detect2Chars attribute="Special" context="#stay" char="\" char1="\"/>
+        <!-- NOTE: Allow highlighting any variable name (see bug #417379), for example:
+                 else ifdef foo
+                 else ifeq (bar, foo)
+        -->
       </context>
 
       <context name="bmake_include" attribute="Normal" lineEndContext="#pop">
@@ -341,7 +347,8 @@
         <DetectChar attribute="Operator" char=")" context="#pop#pop#pop"/>
         <DetectChar attribute="Operator" context="dollar" char="$"/>
         <DetectSpaces attribute="Error" context="#stay"/>
-        <AnyChar attribute="Error" context="#stay" String="=#:"/>
+        <DetectChar attribute="RealOperator" context="SubstitutionRefs" char=":"/>
+        <AnyChar attribute="Error" context="#stay" String="=#"/>
       </context>
 
       <context name="callVar{" attribute="Variable" lineEndContext="#stay">
@@ -454,6 +461,16 @@
         <DetectChar attribute="Operator" context="dollar" char="$"/>
         <DetectChar attribute="Keyword" context="#stay" char=","/>
         <DetectChar attribute="String" context="string'" char="'"/>
+      </context>
+
+      <!-- $(var:pattern=replacement) -->
+      <context name="SubstitutionRefs" attribute="VarModifier" lineEndContext="#stay">
+        <DetectChar attribute="RealOperator" context="#pop!SubstitutionRefsReplacement" char="="/>
+        <IncludeRules context="SubstitutionRefsReplacement"/>
+      </context>
+      <context name="SubstitutionRefsReplacement" attribute="VarModifier" lineEndContext="#stay">
+        <DetectChar attribute="Operator" char=")" context="#pop#pop#pop#pop"/>
+        <DetectChar attribute="Operator" context="dollar" char="$"/>
       </context>
 
       <context attribute="Comment" lineEndContext="#pop" name="Comment">

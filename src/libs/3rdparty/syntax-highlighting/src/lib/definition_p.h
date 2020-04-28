@@ -24,8 +24,8 @@
 #ifndef KSYNTAXHIGHLIGHTING_DEFINITION_P_H
 #define KSYNTAXHIGHLIGHTING_DEFINITION_P_H
 
-#include "definitionref_p.h"
 #include "definition.h"
+#include "definitionref_p.h"
 
 #include <QHash>
 #include <QString>
@@ -36,8 +36,8 @@ class QXmlStreamReader;
 class QJsonObject;
 QT_END_NAMESPACE
 
-namespace KSyntaxHighlighting {
-
+namespace KSyntaxHighlighting
+{
 class Repository;
 
 class DefinitionData
@@ -49,7 +49,7 @@ public:
     DefinitionData(const DefinitionData &) = delete;
     DefinitionData &operator=(const DefinitionData &) = delete;
 
-    static DefinitionData* get(const Definition &def);
+    static DefinitionData *get(const Definition &def);
 
     bool isLoaded() const;
     bool loadMetaData(const QString &definitionFileName);
@@ -75,8 +75,8 @@ public:
     KeywordList *keywordList(const QString &name);
     bool isWordDelimiter(QChar c) const;
 
-    Context* initialContext() const;
-    Context* contextByName(const QString &name) const;
+    Context *initialContext() const;
+    Context *contextByName(const QString &name) const;
 
     Format formatByName(const QString &name) const;
 
@@ -86,7 +86,7 @@ public:
 
     Repository *repo = nullptr;
     QHash<QString, KeywordList> keywordLists;
-    QVector<Context*> contexts;
+    QVector<Context *> contexts;
     QHash<QString, Format> formats;
     QString wordDelimiters;
     QString wordWrapDelimiters;

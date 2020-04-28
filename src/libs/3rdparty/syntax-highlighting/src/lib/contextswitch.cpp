@@ -24,9 +24,8 @@
 #include "contextswitch_p.h"
 #include "definition.h"
 #include "definition_p.h"
-#include "repository.h"
 #include "ksyntaxhighlighting_logging.h"
-
+#include "repository.h"
 
 using namespace KSyntaxHighlighting;
 
@@ -40,12 +39,12 @@ int ContextSwitch::popCount() const
     return m_popCount;
 }
 
-Context* ContextSwitch::context() const
+Context *ContextSwitch::context() const
 {
     return m_context;
 }
 
-void ContextSwitch::parse(const QStringRef& contextInstr)
+void ContextSwitch::parse(const QStringRef &contextInstr)
 {
     if (contextInstr.isEmpty() || contextInstr == QLatin1String("#stay"))
         return;

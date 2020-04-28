@@ -34,11 +34,11 @@ QT_BEGIN_NAMESPACE
 class QChar;
 class QString;
 class QStringList;
-template <typename T> class QVector;
+template<typename T> class QVector;
 QT_END_NAMESPACE
 
-namespace KSyntaxHighlighting {
-
+namespace KSyntaxHighlighting
+{
 class Context;
 class Format;
 class KeywordList;
@@ -50,8 +50,7 @@ class DefinitionData;
  * @since 5.50
  * @see Definition::singleLineCommentPosition()
  */
-enum class CommentPosition
-{
+enum class CommentPosition {
     //! The comment marker is inserted at the beginning of a line at column 0
     StartOfLine = 0,
     //! The comment marker is inserted after leading whitespaces right befire
@@ -127,7 +126,7 @@ public:
      * Assignment operator.
      * Both this definition as well as @p rhs share the Definition data.
      */
-    Definition& operator=(const Definition &rhs);
+    Definition &operator=(const Definition &rhs);
 
     /**
      * Checks two definitions for equality.
@@ -330,7 +329,7 @@ public:
      * @since 5.49
      * @see keywordLists(), setKeywordList()
      */
-    QStringList keywordList(const QString& name) const;
+    QStringList keywordList(const QString &name) const;
 
     /**
      * Set the contents of the keyword list @p name to @p content.
@@ -348,7 +347,7 @@ public:
      * @see keywordList(), keywordLists()
      * @since 5.62
      */
-    bool setKeywordList(const QString& name, const QStringList& content);
+    bool setKeywordList(const QString &name, const QStringList &content);
 
     /**
      * Returns a list of all Format items used by this definition.

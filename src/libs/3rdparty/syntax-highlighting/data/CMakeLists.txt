@@ -1,22 +1,28 @@
 # generate PHP definitions
 macro(generate_php_syntax_definition targetFile srcFile)
-    execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/syntax)
+    execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/generated/syntax)
     execute_process(COMMAND ${PERL_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/generators/generate-php.pl
         INPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/syntax/${srcFile}
-        OUTPUT_FILE ${CMAKE_CURRENT_BINARY_DIR}/syntax/${targetFile})
+        OUTPUT_FILE ${CMAKE_CURRENT_BINARY_DIR}/generated/syntax/${targetFile})
 endmacro()
 
 generate_php_syntax_definition(javascript-php.xml javascript.xml)
 generate_php_syntax_definition(css-php.xml css.xml)
 generate_php_syntax_definition(html-php.xml html.xml)
+generate_php_syntax_definition(javascript-react-php.xml javascript-react.xml)
+generate_php_syntax_definition(typescript-php.xml typescript.xml)
+generate_php_syntax_definition(mustache-php.xml mustache.xml)
 
 # find all definitions
 file(GLOB src_defs "${CMAKE_CURRENT_SOURCE_DIR}/syntax/*.xml")
 set(defs
     ${src_defs}
-    ${CMAKE_CURRENT_BINARY_DIR}/syntax/html-php.xml
-    ${CMAKE_CURRENT_BINARY_DIR}/syntax/css-php.xml
-    ${CMAKE_CURRENT_BINARY_DIR}/syntax/javascript-php.xml
+    ${CMAKE_CURRENT_BINARY_DIR}/generated/syntax/html-php.xml
+    ${CMAKE_CURRENT_BINARY_DIR}/generated/syntax/css-php.xml
+    ${CMAKE_CURRENT_BINARY_DIR}/generated/syntax/javascript-php.xml
+    ${CMAKE_CURRENT_BINARY_DIR}/generated/syntax/javascript-react-php.xml
+    ${CMAKE_CURRENT_BINARY_DIR}/generated/syntax/typescript-php.xml
+    ${CMAKE_CURRENT_BINARY_DIR}/generated/syntax/mustache-php.xml
 )
 
 # theme data resource
@@ -58,4 +64,8 @@ else()
 endif()
 
 # set PIC to allow use in static and shared libs
+# this needs some more recent CMake than generally required
 set_property(TARGET SyntaxHighlightingData PROPERTY POSITION_INDEPENDENT_CODE 1)
+if(NOT ${CMAKE_VERSION} VERSION_LESS "3.13.0")
+    target_link_libraries(SyntaxHighlightingData PRIVATE Qt5::Core)
+endif()

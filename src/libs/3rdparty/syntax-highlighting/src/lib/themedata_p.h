@@ -25,21 +25,21 @@
 #ifndef KSYNTAXHIGHLIGHTING_THEMEDATA_P_H
 #define KSYNTAXHIGHLIGHTING_THEMEDATA_P_H
 
-#include "theme.h"
 #include "textstyledata_p.h"
+#include "theme.h"
 
 #include <QHash>
 #include <QSharedData>
 
-namespace KSyntaxHighlighting {
-
+namespace KSyntaxHighlighting
+{
 /**
  * Data container for a Theme.
  */
 class ThemeData : public QSharedData
 {
 public:
-    static ThemeData* get(const Theme &theme);
+    static ThemeData *get(const Theme &theme);
 
     /**
      * Default constructor, creating an uninitialized ThemeData instance.
@@ -155,7 +155,7 @@ private:
 
     //! style overrides for individual itemData entries
     //! definition name -> attribute name -> style
-    QHash<QString, QHash<QString, TextStyleData> > m_textStyleOverrides;
+    QHash<QString, QHash<QString, TextStyleData>> m_textStyleOverrides;
 
     //! Editor area colors
     QRgb m_editorColors[Theme::TemplateReadOnlyPlaceholder + 1];

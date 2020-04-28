@@ -28,8 +28,8 @@
 
 #include <QTypeInfo>
 
-namespace KSyntaxHighlighting {
-
+namespace KSyntaxHighlighting
+{
 /** Represents a begin or end of a folding region.
  *  @since 5.28 */
 class KSYNTAXHIGHLIGHTING_EXPORT FoldingRegion
@@ -96,7 +96,7 @@ private:
     FoldingRegion(Type type, quint16 id);
 
     quint16 m_type : 2;
-    quint16 m_id: 14;
+    quint16 m_id : 14;
 };
 
 }

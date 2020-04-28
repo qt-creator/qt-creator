@@ -26,10 +26,11 @@
 
 #include <QString>
 
-namespace KSyntaxHighlighting {
+namespace KSyntaxHighlighting
+{
 /** Utilities for XML parsing. */
-namespace Xml {
-
+namespace Xml
+{
 /** Parse a xs:boolean attribute. */
 inline bool attrToBool(const QStringRef &str)
 {

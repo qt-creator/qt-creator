@@ -22,8 +22,8 @@
     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "themedata_p.h"
 #include "ksyntaxhighlighting_logging.h"
+#include "themedata_p.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -32,10 +32,9 @@
 #include <QJsonValue>
 #include <QMetaEnum>
 
-
 using namespace KSyntaxHighlighting;
 
-ThemeData* ThemeData::get(const Theme &theme)
+ThemeData *ThemeData::get(const Theme &theme)
 {
     return theme.m_data.data();
 }
@@ -248,7 +247,7 @@ QRgb ThemeData::editorColor(Theme::EditorColorRole role) const
     return m_editorColors[role];
 }
 
-TextStyleData ThemeData::textStyleOverride(const QString& definitionName, const QString& attributeName) const
+TextStyleData ThemeData::textStyleOverride(const QString &definitionName, const QString &attributeName) const
 {
     return m_textStyleOverrides.value(definitionName).value(attributeName);
 }

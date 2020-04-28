@@ -25,11 +25,10 @@
 
 using namespace KSyntaxHighlighting;
 
-#include <QString>
 #include <QChar>
+#include <QString>
 
-static bool exactMatch(const QString &candidate, const QString &wildcard, int candidatePosFromRight,
-                       int wildcardPosFromRight, bool caseSensitive = true)
+static bool exactMatch(const QString &candidate, const QString &wildcard, int candidatePosFromRight, int wildcardPosFromRight, bool caseSensitive = true)
 {
     for (; wildcardPosFromRight >= 0; wildcardPosFromRight--) {
         const auto ch = wildcard.at(wildcardPosFromRight).unicode();
@@ -76,8 +75,7 @@ static bool exactMatch(const QString &candidate, const QString &wildcard, int ca
     return true;
 }
 
-bool WildcardMatcher::exactMatch(const QString &candidate, const QString &wildcard,
-                                 bool caseSensitive)
+bool WildcardMatcher::exactMatch(const QString &candidate, const QString &wildcard, bool caseSensitive)
 {
     return ::exactMatch(candidate, wildcard, candidate.length() - 1, wildcard.length() - 1, caseSensitive);
 }

@@ -31,8 +31,8 @@ QT_BEGIN_NAMESPACE
 class QStringList;
 QT_END_NAMESPACE
 
-namespace KSyntaxHighlighting {
-
+namespace KSyntaxHighlighting
+{
 class ContextSwitch;
 class StateData;
 
@@ -43,7 +43,7 @@ public:
     virtual ~AbstractHighlighterPrivate();
 
     void ensureDefinitionLoaded();
-    bool switchContext(StateData* data, const ContextSwitch &contextSwitch, const QStringList &captures);
+    bool switchContext(StateData *data, const ContextSwitch &contextSwitch, const QStringList &captures);
 
     Definition m_definition;
     Theme m_theme;

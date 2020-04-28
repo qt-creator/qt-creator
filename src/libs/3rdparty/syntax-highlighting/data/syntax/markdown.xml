@@ -40,10 +40,12 @@
 <!-- emphasis text -->
 <!ENTITY emphasisregex_ast "\*(?:&contentregex_ast;\*|\*{1,4}&contentregex_ast;\*(?!\*))">
 <!ENTITY emphasisregex_und "\b_(?:&contentregex_und;_+|_{1,4}&contentregex_und;_)\b">
-<!-- links -->
+<!-- links.
+     Keep in sync with reStructuredText (rest) -->
 <!ENTITY startlink "(?:https?|ftp)\://">
 <!ENTITY link "&startlink;[^&quot;&gt;\s]+">
-<!-- link in normal text -->
+<!-- link in normal text.
+     Keep in sync with reStructuredText’s (rest) StandaloneHyperlink attribute -->
 <!ENTITY implicitlink "\b&startlink;[^&quot;&gt;\s`\)]*[^\s!&quot;&apos;`\(\)\*,\.:;&lt;&gt;\?~\]\}\\](?=[[:punct:]]*(?:[\s\)]|$))">
 <!-- references: [name], [name][id], [name][id] "title", [name](https://example.com) -->
 <!ENTITY refchar "(?:\\.|[^\]\\])">
@@ -88,7 +90,7 @@
 <!ENTITY checkbox "\[[ x]\](?=\s)">
 ]>
 
-<language name="Markdown" version="10" kateversion="5.53" section="Markup" extensions="*.md;*.mmd;*.markdown" priority="15" author="Darrin Yeager, Claes Holmerson" license="GPL,BSD">
+<language name="Markdown" version="11" kateversion="5.53" section="Markup" extensions="*.md;*.mmd;*.markdown" priority="15" author="Darrin Yeager, Claes Holmerson" license="GPL,BSD">
   <highlighting>
     <contexts>
       <!-- Start of the Markdown document: find metadata or code block -->
@@ -392,7 +394,7 @@
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="jsx-code">
         <IncludeRules context="code"/>
-        <IncludeRules context="Normal##JavaScript React" includeAttrib="true"/>
+        <IncludeRules context="Normal##JavaScript React (JSX)" includeAttrib="true"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="json-code">
         <IncludeRules context="code"/>

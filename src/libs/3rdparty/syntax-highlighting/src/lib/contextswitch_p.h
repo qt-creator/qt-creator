@@ -26,8 +26,8 @@
 
 #include <QString>
 
-namespace KSyntaxHighlighting {
-
+namespace KSyntaxHighlighting
+{
 class Context;
 class Definition;
 
@@ -40,7 +40,7 @@ public:
     bool isStay() const;
 
     int popCount() const;
-    Context* context() const;
+    Context *context() const;
 
     void parse(const QStringRef &contextInstr);
     void resolve(const Definition &def);

@@ -3,9 +3,9 @@
 [
 	<!ENTITY name          "[A-Za-z_:][\w.:_-]*">
 	<!ENTITY attributeName "[A-Za-z_:*#\(\[][\)\]\w.:_-]*">
-	<!ENTITY entref        "&amp;(#[0-9]+|#[xX][0-9A-Fa-f]+|&name;);">
+	<!ENTITY entref        "&amp;(?:#[0-9]+|#[xX][0-9A-Fa-f]+|&name;);">
 ]>
-<language name="HTML" version="9" kateversion="5.53" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm" mimetype="text/html"  author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
+<language name="HTML" version="11" kateversion="5.53" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm" mimetype="text/html"  author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
 
 <highlighting>
 <contexts>
@@ -33,37 +33,37 @@
   </context>
 
   <context name="FindHTMLTags" attribute="Normal Text" lineEndContext="#stay">
-    <RegExpr attribute="Element" context="El Open" String="&lt;pre\b" insensitive="true" beginRegion="pre" />
-    <RegExpr attribute="Element" context="El Open" String="&lt;div\b" insensitive="true" beginRegion="div" />
-    <RegExpr attribute="Element" context="El Open" String="&lt;table\b" insensitive="true" beginRegion="table" />
-    <RegExpr attribute="Element" context="El Open" String="&lt;ul\b" insensitive="true" beginRegion="ul" />
-    <RegExpr attribute="Element" context="El Open" String="&lt;ol\b" insensitive="true" beginRegion="ol" />
-    <RegExpr attribute="Element" context="El Open" String="&lt;dl\b" insensitive="true" beginRegion="dl" />
-    <RegExpr attribute="Element" context="El Open" String="&lt;article\b" insensitive="true" beginRegion="article" />
-    <RegExpr attribute="Element" context="El Open" String="&lt;aside\b" insensitive="true" beginRegion="aside" />
-    <RegExpr attribute="Element" context="El Open" String="&lt;details\b" insensitive="true" beginRegion="details" />
-    <RegExpr attribute="Element" context="El Open" String="&lt;figure\b" insensitive="true" beginRegion="figure" />
-    <RegExpr attribute="Element" context="El Open" String="&lt;footer\b" insensitive="true" beginRegion="footer" />
-    <RegExpr attribute="Element" context="El Open" String="&lt;header\b" insensitive="true" beginRegion="header" />
-    <RegExpr attribute="Element" context="El Open" String="&lt;main\b" insensitive="true" beginRegion="main" />
-    <RegExpr attribute="Element" context="El Open" String="&lt;nav\b" insensitive="true" beginRegion="nav" />
-    <RegExpr attribute="Element" context="El Open" String="&lt;section\b" insensitive="true" beginRegion="section" />
+    <WordDetect attribute="Element" context="El Open" String="&lt;pre" insensitive="true" beginRegion="pre" />
+    <WordDetect attribute="Element" context="El Open" String="&lt;div" insensitive="true" beginRegion="div" />
+    <WordDetect attribute="Element" context="El Open" String="&lt;table" insensitive="true" beginRegion="table" />
+    <WordDetect attribute="Element" context="El Open" String="&lt;ul" insensitive="true" beginRegion="ul" />
+    <WordDetect attribute="Element" context="El Open" String="&lt;ol" insensitive="true" beginRegion="ol" />
+    <WordDetect attribute="Element" context="El Open" String="&lt;dl" insensitive="true" beginRegion="dl" />
+    <WordDetect attribute="Element" context="El Open" String="&lt;article" insensitive="true" beginRegion="article" />
+    <WordDetect attribute="Element" context="El Open" String="&lt;aside" insensitive="true" beginRegion="aside" />
+    <WordDetect attribute="Element" context="El Open" String="&lt;details" insensitive="true" beginRegion="details" />
+    <WordDetect attribute="Element" context="El Open" String="&lt;figure" insensitive="true" beginRegion="figure" />
+    <WordDetect attribute="Element" context="El Open" String="&lt;footer" insensitive="true" beginRegion="footer" />
+    <WordDetect attribute="Element" context="El Open" String="&lt;header" insensitive="true" beginRegion="header" />
+    <WordDetect attribute="Element" context="El Open" String="&lt;main" insensitive="true" beginRegion="main" />
+    <WordDetect attribute="Element" context="El Open" String="&lt;nav" insensitive="true" beginRegion="nav" />
+    <WordDetect attribute="Element" context="El Open" String="&lt;section" insensitive="true" beginRegion="section" />
     <RegExpr attribute="Element" context="El Open" String="&lt;&name;" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/pre\b" insensitive="true" endRegion="pre" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/div\b" insensitive="true" endRegion="div" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/table\b" insensitive="true" endRegion="table" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/ul\b" insensitive="true" endRegion="ul" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/ol\b" insensitive="true" endRegion="ol" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/dl\b" insensitive="true" endRegion="dl" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/article\b" insensitive="true" endRegion="article" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/aside\b" insensitive="true" endRegion="aside" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/details\b" insensitive="true" endRegion="details" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/figure\b" insensitive="true" endRegion="figure" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/footer\b" insensitive="true" endRegion="footer" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/header\b" insensitive="true" endRegion="header" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/main\b" insensitive="true" endRegion="main" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/nav\b" insensitive="true" endRegion="nav" />
-    <RegExpr attribute="Element" context="El Close" String="&lt;/section\b" insensitive="true" endRegion="section" />
+    <WordDetect attribute="Element" context="El Close" String="&lt;/pre" insensitive="true" endRegion="pre" />
+    <WordDetect attribute="Element" context="El Close" String="&lt;/div" insensitive="true" endRegion="div" />
+    <WordDetect attribute="Element" context="El Close" String="&lt;/table" insensitive="true" endRegion="table" />
+    <WordDetect attribute="Element" context="El Close" String="&lt;/ul" insensitive="true" endRegion="ul" />
+    <WordDetect attribute="Element" context="El Close" String="&lt;/ol" insensitive="true" endRegion="ol" />
+    <WordDetect attribute="Element" context="El Close" String="&lt;/dl" insensitive="true" endRegion="dl" />
+    <WordDetect attribute="Element" context="El Close" String="&lt;/article" insensitive="true" endRegion="article" />
+    <WordDetect attribute="Element" context="El Close" String="&lt;/aside" insensitive="true" endRegion="aside" />
+    <WordDetect attribute="Element" context="El Close" String="&lt;/details" insensitive="true" endRegion="details" />
+    <WordDetect attribute="Element" context="El Close" String="&lt;/figure" insensitive="true" endRegion="figure" />
+    <WordDetect attribute="Element" context="El Close" String="&lt;/footer" insensitive="true" endRegion="footer" />
+    <WordDetect attribute="Element" context="El Close" String="&lt;/header" insensitive="true" endRegion="header" />
+    <WordDetect attribute="Element" context="El Close" String="&lt;/main" insensitive="true" endRegion="main" />
+    <WordDetect attribute="Element" context="El Close" String="&lt;/nav" insensitive="true" endRegion="nav" />
+    <WordDetect attribute="Element" context="El Close" String="&lt;/section" insensitive="true" endRegion="section" />
     <RegExpr attribute="Element" context="El Close" String="&lt;/&name;" />
   </context>
 
@@ -85,7 +85,7 @@
   </context>
 
   <context name="FindDTDRules" attribute="Other Text" lineEndContext="#stay">
-    <RegExpr attribute="Doctype" context="Doctype Markupdecl" String="&lt;!(ELEMENT|ENTITY|ATTLIST|NOTATION)\b" />
+    <RegExpr attribute="Doctype" context="Doctype Markupdecl" String="&lt;!(?:ELEMENT|ENTITY|ATTLIST|NOTATION)\b" />
   </context>
 
 
@@ -94,7 +94,7 @@
     <IncludeRules context="##Alerts" />
     <DetectIdentifier/>
     <StringDetect attribute="Comment" context="#pop" String="--&gt;" endRegion="comment" />
-    <RegExpr attribute="Error" context="#stay" String="-(-(?!-&gt;))+" />
+    <RegExpr attribute="Error" context="#stay" String="-(?:-(?!-&gt;))+" />
   </context>
 
   <context name="CDATA" attribute="Other Text" lineEndContext="#stay">
@@ -172,7 +172,7 @@
   </context>
 
   <context name="JS" attribute="Other Text" lineEndContext="#stay">
-    <RegExpr attribute="Attribute" context="Script-Type" String="(\s+|^)type(?=\=|\s|$)" insensitive="true"/>
+    <RegExpr attribute="Attribute" context="Script-Type" String="(?:\s+|^)type(?=\=|\s|$)" insensitive="true"/>
     <DetectChar attribute="Element" context="JS content" char="&gt;" />
     <IncludeRules context="DefaultJS" />
   </context>
@@ -257,7 +257,7 @@
   </context>
   <context name="JSX content" attribute="Other Text" lineEndContext="#stay">
     <IncludeRules context="Default JS content"/>
-    <IncludeRules context="Normal##JavaScript React" includeAttrib="true"/>
+    <IncludeRules context="Normal##JavaScript React (JSX)" includeAttrib="true"/>
   </context>
 
   <context name="TypeScript" attribute="Other Text" lineEndContext="#stay">
@@ -310,7 +310,7 @@
 </highlighting>
 <general>
   <comments>
-    <comment name="multiLine" start="&lt;!--" end="--&gt;" />
+    <comment name="multiLine" start="&lt;!--" end="--&gt;" region="comment" />
   </comments>
 </general>
 </language>

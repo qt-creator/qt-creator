@@ -22,12 +22,12 @@
 */
 
 #include "repository.h"
-#include "repository_p.h"
 #include "definition.h"
 #include "definition_p.h"
+#include "ksyntaxhighlighting_logging.h"
+#include "repository_p.h"
 #include "theme.h"
 #include "themedata_p.h"
-#include "ksyntaxhighlighting_logging.h"
 #include "wildcardmatcher_p.h"
 
 #include <QDirIterator>
@@ -52,13 +52,13 @@ static void initResource()
     Q_INIT_RESOURCE(theme_data);
 }
 
-RepositoryPrivate* RepositoryPrivate::get(Repository *repo)
+RepositoryPrivate *RepositoryPrivate::get(Repository *repo)
 {
     return repo->d.get();
 }
 
-Repository::Repository() :
-    d(new RepositoryPrivate)
+Repository::Repository()
+    : d(new RepositoryPrivate)
 {
     initResource();
     d->load(this);
@@ -72,19 +72,17 @@ Repository::~Repository()
         DefinitionData::get(def)->repo = nullptr;
 }
 
-Definition Repository::definitionForName(const QString& defName) const
+Definition Repository::definitionForName(const QString &defName) const
 {
     return d->m_defs.value(defName);
 }
 
 static void sortDefinitions(QVector<Definition> &definitions)
 {
-    std::stable_sort(definitions.begin(), definitions.end(), [](const Definition &lhs, const Definition &rhs) {
-        return lhs.priority() > rhs.priority();
-    });
+    std::stable_sort(definitions.begin(), definitions.end(), [](const Definition &lhs, const Definition &rhs) { return lhs.priority() > rhs.priority(); });
 }
 
-Definition Repository::definitionForFileName(const QString& fileName) const
+Definition Repository::definitionForFileName(const QString &fileName) const
 {
     return definitionsForFileName(fileName).value(0);
 }
@@ -108,7 +106,7 @@ QVector<Definition> Repository::definitionsForFileName(const QString &fileName) 
     return candidates;
 }
 
-Definition Repository::definitionForMimeType(const QString& mimeType) const
+Definition Repository::definitionForMimeType(const QString &mimeType) const
 {
     return definitionsForMimeType(mimeType).value(0);
 }
@@ -273,9 +271,7 @@ static int themeRevision(const Theme &theme)
 
 void RepositoryPrivate::addTheme(const Theme &theme)
 {
-    const auto it = std::lower_bound(m_themes.begin(), m_themes.end(), theme, [](const Theme &lhs, const Theme &rhs) {
-        return lhs.name() < rhs.name();
-    });
+    const auto it = std::lower_bound(m_themes.begin(), m_themes.end(), theme, [](const Theme &lhs, const Theme &rhs) { return lhs.name() < rhs.name(); });
     if (it == m_themes.end() || (*it).name() != theme.name()) {
         m_themes.insert(it, theme);
         return;

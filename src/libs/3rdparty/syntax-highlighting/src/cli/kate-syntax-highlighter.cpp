@@ -49,23 +49,18 @@ int main(int argc, char **argv)
     parser.setApplicationDescription(app.translate("SyntaxHighlightingCLI", "Command line syntax highlighter using Kate syntax definitions."));
     parser.addHelpOption();
     parser.addVersionOption();
-    parser.addPositionalArgument(app.translate("SyntaxHighlightingCLI", "source"),
-                                 app.translate("SyntaxHighlightingCLI", "The source file to highlight."));
+    parser.addPositionalArgument(app.translate("SyntaxHighlightingCLI", "source"), app.translate("SyntaxHighlightingCLI", "The source file to highlight."));
 
-    QCommandLineOption listDefs(QStringList() << QStringLiteral("l") << QStringLiteral("list"),
-                                app.translate("SyntaxHighlightingCLI", "List all available syntax definitions."));
+    QCommandLineOption listDefs(QStringList() << QStringLiteral("l") << QStringLiteral("list"), app.translate("SyntaxHighlightingCLI", "List all available syntax definitions."));
     parser.addOption(listDefs);
-    QCommandLineOption listThemes(QStringList() << QStringLiteral("list-themes"),
-                                  app.translate("SyntaxHighlightingCLI", "List all available themes."));
+    QCommandLineOption listThemes(QStringList() << QStringLiteral("list-themes"), app.translate("SyntaxHighlightingCLI", "List all available themes."));
     parser.addOption(listThemes);
 
-    QCommandLineOption updateDefs(QStringList() << QStringLiteral("u") << QStringLiteral("update"),
-                                  app.translate("SyntaxHighlightingCLI", "Download new/updated syntax definitions."));
+    QCommandLineOption updateDefs(QStringList() << QStringLiteral("u") << QStringLiteral("update"), app.translate("SyntaxHighlightingCLI", "Download new/updated syntax definitions."));
     parser.addOption(updateDefs);
 
-    QCommandLineOption outputName(QStringList() << QStringLiteral("o") << QStringLiteral("output"),
-                                  app.translate("SyntaxHighlightingCLI", "File to write HTML output to (default: stdout)."),
-                                  app.translate("SyntaxHighlightingCLI", "output"));
+    QCommandLineOption outputName(
+        QStringList() << QStringLiteral("o") << QStringLiteral("output"), app.translate("SyntaxHighlightingCLI", "File to write HTML output to (default: stdout)."), app.translate("SyntaxHighlightingCLI", "output"));
     parser.addOption(outputName);
 
     QCommandLineOption syntaxName(QStringList() << QStringLiteral("s") << QStringLiteral("syntax"),
@@ -73,9 +68,8 @@ int main(int argc, char **argv)
                                   app.translate("SyntaxHighlightingCLI", "syntax"));
     parser.addOption(syntaxName);
 
-    QCommandLineOption themeName(QStringList() << QStringLiteral("t") << QStringLiteral("theme"),
-                                 app.translate("SyntaxHighlightingCLI", "Color theme to use for highlighting."),
-                                 app.translate("SyntaxHighlightingCLI", "theme"), QStringLiteral("Default"));
+    QCommandLineOption themeName(
+        QStringList() << QStringLiteral("t") << QStringLiteral("theme"), app.translate("SyntaxHighlightingCLI", "Color theme to use for highlighting."), app.translate("SyntaxHighlightingCLI", "theme"), QStringLiteral("Default"));
     parser.addOption(themeName);
 
     QCommandLineOption titleOption(QStringList() << QStringLiteral("T") << QStringLiteral("title"),
@@ -83,8 +77,7 @@ int main(int argc, char **argv)
                                    app.translate("SyntaxHighlightingCLI", "title"));
     parser.addOption(titleOption);
 
-    QCommandLineOption stdinOption(QStringList() << QStringLiteral("stdin"),
-                                   app.translate("SyntaxHighlightingCLI", "Read file from stdin. The -s option must also be used."));
+    QCommandLineOption stdinOption(QStringList() << QStringLiteral("stdin"), app.translate("SyntaxHighlightingCLI", "Read file from stdin. The -s option must also be used."));
     parser.addOption(stdinOption);
 
     parser.process(app);
@@ -105,9 +98,7 @@ int main(int argc, char **argv)
 
     if (parser.isSet(updateDefs)) {
         DefinitionDownloader downloader(&repo);
-        QObject::connect(&downloader, &DefinitionDownloader::informationMessage, [](const QString &msg) {
-            std::cout << qPrintable(msg) << std::endl;
-        });
+        QObject::connect(&downloader, &DefinitionDownloader::informationMessage, [](const QString &msg) { std::cout << qPrintable(msg) << std::endl; });
         QObject::connect(&downloader, &DefinitionDownloader::done, &app, &QCoreApplication::quit);
         downloader.start();
         return app.exec();

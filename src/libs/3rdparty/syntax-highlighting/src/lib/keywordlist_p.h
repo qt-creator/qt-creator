@@ -33,8 +33,8 @@ QT_BEGIN_NAMESPACE
 class QXmlStreamReader;
 QT_END_NAMESPACE
 
-namespace KSyntaxHighlighting {
-
+namespace KSyntaxHighlighting
+{
 class Repository;
 class DefinitionData;
 
@@ -59,7 +59,7 @@ public:
         return m_keywords;
     }
 
-    void setKeywordList(const QStringList& keywords)
+    void setKeywordList(const QStringList &keywords)
     {
         m_keywords = keywords;
         m_keywordsSortedCaseSensitive.clear();

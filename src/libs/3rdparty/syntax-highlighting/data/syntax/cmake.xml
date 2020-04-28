@@ -9,7 +9,7 @@
   Copyright 2004 Alexander Neundorf (neundorf@kde.org)
   Copyright 2005 Dominik Haumann (dhdev@gmx.de)
   Copyright 2007,2008,2013,2014 Matthew Woehlke (mw_triad@users.sourceforge.net)
-  Copyright 2013-2015,2017-2019 Alex Turbov (i.zaufi@gmail.com)
+  Copyright 2013-2015,2017-2020 Alex Turbov (i.zaufi@gmail.com)
 
  **********************************************************************
  * This library is free software; you can redistribute it and/or      *
@@ -31,7 +31,7 @@
 
 <language
     name="CMake"
-    version="16"
+    version="22"
     kateversion="2.4"
     section="Other"
     extensions="CMakeLists.txt;*.cmake;*.cmake.in"
@@ -133,6 +133,7 @@
         <item>target_link_directories</item>
         <item>target_link_libraries</item>
         <item>target_link_options</item>
+        <item>target_precompile_headers</item>
         <item>target_sources</item>
         <item>try_compile</item>
         <item>try_run</item>
@@ -292,6 +293,7 @@
       <item>FOLLOW_SYMLINKS</item>
       <item>FOLLOW_SYMLINK_CHAIN</item>
       <item>GENERATE</item>
+      <item>GET_RUNTIME_DEPENDENCIES</item>
       <item>GLOB</item>
       <item>GLOB_RECURSE</item>
       <item>GUARD</item>
@@ -479,6 +481,14 @@
       <item>ITEMS</item>
       <item>LISTS</item>
       <item>RANGE</item>
+      <item>ZIP_LISTS</item>
+    </list>
+    <list name="get_cmake_property_sargs">
+      <item>CACHE_VARIABLES</item>
+      <item>COMMANDS</item>
+      <item>COMPONENTS</item>
+      <item>MACROS</item>
+      <item>VARIABLES</item>
     </list>
     <list name="get_directory_property_nargs">
       <item>DEFINITION</item>
@@ -608,6 +618,9 @@
     </list>
     <list name="message_nargs">
       <item>AUTHOR_WARNING</item>
+      <item>CHECK_FAIL</item>
+      <item>CHECK_PASS</item>
+      <item>CHECK_START</item>
       <item>DEBUG</item>
       <item>DEPRECATION</item>
       <item>FATAL_ERROR</item>
@@ -800,6 +813,7 @@
     </list>
     <list name="add_test_nargs">
       <item>COMMAND</item>
+      <item>COMMAND_EXPAND_LISTS</item>
       <item>CONFIGURATIONS</item>
       <item>NAME</item>
       <item>WORKING_DIRECTORY</item>
@@ -828,10 +842,20 @@
       <item>OPTIONAL</item>
     </list>
     <list name="enable_language_sargs">
+      <item>ASM</item>
+      <item>ASM-ATT</item>
+      <item>ASM_MASM</item>
+      <item>ASM_NASM</item>
       <item>C</item>
+      <item>CSharp</item>
+      <item>CUDA</item>
       <item>CXX</item>
       <item>Fortran</item>
+      <item>Java</item>
+      <item>OBJC</item>
+      <item>OBJCXX</item>
       <item>RC</item>
+      <item>Swift</item>
     </list>
     <list name="export_nargs">
       <item>ANDROID_MK</item>
@@ -928,12 +952,20 @@
     </list>
     <list name="project_sargs">
       <item>ASM</item>
+      <item>ASM-ATT</item>
+      <item>ASM_MASM</item>
+      <item>ASM_NASM</item>
       <item>C</item>
+      <item>CSharp</item>
       <item>CUDA</item>
       <item>CXX</item>
       <item>Fortran</item>
+      <item>Java</item>
       <item>NONE</item>
+      <item>OBJC</item>
+      <item>OBJCXX</item>
       <item>RC</item>
+      <item>Swift</item>
     </list>
     <list name="set_source_files_properties_nargs">
       <item>PROPERTIES</item>
@@ -968,6 +1000,11 @@
       <item>c_std_90</item>
       <item>c_std_99</item>
       <item>c_variadic_macros</item>
+      <item>cuda_std_03</item>
+      <item>cuda_std_11</item>
+      <item>cuda_std_14</item>
+      <item>cuda_std_17</item>
+      <item>cuda_std_20</item>
       <item>cxx_aggregate_default_initializers</item>
       <item>cxx_alias_templates</item>
       <item>cxx_alignas</item>
@@ -1059,6 +1096,12 @@
       <item>INTERFACE</item>
       <item>PRIVATE</item>
       <item>PUBLIC</item>
+    </list>
+    <list name="target_precompile_headers_nargs">
+      <item>INTERFACE</item>
+      <item>PRIVATE</item>
+      <item>PUBLIC</item>
+      <item>REUSE_FROM</item>
     </list>
     <list name="target_sources_nargs">
       <item>INTERFACE</item>
@@ -1174,12 +1217,18 @@
       <item>INCLUDE_LABEL</item>
       <item>PARALLEL_LEVEL</item>
       <item>QUIET</item>
+      <item>REPEAT</item>
       <item>RETURN_VALUE</item>
       <item>SCHEDULE_RANDOM</item>
       <item>START</item>
       <item>STOP_TIME</item>
       <item>STRIDE</item>
       <item>TEST_LOAD</item>
+    </list>
+    <list name="ctest_test_sargs">
+      <item>AFTER_TIMEOUT</item>
+      <item>UNTIL_FAIL</item>
+      <item>UNTIL_PASS</item>
     </list>
     <list name="ctest_update_nargs">
       <item>QUIET</item>
@@ -1199,6 +1248,7 @@
       <item>BUILD_SHARED_LIBS</item>
       <item>BUILD_TESTING</item>
       <item>CMAKE_ABSOLUTE_DESTINATION_FILES</item>
+      <item>CMAKE_AIX_EXPORT_ALL_SYMBOLS</item>
       <item>CMAKE_ANDROID_ANT_ADDITIONAL_OPTIONS</item>
       <item>CMAKE_ANDROID_API</item>
       <item>CMAKE_ANDROID_API_MIN</item>
@@ -1235,6 +1285,7 @@
       <item>CMAKE_AUTOMOC</item>
       <item>CMAKE_AUTOMOC_DEPEND_FILTERS</item>
       <item>CMAKE_AUTOMOC_MOC_OPTIONS</item>
+      <item>CMAKE_AUTOMOC_PATH_PREFIX</item>
       <item>CMAKE_AUTOMOC_RELAXED_MODE</item>
       <item>CMAKE_AUTORCC</item>
       <item>CMAKE_AUTORCC_OPTIONS</item>
@@ -1268,13 +1319,23 @@
       <item>CMAKE_CONFIGURATION_TYPES</item>
       <item>CMAKE_CROSSCOMPILING</item>
       <item>CMAKE_CROSSCOMPILING_EMULATOR</item>
+      <item>CMAKE_CROSS_CONFIGS</item>
+      <item>CMAKE_CTEST_ARGUMENTS</item>
       <item>CMAKE_CTEST_COMMAND</item>
+      <item>CMAKE_CUDA_COMPILE_FEATURES</item>
       <item>CMAKE_CUDA_EXTENSIONS</item>
+      <item>CMAKE_CUDA_HOST_COMPILER</item>
+      <item>CMAKE_CUDA_RESOLVE_DEVICE_SYMBOLS</item>
+      <item>CMAKE_CUDA_RUNTIME_LIBRARY</item>
       <item>CMAKE_CUDA_SEPARABLE_COMPILATION</item>
       <item>CMAKE_CUDA_STANDARD</item>
       <item>CMAKE_CUDA_STANDARD_REQUIRED</item>
       <item>CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES</item>
       <item>CMAKE_CURRENT_BINARY_DIR</item>
+      <item>CMAKE_CURRENT_FUNCTION</item>
+      <item>CMAKE_CURRENT_FUNCTION_LIST_DIR</item>
+      <item>CMAKE_CURRENT_FUNCTION_LIST_FILE</item>
+      <item>CMAKE_CURRENT_FUNCTION_LIST_LINE</item>
       <item>CMAKE_CURRENT_LIST_DIR</item>
       <item>CMAKE_CURRENT_LIST_FILE</item>
       <item>CMAKE_CURRENT_LIST_LINE</item>
@@ -1289,13 +1350,18 @@
       <item>CMAKE_C_STANDARD_REQUIRED</item>
       <item>CMAKE_DEBUG_POSTFIX</item>
       <item>CMAKE_DEBUG_TARGET_PROPERTIES</item>
+      <item>CMAKE_DEFAULT_BUILD_TYPE</item>
+      <item>CMAKE_DEFAULT_CONFIGS</item>
       <item>CMAKE_DEPENDS_IN_PROJECT_ONLY</item>
       <item>CMAKE_DIRECTORY_LABELS</item>
+      <item>CMAKE_DISABLE_PRECOMPILE_HEADERS</item>
       <item>CMAKE_DL_LIBS</item>
+      <item>CMAKE_DOTNET_TARGET_FRAMEWORK</item>
       <item>CMAKE_DOTNET_TARGET_FRAMEWORK_VERSION</item>
       <item>CMAKE_ECLIPSE_GENERATE_LINKED_RESOURCES</item>
       <item>CMAKE_ECLIPSE_GENERATE_SOURCE_PROJECT</item>
       <item>CMAKE_ECLIPSE_MAKE_ARGUMENTS</item>
+      <item>CMAKE_ECLIPSE_RESOURCE_ENCODING</item>
       <item>CMAKE_ECLIPSE_VERSION</item>
       <item>CMAKE_EDIT_COMMAND</item>
       <item>CMAKE_ENABLE_EXPORTS</item>
@@ -1312,6 +1378,7 @@
       <item>CMAKE_EXTRA_INCLUDE_FILES</item>
       <item>CMAKE_EXTRA_SHARED_LIBRARY_SUFFIXES</item>
       <item>CMAKE_FIND_APPBUNDLE</item>
+      <item>CMAKE_FIND_DEBUG_MODE</item>
       <item>CMAKE_FIND_FRAMEWORK</item>
       <item>CMAKE_FIND_FRAMEWORK_EXTRA_LOCATIONS</item>
       <item>CMAKE_FIND_LIBRARY_CUSTOM_LIB_SUFFIX</item>
@@ -1331,6 +1398,13 @@
       <item>CMAKE_FIND_ROOT_PATH_MODE_LIBRARY</item>
       <item>CMAKE_FIND_ROOT_PATH_MODE_PACKAGE</item>
       <item>CMAKE_FIND_ROOT_PATH_MODE_PROGRAM</item>
+      <item>CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH</item>
+      <item>CMAKE_FIND_USE_CMAKE_PATH</item>
+      <item>CMAKE_FIND_USE_CMAKE_SYSTEM_PATH</item>
+      <item>CMAKE_FIND_USE_PACKAGE_REGISTRY</item>
+      <item>CMAKE_FIND_USE_PACKAGE_ROOT_PATH</item>
+      <item>CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH</item>
+      <item>CMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY</item>
       <item>CMAKE_FOLDER</item>
       <item>CMAKE_FRAMEWORK</item>
       <item>CMAKE_FRAMEWORK_PATH</item>
@@ -1341,6 +1415,7 @@
       <item>CMAKE_Fortran_MODULE_DIRECTORY</item>
       <item>CMAKE_GENERATOR</item>
       <item>CMAKE_GENERATOR_INSTANCE</item>
+      <item>CMAKE_GENERATOR_NO_COMPILER_ENV</item>
       <item>CMAKE_GENERATOR_PLATFORM</item>
       <item>CMAKE_GENERATOR_TOOLSET</item>
       <item>CMAKE_GLOBAL_AUTOGEN_TARGET</item>
@@ -1405,6 +1480,7 @@
       <item>CMAKE_INSTALL_OPENMP_LIBRARIES</item>
       <item>CMAKE_INSTALL_PREFIX</item>
       <item>CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT</item>
+      <item>CMAKE_INSTALL_REMOVE_ENVIRONMENT_RPATH</item>
       <item>CMAKE_INSTALL_RPATH</item>
       <item>CMAKE_INSTALL_RPATH_USE_LINK_PATH</item>
       <item>CMAKE_INSTALL_RUNSTATEDIR</item>
@@ -1444,6 +1520,10 @@
       <item>CMAKE_MAKE_PROGRAM</item>
       <item>CMAKE_MATCH_COUNT</item>
       <item>CMAKE_MAXIMUM_RECURSION_DEPTH</item>
+      <item>CMAKE_MESSAGE_CONTEXT</item>
+      <item>CMAKE_MESSAGE_CONTEXT_SHOW</item>
+      <item>CMAKE_MESSAGE_INDENT</item>
+      <item>CMAKE_MESSAGE_LOG_LEVEL</item>
       <item>CMAKE_MFC_FLAG</item>
       <item>CMAKE_MINIMUM_REQUIRED_VERSION</item>
       <item>CMAKE_MINOR_VERSION</item>
@@ -1540,6 +1620,8 @@
       <item>CMAKE_TRY_COMPILE_PLATFORM_VARIABLES</item>
       <item>CMAKE_TRY_COMPILE_TARGET_TYPE</item>
       <item>CMAKE_TWEAK_VERSION</item>
+      <item>CMAKE_UNITY_BUILD</item>
+      <item>CMAKE_UNITY_BUILD_BATCH_SIZE</item>
       <item>CMAKE_USER_MAKE_RULES_OVERRIDE</item>
       <item>CMAKE_USE_PTHREADS_INIT</item>
       <item>CMAKE_USE_RELATIVE_PATHS</item>
@@ -1577,9 +1659,11 @@
       <item>CMAKE_XCODE_PLATFORM_TOOLSET</item>
       <item>CMAKE_XCODE_SCHEME_ADDRESS_SANITIZER</item>
       <item>CMAKE_XCODE_SCHEME_ADDRESS_SANITIZER_USE_AFTER_RETURN</item>
+      <item>CMAKE_XCODE_SCHEME_DEBUG_DOCUMENT_VERSIONING</item>
       <item>CMAKE_XCODE_SCHEME_DISABLE_MAIN_THREAD_CHECKER</item>
       <item>CMAKE_XCODE_SCHEME_DYNAMIC_LIBRARY_LOADS</item>
       <item>CMAKE_XCODE_SCHEME_DYNAMIC_LINKER_API_USAGE</item>
+      <item>CMAKE_XCODE_SCHEME_ENVIRONMENT</item>
       <item>CMAKE_XCODE_SCHEME_GUARD_MALLOC</item>
       <item>CMAKE_XCODE_SCHEME_MAIN_THREAD_CHECKER_STOP</item>
       <item>CMAKE_XCODE_SCHEME_MALLOC_GUARD_EDGES</item>
@@ -1589,6 +1673,7 @@
       <item>CMAKE_XCODE_SCHEME_THREAD_SANITIZER_STOP</item>
       <item>CMAKE_XCODE_SCHEME_UNDEFINED_BEHAVIOUR_SANITIZER</item>
       <item>CMAKE_XCODE_SCHEME_UNDEFINED_BEHAVIOUR_SANITIZER_STOP</item>
+      <item>CMAKE_XCODE_SCHEME_WORKING_DIRECTORY</item>
       <item>CMAKE_XCODE_SCHEME_ZOMBIE_OBJECTS</item>
       <item>CPACK_ABSOLUTE_DESTINATION_FILES</item>
       <item>CPACK_ARCHIVE_COMPONENT_INSTALL</item>
@@ -1704,6 +1789,7 @@
       <item>CPACK_INSTALL_COMMANDS</item>
       <item>CPACK_INSTALL_DEFAULT_DIRECTORY_PERMISSIONS</item>
       <item>CPACK_INSTALL_SCRIPT</item>
+      <item>CPACK_INSTALL_SCRIPTS</item>
       <item>CPACK_MONOLITHIC_INSTALL</item>
       <item>CPACK_NSIS_COMPRESSOR</item>
       <item>CPACK_NSIS_CONTACT</item>
@@ -1715,6 +1801,8 @@
       <item>CPACK_NSIS_EXTRA_INSTALL_COMMANDS</item>
       <item>CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS</item>
       <item>CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS</item>
+      <item>CPACK_NSIS_FINISH_TITLE</item>
+      <item>CPACK_NSIS_FINISH_TITLE_3LINES</item>
       <item>CPACK_NSIS_HELP_LINK</item>
       <item>CPACK_NSIS_INSTALLED_ICON_NAME</item>
       <item>CPACK_NSIS_INSTALLER_MUI_ICON_CODE</item>
@@ -1722,12 +1810,16 @@
       <item>CPACK_NSIS_MENU_LINKS</item>
       <item>CPACK_NSIS_MODIFY_PATH</item>
       <item>CPACK_NSIS_MUI_FINISHPAGE_RUN</item>
+      <item>CPACK_NSIS_MUI_HEADERIMAGE</item>
       <item>CPACK_NSIS_MUI_ICON</item>
       <item>CPACK_NSIS_MUI_UNIICON</item>
       <item>CPACK_NSIS_MUI_UNWELCOMEFINISHPAGE_BITMAP</item>
       <item>CPACK_NSIS_MUI_WELCOMEFINISHPAGE_BITMAP</item>
       <item>CPACK_NSIS_PACKAGE_NAME</item>
+      <item>CPACK_NSIS_UNINSTALL_NAME</item>
       <item>CPACK_NSIS_URL_INFO_ABOUT</item>
+      <item>CPACK_NSIS_WELCOME_TITLE</item>
+      <item>CPACK_NSIS_WELCOME_TITLE_3LINES</item>
       <item>CPACK_NUGET_COMPONENT_INSTALL</item>
       <item>CPACK_NUGET_PACKAGE_AUTHORS</item>
       <item>CPACK_NUGET_PACKAGE_COPYRIGHT</item>
@@ -1744,7 +1836,6 @@
       <item>CPACK_NUGET_PACKAGE_TAGS</item>
       <item>CPACK_NUGET_PACKAGE_TITLE</item>
       <item>CPACK_NUGET_PACKAGE_VERSION</item>
-      <item>CPACK_OSX_PACKAGE_VERSION</item>
       <item>CPACK_OUTPUT_CONFIG_FILE</item>
       <item>CPACK_PACKAGE_CHECKSUM</item>
       <item>CPACK_PACKAGE_CONTACT</item>
@@ -1759,6 +1850,7 @@
       <item>CPACK_PACKAGE_INSTALL_DIRECTORY</item>
       <item>CPACK_PACKAGE_INSTALL_REGISTRY_KEY</item>
       <item>CPACK_PACKAGE_NAME</item>
+      <item>CPACK_PACKAGE_RELOCATABLE</item>
       <item>CPACK_PACKAGE_VENDOR</item>
       <item>CPACK_PACKAGE_VERSION</item>
       <item>CPACK_PACKAGE_VERSION_MAJOR</item>
@@ -1767,6 +1859,16 @@
       <item>CPACK_PACKAGING_INSTALL_PREFIX</item>
       <item>CPACK_PKGBUILD_IDENTITY_NAME</item>
       <item>CPACK_PKGBUILD_KEYCHAIN_PATH</item>
+      <item>CPACK_PRODUCTBUILD_BACKGROUND</item>
+      <item>CPACK_PRODUCTBUILD_BACKGROUND_ALIGNMENT</item>
+      <item>CPACK_PRODUCTBUILD_BACKGROUND_DARKAQUA</item>
+      <item>CPACK_PRODUCTBUILD_BACKGROUND_DARKAQUA_ALIGNMENT</item>
+      <item>CPACK_PRODUCTBUILD_BACKGROUND_DARKAQUA_MIME_TYPE</item>
+      <item>CPACK_PRODUCTBUILD_BACKGROUND_DARKAQUA_SCALING</item>
+      <item>CPACK_PRODUCTBUILD_BACKGROUND_DARKAQUA_UTI</item>
+      <item>CPACK_PRODUCTBUILD_BACKGROUND_MIME_TYPE</item>
+      <item>CPACK_PRODUCTBUILD_BACKGROUND_SCALING</item>
+      <item>CPACK_PRODUCTBUILD_BACKGROUND_UTI</item>
       <item>CPACK_PRODUCTBUILD_IDENTITY_NAME</item>
       <item>CPACK_PRODUCTBUILD_KEYCHAIN_PATH</item>
       <item>CPACK_PRODUCTBUILD_RESOURCES_DIR</item>
@@ -2024,6 +2126,7 @@
       <item>CMAKE_APPBUNDLE_PATH</item>
       <item>CMAKE_BUILD_PARALLEL_LEVEL</item>
       <item>CMAKE_CONFIG_TYPE</item>
+      <item>CMAKE_EXPORT_COMPILE_COMMANDS</item>
       <item>CMAKE_FRAMEWORK_PATH</item>
       <item>CMAKE_GENERATOR</item>
       <item>CMAKE_GENERATOR_INSTANCE</item>
@@ -2063,6 +2166,7 @@
       <item>AUTOMOC_SOURCE_GROUP</item>
       <item>AUTOMOC_TARGETS_FOLDER</item>
       <item>AUTORCC_SOURCE_GROUP</item>
+      <item>CMAKE_CUDA_KNOWN_FEATURES</item>
       <item>CMAKE_CXX_KNOWN_FEATURES</item>
       <item>CMAKE_C_KNOWN_FEATURES</item>
       <item>CMAKE_ROLE</item>
@@ -2132,6 +2236,7 @@
     </list>
     <list name="target-properties">
       <item>ADDITIONAL_CLEAN_FILES</item>
+      <item>AIX_EXPORT_ALL_SYMBOLS</item>
       <item>ALIASED_TARGET</item>
       <item>ANDROID_ANT_ADDITIONAL_OPTIONS</item>
       <item>ANDROID_API</item>
@@ -2161,6 +2266,7 @@
       <item>AUTOMOC_EXECUTABLE</item>
       <item>AUTOMOC_MACRO_NAMES</item>
       <item>AUTOMOC_MOC_OPTIONS</item>
+      <item>AUTOMOC_PATH_PREFIX</item>
       <item>AUTORCC</item>
       <item>AUTORCC_EXECUTABLE</item>
       <item>AUTORCC_OPTIONS</item>
@@ -2190,6 +2296,7 @@
       <item>CUDA_EXTENSIONS</item>
       <item>CUDA_PTX_COMPILATION</item>
       <item>CUDA_RESOLVE_DEVICE_SYMBOLS</item>
+      <item>CUDA_RUNTIME_LIBRARY</item>
       <item>CUDA_SEPARABLE_COMPILATION</item>
       <item>CUDA_STANDARD</item>
       <item>CUDA_STANDARD_REQUIRED</item>
@@ -2202,6 +2309,9 @@
       <item>DEFINE_SYMBOL</item>
       <item>DEPLOYMENT_ADDITIONAL_FILES</item>
       <item>DEPLOYMENT_REMOTE_DIRECTORY</item>
+      <item>DEPRECATION</item>
+      <item>DISABLE_PRECOMPILE_HEADERS</item>
+      <item>DOTNET_TARGET_FRAMEWORK</item>
       <item>DOTNET_TARGET_FRAMEWORK_VERSION</item>
       <item>ENABLE_EXPORTS</item>
       <item>EXCLUDE_FROM_ALL</item>
@@ -2236,6 +2346,7 @@
       <item>IMPORT_SUFFIX</item>
       <item>INCLUDE_DIRECTORIES</item>
       <item>INSTALL_NAME_DIR</item>
+      <item>INSTALL_REMOVE_ENVIRONMENT_RPATH</item>
       <item>INSTALL_RPATH</item>
       <item>INSTALL_RPATH_USE_LINK_PATH</item>
       <item>INTERFACE_AUTOUIC_OPTIONS</item>
@@ -2248,6 +2359,7 @@
       <item>INTERFACE_LINK_LIBRARIES</item>
       <item>INTERFACE_LINK_OPTIONS</item>
       <item>INTERFACE_POSITION_INDEPENDENT_CODE</item>
+      <item>INTERFACE_PRECOMPILE_HEADERS</item>
       <item>INTERFACE_SOURCES</item>
       <item>INTERFACE_SYSTEM_INCLUDE_DIRECTORIES</item>
       <item>INTERPROCEDURAL_OPTIMIZATION</item>
@@ -2280,10 +2392,14 @@
       <item>NO_SONAME</item>
       <item>NO_SYSTEM_FROM_IMPORTED</item>
       <item>OSX_ARCHITECTURES</item>
+      <item>OSX_COMPATIBILITY_VERSION</item>
+      <item>OSX_CURRENT_VERSION</item>
       <item>OUTPUT_NAME</item>
       <item>PDB_NAME</item>
       <item>PDB_OUTPUT_DIRECTORY</item>
       <item>POSITION_INDEPENDENT_CODE</item>
+      <item>PRECOMPILE_HEADERS</item>
+      <item>PRECOMPILE_HEADERS_REUSE_FROM</item>
       <item>PREFIX</item>
       <item>PRIVATE_HEADER</item>
       <item>PROJECT_LABEL</item>
@@ -2305,6 +2421,10 @@
       <item>Swift_MODULE_DIRECTORY</item>
       <item>Swift_MODULE_NAME</item>
       <item>TYPE</item>
+      <item>UNITY_BUILD</item>
+      <item>UNITY_BUILD_BATCH_SIZE</item>
+      <item>UNITY_BUILD_CODE_AFTER_INCLUDE</item>
+      <item>UNITY_BUILD_CODE_BEFORE_INCLUDE</item>
       <item>VERSION</item>
       <item>VISIBILITY_INLINES_HIDDEN</item>
       <item>VS_CONFIGURATION_TYPE</item>
@@ -2313,9 +2433,11 @@
       <item>VS_DEBUGGER_ENVIRONMENT</item>
       <item>VS_DEBUGGER_WORKING_DIRECTORY</item>
       <item>VS_DESKTOP_EXTENSIONS_VERSION</item>
+      <item>VS_DOTNET_DOCUMENTATION_FILE</item>
       <item>VS_DOTNET_REFERENCES</item>
       <item>VS_DOTNET_REFERENCES_COPY_LOCAL</item>
       <item>VS_DOTNET_TARGET_FRAMEWORK_VERSION</item>
+      <item>VS_DPI_AWARE</item>
       <item>VS_GLOBAL_KEYWORD</item>
       <item>VS_GLOBAL_PROJECT_TYPES</item>
       <item>VS_GLOBAL_ROOTNAMESPACE</item>
@@ -2346,6 +2468,7 @@
       <item>XCODE_SCHEME_ADDRESS_SANITIZER_USE_AFTER_RETURN</item>
       <item>XCODE_SCHEME_ARGUMENTS</item>
       <item>XCODE_SCHEME_DEBUG_AS_ROOT</item>
+      <item>XCODE_SCHEME_DEBUG_DOCUMENT_VERSIONING</item>
       <item>XCODE_SCHEME_DISABLE_MAIN_THREAD_CHECKER</item>
       <item>XCODE_SCHEME_DYNAMIC_LIBRARY_LOADS</item>
       <item>XCODE_SCHEME_DYNAMIC_LINKER_API_USAGE</item>
@@ -2360,6 +2483,7 @@
       <item>XCODE_SCHEME_THREAD_SANITIZER_STOP</item>
       <item>XCODE_SCHEME_UNDEFINED_BEHAVIOUR_SANITIZER</item>
       <item>XCODE_SCHEME_UNDEFINED_BEHAVIOUR_SANITIZER_STOP</item>
+      <item>XCODE_SCHEME_WORKING_DIRECTORY</item>
       <item>XCODE_SCHEME_ZOMBIE_OBJECTS</item>
       <item>XCTEST</item>
     </list>
@@ -2386,6 +2510,8 @@
       <item>SKIP_AUTOMOC</item>
       <item>SKIP_AUTORCC</item>
       <item>SKIP_AUTOUIC</item>
+      <item>SKIP_PRECOMPILE_HEADERS</item>
+      <item>SKIP_UNITY_BUILD_INCLUSION</item>
       <item>SYMBOLIC</item>
       <item>Swift_DEPENDENCIES_FILE</item>
       <item>Swift_DIAGNOSTICS_FILE</item>
@@ -2429,6 +2555,7 @@
       <item>REQUIRED_FILES</item>
       <item>RESOURCE_LOCK</item>
       <item>RUN_SERIAL</item>
+      <item>SKIP_REGULAR_EXPRESSION</item>
       <item>SKIP_RETURN_CODE</item>
       <item>TIMEOUT</item>
       <item>TIMEOUT_AFTER_MATCH</item>
@@ -2621,6 +2748,7 @@
         <WordDetect String="target_link_directories" insensitive="true" attribute="Command" context="target_link_directories_ctx" />
         <WordDetect String="target_link_libraries" insensitive="true" attribute="Command" context="target_link_libraries_ctx" />
         <WordDetect String="target_link_options" insensitive="true" attribute="Command" context="target_link_options_ctx" />
+        <WordDetect String="target_precompile_headers" insensitive="true" attribute="Command" context="target_precompile_headers_ctx" />
         <WordDetect String="target_sources" insensitive="true" attribute="Command" context="target_sources_ctx" />
         <WordDetect String="try_compile" insensitive="true" attribute="Command" context="try_compile_ctx" />
         <WordDetect String="try_run" insensitive="true" attribute="Command" context="try_run_ctx" />
@@ -2838,6 +2966,7 @@
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="get_cmake_property_ctx_op">
         <IncludeRules context="EndCmdPop2" />
+        <keyword attribute="Special Args" context="#stay" String="get_cmake_property_sargs" />
         <keyword attribute="Property" context="#stay" String="global-properties" />
         <IncludeRules context="Detect More global-properties" />
         <IncludeRules context="User Function Args" />
@@ -3442,6 +3571,14 @@
         <keyword attribute="Named Args" context="#stay" String="target_link_options_nargs" />
         <IncludeRules context="User Function Args" />
       </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="target_precompile_headers_ctx">
+        <DetectChar attribute="Normal Text" context="target_precompile_headers_ctx_op" char="(" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="target_precompile_headers_ctx_op">
+        <IncludeRules context="EndCmdPop2" />
+        <keyword attribute="Named Args" context="#stay" String="target_precompile_headers_nargs" />
+        <IncludeRules context="User Function Args" />
+      </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="target_sources_ctx">
         <DetectChar attribute="Normal Text" context="target_sources_ctx_op" char="(" />
       </context>
@@ -3549,6 +3686,7 @@
       <context attribute="Normal Text" lineEndContext="#stay" name="ctest_test_ctx_op">
         <IncludeRules context="EndCmdPop2" />
         <keyword attribute="Named Args" context="#stay" String="ctest_test_nargs" />
+        <keyword attribute="Special Args" context="#stay" String="ctest_test_sargs" />
         <IncludeRules context="User Function Args" />
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="ctest_update_ctx">
@@ -3645,9 +3783,9 @@
       </context>
 
       <context attribute="Normal Text" lineEndContext="#stay" name="Detect Builtin Variables">
+        <RegExpr attribute="Internal Name" context="#stay" String="\b_&id_re;\b" />
         <keyword attribute="Builtin Variable" context="#stay" String="variables" insensitive="false" />
         <IncludeRules context="Detect More Builtin Variables" />
-        <RegExpr attribute="Internal Name" context="#stay" String="\b_&id_re;\b" />
       </context>
 
       <context attribute="Normal Text" lineEndContext="#stay" name="Detect More Builtin Variables">
@@ -3679,6 +3817,7 @@
         <RegExpr attribute="Builtin Variable" context="#stay" String="\b&id_re;_LIBRARY_DIRS\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\b&id_re;_VERSION_COUNT\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\b&id_re;_VERSION_STRING\b" />
+        <RegExpr attribute="Builtin Variable" context="#stay" String="\b&id_re;_MODULE_NAME\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_&id_re;_POSTFIX\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_&id_re;_ANDROID_TOOLCHAIN_MACHINE\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_&id_re;_ANDROID_TOOLCHAIN_PREFIX\b" />
@@ -3751,8 +3890,8 @@
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_MODULE_LINKER_FLAGS_&id_re;\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_MODULE_LINKER_FLAGS_&id_re;_INIT\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_PDB_OUTPUT_DIRECTORY_&id_re;\b" />
-        <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_POLICY_DEFAULT_CMP&id_re;\b" />
-        <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_POLICY_WARNING_CMP&id_re;\b" />
+        <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_POLICY_DEFAULT_CMP[0-9]{4}\b" />
+        <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_POLICY_WARNING_CMP[0-9]{4}\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_PROJECT_&id_re;_INCLUDE\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_RUNTIME_OUTPUT_DIRECTORY_&id_re;\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCMAKE_SHARED_LINKER_FLAGS_&id_re;\b" />
@@ -3771,7 +3910,7 @@
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_COMPONENT_&id_re;_GROUP\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_COMPONENT_&id_re;_HIDDEN\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_COMPONENT_&id_re;_REQUIRED\b" />
-        <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_COMPONENT_&id_re;_DESCRIPTION\b" />
+        <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_DEBIAN_&id_re;_DESCRIPTION\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_DEBIAN_&id_re;_FILE_NAME\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_DEBIAN_&id_re;_PACKAGE_ARCHITECTURE\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_DEBIAN_&id_re;_PACKAGE_BREAKS\b" />
@@ -3791,6 +3930,7 @@
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_DEBIAN_&id_re;_PACKAGE_SOURCE\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_DEBIAN_&id_re;_PACKAGE_SUGGESTS\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_DEBIAN_&id_re;_DEBUGINFO_PACKAGE\b" />
+        <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_DMG_&id_re;_FILE_NAME\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_NSIS_&id_re;_INSTALL_DIRECTORY\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_NUGET_&id_re;_PACKAGE_AUTHORS\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_NUGET_&id_re;_PACKAGE_COPYRIGHT\b" />
@@ -3808,6 +3948,8 @@
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_NUGET_&id_re;_PACKAGE_TITLE\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_NUGET_&id_re;_PACKAGE_VERSION\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_NUGET_PACKAGE_DEPENDENCIES_&id_re;_VERSION\b" />
+        <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_POSTFLIGHT_&id_re;_SCRIPT\b" />
+        <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_PREFLIGHT_&id_re;_SCRIPT\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_RPM_&id_re;_DEFAULT_DIR_PERMISSIONS\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_RPM_&id_re;_DEFAULT_FILE_PERMISSIONS\b" />
         <RegExpr attribute="Builtin Variable" context="#stay" String="\bCPACK_RPM_&id_re;_DEFAULT_GROUP\b" />
@@ -3866,6 +4008,7 @@
         <RegExpr attribute="Standard Environment Variable" context="#stay" String="\b&id_re;_ROOT\b" />
         <RegExpr attribute="Standard Environment Variable" context="#stay" String="\bASM&id_re;\b" />
         <RegExpr attribute="Standard Environment Variable" context="#stay" String="\bASM&id_re;FLAGS\b" />
+        <RegExpr attribute="Standard Environment Variable" context="#stay" String="\bCMAKE_&id_re;_COMPILER_LAUNCHER\b" />
         <DetectIdentifier />
         <DetectChar attribute="Environment Variable Substitution" context="#pop#pop" char="}" />
       </context>

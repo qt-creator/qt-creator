@@ -27,15 +27,15 @@ using namespace KSyntaxHighlighting;
 
 static_assert(sizeof(FoldingRegion) == 2, "FoldingRegion is size-sensitive to frequent use in KTextEditor!");
 
-FoldingRegion::FoldingRegion() :
-    m_type(None),
-    m_id(0)
+FoldingRegion::FoldingRegion()
+    : m_type(None)
+    , m_id(0)
 {
 }
 
-FoldingRegion::FoldingRegion(Type type, quint16 id) :
-    m_type(type),
-    m_id(id)
+FoldingRegion::FoldingRegion(Type type, quint16 id)
+    : m_type(type)
+    , m_id(id)
 {
 }
 

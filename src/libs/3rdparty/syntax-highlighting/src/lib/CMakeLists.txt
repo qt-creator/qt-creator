@@ -23,6 +23,8 @@ ecm_qt_declare_logging_category(syntax_highlighting_srcs
     HEADER ksyntaxhighlighting_logging.h
     IDENTIFIER KSyntaxHighlighting::Log
     CATEGORY_NAME org.kde.ksyntaxhighlighting
+    DESCRIPTION "Syntax Highlighting"
+    EXPORT KSYNTAXHIGHLIGHTING
 )
 
 add_library(KF5SyntaxHighlighting ${syntax_highlighting_srcs} $<TARGET_OBJECTS:SyntaxHighlightingData>)

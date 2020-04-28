@@ -4,9 +4,9 @@
 	<!-- names must start with a letter, ideogram or underscore. \w matches any
 		 word character *or* a number, hence the lookahead -->
 	<!ENTITY name    "(?![0-9])[\w_:][\w.:_-]*">
-	<!ENTITY entref  "&amp;(#[0-9]+|#[xX][0-9A-Fa-f]+|&name;);">
+	<!ENTITY entref  "&amp;(?:#[0-9]+|#[xX][0-9A-Fa-f]+|&name;);">
 ]>
-<language name="XML" version="9" kateversion="3.4" section="Markup" extensions="*.docbook;*.xml;*.rc;*.daml;*.rdf;*.rss;*.xspf;*.xsd;*.svg;*.ui;*.kcfg;*.qrc;*.wsdl;*.scxml;*.xbel;*.dae;*.sch;*.brd" mimetype="text/xml;text/book;text/daml;text/rdf;application/rss+xml;application/xspf+xml;image/svg+xml;application/x-designer;application/x-xbel;application/xml;application/scxml+xml" casesensitive="1" indenter="xml" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
+<language name="XML" version="10" kateversion="3.4" section="Markup" extensions="*.docbook;*.xml;*.rc;*.daml;*.rdf;*.rss;*.xspf;*.xsd;*.svg;*.ui;*.kcfg;*.qrc;*.wsdl;*.scxml;*.xbel;*.dae;*.sch;*.brd" mimetype="text/xml;text/book;text/daml;text/rdf;application/rss+xml;application/xspf+xml;image/svg+xml;application/x-designer;application/x-xbel;application/xml;application/scxml+xml" casesensitive="1" indenter="xml" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
 
 <highlighting>
 <contexts>
@@ -40,8 +40,9 @@
   <context name="Comment" attribute="Comment" lineEndContext="#stay">
     <DetectSpaces />
     <StringDetect attribute="Comment" context="#pop" String="--&gt;" endRegion="comment" />
-    <RegExpr attribute="Error" context="#stay" String="-(-(?!-&gt;))+" />
+    <RegExpr attribute="Error" context="#stay" String="-(?:\-(?!-&gt;))+" />
     <IncludeRules context="##Alerts" />
+    <IncludeRules context="##Modelines" />
     <DetectIdentifier />
   </context>
 
@@ -63,7 +64,7 @@
 
   <context name="Doctype Internal Subset" attribute="Other Text" lineEndContext="#stay">
     <DetectChar attribute="Doctype" context="#pop" char="]" endRegion="int_subset" />
-    <RegExpr attribute="Doctype" context="Doctype Markupdecl" String="&lt;!(ELEMENT|ENTITY|ATTLIST|NOTATION)\b" />
+    <RegExpr attribute="Doctype" context="Doctype Markupdecl" String="&lt;!(?:ELEMENT|ENTITY|ATTLIST|NOTATION)\b" />
     <StringDetect attribute="Comment" context="Comment" String="&lt;!--" beginRegion="comment" />
     <RegExpr attribute="Processing Instruction" context="PI" String="&lt;\?[\w:_-]*" beginRegion="pi" />
     <IncludeRules context="FindPEntityRefs" />
@@ -88,8 +89,7 @@
   <context name="Element" attribute="Other Text" lineEndContext="#stay">
     <Detect2Chars attribute="Element" context="#pop" char="/" char1="&gt;" endRegion="element" />
     <DetectChar attribute="Element" context="El Content" char="&gt;" />
-    <RegExpr attribute="Attribute" context="Attribute" String="^&name;" />
-    <RegExpr attribute="Attribute" context="Attribute" String="\s+&name;" />
+    <RegExpr attribute="Attribute" context="Attribute" String="(?:^|\s+)&name;" />
     <RegExpr attribute="Error" context="#stay" String="\S" />
   </context>
 
@@ -143,7 +143,7 @@
 </highlighting>
 <general>
   <comments>
-    <comment name="multiLine" start="&lt;!--" end="--&gt;" />
+    <comment name="multiLine" start="&lt;!--" end="--&gt;" region="comment" />
   </comments>
 </general>
 </language>

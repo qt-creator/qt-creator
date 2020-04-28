@@ -34,8 +34,8 @@ QT_BEGIN_NAMESPACE
 class QString;
 QT_END_NAMESPACE
 
-namespace KSyntaxHighlighting {
-
+namespace KSyntaxHighlighting
+{
 class AbstractHighlighterPrivate;
 class Definition;
 class FoldingRegion;

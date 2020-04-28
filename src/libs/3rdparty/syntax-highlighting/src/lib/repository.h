@@ -26,12 +26,12 @@
 
 #include "ksyntaxhighlighting_export.h"
 
-#include <qglobal.h>
 #include <memory>
+#include <qglobal.h>
 
 QT_BEGIN_NAMESPACE
 class QString;
-template <typename T> class QVector;
+template<typename T> class QVector;
 QT_END_NAMESPACE
 
 /**
@@ -43,8 +43,8 @@ QT_END_NAMESPACE
  *
  * @see Repository
  */
-namespace KSyntaxHighlighting {
-
+namespace KSyntaxHighlighting
+{
 class Definition;
 class RepositoryPrivate;
 class Theme;

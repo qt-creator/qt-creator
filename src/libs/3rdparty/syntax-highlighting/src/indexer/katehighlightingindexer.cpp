@@ -22,21 +22,21 @@
 */
 
 #include <QCoreApplication>
+#include <QDebug>
 #include <QFile>
 #include <QFileInfo>
-#include <QVariant>
-#include <QXmlStreamReader>
 #include <QJsonDocument>
 #include <QRegularExpression>
-#include <QDebug>
+#include <QVariant>
+#include <QXmlStreamReader>
 
 #ifdef QT_XMLPATTERNS_LIB
 #include <QXmlSchema>
 #include <QXmlSchemaValidator>
 #endif
 
-namespace {
-
+namespace
+{
 QStringList readListing(const QString &fileName)
 {
     QFile file(fileName);
@@ -56,8 +56,7 @@ QStringList readListing(const QString &fileName)
     }
 
     if (xml.hasError()) {
-        qWarning() << "XML error while reading" << fileName << " - "
-            << qPrintable(xml.errorString()) << "@ offset" << xml.characterOffset();
+        qWarning() << "XML error while reading" << fileName << " - " << qPrintable(xml.errorString()) << "@ offset" << xml.characterOffset();
         listing.clear();
     }
 
@@ -72,7 +71,11 @@ QStringList readListing(const QString &fileName)
 bool checkExtensions(const QString &extensions)
 {
     // get list of extensions
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
     const QStringList extensionParts = extensions.split(QLatin1Char(';'), QString::SkipEmptyParts);
+#else
+    const QStringList extensionParts = extensions.split(QLatin1Char(';'), Qt::SkipEmptyParts);
+#endif
 
     // ok if empty
     if (extensionParts.isEmpty()) {
@@ -80,7 +83,7 @@ bool checkExtensions(const QString &extensions)
     }
 
     // check that only valid wildcard things are inside the parts
-    for (const auto& extension : extensionParts) {
+    for (const auto &extension : extensionParts) {
         for (const auto c : extension) {
             // eat normal things
             if (c.isDigit() || c.isLetter()) {
@@ -110,14 +113,15 @@ bool checkExtensions(const QString &extensions)
 //! - is not empty
 //! - isValid()
 //! - character ranges such as [A-Z] are valid and not accidentally e.g. [A-z].
+//! - dynamic=true but no place holder used?
 bool checkRegularExpression(const QString &hlFilename, QXmlStreamReader &xml)
 {
     if (xml.name() == QLatin1String("RegExpr") || xml.name() == QLatin1String("emptyLine")) {
         // get right attribute
-        const QString string (xml.attributes().value((xml.name() == QLatin1String("RegExpr")) ? QLatin1String("String") : QLatin1String("regexpr")).toString());
+        const QString string(xml.attributes().value((xml.name() == QLatin1String("RegExpr")) ? QLatin1String("String") : QLatin1String("regexpr")).toString());
 
         // validate regexp
-        const QRegularExpression regexp (string);
+        const QRegularExpression regexp(string);
         if (!regexp.isValid()) {
             qWarning() << hlFilename << "line" << xml.lineNumber() << "broken regex:" << string << "problem:" << regexp.errorString() << "at offset" << regexp.patternErrorOffset();
             return false;
@@ -131,6 +135,15 @@ bool checkRegularExpression(const QString &hlFilename, QXmlStreamReader &xml)
         if (azOffset >= 0) {
             qWarning() << hlFilename << "line" << xml.lineNumber() << "broken regex:" << string << "problem: [a-Z] or [A-z] at offset" << azOffset;
             return false;
+        }
+
+        // dynamic == true and no place holder?
+        if (xml.name() == QLatin1String("RegExpr") && xml.attributes().value(QStringLiteral("dynamic")) == QStringLiteral("true")) {
+            static const QRegularExpression placeHolder(QStringLiteral("%\\d+"));
+            if (!string.contains(placeHolder)) {
+                qWarning() << hlFilename << "line" << xml.lineNumber() << "broken regex:" << string << "problem: dynamic=true but no %\\d+ placeholder";
+                return false;
+            }
         }
     }
 
@@ -203,20 +216,19 @@ class KeywordIncludeChecker
 public:
     void processElement(const QString &hlFilename, const QString &hlName, QXmlStreamReader &xml)
     {
-         if (xml.name() == QLatin1String("list")) {
-             auto &keywords = m_keywordMap[hlName];
-             keywords.filename = hlFilename;
-             auto name = xml.attributes().value(QLatin1String("name")).toString();
-             m_currentIncludes = &keywords.includes[name];
-         }
-         else if (xml.name() == QLatin1String("include")) {
-             if (!m_currentIncludes) {
-                 qWarning() << hlFilename << "line" << xml.lineNumber() << "<include> tag ouside <list>";
-                 m_success = false;
-             } else {
-                 m_currentIncludes->push_back({xml.lineNumber(), xml.readElementText()});
-             }
-         }
+        if (xml.name() == QLatin1String("list")) {
+            auto &keywords = m_keywordMap[hlName];
+            keywords.filename = hlFilename;
+            auto name = xml.attributes().value(QLatin1String("name")).toString();
+            m_currentIncludes = &keywords.includes[name];
+        } else if (xml.name() == QLatin1String("include")) {
+            if (!m_currentIncludes) {
+                qWarning() << hlFilename << "line" << xml.lineNumber() << "<include> tag ouside <list>";
+                m_success = false;
+            } else {
+                m_currentIncludes->push_back({xml.lineNumber(), xml.readElementText()});
+            }
+        }
     }
 
     bool check() const
@@ -232,8 +244,7 @@ public:
                     if (idx == -1) {
                         auto &keywordName = includes.key();
                         containsKeywordName = keywords.includes.contains(keywordName);
-                    }
-                    else {
+                    } else {
                         auto defName = include.name.mid(idx + 2);
                         auto listName = include.name.left(idx);
                         auto it = m_keywordMap.find(defName);
@@ -256,11 +267,9 @@ public:
     }
 
 private:
-    struct Keywords
-    {
+    struct Keywords {
         QString filename;
-        struct Include
-        {
+        struct Include {
             qint64 line;
             QString name;
         };
@@ -279,7 +288,8 @@ class KeywordChecker
 public:
     KeywordChecker(const QString &filename)
         : m_filename(filename)
-    {}
+    {
+    }
 
     void processElement(QXmlStreamReader &xml)
     {
@@ -343,7 +353,7 @@ public:
     void processElement(const QString &hlFilename, const QString &hlName, QXmlStreamReader &xml)
     {
         if (xml.name() == QLatin1String("context")) {
-            auto & language = m_contextMap[hlName];
+            auto &language = m_contextMap[hlName];
             language.hlFilename = hlFilename;
             const QString name = xml.attributes().value(QLatin1String("name")).toString();
             if (language.isFirstContext) {
@@ -387,13 +397,12 @@ public:
         bool success = m_success;
 
         // recursive search for the required miximal version
-        struct GetRequiredVersion
-        {
-            QHash<const Language*, Version> versionMap;
+        struct GetRequiredVersion {
+            QHash<const Language *, Version> versionMap;
 
             Version operator()(const QHash<QString, Language> &contextMap, const Language &language)
             {
-                auto& version = versionMap[&language];
+                auto &version = versionMap[&language];
                 if (version < language.version) {
                     version = language.version;
                     for (auto &languageName : language.usedLanguageName) {
@@ -451,7 +460,11 @@ private:
 
         // handle cross-language context references
         if (context.contains(QStringLiteral("##"))) {
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
             const QStringList list = context.split(QStringLiteral("##"), QString::SkipEmptyParts);
+#else
+            const QStringList list = context.split(QStringLiteral("##"), Qt::SkipEmptyParts);
+#endif
             if (list.size() == 1) {
                 // nothing to do, other language is included: e.g. ##Doxygen
             } else if (list.size() == 2) {
@@ -471,15 +484,15 @@ private:
     }
 
 private:
-    struct Version
-    {
+    struct Version {
         int majorRevision;
         int minorRevision;
 
         Version(int majorRevision = 0, int minorRevision = 0)
             : majorRevision(majorRevision)
             , minorRevision(minorRevision)
-        {}
+        {
+        }
 
         bool operator<(const Version &version) const
         {
@@ -487,12 +500,13 @@ private:
         }
     };
 
-    void processVersion(const QString &hlFilename, const QString &hlName, QXmlStreamReader &xml, Version const& requiredVersion, QLatin1String item)
+    void processVersion(const QString &hlFilename, const QString &hlName, QXmlStreamReader &xml, Version const &requiredVersion, QLatin1String item)
     {
         auto &language = m_contextMap[hlName];
 
         if (language.version < requiredVersion) {
-            qWarning().nospace() << hlFilename << " " << item << " in line " << xml.lineNumber() << " is only available since version " << requiredVersion.majorRevision << "." << requiredVersion.minorRevision << ". Please, increase kateversion.";
+            qWarning().nospace() << hlFilename << " " << item << " in line " << xml.lineNumber() << " is only available since version " << requiredVersion.majorRevision << "." << requiredVersion.minorRevision
+                                 << ". Please, increase kateversion.";
             // update the version to cancel future warnings
             language.version = requiredVersion;
             m_success = false;
@@ -540,7 +554,8 @@ class AttributeChecker
 public:
     AttributeChecker(const QString &filename)
         : m_filename(filename)
-    {}
+    {
+    }
 
     void processElement(QXmlStreamReader &xml)
     {
@@ -620,9 +635,8 @@ int main(int argc, char *argv[])
     }
 
     // text attributes
-    const QStringList textAttributes = QStringList() << QStringLiteral("name") << QStringLiteral("section") << QStringLiteral("mimetype")
-            << QStringLiteral("extensions") << QStringLiteral("style")
-            << QStringLiteral("author") << QStringLiteral("license") << QStringLiteral("indenter");
+    const QStringList textAttributes = QStringList() << QStringLiteral("name") << QStringLiteral("section") << QStringLiteral("mimetype") << QStringLiteral("extensions") << QStringLiteral("style") << QStringLiteral("author")
+                                                     << QStringLiteral("license") << QStringLiteral("indenter");
 
     // index all given highlightings
     ContextChecker contextChecker;
@@ -632,7 +646,7 @@ int main(int argc, char *argv[])
     for (const QString &hlFilename : qAsConst(hlFilenames)) {
         QFile hlFile(hlFilename);
         if (!hlFile.open(QIODevice::ReadOnly)) {
-            qWarning ("Failed to open %s", qPrintable(hlFilename));
+            qWarning("Failed to open %s", qPrintable(hlFilename));
             anyError = 3;
             continue;
         }
@@ -749,7 +763,6 @@ int main(int argc, char *argv[])
 
     if (!keywordIncludeChecker.check())
         anyError = 7;
-
 
     // bail out if any problem was seen
     if (anyError)

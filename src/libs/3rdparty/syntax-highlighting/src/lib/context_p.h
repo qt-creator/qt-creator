@@ -24,11 +24,11 @@
 #ifndef KSYNTAXHIGHLIGHTING_CONTEXT_P_H
 #define KSYNTAXHIGHLIGHTING_CONTEXT_P_H
 
-#include "rule_p.h"
 #include "contextswitch_p.h"
 #include "definition.h"
 #include "definitionref_p.h"
 #include "format.h"
+#include "rule_p.h"
 
 #include <QString>
 
@@ -38,8 +38,8 @@ QT_BEGIN_NAMESPACE
 class QXmlStreamReader;
 QT_END_NAMESPACE
 
-namespace KSyntaxHighlighting {
-
+namespace KSyntaxHighlighting
+{
 class Context
 {
 public:
@@ -98,12 +98,7 @@ public:
 private:
     Q_DISABLE_COPY(Context)
 
-    enum ResolveState {
-        Unknown,
-        Unresolved,
-        Resolving,
-        Resolved
-    };
+    enum ResolveState { Unknown, Unresolved, Resolving, Resolved };
     ResolveState resolveState();
 
     DefinitionRef m_def;

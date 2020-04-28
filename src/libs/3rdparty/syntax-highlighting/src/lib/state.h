@@ -28,8 +28,8 @@
 
 #include <QExplicitlySharedDataPointer>
 
-namespace KSyntaxHighlighting {
-
+namespace KSyntaxHighlighting
+{
 class StateData;
 
 /** Opaque handle to the state of the highlighting engine.
@@ -48,7 +48,7 @@ public:
     State();
     State(const State &other);
     ~State();
-    State& operator=(const State &rhs);
+    State &operator=(const State &rhs);
 
     /** Compares two states for equality.
      *  For two equal states and identical text input, AbstractHighlighter

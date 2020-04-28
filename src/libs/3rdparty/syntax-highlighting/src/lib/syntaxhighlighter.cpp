@@ -29,12 +29,12 @@
 #include "state.h"
 #include "theme.h"
 
-
 Q_DECLARE_METATYPE(QTextBlock)
 
 using namespace KSyntaxHighlighting;
 
-namespace KSyntaxHighlighting {
+namespace KSyntaxHighlighting
+{
 class TextBlockUserData : public QTextBlockUserData
 {
 public:
@@ -51,9 +51,9 @@ public:
 
 }
 
-FoldingRegion SyntaxHighlighterPrivate::foldingRegion(const QTextBlock& startBlock)
+FoldingRegion SyntaxHighlighterPrivate::foldingRegion(const QTextBlock &startBlock)
 {
-    const auto data = dynamic_cast<TextBlockUserData*>(startBlock.userData());
+    const auto data = dynamic_cast<TextBlockUserData *>(startBlock.userData());
     if (!data)
         return FoldingRegion();
     for (int i = data->foldingRegions.size() - 1; i >= 0; --i) {
@@ -63,16 +63,16 @@ FoldingRegion SyntaxHighlighterPrivate::foldingRegion(const QTextBlock& startBlo
     return FoldingRegion();
 }
 
-SyntaxHighlighter::SyntaxHighlighter(QObject* parent) :
-    QSyntaxHighlighter(parent),
-    AbstractHighlighter(new SyntaxHighlighterPrivate)
+SyntaxHighlighter::SyntaxHighlighter(QObject *parent)
+    : QSyntaxHighlighter(parent)
+    , AbstractHighlighter(new SyntaxHighlighterPrivate)
 {
     qRegisterMetaType<QTextBlock>();
 }
 
-SyntaxHighlighter::SyntaxHighlighter(QTextDocument *document) :
-    QSyntaxHighlighter(document),
-    AbstractHighlighter(new SyntaxHighlighterPrivate)
+SyntaxHighlighter::SyntaxHighlighter(QTextDocument *document)
+    : QSyntaxHighlighter(document)
+    , AbstractHighlighter(new SyntaxHighlighterPrivate)
 {
     qRegisterMetaType<QTextBlock>();
 }
@@ -81,7 +81,7 @@ SyntaxHighlighter::~SyntaxHighlighter()
 {
 }
 
-void SyntaxHighlighter::setDefinition(const Definition& def)
+void SyntaxHighlighter::setDefinition(const Definition &def)
 {
     const auto needsRehighlight = definition() != def;
     AbstractHighlighter::setDefinition(def);
@@ -102,7 +102,7 @@ QTextBlock SyntaxHighlighter::findFoldingRegionEnd(const QTextBlock &startBlock)
     int depth = 1;
     while (block.isValid()) {
         block = block.next();
-        const auto data = dynamic_cast<TextBlockUserData*>(block.userData());
+        const auto data = dynamic_cast<TextBlockUserData *>(block.userData());
         if (!data)
             continue;
         for (auto it = data->foldingRegions.constBegin(); it != data->foldingRegions.constEnd(); ++it) {
@@ -120,21 +120,21 @@ QTextBlock SyntaxHighlighter::findFoldingRegionEnd(const QTextBlock &startBlock)
     return QTextBlock();
 }
 
-void SyntaxHighlighter::highlightBlock(const QString& text)
+void SyntaxHighlighter::highlightBlock(const QString &text)
 {
     Q_D(SyntaxHighlighter);
 
     State state;
     if (currentBlock().position() > 0) {
         const auto prevBlock = currentBlock().previous();
-        const auto prevData = dynamic_cast<TextBlockUserData*>(prevBlock.userData());
+        const auto prevData = dynamic_cast<TextBlockUserData *>(prevBlock.userData());
         if (prevData)
             state = prevData->state;
     }
     d->foldingRegions.clear();
     state = highlightLine(text, state);
 
-    auto data = dynamic_cast<TextBlockUserData*>(currentBlockUserData());
+    auto data = dynamic_cast<TextBlockUserData *>(currentBlockUserData());
     if (!data) { // first time we highlight this
         data = new TextBlockUserData;
         data->state = state;
@@ -153,7 +153,7 @@ void SyntaxHighlighter::highlightBlock(const QString& text)
         QMetaObject::invokeMethod(this, "rehighlightBlock", Qt::QueuedConnection, Q_ARG(QTextBlock, nextBlock));
 }
 
-void SyntaxHighlighter::applyFormat(int offset, int length, const KSyntaxHighlighting::Format& format)
+void SyntaxHighlighter::applyFormat(int offset, int length, const KSyntaxHighlighting::Format &format)
 {
     if (length == 0)
         return;

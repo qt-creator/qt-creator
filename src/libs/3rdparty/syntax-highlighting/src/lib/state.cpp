@@ -31,7 +31,7 @@
 
 using namespace KSyntaxHighlighting;
 
-StateData* StateData::get(State &state)
+StateData *StateData::get(State &state)
 {
     state.d.detach();
     return state.d.data();
@@ -72,7 +72,7 @@ bool StateData::pop(int popCount)
     return initialContextSurvived;
 }
 
-Context* StateData::topContext() const
+Context *StateData::topContext() const
 {
     Q_ASSERT(!isEmpty());
     return m_contextStack.last().first;
@@ -84,13 +84,13 @@ const QStringList &StateData::topCaptures() const
     return m_contextStack.last().second;
 }
 
-State::State() :
-    d(new StateData)
+State::State()
+    : d(new StateData)
 {
 }
 
-State::State(const State &other) :
-    d(other.d)
+State::State(const State &other)
+    : d(other.d)
 {
 }
 
@@ -98,7 +98,7 @@ State::~State()
 {
 }
 
-State& State::operator=(const State &other)
+State &State::operator=(const State &other)
 {
     d = other.d;
     return *this;
