@@ -38,6 +38,10 @@ StudioControls.ComboBox {
     enum ValueType { String, Integer, Enum }
     property int valueType: ComboBox.ValueType.Enum
 
+    onModelChanged: colorLogic.invalidate()
+
+    // This is available in all editors.
+
     onValueTypeChanged: {
         if (comboBox.valueType === ComboBox.ValueType.Integer)
             comboBox.useInteger = true
@@ -97,28 +101,34 @@ StudioControls.ComboBox {
                 comboBox.valueFromBackendChanged()
             } else {
                 switch (comboBox.valueType) {
-                    case ComboBox.ValueType.String:
-                        if (comboBox.currentText !== comboBox.backendValue.value)
-                            comboBox.currentText = comboBox.backendValue.value
-                        break
-                    case ComboBox.ValueType.Integer:
-                        if (comboBox.currentIndex !== comboBox.backendValue.value)
-                            comboBox.currentIndex = comboBox.backendValue.value
-                        break
-                    case ComboBox.ValueType.Enum:
-                    default:
-                        var enumString = comboBox.backendValue.enumeration
-
-                        if (enumString === "")
-                            enumString = comboBox.backendValue.value
-
-                        var index = comboBox.find(enumString)
-
+                case ComboBox.ValueType.String:
+                    if (comboBox.currentText !== comboBox.backendValue.value) {
+                        var index = comboBox.find(comboBox.backendValue.value)
                         if (index < 0)
                             index = 0
 
                         if (index !== comboBox.currentIndex)
                             comboBox.currentIndex = index
+                    }
+                    break
+                case ComboBox.ValueType.Integer:
+                    if (comboBox.currentIndex !== comboBox.backendValue.value)
+                        comboBox.currentIndex = comboBox.backendValue.value
+                    break
+                case ComboBox.ValueType.Enum:
+                default:
+                    var enumString = comboBox.backendValue.enumeration
+
+                    if (enumString === "")
+                        enumString = comboBox.backendValue.value
+
+                    index = comboBox.find(enumString)
+
+                    if (index < 0)
+                        index = 0
+
+                    if (index !== comboBox.currentIndex)
+                        comboBox.currentIndex = index
                 }
             }
 
@@ -137,15 +147,15 @@ StudioControls.ComboBox {
             return
 
         switch (comboBox.valueType) {
-            case ComboBox.ValueType.String:
-                comboBox.backendValue.value = comboBox.currentText
-                break
-            case ComboBox.ValueType.Integer:
-                comboBox.backendValue.value = comboBox.currentIndex
-                break
-            case ComboBox.ValueType.Enum:
-            default:
-                comboBox.backendValue.setEnumeration(comboBox.scope, comboBox.currentText)
+        case ComboBox.ValueType.String:
+            comboBox.backendValue.value = comboBox.currentText
+            break
+        case ComboBox.ValueType.Integer:
+            comboBox.backendValue.value = comboBox.currentIndex
+            break
+        case ComboBox.ValueType.Enum:
+        default:
+            comboBox.backendValue.setEnumeration(comboBox.scope, comboBox.currentText)
         }
     }
 

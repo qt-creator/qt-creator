@@ -283,7 +283,8 @@ def qdump__std__map(d, value):
         return
 
     # stuff is actually (color, pad) with 'I@', but we can save cycles/
-    (compare, stuff, parent, left, right, size) = value.split('pppppp')
+    (compare, stuff, parent, left, right) = value.split('ppppp')
+    size = value["_M_t"]["_M_impl"]["_M_node_count"].integer()
     d.check(0 <= size and size <= 100 * 1000 * 1000)
     d.putItemCount(size)
 

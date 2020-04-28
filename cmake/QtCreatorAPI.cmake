@@ -496,11 +496,11 @@ function(add_qtc_library name)
   file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
   target_include_directories(${name}
-    PRIVATE ${_arg_INCLUDES}
-    PUBLIC
+    PRIVATE
+      ${_arg_INCLUDES}
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+    PUBLIC
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>"
-      "$<INSTALL_INTERFACE:include/${include_dir_relative_path}>"
       "$<INSTALL_INTERFACE:include/${include_dir_relative_path}/..>"
   )
   set_public_includes(${name} "${_arg_PUBLIC_INCLUDES}")
@@ -755,10 +755,9 @@ function(add_qtc_plugin target_name)
       ${_arg_INCLUDES}
       "${CMAKE_CURRENT_BINARY_DIR}"
       "${CMAKE_BINARY_DIR}/src"
-    PUBLIC
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+    PUBLIC
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>"
-      "$<INSTALL_INTERFACE:include/${include_dir_relative_path}>"
       "$<INSTALL_INTERFACE:include/${include_dir_relative_path}/..>"
   )
   set_public_includes(${target_name} "${_arg_PUBLIC_INCLUDES}")
@@ -886,7 +885,7 @@ function(extend_qtc_target target_name)
     if (NOT IS_ABSOLUTE ${_arg_SOURCES_PREFIX})
       set(_arg_SOURCES_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/${_arg_SOURCES_PREFIX}")
     endif()
-    target_include_directories(${target_name} PUBLIC $<BUILD_INTERFACE:${_arg_SOURCES_PREFIX}>)
+    target_include_directories(${target_name} PRIVATE $<BUILD_INTERFACE:${_arg_SOURCES_PREFIX}>)
 
     set(_arg_SOURCES ${prefixed_sources})
   endif()

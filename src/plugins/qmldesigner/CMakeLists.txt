@@ -6,7 +6,8 @@ add_qtc_plugin(QmlDesigner
     DESIGNER_CORE_LIBRARY
     IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
   PUBLIC_INCLUDES
-    ${CMAKE_CURRENT_LIST_DIR}/designercore/include
+    "${CMAKE_CURRENT_LIST_DIR}"
+    "${CMAKE_CURRENT_LIST_DIR}/designercore/include"
   PLUGIN_DEPENDS
     Core ProjectExplorer QmlJSEditor QmakeProjectManager QmlProjectManager
     QtSupport TextEditor
@@ -155,6 +156,7 @@ extend_qtc_plugin(QmlDesigner
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX ../../../share/qtcreator/qml/qmlpuppet/types
+  PUBLIC_INCLUDES ../../../share/qtcreator/qml/qmlpuppet/types
   SOURCES enumeration.h
 )
 

@@ -269,8 +269,11 @@ protected:
             }
         }
 
-        if (type != SemanticHighlighter::UnknownType)
-            addUse(location, type);
+        if (type != SemanticHighlighter::UnknownType) {
+            // do not add uses of length 0 - this messes up highlighting (e.g. anon functions)
+            if (location.length != 0)
+                addUse(location, type);
+        }
     }
 
     void processTypeId(UiQualifiedId *typeId)

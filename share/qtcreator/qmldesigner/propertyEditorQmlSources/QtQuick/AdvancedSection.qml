@@ -100,14 +100,17 @@ Section {
         }
 
         Label {
-            text: "State"
+            text: qsTr("State")
         }
         SecondColumnLayout {
-            LineEdit {
+
+            ComboBox {
+                Layout.fillWidth: true
                 backendValue: backendValues.state
-                showTranslateCheckBox: false
-                enabled: anchorBackend.hasParent || isBaseState
+                model: allStateNames
+                valueType: ComboBox.String
             }
+
             ExpandingSpacer {
             }
         }
@@ -158,5 +161,56 @@ Section {
             }
         }
 
+        Label {
+            text: qsTr("Focus")
+            tooltip: qsTr("Holds whether the item has focus within the enclosing FocusScope.")
+            disabledState: !backendValues.focus.isAvailable
+        }
+        SecondColumnLayout {
+            CheckBox {
+                backendValue: backendValues.focus
+                text: backendValues.focus.valueToString
+                enabled: backendValues.focus.isAvailable
+                implicitWidth: 180
+            }
+            ExpandingSpacer {
+            }
+        }
+
+        Label {
+            text: qsTr("Active focus on tab")
+            tooltip: qsTr("Holds whether the item wants to be in the tab focus chain.")
+            disabledState: !backendValues.activeFocusOnTab.isAvailable
+        }
+        SecondColumnLayout {
+            CheckBox {
+                backendValue: backendValues.activeFocusOnTab
+                text: backendValues.activeFocusOnTab.valueToString
+                enabled: backendValues.activeFocusOnTab.isAvailable
+                implicitWidth: 180
+            }
+            ExpandingSpacer {
+            }
+        }
+
+        Label {
+            text: qsTr("Baseline offset")
+            tooltip: qsTr("Specifies the position of the item's baseline in local coordinates.")
+            disabledState: !backendValues.baselineOffset.isAvailable
+        }
+        SecondColumnLayout {
+            SpinBox {
+                sliderIndicatorVisible: true
+                backendValue: backendValues.baselineOffset
+                hasSlider: true
+                decimals: 0
+                minimumValue: -1000
+                maximumValue: 1000
+                Layout.preferredWidth: 140
+                enabled: backendValues.baselineOffset.isAvailable
+            }
+            ExpandingSpacer {
+            }
+        }
     }
 }

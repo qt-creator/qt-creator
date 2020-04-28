@@ -276,5 +276,17 @@ Section {
                               "Latin script,\n it is merely a cosmetic feature. Setting the preferShaping property to false will disable all such features\nwhen they are not required, which will improve performance in most cases.")
             }
         }
+
+        Label {
+            text: qsTr("Hinting preference")
+            toolTip: qsTr("Sets the preferred hinting on the text.")
+        }
+
+        ComboBox {
+            Layout.fillWidth: true
+            backendValue: getBackendValue("hintingPreference")
+            model: ["PreferDefaultHinting", "PreferNoHinting", "PreferVerticalHinting", "PreferFullHinting"]
+            scope: "Font"
+        }
     }
 }

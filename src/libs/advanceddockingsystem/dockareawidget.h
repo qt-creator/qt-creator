@@ -291,6 +291,13 @@ public:
      */
     void closeOtherAreas();
 
+    /**
+     * Returns the largest minimumSizeHint() of the dock widgets in this
+     * area.
+     * The minimum size hint is updated if a dock widget is removed or added.
+     */
+    virtual QSize minimumSizeHint() const override;
+
 signals:
     /**
      * This signal is emitted when user clicks on a tab at an index.

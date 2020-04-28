@@ -124,7 +124,7 @@ Column {
             }
 
             Label {
-                text: qsTr("Horizontal Fill mode")
+                text: qsTr("Horizontal Tile mode")
             }
 
             SecondColumnLayout {
@@ -138,7 +138,7 @@ Column {
             }
 
             Label {
-                text: qsTr("Vertical Fill mode")
+                text: qsTr("Vertical Tile mode")
             }
 
             SecondColumnLayout {
@@ -185,6 +185,70 @@ Column {
                 ExpandingSpacer {
 
                 }
+            }
+
+            Label {
+                text: qsTr("Mirror")
+                tooltip: qsTr("Specifies whether the image should be horizontally inverted.")
+                disabledState: !backendValues.mirror.isAvailable
+            }
+
+            SecondColumnLayout {
+                CheckBox {
+                    enabled: backendValues.mirror.isAvailable
+                    text: backendValues.mirror.valueToString
+                    backendValue: backendValues.mirror
+                    implicitWidth: 180
+                }
+                ExpandingSpacer {}
+            }
+
+            Label {
+                text: qsTr("Smooth")
+                tooltip: qsTr("Specifies whether the image is smoothly filtered when scaled or transformed.")
+                disabledState: !backendValues.smooth.isAvailable
+            }
+
+            SecondColumnLayout {
+                CheckBox {
+                    enabled: backendValues.smooth.isAvailable
+                    text: backendValues.smooth.valueToString
+                    backendValue: backendValues.smooth
+                    implicitWidth: 180
+                }
+                ExpandingSpacer {}
+            }
+
+            Label {
+                text: qsTr("Cache")
+                tooltip: qsTr("Specifies whether the image should be cached.")
+                disabledState: !backendValues.cache.isAvailable
+            }
+
+            SecondColumnLayout {
+                CheckBox {
+                    enabled: backendValues.cache.isAvailable
+                    text: backendValues.cache.valueToString
+                    backendValue: backendValues.cache
+                    implicitWidth: 180
+                }
+                ExpandingSpacer {}
+            }
+
+            Label {
+                text: qsTr("Asynchronous")
+                tooltip: qsTr("Specifies that images on the local filesystem should be loaded asynchronously in a separate thread.")
+                disabledState: !backendValues.asynchronous.isAvailable
+            }
+
+            SecondColumnLayout {
+                CheckBox {
+                    enabled: backendValues.asynchronous.isAvailable
+                    text: backendValues.asynchronous.valueToString
+                    backendValue: backendValues.asynchronous
+                    implicitWidth: 180
+                }
+                ExpandingSpacer {}
             }
         }
     }

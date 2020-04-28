@@ -229,7 +229,7 @@ void TransitionTool::clear()
 void TransitionTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
                                             QGraphicsSceneMouseEvent *event)
 {
-    if (m_block)
+    if (m_blockEvents)
         return;
 
     if (event->button() != Qt::LeftButton)
@@ -291,7 +291,7 @@ void  TransitionTool::dragMoveEvent(const QList<QGraphicsItem*> &/*itemList*/, Q
 void TransitionTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
                                  QGraphicsSceneMouseEvent *event)
 {
-    if (m_block)
+    if (m_blockEvents)
         return;
 
     if (event->button() == Qt::LeftButton) {
@@ -362,7 +362,7 @@ void TransitionTool::activateTool()
 
 void TransitionTool::unblock()
 {
-    m_block = false;
+    m_blockEvents = false;
 }
 
 QGraphicsLineItem *TransitionTool::lineItem()
@@ -389,7 +389,7 @@ FormEditorItem *TransitionTool::currentFormEditorItem() const
 }
 
 void TransitionTool::createItems() {
-    m_block = true;
+    m_blockEvents = true;
     QTimer::singleShot(200, this, [this](){ unblock(); });
 
     if (!lineItem())

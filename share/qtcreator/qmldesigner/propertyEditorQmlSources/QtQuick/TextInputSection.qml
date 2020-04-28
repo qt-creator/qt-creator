@@ -114,6 +114,19 @@ Section {
         }
 
         Label {
+            visible: textInputSection.isTextInput
+            text: qsTr("Maximum length")
+            tooltip: qsTr("Sets the maximum permitted length of the text in the TextInput.")
+        }
+        SpinBox {
+            visible: textInputSection.isTextInput
+            Layout.fillWidth: true
+            backendValue: backendValues.maximumLength
+            minimumValue: 0
+            maximumValue: 32767
+        }
+
+        Label {
             text: qsTr("Flags")
             Layout.alignment: Qt.AlignTop
         }

@@ -91,7 +91,12 @@ QStringList globalQtEnums()
         "Horizontal", "Vertical", "AlignVCenter", "AlignLeft", "LeftToRight", "RightToLeft",
         "AlignHCenter", "AlignRight", "AlignBottom", "AlignBaseline", "AlignTop", "BottomLeft",
         "LeftEdge", "RightEdge", "BottomEdge", "TopEdge", "TabFocus", "ClickFocus", "StrongFocus",
-        "WheelFocus", "NoFocus"
+        "WheelFocus", "NoFocus", "ArrowCursor", "UpArrowCursor", "CrossCursor", "WaitCursor",
+        "IBeamCursor", "SizeVerCursor", "SizeHorCursor", "SizeBDiagCursor", "SizeFDiagCursor",
+        "SizeAllCursor", "BlankCursor", "SplitVCursor", "SplitHCursor", "PointingHandCursor",
+        "ForbiddenCursor", "WhatsThisCursor", "BusyCursor", "OpenHandCursor", "ClosedHandCursor",
+        "DragCopyCursor", "DragMoveCursor", "DragLinkCursor", "TopToBottom",
+        "LeftButton", "RightButton", "MiddleButton", "BackButton", "ForwardButton", "AllButtons"
     };
 
     return list;
@@ -101,7 +106,7 @@ QStringList knownEnumScopes()
 {
     static const QStringList list = {
         "TextInput", "TextEdit", "Material", "Universal", "Font", "Shape", "ShapePath",
-        "AbstractButton", "Text", "ShaderEffectSource"
+        "AbstractButton", "Text", "ShaderEffectSource", "Grid"
     };
     return list;
 }

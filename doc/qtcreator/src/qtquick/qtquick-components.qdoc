@@ -33,7 +33,7 @@
     \contentspage index.html
     \page quick-components.html
     \if defined(qtdesignstudio)
-    \previouspage studio-prototyping.html
+    \previouspage quick-uis.html
     \else
     \previouspage creator-using-qt-quick-designer.html
     \endif

@@ -61,7 +61,7 @@ Section {
             Layout.fillWidth: true
             backendValue: backendValues.wrapMode
             scope: "Text"
-            model: ["NoWrap", "WordWrap", "WrapAnywhere", "WrapAtWordBoundaryOrAnywhere"]
+            model: ["NoWrap", "WordWrap", "WrapAnywhere", "Wrap"]
         }
 
         Label {
@@ -75,6 +75,21 @@ Section {
             backendValue: backendValues.elide
             scope: "Text"
             model: ["ElideNone", "ElideLeft", "ElideMiddle", "ElideRight"]
+        }
+
+        Label {
+            visible: showElide
+            text: qsTr("Maximum line count")
+            tooltip: qsTr("Limits the number of lines that the text item will show.")
+        }
+
+        SpinBox {
+            visible: showElide
+            Layout.fillWidth: true
+            backendValue: backendValues.maximumLineCount
+            minimumValue: 0
+            maximumValue: 10000
+            decimals: 0
         }
 
         Label {
@@ -124,6 +139,7 @@ Section {
             toolTip: qsTr("Specifies how the font size of the displayed text is determined.")
         }
         ComboBox {
+            id: fontSizeMode
             visible: showFontSizeMode
             scope: "Text"
             model:  ["FixedSize", "HorizontalFit", "VerticalFit", "Fit"]
@@ -131,6 +147,48 @@ Section {
             Layout.fillWidth: true
         }
 
+        Label {
+            visible: showFontSizeMode
+            text: qsTr("Minimum size")
+        }
+        SecondColumnLayout {
+            visible: showFontSizeMode
+
+            SpinBox {
+                enabled: fontSizeMode.currentIndex !== 0
+                minimumValue: 0
+                maximumValue: 500
+                decimals: 0
+                backendValue: backendValues.minimumPixelSize
+                Layout.fillWidth: true
+                Layout.minimumWidth: 60
+            }
+            Label {
+                text: qsTr("Pixel")
+                tooltip: qsTr("Specifies the minimum font pixel size of scaled text.")
+                width: 42
+            }
+
+            Item {
+                width: 4
+                height: 4
+            }
+
+            SpinBox {
+                enabled: fontSizeMode.currentIndex !== 0
+                minimumValue: 0
+                maximumValue: 500
+                decimals: 0
+                backendValue: backendValues.minimumPointSize
+                Layout.fillWidth: true
+                Layout.minimumWidth: 60
+            }
+            Label {
+                text: qsTr("Point")
+                tooltip: qsTr("Specifies the minimum font point size of scaled text.")
+                width: 42
+            }
+        }
 
         Label {
             visible: showLineHeight
@@ -148,5 +206,17 @@ Section {
             stepSize: 0.1
         }
 
+        Label {
+            visible: showLineHeight
+            text: qsTr("Line height mode")
+            toolTip: qsTr("Determines how the line height is specified.")
+        }
+        ComboBox {
+            visible: showLineHeight
+            scope: "Text"
+            model:  ["ProportionalHeight", "FixedHeight"]
+            backendValue: backendValues.lineHeightMode
+            Layout.fillWidth: true
+        }
     }
 }

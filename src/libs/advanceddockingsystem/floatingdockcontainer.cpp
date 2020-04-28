@@ -73,6 +73,7 @@ namespace ADS
         QPoint m_dragStartMousePosition;
         DockContainerWidget *m_dropContainer = nullptr;
         DockAreaWidget *m_singleDockArea = nullptr;
+        QPoint m_dragStartPos;
         QWidget *m_mouseEventHandler = nullptr;
         FloatingWidgetTitleBar *m_titleBar = nullptr;
 
@@ -107,25 +108,30 @@ namespace ADS
                 q->setWindowTitle(text);
         }
 
+        /**
+         * Reflect the current dock widget title in the floating widget windowTitle()
+         * depending on the DockManager::FloatingContainerHasWidgetTitle flag
+         */
         void reflectCurrentWidget(DockWidget *currentWidget)
         {
             // reflect CurrentWidget's title if configured to do so, otherwise display application name as window title
-            if (testConfigFlag(DockManager::FloatingContainerHasWidgetTitle)) {
+            if (testConfigFlag(DockManager::FloatingContainerHasWidgetTitle))
                 setWindowTitle(currentWidget->windowTitle());
-            } else {
+            else
                 setWindowTitle(QApplication::applicationDisplayName());
-            }
 
-            // reflect CurrentWidget's icon if configured to do so, otherwise display application icon as window icon
-            QIcon CurrentWidgetIcon = currentWidget->icon();
-            if (testConfigFlag(DockManager::FloatingContainerHasWidgetIcon)
-                    && !CurrentWidgetIcon.isNull())
-            {
+            // reflect currentWidget's icon if configured to do so, otherwise display application icon as window icon
+            QIcon currentWidgetIcon = currentWidget->icon();
+            if (testConfigFlag(DockManager::FloatingContainerHasWidgetIcon) && !currentWidgetIcon.isNull())
                 q->setWindowIcon(currentWidget->icon());
-            } else {
+            else
                 q->setWindowIcon(QApplication::windowIcon());
-            }
         }
+
+        /**
+         * Handles escape key press when dragging around the floating widget
+         */
+        void handleEscapeKey();
     }; // class FloatingDockContainerPrivate
 
     FloatingDockContainerPrivate::FloatingDockContainerPrivate(FloatingDockContainer *parent)
@@ -135,17 +141,15 @@ namespace ADS
     void FloatingDockContainerPrivate::titleMouseReleaseEvent()
     {
         setState(DraggingInactive);
-        if (!m_dropContainer) {
+        if (!m_dropContainer)
             return;
-        }
 
         if (m_dockManager->dockAreaOverlay()->dropAreaUnderCursor() != InvalidDockWidgetArea
             || m_dockManager->containerOverlay()->dropAreaUnderCursor() != InvalidDockWidgetArea) {
             // Resize the floating widget to the size of the highlighted drop area rectangle
             DockOverlay *overlay = m_dockManager->containerOverlay();
-            if (!overlay->dropOverlayRect().isValid()) {
+            if (!overlay->dropOverlayRect().isValid())
                 overlay = m_dockManager->dockAreaOverlay();
-            }
 
             QRect rect = overlay->dropOverlayRect();
             int frameWidth = (q->frameSize().width() - q->rect().width()) / 2;
@@ -165,26 +169,22 @@ namespace ADS
 
     void FloatingDockContainerPrivate::updateDropOverlays(const QPoint &globalPosition)
     {
-        if (!q->isVisible() || !m_dockManager) {
+        if (!q->isVisible() || !m_dockManager)
             return;
-        }
 
         auto containers = m_dockManager->dockContainers();
         DockContainerWidget *topContainer = nullptr;
         for (auto containerWidget : containers) {
-            if (!containerWidget->isVisible()) {
+            if (!containerWidget->isVisible())
                 continue;
-            }
 
-            if (m_dockContainer == containerWidget) {
+            if (m_dockContainer == containerWidget)
                 continue;
-            }
 
             QPoint mappedPos = containerWidget->mapFromGlobal(globalPosition);
             if (containerWidget->rect().contains(mappedPos)) {
-                if (!topContainer || containerWidget->isInFrontOf(topContainer)) {
+                if (!topContainer || containerWidget->isInFrontOf(topContainer))
                     topContainer = containerWidget;
-                }
             }
         }
 
@@ -221,6 +221,14 @@ namespace ADS
         } else {
             dockAreaOverlay->hideOverlay();
         }
+    }
+
+    void FloatingDockContainerPrivate::handleEscapeKey()
+    {
+        qCInfo(adsLog) << Q_FUNC_INFO;
+        setState(DraggingInactive);
+        m_dockManager->containerOverlay()->hideOverlay();
+        m_dockManager->dockAreaOverlay()->hideOverlay();
     }
 
     FloatingDockContainer::FloatingDockContainer(DockManager *dockManager)
@@ -268,9 +276,8 @@ namespace ADS
             d->m_titleBar->enableCloseButton(isClosable());
 
         auto dw = topLevelDockWidget();
-        if (dw) {
+        if (dw)
             dw->emitTopLevelChanged(true);
-        }
     }
 
     FloatingDockContainer::FloatingDockContainer(DockWidget *dockWidget)
@@ -281,17 +288,16 @@ namespace ADS
             d->m_titleBar->enableCloseButton(isClosable());
 
         auto dw = topLevelDockWidget();
-        if (dw) {
+        if (dw)
             dw->emitTopLevelChanged(true);
-        }
     }
 
     FloatingDockContainer::~FloatingDockContainer()
     {
         qCInfo(adsLog) << Q_FUNC_INFO;
-        if (d->m_dockManager) {
+        if (d->m_dockManager)
             d->m_dockManager->removeFloatingWidget(this);
-        }
+
         delete d;
     }
 
@@ -312,6 +318,10 @@ namespace ADS
         QWidget::moveEvent(event);
         switch (d->m_draggingState) {
         case DraggingMousePressed:
+            // TODO Is checking for windows only sufficient or has macOS also problems?
+            if (Utils::HostOsInfo::isWindowsHost())
+                QApplication::instance()->installEventFilter(this);
+
             d->setState(DraggingFloatingWidget);
             d->updateDropOverlays(QCursor::pos());
             break;
@@ -340,9 +350,8 @@ namespace ADS
         if (isClosable()) {
             auto dw = topLevelDockWidget();
             if (dw && dw->features().testFlag(DockWidget::DockWidgetDeleteOnClose)) {
-                if (!dw->closeDockWidgetInternal()) {
+                if (!dw->closeDockWidgetInternal())
                     return;
-                }
             }
 
             this->hide();
@@ -352,19 +361,16 @@ namespace ADS
     void FloatingDockContainer::hideEvent(QHideEvent *event)
     {
         Super::hideEvent(event);
-        if (event->spontaneous()) {
+        if (event->spontaneous())
             return;
-        }
 
         // Prevent toogleView() events during restore state
-        if (d->m_dockManager->isRestoringState()) {
+        if (d->m_dockManager->isRestoringState())
             return;
-        }
 
         for (auto dockArea : d->m_dockContainer->openedDockAreas()) {
-            for (auto dockWidget : dockArea->openedDockWidgets()) {
+            for (auto dockWidget : dockArea->openedDockWidgets())
                 dockWidget->toggleView(false);
-            }
         }
     }
 
@@ -379,22 +385,21 @@ namespace ADS
             // QEvent::NonClientAreaMouseButtonPress return the wrong mouse button
             // The event always returns Qt::RightButton even if the left button is clicked.
             // It is really great to work around the whole NonClientMouseArea bugs
+
+
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 2))
-            if (event->type()
-                == QEvent::
-                    NonClientAreaMouseButtonPress /*&& QGuiApplication::mouseButtons().testFlag(Qt::LeftButton)*/) {
-                qCInfo(adsLog) << Q_FUNC_INFO << "QEvent::NonClientAreaMouseButtonPress"
-                               << event->type();
-                d->setState(DraggingMousePressed);
-            }
+            if (event->type() == QEvent::NonClientAreaMouseButtonPress
+                    /*&& QGuiApplication::mouseButtons().testFlag(Qt::LeftButton)*/)
 #else
             if (event->type() == QEvent::NonClientAreaMouseButtonPress
-                && QGuiApplication::mouseButtons().testFlag(Qt::LeftButton)) {
+                    && QGuiApplication::mouseButtons().testFlag(Qt::LeftButton))
+#endif
+            {
                 qCInfo(adsLog) << Q_FUNC_INFO << "QEvent::NonClientAreaMouseButtonPress"
                                << event->type();
+                d->m_dragStartPos = pos();
                 d->setState(DraggingMousePressed);
             }
-#endif
         } break;
 
         case DraggingMousePressed:
@@ -438,6 +443,37 @@ namespace ADS
         qDebug() << "FloatingDockContainer::event " << event->type();
 #endif
         return QWidget::event(event);
+    }
+
+    bool FloatingDockContainer::eventFilter(QObject *watched, QEvent *event)
+    {
+        Q_UNUSED(watched);
+        // I have not found a way to detect non client area key press events to
+        // handle escape key presses. On Windows, if the escape key is pressed while
+        // dragging around a widget, the widget position is reset to its start position
+        // which in turn generates a QEvent::NonClientAreaMouseButtonRelease event
+        // if the mouse is outside of the widget after the move to its initial position
+        // or a QEvent::MouseButtonRelease event, if the mouse is inside of the widget
+        // after the position has been reset.
+        // So we can install an event filter on the application to get these events
+        // here to properly cancel dragging and hide the overlays.
+        // If we are in DraggingFloatingWidget state, it means the widget
+        // has been dragged already but if the position is the same like
+        // the start position, then this is an indication that the escape
+        // key has been pressed.
+        if (event->type() == QEvent::MouseButtonRelease || event->type() == QEvent::NonClientAreaMouseButtonRelease)
+        {
+            qCInfo(adsLog) << Q_FUNC_INFO << "QEvent::MouseButtonRelease or QEvent::NonClientAreaMouseButtonRelease"
+                           << "d->m_draggingState " << d->m_draggingState;
+            QApplication::instance()->removeEventFilter(this);
+            if (d->m_dragStartPos == pos())
+            {
+                d->handleEscapeKey();
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 
     void FloatingDockContainer::startFloating(const QPoint &dragStartMousePos,
