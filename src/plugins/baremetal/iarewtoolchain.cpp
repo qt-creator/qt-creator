@@ -72,7 +72,8 @@ static QString cppLanguageOption(const FilePath &compiler)
     if (baseName == "iccarm" || baseName == "iccrl78")
         return QString("--c++");
     if (baseName == "icc8051" || baseName == "iccavr"
-            || baseName == "iccstm8" || baseName == "icc430") {
+            || baseName == "iccstm8" || baseName == "icc430"
+            || baseName == "iccv850") {
         return QString("--ec++");
     }
     return {};
@@ -197,6 +198,8 @@ static Abi::Architecture guessArchitecture(const Macros &macros)
             return Abi::Architecture::Msp430Architecture;
         if (macro.key == "__ICCRL78__")
             return Abi::Architecture::Rl78Architecture;
+        if (macro.key == "__ICCV850__")
+            return Abi::Architecture::V850Architecture;
     }
     return Abi::Architecture::UnknownArchitecture;
 }
@@ -220,7 +223,8 @@ static Abi::BinaryFormat guessFormat(Abi::Architecture arch)
     }
     if (arch == Abi::Architecture::Mcs51Architecture
             || arch == Abi::Architecture::AvrArchitecture
-            || arch == Abi::Architecture::Msp430Architecture) {
+            || arch == Abi::Architecture::Msp430Architecture
+            || arch == Abi::Architecture::V850Architecture) {
         return Abi::BinaryFormat::UbrofFormat;
     }
     return Abi::BinaryFormat::UnknownFormat;
@@ -446,6 +450,7 @@ QList<ToolChain *> IarToolChainFactory::autoDetect(const QList<ToolChain *> &alr
         {{"EWSTM8"}, {"\\stm8\\bin\\iccstm8.exe"}},
         {{"EW430"}, {"\\430\\bin\\icc430.exe"}},
         {{"EWRL78"}, {"\\rl78\\bin\\iccrl78.exe"}},
+        {{"EWV850"}, {"\\v850\\bin\\iccv850.exe"}},
     };
 
     QSettings registry(kRegistryNode, QSettings::NativeFormat);

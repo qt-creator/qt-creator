@@ -64,6 +64,7 @@ public:
         Msp430Architecture,
         Rl78Architecture,
         C166Architecture,
+        V850Architecture,
         UnknownArchitecture
     };
 
