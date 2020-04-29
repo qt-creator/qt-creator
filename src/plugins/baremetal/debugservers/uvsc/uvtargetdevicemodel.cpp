@@ -67,8 +67,8 @@ static QString extractPackVersion(const QString &packFilePath)
 static QStringList findKeilPackFiles(const QString &path)
 {
     QStringList files;
-    // Search for the STMicroelectronics devices.
-    QDirIterator it(path, {"STM*_DFP"}, QDir::Dirs);
+    // Search for STMicroelectronics and NXP S32 devices.
+    QDirIterator it(path, {"STM*_DFP", "S32*_DFP"}, QDir::Dirs);
     while (it.hasNext()) {
         const QDir dfpDir(it.next());
         const QFileInfoList entries = dfpDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot,
