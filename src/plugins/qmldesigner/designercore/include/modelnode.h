@@ -57,6 +57,7 @@ class NodeListProperty;
 class NodeProperty;
 class NodeAbstractProperty;
 class ModelNode;
+class GlobalAnnotationStatus;
 class Comment;
 class Annotation;
 
@@ -206,6 +207,11 @@ public:
     bool hasGlobalAnnotation() const;
     void setGlobalAnnotation(const Annotation &annotation);
     void removeGlobalAnnotation();
+
+    GlobalAnnotationStatus globalStatus() const;
+    bool hasGlobalStatus() const;
+    void setGlobalStatus(const GlobalAnnotationStatus &status);
+    void removeGlobalStatus();
 
     qint32 internalId() const;
 

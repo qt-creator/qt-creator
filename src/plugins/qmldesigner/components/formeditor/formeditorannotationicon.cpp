@@ -269,7 +269,7 @@ void FormEditorAnnotationIcon::createReader()
 
         for (const Comment &comment : m_annotation.comments()) {
             QGraphicsItem *commentBubble = createCommentBubble(commentRect, comment.title(),
-                                                               comment.author(), comment.text(),
+                                                               comment.author(), comment.deescapedText(),
                                                                comment.timestampStr(), this);
             comments.push_back(commentBubble);
         }

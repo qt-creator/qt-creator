@@ -32,22 +32,22 @@
 namespace QmlDesigner {
 
 namespace Ui {
-class AnnotationEditorDialog;
+class GlobalAnnotationEditorDialog;
 }
 
-class AnnotationEditorDialog : public QDialog
+class GlobalAnnotationEditorDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit AnnotationEditorDialog(QWidget *parent, const QString &targetId, const QString &customId, const Annotation &annotation);
-    ~AnnotationEditorDialog();
+    explicit GlobalAnnotationEditorDialog(QWidget *parent, const Annotation &annotation, GlobalAnnotationStatus status);
+    ~GlobalAnnotationEditorDialog();
 
     void setAnnotation(const Annotation &annotation);
     Annotation annotation() const;
 
-    void setCustomId(const QString &customId);
-    QString customId() const;
+    void setStatus(GlobalAnnotationStatus status);
+    GlobalAnnotationStatus globalStatus() const;
 
 signals:
     void accepted();
@@ -67,13 +67,16 @@ private:
     void removeCommentTab(int index);
     void deleteAllTabs();
 
-private:
-    const QString annotationEditorTitle = {tr("Annotation Editor")};
-    const QString defaultTabName = {tr("Annotation")};
-    Ui::AnnotationEditorDialog *ui;
+    void setStatusVisibility(bool hasStatus);
 
-    QString m_customId;
+private:
+    const QString globalEditorTitle = {tr("Global Annotation Editor")};
+    const QString defaultTabName = {tr("Annotation")};
+    Ui::GlobalAnnotationEditorDialog *ui;
+
     Annotation m_annotation;
+    GlobalAnnotationStatus m_globalStatus;
+    bool m_statusIsActive;
 };
 
 } //namespace QmlDesigner

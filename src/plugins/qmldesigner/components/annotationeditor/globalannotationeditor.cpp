@@ -25,7 +25,7 @@
 
 #include "globalannotationeditor.h"
 
-#include "annotationeditordialog.h"
+#include "globalannotationeditordialog.h"
 #include "annotation.h"
 
 #include "qmlmodelnodeproxy.h"
@@ -49,15 +49,13 @@ GlobalAnnotationEditor::~GlobalAnnotationEditor()
 
 void GlobalAnnotationEditor::showWidget()
 {
-    m_dialog = new AnnotationEditorDialog(Core::ICore::dialogParent(),
-                                          modelNode().validId(),
-                                          "",
-                                          modelNode().globalAnnotation(),
-                                          AnnotationEditorDialog::EditorMode::GlobalAnnotation);
+    m_dialog = new GlobalAnnotationEditorDialog(Core::ICore::dialogParent(),
+                                                modelNode().globalAnnotation(),
+                                                modelNode().globalStatus());
 
-    QObject::connect(m_dialog, &AnnotationEditorDialog::accepted,
+    QObject::connect(m_dialog, &GlobalAnnotationEditorDialog::accepted,
                      this, &GlobalAnnotationEditor::acceptedClicked);
-    QObject::connect(m_dialog, &AnnotationEditorDialog::rejected,
+    QObject::connect(m_dialog, &GlobalAnnotationEditorDialog::rejected,
                      this, &GlobalAnnotationEditor::cancelClicked);
 
     m_dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -121,12 +119,24 @@ void GlobalAnnotationEditor::removeFullAnnotation()
 void GlobalAnnotationEditor::acceptedClicked()
 {
     if (m_dialog) {
+
         Annotation annotation = m_dialog->annotation();
 
         if (annotation.comments().isEmpty())
             m_modelNode.removeGlobalAnnotation();
         else
             m_modelNode.setGlobalAnnotation(annotation);
+
+        GlobalAnnotationStatus status = m_dialog->globalStatus();
+
+        if (status.status() == GlobalAnnotationStatus::NoStatus) {
+            if (m_modelNode.hasGlobalStatus()) {
+                m_modelNode.removeGlobalStatus();
+            }
+        }
+        else {
+            m_modelNode.setGlobalStatus(status);
+        }
     }
 
     hideWidget();

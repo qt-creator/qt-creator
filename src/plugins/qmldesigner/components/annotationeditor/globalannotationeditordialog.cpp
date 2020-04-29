@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 
-#include "annotationeditordialog.h"
-#include "ui_annotationeditordialog.h"
+#include "globalannotationeditordialog.h"
+#include "ui_globalannotationeditordialog.h"
 #include "annotation.h"
 #include "annotationcommenttab.h"
 
@@ -40,20 +40,21 @@
 
 namespace QmlDesigner {
 
-AnnotationEditorDialog::AnnotationEditorDialog(QWidget *parent, const QString &targetId, const QString &customId, const Annotation &annotation)
+GlobalAnnotationEditorDialog::GlobalAnnotationEditorDialog(QWidget *parent, const Annotation &annotation, GlobalAnnotationStatus status)
     : QDialog(parent)
-    , ui(new Ui::AnnotationEditorDialog)
-    , m_customId(customId)
+    , ui(new Ui::GlobalAnnotationEditorDialog)
     , m_annotation(annotation)
+    , m_globalStatus(status)
+    , m_statusIsActive(false)
 {
     ui->setupUi(this);
 
     setWindowFlag(Qt::Tool, true);
     setModal(true);
 
-    connect(this, &QDialog::accepted, this, &AnnotationEditorDialog::acceptedClicked);
+    connect(this, &QDialog::accepted, this, &GlobalAnnotationEditorDialog::acceptedClicked);
 
-    connect(ui->tabWidget, &QTabWidget::currentChanged, this, &AnnotationEditorDialog::tabChanged);
+    connect(ui->tabWidget, &QTabWidget::currentChanged, this, &GlobalAnnotationEditorDialog::tabChanged);
 
     auto *commentCornerWidget = new QToolBar;
 
@@ -68,7 +69,7 @@ AnnotationEditorDialog::AnnotationEditorDialog(QWidget *parent, const QString &t
     connect(commentRemoveAction, &QAction::triggered, this, [this]() {
 
         if (ui->tabWidget->count() == 0) { //it is not even supposed to happen but lets be sure
-            QTC_ASSERT(true, return);
+            QTC_ASSERT(false, return);
             return;
         }
 
@@ -95,43 +96,53 @@ AnnotationEditorDialog::AnnotationEditorDialog(QWidget *parent, const QString &t
     commentCornerWidget->addAction(commentRemoveAction);
 
     ui->tabWidget->setCornerWidget(commentCornerWidget, Qt::TopRightCorner);
-    ui->targetIdEdit->setText(targetId);
+
+    connect(ui->statusAddButton, &QPushButton::clicked, [&](bool){
+        setStatusVisibility(true);
+    });
+
+    setStatus(m_globalStatus);
 
     fillFields();
-    setWindowTitle(annotationEditorTitle);
+    setWindowTitle(globalEditorTitle);
 }
 
-AnnotationEditorDialog::~AnnotationEditorDialog()
+GlobalAnnotationEditorDialog::~GlobalAnnotationEditorDialog()
 {
     delete ui;
 }
 
-void AnnotationEditorDialog::setAnnotation(const Annotation &annotation)
+void GlobalAnnotationEditorDialog::setAnnotation(const Annotation &annotation)
 {
     m_annotation = annotation;
     fillFields();
 }
 
-Annotation AnnotationEditorDialog::annotation() const
+Annotation GlobalAnnotationEditorDialog::annotation() const
 {
     return m_annotation;
 }
 
-void AnnotationEditorDialog::setCustomId(const QString &customId)
+void GlobalAnnotationEditorDialog::setStatus(GlobalAnnotationStatus status)
 {
-    m_customId = customId;
-    ui->customIdEdit->setText(m_customId);
+    m_globalStatus = status;
+
+    bool hasStatus = (status.status() != GlobalAnnotationStatus::NoStatus);
+
+    if (hasStatus) {
+        ui->statusComboBox->setCurrentIndex(int(status.status()));
+    }
+
+    setStatusVisibility(hasStatus);
 }
 
-QString AnnotationEditorDialog::customId() const
+GlobalAnnotationStatus GlobalAnnotationEditorDialog::globalStatus() const
 {
-    return m_customId;
+    return m_globalStatus;
 }
 
-void AnnotationEditorDialog::acceptedClicked()
+void GlobalAnnotationEditorDialog::acceptedClicked()
 {
-    m_customId = ui->customIdEdit->text();
-
     Annotation annotation;
 
     annotation.removeComments();
@@ -149,10 +160,14 @@ void AnnotationEditorDialog::acceptedClicked()
 
     m_annotation = annotation;
 
-    emit AnnotationEditorDialog::accepted();
+    if (m_statusIsActive) {
+        m_globalStatus.setStatus(ui->statusComboBox->currentIndex());
+    }
+
+    emit GlobalAnnotationEditorDialog::accepted();
 }
 
-void AnnotationEditorDialog::commentTitleChanged(const QString &text, QWidget *tab)
+void GlobalAnnotationEditorDialog::commentTitleChanged(const QString &text, QWidget *tab)
 {
     int tabIndex = ui->tabWidget->indexOf(tab);
     if (tabIndex >= 0)
@@ -163,13 +178,12 @@ void AnnotationEditorDialog::commentTitleChanged(const QString &text, QWidget *t
                                   (defaultTabName + " " + QString::number(tabIndex+1)));
 }
 
-void AnnotationEditorDialog::fillFields()
+void GlobalAnnotationEditorDialog::fillFields()
 {
-    ui->customIdEdit->setText(m_customId);
     setupComments();
 }
 
-void AnnotationEditorDialog::setupComments()
+void GlobalAnnotationEditorDialog::setupComments()
 {
     ui->tabWidget->setUpdatesEnabled(false);
 
@@ -187,13 +201,13 @@ void AnnotationEditorDialog::setupComments()
     ui->tabWidget->setUpdatesEnabled(true);
 }
 
-void AnnotationEditorDialog::addComment(const Comment &comment)
+void GlobalAnnotationEditorDialog::addComment(const Comment &comment)
 {
     m_annotation.addComment(comment);
     addCommentTab(comment);
 }
 
-void AnnotationEditorDialog::removeComment(int index)
+void GlobalAnnotationEditorDialog::removeComment(int index)
 {
     if ((m_annotation.commentsSize() > index) && (index >= 0)) {
         m_annotation.removeComment(index);
@@ -201,7 +215,7 @@ void AnnotationEditorDialog::removeComment(int index)
     }
 }
 
-void AnnotationEditorDialog::addCommentTab(const Comment &comment)
+void GlobalAnnotationEditorDialog::addCommentTab(const Comment &comment)
 {
     auto commentTab = new AnnotationCommentTab();
     commentTab->setComment(comment);
@@ -219,17 +233,17 @@ void AnnotationEditorDialog::addCommentTab(const Comment &comment)
     }
 
     connect(commentTab, &AnnotationCommentTab::titleChanged,
-            this, &AnnotationEditorDialog::commentTitleChanged);
+            this, &GlobalAnnotationEditorDialog::commentTitleChanged);
 }
 
-void AnnotationEditorDialog::removeCommentTab(int index)
+void GlobalAnnotationEditorDialog::removeCommentTab(int index)
 {
     if ((ui->tabWidget->count() > index) && (index >= 0)) {
         ui->tabWidget->removeTab(index);
     }
 }
 
-void AnnotationEditorDialog::deleteAllTabs()
+void GlobalAnnotationEditorDialog::deleteAllTabs()
 {
     while (ui->tabWidget->count() > 0) {
         QWidget *w = ui->tabWidget->widget(0);
@@ -238,7 +252,15 @@ void AnnotationEditorDialog::deleteAllTabs()
     }
 }
 
-void AnnotationEditorDialog::tabChanged(int index)
+void GlobalAnnotationEditorDialog::setStatusVisibility(bool hasStatus)
+{
+    ui->statusAddButton->setVisible(!hasStatus);
+    ui->statusComboBox->setVisible(hasStatus);
+
+    m_statusIsActive = hasStatus;
+}
+
+void GlobalAnnotationEditorDialog::tabChanged(int index)
 {
     (void) index;
 }
