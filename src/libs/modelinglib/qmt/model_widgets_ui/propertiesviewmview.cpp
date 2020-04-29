@@ -1518,7 +1518,7 @@ void PropertiesView::MView::setTitle(const MItem *item, const QList<V *> &elemen
         if (elements.size() == 1) {
             if (item && !item->isVarietyEditable()) {
                 QString stereotypeIconId = m_propertiesView->stereotypeController()
-                        ->findStereotypeIconId(StereotypeIcon::ElementItem, QStringList(item->variety()));
+                        ->findStereotypeIconId(StereotypeIcon::ElementItem, {item->variety()});
                 if (!stereotypeIconId.isEmpty()) {
                     StereotypeIcon stereotypeIcon = m_propertiesView->stereotypeController()->findStereotypeIcon(stereotypeIconId);
                     m_propertiesTitle = stereotypeIcon.title();

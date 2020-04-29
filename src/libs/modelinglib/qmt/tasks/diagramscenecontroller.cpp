@@ -101,7 +101,7 @@ public:
                     endItems = customRelation.endItems();
                 QString stereotypeIconId = m_stereotypeController->findStereotypeIconId(StereotypeIcon::ElementItem, object->stereotypes());
                 if (stereotypeIconId.isEmpty() && !m_variety.isEmpty())
-                    stereotypeIconId = m_stereotypeController->findStereotypeIconId(StereotypeIcon::ElementItem, QStringList(m_variety));
+                    stereotypeIconId = m_stereotypeController->findStereotypeIconId(StereotypeIcon::ElementItem, {m_variety});
                 m_accepted = endItems.contains(stereotypeIconId);
             }
         }
