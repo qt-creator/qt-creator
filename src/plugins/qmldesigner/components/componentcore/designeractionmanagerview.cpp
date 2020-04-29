@@ -53,7 +53,7 @@ void DesignerActionManagerView::modelAboutToBeDetached(Model *model)
 
 void DesignerActionManagerView::nodeCreated(const ModelNode &)
 {
-    setupContext(SelectionContext::UpdateMode::Fast);
+    setupContext(SelectionContext::UpdateMode::NodeCreated);
 }
 
 void DesignerActionManagerView::nodeRemoved(const ModelNode &, const NodeAbstractProperty &, AbstractView::PropertyChangeFlags)
@@ -63,17 +63,17 @@ void DesignerActionManagerView::nodeRemoved(const ModelNode &, const NodeAbstrac
 
 void DesignerActionManagerView::nodeAboutToBeReparented(const ModelNode &, const NodeAbstractProperty &, const NodeAbstractProperty &, AbstractView::PropertyChangeFlags)
 {
-    setupContext(SelectionContext::UpdateMode::Fast);
+    setupContext(SelectionContext::UpdateMode::NodeHierachy);
 }
 
 void DesignerActionManagerView::nodeReparented(const ModelNode &, const NodeAbstractProperty &, const NodeAbstractProperty &, AbstractView::PropertyChangeFlags)
 {
-    setupContext(SelectionContext::UpdateMode::Fast);
+    setupContext(SelectionContext::UpdateMode::NodeHierachy);
 }
 
 void DesignerActionManagerView::propertiesRemoved(const QList<AbstractProperty> &)
 {
-    setupContext(SelectionContext::UpdateMode::Fast);
+    setupContext(SelectionContext::UpdateMode::Properties);
 }
 
 void DesignerActionManagerView::rootNodeTypeChanged(const QString &, int, int)
@@ -112,7 +112,7 @@ void DesignerActionManagerView::selectedNodesChanged(const QList<ModelNode> &sel
 
 void DesignerActionManagerView::nodeOrderChanged(const NodeListProperty &, const ModelNode &, int)
 {
-    setupContext(SelectionContext::UpdateMode::Fast);
+    setupContext(SelectionContext::UpdateMode::NodeHierachy);
 }
 
 void DesignerActionManagerView::importsChanged(const QList<Import> &, const QList<Import> &)
@@ -122,27 +122,27 @@ void DesignerActionManagerView::importsChanged(const QList<Import> &, const QLis
 
 void DesignerActionManagerView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &, AbstractView::PropertyChangeFlags)
 {
-    setupContext(SelectionContext::UpdateMode::Fast);
+    setupContext(SelectionContext::UpdateMode::Properties);
 }
 
 void DesignerActionManagerView::variantPropertiesChanged(const QList<VariantProperty> &, AbstractView::PropertyChangeFlags propertyChangeFlag)
 {
     if (propertyChangeFlag == AbstractView::PropertiesAdded)
-        setupContext(SelectionContext::UpdateMode::Fast);
+        setupContext(SelectionContext::UpdateMode::Properties);
     else if (hasSingleSelectedModelNode())
-        setupContext(SelectionContext::UpdateMode::Fast);
+        setupContext(SelectionContext::UpdateMode::Properties);
 }
 
 void DesignerActionManagerView::bindingPropertiesChanged(const QList<BindingProperty> &, AbstractView::PropertyChangeFlags propertyChangeFlag)
 {
     if (propertyChangeFlag == AbstractView::PropertiesAdded)
-        setupContext(SelectionContext::UpdateMode::Fast);
+        setupContext(SelectionContext::UpdateMode::Properties);
 }
 
 void DesignerActionManagerView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &)
 {
     if (hasSingleSelectedModelNode())
-        setupContext(SelectionContext::UpdateMode::Fast);
+        setupContext(SelectionContext::UpdateMode::Properties);
 }
 
 DesignerActionManager &DesignerActionManagerView::designerActionManager()
