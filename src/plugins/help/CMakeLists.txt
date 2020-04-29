@@ -27,6 +27,11 @@ add_qtc_plugin(Help
 )
 
 extend_qtc_plugin(Help
+  CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 5.15.0
+  DEFINES HELP_NEW_FILTER_ENGINE
+)
+
+extend_qtc_plugin(Help
   CONDITION FWWebKit AND FWAppKit
   FEATURE_INFO "Native WebKit help viewer"
   DEPENDS ${FWWebKit} ${FWAppKit}
