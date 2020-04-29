@@ -30,9 +30,7 @@
 
 #include <utils/outputformat.h>
 
-#include <QElapsedTimer>
 #include <QPlainTextEdit>
-#include <QTimer>
 
 namespace Utils {
 class OutputFormatter;
@@ -106,8 +104,6 @@ private:
     void wheelEvent(QWheelEvent *e) override;
 
     using QPlainTextEdit::setFont; // call setBaseFont instead, which respects the zoom factor
-    QTimer m_scrollTimer;
-    QElapsedTimer m_lastMessage;
     void enableUndoRedo();
     void filterNewContent();
     void handleNextOutputChunk();

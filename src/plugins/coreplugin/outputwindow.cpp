@@ -36,11 +36,13 @@
 
 #include <QAction>
 #include <QCursor>
+#include <QElapsedTimer>
 #include <QMimeData>
 #include <QPointer>
 #include <QRegularExpression>
 #include <QScrollBar>
 #include <QTextBlock>
+#include <QTimer>
 
 #ifdef WITH_TESTS
 #include <QtTest>
@@ -89,6 +91,8 @@ public:
     int lastFilteredBlockNumber = -1;
     QPalette originalPalette;
     OutputWindow::FilterModeFlags filterMode = OutputWindow::FilterModeFlag::Default;
+    QTimer scrollTimer;
+    QElapsedTimer lastMessage;
 };
 
 } // namespace Internal
@@ -161,11 +165,11 @@ OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget 
     cutAction->setEnabled(false);
     copyAction->setEnabled(false);
 
-    m_scrollTimer.setInterval(10);
-    m_scrollTimer.setSingleShot(true);
-    connect(&m_scrollTimer, &QTimer::timeout,
+    d->scrollTimer.setInterval(10);
+    d->scrollTimer.setSingleShot(true);
+    connect(&d->scrollTimer, &QTimer::timeout,
             this, &OutputWindow::scrollToBottom);
-    m_lastMessage.start();
+    d->lastMessage.start();
 
     d->originalFontSize = font().pointSizeF();
 
@@ -426,20 +430,20 @@ void OutputWindow::handleOutputChunk(const QString &output, OutputFormat format)
         }
     }
 
-    const bool atBottom = isScrollbarAtBottom() || m_scrollTimer.isActive();
+    const bool atBottom = isScrollbarAtBottom() || d->scrollTimer.isActive();
     d->scrollToBottom = true;
     d->formatter.appendMessage(out, format);
 
     if (atBottom) {
-        if (m_lastMessage.elapsed() < 5) {
-            m_scrollTimer.start();
+        if (d->lastMessage.elapsed() < 5) {
+            d->scrollTimer.start();
         } else {
-            m_scrollTimer.stop();
+            d->scrollTimer.stop();
             scrollToBottom();
         }
     }
 
-    m_lastMessage.start();
+    d->lastMessage.start();
     enableUndoRedo();
 }
 
