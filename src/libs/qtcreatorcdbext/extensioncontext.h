@@ -137,8 +137,8 @@ private:
     bool isInitialized() const;
 
     IInterfacePointer<CIDebugControl> m_control;
-    std::auto_ptr<LocalsSymbolGroup> m_symbolGroup;
-    std::auto_ptr<WatchesSymbolGroup> m_watchesSymbolGroup;
+    std::unique_ptr<LocalsSymbolGroup> m_symbolGroup;
+    std::unique_ptr<WatchesSymbolGroup> m_watchesSymbolGroup;
 
     CIDebugClient *m_hookedClient = nullptr;
     IDebugEventCallbacks *m_oldEventCallback = nullptr;
