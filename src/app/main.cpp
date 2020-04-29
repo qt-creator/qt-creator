@@ -459,6 +459,11 @@ int main(int argc, char **argv)
     Options options = parseCommandLine(argc, argv);
     applicationDirPath(argv[0]);
 
+    if (qEnvironmentVariableIsSet("QTC_DO_NOT_PROPAGATE_LD_PRELOAD")) {
+        Utils::Environment::modifySystemEnvironment(
+            {{"LD_PRELOAD", "", Utils::EnvironmentItem::Unset}});
+    }
+
     if (options.userLibraryPath) {
         if ((*options.userLibraryPath).isEmpty()) {
             Utils::Environment::modifySystemEnvironment(
