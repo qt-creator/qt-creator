@@ -336,6 +336,7 @@ public:
     void launchGitK(const QString &workingDirectory) const { launchGitK(workingDirectory, QString()); }
     bool launchGitGui(const QString &workingDirectory);
     Utils::FilePath gitBinDirectory() const;
+    bool launchGitBash(const QString &workingDirectory);
 
     void launchRepositoryBrowser(const QString &workingDirectory) const;
 

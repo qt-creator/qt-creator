@@ -2537,6 +2537,24 @@ FilePath GitClient::gitBinDirectory() const
     return FilePath::fromString(path);
 }
 
+bool GitClient::launchGitBash(const QString &workingDirectory)
+{
+    bool success = true;
+    const QString git = vcsBinary().toString();
+
+    if (git.isEmpty()) {
+        success = false;
+    } else {
+        const QString gitBash = QFileInfo(git).absolutePath() + "/../git-bash.exe";
+        success = QProcess::startDetached(gitBash, {}, workingDirectory);
+    }
+
+    if (!success)
+        VcsOutputWindow::appendError(msgCannotLaunch("git-bash"));
+
+    return success;
+}
+
 FilePath GitClient::vcsBinary() const
 {
     bool ok;
