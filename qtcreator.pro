@@ -98,10 +98,10 @@ BASENAME = $$(INSTALL_BASENAME)
 isEmpty(BASENAME): BASENAME = qt-creator-$${PLATFORM}$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX)
 
 linux {
-    appstream.files = dist/org.qt-project.qtcreator.appdata.xml
+    appstream.files = share/metainfo/org.qt-project.qtcreator.appdata.xml
     appstream.path = $$QTC_PREFIX/share/metainfo/
 
-    desktop.files = dist/org.qt-project.qtcreator.desktop
+    desktop.files = share/applications/org.qt-project.qtcreator.desktop
     desktop.path = $$QTC_PREFIX/share/applications/
 
     INSTALLS += appstream desktop
