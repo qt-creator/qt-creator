@@ -25,6 +25,8 @@
 
 #include "designeractionmanagerview.h"
 
+#include <customnotifications.h>
+
 #include <selectioncontext.h>
 #include <actioninterface.h>
 #include <variantproperty.h>
@@ -143,6 +145,17 @@ void DesignerActionManagerView::instancePropertyChanged(const QList<QPair<ModelN
 {
     if (hasSingleSelectedModelNode())
         setupContext(SelectionContext::UpdateMode::Properties);
+}
+
+void DesignerActionManagerView::customNotification(const AbstractView * /*view*/,
+                                      const QString &identifier,
+                                      const QList<ModelNode> & /* nodeList */,
+                                      const QList<QVariant> & /*data */)
+{
+    if (identifier == StartRewriterAmend)
+        m_isInRewriterTransaction = true;
+    else if (identifier == EndRewriterAmend)
+        m_isInRewriterTransaction = false;
 }
 
 DesignerActionManager &DesignerActionManagerView::designerActionManager()
