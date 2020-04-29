@@ -101,7 +101,7 @@ OutputLineParser::Result ClangParser::handleLine(const QString &line, OutputForm
         LinkSpecs linkSpecs;
         addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, match, 1);
         newTask(CompileTask(taskType(match.captured(7)), match.captured(8), filePath, lineNo));
-        return Status::InProgress;
+        return {Status::InProgress, linkSpecs};
     }
 
     match = m_codesignRegExp.match(lne);
