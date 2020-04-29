@@ -65,6 +65,16 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
         report(Priority_None);
         return;
     }
+    auto uri = DocumentUri::fromFilePath(editorWidget->textDocument()->filePath());
+    QTextCursor tc = editorWidget->textCursor();
+    tc.setPosition(pos);
+    QList<Diagnostic> diagnostics = m_client->diagnosticsAt(uri, Range(Position(tc), Position(tc)));
+    if (!diagnostics.isEmpty()) {
+        const QStringList messages = Utils::transform(diagnostics, &Diagnostic::message);
+        setToolTip(messages.join('\n'));
+        report(Priority_Diagnostic);
+        return;
+    }
 
     bool sendMessage = m_client->capabilities().hoverProvider().value_or(false);
     if (Utils::optional<bool> registered = m_client->dynamicCapabilities().isRegistered(
@@ -86,7 +96,6 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
     }
 
     m_report = report;
-    auto uri = DocumentUri::fromFilePath(editorWidget->textDocument()->filePath());
     QTextCursor cursor = editorWidget->textCursor();
     cursor.setPosition(pos);
     TextDocumentPositionParams params(uri, Position(cursor));
