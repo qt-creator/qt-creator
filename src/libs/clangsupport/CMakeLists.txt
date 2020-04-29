@@ -147,32 +147,18 @@ if (NOT TARGET libclang)
   return()
 endif()
 
-add_custom_target(copy_clang_to_builddir ALL
-  COMMENT Copy Clang files into build directory
-)
-
 # For the developer build directory
-add_custom_command(TARGET copy_clang_to_builddir POST_BUILD
-  COMMAND "${CMAKE_COMMAND}"
-    -E copy_directory
-      "${LLVM_LIBRARY_DIR}/clang/${CLANG_VERSION}/include"
-      "${PROJECT_BINARY_DIR}/${IDE_LIBEXEC_PATH}/clang/lib/clang/${CLANG_VERSION}/include"
-  VERBATIM
+qtc_copy_to_builddir(copy_clang_to_builddir
+  DIRECTORIES "${LLVM_LIBRARY_DIR}/clang/${CLANG_VERSION}/include"
+  DESTINATION "${IDE_LIBEXEC_PATH}/clang/lib/clang/${CLANG_VERSION}/include"
 )
 
 foreach(executable clang clang-cl clangd clang-tidy clazy-standalone)
   if (EXISTS "${LLVM_TOOLS_BINARY_DIR}/${executable}${CMAKE_EXECUTABLE_SUFFIX}")
-    add_custom_command(TARGET copy_clang_to_builddir PRE_BUILD
-      COMMAND "${CMAKE_COMMAND}"
-        -E make_directory
-          "${PROJECT_BINARY_DIR}/${IDE_LIBEXEC_PATH}/clang/bin/"
-      COMMAND "${CMAKE_COMMAND}"
-        -E copy
-          "${LLVM_TOOLS_BINARY_DIR}/${executable}${CMAKE_EXECUTABLE_SUFFIX}"
-          "${PROJECT_BINARY_DIR}/${IDE_LIBEXEC_PATH}/clang/bin/"
-      VERBATIM
+    qtc_copy_to_builddir(copy_clang_${executable}_to_builddir
+      FILES "${LLVM_TOOLS_BINARY_DIR}/${executable}${CMAKE_EXECUTABLE_SUFFIX}"
+      DESTINATION "${IDE_LIBEXEC_PATH}/clang/bin/"
     )
-
     # For the install directory
     install(PROGRAMS
       "${LLVM_TOOLS_BINARY_DIR}/${executable}${CMAKE_EXECUTABLE_SUFFIX}"

@@ -1155,3 +1155,49 @@ function(qtc_glob_resources)
   string(APPEND qrcData "</qresource></RCC>")
   file(WRITE "${_arg_QRC_FILE}" "${qrcData}")
 endfunction()
+
+function(qtc_copy_to_builddir custom_target_name)
+  cmake_parse_arguments(_arg "CREATE_SUBDIRS" "DESTINATION" "FILES;DIRECTORIES" ${ARGN})
+  set(timestampFiles)
+
+  qtc_output_binary_dir(_output_binary_dir)
+
+  foreach(srcFile ${_arg_FILES})
+    string(MAKE_C_IDENTIFIER "${srcFile}" destinationTimestampFilePart)
+    set(destinationTimestampFileName "${CMAKE_CURRENT_BINARY_DIR}/.${destinationTimestampFilePart}_timestamp")
+    list(APPEND timestampFiles "${destinationTimestampFileName}")
+
+    add_custom_command(OUTPUT "${destinationTimestampFileName}"
+      COMMAND "${CMAKE_COMMAND}" -E make_directory "${_output_binary_dir}/${_arg_DESTINATION}"
+      COMMAND "${CMAKE_COMMAND}" -E copy "${srcFile}" "${_output_binary_dir}/${_arg_DESTINATION}"
+      COMMAND "${CMAKE_COMMAND}" -E touch "${destinationTimestampFileName}"
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+      COMMENT "Copy ${srcFile} into build directory"
+      DEPENDS "${srcFile}"
+      VERBATIM
+    )
+  endforeach()
+
+  foreach(srcDirectory ${_arg_DIRECTORIES})
+    string(MAKE_C_IDENTIFIER "${srcDirectory}" destinationTimestampFilePart)
+    set(destinationTimestampFileName "${CMAKE_CURRENT_BINARY_DIR}/.${destinationTimestampFilePart}_timestamp")
+    list(APPEND timestampFiles "${destinationTimestampFileName}")
+    set(destinationDirectory "${_output_binary_dir}/${_arg_DESTINATION}")
+
+    if(_arg_CREATE_SUBDIRS)
+      set(destinationDirectory "${destinationDirectory}/${srcDirectory}")
+    endif()
+
+    file(GLOB_RECURSE filesToCopy "${srcDirectory}/*")
+    add_custom_command(OUTPUT "${destinationTimestampFileName}"
+      COMMAND "${CMAKE_COMMAND}" -E copy_directory "${srcDirectory}" "${destinationDirectory}"
+      COMMAND "${CMAKE_COMMAND}" -E touch "${destinationTimestampFileName}"
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+      COMMENT "Copy ${srcDirectory}/ into build directory"
+      DEPENDS ${filesToCopy}
+      VERBATIM
+    )
+  endforeach()
+
+  add_custom_target("${custom_target_name}" ALL DEPENDS ${timestampFiles})
+endfunction()
