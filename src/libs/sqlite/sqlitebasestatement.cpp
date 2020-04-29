@@ -190,6 +190,21 @@ void BaseStatement::bind(int index, Utils::SmallStringView text)
         checkForBindingError(resultCode);
 }
 
+void BaseStatement::bind(int index, const Value &value)
+{
+    switch (value.type()) {
+    case ValueType::Integer:
+        bind(index, value.toInteger());
+        break;
+    case ValueType::Float:
+        bind(index, value.toFloat());
+        break;
+    case ValueType::String:
+        bind(index, value.toStringView());
+        break;
+    }
+}
+
 template <typename Type>
 void BaseStatement::bind(Utils::SmallStringView name, Type value)
 {
@@ -498,12 +513,34 @@ StringType BaseStatement::fetchValue(int column) const
     return convertToTextForColumn<StringType>(m_compiledStatement.get(), column);
 }
 
+template SQLITE_EXPORT Utils::SmallStringView BaseStatement::fetchValue<Utils::SmallStringView>(
+    int column) const;
+template SQLITE_EXPORT Utils::SmallString BaseStatement::fetchValue<Utils::SmallString>(
+    int column) const;
+template SQLITE_EXPORT Utils::PathString BaseStatement::fetchValue<Utils::PathString>(
+    int column) const;
+
 Utils::SmallStringView BaseStatement::fetchSmallStringViewValue(int column) const
 {
     return fetchValue<Utils::SmallStringView>(column);
 }
 
-template SQLITE_EXPORT Utils::SmallStringView BaseStatement::fetchValue<Utils::SmallStringView>(int column) const;
-template SQLITE_EXPORT Utils::SmallString BaseStatement::fetchValue<Utils::SmallString>(int column) const;
-template SQLITE_EXPORT Utils::PathString BaseStatement::fetchValue<Utils::PathString>(int column) const;
+ValueView BaseStatement::fetchValueView(int column) const
+{
+    int dataType = sqlite3_column_type(m_compiledStatement.get(), column);
+    switch (dataType) {
+    case SQLITE_INTEGER:
+        return ValueView::create(fetchLongLongValue(column));
+    case SQLITE_FLOAT:
+        return ValueView::create(fetchDoubleValue(column));
+    case SQLITE3_TEXT:
+        return ValueView::create(fetchValue<Utils::SmallStringView>(column));
+    case SQLITE_BLOB:
+    case SQLITE_NULL:
+        break;
+    }
+
+    return ValueView::create(0LL);
+}
+
 } // namespace Sqlite

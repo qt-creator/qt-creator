@@ -247,6 +247,7 @@ extend_qtc_plugin(QmlDesigner
     snapper.cpp snapper.h
     snappinglinecreator.cpp snappinglinecreator.h
     toolbox.cpp toolbox.h
+    transitiontool.cpp transitiontool.h
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -558,6 +559,7 @@ extend_qtc_plugin(QmlDesigner
   annotationeditordialog.cpp annotationeditordialog.h annotationeditordialog.ui
   annotationeditor.cpp annotationeditor.h
   annotationtool.cpp annotationtool.h
+  globalannotationeditor.cpp globalannotationeditor.h
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -589,6 +591,13 @@ extend_qtc_plugin(QmlDesigner
     texttool/textedititem.cpp texttool/textedititem.h
     texttool/textedititemwidget.cpp texttool/textedititemwidget.h
     texttool/texttool.cpp texttool/texttool.h
+)
+
+extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/richtexteditor
+  SOURCES
+    hyperlinkdialog.cpp hyperlinkdialog.h hyperlinkdialog.ui
+    richtexteditor.cpp richtexteditor.h hyperlinkdialog.ui
 )
 
 extend_qtc_plugin(QmlDesigner

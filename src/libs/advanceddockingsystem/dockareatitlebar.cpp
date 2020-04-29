@@ -132,6 +132,7 @@ namespace ADS
 
     void DockAreaTitleBarPrivate::createButtons()
     {
+        const QSize iconSize(14, 14);
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
         // Tabs menu button
         m_tabsMenuButton = new TitleBarButton(testConfigFlag(DockManager::DockAreaHasTabsMenuButton));
@@ -149,6 +150,7 @@ namespace ADS
         m_tabsMenuButton->setMenu(tabsMenu);
         internal::setToolTip(m_tabsMenuButton, QObject::tr("List All Tabs"));
         m_tabsMenuButton->setSizePolicy(sizePolicy);
+        m_tabsMenuButton->setIconSize(iconSize);
         m_layout->addWidget(m_tabsMenuButton, 0);
         QObject::connect(m_tabsMenuButton->menu(),
                          &QMenu::triggered,
@@ -164,6 +166,7 @@ namespace ADS
                                 QStyle::SP_TitleBarNormalButton,
                                 ADS::DockAreaUndockIcon);
         m_undockButton->setSizePolicy(sizePolicy);
+        m_undockButton->setIconSize(iconSize);
         m_layout->addWidget(m_undockButton, 0);
         QObject::connect(m_undockButton,
                          &QToolButton::clicked,
@@ -183,7 +186,7 @@ namespace ADS
             internal::setToolTip(m_closeButton, QObject::tr("Close Group"));
         }
         m_closeButton->setSizePolicy(sizePolicy);
-        m_closeButton->setIconSize(QSize(16, 16));
+        m_closeButton->setIconSize(iconSize);
         m_layout->addWidget(m_closeButton, 0);
         QObject::connect(m_closeButton,
                          &QToolButton::clicked,

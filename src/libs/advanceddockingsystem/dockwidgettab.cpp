@@ -168,12 +168,18 @@ namespace ADS
         m_titleLabel->setText(m_dockWidget->windowTitle());
         m_titleLabel->setObjectName("dockWidgetTabLabel");
         m_titleLabel->setAlignment(Qt::AlignCenter);
-        QObject::connect(m_titleLabel, &ElidingLabel::elidedChanged, q, &DockWidgetTab::elidedChanged);
+        QObject::connect(m_titleLabel,
+                         &ElidingLabel::elidedChanged,
+                         q,
+                         &DockWidgetTab::elidedChanged);
 
         m_closeButton = createCloseButton();
         m_closeButton->setObjectName("tabCloseButton");
-        internal::setButtonIcon(m_closeButton, QStyle::SP_TitleBarCloseButton, TabCloseIcon);
+        internal::setButtonIcon(m_closeButton,
+                                QStyle::SP_TitleBarCloseButton,
+                                TabCloseIcon);
         m_closeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        m_closeButton->setIconSize(QSize(14, 14));
         q->onDockWidgetFeaturesChanged();
         internal::setToolTip(m_closeButton, QObject::tr("Close Tab"));
         QObject::connect(m_closeButton,
@@ -189,11 +195,11 @@ namespace ADS
         boxLayout->setContentsMargins(2 * spacing, 0, 0, 0);
         boxLayout->setSpacing(0);
         q->setLayout(boxLayout);
-        boxLayout->addWidget(m_titleLabel, 1);
+        boxLayout->addWidget(m_titleLabel, 1, Qt::AlignVCenter);
         boxLayout->addSpacing(spacing);
-        boxLayout->addWidget(m_closeButton);
+        boxLayout->addWidget(m_closeButton, 0, Qt::AlignVCenter);
         boxLayout->addSpacing(qRound(spacing * 4.0 / 3.0));
-        boxLayout->setAlignment(Qt::AlignCenter);
+        boxLayout->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
 
         m_titleLabel->setVisible(true);
     }

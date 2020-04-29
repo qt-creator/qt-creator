@@ -147,6 +147,17 @@ void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> & prop
     }
 }
 
+void NavigatorView::customNotification(const AbstractView *view, const QString &identifier,
+                                       const QList<ModelNode> &nodeList, const QList<QVariant> &data)
+{
+    Q_UNUSED(view)
+    Q_UNUSED(nodeList)
+    Q_UNUSED(data)
+
+    if (identifier == "asset_import_update")
+        m_currentModelInterface->notifyIconsChanged();
+}
+
 void NavigatorView::handleChangedExport(const ModelNode &modelNode, bool exported)
 {
     const ModelNode rootNode = rootModelNode();
@@ -434,7 +445,7 @@ void NavigatorView::updateItemSelection()
     // make sure selected nodes a visible
     foreach (const QModelIndex &selectedIndex, itemSelection.indexes()) {
         if (selectedIndex.column() == 0)
-            expandRecursively(selectedIndex);
+            expandAncestors(selectedIndex);
     }
 }
 
@@ -458,9 +469,9 @@ bool NavigatorView::blockSelectionChangedSignal(bool block)
     return oldValue;
 }
 
-void NavigatorView::expandRecursively(const QModelIndex &index)
+void NavigatorView::expandAncestors(const QModelIndex &index)
 {
-    QModelIndex currentIndex = index;
+    QModelIndex currentIndex = index.parent();
     while (currentIndex.isValid()) {
         if (!treeWidget()->isExpanded(currentIndex))
             treeWidget()->expand(currentIndex);

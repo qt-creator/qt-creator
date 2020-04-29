@@ -28,19 +28,46 @@
 
 #include <qmldesignerplugin.h>
 
+#include <coreplugin/icore.h>
+
 #include <utils/stylehelper.h>
 
 #include <QApplication>
 #include <QRegExp>
 #include <QScreen>
 #include <QPointer>
+#include <QQmlEngine>
+#include <QQmlComponent>
+#include <QQmlProperty>
 #include <qqml.h>
+
+static Q_LOGGING_CATEGORY(themeLog, "qtc.qmldesigner.theme", QtWarningMsg)
 
 namespace QmlDesigner {
 
 Theme::Theme(Utils::Theme *originTheme, QObject *parent)
     : Utils::Theme(originTheme, parent)
+    , m_constants(nullptr)
 {
+    QString constantsPath = Core::ICore::resourcePath() +
+            QStringLiteral("/qmldesigner/propertyEditorQmlSources/imports/StudioTheme/InternalConstants.qml");
+
+    QQmlEngine* engine = new QQmlEngine(this);
+    QQmlComponent component(engine, QUrl::fromLocalFile(constantsPath));
+
+    if (component.status() == QQmlComponent::Ready) {
+        m_constants = component.create();
+    }
+    else if (component.status() == QQmlComponent::Error ) {
+        qCWarning(themeLog) << "Couldn't load" << constantsPath
+                            << "due to the following error(s):";
+        for (QQmlError error : component.errors())
+            qCWarning(themeLog) << error.toString();
+    }
+    else {
+        qCWarning(themeLog) << "Couldn't load" << constantsPath
+                            << "the status of the QQmlComponent is" << component.status();
+    }
 }
 
 QColor Theme::evaluateColorAtThemeInstance(const QString &themeColorName)
@@ -127,6 +154,25 @@ bool Theme::highPixelDensity() const
 QPixmap Theme::getPixmap(const QString &id)
 {
     return QmlDesignerIconProvider::getPixmap(id);
+}
+
+QString Theme::getIconUnicode(Theme::Icon i)
+{
+    if (!instance()->m_constants)
+        return QString();
+
+    const QMetaObject *m = instance()->metaObject();
+    const char *enumName = "Icon";
+    int enumIndex = m->indexOfEnumerator(enumName);
+
+    if (enumIndex == -1) {
+        qCWarning(themeLog) << "Couldn't find enum" << enumName;
+        return QString();
+    }
+
+    QMetaEnum e = m->enumerator(enumIndex);
+
+    return instance()->m_constants->property(e.valueToKey(i)).toString();
 }
 
 QColor Theme::qmlDesignerBackgroundColorDarker() const

@@ -81,14 +81,16 @@ void ImportManagerView::modelAboutToBeDetached(Model *model)
 
 void ImportManagerView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
 {
-    if (m_importsWidget)
+    if (m_importsWidget) {
         m_importsWidget->setImports(model()->imports());
+        // setImports recreates labels, so we need to update used imports, as it is not guaranteed
+        // usedImportsChanged notification will come after this.
+        m_importsWidget->setUsedImports(model()->usedImports());
+    }
 }
 
 void ImportManagerView::possibleImportsChanged(const QList<Import> &/*possibleImports*/)
 {
-    QmlDesignerPlugin::instance()->currentDesignDocument()->updateSubcomponentManager();
-
     if (m_importsWidget)
         m_importsWidget->setPossibleImports(model()->possibleImports());
 }

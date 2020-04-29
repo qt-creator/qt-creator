@@ -40,16 +40,16 @@
 
 namespace QmlDesigner {
 
-AnnotationEditorDialog::AnnotationEditorDialog(QWidget *parent, const QString &targetId, const QString &customId, const Annotation &annotation)
+AnnotationEditorDialog::AnnotationEditorDialog(QWidget *parent, const QString &targetId, const QString &customId, const Annotation &annotation, EditorMode mode)
     : QDialog(parent)
     , ui(new Ui::AnnotationEditorDialog)
     , m_customId(customId)
     , m_annotation(annotation)
+    , m_editorMode(mode)
 {
     ui->setupUi(this);
 
     setWindowFlag(Qt::Tool, true);
-    setWindowTitle(titleString);
     setModal(true);
 
     connect(this, &QDialog::accepted, this, &AnnotationEditorDialog::acceptedClicked);
@@ -98,6 +98,7 @@ AnnotationEditorDialog::AnnotationEditorDialog(QWidget *parent, const QString &t
     ui->tabWidget->setCornerWidget(commentCornerWidget, Qt::TopRightCorner);
     ui->targetIdEdit->setText(targetId);
 
+    changeEditorMode(m_editorMode);
     fillFields();
 }
 
@@ -126,6 +127,39 @@ void AnnotationEditorDialog::setCustomId(const QString &customId)
 QString AnnotationEditorDialog::customId() const
 {
     return m_customId;
+}
+
+void AnnotationEditorDialog::changeEditorMode(AnnotationEditorDialog::EditorMode mode)
+{
+    switch (mode) {
+    case ItemAnnotation: {
+        ui->customIdEdit->setVisible(true);
+        ui->customIdLabel->setVisible(true);
+        ui->targetIdEdit->setVisible(true);
+        ui->targetIdLabel->setVisible(true);
+        setWindowTitle(annotationEditorTitle);
+
+        break;
+    }
+    case GlobalAnnotation: {
+        ui->customIdEdit->clear();
+        ui->targetIdEdit->clear();
+        ui->customIdEdit->setVisible(false);
+        ui->customIdLabel->setVisible(false);
+        ui->targetIdEdit->setVisible(false);
+        ui->targetIdLabel->setVisible(false);
+        setWindowTitle(globalEditorTitle);
+
+        break;
+    }
+    }
+
+    m_editorMode = mode;
+}
+
+AnnotationEditorDialog::EditorMode AnnotationEditorDialog::editorMode() const
+{
+    return m_editorMode;
 }
 
 void AnnotationEditorDialog::acceptedClicked()

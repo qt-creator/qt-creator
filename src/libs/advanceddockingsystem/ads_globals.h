@@ -107,10 +107,11 @@ enum eDragState {
  * The different icons used in the UI
  */
 enum eIcon {
-    TabCloseIcon,       //!< TabCloseIcon
-    DockAreaMenuIcon,   //!< DockAreaMenuIcon
-    DockAreaUndockIcon, //!< DockAreaUndockIcon
-    DockAreaCloseIcon,  //!< DockAreaCloseIcon
+    TabCloseIcon,            //!< TabCloseIcon
+    DockAreaMenuIcon,        //!< DockAreaMenuIcon
+    DockAreaUndockIcon,      //!< DockAreaUndockIcon
+    DockAreaCloseIcon,       //!< DockAreaCloseIcon
+    FloatingWidgetCloseIcon, //!< FloatingWidgetCloseIcon
 
     IconCount, //!< just a delimiter for range checks
 };

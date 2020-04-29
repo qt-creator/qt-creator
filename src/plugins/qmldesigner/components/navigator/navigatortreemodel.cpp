@@ -695,6 +695,11 @@ void NavigatorTreeModel::notifyModelNodesMoved(const QList<ModelNode> &modelNode
     emit layoutChanged(indexes);
 }
 
+void NavigatorTreeModel::notifyIconsChanged()
+{
+    emit dataChanged(index(0, 0), index(rowCount(), 0), {Qt::DecorationRole});
+}
+
 void NavigatorTreeModel::setFilter(bool showOnlyVisibleItems)
 {
     m_showOnlyVisibleItems = showOnlyVisibleItems;

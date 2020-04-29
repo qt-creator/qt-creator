@@ -179,6 +179,17 @@ void Edit3DView::importsChanged(const QList<Import> &addedImports,
     checkImports();
 }
 
+void Edit3DView::customNotification(const AbstractView *view, const QString &identifier,
+                                    const QList<ModelNode> &nodeList, const QList<QVariant> &data)
+{
+    Q_UNUSED(view)
+    Q_UNUSED(nodeList)
+    Q_UNUSED(data)
+
+    if (identifier == "asset_import_update")
+        resetPuppet();
+}
+
 void Edit3DView::sendInputEvent(QInputEvent *e) const
 {
     if (nodeInstanceView())
@@ -301,14 +312,16 @@ QVector<Edit3DAction *> Edit3DView::rightActions() const
 
 void Edit3DView::addQuick3DImport()
 {
-    const QList<Import> imports = model()->possibleImports();
-    for (const auto &import : imports) {
-        if (import.url() == "QtQuick3D") {
-            model()->changeImports({import}, {});
+    if (model()) {
+        const QList<Import> imports = model()->possibleImports();
+        for (const auto &import : imports) {
+            if (import.url() == "QtQuick3D") {
+                model()->changeImports({import}, {});
 
-            // Subcomponent manager update needed to make item library entries appear
-            QmlDesignerPlugin::instance()->currentDesignDocument()->updateSubcomponentManager();
-            return;
+                // Subcomponent manager update needed to make item library entries appear
+                QmlDesignerPlugin::instance()->currentDesignDocument()->updateSubcomponentManager();
+                return;
+            }
         }
     }
     Core::AsynchronousMessageBox::warning(tr("Failed to Add Import"),

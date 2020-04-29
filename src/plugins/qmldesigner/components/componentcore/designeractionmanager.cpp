@@ -346,6 +346,12 @@ bool isFlowItem(const SelectionContext &context)
            && QmlFlowItemNode::isValidQmlFlowItemNode(context.currentSingleSelectedNode());
 }
 
+bool isFlowTarget(const SelectionContext &context)
+{
+    return context.singleNodeIsSelected()
+           && QmlFlowTargetNode::isFlowEditorTarget(context.currentSingleSelectedNode());
+}
+
 bool isFlowTransitionItem(const SelectionContext &context)
 {
     return context.singleNodeIsSelected()
@@ -362,9 +368,9 @@ bool isFlowActionItemItem(const SelectionContext &context)
                 || QmlVisualNode::isFlowWildcard(selectedNode));
 }
 
-bool isFlowItemOrTransition(const SelectionContext &context)
+bool isFlowTargetOrTransition(const SelectionContext &context)
 {
-    return isFlowItem(context) || isFlowTransitionItem(context);
+    return isFlowTarget(context) || isFlowTransitionItem(context);
 }
 
 class FlowActionConnectAction : public ActionGroup
@@ -853,14 +859,23 @@ void DesignerActionManager::createDefaultDesignerActions()
                           priorityLayoutCategory,
                           &layoutOptionVisible));
 
-    //isFlowTransitionItem
-
     addDesignerAction(new ActionGroup(
         flowCategoryDisplayName,
         flowCategory,
         priorityFlowCategory,
-        &isFlowItemOrTransition,
+        &isFlowTargetOrTransition,
         &flowOptionVisible));
+
+
+    auto effectMenu = new ActionGroup(
+                flowEffectCategoryDisplayName,
+                flowEffectCategory,
+                priorityFlowCategory,
+                &isFlowTransitionItem,
+                &flowOptionVisible);
+
+    effectMenu->setCategory(flowCategory);
+    addDesignerAction(effectMenu);
 
     addDesignerAction(new ModelNodeFormEditorAction(
         createFlowActionAreaCommandId,
@@ -873,6 +888,17 @@ void DesignerActionManager::createDefaultDesignerActions()
         &createFlowActionArea,
         &isFlowItem,
         &flowOptionVisible));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          setFlowStartCommandId,
+                          setFlowStartDisplayName,
+                          {},
+                          flowCategory,
+                          priorityFirst,
+                          {},
+                          &setFlowStartItem,
+                          &isFlowItem,
+                          &flowOptionVisible));
 
     addDesignerAction(new FlowActionConnectAction(
         flowConnectionCategoryDisplayName,
@@ -1175,7 +1201,7 @@ void DesignerActionManager::addTransitionEffectAction(const TypeName &typeName)
         QByteArray(ComponentCoreConstants::flowAssignEffectCommandId) + typeName,
         QLatin1String(ComponentCoreConstants::flowAssignEffectDisplayName) + typeName,
         {},
-        ComponentCoreConstants::flowCategory,
+        ComponentCoreConstants::flowEffectCategory,
         {},
         typeName == "None" ? 100 : 140,
         [typeName](const SelectionContext &context)

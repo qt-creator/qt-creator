@@ -32,10 +32,13 @@
 #include <nodehints.h>
 #include <nodemetainfo.h>
 
+#include <theme.h>
+
 #include <utils/theme/theme.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
+#include <QFontDatabase>
 #include <QPainter>
 #include <QPainterPath>
 #include <QStyleOptionGraphicsItem>
@@ -47,6 +50,36 @@
 namespace QmlDesigner {
 
 const int flowBlockSize = 200;
+const int blockRadius = 18;
+const int blockAdjust = 40;
+
+const char startNodeIcon[] = "\u0055";
+
+void drawIcon(QPainter *painter,
+              int x,
+              int y,
+              const QString &iconSymbol,
+              int fontSize, int iconSize,
+              const QColor &penColor)
+{
+    static QFontDatabase a;
+
+    const QString fontName = "qtds_propertyIconFont.ttf";
+
+    Q_ASSERT(a.hasFamily(fontName));
+
+    if (a.hasFamily(fontName)) {
+        QFont font(fontName);
+        font.setPixelSize(fontSize);
+
+        painter->save();
+        painter->setPen(penColor);
+        painter->setFont(font);
+        painter->drawText(QRectF(x, y, iconSize, iconSize), iconSymbol);
+
+        painter->restore();
+    }
+}
 
 FormEditorScene *FormEditorItem::scene() const {
     return qobject_cast<FormEditorScene*>(QGraphicsItem::scene());
@@ -578,6 +611,7 @@ void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphi
         return;
 
     painter->save();
+    painter->setRenderHint(QPainter::Antialiasing);
 
     QPen pen;
     pen.setJoinStyle(Qt::MiterJoin);
@@ -621,10 +655,9 @@ void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphi
         fillColor = qmlItemNode().modelNode().auxiliaryData("fillColor").value<QColor>();
 
     if (fillColor.alpha() > 0)
-        painter->fillRect(boundingRect(), fillColor);
+        painter->setBrush(fillColor);
 
-    painter->drawRect(boundingRect());
-
+    painter->drawRoundedRect(boundingRect(), blockRadius, blockRadius);
 
     painter->restore();
 }
@@ -989,6 +1022,7 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
         return;
 
     painter->save();
+    painter->setRenderHint(QPainter::Antialiasing);
 
     ResolveConnection resolved(qmlItemNode());
 
@@ -1021,8 +1055,8 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
     toRect.translate(QmlItemNode(resolved.to).flowPosition());
 
     if (resolved.isStartLine) {
-        fromRect = QRectF(0,0,50,50);
-        fromRect.translate(QmlItemNode(resolved.to).flowPosition() + QPoint(-120, toRect.height() / 2 - 25));
+        fromRect = QRectF(0, 0, 96, 96);
+        fromRect.translate(QmlItemNode(resolved.to).flowPosition() + QPoint(-180, toRect.height() / 2 - 96 / 2));
     }
 
     toRect.translate(-pos());
@@ -1075,23 +1109,28 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
     if (qmlItemNode().modelNode().hasAuxiliaryData("breakPoint"))
         breakOffset = qmlItemNode().modelNode().auxiliaryData("breakPoint").toInt();
 
+    if (resolved.isStartLine)
+        fromRect.translate(0, inOffset);
+
     paintConnection(painter, fromRect, toRect, width, adjustedWidth ,color, dash, outOffset, inOffset, breakOffset);
 
     if (resolved.isStartLine) {
+
+        const QString icon = Theme::getIconUnicode(Theme::startNode);
+
         QPen pen;
         pen.setCosmetic(true);
-
         pen.setColor(color);
         painter->setPen(pen);
-        painter->drawRect(fromRect);
 
-        if (scaleFactor > 0.4) {
-            painter->drawLine(fromRect.topRight() + QPoint(20,10), fromRect.bottomRight() + QPoint(20,-10));
-            painter->drawLine(fromRect.topRight() + QPoint(25,12), fromRect.bottomRight() + QPoint(25,-12));
-            painter->drawLine(fromRect.topRight() + QPoint(30,15), fromRect.bottomRight() + QPoint(30,-15));
-            painter->drawLine(fromRect.topRight() + QPoint(35,17), fromRect.bottomRight() + QPoint(35,-17));
-            painter->drawLine(fromRect.topRight() + QPoint(40,20), fromRect.bottomRight() + QPoint(40,-20));
-        }
+        const int iconAdjust = 48;
+        const int offset = 96;
+        const int size = fromRect.width();
+        const int iconSize = size - iconAdjust;
+        const int x = fromRect.topRight().x() - offset;
+        const int y = fromRect.topRight().y();
+        painter->drawRoundedRect(x, y , size - 10, size, size / 2, iconSize / 2);
+        drawIcon(painter, x + iconAdjust / 2, y + iconAdjust / 2, icon, iconSize, iconSize, color);
     }
 
     painter->restore();
@@ -1140,6 +1179,9 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGrap
 
     painter->save();
 
+    painter->setRenderHint(QPainter::Antialiasing);
+    painter->setRenderHint(QPainter::SmoothPixmapTransform);
+
     QPen pen;
     pen.setJoinStyle(Qt::MiterJoin);
     pen.setCosmetic(true);
@@ -1177,20 +1219,37 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGrap
     if (qmlItemNode().modelNode().hasAuxiliaryData("fillColor"))
        fillColor = qmlItemNode().modelNode().auxiliaryData("fillColor").value<QColor>();
 
+    painter->save();
+
+    if (m_iconType == DecisionIcon) {
+        painter->translate(boundingRect().center());
+        painter->rotate(45);
+        painter->translate(-boundingRect().center());
+    }
+
     if (fillColor.alpha() > 0)
-        painter->fillRect(boundingRect(), fillColor);
+        painter->setBrush(fillColor);
 
-    painter->drawLine(boundingRect().left(), boundingRect().center().y(),
-                      boundingRect().center().x(), boundingRect().top());
+    int radius = blockRadius;
 
-    painter->drawLine(boundingRect().center().x(), boundingRect().top(),
-                      boundingRect().right(), boundingRect().center().y());
+    const QRectF adjustedRect = boundingRect().adjusted(blockAdjust,
+                                                        blockAdjust,
+                                                        -blockAdjust,
+                                                        -blockAdjust);
 
-    painter->drawLine(boundingRect().right(), boundingRect().center().y(),
-                      boundingRect().center().x(), boundingRect().bottom());
+    painter->drawRoundedRect(adjustedRect, radius, radius);
 
-    painter->drawLine(boundingRect().center().x(), boundingRect().bottom(),
-                      boundingRect().left(), boundingRect().center().y());
+    const int iconDecrement = 32;
+    const int iconSize = adjustedRect.width() - iconDecrement;
+    const int offset = iconDecrement / 2 + blockAdjust;
+
+    painter->restore();
+
+    const QString icon = (m_iconType ==
+                          WildcardIcon) ? Theme::getIconUnicode(Theme::wildcard)
+                                        : Theme::getIconUnicode(Theme::decisionNode);
+
+    drawIcon(painter, offset, offset, icon, iconSize, iconSize, flowColor);
 
     painter->restore();
 }

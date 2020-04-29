@@ -38,6 +38,7 @@
 #include <sourcetool/sourcetool.h>
 #include <colortool/colortool.h>
 #include <annotationeditor/annotationtool.h>
+#include <formeditor/transitiontool.h>
 #include <texttool/texttool.h>
 #include <timelineeditor/timelineview.h>
 #include <pathtool/pathtool.h>
@@ -216,6 +217,11 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     if (DesignerSettings::getValue(DesignerSettingsKey::STANDALONE_MODE).toBool())
         GenerateResource::generateMenuEntry();
 
+    QString fontPath = Core::ICore::resourcePath() +
+            QStringLiteral("/qmldesigner/propertyEditorQmlSources/imports/StudioTheme/icons.ttf");
+    if (QFontDatabase::addApplicationFont(fontPath) < 0)
+        qCWarning(qmldesignerLog) << "Could not add font " << fontPath << "to font database";
+
     return true;
 }
 
@@ -242,6 +248,7 @@ bool QmlDesignerPlugin::delayedInitialize()
     d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::AnnotationTool);
     d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::TextTool);
     d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::PathTool);
+    d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::TransitionTool);
 
     return true;
 }

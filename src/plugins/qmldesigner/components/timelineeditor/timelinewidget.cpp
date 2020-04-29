@@ -58,6 +58,7 @@
 #include <QSlider>
 #include <QVBoxLayout>
 #include <QtGlobal>
+#include <QSpacerItem>
 
 namespace QmlDesigner {
 
@@ -118,6 +119,7 @@ TimelineWidget::TimelineWidget(TimelineView *view)
     , m_timelineView(view)
     , m_graphicsScene(new TimelineGraphicsScene(this))
     , m_addButton(new QPushButton(this))
+    , m_onboardingContainer(new QWidget(this))
 {
     setWindowTitle(tr("Timeline", "Title of timeline view"));
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -184,6 +186,50 @@ TimelineWidget::TimelineWidget(TimelineView *view)
     m_addButton->setToolTip(tr("Add Timeline"));
     m_addButton->setFlat(true);
     m_addButton->setFixedSize(32, 32);
+
+
+    widgetLayout->addWidget(m_onboardingContainer);
+
+    auto *onboardingTopLabel = new QLabel(m_onboardingContainer);
+    auto *onboardingBottomLabel = new QLabel(m_onboardingContainer);
+    auto *onboardingBottomIcon = new QLabel(m_onboardingContainer);
+
+    auto *onboardingLayout = new QVBoxLayout;
+    auto *onboardingSublayout = new QHBoxLayout;
+    auto *leftSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    auto *rightSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    auto *topSpacer = new QSpacerItem(40, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    auto *bottomSpacer = new QSpacerItem(40, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+    QString labelText =
+            tr("This file does not contain a timeline. <br><br> \
+            To create an animation, add a timeline by clicking the + button.");
+    onboardingTopLabel->setText(labelText);
+    onboardingTopLabel->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+
+    m_onboardingContainer->setLayout(onboardingLayout);
+    onboardingLayout->setContentsMargins(0, 0, 0, 0);
+    onboardingLayout->setSpacing(0);
+    onboardingLayout->addSpacerItem(topSpacer);
+    onboardingLayout->addWidget(onboardingTopLabel);
+    onboardingLayout->addLayout(onboardingSublayout);
+
+    onboardingSublayout->setContentsMargins(0, 0, 0, 0);
+    onboardingSublayout->setSpacing(0);
+    onboardingSublayout->addSpacerItem(leftSpacer);
+
+    onboardingBottomLabel->setAlignment(Qt::AlignRight | Qt::AlignTop);
+    onboardingBottomLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    onboardingSublayout->addWidget(onboardingBottomLabel);
+    onboardingBottomLabel->setText(tr("To edit the timeline settings, click "));
+
+    onboardingBottomIcon->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    onboardingBottomIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    onboardingSublayout->addWidget(onboardingBottomIcon);
+    onboardingBottomIcon->setPixmap(TimelineIcons::ANIMATION.pixmap());
+
+    onboardingSublayout->addSpacerItem(rightSpacer);
+    onboardingLayout->addSpacerItem(bottomSpacer);
 
     widgetLayout->addLayout(contentLayout);
     this->setLayout(widgetLayout);
@@ -532,6 +578,7 @@ void TimelineWidget::setTimelineActive(bool b)
         m_rulerView->setVisible(true);
         m_scrollbar->setVisible(true);
         m_addButton->setVisible(false);
+        m_onboardingContainer->setVisible(false);
         m_graphicsView->update();
         m_rulerView->update();
     } else {
@@ -540,6 +587,7 @@ void TimelineWidget::setTimelineActive(bool b)
         m_rulerView->setVisible(false);
         m_scrollbar->setVisible(false);
         m_addButton->setVisible(true);
+        m_onboardingContainer->setVisible(true);
     }
 }
 

@@ -164,6 +164,14 @@ add_qtc_test(unittest GTEST
     unittest-utility-functions.h
     usedmacrofilter-test.cpp
     utf8-test.cpp
+    sqlitecolumn-test.cpp
+    sqlitedatabasebackend-test.cpp
+    sqlitedatabase-test.cpp
+    sqlitestatement-test.cpp
+    sqlitetable-test.cpp
+    sqlstatementbuilder-test.cpp
+    createtablesqlstatementbuilder-test.cpp
+    sqlitevalue-test.cpp
 )
 
 # Do not work on the source directory data
@@ -219,7 +227,6 @@ if (TARGET libclang)
     codecompleter-test.cpp
     codecompletionsextractor-test.cpp
     completionchunkstotextconverter-test.cpp
-    createtablesqlstatementbuilder-test.cpp
     cursor-test.cpp
     diagnosticset-test.cpp
     diagnostic-test.cpp
@@ -228,12 +235,6 @@ if (TARGET libclang)
     skippedsourceranges-test.cpp
     sourcelocation-test.cpp
     sourcerange-test.cpp
-    sqlitecolumn-test.cpp
-    sqlitedatabasebackend-test.cpp
-    sqlitedatabase-test.cpp
-    sqlitestatement-test.cpp
-    sqlitetable-test.cpp
-    sqlstatementbuilder-test.cpp
     token-test.cpp
     translationunitupdater-test.cpp
     unsavedfiles-test.cpp

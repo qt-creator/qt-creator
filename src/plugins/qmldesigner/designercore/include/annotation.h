@@ -35,6 +35,7 @@ namespace QmlDesigner {
 
 static const PropertyName customIdProperty = {("customId")};
 static const PropertyName annotationProperty = {("annotation")};
+static const PropertyName globalAnnotationProperty = {("globalAnnotation")};
 
 class Comment
 {

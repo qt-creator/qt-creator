@@ -95,7 +95,32 @@ Column {
                     Layout.fillWidth: true
                     scope: "Qt"
                 }
+            }
 
+            Label {
+                text: qsTr("Horizontal item alignment")
+            }
+
+            SecondColumnLayout {
+                ComboBox {
+                    model: ["AlignLeft", "AlignRight" ,"AlignHCenter"]
+                    backendValue: backendValues.horizontalItemAlignment
+                    Layout.fillWidth: true
+                    scope: "Grid"
+                }
+            }
+
+            Label {
+                text: qsTr("Vertical item alignment")
+            }
+
+            SecondColumnLayout {
+                ComboBox {
+                    model: ["AlignTop", "AlignBottom" ,"AlignVCenter"]
+                    backendValue: backendValues.verticalItemAlignment
+                    Layout.fillWidth: true
+                    scope: "Grid"
+                }
             }
 
             Label {

@@ -32,6 +32,7 @@ HEADERS += \
     $$PWD/sqlitereadstatement.h \
     $$PWD/sqlitereadwritestatement.h \
     $$PWD/sqlitetransaction.h \
+    $$PWD/sqlitevalue.h \
     $$PWD/sqlitewritestatement.h \
     $$PWD/sqlstatementbuilder.h \
     $$PWD/sqlstatementbuilderexception.h \
