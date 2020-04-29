@@ -302,7 +302,7 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
             package->setFlags(qmt::MElement::ReverseEngineered);
             package->setName(action->elementName);
             if (!action->packageStereotype.isEmpty())
-                package->setStereotypes(QStringList() << action->packageStereotype);
+                package->setStereotypes({action->packageStereotype});
             newObject = package;
             if (action->type == MenuAction::TYPE_ADD_PACKAGE_AND_DIAGRAM) {
                 auto diagram = new qmt::MCanvasDiagram();
@@ -317,7 +317,7 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
         package->setFlags(qmt::MElement::ReverseEngineered);
         package->setName(action->elementName);
         if (!action->packageStereotype.isEmpty())
-            package->setStereotypes(QStringList() << action->packageStereotype);
+            package->setStereotypes({action->packageStereotype});
         d->diagramSceneController->modelController()->undoController()->beginMergeSequence(tr("Create Component Model"));
         QStringList relativeElements = qmt::NameController::buildElementsPath(
                     d->pxnodeUtilities->calcRelativePath(filePath, d->anchorFolder), true);

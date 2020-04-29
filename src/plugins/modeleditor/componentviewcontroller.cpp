@@ -190,7 +190,7 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
                     if (!m_modelUtilities->haveDependency(component, includeComponent)) {
                         auto dependency = new qmt::MDependency;
                         dependency->setFlags(qmt::MElement::ReverseEngineered);
-                        dependency->setStereotypes(QStringList() << "include");
+                        dependency->setStereotypes({"include"});
                         dependency->setDirection(qmt::MDependency::AToB);
                         dependency->setSource(component->uid());
                         dependency->setTarget(includeComponent->uid());
