@@ -138,7 +138,7 @@ QStringList NameController::buildElementsPath(const QString &filePath, bool igno
     QStringList split = filePath.split("/");
     QStringList::const_iterator splitEnd = split.constEnd();
     if (ignoreLastFilePathPart || split.last().isEmpty())
-        splitEnd = --splitEnd;
+        --splitEnd;
     for (auto it = split.constBegin(); it != splitEnd; ++it) {
         QString packageName = qmt::NameController::convertFileNameToElementName(*it);
         relativeElements.append(packageName);
