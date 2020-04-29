@@ -269,7 +269,7 @@ void QuickTestParser::handleDirectoryChanged(const QString &directory)
 {
     const QMap<QString, QDateTime> &filesAndDates = qmlFilesWithMTime(directory);
     const QMap<QString, QDateTime> &watched = m_watchedFiles.value(directory);
-    const QStringList &keys = watched.keys();
+    const QList<QString> &keys = watched.keys();
     if (filesAndDates.keys() != keys) { // removed or added files
         m_watchedFiles[directory] = filesAndDates;
         TestTreeModel::instance()->parser()->emitUpdateTestTree(this);
