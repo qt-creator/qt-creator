@@ -78,6 +78,7 @@ public:
     void showPositionOf(const Task &task);
 
     void flush();
+    void reset();
 
     const CompileOutputSettings &settings() const { return m_settings; }
     void setSettings(const CompileOutputSettings &settings);

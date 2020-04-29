@@ -32,6 +32,7 @@
 #include "icore.h"
 
 #include <utils/outputformatter.h>
+#include <utils/qtcassert.h>
 
 #include <QAction>
 #include <QCursor>
@@ -44,6 +45,10 @@
 #ifdef WITH_TESTS
 #include <QtTest>
 #endif
+
+#include <numeric>
+
+const int chunkSize = 10000;
 
 using namespace Utils;
 
@@ -68,7 +73,10 @@ public:
     IContext *outputWindowContext = nullptr;
     QString settingsKey;
     OutputFormatter formatter;
+    QList<QPair<QString, OutputFormat>> queuedOutput;
+    QTimer queueTimer;
 
+    bool flushRequested = false;
     bool scrollToBottom = true;
     bool linksActive = true;
     bool zoomEnabled = false;
@@ -97,6 +105,10 @@ OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget 
     setMouseTracking(true);
     setUndoRedoEnabled(false);
     d->formatter.setPlainTextEdit(this);
+
+    d->queueTimer.setSingleShot(true);
+    d->queueTimer.setInterval(10);
+    connect(&d->queueTimer, &QTimer::timeout, this, &OutputWindow::handleNextOutputChunk);
 
     d->settingsKey = settingsKey;
 
@@ -224,6 +236,7 @@ void OutputWindow::keyPressEvent(QKeyEvent *ev)
 
 void OutputWindow::setLineParsers(const QList<OutputLineParser *> &parsers)
 {
+    reset();
     d->formatter.setLineParsers(parsers);
 }
 
@@ -370,18 +383,26 @@ void OutputWindow::filterNewContent()
         scrollToBottom();
 }
 
-void OutputWindow::setMaxCharCount(int count)
+void OutputWindow::handleNextOutputChunk()
 {
-    d->maxCharCount = count;
-    setMaximumBlockCount(count / 100);
+    QTC_ASSERT(!d->queuedOutput.isEmpty(), return);
+    auto &chunk = d->queuedOutput.first();
+    if (chunk.first.size() <= chunkSize) {
+        handleOutputChunk(chunk.first, chunk.second);
+        d->queuedOutput.removeFirst();
+    } else {
+        handleOutputChunk(chunk.first.left(chunkSize), chunk.second);
+        chunk.first.remove(0, chunkSize);
+    }
+    if (!d->queuedOutput.isEmpty())
+        d->queueTimer.start();
+    else if (d->flushRequested) {
+        d->formatter.flush();
+        d->flushRequested = false;
+    }
 }
 
-int OutputWindow::maxCharCount() const
-{
-    return d->maxCharCount;
-}
-
-void OutputWindow::appendMessage(const QString &output, OutputFormat format)
+void OutputWindow::handleOutputChunk(const QString &output, OutputFormat format)
 {
     QString out = output;
     if (out.size() > d->maxCharCount) {
@@ -420,6 +441,27 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
 
     m_lastMessage.start();
     enableUndoRedo();
+}
+
+void OutputWindow::setMaxCharCount(int count)
+{
+    d->maxCharCount = count;
+    setMaximumBlockCount(count / 100);
+}
+
+int OutputWindow::maxCharCount() const
+{
+    return d->maxCharCount;
+}
+
+void OutputWindow::appendMessage(const QString &output, OutputFormat format)
+{
+    if (d->queuedOutput.isEmpty() || d->queuedOutput.last().second != format)
+        d->queuedOutput << qMakePair(output, format);
+    else
+        d->queuedOutput.last().first.append(output);
+    if (!d->queueTimer.isActive())
+        d->queueTimer.start();
 }
 
 bool OutputWindow::isScrollbarAtBottom() const
@@ -461,7 +503,30 @@ void OutputWindow::clear()
 
 void OutputWindow::flush()
 {
+    const int totalQueuedSize = std::accumulate(d->queuedOutput.cbegin(), d->queuedOutput.cend(), 0,
+            [](int val,  const QPair<QString, OutputFormat> &c) { return val + c.first.size(); });
+    if (totalQueuedSize > 5 * chunkSize) {
+        d->flushRequested = true;
+        return;
+    }
+    d->queueTimer.stop();
+    for (const auto &chunk : d->queuedOutput)
+        handleOutputChunk(chunk.first, chunk.second);
+    d->queuedOutput.clear();
     d->formatter.flush();
+}
+
+void OutputWindow::reset()
+{
+    flush();
+    d->queueTimer.stop();
+    d->formatter.reset();
+    if (!d->queuedOutput.isEmpty()) {
+        d->queuedOutput.clear();
+        d->formatter.appendMessage(tr("[Discarding excessive amount of pending output.]\n"),
+                                   ErrorMessageFormat);
+    }
+    d->flushRequested = false;
 }
 
 void OutputWindow::scrollToBottom()

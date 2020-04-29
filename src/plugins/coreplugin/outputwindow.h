@@ -67,6 +67,7 @@ public:
     void grayOutOldContent();
     void clear();
     void flush();
+    void reset();
 
     void scrollToBottom();
 
@@ -109,6 +110,8 @@ private:
     QElapsedTimer m_lastMessage;
     void enableUndoRedo();
     void filterNewContent();
+    void handleNextOutputChunk();
+    void handleOutputChunk(const QString &output, Utils::OutputFormat format);
 
     Internal::OutputWindowPrivate *d = nullptr;
 };

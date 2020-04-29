@@ -285,6 +285,11 @@ void CompileOutputWindow::flush()
     m_outputWindow->flush();
 }
 
+void CompileOutputWindow::reset()
+{
+    m_outputWindow->reset();
+}
+
 void CompileOutputWindow::setSettings(const CompileOutputSettings &settings)
 {
     m_settings = settings;
