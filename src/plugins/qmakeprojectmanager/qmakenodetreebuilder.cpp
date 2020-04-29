@@ -95,6 +95,8 @@ public:
 
     QVector<FileTypeData> fileTypeData;
     QIcon projectIcon;
+    QIcon productIcon;
+    QIcon groupIcon;
 };
 
 void clearQmakeStaticData();
@@ -114,6 +116,8 @@ QmakeStaticData::QmakeStaticData()
     }
     // Project icon
     projectIcon = Core::FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_QT);
+    productIcon = Core::FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_PRODUCT);
+    groupIcon = Core::FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_GROUP);
 
     qAddPostRoutine(clearQmakeStaticData);
 }
@@ -124,11 +128,19 @@ void clearQmakeStaticData()
 {
     qmakeStaticData()->fileTypeData.clear();
     qmakeStaticData()->projectIcon = QIcon();
+    qmakeStaticData()->productIcon = QIcon();
+    qmakeStaticData()->groupIcon = QIcon();
 }
 
 } // namespace
 
 namespace QmakeProjectManager {
+
+static QIcon iconForProfile(const QmakeProFile *proFile)
+{
+    return proFile->projectType() == ProjectType::SubDirsTemplate ? qmakeStaticData()->projectIcon
+                                                                  : qmakeStaticData()->productIcon;
+}
 
 static void createTree(QmakeBuildSystem *buildSystem,
                        const QmakePriFile *pri,
@@ -139,7 +151,6 @@ static void createTree(QmakeBuildSystem *buildSystem,
     QTC_ASSERT(node, return);
 
     node->setDisplayName(pri->displayName());
-    node->setIcon(qmakeStaticData()->projectIcon);
 
     // .pro/.pri-file itself:
     node->addNode(std::make_unique<FileNode>(pri->filePath(), FileType::Project));
@@ -227,10 +238,14 @@ static void createTree(QmakeBuildSystem *buildSystem,
     // Virtual folders:
     for (QmakePriFile *c : pri->children()) {
         std::unique_ptr<QmakePriFileNode> newNode;
-        if (auto pf = dynamic_cast<QmakeProFile *>(c))
+        if (auto pf = dynamic_cast<QmakeProFile *>(c)) {
             newNode = std::make_unique<QmakeProFileNode>(c->buildSystem(), c->filePath(), pf);
-        else
-            newNode = std::make_unique<QmakePriFileNode>(c->buildSystem(), node->proFileNode(), c->filePath(), c);
+            newNode->setIcon(iconForProfile(pf));
+        } else {
+            newNode = std::make_unique<QmakePriFileNode>(c->buildSystem(), node->proFileNode(),
+                                                         c->filePath(), c);
+            newNode->setIcon(qmakeStaticData->groupIcon);
+        }
         createTree(buildSystem, c, newNode.get(), toExclude);
         node->addNode(std::move(newNode));
     }
@@ -246,6 +261,7 @@ std::unique_ptr<QmakeProFileNode> QmakeNodeTreeBuilder::buildTree(QmakeBuildSyst
     auto root = std::make_unique<QmakeProFileNode>(buildSystem,
                                                    buildSystem->projectFilePath(),
                                                    buildSystem->rootProFile());
+    root->setIcon(iconForProfile(buildSystem->rootProFile()));
     createTree(buildSystem, buildSystem->rootProFile(), root.get(), toExclude);
 
     return root;

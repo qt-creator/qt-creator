@@ -1,9 +1,5 @@
 <RCC>
     <qresource prefix="/qbsprojectmanager">
-        <file>images/groups.png</file>
-        <file>images/groups@2x.png</file>
-        <file>images/productgear.png</file>
-        <file>images/productgear@2x.png</file>
         <file>images/settingscategory_qbsprojectmanager.png</file>
         <file>images/settingscategory_qbsprojectmanager@2x.png</file>
     </qresource>

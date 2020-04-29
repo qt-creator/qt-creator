@@ -64,6 +64,10 @@
         <file>images/fileoverlay_qrc@2x.png</file>
         <file>images/fileoverlay_qt.png</file>
         <file>images/fileoverlay_qt@2x.png</file>
+        <file>images/fileoverlay_product.png</file>
+        <file>images/fileoverlay_product@2x.png</file>
+        <file>images/fileoverlay_group.png</file>
+        <file>images/fileoverlay_group@2x.png</file>
         <file>images/fileoverlay_ui.png</file>
         <file>images/fileoverlay_ui@2x.png</file>
         <file>images/fileoverlay_scxml.png</file>

@@ -73,10 +73,6 @@ const char QBS_CONFIG_QUICK_COMPILER_KEY[] = "modules.Qt.quick.useCompiler";
 const char QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY[] = "modules.cpp.separateDebugInformation";
 const char QBS_FORCE_PROBES_KEY[] = "qbspm.forceProbes";
 
-// Icons:
-const char QBS_GROUP_ICON[] = ":/qbsprojectmanager/images/groups.png";
-const char QBS_PRODUCT_OVERLAY_ICON[] = ":/qbsprojectmanager/images/productgear.png";
-
 // Toolchain related settings:
 const char QBS_TARGETPLATFORM[] = "qbs.targetPlatform";
 const char QBS_SYSROOT[] = "qbs.sysroot";
