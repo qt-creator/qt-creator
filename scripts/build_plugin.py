@@ -48,6 +48,9 @@ def get_arguments():
     parser.add_argument('--output-path', help='Output path for resulting 7zip files')
     parser.add_argument('--add-path', help='Adds a CMAKE_PREFIX_PATH to the build',
                         action='append', dest='prefix_paths', default=[])
+    parser.add_argument('--add-config', help=('Adds the argument to the CMake configuration call. '
+                        'Use "--add-config=-DSOMEVAR=SOMEVALUE" if the argument begins with a dash.'),
+                        action='append', dest='config_args', default=[])
     parser.add_argument('--deploy', help='Installs the "Dependencies" component of the plugin.',
                         action='store_true', default=False)
     parser.add_argument('--debug', help='Enable debug builds', action='store_true', default=False)
@@ -82,6 +85,7 @@ def build(args, paths):
         with open(os.path.join(paths.result, args.name + '.7z.git_sha'), 'w') as f:
             f.write(ide_revision)
 
+    cmake_args += args.config_args
     common.check_print_call(cmake_args + [paths.src], paths.build)
     common.check_print_call(['cmake', '--build', '.'], paths.build)
     common.check_print_call(['cmake', '--install', '.', '--prefix', paths.install, '--strip'],
