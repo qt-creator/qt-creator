@@ -1212,6 +1212,10 @@ void DesignerActionManager::addTransitionEffectAction(const TypeName &typeName)
 DesignerActionToolBar::DesignerActionToolBar(QWidget *parentWidget) : Utils::StyledBar(parentWidget),
     m_toolBar(new QToolBar("ActionToolBar", this))
 {
+    QWidget* empty = new QWidget();
+    empty->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+    m_toolBar->addWidget(empty);
+
     m_toolBar->setContentsMargins(0, 0, 0, 0);
     m_toolBar->setFloatable(true);
     m_toolBar->setMovable(true);
