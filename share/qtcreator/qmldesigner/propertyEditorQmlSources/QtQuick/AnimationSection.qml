@@ -26,6 +26,8 @@
 import HelperWidgets 2.0
 import QtQuick 2.1
 import QtQuick.Layouts 1.1
+import StudioTheme 1.0 as StudioTheme
+
 Section {
     id: section
     caption: qsTr("Animation")
@@ -33,6 +35,7 @@ Section {
     anchors.right: parent.right
 
     property bool showDuration: true
+    property bool showEasingCurve: false
 
     SectionLayout {
         Label {
@@ -99,6 +102,23 @@ Section {
         CheckBox {
             text: backendValues.alwaysRunToEnd.valueToString
             backendValue: backendValues.alwaysRunToEnd
+        }
+
+        Label {
+            visible: section.showEasingCurve
+            text: qsTr("Easing Curve")
+            tooltip: qsTr("Define custom easing curve")
+        }
+
+        BoolButtonRowButton {
+            visible: section.showEasingCurve
+            buttonIcon: StudioTheme.Constants.curveDesigner
+            EasingCurveEditor {
+                id: easingCurveEditor
+                modelNodeBackendProperty: modelNodeBackend
+            }
+            onClicked: easingCurveEditor.runDialog()
+
         }
     }
 }
