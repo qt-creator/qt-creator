@@ -1742,7 +1742,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             evalError(fL1S("system(exec) requires one argument."));
             return ReturnFalse;
         }
-#ifdef PROEVALUATOR_FULL
         if (m_cumulative) // Anything else would be insanity
             return ReturnFalse;
 #ifndef QT_BOOTSTRAPPED
@@ -1759,9 +1758,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             raise(WTERMSIG(ec));
 #  endif
         return returnBool(ec == 0);
-#endif
-#else
-        return ReturnTrue;
 #endif
     }
     case T_ISEMPTY: {
