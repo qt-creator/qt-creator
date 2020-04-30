@@ -427,12 +427,24 @@ void NavigatorView::updateItemSelection()
     QItemSelection itemSelection;
     foreach (const ModelNode &node, selectedModelNodes()) {
         const QModelIndex index = indexForModelNode(node);
+
         if (index.isValid()) {
             const QModelIndex beginIndex(currentModel()->index(index.row(), 0, index.parent()));
             const QModelIndex endIndex(currentModel()->index(index.row(), currentModel()->columnCount(index.parent()) - 1, index.parent()));
             if (beginIndex.isValid() && endIndex.isValid())
                 itemSelection.select(beginIndex, endIndex);
-        }
+        } else {
+            // if the node index is invalid expand ancestors manually if they are valid.
+            ModelNode parentNode = node;
+            while (parentNode.hasParentProperty()) {
+                parentNode = parentNode.parentProperty().parentQmlObjectNode();
+                QModelIndex parentIndex = indexForModelNode(parentNode);
+                if (parentIndex.isValid())
+                    treeWidget()->expand(parentIndex);
+                else
+                    break;
+            }
+         }
     }
 
     bool blocked = blockSelectionChangedSignal(true);
@@ -442,7 +454,7 @@ void NavigatorView::updateItemSelection()
     if (!selectedModelNodes().isEmpty())
         treeWidget()->scrollTo(indexForModelNode(selectedModelNodes().constFirst()));
 
-    // make sure selected nodes a visible
+    // make sure selected nodes are visible
     foreach (const QModelIndex &selectedIndex, itemSelection.indexes()) {
         if (selectedIndex.column() == 0)
             expandAncestors(selectedIndex);
