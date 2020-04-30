@@ -603,6 +603,10 @@ bool ListItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
         if (!item)
             return false;
         auto mev = static_cast<QMouseEvent *>(event);
+
+        if (mev->button() != Qt::LeftButton) // do not react on right click
+            return false;
+
         if (index.isValid()) {
             const QPoint pos = mev->pos();
             if (pos.y() > option.rect.y() + GridProxyModel::TagsSeparatorY) {
