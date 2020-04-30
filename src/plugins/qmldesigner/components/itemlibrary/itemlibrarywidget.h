@@ -121,6 +121,7 @@ private:
     QPointer<Model> m_model;
     FilterChangeFlag m_filterFlag;
     ItemLibraryEntry m_currentitemLibraryEntry;
+    bool m_updateRetry = false;
 };
 
 }
