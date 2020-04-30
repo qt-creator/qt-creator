@@ -386,6 +386,10 @@ public:
         // This triggers activity in the EngineManager which
         // recognizes the rampdown by the m_perpective == nullptr above.
         perspective->destroy();
+
+        // disconnect the follow font size connection
+        TextEditorSettings::instance()->disconnect(this);
+
         delete perspective;
     }
 
