@@ -154,12 +154,9 @@ add_custom_target(copy_clang_to_builddir ALL
 # For the developer build directory
 add_custom_command(TARGET copy_clang_to_builddir POST_BUILD
   COMMAND "${CMAKE_COMMAND}"
-    -E make_directory
-      "${PROJECT_BINARY_DIR}/${IDE_LIBEXEC_PATH}/clang/lib/clang/${CLANG_VERSION}"
-  COMMAND "${CMAKE_COMMAND}"
     -E copy_directory
       "${LLVM_LIBRARY_DIR}/clang/${CLANG_VERSION}/include"
-      "${PROJECT_BINARY_DIR}/${IDE_LIBEXEC_PATH}/clang/lib/clang/${CLANG_VERSION}"
+      "${PROJECT_BINARY_DIR}/${IDE_LIBEXEC_PATH}/clang/lib/clang/${CLANG_VERSION}/include"
   VERBATIM
 )
 
