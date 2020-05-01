@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject", "Qbs.QbsProject", "Qt4ProjectManager.Qt4Project" ],
+    "supportedProjectTypes": [ "MesonProjectManager.MesonProject", "CMakeProjectManager.CMakeProject", "Qbs.QbsProject", "Qt4ProjectManager.Qt4Project" ],
     "id": "E.QtCore",
     "category": "D.ApplicationQt",
     "trDescription": "Creates a project containing a single main.cpp file with a stub implementation.\n\nPreselects a desktop Qt for building the application if available.",
@@ -8,14 +8,15 @@
     "trDisplayCategory": "Application (Qt)",
     "icon": "../../global/consoleapplication.png",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQt" ],
-    "enabled": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0 || value('Plugins').indexOf('QbsProjectManager') >= 0 || value('Plugins').indexOf('CMakeProjectManager') >= 0}",
+    "enabled": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0 || value('Plugins').indexOf('QbsProjectManager') >= 0 || value('Plugins').indexOf('CMakeProjectManager') >= 0 || value('Plugins').indexOf('MesonProjectManager') >= 0}",
 
     "options":
     [
-        { "key": "ProjectFile", "value": "%{JS: value('BuildSystem') === 'qmake' ? value('ProFile') : (value('BuildSystem') === 'cmake' ? value('CMakeFile') : value('QbsFile'))}" },
+        { "key": "ProjectFile", "value": "%{JS: value('BuildSystem') === 'qmake' ? value('ProFile') : (value('BuildSystem') === 'cmake' ? value('CMakeFile') : (value('BuildSystem') === 'meson' ? value('MesonFile') : value('QbsFile')))}" },
         { "key": "ProFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'pro')}" },
         { "key": "QbsFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'qbs')}" },
         { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
+        { "key": "MesonFile", "value": "%{ProjectDirectory}/meson.build" },
         { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" },
         { "key": "CppFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src')}" }
     ],
@@ -59,6 +60,11 @@
                                 "trKey": "Qbs",
                                 "value": "qbs",
                                 "condition": "%{JS: value('Plugins').indexOf('QbsProjectManager') >= 0}"
+                            },
+                            {
+                                "trKey": "Meson",
+                                "value": "meson",
+                                "condition": "%{JS: value('Plugins').indexOf('MesonProjectManager') >= 0}"
                             }
                         ]
                     }
@@ -105,6 +111,12 @@
                     "target": "%{QbsFile}",
                     "openAsProject": true,
                     "condition": "%{JS: value('BuildSystem') === 'qbs'}"
+                },
+                {
+                    "source": "meson.build",
+                    "target": "%{MesonFile}",
+                    "openAsProject": true,
+                    "condition": "%{JS: value('BuildSystem') === 'meson'}"
                 },
                 {
                     "source": "main.cpp",

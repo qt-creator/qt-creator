@@ -1,0 +1,62 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 Alexis Jeandet.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3 as published by the Free Software
+** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
+**
+****************************************************************************/
+
+#pragma once
+#include <exewrappers/mesontools.h>
+
+#include <coreplugin/id.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitmanager.h>
+
+namespace MesonProjectManager {
+namespace Internal {
+class MesonToolKitAspect final : public ProjectExplorer::KitAspect
+{
+public:
+    MesonToolKitAspect();
+
+    ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const final;
+    void setup(ProjectExplorer::Kit *k) final;
+    void fix(ProjectExplorer::Kit *k) final;
+    ItemList toUserOutput(const ProjectExplorer::Kit *k) const final;
+    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *) const final;
+
+    static void setMesonTool(ProjectExplorer::Kit *kit, Core::Id id);
+    static Core::Id mesonToolId(const ProjectExplorer::Kit *kit);
+
+    static inline decltype(auto) mesonTool(const ProjectExplorer::Kit *kit)
+    {
+        return MesonTools::mesonWrapper(MesonToolKitAspect::mesonToolId(kit));
+    }
+
+    static inline bool isValid(const ProjectExplorer::Kit *kit)
+    {
+        auto tool = mesonTool(kit);
+        return (tool && tool->isValid());
+    }
+};
+
+} // namespace Internal
+} // namespace MesonProjectManager

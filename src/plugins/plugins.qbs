@@ -21,6 +21,7 @@ Project {
         "classview/classview.qbs",
         "clearcase/clearcase.qbs",
         "cmakeprojectmanager/cmakeprojectmanager.qbs",
+        "mesonprojectmanager/mesonprojectmanager.qbs",
         "compilationdatabaseprojectmanager/compilationdatabaseprojectmanager.qbs",
         "coreplugin/coreplugin.qbs",
         "coreplugin/images/logo/logo.qbs",

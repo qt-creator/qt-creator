@@ -7,14 +7,15 @@
     "trDisplayName": "Plain C++ Application",
     "trDisplayCategory": "Non-Qt Project",
     "icon": "../../global/consoleapplication.png",
-    "enabled": "%{JS: value('Plugins').indexOf('CppEditor') >= 0 && (value('Plugins').indexOf('QmakeProjectManager') >= 0 || value('Plugins').indexOf('QbsProjectManager') >= 0 || value('Plugins').indexOf('CMakeProjectManager') >= 0)}",
+    "enabled": "%{JS: value('Plugins').indexOf('CppEditor') >= 0 && (value('Plugins').indexOf('QmakeProjectManager') >= 0 || value('Plugins').indexOf('QbsProjectManager') >= 0 || value('Plugins').indexOf('CMakeProjectManager') >= 0 || value('Plugins').indexOf('MesonProjectManager') >= 0)}",
 
     "options":
     [
-        { "key": "ProjectFile", "value": "%{JS: '%{BuildSystem}' === 'qmake' ? '%{ProFile}' : ('%{BuildSystem}' === 'cmake' ? '%{CMakeFile}' : '%{QbsFile}')}" },
+        { "key": "ProjectFile", "value": "%{JS: '%{BuildSystem}' === 'qmake' ? '%{ProFile}' : ('%{BuildSystem}' === 'cmake' ? '%{CMakeFile}' : ( '%{BuildSystem}' === 'meson' ? '%{MesonFile}' : '%{QbsFile}'))}" },
         { "key": "ProFile", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'pro')}" },
         { "key": "QbsFile", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'qbs')}" },
         { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
+        { "key": "MesonFile", "value": "%{ProjectDirectory}/meson.build" },
         { "key": "CppFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src')}" }
     ],
 
@@ -56,6 +57,11 @@
                                 "trKey": "Qbs",
                                 "value": "qbs",
                                 "condition": "%{JS: value('Plugins').indexOf('QbsProjectManager') >= 0}"
+                            },
+                            {
+                                "trKey": "Meson",
+                                "value": "meson",
+                                "condition": "%{JS: value('Plugins').indexOf('MesonProjectManager') >= 0}"
                             }
                         ]
                     }
@@ -97,6 +103,11 @@
                     "target": "%{QbsFile}",
                     "openAsProject": true,
                     "condition": "%{JS: '%{BuildSystem}' === 'qbs'}"
+                },
+                {
+                    "source": "meson.build",
+                    "openAsProject": true,
+                    "condition": "%{JS: '%{BuildSystem}' === 'meson'}"
                 },
                 {
                     "source": "main.cpp",

@@ -26,6 +26,7 @@ SUBDIRS   = \
     debugger \
     cpaster \
     cmakeprojectmanager \
+    mesonprojectmanager \
     autotoolsprojectmanager \
     fakevim \
     emacskeys \

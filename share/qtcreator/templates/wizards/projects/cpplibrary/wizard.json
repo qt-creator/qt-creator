@@ -1,19 +1,20 @@
 {
     "version": 1,
-    "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject", "Qbs.QbsProject", "Qt4ProjectManager.Qt4Project" ],
+    "supportedProjectTypes": [ "MesonProjectManager.MesonProject", "CMakeProjectManager.CMakeProject", "Qbs.QbsProject", "Qt4ProjectManager.Qt4Project" ],
     "id": "H.CppLibrary",
     "category": "G.Library",
     "trDescription": "Creates a C++ library. This can be used to create:<ul><li>a shared C++ library for use with <tt>QPluginLoader</tt> and runtime (Plugins)</li><li>a shared or static C++ library for use with another project at linktime</li></ul>",
     "trDisplayName": "C++ Library",
     "trDisplayCategory": "Library",
     "icon": "../../global/lib.png",
-    "enabled": "%{JS: value('Plugins').indexOf('CppEditor') >= 0 && (value('Plugins').indexOf('QmakeProjectManager') >= 0 || value('Plugins').indexOf('CMakeProjectManager') >= 0)}",
+    "enabled": "%{JS: value('Plugins').indexOf('CppEditor') >= 0 && (value('Plugins').indexOf('QmakeProjectManager') >= 0 || value('Plugins').indexOf('CMakeProjectManager') >= 0 || value('Plugins').indexOf('MesonProjectManager') >= 0)}",
 
     "options":
     [
-        { "key": "ProjectFile", "value": "%{JS: value('BuildSystem') === 'cmake' ? value('CMakeFile') : value('ProFile')}" },
+        { "key": "ProjectFile", "value": "%{JS: value('BuildSystem') === 'cmake' ? value('CMakeFile') : ( value('BuildSystem') === 'meson' ? value('MesonFile') : value('ProFile') )}" },
         { "key": "ProFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), value('BuildSystem') === 'qmake' ? 'pro' : 'qbs')}" },
         { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
+        { "key": "MesonFile", "value": "%{ProjectDirectory}/meson.build" },
         { "key": "PluginJsonFile", "value": "%{JS: Util.fileName(value('ProjectName'), 'json')}" },
         { "key": "IsShared", "value": "%{JS: value('Type') === 'shared'}" },
         { "key": "IsStatic", "value": "%{JS: value('Type') === 'static'}" },
@@ -74,6 +75,11 @@
                                 "trKey": "Qbs",
                                 "value": "qbs",
                                 "condition": "%{JS: value('Plugins').indexOf('QbsProjectManager') >= 0}"
+                            },
+                            {
+                                "trKey": "Meson",
+                                "value": "meson",
+                                "condition": "%{JS: value('Plugins').indexOf('MesonProjectManager') >= 0}"
                             }
                         ]
                     }
@@ -314,6 +320,11 @@
                     "source": "CMakeLists.txt",
                     "openAsProject": true,
                     "condition": "%{JS: value('BuildSystem') === 'cmake'}"
+                },
+                {
+                    "source": "meson.build",
+                    "openAsProject": true,
+                    "condition": "%{JS: value('BuildSystem') === 'meson'}"
                 },
                 {
                     "source": "lib.cpp",
