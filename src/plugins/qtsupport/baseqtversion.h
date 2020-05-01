@@ -119,7 +119,6 @@ public:
     virtual QString toHtml(bool verbose) const;
 
     ProjectExplorer::Abis qtAbis() const;
-    virtual ProjectExplorer::Abis detectQtAbis() const;
 
     void applyProperties(QMakeGlobals *qmakeGlobals) const;
     virtual void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
@@ -242,6 +241,8 @@ protected:
 
     virtual QSet<Core::Id> availableFeatures() const;
     virtual ProjectExplorer::Tasks reportIssuesImpl(const QString &proFile, const QString &buildDir) const;
+
+    virtual ProjectExplorer::Abis detectQtAbis() const;
 
     // helper function for desktop and simulator to figure out the supported abis based on the libraries
     static ProjectExplorer::Abis qtAbisFromLibrary(const Utils::FilePaths &coreLibraries);
