@@ -483,8 +483,12 @@ AndroidDeviceDialog::~AndroidDeviceDialog()
 
 AndroidDeviceInfo AndroidDeviceDialog::device()
 {
+    refreshDeviceList();
+
     if (!m_defaultDevice.isEmpty()) {
-        auto device = std::find_if(m_connectedDevices.begin(), m_connectedDevices.end(), [this](const AndroidDeviceInfo& info) {
+        auto device = std::find_if(m_connectedDevices.begin(),
+                                   m_connectedDevices.end(),
+                                   [this](const AndroidDeviceInfo &info) {
             return info.serialNumber == m_defaultDevice ||
                     info.avdname == m_defaultDevice;
         });
@@ -493,8 +497,6 @@ AndroidDeviceInfo AndroidDeviceDialog::device()
             return *device;
         m_defaultDevice.clear();
     }
-
-    refreshDeviceList();
 
     if (exec() == QDialog::Accepted)
         return m_model->device(m_ui->deviceView->currentIndex());
