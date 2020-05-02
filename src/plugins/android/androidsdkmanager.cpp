@@ -278,6 +278,7 @@ public:
         NdkMarker                   = 0x800,
         ExtrasMarker                = 0x1000,
         CmdlineSdkToolsMarker       = 0x2000,
+        GenericToolMarker           = 0x4000,
         SectionMarkers = InstalledPackagesMarker | AvailablePackagesMarkers | AvailableUpdatesMarker
     };
 
@@ -300,6 +301,7 @@ private:
     EmulatorTools *parseEmulatorToolsPackage(const QStringList &data) const;
     Ndk *parseNdkPackage(const QStringList &data) const;
     ExtraTools *parseExtraToolsPackage(const QStringList &data) const;
+    GenericSdkPackage *parseGenericTools(const QStringList &data) const;
     MarkerTag parseMarkers(const QString &line);
 
     MarkerTag m_currentSection = MarkerTag::None;
@@ -632,6 +634,10 @@ void SdkManagerOutputParser::parsePackageData(MarkerTag packageMarker, const QSt
         createPackage(&SdkManagerOutputParser::parseExtraToolsPackage);
         break;
 
+    case MarkerTag::GenericToolMarker:
+        createPackage(&SdkManagerOutputParser::parseGenericTools);
+        break;
+
     default:
         qCDebug(sdkManagerLog) << "Unhandled package: " << markerTags.at(packageMarker);
         break;
@@ -832,6 +838,22 @@ ExtraTools *SdkManagerOutputParser::parseExtraToolsPackage(const QStringList &da
     return extraTools;
 }
 
+GenericSdkPackage *SdkManagerOutputParser::parseGenericTools(const QStringList &data) const
+{
+    GenericSdkPackage *sdkPackage = nullptr;
+    GenericPackageData packageData;
+    if (parseAbstractData(packageData, data, 1, "Generic")) {
+        sdkPackage = new GenericSdkPackage(packageData.revision, data.at(0));
+        sdkPackage->setDescriptionText(packageData.description);
+        sdkPackage->setDisplayText(packageData.description);
+        sdkPackage->setInstalledLocation(packageData.installedLocation);
+    } else {
+        qCDebug(sdkManagerLog) << "Generic: Parsing failed. Minimum required data "
+                                  "unavailable:" << data;
+    }
+    return sdkPackage;
+}
+
 SdkManagerOutputParser::MarkerTag SdkManagerOutputParser::parseMarkers(const QString &line)
 {
     if (line.isEmpty())
@@ -841,6 +863,10 @@ SdkManagerOutputParser::MarkerTag SdkManagerOutputParser::parseMarkers(const QSt
         if (line.startsWith(QLatin1String(pair.second)))
             return pair.first;
     }
+
+    QRegularExpressionMatch match = QRegularExpression("^[a-zA-Z]+[A-Za-z0-9;._-]+").match(line);
+    if (match.hasMatch() && match.captured(0) == line)
+        return GenericToolMarker;
 
     return None;
 }

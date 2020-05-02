@@ -319,4 +319,19 @@ void Ndk::setAsNdkBundle(const bool isBundle)
     m_isBundle = isBundle;
 }
 
+GenericSdkPackage::GenericSdkPackage(QVersionNumber revision, QString sdkStylePathStr, QObject  *parent) :
+    AndroidSdkPackage(revision, sdkStylePathStr, parent)
+{
+}
+
+bool GenericSdkPackage::isValid() const
+{
+    return installedLocation().exists();
+}
+
+AndroidSdkPackage::PackageType GenericSdkPackage::type() const
+{
+    return AndroidSdkPackage::GenericSdkPackage;
+}
+
 } // namespace Android
