@@ -1061,7 +1061,7 @@ void Client::showMessageBox(const ShowMessageRequestParams &message, const Messa
     box->show();
 }
 
-void addDiagnosticsSelections(const Diagnostic &diagnostic,
+static void addDiagnosticsSelections(const Diagnostic &diagnostic,
                               QTextDocument *textDocument,
                               QList<QTextEdit::ExtraSelection> &extraSelections)
 {
@@ -1091,7 +1091,7 @@ void Client::showDiagnostics(const DocumentUri &uri)
 {
     const FilePath &filePath = uri.toFilePath();
     if (TextEditor::TextDocument *doc = TextEditor::TextDocument::textDocumentForFilePath(
-            uri.toFilePath())) {
+            filePath)) {
         QList<QTextEdit::ExtraSelection> extraSelections;
 
         for (const Diagnostic &diagnostic : m_diagnostics.value(uri)) {
