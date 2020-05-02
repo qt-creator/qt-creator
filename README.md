@@ -19,7 +19,7 @@ https://wiki.qt.io/Setting_up_Gerrit
 
 See the following page for information about our coding standard:
 
-https://doc-snapshots.qt.io/qtcreator-extending/coding-style.html
+https://doc.qt.io/qtcreator-extending/coding-style.html
 
 ## Compiling Qt Creator
 
