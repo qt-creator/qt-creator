@@ -66,6 +66,12 @@
     If there is no active action, the default behavior of the visible action is to be disabled.
     You can change that behavior to make the visible action hide instead via the Command's
     \l{Command::CommandAttribute}{attributes}.
+
+    See \l{The Action Manager and Commands} for an overview of how
+    Core::Command and Core::ActionManager interact.
+
+    \sa Core::ActionManager
+    \sa {The Action Manager and Commands}
 */
 
 /*!

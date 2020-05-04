@@ -60,86 +60,57 @@ using namespace Core::Internal;
     \brief The ActionManager class is responsible for registration of menus and
     menu items and keyboard shortcuts.
 
-    The ActionManager is the central bookkeeper of actions and their shortcuts and layout.
-    It is a singleton containing mostly static functions. If you need access to the instance,
-    e.g. for connecting to signals, call its ActionManager::instance() function.
+    The action manager is the central bookkeeper of actions and their shortcuts
+    and layout. It is a singleton containing mostly static functions. If you
+    need access to the instance, for example for connecting to signals, call
+    its ActionManager::instance() function.
 
-    The main reasons for the need of this class is to provide a central place where the users
-    can specify all their keyboard shortcuts, and to provide a solution for actions that should
-    behave differently in different contexts (like the copy/replace/undo/redo actions).
+    The action manager makes it possible to provide a central place where the
+    users can specify all their keyboard shortcuts, and provides a solution for
+    actions that should behave differently in different contexts (like the
+    copy/replace/undo/redo actions).
 
-    \section1 Contexts
+    See \l{The Action Manager and Commands} for an overview of the interaction
+    between Core::ActionManager, Core::Command, and Core::Context.
 
-    All actions that are registered with the same Id (but different context lists)
-    are considered to be overloads of the same command, represented by an instance
-    of the Core::Command class.
-    Exactly only one of the registered actions with the same ID is active at any time.
-    Which action this is, is defined by the context list that the actions were registered
-    with:
+    Register a globally active action "My Action" by putting the following in
+    your plugin's ExtensionSystem::IPlugin::initialize() function.
 
-    If the current focus widget was registered via \l{ICore::addContextObject()},
-    all the contexts returned by its IContext object are active. In addition all
-    contexts set via \l{ICore::addAdditionalContext()} are active as well. If one
-    of the actions was registered for one of these active contexts, it is the one
-    active action, and receives \c triggered and \c toggled signals. Also the
-    appearance of the visible action for this ID might be adapted to this
-    active action (depending on the settings of the corresponding \l{Command} object).
-
-    The action that is visible to the user is the one returned by Command::action().
-    If you provide yourself a user visible representation of your action you need
-    to use Command::action() for this.
-    When this action is invoked by the user,
-    the signal is forwarded to the registered action that is valid for the current context.
-
-    \section1 Registering Actions
-
-    To register a globally active action "My Action"
-    put the following in your plugin's IPlugin::initialize function:
     \code
         QAction *myAction = new QAction(tr("My Action"), this);
-        Command *cmd = ActionManager::registerAction(myAction,
-                                                 "myplugin.myaction",
-                                                 Context(C_GLOBAL));
+        Command *cmd = ActionManager::registerAction(myAction, "myplugin.myaction", Context(C_GLOBAL));
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+u")));
         connect(myAction, &QAction::triggered, this, &MyPlugin::performMyAction);
     \endcode
 
-    So the \c connect is done to your own QAction instance. If you create e.g.
-    a tool button that should represent the action you add the action
-    from Command::action() to it:
+    The \c connect is done to your own QAction instance. If you create for
+    example a tool button that should represent the action, add the action from
+    Command::action() to it.
+
     \code
         QToolButton *myButton = new QToolButton(someParentWidget);
         myButton->setDefaultAction(cmd->action());
     \endcode
 
-    Also use the ActionManager to add items to registered
-    action containers like the applications menu bar or menus in that menu bar.
-    To do this, you register your action via the
-    registerAction functions, get the action container for a specific ID (like specified in
-    the Core::Constants namespace) with a call of
-    actionContainer(const Id&) and add your command to this container.
+    Also use the action manager to add items to registered action containers
+    like the application's menu bar or menus in that menu bar. Register your
+    action via the Core::ActionManager::registerAction() function, get the
+    action container for a specific ID (as specified for example in the
+    Core::Constants namespace) with Core::ActionManager::actionContainer(), and
+    add your command to this container.
 
-    Following the example adding "My Action" to the "Tools" menu would be done by
+    Building on the example, adding "My Action" to the "Tools" menu would be
+    done with
+
     \code
-        ActionManager::actionContainer(M_TOOLS)->addAction(cmd);
+        ActionManager::actionContainer(Core::Constants::M_TOOLS)->addAction(cmd);
     \endcode
-
-    \section1 Important Guidelines:
-    \list
-    \li Always register your actions and shortcuts!
-    \li Register your actions and shortcuts during your plugin's \l{ExtensionSystem::IPlugin::initialize()}
-       or \l{ExtensionSystem::IPlugin::extensionsInitialized()} functions, otherwise the shortcuts won't appear
-       in the keyboard settings dialog from the beginning.
-    \li When registering an action with \c{cmd=registerAction(action, id, contexts)} be sure to connect
-       your own action \c{connect(action, SIGNAL...)} but make \c{cmd->action()} visible to the user, i.e.
-       \c{widget->addAction(cmd->action())}.
-    \li Use this class to add actions to the applications menus
-    \endlist
 
     \sa Core::ICore
     \sa Core::Command
     \sa Core::ActionContainer
     \sa Core::IContext
+    \sa {The Action Manager and Commands}
 */
 
 /*!
@@ -178,7 +149,7 @@ ActionManager::~ActionManager()
 }
 
 /*!
-    Returns the pointer to the instance, which is only used for connecting to signals.
+    Returns the pointer to the instance. Only use for connecting to signals.
 */
 ActionManager *ActionManager::instance()
 {
@@ -186,13 +157,13 @@ ActionManager *ActionManager::instance()
 }
 
 /*!
-    Creates a new menu with the given \a id.
+    Creates a new menu action container or returns an existing container with
+    the specified \a id. The ActionManager owns the returned ActionContainer.
+    Add your menu to some other menu or a menu bar via the actionContainer()
+    and ActionContainer::addMenu() functions.
 
-    Returns a new ActionContainer that you can use to get the QMenu instance
-    or to add menu items to the menu. The ActionManager owns
-    the returned ActionContainer.
-    Add your menu to some other menu or a menu bar via the
-    ActionManager::actionContainer and ActionContainer::addMenu functions.
+    \sa actionContainer()
+    \sa ActionContainer::addMenu()
 */
 ActionContainer *ActionManager::createMenu(Id id)
 {
@@ -209,11 +180,12 @@ ActionContainer *ActionManager::createMenu(Id id)
 }
 
 /*!
-    Creates a new menu bar with the given \a id.
+    Creates a new menu bar action container or returns an existing container
+    with the specified \a id. The ActionManager owns the returned
+    ActionContainer.
 
-    Returns a new ActionContainer that you can use to get the QMenuBar instance
-    or to add menus to the menu bar. The ActionManager owns
-    the returned ActionContainer.
+    \sa createMenu()
+    \sa ActionContainer::addMenu()
 */
 ActionContainer *ActionManager::createMenuBar(Id id)
 {
@@ -234,13 +206,17 @@ ActionContainer *ActionManager::createMenuBar(Id id)
 }
 
 /*!
-    Creates a touch bar with the given \a id.
+    Creates a new (sub) touch bar action container or returns an existing
+    container with the specified \a id. The ActionManager owns the returned
+    ActionContainer.
 
-    Returns a new ActionContainer that you can use to add items to a (sub) touch bar.
     Note that it is only possible to create a single level of sub touch bars.
-    The sub touch bar will be represented as a button with \a icon and \a text (one can be left
-    empty), which opens the sub touch bar when touched.
-    The ActionManager owns the returned ActionContainer.
+    The sub touch bar will be represented as a button with \a icon and \a text
+    (either of which can be left empty), which opens the sub touch bar when
+    touched.
+
+    \sa actionContainer()
+    \sa ActionContainer::addMenu()
 */
 ActionContainer *ActionManager::createTouchBar(Id id, const QIcon &icon, const QString &text)
 {
@@ -257,15 +233,13 @@ ActionContainer *ActionManager::createTouchBar(Id id, const QIcon &icon, const Q
 /*!
     Makes an \a action known to the system under the specified \a id.
 
-    Returns a command object that represents the action in the application and is
-    owned by the ActionManager. You can register several actions with the
-    same \a id as long as the \a context is different. In this case
-    a trigger of the actual action is forwarded to the registered QAction
-    for the currently active context.
-    If the optional \a context argument is not specified, the global context
-    will be assumed.
-    A \a scriptable action can be called from a script without the need for the user
-    to interact with it.
+    Returns a Command instance that represents the action in the application
+    and is owned by the ActionManager. You can register several actions with
+    the same \a id as long as the \a context is different. In this case
+    triggering the action is forwarded to the registered QAction for the
+    currently active context. If the optional \a context argument is not
+    specified, the global context will be assumed. A \a scriptable action can
+    be called from a script without the need for the user to interact with it.
 */
 Command *ActionManager::registerAction(QAction *action, Id id, const Context &context, bool scriptable)
 {
@@ -279,10 +253,10 @@ Command *ActionManager::registerAction(QAction *action, Id id, const Context &co
 }
 
 /*!
-    Returns the Command object that is known to the system
-    under the given \a id.
+    Returns the Command instance that has been created with registerAction()
+    for the specified \a id.
 
-    \sa ActionManager::registerAction()
+    \sa registerAction()
 */
 Command *ActionManager::command(Id id)
 {
@@ -297,8 +271,15 @@ Command *ActionManager::command(Id id)
 }
 
 /*!
-    Returns the IActionContainter object that is know to the system
-    under the given \a id.
+    Returns the ActionContainter instance that has been created with
+    createMenu(), createMenuBar(), createTouchBar() for the specified \a id.
+
+    Use the ID \c{Core::Constants::MENU_BAR} to retrieve the main menu bar.
+
+    Use the IDs \c{Core::Constants::M_FILE}, \c{Core::Constants::M_EDIT}, and
+    similar constants to retrieve the various default menus.
+
+    Use the ID \c{Core::Constants::TOUCH_BAR} to retrieve the main touch bar.
 
     \sa ActionManager::createMenu()
     \sa ActionManager::createMenuBar()
@@ -316,7 +297,7 @@ ActionContainer *ActionManager::actionContainer(Id id)
 }
 
 /*!
-    Returns all commands that have been registered.
+    Returns all registered commands.
 */
 QList<Command *> ActionManager::commands()
 {
@@ -357,9 +338,7 @@ void ActionManager::unregisterAction(QAction *action, Id id)
 }
 
 /*!
-    Handles the display of the used shortcuts in the presentation mode. The presentation mode is
-    \a enabled when starting \QC with the command line argument \c{-presentationMode}. In the
-    presentation mode, \QC displays any pressed shortcut in a grey box.
+    \internal
 */
 void ActionManager::setPresentationModeEnabled(bool enabled)
 {
@@ -382,7 +361,9 @@ void ActionManager::setPresentationModeEnabled(bool enabled)
 /*!
     Returns whether presentation mode is enabled.
 
-    \sa setPresentationModeEnabled
+    The presentation mode is enabled when starting \QC with the command line
+    argument \c{-presentationMode}. In presentation mode, \QC displays any
+    pressed shortcut in an overlay box.
 */
 bool ActionManager::isPresentationModeEnabled()
 {
@@ -390,7 +371,8 @@ bool ActionManager::isPresentationModeEnabled()
 }
 
 /*!
-    \internal
+    Decorates the specified \a text with a numbered accelerator key \a number,
+    in the style of the \uicontrol {Recent Files} menu.
 */
 QString ActionManager::withNumberAccelerator(const QString &text, const int number)
 {
@@ -399,11 +381,17 @@ QString ActionManager::withNumberAccelerator(const QString &text, const int numb
     return QString("&%1 | %2").arg(number).arg(text);
 }
 
+/*!
+    \internal
+*/
 void ActionManager::saveSettings()
 {
     d->saveSettings();
 }
 
+/*!
+    \internal
+*/
 void ActionManager::setContext(const Context &context)
 {
     d->setContext(context);
