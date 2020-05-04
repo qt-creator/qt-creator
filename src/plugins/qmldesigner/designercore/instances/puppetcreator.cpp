@@ -510,6 +510,8 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
         customFileSelectors = m_target->additionalData("CustomFileSelectorsData").toStringList();
     }
 
+    customFileSelectors.append("DesignMode");
+
     if (m_availablePuppetType == FallbackPuppet)
         importPaths.prepend(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath));
 
