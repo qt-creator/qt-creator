@@ -25,6 +25,8 @@
 
 #include "changelanguagecommand.h"
 
+#include <QDebug>
+
 namespace QmlDesigner {
 
 QDataStream &operator<<(QDataStream &out, const ChangeLanguageCommand &command)
