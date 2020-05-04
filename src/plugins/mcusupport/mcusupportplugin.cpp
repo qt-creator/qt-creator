@@ -36,6 +36,7 @@
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
+#include <projectexplorer/kitmanager.h>
 
 using namespace ProjectExplorer;
 
@@ -86,6 +87,10 @@ bool McuSupportPlugin::initialize(const QStringList& arguments, QString* errorSt
 void McuSupportPlugin::extensionsInitialized()
 {
     ProjectExplorer::DeviceManager::instance()->addDevice(McuSupportDevice::create());
+
+    connect(KitManager::instance(), &KitManager::kitsLoaded, [](){
+        McuSupportOptions::removeOutdatedKits();
+    });
 }
 
 } // namespace Internal
