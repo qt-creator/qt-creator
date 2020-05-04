@@ -80,54 +80,42 @@ QtObject {
 
     // Theme Colors
 
-    // Dark Theme Defaults
-    property string themeControlBackground: "#242424"
-    property string themeControlOutline: "#404040"
-    property string themeTextColor: "#ffffff"
-    property string themeDisabledTextColor: "#909090"
-
-    property string themePanelBackground: "#2a2a2a"
-    property string themeHoverHighlight: "#313131"
-    property string themeColumnBackground: "#363636"
-    property string themeFocusEdit: "#444444"
-    property string themeFocusDrag: "#565656"
-
-    property string themeControlBackgroundPressed: "#606060"
-    property string themeControlBackgroundChecked: "#565656"
-
-    property string themeInteraction: "#029de0"
-
-    property string themeSliderActiveTrack: "#606060"
-    property string themeSliderInactiveTrack: "#404040"
-    property string themeSliderHandle: "#505050"
-
-    property string themeSliderActiveTrackHover: "#7f7f7f"
-    property string themeSliderInactiveTrackHover: "#505050"
-    property string themeSliderHandleHover: "#606060"
-
-    property string themeSliderActiveTrackFocus: "#aaaaaa"
-    property string themeSliderInactiveTrackFocus: "#606060"
-    property string themeSliderHandleFocus: values.themeInteraction
-
-    property string themeErrorColor: "#df3a3a"
+    // COLORS NOW COME FROM THE THEME FILES
+    property string themeControlBackground: Theme.color(Theme.DScontrolBackground)
+    property string themeControlOutline: Theme.color(Theme.DScontrolOutline)
+    property string themeTextColor: Theme.color(Theme.DStextColor)
+    property string themeDisabledTextColor: Theme.color(Theme.DSdisabledTextColor)
+    property string themePanelBackground: Theme.color(Theme.DSpanelBackground)
+    property string themeHoverHighlight: Theme.color(Theme.DShoverHighlight)
+    property string themeColumnBackground: Theme.color(Theme.DScolumnBackground)
+    property string themeFocusEdit: Theme.color(Theme.DSfocusEdit)
+    property string themeFocusDrag: Theme.color(Theme.DSfocusDrag)
+    property string themeControlBackgroundPressed: Theme.color(Theme.DScontrolBackgroundPressed)
+    property string themeControlBackgroundChecked: Theme.color(Theme.DScontrolBackgroundChecked)
+    property string themeInteraction: Theme.color(Theme.DSinteraction)
+    property string themeSliderActiveTrack: Theme.color(Theme.DSsliderActiveTrack)
+    property string themeSliderInactiveTrack: Theme.color(Theme.DSsliderInactiveTrack)
+    property string themeSliderHandle: Theme.color(Theme.DSsliderHandle)
+    property string themeSliderActiveTrackHover: Theme.color(Theme.DSactiveTrackHover)
+    property string themeSliderInactiveTrackHover: Theme.color(Theme.DSsliderInactiveTrackHover)
+    property string themeSliderHandleHover: Theme.color(Theme.DSsliderHandleHover)
+    property string themeSliderActiveTrackFocus: Theme.color(Theme.DSsliderActiveTrackFocus)
+    property string themeSliderInactiveTrackFocus:Theme.color(Theme.DSsliderInactiveTrackFocus)
+    property string themeSliderHandleFocus: Theme.color(Theme.DSsliderHandleFocus)
+    property string themeErrorColor: Theme.color(Theme.DSerrorColor)
 
     // NEW NEW NEW NEW NEW
-    property string themeControlBackgroundDisabled: "#363636"
-    property string themeControlOutlineDisabled: "#404040"
-    property string themeTextColorDisabled: "#606060"
-
-    property string themeTextSelectionColor: "#029de0"
-    property string themeTextSelectedTextColor: "#ffffff"
-
-    property string themeScrollBarTrack: "#404040"
-    property string themeScrollBarHandle: "#505050"
-
-    property string themeControlBackgroundInteraction: "#404040" // TODO Name. Right now themeFocusEdit is used for all 'edit' states. Is that correct? Different color!
-
-    property string themeTranslationIndicatorBorder: "#7f7f7f"
-
-    property string themeSectionHeadBackground: "#191919"
+    property string themeControlBackgroundDisabled: Theme.color(Theme.DScontrolBackgroundDisabled)
+    property string themeControlOutlineDisabled: Theme.color(Theme.DScontrolOutlineDisabled)
+    property string themeTextColorDisabled: Theme.color(Theme.DStextColorDisabled)
+    property string themeTextSelectionColor: Theme.color(Theme.DStextSelectionColor)
+    property string themeTextSelectedTextColor:Theme.color(Theme.DStextSelectedTextColor)
+    property string themeScrollBarTrack: Theme.color(Theme.DSscrollBarTrack)
+    property string themeScrollBarHandle: Theme.color(Theme.DSscrollBarHandle)
+    property string themeControlBackgroundInteraction: Theme.color(Theme.DScontrolBackgroundInteraction) // TODO Name. Right now themeFocusEdit is used for all 'edit' states. Is that correct? Different color!
+    property string themeTranslationIndicatorBorder: Theme.color(Theme.DStranlsationIndicatorBorder)
+    property string themeSectionHeadBackground: Theme.color(Theme.DSsectionHeadBackground)
 
     // Taken out of Constants.js
-    property string themeChangedStateText: "#99ccff"
+    property string themeChangedStateText: Theme.color(Theme.DSchangedStateText)
 }

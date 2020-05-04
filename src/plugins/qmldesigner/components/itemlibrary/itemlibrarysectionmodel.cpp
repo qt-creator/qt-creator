@@ -91,7 +91,7 @@ void ItemLibrarySectionModel::sortItems()
     int nullPointerSectionCount = m_itemList.removeAll(QPointer<ItemLibraryItem>());
     QTC_ASSERT(nullPointerSectionCount == 0,;);
     auto itemSort = [](ItemLibraryItem *first, ItemLibraryItem *second) {
-        return QString::localeAwareCompare(first->itemName(), second->itemName()) < 1;
+        return QString::localeAwareCompare(first->itemName(), second->itemName()) < 0;
     };
 
     std::sort(m_itemList.begin(), m_itemList.end(), itemSort);

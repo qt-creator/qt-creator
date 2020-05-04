@@ -258,6 +258,22 @@ void MetaInfoReader::readItemLibraryEntryProperty(const QString &name, const QVa
     }
 }
 
+inline QString deEscape(const QString &value)
+{
+    QString result = value;
+
+    result.replace(QStringLiteral("\\\""), QStringLiteral("\""));
+    result.replace(QStringLiteral("\\\\"), QStringLiteral("\\"));
+
+    return result;
+}
+
+inline QVariant deEscapeVariant(const QVariant &value)
+{
+    if (value.canConvert<QString>())
+        return deEscape(value.toString());
+    return value;
+}
 void MetaInfoReader::readPropertyProperty(const QString &name, const QVariant &value)
 {
     if (name == QStringLiteral("name")) {
@@ -265,7 +281,7 @@ void MetaInfoReader::readPropertyProperty(const QString &name, const QVariant &v
     } else if (name == QStringLiteral("type")) {
         m_currentPropertyType = value.toString();
     } else if (name == QStringLiteral("value")) {
-        m_currentPropertyValue = value;
+        m_currentPropertyValue = deEscapeVariant(value);
     } else {
         addError(tr("Unknown property for Property %1").arg(name), currentSourceLocation());
         setParserState(Error);

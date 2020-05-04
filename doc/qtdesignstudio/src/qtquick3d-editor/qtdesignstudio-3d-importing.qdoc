@@ -36,10 +36,11 @@
 
     \title Importing 3D Assets
 
-    You can import files you created using 3D graphics applications and stored
-    in several widely-used formats, such as .blend, .dae, .fbx, .glb, .gltf,
-    .obj, .uia, or .uip. For a list of formats supported by each \l{Qt Quick 3D}
-    version, see the module documentation.
+    You can download \QB from the \l{https://marketplace.qt.io/}{Qt Marketplace}.
+    It enables you to import files you created using 3D graphics applications
+    and stored in several widely-used formats, such as .blend, .dae, .fbx, .glb,
+    .gltf, .obj, .uia, or .uip. For a list of formats supported by each
+    \l{Qt Quick 3D} version, see the module documentation.
 
     For more information about exporting 3D graphics from Maya, see
     \l{Exporting from Maya}.
@@ -68,5 +69,5 @@
     \endlist
 
     You can open the imported files in the Design mode for editing in the
-    \l{Editing 3D Scenes}{3D editor}.
+    \l{Editing 3D Scenes}{3D Editor}.
 */
