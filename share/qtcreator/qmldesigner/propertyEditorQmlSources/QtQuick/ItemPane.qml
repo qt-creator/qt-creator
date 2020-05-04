@@ -325,13 +325,11 @@ Rectangle {
                 frameVisible: false
 
                 id: tabView
-                height: Math.max(layoutSectionHeight, specficsHeight)
+                height: Math.max(layoutSectionHeight, specficsHeight, advancedHeight) + extraHeight
 
-                property int layoutSectionHeight: 400
-                property int specficsOneHeight: 0
-                property int specficsTwoHeight: 0
-
-                property int specficsHeight: Math.max(specficsOneHeight, specficsTwoHeight)
+                property int advancedHeight: 0
+                property int layoutSectionHeight: 0
+                property int specficsHeight: 0
 
                 property int extraHeight: 40
 
@@ -341,6 +339,9 @@ Rectangle {
                     component: Column {
                         anchors.left: parent.left
                         anchors.right: parent.right
+
+                        onImplicitHeightChanged: tabView.specficsHeight = implicitHeight
+
                         Loader {
                             anchors.left: parent.left
                             anchors.right: parent.right
@@ -354,13 +355,6 @@ Rectangle {
                             onTheSourceChanged: {
                                 active = false
                                 active = true
-                            }
-
-                            property int loaderHeight: specificsTwo.item.height + tabView.extraHeight
-                            onLoaderHeightChanged: tabView.specficsTwoHeight = loaderHeight
-
-                            onLoaded: {
-                                tabView.specficsTwoHeight = loaderHeight
                             }
                         }
 
@@ -387,11 +381,9 @@ Rectangle {
                         anchors.left: parent.left
                         anchors.right: parent.right
 
+                        onImplicitHeightChanged: tabView.layoutSectionHeight = implicitHeight
+
                         LayoutSection {
-                            property int childRectHeight: childrenRect.height
-                            onChildRectHeightChanged: {
-                                tabView.layoutSectionHeight = childRectHeight + tabView.extraHeight
-                            }
                         }
 
                         MarginSection {
@@ -720,6 +712,9 @@ Rectangle {
                     component: Column {
                         anchors.left: parent.left
                         anchors.right: parent.right
+
+                        onImplicitHeightChanged: tabView.advancedHeight = implicitHeight
+
                         AdvancedSection {
                         }
                         LayerSection {
