@@ -56,6 +56,7 @@ SettingsWidget::SettingsWidget(const QStringList &protocols, Settings *settings)
     const int index = m_ui.defaultProtocol->findText(m_settings->protocol);
     m_ui.defaultProtocol->setCurrentIndex(index == -1 ? 0  : index);
     m_ui.expirySpinBox->setValue(m_settings->expiryDays);
+    m_ui.publicCheckBox->setChecked(m_settings->publicPaste);
     m_ui.clipboardBox->setChecked(m_settings->copyToClipboard);
     m_ui.displayBox->setChecked(m_settings->displayOutput);
 }
@@ -66,6 +67,7 @@ void SettingsWidget::apply()
     rc.username = m_ui.userEdit->text();
     rc.protocol = m_ui.defaultProtocol->currentText();
     rc.expiryDays = m_ui.expirySpinBox->value();
+    rc.publicPaste = m_ui.publicCheckBox->isChecked();
     rc.copyToClipboard = m_ui.clipboardBox->isChecked();
     rc.displayOutput = m_ui.displayBox->isChecked();
 

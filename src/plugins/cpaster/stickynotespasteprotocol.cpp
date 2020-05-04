@@ -97,16 +97,21 @@ static inline QByteArray pasteLanguage(Protocol::ContentType ct)
     return QByteArray("language=text");
 }
 
-void StickyNotesPasteProtocol::paste(const QString &text,
-                                   ContentType ct, int expiryDays,
-                                   const QString &username,
-                                   const QString &comment,
-                                   const QString &description)
+void StickyNotesPasteProtocol::paste(
+        const QString &text,
+        ContentType ct,
+        int expiryDays,
+        bool publicPaste,
+        const QString &username,
+        const QString &comment,
+        const QString &description
+        )
 {
     enum { maxDescriptionLength = 30 }; // Length of description is limited.
 
     Q_UNUSED(username)
     Q_UNUSED(comment)
+    Q_UNUSED(publicPaste)
     QTC_ASSERT(!m_pasteReply, return);
 
     // Format body

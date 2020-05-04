@@ -139,8 +139,14 @@ int PasteView::showDialog()
 }
 
 // Show up with checkable list of diff chunks.
-int PasteView::show(const QString &user, const QString &description,
-                    const QString &comment, int expiryDays, const FileDataList &parts)
+int PasteView::show(
+        const QString &user,
+        const QString &description,
+        const QString &comment,
+        int expiryDays,
+        bool makePublic,
+        const FileDataList &parts
+        )
 {
     setupDialog(user, description, comment);
     m_ui.uiPatchList->clear();
@@ -156,18 +162,20 @@ int PasteView::show(const QString &user, const QString &description,
     m_ui.stackedWidget->setCurrentIndex(0);
     m_ui.uiPatchView->setPlainText(content);
     setExpiryDays(expiryDays);
+    setMakePublic(makePublic);
     return showDialog();
 }
 
 // Show up with editable plain text.
 int PasteView::show(const QString &user, const QString &description,
-                    const QString &comment, int expiryDays, const QString &content)
+                    const QString &comment, int expiryDays, bool makePublic, const QString &content)
 {
     setupDialog(user, description, comment);
     m_mode = PlainTextMode;
     m_ui.stackedWidget->setCurrentIndex(1);
     m_ui.plainTextEdit->setPlainText(content);
     setExpiryDays(expiryDays);
+    setMakePublic(makePublic);
     return showDialog();
 }
 
@@ -176,9 +184,19 @@ void PasteView::setExpiryDays(int d)
     m_ui.expirySpinBox->setValue(d);
 }
 
+void PasteView::setMakePublic(bool p)
+{
+    m_ui.makePublicCheckBox->setChecked(p);
+}
+
 int PasteView::expiryDays() const
 {
     return m_ui.expirySpinBox->value();
+}
+
+bool PasteView::makePublic() const
+{
+    return m_ui.makePublicCheckBox->isChecked();
 }
 
 void PasteView::accept()
@@ -197,7 +215,7 @@ void PasteView::accept()
         return;
 
     const Protocol::ContentType ct = Protocol::contentType(m_mimeType);
-    protocol->paste(data, ct, expiryDays(), user(), comment(), description());
+    protocol->paste(data, ct, expiryDays(), makePublic(), user(), comment(), description());
     // Store settings and close
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String(groupC));

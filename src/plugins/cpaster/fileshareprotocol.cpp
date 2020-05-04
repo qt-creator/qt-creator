@@ -177,11 +177,15 @@ void FileShareProtocol::list()
     emit listDone(name(), entries);
 }
 
-void FileShareProtocol::paste(const QString &text,
-                              ContentType /* ct */, int /* expiryDays */,
-                              const QString &username,
-                              const QString & /* comment */,
-                              const QString &description)
+void FileShareProtocol::paste(
+        const QString &text,
+        ContentType /* ct */,
+        int /* expiryDays */,
+        bool /* publicPaste */,
+        const QString &username,
+        const QString & /* comment */,
+        const QString &description
+        )
 {
     // Write out temp XML file
     Utils::TempFileSaver saver(m_settings->path + QLatin1Char('/') + QLatin1String(tempPatternC));

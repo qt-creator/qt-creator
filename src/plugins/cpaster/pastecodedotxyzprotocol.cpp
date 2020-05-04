@@ -65,15 +65,23 @@ void PasteCodeDotXyzProtocol::fetch(const QString &id)
     });
 }
 
-void PasteCodeDotXyzProtocol::paste(const QString &text, Protocol::ContentType ct, int expiryDays,
-                                    const QString &username, const QString &comment,
-                                    const QString &description)
+void PasteCodeDotXyzProtocol::paste(
+        const QString &text,
+        Protocol::ContentType ct,
+        int expiryDays,
+        bool publicPaste,
+        const QString &username,
+        const QString &comment,
+        const QString &description
+        )
 {
     QByteArray data;
     data += "text=" + QUrl::toPercentEncoding(fixNewLines(text));
     data += "&expire=" + QUrl::toPercentEncoding(QString::number(expiryDays * 24 * 60));
     data += "&title=" + QUrl::toPercentEncoding(description);
     data += "&name=" + QUrl::toPercentEncoding(username);
+    if (!publicPaste)
+        data += "&private=1";
     static const auto langValue = [](Protocol::ContentType type) -> QByteArray {
         switch (type) {
         case Protocol::Text: return "text";
