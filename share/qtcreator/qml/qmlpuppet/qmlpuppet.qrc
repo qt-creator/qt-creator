@@ -16,7 +16,10 @@
         <file>mockfiles/CameraFrustum.qml</file>
         <file>mockfiles/CameraGizmo.qml</file>
         <file>mockfiles/LightModel.qml</file>
+        <file>mockfiles/LightIconGizmo.qml</file>
         <file>mockfiles/LightGizmo.qml</file>
+        <file>mockfiles/SpotLightHandle.qml</file>
+        <file>mockfiles/AdjustableArrow.qml</file>
         <file>mockfiles/IconGizmo.qml</file>
         <file>mockfiles/Overlay2D.qml</file>
         <file>mockfiles/HelperGrid.qml</file>

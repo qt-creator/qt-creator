@@ -36,6 +36,7 @@ Model {
     property bool dragging: mouseAreaYZ.dragging || mouseAreaXZ.dragging
     property bool active: false
     property MouseArea3D dragHelper: null
+    property alias material: material
 
     readonly property bool hovering: mouseAreaYZ.hovering || mouseAreaXZ.hovering
 
@@ -47,11 +48,13 @@ Model {
     signal dragged(var mouseArea, vector3d sceneRelativeDistance, real relativeDistance)
     signal released(var mouseArea, vector3d sceneRelativeDistance, real relativeDistance)
 
-    materials: DefaultMaterial {
+    DefaultMaterial {
         id: material
         emissiveColor: "white"
         lighting: DefaultMaterial.NoLighting
     }
+
+    materials: [ material ]
 
     function handlePressed(mouseArea, planePos)
     {

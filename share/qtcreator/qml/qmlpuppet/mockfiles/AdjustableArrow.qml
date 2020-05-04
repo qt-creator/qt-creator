@@ -25,33 +25,31 @@
 
 import QtQuick 2.0
 import QtQuick3D 1.15
-import LightGeometry 1.0
+import LineGeometry 1.0
 
-Model {
-    id: lightModel
+Arrow {
+    id: arrowRoot
 
-    property alias geometryName: lightGeometry.name // Name must be unique for each geometry
-    property alias geometryType: lightGeometry.lightType
-    property color color
+    property real length: 10
 
-    function updateGeometry()
-    {
-        lightGeometry.update();
+    source: ""
+
+    Model {
+        geometry: LineGeometry {
+            id: lineGeometry
+            name: "Edit 3D ScalableArrow"
+            startPos: Qt.vector3d(0, 0, 0)
+            endPos: Qt.vector3d(0, 1, 0)
+        }
+        materials: [ arrowRoot.material ]
+        scale: Qt.vector3d(1, arrowRoot.length, 1)
     }
 
-    scale: Qt.vector3d(50, 50, 50)
-
-    geometry: lightGeometry
-    materials: [
-        DefaultMaterial {
-            id: defaultMaterial
-            emissiveColor: lightModel.color
-            lighting: DefaultMaterial.NoLighting
-            cullMode: Material.NoCulling
-        }
-    ]
-
-    LightGeometry {
-        id: lightGeometry
+    Model {
+        id: arrowHead
+        source: "#Cone"
+        materials: [ arrowRoot.material ]
+        y: arrowRoot.length
+        scale: Qt.vector3d(0.02, 0.035, 0.02)
     }
 }

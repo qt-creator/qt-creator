@@ -25,33 +25,21 @@
 
 import QtQuick 2.0
 import QtQuick3D 1.15
-import LightGeometry 1.0
 
-Model {
-    id: lightModel
+Node {
+    id: handleRoot
 
-    property alias geometryName: lightGeometry.name // Name must be unique for each geometry
-    property alias geometryType: lightGeometry.lightType
-    property color color
+    property DefaultMaterial material
+    property View3D view3D
 
-    function updateGeometry()
-    {
-        lightGeometry.update();
+    Model {
+        scale: autoScale.getScale(Qt.vector3d(0.1, 0.1, 0.1))
+        source: "#Sphere"
+        materials: [ handleRoot.material ]
     }
 
-    scale: Qt.vector3d(50, 50, 50)
-
-    geometry: lightGeometry
-    materials: [
-        DefaultMaterial {
-            id: defaultMaterial
-            emissiveColor: lightModel.color
-            lighting: DefaultMaterial.NoLighting
-            cullMode: Material.NoCulling
-        }
-    ]
-
-    LightGeometry {
-        id: lightGeometry
+    AutoScaleHelper {
+        id: autoScale
+        view3D: handleRoot.view3D
     }
 }

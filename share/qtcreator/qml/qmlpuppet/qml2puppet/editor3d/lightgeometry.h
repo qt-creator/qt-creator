@@ -28,7 +28,6 @@
 #ifdef QUICK3D_MODULE
 
 #include <QtQuick3D/private/qquick3dgeometry_p.h>
-#include <QtQuick3D/private/qquick3dabstractlight_p.h>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -36,19 +35,28 @@ namespace Internal {
 class LightGeometry : public QQuick3DGeometry
 {
     Q_OBJECT
-    Q_PROPERTY(QQuick3DAbstractLight *light READ light WRITE setLight NOTIFY lightChanged)
+    Q_PROPERTY(LightType lightType READ lightType WRITE setLightType NOTIFY lightTypeChanged)
 
 public:
+    enum class LightType {
+        Invalid,
+        Spot,
+        Area,
+        Directional,
+        Point
+    };
+    Q_ENUM(LightType)
+
     LightGeometry();
     ~LightGeometry() override;
 
-    QQuick3DAbstractLight *light() const;
+    LightType lightType() const;
 
 public Q_SLOTS:
-    void setLight(QQuick3DAbstractLight *light);
+    void setLightType(LightType lightType);
 
 Q_SIGNALS:
-    void lightChanged();
+    void lightTypeChanged();
 
 protected:
     QSSGRenderGraphObject *updateSpatialNode(QSSGRenderGraphObject *node) override;
@@ -56,7 +64,7 @@ protected:
 private:
     void fillVertexData(QByteArray &vertexData, QByteArray &indexData,
                         QVector3D &minBounds, QVector3D &maxBounds);
-    QQuick3DAbstractLight *m_light = nullptr;
+    LightType m_lightType = LightType::Invalid;
 };
 
 }

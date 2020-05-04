@@ -25,33 +25,19 @@
 
 import QtQuick 2.0
 import QtQuick3D 1.15
-import LightGeometry 1.0
 
-Model {
-    id: lightModel
+IconGizmo {
+    id: lightIconGizmo
 
-    property alias geometryName: lightGeometry.name // Name must be unique for each geometry
-    property alias geometryType: lightGeometry.lightType
-    property color color
+    property color overlayColor: targetNode ? targetNode.color : "transparent"
 
-    function updateGeometry()
-    {
-        lightGeometry.update();
-    }
-
-    scale: Qt.vector3d(50, 50, 50)
-
-    geometry: lightGeometry
-    materials: [
-        DefaultMaterial {
-            id: defaultMaterial
-            emissiveColor: lightModel.color
-            lighting: DefaultMaterial.NoLighting
-            cullMode: Material.NoCulling
-        }
-    ]
-
-    LightGeometry {
-        id: lightGeometry
-    }
+    iconSource: targetNode
+                ? targetNode instanceof DirectionalLight
+                  ? "image://IconGizmoImageProvider/directional.png:" + overlayColor
+                  : targetNode instanceof AreaLight
+                    ? "image://IconGizmoImageProvider/area.png:" + overlayColor
+                    : targetNode instanceof PointLight
+                      ? "image://IconGizmoImageProvider/point.png:" + overlayColor
+                      : "image://IconGizmoImageProvider/spot.png:" + overlayColor
+                : "image://IconGizmoImageProvider/point.png:" + overlayColor
 }

@@ -54,7 +54,7 @@ Item {
     property Node selectedNode: null // This is non-null only in single selection case
     property var selectedNodes: [] // All selected nodes
 
-    property var lightGizmos: []
+    property var lightIconGizmos: []
     property var cameraGizmos: []
     property var selectionBoxes: []
     property rect viewPortRect: Qt.rect(0, 0, 1000, 1000)
@@ -278,29 +278,25 @@ Item {
     function addLightGizmo(scene, obj)
     {
         // Insert into first available gizmo
-        for (var i = 0; i < lightGizmos.length; ++i) {
-            if (!lightGizmos[i].targetNode) {
-                lightGizmos[i].scene = scene;
-                lightGizmos[i].targetNode = obj;
+        for (var i = 0; i < lightIconGizmos.length; ++i) {
+            if (!lightIconGizmos[i].targetNode) {
+                lightIconGizmos[i].scene = scene;
+                lightIconGizmos[i].targetNode = obj;
                 return;
             }
         }
 
         // No free gizmos available, create a new one
-        var gizmoComponent = Qt.createComponent("LightGizmo.qml");
-        var modelComponent = Qt.createComponent("LightModel.qml");
-        if (gizmoComponent.status === Component.Ready && modelComponent.status === Component.Ready) {
-            var geometryName = _generalHelper.generateUniqueName("LightGeometry");
-            var model = modelComponent.createObject(overlayScene, {"geometryName": geometryName});
+        var gizmoComponent = Qt.createComponent("LightIconGizmo.qml");
+        if (gizmoComponent.status === Component.Ready) {
             var gizmo = gizmoComponent.createObject(overlayView,
                                                     {"view3D": overlayView, "targetNode": obj,
                                                      "selectedNodes": selectedNodes, "scene": scene,
                                                      "activeScene": activeScene});
-            lightGizmos[lightGizmos.length] = gizmo;
+            lightIconGizmos[lightIconGizmos.length] = gizmo;
             gizmo.clicked.connect(handleObjectClicked);
             gizmo.selectedNodes = Qt.binding(function() {return selectedNodes;});
             gizmo.activeScene = Qt.binding(function() {return activeScene;});
-            gizmo.connectModel(model);
         }
     }
 
@@ -338,10 +334,10 @@ Item {
 
     function releaseLightGizmo(obj)
     {
-        for (var i = 0; i < lightGizmos.length; ++i) {
-            if (lightGizmos[i].targetNode === obj) {
-                lightGizmos[i].scene = null;
-                lightGizmos[i].targetNode = null;
+        for (var i = 0; i < lightIconGizmos.length; ++i) {
+            if (lightIconGizmos[i].targetNode === obj) {
+                lightIconGizmos[i].scene = null;
+                lightIconGizmos[i].targetNode = null;
                 return;
             }
         }
@@ -360,9 +356,9 @@ Item {
 
     function updateLightGizmoScene(scene, obj)
     {
-        for (var i = 0; i < lightGizmos.length; ++i) {
-            if (lightGizmos[i].targetNode === obj) {
-                lightGizmos[i].scene = scene;
+        for (var i = 0; i < lightIconGizmos.length; ++i) {
+            if (lightIconGizmos[i].targetNode === obj) {
+                lightIconGizmos[i].scene = scene;
                 return;
             }
         }
@@ -453,6 +449,13 @@ Item {
 
             onRotateCommit: viewRoot.commitObjectProperty(viewRoot.selectedNode, "eulerRotation")
             onRotateChange: viewRoot.changeObjectProperty(viewRoot.selectedNode, "eulerRotation")
+        }
+
+        LightGizmo {
+            id: lightGizmo
+            targetNode: viewRoot.selectedNode
+            view3D: overlayView
+            dragHelper: gizmoDragHelper
         }
 
         AutoScaleHelper {
