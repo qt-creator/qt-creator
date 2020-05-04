@@ -108,7 +108,11 @@ public:
 
     int totalChangesCount() { return m_databaseBackend.totalChangesCount(); }
 
-    void walCheckpointFull() override { m_databaseBackend.walCheckpointFull(); }
+    void walCheckpointFull() override
+    {
+        std::lock_guard<std::mutex> lock{m_databaseMutex};
+        m_databaseBackend.walCheckpointFull();
+    }
 
 private:
     void deferredBegin() override;
