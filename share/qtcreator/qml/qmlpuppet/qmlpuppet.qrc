@@ -42,13 +42,13 @@
         <file>mockfiles/meshes/axishelper.mesh</file>
         <file>mockfiles/images/editor_camera.png</file>
         <file>mockfiles/images/editor_camera@2x.png</file>
-        <file>mockfiles/images/directional_light_gradient.png</file>
-        <file>mockfiles/images/directional_light_gradient@2x.png</file>
-        <file>mockfiles/images/point_light_gradient.png</file>
-        <file>mockfiles/images/point_light_gradient@2x.png</file>
-        <file>mockfiles/images/area_light_gradient.png</file>
-        <file>mockfiles/images/area_light_gradient@2x.png</file>
-        <file>mockfiles/images/spot_light_gradient.png</file>
-        <file>mockfiles/images/spot_light_gradient@2x.png</file>
+        <file>mockfiles/images/area.png</file>
+        <file>mockfiles/images/area@2x.png</file>
+        <file>mockfiles/images/directional.png</file>
+        <file>mockfiles/images/directional@2x.png</file>
+        <file>mockfiles/images/point.png</file>
+        <file>mockfiles/images/point@2x.png</file>
+        <file>mockfiles/images/spot.png</file>
+        <file>mockfiles/images/spot@2x.png</file>
     </qresource>
 </RCC>

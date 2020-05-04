@@ -34,13 +34,13 @@ IconGizmo {
 
     iconSource: targetNode
                 ? targetNode instanceof DirectionalLight
-                  ? "image://IconGizmoImageProvider/directional_light_gradient.png:" + overlayColor
+                  ? "image://IconGizmoImageProvider/directional.png:" + overlayColor
                   : targetNode instanceof AreaLight
-                    ? "image://IconGizmoImageProvider/area_light_gradient.png:" + overlayColor
+                    ? "image://IconGizmoImageProvider/area.png:" + overlayColor
                     : targetNode instanceof PointLight
-                      ? "image://IconGizmoImageProvider/point_light_gradient.png:" + overlayColor
-                      : "image://IconGizmoImageProvider/spot_light_gradient.png:" + overlayColor
-                : "image://IconGizmoImageProvider/point_light_gradient.png:" + overlayColor
+                      ? "image://IconGizmoImageProvider/point.png:" + overlayColor
+                      : "image://IconGizmoImageProvider/spot.png:" + overlayColor
+                : "image://IconGizmoImageProvider/point.png:" + overlayColor
 
     function connectModel(model)
     {
