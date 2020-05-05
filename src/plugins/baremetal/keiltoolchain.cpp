@@ -642,13 +642,13 @@ QList<ToolChain *> KeilToolChainFactory::autoDetect(const QList<ToolChain *> &al
         // Fetch the toolchain executable path.
         FilePath compilerPath;
         if (productPath.endsWith("ARM"))
-            compilerPath = productPath.pathAppended("\\ARMCC\\bin\\armcc.exe");
+            compilerPath = productPath.pathAppended("ARMCC\\bin\\armcc.exe");
         else if (productPath.endsWith("C51"))
-            compilerPath = productPath.pathAppended("\\BIN\\c51.exe");
+            compilerPath = productPath.pathAppended("BIN\\c51.exe");
         else if (productPath.endsWith("C251"))
-            compilerPath = productPath.pathAppended("\\BIN\\c251.exe");
+            compilerPath = productPath.pathAppended("BIN\\c251.exe");
         else if (productPath.endsWith("C166"))
-            compilerPath = productPath.pathAppended("\\BIN\\c166.exe");
+            compilerPath = productPath.pathAppended("BIN\\c166.exe");
 
         if (compilerPath.exists()) {
             // Fetch the toolchain version.
