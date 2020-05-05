@@ -977,9 +977,6 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
     if (rewriterBenchmark().isInfoEnabled())
         time.start();
 
-    // maybe the project environment (kit, ...) changed, so we need to clean old caches
-    NodeMetaInfo::clearCache();
-
     const QUrl url = m_rewriterView->model()->fileUrl();
 
     m_qrcMapping.clear();
@@ -988,6 +985,9 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
     setActive(true);
     m_rewriterView->setIncompleteTypeInformation(false);
+
+    // maybe the project environment (kit, ...) changed, so we need to clean old caches
+    NodeMetaInfo::clearCache();
 
     try {
         Snapshot snapshot = m_rewriterView->textModifier()->qmljsSnapshot();
