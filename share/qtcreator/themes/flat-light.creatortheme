@@ -22,6 +22,43 @@ warning=ffecbc1c
 qmlDesignerButtonColor=fff8f8f8
 
 [Colors]
+
+;DS controls theme START
+DScontrolBackground=ffffffff
+DScontrolOutline=ff777777
+DStextColor=ff242424
+DSdisabledTextColor=ff505050
+DSpanelBackground=fff2f2f2
+DShoverHighlight=ffe6e6e6
+DScolumnBackground=ffaaaaaa
+DSfocusEdit=ffeaeaea
+DSfocusDrag=ffd1d1d1
+DScontrolBackgroundPressed=ff505050
+DScontrolBackgroundChecked=ff5e5e5e
+DSinteraction=ff0492c9
+DSsliderActiveTrack=ff363636
+DSsliderInactiveTrack=ffe6e6e6
+DSsliderHandle=ff777777
+DSsliderActiveTrackHover=ff7f7f7f
+DSsliderInactiveTrackHover=ff5e5e5e
+DSsliderHandleHover=ff505050
+DSsliderActiveTrackFocus=ff363636
+DSsliderInactiveTrackFocus=ff505050
+DSsliderHandleFocus=ff0492c9
+DSerrorColor=ffdf3a3a
+DScontrolBackgroundDisabled=ffaaaaaa
+DScontrolOutlineDisabled=ff777777
+DStextColorDisabled=ff505050
+DStextSelectionColor=ff0492c9
+DStextSelectedTextColor=ffffffff
+DSscrollBarTrack=ff777777
+DSscrollBarHandle=ff505050
+DScontrolBackgroundInteraction=ff777777
+DStranslationIndicatorBorder=ffebebeb
+DSsectionHeadBackground=ffebebeb
+DSchangedStateText=ff99ccff
+;DS controls theme END
+
 BackgroundColorAlternate=alternateBackground
 BackgroundColorDark=shadowBackground
 BackgroundColorHover=hoverBackground

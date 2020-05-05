@@ -31,9 +31,13 @@
 
     \title Exporting Artwork from Design Tools
 
-    You need to use \QB for exporting the 2D assets from design tools,
-    whereas you can directly import 3D assets saved in widely-used 3D
-    graphics formats. For best results when importing 3D assets, follow
+    You need to use \QB to first export 2D assets from design tools and then
+    import them. When working with 3D assets, you can use the export functions
+    provided by the 3D graphics tools to save the assets in widely-used 3D
+    graphics formats, and then use \QB to import them. You can download \QB
+    from the \l{https://marketplace.qt.io/}{Qt Marketplace}.
+
+    For best results when importing 3D assets, follow
     the guidelines for creating and exporting them.
 
     \list

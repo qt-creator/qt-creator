@@ -306,7 +306,43 @@ public:
         QmlDesigner_BorderColor,
         QmlDesigner_FormeditorBackgroundColor,
         QmlDesigner_AlternateBackgroundColor,
-        QmlDesigner_ScrollBarHandleColor
+        QmlDesigner_ScrollBarHandleColor,
+
+        /* Palette for DS Controls */
+
+        DScontrolBackground,
+        DScontrolOutline,
+        DStextColor,
+        DSdisabledTextColor,
+        DSpanelBackground,
+        DShoverHighlight,
+        DScolumnBackground,
+        DSfocusEdit,
+        DSfocusDrag,
+        DScontrolBackgroundPressed,
+        DScontrolBackgroundChecked,
+        DSinteraction,
+        DSsliderActiveTrack,
+        DSsliderInactiveTrack,
+        DSsliderHandle,
+        DSsliderActiveTrackHover,
+        DSsliderInactiveTrackHover,
+        DSsliderHandleHover,
+        DSsliderActiveTrackFocus,
+        DSsliderInactiveTrackFocus,
+        DSsliderHandleFocus,
+        DSerrorColor,
+        DScontrolBackgroundDisabled,
+        DScontrolOutlineDisabled,
+        DStextColorDisabled,
+        DStextSelectionColor,
+        DStextSelectedTextColor,
+        DSscrollBarTrack,
+        DSscrollBarHandle,
+        DScontrolBackgroundInteraction,
+        DStranslationIndicatorBorder,
+        DSsectionHeadBackground,
+        DSchangedStateText
     };
 
     enum Gradient {

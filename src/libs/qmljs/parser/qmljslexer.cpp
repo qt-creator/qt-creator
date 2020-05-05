@@ -872,7 +872,6 @@ int Lexer::scanString(ScanStringMode mode)
 {
     QChar quote = (mode == TemplateContinuation) ? QChar(TemplateHead) : QChar(mode);
     bool multilineStringLiteral = false;
-    bool escaped = false;
 
     const QChar *startCode = _codePtr - 1;
     // in case we just parsed a \r, we need to reset this flag to get things working
@@ -881,23 +880,16 @@ int Lexer::scanString(ScanStringMode mode)
 
     if (_engine) {
         while (_codePtr <= _endPtr) {
-            if (escaped) { // former char started an escape sequence
-                escaped = false;
-                _char = *_codePtr++;
-                ++_currentColumnNumber;
-                continue;
-            }
             if (isLineTerminator()) {
-                if ((quote == QLatin1Char('`') || qmlMode()))
+                if ((quote == QLatin1Char('`') || qmlMode())) {
+                    --_currentLineNumber;
                     break;
+                }
                 _errorCode = IllegalCharacter;
                 _errorMessage = QCoreApplication::translate("QmlParser", "Stray newline in string literal");
                 return T_ERROR;
             } else if (_char == QLatin1Char('\\')) {
-                if (mode != DoubleQuote && mode != SingleQuote)
-                    break;
-                else // otherwise we need to handle an escape sequence
-                    escaped = true;
+                break;
             } else if (_char == '$' && quote == QLatin1Char('`')) {
                 break;
             } else if (_char == quote) {
@@ -923,6 +915,7 @@ int Lexer::scanString(ScanStringMode mode)
 
     // rewind by one char, so things gets scanned correctly
     --_codePtr;
+    --_currentColumnNumber;
 
     _validTokenText = true;
     _tokenText = QString(startCode, _codePtr - startCode);

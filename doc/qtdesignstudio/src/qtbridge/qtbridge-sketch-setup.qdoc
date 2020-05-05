@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Bridge documentation.
@@ -32,13 +32,13 @@
 
     \title Setting Up \QBSK
 
-    \QBSK is delivered with \QDS as a Sketch plugin that you can install to
-    Sketch.
+    You can download \QBSK from the \l{https://marketplace.qt.io/}
+    {Qt Marketplace}. It is delivered as a Sketch plugin that you
+    can install to Sketch.
 
     \note Install the Sketch app before installing the plugin.
 
-    To install the \QBSK plugin to Sketch, double-click the \QBSK plugin in the
-    \c sketch_bridge directory in the installation directory of \QDS.
+    To install the \QBSK plugin to Sketch, double-click the executable file.
 
     The plugin is available at \uicontrol Plugins > \uicontrol {\QB}.
 */

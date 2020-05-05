@@ -39,12 +39,15 @@ def main():
     mainEditor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
     replaceEditorContent(mainEditor, "")
     typeLines(mainEditor, ["#include <QDebug>",
+                           "#include <QThread>",
                            "#include <iostream>",
+                           "struct Waiter:public QThread{Waiter(){QThread::sleep(2);}};",
                            "int main(int, char *argv[])",
                            "{",
                            'std::cout << \"' + outputStdOut + '\" << std::endl;',
                            'std::cerr << \"' + outputStdErr + '\" << std::endl;',
-                           'qDebug() << \"' + outputQDebug + '\";'])
+                           'qDebug() << \"' + outputQDebug + '\";',
+                           'Waiter();'])
     # Rely on code completion for closing bracket
     invokeMenuItem("File", "Save All")
     openDocument(project + "." + project + "\\.pro")
