@@ -124,7 +124,6 @@ class Dumper(DumperBase):
         self.interpreterBreakpointResolvers = []
 
         self.report('lldbversion=\"%s\"' % lldb.SBDebugger.GetVersionString())
-        self.reportState('enginesetupok')
 
     def fromNativeFrameValue(self, nativeValue):
         return self.fromNativeValue(nativeValue)
@@ -1731,6 +1730,9 @@ class Dumper(DumperBase):
         output = result.GetOutput()
         error = str(result.GetError())
         self.report('success="%d",output="%s",error="%s"' % (success, output, error))
+
+    def executeRoundtrip(self, args):
+        self.reportResult('', args)
 
     def fetchDisassembler(self, args):
         functionName = args.get('function', '')
