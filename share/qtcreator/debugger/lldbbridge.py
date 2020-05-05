@@ -878,6 +878,12 @@ class Dumper(DumperBase):
         if self.sysRoot_:
             self.debugger.SetCurrentPlatformSDKRoot(self.sysRoot_)
 
+        # There seems to be some kind of unexpected behavior, or bug in LLDB
+        # such that target.Attach(attachInfo, error) below does not create
+        # a valid process if this symbolFile here is valid.
+        if self.startMode_ == DebuggerStartMode.AttachExternal:
+            self.symbolFile_ = ''
+
         self.target = self.debugger.CreateTarget(
             self.symbolFile_, None, self.platform_, True, error)
 
