@@ -390,7 +390,7 @@ QList<ToolChain *> SdccToolChainFactory::autoDetect(const QList<ToolChain *> &al
             if (compilerPath.isEmpty())
                 return Candidate{};
             // Build full compiler path.
-            compilerPath += "\\bin\\sdcc.exe";
+            compilerPath += "/bin/sdcc.exe";
             const FilePath fn = FilePath::fromString(
                         QFileInfo(compilerPath).absoluteFilePath());
             if (!compilerExists(fn))
