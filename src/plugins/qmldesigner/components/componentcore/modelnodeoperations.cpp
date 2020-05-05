@@ -457,7 +457,6 @@ static void layoutHelperFunction(const SelectionContext &selectionContext,
                                  const LessThan &lessThan)
 {
     if (!selectionContext.view()
-            || !selectionContext.hasSingleSelectedModelNode()
              || !selectionContext.view()->model()->hasNodeMetaInfo(layoutType))
         return;
 
