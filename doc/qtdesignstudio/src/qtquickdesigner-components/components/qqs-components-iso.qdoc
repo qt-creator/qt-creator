@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -54,8 +54,8 @@
     \endcode
 
     To select an icon in the \uicontrol {ISO Icon Browser} in \QDS, select
-    the ISO icon in the \uicontrol Navigator or on the canvas, and then
-    select \uicontrol {Choose Icon} in the context menu.
+    the ISO icon in the \uicontrol Navigator or \uicontrol {Form Editor},
+    and then select \uicontrol {Choose Icon} in the context menu.
 
     \image iso-icon-browser.png
 */

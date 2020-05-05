@@ -78,9 +78,8 @@
     \section2 Learn Qt Quick - Projects and Files
 
     \QDS creates a set of boilerplate files and folders that you need to create
-    a UI using Qt Quick and QML. The files are listed in the \uicontrol Project
-    tab in the \uicontrol Navigator and in the \uicontrol Projects view. For
-    more information, see \l {Viewing Project Files}.
+    a UI using Qt Quick and QML. The files are listed in the \uicontrol Projects
+    view. For more information, see \l {Viewing Project Files}.
 
     \image loginui1-project-files.png
 
@@ -108,9 +107,8 @@
     QML files define a hierarchy of objects with a highly-readable, structured
     layout. Every QML file consists of two parts: an imports section and an
     object declaration section. The QML types and functionality most common to
-    UIs are provided in the QtQuick import. Select the \uicontrol {Text Editor}
-    tab in the Design mode or press \key F4 to view the QML code of an ui.qml
-    file.
+    UIs are provided in the QtQuick import. You can view the QML code of an
+    ui.qml file in the \uicontrol {Text Editor} view.
 
     For more information about creating a QML file from scratch, see
     \l{First Steps with QML}.
@@ -127,17 +125,21 @@
 
     To preview the changes that you make to the UI while you make
     them, select the \inlineimage live_preview.png
-    (\uicontrol {Show Live Preview}) button on the canvas toolbar
-    or press \key {Alt+P}.
+    (\uicontrol {Show Live Preview}) button on the \uicontrol {Form Editor}
+    view toolbar or press \key {Alt+P}.
 
     The \e Screen01.ui.qml file that the wizard created for you should be
     open in the Design mode. If it is not, you can double-click it in the
-    \uicontrol Project sidebar view to open it.
+    \uicontrol Projects view to open it.
 
-    To modify \e Screen01.ui.qml in the \uicontrol {Form Editor} tab:
+    \note The visibility of views depends on the selected workspace. To open
+    hidden views, select \uicontrol Window > \uicontrol Views in the Design
+    mode. For more information, see \l {Managing Workspaces}.
+
+    To modify \e Screen01.ui.qml in the \uicontrol {Form Editor}:
 
     \list 1
-       \li Select \e Rectangle in the \uicontrol Navigator to display its
+       \li Select \e Rectangle in the \uicontrol Navigator view to display its
             properties in the \uicontrol Properties view.
         \li In the \uicontrol Color field, select the
             \inlineimage icons/action-icon-binding.png
@@ -182,7 +184,7 @@
     \skipto import
     \printuntil loginui1 1.0
 
-    The \uicontrol Library lists the QML types in each Qt module that are
+    The \uicontrol Library view lists the QML types in each Qt module that are
     supported by \QDS. You can use the basic types to create your own QML
     types, and they will be listed in the \uicontrol {My QML Components} tab.
     The tab is only visible if you have created custom QML components.
@@ -196,8 +198,8 @@
     You can use another wizard to create a push button and to add it to the
     project. The wizard creates a reusable button component that appears in
     the \uicontrol {My QML Components} tab in the \uicontrol Library. You can
-    drag and drop it to the canvas and modify its properties to change its
-    appearance and functionality.
+    drag and drop it to the \uicontrol {Form Editor} and modify its properties
+    in the \uicontrol Properties view to change its appearance and functionality.
 
     If you find that you cannot use the wizard to create the kind of push
     button that you want, you can create your button from scratch using basic
@@ -269,8 +271,8 @@
         \li On the toolbar, select \uicontrol Master >
             \uicontrol buttonBackground to move into the button background
             component.
-        \li Select the button background on the canvas or in the
-            \uicontrol Navigator to display its properties in the
+        \li Select the button background in the \uicontrol {Form Editor} or
+            in the \uicontrol Navigator to display its properties in the
             \uicontrol Properties view.
         \li In the \uicontrol Color field, select
             \inlineimage icons/action-icon.png
@@ -290,14 +292,15 @@
             to save your changes.
     \endlist
 
-    To move back to the top level PushButton type on the canvas, select
+    To move back to the top level PushButton type in the
+    \uicontrol {Form Editor}, select
     \uicontrol PushButton.ui.qml on the breadcrumb bar (1):
 
     \image loginui1-breadcrumb-bar.png "Breadcrumb bar in the Design mode."
 
     Your button should now look something like this:
 
-    \image loginui1-button-styled.png "Modified button in the Design mode."
+    \image loginui1-button-styled.png "Modified button in the Form Editor"
 
     \section2 Learn Qt Quick - Property Bindings
 
@@ -327,11 +330,11 @@
     You will now add two button instances to the UI and modify their labels.
 
     \list 1
-        \li Double-click \e Screen01.ui.qml in the \uicontrol Project sidebar
-            view to open it on the canvas.
+        \li Double-click \e Screen01.ui.qml in the \uicontrol Projects
+            view to open it in the \uicontrol {Form Editor}.
         \li Drag and drop two instances of the PushButton type from the
-            \uicontrol Library to the canvas.
-            \image loginui1-library.png "Library sidebar view"
+            \uicontrol Library to the \uicontrol {Form Editor}.
+            \image loginui1-library.png "Library view"
         \li Select one of the buttons in the \uicontrol Navigator to modify
             its id and text label in the \uicontrol Properties view.
         \li In the \uicontrol Id field, enter \e loginButton.
@@ -347,9 +350,9 @@
             buttons so that the text fits comfortably on the button background.
             In this example, the button width is set to 120 pixels.
         \li Move the cursor on the selected button to make the selection icon
-            appear. You can now drag the button to another position on the
-            canvas. Use the guidelines to align the buttons below the page
-            title:
+            appear. You can now drag the button to another position in the
+            \uicontrol {Form Editor}. Use the guidelines to align the buttons
+            below the page title:
             \image loginui1-align-buttons.png
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
             to save your changes.

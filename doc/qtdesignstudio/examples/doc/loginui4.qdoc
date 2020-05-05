@@ -76,8 +76,8 @@
 
     To preview the changes that you make to the UI while you make
     them, select the \inlineimage live_preview.png
-    (\uicontrol {Show Live Preview}) button on the canvas toolbar
-    or press \key {Alt+P}.
+    (\uicontrol {Show Live Preview}) button on the \uicontrol {Form Editor}
+    toolbar or press \key {Alt+P}.
 
     \section2 Replacing Columns with Anchors
 
