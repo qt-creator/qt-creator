@@ -29,9 +29,7 @@
     See std(::experimental)::variant.
 */
 
-// TODO: replace by #include <(experimental/)variant> depending on compiler and C++ version
 #if __cplusplus >= 201703L
-#error Please delete variant.hpp and the #else section below, then remove this error
 #include <variant>
 
 namespace Utils {
