@@ -457,7 +457,6 @@ static void layoutHelperFunction(const SelectionContext &selectionContext,
                                  const LessThan &lessThan)
 {
     if (!selectionContext.view()
-            || !selectionContext.hasSingleSelectedModelNode()
              || !selectionContext.view()->model()->hasNodeMetaInfo(layoutType))
         return;
 
@@ -1118,6 +1117,88 @@ void setFlowStartItem(const SelectionContext &selectionContext)
                                [&flowItem](){
         flowItem.flowView().setStartFlowItem(flowItem);
     });
+}
+
+
+bool static hasStudioComponentsImport(const SelectionContext &context)
+{
+    if (context.view() && context.view()->model()) {
+        Import import = Import::createLibraryImport("QtQuick.Studio.Components", "1.0");
+        return context.view()->model()->hasImport(import, true, true);
+    }
+
+    return false;
+}
+
+static inline void setAdjustedPos(const QmlDesigner::ModelNode &modelNode)
+{
+    if (modelNode.hasParentProperty()) {
+        ModelNode parentNode = modelNode.parentProperty().parentModelNode();
+
+        const QPointF instancePos = QmlItemNode(modelNode).instancePosition();
+        const int x = instancePos.x() - parentNode.variantProperty("x").value().toInt();
+        const int y = instancePos.y() - parentNode.variantProperty("y").value().toInt();
+
+        modelNode.variantProperty("x").setValue(x);
+        modelNode.variantProperty("y").setValue(y);
+    }
+}
+
+void reparentToNodeAndAdjustPosition(const ModelNode &parentModelNode,
+                                     const QList<ModelNode> &modelNodeList)
+{
+    for (ModelNode modelNode : modelNodeList) {
+        reparentTo(modelNode, parentModelNode);
+        setAdjustedPos(modelNode);
+
+        for (const VariantProperty &variantProperty : modelNode.variantProperties()) {
+            if (variantProperty.name().contains("anchors."))
+                modelNode.removeProperty(variantProperty.name());
+        }
+        for (const BindingProperty &bindingProperty : modelNode.bindingProperties()) {
+            if (bindingProperty.name().contains("anchors."))
+                modelNode.removeProperty(bindingProperty.name());
+        }
+    }
+}
+
+void addToGroupItem(const SelectionContext &selectionContext)
+{
+    const TypeName typeName = "QtQuick.Studio.Components.GroupItem";
+
+    try {
+        if (!hasStudioComponentsImport(selectionContext)) {
+            Import studioImport = Import::createLibraryImport("QtQuick.Studio.Components", "1.0");
+            selectionContext.view()-> model()->changeImports({studioImport}, {});
+        }
+
+        if (!selectionContext.view())
+            return;
+
+        if (QmlItemNode::isValidQmlItemNode(selectionContext.firstSelectedModelNode())) {
+            const QmlItemNode qmlItemNode = QmlItemNode(selectionContext.firstSelectedModelNode());
+
+            if (qmlItemNode.hasInstanceParentItem()) {
+                ModelNode groupNode;
+                selectionContext.view()->executeInTransaction("DesignerActionManager|addToGroupItem1",[=, &groupNode](){
+
+                    QmlItemNode parentNode = qmlItemNode.instanceParentItem();
+                    NodeMetaInfo metaInfo = selectionContext.view()->model()->metaInfo(typeName);
+                    groupNode = selectionContext.view()->createModelNode(typeName, metaInfo.majorVersion(), metaInfo.minorVersion());
+                    reparentTo(groupNode, parentNode);
+                });
+                selectionContext.view()->executeInTransaction("DesignerActionManager|addToGroupItem2",[=](){
+
+                    QList<ModelNode> selectedNodes = selectionContext.selectedModelNodes();
+                    setUpperLeftPostionToNode(groupNode, selectedNodes);
+
+                    reparentToNodeAndAdjustPosition(groupNode, selectedNodes);
+                });
+            }
+        }
+    } catch (RewritingException &e) {
+        e.showException();
+    }
 }
 
 } // namespace Mode

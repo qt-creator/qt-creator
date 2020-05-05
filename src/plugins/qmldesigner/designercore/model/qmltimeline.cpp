@@ -90,11 +90,12 @@ bool QmlTimeline::hasTimeline(const ModelNode &node, const PropertyName &propert
         for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
             if (QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(childNode)) {
                 const QmlTimelineKeyframeGroup frames(childNode);
-
-                if (frames.target().isValid()
-                        && frames.target() == node
-                        && frames.propertyName() == propertyName)
+                if (frames.target().isValid() && frames.target() == node
+                        && (frames.propertyName() == propertyName
+                            || (frames.propertyName().contains('.')
+                                && frames.propertyName().startsWith(propertyName)))) {
                     return true;
+                }
             }
         }
     }

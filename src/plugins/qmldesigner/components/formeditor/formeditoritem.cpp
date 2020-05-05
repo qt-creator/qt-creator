@@ -443,6 +443,8 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
                     || painterTransform.isRotating())
                 painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
 
+            painter->setClipRegion(boundingRect().toRect());
+
             if (m_blurContent)
                 painter->drawPixmap(m_paintedBoundingRect.topLeft(), qmlItemNode().instanceBlurredRenderPixmap());
             else
@@ -452,6 +454,7 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
         }
     }
 
+    painter->setClipping(false);
     if (!qmlItemNode().isRootModelNode())
         paintBoundingRect(painter);
 
@@ -790,10 +793,10 @@ QPointF FormEditorTransitionItem::instancePosition() const
 
 static bool verticalOverlap(const QRectF &from, const QRectF &to)
 {
-    if (from.top()  < to.bottom() && (from.top() + from.height()) > to.top())
+    if (from.top() < to.bottom() && from.bottom() > to.top())
         return true;
 
-    if (to.top()  < from.bottom() && (to.top() + to.height()) > from.top())
+    if (to.top() < from.bottom() && to.bottom() > from.top())
         return true;
 
     return false;
@@ -802,25 +805,77 @@ static bool verticalOverlap(const QRectF &from, const QRectF &to)
 
 static bool horizontalOverlap(const QRectF &from, const QRectF &to)
 {
-    if (from.left()  < to.right() && (from.left() + from.width()) > to.left())
+    if (from.left() < to.right() && from.right() > to.left())
         return true;
 
-    if (to.left()  < from.right() && (to.left() + to.width()) > from.left())
+    if (to.left() < from.right() && to.right() > from.left())
         return true;
 
     return false;
 }
 
+static void drawArrow(QPainter *painter,
+                      const QLineF &line,
+                      int arrowLength,
+                      int arrowWidth)
+{
+    const QPointF peakP(0, 0);
+    const QPointF leftP(-arrowLength, -arrowWidth * 0.5);
+    const QPointF rightP(-arrowLength, arrowWidth * 0.5);
+
+    painter->save();
+
+    painter->translate(line.p2());
+    painter->rotate(-line.angle());
+    painter->drawLine(leftP, peakP);
+    painter->drawLine(rightP, peakP);
+
+    painter->restore();
+}
+
+static void drawRoundedCorner(QPainter *painter,
+                              const QPointF &s,
+                              const QPointF &m,
+                              const QPointF &e,
+                              int radius)
+{
+    const QVector2D sm(m - s);
+    const QVector2D me(e - m);
+    const float smLength = sm.length();
+    const float meLength = me.length();
+    const int actualRadius = qMin(radius, static_cast<int>(qMin(smLength, meLength)));
+    const QVector2D smNorm = sm.normalized();
+    const QVector2D meNorm = me.normalized();
+
+    const QPointF arcStartP = s + (smNorm * (smLength - actualRadius)).toPointF();
+
+    QRectF rect(m, QSizeF(actualRadius * 2, actualRadius * 2));
+
+    painter->drawLine(s, arcStartP);
+
+    if ((smNorm.y() < 0 && meNorm.x() > 0) || (smNorm.x() < 0 && meNorm.y() > 0)) {
+        rect.moveTopLeft(m);
+        painter->drawArc(rect, 90 * 16, 90 * 16);
+    } else if ((smNorm.y() > 0 && meNorm.x() > 0) || (smNorm.x() < 0 && meNorm.y() < 0)) {
+        rect.moveBottomLeft(m);
+        painter->drawArc(rect, 180 * 16, 90 * 16);
+    } else if ((smNorm.x() > 0 && meNorm.y() > 0) || (smNorm.y() < 0 && meNorm.x() < 0)) {
+        rect.moveTopRight(m);
+        painter->drawArc(rect, 0 * 16, 90 * 16);
+    } else if ((smNorm.y() > 0 && meNorm.x() < 0) || (smNorm.x() > 0 && meNorm.y() < 0)) {
+        rect.moveBottomRight(m);
+        painter->drawArc(rect, 270 * 16, 90 * 16);
+    }
+
+    const QPointF arcEndP = e - (meNorm * (meLength - actualRadius)).toPointF();
+
+    painter->drawLine(arcEndP, e);
+}
+
 static void paintConnection(QPainter *painter,
                             const QRectF &from,
                             const QRectF &to,
-                            qreal width,
-                            qreal adjustedWidth,
-                            const QColor &color,
-                            bool dash,
-                            int startOffset,
-                            int endOffset,
-                            int breakOffset)
+                            const ConnectionStyle &style)
 {
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing);
@@ -829,23 +884,22 @@ static void paintConnection(QPainter *painter,
     pen.setCosmetic(true);
     pen.setJoinStyle(Qt::MiterJoin);
     pen.setCapStyle(Qt::RoundCap);
+    pen.setColor(style.color);
 
-    pen.setColor(color);
-
-    if (dash)
+    if (style.dash)
         pen.setStyle(Qt::DashLine);
     else
         pen.setStyle(Qt::SolidLine);
-    pen.setWidthF(width);
+    pen.setWidthF(style.width);
     painter->setPen(pen);
 
     //const bool forceVertical = false;
     //const bool forceHorizontal = false;
 
-    const int padding = 2 * width + 2 * adjustedWidth;
+    const int padding = 2 * style.width + 2 * style.adjustedWidth;
 
-    const int arrowLength = 4 * adjustedWidth;
-    const int arrowWidth = 8 * adjustedWidth;
+    const int arrowLength = 4 * style.adjustedWidth;
+    const int arrowWidth = 8 * style.adjustedWidth;
 
     const bool boolExitRight = from.right() < to.center().x();
     const bool boolExitBottom = from.bottom() < to.center().y();
@@ -857,9 +911,10 @@ static void paintConnection(QPainter *painter,
         horizontalFirst = false;
     */
 
-    const qreal middleFactor = breakOffset / 100.0;
+    const qreal middleFactor = style.breakOffset / 100.0;
 
     QPointF startP;
+    QLineF lastSegment;
 
     bool extraLine = false;
 
@@ -883,130 +938,97 @@ static void paintConnection(QPainter *painter,
     }
 
     if (horizontalFirst) {
-        const qreal startY = from.center().y() + startOffset;
-        qreal startX = from.x() - padding;
-        if (boolExitRight)
-            startX = from.right() + padding;
+        const qreal startX = boolExitRight ? from.right() + padding : from.x() - padding;
+        const qreal startY = from.center().y() + style.outOffset;
 
         startP = QPointF(startX, startY);
 
-        qreal endY = to.top() - padding;
-
-        if (from.bottom() > to.y())
-            endY = to.bottom() + padding;
+        const qreal endY = (from.bottom() > to.y()) ? to.bottom() + padding : to.top() - padding;
 
         if (!extraLine) {
-
-
-            const qreal endX = to.center().x() + endOffset;
-
+            const qreal endX = to.center().x() + style.inOffset;
             const QPointF midP(endX, startY);
-
             const QPointF endP(endX, endY);
 
-            painter->drawLine(startP, midP);
-            painter->drawLine(midP, endP);
+            if (style.radius == 0) {
+                painter->drawLine(startP, midP);
+                painter->drawLine(midP, endP);
+            } else {
+                drawRoundedCorner(painter, startP, midP, endP, style.radius);
+            }
 
-            int flip = 1;
-
-            if (midP.y() < endP.y())
-                flip = -1;
-
-            pen.setStyle(Qt::SolidLine);
-            painter->setPen(pen);
-            painter->drawLine(endP + flip * QPoint(arrowWidth / 2, arrowLength), endP);
-            painter->drawLine(endP + flip * QPoint(-arrowWidth / 2, arrowLength), endP);
+            lastSegment = QLineF(midP, endP);
         } else {
-
-            qreal endX = to.left() - padding;
-
-            if (from.right() > to.x())
-                endX = to.right() + padding;
-
-            const qreal midX = startX * middleFactor + endX * (1-middleFactor);
+            const qreal endX = (from.right() > to.x()) ? to.right() + padding : to.left() - padding;
+            const qreal midX = startX * middleFactor + endX * (1 - middleFactor);
             const QPointF midP(midX, startY);
-            const QPointF midP2(midX, to.center().y() + endOffset);
-            const QPointF endP(endX, to.center().y() + endOffset);
-            painter->drawLine(startP, midP);
-            painter->drawLine(midP, midP2);
-            painter->drawLine(midP2, endP);
+            const QPointF midP2(midX, to.center().y() + style.inOffset);
+            const QPointF endP(endX, to.center().y() + style.inOffset);
 
-            int flip = 1;
+            if (style.radius == 0) {
+                painter->drawLine(startP, midP);
+                painter->drawLine(midP, midP2);
+                painter->drawLine(midP2, endP);
+            } else {
+                const QLineF breakLine(midP, midP2);
+                drawRoundedCorner(painter, startP, midP, breakLine.center(), style.radius);
+                drawRoundedCorner(painter, breakLine.center(), midP2, endP, style.radius);
+            }
 
-            if (midP2.x() < endP.x())
-                flip = -1;
-
-            pen.setStyle(Qt::SolidLine);
-            painter->setPen(pen);
-            painter->drawLine(endP + flip * QPoint(arrowWidth / 2, arrowWidth / 2), endP);
-            painter->drawLine(endP + flip * QPoint(arrowLength, -arrowWidth / 2), endP);
+            lastSegment = QLineF(midP2, endP);
         }
 
     } else {
-        const qreal startX = from.center().x() + startOffset;
-
-        qreal startY = from.top() - padding;
-        if (boolExitBottom)
-            startY = from.bottom() + padding;
+        const qreal startX = from.center().x() + style.outOffset;
+        const qreal startY = boolExitBottom ? from.bottom() + padding : from.top() - padding;
 
         startP = QPointF(startX, startY);
-        qreal endX = to.left() - padding;
 
-        if (from.right() > to.x())
-            endX = to.right() + padding;
+        const qreal endX = (from.right() > to.x()) ? to.right() + padding : to.left() - padding;
 
         if (!extraLine) {
-            const qreal endY = to.center().y() + endOffset;
-
+            const qreal endY = to.center().y() + style.inOffset;
             const QPointF midP(startX, endY);
-
             const QPointF endP(endX, endY);
 
-            painter->drawLine(startP, midP);
-            painter->drawLine(midP, endP);
+            if (style.radius == 0) {
+                painter->drawLine(startP, midP);
+                painter->drawLine(midP, endP);
+            } else {
+                drawRoundedCorner(painter, startP, midP, endP, style.radius);
+            }
 
-            int flip = 1;
-
-            if (midP.x() < endP.x())
-                flip = -1;
-
-            pen.setStyle(Qt::SolidLine);
-            painter->setPen(pen);
-            painter->drawLine(endP + flip * QPoint(arrowWidth / 2, arrowWidth / 2), endP);
-            painter->drawLine(endP + flip * QPoint(arrowLength, -arrowWidth / 2), endP);
+            lastSegment = QLineF(midP, endP);
         } else {
+            const qreal endY = (from.bottom() > to.y()) ? to.bottom() + padding : to.top() - padding;
 
-            qreal endY = to.top() - padding;
-
-            if (from.bottom() > to.y())
-                endY = to.bottom() + padding;
-
-            const qreal midY = startY * middleFactor + endY * (1-middleFactor);
+            const qreal midY = startY * middleFactor + endY * (1 - middleFactor);
             const QPointF midP(startX, midY);
-            const QPointF midP2(to.center().x() + endOffset, midY);
-            const QPointF endP(to.center().x() + endOffset, endY);
+            const QPointF midP2(to.center().x() + style.inOffset, midY);
+            const QPointF endP(to.center().x() + style.inOffset, endY);
 
-            painter->drawLine(startP, midP);
-            painter->drawLine(midP, midP2);
-            painter->drawLine(midP2, endP);
+            if (style.radius == 0) {
+                painter->drawLine(startP, midP);
+                painter->drawLine(midP, midP2);
+                painter->drawLine(midP2, endP);
+            } else {
+                const QLineF breakLine(midP, midP2);
+                drawRoundedCorner(painter, startP, midP, breakLine.center(), style.radius);
+                drawRoundedCorner(painter, breakLine.center(), midP2, endP, style.radius);
+            }
 
-            int flip = 1;
-
-            if (midP2.y() < endP.y())
-                flip = -1;
-
-            pen.setStyle(Qt::SolidLine);
-            painter->setPen(pen);
-            painter->drawLine(endP + flip * QPoint(arrowWidth / 2, arrowLength), endP);
-            painter->drawLine(endP + flip * QPoint(-arrowWidth / 2, arrowLength), endP);
+            lastSegment = QLineF(midP2, endP);
         }
     }
 
-    pen.setWidthF(width);
+    pen.setWidthF(style.width);
     pen.setStyle(Qt::SolidLine);
     painter->setPen(pen);
+
+    drawArrow(painter, lastSegment, arrowLength, arrowWidth);
+
     painter->setBrush(Qt::white);
-    painter->drawEllipse(startP, arrowLength  / 3, arrowLength / 3);
+    painter->drawEllipse(startP, arrowLength / 3, arrowLength / 3);
 
     painter->restore();
 }
@@ -1063,57 +1085,67 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
     toRect.translate(-pos());
     fromRect.translate(-pos());
 
-    qreal width = 2;
+    ConnectionStyle style;
+
+    style.width = 2;
 
     const qreal scaleFactor = viewportTransform().m11();
 
     if (qmlItemNode().modelNode().hasAuxiliaryData("width"))
-        width = qmlItemNode().modelNode().auxiliaryData("width").toInt();
+        style.width = qmlItemNode().modelNode().auxiliaryData("width").toInt();
 
-    qreal adjustedWidth = width / scaleFactor;
+    style.adjustedWidth = style.width / scaleFactor;
 
     if (qmlItemNode().modelNode().isSelected())
-        width += 2;
+        style.width += 2;
     if (m_hitTest)
-        width *= 8;
+        style.width *= 8;
 
-    QColor color = "#e71919";
+    style.color = "#e71919";
 
     if (resolved.isStartLine)
-        color = "blue";
+        style.color = "blue";
 
     if (resolved.isWildcardLine)
-        color = "green";
-
-    bool dash = false;
+        style.color = "green";
 
     if (qmlItemNode().rootModelNode().hasAuxiliaryData("transitionColor"))
-        color = qmlItemNode().rootModelNode().auxiliaryData("transitionColor").value<QColor>();
+        style.color = qmlItemNode().rootModelNode().auxiliaryData("transitionColor").value<QColor>();
 
     if (qmlItemNode().modelNode().hasAuxiliaryData("color"))
-        color = qmlItemNode().modelNode().auxiliaryData("color").value<QColor>();
+        style.color = qmlItemNode().modelNode().auxiliaryData("color").value<QColor>();
+
+    style.dash = false;
 
     if (qmlItemNode().modelNode().hasAuxiliaryData("dash"))
-        dash = qmlItemNode().modelNode().auxiliaryData("dash").toBool();
+        style.dash = qmlItemNode().modelNode().auxiliaryData("dash").toBool();
 
-    int outOffset = 0;
-    int inOffset = 0;
+    style.outOffset = 0;
+    style.inOffset = 0;
 
     if (qmlItemNode().modelNode().hasAuxiliaryData("outOffset"))
-        outOffset = qmlItemNode().modelNode().auxiliaryData("outOffset").toInt();
+        style.outOffset = qmlItemNode().modelNode().auxiliaryData("outOffset").toInt();
 
     if (qmlItemNode().modelNode().hasAuxiliaryData("inOffset"))
-        inOffset = qmlItemNode().modelNode().auxiliaryData("inOffset").toInt();
+        style.inOffset = qmlItemNode().modelNode().auxiliaryData("inOffset").toInt();
 
-    int breakOffset = 50;
+    style.breakOffset = 50;
 
     if (qmlItemNode().modelNode().hasAuxiliaryData("breakPoint"))
-        breakOffset = qmlItemNode().modelNode().auxiliaryData("breakPoint").toInt();
+        style.breakOffset = qmlItemNode().modelNode().auxiliaryData("breakPoint").toInt();
+
+    style.radius = 8;
+
+    if (qmlItemNode().rootModelNode().hasAuxiliaryData("transitionRadius"))
+        style.radius = qmlItemNode().rootModelNode().auxiliaryData("transitionRadius").toInt();
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("radius"))
+        style.radius = qmlItemNode().modelNode().auxiliaryData("radius").toInt();
 
     if (resolved.isStartLine)
-        fromRect.translate(0, inOffset);
+        fromRect.translate(0, style.outOffset);
 
-    paintConnection(painter, fromRect, toRect, width, adjustedWidth ,color, dash, outOffset, inOffset, breakOffset);
+    paintConnection(painter, fromRect, toRect, style);
 
     if (resolved.isStartLine) {
 
@@ -1121,7 +1153,7 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
         QPen pen;
         pen.setCosmetic(true);
-        pen.setColor(color);
+        pen.setColor(style.color);
         painter->setPen(pen);
 
         const int iconAdjust = 48;
@@ -1131,7 +1163,7 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
         const int x = fromRect.topRight().x() - offset;
         const int y = fromRect.topRight().y();
         painter->drawRoundedRect(x, y , size - 10, size, size / 2, iconSize / 2);
-        drawIcon(painter, x + iconAdjust / 2, y + iconAdjust / 2, icon, iconSize, iconSize, color);
+        drawIcon(painter, x + iconAdjust / 2, y + iconAdjust / 2, icon, iconSize, iconSize, style.color);
     }
 
     painter->restore();

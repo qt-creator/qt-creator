@@ -167,7 +167,6 @@ void LayoutInGridLayout::doIt()
     const TypeName layoutType = "QtQuick.Layouts.GridLayout";
 
     if (!m_selectionContext.view()
-            || !m_selectionContext.hasSingleSelectedModelNode()
             || !m_selectionContext.view()->model()->hasNodeMetaInfo(layoutType))
         return;
 

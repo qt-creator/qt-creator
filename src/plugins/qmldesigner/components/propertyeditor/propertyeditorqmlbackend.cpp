@@ -47,6 +47,7 @@
 #include <QApplication>
 #include <QDir>
 #include <QFileInfo>
+#include <QVector3D>
 
 #include <QLoggingCategory>
 
@@ -166,6 +167,10 @@ QVariant properDefaultAuxiliaryProperties(const QmlObjectNode &qmlObjectNode,
         return 0;
     else if (propertyName == "breakPoint")
         return 50;
+    else if (propertyName == "transitionRadius")
+        return 8;
+    else if (propertyName == "radius")
+        return 8;
     else if (propertyName == "customId")
         return QString();
     else if (propertyName == "joinConnection")
@@ -235,7 +240,7 @@ void PropertyEditorQmlBackend::setupAuxiliaryProperties(const QmlObjectNode &qml
     propertyNames.append("customId");
 
     if (itemNode.isFlowTransition()) {
-        propertyNames.append({"color", "width", "inOffset", "outOffset", "dash", "breakPoint"});
+        propertyNames.append({"color", "width", "inOffset", "outOffset", "dash", "breakPoint", "radius"});
     } else if (itemNode.isFlowItem()) {
         propertyNames.append({"color", "width", "inOffset", "outOffset", "joinConnection"});
     } else if (itemNode.isFlowActionArea()) {
@@ -245,7 +250,7 @@ void PropertyEditorQmlBackend::setupAuxiliaryProperties(const QmlObjectNode &qml
     } else if (itemNode.isFlowWildcard()) {
         propertyNames.append({"color", "width", "fillColor", "dash"});
     } else if (itemNode.isFlowView()) {
-        propertyNames.append({"transitionColor", "areaColor", "areaFillColor", "blockColor" });
+        propertyNames.append({"transitionColor", "areaColor", "areaFillColor", "blockColor", "transitionRadius"});
     }
 
     for (const PropertyName &propertyName : propertyNames) {
@@ -294,11 +299,25 @@ void PropertyEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qm
 
 void PropertyEditorQmlBackend::setValue(const QmlObjectNode & , const PropertyName &name, const QVariant &value)
 {
-    PropertyName propertyName = name;
-    propertyName.replace('.', '_');
-    auto propertyValue = qobject_cast<PropertyEditorValue*>(variantToQObject(m_backendValuesPropertyMap.value(QString::fromUtf8(propertyName))));
-    if (propertyValue)
-        propertyValue->setValue(value);
+    if (value.type() == QVariant::Vector3D) {
+        // Vector3D values need to be split into their subcomponents
+        const char *suffix[3] = {"_x", "_y", "_z"};
+        auto vecValue = value.value<QVector3D>();
+        for (int i = 0; i < 3; ++i) {
+            PropertyName subPropName(name.size() + 2, '\0');
+            subPropName.replace(0, name.size(), name);
+            subPropName.replace(name.size(), 2, suffix[i]);
+            auto propertyValue = qobject_cast<PropertyEditorValue *>(variantToQObject(m_backendValuesPropertyMap.value(QString::fromUtf8(subPropName))));
+            if (propertyValue)
+                propertyValue->setValue(QVariant(vecValue[i]));
+        }
+    } else {
+        PropertyName propertyName = name;
+        propertyName.replace('.', '_');
+        auto propertyValue = qobject_cast<PropertyEditorValue *>(variantToQObject(m_backendValuesPropertyMap.value(QString::fromUtf8(propertyName))));
+        if (propertyValue)
+            propertyValue->setValue(value);
+    }
 }
 
 QQmlContext *PropertyEditorQmlBackend::context() {

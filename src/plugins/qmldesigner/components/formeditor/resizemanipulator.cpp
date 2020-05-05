@@ -97,8 +97,11 @@ void ResizeManipulator::begin(const QPointF &/*beginPoint*/)
 //    return QSizeF(sizeAsPoint.x(), sizeAsPoint.y());
 //}
 
-void ResizeManipulator::update(const QPointF& updatePoint, Snapper::Snapping useSnapping)
+void ResizeManipulator::update(const QPointF& updatePoint, Snapper::Snapping useSnapping, Qt::KeyboardModifiers keyMods)
 {
+    const bool preserveAspectRatio = keyMods.testFlag(Qt::ShiftModifier);
+    const bool resizeFromCenter = keyMods.testFlag(Qt::AltModifier);
+
     const double minimumWidth = 0.0;
     const double minimumHeight = 0.0;
 
@@ -118,6 +121,16 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapper::Snapping use
         QmlAnchors anchors(formEditorItem->qmlItemNode().anchors());
 
         QRectF boundingRect(m_beginBoundingRect);
+
+        auto getRatioSizes = [&](){
+            double ratio = std::min(boundingRect.width() / m_beginBoundingRect.width(),
+                                    boundingRect.height() / m_beginBoundingRect.height());
+            double newW = m_beginBoundingRect.width() * ratio;
+            double newH = m_beginBoundingRect.height() * ratio;
+
+            return QSizeF(newW, newH);
+        };
+
         if (m_resizeHandle->isBottomRightHandle()) {
             boundingRect.setBottomRight(updatePointInLocalSpace);
 
@@ -132,6 +145,28 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapper::Snapping use
             }
             boundingRect.setBottomRight(updatePointInLocalSpace);
 
+            if (preserveAspectRatio) {
+                QSizeF newSize = getRatioSizes();
+
+                updatePointInLocalSpace.rx() = (boundingRect.topLeft().x() + newSize.width());
+                updatePointInLocalSpace.ry() = (boundingRect.topLeft().y() + newSize.height());
+
+                boundingRect.setBottomRight(updatePointInLocalSpace);
+            }
+
+            if (resizeFromCenter) {
+                QPointF grow = { boundingRect.width() - m_beginBoundingRect.width(),
+                         boundingRect.height() - m_beginBoundingRect.height() };
+
+                if (!anchors.instanceHasAnchor(AnchorLineHorizontalCenter)
+                        && !anchors.instanceHasAnchor(AnchorLineVerticalCenter)) {
+                    if (!anchors.instanceHasAnchor(AnchorLineTop))
+                        boundingRect.setTop(boundingRect.top() - grow.y());
+                    if (!anchors.instanceHasAnchor(AnchorLineLeft))
+                        boundingRect.setLeft(boundingRect.left() - grow.x());
+                }
+            }
+
             if (anchors.instanceHasAnchor(AnchorLineHorizontalCenter))
                 boundingRect.setLeft(boundingRect.left() - (updatePointInLocalSpace.x() - m_beginBoundingRect.right()));
 
@@ -144,6 +179,7 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapper::Snapping use
                 boundingRect.setHeight(minimumHeight);
 
             formEditorItem->qmlItemNode().setSize(boundingRect.size());
+            formEditorItem->qmlItemNode().setPosition(m_beginToParentTransform.map(boundingRect.topLeft()));
 
             if (anchors.instanceHasAnchor(AnchorLineBottom)) {
                anchors.setMargin(AnchorLineBottom,
@@ -167,6 +203,28 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapper::Snapping use
                     updatePointInLocalSpace.ry() -= topOffset;
             }
             boundingRect.setTopLeft(updatePointInLocalSpace);
+
+            if (preserveAspectRatio) {
+                QSizeF newSize = getRatioSizes();
+
+                updatePointInLocalSpace.rx() = (boundingRect.bottomRight().x() - newSize.width());
+                updatePointInLocalSpace.ry() = (boundingRect.bottomRight().y() - newSize.height());
+
+                boundingRect.setTopLeft(updatePointInLocalSpace);
+            }
+
+            if (resizeFromCenter) {
+                QPointF grow = { boundingRect.width() - m_beginBoundingRect.width(),
+                         boundingRect.height() - m_beginBoundingRect.height() };
+
+                if (!anchors.instanceHasAnchor(AnchorLineHorizontalCenter)
+                        && !anchors.instanceHasAnchor(AnchorLineVerticalCenter)) {
+                    if (!anchors.instanceHasAnchor(AnchorLineBottom))
+                        boundingRect.setBottom(boundingRect.bottom() + grow.y());
+                    if (!anchors.instanceHasAnchor(AnchorLineRight))
+                        boundingRect.setRight(boundingRect.right() + grow.x());
+                }
+            }
 
             if (anchors.instanceHasAnchor(AnchorLineHorizontalCenter))
                 boundingRect.setRight(boundingRect.right() - (updatePointInLocalSpace.x() - m_beginBoundingRect.left()));
@@ -208,6 +266,28 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapper::Snapping use
             }
             boundingRect.setTopRight(updatePointInLocalSpace);
 
+            if (preserveAspectRatio) {
+                QSizeF newSize = getRatioSizes();
+
+                updatePointInLocalSpace.rx() = (boundingRect.bottomLeft().x() + newSize.width());
+                updatePointInLocalSpace.ry() = (boundingRect.bottomLeft().y() - newSize.height());
+
+                boundingRect.setTopRight(updatePointInLocalSpace);
+            }
+
+            if (resizeFromCenter) {
+                QPointF grow = { boundingRect.width() - m_beginBoundingRect.width(),
+                         boundingRect.height() - m_beginBoundingRect.height() };
+
+                if (!anchors.instanceHasAnchor(AnchorLineHorizontalCenter)
+                        && !anchors.instanceHasAnchor(AnchorLineVerticalCenter)) {
+                    if (!anchors.instanceHasAnchor(AnchorLineBottom))
+                        boundingRect.setBottom(boundingRect.bottom() + grow.y());
+                    if (!anchors.instanceHasAnchor(AnchorLineLeft))
+                        boundingRect.setLeft(boundingRect.left() - grow.x());
+                }
+            }
+
             if (anchors.instanceHasAnchor(AnchorLineHorizontalCenter))
                 boundingRect.setLeft(boundingRect.left() - (updatePointInLocalSpace.x() - m_beginBoundingRect.right()));
 
@@ -246,6 +326,28 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapper::Snapping use
 
             boundingRect.setBottomLeft(updatePointInLocalSpace);
 
+            if (preserveAspectRatio) {
+                QSizeF newSize = getRatioSizes();
+
+                updatePointInLocalSpace.rx() = (boundingRect.topRight().x() - newSize.width());
+                updatePointInLocalSpace.ry() = (boundingRect.topRight().y() + newSize.height());
+
+                boundingRect.setBottomLeft(updatePointInLocalSpace);
+            }
+
+            if (resizeFromCenter) {
+                QPointF grow = { boundingRect.width() - m_beginBoundingRect.width(),
+                         boundingRect.height() - m_beginBoundingRect.height() };
+
+                if (!anchors.instanceHasAnchor(AnchorLineHorizontalCenter)
+                        && !anchors.instanceHasAnchor(AnchorLineVerticalCenter)) {
+                    if (!anchors.instanceHasAnchor(AnchorLineTop))
+                        boundingRect.setTop(boundingRect.top() - grow.y());
+                    if (!anchors.instanceHasAnchor(AnchorLineRight))
+                        boundingRect.setRight(boundingRect.right() + grow.x());
+                }
+            }
+
             if (anchors.instanceHasAnchor(AnchorLineHorizontalCenter))
                 boundingRect.setRight(boundingRect.right() - (updatePointInLocalSpace.x() - m_beginBoundingRect.left()));
 
@@ -280,13 +382,30 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapper::Snapping use
 
             boundingRect.setBottom(updatePointInLocalSpace.y());
 
+            if (resizeFromCenter) {
+                double grow = boundingRect.height() - m_beginBoundingRect.height();
+
+                if (!anchors.instanceHasAnchor(AnchorLineHorizontalCenter)
+                        && !anchors.instanceHasAnchor(AnchorLineVerticalCenter)) {
+                    if (!anchors.instanceHasAnchor(AnchorLineTop))
+                        boundingRect.setTop(boundingRect.top() - grow);
+                    if (!anchors.instanceHasAnchor(AnchorLineLeft))
+                        boundingRect.setLeft(boundingRect.left() - grow);
+                    if (!anchors.instanceHasAnchor(AnchorLineRight))
+                        boundingRect.setRight(boundingRect.right() + grow);
+                }
+            }
+
             if (anchors.instanceHasAnchor(AnchorLineVerticalCenter))
                 boundingRect.setTop(boundingRect.top() - (updatePointInLocalSpace.y() - m_beginBoundingRect.bottom()));
 
+            if (boundingRect.width() < minimumWidth)
+                boundingRect.setWidth(minimumWidth);
             if (boundingRect.height() < minimumHeight)
                 boundingRect.setHeight(minimumHeight);
 
             formEditorItem->qmlItemNode().setSize(boundingRect.size());
+            formEditorItem->qmlItemNode().setPosition(m_beginToParentTransform.map(boundingRect.topLeft()));
 
             if (anchors.instanceHasAnchor(AnchorLineBottom)) {
                anchors.setMargin(AnchorLineBottom,
@@ -303,9 +422,25 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapper::Snapping use
 
             boundingRect.setTop(updatePointInLocalSpace.y());
 
+            if (resizeFromCenter) {
+                double grow = boundingRect.height() - m_beginBoundingRect.height();
+
+                if (!anchors.instanceHasAnchor(AnchorLineHorizontalCenter)
+                        && !anchors.instanceHasAnchor(AnchorLineVerticalCenter)) {
+                    if (!anchors.instanceHasAnchor(AnchorLineBottom))
+                        boundingRect.setBottom(boundingRect.bottom() + grow);
+                    if (!anchors.instanceHasAnchor(AnchorLineLeft))
+                        boundingRect.setLeft(boundingRect.left() - grow);
+                    if (!anchors.instanceHasAnchor(AnchorLineRight))
+                        boundingRect.setRight(boundingRect.right() + grow);
+                }
+            }
+
             if (anchors.instanceHasAnchor(AnchorLineVerticalCenter))
                 boundingRect.setBottom(boundingRect.bottom() - (updatePointInLocalSpace.y() - m_beginBoundingRect.top()));
 
+            if (boundingRect.width() < minimumWidth)
+                boundingRect.setWidth(minimumWidth);
             if (boundingRect.height() < minimumHeight)
                 boundingRect.setTop(boundingRect.top() - minimumHeight + boundingRect.height());
 
@@ -327,13 +462,30 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapper::Snapping use
 
             boundingRect.setRight(updatePointInLocalSpace.x());
 
+            if (resizeFromCenter) {
+                double grow = boundingRect.width() - m_beginBoundingRect.width();
+
+                if (!anchors.instanceHasAnchor(AnchorLineHorizontalCenter)
+                        && !anchors.instanceHasAnchor(AnchorLineVerticalCenter)) {
+                    if (!anchors.instanceHasAnchor(AnchorLineTop))
+                        boundingRect.setTop(boundingRect.top() - grow);
+                    if (!anchors.instanceHasAnchor(AnchorLineLeft))
+                        boundingRect.setLeft(boundingRect.left() - grow);
+                    if (!anchors.instanceHasAnchor(AnchorLineBottom))
+                        boundingRect.setBottom(boundingRect.bottom() + grow);
+                }
+            }
+
             if (anchors.instanceHasAnchor(AnchorLineHorizontalCenter))
                 boundingRect.setLeft(boundingRect.left() - (updatePointInLocalSpace.x() - m_beginBoundingRect.right()));
 
             if (boundingRect.width() < minimumWidth)
                 boundingRect.setWidth(minimumWidth);
+            if (boundingRect.height() < minimumHeight)
+                boundingRect.setHeight(minimumHeight);
 
             formEditorItem->qmlItemNode().setSize(boundingRect.size());
+            formEditorItem->qmlItemNode().setPosition(m_beginToParentTransform.map(boundingRect.topLeft()));
 
 
             if (anchors.instanceHasAnchor(AnchorLineRight)) {
@@ -351,11 +503,27 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapper::Snapping use
 
             boundingRect.setLeft(updatePointInLocalSpace.x());
 
+            if (resizeFromCenter) {
+                double grow = boundingRect.width() - m_beginBoundingRect.width();
+
+                if (!anchors.instanceHasAnchor(AnchorLineHorizontalCenter)
+                        && !anchors.instanceHasAnchor(AnchorLineVerticalCenter)) {
+                    if (!anchors.instanceHasAnchor(AnchorLineTop))
+                        boundingRect.setTop(boundingRect.top() - grow);
+                    if (!anchors.instanceHasAnchor(AnchorLineBottom))
+                        boundingRect.setBottom(boundingRect.bottom() + grow);
+                    if (!anchors.instanceHasAnchor(AnchorLineRight))
+                        boundingRect.setRight(boundingRect.right() + grow);
+                }
+            }
+
             if (anchors.instanceHasAnchor(AnchorLineHorizontalCenter))
                 boundingRect.setRight(boundingRect.right() - (updatePointInLocalSpace.x() - m_beginBoundingRect.left()));
 
             if (boundingRect.width() < minimumWidth)
                 boundingRect.setLeft(boundingRect.left() - minimumWidth + boundingRect.width());
+            if (boundingRect.height() < minimumHeight)
+                boundingRect.setHeight(minimumHeight);
 
             formEditorItem->qmlItemNode().setSize(boundingRect.size());
             formEditorItem->qmlItemNode().setPosition(m_beginToParentTransform.map(boundingRect.topLeft()));

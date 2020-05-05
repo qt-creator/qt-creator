@@ -46,7 +46,8 @@ public:
     void removeHandle();
 
     void begin(const QPointF& beginPoint);
-    void update(const QPointF& updatePoint, Snapper::Snapping useSnapping);
+    void update(const QPointF& updatePoint, Snapper::Snapping useSnapping,
+                Qt::KeyboardModifiers keyMods = Qt::NoModifier);
     void end(Snapper::Snapping useSnapping);
 
     void moveBy(double deltaX, double deltaY);

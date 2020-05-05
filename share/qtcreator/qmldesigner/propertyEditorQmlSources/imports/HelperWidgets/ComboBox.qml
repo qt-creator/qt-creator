@@ -163,4 +163,9 @@ StudioControls.ComboBox {
         colorLogic.invalidate()
         comboBox.__isCompleted = true
     }
+
+    Connections {
+        target: modelNodeBackend
+        onSelectionToBeChanged: comboBox.popup.close()
+    }
 }

@@ -57,6 +57,7 @@ Column {
     }
 
     AnimationSection {
+        showEasingCurve: true
     }
 }
 
