@@ -54,7 +54,7 @@ public:
     bool abortBuildAllOnError = true;
     bool lowBuildPriority = false;
     StopBeforeBuild stopBeforeBuild = StopBeforeBuild::None;
-    TerminalMode terminalMode = TerminalMode::Smart;
+    TerminalMode terminalMode = TerminalMode::Off;
 
     // Add a UUid which is used to identify the development environment.
     // This is used to warn the user when he is trying to open a .user file that was created

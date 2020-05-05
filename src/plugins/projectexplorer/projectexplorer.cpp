@@ -1523,7 +1523,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         tmp = Utils::HostOsInfo::isWindowsHost() ? 1 : 0;
     dd->m_projectExplorerSettings.stopBeforeBuild = StopBeforeBuild(tmp);
     dd->m_projectExplorerSettings.terminalMode = static_cast<TerminalMode>(s->value(
-        Constants::TERMINAL_MODE_SETTINGS_KEY, int(TerminalMode::Smart)).toInt());
+        Constants::TERMINAL_MODE_SETTINGS_KEY, int(TerminalMode::Off)).toInt());
     dd->m_projectExplorerSettings.closeSourceFilesWithProject
             = s->value(Constants::CLOSE_FILES_WITH_PROJECT_SETTINGS_KEY, true).toBool();
     dd->m_projectExplorerSettings.clearIssuesOnRebuild
