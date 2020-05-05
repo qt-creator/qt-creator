@@ -108,7 +108,6 @@ class Dumper(DumperBase):
         self.process = None
         self.target = None
         self.eventState = lldb.eStateInvalid
-        self.runEngineAttempted = False
 
         self.executable_ = None
         self.symbolFile_ = None
@@ -923,14 +922,6 @@ class Dumper(DumperBase):
                           % (state, error, self.executable_), args)
 
     def runEngine(self, args):
-        if self.runEngineAttempted:
-            return
-        self.runEngineAttempted = True
-        self.prepare(args)
-        s = threading.Thread(target=self.loop, args=[])
-        s.start()
-
-    def prepare(self, args):
         error = lldb.SBError()
 
         if self.attachPid_ > 0 and self.platform_ != "remote-linux":
@@ -998,6 +989,9 @@ class Dumper(DumperBase):
                 return
             self.report('pid="%s"' % self.process.GetProcessID())
             self.reportState('enginerunandinferiorrunok')
+
+        s = threading.Thread(target=self.loop, args=[])
+        s.start()
 
     def loop(self):
         event = lldb.SBEvent()
