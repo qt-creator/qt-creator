@@ -648,6 +648,12 @@ bool positionOptionVisible(const SelectionContext &context)
             || isPositioner(context);
 }
 
+bool studioComponentsAvailable(const SelectionContext &context)
+{
+    const Import import = Import::createLibraryImport("QtQuick.Studio.Components", "1.0");
+    return context.view()->model()->isImportPossible(import, true, true);
+}
+
 bool singleSelectedAndUiFile(const SelectionContext &context)
 {
     if (!singleSelection(context))
@@ -860,6 +866,13 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &layoutOptionVisible));
 
     addDesignerAction(new ActionGroup(
+                          groupCategoryDisplayName,
+                          groupCategory,
+                          priorityGroupCategory,
+                          &positionOptionVisible,
+                          &studioComponentsAvailable));
+
+    addDesignerAction(new ActionGroup(
         flowCategoryDisplayName,
         flowCategory,
         priorityFlowCategory,
@@ -993,6 +1006,18 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &removeLayout,
                           &isLayout,
                           &isLayout));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          addToGroupItemCommandId,
+                          addToGroupItemDisplayName,
+                          {},
+                          groupCategory,
+                          QKeySequence(),
+                          110,
+                          &addToGroupItem,
+                          &selectionCanBeLayouted,
+                          &selectionCanBeLayouted));
+
 
     addDesignerAction(new ModelNodeFormEditorAction(
                           addItemToStackedContainerCommandId,
