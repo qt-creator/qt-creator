@@ -455,16 +455,16 @@ QList<ToolChain *> IarToolChainFactory::autoDetect(const QList<ToolChain *> &alr
         QString registryKey;
         QString subExePath;
     } knowToolchains[] = {
-        {{"EWARM"}, {"\\arm\\bin\\iccarm.exe"}},
-        {{"EWAVR"}, {"\\avr\\bin\\iccavr.exe"}},
-        {{"EW8051"}, {"\\8051\\bin\\icc8051.exe"}},
-        {{"EWSTM8"}, {"\\stm8\\bin\\iccstm8.exe"}},
-        {{"EW430"}, {"\\430\\bin\\icc430.exe"}},
-        {{"EWRL78"}, {"\\rl78\\bin\\iccrl78.exe"}},
-        {{"EWV850"}, {"\\v850\\bin\\iccv850.exe"}},
-        {{"EWRH850"}, {"\\rh850\\bin\\iccrh850.exe"}},
-        {{"EWRX"}, {"\\rx\\bin\\iccrx.exe"}},
-        {{"EW78K"}, {"\\78k\\bin\\icc78k.exe"}},
+        {{"EWARM"}, {"/arm/bin/iccarm.exe"}},
+        {{"EWAVR"}, {"/avr/bin/iccavr.exe"}},
+        {{"EW8051"}, {"/8051/bin/icc8051.exe"}},
+        {{"EWSTM8"}, {"/stm8/bin/iccstm8.exe"}},
+        {{"EW430"}, {"/430/bin/icc430.exe"}},
+        {{"EWRL78"}, {"/rl78/bin/iccrl78.exe"}},
+        {{"EWV850"}, {"/v850/bin/iccv850.exe"}},
+        {{"EWRH850"}, {"/rh850/bin/iccrh850.exe"}},
+        {{"EWRX"}, {"/rx/bin/iccrx.exe"}},
+        {{"EW78K"}, {"/78k/bin/icc78k.exe"}},
     };
 
     QSettings registry(kRegistryNode, QSettings::NativeFormat);
