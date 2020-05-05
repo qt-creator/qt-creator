@@ -1174,19 +1174,19 @@ void BreakHandler::removeAlienBreakpoint(const QString &rid)
 void BreakHandler::requestBreakpointInsertion(const Breakpoint &bp)
 {
     bp->gotoState(BreakpointInsertionRequested, BreakpointNew);
-    QTimer::singleShot(0, m_engine, [this, bp] { m_engine->insertBreakpoint(bp); });
+    m_engine->insertBreakpoint(bp);
 }
 
 void BreakHandler::requestBreakpointUpdate(const Breakpoint &bp)
 {
     bp->gotoState(BreakpointUpdateRequested, BreakpointInserted);
-    QTimer::singleShot(0, m_engine, [this, bp] { m_engine->updateBreakpoint(bp); });
+    m_engine->updateBreakpoint(bp);
 }
 
 void BreakHandler::requestBreakpointRemoval(const Breakpoint &bp)
 {
     bp->gotoState(BreakpointRemoveRequested, BreakpointInserted);
-    QTimer::singleShot(0, m_engine, [this, bp] { m_engine->removeBreakpoint(bp); });
+    m_engine->removeBreakpoint(bp);
 }
 
 void BreakHandler::requestBreakpointEnabling(const Breakpoint &bp, bool enabled)

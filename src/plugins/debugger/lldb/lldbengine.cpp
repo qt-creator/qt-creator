@@ -316,11 +316,9 @@ void LldbEngine::setupEngine()
             BreakpointManager::claimBreakpointsForEngine(this);
             // Some extra roundtrip to make sure we end up behind all commands triggered
             // from claimBreakpointsForEngine().
-            QTimer::singleShot(0, this, [this] {
-                DebuggerCommand cmd3("executeRoundtrip");
-                cmd3.callback = [this](const DebuggerResponse &) { notifyEngineSetupOk(); };
-                runCommand(cmd3);
-            });
+            DebuggerCommand cmd3("executeRoundtrip");
+            cmd3.callback = [this](const DebuggerResponse &) { notifyEngineSetupOk(); };
+            runCommand(cmd3);
         } else {
             notifyEngineSetupFailed();
         }
