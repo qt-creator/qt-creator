@@ -110,7 +110,9 @@ public:
         connect(m_productModel, &ProductListModel::toggleProgressIndicator,
                 progressIndicator, &Utils::ProgressIndicator::setVisible);
         connect(m_productModel, &ProductListModel::errorOccurred,
-                [this, searchBox](int, const QString &message) {
+                [this, progressIndicator, searchBox](int, const QString &message) {
+            progressIndicator->hide();
+            progressIndicator->deleteLater();
             m_errorLabel->setAlignment(Qt::AlignHCenter);
             QFont f(m_errorLabel->font());
             f.setPixelSize(20);
