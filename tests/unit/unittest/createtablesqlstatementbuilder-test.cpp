@@ -30,13 +30,14 @@
 
 namespace {
 
+using Sqlite::Column;
 using Sqlite::ColumnType;
 using Sqlite::Contraint;
+using Sqlite::Enforment;
+using Sqlite::ForeignKeyAction;
 using Sqlite::JournalMode;
 using Sqlite::OpenMode;
-using Sqlite::Column;
 using Sqlite::SqliteColumns;
-
 using Sqlite::SqlStatementBuilderException;
 
 class CreateTableSqlStatementBuilder : public ::testing::Test
@@ -199,11 +200,210 @@ void CreateTableSqlStatementBuilder::bindValues()
 SqliteColumns CreateTableSqlStatementBuilder::createColumns()
 {
     SqliteColumns columns;
-    columns.emplace_back("id", ColumnType::Integer, Contraint::PrimaryKey);
-    columns.emplace_back("name", ColumnType::Text);
-    columns.emplace_back("number", ColumnType::Numeric);
+    columns.emplace_back("", "id", ColumnType::Integer, Contraint::PrimaryKey);
+    columns.emplace_back("", "name", ColumnType::Text);
+    columns.emplace_back("", "number", ColumnType::Numeric);
 
     return columns;
 }
 
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyWithoutColumn)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id", ColumnType::Integer, Contraint::ForeignKey, {"otherTable", ""});
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER REFERENCES otherTable)");
 }
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyWithColumn)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id", ColumnType::Integer, Contraint::ForeignKey, {"otherTable", "otherColumn"});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn))");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateNoAction)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id", ColumnType::Integer, Contraint::ForeignKey, {"otherTable", "otherColumn"});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn))");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateRestrict)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Integer,
+                      Contraint::ForeignKey,
+                      {"otherTable", "otherColumn", ForeignKeyAction::Restrict});
+
+    ASSERT_THAT(
+        builder.sqlStatement(),
+        "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE RESTRICT)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateSetNull)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Integer,
+                      Contraint::ForeignKey,
+                      {"otherTable", "otherColumn", ForeignKeyAction::SetNull});
+
+    ASSERT_THAT(
+        builder.sqlStatement(),
+        "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE SET NULL)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateSetDefault)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Integer,
+                      Contraint::ForeignKey,
+                      {"otherTable", "otherColumn", ForeignKeyAction::SetDefault});
+
+    ASSERT_THAT(
+        builder.sqlStatement(),
+        "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE SET DEFAULT)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateCascade)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Integer,
+                      Contraint::ForeignKey,
+                      {"otherTable", "otherColumn", ForeignKeyAction::Cascade});
+
+    ASSERT_THAT(
+        builder.sqlStatement(),
+        "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE CASCADE)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteNoAction)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id", ColumnType::Integer, Contraint::ForeignKey, {"otherTable", "otherColumn"});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn))");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteRestrict)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Integer,
+                      Contraint::ForeignKey,
+                      {"otherTable", "otherColumn", {}, ForeignKeyAction::Restrict});
+
+    ASSERT_THAT(
+        builder.sqlStatement(),
+        "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON DELETE RESTRICT)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteSetNull)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Integer,
+                      Contraint::ForeignKey,
+                      {"otherTable", "otherColumn", {}, ForeignKeyAction::SetNull});
+
+    ASSERT_THAT(
+        builder.sqlStatement(),
+        "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON DELETE SET NULL)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteSetDefault)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Integer,
+                      Contraint::ForeignKey,
+                      {"otherTable", "otherColumn", {}, ForeignKeyAction::SetDefault});
+
+    ASSERT_THAT(
+        builder.sqlStatement(),
+        "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON DELETE SET DEFAULT)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteCascade)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Integer,
+                      Contraint::ForeignKey,
+                      {"otherTable", "otherColumn", {}, ForeignKeyAction::Cascade});
+
+    ASSERT_THAT(
+        builder.sqlStatement(),
+        "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON DELETE CASCADE)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteAndUpdateAction)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Integer,
+                      Contraint::ForeignKey,
+                      {"otherTable",
+                       "otherColumn",
+                       ForeignKeyAction::SetDefault,
+                       ForeignKeyAction::Cascade});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE SET "
+                "DEFAULT ON DELETE CASCADE)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeferred)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Integer,
+                      Contraint::ForeignKey,
+                      {"otherTable",
+                       "otherColumn",
+                       ForeignKeyAction::SetDefault,
+                       ForeignKeyAction::Cascade,
+                       Enforment::Deferred});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE SET "
+                "DEFAULT ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)");
+}
+} // namespace

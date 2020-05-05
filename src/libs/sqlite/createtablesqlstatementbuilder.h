@@ -36,9 +36,10 @@ public:
     CreateTableSqlStatementBuilder();
 
     void setTableName(Utils::SmallString &&tableName);
-    void addColumn(Utils::SmallString &&columnName,
+    void addColumn(Utils::SmallStringView columnName,
                    ColumnType columnType,
-                   Contraint constraint = Contraint::NoConstraint);
+                   Contraint constraint = Contraint::NoConstraint,
+                   ForeignKey &&foreignKey = {});
     void setColumns(const SqliteColumns &columns);
     void setUseWithoutRowId(bool useWithoutRowId);
     void setUseIfNotExists(bool useIfNotExists);

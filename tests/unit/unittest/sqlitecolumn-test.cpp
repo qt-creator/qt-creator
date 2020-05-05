@@ -29,70 +29,111 @@
 
 namespace {
 
-using testing::AllOf;
-using testing::Contains;
-using testing::Property;
-
 using Sqlite::ColumnType;
 using Sqlite::Contraint;
 using Sqlite::JournalMode;
 using Sqlite::OpenMode;
 using Column = Sqlite::Column;
+using Sqlite::Enforment;
+using Sqlite::ForeignKey;
+using Sqlite::ForeignKeyAction;
 using Sqlite::SqliteColumns;
 
 class SqliteColumn : public ::testing::Test
 {
 protected:
-    void SetUp() override;
-
     Sqlite::Column column;
 };
 
-TEST_F(SqliteColumn, ChangeName)
+TEST_F(SqliteColumn, DefaultConstruct)
 {
-    column.setName("Claudia");
-
-    ASSERT_THAT(column.name(), "Claudia");
+    ASSERT_THAT(column,
+                AllOf(Field(&Column::name, IsEmpty()),
+                      Field(&Column::tableName, IsEmpty()),
+                      Field(&Column::type, ColumnType::Numeric),
+                      Field(&Column::constraint, Contraint::NoConstraint),
+                      Field(&Column::foreignKey,
+                            AllOf(Field(&ForeignKey::table, IsEmpty()),
+                                  Field(&ForeignKey::column, IsEmpty()),
+                                  Field(&ForeignKey::updateAction, ForeignKeyAction::NoAction),
+                                  Field(&ForeignKey::deleteAction, ForeignKeyAction::NoAction),
+                                  Field(&ForeignKey::enforcement, Enforment::Immediate)))));
 }
 
-TEST_F(SqliteColumn, DefaultType)
+TEST_F(SqliteColumn, Clear)
 {
-    ASSERT_THAT(column.type(), ColumnType::Numeric);
-}
+    column.name = "foo";
+    column.name = "foo";
+    column.type = ColumnType::Text;
+    column.constraint = Contraint::ForeignKey;
+    column.foreignKey.table = "bar";
+    column.foreignKey.column = "hmm";
+    column.foreignKey.updateAction = ForeignKeyAction::Cascade;
+    column.foreignKey.deleteAction = ForeignKeyAction::SetNull;
 
-TEST_F(SqliteColumn, ChangeType)
-{
-    column.setType(ColumnType::Text);
-
-    ASSERT_THAT(column.type(), ColumnType::Text);
-}
-
-TEST_F(SqliteColumn, DefaultConstraint)
-{
-    ASSERT_THAT(column.constraint(), Contraint::NoConstraint);
-}
-
-TEST_F(SqliteColumn, SetConstraint)
-{
-    column.setContraint(Contraint::PrimaryKey);
-
-    ASSERT_THAT(column.constraint(),  Contraint::PrimaryKey);
-}
-
-TEST_F(SqliteColumn, GetColumnDefinition)
-{
-    column.setName("Claudia");
+    column.clear();
 
     ASSERT_THAT(column,
-                    AllOf(
-                        Property(&Column::name, "Claudia"),
-                        Property(&Column::type, ColumnType::Numeric),
-                        Property(&Column::constraint, Contraint::NoConstraint)));
+                AllOf(Field(&Column::name, IsEmpty()),
+                      Field(&Column::tableName, IsEmpty()),
+                      Field(&Column::type, ColumnType::Numeric),
+                      Field(&Column::constraint, Contraint::NoConstraint),
+                      Field(&Column::foreignKey,
+                            AllOf(Field(&ForeignKey::table, IsEmpty()),
+                                  Field(&ForeignKey::column, IsEmpty()),
+                                  Field(&ForeignKey::updateAction, ForeignKeyAction::NoAction),
+                                  Field(&ForeignKey::deleteAction, ForeignKeyAction::NoAction),
+                                  Field(&ForeignKey::enforcement, Enforment::Immediate)))));
 }
 
-void SqliteColumn::SetUp()
+TEST_F(SqliteColumn, Constructor)
 {
-    column.clear();
+    column = Sqlite::Column{"table",
+                            "column",
+                            ColumnType::Text,
+                            Contraint::ForeignKey,
+                            {"referencedTable",
+                             "referencedColumn",
+                             ForeignKeyAction::SetNull,
+                             ForeignKeyAction::Cascade,
+                             Enforment::Deferred}};
+
+    ASSERT_THAT(column,
+                AllOf(Field(&Column::name, Eq("column")),
+                      Field(&Column::tableName, Eq("table")),
+                      Field(&Column::type, ColumnType::Text),
+                      Field(&Column::constraint, Contraint::ForeignKey),
+                      Field(&Column::foreignKey,
+                            AllOf(Field(&ForeignKey::table, Eq("referencedTable")),
+                                  Field(&ForeignKey::column, Eq("referencedColumn")),
+                                  Field(&ForeignKey::updateAction, ForeignKeyAction::SetNull),
+                                  Field(&ForeignKey::deleteAction, ForeignKeyAction::Cascade),
+                                  Field(&ForeignKey::enforcement, Enforment::Deferred)))));
 }
 
+TEST_F(SqliteColumn, FlatConstructor)
+{
+    column = Sqlite::Column{"table",
+                            "column",
+                            ColumnType::Text,
+                            Contraint::ForeignKey,
+                            "referencedTable",
+                            "referencedColumn",
+                            ForeignKeyAction::SetNull,
+                            ForeignKeyAction::Cascade,
+                            Enforment::Deferred};
+
+    ASSERT_THAT(column,
+                AllOf(Field(&Column::name, Eq("column")),
+                      Field(&Column::tableName, Eq("table")),
+                      Field(&Column::type, ColumnType::Text),
+                      Field(&Column::constraint, Contraint::ForeignKey),
+                      Field(&Column::foreignKey,
+                            AllOf(Field(&ForeignKey::table, Eq("referencedTable")),
+                                  Field(&ForeignKey::column, Eq("referencedColumn")),
+                                  Field(&ForeignKey::updateAction, ForeignKeyAction::SetNull),
+                                  Field(&ForeignKey::deleteAction, ForeignKeyAction::Cascade),
+                                  Field(&ForeignKey::enforcement, Enforment::Deferred)))));
 }
+
+} // namespace

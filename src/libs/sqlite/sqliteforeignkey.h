@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,63 +25,41 @@
 
 #pragma once
 
-#include <utils/smallstringfwd.h>
+#include "sqliteglobal.h"
 
-#include <QtGlobal>
-
-#if defined(BUILD_SQLITE_LIBRARY)
-#  define SQLITE_EXPORT Q_DECL_EXPORT
-#elif defined(BUILD_SQLITE_STATIC_LIBRARY)
-#  define SQLITE_EXPORT
-#else
-#  define SQLITE_EXPORT Q_DECL_IMPORT
-#endif
+#include <utils/smallstring.h>
 
 namespace Sqlite {
 
-enum class ColumnType : char
+class ForeignKey
 {
-    Numeric,
-    Integer,
-    Real,
-    Text,
-    None
-};
+public:
+    ForeignKey() = default;
+    ForeignKey(Utils::SmallStringView table,
+               Utils::SmallStringView column,
+               ForeignKeyAction updateAction = {},
+               ForeignKeyAction deleteAction = {},
+               Enforment enforcement = {})
+        : table(table)
+        , column(column)
+        , updateAction(updateAction)
+        , deleteAction(deleteAction)
+        , enforcement(enforcement)
+    {}
 
-enum class Contraint : char { NoConstraint, PrimaryKey, Unique, ForeignKey };
+    friend bool operator==(const ForeignKey &first, const ForeignKey &second)
+    {
+        return first.table == second.table && first.column == second.column
+               && first.updateAction == second.updateAction
+               && first.deleteAction == second.deleteAction;
+    }
 
-enum class ForeignKeyAction : char { NoAction, Restrict, SetNull, SetDefault, Cascade };
-
-enum class Enforment : char { Immediate, Deferred };
-
-enum class ColumnConstraint : char { PrimaryKey };
-
-enum class JournalMode : char
-{
-    Delete,
-    Truncate,
-    Persist,
-    Memory,
-    Wal
-};
-
-enum class OpenMode : char
-{
-    ReadOnly,
-    ReadWrite
-};
-
-enum TextEncoding : char
-{
-    Utf8,
-    Utf16le,
-    Utf16be,
-#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-    Utf16 = Utf16le
-#else
-    Utf16 = Utf16be
-#endif
-
+public:
+    Utils::SmallString table;
+    Utils::SmallString column;
+    ForeignKeyAction updateAction = {};
+    ForeignKeyAction deleteAction = {};
+    Enforment enforcement = {};
 };
 
 } // namespace Sqlite

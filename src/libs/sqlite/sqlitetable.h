@@ -44,10 +44,7 @@ public:
         m_sqliteIndices.reserve(reserve);
     }
 
-    void setName(Utils::SmallString &&name)
-    {
-        m_tableName = std::move(name);
-    }
+    void setName(Utils::SmallStringView name) { m_tableName = name; }
 
     Utils::SmallStringView name() const
     {
@@ -74,11 +71,53 @@ public:
         m_useTemporaryTable = useTemporaryTable;
     }
 
-    Column &addColumn(Utils::SmallString &&name,
-                            ColumnType type = ColumnType::Numeric,
-                            Contraint constraint = Contraint::NoConstraint)
+    Column &addColumn(Utils::SmallStringView name,
+                      ColumnType type = ColumnType::Numeric,
+                      Contraint constraint = Contraint::NoConstraint)
     {
-        m_sqliteColumns.emplace_back(std::move(name), type, constraint);
+        m_sqliteColumns.emplace_back(m_tableName, name, type, constraint);
+
+        return m_sqliteColumns.back();
+    }
+
+    Column &addForeignKeyColumn(Utils::SmallStringView name,
+                                const Table &referencedTable,
+                                ForeignKeyAction foreignKeyupdateAction = {},
+                                ForeignKeyAction foreignKeyDeleteAction = {},
+                                Enforment foreignKeyEnforcement = {},
+                                ColumnType type = ColumnType::Integer)
+    {
+        m_sqliteColumns.emplace_back(m_tableName,
+                                     name,
+                                     type,
+                                     Contraint::ForeignKey,
+                                     referencedTable.name(),
+                                     "",
+                                     foreignKeyupdateAction,
+                                     foreignKeyDeleteAction,
+                                     foreignKeyEnforcement);
+
+        return m_sqliteColumns.back();
+    }
+
+    Column &addForeignKeyColumn(Utils::SmallStringView name,
+                                const Column &referencedColumn,
+                                ForeignKeyAction foreignKeyupdateAction = {},
+                                ForeignKeyAction foreignKeyDeleteAction = {},
+                                Enforment foreignKeyEnforcement = {})
+    {
+        if (referencedColumn.constraint != Contraint::Unique)
+            throw ForeignKeyColumnIsNotUnique("Foreign column key must be unique!");
+
+        m_sqliteColumns.emplace_back(m_tableName,
+                                     name,
+                                     referencedColumn.type,
+                                     Contraint::ForeignKey,
+                                     referencedColumn.tableName,
+                                     referencedColumn.name,
+                                     foreignKeyupdateAction,
+                                     foreignKeyDeleteAction,
+                                     foreignKeyEnforcement);
 
         return m_sqliteColumns.back();
     }
@@ -148,7 +187,7 @@ private:
         Utils::SmallStringVector columnNames;
 
         for (const Column &column : columns)
-            columnNames.push_back(column.name());
+            columnNames.push_back(column.name);
 
         return columnNames;
     }

@@ -28,6 +28,7 @@ HEADERS += \
     $$PWD/sqlitedatabasebackend.h \
     $$PWD/sqlitedatabaseinterface.h \
     $$PWD/sqliteexception.h \
+    $$PWD/sqliteforeignkey.h \
     $$PWD/sqliteglobal.h \
     $$PWD/sqlitereadstatement.h \
     $$PWD/sqlitereadwritestatement.h \
@@ -45,7 +46,8 @@ HEADERS += \
     $$PWD/sqlitebasestatement.h
 
 DEFINES += SQLITE_THREADSAFE=2 SQLITE_ENABLE_FTS4 SQLITE_ENABLE_FTS3_PARENTHESIS \
-    SQLITE_ENABLE_UNLOCK_NOTIFY SQLITE_ENABLE_COLUMN_METADATA SQLITE_ENABLE_JSON1
+    SQLITE_ENABLE_UNLOCK_NOTIFY SQLITE_ENABLE_COLUMN_METADATA SQLITE_ENABLE_JSON1 \
+    SQLITE_DEFAULT_FOREIGN_KEYS=1
 
 OTHER_FILES += README.md
 

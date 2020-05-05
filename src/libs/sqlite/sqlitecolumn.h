@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "sqliteglobal.h"
+#include "sqliteforeignkey.h"
 
 #include <utils/smallstring.h>
 
@@ -38,59 +38,60 @@ class Column
 public:
     Column() = default;
 
-    Column(Utils::SmallString &&name,
+    Column(Utils::SmallStringView tableName,
+           Utils::SmallStringView name,
            ColumnType type = ColumnType::Numeric,
-           Contraint constraint = Contraint::NoConstraint)
-        : m_name(std::move(name)),
-          m_type(type),
-          m_constraint(constraint)
+           Contraint constraint = Contraint::NoConstraint,
+           ForeignKey &&foreignKey = {})
+        : foreignKey(std::move(foreignKey))
+        , name(name)
+        , tableName(tableName)
+        , type(type)
+        , constraint(constraint)
+    {}
+
+    Column(Utils::SmallStringView tableName,
+           Utils::SmallStringView name,
+           ColumnType type,
+           Contraint constraint,
+           Utils::SmallStringView foreignKeyTable,
+           Utils::SmallStringView foreignKeycolumn,
+           ForeignKeyAction foreignKeyUpdateAction,
+           ForeignKeyAction foreignKeyDeleteAction,
+           Enforment foreignKeyEnforcement)
+        : foreignKey(foreignKeyTable,
+                     foreignKeycolumn,
+                     foreignKeyUpdateAction,
+                     foreignKeyDeleteAction,
+                     foreignKeyEnforcement)
+        , name(name)
+        , tableName(tableName)
+        , type(type)
+        , constraint(constraint)
+
     {}
 
     void clear()
     {
-        m_name.clear();
-        m_type = ColumnType::Numeric;
-        m_constraint = Contraint::NoConstraint;
-    }
-
-    void setName(Utils::SmallString &&newName)
-    {
-        m_name = newName;
-    }
-
-    const Utils::SmallString &name() const
-    {
-        return m_name;
-    }
-
-    void setType(ColumnType newType)
-    {
-        m_type = newType;
-    }
-
-    ColumnType type() const
-    {
-        return m_type;
-    }
-
-    void setContraint(Contraint constraint)
-    {
-        m_constraint = constraint;
-    }
-
-    Contraint constraint() const
-    {
-        return m_constraint;
+        name.clear();
+        type = ColumnType::Numeric;
+        constraint = Contraint::NoConstraint;
+        foreignKey = {};
     }
 
     Utils::SmallString typeString() const
     {
-        switch (m_type) {
-            case ColumnType::None: return {};
-            case ColumnType::Numeric: return "NUMERIC";
-            case ColumnType::Integer: return "INTEGER";
-            case ColumnType::Real: return "REAL";
-            case ColumnType::Text: return "TEXT";
+        switch (type) {
+        case ColumnType::None:
+            return {};
+        case ColumnType::Numeric:
+            return "NUMERIC";
+        case ColumnType::Integer:
+            return "INTEGER";
+        case ColumnType::Real:
+            return "REAL";
+        case ColumnType::Text:
+            return "TEXT";
         }
 
         Q_UNREACHABLE();
@@ -98,16 +99,18 @@ public:
 
     friend bool operator==(const Column &first, const Column &second)
     {
-        return first.m_name == second.m_name
-            && first.m_type == second.m_type
-            && first.m_constraint == second.m_constraint;
+        return first.name == second.name && first.type == second.type
+               && first.constraint
+                      == second.constraint /* && first.foreignKey == second.foreignKey*/;
     }
 
-private:
-    Utils::SmallString m_name;
-    ColumnType m_type = ColumnType::Numeric;
-    Contraint m_constraint = Contraint::NoConstraint;
-};
+public:
+    ForeignKey foreignKey;
+    Utils::SmallString name;
+    Utils::SmallString tableName;
+    ColumnType type = ColumnType::Numeric;
+    Contraint constraint = Contraint::NoConstraint;
+}; // namespace Sqlite
 
 using SqliteColumns = std::vector<Column>;
 using SqliteColumnConstReference = std::reference_wrapper<const Column>;

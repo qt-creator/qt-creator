@@ -272,4 +272,12 @@ public:
     {}
 };
 
+class ForeignKeyColumnIsNotUnique : public Exception
+{
+public:
+    ForeignKeyColumnIsNotUnique(const char *whatErrorHasHappen)
+        : Exception(whatErrorHasHappen)
+    {}
+};
+
 } // namespace Sqlite
