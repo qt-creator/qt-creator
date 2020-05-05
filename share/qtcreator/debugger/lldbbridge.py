@@ -841,6 +841,8 @@ class Dumper(DumperBase):
         return None
 
     def setupInferior(self, args):
+        """ Set up SBTarget instance """
+
         error = lldb.SBError()
 
         self.executable_ = args['executable']
@@ -892,25 +894,6 @@ class Dumper(DumperBase):
             self.reportState('enginerunfailed')
             return
 
-        if (self.startMode_ == DebuggerStartMode.AttachToRemoteServer
-              or self.startMode_ == DebuggerStartMode.AttachToRemoteProcess):
-
-            # For some reason, 127.0.0.1 doesn't work with Android.
-            remote_channel = ('connect://'
-                    + self.remoteChannel_.replace('127.0.0.1', 'localhost'))
-            connect_options = lldb.SBPlatformConnectOptions(remote_channel)
-
-            res = self.target.GetPlatform().ConnectRemote(connect_options)
-            DumperBase.warn("CONNECT: %s %s %s %s" % (res,
-                        remote_channel,
-                        self.target.GetPlatform().GetName(),
-                        self.target.GetPlatform().IsConnected()))
-            if not res.Success():
-                self.report(self.describeError(error))
-                self.reportState('enginerunfailed')
-                return
-
-
         broadcaster = self.target.GetBroadcaster()
         listener = self.debugger.GetListener()
         broadcaster.AddListener(listener, lldb.SBProcess.eBroadcastBitStateChanged)
@@ -928,24 +911,42 @@ class Dumper(DumperBase):
                           % (state, error, self.executable_), args)
 
     def runEngine(self, args):
+        """ Set up SBProcess instance """
+
         error = lldb.SBError()
 
-        if self.attachPid_ > 0 and self.platform_ != "remote-linux":
-            attachInfo = lldb.SBAttachInfo(self.attachPid_)
-            self.process = self.target.Attach(attachInfo, error)
+        if self.startMode_ == DebuggerStartMode.AttachExternal:
+            attach_info = lldb.SBAttachInfo(self.attachPid_)
+            self.process = self.target.Attach(attach_info, error)
             if not error.Success():
-                self.reportState('inferiorrunfailed')
-                return
-            self.report('pid="%s"' % self.process.GetProcessID())
-            # Even if it stops it seems that LLDB assumes it is running
-            # and later detects that it did stop after all, so it is be
-            # better to mirror that and wait for the spontaneous stop
-            if self.process and self.process.GetState() == lldb.eStateStopped:
-                # lldb stops the process after attaching. This happens before the
-                # eventloop starts. Relay the correct state back.
-                self.reportState('enginerunandinferiorstopok')
+                self.reportState('enginerunfailed')
             else:
-                self.reportState('enginerunandinferiorrunok')
+                self.report('pid="%s"' % self.process.GetProcessID())
+                self.reportState('enginerunandinferiorstopok')
+
+        elif (self.startMode_ == DebuggerStartMode.AttachToRemoteServer
+                    and self.platform_ == 'remote-android'):
+            # For some reason, 127.0.0.1 doesn't work with Android.
+            remote_channel = ('connect://'
+                    + self.remoteChannel_.replace('127.0.0.1', 'localhost'))
+            connect_options = lldb.SBPlatformConnectOptions(remote_channel)
+
+            res = self.target.GetPlatform().ConnectRemote(connect_options)
+            DumperBase.warn("CONNECT: %s %s %s %s" % (res,
+                        remote_channel,
+                        self.target.GetPlatform().GetName(),
+                        self.target.GetPlatform().IsConnected()))
+            if not res.Success():
+                self.report(self.describeError(error))
+                self.reportState('enginerunfailed')
+                return
+            attach_info = lldb.SBAttachInfo(self.attachPid_)
+            self.process = self.target.Attach(attach_info, error)
+            if not error.Success():
+                self.reportState('enginerunfailed')
+            else:
+                self.report('pid="%s"' % self.process.GetProcessID())
+                self.reportState('enginerunandinferiorstopok')
 
         elif (self.startMode_ == DebuggerStartMode.AttachToRemoteServer
               or self.startMode_ == DebuggerStartMode.AttachToRemoteProcess):
