@@ -47,6 +47,12 @@ namespace Internal {
     class MoveController;
 }
 
+enum ConnectionType
+{
+    Default = 0,
+    Bezier
+};
+
 class ConnectionStyle
 {
 public:
@@ -58,6 +64,8 @@ public:
     int inOffset;
     int breakOffset;
     int radius;
+    int bezier;
+    ConnectionType type;
 };
 
 class QMLDESIGNERCORE_EXPORT FormEditorItem : public QGraphicsItem
