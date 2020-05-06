@@ -25,6 +25,7 @@
 
 pragma Singleton
 import QtQuick 2.12
+import QtQuickDesignerTheme 1.0
 
 QtObject {
     id: values

@@ -309,7 +309,7 @@ void DesignModeWidget::setup()
             // Apply stylesheet to QWidget
             QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
             sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
-            sheet += "QLabel { background-color: #4f4f4f; }";
+            sheet += "QLabel { background-color: creatorTheme.DSsectionHeadBackground; }";
             navigationView.widget->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
 
             // Create DockWidget
