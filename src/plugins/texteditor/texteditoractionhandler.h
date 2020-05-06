@@ -55,7 +55,8 @@ public:
         UnCommentSelection = 2,
         UnCollapseAll = 4,
         FollowSymbolUnderCursor = 8,
-        JumpToFileUnderCursor = 16
+        JumpToFileUnderCursor = 16,
+        RenameSymbol = 32,
     };
     using TextEditorWidgetResolver = std::function<TextEditorWidget *(Core::IEditor *)>;
 

@@ -844,7 +844,7 @@ void QmlJSEditorWidget::findUsages()
     m_findReferences->findUsages(textDocument()->filePath().toString(), textCursor().position());
 }
 
-void QmlJSEditorWidget::renameUsages()
+void QmlJSEditorWidget::renameSymbolUnderCursor()
 {
     m_findReferences->renameUsages(textDocument()->filePath().toString(), textCursor().position());
 }
@@ -1098,9 +1098,10 @@ QmlJSEditorFactory::QmlJSEditorFactory(Core::Id _id)
     setCompletionAssistProvider(new QmlJSCompletionAssistProvider);
 
     setEditorActionHandlers(TextEditorActionHandler::Format
-        | TextEditorActionHandler::UnCommentSelection
-        | TextEditorActionHandler::UnCollapseAll
-                            | TextEditorActionHandler::FollowSymbolUnderCursor);
+                            | TextEditorActionHandler::UnCommentSelection
+                            | TextEditorActionHandler::UnCollapseAll
+                            | TextEditorActionHandler::FollowSymbolUnderCursor
+                            | TextEditorActionHandler::RenameSymbol);
 }
 
 void QmlJSEditorFactory::decorateEditor(TextEditorWidget *editor)

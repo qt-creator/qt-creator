@@ -182,6 +182,7 @@ public:
     QAction *m_followSymbolAction = nullptr;
     QAction *m_followSymbolInNextSplitAction = nullptr;
     QAction *m_findUsageAction = nullptr;
+    QAction *m_renameSymbolAction = nullptr;
     QAction *m_jumpToFileAction = nullptr;
     QAction *m_jumpToFileInNextSplitAction = nullptr;
     QList<QAction *> m_modifyingActions;
@@ -285,6 +286,9 @@ void TextEditorActionHandlerPrivate::createActions()
     m_findUsageAction = registerAction(FIND_USAGES,
             [] (TextEditorWidget *w) { w->findUsages(); }, true, tr("Find References to Symbol Under Cursor"),
             QKeySequence(tr("Ctrl+Shift+U")));
+    m_renameSymbolAction = registerAction(RENAME_SYMBOL,
+            [] (TextEditorWidget *w) { w->renameSymbolUnderCursor(); }, true, tr("Rename Symbol Under Cursor"),
+            QKeySequence(tr("Ctrl+Shift+R")));
     m_jumpToFileAction = registerAction(JUMP_TO_FILE_UNDER_CURSOR,
             [] (TextEditorWidget *w) { w->openLinkUnderCursor(); }, true, tr("Jump to File Under Cursor"),
             QKeySequence(Qt::Key_F2));
@@ -519,6 +523,7 @@ void TextEditorActionHandlerPrivate::createActions()
     m_jumpToFileAction->setEnabled(m_optionalActions & TextEditorActionHandler::JumpToFileUnderCursor);
     m_jumpToFileInNextSplitAction->setEnabled(m_optionalActions & TextEditorActionHandler::JumpToFileUnderCursor);
     m_unfoldAllAction->setEnabled(m_optionalActions & TextEditorActionHandler::UnCollapseAll);
+    m_renameSymbolAction->setEnabled(m_optionalActions & TextEditorActionHandler::RenameSymbol);
 }
 
 void TextEditorActionHandlerPrivate::updateActions()

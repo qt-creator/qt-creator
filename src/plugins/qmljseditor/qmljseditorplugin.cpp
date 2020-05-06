@@ -162,10 +162,7 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
-    QAction *renameUsagesAction = new QAction(QmlJSEditorPlugin::tr("Rename Symbol Under Cursor"), this);
-    cmd = ActionManager::registerAction(renameUsagesAction, "QmlJSEditor.RenameUsages", context);
-    cmd->setDefaultKeySequence(QKeySequence(QmlJSEditorPlugin::tr("Ctrl+Shift+R")));
-    connect(renameUsagesAction, &QAction::triggered, this, &QmlJSEditorPluginPrivate::renameUsages);
+    cmd = ActionManager::command(TextEditor::Constants::RENAME_SYMBOL);
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
@@ -247,7 +244,7 @@ QuickToolBar *QmlJSEditorPlugin::quickToolBar()
 void QmlJSEditorPluginPrivate::renameUsages()
 {
     if (auto editor = qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget()))
-        editor->renameUsages();
+        editor->renameSymbolUnderCursor();
 }
 
 void QmlJSEditorPluginPrivate::reformatFile()

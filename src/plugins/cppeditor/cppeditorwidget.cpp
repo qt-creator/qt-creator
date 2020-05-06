@@ -860,7 +860,7 @@ protected:
 QMenu *CppEditorWidget::createRefactorMenu(QWidget *parent) const
 {
     auto *menu = new QMenu(tr("&Refactor"), parent);
-    menu->addAction(ActionManager::command(Constants::RENAME_SYMBOL_UNDER_CURSOR)->action());
+    menu->addAction(ActionManager::command(TextEditor::Constants::RENAME_SYMBOL)->action());
 
     // ### enable
     // updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));

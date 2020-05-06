@@ -81,7 +81,7 @@ public:
     void findUsages(QTextCursor cursor);
     void renameUsages(const QString &replacement = QString(),
                       QTextCursor cursor = QTextCursor());
-    void renameSymbolUnderCursor();
+    void renameSymbolUnderCursor() override;
 
     bool selectBlockUp() override;
     bool selectBlockDown() override;
