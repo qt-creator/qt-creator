@@ -35,6 +35,7 @@ add_qtc_plugin(ProjectExplorer
     customexecutablerunconfiguration.cpp customexecutablerunconfiguration.h
     customparser.cpp customparser.h
     customparserconfigdialog.cpp customparserconfigdialog.h customparserconfigdialog.ui
+    customparserssettingspage.cpp customparserssettingspage.h
     customtoolchain.cpp customtoolchain.h
     customwizard/customwizard.cpp customwizard/customwizard.h
     customwizard/customwizardpage.cpp customwizard/customwizardpage.h

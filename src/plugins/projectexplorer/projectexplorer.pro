@@ -19,6 +19,7 @@ HEADERS += projectexplorer.h \
     buildtargettype.h \
     clangparser.h \
     configtaskhandler.h \
+    customparserssettingspage.h \
     desktoprunconfiguration.h \
     environmentaspect.h \
     environmentaspectwidget.h \
@@ -176,6 +177,7 @@ SOURCES += projectexplorer.cpp \
     buildpropertiessettingspage.cpp \
     buildsystem.cpp \
     clangparser.cpp \
+    customparserssettingspage.cpp \
     configtaskhandler.cpp \
     desktoprunconfiguration.cpp \
     environmentaspect.cpp \

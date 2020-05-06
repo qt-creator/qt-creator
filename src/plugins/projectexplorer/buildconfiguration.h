@@ -79,6 +79,9 @@ public:
 
     virtual void addToEnvironment(Utils::Environment &env) const;
 
+    const QList<Core::Id> customParsers() const;
+    void setCustomParsers(const QList<Core::Id> &parsers);
+
     BuildStepList *buildSteps() const;
     BuildStepList *cleanSteps() const;
 

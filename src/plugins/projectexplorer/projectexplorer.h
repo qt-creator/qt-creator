@@ -59,6 +59,7 @@ class FileNode;
 
 namespace Internal {
 class AppOutputSettings;
+class CustomParserSettings;
 class MiniProjectTargetSelector;
 class ProjectExplorerSettings;
 }
@@ -141,6 +142,9 @@ public:
     static const BuildPropertiesSettings &buildPropertiesSettings();
     static void showQtSettings();
 
+    static void setCustomParsers(const QList<Internal::CustomParserSettings> &settings);
+    static const QList<Internal::CustomParserSettings> customParsers();
+
     static void startRunControl(RunControl *runControl);
     static void showOutputPaneForRunControl(RunControl *runControl);
 
@@ -192,6 +196,7 @@ signals:
     void recentProjectsChanged();
 
     void settingsChanged();
+    void customParsersChanged();
 
     void runActionsUpdated();
 

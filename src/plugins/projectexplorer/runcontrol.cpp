@@ -26,16 +26,17 @@
 #include "runcontrol.h"
 
 #include "devicesupport/desktopdevice.h"
-#include "project.h"
-#include "target.h"
-#include "toolchain.h"
 #include "abi.h"
 #include "buildconfiguration.h"
+#include "customparser.h"
 #include "environmentaspect.h"
 #include "kitinformation.h"
+#include "project.h"
+#include "projectexplorer.h"
 #include "runconfigurationaspects.h"
 #include "session.h"
-#include "kitinformation.h"
+#include "target.h"
+#include "toolchain.h"
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
@@ -825,7 +826,14 @@ void RunControlPrivate::showError(const QString &msg)
 
 QList<Utils::OutputLineParser *> RunControl::createOutputParsers() const
 {
-    return OutputFormatterFactory::createFormatters(target());
+    QList<Utils::OutputLineParser *> parsers = OutputFormatterFactory::createFormatters(target());
+    if (const auto customParsersAspect = runConfiguration()->aspect<CustomParsersAspect>()) {
+        for (const Core::Id id : customParsersAspect->parsers()) {
+            if (CustomParser * const parser = CustomParser::createFromId(id))
+                parsers << parser;
+        }
+    }
+    return parsers;
 }
 
 Core::Id RunControl::runMode() const

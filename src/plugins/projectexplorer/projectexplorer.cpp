@@ -33,6 +33,7 @@
 #include "compileoutputwindow.h"
 #include "configtaskhandler.h"
 #include "customexecutablerunconfiguration.h"
+#include "customparserssettingspage.h"
 #include "customwizard/customwizard.h"
 #include "deployablefile.h"
 #include "deployconfiguration.h"
@@ -282,6 +283,9 @@ const char LOW_BUILD_PRIORITY_SETTINGS_KEY[] = "ProjectExplorer/Settings/LowBuil
 const char SEPARATE_DEBUG_INFO_SETTINGS_KEY[] = "ProjectExplorer/Settings/SeparateDebugInfo";
 const char QML_DEBUGGING_SETTINGS_KEY[] = "ProjectExplorer/Settings/QmlDebugging";
 const char QT_QUICK_COMPILER_SETTINGS_KEY[] = "ProjectExplorer/Settings/QtQuickCompiler";
+
+const char CUSTOM_PARSER_COUNT_KEY[] = "ProjectExplorer/Settings/CustomParserCount";
+const char CUSTOM_PARSER_PREFIX_KEY[] = "ProjectExplorer/Settings/CustomParser";
 
 } // namespace Constants
 
@@ -551,6 +555,7 @@ public:
     MiniProjectTargetSelector * m_targetSelector;
     ProjectExplorerSettings m_projectExplorerSettings;
     BuildPropertiesSettings m_buildPropertiesSettings;
+    QList<Internal::CustomParserSettings> m_customParsers;
     bool m_shouldHaveRunConfiguration = false;
     bool m_shuttingDown = false;
     Core::Id m_runMode = Constants::NO_RUN_MODE;
@@ -631,6 +636,7 @@ public:
     CompileOutputSettingsPage m_compileOutputSettingsPage;
     DeviceSettingsPage m_deviceSettingsPage;
     SshSettingsPage m_sshSettingsPage;
+    CustomParsersSettingsPage m_customParsersSettingsPage;
 
     ProjectTreeWidgetFactory m_projectTreeFactory;
     FolderNavigationWidgetFactory m_folderNavigationWidgetFactory;
@@ -816,6 +822,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         return new ProjectEnvironmentWidget(project);
     });
     ProjectPanelFactory::registerFactory(panelFactory);
+
+    RunConfiguration::registerAspect<CustomParsersAspect>();
 
     // context menus
     ActionContainer *msessionContextMenu =
@@ -1547,6 +1555,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_buildPropertiesSettings.qtQuickCompiler
             = loadTriStateValue(Constants::QT_QUICK_COMPILER_SETTINGS_KEY);
 
+    const int customParserCount = s->value(Constants::CUSTOM_PARSER_COUNT_KEY).toInt();
+    for (int i = 0; i < customParserCount; ++i) {
+        CustomParserSettings settings;
+        settings.fromMap(s->value(Constants::CUSTOM_PARSER_PREFIX_KEY
+                                  + QString::number(i)).toMap());
+        dd->m_customParsers << settings;
+    }
+
     auto buildManager = new BuildManager(this, dd->m_cancelBuildAction);
     connect(buildManager, &BuildManager::buildStateChanged,
             dd, &ProjectExplorerPluginPrivate::updateActions);
@@ -2181,6 +2197,12 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
                 dd->m_buildPropertiesSettings.qmlDebugging.toVariant());
     s->setValue(Constants::QT_QUICK_COMPILER_SETTINGS_KEY,
                 dd->m_buildPropertiesSettings.qtQuickCompiler.toVariant());
+
+    s->setValue(Constants::CUSTOM_PARSER_COUNT_KEY, dd->m_customParsers.count());
+    for (int i = 0; i < dd->m_customParsers.count(); ++i) {
+        s->setValue(Constants::CUSTOM_PARSER_PREFIX_KEY + QString::number(i),
+                    dd->m_customParsers.at(i).toMap());
+    }
 }
 
 void ProjectExplorerPlugin::openProjectWelcomePage(const QString &fileName)
@@ -3867,6 +3889,19 @@ const BuildPropertiesSettings &ProjectExplorerPlugin::buildPropertiesSettings()
 void ProjectExplorerPlugin::showQtSettings()
 {
     dd->m_buildPropertiesSettings.showQtSettings = true;
+}
+
+void ProjectExplorerPlugin::setCustomParsers(const QList<CustomParserSettings> &settings)
+{
+    if (dd->m_customParsers != settings) {
+        dd->m_customParsers = settings;
+        emit m_instance->customParsersChanged();
+    }
+}
+
+const QList<CustomParserSettings> ProjectExplorerPlugin::customParsers()
+{
+    return dd->m_customParsers;
 }
 
 QStringList ProjectExplorerPlugin::projectFilePatterns()

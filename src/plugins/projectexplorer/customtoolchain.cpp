@@ -30,7 +30,7 @@
 #include "linuxiccparser.h"
 #include "msvcparser.h"
 #include "customparser.h"
-#include "customparserconfigdialog.h"
+#include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectmacro.h"
 #include "toolchainmanager.h"
@@ -41,12 +41,12 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
-#include <QFormLayout>
-#include <QPlainTextEdit>
-#include <QLineEdit>
-#include <QHBoxLayout>
 #include <QComboBox>
-#include <QPushButton>
+#include <QFormLayout>
+#include <QHBoxLayout>
+#include <QLineEdit>
+#include <QPlainTextEdit>
+#include <QUuid>
 
 using namespace Utils;
 
@@ -64,18 +64,6 @@ static const char headerPathsKeyC[] = "ProjectExplorer.CustomToolChain.HeaderPat
 static const char cxx11FlagsKeyC[] = "ProjectExplorer.CustomToolChain.Cxx11Flags";
 static const char mkspecsKeyC[] = "ProjectExplorer.CustomToolChain.Mkspecs";
 static const char outputParserKeyC[] = "ProjectExplorer.CustomToolChain.OutputParser";
-static const char errorPatternKeyC[] = "ProjectExplorer.CustomToolChain.ErrorPattern";
-static const char errorLineNumberCapKeyC[] = "ProjectExplorer.CustomToolChain.ErrorLineNumberCap";
-static const char errorFileNameCapKeyC[] = "ProjectExplorer.CustomToolChain.ErrorFileNameCap";
-static const char errorMessageCapKeyC[] = "ProjectExplorer.CustomToolChain.ErrorMessageCap";
-static const char errorChannelKeyC[] = "ProjectExplorer.CustomToolChain.ErrorChannel";
-static const char errorExampleKeyC[] = "ProjectExplorer.CustomToolChain.ErrorExample";
-static const char warningPatternKeyC[] = "ProjectExplorer.CustomToolChain.WarningPattern";
-static const char warningLineNumberCapKeyC[] = "ProjectExplorer.CustomToolChain.WarningLineNumberCap";
-static const char warningFileNameCapKeyC[] = "ProjectExplorer.CustomToolChain.WarningFileNameCap";
-static const char warningMessageCapKeyC[] = "ProjectExplorer.CustomToolChain.WarningMessageCap";
-static const char warningChannelKeyC[] = "ProjectExplorer.CustomToolChain.WarningChannel";
-static const char warningExampleKeyC[] = "ProjectExplorer.CustomToolChain.WarningExample";
 
 // --------------------------------------------------------------------------
 // CustomToolChain
@@ -86,6 +74,14 @@ CustomToolChain::CustomToolChain() :
     m_outputParserId(GccParser::id())
 {
     setTypeDisplayName(tr("Custom"));
+}
+
+Internal::CustomParserSettings CustomToolChain::customParserSettings() const
+{
+    return findOrDefault(ProjectExplorerPlugin::customParsers(),
+                         [this](const Internal::CustomParserSettings &s) {
+        return s.id == outputParserId();
+    });
 }
 
 Abi CustomToolChain::targetAbi() const
@@ -206,8 +202,7 @@ QList<Utils::OutputLineParser *> CustomToolChain::createOutputParsers() const
         return LinuxIccParser::iccParserSuite();
     if (m_outputParserId == MsvcParser::id())
         return {new MsvcParser};
-    if (m_outputParserId == CustomParser::id())
-        return {new CustomParser(m_customParserSettings)};
+    return {new Internal::CustomParser(customParserSettings())};
     return {};
 }
 
@@ -293,18 +288,6 @@ QVariantMap CustomToolChain::toMap() const
     data.insert(QLatin1String(cxx11FlagsKeyC), m_cxx11Flags);
     data.insert(QLatin1String(mkspecsKeyC), mkspecs());
     data.insert(QLatin1String(outputParserKeyC), m_outputParserId.toSetting());
-    data.insert(QLatin1String(errorPatternKeyC), m_customParserSettings.error.pattern());
-    data.insert(QLatin1String(errorFileNameCapKeyC), m_customParserSettings.error.fileNameCap());
-    data.insert(QLatin1String(errorLineNumberCapKeyC), m_customParserSettings.error.lineNumberCap());
-    data.insert(QLatin1String(errorMessageCapKeyC), m_customParserSettings.error.messageCap());
-    data.insert(QLatin1String(errorChannelKeyC), m_customParserSettings.error.channel());
-    data.insert(QLatin1String(errorExampleKeyC), m_customParserSettings.error.example());
-    data.insert(QLatin1String(warningPatternKeyC), m_customParserSettings.warning.pattern());
-    data.insert(QLatin1String(warningFileNameCapKeyC), m_customParserSettings.warning.fileNameCap());
-    data.insert(QLatin1String(warningLineNumberCapKeyC), m_customParserSettings.warning.lineNumberCap());
-    data.insert(QLatin1String(warningMessageCapKeyC), m_customParserSettings.warning.messageCap());
-    data.insert(QLatin1String(warningChannelKeyC), m_customParserSettings.warning.channel());
-    data.insert(QLatin1String(warningExampleKeyC), m_customParserSettings.warning.example());
 
     return data;
 }
@@ -323,20 +306,48 @@ bool CustomToolChain::fromMap(const QVariantMap &data)
     m_cxx11Flags = data.value(QLatin1String(cxx11FlagsKeyC)).toStringList();
     setMkspecs(data.value(QLatin1String(mkspecsKeyC)).toString());
     setOutputParserId(Core::Id::fromSetting(data.value(QLatin1String(outputParserKeyC))));
-    m_customParserSettings.error.setPattern(data.value(QLatin1String(errorPatternKeyC)).toString());
-    m_customParserSettings.error.setFileNameCap(data.value(QLatin1String(errorFileNameCapKeyC)).toInt());
-    m_customParserSettings.error.setLineNumberCap(data.value(QLatin1String(errorLineNumberCapKeyC)).toInt());
-    m_customParserSettings.error.setMessageCap(data.value(QLatin1String(errorMessageCapKeyC)).toInt());
-    m_customParserSettings.error.setChannel(
-                static_cast<CustomParserExpression::CustomParserChannel>(data.value(QLatin1String(errorChannelKeyC)).toInt()));
-    m_customParserSettings.error.setExample(data.value(QLatin1String(errorExampleKeyC)).toString());
-    m_customParserSettings.warning.setPattern(data.value(QLatin1String(warningPatternKeyC)).toString());
-    m_customParserSettings.warning.setFileNameCap(data.value(QLatin1String(warningFileNameCapKeyC)).toInt());
-    m_customParserSettings.warning.setLineNumberCap(data.value(QLatin1String(warningLineNumberCapKeyC)).toInt());
-    m_customParserSettings.warning.setMessageCap(data.value(QLatin1String(warningMessageCapKeyC)).toInt());
-    m_customParserSettings.warning.setChannel(
-                static_cast<CustomParserExpression::CustomParserChannel>(data.value(QLatin1String(warningChannelKeyC)).toInt()));
-    m_customParserSettings.warning.setExample(data.value(QLatin1String(warningExampleKeyC)).toString());
+
+    // Restore Pre-4.13 settings.
+    if (outputParserId() == Internal::CustomParser::id()) {
+        Internal::CustomParserSettings customParserSettings;
+        customParserSettings.error.setPattern(
+                    data.value("ProjectExplorer.CustomToolChain.ErrorPattern").toString());
+        customParserSettings.error.setFileNameCap(
+                    data.value("ProjectExplorer.CustomToolChain.ErrorLineNumberCap").toInt());
+        customParserSettings.error.setLineNumberCap(
+                    data.value("ProjectExplorer.CustomToolChain.ErrorFileNameCap").toInt());
+        customParserSettings.error.setMessageCap(
+                    data.value("ProjectExplorer.CustomToolChain.ErrorMessageCap").toInt());
+        customParserSettings.error.setChannel(
+                    static_cast<Internal::CustomParserExpression::CustomParserChannel>(
+                        data.value("ProjectExplorer.CustomToolChain.ErrorChannel").toInt()));
+        customParserSettings.error.setExample(
+                    data.value("ProjectExplorer.CustomToolChain.ErrorExample").toString());
+        customParserSettings.warning.setPattern(
+                    data.value("ProjectExplorer.CustomToolChain.WarningPattern").toString());
+        customParserSettings.warning.setFileNameCap(
+                    data.value("ProjectExplorer.CustomToolChain.WarningLineNumberCap").toInt());
+        customParserSettings.warning.setLineNumberCap(
+                    data.value("ProjectExplorer.CustomToolChain.WarningFileNameCap").toInt());
+        customParserSettings.warning.setMessageCap(
+                    data.value("ProjectExplorer.CustomToolChain.WarningMessageCap").toInt());
+        customParserSettings.warning.setChannel(
+                    static_cast<Internal::CustomParserExpression::CustomParserChannel>(
+                        data.value("ProjectExplorer.CustomToolChain.WarningChannel").toInt()));
+        customParserSettings.warning.setExample(
+                    data.value("ProjectExplorer.CustomToolChain.WarningExample").toString());
+        if (!customParserSettings.error.pattern().isEmpty()
+                || !customParserSettings.error.pattern().isEmpty()) {
+            // Found custom parser in old settings, move to new place.
+            customParserSettings.id = Core::Id::fromString(QUuid::createUuid().toString());
+            setOutputParserId(customParserSettings.id);
+            customParserSettings.displayName = tr("Parser for toolchain %1").arg(displayName());
+            QList<Internal::CustomParserSettings> settings
+                    = ProjectExplorerPlugin::customParsers();
+            settings << customParserSettings;
+            ProjectExplorerPlugin::setCustomParsers(settings);
+        }
+    }
 
     return true;
 }
@@ -367,19 +378,6 @@ void CustomToolChain::setOutputParserId(Core::Id parserId)
     toolChainUpdated();
 }
 
-CustomParserSettings CustomToolChain::customParserSettings() const
-{
-    return m_customParserSettings;
-}
-
-void CustomToolChain::setCustomParserSettings(const CustomParserSettings &settings)
-{
-    if (m_customParserSettings == settings)
-        return;
-    m_customParserSettings = settings;
-    toolChainUpdated();
-}
-
 QList<CustomToolChain::Parser> CustomToolChain::parsers()
 {
     QList<CustomToolChain::Parser> result;
@@ -387,8 +385,6 @@ QList<CustomToolChain::Parser> CustomToolChain::parsers()
     result.append({ClangParser::id(),    tr("Clang")});
     result.append({LinuxIccParser::id(), tr("ICC")});
     result.append({MsvcParser::id(),     tr("MSVC")});
-    result.append({CustomParser::id(),   tr("Custom")});
-
     return result;
 }
 
@@ -472,14 +468,15 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
     m_headerDetails(new TextEditDetailsWidget(m_headerPaths)),
     m_cxx11Flags(new QLineEdit),
     m_mkspecs(new QLineEdit),
-    m_errorParserComboBox(new QComboBox),
-    m_customParserSettingsButton(new QPushButton(tr("Custom Parser Settings...")))
+    m_errorParserComboBox(new QComboBox)
 {
     Q_ASSERT(tc);
 
     const QList<CustomToolChain::Parser> parsers = CustomToolChain::parsers();
     for (const auto &parser : parsers)
         m_errorParserComboBox->addItem(parser.displayName, parser.parserId.toString());
+    for (const Internal::CustomParserSettings &s : ProjectExplorerPlugin::customParsers())
+        m_errorParserComboBox->addItem(s.displayName, s.id.toString());
 
     auto parserLayoutWidget = new QWidget;
     auto parserLayout = new QHBoxLayout(parserLayoutWidget);
@@ -503,7 +500,6 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
     m_mainLayout->addRow(tr("C++11 &flags:"), m_cxx11Flags);
     m_mainLayout->addRow(tr("&Qt mkspecs:"), m_mkspecs);
     parserLayout->addWidget(m_errorParserComboBox);
-    parserLayout->addWidget(m_customParserSettingsButton);
     m_mainLayout->addRow(tr("&Error parser:"), parserLayoutWidget);
     addErrorLabel();
 
@@ -522,8 +518,6 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
     connect(m_mkspecs, &QLineEdit::textChanged, this, &ToolChainConfigWidget::dirty);
     connect(m_errorParserComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &CustomToolChainConfigWidget::errorParserChanged);
-    connect(m_customParserSettingsButton, &QAbstractButton::clicked,
-            this, &CustomToolChainConfigWidget::openCustomParserSettingsDialog);
     errorParserChanged();
 }
 
@@ -538,21 +532,7 @@ void CustomToolChainConfigWidget::updateSummaries()
 
 void CustomToolChainConfigWidget::errorParserChanged(int )
 {
-    const auto currentId = Core::Id::fromSetting(m_errorParserComboBox->currentData());
-    m_customParserSettingsButton->setEnabled(currentId == CustomParser::id());
     emit dirty();
-}
-
-void CustomToolChainConfigWidget::openCustomParserSettingsDialog()
-{
-    CustomParserConfigDialog dialog;
-    dialog.setSettings(m_customParserSettings);
-
-    if (dialog.exec() == QDialog::Accepted) {
-        m_customParserSettings = dialog.settings();
-        if (dialog.isDirty())
-            emit dirty();
-    }
 }
 
 void CustomToolChainConfigWidget::applyImpl()
@@ -577,7 +557,6 @@ void CustomToolChainConfigWidget::applyImpl()
     tc->setMkspecs(m_mkspecs->text());
     tc->setDisplayName(displayName); // reset display name
     tc->setOutputParserId(Core::Id::fromSetting(m_errorParserComboBox->currentData()));
-    tc->setCustomParserSettings(m_customParserSettings);
 
     setFromToolchain(); // Refresh with actual data from the toolchain. This shows what e.g. the
                         // macro parser did with the input.
@@ -600,7 +579,6 @@ void CustomToolChainConfigWidget::setFromToolchain()
     m_mkspecs->setText(tc->mkspecs());
     int index = m_errorParserComboBox->findData(tc->outputParserId().toSetting());
     m_errorParserComboBox->setCurrentIndex(index);
-    m_customParserSettings = tc->customParserSettings();
 }
 
 bool CustomToolChainConfigWidget::isDirtyImpl() const
@@ -614,8 +592,7 @@ bool CustomToolChainConfigWidget::isDirtyImpl() const
             || m_headerDetails->entries() != tc->headerPathsList()
             || m_cxx11Flags->text().split(QLatin1Char(',')) != tc->cxx11Flags()
             || m_mkspecs->text() != tc->mkspecs()
-            || Core::Id::fromSetting(m_errorParserComboBox->currentData()) == tc->outputParserId()
-            || m_customParserSettings != tc->customParserSettings();
+            || Core::Id::fromSetting(m_errorParserComboBox->currentData()) == tc->outputParserId();
 }
 
 void CustomToolChainConfigWidget::makeReadOnlyImpl()

@@ -136,8 +136,6 @@ public:
     bool isConfigured() const { return checkForIssues().isEmpty(); }
     virtual Tasks checkForIssues() const { return {}; }
 
-    Utils::OutputFormatter *createOutputFormatter() const;
-
     using CommandLineGetter = std::function<Utils::CommandLine()>;
     void setCommandLineGetter(const CommandLineGetter &cmdGetter);
     Utils::CommandLine commandLine() const;

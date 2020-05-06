@@ -54,6 +54,7 @@ Project {
                 "customexecutablerunconfiguration.cpp", "customexecutablerunconfiguration.h",
                 "customparser.cpp", "customparser.h",
                 "customparserconfigdialog.cpp", "customparserconfigdialog.h", "customparserconfigdialog.ui",
+                "customparserssettingspage.cpp", "customparserssettingspage.h",
                 "customtoolchain.cpp", "customtoolchain.h",
                 "dependenciespanel.cpp", "dependenciespanel.h",
                 "deployablefile.cpp", "deployablefile.h",

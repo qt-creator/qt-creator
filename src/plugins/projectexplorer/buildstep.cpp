@@ -27,9 +27,11 @@
 
 #include "buildconfiguration.h"
 #include "buildsteplist.h"
+#include "customparser.h"
 #include "deployconfiguration.h"
 #include "kitinformation.h"
 #include "project.h"
+#include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "target.h"
 
@@ -263,6 +265,10 @@ QString BuildStep::fallbackWorkingDirectory() const
 
 void BuildStep::setupOutputFormatter(OutputFormatter *formatter)
 {
+    for (const Core::Id id : buildConfiguration()->customParsers()) {
+        if (Internal::CustomParser * const parser = Internal::CustomParser::createFromId(id))
+            formatter->addLineParser(parser);
+    }
     Utils::FileInProjectFinder fileFinder;
     fileFinder.setProjectDirectory(project()->projectDirectory());
     fileFinder.setProjectFiles(project()->files(Project::AllFiles));

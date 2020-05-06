@@ -39,7 +39,6 @@ QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
 class QTextEdit;
 class QComboBox;
-class QPushButton;
 QT_END_NAMESPACE
 
 namespace Utils { class PathChooser; }
@@ -108,12 +107,12 @@ public:
 
     Core::Id outputParserId() const;
     void setOutputParserId(Core::Id parserId);
-    CustomParserSettings customParserSettings() const;
-    void setCustomParserSettings(const CustomParserSettings &settings);
     static QList<CustomToolChain::Parser> parsers();
 
 private:
     CustomToolChain();
+
+    Internal::CustomParserSettings customParserSettings() const;
 
     Utils::FilePath m_compilerCommand;
     Utils::FilePath m_makeCommand;
@@ -125,7 +124,6 @@ private:
     QStringList m_mkspecs;
 
     Core::Id m_outputParserId;
-    CustomParserSettings m_customParserSettings;
 
     friend class Internal::CustomToolChainFactory;
     friend class ToolChainFactory;
@@ -155,7 +153,6 @@ public:
 private:
     void updateSummaries();
     void errorParserChanged(int index = -1);
-    void openCustomParserSettingsDialog();
 
 protected:
     void applyImpl() override;
@@ -175,9 +172,6 @@ protected:
     QLineEdit *m_cxx11Flags;
     QLineEdit *m_mkspecs;
     QComboBox *m_errorParserComboBox;
-    QPushButton *m_customParserSettingsButton;
-
-    CustomParserSettings m_customParserSettings;
 };
 
 } // namespace Internal
