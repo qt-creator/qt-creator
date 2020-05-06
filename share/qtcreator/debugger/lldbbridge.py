@@ -1707,7 +1707,8 @@ class Dumper(DumperBase):
 
     def activateFrame(self, args):
         self.reportToken(args)
-        self.currentThread().SetSelectedFrame(args['index'])
+        frame = max(0, int(args['index'])) # Can be -1 in all-asm stacks
+        self.currentThread().SetSelectedFrame(frame)
         self.reportResult('', args)
 
     def selectThread(self, args):
