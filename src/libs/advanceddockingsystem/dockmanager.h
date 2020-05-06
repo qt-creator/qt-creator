@@ -232,7 +232,7 @@ public:
     virtual ~DockManager() override;
 
     /**
-     * This function returns the global configuration flags
+     * This function returns the global configuration flags.
      */
     static ConfigFlags configFlags();
 
@@ -244,13 +244,13 @@ public:
     static void setConfigFlags(const ConfigFlags flags);
 
     /**
-     * Set a certain config flag
+     * Set a certain config flag.
      * \see setConfigFlags()
      */
     static void setConfigFlag(eConfigFlag flag, bool on = true);
 
     /**
-     * Returns true if the given config flag is set
+     * Returns true if the given config flag is set.
      */
     static bool testConfigFlag(eConfigFlag flag);
 
@@ -263,7 +263,7 @@ public:
 
     /**
      * The distance the user needs to move the mouse with the left button
-     * hold down before a dock widget start floating
+     * hold down before a dock widget start floating.
      */
     static int startDragDistance();
 
@@ -319,35 +319,35 @@ public:
     /**
      * Searches for a registered doc widget with the given ObjectName
      * \return Return the found dock widget or nullptr if a dock widget with the
-     * given name is not registered
+     * given name is not registered.
      */
     DockWidget *findDockWidget(const QString &objectName) const;
 
     /**
-     * Remove the given Dock from the dock manager
+     * Remove the given DockWidget from the dock manager.
      */
     void removeDockWidget(DockWidget *dockWidget);
 
     /**
      * This function returns a readable reference to the internal dock
-     * widgets map so that it is possible to iterate over all dock widgets
+     * widgets map so that it is possible to iterate over all dock widgets.
      */
     QMap<QString, DockWidget *> dockWidgetsMap() const;
 
     /**
      * Returns the list of all active and visible dock containers
-     * Dock containers are the main dock manager and all floating widgets
+     * Dock containers are the main dock manager and all floating widgets.
      */
     const QList<DockContainerWidget *> dockContainers() const;
 
     /**
-     * Returns the list of all floating widgets
+     * Returns the list of all floating widgets.
      */
     const QList<FloatingDockContainer *> floatingWidgets() const;
 
     /**
      * This function always return 0 because the main window is always behind
-     * any floating widget
+     * any floating widget.
      */
     virtual unsigned int zOrderIndex() const override;
 
@@ -378,33 +378,33 @@ public:
 
 signals:
     /**
-     * This signal is emitted if the list of perspectives changed
+     * This signal is emitted if the list of workspaces changed.
      */
     void workspaceListChanged();
 
     /**
-     * This signal is emitted if perspectives have been removed
+     * This signal is emitted if workspaces have been removed.
      */
     void workspacesRemoved();
 
     /**
      * This signal is emitted, if the restore function is called, just before
      * the dock manager starts restoring the state.
-     * If this function is called, nothing has changed yet
+     * If this function is called, nothing has changed yet.
      */
     void restoringState();
 
     /**
      * This signal is emitted if the state changed in restoreState.
      * The signal is emitted if the restoreState() function is called or
-     * if the openWorkspace() function is called
+     * if the openWorkspace() function is called.
      */
     void stateRestored();
 
     /**
      * This signal is emitted, if the dock manager starts opening a
-     * perspective.
-     * Opening a perspective may take more than a second if there are
+     * workspace.
+     * Opening a workspace may take more than a second if there are
      * many complex widgets. The application may use this signal
      * to show some progress indicator or to change the mouse cursor
      * into a busy cursor.
@@ -413,7 +413,7 @@ signals:
 
     /**
      * This signal is emitted if the dock manager finished opening a
-     * perspective
+     * workspace.
      */
     void workspaceOpened(const QString &workspaceName);
 
@@ -432,8 +432,7 @@ signals:
     void dockAreaCreated(DockAreaWidget *dockArea);
 
     /**
-     * This signal is emitted just before the given dock widget is removed
-     * from the
+     * This signal is emitted just before removal of the given DockWidget.
      */
     void dockWidgetAboutToBeRemoved(DockWidget *dockWidget);
 
@@ -452,10 +451,13 @@ public:
     QString activeWorkspace() const;
     QString lastWorkspace() const;
     bool autoRestorLastWorkspace() const;
+    QString workspaceFileExtension() const;
     QStringList workspaces();
     QSet<QString> workspacePresets() const;
     QDateTime workspaceDateTime(const QString &workspace) const;
-    Utils::FilePath workspaceNameToFileName(const QString &workspaceName) const;
+    Utils::FilePath workspaceNameToFilePath(const QString &workspaceName) const;
+    QString fileNameToWorkspaceName(const QString &fileName) const;
+    QString workspaceNameToFileName(const QString &workspaceName) const;
 
     bool createWorkspace(const QString &workspace);
 
@@ -477,6 +479,9 @@ public:
 
     void setModeChangeState(bool value);
     bool isModeChangeState() const;
+
+    void importWorkspace(const QString &workspace);
+    void exportWorkspace(const QString &target, const QString &workspace);
 
 signals:
     void aboutToUnloadWorkspace(QString workspaceName);

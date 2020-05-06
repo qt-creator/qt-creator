@@ -106,17 +106,12 @@ namespace ADS
         DockManagerPrivate(DockManager *parent);
 
         /**
-         * Checks if the given data stream is a valid docking system state
-         * file.
-         */
-        bool checkFormat(const QByteArray &state, int version);
-
-        /**
-         * Restores the state
+         * Restores the state. If testing is set to true it will check if
+         * the given data stream is a valid docking system state file.
          */
         bool restoreStateFromXml(const QByteArray &state,
                                  int version,
-                                 bool testing = internal::restore);
+                                 bool testing = false);
 
         /**
          * Restore state
@@ -172,11 +167,6 @@ namespace ADS
         }
 
         return result;
-    }
-
-    bool DockManagerPrivate::checkFormat(const QByteArray &state, int version)
-    {
-        return restoreStateFromXml(state, version, internal::restoreTesting);
     }
 
     bool DockManagerPrivate::restoreStateFromXml(const QByteArray &state, int version, bool testing)
@@ -297,7 +287,8 @@ namespace ADS
     bool DockManagerPrivate::restoreState(const QByteArray &state, int version)
     {
         QByteArray currentState = state.startsWith("<?xml") ? state : qUncompress(state);
-        if (!checkFormat(currentState, version)) {
+        // Check the format of the given data stream
+        if (!restoreStateFromXml(currentState, version, true)) {
             qCInfo(adsLog) << "checkFormat: Error checking format!!!";
             return false;
         }
@@ -589,7 +580,7 @@ namespace ADS
             QMessageBox::warning(parentWidget(),
                                  tr("Cannot Save Workspace"),
                                  tr("Could not save workspace to file %1")
-                                     .arg(workspaceNameToFileName(d->m_workspaceName)
+                                     .arg(workspaceNameToFilePath(d->m_workspaceName)
                                               .toUserOutput()));
         }
 
@@ -613,6 +604,8 @@ namespace ADS
     const QString m_dirName = QLatin1String("workspaces");
     const QString m_fileExt = QLatin1String(".wrk"); // TODO
 
+    QString DockManager::workspaceFileExtension() const { return m_fileExt; }
+
     QStringList DockManager::workspaces()
     {
         if (d->m_workspaces.isEmpty() || d->m_workspaceListDirty) {
@@ -622,14 +615,13 @@ namespace ADS
             QDir workspaceDir(QFileInfo(d->m_settings->fileName()).path() + QLatin1Char('/')
                               + m_dirName);
             QFileInfoList workspaceFiles
-                = workspaceDir.entryInfoList(QStringList() << QLatin1String("*.wrk"),
+                = workspaceDir.entryInfoList(QStringList() << QLatin1Char('*') + m_fileExt,
                                              QDir::NoFilter,
                                              QDir::Time);
             for (const QFileInfo &fileInfo : workspaceFiles) {
-                QString filename = fileInfo.completeBaseName();
-                filename.replace("_", " ");
-                d->m_workspaceDateTimes.insert(filename, fileInfo.lastModified());
-                tmp.insert(filename);
+                QString workspaceName = fileNameToWorkspaceName(fileInfo.completeBaseName());
+                d->m_workspaceDateTimes.insert(workspaceName, fileInfo.lastModified());
+                tmp.insert(workspaceName);
             }
 
             d->m_workspaceListDirty = false;
@@ -643,13 +635,11 @@ namespace ADS
         if (d->m_workspacePresets.isEmpty()) {
             QDir workspacePresetsDir(d->m_workspacePresetsPath);
             QFileInfoList workspacePresetsFiles
-                = workspacePresetsDir.entryInfoList(QStringList() << QLatin1String("*.wrk"),
+                = workspacePresetsDir.entryInfoList(QStringList() << QLatin1Char('*') + m_fileExt,
                                                     QDir::NoFilter,
                                                     QDir::Time);
             for (const QFileInfo &fileInfo : workspacePresetsFiles) {
-                QString filename = fileInfo.completeBaseName();
-                filename.replace("_", " ");
-                d->m_workspacePresets.insert(filename);
+                d->m_workspacePresets.insert(fileNameToWorkspaceName(fileInfo.completeBaseName()));
             }
         }
         return d->m_workspacePresets;
@@ -660,13 +650,27 @@ namespace ADS
         return d->m_workspaceDateTimes.value(workspace);
     }
 
-    Utils::FilePath DockManager::workspaceNameToFileName(const QString &workspaceName) const
+    Utils::FilePath DockManager::workspaceNameToFilePath(const QString &workspaceName) const
     {
         QTC_ASSERT(d->m_settings, return {});
-        QString workspaceNameCopy = workspaceName;
         return Utils::FilePath::fromString(
             QFileInfo(d->m_settings->fileName()).path() + QLatin1Char('/') + m_dirName
-            + QLatin1Char('/') + workspaceNameCopy.replace(" ", "_") + QLatin1String(".wrk"));
+            + QLatin1Char('/') + workspaceNameToFileName(workspaceName));
+    }
+
+    QString DockManager::fileNameToWorkspaceName(const QString &fileName) const
+    {
+        QString copy = QFileInfo(fileName).baseName();
+        copy.replace("_", " ");
+        return copy;
+    }
+
+    QString DockManager::workspaceNameToFileName(const QString &workspaceName) const
+    {
+        QString copy = workspaceName;
+        copy.replace(" ", "_");
+        copy.append(m_fileExt);
+        return copy;
     }
 
     /**
@@ -686,7 +690,7 @@ namespace ADS
             QMessageBox::warning(parentWidget(),
                                  tr("Cannot Save Workspace"),
                                  tr("Could not save workspace to file %1")
-                                     .arg(workspaceNameToFileName(d->m_workspaceName)
+                                     .arg(workspaceNameToFilePath(d->m_workspaceName)
                                               .toUserOutput()));
         }
 
@@ -775,7 +779,7 @@ namespace ADS
             return false;
 
         // Remove corresponding workspace file
-        QFile fi(workspaceNameToFileName(workspace).toString());
+        QFile fi(workspaceNameToFilePath(workspace).toString());
         if (fi.exists()) {
             if (fi.remove()) {
                 d->m_workspaces.removeOne(workspace);
@@ -799,12 +803,12 @@ namespace ADS
         if (!d->m_workspaces.contains(original))
             return false;
 
-        QFile fi(workspaceNameToFileName(original).toString());
+        QFile fi(workspaceNameToFilePath(original).toString());
         // If the file does not exist, we can still clone
-        if (!fi.exists() || fi.copy(workspaceNameToFileName(clone).toString())) {
+        if (!fi.exists() || fi.copy(workspaceNameToFilePath(clone).toString())) {
             d->m_workspaces.insert(1, clone);
             d->m_workspaceDateTimes
-                .insert(clone, workspaceNameToFileName(clone).toFileInfo().lastModified());
+                .insert(clone, workspaceNameToFilePath(clone).toFileInfo().lastModified());
             emit workspaceListChanged();
             return true;
         }
@@ -825,17 +829,14 @@ namespace ADS
         if (!isWorkspacePreset(workspace))
             return false;
 
-        Utils::FilePath filename = workspaceNameToFileName(workspace);
+        Utils::FilePath fileName = workspaceNameToFilePath(workspace);
 
-        if (!QFile::remove(filename.toString()))
+        if (!QFile::remove(fileName.toString()))
             return false;
 
         QDir presetsDir(d->m_workspacePresetsPath);
-        QString presetName = workspace;
-        presetName.replace(" ", "_");
-        presetName.append(".wrk");
-
-        bool result = QFile::copy(presetsDir.filePath(presetName), filename.toString());
+        bool result = QFile::copy(presetsDir.filePath(workspaceNameToFileName(workspace)),
+                                  fileName.toString());
         if (result)
             d->m_workspaceDateTimes.insert(workspace, QDateTime::currentDateTime());
 
@@ -852,13 +853,89 @@ namespace ADS
         return d->m_modeChangeState;
     }
 
+    void DockManager::importWorkspace(const QString &workspace)
+    {
+        // Extract workspace name
+        QString workspaceName = fileNameToWorkspaceName(workspace);
+
+        // Check if the workspace is already contained in the list of workspaces. If that is the case
+        // add a counter to the workspace name.
+        if (workspaces().contains(workspaceName)) {
+            int i = 2;
+            QString copy;
+            do {
+                copy = workspaceName + QLatin1String(" (") + QString::number(i) + QLatin1Char(')');
+                ++i;
+            } while (workspaces().contains(copy));
+            workspaceName = copy;
+        }
+
+        QString fileName = workspaceNameToFileName(workspaceName);
+        QFile file(workspace);
+        if (!file.exists()) {
+            qCInfo(adsLog) << QString("File doesn't exist '%1'").arg(workspace);
+            return;
+        }
+
+        QDir workspaceDir(QFileInfo(d->m_settings->fileName()).path() + QLatin1Char('/') + m_dirName);
+
+        if (!file.copy(workspaceDir.filePath(fileName))) {
+            qCInfo(adsLog) << QString("Could not copy '%1' to '%2' error: %3").arg(
+                workspace, workspaceDir.filePath(fileName), file.errorString());
+        } else {
+            d->m_workspaces.insert(1, workspaceName);
+            d->m_workspaceDateTimes.insert(workspaceName,
+                                           workspaceNameToFilePath(workspaceName).toFileInfo().lastModified());
+            d->m_workspaceListDirty = true;
+            // After importing the workspace, update the workspace list
+            workspaces();
+            emit workspaceListChanged();
+        }
+    }
+
+    void DockManager::exportWorkspace(const QString &target, const QString &workspace)
+    {
+        // If we came this far the user decided that in case the target already exists to overwrite it.
+        // We first need to remove the existing file, otherwise QFile::copy() will fail.
+        QFileInfo targetFileInfo(target);
+
+        // Remove the file which supposed to be overwritten
+        if (targetFileInfo.exists()) {
+            QFile fi(targetFileInfo.absoluteFilePath());
+            if (!fi.remove()) {
+                qCInfo(adsLog) << QString("Couldn't remove '%1'").arg(targetFileInfo.absoluteFilePath());
+                return;
+            }
+        }
+
+        // Check if the target directory exists
+        if (!targetFileInfo.absoluteDir().exists()) {
+            qCInfo(adsLog) << QString("Directory doesn't exist '%1'").arg(targetFileInfo.dir().dirName());
+            return;
+        }
+
+        // Check if the workspace exists
+        Utils::FilePath workspaceFilePath = workspaceNameToFilePath(workspace);
+        if (!workspaceFilePath.exists()) {
+           qCInfo(adsLog) << QString("Workspace doesn't exist '%1'").arg(workspaceFilePath.toString());
+           return;
+        }
+
+        // Finally copy the workspace to the target
+        QFile workspaceFile(workspaceFilePath.toString());
+        if (!workspaceFile.copy(targetFileInfo.absoluteFilePath())) {
+            qCInfo(adsLog) << QString("Could not copy '%1' to '%2' error: %3").arg(
+                workspace, workspaceFilePath.toString(), workspaceFile.errorString());
+        }
+    }
+
     bool DockManager::write(const QString &workspace, const QByteArray &data, QString *errorString) const
     {
-        Utils::FilePath filename = workspaceNameToFileName(workspace);
+        Utils::FilePath fileName = workspaceNameToFilePath(workspace);
 
         QDir tmp;
-        tmp.mkpath(filename.toFileInfo().path());
-        Utils::FileSaver fileSaver(filename.toString(), QIODevice::Text);
+        tmp.mkpath(fileName.toFileInfo().path());
+        Utils::FileSaver fileSaver(fileName.toString(), QIODevice::Text);
         if (!fileSaver.hasError())
             fileSaver.write(data);
 
@@ -884,7 +961,7 @@ namespace ADS
     QByteArray DockManager::loadWorkspace(const QString &workspace) const
     {
         QByteArray data;
-        Utils::FilePath fileName = workspaceNameToFileName(workspace);
+        Utils::FilePath fileName = workspaceNameToFilePath(workspace);
         if (fileName.exists()) {
             QFile file(fileName.toString());
             if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -920,17 +997,14 @@ namespace ADS
         }
 
         for (const auto &preset : presets) {
-            QString filename = preset;
-            filename.replace(" ", "_");
-            filename.append(".wrk");
-
-            QString filePath = presetsDir.filePath(filename);
+            QString fileName = workspaceNameToFileName(preset);
+            QString filePath = presetsDir.filePath(fileName);
             QFile file(filePath);
 
             if (file.exists()) {
-                if (!file.copy(workspaceDir.filePath(filename))) {
+                if (!file.copy(workspaceDir.filePath(fileName))) {
                     qCInfo(adsLog) << QString("Could not copy '%1' to '%2' error: %3").arg(
-                        filePath, workspaceDir.filePath(filename), file.errorString());
+                        filePath, workspaceDir.filePath(fileName), file.errorString());
                 }
                 d->m_workspaceListDirty = true;
             }
