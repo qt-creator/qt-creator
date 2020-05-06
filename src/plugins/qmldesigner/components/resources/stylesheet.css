@@ -51,12 +51,12 @@ QLineEdit#itemLibrarySearchInput
 
   QComboBox QAbstractItemView {
      show-decoration-selected: 1; /* make the selection span the entire width of the view */
-	 background-color: #494949; /* sets background of the menu */
+     background-color: creatorTheme.DSpanelBackground; /* sets background of the menu */
      border: 1px solid black;
      margin: 0px; /* some spacing around the menu */
-     color: #cacaca;
-	 selection-background-color: #d2d2d2;
-	 selection-color: #404040;
+     color: creatorTheme.DStextColor;
+     selection-background-color: creatorTheme.DSinteraction;
+     selection-color: creatorTheme.DStextSelectedTextColor;
  }
 
 QTabWidget {
