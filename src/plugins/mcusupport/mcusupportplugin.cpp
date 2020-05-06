@@ -33,11 +33,15 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/infobar.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/kitmanager.h>
 
+#include <QTimer>
+
+using namespace Core;
 using namespace ProjectExplorer;
 
 namespace McuSupport {
@@ -90,7 +94,29 @@ void McuSupportPlugin::extensionsInitialized()
 
     connect(KitManager::instance(), &KitManager::kitsLoaded, [](){
         McuSupportOptions::removeOutdatedKits();
+        McuSupportPlugin::askUserAboutMcuSupportKitsSetup();
     });
+}
+
+void McuSupportPlugin::askUserAboutMcuSupportKitsSetup()
+{
+    const char setupMcuSupportKits[] = "SetupMcuSupportKits";
+
+    if (!ICore::infoBar()->canInfoBeAdded(setupMcuSupportKits)
+        || McuSupportOptions::qulDirFromSettings().isEmpty()
+        || !McuSupportOptions::existingKits(nullptr).isEmpty())
+        return;
+
+    InfoBarEntry info(
+                setupMcuSupportKits,
+                tr("Create Kits for Qt for MCUs? "
+                "To do it later, select Options > Devices > MCU."),
+                InfoBarEntry::GlobalSuppression::Enabled);
+    info.setCustomButtonInfo(tr("Create Kits for Qt for MCUs"), [setupMcuSupportKits] {
+        ICore::infoBar()->removeInfo(setupMcuSupportKits);
+        QTimer::singleShot(0, []() { ICore::showOptionsDialog(Constants::SETTINGS_ID); });
+    });
+    ICore::infoBar()->addInfo(info);
 }
 
 } // namespace Internal

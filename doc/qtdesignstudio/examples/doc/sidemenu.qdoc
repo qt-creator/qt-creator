@@ -1,0 +1,235 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \example SideMenu
+    \ingroup studioexamples
+
+    \title Side Menu
+    \brief Illustrates how to create reusable components and an animated menu
+    for applying effects.
+
+    \image sidemenu.png "Side menu example application"
+
+    \e {Side Menu} displays a menu bar and a side menu that slides open when
+    users click the menu icon. The appearance of the menu bar buttons changes
+    when users hover the cursor over them or select them.
+
+    Each button opens an image file. The side menu can be used to apply
+    \l {Qt Graphical Effects}{graphical effects}, such as hue, saturation,
+    and blur, to the images.
+
+    \section1 Creating Reusable Buttons
+
+    We select \uicontrol File > \uicontrol {New File or Project} >
+    \uicontrol {Files and Classes} > \uicontrol {Qt Quick Controls} >
+    \uicontrol {Custom Button} to create a reusable menu bar button
+    that we call \e CustomButton.
+
+    The button can have the following states: checked, hover, pressed, and
+    normal. We construct the button using different images for the button
+    background, frame, and front. We then add states in the \uicontrol States
+    view for each of the button states. In each state, we turn the visibility
+    of the appropriate images on or off in the button properties, to change
+    the appearance of the button.
+
+    \image sidemenu-custombutton-states.png "CustomButton QML type states"
+
+    To change the button text when the button state changes, we bind the
+    text property to the state of the button in the \uicontrol Properties view.
+    When \e control is selected in the \uicontrol Navigator, we select the
+    \uicontrol Settings menu for the \uicontrol Text property, and then select
+    \uicontrol {Set Binding}. In the \uicontrol {Binding Editor}, we set the
+    binding to \c control.state.
+
+    \image sidemenu-custombutton-property-bindings.png
+
+    We want the buttons to be checkable, so we set the
+    \l {AbstractButton::}{checkable} property to \c true.
+
+    We now select \uicontrol {Set when Condition} in the \uicontrol Settings menu
+    for the states to bind the properties to the states using \c when
+    conditions. First, we specify that a button instance enters the \e checked
+    state when the \l {AbstractButton::}{checked} property is set to \c true.
+    This is how the code will look in the \uicontrol {Text Editor}:
+
+    \quotefromfile SideMenu/CustomButton.qml
+    \skipto states: [
+    \printuntil when
+
+    We then bind the \e hover state to the \l {Control::}{hovered} property
+    being set to \c true, while the \c checked and
+    \l {AbstractButton::}{pressed} properties are set to \c false:
+
+    \dots
+    \skipto State {
+    \printuntil when
+
+    Finally, the button state is set to \e normal, when all the properties are
+    set to \c false:
+
+    \dots
+    \skipto State {
+    \printuntil when
+
+    We can now use CustomButton instances to create a menu bar.
+
+    \section1 Constructing a Menu Bar
+
+    We construct the menu bar in the \e {MainFile.ui.qml} file using the
+    \uicontrol {Form Editor}. The CustomButton type is listed in
+    \uicontrol Library > \uicontrol {QML Types} >
+    \uicontrol {My QML Components}. We drag and drop several instances of
+    the type to the \uicontrol {Form Editor} and enclose them in a RowLayout
+    type to lay them out as a menu bar.
+
+    \image sidemenu-menubar.png
+
+    We can change the properties of each CustomButton instance separately in
+    the \uicontrol Properties view. We want only one of the menu bar buttons
+    to be checked at any time, so that checking another button automatically
+    unchecks the previously checked one. Therefore, we set the
+    \l {AbstractButton::}{autoExclusive} property to \c true for all
+    button instances.
+
+    In addition, we set the \uicontrol Checked property to \c true for the
+    first button instance on the menu bar to make it appear selected.
+
+    We can now select the \inlineimage run_small.png "Run button"
+    (\uicontrol Run) button to run the application and test our menu bar.
+
+    \section1 Creating a Side Menu
+
+    We can now continue to create a side menu that slides open when users
+    click the burger menu. In the \uicontrol {Form Editor}, we use the
+    \l Text and \l Slider components to create separate submenus for each
+    set of effects we want to apply to the images. We use a background image
+    for the menu background and a BurgerMenu custom QML type for the burger
+    menu icon.
+
+    \image sidemenu-ui.png "SliderMenu type"
+
+    We add states to the \e {SideMenu.qml} file in the \uicontrol {Form Editor}.
+    When the application starts, the side menu is in the \e closed state, which
+    means that it is hidden. When users click the burger menu, the \c onClicked
+    signal handler triggers the transition to the \e opening state and runs an
+    animation. When the animation finishes, the side menu state changes to
+    \e open and the side menu is fully visible.
+
+    When users click the burger menu again, the state changes to \e closing and
+    another animation is run that closes the side menu. When the animation
+    finishes, the side menu returns to the \e closed state.
+
+    We select the \inlineimage plus.png
+    (\uicontrol Add) button in the \uicontrol States view to add the states:
+
+    \image sidemenu-states.png "Side menu states"
+
+    We then select the \inlineimage plus.png
+    button in the \uicontrol Timeline view to add animation
+    for transitions to the \e open and \e close states:
+
+    \image sidemenu-timeline-settings.png "Side menu timeline settings"
+
+    The closing animation is just the opening animation played backwards to
+    hide the side menu. We want the opening animation to be slower than the
+    closing animation, so we specify a shorter duration for the closing
+    animation. This does not affect the duration of the timeline itself.
+
+    We want to change the position of the outline and background images. To
+    start recording the transition from the closed state to the open state,
+    we select \e imageOutline in \uicontrol Navigator. We check that the
+    playhead is at frame 0, and then select the \inlineimage recordfill.png
+    (\uicontrol {Auto Key (K)}) button (or press \key k).
+
+    At frame 0, we set the X coordinate to -423 in \uicontrol Properties >
+    \uicontrol Geometry > \uicontrol Position. We then move the playhead
+    to frame 1000 and set the X coordinate to 0.
+
+    When we deselect the record button to stop recording the timeline, the
+    new timeline appears in the view.
+
+    \image sidemenu-timeline.png "Timeline view"
+
+    We then record the transition of the \e imageBackground image. At frame
+    0, we set the X coordinate to -424 again. We then move the playhead to
+    frame 400 and select \uicontrol {Insert Keyframe} in the \uicontrol Settings
+    menu of the X coordinate. We keep the value of the X coordinate -424. We
+    then move the playhead to frame 1000 and set the X coordinate to 0.
+
+    We select \inlineimage animation.png "Timeline Settings button"
+    to open the \uicontrol {Timeline Settings} dialog. In the
+    \uicontrol {Transitions to states} field, we select the state to
+    switch to when the animation finishes. In the lower part of the
+    dialog, we bind the states that don't have animations to fixed frames.
+
+    For more information about using the timeline, see \l {Creating Animations}.
+
+    \section1 Connecting the Burger Menu to Actions
+
+    In \e {SideMenu.qml}, we use connections to bind the action of clicking
+    the burger menu to the signal handler for triggering the opening or
+    closing animation, depending on the current state. We create the connections
+    in the \uicontrol Connections view.
+
+    \image sidemenu-connections.png
+
+    We use property changes to disable the burger menu until the animation
+    finishes and to hide and show the side menu:
+
+    \quotefromfile SideMenu/SideMenu.qml
+    \skipto State {
+    \printuntil },
+
+    The side menu is fully visible and accepts input only in the \e open state.
+
+    For more information about connecting objects to signals, see
+    \l {Connecting Objects to Signals}.
+
+    \section1 Applying Effects
+
+    We nest the effects in an effects stack and bind them to the \l Slider type
+    instances. The effects apply to all the images in the example application,
+    not just the currently open one.
+
+    We use property bindings to connect the controls in the slider menu to
+    \l {Qt Graphical Effects}{graphical effects}. To have access to the
+    properties from all the slider type instances, we export them as aliases
+    in \e SliderMenu.ui.qml. We select \uicontrol {Export Property as Alias}
+    in the \uicontrol Settings menu of the \uicontrol Value property in
+    \uicontrol Properties > \uicontrol Slider.
+
+    We use the \uicontrol {Form Editor} to create the effect stack in the
+    \e {EffectStack.qml} file:
+
+    \image sidemenu-effects-stack.png "Effects stack in the Navigator"
+
+    We use the \l Image type as the last item in the stack to display images
+    that we apply the effects to. We export the image source property as an
+    alias to be able to switch the image inside the stack.
+
+    For more information about the available Qt graphical effects, see
+    \l {Applying Visual Effects}.
+*/

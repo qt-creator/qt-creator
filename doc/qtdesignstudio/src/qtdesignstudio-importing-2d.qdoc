@@ -87,12 +87,11 @@
     The imported assets are displayed in the \uicontrol Assets tab in the
     \uicontrol Library as PNG images. The components that you specified in
     the design tool are displayed in the \uicontrol {My QML Components} tab,
-    as well as in the \uicontrol Project tab of the \uicontrol Navigator as
-    separate QML files.
+    as well as in the \uicontrol Projects view as separate QML files.
 
     \note The layer that was the bottom layer in the design tool becames the top
     layer in the \uicontrol Navigator to reflect the QML code model. You
-    can view the QML code in the \uicontrol {Text Editor} tab.
+    can view the QML code in the \uicontrol {Text Editor}.
 
     If asset importer conflicts, warnings, and errors are displayed in the
     \uicontrol {Asset Import} dialog while importing, fix the issues in

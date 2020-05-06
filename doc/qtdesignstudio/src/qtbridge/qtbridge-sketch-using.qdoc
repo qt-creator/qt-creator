@@ -93,7 +93,7 @@
     Place different parts of the UI, such as menus and pop-ups, on separate
     artboards to be able to export them as components or children and to
     import them as QML files and images that you can drag and drop to the
-    working area in \QDS Design mode while creating a UI.
+    \uicontrol {Form Editor} in \QDS Design mode while creating a UI.
 
     \section2 Using Layers and Groups
 

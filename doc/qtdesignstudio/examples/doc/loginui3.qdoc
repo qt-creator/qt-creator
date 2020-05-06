@@ -63,8 +63,8 @@
 
     To preview the changes that you make to the UI while you make
     them, select the \inlineimage live_preview.png
-    (\uicontrol {Show Live Preview}) button on the canvas toolbar
-    or press \key {Alt+P}.
+    (\uicontrol {Show Live Preview}) button on the \uicontrol {Form Editor}
+    toolbar or press \key {Alt+P}.
 
     To add the text field and a back button needed on the registration page:
 
@@ -81,7 +81,7 @@
         \li In the \uicontrol Placeholder field, set the placeholder text to
             \e {Verify password}.
         \li In the \uicontrol Text field, delete the default text to make the
-            placeholder text visible on the canvas.
+            placeholder text visible in the \uicontrol {Form Editor}.
         \li Drag and drop a PushButton type from the \uicontrol Library,
             \uicontrol {My QML Components} tab, to \e loginPage in the
             \uicontrol Navigator.
@@ -114,7 +114,7 @@
     \section1 Using States to Simulate Page Changes
 
     You will now add \l{Adding States}{states} to the UI to show and hide UI
-    components on the canvas:
+    components in the \uicontrol {Form Editor}:
 
     \list 1
         \li In the \uicontrol States view, select the \inlineimage plus.png
@@ -250,7 +250,7 @@
         \li Right-click \e loginButton in the \uicontrol Navigator and select
             \uicontrol {Go into Component} to open \e PushButton.ui.qml for
             editing in the Design mode.
-        \li Open the \uicontrol {Text Editor} tab.
+        \li Open the \uicontrol {Text Editor}.
         \li Edit the property values for the \e down state, to set the button
             text color to white and the background and border colors to
             darker shades of green by using the \c {Qt.darker()} function:

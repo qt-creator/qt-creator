@@ -1,0 +1,129 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \example EBikeDesign
+    \ingroup studioexamples
+
+    \title E-Bike Design
+    \brief Illustrates how to use the timeline and states to animate transitions
+    in an application.
+
+    \image ebikedesign.png "Standard screen"
+
+    \e {E-Bike Design} is a control center application for electric bikes.
+    The application contains a Standard screen that displays a speedometer,
+    a Trip screen that displays statistics about the current trip, and a
+    Navigator screen that displays a map.
+
+    The Trip and Navigator screens display a small animated speedometer that
+    the users can select to move back to the Standard screen.
+
+    \image ebikedesign-trip.png "Trip screen"
+
+    In the \e {Screen01.ui.qml} file, we place the screens in a row in the
+    following order from left to right: Trip, Standard, Navigator. We will
+    use states to show the appropriate screen in the viewport, and the timeline
+    to animate the transitions between and on the screens.
+
+    \section1 Using Timelines to Animate Transitions
+
+    We use the \uicontrol Timeline view to animate the transitions between
+    the screens in \e {Screen01.ui.qml}.
+
+    Our viewport contains 1000 frames, so we select the
+    \inlineimage plus.png "Plus button"
+    button to add a 5000-frame timeline to the root element.
+    We use the default values for all other fields.
+
+    To start recording the transitions between the Standard screen and the
+    Trip and Navigator screens on the timeline, we select \e screenCanvas in
+    the Design mode \uicontrol Navigator view. We check that the playhead is at
+    frame 0, and then select the \inlineimage recordfill.png
+    (\uicontrol {Auto Key (K)}) button (or press \key k).
+
+    \image ebikedesign-timeline.png "Timeline view"
+
+    At frame 0, we set the X coordinate to 0 in \uicontrol Properties >
+    \uicontrol Geometry > \uicontrol Position to display the Trip screen.
+    We then move the playhead to frame 1000 and set the X coordinate to
+    -1286 to display the Standard screen. We continue by moving the playhead
+    to frame 2000 and setting the X coordinate to -2560 to display the
+    Navigator screen. At frame 3000, we set the X coordinate back to -1268
+    to return to the Standard screen. Finally, at frame 4000, we set the X
+    coordinate to -19 to return to the Trip screen.
+
+    When we deselect the record button to stop recording the timeline, the
+    new timeline appears in the view.
+
+    When we select \e tripScreen in the \uicontrol Navigator, we can see the
+    properties of the TripScreen QML type that we can animate in the
+    \uicontrol Properties view.
+
+    \image ebikedesign-trip-properties.png "Properties view of the Trip type"
+
+    We set values for the \uicontrol Visibility,
+    \uicontrol Opacity, \uicontrol currentFrame, and \uicontrol Scale properties
+    to fade out the current screen when moving to another one and to make the
+    speedometer grow and shrink in size depending on its current position.
+
+    For more information about using the timeline, see \l {Creating Animations}.
+
+    \section1 Using States to Move Between Screens
+
+    We use the \uicontrol States view to determine the contents of the viewport.
+    The animations are run in a particular state or when moving from one state
+    to another.
+
+    \image ebikedesign-states.png "States view"
+
+    We create the states for displaying the Trip, Standard, and Navigation
+    screens by moving from viewport to viewport in \e Screen01.ui.qml and
+    clicking \inlineimage plus.png "Add button" in the \uicontrol States view
+    when the appropriate screen is displayed in the viewport.
+
+    We then create states for animations that are run when moving between the
+    screens: TripToStandard, StandardToNavigation, NavigationToStandard, and
+    StandardToTrip.
+
+    Finally, we create states for enlarging and shrinking the speedometer: Big,
+    ToBig, and FromBig.
+
+    We then return to the \uicontrol Timeline view and select
+    \inlineimage animation.png "Timeline Settings button"
+    to open the \uicontrol {Timeline Settings} dialog. We select
+    the \uicontrol Add button to create animations for each part
+    of the timeline. Therefore, the start and end frame of each
+    animation are important, whereas their duration is not.
+
+    \image ebikedesign-timeline-settings.png "Timeline Settings dialog"
+
+    We set the start and end frames for the transitions to states to match the
+    values of the X coordinate we set on the timeline.
+
+    In the \uicontrol {Transitions to states} field, we select the state to
+    switch to when the animation ends. In the lower part of the dialog, we
+    bind the states that don't have animations to fixed frames.
+*/

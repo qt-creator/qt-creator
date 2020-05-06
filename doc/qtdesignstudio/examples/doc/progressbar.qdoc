@@ -1,0 +1,237 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \example ProgressBar
+    \ingroup studioexamples
+
+    \title Progress Bar
+    \brief Illustrates how to use timelines to create an animated progress bar.
+
+    \image progressbar.png "Progress Bar example application"
+
+    \e {Progress Bar} animates rectangles and numbers using timelines.
+
+    \section1 Creating the Progress Bar
+
+    First, we create an empty Qt Quick project, as described in
+    \l {Creating Projects}. For the purposes of this example,
+    we call the project \e progressbar.
+
+    In this example, we use two overlapping rectangles and a text label to
+    create the progress bar. For another example of a progress bar, see the
+    \l [QtQuickControls2] {ProgressBar} in Qt Quick Controls.
+
+    In the Design mode, we drag and drop a \uicontrol Rectangle from the
+    \uicontrol Library to the \uicontrol {Form Editor} and modify its size
+    to create the background for the progress bar. We change its id to
+    \e background in the \uicontrol Properties view.
+
+    We want to be able to control the background rectangle and the text label
+    that was added by the project wizard, so we will use an \uicontrol Item
+    for that. We drag and drop the item from the \uicontrol Library to the
+    \uicontrol {Form Editor} and change its id to \e root in the
+    \uicontrol Properties view.
+
+    To make the background and text children of the item, we drag and drop them
+    to the item in the \uicontrol Navigator view. This enables us to use the anchor
+    buttons in \uicontrol Properties > \uicontrol Layout to anchor them to their
+    parent. We anchor the background to its parent on all edges, with a 30-pixel
+    margin at the top to leave space for the text. We then anchor the text to
+    the top of the item.
+
+    \image progressbar-rectangle.png "Progress bar background in the Form Editor"
+
+    We now drag and drop another rectangle on top of the background rectangle in
+    the \uicontrol Navigator and change its id to \e indicator in the properties.
+    We then anchor the left, top, and bottom of the indicator to its parent with
+    5-pixel margins. We leave the right side free, because its value needs to
+    change for the animation.
+
+    For more information about creating and positioning components, see
+    \l {Creating Components}.
+
+    \section1 Animating Progress Bar Elements
+
+    The text label will indicate the progress in numbers and changing color,
+    while the indicator rectangle will indicate it by getting wider and
+    changing color. To animate the label and indicator, we'll add timelines
+    in the \uicontrol Timeline view.
+
+    For more information about using the timeline, see \l {Creating Animations}.
+
+    \section2 Adding Color Animation
+
+    First, we add a color animation to the \e root item. We select the
+    \inlineimage plus.png
+    button to add a 100-frame timeline to root. You can use the default
+    values for all other fields.
+
+    \image progressbar-timeline-settings.png "Timeline settings"
+
+    To start recording a color animation on the timeline, we check that the
+    playhead is at frame 0 and then select the \inlineimage recordfill.png
+    (\uicontrol {Auto Key (K)}) button (or press \key k).
+
+    \image progressbar-timeline.png "Color animation timeline"
+
+    We then set the color at frame 0 to green (\e {#8de98d}) in
+    \uicontrol Properties > \uicontrol Text > \uicontrol {Text Color}.
+    We can either pick a color from the color selector or use the
+    \uicontrol {Set Binding} command in the \inlineimage submenu.png
+    (\uicontrol Settings) menu to open the \uicontrol {Binding Editor}.
+
+    We then move the playhead to frame 50 and set the text color to red
+    (\e {#de4f4f}). Finally, we move the playhead to frame 100 and set
+    the color to yellow (\e {#f0c861}).
+
+    When we deselect the record button to stop recording the timeline, the
+    new timeline appears in the view.
+
+    We can drag the playhead along the timeline to see the color animation.
+
+    \section2 Animating the Indicator
+
+    We select \e indicator in \uicontrol Navigator and then select the record
+    button again to animate the width of the indicator. At frame 0, we set the
+    width to 0 in \uicontrol Properties > \uicontrol Geometry > \uicontrol Size.
+    We then move the playhead to 100 frames and set the width to 590.
+
+    \image progressbar-timeline-indicator.png "Indicator timeline"
+
+    We will now copy the color animation from the text label to the indicator.
+    First, we right-click the text item in the \uicontrol Timeline view to open
+    a context menu and select \uicontrol {Copy All Keyframes from Item} to copy
+    the keyframe values we specified for the text label.
+
+    Next, we select the indicator in the \uicontrol Navigator, and then select
+    \uicontrol {Insert Keyframes for Item} to paste the keyframe
+    values to the indicator.
+
+    \image progressbar-timeline-indicator-color.png "Indicator timeline with color animation"
+
+    When we move the playhead, we can see that the color animation is also
+    applied to the indicator.
+
+    \section1 Creating a Reusable Component
+
+    We want the progress bar to be reusable, so we'll move it to a separate
+    QML file. To make sure that the component will contain the timeline, we
+    select \uicontrol {Filter Tree} in the \uicontrol Navigator, and then
+    deselect the \uicontrol {Show Only Visible Items} check box to show the
+    timeline item in the \uicontrol Navigator. We then move the timeline item
+    to \e root  to have it moved as a part of the root component.
+
+    Now we can right-click root to open a context menu and select
+    \uicontrol {Move Component into Separate File}. We can see the
+    properties that will be available from outside of the component.
+
+    \image progressbar-move-component.png "Move Component into Separate File dialog"
+
+    \section1 Exporting Properties
+
+    We now select the root component in the \uicontrol Navigator, and
+    then select \uicontrol {Go into Component} in the context menu to
+    open \e Root.qml in the \uicontrol {Form Editor}.
+
+    We want to be able to use the keyframe value as the value of the text label,
+    so we will export it as a property alias. We select \e timeline in the
+    \uicontrol Navigator and then \uicontrol Properties > \uicontrol Timeline >
+    \uicontrol {Current frame} > \uicontrol Settings >
+    \uicontrol {Export Property as Alias}.
+
+    \image progressbar-root-export-property.png "Export keyframe group as a property"
+
+    When we select \e root in the \uicontrol Navigator, we can see the
+    \e timelineCurrentFrame property in \uicontrol Connections
+    > \uicontrol Bindings. We double-click it to change its name
+    to \e progress.
+
+    \image progressbar-bindings-progress.png "Connections view Bindings tab"
+
+    We will bind some JavaScript to the value of the text label to turn
+    it into a running number that reflects the number of the keyframe on the
+    timeline. We select the text label in the \uicontrol Navigator, and then
+    select \uicontrol Properties > \uicontrol Text > \uicontrol {Set Binding}
+    to open the \uicontrol {Binding Editor}. We set
+    \c {Math.round(root.progress)} as the value of the text label.
+
+    When we move back to the top-level file, we can see that the number of the
+    current keyframe (0) is displayed as the value of the text label.
+
+    \section1 Animating Progress Bar Instances
+
+    We want to experiment with different start and end values and easing curves,
+    so we copy-paste the progress bar instance twice in the top-level file. We
+    use a column layout to lay out the progress bar instances.
+
+    We can now add timelines for each progress bar instance, with different
+    settings. We select the \inlineimage plus.png
+    button to add a 4000-frame timeline to the first progress bar instance
+    (\e root). We select the \uicontrol Continuous check box, so that the
+    animation will loop.
+
+    In \uicontrol Properties > \uicontrol Root, we can see the
+    \uicontrol progress property that we can animate. If we had
+    called the component and property something else, we would
+    see the names we gave them here.
+
+    With the playhead in the first frame, we select the record button and
+    give the \uicontrol progress property the initial value of \e 5. We then
+    move the playhead to frame 2000 and give it the value of \e 95. We
+    continue to the last frame and set the value back to \e 5 to have a
+    smooth looping animation.
+
+    When we select the \uicontrol {Show Live Preview} button on the
+    \uicontrol {Form Editor} toolbar, we see a running number and moving
+    progress indicator of the animated progress bar instance.
+
+    \image progressbar-animated.png
+
+    We now change the settings of the other two progress bar instances. We
+    make one of the indicators move from right to left by starting from frame
+    100. When all our progress bar instances have been animated, we'll continue
+    by specifying easing curves for them.
+
+    For more information about previewing UIs, see \l {Previewing}.
+
+    \section1 Specifying Easing Curves
+
+    We can add custom easing curves to every keyframe in the animations. First,
+    we select the keyframe to add the easing curve to, and then select
+    \uicontrol {Edit Easing Curve} in the context menu. We can select several
+    keyframes simultaneously if we want to use the same easing curve for them.
+
+    We select the easing curve in the \uicontrol {Easing Curve Editor}.
+
+    \image studio-easing-curve-editor.png "Easing Curve Editor"
+
+    When we apply easing curves to animations, the shape of the keyframe
+    marker changes from \inlineimage keyframe_linear_inactive.png
+    to \inlineimage keyframe_manualbezier_inactive.png
+    .
+
+    For more information, see \l{Editing Easing Curves}.
+*/
