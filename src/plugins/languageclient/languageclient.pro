@@ -17,6 +17,7 @@ HEADERS += \
     languageclientplugin.h \
     languageclientquickfix.h \
     languageclientsettings.h \
+    languageclientsymbolsupport.h \
     languageclientutils.h \
     locatorfilter.h \
     lsplogger.h \
@@ -37,6 +38,7 @@ SOURCES += \
     languageclientplugin.cpp \
     languageclientquickfix.cpp \
     languageclientsettings.cpp \
+    languageclientsymbolsupport.cpp \
     languageclientutils.cpp \
     locatorfilter.cpp \
     lsplogger.cpp \

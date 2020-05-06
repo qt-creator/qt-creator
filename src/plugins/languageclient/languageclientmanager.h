@@ -107,9 +107,6 @@ private:
     void documentClosed(Core::IDocument *document);
     void documentContentsSaved(Core::IDocument *document);
     void documentWillSave(Core::IDocument *document);
-    void findLinkAt(TextEditor::TextDocument *document, const QTextCursor &cursor,
-                    Utils::ProcessLinkCallback callback, const bool resolveTarget);
-    void findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor);
 
     void updateProject(ProjectExplorer::Project *project);
     void projectRemoved(ProjectExplorer::Project *project);

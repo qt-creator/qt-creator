@@ -42,6 +42,8 @@ QtcPlugin {
         "languageclientquickfix.h",
         "languageclientsettings.cpp",
         "languageclientsettings.h",
+        "languageclientsymbolsupport.cpp",
+        "languageclientsymbolsupport.h",
         "languageclientutils.cpp",
         "languageclientutils.h",
         "locatorfilter.cpp",

@@ -34,6 +34,7 @@
 #include "languageclienthoverhandler.h"
 #include "languageclientquickfix.h"
 #include "languageclientsettings.h"
+#include "languageclientsymbolsupport.h"
 
 #include <coreplugin/id.h>
 #include <coreplugin/messagemanager.h>
@@ -111,9 +112,9 @@ public:
                                  int charsAdded);
     void registerCapabilities(const QList<LanguageServerProtocol::Registration> &registrations);
     void unregisterCapabilities(const QList<LanguageServerProtocol::Unregistration> &unregistrations);
-    bool findLinkAt(LanguageServerProtocol::GotoDefinitionRequest &request);
-    bool findUsages(LanguageServerProtocol::FindReferencesRequest &request);
     void cursorPositionChanged(TextEditor::TextEditorWidget *widget);
+
+    SymbolSupport &symbolSupport();
 
     void requestCodeActions(const LanguageServerProtocol::DocumentUri &uri,
                             const QList<LanguageServerProtocol::Diagnostic> &diagnostics);
@@ -239,6 +240,7 @@ private:
     QHash<LanguageServerProtocol::DocumentUri, TextEditor::HighlightingResults> m_highlights;
     const ProjectExplorer::Project *m_project = nullptr;
     QSet<TextEditor::IAssistProcessor *> m_runningAssistProcessors;
+    SymbolSupport m_symbolSupport;
 };
 
 } // namespace LanguageClient

@@ -100,6 +100,7 @@ Client::Client(BaseClientInterface *clientInterface)
     , m_clientInterface(clientInterface)
     , m_documentSymbolCache(this)
     , m_hoverHandler(this)
+    , m_symbolSupport(this)
 {
     m_clientProviders.completionAssistProvider = new LanguageClientCompletionAssistProvider(this);
     m_clientProviders.functionHintProvider = new FunctionHintAssistProvider(this);
@@ -553,43 +554,6 @@ void Client::unregisterCapabilities(const QList<Unregistration> &unregistrations
     m_dynamicCapabilities.unregisterCapability(unregistrations);
 }
 
-template <typename Request>
-static bool sendTextDocumentPositionParamsRequest(Client *client,
-                                                  const Request &request,
-                                                  const DynamicCapabilities &dynamicCapabilities,
-                                                  const optional<bool> &serverCapability)
-{
-    if (!request.isValid(nullptr))
-        return false;
-    const DocumentUri uri = request.params().value().textDocument().uri();
-    const bool supportedFile = client->isSupportedUri(uri);
-    bool sendMessage = dynamicCapabilities.isRegistered(Request::methodName).value_or(false);
-    if (sendMessage) {
-        const TextDocumentRegistrationOptions option(dynamicCapabilities.option(Request::methodName));
-        if (option.isValid(nullptr))
-            sendMessage = option.filterApplies(FilePath::fromString(QUrl(uri).adjusted(QUrl::PreferLocalFile).toString()));
-        else
-            sendMessage = supportedFile;
-    } else {
-        sendMessage = serverCapability.value_or(sendMessage) && supportedFile;
-    }
-    if (sendMessage)
-        client->sendContent(request);
-    return sendMessage;
-}
-
-bool Client::findLinkAt(GotoDefinitionRequest &request)
-{
-    return LanguageClient::sendTextDocumentPositionParamsRequest(
-                this, request, m_dynamicCapabilities, m_serverCapabilities.definitionProvider());
-}
-
-bool Client::findUsages(FindReferencesRequest &request)
-{
-    return LanguageClient::sendTextDocumentPositionParamsRequest(
-                this, request, m_dynamicCapabilities, m_serverCapabilities.referencesProvider());
-}
-
 TextEditor::HighlightingResult createHighlightingResult(const SymbolInformation &info)
 {
     if (!info.isValid(nullptr))
@@ -650,6 +614,11 @@ void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
     });
     m_highlightRequests[uri] = request.id();
     sendContent(request);
+}
+
+SymbolSupport &Client::symbolSupport()
+{
+    return m_symbolSupport;
 }
 
 void Client::requestCodeActions(const DocumentUri &uri, const QList<Diagnostic> &diagnostics)
