@@ -220,6 +220,24 @@ static McuPackage *createMcuXpressoIdePackage()
     return result;
 }
 
+static McuPackage *createFreeRTOSSourcesPackage(const QString &envVarPrefix)
+{
+    const QString envVar = envVarPrefix + "_FREERTOS_DIR";
+
+    const QString defaultPath =
+            qEnvironmentVariableIsSet(envVar.toLatin1()) ?
+                qEnvironmentVariable(envVar.toLatin1()) : QDir::homePath();
+
+    auto result = new McuPackage(
+                QString::fromLatin1("FreeRTOS Sources (%1)").arg(envVarPrefix),
+                defaultPath,
+                {},
+                QString::fromLatin1("FreeRTOSSourcePackage_%1").arg(envVarPrefix));
+    result->setDownloadUrl("https://freertos.org");
+    result->setEnvironmentVariableName(envVar);
+    return result;
+}
+
 void hardcodedTargetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage *> *packages,
                                  QVector<McuTarget *> *mcuTargets)
 {
@@ -231,6 +249,9 @@ void hardcodedTargetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage 
     McuPackage* evkbImxrt1050SdkPackage = Sdk::createEvkbImxrt1050SdkPackage();
     McuPackage *mcuXpressoIdePackage = createMcuXpressoIdePackage();
     McuPackage *rglPackage = createRGLPackage();
+    McuPackage *freeRTOSSTM32F7Package = createFreeRTOSSourcesPackage("STM32F7");
+    McuPackage *freeRTOSIMXRT1050Package = createFreeRTOSSourcesPackage("IMXRT1050");
+    McuPackage *freeRTOSIMXRT1064Package = createFreeRTOSSourcesPackage("IMXRT1064");
 
     QVector<McuPackage*> stmEvalPackages = {
         armGccPackage, stm32CubeProgrammerPackage};
@@ -242,7 +263,8 @@ void hardcodedTargetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage 
     *packages = {
         armGccPackage, desktopToolChainPackage, ghsToolchainPackage,
         stm32CubeFwF7SdkPackage, stm32CubeProgrammerPackage, evkbImxrt1050SdkPackage,
-        mcuXpressoIdePackage, rglPackage};
+        mcuXpressoIdePackage, rglPackage,
+        freeRTOSSTM32F7Package, freeRTOSIMXRT1050Package, freeRTOSIMXRT1064Package};
 
     const QString vendorStm = "STM";
     const QString vendorNxp = "NXP";
@@ -254,33 +276,58 @@ void hardcodedTargetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage 
         const QString qulPlatform;
         const QVector<McuPackage*> &packages;
         McuToolChainPackage *toolchainPackage;
+        McuPackage *freeRTOSPackage;
         const QVector<int> colorDepths;
     } targets[] = {
-        {vendorNxp, {"MIMXRT1050-EVK"}, nxpEvalPackages, armGccPackage, {16}},
-        {vendorNxp, {"MIMXRT1064-EVK"}, nxpEvalPackages, armGccPackage, {16}},
-        {vendorQt, {"Qt"}, desktopPackages, desktopToolChainPackage, {32}},
-        {vendorRenesas, {"RH850-D1M1A"}, renesasEvalPackages, ghsToolchainPackage, {32}},
-        {vendorStm, {"STM32F469I-DISCOVERY"}, stmEvalPackages, armGccPackage, {24}},
-        {vendorStm, {"STM32F7508-DISCOVERY"}, stmEvalPackages, armGccPackage, {32, 16}},
-        {vendorStm, {"STM32F769I-DISCOVERY"}, stmEvalPackages, armGccPackage, {32}},
-        {vendorStm, {"STM32H750B-DISCOVERY"}, stmEvalPackages, armGccPackage, {32}},
-        {vendorStm, {"STM32L4R9I-DISCOVERY"}, stmEvalPackages, armGccPackage, {24}},
-        {vendorStm, {"STM32L4R9I-EVAL"}, stmEvalPackages, armGccPackage, {24}}
+        {vendorNxp, {"MIMXRT1050-EVK"}, nxpEvalPackages, armGccPackage,
+                freeRTOSIMXRT1050Package, {16}},
+        {vendorNxp, {"MIMXRT1064-EVK"}, nxpEvalPackages, armGccPackage,
+                freeRTOSIMXRT1064Package, {16}},
+        {vendorQt, {"Qt"}, desktopPackages, desktopToolChainPackage,
+                nullptr, {32}},
+        {vendorRenesas, {"RH850-D1M1A"}, renesasEvalPackages, ghsToolchainPackage,
+                nullptr, {32}},
+        {vendorStm, {"STM32F469I-DISCOVERY"}, stmEvalPackages, armGccPackage,
+                nullptr, {24}},
+        {vendorStm, {"STM32F7508-DISCOVERY"}, stmEvalPackages, armGccPackage,
+                freeRTOSSTM32F7Package, {32, 16}},
+        {vendorStm, {"STM32F769I-DISCOVERY"}, stmEvalPackages, armGccPackage,
+                freeRTOSSTM32F7Package, {32}},
+        {vendorStm, {"STM32H750B-DISCOVERY"}, stmEvalPackages, armGccPackage,
+                nullptr, {32}},
+        {vendorStm, {"STM32L4R9I-DISCOVERY"}, stmEvalPackages, armGccPackage,
+                nullptr, {24}},
+        {vendorStm, {"STM32L4R9I-EVAL"}, stmEvalPackages, armGccPackage,
+                nullptr, {24}}
     };
 
     const QString QulTargetTemplate =
             dir.toString() + "/lib/cmake/Qul/QulTargets/QulTargets_%1_%2.cmake";
-    for (auto target : targets) {
-        for (int colorDepth : target.colorDepths) {
-            const QString QulTarget =
-                    QulTargetTemplate.arg(target.qulPlatform, QString::number(colorDepth));
-            if (!Utils::FilePath::fromUserInput(QulTarget).exists())
-                continue;
-            auto mcuTarget = new McuTarget(target.vendor, target.qulPlatform, target.packages,
-                                           target.toolchainPackage);
-            if (target.colorDepths.count() > 1)
-                mcuTarget->setColorDepth(colorDepth);
-            mcuTargets->append(mcuTarget);
+    for (const auto target : targets) {
+        for (auto os : {McuTarget::OS::Desktop, McuTarget::OS::BareMetal,
+                        McuTarget::OS::FreeRTOS}) {
+            for (int colorDepth : target.colorDepths) {
+                QVector<McuPackage*> required3rdPartyPackages = target.packages;
+                if (os == McuTarget::OS::FreeRTOS) {
+                    if (target.freeRTOSPackage)
+                        required3rdPartyPackages.append(target.freeRTOSPackage);
+                    else
+                        continue;
+                } else if (os == McuTarget::OS::Desktop && target.toolchainPackage->type()
+                        != McuToolChainPackage::TypeDesktop) {
+                    continue;
+                }
+
+                const QString QulTarget =
+                        QulTargetTemplate.arg(target.qulPlatform, QString::number(colorDepth));
+                if (!Utils::FilePath::fromUserInput(QulTarget).exists())
+                    continue;
+                auto mcuTarget = new McuTarget(target.vendor, target.qulPlatform, os,
+                                               required3rdPartyPackages, target.toolchainPackage);
+                if (target.colorDepths.count() > 1)
+                    mcuTarget->setColorDepth(colorDepth);
+                mcuTargets->append(mcuTarget);
+            }
         }
     }
 }

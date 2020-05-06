@@ -49,6 +49,10 @@ if (NOT DEFINED add_qtc_plugin)
   include(\${CMAKE_CURRENT_LIST_DIR}/QtCreatorAPI.cmake)
 endif()
 
+if (NOT DEFINED add_translation_targets)
+  include(\${CMAKE_CURRENT_LIST_DIR}/QtCreatorTranslations.cmake)
+endif()
+
 if (NOT TARGET QtCreator::Core)
   include(\${CMAKE_CURRENT_LIST_DIR}/QtCreatorTargets.cmake)
 endif()
@@ -61,6 +65,7 @@ export(EXPORT QtCreator
 
 file(COPY
   ${PROJECT_SOURCE_DIR}/cmake/QtCreatorIDEBranding.cmake
+  ${PROJECT_SOURCE_DIR}/cmake/QtCreatorTranslations.cmake
   ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPI.cmake
   DESTINATION ${CMAKE_BINARY_DIR}/cmake
 )
@@ -69,6 +74,7 @@ file(COPY
 install(
   FILES
     ${PROJECT_SOURCE_DIR}/cmake/QtCreatorIDEBranding.cmake
+    ${PROJECT_SOURCE_DIR}/cmake/QtCreatorTranslations.cmake
     ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPI.cmake
     ${CMAKE_BINARY_DIR}/cmake/QtCreatorConfig.cmake
   DESTINATION lib/cmake/QtCreator

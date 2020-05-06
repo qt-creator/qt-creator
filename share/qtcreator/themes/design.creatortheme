@@ -4,85 +4,65 @@ PreferredStyles=Fusion
 DefaultTextEditorColorScheme=creator-dark.xml
 
 [Palette]
-
-;color for the mode toolbar, un-selected tabs, toolbars for each panel, scroll bar backgrounds and active tab panels, text for the non selected tabs.
-;shadowBackground=ff404244
 shadowBackground=ff191919
-
-
-;main text color
-;text=ffd0d0d0
 text=ffdadada
-
-;disabled text
 textDisabled=60a4a6a8
-
-;background for selected text
 selectedBackgroundText=aa1f75cc
-
-;icons, spinbox ticks,
-;toolBarItem=b6fbfdff
 toolBarItem=ffb3b3b3
-
-
-; all disabled icons and the separators between icons
-;toolBarItemDisabled=60a4a6a8
 toolBarItemDisabled=ff686868
-
-
-
-;text for dropdown selectors in the panel menus, file selection and text for all pop out panels such as issues, search results, etc.
 fancyBarsNormalTextColor=ffd0d0d0
-;fancyBarsNormalTextColor=ffd3299a
-
-
-
-;text for the mode sidebar menu.
 fancyBarsBoldTextColor=b6fbfdff
-;fancyBarsBoldTextColor=b6d3299a
-
-
-
-;also the color for the scroll bar handles and inside rectangle for the Type text box, and the working area timeline ruler.
-;also the background selection rectangle for icons and selection highlight for bounding box.
-;hoverBackground=22ffffff
 hoverBackground=ff404244
-
-
-
-;blended background color for controls 1 spinboxes, background selection square for snapping modes, publish as alias icon.
-;color for filter background and overwrite width and height boxes
-;selectedBackground=66000000
 selectedBackground=ff111111
-
-
-;background for default "open a document" screen in the edit mode,
-;normalBackground=ff2E2F30
 normalBackground=ff262728
-
-
-
-;not used anywhere i can see
 alternateBackground=ff353637
-
-
 error=ffdf4f4f
 warning=ffecbc1c
-
-
-;dividng lines between all the panels
-;splitter=ff06080A
 splitter=ff474747
-
-
-
-
-
 textColorLink=ff007af4
 textColorLinkVisited=ffa57aff
 backgroundColorDisabled=ff444444
 
+
+
+
 [Colors]
+;DS controls theme START
+DScontrolBackground=ff242424
+DScontrolOutline=ff404040
+DStextColor=ffffffff
+DSdisabledTextColor=ff909090
+DSpanelBackground=ff2a2a2a
+DShoverHighlight=ff313131
+DScolumnBackground=ff363636
+DSfocusEdit=ff444444
+DSfocusDrag=ff565656
+DScontrolBackgroundPressed=ff606060
+DScontrolBackgroundChecked=ff565656
+DSinteraction=ff0492c9
+DSsliderActiveTrack=ff606060
+DSsliderInactiveTrack=ff404040
+DSsliderHandle=ff505050
+DSsliderActiveTrackHover=ff7f7f7f
+DSsliderInactiveTrackHover=ff505050
+DSsliderHandleHover=ff606060
+DSsliderActiveTrackFocus=ffaaaaaa
+DSsliderInactiveTrackFocus=ff606060
+DSsliderHandleFocus=ff0492c9
+DSerrorColor=ffdf3a3a
+DScontrolBackgroundDisabled=ff363636
+DScontrolOutlineDisabled=ff404040
+DStextColorDisabled=ff606060
+DStextSelectionColor=ff0492c9
+DStextSelectedTextColor=ffffffff
+DSscrollBarTrack=ff404040
+DSscrollBarHandle=ff505050
+DScontrolBackgroundInteraction=ff404040
+DStranslationIndicatorBorder=ff7f7f7f
+DSsectionHeadBackground=ff191919
+DSchangedStateText=ff99ccff
+;DS controls theme END
+
 BackgroundColorAlternate=alternateBackground
 BackgroundColorDark=shadowBackground
 BackgroundColorHover=hoverBackground
@@ -267,8 +247,7 @@ QmlDesigner_BackgroundColor=ff4c4e50
 
 
 ; Design View selected items - Navigator Selection, Timeline Property Selection, TImeline bar, property text highlighted
-QmlDesigner_HighlightColor=ff3f91c4
-;QmlDesigner_HighlightColor=ffd3299a
+QmlDesigner_HighlightColor=ff0492c9
 
 
 
@@ -314,11 +293,9 @@ QmlDesigner_TabLight=text
 
 ;extra_new_colors
 
-; color for the form editor background
-;QmlDesigner_FormeditorBackgroundColor=qmlDesignerButtonColor
+
 QmlDesigner_FormeditorBackgroundColor=ff000000
 
-;QmlDesigner_AlternateBackgroundColor=qmlDesignerButtonColor
 QmlDesigner_AlternateBackgroundColor=ffc14fc1
 
 QmlDesigner_ScrollBarHandleColor=ff595b5c
@@ -361,7 +338,6 @@ PaletteBrightText=ffff3333
 ;PaletteBrightText=ffd3299a
 
 
-;
 ; text inside dropdown combo boxes, styles, connections.
 PaletteText=text
 ;PaletteText=ffd3299a
@@ -383,7 +359,6 @@ PaletteToolTipBase=selectedBackground
 
 ;the selection highlight on the dropdown combo box in the file selection top menu and connections panel and tab mode selector dropdowns
 PaletteHighlight=selectedBackgroundText
-;PaletteHighlight=ffd3299a
 
 
 ; outline of warning in editor mode, underline of "open a document" page in the edit mode

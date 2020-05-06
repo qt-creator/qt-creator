@@ -131,13 +131,20 @@ class McuTarget : public QObject
     Q_OBJECT
 
 public:
-    McuTarget(const QString &vendor, const QString &platform, const QVector<McuPackage *> &packages,
-              const McuToolChainPackage *toolChainPackage);
+    enum class OS {
+        Desktop,
+        BareMetal,
+        FreeRTOS
+    };
+
+    McuTarget(const QString &vendor, const QString &platform, OS os,
+              const QVector<McuPackage *> &packages, const McuToolChainPackage *toolChainPackage);
 
     QString vendor() const;
     QVector<McuPackage *> packages() const;
     const McuToolChainPackage *toolChainPackage() const;
     QString qulPlatform() const;
+    OS os() const;
     void setColorDepth(int colorDepth);
     int colorDepth() const;
     bool isValid() const;
@@ -145,6 +152,7 @@ public:
 private:
     const QString m_vendor;
     const QString m_qulPlatform;
+    const OS m_os = OS::BareMetal;
     const QVector<McuPackage*> m_packages;
     const McuToolChainPackage *m_toolChainPackage;
     int m_colorDepth = -1;

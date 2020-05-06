@@ -1658,7 +1658,7 @@ class DumperBase():
             #with self.timer('metaObjectType-' + self.currentIName):
             metaObjectPtr = extractStaticMetaObjectPtrFromType(typeobj)
 
-        if not metaObjectPtr:
+        if not metaObjectPtr and not self.isWindowsTarget():
             # measured: 200 ms (example had one level of inheritance)
             #with self.timer('metaObjectCall-' + self.currentIName):
             metaObjectPtr = extractMetaObjectPtrFromAddress()

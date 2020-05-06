@@ -1324,15 +1324,14 @@ static QVariant findOrRegisterDebugger(ToolChain *tc,
 
 void AndroidConfigurations::updateAutomaticKitList()
 {
-    const QList<Kit *> androidKits = Utils::filtered(KitManager::kits(), [](Kit *k) {
-        Core::Id deviceTypeId = DeviceTypeKitAspect::deviceTypeId(k);
-        return deviceTypeId == Core::Id(Constants::ANDROID_DEVICE_TYPE);
-    });
-
-    for (auto k: androidKits) {
-        if (k->value(Constants::ANDROID_KIT_NDK).isNull() || k->value(Constants::ANDROID_KIT_SDK).isNull()) {
-            k->setValueSilently(Constants::ANDROID_KIT_NDK, currentConfig().ndkLocation(QtSupport::QtKitAspect::qtVersion(k)).toString());
-            k->setValue(Constants::ANDROID_KIT_SDK, currentConfig().sdkLocation().toString());
+    for (Kit *k : KitManager::kits()) {
+        if (DeviceTypeKitAspect::deviceTypeId(k) == Constants::ANDROID_DEVICE_TYPE) {
+            if (k->value(Constants::ANDROID_KIT_NDK).isNull() || k->value(Constants::ANDROID_KIT_SDK).isNull()) {
+                if (BaseQtVersion *qt = QtKitAspect::qtVersion(k)) {
+                    k->setValueSilently(Constants::ANDROID_KIT_NDK, currentConfig().ndkLocation(qt).toString());
+                    k->setValue(Constants::ANDROID_KIT_SDK, currentConfig().sdkLocation().toString());
+                }
+            }
         }
     }
 

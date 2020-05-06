@@ -5,6 +5,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(FeatureSummary)
 include(QtCreatorIDEBranding)
+include(QtCreatorTranslations)
 
 set(IDE_REVISION FALSE CACHE BOOL "Marks the presence of IDE revision string.")
 set(IDE_REVISION_STR "" CACHE STRING "The IDE revision string.")

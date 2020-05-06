@@ -3,6 +3,7 @@ var File = require("qbs.File")
 var FileInfo = require("qbs.FileInfo")
 var MinimumLLVMVersion = "8.0.0" // CLANG-UPGRADE-CHECK: Adapt minimum version numbers.
 var Process = require("qbs.Process")
+var Utilities = require("qbs.Utilities")
 
 function readOutput(executable, args)
 {
@@ -108,6 +109,8 @@ function formattingLibs(llvmConfig, qtcFunctions, targetOS)
         return [];
 
     var clangVersion = version(llvmConfig)
+    if (Utilities.versionCompare(clangVersion, "10") >= 0)
+        return [];
     var libs = []
     if (qtcFunctions.versionIsAtLeast(clangVersion, MinimumLLVMVersion)) {
         if (qtcFunctions.versionIsAtLeast(clangVersion, "8.0.0")) {

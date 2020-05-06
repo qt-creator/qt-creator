@@ -45,24 +45,15 @@
     scene did not contain them, you can add the corresponding Qt Quick 3D
     types from the \uicontrol Library.
 
-    You can use the manipulator mode toolbar buttons (2) to show the move, rotate,
-    or scale manipulator in the rendered scene when an item is selected and
-    to determine what happens when you drag the selected item. Select the
-    \uicontrol {Toggle Local/Global Orientation} button (3) to determine whether
-    the manipulators affect only the local transforms of the item or whether
-    they transform with respect to the global space.
+    You can use the toolbar buttons (2) to show the \e transformation
+    gizmo in the \uicontrol {3D Editor} when an item is selected
+    and to determine what happens when you drag the selected item.
+    Transformation refers to moving, rotating, or scaling of an object.
+    Select the \uicontrol {Toggle Local/Global Orientation} button (3) to
+    determine whether the gizmos affect only the local transformations of the
+    item or whether they transform with respect to the global space.
 
     \image studio-3d-editor.png "3D Editor"
-
-    For example, in local orientation mode, selecting an unrotated cube inside
-    a rotated group in the move mode shows rotated axes. Dragging on the red
-    arrow of the move manipulator affects only the x position of the item.
-
-    In global mode, the manipulators always transform with respect to the global
-    space. In the example above, switching to global mode will show the red
-    arrow for the move manipulator aligned with the screen (assuming an
-    unrotated camera). Dragging on the red arrow may affect two or three of the
-    position values for the selected item in order to move it in global space.
 
     The \e pivot of the component is used as the origin for position, scale,
     and rotation operations. You can set a \l{Setting Transform Properties}
@@ -152,6 +143,23 @@
     you want to rotate the item in.
 
     To freely rotate the item, select the gray circle.
+
+    \section1 Using Global and Local Orientation
+
+    To switch between global and local orientation, select \uicontrol
+    {Toggle Local/Global Orientation}.
+
+    In global orientation mode, transformation of a selected object is presented
+    with respect to the global space. For example, while the move tool is
+    selected, selecting a cube will show its move gizmo aligned with the axes
+    of global space. Dragging on the red arrow of the gizmo moves the object in
+    the global x direction.
+
+    In local orientation mode, the position of a selected object is shown
+    according to local axes specific to the selected object. For example,
+    selecting a rotated cube will show its axes rotated, and not aligned with
+    the axes of global space. Dragging on the red arrow of the gizmo
+    moves the object in the local x direction in relation to the object.
 
     \section1 Scaling Items
 

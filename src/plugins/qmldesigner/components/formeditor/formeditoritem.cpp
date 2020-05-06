@@ -833,11 +833,10 @@ static void drawArrow(QPainter *painter,
     painter->restore();
 }
 
-static void drawRoundedCorner(QPainter *painter,
-                              const QPointF &s,
-                              const QPointF &m,
-                              const QPointF &e,
-                              int radius)
+static QPainterPath roundedCorner(const QPointF &s,
+                                  const QPointF &m,
+                                  const QPointF &e,
+                                  int radius)
 {
     const QVector2D sm(m - s);
     const QVector2D me(e - m);
@@ -846,30 +845,185 @@ static void drawRoundedCorner(QPainter *painter,
     const int actualRadius = qMin(radius, static_cast<int>(qMin(smLength, meLength)));
     const QVector2D smNorm = sm.normalized();
     const QVector2D meNorm = me.normalized();
-
-    const QPointF arcStartP = s + (smNorm * (smLength - actualRadius)).toPointF();
-
     QRectF rect(m, QSizeF(actualRadius * 2, actualRadius * 2));
 
-    painter->drawLine(s, arcStartP);
+    QPainterPath path(s);
 
-    if ((smNorm.y() < 0 && meNorm.x() > 0) || (smNorm.x() < 0 && meNorm.y() > 0)) {
+    if (smNorm.y() < 0 && meNorm.x() > 0) {
         rect.moveTopLeft(m);
-        painter->drawArc(rect, 90 * 16, 90 * 16);
-    } else if ((smNorm.y() > 0 && meNorm.x() > 0) || (smNorm.x() < 0 && meNorm.y() < 0)) {
+        path.arcTo(rect, 180, -90);
+    } else if (smNorm.x() < 0 && meNorm.y() > 0) {
+        rect.moveTopLeft(m);
+        path.arcTo(rect, 90, 90);
+    } else if (smNorm.y() > 0 && meNorm.x() > 0) {
         rect.moveBottomLeft(m);
-        painter->drawArc(rect, 180 * 16, 90 * 16);
-    } else if ((smNorm.x() > 0 && meNorm.y() > 0) || (smNorm.y() < 0 && meNorm.x() < 0)) {
+        path.arcTo(rect, 180, 90);
+    } else if (smNorm.x() < 0 && meNorm.y() < 0) {
+        rect.moveBottomLeft(m);
+        path.arcTo(rect, 270, -90);
+    } else if (smNorm.x() > 0 && meNorm.y() > 0) {
         rect.moveTopRight(m);
-        painter->drawArc(rect, 0 * 16, 90 * 16);
-    } else if ((smNorm.y() > 0 && meNorm.x() < 0) || (smNorm.x() > 0 && meNorm.y() < 0)) {
+        path.arcTo(rect, 90, -90);
+    } else if (smNorm.y() < 0 && meNorm.x() < 0) {
+        rect.moveTopRight(m);
+        path.arcTo(rect, 0, 90);
+    } else if (smNorm.y() > 0 && meNorm.x() < 0) {
         rect.moveBottomRight(m);
-        painter->drawArc(rect, 270 * 16, 90 * 16);
+        path.arcTo(rect, 0, -90);
+    } else if (smNorm.x() > 0 && meNorm.y() < 0) {
+        rect.moveBottomRight(m);
+        path.arcTo(rect, 270, 90);
     }
 
-    const QPointF arcEndP = e - (meNorm * (meLength - actualRadius)).toPointF();
+    path.lineTo(e);
+    return path;
+}
 
-    painter->drawLine(arcEndP, e);
+// This function determines whether the vertices are in cw or ccw order.
+// It finds the lowest and rightmost vertex, and computes the cross-product
+// of the vectors along its incident edges.
+// Written by Joseph O'Rourke, 25 August 1995. orourke@cs.smith.edu
+//  1: ccw
+//  0: default
+// -1: cw
+
+static int counterClockWise(const std::vector<QPointF> &points)
+{
+    if (points.empty())
+        return 0;
+
+    // FindLR finds the lowest, rightmost point.
+    auto findLR = [](const std::vector<QPointF> &points) {
+        int i = 0;
+        int m = 0;
+        QPointF min = points.front();
+
+        for (const auto p : points) {
+            if ((p.y() < min.y()) || ((p.y() == min.y()) && (p.x() > min.x()))) {
+                m = i;
+                min = p;
+            }
+            ++i;
+        }
+        return m;
+    };
+
+    const int m = findLR(points);
+    const int n = points.size();
+
+    // Determine previous and next point to m (the lowest, rightmost point).
+    const QPointF a = points[(m + (n - 1)) % n];
+    const QPointF b = points[m];
+    const QPointF c = points[(m + 1) % n];
+
+    const int area = a.x() * b.y() - a.y() * b.x() +
+                     a.y() * c.x() - a.x() * c.y() +
+                     b.x() * c.y() - c.x() * b.y();
+
+    if (area > 0)
+        return 1;
+    else if (area < 0)
+        return -1;
+    else
+        return 0;
+}
+
+static QPainterPath quadBezier(const QPointF &s,
+                               const QPointF &c,
+                               const QPointF &e,
+                               int bezier,
+                               int breakOffset)
+{
+    QLineF se(s, e);
+    QPointF breakPoint = se.pointAt(breakOffset / 100.0);
+    QLineF breakLine;
+
+    if (counterClockWise({s, c, e}) == 1)
+        breakLine = QLineF(breakPoint, breakPoint + QPointF(se.dy(), -se.dx()));
+    else
+        breakLine = QLineF(breakPoint, breakPoint + QPointF(-se.dy(), se.dx()));
+
+    breakLine.setLength(se.length());
+
+    const QPointF controlPoint = breakLine.pointAt(bezier / 100.0);
+
+    QPainterPath path(s);
+    path.quadTo(controlPoint, e);
+
+    return path;
+}
+
+static QPainterPath cubicBezier(const QPointF &s,
+                                const QPointF &c1,
+                                const QPointF &c2,
+                                const QPointF &e,
+                                int bezier)
+{
+    QPainterPath path(s);
+    const QPointF adjustedC1 = QLineF(s, c1).pointAt(bezier / 100.0);
+    const QPointF adjustedC2 = QLineF(e, c2).pointAt(bezier / 100.0);
+
+    path.cubicTo(adjustedC1, adjustedC2, e);
+
+    return path;
+}
+
+
+static QPainterPath lShapedConnection(const QPointF &start,
+                                      const QPointF &end,
+                                      Qt::Orientation orientation,
+                                      const ConnectionStyle &style)
+{
+    const QPointF mid = (orientation == Qt::Horizontal) ? QPointF(end.x(), start.y())
+                                                        : QPointF(start.x(), end.y());
+
+    if (style.type == ConnectionType::Default) {
+        if (style.radius == 0) {
+            QPainterPath path(start);
+            path.lineTo(mid);
+            path.lineTo(end);
+            return path;
+        } else {
+            return roundedCorner(start, mid, end, style.radius);
+        }
+    } else {
+        return quadBezier(start, mid, end, style.bezier, style.breakOffset);
+    }
+}
+
+static QPainterPath sShapedConnection(const QPointF &start,
+                                      const QPointF &end,
+                                      Qt::Orientation orientation,
+                                      const ConnectionStyle &style)
+{
+    const qreal middleFactor = style.breakOffset / 100.0;
+    QPointF mid1;
+    QPointF mid2;
+
+    if (orientation == Qt::Horizontal) {
+        mid1 = QPointF(start.x() * middleFactor + end.x() * (1 - middleFactor), start.y());
+        mid2 = QPointF(mid1.x(), end.y());
+    } else {
+        mid1 = QPointF(start.x(), start.y() * middleFactor + end.y() * (1 - middleFactor));
+        mid2 = QPointF(end.x(), mid1.y());
+    }
+
+    if (style.type == ConnectionType::Default) {
+        if (style.radius == 0) {
+            QPainterPath path(start);
+            path.lineTo(mid1);
+            path.lineTo(mid2);
+            path.lineTo(end);
+            return path;
+        } else {
+            const QLineF breakLine(mid1, mid2);
+            QPainterPath path1 = roundedCorner(start, mid1, breakLine.center(), style.radius);
+            QPainterPath path2 = roundedCorner(breakLine.center(), mid2, end, style.radius);
+            return path1 + path2;
+        }
+    } else {
+        return cubicBezier(start, mid1, mid2, end, style.bezier);
+    }
 }
 
 static void paintConnection(QPainter *painter,
@@ -911,11 +1065,6 @@ static void paintConnection(QPainter *painter,
         horizontalFirst = false;
     */
 
-    const qreal middleFactor = style.breakOffset / 100.0;
-
-    QPointF startP;
-    QLineF lastSegment;
-
     bool extraLine = false;
 
     if (horizontalFirst) {
@@ -937,95 +1086,47 @@ static void paintConnection(QPainter *painter,
         }
     }
 
+    QPointF startP;
+    QPointF endP;
+    QPainterPath path;
+
     if (horizontalFirst) {
         const qreal startX = boolExitRight ? from.right() + padding : from.x() - padding;
         const qreal startY = from.center().y() + style.outOffset;
-
         startP = QPointF(startX, startY);
 
-        const qreal endY = (from.bottom() > to.y()) ? to.bottom() + padding : to.top() - padding;
-
         if (!extraLine) {
-            const qreal endX = to.center().x() + style.inOffset;
-            const QPointF midP(endX, startY);
-            const QPointF endP(endX, endY);
-
-            if (style.radius == 0) {
-                painter->drawLine(startP, midP);
-                painter->drawLine(midP, endP);
-            } else {
-                drawRoundedCorner(painter, startP, midP, endP, style.radius);
-            }
-
-            lastSegment = QLineF(midP, endP);
+            const qreal endY = (from.bottom() > to.y()) ? to.bottom() + padding : to.top() - padding;
+            endP = QPointF(to.center().x() + style.inOffset, endY);
+            path = lShapedConnection(startP, endP, Qt::Horizontal, style);
         } else {
             const qreal endX = (from.right() > to.x()) ? to.right() + padding : to.left() - padding;
-            const qreal midX = startX * middleFactor + endX * (1 - middleFactor);
-            const QPointF midP(midX, startY);
-            const QPointF midP2(midX, to.center().y() + style.inOffset);
-            const QPointF endP(endX, to.center().y() + style.inOffset);
-
-            if (style.radius == 0) {
-                painter->drawLine(startP, midP);
-                painter->drawLine(midP, midP2);
-                painter->drawLine(midP2, endP);
-            } else {
-                const QLineF breakLine(midP, midP2);
-                drawRoundedCorner(painter, startP, midP, breakLine.center(), style.radius);
-                drawRoundedCorner(painter, breakLine.center(), midP2, endP, style.radius);
-            }
-
-            lastSegment = QLineF(midP2, endP);
+            endP = QPointF(endX, to.center().y() + style.inOffset);
+            path = sShapedConnection(startP, endP, Qt::Horizontal, style);
         }
-
     } else {
         const qreal startX = from.center().x() + style.outOffset;
         const qreal startY = boolExitBottom ? from.bottom() + padding : from.top() - padding;
-
         startP = QPointF(startX, startY);
 
-        const qreal endX = (from.right() > to.x()) ? to.right() + padding : to.left() - padding;
-
         if (!extraLine) {
-            const qreal endY = to.center().y() + style.inOffset;
-            const QPointF midP(startX, endY);
-            const QPointF endP(endX, endY);
-
-            if (style.radius == 0) {
-                painter->drawLine(startP, midP);
-                painter->drawLine(midP, endP);
-            } else {
-                drawRoundedCorner(painter, startP, midP, endP, style.radius);
-            }
-
-            lastSegment = QLineF(midP, endP);
+            const qreal endX = (from.right() > to.x()) ? to.right() + padding : to.left() - padding;
+            endP = QPointF(endX, to.center().y() + style.inOffset);
+            path = lShapedConnection(startP, endP, Qt::Vertical, style);
         } else {
             const qreal endY = (from.bottom() > to.y()) ? to.bottom() + padding : to.top() - padding;
-
-            const qreal midY = startY * middleFactor + endY * (1 - middleFactor);
-            const QPointF midP(startX, midY);
-            const QPointF midP2(to.center().x() + style.inOffset, midY);
-            const QPointF endP(to.center().x() + style.inOffset, endY);
-
-            if (style.radius == 0) {
-                painter->drawLine(startP, midP);
-                painter->drawLine(midP, midP2);
-                painter->drawLine(midP2, endP);
-            } else {
-                const QLineF breakLine(midP, midP2);
-                drawRoundedCorner(painter, startP, midP, breakLine.center(), style.radius);
-                drawRoundedCorner(painter, breakLine.center(), midP2, endP, style.radius);
-            }
-
-            lastSegment = QLineF(midP2, endP);
+            endP = QPointF(to.center().x() + style.inOffset, endY);
+            path = sShapedConnection(startP, endP, Qt::Vertical, style);
         }
     }
+
+    painter->drawPath(path);
 
     pen.setWidthF(style.width);
     pen.setStyle(Qt::SolidLine);
     painter->setPen(pen);
 
-    drawArrow(painter, lastSegment, arrowLength, arrowWidth);
+    drawArrow(painter, QLineF(path.pointAtPercent(0.9), endP), arrowLength, arrowWidth);
 
     painter->setBrush(Qt::white);
     painter->drawEllipse(startP, arrowLength / 3, arrowLength / 3);
@@ -1141,6 +1242,22 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     if (qmlItemNode().modelNode().hasAuxiliaryData("radius"))
         style.radius = qmlItemNode().modelNode().auxiliaryData("radius").toInt();
+
+    style.bezier = 50;
+
+    if (qmlItemNode().rootModelNode().hasAuxiliaryData("transitionBezier"))
+        style.bezier = qmlItemNode().rootModelNode().auxiliaryData("transitionBezier").toInt();
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("bezier"))
+        style.bezier = qmlItemNode().modelNode().auxiliaryData("bezier").toInt();
+
+    style.type = ConnectionType::Default;
+
+    if (qmlItemNode().rootModelNode().hasAuxiliaryData("transitionType"))
+        style.type = static_cast<ConnectionType>(qmlItemNode().rootModelNode().auxiliaryData("transitionType").toInt());
+
+    if (qmlItemNode().modelNode().hasAuxiliaryData("type"))
+        style.type = static_cast<ConnectionType>(qmlItemNode().modelNode().auxiliaryData("type").toInt());
 
     if (resolved.isStartLine)
         fromRect.translate(0, style.outOffset);
