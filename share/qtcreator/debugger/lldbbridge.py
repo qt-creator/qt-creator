@@ -1267,22 +1267,28 @@ class Dumper(DumperBase):
         self.put('],partial="%d"' % isPartial)
         self.reportResult(self.output, args)
 
+
     def fetchRegisters(self, args=None):
-        if self.process is None:
-            result = 'process="none"'
-        else:
-            frame = self.currentFrame()
-            if frame:
-                result = 'registers=['
-                for group in frame.GetRegisters():
-                    for reg in group:
-                        value = ''.join(["%02x" % x for x in reg.GetData().uint8s])
-                        result += '{name="%s"' % reg.GetName()
-                        result += ',value="0x%s"' % value
-                        result += ',size="%s"' % reg.GetByteSize()
-                        result += ',type="%s"},' % reg.GetType()
-                result += ']'
+        if not self.process:
+            self.reportResult('process="none",registers=[]', args)
+            return
+
+        frame = self.currentFrame()
+        if not frame or not frame.IsValid():
+            self.reportResult('frame="none",registers=[]', args)
+            return
+
+        result = 'registers=['
+        for group in frame.GetRegisters():
+            for reg in group:
+                value = ''.join(["%02x" % x for x in reg.GetData().uint8s])
+                result += '{name="%s"' % reg.GetName()
+                result += ',value="0x%s"' % value
+                result += ',size="%s"' % reg.GetByteSize()
+                result += ',type="%s"},' % reg.GetType()
+        result += ']'
         self.reportResult(result, args)
+
 
     def setRegister(self, args):
         name = args["name"]
