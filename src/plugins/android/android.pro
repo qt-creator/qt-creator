@@ -13,6 +13,8 @@ HEADERS += \
     androidmanifesteditoriconwidget.h \
     androidrunconfiguration.h \
     androidruncontrol.h \
+    androidservicewidget.h \
+    androidservicewidget_p.h \
     androidsettingswidget.h \
     androidtoolchain.h \
     androiderrormessage.h \
@@ -60,6 +62,7 @@ SOURCES += \
     androidmanifesteditoriconwidget.cpp \
     androidrunconfiguration.cpp \
     androidruncontrol.cpp \
+    androidservicewidget.cpp \
     androidsettingswidget.cpp \
     androidtoolchain.cpp \
     androiderrormessage.cpp \
