@@ -30,7 +30,6 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
     \page creator-build-process-customizing.html
     \if defined(qtdesignstudio)
     \previouspage creator-developing-generic-linux.html

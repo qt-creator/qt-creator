@@ -30,7 +30,6 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
     \page creator-quick-tour.html
     \if defined(qtdesignstudio)
     \previouspage qtbridge-ps-using.html
@@ -256,7 +255,6 @@
 */
 
 /*!
-    \contentspage index.html
     \page creator-modes.html
     \previouspage creator-quick-tour.html
     \nextpage creator-views.html
@@ -331,7 +329,6 @@
 */
 
 /*!
-    \contentspage index.html
     \page creator-output-panes.html
     \previouspage creator-project-managing-workspaces.html
     \if defined(qtdesignstudio)

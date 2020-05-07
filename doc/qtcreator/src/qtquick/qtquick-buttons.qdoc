@@ -30,7 +30,6 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
     \previouspage qtquick-form-editor.html
     \page quick-buttons.html
     \nextpage quick-scalable-image.html
@@ -118,8 +117,6 @@
 
 
 /*!
-
-    \contentspage index.html
     \previouspage quick-buttons.html
     \page quick-scalable-image.html
     \nextpage qtquick-navigator.html
