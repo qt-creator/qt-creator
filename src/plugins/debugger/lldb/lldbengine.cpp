@@ -407,6 +407,8 @@ void LldbEngine::handleResponse(const QString &response)
             notifyInferiorPid(item.toProcessHandle());
         else if (name == "breakpointmodified")
             handleInterpreterBreakpointModified(item);
+        else if (name == "bridgemessage")
+            showMessage(item["msg"].data(), item["channel"].toInt());
     }
 }
 

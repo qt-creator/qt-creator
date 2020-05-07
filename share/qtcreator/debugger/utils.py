@@ -86,7 +86,7 @@ class BreakpointType():
     ) = range(0, 14)
 
 
-# Internal codes for types keep in sync with cdbextensions pytype.cpp
+# Internal codes for types. Keep in sync with cdbextensions pytype.cpp
 class TypeCode():
     (
         Typedef,
@@ -106,6 +106,26 @@ class TypeCode():
         Bitfield,
         RValueReference,
     ) = range(0, 16)
+
+
+# Internal codes for logging channels. Keep in sync woth debuggerconstants.h
+class LogChannel():
+    (
+        LogInput,                # Used for user input
+        LogMiscInput,            # Used for misc stuff in the input pane
+        LogOutput,
+        LogWarning,
+        LogError,
+        LogStatus,               # Used for status changed messages
+        LogTime,                 # Used for time stamp messages
+        LogDebug,
+        LogMisc,
+        AppOutput,               # stdout
+        AppError,                # stderr
+        AppStuff,                # (possibly) windows debug channel
+        StatusBar,               # LogStatus and also put to the status bar
+        ConsoleOutput            # Used to output to console
+    ) = range(0, 14)
 
 
 def isIntegralTypeName(name):

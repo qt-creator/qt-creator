@@ -32,7 +32,7 @@ import threading
 import time
 import lldb
 import utils
-from utils import DebuggerStartMode, BreakpointType, TypeCode
+from utils import DebuggerStartMode, BreakpointType, TypeCode, LogChannel
 
 from contextlib import contextmanager
 
@@ -127,7 +127,15 @@ class Dumper(DumperBase):
         self.isInterrupting_ = False
         self.interpreterBreakpointResolvers = []
 
+        DumperBase.warn = Dumper.warn_impl
         self.report('lldbversion=\"%s\"' % lldb.SBDebugger.GetVersionString())
+
+    @staticmethod
+    def warn_impl(message):
+        if message[-1:] == '\n':
+            message += '\n'
+        print('@\nbridgemessage={msg="%s",channel="%s"}\n@'
+                % (message.replace('"', '$'), LogChannel.AppError))
 
     def fromNativeFrameValue(self, nativeValue):
         return self.fromNativeValue(nativeValue)
