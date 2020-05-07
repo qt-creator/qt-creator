@@ -778,6 +778,44 @@ public:
     constexpr static const char methodName[] = "textDocument/onTypeFormatting";
 };
 
+class PlaceHolderResult : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+
+    Range range() const { return typedValue<Range>(rangeKey); }
+    void setRange(const Range &range) { insert(rangeKey, range); }
+
+    QString placeHolder() const { return typedValue<QString>(placeHolderKey); }
+    void setPlaceHolder(const QString &placeHolder) { insert(placeHolderKey, placeHolder); }
+
+    bool isValid(ErrorHierarchy *error) const override
+    {
+        return check<Range>(error, rangeKey) && checkOptional<QString>(error, placeHolderKey);
+    }
+};
+
+class PrepareRenameResult : public Utils::variant<PlaceHolderResult, Range, nullptr_t>
+{
+public:
+    PrepareRenameResult();
+    PrepareRenameResult(const Utils::variant<PlaceHolderResult, Range, nullptr_t> &val);
+    explicit PrepareRenameResult(const PlaceHolderResult &val);
+    explicit PrepareRenameResult(const Range &val);
+    PrepareRenameResult(const QJsonValue &val);
+
+    bool isValid(ErrorHierarchy *error) const;
+};
+
+class LANGUAGESERVERPROTOCOL_EXPORT PrepareRenameRequest
+    : public Request<PrepareRenameResult, std::nullptr_t, TextDocumentPositionParams>
+{
+public:
+    PrepareRenameRequest(const TextDocumentPositionParams &params = TextDocumentPositionParams());
+    using Request::Request;
+    constexpr static const char methodName[] = "textDocument/prepareRename";
+};
+
 class LANGUAGESERVERPROTOCOL_EXPORT RenameParams : public JsonObject
 {
 public:
