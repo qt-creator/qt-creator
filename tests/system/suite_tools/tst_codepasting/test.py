@@ -129,7 +129,7 @@ def fetchSnippet(protocol, description, pasteId, skippedPasting):
         closeHTTPStatusAndPasterDialog(protocol, ':PasteSelectDialog_CodePaster::PasteSelectDialog')
         return -1
     waitFor("pasteModel.rowCount() > 1", 20000)
-    if (not skippedPasting and not any(map(lambda str:pasteId in str, dumpItems(pasteModel)))):
+    if (protocol != NAME_PBCOM and not skippedPasting and not any(map(lambda str:pasteId in str, dumpItems(pasteModel)))):
         test.warning("Fetching too fast for server of %s - waiting 3s and trying to refresh." % protocol)
         snooze(3)
         clickButton("{text='Refresh' type='QPushButton' unnamed='1' visible='1' "
@@ -152,7 +152,11 @@ def fetchSnippet(protocol, description, pasteId, skippedPasting):
                             "Verify that line in list of pastes contains the description")
         except:
             if not skippedPasting:
-                test.fail("Could not find id '%s' in list of pastes from %s" % (pasteId, protocol))
+                message = "Could not find id '%s' in list of pastes from %s" % (pasteId, protocol)
+                if protocol == NAME_PBCOM:
+                    test.xfail(message, "pastebin.com does not show pastes in list anymore")
+                else:
+                    test.fail(message)
             foundSnippet = False
             replaceEditorContent(waitForObject(":PasteSelectDialog.pasteEdit_QLineEdit"), pasteId)
     if foundSnippet:
