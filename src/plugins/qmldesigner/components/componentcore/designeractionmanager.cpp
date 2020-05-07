@@ -929,18 +929,12 @@ void DesignerActionManager::createDefaultDesignerActions()
         priorityFlowCategory));
 
 
-    const QList<TypeName> types = {"FlowActionArea",
-                                   "FlowFadeEffect",
-                                   "FlowPushRightEffect",
-                                   "FlowPushLeftEffect",
-                                   "FlowPushUpEffect",
-                                   "FlowSlideDownEffect",
-                                   "FlowSlideLeftEffect",
-                                   "FlowSlideRightEffect",
-                                   "FlowSlideUpEffect",
+    const QList<TypeName> transitionTypes = {"FlowFadeEffect",
+                                   "FlowPushEffect",
+                                   "FlowMoveEffect",
                                    "None"};
 
-    for (const TypeName &typeName : types)
+    for (const TypeName &typeName : transitionTypes)
         addTransitionEffectAction(typeName);
 
     addDesignerAction(new ModelNodeContextMenuAction(
