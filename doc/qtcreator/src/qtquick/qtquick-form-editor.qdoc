@@ -89,6 +89,11 @@
 
     \image qmldesigner-preview-size.png "Canvas width and height"
 
+    To set the initial size of the root item, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Qt Quick} > \uicontrol {\QMLD} and
+    specify the item width and height in the \uicontrol {Root Item Init Size}
+    group.
+
     \section1 Specifying Canvas Size
 
     To change the canvas size, select \uicontrol Tools > \uicontrol Options >
