@@ -457,6 +457,7 @@ extend_qtc_plugin(QmlDesigner
     include/rewriterview.h
     include/rewritingexception.h
     include/signalhandlerproperty.h
+    include/stylesheetmerger.h
     include/subcomponentmanager.h
     include/textmodifier.h
     include/variantproperty.h
@@ -530,6 +531,7 @@ extend_qtc_plugin(QmlDesigner
     model/rewriteactioncompressor.cpp model/rewriteactioncompressor.h
     model/rewriterview.cpp
     model/signalhandlerproperty.cpp
+    model/stylesheetmerger.cpp
     model/textmodifier.cpp
     model/texttomodelmerger.cpp model/texttomodelmerger.h
     model/variantproperty.cpp

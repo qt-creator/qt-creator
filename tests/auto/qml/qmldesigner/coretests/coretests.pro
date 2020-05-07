@@ -61,8 +61,10 @@ SOURCES += \
     ../testview.cpp \
     testrewriterview.cpp \
     tst_testcore.cpp
+
 HEADERS += \
     ../testview.h \
     testrewriterview.h \
     tst_testcore.h
+
 RESOURCES += ../data/testfiles.qrc

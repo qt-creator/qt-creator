@@ -184,6 +184,8 @@ private slots:
     void testRewriterTransactionRewriter();
     void testCopyModelRewriter1();
     void testCopyModelRewriter2();
+    void testMergeModelRewriter1_data();
+    void testMergeModelRewriter1();
     void testSubComponentManager();
     void testAnchorsAndRewriting();
     void testAnchorsAndRewritingCenter();
