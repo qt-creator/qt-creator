@@ -81,16 +81,6 @@
     To hide them, select the \inlineimage boundingrect.png
     button.
 
-    \section1 Selecting Items
-
-    When you point the mouse to overlapping items, the frontmost item is
-    selected by default. However, items that do not have any content, such as
-    the mouse area, are typically located in front of items that do have
-    content, such as rectangles or border images. To select items with content
-    by default, click the
-    \inlineimage qmldesigner-only-select-items-with-content.png
-    button.
-
     \section1 Previewing Component Size
 
     The width and height of the root item in a QML file determine the size of
