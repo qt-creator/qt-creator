@@ -34,6 +34,26 @@
     You design applications in the \uicontrol {Form Editor} by placing items
     into it.
 
+    \image qmldesigner-form-editor.png "Form Editor view"
+
+    \section1 Resizing Items
+
+    When you select items in the \uicontrol {Form Editor}, selection handles
+    appear around their edges and in their corners. You can drag the selection
+    handles to resize items.
+
+    \if defined(qtdesignstudio)
+    To have the resizing done from the center of the selected item instead from
+    its edges, press \key Alt.
+
+    To preserve the image aspect ratio while resizing when using the corner
+    handles, press \key Shift. This also works on items that are anchored
+    using left, right, top, or bottom anchors.
+
+    To both resize from the center of the item and preserve the aspect ratio,
+    press \key Alt+Shift.
+    \endif
+
     \section1 Snapping to Parent and Sibling Items
 
     When you are working on a design, you can use snapping to align
