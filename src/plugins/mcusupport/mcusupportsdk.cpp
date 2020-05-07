@@ -27,10 +27,17 @@
 #include "mcusupportoptions.h"
 #include "mcusupportsdk.h"
 
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/fileutils.h>
 
 #include <QDir>
+#include <QDirIterator>
+#include <QHash>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QVariant>
 
 namespace McuSupport {
 namespace Internal {
@@ -220,9 +227,9 @@ static McuPackage *createMcuXpressoIdePackage()
     return result;
 }
 
-static McuPackage *createFreeRTOSSourcesPackage(const QString &envVarPrefix)
+static McuPackage *createFreeRTOSSourcesPackage(const QString &envVar)
 {
-    const QString envVar = envVarPrefix + "_FREERTOS_DIR";
+    const QString envVarPrefix = envVar.chopped(strlen("_FREERTOS_DIR"));
 
     const QString defaultPath =
             qEnvironmentVariableIsSet(envVar.toLatin1()) ?
@@ -238,97 +245,146 @@ static McuPackage *createFreeRTOSSourcesPackage(const QString &envVarPrefix)
     return result;
 }
 
-void hardcodedTargetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage *> *packages,
-                                 QVector<McuTarget *> *mcuTargets)
+struct McuTargetDescription
 {
-    McuToolChainPackage* armGccPackage = Sdk::createArmGccPackage();
-    McuToolChainPackage *ghsToolchainPackage = createGhsToolchainPackage();
-    McuToolChainPackage* desktopToolChainPackage = createDesktopToolChainPackage();
-    McuPackage* stm32CubeFwF7SdkPackage = Sdk::createStm32CubeFwF7SdkPackage();
-    McuPackage* stm32CubeProgrammerPackage = Sdk::createStm32CubeProgrammerPackage();
-    McuPackage* evkbImxrt1050SdkPackage = Sdk::createEvkbImxrt1050SdkPackage();
-    McuPackage *mcuXpressoIdePackage = createMcuXpressoIdePackage();
-    McuPackage *rglPackage = createRGLPackage();
-    McuPackage *freeRTOSSTM32F7Package = createFreeRTOSSourcesPackage("STM32F7");
-    McuPackage *freeRTOSIMXRT1050Package = createFreeRTOSSourcesPackage("IMXRT1050");
-    McuPackage *freeRTOSIMXRT1064Package = createFreeRTOSSourcesPackage("IMXRT1064");
+    QString qulVersion;
+    QString platform;
+    QString platformVendor;
+    QVector<int> colorDepths;
+    QString toolchainId;
+    QString boardSdkEnvVar;
+    QString freeRTOSEnvVar;
+};
 
-    QVector<McuPackage*> stmEvalPackages = {
-        armGccPackage, stm32CubeProgrammerPackage};
-    QVector<McuPackage*> nxpEvalPackages = {
-        armGccPackage, mcuXpressoIdePackage};
-    QVector<McuPackage*> renesasEvalPackages = {
-        ghsToolchainPackage, rglPackage};
-    QVector<McuPackage*> desktopPackages = {};
-    *packages = {
-        armGccPackage, desktopToolChainPackage, ghsToolchainPackage,
-        stm32CubeFwF7SdkPackage, stm32CubeProgrammerPackage, evkbImxrt1050SdkPackage,
-        mcuXpressoIdePackage, rglPackage,
-        freeRTOSSTM32F7Package, freeRTOSIMXRT1050Package, freeRTOSIMXRT1064Package};
-
-    const QString vendorStm = "STM";
-    const QString vendorNxp = "NXP";
-    const QString vendorQt = "Qt";
-    const QString vendorRenesas = "Renesas";
-
-    const struct {
-        const QString &vendor;
-        const QString qulPlatform;
-        const QVector<McuPackage*> &packages;
-        McuToolChainPackage *toolchainPackage;
-        McuPackage *freeRTOSPackage;
-        const QVector<int> colorDepths;
-    } targets[] = {
-        {vendorNxp, {"MIMXRT1050-EVK"}, nxpEvalPackages, armGccPackage,
-                freeRTOSIMXRT1050Package, {16}},
-        {vendorNxp, {"MIMXRT1064-EVK"}, nxpEvalPackages, armGccPackage,
-                freeRTOSIMXRT1064Package, {16}},
-        {vendorQt, {"Qt"}, desktopPackages, desktopToolChainPackage,
-                nullptr, {32}},
-        {vendorRenesas, {"RH850-D1M1A"}, renesasEvalPackages, ghsToolchainPackage,
-                nullptr, {32}},
-        {vendorStm, {"STM32F469I-DISCOVERY"}, stmEvalPackages, armGccPackage,
-                nullptr, {24}},
-        {vendorStm, {"STM32F7508-DISCOVERY"}, stmEvalPackages, armGccPackage,
-                freeRTOSSTM32F7Package, {32, 16}},
-        {vendorStm, {"STM32F769I-DISCOVERY"}, stmEvalPackages, armGccPackage,
-                freeRTOSSTM32F7Package, {32}},
-        {vendorStm, {"STM32H750B-DISCOVERY"}, stmEvalPackages, armGccPackage,
-                nullptr, {32}},
-        {vendorStm, {"STM32L4R9I-DISCOVERY"}, stmEvalPackages, armGccPackage,
-                nullptr, {24}},
-        {vendorStm, {"STM32L4R9I-EVAL"}, stmEvalPackages, armGccPackage,
-                nullptr, {24}}
+static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescription> &descriptions,
+                                                    QVector<McuPackage *> *packages)
+{
+    const QHash<QString, McuToolChainPackage *> tcPkgs = {
+        {{"armgcc"}, createArmGccPackage()},
+        {{"greenhills"}, createGhsToolchainPackage()},
+        {{"desktop"}, createDesktopToolChainPackage()},
     };
 
-    const QString QulTargetTemplate =
-            dir.toString() + "/lib/cmake/Qul/QulTargets/QulTargets_%1_%2.cmake";
-    for (const auto target : targets) {
-        for (auto os : {McuTarget::OS::Desktop, McuTarget::OS::BareMetal,
-                        McuTarget::OS::FreeRTOS}) {
-            for (int colorDepth : target.colorDepths) {
-                QVector<McuPackage*> required3rdPartyPackages = target.packages;
+    const QHash<QString, McuPackage *> vendorPkgs = {
+        {{"ST"}, createStm32CubeProgrammerPackage()},
+        {{"NXP"}, createMcuXpressoIdePackage()},
+        {{"Renesas"}, createRGLPackage()}
+    };
+
+    QHash<QString, McuPackage *> freeRTOSPkgs;
+    QVector<McuTarget *> mcuTargets;
+
+    for (auto desc : descriptions) {
+        McuToolChainPackage *tcPkg = tcPkgs.value(desc.toolchainId);
+        if (desc.toolchainId == "desktop") {
+            auto mcuTarget = new McuTarget(desc.platformVendor, desc.platform,
+                                           McuTarget::OS::Desktop, {}, tcPkg);
+            mcuTargets.append(mcuTarget);
+            continue;
+        }
+        for (auto os : {McuTarget::OS::BareMetal, McuTarget::OS::FreeRTOS}) {
+            for (int colorDepth : desc.colorDepths) {
+                QVector<McuPackage*> required3rdPartyPkgs = {
+                    vendorPkgs.value(desc.platformVendor), tcPkg
+                };
                 if (os == McuTarget::OS::FreeRTOS) {
-                    if (target.freeRTOSPackage)
-                        required3rdPartyPackages.append(target.freeRTOSPackage);
-                    else
+                    if (desc.freeRTOSEnvVar.isEmpty()) {
                         continue;
-                } else if (os == McuTarget::OS::Desktop && target.toolchainPackage->type()
-                        != McuToolChainPackage::TypeDesktop) {
-                    continue;
+                    } else {
+                        if (!freeRTOSPkgs.contains(desc.freeRTOSEnvVar)) {
+                            auto freeRTOSPkg = createFreeRTOSSourcesPackage(desc.freeRTOSEnvVar);
+                            freeRTOSPkgs.insert(desc.freeRTOSEnvVar, freeRTOSPkg);
+                        }
+                        required3rdPartyPkgs.append(freeRTOSPkgs.value(desc.freeRTOSEnvVar));
+                    }
                 }
 
-                const QString QulTarget =
-                        QulTargetTemplate.arg(target.qulPlatform, QString::number(colorDepth));
-                if (!Utils::FilePath::fromUserInput(QulTarget).exists())
-                    continue;
-                auto mcuTarget = new McuTarget(target.vendor, target.qulPlatform, os,
-                                               required3rdPartyPackages, target.toolchainPackage);
-                if (target.colorDepths.count() > 1)
+                auto mcuTarget = new McuTarget(desc.platformVendor, desc.platform, os,
+                                               required3rdPartyPkgs, tcPkg);
+                if (desc.colorDepths.count() > 1)
                     mcuTarget->setColorDepth(colorDepth);
-                mcuTargets->append(mcuTarget);
+                mcuTargets.append(mcuTarget);
             }
         }
+    }
+
+    packages->append(Utils::transform<QVector<McuPackage *> >(
+                         tcPkgs.values(), [&](McuToolChainPackage *tcPkg) { return tcPkg; }));
+    packages->append(vendorPkgs.values().toVector());
+    packages->append(freeRTOSPkgs.values().toVector());
+
+    return  mcuTargets;
+}
+
+static QFileInfoList targetDescriptionFiles(const Utils::FilePath &dir)
+{
+    // Workaround for UL-2390: Instead of "./kits/", walk through "./lib/cmake/Qul/boards/"
+    QFileInfoList result;
+    QDirIterator it(dir.toString() + "/lib/cmake/Qul/boards/", {QLatin1String("*.json")},
+                    QDir::Files, QDirIterator::Subdirectories);
+    while (it.hasNext())
+        result.append(it.next());
+    return result;
+}
+
+static QString freeRTOSEnvVarForPlatform(const QString &platform)
+{
+    if (platform == "STM32F769I-DISCOVERY" || platform == "STM32F7508-DISCOVERY")
+        return "STM32F7_FREERTOS_DIR";
+    else if (platform == "MIMXRT1050-EVK")
+        return "IMXRT1050_FREERTOS_DIR";
+    else if (platform == "MIMXRT1064-EVK")
+        return "IMXRT1064_FREERTOS_DIR";
+
+    return {};
+}
+
+static McuTargetDescription parseDescriptionJson(const QByteArray &data)
+{
+    const QJsonDocument document = QJsonDocument::fromJson(data);
+    const QJsonObject target = document.object();
+    const QJsonObject toolchain = target.value("toolchain").toObject();
+    const QJsonObject boardSdk = target.value("boardSdk").toObject();
+
+    const QString platform = target.value("platform").toString();
+
+    const QVariantList colorDepths = target.value("colorDepths").toArray().toVariantList();
+    const auto colorDepthsVector = Utils::transform<QVector<int> >(
+                colorDepths, [&](const QVariant &colorDepth) { return colorDepth.toInt(); });
+
+    return {
+        target.value("qulVersion").toString(),
+        platform,
+        target.value("platformVendor").toString(),
+        colorDepthsVector,
+        toolchain.value("id").toString(),
+        boardSdk.value("boardSdkEnvVar").toString(),
+        freeRTOSEnvVarForPlatform(platform) // Workaround for UL-2514: Missing FreeRTOS information
+    };
+}
+
+void targetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage *> *packages,
+                        QVector<McuTarget *> *mcuTargets)
+{
+    QList<McuTargetDescription> descriptions;
+
+    for (const QFileInfo &fileInfo : targetDescriptionFiles(dir)) {
+        QFile file(fileInfo.absoluteFilePath());
+        if (!file.open(QFile::ReadOnly))
+            continue;
+        const McuTargetDescription desc = parseDescriptionJson(file.readAll());
+        if (!McuSupportOptions::supportedQulVersion()
+                .isPrefixOf(QVersionNumber::fromString(desc.qulVersion)))
+            continue;
+        descriptions.append(desc);
+    }
+
+    if (!descriptions.isEmpty()) {
+        // Workaround for missing JSON file for Desktop target:
+        descriptions.prepend({McuSupportOptions::supportedQulVersion().toString(),
+                              "Qt", "Qt", {32}, "desktop", {}, {}});
+
+        mcuTargets->append(targetsFromDescriptions(descriptions, packages));
     }
 }
 
