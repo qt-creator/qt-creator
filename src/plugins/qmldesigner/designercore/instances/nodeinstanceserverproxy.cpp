@@ -33,32 +33,32 @@
 #include <changeidscommand.h>
 #include <changelanguagecommand.h>
 #include <changenodesourcecommand.h>
+#include <changepreviewimagesizecommand.h>
 #include <changeselectioncommand.h>
 #include <changestatecommand.h>
 #include <changevaluescommand.h>
+#include <childrenchangedcommand.h>
 #include <clearscenecommand.h>
 #include <completecomponentcommand.h>
+#include <componentcompletedcommand.h>
 #include <createinstancescommand.h>
 #include <createscenecommand.h>
+#include <debugoutputcommand.h>
+#include <endpuppetcommand.h>
+#include <informationchangedcommand.h>
 #include <inputeventcommand.h>
+#include <pixmapchangedcommand.h>
 #include <puppettocreatorcommand.h>
 #include <removeinstancescommand.h>
 #include <removepropertiescommand.h>
-#include <reparentinstancescommand.h>
-#include <update3dviewstatecommand.h>
-#include <view3dactioncommand.h>
-
-#include <informationchangedcommand.h>
-#include <pixmapchangedcommand.h>
-#include <valueschangedcommand.h>
-#include <childrenchangedcommand.h>
-#include <statepreviewimagechangedcommand.h>
-#include <componentcompletedcommand.h>
-#include <tokencommand.h>
 #include <removesharedmemorycommand.h>
-#include <endpuppetcommand.h>
+#include <reparentinstancescommand.h>
+#include <statepreviewimagechangedcommand.h>
 #include <synchronizecommand.h>
-#include <debugoutputcommand.h>
+#include <tokencommand.h>
+#include <update3dviewstatecommand.h>
+#include <valueschangedcommand.h>
+#include <view3dactioncommand.h>
 
 #include <nodeinstanceview.h>
 #include <import.h>
@@ -742,6 +742,11 @@ void NodeInstanceServerProxy::view3DAction(const View3DActionCommand &command)
 }
 
 void NodeInstanceServerProxy::changeLanguage(const ChangeLanguageCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceServerProxy::changePreviewImageSize(const ChangePreviewImageSizeCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
 }

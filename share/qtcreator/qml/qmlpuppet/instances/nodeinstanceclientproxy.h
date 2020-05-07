@@ -62,6 +62,7 @@ class PuppetToCreatorCommand;
 class InputEventCommand;
 class View3DActionCommand;
 class ChangeLanguageCommand;
+class ChangePreviewImageSizeCommand;
 
 class NodeInstanceClientProxy : public QObject, public NodeInstanceClientInterface
 {
@@ -118,6 +119,7 @@ protected:
     void inputEvent(const InputEventCommand &command);
     void view3DAction(const View3DActionCommand &command);
     void changeLanguage(const ChangeLanguageCommand &command);
+    void changePreviewImageSize(const ChangePreviewImageSizeCommand &command);
 
 protected slots:
     void readDataStream();

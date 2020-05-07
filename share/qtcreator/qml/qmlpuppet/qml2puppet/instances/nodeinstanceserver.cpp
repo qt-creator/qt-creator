@@ -1397,8 +1397,7 @@ void NodeInstanceServer::view3DAction(const View3DActionCommand &command)
     Q_UNUSED(command)
 }
 
-void NodeInstanceServer::changeLanguage(const ChangeLanguageCommand &command) {}
-}
+void NodeInstanceServer::changeLanguage(const ChangeLanguageCommand &) {}
 
-
-
+void NodeInstanceServer::changePreviewImageSize(const ChangePreviewImageSizeCommand &command) {}
+} // namespace QmlDesigner

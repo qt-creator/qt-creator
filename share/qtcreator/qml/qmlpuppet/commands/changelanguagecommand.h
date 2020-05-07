@@ -33,9 +33,6 @@ namespace QmlDesigner {
 class ChangeLanguageCommand
 {
 public:
-    friend QDataStream &operator>>(QDataStream &in, ChangeLanguageCommand &command);
-
-public:
     ChangeLanguageCommand() = default;
     ChangeLanguageCommand(const QString &language)
         : language(language)

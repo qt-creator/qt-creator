@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -22,33 +22,23 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
-#pragma once
-
-#include "qt5nodeinstanceserver.h"
+#include "changepreviewimagesizecommand.h"
 
 namespace QmlDesigner {
 
-class Qt5PreviewNodeInstanceServer : public Qt5NodeInstanceServer
+QDataStream &operator<<(QDataStream &out, const ChangePreviewImageSizeCommand &command)
 {
-    Q_OBJECT
-public:
-    explicit Qt5PreviewNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
+    return out << command.size;
+}
 
-    void createScene(const CreateSceneCommand &command) override;
-    void changeState(const ChangeStateCommand &command) override;
-    void removeSharedMemory(const RemoveSharedMemoryCommand &command) override;
-    void changePreviewImageSize(const ChangePreviewImageSizeCommand &command) override;
+QDataStream &operator>>(QDataStream &in, ChangePreviewImageSizeCommand &command)
+{
+    return in >> command.size;
+}
 
-    QImage renderPreviewImage();
-
-protected:
-    void collectItemChangesAndSendChangeCommands() override;
-    void startRenderTimer() override;
-
-private:
-    ServerNodeInstance m_currentState;
-    QSize m_previewSize{160, 160};
-};
+QDebug operator<<(QDebug debug, const ChangePreviewImageSizeCommand &command)
+{
+    return debug.nospace() << "ChangePreviewImageSizeCommand(" << command.size << ")";
+}
 
 } // namespace QmlDesigner

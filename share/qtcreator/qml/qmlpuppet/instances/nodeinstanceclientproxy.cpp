@@ -40,39 +40,39 @@
 #include "changefileurlcommand.h"
 #include "changeidscommand.h"
 #include "changelanguagecommand.h"
+#include "changenodesourcecommand.h"
+#include "changepreviewimagesizecommand.h"
+#include "changeselectioncommand.h"
 #include "changestatecommand.h"
 #include "changevaluescommand.h"
+#include "childrenchangedcommand.h"
 #include "clearscenecommand.h"
 #include "completecomponentcommand.h"
+#include "componentcompletedcommand.h"
 #include "createinstancescommand.h"
 #include "createscenecommand.h"
+#include "debugoutputcommand.h"
+#include "endpuppetcommand.h"
+#include "imagecontainer.h"
+#include "informationchangedcommand.h"
 #include "inputeventcommand.h"
 #include "instancecontainer.h"
+#include "pixmapchangedcommand.h"
 #include "propertyabstractcontainer.h"
 #include "propertybindingcontainer.h"
 #include "propertyvaluecontainer.h"
+#include "puppetalivecommand.h"
+#include "puppettocreatorcommand.h"
 #include "removeinstancescommand.h"
 #include "removepropertiescommand.h"
 #include "removesharedmemorycommand.h"
 #include "reparentinstancescommand.h"
+#include "statepreviewimagechangedcommand.h"
 #include "synchronizecommand.h"
 #include "tokencommand.h"
 #include "update3dviewstatecommand.h"
-#include "view3dactioncommand.h"
-
-#include "informationchangedcommand.h"
-#include "pixmapchangedcommand.h"
 #include "valueschangedcommand.h"
-#include "childrenchangedcommand.h"
-#include "imagecontainer.h"
-#include "statepreviewimagechangedcommand.h"
-#include "componentcompletedcommand.h"
-#include "changenodesourcecommand.h"
-#include "endpuppetcommand.h"
-#include "debugoutputcommand.h"
-#include "puppetalivecommand.h"
-#include "changeselectioncommand.h"
-#include "puppettocreatorcommand.h"
+#include "view3dactioncommand.h"
 
 namespace QmlDesigner {
 
@@ -330,6 +330,11 @@ void NodeInstanceClientProxy::changeLanguage(const ChangeLanguageCommand &comman
     nodeInstanceServer()->changeLanguage(command);
 }
 
+void NodeInstanceClientProxy::changePreviewImageSize(const ChangePreviewImageSizeCommand &command)
+{
+    nodeInstanceServer()->changePreviewImageSize(command);
+}
+
 void NodeInstanceClientProxy::readDataStream()
 {
     QList<QVariant> commandList;
@@ -497,6 +502,8 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     static const int inputEventCommandType = QMetaType::type("InputEventCommand");
     static const int view3DActionCommandType = QMetaType::type("View3DActionCommand");
     static const int changeLanguageCommand = QMetaType::type("ChangeLanguageCommand");
+    static const int changePreviewImageSizeCommand = QMetaType::type(
+        "ChangePreviewImageSizeCommand");
 
     const int commandType = command.userType();
 
@@ -548,6 +555,8 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
         changeSelection(changeSelectionCommand);
     } else if (command.userType() == changeLanguageCommand) {
         changeLanguage(command.value<ChangeLanguageCommand>());
+    } else if (command.userType() == changePreviewImageSizeCommand) {
+        changePreviewImageSize(command.value<ChangePreviewImageSizeCommand>());
     } else {
         Q_ASSERT(false);
     }

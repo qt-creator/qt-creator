@@ -25,10 +25,12 @@
 
 #include "qt5previewnodeinstanceserver.h"
 
-#include "nodeinstanceclientinterface.h"
-#include "statepreviewimagechangedcommand.h"
+#include "changepreviewimagesizecommand.h"
 #include "createscenecommand.h"
+#include "nodeinstanceclientinterface.h"
 #include "removesharedmemorycommand.h"
+#include "statepreviewimagechangedcommand.h"
+
 #include <QQuickView>
 #include <QQuickItem>
 #include <designersupportdelegate.h>
@@ -100,7 +102,9 @@ QImage Qt5PreviewNodeInstanceServer::renderPreviewImage()
     QRectF boundingRect = rootNodeInstance().boundingRect();
 
     QSize previewImageSize = boundingRect.size().toSize();
-    previewImageSize.scale(QSize(160, 160), Qt::KeepAspectRatio);
+
+    if (!m_previewSize.isNull())
+        previewImageSize.scale(m_previewSize, Qt::KeepAspectRatio);
 
     QImage previewImage = rootNodeInstance().renderPreviewImage(previewImageSize);
 
@@ -111,6 +115,14 @@ void QmlDesigner::Qt5PreviewNodeInstanceServer::removeSharedMemory(const QmlDesi
 {
     if (command.typeName() == "Image")
         ImageContainer::removeSharedMemorys(command.keyNumbers());
+}
+
+void Qt5PreviewNodeInstanceServer::changePreviewImageSize(
+    const ChangePreviewImageSizeCommand &command)
+{
+    m_previewSize = command.size;
+
+    collectItemChangesAndSendChangeCommands();
 }
 
 } // namespace QmlDesigner

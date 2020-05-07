@@ -33,6 +33,7 @@
 #include "changeidscommand.h"
 #include "changelanguagecommand.h"
 #include "changenodesourcecommand.h"
+#include "changepreviewimagesizecommand.h"
 #include "changeselectioncommand.h"
 #include "changestatecommand.h"
 #include "changevaluescommand.h"
@@ -67,6 +68,7 @@
 #include "valueschangedcommand.h"
 #include "variantproperty.h"
 #include "view3dactioncommand.h"
+
 #include <metainfo.h>
 #include <model.h>
 #include <modelnode.h>
@@ -537,8 +539,10 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
                 }
             }
         }
-    } else if (node.isRootNode() && name == "language") {
+    } else if (node.isRootNode() && name == "language@Internal") {
         nodeInstanceServer()->changeLanguage({value.toString()});
+    } else if (node.isRootNode() && name == "previewSize@Internal") {
+        nodeInstanceServer()->changePreviewImageSize(value.toSize());
     }
 }
 
