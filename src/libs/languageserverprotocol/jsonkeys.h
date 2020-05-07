@@ -146,6 +146,7 @@ constexpr char parametersKey[] = "params";
 constexpr char patternKey[] = "pattern";
 constexpr char positionKey[] = "position";
 constexpr char prepareProviderKey[] = "prepareProvider";
+constexpr char prepareSupportKey[] = "prepareSupport";
 constexpr char processIdKey[] = "processId";
 constexpr char queryKey[] = "query";
 constexpr char rangeFormattingKey[] = "rangeFormatting";

@@ -444,10 +444,28 @@ public:
     { insert(colorProviderKey, colorProvider); }
     void clearColorProvider() { remove(colorProviderKey); }
 
+    class LANGUAGESERVERPROTOCOL_EXPORT RenameClientCapabilities : public DynamicRegistrationCapabilities
+    {
+    public:
+        using DynamicRegistrationCapabilities::DynamicRegistrationCapabilities;
+        /**
+         * Client supports testing for validity of rename operations
+         * before execution.
+         *
+         * @since version 3.12.0
+         */
+
+        Utils::optional<bool> prepareSupport() const { return optionalValue<bool>(prepareSupportKey); }
+        void setPrepareSupport(bool prepareSupport) { insert(prepareSupportKey, prepareSupport); }
+        void clearPrepareSupport() { remove(prepareSupportKey); }
+
+        bool isValid(ErrorHierarchy *error) const override;
+    };
+
     // Whether rename supports dynamic registration.
-    Utils::optional<DynamicRegistrationCapabilities> rename() const
-    { return optionalValue<DynamicRegistrationCapabilities>(renameKey); }
-    void setRename(const DynamicRegistrationCapabilities &rename)
+    Utils::optional<RenameClientCapabilities> rename() const
+    { return optionalValue<RenameClientCapabilities>(renameKey); }
+    void setRename(const RenameClientCapabilities &rename)
     { insert(renameKey, rename); }
     void clearRename() { remove(renameKey); }
 

@@ -92,7 +92,7 @@ bool TextDocumentClientCapabilities::isValid(ErrorHierarchy *error) const
            && checkOptional<DynamicRegistrationCapabilities>(error, codeLensKey)
            && checkOptional<DynamicRegistrationCapabilities>(error, documentLinkKey)
            && checkOptional<DynamicRegistrationCapabilities>(error, colorProviderKey)
-           && checkOptional<DynamicRegistrationCapabilities>(error, renameKey)
+           && checkOptional<RenameClientCapabilities>(error, renameKey)
            && checkOptional<SemanticHighlightingCapabilities>(error, semanticHighlightingCapabilitiesKey);
 }
 
@@ -126,6 +126,12 @@ bool TextDocumentClientCapabilities::CodeActionCapabilities::isValid(ErrorHierar
 {
     return DynamicRegistrationCapabilities::isValid(errorHierarchy)
             && checkOptional<CodeActionLiteralSupport>(errorHierarchy, codeActionLiteralSupportKey);
+}
+
+bool TextDocumentClientCapabilities::RenameClientCapabilities::isValid(ErrorHierarchy *error) const
+{
+    return DynamicRegistrationCapabilities::isValid(error)
+           && checkOptional<bool>(error, prepareSupportKey);
 }
 
 } // namespace LanguageServerProtocol
