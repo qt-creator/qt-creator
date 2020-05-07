@@ -1201,6 +1201,22 @@ void addToGroupItem(const SelectionContext &selectionContext)
     }
 }
 
+void selectFlowEffect(const SelectionContext &selectionContext)
+{
+    if (!selectionContext.singleNodeIsSelected())
+        return;
+
+    ModelNode node = selectionContext.currentSingleSelectedNode();
+    QmlVisualNode transition(node);
+
+    QTC_ASSERT(transition.isValid(), return);
+    QTC_ASSERT(transition.isFlowTransition(), return);
+
+    if (node.hasNodeProperty("effect")) {
+        selectionContext.view()->setSelectedModelNode(node.nodeProperty("effect").modelNode());
+    }
+}
+
 } // namespace Mode
 
 } //QmlDesigner

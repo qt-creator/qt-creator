@@ -79,6 +79,7 @@ void addTransition(const SelectionContext &selectionState);
 void addFlowEffect(const SelectionContext &selectionState, const TypeName &typeName);
 void setFlowStartItem(const SelectionContext &selectionContext);
 void addToGroupItem(const SelectionContext &selectionContext);
+void selectFlowEffect(const SelectionContext &selectionContext);
 
 } // namespace ModelNodeOperationso
 } //QmlDesigner
