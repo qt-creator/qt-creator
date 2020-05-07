@@ -738,7 +738,7 @@ The files in the Android package source directory are copied to the build direct
     </message>
     <message>
         <source>This is useful for apps that use SSL operations. The path can be defined in Tools &gt; Options &gt; Devices &gt; Android.</source>
-        <translation>Полезно для приложений, использующих операции SSL. Путь можно задать в Инструменты &gt; Настройки &gt; Устройства &gt; Android.</translation>
+        <translation>Полезно для приложений, использующих операции SSL. Путь можно задать в Инструменты &gt; Параметры &gt; Устройства &gt; Android.</translation>
     </message>
     <message>
         <source>Build Android APK</source>
@@ -1237,7 +1237,7 @@ Do you want to uninstall the existing package?</source>
     <name>Android::Internal::AndroidPlugin</name>
     <message>
         <source>Would you like to configure Android options? This will ensure Android kits can be usable and all essential packages are installed. To do it later, select Options &gt; Devices &gt; Android.</source>
-        <translation>Настроить Android? Предполагается, что комплекты Android доступны, а необходимые пакеты установлены. Чтобы сделать это позже перейдите в Настройки &gt; Устройства &gt; Android.</translation>
+        <translation>Настроить Android? Предполагается, что комплекты Android доступны, а необходимые пакеты установлены. Чтобы сделать это позже перейдите в Параметры &gt; Устройства &gt; Android.</translation>
     </message>
     <message>
         <source>Configure Android</source>
@@ -25719,7 +25719,7 @@ Error: %5</translation>
     </message>
     <message>
         <source>Sampler name</source>
-        <translation type="unfinished">Имя семплера</translation>
+        <translation>Имя семплера</translation>
     </message>
     <message>
         <source>Sets the name of the effect&apos;s source texture property.</source>
@@ -26475,10 +26475,6 @@ Error: %5</translation>
         <source>NXP i.MXRT SDK</source>
         <translation>NXP i.MXRT SDK</translation>
     </message>
-    <message>
-        <source>SEGGER JLink</source>
-        <translation>SEGGER JLink</translation>
-    </message>
 </context>
 <context>
     <name>McuSupport::Internal::McuSupportDevice</name>
@@ -26504,6 +26500,17 @@ Error: %5</translation>
     <message>
         <source>MCU</source>
         <translation>Микроконтроллер</translation>
+    </message>
+</context>
+<context>
+    <name>McuSupport::Internal::McuSupportPlugin</name>
+    <message>
+        <source>Create Kits for Qt for MCUs? To do it later, select Options &gt; Devices &gt; MCU.</source>
+        <translation>Создать комплекты для Qt для микроконтроллеров? Можно сделать позже через Параметры &gt; Устройства &gt; Микроконтроллер.</translation>
+    </message>
+    <message>
+        <source>Create Kits for Qt for MCUs</source>
+        <translation>Создать комплекты для Qt для микроконтроллеров</translation>
     </message>
 </context>
 <context>
@@ -31154,7 +31161,7 @@ What should Qt Creator do now?</source>
     </message>
     <message>
         <source>Disable in subdirectories:</source>
-        <translation>Выключить по подкаталогах:</translation>
+        <translation>Выключить в подкаталогах:</translation>
     </message>
     <message>
         <source>Runs this step only for a top-level build.</source>
@@ -40337,40 +40344,12 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
         <translation>Ожидается определение зависимостей</translation>
     </message>
     <message>
-        <source>Expected only Property, Method, Signal and Enum object definitions, not &quot;%1&quot;.</source>
-        <translation>Ожидаются только определения объектов Property, Method, Signal и Enum, а не «%1».</translation>
-    </message>
-    <message>
-        <source>Expected only name, prototype, defaultProperty, attachedType, exports, isSingleton, isCreatable, isComposite and exportMetaObjectRevisions script bindings, not &quot;%1&quot;.</source>
-        <translation>Ожидаются только связки со скриптами name, prototype, defaultProperty, attachedType, exports, isSingleton, isCreatable, isComposite и exportMetaObjectRevisions, но не «%1».</translation>
-    </message>
-    <message>
-        <source>Expected only script bindings and object definitions.</source>
-        <translation>Ожидаются только связки со скриптами и определения объектов.</translation>
-    </message>
-    <message>
         <source>Component definition is missing a name binding.</source>
         <translation>В определении компонента отсутствует связка name.</translation>
     </message>
     <message>
-        <source>Expected only uri, version and name script bindings.</source>
-        <translation>Ожидаются только связки со скриптами uri, version и name.</translation>
-    </message>
-    <message>
-        <source>Expected only script bindings.</source>
-        <translation>Ожидаются только связки со скриптами.</translation>
-    </message>
-    <message>
         <source>ModuleApi definition has no or invalid version binding.</source>
         <translation>У определения ModuleApi связка version отсутствует или некорректна.</translation>
-    </message>
-    <message>
-        <source>Expected only Parameter object definitions.</source>
-        <translation>Ожидаются только определения объектов Parameter.</translation>
-    </message>
-    <message>
-        <source>Expected only name and type script bindings.</source>
-        <translation>Ожидаются только связки со скриптами name и type.</translation>
     </message>
     <message>
         <source>Method or signal is missing a name script binding.</source>
@@ -40381,16 +40360,8 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
         <translation>Ожидается связка со скриптом.</translation>
     </message>
     <message>
-        <source>Expected only type, name, revision, isPointer, isReadonly and isList script bindings.</source>
-        <translation>Ожидаются только связки со скриптами type, name, revision, isPointer, isReadonly и isList.</translation>
-    </message>
-    <message>
         <source>Property object is missing a name or type script binding.</source>
         <translation>У объекта Property отсутствует связка со скриптами name или type.</translation>
-    </message>
-    <message>
-        <source>Expected only name and values script bindings.</source>
-        <translation>Ожидаются только связки со скриптами name и values.</translation>
     </message>
     <message>
         <source>Expected string after colon.</source>
@@ -42736,7 +42707,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     <name>QtSupport::Internal::QtSupportPlugin</name>
     <message>
         <source>Link with a Qt installation to automatically register Qt versions and kits? To do this later, select Options &gt; Kits &gt; Qt Versions &gt; Link with Qt.</source>
-        <translation>Связать с Qt для автоматической регистрации профилей Qt и комплектов? Это можно сделать позже в меню Настройки &gt; Комплекты &gt; Профили Qt &gt; Связать с Qt.</translation>
+        <translation>Связать с Qt для автоматической регистрации профилей Qt и комплектов? Это можно сделать позже в меню Параметры &gt; Комплекты &gt; Профили Qt &gt; Связать с Qt.</translation>
     </message>
     <message>
         <source>Link with Qt</source>
