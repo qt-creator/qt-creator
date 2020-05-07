@@ -893,6 +893,11 @@ static bool isOnlyControlModifier(const Qt::KeyboardModifiers &mods)
     return (mods ^ ControlModifier) == Qt::NoModifier;
 }
 
+static bool hasControlModifier(const Qt::KeyboardModifiers &mods)
+{
+    return mods.testFlag(ControlModifier);
+}
+
 
 Range::Range(int b, int e, RangeMode m)
     : beginPos(qMin(b, e)), endPos(qMax(b, e)), rangemode(m)
@@ -1065,7 +1070,7 @@ public:
 
     bool is(int c) const
     {
-        return m_xkey == c && !isControl();
+        return m_xkey == c && !hasControlModifier(m_modifiers);
     }
 
     bool isControl() const
