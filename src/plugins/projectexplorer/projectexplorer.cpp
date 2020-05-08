@@ -3772,8 +3772,11 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
     if (oldFilePath == newFilePath)
         return;
 
+    auto handleGuards = Core::HandleIncludeGuards::No;
+    if (node->asFileNode() && node->asFileNode()->fileType() == FileType::Header)
+        handleGuards = Core::HandleIncludeGuards::Yes;
     if (!folderNode->canRenameFile(oldFilePath, newFilePath)) {
-        QTimer::singleShot(0, [oldFilePath, newFilePath, projectFileName] {
+        QTimer::singleShot(0, [oldFilePath, newFilePath, projectFileName, handleGuards] {
             int res = QMessageBox::question(ICore::dialogParent(),
                                             tr("Project Editing Failed"),
                                             tr("The project file %1 cannot be automatically changed.\n\n"
@@ -3782,13 +3785,13 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
                                             .arg(QDir::toNativeSeparators(oldFilePath))
                                             .arg(QDir::toNativeSeparators(newFilePath)));
             if (res == QMessageBox::Yes) {
-                QTC_CHECK(Core::FileUtils::renameFile(oldFilePath, newFilePath));
+                QTC_CHECK(Core::FileUtils::renameFile(oldFilePath, newFilePath, handleGuards));
             }
         });
         return;
     }
 
-    if (Core::FileUtils::renameFile(oldFilePath, newFilePath)) {
+    if (Core::FileUtils::renameFile(oldFilePath, newFilePath, handleGuards)) {
         // Tell the project plugin about rename
         if (!folderNode->renameFile(oldFilePath, newFilePath)) {
             const QString renameFileError
