@@ -97,9 +97,10 @@ private:
     QObject *findView3DForSceneRoot(QObject *sceneRoot) const;
     QObject *find3DSceneRoot(const ServerNodeInstance &instance) const;
     QObject *find3DSceneRoot(QObject *obj) const;
-    QVector<InstancePropertyValueTriple> vectorToPropertyValue(const ServerNodeInstance &instance,
-                                                               const PropertyName &propertyName,
-                                                               const QVariant &variant);
+    QVector<InstancePropertyValueTriple> propertyToPropertyValueTriples(
+            const ServerNodeInstance &instance,
+            const PropertyName &propertyName,
+            const QVariant &variant);
     void modifyVariantValue(const QVariant &node,
                             const PropertyName &propertyName,
                             ValuesModifiedCommand::TransactionOption option);

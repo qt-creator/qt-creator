@@ -27,12 +27,8 @@ import QtQuick 2.0
 import QtQuick3D 1.15
 import LineGeometry 1.0
 
-Arrow {
+DirectionalDraggable {
     id: arrowRoot
-
-    property real length: 10
-
-    source: ""
 
     Model {
         geometry: LineGeometry {
@@ -41,15 +37,15 @@ Arrow {
             startPos: Qt.vector3d(0, 0, 0)
             endPos: Qt.vector3d(0, 1, 0)
         }
-        materials: [ arrowRoot.material ]
         scale: Qt.vector3d(1, arrowRoot.length, 1)
+        materials: [ arrowRoot.material ]
     }
 
     Model {
         id: arrowHead
         source: "#Cone"
         materials: [ arrowRoot.material ]
-        y: arrowRoot.length
+        y: arrowRoot.length - 3
         scale: Qt.vector3d(0.02, 0.035, 0.02)
     }
 }

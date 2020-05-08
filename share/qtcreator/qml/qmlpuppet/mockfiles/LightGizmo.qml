@@ -55,6 +55,12 @@ Node {
             return 100;
         }
     }
+    readonly property bool dragging: primaryArrow.dragging
+    property point currentMousePos
+    property string currentLabel
+
+    signal brightnessCommit()
+    signal brightnessChange()
 
     position: targetNode ? targetNode.scenePosition : Qt.vector3d(0, 0, 0)
     visible: lightGizmo.targetNode instanceof SpotLight
@@ -144,12 +150,38 @@ Node {
             id: primaryArrow
             eulerRotation: Qt.vector3d(-90, 0, 0)
             targetNode: lightGizmo.targetNode
-            color: lightGizmo.color
+            color: (hovering || dragging) ? Qt.rgba(1, 1, 1, 1) : lightGizmo.color
             view3D: lightGizmo.view3D
-            active: false
+            active: lightGizmo.visible
             dragHelper: lightGizmo.dragHelper
             scale: autoScale.getScale(Qt.vector3d(5, 5, 5))
-            length: lightGizmo.brightnessScale / 10
+            length: (lightGizmo.brightnessScale / 10) + 3
+
+            property real _startBrightness
+
+            function updateBrightness(relativeDistance, screenPos)
+            {
+                var currentValue = Math.round(Math.max(0, _startBrightness + relativeDistance * 10));
+                var l = Qt.locale();
+                lightGizmo.currentLabel = qsTr("brightness: ") + Number(currentValue).toLocaleString(l, 'f', 0);
+                lightGizmo.currentMousePos = screenPos;
+                targetNode.brightness = currentValue;
+            }
+
+            onPressed: {
+                _startBrightness = targetNode.brightness;
+                updateBrightness(0, screenPos);
+            }
+
+            onDragged: {
+                updateBrightness(relativeDistance, screenPos);
+                lightGizmo.brightnessChange();
+            }
+
+            onReleased: {
+                updateBrightness(relativeDistance, screenPos);
+                lightGizmo.brightnessCommit();
+            }
         }
 
         DefaultMaterial {

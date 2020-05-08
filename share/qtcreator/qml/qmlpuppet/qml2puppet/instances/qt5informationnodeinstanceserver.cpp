@@ -170,31 +170,37 @@ void Qt5InformationNodeInstanceServer::handleSelectionChanged(const QVariant &ob
 }
 
 QVector<Qt5InformationNodeInstanceServer::InstancePropertyValueTriple>
-Qt5InformationNodeInstanceServer::vectorToPropertyValue(
+Qt5InformationNodeInstanceServer::propertyToPropertyValueTriples(
     const ServerNodeInstance &instance,
     const PropertyName &propertyName,
     const QVariant &variant)
 {
     QVector<InstancePropertyValueTriple> result;
-
-    auto vector3d = variant.value<QVector3D>();
-
-    if (vector3d.isNull())
-        return result;
-
-    const PropertyName dot = propertyName.isEmpty() ? "" : ".";
-
     InstancePropertyValueTriple propTriple;
-    propTriple.instance = instance;
-    propTriple.propertyName = propertyName + dot + PropertyName("x");
-    propTriple.propertyValue = vector3d.x();
-    result.append(propTriple);
-    propTriple.propertyName = propertyName + dot + PropertyName("y");
-    propTriple.propertyValue = vector3d.y();
-    result.append(propTriple);
-    propTriple.propertyName = propertyName + dot + PropertyName("z");
-    propTriple.propertyValue = vector3d.z();
-    result.append(propTriple);
+
+    if (variant.type() == QVariant::Vector3D) {
+        auto vector3d = variant.value<QVector3D>();
+
+        if (vector3d.isNull())
+            return result;
+
+        const PropertyName dot = propertyName.isEmpty() ? "" : ".";
+        propTriple.instance = instance;
+        propTriple.propertyName = propertyName + dot + PropertyName("x");
+        propTriple.propertyValue = vector3d.x();
+        result.append(propTriple);
+        propTriple.propertyName = propertyName + dot + PropertyName("y");
+        propTriple.propertyValue = vector3d.y();
+        result.append(propTriple);
+        propTriple.propertyName = propertyName + dot + PropertyName("z");
+        propTriple.propertyValue = vector3d.z();
+        result.append(propTriple);
+    } else {
+        propTriple.instance = instance;
+        propTriple.propertyName = propertyName;
+        propTriple.propertyValue = variant;
+        result.append(propTriple);
+    }
 
     return result;
 }
@@ -222,7 +228,7 @@ void Qt5InformationNodeInstanceServer::modifyVariantValue(
             instance.setModifiedFlag(false);
 
         // We do have to split position into position.x, position.y, position.z
-        ValuesModifiedCommand command = createValuesModifiedCommand(vectorToPropertyValue(
+        ValuesModifiedCommand command = createValuesModifiedCommand(propertyToPropertyValueTriples(
             instance,
             targetPropertyName,
             obj->property(propertyName)));

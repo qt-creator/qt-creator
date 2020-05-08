@@ -456,6 +456,9 @@ Item {
             targetNode: viewRoot.selectedNode
             view3D: overlayView
             dragHelper: gizmoDragHelper
+
+            onBrightnessCommit: viewRoot.commitObjectProperty(viewRoot.selectedNode, "brightness")
+            onBrightnessChange: viewRoot.changeObjectProperty(viewRoot.selectedNode, "brightness")
         }
 
         AutoScaleHelper {
@@ -596,11 +599,29 @@ Item {
                         var l = Qt.locale();
                         if (rotateGizmo.targetNode) {
                             var degrees = rotateGizmo.currentAngle * (180 / Math.PI);
-                            return qsTr(Number(degrees).toLocaleString(l, 'f', 1));
+                            return Number(degrees).toLocaleString(l, 'f', 1);
                         } else {
                             return "";
                         }
                     }
+                    anchors.centerIn: parent
+                }
+            }
+
+            Rectangle {
+                id: lightGizmoLabel
+                color: "white"
+                x: lightGizmo.currentMousePos.x - (10 + width)
+                y: lightGizmo.currentMousePos.y - (10 + height)
+                width: lightGizmoLabelText.width + 4
+                height: lightGizmoLabelText.height + 4
+                border.width: 1
+                visible: lightGizmo.dragging
+                parent: lightGizmo.view3D
+
+                Text {
+                    id: lightGizmoLabelText
+                    text: lightGizmo.currentLabel
                     anchors.centerIn: parent
                 }
             }
