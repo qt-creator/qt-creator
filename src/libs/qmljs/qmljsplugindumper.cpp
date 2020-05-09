@@ -553,7 +553,7 @@ void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
             prepareLibraryInfo(libInfo, libraryPath, typesResult.dependencies,
                                typesResult.errors, typesResult.warnings,
                                typesResult.moduleApis, typesResult.objects);
-            m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
+            m_modelManager->updateLibraryInfo(libraryPath, libInfo);
         }
     });
 }
