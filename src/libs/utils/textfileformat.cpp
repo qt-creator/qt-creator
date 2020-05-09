@@ -304,7 +304,7 @@ bool TextFileFormat::writeFile(const QString &fileName, QString plainText, QStri
     QTC_ASSERT(codec, return false);
 
     // Does the user want CRLF? If that is native,
-    // do net let QFile do the work, because it replaces the line ending after the text was encoded,
+    // do not let QFile do the work, because it replaces the line ending after the text was encoded,
     // and this could lead to undecodable file contents.
     QIODevice::OpenMode fileMode = QIODevice::NotOpen;
     if (lineTerminationMode == CRLFLineTerminator)
