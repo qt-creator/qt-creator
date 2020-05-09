@@ -374,15 +374,17 @@ void Client::activateDocument(TextEditor::TextDocument *document)
     auto uri = DocumentUri::fromFilePath(document->filePath());
     showDiagnostics(uri);
     SemanticHighligtingSupport::applyHighlight(document, m_highlights.value(uri), capabilities());
-    // only replace the assist provider if the completion provider is the default one or null
-    if (!document->completionAssistProvider()
-        || qobject_cast<TextEditor::DocumentContentCompletionProvider *>(
-            document->completionAssistProvider())) {
-        m_resetAssistProvider[document] = {document->completionAssistProvider(),
-                                           document->functionHintAssistProvider(),
-                                           document->quickFixAssistProvider()};
+    // only replace the assist provider if the language server support it
+    if (m_serverCapabilities.completionProvider()) {
+        m_resetAssistProvider[document].completionAssistProvider = document->completionAssistProvider();
         document->setCompletionAssistProvider(m_clientProviders.completionAssistProvider);
+    }
+    if (m_serverCapabilities.signatureHelpProvider()) {
+        m_resetAssistProvider[document].functionHintProvider = document->functionHintAssistProvider();
         document->setFunctionHintAssistProvider(m_clientProviders.functionHintProvider);
+    }
+    if (m_serverCapabilities.codeActionProvider()) {
+        m_resetAssistProvider[document].quickFixAssistProvider = document->quickFixAssistProvider();
         document->setQuickFixAssistProvider(m_clientProviders.quickFixAssistProvider);
     }
     document->setFormatter(new LanguageClientFormatter(document, this));
@@ -1094,11 +1096,17 @@ void Client::removeDiagnostics(const DocumentUri &uri)
 void Client::resetAssistProviders(TextEditor::TextDocument *document)
 {
     const AssistProviders providers = m_resetAssistProvider.take(document);
-    if (document->completionAssistProvider() == m_clientProviders.completionAssistProvider)
+
+    if (document->completionAssistProvider() == m_clientProviders.completionAssistProvider &&
+            providers.completionAssistProvider)
         document->setCompletionAssistProvider(providers.completionAssistProvider);
-    if (document->functionHintAssistProvider() == m_clientProviders.functionHintProvider)
+
+    if (document->functionHintAssistProvider() == m_clientProviders.functionHintProvider &&
+            providers.functionHintProvider)
         document->setFunctionHintAssistProvider(providers.functionHintProvider);
-    if (document->quickFixAssistProvider() == m_clientProviders.quickFixAssistProvider)
+
+    if (document->quickFixAssistProvider() == m_clientProviders.quickFixAssistProvider &&
+            providers.quickFixAssistProvider)
         document->setQuickFixAssistProvider(providers.quickFixAssistProvider);
 }
 
