@@ -84,12 +84,14 @@
 #include <QTextCodec>
 
 const char GIT_DIRECTORY[] = ".git";
-const char graphLogFormatC[] = "%h %d %an %s %ci";
 const char HEAD[] = "HEAD";
 const char CHERRY_PICK_HEAD[] = "CHERRY_PICK_HEAD";
 const char BRANCHES_PREFIX[] = "Branches: ";
 const char stashNamePrefix[] = "stash@{";
 const char noColorOption[] = "--no-color";
+const char colorOption[] = "--color=always";
+const char patchOption[] = "--patch";
+const char graphOption[] = "--graph";
 const char decorateOption[] = "--decorate";
 const char showFormatC[] =
         "--pretty=format:commit %H%d%n"
@@ -540,7 +542,7 @@ public:
         BaseGitDiffArgumentsWidget(settings, editor->toolBar())
     {
         QToolBar *toolBar = editor->toolBar();
-        QAction *diffButton = addToggleButton("--patch", tr("Diff"),
+        QAction *diffButton = addToggleButton(patchOption, tr("Diff"),
                                               tr("Show difference."));
         mapSetting(diffButton, settings.boolPointer(GitSettings::logDiffKey));
         connect(diffButton, &QAction::toggled, m_patienceButton, &QAction::setVisible);
@@ -568,13 +570,13 @@ public:
                                 tr("First Parent"),
                                 tr("Follow only the first parent on merge commits."));
         mapSetting(firstParentButton, settings.boolPointer(GitSettings::firstParentKey));
-        const QStringList graphArguments = {
-            "--graph", "--oneline", "--topo-order",
-            QLatin1String("--pretty=format:") + graphLogFormatC
-        };
-        QAction *graphButton = addToggleButton(graphArguments, tr("Graph"),
+        QAction *graphButton = addToggleButton(graphArguments(), tr("Graph"),
                                                tr("Show textual graph log."));
         mapSetting(graphButton, settings.boolPointer(GitSettings::graphLogKey));
+
+        QAction *colorButton = addToggleButton(QStringList{colorOption},
+                                        tr("Color"), tr("Use colors in log."));
+        mapSetting(colorButton, settings.boolPointer(GitSettings::colorLogKey));
 
         if (fileRelated) {
             QAction *followButton = addToggleButton(
@@ -584,6 +586,35 @@ public:
         }
 
         addReloadButton();
+    }
+
+    QStringList graphArguments() const
+    {
+        auto colorName = [](Theme::Color color) { return creatorTheme()->color(color).name(); };
+        const QString authorName = colorName(Theme::Git_AuthorName_TextColor);
+        const QString commitDate = colorName(Theme::Git_CommitDate_TextColor);
+        const QString commitHash = colorName(Theme::Git_CommitHash_TextColor);
+        const QString commitSubject = colorName(Theme::Git_CommitSubject_TextColor);
+        const QString decoration = colorName(Theme::Git_Decoration_TextColor);
+
+        const QString formatArg = QStringLiteral(
+                    "--pretty=format:"
+                    "%C(%1)%h%Creset "
+                    "%C(%2)%d%Creset "
+                    "%C(%3)%an%Creset "
+                    "%C(%4)%s%Creset "
+                    "%C(%5)%ci%Creset"
+                    ).arg(commitHash, decoration, authorName, commitSubject, commitDate);
+
+        QStringList graphArgs = {graphOption, "--oneline", "--topo-order"};
+
+        const unsigned gitVersion = GitClient::instance()->gitVersion();
+        if (gitVersion >= 0x020300U)
+            graphArgs << formatArg;
+        else
+            graphArgs << "--pretty=format:%h %d %an %s %ci";
+
+        return graphArgs;
     }
 };
 
@@ -1002,6 +1033,30 @@ void GitClient::status(const QString &workingDirectory) const
             Qt::QueuedConnection);
 }
 
+static QStringList normalLogArguments()
+{
+    const unsigned gitVersion = GitClient::instance()->gitVersion();
+    if (gitVersion < 0x020300U)
+        return {};
+
+    auto colorName = [](Theme::Color color) { return creatorTheme()->color(color).name(); };
+    const QString authorName = colorName(Theme::Git_AuthorName_TextColor);
+    const QString commitDate = colorName(Theme::Git_CommitDate_TextColor);
+    const QString commitHash = colorName(Theme::Git_CommitHash_TextColor);
+    const QString commitSubject = colorName(Theme::Git_CommitSubject_TextColor);
+    const QString decoration = colorName(Theme::Git_Decoration_TextColor);
+
+    const QString logArgs = QStringLiteral(
+                "--pretty=format:"
+                "Commit: %C(%1)%H%Creset %C(%2)%d%Creset%n"
+                "Author: %C(%3)%an <%ae>%Creset%n"
+                "Date:   %C(%4)%cD%Creset%n%n"
+                "%C(%5)%s%Creset%n%n%b%n"
+                ).arg(commitHash, decoration, authorName, commitDate, commitSubject);
+
+    return {logArgs};
+}
+
 void GitClient::log(const QString &workingDirectory, const QString &fileName,
                     bool enableAnnotationContextMenu, const QStringList &args)
 {
@@ -1031,12 +1086,17 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
     editor->setWorkingDirectory(workingDir);
 
-    QStringList arguments = {"log", noColorOption, decorateOption};
+    QStringList arguments = {"log", decorateOption};
     int logCount = settings().intValue(GitSettings::logCountKey);
     if (logCount > 0)
         arguments << "-n" << QString::number(logCount);
 
     arguments << argWidget->arguments();
+    if (arguments.contains(patchOption))
+        arguments.removeAll(colorOption);
+    if (!arguments.contains(graphOption) && !arguments.contains(patchOption))
+        arguments << normalLogArguments();
+
     const QString grepValue = editor->grepValue();
     if (!grepValue.isEmpty())
         arguments << "--grep=" + grepValue;

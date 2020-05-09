@@ -38,6 +38,7 @@
 #include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcsoutputwindow.h>
 
+#include <utils/ansiescapecodehandler.h>
 #include <utils/qtcassert.h>
 #include <utils/temporaryfile.h>
 
@@ -205,6 +206,20 @@ void GitEditorWidget::setPlainText(const QString &text)
     // If desired, filter out the date from annotation
     switch (contentType())
     {
+    case LogOutput: {
+        Utils::AnsiEscapeCodeHandler handler;
+        const QList<Utils::FormattedText> formattedTextList
+                = handler.parseText(Utils::FormattedText(text));
+
+        clear();
+        QTextCursor cursor = textCursor();
+        cursor.beginEditBlock();
+        for (auto formattedChunk : formattedTextList)
+            cursor.insertText(formattedChunk.text, formattedChunk.format);
+        cursor.endEditBlock();
+
+        return;
+    }
     case AnnotateOutput:
         modText = sanitizeBlameOutput(text);
         break;

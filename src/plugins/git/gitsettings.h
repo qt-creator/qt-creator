@@ -55,6 +55,7 @@ public:
     static const QLatin1String logDiffKey;
     static const QLatin1String repositoryBrowserCmd;
     static const QLatin1String graphLogKey;
+    static const QLatin1String colorLogKey;
     static const QLatin1String firstParentKey;
     static const QLatin1String followRenamesKey;
     static const QLatin1String lastResetIndexKey;
