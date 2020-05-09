@@ -318,9 +318,14 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistIn
     }
     CompletionRequest completionRequest;
     CompletionParams::CompletionContext context;
-    context.setTriggerKind(interface->reason() == ActivationCharacter
-                           ? CompletionParams::TriggerCharacter
-                           : CompletionParams::Invoked);
+    if (interface->reason() == ActivationCharacter) {
+        context.setTriggerKind(CompletionParams::TriggerCharacter);
+        QChar triggerCharacter = interface->characterAt(interface->position() - 1);
+        if (!triggerCharacter.isNull())
+            context.setTriggerCharacter(triggerCharacter);
+    } else {
+        context.setTriggerKind(CompletionParams::Invoked);
+    }
     auto params = completionRequest.params().value_or(CompletionParams());
     int line;
     int column;
