@@ -52,6 +52,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QHeaderView>
+#include <QJsonDocument>
 #include <QLabel>
 #include <QListView>
 #include <QMimeData>
@@ -68,6 +69,7 @@ constexpr char enabledKey[] = "enabled";
 constexpr char startupBehaviorKey[] = "startupBehavior";
 constexpr char mimeTypeKey[] = "mimeType";
 constexpr char filePatternKey[] = "filePattern";
+constexpr char initializationOptionsKey[] = "initializationOptions";
 constexpr char executableKey[] = "executable";
 constexpr char argumentsKey[] = "arguments";
 constexpr char settingsGroupKey[] = "LanguageClient";
@@ -465,12 +467,19 @@ QModelIndex LanguageClientSettingsModel::indexForSetting(BaseSettings *setting) 
     return index < 0 ? QModelIndex() : createIndex(index, 0, setting);
 }
 
+QJsonObject BaseSettings::initializationOptions() const
+{
+    return QJsonDocument::fromJson(Utils::globalMacroExpander()->
+                                   expand(m_initializationOptions).toUtf8()).object();
+}
+
 void BaseSettings::applyFromSettingsWidget(QWidget *widget)
 {
     if (auto settingsWidget = qobject_cast<BaseSettingsWidget *>(widget)) {
         m_name = settingsWidget->name();
         m_languageFilter = settingsWidget->filter();
         m_startBehavior = settingsWidget->startupBehavior();
+        m_initializationOptions = settingsWidget->initializationOptions();
     }
 }
 
@@ -505,6 +514,7 @@ Client *BaseSettings::createClient()
     auto *client = new Client(interface);
     client->setName(Utils::globalMacroExpander()->expand(m_name));
     client->setSupportedLanguage(m_languageFilter);
+    client->setInitializationOptions(initializationOptions());
     return client;
 }
 
@@ -517,6 +527,7 @@ QVariantMap BaseSettings::toMap() const
     map.insert(startupBehaviorKey, m_startBehavior);
     map.insert(mimeTypeKey, m_languageFilter.mimeTypes);
     map.insert(filePatternKey, m_languageFilter.filePattern);
+    map.insert(initializationOptionsKey, m_initializationOptions);
     return map;
 }
 
@@ -530,6 +541,7 @@ void BaseSettings::fromMap(const QVariantMap &map)
     m_languageFilter.mimeTypes = map[mimeTypeKey].toStringList();
     m_languageFilter.filePattern = map[filePatternKey].toStringList();
     m_languageFilter.filePattern.removeAll({}); // remove empty entries
+    m_initializationOptions = map[initializationOptionsKey].toString();
 }
 
 static LanguageClientSettingsPage &settingsPage()
@@ -706,13 +718,16 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
     , m_mimeTypes(new QLabel(settings->m_languageFilter.mimeTypes.join(filterSeparator), this))
     , m_filePattern(new QLineEdit(settings->m_languageFilter.filePattern.join(filterSeparator), this))
     , m_startupBehavior(new QComboBox)
+    , m_initializationOptions(new Utils::FancyLineEdit(this))
 {
     int row = 0;
     auto *mainLayout = new QGridLayout;
+
     mainLayout->addWidget(new QLabel(tr("Name:")), row, 0);
     mainLayout->addWidget(m_name, row, 1);
     auto chooser = new Core::VariableChooser(this);
     chooser->addSupportedWidget(m_name);
+
     mainLayout->addWidget(new QLabel(tr("Language:")), ++row, 0);
     auto mimeLayout = new QHBoxLayout;
     mimeLayout->addWidget(m_mimeTypes);
@@ -722,6 +737,7 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
     mainLayout->addLayout(mimeLayout, row, 1);
     m_filePattern->setPlaceholderText(tr("File pattern"));
     mainLayout->addWidget(m_filePattern, ++row, 1);
+
     mainLayout->addWidget(new QLabel(tr("Startup behavior:")), ++row, 0);
     for (int behavior = 0; behavior < BaseSettings::LastSentinel ; ++behavior)
         m_startupBehavior->addItem(startupBehaviorString(BaseSettings::StartBehavior(behavior)));
@@ -757,6 +773,33 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
                     mainLayout->addWidget(createCapabilitiesView(QJsonValue(capabilities)), row, 1);
                 });
     }
+
+    mainLayout->addWidget(new QLabel(tr("Initialization options:")), ++row, 0);
+    mainLayout->addWidget(m_initializationOptions, row, 1);
+    chooser->addSupportedWidget(m_initializationOptions);
+    m_initializationOptions->setValidationFunction([](Utils::FancyLineEdit *edit, QString *errorMessage) {
+        const QString value = Utils::globalMacroExpander()->expand(edit->text());
+
+        if (value.isEmpty())
+            return true;
+
+        QJsonParseError parseInfo;
+        const QJsonDocument json = QJsonDocument::fromJson(value.toUtf8(), &parseInfo);
+
+        if (json.isNull()) {
+            if (errorMessage)
+                *errorMessage = tr("Failed to parse JSON at %1: %2")
+                    .arg(parseInfo.offset)
+                    .arg(parseInfo.errorString());
+            return false;
+        }
+        return true;
+    });
+    m_initializationOptions->setText(settings->m_initializationOptions);
+    m_initializationOptions->setPlaceholderText(tr("Language server-specific JSON to pass via "
+                                                   "\"initializationOptions\" field of \"initialize\" "
+                                                   "request."));
+
     setLayout(mainLayout);
 }
 
@@ -774,6 +817,11 @@ LanguageFilter BaseSettingsWidget::filter() const
 BaseSettings::StartBehavior BaseSettingsWidget::startupBehavior() const
 {
     return BaseSettings::StartBehavior(m_startupBehavior->currentIndex());
+}
+
+QString BaseSettingsWidget::initializationOptions() const
+{
+    return m_initializationOptions->text();
 }
 
 class MimeTypeModel : public QStringListModel

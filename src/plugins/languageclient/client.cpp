@@ -250,6 +250,7 @@ void Client::initialize()
     InitializeRequest initRequest;
     auto params = initRequest.params().value_or(InitializeParams());
     params.setCapabilities(generateClientCapabilities());
+    params.setInitializationOptions(m_initializationOptions);
     if (m_project) {
         params.setRootUri(DocumentUri::fromFilePath(m_project->projectDirectory()));
         params.setWorkSpaceFolders(Utils::transform(SessionManager::projects(), [](Project *pro){
@@ -879,6 +880,11 @@ void Client::setSupportedLanguage(const LanguageFilter &filter)
     m_languagFilter = filter;
 }
 
+void Client::setInitializationOptions(const QJsonObject &initializationOptions)
+{
+    m_initializationOptions = initializationOptions;
+}
+
 bool Client::isSupportedDocument(const TextEditor::TextDocument *document) const
 {
     QTC_ASSERT(document, return false);
@@ -900,7 +906,8 @@ bool Client::needsRestart(const BaseSettings *settings) const
 {
     QTC_ASSERT(settings, return false);
     return m_languagFilter.mimeTypes != settings->m_languageFilter.mimeTypes
-            || m_languagFilter.filePattern != settings->m_languageFilter.filePattern;
+            || m_languagFilter.filePattern != settings->m_languageFilter.filePattern
+            || m_initializationOptions != settings->initializationOptions();
 }
 
 QList<Diagnostic> Client::diagnosticsAt(const DocumentUri &uri, const Range &range) const

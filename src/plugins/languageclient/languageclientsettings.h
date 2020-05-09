@@ -32,6 +32,7 @@
 #include <utils/fileutils.h>
 
 #include <QAbstractItemModel>
+#include <QJsonObject>
 #include <QLabel>
 #include <QPointer>
 #include <QUuid>
@@ -45,6 +46,7 @@ QT_END_NAMESPACE
 namespace Utils {
 class FilePath;
 class PathChooser;
+class FancyLineEdit;
 } // namespace Utils
 
 namespace Core { class IDocument; }
@@ -82,6 +84,9 @@ public:
     bool m_enabled = true;
     StartBehavior m_startBehavior = RequiresFile;
     LanguageFilter m_languageFilter;
+    QString m_initializationOptions;
+
+    QJsonObject initializationOptions() const;
 
     virtual void applyFromSettingsWidget(QWidget *widget);
     virtual QWidget *createSettingsWidget(QWidget *parent = nullptr) const;
@@ -155,6 +160,7 @@ public:
     BaseSettings::StartBehavior startupBehavior() const;
     bool alwaysOn() const;
     bool requiresProject() const;
+    QString initializationOptions() const;
 
 private:
     void showAddMimeTypeDialog();
@@ -163,6 +169,7 @@ private:
     QLabel *m_mimeTypes = nullptr;
     QLineEdit *m_filePattern = nullptr;
     QComboBox *m_startupBehavior = nullptr;
+    Utils::FancyLineEdit *m_initializationOptions = nullptr;
 
     static constexpr char filterSeparator = ';';
 };

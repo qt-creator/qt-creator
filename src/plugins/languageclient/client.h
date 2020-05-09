@@ -136,6 +136,7 @@ public:
     void cancelRequest(const LanguageServerProtocol::MessageId &id);
 
     void setSupportedLanguage(const LanguageFilter &filter);
+    void setInitializationOptions(const QJsonObject& initializationOptions);
     bool isSupportedDocument(const TextEditor::TextDocument *document) const;
     bool isSupportedFile(const Utils::FilePath &filePath, const QString &mimeType) const;
     bool isSupportedUri(const LanguageServerProtocol::DocumentUri &uri) const;
@@ -210,6 +211,7 @@ private:
     QHash<QByteArray, ContentHandler> m_contentHandler;
     QString m_displayName;
     LanguageFilter m_languagFilter;
+    QJsonObject m_initializationOptions;
     QMap<TextEditor::TextDocument *, QString> m_openedDocument;
     Core::Id m_id;
     LanguageServerProtocol::ServerCapabilities m_serverCapabilities;
