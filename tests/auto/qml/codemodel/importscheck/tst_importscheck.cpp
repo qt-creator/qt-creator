@@ -234,13 +234,11 @@ void tst_ImportCheck::importTypes_data()
             << QStringList({ "Item", "QtObject", "IsQtQuickSimple" });
 
     // QtQuick/ and QtQml/ with an implicit dependency
-    // This is the situation in Qt 5.15.0 and will be made to work in a
-    // follow-up commit.
-    /*
+    // Seen in Qt 5.15.0.
     QTest::newRow("QtQuick-workaround-QtQml")
             << QString(TESTSRCDIR "/importTypes/importQtQuick.qml")
             << QString(TESTSRCDIR "/importTypes/imports-QtQuick-workaround-QtQml")
-            << QStringList({ "Item", "QtObject", "IsQtQuickWorkaround" });*/
+            << QStringList({ "Item", "QtObject", "IsQtQuickWorkaround" });
 
     // QtQuick/ and QtQml/ with an "import" in the qmldir file
     // Seen in Qt 6.

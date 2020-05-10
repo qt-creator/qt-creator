@@ -494,6 +494,78 @@ QFuture<PluginDumper::DependencyInfo> PluginDumper::loadDependencies(const QStri
     return iface->future();
 }
 
+// Fills \a highestVersion with the largest export version for \a package
+// and sets \a hasExportName to true if a type called \a exportName is found.
+static void getHighestExportVersion(
+        const QList<LanguageUtils::FakeMetaObject::ConstPtr> &objects,
+        const QString &package,
+        const QString &exportName,
+        bool *hasExportName,
+        ComponentVersion *highestVersion)
+{
+    *highestVersion = ComponentVersion();
+    *hasExportName = false;
+    for (const auto &object : objects) {
+        for (const auto &e : object->exports()) {
+            if (e.package == package) {
+                if (e.version > *highestVersion)
+                    *highestVersion = e.version;
+                if (e.type == exportName)
+                    *hasExportName = true;
+            }
+        }
+    }
+
+}
+
+/*** Workaround for implicit dependencies in >= 5.15.0.
+ *
+ * When "QtQuick" is imported, "QtQml" is implicitly loaded as well.
+ * When "QtQml" is imported, "QtQml.Models" and "QtQml.WorkerScript" are implicitly loaded.
+ * Add these imports as if they were "import" commands in the qmldir file.
+ *
+ * Qt 6 is planned to have these included in the qmldir file.
+ */
+static void applyQt515MissingImportWorkaround(const QString &path, LibraryInfo &info)
+{
+    if (!info.imports().isEmpty())
+        return;
+
+    const bool isQtQuick = path.endsWith(QStringLiteral("/QtQuick"))
+            || path.endsWith(QStringLiteral("/QtQuick.2"));
+    const bool isQtQml = path.endsWith(QStringLiteral("/QtQml"))
+            || path.endsWith(QStringLiteral("/QtQml.2"));
+    if (!isQtQuick && !isQtQml)
+        return;
+
+    ComponentVersion highestVersion;
+    const auto package = isQtQuick ? QStringLiteral("QtQuick") : QStringLiteral("QtQml");
+    const auto missingTypeName = isQtQuick ? QStringLiteral("QtObject") : QStringLiteral("ListElement");
+    bool hasMissingType = false;
+    getHighestExportVersion(
+                info.metaObjects(),
+                package,
+                missingTypeName,
+                &hasMissingType,
+                &highestVersion);
+
+    // If the highest export version is < 2.15, we expect Qt <5.15
+    if (highestVersion.majorVersion() != 2 || highestVersion.minorVersion() < 15)
+        return;
+    // As an extra sanity check: if the type from the dependent module already exists,
+    // don't proceeed either.
+    if (hasMissingType)
+        return;
+
+    if (isQtQuick) {
+        info.setImports(QStringList(QStringLiteral("QtQml")));
+    } else if (isQtQml) {
+        info.setImports(QStringList(
+            { QStringLiteral("QtQml.Models"),
+              QStringLiteral("QtQml.WorkerScript") }));
+    }
+}
+
 void PluginDumper::prepareLibraryInfo(LibraryInfo &libInfo,
                                       const QString &libraryPath,
                                       const QStringList &deps,
@@ -518,6 +590,8 @@ void PluginDumper::prepareLibraryInfo(LibraryInfo &libInfo,
 
     if (!warnings.isEmpty())
         printParseWarnings(libraryPath, warnings.join(QLatin1String("\n")));
+
+    applyQt515MissingImportWorkaround(libraryPath, libInfo);
 
     libInfo.updateFingerprint();
 }
