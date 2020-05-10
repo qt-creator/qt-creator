@@ -1,0 +1,2 @@
+module QtQml
+typeinfo plugins.qmltypes

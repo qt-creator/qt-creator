@@ -58,6 +58,9 @@ private slots:
     void test();
     void test_data();
 
+    void importTypes_data();
+    void importTypes();
+
     void initTestCase();
 private:
     QStringList m_basePaths;
@@ -191,10 +194,12 @@ void tst_ImportCheck::test()
     QStringList detectedFiles;
     foreach (const ImportKey &importK, iDeps->libraryImports(vCtx))
         detectedLibraries << importK.toString();
-    foreach (const QString &path, paths)
+    foreach (const QString &path, paths) {
         foreach (const ImportKey &importK, iDeps->subdirImports(ImportKey(ImportType::Directory,
-                                                                          path), vCtx))
-        detectedFiles << QFileInfo(importK.toString()).canonicalFilePath();
+                                                                          path), vCtx)) {
+            detectedFiles << QFileInfo(importK.toString()).canonicalFilePath();
+        }
+    }
 
     expectedLibraries.sort();
     expectedFiles.sort();
@@ -202,6 +207,94 @@ void tst_ImportCheck::test()
     detectedFiles.sort();
     QCOMPARE(expectedLibraries, detectedLibraries);
     QCOMPARE(expectedFiles, detectedFiles);
+}
+
+class MyModelManager : public ModelManagerInterface
+{
+public:
+    using ModelManagerInterface::setDefaultProject;
+    using ModelManagerInterface::updateImportPaths;
+};
+
+void tst_ImportCheck::importTypes_data()
+{
+    QTest::addColumn<QString>("qmlFile");
+    QTest::addColumn<QString>("importPath");
+    QTest::addColumn<QStringList>("expectedTypes");
+
+    QTest::newRow("base")
+            << QString(TESTSRCDIR "/importTypes/importQtQuick.qml")
+            << QString(TESTSRCDIR "/base")
+            << QStringList({ "Item", "Rectangle", "QtObject" });
+
+    // simple case, with everything in QtQuick/plugins.qmltypes
+    QTest::newRow("QtQuick-simple")
+            << QString(TESTSRCDIR "/importTypes/importQtQuick.qml")
+            << QString(TESTSRCDIR "/importTypes/imports-QtQuick-simple")
+            << QStringList({ "Item", "QtObject", "IsQtQuickSimple" });
+
+    // QtQuick/ and QtQml/ with an implicit dependency
+    // This is the situation in Qt 5.15.0 and will be made to work in a
+    // follow-up commit.
+    /*
+    QTest::newRow("QtQuick-workaround-QtQml")
+            << QString(TESTSRCDIR "/importTypes/importQtQuick.qml")
+            << QString(TESTSRCDIR "/importTypes/imports-QtQuick-workaround-QtQml")
+            << QStringList({ "Item", "QtObject", "IsQtQuickWorkaround" });*/
+
+    // QtQuick/ and QtQml/ with an "import" in the qmldir file
+    // Seen in Qt 6.
+    QTest::newRow("QtQuick-qmldir-import")
+            << QString(TESTSRCDIR "/importTypes/importQtQuick.qml")
+            << QString(TESTSRCDIR "/importTypes/imports-QtQuick-qmldir-import")
+            << QStringList({ "Item", "QtObject", "IsQtQuickQmldirImport" });
+}
+
+void tst_ImportCheck::importTypes()
+{
+    QFETCH(QString, qmlFile);
+    QFETCH(QString, importPath);
+    QFETCH(QStringList, expectedTypes);
+
+    // full reset
+    delete ModelManagerInterface::instance();
+    MyModelManager *modelManager = new MyModelManager;
+
+    // the default qtQmlPath is based on the Qt version in use otherwise
+    ModelManagerInterface::ProjectInfo defaultProject;
+    defaultProject.qtQmlPath = importPath;
+    modelManager->setDefaultProject(defaultProject, nullptr);
+    modelManager->activateScan();
+
+    modelManager->updateSourceFiles(QStringList(qmlFile), false);
+    modelManager->test_joinAllThreads();
+
+    Snapshot snapshot = modelManager->newestSnapshot();
+    Document::Ptr doc = snapshot.document(qmlFile);
+
+    // It's unfortunate, but nowadays linking can trigger async module loads,
+    // so do it once to start the process, then do it again for real once the
+    // dependencies are available.
+    const auto getContext = [&]() {
+        Link link(snapshot, modelManager->defaultVContext(doc->language(), doc),
+                  modelManager->builtins(doc));
+        return link();
+    };
+    getContext();
+    modelManager->test_joinAllThreads();
+    snapshot = modelManager->newestSnapshot();
+    doc = snapshot.document(qmlFile);
+
+    ContextPtr context = getContext();
+
+    bool allFound = true;
+    for (const auto &expected : expectedTypes) {
+        if (!context->lookupType(doc.data(), QStringList(expected))) {
+            allFound = false;
+            qWarning() << "Type '" << expected << "' not found";
+        }
+    }
+    QVERIFY(allFound);
 }
 
 #ifdef MANUAL_IMPORT_SCANNER

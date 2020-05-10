@@ -93,7 +93,7 @@ public:
 
     bool importLibrary(const Document::Ptr &doc,
                        const QString &libraryPath,
-                       Import *import,
+                       Import *import, ObjectValue *targetObject,
                        const QString &importPath = QString());
     void loadQmldirComponents(ObjectValue *import,
                               LanguageUtils::ComponentVersion version,
@@ -312,7 +312,7 @@ Import LinkPrivate::importFileOrDirectory(const Document::Ptr &doc, const Import
             || importInfo.type() == ImportType::ImplicitDirectory) {
         import.object = new ObjectValue(m_valueOwner);
 
-        importLibrary(doc, path, &import);
+        importLibrary(doc, path, &import, import.object);
 
         const QList<Document::Ptr> documentsInDirectory = m_snapshot.documentsInDirectory(path);
         for (const Document::Ptr &importedDoc : documentsInDirectory) {
@@ -337,7 +337,7 @@ Import LinkPrivate::importFileOrDirectory(const Document::Ptr &doc, const Import
     } else if (importInfo.type() == ImportType::QrcDirectory){
         import.object = new ObjectValue(m_valueOwner);
 
-        importLibrary(doc, path, &import);
+        importLibrary(doc, path, &import, import.object);
 
         const QMap<QString, QStringList> paths
                 = ModelManagerInterface::instance()->filesInQrcPath(path);
@@ -382,7 +382,7 @@ Import LinkPrivate::importNonFile(const Document::Ptr &doc, const ImportInfo &im
     const ComponentVersion version = importInfo.version();
 
     QString libraryPath = modulePath(packageName, version.toString(), m_importPaths);
-    bool importFound = !libraryPath.isEmpty() && importLibrary(doc, libraryPath, &import);
+    bool importFound = !libraryPath.isEmpty() && importLibrary(doc, libraryPath, &import, import.object);
 
     if (!importFound) {
         for (const QString &dir : qAsConst(m_applicationDirectories)) {
@@ -390,7 +390,7 @@ Import LinkPrivate::importNonFile(const Document::Ptr &doc, const ImportInfo &im
 
             // This adds the types to the C++ types, to be found below if applicable.
             if (it.hasNext())
-                importLibrary(doc, dir, &import);
+                importLibrary(doc, dir, &import, import.object);
         }
     }
 
@@ -436,6 +436,7 @@ Import LinkPrivate::importNonFile(const Document::Ptr &doc, const ImportInfo &im
 bool LinkPrivate::importLibrary(const Document::Ptr &doc,
                                 const QString &libraryPath,
                                 Import *import,
+                                ObjectValue *targetObject,
                                 const QString &importPath)
 {
     const ImportInfo &importInfo = import->info;
@@ -451,6 +452,38 @@ bool LinkPrivate::importLibrary(const Document::Ptr &doc,
     if (const UiImport *ast = importInfo.ast())
         errorLoc = locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation());
 
+    // Load imports that are mentioned by the "import" command in a qmldir
+    // file into the same targetObject, using the same version and "as".
+    //
+    // Note: Since this works on the same targetObject, the ModuleApi setPrototype()
+    // logic will not work. But ModuleApi isn't used in Qt versions that use import
+    // commands in qmldir files, and is pending removal in Qt 6.
+    for (const auto &importName : libraryInfo.imports()) {
+        Import subImport;
+        subImport.valid = true;
+        subImport.info = ImportInfo::moduleImport(importName, version, importInfo.as(), importInfo.ast());
+        subImport.libraryPath = modulePath(importName, version.toString(), m_importPaths);
+        bool subImportFound = importLibrary(doc, subImport.libraryPath, &subImport, targetObject, importPath);
+
+        if (!subImportFound && errorLoc.isValid()) {
+            import->valid = false;
+            error(doc, errorLoc,
+                  Link::tr(
+                      "Implicit import '%1' of QML module '%2' not found.\n\n"
+                      "Import paths:\n"
+                      "%3\n\n"
+                      "For qmake projects, use the QML_IMPORT_PATH variable to add import paths.\n"
+                      "For Qbs projects, declare and set a qmlImportPaths property in your product "
+                      "to add import paths.\n"
+                      "For qmlproject projects, use the importPaths property to add import paths.\n"
+                      "For CMake projects, make sure QML_IMPORT_PATH variable is in CMakeCache.txt.\n")
+                  .arg(importName, importInfo.name(), m_importPaths.join(QLatin1Char('\n'))));
+        } else if (!subImport.valid) {
+            import->valid = false;
+        }
+    }
+
+    // Load types from qmltypes or plugins
     if (!libraryInfo.plugins().isEmpty() || !libraryInfo.typeInfos().isEmpty()) {
         if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::NoTypeInfo) {
             ModelManagerInterface *modelManager = ModelManagerInterface::instance();
@@ -493,7 +526,7 @@ bool LinkPrivate::importLibrary(const Document::Ptr &doc,
             const auto objects = m_valueOwner->cppQmlTypes().createObjectsForImport(packageName,
                                                                                     version);
             for (const CppComponentValue *object : objects)
-                import->object->setMember(object->className(), object);
+                targetObject->setMember(object->className(), object);
 
             // all but no-uri module apis become available for import
             QList<ModuleApiInfo> noUriModuleApis;
@@ -508,13 +541,14 @@ bool LinkPrivate::importLibrary(const Document::Ptr &doc,
             // if a module api has no uri, it shares the same name
             ModuleApiInfo sameUriModuleApi = findBestModuleApi(noUriModuleApis, version);
             if (sameUriModuleApi.version.isValid()) {
-                import->object->setPrototype(m_valueOwner->cppQmlTypes()
+                targetObject->setPrototype(m_valueOwner->cppQmlTypes()
                                              .objectByCppName(sameUriModuleApi.cppName));
             }
         }
     }
 
-    loadQmldirComponents(import->object, version, libraryInfo, libraryPath);
+    // Load types that are mentioned explicitly in the qmldir
+    loadQmldirComponents(targetObject, version, libraryInfo, libraryPath);
 
     return true;
 }

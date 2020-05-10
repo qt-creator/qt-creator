@@ -382,6 +382,7 @@ LibraryInfo::LibraryInfo(const QmlDirParser &parser, const QByteArray &fingerpri
     , _components(parser.components().values())
     , _plugins(parser.plugins())
     , _typeinfos(parser.typeInfos())
+    , _imports(parser.imports())
     , _fingerprint(fingerprint)
 {
     if (_fingerprint.isEmpty())
@@ -443,6 +444,11 @@ QByteArray LibraryInfo::calculateFingerprint() const
     hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
     foreach (const ModuleApiInfo &moduleInfo, _moduleApis)
         moduleInfo.addToHash(hash); // make it order independent?
+
+    len = _imports.size();
+    hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
+    foreach (const QString &import, _imports)
+        hash.addData(import.toUtf8()); // import order matters, keep order-dependent
 
     QByteArray res(hash.result());
     res.append('L');
