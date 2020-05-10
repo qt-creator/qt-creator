@@ -179,8 +179,9 @@ public:
     virtual ProjectInfo defaultProjectInfoForProject(ProjectExplorer::Project *project) const;
 
 
-    // Blocks until all parsing threads are done. Used for testing.
-    void joinAllThreads();
+    // Blocks until all parsing threads are done. Use for testing only!
+    void test_joinAllThreads();
+    void addFuture(const QFuture<void> &future);
 
     QmlJS::Document::Ptr ensuredGetDocumentForPath(const QString &filePath);
     static void importScan(QFutureInterface<void> &future, const WorkingCopy& workingCopyInternal,
@@ -271,7 +272,9 @@ private:
 
     PluginDumper *m_pluginDumper = nullptr;
 
+    mutable QMutex m_futuresMutex;
     QList<QFuture<void>> m_futures;
+
     bool m_indexerDisabled = false;
 };
 

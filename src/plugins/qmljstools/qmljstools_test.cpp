@@ -45,7 +45,7 @@ void QmlJSToolsPlugin::test_basic()
 
     const QString qmlFilePath = Core::ICore::resourcePath() + QLatin1String("/qmldesigner/itemLibraryQmlSources/ItemDelegate.qml");
     modelManager->updateSourceFiles(QStringList(qmlFilePath), false);
-    modelManager->joinAllThreads();
+    modelManager->test_joinAllThreads();
 
     Snapshot snapshot = modelManager->snapshot();
     Document::Ptr doc = snapshot.document(qmlFilePath);
