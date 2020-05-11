@@ -106,7 +106,7 @@ private:
                     Utils::ProcessLinkCallback callback, const bool resolveTarget);
     void findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor);
 
-    void projectAdded(ProjectExplorer::Project *project);
+    void updateProject(ProjectExplorer::Project *project);
     void projectRemoved(ProjectExplorer::Project *project);
 
     QVector<Client *> reachableClients();

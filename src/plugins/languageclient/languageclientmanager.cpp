@@ -35,6 +35,7 @@
 #include <languageserverprotocol/messages.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
 #include <texteditor/textdocument.h>
@@ -75,7 +76,7 @@ LanguageClientManager::LanguageClientManager(QObject *parent)
     connect(EditorManager::instance(), &EditorManager::aboutToSave,
             this, &LanguageClientManager::documentWillSave);
     connect(SessionManager::instance(), &SessionManager::projectAdded,
-            this, &LanguageClientManager::projectAdded);
+            this, &LanguageClientManager::updateProject);
     connect(SessionManager::instance(), &SessionManager::projectRemoved,
             this, &LanguageClientManager::projectRemoved);
 }
@@ -608,7 +609,7 @@ void LanguageClientManager::findUsages(TextEditor::TextDocument *document, const
     }
 }
 
-void LanguageClientManager::projectAdded(ProjectExplorer::Project *project)
+void LanguageClientManager::updateProject(ProjectExplorer::Project *project)
 {
     for (BaseSettings *setting : m_currentSettings) {
         if (setting->isValid()
@@ -618,22 +619,36 @@ void LanguageClientManager::projectAdded(ProjectExplorer::Project *project)
                                      [project](QPointer<Client> client) {
                                          return client->project() == project;
                                      })
-                    == nullptr) {
+                == nullptr) {
+                Client *newClient = nullptr;
                 for (Core::IDocument *doc : Core::DocumentModel::openedDocuments()) {
-                    if (setting->m_languageFilter.isSupported(doc)) {
-                        if (project->isKnownFile(doc->filePath()))
-                            startClient(setting, project);
+                    if (setting->m_languageFilter.isSupported(doc)
+                        && project->isKnownFile(doc->filePath())) {
+                        if (auto textDoc = qobject_cast<TextEditor::TextDocument *>(doc)) {
+                            if (!newClient)
+                                newClient = startClient(setting, project);
+                            if (!newClient)
+                                break;
+                            openDocumentWithClient(textDoc, newClient);
+                            if (m_clientForDocument.value(textDoc) == nullptr)
+                                m_clientForDocument[textDoc] = newClient;
+                        }
                     }
                 }
             }
         }
     }
+    connect(project, &ProjectExplorer::Project::fileListChanged, this, [this, project]() {
+        updateProject(project);
+    });
+
     for (Client *interface : reachableClients())
         interface->projectOpened(project);
 }
 
 void LanguageClientManager::projectRemoved(ProjectExplorer::Project *project)
 {
+    project->disconnect(this);
     for (Client *interface : m_clients)
         interface->projectClosed(project);
 }

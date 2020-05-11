@@ -130,6 +130,7 @@ public:
     const ProjectExplorer::Project *project() const;
     void projectOpened(ProjectExplorer::Project *project);
     void projectClosed(ProjectExplorer::Project *project);
+    void projectFileListChanged();
 
     void sendContent(const LanguageServerProtocol::IContent &content);
     void sendContent(const LanguageServerProtocol::DocumentUri &uri,
