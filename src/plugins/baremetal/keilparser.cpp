@@ -258,7 +258,7 @@ void KeilParser::flush()
     m_lastTask.details = m_snippets;
     m_snippets.clear();
     m_lines += m_lastTask.details.count();
-    setMonospacedDetailsFormat(m_lastTask);
+    setDetailsFormat(m_lastTask);
     Task t = m_lastTask;
     m_lastTask.clear();
     scheduleTask(t, m_lines, 1);

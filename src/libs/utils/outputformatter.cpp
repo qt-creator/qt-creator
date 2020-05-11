@@ -374,6 +374,7 @@ const QList<FormattedText> OutputFormatter::linkifiedText(
     int nextLinkSpecIndex = 0;
 
     for (const FormattedText &t : text) {
+        const int totalPreviousTextLength = totalTextLengthSoFar;
 
         // There is no more linkification work to be done. Just copy the text as-is.
         if (nextLinkSpecIndex >= linkSpecs.size()) {
@@ -391,7 +392,7 @@ const QList<FormattedText> OutputFormatter::linkifiedText(
             }
 
             const OutputLineParser::LinkSpec &linkSpec = linkSpecs.at(nextLinkSpecIndex);
-            const int localLinkStartPos = linkSpec.startPos - totalTextLengthSoFar;
+            const int localLinkStartPos = linkSpec.startPos - totalPreviousTextLength;
             ++nextLinkSpecIndex;
 
             // We ignore links that would cross format boundaries.

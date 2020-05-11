@@ -159,6 +159,9 @@ public:
 
     bool hasFatalErrors() const;
 
+    static const QList<Utils::FormattedText> linkifiedText(const QList<FormattedText> &text,
+            const OutputLineParser::LinkSpecs &linkSpecs);
+
 #ifdef WITH_TESTS
     void overrideTextCharFormat(const QTextCharFormat &fmt);
     QList<OutputLineParser *> lineParsers() const;
@@ -185,8 +188,6 @@ private:
     void dumpIncompleteLine(const QString &line, OutputFormat format);
     void clearLastLine();
     QList<FormattedText> parseAnsi(const QString &text, const QTextCharFormat &format);
-    const QList<Utils::FormattedText> linkifiedText(const QList<FormattedText> &text,
-                                                    const OutputLineParser::LinkSpecs &linkSpecs);
     OutputFormat outputTypeForParser(const OutputLineParser *parser, OutputFormat type) const;
     void setupLineParser(OutputLineParser *parser);
 

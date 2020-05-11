@@ -34,13 +34,15 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileinprojectfinder.h>
-#include <utils/qtcassert.h>
 #include <utils/itemviews.h>
+#include <utils/outputformatter.h>
+#include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
 #include <QDir>
@@ -77,7 +79,23 @@ class TaskView : public Utils::ListView
 public:
     TaskView(QWidget *parent = nullptr);
     ~TaskView() override;
+
+private:
     void resizeEvent(QResizeEvent *e) override;
+    void mousePressEvent(QMouseEvent *e) override;
+    void mouseReleaseEvent(QMouseEvent *e) override;
+    void mouseMoveEvent(QMouseEvent *e) override;
+
+    class Location {
+    public:
+        Utils::FilePath file;
+        int line;
+        int column;
+    };
+    Location locationForPos(const QPoint &pos);
+
+    bool m_linksActive = true;
+    Qt::MouseButton m_mouseButtonPressed = Qt::NoButton;
 };
 
 class TaskWindowContext : public Core::IContext
@@ -103,11 +121,14 @@ public:
 
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 
+    QString hrefForPos(const QPointF &pos);
+
 private:
     void generateGradientPixmap(int width, int height, QColor color, bool selected) const;
 
     mutable int m_cachedHeight = 0;
     mutable QFont m_cachedFont;
+    mutable QList<QPair<QRectF, QString>> m_hrefs;
 
     /*
       Collapsed:
@@ -186,6 +207,7 @@ TaskView::TaskView(QWidget *parent)
 {
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    setMouseTracking(true);
 
     QFontMetrics fm(font());
     int vStepSize = fm.height() + 3;
@@ -201,6 +223,54 @@ void TaskView::resizeEvent(QResizeEvent *e)
 {
     Q_UNUSED(e)
     static_cast<TaskDelegate *>(itemDelegate())->emitSizeHintChanged(selectionModel()->currentIndex());
+}
+
+void TaskView::mousePressEvent(QMouseEvent *e)
+{
+    m_mouseButtonPressed = e->button();
+    ListView::mousePressEvent(e);
+}
+
+void TaskView::mouseReleaseEvent(QMouseEvent *e)
+{
+    if (m_linksActive && m_mouseButtonPressed == Qt::LeftButton) {
+        const Location loc = locationForPos(e->pos());
+        if (!loc.file.isEmpty())
+            Core::EditorManager::openEditorAt(loc.file.toString(), loc.line, loc.column);
+    }
+
+    // Mouse was released, activate links again
+    m_linksActive = true;
+    m_mouseButtonPressed = Qt::NoButton;
+    ListView::mouseReleaseEvent(e);
+}
+
+void TaskView::mouseMoveEvent(QMouseEvent *e)
+{
+    // Cursor was dragged, deactivate links
+    if (m_mouseButtonPressed != Qt::NoButton)
+        m_linksActive = false;
+
+    viewport()->setCursor(m_linksActive && !locationForPos(e->pos()).file.isEmpty()
+                          ? Qt::PointingHandCursor : Qt::ArrowCursor);
+    ListView::mouseMoveEvent(e);
+}
+
+TaskView::Location TaskView::locationForPos(const QPoint &pos)
+{
+    const auto delegate = qobject_cast<TaskDelegate *>(itemDelegate(indexAt(pos)));
+    if (!delegate)
+        return {};
+    Utils::OutputFormatter formatter;
+    Location loc;
+    connect(&formatter, &Utils::OutputFormatter::openInEditorRequested, this,
+            [&loc](const Utils::FilePath &fp, int line, int column) {
+        loc.file = fp;
+        loc.line = line;
+        loc.column = column;
+        });
+    formatter.handleLink(delegate->hrefForPos(pos));
+    return loc;
 }
 
 /////
@@ -764,6 +834,15 @@ void TaskDelegate::currentChanged(const QModelIndex &current, const QModelIndex 
     emit sizeHintChanged(previous);
 }
 
+QString TaskDelegate::hrefForPos(const QPointF &pos)
+{
+    for (const auto &link : m_hrefs) {
+        if (link.first.contains(pos))
+            return link.second;
+    }
+    return {};
+}
+
 void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QStyleOptionViewItem opt = option;
@@ -825,7 +904,10 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
         int height = 0;
         description.replace(QLatin1Char('\n'), QChar::LineSeparator);
         QTextLayout tl(description);
-        tl.setFormats(index.data(TaskModel::Task_t).value<Task>().formats);
+        QVector<QTextLayout::FormatRange> formats = index.data(TaskModel::Task_t).value<Task>().formats;
+        for (QTextLayout::FormatRange &format : formats)
+            format.format.setForeground(opt.palette.highlightedText());
+        tl.setFormats(formats);
         tl.beginLayout();
         while (true) {
             QTextLine line = tl.createLine();
@@ -837,7 +919,33 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
             height += static_cast<int>(line.height());
         }
         tl.endLayout();
+        const QPoint indexPos = view->visualRect(index).topLeft();
         tl.draw(painter, QPoint(positions.textAreaLeft(), positions.top()));
+        m_hrefs.clear();
+        for (const auto &range : tl.formats()) {
+            if (!range.format.isAnchor())
+                continue;
+            const QTextLine &firstLinkLine = tl.lineForTextPosition(range.start);
+            const QTextLine &lastLinkLine = tl.lineForTextPosition(range.start + range.length - 1);
+            for (int i = firstLinkLine.lineNumber(); i <= lastLinkLine.lineNumber(); ++i) {
+                const QTextLine &linkLine = tl.lineAt(i);
+                if (!linkLine.isValid())
+                    break;
+                const QPointF linePos = linkLine.position();
+                const int linkStartPos = i == firstLinkLine.lineNumber()
+                        ? range.start : linkLine.textStart();
+                const qreal startOffset = linkLine.cursorToX(linkStartPos);
+                const int linkEndPos = i == lastLinkLine.lineNumber()
+                        ? range.start + range.length
+                        : linkLine.textStart() + linkLine.textLength();
+                const qreal endOffset = linkLine.cursorToX(linkEndPos);
+                const QPointF linkPos(indexPos.x() + positions.textAreaLeft() + linePos.x()
+                                      + startOffset, positions.top() + linePos.y());
+                const QSize linkSize(endOffset - startOffset, linkLine.height());
+                const QRectF linkRect(linkPos, linkSize);
+                m_hrefs << qMakePair(linkRect, range.format.anchorHref());
+            }
+        }
 
         QColor mix;
         mix.setRgb( static_cast<int>(0.7 * textColor.red()   + 0.3 * backgroundColor.red()),

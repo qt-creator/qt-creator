@@ -30,6 +30,7 @@
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
+#include <utils/ansiescapecodehandler.h>
 
 
 /*!
@@ -94,16 +95,22 @@ void OutputTaskParser::scheduleTask(const Task &task, int outputLines, int skipp
     QTC_CHECK(d->scheduledTasks.size() <= 2);
 }
 
-void OutputTaskParser::setMonospacedDetailsFormat(Task &task)
+void OutputTaskParser::setDetailsFormat(Task &task, const LinkSpecs &linkSpecs)
 {
     if (task.details.isEmpty())
         return;
-    QTextLayout::FormatRange fr;
-    fr.start = task.summary.length() + 1;
-    fr.length = task.details.join('\n').length();
-    fr.format.setFont(TextEditor::TextEditorSettings::fontSettings().font());
-    fr.format.setFontStyleHint(QFont::Monospace);
-    task.formats = {fr};
+
+    Utils::FormattedText monospacedText(task.details.join('\n'));
+    monospacedText.format.setFont(TextEditor::TextEditorSettings::fontSettings().font());
+    monospacedText.format.setFontStyleHint(QFont::Monospace);
+    const QList<Utils::FormattedText> linkifiedText =
+            Utils::OutputFormatter::linkifiedText({monospacedText}, linkSpecs);
+    task.formats.clear();
+    int offset = task.summary.length() + 1;
+    for (const Utils::FormattedText &ft : linkifiedText) {
+        task.formats << QTextLayout::FormatRange{offset, ft.text.length(), ft.format};
+        offset += ft.text.length();
+    }
 }
 
 void OutputTaskParser::runPostPrintActions()

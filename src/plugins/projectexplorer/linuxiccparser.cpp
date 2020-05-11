@@ -125,7 +125,7 @@ void LinuxIccParser::flush()
     if (m_temporary.isNull())
         return;
 
-    setMonospacedDetailsFormat(m_temporary);
+    setDetailsFormat(m_temporary);
     Task t = m_temporary;
     m_temporary.clear();
     scheduleTask(t, m_lines, 1);

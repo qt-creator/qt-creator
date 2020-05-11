@@ -231,7 +231,7 @@ void IarParser::flush()
     m_lastTask.details = m_snippets;
     m_snippets.clear();
     m_lines += m_lastTask.details.count();
-    setMonospacedDetailsFormat(m_lastTask);
+    setDetailsFormat(m_lastTask);
     amendFilePath();
 
     m_expectSnippet = true;

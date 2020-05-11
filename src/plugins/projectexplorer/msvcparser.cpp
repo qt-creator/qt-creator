@@ -176,7 +176,7 @@ void MsvcParser::flush()
     if (m_lastTask.isNull())
         return;
 
-    setMonospacedDetailsFormat(m_lastTask);
+    setDetailsFormat(m_lastTask);
     Task t = m_lastTask;
     m_lastTask.clear();
     scheduleTask(t, m_lines, 1);
