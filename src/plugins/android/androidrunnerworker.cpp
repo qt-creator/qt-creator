@@ -30,6 +30,7 @@
 #include "androidmanager.h"
 #include "androidrunconfiguration.h"
 
+#include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
 
 #include <projectexplorer/environmentaspect.h>
@@ -215,8 +216,9 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     , m_jdbProcess(nullptr, deleter)
 
 {
-    m_useLldb = qEnvironmentVariableIsSet("QTC_ANDROID_LLDB"); // FIXME: Determine from elsewhere
     auto runControl = runner->runControl();
+    m_useLldb = Debugger::DebuggerKitAspect::engineType(runControl->kit())
+                    == Debugger::LldbEngineType;
     auto aspect = runControl->aspect<Debugger::DebuggerRunConfigurationAspect>();
     Core::Id runMode = runControl->runMode();
     const bool debuggingMode = runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE;
