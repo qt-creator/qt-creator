@@ -37,6 +37,7 @@ Product {
     cpp.cxxFlags: {
         var flags = [];
         if (qbs.toolchain.contains("clang")
+                && !qbs.hostOS.contains("darwin")
                 && Utilities.versionCompare(cpp.compilerVersion, "10") >= 0) {
              // Triggers a lot in Qt.
             flags.push("-Wno-deprecated-copy", "-Wno-constant-logical-operand");
