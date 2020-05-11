@@ -795,7 +795,8 @@ public:
     }
 };
 
-class PrepareRenameResult : public Utils::variant<PlaceHolderResult, Range, std::nullptr_t>
+class LANGUAGESERVERPROTOCOL_EXPORT PrepareRenameResult
+    : public Utils::variant<PlaceHolderResult, Range, std::nullptr_t>
 {
 public:
     PrepareRenameResult();
