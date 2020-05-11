@@ -38,6 +38,7 @@ Model {
     property MouseArea3D dragHelper: null
     property alias material: material
     property real length: 12
+    property real offset: 0
 
     readonly property bool hovering: mouseAreaYZ.hovering || mouseAreaXZ.hovering
 
@@ -95,7 +96,7 @@ Model {
     MouseArea3D {
         id: mouseAreaYZ
         view3D: rootModel.view3D
-        x: 0
+        x: rootModel.offset
         y: -1.5
         width: rootModel.length
         height: 3
@@ -112,7 +113,7 @@ Model {
     MouseArea3D {
         id: mouseAreaXZ
         view3D: rootModel.view3D
-        x: 0
+        x: rootModel.offset
         y: -1.5
         width: rootModel.length
         height: 3

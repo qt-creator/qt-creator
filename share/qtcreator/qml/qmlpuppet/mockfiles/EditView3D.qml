@@ -457,8 +457,8 @@ Item {
             view3D: overlayView
             dragHelper: gizmoDragHelper
 
-            onBrightnessCommit: viewRoot.commitObjectProperty(viewRoot.selectedNode, "brightness")
-            onBrightnessChange: viewRoot.changeObjectProperty(viewRoot.selectedNode, "brightness")
+            onPropertyValueCommit: viewRoot.commitObjectProperty(targetNode, propName)
+            onPropertyValueChange: viewRoot.changeObjectProperty(targetNode, propName)
         }
 
         AutoScaleHelper {

@@ -26,20 +26,57 @@
 import QtQuick 2.0
 import QtQuick3D 1.15
 
-Node {
+DirectionalDraggable {
     id: handleRoot
 
-    property DefaultMaterial material
-    property View3D view3D
+    property string currentLabel
+    property point currentMousePos
+    property string propName
+    property real propValue: 0
+    property real newValue: 0
+
+    scale: autoScaler.getScale(Qt.vector3d(5, 5, 5))
+    length: 3
+    offset: -1.5
 
     Model {
-        scale: autoScale.getScale(Qt.vector3d(0.1, 0.1, 0.1))
+        id: handle
         source: "#Sphere"
         materials: [ handleRoot.material ]
+        scale: Qt.vector3d(0.02, 0.02, 0.02)
     }
 
     AutoScaleHelper {
-        id: autoScale
+        id: autoScaler
+        active: handleRoot.active
         view3D: handleRoot.view3D
+    }
+
+    property real _startAngle
+
+    signal valueCommit()
+    signal valueChange()
+
+    function updateAngle(relativeDistance, screenPos)
+    {
+        handleRoot.newValue = Math.round(Math.min(180, Math.max(0, _startAngle + relativeDistance)));
+        var l = Qt.locale();
+        handleRoot.currentLabel = propName + qsTr(": ") + Number(newValue).toLocaleString(l, 'f', 0);
+        handleRoot.currentMousePos = screenPos;
+    }
+
+    onPressed: {
+        _startAngle = propValue;
+        updateAngle(0, screenPos);
+    }
+
+    onDragged: {
+        updateAngle(relativeDistance, screenPos);
+        handleRoot.valueChange();
+    }
+
+    onReleased: {
+        updateAngle(relativeDistance, screenPos);
+        handleRoot.valueCommit();
     }
 }

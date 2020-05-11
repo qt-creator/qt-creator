@@ -44,7 +44,7 @@ Node {
             var c = targetNode.constantFade;
             var d = 20; // divisor to target intensity value. E.g. 20 = 1/20 = 5%
             if (l === 0 && q === 0)
-                l = 1;
+                l = 1; // For pure constant fade, cone would be infinite, so pretend we have linear fade
             // Solved from equation in shader:
             // 1 / d = 1 / (c + (l + q * dist) * dist);
             if (q === 0)
@@ -56,11 +56,14 @@ Node {
         }
     }
     readonly property bool dragging: primaryArrow.dragging
+                                     || spotLightHandle.dragging
+                                     || spotLightInnerHandle.dragging
+                                     || spotLightFadeHandle.dragging
     property point currentMousePos
     property string currentLabel
 
-    signal brightnessCommit()
-    signal brightnessChange()
+    signal propertyValueCommit(string propName)
+    signal propertyValueChange(string propName)
 
     position: targetNode ? targetNode.scenePosition : Qt.vector3d(0, 0, 0)
     visible: lightGizmo.targetNode instanceof SpotLight
@@ -69,7 +72,7 @@ Node {
              || lightGizmo.targetNode instanceof PointLight
 
     AutoScaleHelper {
-        id: autoScale
+        id: autoScaler
         view3D: lightGizmo.view3D
     }
 
@@ -89,44 +92,111 @@ Node {
         rotation: !lightGizmo.targetNode ? Qt.quaternion(1, 0, 0, 0)
                                          : lightGizmo.targetNode.sceneRotation
 
-        LightModel {
-            id: spotModel
-
-            property real coneScale: visible
-                                     ? lightGizmo.fadeScale * Math.tan(Math.PI * targetNode.coneAngle / 180)
-                                     : 1
-
-            geometryName: "Edit 3D SpotLight"
-            geometryType: LightGeometry.Spot
-            material: lightMaterial
-            visible: lightGizmo.targetNode instanceof SpotLight
-            scale: Qt.vector3d(coneScale, coneScale, lightGizmo.fadeScale)
-        }
         Node {
+            id: spotParts
             visible: lightGizmo.targetNode instanceof SpotLight
-            SpotLightHandle {
-                id: sphereHandle1
-                view3D: lightGizmo.view3D
+
+            LightModel {
+                id: spotModel
+
+                property real coneXYScale: spotParts.visible && lightGizmo.targetNode
+                                         ? lightGizmo.fadeScale * Math.tan(Math.PI * lightGizmo.targetNode.coneAngle / 180)
+                                         : 1
+
+                geometryName: "Edit 3D SpotLight Cone"
+                geometryType: LightGeometry.Spot
                 material: lightMaterial
-                position: Qt.vector3d(0, spotModel.scale.y, -spotModel.scale.z)
+                scale: Qt.vector3d(coneXYScale, coneXYScale,
+                                   spotParts.visible && lightGizmo.targetNode && lightGizmo.targetNode.coneAngle > 90
+                                   ? -lightGizmo.fadeScale : lightGizmo.fadeScale)
             }
-            SpotLightHandle {
-                id: sphereHandle2
-                view3D: lightGizmo.view3D
+
+            LightModel {
+                id: spotInnerModel
+
+                property real coneXYScale: spotParts.visible && lightGizmo.targetNode
+                                         ? lightGizmo.fadeScale * Math.tan(Math.PI * lightGizmo.targetNode.innerConeAngle / 180)
+                                         : 1
+
+                geometryName: "Edit 3D SpotLight Inner Cone"
+                geometryType: LightGeometry.Spot
                 material: lightMaterial
-                position: Qt.vector3d(spotModel.scale.x, 0, -spotModel.scale.z)
+                scale: Qt.vector3d(coneXYScale, coneXYScale,
+                                   spotParts.visible && lightGizmo.targetNode && lightGizmo.targetNode.innerConeAngle > 90
+                                   ? -lightGizmo.fadeScale : lightGizmo.fadeScale)
             }
+
             SpotLightHandle {
-                id: sphereHandle3
+                id: spotLightHandle
                 view3D: lightGizmo.view3D
-                material: lightMaterial
-                position: Qt.vector3d(0, -spotModel.scale.y, -spotModel.scale.z)
+                color: (hovering || dragging) ? Qt.rgba(1, 1, 1, 1) : lightGizmo.color
+                position: lightGizmo.targetNode instanceof SpotLight ? Qt.vector3d(0, spotModel.scale.y, -spotModel.scale.z)
+                                                                     : Qt.vector3d(0, 0, 0)
+                targetNode: lightGizmo.targetNode instanceof SpotLight ? lightGizmo.targetNode : null
+                active: lightGizmo.targetNode instanceof SpotLight
+                dragHelper: lightGizmo.dragHelper
+                propName: "coneAngle"
+                propValue: lightGizmo.targetNode instanceof SpotLight ? targetNode.coneAngle : 0
+
+                onNewValueChanged: targetNode.coneAngle = newValue
+                onCurrentMousePosChanged: {
+                    lightGizmo.currentMousePos = currentMousePos;
+                    lightGizmo.currentLabel = currentLabel;
+                }
+                onValueChange: lightGizmo.propertyValueChange(propName)
+                onValueCommit: {
+                    if (targetNode.innerConeAngle > targetNode.coneAngle)
+                        targetNode.innerConeAngle = targetNode.coneAngle;
+                    lightGizmo.propertyValueCommit(propName)
+                    lightGizmo.propertyValueCommit(spotLightInnerHandle.propName);
+                }
             }
+
             SpotLightHandle {
-                id: sphereHandle4
+                id: spotLightInnerHandle
                 view3D: lightGizmo.view3D
-                material: lightMaterial
-                position: Qt.vector3d(-spotModel.scale.x, 0, -spotModel.scale.z)
+                color: (hovering || dragging) ? Qt.rgba(1, 1, 1, 1) : lightGizmo.color
+                position: lightGizmo.targetNode instanceof SpotLight ? Qt.vector3d(0, -spotInnerModel.scale.y, -spotInnerModel.scale.z)
+                                                                     : Qt.vector3d(0, 0, 0)
+                eulerRotation: Qt.vector3d(180, 0, 0)
+                targetNode: lightGizmo.targetNode instanceof SpotLight ? lightGizmo.targetNode : null
+                active: lightGizmo.targetNode instanceof SpotLight
+                dragHelper: lightGizmo.dragHelper
+                propName: "innerConeAngle"
+                propValue: lightGizmo.targetNode instanceof SpotLight ? targetNode.innerConeAngle : 0
+
+                onNewValueChanged: targetNode.innerConeAngle = newValue
+                onCurrentMousePosChanged: {
+                    lightGizmo.currentMousePos = currentMousePos;
+                    lightGizmo.currentLabel = currentLabel;
+                }
+                onValueChange: lightGizmo.propertyValueChange(propName)
+                onValueCommit: {
+                    if (targetNode.coneAngle < targetNode.innerConeAngle)
+                        targetNode.coneAngle = targetNode.innerConeAngle;
+                    lightGizmo.propertyValueCommit(propName)
+                    lightGizmo.propertyValueCommit(spotLightHandle.propName);
+                }
+            }
+
+            FadeHandle {
+                id: spotLightFadeHandle
+                view3D: lightGizmo.view3D
+                color: (hovering || dragging) ? Qt.rgba(1, 1, 1, 1) : lightGizmo.color
+                position: lightGizmo.targetNode instanceof SpotLight ? Qt.vector3d(spotModel.scale.x / 2, 0, -spotInnerModel.scale.z / 2)
+                                                                     : Qt.vector3d(0, 0, 0)
+                eulerRotation: Qt.vector3d(90, 0, 0)
+                targetNode: lightGizmo.targetNode instanceof SpotLight ? lightGizmo.targetNode : null
+                active: lightGizmo.targetNode instanceof SpotLight
+                dragHelper: lightGizmo.dragHelper
+                fadeScale: lightGizmo.fadeScale
+
+                onCurrentMousePosChanged: {
+                    lightGizmo.currentMousePos = currentMousePos;
+                    lightGizmo.currentLabel = currentLabel;
+                }
+                onValueChange: lightGizmo.propertyValueChange(propName)
+                onValueCommit: lightGizmo.propertyValueCommit(propName)
             }
         }
 
@@ -148,7 +218,7 @@ Node {
             geometryType: LightGeometry.Directional
             material: lightMaterial
             visible: lightGizmo.targetNode instanceof DirectionalLight
-            scale: autoScale.getScale(Qt.vector3d(50, 50, 50))
+            scale: autoScaler.getScale(Qt.vector3d(50, 50, 50))
         }
 
         LightModel {
@@ -168,7 +238,7 @@ Node {
             view3D: lightGizmo.view3D
             active: lightGizmo.visible
             dragHelper: lightGizmo.dragHelper
-            scale: autoScale.getScale(Qt.vector3d(5, 5, 5))
+            scale: autoScaler.getScale(Qt.vector3d(5, 5, 5))
             length: (lightGizmo.brightnessScale / 10) + 3
 
             property real _startBrightness
@@ -177,7 +247,7 @@ Node {
             {
                 var currentValue = Math.round(Math.max(0, _startBrightness + relativeDistance * 10));
                 var l = Qt.locale();
-                lightGizmo.currentLabel = qsTr("brightness: ") + Number(currentValue).toLocaleString(l, 'f', 0);
+                lightGizmo.currentLabel = "brightness" + qsTr(": ") + Number(currentValue).toLocaleString(l, 'f', 0);
                 lightGizmo.currentMousePos = screenPos;
                 targetNode.brightness = currentValue;
             }
@@ -189,12 +259,12 @@ Node {
 
             onDragged: {
                 updateBrightness(relativeDistance, screenPos);
-                lightGizmo.brightnessChange();
+                lightGizmo.propertyValueChange("brightness");
             }
 
             onReleased: {
                 updateBrightness(relativeDistance, screenPos);
-                lightGizmo.brightnessCommit();
+                lightGizmo.propertyValueCommit("brightness");
             }
         }
 
