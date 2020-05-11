@@ -70,6 +70,7 @@ Project {
         "scxmleditor/scxmleditor.qbs",
         "serialterminal/serialterminal.qbs",
         "silversearcher/silversearcher.qbs",
+        "studiowelcome/studiowelcome.qbs",
         "subversion/subversion.qbs",
         "tasklist/tasklist.qbs",
         "texteditor/texteditor.qbs",
