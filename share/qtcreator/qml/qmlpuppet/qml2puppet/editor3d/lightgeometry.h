@@ -43,7 +43,8 @@ public:
         Spot,
         Area,
         Directional,
-        Point
+        Point,
+        Circle  // Not a light type, but an auxiliary mesh for point light
     };
     Q_ENUM(LightType)
 

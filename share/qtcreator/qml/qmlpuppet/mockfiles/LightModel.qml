@@ -32,7 +32,7 @@ Model {
 
     property alias geometryName: lightGeometry.name // Name must be unique for each geometry
     property alias geometryType: lightGeometry.lightType
-    property color color
+    property Material material
 
     function updateGeometry()
     {
@@ -42,14 +42,7 @@ Model {
     scale: Qt.vector3d(50, 50, 50)
 
     geometry: lightGeometry
-    materials: [
-        DefaultMaterial {
-            id: defaultMaterial
-            emissiveColor: lightModel.color
-            lighting: DefaultMaterial.NoLighting
-            cullMode: Material.NoCulling
-        }
-    ]
+    materials: [ material ]
 
     LightGeometry {
         id: lightGeometry

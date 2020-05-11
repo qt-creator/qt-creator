@@ -73,6 +73,18 @@ Node {
         view3D: lightGizmo.view3D
     }
 
+    // Camera plane circle for point light mesh
+    LightModel {
+        id: pointRing
+        geometryName: "Edit 3D Circle"
+        geometryType: LightGeometry.Circle
+        material: lightMaterial
+
+        visible: lightGizmo.targetNode instanceof PointLight
+        scale: Qt.vector3d(lightGizmo.fadeScale, lightGizmo.fadeScale, lightGizmo.fadeScale)
+        rotation: lightGizmo.view3D.camera.rotation
+    }
+
     Node {
         rotation: !lightGizmo.targetNode ? Qt.quaternion(1, 0, 0, 0)
                                          : lightGizmo.targetNode.sceneRotation
@@ -86,7 +98,7 @@ Node {
 
             geometryName: "Edit 3D SpotLight"
             geometryType: LightGeometry.Spot
-            color: lightGizmo.color
+            material: lightMaterial
             visible: lightGizmo.targetNode instanceof SpotLight
             scale: Qt.vector3d(coneScale, coneScale, lightGizmo.fadeScale)
         }
@@ -122,26 +134,28 @@ Node {
             id: areaModel
             geometryName: "Edit 3D AreaLight"
             geometryType: LightGeometry.Area
-            color: lightGizmo.color
+            material: lightMaterial
             visible: lightGizmo.targetNode instanceof AreaLight
             scale: visible ? Qt.vector3d(lightGizmo.targetNode.width / 2,
                                          lightGizmo.targetNode.height / 2, 1)
                              .times(lightGizmo.targetNode.scale)
                            : Qt.vector3d(1, 1, 1)
         }
+
         LightModel {
             id: directionalModel
             geometryName: "Edit 3D DirLight"
             geometryType: LightGeometry.Directional
-            color: lightGizmo.color
+            material: lightMaterial
             visible: lightGizmo.targetNode instanceof DirectionalLight
             scale: autoScale.getScale(Qt.vector3d(50, 50, 50))
         }
+
         LightModel {
             id: pointModel
             geometryName: "Edit 3D PointLight"
             geometryType: LightGeometry.Point
-            color: lightGizmo.color
+            material: lightMaterial
             visible: lightGizmo.targetNode instanceof PointLight
             scale: Qt.vector3d(lightGizmo.fadeScale, lightGizmo.fadeScale, lightGizmo.fadeScale)
         }

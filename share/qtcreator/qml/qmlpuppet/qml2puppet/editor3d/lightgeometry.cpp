@@ -115,6 +115,9 @@ void LightGeometry::fillVertexData(QByteArray &vertexData, QByteArray &indexData
     } else if (m_lightType == LightType::Spot) {
         vertexSize = int(sizeof(float)) * 3 * (segments + 1);
         indexSize = int(sizeof(quint16)) * (segments + dirLines) * 2;
+    } else if (m_lightType == LightType::Circle) {
+        vertexSize = int(sizeof(float)) * 3 * segments;
+        indexSize = int(sizeof(quint16)) * segments * 2;
     }
     vertexData.resize(vertexSize);
     indexData.resize(indexSize);
@@ -173,6 +176,8 @@ void LightGeometry::fillVertexData(QByteArray &vertexData, QByteArray &indexData
             *indexPtr++ = tipIndex;
             *indexPtr++ = i * arc;
         }
+    } else if (m_lightType == LightType::Circle) {
+        createCircle(0, 0.f, 0, 1, 2);
     }
 
     static const float floatMin = std::numeric_limits<float>::lowest();
