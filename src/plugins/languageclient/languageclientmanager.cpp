@@ -415,6 +415,11 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
                         if (auto client = clientForDocument(document))
                             client->symbolSupport().findUsages(document, cursor);
                     });
+            connect(widget, &TextEditorWidget::requestRename, this,
+                    [document = textEditor->textDocument()](const QTextCursor &cursor) {
+                        if (auto client = clientForDocument(document))
+                            client->symbolSupport().renameSymbol(document, cursor);
+                    });
             connect(widget, &TextEditorWidget::cursorPositionChanged, this, [this, widget]() {
                 // TODO This would better be a compressing timer
                 QTimer::singleShot(50, this, [widget = QPointer<TextEditorWidget>(widget)]() {

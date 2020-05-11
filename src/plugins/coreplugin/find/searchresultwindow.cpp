@@ -859,6 +859,14 @@ void SearchResult::setTextToReplace(const QString &textToReplace)
 }
 
 /*!
+    Sets whether replace is enabled and can be triggered by the user
+*/
+void SearchResult::setReplaceEnabled(bool enabled)
+{
+    m_widget->setReplaceEnabled(enabled);
+}
+
+/*!
  * Removes all search results.
  */
 void SearchResult::restart()

@@ -91,6 +91,8 @@ public:
     void setSearchAgainSupported(bool supported);
     void setSearchAgainEnabled(bool enabled);
 
+    void setReplaceEnabled(bool enabled);
+
 public slots:
     void finishSearch(bool canceled);
     void sendRequestPopup();

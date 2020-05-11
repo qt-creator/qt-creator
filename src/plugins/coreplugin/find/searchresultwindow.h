@@ -77,6 +77,7 @@ public slots:
     void finishSearch(bool canceled);
     void setTextToReplace(const QString &textToReplace);
     void restart();
+    void setReplaceEnabled(bool enabled);
     void setSearchAgainEnabled(bool enabled);
     void popup();
 

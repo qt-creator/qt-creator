@@ -441,6 +441,11 @@ void SearchResultWidget::setSearchAgainEnabled(bool enabled)
     m_searchAgainButton->setEnabled(enabled);
 }
 
+void SearchResultWidget::setReplaceEnabled(bool enabled)
+{
+    m_replaceButton->setEnabled(enabled);
+}
+
 void SearchResultWidget::finishSearch(bool canceled)
 {
     Id sizeWarningId(SIZE_WARNING_ID);

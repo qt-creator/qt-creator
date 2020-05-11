@@ -29,6 +29,11 @@
 
 #include <languageserverprotocol/languagefeatures.h>
 
+namespace Core {
+class SearchResult;
+class SearchResultItem;
+}
+
 namespace LanguageClient {
 
 class Client;
@@ -45,10 +50,23 @@ public:
                     const bool resolveTarget);
     void findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor);
 
+    bool supportsRename(TextEditor::TextDocument *document);
+    void renameSymbol(TextEditor::TextDocument *document, const QTextCursor &cursor);
+
 private:
     void handleFindReferencesResponse(
         const LanguageServerProtocol::FindReferencesRequest::Response &response,
         const QString &wordUnderCursor);
+
+    void requestPrepareRename(const LanguageServerProtocol::TextDocumentPositionParams &params,
+                              const QString &placeholder);
+    void requestRename(const LanguageServerProtocol::TextDocumentPositionParams &positionParams,
+                       const QString &newName, Core::SearchResult *search);
+    void startRenameSymbol(const LanguageServerProtocol::TextDocumentPositionParams &params,
+                           const QString &placeholder);
+    void handleRenameResponse(Core::SearchResult *search,
+                              const LanguageServerProtocol::RenameRequest::Response &response);
+    void applyRename(const QList<Core::SearchResultItem> &checkedItems);
 
     Client *m_client = nullptr;
 };

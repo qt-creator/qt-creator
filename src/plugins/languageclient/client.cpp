@@ -41,13 +41,14 @@
 #include <projectexplorer/session.h>
 #include <texteditor/codeassist/documentcontentcompletion.h>
 #include <texteditor/codeassist/iassistprocessor.h>
+#include <texteditor/ioutlinewidget.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/textmark.h>
-#include <texteditor/ioutlinewidget.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
@@ -235,6 +236,11 @@ static ClientCapabilities generateClientCapabilities()
     hover.setDynamicRegistration(true);
     documentCapabilities.setHover(hover);
 
+    TextDocumentClientCapabilities::RenameClientCapabilities rename;
+    rename.setPrepareSupport(true);
+    rename.setDynamicRegistration(true);
+    documentCapabilities.setRename(rename);
+
     documentCapabilities.setReferences(allowDynamicRegistration);
     documentCapabilities.setDocumentHighlight(allowDynamicRegistration);
     documentCapabilities.setDefinition(allowDynamicRegistration);
@@ -398,8 +404,13 @@ void Client::activateDocument(TextEditor::TextDocument *document)
     document->setFormatter(new LanguageClientFormatter(document, this));
     for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document)) {
         updateEditorToolBar(editor);
-        if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor))
+        if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor)) {
             textEditor->editorWidget()->addHoverHandler(&m_hoverHandler);
+            if (symbolSupport().supportsRename(document)) {
+                textEditor->editorWidget()->addOptionalActions(
+                    TextEditor::TextEditorActionHandler::RenameSymbol);
+            }
+        }
     }
 }
 
