@@ -28,6 +28,7 @@
 #include <coreplugin/welcomepagehelper.h>
 
 #include <QQueue>
+#include <QStackedWidget>
 
 QT_BEGIN_NAMESPACE
 class QNetworkReply;
@@ -35,6 +36,9 @@ QT_END_NAMESPACE
 
 namespace Marketplace {
 namespace Internal {
+
+class ProductGridView;
+class ProductItemDelegate;
 
 class ProductItem : public Core::ListItem
 {
@@ -44,31 +48,72 @@ public:
 
 class ProductListModel : public Core::ListModel
 {
-    Q_OBJECT
 public:
     explicit ProductListModel(QObject *parent);
+    void appendItems(const QList<Core::ListItem *> &items);
+    const QList<Core::ListItem *> items() const;
+    void updateModelIndexesForUrl(const QString &url);
+
+protected:
+    QPixmap fetchPixmapAndUpdatePixmapCache(const QString &url) const override;
+};
+
+struct Section
+{
+    QString name;
+    int priority;
+};
+
+inline bool operator<(const Section &lhs, const Section &rhs)
+{
+    if (lhs.priority < rhs.priority)
+        return true;
+    return lhs.priority > rhs.priority ? false : lhs.name < rhs.name;
+}
+
+inline bool operator==(const Section &lhs, const Section &rhs)
+{
+    return lhs.priority == rhs.priority && lhs.name == rhs.name;
+}
+
+class SectionedProducts : public QStackedWidget
+{
+    Q_OBJECT
+public:
+    explicit SectionedProducts(QWidget *parent);
+    ~SectionedProducts() override;
     void updateCollections();
+    void queueImageForDownload(const QString &url);
+    void setColumnCount(int columns);
+    void setSearchString(const QString &searchString);
 
 signals:
     void errorOccurred(int errorCode, const QString &errorString);
     void toggleProgressIndicator(bool show);
-
-protected:
-    QPixmap fetchPixmapAndUpdatePixmapCache(const QString &url) const override;
+    void tagClicked(const QString &tag);
 
 private:
     void onFetchCollectionsFinished(QNetworkReply *reply);
     void onFetchSingleCollectionFinished(QNetworkReply *reply);
     void fetchCollectionsContents();
 
-    void queueImageForDownload(const QString &url);
     void fetchNextImage();
     void onImageDownloadFinished(QNetworkReply *reply);
-    void updateModelIndexesForUrl(const QString &url);
+    void addNewSection(const Section &section, const QList<Core::ListItem *> &items);
+    void onTagClicked(const QString &tag);
+
+    QList<Core::ListItem *> items();
 
     QQueue<QString> m_pendingCollections;
     QSet<QString> m_pendingImages;
+    QMap<QString, QString> m_collectionTitles;
+    QMap<Section, ProductListModel *> m_productModels;
+    QMap<Section, ProductGridView *> m_gridViews;
+    ProductGridView *m_allProductsView = nullptr;
+    Core::ListModelFilter *m_filteredAllProductsModel = nullptr;
+    ProductItemDelegate *m_productDelegate = nullptr;
     bool m_isDownloadingImage = false;
+    int m_columnCount = 1;
 };
 
 } // namespace Internal
