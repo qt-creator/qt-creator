@@ -31,9 +31,10 @@
     \QDS provides a set of Qt Quick Studio effects that inherit the types in the
     \l {Qt Graphical Effects} module. To apply a visual effect to a component,
     you must place the component inside the effect. First drag-and-drop an
-    effect from \uicontrol Library > \uicontrol Effects to the the canvas or
-    the \uicontrol Navigator, and then drag-and-drop the component to the
-    effect. For some effects, you need two source components.
+    effect from \uicontrol Library > \uicontrol Effects to the the
+    \uicontrol {Form Editor} or the \uicontrol Navigator, and then drag-and-drop
+    the component to the effect. For some effects, you need two source
+    components.
 
     The following table summarizes the available effects and contains links to
     the documentation of the inherited QML type.

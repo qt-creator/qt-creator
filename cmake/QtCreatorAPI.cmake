@@ -3,6 +3,10 @@ if(QT_CREATOR_API_DEFINED)
 endif()
 set(QT_CREATOR_API_DEFINED TRUE)
 
+if (CMAKE_VERSION VERSION_LESS 3.16)
+  set(BUILD_WITH_PCH OFF)
+endif()
+
 include(FeatureSummary)
 
 #

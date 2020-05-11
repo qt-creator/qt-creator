@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 /*!
-    \contentspage {Qt Design Studio Manual}
     \previouspage qtbridge-ps-setup.html
     \page qtbridge-ps-using.html
     \nextpage sketchqtbridge.html
@@ -81,8 +80,8 @@
 
     Place different parts of the UI, such as menus and pop-ups, on separate
     artboards to be able to export them as components or children and to
-    import them as QML and PNG files that you can drag and drop to the working
-    area in \QDS Design mode while creating a UI.
+    import them as QML and PNG files that you can drag and drop to the
+    \uicontrol {Form Editor} in \QDS Design mode while creating a UI.
 
     \QDS offers predefined sets of UI controls that you can modify according
     to your needs. You can export your own controls as QML types, Qt Quick

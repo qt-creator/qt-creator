@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 /*!
-    \contentspage index.html
     \page quick-uis.html
     \if defined(qtdesignstudio)
     \previouspage quick-converting-ui-projects.html
@@ -52,9 +51,10 @@
 
     While it is useful to learn the basics of Qt Quick, you can also rely on
     \QMLD to write the code for you when you drag-and-drop the ready-made
-    components to the working area and change them to your liking by modifying
-    their properties in the Design mode. You can always check up details in
-    the extensive Qt Quick documentation by pressing \key F1.
+    components to the \uicontrol {Form Editor} view and change them to your
+    liking by modifying their properties in the \uicontrol Properties view in
+    the Design mode. You can always check up details in the extensive Qt Quick
+    documentation by pressing \key F1.
 
     \list
 

@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 /*!
-    \contentspage index.html
     \page creator-editor-refactoring.html
     \previouspage creator-editor-locator.html
     \if defined(qtdesignstudio)

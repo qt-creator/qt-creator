@@ -30,7 +30,6 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
     \page creator-debugging-qml.html
     \if defined(qtdesignstudio)
     \previouspage studio-debugging.html

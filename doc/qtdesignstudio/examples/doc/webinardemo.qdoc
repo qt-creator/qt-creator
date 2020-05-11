@@ -1,0 +1,196 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \example WebinarDemo
+    \ingroup studioexamples
+    \brief Contains sources for the From Photoshop to Prototype video tutorial.
+
+    \title Webinar Demo
+
+    \e {Webinar Demo} contains the source files for the
+    \e {From Photoshop to Prototype with Qt Design Studio}
+    webinar that shows how to export designs from Adobe Photoshop
+    to \QDS and to edit them to create a UI.
+
+    The following sections describe some of the main points of the webinar.
+    Select the \uicontrol Tutorials tab to watch the webinar video for the
+    full details.
+
+    \section1 Exporting from Adobe Photoshop
+
+    We use Adobe Photoshop to design our application and \QB to export our
+    artwork to \QDS as PNG images and custom QML types.
+
+    Before we can begin, we must set up \QB as instructed in
+    \l{Exporting Designs from Adobe Photoshop}.
+
+    We organize our artwork in Photoshop using artboards as instructed in
+    \l{Organizing Assets}.
+
+    \QB automatically proposes identifiers for all groups and layers. The ids
+    will be used as filenames in \QDS. We want to change some of them in the
+    \uicontrol {QML ID} field, so that we can easily find them in \QDS. We
+    must keep in mind that the ids must be unique, that they must begin with
+    a lower-case letter or an underscore character, and that only letters,
+    numbers, and underscore characters are allowed.
+
+    Each artboard is exported automatically as a component. That is, a separate
+    QML file that contains all the artwork on the artboard. We determine whether
+    each group or layer is exported as a component or a child item. Child items
+    will be exported as PNG files, with references to them in the component file
+    that contains them.
+
+    We can export some components as QML types that provide the functionality
+    that we want. To use the types in \QDS, we need to add import statements
+    that pull in the modules that contain the types. We can even specify
+    properties for the types to export, so that we won't have to do that in
+    \QDS.
+
+    \section2 Creating a Reference Image
+
+    \image webinardemo-qb-layoutref.png "Settings for exporting stackLayout artboard"
+
+    We want to create a reference image of the UI that has no
+    functionality, but shows all the UI controls as we designed them in
+    Adobe Photoshop. We design all the controls visible on the
+    \e layoutReference separately on other artboards, and therefore we can
+    select \uicontrol Merged in the \uicontrol {Export As} field to merge
+    them all into one image when this artboard is exported.
+
+    \section2 Creating the UI Main Page
+
+    We want to use the \e backgroundGradient artboard as the main page of
+    the UI. Initially, it will contain a gradient image that we
+    will build the UI on in \QDS.
+
+    We set the gradient image on the artboard to \uicontrol Child in the
+    \uicontrol {Export As} field to export it as a PNG file that is referred
+    to from the main page.
+
+    \section2 Using Stack Layout
+
+    \image webinardemo-qb-stacklayout.png "Settings for exporting stackLayout artboard"
+
+    For the stackLayoutFrame layer, we want to use a \l StackLayout QML type,
+    which provides a stack of items where only one item is visible at a time.
+    In the \uicontrol {QML Type} field, we enter \e StackLayout.
+
+    To be able to use the type, we enter the statement that imports the
+    Qt Quick Layouts module, which contains the type, in the
+    \uicontrol {Add Imports} field: \c {QtQuick.Layouts 1.3}.
+
+    We will add content to the stack layout in \QDS.
+
+    \section2 Using Qt Studio Effects
+
+    \image webinardemo-qb-fastblur.png "Settings for exporting blurEffect layer"
+
+    We want to apply the \l {FastBlur} effect to the smallPopup UI control.
+    In the artboard, we have a blurEffect layer that we want to export as a
+    FastBlurItem QML type. In the \uicontrol {QML Type} field, we enter
+    \e FastBlurItem.
+
+    To be able to use the type, we added the statement that imports the
+    Qt Quick Studio Effects module: \c {QtQuick.Studio.Effects 1.0}.
+
+    We specify that the artwork to which we want to apply the effect is a
+    child of the effect. We then specify the radius property for the effect,
+    in the \uicontrol {QML Properties} field. We can modify the property in
+    \QDS.
+
+    \image webinardemo-blureffect.png "FastBlurItem QML item in Design mode"
+
+    \section2 Creating a Menu with Reusable Buttons
+
+    The \e miniMenu artboard contains menu buttons that we will use to toggle
+    popup dialogs in the UI. We want to be able to reuse the buttons
+    and to change their appearance depending on whether they are on or off.
+    Therefore, we select \uicontrol Component in the \uicontrol {Export As}
+    field for each button to export them as separate components that we can
+    modify in \QDS.
+
+    Within the artboard, we export each icon as a child and the background as
+    merged. This merges the background art together while it keeps the icons
+    separate, so that we can switch the icons depending on the state of the
+    button. We will implement this functionality in \QDS.
+
+    \section2 Preparing for Animation
+
+    We want to animate the contents of the \e largePopup artboard in \QDS, so
+    we export each group and layer as a child.
+
+    \section2 Exporting Artwork
+
+    When we have specified settings for all the artboards and the groups and
+    layers in them, we select \uicontrol Export to copy the assets and metadata
+    to the export path we specified.
+
+    \section1 Importing Artwork
+
+    After using \QB in Adobe Photoshop to export our artwork, we import it into
+    a project that we create in \QDS, as instructed in \l{Importing Designs}.
+
+    If we need to make changes in Photoshop later and export our artwork again,
+    \QDS will try to merge our changes during the import, so that none of the
+    changes we mage in \QDS are lost.
+
+    \section1 Using Imported Components
+
+    The \e {LayoutReference.ui.qml} file contains a reference image of the
+    UI we will create. We use the imported components to create the
+    UI in the \e {MainApp.ui.qml} file. The imported components are
+    listed in \uicontrol Library > \uicontrol {QML Types} >
+    \uicontrol {My QML Components}, and we can drag and drop them to the
+    \uicontrol {Form Editor}.
+
+    \image webinardemo-mainappui.png "Main app UI in Design mode"
+
+    To view the structure of a particular component, we right-click it in the
+    \uicontrol {Form Editor} and select \uicontrol {Go into Component} in the
+    context menu. Any changes we make to a component are immediately visible in
+    all the other components where it appears.
+
+    We can view the QML code for each component in the \uicontrol {Text Editor}.
+
+    We can now use states and the timeline to animate the components in the UI.
+
+    \section2 Animating Components
+
+    We open the \e {Largepopup.ui.qml} file in the Design mode to add animation
+    to it. In the \uicontrol States view, we add the \e opening, \e open,
+    \e closing, and \e closed states for the popup.
+
+    \image webinardemo-states.png "Popup states in the States view"
+
+    For more information about using states, see \l {Creating Animations}.
+
+    We then use the \uicontrol Timeline view to add animations that are run
+    when moving from one state to another.
+
+    \image webinardemo-timeline.png "Popup animations in the Timeline view"
+
+    For more information about using the timeline, see \l {Creating Animations}.
+*/

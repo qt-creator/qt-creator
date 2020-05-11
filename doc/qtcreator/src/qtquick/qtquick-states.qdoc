@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 /*!
-    \contentspage {Qt Creator Manual}
     \page quick-states.html
     \if defined(qtdesignstudio)
     \previouspage quick-property-bindings.html

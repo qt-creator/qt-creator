@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 /*!
-    \contentspage index.html
     \previouspage creator-editor-options-text.html
     \page studio-javascript.html
     \nextpage studio-debugging.html
@@ -93,7 +92,7 @@
             \code
             singleton Values 1.0 Values.qml
             \endcode
-        \li Open \e Values.qml in the \uicontrol {Text Editor} tab for editing.
+        \li Open \e Values.qml in the \uicontrol {Text Editor} for editing.
         \li Add the following code to the top of the file to register the
             QObject-derived class that you will use to expose the global
             properties as a singleton type:

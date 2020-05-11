@@ -80,10 +80,9 @@ static QHash<QString, QString> m_headerSourceMapping;
 class CppToolsPluginPrivate
 {
 public:
-    CppToolsPluginPrivate()
-    {
-        m_codeModelSettings.fromSettings(ICore::settings());
-    }
+    CppToolsPluginPrivate() {}
+
+    void initialize() { m_codeModelSettings.fromSettings(ICore::settings()); }
 
     ~CppToolsPluginPrivate()
     {
@@ -165,6 +164,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     Q_UNUSED(error)
 
     d = new CppToolsPluginPrivate;
+    d->initialize();
 
     JsExpander::registerGlobalObject<CppToolsJsExtension>("Cpp");
     ExtensionSystem::PluginManager::addObject(&d->m_cppProjectUpdaterFactory);

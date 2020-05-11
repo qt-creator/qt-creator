@@ -53,8 +53,8 @@
 
     \section1 Anchoring UI Components
 
-    First, you will add a new rectangle to the canvas and move all the
-    current UI components to it to create a new page. Then, you will
+    First, you will add a new rectangle to the \uicontrol {Form Editor} and move
+    all the current UI components to it to create a new page. Then, you will
     \l {Setting Anchors and Margins}{anchor} the static elements on the
     page, that is the logo image (\e logo) and page title (\e pageTitle),
     to the page. When you created the project using the new project wizard
@@ -65,20 +65,20 @@
 
     To preview the changes that you make to the UI while you make
     them, select the \inlineimage live_preview.png
-    (\uicontrol {Show Live Preview}) button on the canvas toolbar
-    or press \key {Alt+P}.
+    (\uicontrol {Show Live Preview}) button on the \uicontrol {Form Editor}
+    toolbar or press \key {Alt+P}.
 
     To anchor components on a page:
 
     \list 1
         \li Open \e {Screen01.ui.qml} for editing in the Design mode
-            \uicontrol {Form Editor} tab.
+            \uicontrol {Form Editor}.
         \li Select the rectangle that forms the UI background in the
             \uicontrol Navigator, and change its id to \e root in the
             \uicontrol Properties view.
         \li Drag and drop a \uicontrol Rectangle from the \uicontrol Library
             to \e root, and change its id to \e loginPage.
-        \li In the \uicontrol Layout tab, select the \inlineimage anchor-fill.png
+        \li In the \uicontrol Layout view, select the \inlineimage anchor-fill.png
             (\uicontrol {Fill Parent Item}) button to anchor the page to the root
             item on all sides.
         \li Select all the other UI elements below \e root in the
@@ -132,7 +132,7 @@
             \l {Qt Quick Controls 2} types in the tab:
             \image loginui2-imports.png
         \li Drag and drop two instances of the \uicontrol {Text Field} type
-            to the canvas.
+            to the \uicontrol {Form Editor}.
         \li Select one of the text fields in the \uicontrol Navigator, and
             change its id to \e usernameField in the \uicontrol Properties view.
         \li In the \uicontrol Geometry group, \uicontrol Size field, set the
@@ -141,8 +141,8 @@
             \uicontrol tr to mark the text translatable.
             \image loginui2-field-properties.png "Text field properties"
         \li In the \uicontrol Text field, delete the default text to make the
-            placeholder text visible on the canvas. The text value always takes
-            precedence over the placeholder text value.
+            placeholder text visible on the \uicontrol {Form Editor}. The text
+            value always takes precedence over the placeholder text value.
         \li Select the other text field, and change its id to
             \e passwordField, placeholder text to \e Password,
             and width to \e 300 pixels. Also remove the default text.
@@ -155,7 +155,8 @@
             \uicontrol Navigator, and right-click on either item
             to open a context menu.
         \li Select \uicontrol Position > \uicontrol {Position in Column}
-            to position the fields on top of each other on the canvas.
+            to position the fields on top of each other in the
+            \uicontrol {Form Editor}.
         \li Select the column in the \uicontrol Navigator and change its id
             to \e fieldColumn in \uicontrol Properties.
         \li In the \uicontrol Spacing field, set the spacing between the

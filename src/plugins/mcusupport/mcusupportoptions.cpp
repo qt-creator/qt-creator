@@ -61,7 +61,7 @@
 namespace McuSupport {
 namespace Internal {
 
-static const int KIT_VERSION = 2; // Bumps up whenever details in Kit creation change
+static const int KIT_VERSION = 3; // Bumps up whenever details in Kit creation change
 
 static QString packagePathFromSettings(const QString &settingsKey, const QString &defaultPath = {})
 {
@@ -320,11 +320,12 @@ QVariant McuToolChainPackage::debuggerId() const
     return debuggerId;
 }
 
-McuTarget::McuTarget(const QString &vendor, const QString &platform,
+McuTarget::McuTarget(const QString &vendor, const QString &platform, OS os,
                      const QVector<McuPackage *> &packages,
                      const McuToolChainPackage *toolChainPackage)
     : m_vendor(vendor)
     , m_qulPlatform(platform)
+    , m_os(os)
     , m_packages(packages)
     , m_toolChainPackage(toolChainPackage)
 {
@@ -343,6 +344,11 @@ QVector<McuPackage *> McuTarget::packages() const
 const McuToolChainPackage *McuTarget::toolChainPackage() const
 {
     return m_toolChainPackage;
+}
+
+McuTarget::OS McuTarget::os() const
+{
+    return m_os;
 }
 
 QString McuTarget::qulPlatform() const
@@ -477,6 +483,7 @@ static void setKitProperties(const QString &kitName, ProjectExplorer::Kit *k,
     k->setValue(KIT_MCUTARGET_COLORDEPTH_KEY, mcuTarget->colorDepth());
     k->setValue(KIT_MCUTARGET_SDKVERSION_KEY, McuSupportOptions::supportedQulVersion().toString());
     k->setValue(KIT_MCUTARGET_KITVERSION_KEY, KIT_VERSION);
+    k->setValue(KIT_MCUTARGET_OS_KEY, static_cast<int>(mcuTarget->os()));
     k->setAutoDetected(true);
     k->makeSticky();
     if (mcuTarget->toolChainPackage()->type() == McuToolChainPackage::TypeDesktop)
@@ -576,6 +583,8 @@ static void setKitCMakeOptions(ProjectExplorer::Kit *k, const McuTarget* mcuTarg
                                   (qulDir + "/lib/cmake/Qul/QulGenerators.cmake").toUtf8()));
     config.append(CMakeConfigItem("QUL_PLATFORM",
                                   mcuTarget->qulPlatform().toUtf8()));
+    if (mcuTarget->os() == McuTarget::OS::FreeRTOS)
+        config.append(CMakeConfigItem("OS", "FreeRTOS"));
     if (mcuTarget->colorDepth() >= 0)
         config.append(CMakeConfigItem("QUL_COLOR_DEPTH",
                                       QString::number(mcuTarget->colorDepth()).toLatin1()));
@@ -594,7 +603,8 @@ static void setKitQtVersionOptions(ProjectExplorer::Kit *k)
 
 QString McuSupportOptions::kitName(const McuTarget *mcuTarget)
 {
-    // TODO: get version from qulSdkPackage and insert into name
+    const QString os = QLatin1String(mcuTarget->os()
+                                     == McuTarget::OS::FreeRTOS ? " FreeRTOS" : "");
     const QString colorDepth = mcuTarget->colorDepth() > 0
             ? QString::fromLatin1(" %1bpp").arg(mcuTarget->colorDepth())
             : "";
@@ -603,8 +613,8 @@ QString McuSupportOptions::kitName(const McuTarget *mcuTarget)
             mcuTarget->toolChainPackage()->type() == McuToolChainPackage::TypeDesktop
             ? "Desktop"
             : mcuTarget->qulPlatform();
-    return QString::fromLatin1("Qt for MCUs %1 - %2%3")
-            .arg(supportedQulVersion().toString(), targetName, colorDepth);
+    return QString::fromLatin1("Qt for MCUs %1 - %2%3%4")
+            .arg(supportedQulVersion().toString(), targetName, os, colorDepth);
 }
 
 QList<ProjectExplorer::Kit *> McuSupportOptions::existingKits(const McuTarget *mcuTarget)
@@ -620,6 +630,8 @@ QList<ProjectExplorer::Kit *> McuSupportOptions::existingKits(const McuTarget *m
                         kit->value(KIT_MCUTARGET_VENDOR_KEY) == mcuTarget->vendor()
                         && kit->value(KIT_MCUTARGET_MODEL_KEY) == mcuTarget->qulPlatform()
                         && kit->value(KIT_MCUTARGET_COLORDEPTH_KEY) == mcuTarget->colorDepth()
+                        && kit->value(KIT_MCUTARGET_OS_KEY).toInt()
+                           == static_cast<int>(mcuTarget->os())
                         ));
     });
 }
