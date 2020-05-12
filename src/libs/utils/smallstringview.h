@@ -53,23 +53,10 @@ public:
 
     constexpr SmallStringView() = default;
 
-    template<size_type Size>
-    constexpr
-    SmallStringView(const char(&string)[Size]) noexcept
-        : m_pointer(string),
-          m_size(Size - 1)
+    SmallStringView(const char *characterPointer) noexcept
+        : m_pointer(characterPointer)
+        , m_size(std::strlen(characterPointer))
     {
-        static_assert(Size >= 1, "Invalid string literal! Length is zero!");
-    }
-
-    template<typename Type,
-             typename = std::enable_if_t<std::is_pointer<Type>::value>
-             >
-    SmallStringView(Type characterPointer) noexcept
-        : m_pointer(characterPointer),
-          m_size(std::strlen(characterPointer))
-    {
-        static_assert(!std::is_array<Type>::value, "Input type is array and not char pointer!");
     }
 
     constexpr
