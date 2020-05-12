@@ -40,12 +40,43 @@ public:
                      Utils::SmallStringView databaseName,
                      Utils::SmallStringView tableName)
         : database(database)
-        , databaseName(databaseName)
-        , tableName(tableName)
+
     {
-        callback = [this](ChangeType, char const *database, char const *table, long long rowId) {
-            if (this->databaseName == database && this->tableName == table)
-                lastRowId = rowId;
+        callback = [=](ChangeType, char const *database, char const *table, long long rowId) {
+            if (databaseName == database && tableName == table)
+                this->lastRowId = rowId;
+        };
+
+        database.setUpdateHook(callback);
+    }
+
+    LastChangedRowId(DatabaseInterface &database,
+                     Utils::SmallStringView databaseName,
+                     Utils::SmallStringView tableName,
+                     Utils::SmallStringView tableName2)
+        : database(database)
+
+    {
+        callback = [=](ChangeType, char const *database, char const *table, long long rowId) {
+            if (databaseName == database && (tableName == table || tableName2 == table))
+                this->lastRowId = rowId;
+        };
+
+        database.setUpdateHook(callback);
+    }
+
+    LastChangedRowId(DatabaseInterface &database,
+                     Utils::SmallStringView databaseName,
+                     Utils::SmallStringView tableName,
+                     Utils::SmallStringView tableName2,
+                     Utils::SmallStringView tableName3)
+        : database(database)
+
+    {
+        callback = [=](ChangeType, char const *database, char const *table, long long rowId) {
+            if (databaseName == database
+                && (tableName == table || tableName2 == table || tableName3 == table))
+                this->lastRowId = rowId;
         };
 
         database.setUpdateHook(callback);
@@ -63,8 +94,6 @@ public:
 public:
     DatabaseInterface &database;
     DatabaseInterface::UpdateCallback callback;
-    Utils::SmallStringView databaseName;
-    Utils::SmallStringView tableName;
     long long lastRowId = -1;
 };
 
