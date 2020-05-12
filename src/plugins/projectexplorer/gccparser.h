@@ -48,7 +48,7 @@ protected:
     void newTask(const Task &task);
     void flush() override;
 
-    void amendDescription(const QString &desc, bool monospaced);
+    void amendDescription(const QString &desc);
 
 private:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;

@@ -74,9 +74,9 @@ public:
         if (task.category == Constants::TASK_CATEGORY_COMPILE) {
             setToolTip("<html><body><b>" + QApplication::translate("TaskHub", "Build Issue")
                        + "</b><br/><code style=\"white-space:pre;font-family:monospace\">"
-                       + task.description.toHtmlEscaped() + "</code></body></html>");
+                       + task.description().toHtmlEscaped() + "</code></body></html>");
         } else {
-            setToolTip(task.description);
+            setToolTip(task.description());
         }
         setIcon(task.icon);
         setVisible(!task.icon.isNull());
@@ -152,7 +152,7 @@ void TaskHub::addTask(Task::TaskType type, const QString &description, Core::Id 
 void TaskHub::addTask(Task task)
 {
     QTC_ASSERT(m_registeredCategories.contains(task.category), return);
-    QTC_ASSERT(!task.description.isEmpty(), return);
+    QTC_ASSERT(!task.description().isEmpty(), return);
     QTC_ASSERT(!task.isNull(), return);
     QTC_ASSERT(task.m_mark.isNull(), return);
 

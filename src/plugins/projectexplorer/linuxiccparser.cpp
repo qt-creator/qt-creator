@@ -92,18 +92,7 @@ OutputLineParser::Result LinuxIccParser::handleLine(const QString &line, OutputF
         return Status::InProgress;
     }
     if (!m_expectFirstLine && m_caretLine.indexIn(line) != -1) {
-        // Format the last line as code
-        QTextLayout::FormatRange fr;
-        fr.start = m_temporary.description.lastIndexOf(QLatin1Char('\n')) + 1;
-        fr.length = m_temporary.description.length() - fr.start;
-        fr.format.setFontItalic(true);
-        m_temporary.formats.append(fr);
-
-        QTextLayout::FormatRange fr2;
-        fr2.start = fr.start + line.indexOf(QLatin1Char('^')) - m_indent;
-        fr2.length = 1;
-        fr2.format.setFontWeight(QFont::Bold);
-        m_temporary.formats.append(fr2);
+        // FIXME: m_temporary.details.append(line);
         return Status::InProgress;
     }
     if (!m_expectFirstLine && line.trimmed().isEmpty()) { // last Line
@@ -113,11 +102,7 @@ OutputLineParser::Result LinuxIccParser::handleLine(const QString &line, OutputF
         return Status::Done;
     }
     if (!m_expectFirstLine && m_continuationLines.indexIn(line) != -1) {
-        m_temporary.description.append(QLatin1Char('\n'));
-        m_indent = 0;
-        while (m_indent < line.length() && line.at(m_indent).isSpace())
-            m_indent++;
-        m_temporary.description.append(m_continuationLines.cap(1).trimmed());
+        m_temporary.details.append(m_continuationLines.cap(1).trimmed());
         ++m_lines;
         return Status::InProgress;
     }
@@ -139,6 +124,8 @@ void LinuxIccParser::flush()
 {
     if (m_temporary.isNull())
         return;
+
+    setMonospacedDetailsFormat(m_temporary);
     Task t = m_temporary;
     m_temporary.clear();
     scheduleTask(t, m_lines, 1);

@@ -101,9 +101,9 @@ OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputForm
             m_lines = 1;
             return {Status::InProgress, linkSpecs};
         } else if (trimmedLine.startsWith(QLatin1String("  ")) && !m_lastTask.isNull()) {
-            if (!m_lastTask.description.isEmpty())
-                m_lastTask.description.append(QLatin1Char(' '));
-            m_lastTask.description.append(trimmedLine.trimmed());
+            if (!m_lastTask.summary.isEmpty())
+                m_lastTask.summary.append(' ');
+            m_lastTask.summary.append(trimmedLine.trimmed());
             ++m_lines;
             return Status::InProgress;
         } else if (trimmedLine.endsWith(QLatin1String("in cmake code at"))) {
@@ -136,7 +136,7 @@ OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputForm
             return {Status::InProgress, linkSpecs};
         }
     case LINE_DESCRIPTION:
-        m_lastTask.description = trimmedLine;
+        m_lastTask.summary = trimmedLine;
         if (trimmedLine.endsWith(QLatin1Char('\"')))
             m_expectTripleLineErrorData = LINE_DESCRIPTION2;
         else {
@@ -146,8 +146,7 @@ OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputForm
         }
         return Status::InProgress;
     case LINE_DESCRIPTION2:
-        m_lastTask.description.append(QLatin1Char('\n'));
-        m_lastTask.description.append(trimmedLine);
+        m_lastTask.details.append(trimmedLine);
         m_expectTripleLineErrorData = NONE;
         flush();
         return Status::Done;

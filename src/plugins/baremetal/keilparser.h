@@ -43,7 +43,6 @@ public:
 
 private:
     void newTask(const ProjectExplorer::Task &task);
-    void amendDescription();
 
     // ARM compiler specific parsers.
     Result parseArmWarningOrErrorDetailsMessage(const QString &lne);

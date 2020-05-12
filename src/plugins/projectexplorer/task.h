@@ -32,6 +32,7 @@
 
 #include <QIcon>
 #include <QMetaType>
+#include <QStringList>
 #include <QTextLayout>
 
 namespace TextEditor {
@@ -72,11 +73,13 @@ public:
     bool isNull() const;
     void clear();
     void setFile(const Utils::FilePath &file);
+    QString description() const;
 
     unsigned int taskId = 0;
     TaskType type = Unknown;
     Options options = AddTextMark | FlashWorthy;
-    QString description;
+    QString summary;
+    QStringList details;
     Utils::FilePath file;
     Utils::FilePaths fileCandidates;
     int line = -1;

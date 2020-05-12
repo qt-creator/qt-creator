@@ -388,7 +388,7 @@ QPair<Task::TaskType, QString> TargetSetupWidget::findIssues(const BuildInfo &in
                 highestType = Task::Warning;
             severity = tr("<b>Warning:</b> ", "Severity is Task::Warning");
         }
-        text.append(severity + t.description);
+        text.append(severity + t.description());
     }
     if (!text.isEmpty())
         text = QLatin1String("<nobr>") + text;

@@ -62,15 +62,20 @@ unsigned int Task::s_nextId = 1;
     \sa ProjectExplorer::TaskHub
 */
 
-Task::Task(TaskType type_, const QString &description_,
+Task::Task(TaskType type_, const QString &description,
            const Utils::FilePath &file_, int line_, Core::Id category_,
            const QIcon &icon, Options options) :
-    taskId(s_nextId), type(type_), options(options), description(description_),
+    taskId(s_nextId), type(type_), options(options), summary(description),
     line(line_), movedLine(line_), category(category_),
     icon(icon.isNull() ? taskTypeIcon(type_) : icon)
 {
     ++s_nextId;
     setFile(file_);
+    QStringList desc = description.split('\n');
+    if (desc.length() > 1) {
+        summary = desc.first();
+        details = desc.mid(1);
+    }
 }
 
 Task Task::compilerMissingTask()
@@ -97,7 +102,8 @@ void Task::clear()
 {
     taskId = 0;
     type = Task::Unknown;
-    description.clear();
+    summary.clear();
+    details.clear();
     file = Utils::FilePath();
     line = -1;
     movedLine = -1;
@@ -117,6 +123,14 @@ void Task::setFile(const Utils::FilePath &file_)
         else
             fileCandidates = possiblePaths;
     }
+}
+
+QString Task::description() const
+{
+    QString desc = summary;
+    if (!details.isEmpty())
+        desc.append('\n').append(details.join('\n'));
+    return desc;
 }
 
 //
@@ -173,7 +187,7 @@ QString toHtml(const Tasks &issues)
         default:
             break;
         }
-        str << "</b>" << t.description << "<br>";
+        str << "</b>" << t.description() << "<br>";
     }
     return result;
 }

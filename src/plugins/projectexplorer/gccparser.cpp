@@ -30,8 +30,6 @@
 #include "projectexplorerconstants.h"
 #include "buildmanager.h"
 
-#include <texteditor/fontsettings.h>
-#include <texteditor/texteditorsettings.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
@@ -82,27 +80,19 @@ void GccParser::flush()
 {
     if (m_currentTask.isNull())
         return;
+
+    setMonospacedDetailsFormat(m_currentTask);
     Task t = m_currentTask;
     m_currentTask.clear();
     scheduleTask(t, m_lines, 1);
     m_lines = 0;
 }
 
-void GccParser::amendDescription(const QString &desc, bool monospaced)
+void GccParser::amendDescription(const QString &desc)
 {
     if (m_currentTask.isNull())
         return;
-    int start = m_currentTask.description.count() + 1;
-    m_currentTask.description.append(QLatin1Char('\n'));
-    m_currentTask.description.append(desc);
-    if (monospaced) {
-        QTextLayout::FormatRange fr;
-        fr.start = start;
-        fr.length = desc.count() + 1;
-        fr.format.setFont(TextEditor::TextEditorSettings::fontSettings().font());
-        fr.format.setFontStyleHint(QFont::Monospace);
-        m_currentTask.formats.append(fr);
-    }
+    m_currentTask.details.append(desc);
     ++m_lines;
     return;
 }
@@ -174,7 +164,7 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
         newTask(CompileTask(Task::Unknown, lne.trimmed() /* description */, filePath, lineNo));
         return {Status::InProgress, linkSpecs};
     } else if (lne.startsWith(' ') && !m_currentTask.isNull()) {
-        amendDescription(lne, true);
+        amendDescription(lne);
         return Status::InProgress;
     }
 

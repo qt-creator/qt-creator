@@ -77,7 +77,7 @@ Utils::OutputLineParser::Result LdParser::handleLine(const QString &line, Utils:
         return Status::InProgress;
     }
     if (!m_incompleteTask.isNull() && lne.startsWith("  ")) {
-        m_incompleteTask.description.append('\n').append(lne);
+        m_incompleteTask.details.append(lne);
         static const QRegularExpression locRegExp("    (?<symbol>\\S+) in (?<file>\\S+)");
         const QRegularExpressionMatch match = locRegExp.match(lne);
         LinkSpecs linkSpecs;

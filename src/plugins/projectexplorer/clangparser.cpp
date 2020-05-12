@@ -112,7 +112,7 @@ OutputLineParser::Result ClangParser::handleLine(const QString &line, OutputForm
     }
 
     if (m_expectSnippet) {
-        amendDescription(lne, true);
+        amendDescription(lne);
         return Status::InProgress;
     }
 

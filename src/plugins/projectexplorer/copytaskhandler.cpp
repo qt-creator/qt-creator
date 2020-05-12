@@ -54,7 +54,7 @@ void CopyTaskHandler::handle(const Task &task)
 
     QApplication::clipboard()->setText(task.file.toUserOutput() + QLatin1Char(':') +
                                        QString::number(task.line) + QLatin1String(": ")
-                                       + type + task.description);
+                                       + type + task.description());
 }
 
 Core::Id CopyTaskHandler::actionManagerId() const

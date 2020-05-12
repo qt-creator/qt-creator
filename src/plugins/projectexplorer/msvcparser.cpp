@@ -113,26 +113,7 @@ OutputLineParser::Result MsvcParser::handleLine(const QString &line, OutputForma
             if (m_lastTask.isNull())
                 return Status::NotHandled;
 
-            m_lastTask.description.append('\n');
-            m_lastTask.description.append(line.mid(8));
-            // trim trailing spaces:
-            int i = 0;
-            for (i = m_lastTask.description.length() - 1; i >= 0; --i) {
-                if (!m_lastTask.description.at(i).isSpace())
-                    break;
-            }
-            m_lastTask.description.truncate(i + 1);
-
-            if (m_lastTask.formats.isEmpty()) {
-                QTextLayout::FormatRange fr;
-                fr.start = m_lastTask.description.indexOf('\n') + 1;
-                fr.length = m_lastTask.description.length() - fr.start;
-                fr.format.setFontItalic(true);
-                m_lastTask.formats.append(fr);
-            } else {
-                m_lastTask.formats[0].length = m_lastTask.description.length()
-                        - m_lastTask.formats[0].start;
-            }
+            m_lastTask.details.append(rightTrimmed(line.mid(8)));
             ++m_lines;
             return Status::InProgress;
         }
@@ -195,6 +176,7 @@ void MsvcParser::flush()
     if (m_lastTask.isNull())
         return;
 
+    setMonospacedDetailsFormat(m_lastTask);
     Task t = m_lastTask;
     m_lastTask.clear();
     scheduleTask(t, m_lines, 1);
@@ -275,8 +257,7 @@ OutputLineParser::Result ClangClParser::handleLine(const QString &line, OutputFo
             flush();
             return Status::Done;
         }
-        m_lastTask.description.append('\n');
-        m_lastTask.description.append(trimmed);
+        m_lastTask.details.append(trimmed);
         ++m_linkedLines;
         return Status::InProgress;
     }

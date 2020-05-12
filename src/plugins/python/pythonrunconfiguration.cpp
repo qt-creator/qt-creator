@@ -99,9 +99,9 @@ private:
                 m_tasks.append({Task::Warning, text.trimmed(), {}, -1, category});
             } else {
                 Task &task = m_tasks.back();
-                if (!task.description.isEmpty())
-                    task.description += ' ';
-                task.description += text.trimmed();
+                if (!task.summary.isEmpty())
+                    task.summary += ' ';
+                task.summary += text.trimmed();
             }
         } else {
             // The actual exception. This ends the traceback.

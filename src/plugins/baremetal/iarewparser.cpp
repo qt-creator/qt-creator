@@ -28,9 +28,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/task.h>
 
-#include <texteditor/fontsettings.h>
-#include <texteditor/texteditorsettings.h>
-
 #include <QRegularExpression>
 
 using namespace ProjectExplorer;
@@ -67,28 +64,6 @@ void IarParser::newTask(const Task &task)
     flush();
     m_lastTask = task;
     m_lines = 1;
-}
-
-void IarParser::amendDescription()
-{
-    while (!m_descriptionParts.isEmpty())
-        m_lastTask.description.append(m_descriptionParts.takeFirst());
-
-    while (!m_snippets.isEmpty()) {
-        const QString snippet = m_snippets.takeFirst();
-        const int start = m_lastTask.description.count() + 1;
-        m_lastTask.description.append('\n');
-        m_lastTask.description.append(snippet);
-
-        QTextLayout::FormatRange fr;
-        fr.start = start;
-        fr.length = m_lastTask.description.count() + 1;
-        fr.format.setFont(TextEditor::TextEditorSettings::fontSettings().font());
-        fr.format.setFontStyleHint(QFont::Monospace);
-        m_lastTask.formats.append(fr);
-
-        ++m_lines;
-    }
 }
 
 void IarParser::amendFilePath()
@@ -251,7 +226,12 @@ void IarParser::flush()
     if (m_lastTask.isNull())
         return;
 
-    amendDescription();
+    while (!m_descriptionParts.isEmpty())
+        m_lastTask.summary.append(m_descriptionParts.takeFirst());
+    m_lastTask.details = m_snippets;
+    m_snippets.clear();
+    m_lines += m_lastTask.details.count();
+    setMonospacedDetailsFormat(m_lastTask);
     amendFilePath();
 
     m_expectSnippet = true;

@@ -28,9 +28,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/task.h>
 
-#include <texteditor/fontsettings.h>
-#include <texteditor/texteditorsettings.h>
-
 #include <QRegularExpression>
 
 using namespace ProjectExplorer;
@@ -69,26 +66,6 @@ void KeilParser::newTask(const Task &task)
     flush();
     m_lastTask = task;
     m_lines = 1;
-}
-
-void KeilParser::amendDescription()
-{
-    while (!m_snippets.isEmpty()) {
-        const QString snippet = m_snippets.takeFirst();
-
-        const int start = m_lastTask.description.count() + 1;
-        m_lastTask.description.append('\n');
-        m_lastTask.description.append(snippet);
-
-        QTextLayout::FormatRange fr;
-        fr.start = start;
-        fr.length = m_lastTask.description.count() + 1;
-        fr.format.setFont(TextEditor::TextEditorSettings::fontSettings().font());
-        fr.format.setFontStyleHint(QFont::Monospace);
-        m_lastTask.formats.append(fr);
-
-        ++m_lines;
-    }
 }
 
 // ARM compiler specific parsers.
@@ -278,8 +255,10 @@ void KeilParser::flush()
     if (m_lastTask.isNull())
         return;
 
-    amendDescription();
-
+    m_lastTask.details = m_snippets;
+    m_snippets.clear();
+    m_lines += m_lastTask.details.count();
+    setMonospacedDetailsFormat(m_lastTask);
     Task t = m_lastTask;
     m_lastTask.clear();
     scheduleTask(t, m_lines, 1);

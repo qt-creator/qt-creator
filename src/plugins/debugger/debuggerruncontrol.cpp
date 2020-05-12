@@ -977,7 +977,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
     const Tasks tasks = DebuggerKitAspect::validateDebugger(kit);
     for (const Task &t : tasks) {
         if (t.type != Task::Warning)
-            m_runParameters.validationErrors.append(t.description);
+            m_runParameters.validationErrors.append(t.description());
     }
 
     RunConfiguration *runConfig = runControl->runConfiguration();

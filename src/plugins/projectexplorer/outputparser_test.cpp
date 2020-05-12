@@ -83,7 +83,7 @@ void OutputParserTester::testParsing(const QString &lines,
     if (m_receivedTasks.size() == tasks.size()) {
         for (int i = 0; i < tasks.size(); ++i) {
             QCOMPARE(m_receivedTasks.at(i).category, tasks.at(i).category);
-            QCOMPARE(m_receivedTasks.at(i).description, tasks.at(i).description);
+            QCOMPARE(m_receivedTasks.at(i).description(), tasks.at(i).description());
             QVERIFY2(m_receivedTasks.at(i).file == tasks.at(i).file,
                      msgFileComparisonFail(m_receivedTasks.at(i).file, tasks.at(i).file));
             QCOMPARE(m_receivedTasks.at(i).line, tasks.at(i).line);

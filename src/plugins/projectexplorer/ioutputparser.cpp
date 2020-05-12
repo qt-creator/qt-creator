@@ -28,6 +28,9 @@
 #include "task.h"
 #include "taskhub.h"
 
+#include <texteditor/fontsettings.h>
+#include <texteditor/texteditorsettings.h>
+
 
 /*!
     \class ProjectExplorer::OutputTaskParser
@@ -89,6 +92,18 @@ void OutputTaskParser::scheduleTask(const Task &task, int outputLines, int skipp
         ts.task.type = Task::Warning;
     d->scheduledTasks << ts;
     QTC_CHECK(d->scheduledTasks.size() <= 2);
+}
+
+void OutputTaskParser::setMonospacedDetailsFormat(Task &task)
+{
+    if (task.details.isEmpty())
+        return;
+    QTextLayout::FormatRange fr;
+    fr.start = task.summary.length() + 1;
+    fr.length = task.details.join('\n').length();
+    fr.format.setFont(TextEditor::TextEditorSettings::fontSettings().font());
+    fr.format.setFontStyleHint(QFont::Monospace);
+    task.formats = {fr};
 }
 
 void OutputTaskParser::runPostPrintActions()

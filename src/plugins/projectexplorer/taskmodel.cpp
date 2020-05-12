@@ -247,7 +247,7 @@ QVariant TaskModel::data(const QModelIndex &index, int role) const
     else if (role == TaskModel::MovedLine)
         return m_tasks.at(index.row()).movedLine;
     else if (role == TaskModel::Description)
-        return m_tasks.at(index.row()).description;
+        return m_tasks.at(index.row()).description();
     else if (role == TaskModel::FileNotFound)
         return m_fileNotFound.value(m_tasks.at(index.row()).file.toString());
     else if (role == TaskModel::Type)
@@ -405,7 +405,7 @@ bool TaskFilterModel::filterAcceptsTask(const Task &task) const
             return m_filterStringIsRegexp ? m_filterRegexp.isValid() && s.contains(m_filterRegexp)
                                           : s.contains(m_filterText, m_filterCaseSensitivity);
         };
-        if ((accepts(task.file.toString()) || accepts(task.description)) == m_filterIsInverted)
+        if ((accepts(task.file.toString()) || accepts(task.description())) == m_filterIsInverted)
             accept = false;
     }
 

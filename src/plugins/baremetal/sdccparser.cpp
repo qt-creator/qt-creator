@@ -28,9 +28,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/task.h>
 
-#include <texteditor/fontsettings.h>
-#include <texteditor/texteditorsettings.h>
-
 #include <QRegularExpression>
 
 using namespace ProjectExplorer;
@@ -73,17 +70,7 @@ void SdccParser::newTask(const Task &task)
 
 void SdccParser::amendDescription(const QString &desc)
 {
-    const int start = m_lastTask.description.count() + 1;
-    m_lastTask.description.append('\n');
-    m_lastTask.description.append(desc);
-
-    QTextLayout::FormatRange fr;
-    fr.start = start;
-    fr.length = m_lastTask.description.count() + 1;
-    fr.format.setFont(TextEditor::TextEditorSettings::fontSettings().font());
-    fr.format.setFontStyleHint(QFont::Monospace);
-    m_lastTask.formats.append(fr);
-
+    m_lastTask.details.append(desc);
     ++m_lines;
 }
 
@@ -165,6 +152,7 @@ void SdccParser::flush()
     if (m_lastTask.isNull())
         return;
 
+    setMonospacedDetailsFormat(m_lastTask);
     Task t = m_lastTask;
     m_lastTask.clear();
     scheduleTask(t, m_lines, 1);

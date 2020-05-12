@@ -44,7 +44,7 @@ ConfigTaskHandler::ConfigTaskHandler(const Task &pattern, Core::Id page) :
 
 bool ConfigTaskHandler::canHandle(const Task &task) const
 {
-    return task.description == m_pattern.description
+    return task.description() == m_pattern.description()
             && task.category == m_pattern.category;
 }
 

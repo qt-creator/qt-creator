@@ -313,7 +313,7 @@ void QmakeBuildConfiguration::updateProblemLabel()
                 }
                 if (!text.endsWith(QLatin1String("br>")))
                     text.append(QLatin1String("<br>"));
-                text.append(type + task.description);
+                text.append(type + task.description());
             }
             buildDirectoryAspect()->setProblem(text);
             return;

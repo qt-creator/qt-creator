@@ -54,6 +54,7 @@ public:
 
 protected:
     void scheduleTask(const Task &task, int outputLines, int skippedLines = 0);
+    void setMonospacedDetailsFormat(Task &task);
 
 private:
     void runPostPrintActions() override;
