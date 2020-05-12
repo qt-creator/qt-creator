@@ -289,7 +289,7 @@ private:
         m_future.reportFinished();
         if (exitStatus == QProcess::NormalExit && exitCode == 0) {
             if (Client *client = registerLanguageServer(m_python))
-                LanguageClientManager::reOpenDocumentWithClient(m_document, client);
+                LanguageClientManager::openDocumentWithClient(m_document, client);
         } else {
             Core::MessageManager::write(
                 tr("Installing the Python language server failed with exit code %1").arg(exitCode));
@@ -338,7 +338,7 @@ static void setupPythonLanguageServer(const FilePath &python,
 {
     document->infoBar()->removeInfo(startPylsInfoBarId);
     if (Client *client = registerLanguageServer(python))
-        LanguageClientManager::reOpenDocumentWithClient(document, client);
+        LanguageClientManager::openDocumentWithClient(document, client);
 }
 
 static void enablePythonLanguageServer(const FilePath &python,
@@ -349,7 +349,7 @@ static void enablePythonLanguageServer(const FilePath &python,
         LanguageClientManager::enableClientSettings(setting->m_id);
         if (const StdIOSettings *setting = PyLSConfigureAssistant::languageServerForPython(python)) {
             if (Client *client = LanguageClientManager::clientForSetting(setting).value(0)) {
-                LanguageClientManager::reOpenDocumentWithClient(document, client);
+                LanguageClientManager::openDocumentWithClient(document, client);
                 PyLSConfigureAssistant::updateEditorInfoBars(python, client);
             }
         }
@@ -406,7 +406,7 @@ void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
     if (state.state == PythonLanguageServerState::AlreadyConfigured) {
         if (const StdIOSettings *setting = languageServerForPython(python)) {
             if (Client *client = LanguageClientManager::clientForSetting(setting).value(0))
-                LanguageClientManager::reOpenDocumentWithClient(document, client);
+                LanguageClientManager::openDocumentWithClient(document, client);
         }
         return;
     }
@@ -456,7 +456,7 @@ void PyLSConfigureAssistant::updateEditorInfoBars(const FilePath &python, Client
     for (TextEditor::TextDocument *document : instance()->m_infoBarEntries.take(python)) {
         instance()->resetEditorInfoBar(document);
         if (client)
-            LanguageClientManager::reOpenDocumentWithClient(document, client);
+            LanguageClientManager::openDocumentWithClient(document, client);
     }
 }
 

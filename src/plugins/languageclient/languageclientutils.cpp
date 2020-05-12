@@ -231,7 +231,7 @@ void updateEditorToolBar(Core::IEditor *editor)
                     auto reopen = [action, client = QPointer<Client>(client), document]() {
                         if (!client)
                             return;
-                        LanguageClientManager::reOpenDocumentWithClient(document, client);
+                        LanguageClientManager::openDocumentWithClient(document, client);
                         action->setChecked(true);
                     };
                     action->setCheckable(true);

@@ -245,11 +245,8 @@ void LanguageClientManager::applySettings()
             }
             if (!documents.isEmpty()) {
                 Client *client = startClient(setting);
-                for (TextEditor::TextDocument *document : documents) {
-                    if (managerInstance->m_clientForDocument.value(document).isNull())
-                        managerInstance->m_clientForDocument[document] = client;
+                for (TextEditor::TextDocument *document : documents)
                     client->openDocument(document);
-                }
             }
             break;
         }
@@ -332,13 +329,21 @@ Client *LanguageClientManager::clientForUri(const DocumentUri &uri)
     return clientForFilePath(uri.toFilePath());
 }
 
-void LanguageClientManager::reOpenDocumentWithClient(TextEditor::TextDocument *document, Client *client)
+void LanguageClientManager::openDocumentWithClient(TextEditor::TextDocument *document, Client *client)
 {
-    Utils::ExecuteOnDestruction outlineUpdater(&TextEditor::IOutlineWidgetFactory::updateOutline);
-    if (Client *currentClient = clientForDocument(document))
+    Client *currentClient = clientForDocument(document);
+    if (client == currentClient)
+        return;
+    if (currentClient)
         currentClient->deactivateDocument(document);
     managerInstance->m_clientForDocument[document] = client;
-    client->activateDocument(document);
+    if (client) {
+        if (!client->documentOpen(document))
+            client->openDocument(document);
+        else
+            client->activateDocument(document);
+    }
+    TextEditor::IOutlineWidgetFactory::updateOutline();
 }
 
 void LanguageClientManager::logBaseMessage(const LspLogMessage::MessageSender sender,
@@ -458,20 +463,10 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
             } else if (setting->m_startBehavior == BaseSettings::RequiresFile && clients.isEmpty()) {
                 clients << startClient(setting);
             }
-            for (auto client : clients) {
-                if (!m_clientForDocument.contains(textDocument))
-                    m_clientForDocument[textDocument] = client;
-                openDocumentWithClient(textDocument, client);
-            }
+            for (auto client : clients)
+                client->openDocument(textDocument);
         }
     }
-}
-
-void LanguageClientManager::openDocumentWithClient(TextEditor::TextDocument *document,
-                                                   Client *client)
-{
-    if (client && client->state() != Client::Error)
-        client->openDocument(document);
 }
 
 void LanguageClientManager::documentClosed(Core::IDocument *document)
@@ -629,9 +624,7 @@ void LanguageClientManager::updateProject(ProjectExplorer::Project *project)
                                 newClient = startClient(setting, project);
                             if (!newClient)
                                 break;
-                            openDocumentWithClient(textDoc, newClient);
-                            if (m_clientForDocument.value(textDoc) == nullptr)
-                                m_clientForDocument[textDoc] = newClient;
+                            newClient->openDocument(textDoc);
                         }
                     }
                 }

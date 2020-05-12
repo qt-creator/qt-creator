@@ -329,8 +329,11 @@ void Client::openDocument(TextEditor::TextDocument *document)
     item.setVersion(document->document()->revision());
     sendContent(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)));
 
-    if (LanguageClientManager::clientForDocument(document) == this)
+    const Client *currentClient = LanguageClientManager::clientForDocument(document);
+    if (currentClient == this) // this is the active client for the document so directly activate it
         activateDocument(document);
+    else if (currentClient == nullptr) // there is no client for this document so assign it to this server
+        LanguageClientManager::openDocumentWithClient(document, this);
 }
 
 void Client::sendContent(const IContent &content)
@@ -887,11 +890,8 @@ void Client::projectFileListChanged()
 {
     for (Core::IDocument *doc : Core::DocumentModel::openedDocuments()) {
         if (m_project->isKnownFile(doc->filePath())) {
-            if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(doc)) {
+            if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(doc))
                 openDocument(textDocument);
-                if (!LanguageClientManager::clientForDocument(textDocument))
-                    LanguageClientManager::reOpenDocumentWithClient(textDocument, this);
-            }
         }
     }
 }
