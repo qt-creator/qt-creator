@@ -85,7 +85,6 @@ public:
         indent(cursor, QChar::Null, tabSettings, cursorPositionInEditor);
     }
 
-    // By default just calls indent with default settings.
     virtual Utils::Text::Replacements format(const RangesInLines & /*rangesInLines*/)
     {
         return Utils::Text::Replacements();
