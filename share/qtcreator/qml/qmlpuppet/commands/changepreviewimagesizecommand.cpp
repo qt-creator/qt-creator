@@ -24,6 +24,8 @@
 ****************************************************************************/
 #include "changepreviewimagesizecommand.h"
 
+#include <QDebug>
+
 namespace QmlDesigner {
 
 QDataStream &operator<<(QDataStream &out, const ChangePreviewImageSizeCommand &command)
