@@ -443,14 +443,15 @@ bool UrlTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
 
 void UrlTextCursorHandler::highlightCurrentContents()
 {
+    const QColor linkColor = creatorTheme()->color(Theme::TextColorLink);
     QTextEdit::ExtraSelection sel;
     sel.cursor = currentCursor();
     sel.cursor.setPosition(currentCursor().position()
                            - (currentCursor().columnNumber() - m_urlData.startColumn));
     sel.cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, m_urlData.url.length());
     sel.format.setFontUnderline(true);
-    sel.format.setForeground(Qt::blue);
-    sel.format.setUnderlineColor(Qt::blue);
+    sel.format.setForeground(linkColor);
+    sel.format.setUnderlineColor(linkColor);
     sel.format.setProperty(QTextFormat::UserProperty, m_urlData.url);
     editorWidget()->setExtraSelections(VcsBaseEditorWidget::OtherSelection,
                                        QList<QTextEdit::ExtraSelection>() << sel);
