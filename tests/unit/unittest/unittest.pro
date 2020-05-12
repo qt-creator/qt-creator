@@ -63,6 +63,7 @@ SOURCES += \
     filepathview-test.cpp \
     gtest-creator-printing.cpp \
     gtest-qt-printing.cpp \
+    lastchangedrowid-test.cpp \
     lineprefixer-test.cpp \
     locatorfilter-test.cpp \
     matchingtext-test.cpp \

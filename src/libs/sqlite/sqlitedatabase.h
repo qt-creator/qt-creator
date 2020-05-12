@@ -114,6 +114,13 @@ public:
         m_databaseBackend.walCheckpointFull();
     }
 
+    void setUpdateHook(DatabaseBackend::UpdateCallback &callback)
+    {
+        m_databaseBackend.setUpdateHook(callback);
+    }
+
+    void resetUpdateHook() { m_databaseBackend.resetUpdateHook(); }
+
 private:
     void deferredBegin() override;
     void immediateBegin() override;

@@ -40,6 +40,9 @@ class Database;
 class SQLITE_EXPORT DatabaseBackend
 {
 public:
+    using UpdateCallback
+        = std::function<void(ChangeType type, char const *, char const *, long long)>;
+
     DatabaseBackend(Database &database);
     ~DatabaseBackend();
 
@@ -87,6 +90,9 @@ public:
 
     void walCheckpointFull();
 
+    void setUpdateHook(UpdateCallback &callback);
+    void resetUpdateHook();
+
 protected:
     bool databaseIsOpen() const;
 
@@ -128,7 +134,6 @@ private:
     Database &m_database;
     sqlite3 *m_databaseHandle;
     TextEncoding m_cachedTextEncoding;
-
 };
 
 } // namespace Sqlite

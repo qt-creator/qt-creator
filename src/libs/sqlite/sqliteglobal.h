@@ -84,4 +84,6 @@ enum TextEncoding : char
 
 };
 
+enum class ChangeType : int { Delete = 9, Insert = 18, Update = 23 };
+
 } // namespace Sqlite

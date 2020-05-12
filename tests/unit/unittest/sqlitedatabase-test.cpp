@@ -71,6 +71,8 @@ protected:
     QString databaseFilePath{":memory:"};
     Sqlite::Database database;
     Sqlite::TransactionInterface &transactionInterface = database;
+    MockFunction<void(Sqlite::ChangeType tupe, char const *, char const *, long long)> callbackMock;
+    Sqlite::Database::UpdateCallback callback = callbackMock.AsStdFunction();
 };
 
 TEST_F(SqliteDatabase, SetDatabaseFilePath)
@@ -220,4 +222,89 @@ TEST_F(SqliteDatabase, Rollback)
     ASSERT_NO_THROW(transactionInterface.rollback());
 }
 
+TEST_F(SqliteDatabase, SetUpdateHookSet)
+{
+    database.setUpdateHook(callback);
+
+    EXPECT_CALL(callbackMock, Call(_, _, _, _));
+    Sqlite::WriteStatement("INSERT INTO test(name) VALUES (?)", database).write(42);
 }
+
+TEST_F(SqliteDatabase, SetNullUpdateHook)
+{
+    database.setUpdateHook(callback);
+    Sqlite::Database::UpdateCallback newCallback;
+
+    database.setUpdateHook(newCallback);
+
+    EXPECT_CALL(callbackMock, Call(_, _, _, _)).Times(0);
+    Sqlite::WriteStatement("INSERT INTO test(name) VALUES (?)", database).write(42);
+}
+
+TEST_F(SqliteDatabase, ResetUpdateHook)
+{
+    database.setUpdateHook(callback);
+    Sqlite::Database::UpdateCallback newCallback;
+
+    database.resetUpdateHook();
+
+    EXPECT_CALL(callbackMock, Call(_, _, _, _)).Times(0);
+    Sqlite::WriteStatement("INSERT INTO test(name) VALUES (?)", database).write(42);
+}
+
+TEST_F(SqliteDatabase, DeleteUpdateHookCall)
+{
+    Sqlite::WriteStatement("INSERT INTO test(name) VALUES (?)", database).write(42);
+    database.setUpdateHook(callback);
+
+    EXPECT_CALL(callbackMock, Call(Eq(Sqlite::ChangeType::Delete), _, _, _));
+
+    Sqlite::WriteStatement("DELETE FROM test WHERE name = 42", database).execute();
+}
+
+TEST_F(SqliteDatabase, InsertUpdateHookCall)
+{
+    database.setUpdateHook(callback);
+
+    EXPECT_CALL(callbackMock, Call(Eq(Sqlite::ChangeType::Insert), _, _, _));
+
+    Sqlite::WriteStatement("INSERT INTO test(name) VALUES (?)", database).write(42);
+}
+
+TEST_F(SqliteDatabase, UpdateUpdateHookCall)
+{
+    database.setUpdateHook(callback);
+
+    EXPECT_CALL(callbackMock, Call(Eq(Sqlite::ChangeType::Insert), _, _, _));
+
+    Sqlite::WriteStatement("INSERT INTO test(name) VALUES (?)", database).write(42);
+}
+
+TEST_F(SqliteDatabase, RowIdUpdateHookCall)
+{
+    database.setUpdateHook(callback);
+
+    EXPECT_CALL(callbackMock, Call(_, _, _, Eq(42)));
+
+    Sqlite::WriteStatement("INSERT INTO test(rowid, name) VALUES (?,?)", database).write(42, "foo");
+}
+
+TEST_F(SqliteDatabase, DatabaseUpdateHookCall)
+{
+    database.setUpdateHook(callback);
+
+    EXPECT_CALL(callbackMock, Call(_, StrEq("main"), _, _));
+
+    Sqlite::WriteStatement("INSERT INTO test(name) VALUES (?)", database).write(42);
+}
+
+TEST_F(SqliteDatabase, TableUpdateHookCall)
+{
+    database.setUpdateHook(callback);
+
+    EXPECT_CALL(callbackMock, Call(_, _, StrEq("test"), _));
+
+    Sqlite::WriteStatement("INSERT INTO test(name) VALUES (?)", database).write(42);
+}
+
+} // namespace

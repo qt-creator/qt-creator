@@ -344,13 +344,11 @@ int indexOfPragma(Utils::SmallStringView pragma, const Utils::SmallStringView (&
 }
 }
 
-constexpr const Utils::SmallStringView journalModeStrings[] = {
-    "delete",
-    "truncate",
-    "persist",
-    "memory",
-    "wal"
-};
+const Utils::SmallStringView journalModeStrings[] = {"delete",
+                                                     "truncate",
+                                                     "persist",
+                                                     "memory",
+                                                     "wal"};
 
 Utils::SmallStringView DatabaseBackend::journalModeToPragma(JournalMode journalMode)
 {
@@ -367,11 +365,7 @@ JournalMode DatabaseBackend::pragmaToJournalMode(Utils::SmallStringView pragma)
     return static_cast<JournalMode>(index);
 }
 
-constexpr const Utils::SmallStringView textEncodingStrings[] = {
-    "UTF-8",
-    "UTF-16le",
-    "UTF-16be"
-};
+const Utils::SmallStringView textEncodingStrings[] = {"UTF-8", "UTF-16le", "UTF-16be"};
 
 Utils::SmallStringView DatabaseBackend::textEncodingToPragma(TextEncoding textEncoding)
 {
@@ -424,6 +418,29 @@ void DatabaseBackend::walCheckpointFull()
     case SQLITE_MISUSE:
         throwExceptionStatic("DatabaseBackend::walCheckpointFull: Misuse of database!");
     }
+}
+
+namespace {
+void updateCallback(
+    void *callback, int type, char const *database, char const *table, sqlite3_int64 row)
+{
+    auto &function = *reinterpret_cast<DatabaseBackend::UpdateCallback *>(callback);
+
+    function(static_cast<ChangeType>(type), database, table, row);
+}
+} // namespace
+
+void DatabaseBackend::setUpdateHook(UpdateCallback &callback)
+{
+    if (callback)
+        sqlite3_update_hook(m_databaseHandle, updateCallback, &callback);
+    else
+        sqlite3_update_hook(m_databaseHandle, nullptr, nullptr);
+}
+
+void DatabaseBackend::resetUpdateHook()
+{
+    sqlite3_update_hook(m_databaseHandle, nullptr, nullptr);
 }
 
 void DatabaseBackend::throwExceptionStatic(const char *whatHasHappens)

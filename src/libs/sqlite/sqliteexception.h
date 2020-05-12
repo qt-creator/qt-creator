@@ -29,6 +29,8 @@
 
 #include <utils/smallstring.h>
 
+#include <iostream>
+
 namespace Sqlite {
 
 class SQLITE_EXPORT Exception

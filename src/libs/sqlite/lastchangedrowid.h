@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,25 +25,47 @@
 
 #pragma once
 
-#include <utils/smallstringview.h>
+#include "sqlitedatabaseinterface.h"
 
-#include "sqliteglobal.h"
+#include <utils/smallstringio.h>
 
-#include <functional>
+#include <iostream>
 
 namespace Sqlite {
-class DatabaseInterface
+
+class LastChangedRowId
 {
 public:
-    using UpdateCallback
-        = std::function<void(ChangeType type, char const *, char const *, long long)>;
+    LastChangedRowId(DatabaseInterface &database,
+                     Utils::SmallStringView databaseName,
+                     Utils::SmallStringView tableName)
+        : database(database)
+        , databaseName(databaseName)
+        , tableName(tableName)
+    {
+        callback = [this](ChangeType, char const *database, char const *table, long long rowId) {
+            if (this->databaseName == database && this->tableName == table)
+                lastRowId = rowId;
+        };
 
-    virtual void walCheckpointFull() = 0;
-    virtual void execute(Utils::SmallStringView sqlStatement) = 0;
-    virtual void setUpdateHook(UpdateCallback &callback) = 0;
-    virtual void resetUpdateHook() = 0;
+        database.setUpdateHook(callback);
+    }
 
-protected:
-    ~DatabaseInterface() = default;
+    ~LastChangedRowId() { database.resetUpdateHook(); }
+
+    long long takeLastRowId()
+    {
+        long long rowId = lastRowId;
+        lastRowId = -1;
+        return rowId;
+    }
+
+public:
+    DatabaseInterface &database;
+    DatabaseInterface::UpdateCallback callback;
+    Utils::SmallStringView databaseName;
+    Utils::SmallStringView tableName;
+    long long lastRowId = -1;
 };
+
 } // namespace Sqlite
