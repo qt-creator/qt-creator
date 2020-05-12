@@ -202,7 +202,7 @@ void MsvcParser::doFlush()
 // ".\qwindowsgdinativeinterface.cpp(48,3) :  error: unknown type name 'errr'"
 static inline QString clangClCompilePattern()
 {
-    return QLatin1String(FILE_POS_PATTERN) + " (warning|error): (.*)$";
+    return QLatin1String(FILE_POS_PATTERN) + " ?(warning|error): (.*)$";
 }
 
 ClangClParser::ClangClParser()
@@ -624,6 +624,27 @@ void ProjectExplorerPlugin::testClangClOutputParsers_data()
                 << CompileTask(Task::Error, error2.trimmed(),
                                FilePath::fromUserInput(".\\qwindowsgdinativeinterface.cpp"), 51))
             << "";
+
+    QTest::newRow("other error")
+            << "C:\\Program Files\\LLVM\\bin\\clang-cl.exe /nologo /c /EHsc /Od -m64 /Zi /MDd "
+               "/DUNICODE /D_UNICODE /DWIN32 /FdTestForError.cl.pdb "
+               "/FoC:\\MyData\\Project_home\\cpp\build-TestForError-msvc_2017_clang-Debug\\Debug_msvc_201_47eca974c876c8b3\\TestForError.b6dd39ae\\3a52ce780950d4d9\\main.cpp.obj "
+               "C:\\MyData\\Project_home\\cpp\\TestForError\\main.cpp /TP\r\n"
+               "C:\\MyData\\Project_home\\cpp\\TestForError\\main.cpp(3,10): error: expected ';' after return statement\r\n"
+               "return 0\r\n"
+               "              ^\r\n"
+               "              ;"
+            << OutputParserTester::STDERR
+            << ""
+            << "C:\\Program Files\\LLVM\\bin\\clang-cl.exe /nologo /c /EHsc /Od -m64 /Zi /MDd "
+               "/DUNICODE /D_UNICODE /DWIN32 /FdTestForError.cl.pdb "
+               "/FoC:\\MyData\\Project_home\\cpp\build-TestForError-msvc_2017_clang-Debug\\Debug_msvc_201_47eca974c876c8b3\\TestForError.b6dd39ae\\3a52ce780950d4d9\\main.cpp.obj "
+               "C:\\MyData\\Project_home\\cpp\\TestForError\\main.cpp /TP\r\n"
+               "              ;\n"
+            << Tasks{CompileTask(Task::Error, "expected ';' after return statement\nreturn 0",
+                                 FilePath::fromUserInput("C:\\MyData\\Project_home\\cpp\\TestForError\\main.cpp"),
+                                 3)}
+            << "";
 }
 
 void ProjectExplorerPlugin::testClangClOutputParsers()
@@ -632,9 +653,9 @@ void ProjectExplorerPlugin::testClangClOutputParsers()
     testbench.appendOutputParser(new ClangClParser);
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
-    QFETCH(Tasks, tasks);
     QFETCH(QString, childStdOutLines);
     QFETCH(QString, childStdErrLines);
+    QFETCH(Tasks, tasks);
     QFETCH(QString, outputLines);
 
     testbench.testParsing(input, inputChannel,

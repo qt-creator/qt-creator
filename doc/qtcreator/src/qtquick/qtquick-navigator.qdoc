@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 /*!
-    \contentspage {Qt Creator Manual}
     \page qtquick-navigator.html
     \previouspage quick-scalable-image.html
     \nextpage qtquick-properties.html
@@ -39,43 +38,43 @@
 
     You can select items in the \uicontrol Navigator to edit their properties
     in the \uicontrol Properties view. Items can access the properties of their
-    parent item. To select items on the canvas, right-click an item, and select
-    another type in the context menu.
+    parent item. To select items in the \uicontrol {Form Editor}, right-click
+    an item, and select another type in the context menu.
 
-    Typically, child items are located within the parent item on the canvas.
-    However, they do not necessarily have to fit inside the parent item. For
-    example, you might want to make a mouse area larger than the rectangle
-    or image beneath it (1).
+    Typically, child items are located within the parent item in the
+    \uicontrol {Form Editor}. However, they do not necessarily have to
+    fit inside the parent item. For example, you might want to make a
+    mouse area larger than the rectangle or image beneath it (1).
 
     \image qmldesigner-element-size.png "Mouse area for a button"
 
     When you copy an item, all its child items are also copied. When
     you remove an item, the child items are also removed.
 
-    To show and hide items on the canvas when focusing on specific parts of the
-    application, click \inlineimage eye_open.png
-    . To change the visibility of an item in the application code, select the
+    Select context menu commands to reset item size, position, or anchors,
+    and to edit items colors or the annotations attached to it. To change
+    the source of an Image type, select \uicontrol {Change Source URL} in
+    the context menu.
+
+    \section1 Showing and Hiding Items
+
+    To show and hide items in the \uicontrol {Form Editor} when focusing on
+    specific parts of the application, click \inlineimage eye_open.png
+    in the \uicontrol Navigator.
+
+    To change the visibility of an item in the application code, select the
     \uicontrol Visibility check box in the \uicontrol Properties view or select
     \uicontrol Edit > \uicontrol Visibility in the context menu.
 
-    You can also set the \uicontrol Opacity field to 0 to hide items that you
-    want to apply animation to.
+    You can also set the \uicontrol Opacity field to 0 in \uicontrol Properties
+    to hide items in the UI that you want to apply animation to.
 
     As all properties, visibility and opacity are inherited from the parent
     item. To hide or show child items, edit the properties of the parent item.
 
-    To hide invisible items in the navigator, click \inlineimage filtericon.png
+    To hide invisible items in the \uicontrol Navigator, click
+    \inlineimage filtericon.png
     (\uicontrol {Filter Tree}) and select \uicontrol {Show only visible items}.
-
-    To reset item size, position, or anchors, select context menu commands. To
-    change the source of an Image type, select \uicontrol {Change Source URL} in
-    the context menu.
-
-    To view lists of files or projects, instead, select \uicontrol {File System},
-    \uicontrol {Open Documents}, or \uicontrol Projects in the menu. To view
-    several types of content at a time, split the sidebars by clicking the
-    \inlineimage splitbutton_horizontal.png
-    (\uicontrol Split) button.
 
     \section1 Setting the Stacking Order
 
@@ -86,7 +85,7 @@
     from the last item up.
 
     To move an item to the front or back of all its siblings, right-click it in
-    the navigator or the \uicontrol {Form Editor} and select
+    the \uicontrol Navigator or \uicontrol {Form Editor} and select
     \uicontrol {Stack (z)} > \uicontrol {To Front} or \uicontrol {To Back}.
     To raise or lower the stack value of an item, select \uicontrol Raise
     or \uicontrol Lower. To remove the \c z property, select
@@ -97,13 +96,14 @@
 
     \section1 Switching Parent Items
 
-    When you drag and drop instances of QML types to the canvas, the new item is
-    added as a child of the item beneath it. When you move items on the canvas,
-    it is not possible to determine whether you want to adjust their position or
-    attach them to a new parent item. Therefore, the parent item is not
-    automatically changed. To change the parent of the item, press down the
-    \key Shift key before you drag and drop the item into a new position. The
-    topmost item under the cursor becomes the new parent of the item.
+    When you drag and drop instances of QML types to the
+    \uicontrol {Form Editor}, the new item is added as a child of the item
+    beneath it. When you move the items, it is not possible to determine whether
+    you want to adjust their position or attach them to a new parent item.
+    Therefore, the parent item is not automatically changed. To change the
+    parent of the item, press down the \key Shift key before you drag and drop
+    the item into a new position. The topmost item under the cursor becomes the
+    new parent of the item.
 
     You can change the parent of an item also in the \uicontrol Navigator.
     Drag and drop the item to another position in the tree or use the arrow

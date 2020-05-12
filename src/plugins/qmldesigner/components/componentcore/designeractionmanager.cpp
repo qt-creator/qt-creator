@@ -358,6 +358,16 @@ bool isFlowTransitionItem(const SelectionContext &context)
            && QmlFlowItemNode::isFlowTransition(context.currentSingleSelectedNode());
 }
 
+bool isFlowTransitionItemWithEffect(const SelectionContext &context)
+{
+    if (!isFlowTransitionItem(context))
+        return false;
+
+    ModelNode node = context.currentSingleSelectedNode();
+
+    return node.hasNodeProperty("effect");
+}
+
 bool isFlowActionItemItem(const SelectionContext &context)
 {
     const ModelNode selectedNode = context.currentSingleSelectedNode();
@@ -919,19 +929,23 @@ void DesignerActionManager::createDefaultDesignerActions()
         priorityFlowCategory));
 
 
-    const QList<TypeName> types = {"FlowActionArea",
-                                   "FlowFadeEffect",
-                                   "FlowPushRightEffect",
-                                   "FlowPushLeftEffect",
-                                   "FlowPushUpEffect",
-                                   "FlowSlideDownEffect",
-                                   "FlowSlideLeftEffect",
-                                   "FlowSlideRightEffect",
-                                   "FlowSlideUpEffect",
+    const QList<TypeName> transitionTypes = {"FlowFadeEffect",
+                                   "FlowPushEffect",
+                                   "FlowMoveEffect",
                                    "None"};
 
-    for (const TypeName &typeName : types)
+    for (const TypeName &typeName : transitionTypes)
         addTransitionEffectAction(typeName);
+
+    addDesignerAction(new ModelNodeContextMenuAction(
+        selectFlowEffectCommandId,
+        selectEffectDisplayName,
+        {},
+        flowCategory,
+        {},
+        priorityFlowCategory,
+        &selectFlowEffect,
+        &isFlowTransitionItemWithEffect));
 
     addDesignerAction(new ActionGroup(
                           stackedContainerCategoryDisplayName,

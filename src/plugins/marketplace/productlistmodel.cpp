@@ -106,7 +106,7 @@ void ProductListModel::onFetchCollectionsFinished(QNetworkReply *reply)
             const auto handle = obj.value("handle").toString();
             const int productsCount = obj.value("products_count").toInt();
 
-            if (productsCount > 0 && handle != "all-products")
+            if (productsCount > 0 && handle != "all-products" && handle != "qt-education-1")
                 m_pendingCollections.append(handle);
         }
         if (!m_pendingCollections.isEmpty())

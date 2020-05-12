@@ -94,6 +94,8 @@ public:
 
     Q_INVOKABLE QStringList styleNamesForFamily(const QString &family);
 
+    Q_INVOKABLE QStringList allStatesForId(const QString &id);
+
     int majorVersion() const;
     int majorQtQuickVersion() const;
     int minorQtQuickVersion() const;

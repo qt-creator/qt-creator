@@ -60,6 +60,7 @@ const char anchorsResetCommandId[] = "AnchorsReset";
 const char removePositionerCommandId[] = "RemovePositioner";
 const char createFlowActionAreaCommandId[] = "CreateFlowActionArea";
 const char setFlowStartCommandId[] = "SetFlowStart";
+const char selectFlowEffectCommandId[] = "SelectFlowEffect";
 const char layoutRowPositionerCommandId[] = "LayoutRowPositioner";
 const char layoutColumnPositionerCommandId[] = "LayoutColumnPositioner";
 const char layoutGridPositionerCommandId[] = "LayoutGridPositioner";
@@ -83,6 +84,7 @@ const char addToGroupItemCommandId[] = "AddToGroupItem";
 
 const char selectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Selection");
 const char flowConnectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Connect");
+const char selectEffectDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select Effect");
 const char stackCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Stack (z)");
 const char editCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit");
 const char anchorsCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Anchors");

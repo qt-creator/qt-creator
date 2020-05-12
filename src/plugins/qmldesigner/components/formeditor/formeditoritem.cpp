@@ -755,7 +755,7 @@ void FormEditorTransitionItem::updateGeometry()
     QPointF toP = QmlItemNode(resolved.to).flowPosition();
 
     if (QmlItemNode(resolved.to).isFlowDecision())
-        sizeTo = QRectF(0, 0, flowBlockSize, flowBlockSize);
+        sizeTo = QRectF(0, 0, flowBlockSize * 2, flowBlockSize * 2);
 
     qreal x1 = fromP.x();
     qreal x2 = toP.x();
@@ -1146,6 +1146,7 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
         return;
 
     painter->save();
+
     painter->setRenderHint(QPainter::Antialiasing);
 
     ResolveConnection resolved(qmlItemNode());

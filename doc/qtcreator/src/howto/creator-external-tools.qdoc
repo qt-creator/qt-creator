@@ -30,7 +30,6 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
     \page creator-editor-external.html
     \if defined(qtdesignstudio)
     \previouspage creator-qml-performance-monitor.html

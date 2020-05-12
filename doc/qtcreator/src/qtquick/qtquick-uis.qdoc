@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 /*!
-    \contentspage index.html
     \page quick-uis.html
     \if defined(qtdesignstudio)
     \previouspage quick-converting-ui-projects.html

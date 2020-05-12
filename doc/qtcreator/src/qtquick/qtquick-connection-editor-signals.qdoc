@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 /*!
-    \contentspage {Qt Creator Manual}
     \previouspage qmldesigner-connections.html
     \page quick-signals.html
     \nextpage quick-dynamic-properties.html

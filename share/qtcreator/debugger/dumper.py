@@ -40,8 +40,8 @@ try:
     # that will never use this.
     import json
 except ModuleNotFoundError:
-    DumperBase.warn("Python module json not found. "
-                    "Native combined debugging might not work.")
+    print("Python module json not found. "
+          "Native combined debugging might not work.")
     pass
 
 
