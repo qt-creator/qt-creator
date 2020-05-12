@@ -337,7 +337,7 @@ void DisassemblerAgent::setContentsToDocument(const DisassemblerLines &contents)
         .arg(d->location.functionName()));
 
     const Breakpoints bps = d->engine->breakHandler()->breakpoints();
-    for (const Breakpoint bp : bps)
+    for (const Breakpoint &bp : bps)
         updateBreakpointMarker(bp);
 
     updateLocationMarker();

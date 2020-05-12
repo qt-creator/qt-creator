@@ -1496,7 +1496,7 @@ void tst_Dumpers::dumper()
         }
     };
     collectExpandedINames(data.checks);
-    for (const auto checkset : qAsConst(data.checksets))
+    for (const auto &checkset : qAsConst(data.checksets))
         collectExpandedINames(checkset.checks);
 
     QString expanded;

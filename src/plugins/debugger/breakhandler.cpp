@@ -2495,7 +2495,7 @@ GlobalBreakpoint BreakpointManager::findBreakpointFromContext(const ContextData 
                 matchLevel = 2;
                 bestMatch = gbp;
             } else if (matchLevel < 2) {
-                for (const QPointer<DebuggerEngine> engine : EngineManager::engines()) {
+                for (const QPointer<DebuggerEngine> &engine : EngineManager::engines()) {
                     BreakHandler *handler = engine->breakHandler();
                     for (Breakpoint bp : handler->breakpoints()) {
                         if (bp->globalBreakpoint() == gbp) {

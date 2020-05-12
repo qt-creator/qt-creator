@@ -1732,7 +1732,7 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
         addChild(toAdd);
     result->directChildren.clear();
 
-    for (const auto priFiles : qAsConst(result->priFiles)) {
+    for (const auto &priFiles : qAsConst(result->priFiles)) {
         priFiles.first->finishInitialization(m_buildSystem, this);
         priFiles.first->update(priFiles.second);
     }

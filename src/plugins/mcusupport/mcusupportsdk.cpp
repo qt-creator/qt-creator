@@ -303,7 +303,7 @@ void hardcodedTargetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage 
 
     const QString QulTargetTemplate =
             dir.toString() + "/lib/cmake/Qul/QulTargets/QulTargets_%1_%2.cmake";
-    for (const auto target : targets) {
+    for (const auto &target : targets) {
         for (auto os : {McuTarget::OS::Desktop, McuTarget::OS::BareMetal,
                         McuTarget::OS::FreeRTOS}) {
             for (int colorDepth : target.colorDepths) {

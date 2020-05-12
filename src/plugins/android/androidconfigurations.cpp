@@ -892,7 +892,7 @@ QVersionNumber AndroidConfig::buildToolsVersion() const
     //TODO: return version according to qt version
     QVersionNumber maxVersion;
     QDir buildToolsDir(m_sdkLocation.pathAppended("build-tools").toString());
-    for (const QFileInfo &file: buildToolsDir.entryList(QDir::Dirs|QDir::NoDotAndDotDot))
+    for (const QFileInfo &file: buildToolsDir.entryInfoList(QDir::Dirs|QDir::NoDotAndDotDot))
         maxVersion = qMax(maxVersion, QVersionNumber::fromString(file.fileName()));
     return maxVersion;
 }

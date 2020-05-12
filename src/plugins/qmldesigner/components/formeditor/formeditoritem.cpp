@@ -718,7 +718,7 @@ public:
             if (from == node.rootModelNode()) {
                 isStartLine = true;
             } else {
-                for (const ModelNode wildcard : QmlFlowViewNode(node.rootModelNode()).wildcards()) {
+                for (const ModelNode &wildcard : QmlFlowViewNode(node.rootModelNode()).wildcards()) {
                     if (wildcard.bindingProperty("target").resolveToModelNode() == node.modelNode()) {
                         from = wildcard;
                         isWildcardLine = true;
