@@ -26,6 +26,7 @@
 #include "customparser.h"
 
 #include "projectexplorerconstants.h"
+#include "projectexplorer.h"
 #include "task.h"
 
 #include <coreplugin/icore.h>
@@ -677,8 +678,8 @@ void ProjectExplorerPlugin::testCustomOutputParsers()
                           outputLines);
 }
 
-} // namespace ProjectExplorer
-
 #endif
+
+} // namespace ProjectExplorer
 
 #include <customparser.moc>
