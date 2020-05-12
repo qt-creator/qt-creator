@@ -479,7 +479,8 @@ void StackHandler::copyContentsToClipboard()
     });
 
     QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(str, QClipboard::Selection);
+    if (clipboard->supportsSelection())
+        clipboard->setText(str, QClipboard::Selection);
     clipboard->setText(str, QClipboard::Clipboard);
 }
 

@@ -1596,7 +1596,8 @@ static QString removeWatchActionText(QString exp)
 static void copyToClipboard(const QString &clipboardText)
 {
     QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(clipboardText, QClipboard::Selection);
+    if (clipboard->supportsSelection())
+        clipboard->setText(clipboardText, QClipboard::Selection);
     clipboard->setText(clipboardText, QClipboard::Clipboard);
 }
 

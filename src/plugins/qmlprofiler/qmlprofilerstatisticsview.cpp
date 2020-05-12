@@ -360,7 +360,8 @@ void QmlProfilerStatisticsMainView::copyTableToClipboard() const
         str += textForItem(itemModel->index(i, 0));
 
     QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(str, QClipboard::Selection);
+    if (clipboard->supportsSelection())
+        clipboard->setText(str, QClipboard::Selection);
     clipboard->setText(str, QClipboard::Clipboard);
 }
 
@@ -368,7 +369,8 @@ void QmlProfilerStatisticsMainView::copyRowToClipboard() const
 {
     QString str = textForItem(selectedModelIndex());
     QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(str, QClipboard::Selection);
+    if (clipboard->supportsSelection())
+        clipboard->setText(str, QClipboard::Selection);
     clipboard->setText(str, QClipboard::Clipboard);
 }
 

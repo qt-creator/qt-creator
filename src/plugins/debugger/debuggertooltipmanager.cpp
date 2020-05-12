@@ -586,7 +586,8 @@ DebuggerToolTipWidget::DebuggerToolTipWidget()
                 << item->name << '\t' << item->value << '\t' << item->type << '\n';
         });
         QClipboard *clipboard = QApplication::clipboard();
-        clipboard->setText(text, QClipboard::Selection);
+        if (clipboard->supportsSelection())
+            clipboard->setText(text, QClipboard::Selection);
         clipboard->setText(text, QClipboard::Clipboard);
     });
 

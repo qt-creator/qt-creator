@@ -204,7 +204,8 @@ QString StatisticsView::rowToString(int row) const
 static void sendToClipboard(const QString &str)
 {
     QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(str, QClipboard::Selection);
+    if (clipboard->supportsSelection())
+        clipboard->setText(str, QClipboard::Selection);
     clipboard->setText(str, QClipboard::Clipboard);
 }
 
