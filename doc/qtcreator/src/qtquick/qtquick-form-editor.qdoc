@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 /*!
-    \contentspage index.html
     \page qtquick-form-editor.html
     \previouspage quick-components.html
     \nextpage quick-buttons.html
@@ -33,6 +32,26 @@
 
     You design applications in the \uicontrol {Form Editor} by placing items
     into it.
+
+    \image qmldesigner-form-editor.png "Form Editor view"
+
+    \section1 Resizing Items
+
+    When you select items in the \uicontrol {Form Editor}, selection handles
+    appear around their edges and in their corners. You can drag the selection
+    handles to resize items.
+
+    \if defined(qtdesignstudio)
+    To have the resizing done from the center of the selected item instead from
+    its edges, press \key Alt.
+
+    To preserve the image aspect ratio while resizing when using the corner
+    handles, press \key Shift. This also works on items that are anchored
+    using left, right, top, or bottom anchors.
+
+    To both resize from the center of the item and preserve the aspect ratio,
+    press \key Alt+Shift.
+    \endif
 
     \section1 Snapping to Parent and Sibling Items
 
@@ -61,16 +80,6 @@
     To hide them, select the \inlineimage boundingrect.png
     button.
 
-    \section1 Selecting Items
-
-    When you point the mouse to overlapping items, the frontmost item is
-    selected by default. However, items that do not have any content, such as
-    the mouse area, are typically located in front of items that do have
-    content, such as rectangles or border images. To select items with content
-    by default, click the
-    \inlineimage qmldesigner-only-select-items-with-content.png
-    button.
-
     \section1 Previewing Component Size
 
     The width and height of the root item in a QML file determine the size of
@@ -88,6 +97,11 @@
     change the property values in the \uicontrol Properties view (4).
 
     \image qmldesigner-preview-size.png "Canvas width and height"
+
+    To set the initial size of the root item, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Qt Quick} > \uicontrol {\QMLD} and
+    specify the item width and height in the \uicontrol {Root Item Init Size}
+    group.
 
     \section1 Specifying Canvas Size
 

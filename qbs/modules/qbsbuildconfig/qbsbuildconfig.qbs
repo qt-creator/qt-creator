@@ -1,5 +1,5 @@
-import qbs
 import qbs.FileInfo
+import qbs.Utilities
 
 Module {
     Depends { name: "qtc" }
@@ -9,6 +9,12 @@ Module {
         condition: qbs.toolchain.contains("gcc") && !qbs.toolchain.contains("clang")
                    && Utilities.versionCompare(cpp.compilerVersion, "9") >= 0
         cpp.cxxFlags: ["-Wno-deprecated-copy", "-Wno-init-list-lifetime"]
+    }
+
+    Properties {
+        condition: qbs.toolchain.contains("clang") && !qbs.hostOS.contains("darwin")
+                   && Utilities.versionCompare(cpp.compilerVersion, "10") >= 0
+        cpp.cxxFlags: ["-Wno-deprecated-copy", "-Wno-constant-logical-operand"]
     }
 
     priority: 1

@@ -24,8 +24,6 @@
 ****************************************************************************/
 
     /*!
-
-    \contentspage index.html
     \page creator-developing-generic-linux.html
     \if defined(qtdesignstudio)
     \previouspage creator-developing-android.html

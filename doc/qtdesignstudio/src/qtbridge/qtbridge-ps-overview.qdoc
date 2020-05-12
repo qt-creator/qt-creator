@@ -26,7 +26,6 @@
 // Note: The \page value is hard-coded as a link in Qt Bridge for Adobe Photoshop.
 
 /*!
-    \contentspage {Qt Design Studio Manual}
     \previouspage qtbridge-overview.html
     \page psqtbridge.html
     \nextpage qtbridge-ps-setup.html
