@@ -1167,9 +1167,15 @@ function(qtc_copy_to_builddir custom_target_name)
     set(destinationTimestampFileName "${CMAKE_CURRENT_BINARY_DIR}/.${destinationTimestampFilePart}_timestamp")
     list(APPEND timestampFiles "${destinationTimestampFileName}")
 
+    if (IS_ABSOLUTE "${srcFile}")
+      set(srcPath "")
+    else()
+      get_filename_component(srcPath "${srcFile}" DIRECTORY)
+    endif()
+
     add_custom_command(OUTPUT "${destinationTimestampFileName}"
-      COMMAND "${CMAKE_COMMAND}" -E make_directory "${_output_binary_dir}/${_arg_DESTINATION}"
-      COMMAND "${CMAKE_COMMAND}" -E copy "${srcFile}" "${_output_binary_dir}/${_arg_DESTINATION}"
+      COMMAND "${CMAKE_COMMAND}" -E make_directory "${_output_binary_dir}/${_arg_DESTINATION}/${srcPath}"
+      COMMAND "${CMAKE_COMMAND}" -E copy "${srcFile}" "${_output_binary_dir}/${_arg_DESTINATION}/${srcPath}"
       COMMAND "${CMAKE_COMMAND}" -E touch "${destinationTimestampFileName}"
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
       COMMENT "Copy ${srcFile} into build directory"
