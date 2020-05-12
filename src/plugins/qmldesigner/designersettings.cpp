@@ -50,8 +50,8 @@ void DesignerSettings::fromSettings(QSettings *settings)
 
     restoreValue(settings, DesignerSettingsKey::ITEMSPACING, 6);
     restoreValue(settings, DesignerSettingsKey::CONTAINERPADDING, 8);
-    restoreValue(settings, DesignerSettingsKey::CANVASWIDTH, 10000);
-    restoreValue(settings, DesignerSettingsKey::CANVASHEIGHT, 10000);
+    restoreValue(settings, DesignerSettingsKey::CANVASWIDTH, 40000);
+    restoreValue(settings, DesignerSettingsKey::CANVASHEIGHT, 40000);
     restoreValue(settings, DesignerSettingsKey::ROOT_ELEMENT_INIT_WIDTH, 640);
     restoreValue(settings, DesignerSettingsKey::ROOT_ELEMENT_INIT_HEIGHT, 480);
     restoreValue(settings, DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER, true);
