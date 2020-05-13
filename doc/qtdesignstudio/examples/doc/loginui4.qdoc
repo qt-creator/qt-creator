@@ -32,7 +32,6 @@
     \brief Illustrates how to use the timeline and states to animate UI
     components.
     \previouspage {Log In UI - Part 3}
-    \nextpage {Log In UI - Part 5}
 
     \image loginui4.gif "Log In UI"
 
