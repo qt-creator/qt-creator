@@ -431,24 +431,24 @@ void CdbEngine::setupEngine()
     m_outputBuffer.clear();
     m_autoBreakPointCorrection = false;
 
-    Utils::Environment inferiorEnvironment = sp.inferior.environment.size() == 0
-            ? Utils::Environment::systemEnvironment() : sp.inferior.environment;
+    Utils::Environment debuggerEnvironment = sp.debugger.environment.size() == 0
+            ? Utils::Environment::systemEnvironment() : sp.debugger.environment;
 
     // Make sure that QTestLib uses OutputDebugString for logging.
     const QString qtLoggingToConsoleKey = QStringLiteral("QT_LOGGING_TO_CONSOLE");
-    if (!sp.useTerminal && !inferiorEnvironment.hasKey(qtLoggingToConsoleKey))
-        inferiorEnvironment.set(qtLoggingToConsoleKey, "0");
+    if (!sp.useTerminal && !debuggerEnvironment.hasKey(qtLoggingToConsoleKey))
+        debuggerEnvironment.set(qtLoggingToConsoleKey, "0");
 
     static const char cdbExtensionPathVariableC[] = "_NT_DEBUGGER_EXTENSION_PATH";
-    inferiorEnvironment.prependOrSet(cdbExtensionPathVariableC, extensionFi.absolutePath(), {";"});
+    debuggerEnvironment.prependOrSet(cdbExtensionPathVariableC, extensionFi.absolutePath(), {";"});
     const QByteArray oldCdbExtensionPath = qgetenv(cdbExtensionPathVariableC);
     if (!oldCdbExtensionPath.isEmpty()) {
-        inferiorEnvironment.appendOrSet(cdbExtensionPathVariableC,
+        debuggerEnvironment.appendOrSet(cdbExtensionPathVariableC,
                                         QString::fromLocal8Bit(oldCdbExtensionPath),
                                         {";"});
     }
 
-    m_process.setEnvironment(inferiorEnvironment);
+    m_process.setEnvironment(debuggerEnvironment);
     if (!sp.inferior.workingDirectory.isEmpty())
         m_process.setWorkingDirectory(sp.inferior.workingDirectory);
 
