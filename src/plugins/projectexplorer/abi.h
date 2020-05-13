@@ -56,6 +56,7 @@ public:
         PowerPCArchitecture,
         ShArchitecture,
         AvrArchitecture,
+        Avr32Architecture,
         XtensaArchitecture,
         Mcs51Architecture,
         Mcs251Architecture,
