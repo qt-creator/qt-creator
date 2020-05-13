@@ -102,18 +102,18 @@
         \list
             \li Qt Quick Application - Empty
 
-                Create an empty Qt Quick application that uses Qt Quick 2 types.
+                Create an empty \l{Qt Quick} application that uses Qt Quick 2
+                types.
 
                 You can build the application and deploy it to desktop,
                 embedded, and mobile target platforms.
 
             \li Qt Quick Application - Scroll, Stack, or Swipe
 
-                Create a Qt Quick application that uses
-                \l{http://doc.qt.io/qt-5/qtquickcontrols2-index.html}
-                {Qt Quick Controls} to implement a scrollable list (requires
-                Qt 5.9 or later) or a set of pages with a stack-based or
-                swipe-based navigation model (requires Qt 5.7 or later).
+                Create a Qt Quick application that uses \l{Qt Quick Controls} to
+                implement a scrollable list (requires Qt 5.9 or later) or a set
+                of pages with a stack-based or swipe-based navigation model
+                (requires Qt 5.7 or later).
         \endlist
 
         \li Application (Qt)
@@ -150,8 +150,8 @@
             \list
                 \li MCU Support Application
 
-                    Creates an application that uses a subset of QML and
-                    Qt Quick Controls (as supported by Qt for MCUs) that
+                    Creates an application that uses a subset of Qt QML and
+                    Qt Quick Controls types (as supported by Qt for MCUs) that
                     you can deploy, run, and debug on MCU boards. For more
                     information, see \l {Connecting MCUs}.
             \endlist
