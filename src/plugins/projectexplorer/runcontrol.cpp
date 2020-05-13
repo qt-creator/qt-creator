@@ -827,7 +827,8 @@ void RunControlPrivate::showError(const QString &msg)
 QList<Utils::OutputLineParser *> RunControl::createOutputParsers() const
 {
     QList<Utils::OutputLineParser *> parsers = OutputFormatterFactory::createFormatters(target());
-    if (const auto customParsersAspect = runConfiguration()->aspect<CustomParsersAspect>()) {
+    if (const auto customParsersAspect
+            = (runConfiguration() ? runConfiguration()->aspect<CustomParsersAspect>() : nullptr)) {
         for (const Core::Id id : customParsersAspect->parsers()) {
             if (CustomParser * const parser = CustomParser::createFromId(id))
                 parsers << parser;
