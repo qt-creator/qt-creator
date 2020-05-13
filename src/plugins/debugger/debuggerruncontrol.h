@@ -129,6 +129,7 @@ public:
     void setAbi(const ProjectExplorer::Abi &abi);
 
     Internal::TerminalRunner *terminalRunner() const;
+    DebuggerEngineType cppEngineType() const;
 
 private:
     bool fixupParameters();

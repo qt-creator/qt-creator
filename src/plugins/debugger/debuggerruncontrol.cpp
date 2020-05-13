@@ -900,6 +900,11 @@ Internal::TerminalRunner *DebuggerRunTool::terminalRunner() const
     return d->terminalRunner;
 }
 
+DebuggerEngineType DebuggerRunTool::cppEngineType() const
+{
+    return m_runParameters.cppEngineType;
+}
+
 DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerminal)
     : RunWorker(runControl), d(new DebuggerRunToolPrivate)
 {

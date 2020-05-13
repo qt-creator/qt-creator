@@ -931,20 +931,19 @@ class Dumper(DumperBase):
 
         elif (self.startMode_ == DebuggerStartMode.AttachToRemoteServer
                     and self.platform_ == 'remote-android'):
-            # For some reason, 127.0.0.1 doesn't work with Android.
-            remote_channel = ('connect://'
-                    + self.remoteChannel_.replace('127.0.0.1', 'localhost'))
-            connect_options = lldb.SBPlatformConnectOptions(remote_channel)
 
+            connect_options = lldb.SBPlatformConnectOptions(self.remoteChannel_)
             res = self.target.GetPlatform().ConnectRemote(connect_options)
-            DumperBase.warn("CONNECT: %s %s %s %s" % (res,
-                        remote_channel,
+
+            DumperBase.warn("CONNECT: %s %s platform: %s %s" % (res,
+                        self.remoteChannel_,
                         self.target.GetPlatform().GetName(),
                         self.target.GetPlatform().IsConnected()))
             if not res.Success():
                 self.report(self.describeError(error))
                 self.reportState('enginerunfailed')
                 return
+
             attach_info = lldb.SBAttachInfo(self.attachPid_)
             self.process = self.target.Attach(attach_info, error)
             if not error.Success():

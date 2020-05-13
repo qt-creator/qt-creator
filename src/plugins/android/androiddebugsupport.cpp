@@ -55,6 +55,7 @@ static Q_LOGGING_CATEGORY(androidDebugSupportLog, "qtc.android.run.androiddebugs
 
 using namespace Debugger;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Android {
 namespace Internal {
@@ -149,10 +150,17 @@ void AndroidDebugSupport::start()
         setUseExtendedRemote(true);
         QString devicePreferredAbi = AndroidManager::apkDevicePreferredAbi(target);
         setAbi(AndroidManager::androidAbi2Abi(devicePreferredAbi));
+
         QUrl debugServer;
-        debugServer.setHost(QHostAddress(QHostAddress::LocalHost).toString());
         debugServer.setPort(m_runner->debugServerPort().number());
-        setRemoteChannel(debugServer);
+        if (cppEngineType() == LldbEngineType) {
+            debugServer.setScheme("adb");
+            debugServer.setHost(AndroidManager::deviceSerialNumber(target));
+            setRemoteChannel(debugServer.toString());
+        } else {
+            debugServer.setHost(QHostAddress(QHostAddress::LocalHost).toString());
+            setRemoteChannel(debugServer);
+        }
 
         auto qt = static_cast<AndroidQtVersion *>(qtVersion);
         const int minimumNdk = qt ? qt->minimumNDK() : 0;
