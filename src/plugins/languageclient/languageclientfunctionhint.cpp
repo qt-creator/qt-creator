@@ -106,10 +106,14 @@ void FunctionHintProcessor::handleSignatureResponse(const SignatureHelpRequest::
     m_currentRequest = MessageId();
     if (auto error = response.error())
         m_client->log(error.value());
-    FunctionHintProposalModelPtr model(
-        new FunctionHintProposalModel(response.result().value().value()));
     m_client->removeAssistProcessor(this);
-    setAsyncProposalAvailable(new FunctionHintProposal(m_pos, model));
+    const SignatureHelp &signatureHelp = response.result().value().value();
+    if (signatureHelp.signatures().isEmpty()) {
+        setAsyncProposalAvailable(nullptr);
+    } else {
+        FunctionHintProposalModelPtr model(new FunctionHintProposalModel(signatureHelp));
+        setAsyncProposalAvailable(new FunctionHintProposal(m_pos, model));
+    }
 }
 
 FunctionHintAssistProvider::FunctionHintAssistProvider(Client *client)
