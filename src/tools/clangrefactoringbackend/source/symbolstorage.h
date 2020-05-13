@@ -123,7 +123,7 @@ public:
         Sqlite::Table table;
         table.setName("newSymbols");
         table.setUseTemporaryTable(true);
-        table.addColumn("temporarySymbolId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
+        table.addColumn("temporarySymbolId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
         const Sqlite::Column &symbolIdColumn = table.addColumn("symbolId", Sqlite::ColumnType::Integer);
         const Sqlite::Column &usrColumn = table.addColumn("usr", Sqlite::ColumnType::Text);
         const Sqlite::Column &symbolNameColumn = table.addColumn("symbolName", Sqlite::ColumnType::Text);

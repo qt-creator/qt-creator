@@ -48,7 +48,7 @@ enum class ColumnType : char
     None
 };
 
-enum class Contraint : char { NoConstraint, PrimaryKey, Unique, ForeignKey };
+enum class ConstraintType : char { NoConstraint, PrimaryKey, Unique, ForeignKey };
 
 enum class ForeignKeyAction : char { NoAction, Restrict, SetNull, SetDefault, Cascade };
 

@@ -41,16 +41,11 @@ void CreateTableSqlStatementBuilder::setTableName(Utils::SmallString &&tableName
 
 void CreateTableSqlStatementBuilder::addColumn(Utils::SmallStringView columnName,
                                                ColumnType columnType,
-                                               Contraint constraint,
-                                               ForeignKey &&foreignKey)
+                                               Constraints &&constraints)
 {
     m_sqlStatementBuilder.clear();
 
-    m_columns.emplace_back(Utils::SmallStringView{},
-                           columnName,
-                           columnType,
-                           constraint,
-                           std::move(foreignKey));
+    m_columns.emplace_back(Utils::SmallStringView{}, columnName, columnType, std::move(constraints));
 }
 
 void CreateTableSqlStatementBuilder::setColumns(const SqliteColumns &columns)
@@ -121,30 +116,90 @@ Utils::SmallStringView actionToText(ForeignKeyAction action)
     return "";
 }
 
-void appendForeignKey(Utils::SmallString &columnDefinitionString, const ForeignKey &foreignKey)
+class ContraintsVisiter
 {
-    columnDefinitionString.append(" REFERENCES ");
-    columnDefinitionString.append(foreignKey.table);
+public:
+    ContraintsVisiter(Utils::SmallString &columnDefinitionString)
+        : columnDefinitionString(columnDefinitionString)
+    {}
 
-    if (foreignKey.column.hasContent()) {
-        columnDefinitionString.append("(");
-        columnDefinitionString.append(foreignKey.column);
+    void operator()(const Unique &) { columnDefinitionString.append(" UNIQUE"); }
+
+    void operator()(const PrimaryKey &) { columnDefinitionString.append(" PRIMARY KEY"); }
+
+    void operator()(const ForeignKey &foreignKey)
+    {
+        columnDefinitionString.append(" REFERENCES ");
+        columnDefinitionString.append(foreignKey.table);
+
+        if (foreignKey.column.hasContent()) {
+            columnDefinitionString.append("(");
+            columnDefinitionString.append(foreignKey.column);
+            columnDefinitionString.append(")");
+        }
+
+        if (foreignKey.updateAction != ForeignKeyAction::NoAction) {
+            columnDefinitionString.append(" ON UPDATE ");
+            columnDefinitionString.append(actionToText(foreignKey.updateAction));
+        }
+
+        if (foreignKey.deleteAction != ForeignKeyAction::NoAction) {
+            columnDefinitionString.append(" ON DELETE ");
+            columnDefinitionString.append(actionToText(foreignKey.deleteAction));
+        }
+
+        if (foreignKey.enforcement == Enforment::Deferred)
+            columnDefinitionString.append(" DEFERRABLE INITIALLY DEFERRED");
+    }
+
+    void operator()(const NotNull &) { columnDefinitionString.append(" NOT NULL"); }
+
+    void operator()(const DefaultValue &defaultValue)
+    {
+        columnDefinitionString.append(" DEFAULT ");
+        switch (defaultValue.value.type()) {
+        case Sqlite::ValueType::Integer:
+            columnDefinitionString.append(
+                Utils::SmallString::number(defaultValue.value.toInteger()));
+            break;
+        case Sqlite::ValueType::Float:
+            columnDefinitionString.append(Utils::SmallString::number(defaultValue.value.toFloat()));
+            break;
+        case Sqlite::ValueType::String:
+            columnDefinitionString.append("\"");
+            columnDefinitionString.append(defaultValue.value.toStringView());
+            columnDefinitionString.append("\"");
+            break;
+        }
+    }
+
+    void operator()(const DefaultExpression &defaultexpression)
+    {
+        columnDefinitionString.append(" DEFAULT (");
+        columnDefinitionString.append(defaultexpression.expression);
         columnDefinitionString.append(")");
     }
 
-    if (foreignKey.updateAction != ForeignKeyAction::NoAction) {
-        columnDefinitionString.append(" ON UPDATE ");
-        columnDefinitionString.append(actionToText(foreignKey.updateAction));
+    void operator()(const Collate &collate)
+    {
+        columnDefinitionString.append(" COLLATE ");
+        columnDefinitionString.append(collate.collation);
     }
 
-    if (foreignKey.deleteAction != ForeignKeyAction::NoAction) {
-        columnDefinitionString.append(" ON DELETE ");
-        columnDefinitionString.append(actionToText(foreignKey.deleteAction));
+    void operator()(const GeneratedAlways &generatedAlways)
+    {
+        columnDefinitionString.append(" GENERATED ALWAYS AS (");
+        columnDefinitionString.append(generatedAlways.expression);
+        columnDefinitionString.append(")");
+
+        if (generatedAlways.storage == Sqlite::GeneratedAlwaysStorage::Virtual)
+            columnDefinitionString.append(" VIRTUAL");
+        else
+            columnDefinitionString.append(" STORED");
     }
 
-    if (foreignKey.enforcement == Enforment::Deferred)
-        columnDefinitionString.append(" DEFERRABLE INITIALLY DEFERRED");
-}
+    Utils::SmallString &columnDefinitionString;
+};
 } // namespace
 void CreateTableSqlStatementBuilder::bindColumnDefinitions() const
 {
@@ -154,19 +209,10 @@ void CreateTableSqlStatementBuilder::bindColumnDefinitions() const
     for (const Column &column : m_columns) {
         Utils::SmallString columnDefinitionString = {column.name, " ", column.typeString()};
 
-        switch (column.constraint) {
-        case Contraint::PrimaryKey:
-            columnDefinitionString.append(" PRIMARY KEY");
-            break;
-        case Contraint::Unique:
-            columnDefinitionString.append(" UNIQUE");
-            break;
-        case Contraint::ForeignKey:
-            appendForeignKey(columnDefinitionString, column.foreignKey);
-            break;
-        case Contraint::NoConstraint:
-            break;
-        }
+        ContraintsVisiter visiter{columnDefinitionString};
+
+        for (const Constraint &constraint : column.constraints)
+            mpark::visit(visiter, constraint);
 
         columnDefinitionStrings.push_back(columnDefinitionString);
     }

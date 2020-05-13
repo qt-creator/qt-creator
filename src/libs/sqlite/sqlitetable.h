@@ -73,9 +73,9 @@ public:
 
     Column &addColumn(Utils::SmallStringView name,
                       ColumnType type = ColumnType::Numeric,
-                      Contraint constraint = Contraint::NoConstraint)
+                      Constraints &&constraints = {})
     {
-        m_sqliteColumns.emplace_back(m_tableName, name, type, constraint);
+        m_sqliteColumns.emplace_back(m_tableName, name, type, std::move(constraints));
 
         return m_sqliteColumns.back();
     }
@@ -85,17 +85,16 @@ public:
                                 ForeignKeyAction foreignKeyupdateAction = {},
                                 ForeignKeyAction foreignKeyDeleteAction = {},
                                 Enforment foreignKeyEnforcement = {},
+                                Constraints &&constraints = {},
                                 ColumnType type = ColumnType::Integer)
     {
-        m_sqliteColumns.emplace_back(m_tableName,
-                                     name,
-                                     type,
-                                     Contraint::ForeignKey,
-                                     referencedTable.name(),
-                                     "",
-                                     foreignKeyupdateAction,
-                                     foreignKeyDeleteAction,
-                                     foreignKeyEnforcement);
+        constraints.emplace_back(ForeignKey{referencedTable.name(),
+                                            "",
+                                            foreignKeyupdateAction,
+                                            foreignKeyDeleteAction,
+                                            foreignKeyEnforcement});
+
+        m_sqliteColumns.emplace_back(m_tableName, name, type, std::move(constraints));
 
         return m_sqliteColumns.back();
     }
@@ -104,20 +103,22 @@ public:
                                 const Column &referencedColumn,
                                 ForeignKeyAction foreignKeyupdateAction = {},
                                 ForeignKeyAction foreignKeyDeleteAction = {},
-                                Enforment foreignKeyEnforcement = {})
+                                Enforment foreignKeyEnforcement = {},
+                                Constraints &&constraints = {})
     {
-        if (referencedColumn.constraint != Contraint::Unique)
+        if (!constainsUniqueIndex(referencedColumn.constraints))
             throw ForeignKeyColumnIsNotUnique("Foreign column key must be unique!");
+
+        constraints.emplace_back(ForeignKey{referencedColumn.tableName,
+                                            referencedColumn.name,
+                                            foreignKeyupdateAction,
+                                            foreignKeyDeleteAction,
+                                            foreignKeyEnforcement});
 
         m_sqliteColumns.emplace_back(m_tableName,
                                      name,
                                      referencedColumn.type,
-                                     Contraint::ForeignKey,
-                                     referencedColumn.tableName,
-                                     referencedColumn.name,
-                                     foreignKeyupdateAction,
-                                     foreignKeyDeleteAction,
-                                     foreignKeyEnforcement);
+                                     std::move(constraints));
 
         return m_sqliteColumns.back();
     }
@@ -179,6 +180,16 @@ public:
             && first.m_useIfNotExists == second.m_useIfNotExists
             && first.m_isReady == second.m_isReady
             && first.m_sqliteColumns == second.m_sqliteColumns;
+    }
+
+    static bool constainsUniqueIndex(const Constraints &constraints)
+    {
+        return std::find_if(constraints.begin(),
+                            constraints.end(),
+                            [](const Constraint &constraint) {
+                                return Utils::holds_alternative<Unique>(constraint);
+                            })
+               != constraints.end();
     }
 
 private:

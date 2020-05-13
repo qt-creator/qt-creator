@@ -34,7 +34,7 @@ namespace {
 
 using Sqlite::Column;
 using Sqlite::ColumnType;
-using Sqlite::Contraint;
+using Sqlite::ConstraintType;
 using Sqlite::Database;
 using Sqlite::Enforment;
 using Sqlite::ForeignKey;
@@ -136,9 +136,7 @@ TEST_F(SqliteTable, AddForeignKeyColumnWithColumnCalls)
 {
     Sqlite::Table foreignTable;
     foreignTable.setName("foreignTable");
-    auto &foreignColumn = foreignTable.addColumn("foreignColumn",
-                                                 ColumnType::Text,
-                                                 Sqlite::Contraint::Unique);
+    auto &foreignColumn = foreignTable.addColumn("foreignColumn", ColumnType::Text, {Sqlite::Unique{}});
     table.setName(tableName);
     table.addForeignKeyColumn("name",
                               foreignColumn,
@@ -159,19 +157,14 @@ TEST_F(SqliteTable, AddColumn)
 {
     table.setName(tableName);
 
-    auto &column = table.addColumn("name", ColumnType::Text, Sqlite::Contraint::Unique);
+    auto &column = table.addColumn("name", ColumnType::Text, {Sqlite::Unique{}});
 
     ASSERT_THAT(column,
                 AllOf(Field(&Column::name, Eq("name")),
                       Field(&Column::tableName, Eq(tableName)),
                       Field(&Column::type, ColumnType::Text),
-                      Field(&Column::constraint, Contraint::Unique),
-                      Field(&Column::foreignKey,
-                            AllOf(Field(&ForeignKey::table, IsEmpty()),
-                                  Field(&ForeignKey::column, IsEmpty()),
-                                  Field(&ForeignKey::updateAction, ForeignKeyAction::NoAction),
-                                  Field(&ForeignKey::deleteAction, ForeignKeyAction::NoAction),
-                                  Field(&ForeignKey::enforcement, Enforment::Immediate)))));
+                      Field(&Column::constraints,
+                            ElementsAre(VariantWith<Sqlite::Unique>(Eq(Sqlite::Unique{}))))));
 }
 
 TEST_F(SqliteTable, AddForeignKeyColumnWithTable)
@@ -191,22 +184,20 @@ TEST_F(SqliteTable, AddForeignKeyColumnWithTable)
                 AllOf(Field(&Column::name, Eq("name")),
                       Field(&Column::tableName, Eq(tableName)),
                       Field(&Column::type, ColumnType::Integer),
-                      Field(&Column::constraint, Contraint::ForeignKey),
-                      Field(&Column::foreignKey,
-                            AllOf(Field(&ForeignKey::table, Eq("foreignTable")),
-                                  Field(&ForeignKey::column, IsEmpty()),
-                                  Field(&ForeignKey::updateAction, ForeignKeyAction::SetNull),
-                                  Field(&ForeignKey::deleteAction, ForeignKeyAction::Cascade),
-                                  Field(&ForeignKey::enforcement, Enforment::Deferred)))));
+                      Field(&Column::constraints,
+                            ElementsAre(VariantWith<ForeignKey>(
+                                AllOf(Field(&ForeignKey::table, Eq("foreignTable")),
+                                      Field(&ForeignKey::column, IsEmpty()),
+                                      Field(&ForeignKey::updateAction, ForeignKeyAction::SetNull),
+                                      Field(&ForeignKey::deleteAction, ForeignKeyAction::Cascade),
+                                      Field(&ForeignKey::enforcement, Enforment::Deferred)))))));
 }
 
 TEST_F(SqliteTable, AddForeignKeyColumnWithColumn)
 {
     Sqlite::Table foreignTable;
     foreignTable.setName("foreignTable");
-    auto &foreignColumn = foreignTable.addColumn("foreignColumn",
-                                                 ColumnType::Text,
-                                                 Sqlite::Contraint::Unique);
+    auto &foreignColumn = foreignTable.addColumn("foreignColumn", ColumnType::Text, {Sqlite::Unique{}});
     table.setName(tableName);
 
     auto &column = table.addForeignKeyColumn("name",
@@ -219,22 +210,20 @@ TEST_F(SqliteTable, AddForeignKeyColumnWithColumn)
                 AllOf(Field(&Column::name, Eq("name")),
                       Field(&Column::tableName, Eq(tableName)),
                       Field(&Column::type, ColumnType::Text),
-                      Field(&Column::constraint, Contraint::ForeignKey),
-                      Field(&Column::foreignKey,
-                            AllOf(Field(&ForeignKey::table, Eq("foreignTable")),
-                                  Field(&ForeignKey::column, Eq("foreignColumn")),
-                                  Field(&ForeignKey::updateAction, ForeignKeyAction::SetNull),
-                                  Field(&ForeignKey::deleteAction, ForeignKeyAction::Cascade),
-                                  Field(&ForeignKey::enforcement, Enforment::Deferred)))));
+                      Field(&Column::constraints,
+                            ElementsAre(VariantWith<ForeignKey>(
+                                AllOf(Field(&ForeignKey::table, Eq("foreignTable")),
+                                      Field(&ForeignKey::column, Eq("foreignColumn")),
+                                      Field(&ForeignKey::updateAction, ForeignKeyAction::SetNull),
+                                      Field(&ForeignKey::deleteAction, ForeignKeyAction::Cascade),
+                                      Field(&ForeignKey::enforcement, Enforment::Deferred)))))));
 }
 
 TEST_F(SqliteTable, AddForeignKeyWhichIsNotUniqueThrowsAnExceptions)
 {
     Sqlite::Table foreignTable;
     foreignTable.setName("foreignTable");
-    auto &foreignColumn = foreignTable.addColumn("foreignColumn",
-                                                 ColumnType::Text,
-                                                 Sqlite::Contraint::NoConstraint);
+    auto &foreignColumn = foreignTable.addColumn("foreignColumn", ColumnType::Text);
     table.setName(tableName);
 
     ASSERT_THROW(table.addForeignKeyColumn("name",
@@ -243,6 +232,64 @@ TEST_F(SqliteTable, AddForeignKeyWhichIsNotUniqueThrowsAnExceptions)
                                            ForeignKeyAction::Cascade,
                                            Enforment::Deferred),
                  Sqlite::ForeignKeyColumnIsNotUnique);
+}
+
+TEST_F(SqliteTable, AddForeignKeyColumnWithTableAndNotNull)
+{
+    Sqlite::Table foreignTable;
+    foreignTable.setName("foreignTable");
+
+    table.setName(tableName);
+
+    auto &column = table.addForeignKeyColumn("name",
+                                             foreignTable,
+                                             ForeignKeyAction::SetNull,
+                                             ForeignKeyAction::Cascade,
+                                             Enforment::Deferred,
+                                             {Sqlite::NotNull{}});
+
+    ASSERT_THAT(column,
+                AllOf(Field(&Column::name, Eq("name")),
+                      Field(&Column::tableName, Eq(tableName)),
+                      Field(&Column::type, ColumnType::Integer),
+                      Field(&Column::constraints,
+                            UnorderedElementsAre(
+                                VariantWith<ForeignKey>(
+                                    AllOf(Field(&ForeignKey::table, Eq("foreignTable")),
+                                          Field(&ForeignKey::column, IsEmpty()),
+                                          Field(&ForeignKey::updateAction, ForeignKeyAction::SetNull),
+                                          Field(&ForeignKey::deleteAction, ForeignKeyAction::Cascade),
+                                          Field(&ForeignKey::enforcement, Enforment::Deferred))),
+                                VariantWith<Sqlite::NotNull>(Eq(Sqlite::NotNull{}))))));
+}
+
+TEST_F(SqliteTable, AddForeignKeyColumnWithColumnAndNotNull)
+{
+    Sqlite::Table foreignTable;
+    foreignTable.setName("foreignTable");
+    auto &foreignColumn = foreignTable.addColumn("foreignColumn", ColumnType::Text, {Sqlite::Unique{}});
+    table.setName(tableName);
+
+    auto &column = table.addForeignKeyColumn("name",
+                                             foreignColumn,
+                                             ForeignKeyAction::SetNull,
+                                             ForeignKeyAction::Cascade,
+                                             Enforment::Deferred,
+                                             {Sqlite::NotNull{}});
+
+    ASSERT_THAT(column,
+                AllOf(Field(&Column::name, Eq("name")),
+                      Field(&Column::tableName, Eq(tableName)),
+                      Field(&Column::type, ColumnType::Text),
+                      Field(&Column::constraints,
+                            UnorderedElementsAre(
+                                VariantWith<ForeignKey>(
+                                    AllOf(Field(&ForeignKey::table, Eq("foreignTable")),
+                                          Field(&ForeignKey::column, Eq("foreignColumn")),
+                                          Field(&ForeignKey::updateAction, ForeignKeyAction::SetNull),
+                                          Field(&ForeignKey::deleteAction, ForeignKeyAction::Cascade),
+                                          Field(&ForeignKey::enforcement, Enforment::Deferred))),
+                                VariantWith<Sqlite::NotNull>(Eq(Sqlite::NotNull{}))))));
 }
 
 } // namespace

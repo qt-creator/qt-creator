@@ -27,11 +27,114 @@
 
 #include "sqliteforeignkey.h"
 
+#include <sqlitevalue.h>
 #include <utils/smallstring.h>
+#include <utils/variant.h>
 
 #include <functional>
 
 namespace Sqlite {
+
+class Unique
+{
+    friend bool operator==(Unique, Unique) { return true; }
+};
+
+class PrimaryKey
+{
+    friend bool operator==(PrimaryKey, PrimaryKey) { return true; }
+};
+
+class NotNull
+{
+    friend bool operator==(NotNull, NotNull) { return true; }
+};
+
+class DefaultValue
+{
+public:
+    DefaultValue(long long value)
+        : value(value)
+    {}
+
+    DefaultValue(double value)
+        : value(value)
+    {}
+
+    DefaultValue(Utils::SmallStringView value)
+        : value(value)
+    {}
+
+    friend bool operator==(const DefaultValue &first, const DefaultValue &second)
+    {
+        return first.value == second.value;
+    }
+
+public:
+    Sqlite::Value value;
+};
+
+class DefaultExpression
+{
+public:
+    DefaultExpression(Utils::SmallStringView expression)
+        : expression(expression)
+    {}
+
+    friend bool operator==(const DefaultExpression &first, const DefaultExpression &second)
+    {
+        return first.expression == second.expression;
+    }
+
+public:
+    Utils::SmallString expression;
+};
+
+class Collate
+{
+public:
+    Collate(Utils::SmallStringView collation)
+        : collation(collation)
+    {}
+
+    friend bool operator==(const Collate &first, const Collate &second)
+    {
+        return first.collation == second.collation;
+    }
+
+public:
+    Utils::SmallString collation;
+};
+
+enum class GeneratedAlwaysStorage { Stored, Virtual };
+
+class GeneratedAlways
+{
+public:
+    GeneratedAlways(Utils::SmallStringView expression, GeneratedAlwaysStorage storage)
+        : expression(expression)
+        , storage(storage)
+    {}
+
+    friend bool operator==(const GeneratedAlways &first, const GeneratedAlways &second)
+    {
+        return first.expression == second.expression;
+    }
+
+public:
+    Utils::SmallString expression;
+    GeneratedAlwaysStorage storage = {};
+};
+
+using Constraint = Utils::variant<Unique,
+                                  PrimaryKey,
+                                  ForeignKey,
+                                  NotNull,
+                                  DefaultValue,
+                                  DefaultExpression,
+                                  Collate,
+                                  GeneratedAlways>;
+using Constraints = std::vector<Constraint>;
 
 class Column
 {
@@ -40,43 +143,19 @@ public:
 
     Column(Utils::SmallStringView tableName,
            Utils::SmallStringView name,
-           ColumnType type = ColumnType::Numeric,
-           Contraint constraint = Contraint::NoConstraint,
-           ForeignKey &&foreignKey = {})
-        : foreignKey(std::move(foreignKey))
-        , name(name)
-        , tableName(tableName)
-        , type(type)
-        , constraint(constraint)
-    {}
-
-    Column(Utils::SmallStringView tableName,
-           Utils::SmallStringView name,
            ColumnType type,
-           Contraint constraint,
-           Utils::SmallStringView foreignKeyTable,
-           Utils::SmallStringView foreignKeycolumn,
-           ForeignKeyAction foreignKeyUpdateAction,
-           ForeignKeyAction foreignKeyDeleteAction,
-           Enforment foreignKeyEnforcement)
-        : foreignKey(foreignKeyTable,
-                     foreignKeycolumn,
-                     foreignKeyUpdateAction,
-                     foreignKeyDeleteAction,
-                     foreignKeyEnforcement)
+           Constraints &&constraints = {})
+        : constraints(std::move(constraints))
         , name(name)
         , tableName(tableName)
         , type(type)
-        , constraint(constraint)
-
     {}
 
     void clear()
     {
         name.clear();
         type = ColumnType::Numeric;
-        constraint = Contraint::NoConstraint;
-        foreignKey = {};
+        constraints = {};
     }
 
     Utils::SmallString typeString() const
@@ -100,16 +179,14 @@ public:
     friend bool operator==(const Column &first, const Column &second)
     {
         return first.name == second.name && first.type == second.type
-               && first.constraint
-                      == second.constraint /* && first.foreignKey == second.foreignKey*/;
+               && first.constraints == second.constraints && first.tableName == second.tableName;
     }
 
 public:
-    ForeignKey foreignKey;
+    Constraints constraints;
     Utils::SmallString name;
     Utils::SmallString tableName;
     ColumnType type = ColumnType::Numeric;
-    Contraint constraint = Contraint::NoConstraint;
 }; // namespace Sqlite
 
 using SqliteColumns = std::vector<Column>;

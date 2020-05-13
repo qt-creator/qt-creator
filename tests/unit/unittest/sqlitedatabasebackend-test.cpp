@@ -39,7 +39,7 @@ namespace {
 using Backend = Sqlite::DatabaseBackend;
 
 using Sqlite::ColumnType;
-using Sqlite::Contraint;
+using Sqlite::ConstraintType;
 using Sqlite::JournalMode;
 using Sqlite::OpenMode;
 using Sqlite::TextEncoding;
