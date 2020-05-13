@@ -28,16 +28,15 @@
 #include "cmakebuildtarget.h"
 #include "cmakeprocess.h"
 #include "cmakeprojectnodes.h"
-#include "fileapiparser.h"
 
 #include <projectexplorer/rawprojectpart.h>
 
+#include <utils/filesystemwatcher.h>
 #include <utils/optional.h>
 
 #include <QFuture>
 #include <QObject>
-
-#include <memory>
+#include <QDateTime>
 
 namespace ProjectExplorer {
 class ProjectNode;
@@ -83,6 +82,8 @@ private:
     void startCMakeState(const QStringList &configurationArguments);
     void cmakeFinishedState(int code, QProcess::ExitStatus status);
 
+    void replyDirectoryHasChanged(const QString &directory) const;
+
     std::unique_ptr<CMakeProcess> m_cmakeProcess;
 
     // cmake data:
@@ -97,10 +98,11 @@ private:
 
     // Update related:
     bool m_isParsing = false;
-
-    std::unique_ptr<FileApiParser> m_fileApi;
-
     BuildDirParameters m_parameters;
+
+    // Notification on changes outside of creator:
+    Utils::FileSystemWatcher m_watcher;
+    QDateTime m_lastReplyTimestamp;
 };
 
 } // namespace Internal

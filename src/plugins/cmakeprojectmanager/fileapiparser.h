@@ -241,16 +241,9 @@ public:
     std::vector<FileApiDetails::TargetDetails> targetDetails;
 };
 
-class FileApiParser final : public QObject
+class FileApiParser
 {
-    Q_OBJECT
-
 public:
-    FileApiParser(const Utils::FilePath &buildDirectory);
-    ~FileApiParser() final;
-
-    void setParsedReplyFilePath(const QString &filePath);
-
     static FileApiData parseData(const QFileInfo &replyFileInfo, QString &errorMessage);
 
     static bool setupCMakeFileApi(const Utils::FilePath &buildDirectory,
@@ -259,16 +252,6 @@ public:
     static QStringList cmakeQueryFilePaths(const Utils::FilePath &buildDirectory);
 
     static QFileInfo scanForCMakeReplyFile(const Utils::FilePath &buildDirectory);
-
-signals:
-    void dirty() const;
-
-private:
-    Utils::FilePath m_buildDirectory;
-
-    void replyDirectoryHasChanged(const QString &directory) const;
-    Utils::FileSystemWatcher m_watcher;
-    QString m_lastParsedReplyFile;
 };
 
 } // namespace Internal

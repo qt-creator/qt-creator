@@ -814,18 +814,6 @@ QString FileApiDetails::ReplyFileContents::jsonFile(const QString &kind, const Q
 // FileApi:
 // --------------------------------------------------------------------
 
-FileApiParser::FileApiParser(const FilePath &buildDirectory) : m_buildDirectory(buildDirectory)
-{
-    setupCMakeFileApi(buildDirectory, m_watcher);
-
-    QObject::connect(&m_watcher,
-                     &FileSystemWatcher::directoryChanged,
-                     this,
-                     &FileApiParser::replyDirectoryHasChanged);
-}
-
-FileApiParser::~FileApiParser() = default;
-
 bool FileApiParser::setupCMakeFileApi(const FilePath &buildDirectory, Utils::FileSystemWatcher &watcher)
 {
     const QDir buildDir = QDir(buildDirectory.toString());
@@ -926,21 +914,6 @@ QStringList FileApiParser::cmakeQueryFilePaths(const Utils::FilePath &buildDirec
     QDir queryDir(QDir::cleanPath(buildDirectory.pathAppended(CMAKE_RELATIVE_QUERY_PATH).toString()));
     return transform(CMAKE_QUERY_FILENAMES,
                      [&queryDir](const QString &name) { return queryDir.absoluteFilePath(name); });
-}
-
-void FileApiParser::setParsedReplyFilePath(const QString &filePath)
-{
-    m_lastParsedReplyFile = filePath;
-}
-
-void FileApiParser::replyDirectoryHasChanged(const QString &directory) const
-{
-    if (directory == cmakeReplyDirectory(m_buildDirectory).toString()) {
-        QFileInfo fi = scanForCMakeReplyFile(m_buildDirectory);
-        if (fi.isFile() && fi.filePath() != m_lastParsedReplyFile) {
-            emit dirty();
-        }
-    }
 }
 
 } // namespace Internal

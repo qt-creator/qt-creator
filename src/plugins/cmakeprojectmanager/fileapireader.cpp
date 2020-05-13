@@ -26,6 +26,7 @@
 #include "fileapireader.h"
 
 #include "fileapidataextractor.h"
+#include "fileapiparser.h"
 #include "projecttreehelper.h"
 
 #include <projectexplorer/projectexplorer.h>
@@ -50,7 +51,14 @@ using namespace FileApiDetails;
 // FileApiReader:
 // --------------------------------------------------------------------
 
-FileApiReader::FileApiReader() {}
+FileApiReader::FileApiReader()
+    : m_lastReplyTimestamp()
+{
+    QObject::connect(&m_watcher,
+                     &FileSystemWatcher::directoryChanged,
+                     this,
+                     &FileApiReader::replyDirectoryHasChanged);
+}
 
 FileApiReader::~FileApiReader()
 {
@@ -69,13 +77,13 @@ void FileApiReader::setParameters(const BuildDirParameters &p)
     m_parameters = p;
     qCDebug(cmakeFileApiMode) << "Work directory:" << m_parameters.workDirectory.toUserOutput();
 
-    resetData();
+    // Reset watcher:
+    m_watcher.removeFiles(m_watcher.files());
+    m_watcher.removeDirectories(m_watcher.directories());
 
-    m_fileApi = std::make_unique<FileApiParser>(m_parameters.workDirectory);
-    connect(m_fileApi.get(), &FileApiParser::dirty, this, [this]() {
-        if (!m_isParsing)
-            emit dirty();
-    });
+    FileApiParser::setupCMakeFileApi(m_parameters.workDirectory, m_watcher);
+
+    resetData();
 }
 
 void FileApiReader::resetData()
@@ -106,7 +114,7 @@ void FileApiReader::parse(bool forceCMakeRun, bool forceConfiguration)
         return;
     }
 
-    const QFileInfo replyFi = m_fileApi->scanForCMakeReplyFile(m_parameters.workDirectory);
+    const QFileInfo replyFi = FileApiParser::scanForCMakeReplyFile(m_parameters.workDirectory);
     // Only need to update when one of the following conditions is met:
     //  * The user forces the update,
     //  * There is no reply file,
@@ -207,7 +215,7 @@ void FileApiReader::endState(const QFileInfo &replyFi)
     const FilePath sourceDirectory = m_parameters.sourceDirectory;
     const FilePath buildDirectory = m_parameters.workDirectory;
 
-    m_fileApi->setParsedReplyFilePath(replyFi.filePath());
+    m_lastReplyTimestamp = replyFi.lastModified();
 
     m_future = runAsync(ProjectExplorerPlugin::sharedThreadPool(),
                         [replyFi, sourceDirectory, buildDirectory]() {
@@ -267,7 +275,22 @@ void FileApiReader::cmakeFinishedState(int code, QProcess::ExitStatus status)
 
     m_cmakeProcess.release()->deleteLater();
 
-    endState(m_fileApi->scanForCMakeReplyFile(m_parameters.workDirectory));
+    endState(FileApiParser::scanForCMakeReplyFile(m_parameters.workDirectory));
+}
+
+void FileApiReader::replyDirectoryHasChanged(const QString &directory) const
+{
+    if (m_isParsing)
+        return; // This has been triggered by ourselves, ignore.
+
+    const QFileInfo fi = FileApiParser::scanForCMakeReplyFile(m_parameters.workDirectory);
+    const QString dir = fi.absolutePath();
+    if (dir.isEmpty())
+        return; // CMake started to fill the result dir, but has not written a result file yet
+    QTC_ASSERT(dir == directory, return);
+
+    if (m_lastReplyTimestamp.isValid() && fi.lastModified() > m_lastReplyTimestamp)
+        emit dirty();
 }
 
 } // namespace Internal
