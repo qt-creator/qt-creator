@@ -208,6 +208,8 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
             this, &SearchResultWidget::handleJumpToSearchResult);
     connect(m_replaceTextEdit, &QLineEdit::returnPressed,
             this, &SearchResultWidget::handleReplaceButton);
+    connect(m_replaceTextEdit, &QLineEdit::textChanged,
+            this, &SearchResultWidget::replaceTextChanged);
     connect(m_replaceButton, &QAbstractButton::clicked,
             this, &SearchResultWidget::handleReplaceButton);
 }

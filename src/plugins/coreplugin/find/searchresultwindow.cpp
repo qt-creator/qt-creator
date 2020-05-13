@@ -708,6 +708,8 @@ SearchResult::SearchResult(SearchResultWidget *widget)
     connect(widget, &SearchResultWidget::activated, this, &SearchResult::activated);
     connect(widget, &SearchResultWidget::replaceButtonClicked,
             this, &SearchResult::replaceButtonClicked);
+    connect(widget, &SearchResultWidget::replaceTextChanged,
+            this, &SearchResult::replaceTextChanged);
     connect(widget, &SearchResultWidget::cancelled, this, &SearchResult::cancelled);
     connect(widget, &SearchResultWidget::paused, this, &SearchResult::paused);
     connect(widget, &SearchResultWidget::visibilityChanged,
