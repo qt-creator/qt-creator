@@ -943,6 +943,7 @@ class Dumper(DumperBase):
             attach_info = lldb.SBAttachInfo(self.attachPid_)
             self.process = self.target.Attach(attach_info, error)
             if not error.Success():
+                self.report(self.describeError(error))
                 self.reportState('enginerunfailed')
             else:
                 self.report('pid="%s"' % self.process.GetProcessID())
