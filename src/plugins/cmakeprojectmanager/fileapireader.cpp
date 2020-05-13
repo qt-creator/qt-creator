@@ -71,7 +71,7 @@ void FileApiReader::setParameters(const BuildDirParameters &p)
 
     resetData();
 
-    m_fileApi = std::make_unique<FileApiParser>(m_parameters.sourceDirectory, m_parameters.workDirectory);
+    m_fileApi = std::make_unique<FileApiParser>(m_parameters.workDirectory);
     connect(m_fileApi.get(), &FileApiParser::dirty, this, [this]() {
         if (!m_isParsing)
             emit dirty();
@@ -106,13 +106,13 @@ void FileApiReader::parse(bool forceCMakeRun, bool forceConfiguration)
         return;
     }
 
-    const QFileInfo replyFi = m_fileApi->scanForCMakeReplyFile();
+    const QFileInfo replyFi = m_fileApi->scanForCMakeReplyFile(m_parameters.workDirectory);
     // Only need to update when one of the following conditions is met:
     //  * The user forces the update,
     //  * There is no reply file,
     //  * One of the cmakefiles is newer than the replyFile and the user asked
     //    for creator to run CMake as needed,
-    //  * A query files are newer than the reply file
+    //  * A query file is newer than the reply file
     const bool mustUpdate = forceCMakeRun || !replyFi.exists()
                             || (m_parameters.cmakeTool() && m_parameters.cmakeTool()->isAutoRun()
                                 && anyOf(m_cmakeFiles,
@@ -120,7 +120,7 @@ void FileApiReader::parse(bool forceCMakeRun, bool forceConfiguration)
                                              return f.toFileInfo().lastModified()
                                                     > replyFi.lastModified();
                                          }))
-                            || anyOf(m_fileApi->cmakeQueryFilePaths(), [&replyFi](const QString &qf) {
+                            || anyOf(FileApiParser::cmakeQueryFilePaths(m_parameters.workDirectory), [&replyFi](const QString &qf) {
                                    return QFileInfo(qf).lastModified() > replyFi.lastModified();
                                });
 
@@ -267,7 +267,7 @@ void FileApiReader::cmakeFinishedState(int code, QProcess::ExitStatus status)
 
     m_cmakeProcess.release()->deleteLater();
 
-    endState(m_fileApi->scanForCMakeReplyFile());
+    endState(m_fileApi->scanForCMakeReplyFile(m_parameters.workDirectory));
 }
 
 } // namespace Internal

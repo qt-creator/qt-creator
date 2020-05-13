@@ -246,29 +246,25 @@ class FileApiParser final : public QObject
     Q_OBJECT
 
 public:
-    FileApiParser(const Utils::FilePath &sourceDirectory, const Utils::FilePath &buildDirectory);
+    FileApiParser(const Utils::FilePath &buildDirectory);
     ~FileApiParser() final;
-
-    Utils::FilePath cmakeReplyDirectory() const;
-    QFileInfo scanForCMakeReplyFile() const;
-
-    QStringList cmakeQueryFileNames() const;
-    QStringList cmakeQueryFilePaths() const;
 
     void setParsedReplyFilePath(const QString &filePath);
 
     static FileApiData parseData(const QFileInfo &replyFileInfo, QString &errorMessage);
 
+    static bool setupCMakeFileApi(const Utils::FilePath &buildDirectory,
+                                  Utils::FileSystemWatcher &watcher);
+
+    static QStringList cmakeQueryFilePaths(const Utils::FilePath &buildDirectory);
+
+    static QFileInfo scanForCMakeReplyFile(const Utils::FilePath &buildDirectory);
+
 signals:
-    void dataAvailable() const;
-    void errorOccurred(const QString &message) const;
     void dirty() const;
 
 private:
-    void setupCMakeFileApi() const;
-
-    const Utils::FilePath &m_sourceDirectory;
-    const Utils::FilePath &m_buildDirectory;
+    Utils::FilePath m_buildDirectory;
 
     void replyDirectoryHasChanged(const QString &directory) const;
     Utils::FileSystemWatcher m_watcher;
