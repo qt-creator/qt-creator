@@ -153,7 +153,6 @@ QString clazyStandaloneFallbackExecutable()
 {
     return findValidExecutable({
         shippedClazyStandaloneExecutable(),
-        qEnvironmentVariable("QTC_USE_CLAZY_STANDALONE_PATH"),
         Constants::CLAZY_STANDALONE_EXECUTABLE_NAME,
     });
 }

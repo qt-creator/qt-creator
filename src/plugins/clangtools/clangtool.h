@@ -96,7 +96,6 @@ public:
 
     Diagnostics read(OutputFileFormat outputFileFormat,
                      const QString &logFilePath,
-                     const QString &mainFilePath,
                      const QSet<Utils::FilePath> &projectFiles,
                      QString *errorMessage) const;
 

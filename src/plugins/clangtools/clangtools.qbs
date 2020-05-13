@@ -12,7 +12,6 @@ QtcPlugin {
     Depends { name: "QtcSsh" }
     Depends { name: "Utils" }
 
-    Depends { name: "libclang"; required: false }
     Depends { name: "yaml-cpp" }
     Depends { name: "clang_defines" }
 
@@ -26,13 +25,6 @@ QtcPlugin {
         "QbsProjectManager",
         "QmakeProjectManager",
     ]
-
-    condition: libclang.present
-
-    cpp.includePaths: base.concat(libclang.llvmIncludeDir)
-    cpp.libraryPaths: base.concat(libclang.llvmLibDir)
-    cpp.dynamicLibraries: base.concat(libclang.llvmLibs)
-    cpp.rpaths: base.concat(libclang.llvmLibDir)
 
     files: [
         "clangfileinfo.h",

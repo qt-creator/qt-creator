@@ -53,28 +53,6 @@ static bool isClMode(const QStringList &options)
     return options.contains("--driver-mode=cl");
 }
 
-static QStringList serializeDiagnosticsArguments(const QStringList &baseOptions,
-                                                 const QString &outputFilePath)
-{
-    const QStringList serializeArgs{"-serialize-diagnostics", outputFilePath};
-    if (isClMode(baseOptions))
-        return clangArgsForCl(serializeArgs);
-    return serializeArgs;
-}
-
-static QStringList clazyPluginArguments(const ClangDiagnosticConfig diagnosticConfig)
-{
-    QStringList arguments;
-
-    if (diagnosticConfig.isClazyEnabled()) {
-        arguments << XclangArgs({"-add-plugin", "clazy"});
-        if (!diagnosticConfig.clazyChecks().isEmpty())
-            arguments << XclangArgs({"-plugin-arg-clazy", diagnosticConfig.clazyChecks()});
-    }
-
-    return arguments;
-}
-
 static QStringList tidyChecksArguments(const ClangDiagnosticConfig diagnosticConfig)
 {
     const ClangDiagnosticConfig::TidyMode tidyMode = diagnosticConfig.clangTidyMode();
@@ -144,20 +122,6 @@ ClazyStandaloneRunner::ClazyStandaloneRunner(const ClangDiagnosticConfig &config
             << mainToolArguments(fileToAnalyze(), outputFilePath())
             << "--"
             << clangArguments(config, baseOptions);
-    });
-}
-
-ClazyPluginRunner::ClazyPluginRunner(const ClangDiagnosticConfig &config, QObject *parent)
-    : ClangToolRunner(parent)
-{
-    setName(tr("Clazy"));
-    setOutputFileFormat(OutputFileFormat::Serialized);
-    setExecutable(Core::ICore::clangExecutable(CLANG_BINDIR));
-    setArgsCreator([this, config](const QStringList &baseOptions) {
-        return serializeDiagnosticsArguments(baseOptions, outputFilePath())
-            << clazyPluginArguments(config)
-            << clangArguments(config, baseOptions)
-            << QDir::toNativeSeparators(fileToAnalyze());
     });
 }
 

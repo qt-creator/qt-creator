@@ -48,13 +48,5 @@ public:
     ClazyStandaloneRunner(const CppTools::ClangDiagnosticConfig &config, QObject *parent = nullptr);
 };
 
-class ClazyPluginRunner final : public ClangToolRunner
-{
-    Q_OBJECT
-
-public:
-    ClazyPluginRunner(const CppTools::ClangDiagnosticConfig &config, QObject *parent = nullptr);
-};
-
 } // namespace Internal
 } // namespace ClangTools

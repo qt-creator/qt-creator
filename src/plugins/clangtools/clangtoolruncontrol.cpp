@@ -236,12 +236,8 @@ QList<RunnerCreator> ClangToolRunWorker::runnerCreators()
     if (m_diagnosticConfig.isClangTidyEnabled())
         creators << [this]() { return createRunner<ClangTidyRunner>(); };
 
-    if (m_diagnosticConfig.isClazyEnabled()) {
-        if (!qEnvironmentVariable("QTC_USE_CLAZY_STANDALONE_PATH").isEmpty())
-            creators << [this]() { return createRunner<ClazyStandaloneRunner>(); };
-        else
-            creators << [this]() { return createRunner<ClazyPluginRunner>(); };
-    }
+    if (m_diagnosticConfig.isClazyEnabled())
+        creators << [this]() { return createRunner<ClazyStandaloneRunner>(); };
 
     return creators;
 }
@@ -388,7 +384,6 @@ void ClangToolRunWorker::onRunnerFinishedWithSuccess(const QString &filePath)
     QString errorMessage;
     const Diagnostics diagnostics = tool()->read(runner->outputFileFormat(),
                                                  outputFilePath,
-                                                 filePath,
                                                  m_projectFiles,
                                                  &errorMessage);
 

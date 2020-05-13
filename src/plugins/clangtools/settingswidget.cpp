@@ -95,20 +95,15 @@ SettingsWidget::SettingsWidget()
                      path,
                      "ClangTools.ClangTidyExecutable.History");
 
-    if (qEnvironmentVariable("QTC_USE_CLAZY_STANDALONE_PATH").isEmpty()) {
-        m_ui->clazyStandalonePathChooser->setVisible(false);
-        m_ui->clazyStandaloneLabel->setVisible(false);
-    } else {
-        placeHolderText = shippedClazyStandaloneExecutable();
-        path = m_settings->clazyStandaloneExecutable();
-        if (path.isEmpty() && placeHolderText.isEmpty())
-            path = Constants::CLAZY_STANDALONE_EXECUTABLE_NAME;
-        setupPathChooser(m_ui->clazyStandalonePathChooser,
-                         tr("Clazy Executable"),
-                         placeHolderText,
-                         path,
-                         "ClangTools.ClazyStandaloneExecutable.History");
-    }
+    placeHolderText = shippedClazyStandaloneExecutable();
+    path = m_settings->clazyStandaloneExecutable();
+    if (path.isEmpty() && placeHolderText.isEmpty())
+        path = Constants::CLAZY_STANDALONE_EXECUTABLE_NAME;
+    setupPathChooser(m_ui->clazyStandalonePathChooser,
+                     tr("Clazy Executable"),
+                     placeHolderText,
+                     path,
+                     "ClangTools.ClazyStandaloneExecutable.History");
 
     //
     // Group box "Run Options"

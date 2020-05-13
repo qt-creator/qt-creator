@@ -717,7 +717,6 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
 
 Diagnostics ClangTool::read(OutputFileFormat outputFileFormat,
                             const QString &logFilePath,
-                            const QString &mainFilePath,
                             const QSet<FilePath> &projectFiles,
                             QString *errorMessage) const
 {
@@ -730,10 +729,8 @@ Diagnostics ClangTool::read(OutputFileFormat outputFileFormat,
                                        acceptFromFilePath,
                                        errorMessage);
     }
-    return readSerializedDiagnostics(Utils::FilePath::fromString(logFilePath),
-                                     Utils::FilePath::fromString(mainFilePath),
-                                     acceptFromFilePath,
-                                     errorMessage);
+
+    return {};
 }
 
 FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelection)

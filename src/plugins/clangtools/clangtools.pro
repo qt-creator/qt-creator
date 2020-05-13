@@ -4,9 +4,6 @@ include(../../shared/clang/clang_defines.pri)
 
 requires(!isEmpty(LLVM_VERSION))
 
-LIBS += $$LIBCLANG_LIBS
-INCLUDEPATH += $$LLVM_INCLUDEPATH
-
 include(../../shared/yaml-cpp/yaml-cpp_installation.pri)
 isEmpty(EXTERNAL_YAML_CPP_FOUND) {
     DEFINES += YAML_CPP_DLL
