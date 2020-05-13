@@ -1347,6 +1347,7 @@ std::ostream &operator<<(std::ostream &out, const ExplainingStep &step)
 
 std::ostream &operator<<(std::ostream &out, const Diagnostic &diag) {
     return out << "("
+               << diag.name << ", "
                << diag.description << ", "
                << diag.category << ", "
                << diag.type << ", "

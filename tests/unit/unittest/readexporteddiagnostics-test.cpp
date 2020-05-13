@@ -106,6 +106,7 @@ TEST_F(ReadExportedDiagnostics, Tidy)
     const QString sourceFile = TESTDATA "tidy.modernize-use-nullptr.cpp";
     const QString exportedFile = createFile(TESTDATA "tidy.modernize-use-nullptr.yaml", sourceFile);
     Diagnostic expectedDiag;
+    expectedDiag.name = "modernize-use-nullptr";
     expectedDiag.location = {sourceFile, 2, 25};
     expectedDiag.description = "use nullptr [modernize-use-nullptr]";
     expectedDiag.type = "warning";
@@ -143,6 +144,7 @@ TEST_F(ReadExportedDiagnostics, Tidy_Clang)
     const QString sourceFile = TESTDATA "clang.unused-parameter.cpp";
     const QString exportedFile = createFile(TESTDATA "clang.unused-parameter.yaml", sourceFile);
     Diagnostic expectedDiag;
+    expectedDiag.name = "clang-diagnostic-unused-parameter";
     expectedDiag.location = {sourceFile, 4, 12};
     expectedDiag.description = "unused parameter 'g' [clang-diagnostic-unused-parameter]";
     expectedDiag.type = "warning";
@@ -162,6 +164,7 @@ TEST_F(ReadExportedDiagnostics, Tidy_ClangAnalyzer)
     const QString sourceFile = TESTDATA "clang-analyzer.dividezero.cpp";
     const QString exportedFile = createFile(TESTDATA "clang-analyzer.dividezero.yaml", sourceFile);
     Diagnostic expectedDiag;
+    expectedDiag.name = "clang-analyzer-core.DivideZero";
     expectedDiag.location = {sourceFile, 4, 15};
     expectedDiag.description = "Division by zero [clang-analyzer-core.DivideZero]";
     expectedDiag.type = "warning";
@@ -197,6 +200,7 @@ TEST_F(ReadExportedDiagnostics, Clazy)
     const QString sourceFile = TESTDATA "clazy.qgetenv.cpp";
     const QString exportedFile = createFile(TESTDATA "clazy.qgetenv.yaml", sourceFile);
     Diagnostic expectedDiag;
+    expectedDiag.name = "clazy-qgetenv";
     expectedDiag.location = {sourceFile, 7, 5};
     expectedDiag.description = "qgetenv().isEmpty() allocates. Use qEnvironmentVariableIsEmpty() instead [clazy-qgetenv]";
     expectedDiag.type = "warning";
