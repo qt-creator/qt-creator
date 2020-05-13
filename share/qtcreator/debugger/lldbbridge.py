@@ -40,6 +40,11 @@ sys.path.insert(1, os.path.dirname(os.path.abspath(inspect.getfile(inspect.curre
 
 # Simplify development of this module by reloading deps
 if 'dumper' in sys.modules:
+    if sys.version_info[0] >= 3:
+        if sys.version_info[1] > 3:
+            from importlib import reload
+        else:
+            reload = lambda x: print('Unsupported Python version - not reloading %s' % str(x))
     reload(sys.modules['dumper'])
 
 from dumper import DumperBase, SubItem, Children, TopLevelItem
