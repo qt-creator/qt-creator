@@ -1208,7 +1208,7 @@ void ClangTool::updateForCurrentState()
     // Info bar: diagnostic stats
     QString diagText;
     if (issuesFound) {
-        diagText = tr("%1 diagnostics. %2 fixits, %4 selected.")
+        diagText = tr("%1 diagnostics. %2 fixits, %3 selected.")
                    .arg(issuesVisible)
                    .arg(m_diagnosticFilterModel->fixitsScheduable())
                    .arg(m_diagnosticFilterModel->fixitsScheduled());
