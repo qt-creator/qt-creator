@@ -31,7 +31,7 @@
 #include <clangbackend_global.h>
 #include <clangdocuments.h>
 #include <clangexceptions.h>
-#include <clangsupportivetranslationunitinitializer.cpp>
+#include <clangsupportivetranslationunitinitializer.h>
 #include <clangtranslationunit.h>
 #include <clangtranslationunits.h>
 #include <utf8string.h>
