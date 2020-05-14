@@ -45,6 +45,7 @@
 #include <QScrollArea>
 #include <QTimer>
 #include <QUrl>
+#include <QVBoxLayout>
 
 namespace Marketplace {
 namespace Internal {
