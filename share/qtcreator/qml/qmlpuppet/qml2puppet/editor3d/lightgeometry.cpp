@@ -108,14 +108,10 @@ void LightGeometry::fillVertexData(QByteArray &vertexData, QByteArray &indexData
         // Directional light model is a circle with perpendicular lines on circumference vertices
         vertexSize = int(sizeof(float)) * 3 * (segments + dirLines);
         indexSize = int(sizeof(quint16)) * (segments + dirLines) * 2;
-    } else if (m_lightType == LightType::Point) {
-        // Point light model is a set of three perpendicular circles
-        vertexSize = int(sizeof(float)) * 3 * segments * 3;
-        indexSize = int(sizeof(quint16)) * segments * 2 * 3;
     } else if (m_lightType == LightType::Spot) {
         vertexSize = int(sizeof(float)) * 3 * (segments + 1);
         indexSize = int(sizeof(quint16)) * (segments + dirLines) * 2;
-    } else if (m_lightType == LightType::Circle) {
+    } else if (m_lightType == LightType::Point) {
         vertexSize = int(sizeof(float)) * 3 * segments;
         indexSize = int(sizeof(quint16)) * segments * 2;
     }
@@ -160,10 +156,6 @@ void LightGeometry::fillVertexData(QByteArray &vertexData, QByteArray &indexData
             *indexPtr++ = i * arc;
             *indexPtr++ = i + segments;
         }
-    } else if (m_lightType == LightType::Point) {
-        createCircle(0, 0.f, 0, 1, 2);
-        createCircle(segments, 0.f, 2, 0, 1);
-        createCircle(segments * 2, 0.f, 1, 2, 0);
     } else if (m_lightType == LightType::Spot) {
         createCircle(0, -1.f, 0, 1, 2);
 
@@ -176,7 +168,7 @@ void LightGeometry::fillVertexData(QByteArray &vertexData, QByteArray &indexData
             *indexPtr++ = tipIndex;
             *indexPtr++ = i * arc;
         }
-    } else if (m_lightType == LightType::Circle) {
+    } else if (m_lightType == LightType::Point) {
         createCircle(0, 0.f, 0, 1, 2);
     }
 

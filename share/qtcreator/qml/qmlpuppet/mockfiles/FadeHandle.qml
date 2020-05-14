@@ -33,6 +33,7 @@ DirectionalDraggable {
     property point currentMousePos
     property real fadeScale
     property real baseScale: 5
+    property real dragScale: 1
 
     scale: autoScaler.getScale(Qt.vector3d(baseScale, baseScale, baseScale))
     length: 3
@@ -98,7 +99,7 @@ DirectionalDraggable {
     }
 
     onPressed: {
-        _startScale = autoScaler.relativeScale * baseScale * 2;
+        _startScale = autoScaler.relativeScale * baseScale * dragScale;
         _startFadeScale = fadeScale;
         _l = targetNode.linearFade;
         _c = targetNode.constantFade;

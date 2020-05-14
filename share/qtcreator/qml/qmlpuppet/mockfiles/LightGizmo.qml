@@ -61,7 +61,7 @@ Node {
                                      || spotLightFadeHandle.dragging
                                      || areaHeightHandle.dragging
                                      || areaWidthHandle.dragging
-
+                                     || pointLightFadeHandle.dragging
     property point currentMousePos
     property string currentLabel
 
@@ -79,17 +79,40 @@ Node {
         view3D: lightGizmo.view3D
     }
 
-    // Camera plane circle for point light mesh
-    LightModel {
-        id: pointRing
-        geometryName: "Edit 3D Circle"
-        geometryType: LightGeometry.Circle
-        material: lightMaterial
-
-        visible: lightGizmo.targetNode instanceof PointLight
-        scale: Qt.vector3d(lightGizmo.fadeScale, lightGizmo.fadeScale, lightGizmo.fadeScale)
+    Node {
+        id: pointLightParts
         rotation: lightGizmo.view3D.camera.rotation
+        visible: lightGizmo.targetNode instanceof PointLight
+
+        LightModel {
+            id: pointModel
+            geometryName: "Edit 3D PointLight"
+            geometryType: LightGeometry.Point
+            material: lightMaterial
+            scale: Qt.vector3d(lightGizmo.fadeScale, lightGizmo.fadeScale, lightGizmo.fadeScale)
+        }
+
+        FadeHandle {
+            id: pointLightFadeHandle
+            view3D: lightGizmo.view3D
+            color: (hovering || dragging) ? Qt.rgba(1, 1, 1, 1) : lightGizmo.color
+            position: lightGizmo.targetNode instanceof PointLight ? Qt.vector3d(-pointModel.scale.x, 0, 0)
+                                                                 : Qt.vector3d(0, 0, 0)
+            eulerRotation: Qt.vector3d(0, 0, -90)
+            targetNode: lightGizmo.targetNode instanceof PointLight ? lightGizmo.targetNode : null
+            active: lightGizmo.targetNode instanceof PointLight
+            dragHelper: lightGizmo.dragHelper
+            fadeScale: lightGizmo.fadeScale
+
+            onCurrentMousePosChanged: {
+                lightGizmo.currentMousePos = currentMousePos;
+                lightGizmo.currentLabel = currentLabel;
+            }
+            onValueChange: lightGizmo.propertyValueChange(propName)
+            onValueCommit: lightGizmo.propertyValueCommit(propName)
+        }
     }
+
 
     Node {
         rotation: !lightGizmo.targetNode ? Qt.quaternion(1, 0, 0, 0)
@@ -193,6 +216,7 @@ Node {
                 active: lightGizmo.targetNode instanceof SpotLight
                 dragHelper: lightGizmo.dragHelper
                 fadeScale: lightGizmo.fadeScale
+                dragScale: 2
 
                 onCurrentMousePosChanged: {
                     lightGizmo.currentMousePos = currentMousePos;
@@ -270,15 +294,6 @@ Node {
             material: lightMaterial
             visible: lightGizmo.targetNode instanceof DirectionalLight
             scale: autoScaler.getScale(Qt.vector3d(50, 50, 50))
-        }
-
-        LightModel {
-            id: pointModel
-            geometryName: "Edit 3D PointLight"
-            geometryType: LightGeometry.Point
-            material: lightMaterial
-            visible: lightGizmo.targetNode instanceof PointLight
-            scale: Qt.vector3d(lightGizmo.fadeScale, lightGizmo.fadeScale, lightGizmo.fadeScale)
         }
 
         AdjustableArrow {
