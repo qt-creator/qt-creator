@@ -694,10 +694,10 @@ void DebuggerRunTool::start()
 
     if (m_runParameters.startMode == StartInternal) {
         QStringList unhandledIds;
-        for (const GlobalBreakpoint &bp : BreakpointManager::globalBreakpoints()) {
+//        for (const GlobalBreakpoint &bp : BreakpointManager::globalBreakpoints()) {
 //            if (bp->isEnabled() && !m_engine->acceptsBreakpoint(bp))
 //                unhandledIds.append(bp.id().toString());
-        }
+//        }
         if (!unhandledIds.isEmpty()) {
             QString warningMessage =
                     DebuggerPlugin::tr("Some breakpoints cannot be handled by the debugger "
