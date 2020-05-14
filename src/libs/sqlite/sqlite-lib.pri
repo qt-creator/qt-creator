@@ -24,12 +24,12 @@ SOURCES += \
     $$PWD/sqlitedatabase.cpp \
     $$PWD/sqlitebasestatement.cpp
 HEADERS += \
+    $$PWD/constraints.h \
     $$PWD/createtablesqlstatementbuilder.h \
     $$PWD/lastchangedrowid.h \
     $$PWD/sqlitedatabasebackend.h \
     $$PWD/sqlitedatabaseinterface.h \
     $$PWD/sqliteexception.h \
-    $$PWD/sqliteforeignkey.h \
     $$PWD/sqliteglobal.h \
     $$PWD/sqlitereadstatement.h \
     $$PWD/sqlitereadwritestatement.h \

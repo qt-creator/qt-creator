@@ -25,116 +25,12 @@
 
 #pragma once
 
-#include "sqliteforeignkey.h"
-
-#include <sqlitevalue.h>
-#include <utils/smallstring.h>
-#include <utils/variant.h>
+#include "constraints.h"
 
 #include <functional>
 
 namespace Sqlite {
 
-class Unique
-{
-    friend bool operator==(Unique, Unique) { return true; }
-};
-
-class PrimaryKey
-{
-    friend bool operator==(PrimaryKey, PrimaryKey) { return true; }
-};
-
-class NotNull
-{
-    friend bool operator==(NotNull, NotNull) { return true; }
-};
-
-class DefaultValue
-{
-public:
-    DefaultValue(long long value)
-        : value(value)
-    {}
-
-    DefaultValue(double value)
-        : value(value)
-    {}
-
-    DefaultValue(Utils::SmallStringView value)
-        : value(value)
-    {}
-
-    friend bool operator==(const DefaultValue &first, const DefaultValue &second)
-    {
-        return first.value == second.value;
-    }
-
-public:
-    Sqlite::Value value;
-};
-
-class DefaultExpression
-{
-public:
-    DefaultExpression(Utils::SmallStringView expression)
-        : expression(expression)
-    {}
-
-    friend bool operator==(const DefaultExpression &first, const DefaultExpression &second)
-    {
-        return first.expression == second.expression;
-    }
-
-public:
-    Utils::SmallString expression;
-};
-
-class Collate
-{
-public:
-    Collate(Utils::SmallStringView collation)
-        : collation(collation)
-    {}
-
-    friend bool operator==(const Collate &first, const Collate &second)
-    {
-        return first.collation == second.collation;
-    }
-
-public:
-    Utils::SmallString collation;
-};
-
-enum class GeneratedAlwaysStorage { Stored, Virtual };
-
-class GeneratedAlways
-{
-public:
-    GeneratedAlways(Utils::SmallStringView expression, GeneratedAlwaysStorage storage)
-        : expression(expression)
-        , storage(storage)
-    {}
-
-    friend bool operator==(const GeneratedAlways &first, const GeneratedAlways &second)
-    {
-        return first.expression == second.expression;
-    }
-
-public:
-    Utils::SmallString expression;
-    GeneratedAlwaysStorage storage = {};
-};
-
-using Constraint = Utils::variant<Unique,
-                                  PrimaryKey,
-                                  ForeignKey,
-                                  NotNull,
-                                  DefaultValue,
-                                  DefaultExpression,
-                                  Collate,
-                                  GeneratedAlways>;
-using Constraints = std::vector<Constraint>;
 
 class Column
 {

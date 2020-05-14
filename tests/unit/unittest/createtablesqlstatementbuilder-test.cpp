@@ -417,6 +417,16 @@ TEST_F(CreateTableSqlStatementBuilder, NotNullAndUniqueConstraint)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER UNIQUE NOT NULL)");
 }
 
+TEST_F(CreateTableSqlStatementBuilder, Check)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id", ColumnType::Text, {Sqlite::Check{"id != ''"}});
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id TEXT CHECK (id != ''))");
+}
+
 TEST_F(CreateTableSqlStatementBuilder, DefaultValueInt)
 {
     builder.clear();

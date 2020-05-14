@@ -154,6 +154,13 @@ public:
 
     void operator()(const NotNull &) { columnDefinitionString.append(" NOT NULL"); }
 
+    void operator()(const Check &check)
+    {
+        columnDefinitionString.append(" CHECK (");
+        columnDefinitionString.append(check.expression);
+        columnDefinitionString.append(")");
+    }
+
     void operator()(const DefaultValue &defaultValue)
     {
         columnDefinitionString.append(" DEFAULT ");
