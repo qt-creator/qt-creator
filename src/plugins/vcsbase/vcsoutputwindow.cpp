@@ -262,10 +262,10 @@ void OutputWindowPlainTextEdit::setFormat(VcsOutputWindow::MessageStyle style)
         m_format = LogMessageFormat;
         break;
     case VcsOutputWindow::Error:
-        m_format = ErrorMessageFormat;
+        m_format = StdErrFormat;
         break;
     case VcsOutputWindow::Message:
-        m_format = NormalMessageFormat;
+        m_format = StdOutFormat;
         break;
     case VcsOutputWindow::Command:
         m_format = NormalMessageFormat;
