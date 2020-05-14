@@ -77,6 +77,7 @@ bool addFontToProject(const QStringList &fileNames, const QString &directory);
 void createFlowActionArea(const SelectionContext &selectionContext);
 void addTransition(const SelectionContext &selectionState);
 void addFlowEffect(const SelectionContext &selectionState, const TypeName &typeName);
+void addCustomFlowEffect(const SelectionContext &selectionState);
 void setFlowStartItem(const SelectionContext &selectionContext);
 void addToGroupItem(const SelectionContext &selectionContext);
 void selectFlowEffect(const SelectionContext &selectionContext);

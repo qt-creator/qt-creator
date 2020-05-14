@@ -937,6 +937,8 @@ void DesignerActionManager::createDefaultDesignerActions()
     for (const TypeName &typeName : transitionTypes)
         addTransitionEffectAction(typeName);
 
+    addCustomTransitionEffectAction();
+
     addDesignerAction(new ModelNodeContextMenuAction(
         selectFlowEffectCommandId,
         selectEffectDisplayName,
@@ -1245,7 +1247,20 @@ void DesignerActionManager::addTransitionEffectAction(const TypeName &typeName)
         typeName == "None" ? 100 : 140,
         [typeName](const SelectionContext &context)
         { ModelNodeOperations::addFlowEffect(context, typeName); },
-        &isFlowTransitionItem));
+    &isFlowTransitionItem));
+}
+
+void DesignerActionManager::addCustomTransitionEffectAction()
+{
+    addDesignerAction(new ModelNodeContextMenuAction(
+        QByteArray(ComponentCoreConstants::flowAssignEffectCommandId),
+        ComponentCoreConstants::flowAssignCustomEffectDisplayName,
+        {},
+        ComponentCoreConstants::flowEffectCategory,
+        {},
+        80,
+        &ModelNodeOperations::addCustomFlowEffect,
+    &isFlowTransitionItem));
 }
 
 DesignerActionToolBar::DesignerActionToolBar(QWidget *parentWidget) : Utils::StyledBar(parentWidget),

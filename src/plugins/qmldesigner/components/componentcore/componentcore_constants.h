@@ -80,6 +80,7 @@ const char addTabBarToStackedContainerCommandId[] = "AddTabBarToStackedContainer
 const char increaseIndexOfStackedContainerCommandId[] = "IncreaseIndexOfStackedContainer";
 const char decreaseIndexOfStackedContainerCommandId[] = "DecreaseIndexOfStackedContainer";
 const char flowAssignEffectCommandId[] = "AssignFlowEffect";
+const char flowAssignCustomEffectCommandId[] = "AssignFlowCustomEffect";
 const char addToGroupItemCommandId[] = "AddToGroupItem";
 
 const char selectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Selection");
@@ -150,6 +151,7 @@ const char layoutFillWidthDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextM
 const char layoutFillHeightDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Fill Height");
 
 const char flowAssignEffectDisplayName[] = "Assign FlowEffect ";
+const char flowAssignCustomEffectDisplayName[] = "Assign Custom FlowEffect ";
 
 const char raiseToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Raise selected item.");
 const char lowerToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Lower selected item.");
@@ -189,6 +191,8 @@ const int priorityLast = 60;
 
 const char addImagesDisplayString[] = QT_TRANSLATE_NOOP("QmlDesignerAddResources", "Image Files");
 const char addFontsDisplayString[] = QT_TRANSLATE_NOOP("QmlDesignerAddResources", "Font Files");
+
+const char addCustomEffectDialogDisplayString[] = QT_TRANSLATE_NOOP("QmlDesignerAddResources", "Add Custom Effect");
 
 } //ComponentCoreConstants
 

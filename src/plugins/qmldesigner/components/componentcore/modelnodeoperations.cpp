@@ -47,6 +47,8 @@
 #include <nodeproperty.h>
 #include <signalhandlerproperty.h>
 
+#include <componentcore_constants.h>
+
 #include <limits>
 #include <qmldesignerplugin.h>
 
@@ -68,6 +70,7 @@
 
 #include <QCoreApplication>
 #include <QByteArray>
+#include <QFileDialog>
 
 #include <algorithm>
 #include <functional>
@@ -1215,6 +1218,91 @@ void selectFlowEffect(const SelectionContext &selectionContext)
     if (node.hasNodeProperty("effect")) {
         selectionContext.view()->setSelectedModelNode(node.nodeProperty("effect").modelNode());
     }
+}
+
+static QString baseDirectory(const QUrl &url)
+{
+    QString filePath = url.toLocalFile();
+    return QFileInfo(filePath).absoluteDir().path();
+}
+
+static void getTypeAndImport(const SelectionContext &selectionContext,
+                             QString &type,
+                             QString &import)
+{
+    static QString s_lastBrowserPath;
+    QString path = s_lastBrowserPath;
+
+    if (path.isEmpty())
+        path = baseDirectory(selectionContext.view()->model()->fileUrl());
+
+    QString newFile = QFileDialog::getOpenFileName(Core::ICore::dialogParent(),
+                                                   ComponentCoreConstants::addCustomEffectDialogDisplayString,
+                                                   path,
+                                                   "*.qml");
+
+    if (!newFile.isEmpty()) {
+        QFileInfo file(newFile);
+
+        type = file.fileName();
+        type.remove(".qml");
+
+        s_lastBrowserPath = file.absolutePath();
+
+        import = QFileInfo(s_lastBrowserPath).baseName();
+    }
+}
+
+void addCustomFlowEffect(const SelectionContext &selectionContext)
+{
+
+    TypeName typeName;
+
+    QString typeString;
+    QString importString;
+
+    getTypeAndImport(selectionContext, typeString, importString);
+
+    typeName = typeString.toUtf8();
+
+    if (typeName.isEmpty())
+        return;
+
+    qDebug() << Q_FUNC_INFO << typeName << importString;
+
+    const Import import = Import::createFileImport("FlowEffects");
+
+    if (!importString.isEmpty() && !selectionContext.view()->model()->hasImport(import, true, true)) {
+        selectionContext.view()-> model()->changeImports({import}, {});
+    }
+
+    AbstractView *view = selectionContext.view();
+
+    QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
+    ModelNode container = selectionContext.currentSingleSelectedNode();
+    QTC_ASSERT(container.isValid(), return);
+    QTC_ASSERT(container.metaInfo().isValid(), return);
+    QTC_ASSERT(QmlItemNode::isFlowTransition(container), return);
+
+    NodeMetaInfo effectMetaInfo = view->model()->metaInfo(typeName, -1, -1);
+    QTC_ASSERT(typeName == "None" || effectMetaInfo.isValid(), return);
+
+    view->executeInTransaction("DesignerActionManager:addFlowEffect",
+                               [view, container, effectMetaInfo](){
+
+                                   if (container.hasProperty("effect"))
+                                       container.removeProperty("effect");
+
+                                   if (effectMetaInfo.isValid()) {
+                                       ModelNode effectNode =
+                                           view->createModelNode(effectMetaInfo.typeName(),
+                                                                 effectMetaInfo.majorVersion(),
+                                                                 effectMetaInfo.minorVersion());
+
+                                       container.nodeProperty("effect").reparentHere(effectNode);
+                                       view->setSelectedModelNode(effectNode);
+                                   }
+    });
 }
 
 } // namespace Mode
