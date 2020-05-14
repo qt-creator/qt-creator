@@ -252,20 +252,20 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
         break;
     }
     case IAssistProvider::Asynchronous: {
-        processor->setAsyncCompletionAvailableHandler([this, reason](IAssistProposal *newProposal) {
+        processor->setAsyncCompletionAvailableHandler([this, reason, processor](IAssistProposal *newProposal) {
             // do not delete this processor directly since this function is called from within the processor
-            QTimer::singleShot(0, [processor = m_asyncProcessor]() { delete processor; });
-                if (m_asyncProcessor && m_asyncProcessor->needsRestart() && m_receivedContentWhileWaiting) {
-                    delete newProposal;
-                    m_receivedContentWhileWaiting = false;
-                    invalidateCurrentRequestData();
-                    requestProposal(reason, m_assistKind, m_requestProvider);
-                } else {
-                    invalidateCurrentRequestData();
-                    displayProposal(newProposal, reason);
-
-                    emit q->finished();
-                }
+            QTimer::singleShot(0, [processor]() { delete processor; });
+            if (processor != m_asyncProcessor)
+                return;
+            invalidateCurrentRequestData();
+            if (processor && processor->needsRestart() && m_receivedContentWhileWaiting) {
+                delete newProposal;
+                m_receivedContentWhileWaiting = false;
+                requestProposal(reason, m_assistKind, m_requestProvider);
+            } else {
+                displayProposal(newProposal, reason);
+                emit q->finished();
+            }
         });
 
         // If there is a proposal, nothing asynchronous happened...
@@ -275,6 +275,7 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
         } else if (!processor->running()) {
             delete processor;
         } else { // ...async request was triggered
+            QTC_CHECK(!m_asyncProcessor);
             m_asyncProcessor = processor;
         }
 
