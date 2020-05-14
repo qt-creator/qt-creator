@@ -1,6 +1,6 @@
 INCLUDEPATH += $$PWD/
 
-HEADERS += $$PWD/synchronizecommand.h \
+HEADERS += $$PWD/synchronizecommand.h
 HEADERS += $$PWD/changepreviewimagesizecommand.h
 HEADERS += $$PWD/changelanguagecommand.h
 HEADERS += $$PWD//debugoutputcommand.h
