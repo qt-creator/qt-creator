@@ -1052,10 +1052,17 @@ void Lexer::scanIdentifier(Token *tok, unsigned extraProcessedChars)
         yyinp();
     }
     int yylen = _currentChar - yytext;
-    if (f._scanKeywords)
+    if (f._scanKeywords) {
         tok->f.kind = classify(yytext, yylen, _languageFeatures);
-    else
+
+        if (tok->f.kind == T_FALSE || tok->f.kind == T_TRUE) {
+            if (control()) {
+                tok->number = control()->numericLiteral(yytext, yylen);
+            }
+        }
+    } else {
         tok->f.kind = T_IDENTIFIER;
+    }
 
     if (tok->f.kind == T_IDENTIFIER) {
         tok->f.kind = classifyOperator(yytext, yylen);

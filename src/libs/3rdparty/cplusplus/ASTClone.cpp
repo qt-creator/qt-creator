@@ -81,6 +81,31 @@ GnuAttributeSpecifierAST *GnuAttributeSpecifierAST::clone(MemoryPool *pool) cons
     return ast;
 }
 
+MsvcDeclspecSpecifierAST *MsvcDeclspecSpecifierAST::clone(MemoryPool *pool) const
+{
+    MsvcDeclspecSpecifierAST *ast = new (pool) MsvcDeclspecSpecifierAST;
+    ast->attribute_token = attribute_token;
+    ast->lparen_token = lparen_token;
+    for (GnuAttributeListAST *iter = attribute_list, **ast_iter = &ast->attribute_list;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) GnuAttributeListAST((iter->value) ? iter->value->clone(pool) : nullptr);
+    ast->rparen_token = rparen_token;
+    return ast;
+}
+
+StdAttributeSpecifierAST *StdAttributeSpecifierAST::clone(MemoryPool *pool) const
+{
+    StdAttributeSpecifierAST *ast = new (pool) StdAttributeSpecifierAST;
+    ast->first_lbracket_token = first_lbracket_token;
+    ast->second_lbracket_token = second_lbracket_token;
+    for (GnuAttributeListAST *iter = attribute_list, **ast_iter = &ast->attribute_list;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) GnuAttributeListAST((iter->value) ? iter->value->clone(pool) : nullptr);
+    ast->first_rbracket_token = first_rbracket_token;
+    ast->second_rbracket_token = second_rbracket_token;
+    return ast;
+}
+
 GnuAttributeAST *GnuAttributeAST::clone(MemoryPool *pool) const
 {
     GnuAttributeAST *ast = new (pool) GnuAttributeAST;
@@ -730,6 +755,7 @@ IfStatementAST *IfStatementAST::clone(MemoryPool *pool) const
 {
     IfStatementAST *ast = new (pool) IfStatementAST;
     ast->if_token = if_token;
+    ast->constexpr_token = constexpr_token;
     ast->lparen_token = lparen_token;
     if (condition)
         ast->condition = condition->clone(pool);

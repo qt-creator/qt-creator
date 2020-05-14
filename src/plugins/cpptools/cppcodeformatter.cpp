@@ -863,6 +863,7 @@ bool CodeFormatter::tryDeclaration()
     case T_AUTO:
     case T___TYPEOF__:
     case T___ATTRIBUTE__:
+    case T___DECLSPEC:
     case T_STATIC:
     case T_FRIEND:
     case T_CONST:
@@ -1590,7 +1591,7 @@ void QtStyleCodeFormatter::adjustIndent(const Tokens &tokens, int lexerState, in
         if (m_styleSettings.indentDeclarationsRelativeToAccessSpecifiers
                 && topState.type == class_open) {
             if (tokenAt(1).is(T_COLON) || tokenAt(2).is(T_COLON)
-                    || (tokenAt(tokenCount() - 1).is(T_COLON) && tokenAt(1).is(T___ATTRIBUTE__))) {
+                || (tokenAt(tokenCount() - 1).is(T_COLON) && (tokenAt(1).is(T___ATTRIBUTE__) || tokenAt(1).is(T___DECLSPEC)))) {
                 *indentDepth = topState.savedIndentDepth;
                 if (m_styleSettings.indentAccessSpecifiers)
                     *indentDepth += m_tabSettings.m_indentSize;

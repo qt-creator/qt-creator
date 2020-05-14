@@ -1978,6 +1978,22 @@ bool FindUsages::visit(GnuAttributeSpecifierAST *ast)
     return false;
 }
 
+bool FindUsages::visit(MsvcDeclspecSpecifierAST *ast)
+{
+    for (GnuAttributeListAST *it = ast->attribute_list; it; it = it->next) {
+        this->attribute(it->value);
+    }
+    return false;
+}
+
+bool FindUsages::visit(StdAttributeSpecifierAST *ast)
+{
+    for (GnuAttributeListAST *it = ast->attribute_list; it; it = it->next) {
+        this->attribute(it->value);
+    }
+    return false;
+}
+
 bool FindUsages::visit(TypeofSpecifierAST *ast)
 {
     // unsigned typeof_token = ast->typeof_token;

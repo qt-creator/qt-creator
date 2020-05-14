@@ -115,6 +115,16 @@ private Q_SLOTS:
     void inAlignas();
 
     void memberAccessAsTemplate();
+
+    void variadicFunctionTemplate();
+    void typeTemplateParameterWithDefault();
+    void resolveOrder_for_templateFunction_vs_function();
+    void templateArrowOperator_with_defaultType();
+    void templateSpecialization_with_IntArgument();
+    void templateSpecialization_with_BoolArgument();
+    void templatePartialSpecialization();
+    void templatePartialSpecialization_2();
+    void template_SFINAE_1();
 };
 
 void tst_FindUsages::dump(const QList<Usage> &usages) const
@@ -1074,6 +1084,500 @@ void tst_FindUsages::memberAccessAsTemplate()
         QCOMPARE(find.usages()[1].line, 11);
         QCOMPARE(find.usages()[1].col, 11);
     }
+}
+
+void tst_FindUsages::variadicFunctionTemplate()
+{
+    const QByteArray src = "struct S{int value;};\n"
+                           "template<class ... Types> S foo(Types & ... args){return S();}\n"
+                           "int main(){\n"
+                           "    foo().value;\n"
+                           "    foo(1).value;\n"
+                           "    foo(1,2).value;\n"
+                           "}";
+
+    Document::Ptr doc = Document::create("variadicFunctionTemplate");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QVERIFY(doc->globalSymbolCount()>=1);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    {   // Test "S::value"
+        Class *c = doc->globalSymbolAt(0)->asClass();
+        QVERIFY(c);
+        QCOMPARE(c->name()->identifier()->chars(), "S");
+        QCOMPARE(c->memberCount(), 1);
+
+        Declaration *v = c->memberAt(0)->asDeclaration();
+        QVERIFY(v);
+        QCOMPARE(v->name()->identifier()->chars(), "value");
+
+        FindUsages find(src, doc, snapshot);
+        find(v);
+        QCOMPARE(find.usages().size(), 4);
+    }
+}
+
+void tst_FindUsages::typeTemplateParameterWithDefault()
+{
+    const QByteArray src = "struct X{int value;};\n"
+                           "struct S{int value;};\n"
+                           "template<class T = S> T foo(){return T();}\n"
+                           "int main(){\n"
+                           "    foo<X>().value;\n"
+                           "    foo<S>().value;\n"
+                           "    foo().value;\n"     // this is S.value
+                           "}";
+
+    Document::Ptr doc = Document::create("typeTemplateParameterWithDefault");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QVERIFY(doc->globalSymbolCount()>=2);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    {   // Test "S::value"
+        Class *x = doc->globalSymbolAt(0)->asClass();
+        QVERIFY(x);
+        QCOMPARE(x->name()->identifier()->chars(), "X");
+        QCOMPARE(x->memberCount(), 1);
+
+        Class *s = doc->globalSymbolAt(1)->asClass();
+        QVERIFY(s);
+        QCOMPARE(s->name()->identifier()->chars(), "S");
+        QCOMPARE(s->memberCount(), 1);
+
+        Declaration *xv = x->memberAt(0)->asDeclaration();
+        QVERIFY(xv);
+        QCOMPARE(xv->name()->identifier()->chars(), "value");
+
+        Declaration *sv = s->memberAt(0)->asDeclaration();
+        QVERIFY(sv);
+        QCOMPARE(sv->name()->identifier()->chars(), "value");
+
+        FindUsages find(src, doc, snapshot);
+        find(xv);
+        QCOMPARE(find.usages().size(), 2);
+        find(sv);
+        QCOMPARE(find.usages().size(), 3);
+    }
+}
+
+void tst_FindUsages::resolveOrder_for_templateFunction_vs_function()
+{
+    const QByteArray src = "struct X{int value;};\n"
+                           "struct S{int value;};\n"
+                           "X foo(){return X();}\n"
+                           "template<class T = S> T foo(){return T();}\n"
+                           "int main(){\n"
+                           "    foo().value;\n"     // this is X.value
+                           "}";
+
+    Document::Ptr doc = Document::create("resolveOrder_for_templateFunction_vs_function");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QVERIFY(doc->globalSymbolCount()>=1);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    {   // Test "S::value"
+        Class *x = doc->globalSymbolAt(0)->asClass();
+        QVERIFY(x);
+        QCOMPARE(x->name()->identifier()->chars(), "X");
+        QCOMPARE(x->memberCount(), 1);
+
+        Declaration *xv = x->memberAt(0)->asDeclaration();
+        QVERIFY(xv);
+        QCOMPARE(xv->name()->identifier()->chars(), "value");
+
+        FindUsages find(src, doc, snapshot);
+        find(xv);
+        QCOMPARE(find.usages().size(), 2);
+    }
+}
+
+void tst_FindUsages::templateArrowOperator_with_defaultType()
+{
+    const QByteArray src = "struct S{int value;};\n"
+                           "struct C{\n"
+                           "    S* s;\n"
+                           "    template<class T = S> \n"
+                           "    T* operator->(){return &s;}\n"
+                           "};\n"
+                           "int main(){\n"
+                           "    C().operator -> ()->value;\n"
+                           "    C()->value;\n"
+                           "}\n";
+
+    Document::Ptr doc = Document::create("templateArrowOperator_with_defaultType");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QVERIFY(doc->globalSymbolCount()>=1);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    {   // Test "S::value"
+        Class *s = doc->globalSymbolAt(0)->asClass();
+        QVERIFY(s);
+        QCOMPARE(s->name()->identifier()->chars(), "S");
+        QCOMPARE(s->memberCount(), 1);
+
+        Declaration *sv = s->memberAt(0)->asDeclaration();
+        QVERIFY(sv);
+        QCOMPARE(sv->name()->identifier()->chars(), "value");
+
+        FindUsages find(src, doc, snapshot);
+        find(sv);
+        QCOMPARE(find.usages().size(), 3);
+    }
+}
+
+void tst_FindUsages::templateSpecialization_with_IntArgument()
+{
+    const QByteArray src = "\n"
+                           "struct S0{ int value = 0; };\n"
+                           "struct S1{ int value = 1; };\n"
+                           "struct S2{ int value = 2; };\n"
+                           "template<int N> struct S { S0 s; };\n"
+                           "template<> struct S<1> { S1 s; };\n"
+                           "template<> struct S<2> { S2 s; };\n"
+                           "int main()\n"
+                           "{\n"
+                           "    S<0> s0;\n"
+                           "    S<1> s1;\n"
+                           "    S<2> s2;\n"
+                           "    s0.s.value;\n"
+                           "    s1.s.value;\n"
+                           "    s2.s.value;\n"
+                           "}\n";
+
+    Document::Ptr doc = Document::create("templateSpecialization_with_IntArgument");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QVERIFY(doc->globalSymbolCount()>=3);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    {
+        Class *s[3] = {
+            doc->globalSymbolAt(0)->asClass(),
+            doc->globalSymbolAt(1)->asClass(),
+            doc->globalSymbolAt(2)->asClass(),
+        };
+
+        QVERIFY(s[0]);
+        QVERIFY(s[1]);
+        QVERIFY(s[2]);
+
+        QCOMPARE(s[0]->name()->identifier()->chars(), "S0");
+        QCOMPARE(s[1]->name()->identifier()->chars(), "S1");
+        QCOMPARE(s[2]->name()->identifier()->chars(), "S2");
+
+        QCOMPARE(s[0]->memberCount(), 1);
+        QCOMPARE(s[1]->memberCount(), 1);
+        QCOMPARE(s[2]->memberCount(), 1);
+
+        Declaration *sv[3] = {
+            s[0]->memberAt(0)->asDeclaration(),
+            s[1]->memberAt(0)->asDeclaration(),
+            s[2]->memberAt(0)->asDeclaration(),
+        };
+
+        QVERIFY(sv[0]);
+        QVERIFY(sv[1]);
+        QVERIFY(sv[2]);
+
+        QCOMPARE(sv[0]->name()->identifier()->chars(), "value");
+        QCOMPARE(sv[1]->name()->identifier()->chars(), "value");
+        QCOMPARE(sv[2]->name()->identifier()->chars(), "value");
+
+        FindUsages find(src, doc, snapshot);
+
+        find(sv[0]);
+        QCOMPARE(find.usages().size(), 2);
+
+        QCOMPARE(find.usages()[0].line, 1);
+        QCOMPARE(find.usages()[0].col, 15);
+        QCOMPARE(find.usages()[1].line, 12);
+        QCOMPARE(find.usages()[1].col, 9);
+
+        find(sv[1]);
+        QCOMPARE(find.usages().size(), 2);
+
+        QCOMPARE(find.usages()[0].line, 2);
+        QCOMPARE(find.usages()[0].col, 15);
+        QCOMPARE(find.usages()[1].line, 13);
+        QCOMPARE(find.usages()[1].col, 9);
+
+        find(sv[2]);
+        QCOMPARE(find.usages().size(), 2);
+
+        QCOMPARE(find.usages()[0].line, 3);
+        QCOMPARE(find.usages()[0].col, 15);
+        QCOMPARE(find.usages()[1].line, 14);
+        QCOMPARE(find.usages()[1].col, 9);
+    }
+}
+
+void tst_FindUsages::templateSpecialization_with_BoolArgument()
+{
+    const QByteArray src = "\n"
+                           "struct S0{ int value = 0; };\n"
+                           "struct S1{ int value = 1; };\n"
+                           "template<bool B> struct S { S0 s; };\n"
+                           "template<> struct S<true> { S1 s; };\n"
+                           "int main()\n"
+                           "{\n"
+                           "    S<false> s0;\n"
+                           "    S<true> s1;\n"
+                           "    s0.s.value;\n"
+                           "    s1.s.value;\n"
+                           "}\n";
+
+    Document::Ptr doc = Document::create("templateSpecialization_with_BoolArgument");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QVERIFY(doc->globalSymbolCount()>=3);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    {
+        Class *s[2] = {
+            doc->globalSymbolAt(0)->asClass(),
+            doc->globalSymbolAt(1)->asClass(),
+        };
+
+        QVERIFY(s[0]);
+        QVERIFY(s[1]);
+
+        QCOMPARE(s[0]->name()->identifier()->chars(), "S0");
+        QCOMPARE(s[1]->name()->identifier()->chars(), "S1");
+
+        QCOMPARE(s[0]->memberCount(), 1);
+        QCOMPARE(s[1]->memberCount(), 1);
+
+        Declaration *sv[2] = {
+            s[0]->memberAt(0)->asDeclaration(),
+            s[1]->memberAt(0)->asDeclaration(),
+        };
+
+        QVERIFY(sv[0]);
+        QVERIFY(sv[1]);
+
+        QCOMPARE(sv[0]->name()->identifier()->chars(), "value");
+        QCOMPARE(sv[1]->name()->identifier()->chars(), "value");
+
+        FindUsages find(src, doc, snapshot);
+
+        find(sv[0]);
+        QCOMPARE(find.usages().size(), 2);
+
+        QCOMPARE(find.usages()[0].line, 1);
+        QCOMPARE(find.usages()[0].col, 15);
+        QCOMPARE(find.usages()[1].line, 9);
+        QCOMPARE(find.usages()[1].col, 9);
+
+        find(sv[1]);
+        QCOMPARE(find.usages().size(), 2);
+
+        QCOMPARE(find.usages()[0].line, 2);
+        QCOMPARE(find.usages()[0].col, 15);
+        QCOMPARE(find.usages()[1].line, 10);
+        QCOMPARE(find.usages()[1].col, 9);
+    }
+}
+
+void tst_FindUsages::templatePartialSpecialization()
+{
+    const QByteArray src = "\n"
+                           "struct S0{ int value = 0; };\n"
+                           "struct S1{ int value = 1; };\n"
+                           "template<class T, class U> struct S { S0 ss; };\n"
+                           "template<class U> struct S<float, U> { S1 ss; };\n"
+                           "int main()\n"
+                           "{\n"
+                           "    S<int, int> s0;\n"
+                           "    S<float, int> s1;\n"
+                           "    s0.ss.value;\n"
+                           "    s1.ss.value;\n"
+                           "}\n";
+
+    Document::Ptr doc = Document::create("templatePartialSpecialization");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QVERIFY(doc->globalSymbolCount()>=3);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    {
+        Class *s[2] = {
+            doc->globalSymbolAt(0)->asClass(),
+            doc->globalSymbolAt(1)->asClass(),
+        };
+
+        QVERIFY(s[0]);
+        QVERIFY(s[1]);
+
+        QCOMPARE(s[0]->name()->identifier()->chars(), "S0");
+        QCOMPARE(s[1]->name()->identifier()->chars(), "S1");
+
+        QCOMPARE(s[0]->memberCount(), 1);
+        QCOMPARE(s[1]->memberCount(), 1);
+
+        Declaration *sv[2] = {
+            s[0]->memberAt(0)->asDeclaration(),
+            s[1]->memberAt(0)->asDeclaration(),
+        };
+
+        QVERIFY(sv[0]);
+        QVERIFY(sv[1]);
+
+        QCOMPARE(sv[0]->name()->identifier()->chars(), "value");
+        QCOMPARE(sv[1]->name()->identifier()->chars(), "value");
+
+        FindUsages find(src, doc, snapshot);
+
+        find(sv[0]);
+        QCOMPARE(find.usages().size(), 2);
+
+        QCOMPARE(find.usages()[0].line, 1);
+        QCOMPARE(find.usages()[0].col, 15);
+        QCOMPARE(find.usages()[1].line, 9);
+        QCOMPARE(find.usages()[1].col, 10);
+
+        find(sv[1]);
+        QCOMPARE(find.usages().size(), 2);
+
+        QCOMPARE(find.usages()[0].line, 2);
+        QCOMPARE(find.usages()[0].col, 15);
+        QCOMPARE(find.usages()[1].line, 10);
+        QCOMPARE(find.usages()[1].col, 10);
+    }
+}
+
+void tst_FindUsages::templatePartialSpecialization_2()
+{
+    const QByteArray src =
+R"(
+struct S0{int value=0;};
+struct S1{int value=1;};
+struct S2{int value=2;};
+template<class T1, class T2> struct S{T1 ss;};
+template<class U> struct S<int, U>{ U ss; };
+template<class V> struct S<V*, int>{ V *ss; };
+int main()
+{
+    S<S0, float> s0;
+    s0.ss.value;
+    S<int, S1> s1;
+    s1.ss.value;
+    S<S2*, int> s2;
+    s2.ss->value;
+}
+)";
+
+    Document::Ptr doc = Document::create("templatePartialSpecialization_2");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QVERIFY(doc->globalSymbolCount()>=3);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    FindUsages find(src, doc, snapshot);
+
+    Class *s[3];
+    Declaration *sv[3];
+    for (int i = 0; i < 3; i++) {
+        s[i] = doc->globalSymbolAt(i)->asClass();
+        QVERIFY(s[i]);
+        QCOMPARE(s[i]->memberCount(), 1);
+        sv[i] = s[i]->memberAt(0)->asDeclaration();
+        QVERIFY(sv[i]);
+        QCOMPARE(sv[i]->name()->identifier()->chars(), "value");
+    }
+    QCOMPARE(s[0]->name()->identifier()->chars(), "S0");
+    QCOMPARE(s[1]->name()->identifier()->chars(), "S1");
+    QCOMPARE(s[2]->name()->identifier()->chars(), "S2");
+
+    find(sv[0]);
+    QCOMPARE(find.usages().size(), 2);
+
+    find(sv[1]);
+    QCOMPARE(find.usages().size(), 2);
+
+    find(sv[2]);
+    QCOMPARE(find.usages().size(), 2);
+}
+
+void tst_FindUsages::template_SFINAE_1()
+{
+    const QByteArray src =
+R"(
+struct S{int value=1;};
+template<class, class> struct is_same {};
+template<class T> struct is_same<T, T> {using type = int;};
+template<class T = S, typename is_same<T, S>::type = 0> T* foo(){return new T();}
+int main(){
+    foo()->value;
+}
+)";
+
+    Document::Ptr doc = Document::create("template_SFINAE_1");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QVERIFY(doc->globalSymbolCount()>=1);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Class *s = doc->globalSymbolAt(0)->asClass();
+    QVERIFY(s);
+    QCOMPARE(s->name()->identifier()->chars(), "S");
+    QCOMPARE(s->memberCount(), 1);
+
+    Declaration *sv = s->memberAt(0)->asDeclaration();
+    QVERIFY(sv);
+    QCOMPARE(sv->name()->identifier()->chars(), "value");
+
+    FindUsages find(src, doc, snapshot);
+    find(sv);
+    QCOMPARE(find.usages().size(), 2);
 }
 
 QTEST_APPLESS_MAIN(tst_FindUsages)

@@ -80,7 +80,7 @@ void NamePrettyPrinter::visit(const TemplateNameId *name)
         if (index != 0)
             _name += QLatin1String(", ");
 
-        FullySpecifiedType argTy = name->templateArgumentAt(index);
+        FullySpecifiedType argTy = name->templateArgumentAt(index).type();
         QString arg = overview()->prettyType(argTy);
         if (arg.isEmpty())
             _name += QString::fromLatin1("_Tp%1").arg(index + 1);

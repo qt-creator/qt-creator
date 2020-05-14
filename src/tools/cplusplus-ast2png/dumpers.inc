@@ -81,6 +81,34 @@ virtual bool visit(GnuAttributeSpecifierAST *ast)
     return false;
 }
 
+virtual bool visit(MsvcDeclspecSpecifierAST *ast)
+{
+    if (ast->attribute_token)
+        terminal(ast->attribute_token, ast);
+    if (ast->lparen_token)
+        terminal(ast->lparen_token, ast);
+    for (GnuAttributeListAST *iter = ast->attribute_list; iter; iter = iter->next)
+        nonterminal(iter->value);
+    if (ast->rparen_token)
+        terminal(ast->rparen_token, ast);
+    return false;
+}
+
+virtual bool visit(StdAttributeSpecifierAST *ast)
+{
+    if (ast->first_lbracket_token)
+        terminal(ast->first_lbracket_token, ast);
+    if (ast->second_lbracket_token)
+        terminal(ast->second_lbracket_token, ast);
+    for (GnuAttributeListAST *iter = ast->attribute_list; iter; iter = iter->next)
+        nonterminal(iter->value);
+    if (ast->first_rbracket_token)
+        terminal(ast->first_rbracket_token, ast);
+    if (ast->second_rbracket_token)
+        terminal(ast->second_rbracket_token, ast);
+    return false;
+}
+
 virtual bool visit(GnuAttributeAST *ast)
 {
     if (ast->identifier_token)
@@ -714,6 +742,8 @@ virtual bool visit(IfStatementAST *ast)
 {
     if (ast->if_token)
         terminal(ast->if_token, ast);
+    if (ast->constexpr_token)
+        terminal(ast->constexpr_token, ast);
     if (ast->lparen_token)
         terminal(ast->lparen_token, ast);
     nonterminal(ast->condition);

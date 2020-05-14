@@ -177,6 +177,9 @@ const char *token_names[] = {
     ("__thread"),
     ("__typeof__"),
 
+    // msvc
+    ("__declspec"),
+
     // objc @keywords
     ("@catch"),
     ("@class"),

@@ -629,7 +629,7 @@ const NumericLiteral *Control::numericLiteral(const char *chars)
 
 const TemplateNameId *Control::templateNameId(const Identifier *id,
                                               bool isSpecialization,
-                                              const FullySpecifiedType *const args,
+                                              const TemplateArgument *const args,
                                               int argv)
 {
     return d->findOrInsertTemplateNameId(id, isSpecialization, args, args + argv);

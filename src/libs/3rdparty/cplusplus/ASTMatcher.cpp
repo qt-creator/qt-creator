@@ -117,6 +117,46 @@ bool ASTMatcher::match(GnuAttributeSpecifierAST *node, GnuAttributeSpecifierAST 
     return true;
 }
 
+bool ASTMatcher::match(MsvcDeclspecSpecifierAST *node, MsvcDeclspecSpecifierAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->attribute_token = node->attribute_token;
+
+    pattern->lparen_token = node->lparen_token;
+
+    if (! pattern->attribute_list)
+        pattern->attribute_list = node->attribute_list;
+    else if (! AST::match(node->attribute_list, pattern->attribute_list, this))
+        return false;
+
+    pattern->rparen_token = node->rparen_token;
+
+    return true;
+}
+
+bool ASTMatcher::match(StdAttributeSpecifierAST *node, StdAttributeSpecifierAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->first_lbracket_token = node->first_lbracket_token;
+
+    pattern->second_lbracket_token = node->second_lbracket_token;
+
+    if (! pattern->attribute_list)
+        pattern->attribute_list = node->attribute_list;
+    else if (! AST::match(node->attribute_list, pattern->attribute_list, this))
+        return false;
+
+    pattern->first_rbracket_token = node->first_rbracket_token;
+
+    pattern->second_rbracket_token = node->second_rbracket_token;
+
+    return true;
+}
+
 bool ASTMatcher::match(GnuAttributeAST *node, GnuAttributeAST *pattern)
 {
     (void) node;
@@ -1245,6 +1285,8 @@ bool ASTMatcher::match(IfStatementAST *node, IfStatementAST *pattern)
     (void) pattern;
 
     pattern->if_token = node->if_token;
+
+    pattern->constexpr_token = node->constexpr_token;
 
     pattern->lparen_token = node->lparen_token;
 

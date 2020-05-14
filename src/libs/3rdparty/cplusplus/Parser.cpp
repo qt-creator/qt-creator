@@ -770,6 +770,18 @@ bool Parser::parseDeclaration(DeclarationAST *&node)
             else if (LA() == T_AT_PROPERTY)
                 return parseObjCPropertyDeclaration(node, attributes);
             rewind(start);
+        } else if (LA() == T___DECLSPEC) {
+            const int start = cursor();
+            SpecifierListAST *attributes = nullptr, **attr = &attributes;
+            while (parseMsvcDeclspecSpecifier(*attr))
+                attr = &(*attr)->next;
+            rewind(start);
+        } else if (lookAtStdAttribute()) {
+            const int start = cursor();
+            SpecifierListAST *attributes = nullptr, **attr = &attributes;
+            while (parseStdAttributeSpecifier(*attr))
+                attr = &(*attr)->next;
+            rewind(start);
         }
 
         if (LA() == T_EXTERN && LA(2) == T_TEMPLATE)
@@ -3761,6 +3773,11 @@ bool Parser::parseIfStatement(StatementAST *&node)
     if (LA() == T_IF) {
         IfStatementAST *ast = new (_pool) IfStatementAST;
         ast->if_token = consumeToken();
+        if (LA() == T_CONSTEXPR) {
+            // "if constexpr" added in cxx17, but we don't check cxx version here
+            // because msvc 2019 compiler uses "if constexpr" in headers despite cxx version set for the project
+            ast->constexpr_token = consumeToken();
+        }
         match(T_LPAREN, &ast->lparen_token);
         parseCondition(ast->condition);
         match(T_RPAREN, &ast->rparen_token);
@@ -3961,6 +3978,8 @@ bool Parser::lookAtBuiltinTypeSpecifier() const
     // [gcc] extensions
     case T___TYPEOF__:
     case T___ATTRIBUTE__:
+    // [msvc] extensions
+    case T___DECLSPEC:
         return true;
     default:
         return false;
@@ -4020,8 +4039,22 @@ bool Parser::parseAttributeSpecifier(SpecifierListAST *&attribute_list)
             attr_ptr = &(*attr_ptr)->next;
         }
         return true;
+    case T___DECLSPEC:
+        while (LA() == T___DECLSPEC) {
+            parseMsvcDeclspecSpecifier(*attr_ptr);
+            attr_ptr = &(*attr_ptr)->next;
+        }
+        return true;
     default:
-        return false;
+    {
+        bool foundAttributes = false;
+        while (lookAtStdAttribute()) {
+            parseStdAttributeSpecifier(*attr_ptr);
+            attr_ptr = &(*attr_ptr)->next;
+            foundAttributes = true;
+        }
+        return foundAttributes;
+    }
     }
 }
 
@@ -4078,11 +4111,46 @@ bool Parser::parseGnuAttributeList(GnuAttributeListAST *&node)
     return true;
 }
 
+bool Parser::parseMsvcDeclspecSpecifier(SpecifierListAST *&node)
+{
+    DEBUG_THIS_RULE();
+    if (LA() != T___DECLSPEC)
+        return false;
+
+    MsvcDeclspecSpecifierAST *ast = new (_pool) MsvcDeclspecSpecifierAST;
+    ast->attribute_token = consumeToken();
+    match(T_LPAREN, &ast->lparen_token);
+    parseGnuAttributeList(ast->attribute_list);
+    match(T_RPAREN, &ast->rparen_token);
+    node = new (_pool) SpecifierListAST(ast);
+    return true;
+}
+
+bool Parser::parseStdAttributeSpecifier(SpecifierListAST *&node)
+{
+    DEBUG_THIS_RULE();
+    if (!lookAtStdAttribute())
+        return false;
+
+    StdAttributeSpecifierAST *ast = new (_pool) StdAttributeSpecifierAST;
+    match(T_LBRACKET, &ast->first_lbracket_token);
+    match(T_LBRACKET, &ast->second_lbracket_token);
+    parseGnuAttributeList(ast->attribute_list);
+    match(T_RBRACKET, &ast->first_rbracket_token);
+    match(T_RBRACKET, &ast->second_rbracket_token);
+    node = new (_pool) SpecifierListAST(ast);
+    return true;
+}
+
 bool Parser::parseBuiltinTypeSpecifier(SpecifierListAST *&node)
 {
     DEBUG_THIS_RULE();
     if (LA() == T___ATTRIBUTE__) {
         return parseGnuAttributeSpecifier(node);
+    } else if (LA() == T___DECLSPEC) {
+        return parseMsvcDeclspecSpecifier(node);
+    } else if (lookAtStdAttribute()) {
+        return parseStdAttributeSpecifier(node);
     } else if (LA() == T___TYPEOF__) {
         TypeofSpecifierAST *ast = new (_pool) TypeofSpecifierAST;
         ast->typeof_token = consumeToken();
@@ -5748,6 +5816,11 @@ bool Parser::parseNoExceptOperatorExpression(ExpressionAST *&node)
     return false;
 }
 
+bool Parser::lookAtStdAttribute() const
+{
+    return _languageFeatures.cxx11Enabled && LA() == T_LBRACKET && LA(2) == T_LBRACKET;
+}
+
 bool Parser::lookAtObjCSelector() const
 {
     switch (LA()) {
@@ -6797,6 +6870,8 @@ bool Parser::parseLambdaDeclarator(LambdaDeclaratorAST *&node)
     SpecifierListAST **attr = &ast->attributes;
     while (parseGnuAttributeSpecifier(*attr))
         attr = &(*attr)->next;
+    while (parseStdAttributeSpecifier(*attr))
+        attr = &(*attr)->next;
 
     if (LA() == T_MUTABLE)
         ast->mutable_token = consumeToken();
@@ -6820,6 +6895,8 @@ bool Parser::parseTrailingReturnType(TrailingReturnTypeAST *&node)
 
     SpecifierListAST **attr = &ast->attributes;
     while (parseGnuAttributeSpecifier(*attr))
+        attr = &(*attr)->next;
+    while (parseStdAttributeSpecifier(*attr))
         attr = &(*attr)->next;
 
     parseTrailingTypeSpecifierSeq(ast->type_specifier_list);

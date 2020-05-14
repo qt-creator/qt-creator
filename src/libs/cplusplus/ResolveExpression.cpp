@@ -918,6 +918,13 @@ bool ResolveExpression::visit(CallAST *ast)
         }
     }
 
+    if (_results.size()>1){
+        // move functions with known bindings to begin of results list
+        std::stable_partition(_results.begin(), _results.end(), [](const LookupItem &item) -> bool {
+            return item.binding();
+        });
+    }
+
     return false;
 }
 
@@ -1109,11 +1116,23 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                             continue;
                         Scope *functionScope = overload->enclosingScope();
 
-                        if (overload->type()->isFunctionType()) {
+                        FullySpecifiedType overloadType = r.type();
+                        if (! overloadType.isValid())
+                            overloadType = overload->type();
+
+                        Function *instantiatedFunction = nullptr;
+
+                        if (overloadType->isFunctionType()) {
                             FullySpecifiedType overloadTy
                                     = instantiate(binding->templateId(), overload);
-                            Function *instantiatedFunction = overloadTy->asFunctionType();
-                            Q_ASSERT(instantiatedFunction != nullptr);
+                            instantiatedFunction = overloadTy->asFunctionType();
+                        } else if (overloadType->isTemplateType()
+                                   && overloadType->asTemplateType()->declaration()
+                                   && overloadType->asTemplateType()->declaration()->isFunction()) {
+                            instantiatedFunction = overloadType->asTemplateType()->declaration()->asFunction();
+                        }
+
+                        if (instantiatedFunction != nullptr) {
 
                             FullySpecifiedType retTy
                                     = instantiatedFunction->returnType().simplified();

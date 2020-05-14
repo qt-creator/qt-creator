@@ -118,6 +118,8 @@ private slots:
     void crash_test_1();
     void thread_local_1();
 
+    void msvc_attributes_declspec();
+
     // expressions
     void simple_name_1();
     void template_id_1();
@@ -141,6 +143,7 @@ private slots:
     void if_statement_2();
     void if_statement_3();
     void if_else_statement();
+    void if_constexpr();
     void while_statement();
     void while_condition_statement();
     void for_statement();
@@ -169,6 +172,7 @@ private slots:
     //! checks for both correct ellipsis tokens in
     //! "template<class ...Args> class T : Args... {};"
     void cpp11_variadic_inheritance();
+    void cpp11_attributes();
 
     // Q_PROPERTY
     void cpp_qproperty();
@@ -279,6 +283,14 @@ void tst_AST::thread_local_1()
     QCOMPARE(diag.errorCount, 0);
     QCOMPARE(Token::name(T_THREAD_LOCAL), "thread_local");
     QCOMPARE(Token::name(T___THREAD), "__thread");
+}
+
+void tst_AST::msvc_attributes_declspec()
+{
+    const char *inp = "class __declspec(novtable) Name{};";
+    QSharedPointer<TranslationUnit> unit(parseDeclaration(inp));
+    QVERIFY(unit->ast());
+    QCOMPARE(diag.errorCount, 0);
 }
 
 void tst_AST::simple_declaration_1()
@@ -1320,6 +1332,43 @@ void tst_AST::cpp11_variadic_inheritance()
     BaseSpecifierAST *ba = bl->value;
     QVERIFY(ba != 0);
     QVERIFY(ba->ellipsis_token != 0); // important
+}
+
+void tst_AST::cpp11_attributes()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration(
+        "[[noreturn]] void f() {throw \"error\";}",
+        false, false, true));
+    AST *ast = unit->ast();
+    QVERIFY(ast != nullptr);
+
+    DeclarationAST *d = ast->asDeclaration();
+    QVERIFY(d != nullptr);
+
+    FunctionDefinitionAST *f = d->asFunctionDefinition();
+    QVERIFY(f != nullptr);
+    QVERIFY(f->decl_specifier_list != nullptr);
+    QVERIFY(f->decl_specifier_list->value != nullptr);
+
+    StdAttributeSpecifierAST *attr = f->decl_specifier_list->value->asStdAttributeSpecifier();
+    QVERIFY(attr != nullptr);
+}
+
+void tst_AST::if_constexpr()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement("if constexpr (a) b;",true));
+
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    IfStatementAST *stmt = ast->asIfStatement();
+    QVERIFY(stmt != 0);
+    QCOMPARE(stmt->if_token, 1);
+    QCOMPARE(stmt->constexpr_token, 2);
+    QCOMPARE(stmt->lparen_token, 3);
+    QVERIFY(stmt->condition != 0);
+    QCOMPARE(stmt->rparen_token, 5);
+    QVERIFY(stmt->statement != 0);
 }
 
 void tst_AST::cpp_qproperty()

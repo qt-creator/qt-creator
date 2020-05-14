@@ -73,6 +73,51 @@ private:
     const Name *_name;
 };
 
+class CPLUSPLUS_EXPORT TemplateArgument
+{
+public:
+    TemplateArgument()
+        : _expressionTy(nullptr)
+        , _numericLiteral(nullptr)
+    {}
+
+    TemplateArgument(const FullySpecifiedType &type, const NumericLiteral *numericLiteral = nullptr)
+        : _expressionTy(type)
+        , _numericLiteral(numericLiteral)
+    {}
+
+    bool hasType() const { return _expressionTy.isValid(); }
+
+    bool hasNumericLiteral() const { return _numericLiteral != nullptr; }
+
+    const FullySpecifiedType &type() const { return _expressionTy; }
+    FullySpecifiedType &type() { return _expressionTy; }
+
+    const NumericLiteral *numericLiteral() const { return _numericLiteral; }
+
+    bool operator==(const TemplateArgument &other) const
+    {
+        return _expressionTy == other._expressionTy && _numericLiteral == other._numericLiteral;
+    }
+    bool operator!=(const TemplateArgument &other) const
+    {
+        return _expressionTy != other._expressionTy || _numericLiteral != other._numericLiteral;
+    }
+    bool operator<(const TemplateArgument &other) const
+    {
+        if (_expressionTy == other._expressionTy) {
+            return _numericLiteral < other._numericLiteral;
+        }
+        return _expressionTy < other._expressionTy;
+    }
+
+    bool match(const TemplateArgument &otherTy, Matcher *matcher = nullptr) const;
+
+private:
+    FullySpecifiedType _expressionTy;
+    const NumericLiteral *_numericLiteral = nullptr;
+};
+
 class CPLUSPLUS_EXPORT TemplateNameId: public Name
 {
 public:
@@ -89,12 +134,12 @@ public:
 
     // ### find a better name
     int templateArgumentCount() const;
-    const FullySpecifiedType &templateArgumentAt(int index) const;
+    const TemplateArgument &templateArgumentAt(int index) const;
 
     virtual const TemplateNameId *asTemplateNameId() const
     { return this; }
 
-    typedef std::vector<FullySpecifiedType>::const_iterator TemplateArgumentIterator;
+    typedef std::vector<TemplateArgument>::const_iterator TemplateArgumentIterator;
 
     TemplateArgumentIterator firstTemplateArgument() const { return _templateArguments.begin(); }
     TemplateArgumentIterator lastTemplateArgument() const { return _templateArguments.end(); }
@@ -111,7 +156,7 @@ protected:
 
 private:
     const Identifier *_identifier;
-    std::vector<FullySpecifiedType> _templateArguments;
+    std::vector<TemplateArgument> _templateArguments;
     // now TemplateNameId can be a specialization or an instantiation
     bool _isSpecialization;
 };

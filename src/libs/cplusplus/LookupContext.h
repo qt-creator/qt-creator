@@ -266,7 +266,7 @@ protected:
     virtual bool visit(ObjCMethod *);
 
 private:
-    Symbol *instantiateTemplateFunction(const TemplateNameId *instantiation,
+    Symbol *instantiateTemplateFunction(const Name *instantiationName,
                                         Template *specialization) const;
 
     Snapshot _snapshot;

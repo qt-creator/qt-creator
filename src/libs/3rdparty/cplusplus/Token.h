@@ -186,6 +186,8 @@ enum Kind {
     T___THREAD,
     T___TYPEOF__,
 
+    T___DECLSPEC,
+
     // obj c++ @ keywords
     T_FIRST_OBJC_AT_KEYWORD,
 
@@ -298,6 +300,7 @@ enum Kind {
     T_FOREACH = T_Q_FOREACH,
     T_SIGNALS = T_Q_SIGNALS,
     T_Q_OVERRIDE = T_Q_PROPERTY,
+    T__DECLSPEC = T___DECLSPEC,
 };
 
 class CPLUSPLUS_EXPORT Token

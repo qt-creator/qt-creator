@@ -72,6 +72,22 @@ bool GnuAttributeSpecifierAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool MsvcDeclspecSpecifierAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (MsvcDeclspecSpecifierAST *_other = pattern->asMsvcDeclspecSpecifier())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
+bool StdAttributeSpecifierAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (StdAttributeSpecifierAST *_other = pattern->asStdAttributeSpecifier())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
 bool GnuAttributeAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (GnuAttributeAST *_other = pattern->asGnuAttribute())

@@ -93,10 +93,17 @@ bool TemplateNameId::match0(const Name *otherName, Matcher *matcher) const
 const Identifier *TemplateNameId::identifier() const
 { return _identifier; }
 
+bool TemplateArgument::match(const TemplateArgument &otherTy, Matcher *matcher) const
+{
+    if (_numericLiteral != otherTy._numericLiteral)
+        return false;
+    return type().match(otherTy.type(), matcher);
+}
+
 int TemplateNameId::templateArgumentCount() const
 { return int(_templateArguments.size()); }
 
-const FullySpecifiedType &TemplateNameId::templateArgumentAt(int index) const
+const TemplateArgument &TemplateNameId::templateArgumentAt(int index) const
 { return _templateArguments[index]; }
 
 bool TemplateNameId::Compare::operator()(const TemplateNameId *name,

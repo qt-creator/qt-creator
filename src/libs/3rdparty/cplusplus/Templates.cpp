@@ -439,9 +439,9 @@ void CloneName::visit(const AnonymousNameId *name)
 
 void CloneName::visit(const TemplateNameId *name)
 {
-    std::vector<FullySpecifiedType> args(name->templateArgumentCount());
+    std::vector<TemplateArgument> args(name->templateArgumentCount());
     for (int i = 0; i < int(args.size()); ++i)
-        args[i] = _clone->type(name->templateArgumentAt(i), _subst);
+        args[i].type() = _clone->type(name->templateArgumentAt(i).type(), _subst);
     if (args.empty())
         _name = _control->templateNameId(_clone->identifier(name->identifier()), name->isSpecialization());
     else

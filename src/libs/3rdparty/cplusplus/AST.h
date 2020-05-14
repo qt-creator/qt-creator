@@ -195,6 +195,7 @@ public:
     virtual LinkageSpecificationAST *asLinkageSpecification() { return nullptr; }
     virtual MemInitializerAST *asMemInitializer() { return nullptr; }
     virtual MemberAccessAST *asMemberAccess() { return nullptr; }
+    virtual MsvcDeclspecSpecifierAST *asMsvcDeclspecSpecifier() { return nullptr; }
     virtual NameAST *asName() { return nullptr; }
     virtual NamedTypeSpecifierAST *asNamedTypeSpecifier() { return nullptr; }
     virtual NamespaceAST *asNamespace() { return nullptr; }
@@ -265,6 +266,7 @@ public:
     virtual SpecifierAST *asSpecifier() { return nullptr; }
     virtual StatementAST *asStatement() { return nullptr; }
     virtual StaticAssertDeclarationAST *asStaticAssertDeclaration() { return nullptr; }
+    virtual StdAttributeSpecifierAST *asStdAttributeSpecifier() { return nullptr; }
     virtual StringLiteralAST *asStringLiteral() { return nullptr; }
     virtual SwitchStatementAST *asSwitchStatement() { return nullptr; }
     virtual TemplateDeclarationAST *asTemplateDeclaration() { return nullptr; }
@@ -469,6 +471,49 @@ public:
     virtual int lastToken() const;
 
     virtual GnuAttributeSpecifierAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class CPLUSPLUS_EXPORT MsvcDeclspecSpecifierAST: public AttributeSpecifierAST
+{
+public:
+    int attribute_token = 0;
+    int lparen_token = 0;
+    GnuAttributeListAST *attribute_list = nullptr;
+    int rparen_token = 0;
+
+public:
+    virtual MsvcDeclspecSpecifierAST *asMsvcDeclspecSpecifier() { return this; }
+
+    virtual int firstToken() const;
+    virtual int lastToken() const;
+
+    virtual MsvcDeclspecSpecifierAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class CPLUSPLUS_EXPORT StdAttributeSpecifierAST: public AttributeSpecifierAST
+{
+public:
+    int first_lbracket_token = 0;
+    int second_lbracket_token = 0;
+    GnuAttributeListAST *attribute_list = nullptr;
+    int first_rbracket_token = 0;
+    int second_rbracket_token = 0;
+
+public:
+    virtual StdAttributeSpecifierAST *asStdAttributeSpecifier() { return this; }
+
+    virtual int firstToken() const;
+    virtual int lastToken() const;
+
+    virtual StdAttributeSpecifierAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
@@ -1610,6 +1655,7 @@ class CPLUSPLUS_EXPORT IfStatementAST: public StatementAST
 {
 public:
     int if_token = 0;
+    int constexpr_token = 0;
     int lparen_token = 0;
     ExpressionAST *condition = nullptr;
     int rparen_token = 0;

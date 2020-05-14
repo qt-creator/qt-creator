@@ -70,6 +70,22 @@ void GnuAttributeSpecifierAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void MsvcDeclspecSpecifierAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(attribute_list, visitor);
+    }
+    visitor->endVisit(this);
+}
+
+void StdAttributeSpecifierAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(attribute_list, visitor);
+    }
+    visitor->endVisit(this);
+}
+
 void GnuAttributeAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

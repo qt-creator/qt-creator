@@ -324,8 +324,8 @@ bool Matcher::match(const TemplateNameId *name, const TemplateNameId *otherName)
     if (name->templateArgumentCount() != otherName->templateArgumentCount())
         return false;
     for (unsigned i = 0, ei = name->templateArgumentCount(); i != ei; ++i) {
-        const FullySpecifiedType &l = name->templateArgumentAt(i);
-        const FullySpecifiedType &r = otherName->templateArgumentAt(i);
+        const TemplateArgument &l = name->templateArgumentAt(i);
+        const TemplateArgument &r = otherName->templateArgumentAt(i);
         if (! l.match(r, this))
             return false;
     }

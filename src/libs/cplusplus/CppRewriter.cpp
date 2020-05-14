@@ -257,9 +257,9 @@ public:
 
         void visit(const TemplateNameId *name) override
         {
-            QVarLengthArray<FullySpecifiedType, 8> args(name->templateArgumentCount());
+            QVarLengthArray<TemplateArgument, 8> args(name->templateArgumentCount());
             for (int i = 0; i < name->templateArgumentCount(); ++i)
-                args[i] = rewrite->rewriteType(name->templateArgumentAt(i));
+                args[i] = rewrite->rewriteType(name->templateArgumentAt(i).type());
             temps.append(control()->templateNameId(identifier(name->identifier()), name->isSpecialization(),
                                                    args.data(), args.size()));
         }

@@ -73,6 +73,16 @@ int GnuAttributeSpecifierAST::firstToken() const
     return attribute_token;
 }
 
+int MsvcDeclspecSpecifierAST::firstToken() const
+{
+    return attribute_token;
+}
+
+int StdAttributeSpecifierAST::firstToken() const
+{
+    return first_lbracket_token;
+}
+
 int BaseSpecifierAST::firstToken() const
 {
     if (virtual_token && access_specifier_token)
@@ -1524,6 +1534,8 @@ int IfStatementAST::firstToken() const
 {
     if (if_token)
         return if_token;
+    if (constexpr_token)
+        return constexpr_token;
     if (lparen_token)
         return lparen_token;
     if (condition)
@@ -1560,6 +1572,8 @@ int IfStatementAST::lastToken() const
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
+    if (constexpr_token)
+        return constexpr_token + 1;
     if (if_token)
         return if_token + 1;
     return 1;
@@ -4211,6 +4225,36 @@ int GnuAttributeSpecifierAST::lastToken() const
         return first_lparen_token + 1;
     if (attribute_token)
         return attribute_token + 1;
+    return 1;
+}
+
+int MsvcDeclspecSpecifierAST::lastToken() const
+{
+    if (rparen_token)
+        return rparen_token + 1;
+    if (attribute_list)
+        if (int candidate = attribute_list->lastToken())
+            return candidate;
+    if (lparen_token)
+        return lparen_token + 1;
+    if (attribute_token)
+        return attribute_token + 1;
+    return 1;
+}
+
+int StdAttributeSpecifierAST::lastToken() const
+{
+    if (second_rbracket_token)
+        return second_rbracket_token + 1;
+    if (first_rbracket_token)
+        return first_rbracket_token + 1;
+    if (attribute_list)
+        if (int candidate = attribute_list->lastToken())
+            return candidate;
+    if (second_lbracket_token)
+        return second_lbracket_token + 1;
+    if (first_lbracket_token)
+        return first_lbracket_token + 1;
     return 1;
 }
 

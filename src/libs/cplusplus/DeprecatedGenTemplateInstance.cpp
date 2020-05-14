@@ -242,9 +242,9 @@ private:
 
         void visit(const TemplateNameId *name) override
         {
-            QVarLengthArray<FullySpecifiedType, 8> arguments(name->templateArgumentCount());
+            QVarLengthArray<TemplateArgument, 8> arguments(name->templateArgumentCount());
             for (int i = 0; i < name->templateArgumentCount(); ++i) {
-                FullySpecifiedType argTy = name->templateArgumentAt(i);
+                FullySpecifiedType argTy = name->templateArgumentAt(i).type();
                 arguments[i] = q->apply(argTy);
             }
 
@@ -265,10 +265,10 @@ private:
                 return id;
 
             } else if (const TemplateNameId *templId = name->asTemplateNameId()) {
-                QVarLengthArray<FullySpecifiedType, 8> arguments(templId->templateArgumentCount());
+                QVarLengthArray<TemplateArgument, 8> arguments(templId->templateArgumentCount());
                 for (int templateArgIndex = 0; templateArgIndex < templId->templateArgumentCount();
                      ++templateArgIndex) {
-                    FullySpecifiedType argTy = templId->templateArgumentAt(templateArgIndex);
+                    FullySpecifiedType argTy = templId->templateArgumentAt(templateArgIndex).type();
                     arguments[templateArgIndex] = q->apply(argTy);
                 }
                 const Identifier *id = control()->identifier(templId->identifier()->chars(),
@@ -404,7 +404,7 @@ FullySpecifiedType DeprecatedGenTemplateInstance::instantiate(const Name *classN
                 DeprecatedGenTemplateInstance::Substitution subst;
 
                 for (int i = 0; i < templId->templateArgumentCount(); ++i) {
-                    FullySpecifiedType templArgTy = templId->templateArgumentAt(i);
+                    FullySpecifiedType templArgTy = templId->templateArgumentAt(i).type();
 
                     if (i < templ->templateParameterCount()) {
                         const Name *templArgName = templ->templateParameterAt(i)->name();

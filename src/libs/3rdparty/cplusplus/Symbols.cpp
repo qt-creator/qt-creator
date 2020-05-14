@@ -191,7 +191,7 @@ Declaration::Declaration(Clone *clone, Subst *subst, Declaration *original)
                     if (const TemplateNameId * templateNameId =
                             namedType->name()->asTemplateNameId()) {
                         if (templateNameId->templateArgumentCount()) {
-                            newType = clone->type(templateNameId->templateArgumentAt(0), nullptr);
+                            newType = clone->type(templateNameId->templateArgumentAt(0).type(), nullptr);
                             newType = FullySpecifiedType(clone->control()->pointerType(newType));
                         }
                     }
@@ -469,6 +469,12 @@ bool Function::isVariadic() const
 void Function::setVariadic(bool isVariadic)
 { f._isVariadic = isVariadic; }
 
+bool Function::isVariadicTemplate() const
+{ return f._isVariadicTemplate; }
+
+void Function::setVariadicTemplate(bool isVariadicTemplate)
+{ f._isVariadicTemplate = isVariadicTemplate; }
+
 bool Function::isConst() const
 { return f._isConst; }
 
@@ -522,6 +528,9 @@ bool Function::maybeValidPrototype(int actualArgumentCount) const
         if (arg->hasInitializer())
             break;
     }
+
+    if (isVariadicTemplate())
+        --minNumberArguments;
 
     if (actualArgumentCount < minNumberArguments) {
         // not enough arguments.

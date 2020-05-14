@@ -170,6 +170,9 @@ public:
     bool parseGnuAttributeSpecifier(SpecifierListAST *&node);
     bool parseGnuAttributeList(GnuAttributeListAST *&node);
 
+    bool parseMsvcDeclspecSpecifier(SpecifierListAST *&node);
+    bool parseStdAttributeSpecifier(SpecifierListAST *&node);
+
     bool parseDeclSpecifierSeq(SpecifierListAST *&node,
                                bool noStorageSpecifiers = false,
                                bool onlySimpleTypeSpecifiers = false);
@@ -246,6 +249,8 @@ public:
     bool parseObjCTypeQualifiers(int &type_qualifier);
     bool peekAtObjCContextKeyword(int kind);
     bool parseObjCContextKeyword(int kind, int &in_token);
+
+    bool lookAtStdAttribute() const;
 
     bool lookAtObjCSelector() const;
 

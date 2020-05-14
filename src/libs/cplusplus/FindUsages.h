@@ -254,6 +254,8 @@ protected:
     // SpecifierAST
     virtual bool visit(SimpleSpecifierAST *ast);
     virtual bool visit(GnuAttributeSpecifierAST *ast);
+    virtual bool visit(MsvcDeclspecSpecifierAST *ast);
+    virtual bool visit(StdAttributeSpecifierAST *ast);
     virtual bool visit(TypeofSpecifierAST *ast);
     virtual bool visit(DecltypeSpecifierAST *ast);
     virtual bool visit(ClassSpecifierAST *ast);

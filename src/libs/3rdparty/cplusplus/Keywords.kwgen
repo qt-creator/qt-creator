@@ -37,6 +37,8 @@ __asm__
 __attribute
 __attribute__
 __alignof__
+_declspec
+__declspec
 __const
 __const__
 __inline

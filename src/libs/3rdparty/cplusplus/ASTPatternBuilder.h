@@ -76,6 +76,20 @@ public:
         return ast;
     }
 
+    MsvcDeclspecSpecifierAST *MsvcDeclspecSpecifier(GnuAttributeListAST *attribute_list = nullptr)
+    {
+        MsvcDeclspecSpecifierAST *ast = new (&pool) MsvcDeclspecSpecifierAST;
+        ast->attribute_list = attribute_list;
+        return ast;
+    }
+
+    StdAttributeSpecifierAST *StdAttributeSpecifier(GnuAttributeListAST *attribute_list = nullptr)
+    {
+        StdAttributeSpecifierAST *ast = new (&pool) StdAttributeSpecifierAST;
+        ast->attribute_list = attribute_list;
+        return ast;
+    }
+
     GnuAttributeAST *GnuAttribute(ExpressionListAST *expression_list = nullptr)
     {
         GnuAttributeAST *ast = new (&pool) GnuAttributeAST;

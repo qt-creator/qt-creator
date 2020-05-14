@@ -346,6 +346,9 @@ public:
     bool isVariadic() const;
     void setVariadic(bool isVariadic);
 
+    bool isVariadicTemplate() const;
+    void setVariadicTemplate(bool isVariadicTemplate);
+
     bool isConst() const;
     void setConst(bool isConst);
 
@@ -397,6 +400,7 @@ private:
         unsigned _isOverride: 1;
         unsigned _isFinal: 1;
         unsigned _isVariadic: 1;
+        unsigned _isVariadicTemplate: 1;
         unsigned _isPureVirtual: 1;
         unsigned _isConst: 1;
         unsigned _isVolatile: 1;

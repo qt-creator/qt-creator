@@ -773,6 +773,10 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
             LookupItem item;
             item.setDeclaration(s);
             item.setBinding(binding);
+
+            if (Symbol *inst = instantiateTemplateFunction(name, s->asTemplate()))
+                item.setType(inst->type());
+
             result->append(item);
         }
 
@@ -811,15 +815,8 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
                 item.setType(ty); // override the type.
             }
 
-            // instantiate function template
-            if (name->isTemplateNameId() && s->isTemplate() && s->asTemplate()->declaration()
-                    && s->asTemplate()->declaration()->isFunction()) {
-                const TemplateNameId *instantiation = name->asTemplateNameId();
-                Template *specialization = s->asTemplate();
-                Symbol *instantiatedFunctionTemplate = instantiateTemplateFunction(instantiation,
-                                                                                   specialization);
-                item.setType(instantiatedFunctionTemplate->type()); // override the type.
-            }
+            if (Symbol *inst = instantiateTemplateFunction(name, s->asTemplate()))
+                item.setType(inst->type());
 
             result->append(item);
         }
@@ -1026,22 +1023,22 @@ ClassOrNamespace *ClassOrNamespace::findSpecialization(const TemplateNameId *tem
         // and initialization(in future it should be more clever)
         if (specializationTemplateArgumentCount == initializationTemplateArgumentCount) {
             for (int i = 0; i < initializationTemplateArgumentCount; ++i) {
-                const FullySpecifiedType &specializationTemplateArgument
+                const TemplateArgument &specializationTemplateArgument
                         = specializationNameId->templateArgumentAt(i);
-                const FullySpecifiedType &initializationTemplateArgument
+                const TemplateArgument &initializationTemplateArgument
                         = templId->templateArgumentAt(i);
                 PointerType *specPointer
-                        = specializationTemplateArgument.type()->asPointerType();
+                        = specializationTemplateArgument.type().type()->asPointerType();
                 // specialization and initialization argument have to be a pointer
                 // additionally type of pointer argument of specialization has to be namedType
-                if (specPointer && initializationTemplateArgument.type()->isPointerType()
+                if (specPointer && initializationTemplateArgument.type().type()->isPointerType()
                         && specPointer->elementType().type()->isNamedType()) {
                     return cit->second;
                 }
 
                 ArrayType *specArray
-                        = specializationTemplateArgument.type()->asArrayType();
-                if (specArray && initializationTemplateArgument.type()->isArrayType()) {
+                        = specializationTemplateArgument.type().type()->asArrayType();
+                if (specArray && initializationTemplateArgument.type().type()->isArrayType()) {
                     if (const NamedType *argumentNamedType
                             = specArray->elementType().type()->asNamedType()) {
                         if (const Name *argumentName = argumentNamedType->name()) {
@@ -1142,7 +1139,33 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
                         = findSpecialization(templId, specializations);
                 if (specializationWithPointer)
                     reference = specializationWithPointer;
-                // TODO: find the best specialization(probably partial) for this instantiation
+
+                int maximumArgumentsMatched = 0;
+
+                for (const std::pair<const TemplateNameId *, ClassOrNamespace *> &p :
+                     specializations) {
+                    const TemplateNameId *templateSpecialization = p.first;
+                    ClassOrNamespace *specializationClassOrNamespace = p.second;
+
+                    const int argumentCountOfInitialization = templId->templateArgumentCount();
+                    const int argumentCountOfSpecialization =
+                            templateSpecialization->templateArgumentCount();
+
+                    int argumentsMatched = 0;
+                    for (int i = 0;
+                         i < argumentCountOfInitialization && i < argumentCountOfSpecialization;
+                         ++i) {
+                        if (templId->templateArgumentAt(i) ==
+                                templateSpecialization->templateArgumentAt(i)) {
+                            argumentsMatched++;
+                        }
+                    }
+
+                    if (argumentsMatched > maximumArgumentsMatched) {
+                        reference = specializationClassOrNamespace;
+                        maximumArgumentsMatched = argumentsMatched;
+                    }
+                }
             }
         }
     }
@@ -1227,12 +1250,39 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
                     if (!name)
                         continue;
 
-                    FullySpecifiedType ty = (i < argumentCountOfInitialization) ?
-                                templId->templateArgumentAt(i):
+                    int argumentPositionInReferenceClass=i;
+
+                    if (referenceClass->name() && referenceClass->name()->asTemplateNameId()) {
+                        argumentPositionInReferenceClass=-1;
+                        const TemplateNameId* refTemp = referenceClass->name()->asTemplateNameId();
+                        for (int argPos=0; argPos < refTemp->templateArgumentCount(); argPos++) {
+                            const Type* argType = refTemp->templateArgumentAt(argPos).type().type();
+                            if (argType->asNamedType()
+                                    && argType->asNamedType()->name() == name) {
+                                argumentPositionInReferenceClass = argPos;
+                                break;
+                            }
+                            if (argType->asPointerType()
+                                    && argType->asPointerType()->elementType().type()->asNamedType()
+                                    && argType->asPointerType()->elementType().type()
+                                    ->asNamedType()->name() == name) {
+                                argumentPositionInReferenceClass = argPos;
+                                break;
+                            }
+                        }
+
+                        if (argumentPositionInReferenceClass < 0) {
+                            continue;
+                        }
+                    }
+
+
+                    FullySpecifiedType ty = (argumentPositionInReferenceClass < argumentCountOfInitialization) ?
+                                templId->templateArgumentAt(argumentPositionInReferenceClass).type():
                                 cloner.type(tParam->type(), &subst);
 
                     if (i < templSpecArgumentCount
-                            && templSpecId->templateArgumentAt(i)->isPointerType()) {
+                            && templSpecId->templateArgumentAt(i).type()->isPointerType()) {
                         if (PointerType *pointerType = ty->asPointerType())
                             ty = pointerType->elementType();
                     }
@@ -1281,7 +1331,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
                         const int parameterIndex = templParams.value(nameId);
                         if (parameterIndex < argumentCountOfInitialization) {
                             const FullySpecifiedType &fullType =
-                                    templId->templateArgumentAt(parameterIndex);
+                                    templId->templateArgumentAt(parameterIndex).type();
                             if (fullType.isValid()) {
                                 if (NamedType *namedType = fullType.type()->asNamedType())
                                     baseBinding = lookupType(namedType->name());
@@ -1300,7 +1350,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
                     for (int i = 0; i < argumentCountOfSpecialization; ++i) {
                         const Name *name = templateSpecialization->templateParameterAt(i)->name();
                         FullySpecifiedType ty = (i < argumentCountOfInitialization) ?
-                                    templId->templateArgumentAt(i):
+                                    templId->templateArgumentAt(i).type():
                                     templateSpecialization->templateParameterAt(i)->type();
 
                         map.bind(name, ty);
@@ -1927,10 +1977,28 @@ bool CreateBindings::visit(ObjCMethod *)
     return false;
 }
 
-Symbol *CreateBindings::instantiateTemplateFunction(const TemplateNameId *instantiation,
+Symbol *CreateBindings::instantiateTemplateFunction(const Name *instantiationName,
                                                     Template *specialization) const
 {
-    const int argumentCountOfInitialization = instantiation->templateArgumentCount();
+    if (!specialization || !specialization->declaration()
+        || !specialization->declaration()->isFunction())
+        return nullptr;
+
+    int argumentCountOfInstantiation = 0;
+    const TemplateNameId *instantiation = nullptr;
+    if (instantiationName->isTemplateNameId()) {
+        instantiation = instantiationName->asTemplateNameId();
+        argumentCountOfInstantiation = instantiation->templateArgumentCount();
+    } else {
+        // no template arguments passed in function call
+        // check if all template parameters have default arguments (only check first parameter)
+        if (specialization->templateParameterCount() == 0)
+            return nullptr;
+        TypenameArgument *parameter = specialization->templateParameterAt(0)->asTypenameArgument();
+        if (!parameter || !parameter->type().isValid())
+            return nullptr;
+    }
+
     const int argumentCountOfSpecialization = specialization->templateParameterCount();
 
     Clone cloner(_control.data());
@@ -1944,8 +2012,8 @@ Symbol *CreateBindings::instantiateTemplateFunction(const TemplateNameId *instan
         if (!name)
             continue;
 
-        FullySpecifiedType ty = (i < argumentCountOfInitialization) ?
-                    instantiation->templateArgumentAt(i):
+        FullySpecifiedType ty = (i < argumentCountOfInstantiation) ?
+                    instantiation->templateArgumentAt(i).type():
                     cloner.type(tParam->type(), &subst);
 
         subst.bind(cloner.name(name, &subst), ty);

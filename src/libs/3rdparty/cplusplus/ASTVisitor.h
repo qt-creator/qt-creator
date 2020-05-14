@@ -138,6 +138,7 @@ public:
     virtual bool visit(LinkageSpecificationAST *) { return true; }
     virtual bool visit(MemInitializerAST *) { return true; }
     virtual bool visit(MemberAccessAST *) { return true; }
+    virtual bool visit(MsvcDeclspecSpecifierAST *) { return true; }
     virtual bool visit(NamedTypeSpecifierAST *) { return true; }
     virtual bool visit(NamespaceAST *) { return true; }
     virtual bool visit(NamespaceAliasDefinitionAST *) { return true; }
@@ -202,6 +203,7 @@ public:
     virtual bool visit(SimpleSpecifierAST *) { return true; }
     virtual bool visit(SizeofExpressionAST *) { return true; }
     virtual bool visit(StaticAssertDeclarationAST *) { return true; }
+    virtual bool visit(StdAttributeSpecifierAST *) { return true; }
     virtual bool visit(StringLiteralAST *) { return true; }
     virtual bool visit(SwitchStatementAST *) { return true; }
     virtual bool visit(TemplateDeclarationAST *) { return true; }
@@ -289,6 +291,7 @@ public:
     virtual void endVisit(LinkageSpecificationAST *) {}
     virtual void endVisit(MemInitializerAST *) {}
     virtual void endVisit(MemberAccessAST *) {}
+    virtual void endVisit(MsvcDeclspecSpecifierAST *) {}
     virtual void endVisit(NamedTypeSpecifierAST *) {}
     virtual void endVisit(NamespaceAST *) {}
     virtual void endVisit(NamespaceAliasDefinitionAST *) {}
@@ -353,6 +356,7 @@ public:
     virtual void endVisit(SimpleSpecifierAST *) {}
     virtual void endVisit(SizeofExpressionAST *) {}
     virtual void endVisit(StaticAssertDeclarationAST *) {}
+    virtual void endVisit(StdAttributeSpecifierAST *) {}
     virtual void endVisit(StringLiteralAST *) {}
     virtual void endVisit(SwitchStatementAST *) {}
     virtual void endVisit(TemplateDeclarationAST *) {}

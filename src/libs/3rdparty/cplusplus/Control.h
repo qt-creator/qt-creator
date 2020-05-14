@@ -54,7 +54,7 @@ public:
     /// Returns the canonical template name id.
     const TemplateNameId *templateNameId(const Identifier *id,
                                          bool isSpecialization,
-                                         const FullySpecifiedType *const args = nullptr,
+                                         const TemplateArgument *const args = nullptr,
                                          int argc = 0);
 
     /// Returns the canonical destructor name id.

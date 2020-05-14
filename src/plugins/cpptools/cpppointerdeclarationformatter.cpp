@@ -98,12 +98,13 @@ static unsigned firstTypeSpecifierWithoutFollowingAttribute(
         case T_TYPEDEF:
         case T_CONSTEXPR:
         case T___ATTRIBUTE__:
+        case T___DECLSPEC:
             continue;
         default:
             // Check if attributes follow
             for (unsigned i = index; i <= endToken; ++i) {
                 const int tokenKind = translationUnit->tokenKind(i);
-                if (tokenKind == T___ATTRIBUTE__)
+                if (tokenKind == T___ATTRIBUTE__ || tokenKind == T___DECLSPEC)
                     return 0;
             }
             *found = true;

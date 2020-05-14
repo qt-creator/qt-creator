@@ -96,6 +96,7 @@ public:
     virtual bool match(LinkageSpecificationAST *node, LinkageSpecificationAST *pattern);
     virtual bool match(MemInitializerAST *node, MemInitializerAST *pattern);
     virtual bool match(MemberAccessAST *node, MemberAccessAST *pattern);
+    virtual bool match(MsvcDeclspecSpecifierAST *node, MsvcDeclspecSpecifierAST *pattern);
     virtual bool match(NamedTypeSpecifierAST *node, NamedTypeSpecifierAST *pattern);
     virtual bool match(NamespaceAST *node, NamespaceAST *pattern);
     virtual bool match(NamespaceAliasDefinitionAST *node, NamespaceAliasDefinitionAST *pattern);
@@ -160,6 +161,7 @@ public:
     virtual bool match(SimpleSpecifierAST *node, SimpleSpecifierAST *pattern);
     virtual bool match(SizeofExpressionAST *node, SizeofExpressionAST *pattern);
     virtual bool match(StaticAssertDeclarationAST *node, StaticAssertDeclarationAST *pattern);
+    virtual bool match(StdAttributeSpecifierAST *node, StdAttributeSpecifierAST *pattern);
     virtual bool match(StringLiteralAST *node, StringLiteralAST *pattern);
     virtual bool match(SwitchStatementAST *node, SwitchStatementAST *pattern);
     virtual bool match(TemplateDeclarationAST *node, TemplateDeclarationAST *pattern);

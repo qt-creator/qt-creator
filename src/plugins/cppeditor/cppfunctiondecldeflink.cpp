@@ -437,6 +437,7 @@ static bool canReplaceSpecifier(TranslationUnit *translationUnit, SpecifierAST *
         case T_AUTO:
         case T___TYPEOF__:
         case T___ATTRIBUTE__:
+        case T___DECLSPEC:
             return true;
         default:
             return false;
