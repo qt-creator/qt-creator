@@ -29,6 +29,20 @@
 
 namespace {
 
+TEST(SqliteValue, ConstructDefault)
+{
+    Sqlite::Value value{};
+
+    ASSERT_TRUE(value.isNull());
+}
+
+TEST(SqliteValue, ConstructNullValue)
+{
+    Sqlite::Value value{Sqlite::NullValue{}};
+
+    ASSERT_TRUE(value.isNull());
+}
+
 TEST(SqliteValue, ConstructLongLong)
 {
     Sqlite::Value value{1LL};
@@ -36,7 +50,7 @@ TEST(SqliteValue, ConstructLongLong)
     ASSERT_THAT(value.toInteger(), Eq(1LL));
 }
 
-TEST(SqliteValue, Construct)
+TEST(SqliteValue, ConstructInteger)
 {
     Sqlite::Value value{1};
 
@@ -69,6 +83,15 @@ TEST(SqliteValue, ConstructStringFromQString)
     Sqlite::Value value{QString{"foo"}};
 
     ASSERT_THAT(value.toStringView(), Eq("foo"));
+}
+
+TEST(SqliteValue, ConstructNullFromNullQVariant)
+{
+    QVariant variant{};
+
+    Sqlite::Value value{variant};
+
+    ASSERT_TRUE(value.isNull());
 }
 
 TEST(SqliteValue, ConstructStringFromIntQVariant)
@@ -114,6 +137,15 @@ TEST(SqliteValue, ConstructStringFromStringQVariant)
     Sqlite::Value value{variant};
 
     ASSERT_THAT(value.toStringView(), Eq("foo"));
+}
+
+TEST(SqliteValue, ConvertToNullQVariant)
+{
+    Sqlite::Value value{};
+
+    auto variant = QVariant{value};
+
+    ASSERT_TRUE(variant.isNull());
 }
 
 TEST(SqliteValue, ConvertToStringQVariant)
@@ -192,6 +224,13 @@ TEST(SqliteValue, IntegerAndFloatAreNotEquals)
     ASSERT_FALSE(isEqual);
 }
 
+TEST(SqliteValue, NullValuesNeverEqual)
+{
+    bool isEqual = Sqlite::Value{} == Sqlite::Value{};
+
+    ASSERT_FALSE(isEqual);
+}
+
 TEST(SqliteValue, IntegerValuesAreEquals)
 {
     bool isEqual = Sqlite::Value{1} == Sqlite::Value{1};
@@ -248,6 +287,13 @@ TEST(SqliteValue, IntegersAreUnequalInverse)
     ASSERT_TRUE(isUnequal);
 }
 
+TEST(SqliteValue, NullType)
+{
+    auto type = Sqlite::Value{}.type();
+
+    ASSERT_THAT(type, Sqlite::ValueType::Null);
+}
+
 TEST(SqliteValue, IntegerType)
 {
     auto type = Sqlite::Value{1}.type();
@@ -267,6 +313,20 @@ TEST(SqliteValue, StringType)
     auto type = Sqlite::Value{"foo"}.type();
 
     ASSERT_THAT(type, Sqlite::ValueType::String);
+}
+
+TEST(SqliteValue, NullValueAndValueViewAreNotEqual)
+{
+    bool isEqual = Sqlite::ValueView::create(Sqlite::NullValue{}) == Sqlite::Value{};
+
+    ASSERT_FALSE(isEqual);
+}
+
+TEST(SqliteValue, NullValueViewAndValueAreNotEqual)
+{
+    bool isEqual = Sqlite::Value{} == Sqlite::ValueView::create(Sqlite::NullValue{});
+
+    ASSERT_FALSE(isEqual);
 }
 
 TEST(SqliteValue, StringValueAndValueViewEquals)
@@ -316,6 +376,15 @@ TEST(SqliteValue, StringValueAndIntergerValueViewAreNotEqual)
     bool isEqual = Sqlite::Value{"foo"} == Sqlite::ValueView::create(1);
 
     ASSERT_FALSE(isEqual);
+}
+
+TEST(SqliteValue, ConvertNullValueViewIntoValue)
+{
+    auto view = Sqlite::ValueView::create(Sqlite::NullValue{});
+
+    Sqlite::Value value{view};
+
+    ASSERT_TRUE(value.isNull());
 }
 
 TEST(SqliteValue, ConvertStringValueViewIntoValue)

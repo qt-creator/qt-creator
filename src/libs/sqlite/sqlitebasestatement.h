@@ -74,6 +74,7 @@ public:
     int columnCount() const;
     Utils::SmallStringVector columnNames() const;
 
+    void bind(int index, NullValue);
     void bind(int index, int fetchValue);
     void bind(int index, long long fetchValue);
     void bind(int index, double fetchValue);

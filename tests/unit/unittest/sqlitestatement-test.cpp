@@ -66,11 +66,33 @@ MATCHER_P3(HasValues, value1, value2, rowid,
         && statement.fetchSmallStringViewValue(1) == value2;
 }
 
+MATCHER_P(HasNullValues, rowid, std::string(negation ? "isn't null" : "is null"))
+{
+    Database &database = arg.database();
+
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE rowid=?", database);
+    statement.bind(1, rowid);
+
+    statement.next();
+
+    return statement.fetchValueView(0).isNull() && statement.fetchValueView(1).isNull();
+}
+
 class SqliteStatement : public ::testing::Test
 {
 protected:
-     void SetUp() override;
-     void TearDown() override;
+    void SetUp() override
+    {
+        database.execute("CREATE TABLE test(name TEXT UNIQUE, number NUMERIC, value NUMERIC)");
+        database.execute("INSERT INTO  test VALUES ('bar', 'blah', 1)");
+        database.execute("INSERT INTO  test VALUES ('foo', 23.3, 2)");
+        database.execute("INSERT INTO  test VALUES ('poo', 40, 3)");
+    }
+    void TearDown() override
+    {
+        if (database.isOpen())
+            database.close();
+    }
 
 protected:
      Database database{":memory:", Sqlite::JournalMode::Memory};
@@ -210,13 +232,24 @@ TEST_F(SqliteStatement, ColumnNames)
     ASSERT_THAT(columnNames, ElementsAre("name", "number"));
 }
 
+TEST_F(SqliteStatement, BindNull)
+{
+    database.execute("INSERT INTO  test VALUES (NULL, 323, 344)");
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE name IS ?", database);
+
+    statement.bind(1, Sqlite::NullValue{});
+    statement.next();
+
+    ASSERT_TRUE(statement.fetchValueView(0).isNull());
+    ASSERT_THAT(statement.fetchValue<int>(1), 323);
+}
+
 TEST_F(SqliteStatement, BindString)
 {
 
     SqliteTestStatement statement("SELECT name, number FROM test WHERE name=?", database);
 
     statement.bind(1, "foo");
-
     statement.next();
 
     ASSERT_THAT(statement.fetchSmallStringViewValue(0), "foo");
@@ -314,6 +347,16 @@ TEST_F(SqliteStatement, BindValues)
     ASSERT_THAT(statement, HasValues("see", "7.23", 1));
 }
 
+TEST_F(SqliteStatement, BindNullValues)
+{
+    SqliteTestStatement statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
+
+    statement.bindValues(Sqlite::NullValue{}, Sqlite::Value{}, 1);
+    statement.execute();
+
+    ASSERT_THAT(statement, HasNullValues(1));
+}
+
 TEST_F(SqliteStatement, WriteValues)
 {
     WriteStatement statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
@@ -321,6 +364,15 @@ TEST_F(SqliteStatement, WriteValues)
     statement.write("see", 7.23, 1);
 
     ASSERT_THAT(statement, HasValues("see", "7.23", 1));
+}
+
+TEST_F(SqliteStatement, WriteNullValues)
+{
+    WriteStatement statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
+
+    statement.write(Sqlite::NullValue{}, Sqlite::Value{}, 1);
+
+    ASSERT_THAT(statement, HasNullValues(1));
 }
 
 TEST_F(SqliteStatement, WriteSqliteValues)
@@ -407,10 +459,11 @@ public:
 TEST_F(SqliteStatement, GetSingleSqliteValuesWithoutArguments)
 {
     ReadStatement statement("SELECT number FROM test", database);
+    database.execute("INSERT INTO  test VALUES (NULL, NULL, NULL)");
 
     std::vector<FooValue> values = statement.values<FooValue>(3);
 
-    ASSERT_THAT(values, ElementsAre(Eq("blah"), Eq(23.3), Eq(40)));
+    ASSERT_THAT(values, ElementsAre(Eq("blah"), Eq(23.3), Eq(40), IsNull()));
 }
 
 TEST_F(SqliteStatement, GetStructValuesWithoutArguments)
@@ -710,19 +763,4 @@ TEST_F(SqliteStatement, ResetIfExecuteThrowsException)
 
     ASSERT_ANY_THROW(mockStatement.execute());
 }
-
-void SqliteStatement::SetUp()
-{
-    database.execute("CREATE TABLE test(name TEXT UNIQUE, number NUMERIC, value NUMERIC)");
-    database.execute("INSERT INTO  test VALUES ('bar', 'blah', 1)");
-    database.execute("INSERT INTO  test VALUES ('foo', 23.3, 2)");
-    database.execute("INSERT INTO  test VALUES ('poo', 40, 3)");
-}
-
-void SqliteStatement::TearDown()
-{
-    if (database.isOpen())
-        database.close();
-}
-
-}
+} // namespace

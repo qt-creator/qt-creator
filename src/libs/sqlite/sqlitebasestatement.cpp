@@ -158,6 +158,13 @@ Utils::SmallStringVector BaseStatement::columnNames() const
     return columnNames;
 }
 
+void BaseStatement::bind(int index, NullValue)
+{
+    int resultCode = sqlite3_bind_null(m_compiledStatement.get(), index);
+    if (resultCode != SQLITE_OK)
+        checkForBindingError(resultCode);
+}
+
 void BaseStatement::bind(int index, int value)
 {
     int resultCode = sqlite3_bind_int(m_compiledStatement.get(), index, value);
@@ -529,6 +536,8 @@ ValueView BaseStatement::fetchValueView(int column) const
 {
     int dataType = sqlite3_column_type(m_compiledStatement.get(), column);
     switch (dataType) {
+    case SQLITE_NULL:
+        return ValueView::create(NullValue{});
     case SQLITE_INTEGER:
         return ValueView::create(fetchLongLongValue(column));
     case SQLITE_FLOAT:
@@ -536,11 +545,10 @@ ValueView BaseStatement::fetchValueView(int column) const
     case SQLITE3_TEXT:
         return ValueView::create(fetchValue<Utils::SmallStringView>(column));
     case SQLITE_BLOB:
-    case SQLITE_NULL:
         break;
     }
 
-    return ValueView::create(0LL);
+    return ValueView::create(NullValue{});
 }
 
 } // namespace Sqlite

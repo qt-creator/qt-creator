@@ -34,13 +34,22 @@
 
 namespace Sqlite {
 
-enum class ValueType : unsigned char { Integer, Float, String };
+enum class ValueType : unsigned char { Null, Integer, Float, String };
+
+class NullValue
+{
+    friend bool operator==(NullValue, NullValue) { return false; }
+};
 
 template<typename StringType>
 class ValueBase
 {
 public:
-    using VariantType = Utils::variant<long long, double, StringType>;
+    using VariantType = Utils::variant<NullValue, long long, double, StringType>;
+
+    ValueBase() = default;
+
+    explicit ValueBase(NullValue) {}
 
     explicit ValueBase(VariantType &&value)
         : value(value)
@@ -70,6 +79,8 @@ public:
 
     {}
 
+    bool isNull() const { return value.index() == 0; }
+
     long long toInteger() const { return Utils::get<int(ValueType::Integer)>(value); }
 
     double toFloat() const { return Utils::get<int(ValueType::Float)>(value); }
@@ -92,6 +103,8 @@ public:
 
         return {};
     }
+
+    friend bool operator==(const ValueBase &first, nullptr_t) { return first.isNull(); }
 
     friend bool operator==(const ValueBase &first, long long second)
     {
@@ -171,10 +184,12 @@ public:
     {
         switch (value.index()) {
         case 0:
-            return ValueType::Integer;
+            return ValueType::Null;
         case 1:
-            return ValueType::Float;
+            return ValueType::Integer;
         case 2:
+            return ValueType::Float;
+        case 3:
             return ValueType::String;
         }
 
@@ -205,6 +220,10 @@ class Value : public ValueBase<Utils::SmallString>
 
 public:
     using Base::Base;
+
+    Value() = default;
+
+    explicit Value(NullValue) {}
 
     explicit Value(ValueView view)
         : ValueBase(convert(view))
@@ -265,6 +284,9 @@ public:
 private:
     static Base::VariantType convert(const QVariant &value)
     {
+        if (value.isNull())
+            return VariantType{NullValue{}};
+
         switch (value.type()) {
         case QVariant::Int:
             return VariantType{static_cast<long long>(value.toInt())};
@@ -284,6 +306,8 @@ private:
     static Base::VariantType convert(ValueView view)
     {
         switch (view.type()) {
+        case ValueType::Null:
+            return VariantType(NullValue{});
         case ValueType::Integer:
             return VariantType{view.toInteger()};
         case ValueType::Float:
