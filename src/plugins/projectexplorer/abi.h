@@ -69,6 +69,7 @@ public:
         Rh850Architecture,
         RxArchitecture,
         K78Architecture,
+        RiscVArchitecture,
         UnknownArchitecture
     };
 
