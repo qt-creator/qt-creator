@@ -112,7 +112,7 @@ void ClangToolsUnitTests::testProject()
 
     // Run tool
     ClangTool *tool = ClangTool::instance();
-    tool->startTool(ClangTool::FileSelection::AllFiles,
+    tool->startTool(ClangTool::FileSelectionType::AllFiles,
                     ClangToolsSettings::instance()->runSettings(),
                     diagnosticConfig);
     QSignalSpy waitForFinishedTool(tool, &ClangTool::finished);

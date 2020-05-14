@@ -35,6 +35,8 @@
 #include <projectexplorer/runconfiguration.h>
 #include <cpptools/projectinfo.h>
 
+#include <utils/variant.h>
+
 QT_BEGIN_NAMESPACE
 class QFrame;
 class QToolButton;
@@ -79,11 +81,14 @@ public:
 
     void selectPerspective();
 
-    enum class FileSelection {
+    enum class FileSelectionType {
         AllFiles,
         CurrentFile,
         AskUser,
     };
+
+    using FileSelection = Utils::variant<FileSelectionType, Utils::FilePath>;
+
     void startTool(FileSelection fileSelection);
     void startTool(FileSelection fileSelection,
                    const RunSettings &runSettings,

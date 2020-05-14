@@ -573,7 +573,7 @@ ClangTool::ClangTool()
     menu->addAction(ActionManager::registerAction(action, "ClangTidyClazy.Action"),
                     Debugger::Constants::G_ANALYZER_TOOLS);
     QObject::connect(action, &QAction::triggered, this, [this]() {
-        startTool(FileSelection::AskUser);
+        startTool(FileSelectionType::AskUser);
     });
     QObject::connect(m_startAction, &QAction::triggered, action, &QAction::triggered);
     QObject::connect(m_startAction, &QAction::changed, action, [action, this] {
@@ -581,7 +581,7 @@ ClangTool::ClangTool()
     });
 
     QObject::connect(m_startOnCurrentFileAction, &QAction::triggered, this, [this] {
-        startTool(FileSelection::CurrentFile);
+        startTool(FileSelectionType::CurrentFile);
     });
 
     m_perspective.addToolBarAction(m_startAction);
@@ -647,7 +647,6 @@ static bool continueDespiteReleaseBuild(const QString &toolName)
            == QDialogButtonBox::Yes;
 }
 
-
 void ClangTool::startTool(ClangTool::FileSelection fileSelection,
                           const RunSettings &runSettings,
                           const CppTools::ClangDiagnosticConfig &diagnosticConfig)
@@ -686,7 +685,9 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
     connect(m_runControl, &RunControl::stopped, this, &ClangTool::onRunControlStopped);
 
     // Run worker
-    const bool preventBuild = fileSelection == FileSelection::CurrentFile;
+    const bool preventBuild = holds_alternative<FilePath>(fileSelection)
+                              || get<FileSelectionType>(fileSelection)
+                                     == FileSelectionType::CurrentFile;
     const bool buildBeforeAnalysis = !preventBuild && runSettings.buildBeforeAnalysis();
     m_runWorker = new ClangToolRunWorker(m_runControl,
                                          runSettings,
@@ -734,15 +735,21 @@ Diagnostics ClangTool::read(OutputFileFormat outputFileFormat,
 
 FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelection)
 {
+    FileSelectionType *selectionType = get_if<FileSelectionType>(&fileSelection);
+    // early bailout
+    if (selectionType && *selectionType == FileSelectionType::CurrentFile
+        && !EditorManager::currentDocument())
+        return {};
+
     auto projectInfo = CppTools::CppModelManager::instance()->projectInfo(project);
     QTC_ASSERT(projectInfo.isValid(), return FileInfos());
 
     const FileInfos allFileInfos = sortedFileInfos(projectInfo.projectParts());
 
-    if (fileSelection == FileSelection::AllFiles)
+    if (selectionType && *selectionType == FileSelectionType::AllFiles)
         return allFileInfos;
 
-    if (fileSelection == FileSelection::AskUser) {
+    if (selectionType && *selectionType == FileSelectionType::AskUser) {
         static int initialProviderIndex = 0;
         SelectableFilesDialog dialog(projectInfo,
                                      fileInfoProviders(project, allFileInfos),
@@ -753,18 +760,15 @@ FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelect
         return dialog.fileInfos();
     }
 
-    if (fileSelection == FileSelection::CurrentFile) {
-        if (const IDocument *document = EditorManager::currentDocument()) {
-            const Utils::FilePath filePath = document->filePath();
-            if (!filePath.isEmpty()) {
-                const FileInfo fileInfo = Utils::findOrDefault(allFileInfos,
-                                                               [&](const FileInfo &fi) {
-                                                                   return fi.file == filePath;
-                                                               });
-                if (!fileInfo.file.isEmpty())
-                    return {fileInfo};
-            }
-        }
+    const FilePath filePath = holds_alternative<FilePath>(fileSelection)
+                                  ? get<FilePath>(fileSelection)
+                                  : EditorManager::currentDocument()->filePath(); // see early bailout
+    if (!filePath.isEmpty()) {
+        const FileInfo fileInfo = Utils::findOrDefault(allFileInfos, [&](const FileInfo &fi) {
+            return fi.file == filePath;
+        });
+        if (!fileInfo.file.isEmpty())
+            return {fileInfo};
     }
 
     return {};
