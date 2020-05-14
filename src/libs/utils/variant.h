@@ -37,6 +37,7 @@ using std::get;
 using std::get_if;
 using std::holds_alternative;
 using std::variant;
+using std::visit;
 } // namespace Utils
 
 #else
@@ -47,6 +48,7 @@ using mpark::get;
 using mpark::get_if;
 using mpark::holds_alternative;
 using mpark::variant;
+using mpark::visit;
 } // namespace Utils
 
 #endif

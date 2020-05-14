@@ -212,7 +212,7 @@ void CreateTableSqlStatementBuilder::bindColumnDefinitions() const
         ContraintsVisiter visiter{columnDefinitionString};
 
         for (const Constraint &constraint : column.constraints)
-            mpark::visit(visiter, constraint);
+            Utils::visit(visiter, constraint);
 
         columnDefinitionStrings.push_back(columnDefinitionString);
     }
