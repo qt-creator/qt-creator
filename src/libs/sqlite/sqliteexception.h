@@ -29,19 +29,21 @@
 
 #include <utils/smallstring.h>
 
+#include <exception>
 #include <iostream>
 
 namespace Sqlite {
 
-class SQLITE_EXPORT Exception
+class SQLITE_EXPORT Exception : public std::exception
 {
 public:
     Exception(const char *whatErrorHasHappen,
               Utils::SmallString &&sqliteErrorMessage = Utils::SmallString())
-        : m_whatErrorHasHappen(whatErrorHasHappen),
-          m_sqliteErrorMessage(std::move(sqliteErrorMessage))
-    {
-    }
+        : m_whatErrorHasHappen(whatErrorHasHappen)
+        , m_sqliteErrorMessage(std::move(sqliteErrorMessage))
+    {}
+
+    const char *what() const noexcept override { return m_sqliteErrorMessage.data(); }
 
     void printWarning() const;
 
