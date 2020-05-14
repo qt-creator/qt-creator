@@ -292,7 +292,7 @@ void CodeAssistantPrivate::cancelCurrentRequest()
     }
     if (m_asyncProcessor) {
         m_asyncProcessor->cancel();
-        m_asyncProcessor->setAsyncProposalAvailable(nullptr);
+        delete m_asyncProcessor;
     }
     invalidateCurrentRequestData();
 }
