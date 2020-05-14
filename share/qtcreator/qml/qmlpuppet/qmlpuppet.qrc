@@ -18,8 +18,10 @@
         <file>mockfiles/LightModel.qml</file>
         <file>mockfiles/LightIconGizmo.qml</file>
         <file>mockfiles/LightGizmo.qml</file>
-        <file>mockfiles/SpotLightHandle.qml</file>
         <file>mockfiles/AdjustableArrow.qml</file>
+        <file>mockfiles/FadeHandle.qml</file>
+        <file>mockfiles/AreaLightHandle.qml</file>
+        <file>mockfiles/SpotLightHandle.qml</file>
         <file>mockfiles/IconGizmo.qml</file>
         <file>mockfiles/Overlay2D.qml</file>
         <file>mockfiles/HelperGrid.qml</file>
@@ -53,6 +55,5 @@
         <file>mockfiles/images/point@2x.png</file>
         <file>mockfiles/images/spot.png</file>
         <file>mockfiles/images/spot@2x.png</file>
-        <file>mockfiles/FadeHandle.qml</file>
     </qresource>
 </RCC>
