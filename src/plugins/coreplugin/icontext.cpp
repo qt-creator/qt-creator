@@ -171,8 +171,93 @@ QDebug operator<<(QDebug debug, const Core::Context &context)
     \class Core::IContext
     \inmodule QtCreator
     \ingroup mainclasses
-    \brief The IContext class holds the context for performing an action.
 
-    The behavior of some actions depends on the context in which they are
-    applied.
+    \brief The IContext class associates a widget with a context list and
+    context help.
+
+    An instance of IContext must be registered with
+    Core::ICore::addContextObject() to have an effect. For many subclasses of
+    IContext, like Core::IEditor and Core::IMode, this is done automatically.
+    But instances of IContext can be created manually to associate a context
+    and context help for an arbitrary widget, too. Mind that IContext instances
+    must be unregistered with Core::ICore::removeContextObject() as well.
+
+    Whenever the widget is part of the application wide focus widget's parent
+    chain, the associated context list is made active. This makes actions active
+    that were registered for any of the included context IDs. If the user
+    requests context help, the top-most IContext instance in the focus widget's
+    parent hierarchy is asked to provide it.
+
+    See \l{The Action Manager and Commands} for an overview of how contexts are
+    used for managing actions.
+
+    \sa Core::ICore
+    \sa Core::Context
+    \sa Core::ActionManager
+    \sa {The Action Manager and Commands}
+*/
+
+/*!
+    \fn Core::IContext::IContext(QObject *parent)
+
+    Creates an IContext with an optional \a parent.
+*/
+
+/*!
+    \fn Core::Context Core::IContext::context() const
+
+    Returns the context list associated with this IContext.
+
+    \sa setContext()
+*/
+
+/*!
+    \fn QWidget *Core::IContext::widget() const
+
+    Returns the widget associated with this IContext.
+
+    \sa setWidget()
+*/
+
+/*!
+    \typedef Core::IContext::HelpCallback
+
+    The HelpCallback class defines the callback function that is used to report
+    the help item to show when the user requests context help.
+*/
+
+/*!
+    \fn void Core::IContext::contextHelp(const Core::IContext::HelpCallback &callback) const
+
+    Called when the user requests context help and this IContext is the top-most
+    in the application focus widget's parent hierarchy. Implementations must
+    call the passed \a callback with the resulting help item.
+    The default implementation returns an help item with the help ID that was
+    set with setContextHelp().
+
+    \sa setContextHelp()
+*/
+
+/*!
+    \fn void Core::IContext::setContext(const Core::Context &context)
+
+    Sets the context list associated with this IContext to \a context.
+
+    \sa context()
+*/
+
+/*!
+    \fn void Core::IContext::setWidget(QWidget *widget)
+
+    Sets the widget associated with this IContext to \a widget.
+
+    \sa widget()
+*/
+
+/*!
+    \fn void Core::IContext::setContextHelp(const Core::HelpItem &id)
+
+    Sets the context help item associated with this IContext to \a id.
+
+    \sa contextHelp()
 */
