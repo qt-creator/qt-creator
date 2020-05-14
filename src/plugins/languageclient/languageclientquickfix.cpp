@@ -84,7 +84,7 @@ class LanguageClientQuickFixAssistProcessor : public IAssistProcessor
 {
 public:
     explicit LanguageClientQuickFixAssistProcessor(Client *client) : m_client(client) {}
-    bool running() override { return m_currentRequest.isValid(); }
+    bool running() override { return m_currentRequest.has_value(); }
     IAssistProposal *perform(const AssistInterface *interface) override;
     void cancel() override;
 
@@ -93,7 +93,7 @@ private:
 
     QSharedPointer<const AssistInterface> m_assistInterface;
     Client *m_client = nullptr; // not owned
-    MessageId m_currentRequest;
+    Utils::optional<MessageId> m_currentRequest;
 };
 
 IAssistProposal *LanguageClientQuickFixAssistProcessor::perform(const AssistInterface *interface)
@@ -131,16 +131,16 @@ IAssistProposal *LanguageClientQuickFixAssistProcessor::perform(const AssistInte
 void LanguageClientQuickFixAssistProcessor::cancel()
 {
     if (running()) {
-        m_client->cancelRequest(m_currentRequest);
+        m_client->cancelRequest(m_currentRequest.value());
         m_client->removeAssistProcessor(this);
-        m_currentRequest = MessageId();
+        m_currentRequest.reset();
     }
 }
 
 void LanguageClientQuickFixAssistProcessor::handleCodeActionResponse(
         const CodeActionRequest::Response &response)
 {
-    m_currentRequest = MessageId();
+    m_currentRequest.reset();
     if (const Utils::optional<CodeActionRequest::Response::Error> &error = response.error())
         m_client->log(*error);
     QuickFixOperations ops;
