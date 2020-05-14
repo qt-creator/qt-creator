@@ -696,9 +696,12 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
     connect(m_runWorker, &ClangToolRunWorker::buildFailed,this, &ClangTool::onBuildFailed);
     connect(m_runWorker, &ClangToolRunWorker::startFailed, this, &ClangTool::onStartFailed);
     connect(m_runWorker, &ClangToolRunWorker::started, this, &ClangTool::onStarted);
-    connect(m_runWorker, &ClangToolRunWorker::runnerFinished,
-            this, &ClangTool::updateForCurrentState);
-    connect(m_runControl, &RunControl::destroyed, [this](){ m_runWorker = nullptr; });
+    connect(m_runWorker, &ClangToolRunWorker::runnerFinished, this, [this]() {
+        m_filesCount = m_runWorker->totalFilesToAnalyze();
+        m_filesSucceeded = m_runWorker->filesAnalyzed();
+        m_filesFailed = m_runWorker->filesNotAnalyzed();
+        updateForCurrentState();
+    });
 
     // More init and UI update
     m_diagnosticFilterModel->setProject(project);
@@ -857,6 +860,10 @@ void ClangTool::reset()
     m_state = State::Initial;
     m_runControl = nullptr;
     m_runWorker = nullptr;
+
+    m_filesCount = 0;
+    m_filesSucceeded = 0;
+    m_filesFailed = 0;
 }
 
 static bool canAnalyzeProject(Project *project)
@@ -1039,8 +1046,6 @@ void ClangTool::onRunControlStopped()
 void ClangTool::update()
 {
     updateForInitialState();
-    if (!m_runWorker)
-        return;
     updateForCurrentState();
 }
 
@@ -1162,9 +1167,9 @@ void ClangTool::updateForCurrentState()
 
     // Info bar: errors
     const bool hasErrorText = !m_infoBarWidget->errorText().isEmpty();
-    const bool hasErrors = m_runWorker && m_runWorker->filesNotAnalyzed() > 0;
+    const bool hasErrors = m_filesFailed > 0;
     if (hasErrors && !hasErrorText) {
-        const QString text = makeLink( tr("Failed to analyze %1 files.").arg(m_runWorker->filesNotAnalyzed()));
+        const QString text = makeLink( tr("Failed to analyze %1 files.").arg(m_filesFailed));
         m_infoBarWidget->setError(InfoBarWidget::Warning, text, [this]() { showOutputPane(); });
     }
 
@@ -1177,12 +1182,12 @@ void ClangTool::updateForCurrentState()
         break;
     case State::AnalyzerRunning:
         showProgressIcon = true;
-        if (m_runWorker->totalFilesToAnalyze() == 0) {
+        if (m_filesCount == 0) {
             infoText = tr("Analyzing..."); // Not yet fully started/initialized
         } else {
             infoText = tr("Analyzing... %1 of %2 files processed.")
-                           .arg(m_runWorker->filesAnalyzed() + m_runWorker->filesNotAnalyzed())
-                           .arg(m_runWorker->totalFilesToAnalyze());
+                           .arg(m_filesSucceeded + m_filesFailed)
+                           .arg(m_filesCount);
         }
         break;
     case State::PreparationStarted:
@@ -1195,7 +1200,7 @@ void ClangTool::updateForCurrentState()
         infoText = tr("Analysis stopped by user.");
         break;
     case State::AnalyzerFinished:
-        infoText = tr("Finished processing %1 files.").arg(m_runWorker->totalFilesToAnalyze());
+        infoText = tr("Finished processing %1 files.").arg(m_filesCount);
         break;
     case State::ImportFinished:
         infoText = tr("Diagnostics imported.");
