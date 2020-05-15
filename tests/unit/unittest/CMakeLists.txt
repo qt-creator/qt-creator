@@ -191,8 +191,11 @@ string(REPLACE "$$QTCREATOR_COPYRIGHT_YEAR" "${IDE_COPYRIGHT_YEAR}" plugin_json_
 string(REPLACE "$$dependencyList" "\"Dependencies\" : []" plugin_json_in ${plugin_json_in})
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/CppTools.json" ${plugin_json_in}})
 
-if (TARGET libclang)
-  target_sources(unittest PRIVATE
+extend_qtc_test(unittest
+  CONDITION TARGET libclang
+  INCLUDES "${CLANG_INCLUDE_DIRS}"
+  DEPENDS libclang
+  SOURCES
     activationsequencecontextprocessor-test.cpp
     activationsequenceprocessor-test.cpp
     chunksreportedmonitor.cpp
@@ -244,14 +247,13 @@ if (TARGET libclang)
     clangasyncjob-base.h
     clangcompareoperators.h
     diagnosticcontainer-matcher.h
-  )
-  target_include_directories(unittest PRIVATE "${CLANG_INCLUDE_DIRS}")
-  target_link_libraries(unittest PRIVATE libclang)
-endif()
+)
 
-if (TARGET clangTooling)
-  target_compile_definitions(unittest PRIVATE CLANG_UNIT_TESTS)
-  target_sources(unittest PRIVATE
+extend_qtc_test(unittest
+  CONDITION TARGET clangTooling
+  DEFINES CLANG_UNIT_TESTS
+  DEPENDS clangTooling clangIndex clangQuery
+  SOURCES
     gtest-llvm-printing.cpp
     clangquerygatherer-test.cpp
     clangqueryprojectfindfilter-test.cpp
@@ -271,24 +273,21 @@ if (TARGET clangTooling)
     builddependencycollector-test.cpp
     mockrefactoringclient.h
     mockrefactoringserver.h
-  )
-  target_link_libraries(unittest
-    PRIVATE clangTooling clangIndex clangQuery)
-endif()
+)
 
-if (TARGET clangFormat)
-  target_sources(unittest PRIVATE
+extend_qtc_test(unittest
+  CONDITION TARGET clangFormat
+  DEPENDS clangFormat
+  SOURCES
     clangformat-test.cpp
-  )
-  target_link_libraries(unittest PRIVATE clangFormat)
-endif()
+)
 
-if (TARGET GoogleBenchmark)
-  target_sources(unittest PRIVATE
+extend_qtc_test(unittest
+  CONDITION TARGET GoogleBenchmark
+  DEPENDS GoogleBenchmark
+  SOURCES
     smallstring-benchmark.cpp
-  )
-  target_link_libraries(unittest PRIVATE GoogleBenchmark)
-endif()
+)
 
 finalize_qtc_gtest(unittest)
 
