@@ -53,6 +53,16 @@
                     "openInEditor": false
                 },
                 {
+                    "source": "BareMetal/main.cpp.tpl",
+                    "target": "%{ProjectDirectory}/BareMetal/main.cpp",
+                    "openInEditor": false
+                },
+                {
+                    "source": "FreeRTOS/main.cpp.tpl",
+                    "target": "%{ProjectDirectory}/FreeRTOS/main.cpp",
+                    "openInEditor": false
+                },
+                {
                     "source": "main.qml.tpl",
                     "target": "%{ProjectDirectory}/%{MainQmlFile}",
                     "openInEditor": true

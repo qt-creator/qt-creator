@@ -99,8 +99,6 @@ static McuToolChainPackage *createArmGccPackage()
                 Utils::HostOsInfo::withExecutableSuffix("bin/arm-none-eabi-g++"),
                 "GNUArmEmbeddedToolchain",
                 McuToolChainPackage::TypeArmGcc);
-    result->setDownloadUrl(
-                "https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads");
     result->setEnvironmentVariableName(envVar);
     return result;
 }
@@ -294,13 +292,8 @@ static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescrip
 
 static QFileInfoList targetDescriptionFiles(const Utils::FilePath &dir)
 {
-    // Workaround for UL-2390: Instead of "./kits/", walk through "./lib/cmake/Qul/boards/"
-    QFileInfoList result;
-    QDirIterator it(dir.toString() + "/lib/cmake/Qul/boards/", {QLatin1String("*.json")},
-                    QDir::Files, QDirIterator::Subdirectories);
-    while (it.hasNext())
-        result.append(it.next());
-    return result;
+    const QDir kitsDir(dir.toString() + "/kits/", "*.json");
+    return kitsDir.entryInfoList();
 }
 
 static QString freeRTOSEnvVarForPlatform(const QString &platform)
