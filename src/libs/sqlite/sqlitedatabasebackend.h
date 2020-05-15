@@ -68,9 +68,6 @@ public:
     void setJournalMode(JournalMode journalMode);
     JournalMode journalMode();
 
-    void setTextEncoding(TextEncoding textEncoding);
-    TextEncoding textEncoding();
-
     Utils::SmallStringVector columnNames(Utils::SmallStringView tableName);
 
     int changesCount() const;
@@ -103,8 +100,6 @@ protected:
     void registerRankingFunction();
     static int busyHandlerCallback(void*, int counter);
 
-    void cacheTextEncoding();
-
     void checkForOpenDatabaseWhichCanBeClosed();
     void checkDatabaseClosing(int resultCode);
     void checkCanOpenDatabase(Utils::SmallStringView databaseFilePath);
@@ -121,9 +116,6 @@ protected:
 
     static Utils::SmallStringView journalModeToPragma(JournalMode journalMode);
     static JournalMode pragmaToJournalMode(Utils::SmallStringView pragma);
-    Utils::SmallStringView textEncodingToPragma(TextEncoding textEncoding);
-    static TextEncoding pragmaToTextEncoding(Utils::SmallStringView pragma);
-
 
     Q_NORETURN static void throwExceptionStatic(const char *whatHasHappens);
     [[noreturn]] void throwException(const char *whatHasHappens) const;
@@ -133,7 +125,6 @@ protected:
 private:
     Database &m_database;
     sqlite3 *m_databaseHandle;
-    TextEncoding m_cachedTextEncoding;
 };
 
 } // namespace Sqlite

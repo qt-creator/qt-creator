@@ -223,15 +223,6 @@ TEST_F(SqliteStatement, ToStringValue)
     ASSERT_THAT(ReadStatement::toValue<Utils::SmallString>("SELECT name FROM test WHERE name='foo'", database), "foo");
 }
 
-TEST_F(SqliteStatement, ColumnNames)
-{
-    SqliteTestStatement statement("SELECT name, number FROM test", database);
-
-    auto columnNames = statement.columnNames();
-
-    ASSERT_THAT(columnNames, ElementsAre("name", "number"));
-}
-
 TEST_F(SqliteStatement, BindNull)
 {
     database.execute("INSERT INTO  test VALUES (NULL, 323, 344)");

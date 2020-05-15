@@ -147,17 +147,6 @@ int BaseStatement::columnCount() const
     return m_columnCount;
 }
 
-Utils::SmallStringVector BaseStatement::columnNames() const
-{
-    Utils::SmallStringVector columnNames;
-    int columnCount = BaseStatement::columnCount();
-    columnNames.reserve(std::size_t(columnCount));
-    for (int columnIndex = 0; columnIndex < columnCount; columnIndex++)
-        columnNames.emplace_back(sqlite3_column_origin_name(m_compiledStatement.get(), columnIndex));
-
-    return columnNames;
-}
-
 void BaseStatement::bind(int index, NullValue)
 {
     int resultCode = sqlite3_bind_null(m_compiledStatement.get(), index);
@@ -257,11 +246,6 @@ void BaseStatement::prepare(Utils::SmallStringView sqlStatement)
 sqlite3 *BaseStatement::sqliteDatabaseHandle() const
 {
     return m_database.backend().sqliteDatabaseHandle();
-}
-
-TextEncoding BaseStatement::databaseTextEncoding()
-{
-     return m_database.backend().textEncoding();
 }
 
 void BaseStatement::checkForStepError(int resultCode) const

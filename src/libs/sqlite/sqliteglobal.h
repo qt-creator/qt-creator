@@ -71,19 +71,6 @@ enum class OpenMode : char
     ReadWrite
 };
 
-enum TextEncoding : char
-{
-    Utf8,
-    Utf16le,
-    Utf16be,
-#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-    Utf16 = Utf16le
-#else
-    Utf16 = Utf16be
-#endif
-
-};
-
 enum class ChangeType : int { Delete = 9, Insert = 18, Update = 23 };
 
 } // namespace Sqlite

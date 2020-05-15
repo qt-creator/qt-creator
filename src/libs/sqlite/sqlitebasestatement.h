@@ -72,7 +72,6 @@ public:
     template<typename Type>
     Type fetchValue(int column) const;
     int columnCount() const;
-    Utils::SmallStringVector columnNames() const;
 
     void bind(int index, NullValue);
     void bind(int index, int fetchValue);
@@ -97,7 +96,6 @@ public:
     void waitForUnlockNotify() const;
 
     sqlite3 *sqliteDatabaseHandle() const;
-    TextEncoding databaseTextEncoding();
 
     [[noreturn]] void checkForStepError(int resultCode) const;
     [[noreturn]] void checkForResetError(int resultCode) const;

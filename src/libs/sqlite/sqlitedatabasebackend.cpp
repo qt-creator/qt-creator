@@ -40,9 +40,8 @@
 namespace Sqlite {
 
 DatabaseBackend::DatabaseBackend(Database &database)
-    : m_database(database),
-      m_databaseHandle(nullptr),
-      m_cachedTextEncoding(Utf8)
+    : m_database(database)
+    , m_databaseHandle(nullptr)
 {
 }
 
@@ -102,8 +101,6 @@ void DatabaseBackend::open(Utils::SmallStringView databaseFilePath, OpenMode mod
                                      nullptr);
 
     checkDatabaseCouldBeOpened(resultCode);
-
-    cacheTextEncoding();
 }
 
 sqlite3 *DatabaseBackend::sqliteDatabaseHandle() const
@@ -133,24 +130,6 @@ void DatabaseBackend::setJournalMode(JournalMode journalMode)
 JournalMode DatabaseBackend::journalMode()
 {
     return pragmaToJournalMode(pragmaValue("journal_mode"));
-}
-
-void DatabaseBackend::setTextEncoding(TextEncoding textEncoding)
-{
-    setPragmaValue("encoding", textEncodingToPragma(textEncoding));
-    cacheTextEncoding();
-}
-
-TextEncoding DatabaseBackend::textEncoding()
-{
-    return m_cachedTextEncoding;
-}
-
-
-Utils::SmallStringVector DatabaseBackend::columnNames(Utils::SmallStringView tableName)
-{
-    ReadWriteStatement statement("SELECT * FROM " + tableName, m_database);
-    return statement.columnNames();
 }
 
 int DatabaseBackend::changesCount() const
@@ -230,11 +209,6 @@ int DatabaseBackend::busyHandlerCallback(void *, int counter)
     QThread::msleep(10);
 
     return true;
-}
-
-void DatabaseBackend::cacheTextEncoding()
-{
-    m_cachedTextEncoding = pragmaToTextEncoding(pragmaValue("encoding"));
 }
 
 void DatabaseBackend::checkForOpenDatabaseWhichCanBeClosed()
@@ -363,23 +337,6 @@ JournalMode DatabaseBackend::pragmaToJournalMode(Utils::SmallStringView pragma)
         throwExceptionStatic("SqliteDatabaseBackend::pragmaToJournalMode: pragma can't be transformed in a journal mode enumeration!");
 
     return static_cast<JournalMode>(index);
-}
-
-const Utils::SmallStringView textEncodingStrings[] = {"UTF-8", "UTF-16le", "UTF-16be"};
-
-Utils::SmallStringView DatabaseBackend::textEncodingToPragma(TextEncoding textEncoding)
-{
-    return textEncodingStrings[textEncoding];
-}
-
-TextEncoding DatabaseBackend::pragmaToTextEncoding(Utils::SmallStringView pragma)
-{
-    int index = indexOfPragma(pragma, textEncodingStrings);
-
-    if (index < 0)
-        throwExceptionStatic("SqliteDatabaseBackend::pragmaToTextEncoding: pragma can't be transformed in a text encoding enumeration!");
-
-    return static_cast<TextEncoding>(index);
 }
 
 int DatabaseBackend::openMode(OpenMode mode)

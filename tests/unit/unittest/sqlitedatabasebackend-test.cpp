@@ -42,7 +42,6 @@ using Sqlite::ColumnType;
 using Sqlite::ConstraintType;
 using Sqlite::JournalMode;
 using Sqlite::OpenMode;
-using Sqlite::TextEncoding;
 using Sqlite::Exception;
 using Sqlite::WriteStatement;
 
@@ -109,49 +108,6 @@ TEST_F(SqliteDatabaseBackend, PersistJournalMode)
     databaseBackend.setJournalMode(JournalMode::Persist);
 
     ASSERT_THAT(databaseBackend.journalMode(), JournalMode::Persist);
-}
-
-TEST_F(SqliteDatabaseBackend, DefaultTextEncoding)
-{
-    ASSERT_THAT(databaseBackend.textEncoding(), TextEncoding::Utf8);
-}
-
-TEST_F(SqliteDatabaseBackend, Utf16TextEncoding)
-{
-    databaseBackend.setTextEncoding(TextEncoding::Utf16);
-
-    ASSERT_THAT(databaseBackend.textEncoding(), TextEncoding::Utf16);
-}
-
-TEST_F(SqliteDatabaseBackend, Utf16beTextEncoding)
-{
-    databaseBackend.setTextEncoding(TextEncoding::Utf16be);
-
-    ASSERT_THAT(databaseBackend.textEncoding(),TextEncoding::Utf16be);
-}
-
-TEST_F(SqliteDatabaseBackend, Utf16leTextEncoding)
-{
-    databaseBackend.setTextEncoding(TextEncoding::Utf16le);
-
-    ASSERT_THAT(databaseBackend.textEncoding(), TextEncoding::Utf16le);
-}
-
-TEST_F(SqliteDatabaseBackend, Utf8TextEncoding)
-{
-    databaseBackend.setTextEncoding(TextEncoding::Utf8);
-
-    ASSERT_THAT(databaseBackend.textEncoding(), TextEncoding::Utf8);
-}
-
-TEST_F(SqliteDatabaseBackend, TextEncodingCannotBeChangedAfterTouchingDatabase)
-{
-    databaseBackend.setJournalMode(JournalMode::Memory);
-
-    databaseBackend.execute("CREATE TABLE text(name, number)");
-
-    ASSERT_THROW(databaseBackend.setTextEncoding(TextEncoding::Utf16),
-                 Sqlite::PragmaValueNotSet);
 }
 
 TEST_F(SqliteDatabaseBackend, OpenModeReadOnly)
