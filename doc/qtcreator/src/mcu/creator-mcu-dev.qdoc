@@ -122,6 +122,9 @@
                 \li In the \uicontrol {SEGGER JLink} field, specify the
                     path to the directory where you installed the tool.
             \endlist
+        \li Select \uicontrol{Create Kit} to create a kit. If you have
+            an older kit for the selected SDK, remove it first using
+            \uicontrol{Remove Kit}.
         \li Select \uicontrol Apply to save the settings and to generate
             a MCU device and kit.
     \endlist
