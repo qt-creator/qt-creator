@@ -592,6 +592,7 @@ Item {
                 border.width: 1
                 visible: rotateGizmo.dragging
                 parent: rotateGizmo.view3D
+                z: 3
 
                 Text {
                     id: rotateGizmoLabelText
@@ -618,6 +619,7 @@ Item {
                 border.width: 1
                 visible: lightGizmo.dragging
                 parent: lightGizmo.view3D
+                z: 3
 
                 Text {
                     id: lightGizmoLabelText
