@@ -23,7 +23,7 @@ add_qtc_library(ProParser SHARED
     WINDOWS_EXPORT_ALL_SYMBOLS ON
 )
 
-extend_qtc_target(ProParser
+extend_qtc_library(ProParser
   CONDITION WIN32
   DEFINES _UNICODE UNICODE
 )

@@ -373,3 +373,72 @@ function(condition_info varName condition)
   endif()
 endfunction()
 
+function(extend_qtc_target target_name)
+  cmake_parse_arguments(_arg
+    ""
+    "SOURCES_PREFIX;FEATURE_INFO"
+    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC"
+    ${ARGN}
+  )
+
+  if (${_arg_UNPARSED_ARGUMENTS})
+    message(FATAL_ERROR "extend_qtc_target had unparsed arguments")
+  endif()
+
+  condition_info(_extra_text _arg_CONDITION)
+  if (NOT _arg_CONDITION)
+    set(_arg_CONDITION ON)
+  endif()
+  if (${_arg_CONDITION})
+    set(_feature_enabled ON)
+  else()
+    set(_feature_enabled OFF)
+  endif()
+  if (_arg_FEATURE_INFO)
+    add_feature_info(${_arg_FEATURE_INFO} _feature_enabled "${_extra_text}")
+  endif()
+  if (NOT _feature_enabled)
+    return()
+  endif()
+
+  add_qtc_depends(${target_name}
+    PRIVATE ${_arg_DEPENDS}
+    PUBLIC ${_arg_PUBLIC_DEPENDS}
+  )
+  target_compile_definitions(${target_name}
+    PRIVATE ${_arg_DEFINES}
+    PUBLIC ${_arg_PUBLIC_DEFINES}
+  )
+  target_include_directories(${target_name} PRIVATE ${_arg_INCLUDES})
+
+  set_public_includes(${target_name} "${_arg_PUBLIC_INCLUDES}")
+
+  if (_arg_SOURCES_PREFIX)
+    foreach(source IN LISTS _arg_SOURCES)
+      list(APPEND prefixed_sources "${_arg_SOURCES_PREFIX}/${source}")
+    endforeach()
+
+    if (NOT IS_ABSOLUTE ${_arg_SOURCES_PREFIX})
+      set(_arg_SOURCES_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/${_arg_SOURCES_PREFIX}")
+    endif()
+    target_include_directories(${target_name} PRIVATE $<BUILD_INTERFACE:${_arg_SOURCES_PREFIX}>)
+
+    set(_arg_SOURCES ${prefixed_sources})
+  endif()
+  target_sources(${target_name} PRIVATE ${_arg_SOURCES})
+
+  if (APPLE AND BUILD_WITH_PCH)
+    foreach(source IN LISTS _arg_SOURCES)
+      if (source MATCHES "^.*\.mm$")
+        set_source_files_properties(${source} PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+      endif()
+    endforeach()
+  endif()
+
+  set_public_headers(${target_name} "${_arg_SOURCES}")
+
+  foreach(file IN LISTS _arg_EXPLICIT_MOC)
+    set_explicit_moc(${target_name} "${file}")
+  endforeach()
+
+endfunction()

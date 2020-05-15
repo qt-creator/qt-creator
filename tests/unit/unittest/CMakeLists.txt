@@ -301,7 +301,7 @@ target_include_directories(unittest
 
 get_target_property(ClangSupportSources ClangSupport SOURCES)
 get_target_property(ClangSupportSourcesDir ClangSupport SOURCES_DIR)
-extend_qtc_target(unittest
+extend_qtc_test(unittest
   SOURCES_PREFIX "${ClangSupportSourcesDir}"
   SOURCES ${ClangSupportSources}
   DEFINES
@@ -312,7 +312,7 @@ extend_qtc_target(unittest
 )
 
 get_target_property(ClangCodeModelSourcesDir ClangCodeModel SOURCES_DIR)
-extend_qtc_target(unittest
+extend_qtc_test(unittest
   SOURCES_PREFIX "${ClangCodeModelSourcesDir}"
   SOURCES
     clangactivationsequencecontextprocessor.cpp clangactivationsequencecontextprocessor.h
@@ -327,14 +327,14 @@ extend_qtc_target(unittest
 )
 
 get_target_property(CompilationDatabasePMSourcesDir CompilationDatabaseProjectManager SOURCES_DIR)
-extend_qtc_target(unittest
+extend_qtc_test(unittest
   SOURCES_PREFIX "${CompilationDatabasePMSourcesDir}"
   SOURCES
     compilationdatabaseutils.cpp compilationdatabaseutils.h
 )
 
 get_target_property(CoreSourcesDir Core SOURCES_DIR)
-extend_qtc_target(unittest
+extend_qtc_test(unittest
   SOURCES_PREFIX "${CoreSourcesDir}"
   DEFINES CORE_STATIC_LIBRARY
   SOURCES
@@ -345,7 +345,7 @@ extend_qtc_target(unittest
 )
 
 get_target_property(CppToolsSourcesDir CppTools SOURCES_DIR)
-extend_qtc_target(unittest
+extend_qtc_test(unittest
   SOURCES_PREFIX "${CppToolsSourcesDir}"
   DEFINES CPPTOOLS_STATIC_LIBRARY
   SOURCES
@@ -361,7 +361,7 @@ extend_qtc_target(unittest
 )
 
 get_target_property(ProjectExplorerSourcesDir ProjectExplorer SOURCES_DIR)
-extend_qtc_target(unittest
+extend_qtc_test(unittest
   SOURCES_PREFIX "${ProjectExplorerSourcesDir}"
   DEFINES PROJECTEXPLORER_STATIC_LIBRARY
   SOURCES
@@ -369,7 +369,7 @@ extend_qtc_target(unittest
 )
 
 get_target_property(ClangRefactoringSourcesDir ClangRefactoring SOURCES_DIR)
-extend_qtc_target(unittest
+extend_qtc_test(unittest
   SOURCES_PREFIX "${ClangRefactoringSourcesDir}"
   SOURCES
     clangqueryexamplehighlighter.cpp clangqueryexamplehighlighter.h
@@ -393,7 +393,7 @@ extend_qtc_target(unittest
 )
 
 get_target_property(ClangPchManagerSourcesDir ClangPchManager SOURCES_DIR)
-extend_qtc_target(unittest
+extend_qtc_test(unittest
   SOURCES_PREFIX "${ClangPchManagerSourcesDir}"
   DEFINES CLANGPCHMANAGER_STATIC_LIB
   SOURCES
@@ -411,7 +411,7 @@ extend_qtc_target(unittest
 )
 
 get_target_property(ClangFormatSourcesDir ClangFormat SOURCES_DIR)
-extend_qtc_target(unittest
+extend_qtc_test(unittest
   SOURCES_PREFIX "${ClangFormatSourcesDir}"
   DEFINES CLANGPCHMANAGER_STATIC_LIB
   SOURCES

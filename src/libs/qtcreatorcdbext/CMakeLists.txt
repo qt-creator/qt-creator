@@ -83,7 +83,7 @@ if (_library_enabled)
     return()
   endif()
 
-  extend_qtc_target(qtcreatorcdbext
+  extend_qtc_library(qtcreatorcdbext
     DEPENDS "${PYTHON_LIBRARIES}"
     INCLUDES "${PYTHON_INCLUDE_DIR}"
     DEFINES WITH_PYTHON=1

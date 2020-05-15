@@ -24,7 +24,7 @@ add_qtc_library(AdvancedDockingSystem
     resources.qrc
 )
 
-extend_qtc_target(AdvancedDockingSystem
+extend_qtc_library(AdvancedDockingSystem
   INCLUDES linux
   SOURCES
     linux/floatingwidgettitlebar.cpp linux/floatingwidgettitlebar.h

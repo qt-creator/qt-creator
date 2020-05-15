@@ -167,7 +167,7 @@ add_qtc_library(Utils
     wizardpage.cpp wizardpage.h
 )
 
-extend_qtc_target(Utils CONDITION WIN32
+extend_qtc_library(Utils CONDITION WIN32
   SOURCES
     process_ctrlc_stub.cpp
     touchbar/touchbar.cpp
@@ -179,7 +179,7 @@ extend_qtc_target(Utils CONDITION WIN32
     _CRT_SECURE_NO_WARNINGS _SCL_SECURE_NO_WARNINGS
 )
 
-extend_qtc_target(Utils CONDITION APPLE
+extend_qtc_library(Utils CONDITION APPLE
   SOURCES
     fileutils_mac.mm fileutils_mac.h
     processhandle_mac.mm
@@ -190,7 +190,7 @@ extend_qtc_target(Utils CONDITION APPLE
     ${FWFoundation} ${FWAppKit}
 )
 
-extend_qtc_target(Utils CONDITION UNIX AND NOT APPLE
+extend_qtc_library(Utils CONDITION UNIX AND NOT APPLE
   SOURCES
     touchbar/touchbar.cpp
 )
