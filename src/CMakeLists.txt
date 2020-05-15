@@ -67,6 +67,7 @@ file(COPY
   ${PROJECT_SOURCE_DIR}/cmake/QtCreatorIDEBranding.cmake
   ${PROJECT_SOURCE_DIR}/cmake/QtCreatorTranslations.cmake
   ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPI.cmake
+  ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPIInternal.cmake
   DESTINATION ${CMAKE_BINARY_DIR}/cmake
 )
 
@@ -76,6 +77,7 @@ install(
     ${PROJECT_SOURCE_DIR}/cmake/QtCreatorIDEBranding.cmake
     ${PROJECT_SOURCE_DIR}/cmake/QtCreatorTranslations.cmake
     ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPI.cmake
+    ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPIInternal.cmake
     ${CMAKE_BINARY_DIR}/cmake/QtCreatorConfig.cmake
   DESTINATION lib/cmake/QtCreator
   COMPONENT Devel EXCLUDE_FROM_ALL
