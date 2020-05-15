@@ -79,8 +79,9 @@ public:
     {
         if (columnCount < 1)
             columnCount = 1;
-        if (auto gridProxyModel = dynamic_cast<Core::GridProxyModel *>(model()))
-            gridProxyModel->setColumnCount(columnCount);
+
+        auto gridProxyModel = static_cast<Core::GridProxyModel *>(model());
+        gridProxyModel->setColumnCount(columnCount);
     }
 };
 
@@ -423,7 +424,7 @@ void SectionedProducts::addNewSection(const Section &section, const QList<Core::
     gridView->setFixedSize(gridView->viewportSizeHint());
 
     // add the items also to the all products model to be able to search correctly
-    auto allProducts = dynamic_cast<ProductListModel *>(m_filteredAllProductsModel->sourceModel());
+    auto allProducts = static_cast<ProductListModel *>(m_filteredAllProductsModel->sourceModel());
     allProducts->appendItems(items);
     m_allProductsView->setColumnCount(m_columnCount);
 }
