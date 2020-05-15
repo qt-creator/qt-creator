@@ -330,11 +330,11 @@ static QFileInfoList targetDescriptionFiles(const Utils::FilePath &dir)
 static QString freeRTOSEnvVarForPlatform(const QString &platform)
 {
     if (platform == "STM32F769I-DISCOVERY" || platform == "STM32F7508-DISCOVERY")
-        return "STM32F7_FREERTOS_DIR";
+        return {"STM32F7_FREERTOS_DIR"};
     else if (platform == "MIMXRT1050-EVK")
-        return "IMXRT1050_FREERTOS_DIR";
+        return {"IMXRT1050_FREERTOS_DIR"};
     else if (platform == "MIMXRT1064-EVK")
-        return "IMXRT1064_FREERTOS_DIR";
+    return {"IMXRT1064_FREERTOS_DIR"};
 
     return {};
 }
@@ -382,7 +382,7 @@ void targetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage *> *packa
     if (!descriptions.isEmpty()) {
         // Workaround for missing JSON file for Desktop target:
         descriptions.prepend({McuSupportOptions::supportedQulVersion().toString(),
-                              "Qt", "Qt", {32}, "desktop", {}, {}});
+                              {"Qt"}, {"Qt"}, {32}, {"desktop"}, {}, {}});
 
         mcuTargets->append(targetsFromDescriptions(descriptions, packages));
     }
