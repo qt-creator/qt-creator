@@ -61,7 +61,7 @@
 namespace McuSupport {
 namespace Internal {
 
-static const int KIT_VERSION = 3; // Bumps up whenever details in Kit creation change
+static const int KIT_VERSION = 4; // Bumps up whenever details in Kit creation change
 
 static QString packagePathFromSettings(const QString &settingsKey, const QString &defaultPath = {})
 {
@@ -441,14 +441,14 @@ void McuSupportOptions::deletePackagesAndTargets()
 
 const QVersionNumber &McuSupportOptions::supportedQulVersion()
 {
-    static const QVersionNumber v({1, 1, 0});
+    static const QVersionNumber v({1, 1});
     return v;
 }
 
 void McuSupportOptions::setQulDir(const Utils::FilePath &dir)
 {
     deletePackagesAndTargets();
-    Sdk::hardcodedTargetsAndPackages(dir, &packages, &mcuTargets);
+    Sdk::targetsAndPackages(dir, &packages, &mcuTargets);
     //packages.append(qtForMCUsSdkPackage);
     for (auto package : packages) {
         connect(package, &McuPackage::changed, [this](){

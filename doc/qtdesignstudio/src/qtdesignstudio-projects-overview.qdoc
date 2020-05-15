@@ -46,8 +46,7 @@
 
             You can use wizards to create projects for the desktop or embedded
             Linux and Android devices. In addition, you can add individual QML
-            files, components, font loaders, and JavaScript files to your
-            projects.
+            files, components, and JavaScript files to your projects.
 
         \li \l{Using Git}
 

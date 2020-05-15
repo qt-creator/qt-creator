@@ -118,7 +118,7 @@ public:
     LanguageClientValue(const T &value) : Utils::variant<T, std::nullptr_t>(value) { }
     LanguageClientValue(const QJsonValue &value)
     {
-        if (QTC_GUARD(value.isUndefined()) || value.isNull())
+        if (!QTC_GUARD(!value.isUndefined()) || value.isNull())
             *this = nullptr;
         else
             *this = fromJsonValue<T>(value);

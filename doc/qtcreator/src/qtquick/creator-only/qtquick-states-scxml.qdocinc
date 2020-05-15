@@ -26,20 +26,23 @@
 /*!
 //! [scxml state machines]
 
-    \section2 Using SCXML State Machines
+    \section1 Using SCXML State Machines
 
-    To use QML together with an SCXML state machine, add states and bind them to
-    the state machine in the \uicontrol Backends tab in the Design mode, as
+    To use QML together with an SCXML state machine, add states and
+    bind them to the state machine in the \uicontrol Backends tab
+    of the \uicontrol Connections view, as
     described in \l {Managing C++ Backend Objects}.
 
-    In the \uicontrol States view, you can edit the \c when condition of states
+    In the \uicontrol States view, you can select \uicontrol Actions >
+    \uicontrol {Set when Condition} to edit the \c when condition of states
     to map QML states to the states of the SCXML state machine. For an example,
     see \l {Qt SCXML Traffic Light QML Example (Dynamic)}.
 
     \image qmldesigner-states-when-condition.png
 
-    If you add animation to the states, you can run the application to test the
-    animation.
+    If you add animation to the states, you can \l{Previewing}{preview}
+    or \l{Running on Multiple Platforms}{run} the application to test
+    the animation.
 
 //! [scxml state machines]
 */

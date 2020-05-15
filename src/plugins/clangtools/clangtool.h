@@ -167,6 +167,9 @@ private:
     QAction *m_stopAction = nullptr;
 
     State m_state = State::Initial;
+    int m_filesCount = 0;
+    int m_filesSucceeded = 0;
+    int m_filesFailed = 0;
 
     DiagnosticFilterModel *m_diagnosticFilterModel = nullptr;
 

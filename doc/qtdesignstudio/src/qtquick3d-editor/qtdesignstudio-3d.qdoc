@@ -68,7 +68,7 @@
             \QDS opens QML files that contain 3D scenes in the Design mode and
             the scenes in the 3D editor. You can add imported 3D assets
             to projects as 3D components.
-        \li \l {Working in the 3D Editor}
+        \li \l {Working in 3D Editor}
 
             You can select 3D components in the 3D editor to move, rotate, and
             scale them in the scene projected by the camera.
