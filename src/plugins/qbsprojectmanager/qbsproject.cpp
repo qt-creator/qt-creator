@@ -476,7 +476,7 @@ void QbsBuildSystem::updateProjectNodes(const std::function<void ()> &continuati
     m_treeCreationWatcher = new TreeCreationWatcher(this);
     connect(m_treeCreationWatcher, &TreeCreationWatcher::finished, this,
             [this, watcher = m_treeCreationWatcher, continuation] {
-        std::unique_ptr<QbsProjectNode> rootNode(m_treeCreationWatcher->result());
+        std::unique_ptr<QbsProjectNode> rootNode(watcher->result());
         if (watcher != m_treeCreationWatcher) {
             watcher->deleteLater();
             return;

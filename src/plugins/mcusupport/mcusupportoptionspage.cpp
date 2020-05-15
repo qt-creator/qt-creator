@@ -43,6 +43,7 @@
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QLabel>
+#include <QPushButton>
 #include <QVBoxLayout>
 
 namespace McuSupport {
@@ -77,6 +78,8 @@ private:
     QGroupBox *m_kitCreationGroupBox = nullptr;
     Utils::InfoLabel *m_kitCreationInfoLabel = nullptr;
     Utils::InfoLabel *m_statusInfoLabel = nullptr;
+    QPushButton *m_kitCreationPushButton = nullptr;
+    QPushButton *m_kitRemovalPushButton = nullptr;
 };
 
 McuSupportOptionsWidget::McuSupportOptionsWidget()
@@ -130,10 +133,24 @@ McuSupportOptionsWidget::McuSupportOptionsWidget()
         m_kitCreationGroupBox->setFlat(true);
         mainLayout->addWidget(m_kitCreationGroupBox);
         m_kitCreationInfoLabel = new Utils::InfoLabel;
-        m_kitCreationInfoLabel->setElideMode(Qt::ElideNone);
-        m_kitCreationInfoLabel->setWordWrap(true);
-        auto layout = new QVBoxLayout(m_kitCreationGroupBox);
-        layout->addWidget(m_kitCreationInfoLabel);
+        auto vLayout = new QHBoxLayout(m_kitCreationGroupBox);
+        vLayout->addWidget(m_kitCreationInfoLabel);
+        m_kitCreationPushButton = new QPushButton(tr("Create Kit"));
+        m_kitCreationPushButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+        connect(m_kitCreationPushButton, &QPushButton::clicked, this, [this] {
+            McuSupportOptions::newKit(currentMcuTarget(), m_options.qtForMCUsSdkPackage);
+            McuSupportOptions::registerQchFiles();
+            updateStatus();
+        });
+        m_kitRemovalPushButton = new QPushButton(tr("Remove Kit"));
+        m_kitRemovalPushButton->setSizePolicy(m_kitCreationPushButton->sizePolicy());
+        connect(m_kitRemovalPushButton, &QPushButton::clicked, this, [this] {
+            for (auto existingKit : McuSupportOptions::existingKits(currentMcuTarget()))
+                ProjectExplorer::KitManager::deregisterKit(existingKit);
+            updateStatus();
+        });
+        vLayout->addWidget(m_kitCreationPushButton);
+        vLayout->addWidget(m_kitRemovalPushButton);
     }
 
     mainLayout->addStretch();
@@ -162,15 +179,23 @@ void McuSupportOptionsWidget::updateStatus()
     // Kit creation status
     if (mcuTarget) {
         const bool mcuTargetValid = mcuTarget->isValid();
-        m_kitCreationInfoLabel->setType(mcuTargetValid ? Utils::InfoLabel::Ok
-                                                       : Utils::InfoLabel::NotOk);
-        m_kitCreationInfoLabel->setText(
-                    mcuTargetValid ? QString::fromLatin1(
-                                         "A kit <b>%1</b> for the selected target can be "
-                                         "generated. Press Apply to generate it.")
-                                     .arg(McuSupportOptions::kitName(mcuTarget))
-                                   : "Provide the package paths in order to create a kit "
-                                     "for your target.");
+        m_kitCreationPushButton->setVisible(mcuTargetValid);
+        m_kitRemovalPushButton->setVisible(mcuTargetValid);
+        if (mcuTargetValid) {
+            const bool mcuTargetKitExists = !McuSupportOptions::existingKits(mcuTarget).isEmpty();
+            m_kitCreationInfoLabel->setType(mcuTargetKitExists
+                                            ? Utils::InfoLabel::Information
+                                            : Utils::InfoLabel::Ok);
+            m_kitCreationInfoLabel->setText(mcuTargetKitExists
+                                            ? tr("A kit for the selected target exists.")
+                                            : tr("A kit for the selected target can be created."));
+            m_kitCreationPushButton->setEnabled(!mcuTargetKitExists);
+            m_kitRemovalPushButton->setEnabled(mcuTargetKitExists);
+        } else {
+            m_kitCreationInfoLabel->setType(Utils::InfoLabel::NotOk);
+            m_kitCreationInfoLabel->setText("Provide the package paths in order to create a kit "
+                                            "for your target.");
+        }
     }
 
     // Status label in the bottom
@@ -226,19 +251,6 @@ void McuSupportOptionsWidget::apply()
     m_options.qtForMCUsSdkPackage->writeToSettings();
     for (auto package : m_options.packages)
         package->writeToSettings();
-
-    if (!isVisible())
-        return;
-
-    McuSupportOptions::registerQchFiles();
-
-    const McuTarget *mcuTarget = currentMcuTarget();
-    if (!mcuTarget)
-        return;
-
-    for (auto existingKit : McuSupportOptions::existingKits(mcuTarget))
-        ProjectExplorer::KitManager::deregisterKit(existingKit);
-    McuSupportOptions::newKit(mcuTarget, m_options.qtForMCUsSdkPackage);
 }
 
 void McuSupportOptionsWidget::populateMcuTargetsComboBox()

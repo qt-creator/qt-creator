@@ -51,14 +51,15 @@
 
     \image qmldesigner-qml-components.png "QML Components"
 
-    The \uicontrol {QML Types} tab displays the QML types grouped by category:
-    your own QML components, basic types, layouts, positioner types, and views.
+    The \uicontrol {QML Types} tab displays the QML types grouped by category,
+    such as your own QML components, basic types, layouts, positioner types, and
+    views.
 
     Sets of UI components with the look and feel of a particular mobile device
     platform have been defined for Qt Quick 1. Since Qt 5.1, ready-made Qt
     Quick Controls, Dialogs, and Layouts are available for creating user
     interfaces using Qt Quick 2. The components and controls are based on
-    standard QML types. To view the components and controls in the
+    standard QML types. To view the components and controls in
     \uicontrol {Library}, import the component sets in \uicontrol {QML Imports}.
 
     The \uicontrol {Qt Quick Application} wizards for a particular platform add
@@ -70,21 +71,23 @@
 
     \section1 Adding Components to Designs
 
-    \image studio-design-mode.png "Design mode"
+    \image qmldesigner-editing-components.png "Editing QML components in Design mode"
 
     \list 1
-        \li Drag and drop components from the \uicontrol Library (2) to the
-            \uicontrol Navigator (3) or \uicontrol {Form Editor} (1).
-        \li Select components in the \uicontrol Navigator to edit their
-            properties in the \uicontrol Properties view (4). For more
-            information, see \l {Specifying Item Properties}.
+        \li Drag and drop components from \uicontrol Library (1) to
+            \uicontrol Navigator (2) or \uicontrol {Form Editor} (3).
+        \li Select components in \uicontrol Navigator to edit their
+            properties in \uicontrol Properties.
+            \image qmldesigner-properties-view.png "Properties view"
+            For more information, see \l {Specifying Item Properties}.
         \li Connect components to signals or create bindings between components
-            in the \uicontrol Connections view (5). For more information, see
-            \l{Adding Connections}.
+            in the \uicontrol Connections view.
+            \image qmldesigner-bindings.png "Connections view Bindings tab"
+            For more information, see \l{Adding Connections}.
         \li Add states to apply sets of changes to the properties of one or
-            several components in the \uicontrol States view (6). For more
-            information, see \l{Adding States}.
-        \li Animate component properties in the \uicontrol Timeline view (7).
+            several components in the \uicontrol States view.
+            For more information, see \l{Adding States}.
+        \li Animate component properties in the \uicontrol Timeline view.
             For more information, see \l{Creating Animations}.
     \endlist
 
@@ -136,12 +139,12 @@
     When you add a \l{GridView}{Grid View}, \l{ListView}{List View}, or
     \l{PathView}{Path View}, the ListModel and the delegate component that
     creates an instance for each item in the model are added automatically.
-    You can edit item properties in the \uicontrol Properties view or
-    in the \uicontrol {Text Editor}. You can also replace the default model and
-    delegate with other, more complex models and delegates in the
+    You can edit item properties in \uicontrol Properties or in
+    \uicontrol {Text Editor}. You can also replace the default model and
+    delegate with other, more complex models and delegates in
     \uicontrol {Text Editor}. \l{ItemDelegate}{Item Delegate} and
     \l{SwipeDelegate}{Swipe Delegate} delegate components are also available
-    in the \uicontrol Library.
+    in \uicontrol Library.
 
     \section1 Positioning Items in UIs
 
@@ -179,7 +182,7 @@
 
     \image qmldesigner-set-expression.png "Type properties context menu"
 
-    In the \uicontrol {Binding Editor}, select an item and a property from
+    In \uicontrol {Binding Editor}, select an item and a property from
     lists of available items and their properties.
 
     \image qmldesigner-binding-editor.png "Binding Editor"
@@ -192,7 +195,7 @@
 
     When a binding is set, the \uicontrol Actions menu icon changes to
     \inlineimage icons/action-icon-binding
-    . To remove bindings, select \uicontrol Reset in the \uicontrol Actions menu.
+    . To remove bindings, select \uicontrol Actions > \uicontrol Reset.
 
     You can set bindings also in the \uicontrol Connections view. For more
     information, see \l {Adding Bindings Between Properties}.
@@ -227,7 +230,7 @@
     (\uicontrol {Reset Anchors}) button to reset the anchors to their saved
     state.
 
-    You can specify the baseline anchor in the \uicontrol {Text Editor} in the
+    You can specify the baseline anchor in \uicontrol {Text Editor} in the
     Design mode.
 
     For performance reasons, you can only anchor an item to its siblings
@@ -340,8 +343,9 @@
     \endlist
 
     To position several items in a \uicontrol Column, \uicontrol Row,
-    \uicontrol Grid, or \uicontrol Flow, select the items on the canvas, and
-    then select \uicontrol Position in the context menu.
+    \uicontrol Grid, or \uicontrol Flow, select the items in
+    \uicontrol {Form Editor}, and then select \uicontrol Position in
+    the context menu.
 
     \section2 Using Layouts
 
@@ -353,8 +357,6 @@
     You can use the following layout types to arrange items in UIs:
 
     \list
-        \li \l{Layout} provides attached properties for items pushed onto a
-            column, row, or grid layout.
         \li \l{ColumnLayout}{Column Layout} provides a grid layout with only
             one column.
         \li \l{RowLayout}{Row Layout} provides a grid layout with only one row.
@@ -365,7 +367,7 @@
     \endlist
 
     To lay out several items in a column, row, grid, or
-    \uicontrol {Stack Layout}, select the items in the \uicontrol {Form Editor},
+    \uicontrol {Stack Layout}, select the items in \uicontrol {Form Editor},
     and then select \uicontrol Layout in the context menu.
 
     You can also click the \inlineimage column.png
@@ -374,9 +376,9 @@
     (\uicontrol {Grid Layout}) toolbar buttons to apply
     layouts to the selected items.
 
-    To make an item within a layout as wide as possible while respecting
-    the given constraints, select the item on the canvas and then select
-    \uicontrol Layout > \uicontrol {Fill Width} in the context menu. To
+    To make an item within a layout as wide as possible while respecting the
+    given constraints, select the item in \uicontrol {Form Editor}, and then
+    select \uicontrol Layout > \uicontrol {Fill Width} in the context menu. To
     make the item as high as possible, select \uicontrol {Fill Height}.
 
     \section2 Editing Stack Layouts
@@ -385,7 +387,7 @@
 
     To add items to a \uicontrol {Stack Layout}, select the
     \inlineimage plus.png
-    button next to the type name in the \uicontrol {Form Editor}. To move
+    button next to the type name in \uicontrol {Form Editor}. To move
     between items, select the \inlineimage prev.png
     (\uicontrol Previous) and \inlineimage next.png
     (\uicontrol Next) buttons.
@@ -550,22 +552,22 @@
             \endif
             \uicontrol Choose to create a new .qml file.
 
-            \note Components are listed in the \uicontrol {QML Components} section of
-            the \uicontrol Library only if the filename begins with a capital
-            letter.
+            \note Components are listed in the \uicontrol {My QML Components}
+            tab in the \uicontrol Library view only if the filename begins with
+            a capital letter.
 
         \li Click \uicontrol Design to open the .qml file in the Design mode.
 
-        \li Drag and drop a QML type from the \uicontrol Library to the
+        \li Drag and drop a QML type from \uicontrol Library to
             \uicontrol Navigator or \uicontrol {Form Editor}.
 
-        \li Edit its properties in the \uicontrol Properties view.
+        \li Edit its properties in \uicontrol Properties.
 
             The available properties depend on the QML type.
 
     \endlist
 
-    The following sections contain more information about how to use the
+    The following sections contain more information about how to use
     \uicontrol {Form Editor} to edit 2D content, as well as examples of
     how to create some common components using basic QML types:
 
@@ -582,10 +584,11 @@
     \section1 Moving Within Components
 
     Components can consist of several other components. To view the component
-    hierarchy as a bread crumb path when you edit a component on the canvas,
-    select \uicontrol {Go into Component} or press \key F2. Click the component
-    names in the path to navigate to them. You can easily navigate back to the
-    top level when you are done editing the component.
+    hierarchy as a bread crumb path when you edit a component in
+    \uicontrol {Form Editor}, select \uicontrol {Go into Component} or press
+    \key F2. Click the component names in the path to navigate to them. You
+    can easily navigate back to the top level when you are done editing the
+    component.
 
     \image qmldesigner-breadcrumbs.png "Go into Component command"
 */

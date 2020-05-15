@@ -192,6 +192,8 @@ void SessionModel::sort(int column, Qt::SortOrder order)
         return isLess;
     };
     Utils::sort(m_sortedSessions, cmp);
+    m_currentSortColumn = column;
+    m_currentSortOrder = order;
     endResetModel();
 }
 
@@ -237,6 +239,7 @@ void SessionModel::deleteSessions(const QStringList &sessions)
     beginResetModel();
     SessionManager::deleteSessions(sessions);
     m_sortedSessions = SessionManager::sessions();
+    sort(m_currentSortColumn, m_currentSortOrder);
     endResetModel();
 }
 
@@ -268,6 +271,7 @@ void SessionModel::runSessionNameInputDialog(SessionNameInputDialog *sessionInpu
         createSession(newSession);
         m_sortedSessions = SessionManager::sessions();
         endResetModel();
+        sort(m_currentSortColumn, m_currentSortOrder);
 
         if (sessionInputDialog->isSwitchToRequested())
             switchToSession(newSession);

@@ -44,7 +44,7 @@
             independently of each other.
         \li \l Flipable provides a surface that can be flipped.
         \li \l Group provides an item with the size property.
-        \li \l Iso adds a container for an ISO 7000 icon.
+        \li \l {Iso}{Iso Icon} adds a container for an ISO 7000 icon.
         \li \l Pie adds a pie slice or a pie with a slice missing from it.
         \li \l Rectangle adds a rectangle with corners that you can shape
             independently of each other.
@@ -60,7 +60,8 @@
 
     You can use the project wizard to create a starting point for a custom
     \l [QtQuickControls2] {Button}, \l [QtQuickControls2] {Pane},
-    \l [QtQuickControls2] {StackView}{Stack View}, or
+    \l [QtQuickControls2] {StackLayout}{Stacked Layout},
+    \l [QtQuickControls2] {SwipeView}{Swipe View}, or
     \l [QtQuickControls2] {Switch}.
 
     \list 1
@@ -68,8 +69,8 @@
             \uicontrol {Files and Classes} > \uicontrol {Qt Quick Controls}.
         \li Select the control to create, and then select \uicontrol Choose.
 
-            \note Components are listed in the \uicontrol {QML Components}
-            section of the \uicontrol Library only if the filename begins
+            \note Components are listed in the \uicontrol {My QML Components}
+            tab of the \uicontrol Library only if the filename begins
             with a capital letter.
         \li Edit component properties in the \uicontrol Properties view.
 

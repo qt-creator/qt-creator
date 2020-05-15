@@ -27,6 +27,10 @@
 
 #include <QVector>
 
+namespace Utils {
+class FilePath;
+}
+
 namespace McuSupport {
 namespace Internal {
 class McuPackage;
@@ -36,9 +40,8 @@ namespace Sdk {
 
 McuPackage *createQtForMCUsPackage();
 
-// Legacy: List of targets supported by Qt for MCUs 1.0
-void hardcodedTargetsAndPackages(const Utils::FilePath &qulDir,
-                                 QVector<McuPackage*> *packages, QVector<McuTarget*> *mcuTargets);
+void targetsAndPackages(const Utils::FilePath &qulDir,
+                        QVector<McuPackage*> *packages, QVector<McuTarget*> *mcuTargets);
 
 } // namespace Sdk
 } // namespace Internal
