@@ -48,6 +48,7 @@ SkippedSourceRanges::~SkippedSourceRanges()
 SkippedSourceRanges &SkippedSourceRanges::operator=(SkippedSourceRanges &&other)
 {
     if (this != &other) {
+        this->~SkippedSourceRanges();
         cxTranslationUnit = other.cxTranslationUnit;
         cxSkippedSourceRanges = other.cxSkippedSourceRanges;
         other.cxTranslationUnit = nullptr;
