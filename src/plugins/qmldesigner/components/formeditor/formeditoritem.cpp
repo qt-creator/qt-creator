@@ -444,8 +444,6 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
                     || painterTransform.isRotating())
                 painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
 
-            painter->setClipRegion(boundingRect().toRect());
-
             if (m_blurContent)
                 painter->drawPixmap(m_paintedBoundingRect.topLeft(), qmlItemNode().instanceBlurredRenderPixmap());
             else
