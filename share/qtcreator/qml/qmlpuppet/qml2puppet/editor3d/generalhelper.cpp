@@ -64,8 +64,9 @@ GeneralHelper::GeneralHelper()
 
 void GeneralHelper::requestOverlayUpdate()
 {
-    if (!m_overlayUpdateTimer.isActive())
-        m_overlayUpdateTimer.start();
+    // Restart the timer on each request in attempt to ensure there's one frame between the last
+    // request and actual update.
+    m_overlayUpdateTimer.start();
 }
 
 QString GeneralHelper::generateUniqueName(const QString &nameRoot)
