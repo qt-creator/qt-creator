@@ -159,7 +159,7 @@
     an easy way to add a high-quality look at a relatively low cost.
 
     To specify an image to use as the specular reflection map, set the
-    \uicontrol {Light probe} property
+    \uicontrol {Light probe} property.
 
     Crisp images cause your material to look very glossy. The more you
     blur your image, the softer your material appears.
