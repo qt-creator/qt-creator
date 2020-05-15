@@ -45,7 +45,6 @@ Item {
 
     property alias iconSource: iconImage.source
 
-    signal positionCommit()
     signal clicked(Node node, bool multi)
 
     visible: activeScene === scene && (targetNode ? targetNode.visible : false)
