@@ -1254,7 +1254,7 @@ void NodeInstanceView::valuesModified(const ValuesModifiedCommand &command)
             if (instance.isValid()) {
                 // QmlVisualNode is needed so timeline and state are updated
                 QmlVisualNode node = instance.modelNode();
-                if (node.instanceValue(container.name()) != container.value())
+                if (node.modelValue(container.name()) != container.value())
                     node.setVariantProperty(container.name(), container.value());
             }
         }

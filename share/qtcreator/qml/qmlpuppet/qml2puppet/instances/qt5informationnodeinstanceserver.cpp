@@ -487,6 +487,7 @@ Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceC
     Qt5NodeInstanceServer(nodeInstanceClient)
 {
     m_propertyChangeTimer.setInterval(100);
+    m_propertyChangeTimer.setSingleShot(true);
     m_selectionChangeTimer.setSingleShot(true);
     m_renderTimer.setSingleShot(true);
 }
