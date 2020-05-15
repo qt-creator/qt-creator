@@ -173,9 +173,9 @@ public:
             columnDefinitionString.append(Utils::SmallString::number(defaultValue.value.toFloat()));
             break;
         case Sqlite::ValueType::String:
-            columnDefinitionString.append("\"");
+            columnDefinitionString.append("'");
             columnDefinitionString.append(defaultValue.value.toStringView());
-            columnDefinitionString.append("\"");
+            columnDefinitionString.append("'");
             break;
         }
     }
