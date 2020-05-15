@@ -30,32 +30,34 @@
 
     \title Adding 3D Views
 
-    To display \l {Qt Quick 3D} types in the \uicontrol Library, select
-    \uicontrol Library > \uicontrol {QML Imports} > \uicontrol {Add Import} >
-    \uicontrol QtQuick3D. The types are displayed in the \uicontrol {QML Types}
-    tab.
+    You can use a wizard to create a Qt Quick 3D UI project that imports
+    the \l{Qt Quick 3D} QML types to the \uicontrol {QML Types} tab in
+    \uicontrol Library and contains a 3D view, scene light, camera, and
+    model. A default material is attached to the model. You can attach
+    textures to materials. For more information about creating projects,
+    see \l{Creating Projects}.
+
+    To add a 3D view to some other kind of project and to display the Qt Quick
+    3D QML types in \uicontrol Library, select \uicontrol Library >
+    \uicontrol {QML Imports} > \uicontrol {Add Import} > \uicontrol QtQuick3D.
 
     \image studio-qtquick-3d-components.png
 
-    To add a 3D view to the scene, drag and drop a \uicontrol {View 3D}
-    component from \uicontrol Library > \uicontrol {QML Types} >
-    \uicontrol {Qt Quick 3D} to the 3D editor or to the \uicontrol Navigator.
-    A 3D view contains a reference node that specifies a scene light, camera,
-    and model. A default material is attached to the model. You can attach
-    textures to materials.
+    To add components to the scene, drag and drop them to \uicontrol Navigator
+    or \uicontrol {Form Editor}.
 
     \image studio-navigator-view3d.png "View 3D component in the Navigator"
 
     By default, a directional light and a perspective camera are used.
-    To use other light and camera types, change the type of the component in
-    the \uicontrol Type field in the \uicontrol Properties view. For example,
+    To use other light and camera types, change the type of the component
+    in the \uicontrol Type field in \uicontrol Properties. For example,
     to use a point light, enter \e {PointLight}.
 
     \image studio-3d-properties-type.png "Type field in Properties view"
 
-    To edit component properties, select the component in the 3D editor
-    or in the \uicontrol Navigator and modify the property values in the
-    \uicontrol Properties view.
+    To edit component properties, select the component in
+    \uicontrol {Form Editor} or \uicontrol Navigator and
+    modify the property values in \uicontrol Properties.
 
     \image studio-qtquick-3d-view.png "View 3D component properties"
 

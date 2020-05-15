@@ -81,6 +81,8 @@ private:
     void runSessionNameInputDialog(ProjectExplorer::Internal::SessionNameInputDialog *sessionInputDialog, std::function<void(const QString &)> createSession);
 
     QStringList m_sortedSessions;
+    int m_currentSortColumn = 0;
+    Qt::SortOrder m_currentSortOrder = Qt::AscendingOrder;
 };
 
 } // namespace Internal

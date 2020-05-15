@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -63,15 +63,22 @@
     or create them from scratch using the following wizards:
 
     \list
-        \li \uicontrol General generates projects that are suitable for all
-            target platforms.
-        \omit
-        \li \uicontrol Embedded generates projects that work well on embedded
-            Linux devices.
-        \endomit
-        \li \uicontrol Mobile generates projects that work well on mobile
-            devices.
-        \li \uicontrol Desktop generates projects that work well on the desktop.
+        \li \uicontrol {MCU Support Application} creates an application that
+            uses a subset of \l{Qt QML} and \l{Qt Quick Controls} types (as
+            supported by Qt for MCUs) that you can deploy, run, and debug on
+            MCU boards.
+        \li \uicontrol {Qt Quick Application - Empty} creates a Qt Quick UI
+            project that uses \l{Qt Quick} types and can be run on all target
+            platforms.
+        \li \uicontrol {Qt Quick 3D Application} creates a Qt Quick UI project
+            that uses Qt Quick and \l{Qt Quick 3D} types.
+        \li \uicontrol {Qt Quick Application - Scroll} and
+            \uicontrol {Qt Quick Application - Stack} create a Qt Quick
+            application that uses Qt Quick Controls to implement a scrollable
+            list or a set of pages with a stack-based navigation model.
+        \li \uicontrol {Qt Quick Application - Launcher} creates a Qt Quick UI
+            project that uses Qt Quick types and defines a QML laucher
+            application.
     \endlist
 
     \section1 Using Project Wizards
@@ -119,10 +126,12 @@
     \list
         \li \uicontrol {Qt Quick Files}
             \list
+                \li \uicontrol {Flow Item} and \uicontrol {Flow View} generate
+                    types that you can use to design the application flow.
                 \li \uicontrol {Qt Quick File} generates a QML type with one
                     of the following types as the root item: \l Item,
                     \l Rectangle, \l Image, \l BorderImage, \l Flickable,
-                    \l Row, \l Column, \l Flow, or \li Grid.
+                    \l Row, \l Column, \l Flow, or \l Grid.
                 \li \uicontrol {Qt Quick UI File} generates a UI form with one
                     of the above types as the root item.
                 \li \uicontrol {Qt Quick Views} generates a \l GridView or a
@@ -141,17 +150,12 @@
                 \li \l [Qt Quick Controls 2] {SwipeView} enables users to
                     navigate pages by swiping sideways.
             \endlist
-        \li \uicontrol {QML Files}
-            \list
-                \li \l FontLoader imports custom fonts to the project for
-                    deployment to devices. For more information, see
-                    \l {Using Custom Fonts}.
-                \li \l ListModel adds a list model to the project.
-            \endlist
+        \li \uicontrol ListModel adds a \l{ListModel}{list model} to the
+            project.
         \li \uicontrol {JavaScript File} generates files that you can use to
             write the application logic. This is useful for testing the
             application before the developers implement the application logic
             in C++, for example. For more information, see
             \l {Simulating Application Logic}.
-        \endlist
+    \endlist
 */

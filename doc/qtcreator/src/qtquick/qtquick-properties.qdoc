@@ -37,7 +37,7 @@
 
     The bottom part of the view displays properties that are specific to each
     QML type. For example, the following image displays the properties you can
-    set for \uicontrol Rectangle (1) and \uicontrol Text (2) items.
+    set for \uicontrol Rectangle and \uicontrol Text items.
 
     \image qmldesigner-element-properties.png
 
