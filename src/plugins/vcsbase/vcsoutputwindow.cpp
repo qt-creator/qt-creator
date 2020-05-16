@@ -46,7 +46,7 @@
 #include <QPlainTextEdit>
 #include <QPoint>
 #include <QPointer>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QTextBlock>
 #include <QTextBlockUserData>
 #include <QTextCharFormat>
@@ -285,7 +285,7 @@ class VcsOutputWindowPrivate
 public:
     Internal::OutputWindowPlainTextEdit widget;
     QString repository;
-    QRegExp passwordRegExp;
+    const QRegularExpression passwordRegExp = QRegularExpression("://([^@:]+):([^@]+)@");
 };
 
 static VcsOutputWindow *m_instance = nullptr;
@@ -294,7 +294,6 @@ static VcsOutputWindowPrivate *d = nullptr;
 VcsOutputWindow::VcsOutputWindow()
 {
     d = new VcsOutputWindowPrivate;
-    d->passwordRegExp = QRegExp("://([^@:]+):([^@]+)@");
     Q_ASSERT(d->passwordRegExp.isValid());
     m_instance = this;
 
@@ -315,18 +314,9 @@ VcsOutputWindow::VcsOutputWindow()
             VcsOutputWindow::instance(), &VcsOutputWindow::referenceClicked);
 }
 
-static QString filterPasswordFromUrls(const QString &input)
+static QString filterPasswordFromUrls(QString input)
 {
-    int pos = 0;
-    QString result = input;
-    while ((pos = d->passwordRegExp.indexIn(result, pos)) >= 0) {
-        QString tmp = result.left(pos + 3) + d->passwordRegExp.cap(1) + ":***@";
-        int newStart = tmp.count();
-        tmp += result.midRef(pos + d->passwordRegExp.matchedLength());
-        result = tmp;
-        pos = newStart;
-    }
-    return result;
+    return input.replace(d->passwordRegExp, "://\\1:***@");
 }
 
 VcsOutputWindow::~VcsOutputWindow()
