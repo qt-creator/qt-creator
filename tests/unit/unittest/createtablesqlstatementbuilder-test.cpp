@@ -454,7 +454,7 @@ TEST_F(CreateTableSqlStatementBuilder, DefaultValueString)
 
     builder.addColumn("id", ColumnType::Text, {Sqlite::DefaultValue{"foo"}});
 
-    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id TEXT DEFAULT \"foo\")");
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id TEXT DEFAULT 'foo')");
 }
 
 TEST_F(CreateTableSqlStatementBuilder, DefaultExpression)
