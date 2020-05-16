@@ -424,11 +424,10 @@ bool UrlTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
     if (cursorForUrl.hasSelection()) {
         const QString line = cursorForUrl.selectedText();
         const int cursorCol = cursor.columnNumber();
-        int urlMatchIndex = -1;
         QRegularExpressionMatchIterator i = m_pattern.globalMatch(line);
         while (i.hasNext()) {
             const QRegularExpressionMatch match = i.next();
-            urlMatchIndex = match.capturedStart();
+            const int urlMatchIndex = match.capturedStart();
             const QString url = match.captured(0);
             if (urlMatchIndex <= cursorCol && cursorCol <= urlMatchIndex + url.length()) {
                 m_urlData.startColumn = urlMatchIndex;
