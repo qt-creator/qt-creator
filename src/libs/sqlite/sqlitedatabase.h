@@ -66,6 +66,8 @@ public:
     Database(const Database &) = delete;
     Database &operator=(const Database &) = delete;
 
+    static void activateLogging();
+
     void open();
     void open(Utils::PathString &&databaseFilePath);
     void close();

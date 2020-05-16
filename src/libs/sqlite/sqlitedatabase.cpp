@@ -75,6 +75,11 @@ Database::Database(Utils::PathString &&databaseFilePath,
 
 Database::~Database() = default;
 
+void Database::activateLogging()
+{
+    DatabaseBackend::activateLogging();
+}
+
 void Database::open()
 {
     m_databaseBackend.open(m_databaseFilePath, m_openMode);

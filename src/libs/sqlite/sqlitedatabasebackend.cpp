@@ -68,7 +68,7 @@ void DatabaseBackend::activateMultiThreading()
 
 static void sqliteLog(void*,int errorCode,const char *errorMessage)
 {
-    qWarning() << sqlite3_errstr(errorCode) << errorMessage;
+    std::cout << "Sqlite " << sqlite3_errstr(errorCode) << ": " << errorMessage << std::endl;
 }
 
 void DatabaseBackend::activateLogging()
@@ -285,31 +285,35 @@ void DatabaseBackend::checkDatabaseHandleIsNotNull() const
 void DatabaseBackend::checkIfMultithreadingIsActivated(int resultCode)
 {
     if (resultCode != SQLITE_OK)
-        throwException("SqliteDatabaseBackend::activateMultiThreading: multithreading can't be activated!");
+        throwExceptionStatic(
+            "SqliteDatabaseBackend::activateMultiThreading: multithreading can't be activated!");
 }
 
 void DatabaseBackend::checkIfLoogingIsActivated(int resultCode)
 {
     if (resultCode != SQLITE_OK)
-        throwException("SqliteDatabaseBackend::activateLogging: logging can't be activated!");
+        throwExceptionStatic("SqliteDatabaseBackend::activateLogging: logging can't be activated!");
 }
 
 void DatabaseBackend::checkMmapSizeIsSet(int resultCode)
 {
     if (resultCode != SQLITE_OK)
-        throwException("SqliteDatabaseBackend::checkMmapSizeIsSet: mmap size can't be changed!");
+        throwExceptionStatic(
+            "SqliteDatabaseBackend::checkMmapSizeIsSet: mmap size can't be changed!");
 }
 
 void DatabaseBackend::checkInitializeSqliteLibraryWasSuccesful(int resultCode)
 {
     if (resultCode != SQLITE_OK)
-        throwException("SqliteDatabaseBackend::initializeSqliteLibrary: SqliteLibrary cannot initialized!");
+        throwExceptionStatic(
+            "SqliteDatabaseBackend::initializeSqliteLibrary: SqliteLibrary cannot initialized!");
 }
 
 void DatabaseBackend::checkShutdownSqliteLibraryWasSuccesful(int resultCode)
 {
     if (resultCode != SQLITE_OK)
-        throwException("SqliteDatabaseBackend::shutdownSqliteLibrary: SqliteLibrary cannot be shutdowned!");
+        throwExceptionStatic(
+            "SqliteDatabaseBackend::shutdownSqliteLibrary: SqliteLibrary cannot be shutdowned!");
 }
 
 void DatabaseBackend::checkIfLogCouldBeCheckpointed(int resultCode)

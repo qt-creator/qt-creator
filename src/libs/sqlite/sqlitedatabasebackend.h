@@ -52,11 +52,11 @@ public:
     DatabaseBackend(DatabaseBackend &&) = delete;
     DatabaseBackend &operator=(DatabaseBackend &&) = delete;
 
-    void setMmapSize(qint64 defaultSize, qint64 maximumSize);
-    void activateMultiThreading();
-    void activateLogging();
-    void initializeSqliteLibrary();
-    void shutdownSqliteLibrary();
+    static void setMmapSize(qint64 defaultSize, qint64 maximumSize);
+    static void activateMultiThreading();
+    static void activateLogging();
+    static void initializeSqliteLibrary();
+    static void shutdownSqliteLibrary();
     void checkpointFullWalLog();
 
     void open(Utils::SmallStringView databaseFilePath, OpenMode openMode);
@@ -107,11 +107,11 @@ protected:
     void checkCarrayCannotBeIntialized(int resultCode);
     void checkPragmaValue(Utils::SmallStringView databaseValue, Utils::SmallStringView expectedValue);
     void checkDatabaseHandleIsNotNull() const;
-    void checkIfMultithreadingIsActivated(int resultCode);
-    void checkIfLoogingIsActivated(int resultCode);
-    void checkMmapSizeIsSet(int resultCode);
-    void checkInitializeSqliteLibraryWasSuccesful(int resultCode);
-    void checkShutdownSqliteLibraryWasSuccesful(int resultCode);
+    static void checkIfMultithreadingIsActivated(int resultCode);
+    static void checkIfLoogingIsActivated(int resultCode);
+    static void checkMmapSizeIsSet(int resultCode);
+    static void checkInitializeSqliteLibraryWasSuccesful(int resultCode);
+    static void checkShutdownSqliteLibraryWasSuccesful(int resultCode);
     void checkIfLogCouldBeCheckpointed(int resultCode);
     void checkIfBusyTimeoutWasSet(int resultCode);
 
