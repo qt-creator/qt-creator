@@ -277,6 +277,17 @@ TEST_F(SqliteStatement, BindDouble)
     ASSERT_THAT(statement.fetchSmallStringViewValue(0), "foo");
 }
 
+TEST_F(SqliteStatement, BindPointer)
+{
+    SqliteTestStatement statement("SELECT value FROM carray(?, 5, 'int64')", database);
+    std::vector<long long> values{1, 1, 2, 3, 5};
+
+    statement.bind(1, values.data());
+    statement.next();
+
+    ASSERT_THAT(statement.fetchIntValue(0), 1);
+}
+
 TEST_F(SqliteStatement, BindIntegerByParameter)
 {
     SqliteTestStatement statement("SELECT name, number FROM test WHERE number=@number", database);
@@ -307,18 +318,53 @@ TEST_F(SqliteStatement, BindDoubleByIndex)
     ASSERT_THAT(statement.fetchSmallStringViewValue(0), "foo");
 }
 
-TEST_F(SqliteStatement, BindIndexIsZeroIsThrowingBindingIndexIsOutOfBound)
+TEST_F(SqliteStatement, BindIndexIsZeroIsThrowingBindingIndexIsOutOfBoundInt)
 {
     SqliteTestStatement statement("SELECT name, number FROM test WHERE number=$1", database);
 
     ASSERT_THROW(statement.bind(0, 40), Sqlite::BindingIndexIsOutOfRange);
 }
 
-TEST_F(SqliteStatement, BindIndexIsTpLargeIsThrowingBindingIndexIsOutOfBound)
+TEST_F(SqliteStatement, BindIndexIsZeroIsThrowingBindingIndexIsOutOfBoundNull)
 {
     SqliteTestStatement statement("SELECT name, number FROM test WHERE number=$1", database);
 
-    ASSERT_THROW(statement.bind(2, 40), Sqlite::BindingIndexIsOutOfRange);
+    ASSERT_THROW(statement.bind(0, Sqlite::NullValue{}), Sqlite::BindingIndexIsOutOfRange);
+}
+
+TEST_F(SqliteStatement, BindIndexIsTpLargeIsThrowingBindingIndexIsOutOfBoundLongLong)
+{
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=$1", database);
+
+    ASSERT_THROW(statement.bind(2, 40LL), Sqlite::BindingIndexIsOutOfRange);
+}
+
+TEST_F(SqliteStatement, BindIndexIsTpLargeIsThrowingBindingIndexIsOutOfBoundStringView)
+{
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=$1", database);
+
+    ASSERT_THROW(statement.bind(2, "foo"), Sqlite::BindingIndexIsOutOfRange);
+}
+
+TEST_F(SqliteStatement, BindIndexIsTpLargeIsThrowingBindingIndexIsOutOfBoundStringFloat)
+{
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=$1", database);
+
+    ASSERT_THROW(statement.bind(2, 2.), Sqlite::BindingIndexIsOutOfRange);
+}
+
+TEST_F(SqliteStatement, BindIndexIsTpLargeIsThrowingBindingIndexIsOutOfBoundPointer)
+{
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=$1", database);
+
+    ASSERT_THROW(statement.bind(2, nullptr), Sqlite::BindingIndexIsOutOfRange);
+}
+
+TEST_F(SqliteStatement, BindIndexIsTpLargeIsThrowingBindingIndexIsOutOfBoundValue)
+{
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=$1", database);
+
+    ASSERT_THROW(statement.bind(2, Sqlite::Value{1}), Sqlite::BindingIndexIsOutOfRange);
 }
 
 TEST_F(SqliteStatement, WrongBindingNameThrowingBindingIndexIsOutOfBound)
@@ -355,6 +401,16 @@ TEST_F(SqliteStatement, WriteValues)
     statement.write("see", 7.23, 1);
 
     ASSERT_THAT(statement, HasValues("see", "7.23", 1));
+}
+
+TEST_F(SqliteStatement, WritePointerValues)
+{
+    SqliteTestStatement statement("SELECT value FROM carray(?, ?, 'int64')", database);
+    std::vector<long long> values{1, 1, 2, 3, 5};
+
+    statement.write(values.data(), int(values.size()));
+
+    ASSERT_THAT(statement.template values<int>(5), ElementsAre(1, 1, 2, 3, 5));
 }
 
 TEST_F(SqliteStatement, WriteNullValues)

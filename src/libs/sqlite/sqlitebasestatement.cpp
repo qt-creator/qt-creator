@@ -175,6 +175,17 @@ void BaseStatement::bind(int index, double value)
         checkForBindingError(resultCode);
 }
 
+void BaseStatement::bind(int index, void *pointer)
+{
+    int resultCode = sqlite3_bind_pointer(m_compiledStatement.get(),
+                                          index,
+                                          pointer,
+                                          "carray",
+                                          nullptr);
+    if (resultCode != SQLITE_OK)
+        checkForBindingError(resultCode);
+}
+
 void BaseStatement::bind(int index, Utils::SmallStringView text)
 {
     int resultCode = sqlite3_bind_text(m_compiledStatement.get(),

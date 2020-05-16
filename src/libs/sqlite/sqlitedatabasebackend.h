@@ -104,6 +104,7 @@ protected:
     void checkDatabaseClosing(int resultCode);
     void checkCanOpenDatabase(Utils::SmallStringView databaseFilePath);
     void checkDatabaseCouldBeOpened(int resultCode);
+    void checkCarrayCannotBeIntialized(int resultCode);
     void checkPragmaValue(Utils::SmallStringView databaseValue, Utils::SmallStringView expectedValue);
     void checkDatabaseHandleIsNotNull() const;
     void checkIfMultithreadingIsActivated(int resultCode);

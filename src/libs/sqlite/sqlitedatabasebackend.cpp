@@ -37,6 +37,10 @@
 
 #include "sqlite3.h"
 
+extern "C" {
+int sqlite3_carray_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines *pApi);
+}
+
 namespace Sqlite {
 
 DatabaseBackend::DatabaseBackend(Database &database)
@@ -101,6 +105,10 @@ void DatabaseBackend::open(Utils::SmallStringView databaseFilePath, OpenMode mod
                                      nullptr);
 
     checkDatabaseCouldBeOpened(resultCode);
+
+    resultCode = sqlite3_carray_init(m_databaseHandle, nullptr, nullptr);
+
+    checkCarrayCannotBeIntialized(resultCode);
 }
 
 sqlite3 *DatabaseBackend::sqliteDatabaseHandle() const
@@ -246,8 +254,17 @@ void DatabaseBackend::checkDatabaseCouldBeOpened(int resultCode)
             return;
         default:
             closeWithoutException();
-            throw Exception("SqliteDatabaseBackend::SqliteDatabaseBackend: database cannot be opened:", sqlite3_errmsg(sqliteDatabaseHandle()));
-    }
+            throw Exception(
+                "SqliteDatabaseBackend::SqliteDatabaseBackend: database cannot be opened:",
+                sqlite3_errmsg(sqliteDatabaseHandle()));
+        }
+}
+
+void DatabaseBackend::checkCarrayCannotBeIntialized(int resultCode)
+{
+    if (resultCode != SQLITE_OK)
+        throwDatabaseIsNotOpen(
+            "SqliteDatabaseBackend: database cannot be opened because carray failed!");
 }
 
 void DatabaseBackend::checkPragmaValue(Utils::SmallStringView databaseValue,

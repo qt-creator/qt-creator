@@ -77,6 +77,7 @@ public:
     void bind(int index, int fetchValue);
     void bind(int index, long long fetchValue);
     void bind(int index, double fetchValue);
+    void bind(int index, void *pointer);
     void bind(int index, Utils::SmallStringView fetchValue);
     void bind(int index, const Value &fetchValue);
 
