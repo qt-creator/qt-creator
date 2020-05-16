@@ -205,10 +205,12 @@ public:
     {
         Resetter resetter{*this};
         std::vector<ResultType> resultValues;
-        resultValues.reserve(reserveSize);
+        resultValues.reserve(std::max(reserveSize, m_maximumResultCount));
 
         while (BaseStatement::next())
-           emplaceBackValues<ResultTypeCount>(resultValues);
+            emplaceBackValues<ResultTypeCount>(resultValues);
+
+        setMaximumResultCount(resultValues.size());
 
         resetter.reset();
 
@@ -222,12 +224,14 @@ public:
     {
         Resetter resetter{*this};
         std::vector<ResultType> resultValues;
-        resultValues.reserve(reserveSize);
+        resultValues.reserve(std::max(reserveSize, m_maximumResultCount));
 
         bindValues(queryValues...);
 
         while (BaseStatement::next())
-           emplaceBackValues<ResultTypeCount>(resultValues);
+            emplaceBackValues<ResultTypeCount>(resultValues);
+
+        setMaximumResultCount(resultValues.size());
 
         resetter.reset();
 
@@ -241,7 +245,7 @@ public:
                                    const std::vector<QueryElementType> &queryValues)
     {
         std::vector<ResultType> resultValues;
-        resultValues.reserve(reserveSize);
+        resultValues.reserve(std::max(reserveSize, m_maximumResultCount));
 
         for (const QueryElementType &queryValue : queryValues) {
             Resetter resetter{*this};
@@ -249,6 +253,8 @@ public:
 
             while (BaseStatement::next())
                 emplaceBackValues<ResultTypeCount>(resultValues);
+
+            setMaximumResultCount(resultValues.size());
 
             resetter.reset();
         }
@@ -264,7 +270,7 @@ public:
     {
         using Container = std::vector<ResultType>;
         Container resultValues;
-        resultValues.reserve(reserveSize);
+        resultValues.reserve(std::max(reserveSize, m_maximumResultCount));
 
         for (const auto &queryTuple : queryTuples) {
             Resetter resetter{*this};
@@ -272,6 +278,8 @@ public:
 
             while (BaseStatement::next())
                 emplaceBackValues<ResultTypeCount>(resultValues);
+
+            setMaximumResultCount(resultValues.size());
 
             resetter.reset();
         }
@@ -427,6 +435,13 @@ private:
         bindTupleValuesElement(element, ColumnIndices());
     }
 
+    void setMaximumResultCount(std::size_t count)
+    {
+        m_maximumResultCount = std::max(m_maximumResultCount, count);
+    }
+
+public:
+    std::size_t m_maximumResultCount = 0;
 };
 
 } // namespace Sqlite
