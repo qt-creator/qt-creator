@@ -36,6 +36,29 @@ namespace Sqlite {
 class LastChangedRowId
 {
 public:
+    LastChangedRowId(DatabaseInterface &database)
+        : database(database)
+
+    {
+        callback = [=](ChangeType, char const *database, char const *table, long long rowId) {
+            this->lastRowId = rowId;
+        };
+
+        database.setUpdateHook(callback);
+    }
+
+    LastChangedRowId(DatabaseInterface &database, Utils::SmallStringView databaseName)
+        : database(database)
+
+    {
+        callback = [=](ChangeType, char const *database, char const *table, long long rowId) {
+            if (databaseName == database)
+                this->lastRowId = rowId;
+        };
+
+        database.setUpdateHook(callback);
+    }
+
     LastChangedRowId(DatabaseInterface &database,
                      Utils::SmallStringView databaseName,
                      Utils::SmallStringView tableName)
