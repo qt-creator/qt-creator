@@ -828,6 +828,12 @@ void VcsBaseEditorWidget::setFileLogAnnotateEnabled(bool e)
     d->m_fileLogAnnotateEnabled = e;
 }
 
+void VcsBaseEditorWidget::setHighlightingEnabled(bool e)
+{
+    auto dh = static_cast<DiffAndLogHighlighter *>(textDocument()->syntaxHighlighter());
+    dh->setEnabled(e);
+}
+
 QString VcsBaseEditorWidget::workingDirectory() const
 {
     return d->m_workingDirectory;

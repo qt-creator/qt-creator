@@ -1048,7 +1048,7 @@ static QStringList normalLogArguments()
 
     const QString logArgs = QStringLiteral(
                 "--pretty=format:"
-                "Commit: %C(%1)%H%Creset %C(%2)%d%Creset%n"
+                "commit %C(%1)%H%Creset %C(%2)%d%Creset%n"
                 "Author: %C(%3)%an <%ae>%Creset%n"
                 "Date:   %C(%4)%cD%Creset%n%n"
                 "%C(%5)%s%Creset%n%n%b%n"
@@ -1092,8 +1092,12 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
         arguments << "-n" << QString::number(logCount);
 
     arguments << argWidget->arguments();
-    if (arguments.contains(patchOption))
+    if (arguments.contains(patchOption)) {
         arguments.removeAll(colorOption);
+        editor->setHighlightingEnabled(true);
+    } else {
+        editor->setHighlightingEnabled(false);
+    }
     if (!arguments.contains(graphOption) && !arguments.contains(patchOption))
         arguments << normalLogArguments();
 

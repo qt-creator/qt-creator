@@ -192,6 +192,8 @@ public:
     bool isFileLogAnnotateEnabled() const;
     void setFileLogAnnotateEnabled(bool e);
 
+    void setHighlightingEnabled(bool e);
+
     QTextCodec *codec() const;
     void setCodec(QTextCodec *);
 

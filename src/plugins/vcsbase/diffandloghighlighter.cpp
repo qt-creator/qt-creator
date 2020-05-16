@@ -115,6 +115,7 @@ public:
     QTextCharFormat m_addedTrailingWhiteSpaceFormat;
 
     Internal::FoldingState m_foldingState;
+    bool m_enabled = true;
 };
 
 TextEditor::TextStyle DiffAndLogHighlighterPrivate::analyzeLine(const QString &text) const
@@ -179,16 +180,18 @@ void DiffAndLogHighlighter::highlightBlock(const QString &text)
     const int length = text.length();
     const TextEditor::TextStyle format = d->analyzeLine(text);
 
-    if (format == TextEditor::C_ADDED_LINE) {
+    if (d->m_enabled) {
+        if (format == TextEditor::C_ADDED_LINE) {
             // Mark trailing whitespace.
             const int trimmedLen = trimmedLength(text);
             setFormatWithSpaces(text, 0, trimmedLen, formatForCategory(format));
             if (trimmedLen != length)
                 setFormat(trimmedLen, length - trimmedLen, d->m_addedTrailingWhiteSpaceFormat);
-    } else if (format != TextEditor::C_TEXT) {
-        setFormatWithSpaces(text, 0, length, formatForCategory(format));
-    } else {
-        formatSpaces(text);
+        } else if (format != TextEditor::C_TEXT) {
+            setFormatWithSpaces(text, 0, length, formatForCategory(format));
+        } else {
+            formatSpaces(text);
+        }
     }
 
     // codefolding:
@@ -239,6 +242,11 @@ void DiffAndLogHighlighter::setFontSettings(const TextEditor::FontSettings &font
 {
     SyntaxHighlighter::setFontSettings(fontSettings);
     d->updateOtherFormats();
+}
+
+void DiffAndLogHighlighter::setEnabled(bool e)
+{
+    d->m_enabled = e;
 }
 
 } // namespace VcsBase
