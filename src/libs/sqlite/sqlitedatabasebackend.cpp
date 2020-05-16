@@ -73,8 +73,10 @@ static void sqliteLog(void*,int errorCode,const char *errorMessage)
 
 void DatabaseBackend::activateLogging()
 {
-    int resultCode = sqlite3_config(SQLITE_CONFIG_LOG, sqliteLog, nullptr);
-    checkIfLoogingIsActivated(resultCode);
+    if (qEnvironmentVariableIsSet("QTC_SQLITE_LOGGING")) {
+        int resultCode = sqlite3_config(SQLITE_CONFIG_LOG, sqliteLog, nullptr);
+        checkIfLoogingIsActivated(resultCode);
+    }
 }
 
 void DatabaseBackend::initializeSqliteLibrary()
