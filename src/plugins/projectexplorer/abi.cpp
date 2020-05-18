@@ -517,6 +517,12 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             flavor = GenericFlavor;
             format = ElfFormat;
             width = 32;
+        } else if (p == "m68k") {
+            arch = M68KArchitecture;
+            os = BareMetalOS;
+            flavor = GenericFlavor;
+            format = ElfFormat;
+            width = 16;
         } else if (p.startsWith("riscv")) {
             arch = RiscVArchitecture;
             os = BareMetalOS;
