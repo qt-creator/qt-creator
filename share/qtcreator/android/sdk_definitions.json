@@ -9,7 +9,7 @@
             "mac_sha256": "ecb29358bc0f13d7c2fa0f9290135a5b608e38434aad9bf7067d0252c160853e"
         },
         "sdk_essential_packages": {
-            "default": ["platform-tools", "platforms;android-29", "lldb;3.1"],
+            "default": ["platform-tools", "platforms;android-29"],
             "linux": [],
             "mac": [],
             "windows": ["extras;google;usb_driver"]
