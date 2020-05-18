@@ -70,7 +70,7 @@ class ANDROID_EXPORT AndroidManager : public QObject
     Q_OBJECT
 
 public:
-    static QString packageName(ProjectExplorer::Target *target);
+    static QString packageName(const ProjectExplorer::Target *target);
     static QString packageName(const Utils::FilePath &manifestFile);
     static bool packageInstalled(const QString &deviceSerial, const QString &packageName);
     static int packageVersionCode(const QString &deviceSerial, const QString &packageName);
@@ -78,30 +78,30 @@ public:
                         QString *packageName = nullptr,
                         int *version = nullptr,
                         QString *activityPath = nullptr);
-    static QString activityName(ProjectExplorer::Target *target);
+    static QString activityName(const ProjectExplorer::Target *target);
 
-    static QString deviceSerialNumber(ProjectExplorer::Target *target);
+    static QString deviceSerialNumber(const ProjectExplorer::Target *target);
     static void setDeviceSerialNumber(ProjectExplorer::Target *target, const QString &deviceSerialNumber);
 
     static QString apkDevicePreferredAbi(const ProjectExplorer::Target *target);
     static void setDeviceAbis(ProjectExplorer::Target *target, const QStringList &deviceAbis);
 
-    static int deviceApiLevel(ProjectExplorer::Target *target);
+    static int deviceApiLevel(const ProjectExplorer::Target *target);
     static void setDeviceApiLevel(ProjectExplorer::Target *target, int level);
 
-    static QString buildTargetSDK(ProjectExplorer::Target *target);
+    static QString buildTargetSDK(const ProjectExplorer::Target *target);
 
-    static int minimumSDK(ProjectExplorer::Target *target);
+    static int minimumSDK(const ProjectExplorer::Target *target);
     static int minimumSDK(const ProjectExplorer::Kit *kit);
 
     static QStringList applicationAbis(const ProjectExplorer::Target *target);
     static QString archTriplet(const QString &abi);
 
     static Utils::FilePath dirPath(const ProjectExplorer::Target *target);
-    static Utils::FilePath manifestPath(ProjectExplorer::Target *target);
+    static Utils::FilePath manifestPath(const ProjectExplorer::Target *target);
     static void setManifestPath(ProjectExplorer::Target *target, const Utils::FilePath &path);
-    static Utils::FilePath manifestSourcePath(ProjectExplorer::Target *target);
-    static Utils::FilePath defaultPropertiesPath(ProjectExplorer::Target *target);
+    static Utils::FilePath manifestSourcePath(const ProjectExplorer::Target *target);
+    static Utils::FilePath defaultPropertiesPath(const ProjectExplorer::Target *target);
     static Utils::FilePath apkPath(const ProjectExplorer::Target *target);
     static bool matchedAbis(const QStringList &deviceAbis, const QStringList &appAbis);
     static QString devicePreferredAbi(const QStringList &deviceAbis, const QStringList &appAbis);
@@ -113,7 +113,8 @@ public:
     static void installQASIPackage(ProjectExplorer::Target *target, const QString &packagePath);
 
     static bool checkKeystorePassword(const QString &keystorePath, const QString &keystorePasswd);
-    static bool checkCertificatePassword(const QString &keystorePath, const QString &keystorePasswd, const QString &alias, const QString &certificatePasswd);
+    static bool checkCertificatePassword(const QString &keystorePath, const QString &keystorePasswd,
+                                         const QString &alias, const QString &certificatePasswd);
     static bool checkCertificateExists(const QString &keystorePath, const QString &keystorePasswd,
                                        const QString &alias);
     static bool updateGradleProperties(ProjectExplorer::Target *target, const QString &buildKey);
