@@ -69,6 +69,7 @@
 #include <changeselectioncommand.h>
 #include <inputeventcommand.h>
 #include <view3dactioncommand.h>
+#include <changelanguagecommand.h>
 
 #include <QDebug>
 #include <QQmlEngine>
@@ -1397,7 +1398,22 @@ void NodeInstanceServer::view3DAction(const View3DActionCommand &command)
     Q_UNUSED(command)
 }
 
-void NodeInstanceServer::changeLanguage(const ChangeLanguageCommand &) {}
+void NodeInstanceServer::changeLanguage(const ChangeLanguageCommand &command)
+{
+    static QPointer<MultiLanguage::Translator> multilanguageTranslator;
+    if (!MultiLanguage::databaseFilePath().isEmpty()) {
+        if (!multilanguageLink) {
+            multilanguageLink = std::make_unique<MultiLanguage::Link>();
+            multilanguageTranslator = multilanguageLink->translator().release();
+            QCoreApplication::installTranslator(multilanguageTranslator);
+        }
+        if (multilanguageTranslator)
+            multilanguageTranslator->setLanguage(command.language);
+    }
+    QEvent ev(QEvent::LanguageChange);
+    QCoreApplication::sendEvent(QCoreApplication::instance(), &ev);
+    engine()->retranslate();
+}
 
-void NodeInstanceServer::changePreviewImageSize(const ChangePreviewImageSizeCommand &command) {}
+void NodeInstanceServer::changePreviewImageSize(const ChangePreviewImageSizeCommand &) {}
 } // namespace QmlDesigner
