@@ -54,6 +54,7 @@ public:
 
     void setInfo(const QString &label, const QString &toolTip, const QString &term);
     QWidget *additionalReplaceWidget() const;
+    void setAdditionalReplaceWidget(QWidget *widget);
 
     void addResult(const QString &fileName,
                    const QString &lineText,
@@ -132,7 +133,7 @@ private:
     QToolButton *m_replaceButton = nullptr;
     QToolButton *m_searchAgainButton = nullptr;
     QCheckBox *m_preserveCaseCheck = nullptr;
-    QCheckBox *m_renameFilesCheckBox = nullptr;
+    QWidget *m_additionalReplaceWidget = nullptr;
     QWidget *m_descriptionContainer = nullptr;
     QLabel *m_label = nullptr;
     QLabel *m_searchTerm = nullptr;

@@ -176,8 +176,8 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     m_preserveCaseCheck = new QCheckBox(m_topReplaceWidget);
     m_preserveCaseCheck->setText(tr("Preser&ve case"));
     m_preserveCaseCheck->setEnabled(false);
-    m_renameFilesCheckBox = new QCheckBox(m_topReplaceWidget);
-    m_renameFilesCheckBox->setVisible(false);
+    m_additionalReplaceWidget = new QWidget(m_topReplaceWidget);
+    m_additionalReplaceWidget->setVisible(false);
     m_replaceButton = new QToolButton(m_topReplaceWidget);
     m_replaceButton->setToolTip(tr("Replace all occurrences."));
     m_replaceButton->setText(tr("&Replace"));
@@ -198,7 +198,7 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     topReplaceLayout->addWidget(m_replaceLabel);
     topReplaceLayout->addWidget(m_replaceTextEdit);
     topReplaceLayout->addWidget(m_preserveCaseCheck);
-    topReplaceLayout->addWidget(m_renameFilesCheckBox);
+    topReplaceLayout->addWidget(m_additionalReplaceWidget);
     topReplaceLayout->addWidget(m_replaceButton);
     topReplaceLayout->addStretch(2);
     setShowReplaceUI(m_replaceSupported);
@@ -231,7 +231,16 @@ void SearchResultWidget::setInfo(const QString &label, const QString &toolTip, c
 
 QWidget *SearchResultWidget::additionalReplaceWidget() const
 {
-    return m_renameFilesCheckBox;
+    return m_additionalReplaceWidget;
+}
+
+void SearchResultWidget::setAdditionalReplaceWidget(QWidget *widget)
+{
+    if (QLayoutItem *item = m_topReplaceWidget->layout()->replaceWidget(m_additionalReplaceWidget,
+                                                                        widget))
+        delete item;
+    delete m_additionalReplaceWidget;
+    m_additionalReplaceWidget = widget;
 }
 
 void SearchResultWidget::addResult(const QString &fileName,

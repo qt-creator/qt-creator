@@ -60,6 +60,7 @@ public:
     int count() const;
     void setSearchAgainSupported(bool supported);
     QWidget *additionalReplaceWidget() const;
+    void setAdditionalReplaceWidget(QWidget *widget);
 
 public slots:
     void addResult(const QString &fileName,

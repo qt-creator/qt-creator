@@ -772,6 +772,14 @@ QWidget *SearchResult::additionalReplaceWidget() const
 }
 
 /*!
+    Sets a UI for a global search and replace action.
+*/
+void SearchResult::setAdditionalReplaceWidget(QWidget *widget)
+{
+    m_widget->setAdditionalReplaceWidget(widget);
+}
+
+/*!
     Adds a single result line to the \uicontrol {Search Results} output pane.
 
     \a fileName, \a lineNumber, and \a lineText are shown on the result line.

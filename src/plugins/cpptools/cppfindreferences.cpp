@@ -338,6 +338,9 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
                                                 SearchResultWindow::PreserveCaseDisabled,
                                                 QLatin1String("CppEditor"));
     search->setTextToReplace(replacement);
+    auto renameFilesCheckBox = new QCheckBox();
+    renameFilesCheckBox->setVisible(false);
+    search->setAdditionalReplaceWidget(renameFilesCheckBox);
     connect(search, &SearchResult::replaceButtonClicked,
             this, &CppFindReferences::onReplaceButtonClicked);
     search->setSearchAgainSupported(true);
@@ -721,6 +724,9 @@ void CppFindReferences::findMacroUses(const CPlusPlus::Macro &macro, const QStri
                 QLatin1String("CppEditor"));
 
     search->setTextToReplace(replacement);
+    auto renameFilesCheckBox = new QCheckBox();
+    renameFilesCheckBox->setVisible(false);
+    search->setAdditionalReplaceWidget(renameFilesCheckBox);
     connect(search, &SearchResult::replaceButtonClicked,
             this, &CppFindReferences::onReplaceButtonClicked);
 
