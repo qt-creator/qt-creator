@@ -271,7 +271,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>OpenSSL .pri location:</string>
+             <string>OpenSSL binaries location:</string>
             </property>
            </widget>
           </item>
