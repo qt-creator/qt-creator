@@ -37,6 +37,7 @@
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDebug>
@@ -276,13 +277,16 @@ static Macros dumpC166PredefinedMacros(const FilePath &compiler, const QStringLi
     return macros;
 }
 
-static Macros dumpArmPredefinedMacros(const FilePath &compiler, const QStringList &env)
+static Macros dumpArmPredefinedMacros(const FilePath &compiler, const QStringList &extraArgs, const QStringList &env)
 {
     SynchronousProcess cpp;
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
 
-    const CommandLine cmd(compiler, {"-E", "--list-macros", "-cpu=cortex-m0"});
+    QStringList args = extraArgs;
+    args.push_back("-E");
+    args.push_back("--list-macros");
+    const CommandLine cmd(compiler, args);
 
     const SynchronousProcessResponse response = cpp.runBlocking(cmd);
     if (response.result != SynchronousProcessResponse::Finished
@@ -311,7 +315,7 @@ static bool isArmArchitecture(Abi::Architecture arch)
     return arch == Abi::Architecture::ArmArchitecture;
 }
 
-static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &env)
+static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &args, const QStringList &env)
 {
     if (compiler.isEmpty() || !compiler.toFileInfo().isExecutable())
         return {};
@@ -322,7 +326,7 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &
     if (isC166Architecture(arch))
         return dumpC166PredefinedMacros(compiler, env);
     if (isArmArchitecture(arch))
-        return dumpArmPredefinedMacros(compiler, env);
+        return dumpArmPredefinedMacros(compiler, args, env);
     return {};
 }
 
@@ -408,6 +412,20 @@ static QString buildDisplayName(Abi::Architecture arch, Core::Id language,
             .arg(version, langName, archName);
 }
 
+static void addDefaultCpuArgs(const FilePath &compiler, QStringList &extraArgs)
+{
+    const Abi::Architecture arch = guessArchitecture(compiler);
+    if (!isArmArchitecture(arch))
+        return;
+
+    const auto extraArgsIt = std::find_if(std::begin(extraArgs), std::end(extraArgs),
+                                          [](const QString &extraArg) {
+        return extraArg.contains("-cpu") || extraArg.contains("--cpu");
+    });
+    if (extraArgsIt == std::end(extraArgs))
+        extraArgs.push_back("--cpu=cortex-m0");
+}
+
 // KeilToolchain
 
 KeilToolChain::KeilToolChain() :
@@ -443,12 +461,13 @@ ToolChain::MacroInspectionRunner KeilToolChain::createMacroInspectionRunner() co
     const Core::Id lang = language();
 
     MacrosCache macroCache = predefinedMacrosCache();
+    const QStringList extraArgs = m_extraCodeModelFlags;
 
-    return [env, compilerCommand, macroCache, lang]
+    return [env, compilerCommand, extraArgs, macroCache, lang]
             (const QStringList &flags) {
         Q_UNUSED(flags)
 
-        const Macros macros = dumpPredefinedMacros(compilerCommand, env.toStringList());
+        const Macros macros = dumpPredefinedMacros(compilerCommand, extraArgs, env.toStringList());
         const auto report = MacroInspectionReport{macros, languageVersion(lang, macros)};
         macroCache->insert({}, report);
 
@@ -541,6 +560,7 @@ bool KeilToolChain::operator ==(const ToolChain &other) const
     const auto customTc = static_cast<const KeilToolChain *>(&other);
     return m_compilerCommand == customTc->m_compilerCommand
             && m_targetAbi == customTc->m_targetAbi
+            && m_extraCodeModelFlags == customTc->m_extraCodeModelFlags
             ;
 }
 
@@ -555,6 +575,19 @@ void KeilToolChain::setCompilerCommand(const FilePath &file)
 FilePath KeilToolChain::compilerCommand() const
 {
     return m_compilerCommand;
+}
+
+void KeilToolChain::setExtraCodeModelFlags(const QStringList &flags)
+{
+    if (flags == m_extraCodeModelFlags)
+        return;
+    m_extraCodeModelFlags = flags;
+    toolChainUpdated();
+}
+
+QStringList KeilToolChain::extraCodeModelFlags() const
+{
+    return m_extraCodeModelFlags;
 }
 
 FilePath KeilToolChain::makeCommand(const Environment &env) const
@@ -701,7 +734,10 @@ QList<ToolChain *> KeilToolChainFactory::autoDetectToolchain(
         const Candidate &candidate, Core::Id language) const
 {
     const auto env = Environment::systemEnvironment();
-    const Macros macros = dumpPredefinedMacros(candidate.compilerPath, env.toStringList());
+
+    QStringList extraArgs;
+    addDefaultCpuArgs(candidate.compilerPath, extraArgs);
+    const Macros macros = dumpPredefinedMacros(candidate.compilerPath, extraArgs, env.toStringList());
     if (macros.isEmpty())
         return {};
 
@@ -717,6 +753,7 @@ QList<ToolChain *> KeilToolChainFactory::autoDetectToolchain(
     tc->setDetection(ToolChain::AutoDetection);
     tc->setLanguage(language);
     tc->setCompilerCommand(candidate.compilerPath);
+    tc->setExtraCodeModelFlags(extraArgs);
     tc->setTargetAbi(abi);
     tc->setDisplayName(buildDisplayName(abi.architecture(), language, candidate.compilerVersion));
 
@@ -735,6 +772,9 @@ KeilToolChainConfigWidget::KeilToolChainConfigWidget(KeilToolChain *tc) :
     m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
     m_compilerCommand->setHistoryCompleter("PE.KEIL.Command.History");
     m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
+    m_platformCodeGenFlagsLineEdit = new QLineEdit(this);
+    m_platformCodeGenFlagsLineEdit->setText(QtcProcess::joinArgs(tc->extraCodeModelFlags()));
+    m_mainLayout->addRow(tr("Platform codegen flags:"), m_platformCodeGenFlagsLineEdit);
     m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
 
     m_abiWidget->setEnabled(false);
@@ -744,6 +784,8 @@ KeilToolChainConfigWidget::KeilToolChainConfigWidget(KeilToolChain *tc) :
 
     connect(m_compilerCommand, &PathChooser::rawPathChanged,
             this, &KeilToolChainConfigWidget::handleCompilerCommandChange);
+    connect(m_platformCodeGenFlagsLineEdit, &QLineEdit::editingFinished,
+            this, &KeilToolChainConfigWidget::handlePlatformCodeGenFlagsChange);
     connect(m_abiWidget, &AbiWidget::abiChanged,
             this, &ToolChainConfigWidget::dirty);
 }
@@ -756,6 +798,7 @@ void KeilToolChainConfigWidget::applyImpl()
     const auto tc = static_cast<KeilToolChain *>(toolChain());
     const QString displayName = tc->displayName();
     tc->setCompilerCommand(m_compilerCommand->filePath());
+    tc->setExtraCodeModelFlags(splitString(m_platformCodeGenFlagsLineEdit->text()));
     tc->setTargetAbi(m_abiWidget->currentAbi());
     tc->setDisplayName(displayName);
 
@@ -772,6 +815,7 @@ bool KeilToolChainConfigWidget::isDirtyImpl() const
 {
     const auto tc = static_cast<KeilToolChain *>(toolChain());
     return m_compilerCommand->filePath() != tc->compilerCommand()
+            || m_platformCodeGenFlagsLineEdit->text() != QtcProcess::joinArgs(tc->extraCodeModelFlags())
             || m_abiWidget->currentAbi() != tc->targetAbi()
             ;
 }
@@ -779,6 +823,7 @@ bool KeilToolChainConfigWidget::isDirtyImpl() const
 void KeilToolChainConfigWidget::makeReadOnlyImpl()
 {
     m_compilerCommand->setReadOnly(true);
+    m_platformCodeGenFlagsLineEdit->setEnabled(false);
     m_abiWidget->setEnabled(false);
 }
 
@@ -787,6 +832,7 @@ void KeilToolChainConfigWidget::setFromToolChain()
     const QSignalBlocker blocker(this);
     const auto tc = static_cast<KeilToolChain *>(toolChain());
     m_compilerCommand->setFilePath(tc->compilerCommand());
+    m_platformCodeGenFlagsLineEdit->setText(QtcProcess::joinArgs(tc->extraCodeModelFlags()));
     m_abiWidget->setAbis({}, tc->targetAbi());
     const bool haveCompiler = compilerExists(m_compilerCommand->filePath());
     m_abiWidget->setEnabled(haveCompiler && !tc->isAutoDetected());
@@ -798,13 +844,44 @@ void KeilToolChainConfigWidget::handleCompilerCommandChange()
     const bool haveCompiler = compilerExists(compilerPath);
     if (haveCompiler) {
         const auto env = Environment::systemEnvironment();
-        m_macros = dumpPredefinedMacros(compilerPath, env.toStringList());
+        const QStringList prevExtraArgs = splitString(m_platformCodeGenFlagsLineEdit->text());
+        QStringList newExtraArgs = prevExtraArgs;
+        addDefaultCpuArgs(compilerPath, newExtraArgs);
+        if (prevExtraArgs != newExtraArgs)
+            m_platformCodeGenFlagsLineEdit->setText(QtcProcess::joinArgs(newExtraArgs));
+        m_macros = dumpPredefinedMacros(compilerPath, newExtraArgs, env.toStringList());
         const Abi guessed = guessAbi(m_macros);
         m_abiWidget->setAbis({}, guessed);
     }
 
     m_abiWidget->setEnabled(haveCompiler);
     emit dirty();
+}
+
+void KeilToolChainConfigWidget::handlePlatformCodeGenFlagsChange()
+{
+    const QString str1 = m_platformCodeGenFlagsLineEdit->text();
+    const QString str2 = QtcProcess::joinArgs(splitString(str1));
+    if (str1 != str2)
+        m_platformCodeGenFlagsLineEdit->setText(str2);
+    else
+        handleCompilerCommandChange();
+}
+
+QStringList KeilToolChainConfigWidget::splitString(const QString &s) const
+{
+    QtcProcess::SplitError splitError;
+    const OsType osType = HostOsInfo::hostOs();
+    QStringList res = QtcProcess::splitArgs(s, osType, false, &splitError);
+    if (splitError != QtcProcess::SplitOk){
+        res = QtcProcess::splitArgs(s + '\\', osType, false, &splitError);
+        if (splitError != QtcProcess::SplitOk){
+            res = QtcProcess::splitArgs(s + '"', osType, false, &splitError);
+            if (splitError != QtcProcess::SplitOk)
+                res = QtcProcess::splitArgs(s + '\'', osType, false, &splitError);
+        }
+    }
+    return res;
 }
 
 } // namespace Internal
