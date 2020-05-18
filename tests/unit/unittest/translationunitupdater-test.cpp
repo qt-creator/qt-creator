@@ -124,6 +124,7 @@ TEST_F(TranslationUnitUpdaterSlowTest, UpdatesDependentOnFilesOnParse)
 
 void TranslationUnitUpdater::TearDown()
 {
+    clang_disposeTranslationUnit(cxTranslationUnit);
     clang_disposeIndex(cxIndex);
 }
 
