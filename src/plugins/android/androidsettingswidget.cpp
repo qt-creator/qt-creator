@@ -102,6 +102,8 @@ public:
 private:
     void apply() final { AndroidConfigurations::setConfig(m_androidConfig); }
 
+    void showEvent(QShowEvent *event) override;
+
     void validateJdk();
     void validateNdk();
     void updateNdkList();
@@ -127,10 +129,6 @@ private:
     void disableAvdControls();
 
     void downloadSdk();
-    bool allEssentialsInstalled();
-    bool sdkToolsOk() const;
-    FilePath getDefaultSdkPath() const;
-    void showEvent(QShowEvent *event) final;
     void addCustomNdkItem();
     void validateOpenSsl();
 
@@ -293,28 +291,6 @@ AvdModel::AvdModel()
     setHeader({tr("AVD Name"), tr("API"), tr("CPU/ABI"), tr("Device type"), tr("Target"), tr("SD-card size")});
 }
 
-FilePath AndroidSettingsWidget::getDefaultSdkPath() const
-{
-    QString sdkFromEnvVar = QString::fromLocal8Bit(getenv("ANDROID_SDK_ROOT"));
-    if (!sdkFromEnvVar.isEmpty())
-        return FilePath::fromString(sdkFromEnvVar);
-
-    // Set default path of SDK as used by Android Studio
-    if (HostOsInfo::isMacHost()) {
-        return FilePath::fromString(
-            QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)
-            + "/../Android/sdk");
-    }
-
-    if (HostOsInfo::isWindowsHost()) {
-        return FilePath::fromString(
-            QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/Android/sdk");
-    }
-
-    return FilePath::fromString(
-                QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/Android/Sdk");
-}
-
 void AndroidSettingsWidget::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event)
@@ -437,7 +413,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
 
     FilePath currentSDKPath = m_androidConfig.sdkLocation();
     if (currentSDKPath.isEmpty())
-        currentSDKPath = getDefaultSdkPath();
+        currentSDKPath = AndroidConfig::defaultSdkPath();
 
     m_ui.SDKLocationPathChooser->setFilePath(currentSDKPath);
     m_ui.SDKLocationPathChooser->setPromptDialogTitle(tr("Select Android SDK folder"));
@@ -651,9 +627,7 @@ void AndroidSettingsWidget::validateSdk()
     // after AndroidSdkManager::packageReloadFinished.
     m_androidSummary->setPointValid(PlatformSdkInstalledRow,
                                     !m_sdkManager.installedSdkPlatforms().isEmpty());
-
-    m_androidSummary->setPointValid(AllEssentialsInstalledRow, allEssentialsInstalled());
-
+    m_androidSummary->setPointValid(AllEssentialsInstalledRow, m_androidConfig.allEssentialsInstalled());
     updateUI();
 
     const bool sdkToolsOk = m_androidSummary->rowsOk({SdkPathExistsRow,
@@ -868,7 +842,7 @@ void AndroidSettingsWidget::updateUI()
 
 void AndroidSettingsWidget::downloadSdk()
 {
-    if (sdkToolsOk()) {
+    if (m_androidConfig.sdkToolsOk()) {
         QMessageBox::warning(this, AndroidSdkDownloader::dialogTitle(),
                              tr("The selected path already has a valid SDK Tools package."));
         validateSdk();
@@ -886,25 +860,6 @@ void AndroidSettingsWidget::downloadSdk()
                                                   m_ui.SDKLocationPathChooser->filePath().toString());
         }
     }
-}
-
-bool AndroidSettingsWidget::allEssentialsInstalled()
-{
-    QStringList essentialPkgs = m_androidConfig.allEssentials();
-    for (const AndroidSdkPackage *pkg : m_sdkManager.installedSdkPackages()) {
-        essentialPkgs.removeOne(pkg->sdkStylePath());
-        if (essentialPkgs.isEmpty())
-            break;
-    }
-    return essentialPkgs.isEmpty() ? true : false;
-}
-
-bool AndroidSettingsWidget::sdkToolsOk() const
-{
-    bool exists = m_androidConfig.sdkLocation().exists();
-    bool writable = m_androidConfig.sdkLocation().isWritablePath();
-    bool sdkToolsExist = !m_androidConfig.sdkToolsVersion().isNull();
-    return exists && writable && sdkToolsExist;
 }
 
 // AndroidSettingsPage

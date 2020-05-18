@@ -134,6 +134,8 @@ public:
     QStringList defaultEssentials() const;
     QStringList essentialsFromQtVersion(const QtSupport::BaseQtVersion &version) const;
     QStringList allEssentials() const;
+    bool allEssentialsInstalled();
+    bool sdkToolsOk() const;
 
     Utils::FilePath openJDKLocation() const;
     void setOpenJDKLocation(const Utils::FilePath &openJDKLocation);
@@ -150,6 +152,7 @@ public:
     bool automaticKitCreation() const;
     void setAutomaticKitCreation(bool b);
 
+    static Utils::FilePath defaultSdkPath();
     Utils::FilePath adbToolPath() const;
     Utils::FilePath androidToolPath() const;
     Utils::FilePath emulatorToolPath() const;
