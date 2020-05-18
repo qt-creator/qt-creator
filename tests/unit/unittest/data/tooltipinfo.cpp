@@ -199,3 +199,6 @@ Nuu **pointers(Nuu **p1)
 {
     return p1;
 }
+
+static constexpr int calcValue() { return 1 + 2; }
+const auto val = calcValue() + sizeof(char);

@@ -149,6 +149,28 @@ Utf8String sizeInBytes(const Cursor &cursor)
     return Utf8String();
 }
 
+QVariant value(const Cursor &cursor)
+{
+    if (!clang_isDeclaration(cursor.cx().kind) && !clang_isExpression(cursor.cx().kind))
+        return {};
+    const CXEvalResult evalResult = clang_Cursor_Evaluate(cursor.cx());
+    QVariant v;
+    switch (clang_EvalResult_getKind(evalResult)) {
+    case CXEval_Int:
+        v = clang_EvalResult_isUnsignedInt(evalResult)
+                ? QVariant::fromValue(clang_EvalResult_getAsUnsigned(evalResult))
+                : QVariant::fromValue(clang_EvalResult_getAsLongLong(evalResult));
+        break;
+    case CXEval_Float:
+        v = QVariant::fromValue(clang_EvalResult_getAsDouble(evalResult));
+        break;
+    default:
+        break;
+    }
+    clang_EvalResult_dispose(evalResult);
+    return v;
+}
+
 Cursor referencedCursor(const Cursor &cursor)
 {
     // Query the referenced cursor directly instead of first testing with cursor.isReference().
@@ -503,6 +525,7 @@ ToolTipInfo ToolTipInfoCollector::collect(uint line, uint column) const
     ToolTipInfo info;
     info.text = text(cursor, referenced);
     info.briefComment = referenced.briefComment();
+    info.value = value(cursor);
 
     {
         ToolTipInfo qDocToolTipInfo = qDocInfo(referenced);

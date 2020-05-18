@@ -41,6 +41,8 @@
 
 #include <QTextEdit>
 
+#include <QVariant>
+
 #include <functional>
 
 namespace TextEditor {
@@ -57,6 +59,7 @@ struct CPPTOOLS_EXPORT ToolTipInfo {
     QStringList qDocIdCandidates;
     QString qDocMark;
     Core::HelpItem::Category qDocCategory;
+    QVariant value;
 
     QString sizeInBytes;
 };

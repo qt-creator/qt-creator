@@ -339,7 +339,7 @@ static CppTools::ToolTipInfo toToolTipInfo(const ToolTipMessage &message)
     info.qDocIdCandidates = toStringList(backendInfo.qdocIdCandidates);
     info.qDocMark = backendInfo.qdocMark;
     info.qDocCategory = toHelpItemCategory(backendInfo.qdocCategory);
-
+    info.value = backendInfo.value;
     info.sizeInBytes = backendInfo.sizeInBytes;
 
     return info;

@@ -181,6 +181,22 @@ void ClangHoverHandler::processToolTipInfo(const CppTools::ToolTipInfo &info)
 
     if (!info.sizeInBytes.isEmpty())
         text.append("\n\n" + tr("%1 bytes").arg(info.sizeInBytes));
+    if (info.value.isValid()) {
+        text.append("\n\n" + tr("Value: "));
+        switch (info.value.type()) {
+        case static_cast<QVariant::Type>(QMetaType::LongLong):
+            text.append(QString::number(info.value.toLongLong()));
+            break;
+        case static_cast<QVariant::Type>(QMetaType::ULongLong):
+            text.append(QString::number(info.value.toULongLong()));
+            break;
+        case static_cast<QVariant::Type>(QMetaType::Double):
+            text.append(QString::number(info.value.toDouble()));
+            break;
+        default:
+            QTC_CHECK(false);
+        }
+    }
 
     setToolTip(text);
     m_reportPriority(priority());

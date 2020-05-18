@@ -28,6 +28,8 @@
 #include <utf8string.h>
 #include <utf8stringvector.h>
 
+#include <QVariant>
+
 namespace ClangBackEnd {
 
 class ToolTipInfo
@@ -54,6 +56,7 @@ public:
         out << message.qdocIdCandidates;
         out << message.qdocMark;
         out << static_cast<quint8>(message.qdocCategory);
+        out << message.value;
         out << message.sizeInBytes;
 
         return out;
@@ -68,6 +71,7 @@ public:
         in >> message.qdocIdCandidates;
         in >> message.qdocMark;
         in >> qdocCategory;
+        in >> message.value;
         in >> message.sizeInBytes;
 
         message.qdocCategory = static_cast<QdocCategory>(qdocCategory);
@@ -82,6 +86,7 @@ public:
             && first.qdocIdCandidates == second.qdocIdCandidates
             && first.qdocMark == second.qdocMark
             && first.qdocCategory == second.qdocCategory
+            && first.value == second.value
             && first.sizeInBytes == second.sizeInBytes;
     }
 
@@ -92,6 +97,7 @@ public:
     Utf8StringVector qdocIdCandidates;
     Utf8String qdocMark;
     QdocCategory qdocCategory = Unknown;
+    QVariant value;
 
     // For class definition and for class fields.
     Utf8String sizeInBytes;
