@@ -282,7 +282,7 @@ static Macros dumpArmPredefinedMacros(const FilePath &compiler, const QStringLis
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
 
-    const CommandLine cmd(compiler, {"-E", "--list-macros"});
+    const CommandLine cmd(compiler, {"-E", "--list-macros", "-cpu=cortex-m0"});
 
     const SynchronousProcessResponse response = cpp.runBlocking(cmd);
     if (response.result != SynchronousProcessResponse::Finished
