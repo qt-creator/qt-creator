@@ -49,6 +49,8 @@
 #include <utils/url.h>
 #include <utils/fileutils.h>
 
+#include <QDir>
+#include <QDirIterator>
 #include <QFileInfo>
 #include <QLoggingCategory>
 #include <QTcpServer>
@@ -186,11 +188,35 @@ static QString lldbServerArch(const QString &androidAbi)
     return androidAbi; // arm64-v8a, x86, x86_64
 }
 
-static FilePath lldbServer(const QString &androidAbi)
+static QString lldbServerArch2(const QString &androidAbi)
+{
+    if (androidAbi == "armeabi-v7a")
+        return {"arm"};
+    if (androidAbi == "x86")
+        return {"i386"};
+    if (androidAbi == "arm64-v8a")
+        return {"aarch64"};
+    // Correct for "x86_64" a and best guess at anything that will evolve:
+    return androidAbi; // arm64-v8a
+}
+
+static FilePath lldbServer(const QString &androidAbi, const QtSupport::BaseQtVersion *qtVersion)
 {
     const AndroidConfig &config = AndroidConfigurations::currentConfig();
+    const FilePath prebuilt = config.ndkLocation(qtVersion) / "toolchains/llvm/prebuilt";
+    const QString abiNeedle = lldbServerArch2(androidAbi);
 
-    // Find LLDB version. sdk_definitions.json contains something like  "lldb;3.1". Use that.
+    // The new, built-in LLDB.
+    QDirIterator it(prebuilt.toString(), QDir::Files|QDir::Executable, QDirIterator::Subdirectories);
+    while (it.hasNext()) {
+        it.next();
+        const QString filePath = it.filePath();
+        if (filePath.endsWith(abiNeedle + "/lldb-server")) {
+            return FilePath::fromString(filePath);
+        }
+    }
+
+    // Older: Find LLDB version. sdk_definitions.json contains something like  "lldb;3.1". Use that.
     const QStringList packages = config.defaultEssentials();
     for (const QString &package : packages) {
         if (package.startsWith("lldb;")) {
@@ -282,7 +308,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     QString preferredAbi = AndroidManager::apkDevicePreferredAbi(target);
     if (!preferredAbi.isEmpty()) {
         if (m_useLldb)
-            m_debugServerPath = lldbServer(preferredAbi).toString();
+            m_debugServerPath = lldbServer(preferredAbi, version).toString();
         else
             m_debugServerPath = gdbServer(preferredAbi, version).toString();
     }
