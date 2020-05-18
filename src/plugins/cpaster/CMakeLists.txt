@@ -11,6 +11,7 @@ add_qtc_plugin(CodePaster
     cpasterconstants.h
     cpaster.qrc
     cpasterplugin.cpp cpasterplugin.h
+    dpastedotcomprotocol.cpp dpastedotcomprotocol.h
     fileshareprotocol.cpp fileshareprotocol.h
     fileshareprotocolsettingspage.cpp fileshareprotocolsettingspage.h
     fileshareprotocolsettingswidget.ui
@@ -18,7 +19,6 @@ add_qtc_plugin(CodePaster
     frontend/main.cpp
     pastebindotcomprotocol.cpp pastebindotcomprotocol.h
     pastebindotcomsettings.ui
-    pastecodedotxyzprotocol.cpp pastecodedotxyzprotocol.h
     pasteselect.ui
     pasteselectdialog.cpp pasteselectdialog.h
     pasteview.cpp pasteview.h pasteview.ui

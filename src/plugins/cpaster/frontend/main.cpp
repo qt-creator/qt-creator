@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 #include "argumentscollector.h"
+#include "../dpastedotcomprotocol.h"
 #include "../pastebindotcomprotocol.h"
-#include "../pastecodedotxyzprotocol.h"
 
 #include <QFile>
 #include <QObject>
@@ -47,8 +47,8 @@ public:
     {
         if (protocol == PasteBinDotComProtocol::protocolName().toLower())
             m_protocol.reset(new PasteBinDotComProtocol);
-        else if (protocol == PasteCodeDotXyzProtocol::protocolName().toLower())
-            m_protocol.reset(new PasteCodeDotXyzProtocol);
+        else if (protocol == DPasteDotComProtocol::protocolName().toLower())
+            m_protocol.reset(new DPasteDotComProtocol);
         else
             qFatal("Internal error: Invalid protocol.");
     }
@@ -88,8 +88,8 @@ int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
-    const QStringList protocols = {PasteBinDotComProtocol::protocolName().toLower(),
-                                   PasteCodeDotXyzProtocol::protocolName().toLower()};
+    const QStringList protocols = {DPasteDotComProtocol::protocolName().toLower(),
+                                   PasteBinDotComProtocol::protocolName().toLower()};
     ArgumentsCollector argsCollector(protocols);
     QStringList arguments = QCoreApplication::arguments();
     arguments.removeFirst();

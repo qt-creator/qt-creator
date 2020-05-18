@@ -12,14 +12,14 @@ QT += network
 
 HEADERS = ../protocol.h \
     ../cpasterconstants.h \
+    ../dpastedotcomprotocol.h \
     ../pastebindotcomprotocol.h \
-    ../pastecodedotxyzprotocol.h \
     ../urlopenprotocol.h \
     argumentscollector.h
 
 SOURCES += ../protocol.cpp \
+    ../dpastedotcomprotocol.cpp \
     ../pastebindotcomprotocol.cpp \
-    ../pastecodedotxyzprotocol.cpp \
     ../urlopenprotocol.cpp \
     argumentscollector.cpp \
     main.cpp

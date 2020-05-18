@@ -23,8 +23,8 @@ QtcTool {
         prefix: "../"
         files: [
             "cpasterconstants.h",
+            "dpastedotcomprotocol.h", "dpastedotcomprotocol.cpp",
             "pastebindotcomprotocol.h", "pastebindotcomprotocol.cpp",
-            "pastecodedotxyzprotocol.h", "pastecodedotxyzprotocol.cpp",
             "protocol.h", "protocol.cpp",
             "urlopenprotocol.h", "urlopenprotocol.cpp",
         ]

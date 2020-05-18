@@ -3,8 +3,8 @@ add_qtc_executable(cpaster
   SOURCES
     argumentscollector.cpp argumentscollector.h
     main.cpp
+    ../dpastedotcomprotocol.cpp ../dpastedotcomprotocol.h
     ../pastebindotcomprotocol.cpp ../pastebindotcomprotocol.h
-    ../pastecodedotxyzprotocol.cpp ../pastecodedotxyzprotocol.h
     ../protocol.cpp ../protocol.h
     ../urlopenprotocol.cpp ../urlopenprotocol.h
 )

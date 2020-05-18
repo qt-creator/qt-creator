@@ -1,12 +1,12 @@
 QT += network
 include(../../qtcreatorplugin.pri)
 HEADERS += cpasterplugin.h \
+    dpastedotcomprotocol.h \
     settingspage.h \
     protocol.h \
     pasteview.h \
     cpasterconstants.h \
     pastebindotcomprotocol.h \
-    pastecodedotxyzprotocol.h \
     settings.h \
     pasteselectdialog.h \
     columnindicatortextedit.h \
@@ -17,11 +17,11 @@ HEADERS += cpasterplugin.h \
     codepasterservice.h
 
 SOURCES += cpasterplugin.cpp \
+    dpastedotcomprotocol.cpp \
     settingspage.cpp \
     protocol.cpp \
     pasteview.cpp \
     pastebindotcomprotocol.cpp \
-    pastecodedotxyzprotocol.cpp \
     settings.cpp \
     pasteselectdialog.cpp \
     columnindicatortextedit.cpp \

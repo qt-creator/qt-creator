@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -29,7 +29,7 @@
 
 namespace CodePaster {
 
-class PasteCodeDotXyzProtocol : public NetworkProtocol
+class DPasteDotComProtocol : public NetworkProtocol
 {
     Q_OBJECT
 public:
@@ -47,7 +47,6 @@ private:
                const QString &username = QString(),
                const QString &comment = QString(),
                const QString &description = QString()) override;
-    void list() override;
     bool checkConfiguration(QString *errorMessage) override;
 
     static void reportError(const QString &message);

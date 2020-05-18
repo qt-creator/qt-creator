@@ -25,11 +25,11 @@
 
 #include "cpasterplugin.h"
 
-#include "pasteview.h"
-#include "pastebindotcomprotocol.h"
-#include "pastecodedotxyzprotocol.h"
+#include "dpastedotcomprotocol.h"
 #include "fileshareprotocol.h"
+#include "pastebindotcomprotocol.h"
 #include "pasteselectdialog.h"
+#include "pasteview.h"
 #include "settingspage.h"
 #include "settings.h"
 #include "urlopenprotocol.h"
@@ -91,12 +91,12 @@ public:
 
     PasteBinDotComProtocol pasteBinProto;
     FileShareProtocol fileShareProto;
-    PasteCodeDotXyzProtocol pasteCodeProto;
+    DPasteDotComProtocol dpasteProto;
 
     const QList<Protocol *> m_protocols {
         &pasteBinProto,
         &fileShareProto,
-        &pasteCodeProto
+        &dpasteProto
     };
 
     SettingsPage m_settingsPage {
