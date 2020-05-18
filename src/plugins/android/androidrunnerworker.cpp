@@ -517,30 +517,24 @@ void AndroidRunnerWorker::asyncStartHelper()
 
             uploadDebugServer(debugServerFile);
         } else {
-            QString debugServerExecutable = "gdbserver";
-            QString debugServerPrefix = "./lib/";
-            auto findGdbServer = [this, &debugServerExecutable, debugServerPrefix](const QString& gdbEx) {
-                if (!packageFileExists(debugServerPrefix + gdbEx))
-                    return false;
-                debugServerExecutable = gdbEx;
-                return true;
-            };
-
-            if (!findGdbServer("gdbserver") && !findGdbServer("libgdbserver.so")) {
+            if (packageFileExists("./lib/gdbserver")) {
+                debugServerFile = "./lib/gdbserver";
+                qCDebug(androidRunWorkerLog) << "Found GDB server " + debugServerFile;
+                runAdb({"shell", "run-as", m_packageName, "killall", "gdbserver"});
+            } else if (packageFileExists("./lib/libgdbserver.so")) {
+                debugServerFile = "./lib/libgdbserver.so";
+                qCDebug(androidRunWorkerLog) << "Found GDB server " + debugServerFile;
+                runAdb({"shell", "run-as", m_packageName, "killall", "libgdbserver.so"});
+            } else {
                 // Armv8. symlink lib is not available.
+                debugServerFile = "./gdbserver";
                 // Kill the previous instances of gdbserver. Do this before copying the gdbserver.
-                runAdb({"shell", "run-as", m_packageName, "killall", debugServerExecutable});
-                if (!m_debugServerPath.isEmpty() && uploadDebugServer("./gdbserver")) {
-                    debugServerPrefix = "./";
-                } else {
+                runAdb({"shell", "run-as", m_packageName, "killall", "gdbserver"});
+                if (m_debugServerPath.isEmpty() || !uploadDebugServer("./gdbserver")) {
                     emit remoteProcessFinished(tr("Cannot find or copy C++ debug server."));
                     return;
                 }
-            } else {
-                qCDebug(androidRunWorkerLog) << "Found GDB server under ./lib";
-                runAdb({"shell", "run-as", m_packageName, "killall", debugServerExecutable});
             }
-            debugServerFile = debugServerPrefix + debugServerExecutable;
         }
         QString debuggerServerErr;
         if (!startDebuggerServer(packageDir, debugServerFile, &debuggerServerErr)) {
