@@ -53,6 +53,7 @@
 #include <QDirIterator>
 #include <QFileInfo>
 #include <QLoggingCategory>
+#include <QScopeGuard>
 #include <QTcpServer>
 #include <QThread>
 
@@ -342,34 +343,30 @@ bool AndroidRunnerWorker::uploadDebugServer(const QString &debugServerFileName)
     // the files can't be pushed directly to package because of permissions.
     qCDebug(androidRunWorkerLog) << "Uploading GdbServer";
 
-    bool foundUnique = true;
-    auto cleanUp = [this, &foundUnique] (QString *p) {
-        if (foundUnique && !runAdb({"shell", "rm", "-f", *p}))
-            qCDebug(androidRunWorkerLog) << "Gdbserver cleanup failed.";
-        delete p;
-    };
-    std::unique_ptr<QString, decltype (cleanUp)>
-            tempGdbServerPath(new QString("/data/local/tmp/%1"), cleanUp);
-
     // Get a unique temp file name for gdb/lldbserver copy
+    const QString tempDebugServerPathTemplate = "/data/local/tmp/%1";
     int count = 0;
-    while (deviceFileExists(tempGdbServerPath->arg(++count))) {
+    while (deviceFileExists(tempDebugServerPathTemplate.arg(++count))) {
         if (count > GdbTempFileMaxCounter) {
             qCDebug(androidRunWorkerLog) << "Can not get temporary file name";
-            foundUnique = false;
             return false;
         }
     }
-    *tempGdbServerPath = tempGdbServerPath->arg(count);
+
+    const QString tempDebugServerPath = tempDebugServerPathTemplate.arg(count);
+    auto cleanUp = qScopeGuard([this, tempDebugServerPath] {
+        if (!runAdb({"shell", "rm", "-f", tempDebugServerPath}))
+            qCDebug(androidRunWorkerLog) << "Debug server cleanup failed.";
+    });
 
     // Copy gdbserver to temp location
-    if (!runAdb({"push", m_debugServerPath , *tempGdbServerPath})) {
-        qCDebug(androidRunWorkerLog) << "Gdbserver upload to temp directory failed";
+    if (!runAdb({"push", m_debugServerPath , tempDebugServerPath})) {
+        qCDebug(androidRunWorkerLog) << "Debug server upload to temp directory failed";
         return false;
     }
 
     // Copy gdbserver from temp location to app directory
-    if (!runAdb({"shell", "run-as", m_packageName, "cp" , *tempGdbServerPath, debugServerFileName})) {
+    if (!runAdb({"shell", "run-as", m_packageName, "cp" , tempDebugServerPath, debugServerFileName})) {
         qCDebug(androidRunWorkerLog) << "Debug server copy from temp directory failed";
         return false;
     }
