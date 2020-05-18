@@ -60,7 +60,7 @@ endfunction()
 function(add_qtc_library name)
   cmake_parse_arguments(_arg "STATIC;OBJECT;SKIP_TRANSLATION;BUILD_BY_DEFAULT;ALLOW_ASCII_CASTS;UNVERSIONED"
     "DESTINATION;COMPONENT"
-    "DEFINES;DEPENDS;EXTRA_TRANSLATIONS;INCLUDES;PUBLIC_DEFINES;PUBLIC_DEPENDS;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;PROPERTIES" ${ARGN}
+    "DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES" ${ARGN}
   )
 
   set(default_defines_copy ${DEFAULT_DEFINES})
@@ -124,6 +124,8 @@ function(add_qtc_library name)
     DEPENDS ${_arg_DEPENDS} ${IMPLICIT_DEPENDS}
     PUBLIC_DEPENDS ${_arg_PUBLIC_DEPENDS}
     EXPLICIT_MOC ${_arg_EXPLICIT_MOC}
+    SKIP_AUTOMOC ${_arg_SKIP_AUTOMOC}
+    EXTRA_TRANSLATIONS ${_arg_EXTRA_TRANSLATIONS}
   )
 
   file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
@@ -134,10 +136,6 @@ function(add_qtc_library name)
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>"
       "$<INSTALL_INTERFACE:include/${include_dir_relative_path}/..>"
   )
-
-  foreach(file IN LISTS _arg_SKIP_AUTOMOC)
-    set_property(SOURCE ${file} PROPERTY SKIP_AUTOMOC ON)
-  endforeach()
 
   set(skip_translation OFF)
   if (_arg_SKIP_TRANSLATION)
@@ -231,15 +229,13 @@ function(add_qtc_library name)
       OPTIONAL
     )
   endif()
-
-  append_extra_translations("${name}" "${_arg_EXTRA_TRANSLATIONS}")
 endfunction(add_qtc_library)
 
 function(add_qtc_plugin target_name)
   cmake_parse_arguments(_arg
     "EXPERIMENTAL;SKIP_DEBUG_CMAKE_FILE_CHECK;SKIP_INSTALL;INTERNAL_ONLY;SKIP_TRANSLATION"
     "VERSION;COMPAT_VERSION;PLUGIN_JSON_IN;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME"
-    "CONDITION;DEPENDS;EXTRA_TRANSLATIONS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;SOURCES;EXPLICIT_MOC"
+    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS"
     ${ARGN}
   )
 
@@ -372,6 +368,8 @@ function(add_qtc_plugin target_name)
     DEPENDS ${_arg_DEPENDS} ${_DEP_PLUGINS} ${IMPLICIT_DEPENDS}
     PUBLIC_DEPENDS ${_arg_PUBLIC_DEPENDS}
     EXPLICIT_MOC ${_arg_EXPLICIT_MOC}
+    SKIP_AUTOMOC ${_arg_SKIP_AUTOMOC}
+    EXTRA_TRANSLATIONS ${_arg_EXTRA_TRANSLATIONS}
   )
 
   file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
@@ -420,7 +418,6 @@ function(add_qtc_plugin target_name)
       PREFIX ""
     )
   endif()
-  append_extra_translations("${target_name}" "${_arg_EXTRA_TRANSLATIONS}")
   enable_pch(${target_name})
 
   if (NOT _arg_SKIP_INSTALL)
@@ -474,7 +471,7 @@ endfunction()
 function(add_qtc_executable name)
   cmake_parse_arguments(_arg "SKIP_INSTALL;SKIP_TRANSLATION;ALLOW_ASCII_CASTS"
     "DESTINATION;COMPONENT"
-    "DEFINES;DEPENDS;EXTRA_TRANSLATIONS;INCLUDES;SOURCES;PROPERTIES" ${ARGN})
+    "DEPENDS;DEFINES;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES" ${ARGN})
 
   if ($_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "add_qtc_executable had unparsed arguments!")
@@ -522,6 +519,9 @@ function(add_qtc_executable name)
     INCLUDES "${CMAKE_BINARY_DIR}/src" ${_arg_INCLUDES}
     DEFINES ${default_defines_copy} ${TEST_DEFINES} ${_arg_DEFINES}
     DEPENDS ${_arg_DEPENDS} ${IMPLICIT_DEPENDS}
+    EXPLICIT_MOC ${_arg_EXPLICIT_MOC}
+    SKIP_AUTOMOC ${_arg_SKIP_AUTOMOC}
+    EXTRA_TRANSLATIONS ${_arg_EXTRA_TRANSLATIONS}
   )
 
   set(skip_translation OFF)
@@ -550,7 +550,6 @@ function(add_qtc_executable name)
     VISIBILITY_INLINES_HIDDEN ON
     ${_arg_PROPERTIES}
   )
-  append_extra_translations("${name}" "${_arg_EXTRA_TRANSLATIONS}")
   enable_pch(${name})
 
   if (NOT _arg_SKIP_INSTALL)
@@ -634,7 +633,7 @@ function(extend_qtc_executable name)
 endfunction()
 
 function(add_qtc_test name)
-  cmake_parse_arguments(_arg "GTEST" "" "DEFINES;DEPENDS;INCLUDES;SOURCES" ${ARGN})
+  cmake_parse_arguments(_arg "GTEST" "" "DEFINES;DEPENDS;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC" ${ARGN})
 
   foreach(dependency ${_arg_DEPENDS})
     if (NOT TARGET ${dependency} AND NOT _arg_GTEST)
@@ -660,6 +659,8 @@ function(add_qtc_test name)
     DEPENDS ${_arg_DEPENDS} ${IMPLICIT_DEPENDS}
     INCLUDES "${CMAKE_BINARY_DIR}/src" ${_arg_INCLUDES}
     DEFINES ${_arg_DEFINES} ${TEST_DEFINES} ${DEFAULT_DEFINES}
+    EXPLICIT_MOC ${_arg_EXPLICIT_MOC}
+    SKIP_AUTOMOC ${_arg_SKIP_AUTOMOC}
   )
 
   set_target_properties(${name} PROPERTIES

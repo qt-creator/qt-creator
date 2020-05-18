@@ -377,7 +377,7 @@ function(extend_qtc_target target_name)
   cmake_parse_arguments(_arg
     ""
     "SOURCES_PREFIX;FEATURE_INFO"
-    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC"
+    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS"
     ${ARGN}
   )
 
@@ -441,4 +441,9 @@ function(extend_qtc_target target_name)
     set_explicit_moc(${target_name} "${file}")
   endforeach()
 
+  foreach(file IN LISTS _arg_SKIP_AUTOMOC)
+    set_property(SOURCE ${file} PROPERTY SKIP_AUTOMOC ON)
+  endforeach()
+
+  append_extra_translations(${target_name} "${_arg_EXTRA_TRANSLATIONS}")
 endfunction()
