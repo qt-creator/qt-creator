@@ -116,31 +116,24 @@ function(add_qtc_library name)
     set(TEST_DEFINES WITH_TESTS SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
   endif()
 
-  file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+  extend_qtc_target(${name}
+    INCLUDES ${_arg_INCLUDES}
+    PUBLIC_INCLUDES ${_arg_PUBLIC_INCLUDES}
+    DEFINES ${EXPORT_SYMBOL} ${default_defines_copy} ${_arg_DEFINES} ${TEST_DEFINES}
+    PUBLIC_DEFINES ${_arg_PUBLIC_DEFINES}
+    DEPENDS ${_arg_DEPENDS} ${IMPLICIT_DEPENDS}
+    PUBLIC_DEPENDS ${_arg_PUBLIC_DEPENDS}
+    EXPLICIT_MOC ${_arg_EXPLICIT_MOC}
+  )
 
+  file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
   target_include_directories(${name}
     PRIVATE
-      ${_arg_INCLUDES}
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
     PUBLIC
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>"
       "$<INSTALL_INTERFACE:include/${include_dir_relative_path}/..>"
   )
-  set_public_includes(${name} "${_arg_PUBLIC_INCLUDES}")
-
-  target_compile_definitions(${name}
-    PRIVATE ${EXPORT_SYMBOL} ${default_defines_copy} ${_arg_DEFINES} ${TEST_DEFINES}
-    PUBLIC ${_arg_PUBLIC_DEFINES}
-  )
-
-  add_qtc_depends(${name}
-    PRIVATE ${_arg_DEPENDS} ${IMPLICIT_DEPENDS}
-    PUBLIC ${_arg_PUBLIC_DEPENDS}
-  )
-
-  foreach(file IN LISTS _arg_EXPLICIT_MOC)
-    set_explicit_moc(${name} "${file}")
-  endforeach()
 
   foreach(file IN LISTS _arg_SKIP_AUTOMOC)
     set_property(SOURCE ${file} PROPERTY SKIP_AUTOMOC ON)
@@ -371,28 +364,25 @@ function(add_qtc_plugin target_name)
     set(TEST_DEFINES WITH_TESTS SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
   endif()
 
-  file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+  extend_qtc_target(${target_name}
+    INCLUDES ${_arg_INCLUDES}
+    PUBLIC_INCLUDES ${_arg_PUBLIC_INCLUDES}
+    DEFINES ${EXPORT_SYMBOL} ${DEFAULT_DEFINES} ${_arg_DEFINES} ${TEST_DEFINES}
+    PUBLIC_DEFINES ${_arg_PUBLIC_DEFINES}
+    DEPENDS ${_arg_DEPENDS} ${_DEP_PLUGINS} ${IMPLICIT_DEPENDS}
+    PUBLIC_DEPENDS ${_arg_PUBLIC_DEPENDS}
+    EXPLICIT_MOC ${_arg_EXPLICIT_MOC}
+  )
 
+  file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
   target_include_directories(${target_name}
     PRIVATE
-      ${_arg_INCLUDES}
       "${CMAKE_CURRENT_BINARY_DIR}"
       "${CMAKE_BINARY_DIR}/src"
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
     PUBLIC
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>"
       "$<INSTALL_INTERFACE:include/${include_dir_relative_path}/..>"
-  )
-  set_public_includes(${target_name} "${_arg_PUBLIC_INCLUDES}")
-
-  target_compile_definitions(${target_name}
-    PRIVATE ${EXPORT_SYMBOL} ${DEFAULT_DEFINES} ${_arg_DEFINES} ${TEST_DEFINES}
-    PUBLIC ${_arg_PUBLIC_DEFINES}
-  )
-
-  add_qtc_depends(${target_name}
-    PRIVATE ${_arg_DEPENDS} ${_DEP_PLUGINS} ${IMPLICIT_DEPENDS}
-    PUBLIC ${_arg_PUBLIC_DEPENDS}
   )
 
   set(plugin_dir "${IDE_PLUGIN_PATH}")
@@ -432,10 +422,6 @@ function(add_qtc_plugin target_name)
   endif()
   append_extra_translations("${target_name}" "${_arg_EXTRA_TRANSLATIONS}")
   enable_pch(${target_name})
-
-  foreach(file IN LISTS _arg_EXPLICIT_MOC)
-    set_explicit_moc(${target_name} "${file}")
-  endforeach()
 
   if (NOT _arg_SKIP_INSTALL)
     install(TARGETS ${target_name}
@@ -531,9 +517,12 @@ function(add_qtc_executable name)
   endif()
 
   add_executable("${name}" ${_arg_SOURCES})
-  target_include_directories("${name}" PRIVATE "${CMAKE_BINARY_DIR}/src" ${_arg_INCLUDES})
-  target_compile_definitions("${name}" PRIVATE ${default_defines_copy} ${TEST_DEFINES} ${_arg_DEFINES} )
-  target_link_libraries("${name}" PRIVATE ${_arg_DEPENDS} ${IMPLICIT_DEPENDS})
+
+  extend_qtc_target("${name}"
+    INCLUDES "${CMAKE_BINARY_DIR}/src" ${_arg_INCLUDES}
+    DEFINES ${default_defines_copy} ${TEST_DEFINES} ${_arg_DEFINES}
+    DEPENDS ${_arg_DEPENDS} ${IMPLICIT_DEPENDS}
+  )
 
   set(skip_translation OFF)
   if (_arg_SKIP_TRANSLATION)
@@ -667,12 +656,11 @@ function(add_qtc_test name)
 
   add_executable(${name} ${_arg_SOURCES})
 
-  add_qtc_depends(${name}
-    PRIVATE ${_arg_DEPENDS} ${IMPLICIT_DEPENDS}
+  extend_qtc_target(${name}
+    DEPENDS ${_arg_DEPENDS} ${IMPLICIT_DEPENDS}
+    INCLUDES "${CMAKE_BINARY_DIR}/src" ${_arg_INCLUDES}
+    DEFINES ${_arg_DEFINES} ${TEST_DEFINES} ${DEFAULT_DEFINES}
   )
-
-  target_include_directories(${name} PRIVATE "${CMAKE_BINARY_DIR}/src" ${_arg_INCLUDES})
-  target_compile_definitions(${name} PRIVATE ${_arg_DEFINES} ${TEST_DEFINES} ${DEFAULT_DEFINES})
 
   set_target_properties(${name} PROPERTIES
     BUILD_RPATH "${_RPATH_BASE}/${_RPATH}"
