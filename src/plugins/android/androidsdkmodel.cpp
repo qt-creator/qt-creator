@@ -31,6 +31,11 @@
 #include <utils/utilsicons.h>
 
 #include <QIcon>
+#include <QLoggingCategory>
+
+namespace {
+static Q_LOGGING_CATEGORY(androidSdkModelLog, "qtc.android.sdkmodel", QtWarningMsg)
+}
 
 namespace Android {
 namespace Internal {
@@ -294,7 +299,9 @@ void AndroidSdkModel::selectMissingEssentials()
 
     // Select SDK platform
     for (const SdkPlatform *platform : m_sdkPlatforms) {
-        if (pendingPkgs.contains(platform->sdkStylePath()) &&
+        if (!platform->installedLocation().isEmpty()) {
+            pendingPkgs.removeOne(platform->sdkStylePath());
+        } else if (pendingPkgs.contains(platform->sdkStylePath()) &&
             platform->installedLocation().isEmpty()) {
             auto i = index(0, 0, index(1, 0));
             m_changeState << platform;
@@ -304,6 +311,9 @@ void AndroidSdkModel::selectMissingEssentials()
         if (pendingPkgs.isEmpty())
             break;
     }
+
+    m_missingEssentials = pendingPkgs;
+    qCDebug(androidSdkModelLog) << "Couldn't find some essential packages:" << m_missingEssentials;
 }
 
 QList<const AndroidSdkPackage *> AndroidSdkModel::userSelection() const

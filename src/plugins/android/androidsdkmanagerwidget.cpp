@@ -169,6 +169,13 @@ void AndroidSdkManagerWidget::setSdkManagerControlsEnabled(bool enable)
 void AndroidSdkManagerWidget::installEssentials()
 {
     m_sdkModel->selectMissingEssentials();
+    if (!m_sdkModel->missingEssentials().isEmpty()) {
+        QMessageBox::warning(this,
+                             tr("Android SDK Changes"),
+                             tr("Qt Creator couldn't find the following essential packages: \"%1\".\n"
+                                "Install them manually after the current operation is done.\n")
+                                 .arg(m_sdkModel->missingEssentials().join("\", \"")));
+    }
     m_ui->applySelectionButton->click();
 }
 

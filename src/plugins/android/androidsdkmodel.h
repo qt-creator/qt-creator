@@ -70,6 +70,8 @@ public:
     QList<const AndroidSdkPackage *> userSelection() const;
     void resetSelection();
 
+    QStringList missingEssentials() const { return m_missingEssentials; }
+
 private:
     void clearContainers();
     void refreshData();
@@ -80,6 +82,7 @@ private:
     QList<const SdkPlatform *> m_sdkPlatforms;
     QList<const AndroidSdkPackage *> m_tools;
     QSet<const AndroidSdkPackage *> m_changeState;
+    QStringList m_missingEssentials;
 };
 
 } // namespace Internal
