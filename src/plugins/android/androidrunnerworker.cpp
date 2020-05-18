@@ -503,18 +503,20 @@ void AndroidRunnerWorker::asyncStartHelper()
         // e.g. on Android 8 with NDK 10e
         runAdb({"shell", "run-as", m_packageName, "chmod", "a+x", packageDir.trimmed()});
 
+        if (!QFileInfo::exists(m_debugServerPath)) {
+            QString msg = tr("Cannot find C++ debug server in NDK installation");
+            if (m_useLldb) {
+                msg += "\n" + tr("The lldb-server binary has not been found. Maybe "
+                                 "sdk_definitions.json does not contain 'lldb;x.y' as "
+                                 "sdk_essential_package or LLDB was not installed.");
+            }
+            emit remoteProcessFinished(msg);
+            return;
+        }
+
         QString debugServerFile;
         if (m_useLldb) {
             debugServerFile = "./lldb-server";
-            // Check lldb-server has been packaged
-            if (!QFileInfo::exists(m_debugServerPath)) {
-                qCDebug(androidRunWorkerLog) << "The lldb-server binary has not been "
-                  "packaged. Maybe sdk_definitions.json does not contain 'lldb;x.y' as "
-                  "sdk_essential_package or LLDB was not installed";
-                emit remoteProcessFinished(tr("lldb-server not found in package."));
-                return;
-            }
-
             uploadDebugServer(debugServerFile);
         } else {
             if (packageFileExists("./lib/gdbserver")) {
@@ -530,8 +532,8 @@ void AndroidRunnerWorker::asyncStartHelper()
                 debugServerFile = "./gdbserver";
                 // Kill the previous instances of gdbserver. Do this before copying the gdbserver.
                 runAdb({"shell", "run-as", m_packageName, "killall", "gdbserver"});
-                if (m_debugServerPath.isEmpty() || !uploadDebugServer("./gdbserver")) {
-                    emit remoteProcessFinished(tr("Cannot find or copy C++ debug server."));
+                if (!uploadDebugServer("./gdbserver")) {
+                    emit remoteProcessFinished(tr("Cannot copy C++ debug server."));
                     return;
                 }
             }
