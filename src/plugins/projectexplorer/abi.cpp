@@ -528,7 +528,7 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             os = BareMetalOS;
             flavor = GenericFlavor;
             format = ElfFormat;
-            width = 32;
+            width = p.contains("64") ? 64 : 32;
         } else if (p.startsWith("mips")) {
             arch = MipsArchitecture;
             width = p.contains("64") ? 64 : 32;
