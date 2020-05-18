@@ -517,7 +517,11 @@ void AndroidRunnerWorker::asyncStartHelper()
         QString debugServerFile;
         if (m_useLldb) {
             debugServerFile = "./lldb-server";
-            uploadDebugServer(debugServerFile);
+            runAdb({"shell", "run-as", m_packageName, "killall", "lldb-server"});
+            if (!uploadDebugServer(debugServerFile)) {
+                emit remoteProcessFinished(tr("Cannot copy C++ debug server."));
+                return;
+            }
         } else {
             if (packageFileExists("./lib/gdbserver")) {
                 debugServerFile = "./lib/gdbserver";
