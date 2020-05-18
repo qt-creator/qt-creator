@@ -171,16 +171,6 @@ static QString gdbServerArch(const QString &androidAbi)
     return androidAbi;
 }
 
-static FilePath gdbServer(const QString &androidAbi, const QtSupport::BaseQtVersion *qtVersion)
-{
-    const FilePath path = AndroidConfigurations::currentConfig().ndkLocation(qtVersion)
-            .pathAppended(QString("prebuilt/android-%1/gdbserver/gdbserver")
-                          .arg(gdbServerArch(androidAbi)));
-    if (path.exists())
-        return path;
-    return {};
-}
-
 static QString lldbServerArch(const QString &androidAbi)
 {
     if (androidAbi == "armeabi-v7a")
@@ -201,33 +191,47 @@ static QString lldbServerArch2(const QString &androidAbi)
     return androidAbi; // arm64-v8a
 }
 
-static FilePath lldbServer(const QString &androidAbi, const QtSupport::BaseQtVersion *qtVersion)
+static FilePath debugServer(bool useLldb, const Target *target)
 {
+    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
+    QString preferredAbi = AndroidManager::apkDevicePreferredAbi(target);
+
     const AndroidConfig &config = AndroidConfigurations::currentConfig();
-    const FilePath prebuilt = config.ndkLocation(qtVersion) / "toolchains/llvm/prebuilt";
-    const QString abiNeedle = lldbServerArch2(androidAbi);
 
-    // The new, built-in LLDB.
-    QDirIterator it(prebuilt.toString(), QDir::Files|QDir::Executable, QDirIterator::Subdirectories);
-    while (it.hasNext()) {
-        it.next();
-        const QString filePath = it.filePath();
-        if (filePath.endsWith(abiNeedle + "/lldb-server")) {
-            return FilePath::fromString(filePath);
-        }
-    }
+    if (useLldb) {
+        // Search suitable lldb-server binary.
+        const FilePath prebuilt = config.ndkLocation(qtVersion) / "toolchains/llvm/prebuilt";
+        const QString abiNeedle = lldbServerArch2(preferredAbi);
 
-    // Older: Find LLDB version. sdk_definitions.json contains something like  "lldb;3.1". Use that.
-    const QStringList packages = config.defaultEssentials();
-    for (const QString &package : packages) {
-        if (package.startsWith("lldb;")) {
-            const QString lldbVersion = package.mid(5);
-            const FilePath path = config.sdkLocation()
-                    / QString("lldb/%1/android/%2/lldb-server")
-                            .arg(lldbVersion, lldbServerArch(androidAbi));
-            if (path.exists())
-                return path;
+        // The new, built-in LLDB.
+        QDirIterator it(prebuilt.toString(), QDir::Files|QDir::Executable, QDirIterator::Subdirectories);
+        while (it.hasNext()) {
+            it.next();
+            const QString filePath = it.filePath();
+            if (filePath.endsWith(abiNeedle + "/lldb-server")) {
+                return FilePath::fromString(filePath);
+            }
         }
+
+        // Older: Find LLDB version. sdk_definitions.json contains something like  "lldb;3.1". Use that.
+        const QStringList packages = config.defaultEssentials();
+        for (const QString &package : packages) {
+            if (package.startsWith("lldb;")) {
+                const QString lldbVersion = package.mid(5);
+                const FilePath path = config.sdkLocation()
+                        / QString("lldb/%1/android/%2/lldb-server")
+                                .arg(lldbVersion, lldbServerArch(preferredAbi));
+                if (path.exists())
+                    return path;
+            }
+        }
+    } else {
+        // Search suitable gdbserver binary.
+        const FilePath path = config.ndkLocation(qtVersion)
+                .pathAppended(QString("prebuilt/android-%1/gdbserver/gdbserver")
+                              .arg(gdbServerArch(preferredAbi)));
+        if (path.exists())
+            return path;
     }
 
     return {};
@@ -300,19 +304,15 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     for (const QString &shellCmd : runner->recordedData(Constants::ANDROID_POSTFINISHSHELLCMDLIST).toStringList())
         m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
 
+    m_debugServerPath = debugServer(m_useLldb, target).toString();
     qCDebug(androidRunWorkerLog) << "Device Serial:" << m_deviceSerialNumber
                                  << "API level:" << m_apiLevel
                                  << "Extra Start Args:" << m_amStartExtraArgs
                                  << "Before Start ADB cmds:" << m_beforeStartAdbCommands
-                                 << "After finish ADB cmds:" << m_afterFinishAdbCommands;
+                                 << "After finish ADB cmds:" << m_afterFinishAdbCommands
+                                 << "Debug server path:" << m_debugServerPath;
+
     QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
-    QString preferredAbi = AndroidManager::apkDevicePreferredAbi(target);
-    if (!preferredAbi.isEmpty()) {
-        if (m_useLldb)
-            m_debugServerPath = lldbServer(preferredAbi, version).toString();
-        else
-            m_debugServerPath = gdbServer(preferredAbi, version).toString();
-    }
     m_useAppParamsForQmlDebugger = version->qtVersion() >= QtSupport::QtVersionNumber(5, 12);
 }
 

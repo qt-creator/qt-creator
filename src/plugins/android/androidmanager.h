@@ -83,7 +83,7 @@ public:
     static QString deviceSerialNumber(ProjectExplorer::Target *target);
     static void setDeviceSerialNumber(ProjectExplorer::Target *target, const QString &deviceSerialNumber);
 
-    static QString apkDevicePreferredAbi(ProjectExplorer::Target *target);
+    static QString apkDevicePreferredAbi(const ProjectExplorer::Target *target);
     static void setDeviceAbis(ProjectExplorer::Target *target, const QStringList &deviceAbis);
 
     static int deviceApiLevel(ProjectExplorer::Target *target);

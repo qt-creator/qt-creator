@@ -442,7 +442,7 @@ void AndroidManager::setDeviceSerialNumber(ProjectExplorer::Target *target, cons
     target->setNamedSettings(AndroidDeviceSn, deviceSerialNumber);
 }
 
-static QString preferredAbi(const QStringList &appAbis, Target *target)
+static QString preferredAbi(const QStringList &appAbis, const Target *target)
 {
     const auto deviceAbis = target->namedSettings(AndroidDeviceAbis).toStringList();
     for (const auto &abi : deviceAbis) {
@@ -452,7 +452,7 @@ static QString preferredAbi(const QStringList &appAbis, Target *target)
     return {};
 }
 
-QString AndroidManager::apkDevicePreferredAbi(Target *target)
+QString AndroidManager::apkDevicePreferredAbi(const Target *target)
 {
     auto libsPath = dirPath(target).pathAppended("libs");
     QStringList apkAbis;
