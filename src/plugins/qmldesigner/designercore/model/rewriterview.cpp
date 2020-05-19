@@ -70,7 +70,12 @@ RewriterView::RewriterView(DifferenceHandling differenceHandling, QObject *paren
         m_textToModelMerger(new Internal::TextToModelMerger(this))
 {
     m_amendTimer.setSingleShot(true);
+    m_amendTimer.setInterval(400);
     connect(&m_amendTimer, &QTimer::timeout, this, &RewriterView::amendQmlText);
+
+    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
+    connect(modelManager, &QmlJS::ModelManagerInterface::libraryInfoUpdated,
+            this, &RewriterView::handleLibraryInfoUpdate, Qt::QueuedConnection);
 }
 
 RewriterView::~RewriterView() = default;
@@ -87,6 +92,8 @@ Internal::TextToModelMerger *RewriterView::textToModelMerger() const
 
 void RewriterView::modelAttached(Model *model)
 {
+    m_modelAttachPending = false;
+
     if (model && model->textModifier())
         setTextModifier(model->textModifier());
 
@@ -100,10 +107,12 @@ void RewriterView::modelAttached(Model *model)
     if (!(m_errors.isEmpty() && m_warnings.isEmpty()))
         notifyErrorsAndWarnings(m_errors);
 
-    if (hasIncompleteTypeInformation())
+    if (hasIncompleteTypeInformation()) {
+        m_modelAttachPending = true;
         QTimer::singleShot(1000, this, [this, model](){
             modelAttached(model);
         });
+    }
 }
 
 void RewriterView::modelAboutToBeDetached(Model * /*model*/)
@@ -796,6 +805,13 @@ void RewriterView::setupCanonicalHashes() const
     }
 }
 
+void RewriterView::handleLibraryInfoUpdate()
+{
+    // Trigger dummy amend to reload document when library info changes
+    if (isAttached() && !m_modelAttachPending)
+        m_amendTimer.start();
+}
+
 ModelNode RewriterView::nodeAtTextCursorPosition(int cursorPosition) const
 {
     return nodeAtTextCursorPositionHelper(rootModelNode(), cursorPosition);
@@ -995,7 +1011,7 @@ void RewriterView::qmlTextChanged()
                 auto &viewManager = QmlDesignerPlugin::instance()->viewManager();
                 if (viewManager.usesRewriterView(this)) {
                     QmlDesignerPlugin::instance()->viewManager().disableWidgets();
-                    m_amendTimer.start(400);
+                    m_amendTimer.start();
                 }
 #else
                 /*Keep test synchronous*/
