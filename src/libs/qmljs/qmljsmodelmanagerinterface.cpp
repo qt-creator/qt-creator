@@ -1133,7 +1133,7 @@ void ModelManagerInterface::maybeScan(const PathsAndLanguages &importPaths)
                 pathToScan.maybeInsert(importPath);
     }
 
-    if (pathToScan.length() > 1) {
+    if (pathToScan.length() >= 1) {
         QFuture<void> result = Utils::runAsync(&ModelManagerInterface::importScan,
                                                workingCopyInternal(), pathToScan,
                                                this, true, true, false);
