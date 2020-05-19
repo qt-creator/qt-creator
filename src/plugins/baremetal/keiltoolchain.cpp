@@ -868,21 +868,5 @@ void KeilToolChainConfigWidget::handlePlatformCodeGenFlagsChange()
         handleCompilerCommandChange();
 }
 
-QStringList KeilToolChainConfigWidget::splitString(const QString &s) const
-{
-    QtcProcess::SplitError splitError;
-    const OsType osType = HostOsInfo::hostOs();
-    QStringList res = QtcProcess::splitArgs(s, osType, false, &splitError);
-    if (splitError != QtcProcess::SplitOk){
-        res = QtcProcess::splitArgs(s + '\\', osType, false, &splitError);
-        if (splitError != QtcProcess::SplitOk){
-            res = QtcProcess::splitArgs(s + '"', osType, false, &splitError);
-            if (splitError != QtcProcess::SplitOk)
-                res = QtcProcess::splitArgs(s + '\'', osType, false, &splitError);
-        }
-    }
-    return res;
-}
-
 } // namespace Internal
 } // namespace BareMetal

@@ -28,6 +28,7 @@
 
 #include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QString>
 
@@ -123,6 +124,22 @@ void ToolChainConfigWidget::clearErrorMessage()
     m_errorLabel->clear();
     m_errorLabel->setStyleSheet(QString());
     m_errorLabel->setVisible(false);
+}
+
+QStringList ToolChainConfigWidget::splitString(const QString &s)
+{
+    Utils::QtcProcess::SplitError splitError;
+    const Utils::OsType osType = Utils::HostOsInfo::hostOs();
+    QStringList res = Utils::QtcProcess::splitArgs(s, osType, false, &splitError);
+    if (splitError != Utils::QtcProcess::SplitOk){
+        res = Utils::QtcProcess::splitArgs(s + '\\', osType, false, &splitError);
+        if (splitError != Utils::QtcProcess::SplitOk){
+            res = Utils::QtcProcess::splitArgs(s + '"', osType, false, &splitError);
+            if (splitError != Utils::QtcProcess::SplitOk)
+                res = Utils::QtcProcess::splitArgs(s + '\'', osType, false, &splitError);
+        }
+    }
+    return res;
 }
 
 } // namespace ProjectExplorer

@@ -133,7 +133,6 @@ private:
     void setFromToolChain();
     void handleCompilerCommandChange();
     void handlePlatformCodeGenFlagsChange();
-    QStringList splitString(const QString &s) const;
 
     Utils::PathChooser *m_compilerCommand = nullptr;
     ProjectExplorer::AbiWidget *m_abiWidget = nullptr;

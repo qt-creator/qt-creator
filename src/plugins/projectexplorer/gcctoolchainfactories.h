@@ -77,7 +77,6 @@ class GccToolChainConfigWidget : public ToolChainConfigWidget
 
 public:
     explicit GccToolChainConfigWidget(GccToolChain *tc);
-    static QStringList splitString(const QString &s);
 
 protected:
     void handleCompilerCommandChange();

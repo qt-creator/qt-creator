@@ -1332,22 +1332,6 @@ void GccToolChainConfigWidget::makeReadOnlyImpl()
     m_isReadOnly = true;
 }
 
-QStringList GccToolChainConfigWidget::splitString(const QString &s)
-{
-    QtcProcess::SplitError splitError;
-    const OsType osType = HostOsInfo::hostOs();
-    QStringList res = QtcProcess::splitArgs(s, osType, false, &splitError);
-    if (splitError != QtcProcess::SplitOk){
-        res = QtcProcess::splitArgs(s + '\\', osType, false, &splitError);
-        if (splitError != QtcProcess::SplitOk){
-            res = QtcProcess::splitArgs(s + '"', osType, false, &splitError);
-            if (splitError != QtcProcess::SplitOk)
-                res = QtcProcess::splitArgs(s + '\'', osType, false, &splitError);
-        }
-    }
-    return res;
-}
-
 void GccToolChainConfigWidget::handleCompilerCommandChange()
 {
     if (!m_abiWidget)

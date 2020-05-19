@@ -71,6 +71,7 @@ protected:
     virtual void makeReadOnlyImpl() = 0;
 
     void addErrorLabel();
+    static QStringList splitString(const QString &s);
     QFormLayout *m_mainLayout;
     QLineEdit *m_nameLineEdit;
 
