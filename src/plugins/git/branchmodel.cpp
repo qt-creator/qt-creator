@@ -150,6 +150,11 @@ public:
         return fn;
     }
 
+    QString fullRef(bool includePrefix = false) const
+    {
+        return fullName(includePrefix).join('/');
+    }
+
     void insert(const QStringList &path, BranchNode *n)
     {
         BranchNode *current = this;
@@ -186,7 +191,7 @@ public:
             }
             return names;
         }
-        return {fullName().join('/')};
+        return {fullRef()};
     }
 
     int rowOf(BranchNode *node)
@@ -346,7 +351,7 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
         return res;
     }
     case Qt::EditRole:
-        return index.column() == 0 ? node->fullName().join('/') : QVariant();
+        return index.column() == 0 ? node->fullRef() : QVariant();
     case Qt::ToolTipRole:
         if (!node->isLeaf())
             return QVariant();
@@ -381,7 +386,7 @@ bool BranchModel::setData(const QModelIndex &index, const QVariant &value, int r
     if (newName.isEmpty())
         return false;
 
-    const QString oldName = node->fullName().join('/');
+    const QString oldName = node->fullRef();
     if (oldName == newName)
         return false;
 
@@ -525,7 +530,7 @@ QString BranchModel::fullName(const QModelIndex &idx, bool includePrefix) const
         return QString();
     if (node == d->headNode)
         return QString("HEAD");
-    return node->fullName(includePrefix).join('/');
+    return node->fullRef(includePrefix);
 }
 
 QStringList BranchModel::localBranchNames() const
@@ -901,7 +906,8 @@ void BranchModel::updateUpstreamStatus(BranchNode *node)
 {
     if (node->tracking.isEmpty())
         return;
-    VcsCommand *command = d->client->asyncUpstreamStatus(d->workingDirectory, node->name, node->tracking);
+    VcsCommand *command = d->client->asyncUpstreamStatus(
+                d->workingDirectory, node->fullRef(), node->tracking);
     QObject::connect(command, &VcsCommand::stdOutText, node, [this, node](const QString &text) {
         const QStringList split = text.trimmed().split('\t');
         QTC_ASSERT(split.size() == 2, return);
