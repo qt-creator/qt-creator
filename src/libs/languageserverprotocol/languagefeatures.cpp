@@ -517,21 +517,21 @@ bool SemanticHighlightingParams::isValid(ErrorHierarchy *error) const
 }
 
 PrepareRenameResult::PrepareRenameResult()
-    : Utils::variant<PlaceHolderResult, Range, nullptr_t>(nullptr)
+    : Utils::variant<PlaceHolderResult, Range, std::nullptr_t>(nullptr)
 {}
 
 PrepareRenameResult::PrepareRenameResult(
     const Utils::variant<PlaceHolderResult, Range, std::nullptr_t> &val)
-    : Utils::variant<PlaceHolderResult, Range, nullptr_t>(val)
+    : Utils::variant<PlaceHolderResult, Range, std::nullptr_t>(val)
 {}
 
 PrepareRenameResult::PrepareRenameResult(const PlaceHolderResult &val)
-    : Utils::variant<PlaceHolderResult, Range, nullptr_t>(val)
+    : Utils::variant<PlaceHolderResult, Range, std::nullptr_t>(val)
 
 {}
 
 PrepareRenameResult::PrepareRenameResult(const Range &val)
-    : Utils::variant<PlaceHolderResult, Range, nullptr_t>(val)
+    : Utils::variant<PlaceHolderResult, Range, std::nullptr_t>(val)
 {}
 
 PrepareRenameResult::PrepareRenameResult(const QJsonValue &val)
