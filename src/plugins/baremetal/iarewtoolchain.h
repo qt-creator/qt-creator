@@ -30,6 +30,7 @@
 #include <projectexplorer/toolchainconfigwidget.h>
 
 QT_BEGIN_NAMESPACE
+class QLineEdit;
 class QPlainTextEdit;
 class QPushButton;
 class QTextEdit;
@@ -80,6 +81,9 @@ public:
     void setCompilerCommand(const Utils::FilePath &file);
     Utils::FilePath compilerCommand() const final;
 
+    void setExtraCodeModelFlags(const QStringList &flags);
+    QStringList extraCodeModelFlags() const final;
+
     Utils::FilePath makeCommand(const Utils::Environment &env) const final;
 
 private:
@@ -87,6 +91,7 @@ private:
 
     ProjectExplorer::Abi m_targetAbi;
     Utils::FilePath m_compilerCommand;
+    QStringList m_extraCodeModelFlags;
 
     friend class IarToolChainFactory;
     friend class IarToolChainConfigWidget;
@@ -126,9 +131,11 @@ private:
 
     void setFromToolchain();
     void handleCompilerCommandChange();
+    void handlePlatformCodeGenFlagsChange();
 
     Utils::PathChooser *m_compilerCommand = nullptr;
     ProjectExplorer::AbiWidget *m_abiWidget = nullptr;
+    QLineEdit *m_platformCodeGenFlagsLineEdit = nullptr;
     ProjectExplorer::Macros m_macros;
 };
 

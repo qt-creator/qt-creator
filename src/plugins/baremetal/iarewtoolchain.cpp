@@ -37,6 +37,7 @@
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDebug>
@@ -58,6 +59,7 @@ namespace Internal {
 // Helpers:
 
 static const char compilerCommandKeyC[] = "BareMetal.IarToolChain.CompilerPath";
+static const char compilerPlatformCodeGenFlagsKeyC[] = "BareMetal.IarToolChain.PlatformCodeGenFlags";
 static const char targetAbiKeyC[] = "BareMetal.IarToolChain.TargetAbi";
 
 static bool compilerExists(const FilePath &compilerPath)
@@ -84,8 +86,8 @@ static QString cppLanguageOption(const FilePath &compiler)
     return {};
 }
 
-static Macros dumpPredefinedMacros(const FilePath &compiler, const Core::Id languageId,
-                                   const QStringList &env)
+static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &extraArgs,
+                                   const Core::Id languageId, const QStringList &env)
 {
     if (compiler.isEmpty() || !compiler.toFileInfo().isExecutable())
         return {};
@@ -106,6 +108,7 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const Core::Id lang
     CommandLine cmd(compiler, {fakeIn.fileName()});
     if (languageId == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
         cmd.addArg(cppLanguageOption(compiler));
+    cmd.addArgs(extraArgs);
     cmd.addArg("--predef_macros");
     cmd.addArg(outpath);
 
@@ -307,16 +310,14 @@ ToolChain::MacroInspectionRunner IarToolChain::createMacroInspectionRunner() con
 
     const Utils::FilePath compilerCommand = m_compilerCommand;
     const Core::Id languageId = language();
-
+    const QStringList extraArgs = m_extraCodeModelFlags;
     MacrosCache macrosCache = predefinedMacrosCache();
 
-    return [env, compilerCommand,
-            macrosCache,
-            languageId]
+    return [env, compilerCommand, extraArgs, macrosCache, languageId]
             (const QStringList &flags) {
         Q_UNUSED(flags)
 
-        Macros macros = dumpPredefinedMacros(compilerCommand, languageId, env.toStringList());
+        Macros macros = dumpPredefinedMacros(compilerCommand, extraArgs, languageId, env.toStringList());
         macros.append({"__intrinsic", "", MacroType::Define});
         macros.append({"__nounwind", "", MacroType::Define});
         macros.append({"__noreturn", "", MacroType::Define});
@@ -396,6 +397,7 @@ QVariantMap IarToolChain::toMap() const
 {
     QVariantMap data = ToolChain::toMap();
     data.insert(compilerCommandKeyC, m_compilerCommand.toString());
+    data.insert(compilerPlatformCodeGenFlagsKeyC, m_extraCodeModelFlags);
     data.insert(targetAbiKeyC, m_targetAbi.toString());
     return data;
 }
@@ -405,6 +407,7 @@ bool IarToolChain::fromMap(const QVariantMap &data)
     if (!ToolChain::fromMap(data))
         return false;
     m_compilerCommand = FilePath::fromString(data.value(compilerCommandKeyC).toString());
+    m_extraCodeModelFlags = data.value(compilerPlatformCodeGenFlagsKeyC).toStringList();
     m_targetAbi = Abi::fromString(data.value(targetAbiKeyC).toString());
     return true;
 }
@@ -422,6 +425,7 @@ bool IarToolChain::operator==(const ToolChain &other) const
     const auto customTc = static_cast<const IarToolChain *>(&other);
     return m_compilerCommand == customTc->m_compilerCommand
             && m_targetAbi == customTc->m_targetAbi
+            && m_extraCodeModelFlags == customTc->m_extraCodeModelFlags
             ;
 }
 
@@ -436,6 +440,19 @@ void IarToolChain::setCompilerCommand(const FilePath &file)
 FilePath IarToolChain::compilerCommand() const
 {
     return m_compilerCommand;
+}
+
+void IarToolChain::setExtraCodeModelFlags(const QStringList &flags)
+{
+    if (flags == m_extraCodeModelFlags)
+        return;
+    m_extraCodeModelFlags = flags;
+    toolChainUpdated();
+}
+
+QStringList IarToolChain::extraCodeModelFlags() const
+{
+    return m_extraCodeModelFlags;
 }
 
 FilePath IarToolChain::makeCommand(const Environment &env) const
@@ -555,7 +572,7 @@ QList<ToolChain *> IarToolChainFactory::autoDetectToolchain(
         const Candidate &candidate, Core::Id languageId) const
 {
     const auto env = Environment::systemEnvironment();
-    const Macros macros = dumpPredefinedMacros(candidate.compilerPath, languageId,
+    const Macros macros = dumpPredefinedMacros(candidate.compilerPath, {}, languageId,
                                                env.toStringList());
     if (macros.isEmpty())
         return {};
@@ -584,6 +601,9 @@ IarToolChainConfigWidget::IarToolChainConfigWidget(IarToolChain *tc) :
     m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
     m_compilerCommand->setHistoryCompleter("PE.IAREW.Command.History");
     m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
+    m_platformCodeGenFlagsLineEdit = new QLineEdit(this);
+    m_platformCodeGenFlagsLineEdit->setText(QtcProcess::joinArgs(tc->extraCodeModelFlags()));
+    m_mainLayout->addRow(tr("Platform codegen flags:"), m_platformCodeGenFlagsLineEdit);
     m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
 
     m_abiWidget->setEnabled(false);
@@ -593,6 +613,8 @@ IarToolChainConfigWidget::IarToolChainConfigWidget(IarToolChain *tc) :
 
     connect(m_compilerCommand, &PathChooser::rawPathChanged,
             this, &IarToolChainConfigWidget::handleCompilerCommandChange);
+    connect(m_platformCodeGenFlagsLineEdit, &QLineEdit::editingFinished,
+            this, &IarToolChainConfigWidget::handlePlatformCodeGenFlagsChange);
     connect(m_abiWidget, &AbiWidget::abiChanged,
             this, &ToolChainConfigWidget::dirty);
 }
@@ -605,6 +627,7 @@ void IarToolChainConfigWidget::applyImpl()
     const auto tc = static_cast<IarToolChain *>(toolChain());
     const QString displayName = tc->displayName();
     tc->setCompilerCommand(m_compilerCommand->filePath());
+    tc->setExtraCodeModelFlags(splitString(m_platformCodeGenFlagsLineEdit->text()));
     tc->setTargetAbi(m_abiWidget->currentAbi());
     tc->setDisplayName(displayName);
 
@@ -621,6 +644,7 @@ bool IarToolChainConfigWidget::isDirtyImpl() const
 {
     const auto tc = static_cast<IarToolChain *>(toolChain());
     return m_compilerCommand->filePath() != tc->compilerCommand()
+            || m_platformCodeGenFlagsLineEdit->text() != QtcProcess::joinArgs(tc->extraCodeModelFlags())
             || m_abiWidget->currentAbi() != tc->targetAbi()
             ;
 }
@@ -628,6 +652,7 @@ bool IarToolChainConfigWidget::isDirtyImpl() const
 void IarToolChainConfigWidget::makeReadOnlyImpl()
 {
     m_compilerCommand->setReadOnly(true);
+    m_platformCodeGenFlagsLineEdit->setEnabled(false);
     m_abiWidget->setEnabled(false);
 }
 
@@ -636,6 +661,7 @@ void IarToolChainConfigWidget::setFromToolchain()
     const QSignalBlocker blocker(this);
     const auto tc = static_cast<IarToolChain *>(toolChain());
     m_compilerCommand->setFilePath(tc->compilerCommand());
+    m_platformCodeGenFlagsLineEdit->setText(QtcProcess::joinArgs(tc->extraCodeModelFlags()));
     m_abiWidget->setAbis({}, tc->targetAbi());
     const bool haveCompiler = compilerExists(m_compilerCommand->filePath());
     m_abiWidget->setEnabled(haveCompiler && !tc->isAutoDetected());
@@ -647,8 +673,9 @@ void IarToolChainConfigWidget::handleCompilerCommandChange()
     const bool haveCompiler = compilerExists(compilerPath);
     if (haveCompiler) {
         const auto env = Environment::systemEnvironment();
+        const QStringList extraArgs = splitString(m_platformCodeGenFlagsLineEdit->text());
         const auto languageId = toolChain()->language();
-        m_macros = dumpPredefinedMacros(compilerPath, languageId,
+        m_macros = dumpPredefinedMacros(compilerPath, extraArgs, languageId,
                                         env.toStringList());
         const Abi guessed = guessAbi(m_macros);
         m_abiWidget->setAbis({}, guessed);
@@ -656,6 +683,16 @@ void IarToolChainConfigWidget::handleCompilerCommandChange()
 
     m_abiWidget->setEnabled(haveCompiler);
     emit dirty();
+}
+
+void IarToolChainConfigWidget::handlePlatformCodeGenFlagsChange()
+{
+    const QString str1 = m_platformCodeGenFlagsLineEdit->text();
+    const QString str2 = QtcProcess::joinArgs(splitString(str1));
+    if (str1 != str2)
+        m_platformCodeGenFlagsLineEdit->setText(str2);
+    else
+        handleCompilerCommandChange();
 }
 
 } // namespace Internal
