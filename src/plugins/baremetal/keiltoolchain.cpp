@@ -61,6 +61,7 @@ namespace Internal {
 // Helpers:
 
 static const char compilerCommandKeyC[] = "BareMetal.KeilToolchain.CompilerPath";
+static const char compilerPlatformCodeGenFlagsKeyC[] = "BareMetal.KeilToolchain.PlatformCodeGenFlags";
 static const char targetAbiKeyC[] = "BareMetal.KeilToolchain.TargetAbi";
 
 static bool compilerExists(const FilePath &compilerPath)
@@ -534,6 +535,7 @@ QVariantMap KeilToolChain::toMap() const
 {
     QVariantMap data = ToolChain::toMap();
     data.insert(compilerCommandKeyC, m_compilerCommand.toString());
+    data.insert(compilerPlatformCodeGenFlagsKeyC, m_extraCodeModelFlags);
     data.insert(targetAbiKeyC, m_targetAbi.toString());
     return data;
 }
@@ -543,6 +545,7 @@ bool KeilToolChain::fromMap(const QVariantMap &data)
     if (!ToolChain::fromMap(data))
         return false;
     m_compilerCommand = FilePath::fromString(data.value(compilerCommandKeyC).toString());
+    m_extraCodeModelFlags = data.value(compilerPlatformCodeGenFlagsKeyC).toStringList();
     m_targetAbi = Abi::fromString(data.value(targetAbiKeyC).toString());
     return true;
 }
