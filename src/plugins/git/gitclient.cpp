@@ -557,6 +557,12 @@ public:
     }
 };
 
+static bool gitHasRgbColors()
+{
+    const unsigned gitVersion = GitClient::instance()->gitVersion();
+    return gitVersion >= 0x020300U;
+}
+
 class GitLogArgumentsWidget : public BaseGitLogArgumentsWidget
 {
     Q_OBJECT
@@ -608,8 +614,7 @@ public:
 
         QStringList graphArgs = {graphOption, "--oneline", "--topo-order"};
 
-        const unsigned gitVersion = GitClient::instance()->gitVersion();
-        if (gitVersion >= 0x020300U)
+        if (gitHasRgbColors())
             graphArgs << formatArg;
         else
             graphArgs << "--pretty=format:%h %d %an %s %ci";
@@ -1035,8 +1040,7 @@ void GitClient::status(const QString &workingDirectory) const
 
 static QStringList normalLogArguments()
 {
-    const unsigned gitVersion = GitClient::instance()->gitVersion();
-    if (gitVersion < 0x020300U)
+    if (!gitHasRgbColors())
         return {};
 
     auto colorName = [](Theme::Color color) { return creatorTheme()->color(color).name(); };
@@ -1095,7 +1099,7 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
     if (arguments.contains(patchOption)) {
         arguments.removeAll(colorOption);
         editor->setHighlightingEnabled(true);
-    } else {
+    } else if (gitHasRgbColors()) {
         editor->setHighlightingEnabled(false);
     }
     if (!arguments.contains(graphOption) && !arguments.contains(patchOption))
