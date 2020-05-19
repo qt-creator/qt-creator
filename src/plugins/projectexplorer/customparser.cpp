@@ -86,9 +86,8 @@ CustomParserExpression::CustomParserChannel CustomParserExpression::channel() co
 
 void CustomParserExpression::setChannel(CustomParserExpression::CustomParserChannel channel)
 {
-    QTC_ASSERT(channel > ParseNoChannel && channel <= ParseBothChannels,
-               channel = ParseBothChannels);
-
+    if (channel == ParseNoChannel || channel > ParseBothChannels)
+        channel = ParseBothChannels;
     m_channel = channel;
 }
 
@@ -131,10 +130,7 @@ void CustomParserExpression::fromMap(const QVariantMap &map)
     setFileNameCap(map.value(fileNameCapKey).toInt());
     setLineNumberCap(map.value(lineNumberCapKey).toInt());
     setExample(map.value(exampleKey).toString());
-    int channel = map.value(channelKey).toInt();
-    if (channel == ParseNoChannel || channel > ParseBothChannels)
-        channel = ParseStdErrChannel;
-    setChannel(static_cast<CustomParserChannel>(channel));
+    setChannel(static_cast<CustomParserChannel>(map.value(channelKey).toInt()));
 }
 
 int CustomParserExpression::lineNumberCap() const
