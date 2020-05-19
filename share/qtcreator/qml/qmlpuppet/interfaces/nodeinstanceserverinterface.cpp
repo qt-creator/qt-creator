@@ -26,44 +26,44 @@
 #include "nodeinstanceserverinterface.h"
 #include <qmetatype.h>
 
-#include "propertyabstractcontainer.h"
-#include "propertyvaluecontainer.h"
-#include "propertybindingcontainer.h"
-#include "instancecontainer.h"
-#include "createinstancescommand.h"
-#include "createscenecommand.h"
-#include "update3dviewstatecommand.h"
-#include "changevaluescommand.h"
-#include "changebindingscommand.h"
-#include "changeauxiliarycommand.h"
-#include "changefileurlcommand.h"
-#include "removeinstancescommand.h"
-#include "clearscenecommand.h"
-#include "removepropertiescommand.h"
-#include "reparentinstancescommand.h"
-#include "changeidscommand.h"
-#include "changestatecommand.h"
-#include "completecomponentcommand.h"
 #include "addimportcontainer.h"
+#include "changeauxiliarycommand.h"
+#include "changebindingscommand.h"
+#include "changefileurlcommand.h"
+#include "changeidscommand.h"
+#include "changelanguagecommand.h"
 #include "changenodesourcecommand.h"
 #include "changeselectioncommand.h"
-#include "inputeventcommand.h"
-#include "view3dactioncommand.h"
-
-#include "informationchangedcommand.h"
-#include "pixmapchangedcommand.h"
-#include "valueschangedcommand.h"
+#include "changestatecommand.h"
+#include "changevaluescommand.h"
 #include "childrenchangedcommand.h"
-#include "imagecontainer.h"
-#include "statepreviewimagechangedcommand.h"
+#include "clearscenecommand.h"
+#include "completecomponentcommand.h"
 #include "componentcompletedcommand.h"
-#include "synchronizecommand.h"
-#include "tokencommand.h"
-#include "removesharedmemorycommand.h"
-#include "endpuppetcommand.h"
+#include "createinstancescommand.h"
+#include "createscenecommand.h"
 #include "debugoutputcommand.h"
+#include "endpuppetcommand.h"
+#include "imagecontainer.h"
+#include "informationchangedcommand.h"
+#include "inputeventcommand.h"
+#include "instancecontainer.h"
+#include "pixmapchangedcommand.h"
+#include "propertyabstractcontainer.h"
+#include "propertybindingcontainer.h"
+#include "propertyvaluecontainer.h"
 #include "puppetalivecommand.h"
 #include "puppettocreatorcommand.h"
+#include "removeinstancescommand.h"
+#include "removepropertiescommand.h"
+#include "removesharedmemorycommand.h"
+#include "reparentinstancescommand.h"
+#include "statepreviewimagechangedcommand.h"
+#include "synchronizecommand.h"
+#include "tokencommand.h"
+#include "update3dviewstatecommand.h"
+#include "valueschangedcommand.h"
+#include "view3dactioncommand.h"
 
 #include <enumeration.h>
 
@@ -212,6 +212,9 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<QPair<int, int>>("QPairIntInt");
     qRegisterMetaTypeStreamOperators<QPair<int, int>>("QPairIntInt");
+
+    qRegisterMetaType<ChangeLanguageCommand>("ChangeLanguageCommand");
+    qRegisterMetaTypeStreamOperators<ChangeLanguageCommand>("ChangeLanguageCommand");
 }
 
 }
