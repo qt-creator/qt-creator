@@ -245,6 +245,10 @@ public:
         : ValueBase(VariantType{Utils::SmallString(value)})
     {}
 
+    explicit Value(const std::string &value)
+        : ValueBase(VariantType{Utils::SmallString(value)})
+    {}
+
     friend bool operator!=(const Value &first, const Value &second)
     {
         return !(first.value == second.value);
