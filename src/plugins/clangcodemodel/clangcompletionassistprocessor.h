@@ -56,6 +56,7 @@ public:
     const TextEditor::TextEditorWidget *textEditorWidget() const;
 
 private:
+    void cancel() override;
     TextEditor::IAssistProposal *startCompletionHelper();
     int startOfOperator(int pos, unsigned *kind, bool wantFunctionCall) const;
     int findStartOfName(int pos = -1) const;

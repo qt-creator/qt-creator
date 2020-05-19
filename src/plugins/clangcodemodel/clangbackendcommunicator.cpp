@@ -513,5 +513,10 @@ void BackendCommunicator::requestCompletions(ClangCompletionAssistProcessor *ass
     m_receiver.addExpectedCompletionsMessage(message.ticketNumber, assistProcessor);
 }
 
+void BackendCommunicator::cancelCompletions(TextEditor::IAssistProcessor *processor)
+{
+    m_receiver.cancelProcessor(processor);
+}
+
 } // namespace Internal
 } // namespace ClangCodeModel

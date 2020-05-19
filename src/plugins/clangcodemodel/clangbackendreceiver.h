@@ -35,7 +35,10 @@
 #include <QPointer>
 #include <QTextDocument>
 
-namespace TextEditor { class TextEditorWidget; }
+namespace TextEditor {
+class IAssistProcessor;
+class TextEditorWidget;
+} // namespace TextEditor
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -52,6 +55,7 @@ public:
     void setAliveHandler(const AliveHandler &handler);
 
     void addExpectedCompletionsMessage(quint64 ticket, ClangCompletionAssistProcessor *processor);
+    void cancelProcessor(TextEditor::IAssistProcessor *processor);
     void deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidget *textEditorWidget);
 
     QFuture<CppTools::CursorInfo>

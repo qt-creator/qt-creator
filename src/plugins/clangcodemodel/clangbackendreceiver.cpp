@@ -84,6 +84,18 @@ void BackendReceiver::addExpectedCompletionsMessage(
     m_assistProcessorsTable.insert(ticket, processor);
 }
 
+void BackendReceiver::cancelProcessor(TextEditor::IAssistProcessor *processor)
+{
+    for (auto it = m_assistProcessorsTable.cbegin(), end = m_assistProcessorsTable.cend();
+            it != end; ++it)
+    {
+        if (it.value() == processor) {
+            m_assistProcessorsTable.erase(it);
+            return;
+        }
+    }
+}
+
 void BackendReceiver::deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidget *textEditorWidget)
 {
     QList<quint64> toRemove;

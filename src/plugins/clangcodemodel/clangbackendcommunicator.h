@@ -43,6 +43,8 @@ class IEditor;
 class IDocument;
 }
 
+namespace TextEditor { class IAssistProcessor; }
+
 namespace ClangCodeModel {
 namespace Internal {
 
@@ -88,6 +90,7 @@ public:
                             quint32 column,
                             qint32 funcNameStartLine = -1,
                             qint32 funcNameStartColumn = -1);
+    void cancelCompletions(TextEditor::IAssistProcessor *processor);
     void requestAnnotations(const ClangBackEnd::FileContainer &fileContainer);
     QFuture<CppTools::CursorInfo> requestReferences(
             const FileContainer &fileContainer,

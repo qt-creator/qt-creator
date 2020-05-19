@@ -697,6 +697,10 @@ IAssistProposal *ClangCompletionAssistProcessor::createFunctionHintProposal(
     return new FunctionHintProposal(m_positionForProposal, model);
 }
 
+void ClangCompletionAssistProcessor::cancel()
+{
+    m_interface->communicator().cancelCompletions(this);
+}
+
 } // namespace Internal
 } // namespace ClangCodeModel
-
