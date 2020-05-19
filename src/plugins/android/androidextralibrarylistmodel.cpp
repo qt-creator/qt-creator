@@ -90,7 +90,8 @@ void AndroidExtraLibraryListModel::updateModel()
 {
     const QString buildKey = m_buildSystem->target()->activeBuildKey();
     const ProjectNode *node = m_buildSystem->target()->project()->findNodeForBuildKey(buildKey);
-    QTC_ASSERT(node, return);
+    if (!node)
+        return;
 
     if (node->parseInProgress()) {
         emit enabledChanged(false);

@@ -206,8 +206,10 @@ AndroidDeviceInfoList AndroidToolManager::androidVirtualDevices(const Utils::Fil
     if (avds.empty())
         return devices;
 
-    while (avds.first().startsWith(QLatin1String("* daemon")))
-        avds.removeFirst(); // remove the daemon logs
+    for (const QString line : avds) // remove the daemon logs
+        if (line.startsWith("* daemon"))
+            avds.removeOne(line);
+
     avds.removeFirst(); // remove "List of devices attached" header line
 
     bool nextLineIsTargetLine = false;
