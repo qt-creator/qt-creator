@@ -123,7 +123,11 @@ TEST_F(DiagnosticSlowTest, MoveSelfAssigment)
 
 TEST_F(DiagnosticSlowTest, Text)
 {
+#if CINDEX_VERSION_MAJOR == 0 && CINDEX_VERSION_MINOR >= 59 // >= LLVM/Clang 10
+    ASSERT_THAT(diagnostic.text(), Utf8StringLiteral("warning: non-void function does not return a value"));
+#else
     ASSERT_THAT(diagnostic.text(), Utf8StringLiteral("warning: control reaches end of non-void function"));
+#endif
 }
 
 TEST_F(DiagnosticSlowTest, Category)
