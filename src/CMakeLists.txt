@@ -22,7 +22,6 @@ install(
 
 install(
   DIRECTORY
-    ${PROJECT_SOURCE_DIR}/doc
     ${PROJECT_SOURCE_DIR}/scripts
   DESTINATION ./
   COMPONENT Devel EXCLUDE_FROM_ALL
@@ -53,6 +52,10 @@ if (NOT DEFINED add_translation_targets)
   include(\${CMAKE_CURRENT_LIST_DIR}/QtCreatorTranslations.cmake)
 endif()
 
+if (NOT DEFINED add_qtc_documentation)
+  include(\${CMAKE_CURRENT_LIST_DIR}/QtCreatorDocumentation.cmake)
+endif()
+
 if (NOT TARGET QtCreator::Core)
   include(\${CMAKE_CURRENT_LIST_DIR}/QtCreatorTargets.cmake)
 endif()
@@ -66,6 +69,7 @@ export(EXPORT QtCreator
 file(COPY
   ${PROJECT_SOURCE_DIR}/cmake/QtCreatorIDEBranding.cmake
   ${PROJECT_SOURCE_DIR}/cmake/QtCreatorTranslations.cmake
+  ${PROJECT_SOURCE_DIR}/cmake/QtCreatorDocumentation.cmake
   ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPI.cmake
   ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPIInternal.cmake
   DESTINATION ${CMAKE_BINARY_DIR}/cmake
@@ -76,6 +80,7 @@ install(
   FILES
     ${PROJECT_SOURCE_DIR}/cmake/QtCreatorIDEBranding.cmake
     ${PROJECT_SOURCE_DIR}/cmake/QtCreatorTranslations.cmake
+    ${PROJECT_SOURCE_DIR}/cmake/QtCreatorDocumentation.cmake
     ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPI.cmake
     ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPIInternal.cmake
     ${CMAKE_BINARY_DIR}/cmake/QtCreatorConfig.cmake

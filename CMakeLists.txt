@@ -6,6 +6,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(FeatureSummary)
 include(QtCreatorIDEBranding)
 include(QtCreatorTranslations)
+include(QtCreatorDocumentation)
 
 set(IDE_REVISION FALSE CACHE BOOL "Marks the presence of IDE revision string.")
 set(IDE_REVISION_STR "" CACHE STRING "The IDE revision string.")
@@ -45,40 +46,6 @@ find_package(Qt5
 find_package(Qt5 COMPONENTS LinguistTools)
 
 find_package(Threads)
-
-# Get information on directories from qmake
-# as this is not yet exported by cmake.
-function(qt5_query_qmake)
-  if (NOT TARGET Qt5::qmake)
-    message(FATAL_ERROR "Qmake was not found.")
-  endif()
-
-  get_target_property(_qmake_binary Qt5::qmake IMPORTED_LOCATION)
-  execute_process(COMMAND "${_qmake_binary}" "-query"
-                  TIMEOUT 10
-                  RESULT_VARIABLE _qmake_result
-                  OUTPUT_VARIABLE _qmake_stdout
-                  OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-  if (NOT "${_qmake_result}" STREQUAL "0")
-    message(FATAL_ERROR "Qmake did not execute successfully: ${_qmake_result}.")
-  endif()
-
-  # split into lines:
-  string(REPLACE "\n" ";" _lines "${_qmake_stdout}")
-
-  foreach(_line ${_lines})
-    # split line into key/value pairs
-    string(REPLACE ":" ";" _parts "${_line}")
-    list(GET _parts 0 _key)
-    list(REMOVE_AT _parts 0)
-    string(REPLACE ";" ":" _value "${_parts}")
-
-    set("${_key}" "${_value}" CACHE PATH "qmake import of ${_key}" FORCE)
-  endforeach()
-endfunction()
-
-qt5_query_qmake()
 
 find_package(Qt5 COMPONENTS Designer Help Script SerialPort Svg QUIET)
 function (set_if_target var target)

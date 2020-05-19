@@ -51,6 +51,8 @@ def get_arguments():
     parser.add_argument('--add-config', help=('Adds the argument to the CMake configuration call. '
                         'Use "--add-config=-DSOMEVAR=SOMEVALUE" if the argument begins with a dash.'),
                         action='append', dest='config_args', default=[])
+    parser.add_argument('--with-docs', help='Build and install documentation.',
+                        action='store_true', default=False)
     parser.add_argument('--deploy', help='Installs the "Dependencies" component of the plugin.',
                         action='store_true', default=False)
     parser.add_argument('--debug', help='Enable debug builds', action='store_true', default=False)
@@ -79,6 +81,9 @@ def build(args, paths):
     # TODO this works around a CMake bug https://gitlab.kitware.com/cmake/cmake/issues/20119
     cmake_args += ['-DBUILD_WITH_PCH=OFF']
 
+    if args.with_docs:
+        cmake_args += ['-DWITH_DOCS=ON']
+
     ide_revision = common.get_commit_SHA(paths.src)
     if ide_revision:
         cmake_args += ['-DQTC_PLUGIN_REVISION=' + ide_revision]
@@ -88,8 +93,17 @@ def build(args, paths):
     cmake_args += args.config_args
     common.check_print_call(cmake_args + [paths.src], paths.build)
     common.check_print_call(['cmake', '--build', '.'], paths.build)
+    if args.with_docs:
+        common.check_print_call(['cmake', '--build', '.', '--target', 'docs'], paths.build)
     common.check_print_call(['cmake', '--install', '.', '--prefix', paths.install, '--strip'],
                             paths.build)
+    if args.with_docs:
+        common.check_print_call(['cmake', '--install', '.', '--prefix', paths.install,
+                                 '--component', 'qch_docs'],
+                                paths.build)
+        common.check_print_call(['cmake', '--install', '.', '--prefix', paths.install,
+                                 '--component', 'html_docs'],
+                                paths.build)
     if args.deploy:
         common.check_print_call(['cmake', '--install', '.', '--prefix', paths.install,
                                  '--component', 'Dependencies'],

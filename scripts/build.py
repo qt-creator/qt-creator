@@ -153,17 +153,12 @@ def build_qtcreator(args, paths):
                             paths.build)
     if not args.no_docs:
         common.check_print_call(['cmake', '--install', '.', '--prefix', paths.install,
-                                 '--component', 'qtc_docs_qtcreator'],
+                                 '--component', 'qch_docs'],
                                 paths.build)
         common.check_print_call(['cmake', '--install', '.', '--prefix', paths.install,
-                                 '--component', 'html_docs_qtcreator'],
+                                 '--component', 'html_docs'],
                                 paths.build)
-        common.check_print_call(['cmake', '--install', '.', '--prefix', paths.install,
-                                 '--component', 'html_docs_qtcreator-dev'],
-                                paths.build)
-        common.check_print_call(['cmake', '--install', '.', '--prefix', paths.install,
-                                 '--component', 'html_docs_qtcreator-dev'],
-                                paths.build)
+
 def build_wininterrupt(args, paths):
     if not common.is_windows_platform():
         return
