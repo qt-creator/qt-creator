@@ -12,7 +12,8 @@
     "options":
     [
         { "key": "Base", "value":"%{JS: value('BaseCB') === '' ? value('BaseEdit') : value('BaseCB')}" },
-        { "key": "Imports", "value": "%{ImportQtCore}%{ImportQtWidgets}%{ImportQtDeclarative}"}
+        { "key": "Package", "value": "%{JS: [ 'QWidget', 'QMainWindow' ].indexOf(value('Base')) >= 0 ? 'QtWidgets' : (value('Base') === 'QQuickItem' ? 'QtQuick' : (value('Base') === 'QObject' ? 'QtCore' : ''))}" },
+        { "key": "FullBase", "value": "%{JS: value('Package') === '' ? value('Base') : value('Package') + '.' + value('Base')}" }
     ],
 
     "pages":
@@ -32,11 +33,11 @@
                 },
                 {
                     "name": "Module",
-                    "trDisplayName": "Python module:",
+                    "trDisplayName": "Qt for Python module:",
                     "type": "ComboBox",
                     "data":
                     {
-                        "items": ["PySide2", "PyQt5"]
+                        "items": ["<None>", "PySide2", "PyQt5"]
                     }
                 },
                 {
@@ -46,8 +47,10 @@
                     "data":
                     {
                         "items": [ { "trKey": "<Custom>", "value": "" },
-                                   "QObject", "QWidget", "QMainWindow", "QDeclarativeItem", "QQuickItem" ]
-                    }
+                                   "QObject", "QWidget", "QMainWindow", "QQuickItem" ]
+                    },
+                    "isComplete": "%{JS: (value('Module') === '<None>' && value('BaseCB') === '') || value('Module') !== '<None>'}",
+                    "trIncompleteMessage": "You can choose Qt classes only if you select a Qt for Python module."
                 },
                 {
                     "name": "BaseEdit",
@@ -67,33 +70,36 @@
                     "name": "ImportQtCore",
                     "trDisplayName": "Import QtCore",
                     "type": "CheckBox",
+                    "enabled": "%{JS: value('Module') !== '<None>'}",
                     "data":
                     {
                         "checkedValue": "QtCore",
                         "uncheckedValue": "",
-                        "checked": "%{JS: value('Base') !== ''}"
+                        "checked": "%{JS: value('BaseCB') !== ''}"
                     }
                 },
                 {
-                    "name": "ImportQWidget",
+                    "name": "ImportQtWidgets",
                     "trDisplayName": "Import QtWidgets",
                     "type": "CheckBox",
+                    "enabled": "%{JS: value('Module') !== '<None>'}",
                     "data":
                     {
                         "checkedValue": "QtWidgets",
                         "uncheckedValue": "",
-                        "checked": "%{JS: value('Base') === 'QWidget'}"
+                        "checked": "%{JS: [ 'QWidget', 'QMainWindow' ].indexOf(value('BaseCB')) >= 0}"
                     }
                 },
                 {
                     "name": "ImportQtQuick",
                     "trDisplayName": "Import QtQuick",
                     "type": "CheckBox",
+                    "enabled": "%{JS: value('Module') !== '<None>'}",
                     "data":
                     {
                         "checkedValue": "QtQuick",
                         "uncheckedValue": "",
-                        "checked": "%{JS: value('Base') === 'QQuickItem'}"
+                        "checked": "%{JS: value('BaseCB') === 'QQuickItem'}"
                     }
                 },
                 {
