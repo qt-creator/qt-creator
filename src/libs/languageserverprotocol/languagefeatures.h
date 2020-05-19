@@ -795,11 +795,11 @@ public:
     }
 };
 
-class PrepareRenameResult : public Utils::variant<PlaceHolderResult, Range, nullptr_t>
+class PrepareRenameResult : public Utils::variant<PlaceHolderResult, Range, std::nullptr_t>
 {
 public:
     PrepareRenameResult();
-    PrepareRenameResult(const Utils::variant<PlaceHolderResult, Range, nullptr_t> &val);
+    PrepareRenameResult(const Utils::variant<PlaceHolderResult, Range, std::nullptr_t> &val);
     explicit PrepareRenameResult(const PlaceHolderResult &val);
     explicit PrepareRenameResult(const Range &val);
     PrepareRenameResult(const QJsonValue &val);
