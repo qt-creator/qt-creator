@@ -10,7 +10,7 @@
     "enabled": "%{JS: value('Plugins').indexOf('Android') >= 0}",
 
     "options": [
-        { "key": "ClassName", "value": "%{JS: value('FileName').charAt(0).toUpperCase() + value('FileName').substr(1).replace(/[.]java$/,'')}" }.
+        { "key": "ClassName", "value": "%{JS: value('FileName').charAt(0).toUpperCase() + value('FileName').substr(1).replace(/[.]java$/,'')}" },
         { "key": "DefaultSuffix", "value": "%{JS: Util.preferredSuffix('text/x-java')}" }
     ],
 
