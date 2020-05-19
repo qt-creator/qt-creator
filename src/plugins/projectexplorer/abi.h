@@ -70,6 +70,7 @@ public:
         RxArchitecture,
         K78Architecture,
         M68KArchitecture,
+        M32CArchitecture,
         RiscVArchitecture,
         UnknownArchitecture
     };
