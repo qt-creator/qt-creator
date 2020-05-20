@@ -561,11 +561,12 @@ void ModelManagerInterface::updateProjectInfo(const ProjectInfo &pinfo, ProjectE
     // parse any files not yet in the snapshot
     QStringList newFiles;
     for (const QString &file : qAsConst(pinfo.sourceFiles)) {
+        if (!m_fileToProject.contains(file, p))
+            m_fileToProject.insert(file, p);
         if (!snapshot.document(file))
             newFiles += file;
     }
-    for (const QString &newFile : qAsConst(newFiles))
-        m_fileToProject.insert(newFile, p);
+
     updateSourceFiles(newFiles, false);
 
     // update qrc cache
@@ -636,7 +637,6 @@ QList<ModelManagerInterface::ProjectInfo> ModelManagerInterface::allProjectInfos
             infos.append(info);
     }
     std::sort(infos.begin(), infos.end(), &pInfoLessThanImports);
-    infos.append(m_defaultProjectInfo);
     return infos;
 }
 
@@ -1407,6 +1407,13 @@ LibraryInfo ModelManagerInterface::builtins(const Document::Ptr &doc) const
 ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
                                                       const Document::Ptr &doc) const
 {
+    return getVContext(vCtx, doc, false);
+}
+
+ViewerContext ModelManagerInterface::getVContext(const ViewerContext &vCtx,
+                                                 const Document::Ptr &doc,
+                                                 bool limitToProject) const
+{
     ViewerContext res = vCtx;
 
     if (!doc.isNull()
@@ -1444,20 +1451,27 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
         {
             if (res.language == Dialect::QmlQtQuick2 || res.language == Dialect::QmlQtQuick2Ui)
                 maybeAddPath(res, info.qtQmlPath);
-            QList<ProjectInfo> allProjects;
-            {
-                QMutexLocker locker(&m_mutex);
-                allProjects = m_projects.values();
-            }
-            std::sort(allProjects.begin(), allProjects.end(), &pInfoLessThanImports);
+
             QList<Dialect> languages = res.language.companionLanguages();
-            for (const ProjectInfo &pInfo : qAsConst(allProjects)) {
-                for (const auto &importPath : pInfo.importPaths) {
+            auto addPathsOnLanguageMatch = [&](const PathsAndLanguages &importPaths) {
+                for (const auto &importPath : importPaths) {
                     if (languages.contains(importPath.language())
                             || importPath.language().companionLanguages().contains(res.language)) {
                         maybeAddPath(res, importPath.path().toString());
                     }
                 }
+            };
+            if (limitToProject) {
+                addPathsOnLanguageMatch(info.importPaths);
+            } else {
+                QList<ProjectInfo> allProjects;
+                {
+                    QMutexLocker locker(&m_mutex);
+                    allProjects = m_projects.values();
+                }
+                std::sort(allProjects.begin(), allProjects.end(), &pInfoLessThanImports);
+                for (const ProjectInfo &pInfo : qAsConst(allProjects))
+                    addPathsOnLanguageMatch(pInfo.importPaths);
             }
             const auto environmentPaths = environmentImportPaths();
             for (const QString &path : environmentPaths)
@@ -1514,6 +1528,13 @@ ViewerContext ModelManagerInterface::defaultVContext(Dialect language,
     }
     defaultCtx.language = language;
     return autoComplete ? completeVContext(defaultCtx, doc) : defaultCtx;
+}
+
+ViewerContext ModelManagerInterface::projectVContext(Dialect language, const Document::Ptr &doc) const
+{
+    // Returns context limited to the project the file belongs to
+    ViewerContext defaultCtx = defaultVContext(language, doc, false);
+    return getVContext(defaultCtx, doc, true);
 }
 
 ModelManagerInterface::ProjectInfo ModelManagerInterface::defaultProjectInfo() const

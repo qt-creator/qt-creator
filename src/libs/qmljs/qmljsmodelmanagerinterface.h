@@ -174,6 +174,8 @@ public:
     ViewerContext defaultVContext(Dialect language = Dialect::Qml,
                                   const Document::Ptr &doc = Document::Ptr(nullptr),
                                   bool autoComplete = true) const;
+    ViewerContext projectVContext(Dialect language, const Document::Ptr &doc) const;
+
     void setDefaultVContext(const ViewerContext &vContext);
     virtual ProjectInfo defaultProjectInfo() const;
     virtual ProjectInfo defaultProjectInfoForProject(ProjectExplorer::Project *project) const;
@@ -241,6 +243,7 @@ private:
     void iterateQrcFiles(ProjectExplorer::Project *project,
                          QrcResourceSelector resources,
                          const std::function<void(Utils::QrcParser::ConstPtr)> &callback);
+    ViewerContext getVContext(const ViewerContext &vCtx, const Document::Ptr &doc, bool limitToProject) const;
 
     mutable QMutex m_mutex;
     QmlJS::Snapshot m_validSnapshot;
