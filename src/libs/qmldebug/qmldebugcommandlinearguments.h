@@ -53,7 +53,7 @@ inline QString qmlDebugServices(QmlDebugServicesPreset preset)
     case QmlNativeDebuggerServices:
         return QStringLiteral("NativeQmlDebugger");
     case QmlPreviewServices:
-        return QStringLiteral("QmlPreview");
+        return QStringLiteral("QmlPreview,DebugTranslation");
     default:
         Q_ASSERT(false);
         return QString();
