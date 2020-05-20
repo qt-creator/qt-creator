@@ -123,9 +123,7 @@ InterpreterOptionsWidget::InterpreterOptionsWidget(const QList<Interpreter> &int
         }
         return {};
     });
-
-    for (const Interpreter &interpreter : interpreters)
-        m_model.appendItem(interpreter);
+    m_model.setAllData(interpreters);
 
     auto mainLayout = new QVBoxLayout();
     auto layout = new QHBoxLayout();
@@ -308,11 +306,9 @@ void InterpreterOptionsWidget::makeDefault()
 {
     const QModelIndex &index = m_view.currentIndex();
     if (index.isValid()) {
-        QModelIndex defaultIndex;
-        if (auto *defaultItem = m_model.findItemByData(
-                [this](const Interpreter &interpreter) { return interpreter.id == m_defaultId; })) {
-            defaultIndex = m_model.indexForItem(defaultItem);
-        }
+        QModelIndex defaultIndex = m_model.findIndex([this](const Interpreter &interpreter) {
+            return interpreter.id == m_defaultId;
+        });
         m_defaultId = m_model.itemAt(index.row())->itemData.id;
         emit m_model.dataChanged(index, index, {Qt::FontRole});
         if (defaultIndex.isValid())
