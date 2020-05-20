@@ -134,21 +134,22 @@ LocalQmlPreviewSupport::LocalQmlPreviewSupport(ProjectExplorer::RunControl *runC
         const auto currentTarget = runControl->target();
         const auto *qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(currentTarget->buildSystem());
 
-        const auto aspect = runControl->aspect<QmlProjectManager::QmlMainFileAspect>();
-        const QString mainScript = aspect->mainScript();
-        const QString currentFile = aspect->currentFile();
+        if (const auto aspect = runControl->aspect<QmlProjectManager::QmlMainFileAspect>()) {
+            const QString mainScript = aspect->mainScript();
+            const QString currentFile = aspect->currentFile();
 
-        const QString mainScriptFromProject = qmlBuildSystem->targetFile(
-            Utils::FilePath::fromString(mainScript)).toString();
+            const QString mainScriptFromProject = qmlBuildSystem->targetFile(
+                Utils::FilePath::fromString(mainScript)).toString();
 
-        const QString currentFileFromProject = qmlBuildSystem->targetFile(
-            Utils::FilePath::fromString(currentFile)).toString();
+            const QString currentFileFromProject = qmlBuildSystem->targetFile(
+                Utils::FilePath::fromString(currentFile)).toString();
 
-        if (!currentFile.isEmpty() && qmlProjectRunConfigurationArguments.last().contains(mainScriptFromProject)) {
-            qmlProjectRunConfigurationArguments.removeLast();
-            auto commandLine = Utils::CommandLine(runnable.commandLine().executable(), qmlProjectRunConfigurationArguments);
-            commandLine.addArg(currentFile);
-            runnable.setCommandLine(commandLine);
+            if (!currentFile.isEmpty() && qmlProjectRunConfigurationArguments.last().contains(mainScriptFromProject)) {
+                qmlProjectRunConfigurationArguments.removeLast();
+                auto commandLine = Utils::CommandLine(runnable.commandLine().executable(), qmlProjectRunConfigurationArguments);
+                commandLine.addArg(currentFile);
+                runnable.setCommandLine(commandLine);
+            }
         }
 
         Utils::QtcProcess::addArg(&runnable.commandLineArguments,
