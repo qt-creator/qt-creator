@@ -251,10 +251,10 @@ void LspLoggerWidget::selectMatchingMessage(LspLogMessage::MessageSender sender,
         [&](const LspLogMessage &message) { return matches(sender, id, message); });
     if (!matchingMessage)
         return;
-    auto item = m_model.findItemByData(
+    auto index = m_model.findIndex(
         [&](const LspLogMessage &message) { return &message == matchingMessage; });
 
-    m_messages->selectionModel()->select(m_model.indexForItem(item), QItemSelectionModel::Select);
+    m_messages->selectionModel()->select(index, QItemSelectionModel::Select);
     if (matchingMessage->sender == LspLogMessage::ServerMessage)
         m_serverDetails->setMessage(matchingMessage->message);
     else
