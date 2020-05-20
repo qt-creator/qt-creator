@@ -151,6 +151,12 @@ LocalQmlPreviewSupport::LocalQmlPreviewSupport(ProjectExplorer::RunControl *runC
             runnable.setCommandLine(commandLine);
         }
 
+        if (runControl->project()) {
+            auto multilanguageDatabaseFilePath = runControl->project()->projectDirectory().pathAppended("/multilanguage-experimental-v1.db");
+            if (multilanguageDatabaseFilePath.exists())
+                runnable.environment.set("QT_MULTILANGUAGE_DATABASE", multilanguageDatabaseFilePath.toString());
+        }
+
         Utils::QtcProcess::addArg(&runnable.commandLineArguments,
                                   QmlDebug::qmlDebugLocalArguments(QmlDebug::QmlPreviewServices,
                                                                    serverUrl.path()));
