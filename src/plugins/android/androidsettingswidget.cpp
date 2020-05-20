@@ -264,7 +264,7 @@ void AvdModel::setAvdList(const AndroidDeviceInfoList &list)
 QModelIndex AvdModel::indexForAvdName(const QString &avdName) const
 {
     for (int i = 0; i < m_list.size(); ++i) {
-        if (m_list.at(i).serialNumber == avdName)
+        if (m_list.at(i).avdname == avdName)
             return index(i, 0);
     }
     return QModelIndex();
