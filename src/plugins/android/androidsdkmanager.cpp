@@ -321,8 +321,7 @@ const std::map<SdkManagerOutputParser::MarkerTag, const char *> markerTags {
     {SdkManagerOutputParser::MarkerTag::ExtrasMarker,               "extras"}
 };
 
-AndroidSdkManager::AndroidSdkManager(const AndroidConfig &config, QObject *parent):
-    QObject(parent),
+AndroidSdkManager::AndroidSdkManager(const AndroidConfig &config):
     m_d(new AndroidSdkManagerPrivate(*this, config))
 {
 }

@@ -62,7 +62,7 @@ public:
         QString stdError;
     };
 
-    AndroidSdkManager(const AndroidConfig &config, QObject *parent = nullptr);
+    explicit AndroidSdkManager(const AndroidConfig &config);
     ~AndroidSdkManager() override;
 
     SdkPlatformList installedSdkPlatforms();
@@ -97,8 +97,8 @@ signals:
     void cancelActiveOperations();
 
 private:
-    std::unique_ptr<AndroidSdkManagerPrivate> m_d;
     friend class AndroidSdkManagerPrivate;
+    std::unique_ptr<AndroidSdkManagerPrivate> m_d;
 };
 
 } // namespace Internal
