@@ -41,6 +41,7 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/infolabel.h>
+#include <utils/listmodel.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
@@ -70,6 +71,8 @@
 
 #include <memory>
 
+using namespace Utils;
+
 namespace {
 static Q_LOGGING_CATEGORY(androidsettingswidget, "qtc.android.androidsettingswidget", QtWarningMsg);
 }
@@ -78,26 +81,19 @@ namespace Android {
 namespace Internal {
 
 class AndroidSdkManagerWidget;
-
 class AndroidAvdManager;
 
-class AvdModel final : public QAbstractTableModel
+class AvdModel final : public ListModel<AndroidDeviceInfo>
 {
     Q_DECLARE_TR_FUNCTIONS(Android::Internal::AvdModel)
 
 public:
-    void setAvdList(const AndroidDeviceInfoList &list);
+    AvdModel();
+
+    QVariant itemData(const AndroidDeviceInfo &info, int column, int role) const final;
+
     QString avdName(const QModelIndex &index) const;
     QModelIndex indexForAvdName(const QString &avdName) const;
-
-protected:
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const final;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const final;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const final;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const final;
-
-private:
-    AndroidDeviceInfoList m_list;
 };
 
 class AndroidSettingsWidget final : public Core::IOptionsPageWidget
@@ -254,83 +250,42 @@ private:
     QMap<int, RowData> m_validationData;
 };
 
-void AvdModel::setAvdList(const AndroidDeviceInfoList &list)
-{
-    beginResetModel();
-    m_list = list;
-    endResetModel();
-}
-
 QModelIndex AvdModel::indexForAvdName(const QString &avdName) const
 {
-    for (int i = 0; i < m_list.size(); ++i) {
-        if (m_list.at(i).avdname == avdName)
-            return index(i, 0);
-    }
-    return QModelIndex();
+    return findIndex([avdName](const AndroidDeviceInfo &info) { return info.avdname == avdName; });
 }
 
 QString AvdModel::avdName(const QModelIndex &index) const
 {
-    return m_list.at(index.row()).avdname;
+    return dataAt(index.row()).avdname;
 }
 
-QVariant AvdModel::data(const QModelIndex &index, int role) const
+QVariant AvdModel::itemData(const AndroidDeviceInfo &info, int column, int role) const
 {
-    if (role != Qt::DisplayRole || !index.isValid())
-        return QVariant();
+    if (role != Qt::DisplayRole)
+        return {};
 
-    const AndroidDeviceInfo currentRow = m_list.at(index.row());
-    switch (index.column()) {
+    switch (column) {
         case 0:
-            return currentRow.avdname;
+            return info.avdname;
         case 1:
-            return currentRow.sdk;
-        case 2: {
-            QStringList cpuAbis = currentRow.cpuAbi;
-            return cpuAbis.isEmpty() ? QVariant() : QVariant(cpuAbis.first());
-        }
+            return info.sdk;
+        case 2:
+            return info.cpuAbi.isEmpty() ? QVariant() : QVariant(info.cpuAbi.first());
         case 3:
-            return currentRow.avdDevice.isEmpty() ? QVariant("Custom")
-                                                  : currentRow.avdDevice;
+            return info.avdDevice.isEmpty() ? QVariant("Custom") : info.avdDevice;
         case 4:
-            return currentRow.avdTarget;
+            return info.avdTarget;
         case 5:
-            return currentRow.avdSdcardSize;
+            return info.avdSdcardSize;
     }
-    return QVariant();
+    return {};
 }
 
-QVariant AvdModel::headerData(int section, Qt::Orientation orientation, int role) const
+AvdModel::AvdModel()
 {
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-        switch (section) {
-            case 0:
-                //: AVD - Android Virtual Device
-                return tr("AVD Name");
-            case 1:
-                return tr("API");
-            case 2:
-                return tr("CPU/ABI");
-            case 3:
-                return tr("Device type");
-            case 4:
-                return tr("Target");
-            case 5:
-                return tr("SD-card size");
-        }
-    }
-    return QAbstractItemModel::headerData(section, orientation, role );
-}
-
-int AvdModel::rowCount(const QModelIndex &/*parent*/) const
-{
-    return m_list.size();
-}
-
-int AvdModel::columnCount(const QModelIndex &/*parent*/) const
-{
-    return 6;
+    //: AVD - Android Virtual Device
+    setHeader({tr("AVD Name"), tr("API"), tr("CPU/ABI"), tr("Device type"), tr("Target"), tr("SD-card size")});
 }
 
 Utils::FilePath AndroidSettingsWidget::getDefaultSdkPath()
@@ -618,7 +573,7 @@ void AndroidSettingsWidget::startUpdateAvd()
 
 void AndroidSettingsWidget::updateAvds()
 {
-    m_AVDModel.setAvdList(m_virtualDevicesWatcher.result());
+    m_AVDModel.setAllData(m_virtualDevicesWatcher.result());
     if (!m_lastAddedAvd.isEmpty()) {
         m_ui->AVDTableView->setCurrentIndex(m_AVDModel.indexForAvdName(m_lastAddedAvd));
         m_lastAddedAvd.clear();
