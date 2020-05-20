@@ -35,7 +35,7 @@
         \li \l{Connecting Android Devices}{Android}
         \li \l{Connecting Bare Metal Devices}{Bare Metal}
         \li Boot2Qt
-        \li \l{Connecting Embedded Linux Devices}{Generic Remote Linux}
+        \li \l{Connecting Generic Remote Linux Devices}{Generic Remote Linux}
         \li \l{Connecting iOS Devices}{iOS}
         \li \l{Connecting MCUs}{Microcontroller Units (MCU)} (commercial only)
         \li \l{Connecting QNX Devices}{QNX}

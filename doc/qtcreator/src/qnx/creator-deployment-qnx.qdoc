@@ -41,7 +41,7 @@
     \title Deploying Applications to QNX Neutrino Devices
 
     You can deploy applications to QNX Neutrino devices in the way that is
-    described in \l{Deploying Applications to Embedded Linux Devices}.
+    described in \l{Deploying Applications to Generic Remote Linux Devices}.
 
     \image qtcreator-qnx-deployment.png "Deploy to device"
 

@@ -33,7 +33,7 @@
     host to the device and add the device configurations to
     \l{glossary-buildandrun-kit}{kits}. Click \uicontrol {Manage Kits} to add devices
     to kits. For more information, see
-    \l {Connecting Embedded Linux Devices}.
+    \l {Connecting Generic Remote Linux Devices}.
 
     When you run the application, \QC copies the files to the connected device.
 
