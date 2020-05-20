@@ -120,6 +120,28 @@ public:
         return item ? &item->itemData : nullptr;
     }
 
+    QModelIndex findIndex(const std::function<bool(const ItemData &)> &pred) const
+    {
+        ChildType *item = findItemByData(pred);
+        return item ? BaseTreeModel::indexForItem(item) : QModelIndex();
+    }
+
+    QList<ItemData> allData() const
+    {
+        QList<ItemData> res;
+        BaseModel::rootItem()->forFirstLevelChildren([&res](ChildType *child) {
+            res.append(child->itemData);
+        });
+        return res;
+    }
+
+    void setAllData(const QList<ItemData> &items)
+    {
+        BaseModel::rootItem()->removeChildren();
+        for (const ItemData &data : items)
+            appendItem(data);
+    }
+
     void forItems(const std::function<void(ItemData &)> &func) const
     {
         BaseModel::rootItem()->forFirstLevelChildren([func](ChildType *child) {
