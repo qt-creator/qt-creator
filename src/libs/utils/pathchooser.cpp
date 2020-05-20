@@ -42,12 +42,30 @@
 
 /*!
     \class Utils::PathChooser
+    \inmodule QtCreator
 
-    \brief The PathChooser class is a control that lets the user choose a path,
-    consisting of a QLineEdit and
-    a "Browse" button.
+    \brief The PathChooser class is a control that lets the user choose a path.
+    The control consist of a QLineEdit and a "Browse" button, and is optionally
+    able to perform variable substitution.
 
     This class has some validation logic for embedding into QWizardPage.
+*/
+
+/*!
+    \enum Utils::PathChooser::Kind
+    \inmodule QtCreator
+
+    The Kind enum describes the kind of path a PathChooser considers valid.
+
+    \value ExistingDirectory An existing directory
+    \value Directory A directory that does not need to exist
+    \value File An existing file
+    \value SaveFile A file that does not need to exist
+    \value ExistingCommand An executable file that must exist at the time of selection
+    \value Command An executable file that may or may not exist at the time of selection (e.g. result of a build)
+    \value Any No restriction on the selected path
+
+    \sa setExpectedKind(), expectedKind()
 */
 
 namespace Utils {
@@ -620,6 +638,13 @@ QString PathChooser::homePath()
     return QDir::homePath();
 }
 
+/*!
+    Sets the kind of path the PathChooser will consider valid to select
+    to \a expected.
+
+    \sa Utils::PathChooser::Kind, expectedKind()
+*/
+
 void PathChooser::setExpectedKind(Kind expected)
 {
     if (d->m_acceptingKind == expected)
@@ -627,6 +652,12 @@ void PathChooser::setExpectedKind(Kind expected)
     d->m_acceptingKind = expected;
     d->m_lineEdit->validate();
 }
+
+/*!
+    Returns the kind of path the PathChooser considers valid to select.
+
+    \sa Utils::PathChooser::Kind, setExpectedKind()
+*/
 
 PathChooser::Kind PathChooser::expectedKind() const
 {
