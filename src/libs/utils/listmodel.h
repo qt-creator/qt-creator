@@ -142,7 +142,7 @@ public:
             appendItem(data);
     }
 
-    void forItems(const std::function<void(ItemData &)> &func) const
+    void forAllData(const std::function<void(ItemData &)> &func) const
     {
         BaseModel::rootItem()->forFirstLevelChildren([func](ChildType *child) {
             func(child->itemData);

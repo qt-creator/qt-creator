@@ -265,7 +265,7 @@ void LspLoggerWidget::saveLog()
 {
     QString contents;
     QTextStream stream(&contents);
-    m_model.forItems([&](const LspLogMessage &message) {
+    m_model.forAllData([&](const LspLogMessage &message) {
         stream << message.time.toString("hh:mm:ss.zzz") << ' ';
         stream << (message.sender == LspLogMessage::ClientMessage ? QString{"Client"}
                                                                   : QString{"Server"});
