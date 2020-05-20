@@ -312,17 +312,17 @@ void PathChooser::setEnvironment(const Environment &env)
 
 QString PathChooser::rawPath() const
 {
-    return rawFileName().toString();
+    return rawFilePath().toString();
 }
 
-FilePath PathChooser::rawFileName() const
+FilePath PathChooser::rawFilePath() const
 {
     return FilePath::fromString(QDir::fromNativeSeparators(d->m_lineEdit->text()));
 }
 
 FilePath PathChooser::filePath() const
 {
-    return FilePath::fromUserInput(d->expandedPath(rawFileName().toString()));
+    return FilePath::fromUserInput(d->expandedPath(rawFilePath().toString()));
 }
 
 // FIXME: try to remove again
