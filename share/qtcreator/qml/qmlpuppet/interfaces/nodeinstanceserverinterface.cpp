@@ -36,6 +36,7 @@
 #include "changeselectioncommand.h"
 #include "changestatecommand.h"
 #include "changevaluescommand.h"
+#include "changepreviewimagesizecommand.h"
 #include "childrenchangedcommand.h"
 #include "clearscenecommand.h"
 #include "completecomponentcommand.h"
@@ -215,6 +216,12 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<ChangeLanguageCommand>("ChangeLanguageCommand");
     qRegisterMetaTypeStreamOperators<ChangeLanguageCommand>("ChangeLanguageCommand");
+
+    qRegisterMetaType<ChangeLanguageCommand>("ChangeLanguageCommand");
+    qRegisterMetaTypeStreamOperators<ChangeLanguageCommand>("ChangeLanguageCommand");
+
+    qRegisterMetaType<ChangePreviewImageSizeCommand>("ChangePreviewImageSizeCommand");
+    qRegisterMetaTypeStreamOperators<ChangePreviewImageSizeCommand>("ChangePreviewImageSizeCommand");
 }
 
 }
