@@ -54,10 +54,10 @@
 
     \table
         \row
-            \li \inlineimage creator_gettingstarted.png
-            \li \inlineimage creator_managingprojects.png
-            \li \inlineimage creator_designinguserinterface.png
-            \li \inlineimage creator_coding.png
+            \li \inlineimage front-gs.png
+            \li \inlineimage front-projects.png
+            \li \inlineimage front-ui.png
+            \li \inlineimage front-coding.png
         \row
             \li \b {\l{Getting Started}}
                 \list
@@ -90,10 +90,10 @@
                     \li \l{Editing State Charts}
                 \endlist
         \row
-            \li \inlineimage creator_buildingrunning.png
-            \li \inlineimage creator_testing.png
-            \li \inlineimage creator_advanceduse.png
-            \li \inlineimage creator_gettinghelp.png
+            \li \inlineimage front-preview.png
+            \li \inlineimage front-testing.png
+            \li \inlineimage front-advanced.png
+            \li \inlineimage front-help.png
         \row
             \li \b {\l{Building and Running}}
                 \list

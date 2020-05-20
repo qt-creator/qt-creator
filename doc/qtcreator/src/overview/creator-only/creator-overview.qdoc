@@ -47,9 +47,9 @@
 
     \table
         \row
-            \li \inlineimage creator_managingprojects.png
-            \li \inlineimage creator_designinguserinterface.png
-            \li \inlineimage creator_coding.png
+            \li \inlineimage front-projects.png
+            \li \inlineimage front-ui.png
+            \li \inlineimage front-coding.png
         \row
             \li \b {\l{Managing Projects}}
 
@@ -84,9 +84,9 @@
                 available that provides information about the code to IDEs.
                 For more information, see \l{Coding}.
         \row
-            \li \inlineimage creator_buildingrunning.png
-            \li \inlineimage creator_testing.png
-            \li \inlineimage creator_publishing.png
+            \li \inlineimage front-preview.png
+            \li \inlineimage front-testing.png
+            \li \inlineimage front-publishing.png
         \row
             \li \b {\l{Building and Running}}
 
