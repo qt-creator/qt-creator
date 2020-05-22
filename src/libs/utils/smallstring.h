@@ -211,8 +211,7 @@ public:
         return clonedString;
     }
 
-    friend
-    void swap(BasicSmallString &first, BasicSmallString &second)
+    friend void swap(BasicSmallString &first, BasicSmallString &second) noexcept
     {
         using std::swap;
 
