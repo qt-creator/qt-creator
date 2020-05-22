@@ -369,7 +369,7 @@ class LastChangedRowIdWithNoTable : public testing::Test
 {
 protected:
     NiceMock<MockSqliteDatabase> mockSqliteDatabase;
-    Sqlite::LastChangedRowId lastRowId{mockSqliteDatabase};
+    Sqlite::LastChangedRowId lastRowId{mockSqliteDatabase, "main"};
 };
 
 TEST_F(LastChangedRowIdWithNoTable, SetUpdateHookInContructor)

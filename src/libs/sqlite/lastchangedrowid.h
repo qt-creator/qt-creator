@@ -40,7 +40,7 @@ public:
         : database(database)
 
     {
-        callback = [=](ChangeType, char const *database, char const *table, long long rowId) {
+        callback = [=](ChangeType, char const *, char const *, long long rowId) {
             this->lastRowId = rowId;
         };
 
@@ -51,7 +51,7 @@ public:
         : database(database)
 
     {
-        callback = [=](ChangeType, char const *database, char const *table, long long rowId) {
+        callback = [=](ChangeType, char const *database, char const *, long long rowId) {
             if (databaseName == database)
                 this->lastRowId = rowId;
         };
