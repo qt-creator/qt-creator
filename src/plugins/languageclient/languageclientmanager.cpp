@@ -76,7 +76,7 @@ LanguageClientManager::LanguageClientManager(QObject *parent)
     connect(EditorManager::instance(), &EditorManager::aboutToSave,
             this, &LanguageClientManager::documentWillSave);
     connect(SessionManager::instance(), &SessionManager::projectAdded,
-            this, &LanguageClientManager::updateProject);
+            this, &LanguageClientManager::projectAdded);
     connect(SessionManager::instance(), &SessionManager::projectRemoved,
             this, &LanguageClientManager::projectRemoved);
 }
@@ -523,12 +523,15 @@ void LanguageClientManager::updateProject(ProjectExplorer::Project *project)
             }
         }
     }
+    for (Client *interface : reachableClients())
+        interface->projectOpened(project);
+}
+
+void LanguageClientManager::projectAdded(ProjectExplorer::Project *project)
+{
     connect(project, &ProjectExplorer::Project::fileListChanged, this, [this, project]() {
         updateProject(project);
     });
-
-    for (Client *interface : reachableClients())
-        interface->projectOpened(project);
 }
 
 void LanguageClientManager::projectRemoved(ProjectExplorer::Project *project)

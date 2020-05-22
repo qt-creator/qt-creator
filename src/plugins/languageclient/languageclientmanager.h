@@ -109,6 +109,7 @@ private:
     void documentWillSave(Core::IDocument *document);
 
     void updateProject(ProjectExplorer::Project *project);
+    void projectAdded(ProjectExplorer::Project *project);
     void projectRemoved(ProjectExplorer::Project *project);
 
     QVector<Client *> reachableClients();
