@@ -310,6 +310,23 @@ private:
     const QString m_include;
 };
 
+class AddForwardDeclForUndefinedIdentifierTestFactory : public CppQuickFixFactory
+{
+public:
+    AddForwardDeclForUndefinedIdentifierTestFactory(const QString &className, int symbolPos)
+        : m_className(className), m_symbolPos(symbolPos) {}
+
+    void match(const CppQuickFixInterface &cppQuickFixInterface, QuickFixOperations &result)
+    {
+        result << new AddForwardDeclForUndefinedIdentifierOp(cppQuickFixInterface, 0,
+                                                             m_className, m_symbolPos);
+    }
+
+private:
+    const QString m_className;
+    const int m_symbolPos;
+};
+
 } // namespace Tests
 } // namespace Internal
 
@@ -3740,6 +3757,171 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noDoubleQtH
     AddIncludeForUndefinedIdentifier factory;
     const QStringList expectedOperations = QStringList("Add #include <QDir>");
     QuickFixOfferedOperationsTest(testDocuments, &factory, headerPaths, expectedOperations);
+}
+
+void CppEditorPlugin::test_quickfix_AddForwardDeclForUndefinedIdentifier_data()
+{
+    QTest::addColumn<QuickFixTestDocuments>("testDocuments");
+    QTest::addColumn<QString>("symbol");
+    QTest::addColumn<int>("symbolPos");
+
+    QByteArray original;
+    QByteArray expected;
+
+    original =
+        "#pragma once\n"
+        "\n"
+        "void f(const Blu@bb &b)\n"
+        "{\n"
+        "}\n"
+        ;
+    expected =
+        "#pragma once\n"
+        "\n"
+        "\n"
+        "class Blubb;\n"
+        "void f(const Blubb &b)\n"
+        "{\n"
+        "}\n"
+        ;
+    QTest::newRow("unqualified symbol")
+            << QuickFixTestDocuments{QuickFixTestDocument::create("theheader.h", original, expected)}
+            << "Blubb" << original.indexOf('@');
+
+    original =
+        "#pragma once\n"
+        "\n"
+        "namespace NS {\n"
+        "class C;\n"
+        "}\n"
+        "void f(const NS::Blu@bb &b)\n"
+        "{\n"
+        "}\n"
+        ;
+    expected =
+        "#pragma once\n"
+        "\n"
+        "namespace NS {\n"
+        "\n"
+        "class Blubb;\n"
+        "class C;\n"
+        "}\n"
+        "void f(const NS::Blubb &b)\n"
+        "{\n"
+        "}\n"
+        ;
+    QTest::newRow("qualified symbol, full namespace present")
+            << QuickFixTestDocuments{QuickFixTestDocument::create("theheader.h", original, expected)}
+            << "NS::Blubb" << original.indexOf('@');
+
+    original =
+        "#pragma once\n"
+        "\n"
+        "namespace NS {\n"
+        "class C;\n"
+        "}\n"
+        "void f(const NS::NS2::Blu@bb &b)\n"
+        "{\n"
+        "}\n"
+        ;
+    expected =
+        "#pragma once\n"
+        "\n"
+        "namespace NS {\n"
+        "\n"
+        "namespace NS2 { class Blubb; }\n"
+        "class C;\n"
+        "}\n"
+        "void f(const NS::NS2::Blubb &b)\n"
+        "{\n"
+        "}\n"
+        ;
+    QTest::newRow("qualified symbol, partial namespace present")
+            << QuickFixTestDocuments{QuickFixTestDocument::create("theheader.h", original, expected)}
+            << "NS::NS2::Blubb" << original.indexOf('@');
+
+    original =
+        "#pragma once\n"
+        "\n"
+        "namespace NS {\n"
+        "class C;\n"
+        "}\n"
+        "void f(const NS2::Blu@bb &b)\n"
+        "{\n"
+        "}\n"
+        ;
+    expected =
+        "#pragma once\n"
+        "\n"
+        "\n"
+        "namespace NS2 { class Blubb; }\n"
+        "namespace NS {\n"
+        "class C;\n"
+        "}\n"
+        "void f(const NS2::Blubb &b)\n"
+        "{\n"
+        "}\n"
+        ;
+    QTest::newRow("qualified symbol, other namespace present")
+            << QuickFixTestDocuments{QuickFixTestDocument::create("theheader.h", original, expected)}
+            << "NS2::Blubb" << original.indexOf('@');
+
+    original =
+        "#pragma once\n"
+        "\n"
+        "void f(const NS2::Blu@bb &b)\n"
+        "{\n"
+        "}\n"
+        ;
+    expected =
+        "#pragma once\n"
+        "\n"
+        "\n"
+        "namespace NS2 { class Blubb; }\n"
+        "void f(const NS2::Blubb &b)\n"
+        "{\n"
+        "}\n"
+        ;
+    QTest::newRow("qualified symbol, no namespace present")
+            << QuickFixTestDocuments{QuickFixTestDocument::create("theheader.h", original, expected)}
+            << "NS2::Blubb" << original.indexOf('@');
+
+    original =
+        "#pragma once\n"
+        "\n"
+        "void f(const NS2::Blu@bb &b)\n"
+        "{\n"
+        "}\n"
+        "namespace NS2 {}\n"
+        ;
+    expected =
+        "#pragma once\n"
+        "\n"
+        "\n"
+        "namespace NS2 { class Blubb; }\n"
+        "void f(const NS2::Blubb &b)\n"
+        "{\n"
+        "}\n"
+        "namespace NS2 {}\n"
+        ;
+    QTest::newRow("qualified symbol, existing namespace after symbol")
+            << QuickFixTestDocuments{QuickFixTestDocument::create("theheader.h", original, expected)}
+            << "NS2::Blubb" << original.indexOf('@');
+}
+
+void CppEditorPlugin::test_quickfix_AddForwardDeclForUndefinedIdentifier()
+{
+    QFETCH(QuickFixTestDocuments, testDocuments);
+    QFETCH(QString, symbol);
+    QFETCH(int, symbolPos);
+
+    CppTools::Tests::TemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    testDocuments.first()->setBaseDirectory(temporaryDir.path());
+
+    QScopedPointer<CppQuickFixFactory> factory(
+                new AddForwardDeclForUndefinedIdentifierTestFactory(symbol, symbolPos));
+    QuickFixOperationTest::run({testDocuments}, factory.data(), ".", 0);
 }
 
 /// Check: Move definition from header to cpp.

@@ -145,6 +145,9 @@ private slots:
     void test_quickfix_AddIncludeForUndefinedIdentifier();
     void test_quickfix_AddIncludeForUndefinedIdentifier_noDoubleQtHeaderInclude();
 
+    void test_quickfix_AddForwardDeclForUndefinedIdentifier_data();
+    void test_quickfix_AddForwardDeclForUndefinedIdentifier();
+
     void test_quickfix_MoveFuncDefOutside_MemberFuncToCpp();
     void test_quickfix_MoveFuncDefOutside_MemberFuncToCppInsideNS();
     void test_quickfix_MoveFuncDefOutside_MemberFuncOutside1();

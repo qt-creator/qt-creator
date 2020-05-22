@@ -71,6 +71,18 @@ private:
     QString m_include;
 };
 
+class AddForwardDeclForUndefinedIdentifierOp: public CppQuickFixOperation
+{
+public:
+    AddForwardDeclForUndefinedIdentifierOp(const CppQuickFixInterface &interface, int priority,
+                                           const QString &fqClassName, int symbolPos);
+private:
+    void perform() override;
+
+    const QString m_className;
+    const int m_symbolPos;
+};
+
 /*!
   Rewrite
     a op b

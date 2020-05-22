@@ -55,7 +55,11 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projecttree.h>
+
 #include <utils/fancylineedit.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -74,6 +78,7 @@
 
 #include <bitset>
 #include <cctype>
+#include <functional>
 #include <limits>
 
 using namespace CPlusPlus;
@@ -1752,6 +1757,138 @@ void AddIncludeForUndefinedIdentifierOp::perform()
     insertNewIncludeDirective(m_include, file, semanticInfo().doc);
 }
 
+AddForwardDeclForUndefinedIdentifierOp::AddForwardDeclForUndefinedIdentifierOp(
+        const CppQuickFixInterface &interface,
+        int priority,
+        const QString &fqClassName,
+        int symbolPos)
+    : CppQuickFixOperation(interface, priority), m_className(fqClassName), m_symbolPos(symbolPos)
+{
+    setDescription(QApplication::translate("CppTools::QuickFix",
+                                           "Add forward declaration for %1").arg(m_className));
+}
+
+class NSVisitor : public ASTVisitor
+{
+public:
+    NSVisitor(const CppRefactoringFile *file, const QStringList &namespaces, int symbolPos)
+        : ASTVisitor(file->cppDocument()->translationUnit()),
+          m_file(file),
+          m_remainingNamespaces(namespaces),
+          m_symbolPos(symbolPos)
+    {}
+
+    const QStringList remainingNamespaces() const { return m_remainingNamespaces; }
+    const NamespaceAST *firstNamespace() const { return m_firstNamespace; }
+    const AST *firstToken() const { return m_firstToken; }
+    const NamespaceAST *enclosingNamespace() const { return m_enclosingNamespace; }
+
+private:
+    bool preVisit(AST *ast) override
+    {
+        if (!m_firstToken)
+            m_firstToken = ast;
+        if (m_file->startOf(ast) >= m_symbolPos)
+            m_done = true;
+        return !m_done;
+    }
+
+    bool visit(NamespaceAST *ns) override
+    {
+        if (!m_firstNamespace)
+            m_firstNamespace = ns;
+        if (m_remainingNamespaces.isEmpty()) {
+            m_done = true;
+            return false;
+        }
+
+        QString name;
+        const Identifier * const id = translationUnit()->identifier(ns->identifier_token);
+        if (id)
+            name = QString::fromUtf8(id->chars(), id->size());
+        if (name != m_remainingNamespaces.first())
+            return name.isEmpty();
+
+        if (!ns->linkage_body) {
+            m_done = true;
+            return false;
+        }
+
+        m_enclosingNamespace = ns;
+        m_remainingNamespaces.removeFirst();
+        return !m_remainingNamespaces.isEmpty();
+    }
+
+    void postVisit(AST *ast) override
+    {
+        if (ast == m_enclosingNamespace)
+            m_done = true;
+    }
+
+    const CppRefactoringFile * const m_file;
+    const NamespaceAST *m_enclosingNamespace = nullptr;
+    const NamespaceAST *m_firstNamespace = nullptr;
+    const AST *m_firstToken = nullptr;
+    QStringList m_remainingNamespaces;
+    const int m_symbolPos;
+    bool m_done = false;
+};
+
+void AddForwardDeclForUndefinedIdentifierOp::perform()
+{
+    const QStringList parts = m_className.split("::");
+    QTC_ASSERT(!parts.isEmpty(), return);
+    const QStringList namespaces = parts.mid(0, parts.length() - 1);
+
+    CppRefactoringChanges refactoring(snapshot());
+    CppRefactoringFilePtr file = refactoring.file(fileName());
+
+    NSVisitor visitor(file.data(), namespaces, m_symbolPos);
+    visitor.accept(file->cppDocument()->translationUnit()->ast());
+    const auto stringToInsert = [&visitor, symbol = parts.last()] {
+        QString s = "\n";
+        for (const QString &ns : visitor.remainingNamespaces())
+            s += "namespace " + ns + " { ";
+        s += "class " + symbol + ';';
+        for (int i = 0; i < visitor.remainingNamespaces().size(); ++i)
+            s += " }";
+        return s;
+    };
+
+    int insertPos = 0;
+
+    // Find the position to insert:
+    //   If we have a matching namespace, we do the insertion there.
+    //   If we don't have a matching namespace, but there is another namespace in the file,
+    //   we assume that to be a good position for our insertion.
+    //   Otherwise, do the insertion after the last include that comes before the use of the symbol.
+    //   If there is no such include, do the insertion before the first token.
+    if (visitor.enclosingNamespace()) {
+        insertPos = file->startOf(visitor.enclosingNamespace()->linkage_body) + 1;
+    } else if (visitor.firstNamespace()) {
+        insertPos = file->startOf(visitor.firstNamespace());
+    } else {
+        const QTextCursor tc = file->document()->find(
+                    QRegularExpression("^\\s*#include .*$"),
+                    m_symbolPos,
+                    QTextDocument::FindBackward | QTextDocument::FindCaseSensitively);
+        if (!tc.isNull())
+            insertPos = tc.position() + 1;
+        else if (visitor.firstToken())
+            insertPos = file->startOf(visitor.firstToken());
+    }
+
+    QString insertion = stringToInsert();
+    if (file->charAt(insertPos - 1) != QChar::ParagraphSeparator)
+        insertion.prepend('\n');
+    if (file->charAt(insertPos) != QChar::ParagraphSeparator)
+        insertion.append('\n');
+    ChangeSet s;
+    s.insert(insertPos, insertion);
+    file->setChangeSet(s);
+    file->apply();
+}
+
 namespace {
 
 QString findShortestInclude(const QString currentDocumentFilePath,
@@ -1839,9 +1976,10 @@ NameAST *nameUnderCursor(const QList<AST *> &path)
     return nameAst;
 }
 
-bool canLookupDefinition(const CppQuickFixInterface &interface, const NameAST *nameAst)
+enum class LookupResult { Definition, Declaration, None };
+LookupResult lookUpDefinition(const CppQuickFixInterface &interface, const NameAST *nameAst)
 {
-    QTC_ASSERT(nameAst && nameAst->name, return false);
+    QTC_ASSERT(nameAst && nameAst->name, return LookupResult::None);
 
     // Find the enclosing scope
     int line, column;
@@ -1849,7 +1987,7 @@ bool canLookupDefinition(const CppQuickFixInterface &interface, const NameAST *n
     doc->translationUnit()->getTokenStartPosition(nameAst->firstToken(), &line, &column);
     Scope *scope = doc->scopeAt(line, column);
     if (!scope)
-        return false;
+        return LookupResult::None;
 
     // Try to find the class/template definition
     const Name *name = nameAst->name;
@@ -1857,16 +1995,21 @@ bool canLookupDefinition(const CppQuickFixInterface &interface, const NameAST *n
     foreach (const LookupItem &item, results) {
         if (Symbol *declaration = item.declaration()) {
             if (declaration->isClass())
-                return true;
+                return LookupResult::Definition;
+            if (declaration->isForwardClassDeclaration())
+                return LookupResult::Declaration;
             if (Template *templ = declaration->asTemplate()) {
-                Symbol *declaration = templ->declaration();
-                if (declaration && declaration->isClass())
-                    return true;
+                if (Symbol *declaration = templ->declaration()) {
+                    if (declaration->isClass())
+                        return LookupResult::Definition;
+                    if (declaration->isForwardClassDeclaration())
+                        return LookupResult::Declaration;
+                }
             }
         }
     }
 
-    return false;
+    return LookupResult::None;
 }
 
 QString templateNameAsString(const TemplateNameId *templateName)
@@ -1941,7 +2084,8 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
     if (!nameAst || !nameAst->name)
         return;
 
-    if (canLookupDefinition(interface, nameAst))
+    const LookupResult lookupResult = lookUpDefinition(interface, nameAst);
+    if (lookupResult == LookupResult::Definition)
         return;
 
     QString className;
@@ -1952,11 +2096,13 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
 
     // Find an include file through the locator
     if (matchName(nameAst->name, &matches, &className)) {
+        QList<IndexItem::Ptr> indexItems;
         const Snapshot forwardHeaders = forwardingHeaders(interface);
         foreach (const Core::LocatorFilterEntry &entry, matches) {
             IndexItem::Ptr info = entry.internalData.value<IndexItem::Ptr>();
             if (info->symbolName() != className)
                 continue;
+            indexItems << info;
 
             Snapshot localForwardHeaders = forwardHeaders;
             localForwardHeaders.insert(interface.snapshot().document(info->fileName()));
@@ -1983,6 +2129,27 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
 
                     result << new AddIncludeForUndefinedIdentifierOp(interface, priority,
                                                                      include);
+                }
+            }
+        }
+
+        if (lookupResult == LookupResult::None && indexItems.size() == 1) {
+            QString qualifiedName = Overview().prettyName(nameAst->name);
+            if (qualifiedName.startsWith("::"))
+                qualifiedName.remove(0, 2);
+            if (indexItems.first()->scopedSymbolName().endsWith(qualifiedName)) {
+                const ProjectExplorer::Node * const node = ProjectExplorer::ProjectTree
+                        ::nodeForFile(Utils::FilePath::fromString(interface.fileName()));
+                ProjectExplorer::FileType fileType = node && node->asFileNode()
+                        ? node->asFileNode()->fileType() : ProjectExplorer::FileType::Unknown;
+                if (fileType == ProjectExplorer::FileType::Unknown
+                        && ProjectFile::isHeader(ProjectFile::classify(interface.fileName()))) {
+                    fileType = ProjectExplorer::FileType::Header;
+                }
+                if (fileType == ProjectExplorer::FileType::Header) {
+                    result << new AddForwardDeclForUndefinedIdentifierOp(
+                                  interface, 0, indexItems.first()->scopedSymbolName(),
+                                  interface.currentFile()->startOf(nameAst));
                 }
             }
         }
