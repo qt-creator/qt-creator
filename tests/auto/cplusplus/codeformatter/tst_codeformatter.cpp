@@ -125,6 +125,8 @@ private Q_SLOTS:
     void braceReturn();
     void staticVarDeclWithTypeDecl();
     void strings();
+    void initializerWithinFunctionArg();
+    void shiftWithinInitializer();
 };
 
 struct Line {
@@ -2165,6 +2167,29 @@ void tst_CodeFormatter::strings()
          << Line("    ~          \"bar\"")
          << Line("    ~          \"baz\", 4,")
          << Line("    ~    5, 6);")
+         << Line("}")
+            ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::initializerWithinFunctionArg()
+{
+    QList<Line> data;
+    data << Line("void f() {")
+         << Line("    g(foo,")
+         << Line("      { 1, 2});", 4, 2)
+         << Line("}")
+           ;
+
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::shiftWithinInitializer()
+{
+    QList<Line> data;
+    data << Line("void f() {")
+         << Line("    list << A{1 << 1};")
+         << Line("    list;") // OK, same indentation/padding as above.
          << Line("}")
             ;
     checkIndent(data);
