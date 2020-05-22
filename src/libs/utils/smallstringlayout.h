@@ -49,30 +49,21 @@ struct ControlBlock
             m_isReference(isReference)
     {}
 
-    void setShortStringSize(size_type size)
+    constexpr void setShortStringSize(size_type size)
     {
        m_shortStringSize = static_cast<SizeType>(size);
     }
 
-    size_type shortStringSize() const
-    {
-        return m_shortStringSize;
-    }
+    constexpr size_type shortStringSize() const { return m_shortStringSize; }
 
-    void setIsReadOnlyReference(bool isReadOnlyReference)
+    constexpr void setIsReadOnlyReference(bool isReadOnlyReference)
     {
         m_isReadOnlyReference = isReadOnlyReference;
     }
 
-    void setIsReference(bool isReference)
-    {
-        m_isReference = isReference;
-    }
+    constexpr void setIsReference(bool isReference) { m_isReference = isReference; }
 
-    void setIsShortString(bool isShortString)
-    {
-        m_isReference = !isShortString;
-    }
+    constexpr void setIsShortString(bool isShortString) { m_isReference = !isShortString; }
 
     constexpr
     SizeType stringSize() const
@@ -168,7 +159,7 @@ struct StringDataLayout {
 
     template<size_type Size,
              typename std::enable_if_t<Size <= MaximumShortStringDataAreaSize, int> = 0>
-    StringDataLayout(const char(&string)[Size]) noexcept
+    constexpr StringDataLayout(const char (&string)[Size]) noexcept
         : shortString(ShortStringLayout<MaximumShortStringDataAreaSize>{})
     {
        for (size_type i = 0; i < Size; ++i)
