@@ -783,7 +783,7 @@ bool CodeFormatter::tryExpression(bool alsoExpression)
         newState = stream_op;
         for (int i = m_currentState.size() - 1; i >= 0; --i) {
             const int type = m_currentState.at(i).type;
-            if (type == arglist_open) { // likely a left-shift instead
+            if (type == arglist_open || type == braceinit_open) { // likely a left-shift instead
                 newState = -1;
                 break;
             }
