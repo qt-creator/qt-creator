@@ -61,6 +61,8 @@ CodeCompletions toCodeCompletions(const UnsavedFile &unsavedFile,
     return codeCompletions;
 }
 
+// CLANG-UPGRADE-CHECK: Remove this workaround once we require LLVM/Clang 11 as that version makes
+// the workaround pointless.
 void filterUnknownContextResults(ClangCodeCompleteResults &results,
                                  const UnsavedFile &theUnsavedFile,
                                  uint line,

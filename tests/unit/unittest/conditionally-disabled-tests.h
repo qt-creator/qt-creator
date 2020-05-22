@@ -25,6 +25,14 @@
 
 #include <QtGlobal>
 
+#include <clang-c/Index.h>
+
+#if CINDEX_VERSION_MAJOR == 0 && CINDEX_VERSION_MINOR == 59
+#  define DISABLED_FOR_CLANG_10(x) DISABLED_##x
+#else
+#  define DISABLED_FOR_CLANG_10(x) x
+#endif
+
 #ifdef Q_OS_WIN
 #  define DISABLED_ON_WINDOWS(x) DISABLED_##x
 #else

@@ -530,7 +530,9 @@ TEST_F(CodeCompleterSlowTest, NoDotArrowCorrectionForColonColon)
     ASSERT_THAT(completions, Not(Contains(HasFixIts())));
 }
 
-TEST_F(CodeCompleterSlowTest, NoGlobalCompletionAfterForwardDeclaredClassPointer)
+// Our workaround is not applicable with LLVM/Clang 10 anymore, so disable this test for that version.
+// Luckily, the workaround is not needed anymore with LLVM/Clang 11.
+TEST_F(CodeCompleterSlowTest, DISABLED_FOR_CLANG_10(NoGlobalCompletionAfterForwardDeclaredClassPointer))
 {
     auto myCompleter = setupCompleter(globalCompletionAfterForwardDeclaredClassPointer);
     const ClangBackEnd::CodeCompletions completions = myCompleter.complete(5, 10);
