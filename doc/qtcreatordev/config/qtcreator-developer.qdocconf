@@ -1,4 +1,4 @@
-project     = "Qt Creator"
+project     = qtcreator-dev
 description = "Extending Qt Creator Manual"
 
 language                = Cpp

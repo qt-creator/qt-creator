@@ -1,4 +1,4 @@
-project     = "$IDE_DISPLAY_NAME"
+project     = qtcreator
 description = "$IDE_DISPLAY_NAME Manual"
 url         = http://doc.qt.io/$IDE_ID
 
