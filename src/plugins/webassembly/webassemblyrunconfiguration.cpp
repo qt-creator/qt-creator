@@ -51,6 +51,7 @@ static CommandLine emrunCommand(Target *target, const QString &browser, const QS
                 "--browser", browser,
                 "--port", port,
                 "--no_emrun_detect",
+                "--serve_after_close",
                 html.toString()
             });
     }
