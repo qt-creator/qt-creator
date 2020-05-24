@@ -37,34 +37,24 @@ namespace Memory {
 
 inline char *allocate(std::size_t size)
 {
-#ifdef Q_OS_WIN32
-    return static_cast<char*>(_aligned_malloc(size, 64));
-#else
     return static_cast<char*>(std::malloc(size));
-#endif
 }
 
 inline void deallocate(char *memory)
 {
-#ifdef Q_OS_WIN32
-    _aligned_free(memory);
-#else
-#pragma GCC diagnostic push
 #if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wfree-nonheap-object"
 #endif
     std::free(memory);
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
 }
 
 inline char *reallocate(char *oldMemory, std::size_t newSize)
 {
-#ifdef Q_OS_WIN32
-    return static_cast<char*>(_aligned_realloc(oldMemory, newSize, 64));
-#else
-    return static_cast<char*>(std::realloc(oldMemory, newSize));
-#endif
+    return static_cast<char *>(std::realloc(oldMemory, newSize));
 }
 
 } // namespace Memory
