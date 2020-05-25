@@ -122,6 +122,9 @@ void Qt5PreviewNodeInstanceServer::changePreviewImageSize(
 {
     m_previewSize = command.size;
 
+    if (!command.size.isValid())
+        m_previewSize = {160, 160};
+
     collectItemChangesAndSendChangeCommands();
 }
 
