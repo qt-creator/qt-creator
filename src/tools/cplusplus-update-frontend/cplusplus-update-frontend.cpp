@@ -667,7 +667,7 @@ protected:
                     if (typeName.endsWith("ListAST")) {
                         *out << "    for (" << typeName << " *iter = " << memberName << ", **ast_iter = &ast->" << memberName << ";" << endl
                              << "         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)" << endl
-                             << "        *ast_iter = new (pool) " << typeName << "((iter->value) ? iter->value->clone(pool) : 0);" << endl;
+                             << "        *ast_iter = new (pool) " << typeName << "((iter->value) ? iter->value->clone(pool) : nullptr);" << endl;
                     } else if (typeName.endsWith("AST")) {
                         *out << "    if (" << memberName << ")" << endl
                              << "        ast->" << memberName << " = " << memberName << "->clone(pool);" << endl;
@@ -1585,7 +1585,7 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
         const QString elementName = className.left(className.length() - 7) + QLatin1String("AST");
         out
                 << "    " << className << " *" << methodName << "("
-                << elementName << " *value, " << className << " *next = 0)" << endl
+                << elementName << " *value, " << className << " *next = nullptr)" << endl
                 << "    {" << endl
                 << "        " << className << " *list = new (&pool) " << className << ";" << endl
                 << "        list->next = next;" << endl
