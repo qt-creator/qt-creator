@@ -840,7 +840,7 @@ void CheckBoxField::setup(JsonFieldPage *page, const QString &name)
         return page->expander()->expand(m_uncheckedValue);
     });
 
-    QObject::connect(w, &QCheckBox::stateChanged, page, [this, page]() {
+    QObject::connect(w, &QCheckBox::clicked, page, [this, page]() {
         m_isModified = true;
         setHasUserChanges();
         emit page->completeChanged();
