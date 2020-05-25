@@ -1,4 +1,3 @@
-#BINARY_ARTIFACTS_BRANCH = master
 #PROJECT_USER_FILE_EXTENSION = .user
 
 set(IDE_VERSION "4.12.82")                            # The IDE version.
