@@ -439,6 +439,17 @@ we thank the authors who made this possible:
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
+### Implementation for std::span
+
+  https://github.com/tcbrindle/span
+
+  QtCreator/src/libs/3rdparty/span
+
+  Copyright Tristan Brindle, 2018
+
+  Distributed under the Boost Software License, Version 1.0.
+  (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
+
 ### Open Source front-end for C++ (license MIT), enhanced for use in Qt Creator
 
   Roberto Raggi <roberto.raggi@gmail.com>

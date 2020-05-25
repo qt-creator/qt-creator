@@ -150,6 +150,8 @@ HEADERS += \
     $$PWD/pointeralgorithm.h \
     $$PWD/qrcparser.h \
     $$PWD/qtcprocess.h \
+    $$PWD/span.h \
+    $$PWD/../3rdparty/span/span.hpp \
     $$PWD/utils_global.h \
     $$PWD/reloadpromptutils.h \
     $$PWD/settingsaccessor.h \

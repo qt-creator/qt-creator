@@ -241,6 +241,8 @@ Project {
             "smallstringlayout.h",
             "smallstringmemory.h",
             "smallstringvector.h",
+            "span.h",
+            "../3rdparty/span/span.hpp",
             "statuslabel.cpp",
             "statuslabel.h",
             "stringutils.cpp",
