@@ -1532,7 +1532,6 @@ void tst_Dumpers::dumper()
 #else
                 "file doit\n"
 #endif
-                "set print object on\n"
                 "set auto-load python-scripts off\n";
 
         cmds += "python sys.path.insert(1, '" + dumperDir + "')\n"

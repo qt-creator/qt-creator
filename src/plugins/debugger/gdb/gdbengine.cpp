@@ -3637,7 +3637,6 @@ void GdbEngine::setupEngine()
     //runCommand("define hookpost-stop\nprint 5\nend");
     //runCommand("define hook-call\nprint 6\nend");
     //runCommand("define hookpost-call\nprint 7\nend");
-    runCommand({"set print object on"});
     //runCommand("set step-mode on");  // we can't work with that yes
     //runCommand("set exec-done-display on");
     //runCommand("set print pretty on");
