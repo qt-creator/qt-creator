@@ -100,6 +100,9 @@ public:
 
     bool usesRewriterView(RewriterView *rewriterView);
 
+    void disableStandardViews();
+    void enableStandardViews();
+
 private: // functions
     Q_DISABLE_COPY(ViewManager)
 
@@ -107,6 +110,7 @@ private: // functions
     void attachItemLibraryView();
     void attachAdditionalViews();
     void detachAdditionalViews();
+    void detachStandardViews();
 
     Model *currentModel() const;
     Model *documentModel() const;
