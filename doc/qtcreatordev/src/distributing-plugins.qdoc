@@ -1,0 +1,124 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page distributing-plugins.html
+    \title Distributing Plugins
+
+    To make your plugin available to a wider range of users, you should look
+    into distributing binary builds of it.
+
+    \section1 Creating Binaries
+
+    If your plugin runs and works on multiple platforms, you should provide
+    binary builds for all of the supported platforms.
+
+    Qt Creator currently supports:
+
+    \list
+        \li Windows
+        \li Linux
+        \li \macos
+    \endlist
+
+    See the toplevel
+    \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/README.md}
+    {README.md} file in Qt Creator's sources for a more detailed list.
+
+    The \uicontrol {Qt Creator Plugin} wizard already creates a template for
+    \l{https://help.github.com/en/actions/automating-your-workflow-with-github-actions/about-github-actions}{GitHub
+    Actions} which can be used to create binaries if you host your plugin
+    sources on GitHub. See the
+    \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/share/qtcreator/templates/wizards/qtcreatorplugin/github_workflow_README.md}
+    {README.md} that is created at the same location for details.
+
+    You can also use the provided GitHub Actions recipe as inspiration for
+    another build service of your choice.
+
+    \section1 Packaging
+
+    The easiest way to package your plugin is to simply provide a zip file
+    that the user can unpack to the correct location for Qt Creator to find it.
+    Qt Creator makes that easy for the user by providing an \uicontrol{Install
+    Plugin} button in the \uicontrol Help > \uicontrol {About Plugins} dialog
+    (or \uicontrol {Qt Creator} > \uicontrol {About Plugins} on \macos). The
+    user chooses a zip file with the plugin, and Qt Creator unpacks that to the
+    appropriate location.
+
+    The following sections describe the options you have for the plugin's
+    contents layout.
+
+    \section2 Single Library
+
+    Using a single library is the preferred and simplest option. You provide a
+    single plugin library file that has all required resources compiled into it
+    with \l{The Qt Resource System}. This imposes some limitations because you
+    cannot depend on additional binaries, nor extend some parts of Qt Creator
+    that rely on external files, like the generic highlighter. You can still
+    add \l{https://doc.qt.io/qtcreator/creator-project-wizards.html}{wizard
+    templates} this way, by adding the
+    \l{https://doc.qt.io/qt-5/resources.html#using-resources-in-the-application}
+    {path to the resource directory} into your QRC file with
+    ProjectExplorer::JsonWizardFactory::addWizardPath(). Registering
+    documentation and translations can be done in similar ways.
+
+    \section3 Summary
+
+    \list
+        \li Single library as single item in a zip file.
+        \li Resources compiled into the library with \l{The Qt Resource System}.
+        \li Can be installed locally for a single user for all compatible
+            Qt Creator installations.
+        \li Can be installed into a Qt Creator installation for all users.
+    \endlist
+
+    \section2 Multiple Files Following Qt Creator's Filesystem Layout
+
+    This is a more flexible solution with regards to what the plugin can do,
+    but more complicated to set up. This allows the plugin to ship additional
+    binaries and arbitrary resources.
+
+    Since the filesystem layout varies heavily between platforms, the build
+    system of Qt Creator provides variables like \c IDE_DATA_PATH and \c
+    IDE_LIBEXEC_PATH. If you build your plugin with CMake, you should use the
+    provided \c add_qtc_library, \c add_qtc_executable and similar functions
+    as well.
+
+    At runtime you can access these platform dependent locations with
+    Core::ICore::resourcePath() and Core::ICore::libexecPath().
+
+    Plugins that are distributed this way cannot be installed locally for a
+    single user. They must be installed into the Qt Creator installation
+    directly.
+
+    \section3 Summary
+
+    \list
+        \li Multiple files following standard filesystem layout.
+        \li Use Qt Creator specific variables and functions in build system.
+        \li Use Core::ICore to find the locations at runtime.
+        \li Can only be installed into a Qt Creator installation for all users.
+    \endlist
+*/
