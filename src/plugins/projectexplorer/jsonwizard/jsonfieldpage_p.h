@@ -111,8 +111,6 @@ private:
     void fromSettings(const QVariant &value) override;
     QVariant toSettings() const override;
 
-    void setDefaultText(Utils::FancyLineEdit *edit, Utils::MacroExpander *expander);
-
     bool m_isModified = false;
     bool m_isValidating = false;
     bool m_restoreLastHistoryItem = false;

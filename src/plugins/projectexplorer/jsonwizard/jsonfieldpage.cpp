@@ -561,7 +561,7 @@ bool LineEditField::validate(MacroExpander *expander, QString *message)
                 m_currentText.clear();
             }
         } else {
-            setDefaultText(w, expander);
+            w->setText(expander->expand(m_defaultText));
             m_isModified = false;
         }
     } else {
@@ -579,7 +579,7 @@ void LineEditField::initializeData(MacroExpander *expander)
     auto w = qobject_cast<FancyLineEdit *>(widget());
     QTC_ASSERT(w, return);
     m_isValidating = true;
-    setDefaultText(w, expander);
+    w->setText(expander->expand(m_defaultText));
     w->setPlaceholderText(m_placeholderText);
     m_isModified = false;
     m_isValidating = false;
@@ -593,15 +593,6 @@ void LineEditField::fromSettings(const QVariant &value)
 QVariant LineEditField::toSettings() const
 {
     return qobject_cast<FancyLineEdit *>(widget())->text();
-}
-
-void LineEditField::setDefaultText(FancyLineEdit *edit, MacroExpander *expander)
-{
-    if (!edit->text().isEmpty())
-        return;
-
-    const QString expandedText = expander->expand(m_defaultText);
-    edit->setText(expandedText);
 }
 
 // --------------------------------------------------------------------
