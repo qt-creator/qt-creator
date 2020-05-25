@@ -92,7 +92,7 @@ NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
       m_synchronizeId(-1)
 {
     connect(&m_puppetAliveTimer, &QTimer::timeout, this, &NodeInstanceClientProxy::sendPuppetAliveCommand);
-    m_puppetAliveTimer.setInterval(1000);
+    m_puppetAliveTimer.setInterval(2000);
     m_puppetAliveTimer.start();
 }
 
