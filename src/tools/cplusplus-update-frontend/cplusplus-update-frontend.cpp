@@ -30,6 +30,7 @@
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextDocument>
+#include <QBuffer>
 
 #include <cplusplus/Control.h>
 #include <cplusplus/Parser.h>
@@ -88,14 +89,50 @@ static const char generatedHeader[] =
 
 static QIODevice::OpenMode openFlags = QIODevice::WriteOnly | QIODevice::Text;
 
-static void closeAndPrintFilePath(QFile &file)
+static void closeBufferAndWriteIfChanged(QBuffer& textBuffer, const QString& filePath)
 {
-    if (file.isOpen()) {
-        const QString filePath = QFileInfo(file).canonicalFilePath();
-        std::cout << QDir::toNativeSeparators(filePath).toLatin1().constData() << std::endl;
+    textBuffer.close();
+
+    std::string filePathForLog = QDir::toNativeSeparators(filePath).toLatin1().toStdString();
+
+    QFile file(filePath);
+    if (! file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        std::cerr << "Cannot open " << filePathForLog << std::endl;
+        return;
+    }
+    QTextStream fileReader(&file);
+    QBuffer currentTextBuffer;
+    currentTextBuffer.open(QIODevice::WriteOnly | QIODevice::Text);
+    QTextStream currentTextBufferWriter(&currentTextBuffer);
+    while (!fileReader.atEnd()) {
+        currentTextBufferWriter << fileReader.readLine() << endl;
+    }
+    file.close();
+    currentTextBuffer.close();
+
+    if (currentTextBuffer.data() != textBuffer.data()) {
+        if (!file.open(QIODevice::WriteOnly)) {
+            std::cerr << "Cannot open " << filePathForLog << std::endl;
+            return;
+        }
+        file.write(textBuffer.data());
         file.close();
+
+        std::cout << "changed: " << filePathForLog << std::endl;
+    } else {
+        std::cout << "not changed: " << filePathForLog << std::endl;
     }
 }
+
+static void writeIfChanged(const QString& string, const QString& filePath)
+{
+    QBuffer buffer;
+    buffer.open(openFlags);
+    QTextStream output(&buffer);
+    output << string;
+    closeBufferAndWriteIfChanged(buffer, filePath);
+}
+
 
 class ASTNodes
 {
@@ -209,11 +246,9 @@ public:
     {
         QFileInfo fileInfo(_cplusplusDir, QLatin1String("ASTVisit.cpp"));
 
-        QFile file(fileInfo.absoluteFilePath());
-        if (! file.open(openFlags))
-            return;
-
-        QTextStream output(&file);
+        QBuffer buffer;
+        buffer.open(openFlags);
+        QTextStream output(&buffer);
         out = &output;
 
         *out << copyrightHeader << generatedHeader <<
@@ -225,7 +260,7 @@ public:
 
         accept(ast);
 
-        closeAndPrintFilePath(file);
+        closeBufferAndWriteIfChanged(buffer, fileInfo.absoluteFilePath());
     }
 
 protected:
@@ -346,11 +381,9 @@ public:
     {
         QFileInfo fileInfo(_cplusplusDir, QLatin1String("ASTMatch0.cpp"));
 
-        QFile file(fileInfo.absoluteFilePath());
-        if (! file.open(openFlags))
-            return;
-
-        QTextStream output(&file);
+        QBuffer buffer;
+        buffer.open(openFlags);
+        QTextStream output(&buffer);
         out = &output;
         *out << copyrightHeader << generatedHeader <<
             "\n"
@@ -361,7 +394,7 @@ public:
 
         accept(ast);
 
-        closeAndPrintFilePath(file);
+        closeBufferAndWriteIfChanged(buffer, fileInfo.absoluteFilePath());
     }
 
 protected:
@@ -457,11 +490,9 @@ public:
     {
         QFileInfo fileInfo(_cplusplusDir, QLatin1String("ASTMatcher.cpp"));
 
-        QFile file(fileInfo.absoluteFilePath());
-        if (! file.open(openFlags))
-            return;
-
-        QTextStream output(&file);
+        QBuffer buffer;
+        buffer.open(openFlags);
+        QTextStream output(&buffer);
         out = &output;
 
         *out << copyrightHeader << endl
@@ -480,7 +511,7 @@ public:
 
         accept(ast);
 
-        closeAndPrintFilePath(file);
+        closeBufferAndWriteIfChanged(buffer, fileInfo.absoluteFilePath());
     }
 
 protected:
@@ -610,11 +641,9 @@ public:
     {
         QFileInfo fileInfo(_cplusplusDir, QLatin1String("ASTClone.cpp"));
 
-        QFile file(fileInfo.absoluteFilePath());
-        if (! file.open(openFlags))
-            return;
-
-        QTextStream output(&file);
+        QBuffer buffer;
+        buffer.open(openFlags);
+        QTextStream output(&buffer);
         out = &output;
 
         *out << copyrightHeader
@@ -627,7 +656,7 @@ public:
 
         accept(ast);
 
-        closeAndPrintFilePath(file);
+        closeBufferAndWriteIfChanged(buffer, fileInfo.absoluteFilePath());
     }
 
 protected:
@@ -740,19 +769,16 @@ class GenerateDumpers: protected ASTVisitor
     QTextStream out;
 
 public:
-    GenerateDumpers(QFile *file, TranslationUnit *unit)
-        : ASTVisitor(unit), out(file)
+    GenerateDumpers(QBuffer *buffer, TranslationUnit *unit)
+        : ASTVisitor(unit), out(buffer)
     { }
 
     static void go(const QString &fileName, TranslationUnit *unit)
     {
-        QFile file(fileName);
-        if (! file.open(openFlags)) {
-            std::cerr << "Cannot open dumpers file." << std::endl;
-            return;
-        }
+        QBuffer buffer;
+        buffer.open(openFlags);
 
-        GenerateDumpers d(&file, unit);
+        GenerateDumpers d(&buffer, unit);
         d.out << copyrightHeader
                 << generatedHeader
                 << endl;
@@ -760,7 +786,7 @@ public:
 
         d.accept(unit->ast());
 
-        closeAndPrintFilePath(file);
+        closeBufferAndWriteIfChanged(buffer, fileName);
     }
 
 protected:
@@ -1164,11 +1190,7 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
     tc.setPosition(documentEnd);
     tc.insertText(newMethods);
 
-    if (file.open(openFlags)) {
-        QTextStream out(&file);
-        out << cpp_document.toPlainText();
-        closeAndPrintFilePath(file);
-    }
+    writeIfChanged(cpp_document.toPlainText(), fileName);
 }
 
 void generateASTVisitor_H(const Snapshot &, const QDir &cplusplusDir,
@@ -1177,13 +1199,9 @@ void generateASTVisitor_H(const Snapshot &, const QDir &cplusplusDir,
   QFileInfo fileASTVisitor_h(cplusplusDir, QLatin1String("ASTVisitor.h"));
   Q_ASSERT(fileASTVisitor_h.exists());
 
-  const QString fileName = fileASTVisitor_h.absoluteFilePath();
-
-  QFile file(fileName);
-  if (! file.open(openFlags))
-    return;
-
-  QTextStream out(&file);
+  QBuffer buffer;
+  buffer.open(openFlags);
+  QTextStream out(&buffer);
   out << copyrightHeader <<
 "\n"
 "#pragma once\n"
@@ -1256,7 +1274,7 @@ void generateASTVisitor_H(const Snapshot &, const QDir &cplusplusDir,
 "\n"
 "} // namespace CPlusPlus\n";
 
-  closeAndPrintFilePath(file);
+  closeBufferAndWriteIfChanged(buffer, fileASTVisitor_h.absoluteFilePath());
 }
 
 void generateASTMatcher_H(const Snapshot &, const QDir &cplusplusDir,
@@ -1265,13 +1283,9 @@ void generateASTMatcher_H(const Snapshot &, const QDir &cplusplusDir,
   QFileInfo fileASTMatcher_h(cplusplusDir, QLatin1String("ASTMatcher.h"));
   Q_ASSERT(fileASTMatcher_h.exists());
 
-  const QString fileName = fileASTMatcher_h.absoluteFilePath();
-
-  QFile file(fileName);
-  if (! file.open(openFlags))
-    return;
-
-  QTextStream out(&file);
+  QBuffer buffer;
+  buffer.open(openFlags);
+  QTextStream out(&buffer);
   out << copyrightHeader <<
 "\n"
 "#pragma once\n"
@@ -1296,7 +1310,7 @@ void generateASTMatcher_H(const Snapshot &, const QDir &cplusplusDir,
 "\n"
 "} // namespace CPlusPlus\n";
 
-  closeAndPrintFilePath(file);
+  closeBufferAndWriteIfChanged(buffer, fileASTMatcher_h.absoluteFilePath());
 }
 
 QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir, const QString &dumpersFile)
@@ -1369,11 +1383,7 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir, co
                 replacementCastMethods.value(classAST));
     }
 
-    if (file.open(openFlags)) {
-        QTextStream out(&file);
-        out << document.toPlainText();
-        closeAndPrintFilePath(file);
-    }
+    writeIfChanged(document.toPlainText(), fileName);
 
     Accept0CG cg(cplusplusDir, AST_h_document->translationUnit());
     cg(AST_h_document->translationUnit()->ast());
@@ -1469,11 +1479,7 @@ void generateASTFwd_h(const Snapshot &snapshot, const QDir &cplusplusDir, const 
 
     cursors.first().insertText(replacement);
 
-    if (file.open(openFlags)) {
-        QTextStream out(&file);
-        out << document.toPlainText();
-        closeAndPrintFilePath(file);
-    }
+    writeIfChanged(document.toPlainText(), fileName);
 }
 
 void generateASTPatternBuilder_h(const QDir &cplusplusDir)
@@ -1481,12 +1487,11 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
     typedef QPair<QString, QString> StringPair;
 
     QFileInfo fileInfo(cplusplusDir, QLatin1String("ASTPatternBuilder.h"));
-    QFile file(fileInfo.absoluteFilePath());
-    if (! file.open(openFlags))
-        return;
 
     Overview oo;
-    QTextStream out(&file);
+    QBuffer buffer;
+    buffer.open(openFlags);
+    QTextStream out(&buffer);
 
     out
             << copyrightHeader
@@ -1600,7 +1605,7 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
             << endl
             << "} // end of namespace CPlusPlus" << endl;
 
-    closeAndPrintFilePath(file);
+    closeBufferAndWriteIfChanged(buffer, fileInfo.absoluteFilePath());
 }
 
 void printUsage()
