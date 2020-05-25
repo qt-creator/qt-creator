@@ -87,11 +87,11 @@ QString DeploymentData::addFilesFromDeploymentFile(const QString &deploymentFile
             QString line = deploymentStream.readLine();
             if (!line.contains(':'))
                 continue;
-            QStringList file = line.split(':');
-            QString sourceFile = file.at(0);
+            int splitPoint = line.lastIndexOf(':');
+            QString sourceFile = line.left(splitPoint);
             if (QFileInfo(sourceFile).isRelative())
                 sourceFile.prepend(sourcePrefix);
-            QString targetFile = file.at(1);
+            QString targetFile = line.mid(splitPoint + 1);
             if (QFileInfo(targetFile).isRelative())
                 targetFile.prepend(deploymentPrefix);
             addFile(sourceFile, targetFile);
