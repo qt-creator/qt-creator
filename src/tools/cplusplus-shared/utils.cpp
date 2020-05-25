@@ -82,14 +82,12 @@ SystemPreprocessor::SystemPreprocessor(bool verbose)
     m_knownCompilers[Utils::HostOsInfo::withExecutableSuffix("cl")]
         = QLatin1String("/DCPLUSPLUS_WITHOUT_QT /U__BLOCKS__ /TP /E /I . /FI");
 
-    QMapIterator<QString, QString> i(m_knownCompilers);
-    while (i.hasNext()) {
-        i.next();
+    for (const QString &key:m_knownCompilers.keys()) {
         const Utils::FilePath executablePath
-            = Utils::Environment::systemEnvironment().searchInPath(i.key());
+            = Utils::Environment::systemEnvironment().searchInPath(key);
         if (!executablePath.isEmpty()) {
-            m_compiler = i.key();
-            m_compilerArguments = i.value().split(QLatin1Char(' '), QString::SkipEmptyParts);
+            m_compiler = key;
+            m_compilerArguments = m_knownCompilers[key].split(QLatin1Char(' '), QString::SkipEmptyParts);
             m_compilerArguments
                 << QDir::toNativeSeparators(QLatin1String(PATH_PREPROCESSOR_CONFIG));
             break;
