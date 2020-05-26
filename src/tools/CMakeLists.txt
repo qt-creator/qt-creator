@@ -13,7 +13,7 @@ option(BUILD_CPLUSPLUS_TOOLS "Build CPlusPlus tools" OFF)
 function(add_qtc_cpp_tool name)
   add_qtc_executable(${name}
     DEFINES
-      PATH_PREPROCESSOR_CONFIG=\"${CMAKE_CURRENT_SOURCE_DIR}/pp-configuration.inc\"
+      PATH_PREPROCESSOR_CONFIG=\"${CMAKE_CURRENT_SOURCE_DIR}/cplusplus-shared/pp-configuration.inc\"
       ${ARGN}
     DEPENDS CPlusPlus Utils Qt5::Widgets
     INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/cplusplus-shared"
