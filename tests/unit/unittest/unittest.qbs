@@ -3,7 +3,7 @@ import qbs.FileInfo
 
 CppApplication {
     condition: gtest.present && gmock.present
-    type: base.concat("autotest")
+    type: base.concat(["autotest", "json_copy"])
     consoleApplication: true
     destinationDirectory: FileInfo.joinPaths(project.buildDirectory,
         FileInfo.relativePath(project.ide_source_tree, sourceDirectory))
@@ -34,8 +34,7 @@ CppApplication {
             "CLANG_UNIT_TESTS",
             "UNIT_TESTS",
             "DONT_CHECK_MESSAGE_COUNTER",
-            'QTC_RESOURCE_DIR="' + FileInfo.joinPaths(project.sourceDirectory, "share", "qtcreator")
-                    + '"',
+            'QTC_RESOURCE_DIR="' + path + "/../../../share/qtcreator" + '"',
             'TESTDATA_DIR="' + FileInfo.joinPaths(sourceDirectory, "data") + '"',
             'ECHOSERVER="' + FileInfo.joinPaths(project.buildDirectory, "tests", "unit",
                                                 "echoserver", "echo") + '"',
