@@ -57,7 +57,8 @@ void VariantProperty::setValue(const QVariant &value)
     if (isDynamic())
         qWarning() << "Calling VariantProperty::setValue on dynamic property.";
 
-    if (value.isNull())
+    // QVector3D(0, 0, 0) detects as null variant though it is valid value
+    if (value.isNull() && value.type() != QVariant::Vector3D)
         throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, name());
 
     if (internalNode()->hasProperty(name())) { //check if oldValue != value

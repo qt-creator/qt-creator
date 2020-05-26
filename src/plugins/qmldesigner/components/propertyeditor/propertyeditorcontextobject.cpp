@@ -98,13 +98,22 @@ PropertyEditorContextObject::PropertyEditorContextObject(QObject *parent) :
 
 }
 
-QString PropertyEditorContextObject::convertColorToString(const QColor &color)
+QString PropertyEditorContextObject::convertColorToString(const QVariant &color)
 {
-    QString colorString = color.name();
+    QString colorString;
+    QColor theColor;
+    if (color.canConvert(QVariant::Color)) {
+        theColor = color.value<QColor>();
+    } else if (color.canConvert(QVariant::Vector3D)) {
+        auto vec = color.value<QVector3D>();
+        theColor = QColor::fromRgbF(vec.x(), vec.y(), vec.z());
+    }
 
-    if (color.alpha() != 255) {
-        QString hexAlpha = QString("%1").arg(color.alpha(), 2, 16, QLatin1Char('0'));
-        colorString.remove(0,1);
+    colorString = theColor.name();
+
+    if (theColor.alpha() != 255) {
+        QString hexAlpha = QString("%1").arg(theColor.alpha(), 2, 16, QLatin1Char('0'));
+        colorString.remove(0, 1);
         colorString.prepend(hexAlpha);
         colorString.prepend(QStringLiteral("#"));
     }

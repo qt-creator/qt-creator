@@ -1067,6 +1067,9 @@ QVariant::Type NodeMetaInfoPrivate::variantTypeId(const PropertyName &propertyNa
     if (typeName == "var")
         return QVariant::UserType;
 
+    if (typeName == "vector3d")
+        return QVariant::Vector3D;
+
     return QVariant::nameToType(typeName.data());
 }
 

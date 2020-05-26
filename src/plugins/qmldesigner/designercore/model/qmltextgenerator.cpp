@@ -27,6 +27,7 @@
 
 #include <QVariant>
 #include <QColor>
+#include <QVector3D>
 
 #include "bindingproperty.h"
 #include "signalhandlerproperty.h"
@@ -149,6 +150,10 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
             case QMetaType::QString:
             case QMetaType::QChar:
                 return QStringLiteral("\"%1\"").arg(escape(unicodeEscape(stringValue)));
+            case QMetaType::QVector3D: {
+                auto vec = value.value<QVector3D>();
+                return QStringLiteral("Qt.vector3d(%1, %2, %3)").arg(vec.x()).arg(vec.y()).arg(vec.z());
+            }
             default:
                 return QStringLiteral("\"%1\"").arg(escape(stringValue));
             }

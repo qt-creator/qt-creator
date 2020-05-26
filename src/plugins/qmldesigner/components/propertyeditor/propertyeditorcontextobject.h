@@ -78,7 +78,7 @@ public:
 
     QQmlPropertyMap* backendValues() const { return m_backendValues; }
 
-    Q_INVOKABLE QString convertColorToString(const QColor &color);
+    Q_INVOKABLE QString convertColorToString(const QVariant &color);
     Q_INVOKABLE QColor colorFromString(const QString &colorString);
     Q_INVOKABLE QString translateFunction();
 
