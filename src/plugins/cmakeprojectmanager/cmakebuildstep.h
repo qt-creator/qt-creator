@@ -77,7 +77,7 @@ protected:
     bool fromMap(const QVariantMap &map) override;
 
     // For parsing [ 76%]
-    void stdOutput(const QString &line) override;
+    void stdOutput(const QString &output) override;
 
 private:
     void ctor(ProjectExplorer::BuildStepList *bsl);

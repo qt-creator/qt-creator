@@ -268,33 +268,45 @@ QString CMakeBuildStep::defaultBuildTarget() const
     return allTarget();
 }
 
-void CMakeBuildStep::stdOutput(const QString &line)
+void CMakeBuildStep::stdOutput(const QString &output)
 {
-    if (m_percentProgress.indexIn(line) != -1) {
-        AbstractProcessStep::stdOutput(line);
-        bool ok = false;
-        int percent = m_percentProgress.cap(1).toInt(&ok);
-        if (ok)
-            emit progress(percent, QString());
-        return;
-    } else if (m_ninjaProgress.indexIn(line) != -1) {
-        AbstractProcessStep::stdOutput(line);
-        m_useNinja = true;
-        bool ok = false;
-        int done = m_ninjaProgress.cap(1).toInt(&ok);
-        if (ok) {
-            int all = m_ninjaProgress.cap(2).toInt(&ok);
-            if (ok && all != 0) {
-                const int percent = static_cast<int>(100.0 * done/all);
-                emit progress(percent, QString());
-            }
+    int offset = 0;
+    while (offset != -1) {
+        const int newlinePos = output.indexOf('\n', offset);
+        QString line;
+        if (newlinePos == -1) {
+            line = output.mid(offset);
+            offset = -1;
+        } else {
+            line = output.mid(offset, newlinePos - offset + 1);
+            offset = newlinePos + 1;
         }
-        return;
+        if (m_percentProgress.indexIn(line) != -1) {
+            AbstractProcessStep::stdOutput(line);
+            bool ok = false;
+            int percent = m_percentProgress.cap(1).toInt(&ok);
+            if (ok)
+                emit progress(percent, QString());
+            continue;
+        } else if (m_ninjaProgress.indexIn(line) != -1) {
+            AbstractProcessStep::stdOutput(line);
+            m_useNinja = true;
+            bool ok = false;
+            int done = m_ninjaProgress.cap(1).toInt(&ok);
+            if (ok) {
+                int all = m_ninjaProgress.cap(2).toInt(&ok);
+                if (ok && all != 0) {
+                    const int percent = static_cast<int>(100.0 * done/all);
+                    emit progress(percent, QString());
+                }
+            }
+            continue;
+        }
+        if (m_useNinja)
+            AbstractProcessStep::stdError(line);
+        else
+            AbstractProcessStep::stdOutput(line);
     }
-    if (m_useNinja)
-        AbstractProcessStep::stdError(line);
-    else
-        AbstractProcessStep::stdOutput(line);
 }
 
 QString CMakeBuildStep::buildTarget() const
