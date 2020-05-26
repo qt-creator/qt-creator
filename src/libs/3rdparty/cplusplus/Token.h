@@ -293,6 +293,11 @@ enum Kind {
 
     T___ATTRIBUTE = T___ATTRIBUTE__,
     T___ALIGNOF__ = T_ALIGNOF,
+
+    T_SLOTS = T_Q_SLOTS,
+    T_FOREACH = T_Q_FOREACH,
+    T_SIGNALS = T_Q_SIGNALS,
+    T_Q_OVERRIDE = T_Q_PROPERTY,
 };
 
 class CPLUSPLUS_EXPORT Token

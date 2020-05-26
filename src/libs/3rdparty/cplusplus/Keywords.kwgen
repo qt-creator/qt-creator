@@ -1,55 +1,99 @@
+// Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #include "Lexer.h"
 #include "Token.h"
+
+namespace CPlusPlus {
 
 %token-prefix=T_
 %toupper
 %no-enums
 %namespace=Lexer
+%no-namespace-for-tokens
+%pre-check-argument=LanguageFeatures features
+%function-name=classify
 
 %%
 __asm
 __asm__
 __attribute
 __attribute__
+__alignof__
 __const
 __const__
 __inline
 __inline__
+__thread
 __typeof
 __typeof__
 __volatile
 __volatile__
 asm
-auto
-bool
 break
 case
-catch
 char
-class
 const
-const_cast
 continue
 default
-delete
 do
 double
-dynamic_cast
 else
 enum
-explicit
-export
 extern
-false
 float
 for
-friend
 goto
 if
 inline
 int
 long
+register
+return
+short
+signed
+sizeof
+static
+struct
+switch
+typedef
+typeof
+union
+unsigned
+void
+volatile
+while
+
+%pre-check=features.cxxEnabled
+__decltype
+auto
+bool
+catch
+class
+const_cast
+delete
+dynamic_cast
+explicit
+export
+false
+friend
 mutable
 namespace
 new
@@ -57,30 +101,79 @@ operator
 private
 protected
 public
-register
 reinterpret_cast
-return
-short
-signed
-sizeof
-static
 static_cast
-struct
-switch
 template
 this
 throw
 true
 try
-typedef
 typeid
 typename
-typeof
-union
-unsigned
 using
 virtual
-void
-volatile
 wchar_t
-while
+
+%pre-check=features.cxx11Enabled
+alignas
+alignof
+char16_t
+char32_t
+constexpr
+decltype
+noexcept
+nullptr
+static_assert
+thread_local
+
+%pre-check=features.qtKeywordsEnabled
+emit
+foreach
+Q_EMIT
+Q_SLOT
+SIGNAL
+signals
+slots
+
+%pre-check=features.qtMocRunEnabled
+Q_Q
+Q_D
+
+%pre-check=features.qtEnabled
+Q_DECLARE_INTERFACE
+Q_ENUMS
+Q_FLAGS
+Q_FOREACH
+Q_GADGET
+Q_INVOKABLE
+Q_INTERFACES
+Q_OBJECT
+Q_OVERRIDE
+Q_PRIVATE_PROPERTY
+Q_PRIVATE_SLOT
+Q_PROPERTY
+Q_SIGNAL
+Q_SIGNALS
+Q_SLOTS
+SLOT
+
+%%
+
+%pre-check-argument=
+%function-name=classifyOperator
+
+%%
+or
+and
+not
+xor
+bitor
+compl
+or_eq
+and_eq
+bitand
+not_eq
+xor_eq
+%%
+
+} // namespace CPlusPlus

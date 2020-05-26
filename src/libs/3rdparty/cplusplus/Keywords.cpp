@@ -23,6 +23,12 @@
 
 namespace CPlusPlus {
 
+
+// === following code is generated with cplusplus-keywordgen tool
+// === from source file: Keywords.kwgen
+
+// === keywords begin
+
 static inline int classify2(const char *s, LanguageFeatures)
 {
   if (s[0] == 'd') {
@@ -132,17 +138,17 @@ static inline int classify4(const char *s, LanguageFeatures features)
         }
       }
     }
-    else if (s[1] == 'n') {
-      if (s[2] == 'u') {
-        if (s[3] == 'm') {
-          return T_ENUM;
-        }
-      }
-    }
     else if (features.qtKeywordsEnabled && s[1] == 'm') {
       if (s[2] == 'i') {
         if (s[3] == 't') {
           return T_EMIT;
+        }
+      }
+    }
+    else if (s[1] == 'n') {
+      if (s[2] == 'u') {
+        if (s[3] == 'm') {
+          return T_ENUM;
         }
       }
     }
@@ -165,15 +171,15 @@ static inline int classify4(const char *s, LanguageFeatures features)
       }
     }
   }
-  else if (s[0] == 't') {
-    if (features.cxxEnabled && s[1] == 'h') {
+  else if (features.cxxEnabled && s[0] == 't') {
+    if (s[1] == 'h') {
       if (s[2] == 'i') {
         if (s[3] == 's') {
           return T_THIS;
         }
       }
     }
-    else if (features.cxxEnabled && s[1] == 'r') {
+    else if (s[1] == 'r') {
       if (s[2] == 'u') {
         if (s[3] == 'e') {
           return T_TRUE;
@@ -285,13 +291,11 @@ static inline int classify5(const char *s, LanguageFeatures features)
         }
       }
     }
-    else if (features.qtKeywordsEnabled) {
-      if (s[1] == 'l') {
-        if (s[2] == 'o') {
-          if (s[3] == 't') {
-            if (s[4] == 's') {
-              return T_Q_SLOTS;
-            }
+    else if (features.qtKeywordsEnabled && s[1] == 'l') {
+      if (s[2] == 'o') {
+        if (s[3] == 't') {
+          if (s[4] == 's') {
+            return T_SLOTS;
           }
         }
       }
@@ -513,22 +517,18 @@ static inline int classify6(const char *s, LanguageFeatures features)
       }
     }
   }
-  else if (features.qtKeywordsEnabled && s[0] == 'S') {
-    if (s[1] == 'I') {
-      if (s[2] == 'G') {
-        if (s[3] == 'N') {
-          if (s[4] == 'A') {
-            if (s[5] == 'L') {
-              return T_SIGNAL;
+  else if (features.qtKeywordsEnabled && s[0] == 'Q') {
+    if (s[1] == '_') {
+      if (s[2] == 'E') {
+        if (s[3] == 'M') {
+          if (s[4] == 'I') {
+            if (s[5] == 'T') {
+              return T_Q_EMIT;
             }
           }
         }
       }
-    }
-  }
-  else if (features.qtKeywordsEnabled && s[0] == 'Q') {
-    if (s[1] == '_') {
-      if (s[2] == 'S') {
+      else if (s[2] == 'S') {
         if (s[3] == 'L') {
           if (s[4] == 'O') {
             if (s[5] == 'T') {
@@ -537,11 +537,15 @@ static inline int classify6(const char *s, LanguageFeatures features)
           }
         }
       }
-      else if (s[2] == 'E') {
-        if (s[3] == 'M') {
-          if (s[4] == 'I') {
-            if (s[5] == 'T') {
-              return T_Q_EMIT;
+    }
+  }
+  else if (features.qtKeywordsEnabled && s[0] == 'S') {
+    if (s[1] == 'I') {
+      if (s[2] == 'G') {
+        if (s[3] == 'N') {
+          if (s[4] == 'A') {
+            if (s[5] == 'L') {
+              return T_SIGNAL;
             }
           }
         }
@@ -614,6 +618,21 @@ static inline int classify7(const char *s, LanguageFeatures features)
       }
     }
   }
+  else if (features.qtKeywordsEnabled && s[0] == 'f') {
+    if (s[1] == 'o') {
+      if (s[2] == 'r') {
+        if (s[3] == 'e') {
+          if (s[4] == 'a') {
+            if (s[5] == 'c') {
+              if (s[6] == 'h') {
+                return T_FOREACH;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   else if (features.cxxEnabled && s[0] == 'm') {
     if (s[1] == 'u') {
       if (s[2] == 't') {
@@ -659,21 +678,6 @@ static inline int classify7(const char *s, LanguageFeatures features)
       }
     }
   }
-  else if (features.qtKeywordsEnabled && s[0] == 'f') {
-    if (s[1] == 'o') {
-      if (s[2] == 'r') {
-        if (s[3] == 'e') {
-          if (s[4] == 'a') {
-            if (s[5] == 'c') {
-              if (s[6] == 'h') {
-                return T_Q_FOREACH;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
   else if (features.qtKeywordsEnabled && s[0] == 's') {
     if (s[1] == 'i') {
       if (s[2] == 'g') {
@@ -681,7 +685,7 @@ static inline int classify7(const char *s, LanguageFeatures features)
           if (s[4] == 'a') {
             if (s[5] == 'l') {
               if (s[6] == 's') {
-                return T_Q_SIGNALS;
+                return T_SIGNALS;
               }
             }
           }
@@ -736,18 +740,7 @@ static inline int classify7(const char *s, LanguageFeatures features)
   }
   else if (features.qtEnabled && s[0] == 'Q') {
     if (s[1] == '_') {
-      if (s[2] == 'S') {
-        if (s[3] == 'L') {
-          if (s[4] == 'O') {
-            if (s[5] == 'T') {
-              if (s[6] == 'S') {
-                return T_Q_SLOTS;
-              }
-            }
-          }
-        }
-      }
-      else if (s[2] == 'E') {
+      if (s[2] == 'E') {
         if (s[3] == 'N') {
           if (s[4] == 'U') {
             if (s[5] == 'M') {
@@ -764,6 +757,17 @@ static inline int classify7(const char *s, LanguageFeatures features)
             if (s[5] == 'G') {
               if (s[6] == 'S') {
                 return T_Q_FLAGS;
+              }
+            }
+          }
+        }
+      }
+      else if (s[2] == 'S') {
+        if (s[3] == 'L') {
+          if (s[4] == 'O') {
+            if (s[5] == 'T') {
+              if (s[6] == 'S') {
+                return T_Q_SLOTS;
               }
             }
           }
@@ -792,18 +796,7 @@ static inline int classify8(const char *s, LanguageFeatures features)
         }
       }
       else if (s[2] == 't') {
-        if (s[3] == 'y') {
-          if (s[4] == 'p') {
-            if (s[5] == 'e') {
-              if (s[6] == 'o') {
-                if (s[7] == 'f') {
-                  return T___TYPEOF;
-                }
-              }
-            }
-          }
-        }
-        else if (s[3] == 'h') {
+        if (s[3] == 'h') {
           if (s[4] == 'r') {
             if (s[5] == 'e') {
               if (s[6] == 'a') {
@@ -814,11 +807,46 @@ static inline int classify8(const char *s, LanguageFeatures features)
             }
           }
         }
+        else if (s[3] == 'y') {
+          if (s[4] == 'p') {
+            if (s[5] == 'e') {
+              if (s[6] == 'o') {
+                if (s[7] == 'f') {
+                  return T___TYPEOF;
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
   else if (s[0] == 'c') {
-    if (s[1] == 'o') {
+    if (features.cxx11Enabled && s[1] == 'h') {
+      if (s[2] == 'a') {
+        if (s[3] == 'r') {
+          if (s[4] == '1') {
+            if (s[5] == '6') {
+              if (s[6] == '_') {
+                if (s[7] == 't') {
+                  return T_CHAR16_T;
+                }
+              }
+            }
+          }
+          else if (s[4] == '3') {
+            if (s[5] == '2') {
+              if (s[6] == '_') {
+                if (s[7] == 't') {
+                  return T_CHAR32_T;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    else if (s[1] == 'o') {
       if (s[2] == 'n') {
         if (s[3] == 't') {
           if (s[4] == 'i') {
@@ -832,28 +860,6 @@ static inline int classify8(const char *s, LanguageFeatures features)
           }
         }
       }
-    } else if (features.cxx11Enabled && s[1] == 'h') {
-        if (s[2] == 'a') {
-            if (s[3] == 'r') {
-                if (s[4] == '1') {
-                    if (s[5] == '6') {
-                        if (s[6] == '_') {
-                            if (s[7] == 't') {
-                                return T_CHAR16_T;
-                            }
-                        }
-                    }
-                } else if (s[4] == '3') {
-                    if (s[5] == '2') {
-                        if (s[6] == '_') {
-                            if (s[7] == 't') {
-                                return T_CHAR32_T;
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
   }
   else if (features.cxx11Enabled && s[0] == 'd') {
@@ -1133,21 +1139,7 @@ static inline int classify9(const char *s, LanguageFeatures features)
   }
   else if (features.qtEnabled && s[0] == 'Q') {
     if (s[1] == '_') {
-      if (s[2] == 'S') {
-        if (s[3] == 'I') {
-          if (s[4] == 'G') {
-            if (s[5] == 'N') {
-              if (s[6] == 'A') {
-                if (s[7] == 'L') {
-                  if (s[8] == 'S') {
-                    return T_Q_SIGNALS;
-                  }
-                }
-              }
-            }
-          }
-        }
-      } else if (s[2] == 'F') {
+      if (s[2] == 'F') {
         if (s[3] == 'O') {
           if (s[4] == 'R') {
             if (s[5] == 'E') {
@@ -1155,6 +1147,21 @@ static inline int classify9(const char *s, LanguageFeatures features)
                 if (s[7] == 'C') {
                   if (s[8] == 'H') {
                     return T_Q_FOREACH;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      else if (s[2] == 'S') {
+        if (s[3] == 'I') {
+          if (s[4] == 'G') {
+            if (s[5] == 'N') {
+              if (s[6] == 'A') {
+                if (s[7] == 'L') {
+                  if (s[8] == 'S') {
+                    return T_Q_SIGNALS;
                   }
                 }
               }
@@ -1171,24 +1178,7 @@ static inline int classify10(const char *s, LanguageFeatures features)
 {
   if (s[0] == '_') {
     if (s[1] == '_') {
-      if (s[2] == 'i') {
-        if (s[3] == 'n') {
-          if (s[4] == 'l') {
-            if (s[5] == 'i') {
-              if (s[6] == 'n') {
-                if (s[7] == 'e') {
-                  if (s[8] == '_') {
-                    if (s[9] == '_') {
-                      return T___INLINE__;
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      else if (features.cxxEnabled && s[2] == 'd') {
+      if (features.cxxEnabled && s[2] == 'd') {
         if (s[3] == 'e') {
           if (s[4] == 'c') {
             if (s[5] == 'l') {
@@ -1197,6 +1187,23 @@ static inline int classify10(const char *s, LanguageFeatures features)
                   if (s[8] == 'p') {
                     if (s[9] == 'e') {
                       return T___DECLTYPE;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      else if (s[2] == 'i') {
+        if (s[3] == 'n') {
+          if (s[4] == 'l') {
+            if (s[5] == 'i') {
+              if (s[6] == 'n') {
+                if (s[7] == 'e') {
+                  if (s[8] == '_') {
+                    if (s[9] == '_') {
+                      return T___INLINE__;
                     }
                   }
                 }
@@ -1272,7 +1279,7 @@ static inline int classify10(const char *s, LanguageFeatures features)
                 if (s[7] == 'I') {
                   if (s[8] == 'D') {
                     if (s[9] == 'E') {
-                      return T_Q_PROPERTY; // Q_OVERRIDE is just an alias for Q_PROPERTY
+                      return T_Q_OVERRIDE;
                     }
                   }
                 }
@@ -1308,23 +1315,7 @@ static inline int classify11(const char *s, LanguageFeatures features)
   if (s[0] == '_') {
     if (s[1] == '_') {
       if (s[2] == 'a') {
-        if (s[3] == 't') {
-          if (s[4] == 't') {
-            if (s[5] == 'r') {
-              if (s[6] == 'i') {
-                if (s[7] == 'b') {
-                  if (s[8] == 'u') {
-                    if (s[9] == 't') {
-                      if (s[10] == 'e') {
-                        return T___ATTRIBUTE;
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        } else if (s[3] == 'l') {
+        if (s[3] == 'l') {
           if (s[4] == 'i') {
             if (s[5] == 'g') {
               if (s[6] == 'n') {
@@ -1333,6 +1324,23 @@ static inline int classify11(const char *s, LanguageFeatures features)
                     if (s[9] == '_') {
                       if (s[10] == '_') {
                         return T___ALIGNOF__;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        else if (s[3] == 't') {
+          if (s[4] == 't') {
+            if (s[5] == 'r') {
+              if (s[6] == 'i') {
+                if (s[7] == 'b') {
+                  if (s[8] == 'u') {
+                    if (s[9] == 't') {
+                      if (s[10] == 'e') {
+                        return T___ATTRIBUTE;
                       }
                     }
                   }
@@ -1420,31 +1428,6 @@ static inline int classify12(const char *s, LanguageFeatures features)
       }
     }
   }
-  else if (features.qtEnabled && s[0] == 'Q') {
-    if (s[1] == '_') {
-      if (s[2] == 'I') {
-        if (s[3] == 'N') {
-          if (s[4] == 'T') {
-            if (s[5] == 'E') {
-              if (s[6] == 'R') {
-                if (s[7] == 'F') {
-                  if (s[8] == 'A') {
-                    if (s[9] == 'C') {
-                      if (s[10] == 'E') {
-                        if (s[11] == 'S') {
-                          return T_Q_INTERFACES;
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
   else if (features.cxxEnabled && s[0] == 'd') {
     if (s[1] == 'y') {
       if (s[2] == 'n') {
@@ -1495,6 +1478,31 @@ static inline int classify12(const char *s, LanguageFeatures features)
       }
     }
   }
+  else if (features.qtEnabled && s[0] == 'Q') {
+    if (s[1] == '_') {
+      if (s[2] == 'I') {
+        if (s[3] == 'N') {
+          if (s[4] == 'T') {
+            if (s[5] == 'E') {
+              if (s[6] == 'R') {
+                if (s[7] == 'F') {
+                  if (s[8] == 'A') {
+                    if (s[9] == 'C') {
+                      if (s[10] == 'E') {
+                        if (s[11] == 'S') {
+                          return T_Q_INTERFACES;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   return T_IDENTIFIER;
 }
 
@@ -1526,7 +1534,8 @@ static inline int classify13(const char *s, LanguageFeatures features)
         }
       }
     }
-  } else if (features.cxx11Enabled && s[0] == 's') {
+  }
+  else if (features.cxx11Enabled && s[0] == 's') {
     if (s[1] == 't') {
       if (s[2] == 'a') {
         if (s[3] == 't') {
@@ -1540,6 +1549,40 @@ static inline int classify13(const char *s, LanguageFeatures features)
                         if (s[11] == 'r') {
                           if (s[12] == 't') {
                             return T_STATIC_ASSERT;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return T_IDENTIFIER;
+}
+
+static inline int classify14(const char *s, LanguageFeatures features)
+{
+  if (features.qtEnabled && s[0] == 'Q') {
+    if (s[1] == '_') {
+      if (s[2] == 'P') {
+        if (s[3] == 'R') {
+          if (s[4] == 'I') {
+            if (s[5] == 'V') {
+              if (s[6] == 'A') {
+                if (s[7] == 'T') {
+                  if (s[8] == 'E') {
+                    if (s[9] == '_') {
+                      if (s[10] == 'S') {
+                        if (s[11] == 'L') {
+                          if (s[12] == 'O') {
+                            if (s[13] == 'T') {
+                              return T_Q_PRIVATE_SLOT;
+                            }
                           }
                         }
                       }
@@ -1577,40 +1620,6 @@ static inline int classify16(const char *s, LanguageFeatures features)
                                   return T_REINTERPRET_CAST;
                                 }
                               }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  return T_IDENTIFIER;
-}
-
-static inline int classify14(const char *s, LanguageFeatures features)
-{
-  if (features.qtEnabled && s[0] == 'Q') {
-    if (s[1] == '_') {
-      if (s[2] == 'P') {
-        if (s[3] == 'R') {
-          if (s[4] == 'I') {
-            if (s[5] == 'V') {
-              if (s[6] == 'A') {
-                if (s[7] == 'T') {
-                  if (s[8] == 'E') {
-                    if (s[9] == '_') {
-                      if (s[10] == 'S') {
-                        if (s[11] == 'L') {
-                          if (s[12] == 'O') {
-                            if (s[13] == 'T') {
-                              return T_Q_PRIVATE_SLOT;
                             }
                           }
                         }
@@ -1714,8 +1723,8 @@ static inline int classify19(const char *s, LanguageFeatures features)
   return T_IDENTIFIER;
 }
 
-
-int Lexer::classify(const char *s, int n, LanguageFeatures features) {
+int Lexer::classify(const char *s, int n, LanguageFeatures features)
+{
   switch (n) {
     case 2: return classify2(s, features);
     case 3: return classify3(s, features);
@@ -1737,7 +1746,13 @@ int Lexer::classify(const char *s, int n, LanguageFeatures features) {
   } // switch
 }
 
-static inline int classifyOperator2(const char *s) {
+// === keywords end
+
+
+// === keywords begin
+
+static inline int classifyOperator2(const char *s)
+{
   if (s[0] == 'o') {
     if (s[1] == 'r') {
       return T_OR;
@@ -1746,7 +1761,8 @@ static inline int classifyOperator2(const char *s) {
   return T_IDENTIFIER;
 }
 
-static inline int classifyOperator3(const char *s) {
+static inline int classifyOperator3(const char *s)
+{
   if (s[0] == 'a') {
     if (s[1] == 'n') {
       if (s[2] == 'd') {
@@ -1771,7 +1787,8 @@ static inline int classifyOperator3(const char *s) {
   return T_IDENTIFIER;
 }
 
-static inline int classifyOperator5(const char *s) {
+static inline int classifyOperator5(const char *s)
+{
   if (s[0] == 'b') {
     if (s[1] == 'i') {
       if (s[2] == 't') {
@@ -1808,7 +1825,8 @@ static inline int classifyOperator5(const char *s) {
   return T_IDENTIFIER;
 }
 
-static inline int classifyOperator6(const char *s) {
+static inline int classifyOperator6(const char *s)
+{
   if (s[0] == 'a') {
     if (s[1] == 'n') {
       if (s[2] == 'd') {
@@ -1864,7 +1882,8 @@ static inline int classifyOperator6(const char *s) {
   return T_IDENTIFIER;
 }
 
-int Lexer::classifyOperator(const char *s, int n) {
+int Lexer::classifyOperator(const char *s, int n)
+{
   switch (n) {
     case 2: return classifyOperator2(s);
     case 3: return classifyOperator3(s);
@@ -1874,5 +1893,6 @@ int Lexer::classifyOperator(const char *s, int n) {
   } // switch
 }
 
+// === keywords end
 
 } // namespace CPlusPlus
