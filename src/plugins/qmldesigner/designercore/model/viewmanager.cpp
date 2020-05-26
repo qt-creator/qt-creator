@@ -169,15 +169,27 @@ void ViewManager::switchStateEditorViewToSavedState()
 QList<QPointer<AbstractView> > ViewManager::views() const
 {
     auto list = d->additionalViews;
-    list.append({
+    list.append(standardViews());
+    return list;
+}
+
+QList<QPointer<AbstractView> > ViewManager::standardViews() const
+{
+    QList<QPointer<AbstractView>> list = {
                     &d->edit3DView,
                     &d->formEditorView,
                     &d->textEditorView,
                     &d->itemLibraryView,
                     &d->navigatorView,
                     &d->propertyEditorView,
-                    &d->statesEditorView
-                });
+                    &d->statesEditorView,
+                    &d->designerActionManagerView
+                };
+
+    if (QmlDesignerPlugin::instance()->settings().value(
+                DesignerSettingsKey::ENABLE_DEBUGVIEW).toBool())
+         list.append(&d->debugView);
+
     return list;
 }
 
@@ -226,16 +238,7 @@ void ViewManager::detachAdditionalViews()
 
 void ViewManager::detachStandardViews()
 {
-
-    for (auto view : std::vector<AbstractView *>({ &d->designerActionManagerView,
-                                                &d->edit3DView,
-                                                &d->formEditorView,
-                                                &d->textEditorView,
-                                                &d->navigatorView,
-                                                &d->itemLibraryView,
-                                                &d->statesEditorView,
-                                                &d->propertyEditorView,
-                                                &d->debugView})) {
+    for (auto view : standardViews()) {
         if (view->isAttached())
             currentModel()->detachView(view);
     }
@@ -277,16 +280,7 @@ void ViewManager::attachViewsExceptRewriterAndComponetView()
     int last = time.elapsed();
     int currentTime = 0;
     if (!d->disableStandardViews) {
-        for (auto view : std::vector<AbstractView *>({&d->designerActionManagerView,
-                                                     &d->edit3DView,
-                                                     &d->formEditorView,
-                                                     &d->textEditorView,
-                                                     &d->navigatorView,
-                                                     &d->itemLibraryView,
-                                                     &d->statesEditorView,
-                                                     &d->propertyEditorView})) {
-
-
+        for (auto view : standardViews()) {
             currentModel()->attachView(view);
             currentTime = time.elapsed();
             qCInfo(viewBenchmark) << view->widgetInfo().uniqueId << currentTime - last;

@@ -119,6 +119,7 @@ private: // functions
     void switchStateEditorViewToBaseState();
     void switchStateEditorViewToSavedState();
     QList<QPointer<AbstractView>> views() const;
+    QList<QPointer<AbstractView>> standardViews() const;
 
 private: // variables
     ViewManagerData *d;
