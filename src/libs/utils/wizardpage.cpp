@@ -29,7 +29,7 @@
 
 /*! \class Utils::WizardPage
 
-  \brief QWizardPage with a couple of improvements
+  \brief QWizardPage with a couple of improvements.
 
   Adds a way to register fields so that a Utils::Wizard can check
   whether those fields are actually defined and a new method
