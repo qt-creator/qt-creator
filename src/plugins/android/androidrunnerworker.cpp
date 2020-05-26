@@ -627,7 +627,7 @@ bool AndroidRunnerWorker::startDebuggerServer(const QString &packageDir,
         QStringList lldbServerArgs = selector();
         lldbServerArgs << "shell" << "run-as" << m_packageName << debugServerFile
                         << "platform"
-                        << "--server"
+                        // << "--server"  // Can lead to zombie servers
                         << "--listen" << QString("*:%1").arg(m_localDebugServerPort.toString());
         m_debugServerProcess.reset(AndroidManager::runAdbCommandDetached(lldbServerArgs, &lldbServerErr));
 
