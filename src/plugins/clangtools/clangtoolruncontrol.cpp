@@ -448,7 +448,7 @@ void ClangToolRunWorker::finalize()
 {
     const QString toolName = tool()->name();
     if (m_filesNotAnalyzed.size() != 0) {
-        appendMessage(tr("Error: Failed to analyze %1 files.").arg(m_filesAnalyzed.size()),
+        appendMessage(tr("Error: Failed to analyze %1 files.").arg(m_filesNotAnalyzed.size()),
                       ErrorMessageFormat);
         Target *target = runControl()->target();
         if (target && target->activeBuildConfiguration() && !target->activeBuildConfiguration()->buildDirectory().exists()

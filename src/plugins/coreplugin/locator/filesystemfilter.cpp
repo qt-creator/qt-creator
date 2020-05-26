@@ -102,7 +102,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
     const QStringList files = dirInfo.entryList(fileFilter,
                                                 QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
 
-    const QRegularExpression regExp = createRegExp(entryFileName, caseSensitivity_);
+    QRegularExpression regExp = createRegExp(entryFileName, caseSensitivity_);
     if (!regExp.isValid())
         return {};
 
@@ -122,7 +122,10 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
         }
     }
     // file names can match with +linenumber or :linenumber
-    const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entry);
+    const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entryFileName);
+    regExp = createRegExp(fp.filePath, caseSensitivity_);
+    if (!regExp.isValid())
+        return {};
     const QString fileName = QFileInfo(fp.filePath).fileName();
     for (const QString &file : files) {
         if (future.isCanceled())

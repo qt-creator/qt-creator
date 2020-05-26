@@ -324,6 +324,7 @@ void CppFileSettingsWidget::apply()
     rc.sourceSuffix = m_ui.sourceSuffixComboBox->currentText();
     rc.headerSearchPaths = trimmedPaths(m_ui.headerSearchPathsEdit->text());
     rc.sourceSearchPaths = trimmedPaths(m_ui.sourceSearchPathsEdit->text());
+    rc.licenseTemplatePath = licenseTemplatePath();
 
     if (rc == *m_settings)
         return;

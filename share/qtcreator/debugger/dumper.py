@@ -39,7 +39,7 @@ try:
     # we do not need to hard fail in cases of partial python installation
     # that will never use this.
     import json
-except ModuleNotFoundError:
+except:
     print("Python module json not found. "
           "Native combined debugging might not work.")
     pass
