@@ -25,7 +25,6 @@
 
 #include "scxmleditordata.h"
 #include "mainwidget.h"
-#include "scxmlcontext.h"
 #include "scxmleditorconstants.h"
 #include "scxmleditordocument.h"
 #include "scxmleditorstack.h"
@@ -143,7 +142,9 @@ void ScxmlEditorData::fullInit()
 
     Context scxmlContexts = m_contexts;
     scxmlContexts.add(Core::Constants::C_EDITORMANAGER);
-    auto context = new ScxmlContext(scxmlContexts, m_modeWidget, this);
+    auto context = new IContext(this);
+    context->setContext(scxmlContexts);
+    context->setWidget(m_modeWidget);
     ICore::addContextObject(context);
 
     DesignMode::registerDesignWidget(m_modeWidget, QStringList(QLatin1String(ProjectExplorer::Constants::SCXML_MIMETYPE)), m_contexts);

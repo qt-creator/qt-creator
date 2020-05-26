@@ -98,12 +98,6 @@ private:
     Qt::MouseButton m_mouseButtonPressed = Qt::NoButton;
 };
 
-class TaskWindowContext : public Core::IContext
-{
-public:
-    TaskWindowContext(QWidget *widget);
-};
-
 class TaskDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
@@ -289,7 +283,7 @@ public:
     Internal::TaskModel *m_model;
     Internal::TaskFilterModel *m_filter;
     Internal::TaskView *m_listview;
-    Internal::TaskWindowContext *m_taskWindowContext;
+    Core::IContext *m_taskWindowContext;
     QMenu *m_contextMenu;
     QMap<const QAction *, ITaskHandler *> m_actionToHandlerMap;
     ITaskHandler *m_defaultHandler = nullptr;
@@ -329,8 +323,9 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
     d->m_listview->setContextMenuPolicy(Qt::ActionsContextMenu);
     d->m_listview->setAttribute(Qt::WA_MacShowFocusRect, false);
 
-    d->m_taskWindowContext = new Internal::TaskWindowContext(d->m_listview);
-
+    d->m_taskWindowContext = new Core::IContext(d->m_listview);
+    d->m_taskWindowContext->setWidget(d->m_listview);
+    d->m_taskWindowContext->setContext(Core::Context(Core::Constants::C_PROBLEM_PANE));
     Core::ICore::addContextObject(d->m_taskWindowContext);
 
     connect(d->m_listview->selectionModel(), &QItemSelectionModel::currentChanged,
@@ -1016,13 +1011,6 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     const QRectF borderRect = QRectF(opt.rect).adjusted(0.5, 0.5, -0.5, -0.5);
     painter->drawLine(borderRect.bottomLeft(), borderRect.bottomRight());
     painter->restore();
-}
-
-TaskWindowContext::TaskWindowContext(QWidget *widget)
-  : Core::IContext(widget)
-{
-    setWidget(widget);
-    setContext(Core::Context(Core::Constants::C_PROBLEM_PANE));
 }
 
 } // namespace Internal

@@ -3,7 +3,6 @@ include(../../qtcreatorplugin.pri)
 INCLUDEPATH += $$PWD
 
 HEADERS += \
-    scxmlcontext.h \
     scxmleditor_global.h \
     scxmleditorconstants.h \
     scxmleditordata.h \
@@ -14,7 +13,6 @@ HEADERS += \
     scxmltexteditor.h
 
 SOURCES += \
-    scxmlcontext.cpp \
     scxmleditordata.cpp \
     scxmleditordocument.cpp \
     scxmleditorfactory.cpp \

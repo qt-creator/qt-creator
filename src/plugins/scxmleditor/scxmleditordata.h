@@ -40,7 +40,6 @@ namespace Internal {
 class ScxmlTextEditorFactory;
 class ScxmlEditorWidget;
 class ScxmlEditorStack;
-class ScxmlContext;
 
 class ScxmlEditorData : public QObject
 {

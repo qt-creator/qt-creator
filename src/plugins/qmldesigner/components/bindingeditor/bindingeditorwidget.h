@@ -39,18 +39,6 @@ namespace QmlDesigner {
 
 const char BINDINGEDITOR_CONTEXT_ID[] = "BindingEditor.BindingEditorContext";
 
-
-class BindingEditorContext : public Core::IContext
-{
-    Q_OBJECT
-
-public:
-    BindingEditorContext(QWidget *parent) : Core::IContext(parent)
-    {
-        setWidget(parent);
-    }
-};
-
 class BindingEditorWidget : public QmlJSEditor::QmlJSEditorWidget
 {
     Q_OBJECT
@@ -71,7 +59,7 @@ signals:
 
 public:
     QmlJSEditor::QmlJSEditorDocument *qmljsdocument = nullptr;
-    BindingEditorContext *m_context = nullptr;
+    Core::IContext *m_context = nullptr;
     QAction *m_completionAction = nullptr;
 };
 

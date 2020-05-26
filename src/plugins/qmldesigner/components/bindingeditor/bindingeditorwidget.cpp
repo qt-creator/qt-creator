@@ -41,8 +41,9 @@
 namespace QmlDesigner {
 
 BindingEditorWidget::BindingEditorWidget()
-    : m_context(new BindingEditorContext(this))
+    : m_context(new Core::IContext(this))
 {
+    m_context->setWidget(this);
     Core::ICore::addContextObject(m_context);
 
     const Core::Context context(BINDINGEDITOR_CONTEXT_ID);

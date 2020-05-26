@@ -82,7 +82,6 @@ add_qtc_plugin(ScxmlEditor
     plugin_interface/utilsprovider.cpp plugin_interface/utilsprovider.h
     plugin_interface/warningitem.cpp plugin_interface/warningitem.h
     plugin_interface/warningprovider.h
-    scxmlcontext.cpp scxmlcontext.h
     scxmleditor_global.h
     scxmleditorconstants.h
     scxmleditordata.cpp scxmleditordata.h
