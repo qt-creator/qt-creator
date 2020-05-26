@@ -223,25 +223,6 @@ void BaseStatement::bind(int index, const Value &value)
     }
 }
 
-template <typename Type>
-void BaseStatement::bind(Utils::SmallStringView name, Type value)
-{
-    int index = bindingIndexForName(name);
-    checkBindingName(index);
-    bind(index, value);
-}
-
-template SQLITE_EXPORT void BaseStatement::bind(Utils::SmallStringView name, int value);
-template SQLITE_EXPORT void BaseStatement::bind(Utils::SmallStringView name, long value);
-template SQLITE_EXPORT void BaseStatement::bind(Utils::SmallStringView name, long long value);
-template SQLITE_EXPORT void BaseStatement::bind(Utils::SmallStringView name, double value);
-template SQLITE_EXPORT void BaseStatement::bind(Utils::SmallStringView name, Utils::SmallStringView text);
-
-int BaseStatement::bindingIndexForName(Utils::SmallStringView name) const
-{
-    return  sqlite3_bind_parameter_index(m_compiledStatement.get(), name.data());
-}
-
 void BaseStatement::prepare(Utils::SmallStringView sqlStatement)
 {
     int resultCode;

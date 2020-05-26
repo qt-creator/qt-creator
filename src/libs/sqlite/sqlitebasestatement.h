@@ -91,11 +91,6 @@ public:
         bind(index, static_cast<long long>(value));
     }
 
-    template <typename Type>
-    void bind(Utils::SmallStringView name, Type fetchValue);
-
-    int bindingIndexForName(Utils::SmallStringView name) const;
-
     void prepare(Utils::SmallStringView sqlStatement);
     void waitForUnlockNotify() const;
 
@@ -140,12 +135,6 @@ private:
     mutable bool m_isReadyToFetchValues;
 };
 
-extern template SQLITE_EXPORT void BaseStatement::bind(Utils::SmallStringView name, int value);
-extern template SQLITE_EXPORT void BaseStatement::bind(Utils::SmallStringView name, long value);
-extern template SQLITE_EXPORT void BaseStatement::bind(Utils::SmallStringView name, long long value);
-extern template SQLITE_EXPORT void BaseStatement::bind(Utils::SmallStringView name, double value);
-extern template SQLITE_EXPORT void BaseStatement::bind(Utils::SmallStringView name, Utils::SmallStringView text);
-
 template <> SQLITE_EXPORT int BaseStatement::fetchValue<int>(int column) const;
 template <> SQLITE_EXPORT long BaseStatement::fetchValue<long>(int column) const;
 template <> SQLITE_EXPORT long long BaseStatement::fetchValue<long long>(int column) const;
@@ -183,21 +172,6 @@ public:
     {
         Resetter resetter{*this};
         bindValuesByIndex(1, values...);
-        BaseStatement::next();
-        resetter.reset();
-    }
-
-    template<typename... ValueType>
-    void bindNameValues(const ValueType&... values)
-    {
-        bindValuesByName(values...);
-    }
-
-    template<typename... ValueType>
-    void writeNamed(const ValueType&... values)
-    {
-        Resetter resetter{*this};
-        bindValuesByName(values...);
         BaseStatement::next();
         resetter.reset();
     }
@@ -411,19 +385,6 @@ private:
     {
         BaseStatement::bind(index, value);
         bindValuesByIndex(index + 1, values...);
-    }
-
-    template<typename ValueType>
-    void bindValuesByName(Utils::SmallStringView name, const ValueType &value)
-    {
-       BaseStatement::bind(BaseStatement::bindingIndexForName(name), value);
-    }
-
-    template<typename ValueType, typename... ValueTypes>
-    void bindValuesByName(Utils::SmallStringView name, const ValueType &value, const ValueTypes&... values)
-    {
-       BaseStatement::bind(BaseStatement::bindingIndexForName(name), value);
-       bindValuesByName(values...);
     }
 
     template <typename TupleType, std::size_t... ColumnIndices>

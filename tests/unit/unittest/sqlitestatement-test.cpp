@@ -320,36 +320,6 @@ TEST_F(SqliteStatement, BindEmptyBlob)
     ASSERT_THAT(statement.fetchBlobValue(0), IsEmpty());
 }
 
-TEST_F(SqliteStatement, BindIntegerByParameter)
-{
-    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=@number", database);
-
-    statement.bind("@number", 40);
-    statement.next();
-
-    ASSERT_THAT(statement.fetchSmallStringViewValue(0), "poo");
-}
-
-TEST_F(SqliteStatement, BindLongIntegerByParameter)
-{
-    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=@number", database);
-
-    statement.bind("@number", int64_t(40));
-    statement.next();
-
-    ASSERT_THAT(statement.fetchSmallStringViewValue(0), "poo");
-}
-
-TEST_F(SqliteStatement, BindDoubleByIndex)
-{
-    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=@number", database);
-
-    statement.bind(statement.bindingIndexForName("@number"), 23.3);
-    statement.next();
-
-    ASSERT_THAT(statement.fetchSmallStringViewValue(0), "foo");
-}
-
 TEST_F(SqliteStatement, BindIndexIsZeroIsThrowingBindingIndexIsOutOfBoundInt)
 {
     SqliteTestStatement statement("SELECT name, number FROM test WHERE number=$1", database);
@@ -405,13 +375,6 @@ TEST_F(SqliteStatement, BindIndexIsToLargeIsThrowingBindingIndexIsOutOfBoundBlob
     Utils::span<const Sqlite::byte> bytes;
 
     ASSERT_THROW(statement.bind(2, bytes), Sqlite::BindingIndexIsOutOfRange);
-}
-
-TEST_F(SqliteStatement, WrongBindingNameThrowingBindingIndexIsOutOfBound)
-{
-    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=@name", database);
-
-    ASSERT_THROW(statement.bind("@name2", 40), Sqlite::WrongBindingName);
 }
 
 TEST_F(SqliteStatement, BindValues)
@@ -503,25 +466,6 @@ TEST_F(SqliteStatement, WriteBlobs)
     statement.write(bytes);
 
     ASSERT_THAT(readStatement.template value<Blob>(), Optional(Field(&Blob::bytes, Eq(bytes))));
-}
-
-TEST_F(SqliteStatement, BindNamedValues)
-{
-    SqliteTestStatement statement("UPDATE test SET name=@name, number=@number WHERE rowid=@id", database);
-
-    statement.bindNameValues("@name", "see", "@number", 7.23, "@id", 1);
-    statement.execute();
-
-    ASSERT_THAT(statement, HasValues("see", "7.23", 1));
-}
-
-TEST_F(SqliteStatement, WriteNamedValues)
-{
-    WriteStatement statement("UPDATE test SET name=@name, number=@number WHERE rowid=@id", database);
-
-    statement.writeNamed("@name", "see", "@number", 7.23, "@id", 1);
-
-    ASSERT_THAT(statement, HasValues("see", "7.23", 1));
 }
 
 TEST_F(SqliteStatement, CannotWriteToClosedDatabase)
@@ -900,19 +844,6 @@ TEST_F(SqliteStatement, ResetIfWriteIsThrowingException)
     EXPECT_CALL(mockStatement, reset());
 
     ASSERT_ANY_THROW(mockStatement.write("bar"));
-}
-
-TEST_F(SqliteStatement, ResetIfWriteNamedIsThrowingException)
-{
-    MockSqliteStatement mockStatement;
-
-    EXPECT_CALL(mockStatement, bindingIndexForName(TypedEq<Utils::SmallStringView>("@foo")))
-            .WillOnce(Return(1));
-    EXPECT_CALL(mockStatement, bind(1, TypedEq<Utils::SmallStringView>("bar")))
-            .WillOnce(Throw(Sqlite::StatementIsBusy("")));
-    EXPECT_CALL(mockStatement, reset());
-
-    ASSERT_ANY_THROW(mockStatement.writeNamed("@foo", "bar"));
 }
 
 TEST_F(SqliteStatement, ResetIfExecuteThrowsException)
