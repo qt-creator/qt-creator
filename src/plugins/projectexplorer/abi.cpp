@@ -773,6 +773,8 @@ QString Abi::toString(const Architecture &a)
         return QLatin1String("m32c");
     case M16CArchitecture:
         return QLatin1String("m16c");
+    case R32CArchitecture:
+        return QLatin1String("r32c");
     case RiscVArchitecture:
         return QLatin1String("riscv");
     case UnknownArchitecture:
@@ -937,6 +939,8 @@ Abi::Architecture Abi::architectureFromString(const QStringRef &a)
         return M32CArchitecture;
     if (a == "m16c")
         return M16CArchitecture;
+    if (a == "r32c")
+        return R32CArchitecture;
     if (a == "riscv")
         return RiscVArchitecture;
     else if (a == "xtensa")

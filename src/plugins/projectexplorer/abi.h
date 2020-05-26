@@ -72,6 +72,7 @@ public:
         M68KArchitecture,
         M32CArchitecture,
         M16CArchitecture,
+        R32CArchitecture,
         RiscVArchitecture,
         UnknownArchitecture
     };
