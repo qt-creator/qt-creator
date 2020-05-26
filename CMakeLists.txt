@@ -60,6 +60,11 @@ endfunction()
 set_if_target(_has_svg_target Qt5::Svg)
 option(ENABLE_SVG_SUPPORT "Enable SVG support" "${_has_svg_target}")
 
+# specify standards conformance mode to MSVC 2017 and later
+if (MSVC AND MSVC_VERSION GREATER_EQUAL 1910)
+    add_compile_options(/permissive-)
+endif()
+
 add_library(OptionalSvg INTERFACE)
 if (TARGET Qt5::Svg AND ENABLE_SVG_SUPPORT)
   target_link_libraries(OptionalSvg INTERFACE Qt5::Svg)
