@@ -41,11 +41,10 @@
 namespace Sqlite {
 
 BaseStatement::BaseStatement(Utils::SmallStringView sqlStatement, Database &database)
-    : m_compiledStatement(nullptr, deleteCompiledStatement),
-      m_database(database),
-      m_bindingParameterCount(0),
-      m_columnCount(0),
-      m_isReadyToFetchValues(false)
+    : m_compiledStatement(nullptr, deleteCompiledStatement)
+    , m_database(database)
+    , m_bindingParameterCount(0)
+    , m_columnCount(0)
 {
     prepare(sqlStatement);
     setBindingParameterCount();
@@ -107,11 +106,8 @@ void BaseStatement::reset() const
 {
     int resultCode = sqlite3_reset(m_compiledStatement.get());
 
-    if (resultCode != SQLITE_OK) {
+    if (resultCode != SQLITE_OK)
         checkForResetError(resultCode);
-
-        m_isReadyToFetchValues = false;
-    }
 }
 
 bool BaseStatement::next() const
@@ -126,8 +122,6 @@ bool BaseStatement::next() const
         }
 
     } while (resultCode == SQLITE_LOCKED);
-
-    setIfIsReadyToFetchValues(resultCode);
 
     if (resultCode == SQLITE_ROW)
         return true;
@@ -299,33 +293,10 @@ void BaseStatement::checkForBindingError(int resultCode) const
     throwUnknowError("SqliteStatement::bind: unknown error has happened");
 }
 
-void BaseStatement::setIfIsReadyToFetchValues(int resultCode) const
+void BaseStatement::checkColumnCount(int columnCount) const
 {
-    if (resultCode == SQLITE_ROW)
-        m_isReadyToFetchValues = true;
-    else
-        m_isReadyToFetchValues = false;
-
-}
-
-void BaseStatement::checkIfIsReadyToFetchValues() const
-{
-    if (!m_isReadyToFetchValues)
-        throwNoValuesToFetch("SqliteStatement::value: there are no values to fetch!");
-}
-
-void BaseStatement::checkColumnsAreValid(const std::vector<int> &columns) const
-{
-    for (int column : columns) {
-        if (column < 0 || column >= m_columnCount)
-            throwInvalidColumnFetched("SqliteStatement::values: column index out of bound!");
-    }
-}
-
-void BaseStatement::checkColumnIsValid(int column) const
-{
-    if (column < 0 || column >= m_columnCount)
-        throwInvalidColumnFetched("SqliteStatement::values: column index out of bound!");
+    if (columnCount != m_columnCount)
+        throw ColumnCountDoesNotMatch("SqliteStatement::values: column count does not match!");
 }
 
 void BaseStatement::checkBindingName(int index) const
@@ -385,11 +356,6 @@ void BaseStatement::throwConstraintPreventsModification(const char *whatHasHappe
 void BaseStatement::throwNoValuesToFetch(const char *whatHasHappened) const
 {
     throw NoValuesToFetch(whatHasHappened);
-}
-
-void BaseStatement::throwInvalidColumnFetched(const char *whatHasHappened) const
-{
-    throw InvalidColumnFetched(whatHasHappened);
 }
 
 void BaseStatement::throwBindingIndexIsOutOfRange(const char *whatHasHappened) const
@@ -472,8 +438,6 @@ StringType convertToTextForColumn(sqlite3_stmt *sqlStatment, int column)
 
 int BaseStatement::fetchIntValue(int column) const
 {
-    checkIfIsReadyToFetchValues();
-    checkColumnIsValid(column);
     return sqlite3_column_int(m_compiledStatement.get(), column);
 }
 
@@ -496,8 +460,6 @@ long BaseStatement::fetchValue<long>(int column) const
 
 long long BaseStatement::fetchLongLongValue(int column) const
 {
-    checkIfIsReadyToFetchValues();
-    checkColumnIsValid(column);
     return sqlite3_column_int64(m_compiledStatement.get(), column);
 }
 
@@ -509,16 +471,11 @@ long long BaseStatement::fetchValue<long long>(int column) const
 
 double BaseStatement::fetchDoubleValue(int column) const
 {
-    checkIfIsReadyToFetchValues();
-    checkColumnIsValid(column);
     return sqlite3_column_double(m_compiledStatement.get(), column);
 }
 
 Utils::span<const byte> BaseStatement::fetchBlobValue(int column) const
 {
-    checkIfIsReadyToFetchValues();
-    checkColumnIsValid(column);
-
     return convertToBlobForColumn(m_compiledStatement.get(), column);
 }
 
@@ -531,8 +488,6 @@ double BaseStatement::fetchValue<double>(int column) const
 template<typename StringType>
 StringType BaseStatement::fetchValue(int column) const
 {
-    checkIfIsReadyToFetchValues();
-    checkColumnIsValid(column);
     return convertToTextForColumn<StringType>(m_compiledStatement.get(), column);
 }
 

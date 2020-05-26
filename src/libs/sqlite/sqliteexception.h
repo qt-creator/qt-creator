@@ -119,13 +119,12 @@ public:
     }
 };
 
-class InvalidColumnFetched : public Exception
+class ColumnCountDoesNotMatch : public Exception
 {
 public:
-    InvalidColumnFetched(const char *whatErrorHasHappen)
+    ColumnCountDoesNotMatch(const char *whatErrorHasHappen)
         : Exception(whatErrorHasHappen)
-    {
-    }
+    {}
 };
 
 class BindingIndexIsOutOfRange : public Exception

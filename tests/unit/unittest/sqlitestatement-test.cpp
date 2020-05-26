@@ -178,37 +178,6 @@ TEST_F(SqliteStatement, Value)
     ASSERT_THAT(statement.fetchValueView(2), Eq(2));
 }
 
-TEST_F(SqliteStatement, ThrowNoValuesToFetchForNotSteppedStatement)
-{
-    SqliteTestStatement statement("SELECT name, number FROM test", database);
-
-    ASSERT_THROW(statement.fetchValue<int>(0), Sqlite::NoValuesToFetch);
-}
-
-TEST_F(SqliteStatement, ThrowNoValuesToFetchForDoneStatement)
-{
-    SqliteTestStatement statement("SELECT name, number FROM test", database);
-    while (statement.next()) {}
-
-    ASSERT_THROW(statement.fetchValue<int>(0), Sqlite::NoValuesToFetch);
-}
-
-TEST_F(SqliteStatement, ThrowInvalidColumnFetchedForNegativeColumn)
-{
-    SqliteTestStatement statement("SELECT name, number FROM test", database);
-    statement.next();
-
-    ASSERT_THROW(statement.fetchValue<int>(-1), Sqlite::InvalidColumnFetched);
-}
-
-TEST_F(SqliteStatement, ThrowInvalidColumnFetchedForNotExistingColumn)
-{
-    SqliteTestStatement statement("SELECT name, number FROM test", database);
-    statement.next();
-
-    ASSERT_THROW(statement.fetchValue<int>(2), Sqlite::InvalidColumnFetched);
-}
-
 TEST_F(SqliteStatement, ToIntegerValue)
 {
     auto value = ReadStatement::toValue<int>("SELECT number FROM test WHERE name='foo'", database);
@@ -567,7 +536,7 @@ TEST_F(SqliteStatement, GetValuesForMultipleOutputValuesAndContainerQueryValues)
 TEST_F(SqliteStatement, GetValuesForSingleOutputValuesAndContainerQueryValues)
 {
     std::vector<double> queryValues = {40, 23.3};
-    ReadStatement statement("SELECT name, number FROM test WHERE number=?", database);
+    ReadStatement statement("SELECT name FROM test WHERE number=?", database);
 
     std::vector<Utils::SmallString> values = statement.values<Utils::SmallString>(3, queryValues);
 
@@ -591,7 +560,7 @@ TEST_F(SqliteStatement, GetValuesForSingleOutputValuesAndContainerQueryTupleValu
 {
     using Tuple = std::tuple<Utils::SmallString, Utils::SmallString>;
     std::vector<Tuple> queryValues = {{"poo", "40"}, {"bar", "blah"}};
-    ReadStatement statement("SELECT name, number FROM test WHERE name= ? AND number=?", database);
+    ReadStatement statement("SELECT name FROM test WHERE name= ? AND number=?", database);
 
     std::vector<Utils::SmallString> values = statement.values<Utils::SmallString>(3, queryValues);
 
@@ -855,4 +824,47 @@ TEST_F(SqliteStatement, ResetIfExecuteThrowsException)
 
     ASSERT_ANY_THROW(mockStatement.execute());
 }
+
+TEST_F(SqliteStatement, ThrowInvalidColumnFetchedForToManyArgumentsForValue)
+{
+    SqliteTestStatement statement("SELECT name, number FROM test", database);
+
+    ASSERT_THROW(statement.value<int>(), Sqlite::ColumnCountDoesNotMatch);
+}
+
+TEST_F(SqliteStatement, ThrowInvalidColumnFetchedForToManyArgumentsForValues)
+{
+    SqliteTestStatement statement("SELECT name, number FROM test", database);
+
+    ASSERT_THROW(statement.values<int>(1), Sqlite::ColumnCountDoesNotMatch);
+}
+
+TEST_F(SqliteStatement, ThrowInvalidColumnFetchedForToManyArgumentsForValuesWithArguments)
+{
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE name=?", database);
+
+    ASSERT_THROW(statement.values<int>(1, 2), Sqlite::ColumnCountDoesNotMatch);
+}
+
+TEST_F(SqliteStatement, ThrowInvalidColumnFetchedForToManyArgumentsForValuesWithVectorArguments)
+{
+    SqliteTestStatement statement("SELECT name, number FROM test", database);
+
+    ASSERT_THROW(statement.values<int>(1, std::vector<int>{}), Sqlite::ColumnCountDoesNotMatch);
+}
+
+TEST_F(SqliteStatement, ThrowInvalidColumnFetchedForToManyArgumentsForValuesWithTupleArguments)
+{
+    SqliteTestStatement statement("SELECT name, number FROM test", database);
+
+    ASSERT_THROW(statement.values<int>(1, std::vector<std::tuple<int>>{}),
+                 Sqlite::ColumnCountDoesNotMatch);
+}
+
+TEST_F(SqliteStatement, ThrowInvalidColumnFetchedForToManyArgumentsForToValues)
+{
+    ASSERT_THROW(SqliteTestStatement::toValue<int>("SELECT name, number FROM test", database),
+                 Sqlite::ColumnCountDoesNotMatch);
+}
+
 } // namespace

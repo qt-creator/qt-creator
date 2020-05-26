@@ -101,9 +101,7 @@ public:
     [[noreturn]] void checkForPrepareError(int resultCode) const;
     [[noreturn]] void checkForBindingError(int resultCode) const;
     void setIfIsReadyToFetchValues(int resultCode) const;
-    void checkIfIsReadyToFetchValues() const;
-    void checkColumnsAreValid(const std::vector<int> &columns) const;
-    void checkColumnIsValid(int column) const;
+    void checkColumnCount(int columnCount) const;
     void checkBindingName(int index) const;
     void setBindingParameterCount();
     void setColumnCount();
@@ -128,11 +126,10 @@ protected:
     ~BaseStatement() = default;
 
 private:
-    std::unique_ptr<sqlite3_stmt, void (*)(sqlite3_stmt*)> m_compiledStatement;
+    std::unique_ptr<sqlite3_stmt, void (*)(sqlite3_stmt *)> m_compiledStatement;
     Database &m_database;
     int m_bindingParameterCount;
     int m_columnCount;
-    mutable bool m_isReadyToFetchValues;
 };
 
 template <> SQLITE_EXPORT int BaseStatement::fetchValue<int>(int column) const;
@@ -180,6 +177,8 @@ public:
               int ResultTypeCount = 1>
     std::vector<ResultType> values(std::size_t reserveSize)
     {
+        BaseStatement::checkColumnCount(ResultTypeCount);
+
         Resetter resetter{*this};
         std::vector<ResultType> resultValues;
         resultValues.reserve(std::max(reserveSize, m_maximumResultCount));
@@ -199,6 +198,8 @@ public:
               typename... QueryTypes>
     std::vector<ResultType> values(std::size_t reserveSize, const QueryTypes&... queryValues)
     {
+        BaseStatement::checkColumnCount(ResultTypeCount);
+
         Resetter resetter{*this};
         std::vector<ResultType> resultValues;
         resultValues.reserve(std::max(reserveSize, m_maximumResultCount));
@@ -221,6 +222,8 @@ public:
     std::vector<ResultType> values(std::size_t reserveSize,
                                    const std::vector<QueryElementType> &queryValues)
     {
+        BaseStatement::checkColumnCount(ResultTypeCount);
+
         std::vector<ResultType> resultValues;
         resultValues.reserve(std::max(reserveSize, m_maximumResultCount));
 
@@ -245,6 +248,8 @@ public:
     std::vector<ResultType> values(std::size_t reserveSize,
                                    const std::vector<std::tuple<QueryElementTypes...>> &queryTuples)
     {
+        BaseStatement::checkColumnCount(ResultTypeCount);
+
         using Container = std::vector<ResultType>;
         Container resultValues;
         resultValues.reserve(std::max(reserveSize, m_maximumResultCount));
@@ -269,6 +274,8 @@ public:
               typename... QueryTypes>
     Utils::optional<ResultType> value(const QueryTypes&... queryValues)
     {
+        BaseStatement::checkColumnCount(ResultTypeCount);
+
         Resetter resetter{*this};
         Utils::optional<ResultType> resultValue;
 
@@ -286,6 +293,8 @@ public:
     static Type toValue(Utils::SmallStringView sqlStatement, Database &database)
     {
         StatementImplementation statement(sqlStatement, database);
+
+        statement.checkColumnCount(1);
 
         statement.next();
 
