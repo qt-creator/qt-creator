@@ -111,9 +111,6 @@ ScxmlEditorData::ScxmlEditorData()
 
 ScxmlEditorData::~ScxmlEditorData()
 {
-    if (m_context)
-        ICore::removeContextObject(m_context);
-
     if (m_modeWidget) {
         DesignMode::unregisterDesignWidget(m_modeWidget);
         delete m_modeWidget;
@@ -146,8 +143,8 @@ void ScxmlEditorData::fullInit()
 
     Context scxmlContexts = m_contexts;
     scxmlContexts.add(Core::Constants::C_EDITORMANAGER);
-    m_context = new ScxmlContext(scxmlContexts, m_modeWidget, this);
-    ICore::addContextObject(m_context);
+    auto context = new ScxmlContext(scxmlContexts, m_modeWidget, this);
+    ICore::addContextObject(context);
 
     DesignMode::registerDesignWidget(m_modeWidget, QStringList(QLatin1String(ProjectExplorer::Constants::SCXML_MIMETYPE)), m_contexts);
 }

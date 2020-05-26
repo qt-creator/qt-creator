@@ -397,7 +397,6 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
 
 TaskWindow::~TaskWindow()
 {
-    Core::ICore::removeContextObject(d->m_taskWindowContext);
     delete d->m_filterWarningsButton;
     delete d->m_listview;
     delete d->m_filter;

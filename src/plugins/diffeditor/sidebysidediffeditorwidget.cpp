@@ -802,20 +802,14 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
     l->addWidget(m_splitter);
     setFocusProxy(m_leftEditor);
 
-    m_leftContext = new IContext(this);
-    m_leftContext->setWidget(m_leftEditor);
-    m_leftContext->setContext(Core::Context(Core::Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(1)));
-    Core::ICore::addContextObject(m_leftContext);
-    m_rightContext = new IContext(this);
-    m_rightContext->setWidget(m_rightEditor);
-    m_rightContext->setContext(Core::Context(Core::Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(2)));
-    Core::ICore::addContextObject(m_rightContext);
-}
-
-SideBySideDiffEditorWidget::~SideBySideDiffEditorWidget()
-{
-    Core::ICore::removeContextObject(m_leftContext);
-    Core::ICore::removeContextObject(m_rightContext);
+    auto leftContext = new IContext(this);
+    leftContext->setWidget(m_leftEditor);
+    leftContext->setContext(Core::Context(Core::Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(1)));
+    Core::ICore::addContextObject(leftContext);
+    auto rightContext = new IContext(this);
+    rightContext->setWidget(m_rightEditor);
+    rightContext->setContext(Core::Context(Core::Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(2)));
+    Core::ICore::addContextObject(rightContext);
 }
 
 TextEditorWidget *SideBySideDiffEditorWidget::leftEditorWidget() const

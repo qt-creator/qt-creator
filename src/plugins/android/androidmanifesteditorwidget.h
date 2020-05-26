@@ -79,7 +79,6 @@ class AndroidManifestTextEditorWidget : public TextEditor::TextEditorWidget
 {
 public:
     explicit AndroidManifestTextEditorWidget(AndroidManifestEditorWidget *parent);
-    ~AndroidManifestTextEditorWidget() override;
 
 private:
     Core::IContext *m_context;

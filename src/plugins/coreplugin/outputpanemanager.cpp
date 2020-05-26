@@ -109,9 +109,6 @@ IOutputPane::IOutputPane(QObject *parent)
 
 IOutputPane::~IOutputPane()
 {
-    if (m_context)
-        ICore::removeContextObject(m_context);
-
     const int i = Utils::indexOf(g_outputPanes, Utils::equal(&OutputPaneData::pane, this));
     QTC_ASSERT(i >= 0, return);
     delete g_outputPanes.at(i).button;

@@ -211,11 +211,6 @@ BookmarkView::BookmarkView(BookmarkManager *manager)  :
     connect(this, &QAbstractItemView::activated, this, &BookmarkView::gotoBookmark);
 }
 
-BookmarkView::~BookmarkView()
-{
-    ICore::removeContextObject(m_bookmarkContext);
-}
-
 QList<QToolButton *> BookmarkView::createToolBarWidgets()
 {
     Command *prevCmd = ActionManager::command(Constants::BOOKMARKS_PREV_ACTION);

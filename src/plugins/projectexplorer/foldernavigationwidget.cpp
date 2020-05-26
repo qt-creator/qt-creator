@@ -299,10 +299,10 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_crumbContainer(new QWidget(this)),
     m_crumbLabel(new DelayedFileCrumbLabel(this))
 {
-    m_context = new Core::IContext(this);
-    m_context->setContext(Core::Context(C_FOLDERNAVIGATIONWIDGET));
-    m_context->setWidget(this);
-    Core::ICore::addContextObject(m_context);
+    auto context = new Core::IContext(this);
+    context->setContext(Core::Context(C_FOLDERNAVIGATIONWIDGET));
+    context->setWidget(this);
+    Core::ICore::addContextObject(context);
 
     setBackgroundRole(QPalette::Base);
     setAutoFillBackground(true);
@@ -433,11 +433,6 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
 
     setAutoSynchronization(true);
     setRootAutoSynchronization(true);
-}
-
-FolderNavigationWidget::~FolderNavigationWidget()
-{
-    Core::ICore::removeContextObject(m_context);
 }
 
 void FolderNavigationWidget::toggleAutoSynchronization()

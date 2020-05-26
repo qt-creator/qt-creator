@@ -211,7 +211,6 @@ public:
     QMenu *m_previewInStyleMenu = nullptr;
     QAction *m_actionAboutPlugins = nullptr;
 
-    DesignerContext *m_context = nullptr;
     Context m_contexts;
 
     QList<Id> m_toolActionIds;
@@ -275,8 +274,6 @@ FormEditorData::FormEditorData() :
 
 FormEditorData::~FormEditorData()
 {
-    if (m_context)
-        ICore::removeContextObject(m_context);
     if (m_initStage == FormEditorW::FullyInitialized) {
         QSettings *s = ICore::settings();
         s->beginGroup(settingsGroupC);
@@ -423,8 +420,7 @@ void FormEditorData::fullInit()
 
     Context designerContexts = m_contexts;
     designerContexts.add(Core::Constants::C_EDITORMANAGER);
-    m_context = new DesignerContext(designerContexts, m_modeWidget, m_instance);
-    ICore::addContextObject(m_context);
+    ICore::addContextObject(new DesignerContext(designerContexts, m_modeWidget, m_instance));
 
     DesignMode::registerDesignWidget(m_modeWidget, QStringList(FORM_MIMETYPE), m_contexts);
 

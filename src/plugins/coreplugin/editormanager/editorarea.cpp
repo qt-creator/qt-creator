@@ -61,7 +61,6 @@ EditorArea::~EditorArea()
     disconnect(qApp, &QApplication::focusChanged,
                this, &EditorArea::focusChanged);
 
-    ICore::removeContextObject(m_context);
     delete m_context;
 }
 

@@ -118,7 +118,6 @@ public:
     SettingsPage settingsPage;
     DesignModeWidget mainWidget;
     DesignerSettings settings;
-    DesignModeContext *context = nullptr;
     QtQuickDesignerFactory m_qtQuickDesignerFactory;
     bool blockEditorChange = false;
 };
@@ -194,11 +193,8 @@ QmlDesignerPlugin::QmlDesignerPlugin()
 
 QmlDesignerPlugin::~QmlDesignerPlugin()
 {
-    if (d) {
+    if (d)
         Core::DesignMode::unregisterDesignWidget(&d->mainWidget);
-        Core::ICore::removeContextObject(d->context);
-        d->context = nullptr;
-    }
     delete d;
     d = nullptr;
     m_instance = nullptr;
@@ -290,18 +286,18 @@ static QString projectPath(const Utils::FilePath &fileName)
 
 void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
 {
-    d->context = new Internal::DesignModeContext(modeWidget);
-    Core::ICore::addContextObject(d->context);
+    auto context = new Internal::DesignModeContext(modeWidget);
+    Core::ICore::addContextObject(context);
     Core::Context qmlDesignerMainContext(Constants::C_QMLDESIGNER);
     Core::Context qmlDesignerFormEditorContext(Constants::C_QMLFORMEDITOR);
     Core::Context qmlDesignerEditor3dContext(Constants::C_QMLEDITOR3D);
     Core::Context qmlDesignerNavigatorContext(Constants::C_QMLNAVIGATOR);
 
-    d->context->context().add(qmlDesignerMainContext);
-    d->context->context().add(qmlDesignerFormEditorContext);
-    d->context->context().add(qmlDesignerEditor3dContext);
-    d->context->context().add(qmlDesignerNavigatorContext);
-    d->context->context().add(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID);
+    context->context().add(qmlDesignerMainContext);
+    context->context().add(qmlDesignerFormEditorContext);
+    context->context().add(qmlDesignerEditor3dContext);
+    context->context().add(qmlDesignerNavigatorContext);
+    context->context().add(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID);
 
     d->shortCutManager.registerActions(qmlDesignerMainContext, qmlDesignerFormEditorContext,
                                        qmlDesignerEditor3dContext, qmlDesignerNavigatorContext);
@@ -309,7 +305,7 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
     const QStringList mimeTypes = { QmlJSTools::Constants::QML_MIMETYPE,
                                     QmlJSTools::Constants::QMLUI_MIMETYPE };
 
-    Core::DesignMode::registerDesignWidget(modeWidget, mimeTypes, d->context->context());
+    Core::DesignMode::registerDesignWidget(modeWidget, mimeTypes, context->context());
 
     connect(Core::DesignMode::instance(), &Core::DesignMode::actionsUpdated,
         &d->shortCutManager, &ShortCutManager::updateActions);

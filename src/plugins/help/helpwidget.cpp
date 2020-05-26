@@ -548,7 +548,6 @@ HelpWidget::~HelpWidget()
         if (m_openPagesAction)
             Core::ActionManager::unregisterAction(m_openPagesAction, Constants::HELP_OPENPAGES);
     }
-    Core::ICore::removeContextObject(m_context);
     Core::ActionManager::unregisterAction(m_copy, Core::Constants::COPY);
     Core::ActionManager::unregisterAction(m_printAction, Core::Constants::PRINT);
     if (m_toggleSideBarAction)

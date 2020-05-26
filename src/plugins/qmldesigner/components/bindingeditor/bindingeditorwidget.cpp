@@ -68,9 +68,6 @@ BindingEditorWidget::BindingEditorWidget()
 BindingEditorWidget::~BindingEditorWidget()
 {
     unregisterAutoCompletion();
-
-    Core::ICore::removeContextObject(m_context);
-    delete m_context;
 }
 
 void BindingEditorWidget::unregisterAutoCompletion()

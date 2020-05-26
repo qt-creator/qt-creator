@@ -66,13 +66,6 @@ public:
     {
     }
 
-    ~OutputWindowPrivate()
-    {
-        ICore::removeContextObject(outputWindowContext);
-        delete outputWindowContext;
-    }
-
-    IContext *outputWindowContext = nullptr;
     QString settingsKey;
     OutputFormatter formatter;
     QList<QPair<QString, OutputFormat>> queuedOutput;
@@ -116,10 +109,10 @@ OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget 
 
     d->settingsKey = settingsKey;
 
-    d->outputWindowContext = new IContext;
-    d->outputWindowContext->setContext(context);
-    d->outputWindowContext->setWidget(this);
-    ICore::addContextObject(d->outputWindowContext);
+    auto outputWindowContext = new IContext(this);
+    outputWindowContext->setContext(context);
+    outputWindowContext->setWidget(this);
+    ICore::addContextObject(outputWindowContext);
 
     auto undoAction = new QAction(this);
     auto redoAction = new QAction(this);

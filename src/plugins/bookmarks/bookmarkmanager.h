@@ -128,7 +128,6 @@ class BookmarkView final : public Utils::ListView
 
 public:
     explicit BookmarkView(BookmarkManager *manager);
-    ~BookmarkView() final;
 
     QList<QToolButton *> createToolBarWidgets();
 

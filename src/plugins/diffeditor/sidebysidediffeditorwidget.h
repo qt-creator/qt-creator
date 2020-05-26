@@ -56,7 +56,6 @@ class SideBySideDiffEditorWidget : public QWidget
     Q_OBJECT
 public:
     explicit SideBySideDiffEditorWidget(QWidget *parent = nullptr);
-    ~SideBySideDiffEditorWidget() override;
 
     TextEditor::TextEditorWidget *leftEditorWidget() const;
     TextEditor::TextEditorWidget *rightEditorWidget() const;
@@ -109,8 +108,6 @@ private:
     bool m_horizontalSync = false;
 
     QTextCharFormat m_spanLineFormat;
-    Core::IContext *m_leftContext = nullptr;
-    Core::IContext *m_rightContext = nullptr;
 };
 
 } // namespace Internal

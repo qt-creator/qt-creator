@@ -77,16 +77,12 @@ class DescriptionEditorWidget : public TextEditorWidget
     Q_OBJECT
 public:
     DescriptionEditorWidget(QWidget *parent = nullptr);
-    ~DescriptionEditorWidget() override;
 
     QSize sizeHint() const override;
 
 protected:
     void setDisplaySettings(const DisplaySettings &ds) override;
     void setMarginSettings(const MarginSettings &ms) override;
-
-private:
-    Core::IContext *m_context;
 };
 
 DescriptionEditorWidget::DescriptionEditorWidget(QWidget *parent)
@@ -107,17 +103,12 @@ DescriptionEditorWidget::DescriptionEditorWidget(QWidget *parent)
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
-    m_context = new Core::IContext(this);
-    m_context->setWidget(this);
-    m_context->setContext(Core::Context(Constants::C_DIFF_EDITOR_DESCRIPTION));
-    Core::ICore::addContextObject(m_context);
+    auto context = new Core::IContext(this);
+    context->setWidget(this);
+    context->setContext(Core::Context(Constants::C_DIFF_EDITOR_DESCRIPTION));
+    Core::ICore::addContextObject(context);
 
     textDocument()->setSyntaxHighlighter(new SyntaxHighlighter);
-}
-
-DescriptionEditorWidget::~DescriptionEditorWidget()
-{
-    Core::ICore::removeContextObject(m_context);
 }
 
 QSize DescriptionEditorWidget::sizeHint() const

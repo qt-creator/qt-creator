@@ -91,7 +91,6 @@ WindowSupport::~WindowSupport()
             ActionManager::unregisterAction(m_closeAction, Constants::CLOSE_WINDOW);
         }
         ActionManager::unregisterAction(m_toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN);
-        ICore::removeContextObject(m_contextObject);
         m_windowList->removeWindow(m_window);
     }
 }

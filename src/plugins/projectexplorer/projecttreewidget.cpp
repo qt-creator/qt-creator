@@ -152,11 +152,11 @@ public:
         setDragDropMode(QAbstractItemView::DragDrop);
         viewport()->setAcceptDrops(true);
         setDropIndicatorShown(true);
-        m_context = new IContext(this);
-        m_context->setContext(Context(ProjectExplorer::Constants::C_PROJECT_TREE));
-        m_context->setWidget(this);
+        auto context = new IContext(this);
+        context->setContext(Context(ProjectExplorer::Constants::C_PROJECT_TREE));
+        context->setWidget(this);
 
-        ICore::addContextObject(m_context);
+        ICore::addContextObject(context);
 
         connect(this, &ProjectTreeView::expanded,
                 this, &ProjectTreeView::invalidateSize);
@@ -204,12 +204,6 @@ public:
         NavigationTreeView::setModel(newModel);
     }
 
-    ~ProjectTreeView() override
-    {
-        ICore::removeContextObject(m_context);
-        delete m_context;
-    }
-
     int sizeHintForColumn(int column) const override
     {
         if (m_cachedSize < 0)
@@ -220,7 +214,6 @@ public:
 
 private:
     mutable int m_cachedSize = -1;
-    IContext *m_context;
 };
 
 /*!
