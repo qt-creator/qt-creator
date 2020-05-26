@@ -85,6 +85,15 @@ TEST(SqliteValue, ConstructStringFromQString)
     ASSERT_THAT(value.toStringView(), Eq("foo"));
 }
 
+TEST(SqliteValue, ConstructStringFromBlob)
+{
+    //    Utils::span<const Sqlite::byte> bytes{reinterpret_cast<const Sqlite::byte *>("abcd"), 4};
+
+    //    Sqlite::Value value{bytes};
+
+    //ASSERT_THAT(value.toBlob(), Eq(bytes));
+}
+
 TEST(SqliteValue, ConstructNullFromNullQVariant)
 {
     QVariant variant{};

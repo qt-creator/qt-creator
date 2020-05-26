@@ -33,6 +33,7 @@
 #include <utils/smallstringvector.h>
 
 #include <utils/optional.h>
+#include <utils/span.h>
 
 #include <cstdint>
 #include <memory>
@@ -69,6 +70,7 @@ public:
     double fetchDoubleValue(int column) const;
     Utils::SmallStringView fetchSmallStringViewValue(int column) const;
     ValueView fetchValueView(int column) const;
+    Utils::span<const byte> fetchBlobValue(int column) const;
     template<typename Type>
     Type fetchValue(int column) const;
     int columnCount() const;
@@ -80,6 +82,7 @@ public:
     void bind(int index, void *pointer);
     void bind(int index, Utils::SmallStringView fetchValue);
     void bind(int index, const Value &fetchValue);
+    void bind(int index, Utils::span<const byte> bytes);
 
     void bind(int index, uint value) { bind(index, static_cast<long long>(value)); }
 
@@ -362,6 +365,7 @@ private:
         operator long long() { return statement.fetchLongLongValue(column); }
         operator double() { return statement.fetchDoubleValue(column); }
         operator Utils::SmallStringView() { return statement.fetchSmallStringViewValue(column); }
+        operator Utils::span<const Sqlite::byte>() { return statement.fetchBlobValue(column); }
         operator ValueView() { return statement.fetchValueView(column); }
 
         StatementImplementation &statement;

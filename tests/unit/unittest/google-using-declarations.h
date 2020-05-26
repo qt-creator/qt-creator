@@ -58,6 +58,7 @@ using testing::Ne;
 using testing::NiceMock;
 using testing::Not;
 using testing::NotNull;
+using testing::Optional;
 using testing::Pair;
 using testing::PrintToString;
 using testing::Property;

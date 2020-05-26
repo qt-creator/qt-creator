@@ -197,6 +197,17 @@ void BaseStatement::bind(int index, Utils::SmallStringView text)
         checkForBindingError(resultCode);
 }
 
+void BaseStatement::bind(int index, Utils::span<const byte> bytes)
+{
+    int resultCode = sqlite3_bind_blob64(m_compiledStatement.get(),
+                                         index,
+                                         bytes.data(),
+                                         static_cast<long long>(bytes.size()),
+                                         SQLITE_STATIC);
+    if (resultCode != SQLITE_OK)
+        checkForBindingError(resultCode);
+}
+
 void BaseStatement::bind(int index, const Value &value)
 {
     switch (value.type()) {
@@ -433,8 +444,9 @@ Database &BaseStatement::database() const
     return m_database;
 }
 
-template <typename StringType>
-static StringType textForColumn(sqlite3_stmt *sqlStatment, int column)
+namespace {
+template<typename StringType>
+StringType textForColumn(sqlite3_stmt *sqlStatment, int column)
 {
     const char *text =  reinterpret_cast<const char*>(sqlite3_column_text(sqlStatment, column));
     std::size_t size = std::size_t(sqlite3_column_bytes(sqlStatment, column));
@@ -442,20 +454,40 @@ static StringType textForColumn(sqlite3_stmt *sqlStatment, int column)
     return StringType(text, size);
 }
 
-template <typename StringType>
-static StringType convertToTextForColumn(sqlite3_stmt *sqlStatment, int column)
+Utils::span<const byte> blobForColumn(sqlite3_stmt *sqlStatment, int column)
+{
+    const byte *blob = reinterpret_cast<const byte *>(sqlite3_column_blob(sqlStatment, column));
+    std::size_t size = std::size_t(sqlite3_column_bytes(sqlStatment, column));
+
+    return {blob, size};
+}
+
+Utils::span<const byte> convertToBlobForColumn(sqlite3_stmt *sqlStatment, int column)
+{
+    int dataType = sqlite3_column_type(sqlStatment, column);
+    if (dataType == SQLITE_BLOB)
+        return blobForColumn(sqlStatment, column);
+
+    return {};
+}
+
+template<typename StringType>
+StringType convertToTextForColumn(sqlite3_stmt *sqlStatment, int column)
 {
     int dataType = sqlite3_column_type(sqlStatment, column);
     switch (dataType) {
-        case SQLITE_INTEGER:
-        case SQLITE_FLOAT:
-        case SQLITE3_TEXT: return textForColumn<StringType>(sqlStatment, column);
-        case SQLITE_BLOB:
-        case SQLITE_NULL: break;
+    case SQLITE_INTEGER:
+    case SQLITE_FLOAT:
+    case SQLITE3_TEXT:
+        return textForColumn<StringType>(sqlStatment, column);
+    case SQLITE_BLOB:
+    case SQLITE_NULL:
+        break;
     }
 
     return StringType{"", 0};
 }
+} // namespace
 
 int BaseStatement::fetchIntValue(int column) const
 {
@@ -499,6 +531,14 @@ double BaseStatement::fetchDoubleValue(int column) const
     checkIfIsReadyToFetchValues();
     checkColumnIsValid(column);
     return sqlite3_column_double(m_compiledStatement.get(), column);
+}
+
+Utils::span<const byte> BaseStatement::fetchBlobValue(int column) const
+{
+    checkIfIsReadyToFetchValues();
+    checkColumnIsValid(column);
+
+    return convertToBlobForColumn(m_compiledStatement.get(), column);
 }
 
 template<>
