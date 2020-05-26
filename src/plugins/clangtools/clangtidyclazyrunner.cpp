@@ -61,7 +61,7 @@ static QStringList tidyChecksArguments(const ClangDiagnosticConfig diagnosticCon
         return {"-config={}"};
     if (tidyMode == ClangDiagnosticConfig::TidyMode::UseCustomChecks)
         return {"-config={}", "-checks=" + diagnosticConfig.clangTidyChecks()};
-    return {};
+    return {"--warnings-as-errors=-*"};
 }
 
 static QStringList clazyChecksArguments(const ClangDiagnosticConfig diagnosticConfig)
