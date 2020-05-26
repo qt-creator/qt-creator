@@ -917,9 +917,10 @@ void MainWindow::openFileWith()
     }
 }
 
-IContext *MainWindow::contextObject(QWidget *widget)
+IContext *MainWindow::contextObject(QWidget *widget) const
 {
-    return m_contextWidgets.value(widget);
+    const auto it = m_contextWidgets.find(widget);
+    return it == m_contextWidgets.end() ? nullptr : it->second;
 }
 
 void MainWindow::addContextObject(IContext *context)
@@ -927,10 +928,11 @@ void MainWindow::addContextObject(IContext *context)
     if (!context)
         return;
     QWidget *widget = context->widget();
-    if (m_contextWidgets.contains(widget))
+    if (m_contextWidgets.find(widget) != m_contextWidgets.end())
         return;
 
-    m_contextWidgets.insert(widget, context);
+    m_contextWidgets.insert(std::make_pair(widget, context));
+    connect(context, &QObject::destroyed, this, [this, context] { removeContextObject(context); });
 }
 
 void MainWindow::removeContextObject(IContext *context)
@@ -938,11 +940,17 @@ void MainWindow::removeContextObject(IContext *context)
     if (!context)
         return;
 
-    QWidget *widget = context->widget();
-    if (!m_contextWidgets.contains(widget))
+    disconnect(context, &QObject::destroyed, this, nullptr);
+
+    const auto it = std::find_if(m_contextWidgets.cbegin(),
+                                 m_contextWidgets.cend(),
+                                 [context](const std::pair<QWidget *, IContext *> &v) {
+                                     return v.second == context;
+                                 });
+    if (it == m_contextWidgets.cend())
         return;
 
-    m_contextWidgets.remove(widget);
+    m_contextWidgets.erase(it);
     if (m_activeContext.removeAll(context) > 0)
         updateContextObject(m_activeContext);
 }
@@ -959,7 +967,7 @@ void MainWindow::updateFocusWidget(QWidget *old, QWidget *now)
     if (QWidget *p = QApplication::focusWidget()) {
         IContext *context = nullptr;
         while (p) {
-            context = m_contextWidgets.value(p);
+            context = contextObject(p);
             if (context)
                 newContext.append(context);
             p = p->parentWidget();

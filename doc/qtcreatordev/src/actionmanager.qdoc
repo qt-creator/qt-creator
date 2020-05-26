@@ -124,8 +124,9 @@
     Core::ICore::addContextObject(contextObj);
     \endcode
 
-    You also have to unregister the IContext object with
-    Core::ICore::removeContextObject() when you do not need it anymore.
+    IContext instances are automatically unregistered when they are deleted.
+    Use Core::ICore::removeContextObject() if you need to unregister an IContext
+    instance manually.
 
     Some constructs in \QC automatically have an associated context, like
     Core::IEditor and Core::IMode.

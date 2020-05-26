@@ -179,8 +179,10 @@ QDebug operator<<(QDebug debug, const Core::Context &context)
     Core::ICore::addContextObject() to have an effect. For many subclasses of
     IContext, like Core::IEditor and Core::IMode, this is done automatically.
     But instances of IContext can be created manually to associate a context
-    and context help for an arbitrary widget, too. Mind that IContext instances
-    must be unregistered with Core::ICore::removeContextObject() as well.
+    and context help for an arbitrary widget, too. IContext instances are
+    automatically unregistered when they are deleted. Use
+    Core::ICore::removeContextObject() if you need to unregister an IContext
+    instance manually.
 
     Whenever the widget is part of the application wide focus widget's parent
     chain, the associated context list is made active. This makes actions active

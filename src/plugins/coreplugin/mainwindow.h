@@ -31,10 +31,10 @@
 #include <utils/appmainwindow.h>
 #include <utils/dropsupport.h>
 
-#include <QMap>
 #include <QColor>
 
 #include <functional>
+#include <unordered_map>
 
 QT_BEGIN_NAMESPACE
 class QPrinter;
@@ -82,7 +82,7 @@ public:
     void extensionsInitialized();
     void aboutToShutdown();
 
-    IContext *contextObject(QWidget *widget);
+    IContext *contextObject(QWidget *widget) const;
     void addContextObject(IContext *context);
     void removeContextObject(IContext *context);
 
@@ -164,7 +164,7 @@ private:
 
     QList<IContext *> m_activeContext;
 
-    QMap<QWidget *, IContext *> m_contextWidgets;
+    std::unordered_map<QWidget *, IContext *> m_contextWidgets;
 
     GeneralSettings *m_generalSettings = nullptr;
     SystemSettings *m_systemSettings = nullptr;

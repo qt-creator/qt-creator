@@ -569,6 +569,7 @@ void ICore::addContextObject(IContext *context)
 
 /*!
     Unregisters a \a context object from the list of know contexts.
+    IContext instances are automatically removed when they are deleted.
 
     \sa addContextObject(), updateAdditionalContexts(), currentContextObject()
 */
