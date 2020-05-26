@@ -442,4 +442,30 @@ TEST_F(LastChangedRowIdWithNoTable, TakeLastRowIdResetsRowIdToMinusOne)
 
     ASSERT_THAT(id, -1);
 }
+
+TEST_F(LastChangedRowIdWithNoTable, LastRowIdIsNotValidForNegativeValues)
+{
+    auto isValid = lastRowId.lastRowIdIsValid();
+
+    ASSERT_FALSE(isValid);
+}
+
+TEST_F(LastChangedRowIdWithNoTable, LastRowIdIsValidForNull)
+{
+    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 0);
+
+    auto isValid = lastRowId.lastRowIdIsValid();
+
+    ASSERT_TRUE(isValid);
+}
+
+TEST_F(LastChangedRowIdWithNoTable, LastRowIdIsValidForPositiveValues)
+{
+    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 777);
+
+    auto isValid = lastRowId.lastRowIdIsValid();
+
+    ASSERT_TRUE(isValid);
+}
+
 } // namespace

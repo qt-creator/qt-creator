@@ -114,6 +114,8 @@ public:
         return rowId;
     }
 
+    bool lastRowIdIsValid() { return lastRowId >= 0; }
+
 public:
     DatabaseInterface &database;
     DatabaseInterface::UpdateCallback callback;
