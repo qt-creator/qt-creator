@@ -20,7 +20,7 @@ CppApplication {
 
     Depends { name: "Qt"; submodules: ["network", "widgets", "testlib"] }
 
-    Depends { name: "pkgconfig" }
+    Depends { name: "pkgconfig"; required: false }
     Depends { name: "benchmark"; required: false }
     Depends { name: "gtest"; required: false }
     Depends { name: "gmock"; required: false }
