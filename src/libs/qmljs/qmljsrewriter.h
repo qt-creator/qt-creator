@@ -75,7 +75,7 @@ public:
     Range addObject(AST::UiArrayBinding *ast, const QString &content);
     Range addObject(AST::UiArrayBinding *ast, const QString &content, AST::UiArrayMemberList *insertAfter);
 
-    void removeObjectMember(AST::UiObjectMember *member, AST::UiObjectMember *parent);
+    void removeObjectMember(AST::Node *member, AST::UiObjectMember *parent);
 
     static AST::UiObjectMemberList *searchMemberToInsertAfter(AST::UiObjectMemberList *members, const QStringList &propertyOrder);
     static AST::UiArrayMemberList *searchMemberToInsertAfter(AST::UiArrayMemberList *members, const QStringList &propertyOrder);

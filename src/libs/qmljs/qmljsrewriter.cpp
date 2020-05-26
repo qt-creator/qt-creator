@@ -649,17 +649,20 @@ Rewriter::Range Rewriter::addObject(UiArrayBinding *ast, const QString &content,
     return Range(insertionPoint, insertionPoint);
 }
 
-void Rewriter::removeObjectMember(UiObjectMember *member, UiObjectMember *parent)
+void Rewriter::removeObjectMember(Node *member, UiObjectMember *parent)
 {
     int start = member->firstSourceLocation().offset;
     int end = member->lastSourceLocation().end();
 
-    if (UiArrayBinding *parentArray = cast<UiArrayBinding *>(parent)) {
-        extendToLeadingOrTrailingComma(parentArray, member, start, end);
-    } else {
-        if (UiObjectDefinition *parentObjectDefinition = cast<UiObjectDefinition *>(parent))
-            includeEmptyGroupedProperty(parentObjectDefinition, member, start, end);
-        includeSurroundingWhitespace(m_originalText, start, end);
+    auto uiObjMember = member->uiObjectMemberCast();
+    if (uiObjMember) {
+        if (UiArrayBinding *parentArray = cast<UiArrayBinding *>(parent)) {
+            extendToLeadingOrTrailingComma(parentArray, uiObjMember, start, end);
+        } else {
+            if (UiObjectDefinition *parentObjectDefinition = cast<UiObjectDefinition *>(parent))
+                includeEmptyGroupedProperty(parentObjectDefinition, uiObjMember, start, end);
+            includeSurroundingWhitespace(m_originalText, start, end);
+        }
     }
 
     includeLeadingEmptyLine(m_originalText, start);

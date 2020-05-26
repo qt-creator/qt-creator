@@ -120,7 +120,7 @@ QString QmlOutlineItem::prettyPrint(const Value *value, const ContextPtr &contex
 class ObjectMemberParentVisitor : public AST::Visitor
 {
 public:
-    QHash<AST::UiObjectMember*,AST::UiObjectMember*> operator()(Document::Ptr doc) {
+    QHash<AST::Node *,AST::UiObjectMember *> operator()(Document::Ptr doc) {
         parent.clear();
         if (doc && doc->ast())
             doc->ast()->accept(this);
@@ -128,7 +128,7 @@ public:
     }
 
 private:
-    QHash<AST::UiObjectMember*,AST::UiObjectMember*> parent;
+    QHash<AST::Node *, AST::UiObjectMember *> parent;
     QList<AST::UiObjectMember *> stack;
 
     bool preVisit(AST::Node *node) override
@@ -144,6 +144,9 @@ private:
             stack.removeLast();
             if (!stack.isEmpty())
                 parent.insert(objMember, stack.last());
+        } else if (AST::FunctionExpression *funcMember = node->asFunctionDefinition()) {
+            if (!stack.isEmpty())
+                parent.insert(funcMember, stack.last());
         }
     }
 
@@ -848,9 +851,14 @@ void QmlOutlineModel::reparentNodes(QmlOutlineItem *targetItem, int row, QList<Q
 
     for (auto outlineItem : itemsToMove) {
         AST::UiObjectMember *sourceObjectMember = m_itemToNode.value(outlineItem)->uiObjectMemberCast();
-        if (!sourceObjectMember)
-            return;
+        AST::FunctionExpression *functionMember = nullptr;
+        if (!sourceObjectMember) {
+            functionMember = m_itemToNode.value(outlineItem)->asFunctionDefinition();
+            if (!functionMember)
+                return;
+        }
 
+        m_itemToNode.value(outlineItem)->asFunctionDefinition();
         bool insertionOrderSpecified = true;
         AST::UiObjectMember *memberToInsertAfter = nullptr;
         {
@@ -866,6 +874,9 @@ void QmlOutlineModel::reparentNodes(QmlOutlineItem *targetItem, int row, QList<Q
         if (sourceObjectMember)
             moveObjectMember(sourceObjectMember, targetObjectMember, insertionOrderSpecified,
                              memberToInsertAfter, &changeSet, &range);
+        else if (functionMember)
+            moveObjectMember(functionMember, targetObjectMember, insertionOrderSpecified,
+                             memberToInsertAfter, &changeSet, &range);
         changedRanges << range;
     }
 
@@ -878,7 +889,7 @@ void QmlOutlineModel::reparentNodes(QmlOutlineItem *targetItem, int row, QList<Q
     file->apply();
 }
 
-void QmlOutlineModel::moveObjectMember(AST::UiObjectMember *toMove,
+void QmlOutlineModel::moveObjectMember(AST::Node *toMove,
                                        AST::UiObjectMember *newParent,
                                        bool insertionOrderSpecified,
                                        AST::UiObjectMember *insertAfter,
@@ -889,7 +900,7 @@ void QmlOutlineModel::moveObjectMember(AST::UiObjectMember *toMove,
     Q_ASSERT(newParent);
     Q_ASSERT(changeSet);
 
-    QHash<AST::UiObjectMember*, AST::UiObjectMember*> parentMembers;
+    QHash<AST::Node *, AST::UiObjectMember *> parentMembers;
     {
         ObjectMemberParentVisitor visitor;
         parentMembers = visitor(m_semanticInfo.document);
@@ -899,8 +910,11 @@ void QmlOutlineModel::moveObjectMember(AST::UiObjectMember *toMove,
     Q_ASSERT(oldParent);
 
     // make sure that target parent is actually a direct ancestor of target sibling
-    if (insertAfter)
-        newParent = parentMembers.value(insertAfter);
+    if (insertAfter) {
+        auto objMember = parentMembers.value(insertAfter);
+        Q_ASSERT(objMember);
+        newParent = objMember;
+    }
 
     const QString documentText = m_semanticInfo.document->source();
 

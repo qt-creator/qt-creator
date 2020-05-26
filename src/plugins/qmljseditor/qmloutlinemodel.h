@@ -131,7 +131,7 @@ private:
     void leaveNode();
 
     void reparentNodes(QmlOutlineItem *targetItem, int targetRow, QList<QmlOutlineItem*> itemsToMove);
-    void moveObjectMember(QmlJS::AST::UiObjectMember *toMove, QmlJS::AST::UiObjectMember *newParent,
+    void moveObjectMember(QmlJS::AST::Node *toMove, QmlJS::AST::UiObjectMember *newParent,
                           bool insertionOrderSpecified, QmlJS::AST::UiObjectMember *insertAfter,
                           Utils::ChangeSet *changeSet, Utils::ChangeSet::Range *addedRange);
 
