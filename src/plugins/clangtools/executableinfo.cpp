@@ -98,8 +98,13 @@ static QStringList queryClangTidyChecks(const QString &executable,
 
 static ClazyChecks querySupportedClazyChecks(const QString &executablePath)
 {
-    const CommandLine commandLine(executablePath, {"-supported-checks-json"});
-    const QString jsonOutput = runExecutable(commandLine);
+    static const QString queryFlag = "-supported-checks-json";
+    QString jsonOutput = runExecutable(CommandLine(executablePath, {queryFlag}));
+
+    // Some clazy 1.6.x versions have a bug where they expect an argument after the
+    // option.
+    if (jsonOutput.isEmpty())
+        jsonOutput = runExecutable(CommandLine(executablePath, {queryFlag, "dummy"}));
     if (jsonOutput.isEmpty())
         return {};
 
