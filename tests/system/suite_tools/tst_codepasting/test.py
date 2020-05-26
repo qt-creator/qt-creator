@@ -35,6 +35,7 @@ def __platformToBeRunToday__():
 skipPastingToPastebinCom = platform.system() not in __platformToBeRunToday__()
 
 NAME_PBCOM = "Pastebin.Com"
+NAME_DPCOM = "DPaste.Com"
 
 serverProblems = "Server side problems."
 
@@ -90,8 +91,8 @@ def pasteFile(sourceFile, protocol):
     clickButton(waitForObject(":Send to Codepaster.Paste_QPushButton"))
     try:
         outputWindow = waitForObject(":Qt Creator_Core::OutputWindow")
-        waitFor("'https://' in str(outputWindow.plainText)", 20000)
-        output = str(outputWindow.plainText).splitlines()[-1]
+        waitFor("re.search('^https?://', str(outputWindow.plainText)) is not None", 20000)
+        output = filter(lambda x: len(x), str(outputWindow.plainText).splitlines())[-1]
     except:
         output = ""
         if closeHTTPStatusAndPasterDialog(protocol, ':Send to Codepaster_CodePaster::PasteView'):
@@ -127,8 +128,17 @@ def fetchSnippet(protocol, description, pasteId, skippedPasting):
     except:
         closeHTTPStatusAndPasterDialog(protocol, ':PasteSelectDialog_CodePaster::PasteSelectDialog')
         return -1
-    waitFor("pasteModel.rowCount() > 1", 20000)
-    if (protocol != NAME_PBCOM and not skippedPasting and not any(map(lambda str:pasteId in str, dumpItems(pasteModel)))):
+
+    condition = "pasteModel.rowCount() > 1"
+    if protocol == NAME_DPCOM: # no list support
+        condition = "pasteModel.rowCount() == 1"
+    waitFor(condition, 20000)
+
+    if protocol == NAME_DPCOM:
+        items = dumpItems(pasteModel)
+        test.compare(items, ["This protocol does not support listing"], "Check expected message.")
+    elif (protocol != NAME_PBCOM and not skippedPasting
+          and not any(map(lambda str:pasteId in str, dumpItems(pasteModel)))):
         test.warning("Fetching too fast for server of %s - waiting 3s and trying to refresh." % protocol)
         snooze(3)
         clickButton("{text='Refresh' type='QPushButton' unnamed='1' visible='1' "
@@ -154,8 +164,8 @@ def fetchSnippet(protocol, description, pasteId, skippedPasting):
                 message = "Could not find id '%s' in list of pastes from %s" % (pasteId, protocol)
                 if protocol == NAME_PBCOM:
                     test.xfail(message, "pastebin.com does not show pastes in list anymore")
-                else:
-                    test.fail(message)
+                elif protocol != NAME_DPCOM: # does not happen now, but kept to avoid forgetting to
+                    test.fail(message)       # re-add when protocols change again
             foundSnippet = False
             replaceEditorContent(waitForObject(":PasteSelectDialog.pasteEdit_QLineEdit"), pasteId)
     if foundSnippet:
@@ -168,7 +178,7 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    protocolsToTest = [NAME_PBCOM]
+    protocolsToTest = [NAME_PBCOM, NAME_DPCOM]
     sourceFile = os.path.join(os.getcwd(), "testdata", "main.cpp")
     # make sure General Messages is open
     openGeneralMessages()
