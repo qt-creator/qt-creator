@@ -81,6 +81,7 @@ void addCustomFlowEffect(const SelectionContext &selectionState);
 void setFlowStartItem(const SelectionContext &selectionContext);
 void addToGroupItem(const SelectionContext &selectionContext);
 void selectFlowEffect(const SelectionContext &selectionContext);
+void mergeWithTemplate(const SelectionContext &selectionContext);
 
 } // namespace ModelNodeOperationso
 } //QmlDesigner

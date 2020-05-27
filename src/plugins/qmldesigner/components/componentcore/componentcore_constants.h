@@ -72,6 +72,7 @@ const char layoutGridLayoutCommandId[] = "LayoutGridLayout";
 const char layoutFillWidthCommandId[] = "LayoutFillWidth";
 const char layoutFillHeightCommandId[] = "LayoutFillHeight";
 const char goIntoComponentCommandId[] = "GoIntoComponent";
+const char mergeTemplateCommandId[] = "MergeTemplate";
 const char goToImplementationCommandId[] = "GoToImplementation";
 const char addSignalHandlerCommandId[] = "AddSignalHandler";
 const char moveToComponentCommandId[] = "MoveToComponent";
@@ -116,6 +117,7 @@ const char resetSizeDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", 
 const char resetPositionDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Reset Position");
 
 const char goIntoComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Go into Component");
+const char mergeTemplateDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Merge File With Template");
 const char goToImplementationDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Go to Implementation");
 const char addSignalHandlerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add New Signal Handler");
 const char moveToComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Move Component into Separate File");

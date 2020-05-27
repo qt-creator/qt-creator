@@ -48,6 +48,7 @@
 #include <signalhandlerproperty.h>
 
 #include <componentcore_constants.h>
+#include <stylesheetmerger.h>
 
 #include <limits>
 #include <qmldesignerplugin.h>
@@ -66,11 +67,15 @@
 #include <projectexplorer/projecttree.h>
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
+#include <QComboBox>
 #include <QCoreApplication>
+#include <QDialogButtonBox>
 #include <QByteArray>
 #include <QFileDialog>
+#include <QPushButton>
 
 #include <algorithm>
 #include <functional>
@@ -1303,6 +1308,176 @@ void addCustomFlowEffect(const SelectionContext &selectionContext)
                                        view->setSelectedModelNode(effectNode);
                                    }
     });
+}
+
+static QString fromCamelCase(const QString &s)
+{
+    static QRegularExpression regExp1 {"(.)([A-Z][a-z]+)"};
+    static QRegularExpression regExp2 {"([a-z0-9])([A-Z])"};
+
+    QString result = s;
+    result.replace(regExp1, "\\1 \\2");
+    result.replace(regExp2, "\\1 \\2");
+
+    return result;
+}
+
+QString getTemplateDialog(const Utils::FilePath &projectPath)
+{
+
+    const Utils::FilePath templatesPath = projectPath.pathAppended("templates");
+
+    const QStringList templateFiles = QDir(templatesPath.toString()).entryList({"*.qml"});
+
+    QStringList names;
+
+    for (const QString &name : templateFiles) {
+        QString cleanS = name;
+        cleanS.remove(".qml");
+        names.append(fromCamelCase(cleanS));
+    }
+
+    QDialog *dialog = new QDialog(Core::ICore::dialogParent());
+    dialog->setMinimumWidth(480);
+    dialog->setModal(true);
+
+    dialog->setWindowTitle(QCoreApplication::translate("TemplateMerge","Merge With Template"));
+
+    auto mainLayout = new QGridLayout(dialog);
+
+    auto comboBox = new QComboBox;
+
+    comboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+
+    for (const QString &templateName :  names)
+        comboBox->addItem(templateName);
+
+    QString templateFile;
+
+    auto setTemplate = [comboBox, &templateFile](const QString &newFile) {
+        if (comboBox->findText(newFile) < 0)
+            comboBox->addItem(newFile);
+
+        comboBox->setCurrentText(newFile);
+        templateFile = newFile;
+    };
+
+    QPushButton *browseButton = new QPushButton(QCoreApplication::translate("TemplateMerge", "&Browse..."), dialog);
+
+    mainLayout->addWidget(new QLabel(QCoreApplication::translate("TemplateMerge", "Template:")), 0, 0);
+    mainLayout->addWidget(comboBox, 1, 0, 1, 3);
+    mainLayout->addWidget(browseButton, 1, 3, 1 , 1);
+
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                                       | QDialogButtonBox::Cancel);
+    mainLayout->addWidget(buttonBox, 2, 2, 1, 2);
+
+    QObject::connect(browseButton, &QPushButton::clicked, dialog, [setTemplate, &projectPath]() {
+
+        const QString newFile = QFileDialog::getOpenFileName(Core::ICore::dialogParent(),
+                                                             QCoreApplication::translate("TemplateMerge", "Browse Template"),
+                                                             projectPath.toString(),
+                                                             "*.qml");
+        if (!newFile.isEmpty())
+            setTemplate(newFile);
+    });
+
+    QObject::connect(buttonBox, &QDialogButtonBox::accepted, dialog, [dialog](){
+        dialog->accept();
+        dialog->deleteLater();
+    });
+
+    QString result;
+
+    QObject::connect(buttonBox, &QDialogButtonBox::rejected, dialog, [dialog](){
+        dialog->reject();
+        dialog->deleteLater();
+    });
+
+    QObject::connect(dialog, &QDialog::accepted, [&result, comboBox](){
+        result = comboBox->currentText();
+    });
+
+    dialog->exec();
+
+    if (!result.isEmpty() && !QFileInfo(result).exists()) {
+        result = templateFiles.at(names.indexOf(result));
+        result = templatesPath.pathAppended(result).toString();
+    }
+
+    return result;
+}
+
+void styleMerge(const SelectionContext &selectionContext, const QString &templateFile)
+{
+    Model *parentModel = selectionContext.view()->model();
+
+    QTC_ASSERT(parentModel, return);
+
+    QScopedPointer<Model> templateModel(Model::create("QtQuick.Item", 2, 1, parentModel));
+    Q_ASSERT(templateModel.data());
+
+    templateModel->setFileUrl(QUrl::fromLocalFile(templateFile));
+
+    QPlainTextEdit textEditTemplate;
+    Utils::FileReader reader;
+
+    QTC_ASSERT(reader.fetch(templateFile), return);
+    QString qmlTemplateString = QString::fromUtf8(reader.data());
+    QString imports;
+
+    for (const Import &import : parentModel->imports())
+        imports += QStringLiteral("import ") + import.toString(true) + QLatin1Char(';') + QLatin1Char('\n');
+
+    textEditTemplate.setPlainText(imports + qmlTemplateString);
+    NotIndentingTextEditModifier textModifierTemplate(&textEditTemplate);
+
+    QScopedPointer<RewriterView> templateRewriterView(new RewriterView(RewriterView::Amend, nullptr));
+    templateRewriterView->setTextModifier(&textModifierTemplate);
+    templateModel->attachView(templateRewriterView.data());
+    templateRewriterView->setCheckSemanticErrors(false);
+
+    ModelNode templateRootNode = templateRewriterView->rootModelNode();
+    QTC_ASSERT(templateRootNode.isValid(), return);
+
+    QScopedPointer<Model> styleModel(Model::create("QtQuick.Item", 2, 1, parentModel));
+    Q_ASSERT(styleModel.data());
+
+    styleModel->setFileUrl(QUrl::fromLocalFile(templateFile));
+
+    QPlainTextEdit textEditStyle;
+    RewriterView *parentRewriterView = selectionContext.view()->model()->rewriterView();
+    QTC_ASSERT(parentRewriterView, return);
+    textEditStyle.setPlainText(parentRewriterView->textModifierContent());
+    NotIndentingTextEditModifier textModifierStyle(&textEditStyle);
+
+    QScopedPointer<RewriterView> styleRewriterView(new RewriterView(RewriterView::Amend, nullptr));
+    styleRewriterView->setTextModifier(&textModifierStyle);
+    styleModel->attachView(styleRewriterView.data());
+
+    StylesheetMerger merger(templateRewriterView.data(), styleRewriterView.data());
+
+    try {
+        merger.merge();
+    } catch (Exception &e) {
+        e.showException();
+    }
+
+    try {
+        parentRewriterView->textModifier()->textDocument()->setPlainText(templateRewriterView->textModifierContent());
+    } catch (Exception &e) {
+        e.showException();
+    }
+}
+
+void mergeWithTemplate(const SelectionContext &selectionContext)
+{
+    const Utils::FilePath projectPath = Utils::FilePath::fromString(baseDirectory(selectionContext.view()->model()->fileUrl()));
+
+    const QString templateFile = getTemplateDialog(projectPath);
+
+    if (QFileInfo(templateFile).exists())
+        styleMerge(selectionContext, templateFile);
 }
 
 } // namespace Mode
