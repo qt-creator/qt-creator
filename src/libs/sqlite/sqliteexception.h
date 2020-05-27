@@ -43,7 +43,7 @@ public:
         , m_sqliteErrorMessage(std::move(sqliteErrorMessage))
     {}
 
-    const char *what() const noexcept override { return m_sqliteErrorMessage.data(); }
+    const char *what() const noexcept override { return m_whatErrorHasHappen; }
 
     void printWarning() const;
 
@@ -279,6 +279,22 @@ class ForeignKeyColumnIsNotUnique : public Exception
 {
 public:
     ForeignKeyColumnIsNotUnique(const char *whatErrorHasHappen)
+        : Exception(whatErrorHasHappen)
+    {}
+};
+
+class CannotApplyChangeSet : public Exception
+{
+public:
+    CannotApplyChangeSet(const char *whatErrorHasHappen)
+        : Exception(whatErrorHasHappen)
+    {}
+};
+
+class ChangeSetIsMisused : public Exception
+{
+public:
+    ChangeSetIsMisused(const char *whatErrorHasHappen)
         : Exception(whatErrorHasHappen)
     {}
 };

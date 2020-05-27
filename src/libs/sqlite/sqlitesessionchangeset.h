@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,27 +25,56 @@
 
 #pragma once
 
-#include <utils/smallstringvector.h>
-
 #include "sqliteglobal.h"
 
-#include <functional>
+#include <utils/span.h>
+
+#include <memory>
+#include <vector>
+
+#include <iosfwd>
 
 namespace Sqlite {
-class DatabaseInterface
+
+class Sessions;
+
+class SessionChangeSet
 {
 public:
-    using UpdateCallback
-        = std::function<void(ChangeType type, char const *, char const *, long long)>;
+    SessionChangeSet(Utils::span<const byte> blob);
+    SessionChangeSet(Sessions &session);
+    ~SessionChangeSet();
+    SessionChangeSet(const SessionChangeSet &) = delete;
+    void operator=(const SessionChangeSet &) = delete;
+    SessionChangeSet(SessionChangeSet &&other) noexcept
+    {
+        SessionChangeSet temp;
+        swap(temp, other);
+        swap(temp, *this);
+    }
+    void operator=(SessionChangeSet &);
 
-    virtual void walCheckpointFull() = 0;
-    virtual void execute(Utils::SmallStringView sqlStatement) = 0;
-    virtual void setUpdateHook(UpdateCallback &callback) = 0;
-    virtual void resetUpdateHook() = 0;
-    virtual void applyAndUpdateSessions() = 0;
-    virtual void setAttachedTables(const Utils::SmallStringVector &tables) = 0;
+    Utils::span<const byte> asSpan() const;
 
-protected:
-    ~DatabaseInterface() = default;
+    friend void swap(SessionChangeSet &first, SessionChangeSet &second) noexcept
+    {
+        SessionChangeSet temp;
+        std::swap(temp.data, first.data);
+        std::swap(temp.size, first.size);
+        std::swap(first.data, second.data);
+        std::swap(first.size, second.size);
+        std::swap(temp.data, second.data);
+        std::swap(temp.size, second.size);
+    }
+
+private:
+    SessionChangeSet() = default;
+
+public:
+    void *data = nullptr;
+    int size = {};
 };
+
+using SessionChangeSets = std::vector<SessionChangeSet>;
+
 } // namespace Sqlite

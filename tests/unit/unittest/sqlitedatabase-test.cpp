@@ -28,6 +28,7 @@
 #include "spydummy.h"
 
 #include <sqlitedatabase.h>
+#include <sqlitereadstatement.h>
 #include <sqlitetable.h>
 #include <sqlitewritestatement.h>
 #include <utf8string.h>
@@ -50,26 +51,33 @@ using Sqlite::Table;
 class SqliteDatabase : public ::testing::Test
 {
 protected:
-    void SetUp() override
+    SqliteDatabase()
     {
         database.setJournalMode(JournalMode::Memory);
         database.setDatabaseFilePath(databaseFilePath);
         auto &table = database.addTable();
         table.setName("test");
+        table.addColumn("id", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
         table.addColumn("name");
 
         database.open();
     }
 
-    void TearDown() override
+    ~SqliteDatabase()
     {
         if (database.isOpen())
             database.close();
     }
 
+    std::vector<Utils::SmallString> names() const
+    {
+        return Sqlite::ReadStatement("SELECT name FROM test", database).values<Utils::SmallString>(8);
+    }
+
+protected:
     SpyDummy spyDummy;
     QString databaseFilePath{":memory:"};
-    Sqlite::Database database;
+    mutable Sqlite::Database database;
     Sqlite::TransactionInterface &transactionInterface = database;
     MockFunction<void(Sqlite::ChangeType tupe, char const *, char const *, long long)> callbackMock;
     Sqlite::Database::UpdateCallback callback = callbackMock.AsStdFunction();
@@ -305,6 +313,35 @@ TEST_F(SqliteDatabase, TableUpdateHookCall)
     EXPECT_CALL(callbackMock, Call(_, _, StrEq("test"), _));
 
     Sqlite::WriteStatement("INSERT INTO test(name) VALUES (?)", database).write(42);
+}
+
+TEST_F(SqliteDatabase, SessionsCommit)
+{
+    database.setAttachedTables({"test"});
+    Sqlite::WriteStatement("INSERT INTO test(id, name) VALUES (?,?)", database).write(1, "foo");
+
+    Sqlite::ImmediateSessionTransaction transaction{database};
+    Sqlite::WriteStatement("INSERT INTO test(id, name) VALUES (?,?)", database).write(2, "bar");
+    transaction.commit();
+    Sqlite::WriteStatement("INSERT OR REPLACE INTO test(id, name) VALUES (?,?)", database).write(2, "hoo");
+    database.applyAndUpdateSessions();
+
+    ASSERT_THAT(names(), ElementsAre("foo", "bar"));
+}
+
+TEST_F(SqliteDatabase, SessionsRollback)
+{
+    database.setAttachedTables({"test"});
+    Sqlite::WriteStatement("INSERT INTO test(id, name) VALUES (?,?)", database).write(1, "foo");
+
+    {
+        Sqlite::ImmediateSessionTransaction transaction{database};
+        Sqlite::WriteStatement("INSERT INTO test(id, name) VALUES (?,?)", database).write(2, "bar");
+    }
+    Sqlite::WriteStatement("INSERT OR REPLACE INTO test(id, name) VALUES (?,?)", database).write(2, "hoo");
+    database.applyAndUpdateSessions();
+
+    ASSERT_THAT(names(), ElementsAre("foo", "hoo"));
 }
 
 } // namespace

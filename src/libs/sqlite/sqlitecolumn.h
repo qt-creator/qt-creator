@@ -67,6 +67,8 @@ public:
             return "REAL";
         case ColumnType::Text:
             return "TEXT";
+        case ColumnType::Blob:
+            return "BLOB";
         }
 
         Q_UNREACHABLE();

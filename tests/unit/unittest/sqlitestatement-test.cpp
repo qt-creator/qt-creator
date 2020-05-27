@@ -460,9 +460,8 @@ TEST_F(SqliteStatement, GetTupleValuesWithoutArguments)
 
     auto values = statement.values<Tuple, 3>(3);
 
-    ASSERT_THAT(values, ElementsAre(Tuple{"bar", 0, 1},
-                                    Tuple{"foo", 23.3, 2},
-                                    Tuple{"poo", 40.0, 3}));
+    ASSERT_THAT(values,
+                UnorderedElementsAre(Tuple{"bar", 0, 1}, Tuple{"foo", 23.3, 2}, Tuple{"poo", 40.0, 3}));
 }
 
 TEST_F(SqliteStatement, GetSingleValuesWithoutArguments)
@@ -471,7 +470,7 @@ TEST_F(SqliteStatement, GetSingleValuesWithoutArguments)
 
     std::vector<Utils::SmallString> values = statement.values<Utils::SmallString>(3);
 
-    ASSERT_THAT(values, ElementsAre("bar", "foo", "poo"));
+    ASSERT_THAT(values, UnorderedElementsAre("bar", "foo", "poo"));
 }
 
 class FooValue
@@ -497,7 +496,7 @@ TEST_F(SqliteStatement, GetSingleSqliteValuesWithoutArguments)
 
     std::vector<FooValue> values = statement.values<FooValue>(3);
 
-    ASSERT_THAT(values, ElementsAre(Eq("blah"), Eq(23.3), Eq(40), IsNull()));
+    ASSERT_THAT(values, UnorderedElementsAre(Eq("blah"), Eq(23.3), Eq(40), IsNull()));
 }
 
 TEST_F(SqliteStatement, GetStructValuesWithoutArguments)
@@ -506,9 +505,10 @@ TEST_F(SqliteStatement, GetStructValuesWithoutArguments)
 
     auto values = statement.values<Output, 3>(3);
 
-    ASSERT_THAT(values, ElementsAre(Output{"bar", "blah", 1},
-                                    Output{"foo", "23.3", 2},
-                                    Output{"poo", "40", 3}));
+    ASSERT_THAT(values,
+                UnorderedElementsAre(Output{"bar", "blah", 1},
+                                     Output{"foo", "23.3", 2},
+                                     Output{"poo", "40", 3}));
 }
 
 TEST_F(SqliteStatement, GetValuesForSingleOutputWithBindingMultipleTimes)
@@ -529,8 +529,7 @@ TEST_F(SqliteStatement, GetValuesForMultipleOutputValuesAndContainerQueryValues)
 
     auto values = statement.values<Tuple, 3>(3, queryValues);
 
-    ASSERT_THAT(values, ElementsAre(Tuple{"poo", 40, 3.},
-                                    Tuple{"foo", 23.3, 2.}));
+    ASSERT_THAT(values, UnorderedElementsAre(Tuple{"poo", 40, 3.}, Tuple{"foo", 23.3, 2.}));
 }
 
 TEST_F(SqliteStatement, GetValuesForSingleOutputValuesAndContainerQueryValues)
@@ -540,7 +539,7 @@ TEST_F(SqliteStatement, GetValuesForSingleOutputValuesAndContainerQueryValues)
 
     std::vector<Utils::SmallString> values = statement.values<Utils::SmallString>(3, queryValues);
 
-    ASSERT_THAT(values, ElementsAre("poo", "foo"));
+    ASSERT_THAT(values, UnorderedElementsAre("poo", "foo"));
 }
 
 TEST_F(SqliteStatement, GetValuesForMultipleOutputValuesAndContainerQueryTupleValues)
@@ -552,8 +551,7 @@ TEST_F(SqliteStatement, GetValuesForMultipleOutputValuesAndContainerQueryTupleVa
 
     auto values = statement.values<ResultTuple, 3>(3, queryValues);
 
-    ASSERT_THAT(values, ElementsAre(ResultTuple{"poo", 40, 3},
-                                    ResultTuple{"bar", 0, 1}));
+    ASSERT_THAT(values, UnorderedElementsAre(ResultTuple{"poo", 40, 3}, ResultTuple{"bar", 0, 1}));
 }
 
 TEST_F(SqliteStatement, GetValuesForSingleOutputValuesAndContainerQueryTupleValues)
@@ -564,7 +562,7 @@ TEST_F(SqliteStatement, GetValuesForSingleOutputValuesAndContainerQueryTupleValu
 
     std::vector<Utils::SmallString> values = statement.values<Utils::SmallString>(3, queryValues);
 
-    ASSERT_THAT(values, ElementsAre("poo", "bar"));
+    ASSERT_THAT(values, UnorderedElementsAre("poo", "bar"));
 }
 
 TEST_F(SqliteStatement, GetValuesForMultipleOutputValuesAndMultipleQueryValue)
@@ -616,8 +614,7 @@ TEST_F(SqliteStatement, GetStructOutputValuesAndContainerQueryTupleValues)
 
     auto values = statement.values<Output, 3>(3, queryValues);
 
-    ASSERT_THAT(values, ElementsAre(Output{"poo", "40", 3},
-                                    Output{"bar", "blah", 1}));
+    ASSERT_THAT(values, UnorderedElementsAre(Output{"poo", "40", 3}, Output{"bar", "blah", 1}));
 }
 
 TEST_F(SqliteStatement, GetBlobValues)

@@ -66,8 +66,10 @@ void PrintTo(const TextRange &range, ::std::ostream *os);
 
 namespace Sqlite {
 class Value;
+class SessionChangeSet;
 
 std::ostream &operator<<(std::ostream &out, const Value &value);
+std::ostream &operator<<(std::ostream &out, const SessionChangeSet &changeset);
 } // namespace Sqlite
 
 namespace ProjectExplorer {

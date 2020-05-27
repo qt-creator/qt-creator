@@ -125,7 +125,12 @@ public:
 
     void operator()(const Unique &) { columnDefinitionString.append(" UNIQUE"); }
 
-    void operator()(const PrimaryKey &) { columnDefinitionString.append(" PRIMARY KEY"); }
+    void operator()(const PrimaryKey &primaryKey)
+    {
+        columnDefinitionString.append(" PRIMARY KEY");
+        if (primaryKey.autoincrement == AutoIncrement::Yes)
+            columnDefinitionString.append(" AUTOINCREMENT");
+    }
 
     void operator()(const ForeignKey &foreignKey)
     {

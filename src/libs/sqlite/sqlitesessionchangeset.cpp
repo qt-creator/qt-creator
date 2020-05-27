@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,49 +23,50 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "sqlitesessionchangeset.h"
+#include "sqlitesessions.h"
 
-#include <utils/smallstringfwd.h>
+#include <utils/smallstringio.h>
 
-#include <QtGlobal>
-
-#if defined(BUILD_SQLITE_LIBRARY)
-#  define SQLITE_EXPORT Q_DECL_EXPORT
-#elif defined(BUILD_SQLITE_STATIC_LIBRARY)
-#  define SQLITE_EXPORT
-#else
-#  define SQLITE_EXPORT Q_DECL_IMPORT
-#endif
+#include <sqlite3ext.h>
 
 namespace Sqlite {
 
-enum class ColumnType : char { Numeric, Integer, Real, Text, Blob, None };
-
-enum class ConstraintType : char { NoConstraint, PrimaryKey, Unique, ForeignKey };
-
-enum class ForeignKeyAction : char { NoAction, Restrict, SetNull, SetDefault, Cascade };
-
-enum class Enforment : char { Immediate, Deferred };
-
-enum class ColumnConstraint : char { PrimaryKey };
-
-enum class JournalMode : char
+namespace {
+void checkResultCode(int resultCode)
 {
-    Delete,
-    Truncate,
-    Persist,
-    Memory,
-    Wal
-};
+    switch (resultCode) {
+    case SQLITE_NOMEM:
+        throw std::bad_alloc();
+    }
 
-enum class OpenMode : char
+    if (resultCode != SQLITE_OK)
+        throw UnknowError("Unknow exception");
+}
+
+} // namespace
+
+SessionChangeSet::SessionChangeSet(Utils::span<const byte> blob)
+    : data(sqlite3_malloc64(blob.size()))
+    , size(int(blob.size()))
 {
-    ReadOnly,
-    ReadWrite
-};
+    std::memcpy(data, blob.data(), blob.size());
+}
 
-enum class ChangeType : int { Delete = 9, Insert = 18, Update = 23 };
+SessionChangeSet::SessionChangeSet(Sessions &session)
+{
+    int resultCode = sqlite3session_changeset(session.session.get(), &size, &data);
+    checkResultCode(resultCode);
+}
 
-enum class byte : unsigned char {};
+SessionChangeSet::~SessionChangeSet()
+{
+    sqlite3_free(data);
+}
+
+Utils::span<const byte> SessionChangeSet::asSpan() const
+{
+    return {static_cast<const byte *>(data), static_cast<std::size_t>(size)};
+}
 
 } // namespace Sqlite

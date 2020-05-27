@@ -81,6 +81,7 @@ SOURCES += \
     smallstring-test.cpp \
     sourcerangefilter-test.cpp \
     spydummy.cpp \
+    sqlitesessions-test.cpp \
     sqlitevalue-test.cpp \
     symbolindexer-test.cpp \
     symbolsfindfilter-test.cpp \

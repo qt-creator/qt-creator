@@ -58,6 +58,7 @@
 #include <sourcedependency.h>
 #include <sourcelocationentry.h>
 #include <sourcelocationscontainer.h>
+#include <sqlitesessionchangeset.h>
 #include <sqlitevalue.h>
 #include <symbol.h>
 #include <symbolentry.h>
@@ -66,6 +67,8 @@
 #include <tooltipinfo.h>
 #include <usedmacro.h>
 #include <utils/link.h>
+
+#include <sqlite3ext.h>
 
 namespace {
 ClangBackEnd::FilePathCaching *filePathCache = nullptr;
@@ -320,6 +323,90 @@ std::ostream &operator<<(std::ostream &out, const Value &value)
     }
 
     return out << ")";
+}
+
+namespace {
+Utils::SmallStringView operationText(int operation)
+{
+    switch (operation) {
+    case SQLITE_INSERT:
+        return "INSERT";
+    case SQLITE_UPDATE:
+        return "UPDATE";
+    case SQLITE_DELETE:
+        return "DELETE";
+    }
+
+    return {};
+}
+
+std::ostream &operator<<(std::ostream &out, sqlite3_changeset_iter *iter)
+{
+    out << "(";
+
+    const char *tableName = nullptr;
+    int columns = 0;
+    int operation = 0;
+    sqlite3_value *value = nullptr;
+
+    sqlite3changeset_op(iter, &tableName, &columns, &operation, 0);
+
+    out << operationText(operation) << " " << tableName << " {";
+
+    if (operation == SQLITE_UPDATE || operation == SQLITE_DELETE) {
+        out << "Old: [";
+
+        for (int i = 0; i < columns; i++) {
+            sqlite3changeset_old(iter, i, &value);
+
+            if (value)
+                out << " " << sqlite3_value_text(value);
+            else
+                out << " -";
+        }
+        out << "]";
+    }
+
+    if (operation == SQLITE_UPDATE)
+        out << ", ";
+
+    if (operation == SQLITE_UPDATE || operation == SQLITE_INSERT) {
+        out << "New: [";
+        for (int i = 0; i < columns; i++) {
+            sqlite3changeset_new(iter, i, &value);
+
+            if (value)
+                out << " " << sqlite3_value_text(value);
+            else
+                out << " -";
+        }
+        out << "]";
+    }
+
+    out << "})";
+
+    return out;
+}
+} // namespace
+
+std::ostream &operator<<(std::ostream &out, const SessionChangeSet &changeset)
+{
+    sqlite3_changeset_iter *iter = nullptr;
+    sqlite3changeset_start(&iter, changeset.size, const_cast<void *>(changeset.data));
+
+    out << "ChangeSets([";
+
+    if (SQLITE_ROW == sqlite3changeset_next(iter)) {
+        out << iter;
+        while (SQLITE_ROW == sqlite3changeset_next(iter))
+            out << ", " << iter;
+    }
+
+    sqlite3changeset_finalize(iter);
+
+    out << "])";
+
+    return out;
 }
 } // namespace Sqlite
 

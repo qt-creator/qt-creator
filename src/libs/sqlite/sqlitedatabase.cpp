@@ -25,9 +25,10 @@
 
 #include "sqlitedatabase.h"
 
+#include "sqlitereadwritestatement.h"
+#include "sqlitesessions.h"
 #include "sqlitetable.h"
 #include "sqlitetransaction.h"
-#include "sqlitereadwritestatement.h"
 
 #include <QFileInfo>
 
@@ -51,6 +52,7 @@ public:
     ReadWriteStatement exclusiveBegin{"BEGIN EXCLUSIVE", database};
     ReadWriteStatement commitBegin{"COMMIT", database};
     ReadWriteStatement rollbackBegin{"ROLLBACK", database};
+    Sessions sessions{database, "main", "databaseSessions"};
 };
 
 Database::Database()
@@ -60,17 +62,20 @@ Database::Database()
 
 Database::Database(Utils::PathString &&databaseFilePath, JournalMode journalMode)
     : Database(std::move(databaseFilePath), 1000ms, journalMode)
-{
-}
+{}
 
 Database::Database(Utils::PathString &&databaseFilePath,
                    std::chrono::milliseconds busyTimeout,
                    JournalMode journalMode)
-    : m_databaseBackend(*this),
-      m_busyTimeout(busyTimeout)
+    : m_databaseBackend(*this)
+    , m_busyTimeout(busyTimeout)
 {
     setJournalMode(journalMode);
     open(std::move(databaseFilePath));
+
+#ifndef QT_NO_DEBUG
+    execute("PRAGMA reverse_unordered_selects=1");
+#endif
 }
 
 Database::~Database() = default;
@@ -134,6 +139,16 @@ const std::vector<Table> &Database::tables() const
 void Database::setDatabaseFilePath(Utils::PathString &&databaseFilePath)
 {
     m_databaseFilePath = std::move(databaseFilePath);
+}
+
+void Database::setAttachedTables(const Utils::SmallStringVector &tables)
+{
+    m_statements->sessions.setAttachedTables(tables);
+}
+
+void Database::applyAndUpdateSessions()
+{
+    m_statements->sessions.applyAndUpdateSessions();
 }
 
 const Utils::PathString &Database::databaseFilePath() const
@@ -212,6 +227,22 @@ void Database::commit()
 
 void Database::rollback()
 {
+    m_statements->rollbackBegin.execute();
+}
+
+void Database::immediateSessionBegin()
+{
+    m_statements->immediateBegin.execute();
+    m_statements->sessions.create();
+}
+void Database::sessionCommit()
+{
+    m_statements->sessions.commit();
+    m_statements->commitBegin.execute();
+}
+void Database::sessionRollback()
+{
+    m_statements->sessions.rollback();
     m_statements->rollbackBegin.execute();
 }
 

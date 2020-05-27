@@ -38,9 +38,14 @@ class Unique
     friend bool operator==(Unique, Unique) { return true; }
 };
 
+enum class AutoIncrement { No, Yes };
+
 class PrimaryKey
 {
     friend bool operator==(PrimaryKey, PrimaryKey) { return true; }
+
+public:
+    AutoIncrement autoincrement = AutoIncrement::No;
 };
 
 class NotNull

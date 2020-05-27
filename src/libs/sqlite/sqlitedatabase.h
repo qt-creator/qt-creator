@@ -123,6 +123,9 @@ public:
 
     void resetUpdateHook() { m_databaseBackend.resetUpdateHook(); }
 
+    void setAttachedTables(const Utils::SmallStringVector &tables);
+    void applyAndUpdateSessions();
+
 private:
     void deferredBegin() override;
     void immediateBegin() override;
@@ -131,6 +134,9 @@ private:
     void rollback() override;
     void lock() override;
     void unlock() override;
+    void immediateSessionBegin() override;
+    void sessionCommit() override;
+    void sessionRollback() override;
 
     void initializeTables();
     void registerTransactionStatements();

@@ -25,8 +25,8 @@
 
 #include "googletest.h"
 
+#include <sqlitedatabase.h>
 #include <sqliteglobal.h>
-
 #include <utils/temporarydirectory.h>
 
 #include <QCoreApplication>
@@ -38,6 +38,7 @@
 
 int main(int argc, char *argv[])
 {
+    Sqlite::Database::activateLogging();
     const QString temporayDirectoryPath = QDir::tempPath() +"/QtCreator-UnitTests-XXXXXX";
     Utils::TemporaryDirectory::setMasterTemporaryDirectory(temporayDirectoryPath);
     qputenv("TMPDIR", Utils::TemporaryDirectory::masterDirectoryPath().toUtf8());

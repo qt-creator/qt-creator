@@ -30,6 +30,8 @@
 
 #include <QVariant>
 
+#include <cstddef>
+
 #pragma once
 
 namespace Sqlite {

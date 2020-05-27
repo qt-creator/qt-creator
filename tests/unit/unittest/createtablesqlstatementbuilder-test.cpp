@@ -510,4 +510,24 @@ TEST_F(CreateTableSqlStatementBuilder, GeneratedAlwaysVirtual)
                 "VIRTUAL)");
 }
 
+TEST_F(CreateTableSqlStatementBuilder, PrimaryKeyAutoincrement)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id", ColumnType::Integer, {Sqlite::PrimaryKey{Sqlite::AutoIncrement::Yes}});
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER PRIMARY KEY AUTOINCREMENT)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, BlobType)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("data", ColumnType::Blob);
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(data BLOB)");
+}
+
 } // namespace
