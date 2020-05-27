@@ -41,7 +41,7 @@
     \title Coding
 
     \if defined(qtcreator)
-    \image creator_coding.png
+    \image front-coding.png
     \endif
 
     \list

@@ -36,7 +36,7 @@
 
     \title Designing User Interfaces
 
-    \image creator_designinguserinterface.png
+    \image front-ui.png
 
     \QC provides integrated visual editors for designing Qt Quick and
     widget-based applications in the Design mode. The integration

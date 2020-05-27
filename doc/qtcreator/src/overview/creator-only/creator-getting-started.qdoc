@@ -38,9 +38,9 @@
 
     \table
         \row
-            \li \inlineimage creator_gettingstarted.png
-            \li \inlineimage creator_designinguserinterface.png
-            \li \inlineimage creator_advanceduse.png
+            \li \inlineimage front-gs.png
+            \li \inlineimage front-ui.png
+            \li \inlineimage front-advanced.png
         \row
             \li \b {\l{IDE Overview}}
 
@@ -59,8 +59,8 @@
                 control systems. For an overview of the options you have, go to
                 \l{Configuring Qt Creator}.
         \row
-            \li \inlineimage creator_buildingrunning.png
-            \li \inlineimage creator_gettinghelp.png
+            \li \inlineimage front-preview.png
+            \li \inlineimage front-help.png
             \li
         \row
             \li \b {\l{Building and Running an Example}}

@@ -36,7 +36,7 @@
 
     \title Building and Running
 
-    \image creator_buildingrunning.png
+    \image front-preview.png
 
     \QC provides support for running and deploying Qt applications built
     for different target platforms, or using different compilers, debuggers, or
