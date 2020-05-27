@@ -21,6 +21,7 @@ Item {
                 position: 0
                 color: "white"
             }
+
             GradientStop {
                 position: 1
                 color: "black"
@@ -29,15 +30,15 @@ Item {
     }
     Rectangle {
         id: rectangle5
-        x: 10
-        y: 20
+        x: 160
+        y: 220
         width: 200
         height: 50
     }
     Image {
         id: rectangle4
-        x: 10;
-        y: 10;
+        x: 150;
+        y: 200;
         height: 150
         width: 100
         source: "qt/realcool.jpg"

@@ -30,24 +30,26 @@ Rectangle {
 
     Rectangle {
         id: rectangle3
-        x: 140;
-        y: 180;
+        x: 140
+        y: 180
         gradient: Gradient {
             GradientStop {
                 position: 0
-                color: "white"
+                color: "#ffffff"
             }
+
             GradientStop {
                 position: 1
-                color: "black"
+                color: "#000000"
             }
         }
         Image {
             id: rectangle4
             x: 10
             y: 20
-            width: 200
-            height: 50
+            width: 100
+            height: 150
+            source: "qt/realcool.jpg"
             Rectangle {
                 id: rectangle5
                 x: 10
@@ -55,7 +57,6 @@ Rectangle {
                 width: 200
                 height: 50
             }
-            source: "qt/realcool.jpg"
         }
     }
 

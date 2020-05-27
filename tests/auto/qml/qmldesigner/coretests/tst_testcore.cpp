@@ -3774,7 +3774,7 @@ void tst_TestCore::testMergeModelRewriter1_data()
     QString buttonOutlineExpectedQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ButtonOutlineExpected.qml");
 
     QTest::newRow("Simple style replacement") << simpleTemplateQmlContents << simpleStyleQmlContents << simpleExpectedQmlContents;
-       //QTest::newRow("Complex style replacement") << complexTemplateQmlContents << complexStyleQmlContents << complexExpectedQmlContents;
+    QTest::newRow("Complex style replacement") << complexTemplateQmlContents << complexStyleQmlContents << complexExpectedQmlContents;
     QTest::newRow("Empty stylesheet") << emptyTemplateQmlContents << emptyStyleQmlContents << emptyExpectedQmlContents;
     QTest::newRow("Root node replacement") << rootReplacementTemplateQmlContents << rootReplacementStyleQmlContents << rootReplacementExpectedQmlContents;
     QTest::newRow("Switch styling") << switchTemplateQmlContents << switchStyleQmlContents << switchExpectedQmlContents;
@@ -3828,7 +3828,10 @@ void tst_TestCore::testMergeModelRewriter1()
     StylesheetMerger merger(templateView.data(), styleView.data());
     merger.merge();
 
-    QCOMPARE(textEdit1.toPlainText().trimmed(), qmlExpectedString.trimmed());
+    QString trimmedActual = textEdit1.toPlainText().trimmed();
+    QString trimmedExpected = qmlExpectedString.trimmed();
+
+    QCOMPARE(trimmedActual, trimmedExpected);
 }
 
 void tst_TestCore::testCopyModelRewriter2()
