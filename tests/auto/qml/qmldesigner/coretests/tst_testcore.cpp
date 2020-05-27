@@ -3773,6 +3773,9 @@ void tst_TestCore::testMergeModelRewriter1_data()
     QString buttonOutlineStyleQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ButtonStyleOutline.qml");
     QString buttonOutlineExpectedQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ButtonOutlineExpected.qml");
 
+    QString buttonStyleUiQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ButtonStyle.ui.qml");
+    QString buttonStyleUiExpectedQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ButtonStyle.ui.Expected.qml");
+
     QTest::newRow("Simple style replacement") << simpleTemplateQmlContents << simpleStyleQmlContents << simpleExpectedQmlContents;
     QTest::newRow("Complex style replacement") << complexTemplateQmlContents << complexStyleQmlContents << complexExpectedQmlContents;
     QTest::newRow("Empty stylesheet") << emptyTemplateQmlContents << emptyStyleQmlContents << emptyExpectedQmlContents;
@@ -3783,6 +3786,7 @@ void tst_TestCore::testMergeModelRewriter1_data()
     QTest::newRow("Button Inline styling") << buttonTemplateQmlContents << buttonInlineStyleQmlContents << buttonInlineExpectedQmlContents;
 
     QTest::newRow("Button Outline styling") << buttonAbsoluteTemplateQmlContents << buttonOutlineStyleQmlContents << buttonOutlineExpectedQmlContents;
+    QTest::newRow("Button Designer styling") << buttonAbsoluteTemplateQmlContents << buttonStyleUiQmlContents << buttonStyleUiExpectedQmlContents;
 
 }
 

@@ -20,54 +20,57 @@ T.Button {
         implicitHeight: buttonNormal.height
         opacity: enabled ? 1 : 0.3
 
-        Rectangle {
+        Image {
             id: buttonNormal
-            x: 286
-            y: 62
-            width: 100
-            height: 60
             color: "#d4d4d4"
-            radius: 2
-            border.color: "#808080"
+            x: 14
+            y: 5
+            width: 100 //Bit of black magic to define the default size
+            height: 40
+
+            border.color: "gray"
             border.width: 1
-            anchors.fill: parent
+            radius: 2
+            anchors.fill: parent //binding has to be preserved
+            source: "assets/buttonNormal.png"
+
             Text {
                 id: normalText
-                x: 33
-                y: 24
-                color: "#808080"
-                text: control.text
-                elide: Text.ElideRight
-                anchors.fill: parent
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
+                x: 58
+                y: 50 //id only required to preserve binding
+                text: control.text //binding has to be preserved
+                //anchors.fill: parent
+                color: "#BBBBBB"
+                font.letterSpacing: 0.594
+                font.pixelSize: 24
             }
         }
 
-        Rectangle {
+        Image {
             id: buttonPressed
-            x: 123
-            y: 62
-            width: 100
-            height: 60
-            color: "#69b5ec"
-            radius: 2
-            border.color: "#808080"
+            x: 290
+            y: 5
+            width: 100 //Bit of black magic to define the default size
+            height: 40
+            source: "assets/buttonPressed.png"
+
+            border.color: "gray"
             border.width: 1
-            anchors.fill: parent
+            radius: 2
+            anchors.fill: parent //binding has to be preserved
+
             Text {
-                id: pressedText
-                x: 31
-                y: 24
-                color: "#000000"
-                text: control.text
-                elide: Text.ElideRight
-                anchors.fill: parent
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
+                id: pressedText //id only required to preserve binding
+                x: 58
+                y: 50
+                text: control.text //binding has to be preserved
+                //anchors.fill: parent
+                color: "#E1E1E1"
+
+                font.letterSpacing: 0.594
+                font.pixelSize: 24
             }
         }
-
     }
 
     contentItem: Item {}
@@ -99,3 +102,4 @@ T.Button {
         }
     ]
 }
+
