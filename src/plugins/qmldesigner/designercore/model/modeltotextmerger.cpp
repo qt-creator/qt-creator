@@ -380,6 +380,7 @@ PropertyNameList ModelToTextMerger::propertyOrder()
         PropertyName("anchors.margins"),
         PropertyName("horizontalAlignment"),
         PropertyName("verticalAlignment"),
+        PropertyName("source"),
         PropertyName(),
         PropertyName("states"),
         PropertyName("transitions")
