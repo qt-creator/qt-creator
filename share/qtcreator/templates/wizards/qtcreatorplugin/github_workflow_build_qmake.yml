@@ -45,6 +45,11 @@ jobs:
           execute_process(
             COMMAND sudo apt install libgl1-mesa-dev
           )
+        elseif ("${{ runner.os }}" STREQUAL "Windows")
+          # get JOM
+          file(DOWNLOAD "https://download.qt.io/official_releases/jom/jom.zip" ./jom.zip SHOW_PROGRESS)
+          file(MAKE_DIRECTORY ./jom)
+          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ../jom.zip WORKING_DIRECTORY ./jom)
         endif()
 
     - name: Download Qt
@@ -210,7 +215,7 @@ jobs:
 
         set(make_program make -j ${N})
         if ("${{ runner.os }}" STREQUAL "Windows")
-          set(make_program "qtcreator/bin/jom")
+          set(make_program "jom/jom")
         endif()
 
         execute_process(
