@@ -33,6 +33,7 @@
             \list
                 \li \l{Exporting Artwork from Design Tools}
                     \list
+                        \li \l{Exporting Designs from Adobe Illustrator}
                         \li \l{Exporting Designs from Adobe Photoshop}
                             \list
                                 \li \l{Setting Up Qt Bridge for Adobe Photoshop}

@@ -26,7 +26,7 @@
 // Note: The \page value is hard-coded as a link in Qt Bridge for Adobe Photoshop.
 
 /*!
-    \previouspage qtbridge-overview.html
+    \previouspage qtbridge-ai.html
     \page psqtbridge.html
     \nextpage qtbridge-ps-setup.html
 
@@ -35,9 +35,6 @@
     You can use \QBPS to export designs from Adobe Photoshop to .ui.qml files.
 
     \image studio-ps-export.png
-
-    If you would rather use Adobe Illustrator for creating artwork, you can
-    copy-paste your assets to Adobe Photoshop as \e {smart objects}.
 
     The following topics describe setting up and using \QBPS:
 

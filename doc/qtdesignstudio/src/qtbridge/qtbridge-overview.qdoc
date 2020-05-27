@@ -26,7 +26,7 @@
 /*!
     \previouspage studio-getting-started.html
     \page qtbridge-overview.html
-    \nextpage psqtbridge.html
+    \nextpage qtbridge-ai.html
 
     \title Exporting Artwork from Design Tools
 
@@ -40,6 +40,12 @@
     the guidelines for creating and exporting them.
 
     \list
+
+        \li \l{Exporting Designs from Adobe Illustrator}
+
+            You can either copy-paste your assets to Adobe Photoshop as
+            \e {smart objects} or export them into file formats supported
+             by \QDS.
 
         \li \l{Exporting Designs from Adobe Photoshop}
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Bridge documentation.
@@ -44,12 +44,6 @@
         \li Store all assets in vector format to be able to easily rescale them
             for different screen sizes and resolutions.
     \endlist
-
-    If you would rather use Adobe Illustrator for creating artwork, you can
-    copy-paste your assets to Adobe Photoshop as \e {smart objects}. You can
-    then double-click the smart objects in Photoshop to open them in Illustrator
-    for editing. Because you use smart objects, all your changes are propagated
-    to all instances of the objects used in your designs in Photoshop.
 
     To use the fonts that you use in Photoshop also in \QDS, you need to load
     them to \QDS. \QDS deploys them to devices when you preview the UI. For more
