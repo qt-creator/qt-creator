@@ -53,6 +53,14 @@ QmlJSOutlineFilterModel::QmlJSOutlineFilterModel(QObject *parent) :
     setDynamicSortFilter(true);
 }
 
+Qt::ItemFlags QmlJSOutlineFilterModel::flags(const QModelIndex &index) const
+{
+    Qt::ItemFlags f = sourceModel()->flags(index);
+    if (m_sorted)
+        f.setFlag(Qt::ItemIsDropEnabled, false);
+    return f;
+}
+
 bool QmlJSOutlineFilterModel::filterAcceptsRow(int sourceRow,
                                                const QModelIndex &sourceParent) const
 {
@@ -63,6 +71,15 @@ bool QmlJSOutlineFilterModel::filterAcceptsRow(int sourceRow,
             return false;
     }
     return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
+}
+
+bool QmlJSOutlineFilterModel::lessThan(const QModelIndex &sourceLeft,
+                                       const QModelIndex &sourceRight) const
+{
+    if (!m_sorted)
+        return sourceLeft.row() > sourceRight.row();
+
+    return sourceLeft.data().toString() > sourceRight.data().toString();
 }
 
 QVariant QmlJSOutlineFilterModel::data(const QModelIndex &index, int role) const
@@ -93,6 +110,12 @@ void QmlJSOutlineFilterModel::setFilterBindings(bool filterBindings)
     invalidateFilter();
 }
 
+void QmlJSOutlineFilterModel::setSorted(bool sorted)
+{
+    m_sorted = sorted;
+    invalidate();
+}
+
 QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent)
     : TextEditor::IOutlineWidget(parent)
     , m_treeView(new QmlJSOutlineTreeView(this))
@@ -101,6 +124,8 @@ QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent)
     m_filterModel->setFilterBindings(false);
 
     m_treeView->setModel(m_filterModel);
+    m_treeView->setSortingEnabled(true);
+
     setFocusProxy(m_treeView);
 
     auto layout = new QVBoxLayout;
@@ -158,15 +183,25 @@ void QmlJSOutlineWidget::setCursorSynchronization(bool syncWithCursor)
     m_editor->updateOutlineIndexNow();
 }
 
+void QmlJSOutlineWidget::setSorted(bool sorted)
+{
+    m_sorted = sorted;
+    m_filterModel->setSorted(m_sorted);
+}
+
 void QmlJSOutlineWidget::restoreSettings(const QVariantMap &map)
 {
     bool showBindings = map.value(QString::fromLatin1("QmlJSOutline.ShowBindings"), true).toBool();
     m_showBindingsAction->setChecked(showBindings);
+    setSorted(map.value(QString("QmlJSOutline.Sort"), false).toBool());
 }
 
 QVariantMap QmlJSOutlineWidget::settings() const
 {
-    return {{QLatin1String("QmlJSOutline.ShowBindings"), m_showBindingsAction->isChecked()}};
+    return {
+        {QString("QmlJSOutline.ShowBindings"), m_showBindingsAction->isChecked()},
+        {QString("QmlJSOutline.Sort"), m_sorted}
+    };
 }
 
 void QmlJSOutlineWidget::updateSelectionInTree(const QModelIndex &index)

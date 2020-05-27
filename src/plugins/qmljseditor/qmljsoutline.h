@@ -51,15 +51,19 @@ class QmlJSOutlineFilterModel : public QSortFilterProxyModel
 public:
     QmlJSOutlineFilterModel(QObject *parent);
     // QSortFilterProxyModel
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
     bool filterAcceptsRow(int sourceRow,
                           const QModelIndex &sourceParent) const override;
+    bool lessThan(const QModelIndex &sourceLeft, const QModelIndex &sourceRight) const override;
     QVariant data(const QModelIndex &index, int role) const override;
     Qt::DropActions supportedDragActions() const override;
 
     bool filterBindings() const;
     void setFilterBindings(bool filterBindings);
+    void setSorted(bool sorted);
 private:
     bool m_filterBindings = false;
+    bool m_sorted = false;
 };
 
 class QmlJSOutlineWidget : public TextEditor::IOutlineWidget
@@ -73,6 +77,8 @@ public:
     // IOutlineWidget
     QList<QAction*> filterMenuActions() const override;
     void setCursorSynchronization(bool syncWithCursor) override;
+    bool isSorted() const override { return m_sorted; };
+    void setSorted(bool sorted) override;
     void restoreSettings(const QVariantMap &map) override;
     QVariantMap settings() const override;
 
@@ -93,6 +99,7 @@ private:
 
     bool m_enableCursorSync = true;
     bool m_blockCursorSync = false;
+    bool m_sorted = false;
 };
 
 class QmlJSOutlineWidgetFactory : public TextEditor::IOutlineWidgetFactory
@@ -100,6 +107,7 @@ class QmlJSOutlineWidgetFactory : public TextEditor::IOutlineWidgetFactory
     Q_OBJECT
 public:
     bool supportsEditor(Core::IEditor *editor) const override;
+    bool supportsSorting() const override { return true; }
     TextEditor::IOutlineWidget *createWidget(Core::IEditor *editor) override;
 };
 
