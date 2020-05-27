@@ -44,6 +44,8 @@ Project {
             "ansiescapecodehandler.h",
             "appmainwindow.cpp",
             "appmainwindow.h",
+            "archive.cpp",
+            "archive.h",
             "basetreeview.cpp",
             "basetreeview.h",
             "benchmarker.cpp",

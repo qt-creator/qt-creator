@@ -133,7 +133,8 @@ SOURCES += \
     $$PWD/namevaluevalidator.cpp \
     $$PWD/camelcasecursor.cpp \
     $$PWD/infolabel.cpp \
-    $$PWD/overlaywidget.cpp
+    $$PWD/overlaywidget.cpp \
+    $$PWD/archive.cpp
 
 HEADERS += \
     $$PWD/environmentfwd.h \
@@ -281,7 +282,8 @@ HEADERS += \
     $$PWD/namevaluevalidator.h \
     $$PWD/camelcasecursor.h \
     $$PWD/infolabel.h \
-    $$PWD/overlaywidget.h
+    $$PWD/overlaywidget.h \
+    $$PWD/archive.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

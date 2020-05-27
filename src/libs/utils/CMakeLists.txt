@@ -10,6 +10,7 @@ add_qtc_library(Utils
     algorithm.h
     ansiescapecodehandler.cpp ansiescapecodehandler.h
     appmainwindow.cpp appmainwindow.h
+    archive.cpp archive.h
     basetreeview.cpp basetreeview.h
     benchmarker.cpp benchmarker.h
     buildablehelperlibrary.cpp buildablehelperlibrary.h

@@ -37,15 +37,10 @@
 #include <extensionsystem/pluginspec.h>
 #include <extensionsystem/pluginview.h>
 
-#include <utils/algorithm.h>
-#include <utils/checkablemessagebox.h>
-#include <utils/environment.h>
+#include <utils/archive.h>
 #include <utils/fancylineedit.h>
 #include <utils/infolabel.h>
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/pathchooser.h>
-#include <utils/qtcassert.h>
-#include <utils/synchronousprocess.h>
 #include <utils/wizard.h>
 #include <utils/wizardpage.h>
 
@@ -72,43 +67,11 @@ static bool s_isRestartRequired = false;
 const char kPath[] = "Path";
 const char kApplicationInstall[] = "ApplicationInstall";
 
-static bool hasLibSuffix(const QString &path)
+static bool hasLibSuffix(const FilePath &path)
 {
-    return (HostOsInfo().isWindowsHost() && path.endsWith(".dll", Qt::CaseInsensitive))
-           || (HostOsInfo().isLinuxHost() && QFileInfo(path).completeSuffix().startsWith(".so"))
+    return (HostOsInfo().isWindowsHost() && path.endsWith(".dll"))
+           || (HostOsInfo().isLinuxHost() && path.toFileInfo().completeSuffix().startsWith(".so"))
            || (HostOsInfo().isMacHost() && path.endsWith(".dylib"));
-}
-
-static bool isZipFile(const QString &path)
-{
-    const QList<MimeType> mimeType = mimeTypesForFileName(path);
-    return anyOf(mimeType, [](const MimeType &mt) { return mt.inherits("application/zip"); });
-}
-
-struct Tool
-{
-    FilePath executable;
-    QStringList arguments;
-};
-
-static Utils::optional<Tool> unzipTool(const FilePath &src, const FilePath &dest)
-{
-    const FilePath unzip = Utils::Environment::systemEnvironment().searchInPath(
-        Utils::HostOsInfo::withExecutableSuffix("unzip"));
-    if (!unzip.isEmpty())
-        return Tool{unzip, {"-o", src.toString(), "-d", dest.toString()}};
-
-    const FilePath sevenzip = Utils::Environment::systemEnvironment().searchInPath(
-        Utils::HostOsInfo::withExecutableSuffix("7z"));
-    if (!sevenzip.isEmpty())
-        return Tool{sevenzip, {"x", QString("-o") + dest.toString(), "-y", src.toString()}};
-
-    const FilePath cmake = Utils::Environment::systemEnvironment().searchInPath(
-        Utils::HostOsInfo::withExecutableSuffix("cmake"));
-    if (!cmake.isEmpty())
-        return Tool{cmake, {"-E", "tar", "xvf", src.toString()}};
-
-    return {};
 }
 
 class SourcePage : public WizardPage
@@ -149,21 +112,17 @@ public:
 
     bool isComplete() const
     {
-        const QString path = field(kPath).toString();
-        if (!QFile::exists(path)) {
+        const auto path = FilePath::fromVariant(field(kPath));
+        if (!QFile::exists(path.toString())) {
             m_info->setText(PluginDialog::tr("File does not exist."));
             return false;
         }
         if (hasLibSuffix(path))
             return true;
 
-        if (!isZipFile(path)) {
-            m_info->setText(PluginDialog::tr("File format not supported."));
-            return false;
-        }
-        if (!unzipTool({}, {})) {
-            m_info->setText(
-                PluginDialog::tr("Could not find unzip, 7z, or cmake executable in PATH."));
+        QString error;
+        if (!Archive::supportsFile(path, &error)) {
+            m_info->setText(error);
             return false;
         }
         return true;
@@ -367,45 +326,6 @@ static bool copyPluginFile(const FilePath &src, const FilePath &dest)
     return true;
 }
 
-static bool unzip(const FilePath &src, const FilePath &dest)
-{
-    const Utils::optional<Tool> tool = unzipTool(src, dest);
-    QTC_ASSERT(tool, return false);
-    const QString workingDirectory = dest.toFileInfo().absoluteFilePath();
-    QDir(workingDirectory).mkpath(".");
-    CheckableMessageBox box(ICore::dialogParent());
-    box.setIcon(QMessageBox::Information);
-    box.setWindowTitle(PluginDialog::tr("Unzipping File"));
-    box.setText(PluginDialog::tr("Unzipping \"%1\" to \"%2\".")
-                    .arg(src.toUserOutput(), dest.toUserOutput()));
-    box.setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    box.button(QDialogButtonBox::Ok)->setEnabled(false);
-    box.setCheckBoxVisible(false);
-    box.setDetailedText(
-        PluginDialog::tr("Running %1\nin \"%2\".\n\n", "Running <cmd> in <workingdirectory>")
-            .arg(CommandLine(tool->executable, tool->arguments).toUserOutput(), workingDirectory));
-    QProcess process;
-    process.setProcessChannelMode(QProcess::MergedChannels);
-    QObject::connect(&process, &QProcess::readyReadStandardOutput, &box, [&box, &process]() {
-        box.setDetailedText(box.detailedText() + QString::fromUtf8(process.readAllStandardOutput()));
-    });
-    QObject::connect(&process,
-                     QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                     [&box](int, QProcess::ExitStatus) {
-                         box.button(QDialogButtonBox::Ok)->setEnabled(true);
-                         box.button(QDialogButtonBox::Cancel)->setEnabled(false);
-                     });
-    QObject::connect(&box, &QMessageBox::rejected, &process, [&process] {
-        SynchronousProcess::stopProcess(process);
-    });
-    process.setProgram(tool->executable.toString());
-    process.setArguments(tool->arguments);
-    process.setWorkingDirectory(workingDirectory);
-    process.start(QProcess::ReadOnly);
-    box.exec();
-    return process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;
-}
-
 void PluginDialog::showInstallWizard()
 {
     Wizard wizard(ICore::dialogParent());
@@ -423,11 +343,11 @@ void PluginDialog::showInstallWizard()
     if (wizard.exec()) {
         const FilePath path = pluginFilePath(&wizard);
         const FilePath installPath = pluginInstallPath(&wizard);
-        if (hasLibSuffix(path.toString())) {
+        if (hasLibSuffix(path)) {
             if (copyPluginFile(path, installPath))
                 updateRestartRequired();
-        } else if (isZipFile(path.toString())) {
-            if (unzip(path, installPath))
+        } else if (Archive::supportsFile(path)) {
+            if (Archive::unarchive(path, installPath, ICore::dialogParent()))
                 updateRestartRequired();
         }
     }
