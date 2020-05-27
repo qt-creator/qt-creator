@@ -22,55 +22,44 @@ T.Button {
 
         Image {
             id: buttonNormal
-            color: "#d4d4d4"
-            x: 14
-            y: 5
-            width: 100 //Bit of black magic to define the default size
+            width: 100
             height: 40
-
-            border.color: "gray"
-            border.width: 1
-            radius: 2
-            anchors.fill: parent //binding has to be preserved
+            anchors.fill: parent
             source: "assets/buttonNormal.png"
-
             Text {
                 id: normalText
                 x: 58
-                y: 50 //id only required to preserve binding
-                text: control.text //binding has to be preserved
-                //anchors.fill: parent
-                color: "#BBBBBB"
-                font.letterSpacing: 0.594
+                y: 50
+                color: "#bbbbbb"
+                text: control.text
+                elide: Text.ElideRight
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
                 font.pixelSize: 24
+                font.letterSpacing: 0.594
             }
         }
 
         Image {
             id: buttonPressed
-            x: 290
-            y: 5
-            width: 100 //Bit of black magic to define the default size
+            width: 100
             height: 40
+            anchors.fill: parent
             source: "assets/buttonPressed.png"
-
-            border.color: "gray"
-            border.width: 1
-            radius: 2
-            anchors.fill: parent //binding has to be preserved
-
             Text {
-                id: pressedText //id only required to preserve binding
+                id: pressedText
                 x: 58
                 y: 50
-                text: control.text //binding has to be preserved
-                //anchors.fill: parent
-                color: "#E1E1E1"
-
-                font.letterSpacing: 0.594
+                color: "#e1e1e1"
+                text: control.text
+                elide: Text.ElideRight
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
                 font.pixelSize: 24
+                font.letterSpacing: 0.594
             }
         }
+
     }
 
     contentItem: Item {}

@@ -28,12 +28,6 @@ T.Switch {
                 text: control.text // has to be preserved
                 anchors.rightMargin: 12 * 5
             }
-            Rectangle {
-                id: nonSenseRectangle
-                width: 5 * 12.0
-                height: 6 * 49.0
-                color: "#ff0000"
-            }
         }
     }
 

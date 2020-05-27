@@ -22,8 +22,6 @@ T.Button {
 
         Rectangle {
             id: buttonNormal
-            x: 286
-            y: 62
             width: 100
             height: 60
             color: "#d4d4d4"
@@ -38,7 +36,6 @@ T.Button {
                 color: "#808080"
                 text: control.text
                 elide: Text.ElideRight
-                anchors.fill: parent
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
             }
@@ -46,8 +43,6 @@ T.Button {
 
         Rectangle {
             id: buttonPressed
-            x: 123
-            y: 62
             width: 100
             height: 60
             color: "#69b5ec"
@@ -62,7 +57,6 @@ T.Button {
                 color: "#000000"
                 text: control.text
                 elide: Text.ElideRight
-                anchors.fill: parent
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
             }

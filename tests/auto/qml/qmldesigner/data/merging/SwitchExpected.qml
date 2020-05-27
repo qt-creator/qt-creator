@@ -40,9 +40,9 @@ T.Switch {
             color: "#c2c2c2"
             border.color: "#808080"
             anchors.fill: parent
-
             Text {
-                text: "background"
+                id: switchBackgroundText
+                text: control.text
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.right: parent.right
                 anchors.rightMargin: 12
