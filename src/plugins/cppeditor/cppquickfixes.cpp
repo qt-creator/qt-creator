@@ -3438,11 +3438,16 @@ public:
 
         // Write class qualification, if any.
         if (matchingClass) {
-            Class *current = matchingClass;
+            const Scope *current = matchingClass;
             QVector<const Name *> classes{matchingClass->name()};
             while (current->enclosingScope()->asClass()) {
                 current = current->enclosingScope()->asClass();
                 classes.prepend(current->name());
+            }
+            while (current->enclosingScope() && current->enclosingScope()->asNamespace()) {
+                current = current->enclosingScope()->asNamespace();
+                if (current->name())
+                    classes.prepend(current->name());
             }
             for (const Name *n : classes) {
                 const Name *name = rewriteName(n, &env, control);

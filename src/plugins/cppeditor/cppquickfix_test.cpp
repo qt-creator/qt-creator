@@ -5125,6 +5125,34 @@ void CppEditorPlugin::test_quickfix_ExtractFunction_data()
              "{\n"
              "    extracted();\n"
              "}\n");
+
+    QTest::newRow("class in namespace")
+        << _("namespace NS {\n"
+             "class C {\n"
+             "    void f(C &c);\n"
+             "};\n"
+             "}\n"
+             "void NS::C::f(NS::C &c)\n"
+             "{\n"
+             "    @{start}C *c = &c;@{end}\n"
+             "}\n")
+        << _("namespace NS {\n"
+             "class C {\n"
+             "    void f(C &c);\n"
+             "\n"
+             "public:\n"
+             "    void extracted(NS::C &c);\n" // TODO: Remove non-required qualification
+             "};\n"
+             "}\n"
+             "void NS::C::extracted(NS::C &c)\n"
+             "{\n"
+             "    C *c = &c;\n"
+             "}\n"
+             "\n"
+             "void NS::C::f(NS::C &c)\n"
+             "{\n"
+             "    extracted(c);\n"
+             "}\n");
 }
 
 void CppEditorPlugin::test_quickfix_ExtractFunction()
