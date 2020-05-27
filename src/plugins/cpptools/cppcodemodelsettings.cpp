@@ -80,6 +80,8 @@ static ClangDiagnosticConfigs removedBuiltinConfigs()
                                                       "Pedantic checks"));
     config.setIsReadOnly(true);
     config.setClangOptions(QStringList{QStringLiteral("-Wpedantic")});
+    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
+    config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseCustomChecks);
     configs << config;
 
     // Everything with exceptions
@@ -104,6 +106,8 @@ static ClangDiagnosticConfigs removedBuiltinConfigs()
         QStringLiteral("-Wno-missing-prototypes"), // Not optimal for C projects.
         QStringLiteral("-Wno-used-but-marked-unused"), // e.g. QTest::qWait
     });
+    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
+    config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseCustomChecks);
     configs << config;
 
     return configs;

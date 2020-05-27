@@ -356,6 +356,8 @@ static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)
         "-Wall",
         "-Wextra",
     });
+    config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseCustomChecks);
+    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
     model.appendOrUpdate(config);
 
     // Warning flags from build system
@@ -364,6 +366,8 @@ static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)
     config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
                                                       "Build-system warnings"));
     config.setIsReadOnly(true);
+    config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseCustomChecks);
+    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
     config.setUseBuildSystemWarnings(true);
     model.appendOrUpdate(config);
 }
