@@ -64,7 +64,8 @@ namespace Internal {
 OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     QStackedWidget(),
     m_factory(factory),
-    m_syncWithEditor(true)
+    m_syncWithEditor(true),
+    m_sorted(false)
 {
     QLabel *label = new QLabel(tr("No outline available"), this);
     label->setAlignment(Qt::AlignCenter);
@@ -95,6 +96,13 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     m_filterMenu = new QMenu(m_filterButton);
     m_filterButton->setMenu(m_filterMenu);
 
+    m_toggleSort = new QToolButton(this);
+    m_toggleSort->setIcon(Utils::Icons::SORT_ALPHABETICALLY_TOOLBAR.icon());
+    m_toggleSort->setCheckable(true);
+    m_toggleSort->setChecked(false);
+    m_toggleSort->setToolTip(tr("Sort Alphabetically"));
+    connect(m_toggleSort, &QAbstractButton::clicked, this, &OutlineWidgetStack::toggleSort);
+
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
             this, &OutlineWidgetStack::updateEditor);
     connect(factory, &OutlineFactory::updateOutline,
@@ -112,6 +120,11 @@ QToolButton *OutlineWidgetStack::toggleSyncButton()
 QToolButton *OutlineWidgetStack::filterButton()
 {
     return m_filterButton;
+}
+
+QToolButton *OutlineWidgetStack::sortButton()
+{
+    return m_toggleSort;
 }
 
 void OutlineWidgetStack::saveSettings(QSettings *settings, int position)
@@ -158,6 +171,13 @@ void OutlineWidgetStack::toggleCursorSynchronization()
         outlineWidget->setCursorSynchronization(m_syncWithEditor);
 }
 
+void OutlineWidgetStack::toggleSort()
+{
+    m_sorted = !m_sorted;
+    if (auto outlineWidget = qobject_cast<IOutlineWidget*>(currentWidget()))
+        outlineWidget->setSorted(m_sorted);
+}
+
 void OutlineWidgetStack::updateFilterMenu()
 {
     m_filterMenu->clear();
@@ -182,6 +202,7 @@ void OutlineWidgetStack::updateEditor(Core::IEditor *editor)
         for (IOutlineWidgetFactory *widgetFactory : qAsConst(g_outlineWidgetFactories)) {
             if (widgetFactory->supportsEditor(editor)) {
                 newWidget = widgetFactory->createWidget(editor);
+                m_toggleSort->setVisible(widgetFactory->supportsSorting());
                 break;
             }
         }
@@ -199,6 +220,7 @@ void OutlineWidgetStack::updateEditor(Core::IEditor *editor)
         if (newWidget) {
             newWidget->restoreSettings(m_widgetSettings);
             newWidget->setCursorSynchronization(m_syncWithEditor);
+            m_toggleSort->setChecked(newWidget->isSorted());
             addWidget(newWidget);
             setCurrentWidget(newWidget);
             setFocusProxy(newWidget);
@@ -223,6 +245,7 @@ Core::NavigationView OutlineFactory::createWidget()
     auto placeHolder = new OutlineWidgetStack(this);
     n.widget = placeHolder;
     n.dockToolBarWidgets.append(placeHolder->filterButton());
+    n.dockToolBarWidgets.append(placeHolder->sortButton());
     n.dockToolBarWidgets.append(placeHolder->toggleSyncButton());
     return n;
 }

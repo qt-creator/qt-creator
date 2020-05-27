@@ -41,6 +41,8 @@ public:
 
     virtual QList<QAction*> filterMenuActions() const = 0;
     virtual void setCursorSynchronization(bool syncWithCursor) = 0;
+    virtual void setSorted(bool /*sorted*/) {}
+    virtual bool isSorted() const { return false; }
 
     virtual void restoreSettings(const QVariantMap & /*map*/) { }
     virtual QVariantMap settings() const { return QVariantMap(); }
@@ -55,6 +57,7 @@ public:
     ~IOutlineWidgetFactory() override;
 
     virtual bool supportsEditor(Core::IEditor *editor) const = 0;
+    virtual bool supportsSorting() const { return false; }
     virtual IOutlineWidget *createWidget(Core::IEditor *editor) = 0;
 
     static void updateOutline();

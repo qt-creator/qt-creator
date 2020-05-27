@@ -46,6 +46,7 @@ public:
 
     QToolButton *toggleSyncButton();
     QToolButton *filterButton();
+    QToolButton *sortButton();
 
     void saveSettings(QSettings *settings, int position);
     void restoreSettings(QSettings *settings, int position);
@@ -55,6 +56,7 @@ private:
     QWidget *dummyWidget() const;
     void updateFilterMenu();
     void toggleCursorSynchronization();
+    void toggleSort();
     void updateEditor(Core::IEditor *editor);
     void updateCurrentEditor();
 
@@ -62,9 +64,11 @@ private:
     OutlineFactory *m_factory;
     QToolButton *m_toggleSync;
     QToolButton *m_filterButton;
+    QToolButton *m_toggleSort;
     QMenu *m_filterMenu;
     QVariantMap m_widgetSettings;
     bool m_syncWithEditor;
+    bool m_sorted;
 };
 
 class OutlineFactory : public Core::INavigationWidgetFactory
