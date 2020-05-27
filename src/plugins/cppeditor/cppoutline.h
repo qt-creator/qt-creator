@@ -68,7 +68,11 @@ public:
     // IOutlineWidget
     QList<QAction*> filterMenuActions() const override;
     void setCursorSynchronization(bool syncWithCursor) override;
+    bool isSorted() const override;
+    void setSorted(bool sorted) override;
 
+    void restoreSettings(const QVariantMap &map) override;
+    QVariantMap settings() const override;
 private:
     void modelUpdated();
     void updateSelectionInTree(const QModelIndex &index);
@@ -83,6 +87,7 @@ private:
 
     bool m_enableCursorSync;
     bool m_blockCursorSync;
+    bool m_sorted;
 };
 
 class CppOutlineWidgetFactory : public TextEditor::IOutlineWidgetFactory
@@ -90,6 +95,7 @@ class CppOutlineWidgetFactory : public TextEditor::IOutlineWidgetFactory
     Q_OBJECT
 public:
     bool supportsEditor(Core::IEditor *editor) const override;
+    bool supportsSorting() const override { return true; }
     TextEditor::IOutlineWidget *createWidget(Core::IEditor *editor) override;
 };
 

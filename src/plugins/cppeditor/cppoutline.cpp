@@ -101,7 +101,8 @@ CppOutlineWidget::CppOutlineWidget(CppEditorWidget *editor) :
     m_editor(editor),
     m_treeView(new CppOutlineTreeView(this)),
     m_enableCursorSync(true),
-    m_blockCursorSync(false)
+    m_blockCursorSync(false),
+    m_sorted(false)
 {
     CppTools::AbstractOverviewModel *model = m_editor->outline()->model();
     m_proxyModel = new CppOutlineFilterModel(*model, this);
@@ -114,6 +115,7 @@ CppOutlineWidget::CppOutlineWidget(CppEditorWidget *editor) :
     setLayout(layout);
 
     m_treeView->setModel(m_proxyModel);
+    m_treeView->setSortingEnabled(true);
     setFocusProxy(m_treeView);
 
     connect(model, &QAbstractItemModel::modelReset, this, &CppOutlineWidget::modelUpdated);
@@ -135,6 +137,27 @@ void CppOutlineWidget::setCursorSynchronization(bool syncWithCursor)
     m_enableCursorSync = syncWithCursor;
     if (m_enableCursorSync)
         updateSelectionInTree(m_editor->outline()->modelIndex());
+}
+
+bool CppOutlineWidget::isSorted() const
+{
+    return m_sorted;
+}
+
+void CppOutlineWidget::setSorted(bool sorted)
+{
+    m_sorted = sorted;
+    m_proxyModel->sort(m_sorted ? 0 : -1);
+}
+
+void CppOutlineWidget::restoreSettings(const QVariantMap &map)
+{
+    setSorted(map.value(QString("CppOutline.Sort"), false).toBool());
+}
+
+QVariantMap CppOutlineWidget::settings() const
+{
+    return {{QString("CppOutline.Sort"), m_sorted}};
 }
 
 void CppOutlineWidget::modelUpdated()
