@@ -29,12 +29,12 @@
 #include <utils/pathchooser.h>
 #include <utils/pathlisteditor.h>
 
-#include <QDebug>
-#include <QSettings>
-
+#include <QActionGroup>
 #include <QCheckBox>
+#include <QDebug>
 #include <QGroupBox>
 #include <QLineEdit>
+#include <QSettings>
 #include <QSpinBox>
 #include <QTextEdit>
 

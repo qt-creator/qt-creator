@@ -18,8 +18,8 @@
     "specific_qt_versions": [
         {
             "versions": ["default"],
-            "sdk_essential_packages": ["build-tools;29.0.2", "ndk-bundle"],
-            "ndk_path": "ndk-bundle"
+            "sdk_essential_packages": ["build-tools;29.0.2", "ndk;21.1.6352462"],
+            "ndk_path": "ndk/21.1.6352462"
         },
         {
             "versions": ["5.12.[0-5]", "5.13.[0-1]"],

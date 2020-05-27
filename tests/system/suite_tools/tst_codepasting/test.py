@@ -35,7 +35,6 @@ def __platformToBeRunToday__():
 skipPastingToPastebinCom = platform.system() not in __platformToBeRunToday__()
 
 NAME_PBCOM = "Pastebin.Com"
-NAME_PCXYZ = "Pastecode.Xyz"
 
 serverProblems = "Server side problems."
 
@@ -169,7 +168,7 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    protocolsToTest = [NAME_PBCOM, NAME_PCXYZ]
+    protocolsToTest = [NAME_PBCOM]
     sourceFile = os.path.join(os.getcwd(), "testdata", "main.cpp")
     # make sure General Messages is open
     openGeneralMessages()

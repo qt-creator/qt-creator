@@ -49,7 +49,7 @@
             When you deploy the application to an Android device, \QC copies
             the application files to the device. In addition, you can determine
             the Qt libraries to use.
-        \li \l{Deploying Applications to Embedded Linux Devices}
+        \li \l{Deploying Applications to Generic Remote Linux Devices}
 
             When you deploy the application to a generic Linux-based device, \QC
             copies the application files to the connected device. You can test

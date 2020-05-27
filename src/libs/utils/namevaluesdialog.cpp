@@ -31,6 +31,7 @@
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QPlainTextEdit>
+#include <QSet>
 #include <QVBoxLayout>
 
 namespace Utils {

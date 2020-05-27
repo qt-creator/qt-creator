@@ -99,8 +99,6 @@ static McuToolChainPackage *createArmGccPackage()
                 Utils::HostOsInfo::withExecutableSuffix("bin/arm-none-eabi-g++"),
                 "GNUArmEmbeddedToolchain",
                 McuToolChainPackage::TypeArmGcc);
-    result->setDownloadUrl(
-                "https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads");
     result->setEnvironmentVariableName(envVar);
     return result;
 }
@@ -149,19 +147,6 @@ static McuPackage *createRGLPackage()
     return result;
 }
 
-static McuPackage *createStm32CubeFwF7SdkPackage()
-{
-    auto result = new McuPackage(
-                McuPackage::tr("STM32Cube SDK"),
-                "%{Env:STM32Cube_FW_F7_SDK_PATH}",
-                "Drivers/STM32F7xx_HAL_Driver",
-                "Stm32CubeFwF7Sdk");
-    result->setDownloadUrl(
-                "https://www.st.com/content/st_com/en/products/embedded-software/mcus-embedded-software/stm32-embedded-software/stm32cube-mcu-packages/stm32cubef7.html");
-    result->setEnvironmentVariableName("STM32Cube_FW_F7_SDK_PATH");
-    return result;
-}
-
 static McuPackage *createStm32CubeProgrammerPackage()
 {
 
@@ -182,17 +167,6 @@ static McuPackage *createStm32CubeProgrammerPackage()
     result->setDownloadUrl(
                 "https://www.st.com/en/development-tools/stm32cubeprog.html");
     result->setAddToPath(true);
-    return result;
-}
-
-static McuPackage *createEvkbImxrt1050SdkPackage()
-{
-    auto result = new McuPackage(
-                McuPackage::tr("NXP i.MXRT SDK"),
-                "%{Env:EVKB_IMXRT1050_SDK_PATH}", // TODO: Try to not use 1050 specifics
-                "EVKB-IMXRT1050_manifest_v3_5.xml",
-                "EvkbImxrt1050Sdk");
-    result->setDownloadUrl("https://mcuxpresso.nxp.com/en/welcome");
     return result;
 }
 
@@ -318,13 +292,8 @@ static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescrip
 
 static QFileInfoList targetDescriptionFiles(const Utils::FilePath &dir)
 {
-    // Workaround for UL-2390: Instead of "./kits/", walk through "./lib/cmake/Qul/boards/"
-    QFileInfoList result;
-    QDirIterator it(dir.toString() + "/lib/cmake/Qul/boards/", {QLatin1String("*.json")},
-                    QDir::Files, QDirIterator::Subdirectories);
-    while (it.hasNext())
-        result.append(it.next());
-    return result;
+    const QDir kitsDir(dir.toString() + "/kits/", "*.json");
+    return kitsDir.entryInfoList();
 }
 
 static QString freeRTOSEnvVarForPlatform(const QString &platform)

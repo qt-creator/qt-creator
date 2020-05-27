@@ -14,6 +14,7 @@ General
 -------
 
 * Fixed crash when changing font settings (QTCREATORBUG-14385)
+* Fixed availability of `Link with Qt` information on startup (QTCREATORBUG-23900)
 
 Editing
 -------
@@ -39,6 +40,10 @@ Projects
 
 * Fixed issue with JOM (QTCREATORBUG-22645)
 
+### Qbs
+
+* Fixed crash when updating project (QTCREATORBUG-23924)
+
 ### Compilation Database
 
 * Fixed issues with symbolic links (QTCREATORBUG-23511)
@@ -46,8 +51,13 @@ Projects
 Debugging
 ---------
 
+* Fixed startup when Python's JSON module is missing (QTCREATORBUG-24004)
 * Fixed pretty printing of `std::unique_ptr` with custom deleter (QTCREATORBUG-23885)
 
+### GDB
+
+* Fixed handling of register addresses with lowercase characters
+* Fixed issue with GDB reporting zero array size in some cases (QTCREATORBUG-23998)
 
 Qt Quick Designer
 -----------------
@@ -67,10 +77,39 @@ Platforms
 
 * Fixed crash at startup when Qt is missing in Kit (QTCREATORBUG-23963)
 * Fixed `Always use this device for this project` (QTCREATORBUG-23918)
+* Fixed issue with "side by side" NDK installation (QTCREATORBUG-23903)
 
 ### OpenBSD
 
 * Fixed Qt ABI detection (QTCREATORBUG-23818)
 
+### MCU
+
+* Fixed various issues with Kit creation and cleanup
+
 Credits for these changes go to:
 --------------------------------
+Alessandro Portale  
+André Pönitz  
+Assam Boudjelthia  
+Brook Cronin  
+Christian Kandeler  
+Christian Stenger  
+Cristian Adam  
+David Schulz  
+Eike Ziller  
+Friedemann Kleint  
+Henning Gruendl  
+Jeremy Ephron  
+Johanna Vanhatapio  
+Leander Schulten  
+Leena Miettinen  
+Nikolai Kosjar  
+Robert Löhning  
+Sebastian Verling  
+Sergey Belyashov  
+Thiago Macieira  
+Thomas Hartmann  
+Tim Jenssen  
+Venugopal Shivashankar  
+Vikas Pachdha  

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -47,29 +47,20 @@
     devices:
 
     \list
-
-        \li Android Device
-
-        \li Bare Metal Device
-
-        \li Boot2Qt Device (commercial only)
-
-        \li \l {Emulator}{Boot2Qt Emulator Device} (commercial only)
-
-        \li Generic Linux Device
-
-        \li iOS Device
-
+        \li \l{Connecting Android Devices}{Android Device}
+        \li \l{Connecting Bare Metal Devices}{Bare Metal Device}
+        \li \l{https://doc.qt.io/QtForDeviceCreation/b2qt-installation-guides.html}
+            {Boot2Qt Device} (commercial only)
+        \li \l{Emulator}{Boot2Qt Emulator Device} (commercial only)
+        \li \l{Connecting Generic Remote Linux Devices}{Generic Remote Linux Device}
+        \li \l{Connecting iOS Devices}{iOS Device}
         \li iOS Simulator
-
-        \li QNX Device
-
-        \li Windows Phone
-
+        \li \l{Connecting MCUs}{MCU Device} (commercial only)
+        \li \l{Connecting QNX Devices}{QNX Device}
+        \li \l{Building Applications for the Web}{WebAssembly Runtime}
+        \li \l{Qt for UWP}{Windows Phone}
         \li Windows Phone Emulator
-
         \li Windows Runtime (local)
-
     \endlist
 
     \section1 Filtering Kit Settings

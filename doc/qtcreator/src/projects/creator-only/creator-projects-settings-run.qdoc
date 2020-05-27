@@ -84,7 +84,7 @@
     \include creator-projects-settings-run-android.qdocinc run settings android
     \include creator-projects-settings-run-linux.qdocinc run settings linux
     \include creator-projects-settings-run-qnx.qdocinc run settings qnx
-    \include linux-mobile/creator-projects-settings-run-b2qt.qdocinc run settings embedded
+    \include linux-mobile/creator-projects-settings-run-b2qt.qdocinc run settings boot2qt
 
     \section1 Selecting the Run Environment
 
