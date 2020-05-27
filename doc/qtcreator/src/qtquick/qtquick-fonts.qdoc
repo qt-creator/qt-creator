@@ -43,8 +43,7 @@
         \li Select \uicontrol Library > \uicontrol Assets >
             \uicontrol {Add New Assets}.
         \li Browse to the folder that contains the font files and select them.
-        \li Enter the name of the directory to save the fonts. By default, \QDS
-            suggests the project directory.
+        \li Enter the name of the directory to save the fonts.
         \li Select \uicontrol OK to save the fonts.
     \endlist
 
