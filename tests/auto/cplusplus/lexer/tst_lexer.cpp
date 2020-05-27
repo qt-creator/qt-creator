@@ -619,6 +619,8 @@ void tst_SimpleLexer::user_defined_literals_data()
         << _("11_udl") << createToken(T_NUMERIC_LITERAL, 6, 6, true);
     QTest::newRow("numeric user-defined literal with decimal part")
         << _("11.1_udl") << createToken(T_NUMERIC_LITERAL, 8, 8, true);
+    QTest::newRow("numeric user-defined reserved literal")
+        << _("11ms") << createToken(T_NUMERIC_LITERAL, 4, 4, true);
 }
 
 static Token createToken(unsigned kind, unsigned byteOffset, unsigned bytes,

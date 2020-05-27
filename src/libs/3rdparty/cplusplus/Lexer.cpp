@@ -939,7 +939,7 @@ bool Lexer::scanOptionalIntegerSuffix(bool allowU)
 
 void Lexer::scanOptionalUserDefinedLiteral(Token *tok)
 {
-    if (_languageFeatures.cxx11Enabled && _yychar == '_') {
+    if (_languageFeatures.cxx11Enabled && (_yychar == '_' || std::isalpha(_yychar))) {
         tok->f.userDefinedLiteral = true;
         while (std::isalnum(_yychar) || _yychar == '_' || isByteOfMultiByteCodePoint(_yychar))
             yyinp();
