@@ -26,14 +26,14 @@
 /*!
 //! [running on embedded linux]
 
-    \section1 Running on Embedded Linux Devices
+    \section1 Running on Generic Remote Linux Devices
 
     To build the application and run it on a device:
 
         \list 1
 
             \li Specify a connection to the device. For more information, see
-                \l{Connecting Embedded Linux Devices}.
+                \l{Connecting Generic Remote Linux Devices}.
 
             \li Click the \uicontrol Run button.
 

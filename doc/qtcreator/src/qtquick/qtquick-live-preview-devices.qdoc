@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -34,7 +34,7 @@
     To preview UIs on Android devices, you need to enable USB debugging on them
     and connect them to your system with a USB cable.
     \endomit
-    To preview UIs on embedded devices, you need to connect the devices to your
+    To preview UIs on Boot2Qt devices, you need to connect the devices to your
     system with a USB cable, or a wired or wireless connection, depending on
     the device, and configure connections to them. The necessary kits have been
     predefined and you only need to enable them for your current project.
@@ -79,9 +79,9 @@
     device.
     \endomit
 
-    \section2 Previewing on Embedded Devices
+    \section2 Previewing on Boot2Qt Devices
 
-    You can preview UIs on embedded devices that are supported by
+    You can preview UIs on Boot2Qt devices that are supported by
     \l{Qt for Device Creation}. For a list of supported devices, see
     \l{https://doc.qt.io/QtForDeviceCreation/qtee-supported-platforms.html#reference-target-devices}
     {Reference Target Devices}.

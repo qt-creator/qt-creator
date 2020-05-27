@@ -75,14 +75,20 @@ ListModel {
     }
 
     ListElement {
-        displayName: "Qt Design Studio: 1.0 and Ready to Go!"
-        thumbnail: "images/ready_to_go.png"
-        url: "https://www.youtube.com/watch?v=i9ToZ_04kTk"
-    }
-
-    ListElement {
         displayName: "QTWS - Designer and Developer Workflow"
         thumbnail: "images/qtws_video_thumbnail.png"
         url: "https://www.youtube.com/watch?v=4ug0EUdS2RM"
+    }
+
+    ListElement {
+        displayName: "QTWS - Turn UI designs into working prototypes"
+        thumbnail: "images/bridging_the_gap.png"
+        url: "https://www.youtube.com/watch?v=qQM2oEWRBOw&feature=emb_logo"
+    }
+
+    ListElement {
+        displayName: "What's New in Design Studio 1.5"
+        thumbnail: "images/what_is_new_15.png"
+        url: "https://www.youtube.com/watch?v=e-HAZrisi5o"
     }
 }

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -31,30 +31,21 @@
     You can develop applications for the following platforms:
 
     \list
-
         \li Desktop
-
-        \li Android
-
-        \li Embedded
-
-        \li Generic remote Linux
-
-        \li iOS
-
-        \li Microcontroller Units (MCU)
-
-        \li QNX
-
-        \li Universal Windows Platform (UWP)
-
-        \li WebAssembly
-
+        \li \l{Connecting Android Devices}{Android}
+        \li \l{Connecting Bare Metal Devices}{Bare Metal}
+        \li Boot2Qt
+        \li \l{Connecting Generic Remote Linux Devices}{Generic Remote Linux}
+        \li \l{Connecting iOS Devices}{iOS}
+        \li \l{Connecting MCUs}{Microcontroller Units (MCU)} (commercial only)
+        \li \l{Connecting QNX Devices}{QNX}
+        \li \l{Qt for UWP}{Universal Windows Platform (UWP)}
+        \li \l{Building Applications for the Web}{WebAssembly}
     \endlist
 
-    \section2 Embedded Devices
+    \section2 Boot2Qt Devices
 
-    The Boot to Qt stack can be made to run on a variety of hardware. For
+    The Boot2Qt stack can be made to run on a variety of hardware. For
     Qt for Device Creation license holders, tooling is provided to customize the
     contents of the stack as well as to take it into desired production
     hardware.
@@ -65,8 +56,8 @@
     \l{https://doc.qt.io/QtForDeviceCreation/index.html}{Qt for Device Creation}
     documentation.
 
-    \note Since \QC 4.9, only Boot to Qt version 5.9 and later are supported.
-    To develop for earlier Boot to Qt versions, use \QC 4.8.
+    \note Since \QC 4.9, only Boot2Qt version 5.9 and later are supported.
+    To develop for earlier Boot2Qt versions, use \QC 4.8.
 
     \section2 Mobile Devices
 
@@ -99,8 +90,8 @@
             \li
         \row
             \li MCUs
-            \li \image ok
-            \li \image ok
+            \li
+            \li
             \li \image ok
         \row
             \li QNX

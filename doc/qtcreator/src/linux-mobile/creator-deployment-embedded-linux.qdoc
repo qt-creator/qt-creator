@@ -38,11 +38,11 @@
     \nextpage creator-deployment-qnx.html
     \endif
 
-    \title Deploying Applications to Embedded Linux Devices
+    \title Deploying Applications to Generic Remote Linux Devices
 
-    You can specify settings for deploying applications to generic Linux devices
-    in the project .pro file. You can view the settings in the
-    \uicontrol Projects mode, in \uicontrol {Run Settings}.
+    You can specify settings for deploying applications to generic remote
+    Linux devices in the project .pro file. You can view the settings in
+    the \uicontrol Projects mode, in \uicontrol {Run Settings}.
 
     \image qtcreator-embedded-linux-deployment-overview.png "Deploy to device"
 

@@ -28,75 +28,120 @@
     \page studio-3d-editor.html
     \nextpage studio-3d-view.html
 
-    \title Working in the 3D Editor
+    \title Working in 3D Editor
 
-    To project a 3D scene to a 2D viewport, it is necessary to view the scene
-    from a \l{Using Scene Camera}{camera}. Select the \uicontrol {Toggle
-    Perspective/Orthographic Projection} button (1) on the 3D editor toolbar to
-    switch between a \e {perspective camera} and an \e {orthographic camera}.
-    A perspective camera uses field of view and near and far clip planes to
-    specify the projection, whereas an orthographic camera can be thought of
-    as a 2D camera. Both of them are free-form cameras that you can use to
-    orbit around the scene.
+    When editing a 3D scene, you view the scene in \uicontrol {3D Editor} by
+    using the \uicontrol {3D Editor} camera. You can switch between
+    \e {perspective camera} and \e {orthographic camera} modes. When using the
+    perspective camera mode, objects that are far from the camera appear smaller
+    than those nearby. In the orthographic camera mode, all objects appear at
+    the same scale irrespective of their distance from the camera. Both of them
+    are free-form camera modes that you can use to orbit around the scene.
 
     When you import 3D scenes from files that you exported from 3D graphics
-    tools, you also import the camera, light, model, and materials. If your
-    scene did not contain them, you can add the corresponding Qt Quick 3D
-    types from the \uicontrol Library.
+    tools, you also import a \l{Using Scene Camera}{scene camera},
+    \l{Using Lights}{light}, \l{Adding Models}{model}, and
+    \l {Using Materials and Shaders}{materials}. If your scene did not contain
+    them, you can add the corresponding Qt Quick 3D types from \uicontrol
+    Library.
 
-    You can use the toolbar buttons (2) to show the \e transformation
-    gizmo in the \uicontrol {3D Editor} when an item is selected
-    and to determine what happens when you drag the selected item.
-    Transformation refers to moving, rotating, or scaling of an object.
-    Select the \uicontrol {Toggle Local/Global Orientation} button (3) to
-    determine whether the gizmos affect only the local transformations of the
-    item or whether they transform with respect to the global space.
+    You can use the toolbar buttons to \e transform 3D objects and manipulate
+    the 3D scene. Transformation refers to moving, rotating, or scaling of an
+    object. The \e pivot of the component is used as the origin for
+    transformations. You can set a \l{Setting Transform Properties}{local pivot
+    offset} for an item in \uicontrol Properties to transform the component
+    around a point other than its local origin. A line is drawn in \uicontrol
+    {3D Editor} from the pivot point to the center of the component to provide
+    a visual connection between them.
+
+    Toggle between local and global orientation to determine whether the gizmos
+    affect only the local transformations of the item or whether they transform
+    with respect to the global space.
+
+    Additional helpful features when editing 3D scenes are the \e {edit light},
+    which is a quick way to light the scene, and the grid that helps you to
+    navigate in 3D space. Select the \inlineimage grid_on.png
+    (\uicontrol {Toggle Grid Visibility}) to show or hide the grid.
 
     \image studio-3d-editor.png "3D Editor"
 
-    The \e pivot of the component is used as the origin for position, scale,
-    and rotation operations. You can set a \l{Setting Transform Properties}
-    {local pivot offset} for an item in the \uicontrol Properties view to
-    manipulate the component around a point other than its local origin. A
-    line is drawn in the 3D editor from the pivot point to the center of the
-    component to provide a visual connection between them.
+    \section1 Controlling the 3D Editor Camera
 
-    \section1 Controlling the Edit View Camera
+    To switch to perspective camera mode, select
+    \inlineimage perspective_camera.png
+    (\uicontrol {Toggle Perspective/Orthographic Edit Camera}).
+    To switch to orthographic camera mode, select
+    \inlineimage orthographic_camera.png
+    .
 
-    You can add 3D camera types to the scene to project the view you see in
-    the View3D type in the application. While editing scenes, you can use
-    a separate \e {edit view camera} (4) to project the scene to the 3D edit
-    view in the Design mode.
+    You can navigate the scene by panning, rotating, and zooming the 3D Editor
+    camera:
 
-    You can navigate the scene by rotating, panning, and zooming the edit view
-    camera.
+    \list
+        \li To pan, press \key Alt and use the middle mouse button to click
+            anywhere in the rendered view to slide the view around.
+        \li To orbit, press \key Alt and click anywhere in the rendered view to
+            rotate the view.
+        \li To zoom, use the mouse wheel or press \key Alt and right-click
+            anywhere in the rendered view to zoom the view in or out as you drag
+            up or down.
+    \endlist
 
-    To zoom, use the mouse wheel or press \key Alt and right-click anywhere in
-    the rendered view to zoom the view in or out as you drag up or down.
+    To zoom and focus the 3D Editor camera on a selected item,
+    select \inlineimage fit_selected.png
+    (\uicontrol {Fit Selected}) or press \key F.
 
-    To pan, press \key Alt and use the middle mouse button to click anywhere in
-    the rendered view to slide the view around.
-
-    To orbit, press \key Alt and click anywhere in the rendered view to rotate
-    the view.
-
-    To scale the edit view camera and to focus it on the selected items, select
-    \uicontrol {Fit Selected} button or press \key F.
-
-    The world axis helper (5) shows the direction of the world axes in respect
-    to the edit view camera. To point the camera at the currently selected
+    The world axis helper (1) shows the direction of the world axes in respect
+    to the 3D Editor camera. To point the camera at the currently selected
     component in the direction of an axis, click the axis. If no component
     is selected, the camera is pointed at the world origin. This does not
     affect the camera zoom level.
 
-    For more information about using the cameras in the scene, the available
-    3D camera types, and their properties, see \l{Using Scene Camera}.
+    \image studio-3d-editor-axis-helper.png "Axis helper in 3D Editor"
+
+    You can use scene cameras (2) to view the the View3D type from a specific
+    angle in \uicontrol {Form Editor} while editing scenes. Different types of
+    cameras are available in \uicontrol Library under \uicontrol
+    {Qt Quick 3D}. For more information about using cameras in the scene,
+    the available camera types, and their properties, see
+    \l{Using Scene Camera}.
+
+    \section1 Using Global and Local Orientation
+
+    To switch between local and global orientation, select
+    \inlineimage local.png
+    or \inlineimage global.png
+    (\uicontrol {Toggle Local/Global Orientation})
+    or press \key Y.
+
+    In global orientation mode, transformation of a selected object is presented
+    with respect to the global space. For example, while the move tool is
+    selected, selecting a cube will show its move gizmo aligned with the axes
+    of global space. Dragging on the red arrow of the gizmo moves the object in
+    the global x direction.
+
+    In local orientation mode, the position of a selected object is shown
+    according to local axes specific to the selected object. For example,
+    selecting a rotated cube will show its axes rotated, and not aligned with
+    the axes of global space. Dragging on the red arrow of the gizmo
+    moves the object in the local x direction in relation to the object.
+
+    \section1 Using Edit Light
+
+    The edit light is an extra point light that follows the edit camera.
+    To switch the edit light on and off, select \inlineimage edit_light_on.png
+    or \inlineimage edit_light_off.png
+    (\uicontrol {Toggle Edit Light})
+    or press \key U.
+
+    For more information about the available scene light types and their
+    properties, see \l{Using Lights}.
 
     \section1 Selecting Items
 
     To move, rotate, or scale items in the scene, you need to select them first.
     The selection mode buttons determine how items are selected when you click
-    them in the 3D editor.
+    them in \uicontrol {3D Editor}:
 
     \list
         \li In the \inlineimage select_item.png
@@ -111,80 +156,54 @@
 
     \section1 Moving Items
 
-    \image studio-3d-editor-move.png "3D editor in move mode"
+    \image studio-3d-editor-move.png "3D Editor in move mode"
 
     You can move items in relation to their coordinate system, along the x, y,
-    or z view axis or on the top, bottom, left, and right clip planes of the
-    render camera.
+    or z axis or on the top, bottom, left, and right clip planes of the
+    \uicontrol {3D Editor} camera.
 
     To move items, select \inlineimage move_on.png
-    or press \key W.
+    or press \key W:
 
-    To move items along an axis, click the axis and drag the item along the
-    axis.
-
-    To move items on a plane, select the plane handle and drag the item on
-    the plane.
-
-    To move an item freely in the editor, select the handle at the center of
-    the item.
+    \list
+        \li To move items along the axes of the move gizmo, click the axis and
+            drag the item along the axis.
+        \li To move items on a plane, click the plane handle and drag the item
+            on the plane.
+        \li To move an item freely in the editor, click the gray handle at the
+            center of the item.
+     \endlist
 
     \section1 Rotating Items
 
-    You can rotate items around the view axes of the camera.
-
-    \image studio-3d-editor-rotate.png "3D editor in rotate mode"
+    \image studio-3d-editor-rotate.png "3D Editor in rotate mode"
 
     To rotate items, select \inlineimage rotate_on.png
-    or press \key E.
+    or press \key E:
 
-    To rotate an item around an axis, select the axis and drag in the direction
-    you want to rotate the item in.
-
-    To freely rotate the item, select the gray circle.
-
-    \section1 Using Global and Local Orientation
-
-    To switch between global and local orientation, select \uicontrol
-    {Toggle Local/Global Orientation}.
-
-    In global orientation mode, transformation of a selected object is presented
-    with respect to the global space. For example, while the move tool is
-    selected, selecting a cube will show its move gizmo aligned with the axes
-    of global space. Dragging on the red arrow of the gizmo moves the object in
-    the global x direction.
-
-    In local orientation mode, the position of a selected object is shown
-    according to local axes specific to the selected object. For example,
-    selecting a rotated cube will show its axes rotated, and not aligned with
-    the axes of global space. Dragging on the red arrow of the gizmo
-    moves the object in the local x direction in relation to the object.
+    \list
+        \li To rotate an item around its rotation gizmo, click the axis and
+            drag in the direction you want to rotate the item in.
+        \li To freely rotate the item, select the gray circle.
+    \endlist
 
     \section1 Scaling Items
 
-    \image studio-3d-editor-scale.png "3D editor in scale mode"
-
-    To scale items, select \inlineimage scale_on.png
-    or press \key R.
+    \image studio-3d-editor-scale.png "3D Editor in scale mode"
 
     You can use the scale handles to adjust the local x, y, or z scale of an
-    item. You can adjust the scale across one, two, or three axes, depending
-    on the handle.
+    item. You can adjust the scale across one, two, or three axes, depending on
+    the handle.
 
-    To adjust the scale across one axis, select the scale handle attached to
-    the axis. To uniformly scale an item across all axes, select the handle
-    at the center of the item.
+    To scale items, select \inlineimage scale_on.png
+    or press \key R:
 
-    To adjust the scale across a plane, select the plane handle and drag the
-    item on the plane.
-
-    \section1 Using Edit View Light
-
-    You use 3D light types to light the models in the scene. While editing
-    scenes, you can use a separate \e {edit view light} to illuminate the
-    portions of the scene that the scene lights do not hit. To switch the edit
-    view light on and off, select the \uicontrol {Toggle Edit Light} button (6).
-
-    For more information about the available scene light types and their
-    properties, see \l{Using Lights}.
+    \list
+        \li To adjust the scale across one axis, click and drag the scale handle
+            attached to the axis.
+        \li To adjust the scale across a plane, click the plane handle and drag
+            the item on the plane.
+        \li To uniformly scale an item across all axes, click and drag the
+            handle at the center of the item.
+    \endlist
 */

@@ -36,9 +36,9 @@
 
     \table
         \row
-            \li \inlineimage studio-gs.png
-            \li \inlineimage studio-projects.png
-            \li \inlineimage studio-components.png
+            \li \inlineimage front-gs.png
+            \li \inlineimage front-projects.png
+            \li \inlineimage front-ui.png
             \li \inlineimage studio-animation.png
         \row
         \li \l{Getting Started}
@@ -72,14 +72,14 @@
             \endlist
         \row
             \li \inlineimage studio-3d-scenes.png
-            \li \inlineimage studio-preview.png
-            \li \inlineimage studio-settings.png
-            \li \inlineimage studio-help.png
+            \li \inlineimage front-preview.png
+            \li \inlineimage front-advanced.png
+            \li \inlineimage front-help.png
         \row
             \li \b {\l{Editing 3D Scenes}}
                 \list
                     \li \l{Editing 3D Assets in Design Mode}
-                    \li \l{Working in the 3D Editor}
+                    \li \l{Working in 3D Editor}
                     \li \l{Adding 3D Views}
                     \li \l{Using 3D Components}
                 \endlist

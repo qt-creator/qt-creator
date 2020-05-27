@@ -112,7 +112,7 @@
 
     \endlist
 
-    \section2 Developing for Embedded Devices
+    \section2 Developing for Boot2Qt Devices
 
     Either Windows 7 or later or Ubuntu Linux 64-bit 12.04 LTS or later is
     required to install and use Qt for Device Creation. For more information

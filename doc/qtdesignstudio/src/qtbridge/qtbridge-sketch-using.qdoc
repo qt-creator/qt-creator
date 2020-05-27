@@ -220,4 +220,24 @@
     \uicontrol {Export format options} field. You can remove metadata
     from PNG files, export assets as progressive JPG or compact SVG,
     and include SVG namespaces in SVG files.
+
+
+    \section1 Exporting Library Symbols
+
+    \QBSK can handle symbols used from a local library. Before you use \QBSK to export a document
+    that contains remote symbols, you must annotate the Sketch document of the local library for
+    QML export.
+
+    For more information about Sketch libraries, see Sketch documentation.
+
+    You can either export the complete library with the document or unlink the symbols.
+    Unlinking the symbols exports the symbols as if the symbols were part of the document as
+    Group layers.
+    Exporting the complete library exports all the layers of the library irrespective of their usage
+    in the document.
+
+    To export a library, select \uicontrol Export. \QBSK asks you whether you want to export the
+    complete library or to unlink the symbols.
+
+    \image qt-sketch-bridge-library.png
 */

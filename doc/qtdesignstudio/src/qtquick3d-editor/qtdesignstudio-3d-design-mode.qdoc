@@ -35,57 +35,41 @@
     \title Editing 3D Assets in Design Mode
 
     \QDS opens QML files that contain 3D scenes in the Design mode and the
-    scenes in the 3D editor. You can add imported 3D assets
-    to projects and edit them to create scenes and states, as well as the
-    transitions between them.
+    scenes in \uicontrol {3D Editor}. You can add imported 3D assets to projects
+    and edit them to create scenes and states, as well as the transitions
+    between them. The other views enable you to select QML types to use in the
+    scene, specify properties for them, and view them in a tree structure,
+    as well as to create connections and browse projects and files.
 
     \image studio-editing-3d-scenes.png "3D assets in Design mode"
 
-    To edit 3D scenes in the Design mode:
+    To open the following views, select \uicontrol Window > \uicontrol Views:
 
     \list
         \li \uicontrol {3D Editor} (1) is the working area where you create the
             scene, position the model, light and camera, as well as move and
-            scale items.
-        \li \uicontrol {3D View} (2) is where you see the scene projected by the
-            camera.
-        \li The sidebars contain views where you can select QML types to use in
-            the scene, specify properties for them, and view them in a tree
-            structure, as well as to create connections and browse projects and
-            files. You can select the content of the sidebars in the sidebar
-            menu:
-        \list
-            \li \uicontrol {Library} (3) displays the building blocks that you
-                can use to create scenes: predefined Qt Quick 3D Components,
-                Qt Quick Controls, your own 3D assets that you import to the
-                project, and other assets. For more information, see
-                \l {Adding 3D Views}.
-            \li \uicontrol {Navigator} (4) displays the items in the current QML
-                file as a tree structure. For more information, see
-                \l {Managing Item Hierarchy}.
-            \li \uicontrol {Properties} (5) organizes the properties of the
-                selected item. You can change the properties also in the
-                \uicontrol {Text Editor}. For more information, see
-                \l {Specifying Item Properties}.
-            \li \uicontrol Connections enables you to create connections
-                between objects, signals, and object properties. For more
-                information, see \l{Adding Connections}.
-            \li \uicontrol {File System} shows all files in the currently
-                selected directory. For more information, see
-                \l{Viewing the File System}.
-            \li \uicontrol {Open Documents} shows currently open files.
-            \li \uicontrol {Projects} shows a list of projects open in the
-                current session. For more information, see
-                \l{Viewing Project Files}.
-        \endlist
-        \li \uicontrol {States} displays the different states of the
-            item. QML states typically describe user interface configurations,
-            such as the UI controls, their properties and behavior and the
-            available actions. For more information, see \l{Adding States}.
-        \li \uicontrol Timeline (6) provides a timeline and keyframe based
+            scale items. For more information, see \l {Working in 3D Editor}.
+        \li \uicontrol {Form Editor} (2) is where you see the scene projected by
+            the camera.
+        \li \uicontrol {Library} (3) displays the building blocks that you
+             can use to create scenes: predefined Qt Quick 3D Components,
+             Qt Quick Controls, your own 3D assets that you import to the
+             project, and other assets. For more information, see \l {Adding 3D
+            Views}.
+        \li \uicontrol {Navigator} (4) displays the items in the current QML
+            file as a tree structure. For more information, see
+            \l {Managing Item Hierarchy}.
+        \li \uicontrol {Properties} (5) organizes the properties of the
+            selected item. You can change the properties also in the
+            \uicontrol {Text Editor}. For more information, see
+            \l {Specifying Item Properties}.
+        \li \uicontrol Connections (6) enables you to create connections
+            between objects, signals, and object properties. For more
+            information, see \l{Adding Connections}.
+        \li \uicontrol Timeline (7) provides a timeline and keyframe based
             editor that enables you to animate the properties of components.
     \endlist
 
-    To close the 3D editor, select \uicontrol 2D in the list on the toolbar (7).
-    To reopen it, select \uicontrol {2D/3D}.
+    For more information on other views, see
+    \l {Editing QML Files in Design Mode}.
 */

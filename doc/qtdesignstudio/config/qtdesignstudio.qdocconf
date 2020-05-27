@@ -110,10 +110,6 @@ qhp.qtdesignstudio.subprojects.manual.type = manual
 # Doxygen compatibility commands
 macro.see                       = "\\sa"
 macro.function                  = "\\fn"
-macro.QB                        = "Qt Bridge"
-macro.QBPS                      = "Qt Bridge for Adobe Photoshop"
-macro.QBSK                      = "Qt Bridge for Sketch"
-macro.QDS                       = "Qt Design Studio"
 
 navigation.landingpage = "$IDE_DISPLAY_NAME Manual"
 buildversion = "$IDE_DISPLAY_NAME Manual $QTC_VERSION"

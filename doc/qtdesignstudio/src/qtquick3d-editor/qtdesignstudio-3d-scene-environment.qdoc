@@ -80,13 +80,12 @@
     To clear the background using a color, select \uicontrol Color,
     and select the color in the \uicontrol {Clear Color} field.
 
+    To render a Skybox or Skydome instead of clearing the scene,
+    select \uicontrol SkyBox. You can specify the image to use as
+    a value of the \l{SceneEnvironment::lightProbe}{lightProbe}
+    property in \uicontrol {Text Editor}.
+
     To leave the scene uncleared, select \uicontrol {Unspecified}.
-
-    \section1 Blending Scene Colors
-
-    To determine how colors are blended, select a blend mode in the
-    \uicontrol {Blend mode} field. For more information on the options,
-    see \uicontrol {Blending Colors}.
 
     \section1 Performing Depth Tests
 

@@ -87,6 +87,8 @@ def get_arguments():
                         action='store_true', default=False)
     parser.add_argument('--no-zip', help='Skip creation of 7zip files for install and developer package',
                         action='store_true', default=False)
+    parser.add_argument('--add-make-arg', help='Passes the argument to the make tool.',
+                        action='append', dest='make_args', default=[])
     return parser.parse_args()
 
 def build_qtcreator(args, paths):
@@ -137,7 +139,10 @@ def build_qtcreator(args, paths):
                        '-DIDE_REVISION_URL=https://code.qt.io/cgit/qt-creator/qt-creator.git/log/?id=' + ide_revision]
 
     common.check_print_call(cmake_args + [paths.src], paths.build)
-    common.check_print_call(['cmake', '--build', '.'], paths.build)
+    build_args = ['cmake', '--build', '.']
+    if args.make_args:
+        build_args += ['--'] + args.make_args
+    common.check_print_call(build_args, paths.build)
     if not args.no_docs:
         common.check_print_call(['cmake', '--build', '.', '--target', 'docs'], paths.build)
 
