@@ -939,6 +939,30 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
         }
     }
 
+    // sync noexcept/throw()
+    const QString exceptionSpecTarget = targetFunction->exceptionSpecification()
+            ? QString::fromUtf8(targetFunction->exceptionSpecification()->chars()) : QString();
+    const QString exceptionSpecNew = newFunction->exceptionSpecification()
+            ? QString::fromUtf8(newFunction->exceptionSpecification()->chars()) : QString();
+    if (exceptionSpecTarget != exceptionSpecNew) {
+        if (!exceptionSpecTarget.isEmpty() && !exceptionSpecNew.isEmpty()) {
+            changes.replace(targetFile->range(targetFunctionDeclarator->exception_specification),
+                            exceptionSpecNew);
+        } else if (exceptionSpecTarget.isEmpty()) {
+            int previousToken = targetFunctionDeclarator->ref_qualifier_token;
+            if (!previousToken) {
+                const SpecifierListAST *cvList = targetFunctionDeclarator->cv_qualifier_list;
+                if (cvList && cvList->lastValue()->asSimpleSpecifier())
+                    previousToken = cvList->lastValue()->asSimpleSpecifier()->specifier_token;
+            }
+            if (!previousToken)
+                previousToken = targetFunctionDeclarator->rparen_token;
+            changes.insert(targetFile->endOf(previousToken), ' ' + exceptionSpecNew);
+        } else if (!exceptionSpecTarget.isEmpty()) {
+            changes.remove(targetFile->range(targetFunctionDeclarator->exception_specification));
+        }
+    }
+
     if (targetOffset != -1) {
         // move all change operations to have the right start offset
         const int moveAmount = targetOffset - targetFile->startOf(targetDeclaration);
