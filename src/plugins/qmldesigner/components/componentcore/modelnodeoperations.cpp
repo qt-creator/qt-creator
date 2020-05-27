@@ -65,6 +65,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
+#include "projectexplorer/session.h"
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -949,9 +950,25 @@ void addTabBarToStackedContainer(const SelectionContext &selectionContext)
 
 }
 
+Utils::FilePath projectFilePath()
+{
+    if (auto *doc = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()) {
+        if (auto *proj = ProjectExplorer::SessionManager::projectForFile(doc->fileName()))
+            return proj->projectDirectory();
+    }
+    return Utils::FilePath();
+}
+
 bool addFontToProject(const QStringList &fileNames, const QString &defaultDirectory)
 {
-    QString directory = AddImagesDialog::getDirectory(fileNames, defaultDirectory);
+
+    QString adjustedDefaultDirectory = defaultDirectory;
+    Utils::FilePath fonts = projectFilePath().pathAppended("fonts");
+
+    if (fonts.exists())
+        adjustedDefaultDirectory = fonts.toString();
+
+    QString directory = AddImagesDialog::getDirectory(fileNames, adjustedDefaultDirectory);
 
     if (directory.isEmpty())
         return true;
