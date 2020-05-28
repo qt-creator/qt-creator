@@ -842,10 +842,10 @@ FilePath FilePath::fromStringWithExtension(const QString &filepath, const QStrin
 }
 
 /// Constructs a FilePath from \a filePath
-/// \a filePath is only passed through QDir::cleanPath
+/// \a filePath is only passed through QDir::fromNativeSeparators
 FilePath FilePath::fromUserInput(const QString &filePath)
 {
-    QString clean = QDir::cleanPath(filePath);
+    QString clean = QDir::fromNativeSeparators(filePath);
     if (clean.startsWith(QLatin1String("~/")))
         clean = QDir::homePath() + clean.mid(1);
     return FilePath::fromString(clean);
