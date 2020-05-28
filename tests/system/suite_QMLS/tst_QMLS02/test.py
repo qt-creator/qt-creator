@@ -40,10 +40,14 @@ def main():
     testingCodeLine = 'Color : "blue"'
     type(editorArea, "<Return>")
     type(editorArea, testingCodeLine)
+
+    invokeMenuItem("View", "Output Panes", "Issues")
+    issuesView = waitForObject(":Qt Creator.Issues_QListView")
+    clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
+
     # invoke QML parsing
     invokeMenuItem("Tools", "QML/JS", "Run Checks")
     # verify that error properly reported
-    issuesView = waitForObject(":Qt Creator.Issues_QListView")
     test.verify(checkSyntaxError(issuesView, ['Invalid property name "Color". (M16)'], True),
                 "Verifying if error is properly reported")
     # repair error - go to written line
