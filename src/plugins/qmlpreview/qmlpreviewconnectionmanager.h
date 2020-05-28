@@ -27,6 +27,7 @@
 
 #include "qmlpreviewplugin.h"
 #include "qmlpreviewclient.h"
+#include "qmldebugtranslationclient.h"
 #include "qmlpreviewfileontargetfinder.h"
 
 #include <qmldebug/qmldebugconnectionmanager.h>
@@ -64,9 +65,14 @@ protected:
     void destroyClients() override;
 
 private:
+    void createPreviewClient();
+    void createDebugTranslationClient();
+    QUrl findValidI18nDirectoryAsUrl(const QString &locale);
+    void clearClient(QObject *client);
     Utils::FileInProjectFinder m_projectFileFinder;
     QmlPreviewFileOnTargetFinder m_targetFileFinder;
-    QPointer<QmlPreviewClient> m_clientPlugin;
+    QPointer<QmlPreviewClient> m_qmlPreviewClient;
+    QPointer<QmlDebugTranslationClient> m_qmlDebugTranslationClient;
     Utils::FileSystemWatcher m_fileSystemWatcher;
     QUrl m_lastLoadedUrl;
     QmlPreviewFileLoader m_fileLoader = nullptr;
