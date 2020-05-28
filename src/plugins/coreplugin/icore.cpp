@@ -62,6 +62,26 @@
 */
 
 /*!
+    \enum Core::ICore::ContextPriority
+
+    This enum defines the priority of additional contexts.
+
+    \value High
+           Additional contexts that have higher priority than contexts from
+           Core::IContext instances.
+    \value Low
+           Additional contexts that have lower priority than contexts from
+           Core::IContext instances.
+
+    \sa Core::ICore::updateAdditionalContexts()
+*/
+
+/*!
+    \enum Core::SaveSettingsReason
+    \internal
+*/
+
+/*!
     \namespace Core::Internal
     \internal
 */
@@ -76,6 +96,13 @@
     You should never create a subclass of this interface. The one and only
     instance is created by the Core plugin. You can access this instance
     from your plugin through instance().
+*/
+
+/*!
+    \fn void Core::ICore::coreAboutToOpen()
+
+    Indicates that all plugins have been loaded and the main window is about to
+    be shown.
 */
 
 /*!
@@ -136,16 +163,28 @@ namespace Core {
 static ICore *m_instance = nullptr;
 static MainWindow *m_mainwindow = nullptr;
 
+/*!
+    Returns the pointer to the instance. Only use for connecting to signals.
+*/
 ICore *ICore::instance()
 {
     return m_instance;
 }
 
+/*!
+    Returns whether the new item dialog is currently open.
+*/
 bool ICore::isNewItemDialogRunning()
 {
     return NewDialog::currentDialog() || IWizardFactory::isWizardRunning();
 }
 
+/*!
+    Returns the currently open new item dialog widget, or \c nullptr if there is none.
+
+    \sa isNewItemDialogRunning()
+    \sa showNewItemDialog()
+*/
 QWidget *ICore::newItemDialog()
 {
     if (NewDialog::currentDialog())
@@ -193,6 +232,8 @@ ICore::~ICore()
     Additional variables for the wizards are set in \a extraVariables.
 
     \sa Core::DocumentManager
+    \sa isNewItemDialogRunning()
+    \sa newItemDialog()
 */
 void ICore::showNewItemDialog(const QString &title,
                               const QList<IWizardFactory *> &factories,
@@ -209,16 +250,38 @@ void ICore::showNewItemDialog(const QString &title,
     updateNewItemDialogState();
 }
 
+/*!
+    Opens the options dialog on the specified \a page. The dialog's \a parent
+    defaults to dialogParent(). If the dialog is already shown when this method
+    is called, it is just switched to the specified \a page.
+
+    Returns whether the user accepted the dialog.
+
+    \sa msgShowOptionsDialog()
+    \sa msgShowOptionsDialogToolTip()
+*/
 bool ICore::showOptionsDialog(const Id page, QWidget *parent)
 {
     return executeSettingsDialog(parent ? parent : dialogParent(), page);
 }
 
+/*!
+    Returns the text to use on buttons that open the options dialog.
+
+    \sa showOptionsDialog()
+    \sa msgShowOptionsDialogToolTip()
+*/
 QString ICore::msgShowOptionsDialog()
 {
     return QCoreApplication::translate("Core", "Configure...", "msgShowOptionsDialog");
 }
 
+/*!
+    Returns the tool tip to use on buttons that open the options dialog.
+
+    \sa showOptionsDialog()
+    \sa msgShowOptionsDialog()
+*/
 QString ICore::msgShowOptionsDialogToolTip()
 {
     if (Utils::HostOsInfo::isMacHost())
@@ -230,7 +293,7 @@ QString ICore::msgShowOptionsDialogToolTip()
 }
 
 /*!
-    Creates a message box with \a parent that contains a \uicontrol Settings
+    Creates a message box with \a parent that contains a \uicontrol Configure
     button for opening the settings page specified by \a settingsId.
 
     The dialog has \a title and displays the message \a text and detailed
@@ -240,6 +303,8 @@ QString ICore::msgShowOptionsDialogToolTip()
     setting they should fix.
 
     Returns \c true if the user accepted the settings dialog.
+
+    \sa showOptionsDialog()
 */
 bool ICore::showWarningWithOptions(const QString &title, const QString &text,
                                    const QString &details, Id settingsId, QWidget *parent)
@@ -252,7 +317,7 @@ bool ICore::showWarningWithOptions(const QString &title, const QString &text,
         msgBox.setDetailedText(details);
     QAbstractButton *settingsButton = nullptr;
     if (settingsId.isValid())
-        settingsButton = msgBox.addButton(tr("Settings..."), QMessageBox::AcceptRole);
+        settingsButton = msgBox.addButton(msgShowOptionsDialog(), QMessageBox::AcceptRole);
     msgBox.exec();
     if (settingsButton && msgBox.clickedButton() == settingsButton)
         return showOptionsDialog(settingsId);
@@ -269,11 +334,11 @@ bool ICore::showWarningWithOptions(const QString &title, const QString &text,
     settings will be read from the user's settings, with
     a fallback to global settings provided with \QC.
 
-    If \a scope is \c QSettings::SystemScope, only the system settings
+    If \a scope is \c QSettings::SystemScope, only the installation settings
     shipped with the current version of \QC will be read. This
     functionality exists for internal purposes only.
 
-    \see settingsDatabase()
+    \sa settingsDatabase()
 */
 QSettings *ICore::settings(QSettings::Scope scope)
 {
@@ -290,7 +355,8 @@ QSettings *ICore::settings(QSettings::Scope scope)
     object. It is more suitable for storing large amounts of data. The settings
     are application wide.
 
-    \see SettingsDatabase
+    \sa SettingsDatabase
+    \sa settings()
 */
 SettingsDatabase *ICore::settingsDatabase()
 {
@@ -308,6 +374,11 @@ QPrinter *ICore::printer()
     return m_mainwindow->printer();
 }
 
+/*!
+    Returns the locale string for the user interface language that is currently
+    configured in \QC. Use this to install your plugin's translation file with
+    QTranslator.
+*/
 QString ICore::userInterfaceLanguage()
 {
     return qApp->property("qtc_locale").toString();
@@ -320,6 +391,8 @@ QString ICore::userInterfaceLanguage()
     This abstraction is needed to avoid platform-specific code all over
     the place, since on \macos, for example, the resources are part of the
     application bundle.
+
+    \sa userResourcePath()
 */
 QString ICore::resourcePath()
 {
@@ -332,6 +405,8 @@ QString ICore::resourcePath()
 
     Use this function for finding the place for resources that the user may
     write to, for example, to allow for custom palettes or templates.
+
+    \sa resourcePath()
 */
 
 QString ICore::userResourcePath()
@@ -349,21 +424,38 @@ QString ICore::userResourcePath()
     return urp;
 }
 
+/*!
+    Returns a writable path that can be used for persistent cache files.
+*/
 QString ICore::cacheResourcePath()
 {
     return QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
 }
 
+/*!
+    Returns the path to resources written by the installer, for example
+    pre-defined kits and toolchains.
+*/
 QString ICore::installerResourcePath()
 {
     return QFileInfo(settings(QSettings::SystemScope)->fileName()).path() + '/' + Constants::IDE_ID;
 }
 
+/*!
+    Returns the path to the plugins that are included in the \QC installation.
+
+    \internal
+*/
 QString ICore::pluginPath()
 {
     return QDir::cleanPath(QCoreApplication::applicationDirPath() + '/' + RELATIVE_PLUGIN_PATH);
 }
 
+/*!
+    Returns the path where user-specific plugins should be written.
+
+    \internal
+*/
 QString ICore::userPluginPath()
 {
     QString pluginPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
@@ -379,8 +471,8 @@ QString ICore::userPluginPath()
 }
 
 /*!
-    Returns the path to the command line tools that are shipped with \QC (corresponding
-    to the IDE_LIBEXEC_PATH qmake variable).
+    Returns the path to the command line tools that are included in the \QC
+    installation.
  */
 QString ICore::libexecPath()
 {
@@ -392,7 +484,11 @@ static QString clangIncludePath(const QString &clangVersion)
     return "/lib/clang/" + clangVersion + "/include";
 }
 
-QString ICore::clangIncludeDirectory(const QString &clangVersion, const QString &clangResourceDirectory)
+/*!
+    \internal
+*/
+QString ICore::clangIncludeDirectory(const QString &clangVersion,
+                                     const QString &clangResourceDirectory)
 {
     QDir dir(libexecPath() + "/clang" + clangIncludePath(clangVersion));
     if (!dir.exists() || !QFileInfo(dir, "stdint.h").exists())
@@ -400,6 +496,9 @@ QString ICore::clangIncludeDirectory(const QString &clangVersion, const QString 
     return QDir::toNativeSeparators(dir.canonicalPath());
 }
 
+/*!
+    \internal
+*/
 static QString clangBinary(const QString &binaryBaseName, const QString &clangBinDirectory)
 {
     const QString hostExeSuffix(QTC_HOST_EXE_SUFFIX);
@@ -409,16 +508,25 @@ static QString clangBinary(const QString &binaryBaseName, const QString &clangBi
     return QDir::toNativeSeparators(executable.canonicalFilePath());
 }
 
+/*!
+    \internal
+*/
 QString ICore::clangExecutable(const QString &clangBinDirectory)
 {
     return clangBinary("clang", clangBinDirectory);
 }
 
+/*!
+    \internal
+*/
 QString ICore::clangTidyExecutable(const QString &clangBinDirectory)
 {
     return clangBinary("clang-tidy", clangBinDirectory);
 }
 
+/*!
+    \internal
+*/
 QString ICore::clazyStandaloneExecutable(const QString &clangBinDirectory)
 {
     return clangBinary("clazy-standalone", clangBinDirectory);
@@ -448,6 +556,10 @@ static QString compilerString()
     return QLatin1String("<unknown compiler>");
 }
 
+/*!
+    Returns a string with the IDE's name and version, in the form "\QC X.Y.Z".
+    Use this for "Generated by" strings and similar tasks.
+*/
 QString ICore::versionString()
 {
     QString ideVersionDescription;
@@ -458,6 +570,9 @@ QString ICore::versionString()
                              ideVersionDescription);
 }
 
+/*!
+    \internal
+*/
 QString ICore::buildCompatibilityString()
 {
     return tr("Based on Qt %1 (%2, %3 bit)").arg(QLatin1String(qVersion()),
@@ -466,21 +581,34 @@ QString ICore::buildCompatibilityString()
 }
 
 /*!
-    Returns the context object of the current main context.
+    Returns the top level IContext of the current context, or \c nullptr if
+    there is none.
 
-    \sa updateAdditionalContexts(), addContextObject()
+    \sa updateAdditionalContexts()
+    \sa addContextObject()
+    \sa {The Action Manager and Commands}
 */
 IContext *ICore::currentContextObject()
 {
     return m_mainwindow->currentContextObject();
 }
 
+/*!
+    Returns the widget of the top level IContext of the current context, or \c
+    nullptr if there is none.
+
+    \sa currentContextObject()
+*/
 QWidget *ICore::currentContextWidget()
 {
     IContext *context = currentContextObject();
     return context ? context->widget() : nullptr;
 }
 
+/*!
+    Returns the registered IContext instance for the specified \a widget,
+    if any.
+*/
 IContext *ICore::contextObject(QWidget *widget)
 {
     return m_mainwindow->contextObject(widget);
@@ -490,6 +618,8 @@ IContext *ICore::contextObject(QWidget *widget)
     Returns the main window of the application.
 
     For dialog parents use dialogParent().
+
+    \sa dialogParent()
 */
 QMainWindow *ICore::mainWindow()
 {
@@ -498,7 +628,7 @@ QMainWindow *ICore::mainWindow()
 
 /*!
     Returns a widget pointer suitable to use as parent for QDialogs.
- */
+*/
 QWidget *ICore::dialogParent()
 {
     QWidget *active = QApplication::activeModalWidget();
@@ -509,16 +639,28 @@ QWidget *ICore::dialogParent()
     return active;
 }
 
+/*!
+    \internal
+*/
 QStatusBar *ICore::statusBar()
 {
     return m_mainwindow->statusBar();
 }
 
+/*!
+    Returns a central InfoBar that is shown in \QC's main window.
+    Use for notifying the user of something without interrupting with
+    dialog. Use sparingly.
+*/
 InfoBar *ICore::infoBar()
 {
     return m_mainwindow->infoBar();
 }
 
+/*!
+    Raises and activates the window for \a widget. This contains workarounds
+    for X11.
+*/
 void ICore::raiseWindow(QWidget *widget)
 {
     if (!widget)
@@ -533,10 +675,18 @@ void ICore::raiseWindow(QWidget *widget)
 }
 
 /*!
-    Changes the currently active additional contexts.
+    Removes the contexts specified by \a remove from the list of active
+    additional contexts, and adds the contexts specified by \a add with \a
+    priority.
 
-    Removes the list of additional contexts specified by \a remove and adds the
-    list of additional contexts specified by \a add with \a priority.
+    The additional contexts are not associated with an IContext instance.
+
+    High priority additional contexts have higher priority than the contexts
+    added by IContext instances, low priority additional contexts have lower
+    priority than the contexts added by IContext instances.
+
+    \sa addContextObject()
+    \sa {The Action Manager and Commands}
 */
 void ICore::updateAdditionalContexts(const Context &remove, const Context &add,
                                      ContextPriority priority)
@@ -545,24 +695,35 @@ void ICore::updateAdditionalContexts(const Context &remove, const Context &add,
 }
 
 /*!
-    Adds \a context with \a priority.
+    Adds \a context with \a priority to the list of active additional contexts.
+
+    \sa updateAdditionalContexts()
 */
 void ICore::addAdditionalContext(const Context &context, ContextPriority priority)
 {
     m_mainwindow->updateAdditionalContexts(Context(), context, priority);
 }
 
+/*!
+    Removes \a context from the list of active additional contexts.
+
+    \sa updateAdditionalContexts()
+*/
 void ICore::removeAdditionalContext(const Context &context)
 {
     m_mainwindow->updateAdditionalContexts(context, Context(), ContextPriority::Low);
 }
 
 /*!
-    After registration, this context object automatically becomes the
-    current context object, \a context, whenever its widget gets focus.
+    Adds \a context to the list of registered IContext instances.
+    Whenever the IContext's \l{IContext::widget()}{widget} is in the application
+    focus widget's parent hierarchy, its \l{IContext::context()}{context} is
+    added to the list of active contexts.
 
-    \sa removeContextObject(), updateAdditionalContexts(),
-    currentContextObject()
+    \sa removeContextObject()
+    \sa updateAdditionalContexts()
+    \sa currentContextObject()
+    \sa {The Action Manager and Commands}
 */
 void ICore::addContextObject(IContext *context)
 {
@@ -570,16 +731,28 @@ void ICore::addContextObject(IContext *context)
 }
 
 /*!
-    Unregisters a \a context object from the list of know contexts.
-    IContext instances are automatically removed when they are deleted.
+    Unregisters a \a context object from the list of registered IContext
+    instances. IContext instances are automatically removed when they are
+    deleted.
 
-    \sa addContextObject(), updateAdditionalContexts(), currentContextObject()
+    \sa addContextObject()
+    \sa updateAdditionalContexts()
+    \sa currentContextObject()
 */
 void ICore::removeContextObject(IContext *context)
 {
     m_mainwindow->removeContextObject(context);
 }
 
+/*!
+    Registers a \a window with the specified \a context. Registered windows are
+    shown in the \uicontrol Window menu and get registered for the various
+    window related actions, like the minimize, zoom, fullscreen and close
+    actions.
+
+    Whenever the application focus is in \a window, its \a context is made
+    active.
+*/
 void ICore::registerWindow(QWidget *window, const Context &context)
 {
     new WindowSupport(window, context); // deletes itself when widget is destroyed
@@ -609,6 +782,9 @@ void ICore::addPreCloseListener(const std::function<bool ()> &listener)
     m_mainwindow->addPreCloseListener(listener);
 }
 
+/*!
+    \internal
+*/
 QString ICore::systemInformation()
 {
     QString result = PluginManager::instance()->systemInformation() + '\n';
@@ -667,17 +843,26 @@ public:
     QRect m_rc;
 };
 
+/*!
+    \internal
+*/
 void ICore::setupScreenShooter(const QString &name, QWidget *w, const QRect &rc)
 {
     if (!screenShotsPath().isEmpty())
         new ScreenShooter(w, name, rc);
 }
 
+/*!
+    Restarts \QC and restores the last session.
+*/
 void ICore::restart()
 {
     m_mainwindow->restart();
 }
 
+/*!
+    \internal
+*/
 void ICore::saveSettings(SaveSettingsReason reason)
 {
     emit m_instance->saveSettingsRequested(reason);
@@ -687,11 +872,17 @@ void ICore::saveSettings(SaveSettingsReason reason)
     ICore::settings(QSettings::UserScope)->sync();
 }
 
+/*!
+    \internal
+*/
 QStringList ICore::additionalAboutInformation()
 {
     return m_mainwindow->additionalAboutInformation();
 }
 
+/*!
+    \internal
+*/
 void ICore::appendAboutInformation(const QString &line)
 {
     m_mainwindow->appendAboutInformation(line);
