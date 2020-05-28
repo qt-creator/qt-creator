@@ -58,7 +58,7 @@ static void splitIdInBaseNameAndNumber(const QString &id, QString *baseId, int *
 
 void StylesheetMerger::syncNodeProperties(ModelNode &outputNode, const ModelNode &inputNode, bool skipDuplicates)
 {
-    foreach (const NodeProperty &nodeProperty, inputNode.nodeProperties()) {
+    for (const NodeProperty &nodeProperty : inputNode.nodeProperties()) {
         ModelNode oldNode = nodeProperty.modelNode();
         if (m_templateView->hasId(oldNode.id()) && skipDuplicates)
             continue;
@@ -73,8 +73,8 @@ void StylesheetMerger::syncNodeProperties(ModelNode &outputNode, const ModelNode
 
 void StylesheetMerger::syncNodeListProperties(ModelNode &outputNode, const ModelNode &inputNode, bool skipDuplicates)
 {
-    foreach (const NodeListProperty &nodeListProperty, inputNode.nodeListProperties()) {
-        foreach (ModelNode node, nodeListProperty.toModelNodeList()) {
+    for (const NodeListProperty &nodeListProperty : inputNode.nodeListProperties()) {
+        for (ModelNode node : nodeListProperty.toModelNodeList()) {
             if (m_templateView->hasId(node.id()) && skipDuplicates)
                 continue;
             ModelNode newNode = createReplacementNode(node, node);
@@ -85,7 +85,7 @@ void StylesheetMerger::syncNodeListProperties(ModelNode &outputNode, const Model
 
 void StylesheetMerger::syncVariantProperties(ModelNode &outputNode, const ModelNode &inputNode)
 {
-    foreach (const VariantProperty &variantProperty, inputNode.variantProperties()) {
+    for (const VariantProperty &variantProperty : inputNode.variantProperties()) {
         outputNode.variantProperty(variantProperty.name()).setValue(variantProperty.value());
     }
 }
@@ -99,7 +99,7 @@ void StylesheetMerger::syncAuxiliaryProperties(ModelNode &outputNode, const Mode
 
 void StylesheetMerger::syncBindingProperties(ModelNode &outputNode, const ModelNode &inputNode)
 {
-    foreach (const BindingProperty &bindingProperty, inputNode.bindingProperties()) {
+    for (const BindingProperty &bindingProperty : inputNode.bindingProperties()) {
         outputNode.bindingProperty(bindingProperty.name()).setExpression(bindingProperty.expression());
     }
 }
@@ -116,7 +116,7 @@ void StylesheetMerger::syncId(ModelNode &outputNode, ModelNode &inputNode)
 
 void StylesheetMerger::setupIdRenamingHash()
 {
-    foreach (const ModelNode &node, m_templateView->rootModelNode().allSubModelNodesAndThisNode()) {
+    for (const ModelNode &node : m_templateView->rootModelNode().allSubModelNodesAndThisNode()) {
         if (!node.id().isEmpty()) {
             QString newId = node.id();
             QString baseId;
@@ -137,12 +137,14 @@ ModelNode StylesheetMerger::createReplacementNode(const ModelNode& styleNode, Mo
 {
     QList<QPair<PropertyName, QVariant> > propertyList;
     QList<QPair<PropertyName, QVariant> > variantPropertyList;
-    foreach (const VariantProperty &variantProperty, modelNode.variantProperties()) {
-        propertyList.append(QPair<PropertyName, QVariant>(variantProperty.name(), variantProperty.value()));
-    }
     NodeMetaInfo nodeMetaInfo = m_templateView->model()->metaInfo(styleNode.type());
+
+    for (const VariantProperty &variantProperty : modelNode.variantProperties()) {
+        if (nodeMetaInfo.hasProperty(variantProperty.name()))
+            propertyList.append(QPair<PropertyName, QVariant>(variantProperty.name(), variantProperty.value()));
+    }
     ModelNode newNode(m_templateView->createModelNode(styleNode.type(), nodeMetaInfo.majorVersion(), nodeMetaInfo.minorVersion(),
-                                            propertyList, variantPropertyList, styleNode.nodeSource(), styleNode.nodeSourceType()));
+                                                      propertyList, variantPropertyList, styleNode.nodeSource(), styleNode.nodeSourceType()));
 
     syncAuxiliaryProperties(newNode, modelNode);
     syncBindingProperties(newNode, modelNode);
@@ -201,7 +203,7 @@ void StylesheetMerger::preprocessStyleSheet()
         ModelNode templateNode = m_templateView->modelNodeForId(id);
         NodeAbstractProperty templateParentProperty = templateNode.parentProperty();
         if (!templateNode.hasParentProperty()
-            || templateParentProperty.parentModelNode().isRootNode())
+                || templateParentProperty.parentModelNode().isRootNode())
             continue;
 
         ModelNode templateParentNode = templateParentProperty.parentModelNode();
@@ -226,7 +228,7 @@ void StylesheetMerger::preprocessStyleSheet()
         currentStyleNode.variantProperty("y").setValue(newGlobalPos.y());
 
         int templateParentIndex = templateParentProperty.isNodeListProperty()
-                                  ? templateParentProperty.indexOf(templateNode) : -1;
+                ? templateParentProperty.indexOf(templateNode) : -1;
         int styleParentIndex = newParentProperty.indexOf(currentStyleNode);
         if (templateParentIndex >= 0 && styleParentIndex != templateParentIndex)
             newParentProperty.slide(styleParentIndex, templateParentIndex);
@@ -303,8 +305,7 @@ void StylesheetMerger::adjustNodeIndex(ModelNode &node)
 void StylesheetMerger::applyStyleProperties(ModelNode &templateNode, const ModelNode &styleNode)
 {
     QRegExp regEx("[a-z]", Qt::CaseInsensitive);
-    foreach (const VariantProperty &variantProperty, styleNode.variantProperties()) {
-        // check for existing bindings with that property name
+    for (const VariantProperty &variantProperty : styleNode.variantProperties()) {
         if (templateNode.hasBindingProperty(variantProperty.name())) {
             // if the binding does not contain any alpha letters (i.e. binds to a term rather than a property,
             // replace it with the corresponding variant property.
@@ -397,7 +398,7 @@ void StylesheetMerger::merge()
                     //removePropertyIfExists(templateNode, "height");
                 }
             }
-
+            transaction.commit();
         }
     }
 }
