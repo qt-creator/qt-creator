@@ -76,6 +76,7 @@
 #include <QByteArray>
 #include <QFileDialog>
 #include <QPushButton>
+#include <QGridLayout>
 
 #include <algorithm>
 #include <functional>
