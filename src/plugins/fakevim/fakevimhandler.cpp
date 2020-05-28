@@ -1595,7 +1595,7 @@ public:
 
     bool walk(const Inputs &inputs)
     {
-        foreach (const Input &input, inputs) {
+        for (const Input &input : inputs) {
             if (!walk(input))
                 return false;
         }
@@ -1633,7 +1633,7 @@ public:
     void setInputs(const Inputs &key, const Inputs &inputs, bool unique = false)
     {
         ModeMapping *current = &(*m_parent)[m_mode];
-        foreach (const Input &input, key)
+        for (const Input &input : key)
             current = &(*current)[input];
         if (!unique || current->value().isEmpty())
             current->setValue(inputs);
@@ -2855,7 +2855,7 @@ void FakeVimHandler::Private::prependMapping(const Inputs &inputs)
     // FIXME: Implement Vim option maxmapdepth (default value is 1000).
     if (g.mapDepth >= 1000) {
         const int i = qMax(0, g.pendingInput.lastIndexOf(Input()));
-        QList<Input> inputs = g.pendingInput.mid(i);
+        const QList<Input> inputs = g.pendingInput.mid(i);
         clearPendingInput();
         g.pendingInput.append(inputs);
         showMessage(MessageError, Tr::tr("Recursive mapping"));
@@ -5740,7 +5740,7 @@ bool FakeVimHandler::Private::handleExRegisterCommand(const ExCommand &cmd)
     }
     QString info;
     info += "--- Registers ---\n";
-    foreach (char reg, regs) {
+    for (char reg : qAsConst(regs)) {
         QString value = quoteUnprintable(registerContents(reg));
         info += QString("\"%1   %2\n").arg(reg).arg(value);
     }
@@ -6689,7 +6689,7 @@ void FakeVimHandler::Private::setupCharClass()
         m_charClass[i] = c.isSpace() ? 0 : 1;
     }
     const QString conf = config(ConfigIsKeyword).toString();
-    foreach (const QString &part, conf.split(',')) {
+    for (const QString &part : conf.split(',')) {
         if (part.contains('-')) {
             const int from = someInt(part.section('-', 0, 0));
             const int to = someInt(part.section('-', 1, 1));
@@ -7182,7 +7182,7 @@ void FakeVimHandler::Private::insertText(QTextCursor &tc, const QString &text)
           passEventToEditor(event, tc);
       }
 
-      foreach (QChar c, text) {
+      for (QChar c : text) {
           QKeyEvent event(QEvent::KeyPress, -1, Qt::NoModifier, QString(c));
           passEventToEditor(event, tc);
       }
@@ -8134,9 +8134,9 @@ void FakeVimHandler::Private::replay(const QString &command, int repeat)
 
     //qDebug() << "REPLAY: " << quoteUnprintable(command);
     clearCurrentMode();
-    Inputs inputs(command);
+    const Inputs inputs(command);
     for (int i = 0; i < repeat; ++i) {
-        foreach (const Input &in, inputs) {
+        for (const Input &in : inputs) {
             if (handleDefaultKey(in) != EventHandled)
                 return;
         }
@@ -8765,9 +8765,9 @@ void FakeVimHandler::handleReplay(const QString &keys)
 
 void FakeVimHandler::handleInput(const QString &keys)
 {
-    Inputs inputs(keys);
+    const Inputs inputs(keys);
     d->enterFakeVim();
-    foreach (const Input &input, inputs)
+    for (const Input &input : inputs)
         d->handleKey(input);
     d->leaveFakeVim();
 }
