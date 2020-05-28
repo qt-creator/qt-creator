@@ -26,6 +26,9 @@
 
 #include <abstractview.h>
 #include <bindingproperty.h>
+#include <invalididexception.h>
+#include <invalidmodelnodeexception.h>
+#include <invalidreparentingexception.h>
 #include <modelmerger.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
@@ -194,45 +197,62 @@ QPoint parentPosition(const ModelNode &node)
 
 void StylesheetMerger::preprocessStyleSheet()
 {
-    for (ModelNode currentStyleNode : m_styleView->rootModelNode().directSubModelNodes()) {
-        QString id = currentStyleNode.id();
+    try {
+        RewriterTransaction transaction(m_styleView, "preprocess-stylesheet");
+        for (ModelNode currentStyleNode : m_styleView->rootModelNode().directSubModelNodes()) {
+            QString id = currentStyleNode.id();
 
-        if (!idExistsInBothModels(id))
-            continue;
+            if (!idExistsInBothModels(id))
+                continue;
 
-        ModelNode templateNode = m_templateView->modelNodeForId(id);
-        NodeAbstractProperty templateParentProperty = templateNode.parentProperty();
-        if (!templateNode.hasParentProperty()
-                || templateParentProperty.parentModelNode().isRootNode())
-            continue;
+            ModelNode templateNode = m_templateView->modelNodeForId(id);
+            NodeAbstractProperty templateParentProperty = templateNode.parentProperty();
+            if (!templateNode.hasParentProperty()
+                    || templateParentProperty.parentModelNode().isRootNode())
+                continue;
 
-        ModelNode templateParentNode = templateParentProperty.parentModelNode();
-        const QString parentId = templateParentNode.id();
-        if (!idExistsInBothModels(parentId))
-            continue;
+            ModelNode templateParentNode = templateParentProperty.parentModelNode();
+            const QString parentId = templateParentNode.id();
+            if (!idExistsInBothModels(parentId))
+                continue;
 
-        // Only get the position properties as the node should have a global
-        // position in the style sheet.
-        const QPoint oldGlobalPos = pointForModelNode(currentStyleNode);
+            // Only get the position properties as the node should have a global
+            // position in the style sheet.
+            const QPoint oldGlobalPos = pointForModelNode(currentStyleNode);
 
-        ModelNode newStyleParent = m_styleView->modelNodeForId(parentId);
-        NodeListProperty newParentProperty = newStyleParent.defaultNodeListProperty();
-        newParentProperty.reparentHere(currentStyleNode);
+            ModelNode newStyleParent = m_styleView->modelNodeForId(parentId);
+            NodeListProperty newParentProperty = newStyleParent.defaultNodeListProperty();
+            newParentProperty.reparentHere(currentStyleNode);
 
-        // Get the parent position in global coordinates.
-        QPoint parentGlobalPos = parentPosition(currentStyleNode);
+            // Get the parent position in global coordinates.
+            QPoint parentGlobalPos = parentPosition(currentStyleNode);
 
-        const QPoint newGlobalPos = oldGlobalPos - parentGlobalPos;
+            const QPoint newGlobalPos = oldGlobalPos - parentGlobalPos;
 
-        currentStyleNode.variantProperty("x").setValue(newGlobalPos.x());
-        currentStyleNode.variantProperty("y").setValue(newGlobalPos.y());
+            currentStyleNode.variantProperty("x").setValue(newGlobalPos.x());
+            currentStyleNode.variantProperty("y").setValue(newGlobalPos.y());
 
-        int templateParentIndex = templateParentProperty.isNodeListProperty()
-                ? templateParentProperty.indexOf(templateNode) : -1;
-        int styleParentIndex = newParentProperty.indexOf(currentStyleNode);
-        if (templateParentIndex >= 0 && styleParentIndex != templateParentIndex)
-            newParentProperty.slide(styleParentIndex, templateParentIndex);
+            int templateParentIndex = templateParentProperty.isNodeListProperty()
+                    ? templateParentProperty.indexOf(templateNode) : -1;
+            int styleParentIndex = newParentProperty.indexOf(currentStyleNode);
+            if (templateParentIndex >= 0 && styleParentIndex != templateParentIndex)
+                newParentProperty.slide(styleParentIndex, templateParentIndex);
+        }
+        transaction.commit();
+    }catch (InvalidIdException &ide) {
+        qDebug().noquote() << "Invalid id exception while preprocessing the style sheet.";
+        ide.createWarning();
+    } catch (InvalidReparentingException &rpe) {
+        qDebug().noquote() << "Invalid reparenting exception while preprocessing the style sheet.";
+        rpe.createWarning();
+    } catch (InvalidModelNodeException &mne) {
+        qDebug().noquote() << "Invalid model node exception while preprocessing the style sheet.";
+        mne.createWarning();
+    } catch (Exception &e) {
+        qDebug().noquote() << "Exception while preprocessing the style sheet.";
+        e.createWarning();
     }
+
 }
 
 void StylesheetMerger::replaceNode(ModelNode &replacedNode, ModelNode &newNode)
@@ -269,16 +289,32 @@ void StylesheetMerger::replaceNode(ModelNode &replacedNode, ModelNode &newNode)
 
 void StylesheetMerger::replaceRootNode(ModelNode& templateRootNode)
 {
-    ModelMerger merger(m_templateView);
-    QString rootId = templateRootNode.id();
-    // If we shall replace the root node of the template with the style,
-    // we first replace the whole model.
-    ModelNode rootReplacer = m_styleView->modelNodeForId(rootId);
-    merger.replaceModel(rootReplacer);
+    try {
+        RewriterTransaction transaction(m_templateView, "replace-root-node");
+        ModelMerger merger(m_templateView);
+        QString rootId = templateRootNode.id();
+        // If we shall replace the root node of the template with the style,
+        // we first replace the whole model.
+        ModelNode rootReplacer = m_styleView->modelNodeForId(rootId);
+        merger.replaceModel(rootReplacer);
 
-    // Then reset the id to the old root's one.
-    ModelNode newRoot = m_templateView->rootModelNode();
-    newRoot.setIdWithoutRefactoring(rootId);
+        // Then reset the id to the old root's one.
+        ModelNode newRoot = m_templateView->rootModelNode();
+        newRoot.setIdWithoutRefactoring(rootId);
+        transaction.commit();
+    }  catch (InvalidIdException &ide) {
+        qDebug().noquote() << "Invalid id exception while replacing root node of template.";
+        ide.createWarning();
+    } catch (InvalidReparentingException &rpe) {
+        qDebug().noquote() << "Invalid reparenting exception while replacing root node of template.";
+        rpe.createWarning();
+    } catch (InvalidModelNodeException &mne) {
+        qDebug().noquote() << "Invalid model node exception while replacing root node of template.";
+        mne.createWarning();
+    } catch (Exception &e) {
+        qDebug().noquote() << "Exception while replacing root node of template.";
+        e.createWarning();
+    }
 }
 
 // Move the newly created nodes to the correct position in the parent node
@@ -366,39 +402,75 @@ void StylesheetMerger::merge()
 
         // create the replacement nodes for the styled nodes
         {
-            RewriterTransaction transaction(m_templateView, "create-replacement-node");
+            try {
+                RewriterTransaction transaction(m_templateView, "create-replacement-node");
 
-            ModelNode replacedNode = m_templateView->modelNodeForId(currentNode.id());
-            hasPos = replacedNode.hasProperty("x") || replacedNode.hasProperty("y");
+                ModelNode replacedNode = m_templateView->modelNodeForId(currentNode.id());
+                hasPos = replacedNode.hasProperty("x") || replacedNode.hasProperty("y");
 
-            ModelNode replacementNode = createReplacementNode(currentNode, replacedNode);
+                ModelNode replacementNode = createReplacementNode(currentNode, replacedNode);
 
-            replaceNode(replacedNode, replacementNode);
-            transaction.commit();
+                replaceNode(replacedNode, replacementNode);
+                transaction.commit();
+            } catch (InvalidIdException &ide) {
+                qDebug().noquote() << "Invalid id exception while replacing template node";
+                ide.createWarning();
+                continue;
+            } catch (InvalidReparentingException &rpe) {
+                qDebug().noquote() << "Invalid reparenting exception while replacing template node";
+                rpe.createWarning();
+                continue;
+            } catch (InvalidModelNodeException &mne) {
+                qDebug().noquote() << "Invalid model node exception while replacing template node";
+                mne.createWarning();
+                continue;
+            } catch (Exception &e) {
+                qDebug().noquote() << "Exception while replacing template node.";
+                e.createWarning();
+                continue;
+            }
         }
         // sync the properties from the stylesheet
         {
-            RewriterTransaction transaction(m_templateView, "sync-style-node-properties");
-            ModelNode templateNode = m_templateView->modelNodeForId(currentNode.id());
-            applyStyleProperties(templateNode, currentNode);
-            adjustNodeIndex(templateNode);
+            try {
+                RewriterTransaction transaction(m_templateView, "sync-style-node-properties");
+                ModelNode templateNode = m_templateView->modelNodeForId(currentNode.id());
+                applyStyleProperties(templateNode, currentNode);
+                adjustNodeIndex(templateNode);
 
-            /* This we want to do if the parent node in the style is not in the template */
-            if (!currentNode.hasParentProperty() ||
-                    !m_templateView->modelNodeForId(currentNode.parentProperty().parentModelNode().id()).isValid()) {
+                /* This we want to do if the parent node in the style is not in the template */
+                if (!currentNode.hasParentProperty() ||
+                        !m_templateView->modelNodeForId(currentNode.parentProperty().parentModelNode().id()).isValid()) {
 
-                if (!hasPos) { //If template had postition retain it
-                    removePropertyIfExists(templateNode, "x");
-                    removePropertyIfExists(templateNode, "y");
-                }
-                if (templateNode.hasProperty("anchors.fill")) {
-                    /* Unfortuntly there are cases were width and height have to be defined - see Button
+                    if (!hasPos) { //If template had postition retain it
+                        removePropertyIfExists(templateNode, "x");
+                        removePropertyIfExists(templateNode, "y");
+                    }
+                    if (templateNode.hasProperty("anchors.fill")) {
+                        /* Unfortuntly there are cases were width and height have to be defined - see Button
                      * Most likely we need options for this */
-                    //removePropertyIfExists(templateNode, "width");
-                    //removePropertyIfExists(templateNode, "height");
+                        //removePropertyIfExists(templateNode, "width");
+                        //removePropertyIfExists(templateNode, "height");
+                    }
                 }
+                transaction.commit();
+            } catch (InvalidIdException &ide) {
+                qDebug().noquote() << "Invalid id exception while syncing style properties to template";
+                ide.createWarning();
+                continue;
+            } catch (InvalidReparentingException &rpe) {
+                qDebug().noquote() << "Invalid reparenting exception while syncing style properties to template";
+                rpe.createWarning();
+                continue;
+            } catch (InvalidModelNodeException &mne) {
+                qDebug().noquote() << "Invalid model node exception while syncing style properties to template";
+                mne.createWarning();
+                continue;
+            } catch (Exception &e) {
+                qDebug().noquote() << "Exception while syncing style properties.";
+                e.createWarning();
+                continue;
             }
-            transaction.commit();
         }
     }
 }
