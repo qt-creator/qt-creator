@@ -33,7 +33,7 @@
     \page creator-using-qt-quick-designer.html
     \if defined(qtdesignstudio)
     \previouspage creator-modes.html
-    \nextpage {Tutorials}
+    \nextpage creator-project-managing-workspaces.html
     \else
     \previouspage quick-projects.html
     \nextpage quick-uis.html

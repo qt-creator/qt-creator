@@ -25,8 +25,12 @@
 
 /*!
     \page creator-views.html
-    \previouspage creator-modes.html
-    \nextpage creator-sidebars.html
+    \previouspage creator-sidebars.html
+    \if defined(qtdesignstudio)
+    \nextpage creator-output-panes.html
+    \else
+    \nextpage creator-project-managing-workspaces.html
+    \endif
 
     \title Browsing Project Contents
 

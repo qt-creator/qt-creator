@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 /*!
-    \previouspage creator-using-qt-quick-designer.html
+    \previouspage creator-project-managing-workspaces.html
     \group gstutorials
     \nextpage studio-projects-managing.html
 

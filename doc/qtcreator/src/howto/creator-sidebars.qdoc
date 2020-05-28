@@ -25,8 +25,13 @@
 
 /*!
     \page creator-sidebars.html
-    \previouspage creator-views.html
-    \nextpage creator-project-managing-workspaces.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-coding-navigating.html
+    \else
+    \previouspage creator-modes.html
+    \endif
+    \nextpage creator-views.html
+
 
     \title Working with Sidebars
 

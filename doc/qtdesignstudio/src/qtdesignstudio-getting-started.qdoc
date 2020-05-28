@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -69,6 +69,7 @@
         \li \l{Editing QML Files in Design Mode}
 
             Describes the parts and basic features of the Design mode.
+            This is where you'll do most of your work.
         \li \l {Tutorials}
 
             Describes how to use \QDS to create a simple animated UI with some

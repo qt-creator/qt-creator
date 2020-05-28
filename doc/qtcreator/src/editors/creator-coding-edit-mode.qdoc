@@ -32,7 +32,11 @@
 /*!
     \previouspage creator-editor-functions.html
     \page creator-coding-navigating.html
+    \if defined(qtdesignstudio)
+    \nextpage creator-sidebars.html
+    \else
     \nextpage creator-highlighting.html
+    \endif
 
     \title Working in Edit Mode
 
@@ -295,5 +299,15 @@
     \QC underlines semantic errors in olive in the C++ code editor. To check the
     correct paths for includes that are not resolved or that are resolved to the
     wrong file, select \uicontrol {Project Parts} > \uicontrol {Header Paths}.
+    \endif
+
+    \if defined(qtdesignstudio)
+    \section1 Related Topics
+
+    \list
+        \li \l{Working with Sidebars}
+        \li \l{Browsing Project Contents}
+        \li \l{Viewing Output}
+    \endlist
     \endif
 */

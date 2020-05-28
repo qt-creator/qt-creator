@@ -24,9 +24,14 @@
 ****************************************************************************/
 
 /*!
-    \previouspage creator-sidebars.html
     \page creator-project-managing-workspaces.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-using-qt-quick-designer.html
+    \nextpage {Tutorials}
+    \else
+    \previouspage creator-sidebars.html
     \nextpage creator-output-panes.html
+    \endif
 
     \title Managing Workspaces
 

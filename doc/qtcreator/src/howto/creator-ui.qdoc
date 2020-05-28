@@ -32,7 +32,7 @@
 /*!
     \page creator-quick-tour.html
     \if defined(qtdesignstudio)
-    \previouspage qtbridge-ps-using.html
+    \previouspage exporting-from-maya.html
     \else
     \previouspage creator-overview.html
     \endif
@@ -43,15 +43,20 @@
     When you start \QC, it opens to the \uicontrol Welcome mode, where you can:
 
     \list
+        \if defined(qtcreator)
+        \li Open recent sessions
+        \endif
 
-        \li Open recent sessions and projects
+        \li Open recent projects
 
         \li Create and open projects
 
         \li Open tutorials and example projects
 
+        \if defined(qtcreator)
         \li Browse Qt extensions in the \l{https://marketplace.qt.io/}
             {Qt Marketplace}
+        \endif
 
         \li Read news from the online community and Qt blogs
 
@@ -65,47 +70,50 @@
     \image studio-welcome-mode.png
     \endif
 
+    \if defined(qtcreator)
     You can use the \l{Selecting Modes}{mode selector} (1) to change to another
     \QC mode.
 
-    \if defined(qtcreator)
     You can use the kit selector (2) to select the
     \l{glossary-buildandrun-kit}{kit} for running (3), debugging (4), or
     building (5) the application. Output from these actions is displayed in the
     output panes (7).
-    \else
-    You can use the kit selector (2) to select the \l{glossary-buildandrun-kit}
-    {kit} for running (3) or debugging (4) the application. Output from these
-    actions is displayed in the \l{Viewing Output}{output panes} (5).
-    \endif
 
     You can use the \l{Searching with the Locator}{locator} (6) to browse
     through projects, files, classes, functions, documentation, and file
     systems.
 
-    \if defined(qtcreator)
     For a quick tour of the user interface that takes you to the locations of
     these controls, select \uicontrol Help > \uicontrol {UI Tour}.
-    \endif
-
 
     The following sections describe some \QC controls in more detail:
 
     \list
         \li \l{Selecting Modes}{Mode selector}
-        \li \l{Browsing Project Contents}{Views}
         \li \l{Working with Sidebars}{Sidebars}
+        \li \l{Browsing Project Contents}{Views}
         \li \l{Managing Workspaces}{Workspaces}
         \li \l{Viewing Output}{Output panes}
     \endlist
 
+    \else
+    You can use the \l{Selecting Modes}{mode selector} to switch to the
+    \l{Editing QML Files in Design Mode}{Design mode} (1), where you will do
+    most of your work and the \l{Using the Help Mode}{Help} (2) mode, where
+    you can read the product documentation. The other modes are for more
+    advanced use, and you are likely to need them less often.
+
+    Below the mode selector, you can find shortcuts to some more advanced
+    functions, such as running the application or finding problems in the
+    QML code by debugging or profiling it.
+    \endif
+
     \section1 Navigating with Keyboard
 
-    \QC caters not only to developers who are used to using the mouse,
-    but also to developers who are more comfortable with the keyboard. A wide
-    range of \l{keyboard-shortcuts}{keyboard} and
-    \l{Searching with the Locator}{navigation} shortcuts are available to help
-    speed up the process of developing your application.
+    \QC caters not only to those users who like to use the mouse, but also
+    to those who are more comfortable with the keyboard. A wide range of
+    \l{keyboard-shortcuts}{keyboard} and \l{Searching with the Locator}
+    {navigation} shortcuts are available to help you work faster.
 
     \if defined(qtcreator)
     \section1 Useful Features
@@ -150,10 +158,13 @@
 
     \section2 Exporting SVG Images
 
-    If you receive a freely scalable icon in the SVG format from an UI designer,
+    If you have a freely scalable icon in the SVG format,
     you can export it to several images of different sizes to create a set of
-    pixmaps. You can then use QIcon::addPixmap() to add the pixmaps to icons in
+    pixmaps.
+    \if defined(qtcreator)
+    You can then use QIcon::addPixmap() to add the pixmaps to icons in
     different modes and states.
+    \endif
 
     \section1 Platform Notes
 
@@ -257,12 +268,17 @@
 /*!
     \page creator-modes.html
     \previouspage creator-quick-tour.html
-    \nextpage creator-views.html
+    \if defined(qtdesignstudio)
+    \nextpage creator-using-qt-quick-designer.html
+    \else
+    \nextpage creator-sidebars.html
+    \endif
 
     \title Selecting Modes
 
     \image qtcreator-mode-selector.png
 
+    \if defined(qtcreator)
     The mode selector allows you to quickly switch between tasks such as editing
     project and source files, designing application UIs, configuring how
     projects are built and executed, and debugging your applications. To change
@@ -277,28 +293,28 @@
     The following image displays an example application in \uicontrol Edit mode (1)
     and \uicontrol Design mode (2).
 
-    \if defined(qtcreator)
     \image qtcreator-qt-quick-editors.png "Edit mode and Design mode"
-    \else
-    \image studio-editors.png "Edit mode and Design mode"
     \endif
 
     You can use \QC in the following modes:
 
     \list
 
-        \li \uicontrol {\l{User Interface}{Welcome}} mode for opening projects.
+        \li \uicontrol {\l{User Interface}{Welcome}} mode for opening projects,
+            tutorial, and examples.
 
         \li \uicontrol{\l{Coding}{Edit}} mode for editing project and source
             files.
 
         \if defined(qtcreator)
         \li \uicontrol{\l{Designing User Interfaces}{Design}}
-        \else
-        \li \uicontrol{\l{Editing QML Files in Design Mode}{Design}}
-        \endif
             mode for designing and developing application user interfaces.
             This mode is available for UI files.
+        \else
+        \li \uicontrol{\l{Editing QML Files in Design Mode}{Design}}
+            mode for designing and developing application user interfaces.
+            As a designer, you'll do most of your work in this mode.
+        \endif
 
         \if defined(qtcreator)
         \li \uicontrol{\l{Debugging}{Debug}}
@@ -307,7 +323,7 @@
         \endif
             mode for inspecting the state of your
             application while debugging and for using code analysis tools
-            to detect memory leaks and profile C++ or QML code.
+            to detect memory leaks and profile code.
 
         \if defined(qtcreator)
         \li \uicontrol{\l{Specifying Build Settings}{Projects}} mode
@@ -318,22 +334,25 @@
         \endif
             This mode is available when a project is open.
 
-        \li \uicontrol{\l{Using the Help Mode}{Help}} mode for viewing Qt
+        \li \uicontrol{\l{Using the Help Mode}{Help}} mode for viewing
             documentation.
 
     \endlist
 
+    \if defined(qtcreator)
     Certain actions in \QC trigger a mode change. Clicking on \uicontrol {Debug} >
     \uicontrol {Start Debugging} > \uicontrol {Start Debugging} automatically switches to
     \uicontrol {Debug} mode.
+    \endif
 */
 
 /*!
     \page creator-output-panes.html
-    \previouspage creator-project-managing-workspaces.html
     \if defined(qtdesignstudio)
-    \nextpage creator-using-qt-quick-designer.html
+    \previouspage creator-views.html
+    \nextpage creator-highlighting.html
     \else
+    \previouspage creator-project-managing-workspaces.html
     \nextpage creator-configuring.html
     \endif
 

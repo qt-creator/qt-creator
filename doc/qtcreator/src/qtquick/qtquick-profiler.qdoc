@@ -134,7 +134,7 @@
     To save all the collected data, right-click any QML Profiler view to open
     the context menu, and then select \uicontrol {Save QML Trace}. To view the saved
     data, select \uicontrol {Load QML Trace}. You can also deliver the saved data to
-    other developers for examination or load data saved by them.
+    others for examination or load data saved by them.
 
     \section1 Specifying Flushing Settings
 
