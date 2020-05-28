@@ -39,7 +39,9 @@
     When you contribute a plugin, you should write documentation both for the
     developers who use \QC and for the ones who develop it.
 
-    Write the following user documentation for addition to the \QC Manual:
+    Write the following user documentation for addition to the \QC Manual or as
+    a separate Plugin Manual if your plugin is located in a repository of its
+    own:
 
     \list
         \li  Overview topic, which describes the purpose of your plugin from the
@@ -64,7 +66,7 @@
     \section1 Configuring Documentation Projects
 
     \QC documentation is written by using QDoc. For more information about using
-    QDoc, see the \l{http://doc.qt.io/qt-5/qdoc-index.html}{QDoc Manual}.
+    QDoc, see the \l{https://doc.qt.io/qt/qdoc-index.html}{QDoc Manual}.
 
     QDoc finds the new topics automatically, when you place them as \c {.qdoc}
     files in a doc source folder. However, to make the topics accessible to
@@ -136,7 +138,7 @@
     that are not actually listed in the table of contents of the \QDS Manual.
     To avoid this, some files are excluded from the \QDS Manual builds.
 
-    \section3 Excluding Souce Files from \QDS Manual Builds
+    \section3 Excluding Source Files from \QDS Manual Builds
 
     The directories to exclude from \QDS Manual builds are
     listed as values of the \c excludedirs option in
@@ -263,6 +265,21 @@
     \nextpage creator-vcs-mercurial.html
     \endif
     \endcode
+
+    \section1 Adding Documentation for Independent Plugins
+
+    You can develop \QC plugins in separate repositories. Such plugins should
+    have their own help files (.qch) that are installed and registered only if
+    the plugin is installed.
+
+    The easiest way to set up the documentation project for an independent
+    plugin is to copy it from an existing repository, such as the
+    \l{https://code.qt.io/cgit/qt-creator/plugin-fossil-scm.git/}
+    {Fossil plugin}, and then make the necessary changes.
+
+    Use the following naming scheme for \QC plugin manuals:
+    \e {\QC <Plugin Name> Plugin Manual}. For example,
+    \e{\QC Fossil Plugin Manual}.
 
     \section1 Writing Text
 
