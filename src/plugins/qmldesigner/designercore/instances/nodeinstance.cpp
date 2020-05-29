@@ -33,6 +33,7 @@
 #include <QDebug>
 #include <QPainter>
 #include <QVector3D>
+#include <QVector2D>
 
 QT_BEGIN_NAMESPACE
 void qt_blurImage(QPainter *painter, QImage &blurImage, qreal radius, bool quality, bool alphaOnly, int transposed = 0);
@@ -316,7 +317,23 @@ QVariant NodeInstance::property(const PropertyName &name) const
             if (index != -1) {
                 PropertyName parentPropName = name.left(index);
                 QVariant varValue = d->propertyValues.value(parentPropName);
-                if (varValue.type() == QVariant::Vector3D) {
+                if (varValue.type() == QVariant::Vector2D) {
+                    auto value = varValue.value<QVector2D>();
+                    char subProp = name.right(1)[0];
+                    float subValue = 0.f;
+                    switch (subProp) {
+                    case 'x':
+                        subValue = value.x();
+                        break;
+                    case 'y':
+                        subValue = value.y();
+                        break;
+                    default:
+                        subValue = 0.f;
+                        break;
+                    }
+                    return QVariant(subValue);
+                } else if (varValue.type() == QVariant::Vector3D) {
                     auto value = varValue.value<QVector3D>();
                     char subProp = name.right(1)[0];
                     float subValue = 0.f;
@@ -397,22 +414,38 @@ void NodeInstance::setProperty(const PropertyName &name, const QVariant &value)
     if (index != -1) {
         PropertyName parentPropName = name.left(index);
         QVariant oldValue = d->propertyValues.value(parentPropName);
-        QVector3D newValue;
-        if (oldValue.type() == QVariant::Vector3D)
-            newValue = oldValue.value<QVector3D>();
+        QVariant newValueVar;
         bool update = false;
-        if (name.endsWith(".x")) {
-            newValue.setX(value.toFloat());
-            update = true;
-        } else if (name.endsWith(".y")) {
-            newValue.setY(value.toFloat());
-            update = true;
-        } else if (name.endsWith(".z")) {
-            newValue.setZ(value.toFloat());
-            update = true;
+        if (oldValue.type() == QVariant::Vector2D) {
+            QVector2D newValue;
+            if (oldValue.type() == QVariant::Vector2D)
+                newValue = oldValue.value<QVector2D>();
+            if (name.endsWith(".x")) {
+                newValue.setX(value.toFloat());
+                update = true;
+            } else if (name.endsWith(".y")) {
+                newValue.setY(value.toFloat());
+                update = true;
+            }
+            newValueVar = newValue;
+        } else if (oldValue.type() == QVariant::Vector3D) {
+            QVector3D newValue;
+            if (oldValue.type() == QVariant::Vector3D)
+                newValue = oldValue.value<QVector3D>();
+            if (name.endsWith(".x")) {
+                newValue.setX(value.toFloat());
+                update = true;
+            } else if (name.endsWith(".y")) {
+                newValue.setY(value.toFloat());
+                update = true;
+            } else if (name.endsWith(".z")) {
+                newValue.setZ(value.toFloat());
+                update = true;
+            }
+            newValueVar = newValue;
         }
         if (update) {
-            d->propertyValues.insert(parentPropName, newValue);
+            d->propertyValues.insert(parentPropName, newValueVar);
             return;
         }
     }

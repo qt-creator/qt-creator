@@ -336,14 +336,14 @@ private:
 static inline bool isValueType(const TypeName &type)
 {
     static const PropertyTypeList objectValuesList({"QFont", "QPoint", "QPointF",
-        "QSize", "QSizeF", "QVector3D", "QVector2D", "font"});
+        "QSize", "QSizeF", "QVector3D", "QVector2D", "vector2d", "vector3d", "font"});
     return objectValuesList.contains(type);
 }
 
 static inline bool isValueType(const QString &type)
 {
     static const QStringList objectValuesList({"QFont", "QPoint", "QPointF",
-        "QSize", "QSizeF", "QVector3D", "QVector2D", "font"});
+        "QSize", "QSizeF", "QVector3D", "QVector2D", "vector2d", "vector3d", "font"});
     return objectValuesList.contains(type);
 }
 
@@ -494,8 +494,28 @@ QVector<PropertyInfo> getObjectTypes(const ObjectValue *objectValue, const Conte
 
     PropertyMemberProcessor processor(context);
     objectValue->processMembers(&processor);
+    const auto props = processor.properties();
 
-    propertyList.append(processor.properties());
+    for (const PropertyInfo &property : props) {
+        const PropertyName name = property.first;
+        const QString nameAsString = QString::fromUtf8(name);
+
+        if (isValueType(property.second)) {
+            const Value *dotValue = objectValue->lookupMember(nameAsString, context);
+            if (const Reference *ref = dotValue->asReference())
+                dotValue = context->lookupReference(ref);
+
+            if (const ObjectValue *dotObjectValue = dotValue->asObjectValue()) {
+                const QVector<PropertyInfo> dotProperties = getObjectTypes(dotObjectValue, context, false, rec + 1);
+                for (const PropertyInfo &propertyInfo : dotProperties) {
+                    const PropertyName dotName = name + '.' + propertyInfo.first;
+                    const TypeName type = propertyInfo.second;
+                    propertyList.append({dotName, type});
+                }
+            }
+        }
+        propertyList.append(property);
+    }
 
     if (!local) {
         const ObjectValue* prototype = objectValue->prototype(context);
@@ -1066,6 +1086,9 @@ QVariant::Type NodeMetaInfoPrivate::variantTypeId(const PropertyName &propertyNa
 
     if (typeName == "var")
         return QVariant::UserType;
+
+    if (typeName == "vector2d")
+        return QVariant::Vector2D;
 
     if (typeName == "vector3d")
         return QVariant::Vector3D;

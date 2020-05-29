@@ -31,6 +31,7 @@
 
 #include <QUrl>
 #include <QVector3D>
+#include <QVector2D>
 #include <QDebug>
 
 namespace {
@@ -151,6 +152,29 @@ QSizeF sizeFFromString(const QString &s, bool *ok)
     return QSizeF(width, height);
 }
 
+QVector2D vector2DFromString(const QString &s, bool *ok)
+{
+    if (s.count(QLatin1Char(',')) != 1) {
+        if (ok)
+            *ok = false;
+        return {};
+    }
+
+    bool xGood, yGood;
+    int index = s.indexOf(QLatin1Char(','));
+    qreal xCoord = s.leftRef(index).toDouble(&xGood);
+    qreal yCoord = s.midRef(index + 1).toDouble(&yGood);
+    if (!xGood || !yGood) {
+        if (ok)
+            *ok = false;
+        return QVector2D();
+    }
+
+    if (ok)
+        *ok = true;
+    return QVector2D(xCoord, yCoord);
+}
+
 QVector3D vector3DFromString(const QString &s, bool *ok)
 {
     if (s.count(QLatin1Char(',')) != 2) {
@@ -241,6 +265,9 @@ QVariant read(int variantType, const QString &str)
     case QMetaType::QColor:
         value = colorFromString(str, &conversionOk);
         break;
+    case QMetaType::QVector2D:
+        value = vector2DFromString(str, &conversionOk);
+        break;
     case QMetaType::QVector3D:
         value = vector3DFromString(str, &conversionOk);
         break;
@@ -277,8 +304,10 @@ QVariant variantFromString(const QString &s)
     if (ok) return QVariant(p);
     QSizeF sz = sizeFFromString(s, &ok);
     if (ok) return QVariant(sz);
-    QVector3D v = vector3DFromString(s, &ok);
-    if (ok) return QVariant::fromValue(v);
+    QVector3D v3 = vector3DFromString(s, &ok);
+    if (ok) return QVariant::fromValue(v3);
+    QVector2D v2 = vector2DFromString(s, &ok);
+    if (ok) return QVariant::fromValue(v2);
 
     return QVariant(s);
 }
