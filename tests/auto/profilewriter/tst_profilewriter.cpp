@@ -686,25 +686,25 @@ void tst_ProFileWriter::multiVar()
 
 void tst_ProFileWriter::addFiles()
 {
-    QString input = QLatin1String(
-            "SOURCES = foo.cpp"
-            );
-    QStringList lines = input.split(QLatin1Char('\n'));
-    QString output = QLatin1String(
-            "SOURCES = foo.cpp \\\n"
-            "\tsub/bar.cpp"
-            );
+    const QStringList equivalentInputs = {"SOURCES = foo.cpp", "SOURCES = foo.cpp \\"};
+    for (const QString &input : equivalentInputs) {
+        QStringList lines = input.split(QLatin1Char('\n'));
+        QString output = QLatin1String(
+                    "SOURCES = foo.cpp \\\n"
+                    "\tsub/bar.cpp"
+                    );
 
-    QMakeVfs vfs;
-    QMakeParser parser(0, &vfs, &parseHandler);
-    ProFile *proFile = parser.parsedProBlock(QStringRef(&input), 0, QLatin1String(BASE_DIR "/test.pro"), 1);
-    QVERIFY(proFile);
-    QmakeProjectManager::Internal::ProWriter::addFiles(proFile, &lines,
-            QStringList() << QString::fromLatin1(BASE_DIR "/sub/bar.cpp"),
-            QLatin1String("SOURCES"), "\t");
-    proFile->deref();
+        QMakeVfs vfs;
+        QMakeParser parser(0, &vfs, &parseHandler);
+        ProFile *proFile = parser.parsedProBlock(QStringRef(&input), 0, BASE_DIR "/test.pro", 1);
+        QVERIFY(proFile);
+        QmakeProjectManager::Internal::ProWriter::addFiles(proFile, &lines,
+                                                           QStringList(BASE_DIR "/sub/bar.cpp"),
+                                                           QLatin1String("SOURCES"), "\t");
+        proFile->deref();
 
-    QCOMPARE(lines.join(QLatin1Char('\n')), output);
+        QCOMPARE(lines.join(QLatin1Char('\n')), output);
+    }
 }
 
 void tst_ProFileWriter::removeFiles()

@@ -347,7 +347,8 @@ void ProWriter::putVarValues(ProFile *profile, QStringList *lines, const QString
                 QString newLine = effectiveContIndent(contInfo) + v;
                 if (curLineNo == endLineNo) {
                     QString &oldLastLine = (*lines)[endLineNo - 1];
-                    oldLastLine.insert(lineInfo(oldLastLine).continuationPos, " \\");
+                    if (!oldLastLine.endsWith('\\'))
+                        oldLastLine.insert(lineInfo(oldLastLine).continuationPos, " \\");
                 } else {
                     newLine += " \\";
                 }
