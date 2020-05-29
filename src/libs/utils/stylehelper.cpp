@@ -563,7 +563,7 @@ QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QString &i
             pixmap.fill(Qt::transparent);
 
             QFont font(fontName);
-            font.setPixelSize(fontSize * dpr);
+            font.setPixelSize(fontSize);
 
             QPainter painter(&pixmap);
             painter.save();
