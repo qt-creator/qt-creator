@@ -32,29 +32,33 @@
 
     You can submit your designs to review or further development as QML files.
     You can annotate your designs to provide reviewers or developers with
-    additional information about them. An annotation consist of an annotation
-    name and one or several comments. The comments have a title, author, and
-    comment text.
+    additional information about them. You can add \e {global annotations}
+    that apply to the whole file or annotate individual components.
 
-    \image qtquick-annotations.png "Annotations displayed in the Form Editor view"
+    An annotation consist of an annotation name and one or several comments.
+    The comments have a title, author, and comment text.
+
+    To add or edit global annotations, select \inlineimage icons/annotation.png
+    on the top menu bar in the Design mode.
+
+    Global annotations have an additional status property, which enables you
+    to indicate whether you are still working on the design, you have submitted
+    it to review, or it can be considered done. To set the status, select
+    \uicontrol {Add Status}.
+
+    \image qtquick-annotations.png "Annotation Editor"
 
     Annotations are saved in the end of QML files when you save the file. They
     do not affect the QML performance in any way.
 
-    To view annotations, select the annotation icon.
+    \section1 Annotating Components
 
-    To edit annotations, select \uicontrol {Edit Annotation} in the context
-    menu of the annotation icon.
-
-    \section1 Adding Annotations
-
-    To add annotations:
+    To add annotations to components:
 
     \list 1
-        \li Select the component to annotate in the \uicontrol Navigator
-            or in the \uicontrol {Form Editor}.
-        \li In the \uicontrol Properties view, select
-            \uicontrol {Add Annotation}.
+        \li Select the component to annotate in \uicontrol Navigator or in
+            \uicontrol {Form Editor}.
+        \li In \uicontrol Properties, select \uicontrol {Add Annotation}.
             \image qtquick-annotation-editor.png "Annotation Editor"
         \li The \uicontrol {Selected Item} field displays the ID of the
             component. Enter a name for the annotation in the
@@ -72,4 +76,7 @@
     To remove the active comment, select the \inlineimage minus.png
     (\uicontrol {Remove Comment}) button. To remove the annotation, right-click
     the annotation icon, and then select \uicontrol {Remove Annotation}.
+
+    To edit annotations, select \uicontrol {Edit Annotation} in the context
+    menu of the component.
 */
