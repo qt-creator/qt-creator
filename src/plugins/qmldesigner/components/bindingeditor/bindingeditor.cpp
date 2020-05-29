@@ -35,6 +35,9 @@
 #include <nodelistproperty.h>
 #include <propertyeditorvalue.h>
 
+#include <bindingproperty.h>
+#include <variantproperty.h>
+
 namespace QmlDesigner {
 
 static BindingEditor *s_lastBindingEditor = nullptr;
@@ -170,6 +173,26 @@ void BindingEditor::prepareBindings()
 
             if (m_backendValueTypeName == propertyTypeName)
                 binding.properties.append(QString::fromUtf8(propertyName));
+        }
+
+        //dynamic properties:
+        for (const BindingProperty &bindingProperty : objnode.bindingProperties()) {
+            if (bindingProperty.isValid()) {
+                if (bindingProperty.isDynamic()) {
+                    if (bindingProperty.dynamicTypeName() == m_backendValueTypeName) {
+                        binding.properties.append(QString::fromUtf8(bindingProperty.name()));
+                    }
+                }
+            }
+        }
+        for (const VariantProperty &variantProperty : objnode.variantProperties()) {
+            if (variantProperty.isValid()) {
+                if (variantProperty.isDynamic()) {
+                    if (variantProperty.dynamicTypeName() == m_backendValueTypeName) {
+                        binding.properties.append(QString::fromUtf8(variantProperty.name()));
+                    }
+                }
+            }
         }
 
         if (!binding.properties.isEmpty() && objnode.hasId()) {
