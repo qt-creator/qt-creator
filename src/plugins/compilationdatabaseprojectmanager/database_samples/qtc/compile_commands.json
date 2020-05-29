@@ -33,7 +33,6 @@
         "-DQT_CONCURRENT_LIB",
         "-DQT_NETWORK_LIB",
         "-DQT_CORE_LIB",
-        "-fPIC",
         "-I",
         "C:\\Qt\\5.9.2\\mingw53_32\\include",
         "-I",

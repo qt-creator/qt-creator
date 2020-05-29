@@ -150,9 +150,7 @@ void filteredFlags(const QString &fileName,
         }
 
         if (flag == "-o" || flag == "-MF" || flag == "-c" || flag == "-pedantic"
-                || flag.startsWith("-O") || flag.startsWith("-W") || flag.startsWith("-w")
-                || QString::compare(flag, "-fpic", Qt::CaseInsensitive) == 0
-                || QString::compare(flag, "-fpie", Qt::CaseInsensitive) == 0) {
+                || flag.startsWith("-O") || flag.startsWith("-W") || flag.startsWith("-w")) {
             continue;
         }
 
