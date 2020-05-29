@@ -70,6 +70,7 @@
 #include <memory>
 
 using namespace ProjectExplorer;
+using namespace QtSupport;
 using namespace Utils;
 using namespace Android::Internal;
 
@@ -534,14 +535,17 @@ void AndroidBuildApkStep::setBuildTargetSdk(const QString &sdk)
 
 QVariant AndroidBuildApkStep::data(Core::Id id) const
 {
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target()->kit());
-
     if (id == Constants::AndroidNdkPlatform) {
-        return AndroidConfigurations::currentConfig()
-            .bestNdkPlatformMatch(AndroidManager::minimumSDK(target()), qtVersion).mid(8);
+        if (auto qtVersion = QtKitAspect::qtVersion(target()->kit()))
+            return AndroidConfigurations::currentConfig()
+                .bestNdkPlatformMatch(AndroidManager::minimumSDK(target()), qtVersion).mid(8);
+        return {};
     }
-    if (id == Constants::NdkLocation)
-        return QVariant::fromValue(AndroidConfigurations::currentConfig().ndkLocation(qtVersion));
+    if (id == Constants::NdkLocation) {
+        if (auto qtVersion = QtKitAspect::qtVersion(target()->kit()))
+            return QVariant::fromValue(AndroidConfigurations::currentConfig().ndkLocation(qtVersion));
+        return {};
+    }
     if (id == Constants::SdkLocation)
         return QVariant::fromValue(AndroidConfigurations::currentConfig().sdkLocation());
     if (id == Constants::AndroidABIs)
