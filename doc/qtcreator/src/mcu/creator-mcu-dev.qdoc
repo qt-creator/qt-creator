@@ -61,11 +61,12 @@
         \li The Bare Metal plugin
         \li \l{https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm}
             {GNU ARM Embedded Toolchain}
-        \li The hardware specific requirements vary depending on the hardware platform you are developing for.
+        \li The hardware-specific requirements vary depending on the hardware platform you are developing for.
             For more information see:
             \list
                 \li \l{Getting Started on NXP}
                 \li \l{Getting Started on STM}
+                \li \l{Getting Started on Renesas}
              \endlist
     \endlist
 
@@ -127,6 +128,9 @@
 
     \section2 Adding MCU Devices
 
+    \note This optional step is not necessary if you have already
+    set up the MCU SDK as outlined in \l{Specifying MCU Settings}.
+
     \QC automatically adds a default MCU device when you select
     \uicontrol Apply in the \uicontrol MCU tab after configuring the
     MCU tool chain.
@@ -144,6 +148,9 @@
        \endlist
 
     \section2 Adding MCU Kits
+
+    \note This optional step is not necessary if you have already
+    set up the MCU SDK as outlined in \l{Specifying MCU Settings}.
 
     \QC automatically adds kits for building applications and running them
     on the specified MCU boards when you select \uicontrol Apply in the
