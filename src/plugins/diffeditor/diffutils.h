@@ -34,8 +34,6 @@ QT_BEGIN_NAMESPACE
 class QFutureInterfaceBase;
 QT_END_NAMESPACE
 
-namespace TextEditor { class FontSettings; }
-
 namespace Utils { class Diff; }
 
 namespace DiffEditor {

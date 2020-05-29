@@ -25,7 +25,6 @@
 
 #include "diffutils.h"
 
-#include <texteditor/fontsettings.h>
 #include <utils/algorithm.h>
 #include <utils/differ.h>
 
