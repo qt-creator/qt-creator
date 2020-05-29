@@ -31,6 +31,7 @@
 #include <utils/environment.h>
 #include <utils/synchronousprocess.h>
 
+#include <QDir>
 #include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -42,7 +43,9 @@ using namespace Utils;
 namespace ClangTools {
 namespace Internal {
 
-static QString runExecutable(const Utils::CommandLine &commandLine)
+enum class FailSilently { Yes, No };
+static QString runExecutable(const Utils::CommandLine &commandLine,
+                             FailSilently failSilently = FailSilently::No)
 {
     if (commandLine.executable().isEmpty() || !commandLine.executable().toFileInfo().isExecutable())
         return {};
@@ -52,8 +55,10 @@ static QString runExecutable(const Utils::CommandLine &commandLine)
     Environment::setupEnglishOutput(&env);
     cpp.setEnvironment(env.toStringList());
 
-    SynchronousProcessResponse response =  cpp.runBlocking(commandLine);
-    if (response.result != SynchronousProcessResponse::Finished || response.exitCode != 0) {
+    const SynchronousProcessResponse response = cpp.runBlocking(commandLine);
+    if (response.result != SynchronousProcessResponse::Finished
+            && (failSilently == FailSilently::No
+                || response.result != SynchronousProcessResponse::FinishedError)) {
         Core::MessageManager::write(response.exitMessage(commandLine.toUserOutput(), 10));
         Core::MessageManager::write(QString::fromUtf8(response.allRawOutput()));
         return {};
@@ -161,6 +166,51 @@ ClazyStandaloneInfo::ClazyStandaloneInfo(const QString &executablePath)
     : defaultChecks(queryClangTidyChecks(executablePath, {})) // Yup, behaves as clang-tidy.
     , supportedChecks(querySupportedClazyChecks(executablePath))
 {}
+
+static FilePath queryResourceDir(const FilePath &clangToolPath)
+{
+    QString output = runExecutable(CommandLine(clangToolPath, {"someFilePath", "--",
+                                                               "-print-resource-dir"}),
+                                   FailSilently::Yes);
+
+    // Expected output is (clang-tidy 10):
+    //   lib/clang/10.0.1
+    //   Error while trying to load a compilation database:
+    //   ...
+
+    // Parse
+    QTextStream stream(&output);
+    const QString path = clangToolPath.parentDir().parentDir()
+            .pathAppended(stream.readLine()).toString();
+    const auto filePath = FilePath::fromUserInput(QDir::cleanPath(path));
+    if (filePath.exists())
+        return filePath;
+    return {};
+}
+
+static QString queryVersion(const FilePath &clangToolPath)
+{
+    QString output = runExecutable(CommandLine(clangToolPath, {"--version"}));
+    QTextStream stream(&output);
+    while (!stream.atEnd()) {
+        static const QStringList versionPrefixes{"LLVM version ", "clang version: "};
+        const QString line = stream.readLine().simplified();
+        for (const QString &prefix : versionPrefixes) {
+            if (line.startsWith(prefix))
+                return line.mid(prefix.length());
+        }
+    }
+    return {};
+}
+
+QPair<FilePath, QString> getClangResourceDirAndVersion(const FilePath &clangToolPath)
+{
+    const FilePath dynamicResourceDir = queryResourceDir(clangToolPath);
+    const QString dynamicVersion = queryVersion(clangToolPath);
+    if (dynamicResourceDir.isEmpty() || dynamicVersion.isEmpty())
+        return qMakePair(FilePath::fromString(CLANG_RESOURCE_DIR), QString(CLANG_VERSION));
+    return qMakePair(dynamicResourceDir, dynamicVersion);
+}
 
 } // namespace Internal
 } // namespace ClangTools

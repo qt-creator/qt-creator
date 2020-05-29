@@ -31,6 +31,7 @@
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolssettings.h"
 #include "clangtoolsutils.h"
+#include "executableinfo.h"
 
 #include <debugger/analyzer/analyzerconstants.h>
 
@@ -153,7 +154,8 @@ private:
      bool m_success = false;
 };
 
-static AnalyzeUnits toAnalyzeUnits(const FileInfos &fileInfos)
+static AnalyzeUnits toAnalyzeUnits(const FileInfos &fileInfos, const FilePath &clangResourceDir,
+                                   const QString &clangVersion)
 {
     AnalyzeUnits unitsToAnalyze;
     const UsePrecompiledHeaders usePrecompiledHeaders = CppTools::getPchUsage();
@@ -163,8 +165,8 @@ static AnalyzeUnits toAnalyzeUnits(const FileInfos &fileInfos)
                                               UseTweakedHeaderPaths::Yes,
                                               UseLanguageDefines::No,
                                               UseBuildSystemWarnings::No,
-                                              QString(CLANG_VERSION),
-                                              QString(CLANG_RESOURCE_DIR));
+                                              clangVersion,
+                                              clangResourceDir.toString());
         QStringList arguments = extraClangToolsPrependOptions();
         arguments.append(optionsBuilder.build(fileInfo.kind, usePrecompiledHeaders));
         arguments.append(extraClangToolsAppendOptions());
@@ -174,11 +176,12 @@ static AnalyzeUnits toAnalyzeUnits(const FileInfos &fileInfos)
     return unitsToAnalyze;
 }
 
-AnalyzeUnits ClangToolRunWorker::unitsToAnalyze()
+AnalyzeUnits ClangToolRunWorker::unitsToAnalyze(const FilePath &clangResourceDir,
+                                                const QString &clangVersion)
 {
     QTC_ASSERT(m_projectInfo.isValid(), return AnalyzeUnits());
 
-    return toAnalyzeUnits(m_fileInfos);
+    return toAnalyzeUnits(m_fileInfos, clangResourceDir, clangVersion);
 }
 
 static QDebug operator<<(QDebug debug, const Utils::Environment &environment)
@@ -285,7 +288,10 @@ void ClangToolRunWorker::start()
                   Utils::NormalMessageFormat);
 
     // Collect files
-    const AnalyzeUnits unitsToProcess = unitsToAnalyze();
+    const auto clangResourceDirAndVersion =
+            getClangResourceDirAndVersion(runControl()->runnable().executable);
+    const AnalyzeUnits unitsToProcess = unitsToAnalyze(clangResourceDirAndVersion.first,
+                                                       clangResourceDirAndVersion.second);
     qCDebug(LOG) << "Files to process:" << unitsToProcess;
 
     m_queue.clear();
