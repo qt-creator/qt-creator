@@ -3075,5 +3075,5 @@ def qdump__qfloat16(d, value):
     else:
         res = (-1)**sign * (1 + 1. * fraction / 2**10) * 2**(exp - 15)
     d.putValue(res)
-    d.putNumChild(1)
+    #d.putNumChild(1)
     d.putPlainChildren(value)

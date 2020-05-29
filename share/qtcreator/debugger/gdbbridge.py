@@ -1457,19 +1457,46 @@ class CliDumper(Dumper):
     def putOriginalAddress(self, address):
         pass
 
-    def fetchVariable(self, name):
+    def fetchVariable(self, line):
+        # HACK: Currently, the response to the QtCore loading is completely
+        # eaten by theDumper, so copy the results here. Better would be
+        # some shared component.
+        self.qtCustomEventFunc = theDumper.qtCustomEventFunc
+        self.qtCustomEventPltFunc = theDumper.qtCustomEventPltFunc
+        self.qtPropertyFunc = theDumper.qtPropertyFunc
+
+        names = line.split(' ')
+        name = names[0]
+
+        toExpand = set()
+        for n in names:
+            while n:
+                toExpand.add(n)
+                n = n[0:n.rfind('.')]
+
         args = {}
         args['fancy'] = 1
         args['passexception'] = 1
         args['autoderef'] = 1
         args['qobjectnames'] = 1
         args['varlist'] = name
+        args['expanded'] = toExpand
+        self.expandableINames = set()
         self.prepare(args)
+
         self.output = name + ' = '
         value = self.parseAndEvaluate(name)
         with TopLevelItem(self, name):
             self.putItem(value)
-        return self.output
+
+        if not self.expandableINames:
+            return self.output + '\n\nNo drill down available.\n'
+
+        pattern = ' pp ' + name + ' ' + '%s'
+        return (self.output
+                + '\n\nDrill down:\n   '
+                + '\n   '.join(pattern % x for x in self.expandableINames)
+                + '\n')
 
 
 # Global instances.

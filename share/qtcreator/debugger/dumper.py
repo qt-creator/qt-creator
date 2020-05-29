@@ -126,7 +126,7 @@ class Children():
         self.d.currentNumChild = self.savedNumChild
         self.d.currentMaxNumChild = self.savedMaxNumChild
         if self.d.isCli:
-            self.output += '\n' + '   ' * self.indent
+            self.d.output += '\n' + '   ' * self.d.indent
         self.d.put(self.d.childrenSuffix)
         return True
 
@@ -288,6 +288,7 @@ class DumperBase():
         self.counts = {}
         self.structPatternCache = {}
         self.timings = []
+        self.expandableINames = set({})
 
     def resetStats(self):
         # Timing collection
@@ -771,12 +772,15 @@ class DumperBase():
             first, second = pair if isinstance(pair, tuple) else pair.members(False)
             key = self.putSubItem(kname, first)
             value = self.putSubItem(vname, second)
-        if index is not None:
-            self.putField('keyprefix', '[%s] ' % index)
-        self.putField('key', key.value)
-        if key.encoding is not None:
-            self.putField('keyencoded', key.encoding)
-        self.putValue(value.value, value.encoding)
+        if self.isCli:
+            self.putEmptyValue()
+        else:
+            if index is not None:
+                self.putField('keyprefix', '[%s] ' % index)
+            self.putField('key', key.value)
+            if key.encoding is not None:
+                self.putField('keyencoded', key.encoding)
+            self.putValue(value.value, value.encoding)
 
     def putEnumValue(self, ival, vals):
         nice = vals.get(ival, None)
@@ -804,9 +808,9 @@ class DumperBase():
             self.put('address="0x%x",' % address)
 
     def putPlainChildren(self, value, dumpBase=True):
-        self.putEmptyValue(-99)
-        self.putNumChild(1)
+        self.putExpandable()
         if self.isExpanded():
+            self.putEmptyValue(-99)
             with Children(self):
                 self.putFields(value, dumpBase)
 
@@ -844,7 +848,7 @@ class DumperBase():
                     with SubItem(self, '[vptr]'):
                         # int (**)(void)
                         self.putType(' ')
-                        self.putField('sortgroup', 20)
+                        self.putSortGroup(20)
                         self.putValue(item.name)
                         n = 100
                         if self.isExpanded():
@@ -860,17 +864,27 @@ class DumperBase():
                 with UnnamedSubItem(self, "@%d" % baseIndex):
                     self.putField('iname', self.currentIName)
                     self.putField('name', '[%s]' % item.name)
-                    self.putField('sortgroup', 1000 - baseIndex)
-                    self.putAddress(item.address())
+                    if not self.isCli:
+                        self.putSortGroup(1000 - baseIndex)
+                        self.putAddress(item.address())
                     self.putItem(item)
                 continue
 
             with SubItem(self, item.name):
                 self.putItem(item)
 
+    def putUnexpandable(self):
+        self.putNumChild(0)
+
+    def putExpandable(self):
+        self.putNumChild(1)
+        self.expandableINames.add(self.currentIName)
+        if self.isCli:
+            self.putValue('{...}', -99)
+
     def putMembersItem(self, value, sortorder=10):
         with SubItem(self, '[members]'):
-            self.putField('sortgroup', sortorder)
+            self.putSortGroup(sortorder)
             self.putPlainChildren(value)
 
     def put(self, stuff):
@@ -1308,7 +1322,6 @@ class DumperBase():
             #DumperBase.warn('NULL POINTER')
             self.putType(value.type)
             self.putValue('0x0')
-            self.putNumChild(0)
             return
 
         typeName = value.type.name
@@ -1321,7 +1334,6 @@ class DumperBase():
             #DumperBase.warn('BAD POINTER: %s' % value)
             self.putValue('0x%x' % pointer)
             self.putType(typeName)
-            self.putNumChild(0)
             return
 
         if self.currentIName.endswith('.this'):
@@ -1335,7 +1347,6 @@ class DumperBase():
             #DumperBase.warn('VOID POINTER: %s' % displayFormat)
             self.putType(typeName)
             self.putSymbolValue(pointer)
-            self.putNumChild(0)
             return
 
         if displayFormat == DisplayFormat.Raw:
@@ -1343,7 +1354,7 @@ class DumperBase():
             #DumperBase.warn('RAW')
             self.putType(typeName)
             self.putValue('0x%x' % pointer)
-            self.putNumChild(1)
+            self.putExpandable()
             if self.currentIName in self.expandedINames:
                 with Children(self):
                     with SubItem(self, '*'):
@@ -1355,7 +1366,7 @@ class DumperBase():
             limit = 1000000
         if self.tryPutSimpleFormattedPointer(pointer, typeName,
                                              innerType, displayFormat, limit):
-            self.putNumChild(1)
+            self.putExpandable()
             return
 
         if DisplayFormat.Array10 <= displayFormat and displayFormat <= DisplayFormat.Array1000:
@@ -1369,7 +1380,6 @@ class DumperBase():
             # A function pointer.
             self.putSymbolValue(pointer)
             self.putType(typeName)
-            self.putNumChild(0)
             return
 
         #DumperBase.warn('AUTODEREF: %s' % self.autoDerefPointers)
@@ -1392,7 +1402,7 @@ class DumperBase():
         #DumperBase.warn('ADDR PLAIN POINTER: 0x%x' % value.laddress)
         self.putType(typeName)
         self.putSymbolValue(pointer)
-        self.putNumChild(1)
+        self.putExpandable()
         if self.currentIName in self.expandedINames:
             with Children(self):
                 with SubItem(self, '*'):
@@ -1541,6 +1551,7 @@ class DumperBase():
                 return True
             # If the object is defined in another module there may be another level of indirection
             customEventFunc = getJumpAddress_x86(self, customEventFunc)
+
         return customEventFunc in (self.qtCustomEventFunc, self.qtCustomEventPltFunc)
 
 #    def extractQObjectProperty(objectPtr):
@@ -1717,13 +1728,12 @@ class DumperBase():
             typeObj = self.lookupType(typeName)
             if typeObj:
                 self.putType(typeObj)
-                self.putNumChild(1)
+                self.putExpandable()
                 if self.isExpanded():
                     with Children(self):
                         self.putFields(self.createValue(addr, typeObj))
             else:
                 self.putType(typeName)
-                self.putNumChild(0)
 
     # This is called is when a QObject derived class is expanded
     def tryPutQObjectGuts(self, value):
@@ -1748,6 +1758,10 @@ class DumperBase():
             ldata = stringdata + index
             return self.extractCString(ldata).decode('utf8')
 
+    def putSortGroup(self, sortorder):
+        if not self.isCli:
+            self.putField('sortgroup', sortorder)
+
     def putQMetaStuff(self, value, origType):
         (metaObjectPtr, handle) = value.split('pI')
         if metaObjectPtr != 0:
@@ -1756,7 +1770,7 @@ class DumperBase():
             revision = 7 if self.qtVersion() >= 0x050000 else 6
             name = self.metaString(metaObjectPtr, index, revision)
             self.putValue(name)
-            self.putNumChild(1)
+            self.putExpandable()
             if self.isExpanded():
                 with Children(self):
                     self.putFields(value)
@@ -1781,7 +1795,6 @@ class DumperBase():
             with SubItem(self, name):
                 self.putValue(value)
                 self.putType(typeName)
-                self.putNumChild(0)
 
         def extractSuperDataPtr(someMetaObjectPtr):
             #return someMetaObjectPtr['d']['superdata']
@@ -1831,15 +1844,16 @@ class DumperBase():
         if qobjectPtr:
             qobjectType = self.createType('QObject')
             with SubItem(self, '[parent]'):
-                self.putField('sortgroup', 9)
+                if not self.isCli:
+                    self.putSortGroup(9)
                 if parentPtr:
                     self.putItem(self.createValue(parentPtr, qobjectType))
                 else:
                     self.putValue('0x0')
                     self.putType('QObject *')
-                    self.putNumChild(0)
             with SubItem(self, '[children]'):
-                self.putField('sortgroup', 8)
+                if not self.isCli:
+                    self.putSortGroup(8)
                 base = self.extractPointer(dd + 3 * ptrSize)  # It's a QList<QObject *>
                 begin = self.extractInt(base + 8)
                 end = self.extractInt(base + 12)
@@ -1850,6 +1864,8 @@ class DumperBase():
                 size = end - begin
                 self.check(size >= 0)
                 self.putItemCount(size)
+                if size > 0:
+                    self.putExpandable()
                 if self.isExpanded():
                     addrBase = array + begin * ptrSize
                     with Children(self, size):
@@ -1860,26 +1876,25 @@ class DumperBase():
 
         if isQMetaObject:
             with SubItem(self, '[strings]'):
-                self.putField('sortgroup', 2)
+                if not self.isCli:
+                    self.putSortGroup(2)
                 if largestStringIndex > 0:
                     self.putSpecialValue('minimumitemcount', largestStringIndex)
-                    self.putNumChild(1)
+                    self.putExpandable()
                     if self.isExpanded():
                         with Children(self, largestStringIndex + 1):
                             for i in self.childRange():
                                 with SubItem(self, i):
                                     s = self.metaString(metaObjectPtr, i, revision)
                                     self.putValue(self.hexencode(s), 'latin1')
-                                    self.putNumChild(0)
                 else:
                     self.putValue(' ')
-                    self.putNumChild(0)
 
         if isQMetaObject:
             with SubItem(self, '[raw]'):
-                self.putField('sortgroup', 1)
+                self.putSortGroup(1)
                 self.putEmptyValue()
-                self.putNumChild(1)
+                self.putExpandable()
                 if self.isExpanded():
                     with Children(self):
                         putt('revision', revision)
@@ -1897,9 +1912,9 @@ class DumperBase():
 
         if isQObject:
             with SubItem(self, '[extra]'):
-                self.putField('sortgroup', 1)
+                self.putSortGroup(1)
                 self.putEmptyValue()
-                self.putNumChild(1)
+                self.putExpandable()
                 if self.isExpanded():
                     with Children(self):
                         if extraData:
@@ -1908,7 +1923,7 @@ class DumperBase():
 
                         with SubItem(self, '[metaObject]'):
                             self.putAddress(metaObjectPtr)
-                            self.putNumChild(1)
+                            self.putExpandable()
                             if self.isExpanded():
                                 with Children(self):
                                     self.putQObjectGutsHelper(
@@ -1939,7 +1954,7 @@ class DumperBase():
                                                     metaObjectPtr, t[0], revision)
                                                 self.putType(' ')
                                                 self.putValue(name)
-                                                self.putNumChild(1)
+                                                self.putExpandable()
                                                 with Children(self):
                                                     putt('[nameindex]', t[0])
                                                     #putt('[type]', 'signal')
@@ -1953,7 +1968,7 @@ class DumperBase():
 
         if isQMetaObject or isQObject:
             with SubItem(self, '[properties]'):
-                self.putField('sortgroup', 5)
+                self.putSortGroup(5)
                 if self.isExpanded():
                     dynamicPropertyCount = 0
                     with Children(self):
@@ -2003,8 +2018,9 @@ class DumperBase():
                                 extraData + ptrSize, byteArrayType)
                             for (k, v) in zip(names, values):
                                 with SubItem(self, propertyCount + dynamicPropertyCount):
-                                    self.putField('key', self.encodeByteArray(k))
-                                    self.putField('keyencoded', 'latin1')
+                                    if not self.isCli:
+                                        self.putField('key', self.encodeByteArray(k))
+                                        self.putField('keyencoded', 'latin1')
                                     self.putItem(v)
                                     dynamicPropertyCount += 1
                     self.putItemCount(propertyCount + dynamicPropertyCount)
@@ -2026,7 +2042,7 @@ class DumperBase():
 
         if isQMetaObject or isQObject:
             with SubItem(self, '[methods]'):
-                self.putField('sortgroup', 3)
+                self.putSortGroup(3)
                 self.putItemCount(methodCount)
                 if self.isExpanded():
                     with Children(self):
@@ -2061,11 +2077,11 @@ class DumperBase():
         if isQObject:
             with SubItem(self, '[d]'):
                 self.putItem(self.createValue(dd, '@QObjectPrivate'))
-                self.putField('sortgroup', 15)
+                self.putSortGroup(15)
 
         if isQMetaObject:
             with SubItem(self, '[superdata]'):
-                self.putField('sortgroup', 12)
+                self.putSortGroup(12)
                 if superDataPtr:
                     self.putType('@QMetaObject')
                     self.putAddress(superDataPtr)
@@ -2081,10 +2097,10 @@ class DumperBase():
         if handle >= 0:
             localIndex = int((handle - methods) / 5)
             with SubItem(self, '[localindex]'):
-                self.putField('sortgroup', 12)
+                self.putSortGroup(12)
                 self.putValue(localIndex)
             with SubItem(self, '[globalindex]'):
-                self.putField('sortgroup', 11)
+                self.putSortGroup(11)
                 self.putValue(globalOffset + localIndex)
 
     def putQObjectConnections(self, dd):
@@ -2768,7 +2784,6 @@ class DumperBase():
             return
 
         #DumperBase.warn('SOME VALUE: %s' % value)
-        #DumperBase.warn('HAS CHILDREN VALUE: %s' % value.hasChildren())
         #DumperBase.warn('GENERIC STRUCT: %s' % typeobj)
         #DumperBase.warn('INAME: %s ' % self.currentIName)
         #DumperBase.warn('INAMES: %s ' % self.expandedINames)
@@ -2780,14 +2795,15 @@ class DumperBase():
             self.putNumChild(0)
             return
 
-        self.putNumChild(1)
+        self.putExpandable()
         self.putEmptyValue()
         #DumperBase.warn('STRUCT GUTS: %s  ADDRESS: 0x%x ' % (value.name, value.address()))
         if self.showQObjectNames:
             #with self.timer(self.currentIName):
             self.putQObjectNameValue(value)
         if self.isExpanded():
-            self.putField('sortable', 1)
+            if not self.isCli:
+                self.putField('sortable', 1)
             with Children(self, 1, childType=None):
                 self.putFields(value)
                 if self.showQObjectNames:
