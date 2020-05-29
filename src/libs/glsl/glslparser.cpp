@@ -166,6 +166,8 @@ AST *Parser::parse(int startToken)
             if (yytoken != -1) {
                 const QLatin1String s(spell[yytoken]);
                 message = QString::fromLatin1("Unexpected token `%1'").arg(s);
+                if (yytoken == 0) // do not freeze on unexpected end of file
+                    return nullptr;
             }
 
             for (; _tos; --_tos) {
