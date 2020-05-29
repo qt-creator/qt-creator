@@ -24,9 +24,10 @@
 ############################################################################
 
 import platform
+import struct
 import re
-from dumper import Children, SubItem, UnnamedSubItem, toInteger
-from utils import DisplayFormat
+from dumper import Children, SubItem, UnnamedSubItem, toInteger, DumperBase
+from utils import DisplayFormat, TypeCode
 
 
 def qdump__QAtomicInt(d, value):
@@ -2969,6 +2970,12 @@ def qdumpHelper_QJsonObject(d, data, obj):
 
 def qdump__QJsonValue(d, value):
     (data, dd, t) = value.split('QpI')
+
+    if d.qtVersion() >= 0x050f00:
+        value = d.createProxyValue((data, dd, t, False), 'QCborValue_proxy')
+        d.putItem(value)
+        return
+
     if t == 0:
         d.putType('QJsonValue (Null)')
         d.putValue('Null')
@@ -3005,10 +3012,20 @@ def qdump__QJsonValue(d, value):
 
 
 def qdump__QJsonArray(d, value):
+    if d.qtVersion() >= 0x050f00:
+        _, container_ptr = value.split('pp')
+        qdumpHelper_QCbor_array(d, container_ptr, False)
+        return
+
     qdumpHelper_QJsonArray(d, value['d'].pointer(), value['a'].pointer())
 
 
 def qdump__QJsonObject(d, value):
+    if d.qtVersion() >= 0x050f00:
+        _, container_ptr = value.split('pp')
+        qdumpHelper_QCbor_map(d, container_ptr, False)
+        return
+
     qdumpHelper_QJsonObject(d, value['d'].pointer(), value['o'].pointer())
 
 
@@ -3077,3 +3094,187 @@ def qdump__qfloat16(d, value):
     d.putValue(res)
     d.putNumChild(1)
     d.putPlainChildren(value)
+
+
+
+def qdumpHelper_QCbor_string(d, container_ptr, element_index, is_bytes):
+    # d.split('i@{QByteArray::size_type}pp', container_ptr) doesn't work with CDB, so be explicit:
+    offset = 2 * d.ptrSize() if d.qtVersion() >= 0x060000 else 8
+    data_d_ptr, elements_d_ptr = d.split('pp', container_ptr + offset)
+    elements_data_ptr, elements_size, _ = d.vectorDataHelper(elements_d_ptr)
+    element_at_n_addr = elements_data_ptr + element_index * 16 # sizeof(QtCbor::Element) == 15
+    element_value, _, element_flags = d.split('qII', element_at_n_addr)
+    enc = 'latin1' if is_bytes or (element_flags & 8) else 'utf16'
+    bytedata, _, _ = d.byteArrayDataHelper(data_d_ptr)
+    bytedata += element_value
+    if d.qtVersion() >= 0x060000:
+        bytedata_len = d.extractInt64(bytedata)
+        bytedata_data = bytedata + 8
+    else:
+        bytedata_len = d.extractInt(bytedata)
+        bytedata_data = bytedata + 4 # sizeof(QtCbor::ByteData) header part
+
+    elided, shown = d.computeLimit(bytedata_len, d.displayStringLimit)
+    res = d.readMemory(bytedata_data, shown)
+    d.putValue(res, enc, elided=elided)
+
+
+def qdumpHelper_QCborArray_valueAt(d, container_ptr, elements_data_ptr, idx, bytedata, is_cbor):
+    element_at_n_addr = elements_data_ptr + idx * 16 # sizeof(QtCbor::Element) == 15
+    element_value, element_type, element_flags = d.split('qII', element_at_n_addr)
+    element_container, _, _ = d.split('pII', element_at_n_addr)
+    if element_flags & 1: # QtCbor::Element::IsContainer
+        return d.createProxyValue((-1, element_container, element_type, is_cbor), 'QCborValue_proxy')
+    if element_flags & 2: # QtCbor::Element::HasByteData
+        return d.createProxyValue((idx, container_ptr, element_type, is_cbor), 'QCborValue_proxy')
+    return d.createProxyValue((element_value, 0, element_type, is_cbor), 'QCborValue_proxy')
+
+
+def qdumpHelper_QCbor_array(d, container_ptr, is_cbor):
+    if not container_ptr:
+        d.putItemCount(0)
+        return
+    # d.split('i@{QByteArray::size_type}pp', container_ptr) doesn't work with CDB, so be explicit:
+    offset = 2 * d.ptrSize() if d.qtVersion() >= 0x060000 else 8
+    data_d_ptr, elements_d_ptr = d.split('pp', container_ptr + offset)
+    elements_data_ptr, elements_size, _ = d.vectorDataHelper(elements_d_ptr)
+    d.putItemCount(elements_size)
+    if d.isExpanded():
+        bytedata, _, _ = d.byteArrayDataHelper(data_d_ptr)
+        with Children(d, maxNumChild=1000):
+            for i in range(elements_size):
+                d.putSubItem(i, qdumpHelper_QCborArray_valueAt(d, container_ptr, elements_data_ptr, i, bytedata, is_cbor))
+
+
+def qdump__QCborArray(d, value):
+    container_ptr = value.extractPointer()
+    qdumpHelper_QCbor_array(d, container_ptr, True)
+
+
+def qdumpHelper_QCbor_map(d, container_ptr, is_cbor):
+    if not container_ptr:
+        d.putItemCount(0)
+        return
+    # d.split('i@{QByteArray::size_type}pp', container_ptr) doesn't work with CDB, so be explicit:
+    offset = 2 * d.ptrSize() if d.qtVersion() >= 0x060000 else 8
+    data_d_ptr, elements_d_ptr = d.split('pp', container_ptr + offset)
+    elements_data_ptr, elements_size, _ = d.vectorDataHelper(elements_d_ptr)
+    elements_size = int(elements_size / 2)
+    d.putItemCount(elements_size)
+    if d.isExpanded():
+        bytedata, _, _ = d.byteArrayDataHelper(data_d_ptr)
+        with Children(d, maxNumChild=1000):
+            for i in range(elements_size):
+                key = qdumpHelper_QCborArray_valueAt(d, container_ptr, elements_data_ptr, 2 * i, bytedata, is_cbor)
+                val = qdumpHelper_QCborArray_valueAt(d, container_ptr, elements_data_ptr, 2 * i + 1, bytedata, is_cbor)
+                d.putPairItem(i, (key, val), 'key', 'value')
+
+
+def qdump__QCborMap(d, value):
+    container_ptr = value.extractPointer()
+    qdumpHelper_QCbor_map(d, container_ptr, True)
+
+
+def qdump__QCborValue(d, value):
+    item_data, container_ptr, item_type = value.split('qpi')
+    d.putItem(d.createProxyValue((item_data, container_ptr, item_type, True), 'QCborValue_proxy'))
+
+def qdump__QCborValue_proxy(d, value):
+    item_data, container_ptr, item_type, is_cbor = value.data()
+
+    def typename(key, is_cbor):
+        if is_cbor:
+            return {
+                'invalid'   : 'QCborValue (Invalid)',
+                'int'       : 'QCborValue (Integer)',
+                'false'     : 'QCborValue (False)',
+                'true'      : 'QCborValue (True)',
+                'null'      : 'QCborValue (Null)',
+                'undefined' : 'QCborValue (Undefined)',
+                'double'    : 'QCborValue (Double)',
+                'bytes'     : 'QCborValue (ByteArray)',
+                'string'    : 'QCborValue (String)',
+                'map'       : 'QCborValue (Map)',
+                'array'     : 'QCborValue (Array)'
+            }.get(key, 'QCborValue (Unknown)')
+        else:
+            return {
+                'invalid'   : 'QJsonValue (Invalid)',
+                'int'       : 'QJsonValue (Number)',
+                'false'     : 'QJsonValue (Bool)',
+                'true'      : 'QJsonValue (Bool)',
+                'null'      : 'QJsonValue (Null)',
+                'undefined' : 'QJsonValue (Undefined)',
+                'double'    : 'QJsonValue (Number)',
+                'bytes'     : 'QJsonValue (ByteArray)',
+                'string'    : 'QJsonValue (String)',
+                'map'       : 'QJsonValue (Object)',
+                'array'     : 'QJsonValue (Array)'
+            }.get(key, 'QJsonValue (Unknown)')
+
+
+    if item_type == 0xffffffffffffffff:
+        d.putType(typename('invalid', is_cbor))
+        d.putValue('Invalid')
+
+    elif item_type == 0x00:
+        d.putType(typename('int', is_cbor))
+        d.putValue(item_data)
+
+    elif item_type == 0x100 + 20:
+        d.putType(typename('false', is_cbor))
+        d.putValue('False')
+
+    elif item_type == 0x100 + 21:
+        d.putType(typename('true', is_cbor))
+        d.putValue('True')
+
+    elif item_type == 0x100 + 22:
+        d.putType(typename('null', is_cbor))
+        d.putValue('Null')
+
+    elif item_type == 0x100 + 23:
+        d.putType(typename('undefined', is_cbor))
+        d.putValue('Undefined')
+
+    elif item_type == 0x202:
+        val = struct.unpack('d', struct.pack('q', item_data))
+        d.putType(typename('double', is_cbor))
+        d.putValue('%f' % val)
+
+    elif item_type == 0x40:
+        d.putType(typename('bytes', is_cbor))
+        qdumpHelper_QCbor_string(d, container_ptr, item_data, True)
+
+    elif item_type == 0x60:
+        d.putType(typename('string', is_cbor))
+        qdumpHelper_QCbor_string(d, container_ptr, item_data, False)
+
+    elif item_type == 0x80:
+        d.putType(typename('array', is_cbor))
+        qdumpHelper_QCbor_array(d, container_ptr, is_cbor)
+
+    elif item_type == 0xa0:
+        d.putType(typename('map', is_cbor))
+        qdumpHelper_QCbor_map(d, container_ptr, is_cbor)
+
+    elif item_type == 0x10000:
+        d.putType('QCborValue (DateTime)')
+        d.putValue('DateTime')
+
+    elif item_type == 0x10020:
+        d.putType('QCborValue (Url)')
+        d.putValue('Url')
+
+    elif item_type == 0x10023:
+        d.putType('QCborValue (RegularExpression)')
+        d.putValue('RegularExpression')
+
+    elif item_type == 0x10025:
+        d.putType('QCborValue (Uuid)')
+        d.putValue('Uuid')
+
+    else:
+        d.putType('QCborValue (Unknown)')
+        d.putValue(item_data)
+

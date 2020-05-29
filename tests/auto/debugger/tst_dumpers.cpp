@@ -7175,6 +7175,127 @@ void tst_Dumpers::dumper_data()
                + Check("p", "<5 items>", "@QGraphicsPolygonItem");
 
 
+    QTest::newRow("QCbor")
+            << Data("#include <QString>\n"
+                    "#if QT_VERSION >= 0x050c00\n"
+                    "#include <QCborArray>\n"
+                    "#include <QCborMap>\n"
+                    "#include <QCborValue>\n"
+                    "#include <QVariantMap>\n"
+                    "#endif\n",
+
+                    "#if QT_VERSION >= 0x050c00\n"
+                    "QCborMap ob0;\n"
+                    "QCborMap ob = QCborMap::fromVariantMap({\n"
+                    "    {\"a\", 1},\n"
+                    "    {\"bb\", 2},\n"
+                    "    {\"ccc\", \"hallo\"},\n"
+                    "    {\"s\", \"ssss\"}\n"
+                    "});\n"
+                    "ob.insert(QLatin1String(\"d\"), QCborMap::fromVariantMap({{\"ddd\", 1234}}));\n"
+                    "\n"
+                    "QCborValue a0;\n"
+                    "QCborValue a1(1);\n"
+                    "QCborValue a2(\"asd\");\n"
+                    "QCborValue a3(QString::fromUtf8(\"cöder\"));\n"
+                    "QCborValue a4(1.4);\n"
+                    "QCborValue a5(true);\n"
+                    "QCborValue a6(QByteArray(\"cder\"));\n"
+                    "\n"
+                    "QCborArray aa;\n"
+                    "QCborArray a;\n"
+                    "a.append(a1);\n"
+                    "a.append(a2);\n"
+                    "a.append(a3);\n"
+                    "a.append(a4);\n"
+                    "a.append(a5);\n"
+                    "a.append(a0);\n"
+                    "a.append(ob);\n"
+                    "\n"
+                    "QCborArray b;\n"
+                    "b.append(QCborValue(1));\n"
+                    "b.append(a);\n"
+                    "b.append(QCborValue(2));\n"
+                    "\n"
+                    "QCborArray c;\n"
+                    "for (unsigned int i = 0; i < 32; ++i) {\n"
+                    "    c.append(QCborValue(qint64(1u << i) - 1));\n"
+                    "    c.append(QCborValue(qint64(1u << i)));\n"
+                    "    c.append(QCborValue(qint64(1u << i) + 1));\n"
+                    "}\n"
+                    "for (unsigned int i = 0; i < 32; ++i) {\n"
+                    "    c.append(QCborValue(-qint64(1u << i) + 1));\n"
+                    "    c.append(QCborValue(-qint64(1u << i)));\n"
+                    "    c.append(QCborValue(-qint64(1u << i) - 1));\n"
+                    "}"
+                    "unused(&b, &a, &aa);\n"
+                    "#endif\n",
+
+                    "")
+
+            + Cxx11Profile()
+            + CoreProfile()
+            + QtVersion(0x50f00)
+            + MsvcVersion(1900)
+
+            + Check("a0",         "Undefined",            "QCborValue (Undefined)")
+            + Check("a1",         "1",            "QCborValue (Integer)")
+            + Check("a2",         "\"asd\"",      "QCborValue (String)")
+            + Check("a3",         "\"cöder\"",    "QCborValue (String)")
+            + Check("a4",         "1.400000",     "QCborValue (Double)")
+            + Check("a5",         "True",         "QCborValue (True)")
+            + Check("a6",         "\"cder\"",     "QCborValue (ByteArray)")
+            + Check("aa",                 "<0 items>",  "@QCborArray")
+            + Check("a",                  "<7 items>",  "@QCborArray")
+            + Check("a.0",   "[0]",       "1",            "QCborValue (Integer)")
+            + Check("a.1",   "[1]",       "\"asd\"",      "QCborValue (String)")
+            + Check("a.2",   "[2]",       "\"cöder\"",    "QCborValue (String)")
+            + Check("a.3",   "[3]",       "1.400000",     "QCborValue (Double)")
+            + Check("a.4",   "[4]",       "True",         "QCborValue (True)")
+            + Check("a.5",   "[5]",       "Undefined",    "QCborValue (Undefined)")
+            + Check("a.6",   "[6]",       "<5 items>",    "QCborValue (Map)")
+            + Check("a.6.0",    "[0] \"a\"",     "1",            "")
+            + Check("a.6.1",    "[1] \"bb\"",    "2",            "")
+            + Check("a.6.2",    "[2] \"ccc\"",   "\"hallo\"",    "")
+            + Check("a.6.3",    "[3] \"s\"",     "\"ssss\"",     "")
+            + Check("a.6.4",    "[4] \"d\"",     "<1 items>",    "")
+            + Check("b",     "b",        "<3 items>" ,  "@QCborArray")
+            + Check("b.0",   "[0]",       "1",             "QCborValue (Integer)")
+            + Check("b.1",   "[1]",       "<7 items>",     "QCborValue (Array)")
+            + Check("b.1.0",    "[0]",       "1",             "QCborValue (Integer)")
+            + Check("b.1.1",    "[1]",       "\"asd\"",       "QCborValue (String)")
+            + Check("b.1.2",    "[2]",       "\"cöder\"",     "QCborValue (String)")
+            + Check("b.1.3",    "[3]",       "1.400000",      "QCborValue (Double)")
+            + Check("b.1.4",    "[4]",       "True",          "QCborValue (True)")
+            + Check("b.1.5",    "[5]",       "Undefined",     "QCborValue (Undefined)")
+            + Check("b.1.6",    "[6]",       "<5 items>",     "QCborValue (Map)")
+            + Check("b.2",   "[2]",       "2",             "QCborValue (Integer)")
+            + Check("c",     "c",        "<192 items>", "@QCborArray")
+            + Check("c.0",   "[0]",       "0",           "QCborValue (Integer)")
+            + Check("c.1",   "[1]",       "1",             "QCborValue (Integer)")
+            + Check("c.78",  "[78]",      "67108863",      "QCborValue (Integer)")
+            + Check("c.79",  "[79]",      "67108864",    "QCborValue (Integer)")
+            + Check("c.94",  "[94]",      "2147483648",  "QCborValue (Integer)")
+            + Check("c.95",  "[95]",      "2147483649",  "QCborValue (Integer)")
+            + Check("c.96",  "[96]",      "0",           "QCborValue (Integer)")
+            + Check("c.97",  "[97]",      "-1",            "QCborValue (Integer)")
+            + Check("c.174", "[174]",     "-67108863",     "QCborValue (Integer)")
+            + Check("c.175", "[175]",     "-67108864",     "QCborValue (Integer)")
+            + Check("ob0",  "ob0",      "<0 items>",     "@QCborMap")
+            + Check("ob",   "ob",       "<5 items>",     "@QCborMap")
+            + Check("ob.0", "[0] \"a\"",    "1",              "")
+            + Check("ob.0.key",  "key",     "\"a\"",             "QCborValue (String)")
+            + Check("ob.0.value",  "value", "1",                 "QCborValue (Integer)")
+            + Check("ob.1", "[1] \"bb\"",   "2",              "")
+            + Check("ob.2", "[2] \"ccc\"",  "\"hallo\"",      "")
+            + Check("ob.3", "[3] \"s\"",    "\"ssss\"",       "")
+            + Check("ob.4", "[4] \"d\"",    "<1 items>",      "")
+            ;
+
+
+    const QtVersion jsonv1{0, 0x50e00};
+    const QtVersion jsonv2{0x50e00};
+
     QTest::newRow("QJson")
             << Data("#include <QString>\n"
                     "#if QT_VERSION >= 0x050000\n"
@@ -7185,6 +7306,7 @@ void tst_Dumpers::dumper_data()
                     "#endif\n",
 
                     "#if QT_VERSION >= 0x050000\n"
+                    "QJsonObject ob0;\n"
                     "QJsonObject ob = QJsonObject::fromVariantMap({\n"
                     "    {\"a\", 1},\n"
                     "    {\"bb\", 2},\n"
@@ -7193,6 +7315,7 @@ void tst_Dumpers::dumper_data()
                     "});\n"
                     "ob.insert(QLatin1String(\"d\"), QJsonObject::fromVariantMap({{\"ddd\", 1234}}));\n"
                     "\n"
+                    "QJsonArray aa;\n"
                     "QJsonArray a;\n"
                     "a.append(QJsonValue(1));\n"
                     "a.append(QJsonValue(\"asd\"));\n"
@@ -7217,7 +7340,7 @@ void tst_Dumpers::dumper_data()
                     "    c.append(QJsonValue(-qint64(1u << i)));\n"
                     "    c.append(QJsonValue(-qint64(1u << i) - 1));\n"
                     "}"
-                    "unused(&ob,&b,&a);\n"
+                    "unused(&ob, &b, &a, &aa);\n"
                     "#endif\n",
 
                     "")
@@ -7227,45 +7350,66 @@ void tst_Dumpers::dumper_data()
             + QtVersion(0x50000)
             + MsvcVersion(1900)
 
+            + Check("aa",                 "<0 items>",  "@QJsonArray")
             + Check("a",                  "<6 items>",  "@QJsonArray")
             + Check("a.0",   "[0]",       "1",            "QJsonValue (Number)")
             + Check("a.1",   "[1]",       "\"asd\"",      "QJsonValue (String)")
             + Check("a.2",   "[2]",       "\"cdfer\"",    "QJsonValue (String)")
-            + Check("a.3",   "[3]",       "1.4",          "QJsonValue (Number)")
-            + Check("a.4",   "[4]",       "true",         "QJsonValue (Bool)")
+            + Check("a.3",   "[3]",       "1.4",          "QJsonValue (Number)") % jsonv1
+            + Check("a.3",   "[3]",       "1.400000",     "QJsonValue (Number)") % jsonv2
+            + Check("a.4",   "[4]",       "true",         "QJsonValue (Bool)") % jsonv1
+            + Check("a.4",   "[4]",       "True",         "QJsonValue (Bool)") % jsonv2
             + Check("a.5",   "[5]",       "<5 items>",    "QJsonValue (Object)")
-            + Check("a.5.0",    "\"a\"",     "1",            "QJsonValue (Number)")
-            + Check("a.5.1",    "\"bb\"",    "2",            "QJsonValue (Number)")
-            + Check("a.5.2",    "\"ccc\"",   "\"hallo\"",    "QJsonValue (String)")
-            + Check("a.5.3",    "\"d\"",     "<1 items>",    "QJsonValue (Object)")
-            + Check("a.5.4",    "\"s\"",     "\"ssss\"",     "QJsonValue (String)")
+            + Check("a.5.0",    "\"a\"",      "1",            "QJsonValue (Number)") % jsonv1
+            + Check("a.5.0",    "[0] \"a\"",  "1",            ""                   ) % jsonv2
+            + Check("a.5.1",    "\"bb\"",     "2",            "QJsonValue (Number)") % jsonv1
+            + Check("a.5.1",    "[1] \"bb\"", "2",            ""                   ) % jsonv2
+            + Check("a.5.2",    "\"ccc\"",    "\"hallo\"",    "QJsonValue (String)") % jsonv1
+            + Check("a.5.2",    "[2] \"ccc\"","\"hallo\"",    ""                   ) % jsonv2
+            + Check("a.5.3",    "\"d\"",      "<1 items>",    "QJsonValue (Object)") % jsonv1
+            + Check("a.5.3",    "[3] \"d\"",  "<1 items>",    ""                   ) % jsonv2
+            + Check("a.5.4",    "\"s\"",      "\"ssss\"",     "QJsonValue (String)") % jsonv1
+            + Check("a.5.4",    "[4] \"s\"",  "\"ssss\"",     ""                   ) % jsonv2
             + Check("b",     "b",        "<3 items>" ,  "@QJsonArray")
             + Check("b.0",   "[0]",       "1",             "QJsonValue (Number)")
             + Check("b.1",   "[1]",       "<6 items>",     "QJsonValue (Array)")
-            + Check("b.1.0",    "[0]",       "1",             "QJsonValue (Number)")
-            + Check("b.1.1",    "[1]",       "\"asd\"",       "QJsonValue (String)")
-            + Check("b.1.2",    "[2]",       "\"cdfer\"",     "QJsonValue (String)")
-            + Check("b.1.3",    "[3]",       "1.4",           "QJsonValue (Number)")
-            + Check("b.1.4",    "[4]",       "true",          "QJsonValue (Bool)")
-            + Check("b.1.5",    "[5]",       "<5 items>",     "QJsonValue (Object)")
-            + Check("b.2",   "[2]",       "2",             "QJsonValue (Number)")
+            + Check("b.1.0",    "[0]",       "1",             "QJsonValue (Number)") % jsonv2
+            + Check("b.1.1",    "[1]",       "\"asd\"",       "QJsonValue (String)") % jsonv2
+            + Check("b.1.2",    "[2]",       "\"cdfer\"",     "QJsonValue (String)") % jsonv2
+            + Check("b.1.3",    "[3]",       "1.4",           "QJsonValue (Number)") % jsonv1
+            + Check("b.1.3",    "[3]",       "1.400000",      "QJsonValue (Number)") % jsonv2
+            + Check("b.1.4",    "[4]",       "true",          "QJsonValue (Bool)")  % jsonv1
+            + Check("b.1.5",    "[5]",       "<5 items>",     "QJsonValue (Object)") % jsonv2
+            + Check("b.2",   "[2]",       "2",             "QJsonValue (Number)") % jsonv2
             + Check("c",     "c",        "<192 items>", "@QJsonArray")
-            + Check("c.0",   "[0]",       "0.0",           "QJsonValue (Number)")
+            + Check("c.0",   "[0]",       "0.0",           "QJsonValue (Number)") % jsonv1
+            + Check("c.0",   "[0]",       "0",             "QJsonValue (Number)") % jsonv2
             + Check("c.1",   "[1]",       "1",             "QJsonValue (Number)")
             + Check("c.78",  "[78]",      "67108863",      "QJsonValue (Number)")
-            + Check("c.79",  "[79]",      "67108864.0",    "QJsonValue (Number)")
-            + Check("c.94",  "[94]",      "2147483648.0",  "QJsonValue (Number)")
-            + Check("c.95",  "[95]",      "2147483649.0",  "QJsonValue (Number)")
-            + Check("c.96",  "[96]",      "0.0",           "QJsonValue (Number)")
+            + Check("c.79",  "[79]",      "67108864.0",    "QJsonValue (Number)") % jsonv1
+            + Check("c.79",  "[79]",      "67108864",    "  QJsonValue (Number)") % jsonv2
+            + Check("c.94",  "[94]",      "2147483648.0",  "QJsonValue (Number)") % jsonv1
+            + Check("c.94",  "[94]",      "2147483648",    "QJsonValue (Number)") % jsonv2
+            + Check("c.95",  "[95]",      "2147483649.0",  "QJsonValue (Number)") % jsonv1
+            + Check("c.95",  "[95]",      "2147483649",    "QJsonValue (Number)") % jsonv2
+            + Check("c.96",  "[96]",      "0.0",           "QJsonValue (Number)") % jsonv1
+            + Check("c.96",  "[96]",      "0",             "QJsonValue (Number)") % jsonv2
             + Check("c.97",  "[97]",      "-1",            "QJsonValue (Number)")
             + Check("c.174", "[174]",     "-67108863",     "QJsonValue (Number)")
-            + Check("c.175", "[175]",     "-67108864.0",   "QJsonValue (Number)")
+            + Check("c.175", "[175]",     "-67108864.0",   "QJsonValue (Number)") % jsonv1
+            + Check("c.175", "[175]",     "-67108864",     "QJsonValue (Number)") % jsonv2
+            + Check("ob0",  "ob0",     "<0 items>",     "@QJsonObject")
             + Check("ob",   "ob",      "<5 items>",     "@QJsonObject")
-            + Check("ob.0", "\"a\"",    "1",              "QJsonValue (Number)")
-            + Check("ob.1", "\"bb\"",   "2",              "QJsonValue (Number)")
-            + Check("ob.2", "\"ccc\"",  "\"hallo\"",      "QJsonValue (String)")
-            + Check("ob.3", "\"d\"",    "<1 items>",      "QJsonValue (Object)")
-            + Check("ob.4", "\"s\"",    "\"ssss\"",       "QJsonValue (String)");
+            + Check("ob.0", "\"a\"",        "1",              "QJsonValue (Number)") % jsonv1
+            + Check("ob.0", "[0] \"a\"",    "1",              ""                   ) % jsonv2
+            + Check("ob.1", "\"bb\"",       "2",              "QJsonValue (Number)") % jsonv1
+            + Check("ob.1", "[1] \"bb\"",   "2",              ""                   ) % jsonv2
+            + Check("ob.2", "\"ccc\"",      "\"hallo\"",      "QJsonValue (String)") % jsonv1
+            + Check("ob.2", "[2] \"ccc\"",  "\"hallo\"",      ""                   ) % jsonv2
+            + Check("ob.3", "\"d\"",        "<1 items>",      "QJsonValue (Object)") % jsonv1
+            + Check("ob.3", "[3] \"d\"",    "<1 items>",      ""                   ) % jsonv2
+            + Check("ob.4", "\"s\"",        "\"ssss\"",       "QJsonValue (String)") % jsonv1
+            + Check("ob.4", "[4] \"s\"",    "\"ssss\"",       ""                   ) % jsonv2;
 
 
     QTest::newRow("Q&qstring_literal_temp,V4")

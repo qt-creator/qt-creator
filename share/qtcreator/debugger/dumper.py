@@ -558,30 +558,32 @@ class DumperBase():
             return 0, size
         return size, limit
 
-    def vectorDataHelper(self, addr):
+    def vectorDataHelper(self, vector_data_ptr):
+        # vector_data_ptr is what is e.g. stored in a QVector's d_ptr.
         if self.qtVersion() >= 0x050000:
             if self.ptrSize() == 4:
-                (ref, size, alloc, offset) = self.split('IIIp', addr)
+                (ref, size, alloc, offset) = self.split('IIIp', vector_data_ptr)
             else:
-                (ref, size, alloc, pad, offset) = self.split('IIIIp', addr)
+                (ref, size, alloc, pad, offset) = self.split('IIIIp', vector_data_ptr)
             alloc = alloc & 0x7ffffff
-            data = addr + offset
+            data = vector_data_ptr + offset
         else:
-            (ref, alloc, size) = self.split('III', addr)
-            data = addr + 16
+            (ref, alloc, size) = self.split('III', vector_data_ptr)
+            data = vector_data_ptr + 16
         self.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
         return data, size, alloc
 
-    def byteArrayDataHelper(self, addr):
+    def byteArrayDataHelper(self, bytearray_data_ptr):
+        # bytearray_data_ptr is what is e.g. stored in a QByteArray's d_ptr.
         if self.qtVersion() >= 0x050000:
             # QTypedArray:
             # - QtPrivate::RefCount ref
             # - int size
             # - uint alloc : 31, capacityReserved : 1
             # - qptrdiff offset
-            (ref, size, alloc, offset) = self.split('IIpp', addr)
+            (ref, size, alloc, offset) = self.split('IIpp', bytearray_data_ptr)
             alloc = alloc & 0x7ffffff
-            data = addr + offset
+            data = bytearray_data_ptr + offset
             if self.ptrSize() == 4:
                 data = data & 0xffffffff
             else:
@@ -593,19 +595,19 @@ class DumperBase():
             # - [padding]
             # - char *data;
             if self.ptrSize() == 4:
-                (ref, alloc, size, data) = self.split('IIIp', addr)
+                (ref, alloc, size, data) = self.split('IIIp', bytearray_data_ptr)
             else:
-                (ref, alloc, size, pad, data) = self.split('IIIIp', addr)
+                (ref, alloc, size, pad, data) = self.split('IIIIp', bytearray_data_ptr)
         else:
             # Data:
             # - QShared count;
             # - QChar *unicode
             # - char *ascii
             # - uint len: 30
-            (dummy, dummy, dummy, size) = self.split('IIIp', addr)
-            size = self.extractInt(addr + 3 * self.ptrSize()) & 0x3ffffff
+            (dummy, dummy, dummy, size) = self.split('IIIp', bytearray_data_ptr)
+            size = self.extractInt(bytearray_data_ptr + 3 * self.ptrSize()) & 0x3ffffff
             alloc = size  # pretend.
-            data = self.extractPointer(addr + self.ptrSize())
+            data = self.extractPointer(bytearray_data_ptr + self.ptrSize())
         return data, size, alloc
 
     # addr is the begin of a QByteArrayData structure
@@ -3843,6 +3845,17 @@ class DumperBase():
             val.check()
             return val
         raise RuntimeError('EXPECTING ADDRESS OR BYTES, GOT %s' % type(datish))
+
+    def createProxyValue(self, proxy_data, type_name):
+        tdata = self.TypeData(self)
+        tdata.name = type_name
+        tdata.typeId = type_name
+        tdata.code = TypeCode.Struct
+        self.registerType(type_name, tdata)
+        val = self.Value(self)
+        val.type = self.Type(self, type_name)
+        val.ldata = proxy_data
+        return val
 
     def createContainerItem(self, data, innerTypish, container):
         innerType = self.createType(innerTypish)
