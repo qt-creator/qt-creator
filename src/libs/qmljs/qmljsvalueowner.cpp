@@ -982,6 +982,12 @@ const Value *ValueOwner::defaultValueForBuiltinType(const QString &name) const
         return colorValue();
     } else if (name == QLatin1String("date")) {
         return datePrototype();
+    } else if (name == QLatin1String("vector2d")) {
+        return _shared->_qmlVector2DObject;
+    } else if (name == QLatin1String("vector3d")) {
+        return _shared->_qmlVector3DObject;
+    } else if (name == QLatin1String("vector4d")) {
+        return _shared->_qmlVector4DObject;
     } else if (name == QLatin1String("var")
                || name == QLatin1String("variant")) {
         return unknownValue();
