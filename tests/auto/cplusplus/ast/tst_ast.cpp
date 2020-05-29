@@ -173,6 +173,7 @@ private slots:
     //! "template<class ...Args> class T : Args... {};"
     void cpp11_variadic_inheritance();
     void cpp11_attributes();
+    void variableTemplatesInExpression();
 
     // Q_PROPERTY
     void cpp_qproperty();
@@ -1352,6 +1353,19 @@ void tst_AST::cpp11_attributes()
 
     StdAttributeSpecifierAST *attr = f->decl_specifier_list->value->asStdAttributeSpecifier();
     QVERIFY(attr != nullptr);
+}
+
+void tst_AST::variableTemplatesInExpression()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("int i = t<int> + t<char>;",
+                                                         false, false, true));
+    AST *ast = unit->ast();
+    QVERIFY(ast != nullptr);
+
+    QCOMPARE(diag.errorCount, 0);
+
+    DeclarationAST *d = ast->asDeclaration();
+    QVERIFY(d != nullptr);
 }
 
 void tst_AST::if_constexpr()

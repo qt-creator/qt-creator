@@ -5066,12 +5066,6 @@ bool Parser::parseNameId(NameAST *&name)
     case T_CONST_CAST:
         rewind(start);
         return parseName(name, false);
-
-    default:
-        if (tok().isLiteral() || tok().isPunctuationOrOperator()) {
-            rewind(start);
-            return parseName(name, false);
-        }
     } // switch
 
     return true;

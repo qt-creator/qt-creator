@@ -125,6 +125,7 @@ private Q_SLOTS:
     void templatePartialSpecialization();
     void templatePartialSpecialization_2();
     void template_SFINAE_1();
+    void variableTemplateInExpression();
 };
 
 void tst_FindUsages::dump(const QList<Usage> &usages) const
@@ -1556,6 +1557,49 @@ int main(){
 )";
 
     Document::Ptr doc = Document::create("template_SFINAE_1");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QVERIFY(doc->globalSymbolCount()>=1);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Class *s = doc->globalSymbolAt(0)->asClass();
+    QVERIFY(s);
+    QCOMPARE(s->name()->identifier()->chars(), "S");
+    QCOMPARE(s->memberCount(), 1);
+
+    Declaration *sv = s->memberAt(0)->asDeclaration();
+    QVERIFY(sv);
+    QCOMPARE(sv->name()->identifier()->chars(), "value");
+
+    FindUsages find(src, doc, snapshot);
+    find(sv);
+    QCOMPARE(find.usages().size(), 2);
+}
+
+void tst_FindUsages::variableTemplateInExpression()
+{
+    const QByteArray src =
+R"(
+struct S{int value;};
+template<class T> constexpr int foo = sizeof(T);
+template<class T1, class T2>
+struct pair{
+    pair() noexcept(foo<T1> + foo<T2>){}
+    T1 first;
+    T2 second;
+};
+int main(){
+    pair<int, S> pair;
+    pair.second.value;
+}
+)";
+
+    Document::Ptr doc = Document::create("variableTemplateInExpression");
     doc->setUtf8Source(src);
     doc->parse();
     doc->check();
