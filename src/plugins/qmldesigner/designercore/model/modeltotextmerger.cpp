@@ -378,6 +378,8 @@ PropertyNameList ModelToTextMerger::propertyOrder()
         PropertyName("anchors.bottom"),
         PropertyName("anchors.fill"),
         PropertyName("anchors.margins"),
+        PropertyName("font.letterSpacing"),
+        PropertyName("font.pixelSize"),
         PropertyName("horizontalAlignment"),
         PropertyName("verticalAlignment"),
         PropertyName("source"),
