@@ -3706,23 +3706,6 @@ void tst_TestCore::testCopyModelRewriter1()
     QCOMPARE(textEdit1.toPlainText(), expected);
 }
 
-static void adjustPreservedProperties(const ModelNode& replacedNode, ModelNode& newNode) {
-    QSet<PropertyName> preservedProperties;
-    preservedProperties.insert("x");
-    preservedProperties.insert("y");
-    preservedProperties.insert("width");
-    preservedProperties.insert("height");
-    preservedProperties.insert("anchors");
-   // preservedProperties.insert("text ");
-
-    for (VariantProperty originalProperty : replacedNode.variantProperties()) {
-        VariantProperty prop;
-        if (preservedProperties.contains(originalProperty.name())) {
-            newNode.variantProperty(originalProperty.name()).setValue(originalProperty.value());
-        }
-    }
-}
-
 static QString readQmlFromFile(const QString& fileName)
 {
     QFile qmlFile(fileName);
@@ -3776,6 +3759,9 @@ void tst_TestCore::testMergeModelRewriter1_data()
     QString buttonStyleUiQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ButtonStyle.ui.qml");
     QString buttonStyleUiExpectedQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ButtonStyle.ui.Expected.qml");
 
+    QString buttonAbsoluteTemplateWithOptionsQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ButtonAbsoluteTemplateWithOptions.qml");
+    QString buttonStyleUiWithOptionsExpectedQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ButtonStyleWithOptions.ui.Expected.qml");
+
     QTest::newRow("Simple style replacement") << simpleTemplateQmlContents << simpleStyleQmlContents << simpleExpectedQmlContents;
     QTest::newRow("Complex style replacement") << complexTemplateQmlContents << complexStyleQmlContents << complexExpectedQmlContents;
     QTest::newRow("Empty stylesheet") << emptyTemplateQmlContents << emptyStyleQmlContents << emptyExpectedQmlContents;
@@ -3787,6 +3773,8 @@ void tst_TestCore::testMergeModelRewriter1_data()
 
     QTest::newRow("Button Outline styling") << buttonAbsoluteTemplateQmlContents << buttonOutlineStyleQmlContents << buttonOutlineExpectedQmlContents;
     QTest::newRow("Button Designer styling") << buttonAbsoluteTemplateQmlContents << buttonStyleUiQmlContents << buttonStyleUiExpectedQmlContents;
+
+    QTest::newRow("Button Designer styling with options") << buttonAbsoluteTemplateWithOptionsQmlContents << buttonStyleUiQmlContents << buttonStyleUiWithOptionsExpectedQmlContents;
 
 }
 

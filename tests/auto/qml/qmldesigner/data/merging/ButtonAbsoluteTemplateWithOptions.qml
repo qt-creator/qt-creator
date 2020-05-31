@@ -20,40 +20,56 @@ T.Button {
         implicitHeight: buttonNormal.height
         opacity: enabled ? 1 : 0.3
 
-        Image {
+        Rectangle {
+
             id: buttonNormal
-            width: 100
+            color: "#d4d4d4"
+            width: 100 //Bit of black magic to define the default size
             height: 40
-            anchors.fill: parent
-            source: "assets/buttonNormal.png"
+
+            border.color: "gray"
+            border.width: 1
+            radius: 2
+            anchors.fill: parent //binding has to be preserved
+
             Text {
                 id: normalText
-                x: 58
-                y: 50
-                color: "#bbbbbb"
-                text: control.text
-                font.letterSpacing: 0.594
-                font.pixelSize: 24
+                x: 26
+                y: 14 //id only required to preserve binding
+                text: control.text //binding has to be preserved
+                //anchors.fill: parent
+                color: "gray"
+
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
             }
         }
 
-        Image {
+        Rectangle {
             id: buttonPressed
-            width: 100
+            color: "#d4d4d4"
+            width: 100 //Bit of black magic to define the default size
             height: 40
-            anchors.fill: parent
-            source: "assets/buttonPressed.png"
+
+            border.color: "gray"
+            border.width: 1
+            radius: 2
+            anchors.fill: parent //binding has to be preserved
+
             Text {
-                id: pressedText
-                x: 58
-                y: 50
-                color: "#e1e1e1"
-                text: control.text
-                font.letterSpacing: 0.594
-                font.pixelSize: 24
+                x: 26
+                y: 14
+                id: pressedText //id only required to preserve binding
+                text: control.text //binding has to be preserved
+                //anchors.fill: parent
+                color: "black"
+
+                horizontalAlignment: Text.AlignHCenter // should not be preserved
+                verticalAlignment: Text.AlignVCenter //  should not be preserved
+                elide: Text.ElideRight // should not be preserved
             }
         }
-
     }
 
     contentItem: Item {}
@@ -84,5 +100,10 @@ T.Button {
             }
         }
     ]
+    QtObject {
+        id: qds_stylesheet_merger_options
+        property bool preserveTextAlignment: true
+    }
+
 }
 

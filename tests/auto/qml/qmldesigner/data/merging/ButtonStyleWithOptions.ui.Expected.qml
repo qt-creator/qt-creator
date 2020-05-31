@@ -32,8 +32,11 @@ T.Button {
                 y: 50
                 color: "#bbbbbb"
                 text: control.text
+                elide: Text.ElideRight
                 font.letterSpacing: 0.594
                 font.pixelSize: 24
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
             }
         }
 
@@ -49,8 +52,11 @@ T.Button {
                 y: 50
                 color: "#e1e1e1"
                 text: control.text
+                elide: Text.ElideRight
                 font.letterSpacing: 0.594
                 font.pixelSize: 24
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
             }
         }
 
@@ -84,5 +90,6 @@ T.Button {
             }
         }
     ]
+
 }
 

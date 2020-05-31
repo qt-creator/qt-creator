@@ -39,6 +39,42 @@
 #include <QQueue>
 #include <QRegularExpression>
 
+namespace {
+
+QPoint pointForModelNode(const QmlDesigner::ModelNode &node)
+{
+    int x = 0;
+    if (node.hasVariantProperty("x"))
+        x = node.variantProperty("x").value().toInt();
+
+    int y = 0;
+    if (node.hasVariantProperty("y"))
+        y = node.variantProperty("y").value().toInt();
+
+    return QPoint(x, y);
+}
+
+QPoint parentPosition(const QmlDesigner::ModelNode &node)
+{
+    QPoint p;
+
+    QmlDesigner::ModelNode currentNode = node;
+    while (currentNode.hasParentProperty()) {
+        currentNode = currentNode.parentProperty().parentModelNode();
+        p += pointForModelNode(currentNode);
+    }
+
+    return p;
+}
+
+bool isTextAlignmentProperty(const QmlDesigner::VariantProperty &property)
+{
+    return property.name() == "horizontalAlignment"
+                || property.name() == "verticalAlignment"
+                || property.name() == "elide";
+}
+} // namespace
+
 namespace QmlDesigner {
 
 static void splitIdInBaseNameAndNumber(const QString &id, QString *baseId, int *number)
@@ -139,15 +175,18 @@ void StylesheetMerger::setupIdRenamingHash()
 ModelNode StylesheetMerger::createReplacementNode(const ModelNode& styleNode, ModelNode &modelNode)
 {
     QList<QPair<PropertyName, QVariant> > propertyList;
-    QList<QPair<PropertyName, QVariant> > variantPropertyList;
+    QList<QPair<PropertyName, QVariant> > auxPropertyList;
     NodeMetaInfo nodeMetaInfo = m_templateView->model()->metaInfo(styleNode.type());
 
     for (const VariantProperty &variantProperty : modelNode.variantProperties()) {
-        if (nodeMetaInfo.hasProperty(variantProperty.name()))
-            propertyList.append(QPair<PropertyName, QVariant>(variantProperty.name(), variantProperty.value()));
+        if (!nodeMetaInfo.hasProperty(variantProperty.name()))
+            continue;
+        if (isTextAlignmentProperty(variantProperty) && !m_options.preserveTextAlignment && !styleNode.hasProperty(variantProperty.name()))
+            continue;
+        propertyList.append(QPair<PropertyName, QVariant>(variantProperty.name(), variantProperty.value()));
     }
     ModelNode newNode(m_templateView->createModelNode(styleNode.type(), nodeMetaInfo.majorVersion(), nodeMetaInfo.minorVersion(),
-                                                      propertyList, variantPropertyList, styleNode.nodeSource(), styleNode.nodeSourceType()));
+                                                      propertyList, auxPropertyList, styleNode.nodeSource(), styleNode.nodeSourceType()));
 
     syncAuxiliaryProperties(newNode, modelNode);
     syncBindingProperties(newNode, modelNode);
@@ -167,32 +206,6 @@ StylesheetMerger::StylesheetMerger(AbstractView *templateView, AbstractView *sty
 bool StylesheetMerger::idExistsInBothModels(const QString& id)
 {
     return m_templateView->hasId(id) && m_styleView->hasId(id);
-}
-
-QPoint pointForModelNode(const ModelNode &node)
-{
-    int x = 0;
-    if (node.hasVariantProperty("x"))
-        x = node.variantProperty("x").value().toInt();
-
-    int y = 0;
-    if (node.hasVariantProperty("y"))
-        y = node.variantProperty("y").value().toInt();
-
-    return QPoint(x, y);
-}
-
-QPoint parentPosition(const ModelNode &node)
-{
-    QPoint p;
-
-    ModelNode currentNode = node;
-    while (currentNode.hasParentProperty()) {
-        currentNode = currentNode.parentProperty().parentModelNode();
-        p += pointForModelNode(currentNode);
-    }
-
-    return p;
 }
 
 void StylesheetMerger::preprocessStyleSheet()
@@ -350,7 +363,11 @@ void StylesheetMerger::applyStyleProperties(ModelNode &templateNode, const Model
                 templateNode.variantProperty(variantProperty.name()).setValue(variantProperty.value());
             }
         } else {
-            templateNode.variantProperty(variantProperty.name()).setValue(variantProperty.value());
+            if (variantProperty.holdsEnumeration()) {
+                templateNode.variantProperty(variantProperty.name()).setEnumeration(variantProperty.enumeration().toEnumerationName());
+            } else {
+                templateNode.variantProperty(variantProperty.name()).setValue(variantProperty.value());
+            }
         }
     }
     syncBindingProperties(templateNode, styleNode);
@@ -365,12 +382,43 @@ static void removePropertyIfExists(ModelNode node, const PropertyName &propertyN
 
 }
 
+void StylesheetMerger::parseTemplateOptions()
+{
+    if (!m_templateView->hasId(QStringLiteral("qds_stylesheet_merger_options")))
+        return;
+
+    ModelNode optionsNode = m_templateView->modelNodeForId(QStringLiteral("qds_stylesheet_merger_options"));
+    if (optionsNode.hasVariantProperty("preserveTextAlignment")) {
+        m_options.preserveTextAlignment = optionsNode.variantProperty("preserveTextAlignment").value().toBool();
+    }
+    try {
+        RewriterTransaction transaction(m_templateView, "remove-options-node");
+        optionsNode.destroy();
+        transaction.commit();
+    } catch (InvalidIdException &ide) {
+        qDebug().noquote() << "Invalid id exception while removing options from template.";
+        ide.createWarning();
+    } catch (InvalidReparentingException &rpe) {
+        qDebug().noquote() << "Invalid reparenting exception while removing options from template.";
+        rpe.createWarning();
+    } catch (InvalidModelNodeException &mne) {
+        qDebug().noquote() << "Invalid model node exception while removing options from template.";
+        mne.createWarning();
+    } catch (Exception &e) {
+        qDebug().noquote() << "Exception while removing options from template.";
+        e.createWarning();
+    }
+}
+
 void StylesheetMerger::merge()
 {
     ModelNode templateRootNode = m_templateView->rootModelNode();
     ModelNode styleRootNode = m_styleView->rootModelNode();
 
-    // first, build up the hierarchy in the style sheet as we have it in the template
+    // first, look if there are any options present in the template
+    parseTemplateOptions();
+
+    // second, build up the hierarchy in the style sheet as we have it in the template
     preprocessStyleSheet();
 
     // build a hash of generated replacement ids

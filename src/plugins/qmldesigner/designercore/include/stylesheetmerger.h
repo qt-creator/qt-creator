@@ -41,6 +41,7 @@ struct ReparentInfo {
     bool alreadyReparented;
 };
 
+
 class StylesheetMerger {
 public:
     StylesheetMerger(AbstractView*, AbstractView*);
@@ -60,11 +61,21 @@ private:
     void syncBindingProperties(ModelNode &outputNode, const ModelNode &inputNode);
     void syncAuxiliaryProperties(ModelNode &outputNode, const ModelNode &inputNode);
     void syncVariantProperties(ModelNode &outputNode, const ModelNode &inputNode);
+    void parseTemplateOptions();
 
     AbstractView *m_templateView;
     AbstractView *m_styleView;
     QHash<QString, ReparentInfo> m_reparentInfoHash;
     QHash<QString, QString> m_idReplacementHash;
+
+    struct Options {
+        bool preserveTextAlignment;
+        Options() : preserveTextAlignment(false)
+        {}
+    };
+
+    Options m_options;
+
 };
 
 }
