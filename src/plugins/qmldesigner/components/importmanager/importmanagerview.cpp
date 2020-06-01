@@ -79,13 +79,17 @@ void ImportManagerView::modelAboutToBeDetached(Model *model)
     AbstractView::modelAboutToBeDetached(model);
 }
 
-void ImportManagerView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
+void ImportManagerView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &removedImports)
 {
     if (m_importsWidget) {
         m_importsWidget->setImports(model()->imports());
         // setImports recreates labels, so we need to update used imports, as it is not guaranteed
         // usedImportsChanged notification will come after this.
         m_importsWidget->setUsedImports(model()->usedImports());
+        // setPossibleImports done in response to possibleImportsChanged comes before importsChanged,
+        // which causes incorrect "already used" filtering to be applied to possible imports list,
+        // so update the possible imports list here, too.
+        m_importsWidget->setPossibleImports(model()->possibleImports());
     }
 }
 
