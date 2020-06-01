@@ -42,10 +42,16 @@ Item {
         }
         return false;
     }
+    property bool hasMouse: false
 
     property alias iconSource: iconImage.source
 
     signal clicked(Node node, bool multi)
+
+    onSelectedChanged: {
+        if (selected)
+            hasMouse = false;
+    }
 
     visible: activeScene === scene && (targetNode ? targetNode.visible : false)
 
@@ -57,14 +63,14 @@ Item {
 
         Rectangle {
             id: iconRect
+
             width: iconImage.width
             height: iconImage.height
             x: -width / 2
             y: -height / 2
             color: "transparent"
             border.color: "#7777ff"
-            border.width: !iconGizmo.selected
-                          && iconGizmo.highlightOnHover && iconMouseArea.containsMouse ? 2 : 0
+            border.width: iconGizmo.highlightOnHover && iconGizmo.hasMouse ? 2 : 0
             radius: 5
             opacity: iconGizmo.selected ? 0.2 : 1
             Image {
@@ -86,6 +92,24 @@ Item {
                                                  mouse.modifiers & Qt.ControlModifier)
                     hoverEnabled: iconGizmo.highlightOnHover && !iconGizmo.selected
                     acceptedButtons: Qt.LeftButton
+
+                    // onPositionChanged, onContainsMouseAreaChanged, and hasMouse are used instead
+                    // of just using containsMouse directly, because containsMouse
+                    // cannot be relied upon to update correctly in some situations.
+                    // This is likely because the overlapping 3D mouse areas of the gizmos get
+                    // the mouse events instead of this area, so mouse leaving the area
+                    // doesn't always update containsMouse property.
+                    onPositionChanged: {
+                        if (!iconGizmo.selected)
+                            iconGizmo.hasMouse = containsMouse;
+                    }
+
+                    onContainsMouseChanged: {
+                        if (!iconGizmo.selected)
+                            iconGizmo.hasMouse = containsMouse;
+                        else
+                            iconGizmo.hasMouse = false;
+                    }
                 }
             }
         }
