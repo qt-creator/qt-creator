@@ -259,21 +259,11 @@ void StudioWelcomePlugin::extensionsInitialized()
 bool StudioWelcomePlugin::delayedInitialize()
 {
     if (s_view.isNull())
-        return true;
+        return false;
 
     QTC_ASSERT(s_view->rootObject() , return true);
 
     s_view->rootObject()->setProperty("loadingPlugins", false);
-
-    QPointer<QQuickWidget> view = s_view;
-
-    connect(Core::ICore::mainWindow()->windowHandle(), &QWindow::visibleChanged, this, [view](){
-        if (!view.isNull()) {
-            view->close();
-            view->deleteLater();
-        }
-    });
-
     return false;
 }
 
