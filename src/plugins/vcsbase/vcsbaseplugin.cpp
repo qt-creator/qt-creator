@@ -643,7 +643,7 @@ void VcsBasePluginPrivate::createRepository()
     if (const Project *currentProject = ProjectTree::currentProject())
         directory = currentProject->projectFilePath().toString();
     // Prompt for a directory that is not under version control yet
-    QWidget *mw = ICore::mainWindow();
+    QWidget *mw = ICore::dialogParent();
     do {
         directory = QFileDialog::getExistingDirectory(mw, tr("Choose Repository Directory"), directory);
         if (directory.isEmpty())

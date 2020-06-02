@@ -261,7 +261,7 @@ public:
                 if (errorString)
                     *errorString = msg;
                 else
-                    QMessageBox::critical(ICore::mainWindow(), tr("File Error"), msg);
+                    QMessageBox::critical(ICore::dialogParent(), tr("File Error"), msg);
                 return OpenResult::CannotHandle;
             }
             if (size / 16 >= qint64(1) << 31) {
@@ -270,7 +270,7 @@ public:
                 if (errorString)
                     *errorString = msg;
                 else
-                    QMessageBox::critical(ICore::mainWindow(), tr("File Error"), msg);
+                    QMessageBox::critical(ICore::dialogParent(), tr("File Error"), msg);
                 return OpenResult::CannotHandle;
             }
             if (offset >= size)
@@ -284,7 +284,7 @@ public:
         if (errorString)
             *errorString = errStr;
         else
-            QMessageBox::critical(ICore::mainWindow(), tr("File Error"), errStr);
+            QMessageBox::critical(ICore::dialogParent(), tr("File Error"), errStr);
         return OpenResult::ReadError;
     }
 
@@ -304,7 +304,7 @@ public:
                 data += QByteArray(blockSize - dataSize, 0);
             m_widget->addData(address, data);
         } else {
-            QMessageBox::critical(ICore::mainWindow(), tr("File Error"),
+            QMessageBox::critical(ICore::dialogParent(), tr("File Error"),
                                   tr("Cannot open %1: %2").arg(
                                         fn.toUserOutput(), file.errorString()));
         }

@@ -304,11 +304,12 @@ void DocumentManager::addFileToVersionControl(const QString &directoryPath, cons
 {
     Core::IVersionControl *versionControl = Core::VcsManager::findVersionControlForDirectory(directoryPath);
     if (versionControl && versionControl->supportsOperation(Core::IVersionControl::AddOperation)) {
-        const QMessageBox::StandardButton button =
-                QMessageBox::question(Core::ICore::mainWindow(),
-                                      Core::VcsManager::msgAddToVcsTitle(),
-                                      Core::VcsManager::msgPromptToAddToVcs(QStringList(newFilePath), versionControl),
-                                      QMessageBox::Yes | QMessageBox::No);
+        const QMessageBox::StandardButton button
+            = QMessageBox::question(Core::ICore::dialogParent(),
+                                    Core::VcsManager::msgAddToVcsTitle(),
+                                    Core::VcsManager::msgPromptToAddToVcs(QStringList(newFilePath),
+                                                                          versionControl),
+                                    QMessageBox::Yes | QMessageBox::No);
         if (button == QMessageBox::Yes && !versionControl->vcsAdd(newFilePath)) {
             Core::AsynchronousMessageBox::warning(Core::VcsManager::msgAddToVcsFailedTitle(),
                                                    Core::VcsManager::msgToAddToVcsFailed(QStringList(newFilePath), versionControl));

@@ -381,10 +381,11 @@ void BuildStepListWidget::updateBuildStepButtonsState()
         connect(s->toolWidget, &ToolWidget::removeClicked,
                 this, [this, i] {
             if (!m_buildStepList->removeStep(i)) {
-                QMessageBox::warning(Core::ICore::mainWindow(),
+                QMessageBox::warning(Core::ICore::dialogParent(),
                                      tr("Removing Step failed"),
                                      tr("Cannot remove build step while building"),
-                                     QMessageBox::Ok, QMessageBox::Ok);
+                                     QMessageBox::Ok,
+                                     QMessageBox::Ok);
             }
         });
 

@@ -345,7 +345,7 @@ bool QbsBuildSystem::ensureWriteableQbsFile(const QString &file)
         if (!versionControl || !versionControl->vcsOpen(file)) {
             bool makeWritable = QFile::setPermissions(file, fi.permissions() | QFile::WriteUser);
             if (!makeWritable) {
-                QMessageBox::warning(ICore::mainWindow(),
+                QMessageBox::warning(ICore::dialogParent(),
                                      tr("Failed"),
                                      tr("Could not write project file %1.").arg(file));
                 return false;

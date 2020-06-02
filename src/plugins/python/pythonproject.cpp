@@ -257,12 +257,12 @@ bool PythonBuildSystem::saveRawList(const QStringList &rawList, const QString &f
         FileSaver saver(fileName, QIODevice::ReadOnly | QIODevice::Text);
         if (!saver.hasError()) {
             QString content = QTextStream(saver.file()).readAll();
-            if (saver.finalize(ICore::mainWindow())) {
+            if (saver.finalize(ICore::dialogParent())) {
                 QString errorMessage;
                 result = writePyProjectFile(fileName, content, rawList, &errorMessage);
                 if (!errorMessage.isEmpty())
                     MessageManager::write(errorMessage);
-                }
+            }
         }
     } else { // Old project file
         FileSaver saver(fileName, QIODevice::WriteOnly | QIODevice::Text);
@@ -271,7 +271,7 @@ bool PythonBuildSystem::saveRawList(const QStringList &rawList, const QString &f
             for (const QString &filePath : rawList)
                 stream << filePath << '\n';
             saver.setResult(&stream);
-            result = saver.finalize(ICore::mainWindow());
+            result = saver.finalize(ICore::dialogParent());
         }
     }
 

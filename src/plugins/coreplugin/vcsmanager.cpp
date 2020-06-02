@@ -404,7 +404,7 @@ void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNa
     if (unmanagedFiles.isEmpty())
         return;
 
-    Internal::AddToVcsDialog dlg(ICore::mainWindow(), VcsManager::msgAddToVcsTitle(),
+    Internal::AddToVcsDialog dlg(ICore::dialogParent(), VcsManager::msgAddToVcsTitle(),
                                  unmanagedFiles, vc->displayName());
     if (dlg.exec() == QDialog::Accepted) {
         QStringList notAddedToVc;
@@ -414,7 +414,8 @@ void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNa
         }
 
         if (!notAddedToVc.isEmpty()) {
-            QMessageBox::warning(ICore::mainWindow(), VcsManager::msgAddToVcsFailedTitle(),
+            QMessageBox::warning(ICore::dialogParent(),
+                                 VcsManager::msgAddToVcsFailedTitle(),
                                  VcsManager::msgToAddToVcsFailed(notAddedToVc, vc));
         }
     }

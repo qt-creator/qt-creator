@@ -559,7 +559,7 @@ public:
             if (auto kitPage = KitOptionsPage::instance())
                 kitPage->showKit(KitManager::kit(Id::fromSetting(projectItem->data(0, KitIdRole))));
         }
-        ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, ICore::mainWindow());
+        ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID);
     }
 
     void handleImportBuild()
@@ -570,7 +570,7 @@ public:
         QTC_ASSERT(projectImporter, return);
 
         QString dir = project->projectDirectory().toString();
-        QString importDir = QFileDialog::getExistingDirectory(ICore::mainWindow(),
+        QString importDir = QFileDialog::getExistingDirectory(ICore::dialogParent(),
                                                               ProjectWindow::tr("Import Directory"),
                                                               dir);
         FilePath path = FilePath::fromString(importDir);

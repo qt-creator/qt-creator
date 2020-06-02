@@ -281,7 +281,7 @@ void PerfProfilerTool::createViews()
     m_delayLabel->setIndent(10);
 
     connect(m_traceManager, &PerfProfilerTraceManager::error, this, [](const QString &message) {
-        QMessageBox *errorDialog = new QMessageBox(ICore::mainWindow());
+        QMessageBox *errorDialog = new QMessageBox(ICore::dialogParent());
         errorDialog->setIcon(QMessageBox::Warning);
         errorDialog->setWindowTitle(tr("Performance Analyzer"));
         errorDialog->setText(message);
@@ -416,7 +416,7 @@ void PerfProfilerTool::onReaderFinished()
 {
     m_readerRunning = false;
     if (m_traceManager->traceDuration() <= 0) {
-        QMessageBox::warning(Core::ICore::mainWindow(),
+        QMessageBox::warning(Core::ICore::dialogParent(),
                              tr("No Data Loaded"),
                              tr("The profiler did not produce any samples. "
                                 "Make sure that you are running a recent Linux kernel and that "
@@ -602,7 +602,7 @@ void PerfProfilerTool::showLoadPerfDialog()
 {
     m_perspective.select();
 
-    PerfLoadDialog dlg(Core::ICore::mainWindow());
+    PerfLoadDialog dlg(Core::ICore::dialogParent());
     if (dlg.exec() != PerfLoadDialog::Accepted)
         return;
 
@@ -620,7 +620,7 @@ void PerfProfilerTool::showLoadTraceDialog()
     m_perspective.select();
 
     QString filename = QFileDialog::getOpenFileName(
-                ICore::mainWindow(), tr("Load Trace File"),
+                ICore::dialogParent(), tr("Load Trace File"),
                 "", tr("Trace File (*.ptq)"));
     if (filename.isEmpty())
         return;
@@ -640,7 +640,7 @@ void PerfProfilerTool::showSaveTraceDialog()
     m_perspective.select();
 
     QString filename = QFileDialog::getSaveFileName(
-                ICore::mainWindow(), tr("Save Trace File"),
+                ICore::dialogParent(), tr("Save Trace File"),
                 "", tr("Trace File (*.ptq)"));
     if (filename.isEmpty())
         return;

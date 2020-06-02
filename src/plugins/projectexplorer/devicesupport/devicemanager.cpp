@@ -133,7 +133,7 @@ void DeviceManager::save()
         return;
     QVariantMap data;
     data.insert(QLatin1String(DeviceManagerKey), toMap());
-    d->writer->save(data, Core::ICore::mainWindow());
+    d->writer->save(data, Core::ICore::dialogParent());
 }
 
 void DeviceManager::load()

@@ -357,7 +357,7 @@ void CppEditorPluginPrivate::inspectCppCodeModel()
     if (m_cppCodeModelInspectorDialog) {
         ICore::raiseWindow(m_cppCodeModelInspectorDialog);
     } else {
-        m_cppCodeModelInspectorDialog = new CppCodeModelInspectorDialog(ICore::mainWindow());
+        m_cppCodeModelInspectorDialog = new CppCodeModelInspectorDialog(ICore::dialogParent());
         m_cppCodeModelInspectorDialog->show();
     }
 }

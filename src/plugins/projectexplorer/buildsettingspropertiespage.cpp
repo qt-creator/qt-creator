@@ -222,11 +222,13 @@ void BuildSettingsWidget::createConfiguration(const BuildInfo &info_)
     BuildInfo info = info_;
     if (info.displayName.isEmpty()) {
         bool ok = false;
-        info.displayName = QInputDialog::getText(Core::ICore::mainWindow(),
-                                                  tr("New Configuration"),
-                                                  tr("New configuration name:"),
-                                                  QLineEdit::Normal,
-                                                  QString(), &ok).trimmed();
+        info.displayName = QInputDialog::getText(Core::ICore::dialogParent(),
+                                                 tr("New Configuration"),
+                                                 tr("New configuration name:"),
+                                                 QLineEdit::Normal,
+                                                 QString(),
+                                                 &ok)
+                               .trimmed();
         if (!ok || info.displayName.isEmpty())
             return;
     }

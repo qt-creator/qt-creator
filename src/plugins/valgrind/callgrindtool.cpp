@@ -908,7 +908,7 @@ void CallgrindToolPrivate::slotRequestDump()
 void CallgrindToolPrivate::loadExternalLogFile()
 {
     const QString filePath = QFileDialog::getOpenFileName(
-                ICore::mainWindow(),
+                ICore::dialogParent(),
                 CallgrindTool::tr("Open Callgrind Log File"),
                 QString(),
                 CallgrindTool::tr("Callgrind Output (callgrind.out*);;All Files (*)"));

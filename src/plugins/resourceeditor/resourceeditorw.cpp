@@ -195,7 +195,7 @@ bool ResourceEditorDocument::setContents(const QByteArray &contents)
 {
     TempFileSaver saver;
     saver.write(contents);
-    if (!saver.finalize(Core::ICore::mainWindow()))
+    if (!saver.finalize(Core::ICore::dialogParent()))
         return false;
 
     const QString originalFileName = m_model->fileName();

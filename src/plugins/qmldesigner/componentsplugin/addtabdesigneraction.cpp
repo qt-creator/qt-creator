@@ -105,7 +105,8 @@ static ModelNode findTabViewModelNode(const ModelNode &currentModelNode)
 
 void AddTabDesignerAction::addNewTab()
 {
-    QString tabName = AddTabToTabViewDialog::create(QStringLiteral("Tab"), Core::ICore::mainWindow());
+    QString tabName = AddTabToTabViewDialog::create(QStringLiteral("Tab"),
+                                                    Core::ICore::dialogParent());
 
     if (!tabName.isEmpty()) {
         QString directoryPath = QFileInfo(selectionContext().view()->model()->fileUrl().toLocalFile()).absolutePath();

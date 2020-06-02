@@ -1114,7 +1114,7 @@ AndroidDeviceInfo AndroidConfigurations::showDeviceDialog(Project *project,
         if (!serialNumber.isEmpty())
             break;
     }
-    AndroidDeviceDialog dialog(apiLevel, abis, serialNumber, Core::ICore::mainWindow());
+    AndroidDeviceDialog dialog(apiLevel, abis, serialNumber, Core::ICore::dialogParent());
     AndroidDeviceInfo info = dialog.device();
     if (dialog.saveDeviceSelection() && info.isValid()) {
         const QString serialNumber = info.type == AndroidDeviceInfo::Hardware ?

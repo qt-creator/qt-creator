@@ -302,7 +302,7 @@ bool GenericBuildSystem::saveRawList(const QStringList &rawList, const QString &
             stream << filePath << '\n';
         saver.setResult(&stream);
     }
-    bool result = saver.finalize(ICore::mainWindow());
+    bool result = saver.finalize(ICore::dialogParent());
     return result;
 }
 
@@ -655,7 +655,7 @@ void GenericProject::editFilesTriggered()
 {
     SelectableFilesDialogEditFiles sfd(projectDirectory(),
                                        files(Project::AllFiles),
-                                       ICore::mainWindow());
+                                       ICore::dialogParent());
     if (sfd.exec() == QDialog::Accepted) {
         if (Target *t = activeTarget()) {
             auto bs = static_cast<GenericBuildSystem *>(t->buildSystem());

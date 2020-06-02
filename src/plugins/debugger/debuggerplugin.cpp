@@ -1749,7 +1749,7 @@ void DebuggerPlugin::getEnginesState(QByteArray *json) const
 
 void DebuggerPluginPrivate::attachToQmlPort()
 {
-    AttachToQmlPortDialog dlg(ICore::mainWindow());
+    AttachToQmlPortDialog dlg(ICore::dialogParent());
 
     const QVariant qmlServerPort = configValue("LastQmlServerPort");
     if (qmlServerPort.isValid())
@@ -1954,7 +1954,7 @@ void DebuggerPluginPrivate::dumpLog()
     LogWindow *logWindow = engine->logWindow();
     QTC_ASSERT(logWindow, return);
 
-    QString fileName = QFileDialog::getSaveFileName(ICore::mainWindow(),
+    QString fileName = QFileDialog::getSaveFileName(ICore::dialogParent(),
         tr("Save Debugger Log"), Utils::TemporaryDirectory::masterDirectoryPath());
     if (fileName.isEmpty())
         return;
@@ -1966,7 +1966,7 @@ void DebuggerPluginPrivate::dumpLog()
         ts << logWindow->combinedContents();
         saver.setResult(&ts);
     }
-    saver.finalize(ICore::mainWindow());
+    saver.finalize(ICore::dialogParent());
 }
 
 void DebuggerPluginPrivate::aboutToShutdown()
@@ -2186,7 +2186,7 @@ static BuildConfiguration::BuildType startupBuildType()
 
 void showCannotStartDialog(const QString &text)
 {
-    auto errorDialog = new QMessageBox(ICore::mainWindow());
+    auto errorDialog = new QMessageBox(ICore::dialogParent());
     errorDialog->setAttribute(Qt::WA_DeleteOnClose);
     errorDialog->setIcon(QMessageBox::Warning);
     errorDialog->setWindowTitle(text);
@@ -2251,7 +2251,7 @@ bool wantRunTool(ToolMode toolMode, const QString &toolName)
             "or otherwise insufficient output.</p><p>"
             "Do you want to continue and run the tool in %2 mode?</p></body></html>")
                 .arg(toolName).arg(currentMode).arg(toolModeString);
-        if (Utils::CheckableMessageBox::doNotAskAgainQuestion(ICore::mainWindow(),
+        if (Utils::CheckableMessageBox::doNotAskAgainQuestion(ICore::dialogParent(),
                 title, message, ICore::settings(), "AnalyzerCorrectModeWarning")
                     != QDialogButtonBox::Yes)
             return false;

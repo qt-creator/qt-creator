@@ -171,7 +171,7 @@ void CtfVisualizerTool::loadJson()
     m_isLoading = true;
 
     QString filename = QFileDialog::getOpenFileName(
-                ICore::mainWindow(), tr("Load Chrome Trace Format File"),
+                ICore::dialogParent(), tr("Load Chrome Trace Format File"),
                 "", tr("JSON File (*.json)"));
     if (filename.isEmpty()) {
         m_isLoading = false;
@@ -192,7 +192,7 @@ void CtfVisualizerTool::loadJson()
     connect(thread, &QThread::finished, this, [this, thread, task, futureInterface]() {
         // in main thread:
         if (m_traceManager->isEmpty()) {
-            QMessageBox::warning(Core::ICore::mainWindow(),
+            QMessageBox::warning(Core::ICore::dialogParent(),
                                  tr("CTF Visualizer"),
                                  tr("The file does not contain any trace data."));
         } else {

@@ -312,7 +312,7 @@ bool RefactoringFile::apply()
 {
     // test file permissions
     if (!QFileInfo(fileName()).isWritable()) {
-        ReadOnlyFilesDialog roDialog(FilePath::fromString(fileName()), ICore::mainWindow());
+        ReadOnlyFilesDialog roDialog(FilePath::fromString(fileName()), ICore::dialogParent());
         const QString &failDetailText = QApplication::translate("RefactoringFile::apply",
                                                                 "Refactoring cannot be applied.");
         roDialog.setShowFailWarning(true, failDetailText);

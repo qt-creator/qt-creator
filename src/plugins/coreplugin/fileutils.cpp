@@ -163,7 +163,7 @@ void FileUtils::removeFile(const QString &filePath, bool deleteFromFS)
         if (file.exists()) {
             // could have been deleted by vc
             if (!file.remove())
-                QMessageBox::warning(ICore::mainWindow(),
+                QMessageBox::warning(ICore::dialogParent(),
                     QApplication::translate("Core::Internal", "Deleting File Failed"),
                     QApplication::translate("Core::Internal", "Could not delete file %1.").arg(filePath));
         }

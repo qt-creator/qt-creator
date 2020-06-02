@@ -783,9 +783,11 @@ bool QmakePriFile::ensureWriteableProFile(const QString &file)
         if (!versionControl || !versionControl->vcsOpen(file)) {
             bool makeWritable = QFile::setPermissions(file, fi.permissions() | QFile::WriteUser);
             if (!makeWritable) {
-                QMessageBox::warning(Core::ICore::mainWindow(),
+                QMessageBox::warning(Core::ICore::dialogParent(),
                                      QCoreApplication::translate("QmakePriFile", "Failed"),
-                                     QCoreApplication::translate("QmakePriFile", "Could not write project file %1.").arg(file));
+                                     QCoreApplication::translate("QmakePriFile",
+                                                                 "Could not write project file %1.")
+                                         .arg(file));
                 return false;
             }
         }
@@ -963,7 +965,7 @@ void QmakePriFile::save(const QStringList &lines)
         FileChangeBlocker changeGuard(filePath().toString());
         QString errorMsg;
         if (!m_textFormat.writeFile(filePath().toString(), lines.join('\n'), &errorMsg)) {
-            QMessageBox::critical(Core::ICore::mainWindow(), QCoreApplication::translate(
+            QMessageBox::critical(Core::ICore::dialogParent(), QCoreApplication::translate(
                                       "QmakePriFile", "File Error"), errorMsg);
         }
     }
@@ -981,7 +983,8 @@ void QmakePriFile::save(const QStringList &lines)
             errorStrings << errorString;
     }
     if (!errorStrings.isEmpty())
-        QMessageBox::warning(Core::ICore::mainWindow(), QCoreApplication::translate("QmakePriFile", "File Error"),
+        QMessageBox::warning(Core::ICore::dialogParent(),
+                             QCoreApplication::translate("QmakePriFile", "File Error"),
                              errorStrings.join(QLatin1Char('\n')));
 }
 

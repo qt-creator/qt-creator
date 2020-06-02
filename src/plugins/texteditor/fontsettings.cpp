@@ -440,7 +440,7 @@ bool FontSettings::loadColorScheme(const QString &fileName,
 
 bool FontSettings::saveColorScheme(const QString &fileName)
 {
-    const bool saved = m_scheme.save(fileName, Core::ICore::mainWindow());
+    const bool saved = m_scheme.save(fileName, Core::ICore::dialogParent());
     if (saved)
         m_schemeFileName = fileName;
     return saved;

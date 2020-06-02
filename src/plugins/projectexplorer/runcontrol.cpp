@@ -1038,7 +1038,7 @@ bool RunControl::showPromptToStopDialog(const QString &title,
 {
     // Show a question message box where user can uncheck this
     // question for this class.
-    Utils::CheckableMessageBox messageBox(Core::ICore::mainWindow());
+    Utils::CheckableMessageBox messageBox(Core::ICore::dialogParent());
     messageBox.setWindowTitle(title);
     messageBox.setText(text);
     messageBox.setStandardButtons(QDialogButtonBox::Yes|QDialogButtonBox::Cancel);

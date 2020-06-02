@@ -290,7 +290,7 @@ void AndroidBuildApkStep::setupOutputFormatter(OutputFormatter *formatter)
 
 void AndroidBuildApkStep::showInGraphicalShell()
 {
-    Core::FileUtils::showInGraphicalShell(Core::ICore::mainWindow(), m_packagePath);
+    Core::FileUtils::showInGraphicalShell(Core::ICore::dialogParent(), m_packagePath);
 }
 
 ProjectExplorer::BuildStepConfigWidget *AndroidBuildApkStep::createConfigWidget()

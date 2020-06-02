@@ -291,7 +291,7 @@ QdbLinuxDeviceFactory::QdbLinuxDeviceFactory()
 
 IDevice::Ptr QdbLinuxDeviceFactory::create() const
 {
-    QdbDeviceWizard wizard(Core::ICore::mainWindow());
+    QdbDeviceWizard wizard(Core::ICore::dialogParent());
 
     if (wizard.exec() != QDialog::Accepted)
         return IDevice::Ptr();

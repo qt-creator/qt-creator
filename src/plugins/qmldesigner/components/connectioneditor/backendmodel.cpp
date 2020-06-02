@@ -207,7 +207,7 @@ void BackendModel::addNewBackend()
     if (!model)
         return;
 
-    AddNewBackendDialog dialog(Core::ICore::mainWindow());
+    AddNewBackendDialog dialog(Core::ICore::dialogParent());
 
     RewriterView *rewriterView = model->rewriterView();
 

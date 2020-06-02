@@ -483,7 +483,11 @@ public:
         if (parentWidget()) {
             // We are currently within a text editor tooltip:
             // Rip out of parent widget and re-show as a tooltip
-            ToolTip::pinToolTip(this, ICore::mainWindow());
+            // Find parent with different window than the tooltip itself:
+            QWidget *top = parentWidget();
+            while (top->window() == window() && top->parentWidget())
+                top = top->parentWidget();
+            ToolTip::pinToolTip(this, top->window());
         } else {
             // We have just be restored from session data.
             setWindowFlags(Qt::ToolTip);

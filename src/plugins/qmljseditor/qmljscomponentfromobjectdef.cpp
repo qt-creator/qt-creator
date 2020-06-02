@@ -217,15 +217,16 @@ public:
         Core::IVersionControl *versionControl = Core::VcsManager::findVersionControlForDirectory(path);
         if (versionControl
                 && versionControl->supportsOperation(Core::IVersionControl::AddOperation)) {
-            const QMessageBox::StandardButton button =
-                    QMessageBox::question(Core::ICore::mainWindow(),
-                                          Core::VcsManager::msgAddToVcsTitle(),
-                                          Core::VcsManager::msgPromptToAddToVcs(QStringList(newFileName), versionControl),
-                                          QMessageBox::Yes | QMessageBox::No);
+            const QMessageBox::StandardButton button = QMessageBox::question(
+                Core::ICore::dialogParent(),
+                Core::VcsManager::msgAddToVcsTitle(),
+                Core::VcsManager::msgPromptToAddToVcs(QStringList(newFileName), versionControl),
+                QMessageBox::Yes | QMessageBox::No);
             if (button == QMessageBox::Yes && !versionControl->vcsAdd(newFileName)) {
-                QMessageBox::warning(Core::ICore::mainWindow(),
+                QMessageBox::warning(Core::ICore::dialogParent(),
                                      Core::VcsManager::msgAddToVcsFailedTitle(),
-                                     Core::VcsManager::msgToAddToVcsFailed(QStringList(newFileName), versionControl));
+                                     Core::VcsManager::msgToAddToVcsFailed(QStringList(newFileName),
+                                                                           versionControl));
             }
         }
     }

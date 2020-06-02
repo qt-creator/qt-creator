@@ -295,7 +295,7 @@ LinuxDeviceFactory::LinuxDeviceFactory()
 
 IDevice::Ptr LinuxDeviceFactory::create() const
 {
-    GenericLinuxDeviceConfigurationWizard wizard(Core::ICore::mainWindow());
+    GenericLinuxDeviceConfigurationWizard wizard(Core::ICore::dialogParent());
     if (wizard.exec() != QDialog::Accepted)
         return IDevice::Ptr();
     return wizard.device();

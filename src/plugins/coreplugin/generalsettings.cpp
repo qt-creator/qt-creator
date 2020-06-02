@@ -98,7 +98,8 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
         m_ui.dpiCheckbox->setChecked(ICore::settings()->value(settingsKeyDPI, defaultValue).toBool());
         connect(m_ui.dpiCheckbox, &QCheckBox::toggled, this, [](bool checked) {
             ICore::settings()->setValue(settingsKeyDPI, checked);
-            QMessageBox::information(ICore::mainWindow(), tr("Restart Required"),
+            QMessageBox::information(ICore::dialogParent(),
+                                     tr("Restart Required"),
                                      tr("The high DPI settings will take effect after restart."));
         });
     }

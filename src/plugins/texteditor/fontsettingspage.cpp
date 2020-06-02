@@ -473,7 +473,7 @@ void FontSettingsPageWidget::copyColorScheme(const QString &name)
 
         ColorScheme scheme = m_value.colorScheme();
         scheme.setDisplayName(name);
-        if (scheme.save(fileName, Core::ICore::mainWindow()))
+        if (scheme.save(fileName, Core::ICore::dialogParent()))
             m_value.setColorSchemeFileName(fileName);
 
         refreshColorSchemeList();
@@ -540,7 +540,7 @@ void FontSettingsPageWidget::maybeSaveColorScheme()
 
     if (messageBox.exec() == QMessageBox::Save) {
         const ColorScheme &scheme = m_ui.schemeEdit->colorScheme();
-        scheme.save(m_value.colorSchemeFileName(), Core::ICore::mainWindow());
+        scheme.save(m_value.colorSchemeFileName(), Core::ICore::dialogParent());
     }
 }
 
@@ -590,7 +590,7 @@ void FontSettingsPageWidget::apply()
         // Update the scheme and save it under the name it already has
         m_value.setColorScheme(m_ui.schemeEdit->colorScheme());
         const ColorScheme &scheme = m_value.colorScheme();
-        scheme.save(m_value.colorSchemeFileName(), Core::ICore::mainWindow());
+        scheme.save(m_value.colorSchemeFileName(), Core::ICore::dialogParent());
     }
 
     bool ok;

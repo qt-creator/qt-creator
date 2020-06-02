@@ -159,7 +159,7 @@ bool Protocol::showConfigurationError(const Protocol *p,
         showConfig = false;
 
     if (!parent)
-        parent = Core::ICore::mainWindow();
+        parent = Core::ICore::dialogParent();
     const QString title = tr("%1 - Configuration Error").arg(p->name());
     QMessageBox mb(QMessageBox::Warning, title, message, QMessageBox::Cancel, parent);
     QPushButton *settingsButton = nullptr;
@@ -220,7 +220,7 @@ bool NetworkProtocol::httpStatus(QString url, QString *errorMessage, bool useHtt
                     tr("Checking connection"),
                     tr("Connecting to %1...").arg(url),
                     QMessageBox::Cancel,
-                    Core::ICore::mainWindow());
+                    Core::ICore::dialogParent());
     connect(reply.data(), &QNetworkReply::finished, &box, &QWidget::close);
     QApplication::setOverrideCursor(Qt::WaitCursor);
     box.exec();

@@ -284,7 +284,7 @@ void ResourceEditorPluginPrivate::addPrefixContextMenu()
 {
     auto topLevel = dynamic_cast<ResourceTopLevelNode *>(ProjectTree::currentNode());
     QTC_ASSERT(topLevel, return);
-    PrefixLangDialog dialog(tr("Add Prefix"), QString(), QString(), Core::ICore::mainWindow());
+    PrefixLangDialog dialog(tr("Add Prefix"), QString(), QString(), Core::ICore::dialogParent());
     if (dialog.exec() != QDialog::Accepted)
         return;
     QString prefix = dialog.prefix();
@@ -297,7 +297,7 @@ void ResourceEditorPluginPrivate::removePrefixContextMenu()
 {
     auto rfn = dynamic_cast<ResourceFolderNode *>(ProjectTree::currentNode());
     QTC_ASSERT(rfn, return);
-    if (QMessageBox::question(Core::ICore::mainWindow(),
+    if (QMessageBox::question(Core::ICore::dialogParent(),
                               tr("Remove Prefix"),
                               tr("Remove prefix %1 and all its files?").arg(rfn->displayName()))
             == QMessageBox::Yes) {
@@ -326,7 +326,7 @@ void ResourceEditorPluginPrivate::removeFileContextMenu()
     FolderNode *parent = rfn->parentFolderNode();
     QTC_ASSERT(parent, return);
     if (parent->removeFiles(QStringList() << path) != RemovedFilesFromProject::Ok)
-        QMessageBox::warning(Core::ICore::mainWindow(),
+        QMessageBox::warning(Core::ICore::dialogParent(),
                              tr("File Removal Failed"),
                              tr("Removing file %1 from the project failed.").arg(path));
 }
@@ -355,7 +355,10 @@ void ResourceEditorPluginPrivate::renamePrefixContextMenu()
     auto node = dynamic_cast<ResourceFolderNode *>(ProjectTree::currentNode());
     QTC_ASSERT(node, return);
 
-    PrefixLangDialog dialog(tr("Rename Prefix"), node->prefix(), node->lang(), Core::ICore::mainWindow());
+    PrefixLangDialog dialog(tr("Rename Prefix"),
+                            node->prefix(),
+                            node->lang(),
+                            Core::ICore::dialogParent());
     if (dialog.exec() != QDialog::Accepted)
         return;
     QString prefix = dialog.prefix();

@@ -345,7 +345,7 @@ void BaseFileFind::doReplace(const QString &text,
 {
     const QStringList files = replaceAll(text, items, preserveCase);
     if (!files.isEmpty()) {
-        Utils::FadingIndicator::showText(ICore::mainWindow(),
+        Utils::FadingIndicator::showText(ICore::dialogParent(),
             tr("%n occurrences replaced.", nullptr, items.size()),
             Utils::FadingIndicator::SmallText);
         DocumentManager::notifyFilesChangedInternally(files);
@@ -505,7 +505,7 @@ QStringList BaseFileFind::replaceAll(const QString &text,
 
     // Query the user for permissions
     if (!roFiles.isEmpty()) {
-        ReadOnlyFilesDialog roDialog(Utils::toList(roFiles), ICore::mainWindow());
+        ReadOnlyFilesDialog roDialog(Utils::toList(roFiles), ICore::dialogParent());
         roDialog.setShowFailWarning(true, tr("Aborting replace."));
         if (roDialog.exec() == ReadOnlyFilesDialog::RO_Cancel)
             return QStringList();

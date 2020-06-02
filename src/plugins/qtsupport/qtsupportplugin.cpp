@@ -135,7 +135,7 @@ static void askAboutQtInstallation()
     info.setCustomButtonInfo(QtSupportPlugin::tr("Link with Qt"), [] {
         ICore::infoBar()->removeInfo(kLinkWithQtInstallationSetting);
         ICore::infoBar()->globallySuppressInfo(kLinkWithQtInstallationSetting);
-        QTimer::singleShot(0, ICore::mainWindow(), &QtOptionsPage::linkWithQt);
+        QTimer::singleShot(0, ICore::dialogParent(), &QtOptionsPage::linkWithQt);
     });
     ICore::infoBar()->addInfo(info);
 }

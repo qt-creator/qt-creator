@@ -107,7 +107,7 @@ static QMessageBox *showMessageBox(QMessageBox::Icon icon,
                                    const QString &title, const QString &text,
                                    QMessageBox::StandardButtons buttons)
 {
-    auto mb = new QMessageBox(icon, title, text, buttons, ICore::mainWindow());
+    auto mb = new QMessageBox(icon, title, text, buttons, ICore::dialogParent());
     mb->setAttribute(Qt::WA_DeleteOnClose);
     mb->setTextInteractionFlags(Qt::TextSelectableByMouse);
     mb->show();

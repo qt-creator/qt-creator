@@ -518,11 +518,10 @@ void ItemLibraryWidget::addResources()
     static QString lastDir;
     const QString currentDir = lastDir.isEmpty() ? document->fileName().parentDir().toString() : lastDir;
 
-    const auto fileNames = QFileDialog::getOpenFileNames(Core::ICore::mainWindow(),
-                                                   tr("Add Assets"),
-                                                   currentDir,
-                                                   filters.join(";;"));
-
+    const auto fileNames = QFileDialog::getOpenFileNames(Core::ICore::dialogParent(),
+                                                         tr("Add Assets"),
+                                                         currentDir,
+                                                         filters.join(";;"));
 
     if (!fileNames.isEmpty())
         lastDir = QFileInfo(fileNames.first()).absolutePath();

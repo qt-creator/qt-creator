@@ -141,7 +141,7 @@ static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
             bool stopThem = true;
             if (settings.prompToStopRunControl) {
                 QStringList names = Utils::transform(toStop, &RunControl::displayName);
-                if (QMessageBox::question(ICore::mainWindow(),
+                if (QMessageBox::question(ICore::dialogParent(),
                         BuildManager::tr("Stop Applications"),
                         BuildManager::tr("Stop these applications before building?")
                         + "\n\n" + names.join('\n'))
@@ -477,7 +477,7 @@ void BuildManager::finish()
     const QString elapsedTime = Utils::formatElapsedTime(d->m_elapsed.elapsed());
     m_instance->addToOutputWindow(elapsedTime, BuildStep::OutputFormat::NormalMessage);
 
-    QApplication::alert(ICore::mainWindow(), 3000);
+    QApplication::alert(ICore::dialogParent(), 3000);
 }
 
 void BuildManager::emitCancelMessage()

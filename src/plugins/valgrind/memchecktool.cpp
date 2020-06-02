@@ -776,7 +776,7 @@ void MemcheckToolPrivate::heobAction()
         executable.remove(0, wdSlashed.size());
 
     // heob arguments
-    HeobDialog dialog(Core::ICore::mainWindow());
+    HeobDialog dialog(Core::ICore::dialogParent());
     if (!dialog.exec())
         return;
     const QString heobArguments = dialog.arguments();
@@ -786,7 +786,7 @@ void MemcheckToolPrivate::heobAction()
     const QString heobPath = dialog.path() + '/' + heob;
     if (!QFile::exists(heobPath)) {
         QMessageBox::critical(
-            Core::ICore::mainWindow(),
+            Core::ICore::dialogParent(),
             MemcheckTool::tr("Heob"),
             MemcheckTool::tr("The %1 executables must be in the appropriate location.")
                 .arg("<a href=\"https://github.com/ssbssa/heob/releases\">Heob</a>"));
@@ -799,7 +799,7 @@ void MemcheckToolPrivate::heobAction()
         const QString dwarfstackPath = dialog.path() + '/' + dwarfstack;
         if (!QFile::exists(dwarfstackPath)
             && CheckableMessageBox::doNotShowAgainInformation(
-                   Core::ICore::mainWindow(),
+                   Core::ICore::dialogParent(),
                    MemcheckTool::tr("Heob"),
                    MemcheckTool::tr("Heob used with MinGW projects needs the %1 DLLs for proper "
                                     "stacktrace resolution.")
@@ -1015,7 +1015,7 @@ void MemcheckToolPrivate::loadShowXmlLogFile(const QString &filePath, const QStr
 void MemcheckToolPrivate::loadExternalXmlLogFile()
 {
     const QString filePath = QFileDialog::getOpenFileName(
-                ICore::mainWindow(),
+                ICore::dialogParent(),
                 MemcheckTool::tr("Open Memcheck XML Log File"),
                 QString(),
                 MemcheckTool::tr("XML Files (*.xml);;All Files (*)"));

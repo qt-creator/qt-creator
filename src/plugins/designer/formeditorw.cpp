@@ -706,7 +706,7 @@ void FormEditorData::saveSettings(QSettings *s)
 
 void FormEditorData::critical(const QString &errorMessage)
 {
-    QMessageBox::critical(ICore::mainWindow(), tr("Designer"),  errorMessage);
+    QMessageBox::critical(ICore::dialogParent(), tr("Designer"), errorMessage);
 }
 
 // Apply the command shortcut to the action and connects to the command's keySequenceChanged signal

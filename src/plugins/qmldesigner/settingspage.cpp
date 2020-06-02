@@ -273,7 +273,7 @@ void SettingsPageWidget::apply()
 
     for (const QByteArray &key : restartNecessaryKeys) {
         if (currentSettings.value(key) != newSettings.value(key)) {
-            QMessageBox::information(Core::ICore::mainWindow(), tr("Restart Required"),
+            QMessageBox::information(Core::ICore::dialogParent(), tr("Restart Required"),
                 tr("The made changes will take effect after a "
                    "restart of the QML Emulation layer or %1.")
                 .arg(Core::Constants::IDE_DISPLAY_NAME));

@@ -270,7 +270,7 @@ static QString idealProcessCount()
 bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
 {
     PuppetBuildProgressDialog progressDialog;
-    progressDialog.setParent(Core::ICore::mainWindow());
+    progressDialog.setParent(Core::ICore::dialogParent());
 
     m_compileLog.clear();
 

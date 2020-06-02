@@ -79,7 +79,7 @@ PerfDataReader::PerfDataReader(QObject *parent) :
             emit finished();
         }
         if (exitCode != 0) {
-            QMessageBox::warning(Core::ICore::mainWindow(),
+            QMessageBox::warning(Core::ICore::dialogParent(),
                                  tr("Perf Data Parser Failed"),
                                  tr("The Perf data parser failed to process all the samples. "
                                     "Your trace is incomplete. The exit code was %1.")
@@ -107,7 +107,7 @@ PerfDataReader::PerfDataReader(QObject *parent) :
         switch (e) {
         case QProcess::FailedToStart:
             emit processFailed(tr("perfparser failed to start."));
-            QMessageBox::warning(Core::ICore::mainWindow(),
+            QMessageBox::warning(Core::ICore::dialogParent(),
                                  tr("Perf Data Parser Failed"),
                                  tr("Could not start the perfparser utility program. "
                                     "Make sure a working Perf parser is available at the location "
@@ -115,7 +115,7 @@ PerfDataReader::PerfDataReader(QObject *parent) :
                                     "variable."));
             break;
         case QProcess::Crashed:
-            QMessageBox::warning(Core::ICore::mainWindow(),
+            QMessageBox::warning(Core::ICore::dialogParent(),
                                  tr("Perf Data Parser Crashed"),
                                  tr("This is a bug. Please report it."));
             break;
@@ -347,7 +347,7 @@ void PerfDataReader::writeChunk()
                 m_input.disconnect();
                 m_input.kill();
                 emit finished();
-                QMessageBox::warning(Core::ICore::mainWindow(),
+                QMessageBox::warning(Core::ICore::dialogParent(),
                                      tr("Cannot Send Data to Perf Data Parser"),
                                      tr("The Perf data parser does not accept further input. "
                                         "Your trace is incomplete."));

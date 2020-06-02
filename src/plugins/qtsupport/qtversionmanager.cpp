@@ -386,7 +386,7 @@ static void saveQtVersions()
         data.insert(QString::fromLatin1(QTVERSION_DATA_KEY) + QString::number(count), tmp);
         ++count;
     }
-    m_writer->save(data, Core::ICore::mainWindow());
+    m_writer->save(data, Core::ICore::dialogParent());
 }
 
 // Executes qtchooser with arguments in a process and returns its output

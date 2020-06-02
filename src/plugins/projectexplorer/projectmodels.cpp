@@ -217,7 +217,7 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
         const QList<Node *> candidateNodes = ProjectTree::siblingsWithSameBaseName(node);
         if (!candidateNodes.isEmpty()) {
             const QMessageBox::StandardButton reply = QMessageBox::question(
-                        Core::ICore::mainWindow(), tr("Rename More Files?"),
+                        Core::ICore::dialogParent(), tr("Rename More Files?"),
                         tr("Would you like to rename these files as well?\n    %1")
                         .arg(transform<QStringList>(candidateNodes, [](const Node *n) {
                 return n->filePath().toFileInfo().fileName();
@@ -748,8 +748,7 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
                                            "files. Please check your repository."))
                     .append("\n  ").append(makeUserFileList(failedVcsOp));
         }
-        QMessageBox::warning(Core::ICore::mainWindow(), tr("Failure Updating Project"),
-                             message);
+        QMessageBox::warning(Core::ICore::dialogParent(), tr("Failure Updating Project"), message);
     }
 
     return true;

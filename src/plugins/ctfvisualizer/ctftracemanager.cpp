@@ -159,7 +159,7 @@ void CtfTraceManager::load(const QString &filename)
 
     std::ifstream file(filename.toStdString());
     if (!file.is_open()) {
-        QMessageBox::warning(Core::ICore::mainWindow(),
+        QMessageBox::warning(Core::ICore::dialogParent(),
                              tr("CTF Visualizer"),
                              tr("Cannot read the CTF file."));
         return;
@@ -179,10 +179,13 @@ void CtfTraceManager::finalize()
     for (qint64 tid: m_threadModels.keys()) {
         if (m_threadModels[tid]->m_maxStackSize > 512) {
             if (!userConsentToIgnoreDeepTraces) {
-                QMessageBox::StandardButton answer = QMessageBox::question(Core::ICore::mainWindow(),
-                                     tr("CTF Visualizer"),
-                                     tr("The trace contains threads with stack depth > 512.\nDo you want to display them anyway?"),
-                                      QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+                QMessageBox::StandardButton answer
+                    = QMessageBox::question(Core::ICore::dialogParent(),
+                                            tr("CTF Visualizer"),
+                                            tr("The trace contains threads with stack depth > "
+                                               "512.\nDo you want to display them anyway?"),
+                                            QMessageBox::Yes | QMessageBox::No,
+                                            QMessageBox::No);
                 if (answer == QMessageBox::No) {
                     userConsentToIgnoreDeepTraces = true;
                 } else {

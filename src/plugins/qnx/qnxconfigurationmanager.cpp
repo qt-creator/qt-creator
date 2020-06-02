@@ -121,7 +121,7 @@ void QnxConfigurationManager::saveConfigs()
 
 
     data.insert(QLatin1String(QNXConfigCountKey), count);
-    m_writer->save(data, Core::ICore::mainWindow());
+    m_writer->save(data, Core::ICore::dialogParent());
 }
 
 void QnxConfigurationManager::restoreConfigurations()

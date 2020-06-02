@@ -72,7 +72,8 @@ RemoteLinuxEnvironmentAspectWidget::RemoteLinuxEnvironmentAspectWidget
             = [target](const Utils::Environment &env) {
         IDevice::ConstPtr device = DeviceKitAspect::device(target->kit());
         if (!device) {
-            QMessageBox::critical(Core::ICore::mainWindow(), tr("Cannot Open Terminal"),
+            QMessageBox::critical(Core::ICore::dialogParent(),
+                                  tr("Cannot Open Terminal"),
                                   tr("Cannot open remote terminal: Current kit has no device."));
             return;
         }

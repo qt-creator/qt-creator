@@ -149,7 +149,7 @@ void ValgrindToolRunner::handleProgressCanceled()
 
 void ValgrindToolRunner::handleProgressFinished()
 {
-    QApplication::alert(ICore::mainWindow(), 3000);
+    QApplication::alert(ICore::dialogParent(), 3000);
 }
 
 void ValgrindToolRunner::runnerFinished()

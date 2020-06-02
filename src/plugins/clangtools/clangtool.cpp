@@ -639,7 +639,7 @@ static bool continueDespiteReleaseBuild(const QString &toolName)
                                     "<p>%2</p>"
                                     "</body></html>")
                                 .arg(problem, question);
-    return CheckableMessageBox::doNotAskAgainQuestion(ICore::mainWindow(),
+    return CheckableMessageBox::doNotAskAgainQuestion(ICore::dialogParent(),
                                                       title,
                                                       message,
                                                       ICore::settings(),
@@ -791,7 +791,7 @@ void ClangTool::loadDiagnosticsFromFiles()
 {
     // Ask user for files
     const QStringList filePaths
-        = QFileDialog::getOpenFileNames(Core::ICore::mainWindow(),
+        = QFileDialog::getOpenFileNames(Core::ICore::dialogParent(),
                                         tr("Select YAML Files with Diagnostics"),
                                         QDir::homePath(),
                                         tr("YAML Files (*.yml *.yaml);;All Files (*)"));

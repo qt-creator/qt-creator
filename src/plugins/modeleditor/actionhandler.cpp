@@ -189,13 +189,14 @@ void ActionHandler::createActions()
                 Utils::Icons::LINK_TOOLBAR.icon())->action();
     d->synchronizeBrowserAction->setCheckable(true);
 
-    auto editPropertiesAction = new QAction(tr("Edit Element Properties"), Core::ICore::mainWindow());
+    auto editPropertiesAction = new QAction(tr("Edit Element Properties"),
+                                            Core::ICore::dialogParent());
     Core::Command *editPropertiesCommand = Core::ActionManager::registerAction(
                 editPropertiesAction, Constants::SHORTCUT_MODEL_EDITOR_EDIT_PROPERTIES, d->context);
     editPropertiesCommand->setDefaultKeySequence(QKeySequence(tr("Shift+Return")));
     connect(editPropertiesAction, &QAction::triggered, this, &ActionHandler::onEditProperties);
 
-    auto editItemAction = new QAction(tr("Edit Item on Diagram"), Core::ICore::mainWindow());
+    auto editItemAction = new QAction(tr("Edit Item on Diagram"), Core::ICore::dialogParent());
     Core::Command *editItemCommand = Core::ActionManager::registerAction(
                 editItemAction, Constants::SHORTCUT_MODEL_EDITOR_EDIT_ITEM, d->context);
     editItemCommand->setDefaultKeySequence(QKeySequence(tr("Return")));

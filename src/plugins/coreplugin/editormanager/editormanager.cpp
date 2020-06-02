@@ -609,7 +609,7 @@ bool EditorManagerPrivate::skipOpeningBigTextFile(const QString &filePath)
                 .arg(fileInfo.fileName())
                 .arg(fileSizeInMB, 0, 'f', 2);
 
-        CheckableMessageBox messageBox(ICore::mainWindow());
+        CheckableMessageBox messageBox(ICore::dialogParent());
         messageBox.setWindowTitle(title);
         messageBox.setText(text);
         messageBox.setStandardButtons(QDialogButtonBox::Yes|QDialogButtonBox::No);
@@ -738,7 +738,11 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
                     .arg(FilePath::fromString(realFn).toUserOutput());
         }
 
-        QMessageBox msgbox(QMessageBox::Critical, EditorManager::tr("File Error"), errorString, QMessageBox::Open | QMessageBox::Cancel, ICore::mainWindow());
+        QMessageBox msgbox(QMessageBox::Critical,
+                           EditorManager::tr("File Error"),
+                           errorString,
+                           QMessageBox::Open | QMessageBox::Cancel,
+                           ICore::dialogParent());
 
         IEditorFactory *selectedFactory = nullptr;
         if (!factories.isEmpty()) {
@@ -872,8 +876,7 @@ MakeWritableResult EditorManagerPrivate::makeFileWritable(IDocument *document)
 {
     if (!document)
         return Failed;
-    // TODO: dialog parent is wrong
-    ReadOnlyFilesDialog roDialog(document, ICore::mainWindow(), document->isSaveAsAllowed());
+    ReadOnlyFilesDialog roDialog(document, ICore::dialogParent(), document->isSaveAsAllowed());
     switch (roDialog.exec()) {
     case ReadOnlyFilesDialog::RO_MakeWritable:
     case ReadOnlyFilesDialog::RO_OpenVCS:
@@ -1039,7 +1042,7 @@ Id EditorManagerPrivate::getOpenWithEditorId(const QString &fileName, bool *isEx
         return Id();
     QTC_ASSERT(allEditorIds.size() == allEditorDisplayNames.size(), return Id());
     // Run dialog.
-    OpenWithDialog dialog(fileName, ICore::mainWindow());
+    OpenWithDialog dialog(fileName, ICore::dialogParent());
     dialog.setEditors(allEditorDisplayNames);
     dialog.setCurrentEditor(0);
     if (dialog.exec() != QDialog::Accepted)
@@ -2082,7 +2085,7 @@ void EditorManagerPrivate::vcsOpenCurrentEditor()
 
     if (!versionControl->vcsOpen(document->filePath().toString())) {
         // TODO: wrong dialog parent
-        QMessageBox::warning(ICore::mainWindow(), tr("Cannot Open File"),
+        QMessageBox::warning(ICore::dialogParent(), tr("Cannot Open File"),
                              tr("Cannot open the file for editing with VCS."));
     }
 }
@@ -2156,7 +2159,8 @@ void EditorManagerPrivate::autoSave()
             errors << errorString;
     }
     if (!errors.isEmpty())
-        QMessageBox::critical(ICore::mainWindow(), tr("File Error"),
+        QMessageBox::critical(ICore::dialogParent(),
+                              tr("File Error"),
                               errors.join(QLatin1Char('\n')));
     emit m_instance->autoSaved();
 }
@@ -2343,10 +2347,12 @@ void EditorManagerPrivate::revertToSaved(IDocument *document)
     if (fileName.isEmpty())
         return;
     if (document->isModified()) {
-        // TODO: wrong dialog parent
-        QMessageBox msgBox(QMessageBox::Question, tr("Revert to Saved"),
-                           tr("You will lose your current changes if you proceed reverting %1.").arg(QDir::toNativeSeparators(fileName)),
-                           QMessageBox::Yes|QMessageBox::No, ICore::mainWindow());
+        QMessageBox msgBox(QMessageBox::Question,
+                           tr("Revert to Saved"),
+                           tr("You will lose your current changes if you proceed reverting %1.")
+                               .arg(QDir::toNativeSeparators(fileName)),
+                           QMessageBox::Yes | QMessageBox::No,
+                           ICore::dialogParent());
         msgBox.button(QMessageBox::Yes)->setText(tr("Proceed"));
         msgBox.button(QMessageBox::No)->setText(tr("Cancel"));
 
@@ -2367,7 +2373,7 @@ void EditorManagerPrivate::revertToSaved(IDocument *document)
     }
     QString errorString;
     if (!document->reload(&errorString, IDocument::FlagReload, IDocument::TypeContents))
-        QMessageBox::critical(ICore::mainWindow(), tr("File Error"), errorString);
+        QMessageBox::critical(ICore::dialogParent(), tr("File Error"), errorString);
 }
 
 void EditorManagerPrivate::autoSuspendDocuments()
@@ -2397,7 +2403,8 @@ void EditorManagerPrivate::showInGraphicalShell()
 {
     if (!d->m_contextMenuEntry || d->m_contextMenuEntry->fileName().isEmpty())
         return;
-    FileUtils::showInGraphicalShell(ICore::mainWindow(), d->m_contextMenuEntry->fileName().toString());
+    FileUtils::showInGraphicalShell(ICore::dialogParent(),
+                                    d->m_contextMenuEntry->fileName().toString());
 }
 
 void EditorManagerPrivate::openTerminal()
@@ -2983,7 +2990,7 @@ bool EditorManager::openExternalEditor(const QString &fileName, Id editorId)
     const bool ok = ee->startEditor(fileName, &errorMessage);
     QApplication::restoreOverrideCursor();
     if (!ok)
-        QMessageBox::critical(ICore::mainWindow(), tr("Opening File"), errorMessage);
+        QMessageBox::critical(ICore::dialogParent(), tr("Opening File"), errorMessage);
     return ok;
 }
 

@@ -102,9 +102,10 @@ const QList<BuildInfo> ProjectImporter::import(const Utils::FilePath &importPath
     const auto handleFailure = [this, importPath, silent] {
         if (silent)
             return;
-        QMessageBox::critical(Core::ICore::mainWindow(), tr("No Build Found"),
+        QMessageBox::critical(Core::ICore::dialogParent(),
+                              tr("No Build Found"),
                               tr("No build found in %1 matching project %2.")
-                              .arg(importPath.toUserOutput(), projectFilePath().toUserOutput()));
+                                  .arg(importPath.toUserOutput(), projectFilePath().toUserOutput()));
     };
     qCDebug(log) << "Examining directory" << absoluteImportPath.toString();
     QList<void *> dataList = examineDirectory(absoluteImportPath);

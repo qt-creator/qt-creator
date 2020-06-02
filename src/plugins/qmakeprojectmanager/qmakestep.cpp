@@ -703,7 +703,7 @@ void QMakeStepConfigWidget::buildConfigurationSelected()
 
 void QMakeStepConfigWidget::askForRebuild(const QString &title)
 {
-    auto *question = new QMessageBox(Core::ICore::mainWindow());
+    auto *question = new QMessageBox(Core::ICore::dialogParent());
     question->setWindowTitle(title);
     question->setText(tr("The option will only take effect if the project is recompiled. Do you want to recompile now?"));
     question->setStandardButtons(QMessageBox::Yes | QMessageBox::No);

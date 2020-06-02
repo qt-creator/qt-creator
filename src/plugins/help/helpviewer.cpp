@@ -157,7 +157,7 @@ bool HelpViewer::launchWithExternalApp(const QUrl &url)
             saver.setAutoRemove(false);
             if (!saver.hasError())
                 saver.write(helpEngine.fileData(resolvedUrl));
-            if (saver.finalize(Core::ICore::mainWindow()))
+            if (saver.finalize(Core::ICore::dialogParent()))
                 QDesktopServices::openUrl(QUrl(saver.fileName()));
             return true;
         }

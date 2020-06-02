@@ -709,7 +709,7 @@ void DebuggerRunTool::start()
 
             static bool checked = true;
             if (checked)
-                CheckableMessageBox::information(Core::ICore::mainWindow(),
+                CheckableMessageBox::information(Core::ICore::dialogParent(),
                                                  tr("Debugger"),
                                                  warningMessage,
                                                  tr("&Show this message again."),

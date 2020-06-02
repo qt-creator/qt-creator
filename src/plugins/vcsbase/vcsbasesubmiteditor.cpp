@@ -272,7 +272,7 @@ static inline QStringList fieldTexts(const QString &fileContents)
 void VcsBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
 {
     FileReader reader;
-    if (!reader.fetch(fieldConfigFile, QIODevice::Text, Core::ICore::mainWindow()))
+    if (!reader.fetch(fieldConfigFile, QIODevice::Text, Core::ICore::dialogParent()))
         return;
     // Parse into fields
     const QStringList fields = fieldTexts(QString::fromUtf8(reader.data()));

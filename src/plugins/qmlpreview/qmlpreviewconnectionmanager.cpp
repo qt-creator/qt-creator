@@ -181,9 +181,8 @@ void QmlPreviewConnectionManager::createClients()
         }
     });
 
-    QObject::connect(m_clientPlugin.data(), &QmlPreviewClient::debugServiceUnavailable,
-                     this, []() {
-        QMessageBox::warning(Core::ICore::mainWindow(), "Error loading QML Live Preview",
+    QObject::connect(m_clientPlugin.data(), &QmlPreviewClient::debugServiceUnavailable, this, []() {
+        QMessageBox::warning(Core::ICore::dialogParent(), "Error loading QML Live Preview",
                              "QML Live Preview is not available for this version of Qt.");
     }, Qt::QueuedConnection); // Queue it, so that it interfere with the connection timer
 

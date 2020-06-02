@@ -52,7 +52,7 @@ PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(
 {
     const QString &dir = QFileInfo(deviceConfig->sshParameters().privateKeyFile).path();
     const QString publicKeyFileName = QFileDialog::getOpenFileName(parent
-            ? parent : Core::ICore::mainWindow(),
+            ? parent : Core::ICore::dialogParent(),
         tr("Choose Public Key File"), dir,
         tr("Public Key Files (*.pub);;All Files (*)"));
     if (publicKeyFileName.isEmpty())

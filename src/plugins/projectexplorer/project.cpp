@@ -471,11 +471,11 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
 
     if (fatalError) {
         // That could be a more granular error message
-        QMessageBox::critical(Core::ICore::mainWindow(),
+        QMessageBox::critical(Core::ICore::dialogParent(),
                               tr("Incompatible Kit"),
                               tr("Kit %1 is incompatible with kit %2.")
-                              .arg(sourceTarget->kit()->displayName())
-                              .arg(newTarget->kit()->displayName()));
+                                  .arg(sourceTarget->kit()->displayName())
+                                  .arg(newTarget->kit()->displayName()));
     } else if (!buildconfigurationError.isEmpty()
                || !deployconfigurationError.isEmpty()
                || ! runconfigurationError.isEmpty()) {
@@ -499,7 +499,7 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
                     + runconfigurationError.join(QLatin1Char('\n'));
         }
 
-        QMessageBox msgBox(Core::ICore::mainWindow());
+        QMessageBox msgBox(Core::ICore::dialogParent());
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.setWindowTitle(tr("Partially Incompatible Kit"));
         msgBox.setText(tr("Some configurations could not be copied."));
@@ -579,14 +579,14 @@ void Project::saveSettings()
     if (!d->m_accessor)
         d->m_accessor = std::make_unique<Internal::UserFileAccessor>(this);
     if (!targets().isEmpty())
-        d->m_accessor->saveSettings(toMap(), Core::ICore::mainWindow());
+        d->m_accessor->saveSettings(toMap(), Core::ICore::dialogParent());
 }
 
 Project::RestoreResult Project::restoreSettings(QString *errorMessage)
 {
     if (!d->m_accessor)
         d->m_accessor = std::make_unique<Internal::UserFileAccessor>(this);
-    QVariantMap map(d->m_accessor->restoreSettings(Core::ICore::mainWindow()));
+    QVariantMap map(d->m_accessor->restoreSettings(Core::ICore::dialogParent()));
     RestoreResult result = fromMap(map, errorMessage);
     if (result == RestoreResult::Ok)
         emit settingsLoaded();

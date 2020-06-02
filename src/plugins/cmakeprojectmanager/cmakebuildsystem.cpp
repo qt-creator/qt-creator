@@ -949,7 +949,7 @@ bool CMakeBuildSystem::checkConfiguration()
         }
         table += QLatin1String("\n</table>");
 
-        QPointer<QMessageBox> box = new QMessageBox(Core::ICore::mainWindow());
+        QPointer<QMessageBox> box = new QMessageBox(Core::ICore::dialogParent());
         box->setText(tr("The project has been changed outside of %1.")
                          .arg(Core::Constants::IDE_DISPLAY_NAME));
         box->setInformativeText(table);

@@ -1513,7 +1513,7 @@ void DebuggerEnginePrivate::updateState()
     m_detachAction.setEnabled(detachable);
 
     if (stopped)
-        QApplication::alert(ICore::mainWindow(), 3000);
+        QApplication::alert(ICore::dialogParent(), 3000);
 
     updateReverseActions();
 

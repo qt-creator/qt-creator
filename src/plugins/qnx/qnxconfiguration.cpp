@@ -147,10 +147,11 @@ bool QnxConfiguration::activate()
         foreach (const QString &error, validationErrors())
             errorMessage += QLatin1String("\n") + error;
 
-        QMessageBox::warning(Core::ICore::mainWindow(),
+        QMessageBox::warning(Core::ICore::dialogParent(),
                              QCoreApplication::translate("Qnx::Internal::QnxConfiguration",
                                                          "Cannot Set Up QNX Configuration"),
-                             errorMessage, QMessageBox::Ok);
+                             errorMessage,
+                             QMessageBox::Ok);
         return false;
     }
 

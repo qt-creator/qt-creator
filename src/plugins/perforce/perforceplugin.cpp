@@ -812,7 +812,7 @@ IEditor *PerforcePluginPrivate::openPerforceSubmitEditor(const QString &fileName
 void PerforcePluginPrivate::printPendingChanges()
 {
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-    PendingChangesDialog dia(pendingChangesData(), ICore::mainWindow());
+    PendingChangesDialog dia(pendingChangesData(), ICore::dialogParent());
     QGuiApplication::restoreOverrideCursor();
     if (dia.exec() == QDialog::Accepted) {
         const int i = dia.changeNumber();

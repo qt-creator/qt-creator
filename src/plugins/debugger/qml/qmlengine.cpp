@@ -404,7 +404,7 @@ void QmlEngine::connectionStartupFailed()
         return;
     }
 
-    auto infoBox = new QMessageBox(ICore::mainWindow());
+    auto infoBox = new QMessageBox(ICore::dialogParent());
     infoBox->setIcon(QMessageBox::Critical);
     infoBox->setWindowTitle(Core::Constants::IDE_DISPLAY_NAME);
     infoBox->setText(tr("Could not connect to the in-process QML debugger."
@@ -425,7 +425,7 @@ void QmlEngine::appStartupFailed(const QString &errorMessage)
     QString error = tr("Could not connect to the in-process QML debugger. %1").arg(errorMessage);
 
     if (companionEngine()) {
-        auto infoBox = new QMessageBox(ICore::mainWindow());
+        auto infoBox = new QMessageBox(ICore::dialogParent());
         infoBox->setIcon(QMessageBox::Critical);
         infoBox->setWindowTitle(Core::Constants::IDE_DISPLAY_NAME);
         infoBox->setText(error);

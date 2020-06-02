@@ -351,7 +351,7 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
 
     connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionFailed,
             runWorker, [this, runWorker]() {
-        auto infoBox = new QMessageBox(ICore::mainWindow());
+        auto infoBox = new QMessageBox(ICore::dialogParent());
         infoBox->setIcon(QMessageBox::Critical);
         infoBox->setWindowTitle(Core::Constants::IDE_DISPLAY_NAME);
 
@@ -580,7 +580,7 @@ void QmlProfilerTool::logError(const QString &msg)
 
 void QmlProfilerTool::showErrorDialog(const QString &error)
 {
-    auto errorDialog = new QMessageBox(ICore::mainWindow());
+    auto errorDialog = new QMessageBox(ICore::dialogParent());
     errorDialog->setIcon(QMessageBox::Warning);
     errorDialog->setWindowTitle(tr("QML Profiler"));
     errorDialog->setText(error);
@@ -604,7 +604,7 @@ void QmlProfilerTool::showSaveDialog()
     QLatin1String tFile(QtdFileExtension);
     QLatin1String zFile(QztFileExtension);
     QString filename = QFileDialog::getSaveFileName(
-                ICore::mainWindow(), tr("Save QML Trace"),
+                ICore::dialogParent(), tr("Save QML Trace"),
                 QmlProfilerPlugin::globalSettings()->lastTraceFile(),
                 tr("QML traces (*%1 *%2)").arg(zFile).arg(tFile));
     if (!filename.isEmpty()) {
@@ -628,7 +628,7 @@ void QmlProfilerTool::showLoadDialog()
     QLatin1String tFile(QtdFileExtension);
     QLatin1String zFile(QztFileExtension);
     QString filename = QFileDialog::getOpenFileName(
-                ICore::mainWindow(), tr("Load QML Trace"),
+                ICore::dialogParent(), tr("Load QML Trace"),
                 QmlProfilerPlugin::globalSettings()->lastTraceFile(),
                 tr("QML traces (*%1 *%2)").arg(zFile).arg(tFile));
 
@@ -773,7 +773,7 @@ QList <QAction *> QmlProfilerTool::profilerContextMenuActions()
 
 void QmlProfilerTool::showNonmodalWarning(const QString &warningMsg)
 {
-    auto noExecWarning = new QMessageBox(ICore::mainWindow());
+    auto noExecWarning = new QMessageBox(ICore::dialogParent());
     noExecWarning->setIcon(QMessageBox::Warning);
     noExecWarning->setWindowTitle(tr("QML Profiler"));
     noExecWarning->setText(warningMsg);

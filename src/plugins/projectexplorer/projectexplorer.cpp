@@ -1452,8 +1452,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_projectSelectorAction->setObjectName("KitSelector"); // used for UI introduction
     dd->m_projectSelectorAction->setCheckable(true);
     dd->m_projectSelectorAction->setEnabled(false);
-    QWidget *mainWindow = ICore::mainWindow();
-    dd->m_targetSelector = new MiniProjectTargetSelector(dd->m_projectSelectorAction, mainWindow);
+    dd->m_targetSelector = new MiniProjectTargetSelector(dd->m_projectSelectorAction, ICore::dialogParent());
     connect(dd->m_projectSelectorAction, &QAction::triggered,
             dd->m_targetSelector, &QWidget::show);
     ModeManager::addProjectSelector(dd->m_projectSelectorAction);
@@ -2032,7 +2031,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
     Command * const cmd = ActionManager::registerAction(parseIssuesAction,
                                                         "ProjectExplorer.ParseIssuesAction");
     connect(parseIssuesAction, &QAction::triggered, this, [] {
-        ParseIssuesDialog dlg(ICore::mainWindow());
+        ParseIssuesDialog dlg(ICore::dialogParent());
         dlg.exec();
     });
     mtools->addAction(cmd);
@@ -2096,7 +2095,7 @@ void ProjectExplorerPlugin::openNewProjectDialog()
 void ProjectExplorerPluginPrivate::showSessionManager()
 {
     SessionManager::save();
-    SessionDialog sessionDialog(ICore::mainWindow());
+    SessionDialog sessionDialog(ICore::dialogParent());
     sessionDialog.setAutoLoadSession(dd->m_projectExplorerSettings.autorestoreLastSession);
     sessionDialog.exec();
     dd->m_projectExplorerSettings.autorestoreLastSession = sessionDialog.autoLoadSession();
@@ -2243,7 +2242,7 @@ void ProjectExplorerPlugin::showOpenProjectError(const OpenProjectResult &result
     QString errorMessage = result.errorMessage();
     if (!errorMessage.isEmpty()) {
         // ignore alreadyOpen
-        QMessageBox::critical(ICore::mainWindow(), tr("Failed to Open Project"), errorMessage);
+        QMessageBox::critical(ICore::dialogParent(), tr("Failed to Open Project"), errorMessage);
     } else {
         // ignore multiple alreadyOpen
         Project *alreadyOpen = result.alreadyOpen().constFirst();
@@ -3456,7 +3455,7 @@ void ProjectExplorerPluginPrivate::addExistingProjects()
     QTC_ASSERT(projectNode, return);
     const QString dir = currentNode->directory();
     QStringList subProjectFilePaths = QFileDialog::getOpenFileNames(
-                ICore::mainWindow(), tr("Choose Project File"), dir,
+                ICore::dialogParent(), tr("Choose Project File"), dir,
                 projectNode->subProjectFileNamePatterns().join(";;"));
     if (!ProjectTree::hasNode(projectNode))
         return;
@@ -3479,7 +3478,7 @@ void ProjectExplorerPluginPrivate::addExistingProjects()
     if (!failedProjects.empty()) {
         const QString message = tr("The following subprojects could not be added to project "
                                    "\"%1\":").arg(projectNode->managingProject()->displayName());
-        QMessageBox::warning(ICore::mainWindow(), tr("Adding Subproject Failed"),
+        QMessageBox::warning(ICore::dialogParent(), tr("Adding Subproject Failed"),
                              message + "\n  " + failedProjects.join("\n  "));
         return;
     }
@@ -3493,7 +3492,7 @@ void ProjectExplorerPluginPrivate::handleAddExistingFiles()
 
     QTC_ASSERT(folderNode, return);
 
-    QStringList fileNames = QFileDialog::getOpenFileNames(ICore::mainWindow(),
+    QStringList fileNames = QFileDialog::getOpenFileNames(ICore::dialogParent(),
         tr("Add Existing Files"), node->directory());
     if (fileNames.isEmpty())
         return;
@@ -3509,7 +3508,7 @@ void ProjectExplorerPluginPrivate::addExistingDirectory()
     QTC_ASSERT(folderNode, return);
 
     SelectableFilesDialogAddDirectory dialog(Utils::FilePath::fromString(node->directory()),
-                                             Utils::FilePaths(), ICore::mainWindow());
+                                             Utils::FilePaths(), ICore::dialogParent());
     dialog.setAddFileFilter({});
 
     if (dialog.exec() == QDialog::Accepted)
@@ -3532,7 +3531,7 @@ void ProjectExplorerPlugin::addExistingFiles(FolderNode *folderNode, const QStri
                 .arg(folderNode->managingProject()->displayName()) + QLatin1Char('\n');
         const QStringList nativeFiles
                 = Utils::transform(notAdded, &QDir::toNativeSeparators);
-        QMessageBox::warning(ICore::mainWindow(), tr("Adding Files to Project Failed"),
+        QMessageBox::warning(ICore::dialogParent(), tr("Adding Files to Project Failed"),
                              message + nativeFiles.join(QLatin1Char('\n')));
         fileNames = Utils::filtered(fileNames,
                                     [&notAdded](const QString &f) { return !notAdded.contains(f); });
@@ -3548,7 +3547,7 @@ void ProjectExplorerPluginPrivate::removeProject()
         return;
     ProjectNode *projectNode = node->managingProject();
     if (projectNode) {
-        Utils::RemoveFileDialog removeFileDialog(node->filePath().toString(), ICore::mainWindow());
+        Utils::RemoveFileDialog removeFileDialog(node->filePath().toString(), ICore::dialogParent());
         removeFileDialog.setDeleteFileVisible(false);
         if (removeFileDialog.exec() == QDialog::Accepted)
             projectNode->removeSubProject(node->filePath().toString());
@@ -3573,7 +3572,7 @@ void ProjectExplorerPluginPrivate::showInGraphicalShell()
 {
     Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return);
-    FileUtils::showInGraphicalShell(ICore::mainWindow(), currentNode->path());
+    FileUtils::showInGraphicalShell(ICore::dialogParent(), currentNode->path());
 }
 
 void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env)
@@ -3622,14 +3621,14 @@ void ProjectExplorerPluginPrivate::removeFile()
     for (const Node * const n : ProjectTree::siblingsWithSameBaseName(currentNode))
         siblings << qMakePair(n, n->filePath());
 
-    Utils::RemoveFileDialog removeFileDialog(filePath.toString(), ICore::mainWindow());
+    Utils::RemoveFileDialog removeFileDialog(filePath.toString(), ICore::dialogParent());
     if (removeFileDialog.exec() != QDialog::Accepted)
         return;
 
     const bool deleteFile = removeFileDialog.isDeleteFileChecked();
 
     const QMessageBox::StandardButton reply = QMessageBox::question(
-                Core::ICore::mainWindow(), tr("Remove More Files?"),
+                Core::ICore::dialogParent(), tr("Remove More Files?"),
                 tr("Would you like to remove these files as well?\n    %1")
                 .arg(Utils::transform<QStringList>(siblings, [](const NodeAndPath &np) {
         return np.second.toFileInfo().fileName();
@@ -3640,7 +3639,7 @@ void ProjectExplorerPluginPrivate::removeFile()
     for (const NodeAndPath &file : filesToRemove) {
         // Nodes can become invalid if the project was re-parsed while the dialog was open
         if (!ProjectTree::hasNode(file.first)) {
-            QMessageBox::warning(ICore::mainWindow(), tr("Removing File Failed"),
+            QMessageBox::warning(ICore::dialogParent(), tr("Removing File Failed"),
                                  tr("File \"%1\" was not removed, because the project has changed "
                                     "in the meantime.\nPlease try again.")
                                  .arg(file.second.toUserOutput()));
@@ -3684,7 +3683,7 @@ void ProjectExplorerPluginPrivate::duplicateFile()
     newFileName.insert(copyTokenIndex, tr("_copy"));
 
     bool okPressed;
-    newFileName = QInputDialog::getText(ICore::mainWindow(), tr("Choose File Name"),
+    newFileName = QInputDialog::getText(ICore::dialogParent(), tr("Choose File Name"),
             tr("New file name:"), QLineEdit::Normal, newFileName, &okPressed);
     if (!okPressed)
         return;
@@ -3696,14 +3695,14 @@ void ProjectExplorerPluginPrivate::duplicateFile()
     QTC_ASSERT(folderNode, return);
     QFile sourceFile(filePath);
     if (!sourceFile.copy(newFilePath)) {
-        QMessageBox::critical(ICore::mainWindow(), tr("Duplicating File Failed"),
+        QMessageBox::critical(ICore::dialogParent(), tr("Duplicating File Failed"),
                              tr("Failed to copy file \"%1\" to \"%2\": %3.")
                              .arg(QDir::toNativeSeparators(filePath),
                                   QDir::toNativeSeparators(newFilePath), sourceFile.errorString()));
         return;
     }
     if (!folderNode->addFiles(QStringList(newFilePath))) {
-        QMessageBox::critical(ICore::mainWindow(), tr("Duplicating File Failed"),
+        QMessageBox::critical(ICore::dialogParent(), tr("Duplicating File Failed"),
                               tr("Failed to add new file \"%1\" to the project.")
                               .arg(QDir::toNativeSeparators(newFilePath)));
     }
@@ -3718,7 +3717,7 @@ void ProjectExplorerPluginPrivate::deleteFile()
 
     QString filePath = currentNode->filePath().toString();
     QMessageBox::StandardButton button =
-            QMessageBox::question(ICore::mainWindow(),
+            QMessageBox::question(ICore::dialogParent(),
                                   tr("Delete File"),
                                   tr("Delete %1 from file system?")
                                   .arg(QDir::toNativeSeparators(filePath)),
@@ -3739,7 +3738,7 @@ void ProjectExplorerPluginPrivate::deleteFile()
     QFile file(filePath);
     if (file.exists()) {
         if (!file.remove())
-            QMessageBox::warning(ICore::mainWindow(), tr("Deleting File Failed"),
+            QMessageBox::warning(ICore::dialogParent(), tr("Deleting File Failed"),
                                  tr("Could not delete file %1.")
                                  .arg(QDir::toNativeSeparators(filePath)));
     }
@@ -3770,7 +3769,7 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
 
     if (!folderNode->canRenameFile(oldFilePath, newFilePath)) {
         QTimer::singleShot(0, [oldFilePath, newFilePath, projectFileName] {
-            int res = QMessageBox::question(ICore::mainWindow(),
+            int res = QMessageBox::question(ICore::dialogParent(),
                                             tr("Project Editing Failed"),
                                             tr("The project file %1 cannot be automatically changed.\n\n"
                                                "Rename %2 to %3 anyway?")
@@ -3780,7 +3779,6 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
             if (res == QMessageBox::Yes) {
                 QTC_CHECK(FileUtils::renameFile(oldFilePath, newFilePath));
             }
-
         });
         return;
     }
@@ -3795,7 +3793,7 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
                     .arg(projectFileName);
 
             QTimer::singleShot(0, [renameFileError]() {
-                QMessageBox::warning(ICore::mainWindow(),
+                QMessageBox::warning(ICore::dialogParent(),
                                      tr("Project Editing Failed"),
                                      renameFileError);
             });
@@ -3806,9 +3804,7 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
                 .arg(QDir::toNativeSeparators(newFilePath));
 
         QTimer::singleShot(0, [renameFileError]() {
-            QMessageBox::warning(ICore::mainWindow(),
-                                 tr("Cannot Rename File"),
-                                 renameFileError);
+            QMessageBox::warning(ICore::dialogParent(), tr("Cannot Rename File"), renameFileError);
         });
     }
 }
