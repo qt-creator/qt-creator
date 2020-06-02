@@ -51,6 +51,7 @@ AndroidManifestEditorIconContainerWidget::AndroidManifestEditorIconContainerWidg
     auto iconLayout = new QHBoxLayout(this);
     auto masterIconButton = new AndroidManifestEditorIconWidget(this,
                                                                 lowDpiIconSize,
+                                                                lowDpiIconSize,
                                                                 tr("Master icon"), tr("Select master icon"));
     masterIconButton->setIcon(QIcon::fromTheme(QLatin1String("document-open"), Utils::Icons::OPENFILE.icon()));
     iconLayout->addWidget(masterIconButton);
@@ -64,6 +65,7 @@ AndroidManifestEditorIconContainerWidget::AndroidManifestEditorIconContainerWidg
 
     auto lIconButton = new AndroidManifestEditorIconWidget(this,
                                                         lowDpiIconSize,
+                                                        lowDpiIconSize,
                                                         tr("Low DPI icon"), tr("Select low DPI icon"),
                                                         textEditorWidget, lowDpiIconPath);
     iconLayout->addWidget(lIconButton);
@@ -72,6 +74,7 @@ AndroidManifestEditorIconContainerWidget::AndroidManifestEditorIconContainerWidg
 
     auto mIconButton = new AndroidManifestEditorIconWidget(this,
                                                         mediumDpiIconSize,
+                                                        mediumDpiIconSize,
                                                         tr("Medium DPI icon"), tr("Select medium DPI icon"),
                                                         textEditorWidget, mediumDpiIconPath);
     iconLayout->addWidget(mIconButton);
@@ -79,6 +82,7 @@ AndroidManifestEditorIconContainerWidget::AndroidManifestEditorIconContainerWidg
     iconLayout->addStretch(1);
 
     auto hIconButton =  new AndroidManifestEditorIconWidget(this,
+                                                         highDpiIconSize,
                                                          highDpiIconSize,
                                                          tr("High DPI icon"), tr("Select high DPI icon"),
                                                          textEditorWidget, highDpiIconPath);

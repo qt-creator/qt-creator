@@ -25,56 +25,42 @@
 
 #pragma once
 
+#include <QVector>
 #include <QWidget>
+
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+QT_END_NAMESPACE
 
 namespace TextEditor {
     class TextEditorWidget;
 }
 
-QT_BEGIN_NAMESPACE
-class QLabel;
-class QToolButton;
-QT_END_NAMESPACE
-
 namespace Android {
 namespace Internal {
 
-class AndroidManifestEditorIconWidget : public QWidget
+class AndroidManifestEditorIconWidget;
+
+class SplashIconContainerWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit AndroidManifestEditorIconWidget(QWidget *parent);
-    AndroidManifestEditorIconWidget(QWidget *parent,
-                                    const QSize &iconSize,
-                                    const QSize &buttonSize,
-                                    const QString &title,
-                                    const QString &tooltip,
-                                    TextEditor::TextEditorWidget *textEditorWidget = nullptr,
-                                    const QString &targetIconPath = {});
-    void setIcon(const QIcon &icon);
-    void loadIcon();
-    void setIconFromPath(const QString &iconPath);
-    bool hasIcon();
-    void setScaled(bool scaled);
+    explicit SplashIconContainerWidget(QWidget *parent,
+                                                      TextEditor::TextEditorWidget *textEditorWidget);
+    void loadImages();
+    bool hasImages();
+    bool hasPortraitImages();
+    bool hasLandscapeImages();
+    bool isSticky();
+    void setSticky(bool sticky);
 signals:
-    void iconSelected(const QString &path);
-    void iconRemoved();
-
+    void splashScreensModified();
 private:
-    void selectIcon();
-    void removeIcon();
-    void copyIcon();
-    void setScaleWarningLabelVisible(bool visible);
-private:
-    QToolButton *m_button = nullptr;
-    QSize m_iconSize;
-    QSize m_buttonSize;
-    QLabel *m_scaleWarningLabel = nullptr;
-    TextEditor::TextEditorWidget *m_textEditorWidget = nullptr;
-    QString m_iconPath;
-    QString m_targetIconPath;
-    QString m_iconSelectionText;
-    bool m_scaled = true;
+    QVector<AndroidManifestEditorIconWidget *> m_imageButtons;
+    QVector<AndroidManifestEditorIconWidget *> m_portraitImageButtons;
+    QVector<AndroidManifestEditorIconWidget *> m_landscapeImageButtons;
+    bool m_splashScreenSticky = false;
+    QCheckBox *m_stickyCheck = nullptr;
 };
 
 } // namespace Internal

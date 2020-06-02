@@ -31,6 +31,7 @@
 #include "androidmanifestdocument.h"
 #include "androidmanager.h"
 #include "androidservicewidget.h"
+#include "splashiconcontainerwidget.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
@@ -250,10 +251,12 @@ void AndroidManifestEditorWidget::initializePage()
         }
 
         m_iconButtons = new AndroidManifestEditorIconContainerWidget(applicationGroupBox, m_textEditorWidget);
-
         formLayout->addRow(tr("Application icon:"), new QLabel());
-
         formLayout->addRow(QString(), m_iconButtons);
+
+        m_splashButtons = new SplashIconContainerWidget(applicationGroupBox, m_textEditorWidget);
+        formLayout->addRow(tr("Splash screen:"), new QLabel());
+        formLayout->addRow(QString(), m_splashButtons);
 
         m_services = new AndroidServiceWidget(this);
         formLayout->addRow(tr("Android services:"), m_services);
@@ -270,6 +273,8 @@ void AndroidManifestEditorWidget::initializePage()
                 QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, setDirtyFunc);
         connect(m_services, &AndroidServiceWidget::servicesModified,
+                this, setDirtyFunc);
+        connect(m_splashButtons, &SplashIconContainerWidget::splashScreensModified,
                 this, setDirtyFunc);
         connect(m_services, &AndroidServiceWidget::servicesModified,
                 this, &AndroidManifestEditorWidget::clearInvalidServiceInfo);
@@ -801,21 +806,27 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
     m_activityNameLineEdit->setText(activityElem.attribute(QLatin1String("android:label")));
 
     QDomElement metadataElem = activityElem.firstChildElement(QLatin1String("meta-data"));
-
-    const int parseItemsCount = 2;
-    int counter = 0;
+    enum ActivityParseGuard {none = 0, libName = 1, styleExtract = 2, stickySplash = 4, done = 8};
+    int activityParseGuard = ActivityParseGuard::none;
     while (!metadataElem.isNull()) {
-        if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.lib_name")) {
+        if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.lib_name")
+                && !(activityParseGuard & ActivityParseGuard::libName)) {
             m_targetLineEdit->setEditText(metadataElem.attribute(QLatin1String("android:value")));
-            ++counter;
+            activityParseGuard |= ActivityParseGuard::libName;
         } else if (metadataElem.attribute(QLatin1String("android:name"))
-                   == QLatin1String("android.app.extract_android_style")) {
+                   == QLatin1String("android.app.extract_android_style")
+                   && !(activityParseGuard & ActivityParseGuard::styleExtract)) {
             m_styleExtractMethod->setCurrentText(
                 metadataElem.attribute(QLatin1String("android:value")));
-            ++counter;
+            activityParseGuard |= ActivityParseGuard::styleExtract;
+        } else if (metadataElem.attribute(QLatin1String("android:name"))
+                   == QLatin1String("android.app.splash_screen_sticky")
+                   && !(activityParseGuard & ActivityParseGuard::stickySplash)) {
+            QString sticky = metadataElem.attribute(QLatin1String("android:value"));
+            m_splashButtons->setSticky(sticky == QLatin1String("true"));
+            activityParseGuard |= ActivityParseGuard::stickySplash;
         }
-
-        if (counter == parseItemsCount)
+        if (activityParseGuard == ActivityParseGuard::done)
             break;
         metadataElem = metadataElem.nextSiblingElement(QLatin1String("meta-data"));
     }
@@ -887,6 +898,7 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
     m_services->setServices(services);
 
     m_iconButtons->loadIcons();
+    m_splashButtons->loadImages();
 
     m_stayClean = false;
     m_dirty = false;
@@ -1085,28 +1097,7 @@ void AndroidManifestEditorWidget::parseApplication(QXmlStreamReader &reader, QXm
     }
 }
 
-static int findService(const QString &name, const QList<AndroidServiceData> &data)
-{
-    for (int i  = 0; i < data.size(); ++i) {
-        if (data[i].className() == name)
-            return i;
-    }
-    return -1;
-}
-
-static void writeServiceMetadataElement(const char *name,
-                                        const char *attributeName,
-                                        const char *value,
-                                        QXmlStreamWriter &writer)
-{
-    writer.writeStartElement(QLatin1String("meta-data"));
-    writer.writeAttribute(QLatin1String("android:name"), QLatin1String(name));
-    writer.writeAttribute(QLatin1String(attributeName), QLatin1String(value));
-    writer.writeEndElement();
-
-}
-
-static void writeServiceMetadataElement(const char *name,
+static void writeMetadataElement(const char *name,
                                         const char *attributeName,
                                         const QString &value,
                                         QXmlStreamWriter &writer)
@@ -1118,28 +1109,69 @@ static void writeServiceMetadataElement(const char *name,
 
 }
 
+void AndroidManifestEditorWidget::parseSplashScreen(QXmlStreamWriter &writer)
+{
+    if (m_splashButtons->hasImages())
+        writeMetadataElement("android.app.splash_screen_drawable",
+                             "android:resource", "@drawable/logo",
+                             writer);
+    if (m_splashButtons->hasPortraitImages())
+        writeMetadataElement("android.app.splash_screen_drawable_portrait",
+                             "android:resource", "@drawable/logo_portrait",
+                             writer);
+    if (m_splashButtons->hasLandscapeImages())
+        writeMetadataElement("android.app.splash_screen_drawable_landscape",
+                             "android:resource", "@drawable/logo_landscape",
+                             writer);
+    if (m_splashButtons->isSticky())
+        writeMetadataElement("android.app.splash_screen_sticky",
+                             "android:value", "true",
+                             writer);
+}
+
+static int findService(const QString &name, const QList<AndroidServiceData> &data)
+{
+    for (int i  = 0; i < data.size(); ++i) {
+        if (data[i].className() == name)
+            return i;
+    }
+    return -1;
+}
+
+static void writeMetadataElement(const char *name,
+                                        const char *attributeName,
+                                        const char *value,
+                                        QXmlStreamWriter &writer)
+{
+    writer.writeStartElement(QLatin1String("meta-data"));
+    writer.writeAttribute(QLatin1String("android:name"), QLatin1String(name));
+    writer.writeAttribute(QLatin1String(attributeName), QLatin1String(value));
+    writer.writeEndElement();
+
+}
+
 static void addServiceArgumentsAndLibName(const AndroidServiceData &service, QXmlStreamWriter &writer)
 {
     if (!service.isRunInExternalLibrary() && !service.serviceArguments().isEmpty())
-        writeServiceMetadataElement("android.app.arguments", "android:value", service.serviceArguments(), writer);
+        writeMetadataElement("android.app.arguments", "android:value", service.serviceArguments(), writer);
     if (service.isRunInExternalLibrary() && !service.externalLibraryName().isEmpty())
-        writeServiceMetadataElement("android.app.lib_name", "android:value", service.externalLibraryName(), writer);
+        writeMetadataElement("android.app.lib_name", "android:value", service.externalLibraryName(), writer);
     else
-        writeServiceMetadataElement("android.app.lib_name", "android:value", "-- %%INSERT_APP_LIB_NAME%% --", writer);
+        writeMetadataElement("android.app.lib_name", "android:value", "-- %%INSERT_APP_LIB_NAME%% --", writer);
 }
 
 static void addServiceMetadata(QXmlStreamWriter &writer)
 {
-    writeServiceMetadataElement("android.app.qt_sources_resource_id", "android:resource", "@array/qt_sources", writer);
-    writeServiceMetadataElement("android.app.repository", "android:value", "default", writer);
-    writeServiceMetadataElement("android.app.qt_libs_resource_id", "android:resource", "@array/qt_libs", writer);
-    writeServiceMetadataElement("android.app.bundled_libs_resource_id", "android:resource", "@array/bundled_libs", writer);
-    writeServiceMetadataElement("android.app.bundle_local_qt_libs", "android:value", "-- %%BUNDLE_LOCAL_QT_LIBS%% --", writer);
-    writeServiceMetadataElement("android.app.use_local_qt_libs", "android:value", "-- %%USE_LOCAL_QT_LIBS%% --", writer);
-    writeServiceMetadataElement("android.app.libs_prefix", "android:value", "/data/local/tmp/qt/", writer);
-    writeServiceMetadataElement("android.app.load_local_libs_resource_id", "android:resource", "@array/load_local_libs", writer);
-    writeServiceMetadataElement("android.app.load_local_jars", "android:value", "-- %%INSERT_LOCAL_JARS%% --", writer);
-    writeServiceMetadataElement("android.app.static_init_classes", "android:value", "-- %%INSERT_INIT_CLASSES%% --", writer);
+    writeMetadataElement("android.app.qt_sources_resource_id", "android:resource", "@array/qt_sources", writer);
+    writeMetadataElement("android.app.repository", "android:value", "default", writer);
+    writeMetadataElement("android.app.qt_libs_resource_id", "android:resource", "@array/qt_libs", writer);
+    writeMetadataElement("android.app.bundled_libs_resource_id", "android:resource", "@array/bundled_libs", writer);
+    writeMetadataElement("android.app.bundle_local_qt_libs", "android:value", "-- %%BUNDLE_LOCAL_QT_LIBS%% --", writer);
+    writeMetadataElement("android.app.use_local_qt_libs", "android:value", "-- %%USE_LOCAL_QT_LIBS%% --", writer);
+    writeMetadataElement("android.app.libs_prefix", "android:value", "/data/local/tmp/qt/", writer);
+    writeMetadataElement("android.app.load_local_libs_resource_id", "android:resource", "@array/load_local_libs", writer);
+    writeMetadataElement("android.app.load_local_jars", "android:value", "-- %%INSERT_LOCAL_JARS%% --", writer);
+    writeMetadataElement("android.app.static_init_classes", "android:value", "-- %%INSERT_INIT_CLASSES%% --", writer);
 }
 
 void AndroidManifestEditorWidget::parseService(QXmlStreamReader &reader, QXmlStreamWriter &writer)
@@ -1240,6 +1272,7 @@ void AndroidManifestEditorWidget::parseActivity(QXmlStreamReader &reader, QXmlSt
 
     while (!reader.atEnd()) {
         if (reader.isEndElement()) {
+            parseSplashScreen(writer);
             if (!found) {
                 writer.writeEmptyElement(QLatin1String("meta-data"));
                 writer.writeAttribute(QLatin1String("android:name"),
@@ -1250,10 +1283,16 @@ void AndroidManifestEditorWidget::parseActivity(QXmlStreamReader &reader, QXmlSt
             writer.writeCurrentToken(reader);
             return;
         } else if (reader.isStartElement()) {
-            if (reader.name() == QLatin1String("meta-data"))
-                found = parseMetaData(reader, writer) || found; // ORDER MATTERS
-            else
+            if (reader.name() == QLatin1String("meta-data")) {
+                QString metaTagName = reader.attributes().value(QLatin1String("android:name")).toString();
+                if (metaTagName.startsWith(QLatin1String("android.app.splash_screen")))
+                    parseUnknownElement(reader, writer, true);
+                else
+                    found = parseMetaData(reader, writer) || found; // ORDER MATTERS
+            } else
                 parseUnknownElement(reader, writer);
+        } else if (reader.isWhitespace()) {
+            /* no copying of whitespace */
         } else {
             writer.writeCurrentToken(reader);
         }

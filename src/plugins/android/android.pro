@@ -53,7 +53,8 @@ HEADERS += \
     androidpackageinstallationstep.h \
     androidextralibrarylistmodel.h \
     createandroidmanifestwizard.h \
-    androidsdkdownloader.h
+    androidsdkdownloader.h \
+    splashiconcontainerwidget.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -99,7 +100,8 @@ SOURCES += \
     androidpackageinstallationstep.cpp \
     androidextralibrarylistmodel.cpp \
     createandroidmanifestwizard.cpp \
-    androidsdkdownloader.cpp
+    androidsdkdownloader.cpp \
+    splashiconcontainerwidget.cpp
 
 FORMS += \
     androidsettingswidget.ui \

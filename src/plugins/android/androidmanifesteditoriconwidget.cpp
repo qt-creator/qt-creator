@@ -56,11 +56,11 @@ AndroidManifestEditorIconWidget::AndroidManifestEditorIconWidget(QWidget *parent
 }
 
 AndroidManifestEditorIconWidget::AndroidManifestEditorIconWidget(
-        QWidget *parent, const QSize &buttonSize, const QString &title,
+        QWidget *parent, const QSize &iconSize, const QSize &buttonSize, const QString &title,
         const QString &tooltip,
         TextEditor::TextEditorWidget *textEditorWidget,
         const QString &targetIconPath)
-    : QWidget(parent), m_buttonSize(buttonSize),
+    : QWidget(parent), m_iconSize(iconSize), m_buttonSize(buttonSize),
       m_textEditorWidget(textEditorWidget), m_targetIconPath(targetIconPath)
 {
     auto iconLayout = new QVBoxLayout(this);
@@ -108,9 +108,12 @@ AndroidManifestEditorIconWidget::AndroidManifestEditorIconWidget(
     this->setLayout(iconLayout);
     connect(m_button, &QAbstractButton::clicked,
             this, &AndroidManifestEditorIconWidget::selectIcon);
-    if (clearButton)
+    if (clearButton) {
         connect(clearButton, &QAbstractButton::clicked,
                 this, &AndroidManifestEditorIconWidget::removeIcon);
+        connect(clearButton, &QAbstractButton::clicked,
+                this, &AndroidManifestEditorIconWidget::iconRemoved);
+    }
     m_iconSelectionText = tooltip;
 }
 
@@ -128,14 +131,26 @@ void AndroidManifestEditorIconWidget::loadIcon()
 
 void AndroidManifestEditorIconWidget::setIconFromPath(const QString &iconPath)
 {
-    if (!m_textEditorWidget) {
-        iconSelected(iconPath);
+    iconSelected(iconPath);
+    if (!m_textEditorWidget)
         return;
-    }
     m_iconPath = iconPath;
     QString baseDir = manifestDir(m_textEditorWidget);
     copyIcon();
     QString iconFile = baseDir + m_targetIconPath;
+    if (!m_scaled) {
+        QImage original(iconFile);
+        if ((original.width() > original.height() && m_buttonSize.height() > m_buttonSize.width())
+                || (original.height() > original.width() && m_buttonSize.width() > m_buttonSize.height())) {
+            auto width = m_buttonSize.height();
+            auto height = m_buttonSize.width();
+            m_buttonSize = QSize(width, height);
+            m_button->setMinimumSize(m_buttonSize);
+            m_button->setMaximumSize(m_buttonSize);
+            m_button->setIconSize(m_buttonSize);
+        }
+
+    }
     m_button->setIcon(QIcon(iconFile));
 }
 
@@ -156,11 +171,9 @@ void AndroidManifestEditorIconWidget::removeIcon()
         qCDebug(androidManifestEditorLog) << "Icon target path empty, cannot remove icon.";
         return;
     }
-    QFileInfo targetFile(targetPath);
-    if (targetFile.exists()) {
-        QDir rmRf(targetFile.absoluteDir());
-        rmRf.removeRecursively();
-    }
+    QFile targetFile(targetPath);
+    targetFile.remove();
+    m_iconPath.clear();
     setScaleWarningLabelVisible(false);
     m_button->setIcon(QIcon());
 }
@@ -168,6 +181,11 @@ void AndroidManifestEditorIconWidget::removeIcon()
 bool AndroidManifestEditorIconWidget::hasIcon()
 {
     return !m_iconPath.isEmpty();
+}
+
+void AndroidManifestEditorIconWidget::setScaled(bool scaled)
+{
+    m_scaled = scaled;
 }
 
 void AndroidManifestEditorIconWidget::setScaleWarningLabelVisible(bool visible)
@@ -187,10 +205,15 @@ void AndroidManifestEditorIconWidget::copyIcon()
         return;
     }
     QFileInfo targetFile(targetPath);
+    QImage original(m_iconPath);
+    if (m_iconPath != targetPath)
+        removeIcon();
+    if (original.isNull()) {
+        m_iconPath.clear();
+        return;
+    }
     if (m_iconPath == targetPath)
         return;
-    removeIcon();
-    QImage original(m_iconPath);
     if (!targetPath.isEmpty() && !original.isNull()) {
         QDir dir;
         if (!dir.mkpath(QFileInfo(targetPath).absolutePath())) {
@@ -198,11 +221,14 @@ void AndroidManifestEditorIconWidget::copyIcon()
             m_iconPath.clear();
             return;
         }
-        QSize targetSize = m_buttonSize;
-        QImage scaled = original.scaled(targetSize.width(), targetSize.height(),
-                                        Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        setScaleWarningLabelVisible(scaled.width() > original.width() || scaled.height() > original.height());
-        scaled.save(targetPath);
+        QSize targetSize = m_iconSize;
+        if (m_scaled) {
+            QImage scaled = original.scaled(targetSize.width(), targetSize.height(),
+                                            Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            setScaleWarningLabelVisible(scaled.width() > original.width() || scaled.height() > original.height());
+            scaled.save(targetPath);
+        } else
+            original.save(targetPath);
         m_iconPath = m_targetIconPath;
     } else {
         m_iconPath.clear();

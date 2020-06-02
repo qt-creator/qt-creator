@@ -55,6 +55,7 @@ class AndroidManifestEditor;
 class AndroidManifestEditorIconContainerWidget;
 class AndroidManifestEditorWidget;
 class AndroidServiceWidget;
+class SplashIconContainerWidget;
 
 class PermissionsModel: public QAbstractListModel
 {
@@ -143,6 +144,7 @@ private:
 
     void parseManifest(QXmlStreamReader &reader, QXmlStreamWriter &writer);
     void parseApplication(QXmlStreamReader &reader, QXmlStreamWriter &writer);
+    void parseSplashScreen(QXmlStreamWriter &writer);
     void parseService(QXmlStreamReader &reader, QXmlStreamWriter &writer);
     void parseNewServices(QXmlStreamWriter &writer);
     void parseActivity(QXmlStreamReader &reader, QXmlStreamWriter &writer);
@@ -173,6 +175,7 @@ private:
     QComboBox *m_targetLineEdit;
     QComboBox *m_styleExtractMethod;
     AndroidManifestEditorIconContainerWidget *m_iconButtons;
+    SplashIconContainerWidget *m_splashButtons;
 
     // Permissions
     QCheckBox *m_defaultPermissonsCheckBox;
