@@ -45,20 +45,20 @@ struct Tool
 };
 
 const QVector<Tool> sTools = {
-    {"unzip", {"-o", "%{src}", "-d", "%{dest}"}, {"application/zip"}},
-    {"7z", {"x", "-o%{dest}", "-y", "%{src}"}, {"application/zip", "application/x-7z-compressed"}},
-    {"tar",
+    {{"unzip"}, {"-o", "%{src}", "-d", "%{dest}"}, {"application/zip"}},
+    {{"7z"}, {"x", "-o%{dest}", "-y", "%{src}"}, {"application/zip", "application/x-7z-compressed"}},
+    {{"tar"},
      {"xvf", "%{src}"},
      {"application/zip", "application/x-tar", "application/x-7z-compressed"}},
-    {"tar", {"xvzf", "%{src}"}, {"application/x-compressed-tar"}},
-    {"tar", {"xvJf", "%{src}"}, {"application/x-xz-compressed-tar"}},
-    {"tar", {"xvjf", "%{src}"}, {"application/x-bzip-compressed-tar"}},
-    {"cmake",
+    {{"tar"}, {"xvzf", "%{src}"}, {"application/x-compressed-tar"}},
+    {{"tar"}, {"xvJf", "%{src}"}, {"application/x-xz-compressed-tar"}},
+    {{"tar"}, {"xvjf", "%{src}"}, {"application/x-bzip-compressed-tar"}},
+    {{"cmake"},
      {"-E", "tar", "xvf", "%{src}"},
      {"application/zip", "application/x-tar", "application/x-7z-compressed"}},
-    {"cmake", {"-E", "tar", "xvzf", "%{src}"}, {"application/x-compressed-tar"}},
-    {"cmake", {"-E", "tar", "xvJf", "%{src}"}, {"application/x-xz-compressed-tar"}},
-    {"cmake", {"-E", "tar", "xvjf", "%{src}"}, {"application/x-bzip-compressed-tar"}},
+    {{"cmake"}, {"-E", "tar", "xvzf", "%{src}"}, {"application/x-compressed-tar"}},
+    {{"cmake"}, {"-E", "tar", "xvJf", "%{src}"}, {"application/x-xz-compressed-tar"}},
+    {{"cmake"}, {"-E", "tar", "xvjf", "%{src}"}, {"application/x-bzip-compressed-tar"}},
 };
 
 static QVector<Tool> toolsForMimeType(const Utils::MimeType &mimeType)
