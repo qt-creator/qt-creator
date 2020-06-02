@@ -43,7 +43,6 @@ def qdump__boost__optional(d, value):
         d.putBetterType(value.type)
     else:
         d.putSpecialValue("uninitialized")
-        d.putNumChild(0)
 
 
 def qdump__boost__shared_ptr(d, value):
@@ -54,12 +53,10 @@ def qdump__boost__shared_ptr(d, value):
     (px, pi) = value.split("pp")
     if pi == 0:
         d.putValue("(null)")
-        d.putNumChild(0)
         return
 
     if px == 0:
         d.putValue("(null)")
-        d.putNumChild(0)
         return
 
     (vptr, usecount, weakcount) = d.split('pii', pi)
@@ -90,18 +87,15 @@ def qdump__boost__container__list(d, value):
 
 def qdump__boost__gregorian__date(d, value):
     d.putValue(value.integer(), "juliandate")
-    d.putNumChild(0)
 
 
 def qdump__boost__posix_time__ptime(d, value):
     ms = int(value.integer() / 1000)
     d.putValue("%s/%s" % divmod(ms, 86400000), "juliandateandmillisecondssincemidnight")
-    d.putNumChild(0)
 
 
 def qdump__boost__posix_time__time_duration(d, value):
     d.putValue(int(value.integer() / 1000), "millisecondssincemidnight")
-    d.putNumChild(0)
 
 
 def qdump__boost__unordered__unordered_set(d, value):

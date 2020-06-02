@@ -1233,7 +1233,7 @@ class Dumper(DumperBase):
         with SubItem(self, '[statics]'):
             self.put('iname="%s",' % self.currentIName)
             self.putEmptyValue()
-            self.putNumChild(1)
+            self.putExpandable()
             if self.isExpanded():
                 with Children(self):
                     statics = frame.GetVariables(False, False, True, False)
@@ -1250,7 +1250,6 @@ class Dumper(DumperBase):
                     else:
                         with SubItem(self, "None"):
                             self.putEmptyValue()
-                            self.putNumChild(0)
 
         # FIXME: Implement shortcut for partial updates.
         #if isPartial:

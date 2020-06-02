@@ -738,7 +738,6 @@ class DumperBase():
         with SubItem(self, name):
             self.putValue('0x%x' % value)
             self.putType('void*')
-            self.putNumChild(0)
 
     def putIntItem(self, name, value):
         with SubItem(self, name):
@@ -747,7 +746,6 @@ class DumperBase():
             else:
                 self.putValue(value)
             self.putType('int')
-            self.putNumChild(0)
 
     def putEnumItem(self, name, ival, typish):
         buf = bytearray(struct.pack('i', ival))
@@ -761,7 +759,6 @@ class DumperBase():
         with SubItem(self, name):
             self.putValue(value)
             self.putType('bool')
-            self.putNumChild(0)
 
     def putPairItem(self, index, pair, keyName='first', valueName='second'):
         with SubItem(self, index):
@@ -786,7 +783,6 @@ class DumperBase():
         nice = vals.get(ival, None)
         display = ('%d' % ival) if nice is None else ('%s (%d)' % (nice, ival))
         self.putValue(display)
-        self.putNumChild(0)
 
     def putCallItem(self, name, rettype, value, func, *args):
         with SubItem(self, name):
@@ -816,7 +812,7 @@ class DumperBase():
 
     def putNamedChildren(self, values, names):
         self.putEmptyValue(-99)
-        self.putNumChild(1)
+        self.putExpandable()
         if self.isExpanded():
             with Children(self):
                 for n, v in zip(names, values):
@@ -872,9 +868,6 @@ class DumperBase():
 
             with SubItem(self, item.name):
                 self.putItem(item)
-
-    def putUnexpandable(self):
-        self.putNumChild(0)
 
     def putExpandable(self):
         self.putNumChild(1)
@@ -1056,7 +1049,7 @@ class DumperBase():
     def putSpecialValue(self, encoding, value='', children=None):
         self.putValue(value, encoding)
         if children is not None:
-            self.putNumChild(1)
+            self.putExpandable()
             if self.isExpanded():
                 with Children(self):
                     for name, value in children:
@@ -2029,7 +2022,7 @@ class DumperBase():
                     # before we know whether there are actual children. Counting
                     # them is too expensive.
                     self.putSpecialValue('minimumitemcount', propertyCount)
-                    self.putNumChild(1)
+                    self.putExpandable()
 
         superDataPtr = extractSuperDataPtr(metaObjectPtr)
 
@@ -2085,14 +2078,13 @@ class DumperBase():
                 if superDataPtr:
                     self.putType('@QMetaObject')
                     self.putAddress(superDataPtr)
-                    self.putNumChild(1)
+                    self.putExpandable()
                     if self.isExpanded():
                         with Children(self):
                             self.putQObjectGutsHelper(0, 0, -1, superDataPtr, 'QMetaObject')
                 else:
                     self.putType('@QMetaObject *')
                     self.putValue('0x0')
-                    self.putNumChild(0)
 
         if handle >= 0:
             localIndex = int((handle - methods) / 5)
@@ -2116,7 +2108,7 @@ class DumperBase():
                 connections = connections.dereference()
                 #connections = connections.cast(connections.type.firstBase())
                 self.putSpecialValue('minimumitemcount', 0)
-                self.putNumChild(1)
+                self.putExpandable()
             if self.isExpanded():
                 pp = 0
                 with Children(self):

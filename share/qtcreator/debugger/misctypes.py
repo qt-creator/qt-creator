@@ -122,7 +122,6 @@ def qdump__gsl__span(d, value):
 
 
 def qdump__gsl__byte(d, value):
-    d.putNumChild(0)
     d.putValue(value.integer())
 
 #######################################################################
@@ -245,7 +244,6 @@ def qdump_Array(d, value):
     d.putType('%s[%d]' % (t, n))
     if t == 'char':
         d.putValue(encodeCharArray(p, 100), 'local8bit')
-        d.putNumChild(0)
     else:
         d.putEmptyValue()
         d.putNumChild(n)
@@ -281,7 +279,6 @@ if False:
     def qdump__tree_entry(d, value):
         d.putValue('len: %s, offset: %s, type: %s' %
                    (value['blocklength'], value['offset'], value['type']))
-        d.putNumChild(0)
 
     def qdump__tree(d, value):
         count = value['count']
@@ -510,7 +507,7 @@ def get_py_object_repr(d, value):
             sub_value = functor(d, address)
             d.putValue(d.hexencode(sub_value), encoding='utf8')
 
-    d.putNumChild(1)
+    d.putExpandable()
     if d.isExpanded():
         with Children(d):
             if repr_available:
@@ -575,7 +572,7 @@ def qdump__QtcDumperTest_List__NodeX(d, value):
     pos1 = typename.find('>')
     tName = typename[pos0 + 1:pos1]
     d.putBetterType('QtcDumperTest_List<' + tName + '>::Node')
-    d.putNumChild(1)
+    d.putExpandable()
     if d.isExpanded():
         obj_type = d.lookupType(tName)
         with Children(d):
@@ -586,7 +583,7 @@ def qdump__QtcDumperTest_List__NodeX(d, value):
 
 def qdump__QtcDumperTest_List(d, value):
     innerType = value.type[0]
-    d.putNumChild(1)
+    d.putExpandable()
     p = value['root']
     if d.isExpanded():
         with Children(d):

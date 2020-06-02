@@ -43,7 +43,7 @@
 #
 # def qdump__MapNode(d, value):
 #    d.putValue("This is the value column contents")
-#    d.putNumChild(2)
+#    d.putExpandable()
 #    if d.isExpanded():
 #        with Children(d):
 #            # Compact simple case.

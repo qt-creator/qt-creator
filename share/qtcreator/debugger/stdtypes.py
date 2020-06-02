@@ -63,7 +63,7 @@ def qdump__std__complex(d, value):
     innerType = value.type[0]
     (real, imag) = value.split('{%s}{%s}' % (innerType.name, innerType.name))
     d.putValue("(%s, %s)" % (real.display(), imag.display()))
-    d.putNumChild(2)
+    d.putExpandable()
     if d.isExpanded():
         with Children(d, 2, childType=innerType):
             d.putSubItem("real", real)
@@ -375,7 +375,7 @@ def qdumpHelper__std__tree__iterator(d, value, isSet=False):
     keyType = treeType[0]
     valueType = treeType[1]
     node = value["_M_node"].dereference()   # std::_Rb_tree_node_base
-    d.putNumChild(1)
+    d.putExpandable()
     d.putEmptyValue()
     if d.isExpanded():
         with Children(d):
@@ -389,7 +389,7 @@ def qdumpHelper__std__tree__iterator(d, value, isSet=False):
                 d.putSubItem("first", key)
                 d.putSubItem("second", value)
             with SubItem(d, "[node]"):
-                d.putNumChild(1)
+                d.putExpandable()
                 d.putEmptyValue()
                 d.putType(" ")
                 if d.isExpanded():
@@ -434,7 +434,7 @@ def qdump__std____cxx1998__set(d, value):
 
 
 def qdumpHelper__std__tree__iterator_MSVC(d, value):
-    d.putNumChild(1)
+    d.putExpandable()
     d.putEmptyValue()
     if d.isExpanded():
         with Children(d):
@@ -643,7 +643,7 @@ def qdump__std____1__map__const_iterator(d, value):
 
 def qdump__std____1__set__iterator(d, value):
     d.putEmptyValue()
-    d.putNumChild(1)
+    d.putExpandable()
     if value.type.name.endswith("::iterator"):
         treeTypeName = value.type.name[:-len("::iterator")]
     elif value.type.name.endswith("::const_iterator"):
@@ -784,7 +784,6 @@ def qdump__std__shared_ptr(d, value):
 
     if i.pointer() == 0:
         d.putValue("(null)")
-        d.putNumChild(0)
     else:
         d.putItem(i.dereference())
         d.putBetterType(value.type)
@@ -794,7 +793,6 @@ def qdump__std____1__shared_ptr(d, value):
     i = value["__ptr_"]
     if i.pointer() == 0:
         d.putValue("(null)")
-        d.putNumChild(0)
     else:
         d.putItem(i.dereference())
         d.putBetterType(value.type)
@@ -807,7 +805,6 @@ def qdump__std__unique_ptr(d, value):
         _, p = value.split("pp"); # For custom deleters.
     if p == 0:
         d.putValue("(null)")
-        d.putNumChild(0)
     else:
         d.putItem(d.createValue(p, value.type[0]))
         d.putBetterType(value.type)
@@ -1087,7 +1084,6 @@ def qdumpHelper__std__vector(d, value, isLibCpp):
                     with SubItem(d, i):
                         d.putValue((int(d.extractPointer(q)) >> (i % 8)) & 1)
                         d.putType("bool")
-                        d.putNumChild(0)
     else:
         d.putPlotData(start, size, innerType)
 
@@ -1117,7 +1113,6 @@ def qdumpHelper__std__vector__QNX(d, value):
                     with SubItem(d, i):
                         d.putValue((d.extractPointer(q) >> (i % 8)) & 1)
                         d.putType("bool")
-                        d.putNumChild(0)
         else:
             d.putPlotData(start, size, innerType)
 
@@ -1280,17 +1275,14 @@ def qdump____gnu_cxx__hash_set(d, value):
 
 
 def qdump__uint8_t(d, value):
-    d.putNumChild(0)
     d.putValue(value.integer())
 
 
 def qdump__int8_t(d, value):
-    d.putNumChild(0)
     d.putValue(value.integer())
 
 
 def qdump__std__byte(d, value):
-    d.putNumChild(0)
     d.putValue(value.integer())
 
 
@@ -1302,7 +1294,6 @@ def qdump__std__optional(d, value):
         d.putBetterType(value.type)
     else:
         d.putSpecialValue("uninitialized")
-        d.putNumChild(0)
 
 
 def qdump__std__experimental__optional(d, value):

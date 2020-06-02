@@ -1096,7 +1096,6 @@
             with SubItem(self, name):
                 self.putValue(value)
                 self.putType("int")
-                self.putNumChild(0)
             \endcode
 
         \li \c{putBoolItem(self, name, value)} - Equivalent to:
@@ -1104,7 +1103,6 @@
             with SubItem(self, name):
                 self.putValue(value)
                 self.putType("bool")
-                self.putNumChild(0)
             \endcode
 
         \li \c{putCallItem(self, name, value, func, *args)} - Uses the native
@@ -1168,10 +1166,12 @@
 
         \li \c{putBetterType(self, type)} - Overrides the last recorded \c type.
 
+        \li \c{putExpandable(self)} - Announces the existence of child items
+            for the current value. The default are no children.
+
         \li \c{putNumChild(self, numchild)} - Announces the existence
             (\c numchild > 0) or non-existence of child items for the current
-            value. If \c putNumChild is not explicitly called, the
-            existence of child items is implied.
+            value.
 
         \li \c{putValue(self, value, encoding = None)} - Appends the file
             \c {value=''}, optionally followed by the field \c {valueencoding=''}.
