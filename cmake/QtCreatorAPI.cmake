@@ -234,7 +234,7 @@ endfunction(add_qtc_library)
 function(add_qtc_plugin target_name)
   cmake_parse_arguments(_arg
     "EXPERIMENTAL;SKIP_DEBUG_CMAKE_FILE_CHECK;SKIP_INSTALL;INTERNAL_ONLY;SKIP_TRANSLATION"
-    "VERSION;COMPAT_VERSION;PLUGIN_JSON_IN;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME"
+    "VERSION;COMPAT_VERSION;PLUGIN_JSON_IN;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME;BUILD_DEFAULT"
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS"
     ${ARGN}
   )
@@ -256,7 +256,11 @@ function(add_qtc_plugin target_name)
   endif()
 
   string(TOUPPER "BUILD_PLUGIN_${target_name}" _build_plugin_var)
-  set(_build_plugin_default "ON")
+  if (DEFINED _arg_BUILD_DEFAULT)
+    set(_build_plugin_default ${_arg_BUILD_DEFAULT})
+  else()
+    set(_build_plugin_default "ON")
+  endif()
   if (DEFINED ENV{QTC_${_build_plugin_var}})
     set(_build_plugin_default "$ENV{QTC_${_build_plugin_var}}")
   endif()
