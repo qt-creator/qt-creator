@@ -193,13 +193,23 @@ void GlslEditorWidget::updateDocumentNow()
 {
     m_updateDocumentTimer.stop();
 
+    static const QRegularExpression versionRegex("^#version\\s+(\\d{3})\\s+(.*)?$",
+                                                 QRegularExpression::MultilineOption);
     int variant = languageVariant(textDocument()->mimeType());
     const QString contents = toPlainText(); // get the code from the editor
     const QByteArray preprocessedCode = contents.toLatin1(); // ### use the QtCreator C++ preprocessor.
 
+    QRegularExpressionMatch match = versionRegex.match(contents);
+    if (match.hasMatch()) {
+        const int version = match.captured(1).toInt();
+        if (version >= 330)
+            variant |= GLSL::Lexer::Variant_GLSL_400;
+    }
+
     Document::Ptr doc(new Document());
     doc->_engine = new Engine();
     Parser parser(doc->_engine, preprocessedCode.constData(), preprocessedCode.size(), variant);
+
     TranslationUnitAST *ast = parser.parse();
     if (ast || extraSelections(CodeWarningsSelection).isEmpty()) {
         Semantic sem;
