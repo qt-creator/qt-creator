@@ -94,7 +94,7 @@ public:
 
     bool locked() const;
 
-    void nodeCreated(const ModelNode &createdNode) override;
+    void currentTimelineChanged(const ModelNode &node) override;
 
 protected:
     void timerEvent(QTimerEvent *event) override;

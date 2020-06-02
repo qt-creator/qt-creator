@@ -357,12 +357,9 @@ bool PropertyEditorView::locked() const
     return m_locked;
 }
 
-void PropertyEditorView::nodeCreated(const ModelNode &modelNode)
+void PropertyEditorView::currentTimelineChanged(const ModelNode &)
 {
-    if (!m_qmlBackEndForCurrentType->contextObject()->hasActiveTimeline()
-            && QmlTimeline::isValidQmlTimeline(modelNode)) {
-        m_qmlBackEndForCurrentType->contextObject()->setHasActiveTimeline(QmlTimeline::hasActiveTimeline(this));
-    }
+    m_qmlBackEndForCurrentType->contextObject()->setHasActiveTimeline(QmlTimeline::hasActiveTimeline(this));
 }
 
 void PropertyEditorView::updateSize()

@@ -563,11 +563,11 @@ void TimelineWidget::setTimelineId(const QString &id)
     if (m_timelineView->isAttached() && !empty) {
         m_toolbar->setCurrentTimeline(m_timelineView->modelNodeForId(id));
         m_toolbar->setCurrentState(m_timelineView->currentState().name());
-        m_timelineView->setTimelineRecording(false);
     } else {
         m_toolbar->setCurrentTimeline({});
         m_toolbar->setCurrentState({});
     }
+    m_timelineView->setTimelineRecording(false);
 }
 
 void TimelineWidget::setTimelineActive(bool b)

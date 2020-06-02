@@ -386,9 +386,7 @@ void TimelineView::setTimelineRecording(bool value)
 {
     ModelNode node = widget()->graphicsScene()->currentTimeline();
 
-    QTC_ASSERT(node.isValid(), return );
-
-    if (value) {
+    if (value && node.isValid()) {
         activateTimelineRecording(node);
     } else {
         deactivateTimelineRecording();
