@@ -48,7 +48,17 @@ void CreateTableSqlStatementBuilder::addColumn(Utils::SmallStringView columnName
     m_columns.emplace_back(Utils::SmallStringView{}, columnName, columnType, std::move(constraints));
 }
 
-void CreateTableSqlStatementBuilder::setColumns(const SqliteColumns &columns)
+void CreateTableSqlStatementBuilder::addConstraint(TableConstraint &&constraint)
+{
+    m_tableConstraints.push_back(std::move(constraint));
+}
+
+void CreateTableSqlStatementBuilder::setConstraints(TableConstraints constraints)
+{
+    m_tableConstraints = std::move(constraints);
+}
+
+void CreateTableSqlStatementBuilder::setColumns(SqliteColumns columns)
 {
     m_sqlStatementBuilder.clear();
 
@@ -212,8 +222,25 @@ public:
 
     Utils::SmallString &columnDefinitionString;
 };
+
+class TableContraintsVisiter
+{
+public:
+    TableContraintsVisiter(Utils::SmallString &columnDefinitionString)
+        : columnDefinitionString(columnDefinitionString)
+    {}
+
+    void operator()(const TablePrimaryKey &primaryKey)
+    {
+        columnDefinitionString.append("PRIMARY KEY(");
+        columnDefinitionString.append(primaryKey.columns.join(", "));
+        columnDefinitionString.append(")");
+    }
+
+    Utils::SmallString &columnDefinitionString;
+};
 } // namespace
-void CreateTableSqlStatementBuilder::bindColumnDefinitions() const
+void CreateTableSqlStatementBuilder::bindColumnDefinitionsAndTableConstraints() const
 {
     Utils::SmallStringVector columnDefinitionStrings;
     columnDefinitionStrings.reserve(m_columns.size());
@@ -226,7 +253,16 @@ void CreateTableSqlStatementBuilder::bindColumnDefinitions() const
         for (const Constraint &constraint : column.constraints)
             Utils::visit(visiter, constraint);
 
-        columnDefinitionStrings.push_back(columnDefinitionString);
+        columnDefinitionStrings.push_back(std::move(columnDefinitionString));
+    }
+
+    for (const TableConstraint &constraint : m_tableConstraints) {
+        Utils::SmallString columnDefinitionString;
+
+        TableContraintsVisiter visiter{columnDefinitionString};
+        Utils::visit(visiter, constraint);
+
+        columnDefinitionStrings.push_back(std::move(columnDefinitionString));
     }
 
     m_sqlStatementBuilder.bind("$columnDefinitions", columnDefinitionStrings);
@@ -238,7 +274,7 @@ void CreateTableSqlStatementBuilder::bindAll() const
 
     bindTemporary();
     bindIfNotExists();
-    bindColumnDefinitions();
+    bindColumnDefinitionsAndTableConstraints();
     bindWithoutRowId();
 }
 

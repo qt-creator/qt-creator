@@ -42,7 +42,10 @@ enum class AutoIncrement { No, Yes };
 
 class PrimaryKey
 {
-    friend bool operator==(PrimaryKey, PrimaryKey) { return true; }
+    friend bool operator==(PrimaryKey first, PrimaryKey second)
+    {
+        return first.autoincrement == second.autoincrement;
+    }
 
 public:
     AutoIncrement autoincrement = AutoIncrement::No;

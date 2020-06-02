@@ -27,6 +27,7 @@ SOURCES += \
     $$PWD/sqlitebasestatement.cpp
 HEADERS += \
     $$PWD/constraints.h \
+    $$PWD/tableconstraints.h \
     $$PWD/createtablesqlstatementbuilder.h \
     $$PWD/lastchangedrowid.h \
     $$PWD/sqlitedatabasebackend.h \

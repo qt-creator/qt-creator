@@ -27,6 +27,7 @@
 
 #include "sqlitecolumn.h"
 #include "sqlstatementbuilder.h"
+#include "tableconstraints.h"
 
 namespace Sqlite {
 
@@ -40,7 +41,9 @@ public:
     void addColumn(Utils::SmallStringView columnName,
                    ColumnType columnType,
                    Constraints &&constraints = {});
-    void setColumns(const SqliteColumns &columns);
+    void addConstraint(TableConstraint &&constraint);
+    void setConstraints(TableConstraints constraints);
+    void setColumns(SqliteColumns columns);
     void setUseWithoutRowId(bool useWithoutRowId);
     void setUseIfNotExists(bool useIfNotExists);
     void setUseTemporaryTable(bool useTemporaryTable);
@@ -53,7 +56,7 @@ public:
     bool isValid() const;
 
 protected:
-    void bindColumnDefinitions() const;
+    void bindColumnDefinitionsAndTableConstraints() const;
     void bindAll() const;
     void bindWithoutRowId() const;
     void bindIfNotExists() const;
@@ -63,6 +66,7 @@ private:
     mutable SqlStatementBuilder m_sqlStatementBuilder;
     Utils::SmallString m_tableName;
     SqliteColumns m_columns;
+    TableConstraints m_tableConstraints;
     bool m_useWithoutRowId = false;
     bool m_useIfNotExits = false;
     bool m_useTemporaryTable = false;

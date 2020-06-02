@@ -123,6 +123,17 @@ public:
         return m_sqliteColumns.back();
     }
 
+    void addPrimaryKeyContraint(const SqliteColumnConstReferences &columns)
+    {
+        Utils::SmallStringVector columnNames;
+        columnNames.reserve(columns.size());
+
+        for (const auto &column : columns)
+            columnNames.emplace_back(column.get().name);
+
+        m_tableConstraints.emplace_back(TablePrimaryKey{std::move(columnNames)});
+    }
+
     Index &addIndex(const SqliteColumnConstReferences &columns)
     {
         m_sqliteIndices.emplace_back(m_tableName.clone(), sqliteColumnNames(columns));
@@ -159,6 +170,7 @@ public:
         builder.setUseIfNotExists(m_useIfNotExists);
         builder.setUseTemporaryTable(m_useTemporaryTable);
         builder.setColumns(m_sqliteColumns);
+        builder.setConstraints(m_tableConstraints);
 
         database.execute(builder.sqlStatement());
 
@@ -207,6 +219,7 @@ private:
     Utils::SmallString m_tableName;
     SqliteColumns m_sqliteColumns;
     SqliteIndices m_sqliteIndices;
+    TableConstraints m_tableConstraints;
     bool m_withoutRowId = false;
     bool m_useIfNotExists = false;
     bool m_useTemporaryTable = false;

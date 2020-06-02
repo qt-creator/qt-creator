@@ -530,4 +530,17 @@ TEST_F(CreateTableSqlStatementBuilder, BlobType)
     ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(data BLOB)");
 }
 
+TEST_F(CreateTableSqlStatementBuilder, TablePrimaryKeyConstaint)
+{
+    builder.clear();
+    builder.setTableName("test");
+    builder.addColumn("id", ColumnType::Integer);
+    builder.addColumn("text", ColumnType::Text);
+
+    builder.addConstraint(Sqlite::TablePrimaryKey{{"id, text"}});
+    auto statement = builder.sqlStatement();
+
+    ASSERT_THAT(statement, "CREATE TABLE test(id INTEGER, text TEXT, PRIMARY KEY(id, text))");
+}
+
 } // namespace

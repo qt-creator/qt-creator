@@ -292,4 +292,17 @@ TEST_F(SqliteTable, AddForeignKeyColumnWithColumnAndNotNull)
                                 VariantWith<Sqlite::NotNull>(Eq(Sqlite::NotNull{}))))));
 }
 
+TEST_F(SqliteTable, AddPrimaryTableContraint)
+{
+    table.setName(tableName.clone());
+    const auto &idColumn = table.addColumn("id");
+    const auto &nameColumn = table.addColumn("name");
+    table.addPrimaryKeyContraint({idColumn, nameColumn});
+
+    EXPECT_CALL(mockDatabase,
+                execute(
+                    Eq("CREATE TABLE testTable(id NUMERIC, name NUMERIC, PRIMARY KEY(id, name))")));
+
+    table.initialize(mockDatabase);
+}
 } // namespace
