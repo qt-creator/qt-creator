@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -91,6 +91,12 @@
             RESOURCES += \
                 $$files(qml/*)
             \endcode
+        \li Also edit the value of the \c QML_IMPORT_PATH option to specify the
+            QML import path:
+            \badcode
+            QML_IMPORT_PATH = qml/imports
+            \endcode
+            Where \c {qml/imports} is the import path.
         \li Select \uicontrol Build > \uicontrol {Run qmake} to apply the
             \c RESOURCES option to the build configuration.
         \li Open the \e {main.cpp} file and replace the QQmlApplicationEngine
