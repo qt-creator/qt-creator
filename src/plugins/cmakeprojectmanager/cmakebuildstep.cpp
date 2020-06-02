@@ -53,6 +53,7 @@ namespace CMakeProjectManager {
 namespace Internal {
 
 const char BUILD_TARGETS_KEY[] = "CMakeProjectManager.MakeStep.BuildTargets";
+const char CMAKE_ARGUMENTS_KEY[] = "CMakeProjectManager.MakeStep.CMakeArguments";
 const char TOOL_ARGUMENTS_KEY[] = "CMakeProjectManager.MakeStep.AdditionalArguments";
 const char ADD_RUNCONFIGURATION_ARGUMENT_KEY[] = "CMakeProjectManager.MakeStep.AddRunConfigurationArgument";
 const char ADD_RUNCONFIGURATION_TEXT[] = "Current executable";
@@ -66,6 +67,7 @@ public:
 
 private:
     void itemChanged(QListWidgetItem *);
+    void cmakeArgumentsEdited();
     void toolArgumentsEdited();
     void updateDetails();
     void buildTargetsChanged();
@@ -74,6 +76,7 @@ private:
     QRadioButton *itemWidget(QListWidgetItem *item);
 
     CMakeBuildStep *m_buildStep;
+    QLineEdit *m_cmakeArguments;
     QLineEdit *m_toolArguments;
     QListWidget *m_buildTargetsList;
 };
@@ -122,6 +125,7 @@ QVariantMap CMakeBuildStep::toMap() const
     QVariantMap map(AbstractProcessStep::toMap());
     // Use QStringList for compatibility with old files
     map.insert(BUILD_TARGETS_KEY, QStringList(m_buildTarget));
+    map.insert(CMAKE_ARGUMENTS_KEY, m_cmakeArguments);
     map.insert(TOOL_ARGUMENTS_KEY, m_toolArguments);
     return map;
 }
@@ -131,6 +135,7 @@ bool CMakeBuildStep::fromMap(const QVariantMap &map)
     const QStringList targetList = map.value(BUILD_TARGETS_KEY).toStringList();
     if (!targetList.isEmpty())
         m_buildTarget = targetList.last();
+    m_cmakeArguments = map.value(CMAKE_ARGUMENTS_KEY).toString();
     m_toolArguments = map.value(TOOL_ARGUMENTS_KEY).toString();
     if (map.value(ADD_RUNCONFIGURATION_ARGUMENT_KEY, false).toBool())
         m_buildTarget = ADD_RUNCONFIGURATION_TEXT;
@@ -327,6 +332,16 @@ void CMakeBuildStep::setBuildTarget(const QString &buildTarget)
     emit targetToBuildChanged();
 }
 
+QString CMakeBuildStep::cmakeArguments() const
+{
+    return m_cmakeArguments;
+}
+
+void CMakeBuildStep::setCMakeArguments(const QString &list)
+{
+    m_cmakeArguments = list;
+}
+
 QString CMakeBuildStep::toolArguments() const
 {
     return m_toolArguments;
@@ -361,6 +376,7 @@ Utils::CommandLine CMakeBuildStep::cmakeCommand(RunConfiguration *rc) const
     }
 
     cmd.addArgs({"--target", target});
+    cmd.addArgs(m_cmakeArguments, Utils::CommandLine::Raw);
 
     if (!m_toolArguments.isEmpty()) {
         cmd.addArg("--");
@@ -405,11 +421,12 @@ QStringList CMakeBuildStep::specialTargets()
 // CMakeBuildStepConfigWidget
 //
 
-CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep) :
-    BuildStepConfigWidget(buildStep),
-    m_buildStep(buildStep),
-    m_toolArguments(new QLineEdit),
-    m_buildTargetsList(new QListWidget)
+CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep)
+    : BuildStepConfigWidget(buildStep)
+    , m_buildStep(buildStep)
+    , m_cmakeArguments(new QLineEdit)
+    , m_toolArguments(new QLineEdit)
+    , m_buildTargetsList(new QListWidget)
 {
     setDisplayName(tr("Build", "CMakeProjectManager::CMakeBuildStepConfigWidget display name."));
 
@@ -418,6 +435,8 @@ CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     setLayout(fl);
 
+    fl->addRow(tr("CMake arguments:"), m_cmakeArguments);
+    m_cmakeArguments->setText(m_buildStep->cmakeArguments());
     fl->addRow(tr("Tool arguments:"), m_toolArguments);
     m_toolArguments->setText(m_buildStep->toolArguments());
 
@@ -436,6 +455,7 @@ CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep
     buildTargetsChanged();
     updateDetails();
 
+    connect(m_cmakeArguments, &QLineEdit::textEdited, this, &CMakeBuildStepConfigWidget::cmakeArgumentsEdited);
     connect(m_toolArguments, &QLineEdit::textEdited, this, &CMakeBuildStepConfigWidget::toolArgumentsEdited);
     connect(m_buildTargetsList, &QListWidget::itemChanged, this, &CMakeBuildStepConfigWidget::itemChanged);
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
@@ -455,6 +475,11 @@ CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep
             &BuildConfiguration::environmentChanged,
             this,
             &CMakeBuildStepConfigWidget::updateDetails);
+}
+
+void CMakeBuildStepConfigWidget::cmakeArgumentsEdited() {
+    m_buildStep->setCMakeArguments(m_cmakeArguments->text());
+    updateDetails();
 }
 
 void CMakeBuildStepConfigWidget::toolArgumentsEdited()

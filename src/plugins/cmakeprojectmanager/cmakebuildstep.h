@@ -51,6 +51,8 @@ public:
     bool buildsBuildTarget(const QString &target) const;
     void setBuildTarget(const QString &target);
 
+    QString cmakeArguments() const;
+    void setCMakeArguments(const QString &list);
     QString toolArguments() const;
     void setToolArguments(const QString &list);
 
@@ -100,6 +102,7 @@ private:
     QRegExp m_ninjaProgress;
     QString m_ninjaProgressString;
     QString m_buildTarget;
+    QString m_cmakeArguments;
     QString m_toolArguments;
     bool m_useNinja = false;
     bool m_waiting = false;
