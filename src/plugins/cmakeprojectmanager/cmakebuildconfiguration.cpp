@@ -227,16 +227,16 @@ void CMakeBuildConfiguration::buildTarget(const QString &buildTarget)
         return bs->id() == Constants::CMAKE_BUILD_STEP_ID;
     }));
 
-    QString originalBuildTarget;
+    QStringList originalBuildTargets;
     if (cmBs) {
-        originalBuildTarget = cmBs->buildTarget();
-        cmBs->setBuildTarget(buildTarget);
+        originalBuildTargets = cmBs->buildTargets();
+        cmBs->setBuildTargets({buildTarget});
     }
 
     BuildManager::buildList(buildSteps());
 
     if (cmBs)
-        cmBs->setBuildTarget(originalBuildTarget);
+        cmBs->setBuildTargets(originalBuildTargets);
 }
 
 CMakeConfig CMakeBuildConfiguration::configurationFromCMake() const

@@ -152,12 +152,12 @@ void BuildCMakeTargetLocatorFilter::accept(Core::LocatorFilterEntry selection,
         return;
 
     // Change the make step to build only the given target
-    QString oldTarget = buildStep->buildTarget();
-    buildStep->setBuildTarget(selection.displayName);
+    QStringList oldTargets = buildStep->buildTargets();
+    buildStep->setBuildTargets({selection.displayName});
 
     // Build
     BuildManager::buildProjectWithDependencies(cmakeProject);
-    buildStep->setBuildTarget(oldTarget);
+    buildStep->setBuildTargets(oldTargets);
 }
 
 // --------------------------------------------------------------------
