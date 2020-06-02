@@ -1476,7 +1476,7 @@ class CliDumper(Dumper):
 
         args = {}
         args['fancy'] = 1
-        args['passexception'] = 1
+        args['passexceptions'] = 1
         args['autoderef'] = 1
         args['qobjectnames'] = 1
         args['varlist'] = name
