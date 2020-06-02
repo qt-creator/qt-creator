@@ -206,7 +206,9 @@ void BindingEditor::prepareBindings()
             if (bindingProperty.isValid()) {
                 if (bindingProperty.isDynamic()) {
                     const TypeName dynamicTypeName = bindingProperty.dynamicTypeName();
-                    if ((dynamicTypeName == m_backendValueTypeName) || variantTypes.contains(dynamicTypeName)) {
+                    if (skipTypeFiltering
+                            || (dynamicTypeName == m_backendValueTypeName)
+                            || variantTypes.contains(dynamicTypeName)) {
                         binding.properties.append(QString::fromUtf8(bindingProperty.name()));
                     }
                 }
@@ -216,7 +218,9 @@ void BindingEditor::prepareBindings()
             if (variantProperty.isValid()) {
                 if (variantProperty.isDynamic()) {
                     const TypeName dynamicTypeName = variantProperty.dynamicTypeName();
-                    if ((dynamicTypeName == m_backendValueTypeName) || variantTypes.contains(dynamicTypeName)) {
+                    if (skipTypeFiltering
+                            || (dynamicTypeName == m_backendValueTypeName)
+                            || variantTypes.contains(dynamicTypeName)) {
                         binding.properties.append(QString::fromUtf8(variantProperty.name()));
                     }
                 }

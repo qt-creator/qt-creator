@@ -55,6 +55,7 @@ public:
     void selectionChanged(const QList<ModelNode> &selectedNodes);
 
     ConnectionView *connectionView() const;
+    AbstractProperty abstractPropertyForRow(int rowNumber) const;
     BindingProperty bindingPropertyForRow(int rowNumber) const;
     VariantProperty variantPropertyForRow(int rowNumber) const;
     QStringList possibleTargetProperties(const BindingProperty &bindingProperty) const;
@@ -64,6 +65,9 @@ public:
     void updateDisplayRoleFromVariant(int row, int columns, const QVariant &variant);
     void addDynamicPropertyForCurrentNode();
     void resetModel();
+
+    BindingProperty replaceVariantWithBinding(const PropertyName &name, bool copyValue = false);
+    void resetProperty(const PropertyName &name);
 
 protected:
     void addProperty(const QVariant &propertyValue,

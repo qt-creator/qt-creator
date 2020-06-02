@@ -40,6 +40,7 @@ namespace QmlDesigner {
 namespace Ui { class ConnectionViewWidget; }
 
 class ActionEditor;
+class BindingEditor;
 
 namespace Internal {
 
@@ -99,9 +100,19 @@ private:
     void removeButtonClicked();
     void addButtonClicked();
 
+    //methods to prepare editors
+    void editorForConnection();
+    void editorForBinding();
+    void editorForDynamic();
+
 private:
     Ui::ConnectionViewWidget *ui;
-    QmlDesigner::ActionEditor *m_actionEditor;
+    QmlDesigner::ActionEditor *m_connectonEditor; //editor for connections in connection view
+    QmlDesigner::BindingEditor *m_bindingEditor; //editor for properties in binding view
+    QmlDesigner::BindingEditor *m_dynamicEditor; //editor for properties in dynamic view
+
+    QModelIndex m_bindingIndex;
+    QModelIndex m_dynamicIndex;
 };
 
 } // namespace Internal

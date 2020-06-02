@@ -137,6 +137,84 @@ void DynamicPropertiesModel::resetModel()
     endResetModel();
 }
 
+
+//Method creates dynamic BindingProperty with the same name and type as old VariantProperty
+//Value copying is optional
+BindingProperty DynamicPropertiesModel::replaceVariantWithBinding(const PropertyName &name, bool copyValue)
+{
+    if (connectionView()->selectedModelNodes().count() == 1) {
+        const ModelNode modelNode = connectionView()->selectedModelNodes().constFirst();
+        if (modelNode.isValid()) {
+            if (modelNode.hasVariantProperty(name)) {
+                try {
+                    VariantProperty vprop = modelNode.variantProperty(name);
+                    TypeName oldType = vprop.dynamicTypeName();
+                    QVariant oldValue = vprop.value();
+
+                    modelNode.removeProperty(name);
+
+                    BindingProperty bprop = modelNode.bindingProperty(name);
+                    if (bprop.isValid()) {
+                        if (copyValue)
+                            bprop.setDynamicTypeNameAndExpression(oldType, oldValue.toString());
+                        return bprop;
+                    }
+                } catch (RewritingException &e) {
+                    m_exceptionError = e.description();
+                    QTimer::singleShot(200, this, &DynamicPropertiesModel::handleException);
+                }
+            }
+        }
+    } else {
+        qWarning() << "DynamicPropertiesModel::replaceVariantWithBinding: no selected nodes";
+    }
+
+    return BindingProperty();
+}
+
+
+//Finds selected property, and changes it to empty value (QVariant())
+//If it's a BindingProperty, then replaces it with empty VariantProperty
+void DynamicPropertiesModel::resetProperty(const PropertyName &name)
+{
+    if (connectionView()->selectedModelNodes().count() == 1) {
+        const ModelNode modelNode = connectionView()->selectedModelNodes().constFirst();
+        if (modelNode.isValid()) {
+            if (modelNode.hasProperty(name)) {
+                try {
+                    AbstractProperty abProp = modelNode.property(name);
+
+                    if (abProp.isVariantProperty()) {
+                        VariantProperty property = abProp.toVariantProperty();
+                        QVariant newValue = convertVariantForTypeName(QVariant("none.none"), property.dynamicTypeName());
+                        property.setDynamicTypeNameAndValue(property.dynamicTypeName(),
+                                                            newValue);
+                    }
+                    else if (abProp.isBindingProperty()) {
+                        BindingProperty property = abProp.toBindingProperty();
+                        TypeName oldType = property.dynamicTypeName();
+
+                        //removing old property, to create the new one with the same name:
+                        modelNode.removeProperty(name);
+
+                        VariantProperty newProperty = modelNode.variantProperty(name);
+                        QVariant newValue = convertVariantForTypeName(QVariant("none.none"), oldType);
+                        newProperty.setDynamicTypeNameAndValue(oldType,
+                                                               newValue);
+                    }
+
+                } catch (RewritingException &e) {
+                    m_exceptionError = e.description();
+                    QTimer::singleShot(200, this, &DynamicPropertiesModel::handleException);
+                }
+            }
+        }
+    }
+    else {
+        qWarning() << "DynamicPropertiesModel::resetProperty: no selected nodes";
+    }
+}
+
 void DynamicPropertiesModel::bindingPropertyChanged(const BindingProperty &bindingProperty)
 {
     if (!bindingProperty.isDynamic())
@@ -211,9 +289,21 @@ ConnectionView *DynamicPropertiesModel::connectionView() const
     return m_connectionView;
 }
 
+AbstractProperty DynamicPropertiesModel::abstractPropertyForRow(int rowNumber) const
+{
+    const int internalId = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 1).toInt();
+    const QString targetPropertyName = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 2).toString();
+
+    ModelNode  modelNode = connectionView()->modelNodeForInternalId(internalId);
+
+    if (modelNode.isValid())
+        return modelNode.property(targetPropertyName.toUtf8());
+
+    return AbstractProperty();
+}
+
 BindingProperty DynamicPropertiesModel::bindingPropertyForRow(int rowNumber) const
 {
-
     const int internalId = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 1).toInt();
     const QString targetPropertyName = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 2).toString();
 
