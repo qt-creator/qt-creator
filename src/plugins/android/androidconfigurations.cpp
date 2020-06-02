@@ -1258,6 +1258,16 @@ void AndroidConfigurations::removeUnusedDebuggers()
     }
 }
 
+static bool containsAllAbis(const QStringList &abis)
+{
+    QStringList supportedAbis{"armeabi-v7a", "arm64-v8a", "x86", "x86_64"};
+    for (const QString &abi : abis)
+        if (supportedAbis.contains(abi))
+            supportedAbis.removeOne(abi);
+
+    return supportedAbis.isEmpty();
+}
+
 static QVariant findOrRegisterDebugger(ToolChain *tc,
                                        const QStringList &abisList,
                                        const BaseQtVersion *qtVersion)
@@ -1289,8 +1299,8 @@ static QVariant findOrRegisterDebugger(ToolChain *tc,
     debugger.setEngineType(Debugger::GdbEngineType);
     debugger.setUnexpandedDisplayName(
         AndroidConfigurations::tr("Android Debugger (%1, NDK %2)")
-            .arg(abisList.join(", "),
-                 AndroidConfigurations::currentConfig().ndkVersion(qtVersion).toString()));
+            .arg(containsAllAbis(abisList) ? "Multi-Abi" : abisList.join(","))
+            .arg(AndroidConfigurations::currentConfig().ndkVersion(qtVersion).toString()));
     debugger.setAutoDetected(true);
     debugger.setAbis(abis.toVector());
     debugger.reinitializeFromFile();
@@ -1390,9 +1400,9 @@ void AndroidConfigurations::updateAutomaticKitList()
                 QStringList abis = static_cast<const AndroidQtVersion *>(qt)->androidAbis();
                 Debugger::DebuggerKitAspect::setDebugger(k, findOrRegisterDebugger(tc, abis, QtKitAspect::qtVersion(k)));
                 k->makeSticky();
-                k->setUnexpandedDisplayName(tr("Android for %1 (Clang %2)")
-                                                  .arg(abis.join(","))
-                                                  .arg(qt->displayName()));
+                k->setUnexpandedDisplayName(tr("Android Qt %1 Clang %2")
+                                                .arg(qt->qtVersionString())
+                                                .arg(containsAllAbis(abis) ? "Multi-Abi" : abis.join(",")));
                 k->setValueSilently(Constants::ANDROID_KIT_NDK, currentConfig().ndkLocation(qt).toString());
                 k->setValueSilently(Constants::ANDROID_KIT_SDK, currentConfig().sdkLocation().toString());
             };
