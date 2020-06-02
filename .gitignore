@@ -30,6 +30,7 @@
 .qmake.cache
 .qmake.stash
 .vscode
+build*/
 Makefile*
 Thumbs.db
 core
