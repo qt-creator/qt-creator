@@ -62,7 +62,7 @@ public:
 
     void setSearchText(const QString &searchText);
 
-    void setExpanded(bool, const QString &section);
+    Q_INVOKABLE void setExpanded(bool, const QString &section);
 
     void setFlowMode(bool);
 
