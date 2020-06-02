@@ -711,8 +711,6 @@ void Document::releaseSourceAndAST()
     if (!_keepSourceAndASTCount.deref()) {
         _source.clear();
         _translationUnit->release();
-        if (_control)
-            _control->squeeze();
     }
 }
 

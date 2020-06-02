@@ -217,8 +217,6 @@ public:
     bool hasSymbol(Symbol *symbol) const;
     void addSymbol(Symbol *symbol);
 
-    void squeeze();
-
 private:
     class Data;
     friend class Data;
