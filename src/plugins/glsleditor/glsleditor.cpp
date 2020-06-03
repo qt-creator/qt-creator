@@ -56,8 +56,10 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/algorithm.h>
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>
+#include <utils/tooltip/tooltip.h>
 #include <utils/uncommentselection.h>
 
 #include <QCoreApplication>
@@ -168,6 +170,7 @@ public:
 private:
     void updateDocumentNow();
     void setSelectedElements();
+    void onTooltipRequested(const QPoint &point, int pos);
     QString wordUnderCursor() const;
 
     QTimer m_updateDocumentTimer;
@@ -207,6 +210,8 @@ GlslEditorWidget::GlslEditorWidget()
     m_outlineCombo->setSizePolicy(policy);
 
     insertExtraToolBarWidget(TextEditorWidget::Left, m_outlineCombo);
+
+    connect(this, &TextEditorWidget::tooltipRequested, this, &GlslEditorWidget::onTooltipRequested);
 }
 
 int GlslEditorWidget::editorRevision() const
@@ -301,6 +306,26 @@ void GlslEditorWidget::updateDocumentNow()
         setExtraSelections(CodeWarningsSelection, sels);
         m_glslDocument = doc;
     }
+}
+
+void GlslEditorWidget::onTooltipRequested(const QPoint &point, int pos)
+{
+    QTC_ASSERT(m_glslDocument && m_glslDocument->engine(), return);
+    const int lineno = document()->findBlock(pos).blockNumber() + 1;
+    const QStringList messages
+            = Utils::transform<QStringList>(
+                Utils::filtered(m_glslDocument->engine()->diagnosticMessages(),
+                                [lineno](const DiagnosticMessage &msg) {
+                    return msg.line() == lineno;
+                }),
+                [](const DiagnosticMessage &msg) {
+        return msg.message();
+    });
+
+    if (!messages.isEmpty())
+        Utils::ToolTip::show(point, messages.join("<hr/>"), this);
+    else
+        Utils::ToolTip::hide();
 }
 
 int languageVariant(const QString &type)
