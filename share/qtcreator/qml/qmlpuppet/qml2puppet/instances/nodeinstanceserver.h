@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <QDebug>
 #include <QUrl>
 #include <QVector>
 #include <QSet>

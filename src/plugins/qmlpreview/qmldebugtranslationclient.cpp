@@ -27,6 +27,7 @@
 #include <qmldebug/qpacketprotocol.h>
 
 #include <QUrl>
+#include <QColor>
 
 namespace QmlPreview {
 
