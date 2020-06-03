@@ -153,6 +153,8 @@ Project {
                 "patchtool.h",
                 "plugindialog.cpp",
                 "plugindialog.h",
+                "plugininstallwizard.cpp",
+                "plugininstallwizard.h",
                 "reaper.cpp",
                 "reaper.h",
                 "reaper_p.h",

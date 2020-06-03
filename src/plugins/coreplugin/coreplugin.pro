@@ -113,7 +113,8 @@ SOURCES += corejsextensions.cpp \
     diffservice.cpp \
     menubarfilter.cpp \
     welcomepagehelper.cpp \
-    dialogs/codecselector.cpp
+    dialogs/codecselector.cpp \
+    plugininstallwizard.cpp
 
 HEADERS += corejsextensions.h \
     mainwindow.h \
@@ -230,7 +231,8 @@ HEADERS += corejsextensions.h \
     menubarfilter.h \
     editormanager/ieditorfactory_p.h \
     welcomepagehelper.h \
-    dialogs/codecselector.h
+    dialogs/codecselector.h \
+    plugininstallwizard.h
 
 FORMS += dialogs/newdialog.ui \
     dialogs/saveitemsdialog.ui \
