@@ -877,7 +877,7 @@ public:
         if (node.modelNode().isSelected())
             width += 2;
         if (hitTest)
-            width = qMax(width * 8, 20.0);
+            width = width * 8  / scaleFactor;
         // color
         if (resolveConnection.isStartLine)
             color = QColor("blue");
@@ -1224,7 +1224,7 @@ public:
         const bool boolExitRight = fromRect.right() < toRect.center().x();
         const bool boolExitBottom = fromRect.bottom() < toRect.center().y();
 
-        const int padding = 2 * config.width + 2 * config.adjustedWidth;
+        const int padding = 4 * config.adjustedWidth;
 
         if (horizontalFirst) {
             const qreal startX = boolExitRight ? fromRect.right() + padding : fromRect.x() - padding;
