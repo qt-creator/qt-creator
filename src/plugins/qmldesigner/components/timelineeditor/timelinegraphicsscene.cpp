@@ -71,10 +71,10 @@ namespace QmlDesigner {
 
 static int deleteKey()
 {
-        if (Utils::HostOsInfo::isMacHost())
-            return Qt::Key_Backspace;
+    if (Utils::HostOsInfo::isMacHost())
+        return Qt::Key_Backspace;
 
-        return Qt::Key_Delete;
+    return Qt::Key_Delete;
 }
 
 QList<QmlTimelineKeyframeGroup> allTimelineFrames(const QmlTimeline &timeline)
@@ -580,6 +580,7 @@ void TimelineGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     /* The tool has handle the event last. */
     QGraphicsScene::mouseReleaseEvent(event);
     m_tools.mouseReleaseEvent(topItem, event);
+    m_parent->setFocus();
 }
 
 void TimelineGraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
@@ -733,7 +734,6 @@ void TimelineGraphicsScene::deleteKeyframeGroup(const ModelNode &group)
         ModelNode nonConst = group;
         nonConst.destroy();
     });
-
 }
 
 void TimelineGraphicsScene::deleteKeyframes(const QList<ModelNode> &frames)

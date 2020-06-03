@@ -70,6 +70,7 @@ public:
     void setTimelineId(const QString &id);
 
     void setTimelineActive(bool b);
+    void setFocus();
 
 public slots:
     void selectionChanged();

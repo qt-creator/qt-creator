@@ -591,6 +591,11 @@ void TimelineWidget::setTimelineActive(bool b)
     }
 }
 
+void TimelineWidget::setFocus()
+{
+    m_graphicsView->setFocus();
+}
+
 void TimelineWidget::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event)

@@ -181,6 +181,7 @@ void TimelineView::instancePropertyChanged(const QList<QPair<ModelNode, Property
         } else if (pair.second == "currentFrame") {
             if (QmlTimeline::isValidQmlTimeline(pair.first)) {
                 m_timelineWidget->invalidateTimelinePosition(pair.first);
+                updateAnimationCurveEditor();
             }
         } else if (!updated && timeline.hasTimeline(pair.first, pair.second)) {
             m_timelineWidget->graphicsScene()->invalidateCurrentValues();
@@ -198,7 +199,7 @@ void TimelineView::variantPropertiesChanged(const QList<VariantProperty> &proper
                                             AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
     for (const auto &property : propertyList) {
-        if (property.name() == "frame"
+        if ((property.name() == "frame" || property.name() == "value")
             && property.parentModelNode().type() == "QtQuick.Timeline.Keyframe"
             && property.parentModelNode().isValid()
             && property.parentModelNode().hasParentProperty()) {
