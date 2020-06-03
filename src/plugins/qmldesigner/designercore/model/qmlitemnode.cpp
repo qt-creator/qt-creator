@@ -600,6 +600,7 @@ void QmlFlowActionAreaNode::assignTargetFlowItem(const QmlFlowTargetNode &flowIt
 
 QmlFlowItemNode QmlFlowActionAreaNode::flowItemParent() const
 {
+    QTC_ASSERT(modelNode().hasParentProperty(), return QmlFlowItemNode({}));
     return modelNode().parentProperty().parentModelNode();
 }
 
