@@ -351,7 +351,16 @@ static FileInfos sortedFileInfos(const QVector<CppTools::ProjectPart::Ptr> &proj
         }
     }
 
-    Utils::sort(fileInfos, &FileInfo::file);
+    Utils::sort(fileInfos, [](const FileInfo &fi1, const FileInfo &fi2) {
+        if (fi1.file == fi2.file) {
+            // If the same file appears more than once, prefer contexts where the file is
+            // built as part of an application or library to those where it may not be,
+            // e.g. because it is just listed as some sort of resource.
+            return fi1.projectPart->buildTargetType != BuildTargetType::Unknown
+                    && fi2.projectPart->buildTargetType == BuildTargetType::Unknown;
+        }
+        return fi1.file < fi2.file;
+    });
     fileInfos.erase(std::unique(fileInfos.begin(), fileInfos.end()), fileInfos.end());
 
     return fileInfos;

@@ -916,9 +916,17 @@ static RawProjectParts generateProjectParts(
                                        location.value("line").toInt(),
                                        location.value("column").toInt());
             rpp.setBuildSystemTarget(QbsProductNode::getBuildKey(prd));
-            rpp.setBuildTargetType(prd.value("is-runnable").toBool()
-                                   ? BuildTargetType::Executable
-                                   : BuildTargetType::Library);
+            if (prd.value("is-runnable").toBool()) {
+                rpp.setBuildTargetType(BuildTargetType::Executable);
+            } else {
+                const QJsonArray pType = prd.value("type").toArray();
+                if (pType.contains("staticlibrary") || pType.contains("dynamiclibrary")
+                        || pType.contains("loadablemodule")) {
+                    rpp.setBuildTargetType(BuildTargetType::Library);
+                } else {
+                    rpp.setBuildTargetType(BuildTargetType::Unknown);
+                }
+            }
             rpp.setSelectedForBuilding(grp.value("is-enabled").toBool());
 
             QHash<QString, QJsonObject> filePathToSourceArtifact;

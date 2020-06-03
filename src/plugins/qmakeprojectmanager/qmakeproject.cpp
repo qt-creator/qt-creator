@@ -290,10 +290,18 @@ void QmakeBuildSystem::updateCppCodeModel()
         rpp.setDisplayName(pro->displayName());
         rpp.setProjectFileLocation(pro->filePath().toString());
         rpp.setBuildSystemTarget(pro->filePath().toString());
-        const bool isExecutable = pro->projectType() == ProjectType::ApplicationTemplate;
-        rpp.setBuildTargetType(isExecutable ? ProjectExplorer::BuildTargetType::Executable
-                                            : ProjectExplorer::BuildTargetType::Library);
-
+        switch (pro->projectType()) {
+        case ProjectType::ApplicationTemplate:
+            rpp.setBuildTargetType(BuildTargetType::Executable);
+            break;
+        case ProjectType::SharedLibraryTemplate:
+        case ProjectType::StaticLibraryTemplate:
+            rpp.setBuildTargetType(BuildTargetType::Library);
+            break;
+        default:
+            rpp.setBuildTargetType(BuildTargetType::Unknown);
+            break;
+        }
         rpp.setFlagsForCxx({kitInfo.cxxToolChain, pro->variableValue(Variable::CppFlags)});
         rpp.setFlagsForC({kitInfo.cToolChain, pro->variableValue(Variable::CFlags)});
         rpp.setMacros(ProjectExplorer::Macro::toMacros(pro->cxxDefines()));
