@@ -226,11 +226,11 @@ void tst_offsets::offsets_data()
         OFFSET_TEST(QFilePrivate, fileName) << 140 << 232;
 #endif
 
-        OFFSET_TEST(QFileSystemEntry, m_filePath) << 0 << 0;
-        OFFSET_TEST(QFileInfoPrivate, fileEntry) << 4 << 8;
+    OFFSET_TEST(QFileSystemEntry, m_filePath) << 0 << 0;
+    OFFSET_TEST(QFileInfoPrivate, fileEntry) << 4 << 8;
 
-        QTest::newRow("sizeof(QObjectData)") << int(sizeof(QObjectData))
-            << 28 << 48; // vptr + 3 ptr + 2 int + ptr
+    QTest::newRow("sizeof(QObjectData)") << int(sizeof(QObjectData))
+        << 28 << 48; // vptr + 3 ptr + 2 int + ptr
 
     if (qtVersion >= 0x50000)
         OFFSET_TEST(QObjectPrivate, extraData) << 28 << 48; // sizeof(QObjectData)
