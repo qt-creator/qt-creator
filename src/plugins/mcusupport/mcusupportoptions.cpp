@@ -167,12 +167,16 @@ bool McuPackage::addToPath() const
 
 void McuPackage::writeToSettings() const
 {
-    if (m_path.compare(m_defaultPath) == 0)
-        return;
-    QSettings *s = Core::ICore::settings();
-    s->beginGroup(Constants::SETTINGS_GROUP);
-    s->setValue(QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX) + m_settingsKey, m_path);
-    s->endGroup();
+    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/' +
+            QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX) + m_settingsKey;
+    const QSettings *iS = Core::ICore::settings(QSettings::SystemScope);
+    QSettings *uS = Core::ICore::settings();
+    if (m_path == m_defaultPath || (
+                iS->contains(key) &&
+                m_path == Utils::FilePath::fromUserInput(iS->value(key).toString()).toString()))
+        uS->remove(key);
+    else
+        uS->setValue(key, m_path);
 }
 
 void McuPackage::setRelativePathModifier(const QString &path)
