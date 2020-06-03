@@ -528,11 +528,8 @@ void CMakeBuildStepConfigWidget::buildTargetsChanged()
 
         addItem(ADD_RUNCONFIGURATION_TEXT, tr(ADD_RUNCONFIGURATION_TEXT), true);
 
-        foreach (const QString &buildTarget, CMakeBuildStep::specialTargets())
-            addItem(buildTarget, buildTarget, true);
-
         foreach (const QString &buildTarget, targetList)
-            addItem(buildTarget, buildTarget);
+            addItem(buildTarget, buildTarget, CMakeBuildStep::specialTargets().contains(buildTarget));
 
         updateBuildTargets();
     }

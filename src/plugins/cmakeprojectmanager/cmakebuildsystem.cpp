@@ -27,11 +27,14 @@
 
 #include "builddirparameters.h"
 #include "cmakebuildconfiguration.h"
+#include "cmakebuildstep.h"
+#include "cmakebuildtarget.h"
 #include "cmakekitinformation.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectnodes.h"
 #include "cmakeprojectplugin.h"
 #include "cmakespecificsettings.h"
+#include "utils/algorithm.h"
 
 #include <android/androidconstants.h>
 #include <coreplugin/icore.h>
@@ -57,6 +60,7 @@
 #include <QClipboard>
 #include <QDir>
 #include <QGuiApplication>
+#include <QHash>
 #include <QLoggingCategory>
 #include <QPushButton>
 
@@ -621,7 +625,14 @@ void CMakeBuildSystem::handleParsingSucceeded()
 
     QString errorMessage;
     {
-        m_buildTargets = m_reader.takeBuildTargets(errorMessage);
+        m_buildTargets = Utils::transform(CMakeBuildStep::specialTargets(), [this](const QString &t) {
+            CMakeBuildTarget result;
+            result.title = t;
+            result.workingDirectory = m_parameters.workDirectory;
+            result.sourceDirectory = m_parameters.sourceDirectory;
+            return result;
+        });
+        m_buildTargets += m_reader.takeBuildTargets(errorMessage);
         checkAndReportError(errorMessage);
     }
 
