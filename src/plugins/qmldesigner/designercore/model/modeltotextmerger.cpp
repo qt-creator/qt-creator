@@ -383,6 +383,9 @@ PropertyNameList ModelToTextMerger::propertyOrder()
         PropertyName("horizontalAlignment"),
         PropertyName("verticalAlignment"),
         PropertyName("source"),
+        PropertyName("lineHeight"),
+        PropertyName("lineHeightMode"),
+        PropertyName("wrapMode"),
         PropertyName(),
         PropertyName("states"),
         PropertyName("transitions")

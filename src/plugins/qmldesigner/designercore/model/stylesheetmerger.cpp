@@ -391,6 +391,9 @@ void StylesheetMerger::parseTemplateOptions()
     if (optionsNode.hasVariantProperty("preserveTextAlignment")) {
         m_options.preserveTextAlignment = optionsNode.variantProperty("preserveTextAlignment").value().toBool();
     }
+    if (optionsNode.hasVariantProperty("useStyleSheetPositions")) {
+        m_options.useStyleSheetPositions = optionsNode.variantProperty("useStyleSheetPositions").value().toBool();
+    }
     try {
         RewriterTransaction transaction(m_templateView, "remove-options-node");
         optionsNode.destroy();
@@ -490,7 +493,7 @@ void StylesheetMerger::merge()
                 if (!currentNode.hasParentProperty() ||
                         !m_templateView->modelNodeForId(currentNode.parentProperty().parentModelNode().id()).isValid()) {
 
-                    if (!hasPos) { //If template had postition retain it
+                    if (!hasPos && !m_options.useStyleSheetPositions) { //If template had postition retain it
                         removePropertyIfExists(templateNode, "x");
                         removePropertyIfExists(templateNode, "y");
                     }

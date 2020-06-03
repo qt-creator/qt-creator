@@ -70,7 +70,10 @@ private:
 
     struct Options {
         bool preserveTextAlignment;
-        Options() : preserveTextAlignment(false)
+        bool useStyleSheetPositions;
+        Options()
+            : preserveTextAlignment(false)
+            , useStyleSheetPositions(false)
         {}
     };
 
