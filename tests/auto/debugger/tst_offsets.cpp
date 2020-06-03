@@ -272,10 +272,15 @@ void tst_offsets::offsets_data()
         OFFSET_TEST(QDateTimePrivate, m_timeZone) << 20 << 24;
         OFFSET_TEST(QDateTimePrivate, m_status) << 24 << 32;
 #   endif
-#else
+#elif QT_VERSION < 0x50e00
         OFFSET_TEST(QDateTimePrivate, m_msecs) << 0 << 0;
         OFFSET_TEST(QDateTimePrivate, m_status) << 8 << 8;
         OFFSET_TEST(QDateTimePrivate, m_offsetFromUtc) << 12 << 12;
+        OFFSET_TEST(QDateTimePrivate, m_timeZone) << 20 << 24;
+#else
+        OFFSET_TEST(QDateTimePrivate, m_msecs) << 8 << 8;
+        OFFSET_TEST(QDateTimePrivate, m_status) << 4 << 4;
+        OFFSET_TEST(QDateTimePrivate, m_offsetFromUtc) << 16 << 16;
         OFFSET_TEST(QDateTimePrivate, m_timeZone) << 20 << 24;
 #endif
 
