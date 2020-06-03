@@ -244,6 +244,11 @@
         \li \l{Advanced Use}
         \list
             \li \l{Supported Platforms}
+                \list
+                    \li \l {Desktop Platforms}
+                    \li \l {Embedded Platforms}
+                    \li \l {Mobile Platforms}
+                \endlist
             \li \l{Using Other Build Systems}
             \list
                 \li \l{Setting Up CMake}

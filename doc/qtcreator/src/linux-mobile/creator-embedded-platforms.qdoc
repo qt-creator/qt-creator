@@ -1,0 +1,134 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page creator-embedded-platforms.html
+    \previouspage creator-desktop-platforms.html
+    \nextpage creator-mobile-platforms.html
+
+    \title Embedded Platforms
+
+    You can develop applications for the following embedded platforms:
+
+    \list
+        \li \l {Bare Metal}
+        \li \l {Boot2Qt}
+        \li \l {Generic Remote Linux}
+        \li \l {Microcontroller Units (MCU)}
+        \li \l QNX
+    \endlist
+
+    You must install the tool chain for building applications for the targeted
+    embedded platform on the development PC and use the Qt Maintenance Tool to
+    install Qt libraries that are built for the platform. You can then add a
+    \l{glossary-buildandrun-kit}{kit} with the tool chain and the Qt version
+    for the device's architecture. When possible, the Maintenance Tool creates
+    suitable kits for you.
+
+    You can connect embedded devices to the development PC to run, debug, and
+    analyze applications built for them from \QC.
+
+    \section1 Bare Metal
+
+    You can run and debug applications on small devices that are not supported
+    by the generic remote Linux device plugin by using GDB or a hardware
+    debugger.
+
+    For more information about developing applications for Bare Metal devices,
+    see \l{Connecting Bare Metal Devices}.
+
+    \section1 Boot2Qt
+
+    The Boot2Qt stack can be made to run on a variety of hardware. For
+    \l{https://doc.qt.io/QtForDeviceCreation/index.html}{Qt for Device Creation}
+    license holders, tooling is provided to customize the contents of the stack
+    as well as to take it into desired production hardware.
+
+    Either Windows 7 or later or Ubuntu Linux 64-bit 12.04 LTS
+    or later is required to install and use Qt for Device Creation.
+
+    The following topics contain more information about developing applications
+    for Boot2Qt devices:
+
+    \list
+        \li \l{https://doc.qt.io/QtForDeviceCreation/qtee-supported-platforms.html}
+            {Reference Target Devices and Development Hosts}
+        \li \l{https://doc.qt.io/QtForDeviceCreation/b2qt-installation-guides.html}
+            {Installation Guides}
+        \li \l{Specifying Run Settings for Boot2Qt Devices}
+        \li \l{https://doc.qt.io/qtcreator/creator-overview-qtasam.html}
+            {Qt Creator Plugin for Qt Application Manager}
+        \li \l{https://doc.qt.io/QtForDeviceCreation/index.html}
+            {Qt for Device Creation}
+    \endlist
+
+    \section1 Generic Remote Linux
+
+    You must have a tool chain for building applications for embedded Linux
+    devices installed on the development PC.
+
+    The following topics contain more information about developing applications
+    for generic remote Linux devices:
+
+    \list
+        \li \l{Connecting Generic Remote Linux Devices}
+        \li \l{Deploying Applications to Generic Remote Linux Devices}
+        \li \l{Specifying Run Settings for Linux-Based Devices}
+        \li \l{Running on Generic Remote Linux Devices}
+        \li \l{https://doc.qt.io/qtcreator/creator-overview-qtasam.html}
+            {Qt Creator Plugin for Qt Application Manager}
+    \endlist
+
+    \section1 Microcontroller Units (MCU)
+
+    You need the GNU Arm Embedded GCC compiler, libraries, and other GNU tools
+    necessary for bare metal software development on devices based on the Arm
+    Cortex-M processors.
+
+    The following topics contain more information about developing applications
+    for MCUs:
+
+    \list
+        \li \l{Connecting MCUs}
+        \li \l{Running Applications on MCUs}
+        \li \l{https://doc.qt.io/QtForMCUs/index.html}{Qt for MCUs}
+    \endlist
+
+    \section1 QNX
+
+    The QNX Neutrino RTOS should provide a few additional command line tools
+    and services, as described in \l {Qt Creator Target Requirements}.
+
+    The following topics contain more information about developing applications
+    for QNX devices:
+
+    \list
+        \li \l{Connecting QNX Devices}
+        \li \l{Deploying Applications to QNX Neutrino Devices}
+        \li \l{Specifying Run Settings for QNX Devices}
+        \li \l{Running on QNX Devices}
+        \li \l{Qt for QNX}
+    \endlist
+*/

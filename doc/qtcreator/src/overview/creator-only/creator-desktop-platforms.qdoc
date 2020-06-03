@@ -1,0 +1,91 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page creator-desktop-platforms.html
+    \previouspage creator-os-supported-platforms.html
+    \nextpage creator-embedded-platforms.html
+
+    \title Desktop Platforms
+
+    \QC is available in binary packages for the following operating systems:
+
+    \list
+        \li \l Linux
+        \li \l macOS
+        \li \l Windows
+    \endlist
+
+    You can use \QC to build, run, debug, and analyze applications on these
+    platforms.
+
+    \section1 Linux
+
+    (K)Ubuntu Linux 16.04 (64-bit) or later is supported.
+
+    To build Qt applications using \QC on Linux, you usually need the
+    following:
+
+    \list
+        \li g++
+        \li make
+        \li libglib2.0-dev
+        \li libSM-dev
+        \li libxrender-dev
+        \li libfontconfig1-dev
+        \li libxext-dev
+        \li libfreetype6-dev
+        \li libx11-dev
+        \li libxcursor-dev
+        \li libxfixes-dev
+        \li libxft-dev
+        \li libxi-dev
+        \li libxrandr-dev
+        \li libgl-dev and libglu-dev if you use Qt OpenGL (deprecated
+            in Qt 5) or Qt GUI OpenGL functions
+    \endlist
+
+    \section1 macOS
+
+    \macos 10.13 or later is supported with the Xcode tools for your \macos
+    version available in the Mac App Store.
+
+    \section1 Windows
+
+    Windows 7 or later is supported.
+
+    \note Some \QC plugins rely on Direct3D (part of DirectX). You might
+    have to manually enable support for it if you are running Windows in a
+    Virtual Machine. For more information, see
+    \l{http://www.virtualbox.org/manual/ch04.html#guestadd-3d}
+    {Hardware 3D acceleration (OpenGL and Direct3D 8/9)} and
+    \l{http://pubs.vmware.com/workstation-10/index.jsp?topic=%2Fcom.vmware.ws.using.doc%2FGUID-EA588485-718A-4FD8-81F5-B6E1F04C5788.html}
+    {Prepare the Host System to Use DirectX 9 Accelerated Graphics}.
+
+    \section1 Compiling from Source
+
+    To build \QC from the source, see the requirements and instructions in the
+    readme file that is located in the source repository.
+*/

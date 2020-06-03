@@ -25,16 +25,6 @@
 **
 ****************************************************************************/
 
-/*
-    This prevents autolinking of each occurrence of 'macOS'.
-    Explicit links will still work (\l macOS).
-*/
-/*!
-    \externalpage nolink
-    \title macOS
-    \internal
-*/
-
 /*!
     \externalpage https://doc.qt.io/QtForMCUs/qtul-environment.html
     \title Qt for MCUs - Supported Target Platforms

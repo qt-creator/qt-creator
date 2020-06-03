@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -23,17 +23,10 @@
 **
 ****************************************************************************/
 
-// **********************************************************************
-// NOTE: the sections are not ordered by their logical order to avoid
-// reshuffling the file each time the index order changes (i.e., often).
-// Run the fixnavi.pl script to adjust the links to the index order.
-// **********************************************************************
-
-
 /*!
     \previouspage creator-advanced.html
     \page creator-os-supported-platforms.html
-    \nextpage creator-project-other.html
+    \nextpage creator-desktop-platforms.html
 
     \title Supported Platforms
 
@@ -41,91 +34,73 @@
     applications for multiple desktop, embedded, and mobile device platforms,
     as well as web browsers (experimental).
 
+    The following table summarizes operating system support for developing
+    applications.
+
+    \table
+        \header
+            \li {1,2} Target Platform
+            \li {3,1} Development Platform
+        \header
+            \li \l Linux
+            \li \l macOS
+            \li \l Windows
+        \row
+            \li \l Android
+            \li \image ok
+            \li \image ok
+            \li \image ok
+        \row
+            \li \l{Bare Metal}
+            \li \image ok
+            \li \image ok
+            \li \image ok
+        \row
+            \li \l Boot2Qt
+            \li \image ok
+            \li \image ok
+            \li \image ok
+        \row
+            \li \l{Generic Remote Linux}
+            \li \image ok
+            \li \image ok
+            \li \image ok
+        \row
+            \li \l iOS
+            \li
+            \li \image ok
+            \li
+        \row
+            \li \l{Microcontroller Units (MCU)}{MCUs}
+            \li
+            \li
+            \li \image ok
+        \row
+            \li \l QNX
+            \li \image ok
+            \li \image ok
+            \li \inlineimage ok
+        \row
+            \li \l{Universal Windows Platform (UWP)}{UWP}
+            \li
+            \li
+            \li \image ok
+        \row
+            \li \l{Building Applications for the Web}{WebAssembly}
+            \li \image ok
+            \li \image ok
+            \li \image ok
+    \endtable
+
     \QC automatically runs scheduled checks for updates based on the settings
     specified in \uicontrol Tools > \uicontrol Options \uicontrol Environment >
     \uicontrol Update.
 
-    \section1 Development Platforms
-
-    \QC is available in binary packages for the following operating systems:
+    For more information on the requirements for each platform, see:
 
     \list
-
-        \li Windows 7 or later
-
-        \note Some \QC plugins rely on Direct3D (part of DirectX). You might
-        have to manually enable support for it if you are running Windows in a
-        Virtual Machine. For more information, see
-        \l{http://www.virtualbox.org/manual/ch04.html#guestadd-3d}
-        {Hardware 3D acceleration (OpenGL and Direct3D 8/9)} and
-        \l{http://pubs.vmware.com/workstation-10/index.jsp?topic=%2Fcom.vmware.ws.using.doc%2FGUID-EA588485-718A-4FD8-81F5-B6E1F04C5788.html}
-        {Prepare the Host System to Use DirectX 9 Accelerated Graphics}.
-
-        \li (K)Ubuntu Linux 16.04 (64-bit) or later
-
-        To build Qt applications using \QC on Linux, you usually need the
-        following:
-
-            \list
-
-                \li g++
-
-                \li make
-
-                \li libglib2.0-dev
-
-                \li libSM-dev
-
-                \li libxrender-dev
-
-                \li libfontconfig1-dev
-
-                \li libxext-dev
-
-                \li libfreetype6-dev
-
-                \li libx11-dev
-
-                \li libxcursor-dev
-
-                \li libxfixes-dev
-
-                \li libxft-dev
-
-                \li libxi-dev
-
-                \li libxrandr-dev
-
-                \li libgl-dev and libglu-dev if you use Qt OpenGL (deprecated
-                    in Qt 5) or Qt GUI OpenGL functions
-
-            \endlist
-
-        \li \macos 10.13 or later with the following:
-
-            \list
-
-                \li Xcode tools for your \macos version available on the
-                    Mac App Store.
-
-            \endlist
-
+        \li \l {Desktop Platforms}
+        \li \l {Embedded Platforms}
+        \li \l {Mobile Platforms}
     \endlist
-
-    \section2 Developing for Boot2Qt Devices
-
-    Either Windows 7 or later or Ubuntu Linux 64-bit 12.04 LTS or later is
-    required to install and use Qt for Device Creation. For more information
-    about the requirements for the development host, see the
-    \l{https://doc.qt.io/QtForDeviceCreation/b2qt-installation-guides.html}
-    {Installation Guides} in the
-    \l{https://doc.qt.io/QtForDeviceCreation/index.html}{Qt for Device Creation}
-    documentation.
-
-    \section1 Compiling from Source
-
-    To build \QC from the source, see the requirements and instructions in the
-    readme file that is located in the source repository.
-
-    \include creator-target-platforms.qdocinc target platforms
 */

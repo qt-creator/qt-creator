@@ -1,0 +1,97 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page creator-mobile-platforms.html
+    \previouspage creator-embedded-platforms.html
+    \nextpage creator-project-other.html
+
+    \title Mobile Platforms
+
+    You can develop applications for the following mobile platforms:
+
+    \list
+        \li \l Android
+        \li \l iOS
+        \li \l {Universal Windows Platform (UWP)}
+    \endlist
+
+    You must install the tool chain for building applications for the targeted
+    mobile platform on the development PC and use the Qt Maintenance Tool to
+    install Qt libraries that are built for the platform. You can then add a
+    \l{glossary-buildandrun-kit}{kit} with the tool chain and the Qt version
+    for the device's architecture. When possible, the Maintenance Tool creates
+    suitable kits for you.
+
+    You can connect mobile devices to the development PC and select the
+    appropriate kit to build, run, debug, and analyze applications from \QC.
+
+    \section1 Android
+
+    Starting from Qt 5.14.0, the Qt for Android package contains all the
+    architectures (ABIs) installed as one. You can let \QC automatically
+    create kits for installed Qt version and tool chains.
+
+    The following topics contain more information about developing applications
+    for Android devices:
+
+    \list
+        \li \l{Connecting Android Devices}
+        \li \l{Deploying Applications to Android Devices}
+        \li \l{Running on Multiple Platforms}
+        \li \l{Creating a Mobile Application}
+        \li \l{Debugging on Android Devices}
+        \li \l{Qt for Android}
+    \endlist
+
+    \section1 iOS
+
+    To be able to use \QC on \macos, you must install Xcode, and therefore
+    you should already have the tool chain for building applications for
+    iOS. \QC automatically detects the tool chain and creates the necessary
+    kits to build applications for and run them on configured iOS devices.
+
+    The following topics contain more information about developing applications
+    for iOS devices:
+
+    \list
+        \li \l{Connecting iOS Devices}
+        \li \l{Running on Multiple Platforms}
+        \li \l{Creating a Mobile Application}
+        \li \l{Qt for iOS}
+    \endlist
+
+    \section1 Universal Windows Platform (UWP)
+
+    Microsoft Windows 10 introduced the Universal Windows Platform (UWP),
+    which provides a common application platform on every device that runs
+    Windows 10, as a successor to Windows Runtime (WinRT) introduced by
+    Windows 8. The UWP core APIs are the same on all Windows devices, and
+    therefore applications that only use the core APIs will run on any
+    Windows 10 device, such as a desktop PC, or Xbox One.
+
+    For more information about developing applications for UWP, see
+    \l{Qt for UWP}.
+*/

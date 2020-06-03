@@ -114,7 +114,7 @@
             You can use the experimental Qt Application Manager plugin
             (commercial only) to deploy, run, and debug applications on the
             local Linux PC, remote generic SSH Linux targets, or
-            \l{Boot2Qt Devices}{Boot2Qt devices}.
+            \l{Boot2Qt}{Boot2Qt devices}.
     \endlist
     \endif
 */
