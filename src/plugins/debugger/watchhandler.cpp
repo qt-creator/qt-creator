@@ -2463,7 +2463,7 @@ void WatchModel::clearWatches()
         return;
 
     const QDialogButtonBox::StandardButton ret = CheckableMessageBox::doNotAskAgainQuestion(
-                ICore::mainWindow(), tr("Remove All Expression Evaluators"),
+                ICore::dialogParent(), tr("Remove All Expression Evaluators"),
                 tr("Are you sure you want to remove all expression evaluators?"),
                 ICore::settings(), "RemoveAllWatchers");
     if (ret != QDialogButtonBox::Yes)
