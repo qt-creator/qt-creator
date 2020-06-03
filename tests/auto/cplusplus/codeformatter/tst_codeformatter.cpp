@@ -1287,6 +1287,7 @@ void tst_CodeFormatter::functionReturnType()
          << Line("A::B::foo() {}")
          << Line("std::map<int,std::vector<int>> indent() {}")
          << Line("std::map<int,std::vector<int> > indent() {}")
+         << Line("auto indent() -> std::map<int,std::vector<int>>")
          << Line("")
          ;
     checkIndent(data);

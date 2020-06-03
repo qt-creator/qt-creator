@@ -199,6 +199,11 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
                     turnInto(substatement_open);
                 }
                 break;
+            case T_ARROW: // Trailing return type?
+                if (m_currentState.at(m_currentState.size() - 2).type == declaration_start) {
+                    leave();
+                    break;
+                }
             default:            tryExpression(); break;
             } break;
 
