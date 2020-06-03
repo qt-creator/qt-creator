@@ -1142,8 +1142,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
 
                 int maximumArgumentsMatched = 0;
 
-                for (const std::pair<const TemplateNameId *, ClassOrNamespace *> &p :
-                     specializations) {
+                for (const auto &p : specializations) {
                     const TemplateNameId *templateSpecialization = p.first;
                     ClassOrNamespace *specializationClassOrNamespace = p.second;
 

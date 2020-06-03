@@ -206,7 +206,7 @@ AndroidDeviceInfoList AndroidToolManager::androidVirtualDevices(const Utils::Fil
     if (avds.empty())
         return devices;
 
-    for (const QString line : avds) // remove the daemon logs
+    for (const QString &line : avds) // remove the daemon logs
         if (line.startsWith("* daemon"))
             avds.removeOne(line);
 

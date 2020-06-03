@@ -616,7 +616,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(const FilePath &adbTo
     if (adbDevs.empty())
         return devices;
 
-    for (const QString line : adbDevs) // remove the daemon logs
+    for (const QString &line : adbDevs) // remove the daemon logs
         if (line.startsWith("* daemon"))
             adbDevs.removeOne(line);
     adbDevs.removeFirst(); // remove "List of devices attached" header line

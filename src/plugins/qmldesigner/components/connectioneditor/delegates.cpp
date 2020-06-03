@@ -309,7 +309,7 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
             }
 
             QStringList trigger = connectionModel->getflowActionTriggerForRow(index.row());
-            for (const QString action : trigger) {
+            for (const QString &action : trigger) {
                 connectionComboBox->addItem(tr("Activate FlowAction %1").arg(nameForAction(action)), action);
             }
         }
