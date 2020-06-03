@@ -1578,7 +1578,7 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
                 << endl;
     }
 
-    QStringList classesList = classesSet.toList();
+    QStringList classesList = Utils::toList(classesSet);
     Utils::sort(classesList);
     for (const QString &className : qAsConst(classesList)) {
         const QString methodName = className.left(className.length() - 3);
