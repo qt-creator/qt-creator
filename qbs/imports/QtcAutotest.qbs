@@ -3,6 +3,8 @@ import qbs.FileInfo
 
 QtcProduct {
     type: ["application", "autotest"]
+
+    Depends { name: "autotest" }
     Depends { name: "Qt.testlib" }
     Depends { name: "copyable_resource" }
     targetName: "tst_" + name.split(' ').join("")
