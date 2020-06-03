@@ -152,6 +152,6 @@
         \li \l {Opening Projects}
         \li \l {Specifying Build Settings}
         \li \l {Specifying Run Settings}
-        \li \l {Deploying CMake Projects to Embedded Linux Devices}
+        \li \l {Deploying CMake Projects to Generic Remote Linux Devices}
     \endlist
 */

@@ -69,7 +69,7 @@
             to debug applications on them with GDB or a hardware debugger.
         \endif
 
-        \li \l{Connecting Embedded Linux Devices}
+        \li \l{Connecting Generic Remote Linux Devices}
 
             If you have a tool chain for building applications for embedded
             Linux devices installed on the development

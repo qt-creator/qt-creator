@@ -32,7 +32,7 @@
 /*!
 //! [cmake deploying embedded]
 
-    \section1 Deploying CMake Projects to Embedded Linux Devices
+    \section1 Deploying CMake Projects to Generic Remote Linux Devices
 
     \QC cannot directly extract files to be installed from a CMake project.
     Therefore, a special deploy step is created that installs the project into

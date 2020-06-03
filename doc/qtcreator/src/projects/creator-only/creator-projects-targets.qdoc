@@ -52,7 +52,7 @@
         \li \l{https://doc.qt.io/QtForDeviceCreation/b2qt-installation-guides.html}
             {Boot2Qt Device} (commercial only)
         \li \l{Emulator}{Boot2Qt Emulator Device} (commercial only)
-        \li \l{Connecting Embedded Linux Devices}{Generic Remote Linux Device}
+        \li \l{Connecting Generic Remote Linux Devices}{Generic Remote Linux Device}
         \li \l{Connecting iOS Devices}{iOS Device}
         \li iOS Simulator
         \li \l{Connecting MCUs}{MCU Device} (commercial only)
