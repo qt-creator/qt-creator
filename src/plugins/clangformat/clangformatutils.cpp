@@ -54,7 +54,11 @@ static clang::format::FormatStyle qtcStyle()
     style.AlignConsecutiveAssignments = false;
     style.AlignConsecutiveDeclarations = false;
     style.AlignEscapedNewlines = FormatStyle::ENAS_DontAlign;
+#if LLVM_VERSION_MAJOR >= 11
+    style.AlignOperands = FormatStyle::OAS_Align;
+#else
     style.AlignOperands = true;
+#endif
     style.AlignTrailingComments = true;
     style.AllowAllParametersOfDeclarationOnNextLine = true;
 #if LLVM_VERSION_MAJOR >= 10

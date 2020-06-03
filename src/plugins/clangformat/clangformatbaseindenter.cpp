@@ -343,7 +343,7 @@ Utils::Text::Replacements utf16Replacements(const QTextDocument *doc,
                                     .size();
         convertedReplacements.emplace_back(utf16Offset,
                                            utf16Length,
-                                           QString::fromStdString(replacement.getReplacementText()));
+                                           QString::fromStdString(replacement.getReplacementText().str()));
     }
 
     return convertedReplacements;
