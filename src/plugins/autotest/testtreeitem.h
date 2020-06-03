@@ -134,6 +134,7 @@ public:
     virtual bool shouldBeAddedAfterFiltering() const { return true; }
     virtual QSet<QString> internalTargets() const;
 
+    QString cacheName() const { return m_filePath + ':' + m_name; }
 protected:
     void copyBasicDataFrom(const TestTreeItem *other);
     typedef std::function<bool(const TestTreeItem *)> CompareFunction;

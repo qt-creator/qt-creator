@@ -91,6 +91,8 @@ void TestTreeModel::setupParsingConnections()
     connect(sm, &SessionManager::startupProjectChanged, [this](Project *project) {
         synchronizeTestFrameworks(); // we might have project settings
         m_parser->onStartupProjectChanged(project);
+        m_checkStateCache.clear(); // TODO persist to project settings?
+        m_itemUseCache.clear();
     });
 
     CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
@@ -291,6 +293,28 @@ void TestTreeModel::rebuild(const QList<Core::Id> &frameworkIds)
     }
 }
 
+void TestTreeModel::updateCheckStateCache()
+{
+    // raise generation for cached items and drop anything reaching 10th generation
+    const QList<QString> cachedNames = m_itemUseCache.keys();
+    for (const QString &cachedName : cachedNames) {
+        auto it = m_itemUseCache.find(cachedName);
+        if (it.value()++ >= 10) {
+            m_itemUseCache.erase(it);
+            m_checkStateCache.remove(cachedName);
+        }
+    }
+
+    for (Utils::TreeItem *rootNode : *rootItem()) {
+        rootNode->forAllChildren([this](Utils::TreeItem *child) {
+            auto childItem = static_cast<TestTreeItem *>(child);
+            const QString cacheName = childItem->cacheName();
+            m_checkStateCache.insert(cacheName, childItem->checked());
+            m_itemUseCache[cacheName] = 0; // explicitly mark as 0-generation
+        });
+    }
+}
+
 void TestTreeModel::removeFiles(const QStringList &files)
 {
     for (const QString &file : files)
@@ -404,14 +428,21 @@ void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, b
         // only handle item's children and add them to the already present one
         for (int row = 0, count = item->childCount(); row < count; ++row) {
             TestTreeItem *child = fullCopyOf(item->childAt(row));
-            applyParentCheckState(otherItem, child);
+            // use check state of the original
+            child->setData(0, item->childAt(row)->checked(), Qt::CheckStateRole);
             otherItem->appendChild(child);
+            revalidateCheckState(child);
         }
         delete item;
     } else {
-        // we could try to add a non-checked item to a checked group or vice versa
-        applyParentCheckState(parentNode, item);
+        // restore former check state if available
+        auto cached = m_checkStateCache.find(item->cacheName());
+        if (cached != m_checkStateCache.end())
+            item->setData(0, cached.value(), Qt::CheckStateRole);
+        else
+            applyParentCheckState(parentNode, item);
         parentNode->appendChild(item);
+        revalidateCheckState(parentNode);
     }
 }
 
@@ -492,6 +523,13 @@ void TestTreeModel::handleParseResult(const TestParseResult *result, TestTreeIte
     TestTreeItem *newItem = result->createTestTreeItem();
     QTC_ASSERT(newItem, return);
 
+    // restore former check state if available
+    newItem->forAllChildren([this](Utils::TreeItem *child) {
+        auto childItem = static_cast<TestTreeItem *>(child);
+        auto cached = m_checkStateCache.find(childItem->cacheName());
+        if (cached != m_checkStateCache.end())
+            childItem->setData(0, cached.value(), Qt::CheckStateRole);
+    });
     // it might be necessary to "split" created item
     filterAndInsert(newItem, parentNode, groupingEnabled);
 }

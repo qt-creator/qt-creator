@@ -66,6 +66,7 @@ public:
     void synchronizeTestFrameworks();
     void rebuild(const QList<Core::Id> &frameworkIds);
 
+    void updateCheckStateCache();
 #ifdef WITH_TESTS
     int autoTestsCount() const;
     int namedQuickTestsCount() const;
@@ -103,6 +104,8 @@ private:
     QList<TestTreeItem *> testItemsByName(TestTreeItem *root, const QString &testName);
 
     Internal::TestCodeParser *m_parser = nullptr;
+    QHash<QString, Qt::CheckState> m_checkStateCache; // could be enhanced to store expanded as well
+    QHash<QString, int> m_itemUseCache;
 };
 
 namespace Internal {

@@ -334,6 +334,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList, const QList<ITest
     }
 
     parsingHasFailed = false;
+    TestTreeModel::instance()->updateCheckStateCache();
     if (isFullParse) {
         // remove qml files as they will be found automatically by the referencing cpp file
         list = Utils::filtered(list, [] (const QString &fn) {
