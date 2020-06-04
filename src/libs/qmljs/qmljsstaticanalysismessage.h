@@ -89,6 +89,7 @@ enum Type
     MaybeWarnEqualityTypeCoercion = 126,
     WarnConfusingExpressionStatement = 127,
     StateCannotHaveChildItem = 128,
+    ErrTypeIsInstantiatedRecursively = 129,
     HintDeclarationsShouldBeAtStartOfFunction = 201,
     HintOneStatementPerLine = 202,
     WarnImperativeCodeNotEditableInVisualDesigner = 203,
