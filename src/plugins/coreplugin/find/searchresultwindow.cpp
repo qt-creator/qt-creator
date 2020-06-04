@@ -772,7 +772,7 @@ QWidget *SearchResult::additionalReplaceWidget() const
 }
 
 /*!
-    Sets a UI for a global search and replace action.
+    Sets a \a widget as UI for a global search and replace action.
 */
 void SearchResult::setAdditionalReplaceWidget(QWidget *widget)
 {
