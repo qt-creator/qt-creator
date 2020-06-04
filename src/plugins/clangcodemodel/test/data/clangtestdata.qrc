@@ -24,5 +24,8 @@
         <file>dotToArrowCorrection.cpp</file>
         <file>noDotToArrowCorrectionForFloats.cpp</file>
         <file>classAndConstructorCompletion.cpp</file>
+        <file>membercompletion-outside.cpp</file>
+        <file>membercompletion-inside.cpp</file>
+        <file>membercompletion-friend.cpp</file>
     </qresource>
 </RCC>

@@ -132,6 +132,12 @@ static QList<AssistProposalItemInterface *> toAssistProposalItems(
         if (codeCompletion.text.isEmpty())
             continue; // It's an OverloadCandidate which has text but no typedText.
 
+        // Don't offer symbols that are not accessible here.
+        if (codeCompletion.availability == CodeCompletion::NotAvailable
+                || codeCompletion.availability == CodeCompletion::NotAccessible) {
+            continue;
+        }
+
         const QString name = codeCompletion.completionKind == CodeCompletion::KeywordCompletionKind
                 ? CompletionChunksToTextConverter::convertToName(codeCompletion.chunks)
                 : codeCompletion.text.toString();

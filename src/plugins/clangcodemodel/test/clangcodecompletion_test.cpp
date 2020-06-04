@@ -552,6 +552,30 @@ void ClangCodeCompletionTest::testCompleteMembers()
     QVERIFY(!hasSnippet(t.proposal, "class")); // Snippet
 }
 
+void ClangCodeCompletionTest::testCompleteMembersFromInside()
+{
+    ProjectLessCompletionTest t("membercompletion-inside.cpp");
+
+    QVERIFY(hasItem(t.proposal, "publicFunc"));
+    QVERIFY(hasItem(t.proposal, "privateFunc"));
+}
+
+void ClangCodeCompletionTest::testCompleteMembersFromOutside()
+{
+    ProjectLessCompletionTest t("membercompletion-outside.cpp");
+
+    QVERIFY(hasItem(t.proposal, "publicFunc"));
+    QVERIFY(!hasItem(t.proposal, "privateFunc"));
+}
+
+void ClangCodeCompletionTest::testCompleteMembersFromFriend()
+{
+    ProjectLessCompletionTest t("membercompletion-friend.cpp");
+
+    QVERIFY(hasItem(t.proposal, "publicFunc"));
+    QVERIFY(hasItem(t.proposal, "privateFunc"));
+}
+
 void ClangCodeCompletionTest::testCompleteFunctions()
 {
     ProjectLessCompletionTest t("functionCompletion.cpp");
