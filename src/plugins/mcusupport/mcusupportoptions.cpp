@@ -63,24 +63,26 @@ namespace Internal {
 
 static const int KIT_VERSION = 5; // Bumps up whenever details in Kit creation change
 
-static QString packagePathFromSettings(const QString &settingsKey, const QString &defaultPath = {})
+static QString packagePathFromSettings(const QString &settingsKey,
+                                       QSettings::Scope scope = QSettings::UserScope,
+                                       const QString &defaultPath = {})
 {
-    QSettings *s = Core::ICore::settings();
+    QSettings *s = Core::ICore::settings(scope);
     s->beginGroup(Constants::SETTINGS_GROUP);
     const QString path = s->value(QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX)
                                   + settingsKey, defaultPath).toString();
     s->endGroup();
-    return path;
+    return Utils::FilePath::fromFileInfo(path).toString();
 }
 
 McuPackage::McuPackage(const QString &label, const QString &defaultPath,
                        const QString &detectionPath, const QString &settingsKey)
     : m_label(label)
-    , m_defaultPath(defaultPath)
+    , m_defaultPath(packagePathFromSettings(settingsKey, QSettings::SystemScope, defaultPath))
     , m_detectionPath(detectionPath)
     , m_settingsKey(settingsKey)
 {
-    m_path = packagePathFromSettings(settingsKey, defaultPath);
+    m_path = packagePathFromSettings(settingsKey, QSettings::UserScope, m_defaultPath);
 }
 
 QString McuPackage::path() const
@@ -105,6 +107,12 @@ QWidget *McuPackage::widget()
 
     m_widget = new QWidget;
     m_fileChooser = new Utils::PathChooser;
+    m_fileChooser->lineEdit()->setButtonIcon(Utils::FancyLineEdit::Right,
+                                             Utils::Icons::RESET.icon());
+    m_fileChooser->lineEdit()->setButtonVisible(Utils::FancyLineEdit::Right, true);
+    connect(m_fileChooser->lineEdit(), &Utils::FancyLineEdit::rightButtonClicked, [&](){
+        m_fileChooser->setPath(m_defaultPath);
+    });
 
     auto layout = new QGridLayout(m_widget);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -169,11 +177,8 @@ void McuPackage::writeToSettings() const
 {
     const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/' +
             QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX) + m_settingsKey;
-    const QSettings *iS = Core::ICore::settings(QSettings::SystemScope);
     QSettings *uS = Core::ICore::settings();
-    if (m_path == m_defaultPath || (
-                iS->contains(key) &&
-                m_path == Utils::FilePath::fromUserInput(iS->value(key).toString()).toString()))
+    if (m_path == m_defaultPath)
         uS->remove(key);
     else
         uS->setValue(key, m_path);
@@ -213,6 +218,8 @@ void McuPackage::updateStatus()
         break;
     }
     m_infoLabel->setText(statusText);
+    m_fileChooser->lineEdit()->button(Utils::FancyLineEdit::Right)->setEnabled(
+                m_path != m_defaultPath);
 }
 
 McuToolChainPackage::McuToolChainPackage(const QString &label, const QString &defaultPath,
@@ -465,7 +472,8 @@ void McuSupportOptions::setQulDir(const Utils::FilePath &dir)
 Utils::FilePath McuSupportOptions::qulDirFromSettings()
 {
     return Utils::FilePath::fromUserInput(
-                packagePathFromSettings(Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK));
+                packagePathFromSettings(Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK,
+                                        QSettings::UserScope));
 }
 
 static Utils::FilePath jomExecutablePath()
