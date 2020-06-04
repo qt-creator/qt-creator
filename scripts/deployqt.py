@@ -27,10 +27,10 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ################################################################################
 
+import argparse
 import os
 import locale
 import sys
-import getopt
 import subprocess
 import re
 import shutil
@@ -38,9 +38,31 @@ from glob import glob
 
 import common
 
-ignoreErrors = False
 debug_build = False
 encoding = locale.getdefaultlocale()[1]
+
+def get_args():
+    parser = argparse.ArgumentParser(description='Deploy Qt Creator dependencies for packaging')
+    parser.add_argument('-i', '--ignore-errors', help='For backward compatibility',
+                        action='store_true', default=False)
+    parser.add_argument('qtcreator_binary', help='Path to Qt Creator binary')
+    parser.add_argument('qmake_binary', help='Path to qmake binary')
+
+    args = parser.parse_args()
+
+    args.qtcreator_binary = os.path.abspath(args.qtcreator_binary)
+    if common.is_windows_platform() and not args.qtcreator_binary.lower().endswith(".exe"):
+        args.qtcreator_binary = args.qtcreator_binary + ".exe"
+    if not os.path.isfile(args.qtcreator_binary):
+        print('Cannot find Qt Creator binary.')
+        sys.exit(1)
+
+    args.qmake_binary = which(args.qmake_binary)
+    if not args.qmake_binary:
+        print('Cannot find qmake binary.')
+        sys.exit(2)
+
+    return args
 
 def usage():
     print("Usage: %s <existing_qtcreator_binary> [qmake_path]" % os.path.basename(sys.argv[0]))
@@ -76,15 +98,6 @@ def is_debug(fpath):
         return True
     output = subprocess.check_output(['dumpbin', '/imports', fpath])
     return coredebug.search(output.decode(encoding)) != None
-
-def op_failed(details = None):
-    if details != None:
-        print(details)
-    if ignoreErrors == False:
-        print("Error: operation failed!")
-        sys.exit(2)
-    else:
-        print("Error: operation failed, but proceeding gracefully.")
 
 def is_ignored_windows_file(use_debug, basepath, filename):
     ignore_patterns = ['.lib', '.pdb', '.exp', '.ilk']
@@ -132,7 +145,7 @@ def copy_qt_libs(target_qt_prefix_path, qt_bin_dir, qt_libs_dir, qt_plugin_dir, 
             try:
                 os.symlink(linkto, os.path.join(lib_dest, os.path.basename(library)))
             except OSError:
-                op_failed("Link already exists!")
+                pass
         else:
             shutil.copy(library, lib_dest)
 
@@ -271,42 +284,14 @@ def deploy_libclang(install_dir, llvm_install_dir, chrpath_bin):
     common.copytree(resourcesource, resourcetarget, symlinks=True)
 
 def main():
-    try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:], 'hi', ['help', 'ignore-errors'])
-    except getopt.GetoptError:
-        usage()
-        sys.exit(2)
-    for o, _ in opts:
-        if o in ('-h', '--help'):
-            usage()
-            sys.exit(0)
-        if o in ('-i', '--ignore-errors'):
-            global ignoreErrors
-            ignoreErrors = True
-            print("Note: Ignoring all errors")
+    args = get_args()
 
-    qtcreator_binary = os.path.abspath(args[0])
-    if common.is_windows_platform() and not qtcreator_binary.lower().endswith(".exe"):
-        qtcreator_binary = qtcreator_binary + ".exe"
-
-    if len(args) < 1 or not os.path.isfile(qtcreator_binary):
-        usage()
-        sys.exit(2)
-
-    qtcreator_binary_path = os.path.dirname(qtcreator_binary)
+    qtcreator_binary_path = os.path.dirname(args.qtcreator_binary)
     install_dir = os.path.abspath(os.path.join(qtcreator_binary_path, '..'))
     if common.is_linux_platform():
         qt_deploy_prefix = os.path.join(install_dir, 'lib', 'Qt')
     else:
         qt_deploy_prefix = os.path.join(install_dir, 'bin')
-    qmake_bin = 'qmake'
-    if len(args) > 1:
-        qmake_bin = args[1]
-    qmake_bin = which(qmake_bin)
-
-    if qmake_bin == None:
-        print("Cannot find required binary 'qmake'.")
-        sys.exit(2)
 
     chrpath_bin = None
     if common.is_linux_platform():
@@ -315,7 +300,7 @@ def main():
             print("Cannot find required binary 'chrpath'.")
             sys.exit(2)
 
-    qt_install_info = common.get_qt_install_info(qmake_bin)
+    qt_install_info = common.get_qt_install_info(args.qmake_binary)
     QT_INSTALL_LIBS = qt_install_info['QT_INSTALL_LIBS']
     QT_INSTALL_BINS = qt_install_info['QT_INSTALL_BINS']
     QT_INSTALL_PLUGINS = qt_install_info['QT_INSTALL_PLUGINS']
@@ -334,7 +319,7 @@ def main():
 
     if common.is_windows_platform():
         global debug_build
-        debug_build = is_debug(qtcreator_binary)
+        debug_build = is_debug(args.qtcreator_binary)
 
     if common.is_windows_platform():
         copy_qt_libs(qt_deploy_prefix, QT_INSTALL_BINS, QT_INSTALL_BINS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
