@@ -40,7 +40,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
-#include <cppeditor/cppeditorconstants.h>
 #include <texteditor/formattexteditor.h>
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>

@@ -1,6 +1,6 @@
 add_qtc_plugin(Beautifier
   DEPENDS Qt5::Xml
-  PLUGIN_DEPENDS Core CppEditor DiffEditor ProjectExplorer TextEditor
+  PLUGIN_DEPENDS Core ProjectExplorer TextEditor
   SOURCES
     abstractsettings.cpp abstractsettings.h
     artisticstyle/artisticstyle.cpp artisticstyle/artisticstyle.h
