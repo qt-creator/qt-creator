@@ -36,7 +36,12 @@ namespace Core {
 class CORE_EXPORT IMode : public IContext
 {
     Q_OBJECT
-    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
+    Q_PROPERTY(bool displayName READ displayName WRITE setDisplayName)
+    Q_PROPERTY(QIcon icon READ icon WRITE setIcon)
+    Q_PROPERTY(int priority READ priority WRITE setPriority)
+    Q_PROPERTY(Id id READ id WRITE setId)
+    Q_PROPERTY(QMenu *menu READ menu WRITE setMenu)
+    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled NOTIFY enabledStateChanged)
 
 public:
     IMode(QObject *parent = nullptr);
