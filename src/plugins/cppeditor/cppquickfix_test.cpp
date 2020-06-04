@@ -369,6 +369,31 @@ void CppEditorPlugin::test_quickfix_data()
         "}\n"
     );
 
+    // Checks: All enum values are added as case statements for a blank switch when
+    //         the variable is declared alongside the enum definition.
+    QTest::newRow("CompleteSwitchCaseStatement_basic1_enum_with_declaration")
+        << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
+        "enum EnumType { V1, V2 } t;\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    @switch (t) {\n"
+        "    }\n"
+        "}\n"
+        ) << _(
+        "enum EnumType { V1, V2 } t;\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    switch (t) {\n"
+        "    case V1:\n"
+        "        break;\n"
+        "    case V2:\n"
+        "        break;\n"
+        "    }\n"
+        "}\n"
+    );
+
     // Checks: All enum values are added as case statements for a blank switch with a default case.
     QTest::newRow("CompleteSwitchCaseStatement_basic2")
         << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(

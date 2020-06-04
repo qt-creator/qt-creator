@@ -3176,6 +3176,7 @@ bool Bind::visit(EnumSpecifierAST *ast)
     }
 
     (void) switchScope(previousScope);
+    _type.setType(control()->namedType(this->name(ast->name)));
     return false;
 }
 
