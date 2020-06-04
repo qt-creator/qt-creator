@@ -531,7 +531,41 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
         if (!NodeHints::fromItemLibraryEntry(itemLibraryEntry).canBeDroppedInNavigator())
             return;
 
-        const QmlObjectNode newQmlObjectNode = QmlItemNode::createQmlObjectNode(m_view, itemLibraryEntry, QPointF(), targetProperty);
+        QmlObjectNode newQmlObjectNode;
+        m_view->executeInTransaction("NavigatorTreeModel::handleItemLibraryItemDrop", [&] {
+            newQmlObjectNode = QmlItemNode::createQmlObjectNode(m_view, itemLibraryEntry, QPointF(), targetProperty, false);
+            ModelNode newModelNode = newQmlObjectNode.modelNode();
+            if (newModelNode.isValid() && newModelNode.isSubclassOf("QtQuick3D.Effect")) {
+                // Insert effects dropped to either View3D or SceneEnvironment into the
+                // SceneEnvironment's effects list
+                ModelNode targetEnv;
+                if (targetProperty.parentModelNode().isSubclassOf("QtQuick3D.SceneEnvironment")) {
+                    targetEnv = targetProperty.parentModelNode();
+                } else if (targetProperty.parentModelNode().isSubclassOf("QtQuick3D.View3D")) {
+                    // see if View3D has environment set to it
+                    BindingProperty envNodeProp = targetProperty.parentModelNode().bindingProperty("environment");
+                    if (envNodeProp.isValid())  {
+                        ModelNode envNode = envNodeProp.resolveToModelNode();
+                        if (envNode.isValid())
+                            targetEnv = envNode;
+                    }
+                }
+                if (targetEnv.isValid()) {
+                    BindingProperty effectsProp = targetEnv.bindingProperty("effects");
+                    if (effectsProp.isValid()) {
+                        QString expression = effectsProp.expression();
+                        int bracketIndex = expression.indexOf(']');
+                        if (expression.isEmpty())
+                            expression = newModelNode.validId();
+                        else if (bracketIndex == -1)
+                            expression = QStringLiteral("[%1,%2]").arg(expression).arg(newModelNode.validId());
+                        else
+                            expression.insert(bracketIndex, QStringLiteral(",%1").arg(newModelNode.validId()));
+                        effectsProp.setExpression(expression);
+                    }
+                }
+            }
+        });
 
         if (newQmlObjectNode.isValid() && targetProperty.isNodeListProperty()) {
             QList<ModelNode> newModelNodeList;
