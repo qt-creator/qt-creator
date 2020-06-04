@@ -67,6 +67,8 @@ public:
                                        const QString &include);
     void perform() override;
 
+    QString include() const { return m_include; }
+
 private:
     QString m_include;
 };

@@ -3771,6 +3771,20 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_data()
             << TestIncludePaths::globalQtCoreIncludePath()
             << testDocuments << firstRefactoringOperation << "";
     testDocuments.clear();
+
+    original =
+        "std::s@tring s;\n"
+        ;
+    expected =
+        "#include <string>\n"
+        "\n"
+        "std::string s;\n"
+        ;
+    testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
+    QTest::newRow("inserting_std::string")
+            << TestIncludePaths::globalIncludePath()
+            << testDocuments << firstRefactoringOperation << "";
+    testDocuments.clear();
 }
 
 void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier()

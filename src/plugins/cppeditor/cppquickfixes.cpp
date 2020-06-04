@@ -58,6 +58,7 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 
+#include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -1916,25 +1917,20 @@ QString findShortestInclude(const QString currentDocumentFilePath,
     return result;
 }
 
-QString findQtIncludeWithSameName(const QString &className,
-                                  const ProjectExplorer::HeaderPaths &headerPaths)
+QString findMatchingInclude(const QString &className,
+                            const ProjectExplorer::HeaderPaths &headerPaths)
 {
-    QString result;
-
-    // Check for a header file with the same name in the Qt include paths
-    foreach (const ProjectExplorer::HeaderPath &headerPath, headerPaths) {
-        if (!headerPath.path.contains(QLatin1String("/Qt"))) // "QtCore", "QtGui" etc...
-            continue;
-
-        const QString headerPathCandidate = headerPath.path + QLatin1Char('/') + className;
-        const QFileInfo fileInfo(headerPathCandidate);
-        if (fileInfo.exists() && fileInfo.isFile()) {
-            result = QLatin1Char('<') + className + QLatin1Char('>');
-            break;
+    const QStringList candidateFileNames{className, className + ".h", className + ".hpp",
+                className.toLower(), className.toLower() + ".h", className.toLower() + ".hpp"};
+    for (const QString &fileName : candidateFileNames) {
+        for (const ProjectExplorer::HeaderPath &headerPath : headerPaths) {
+            const QString headerPathCandidate = headerPath.path + QLatin1Char('/') + fileName;
+            const QFileInfo fileInfo(headerPathCandidate);
+            if (fileInfo.exists() && fileInfo.isFile())
+                return '<' + fileName + '>';
         }
     }
-
-    return result;
+    return {};
 }
 
 ProjectExplorer::HeaderPaths relevantHeaderPaths(const QString &filePath)
@@ -2030,17 +2026,11 @@ Snapshot forwardingHeaders(const CppQuickFixInterface &interface)
     return result;
 }
 
-bool looksLikeAQtClass(const QString &identifier)
-{
-    return identifier.size() > 2
-        && identifier.at(0) == QLatin1Char('Q')
-        && identifier.at(1).isUpper();
-}
-
 bool matchName(const Name *name, QList<Core::LocatorFilterEntry> *matches, QString *className) {
     if (!name)
         return false;
 
+    QString simpleName;
     if (Core::ILocatorFilter *classesFilter
             = CppTools::CppModelManager::instance()->classesFilter()) {
         QFutureInterface<Core::LocatorFilterEntry> dummy;
@@ -2051,7 +2041,8 @@ bool matchName(const Name *name, QList<Core::LocatorFilterEntry> *matches, QStri
             if (const TemplateNameId *templateName = name->asTemplateNameId()) {
                 *className = templateNameAsString(templateName);
             } else {
-                *className = oo.prettyName(name);
+                simpleName = oo.prettyName(name);
+                *className = simpleName;
                 *matches = classesFilter->matchesFor(dummy, *className);
                 if (matches->empty()) {
                     if (const Name *name = qualifiedName->base()) {
@@ -2070,6 +2061,8 @@ bool matchName(const Name *name, QList<Core::LocatorFilterEntry> *matches, QStri
 
         if (matches->empty())
             *matches = classesFilter->matchesFor(dummy, *className);
+        if (matches->empty() && !simpleName.isEmpty())
+            *className = simpleName;
     }
 
     return !matches->empty();
@@ -2092,7 +2085,7 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
     QList<Core::LocatorFilterEntry> matches;
     const QString currentDocumentFilePath = interface.semanticInfo().doc->fileName();
     const ProjectExplorer::HeaderPaths headerPaths = relevantHeaderPaths(currentDocumentFilePath);
-    bool qtHeaderFileIncludeOffered = false;
+    QList<Utils::FilePath> headers;
 
     // Find an include file through the locator
     if (matchName(nameAst->name, &matches, &className)) {
@@ -2124,11 +2117,9 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
                     else if (headerFileName.at(1).isUpper())
                         priority = 1;
 
-                    if (looksLikeAQtClass(include.mid(1, include.size() - 2)))
-                        qtHeaderFileIncludeOffered = true;
-
                     result << new AddIncludeForUndefinedIdentifierOp(interface, priority,
                                                                      include);
+                    headers << header;
                 }
             }
         }
@@ -2158,12 +2149,16 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
     if (className.isEmpty())
         return;
 
-    // The header file we are looking for might not be (yet) included in any file we have parsed.
-    // As such, it will not be findable via locator. At least for Qt classes, check also for
-    // headers with the same name.
-    if (!qtHeaderFileIncludeOffered && looksLikeAQtClass(className)) {
-        const QString include = findQtIncludeWithSameName(className, headerPaths);
-        if (!include.isEmpty())
+    // Fallback: Check the include paths for files that look like candidates
+    //           for the given name.
+    if (!Utils::contains(headers,
+            [&className](const Utils::FilePath &fp) { return fp.fileName() == className; })) {
+        const QString include = findMatchingInclude(className, headerPaths);
+        const auto matcher = [&include](const QuickFixOperation::Ptr &o) {
+            const auto includeOp = o.dynamicCast<AddIncludeForUndefinedIdentifierOp>();
+            return includeOp && includeOp->include() == include;
+        };
+        if (!include.isEmpty() && !Utils::contains(result, matcher))
             result << new AddIncludeForUndefinedIdentifierOp(interface, 1, include);
     }
 }
