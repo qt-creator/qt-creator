@@ -32,6 +32,7 @@
 
 #include <cstddef>
 
+
 #pragma once
 
 namespace Sqlite {
@@ -106,7 +107,7 @@ public:
         return {};
     }
 
-    friend bool operator==(const ValueBase &first, nullptr_t) { return first.isNull(); }
+    friend bool operator==(const ValueBase &first, std::nullptr_t) { return first.isNull(); }
 
     friend bool operator==(const ValueBase &first, long long second)
     {
