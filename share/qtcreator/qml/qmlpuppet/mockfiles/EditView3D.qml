@@ -645,5 +645,15 @@ Item {
             editCameraCtrl: cameraControl
             selectedNode : viewRoot.selectedNodes.length ? selectionBoxes[0].model : null
         }
+
+        Text {
+            id: sceneLabel
+            text: viewRoot.sceneId
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.margins: 4
+            font.pixelSize: 14
+            color: "white"
+        }
     }
 }
