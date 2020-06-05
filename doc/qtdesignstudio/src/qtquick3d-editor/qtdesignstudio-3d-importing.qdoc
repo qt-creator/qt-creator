@@ -41,8 +41,8 @@
     .gltf, .obj, .uia, or .uip. For a list of formats supported by each
     \l{Qt Quick 3D} version, see the module documentation.
 
-    For more information about exporting 3D graphics from Maya, see
-    \l{Exporting from Maya}.
+    For more information about exporting 3D graphics, see
+    \l{Exporting 3D Assets}.
 
     During the import, you can optimize the files for \QDS. You can remove
     components from meshes to reduce the cache size, find and fix issues in
