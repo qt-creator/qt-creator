@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -314,6 +314,14 @@
     \uicontrol {Master icon} button to select an icon with the highest resolution,
     then, it will resize and set the three icon fields for low, medium, and high DPI icons
     as needed.
+
+    \li In \uicontrol {Android services}, you can add and remove services. You must
+    enter at least a service class name for a new service. If you select
+    \uicontrol {Run in external process}, you also need to enter a process name.
+    If you select \uicontrol {Run in external library}, you need to enter a library name.
+    Service arguments are mandatory for a service that is not run in an external
+    library. For more information about writing service code and structure of services,
+    see \l{Android Services}.
 
     \li In the \uicontrol Permissions field, you can specify the permissions that your
     application needs. Starting from Android 6.0 (API 23), permissions have to be
