@@ -48,6 +48,8 @@ namespace QmlDesigner {
 namespace Internal {
 
 const QString _globalStateId = QStringLiteral("@GTS"); // global tool state
+const QString _lastSceneIdKey = QStringLiteral("lastSceneId");
+const QString _rootSizeKey = QStringLiteral("rootSize");
 
 GeneralHelper::GeneralHelper()
     : QObject()
@@ -278,6 +280,16 @@ QVariantMap GeneralHelper::getToolStates(const QString &sceneId)
 QString GeneralHelper::globalStateId() const
 {
     return _globalStateId;
+}
+
+QString GeneralHelper::lastSceneIdKey() const
+{
+    return _lastSceneIdKey;
+}
+
+QString GeneralHelper::rootSizeKey() const
+{
+    return _rootSizeKey;
 }
 
 bool GeneralHelper::isMacOS() const

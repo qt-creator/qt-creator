@@ -367,6 +367,10 @@ void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D()
                               Q_ARG(QVariant, QVariant::fromValue(sceneId)));
 
     updateView3DRect(m_active3DView);
+
+    auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
+    if (helper)
+        helper->storeToolState(helper->globalStateId(), helper->lastSceneIdKey(), QVariant(sceneId), 0);
 #endif
 }
 
@@ -804,19 +808,9 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
     add3DViewPorts(instanceList);
     add3DScenes(instanceList);
 
-    // Find any scene to show
-    if (!m_3DSceneMap.isEmpty()) {
-        m_active3DScene = m_3DSceneMap.begin().key();
-        m_active3DView = findView3DForSceneRoot(m_active3DScene);
-    }
-
     createEditView3D();
-    if (!m_editView3DRootItem) {
-        m_active3DScene = nullptr;
-        m_active3DView = nullptr;
-        return;
-    }
 
+    QString lastSceneId;
     auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
     if (helper) {
         auto it = toolStates.constBegin();
@@ -824,9 +818,31 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
             helper->initToolStates(it.key(), it.value());
             ++it;
         }
-        if (toolStates.contains(helper->globalStateId())
-                && toolStates[helper->globalStateId()].contains("rootSize")) {
-            m_editView3DRootItem->setSize(toolStates[helper->globalStateId()]["rootSize"].value<QSize>());
+        if (toolStates.contains(helper->globalStateId())) {
+            if (toolStates[helper->globalStateId()].contains(helper->rootSizeKey()))
+                m_editView3DRootItem->setSize(toolStates[helper->globalStateId()][helper->rootSizeKey()].value<QSize>());
+            if (toolStates[helper->globalStateId()].contains(helper->lastSceneIdKey()))
+                lastSceneId = toolStates[helper->globalStateId()][helper->lastSceneIdKey()].toString();
+        }
+    }
+
+    // Find a scene to show
+    m_active3DScene = nullptr;
+    m_active3DView = nullptr;
+    if (m_editView3DRootItem && !m_3DSceneMap.isEmpty()) {
+        // Restore the previous scene if possible
+        if (!lastSceneId.isEmpty()) {
+            const auto keys = m_3DSceneMap.uniqueKeys();
+            for (const auto key : keys) {
+                m_active3DScene = key;
+                m_active3DView = findView3DForSceneRoot(m_active3DScene);
+                ServerNodeInstance sceneInstance = active3DSceneInstance();
+                if (lastSceneId == sceneInstance.id())
+                    break;
+            }
+        } else {
+            m_active3DScene = m_3DSceneMap.begin().key();
+            m_active3DView = findView3DForSceneRoot(m_active3DScene);
         }
     }
 
@@ -1248,7 +1264,7 @@ void Qt5InformationNodeInstanceServer::update3DViewState(const Update3dViewState
             m_editView3DRootItem->setSize(command.size());
             auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
             if (helper)
-                helper->storeToolState(helper->globalStateId(), "rootSize", QVariant(command.size()), 0);
+                helper->storeToolState(helper->globalStateId(), helper->rootSizeKey(), QVariant(command.size()), 0);
             // Queue two renders to make sure icon gizmos update properly
             render3DEditView(2);
         }

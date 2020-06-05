@@ -78,6 +78,8 @@ public:
     Q_INVOKABLE void enableItemUpdate(QQuickItem *item, bool enable);
     Q_INVOKABLE QVariantMap getToolStates(const QString &sceneId);
     QString globalStateId() const;
+    QString lastSceneIdKey() const;
+    QString rootSizeKey() const;
 
     bool isMacOS() const;
 
