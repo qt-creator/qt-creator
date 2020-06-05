@@ -117,7 +117,7 @@ void QmlPreviewConnectionManager::createDebugTranslationClient()
     });
     QObject::connect(m_qmlDebugTranslationClient.data(), &QmlDebugTranslationClient::debugServiceUnavailable,
                      this, []() {
-        QMessageBox::warning(Core::ICore::mainWindow(), "Error connect to QML DebugTranslation service",
+        QMessageBox::warning(Core::ICore::dialogParent(), "Error connect to QML DebugTranslation service",
                              "QML DebugTranslation feature is not available for this version of Qt.");
     }, Qt::QueuedConnection); // Queue it, so that it interfere with the connection timer
 }
@@ -209,7 +209,7 @@ void QmlPreviewConnectionManager::createPreviewClient()
 
     QObject::connect(m_qmlPreviewClient.data(), &QmlPreviewClient::debugServiceUnavailable,
                      this, []() {
-        QMessageBox::warning(Core::ICore::mainWindow(), "Error loading QML Live Preview",
+        QMessageBox::warning(Core::ICore::dialogParent(), "Error loading QML Live Preview",
                              "QML Live Preview is not available for this version of Qt.");
     }, Qt::QueuedConnection); // Queue it, so that it interfere with the connection timer
 
