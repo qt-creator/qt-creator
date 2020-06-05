@@ -2909,6 +2909,19 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_templateFunction()
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_notTriggeredForFriendFunc()
+{
+    const QByteArray contents =
+        "class Foo\n"
+        "{\n"
+        "    friend void f@unc();\n"
+        "};\n"
+        "\n";
+
+    InsertDefFromDecl factory;
+    QuickFixOperationTest(singleDocument(contents, ""), &factory);
+}
+
 // Function for one of InsertDeclDef section cases
 void insertToSectionDeclFromDef(const QByteArray &section, int sectionIndex)
 {
