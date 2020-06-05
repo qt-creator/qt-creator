@@ -5,8 +5,8 @@ endif()
 find_package(yaml-cpp QUIET MODULE)
 
 add_qtc_plugin(ClangTools
-  CONDITION TARGET libclang AND TARGET yaml-cpp
-  DEPENDS ClangSupport libclang yaml-cpp
+  CONDITION TARGET yaml-cpp
+  DEPENDS ClangSupport yaml-cpp
   PLUGIN_DEPENDS Core Debugger CppTools ${TST_COMPONENT}
   PLUGIN_RECOMMENDS CppEditor
   INCLUDES ${CLANG_INCLUDE_DIRS}
