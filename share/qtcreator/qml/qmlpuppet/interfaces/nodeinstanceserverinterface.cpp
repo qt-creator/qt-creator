@@ -217,9 +217,6 @@ void NodeInstanceServerInterface::registerCommands()
     qRegisterMetaType<ChangeLanguageCommand>("ChangeLanguageCommand");
     qRegisterMetaTypeStreamOperators<ChangeLanguageCommand>("ChangeLanguageCommand");
 
-    qRegisterMetaType<ChangeLanguageCommand>("ChangeLanguageCommand");
-    qRegisterMetaTypeStreamOperators<ChangeLanguageCommand>("ChangeLanguageCommand");
-
     qRegisterMetaType<ChangePreviewImageSizeCommand>("ChangePreviewImageSizeCommand");
     qRegisterMetaTypeStreamOperators<ChangePreviewImageSizeCommand>("ChangePreviewImageSizeCommand");
 }
