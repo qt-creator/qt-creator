@@ -53,16 +53,20 @@
     To remove invalid Qt versions, select \uicontrol {Clean Up}.
 
     You can link to a Qt that you installed using the Qt Maintenance Tool to
-    automatically register the installed Qt versions. The mechanism does not
-    handle Qt versions installed by the system using some other package manager,
-    such as your Linux distribution, brew on \macos, or Chocolatey on Windows,
-    nor a self-built Qt.
+    automatically register the installed Qt versions. However, you cannot link
+    to Qt versions that were installed by the system using some other package
+    manager, such as your Linux distribution, brew on \macos, or Chocolatey on
+    Windows, nor a self-built Qt. In those cases, select \uicontrol {Add} in
+    the \uicontrol {Qt Versions} tab to add the Qt version manually, as
+    instructed in \l{Setting Up New Qt Versions}.
 
     To link to a Qt installation:
 
     \list 1
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
-            \uicontrol {Qt Versions} > \uicontrol {Link with Qt}.
+        \li Select \uicontrol Tools > \uicontrol Options >
+            (or \uicontrol {Qt Creator} > \uicontrol Preferences on
+            \macos) > \uicontrol Kits > \uicontrol {Qt Versions} >
+            \uicontrol {Link with Qt}.
             \image qtcreator-link-with-qt.png "Choose Qt Installation dialog"
         \li In the \uicontrol {Qt installation path} field, enter the path to
             the directory where you installed Qt.
@@ -72,14 +76,16 @@
     \endlist
 
     To remove the automatically detected Qt versions from the list, select
-    \uicontrol {Link with Qt} > \uicontrol {Remove Link}.
+    \uicontrol {Remove Link}.
 
-    If a Qt version is still not listed under \uicontrol Auto-detected, select
-    \uicontrol {Add} to add it manually.
+    If a Qt version is still not listed in the \uicontrol {Qt Versions} tab
+    under \uicontrol Auto-detected, you have to set it up manually, as described
+    in the following section.
 
     You specify the Qt version to use for each \l{glossary-buildandrun-kit}
     {kit} for building and running your projects
-    in \uicontrol Tools > \uicontrol Options > \uicontrol Kits.
+    in \uicontrol Tools > \uicontrol Options > \uicontrol Kits, as described
+    in \l{Specifying Kit Settings}.
 
     \section1 Setting Up New Qt Versions
 
