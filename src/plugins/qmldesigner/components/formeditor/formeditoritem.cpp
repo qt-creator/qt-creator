@@ -55,6 +55,7 @@ namespace QmlDesigner {
 const int flowBlockSize = 200;
 const int blockRadius = 18;
 const int blockAdjust = 40;
+const int startItemOffset = 96;
 
 void drawIcon(QPainter *painter,
               int x,
@@ -732,7 +733,7 @@ void FormEditorTransitionItem::setDataModelPositionInBaseState(const QPointF &)
 
 }
 
-static bool isValid(const QList<QmlFlowTargetNode> &list)
+static bool isValid(const QList<QmlItemNode> &list)
 {
     for (const auto &item : list)
         if (!item.isValid())
@@ -741,7 +742,7 @@ static bool isValid(const QList<QmlFlowTargetNode> &list)
     return true;
 }
 
-static bool isModelNodeValid(const QList<QmlFlowTargetNode> &list)
+static bool isModelNodeValid(const QList<QmlItemNode> &list)
 {
     for (const auto &item : list)
         if (!item.modelNode().isValid())
@@ -762,20 +763,20 @@ public:
             if (node.modelNode().bindingProperty("from").isList())
                 from = Utils::transform<QList>(node.modelNode().bindingProperty("from").resolveToModelNodeList(),
                                                [](const ModelNode &node) {
-                    return QmlFlowTargetNode(node);
+                    return QmlItemNode(node);
                 });
             else
-                from = QList<QmlFlowTargetNode>({node.modelNode().bindingProperty("from").resolveToModelNode()});
+                from = QList<QmlItemNode>({node.modelNode().bindingProperty("from").resolveToModelNode()});
         }
 
         if (node.modelNode().hasBindingProperty("to")) {
             if (node.modelNode().bindingProperty("to").isList())
                 to = Utils::transform<QList>(node.modelNode().bindingProperty("to").resolveToModelNodeList(),
                                                [](const ModelNode &node) {
-                    return QmlFlowTargetNode(node);
+                    return QmlItemNode(node);
                 });
             else
-                to = QList<QmlFlowTargetNode>({node.modelNode().bindingProperty("to").resolveToModelNode()});
+                to = QList<QmlItemNode>({node.modelNode().bindingProperty("to").resolveToModelNode()});
         }
 
         if (from.empty()) {
@@ -790,7 +791,7 @@ public:
 
         // Only assign area node if there is exactly one from (QmlFlowItemNode)
         if (from.size() == 1) {
-            const QmlFlowTargetNode tmp = from.back();
+            const QmlItemNode tmp = from.back();
             const QmlFlowItemNode f(tmp.modelNode());
 
             if (f.isValid()) {
@@ -810,17 +811,8 @@ public:
                 if (f.modelNode().hasAuxiliaryData("joinConnection"))
                     joinConnection = f.modelNode().auxiliaryData("joinConnection").toBool();
             } else {
-                if (f == node.rootModelNode()) {
+                if (f == node.rootModelNode())
                     isStartLine = true;
-                } /*else {
-                    for (const ModelNode wildcard : QmlFlowViewNode(node.rootModelNode()).wildcards()) {
-                        if (wildcard.bindingProperty("target").resolveToModelNode() == node.modelNode()) {
-                            from.clear();
-                            from.append(wildcard);
-                            isWildcardLine = true;
-                        }
-                    }
-                }*/
             }
         }
     }
@@ -829,8 +821,8 @@ public:
     bool isStartLine = false;
     bool isWildcardLine = false;
 
-    QList<QmlFlowTargetNode> from;
-    QList<QmlFlowTargetNode> to;
+    QList<QmlItemNode> from;
+    QList<QmlItemNode> to;
     QmlFlowActionAreaNode areaNode;
 };
 
@@ -1165,35 +1157,34 @@ class Connection
 public:
     Connection(const ResolveConnection &resolveConnection,
                const QPointF &position,
-               const QmlFlowTargetNode &from,
-               const QmlFlowTargetNode &to,
+               const QmlItemNode &from,
+               const QmlItemNode &to,
                const ConnectionConfiguration &connectionConfig)
         : config(connectionConfig)
     {
-        fromRect = QmlItemNode(from).instanceBoundingRect();
-        if (QmlItemNode(from).isFlowDecision())
+        if (from.isFlowDecision() || from.isFlowWildcard() || from.isFlowView())
             fromRect = QRectF(0, 0, flowBlockSize, flowBlockSize);
+        else
+            fromRect = from.instanceBoundingRect();
 
-        if (QmlItemNode(from).isFlowWildcard())
-            fromRect = QRectF(0, 0, flowBlockSize, flowBlockSize);
-
-        fromRect.translate(QmlItemNode(from).flowPosition());
+        fromRect.translate(from.flowPosition());
 
         if (!resolveConnection.joinConnection && resolveConnection.areaNode.isValid()) {
             fromRect = QmlItemNode(resolveConnection.areaNode).instanceBoundingRect();
-            fromRect.translate(QmlItemNode(from).flowPosition());
+            fromRect.translate(from.flowPosition());
             fromRect.translate(resolveConnection.areaNode.instancePosition());
         }
 
-        toRect = QmlItemNode(to).instanceBoundingRect();
-        if (QmlItemNode(to).isFlowDecision())
+        if (to.isFlowDecision())
             toRect = QRectF(0, 0, flowBlockSize,flowBlockSize);
+        else
+            toRect = to.instanceBoundingRect();
 
-        toRect.translate(QmlItemNode(to).flowPosition());
+        toRect.translate(to.flowPosition());
 
         if (resolveConnection.isStartLine) {
             fromRect = QRectF(0, 0, 96, 96);
-            fromRect.translate(QmlItemNode(to).flowPosition() + QPoint(-180, toRect.height() / 2 - 96 / 2));
+            fromRect.translate(to.flowPosition() + QPoint(-180, toRect.height() / 2 - 96 / 2));
             fromRect.translate(0, config.outOffset);
         }
 
@@ -1300,7 +1291,7 @@ void FormEditorTransitionItem::updateGeometry()
     QPointF min(std::numeric_limits<qreal>::max(), std::numeric_limits<qreal>::max());
     QPointF max(std::numeric_limits<qreal>::min(), std::numeric_limits<qreal>::min());
 
-    auto minMaxHelper = [&](const QList<QmlFlowTargetNode> &items) {
+    auto minMaxHelper = [&](const QList<QmlItemNode> &items) {
         QRectF boundingRect;
         for (const auto &i : items) {
             const QPointF p = QmlItemNode(i).flowPosition();
@@ -1323,8 +1314,10 @@ void FormEditorTransitionItem::updateGeometry()
         return boundingRect;
     };
 
-    const QRectF fromBoundingRect = minMaxHelper(resolved.from);
     const QRectF toBoundingRect = minMaxHelper(resolved.to);
+    // Special treatment for start line bounding rect calculation
+    const QRectF fromBoundingRect = !resolved.isStartLine ? minMaxHelper(resolved.from)
+                                                          : toBoundingRect + QMarginsF(startItemOffset, 0, 0, 0);
 
     QRectF overallBoundingRect(min, max);
     overallBoundingRect = overallBoundingRect.united(fromBoundingRect);
@@ -1352,7 +1345,6 @@ void FormEditorTransitionItem::updateGeometry()
             // Just add the configured transition width to the bounding box to make sure the BB is not cutting
             // off half of the transition resulting in a bad selection experience.
             QRectF pathBoundingRect = connection.path.boundingRect() + QMarginsF(config.width, config.width, config.width, config.width);
-
             overallBoundingRect = overallBoundingRect.united(connection.fromRect);
             overallBoundingRect = overallBoundingRect.united(connection.toRect);
             overallBoundingRect = overallBoundingRect.united(pathBoundingRect);
@@ -1528,14 +1520,6 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
     font.setPixelSize(config.fontSize);
     painter->setFont(font);
 
-/*
-    // In case of one-to-many many-to-one connection change the style
-    if ((resolved.from.size() > 1 || resolved.to.size() > 1) && !qmlItemNode().modelNode().isSelected()) {
-        config.penStyle = Qt::DotLine;
-        config.width = 1;
-    }
-*/
-
     for (const auto &f : resolved.from) {
         for (const auto &t : resolved.to) {
             Connection connection(resolved, pos(), f, t, config);
@@ -1552,7 +1536,6 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
                 // many-to-one
                 else if (resolved.from.size() > 1 && resolved.to.size() == 1) {
                     connection.config.joinEnd = true;
-                    //connection.config.type = ConnectionType::Bezier;
 
                     if (qmlItemNode().modelNode().isSelected()) {
                         connection.config.dashPattern << 2 << 3;
@@ -1572,7 +1555,6 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
                 }
                 // one-to-many
                 else if (resolved.from.size() == 1 && resolved.to.size() > 1) {
-                    //connection.config.type = ConnectionType::Bezier;
 
                     if (qmlItemNode().modelNode().isSelected()) {
                         connection.config.dashPattern << 2 << 3;
@@ -1605,10 +1587,9 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
                 painter->setPen(pen);
 
                 const int iconAdjust = 48;
-                const int offset = 96;
                 const int size = connection.fromRect.width();
                 const int iconSize = size - iconAdjust;
-                const int x = connection.fromRect.topRight().x() - offset;
+                const int x = connection.fromRect.topRight().x() - startItemOffset;
                 const int y = connection.fromRect.topRight().y();
                 painter->drawRoundedRect(x, y , size - 10, size, size / 2, iconSize / 2);
                 drawIcon(painter, x + iconAdjust / 2, y + iconAdjust / 2, icon, iconSize, iconSize, config.color);
