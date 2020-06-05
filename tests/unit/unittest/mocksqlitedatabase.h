@@ -60,7 +60,9 @@ public:
 
     MOCK_METHOD0(walCheckpointFull, void());
 
-    MOCK_METHOD1(setUpdateHook, void(Sqlite::DatabaseInterface::UpdateCallback &));
+    MOCK_METHOD2(setUpdateHook,
+                 void(void *object,
+                      void (*)(void *object, int, char const *database, char const *, long long rowId)));
 
     MOCK_METHOD0(resetUpdateHook, void());
 

@@ -26,7 +26,7 @@
 
 #include "symbolsfindfilterconfigwidget.h"
 
-#include "symbolsfindfilter.h"
+#include "clangsymbolsfindfilter.h"
 
 namespace ClangRefactoring {
 

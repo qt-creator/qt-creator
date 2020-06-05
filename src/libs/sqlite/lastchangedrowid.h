@@ -33,6 +33,7 @@
 
 namespace Sqlite {
 
+template<unsigned int TableCount = 0>
 class LastChangedRowId
 {
 public:
@@ -40,86 +41,82 @@ public:
         : database(database)
 
     {
-        callback = [=](ChangeType, char const *, char const *, long long rowId) {
-            this->lastRowId = rowId;
-        };
-
-        database.setUpdateHook(callback);
+        database.setUpdateHook(this, callbackOnlyRowId);
     }
 
     LastChangedRowId(DatabaseInterface &database, Utils::SmallStringView databaseName)
         : database(database)
-
+        , databaseName(databaseName)
     {
-        callback = [=](ChangeType, char const *database, char const *, long long rowId) {
-            if (databaseName == database)
-                this->lastRowId = rowId;
-        };
-
-        database.setUpdateHook(callback);
+        database.setUpdateHook(this, callbackWithDatabase);
     }
 
+    template<typename... Tables>
     LastChangedRowId(DatabaseInterface &database,
                      Utils::SmallStringView databaseName,
-                     Utils::SmallStringView tableName)
+                     Tables... tableNames)
         : database(database)
-
+        , databaseName(databaseName)
+        , tableNames({tableNames...})
     {
-        callback = [=](ChangeType, char const *database, char const *table, long long rowId) {
-            if (databaseName == database && tableName == table)
-                this->lastRowId = rowId;
-        };
-
-        database.setUpdateHook(callback);
-    }
-
-    LastChangedRowId(DatabaseInterface &database,
-                     Utils::SmallStringView databaseName,
-                     Utils::SmallStringView tableName,
-                     Utils::SmallStringView tableName2)
-        : database(database)
-
-    {
-        callback = [=](ChangeType, char const *database, char const *table, long long rowId) {
-            if (databaseName == database && (tableName == table || tableName2 == table))
-                this->lastRowId = rowId;
-        };
-
-        database.setUpdateHook(callback);
-    }
-
-    LastChangedRowId(DatabaseInterface &database,
-                     Utils::SmallStringView databaseName,
-                     Utils::SmallStringView tableName,
-                     Utils::SmallStringView tableName2,
-                     Utils::SmallStringView tableName3)
-        : database(database)
-
-    {
-        callback = [=](ChangeType, char const *database, char const *table, long long rowId) {
-            if (databaseName == database
-                && (tableName == table || tableName2 == table || tableName3 == table))
-                this->lastRowId = rowId;
-        };
-
-        database.setUpdateHook(callback);
+        database.setUpdateHook(this, callbackWithTables);
     }
 
     ~LastChangedRowId() { database.resetUpdateHook(); }
 
-    long long takeLastRowId()
+    void operator()(long long rowId) { lastRowId = rowId; }
+
+    static void callbackOnlyRowId(void *object, int, char const *, char const *, long long rowId)
     {
-        long long rowId = lastRowId;
-        lastRowId = -1;
-        return rowId;
+        (*static_cast<LastChangedRowId *>(object))(rowId);
     }
 
-    bool lastRowIdIsValid() { return lastRowId >= 0; }
+    bool containsTable(Utils::SmallStringView table)
+    {
+        return std::find(tableNames.begin(), tableNames.end(), table) != tableNames.end();
+    }
+
+    void operator()(Utils::SmallStringView database, long long rowId)
+    {
+        if (databaseName == database)
+            lastRowId = rowId;
+    }
+
+    static void callbackWithDatabase(
+        void *object, int, char const *database, char const *, long long rowId)
+    {
+        (*static_cast<LastChangedRowId *>(object))(Utils::SmallStringView{database}, rowId);
+    }
+
+    void operator()(Utils::SmallStringView database, Utils::SmallStringView table, long long rowId)
+    {
+        if (databaseName == database && containsTable(table))
+            lastRowId = rowId;
+    }
+
+    static void callbackWithTables(
+        void *object, int, char const *database, char const *table, long long rowId)
+    {
+        (*static_cast<LastChangedRowId *>(
+            object))(Utils::SmallStringView{database}, Utils::SmallStringView{table}, rowId);
+    }
+
+    long long takeLastRowId()
+    {
+        long long lastId = lastRowId;
+
+        lastRowId = -1;
+
+        return lastId;
+    }
+
+    bool lastRowIdIsValid() const { return lastRowId >= 0; }
 
 public:
     DatabaseInterface &database;
-    DatabaseInterface::UpdateCallback callback;
     long long lastRowId = -1;
+    Utils::SmallStringView databaseName;
+    std::array<Utils::SmallStringView, TableCount> tableNames;
 };
 
 } // namespace Sqlite

@@ -6,6 +6,7 @@ HEADERS += \
     $$PWD/clangqueryhighlighter.h \
     $$PWD/clangqueryhighlightmarker.h \
     $$PWD/clangqueryprojectsfindfilter.h \
+    $$PWD/clangsymbolsfindfilter.h \
     $$PWD/projectpartutilities.h \
     $$PWD/refactoringclient.h \
     $$PWD/refactoringconnectionclient.h \
@@ -13,7 +14,6 @@ HEADERS += \
     $$PWD/refactoringprojectupdater.h \
     $$PWD/searchinterface.h \
     $$PWD/searchhandle.h \
-    $$PWD/symbolsfindfilter.h \
     $$PWD/symbolqueryinterface.h \
     $$PWD/symbol.h \
     $$PWD/projectpartproviderinterface.h \
@@ -24,11 +24,11 @@ SOURCES += \
     $$PWD/clangqueryexamplehighlighter.cpp \
     $$PWD/clangqueryhighlighter.cpp \
     $$PWD/clangqueryprojectsfindfilter.cpp \
+    $$PWD/clangsymbolsfindfilter.cpp \
     $$PWD/projectpartutilities.cpp \
     $$PWD/refactoringclient.cpp \
     $$PWD/refactoringconnectionclient.cpp \
     $$PWD/refactoringengine.cpp \
     $$PWD/refactoringprojectupdater.cpp \
     $$PWD/searchhandle.cpp \
-    $$PWD/symbolsfindfilter.cpp \
     $$PWD/locatorfilter.cpp
