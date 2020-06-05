@@ -573,7 +573,7 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
     // abort if the name of the newly parsed function is not the expected one
     DeclaratorIdAST *newDeclId = getDeclaratorId(newDef->declarator);
     if (!newDeclId || !newDeclId->name || !newDeclId->name->name
-            || overview.prettyName(newDeclId->name->name) != nameInitial) {
+            || overview.prettyName(newDeclId->name->name) != normalizedInitialName()) {
         return changes;
     }
 
@@ -976,6 +976,29 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
     }
 
     return changes;
+}
+
+// Only has an effect with operators.
+// Makes sure there is exactly one space between the "operator" string
+// and the actual operator, as that is what it will be compared against.
+QString FunctionDeclDefLink::normalizedInitialName() const
+{
+    QString n = nameInitial;
+    const QString op = "operator";
+    int index = n.indexOf(op);
+    if (index == -1)
+        return n;
+    if (index > 0 && n.at(index - 1).isLetterOrNumber())
+        return n;
+    index += op.length();
+    if (index == n.length())
+        return n;
+    if (n.at(index).isLetterOrNumber())
+        return n;
+    n.insert(index++, ' ');
+    while (index < n.length() && n.at(index) == ' ')
+        n.remove(index, 1);
+    return n;
 }
 
 } // namespace Internal

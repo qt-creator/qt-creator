@@ -104,6 +104,8 @@ public:
     CPlusPlus::FunctionDeclaratorAST *targetFunctionDeclarator = nullptr;
 
 private:
+    QString normalizedInitialName() const;
+
     bool hasMarker = false;
 
     friend class FunctionDeclDefLinkFinder;
