@@ -45,6 +45,8 @@ def get_args():
     parser = argparse.ArgumentParser(description='Deploy Qt Creator dependencies for packaging')
     parser.add_argument('-i', '--ignore-errors', help='For backward compatibility',
                         action='store_true', default=False)
+    parser.add_argument('--elfutils-path',
+                        help='Path to elfutils installation for use by perfprofiler (Windows, Linux)')
     parser.add_argument('qtcreator_binary', help='Path to Qt Creator binary')
     parser.add_argument('qmake_binary', help='Path to qmake binary')
 
@@ -283,6 +285,47 @@ def deploy_libclang(install_dir, llvm_install_dir, chrpath_bin):
         shutil.rmtree(resourcetarget)
     common.copytree(resourcesource, resourcetarget, symlinks=True)
 
+def deploy_elfutils(qtc_install_dir, chrpath_bin, args):
+    if common.is_mac_platform():
+        return
+
+    def lib_name(name, version):
+        return ('lib' + name + '.so.' + version if common.is_linux_platform()
+                else name + '.dll')
+
+    version = '1'
+    libs = ['elf', 'dw']
+    elfutils_lib_path = os.path.join(args.elfutils_path, 'lib')
+    if common.is_linux_platform():
+        install_path = os.path.join(qtc_install_dir, 'lib', 'elfutils')
+        backends_install_path = install_path
+    elif common.is_windows_platform():
+        install_path = os.path.join(qtc_install_dir, 'bin')
+        backends_install_path = os.path.join(qtc_install_dir, 'lib', 'elfutils')
+        libs.append('eu_compat')
+    if not os.path.exists(install_path):
+        os.makedirs(install_path)
+    if not os.path.exists(backends_install_path):
+        os.makedirs(backends_install_path)
+    # copy main libs
+    libs = [os.path.join(elfutils_lib_path, lib_name(lib, version)) for lib in libs]
+    for lib in libs:
+        print(lib, '->', install_path)
+        shutil.copy(lib, install_path)
+    # fix rpath
+    if common.is_linux_platform():
+        relative_path = os.path.relpath(backends_install_path, install_path)
+        subprocess.check_call([chrpath_bin, '-r', os.path.join('$ORIGIN', relative_path),
+                               os.path.join(install_path, lib_name('dw', version))])
+    # copy backend files
+    # only non-versioned, we never dlopen the versioned ones
+    files = glob(os.path.join(elfutils_lib_path, 'elfutils', '*ebl_*.*'))
+    versioned_files = glob(os.path.join(elfutils_lib_path, 'elfutils', '*ebl_*.*-*.*.*'))
+    unversioned_files = [file for file in files if file not in versioned_files]
+    for file in unversioned_files:
+        print(file, '->', backends_install_path)
+        shutil.copy(file, backends_install_path)
+
 def main():
     args = get_args()
 
@@ -329,6 +372,8 @@ def main():
     if "LLVM_INSTALL_DIR" in os.environ:
         deploy_libclang(install_dir, os.environ["LLVM_INSTALL_DIR"], chrpath_bin)
 
+    if args.elfutils_path:
+        deploy_elfutils(install_dir, chrpath_bin, args)
     if not common.is_windows_platform():
         print("fixing rpaths...")
         common.fix_rpaths(install_dir, os.path.join(qt_deploy_prefix, 'lib'), qt_install_info, chrpath_bin)

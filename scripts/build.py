@@ -97,8 +97,8 @@ def build_qtcreator(args, paths):
     prefix_paths = [paths.qt]
     if args.llvm_path:
         prefix_paths += [args.llvm_path]
-    if args.elfutils_path:
-        prefix_paths += [args.elfutils_path]
+    if paths.elfutils:
+        prefix_paths += [paths.elfutils]
     build_type = 'Debug' if args.debug else 'Release'
     with_docs_str = 'OFF' if args.no_docs else 'ON'
     cmake_args = ['cmake',
@@ -200,9 +200,11 @@ def deploy_qt(args, paths):
                                  qt_imports, qt_qml],
                                 paths.build)
     else:
+        cmd_args = ['python', '-u', os.path.join(paths.src, 'scripts', 'deployqt.py'), '-i']
+        if paths.elfutils:
+            cmd_args.extend(['--elfutils-path', paths.elfutils])
         exe = os.path.join(paths.install, 'bin', args.app_target)
-        common.check_print_call(['python', '-u', os.path.join(paths.src, 'scripts', 'deployqt.py'),
-                                 '-i', exe, os.path.join(paths.qt, 'bin', 'qmake')],
+        common.check_print_call(cmd_args + [exe, os.path.join(paths.qt, 'bin', 'qmake')],
                                 paths.build)
 
 def package_qtcreator(args, paths):
@@ -237,7 +239,8 @@ def get_paths(args):
     Paths = collections.namedtuple('Paths',
                                    ['qt', 'src', 'build',
                                     'install', 'dev_install', 'wininterrupt_install',
-                                    'qtcreatorcdbext_install', 'result'])
+                                    'qtcreatorcdbext_install', 'result',
+                                    'elfutils'])
     build_path = os.path.abspath(args.build)
     install_path = os.path.join(build_path, 'install')
     return Paths(qt=os.path.abspath(args.qt_path),
@@ -247,7 +250,8 @@ def get_paths(args):
                  dev_install=os.path.join(install_path, 'qt-creator-dev'),
                  wininterrupt_install=os.path.join(install_path, 'wininterrupt'),
                  qtcreatorcdbext_install=os.path.join(install_path, 'qtcreatorcdbext'),
-                 result=build_path)
+                 result=build_path,
+                 elfutils=os.path.abspath(args.elfutils_path) if args.elfutils_path else None)
 
 def main():
     args = get_arguments()
