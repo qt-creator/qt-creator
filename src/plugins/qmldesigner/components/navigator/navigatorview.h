@@ -30,6 +30,8 @@
 #include <abstractview.h>
 
 #include <QPointer>
+#include <QHash>
+#include <QUrl>
 
 QT_BEGIN_NAMESPACE
 class QTreeView;
@@ -119,6 +121,8 @@ private:
 
     QPointer<NavigatorWidget> m_widget;
     QPointer<NavigatorTreeModel> m_treeModel;
+
+    QHash<QUrl, QHash<QString, bool>> m_expandMap;
 
     NavigatorModelInterface *m_currentModelInterface = nullptr;
 

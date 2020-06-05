@@ -117,7 +117,20 @@ void NavigatorView::modelAttached(Model *model)
     QTimer::singleShot(0, this, [this, treeView]() {
         m_currentModelInterface->setFilter(
                     DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS).toBool());
+
+        // Expand everything to begin with to ensure model node to index cache is populated
         treeView->expandAll();
+
+        if (AbstractView::model() && m_expandMap.contains(AbstractView::model()->fileUrl())) {
+            const QHash<QString, bool> localExpandMap = m_expandMap[AbstractView::model()->fileUrl()];
+            auto it = localExpandMap.constBegin();
+            while (it != localExpandMap.constEnd()) {
+                const QModelIndex index = indexForModelNode(modelNodeForId(it.key()));
+                if (index.isValid())
+                    treeWidget()->setExpanded(index, it.value());
+                ++it;
+            }
+        }
     });
 
 #ifdef _LOCK_ITEMS_
@@ -127,6 +140,32 @@ void NavigatorView::modelAttached(Model *model)
 
 void NavigatorView::modelAboutToBeDetached(Model *model)
 {
+    m_expandMap.remove(model->fileUrl());
+
+    if (currentModel()) {
+        // Store expand state of the navigator tree
+        QHash<QString, bool> localExpandMap;
+        const ModelNode rootNode = rootModelNode();
+        const QModelIndex rootIndex = indexForModelNode(rootNode);
+
+        std::function<void(const QModelIndex &)> gatherExpandedState;
+        gatherExpandedState = [&](const QModelIndex &index) {
+            if (index.isValid()) {
+                const int rowCount = currentModel()->rowCount(index);
+                for (int i = 0; i < rowCount; ++i) {
+                    const QModelIndex childIndex = currentModel()->index(i, 0, index);
+                    const ModelNode node = modelNodeForIndex(childIndex);
+                    // Just store collapsed states as everything is expanded by default
+                    if (node.isValid() && !treeWidget()->isExpanded(childIndex))
+                        localExpandMap.insert(node.id(), false);
+                    gatherExpandedState(childIndex);
+                }
+            }
+        };
+        gatherExpandedState(rootIndex);
+        m_expandMap[model->fileUrl()].insert(localExpandMap);
+    }
+
     AbstractView::modelAboutToBeDetached(model);
 }
 
