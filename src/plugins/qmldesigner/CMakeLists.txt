@@ -134,6 +134,8 @@ extend_qtc_plugin(QmlDesigner
     reparentinstancescommand.cpp reparentinstancescommand.h
     statepreviewimagechangedcommand.cpp statepreviewimagechangedcommand.h
     synchronizecommand.cpp synchronizecommand.h
+    changepreviewimagesizecommand.cpp changepreviewimagesizecommand.h
+    changelanguagecommand.cpp changelanguagecommand.h
     tokencommand.cpp tokencommand.h
     valueschangedcommand.cpp valueschangedcommand.h
     changeselectioncommand.cpp changeselectioncommand.h
