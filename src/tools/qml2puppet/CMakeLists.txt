@@ -32,6 +32,8 @@ extend_qtc_executable(qml2puppet
     componentcompletedcommand.cpp componentcompletedcommand.h
     createinstancescommand.cpp createinstancescommand.h
     createscenecommand.cpp createscenecommand.h
+    changepreviewimagesizecommand.cpp changepreviewimagesizecommand.h
+    changelanguagecommand.cpp changelanguagecommand.h
     debugoutputcommand.cpp debugoutputcommand.h
     endpuppetcommand.cpp endpuppetcommand.h
     informationchangedcommand.cpp informationchangedcommand.h
