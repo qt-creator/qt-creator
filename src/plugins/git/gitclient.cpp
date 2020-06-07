@@ -276,11 +276,13 @@ protected:
                                          const QString &leftCommit,
                                          const QString &rightCommit);
 
-protected:
     void runCommand(const QList<QStringList> &args, QTextCodec *codec = nullptr);
 
     QStringList addConfigurationArguments(const QStringList &args) const;
     QStringList baseArguments() const;
+
+public:
+    void initialize();
 
 private:
     void updateBranchList();
@@ -318,7 +320,11 @@ GitBaseDiffEditorController::GitBaseDiffEditorController(IDocument *document,
     connect(&m_decorator, &DescriptionWidgetDecorator::branchListRequested,
             this, &GitBaseDiffEditorController::updateBranchList);
     setDisplayName("Git Diff");
-    if (rightCommit.isEmpty()) {
+}
+
+void GitBaseDiffEditorController::initialize()
+{
+    if (m_rightCommit.isEmpty()) {
         // This is workaround for lack of support for merge commits and resolving conflicts,
         // we compare the current state of working tree to the HEAD of current branch
         // instead of showing unsupported combined diff format.
@@ -941,19 +947,20 @@ void GitClient::stage(DiffEditor::DiffEditorController *diffController,
 
 void GitClient::requestReload(const QString &documentId, const QString &source,
                               const QString &title, const QString &workingDirectory,
-                              std::function<VcsBaseDiffEditorController *(IDocument *)> factory) const
+                              std::function<GitBaseDiffEditorController *(IDocument *)> factory) const
 {
     // Creating document might change the referenced source. Store a copy and use it.
     const QString sourceCopy = source;
 
     IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
     QTC_ASSERT(document, return);
-    VcsBaseDiffEditorController *controller = factory(document);
+    GitBaseDiffEditorController *controller = factory(document);
     QTC_ASSERT(controller, return);
     controller->setVcsBinary(settings().binaryPath());
     controller->setVcsTimeoutS(settings().vcsTimeoutS());
     controller->setProcessEnvironment(processEnvironment());
     controller->setWorkingDirectory(workingDirectory);
+    controller->initialize();
 
     connect(controller, &DiffEditorController::chunkActionsRequested,
             this, &GitClient::chunkActionsRequested, Qt::DirectConnection);

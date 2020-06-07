@@ -48,10 +48,9 @@ QT_END_NAMESPACE
 namespace Core { class ICore; }
 
 namespace VcsBase {
-    class VcsCommand;
-    class SubmitFileModel;
-    class VcsBaseDiffEditorController;
-    class VcsBaseEditorWidget;
+class VcsCommand;
+class SubmitFileModel;
+class VcsBaseEditorWidget;
 }
 
 namespace DiffEditor {
@@ -63,6 +62,7 @@ namespace Git {
 namespace Internal {
 
 class CommitData;
+class GitBaseDiffEditorController;
 class GitSubmitEditorPanelData;
 class Stash;
 
@@ -377,7 +377,7 @@ private:
     QTextCodec *codecFor(CodecType codecType, const QString &source = QString()) const;
 
     void requestReload(const QString &documentId, const QString &source, const QString &title, const QString &workingDirectory,
-           std::function<VcsBase::VcsBaseDiffEditorController *(Core::IDocument *)> factory) const;
+           std::function<GitBaseDiffEditorController *(Core::IDocument *)> factory) const;
 
     // determine version as '(major << 16) + (minor << 8) + patch' or 0.
     unsigned synchronousGitVersion(QString *errorMessage = nullptr) const;
