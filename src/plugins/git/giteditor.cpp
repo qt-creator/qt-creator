@@ -27,6 +27,7 @@
 #include <utils/temporaryfile.h>
 
 #include <QKeyEvent>
+#include <QElapsedTimer>
 #include <QMenu>
 #include <QRegularExpression>
 #include <QSet>
@@ -110,6 +111,10 @@ GitEditorWidget::GitEditorWidget() :
     setAnnotateRevisionTextFormat(Tr::tr("&Blame %1"));
     setAnnotatePreviousRevisionTextFormat(Tr::tr("Blame &Parent Revision %1"));
     setAnnotationEntryPattern("^(" CHANGE_PATTERN ") ");
+
+    m_logTimer.setSingleShot(true);
+    m_logTimer.setInterval(10);
+    connect(&m_logTimer, &QTimer::timeout, this, &GitEditorWidget::appendLogText);
 }
 
 QString GitEditorWidget::changeUnderCursor(const QTextCursor &c) const
@@ -183,6 +188,20 @@ static QString sanitizeBlameOutput(const QString &b, QVector<int> *lines)
 
 void GitEditorWidget::setPlainText(const QString &text)
 {
+    m_logTimer.stop();
+    m_logText.clear();
+    m_logTextPosition = 0;
+    m_logChunkSize = 10000;
+    m_logTimer.setInterval(10);
+    m_logAnsiEscapeCodeHandler = {};
+
+    if (contentType() == LogOutput && text.size() > m_logChunkSize) {
+        m_logText = text;
+        document()->clear();
+        appendLogText();
+        return;
+    }
+
     QString modText = text;
     // If desired, filter out the date from annotation
     switch (contentType())
@@ -199,6 +218,63 @@ void GitEditorWidget::setPlainText(const QString &text)
     }
 
     textDocument()->setPlainText(modText);
+}
+
+void GitEditorWidget::appendLogText()
+{
+    if (m_logTextPosition >= m_logText.size())
+        return;
+
+    qsizetype end = qMin(m_logTextPosition + m_logChunkSize, m_logText.size());
+    if (end < m_logText.size()) {
+        const qsizetype lineEnd = m_logText.lastIndexOf('\n', end - 1);
+        if (lineEnd >= m_logTextPosition)
+            end = lineEnd + 1;
+        if (end < m_logText.size() && end > m_logTextPosition
+            && m_logText.at(end - 1).isHighSurrogate()
+            && m_logText.at(end).isLowSurrogate()) {
+            --end;
+        }
+    }
+
+    const QString chunk = m_logText.mid(m_logTextPosition, end - m_logTextPosition);
+    m_logTextPosition = end;
+    const QList<FormattedText> formattedTextList
+        = m_logAnsiEscapeCodeHandler.parseText(FormattedText(chunk));
+
+    QElapsedTimer timer;
+    timer.start();
+    QTextCursor cursor(document());
+    cursor.movePosition(QTextCursor::End);
+    m_appendingLogText = true;
+    cursor.beginEditBlock();
+    for (const FormattedText &formattedChunk : formattedTextList)
+        cursor.insertText(formattedChunk.text, formattedChunk.format);
+    cursor.endEditBlock();
+    m_appendingLogText = false;
+
+    if (timer.elapsed() > m_logTimer.interval()) {
+        m_logTimer.setInterval(qMin(1000, m_logTimer.interval() * 2));
+        m_logChunkSize = qMax(qsizetype(1000), m_logChunkSize / 2);
+    } else if (timer.elapsed() < m_logTimer.interval() / 2) {
+        m_logTimer.setInterval(qMax(1, m_logTimer.interval() * 2 / 3));
+        m_logChunkSize = qMin(qsizetype(100000), m_logChunkSize * 3 / 2);
+    }
+
+    if (m_logTextPosition < m_logText.size()) {
+        m_logTimer.start();
+    } else {
+        m_logText.clear();
+        m_logTextPosition = 0;
+        document()->setModified(false);
+    }
+}
+
+void GitEditorWidget::resetIncrementalLog()
+{
+    m_logTimer.stop();
+    m_logText.clear();
+    m_logTextPosition = 0;
 }
 
 void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, PatchAction patchAction)
@@ -231,6 +307,10 @@ void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, PatchAction patchAc
 void GitEditorWidget::init()
 {
     VcsBaseEditorWidget::init();
+    connect(document(), &QTextDocument::contentsChange, this, [this] {
+        if (m_logTimer.isActive() && !m_appendingLogText)
+            resetIncrementalLog();
+    });
     Id editorId = textDocument()->id();
     if (editorId == Git::Constants::GIT_LOG_EDITOR_ID)
         textDocument()->resetSyntaxHighlighter([] { return new GitLogHighlighter; });

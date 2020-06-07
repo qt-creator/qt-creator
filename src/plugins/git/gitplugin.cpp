@@ -2484,6 +2484,7 @@ private slots:
     void testDiffFileResolving_data();
     void testDiffFileResolving();
     void testLogResolving();
+    void testLargeLogOutput();
     void testLinkBoundaries();
     void testGitRemote_data();
     void testGitRemote();
@@ -2839,6 +2840,39 @@ void GitTest::testLogResolving()
                             "50a6b54 - (HEAD -> feature, tag: v1.8.2) HEAD@{0}: commit: "
                             "Update draft release notes to 1.8.2",
                             "3587b51 - HEAD@{1}: checkout: moving from master to feature");
+}
+
+void GitTest::testLargeLogOutput()
+{
+    auto *editor = qobject_cast<VcsBaseEditor *>(dd->logEditorFactory.createEditor());
+    QVERIFY(editor);
+    auto *widget = qobject_cast<GitEditorWidget *>(editor->editorWidget());
+    QVERIFY(widget);
+
+    const QString prefix(9999, 'x');
+    const QString suffix(30000, 'y');
+    const QString input = prefix + "\x1b[31mred\x1b[0m\n" + suffix;
+    const QString expected = prefix + "red\n" + suffix;
+
+    widget->setPlainText(input);
+    QVERIFY(widget->document()->toPlainText().size() < expected.size());
+    QTRY_VERIFY(widget->document()->toPlainText() == expected);
+
+    QTextCursor cursor(widget->document());
+    cursor.setPosition(prefix.size() + 1);
+    QCOMPARE(cursor.charFormat().foreground().color(), QColor(170, 0, 0));
+
+    widget->setPlainText(input);
+    QVERIFY(widget->m_logTimer.isActive());
+    widget->textDocument()->setPlainText("replacement");
+    QVERIFY(!widget->m_logTimer.isActive());
+    QVERIFY(widget->m_logText.isEmpty());
+    QCOMPARE(widget->document()->toPlainText(), QString("replacement"));
+
+    widget->m_logTimer.setInterval(1000);
+    widget->setPlainText("short log");
+    QCOMPARE(widget->m_logTimer.interval(), 10);
+    delete editor;
 }
 
 void GitTest::testLinkBoundaries()

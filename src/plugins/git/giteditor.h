@@ -3,9 +3,11 @@
 
 #pragma once
 
+#include <utils/ansiescapecodehandler.h>
 #include <vcsbase/vcsbaseeditor.h>
 
 #include <QRegularExpression>
+#include <QTimer>
 
 QT_FORWARD_DECLARE_CLASS(QKeyEvent)
 
@@ -40,6 +42,14 @@ signals:
     void toggleFilters(bool value);
 
 private:
+#ifdef WITH_TESTS
+    friend class GitTest;
+#endif
+
+    void appendLogText();
+    void resetIncrementalLog();
+
+    bool m_appendingLogText = false;
     void applyDiffChunk(const VcsBase::DiffChunk& chunk, Core::PatchAction patchAction);
 
     void init() override;
@@ -65,6 +75,11 @@ private:
     const QRegularExpression m_changeNumberPattern;
     GitLogFilterWidget *m_logFilterWidget = nullptr;
     QVector<int> m_originalLines;
+    QString m_logText;
+    qsizetype m_logTextPosition = 0;
+    qsizetype m_logChunkSize = 10000;
+    Utils::AnsiEscapeCodeHandler m_logAnsiEscapeCodeHandler;
+    QTimer m_logTimer;
 };
 
 } // Git::Internal
