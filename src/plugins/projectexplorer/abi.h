@@ -72,6 +72,7 @@ public:
         M68KArchitecture,
         M32CArchitecture,
         M16CArchitecture,
+        M32RArchitecture,
         R32CArchitecture,
         CR16Architecture,
         RiscVArchitecture,

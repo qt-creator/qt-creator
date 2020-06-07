@@ -548,6 +548,12 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             flavor = GenericFlavor;
             format = ElfFormat;
             width = 16;
+        } else if (p == "m32r") {
+            arch = M32RArchitecture;
+            os = BareMetalOS;
+            flavor = GenericFlavor;
+            format = ElfFormat;
+            width = 32;
         } else if (p.startsWith("riscv")) {
             arch = RiscVArchitecture;
             os = BareMetalOS;
@@ -792,6 +798,8 @@ QString Abi::toString(const Architecture &a)
         return QLatin1String("m32c");
     case M16CArchitecture:
         return QLatin1String("m16c");
+    case M32RArchitecture:
+        return QLatin1String("m32r");
     case R32CArchitecture:
         return QLatin1String("r32c");
     case CR16Architecture:
@@ -960,6 +968,8 @@ Abi::Architecture Abi::architectureFromString(const QStringRef &a)
         return M32CArchitecture;
     if (a == "m16c")
         return M16CArchitecture;
+    if (a == "m32r")
+        return M32RArchitecture;
     if (a == "r32c")
         return R32CArchitecture;
     if (a == "cr16")
