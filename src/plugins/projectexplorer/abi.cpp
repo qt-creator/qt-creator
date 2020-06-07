@@ -499,6 +499,13 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             flavor = GenericFlavor;
             format = ElfFormat;
             width = 32;
+        } else if (p == "cr16") {
+            arch = CR16Architecture;
+            os = BareMetalOS;
+            flavor = GenericFlavor;
+            format = ElfFormat;
+            // Note that GCC macro returns 32-bit value for this architecture.
+            width = 32;
         } else if (p == "msp430") {
             arch = Msp430Architecture;
             os = BareMetalOS;
