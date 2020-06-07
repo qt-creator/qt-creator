@@ -416,12 +416,10 @@ SynchronousProcessResponse ShellCommand::runSynchronous(const CommandLine &cmd,
     // connect stderr to the output window if desired
     if (d->m_flags & MergeOutputChannels) {
         process.setProcessChannelMode(QProcess::MergedChannels);
-    } else if (d->m_progressiveOutput
-               || !(d->m_flags & SuppressStdErr)) {
+    } else if (d->m_progressiveOutput || !(d->m_flags & SuppressStdErr)) {
         process.setStdErrBufferedSignalsEnabled(true);
         connect(&process, &SynchronousProcess::stdErrBuffered,
-                this, [this, proxy](const QString &text)
-        {
+                this, [this, proxy](const QString &text) {
             if (d->m_progressParser)
                 d->m_progressParser->parseProgress(text);
             if (!(d->m_flags & SuppressStdErr))
@@ -435,8 +433,7 @@ SynchronousProcessResponse ShellCommand::runSynchronous(const CommandLine &cmd,
     if (d->m_progressParser || d->m_progressiveOutput || (d->m_flags & ShowStdOut)) {
         process.setStdOutBufferedSignalsEnabled(true);
         connect(&process, &SynchronousProcess::stdOutBuffered,
-                this, [this, proxy](const QString &text)
-        {
+                this, [this, proxy](const QString &text) {
             if (d->m_progressParser)
                 d->m_progressParser->parseProgress(text);
             if (d->m_flags & ShowStdOut)
