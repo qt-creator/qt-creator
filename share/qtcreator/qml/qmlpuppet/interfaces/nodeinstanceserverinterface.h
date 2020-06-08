@@ -53,6 +53,8 @@ class RemoveSharedMemoryCommand;
 class ChangeSelectionCommand;
 class InputEventCommand;
 class View3DActionCommand;
+class ChangeLanguageCommand;
+class ChangePreviewImageSizeCommand;
 
 class NodeInstanceServerInterface : public QObject
 {
@@ -85,9 +87,10 @@ public:
     virtual void changeSelection(const ChangeSelectionCommand &command) = 0;
     virtual void inputEvent(const InputEventCommand &command) = 0;
     virtual void view3DAction(const View3DActionCommand &command) = 0;
+    virtual void changeLanguage(const ChangeLanguageCommand &command) = 0;
+    virtual void changePreviewImageSize(const ChangePreviewImageSizeCommand &command) = 0;
 
-    virtual void benchmark(const QString &)
-    {}
+    virtual void benchmark(const QString &) {}
 
     static void registerCommands();
 };

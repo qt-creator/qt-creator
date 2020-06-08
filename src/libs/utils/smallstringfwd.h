@@ -25,6 +25,18 @@
 
 #pragma once
 
+#if __cplusplus >= 201703L
+#define constexpr17 constexpr
+#else
+#define constexpr17 inline
+#endif
+
+#if __cplusplus >= 202002L
+#define constexpr20 constexpr
+#else
+#define constexpr20 inline
+#endif
+
 using uint = unsigned int;
 
 namespace Utils {
@@ -34,10 +46,5 @@ template <uint Size>
 class BasicSmallString;
 using SmallString = BasicSmallString<31>;
 using PathString = BasicSmallString<190>;
-
-inline
-int compare(SmallStringView first, SmallStringView second) noexcept;
-inline
-int reverseCompare(SmallStringView first, SmallStringView second) noexcept;
 
 } // namespace Utils

@@ -83,7 +83,8 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/instances/puppetdialog.cpp \
     $$PWD/model/qmltimeline.cpp \
     $$PWD/model/qmltimelinekeyframegroup.cpp \
-    $$PWD/model/annotation.cpp
+    $$PWD/model/annotation.cpp \
+    $$PWD/model/stylesheetmerger.cpp
 
 HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/include/abstractview.h \
@@ -160,7 +161,8 @@ HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/instances/puppetdialog.h \
     $$PWD/include/qmltimeline.h \
     $$PWD/include/qmltimelinekeyframegroup.h \
-    $$PWD/include/annotation.h
+    $$PWD/include/annotation.h \
+    $$PWD/include/stylesheetmerger.h
 
 FORMS += \
     $$PWD/instances/puppetdialog.ui

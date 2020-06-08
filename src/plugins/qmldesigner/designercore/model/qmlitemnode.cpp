@@ -600,6 +600,7 @@ void QmlFlowActionAreaNode::assignTargetFlowItem(const QmlFlowTargetNode &flowIt
 
 QmlFlowItemNode QmlFlowActionAreaNode::flowItemParent() const
 {
+    QTC_ASSERT(modelNode().hasParentProperty(), return QmlFlowItemNode({}));
     return modelNode().parentProperty().parentModelNode();
 }
 
@@ -727,6 +728,9 @@ void QmlFlowTargetNode::assignTargetItem(const QmlFlowTargetNode &node)
 {
     if (QmlFlowActionAreaNode::isValidQmlFlowActionAreaNode(modelNode())) {
         QmlFlowActionAreaNode(modelNode()).assignTargetFlowItem(node);
+
+    } else if (isFlowItem()) {
+        flowView().addTransition(modelNode(), node);
     } else if (isFlowWildcard()) {
         destroyTargets();
         ModelNode transition = flowView().addTransition(ModelNode(),

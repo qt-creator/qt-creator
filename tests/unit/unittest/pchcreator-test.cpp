@@ -137,7 +137,6 @@ protected:
         sorted({id(main2Path), id(generatedFilePath)}),
         {},
         {},
-        {},
         {{TESTDATA_DIR "/builddependencycollector/system", 2, IncludeSearchPathType::BuiltIn},
          {TESTDATA_DIR "/builddependencycollector/external", 1, IncludeSearchPathType::System}},
         {{TESTDATA_DIR "/builddependencycollector/project", 1, IncludeSearchPathType::User}},
@@ -373,7 +372,6 @@ TEST_F(PchCreatorVerySlowTest, FaultyProjectPartPchForCreatesFaultyPchForPchTask
         {},
         {},
         {{"DEFINE", "1", 1}},
-        {},
         {},
         {{TESTDATA_DIR "/builddependencycollector/external", 1, IncludeSearchPathType::System}},
         {{TESTDATA_DIR "/builddependencycollector/project", 1, IncludeSearchPathType::User}}};

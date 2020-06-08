@@ -26,6 +26,9 @@
 #pragma once
 
 #include "exception.h"
+
+#include <qmldesignercorelib_global.h>
+
 #include <QUrl>
 #include <QCoreApplication>
 
@@ -35,7 +38,7 @@ class DiagnosticMessage;
 
 namespace QmlDesigner {
 
-class DocumentMessage {
+class QMLDESIGNERCORE_EXPORT DocumentMessage {
     Q_DECLARE_TR_FUNCTIONS(QmlDesigner::DocumentMessage)
 public:
     enum Type {

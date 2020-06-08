@@ -104,6 +104,7 @@ public:
 
 private:
     void addTransitionEffectAction(const TypeName &typeName);
+    void addCustomTransitionEffectAction();
 
     QList<QSharedPointer<ActionInterface> > m_designerActions;
     DesignerActionManagerView *m_designerActionManagerView;

@@ -178,9 +178,9 @@ void SelectionTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
                 m_singleSelectionManipulator.begin(event->scenePos());
 
                 if (event->modifiers().testFlag(Qt::ControlModifier))
-                    m_singleSelectionManipulator.select(SingleSelectionManipulator::RemoveFromSelection);
+                    m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection);
                 else if (event->modifiers().testFlag(Qt::ShiftModifier))
-                    m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection);
+                    m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection);
                 else
                     m_singleSelectionManipulator.select(SingleSelectionManipulator::ReplaceSelection);
 

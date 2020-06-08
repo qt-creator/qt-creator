@@ -164,6 +164,18 @@ QString PuppetCreator::getStyleConfigFileName() const
     return QString();
 }
 
+QString PuppetCreator::getMultilanguageDatabaseFilePath() const
+{
+#ifndef QMLDESIGNER_TEST
+    if (m_target) {
+        auto filePath = m_target->project()->projectDirectory().pathAppended("/multilanguage-experimental-v1.db");
+        if (filePath.exists())
+            return filePath.toString();
+    }
+#endif
+    return {};
+}
+
 PuppetCreator::PuppetCreator(ProjectExplorer::Target *target, const Model *model)
 
     : m_target(target)
@@ -484,6 +496,11 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
         environment.set("QMLDESIGNER_RC_PATHS", m_qrcMapping);
     }
 
+    const QString multilanguageDatabaseFilePath = getMultilanguageDatabaseFilePath();
+
+    if (!multilanguageDatabaseFilePath.isEmpty())
+        environment.set("QT_MULTILANGUAGE_DATABASE", multilanguageDatabaseFilePath);
+
 #ifndef QMLDESIGNER_TEST
     auto view = QmlDesignerPlugin::instance()->viewManager().nodeInstanceView();
     view->emitCustomNotification("PuppetStatus", {}, {QVariant(m_qrcMapping)});
@@ -511,6 +528,8 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
 
         customFileSelectors = m_target->additionalData("CustomFileSelectorsData").toStringList();
     }
+
+    customFileSelectors.append("DesignMode");
 
     if (m_availablePuppetType == FallbackPuppet)
         importPaths.prepend(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath));

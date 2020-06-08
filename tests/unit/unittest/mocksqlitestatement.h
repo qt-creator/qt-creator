@@ -52,9 +52,10 @@ public:
     MOCK_METHOD2(bind, void (int, double));
     MOCK_METHOD2(bind, void (int, Utils::SmallStringView));
     MOCK_METHOD2(bind, void (int, long));
-    MOCK_CONST_METHOD1(bindingIndexForName, int (Utils::SmallStringView name));
 
-    MOCK_METHOD1(prepare, void (Utils::SmallStringView sqlStatement));
+    MOCK_METHOD1(prepare, void(Utils::SmallStringView sqlStatement));
+
+    MOCK_METHOD1(checkColumnCount, void(int));
 };
 
 template<>

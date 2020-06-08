@@ -23,6 +23,8 @@
 **
 ****************************************************************************/
 
+#include "gtest-creator-printing.h"
+
 #include <gtest/gtest-printers.h>
 
 #include <utils/smallstringio.h>

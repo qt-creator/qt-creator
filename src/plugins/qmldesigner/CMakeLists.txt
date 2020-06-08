@@ -134,6 +134,8 @@ extend_qtc_plugin(QmlDesigner
     reparentinstancescommand.cpp reparentinstancescommand.h
     statepreviewimagechangedcommand.cpp statepreviewimagechangedcommand.h
     synchronizecommand.cpp synchronizecommand.h
+    changepreviewimagesizecommand.cpp changepreviewimagesizecommand.h
+    changelanguagecommand.cpp changelanguagecommand.h
     tokencommand.cpp tokencommand.h
     valueschangedcommand.cpp valueschangedcommand.h
     changeselectioncommand.cpp changeselectioncommand.h
@@ -457,6 +459,7 @@ extend_qtc_plugin(QmlDesigner
     include/rewriterview.h
     include/rewritingexception.h
     include/signalhandlerproperty.h
+    include/stylesheetmerger.h
     include/subcomponentmanager.h
     include/textmodifier.h
     include/variantproperty.h
@@ -530,6 +533,7 @@ extend_qtc_plugin(QmlDesigner
     model/rewriteactioncompressor.cpp model/rewriteactioncompressor.h
     model/rewriterview.cpp
     model/signalhandlerproperty.cpp
+    model/stylesheetmerger.cpp
     model/textmodifier.cpp
     model/texttomodelmerger.cpp model/texttomodelmerger.h
     model/variantproperty.cpp
@@ -557,6 +561,7 @@ extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/annotationeditor
   SOURCES annotationcommenttab.cpp annotationcommenttab.h annotationcommenttab.ui
   annotationeditordialog.cpp annotationeditordialog.h annotationeditordialog.ui
+  globalannotationeditordialog.cpp globalannotationeditordialog.h globalannotationeditordialog.ui
   annotationeditor.cpp annotationeditor.h
   annotationtool.cpp annotationtool.h
   globalannotationeditor.cpp globalannotationeditor.h

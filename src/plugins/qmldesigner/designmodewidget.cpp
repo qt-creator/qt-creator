@@ -212,6 +212,13 @@ void DesignModeWidget::disableWidgets()
     m_isDisabled = true;
 }
 
+static void addSpacerToToolBar(QToolBar *toolBar)
+{
+    QWidget* empty = new QWidget();
+    empty->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+    toolBar->addWidget(empty);
+}
+
 void DesignModeWidget::setup()
 {
     auto &actionManager = viewManager().designerActionManager();
@@ -366,6 +373,7 @@ void DesignModeWidget::setup()
 
     // Create toolbars
     auto toolBar = new QToolBar();
+
     toolBar->addAction(viewManager().componentViewAction());
     toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     DesignerActionToolBar *designerToolBar = QmlDesignerPlugin::instance()->viewManager().designerActionManager().createToolBar(m_toolBar);
@@ -406,6 +414,8 @@ void DesignModeWidget::setup()
                 floatingWidget->hide();
         }
     });
+
+    addSpacerToToolBar(toolBar);
 
     auto workspaceComboBox = new QComboBox();
     workspaceComboBox->setMinimumWidth(120);

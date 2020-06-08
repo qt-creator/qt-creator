@@ -74,15 +74,18 @@ class SymbolQuerySlowTest : public testing::Test
 protected:
     void SetUp() override
     {
-        database.execute("INSERT INTO sources VALUES (1, 1, \"filename.h\")");
-        database.execute("INSERT INTO sources VALUES (2, 1, \"filename.cpp\")");
-        database.execute("INSERT INTO directories VALUES (1, \"/path/to\")");
+        database.execute("INSERT INTO sources VALUES (1, 1, 'filename.h')");
+        database.execute("INSERT INTO sources VALUES (2, 1, 'filename.cpp')");
+        database.execute("INSERT INTO directories VALUES (1, '/path/to')");
         database.execute("INSERT INTO locations VALUES (1, 2, 3, 1, 2)");
         database.execute("INSERT INTO locations VALUES (1, 4, 6, 2, 1)");
         database.execute("INSERT INTO locations VALUES (1, 20, 36, 2, 3)");
-        database.execute("INSERT INTO symbols VALUES (1, \"functionusr\", \"Function\", 3, \"void function(int)\")");
-        database.execute("INSERT INTO symbols VALUES (2, \"classusr\", \"Class\", 2, \"class Class final\")");
-        database.execute("INSERT INTO symbols VALUES (3, \"enumusr\", \"Enum\", 1, \"enum Enum : char\")");
+        database.execute(
+            "INSERT INTO symbols VALUES (1, 'functionusr', 'Function', 3, 'void function(int)')");
+        database.execute(
+            "INSERT INTO symbols VALUES (2, 'classusr', 'Class', 2, 'class Class final')");
+        database.execute(
+            "INSERT INTO symbols VALUES (3, 'enumusr', 'Enum', 1, 'enum Enum : char')");
     }
 
 protected:

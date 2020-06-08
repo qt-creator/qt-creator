@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -83,7 +83,7 @@ Image {
         width: 270
         height: 24
         color: "#ffffff"
-        text: qsTr("Copyright 2008 - 2019 The Qt Company")
+        text: qsTr("Copyright 2008 - 2020 The Qt Company")
         font.pixelSize: 16
         font.family: StudioFonts.titilliumWeb_light
     }

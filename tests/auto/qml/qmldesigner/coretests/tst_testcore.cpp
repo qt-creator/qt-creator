@@ -28,6 +28,7 @@
 #include <QScopedPointer>
 #include <QLatin1String>
 #include <QGraphicsObject>
+#include <QQueue>
 #include <QTest>
 #include <QVariant>
 
@@ -42,6 +43,7 @@
 #include <nodeinstanceview.h>
 #include <nodeinstance.h>
 #include <subcomponentmanager.h>
+#include <stylesheetmerger.h>
 #include <QDebug>
 
 #include "../testview.h"
@@ -3704,6 +3706,132 @@ void tst_TestCore::testCopyModelRewriter1()
     QCOMPARE(textEdit1.toPlainText(), expected);
 }
 
+static QString readQmlFromFile(const QString& fileName)
+{
+    QFile qmlFile(fileName);
+    qmlFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    QString qmlFileContents = QString::fromUtf8(qmlFile.readAll());
+    return qmlFileContents;
+}
+
+void tst_TestCore::testMergeModelRewriter1_data()
+{
+    QTest::addColumn<QString>("qmlTemplateString");
+    QTest::addColumn<QString>("qmlStyleString");
+    QTest::addColumn<QString>("qmlExpectedString");
+
+    QString simpleTemplateQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/SimpleTemplate.qml");
+    QString simpleStyleQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/SimpleStyle.qml");
+    QString simpleExpectedQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/SimpleExpected.qml");
+
+    QString complexTemplateQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ComplexTemplate.qml");
+    QString complexStyleQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ComplexStyle.qml");
+    QString complexExpectedQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ComplexExpected.qml");
+
+    QString emptyTemplateQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/EmptyTemplate.qml");
+    QString emptyStyleQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/EmptyStyle.qml");
+    QString emptyExpectedQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/EmptyExpected.qml");
+
+    QString rootReplacementTemplateQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/RootReplacementTemplate.qml");
+    QString rootReplacementStyleQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/RootReplacementStyle.qml");
+    QString rootReplacementExpectedQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/RootReplacementExpected.qml");
+
+    QString switchTemplateQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/SwitchTemplate.qml");
+    QString switchStyleQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/SwitchStyle.qml");
+    QString switchExpectedQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/SwitchExpected.qml");
+
+    QString sliderTemplateQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/SliderTemplate.qml");
+    QString sliderStyleQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/SliderStyle.qml");
+    QString sliderExpectedQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/SliderExpected.qml");
+
+    QString listViewTemplateQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ListViewTemplate.qml");
+    QString listViewStyleQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ListViewStyle.qml");
+    QString listViewExpectedQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ListViewExpected.qml");
+
+    QString buttonTemplateQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ButtonTemplate.qml");
+    QString buttonInlineStyleQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ButtonStyleInline.qml");
+    QString buttonInlineExpectedQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ButtonInlineExpected.qml");
+
+    QString buttonAbsoluteTemplateQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ButtonAbsoluteTemplate.qml");
+    QString buttonOutlineStyleQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ButtonStyleOutline.qml");
+    QString buttonOutlineExpectedQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ButtonOutlineExpected.qml");
+
+    QString buttonStyleUiQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ButtonStyle.ui.qml");
+    QString buttonStyleUiExpectedQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ButtonStyle.ui.Expected.qml");
+
+    QString buttonAbsoluteTemplateWithOptionsQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ButtonAbsoluteTemplateWithOptions.qml");
+    QString buttonStyleUiWithOptionsExpectedQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging/ButtonStyleWithOptions.ui.Expected.qml");
+
+    QString testExportButtonTemplateQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging//test_export_button_template.ui.qml");
+    QString testExportButtonStylesheetQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging//test_export_button_stylesheet.ui.qml");
+    QString testExportButtonExpectedQmlContents = readQmlFromFile(QString(TESTSRCDIR) + "/../data/merging//test_export_button_expected.ui.qml");
+
+
+    QTest::newRow("Simple style replacement") << simpleTemplateQmlContents << simpleStyleQmlContents << simpleExpectedQmlContents;
+    QTest::newRow("Complex style replacement") << complexTemplateQmlContents << complexStyleQmlContents << complexExpectedQmlContents;
+    QTest::newRow("Empty stylesheet") << emptyTemplateQmlContents << emptyStyleQmlContents << emptyExpectedQmlContents;
+    QTest::newRow("Root node replacement") << rootReplacementTemplateQmlContents << rootReplacementStyleQmlContents << rootReplacementExpectedQmlContents;
+    QTest::newRow("Switch styling") << switchTemplateQmlContents << switchStyleQmlContents << switchExpectedQmlContents;
+    QTest::newRow("Slider styling") << sliderTemplateQmlContents << sliderStyleQmlContents << sliderExpectedQmlContents;
+    QTest::newRow("List View styling") << listViewTemplateQmlContents << listViewStyleQmlContents << listViewExpectedQmlContents;
+    QTest::newRow("Button Inline styling") << buttonTemplateQmlContents << buttonInlineStyleQmlContents << buttonInlineExpectedQmlContents;
+
+    QTest::newRow("Button Outline styling") << buttonAbsoluteTemplateQmlContents << buttonOutlineStyleQmlContents << buttonOutlineExpectedQmlContents;
+    QTest::newRow("Button Designer styling") << buttonAbsoluteTemplateQmlContents << buttonStyleUiQmlContents << buttonStyleUiExpectedQmlContents;
+
+    QTest::newRow("Button Designer styling with options") << buttonAbsoluteTemplateWithOptionsQmlContents << buttonStyleUiQmlContents << buttonStyleUiWithOptionsExpectedQmlContents;
+    QTest::newRow("Button styling with info screen test case ") << testExportButtonTemplateQmlContents << testExportButtonStylesheetQmlContents << testExportButtonExpectedQmlContents;
+
+}
+
+void tst_TestCore::testMergeModelRewriter1()
+{
+    QFETCH(QString, qmlTemplateString);
+    QFETCH(QString, qmlStyleString);
+    QFETCH(QString, qmlExpectedString);
+
+    QPlainTextEdit textEdit1;
+    textEdit1.setPlainText(qmlTemplateString);
+    NotIndentingTextEditModifier textModifier1(&textEdit1);
+
+    QScopedPointer<Model> templateModel(Model::create("QtQuick.Item", 2, 1));
+    QVERIFY(templateModel.data());
+
+    QScopedPointer<TestView> templateView(new TestView(templateModel.data()));
+    templateModel->attachView(templateView.data());
+
+    // read in 1
+    QScopedPointer<TestRewriterView> templateRewriterView(new TestRewriterView());
+    templateRewriterView->setTextModifier(&textModifier1);
+    templateModel->attachView(templateRewriterView.data());
+
+    ModelNode templateRootNode = templateView->rootModelNode();
+    QVERIFY(templateRootNode.isValid());
+
+    QPlainTextEdit textEdit2;
+    textEdit2.setPlainText(qmlStyleString);
+    NotIndentingTextEditModifier textModifier2(&textEdit2);
+
+    QScopedPointer<Model> styleModel(Model::create("QtQuick.Item", 2, 1));
+    QVERIFY(styleModel.data());
+
+    QScopedPointer<TestView> styleView(new TestView(styleModel.data()));
+    styleModel->attachView(styleView.data());
+
+    // read in 2
+    QScopedPointer<TestRewriterView> styleRewriterView(new TestRewriterView());
+    styleRewriterView->setTextModifier(&textModifier2);
+    styleModel->attachView(styleRewriterView.data());
+
+    StylesheetMerger merger(templateView.data(), styleView.data());
+    merger.merge();
+
+    QString trimmedActual = textEdit1.toPlainText().trimmed();
+    QString trimmedExpected = qmlExpectedString.trimmed();
+
+    QCOMPARE(trimmedActual, trimmedExpected);
+}
+
 void tst_TestCore::testCopyModelRewriter2()
 {
    const QLatin1String qmlString1("\n"
@@ -3756,37 +3884,35 @@ void tst_TestCore::testCopyModelRewriter2()
     textEdit1.setPlainText(qmlString1);
     NotIndentingTextEditModifier textModifier1(&textEdit1);
 
-    QScopedPointer<Model> model1(Model::create("QtQuick.Item", 2, 1));
-    QVERIFY(model1.data());
+    QScopedPointer<Model> templateModel(Model::create("QtQuick.Item", 2, 1));
+    QVERIFY(templateModel.data());
 
-    QScopedPointer<TestView> view1(new TestView(model1.data()));
-    model1->attachView(view1.data());
+    QScopedPointer<TestView> view1(new TestView(templateModel.data()));
+    templateModel->attachView(view1.data());
 
     // read in 1
     QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
     testRewriterView1->setTextModifier(&textModifier1);
-    model1->attachView(testRewriterView1.data());
+    templateModel->attachView(testRewriterView1.data());
 
     ModelNode rootNode1 = view1->rootModelNode();
     QVERIFY(rootNode1.isValid());
     QCOMPARE(rootNode1.type(), QmlDesigner::TypeName("QtQuick.Rectangle"));
 
-
-        // read in 2
-
+    // read in 2
     QPlainTextEdit textEdit2;
     textEdit2.setPlainText(qmlString2);
     NotIndentingTextEditModifier textModifier2(&textEdit2);
 
-    QScopedPointer<Model> model2(Model::create("QtQuick.Item", 2, 1));
-    QVERIFY(model2.data());
+    QScopedPointer<Model> styleModel(Model::create("QtQuick.Item", 2, 1));
+    QVERIFY(styleModel.data());
 
-    QScopedPointer<TestView> view2(new TestView(model2.data()));
-    model2->attachView(view2.data());
+    QScopedPointer<TestView> view2(new TestView(styleModel.data()));
+    styleModel->attachView(view2.data());
 
-    QScopedPointer<TestRewriterView> testRewriterView2(new TestRewriterView());
-    testRewriterView2->setTextModifier(&textModifier2);
-    model2->attachView(testRewriterView2.data());
+    QScopedPointer<TestRewriterView> styleRewriterView(new TestRewriterView());
+    styleRewriterView->setTextModifier(&textModifier2);
+    styleModel->attachView(styleRewriterView.data());
 
     ModelNode rootNode2 = view2->rootModelNode();
     QVERIFY(rootNode2.isValid());

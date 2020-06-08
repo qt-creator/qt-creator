@@ -6,6 +6,7 @@ add_qtc_library(Utils
   SOURCES
     ../3rdparty/optional/optional.hpp
     ../3rdparty/variant/variant.hpp
+    ../3rdparty/span/span.hpp
     QtConcurrentTools
     algorithm.h
     ansiescapecodehandler.cpp ansiescapecodehandler.h
@@ -137,6 +138,7 @@ add_qtc_library(Utils
     smallstringmemory.h
     smallstringvector.h
     smallstringview.h
+    span.h
     statuslabel.cpp statuslabel.h
     stringutils.cpp stringutils.h
     styledbar.cpp styledbar.h

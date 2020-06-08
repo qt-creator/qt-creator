@@ -182,6 +182,21 @@
             \li \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/src/libs/3rdparty/variant}
             \endlist
 
+        \li \b{Implementation for std::span}
+
+            Copyright Tristan Brindle, 2018
+
+            Distributed under the \l {http://boost.org/LICENSE_1_0.txt}
+            {Boost Software License, Version 1.0}.
+            (See accompanying file LICENSE.md.)
+
+            The source code can be found here:
+            \list
+            \li \l{https://github.com/tcbrindle/span}
+            \li QtCreator/src/libs/3rdparty/span
+            \li \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/src/libs/3rdparty/span}
+            \endlist
+
         \li \b{Open Source front-end for C++ (license MIT)}, enhanced for use
             in \QC.\br
             Roberto Raggi <roberto.raggi@gmail.com>\br

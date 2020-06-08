@@ -1,6 +1,8 @@
 INCLUDEPATH += $$PWD/
 
 HEADERS += $$PWD/synchronizecommand.h
+HEADERS += $$PWD/changepreviewimagesizecommand.h
+HEADERS += $$PWD/changelanguagecommand.h
 HEADERS += $$PWD//debugoutputcommand.h
 HEADERS += $$PWD/endpuppetcommand.h
 HEADERS += $$PWD/tokencommand.h
@@ -33,6 +35,8 @@ HEADERS += $$PWD/inputeventcommand.h
 HEADERS += $$PWD/view3dactioncommand.h
 
 SOURCES += $$PWD/synchronizecommand.cpp
+SOURCES += $$PWD/changepreviewimagesizecommand.cpp
+SOURCES += $$PWD/changelanguagecommand.cpp
 SOURCES += $$PWD/debugoutputcommand.cpp
 SOURCES += $$PWD/endpuppetcommand.cpp
 SOURCES += $$PWD/tokencommand.cpp

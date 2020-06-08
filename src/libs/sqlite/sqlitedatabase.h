@@ -66,6 +66,8 @@ public:
     Database(const Database &) = delete;
     Database &operator=(const Database &) = delete;
 
+    static void activateLogging();
+
     void open();
     void open(Utils::PathString &&databaseFilePath);
     void close();
@@ -108,7 +110,21 @@ public:
 
     int totalChangesCount() { return m_databaseBackend.totalChangesCount(); }
 
-    void walCheckpointFull() override { m_databaseBackend.walCheckpointFull(); }
+    void walCheckpointFull() override
+    {
+        std::lock_guard<std::mutex> lock{m_databaseMutex};
+        m_databaseBackend.walCheckpointFull();
+    }
+
+    void setUpdateHook(DatabaseBackend::UpdateCallback &callback)
+    {
+        m_databaseBackend.setUpdateHook(callback);
+    }
+
+    void resetUpdateHook() { m_databaseBackend.resetUpdateHook(); }
+
+    void setAttachedTables(const Utils::SmallStringVector &tables);
+    void applyAndUpdateSessions();
 
 private:
     void deferredBegin() override;
@@ -118,6 +134,9 @@ private:
     void rollback() override;
     void lock() override;
     void unlock() override;
+    void immediateSessionBegin() override;
+    void sessionCommit() override;
+    void sessionRollback() override;
 
     void initializeTables();
     void registerTransactionStatements();

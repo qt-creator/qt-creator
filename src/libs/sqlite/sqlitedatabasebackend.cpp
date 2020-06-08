@@ -37,12 +37,15 @@
 
 #include "sqlite3.h"
 
+extern "C" {
+int sqlite3_carray_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines *pApi);
+}
+
 namespace Sqlite {
 
 DatabaseBackend::DatabaseBackend(Database &database)
-    : m_database(database),
-      m_databaseHandle(nullptr),
-      m_cachedTextEncoding(Utf8)
+    : m_database(database)
+    , m_databaseHandle(nullptr)
 {
 }
 
@@ -65,13 +68,15 @@ void DatabaseBackend::activateMultiThreading()
 
 static void sqliteLog(void*,int errorCode,const char *errorMessage)
 {
-    qWarning() << sqlite3_errstr(errorCode) << errorMessage;
+    std::cout << "Sqlite " << sqlite3_errstr(errorCode) << ": " << errorMessage << std::endl;
 }
 
 void DatabaseBackend::activateLogging()
 {
-    int resultCode = sqlite3_config(SQLITE_CONFIG_LOG, sqliteLog, nullptr);
-    checkIfLoogingIsActivated(resultCode);
+    if (qEnvironmentVariableIsSet("QTC_SQLITE_LOGGING")) {
+        int resultCode = sqlite3_config(SQLITE_CONFIG_LOG, sqliteLog, nullptr);
+        checkIfLoogingIsActivated(resultCode);
+    }
 }
 
 void DatabaseBackend::initializeSqliteLibrary()
@@ -103,7 +108,9 @@ void DatabaseBackend::open(Utils::SmallStringView databaseFilePath, OpenMode mod
 
     checkDatabaseCouldBeOpened(resultCode);
 
-    cacheTextEncoding();
+    resultCode = sqlite3_carray_init(m_databaseHandle, nullptr, nullptr);
+
+    checkCarrayCannotBeIntialized(resultCode);
 }
 
 sqlite3 *DatabaseBackend::sqliteDatabaseHandle() const
@@ -133,24 +140,6 @@ void DatabaseBackend::setJournalMode(JournalMode journalMode)
 JournalMode DatabaseBackend::journalMode()
 {
     return pragmaToJournalMode(pragmaValue("journal_mode"));
-}
-
-void DatabaseBackend::setTextEncoding(TextEncoding textEncoding)
-{
-    setPragmaValue("encoding", textEncodingToPragma(textEncoding));
-    cacheTextEncoding();
-}
-
-TextEncoding DatabaseBackend::textEncoding()
-{
-    return m_cachedTextEncoding;
-}
-
-
-Utils::SmallStringVector DatabaseBackend::columnNames(Utils::SmallStringView tableName)
-{
-    ReadWriteStatement statement("SELECT * FROM " + tableName, m_database);
-    return statement.columnNames();
 }
 
 int DatabaseBackend::changesCount() const
@@ -232,11 +221,6 @@ int DatabaseBackend::busyHandlerCallback(void *, int counter)
     return true;
 }
 
-void DatabaseBackend::cacheTextEncoding()
-{
-    m_cachedTextEncoding = pragmaToTextEncoding(pragmaValue("encoding"));
-}
-
 void DatabaseBackend::checkForOpenDatabaseWhichCanBeClosed()
 {
     if (m_databaseHandle == nullptr)
@@ -272,8 +256,17 @@ void DatabaseBackend::checkDatabaseCouldBeOpened(int resultCode)
             return;
         default:
             closeWithoutException();
-            throw Exception("SqliteDatabaseBackend::SqliteDatabaseBackend: database cannot be opened:", sqlite3_errmsg(sqliteDatabaseHandle()));
-    }
+            throw Exception(
+                "SqliteDatabaseBackend::SqliteDatabaseBackend: database cannot be opened:",
+                sqlite3_errmsg(sqliteDatabaseHandle()));
+        }
+}
+
+void DatabaseBackend::checkCarrayCannotBeIntialized(int resultCode)
+{
+    if (resultCode != SQLITE_OK)
+        throwDatabaseIsNotOpen(
+            "SqliteDatabaseBackend: database cannot be opened because carray failed!");
 }
 
 void DatabaseBackend::checkPragmaValue(Utils::SmallStringView databaseValue,
@@ -292,31 +285,35 @@ void DatabaseBackend::checkDatabaseHandleIsNotNull() const
 void DatabaseBackend::checkIfMultithreadingIsActivated(int resultCode)
 {
     if (resultCode != SQLITE_OK)
-        throwException("SqliteDatabaseBackend::activateMultiThreading: multithreading can't be activated!");
+        throwExceptionStatic(
+            "SqliteDatabaseBackend::activateMultiThreading: multithreading can't be activated!");
 }
 
 void DatabaseBackend::checkIfLoogingIsActivated(int resultCode)
 {
     if (resultCode != SQLITE_OK)
-        throwException("SqliteDatabaseBackend::activateLogging: logging can't be activated!");
+        throwExceptionStatic("SqliteDatabaseBackend::activateLogging: logging can't be activated!");
 }
 
 void DatabaseBackend::checkMmapSizeIsSet(int resultCode)
 {
     if (resultCode != SQLITE_OK)
-        throwException("SqliteDatabaseBackend::checkMmapSizeIsSet: mmap size can't be changed!");
+        throwExceptionStatic(
+            "SqliteDatabaseBackend::checkMmapSizeIsSet: mmap size can't be changed!");
 }
 
 void DatabaseBackend::checkInitializeSqliteLibraryWasSuccesful(int resultCode)
 {
     if (resultCode != SQLITE_OK)
-        throwException("SqliteDatabaseBackend::initializeSqliteLibrary: SqliteLibrary cannot initialized!");
+        throwExceptionStatic(
+            "SqliteDatabaseBackend::initializeSqliteLibrary: SqliteLibrary cannot initialized!");
 }
 
 void DatabaseBackend::checkShutdownSqliteLibraryWasSuccesful(int resultCode)
 {
     if (resultCode != SQLITE_OK)
-        throwException("SqliteDatabaseBackend::shutdownSqliteLibrary: SqliteLibrary cannot be shutdowned!");
+        throwExceptionStatic(
+            "SqliteDatabaseBackend::shutdownSqliteLibrary: SqliteLibrary cannot be shutdowned!");
 }
 
 void DatabaseBackend::checkIfLogCouldBeCheckpointed(int resultCode)
@@ -344,13 +341,11 @@ int indexOfPragma(Utils::SmallStringView pragma, const Utils::SmallStringView (&
 }
 }
 
-constexpr const Utils::SmallStringView journalModeStrings[] = {
-    "delete",
-    "truncate",
-    "persist",
-    "memory",
-    "wal"
-};
+const Utils::SmallStringView journalModeStrings[] = {"delete",
+                                                     "truncate",
+                                                     "persist",
+                                                     "memory",
+                                                     "wal"};
 
 Utils::SmallStringView DatabaseBackend::journalModeToPragma(JournalMode journalMode)
 {
@@ -365,27 +360,6 @@ JournalMode DatabaseBackend::pragmaToJournalMode(Utils::SmallStringView pragma)
         throwExceptionStatic("SqliteDatabaseBackend::pragmaToJournalMode: pragma can't be transformed in a journal mode enumeration!");
 
     return static_cast<JournalMode>(index);
-}
-
-constexpr const Utils::SmallStringView textEncodingStrings[] = {
-    "UTF-8",
-    "UTF-16le",
-    "UTF-16be"
-};
-
-Utils::SmallStringView DatabaseBackend::textEncodingToPragma(TextEncoding textEncoding)
-{
-    return textEncodingStrings[textEncoding];
-}
-
-TextEncoding DatabaseBackend::pragmaToTextEncoding(Utils::SmallStringView pragma)
-{
-    int index = indexOfPragma(pragma, textEncodingStrings);
-
-    if (index < 0)
-        throwExceptionStatic("SqliteDatabaseBackend::pragmaToTextEncoding: pragma can't be transformed in a text encoding enumeration!");
-
-    return static_cast<TextEncoding>(index);
 }
 
 int DatabaseBackend::openMode(OpenMode mode)
@@ -424,6 +398,29 @@ void DatabaseBackend::walCheckpointFull()
     case SQLITE_MISUSE:
         throwExceptionStatic("DatabaseBackend::walCheckpointFull: Misuse of database!");
     }
+}
+
+namespace {
+void updateCallback(
+    void *callback, int type, char const *database, char const *table, sqlite3_int64 row)
+{
+    auto &function = *reinterpret_cast<DatabaseBackend::UpdateCallback *>(callback);
+
+    function(static_cast<ChangeType>(type), database, table, row);
+}
+} // namespace
+
+void DatabaseBackend::setUpdateHook(UpdateCallback &callback)
+{
+    if (callback)
+        sqlite3_update_hook(m_databaseHandle, updateCallback, &callback);
+    else
+        sqlite3_update_hook(m_databaseHandle, nullptr, nullptr);
+}
+
+void DatabaseBackend::resetUpdateHook()
+{
+    sqlite3_update_hook(m_databaseHandle, nullptr, nullptr);
 }
 
 void DatabaseBackend::throwExceptionStatic(const char *whatHasHappens)

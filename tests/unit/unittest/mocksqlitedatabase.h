@@ -59,5 +59,13 @@ public:
                  void (bool));
 
     MOCK_METHOD0(walCheckpointFull, void());
+
+    MOCK_METHOD1(setUpdateHook, void(Sqlite::DatabaseInterface::UpdateCallback &));
+
+    MOCK_METHOD0(resetUpdateHook, void());
+
+    MOCK_METHOD0(applyAndUpdateSessions, void());
+
+    MOCK_METHOD1(setAttachedTables, void(const Utils::SmallStringVector &tables));
 };
 

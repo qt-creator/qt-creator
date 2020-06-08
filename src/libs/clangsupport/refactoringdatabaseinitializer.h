@@ -66,7 +66,7 @@ public:
         Sqlite::Table table;
         table.setUseIfNotExists(true);
         table.setName("symbols");
-        table.addColumn("symbolId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
+        table.addColumn("symbolId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
         const Sqlite::Column &usrColumn = table.addColumn("usr", Sqlite::ColumnType::Text);
         const Sqlite::Column &symbolNameColumn = table.addColumn("symbolName", Sqlite::ColumnType::Text);
         const Sqlite::Column &symbolKindColumn = table.addColumn("symbolKind", Sqlite::ColumnType::Integer);
@@ -100,7 +100,7 @@ public:
         Sqlite::Table table;
         table.setUseIfNotExists(true);
         table.setName("sources");
-        table.addColumn("sourceId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
+        table.addColumn("sourceId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
         const Sqlite::Column &directoryIdColumn = table.addColumn("directoryId", Sqlite::ColumnType::Integer);
         const Sqlite::Column &sourceNameColumn = table.addColumn("sourceName", Sqlite::ColumnType::Text);
         table.addUniqueIndex({directoryIdColumn, sourceNameColumn});
@@ -113,7 +113,7 @@ public:
         Sqlite::Table table;
         table.setUseIfNotExists(true);
         table.setName("directories");
-        table.addColumn("directoryId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
+        table.addColumn("directoryId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
         const Sqlite::Column &directoryPathColumn = table.addColumn("directoryPath", Sqlite::ColumnType::Text);
         table.addUniqueIndex({directoryPathColumn});
 
@@ -125,7 +125,7 @@ public:
         Sqlite::Table table;
         table.setUseIfNotExists(true);
         table.setName("projectParts");
-        table.addColumn("projectPartId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
+        table.addColumn("projectPartId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
         const Sqlite::Column &projectPartNameColumn = table.addColumn("projectPartName", Sqlite::ColumnType::Text);
         table.addColumn("toolChainArguments", Sqlite::ColumnType::Text);
         table.addColumn("compilerMacros", Sqlite::ColumnType::Text);
@@ -160,7 +160,7 @@ public:
         Sqlite::Table table;
         table.setUseIfNotExists(true);
         table.setName("usedMacros");
-        table.addColumn("usedMacroId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
+        table.addColumn("usedMacroId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
         const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
         const Sqlite::Column &macroNameColumn = table.addColumn("macroName", Sqlite::ColumnType::Text);
         table.addIndex({sourceIdColumn, macroNameColumn});
@@ -174,9 +174,7 @@ public:
         Sqlite::Table table;
         table.setUseIfNotExists(true);
         table.setName("fileStatuses");
-        table.addColumn("sourceId",
-                        Sqlite::ColumnType::Integer,
-                        Sqlite::Contraint::PrimaryKey);
+        table.addColumn("sourceId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
         table.addColumn("size", Sqlite::ColumnType::Integer);
         table.addColumn("lastModified", Sqlite::ColumnType::Integer);
         table.addColumn("indexingTimeStamp", Sqlite::ColumnType::Integer);
@@ -201,7 +199,7 @@ public:
         Sqlite::Table table;
         table.setUseIfNotExists(true);
         table.setName("precompiledHeaders");
-        table.addColumn("projectPartId", Sqlite::ColumnType::Integer, Sqlite::Contraint::PrimaryKey);
+        table.addColumn("projectPartId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
         table.addColumn("projectPchPath", Sqlite::ColumnType::Text);
         table.addColumn("projectPchBuildTime", Sqlite::ColumnType::Integer);
         table.addColumn("systemPchPath", Sqlite::ColumnType::Text);

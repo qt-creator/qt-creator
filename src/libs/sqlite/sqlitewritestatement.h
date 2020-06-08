@@ -37,7 +37,6 @@ public:
     using StatementImplementation::execute;
     using StatementImplementation::database;
     using StatementImplementation::write;
-    using StatementImplementation::writeNamed;
 
 protected:
     void checkIsWritableStatement();

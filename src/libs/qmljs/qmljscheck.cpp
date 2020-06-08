@@ -942,6 +942,9 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
     if (checkTypeForDesignerSupport(typeId))
         addMessage(WarnUnsupportedTypeInVisualDesigner, typeErrorLocation, typeName);
 
+    if (QFileInfo(_doc->fileName()).baseName() == getRightMostIdentifier(typeId)->name.toString())
+        addMessage(ErrTypeIsInstantiatedRecursively, typeErrorLocation, typeName);
+
     if (checkTypeForQmlUiSupport(typeId))
         addMessage(ErrUnsupportedTypeInQmlUi, typeErrorLocation, typeName);
 

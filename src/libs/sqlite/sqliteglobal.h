@@ -39,26 +39,15 @@
 
 namespace Sqlite {
 
-enum class ColumnType : char
-{
-    Numeric,
-    Integer,
-    Real,
-    Text,
-    None
-};
+enum class ColumnType : char { Numeric, Integer, Real, Text, Blob, None };
 
-enum class Contraint : char
-{
-    NoConstraint,
-    PrimaryKey,
-    Unique
-};
+enum class ConstraintType : char { NoConstraint, PrimaryKey, Unique, ForeignKey };
 
-enum class ColumnConstraint : char
-{
-    PrimaryKey
-};
+enum class ForeignKeyAction : char { NoAction, Restrict, SetNull, SetDefault, Cascade };
+
+enum class Enforment : char { Immediate, Deferred };
+
+enum class ColumnConstraint : char { PrimaryKey };
 
 enum class JournalMode : char
 {
@@ -75,17 +64,8 @@ enum class OpenMode : char
     ReadWrite
 };
 
-enum TextEncoding : char
-{
-    Utf8,
-    Utf16le,
-    Utf16be,
-#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-    Utf16 = Utf16le
-#else
-    Utf16 = Utf16be
-#endif
+enum class ChangeType : int { Delete = 9, Insert = 18, Update = 23 };
 
-};
+enum class byte : unsigned char {};
 
 } // namespace Sqlite

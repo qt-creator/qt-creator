@@ -52,8 +52,8 @@ public:
     CommandLineBuilder() { cppProjectInfo.language = Utils::Language::Cxx; }
 
 public:
-    ClangBackEnd::PchTask emptyProjectInfo{0, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}};
-    ClangBackEnd::PchTask cppProjectInfo{1, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}};
+    ClangBackEnd::PchTask emptyProjectInfo{0, {}, {}, {}, {}, {}, {}, {}, {}, {}};
+    ClangBackEnd::PchTask cppProjectInfo{1, {}, {}, {}, {}, {}, {}, {}, {}, {}};
 };
 
 template <>

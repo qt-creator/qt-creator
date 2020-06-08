@@ -426,6 +426,17 @@ QStringList PropertyEditorContextObject::styleNamesForFamily(const QString &fami
     return dataBase.styles(family);
 }
 
+QStringList PropertyEditorContextObject::allStatesForId(const QString &id)
+{
+      if (m_model && m_model->rewriterView()) {
+          const QmlObjectNode node = m_model->rewriterView()->modelNodeForId(id);
+          if (node.isValid())
+              return node.allStateNames();
+      }
+
+      return {};
+}
+
 void EasingCurveEditor::registerDeclarativeType()
 {
      qmlRegisterType<EasingCurveEditor>("HelperWidgets", 2, 0, "EasingCurveEditor");

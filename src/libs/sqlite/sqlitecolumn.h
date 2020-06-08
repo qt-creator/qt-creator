@@ -25,72 +25,50 @@
 
 #pragma once
 
-#include "sqliteglobal.h"
-
-#include <utils/smallstring.h>
+#include "constraints.h"
 
 #include <functional>
 
 namespace Sqlite {
+
 
 class Column
 {
 public:
     Column() = default;
 
-    Column(Utils::SmallString &&name,
-           ColumnType type = ColumnType::Numeric,
-           Contraint constraint = Contraint::NoConstraint)
-        : m_name(std::move(name)),
-          m_type(type),
-          m_constraint(constraint)
+    Column(Utils::SmallStringView tableName,
+           Utils::SmallStringView name,
+           ColumnType type,
+           Constraints &&constraints = {})
+        : constraints(std::move(constraints))
+        , name(name)
+        , tableName(tableName)
+        , type(type)
     {}
 
     void clear()
     {
-        m_name.clear();
-        m_type = ColumnType::Numeric;
-        m_constraint = Contraint::NoConstraint;
-    }
-
-    void setName(Utils::SmallString &&newName)
-    {
-        m_name = newName;
-    }
-
-    const Utils::SmallString &name() const
-    {
-        return m_name;
-    }
-
-    void setType(ColumnType newType)
-    {
-        m_type = newType;
-    }
-
-    ColumnType type() const
-    {
-        return m_type;
-    }
-
-    void setContraint(Contraint constraint)
-    {
-        m_constraint = constraint;
-    }
-
-    Contraint constraint() const
-    {
-        return m_constraint;
+        name.clear();
+        type = ColumnType::Numeric;
+        constraints = {};
     }
 
     Utils::SmallString typeString() const
     {
-        switch (m_type) {
-            case ColumnType::None: return {};
-            case ColumnType::Numeric: return "NUMERIC";
-            case ColumnType::Integer: return "INTEGER";
-            case ColumnType::Real: return "REAL";
-            case ColumnType::Text: return "TEXT";
+        switch (type) {
+        case ColumnType::None:
+            return {};
+        case ColumnType::Numeric:
+            return "NUMERIC";
+        case ColumnType::Integer:
+            return "INTEGER";
+        case ColumnType::Real:
+            return "REAL";
+        case ColumnType::Text:
+            return "TEXT";
+        case ColumnType::Blob:
+            return "BLOB";
         }
 
         Q_UNREACHABLE();
@@ -98,16 +76,16 @@ public:
 
     friend bool operator==(const Column &first, const Column &second)
     {
-        return first.m_name == second.m_name
-            && first.m_type == second.m_type
-            && first.m_constraint == second.m_constraint;
+        return first.name == second.name && first.type == second.type
+               && first.constraints == second.constraints && first.tableName == second.tableName;
     }
 
-private:
-    Utils::SmallString m_name;
-    ColumnType m_type = ColumnType::Numeric;
-    Contraint m_constraint = Contraint::NoConstraint;
-};
+public:
+    Constraints constraints;
+    Utils::SmallString name;
+    Utils::SmallString tableName;
+    ColumnType type = ColumnType::Numeric;
+}; // namespace Sqlite
 
 using SqliteColumns = std::vector<Column>;
 using SqliteColumnConstReference = std::reference_wrapper<const Column>;
