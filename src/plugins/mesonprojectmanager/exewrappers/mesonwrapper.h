@@ -101,7 +101,7 @@ public:
         return ToolWrapper::findTool({"meson.py","meson"});
     }
 
-    static inline QString toolName() { return "Meson"; };
+    static inline QString toolName() { return {"Meson"}; };
 };
 
 template<>
