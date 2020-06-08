@@ -193,7 +193,7 @@ Section {
             Layout.fillWidth: true
             backendValue: getBackendValue("styleName")
             model: styleNamesForFamily(fontComboBox.familyName)
-            useString: true
+            valueType: ComboBox.String
         }
 
         Label {

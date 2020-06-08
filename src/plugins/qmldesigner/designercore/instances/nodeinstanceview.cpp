@@ -25,52 +25,55 @@
 
 #include "nodeinstanceview.h"
 
-#include <model.h>
-#include <modelnode.h>
-#include <metainfo.h>
-#include <nodehints.h>
-#include <rewriterview.h>
 #include "abstractproperty.h"
-#include "variantproperty.h"
 #include "bindingproperty.h"
+#include "changeauxiliarycommand.h"
+#include "changebindingscommand.h"
+#include "changefileurlcommand.h"
+#include "changeidscommand.h"
+#include "changelanguagecommand.h"
+#include "changenodesourcecommand.h"
+#include "changepreviewimagesizecommand.h"
+#include "changeselectioncommand.h"
+#include "changestatecommand.h"
+#include "changevaluescommand.h"
+#include "childrenchangedcommand.h"
+#include "clearscenecommand.h"
+#include "completecomponentcommand.h"
+#include "componentcompletedcommand.h"
+#include "createinstancescommand.h"
+#include "createscenecommand.h"
+#include "debugoutputcommand.h"
+#include "informationchangedcommand.h"
+#include "inputeventcommand.h"
 #include "nodeabstractproperty.h"
+#include "nodeinstanceserverproxy.h"
 #include "nodelistproperty.h"
 #include "nodeproperty.h"
+#include "pixmapchangedcommand.h"
+#include "puppettocreatorcommand.h"
 #include "qmlchangeset.h"
+#include "qmldesignerconstants.h"
 #include "qmlstate.h"
 #include "qmltimeline.h"
 #include "qmltimelinekeyframegroup.h"
 #include "qmlvisualnode.h"
-#include "qmldesignerconstants.h"
-#include "createscenecommand.h"
-#include "createinstancescommand.h"
-#include "clearscenecommand.h"
-#include "changefileurlcommand.h"
-#include "reparentinstancescommand.h"
-#include "update3dviewstatecommand.h"
-#include "changevaluescommand.h"
-#include "changeauxiliarycommand.h"
-#include "changebindingscommand.h"
-#include "changeidscommand.h"
-#include "changeselectioncommand.h"
-#include "changenodesourcecommand.h"
 #include "removeinstancescommand.h"
 #include "removepropertiescommand.h"
-#include "valueschangedcommand.h"
-#include "pixmapchangedcommand.h"
-#include "informationchangedcommand.h"
-#include "changestatecommand.h"
-#include "childrenchangedcommand.h"
-#include "statepreviewimagechangedcommand.h"
-#include "completecomponentcommand.h"
-#include "componentcompletedcommand.h"
-#include "tokencommand.h"
 #include "removesharedmemorycommand.h"
-#include "debugoutputcommand.h"
-#include "nodeinstanceserverproxy.h"
-#include "puppettocreatorcommand.h"
-#include "inputeventcommand.h"
+#include "reparentinstancescommand.h"
+#include "statepreviewimagechangedcommand.h"
+#include "tokencommand.h"
+#include "update3dviewstatecommand.h"
+#include "valueschangedcommand.h"
+#include "variantproperty.h"
 #include "view3dactioncommand.h"
+
+#include <metainfo.h>
+#include <model.h>
+#include <modelnode.h>
+#include <nodehints.h>
+#include <rewriterview.h>
 
 #ifndef QMLDESIGNER_TEST
 #include <qmldesignerplugin.h>
@@ -536,6 +539,10 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
                 }
             }
         }
+    } else if (node.isRootNode() && name == "language@Internal") {
+        nodeInstanceServer()->changeLanguage({value.toString()});
+    } else if (node.isRootNode() && name == "previewSize@Internal") {
+        nodeInstanceServer()->changePreviewImageSize(value.toSize());
     }
 }
 

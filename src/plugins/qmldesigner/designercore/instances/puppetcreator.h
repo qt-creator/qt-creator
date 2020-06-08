@@ -102,6 +102,7 @@ protected:
 
     bool useOnlyFallbackPuppet() const;
     QString getStyleConfigFileName() const;
+    QString getMultilanguageDatabaseFilePath() const;
 
 private:
     mutable QString m_compileLog;

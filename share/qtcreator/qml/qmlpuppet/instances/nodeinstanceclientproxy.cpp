@@ -35,43 +35,44 @@
 
 #include "nodeinstanceserverinterface.h"
 
-#include "propertyabstractcontainer.h"
-#include "propertyvaluecontainer.h"
-#include "propertybindingcontainer.h"
-#include "instancecontainer.h"
+#include "changeauxiliarycommand.h"
+#include "changebindingscommand.h"
+#include "changefileurlcommand.h"
+#include "changeidscommand.h"
+#include "changelanguagecommand.h"
+#include "changenodesourcecommand.h"
+#include "changepreviewimagesizecommand.h"
+#include "changeselectioncommand.h"
+#include "changestatecommand.h"
+#include "changevaluescommand.h"
+#include "childrenchangedcommand.h"
+#include "clearscenecommand.h"
+#include "completecomponentcommand.h"
+#include "componentcompletedcommand.h"
 #include "createinstancescommand.h"
 #include "createscenecommand.h"
-#include "update3dviewstatecommand.h"
-#include "changevaluescommand.h"
-#include "changebindingscommand.h"
-#include "changeauxiliarycommand.h"
-#include "changefileurlcommand.h"
-#include "removeinstancescommand.h"
-#include "clearscenecommand.h"
-#include "removepropertiescommand.h"
-#include "reparentinstancescommand.h"
-#include "changeidscommand.h"
-#include "changestatecommand.h"
-#include "completecomponentcommand.h"
-#include "synchronizecommand.h"
-#include "removesharedmemorycommand.h"
-#include "tokencommand.h"
-#include "inputeventcommand.h"
-#include "view3dactioncommand.h"
-
-#include "informationchangedcommand.h"
-#include "pixmapchangedcommand.h"
-#include "valueschangedcommand.h"
-#include "childrenchangedcommand.h"
-#include "imagecontainer.h"
-#include "statepreviewimagechangedcommand.h"
-#include "componentcompletedcommand.h"
-#include "changenodesourcecommand.h"
-#include "endpuppetcommand.h"
 #include "debugoutputcommand.h"
+#include "endpuppetcommand.h"
+#include "imagecontainer.h"
+#include "informationchangedcommand.h"
+#include "inputeventcommand.h"
+#include "instancecontainer.h"
+#include "pixmapchangedcommand.h"
+#include "propertyabstractcontainer.h"
+#include "propertybindingcontainer.h"
+#include "propertyvaluecontainer.h"
 #include "puppetalivecommand.h"
-#include "changeselectioncommand.h"
 #include "puppettocreatorcommand.h"
+#include "removeinstancescommand.h"
+#include "removepropertiescommand.h"
+#include "removesharedmemorycommand.h"
+#include "reparentinstancescommand.h"
+#include "statepreviewimagechangedcommand.h"
+#include "synchronizecommand.h"
+#include "tokencommand.h"
+#include "update3dviewstatecommand.h"
+#include "valueschangedcommand.h"
+#include "view3dactioncommand.h"
 
 namespace QmlDesigner {
 
@@ -91,7 +92,7 @@ NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
       m_synchronizeId(-1)
 {
     connect(&m_puppetAliveTimer, &QTimer::timeout, this, &NodeInstanceClientProxy::sendPuppetAliveCommand);
-    m_puppetAliveTimer.setInterval(1000);
+    m_puppetAliveTimer.setInterval(2000);
     m_puppetAliveTimer.start();
 }
 
@@ -324,6 +325,16 @@ void NodeInstanceClientProxy::view3DAction(const View3DActionCommand &command)
     nodeInstanceServer()->view3DAction(command);
 }
 
+void NodeInstanceClientProxy::changeLanguage(const ChangeLanguageCommand &command)
+{
+    nodeInstanceServer()->changeLanguage(command);
+}
+
+void NodeInstanceClientProxy::changePreviewImageSize(const ChangePreviewImageSizeCommand &command)
+{
+    nodeInstanceServer()->changePreviewImageSize(command);
+}
+
 void NodeInstanceClientProxy::readDataStream()
 {
     QList<QVariant> commandList;
@@ -490,6 +501,9 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     static const int changeSelectionCommandType = QMetaType::type("ChangeSelectionCommand");
     static const int inputEventCommandType = QMetaType::type("InputEventCommand");
     static const int view3DActionCommandType = QMetaType::type("View3DActionCommand");
+    static const int changeLanguageCommand = QMetaType::type("ChangeLanguageCommand");
+    static const int changePreviewImageSizeCommand = QMetaType::type(
+        "ChangePreviewImageSizeCommand");
 
     const int commandType = command.userType();
 
@@ -539,6 +553,10 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     } else if (commandType == changeSelectionCommandType) {
         ChangeSelectionCommand changeSelectionCommand = command.value<ChangeSelectionCommand>();
         changeSelection(changeSelectionCommand);
+    } else if (command.userType() == changeLanguageCommand) {
+        changeLanguage(command.value<ChangeLanguageCommand>());
+    } else if (command.userType() == changePreviewImageSizeCommand) {
+        changePreviewImageSize(command.value<ChangePreviewImageSizeCommand>());
     } else {
         Q_ASSERT(false);
     }

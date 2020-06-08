@@ -36,6 +36,33 @@ namespace QmlDesigner {
 static const PropertyName customIdProperty = {("customId")};
 static const PropertyName annotationProperty = {("annotation")};
 static const PropertyName globalAnnotationProperty = {("globalAnnotation")};
+static const PropertyName globalAnnotationStatus = {("globalAnnotationStatus")};
+
+class GlobalAnnotationStatus
+{
+public:
+    enum Status {
+        NoStatus = -1,
+        InProgress = 0,
+        InReview = 1,
+        Done = 2
+    };
+
+    GlobalAnnotationStatus();
+    GlobalAnnotationStatus(Status status);
+
+    ~GlobalAnnotationStatus() = default;
+
+    void setStatus(int statusId);
+    void setStatus(Status status);
+    Status status() const;
+
+    QString toQString() const;
+    void fromQString(const QString &str);
+
+private:
+    Status m_status;
+};
 
 class Comment
 {
@@ -50,6 +77,8 @@ public:
 
     QString text() const;
     void setText(const QString &text);
+
+    QString deescapedText() const;
 
     QString author() const;
     void setAuthor(const QString &author);

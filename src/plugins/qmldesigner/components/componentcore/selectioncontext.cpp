@@ -124,12 +124,17 @@ bool SelectionContext::isValid() const
 
 bool SelectionContext::fastUpdate() const
 {
-    return m_updateMode == UpdateMode::Fast;
+    return m_updateReason != UpdateMode::Normal;
 }
 
 void SelectionContext::setUpdateMode(UpdateMode mode)
 {
-    m_updateMode = mode;
+    m_updateReason = mode;
+}
+
+SelectionContext::UpdateMode SelectionContext::updateReason() const
+{
+    return m_updateReason;
 }
 
 } //QmlDesigner

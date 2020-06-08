@@ -186,7 +186,7 @@ FormEditorItem *AbstractFormEditorTool::topMovableFormEditorItem(const QList<QGr
     return nullptr;
 }
 
-FormEditorItem* AbstractFormEditorTool::nearestFormEditorItem(const QPointF &point, const QList<QGraphicsItem*> & itemList)
+FormEditorItem* AbstractFormEditorTool::nearestFormEditorItem(const QPointF &point, const QList<QGraphicsItem*> &itemList)
 {
     FormEditorItem* nearestItem = nullptr;
     foreach (QGraphicsItem *item, itemList) {

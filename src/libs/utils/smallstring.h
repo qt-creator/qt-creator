@@ -90,39 +90,35 @@ public:
     constexpr
     BasicSmallString(const char(&string)[ArraySize])
         : m_data(string)
-    {
-    }
+    {}
 
     BasicSmallString(const char *string, size_type size, size_type capacity)
     {
         if (Q_LIKELY(capacity <= shortStringCapacity())) {
-            std::memcpy(m_data.shortString.string, string, size);
+            std::char_traits<char>::copy(m_data.shortString.string, string, size);
             m_data.shortString.string[size] = 0;
             m_data.shortString.control.setShortStringSize(size);
             m_data.shortString.control.setIsShortString(true);
             m_data.shortString.control.setIsReadOnlyReference(false);
         } else {
             m_data.allocated.data.pointer = Memory::allocate(capacity + 1);
-            std::memcpy(m_data.allocated.data.pointer, string, size);
+            std::char_traits<char>::copy(m_data.allocated.data.pointer, string, size);
             initializeLongString(size, capacity);
         }
     }
 
     explicit BasicSmallString(SmallStringView stringView)
         : BasicSmallString(stringView.data(), stringView.size(), stringView.size())
-    {
-    }
+    {}
 
     BasicSmallString(const char *string, size_type size)
         : BasicSmallString(string, size, size)
     {
     }
 
-    template<typename Type,
-             typename = std::enable_if_t<std::is_pointer<Type>::value>
-             >
+    template<typename Type, typename = std::enable_if_t<std::is_pointer<Type>::value>>
     BasicSmallString(Type characterPointer)
-        : BasicSmallString(characterPointer, std::strlen(characterPointer))
+        : BasicSmallString(characterPointer, std::char_traits<char>::length(characterPointer))
     {
         static_assert(!std::is_array<Type>::value, "Input type is array and not char pointer!");
     }
@@ -211,8 +207,7 @@ public:
         return clonedString;
     }
 
-    friend
-    void swap(BasicSmallString &first, BasicSmallString &second)
+    friend void swap(BasicSmallString &first, BasicSmallString &second) noexcept
     {
         using std::swap;
 
@@ -254,7 +249,7 @@ public:
     static
     BasicSmallString fromUtf8(const char *characterPointer)
     {
-        return BasicSmallString(characterPointer, std::strlen(characterPointer));
+        return BasicSmallString(characterPointer, std::char_traits<char>::length(characterPointer));
     }
 
     void reserve(size_type newCapacity)
@@ -272,7 +267,7 @@ public:
                 const char *oldData = data();
 
                 char *newData = Memory::allocate(newCapacity + 1);
-                std::memcpy(newData, oldData, oldSize);
+                std::char_traits<char>::copy(newData, oldData, oldSize);
                 m_data.allocated.data.pointer = newData;
                 initializeLongString(oldSize, newCapacity);
             }
@@ -381,7 +376,7 @@ public:
 
     bool contains(char characterToSearch) const
     {
-        auto found = std::memchr(data(), characterToSearch, size());
+        auto found = std::char_traits<char>::find(data(), size(), characterToSearch);
 
         return found != nullptr;
     }
@@ -389,7 +384,9 @@ public:
     bool startsWith(SmallStringView subStringToSearch) const noexcept
     {
         if (size() >= subStringToSearch.size())
-            return !std::memcmp(data(), subStringToSearch.data(), subStringToSearch.size());
+            return !std::char_traits<char>::compare(data(),
+                                                    subStringToSearch.data(),
+                                                    subStringToSearch.size());
 
         return false;
     }
@@ -402,9 +399,10 @@ public:
     bool endsWith(SmallStringView subStringToSearch) const noexcept
     {
         if (size() >= subStringToSearch.size()) {
-            const int comparison = std::memcmp(end().data() - subStringToSearch.size(),
-                                               subStringToSearch.data(),
-                                               subStringToSearch.size());
+            const int comparison = std::char_traits<char>::compare(end().data()
+                                                                       - subStringToSearch.size(),
+                                                                   subStringToSearch.data(),
+                                                                   subStringToSearch.size());
             return comparison == 0;
         }
 
@@ -463,7 +461,7 @@ public:
         size_type newSize = oldSize + string.size();
 
         reserve(optimalCapacity(newSize));
-        std::memcpy(data() + oldSize, string.data(), string.size());
+        std::char_traits<char>::copy(data() + oldSize, string.data(), string.size());
         at(newSize) = 0;
         setSize(newSize);
     }
@@ -725,7 +723,7 @@ private:
         at(size) = 0;
     }
 
-    void initializeLongString(size_type size, size_type capacity)
+    constexpr void initializeLongString(size_type size, size_type capacity)
     {
         m_data.allocated.data.pointer[size] = 0;
         m_data.allocated.data.size = size;
@@ -758,7 +756,7 @@ private:
         while (found != end()) {
             start = found + toText.size();
 
-            std::memcpy(found.data(), toText.data(), toText.size());
+            std::char_traits<char>::copy(found.data(), toText.data(), toText.size());
 
             found = std::search(start,
                                      end(),

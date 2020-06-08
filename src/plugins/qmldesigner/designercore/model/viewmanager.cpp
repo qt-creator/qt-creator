@@ -73,6 +73,7 @@ public:
     StatesEditorView statesEditorView;
 
     QList<QPointer<AbstractView> > additionalViews;
+    bool disableStandardViews = false;
 };
 
 static CrumbleBar *crumbleBar() {
@@ -104,6 +105,9 @@ DesignDocument *ViewManager::currentDesignDocument() const
 
 void ViewManager::attachNodeInstanceView()
 {
+    if (nodeInstanceView()->isAttached())
+        return;
+
     QElapsedTimer time;
     if (viewBenchmark().isInfoEnabled())
         time.start();
@@ -165,15 +169,27 @@ void ViewManager::switchStateEditorViewToSavedState()
 QList<QPointer<AbstractView> > ViewManager::views() const
 {
     auto list = d->additionalViews;
-    list.append({
+    list.append(standardViews());
+    return list;
+}
+
+QList<QPointer<AbstractView> > ViewManager::standardViews() const
+{
+    QList<QPointer<AbstractView>> list = {
                     &d->edit3DView,
                     &d->formEditorView,
                     &d->textEditorView,
                     &d->itemLibraryView,
                     &d->navigatorView,
                     &d->propertyEditorView,
-                    &d->statesEditorView
-                });
+                    &d->statesEditorView,
+                    &d->designerActionManagerView
+                };
+
+    if (QmlDesignerPlugin::instance()->settings().value(
+                DesignerSettingsKey::ENABLE_DEBUGVIEW).toBool())
+         list.append(&d->debugView);
+
     return list;
 }
 
@@ -196,17 +212,8 @@ void ViewManager::detachViewsExceptRewriterAndComponetView()
 {
     switchStateEditorViewToBaseState();
     detachAdditionalViews();
-    currentModel()->detachView(&d->designerActionManagerView);
-    currentModel()->detachView(&d->edit3DView);
-    currentModel()->detachView(&d->formEditorView);
-    currentModel()->detachView(&d->textEditorView);
-    currentModel()->detachView(&d->navigatorView);
-    currentModel()->detachView(&d->itemLibraryView);
-    currentModel()->detachView(&d->statesEditorView);
-    currentModel()->detachView(&d->propertyEditorView);
 
-    if (d->debugView.isAttached())
-        currentModel()->detachView(&d->debugView);
+    detachStandardViews();
 
     currentModel()->setNodeInstanceView(nullptr);
 }
@@ -227,6 +234,14 @@ void ViewManager::detachAdditionalViews()
 {
     foreach (const QPointer<AbstractView> &view, d->additionalViews)
         currentModel()->detachView(view.data());
+}
+
+void ViewManager::detachStandardViews()
+{
+    for (auto view : standardViews()) {
+        if (view->isAttached())
+            currentModel()->detachView(view);
+    }
 }
 
 void ViewManager::attachComponentView()
@@ -262,52 +277,16 @@ void ViewManager::attachViewsExceptRewriterAndComponetView()
 
     qCInfo(viewBenchmark) << Q_FUNC_INFO;
 
-    currentModel()->attachView(&d->designerActionManagerView);
-
     int last = time.elapsed();
-    qCInfo(viewBenchmark) << "ActionManagerView:" << last << time.elapsed();
-
-    currentModel()->attachView(&d->edit3DView);
-
-    int currentTime = time.elapsed();
-    qCInfo(viewBenchmark) << "Edit3DView:" << currentTime - last;
-    last = currentTime;
-
-    currentModel()->attachView(&d->formEditorView);
-
-    currentTime = time.elapsed();
-    qCInfo(viewBenchmark) << "FormEditorView:" << currentTime - last;
-    last = currentTime;
-
-    currentModel()->attachView(&d->textEditorView);
-
-    currentTime = time.elapsed();
-    qCInfo(viewBenchmark) << "TextEditorView:" << currentTime - last;
-    last = currentTime;
-
-    currentModel()->attachView(&d->navigatorView);
-
-    currentTime = time.elapsed();
-    qCInfo(viewBenchmark) << "NavigatorView:" << currentTime - last;
-    last = currentTime;
-
-    attachItemLibraryView();
-
-    currentTime = time.elapsed();
-    qCInfo(viewBenchmark) << "ItemLibraryView:" << currentTime - last;
-    last = currentTime;
-
-    currentModel()->attachView(&d->statesEditorView);
-
-    currentTime = time.elapsed();
-    qCInfo(viewBenchmark) << "StatesEditorView:" << currentTime - last;
-    last = currentTime;
-
-    currentModel()->attachView(&d->propertyEditorView);
-
-    currentTime = time.elapsed();
-    qCInfo(viewBenchmark) << "PropertyEditorView:" << currentTime - last;
-    last = currentTime;
+    int currentTime = 0;
+    if (!d->disableStandardViews) {
+        for (auto view : standardViews()) {
+            currentModel()->attachView(view);
+            currentTime = time.elapsed();
+            qCInfo(viewBenchmark) << view->widgetInfo().uniqueId << currentTime - last;
+            last = currentTime;
+        }
+    }
 
     attachAdditionalViews();
 
@@ -457,6 +436,18 @@ void ViewManager::reformatFileUsingTextEditorView()
 bool ViewManager::usesRewriterView(RewriterView *rewriterView)
 {
     return currentDesignDocument()->rewriterView() == rewriterView;
+}
+
+void ViewManager::disableStandardViews()
+{
+    d->disableStandardViews = true;
+    detachStandardViews();
+}
+
+void ViewManager::enableStandardViews()
+{
+    d->disableStandardViews = false;
+    attachViewsExceptRewriterAndComponetView();
 }
 
 } // namespace QmlDesigner

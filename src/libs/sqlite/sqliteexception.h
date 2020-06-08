@@ -29,17 +29,21 @@
 
 #include <utils/smallstring.h>
 
+#include <exception>
+#include <iostream>
+
 namespace Sqlite {
 
-class SQLITE_EXPORT Exception
+class SQLITE_EXPORT Exception : public std::exception
 {
 public:
     Exception(const char *whatErrorHasHappen,
               Utils::SmallString &&sqliteErrorMessage = Utils::SmallString())
-        : m_whatErrorHasHappen(whatErrorHasHappen),
-          m_sqliteErrorMessage(std::move(sqliteErrorMessage))
-    {
-    }
+        : m_whatErrorHasHappen(whatErrorHasHappen)
+        , m_sqliteErrorMessage(std::move(sqliteErrorMessage))
+    {}
+
+    const char *what() const noexcept override { return m_whatErrorHasHappen; }
 
     void printWarning() const;
 
@@ -115,13 +119,12 @@ public:
     }
 };
 
-class InvalidColumnFetched : public Exception
+class ColumnCountDoesNotMatch : public Exception
 {
 public:
-    InvalidColumnFetched(const char *whatErrorHasHappen)
+    ColumnCountDoesNotMatch(const char *whatErrorHasHappen)
         : Exception(whatErrorHasHappen)
-    {
-    }
+    {}
 };
 
 class BindingIndexIsOutOfRange : public Exception
@@ -268,6 +271,30 @@ class CannotConvert : public Exception
 {
 public:
     CannotConvert(const char *whatErrorHasHappen)
+        : Exception(whatErrorHasHappen)
+    {}
+};
+
+class ForeignKeyColumnIsNotUnique : public Exception
+{
+public:
+    ForeignKeyColumnIsNotUnique(const char *whatErrorHasHappen)
+        : Exception(whatErrorHasHappen)
+    {}
+};
+
+class CannotApplyChangeSet : public Exception
+{
+public:
+    CannotApplyChangeSet(const char *whatErrorHasHappen)
+        : Exception(whatErrorHasHappen)
+    {}
+};
+
+class ChangeSetIsMisused : public Exception
+{
+public:
+    ChangeSetIsMisused(const char *whatErrorHasHappen)
         : Exception(whatErrorHasHappen)
     {}
 };

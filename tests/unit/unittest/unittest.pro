@@ -63,6 +63,7 @@ SOURCES += \
     filepathview-test.cpp \
     gtest-creator-printing.cpp \
     gtest-qt-printing.cpp \
+    lastchangedrowid-test.cpp \
     lineprefixer-test.cpp \
     locatorfilter-test.cpp \
     matchingtext-test.cpp \
@@ -80,6 +81,7 @@ SOURCES += \
     smallstring-test.cpp \
     sourcerangefilter-test.cpp \
     spydummy.cpp \
+    sqlitesessions-test.cpp \
     sqlitevalue-test.cpp \
     symbolindexer-test.cpp \
     symbolsfindfilter-test.cpp \

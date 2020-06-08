@@ -9,6 +9,7 @@ include(tests/tests.pri)
 
 HEADERS += \
     qmlpreview_global.h \
+    qmldebugtranslationclient.h \
     qmlpreviewclient.h \
     qmlpreviewplugin.h \
     qmlpreviewruncontrol.h \
@@ -17,6 +18,7 @@ HEADERS += \
 
 SOURCES += \
     qmlpreviewplugin.cpp \
+    qmldebugtranslationclient.cpp \
     qmlpreviewclient.cpp \
     qmlpreviewruncontrol.cpp \
     qmlpreviewconnectionmanager.cpp \

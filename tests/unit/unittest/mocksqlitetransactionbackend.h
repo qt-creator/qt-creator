@@ -40,4 +40,7 @@ public:
     MOCK_METHOD0(rollback, void ());
     MOCK_METHOD0(lock, void ());
     MOCK_METHOD0(unlock, void ());
+    MOCK_METHOD0(immediateSessionBegin, void());
+    MOCK_METHOD0(sessionCommit, void());
+    MOCK_METHOD0(sessionRollback, void());
 };

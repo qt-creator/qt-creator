@@ -152,7 +152,7 @@ void QmlPreviewPlugin::setZoomFactor(float zoomFactor)
 
 void QmlPreviewPlugin::setLanguageLocale(const QString &locale)
 {
-    if (s_previewPlugin)
+    if (auto s_previewPlugin = getPreviewPlugin())
         s_previewPlugin->setProperty("locale", locale);
 }
 

@@ -24,6 +24,8 @@ QtcPlugin {
         files: [
             "qmlpreviewclient.cpp",
             "qmlpreviewclient.h",
+            "qmldebugtranslationclient.cpp",
+            "qmldebugtranslationclient.h",
             "qmlpreviewconnectionmanager.cpp",
             "qmlpreviewconnectionmanager.h",
             "qmlpreviewfileontargetfinder.cpp",

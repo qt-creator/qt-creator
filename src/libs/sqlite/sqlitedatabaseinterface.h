@@ -25,11 +25,25 @@
 
 #pragma once
 
+#include <utils/smallstringvector.h>
+
+#include "sqliteglobal.h"
+
+#include <functional>
+
 namespace Sqlite {
 class DatabaseInterface
 {
 public:
+    using UpdateCallback
+        = std::function<void(ChangeType type, char const *, char const *, long long)>;
+
     virtual void walCheckpointFull() = 0;
+    virtual void execute(Utils::SmallStringView sqlStatement) = 0;
+    virtual void setUpdateHook(UpdateCallback &callback) = 0;
+    virtual void resetUpdateHook() = 0;
+    virtual void applyAndUpdateSessions() = 0;
+    virtual void setAttachedTables(const Utils::SmallStringVector &tables) = 0;
 
 protected:
     ~DatabaseInterface() = default;

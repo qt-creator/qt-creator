@@ -33,12 +33,13 @@
 
 namespace {
 
-using Sqlite::DeferredTransaction;
-using Sqlite::ImmediateTransaction;
-using Sqlite::ExclusiveTransaction;
 using Sqlite::DeferredNonThrowingDestructorTransaction;
-using Sqlite::ImmediateNonThrowingDestructorTransaction;
+using Sqlite::DeferredTransaction;
 using Sqlite::ExclusiveNonThrowingDestructorTransaction;
+using Sqlite::ExclusiveTransaction;
+using Sqlite::ImmediateNonThrowingDestructorTransaction;
+using Sqlite::ImmediateSessionTransaction;
+using Sqlite::ImmediateTransaction;
 
 class SqliteTransaction : public testing::Test
 {
@@ -316,4 +317,56 @@ TEST_F(SqliteTransaction, TransactionRollbackInDestructorDontThrows)
     ASSERT_NO_THROW(ExclusiveNonThrowingDestructorTransaction{mockTransactionBackend});
 }
 
+TEST_F(SqliteTransaction, ImmediateSessionTransactionCommit)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
+    EXPECT_CALL(mockTransactionBackend, immediateSessionBegin());
+    EXPECT_CALL(mockTransactionBackend, sessionCommit());
+    EXPECT_CALL(mockTransactionBackend, unlock());
+
+    ImmediateSessionTransaction transaction{mockTransactionBackend};
+    transaction.commit();
 }
+
+TEST_F(SqliteTransaction, ImmediateSessionTransactionRollBack)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
+    EXPECT_CALL(mockTransactionBackend, immediateSessionBegin());
+    EXPECT_CALL(mockTransactionBackend, sessionRollback());
+    EXPECT_CALL(mockTransactionBackend, unlock());
+
+    ImmediateSessionTransaction transaction{mockTransactionBackend};
+}
+
+TEST_F(SqliteTransaction, SessionTransactionRollbackInDestructorThrows)
+{
+    ON_CALL(mockTransactionBackend, sessionRollback()).WillByDefault(Throw(Sqlite::Exception("foo")));
+
+    ASSERT_THROW(ImmediateSessionTransaction{mockTransactionBackend}, Sqlite::Exception);
+}
+
+TEST_F(SqliteTransaction, ImmidiateSessionTransactionBeginThrows)
+{
+    ON_CALL(mockTransactionBackend, immediateSessionBegin())
+        .WillByDefault(Throw(Sqlite::Exception("foo")));
+
+    ASSERT_THROW(ImmediateSessionTransaction{mockTransactionBackend}, Sqlite::Exception);
+}
+
+TEST_F(SqliteTransaction, ImmediateSessionTransactionBeginThrowsAndNotRollback)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockTransactionBackend, lock());
+    EXPECT_CALL(mockTransactionBackend, immediateSessionBegin()).WillOnce(Throw(Sqlite::Exception("foo")));
+    EXPECT_CALL(mockTransactionBackend, sessionRollback()).Times(0);
+    EXPECT_CALL(mockTransactionBackend, unlock());
+
+    ASSERT_ANY_THROW(ImmediateSessionTransaction{mockTransactionBackend});
+}
+
+} // namespace

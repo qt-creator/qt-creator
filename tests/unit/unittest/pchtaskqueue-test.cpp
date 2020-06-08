@@ -71,7 +71,6 @@ protected:
                         {3, 4},
                         {6, 7},
                         {{"YI", "1", 1}, {"SAN", "3", 3}},
-                        {{"LIANG", 0}, {"YI", 1}},
                         {"--yi"},
                         systemIncludeSearchPaths,
                         projectIncludeSearchPaths};
@@ -82,7 +81,6 @@ protected:
                         {3, 4},
                         {6, 7},
                         {{"YI", "1", 1}, {"SAN", "3", 3}},
-                        {{"LIANG", 0}, {"YI", 1}},
                         {"--yi"},
                         systemIncludeSearchPaths,
                         projectIncludeSearchPaths};
@@ -93,7 +91,6 @@ protected:
                          {4, 7},
                          {8, 9},
                          {{"YI", "1", 1}, {"SAN", "3", 3}},
-                         {{"LIANG", 0}, {"YI", 1}},
                          {"--yi"},
                          systemIncludeSearchPaths,
                          projectIncludeSearchPaths};
@@ -104,7 +101,6 @@ protected:
                         {3, 4},
                         {6, 7},
                         {{"YI", "1", 1}, {"SAN", "3", 3}},
-                        {{"LIANG", 0}, {"YI", 1}},
                         {"--yi"},
                         systemIncludeSearchPaths,
                         projectIncludeSearchPaths};
@@ -115,7 +111,6 @@ protected:
                          {13, 14},
                          {16, 17},
                          {{"SE", "4", 4}, {"WU", "5", 5}},
-                         {{"ER", 2}, {"SAN", 3}},
                          {"--yi"},
                          systemIncludeSearchPaths,
                          projectIncludeSearchPaths};
@@ -126,7 +121,6 @@ protected:
                          {13, 14},
                          {16, 17},
                          {{"SE", "4", 4}, {"WU", "5", 5}},
-                         {{"ER", 2}, {"SAN", 3}},
                          {"--yi"},
                          systemIncludeSearchPaths,
                          projectIncludeSearchPaths};
@@ -137,7 +131,6 @@ protected:
                           {23, 24},
                           {26, 27},
                           {{"SE", "4", 4}, {"WU", "5", 5}},
-                          {{"ER", 2}, {"SAN", 3}},
                           {"--yi"},
                           systemIncludeSearchPaths,
                           projectIncludeSearchPaths};
@@ -148,7 +141,6 @@ protected:
                          {23, 24},
                          {26, 27},
                          {{"SE", "4", 4}, {"WU", "5", 5}},
-                         {{"ER", 2}, {"SAN", 3}},
                          {"--yi"},
                          systemIncludeSearchPaths,
                          projectIncludeSearchPaths};
@@ -159,7 +151,6 @@ protected:
                         {3, 4},
                         {5, 8},
                         {{"YI", "1", 1}, {"SAN", "3", 3}},
-                        {{"LIANG", 0}, {"YI", 1}},
                         {"--yi"},
                         systemIncludeSearchPaths,
                         projectIncludeSearchPaths};

@@ -36,6 +36,7 @@
 #include "abstractcustomtool.h"
 
 #include <bindingproperty.h>
+#include <variantproperty.h>
 #include <designersettings.h>
 #include <designmodecontext.h>
 #include <modelnode.h>
@@ -385,17 +386,37 @@ void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
     m_scene->update();
 }
 
-void FormEditorView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList, AbstractView::PropertyChangeFlags propertyChange)
+void FormEditorView::variantPropertiesChanged(const QList<VariantProperty> &propertyList,
+                                              AbstractView::PropertyChangeFlags propertyChange)
+{
+    Q_UNUSED(propertyChange)
+    for (const VariantProperty &property : propertyList) {
+        QmlVisualNode node(property.parentModelNode());
+        if (node.isFlowTransition()) {
+            if (FormEditorItem *item = m_scene->itemForQmlItemNode(node.toQmlItemNode())) {
+                if (property.name() == "question")
+                    item->updateGeometry();
+            }
+        }
+    }
+}
+
+void FormEditorView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList,
+                                              AbstractView::PropertyChangeFlags propertyChange)
 {
     Q_UNUSED(propertyChange)
     for (const BindingProperty &property : propertyList) {
         QmlVisualNode node(property.parentModelNode());
         if (node.isFlowTransition()) {
-            FormEditorItem *item = m_scene->itemForQmlItemNode(node.toQmlItemNode());
-            if (item && node.hasNodeParent()) {
-                m_scene->reparentItem(node.toQmlItemNode(), node.toQmlItemNode().modelParentItem());
-                m_scene->synchronizeTransformation(item);
-                item->update();
+            if (FormEditorItem *item = m_scene->itemForQmlItemNode(node.toQmlItemNode())) {
+                if (property.name() == "condition" || property.name() == "question")
+                    item->updateGeometry();
+
+                if (node.hasNodeParent()) {
+                    m_scene->reparentItem(node.toQmlItemNode(), node.toQmlItemNode().modelParentItem());
+                    m_scene->synchronizeTransformation(item);
+                    item->update();
+                }
             }
         } else if (QmlFlowActionAreaNode::isValidQmlFlowActionAreaNode(property.parentModelNode())) {
             const QmlVisualNode target = property.resolveToModelNode();
@@ -502,7 +523,7 @@ void FormEditorView::changeToCustomTool()
 
         const ModelNode selectedModelNode = selectedModelNodes().constFirst();
 
-        foreach (AbstractCustomTool *customTool, m_customToolList) {
+        for (AbstractCustomTool *customTool : m_customToolList) {
             if (customTool->wantHandleItem(selectedModelNode) > handlingRank) {
                 handlingRank = customTool->wantHandleItem(selectedModelNode);
                 selectedCustomTool = customTool;
@@ -547,9 +568,17 @@ void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyN
         }
     } else if (item.isFlowTransition() || item.isFlowActionArea()
                || item.isFlowDecision() || item.isFlowWildcard()) {
-        FormEditorItem *editorItem = m_scene->itemForQmlItemNode(item);
-        if (editorItem)
+        if (FormEditorItem *editorItem = m_scene->itemForQmlItemNode(item)) {
+            // Update the geomtry if one of the following auxiliary properties has changed
+            static const QStringList updateGeometryPropertyNames = {
+                "breakPoint", "bezier", "transitionBezier", "type", "tranitionType", "radius",
+                "transitionRadius", "labelPosition", "labelFlipSide", "inOffset", "outOffset"
+            };
+            if (updateGeometryPropertyNames.contains(QString::fromUtf8(name)))
+                editorItem->updateGeometry();
+
             editorItem->update();
+        }
     } else if (item.isFlowView() || item.isFlowItem()) {
         scene()->update();
     } else if (name == "annotation" || name == "customId") {
@@ -562,7 +591,7 @@ void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyN
 void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeList)
 {
     QList<FormEditorItem*> itemNodeList;
-    foreach (const ModelNode &node, completedNodeList) {
+    for (const ModelNode &node : completedNodeList) {
         const QmlItemNode qmlItemNode(node);
         if (qmlItemNode.isValid()) {
             if (FormEditorItem *item = scene()->itemForQmlItemNode(qmlItemNode)) {
@@ -584,7 +613,7 @@ void FormEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, Inf
         return QmlItemNode::isValidQmlItemNode(node);
     });
 
-    foreach (const ModelNode &node, informationChangedNodes) {
+    for (const ModelNode &node : informationChangedNodes) {
         const QmlItemNode qmlItemNode(node);
         if (FormEditorItem *item = scene()->itemForQmlItemNode(qmlItemNode)) {
             scene()->synchronizeTransformation(item);
@@ -621,7 +650,7 @@ void FormEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, Inf
 
 void FormEditorView::instancesRenderImageChanged(const QVector<ModelNode> &nodeList)
 {
-    foreach (const ModelNode &node, nodeList) {
+    for (const ModelNode &node : nodeList) {
         if (QmlItemNode::isValidQmlItemNode(node))
              if (FormEditorItem *item = scene()->itemForQmlItemNode(QmlItemNode(node)))
                  item->update();
@@ -632,7 +661,7 @@ void FormEditorView::instancesChildrenChanged(const QVector<ModelNode> &nodeList
 {
     QList<FormEditorItem*> changedItems;
 
-    foreach (const ModelNode &node, nodeList) {
+    for (const ModelNode &node : nodeList) {
         const QmlItemNode qmlItemNode(node);
         if (qmlItemNode.isValid()) {
             if (FormEditorItem *item = scene()->itemForQmlItemNode(qmlItemNode)) {
@@ -702,7 +731,7 @@ QmlItemNode findRecursiveQmlItemNode(const QmlObjectNode &firstQmlObjectNode)
 void FormEditorView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList)
 {
     QList<FormEditorItem*> changedItems;
-    foreach (auto &nodePropertyPair, propertyList) {
+    for (auto &nodePropertyPair : propertyList) {
         const QmlItemNode qmlItemNode(nodePropertyPair.first);
         const PropertyName propertyName = nodePropertyPair.second;
         if (qmlItemNode.isValid()) {

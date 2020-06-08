@@ -27,6 +27,8 @@
 
 #include "sqliteglobal.h"
 
+#include <utils/smallstringview.h>
+
 #include <exception>
 #include <mutex>
 
@@ -49,6 +51,9 @@ public:
     virtual void rollback() = 0;
     virtual void lock() = 0;
     virtual void unlock() = 0;
+    virtual void immediateSessionBegin() = 0;
+    virtual void sessionCommit() = 0;
+    virtual void sessionRollback() = 0;
 
 protected:
     ~TransactionInterface() = default;
@@ -74,6 +79,42 @@ protected:
     {
     }
 
+
+protected:
+    TransactionInterface &m_interface;
+    std::unique_lock<TransactionInterface> m_locker{m_interface};
+    bool m_isAlreadyCommited = false;
+    bool m_rollback = false;
+};
+
+class AbstractThrowingSessionTransaction
+{
+public:
+    AbstractThrowingSessionTransaction(const AbstractTransaction &) = delete;
+    AbstractThrowingSessionTransaction &operator=(const AbstractTransaction &) = delete;
+
+    void commit()
+    {
+        m_interface.sessionCommit();
+        m_isAlreadyCommited = true;
+        m_locker.unlock();
+    }
+
+    ~AbstractThrowingSessionTransaction() noexcept(false)
+    {
+        try {
+            if (m_rollback)
+                m_interface.sessionRollback();
+        } catch (...) {
+            if (!std::uncaught_exception())
+                throw;
+        }
+    }
+
+protected:
+    AbstractThrowingSessionTransaction(TransactionInterface &interface)
+        : m_interface(interface)
+    {}
 
 protected:
     TransactionInterface &m_interface;
@@ -181,6 +222,23 @@ public:
 };
 
 using ExclusiveTransaction = BasicExclusiveTransaction<AbstractThrowingTransaction>;
-using ExclusiveNonThrowingDestructorTransaction = BasicExclusiveTransaction<AbstractNonThrowingDestructorTransaction>;
+using ExclusiveNonThrowingDestructorTransaction
+    = BasicExclusiveTransaction<AbstractNonThrowingDestructorTransaction>;
+
+class ImmediateSessionTransaction final : public AbstractThrowingSessionTransaction
+{
+public:
+    ImmediateSessionTransaction(TransactionInterface &interface)
+        : AbstractThrowingSessionTransaction(interface)
+    {
+        interface.immediateSessionBegin();
+    }
+
+    ~ImmediateSessionTransaction()
+    {
+        AbstractThrowingSessionTransaction::m_rollback
+            = !AbstractThrowingSessionTransaction::m_isAlreadyCommited;
+    }
+};
 
 } // namespace Sqlite

@@ -29,7 +29,7 @@
 #include <QtQml>
 #include <QPointer>
 
-#include "annotationeditordialog.h"
+#include "globalannotationeditordialog.h"
 #include "annotation.h"
 
 #include "modelnode.h"
@@ -67,7 +67,7 @@ private slots:
     void cancelClicked();
 
 private:
-    QPointer<AnnotationEditorDialog> m_dialog;
+    QPointer<GlobalAnnotationEditorDialog> m_dialog;
 
     ModelNode m_modelNode;
 };

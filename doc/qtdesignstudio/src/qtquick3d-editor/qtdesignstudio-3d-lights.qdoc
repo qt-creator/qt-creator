@@ -42,6 +42,7 @@
     \list
         \li \l{DirectionalLight}{Light Directional}
         \li \l{PointLight}{Light Point}
+        \li \l{SpotLight}{Light Spot}
         \li \l{AreaLight}{Light Area}
     \endlist
 
@@ -121,6 +122,22 @@
     Aside from fade, a point light has the same properties as a directional
     light.
 
+    \section1 Spot Light
+
+    A spot light emits light towards one direction in a cone shape.
+    The light intensity diminishes when approaching the value of the
+    \uicontrol {Cone angle} property. The angle at which the light
+    intensity starts to diminish is defined by the
+    \uicontrol {Inner cone angle} property. Both angles are defined in degrees.
+
+    Inside the inner cone angle, the spot light behaves similarly to the point
+    light. There the light intensity diminishes according to inverse-square-law.
+    However, the fade-off (and range) can be controlled with the
+    \uicontrol {Constant fade}, \uicontrol {Linear fade}, and
+    \uicontrol {Quadratic fade} properties.
+
+    \image studio-3d-spot-light.png
+
     \section1 Area Light
 
     An area light is similar to the directional light. However, instead of
@@ -135,7 +152,7 @@
     The image below shows an example on how to light an object with different
     colors using two different area lights.
 
-    \image area-light.png
+    \image studio-3d-area-light.png
 
     You can rotate, scale, and move area lights.
 

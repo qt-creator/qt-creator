@@ -38,6 +38,7 @@ public:
     void createScene(const CreateSceneCommand &command) override;
     void changeState(const ChangeStateCommand &command) override;
     void removeSharedMemory(const RemoveSharedMemoryCommand &command) override;
+    void changePreviewImageSize(const ChangePreviewImageSizeCommand &command) override;
 
     QImage renderPreviewImage();
 
@@ -47,6 +48,7 @@ protected:
 
 private:
     ServerNodeInstance m_currentState;
+    QSize m_previewSize{160, 160};
 };
 
 } // namespace QmlDesigner

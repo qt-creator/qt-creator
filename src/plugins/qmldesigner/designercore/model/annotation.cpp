@@ -26,6 +26,7 @@
 #include "annotation.h"
 
 #include <QDateTime>
+#include <QString>
 
 namespace QmlDesigner {
 
@@ -73,6 +74,21 @@ QString Comment::text() const
 void Comment::setText(const QString &text)
 {
     m_text = text;
+}
+
+QString Comment::deescapedText() const
+{
+    QString result = m_text;
+
+    result.replace(QStringLiteral("*\\/"), QStringLiteral("*/"));
+    result.replace(QStringLiteral("\\n"), QStringLiteral("\n"));
+    result.replace(QStringLiteral("\\r"), QStringLiteral("\r"));
+    result.replace(QStringLiteral("\\t"), QStringLiteral("\t"));
+    result.replace(QStringLiteral("\\\""), QStringLiteral("\""));
+    result.replace(QStringLiteral("\\\'"), QStringLiteral("\'"));
+    result.replace(QStringLiteral("\\\\"), QStringLiteral("\\"));
+
+    return result;
 }
 
 QString Comment::timestampStr() const
@@ -302,6 +318,53 @@ QDataStream &operator>>(QDataStream &stream, Annotation &annotation)
     stream >> annotation.m_comments;
 
     return stream;
+}
+
+GlobalAnnotationStatus::GlobalAnnotationStatus()
+    : m_status(GlobalAnnotationStatus::Status::NoStatus)
+{ }
+
+GlobalAnnotationStatus::GlobalAnnotationStatus(GlobalAnnotationStatus::Status status)
+    : m_status(status)
+{ }
+
+void GlobalAnnotationStatus::setStatus(int statusId)
+{
+    switch (statusId) {
+    case 0: m_status = GlobalAnnotationStatus::Status::InProgress; break;
+    case 1: m_status = GlobalAnnotationStatus::Status::InReview; break;
+    case 2: m_status = GlobalAnnotationStatus::Status::Done; break;
+    case -1:
+    default: m_status = GlobalAnnotationStatus::Status::NoStatus; break;
+    }
+}
+
+void GlobalAnnotationStatus::setStatus(GlobalAnnotationStatus::Status status)
+{
+    m_status = status;
+}
+
+GlobalAnnotationStatus::Status GlobalAnnotationStatus::status() const
+{
+    return m_status;
+}
+
+QString GlobalAnnotationStatus::toQString() const
+{
+    return QString::number(static_cast<int>(m_status));
+}
+
+void GlobalAnnotationStatus::fromQString(const QString &str)
+{
+    bool result = false;
+    int conversion = str.toInt(&result);
+
+    if (result) {
+        setStatus(conversion);
+    }
+    else {
+        m_status = GlobalAnnotationStatus::Status::NoStatus;
+    }
 }
 
 } // QmlDesigner namespace

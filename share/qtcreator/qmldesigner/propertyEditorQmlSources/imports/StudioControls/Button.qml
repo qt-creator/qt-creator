@@ -36,9 +36,11 @@ ButtonRow {
     property alias checked: myAbstractButton.checked
 
     signal onCheckedChanged()
+    signal clicked
 
     AbstractButton {
         id: myAbstractButton
         onCheckedChanged: myButtonRow.onCheckedChanged()
+        onClicked: myButtonRow.clicked()
     }
 }

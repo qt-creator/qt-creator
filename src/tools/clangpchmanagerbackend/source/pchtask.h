@@ -47,7 +47,6 @@ public:
             FilePathIds &&watchedUserIncludes,
             FilePathIds &&watchedUserSources,
             CompilerMacros &&compilerMacros,
-            Utils::SmallStringVector &&usedMacros, // TODO remove
             Utils::SmallStringVector toolChainArguments,
             IncludeSearchPaths systemIncludeSearchPaths,
             IncludeSearchPaths projectIncludeSearchPaths,
@@ -76,7 +75,6 @@ public:
             FilePathIds &&watchedUserIncludes,
             FilePathIds &&watchedUserSources,
             CompilerMacros &&compilerMacros,
-            Utils::SmallStringVector &&usedMacros, // TODO remove
             Utils::SmallStringVector toolChainArguments,
             IncludeSearchPaths systemIncludeSearchPaths,
             IncludeSearchPaths projectIncludeSearchPaths,

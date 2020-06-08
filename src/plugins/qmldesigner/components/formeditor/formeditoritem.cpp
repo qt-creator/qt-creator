@@ -1,4 +1,4 @@
-/****************************************************************************
+﻿/****************************************************************************
 **
 ** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
@@ -26,6 +26,7 @@
 #include "formeditoritem.h"
 #include "formeditorscene.h"
 
+#include <variantproperty.h>
 #include <bindingproperty.h>
 
 #include <modelnode.h>
@@ -34,11 +35,13 @@
 
 #include <theme.h>
 
+#include <utils/algorithm.h>
 #include <utils/theme/theme.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QFontDatabase>
+#include <QtGlobal>
 #include <QPainter>
 #include <QPainterPath>
 #include <QStyleOptionGraphicsItem>
@@ -52,14 +55,14 @@ namespace QmlDesigner {
 const int flowBlockSize = 200;
 const int blockRadius = 18;
 const int blockAdjust = 40;
-
-const char startNodeIcon[] = "\u0055";
+const int startItemOffset = 96;
 
 void drawIcon(QPainter *painter,
               int x,
               int y,
               const QString &iconSymbol,
-              int fontSize, int iconSize,
+              int fontSize,
+              int iconSize,
               const QColor &penColor)
 {
     static QFontDatabase a;
@@ -148,7 +151,7 @@ void FormEditorItem::updateGeometry()
     m_paintedBoundingRect = qmlItemNode().instancePaintedBoundingRect();
     m_boundingRect = m_paintedBoundingRect.united(m_selectionBoundingRect);
     setTransform(qmlItemNode().instanceTransformWithContentTransform());
-    //the property for zValue is called z in QGraphicsObject
+    // the property for zValue is called z in QGraphicsObject
     if (qmlItemNode().instanceValue("z").isValid() && !qmlItemNode().isRootModelNode())
         setZValue(qmlItemNode().instanceValue("z").toDouble());
 }
@@ -395,7 +398,7 @@ QList<FormEditorItem *> FormEditorItem::offspringFormEditorItemsRecursive(const 
 {
     QList<FormEditorItem*> formEditorItemList;
 
-    foreach (QGraphicsItem *item, formEditorItem->childItems()) {
+    for (QGraphicsItem *item : formEditorItem->childItems()) {
         FormEditorItem *formEditorItem = fromQGraphicsItem(item);
         if (formEditorItem) {
             formEditorItemList.append(formEditorItem);
@@ -452,6 +455,7 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
         }
     }
 
+    painter->setClipping(false);
     if (!qmlItemNode().isRootModelNode())
         paintBoundingRect(painter);
 
@@ -524,7 +528,7 @@ QList<FormEditorItem*> FormEditorItem::childFormEditorItems() const
 {
     QList<FormEditorItem*> formEditorItemList;
 
-    foreach (QGraphicsItem *item, childItems()) {
+    for (QGraphicsItem *item : childItems()) {
         FormEditorItem *formEditorItem = fromQGraphicsItem(item);
         if (formEditorItem)
             formEditorItemList.append(formEditorItem);
@@ -562,15 +566,17 @@ void FormEditorFlowItem::setDataModelPosition(const QPointF &position)
 {
     qmlItemNode().setFlowItemPosition(position);
     updateGeometry();
+
+/* TODO
     for (QGraphicsItem *item : scene()->items()) {
         if (item == this)
             continue;
 
-        auto formEditorItem = qgraphicsitem_cast<FormEditorItem*>(item);
+        auto formEditorItem = qgraphicsitem_cast<FormEditorItem *>(item);
         if (formEditorItem)
             formEditorItem->updateGeometry();
     }
-
+*/
 }
 
 void FormEditorFlowItem::setDataModelPositionInBaseState(const QPointF &position)
@@ -584,22 +590,61 @@ void FormEditorFlowItem::updateGeometry()
     const QPointF pos = qmlItemNode().flowPosition();
     setTransform(QTransform::fromTranslate(pos.x(), pos.y()));
 
-    QmlFlowItemNode flowItem(qmlItemNode());
-
+    // Call updateGeometry() on all related transitions
+    QmlFlowTargetNode flowItem(qmlItemNode());
     if (flowItem.isValid() && flowItem.flowView().isValid()) {
         const auto nodes = flowItem.flowView().transitions();
         for (const ModelNode &node : nodes) {
-            FormEditorItem *item = scene()->itemForQmlItemNode(node);
-            if (item)
+            if (FormEditorItem *item = scene()->itemForQmlItemNode(node))
                 item->updateGeometry();
         }
     }
-
 }
 
 QPointF FormEditorFlowItem::instancePosition() const
 {
     return qmlItemNode().flowPosition();
+}
+
+
+void FormEditorFlowActionItem::setDataModelPosition(const QPointF &position)
+{
+    qmlItemNode().setPosition(position);
+    updateGeometry();
+
+/* TODO
+    for (QGraphicsItem *item : scene()->items()) {
+        if (item == this)
+            continue;
+
+        auto formEditorItem = qgraphicsitem_cast<FormEditorItem *>(item);
+        if (formEditorItem)
+            formEditorItem->updateGeometry();
+    }
+*/
+}
+
+void FormEditorFlowActionItem::setDataModelPositionInBaseState(const QPointF &position)
+{
+    qmlItemNode().setPostionInBaseState(position);
+    updateGeometry();
+}
+
+void FormEditorFlowActionItem::updateGeometry()
+{
+    FormEditorItem::updateGeometry();
+    //const QPointF pos = qmlItemNode().flowPosition();
+    //setTransform(QTransform::fromTranslate(pos.x(), pos.y()));
+
+    // Call updateGeometry() on all related transitions
+    QmlFlowItemNode flowItem = QmlFlowActionAreaNode(qmlItemNode()).flowItemParent();
+    if (flowItem.isValid() && flowItem.flowView().isValid()) {
+        const auto nodes = flowItem.flowView().transitions();
+        for (const ModelNode &node : nodes) {
+            if (FormEditorItem *item = scene()->itemForQmlItemNode(node))
+                item->updateGeometry();
+        }
+    }
 }
 
 void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
@@ -687,57 +732,549 @@ void FormEditorTransitionItem::setDataModelPositionInBaseState(const QPointF &)
 
 }
 
+static bool isValid(const QList<QmlItemNode> &list)
+{
+    for (const auto &item : list)
+        if (!item.isValid())
+            return false;
+
+    return true;
+}
+
+static bool isModelNodeValid(const QList<QmlItemNode> &list)
+{
+    for (const auto &item : list)
+        if (!item.modelNode().isValid())
+            return false;
+
+    return true;
+}
+
 class ResolveConnection
 {
 public:
-    ResolveConnection(const QmlItemNode &node) :
-       from({})
-      ,to(node.modelNode().bindingProperty("to").resolveToModelNode())
-      ,areaNode(ModelNode())
+    ResolveConnection(const QmlItemNode &node)
+        : from()
+        , to()
+        , areaNode(ModelNode())
     {
-        if (node.modelNode().hasBindingProperty("from"))
-            from = node.modelNode().bindingProperty("from").resolveToModelNode();
-        const QmlFlowItemNode to = node.modelNode().bindingProperty("to").resolveToModelNode();
+        if (node.modelNode().hasBindingProperty("from")) {
+            if (node.modelNode().bindingProperty("from").isList())
+                from = Utils::transform<QList>(node.modelNode().bindingProperty("from").resolveToModelNodeList(),
+                                               [](const ModelNode &node) {
+                    return QmlItemNode(node);
+                });
+            else
+                from = QList<QmlItemNode>({node.modelNode().bindingProperty("from").resolveToModelNode()});
+        }
 
-        if (from.isValid()) {
-            for (const QmlFlowActionAreaNode &area : from.flowActionAreas()) {
+        if (node.modelNode().hasBindingProperty("to")) {
+            if (node.modelNode().bindingProperty("to").isList())
+                to = Utils::transform<QList>(node.modelNode().bindingProperty("to").resolveToModelNodeList(),
+                                               [](const ModelNode &node) {
+                    return QmlItemNode(node);
+                });
+            else
+                to = QList<QmlItemNode>({node.modelNode().bindingProperty("to").resolveToModelNode()});
+        }
+
+        if (from.empty()) {
+            for (const ModelNode wildcard : QmlFlowViewNode(node.rootModelNode()).wildcards()) {
+                if (wildcard.bindingProperty("target").resolveToModelNode() == node.modelNode()) {
+                    from.clear();
+                    from.append(wildcard);
+                    isWildcardLine = true;
+                }
+            }
+        }
+    // Only assign area node if there is exactly one from (QmlFlowItemNode)
+    if (from.size() == 1) {
+        const QmlItemNode tmp = from.back();
+        const QmlFlowItemNode f(tmp.modelNode());
+        if (f.isValid()) {
+            for (const QmlFlowActionAreaNode &area : f.flowActionAreas()) {
                 ModelNode target = area.targetTransition();
-                if (target ==  node.modelNode()) {
+                if (target == node.modelNode()) {
                     areaNode = area;
-                } else  {
+                } else {
                     const ModelNode decisionNode = area.decisionNodeForTransition(node.modelNode());
                     if (decisionNode.isValid()) {
-                        from = decisionNode;
+                        from.clear();
+                        from.append(decisionNode);
                         areaNode = ModelNode();
                     }
                 }
             }
-            if (from.modelNode().hasAuxiliaryData("joinConnection"))
-                joinConnection = from.modelNode().auxiliaryData("joinConnection").toBool();
-        } else {
-            if (from == node.rootModelNode()) {
-                isStartLine = true;
+            if (f.modelNode().hasAuxiliaryData("joinConnection"))
+                joinConnection = f.modelNode().auxiliaryData("joinConnection").toBool();
             } else {
-                for (const ModelNode &wildcard : QmlFlowViewNode(node.rootModelNode()).wildcards()) {
-                    if (wildcard.bindingProperty("target").resolveToModelNode() == node.modelNode()) {
-                        from = wildcard;
-                        isWildcardLine = true;
-                    }
-                }
+                if (f == node.rootModelNode())
+                    isStartLine = true;
             }
         }
     }
 
     bool joinConnection = false;
-
     bool isStartLine = false;
-
     bool isWildcardLine = false;
 
-    QmlFlowItemNode from;
-    QmlFlowItemNode to;
+    QList<QmlItemNode> from;
+    QList<QmlItemNode> to;
     QmlFlowActionAreaNode areaNode;
 };
+
+enum ConnectionType
+{
+    Default = 0,
+    Bezier
+};
+
+class ConnectionConfiguration
+{
+public:
+    ConnectionConfiguration(const QmlItemNode &node,
+                            const ResolveConnection &resolveConnection,
+                            const qreal scaleFactor,
+                            bool hitTest = false)
+        : width(2)
+        , adjustedWidth(width / scaleFactor)
+        , color(QColor("#e71919"))
+        , lineBrush(QBrush(color))
+        , penStyle(Qt::SolidLine)
+        , dashPattern()
+        , drawStart(true)
+        , drawEnd(true)
+        , joinEnd(false)
+        , outOffset(0)
+        , inOffset(0)
+        , breakOffset(50)
+        , radius(8)
+        , bezier(50)
+        , type(ConnectionType::Default)
+        , label()
+        , fontSize(16 / scaleFactor)
+        , labelOffset(14 / scaleFactor)
+        , labelPosition(50.0)
+        , labelFlags(Qt::AlignHCenter | Qt::AlignVCenter | Qt::TextDontClip)
+        , labelFlipSide(false)
+        , hitTesting(hitTest)
+    {
+        // width
+        if (node.modelNode().hasAuxiliaryData("width"))
+            width = node.modelNode().auxiliaryData("width").toInt();
+        // adjusted width
+        if (node.modelNode().isSelected())
+            width += 2;
+        if (hitTest)
+            width = width * 8  / scaleFactor;
+        // color
+        if (resolveConnection.isStartLine)
+            color = QColor("blue");
+        if (resolveConnection.isWildcardLine)
+            color = QColor("green");
+        if (node.rootModelNode().hasAuxiliaryData("transitionColor"))
+            color = node.rootModelNode().auxiliaryData("transitionColor").value<QColor>();
+        if (node.modelNode().hasAuxiliaryData("color"))
+            color = node.modelNode().auxiliaryData("color").value<QColor>();
+        // linbe brush
+        lineBrush = QBrush(color);
+
+        // pen style
+
+        // dash
+        if (node.modelNode().hasAuxiliaryData("dash") && node.modelNode().auxiliaryData("dash").toBool())
+            penStyle = Qt::DashLine;
+        // in/out offset
+        if (node.modelNode().hasAuxiliaryData("outOffset"))
+            outOffset = node.modelNode().auxiliaryData("outOffset").toInt();
+        if (node.modelNode().hasAuxiliaryData("inOffset"))
+            inOffset = node.modelNode().auxiliaryData("inOffset").toInt();
+        // break offset
+        if (node.modelNode().hasAuxiliaryData("breakPoint"))
+            breakOffset = node.modelNode().auxiliaryData("breakPoint").toInt();
+        // radius
+        if (node.rootModelNode().hasAuxiliaryData("transitionRadius"))
+            radius = node.rootModelNode().auxiliaryData("transitionRadius").toInt();
+        if (node.modelNode().hasAuxiliaryData("radius"))
+            radius = node.modelNode().auxiliaryData("radius").toInt();
+        // bezier
+        if (node.rootModelNode().hasAuxiliaryData("transitionBezier"))
+            bezier = node.rootModelNode().auxiliaryData("transitionBezier").toInt();
+        if (node.modelNode().hasAuxiliaryData("bezier"))
+            bezier = node.modelNode().auxiliaryData("bezier").toInt();
+        // type
+        if (node.rootModelNode().hasAuxiliaryData("transitionType"))
+            type = static_cast<ConnectionType>(node.rootModelNode().auxiliaryData("transitionType").toInt());
+        if (node.modelNode().hasAuxiliaryData("type"))
+            type = static_cast<ConnectionType>(node.modelNode().auxiliaryData("type").toInt());
+        // label
+        if (node.modelNode().hasBindingProperty("condition"))
+            label = node.modelNode().bindingProperty("condition").expression();
+        if (node.modelNode().hasVariantProperty("question"))
+            label = node.modelNode().variantProperty("question").value().toString();
+        // font size
+
+        // label offset
+
+        // label position
+        if (node.modelNode().hasAuxiliaryData("labelPosition"))
+            labelPosition = node.modelNode().auxiliaryData("labelPosition").toReal();
+        // label flip side
+        if (node.modelNode().hasAuxiliaryData("labelFlipSide"))
+            labelFlipSide = node.modelNode().auxiliaryData("labelFlipSide").toBool();
+    }
+
+    qreal width;
+    qreal adjustedWidth;
+    QColor color; // TODO private/setter
+    QBrush lineBrush;
+    Qt::PenStyle penStyle;
+    QVector<qreal> dashPattern;
+    bool drawStart;
+    bool drawEnd;
+    // Dirty hack for joining/merging arrow heads on many-to-one transitions
+    bool joinEnd;
+    int outOffset;
+    int inOffset;
+    int breakOffset;
+    int radius;
+    int bezier;
+    ConnectionType type;
+    QString label;
+    int fontSize;
+    qreal labelOffset;
+    qreal labelPosition;
+    int labelFlags;
+    bool labelFlipSide;
+    bool hitTesting;
+};
+
+static bool verticalOverlap(const QRectF &from, const QRectF &to)
+{
+    if (from.top() < to.bottom() && from.bottom() > to.top())
+        return true;
+
+    if (to.top() < from.bottom() && to.bottom() > from.top())
+        return true;
+
+    return false;
+}
+
+static bool horizontalOverlap(const QRectF &from, const QRectF &to)
+{
+    if (from.left() < to.right() && from.right() > to.left())
+        return true;
+
+    if (to.left() < from.right() && to.right() > from.left())
+        return true;
+
+    return false;
+}
+
+static QPainterPath roundedCorner(const QPointF &s,
+                                  const QPointF &m,
+                                  const QPointF &e,
+                                  int radius)
+{
+    const QVector2D sm(m - s);
+    const QVector2D me(e - m);
+    const float smLength = sm.length();
+    const float meLength = me.length();
+    const int actualRadius = qMin(radius, static_cast<int>(qMin(smLength, meLength)));
+    const QVector2D smNorm = sm.normalized();
+    const QVector2D meNorm = me.normalized();
+    QRectF rect(m, QSizeF(actualRadius * 2, actualRadius * 2));
+
+    QPainterPath path(s);
+
+    if (smNorm.y() < 0 && meNorm.x() > 0) {
+        rect.moveTopLeft(m);
+        path.arcTo(rect, 180, -90);
+    } else if (smNorm.x() < 0 && meNorm.y() > 0) {
+        rect.moveTopLeft(m);
+        path.arcTo(rect, 90, 90);
+    } else if (smNorm.y() > 0 && meNorm.x() > 0) {
+        rect.moveBottomLeft(m);
+        path.arcTo(rect, 180, 90);
+    } else if (smNorm.x() < 0 && meNorm.y() < 0) {
+        rect.moveBottomLeft(m);
+        path.arcTo(rect, 270, -90);
+    } else if (smNorm.x() > 0 && meNorm.y() > 0) {
+        rect.moveTopRight(m);
+        path.arcTo(rect, 90, -90);
+    } else if (smNorm.y() < 0 && meNorm.x() < 0) {
+        rect.moveTopRight(m);
+        path.arcTo(rect, 0, 90);
+    } else if (smNorm.y() > 0 && meNorm.x() < 0) {
+        rect.moveBottomRight(m);
+        path.arcTo(rect, 0, -90);
+    } else if (smNorm.x() > 0 && meNorm.y() < 0) {
+        rect.moveBottomRight(m);
+        path.arcTo(rect, 270, 90);
+    }
+
+    path.lineTo(e);
+    return path;
+}
+
+// This function determines whether the vertices are in cw or ccw order.
+// It finds the lowest and rightmost vertex, and computes the cross-product
+// of the vectors along its incident edges.
+// Written by Joseph O'Rourke, 25 August 1995. orourke@cs.smith.edu
+//  1: ccw
+//  0: default
+// -1: cw
+
+static int counterClockWise(const std::vector<QPointF> &points)
+{
+    if (points.empty())
+        return 0;
+
+    // FindLR finds the lowest, rightmost point.
+    auto findLR = [](const std::vector<QPointF> &points) {
+        int i = 0;
+        int m = 0;
+        QPointF min = points.front();
+
+        for (const auto p : points) {
+            if ((p.y() < min.y()) || ((p.y() == min.y()) && (p.x() > min.x()))) {
+                m = i;
+                min = p;
+            }
+            ++i;
+        }
+        return m;
+    };
+
+    const int m = findLR(points);
+    const int n = points.size();
+
+    // Determine previous and next point to m (the lowest, rightmost point).
+    const QPointF a = points[(m + (n - 1)) % n];
+    const QPointF b = points[m];
+    const QPointF c = points[(m + 1) % n];
+
+    const int area = a.x() * b.y() - a.y() * b.x() +
+                     a.y() * c.x() - a.x() * c.y() +
+                     b.x() * c.y() - c.x() * b.y();
+
+    if (area > 0)
+        return 1;
+    else if (area < 0)
+        return -1;
+    else
+        return 0;
+}
+
+static QPainterPath quadBezier(const QPointF &s,
+                               const QPointF &c,
+                               const QPointF &e,
+                               int bezier,
+                               int breakOffset)
+{
+    const QLineF se(s, e);
+    const QPointF breakPoint = se.pointAt(breakOffset / 100.0);
+    QLineF breakLine;
+
+    if (counterClockWise({s, c, e}) == 1)
+        breakLine = QLineF(breakPoint, breakPoint + QPointF(se.dy(), -se.dx()));
+    else
+        breakLine = QLineF(breakPoint, breakPoint + QPointF(-se.dy(), se.dx()));
+
+    breakLine.setLength(se.length());
+
+    const QPointF controlPoint = breakLine.pointAt(bezier / 100.0);
+
+    QPainterPath path(s);
+    path.quadTo(controlPoint, e);
+
+    return path;
+}
+
+static QPainterPath cubicBezier(const QPointF &s,
+                                const QPointF &c1,
+                                const QPointF &c2,
+                                const QPointF &e,
+                                int bezier)
+{
+    QPainterPath path(s);
+    const QPointF adjustedC1 = QLineF(s, c1).pointAt(bezier / 100.0);
+    const QPointF adjustedC2 = QLineF(e, c2).pointAt(bezier / 100.0);
+
+    path.cubicTo(adjustedC1, adjustedC2, e);
+
+    return path;
+}
+
+static QPainterPath lShapedConnection(const QPointF &start,
+                                      const QPointF &mid,
+                                      const QPointF &end,
+                                      const ConnectionConfiguration &config)
+{
+    if (config.type == ConnectionType::Default) {
+        if (config.radius == 0) {
+            QPainterPath path(start);
+            path.lineTo(mid);
+            path.lineTo(end);
+            return path;
+        } else {
+            return roundedCorner(start, mid, end, config.radius);
+        }
+    } else {
+        return quadBezier(start, mid, end, config.bezier, config.breakOffset);
+    }
+}
+
+static QPainterPath sShapedConnection(const QPointF &start,
+                                      const QPointF &mid1,
+                                      const QPointF &mid2,
+                                      const QPointF &end,
+                                      const ConnectionConfiguration &config)
+{
+    if (config.type == ConnectionType::Default) {
+        if (config.radius == 0) {
+            QPainterPath path(start);
+            path.lineTo(mid1);
+            path.lineTo(mid2);
+            path.lineTo(end);
+            return path;
+        } else {
+            const QLineF breakLine(mid1, mid2);
+            QPainterPath path1 = roundedCorner(start, mid1, breakLine.center(), config.radius);
+            QPainterPath path2 = roundedCorner(breakLine.center(), mid2, end, config.radius);
+            return path1 + path2;
+        }
+    } else {
+        return cubicBezier(start, mid1, mid2, end, config.bezier);
+    }
+}
+
+class Connection
+{
+public:
+    Connection(const ResolveConnection &resolveConnection,
+               const QPointF &position,
+               const QmlItemNode &from,
+               const QmlItemNode &to,
+               const ConnectionConfiguration &connectionConfig)
+        : config(connectionConfig)
+    {
+        if (from.isFlowDecision() || from.isFlowWildcard() || from.isFlowView())
+            fromRect = QRectF(0, 0, flowBlockSize, flowBlockSize);
+        else
+            fromRect = from.instanceBoundingRect();
+
+        fromRect.translate(from.flowPosition());
+
+        if (!resolveConnection.joinConnection && resolveConnection.areaNode.isValid()) {
+            fromRect = QmlItemNode(resolveConnection.areaNode).instanceBoundingRect();
+            fromRect.translate(from.flowPosition());
+            fromRect.translate(resolveConnection.areaNode.instancePosition());
+        }
+
+        if (to.isFlowDecision())
+            toRect = QRectF(0, 0, flowBlockSize,flowBlockSize);
+        else
+            toRect = to.instanceBoundingRect();
+
+        toRect.translate(to.flowPosition());
+
+        if (resolveConnection.isStartLine) {
+            fromRect = QRectF(0, 0, 96, 96);
+            fromRect.translate(to.flowPosition() + QPoint(-180, toRect.height() / 2 - 96 / 2));
+            fromRect.translate(0, config.outOffset);
+        }
+
+        fromRect.translate(-position);
+        toRect.translate(-position);
+
+        bool horizontalFirst = true;
+        extraLine = false;
+
+        if (horizontalFirst) {
+            if (toRect.center().x() > fromRect.left() && toRect.center().x() < fromRect.right()) {
+                horizontalFirst = false;
+                extraLine = true;
+            } else if (verticalOverlap(fromRect, toRect)) {
+                horizontalFirst = true;
+                extraLine = true;
+            }
+        } else {
+            if (toRect.center().y() > fromRect.top() && toRect.center().y() < fromRect.bottom()) {
+                horizontalFirst = true;
+                extraLine = true;
+            } else if (horizontalOverlap(fromRect, toRect)) {
+                horizontalFirst = false;
+                extraLine = true;
+            }
+        }
+
+        const bool boolExitRight = fromRect.right() < toRect.center().x();
+        const bool boolExitBottom = fromRect.bottom() < toRect.center().y();
+
+        const int padding = 4 * config.adjustedWidth;
+
+        if (horizontalFirst) {
+            const qreal startX = boolExitRight ? fromRect.right() + padding : fromRect.x() - padding;
+            const qreal startY = fromRect.center().y() + config.outOffset;
+            start = QPointF(startX, startY);
+
+            if (!extraLine) {
+                const qreal endY = (fromRect.bottom() > toRect.y()) ? toRect.bottom() + padding : toRect.top() - padding;
+                end = QPointF(toRect.center().x() + config.inOffset, endY);
+                mid1 = mid2 = QPointF(end.x(), start.y());
+                path = lShapedConnection(start, mid1, end, config);
+            } else {
+                const qreal endX = (fromRect.right() > toRect.x()) ? toRect.right() + padding : toRect.left() - padding;
+                end = QPointF(endX, toRect.center().y() + config.inOffset);
+                const qreal middleFactor = config.breakOffset / 100.0;
+                mid1 = QPointF(start.x() * middleFactor + end.x() * (1 - middleFactor), start.y());
+                mid2 = QPointF(mid1.x(), end.y());
+                path = sShapedConnection(start, mid1, mid2, end, config);
+            }
+        } else {
+            const qreal startX = fromRect.center().x() + config.outOffset;
+            const qreal startY = boolExitBottom ? fromRect.bottom() + padding : fromRect.top() - padding;
+            start = QPointF(startX, startY);
+
+            if (!extraLine) {
+                const qreal endX = (fromRect.right() > toRect.x()) ? toRect.right() + padding : toRect.left() - padding;
+                end = QPointF(endX, toRect.center().y() + config.inOffset);
+                mid1 = mid2 = QPointF(start.x(), end.y());
+                path = lShapedConnection(start, mid1, end, config);
+            } else {
+                const qreal endY = (fromRect.bottom() > toRect.y()) ? toRect.bottom() + padding : toRect.top() - padding;
+                end = QPointF(toRect.center().x() + config.inOffset, endY);
+                const qreal middleFactor = config.breakOffset / 100.0;
+                mid1 = QPointF(start.x(), start.y() * middleFactor + end.y() * (1 - middleFactor));
+                mid2 = QPointF(end.x(), mid1.y());
+                path = sShapedConnection(start, mid1, mid2, end, config);
+            }
+        }
+    }
+
+    QRectF fromRect;
+    QRectF toRect;
+
+    QPointF start;
+    QPointF end;
+
+    QPointF mid1;
+    QPointF mid2;
+
+    bool extraLine;
+
+    ConnectionConfiguration config;
+    QPainterPath path;
+};
+
+static int normalizeAngle(int angle)
+{
+    int newAngle = angle;
+    while (newAngle <= -90) newAngle += 180;
+    while (newAngle > 90) newAngle -= 180;
+    return newAngle;
+}
 
 void FormEditorTransitionItem::updateGeometry()
 {
@@ -745,38 +1282,104 @@ void FormEditorTransitionItem::updateGeometry()
 
     ResolveConnection resolved(qmlItemNode());
 
-    QPointF fromP = QmlItemNode(resolved.from).flowPosition();
-    QRectF sizeTo = resolved.to.instanceBoundingRect();
+    if (!isValid(resolved.from) || !isValid(resolved.to))
+        return;
 
-    QPointF toP = QmlItemNode(resolved.to).flowPosition();
+    QPointF min(std::numeric_limits<qreal>::max(), std::numeric_limits<qreal>::max());
+    QPointF max(std::numeric_limits<qreal>::min(), std::numeric_limits<qreal>::min());
 
-    if (QmlItemNode(resolved.to).isFlowDecision())
-        sizeTo = QRectF(0, 0, flowBlockSize, flowBlockSize);
+    auto minMaxHelper = [&](const QList<QmlItemNode> &items) {
+        QRectF boundingRect;
+        for (const auto &i : items) {
+            const QPointF p = QmlItemNode(i).flowPosition();
 
-    qreal x1 = fromP.x();
-    qreal x2 = toP.x();
+            if (p.x() < min.x())
+                min.setX(p.x());
 
-    if (x2 < x1) {
-        qreal s = x1;
-        x1 = x2;
-        x2 = s;
+            if (p.y() < min.y())
+                min.setY(p.y());
+
+            if (p.x() > max.x())
+                max.setX(p.x());
+
+            if (p.y() > max.y())
+                max.setY(p.y());
+
+            const QRectF tmp(p, i.instanceSize());
+            boundingRect = boundingRect.united(tmp);
+        }
+        return boundingRect;
+    };
+
+    const QRectF toBoundingRect = minMaxHelper(resolved.to);
+    // Special treatment for start line bounding rect calculation
+    const QRectF fromBoundingRect = !resolved.isStartLine ? minMaxHelper(resolved.from)
+                                                          : toBoundingRect + QMarginsF(startItemOffset, 0, 0, 0);
+
+    QRectF overallBoundingRect(min, max);
+    overallBoundingRect = overallBoundingRect.united(fromBoundingRect);
+    overallBoundingRect = overallBoundingRect.united(toBoundingRect);
+
+    setPos(overallBoundingRect.topLeft());
+
+    // Needed due to the upcoming rects are relative to the set position. If this one is not
+    // translate to the newly set position, then th resulting bounding box would be to big.
+    overallBoundingRect.translate(-pos());
+
+    ConnectionConfiguration config(qmlItemNode(), resolved, viewportTransform().m11());
+
+    // Local painter is used to get the labels bounding rect by using drawText()
+    QPixmap pixmap(640, 480);
+    QPainter localPainter(&pixmap);
+    QFont font = localPainter.font();
+    font.setPixelSize(config.fontSize);
+    localPainter.setFont(font);
+
+    for (const auto &from : resolved.from) {
+        for (const auto &to : resolved.to) {
+            Connection connection(resolved, pos(), from, to, config);
+
+            // Just add the configured transition width to the bounding box to make sure the BB is not cutting
+            // off half of the transition resulting in a bad selection experience.
+            QRectF pathBoundingRect = connection.path.boundingRect() + QMarginsF(config.width, config.width, config.width, config.width);
+            overallBoundingRect = overallBoundingRect.united(connection.fromRect);
+            overallBoundingRect = overallBoundingRect.united(connection.toRect);
+            overallBoundingRect = overallBoundingRect.united(pathBoundingRect);
+
+            // Calculate bounding rect for label
+            // TODO The calculation should be put into a separate function to avoid code duplication as this
+            // can also be found in drawLabel()
+            if (!connection.config.label.isEmpty()) {
+                const qreal percent = connection.config.labelPosition / 100.0;
+                const QPointF pos = connection.path.pointAtPercent(percent);
+                const qreal angle = connection.path.angleAtPercent(percent);
+
+                QLineF tmp(pos, QPointF(10, 10));
+                tmp.setLength(connection.config.labelOffset);
+                tmp.setAngle(angle + (connection.config.labelFlipSide ? 270 : 90));
+
+                QRectF textRect(0, 0, 100, 50);
+                textRect.moveCenter(tmp.p2());
+
+                QRectF labelRect;
+
+                QTransform transform;
+                transform.translate(textRect.center().x(), textRect.center().y());
+                transform.rotate(-normalizeAngle(angle));
+                transform.translate(-textRect.center().x(), -textRect.center().y());
+
+                localPainter.setTransform(transform);
+                localPainter.drawText(textRect,
+                                      connection.config.labelFlags,
+                                      connection.config.label,
+                                      &labelRect);
+                QRectF labelBoundingBox = transform.mapRect(labelRect);
+                overallBoundingRect = overallBoundingRect.united(labelBoundingBox);
+            }
+        }
     }
 
-    qreal y1 = fromP.y();
-    qreal y2 = toP.y();
-
-    if (y2 < y1) {
-        qreal s = y1;
-        y1 = y2;
-        y2 = s;
-    }
-
-    x2 += sizeTo.width();
-    y2 += sizeTo.height();
-
-    setX(x1);
-    setY(y1);
-    m_selectionBoundingRect = QRectF(0,0,x2-x1,y2-y1);
+    m_selectionBoundingRect = overallBoundingRect;
     m_paintedBoundingRect = m_selectionBoundingRect;
     m_boundingRect = m_selectionBoundingRect;
     setZValue(10);
@@ -787,225 +1390,104 @@ QPointF FormEditorTransitionItem::instancePosition() const
     return qmlItemNode().flowPosition();
 }
 
-static bool verticalOverlap(const QRectF &from, const QRectF &to)
+static void drawLabel(QPainter *painter, const Connection &connection)
 {
-    if (from.top()  < to.bottom() && (from.top() + from.height()) > to.top())
-        return true;
+    if (connection.config.label.isEmpty())
+        return;
 
-    if (to.top()  < from.bottom() && (to.top() + to.height()) > from.top())
-        return true;
+    const qreal percent = connection.config.labelPosition / 100.0;
+    const QPointF pos = connection.path.pointAtPercent(percent);
+    const qreal angle = connection.path.angleAtPercent(percent);
 
-    return false;
+    QLineF tmp(pos, QPointF(10, 10));
+    tmp.setLength(connection.config.labelOffset);
+    tmp.setAngle(angle + (connection.config.labelFlipSide ? 270 : 90));
+
+    QRectF textRect(0, 0, 100, 50);
+    textRect.moveCenter(tmp.p2());
+
+    painter->save();
+    painter->translate(textRect.center());
+    painter->rotate(-normalizeAngle(angle));
+    painter->translate(-textRect.center());
+    painter->drawText(textRect, connection.config.labelFlags, connection.config.label);
+    painter->restore();
 }
 
-
-static bool horizontalOverlap(const QRectF &from, const QRectF &to)
+static void drawArrow(QPainter *painter,
+                      const QPointF &point,
+                      const qreal &angle,
+                      int arrowLength,
+                      int arrowWidth)
 {
-    if (from.left()  < to.right() && (from.left() + from.width()) > to.left())
-        return true;
+    const QPointF peakP(0, 0);
+    const QPointF leftP(-arrowLength, -arrowWidth * 0.5);
+    const QPointF rightP(-arrowLength, arrowWidth * 0.5);
 
-    if (to.left()  < from.right() && (to.left() + to.width()) > from.left())
-        return true;
+    painter->save();
 
-    return false;
+    painter->translate(point);
+    painter->rotate(-angle);
+    painter->drawLine(leftP, peakP);
+    painter->drawLine(rightP, peakP);
+
+    painter->restore();
 }
 
-static void paintConnection(QPainter *painter,
-                            const QRectF &from,
-                            const QRectF &to,
-                            qreal width,
-                            qreal adjustedWidth,
-                            const QColor &color,
-                            bool dash,
-                            int startOffset,
-                            int endOffset,
-                            int breakOffset)
+static void paintConnection(QPainter *painter, const Connection &connection)
 {
+    const int arrowLength = 4 * connection.config.adjustedWidth;
+    const int arrowWidth = 8 * connection.config.adjustedWidth;
+
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing);
 
+    // Draw path/connection line
     QPen pen;
     pen.setCosmetic(true);
     pen.setJoinStyle(Qt::MiterJoin);
     pen.setCapStyle(Qt::RoundCap);
+    pen.setBrush(connection.config.lineBrush);
 
-    pen.setColor(color);
+    if (connection.config.dashPattern.size()) {
+        pen.setStyle(Qt::CustomDashLine);
+        pen.setDashPattern(connection.config.dashPattern);
+    } else {
+        pen.setStyle(connection.config.penStyle);
+    }
 
-    if (dash)
-        pen.setStyle(Qt::DashLine);
-    else
-        pen.setStyle(Qt::SolidLine);
-    pen.setWidthF(width);
+    pen.setWidthF(connection.config.width);
     painter->setPen(pen);
 
-    //const bool forceVertical = false;
-    //const bool forceHorizontal = false;
+    painter->drawPath(connection.path);
 
-    const int padding = 2 * width + 2 * adjustedWidth;
-
-    const int arrowLength = 4 * adjustedWidth;
-    const int arrowWidth = 8 * adjustedWidth;
-
-    const bool boolExitRight = from.right() < to.center().x();
-    const bool boolExitBottom = from.bottom() < to.center().y();
-
-    bool horizontalFirst = true;
-
-    /*
-    if (verticalOverlap(from, to) && !horizontalOverlap(from, to))
-        horizontalFirst = false;
-    */
-
-    const qreal middleFactor = breakOffset / 100.0;
-
-    QPointF startP;
-
-    bool extraLine = false;
-
-    if (horizontalFirst) {
-        if (to.center().x() > from.left() && to.center().x() < from.right()) {
-            horizontalFirst = false;
-            extraLine = true;
-        } else if (verticalOverlap(from, to)) {
-            horizontalFirst = true;
-            extraLine = true;
-        }
-
-    } else {
-        if (to.center().y() > from.top() && to.center().y() < from.bottom()) {
-            horizontalFirst = true;
-            extraLine = true;
-        } else if (horizontalOverlap(from, to)) {
-            horizontalFirst = false;
-            extraLine = true;
-        }
-    }
-
-    if (horizontalFirst) {
-        const qreal startY = from.center().y() + startOffset;
-        qreal startX = from.x() - padding;
-        if (boolExitRight)
-            startX = from.right() + padding;
-
-        startP = QPointF(startX, startY);
-
-        qreal endY = to.top() - padding;
-
-        if (from.bottom() > to.y())
-            endY = to.bottom() + padding;
-
-        if (!extraLine) {
-
-
-            const qreal endX = to.center().x() + endOffset;
-
-            const QPointF midP(endX, startY);
-
-            const QPointF endP(endX, endY);
-
-            painter->drawLine(startP, midP);
-            painter->drawLine(midP, endP);
-
-            int flip = 1;
-
-            if (midP.y() < endP.y())
-                flip = -1;
-
-            pen.setStyle(Qt::SolidLine);
-            painter->setPen(pen);
-            painter->drawLine(endP + flip * QPoint(arrowWidth / 2, arrowLength), endP);
-            painter->drawLine(endP + flip * QPoint(-arrowWidth / 2, arrowLength), endP);
-        } else {
-
-            qreal endX = to.left() - padding;
-
-            if (from.right() > to.x())
-                endX = to.right() + padding;
-
-            const qreal midX = startX * middleFactor + endX * (1-middleFactor);
-            const QPointF midP(midX, startY);
-            const QPointF midP2(midX, to.center().y() + endOffset);
-            const QPointF endP(endX, to.center().y() + endOffset);
-            painter->drawLine(startP, midP);
-            painter->drawLine(midP, midP2);
-            painter->drawLine(midP2, endP);
-
-            int flip = 1;
-
-            if (midP2.x() < endP.x())
-                flip = -1;
-
-            pen.setStyle(Qt::SolidLine);
-            painter->setPen(pen);
-            painter->drawLine(endP + flip * QPoint(arrowWidth / 2, arrowWidth / 2), endP);
-            painter->drawLine(endP + flip * QPoint(arrowLength, -arrowWidth / 2), endP);
-        }
-
-    } else {
-        const qreal startX = from.center().x() + startOffset;
-
-        qreal startY = from.top() - padding;
-        if (boolExitBottom)
-            startY = from.bottom() + padding;
-
-        startP = QPointF(startX, startY);
-        qreal endX = to.left() - padding;
-
-        if (from.right() > to.x())
-            endX = to.right() + padding;
-
-        if (!extraLine) {
-            const qreal endY = to.center().y() + endOffset;
-
-            const QPointF midP(startX, endY);
-
-            const QPointF endP(endX, endY);
-
-            painter->drawLine(startP, midP);
-            painter->drawLine(midP, endP);
-
-            int flip = 1;
-
-            if (midP.x() < endP.x())
-                flip = -1;
-
-            pen.setStyle(Qt::SolidLine);
-            painter->setPen(pen);
-            painter->drawLine(endP + flip * QPoint(arrowWidth / 2, arrowWidth / 2), endP);
-            painter->drawLine(endP + flip * QPoint(arrowLength, -arrowWidth / 2), endP);
-        } else {
-
-            qreal endY = to.top() - padding;
-
-            if (from.bottom() > to.y())
-                endY = to.bottom() + padding;
-
-            const qreal midY = startY * middleFactor + endY * (1-middleFactor);
-            const QPointF midP(startX, midY);
-            const QPointF midP2(to.center().x() + endOffset, midY);
-            const QPointF endP(to.center().x() + endOffset, endY);
-
-            painter->drawLine(startP, midP);
-            painter->drawLine(midP, midP2);
-            painter->drawLine(midP2, endP);
-
-            int flip = 1;
-
-            if (midP2.y() < endP.y())
-                flip = -1;
-
-            pen.setStyle(Qt::SolidLine);
-            painter->setPen(pen);
-            painter->drawLine(endP + flip * QPoint(arrowWidth / 2, arrowLength), endP);
-            painter->drawLine(endP + flip * QPoint(-arrowWidth / 2, arrowLength), endP);
-        }
-    }
-
-    pen.setWidthF(width);
+    pen.setWidthF(connection.config.width);
     pen.setStyle(Qt::SolidLine);
+    pen.setColor(connection.config.color);
     painter->setPen(pen);
-    painter->setBrush(Qt::white);
-    painter->drawEllipse(startP, arrowLength  / 3, arrowLength / 3);
+
+    // Draw arrow
+    qreal angle = QLineF(connection.mid2, connection.end).angle();
+
+    if (!connection.config.joinEnd) {
+        qreal anglePercent = 1.0;
+        if (connection.extraLine && connection.config.bezier < 80) {
+            anglePercent = 1.0 - qMin(1.0, (80 - connection.config.bezier) / 10.0) * 0.05;
+            angle = connection.path.angleAtPercent(anglePercent);
+        }
+    }
+
+    if (connection.config.drawEnd)
+        drawArrow(painter, connection.end, angle, arrowLength, arrowWidth);
+
+    // Draw start ellipse
+    if (connection.config.drawStart) {
+        painter->setBrush(Qt::white);
+        painter->drawEllipse(connection.start, arrowLength / 3, arrowLength / 3);
+    }
+
+    // Draw label
+    drawLabel(painter, connection);
 
     painter->restore();
 }
@@ -1026,111 +1508,90 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     ResolveConnection resolved(qmlItemNode());
 
-    if (!resolved.from.modelNode().isValid())
+    if (!isModelNodeValid(resolved.from))
         return;
 
-    QRectF fromRect = QmlItemNode(resolved.from).instanceBoundingRect();
-    if (QmlItemNode(resolved.from).isFlowDecision())
-        fromRect = QRectF(0, 0, flowBlockSize, flowBlockSize);
+    ConnectionConfiguration config(qmlItemNode(), resolved, viewportTransform().m11(), m_hitTest);
 
-    if (QmlItemNode(resolved.from).isFlowWildcard())
-        fromRect = QRectF(0, 0, flowBlockSize, flowBlockSize);
-    fromRect.translate(QmlItemNode(resolved.from).flowPosition());
+    QFont font = painter->font();
+    font.setPixelSize(config.fontSize);
+    painter->setFont(font);
 
-    if (resolved.isStartLine) {
-        fromRect = QRectF(0,0,100,100);
-        fromRect.translate(QmlItemNode(resolved.to).flowPosition()- QPoint(200, 0));
-    }
+    for (const auto &f : resolved.from) {
+        for (const auto &t : resolved.to) {
+            Connection connection(resolved, pos(), f, t, config);
+            if (!config.hitTesting) {
+                // The following if statement is a special treatment for n-to-n, 1-to-n and n-to-1
+                // transitions. This block is setting up the connection configuration for drawing.
+                QPointF start = connection.path.pointAtPercent(0.0);
+                QPointF end = connection.path.pointAtPercent(1.0);
 
-    if (!resolved.joinConnection && resolved.areaNode.isValid()) {
-        fromRect = QmlItemNode(resolved.areaNode).instanceBoundingRect();
-        fromRect.translate(QmlItemNode(resolved.from).flowPosition());
-        fromRect.translate(resolved.areaNode.instancePosition());
-    }
+                // many-to-many
+                if ((resolved.from.size() > 1 && resolved.to.size() > 1)) {
+                    // TODO
+                }
+                // many-to-one
+                else if (resolved.from.size() > 1 && resolved.to.size() == 1) {
+                    connection.config.joinEnd = true;
 
-    QRectF toRect = QmlItemNode(resolved.to).instanceBoundingRect();
-    if (QmlItemNode(resolved.to).isFlowDecision())
-        toRect = QRectF(0, 0, flowBlockSize,flowBlockSize);
+                    if (qmlItemNode().modelNode().isSelected()) {
+                        connection.config.dashPattern << 2 << 3;
+                    } else {
+                        QLinearGradient gradient(start, end);
+                        QColor color = config.color;
+                        color.setAlphaF(0);
+                        gradient.setColorAt(0.25, color);
+                        color.setAlphaF(1);
+                        gradient.setColorAt(1, color);
 
-    toRect.translate(QmlItemNode(resolved.to).flowPosition());
+                        connection.config.lineBrush = QBrush(gradient);
+                        connection.config.drawStart = false;
+                        connection.config.drawEnd = true;
+                        connection.config.dashPattern << 1 << 6;
+                    }
+                }
+                // one-to-many
+                else if (resolved.from.size() == 1 && resolved.to.size() > 1) {
 
-    if (resolved.isStartLine) {
-        fromRect = QRectF(0, 0, 96, 96);
-        fromRect.translate(QmlItemNode(resolved.to).flowPosition() + QPoint(-180, toRect.height() / 2 - 96 / 2));
-    }
+                    if (qmlItemNode().modelNode().isSelected()) {
+                        connection.config.dashPattern << 2 << 3;
+                    } else {
+                        QLinearGradient gradient(start, end);
+                        QColor color = config.color;
+                        color.setAlphaF(1);
+                        gradient.setColorAt(0, color);
+                        color.setAlphaF(0);
+                        gradient.setColorAt(0.75, color);
 
-    toRect.translate(-pos());
-    fromRect.translate(-pos());
+                        connection.config.lineBrush = QBrush(gradient);
+                        connection.config.drawStart = true;
+                        connection.config.drawEnd = false;
+                        connection.config.dashPattern << 1 << 6;
+                    }
+                }
+            } else {
+                connection.config.penStyle = Qt::SolidLine;
+            }
 
-    qreal width = 2;
+            paintConnection(painter, connection);
 
-    const qreal scaleFactor = viewportTransform().m11();
+            if (resolved.isStartLine) {
+                const QString icon = Theme::getIconUnicode(Theme::startNode);
 
-    if (qmlItemNode().modelNode().hasAuxiliaryData("width"))
-        width = qmlItemNode().modelNode().auxiliaryData("width").toInt();
+                QPen pen;
+                pen.setCosmetic(true);
+                pen.setColor(config.color);
+                painter->setPen(pen);
 
-    qreal adjustedWidth = width / scaleFactor;
-
-    if (qmlItemNode().modelNode().isSelected())
-        width += 2;
-    if (m_hitTest)
-        width *= 8;
-
-    QColor color = "#e71919";
-
-    if (resolved.isStartLine)
-        color = "blue";
-
-    if (resolved.isWildcardLine)
-        color = "green";
-
-    bool dash = false;
-
-    if (qmlItemNode().rootModelNode().hasAuxiliaryData("transitionColor"))
-        color = qmlItemNode().rootModelNode().auxiliaryData("transitionColor").value<QColor>();
-
-    if (qmlItemNode().modelNode().hasAuxiliaryData("color"))
-        color = qmlItemNode().modelNode().auxiliaryData("color").value<QColor>();
-
-    if (qmlItemNode().modelNode().hasAuxiliaryData("dash"))
-        dash = qmlItemNode().modelNode().auxiliaryData("dash").toBool();
-
-    int outOffset = 0;
-    int inOffset = 0;
-
-    if (qmlItemNode().modelNode().hasAuxiliaryData("outOffset"))
-        outOffset = qmlItemNode().modelNode().auxiliaryData("outOffset").toInt();
-
-    if (qmlItemNode().modelNode().hasAuxiliaryData("inOffset"))
-        inOffset = qmlItemNode().modelNode().auxiliaryData("inOffset").toInt();
-
-    int breakOffset = 50;
-
-    if (qmlItemNode().modelNode().hasAuxiliaryData("breakPoint"))
-        breakOffset = qmlItemNode().modelNode().auxiliaryData("breakPoint").toInt();
-
-    if (resolved.isStartLine)
-        fromRect.translate(0, inOffset);
-
-    paintConnection(painter, fromRect, toRect, width, adjustedWidth ,color, dash, outOffset, inOffset, breakOffset);
-
-    if (resolved.isStartLine) {
-
-        const QString icon = Theme::getIconUnicode(Theme::startNode);
-
-        QPen pen;
-        pen.setCosmetic(true);
-        pen.setColor(color);
-        painter->setPen(pen);
-
-        const int iconAdjust = 48;
-        const int offset = 96;
-        const int size = fromRect.width();
-        const int iconSize = size - iconAdjust;
-        const int x = fromRect.topRight().x() - offset;
-        const int y = fromRect.topRight().y();
-        painter->drawRoundedRect(x, y , size - 10, size, size / 2, iconSize / 2);
-        drawIcon(painter, x + iconAdjust / 2, y + iconAdjust / 2, icon, iconSize, iconSize, color);
+                const int iconAdjust = 48;
+                const int size = connection.fromRect.width();
+                const int iconSize = size - iconAdjust;
+                const int x = connection.fromRect.topRight().x() - startItemOffset;
+                const int y = connection.fromRect.topRight().y();
+                painter->drawRoundedRect(x, y , size - 10, size, size / 2, iconSize / 2);
+                drawIcon(painter, x + iconAdjust / 2, y + iconAdjust / 2, icon, iconSize, iconSize, config.color);
+            }
+        }
     }
 
     painter->restore();
@@ -1162,12 +1623,22 @@ QTransform FormEditorItem::viewportTransform() const
 void FormEditorFlowDecisionItem::updateGeometry()
 {
     prepareGeometryChange();
-    m_selectionBoundingRect = QRectF(0,0, flowBlockSize, flowBlockSize);
+    m_selectionBoundingRect = QRectF(0, 0, flowBlockSize, flowBlockSize);
     m_paintedBoundingRect = m_selectionBoundingRect;
     m_boundingRect = m_paintedBoundingRect;
     setTransform(qmlItemNode().instanceTransformWithContentTransform());
     const QPointF pos = qmlItemNode().flowPosition();
     setTransform(QTransform::fromTranslate(pos.x(), pos.y()));
+
+    // Call updateGeometry() on all related transitions
+    QmlFlowTargetNode flowItem(qmlItemNode());
+    if (flowItem.isValid() && flowItem.flowView().isValid()) {
+        const auto nodes = flowItem.flowView().transitions();
+        for (const ModelNode &node : nodes) {
+            if (FormEditorItem *item = scene()->itemForQmlItemNode(node))
+                item->updateGeometry();
+        }
+    }
 }
 
 void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

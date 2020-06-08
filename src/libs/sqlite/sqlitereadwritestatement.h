@@ -41,7 +41,6 @@ public:
     using StatementImplementation::values;
     using StatementImplementation::toValue;
     using StatementImplementation::write;
-    using StatementImplementation::writeNamed;
 };
 
 } // namespace Sqlite

@@ -230,30 +230,6 @@ QDataStream &operator>>(QDataStream &in, vector<Type> &vector)
     return in;
 }
 
-template <typename T>
-ostream &operator<<(ostream &out, const vector<T> &vector)
-{
-    out << "[";
-
-    for (auto current = vector.begin(); current != vector.end(); ++current) {
-        std::ostringstream entryStream;
-        entryStream << *current;
-        std::string entryString = entryStream.str();
-
-        if (entryString.size() > 4)
-            out << "\n\t";
-
-        out << entryString;
-
-        if (std::next(current) != vector.end())
-            out << ", ";
-    }
-
-    out << "]";
-
-    return out;
-}
-
 } // namespace std
 
 QT_BEGIN_NAMESPACE

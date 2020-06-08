@@ -40,10 +40,7 @@ class AnnotationEditorDialog : public QDialog
     Q_OBJECT
 
 public:
-    enum EditorMode { ItemAnnotation, GlobalAnnotation };
-
-    explicit AnnotationEditorDialog(QWidget *parent, const QString &targetId, const QString &customId, const Annotation &annotation,
-                                    EditorMode mode = EditorMode::ItemAnnotation);
+    explicit AnnotationEditorDialog(QWidget *parent, const QString &targetId, const QString &customId, const Annotation &annotation);
     ~AnnotationEditorDialog();
 
     void setAnnotation(const Annotation &annotation);
@@ -51,9 +48,6 @@ public:
 
     void setCustomId(const QString &customId);
     QString customId() const;
-
-    void changeEditorMode(EditorMode mode);
-    EditorMode editorMode() const;
 
 signals:
     void accepted();
@@ -75,14 +69,11 @@ private:
 
 private:
     const QString annotationEditorTitle = {tr("Annotation Editor")};
-    const QString globalEditorTitle = {tr("Global Annotation Editor")};
     const QString defaultTabName = {tr("Annotation")};
     Ui::AnnotationEditorDialog *ui;
 
     QString m_customId;
     Annotation m_annotation;
-
-    EditorMode m_editorMode;
 };
 
 } //namespace QmlDesigner

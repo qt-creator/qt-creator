@@ -384,7 +384,19 @@ void ItemLibraryWidget::updateModel()
 {
     QTC_ASSERT(m_itemLibraryModel, return);
 
+    if (m_compressionTimer.isActive()) {
+        m_updateRetry = false;
+        m_compressionTimer.stop();
+    }
+
     m_itemLibraryModel->update(m_itemLibraryInfo.data(), m_model.data());
+
+    if (m_itemLibraryModel->rowCount() == 0 && !m_updateRetry) {
+        m_updateRetry = true; // Only retry once to avoid endless loops
+        m_compressionTimer.start();
+    } else {
+        m_updateRetry = false;
+    }
     updateImports();
     updateSearch();
 }

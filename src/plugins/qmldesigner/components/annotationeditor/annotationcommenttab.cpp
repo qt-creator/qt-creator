@@ -79,7 +79,7 @@ void AnnotationCommentTab::resetUI()
 {
     ui->titleEdit->setText(m_comment.title());
     ui->authorEdit->setText(m_comment.author());
-    m_editor->setRichText(m_comment.text());
+    m_editor->setRichText(m_comment.deescapedText());
 
     if (m_comment.timestamp() > 0)
         ui->timeLabel->setText(m_comment.timestampStr());

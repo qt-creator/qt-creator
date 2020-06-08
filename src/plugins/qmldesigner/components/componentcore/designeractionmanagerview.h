@@ -71,6 +71,10 @@ public:
     void emitSelectionChanged();
     void setupContext(SelectionContext::UpdateMode updateMode = SelectionContext::UpdateMode::Normal);
 
+    void customNotification(const AbstractView *,
+                            const QString &identifier,
+                            const QList<ModelNode> &,
+                            const QList<QVariant> &) override;
 signals:
     void selectionChanged(bool itemsSelected, bool rootItemIsSelected);
 

@@ -25,11 +25,19 @@
 
 #pragma once
 
+#include <QDebug>
 #include <QUrl>
 #include <QVector>
 #include <QSet>
 #include <QStringList>
 #include <QPointer>
+
+#ifdef MULTILANGUAGE_TRANSLATIONPROVIDER
+#include <multilanguagelink.h>
+#endif
+
+#include <QTranslator>
+#include <memory>
 
 #include <nodeinstanceserverinterface.h>
 #include "servernodeinstance.h"
@@ -46,6 +54,37 @@ QList<T>toList(const QSet<T> &set)
 #endif
 }
 } //QtHelpers
+
+#ifndef MULTILANGUAGE_TRANSLATIONPROVIDER
+namespace MultiLanguage {
+static QByteArray databaseFilePath()
+{
+    return {};
+}
+
+class Translator : public QTranslator
+{
+public:
+    void setLanguage(const QString&) {}
+};
+
+class Link
+{
+public:
+    Link()
+    {
+        if (qEnvironmentVariableIsSet("QT_MULTILANGUAGE_DATABASE"))
+            qWarning() << "QT_MULTILANGUAGE_DATABASE is set but QQmlDebugTranslationService is without MULTILANGUAGE_TRANSLATIONPROVIDER support compiled.";
+    }
+    std::unique_ptr<MultiLanguage::Translator> translator() {
+        //should never be called
+        Q_ASSERT(false);
+        return std::make_unique<MultiLanguage::Translator>();
+    }
+    const bool isActivated = false;
+};
+} //namespace MultiLanguage
+#endif
 
 QT_BEGIN_NAMESPACE
 class QFileSystemWatcher;
@@ -112,6 +151,8 @@ public:
     void changeSelection(const ChangeSelectionCommand &command) override;
     void inputEvent(const InputEventCommand &command) override;
     void view3DAction(const View3DActionCommand &command) override;
+    void changeLanguage(const ChangeLanguageCommand &command) override;
+    void changePreviewImageSize(const ChangePreviewImageSizeCommand &command) override;
 
     ServerNodeInstance instanceForId(qint32 id) const;
     bool hasInstanceForId(qint32 id) const;
@@ -248,6 +289,7 @@ private:
     QPointer<QObject> m_dummyContextObject;
     QPointer<QQmlComponent> m_importComponent;
     QPointer<QObject> m_importComponentObject;
+    std::unique_ptr<MultiLanguage::Link> multilanguageLink;
 };
 
 }

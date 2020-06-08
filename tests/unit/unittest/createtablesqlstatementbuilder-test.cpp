@@ -30,20 +30,40 @@
 
 namespace {
 
+using Sqlite::Column;
 using Sqlite::ColumnType;
-using Sqlite::Contraint;
+using Sqlite::ConstraintType;
+using Sqlite::Enforment;
+using Sqlite::ForeignKey;
+using Sqlite::ForeignKeyAction;
 using Sqlite::JournalMode;
 using Sqlite::OpenMode;
-using Sqlite::Column;
+using Sqlite::PrimaryKey;
 using Sqlite::SqliteColumns;
-
 using Sqlite::SqlStatementBuilderException;
+using Sqlite::Unique;
 
 class CreateTableSqlStatementBuilder : public ::testing::Test
 {
 protected:
-    void bindValues();
-    static SqliteColumns createColumns();
+    void bindValues()
+    {
+        builder.clear();
+        builder.setTableName("test");
+        builder.addColumn("id", ColumnType::Integer, {PrimaryKey{}});
+        builder.addColumn("name", ColumnType::Text);
+        builder.addColumn("number", ColumnType::Numeric);
+    }
+
+    static SqliteColumns createColumns()
+    {
+        SqliteColumns columns;
+        columns.emplace_back("", "id", ColumnType::Integer, Sqlite::Constraints{PrimaryKey{}});
+        columns.emplace_back("", "name", ColumnType::Text);
+        columns.emplace_back("", "number", ColumnType::Numeric);
+
+        return columns;
+    }
 
 protected:
     Sqlite::CreateTableSqlStatementBuilder builder;
@@ -157,7 +177,7 @@ TEST_F(CreateTableSqlStatementBuilder, UniqueContraint)
     builder.clear();
     builder.setTableName("test");
 
-    builder.addColumn("id", ColumnType::Integer, Contraint::Unique);
+    builder.addColumn("id", ColumnType::Integer, {Unique{}});
 
     ASSERT_THAT(builder.sqlStatement(),
                 "CREATE TABLE test(id INTEGER UNIQUE)");
@@ -167,7 +187,7 @@ TEST_F(CreateTableSqlStatementBuilder, IfNotExitsModifier)
 {
     builder.clear();
     builder.setTableName("test");
-    builder.addColumn("id", ColumnType::Integer, Contraint::NoConstraint);
+    builder.addColumn("id", ColumnType::Integer, {});
 
     builder.setUseIfNotExists(true);
 
@@ -179,7 +199,7 @@ TEST_F(CreateTableSqlStatementBuilder, TemporaryTable)
 {
     builder.clear();
     builder.setTableName("test");
-    builder.addColumn("id", ColumnType::Integer, Contraint::NoConstraint);
+    builder.addColumn("id", ColumnType::Integer, {});
 
     builder.setUseTemporaryTable(true);
 
@@ -187,23 +207,340 @@ TEST_F(CreateTableSqlStatementBuilder, TemporaryTable)
                 "CREATE TEMPORARY TABLE test(id INTEGER)");
 }
 
-void CreateTableSqlStatementBuilder::bindValues()
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyWithoutColumn)
 {
     builder.clear();
     builder.setTableName("test");
-    builder.addColumn("id", ColumnType::Integer, Contraint::PrimaryKey);
-    builder.addColumn("name", ColumnType::Text);
-    builder.addColumn("number",ColumnType:: Numeric);
+
+    builder.addColumn("id", ColumnType::Integer, {ForeignKey{"otherTable", ""}});
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER REFERENCES otherTable)");
 }
 
-SqliteColumns CreateTableSqlStatementBuilder::createColumns()
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyWithColumn)
 {
-    SqliteColumns columns;
-    columns.emplace_back("id", ColumnType::Integer, Contraint::PrimaryKey);
-    columns.emplace_back("name", ColumnType::Text);
-    columns.emplace_back("number", ColumnType::Numeric);
+    builder.clear();
+    builder.setTableName("test");
 
-    return columns;
+    builder.addColumn("id", ColumnType::Integer, {ForeignKey{"otherTable", "otherColumn"}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn))");
 }
 
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateNoAction)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id", ColumnType::Integer, {ForeignKey{"otherTable", "otherColumn"}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn))");
 }
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateRestrict)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Integer,
+                      {ForeignKey{"otherTable", "otherColumn", ForeignKeyAction::Restrict}});
+
+    ASSERT_THAT(
+        builder.sqlStatement(),
+        "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE RESTRICT)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateSetNull)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Integer,
+                      {ForeignKey{"otherTable", "otherColumn", ForeignKeyAction::SetNull}});
+
+    ASSERT_THAT(
+        builder.sqlStatement(),
+        "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE SET NULL)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateSetDefault)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Integer,
+                      {ForeignKey{"otherTable", "otherColumn", ForeignKeyAction::SetDefault}});
+
+    ASSERT_THAT(
+        builder.sqlStatement(),
+        "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE SET DEFAULT)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyUpdateCascade)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Integer,
+                      {ForeignKey{"otherTable", "otherColumn", ForeignKeyAction::Cascade}});
+
+    ASSERT_THAT(
+        builder.sqlStatement(),
+        "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE CASCADE)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteNoAction)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id", ColumnType::Integer, {ForeignKey{"otherTable", "otherColumn"}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn))");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteRestrict)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Integer,
+                      {ForeignKey{"otherTable", "otherColumn", {}, ForeignKeyAction::Restrict}});
+
+    ASSERT_THAT(
+        builder.sqlStatement(),
+        "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON DELETE RESTRICT)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteSetNull)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Integer,
+                      {ForeignKey{"otherTable", "otherColumn", {}, ForeignKeyAction::SetNull}});
+
+    ASSERT_THAT(
+        builder.sqlStatement(),
+        "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON DELETE SET NULL)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteSetDefault)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Integer,
+                      {ForeignKey{"otherTable", "otherColumn", {}, ForeignKeyAction::SetDefault}});
+
+    ASSERT_THAT(
+        builder.sqlStatement(),
+        "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON DELETE SET DEFAULT)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteCascade)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Integer,
+                      {ForeignKey{"otherTable", "otherColumn", {}, ForeignKeyAction::Cascade}});
+
+    ASSERT_THAT(
+        builder.sqlStatement(),
+        "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON DELETE CASCADE)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeleteAndUpdateAction)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Integer,
+                      {ForeignKey{"otherTable",
+                                  "otherColumn",
+                                  ForeignKeyAction::SetDefault,
+                                  ForeignKeyAction::Cascade}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE SET "
+                "DEFAULT ON DELETE CASCADE)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, ForeignKeyDeferred)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Integer,
+                      {ForeignKey{"otherTable",
+                                  "otherColumn",
+                                  ForeignKeyAction::SetDefault,
+                                  ForeignKeyAction::Cascade,
+                                  Enforment::Deferred}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER REFERENCES otherTable(otherColumn) ON UPDATE SET "
+                "DEFAULT ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, NotNullConstraint)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id", ColumnType::Integer, {Sqlite::NotNull{}});
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER NOT NULL)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, NotNullAndUniqueConstraint)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id", ColumnType::Integer, {Sqlite::Unique{}, Sqlite::NotNull{}});
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER UNIQUE NOT NULL)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, Check)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id", ColumnType::Text, {Sqlite::Check{"id != ''"}});
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id TEXT CHECK (id != ''))");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, DefaultValueInt)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id", ColumnType::Integer, {Sqlite::DefaultValue{1LL}});
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER DEFAULT 1)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, DefaultValueFloat)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id", ColumnType::Real, {Sqlite::DefaultValue{1.1}});
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id REAL DEFAULT 1.100000)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, DefaultValueString)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id", ColumnType::Text, {Sqlite::DefaultValue{"foo"}});
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id TEXT DEFAULT 'foo')");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, DefaultExpression)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Integer,
+                      {Sqlite::DefaultExpression{"SELECT name FROM foo WHERE id=?"}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id INTEGER DEFAULT (SELECT name FROM foo WHERE id=?))");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, Collation)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id", ColumnType::Text, {Sqlite::Collate{"unicode"}});
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id TEXT COLLATE unicode)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, GeneratedAlwaysStored)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Text,
+                      {Sqlite::GeneratedAlways{"SELECT name FROM foo WHERE id=?",
+                                               Sqlite::GeneratedAlwaysStorage::Stored}});
+
+    ASSERT_THAT(
+        builder.sqlStatement(),
+        "CREATE TABLE test(id TEXT GENERATED ALWAYS AS (SELECT name FROM foo WHERE id=?) STORED)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, GeneratedAlwaysVirtual)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id",
+                      ColumnType::Text,
+                      {Sqlite::GeneratedAlways{"SELECT name FROM foo WHERE id=?",
+                                               Sqlite::GeneratedAlwaysStorage::Virtual}});
+
+    ASSERT_THAT(builder.sqlStatement(),
+                "CREATE TABLE test(id TEXT GENERATED ALWAYS AS (SELECT name FROM foo WHERE id=?) "
+                "VIRTUAL)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, PrimaryKeyAutoincrement)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("id", ColumnType::Integer, {Sqlite::PrimaryKey{Sqlite::AutoIncrement::Yes}});
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id INTEGER PRIMARY KEY AUTOINCREMENT)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, BlobType)
+{
+    builder.clear();
+    builder.setTableName("test");
+
+    builder.addColumn("data", ColumnType::Blob);
+
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(data BLOB)");
+}
+
+TEST_F(CreateTableSqlStatementBuilder, TablePrimaryKeyConstaint)
+{
+    builder.clear();
+    builder.setTableName("test");
+    builder.addColumn("id", ColumnType::Integer);
+    builder.addColumn("text", ColumnType::Text);
+
+    builder.addConstraint(Sqlite::TablePrimaryKey{{"id, text"}});
+    auto statement = builder.sqlStatement();
+
+    ASSERT_THAT(statement, "CREATE TABLE test(id INTEGER, text TEXT, PRIMARY KEY(id, text))");
+}
+
+} // namespace

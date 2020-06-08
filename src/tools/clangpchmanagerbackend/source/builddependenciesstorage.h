@@ -398,7 +398,7 @@ public:
         "sourceId",
         database};
     mutable ReadStatement fetchIndexingTimeStampsStatement{
-        "SELECT sourceId, indexingTimeStamp FROM fileStatuses", database};
+        "SELECT sourceId, indexingTimeStamp FROM fileStatuses ORDER BY sourceId", database};
     mutable ReadStatement fetchDependentSourceIdsStatement{
         "WITH RECURSIVE collectedDependencies(sourceId) AS (VALUES(?) UNION SELECT "
         "sourceDependencies.sourceId FROM sourceDependencies, collectedDependencies WHERE "
