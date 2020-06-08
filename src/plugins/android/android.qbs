@@ -117,7 +117,7 @@ Project {
             "javaindenter.h",
             "javaparser.cpp",
             "javaparser.h",
-            "splashiconcontainerwidget.cpp"
+            "splashiconcontainerwidget.cpp",
             "splashiconcontainerwidget.h"
         ]
     }
