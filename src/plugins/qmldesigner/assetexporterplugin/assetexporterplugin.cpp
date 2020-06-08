@@ -29,6 +29,7 @@
 #include "assetexportdialog.h"
 #include "assetexporter.h"
 #include "assetexporterview.h"
+#include "filepathmodel.h"
 #include "componentexporter.h"
 
 #include "parsers/modelitemnodeparser.h"
@@ -89,14 +90,10 @@ void AssetExporterPlugin::onExport()
     if (!startupProject)
         return;
 
+    FilePathModel model(startupProject);
     auto exportDir = startupProject->projectFilePath().parentDir();
-    if (!exportDir.toFileInfo().isRoot())
-        exportDir = exportDir.parentDir();
-    auto defaultMetadataPath = exportDir.pathAppended(startupProject->displayName() + ".metadata");
-
     AssetExporter assetExporter(m_view, startupProject);
-    AssetExportDialog assetExporterDialog(defaultMetadataPath, assetExporter);
-    assetExporter.preProcessProject();
+    AssetExportDialog assetExporterDialog(exportDir, assetExporter, model);
     assetExporterDialog.exec();
 }
 

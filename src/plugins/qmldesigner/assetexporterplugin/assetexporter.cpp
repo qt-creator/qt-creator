@@ -26,21 +26,11 @@
 #include "componentexporter.h"
 #include "exportnotification.h"
 
-#include "plaintexteditmodifier.h"
-#include "rewriterview.h"
-
-#include "projectexplorer/project.h"
-#include "projectexplorer/projectnodes.h"
-
-#include "utils/runextensions.h"
 #include "utils/qtcassert.h"
 
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QLoggingCategory>
-#include <QMessageBox>
-
-#include <QPlainTextEdit>
 
 using namespace ProjectExplorer;
 
@@ -48,48 +38,6 @@ namespace {
 Q_LOGGING_CATEGORY(loggerInfo, "qtc.designer.assetExportPlugin.assetExporter", QtInfoMsg)
 Q_LOGGING_CATEGORY(loggerWarn, "qtc.designer.assetExportPlugin.assetExporter", QtWarningMsg)
 Q_LOGGING_CATEGORY(loggerError, "qtc.designer.assetExportPlugin.assetExporter", QtCriticalMsg)
-
-void findQmlFiles(QFutureInterface<Utils::FilePath> &f, const Project *project)
-{
-    if (!project && !f.isCanceled())
-        f.reportFinished({});
-
-    int index = 0;
-    Utils::FilePaths qmlFiles = project->files([&f, &index](const Node* node) ->bool {
-        if (f.isCanceled())
-            return false;
-        Utils::FilePath path = node->filePath();
-        bool isComponent = !path.fileName().isEmpty() && path.fileName().front().isUpper();
-        if (isComponent && node->filePath().endsWith(".ui.qml"))
-            f.reportResult(path, index++);
-        return true;
-    });
-    f.reportFinished();
-}
-
-//static QmlDesigner::Model* createModel(const Utils::FilePath &fileName)
-//{
-//    QmlDesigner::Model *model = QmlDesigner::Model::create("Item", 2, 7);
-
-//    Utils::FileReader reader;
-//    QTC_ASSERT(reader.fetch(fileName.toString()), return nullptr);
-
-//    auto textEdit = new QPlainTextEdit;
-//    textEdit->setPlainText(QString::fromUtf8(reader.data()));
-
-//    auto modifier = new QmlDesigner::NotIndentingTextEditModifier(textEdit);
-//    modifier->setParent(model);
-
-//    auto rewriterView = new QmlDesigner::RewriterView(QmlDesigner::RewriterView::Validate, model);
-//    rewriterView->setCheckSemanticErrors(false);
-//    rewriterView->setTextModifier(modifier);
-
-//    model->attachView(rewriterView);
-
-//    QTC_ASSERT(rewriterView->rootModelNode().isValid(), return nullptr);
-//    return model;
-//}
-
 }
 
 namespace QmlDesigner {
@@ -109,29 +57,6 @@ AssetExporter::~AssetExporter()
     cancel();
 }
 
-bool AssetExporter::preProcessProject()
-{
-    if (m_preprocessWatcher && !m_preprocessWatcher->isCanceled() &&
-            !m_preprocessWatcher->isFinished()) {
-        qCDebug(loggerInfo) << "Previous pre-processing not finished.";
-        return false;
-    }
-
-    m_currentState.change(ParsingState::PreProcessing);
-    m_preprocessWatcher.reset(new QFutureWatcher<Utils::FilePath>(this));
-    connect(m_preprocessWatcher.get(), &QFutureWatcher<Utils::FilePath>::resultReadyAt, this,
-            [this](int index) {
-        emit qmlFileResult(m_preprocessWatcher->resultAt(index));
-    });
-
-    connect(m_preprocessWatcher.get(), &QFutureWatcher<Utils::FilePath>::finished, this,
-            [this] () { m_currentState.change(ParsingState::PreProcessingFinished); });
-
-    QFuture<Utils::FilePath> f = Utils::runAsync(&findQmlFiles, m_project);
-    m_preprocessWatcher->setFuture(f);
-    return true;
-}
-
 void AssetExporter::exportQml(const Utils::FilePaths &qmlFiles, const Utils::FilePath &exportPath,
                               bool exportAssets)
 {
@@ -139,6 +64,7 @@ void AssetExporter::exportQml(const Utils::FilePaths &qmlFiles, const Utils::Fil
                                 .arg(exportPath.toUserOutput())
                                 .arg(exportAssets? tr("Yes") : tr("No")));
     // TODO Asset export
+    notifyProgress(0.0);
     Q_UNUSED(exportAssets);
     m_exportFiles = qmlFiles;
     m_components = QJsonArray();
@@ -149,18 +75,12 @@ void AssetExporter::exportQml(const Utils::FilePaths &qmlFiles, const Utils::Fil
 
 void AssetExporter::cancel()
 {
-    ExportNotification::addInfo("Cancelling export.");
-    if (m_preprocessWatcher && !m_preprocessWatcher->isCanceled() &&
-            !m_preprocessWatcher->isFinished()) {
-        m_preprocessWatcher->cancel();
-        m_preprocessWatcher->waitForFinished();
-    }
+    // TODO Cancel export
 }
 
 bool AssetExporter::isBusy() const
 {
-    return m_currentState == AssetExporter::ParsingState::PreProcessing ||
-            m_currentState == AssetExporter::ParsingState::Parsing ||
+    return m_currentState == AssetExporter::ParsingState::Parsing ||
             m_currentState == AssetExporter::ParsingState::ExportingAssets ||
             m_currentState == AssetExporter::ParsingState::WritingJson;
 }
@@ -190,6 +110,11 @@ void AssetExporter::notifyLoadError(AssetExporterView::LoadState state)
     ExportNotification::addError(tr("Loading QML failed. %1").arg(errorStr));
 }
 
+void AssetExporter::notifyProgress(double value) const
+{
+    emit exportProgressChanged(value);
+}
+
 void AssetExporter::onQmlFileLoaded()
 {
     QTC_ASSERT(m_view && m_view->model(), qCDebug(loggerError) << "Null model"; return);
@@ -206,6 +131,7 @@ void AssetExporter::triggerLoadNextFile()
 void AssetExporter::loadNextFile()
 {
     if (m_exportFiles.isEmpty()) {
+        notifyProgress(0.8);
         m_currentState.change(ParsingState::ParsingFinished);
         writeMetadata();
         return;
@@ -220,8 +146,9 @@ void AssetExporter::loadNextFile()
 
 void AssetExporter::writeMetadata() const
 {
+    Utils::FilePath metadataPath = m_exportPath.pathAppended(m_exportPath.fileName() + ".metadata");
     ExportNotification::addInfo(tr("Writing metadata to file %1.").
-                                arg(m_exportPath.toUserOutput()));
+                                arg(metadataPath.toUserOutput()));
     m_currentState.change(ParsingState::WritingJson);
     QJsonObject jsonRoot; // TODO: Write plugin info to root
     jsonRoot.insert("artboards", m_components);
@@ -229,13 +156,14 @@ void AssetExporter::writeMetadata() const
     if (doc.isNull() || doc.isEmpty()) {
         ExportNotification::addError(tr("Empty JSON document."));
     } else {
-        Utils::FileSaver saver(m_exportPath.toString(), QIODevice::Text);
+        Utils::FileSaver saver(metadataPath.toString(), QIODevice::Text);
         saver.write(doc.toJson(QJsonDocument::Indented));
         if (!saver.finalize()) {
             ExportNotification::addError(tr("Writing metadata failed. %1").
                                          arg(saver.errorString()));
         }
     }
+    notifyProgress(1.0);
     m_currentState.change(ParsingState::ExportingDone);
 }
 

@@ -14,21 +14,52 @@
    <string>Export QML</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
-    <widget class="QListView" name="filesView"/>
+   <item row="0" column="1">
+    <widget class="Utils::PathChooser" name="exportPathEdit" native="true"/>
    </item>
    <item row="0" column="0">
-    <widget class="QLineEdit" name="exportPathEdit"/>
+    <widget class="QLabel" name="label">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Export path:</string>
+     </property>
+    </widget>
    </item>
-   <item row="2" column="0">
+   <item row="1" column="0" colspan="2">
+    <widget class="QStackedWidget" name="stackedWidget"/>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QProgressBar" name="exportProgress">
+     <property name="maximum">
+      <number>1000</number>
+     </property>
+     <property name="value">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Close</set>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

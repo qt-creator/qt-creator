@@ -27,7 +27,6 @@
 #include "assetexporterview.h"
 #include "utils/fileutils.h"
 
-#include <QFutureWatcher>
 #include <QJsonArray>
 #include <QJsonObject>
 
@@ -51,8 +50,6 @@ public:
 
     enum class ParsingState {
         Idle = 0,
-        PreProcessing,
-        PreProcessingFinished,
         Parsing,
         ParsingFinished,
         ExportingAssets,
@@ -65,21 +62,22 @@ public:
                   QObject *parent = nullptr);
     ~AssetExporter();
 
-    bool preProcessProject();
-    void exportQml(const Utils::FilePaths &qmlFiles, const Utils::FilePath &exportPath, bool exportAssets = false);
+    void exportQml(const Utils::FilePaths &qmlFiles, const Utils::FilePath &exportPath,
+                   bool exportAssets = false);
 
     void cancel();
     bool isBusy() const;
 
 signals:
-    void qmlFileResult(Utils::FilePath);
     void stateChanged(ParsingState);
+    void exportProgressChanged(double) const;
 
 private:
     ParsingState currentState() const { return m_currentState.m_state; }
     void exportComponent(const ModelNode &rootNode);
     void writeMetadata() const;
     void notifyLoadError(AssetExporterView::LoadState state);
+    void notifyProgress(double value) const;
     void triggerLoadNextFile();
     void loadNextFile();
 
@@ -98,7 +96,6 @@ private:
     Utils::FilePaths m_exportFiles;
     Utils::FilePath m_exportPath;
     QJsonArray m_components;
-    std::unique_ptr<QFutureWatcher<Utils::FilePath>> m_preprocessWatcher;
 };
 QDebug operator<< (QDebug os, const QmlDesigner::AssetExporter::ParsingState& s);
 

@@ -23,60 +23,38 @@
 **
 ****************************************************************************/
 #pragma once
-#include "assetexporter.h"
-
-#include <QDialog>
-#include <QStringListModel>
+#include <QAbstractListModel>
+#include <QFutureWatcher>
 
 #include "utils/fileutils.h"
 
 #include <memory>
-
-QT_BEGIN_NAMESPACE
-class QPushButton;
-class QListView;
-class QPlainTextEdit;
-QT_END_NAMESPACE
-
-namespace Ui {
-class AssetExportDialog;
-}
-
-namespace Utils {
-class OutputFormatter;
-}
+#include <unordered_set>
 
 namespace ProjectExplorer {
-class Task;
+class Project;
 }
 
 namespace QmlDesigner {
-class FilePathModel;
-
-class AssetExportDialog : public QDialog
+class FilePathModel : public QAbstractListModel
 {
-    Q_OBJECT
-
 public:
-    explicit AssetExportDialog(const Utils::FilePath &exportPath, AssetExporter &assetExporter,
-                               FilePathModel& model, QWidget *parent = nullptr);
-    ~AssetExportDialog();
+    FilePathModel(ProjectExplorer::Project *project, QObject *parent = nullptr);
+    ~FilePathModel() override;
 
-private:
-    void onExport();
-    void onExportStateChanged(AssetExporter::ParsingState newState);
-    void updateExportProgress(double value);
-    void switchView(bool showExportView);
-    void onTaskAdded(const ProjectExplorer::Task &task);
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
 
+    Utils::FilePaths files() const;
 private:
-    AssetExporter &m_assetExporter;
-    FilePathModel &m_filePathModel;
-    std::unique_ptr<Ui::AssetExportDialog> m_ui;
-    QPushButton *m_exportBtn = nullptr;
-    QListView *m_filesView = nullptr;
-    QPlainTextEdit *m_exportLogs = nullptr;
-    Utils::OutputFormatter *m_outputFormatter = nullptr;
+    void processProject();
+
+    ProjectExplorer::Project *m_project = nullptr;
+    std::unique_ptr<QFutureWatcher<Utils::FilePath>> m_preprocessWatcher;
+    std::unordered_set<Utils::FilePath> m_skipped;
+    Utils::FilePaths m_files;
 };
 
 }
