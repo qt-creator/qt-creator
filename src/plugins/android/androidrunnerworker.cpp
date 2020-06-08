@@ -286,8 +286,10 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
 
     m_extraAppParams = runControl->runnable().commandLineArguments;
 
-    if (auto aspect = runControl->aspect(Constants::ANDROID_AMSTARTARGS))
-        m_amStartExtraArgs = static_cast<BaseStringAspect *>(aspect)->value().split(' ');
+    if (auto aspect = runControl->aspect(Constants::ANDROID_AMSTARTARGS)) {
+        const QString startArgs = static_cast<BaseStringAspect *>(aspect)->value();
+        m_amStartExtraArgs = QtcProcess::splitArgs(startArgs, OsTypeOtherUnix);
+    }
 
     if (auto aspect = runControl->aspect(Constants::ANDROID_PRESTARTSHELLCMDLIST)) {
         for (const QString &shellCmd : static_cast<BaseStringListAspect *>(aspect)->value())
