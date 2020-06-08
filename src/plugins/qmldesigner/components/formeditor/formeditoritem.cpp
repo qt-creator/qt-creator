@@ -1162,10 +1162,29 @@ public:
                const ConnectionConfiguration &connectionConfig)
         : config(connectionConfig)
     {
-        if (from.isFlowDecision() || from.isFlowWildcard() || from.isFlowView())
+        if (from.isFlowDecision()) {
+            int size = flowBlockSize;
+            if (from.modelNode().hasAuxiliaryData("blockSize"))
+                size = from.modelNode().auxiliaryData("blockSize").toInt();
+
+            fromRect = QRectF(0, 0, size, size);
+
+            QTransform transform;
+            transform.translate(fromRect.center().x(), fromRect.center().y());
+            transform.rotate(45);
+            transform.translate(-fromRect.center().x(), -fromRect.center().y());
+
+            fromRect = transform.mapRect(fromRect);
+        } else if (from.isFlowWildcard()) {
+            int size = flowBlockSize;
+            if (from.modelNode().hasAuxiliaryData("blockSize"))
+                size = from.modelNode().auxiliaryData("blockSize").toInt();
+            fromRect = QRectF(0, 0, size, size);
+        } else if (from.isFlowView()) {
             fromRect = QRectF(0, 0, flowBlockSize, flowBlockSize);
-        else
+        } else {
             fromRect = from.instanceBoundingRect();
+        }
 
         fromRect.translate(from.flowPosition());
 
@@ -1175,15 +1194,27 @@ public:
             fromRect.translate(resolveConnection.areaNode.instancePosition());
         }
 
-        if (to.isFlowDecision())
-            toRect = QRectF(0, 0, flowBlockSize,flowBlockSize);
-        else
+        if (to.isFlowDecision()) {
+            int size = flowBlockSize;
+            if (to.modelNode().hasAuxiliaryData("blockSize"))
+                size = to.modelNode().auxiliaryData("blockSize").toInt();
+
+            toRect = QRectF(0, 0, size, size);
+
+            QTransform transform;
+            transform.translate(toRect.center().x(), toRect.center().y());
+            transform.rotate(45);
+            transform.translate(-toRect.center().x(), -toRect.center().y());
+
+            toRect = transform.mapRect(toRect);
+        } else {
             toRect = to.instanceBoundingRect();
+        }
 
         toRect.translate(to.flowPosition());
 
         if (resolveConnection.isStartLine) {
-            fromRect = QRectF(0, 0, 96, 96);
+            fromRect = QRectF(0, 0, 96, 96); // TODO Use const startItemOffset
             fromRect.translate(to.flowPosition() + QPoint(-180, toRect.height() / 2 - 96 / 2));
             fromRect.translate(0, config.outOffset);
         }
@@ -1626,7 +1657,20 @@ QTransform FormEditorItem::viewportTransform() const
 void FormEditorFlowDecisionItem::updateGeometry()
 {
     prepareGeometryChange();
-    m_selectionBoundingRect = QRectF(0, 0, flowBlockSize, flowBlockSize);
+
+    int size = flowBlockSize;
+    if (qmlItemNode().modelNode().hasAuxiliaryData("blockSize"))
+        size = qmlItemNode().modelNode().auxiliaryData("blockSize").toInt();
+
+    QRectF boundingRect(0, 0, size, size);
+    QTransform transform;
+    if (qmlItemNode().isFlowDecision()) {
+        transform.translate(boundingRect.center().x(), boundingRect.center().y());
+        transform.rotate(45);
+        transform.translate(-boundingRect.center().x(), -boundingRect.center().y());
+    }
+
+    m_selectionBoundingRect = transform.mapRect(boundingRect);
     m_paintedBoundingRect = m_selectionBoundingRect;
     m_boundingRect = m_paintedBoundingRect;
     setTransform(qmlItemNode().instanceTransformWithContentTransform());
@@ -1696,27 +1740,35 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGrap
 
     painter->save();
 
-    if (m_iconType == DecisionIcon) {
-        painter->translate(boundingRect().center());
-        painter->rotate(45);
-        painter->translate(-boundingRect().center());
-    }
-
     if (fillColor.alpha() > 0)
         painter->setBrush(fillColor);
 
     int radius = blockRadius;
+    if (qmlItemNode().modelNode().hasAuxiliaryData("blockRadius"))
+        radius = qmlItemNode().modelNode().auxiliaryData("blockRadius").toInt();
 
-    const QRectF adjustedRect = boundingRect().adjusted(blockAdjust,
-                                                        blockAdjust,
-                                                        -blockAdjust,
-                                                        -blockAdjust);
+    int size = flowBlockSize;
+    if (qmlItemNode().modelNode().hasAuxiliaryData("blockSize"))
+        size = qmlItemNode().modelNode().auxiliaryData("blockSize").toInt();
 
+    QRectF boundingRect(0, 0, size, size);
+    QTransform transform;
+    int margin = blockAdjust;
+    if (m_iconType == DecisionIcon) {
+        transform.translate(boundingRect.center().x(), boundingRect.center().y());
+        transform.rotate(45);
+        transform.translate(-boundingRect.center().x(), -boundingRect.center().y());
+        margin *= 0.5;
+    }
+
+    const QRectF adjustedRect = boundingRect.adjusted(margin, margin, -margin, -margin);
+
+    painter->setTransform(transform, true);
     painter->drawRoundedRect(adjustedRect, radius, radius);
 
     const int iconDecrement = 32;
     const int iconSize = adjustedRect.width() - iconDecrement;
-    const int offset = iconDecrement / 2 + blockAdjust;
+    const int offset = iconDecrement / 2 + margin;
 
     painter->restore();
 

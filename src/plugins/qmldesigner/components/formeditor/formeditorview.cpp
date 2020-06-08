@@ -572,7 +572,8 @@ void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyN
             // Update the geomtry if one of the following auxiliary properties has changed
             static const QStringList updateGeometryPropertyNames = {
                 "breakPoint", "bezier", "transitionBezier", "type", "tranitionType", "radius",
-                "transitionRadius", "labelPosition", "labelFlipSide", "inOffset", "outOffset"
+                "transitionRadius", "labelPosition", "labelFlipSide", "inOffset", "outOffset",
+                "blockSize", "blockRadius"
             };
             if (updateGeometryPropertyNames.contains(QString::fromUtf8(name)))
                 editorItem->updateGeometry();
