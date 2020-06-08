@@ -128,10 +128,9 @@ bool Archive::supportsFile(const FilePath &filePath, QString *reason)
 
 bool Archive::unarchive(const FilePath &src, const FilePath &dest, QWidget *parent)
 {
-    const Utils::optional<Tool> tool = unzipTool(src, dest);
-    QTC_ASSERT(tool, return false);
-    const QString workingDirectory = dest.toFileInfo().absoluteFilePath();
-    QDir(workingDirectory).mkpath(".");
+    Archive *archive = unarchive(src, dest);
+    QTC_ASSERT(archive, return false);
+
     CheckableMessageBox box(parent);
     box.setIcon(QMessageBox::Information);
     box.setWindowTitle(tr("Unarchiving File"));
@@ -139,29 +138,82 @@ bool Archive::unarchive(const FilePath &src, const FilePath &dest, QWidget *pare
     box.setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     box.button(QDialogButtonBox::Ok)->setEnabled(false);
     box.setCheckBoxVisible(false);
-    box.setDetailedText(
-        tr("Running %1\nin \"%2\".\n\n", "Running <cmd> in <workingdirectory>")
-            .arg(CommandLine(tool->executable, tool->arguments).toUserOutput(), workingDirectory));
-    QProcess process;
-    process.setProcessChannelMode(QProcess::MergedChannels);
-    QObject::connect(&process, &QProcess::readyReadStandardOutput, &box, [&box, &process]() {
-        box.setDetailedText(box.detailedText() + QString::fromUtf8(process.readAllStandardOutput()));
+    QObject::connect(archive, &Archive::outputReceived, &box, [&box](const QString &output) {
+        box.setDetailedText(box.detailedText() + output);
     });
-    QObject::connect(&process,
-                     QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                     [&box](int, QProcess::ExitStatus) {
-                         box.button(QDialogButtonBox::Ok)->setEnabled(true);
-                         box.button(QDialogButtonBox::Cancel)->setEnabled(false);
-                     });
-    QObject::connect(&box, &QMessageBox::rejected, &process, [&process] {
-        SynchronousProcess::stopProcess(process);
+    bool success = false;
+    QObject::connect(archive, &Archive::finished, [&box, &success](bool ret) {
+        box.button(QDialogButtonBox::Ok)->setEnabled(true);
+        box.button(QDialogButtonBox::Cancel)->setEnabled(false);
+        success = ret;
     });
-    process.setProgram(tool->executable);
-    process.setArguments(tool->arguments);
-    process.setWorkingDirectory(workingDirectory);
-    process.start(QProcess::ReadOnly);
+    QObject::connect(&box, &QMessageBox::rejected, archive, &Archive::cancel);
     box.exec();
-    return process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;
+    return success;
+}
+
+Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
+{
+    const Utils::optional<Tool> tool = unzipTool(src, dest);
+    QTC_ASSERT(tool, return nullptr);
+
+    auto archive = new Archive;
+
+    const QString workingDirectory = dest.toFileInfo().absoluteFilePath();
+    QDir(workingDirectory).mkpath(".");
+
+    archive->m_process = new QProcess;
+    archive->m_process->setProcessChannelMode(QProcess::MergedChannels);
+    QObject::connect(
+        archive->m_process,
+        &QProcess::readyReadStandardOutput,
+        archive,
+        [archive]() {
+            archive->outputReceived(QString::fromUtf8(archive->m_process->readAllStandardOutput()));
+        },
+        Qt::QueuedConnection);
+    QObject::connect(
+        archive->m_process,
+        QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+        archive,
+        [archive](int, QProcess::ExitStatus) {
+            archive->finished(archive->m_process->exitStatus() == QProcess::NormalExit
+                              && archive->m_process->exitCode() == 0);
+            archive->m_process->deleteLater();
+            archive->m_process = nullptr;
+            archive->deleteLater();
+        },
+        Qt::QueuedConnection);
+    QObject::connect(
+        archive->m_process,
+        &QProcess::errorOccurred,
+        archive,
+        [archive](QProcess::ProcessError) {
+            archive->outputReceived(tr("Command failed."));
+            archive->finished(false);
+            archive->m_process->deleteLater();
+            archive->m_process = nullptr;
+            archive->deleteLater();
+        },
+        Qt::QueuedConnection);
+    QTimer::singleShot(0, archive, [archive, tool, workingDirectory] {
+        archive->outputReceived(
+            tr("Running %1\nin \"%2\".\n\n", "Running <cmd> in <workingdirectory>")
+                .arg(CommandLine(tool->executable, tool->arguments).toUserOutput(),
+                     workingDirectory));
+    });
+    archive->m_process->setProgram(tool->executable);
+    archive->m_process->setArguments(tool->arguments);
+    archive->m_process->setWorkingDirectory(workingDirectory);
+    archive->m_process->start(QProcess::ReadOnly);
+    return archive;
+}
+
+void Archive::cancel()
+{
+    if (!m_process)
+        return;
+    SynchronousProcess::stopProcess(*m_process);
 }
 
 } // namespace Utils

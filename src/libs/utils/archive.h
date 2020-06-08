@@ -29,14 +29,29 @@
 
 #include "fileutils.h"
 
+#include <QObject>
+#include <QProcess>
+
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT Archive
+class QTCREATOR_UTILS_EXPORT Archive : public QObject
 {
-    Q_DECLARE_TR_FUNCTIONS(Utils::Archive)
+    Q_OBJECT
 public:
     static bool supportsFile(const FilePath &filePath, QString *reason = nullptr);
     static bool unarchive(const FilePath &src, const FilePath &dest, QWidget *parent);
+    static Archive *unarchive(const FilePath &src, const FilePath &dest);
+
+    void cancel();
+
+signals:
+    void outputReceived(const QString &output);
+    void finished(bool success);
+
+private:
+    Archive() = default;
+
+    QProcess *m_process = nullptr;
 };
 
 } // namespace Utils
