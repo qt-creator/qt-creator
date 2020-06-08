@@ -88,14 +88,15 @@ Rewriter::Range Rewriter::addBinding(AST::UiObjectInitializer *ast,
     bool needsTrailingSemicolon = false;
 
     if (isOneLiner) {
+        bool hasTrailingSemicolon = propertyValue.endsWith(';');
         if (insertAfter == nullptr) { // we're inserting after an lbrace
             if (ast->members) { // we're inserting before a member (and not the rbrace)
-                needsTrailingSemicolon = bindingType == ScriptBinding;
+                needsTrailingSemicolon = bindingType == ScriptBinding && !hasTrailingSemicolon;
             }
         } else { // we're inserting after a member, not after the lbrace
             if (endOfPreviousMember.isValid()) { // there already is a semicolon after the previous member
                 if (insertAfter->next && insertAfter->next->member) { // and the after us there is a member, not an rbrace, so:
-                    needsTrailingSemicolon = bindingType == ScriptBinding;
+                    needsTrailingSemicolon = bindingType == ScriptBinding && !hasTrailingSemicolon;
                 }
             } else { // there is no semicolon after the previous member (probably because there is an rbrace after us/it, so:
                 needsPreceedingSemicolon = true;
