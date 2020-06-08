@@ -88,11 +88,9 @@ QTextCursor selectAt(QTextCursor textCursor, int line, int column, uint length)
     if (column < 1)
         column = 1;
 
-    textCursor.setPosition(0);
-    textCursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, line - 1);
-    textCursor.movePosition(QTextCursor::NextCharacter,QTextCursor::MoveAnchor, column  + length - 1 );
-
-    textCursor.movePosition(QTextCursor::PreviousCharacter,QTextCursor::KeepAnchor, length);
+    const int anchorPosition = positionInText(textCursor.document(), line, column + length);
+    textCursor.setPosition(anchorPosition);
+    textCursor.setPosition(anchorPosition - length, QTextCursor::KeepAnchor);
 
     return textCursor;
 }
