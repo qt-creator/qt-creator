@@ -32,6 +32,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/infolabel.h>
 #include <utils/pathchooser.h>
+#include <utils/temporarydirectory.h>
 #include <utils/wizard.h>
 #include <utils/wizardpage.h>
 
@@ -44,12 +45,19 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRadioButton>
+#include <QTextEdit>
 #include <QVBoxLayout>
+
+#include <memory>
 
 using namespace Utils;
 
-const char kPath[] = "Path";
-const char kApplicationInstall[] = "ApplicationInstall";
+struct Data
+{
+    FilePath sourcePath;
+    FilePath extractedPath;
+    bool installIntoApplication;
+};
 
 static bool hasLibSuffix(const FilePath &path)
 {
@@ -58,14 +66,21 @@ static bool hasLibSuffix(const FilePath &path)
            || (HostOsInfo().isMacHost() && path.endsWith(".dylib"));
 }
 
+static FilePath pluginInstallPath(bool installIntoApplication)
+{
+    return FilePath::fromString(installIntoApplication ? Core::ICore::pluginPath()
+                                                       : Core::ICore::userPluginPath());
+}
+
 namespace Core {
 namespace Internal {
 
 class SourcePage : public WizardPage
 {
 public:
-    SourcePage(QWidget *parent)
+    SourcePage(Data *data, QWidget *parent)
         : WizardPage(parent)
+        , m_data(data)
     {
         setTitle(PluginInstallWizard::tr("Source"));
         auto vlayout = new QVBoxLayout;
@@ -82,8 +97,10 @@ public:
         auto path = new PathChooser;
         path->setExpectedKind(PathChooser::Any);
         vlayout->addWidget(path);
-        registerFieldWithName(kPath, path, "path", SIGNAL(pathChanged(QString)));
-        connect(path, &PathChooser::pathChanged, this, &SourcePage::updateWarnings);
+        connect(path, &PathChooser::pathChanged, this, [this, path] {
+            m_data->sourcePath = path->filePath();
+            updateWarnings();
+        });
 
         m_info = new InfoLabel;
         m_info->setType(InfoLabel::Error);
@@ -99,7 +116,7 @@ public:
 
     bool isComplete() const
     {
-        const auto path = FilePath::fromVariant(field(kPath));
+        const FilePath path = m_data->sourcePath;
         if (!QFile::exists(path.toString())) {
             m_info->setText(PluginInstallWizard::tr("File does not exist."));
             return false;
@@ -115,14 +132,118 @@ public:
         return true;
     }
 
+    int nextId() const
+    {
+        if (hasLibSuffix(m_data->sourcePath))
+            return WizardPage::nextId() + 1; // jump over check archive
+        return WizardPage::nextId();
+    }
+
     InfoLabel *m_info = nullptr;
+    Data *m_data = nullptr;
+};
+
+class CheckArchivePage : public WizardPage
+{
+public:
+    CheckArchivePage(Data *data, QWidget *parent)
+        : WizardPage(parent)
+        , m_data(data)
+    {
+        setTitle(PluginInstallWizard::tr("Check Archive"));
+        auto vlayout = new QVBoxLayout;
+        setLayout(vlayout);
+
+        m_label = new InfoLabel;
+        m_cancelButton = new QPushButton(PluginInstallWizard::tr("Cancel"));
+        m_output = new QTextEdit;
+        m_output->setReadOnly(true);
+
+        auto hlayout = new QHBoxLayout;
+        hlayout->addWidget(m_label, 1);
+        hlayout->addStretch();
+        hlayout->addWidget(m_cancelButton);
+
+        vlayout->addLayout(hlayout);
+        vlayout->addWidget(m_output);
+    }
+
+    void initializePage()
+    {
+        m_isComplete = false;
+        emit completeChanged();
+        m_canceled = false;
+
+        m_tempDir = std::make_unique<TemporaryDirectory>("plugininstall");
+        m_data->extractedPath = FilePath::fromString(m_tempDir->path());
+        m_label->setText(PluginInstallWizard::tr("Checking archive..."));
+        //        m_label->setType(InfoLabel::None);
+        m_cancelButton->setVisible(true);
+        m_output->clear();
+
+        m_archive = Archive::unarchive(m_data->sourcePath, FilePath::fromString(m_tempDir->path()));
+
+        if (!m_archive) {
+            m_label->setType(InfoLabel::Error);
+            m_label->setText(PluginInstallWizard::tr("The file is not an archive."));
+            return;
+        }
+        QObject::connect(m_archive, &Archive::outputReceived, this, [this](const QString &output) {
+            m_output->append(output);
+        });
+        QObject::connect(m_archive, &Archive::finished, this, [this](bool success) {
+            m_cancelButton->setVisible(false);
+            m_isComplete = success;
+            if (success) {
+                m_label->setType(InfoLabel::Ok);
+                m_label->setText(PluginInstallWizard::tr("Archive is ok."));
+            } else {
+                if (m_canceled) {
+                    m_label->setType(InfoLabel::Information);
+                    m_label->setText(PluginInstallWizard::tr("Canceled."));
+                } else {
+                    m_label->setType(InfoLabel::Error);
+                    m_label->setText(
+                        PluginInstallWizard::tr("There was an error while unarchiving."));
+                }
+            }
+            m_archive = nullptr; // we don't own it
+            emit completeChanged();
+        });
+        QObject::connect(m_cancelButton, &QPushButton::clicked, m_archive, [this] {
+            m_canceled = true;
+            m_archive->cancel();
+        });
+    }
+
+    void cleanupPage()
+    {
+        // back button pressed
+        if (m_archive) {
+            m_archive->cancel();
+            m_archive = nullptr; // we don't own it
+        }
+        m_tempDir.reset();
+    }
+
+    bool isComplete() const { return m_isComplete; }
+
+    std::unique_ptr<TemporaryDirectory> m_tempDir;
+    Archive *m_archive = nullptr;
+    InfoLabel *m_label = nullptr;
+    QPushButton *m_cancelButton = nullptr;
+    QTextEdit *m_output = nullptr;
+    Data *m_data = nullptr;
+    bool m_isComplete = false;
+    bool m_canceled = false;
 };
 
 class InstallLocationPage : public WizardPage
 {
 public:
-    InstallLocationPage(QWidget *parent)
+    InstallLocationPage(Data *data, QWidget *parent)
         : WizardPage(parent)
+        , m_data(data)
     {
         setTitle(PluginInstallWizard::tr("Install Location"));
         auto vlayout = new QVBoxLayout;
@@ -162,31 +283,20 @@ public:
         group->addButton(localInstall);
         group->addButton(appInstall);
 
-        registerFieldWithName(kApplicationInstall, this);
-        setField(kApplicationInstall, false);
         connect(appInstall, &QRadioButton::toggled, this, [this](bool toggled) {
-            setField(kApplicationInstall, toggled);
+            m_data->installIntoApplication = toggled;
         });
     }
+
+    Data *m_data = nullptr;
 };
-
-static FilePath pluginInstallPath(QWizard *wizard)
-{
-    return FilePath::fromString(wizard->field(kApplicationInstall).toBool()
-                                    ? ICore::pluginPath()
-                                    : ICore::userPluginPath());
-}
-
-static FilePath pluginFilePath(QWizard *wizard)
-{
-    return FilePath::fromVariant(wizard->field(kPath));
-}
 
 class SummaryPage : public WizardPage
 {
 public:
-    SummaryPage(QWidget *parent)
+    SummaryPage(Data *data, QWidget *parent)
         : WizardPage(parent)
+        , m_data(data)
     {
         setTitle(PluginInstallWizard::tr("Summary"));
 
@@ -200,13 +310,15 @@ public:
 
     void initializePage()
     {
-        m_summaryLabel->setText(PluginInstallWizard::tr("\"%1\" will be installed into \"%2\".")
-                                    .arg(pluginFilePath(wizard()).toUserOutput(),
-                                         pluginInstallPath(wizard()).toUserOutput()));
+        m_summaryLabel->setText(
+            PluginInstallWizard::tr("\"%1\" will be installed into \"%2\".")
+                .arg(m_data->sourcePath.toUserOutput(),
+                     pluginInstallPath(m_data->installIntoApplication).toUserOutput()));
     }
 
 private:
     QLabel *m_summaryLabel;
+    Data *m_data = nullptr;
 };
 
 static bool copyPluginFile(const FilePath &src, const FilePath &dest)
@@ -243,24 +355,37 @@ bool PluginInstallWizard::exec()
     Wizard wizard(ICore::dialogParent());
     wizard.setWindowTitle(tr("Install Plugin"));
 
-    auto filePage = new SourcePage(&wizard);
+    Data data;
+
+    auto filePage = new SourcePage(&data, &wizard);
     wizard.addPage(filePage);
 
-    auto installLocationPage = new InstallLocationPage(&wizard);
+    auto checkArchivePage = new CheckArchivePage(&data, &wizard);
+    wizard.addPage(checkArchivePage);
+
+    auto installLocationPage = new InstallLocationPage(&data, &wizard);
     wizard.addPage(installLocationPage);
 
-    auto summaryPage = new SummaryPage(&wizard);
+    auto summaryPage = new SummaryPage(&data, &wizard);
     wizard.addPage(summaryPage);
 
     if (wizard.exec()) {
-        const FilePath path = pluginFilePath(&wizard);
-        const FilePath installPath = pluginInstallPath(&wizard);
-        if (hasLibSuffix(path)) {
-            if (copyPluginFile(path, installPath))
-                return true;
-        } else if (Archive::supportsFile(path)) {
-            if (Archive::unarchive(path, installPath, ICore::dialogParent()))
-                return true;
+        const FilePath installPath = pluginInstallPath(data.installIntoApplication);
+        if (hasLibSuffix(data.sourcePath)) {
+            return copyPluginFile(data.sourcePath, installPath);
+        } else {
+            QString error;
+            if (!FileUtils::copyRecursively(data.extractedPath,
+                                            installPath,
+                                            &error,
+                                            FileUtils::CopyAskingForOverwrite(
+                                                ICore::dialogParent()))) {
+                QMessageBox::warning(ICore::dialogParent(),
+                                     PluginInstallWizard::tr("Failed to Copy Plugin Files"),
+                                     error);
+                return false;
+            }
+            return true;
         }
     }
     return false;
