@@ -60,7 +60,7 @@ ToolKitAspectWidget::ToolKitAspectWidget(ProjectExplorer::Kit *kit,
             this,
             &ToolKitAspectWidget::removeTool);
     connect(m_toolsComboBox,
-            qOverload<int>(&QComboBox::currentIndexChanged),
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
             this,
             &ToolKitAspectWidget::setCurrentToolIndex);
 }
