@@ -125,7 +125,8 @@ Rewriter::Range Rewriter::addBinding(AST::UiObjectInitializer *ast,
     if (isOneLiner) {
         if (needsPreceedingSemicolon)
             newPropertyTemplate.prepend(QLatin1Char(';'));
-        newPropertyTemplate.prepend(QLatin1Char(' '));
+        if (!propertyName.startsWith(' '))
+            newPropertyTemplate.prepend(QLatin1Char(' '));
         if (needsTrailingSemicolon)
             newPropertyTemplate.append(QLatin1Char(';'));
     } else {
