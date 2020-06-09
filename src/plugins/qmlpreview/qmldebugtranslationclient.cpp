@@ -83,11 +83,7 @@ void QmlDebugTranslationClient::messageReceived(const QByteArray &data)
     QmlDebug::QPacket packet(dataStreamVersion(), data);
     qint8 command;
     packet >> command;
-    switch (command) {
-    default:
-        qDebug() << "invalid command" << command;
-        break;
-    }
+    qDebug() << "invalid command" << command;
 }
 
 void QmlDebugTranslationClient::stateChanged(QmlDebug::QmlDebugClient::State state)
