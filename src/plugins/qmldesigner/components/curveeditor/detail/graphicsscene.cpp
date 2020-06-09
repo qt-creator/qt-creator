@@ -213,7 +213,29 @@ void GraphicsScene::addCurveItem(CurveItem *item)
     item->setDirty(false);
     item->connect(this);
     addItem(item);
-    m_curves.push_back(item);
+
+    if (item->locked())
+        m_curves.push_front(item);
+    else
+        m_curves.push_back(item);
+
+    resetZValues();
+}
+
+void GraphicsScene::moveToBottom(CurveItem *item)
+{
+    if (m_curves.removeAll(item) > 0) {
+        m_curves.push_front(item);
+        resetZValues();
+    }
+}
+
+void GraphicsScene::moveToTop(CurveItem *item)
+{
+    if (m_curves.removeAll(item) > 0) {
+        m_curves.push_back(item);
+        resetZValues();
+    }
 }
 
 void GraphicsScene::setComponentTransform(const QTransform &transform)
@@ -382,6 +404,15 @@ QRectF GraphicsScene::limits() const
         m_dirty = false;
     }
     return m_limits;
+}
+
+void GraphicsScene::resetZValues()
+{
+    qreal z = 0.0;
+    for (auto *curve : curves()) {
+        curve->setZValue(z);
+        z += 1.0;
+    }
 }
 
 } // End namespace DesignTools.

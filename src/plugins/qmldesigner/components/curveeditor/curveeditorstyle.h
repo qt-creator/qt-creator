@@ -109,6 +109,8 @@ struct CurveEditorStyle
     QBrush backgroundBrush = QBrush(QColor(5, 0, 100));
     QBrush backgroundAlternateBrush = QBrush(QColor(0, 0, 50));
     QColor fontColor = QColor(200, 200, 200);
+    QColor iconColor = QColor(128, 128, 128);
+    QColor iconHoverColor = QColor(170, 170, 170);
     QColor gridColor = QColor(128, 128, 128);
     double canvasMargin = 5.0;
     int zoomInWidth = 100;

@@ -175,8 +175,15 @@ void GraphicsView::setStyle(const CurveEditorStyle &style)
 
 void GraphicsView::setLocked(PropertyTreeItem *item)
 {
-    if (CurveItem *curve = m_scene->findCurve(item->id()))
-        curve->setLocked(item->locked());
+    if (CurveItem *curve = m_scene->findCurve(item->id())) {
+        if (item->locked()) {
+            curve->setLocked(true);
+            m_scene->moveToBottom(curve);
+        } else {
+            curve->setLocked(false);
+            m_scene->moveToTop(curve);
+        }
+    }
 }
 
 void GraphicsView::setZoomX(double zoom, const QPoint &pivot)

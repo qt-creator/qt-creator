@@ -12,9 +12,9 @@
         <file>images/treeview_pin@2x.png</file>
         <file>images/treeview_unpin.png</file>
         <file>images/treeview_unpin@2x.png</file>
-        <file>images/treeview_unlock@2x.png</file>
         <file>images/treeview_lock.png</file>
         <file>images/treeview_lock@2x.png</file>
         <file>images/treeview_unlock.png</file>
+        <file>images/treeview_unlock@2x.png</file>
     </qresource>
 </RCC>

@@ -98,6 +98,7 @@ void SelectableItem::lockedCallback()
 {
     m_preSelected = SelectionMode::Undefined;
     m_selected = false;
+    m_active = false;
     selectionCallback();
 }
 
@@ -128,11 +129,17 @@ bool SelectableItem::selected() const
 
 void SelectableItem::setActivated(bool active)
 {
+    if (locked())
+        return;
+
     m_active = active;
 }
 
 void SelectableItem::setSelected(bool selected)
 {
+    if (locked())
+        return;
+
     m_selected = selected;
 }
 

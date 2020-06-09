@@ -25,6 +25,7 @@
 #include "treeitemdelegate.h"
 #include "treeitem.h"
 
+#include <QApplication>
 #include <QEvent>
 #include <QMouseEvent>
 #include <QPainter>
@@ -41,87 +42,61 @@ QSize TreeItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QMode
     return QStyledItemDelegate::sizeHint(option, index);
 }
 
+QRect makeSquare(const QRect &rect)
+{
+    int size = rect.width() > rect.height() ? rect.height() : rect.width();
+    QRect r(QPoint(0, 0), QSize(size, size));
+    r.moveCenter(rect.center());
+    return r;
+}
+
+QPixmap pixmapFromStyle(int column, const CurveEditorStyle &style, const QRect &rect, TreeItem *item, bool underMouse)
+{
+    QColor color = underMouse ? style.iconHoverColor : style.iconColor;
+    if (column == 1) {
+        bool locked = item->locked();
+        if (underMouse)
+            locked = !locked;
+
+        if (locked)
+            return pixmapFromIcon(style.treeItemStyle.lockedIcon, rect.size(), color);
+        else
+            return pixmapFromIcon(style.treeItemStyle.unlockedIcon, rect.size(), color);
+    }
+
+    bool pinned = item->pinned();
+    if (underMouse)
+        pinned = !pinned;
+
+    if (pinned)
+        return pixmapFromIcon(style.treeItemStyle.pinnedIcon, rect.size(), color);
+    else
+        return pixmapFromIcon(style.treeItemStyle.unpinnedIcon, rect.size(), color);
+}
+
 void TreeItemDelegate::paint(QPainter *painter,
                              const QStyleOptionViewItem &option,
                              const QModelIndex &index) const
 {
     if (index.column() == 1 || index.column() == 2) {
-
-        int height = option.rect.size().height();
-        QRect iconRect(QPoint(0, 0), QSize(height, height));
-        iconRect.moveCenter(option.rect.center());
+        QStyleOptionViewItem opt = option;
+        initStyleOption(&opt, index);
 
         auto *treeItem = static_cast<TreeItem *>(index.internalPointer());
-        if (option.state & QStyle::State_MouseOver && iconRect.contains(m_mousePos)) {
 
-            painter->fillRect(option.rect, option.backgroundBrush);
+        QPoint mousePos = QCursor::pos();
+        mousePos = option.widget->mapFromGlobal(mousePos);
 
-            if (index.column() == 1) {
+        QRect iconRect = makeSquare(option.rect);
+        bool underMouse = option.rect.contains(m_mousePos)
+                          && option.state & QStyle::State_MouseOver;
 
-                if (treeItem->locked()) {
+        QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
+        style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
 
-                    QPixmap pixmap = pixmapFromIcon(
-                        m_style.treeItemStyle.unlockedIcon,
-                        iconRect.size(),
-                        m_style.fontColor);
+        QPixmap pixmap = pixmapFromStyle(index.column(), m_style, iconRect, treeItem, underMouse);
+        painter->drawPixmap(iconRect, pixmap);
 
-                    painter->drawPixmap(iconRect, pixmap);
-
-                } else {
-
-                    QPixmap pixmap = pixmapFromIcon(
-                        m_style.treeItemStyle.lockedIcon,
-                        iconRect.size(),
-                        m_style.fontColor);
-
-                    painter->drawPixmap(iconRect, pixmap);
-                }
-
-            } else if (index.column() == 2) {
-
-                if (treeItem->pinned()) {
-
-                    QPixmap pixmap = pixmapFromIcon(
-                        m_style.treeItemStyle.unpinnedIcon,
-                        iconRect.size(),
-                        m_style.fontColor);
-
-                    painter->drawPixmap(iconRect, pixmap);
-
-                } else {
-
-                    QPixmap pixmap = pixmapFromIcon(
-                        m_style.treeItemStyle.pinnedIcon,
-                        iconRect.size(),
-                        m_style.fontColor);
-
-                    painter->drawPixmap(iconRect, pixmap);
-
-                }
-            }
-
-        } else {
-
-            if (treeItem->locked() && index.column() == 1) {
-
-                QPixmap pixmap = pixmapFromIcon(
-                    m_style.treeItemStyle.lockedIcon,
-                    iconRect.size(),
-                    m_style.fontColor);
-
-                painter->drawPixmap(iconRect, pixmap);
-
-            } else if (treeItem->pinned() && index.column() == 2) {
-
-                QPixmap pixmap = pixmapFromIcon(
-                    m_style.treeItemStyle.pinnedIcon,
-                    iconRect.size(),
-                    m_style.fontColor);
-
-                painter->drawPixmap(iconRect, pixmap);
-
-            }
-        }
     } else {
         QStyledItemDelegate::paint(painter, option, index);
     }

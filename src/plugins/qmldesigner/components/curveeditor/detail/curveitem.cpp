@@ -413,6 +413,9 @@ void CurveItem::connect(GraphicsScene *scene)
 
 void CurveItem::insertKeyframeByTime(double time)
 {
+    if (locked())
+        return;
+
     AnimationCurve acurve = curve();
     acurve.insert(time);
     setCurve(acurve);

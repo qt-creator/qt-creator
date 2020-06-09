@@ -91,6 +91,10 @@ public:
 
     void addCurveItem(CurveItem *item);
 
+    void moveToBottom(CurveItem *item);
+
+    void moveToTop(CurveItem *item);
+
     void setComponentTransform(const QTransform &transform);
 
     void keyframeMoved(KeyframeItem *item, const QPointF &direction);
@@ -118,6 +122,8 @@ private:
     GraphicsView *graphicsView() const;
 
     QRectF limits() const;
+
+    void resetZValues();
 
     QVector<CurveItem *> m_curves;
 
