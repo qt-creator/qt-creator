@@ -31,7 +31,6 @@
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/SimpleLexer.h>
 
-#include <QRegExp>
 #include <QTextDocument>
 
 namespace ClangCodeModel {
