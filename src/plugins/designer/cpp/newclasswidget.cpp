@@ -28,7 +28,6 @@
 
 #include <QFileDialog>
 #include <QDebug>
-#include <QRegExp>
 
 enum { debugNewClassWidget = 0 };
 
@@ -53,7 +52,6 @@ struct NewClassWidgetPrivate {
     QString m_formExtension;
     bool m_valid = false;
     bool m_classEdited = false;
-    QRegExp m_classNameValidator;
 };
 
 NewClassWidgetPrivate:: NewClassWidgetPrivate() :
@@ -225,10 +223,6 @@ void NewClassWidget::setClassType(ClassType ct)
 void NewClassWidget::setNamesDelimiter(const QString &delimiter)
 {
     d->m_ui.classLineEdit->setNamespaceDelimiter(delimiter);
-    const QString escaped = QRegExp::escape(delimiter);
-    d->m_classNameValidator = QRegExp(QLatin1String("[a-zA-Z_][a-zA-Z0-9_]*(")
-                                      + escaped
-                                      + QLatin1String("[a-zA-Z_][a-zA-Z0-9_]*)*"));
 }
 
 void NewClassWidget::slotValidChanged()
