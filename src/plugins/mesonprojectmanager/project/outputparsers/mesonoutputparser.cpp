@@ -27,6 +27,19 @@
 #include <projectexplorer/taskhub.h>
 namespace MesonProjectManager {
 namespace Internal {
+
+struct WarningRegex
+{
+    const int lineCnt;
+    const QRegularExpression regex;
+};
+
+static const WarningRegex multiLineWarnings[] = {
+    WarningRegex{ 3, QRegularExpression{R"!(WARNING: Unknown options:)!"}},
+    WarningRegex{ 2, QRegularExpression{
+            R"!(WARNING: Project specifies a minimum meson_version|WARNING: Deprecated features used:)!"}},
+    WarningRegex{ 1, QRegularExpression{R"!(WARNING: )!"}}};
+
 inline void MesonOutputParser::addTask(ProjectExplorer::Task task)
 {
 #ifndef MESONPARSER_DISABLE_TASKS_FOR_TESTS // small hack to allow unit testing without the banana/monkey/jungle
@@ -100,7 +113,7 @@ Utils::OutputLineParser::Result MesonOutputParser::processErrors(const QString &
 
 Utils::OutputLineParser::Result MesonOutputParser::processWarnings(const QString &line)
 {
-    for (const auto &warning : m_multiLineWarnings) {
+    for (const auto &warning : multiLineWarnings) {
         const auto match = warning.regex.match(line);
         if (match.hasMatch()) {
             m_remainingLines = warning.lineCnt;

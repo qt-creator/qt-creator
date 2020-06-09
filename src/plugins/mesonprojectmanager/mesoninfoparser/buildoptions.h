@@ -249,8 +249,8 @@ protected:
 
 struct UnknownBuildOption : BuildOption
 {
-    QVariant value() const override { return "Unknown option"; }
-    QString valueStr() const override { return "Unknown option"; }
+    QVariant value() const override { return {"Unknown option"}; }
+    QString valueStr() const override { return {"Unknown option"}; }
     void setValue(const QVariant &) override {}
     Type type() const override { return Type::unknown; }
     BuildOption *copy() const override { return new UnknownBuildOption{*this}; }

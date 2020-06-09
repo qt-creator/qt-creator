@@ -34,20 +34,8 @@ namespace Internal {
 class MesonOutputParser final : public ProjectExplorer::OutputTaskParser
 {
     Q_OBJECT
-    struct WarningRegex
-    {
-        const int lineCnt;
-        const QRegularExpression regex;
-    };
     const QRegularExpression m_errorFileLocRegex{R"((^.*meson.build):(\d+):(\d+): ERROR)"};
     const QRegularExpression m_errorOptionRegex{R"!(ERROR: Value)!"};
-    const std::array<WarningRegex, 3> m_multiLineWarnings{
-        WarningRegex{3, QRegularExpression{R"!(WARNING: Unknown options:)!"}},
-        WarningRegex{
-            2,
-            QRegularExpression{
-                R"!(WARNING: Project specifies a minimum meson_version|WARNING: Deprecated features used:)!"}},
-        WarningRegex{1, QRegularExpression{R"!(WARNING: )!"}}};
     int m_remainingLines = 0;
     QStringList m_pending;
     void pushLine(const QString &line);
