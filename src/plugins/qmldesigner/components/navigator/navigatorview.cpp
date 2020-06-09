@@ -163,7 +163,7 @@ void NavigatorView::modelAboutToBeDetached(Model *model)
             }
         };
         gatherExpandedState(rootIndex);
-        m_expandMap[model->fileUrl()].insert(localExpandMap);
+        m_expandMap[model->fileUrl()] = localExpandMap;
     }
 
     AbstractView::modelAboutToBeDetached(model);
