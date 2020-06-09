@@ -46,21 +46,33 @@ class SplashIconContainerWidget : public QWidget
     Q_OBJECT
 public:
     explicit SplashIconContainerWidget(QWidget *parent,
-                                                      TextEditor::TextEditorWidget *textEditorWidget);
+                                       TextEditor::TextEditorWidget *textEditorWidget);
     void loadImages();
-    bool hasImages();
-    bool hasPortraitImages();
-    bool hasLandscapeImages();
-    bool isSticky();
+    bool hasImages() const;
+    bool hasPortraitImages() const;
+    bool hasLandscapeImages() const;
+    bool isSticky() const;
     void setSticky(bool sticky);
+    QString imageFileName() const;
+    QString landscapeImageFileName() const;
+    QString portraitImageFileName() const;
+    void setImageFileName(const QString &name);
+    void setLandscapeImageFileName(const QString &name);
+    void setPortraitImageFileName(const QString &name);
 signals:
     void splashScreensModified();
 private:
+    void imageSelected(const QString &path, AndroidManifestEditorIconWidget *iconWidget);
+private:
+    TextEditor::TextEditorWidget *m_textEditorWidget = nullptr;
     QVector<AndroidManifestEditorIconWidget *> m_imageButtons;
     QVector<AndroidManifestEditorIconWidget *> m_portraitImageButtons;
     QVector<AndroidManifestEditorIconWidget *> m_landscapeImageButtons;
     bool m_splashScreenSticky = false;
     QCheckBox *m_stickyCheck = nullptr;
+    QString m_imageFileName = QLatin1String("logo");
+    QString m_landscapeImageFileName = QLatin1String("logo_landscape");
+    QString m_portraitImageFileName = QLatin1String("logo_portrait");
 };
 
 } // namespace Internal

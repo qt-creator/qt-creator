@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <QString>
 #include <QVector>
 #include <QWidget>
 
@@ -42,10 +43,13 @@ class AndroidManifestEditorIconContainerWidget : public QWidget
 public:
     explicit AndroidManifestEditorIconContainerWidget(QWidget *parent,
                                                       TextEditor::TextEditorWidget *textEditorWidget);
+    void setIconFileName(const QString &name);
+    QString iconFileName() const;
     void loadIcons();
-    bool hasIcons();
+    bool hasIcons() const;
 private:
     QVector<AndroidManifestEditorIconWidget *> m_iconButtons;
+    QString m_iconFileName = QLatin1String("icon");
 };
 
 } // namespace Internal

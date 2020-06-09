@@ -50,14 +50,21 @@ public:
                                     const QString &title,
                                     const QString &tooltip,
                                     TextEditor::TextEditorWidget *textEditorWidget = nullptr,
-                                    const QString &targetIconPath = {});
+                                    const QString &targetIconPath = {},
+                                    const QString &targetIconFileName = {});
     void setIcon(const QIcon &icon);
+    void clearIcon();
     void loadIcon();
     void setIconFromPath(const QString &iconPath);
-    bool hasIcon();
-    void setScaled(bool scaled);
+    bool hasIcon() const;
+    void setScaledToOriginalAspectRatio(bool scaled);
+    void setScaledWithoutStretching(bool scaled);
+    void setTargetIconFileName(const QString &targetIconFileName);
+    void setTargetIconPath(const QString &targetIconPath);
+    QString targetIconFileName() const;
+    QString targetIconPath() const;
 signals:
-    void iconSelected(const QString &path);
+    void iconSelected(const QString &path, AndroidManifestEditorIconWidget* iconWidget);
     void iconRemoved();
 
 private:
@@ -73,8 +80,10 @@ private:
     TextEditor::TextEditorWidget *m_textEditorWidget = nullptr;
     QString m_iconPath;
     QString m_targetIconPath;
+    QString m_targetIconFileName;
     QString m_iconSelectionText;
-    bool m_scaled = true;
+    bool m_scaledToOriginalAspectRatio = false;
+    bool m_scaledWithoutStretching = false;
 };
 
 } // namespace Internal

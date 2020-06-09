@@ -806,9 +806,20 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
     QDomElement activityElem = applicationElement.firstChildElement(QLatin1String("activity"));
     m_activityNameLineEdit->setText(activityElem.attribute(QLatin1String("android:label")));
 
+    QString appIconValue = applicationElement.attribute(QLatin1String("android:icon"));
+    if (!appIconValue.isEmpty()) {
+        QLatin1String drawable = QLatin1String("@drawable/");
+        if (appIconValue.startsWith(drawable)) {
+            QString appIconName = appIconValue.mid(drawable.size());
+            m_iconButtons->setIconFileName(appIconName);
+        }
+    }
+
     QDomElement metadataElem = activityElem.firstChildElement(QLatin1String("meta-data"));
-    enum ActivityParseGuard {none = 0, libName = 1, styleExtract = 2, stickySplash = 4, done = 8};
+    enum ActivityParseGuard {none = 0, libName = 1, styleExtract = 2, stickySplash = 4, splashImages = 8, done = 16};
     int activityParseGuard = ActivityParseGuard::none;
+    enum SplashImageParseGuard {splashNone = 0, splash = 1, portraitSplash = 2, landscapeSplash = 4, splashDone = 8};
+    int splashParseGuard = SplashImageParseGuard::splashNone;
     while (!metadataElem.isNull()) {
         if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.lib_name")
                 && !(activityParseGuard & ActivityParseGuard::libName)) {
@@ -826,6 +837,29 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
             QString sticky = metadataElem.attribute(QLatin1String("android:value"));
             m_splashButtons->setSticky(sticky == QLatin1String("true"));
             activityParseGuard |= ActivityParseGuard::stickySplash;
+        } else if (metadataElem.attribute(QLatin1String("android:name"))
+                   .startsWith(QLatin1String("android.app.splash_screen_drawable"))
+                   && !(activityParseGuard & ActivityParseGuard::splashImages)
+                   && !(splashParseGuard & SplashImageParseGuard::splashDone)) {
+            QString attrName = metadataElem.attribute(QLatin1String("android:name"));
+            QLatin1String drawable = QLatin1String("@drawable/");
+            QString splashImageValue = metadataElem.attribute(QLatin1String("android:resource"));
+            QString splashImageName;
+            if (splashImageValue.startsWith(drawable)) {
+                splashImageName = splashImageValue.mid(drawable.size());
+            }
+            if (attrName == QLatin1String("android.app.splash_screen_drawable")) {
+                m_splashButtons->setImageFileName(splashImageName);
+                splashParseGuard |= SplashImageParseGuard::splash;
+            } else if (attrName == QLatin1String("android.app.splash_screen_drawable_portrait")) {
+                    m_splashButtons->setPortraitImageFileName(splashImageName);
+                    splashParseGuard |= SplashImageParseGuard::portraitSplash;
+            } else if (attrName == QLatin1String("android.app.splash_screen_drawable_landscape")) {
+                m_splashButtons->setLandscapeImageFileName(splashImageName);
+                splashParseGuard |= SplashImageParseGuard::landscapeSplash;
+            }
+            if (splashParseGuard & SplashImageParseGuard::splashDone)
+                activityParseGuard |= ActivityParseGuard::splashImages;
         }
         if (activityParseGuard == ActivityParseGuard::done)
             break;
@@ -1066,7 +1100,7 @@ void AndroidManifestEditorWidget::parseApplication(QXmlStreamReader &reader, QXm
     bool ensureIconAttribute = m_iconButtons->hasIcons();
     if (ensureIconAttribute) {
         keys << QLatin1String("android:icon");
-        values << QLatin1String("@drawable/icon");
+        values << (QLatin1String("@drawable/")  + m_iconButtons->iconFileName());
     } else
         remove << QLatin1String("android:icon");
 
@@ -1114,15 +1148,15 @@ void AndroidManifestEditorWidget::parseSplashScreen(QXmlStreamWriter &writer)
 {
     if (m_splashButtons->hasImages())
         writeMetadataElement("android.app.splash_screen_drawable",
-                             "android:resource", "@drawable/logo",
+                             "android:resource", QLatin1String("@drawable/") + m_splashButtons->imageFileName(),
                              writer);
     if (m_splashButtons->hasPortraitImages())
         writeMetadataElement("android.app.splash_screen_drawable_portrait",
-                             "android:resource", "@drawable/logo_portrait",
+                             "android:resource", QLatin1String("@drawable/") + m_splashButtons->portraitImageFileName(),
                              writer);
     if (m_splashButtons->hasLandscapeImages())
         writeMetadataElement("android.app.splash_screen_drawable_landscape",
-                             "android:resource", "@drawable/logo_landscape",
+                             "android:resource", QLatin1String("@drawable/") + m_splashButtons->landscapeImageFileName(),
                              writer);
     if (m_splashButtons->isSticky())
         writeMetadataElement("android.app.splash_screen_sticky",

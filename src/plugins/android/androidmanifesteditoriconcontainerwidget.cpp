@@ -35,9 +35,10 @@ namespace Android {
 namespace Internal {
 
 namespace {
-const QString highDpiIconPath = "/res/drawable-hdpi/icon.png";
-const QString mediumDpiIconPath = "/res/drawable-mdpi/icon.png";
-const QString lowDpiIconPath = "/res/drawable-ldpi/icon.png";
+const QString highDpiIconPath = QLatin1String("/res/drawable-hdpi/");
+const QString mediumDpiIconPath = QLatin1String("/res/drawable-mdpi/");
+const QString lowDpiIconPath = QLatin1String("/res/drawable-ldpi/");
+const QString imageSuffix = QLatin1String(".png");
 const QSize lowDpiIconSize{32, 32};
 const QSize mediumDpiIconSize{48, 48};
 const QSize highDpiIconSize{72, 72};
@@ -63,11 +64,15 @@ AndroidManifestEditorIconContainerWidget::AndroidManifestEditorIconContainerWidg
     iconLayout->addWidget(line);
     iconLayout->addStretch(1);
 
+    QString iconFileName = m_iconFileName + imageSuffix;
+
     auto lIconButton = new AndroidManifestEditorIconWidget(this,
                                                         lowDpiIconSize,
                                                         lowDpiIconSize,
                                                         tr("Low DPI icon"), tr("Select low DPI icon"),
-                                                        textEditorWidget, lowDpiIconPath);
+                                                        textEditorWidget,
+                                                        lowDpiIconPath,
+                                                        iconFileName);
     iconLayout->addWidget(lIconButton);
     m_iconButtons.push_back(lIconButton);
     iconLayout->addStretch(1);
@@ -76,7 +81,9 @@ AndroidManifestEditorIconContainerWidget::AndroidManifestEditorIconContainerWidg
                                                         mediumDpiIconSize,
                                                         mediumDpiIconSize,
                                                         tr("Medium DPI icon"), tr("Select medium DPI icon"),
-                                                        textEditorWidget, mediumDpiIconPath);
+                                                        textEditorWidget,
+                                                        mediumDpiIconPath,
+                                                        iconFileName);
     iconLayout->addWidget(mIconButton);
     m_iconButtons.push_back(mIconButton);
     iconLayout->addStretch(1);
@@ -85,7 +92,9 @@ AndroidManifestEditorIconContainerWidget::AndroidManifestEditorIconContainerWidg
                                                          highDpiIconSize,
                                                          highDpiIconSize,
                                                          tr("High DPI icon"), tr("Select high DPI icon"),
-                                                         textEditorWidget, highDpiIconPath);
+                                                         textEditorWidget,
+                                                         highDpiIconPath,
+                                                         iconFileName);
     iconLayout->addWidget(hIconButton);
     m_iconButtons.push_back(hIconButton);
     iconLayout->addStretch(6);
@@ -96,13 +105,25 @@ AndroidManifestEditorIconContainerWidget::AndroidManifestEditorIconContainerWidg
     }
 }
 
-void AndroidManifestEditorIconContainerWidget::loadIcons()
+void AndroidManifestEditorIconContainerWidget::setIconFileName(const QString &name)
 {
-    for (auto &&iconButton : m_iconButtons)
-        iconButton->loadIcon();
+    m_iconFileName = name;
 }
 
-bool AndroidManifestEditorIconContainerWidget::hasIcons()
+QString AndroidManifestEditorIconContainerWidget::iconFileName() const
+{
+    return m_iconFileName;
+}
+
+void AndroidManifestEditorIconContainerWidget::loadIcons()
+{
+    for (auto &&iconButton : m_iconButtons) {
+        iconButton->setTargetIconFileName(m_iconFileName + imageSuffix);
+        iconButton->loadIcon();
+    }
+}
+
+bool AndroidManifestEditorIconContainerWidget::hasIcons() const
 {
     for (auto &&iconButton : m_iconButtons) {
         if (iconButton->hasIcon())
