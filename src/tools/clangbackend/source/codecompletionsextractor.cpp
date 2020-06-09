@@ -36,7 +36,11 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QPair>
 #include <QDebug>
+
+#include <cmath>
+#include <limits>
 
 namespace ClangBackEnd {
 
@@ -138,6 +142,39 @@ static void adaptOverloadsPriorities(CodeCompletions &codeCompletions)
     }
 }
 
+static int comparePriorities(quint32 p1, quint32 p2)
+{
+    static const int fuzziness = 2; // Each of const and volatile can introduce a diff of 1.
+    const int diff = p1 - p2;
+    if (std::abs(diff) > fuzziness)
+        return diff;
+    return 0;
+}
+
+// The list is already ordered, but since we pass the priorities up to higher layers,
+// we should make sure that adjacent values become identical.
+static void mergeAdjacentPriorities(CodeCompletions &completions)
+{
+    static const int maxValue = std::numeric_limits<quint32>::max();
+    QPair<QVector<CodeCompletion *>, quint32> priorityGroup;
+    priorityGroup.second = maxValue;
+    const auto assignGroupPriority = [&priorityGroup] {
+        for (CodeCompletion * const c : qAsConst(priorityGroup.first))
+            c->priority = priorityGroup.second;
+    };
+    for (CodeCompletion &currentCompletion : completions) {
+        const int prioCmp = comparePriorities(priorityGroup.second, currentCompletion.priority);
+        if (prioCmp < 0) {
+            assignGroupPriority();
+            priorityGroup.first.clear();
+            priorityGroup.second = currentCompletion.priority;
+        } else if (currentCompletion.priority > priorityGroup.second)
+            priorityGroup.second = currentCompletion.priority;
+        priorityGroup.first << &currentCompletion;
+    }
+    assignGroupPriority();
+}
+
 static void sortCodeCompletions(CodeCompletions &codeCompletions)
 {
     auto currentItemsCompare = [](const CodeCompletion &first,
@@ -146,8 +183,9 @@ static void sortCodeCompletions(CodeCompletions &codeCompletions)
         if (first.requiredFixIts.empty() != second.requiredFixIts.empty())
             return first.requiredFixIts.empty() > second.requiredFixIts.empty();
 
-        if (first.priority != second.priority)
-            return first.priority < second.priority;
+        const int prioCmpResult = comparePriorities(first.priority, second.priority);
+        if (prioCmpResult != 0)
+            return prioCmpResult < 0;
 
         const int textCmp = first.text.toString().compare(second.text);
         if (textCmp != 0)
@@ -174,6 +212,7 @@ void CodeCompletionsExtractor::handleCompletions(CodeCompletions &codeCompletion
 
     adaptOverloadsPriorities(codeCompletions);
     sortCodeCompletions(codeCompletions);
+    mergeAdjacentPriorities(codeCompletions);
 }
 
 void CodeCompletionsExtractor::extractCompletionKind()

@@ -32,7 +32,7 @@ class LexicographicalSorting
 public:
     void memberFuncBB();
     void memberFuncC();
-    void memberFuncAAA();
+    void memberFuncAAA() const;
 };
 
 void testLexicographicalSorting() {
