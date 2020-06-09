@@ -102,6 +102,8 @@ public:
             return QVariant(toFloat());
         case ValueType::String:
             return QVariant(QString(toStringView()));
+        case ValueType::Null:
+            break;
         }
 
         return {};
@@ -281,6 +283,8 @@ public:
             return first.toFloat() == second.toFloat();
         case ValueType::String:
             return first.toStringView() == second.toStringView();
+        case ValueType::Null:
+            return false;
         }
 
         return false;

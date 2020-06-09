@@ -320,6 +320,9 @@ std::ostream &operator<<(std::ostream &out, const Value &value)
     case Sqlite::ValueType::String:
         out << "\"" << value.toStringView() << "\"";
         break;
+    case Sqlite::ValueType::Null:
+        out << "null";
+        break;
     }
 
     return out << ")";
