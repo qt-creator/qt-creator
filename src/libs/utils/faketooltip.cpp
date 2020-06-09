@@ -39,7 +39,7 @@
 namespace Utils {
 
 FakeToolTip::FakeToolTip(QWidget *parent) :
-    QWidget(parent, Qt::ToolTip | Qt::WindowStaysOnTopHint)
+    QWidget(parent, Qt::ToolTip | Qt::WindowStaysOnTopHint | Qt::WindowDoesNotAcceptFocus)
 {
     setFocusPolicy(Qt::NoFocus);
     setAttribute(Qt::WA_DeleteOnClose);
