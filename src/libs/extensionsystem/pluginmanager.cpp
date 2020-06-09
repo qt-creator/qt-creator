@@ -1003,10 +1003,11 @@ static QStringList matchingTestFunctions(const QStringList &testFunctions,
         testFunctionName = testFunctionName.left(index);
     }
 
-    const QRegExp regExp(testFunctionName, Qt::CaseSensitive, QRegExp::Wildcard);
+    const QRegularExpression regExp(
+                QRegularExpression::wildcardToRegularExpression(testFunctionName));
     QStringList matchingFunctions;
     for (const QString &testFunction : testFunctions) {
-        if (regExp.exactMatch(testFunction)) {
+        if (regExp.match(testFunction).hasMatch()) {
             // If the specified test data is invalid, the QTest framework will
             // print a reasonable error message for us.
             matchingFunctions.append(testFunction + testDataSuffix);
