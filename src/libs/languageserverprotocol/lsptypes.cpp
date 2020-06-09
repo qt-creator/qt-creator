@@ -370,10 +370,12 @@ bool DocumentFilter::applies(const Utils::FilePath &fileName, const Utils::MimeT
             return true;
     }
     if (Utils::optional<QString> _pattern = pattern()) {
-        QRegExp regexp(_pattern.value(),
-                       Utils::HostOsInfo::fileNameCaseSensitivity(),
-                       QRegExp::Wildcard);
-        if (regexp.exactMatch(fileName.toString()))
+        QRegularExpression::PatternOption option;
+        if (Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
+            option = QRegularExpression::CaseInsensitiveOption;
+        QRegularExpression regexp(QRegularExpression::wildcardToRegularExpression(_pattern.value()),
+                                  option);
+        if (regexp.match(fileName.toString()).hasMatch())
             return true;
     }
     if (Utils::optional<QString> _lang = language()) {
