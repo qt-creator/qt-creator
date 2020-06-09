@@ -33,7 +33,7 @@
 
 QT_BEGIN_NAMESPACE
 class QStringList;
-class QRegExp;
+class QRegularExpression;
 QT_END_NAMESPACE
 
 namespace ExtensionSystem {
@@ -92,7 +92,7 @@ public:
     QString description() const;
     QString url() const;
     QString category() const;
-    QRegExp platformSpecification() const;
+    QRegularExpression platformSpecification() const;
     bool isAvailableForHostPlatform() const;
     bool isRequired() const;
     bool isHiddenByDefault() const;

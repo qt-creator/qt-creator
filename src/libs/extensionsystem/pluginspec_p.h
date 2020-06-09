@@ -31,7 +31,7 @@
 #include <QJsonObject>
 #include <QObject>
 #include <QPluginLoader>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QStringList>
 #include <QVector>
 #include <QXmlStreamReader>
@@ -80,7 +80,7 @@ public:
     QString description;
     QString url;
     QString category;
-    QRegExp platformSpecification;
+    QRegularExpression platformSpecification;
     QVector<PluginDependency> dependencies;
     QJsonObject metaData;
     bool enabledBySettings = true;
@@ -111,7 +111,7 @@ private:
     PluginSpec *q;
 
     bool reportError(const QString &err);
-    static const QRegExp &versionRegExp();
+    static const QRegularExpression &versionRegExp();
 };
 
 } // namespace Internal

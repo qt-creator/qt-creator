@@ -44,7 +44,6 @@
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QPluginLoader>
-#include <QRegExp>
 
 /*!
     \class ExtensionSystem::PluginDependency
@@ -283,12 +282,12 @@ QString PluginSpec::category() const
 }
 
 /*!
-    Returns a QRegExp matching the platforms this plugin works on. An empty
-    pattern implies all platforms.
+    Returns a QRegularExpression matching the platforms this plugin works on.
+    An empty pattern implies all platforms.
     \since 3.0
 */
 
-QRegExp PluginSpec::platformSpecification() const
+QRegularExpression PluginSpec::platformSpecification() const
 {
     return d->platformSpecification;
 }
@@ -298,8 +297,8 @@ QRegExp PluginSpec::platformSpecification() const
 */
 bool PluginSpec::isAvailableForHostPlatform() const
 {
-    return d->platformSpecification.isEmpty()
-            || d->platformSpecification.indexIn(PluginManager::platformName()) >= 0;
+    return d->platformSpecification.pattern().isEmpty()
+            || d->platformSpecification.match(PluginManager::platformName()).hasMatch();
 }
 
 /*!
@@ -894,9 +893,9 @@ bool PluginSpecPrivate::provides(const QString &pluginName, const QString &plugi
 /*!
     \internal
 */
-const QRegExp &PluginSpecPrivate::versionRegExp()
+const QRegularExpression &PluginSpecPrivate::versionRegExp()
 {
-    static const QRegExp reg(QLatin1String("([0-9]+)(?:[.]([0-9]+))?(?:[.]([0-9]+))?(?:_([0-9]+))?"));
+    static const QRegularExpression reg("^([0-9]+)(?:[.]([0-9]+))?(?:[.]([0-9]+))?(?:_([0-9]+))?$");
     return reg;
 }
 /*!
@@ -904,7 +903,7 @@ const QRegExp &PluginSpecPrivate::versionRegExp()
 */
 bool PluginSpecPrivate::isValidVersion(const QString &version)
 {
-    return versionRegExp().exactMatch(version);
+    return versionRegExp().match(version).hasMatch();
 }
 
 /*!
@@ -912,17 +911,15 @@ bool PluginSpecPrivate::isValidVersion(const QString &version)
 */
 int PluginSpecPrivate::versionCompare(const QString &version1, const QString &version2)
 {
-    QRegExp reg1 = versionRegExp();
-    QRegExp reg2 = versionRegExp();
-    if (!reg1.exactMatch(version1))
+    const QRegularExpressionMatch match1 = versionRegExp().match(version1);
+    const QRegularExpressionMatch match2 = versionRegExp().match(version2);
+    if (!match1.hasMatch())
         return 0;
-    if (!reg2.exactMatch(version2))
+    if (!match2.hasMatch())
         return 0;
-    int number1;
-    int number2;
     for (int i = 0; i < 4; ++i) {
-        number1 = reg1.cap(i+1).toInt();
-        number2 = reg2.cap(i+1).toInt();
+        const int number1 = match1.captured(i + 1).toInt();
+        const int number2 = match2.captured(i + 1).toInt();
         if (number1 < number2)
             return -1;
         if (number1 > number2)

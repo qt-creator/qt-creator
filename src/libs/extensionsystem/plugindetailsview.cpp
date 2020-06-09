@@ -34,7 +34,7 @@
 #include <QDir>
 #include <QJsonObject>
 #include <QJsonValue>
-#include <QRegExp>
+#include <QRegularExpression>
 
 /*!
     \class ExtensionSystem::PluginDetailsView
@@ -101,8 +101,8 @@ void PluginDetailsView::update(PluginSpec *spec)
     m_ui->description->setText(spec->description());
     m_ui->copyright->setText(spec->copyright());
     m_ui->license->setText(spec->license());
-    const QRegExp platforms = spec->platformSpecification();
-    const QString pluginPlatformString = platforms.isEmpty() ? tr("All") : platforms.pattern();
+    const QRegularExpression platforms = spec->platformSpecification();
+    const QString pluginPlatformString = platforms.pattern().isEmpty() ? tr("All") : platforms.pattern();
     const QString platformString = tr("%1 (current: \"%2\")").arg(pluginPlatformString,
                                                                   PluginManager::platformName());
     m_ui->platforms->setText(platformString);
