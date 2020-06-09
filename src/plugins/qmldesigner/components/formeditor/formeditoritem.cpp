@@ -56,6 +56,7 @@ const int flowBlockSize = 200;
 const int blockRadius = 18;
 const int blockAdjust = 40;
 const int startItemOffset = 96;
+const int labelFontSize = 16;
 
 void drawIcon(QPainter *painter,
               int x,
@@ -855,7 +856,7 @@ public:
         , bezier(50)
         , type(ConnectionType::Default)
         , label()
-        , fontSize(16 / scaleFactor)
+        , fontSize(labelFontSize / scaleFactor)
         , labelOffset(14 / scaleFactor)
         , labelPosition(50.0)
         , labelFlags(Qt::AlignHCenter | Qt::AlignVCenter | Qt::TextDontClip)
@@ -1668,9 +1669,65 @@ void FormEditorFlowDecisionItem::updateGeometry()
         transform.translate(boundingRect.center().x(), boundingRect.center().y());
         transform.rotate(45);
         transform.translate(-boundingRect.center().x(), -boundingRect.center().y());
+
+        // If drawing the dialog title is requested we need to add it to the bounding rect.
+        QRectF labelBoundingRect;
+        int showDialogLabel = false;
+        if (qmlItemNode().modelNode().hasAuxiliaryData("showDialogLabel"))
+            showDialogLabel = qmlItemNode().modelNode().auxiliaryData("showDialogLabel").toBool();
+
+        if (showDialogLabel) {
+            QString dialogTitle;
+            if (qmlItemNode().modelNode().hasVariantProperty("dialogTitle"))
+                dialogTitle = qmlItemNode().modelNode().variantProperty("dialogTitle").value().toString();
+
+            if (!dialogTitle.isEmpty()) {
+                // Local painter is used to get the labels bounding rect by using drawText()
+                QPixmap pixmap(640, 480);
+                QPainter localPainter(&pixmap);
+                QFont font = localPainter.font();
+                font.setPixelSize(labelFontSize / viewportTransform().m11());
+                localPainter.setFont(font);
+
+                int margin = blockAdjust * 0.5;
+                const QRectF adjustedRect = boundingRect.adjusted(margin, margin, -margin, -margin);
+
+                QRectF textRect(0, 0, 100, 20);
+
+                Qt::Corner corner = Qt::TopRightCorner;
+                if (qmlItemNode().modelNode().hasAuxiliaryData("dialogLabelPosition"))
+                   corner = qmlItemNode().modelNode().auxiliaryData("dialogLabelPosition").value<Qt::Corner>();
+
+                int flag = 0;
+                switch (corner) {
+                    case Qt::TopLeftCorner:
+                        flag = Qt::AlignRight;
+                        textRect.moveBottomRight(adjustedRect.topLeft());
+                        break;
+                    case Qt::TopRightCorner:
+                        flag = Qt::AlignLeft;
+                        textRect.moveBottomLeft(adjustedRect.topRight());
+                        break;
+                    case Qt::BottomLeftCorner:
+                        flag = Qt::AlignRight;
+                        textRect.moveTopRight(adjustedRect.bottomLeft());
+                        break;
+                    case Qt::BottomRightCorner:
+                        flag = Qt::AlignLeft;
+                        textRect.moveTopLeft(adjustedRect.bottomRight());
+                        break;
+                }
+
+                localPainter.drawText(textRect, flag | Qt::TextDontClip, dialogTitle, &labelBoundingRect);
+            }
+        }
+
+        // Unite the rotate item bounding rect with the label bounding rect.
+        boundingRect = transform.mapRect(boundingRect);
+        boundingRect = boundingRect.united(labelBoundingRect);
     }
 
-    m_selectionBoundingRect = transform.mapRect(boundingRect);
+    m_selectionBoundingRect = boundingRect;
     m_paintedBoundingRect = m_selectionBoundingRect;
     m_boundingRect = m_paintedBoundingRect;
     setTransform(qmlItemNode().instanceTransformWithContentTransform());
@@ -1771,6 +1828,52 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGrap
     const int offset = iconDecrement / 2 + margin;
 
     painter->restore();
+
+    // Draw the dialog title inside the form view if requested. Decision item only.
+    int showDialogLabel = false;
+    if (qmlItemNode().modelNode().hasAuxiliaryData("showDialogLabel"))
+        showDialogLabel = qmlItemNode().modelNode().auxiliaryData("showDialogLabel").toBool();
+
+    if (showDialogLabel) {
+        QString dialogTitle;
+        if (qmlItemNode().modelNode().hasVariantProperty("dialogTitle"))
+            dialogTitle = qmlItemNode().modelNode().variantProperty("dialogTitle").value().toString();
+
+        if (!dialogTitle.isEmpty()) {
+
+            QFont font = painter->font();
+            font.setPixelSize(labelFontSize / scaleFactor);
+            painter->setFont(font);
+
+            QRectF textRect(0, 0, 100, 20);
+
+            Qt::Corner corner = Qt::TopRightCorner;
+            if (qmlItemNode().modelNode().hasAuxiliaryData("dialogLabelPosition"))
+               corner = qmlItemNode().modelNode().auxiliaryData("dialogLabelPosition").value<Qt::Corner>();
+
+            int flag = 0;
+            switch (corner) {
+                case Qt::TopLeftCorner:
+                    flag = Qt::AlignRight;
+                    textRect.moveBottomRight(adjustedRect.topLeft());
+                    break;
+                case Qt::TopRightCorner:
+                    flag = Qt::AlignLeft;
+                    textRect.moveBottomLeft(adjustedRect.topRight());
+                    break;
+                case Qt::BottomLeftCorner:
+                    flag = Qt::AlignRight;
+                    textRect.moveTopRight(adjustedRect.bottomLeft());
+                    break;
+                case Qt::BottomRightCorner:
+                    flag = Qt::AlignLeft;
+                    textRect.moveTopLeft(adjustedRect.bottomRight());
+                    break;
+            }
+
+            painter->drawText(textRect, flag | Qt::TextDontClip, dialogTitle);
+        }
+    }
 
     const QString icon = (m_iconType ==
                           WildcardIcon) ? Theme::getIconUnicode(Theme::wildcard)

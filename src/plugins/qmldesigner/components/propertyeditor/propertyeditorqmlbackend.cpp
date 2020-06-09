@@ -191,6 +191,10 @@ QVariant properDefaultAuxiliaryProperties(const QmlObjectNode &qmlObjectNode,
         return 200;
     else if (propertyName == "blockRadius")
         return 18;
+    else if (propertyName == "showDialogLabel")
+        return false;
+    else if (propertyName == "dialogLabelPosition")
+        return Qt::TopRightCorner;
 
     return {};
 }
@@ -262,7 +266,7 @@ void PropertyEditorQmlBackend::setupAuxiliaryProperties(const QmlObjectNode &qml
     } else if (itemNode.isFlowActionArea()) {
         propertyNames.append({"color", "width", "fillColor", "outOffset", "dash"});
     } else if (itemNode.isFlowDecision()) {
-        propertyNames.append({"color", "width", "fillColor", "dash", "blockSize", "blockRadius"});
+        propertyNames.append({"color", "width", "fillColor", "dash", "blockSize", "blockRadius", "showDialogLabel", "dialogLabelPosition"});
     } else if (itemNode.isFlowWildcard()) {
         propertyNames.append({"color", "width", "fillColor", "dash", "blockSize", "blockRadius"});
     } else if (itemNode.isFlowView()) {

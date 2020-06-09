@@ -392,9 +392,9 @@ void FormEditorView::variantPropertiesChanged(const QList<VariantProperty> &prop
     Q_UNUSED(propertyChange)
     for (const VariantProperty &property : propertyList) {
         QmlVisualNode node(property.parentModelNode());
-        if (node.isFlowTransition()) {
+        if (node.isFlowTransition() || node.isFlowDecision()) {
             if (FormEditorItem *item = m_scene->itemForQmlItemNode(node.toQmlItemNode())) {
-                if (property.name() == "question")
+                if (property.name() == "question" || property.name() == "dialogTitle")
                     item->updateGeometry();
             }
         }
@@ -573,7 +573,7 @@ void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyN
             static const QStringList updateGeometryPropertyNames = {
                 "breakPoint", "bezier", "transitionBezier", "type", "tranitionType", "radius",
                 "transitionRadius", "labelPosition", "labelFlipSide", "inOffset", "outOffset",
-                "blockSize", "blockRadius"
+                "blockSize", "blockRadius", "showDialogLabel", "dialogLabelPosition"
             };
             if (updateGeometryPropertyNames.contains(QString::fromUtf8(name)))
                 editorItem->updateGeometry();
