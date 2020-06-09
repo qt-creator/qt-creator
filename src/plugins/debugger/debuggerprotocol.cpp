@@ -29,7 +29,6 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QHostAddress>
-#include <QRegExp>
 #include <QTimeZone>
 #include <QJsonArray>
 #include <QJsonDocument>

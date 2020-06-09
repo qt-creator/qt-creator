@@ -40,7 +40,6 @@
 #include <QCheckBox>
 #include <QDebug>
 #include <QDir>
-#include <QRegExp>
 
 #include <QDialogButtonBox>
 #include <QFormLayout>

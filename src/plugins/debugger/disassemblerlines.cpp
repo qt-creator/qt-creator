@@ -28,7 +28,6 @@
 
 #include <QDebug>
 #include <QFile>
-#include <QRegExp>
 #include <QTextStream>
 
 namespace Debugger {

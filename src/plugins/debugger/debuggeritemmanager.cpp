@@ -352,7 +352,7 @@ DebuggerItem DebuggerItemConfigWidget::item() const
     item.setWorkingDirectory(m_workingDirectoryChooser->filePath());
     item.setAutoDetected(m_autodetected);
     Abis abiList;
-    const QStringList abis = m_abis->text().split(QRegExp("[^A-Za-z0-9-_]+"));
+    const QStringList abis = m_abis->text().split(QRegularExpression("[^A-Za-z0-9-_]+"));
     for (const QString &a : abis) {
         if (a.isNull())
             continue;
