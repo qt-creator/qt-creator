@@ -56,7 +56,7 @@ void BindingEditor::registerDeclarativeType()
     qmlRegisterType<BindingEditor>("HelperWidgets", 2, 0, "BindingEditor");
 }
 
-void BindingEditor::showWidget(int x, int y)
+void BindingEditor::prepareDialog()
 {
     if (s_lastBindingEditor)
         s_lastBindingEditor->hideWidget();
@@ -71,6 +71,17 @@ void BindingEditor::showWidget(int x, int y)
                      this, &BindingEditor::rejected);
 
     m_dialog->setAttribute(Qt::WA_DeleteOnClose);
+}
+
+void BindingEditor::showWidget()
+{
+    prepareDialog();
+    m_dialog->showWidget();
+}
+
+void BindingEditor::showWidget(int x, int y)
+{
+    prepareDialog();
     m_dialog->showWidget(x, y);
 }
 

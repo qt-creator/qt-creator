@@ -51,6 +51,7 @@ public:
 
     static void registerDeclarativeType();
 
+    Q_INVOKABLE void showWidget();
     Q_INVOKABLE void showWidget(int x, int y);
     Q_INVOKABLE void hideWidget();
 
@@ -75,6 +76,7 @@ private:
     QVariant backendValue() const;
     QVariant modelNodeBackend() const;
     QVariant stateModelNode() const;
+    void prepareDialog();
 
 private:
     QPointer<BindingEditorDialog> m_dialog;

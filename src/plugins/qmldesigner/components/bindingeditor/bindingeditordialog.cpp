@@ -79,12 +79,17 @@ BindingEditorDialog::~BindingEditorDialog()
     delete m_verticalLayout;
 }
 
-void BindingEditorDialog::showWidget(int x, int y)
+void BindingEditorDialog::showWidget()
 {
     this->show();
     this->raise();
-    move(QPoint(x, y));
     m_editorWidget->setFocus();
+}
+
+void BindingEditorDialog::showWidget(int x, int y)
+{
+    showWidget();
+    move(QPoint(x, y));
 }
 
 QString BindingEditorDialog::editorValue() const

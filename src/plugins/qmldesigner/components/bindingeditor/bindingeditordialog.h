@@ -67,6 +67,7 @@ public:
     BindingEditorDialog(QWidget *parent = nullptr, DialogType type = DialogType::BindingDialog);
     ~BindingEditorDialog() override;
 
+    void showWidget();
     void showWidget(int x, int y);
 
     QString editorValue() const;

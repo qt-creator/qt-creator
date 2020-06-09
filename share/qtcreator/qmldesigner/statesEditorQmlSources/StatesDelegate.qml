@@ -117,9 +117,7 @@ Rectangle {
                 visible: !isBaseState
                 text: qsTr("Set when Condition")
                 onTriggered: {
-                    var x = whenButton.mapToGlobal(0,0).x + 4
-                    var y = root.mapToGlobal(0,0).y - 32
-                    bindingEditor.showWidget(x, y)
+                    bindingEditor.showWidget()
                     bindingEditor.text = delegateWhenConditionString
                     bindingEditor.prepareBindings()
                 }
