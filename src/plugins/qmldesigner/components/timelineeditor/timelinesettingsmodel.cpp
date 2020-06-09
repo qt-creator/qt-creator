@@ -31,15 +31,25 @@
 #include <variantproperty.h>
 #include <qmlvisualnode.h>
 
+#include <utils/optional.h>
 #include <utils/qtcassert.h>
 
 #include <QComboBox>
 #include <QItemEditorFactory>
 #include <QMessageBox>
+#include <QSpinBox>
 #include <QStyledItemDelegate>
 #include <QTimer>
 
 namespace QmlDesigner {
+
+static void setDataForFixedFrame(QStandardItem *item, Utils::optional<int> fixedValue)
+{
+    if (fixedValue)
+        item->setData(fixedValue.value(), Qt::EditRole);
+    else
+        item->setData(TimelineSettingsModel::tr("None"), Qt::EditRole);
+}
 
 class CustomDelegate : public QStyledItemDelegate
 {
@@ -89,7 +99,12 @@ QWidget *TimelineEditorDelegate::createEditor(QWidget *parent,
                                               const QStyleOptionViewItem &option,
                                               const QModelIndex &index) const
 {
-    QWidget *widget = QStyledItemDelegate::createEditor(parent, option, index);
+    QWidget *widget = nullptr;
+
+    if (index.column() ==  TimelineSettingsModel::FixedFrameRow)
+        widget = new QSpinBox(parent);
+    else
+        widget = QStyledItemDelegate::createEditor(parent, option, index);
 
     const auto timelineSettingsModel = qobject_cast<const TimelineSettingsModel *>(index.model());
 
@@ -169,17 +184,17 @@ void TimelineSettingsModel::setupDelegates(QAbstractItemView *view)
     view->setItemDelegate(new TimelineEditorDelegate);
 }
 
-static int propertyValueForState(const ModelNode &modelNode,
+static Utils::optional<int> propertyValueForState(const ModelNode &modelNode,
                                  QmlModelState state,
                                  const PropertyName &propertyName)
 {
     if (!modelNode.isValid())
-        return -1;
+        return {};
 
     if (state.isBaseState()) {
         if (modelNode.hasVariantProperty(propertyName))
             return modelNode.variantProperty(propertyName).value().toInt();
-        return -1;
+        return {};
     }
 
     if (state.hasPropertyChanges(modelNode)) {
@@ -188,7 +203,7 @@ static int propertyValueForState(const ModelNode &modelNode,
             return propertyChanges.modelNode().variantProperty(propertyName).value().toInt();
     }
 
-    return -1;
+    return {};
 }
 
 static QStandardItem *createStateItem(const ModelNode &state)
@@ -216,8 +231,8 @@ void TimelineSettingsModel::addState(const ModelNode &state)
     stateItem->setData(state.internalId());
     stateItem->setFlags(Qt::ItemIsEnabled);
 
-    int fixedValue = propertyValueForState(timeline, state, "currentFrame");
-    fixedFrameItem->setData(fixedValue, Qt::EditRole);
+    auto fixedValue = propertyValueForState(timeline, state, "currentFrame");
+    setDataForFixedFrame(fixedFrameItem, fixedValue);
 
     items.append(stateItem);
     items.append(timelinelItem);
@@ -396,9 +411,9 @@ void TimelineSettingsModel::resetRow(int row)
     }
 
     if (fixedFrameItem) {
-        int fixedValue = propertyValueForState(timeline, modelState, "currentFrame");
+        auto fixedValue = propertyValueForState(timeline, modelState, "currentFrame");
         if (fixedFrameItem->data(Qt::EditRole).toInt() != fixedValue)
-            fixedFrameItem->setData(fixedValue, Qt::EditRole);
+            setDataForFixedFrame(fixedFrameItem, fixedValue);
     }
 
     m_lock = false;
