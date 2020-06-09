@@ -20,7 +20,7 @@ add_qtc_test(unittest GTEST
     Qt5::Xml Qt5::Concurrent Qt5::Qml Qt5::Gui
     Googletest
     clangrefactoringbackend_lib clangbackend_lib clangpchmanagerbackend_lib
-    CPlusPlus Sqlite Utils
+    CPlusPlus Utils
   DEFINES
     UNIT_TESTS
     DONT_CHECK_MESSAGE_COUNTER
@@ -174,6 +174,13 @@ add_qtc_test(unittest GTEST
     sqlitevalue-test.cpp
 )
 
+extend_qtc_test(unittest
+  DEFINES
+    $<TARGET_PROPERTY:Sqlite,INTERFACE_COMPILE_DEFINITIONS>
+  SOURCES
+    ../../../src/libs/3rdparty/sqlite/sqlite3.c
+)
+
 # Do not work on the source directory data
 add_custom_command(TARGET unittest POST_BUILD
   COMMAND "${CMAKE_COMMAND}" -E copy_directory
@@ -289,7 +296,7 @@ extend_qtc_test(unittest
     smallstring-benchmark.cpp
 )
 
-finalize_qtc_gtest(unittest)
+finalize_qtc_gtest(unittest ".c$")
 
 # Path needs to be before CppTools
 target_include_directories(unittest
