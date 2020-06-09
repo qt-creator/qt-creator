@@ -30,6 +30,7 @@
 #include <utils/smallstringvector.h>
 
 #include <chrono>
+#include <functional>
 
 struct sqlite3;
 
