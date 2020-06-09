@@ -37,7 +37,7 @@ public:
     {
         return ToolWrapper::findTool({"ninja", "ninja-build"});
     }
-    static inline QString toolName() { return "Ninja"; };
+    static inline QString toolName() { return {"Ninja"}; };
 };
 
 template<>

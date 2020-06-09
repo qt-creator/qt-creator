@@ -42,13 +42,13 @@ inline QString expand(const ProjectExplorer::Kit *kit, const QString &macro)
 
 inline QString cCompilerPath(const ProjectExplorer::Kit *kit)
 {
-    QTC_ASSERT(kit, return "");
+    QTC_ASSERT(kit, return {});
     return details::expand(kit, "%{Compiler:Executable:C}");
 }
 
 inline QString cxxCompilerPath(const ProjectExplorer::Kit *kit)
 {
-    QTC_ASSERT(kit, return "");
+    QTC_ASSERT(kit, return {});
     return details::expand(kit, "%{Compiler:Executable:Cxx}");
 }
 
@@ -64,7 +64,7 @@ inline QString cmakePath(const ProjectExplorer::Kit *kit)
 
 inline QString qtVersion(const ProjectExplorer::Kit *kit)
 {
-    QTC_ASSERT(kit, return "");
+    QTC_ASSERT(kit, return {});
     return details::expand(kit, "%{Qt:Version}");
 }
 
