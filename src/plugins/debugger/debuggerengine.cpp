@@ -2827,10 +2827,10 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
                     for (auto itExp = globalRegExpSourceMap.begin(), itEnd = globalRegExpSourceMap.end();
                          itExp != itEnd;
                          ++itExp) {
-                        QRegExp exp = itExp->first;
-                        int index = exp.indexIn(string);
-                        if (index != -1) {
-                            rp.sourcePathMap.insert(string.left(index) + exp.cap(1), itExp->second);
+                        const QRegularExpressionMatch match = itExp->first.match(string);
+                        if (match.hasMatch()) {
+                            rp.sourcePathMap.insert(string.left(match.capturedStart()) + match.captured(1),
+                                                    itExp->second);
                             found = true;
                             break;
                         }

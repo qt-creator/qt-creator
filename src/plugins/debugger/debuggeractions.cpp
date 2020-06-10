@@ -87,7 +87,7 @@ void GlobalDebuggerOptions::fromSettings()
              const QString key = s->value(sourcePathMappingSourceKey).toString();
              const QString value = s->value(sourcePathMappingTargetKey).toString();
              if (key.startsWith('('))
-                 sourcePathRegExpMap.append(qMakePair(QRegExp(key), value));
+                 sourcePathRegExpMap.append(qMakePair(QRegularExpression(key), value));
              else
                  sourcePathMap.insert(key, value);
         }

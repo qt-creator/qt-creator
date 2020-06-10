@@ -28,7 +28,7 @@
 #include <QCoreApplication>
 #include <QHash>
 #include <QMap>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QVector>
 
 namespace Utils { class SavedAction; }
@@ -37,7 +37,7 @@ namespace Debugger {
 namespace Internal {
 
 using SourcePathMap = QMap<QString, QString>;
-using SourcePathRegExpMap = QVector<QPair<QRegExp, QString> >;
+using SourcePathRegExpMap = QVector<QPair<QRegularExpression, QString>>;
 
 // Global debugger options that are not stored as saved action.
 class GlobalDebuggerOptions

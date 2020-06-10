@@ -236,7 +236,7 @@ void CommonOptionsPageWidget::apply()
     for (auto it = allPathMap.begin(), end = allPathMap.end(); it != end; ++it) {
         const QString key = it.key();
         if (key.startsWith('('))
-            options->sourcePathRegExpMap.append(qMakePair(QRegExp(key), it.value()));
+            options->sourcePathRegExpMap.append(qMakePair(QRegularExpression(key), it.value()));
         else
             options->sourcePathMap.insert(key, it.value());
     }
