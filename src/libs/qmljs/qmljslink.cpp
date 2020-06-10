@@ -239,6 +239,32 @@ Context::ImportsPerDocument LinkPrivate::linkImports()
     return importsPerDocument;
 }
 
+/**
+ * A workaround for prototype issues with QEasingCurve in Qt 5.15.
+ *
+ * In this Qt version, QEasingCurve is declared in builtins.qmltypes, but its
+ * prototype, QQmlEasingValueType, is only contained in the QtQml module.
+ *
+ * This code attempts to resolve QEasingCurve's prototype if it hasn't been set
+ * already. It's intended to be called after all CppQmlTypes have been loaded.
+ */
+static void workaroundQEasingCurve(CppQmlTypes &cppTypes)
+{
+    const CppComponentValue *easingCurve = cppTypes.objectByCppName("QEasingCurve");
+    if (!easingCurve || easingCurve->prototype())
+        return;
+
+    const QString superclassName = easingCurve->metaObject()->superclassName();
+    if (superclassName.isEmpty())
+        return;
+
+    const CppComponentValue *prototype = cppTypes.objectByCppName(superclassName);
+    if (!prototype)
+        return;
+
+    const_cast<CppComponentValue *>(easingCurve)->setPrototype(prototype);
+}
+
 void LinkPrivate::populateImportedTypes(Imports *imports, const Document::Ptr &doc)
 {
     importableModuleApis.clear();
@@ -287,6 +313,8 @@ void LinkPrivate::populateImportedTypes(Imports *imports, const Document::Ptr &d
         if (import.object)
             imports->append(import);
     }
+
+    workaroundQEasingCurve(m_valueOwner->cppQmlTypes());
 }
 
 /*
