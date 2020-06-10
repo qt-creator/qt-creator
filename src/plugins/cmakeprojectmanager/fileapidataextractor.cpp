@@ -581,6 +581,8 @@ std::pair<std::unique_ptr<CMakeProjectNode>, QSet<FilePath>> generateRootProject
         = findOrDefault(data.codemodel.projects, equal(&FileApiDetails::Project::parent, -1));
     if (!topLevelProject.name.isEmpty())
         result.first->setDisplayName(topLevelProject.name);
+    else
+        result.first->setDisplayName(sourceDirectory.fileName());
 
     QHash<FilePath, ProjectNode *> cmakeListsNodes = addCMakeLists(result.first.get(),
                                                                    std::move(data.cmakeListNodes));
