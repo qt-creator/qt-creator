@@ -144,7 +144,8 @@ bool MesonProjectParser::configure(const Utils::FilePath &sourcePath,
     auto cmd = MesonTools::mesonWrapper(m_meson)->configure(sourcePath, buildPath, args);
     // see comment near m_pendingCommands declaration
     m_pendingCommands.enqueue(
-        {MesonTools::mesonWrapper(m_meson)->regenerate(sourcePath, buildPath), false});
+        std::make_tuple(MesonTools::mesonWrapper(m_meson)->regenerate(sourcePath, buildPath),
+                        false));
     return m_process.run(cmd, m_env, m_projectName);
 }
 

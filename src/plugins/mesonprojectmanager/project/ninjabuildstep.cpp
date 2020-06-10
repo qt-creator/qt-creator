@@ -118,10 +118,10 @@ QString NinjaBuildStep::defaultBuildTarget() const
     QTC_ASSERT(bsl, return {});
     const Core::Id parentId = bsl->id();
     if (parentId == ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
-        return Constants::Targets::clean;
+        return {Constants::Targets::clean};
     if (parentId == ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
-        return Constants::Targets::install;
-    return Constants::Targets::all;
+        return {Constants::Targets::install};
+    return {Constants::Targets::all};
 }
 
 void NinjaBuildStep::doRun()
