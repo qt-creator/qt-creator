@@ -347,9 +347,9 @@ SynchronousProcessResponse ShellCommand::runCommand(const CommandLine &command, 
         // Success/Fail message in appropriate window?
         if (response.result == SynchronousProcessResponse::Finished) {
             if (d->m_flags & ShowSuccessMessage)
-                emit proxy->appendMessage(response.exitMessage(command.toUserOutput(), timeoutS));
+                emit proxy->appendMessage(response.exitMessage(command.executable().toUserOutput(), timeoutS));
         } else if (!(d->m_flags & SuppressFailMessage)) {
-            emit proxy->appendError(response.exitMessage(command.toUserOutput(), timeoutS));
+            emit proxy->appendError(response.exitMessage(command.executable().toUserOutput(), timeoutS));
         }
     }
 
