@@ -384,7 +384,7 @@ extend_qtc_target(unittest
     refactoringprojectupdater.cpp refactoringprojectupdater.h
     searchinterface.h
     searchhandle.cpp searchhandle.h
-    symbolsfindfilter.cpp symbolsfindfilter.h
+    clangsymbolsfindfilter.cpp clangsymbolsfindfilter.h
     symbolqueryinterface.h
     symbol.h
     projectpartproviderinterface.h
