@@ -33,6 +33,7 @@
 #include <QHash>
 #include <QJsonArray>
 #include <QMap>
+#include <QRegularExpression>
 #include <QTextBlock>
 #include <QTextDocument>
 #include <QVector>
