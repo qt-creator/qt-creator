@@ -23,6 +23,9 @@
 **
 ****************************************************************************/
 
+#include "gtest-llvm-printing.h"
+#include "gtest-std-printing.h"
+
 #include <gtest/gtest-printers.h>
 
 #include <utils/smallstringio.h>

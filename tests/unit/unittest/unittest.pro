@@ -230,6 +230,7 @@ HEADERS += \
     gtest-creator-printing.h \
     gtest-llvm-printing.h \
     gtest-qt-printing.h \
+    gtest-std-printing.h \
     mimedatabase-utilities.h \
     mockclangcodemodelclient.h \
     mockclangcodemodelserver.h \

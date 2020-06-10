@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "gtest-creator-printing.h"
+#include "gtest-std-printing.h"
 
 #include "gtest-qt-printing.h"
 

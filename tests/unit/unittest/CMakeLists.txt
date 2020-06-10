@@ -62,6 +62,7 @@ add_qtc_test(unittest GTEST
     gtest-creator-printing.cpp gtest-creator-printing.h
     gtest-llvm-printing.h
     gtest-qt-printing.cpp gtest-qt-printing.h
+    gtest-std-printing.h
     headerpathfilter-test.cpp
     highlightingresultreporter-test.cpp
     lineprefixer-test.cpp
