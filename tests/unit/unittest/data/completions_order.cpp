@@ -26,3 +26,16 @@ void testPriorities() {
     DifferentPriorities d;
     d.
 }
+
+class LexicographicalSorting
+{
+public:
+    void memberFuncBB();
+    void memberFuncC();
+    void memberFuncAAA();
+};
+
+void testLexicographicalSorting() {
+    LexicographicalSorting ls;
+    ls.memberFunc
+}

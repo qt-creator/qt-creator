@@ -146,8 +146,14 @@ static void sortCodeCompletions(CodeCompletions &codeCompletions)
         if (first.requiredFixIts.empty() != second.requiredFixIts.empty())
             return first.requiredFixIts.empty() > second.requiredFixIts.empty();
 
-        return std::tie(first.priority, first.text, first.completionKind)
-                < std::tie(second.priority, second.text, second.completionKind);
+        if (first.priority != second.priority)
+            return first.priority < second.priority;
+
+        const int textCmp = first.text.toString().compare(second.text);
+        if (textCmp != 0)
+            return textCmp < 0;
+
+        return first.completionKind < second.completionKind;
     };
 
     // Keep the order for the items with the same priority and name.

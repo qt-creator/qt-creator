@@ -647,6 +647,26 @@ TEST_F(CodeCompleterSlowTest, FunctionOverloadsWithoutDotOrArrowOrder)
     ASSERT_THAT(abs(firstIndex - secondIndex), 1);
 }
 
+TEST_F(CodeCompleterSlowTest, LexicographicalSorting)
+{
+    auto myCompleter = setupCompleter(completionsOrder);
+    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(40, 18);
+
+    const int funcAIndex = Utils::indexOf(completions, [](const CodeCompletion &codeCompletion) {
+        return codeCompletion.text == "memberFuncAAA";
+    });
+    const int funcBIndex = Utils::indexOf(completions, [](const CodeCompletion &codeCompletion) {
+        return codeCompletion.text == "memberFuncBB";
+    });
+    const int funcCIndex = Utils::indexOf(completions, [](const CodeCompletion &codeCompletion) {
+        return codeCompletion.text == "memberFuncC";
+    });
+
+    ASSERT_NE(funcAIndex, -1);
+    ASSERT_EQ(funcBIndex, funcAIndex + 1);
+    ASSERT_EQ(funcCIndex, funcAIndex + 2);
+}
+
 ClangBackEnd::CodeCompleter CodeCompleter::setupCompleter(
         const ClangBackEnd::FileContainer &fileContainer)
 {
