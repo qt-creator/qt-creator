@@ -40,9 +40,6 @@ class Database;
 class SQLITE_EXPORT DatabaseBackend
 {
 public:
-    using UpdateCallback
-        = std::function<void(ChangeType type, char const *, char const *, long long)>;
-
     DatabaseBackend(Database &database);
     ~DatabaseBackend();
 

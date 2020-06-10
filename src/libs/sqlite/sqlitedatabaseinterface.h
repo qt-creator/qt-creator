@@ -29,15 +29,10 @@
 
 #include "sqliteglobal.h"
 
-#include <functional>
-
 namespace Sqlite {
 class DatabaseInterface
 {
 public:
-    using UpdateCallback
-        = std::function<void(ChangeType type, char const *, char const *, long long)>;
-
     virtual void walCheckpointFull() = 0;
     virtual void execute(Utils::SmallStringView sqlStatement) = 0;
     virtual void setUpdateHook(

@@ -39,6 +39,8 @@
 #include <QTemporaryFile>
 #include <QVariant>
 
+#include <functional>
+
 namespace {
 
 using testing::Contains;
@@ -89,7 +91,8 @@ protected:
     mutable Sqlite::Database database;
     Sqlite::TransactionInterface &transactionInterface = database;
     MockFunction<void(Sqlite::ChangeType tupe, char const *, char const *, long long)> callbackMock;
-    Sqlite::Database::UpdateCallback callback = callbackMock.AsStdFunction();
+    std::function<void(Sqlite::ChangeType tupe, char const *, char const *, long long)>
+        callback = callbackMock.AsStdFunction();
 };
 
 TEST_F(SqliteDatabase, SetDatabaseFilePath)
@@ -250,7 +253,6 @@ TEST_F(SqliteDatabase, SetUpdateHookSet)
 TEST_F(SqliteDatabase, SetNullUpdateHook)
 {
     database.setUpdateHook(this, updateHookCallback);
-    Sqlite::Database::UpdateCallback newCallback;
 
     database.setUpdateHook(nullptr, nullptr);
 
