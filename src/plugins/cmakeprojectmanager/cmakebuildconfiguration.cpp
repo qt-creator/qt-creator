@@ -283,7 +283,13 @@ QStringList CMakeBuildConfiguration::extraCMakeArguments() const
 
 QStringList CMakeBuildConfiguration::initialCMakeArguments() const
 {
-    return aspect<InitialCMakeArgumentsAspect>()->value().split('\n', Qt::SkipEmptyParts);
+    return aspect<InitialCMakeArgumentsAspect>()->value().split('\n',
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+                                                                QString::SkipEmptyParts
+#else
+                                                                Qt::SkipEmptyParts
+#endif
+                                                                );
 }
 
 void CMakeBuildConfiguration::setExtraCMakeArguments(const QStringList &args)
