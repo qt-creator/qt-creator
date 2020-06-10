@@ -607,14 +607,11 @@ TEST_F(CodeCompleterSlowTest, FunctionOverloadsNoParametersOrder)
     auto myCompleter = setupCompleter(completionsOrder);
     const ClangBackEnd::CodeCompletions completions = myCompleter.complete(27, 7);
 
-    int firstIndex = Utils::indexOf(completions, [](const CodeCompletion &codeCompletion) {
+    const int fooCount = Utils::count(completions, [](const CodeCompletion &codeCompletion) {
         return codeCompletion.text == "foo";
     });
-    int secondIndex = Utils::indexOf(completions, [i = 0, firstIndex](const CodeCompletion &codeCompletion) mutable {
-        return (i++) > firstIndex && codeCompletion.text == "foo";
-    });
 
-    ASSERT_THAT(abs(firstIndex - secondIndex), 1);
+    ASSERT_THAT(fooCount, 1);
 }
 
 TEST_F(CodeCompleterSlowTest, FunctionOverloadsWithParametersOrder)
