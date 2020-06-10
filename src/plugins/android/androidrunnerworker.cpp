@@ -54,6 +54,7 @@
 #include <QFileInfo>
 #include <QLoggingCategory>
 #include <QScopeGuard>
+#include <QRegularExpression>
 #include <QTcpServer>
 #include <QThread>
 
@@ -77,20 +78,19 @@ static const QString pidScriptPreNougat = QStringLiteral("for p in /proc/[0-9]*;
                                                 "do cat <$p/cmdline && echo :${p##*/}; done");
 static const QString pidPollingScript = QStringLiteral("while [ -d /proc/%1 ]; do sleep 1; done");
 
-static const QString regExpLogcat = QStringLiteral("[0-9\\-]*"  // date
-                                                  "\\s+"
-                                                  "[0-9\\-:.]*"// time
-                                                  "\\s*"
-                                                  "(\\d*)"     // pid           1. capture
-                                                  "\\s+"
-                                                  "\\d*"       // unknown
-                                                  "\\s+"
-                                                  "(\\w)"      // message type  2. capture
-                                                  "\\s+"
-                                                  "(.*): "     // source        3. capture
-                                                  "(.*)"       // message       4. capture
-                                                  "[\\n\\r]*"
-                                                 );
+static const QRegularExpression regExpLogcat{"^[0-9\\-]*" // date
+                                             "\\s+"
+                                             "[0-9\\-:.]*"// time
+                                             "\\s*"
+                                             "(\\d*)"     // pid           1. capture
+                                             "\\s+"
+                                             "\\d*"       // unknown
+                                             "\\s+"
+                                             "(\\w)"      // message type  2. capture
+                                             "\\s+"
+                                             "(.*): "     // source        3. capture
+                                             "(.*)"       // message       4. capture
+                                             "[\\n\\r]*$"};
 static int APP_START_TIMEOUT = 45000;
 
 static bool isTimedOut(const chrono::high_resolution_clock::time_point &start,
@@ -242,7 +242,6 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     : m_packageName(packageName)
     , m_adbLogcatProcess(nullptr, deleter)
     , m_psIsAlive(nullptr, deleter)
-    , m_logCatRegExp(regExpLogcat)
     , m_debugServerProcess(nullptr, deleter)
     , m_jdbProcess(nullptr, deleter)
 
@@ -457,11 +456,12 @@ void AndroidRunnerWorker::logcatProcess(const QByteArray &text, QByteArray &buff
                 break;
             }
         }
-        if (m_logCatRegExp.exactMatch(line)) {
+        const QRegularExpressionMatch match = regExpLogcat.match(line);
+        if (match.hasMatch()) {
             // Android M
-            if (m_logCatRegExp.cap(1) == pidString) {
-                const QString &messagetype = m_logCatRegExp.cap(2);
-                QString output = line.mid(m_logCatRegExp.pos(2));
+            if (match.captured(1) == pidString) {
+                const QString messagetype = match.captured(2);
+                const QString output = line.mid(match.capturedStart(2));
 
                 if (onlyError
                         || messagetype == QLatin1String("F")

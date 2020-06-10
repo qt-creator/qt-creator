@@ -97,7 +97,6 @@ private:
     std::unique_ptr<QProcess, Deleter> m_psIsAlive;
     QByteArray m_stdoutBuffer;
     QByteArray m_stderrBuffer;
-    QRegExp m_logCatRegExp;
     QFuture<qint64> m_pidFinder;
     bool m_useCppDebugger = false;
     bool m_useLldb = false; // FIXME: Un-implemented currently.
