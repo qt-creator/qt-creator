@@ -316,14 +316,6 @@ bool PluginSpec::isRequired() const
 }
 
 /*!
-    Returns whether the plugin is hidden by default.
-*/
-bool PluginSpec::isHiddenByDefault() const
-{
-    return d->hiddenByDefault;
-}
-
-/*!
     Returns whether the plugin has its experimental flag set.
 */
 bool PluginSpec::isExperimental() const
@@ -554,7 +546,6 @@ namespace {
     const char PLUGIN_VERSION[] = "Version";
     const char PLUGIN_COMPATVERSION[] = "CompatVersion";
     const char PLUGIN_REQUIRED[] = "Required";
-    const char PLUGIN_HIDDEN_BY_DEFAULT[] = "HiddenByDefault";
     const char PLUGIN_EXPERIMENTAL[] = "Experimental";
     const char PLUGIN_DISABLED_BY_DEFAULT[] = "DisabledByDefault";
     const char VENDOR[] = "Vendor";
@@ -743,12 +734,6 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
         return reportError(msgValueIsNotABool(PLUGIN_REQUIRED));
     required = value.toBool(false);
     qCDebug(pluginLog) << "required =" << required;
-
-    value = metaData.value(QLatin1String(PLUGIN_HIDDEN_BY_DEFAULT));
-    if (!value.isUndefined() && !value.isBool())
-        return reportError(msgValueIsNotABool(PLUGIN_HIDDEN_BY_DEFAULT));
-    hiddenByDefault = value.toBool(false);
-    qCDebug(pluginLog) << "hiddenByDefault =" << hiddenByDefault;
 
     value = metaData.value(QLatin1String(PLUGIN_EXPERIMENTAL));
     if (!value.isUndefined() && !value.isBool())
