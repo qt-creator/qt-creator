@@ -72,6 +72,7 @@
 #include <QListView>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QScrollArea>
 #include <QSpinBox>
 #include <QTimer>
@@ -85,12 +86,12 @@ using namespace Android;
 using namespace Android::Internal;
 
 namespace {
-const QLatin1String packageNameRegExp("^([a-z]{1}[a-z0-9_]+(\\.[a-zA-Z]{1}[a-zA-Z0-9_]*)*)$");
 const char infoBarId[] = "Android.AndroidManifestEditor.InfoBar";
 
 bool checkPackageName(const QString &packageName)
 {
-    return QRegExp(packageNameRegExp).exactMatch(packageName);
+    const QLatin1String packageNameRegExp("^([a-z]{1}[a-z0-9_]+(\\.[a-zA-Z]{1}[a-zA-Z0-9_]*)*)$");
+    return QRegularExpression(packageNameRegExp).match(packageName).hasMatch();
 }
 
 Target *androidTarget(const Utils::FilePath &fileName)
