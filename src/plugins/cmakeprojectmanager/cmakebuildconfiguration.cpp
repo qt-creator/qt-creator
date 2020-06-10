@@ -322,22 +322,6 @@ void CMakeBuildConfiguration::clearError(ForceEnabledChanged fec)
     }
 }
 
-static CMakeConfig removeDuplicates(const CMakeConfig &config)
-{
-    CMakeConfig result;
-    // Remove duplicates (last value wins):
-    QSet<QByteArray> knownKeys;
-    for (int i = config.count() - 1; i >= 0; --i) {
-        const CMakeConfigItem &item = config.at(i);
-        if (knownKeys.contains(item.key))
-            continue;
-        result.append(item);
-        knownKeys.insert(item.key);
-    }
-    Utils::sort(result, CMakeConfigItem::sortOperator());
-    return result;
-}
-
 void CMakeBuildConfiguration::setInitialCMakeArguments(const QStringList &args)
 {
     aspect<InitialCMakeArgumentsAspect>()->setValue(args.join('\n'));
