@@ -57,6 +57,12 @@ public:
           fixIts(fixIts),
           severity(severity)
     {
+        for (auto it = this->children.begin(); it != this->children.end(); ++it) {
+            if (it->text == "note: remove constant to silence this warning") {
+                this->children.erase(it);
+                break;
+            }
+        }
     }
 
     friend QDataStream &operator<<(QDataStream &out, const DiagnosticContainer &container)
