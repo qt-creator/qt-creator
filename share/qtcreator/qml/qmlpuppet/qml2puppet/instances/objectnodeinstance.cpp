@@ -768,7 +768,8 @@ QObject *ObjectNodeInstance::createComponent(const QString &componentPath, QQmlC
             qWarning() << error;
     }
 
-    object->setProperty("__designer_url__", QUrl::fromLocalFile(componentPath));
+    if (object)
+        object->setProperty("__designer_url__", QUrl::fromLocalFile(componentPath));
 
     return object;
 }
