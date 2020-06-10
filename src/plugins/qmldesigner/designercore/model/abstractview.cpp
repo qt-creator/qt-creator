@@ -833,8 +833,10 @@ static int getMajorVersionFromImport(const Model *model)
 static int getMajorVersionFromNode(const ModelNode &modelNode)
 {
     if (modelNode.metaInfo().isValid()) {
-        foreach (const NodeMetaInfo &info,  modelNode.metaInfo().classHierarchy()) {
-            if (info.typeName() == "QtQuick.QtObject" || info.typeName() == "QtQuick.Item")
+        for (const NodeMetaInfo &info :  modelNode.metaInfo().classHierarchy()) {
+            if (info.typeName() == "QtQml.QtObject"
+                    || info.typeName() == "QtQuick.QtObject"
+                    || info.typeName() == "QtQuick.Item")
                 return info.majorVersion();
         }
     }
