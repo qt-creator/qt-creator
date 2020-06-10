@@ -51,17 +51,17 @@ inline QString mesonBuildTypeDisplayName(MesonBuildType type)
 {
     switch (type) {
     case MesonBuildType::plain:
-        return "Plain";
+        return {"Plain"};
     case MesonBuildType::debug:
-        return "Debug";
+        return {"Debug"};
     case MesonBuildType::debugoptimized:
-        return "Debug With Optimizations";
+        return {"Debug With Optimizations"};
     case MesonBuildType::release:
-        return "Release";
+        return {"Release"};
     case MesonBuildType::minsize:
-        return "Minimum Size";
+        return {"Minimum Size"};
     default:
-        return "Custom";
+        return {"Custom"};
     }
 }
 
