@@ -69,6 +69,7 @@
 #include "variantproperty.h"
 #include "view3dactioncommand.h"
 
+#include <designersettings.h>
 #include <metainfo.h>
 #include <model.h>
 #include <modelnode.h>
@@ -540,7 +541,9 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
             }
         }
     } else if (node.isRootNode() && name == "language@Internal") {
-        nodeInstanceServer()->changeLanguage({value.toString()});
+        const QString languageAsString = value.toString();
+        DesignerSettings::setValue(DesignerSettingsKey::LAST_USED_TRANSLATION_LANGUAGE, languageAsString);
+        nodeInstanceServer()->changeLanguage({languageAsString});
     } else if (node.isRootNode() && name == "previewSize@Internal") {
         nodeInstanceServer()->changePreviewImageSize(value.toSize());
     }
@@ -982,16 +985,19 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     }
 
 
-    return CreateSceneCommand(instanceContainerList,
-                              reparentContainerList,
-                              idContainerList,
-                              valueContainerList,
-                              bindingContainerList,
-                              auxiliaryContainerVector,
-                              importVector,
-                              mockupTypesVector,
-                              model()->fileUrl(),
-                              m_edit3DToolStates[model()->fileUrl()]);
+    return CreateSceneCommand(
+                instanceContainerList,
+                reparentContainerList,
+                idContainerList,
+                valueContainerList,
+                bindingContainerList,
+                auxiliaryContainerVector,
+                importVector,
+                mockupTypesVector,
+                model()->fileUrl(),
+                m_edit3DToolStates[model()->fileUrl()],
+                DesignerSettings::getValue(DesignerSettingsKey::LAST_USED_TRANSLATION_LANGUAGE).toString()
+                );
 }
 
 ClearSceneCommand NodeInstanceView::createClearSceneCommand() const

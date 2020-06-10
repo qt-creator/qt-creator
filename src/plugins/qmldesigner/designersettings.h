@@ -68,6 +68,7 @@ const char ENABLE_TIMELINEVIEW[] = "EnableTimelineView";
 const char SIMPLE_COLOR_PALETTE_CONTENT[] = "SimpleColorPaletteContent";
 const char ALWAYS_DESIGN_MODE[] = "AlwaysDesignMode";
 const char DISABLE_ITEM_LIBRARY_UPDATE_TIMER[] = "DisableItemLibraryUpdateTimer";
+const char LAST_USED_TRANSLATION_LANGUAGE[] = "LastUsedTranslationLanguage";
 }
 
 class DesignerSettings : public QHash<QByteArray, QVariant>
