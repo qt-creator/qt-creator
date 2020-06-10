@@ -31,7 +31,10 @@
 
 #include <QWidget>
 
-namespace Utils { class TreeView; }
+namespace Utils {
+class CategorySortFilterModel;
+class TreeView;
+} // Utils
 
 namespace ExtensionSystem {
 
@@ -39,7 +42,6 @@ class PluginSpec;
 
 namespace Internal {
 class CollectionItem;
-class PluginFilterModel;
 class PluginItem;
 } // Internal
 
@@ -53,8 +55,6 @@ public:
 
     PluginSpec *currentPlugin() const;
     void setFilter(const QString &filter);
-    void setShowHidden(bool showHidden);
-    bool isShowingHidden() const;
 
 signals:
     void currentPluginChanged(ExtensionSystem::PluginSpec *spec);
@@ -68,7 +68,7 @@ private:
 
     Utils::TreeView *m_categoryView;
     Utils::TreeModel<Utils::TreeItem, Internal::CollectionItem, Internal::PluginItem> *m_model;
-    Internal::PluginFilterModel *m_sortModel;
+    Utils::CategorySortFilterModel *m_sortModel;
 
     friend class Internal::CollectionItem;
     friend class Internal::PluginItem;
