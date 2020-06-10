@@ -53,11 +53,15 @@ private:
     void updateBuildFileAction();
     void enableBuildFileMenus(ProjectExplorer::Node *node);
 
+    // Debugging helper:
+    void parseAndValidateCMakeReplyFile();
+
     QAction *m_runCMakeAction;
     QAction *m_clearCMakeCacheAction;
     QAction *m_runCMakeActionContextMenu;
     QAction *m_rescanProjectAction;
     QAction *m_buildFileContextMenu;
+    QAction *m_parseAndValidateCMakeReplyFileAction;
     Utils::ParameterAction *m_buildFileAction;
 };
 

@@ -30,11 +30,13 @@
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectnodes.h"
+#include "fileapiparser.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
@@ -46,15 +48,19 @@
 #include <utils/parameteraction.h>
 
 #include <QAction>
+#include <QFileDialog>
+#include <QMessageBox>
 
 using namespace ProjectExplorer;
 using namespace CMakeProjectManager::Internal;
 
-CMakeManager::CMakeManager() :
-    m_runCMakeAction(new QAction(QIcon(), tr("Run CMake"), this)),
-    m_clearCMakeCacheAction(new QAction(QIcon(), tr("Clear CMake Configuration"), this)),
-    m_runCMakeActionContextMenu(new QAction(QIcon(), tr("Run CMake"), this)),
-    m_rescanProjectAction(new QAction(QIcon(), tr("Rescan Project"), this))
+CMakeManager::CMakeManager()
+    : m_runCMakeAction(new QAction(QIcon(), tr("Run CMake"), this))
+    , m_clearCMakeCacheAction(new QAction(QIcon(), tr("Clear CMake Configuration"), this))
+    , m_runCMakeActionContextMenu(new QAction(QIcon(), tr("Run CMake"), this))
+    , m_rescanProjectAction(new QAction(QIcon(), tr("Rescan Project"), this))
+    , m_parseAndValidateCMakeReplyFileAction(
+          new QAction(QIcon(), tr("Parse and verify a CMake reply file"), this))
 {
     Core::ActionContainer *mbuild =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
@@ -125,6 +131,13 @@ CMakeManager::CMakeManager() :
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+B")));
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
     connect(m_buildFileAction, &QAction::triggered, this, [this] { buildFile(); });
+
+    command = Core::ActionManager::registerAction(m_parseAndValidateCMakeReplyFileAction,
+                                                  "CMakeProject.Debug.ParseAndVerifyReplyFile");
+    connect(m_parseAndValidateCMakeReplyFileAction,
+            &QAction::triggered,
+            this,
+            &CMakeManager::parseAndValidateCMakeReplyFile);
 
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
             this, &CMakeManager::updateCmakeActions);
@@ -212,6 +225,29 @@ void CMakeManager::enableBuildFileMenus(Node *node)
         m_buildFileAction->setParameter(node->filePath().fileName());
         m_buildFileContextMenu->setEnabled(enabled);
     }
+}
+
+void CMakeManager::parseAndValidateCMakeReplyFile()
+{
+    QString replyFile = QFileDialog::getOpenFileName(Core::ICore::mainWindow(),
+                                                     tr("Select a CMake reply file"),
+                                                     QString(),
+                                                     QString("index*.json"));
+    if (replyFile.isEmpty())
+        return;
+
+    QString errorMessage;
+    auto result = FileApiParser::parseData(QFileInfo(replyFile), errorMessage);
+
+    const QString message
+        = errorMessage.isEmpty()
+              ? tr("The reply file \"%1\" and referenced data parsed OK and passed validation.")
+                    .arg(QDir::toNativeSeparators(replyFile))
+              : tr("The reply file \"%1\" failed to parse or validate with error "
+                   "message:<br><b>\"%2\"</b>")
+                    .arg(QDir::toNativeSeparators(replyFile))
+                    .arg(errorMessage);
+    QMessageBox::information(Core::ICore::mainWindow(), tr("Parsing Result"), message);
 }
 
 void CMakeManager::buildFile(Node *node)
