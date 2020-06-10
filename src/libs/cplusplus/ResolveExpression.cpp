@@ -849,22 +849,14 @@ bool ResolveExpression::visit(CallAST *ast)
                 int score = 0;
 
                 for (unsigned i = 0, argc = funTy->argumentCount(); i < argc; ++i) {
+                    if (i >= unsigned(arguments.size()))
+                        break;
+
                     const FullySpecifiedType formalTy = funTy->argumentAt(i)->type();
-
-                    FullySpecifiedType actualTy;
-                    if (i < unsigned(arguments.size())) {
-                        const QList<LookupItem> actual = arguments.at(i);
-                        if (actual.isEmpty())
-                            continue;
-
-                        actualTy = actual.first().type();
-                    } else {
-                        actualTy = formalTy;
-                        score += 2;
+                    const QList<LookupItem> actual = arguments.at(i);
+                    if (actual.isEmpty())
                         continue;
-                    }
-
-                    score += evaluateFunctionArgument(actualTy, formalTy);
+                    score += evaluateFunctionArgument(actual.first().type(), formalTy);
                 }
 
                 sortedResults.insert(LookupMap::value_type(-score, base));

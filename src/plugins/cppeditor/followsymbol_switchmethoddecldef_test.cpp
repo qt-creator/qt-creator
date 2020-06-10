@@ -979,6 +979,12 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
         "template<class $T>\n"
         "using Foo = Bar<@T>;\n"
     );
+
+    QTest::newRow("shadowed overload with default args") << _(
+        "struct Parent { void disconnect(int n = 0); };\n"
+        "struct Child : public Parent { void $disconnect(); };\n"
+        "void test() { Child c; c.@disconnect(); }\n"
+    );
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor()
