@@ -373,7 +373,6 @@ TEST_F(PchCreatorVerySlowTest, FaultyProjectPartPchForCreatesFaultyPchForPchTask
         {},
         {{"DEFINE", "1", 1}},
         {},
-        {},
         {{TESTDATA_DIR "/builddependencycollector/external", 1, IncludeSearchPathType::System}},
         {{TESTDATA_DIR "/builddependencycollector/project", 1, IncludeSearchPathType::User}}};
 
