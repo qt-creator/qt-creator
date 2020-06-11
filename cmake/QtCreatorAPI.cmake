@@ -655,6 +655,11 @@ function(add_qtc_test name)
   update_cached_list(__QTC_TESTS "${name}")
 
   set(TEST_DEFINES SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
+
+  # relax cast requirements for tests
+  set(default_defines_copy ${DEFAULT_DEFINES})
+  list(REMOVE_ITEM default_defines_copy QT_NO_CAST_TO_ASCII QT_RESTRICTED_CAST_FROM_ASCII)
+
   file(RELATIVE_PATH _RPATH "/${IDE_BIN_PATH}" "/${IDE_LIBRARY_PATH}")
 
   add_executable(${name} ${_arg_SOURCES})
@@ -662,7 +667,7 @@ function(add_qtc_test name)
   extend_qtc_target(${name}
     DEPENDS ${_arg_DEPENDS} ${IMPLICIT_DEPENDS}
     INCLUDES "${CMAKE_BINARY_DIR}/src" ${_arg_INCLUDES}
-    DEFINES ${_arg_DEFINES} ${TEST_DEFINES} ${DEFAULT_DEFINES}
+    DEFINES ${_arg_DEFINES} ${TEST_DEFINES} ${default_defines_copy}
     EXPLICIT_MOC ${_arg_EXPLICIT_MOC}
     SKIP_AUTOMOC ${_arg_SKIP_AUTOMOC}
   )

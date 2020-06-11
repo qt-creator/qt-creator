@@ -22,6 +22,8 @@ add_qtc_test(unittest GTEST
     clangrefactoringbackend_lib clangbackend_lib clangpchmanagerbackend_lib
     CPlusPlus Utils
   DEFINES
+    QT_NO_CAST_TO_ASCII
+    QT_RESTRICTED_CAST_FROM_ASCII
     UNIT_TESTS
     DONT_CHECK_MESSAGE_COUNTER
     QTC_RESOURCE_DIR="${PROJECT_SOURCE_DIR}/share/qtcreator"
