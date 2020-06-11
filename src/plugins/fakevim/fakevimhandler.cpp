@@ -64,6 +64,7 @@
 #include <QPointer>
 #include <QProcess>
 #include <QRegExp>
+#include <QRegularExpression>
 #include <QTextStream>
 #include <QTimer>
 #include <QStack>
@@ -8436,7 +8437,7 @@ bool FakeVimHandler::Private::changeNumberTextObject(int count)
 
     // convert hexadecimal number to upper-case if last letter was upper-case
     if (hex) {
-        const int lastLetter = num.lastIndexOf(QRegExp("[a-fA-F]"));
+        const int lastLetter = num.lastIndexOf(QRegularExpression("[a-fA-F]"));
         if (lastLetter != -1 && num[lastLetter].isUpper())
             repl = repl.toUpper();
     }
