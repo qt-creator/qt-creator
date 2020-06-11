@@ -25,7 +25,8 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include <qmldesignercorelib_global.h>
+
 #include <QHash>
 #include <QVariant>
 #include <QByteArray>
@@ -71,7 +72,7 @@ const char DISABLE_ITEM_LIBRARY_UPDATE_TIMER[] = "DisableItemLibraryUpdateTimer"
 const char LAST_USED_TRANSLATION_LANGUAGE[] = "LastUsedTranslationLanguage";
 }
 
-class DesignerSettings : public QHash<QByteArray, QVariant>
+class QMLDESIGNERCORE_EXPORT DesignerSettings : public QHash<QByteArray, QVariant>
 {
 public:
     DesignerSettings();

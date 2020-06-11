@@ -27,6 +27,7 @@
 #include "qmlpreviewactions.h"
 
 #include <zoomaction.h>
+#include <designersettings.h>
 
 #include <utils/utilsicons.h>
 #include <projectexplorer/projectexplorer.h>
@@ -48,8 +49,8 @@ static void handleAction(const SelectionContext &context)
 {
     if (context.view()->isAttached()) {
         if (context.toggled()) {
+            QmlPreviewPlugin::setLanguageLocale(DesignerSettings::getValue(DesignerSettingsKey::LAST_USED_TRANSLATION_LANGUAGE).toString());
             ProjectExplorerPlugin::runStartupProject(Constants::QML_PREVIEW_RUN_MODE);
-            QmlPreviewPlugin::setQmlFile();
         } else {
             QmlPreviewPlugin::stopAllRunControls();
         }
