@@ -129,7 +129,7 @@ void FormEditorItem::setup()
 
 QRectF FormEditorItem::boundingRect() const
 {
-    return m_boundingRect.adjusted(-2, -2, 2, 2);
+    return m_boundingRect;
 }
 
 QPainterPath FormEditorItem::shape() const
@@ -150,7 +150,7 @@ void FormEditorItem::updateGeometry()
     prepareGeometryChange();
     m_selectionBoundingRect = qmlItemNode().instanceBoundingRect().adjusted(0, 0, 1., 1.);
     m_paintedBoundingRect = qmlItemNode().instancePaintedBoundingRect();
-    m_boundingRect = m_paintedBoundingRect.united(m_selectionBoundingRect);
+    m_boundingRect = qmlItemNode().instanceBoundingRect();
     setTransform(qmlItemNode().instanceTransformWithContentTransform());
     // the property for zValue is called z in QGraphicsObject
     if (qmlItemNode().instanceValue("z").isValid() && !qmlItemNode().isRootModelNode())
