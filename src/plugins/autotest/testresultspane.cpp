@@ -271,7 +271,7 @@ static void checkAndFineTuneColors(QTextCharFormat *format)
 void TestResultsPane::addOutputLine(const QByteArray &outputLine, OutputChannel channel)
 {
     if (!QTC_GUARD(!outputLine.contains('\n'))) {
-        for (auto line : outputLine.split('\n'))
+        for (const auto &line : outputLine.split('\n'))
             addOutputLine(line, channel);
         return;
     }

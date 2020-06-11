@@ -373,10 +373,10 @@ int TestResultModel::resultTypeCount(ResultType type) const
 {
     int result = 0;
 
-    for (auto resultsForId : m_testResultCount.values())
+    for (const auto &resultsForId : m_testResultCount.values())
         result += resultsForId.value(type, 0);
 
-    for (auto id : m_reportedSummary.keys()) {
+    for (const auto &id : m_reportedSummary.keys()) {
         if (int counted = m_testResultCount.value(id).value(type))
             result -= counted;
         result += m_reportedSummary[id].value(type);

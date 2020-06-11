@@ -519,7 +519,7 @@ static void processOutput(TestOutputReader *outputreader, const QString &msg,
             message = message.mid(gdbSpecialOut.length() + 1);
         message.chop(1); // all messages have an additional \n at the end
 
-        for (auto line : message.split('\n')) {
+        for (const auto &line : message.split('\n')) {
             if (format == Utils::OutputFormat::StdOutFormat)
                 outputreader->processStdOutput(line);
             else

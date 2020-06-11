@@ -69,7 +69,7 @@ static QStringList filterInterfering(const QStringList &provided, QStringList *o
 
     QStringList allowed;
     bool filterNext = false;
-    for (auto arg : provided) {
+    for (const auto &arg : provided) {
         bool interferes = false;
         if (filterNext) {
             omitted->append(arg);

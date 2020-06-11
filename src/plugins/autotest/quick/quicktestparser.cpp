@@ -207,7 +207,7 @@ static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr
             parseResult->column = testCase.m_locationAndType.m_column;
         }
 
-        for (auto function : testCase.m_functions) {
+        for (const auto &function : testCase.m_functions) {
             QuickTestParseResult *funcResult = new QuickTestParseResult(framework);
             funcResult->name = function.m_functionName;
             funcResult->displayName = function.m_functionName;
