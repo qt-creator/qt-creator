@@ -817,16 +817,16 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
                                       gitCloneCommand.toUserOutput();
 
     QDir openSslDir(openSslPath.toString());
-    if (openSslDir.exists()) {
-        auto userInput = QMessageBox::information(this, openSslCloneTitle,
-            tr("The selected download path (%1) for OpenSSL already exists. "
-               "Remove and overwrite its content?")
-                .arg(QDir::toNativeSeparators(openSslPath.toString())),
-            QMessageBox::Yes | QMessageBox::No);
-        if (userInput == QMessageBox::Yes)
-            openSslDir.removeRecursively();
-        else
-            return;
+    const bool isEmptyDir = openSslDir.isEmpty(QDir::AllEntries | QDir::NoDotAndDotDot
+                                               | QDir::Hidden | QDir::System);
+    if (openSslDir.exists() && !isEmptyDir) {
+        QMessageBox::information(
+            this,
+            openSslCloneTitle,
+            tr("The selected download path (%1) for OpenSSL already exists and the directory is "
+               "not empty. Select a different path or make sure it is an empty directory.")
+                .arg(QDir::toNativeSeparators(openSslPath.toString())));
+        return;
     }
 
     QProgressDialog *openSslProgressDialog
