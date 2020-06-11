@@ -24,6 +24,7 @@
 ****************************************************************************/
 #include "assetexporter.h"
 #include "componentexporter.h"
+#include "exportnotification.h"
 
 #include "plaintexteditmodifier.h"
 #include "rewriterview.h"
@@ -134,6 +135,9 @@ bool AssetExporter::preProcessProject()
 void AssetExporter::exportQml(const Utils::FilePaths &qmlFiles, const Utils::FilePath &exportPath,
                               bool exportAssets)
 {
+    ExportNotification::addInfo(tr("Exporting metadata at %1. Export assets: ")
+                                .arg(exportPath.toUserOutput())
+                                .arg(exportAssets? tr("Yes") : tr("No")));
     // TODO Asset export
     Q_UNUSED(exportAssets);
     m_exportFiles = qmlFiles;
@@ -145,6 +149,7 @@ void AssetExporter::exportQml(const Utils::FilePaths &qmlFiles, const Utils::Fil
 
 void AssetExporter::cancel()
 {
+    ExportNotification::addInfo("Cancelling export.");
     if (m_preprocessWatcher && !m_preprocessWatcher->isCanceled() &&
             !m_preprocessWatcher->isFinished()) {
         m_preprocessWatcher->cancel();
@@ -181,8 +186,8 @@ void AssetExporter::notifyLoadError(AssetExporterView::LoadState state)
     default:
         return;
     }
-    // TODO. Communicate errors to user
     qCDebug(loggerError) << "QML load error:" << errorStr;
+    ExportNotification::addError(tr("Loading QML failed. %1").arg(errorStr));
 }
 
 void AssetExporter::onQmlFileLoaded()
@@ -208,24 +213,27 @@ void AssetExporter::loadNextFile()
 
     // Load the next pending file.
     const Utils::FilePath file = m_exportFiles.takeFirst();
+    ExportNotification::addInfo(tr("Exporting file %1.").arg(file.toUserOutput()));
     qCDebug(loggerInfo) << "Loading next file" << file;
     m_view->loadQmlFile(file);
 }
 
 void AssetExporter::writeMetadata() const
 {
-    qCDebug(loggerInfo) << "Writing metadata";
+    ExportNotification::addInfo(tr("Writing metadata to file %1.").
+                                arg(m_exportPath.toUserOutput()));
     m_currentState.change(ParsingState::WritingJson);
     QJsonObject jsonRoot; // TODO: Write plugin info to root
     jsonRoot.insert("artboards", m_components);
     QJsonDocument doc(jsonRoot);
     if (doc.isNull() || doc.isEmpty()) {
-        qCDebug(loggerWarn) << "Empty JSON document";
+        ExportNotification::addError(tr("Empty JSON document."));
     } else {
         Utils::FileSaver saver(m_exportPath.toString(), QIODevice::Text);
         saver.write(doc.toJson(QJsonDocument::Indented));
         if (!saver.finalize()) {
-            qCDebug(loggerError) << "Cannot write Metadata file: " << saver.errorString();
+            ExportNotification::addError(tr("Writing metadata failed. %1").
+                                         arg(saver.errorString()));
         }
     }
     m_currentState.change(ParsingState::ExportingDone);

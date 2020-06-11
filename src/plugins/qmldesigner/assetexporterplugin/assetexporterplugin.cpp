@@ -41,6 +41,7 @@
 #include "projectexplorer/session.h"
 #include "projectexplorer/project.h"
 #include "projectexplorer/session.h"
+#include "projectexplorer/taskhub.h"
 
 #include "extensionsystem/pluginmanager.h"
 #include "extensionsystem/pluginspec.h"
@@ -57,6 +58,9 @@ namespace QmlDesigner {
 AssetExporterPlugin::AssetExporterPlugin() :
     m_view(new AssetExporterView)
 {
+    ProjectExplorer::TaskHub::addCategory( Constants::TASK_CATEGORY_ASSET_EXPORT,
+                                           tr("Asset Export"), false);
+
     auto *designerPlugin = QmlDesigner::QmlDesignerPlugin::instance();
     auto &viewManager = designerPlugin->viewManager();
     viewManager.registerViewTakingOwnership(m_view);

@@ -43,6 +43,8 @@ QtcProduct {
         "assetexportpluginconstants.h",
         "componentexporter.cpp",
         "componentexporter.h",
+        "exportnotification.cpp",
+        "exportnotification.h",
         "parsers/modelitemnodeparser.cpp",
         "parsers/modelitemnodeparser.h",
         "parsers/modelnodeparser.cpp",
