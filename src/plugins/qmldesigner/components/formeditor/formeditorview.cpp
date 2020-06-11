@@ -448,6 +448,28 @@ void FormEditorView::customNotification(const AbstractView * /*view*/, const QSt
         m_dragTool->clearMoveDelay();
     if (identifier == QLatin1String("reset QmlPuppet"))
         temporaryBlockView();
+    if (identifier == QLatin1String("fit root to screen")) {
+
+        if (QmlItemNode(rootModelNode()).isFlowView()) {
+            QRectF boundingRect;
+            for (QGraphicsItem *item : scene()->items()) {
+                if (auto formEditorItem = FormEditorItem::fromQGraphicsItem(item)) {
+                    if (!formEditorItem->qmlItemNode().modelNode().isRootNode()
+                        && !formEditorItem->sceneBoundingRect().isNull())
+                        boundingRect = boundingRect.united(formEditorItem->sceneBoundingRect());
+                }
+            }
+            m_formEditorWidget->graphicsView()->fitInView(boundingRect,
+                                                          Qt::KeepAspectRatio);
+        } else {
+            m_formEditorWidget->graphicsView()->fitInView(m_formEditorWidget->rootItemRect(),
+                                                          Qt::KeepAspectRatio);
+        }
+
+        const qreal scaleFactor = m_formEditorWidget->graphicsView()->viewportTransform().m11();
+        float zoomLevel = ZoomAction::getClosestZoomLevel(scaleFactor);
+        m_formEditorWidget->zoomAction()->forceZoomLevel(zoomLevel);
+    }
 }
 
 AbstractFormEditorTool *FormEditorView::currentTool() const

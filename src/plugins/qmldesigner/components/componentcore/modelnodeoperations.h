@@ -49,6 +49,7 @@ void setFillWidth(const SelectionContext &selectionState);
 void setFillHeight(const SelectionContext &selectionState);
 void resetSize(const SelectionContext &selectionState);
 void resetPosition(const SelectionContext &selectionState);
+void fitRootToScreen(const SelectionContext &selectionState);
 void goIntoComponentOperation(const SelectionContext &selectionState);
 void setId(const SelectionContext &selectionState);
 void resetZ(const SelectionContext &selectionState);
