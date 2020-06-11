@@ -87,7 +87,7 @@ def __clickCommit__(count):
     # find commit
     try:
         # Commits are listed in reverse chronologic order, so we have to invert count
-        line = filter(lambda line: line.startswith("commit"), content.splitlines())[-count]
+        line = filter(lambda line: line.startswith("commit"), content.splitlines())[-count].strip()
         commit = line.split(" ", 1)[1]
     except:
         test.fail("Could not find the %d. commit - leaving test" % count)
