@@ -279,7 +279,8 @@ bool QmlItemNode::modelIsResizable() const
     return !modelNode().hasBindingProperty("width")
             && !modelNode().hasBindingProperty("height")
             && itemIsResizable(modelNode())
-            && !modelIsInLayout();
+            && !modelIsInLayout()
+            && !isFlowItem();
 }
 
 bool QmlItemNode::modelIsInLayout() const
