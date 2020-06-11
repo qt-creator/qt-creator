@@ -142,12 +142,7 @@ public:
     };
 
 private:
-#ifdef Q_OS_UNIX
-#  if QT_VERSION < QT_VERSION_CHECK(6,0,0)
     void setupChildProcess() override;
-#  endif
-    void niceChildProcess();
-#endif
 
     CommandLine m_commandLine;
     Environment m_environment;
