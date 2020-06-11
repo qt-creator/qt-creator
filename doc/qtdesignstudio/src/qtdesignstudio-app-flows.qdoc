@@ -1,0 +1,287 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page studio-app-flows.html
+    \previouspage quick-uis.html
+    \nextpage quick-components.html
+
+    \title Designing Application Flows
+
+    After you \l {Exporting Artwork from Design Tools}{export} your artwork from
+    your favorite design tool and \l{Importing Designs}{import} it to \QDS, you
+    can design the application flow in the form of a \e {schematic diagram} that
+    shows all significant components of an application UI and their
+    interconnections by means of symbols. This results in an interactive
+    prototype that can be clicked through to simulate the user experience of
+    the application. The QML code is created in the background and can be used
+    as the base of the production version of the application.
+
+    \image studio-flow-view.png "Application flow in Form Editor"
+
+    In \QDS, a \e {flow view} represents a schematic diagram. It consists of
+    \e {flow items} that represent the screens in the UI and \e {transition
+    lines} that connect them, thus illustrating the possible user pathways
+    through the UI. You use \e {action areas} as starting points for transition
+    lines. You can attach effects to transition lines, such as fade or push,
+    to determine what users see when one screen changes into another.
+
+    You can use \e {flow decisions} to set up alternative pathways between
+    screens in the UI. For example, if user input determines which screen
+    should open next, you can test the different scenarios in the prototype
+    by having a dialog pop up, where you can select which screen to show next.
+
+    Especially on mobile and embedded platforms, the application might need to
+    react to external events from the platform, such as notifications or other
+    applications requiring the users' attention. You can use \e {flow wildcards}
+    to determine the priority of screens by whitelisting or blacklisting them.
+
+    \section1 Creating Flows
+
+    You can add a flow view to an existing project or create a new project
+    for it, as described in \l {Creating Projects}. To create the flow
+    view, select \uicontrol File > \uicontrol {New File or Project} >
+    \uicontrol {Files and Classes} > \uicontrol {Qt Quick Files} >
+    \uicontrol {Flow View} and follow the instructions of the wizard.
+
+    You only need to select the \uicontrol {Use event simulator} check box if
+    you want to add an event simulator to the flow view.
+
+    The flow view properties enable you to adjust the appearance of all
+    the items in the flow: action areas, transition lines, decisions, and
+    wildcards. You can change the global settings for all items by editing
+    flow view properties, or you can select an individual action area or
+    transition line and change the appearance of just that item, including
+    the color, line thickness, dotted or solid lines, and even the curve of
+    the connections. This enables you to add extra semantics to the design
+    of the flow diagram itself.
+
+    \section1 Adding Flow Items
+
+    If you imported your screen designs from a design tool as individual
+    components (\e {.ui.qml} files), you can use them as content for flow
+    items. If you are building your UI from scratch in \QDS, you must first
+    create the screens as you would any QML components. For more information,
+    see \l {Creating Components}. The flow items that you attach the components
+    to are listed under \uicontrol {My QML Components}.
+
+    To add flow items:
+
+    \list 1
+        \li Import your UI screens from a design tool or create them in
+            \uicontrol {Form Editor} and save each screen as a separate
+            QML component.
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol {Files and Classes} > \uicontrol {Qt Quick Files} >
+            \uicontrol {Flow Item} and follow the instructions of the wizard
+            to create flow items for each screen in the UI.
+        \li Drag a screen from \uicontrol Library >
+            \uicontrol {My QML Components} to each flow item in
+            \uicontrol {Form Editor} or \uicontrol Navigator.
+        \li In \uicontrol Properties, edit the properties globally for all
+            flow items, action areas, or transition lines in the flow view.
+    \endlist
+
+    To include another flow view into a flow view, select the \e {.ui.qml} file
+    that specifies the flow view in the \uicontrol {Loader source} field in
+    \uicontrol Properties.
+
+    You can now drag the flow items from \uicontrol Library >
+    \uicontrol {My QML Components} to the flow view in \uicontrol {Form Editor}
+    or \uicontrol Navigator. When you have all the screens in place, you can
+    add action areas to them to create transitions between them.
+
+    \section1 Adding Action Areas and Transitions
+
+    \e {Action areas} can act as clickable areas that initiate transitions
+    between screens or they can create connections to any signal from any
+    component in a flow item. For example, you could connect an action
+    to the \c onPressed signal of a button in your screen.
+
+    Typically, a screen can be connected to several other screens in the flow,
+    with two-way connections. To avoid clutter, you can set an action area as
+    \e {go back}, instead of adding explicit transition lines to and from
+    every potentially connected screen. When the \uicontrol {Go back} option is
+    enabled, the transition will always take the user back to the previous
+    screen.
+
+    To create action areas:
+
+    \list 1
+        \li Right-click the flow item in \uicontrol {Form Editor} and select
+            \uicontrol {Flow} > \uicontrol {Create Flow Action} in the context
+            menu.
+        \li Drag the action area to the screen control that you want to connect
+            to the other screen. For example, to a button that opens another
+            screen when clicked.
+        \li Double-click the action area and drag the transition line to the
+            flow item you want to connect to.
+        \li In \uicontrol Properties, modify the properties of the action area
+            and transition line.
+    \endlist
+
+    To preview the flow, select the \inlineimage live_preview.png
+    (\uicontrol {Show Live Preview}) button on the \uicontrol {Form Editor}
+    toolbar or press \key {Alt+P}.
+
+    \section1 Applying Effects to Transitions
+
+    You can apply effects, such as fade, move, or push to transitions. A fade
+    effect makes the first screen appear to fade out, while the next screen
+    fades in. A move effect makes the second screen appear to move in over the
+    first screen, while the push effect appears to make a screen push out the
+    previous one. You can also design and use custom effects.
+
+    The transition direction determines the direction the new screen appears
+    from: left, right, top, bottom. You can set the duration of the effect and
+    \l{Editing Easing Curves}{attach an easing curve} to the effect.
+
+    To add effects:
+
+    \list 1
+        \li Select a transition line in \uicontrol {Form Editor}.
+        \li In the context menu, select \uicontrol {Flow} >
+            \uicontrol {Assign Flow Effects}, and then select the effect
+            to apply.
+        \li In \uicontrol Properties, modify the properties of the effect.
+    \endlist
+
+    To edit effect properties, select a transition, and then select
+    \uicontrol {Flow} > \uicontrol {Select Effect} in the context menu.
+
+    \section1 Simulating Events
+
+    While transition lines are useful for prototyping, in production you need to
+    use the real signals from UI screens to control the flow of the application.
+    For this purpose, you can use action areas in a more advanced way, by
+    having them listen to signals from screens or the controls in them and
+    by connecting these to the flow view. You can use keyboard shortcuts to
+    simulate these events when you preview the UI.
+
+    When you use the wizard to create a \uicontrol {Flow View} item, select the
+    \uicontrol {Use event simulator} check box to add an event simulator to the
+    flow view.
+
+    You can create an event list where you assign keyboard shortcuts to events,
+    and then use context-menu commands to attach the events to action areas or
+    transition lines.
+
+    To create an event list:
+
+    \list 1
+        \li In \uicontrol Navigator, select the \uicontrol EventListSimulator
+            type, and then select the \uicontrol Active check box in
+            \uicontrol Properties to activate the event simulator.
+        \li Select the \inlineimage icon-event-list.png
+            (\uicontrol {Show Event List}) button on the Design mode toolbar,
+            or press \key {Alt+E}.
+            \image studio-flow-event-list.png "Event List Dialog"
+        \li Select \inlineimage plus.png
+            to add a keyboard shortcut for triggering an event to the list.
+        \li In the \uicontrol Id field, enter an identifier for the event.
+        \li In the \uicontrol Shortcut field, press the keyboard key that will
+            trigger the event, and then select \uicontrol R to record the
+            keyboard shortcut. The key identifier appears in the field.
+        \li In the \uicontrol Description field, describe the keyboard shortcut.
+    \endlist
+
+    You can now assign the events to the action areas in the flow to use the
+    keyboard shortcuts to trigger events when you preview the UI.
+
+    To assign events to actions:
+
+    \list 1
+        \li In \uicontrol Navigator, select an action area or transition line.
+        \li In the context menu, select \uicontrol {Flow} >
+            \uicontrol {Event List} > \uicontrol {Assign Events to Actions}.
+        \li Select an event in the list, and then select \uicontrol Accept.
+        \li Press \key {Alt+P} to preview the UI.
+        \li Double-click events in the event list or use the keyboard shortcuts
+            to trigger events.
+    \endlist
+
+    \section1 Simulating Conditions
+
+    Part of any complex UI is the conditional logic it uses to present its
+    state to users or to collect and process data from various sources. Data
+    can be produced by user interaction from a variety of inputs, such as
+    buttons and controls, sensor readings from arrays of equipment, or general
+    values received from backend or service APIs.
+
+    The \uicontrol {Flow Decision} type simulates conditions by displaying a
+    list of options you can choose from when you preview the flow. This enables
+    you to prototype complex interactions before you have access to the physical
+    controls, backend, or sensor data that will be required for the production
+    version.
+
+    To simulate conditions:
+
+    \list 1
+        \li Select the screen where you want the application to start in
+            \uicontrol Navigator or \uicontrol {Form Editor}, and then select
+            \uicontrol {Flow} > \uicontrol {Add Start} in the context menu.
+        \li Create an action area for the component that will trigger the
+            condition and connect it to the flow decision.
+        \li Drag a \uicontrol {Flow Decision} QML type from \uicontrol Library
+            to a flow view in \uicontrol Navigator or \uicontrol {Form Editor}.
+        \li Select \uicontrol Connect in the context menu to create connections
+            to the screens that will open depending on whether the condition is
+            met.
+        \li In \uicontrol Properties, \uicontrol Title field, enter a title for
+            the selection dialog that opens when the condition is triggered.
+        \li Select a transition line and add a descriptive text in the
+            \uicontrol {Question} field to represent a choice in the selection
+            dialog.
+        \li Press \key {Alt+P} to preview the UI.
+    \endlist
+
+    When you preview the UI, you can click the action areas to display a dialog
+    that you can use to select which condition is met and see the results.
+
+    \image studio-flow-decision.png
+
+    \section1 Reacting to External Events
+
+    On mobile and embedded platforms, applications are usually integrated into
+    the platform, and therefore screens might pop-up from anywhere or at any
+    time, based on a conditional event. For example, push notifications
+    appear on mobile devices and incoming call screens on a car's HMI.
+
+    You can use the \uicontrol {Flow Wildcard} type to model this type of
+    screens in your flow, using real or simulated signals and conditions. You
+    can whitelist or blacklist wildcard events to prioritize them and stop some
+    screens from appearing on others. For example, you could block the incoming
+    call screen from appearing on a warning screen for the engine, if you
+    consider the warning more important.
+
+    To use wildcards:
+
+    \list 1
+        \li Drag a \uicontrol {Flow Wildcard} QML type from \uicontrol Library
+            to a flow view in \uicontrol Navigator or \uicontrol {Form Editor}.
+        \li In \uicontrol Properties, add screens to the white and black list
+            for the screen.
+    \endlist
+*/

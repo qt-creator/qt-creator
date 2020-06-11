@@ -27,10 +27,11 @@
     \page quick-uis.html
     \if defined(qtdesignstudio)
     \previouspage quick-converting-ui-projects.html
+    \nextpage studio-app-flows.html
     \else
     \previouspage creator-using-qt-quick-designer.html
-    \endif
     \nextpage quick-components.html
+    \endif
 
     \title Creating UIs
 
@@ -57,6 +58,17 @@
     documentation by pressing \key F1.
 
     \list
+
+        \if defined(qtdesignstudio)
+        \li \l {Designing Application Flows}
+
+            After you export and import your artwork, you can design the
+            application flow in the form of a \e {schematic diagram} that
+            shows all significant components of an application UI and their
+            interconnections by means of symbols. This results in an
+            interactive prototype that can be clicked through to simulate
+            the user experience of the application.
+        \endif
 
         \li \l {Creating Components}
 

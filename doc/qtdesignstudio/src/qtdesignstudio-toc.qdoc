@@ -69,6 +69,7 @@
             \endlist
         \li \l{Creating UIs}
             \list
+                \li \l{Designing Application Flows}
                 \li \l{Creating Components}
                 \list
                     \li \l{Editing 2D Content}

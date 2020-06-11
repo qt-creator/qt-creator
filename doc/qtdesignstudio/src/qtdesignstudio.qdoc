@@ -57,6 +57,7 @@
                 \endlist
             \li \b {\l{Creating UIs}}
                 \list
+                    \li \l{Designing Application Flows}
                     \li \l{Creating Components}
                     \li \l{Managing Item Hierarchy}
                     \li \l{Specifying Item Properties}
