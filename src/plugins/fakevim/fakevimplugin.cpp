@@ -88,6 +88,7 @@
 #include <QPainter>
 #include <QPlainTextEdit>
 #include <QPointer>
+#include <QRegularExpression>
 #include <QScrollBar>
 #include <QSettings>
 #include <QStackedWidget>
@@ -354,7 +355,7 @@ private:
 //
 ///////////////////////////////////////////////////////////////////////
 
-using ExCommandMap = QMap<QString, QRegExp>;
+using ExCommandMap = QMap<QString, QRegularExpression>;
 using UserCommandMap = QMap<int, QString>;
 
 class FakeVimOptionPage : public IOptionsPage
@@ -685,7 +686,7 @@ void FakeVimExCommandsPage::apply()
         const Iterator end = newMapping.constEnd();
         for (Iterator it = newMapping.constBegin(); it != end; ++it) {
             const QString id = it.key();
-            const QRegExp re = it.value();
+            const QRegularExpression re = it.value();
 
             if ((defaultMap.contains(id) && defaultMap[id] != re)
                 || (!defaultMap.contains(id) && !re.pattern().isEmpty())) {
@@ -1153,17 +1154,17 @@ bool FakeVimUserCommandsModel::setData(const QModelIndex &index,
 FakeVimPluginPrivate::FakeVimPluginPrivate()
 {
     m_defaultExCommandMap[CppTools::Constants::SWITCH_HEADER_SOURCE] =
-        QRegExp("^A$");
+        QRegularExpression("^A$");
     m_defaultExCommandMap["Coreplugin.OutputPane.previtem"] =
-        QRegExp("^(cN(ext)?|cp(revious)?)!?( (.*))?$");
+        QRegularExpression("^(cN(ext)?|cp(revious)?)!?( (.*))?$");
     m_defaultExCommandMap["Coreplugin.OutputPane.nextitem"] =
-        QRegExp("^cn(ext)?!?( (.*))?$");
+        QRegularExpression("^cn(ext)?!?( (.*))?$");
     m_defaultExCommandMap[TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR] =
-        QRegExp("^tag?$");
+        QRegularExpression("^tag?$");
     m_defaultExCommandMap[Core::Constants::GO_BACK] =
-        QRegExp("^pop?$");
+        QRegularExpression("^pop?$");
     m_defaultExCommandMap["QtCreator.Locate"] =
-        QRegExp("^e$");
+        QRegularExpression("^e$");
 
     for (int i = 1; i < 10; ++i) {
         QString cmd = QString::fromLatin1(":echo User command %1 executed.<CR>");
@@ -1295,7 +1296,7 @@ void FakeVimPluginPrivate::readSettings()
         settings->setArrayIndex(i);
         const QString id = settings->value(idKey).toString();
         const QString re = settings->value(reKey).toString();
-        m_exCommandMap[id] = QRegExp(re);
+        m_exCommandMap[id] = QRegularExpression(re);
     }
     settings->endArray();
 
@@ -2008,8 +2009,8 @@ void FakeVimPluginPrivate::handleExCommand(FakeVimHandler *handler, bool *handle
         const auto end = m_exCommandMap.constEnd();
         for (auto it = m_exCommandMap.constBegin(); it != end; ++it) {
             const QString &id = it.key();
-            QRegExp re = it.value();
-            if (!re.pattern().isEmpty() && re.indexIn(cmd.cmd) != -1) {
+            QRegularExpression re = it.value();
+            if (!re.pattern().isEmpty() && re.match(cmd.cmd).hasMatch()) {
                 triggerAction(Id::fromString(id));
                 return;
             }
@@ -2084,10 +2085,11 @@ ExCommandMap FakeVimExCommandsWidget::exCommandMapFromWidget()
             QTreeWidgetItem *item = section->child(j);
             const QString name = item->data(0, CommandRole).toString();
             const QString regex = item->data(2, Qt::DisplayRole).toString();
-            if ((regex.isEmpty() && dd->m_defaultExCommandMap.value(name).isEmpty())
-                    || (!regex.isEmpty() && dd->m_defaultExCommandMap.value(name).pattern() == regex))
+            const QString pattern = dd->m_defaultExCommandMap.value(name).pattern();
+            if ((regex.isEmpty() && pattern.isEmpty())
+                    || (!regex.isEmpty() && pattern == regex))
                 continue;
-            map[name] = QRegExp(regex);
+            map[name] = QRegularExpression(regex);
         }
     }
     return map;
