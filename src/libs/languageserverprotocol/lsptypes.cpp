@@ -162,7 +162,7 @@ bool SymbolInformation::isValid(ErrorHierarchy *error) const
 
 bool TextDocumentEdit::isValid(ErrorHierarchy *error) const
 {
-    return check<VersionedTextDocumentIdentifier>(error, idKey)
+    return check<VersionedTextDocumentIdentifier>(error, textDocumentKey)
             && checkArray<TextEdit>(error, editsKey);
 }
 

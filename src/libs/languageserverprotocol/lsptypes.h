@@ -271,9 +271,10 @@ public:
     using JsonObject::JsonObject;
 
     // The text document to change.
-    VersionedTextDocumentIdentifier id() const
-    { return  typedValue<VersionedTextDocumentIdentifier>(idKey); }
-    void setId(const VersionedTextDocumentIdentifier &id) { insert(idKey, id); }
+    VersionedTextDocumentIdentifier textDocument() const
+    { return  typedValue<VersionedTextDocumentIdentifier>(textDocumentKey); }
+    void setTextDocument(const VersionedTextDocumentIdentifier &textDocument)
+    { insert(textDocumentKey, textDocument); }
 
     // The edits to be applied.
     QList<TextEdit> edits() const { return array<TextEdit>(editsKey); }

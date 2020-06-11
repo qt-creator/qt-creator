@@ -81,9 +81,9 @@ bool applyTextDocumentEdit(const TextDocumentEdit &edit)
     const QList<TextEdit> &edits = edit.edits();
     if (edits.isEmpty())
         return true;
-    const DocumentUri &uri = edit.id().uri();
+    const DocumentUri &uri = edit.textDocument().uri();
     if (TextDocument* doc = TextDocument::textDocumentForFilePath(uri.toFilePath())) {
-        LanguageClientValue<int> version = edit.id().version();
+        LanguageClientValue<int> version = edit.textDocument().version();
         if (!version.isNull() && version.value(0) < doc->document()->revision())
             return false;
     }
@@ -163,7 +163,7 @@ void updateCodeActionRefactoringMarker(Client *client,
             if (optional<QList<TextDocumentEdit>> documentChanges = edit.documentChanges()) {
                 QList<TextDocumentEdit> changesForUri = Utils::filtered(
                     documentChanges.value(), [uri](const TextDocumentEdit &edit) {
-                    return edit.id().uri() == uri;
+                    return edit.textDocument().uri() == uri;
                 });
                 for (const TextDocumentEdit &edit : changesForUri)
                     edits << edit.edits();
