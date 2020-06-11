@@ -16,7 +16,7 @@ include($$PWD/../../../src/plugins/clangpchmanager/clangpchmanager-source.pri)
 include($$PWD/../../../src/plugins/cpptools/cpptoolsunittestfiles.pri)
 include($$PWD/../../../src/plugins/debugger/debuggerunittestfiles.pri)
 include($$PWD/../../../src/plugins/compilationdatabaseprojectmanager/compilationdatabaseunittestfiles.pri)
-include(cplusplus.pri)
+!isEmpty(QTC_UNITTEST_BUILD_CPP_PARSER):include(cplusplus.pri)
 !isEmpty(LLVM_VERSION) {
 include($$PWD/../../../src/plugins/clangtools/clangtoolsunittestfiles.pri)
 include($$PWD/../../../src/shared/clang/clang_defines.pri)

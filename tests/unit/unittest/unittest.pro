@@ -1,8 +1,10 @@
 INCLUDEPATH += ../mockup
 
 QT += core network testlib widgets
-CONFIG += console c++14 testcase object_parallel_to_source
+CONFIG += console c++14 testcase
 CONFIG -= app_bundle shared
+
+QTC_UNITTEST_BUILD_CPP_PARSER = $$(QTC_UNITTEST_BUILD_CPP_PARSER)
 
 include(gmock_dependency.pri)
 include(clang_dependency.pri)
@@ -10,8 +12,6 @@ include(creator_dependency.pri)
 include(benchmark_dependency.pri)
 
 requires(isEmpty(QTC_CLANG_BUILDMODE_MISMATCH))
-
-OBJECTS_DIR = $$OUT_PWD/obj # workaround for qmake bug in object_parallel_to_source
 
 !msvc:force_debug_info:QMAKE_CXXFLAGS += -fno-omit-frame-pointer
 
@@ -66,7 +66,6 @@ SOURCES += \
     lastchangedrowid-test.cpp \
     lineprefixer-test.cpp \
     locatorfilter-test.cpp \
-    matchingtext-test.cpp \
     mimedatabase-utilities.cpp \
     pchmanagerclientserverinprocess-test.cpp \
     pchmanagerclient-test.cpp \
@@ -132,6 +131,8 @@ SOURCES += \
     sqlitetable-test.cpp \
     sqlstatementbuilder-test.cpp \
     createtablesqlstatementbuilder-test.cpp
+
+!isEmpty(QTC_UNITTEST_BUILD_CPP_PARSER):matchingtext-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -229,6 +230,7 @@ HEADERS += \
     gtest-creator-printing.h \
     gtest-llvm-printing.h \
     gtest-qt-printing.h \
+    gtest-std-printing.h \
     mimedatabase-utilities.h \
     mockclangcodemodelclient.h \
     mockclangcodemodelserver.h \

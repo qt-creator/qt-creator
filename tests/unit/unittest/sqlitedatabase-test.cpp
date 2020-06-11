@@ -39,6 +39,8 @@
 #include <QTemporaryFile>
 #include <QVariant>
 
+#include <functional>
+
 namespace {
 
 using testing::Contains;
@@ -74,13 +76,23 @@ protected:
         return Sqlite::ReadStatement("SELECT name FROM test", database).values<Utils::SmallString>(8);
     }
 
+    static void updateHookCallback(
+        void *object, int type, char const *database, char const *table, long long rowId)
+    {
+        static_cast<SqliteDatabase *>(object)->callback(static_cast<Sqlite::ChangeType>(type),
+                                                        database,
+                                                        table,
+                                                        rowId);
+    }
+
 protected:
     SpyDummy spyDummy;
     QString databaseFilePath{":memory:"};
     mutable Sqlite::Database database;
     Sqlite::TransactionInterface &transactionInterface = database;
     MockFunction<void(Sqlite::ChangeType tupe, char const *, char const *, long long)> callbackMock;
-    Sqlite::Database::UpdateCallback callback = callbackMock.AsStdFunction();
+    std::function<void(Sqlite::ChangeType tupe, char const *, char const *, long long)>
+        callback = callbackMock.AsStdFunction();
 };
 
 TEST_F(SqliteDatabase, SetDatabaseFilePath)
@@ -232,7 +244,7 @@ TEST_F(SqliteDatabase, Rollback)
 
 TEST_F(SqliteDatabase, SetUpdateHookSet)
 {
-    database.setUpdateHook(callback);
+    database.setUpdateHook(this, updateHookCallback);
 
     EXPECT_CALL(callbackMock, Call(_, _, _, _));
     Sqlite::WriteStatement("INSERT INTO test(name) VALUES (?)", database).write(42);
@@ -240,10 +252,9 @@ TEST_F(SqliteDatabase, SetUpdateHookSet)
 
 TEST_F(SqliteDatabase, SetNullUpdateHook)
 {
-    database.setUpdateHook(callback);
-    Sqlite::Database::UpdateCallback newCallback;
+    database.setUpdateHook(this, updateHookCallback);
 
-    database.setUpdateHook(newCallback);
+    database.setUpdateHook(nullptr, nullptr);
 
     EXPECT_CALL(callbackMock, Call(_, _, _, _)).Times(0);
     Sqlite::WriteStatement("INSERT INTO test(name) VALUES (?)", database).write(42);
@@ -251,8 +262,7 @@ TEST_F(SqliteDatabase, SetNullUpdateHook)
 
 TEST_F(SqliteDatabase, ResetUpdateHook)
 {
-    database.setUpdateHook(callback);
-    Sqlite::Database::UpdateCallback newCallback;
+    database.setUpdateHook(this, updateHookCallback);
 
     database.resetUpdateHook();
 
@@ -263,7 +273,7 @@ TEST_F(SqliteDatabase, ResetUpdateHook)
 TEST_F(SqliteDatabase, DeleteUpdateHookCall)
 {
     Sqlite::WriteStatement("INSERT INTO test(name) VALUES (?)", database).write(42);
-    database.setUpdateHook(callback);
+    database.setUpdateHook(this, updateHookCallback);
 
     EXPECT_CALL(callbackMock, Call(Eq(Sqlite::ChangeType::Delete), _, _, _));
 
@@ -272,7 +282,7 @@ TEST_F(SqliteDatabase, DeleteUpdateHookCall)
 
 TEST_F(SqliteDatabase, InsertUpdateHookCall)
 {
-    database.setUpdateHook(callback);
+    database.setUpdateHook(this, updateHookCallback);
 
     EXPECT_CALL(callbackMock, Call(Eq(Sqlite::ChangeType::Insert), _, _, _));
 
@@ -281,7 +291,7 @@ TEST_F(SqliteDatabase, InsertUpdateHookCall)
 
 TEST_F(SqliteDatabase, UpdateUpdateHookCall)
 {
-    database.setUpdateHook(callback);
+    database.setUpdateHook(this, updateHookCallback);
 
     EXPECT_CALL(callbackMock, Call(Eq(Sqlite::ChangeType::Insert), _, _, _));
 
@@ -290,7 +300,7 @@ TEST_F(SqliteDatabase, UpdateUpdateHookCall)
 
 TEST_F(SqliteDatabase, RowIdUpdateHookCall)
 {
-    database.setUpdateHook(callback);
+    database.setUpdateHook(this, updateHookCallback);
 
     EXPECT_CALL(callbackMock, Call(_, _, _, Eq(42)));
 
@@ -299,7 +309,7 @@ TEST_F(SqliteDatabase, RowIdUpdateHookCall)
 
 TEST_F(SqliteDatabase, DatabaseUpdateHookCall)
 {
-    database.setUpdateHook(callback);
+    database.setUpdateHook(this, updateHookCallback);
 
     EXPECT_CALL(callbackMock, Call(_, StrEq("main"), _, _));
 
@@ -308,7 +318,7 @@ TEST_F(SqliteDatabase, DatabaseUpdateHookCall)
 
 TEST_F(SqliteDatabase, TableUpdateHookCall)
 {
-    database.setUpdateHook(callback);
+    database.setUpdateHook(this, updateHookCallback);
 
     EXPECT_CALL(callbackMock, Call(_, _, StrEq("test"), _));
 

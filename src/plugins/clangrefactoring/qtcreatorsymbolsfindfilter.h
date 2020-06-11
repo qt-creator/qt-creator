@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "symbolsfindfilter.h"
+#include "clangsymbolsfindfilter.h"
 
 namespace ClangRefactoring {
 

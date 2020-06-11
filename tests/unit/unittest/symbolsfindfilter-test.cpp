@@ -25,7 +25,7 @@
 
 #include "googletest.h"
 
-#include <clangrefactoring/symbolsfindfilter.h>
+#include <clangrefactoring/clangsymbolsfindfilter.h>
 
 namespace {
 

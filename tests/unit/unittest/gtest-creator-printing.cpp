@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "gtest-creator-printing.h"
+#include "gtest-std-printing.h"
 
 #include "gtest-qt-printing.h"
 
@@ -319,6 +320,9 @@ std::ostream &operator<<(std::ostream &out, const Value &value)
         break;
     case Sqlite::ValueType::String:
         out << "\"" << value.toStringView() << "\"";
+        break;
+    case Sqlite::ValueType::Null:
+        out << "null";
         break;
     }
 

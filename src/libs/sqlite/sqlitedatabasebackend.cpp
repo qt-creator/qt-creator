@@ -400,22 +400,11 @@ void DatabaseBackend::walCheckpointFull()
     }
 }
 
-namespace {
-void updateCallback(
-    void *callback, int type, char const *database, char const *table, sqlite3_int64 row)
+void DatabaseBackend::setUpdateHook(
+    void *object,
+    void (*callback)(void *object, int, char const *database, char const *, long long rowId))
 {
-    auto &function = *reinterpret_cast<DatabaseBackend::UpdateCallback *>(callback);
-
-    function(static_cast<ChangeType>(type), database, table, row);
-}
-} // namespace
-
-void DatabaseBackend::setUpdateHook(UpdateCallback &callback)
-{
-    if (callback)
-        sqlite3_update_hook(m_databaseHandle, updateCallback, &callback);
-    else
-        sqlite3_update_hook(m_databaseHandle, nullptr, nullptr);
+    sqlite3_update_hook(m_databaseHandle, callback, object);
 }
 
 void DatabaseBackend::resetUpdateHook()

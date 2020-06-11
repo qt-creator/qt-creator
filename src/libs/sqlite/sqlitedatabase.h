@@ -89,7 +89,7 @@ public:
     void setOpenMode(OpenMode openMode);
     OpenMode openMode() const;
 
-    void execute(Utils::SmallStringView sqlStatement);
+    void execute(Utils::SmallStringView sqlStatement) override;
 
     DatabaseBackend &backend();
 
@@ -116,15 +116,20 @@ public:
         m_databaseBackend.walCheckpointFull();
     }
 
-    void setUpdateHook(DatabaseBackend::UpdateCallback &callback)
+    void setUpdateHook(void *object,
+                       void (*callback)(void *object,
+                                        int,
+                                        char const *database,
+                                        char const *,
+                                        long long rowId)) override
     {
-        m_databaseBackend.setUpdateHook(callback);
+        m_databaseBackend.setUpdateHook(object, callback);
     }
 
-    void resetUpdateHook() { m_databaseBackend.resetUpdateHook(); }
+    void resetUpdateHook() override { m_databaseBackend.resetUpdateHook(); }
 
-    void setAttachedTables(const Utils::SmallStringVector &tables);
-    void applyAndUpdateSessions();
+    void setAttachedTables(const Utils::SmallStringVector &tables) override;
+    void applyAndUpdateSessions() override;
 
 private:
     void deferredBegin() override;

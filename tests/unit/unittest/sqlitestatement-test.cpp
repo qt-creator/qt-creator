@@ -388,6 +388,7 @@ TEST_F(SqliteStatement, WritePointerValues)
 TEST_F(SqliteStatement, WriteNullValues)
 {
     WriteStatement statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
+    statement.write(1, 1, 1);
 
     statement.write(Sqlite::NullValue{}, Sqlite::Value{}, 1);
 

@@ -56,6 +56,7 @@ const int flowBlockSize = 200;
 const int blockRadius = 18;
 const int blockAdjust = 40;
 const int startItemOffset = 96;
+const int labelFontSize = 16;
 
 void drawIcon(QPainter *painter,
               int x,
@@ -670,6 +671,7 @@ void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphi
     if (qmlItemNode().modelNode().hasAuxiliaryData("color"))
         flowColor = qmlItemNode().modelNode().auxiliaryData("color").value<QColor>();
 
+    const qreal scaleFactor = viewportTransform().m11();
     qreal width = 2;
 
     if (qmlItemNode().modelNode().hasAuxiliaryData("width"))
@@ -787,26 +789,28 @@ public:
                 }
             }
         }
-    // Only assign area node if there is exactly one from (QmlFlowItemNode)
-    if (from.size() == 1) {
-        const QmlItemNode tmp = from.back();
-        const QmlFlowItemNode f(tmp.modelNode());
-        if (f.isValid()) {
-            for (const QmlFlowActionAreaNode &area : f.flowActionAreas()) {
-                ModelNode target = area.targetTransition();
-                if (target == node.modelNode()) {
-                    areaNode = area;
-                } else {
-                    const ModelNode decisionNode = area.decisionNodeForTransition(node.modelNode());
-                    if (decisionNode.isValid()) {
-                        from.clear();
-                        from.append(decisionNode);
-                        areaNode = ModelNode();
+
+        // Only assign area node if there is exactly one from (QmlFlowItemNode)
+        if (from.size() == 1) {
+            const QmlItemNode tmp = from.back();
+            const QmlFlowItemNode f(tmp.modelNode());
+
+            if (f.isValid()) {
+                for (const QmlFlowActionAreaNode &area : f.flowActionAreas()) {
+                    ModelNode target = area.targetTransition();
+                    if (target == node.modelNode()) {
+                        areaNode = area;
+                    } else {
+                        const ModelNode decisionNode = area.decisionNodeForTransition(node.modelNode());
+                        if (decisionNode.isValid()) {
+                            from.clear();
+                            from.append(decisionNode);
+                            areaNode = ModelNode();
+                        }
                     }
                 }
-            }
-            if (f.modelNode().hasAuxiliaryData("joinConnection"))
-                joinConnection = f.modelNode().auxiliaryData("joinConnection").toBool();
+                if (f.modelNode().hasAuxiliaryData("joinConnection"))
+                    joinConnection = f.modelNode().auxiliaryData("joinConnection").toBool();
             } else {
                 if (f == node.rootModelNode())
                     isStartLine = true;
@@ -852,7 +856,7 @@ public:
         , bezier(50)
         , type(ConnectionType::Default)
         , label()
-        , fontSize(16 / scaleFactor)
+        , fontSize(labelFontSize / scaleFactor)
         , labelOffset(14 / scaleFactor)
         , labelPosition(50.0)
         , labelFlags(Qt::AlignHCenter | Qt::AlignVCenter | Qt::TextDontClip)
@@ -1159,10 +1163,29 @@ public:
                const ConnectionConfiguration &connectionConfig)
         : config(connectionConfig)
     {
-        if (from.isFlowDecision() || from.isFlowWildcard() || from.isFlowView())
+        if (from.isFlowDecision()) {
+            int size = flowBlockSize;
+            if (from.modelNode().hasAuxiliaryData("blockSize"))
+                size = from.modelNode().auxiliaryData("blockSize").toInt();
+
+            fromRect = QRectF(0, 0, size, size);
+
+            QTransform transform;
+            transform.translate(fromRect.center().x(), fromRect.center().y());
+            transform.rotate(45);
+            transform.translate(-fromRect.center().x(), -fromRect.center().y());
+
+            fromRect = transform.mapRect(fromRect);
+        } else if (from.isFlowWildcard()) {
+            int size = flowBlockSize;
+            if (from.modelNode().hasAuxiliaryData("blockSize"))
+                size = from.modelNode().auxiliaryData("blockSize").toInt();
+            fromRect = QRectF(0, 0, size, size);
+        } else if (from.isFlowView()) {
             fromRect = QRectF(0, 0, flowBlockSize, flowBlockSize);
-        else
+        } else {
             fromRect = from.instanceBoundingRect();
+        }
 
         fromRect.translate(from.flowPosition());
 
@@ -1172,15 +1195,27 @@ public:
             fromRect.translate(resolveConnection.areaNode.instancePosition());
         }
 
-        if (to.isFlowDecision())
-            toRect = QRectF(0, 0, flowBlockSize,flowBlockSize);
-        else
+        if (to.isFlowDecision()) {
+            int size = flowBlockSize;
+            if (to.modelNode().hasAuxiliaryData("blockSize"))
+                size = to.modelNode().auxiliaryData("blockSize").toInt();
+
+            toRect = QRectF(0, 0, size, size);
+
+            QTransform transform;
+            transform.translate(toRect.center().x(), toRect.center().y());
+            transform.rotate(45);
+            transform.translate(-toRect.center().x(), -toRect.center().y());
+
+            toRect = transform.mapRect(toRect);
+        } else {
             toRect = to.instanceBoundingRect();
+        }
 
         toRect.translate(to.flowPosition());
 
         if (resolveConnection.isStartLine) {
-            fromRect = QRectF(0, 0, 96, 96);
+            fromRect = QRectF(0, 0, 96, 96); // TODO Use const startItemOffset
             fromRect.translate(to.flowPosition() + QPoint(-180, toRect.height() / 2 - 96 / 2));
             fromRect.translate(0, config.outOffset);
         }
@@ -1623,7 +1658,76 @@ QTransform FormEditorItem::viewportTransform() const
 void FormEditorFlowDecisionItem::updateGeometry()
 {
     prepareGeometryChange();
-    m_selectionBoundingRect = QRectF(0, 0, flowBlockSize, flowBlockSize);
+
+    int size = flowBlockSize;
+    if (qmlItemNode().modelNode().hasAuxiliaryData("blockSize"))
+        size = qmlItemNode().modelNode().auxiliaryData("blockSize").toInt();
+
+    QRectF boundingRect(0, 0, size, size);
+    QTransform transform;
+    if (qmlItemNode().isFlowDecision()) {
+        transform.translate(boundingRect.center().x(), boundingRect.center().y());
+        transform.rotate(45);
+        transform.translate(-boundingRect.center().x(), -boundingRect.center().y());
+
+        // If drawing the dialog title is requested we need to add it to the bounding rect.
+        QRectF labelBoundingRect;
+        int showDialogLabel = false;
+        if (qmlItemNode().modelNode().hasAuxiliaryData("showDialogLabel"))
+            showDialogLabel = qmlItemNode().modelNode().auxiliaryData("showDialogLabel").toBool();
+
+        if (showDialogLabel) {
+            QString dialogTitle;
+            if (qmlItemNode().modelNode().hasVariantProperty("dialogTitle"))
+                dialogTitle = qmlItemNode().modelNode().variantProperty("dialogTitle").value().toString();
+
+            if (!dialogTitle.isEmpty()) {
+                // Local painter is used to get the labels bounding rect by using drawText()
+                QPixmap pixmap(640, 480);
+                QPainter localPainter(&pixmap);
+                QFont font = localPainter.font();
+                font.setPixelSize(labelFontSize / viewportTransform().m11());
+                localPainter.setFont(font);
+
+                int margin = blockAdjust * 0.5;
+                const QRectF adjustedRect = boundingRect.adjusted(margin, margin, -margin, -margin);
+
+                QRectF textRect(0, 0, 100, 20);
+
+                Qt::Corner corner = Qt::TopRightCorner;
+                if (qmlItemNode().modelNode().hasAuxiliaryData("dialogLabelPosition"))
+                   corner = qmlItemNode().modelNode().auxiliaryData("dialogLabelPosition").value<Qt::Corner>();
+
+                int flag = 0;
+                switch (corner) {
+                    case Qt::TopLeftCorner:
+                        flag = Qt::AlignRight;
+                        textRect.moveBottomRight(adjustedRect.topLeft());
+                        break;
+                    case Qt::TopRightCorner:
+                        flag = Qt::AlignLeft;
+                        textRect.moveBottomLeft(adjustedRect.topRight());
+                        break;
+                    case Qt::BottomLeftCorner:
+                        flag = Qt::AlignRight;
+                        textRect.moveTopRight(adjustedRect.bottomLeft());
+                        break;
+                    case Qt::BottomRightCorner:
+                        flag = Qt::AlignLeft;
+                        textRect.moveTopLeft(adjustedRect.bottomRight());
+                        break;
+                }
+
+                localPainter.drawText(textRect, flag | Qt::TextDontClip, dialogTitle, &labelBoundingRect);
+            }
+        }
+
+        // Unite the rotate item bounding rect with the label bounding rect.
+        boundingRect = transform.mapRect(boundingRect);
+        boundingRect = boundingRect.united(labelBoundingRect);
+    }
+
+    m_selectionBoundingRect = boundingRect;
     m_paintedBoundingRect = m_selectionBoundingRect;
     m_boundingRect = m_paintedBoundingRect;
     setTransform(qmlItemNode().instanceTransformWithContentTransform());
@@ -1665,6 +1769,7 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGrap
     if (qmlItemNode().modelNode().hasAuxiliaryData("color"))
         flowColor = qmlItemNode().modelNode().auxiliaryData("color").value<QColor>();
 
+    const qreal scaleFactor = viewportTransform().m11();
     qreal width = 2;
 
     if (qmlItemNode().modelNode().hasAuxiliaryData("width"))
@@ -1692,29 +1797,83 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter, const QStyleOptionGrap
 
     painter->save();
 
-    if (m_iconType == DecisionIcon) {
-        painter->translate(boundingRect().center());
-        painter->rotate(45);
-        painter->translate(-boundingRect().center());
-    }
-
     if (fillColor.alpha() > 0)
         painter->setBrush(fillColor);
 
     int radius = blockRadius;
+    if (qmlItemNode().modelNode().hasAuxiliaryData("blockRadius"))
+        radius = qmlItemNode().modelNode().auxiliaryData("blockRadius").toInt();
 
-    const QRectF adjustedRect = boundingRect().adjusted(blockAdjust,
-                                                        blockAdjust,
-                                                        -blockAdjust,
-                                                        -blockAdjust);
+    int size = flowBlockSize;
+    if (qmlItemNode().modelNode().hasAuxiliaryData("blockSize"))
+        size = qmlItemNode().modelNode().auxiliaryData("blockSize").toInt();
 
+    QRectF boundingRect(0, 0, size, size);
+    QTransform transform;
+    int margin = blockAdjust;
+    if (m_iconType == DecisionIcon) {
+        transform.translate(boundingRect.center().x(), boundingRect.center().y());
+        transform.rotate(45);
+        transform.translate(-boundingRect.center().x(), -boundingRect.center().y());
+        margin *= 0.5;
+    }
+
+    const QRectF adjustedRect = boundingRect.adjusted(margin, margin, -margin, -margin);
+
+    painter->setTransform(transform, true);
     painter->drawRoundedRect(adjustedRect, radius, radius);
 
     const int iconDecrement = 32;
     const int iconSize = adjustedRect.width() - iconDecrement;
-    const int offset = iconDecrement / 2 + blockAdjust;
+    const int offset = iconDecrement / 2 + margin;
 
     painter->restore();
+
+    // Draw the dialog title inside the form view if requested. Decision item only.
+    int showDialogLabel = false;
+    if (qmlItemNode().modelNode().hasAuxiliaryData("showDialogLabel"))
+        showDialogLabel = qmlItemNode().modelNode().auxiliaryData("showDialogLabel").toBool();
+
+    if (showDialogLabel) {
+        QString dialogTitle;
+        if (qmlItemNode().modelNode().hasVariantProperty("dialogTitle"))
+            dialogTitle = qmlItemNode().modelNode().variantProperty("dialogTitle").value().toString();
+
+        if (!dialogTitle.isEmpty()) {
+
+            QFont font = painter->font();
+            font.setPixelSize(labelFontSize / scaleFactor);
+            painter->setFont(font);
+
+            QRectF textRect(0, 0, 100, 20);
+
+            Qt::Corner corner = Qt::TopRightCorner;
+            if (qmlItemNode().modelNode().hasAuxiliaryData("dialogLabelPosition"))
+               corner = qmlItemNode().modelNode().auxiliaryData("dialogLabelPosition").value<Qt::Corner>();
+
+            int flag = 0;
+            switch (corner) {
+                case Qt::TopLeftCorner:
+                    flag = Qt::AlignRight;
+                    textRect.moveBottomRight(adjustedRect.topLeft());
+                    break;
+                case Qt::TopRightCorner:
+                    flag = Qt::AlignLeft;
+                    textRect.moveBottomLeft(adjustedRect.topRight());
+                    break;
+                case Qt::BottomLeftCorner:
+                    flag = Qt::AlignRight;
+                    textRect.moveTopRight(adjustedRect.bottomLeft());
+                    break;
+                case Qt::BottomRightCorner:
+                    flag = Qt::AlignLeft;
+                    textRect.moveTopLeft(adjustedRect.bottomRight());
+                    break;
+            }
+
+            painter->drawText(textRect, flag | Qt::TextDontClip, dialogTitle);
+        }
+    }
 
     const QString icon = (m_iconType ==
                           WildcardIcon) ? Theme::getIconUnicode(Theme::wildcard)

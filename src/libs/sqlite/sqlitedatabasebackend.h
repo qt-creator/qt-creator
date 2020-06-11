@@ -41,9 +41,6 @@ class Database;
 class SQLITE_EXPORT DatabaseBackend
 {
 public:
-    using UpdateCallback
-        = std::function<void(ChangeType type, char const *, char const *, long long)>;
-
     DatabaseBackend(Database &database);
     ~DatabaseBackend();
 
@@ -88,7 +85,9 @@ public:
 
     void walCheckpointFull();
 
-    void setUpdateHook(UpdateCallback &callback);
+    void setUpdateHook(
+        void *object,
+        void (*callback)(void *object, int, char const *database, char const *, long long rowId));
     void resetUpdateHook();
 
 protected:
