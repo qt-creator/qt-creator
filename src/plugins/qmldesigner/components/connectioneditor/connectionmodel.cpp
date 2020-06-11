@@ -271,6 +271,9 @@ void ConnectionModel::addConnection()
                     if (QmlItemNode(selectedNode).isFlowActionArea())
                         source = selectedNode.validId() + ".trigger()";
 
+                    if (QmlVisualNode(selectedNode).isFlowTransition())
+                        source = selectedNode.validId() + ".trigger()";
+
                     if (!connectionView()->selectedModelNodes().constFirst().id().isEmpty())
                     newNode.bindingProperty("target").setExpression(selectedNode.id());
                     else
