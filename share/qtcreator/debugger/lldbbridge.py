@@ -44,7 +44,7 @@ if 'dumper' in sys.modules:
         if sys.version_info[1] > 3:
             from importlib import reload
         else:
-            reload = lambda x: print('Unsupported Python version - not reloading %s' % str(x))
+            def reload(m): print('Unsupported Python version - not reloading %s' % str(m))
     reload(sys.modules['dumper'])
 
 from dumper import DumperBase, SubItem, Children, TopLevelItem
