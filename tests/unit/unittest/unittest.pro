@@ -1,4 +1,5 @@
 INCLUDEPATH += ../mockup
+INCLUDEPATH += ../mockup/qmldesigner/designercore/include
 
 QT += core network testlib widgets
 CONFIG += console c++14 testcase
@@ -65,6 +66,7 @@ SOURCES += \
     gtest-qt-printing.cpp \
     lastchangedrowid-test.cpp \
     lineprefixer-test.cpp \
+    listmodeleditor-test.cpp \
     locatorfilter-test.cpp \
     mimedatabase-utilities.cpp \
     pchmanagerclientserverinprocess-test.cpp \
@@ -288,7 +290,11 @@ HEADERS += \
     mockbuilddependencygenerator.h \
     mockpchtasksmerger.h \
     mockpchtaskqueue.h \
-    mockpchtaskgenerator.h
+    mockpchtaskgenerator.h \
+    ../mockup/qmldesigner/designercore/include/nodeinstanceview.h \
+    ../mockup/qmldesigner/designercore/include/rewriterview.h \
+    ../mockup/qmldesigner/designercore/include/itemlibraryitem.h
+
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \

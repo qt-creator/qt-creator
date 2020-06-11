@@ -34,8 +34,8 @@
 
 #include <QCoreApplication>
 
-#include <coreplugin/messagebox.h>
 #ifndef QMLDESIGNER_TEST
+#include <coreplugin/messagebox.h>
 #include <qmldesignerplugin.h>
 #endif
 
@@ -160,8 +160,12 @@ QString Exception::description() const
 */
 void Exception::showException(const QString &title) const
 {
-    QString composedTitle = title.isEmpty() ? QCoreApplication::translate("QmlDesigner", "Error") : title;
+    Q_UNUSED(title)
+#ifndef QMLDESIGNER_TEST
+    QString composedTitle = title.isEmpty() ? QCoreApplication::translate("QmlDesigner", "Error")
+                                            : title;
     Core::AsynchronousMessageBox::warning(composedTitle, description());
+#endif
 }
 
 /*!

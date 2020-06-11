@@ -42,6 +42,7 @@
 #include <utils/algorithm.h>
 
 #include <QRegExp>
+#include <QWidget>
 #include <QtGui/qimage.h>
 
 namespace QmlDesigner {
