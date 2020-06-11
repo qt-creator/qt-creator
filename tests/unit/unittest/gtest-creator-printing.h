@@ -350,24 +350,4 @@ std::ostream &operator<<(std::ostream &out, const Diagnostic &diag);
 } // namespace Internal
 } // namespace CppTools
 
-namespace std {
-template<typename T>
-ostream &operator<<(ostream &out, const vector<T> &vector)
-{
-    out << "[";
-
-    for (auto current = vector.begin(); current != vector.end(); ++current) {
-        out << *current;
-
-        if (std::next(current) != vector.end())
-            out << ", ";
-    }
-
-    out << "]";
-
-    return out;
-}
-
-} // namespace std
-
 void setFilePathCache(ClangBackEnd::FilePathCaching *filePathCache);

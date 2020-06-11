@@ -35,14 +35,14 @@ class LastChangedRowId : public testing::Test
 {
 protected:
     NiceMock<MockSqliteDatabase> mockSqliteDatabase;
-    Sqlite::LastChangedRowId lastRowId{mockSqliteDatabase, "main", "foo"};
+    Sqlite::LastChangedRowId<1> lastRowId{mockSqliteDatabase, "main", "foo"};
 };
 
 TEST_F(LastChangedRowId, SetUpdateHookInContructor)
 {
-    EXPECT_CALL(mockSqliteDatabase, setUpdateHook(_));
+    EXPECT_CALL(mockSqliteDatabase, setUpdateHook(_, _));
 
-    Sqlite::LastChangedRowId lastRowId{mockSqliteDatabase, "main", "foo"};
+    Sqlite::LastChangedRowId<1> lastRowId{mockSqliteDatabase, "main", "foo"};
 }
 
 TEST_F(LastChangedRowId, ResetUpdateHookInDestructor)
@@ -57,42 +57,42 @@ TEST_F(LastChangedRowId, GetMinusOneAsRowIdIfNoCallbackWasCalled)
 
 TEST_F(LastChangedRowId, CallbackSetsLastRowId)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 42);
+    lastRowId("main", "foo", 42);
 
     ASSERT_THAT(lastRowId.lastRowId, 42);
 }
 
 TEST_F(LastChangedRowId, CallbackChecksDatabaseName)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 33);
+    lastRowId("main", "foo", 33);
 
-    lastRowId.callback(Sqlite::ChangeType::Update, "temp", "foo", 42);
+    lastRowId("temp", "foo", 42);
 
     ASSERT_THAT(lastRowId.lastRowId, 33);
 }
 
 TEST_F(LastChangedRowId, CallbackChecksTableName)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 33);
+    lastRowId("main", "foo", 33);
 
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "bar", 42);
+    lastRowId("main", "bar", 42);
 
     ASSERT_THAT(lastRowId.lastRowId, 33);
 }
 
 TEST_F(LastChangedRowId, LastCallSetsRowId)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 42);
-    lastRowId.callback(Sqlite::ChangeType::Insert, "main", "foo", 33);
+    lastRowId("main", "foo", 42);
+    lastRowId("main", "foo", 33);
 
-    lastRowId.callback(Sqlite::ChangeType::Delete, "main", "foo", 66);
+    lastRowId("main", "foo", 66);
 
     ASSERT_THAT(lastRowId.lastRowId, 66);
 }
 
 TEST_F(LastChangedRowId, TakeLastRowId)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 42);
+    lastRowId("main", "foo", 42);
 
     auto id = lastRowId.takeLastRowId();
 
@@ -101,7 +101,7 @@ TEST_F(LastChangedRowId, TakeLastRowId)
 
 TEST_F(LastChangedRowId, TakeLastRowIdResetsRowIdToMinusOne)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 42);
+    lastRowId("main", "foo", 42);
     lastRowId.takeLastRowId();
 
     auto id = lastRowId.takeLastRowId();
@@ -114,14 +114,14 @@ class LastChangedRowIdWithTwoTables : public testing::Test
 protected:
     NiceMock<MockSqliteDatabase> mockSqliteDatabase;
 
-    Sqlite::LastChangedRowId lastRowId{mockSqliteDatabase, "main", "foo", "bar"};
+    Sqlite::LastChangedRowId<2> lastRowId{mockSqliteDatabase, "main", "foo", "bar"};
 };
 
 TEST_F(LastChangedRowIdWithTwoTables, SetUpdateHookInContructor)
 {
-    EXPECT_CALL(mockSqliteDatabase, setUpdateHook(_));
+    EXPECT_CALL(mockSqliteDatabase, setUpdateHook(_, _));
 
-    Sqlite::LastChangedRowId lastRowId{mockSqliteDatabase, "main", "foo"};
+    Sqlite::LastChangedRowId<2> lastRowId{mockSqliteDatabase, "main", "foo", "bar"};
 }
 
 TEST_F(LastChangedRowIdWithTwoTables, ResetUpdateHookInDestructor)
@@ -136,48 +136,48 @@ TEST_F(LastChangedRowIdWithTwoTables, GetMinusOneAsRowIdIfNoCallbackWasCalled)
 
 TEST_F(LastChangedRowIdWithTwoTables, CallbackSetsLastRowIdFirstTable)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 42);
+    lastRowId("main", "foo", 42);
 
     ASSERT_THAT(lastRowId.lastRowId, 42);
 }
 
 TEST_F(LastChangedRowIdWithTwoTables, CallbackSetsLastRowIdSecondTable)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "bar", 66);
+    lastRowId("main", "bar", 66);
 
     ASSERT_THAT(lastRowId.lastRowId, 66);
 }
 
 TEST_F(LastChangedRowIdWithTwoTables, CallbackChecksDatabaseName)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 33);
+    lastRowId("main", "foo", 33);
 
-    lastRowId.callback(Sqlite::ChangeType::Update, "temp", "foo", 42);
+    lastRowId("temp", "foo", 42);
 
     ASSERT_THAT(lastRowId.lastRowId, 33);
 }
 
 TEST_F(LastChangedRowIdWithTwoTables, CallbackChecksTableName)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 33);
+    lastRowId("main", "foo", 33);
 
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "zoo", 42);
+    lastRowId("main", "zoo", 42);
 
     ASSERT_THAT(lastRowId.lastRowId, 33);
 }
 
 TEST_F(LastChangedRowIdWithTwoTables, LastCallSetsRowId)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 42);
+    lastRowId("main", "foo", 42);
 
-    lastRowId.callback(Sqlite::ChangeType::Delete, "main", "bar", 66);
+    lastRowId("main", "bar", 66);
 
     ASSERT_THAT(lastRowId.lastRowId, 66);
 }
 
 TEST_F(LastChangedRowIdWithTwoTables, TakeLastRowId)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 42);
+    lastRowId("main", "foo", 42);
 
     auto id = lastRowId.takeLastRowId();
 
@@ -186,7 +186,7 @@ TEST_F(LastChangedRowIdWithTwoTables, TakeLastRowId)
 
 TEST_F(LastChangedRowIdWithTwoTables, TakeLastRowIdResetsRowIdToMinusOne)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 42);
+    lastRowId("main", "foo", 42);
     lastRowId.takeLastRowId();
 
     auto id = lastRowId.takeLastRowId();
@@ -199,14 +199,14 @@ class LastChangedRowIdWithThreeTables : public testing::Test
 protected:
     NiceMock<MockSqliteDatabase> mockSqliteDatabase;
 
-    Sqlite::LastChangedRowId lastRowId{mockSqliteDatabase, "main", "foo", "bar", "too"};
+    Sqlite::LastChangedRowId<3> lastRowId{mockSqliteDatabase, "main", "foo", "bar", "too"};
 };
 
 TEST_F(LastChangedRowIdWithThreeTables, SetUpdateHookInContructor)
 {
-    EXPECT_CALL(mockSqliteDatabase, setUpdateHook(_));
+    EXPECT_CALL(mockSqliteDatabase, setUpdateHook(_, _));
 
-    Sqlite::LastChangedRowId lastRowId{mockSqliteDatabase, "main", "foo"};
+    Sqlite::LastChangedRowId<3> lastRowId{mockSqliteDatabase, "main", "foo", "bar", "too"};
 }
 
 TEST_F(LastChangedRowIdWithThreeTables, ResetUpdateHookInDestructor)
@@ -221,56 +221,56 @@ TEST_F(LastChangedRowIdWithThreeTables, GetMinusOneAsRowIdIfNoCallbackWasCalled)
 
 TEST_F(LastChangedRowIdWithThreeTables, CallbackSetsLastRowIdFirstTable)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 42);
+    lastRowId("main", "foo", 42);
 
     ASSERT_THAT(lastRowId.lastRowId, 42);
 }
 
 TEST_F(LastChangedRowIdWithThreeTables, CallbackSetsLastRowIdSecondTable)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "bar", 42);
+    lastRowId("main", "bar", 42);
 
     ASSERT_THAT(lastRowId.lastRowId, 42);
 }
 
 TEST_F(LastChangedRowIdWithThreeTables, CallbackSetsLastRowIdThirdTable)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "too", 42);
+    lastRowId("main", "too", 42);
 
     ASSERT_THAT(lastRowId.lastRowId, 42);
 }
 
 TEST_F(LastChangedRowIdWithThreeTables, CallbackChecksDatabaseName)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 33);
+    lastRowId("main", "foo", 33);
 
-    lastRowId.callback(Sqlite::ChangeType::Update, "temp", "foo", 42);
+    lastRowId("temp", "foo", 42);
 
     ASSERT_THAT(lastRowId.lastRowId, 33);
 }
 
 TEST_F(LastChangedRowIdWithThreeTables, CallbackChecksTableName)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 33);
+    lastRowId("main", "foo", 33);
 
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "zoo", 42);
+    lastRowId("main", "zoo", 42);
 
     ASSERT_THAT(lastRowId.lastRowId, 33);
 }
 
 TEST_F(LastChangedRowIdWithThreeTables, LastCallSetsRowId)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "bar", 42);
-    lastRowId.callback(Sqlite::ChangeType::Insert, "main", "too", 33);
+    lastRowId("main", "bar", 42);
+    lastRowId("main", "too", 33);
 
-    lastRowId.callback(Sqlite::ChangeType::Delete, "main", "too", 66);
+    lastRowId("main", "too", 66);
 
     ASSERT_THAT(lastRowId.lastRowId, 66);
 }
 
 TEST_F(LastChangedRowIdWithThreeTables, TakeLastRowId)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 42);
+    lastRowId("main", "foo", 42);
 
     auto id = lastRowId.takeLastRowId();
 
@@ -279,7 +279,7 @@ TEST_F(LastChangedRowIdWithThreeTables, TakeLastRowId)
 
 TEST_F(LastChangedRowIdWithThreeTables, TakeLastRowIdResetsRowIdToMinusOne)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 42);
+    lastRowId("main", "foo", 42);
     lastRowId.takeLastRowId();
 
     auto id = lastRowId.takeLastRowId();
@@ -291,14 +291,14 @@ class LastChangedRowIdWithNoDatabaseAndTable : public testing::Test
 {
 protected:
     NiceMock<MockSqliteDatabase> mockSqliteDatabase;
-    Sqlite::LastChangedRowId lastRowId{mockSqliteDatabase};
+    Sqlite::LastChangedRowId<> lastRowId{mockSqliteDatabase};
 };
 
 TEST_F(LastChangedRowIdWithNoDatabaseAndTable, SetUpdateHookInContructor)
 {
-    EXPECT_CALL(mockSqliteDatabase, setUpdateHook(_));
+    EXPECT_CALL(mockSqliteDatabase, setUpdateHook(_, _));
 
-    Sqlite::LastChangedRowId lastRowId{mockSqliteDatabase, "main", "foo"};
+    Sqlite::LastChangedRowId<> lastRowId{mockSqliteDatabase};
 }
 
 TEST_F(LastChangedRowIdWithNoDatabaseAndTable, ResetUpdateHookInDestructor)
@@ -313,42 +313,24 @@ TEST_F(LastChangedRowIdWithNoDatabaseAndTable, GetMinusOneAsRowIdIfNoCallbackWas
 
 TEST_F(LastChangedRowIdWithNoDatabaseAndTable, CallbackSetsLastRowId)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 42);
-
-    ASSERT_THAT(lastRowId.lastRowId, 42);
-}
-
-TEST_F(LastChangedRowIdWithNoDatabaseAndTable, CallbackDoNotChecksDatabaseName)
-{
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 33);
-
-    lastRowId.callback(Sqlite::ChangeType::Update, "temp", "foo", 42);
-
-    ASSERT_THAT(lastRowId.lastRowId, 42);
-}
-
-TEST_F(LastChangedRowIdWithNoDatabaseAndTable, CallbackDoNotChecksTableName)
-{
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 33);
-
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "bar", 42);
+    lastRowId(42);
 
     ASSERT_THAT(lastRowId.lastRowId, 42);
 }
 
 TEST_F(LastChangedRowIdWithNoDatabaseAndTable, LastCallSetsRowId)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 42);
-    lastRowId.callback(Sqlite::ChangeType::Insert, "main", "foo", 33);
+    lastRowId(42);
+    lastRowId(33);
 
-    lastRowId.callback(Sqlite::ChangeType::Delete, "main", "foo", 66);
+    lastRowId(66);
 
     ASSERT_THAT(lastRowId.lastRowId, 66);
 }
 
 TEST_F(LastChangedRowIdWithNoDatabaseAndTable, TakeLastRowId)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 42);
+    lastRowId(42);
 
     auto id = lastRowId.takeLastRowId();
 
@@ -357,7 +339,7 @@ TEST_F(LastChangedRowIdWithNoDatabaseAndTable, TakeLastRowId)
 
 TEST_F(LastChangedRowIdWithNoDatabaseAndTable, TakeLastRowIdResetsRowIdToMinusOne)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 42);
+    lastRowId(42);
     lastRowId.takeLastRowId();
 
     auto id = lastRowId.takeLastRowId();
@@ -369,14 +351,14 @@ class LastChangedRowIdWithNoTable : public testing::Test
 {
 protected:
     NiceMock<MockSqliteDatabase> mockSqliteDatabase;
-    Sqlite::LastChangedRowId lastRowId{mockSqliteDatabase, "main"};
+    Sqlite::LastChangedRowId<> lastRowId{mockSqliteDatabase, "main"};
 };
 
 TEST_F(LastChangedRowIdWithNoTable, SetUpdateHookInContructor)
 {
-    EXPECT_CALL(mockSqliteDatabase, setUpdateHook(_));
+    EXPECT_CALL(mockSqliteDatabase, setUpdateHook(_, _));
 
-    Sqlite::LastChangedRowId lastRowId{mockSqliteDatabase, "main", "foo"};
+    Sqlite::LastChangedRowId<> lastRowId{mockSqliteDatabase, "main"};
 }
 
 TEST_F(LastChangedRowIdWithNoTable, ResetUpdateHookInDestructor)
@@ -391,42 +373,33 @@ TEST_F(LastChangedRowIdWithNoTable, GetMinusOneAsRowIdIfNoCallbackWasCalled)
 
 TEST_F(LastChangedRowIdWithNoTable, CallbackSetsLastRowId)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 42);
+    lastRowId("main", 42);
 
     ASSERT_THAT(lastRowId.lastRowId, 42);
 }
 
 TEST_F(LastChangedRowIdWithNoTable, CallbackChecksDatabaseName)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 33);
+    lastRowId("main", 33);
 
-    lastRowId.callback(Sqlite::ChangeType::Update, "temp", "foo", 42);
+    lastRowId("temp", 42);
 
     ASSERT_THAT(lastRowId.lastRowId, 33);
 }
 
-TEST_F(LastChangedRowIdWithNoTable, CallbackDoNotChecksTableName)
-{
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 33);
-
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "bar", 42);
-
-    ASSERT_THAT(lastRowId.lastRowId, 42);
-}
-
 TEST_F(LastChangedRowIdWithNoTable, LastCallSetsRowId)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 42);
-    lastRowId.callback(Sqlite::ChangeType::Insert, "main", "foo", 33);
+    lastRowId("main", 42);
+    lastRowId("main", 33);
 
-    lastRowId.callback(Sqlite::ChangeType::Delete, "main", "foo", 66);
+    lastRowId("main", 66);
 
     ASSERT_THAT(lastRowId.lastRowId, 66);
 }
 
 TEST_F(LastChangedRowIdWithNoTable, TakeLastRowId)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 42);
+    lastRowId("main", 42);
 
     auto id = lastRowId.takeLastRowId();
 
@@ -435,7 +408,7 @@ TEST_F(LastChangedRowIdWithNoTable, TakeLastRowId)
 
 TEST_F(LastChangedRowIdWithNoTable, TakeLastRowIdResetsRowIdToMinusOne)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 42);
+    lastRowId("main", 42);
     lastRowId.takeLastRowId();
 
     auto id = lastRowId.takeLastRowId();
@@ -452,7 +425,7 @@ TEST_F(LastChangedRowIdWithNoTable, LastRowIdIsNotValidForNegativeValues)
 
 TEST_F(LastChangedRowIdWithNoTable, LastRowIdIsValidForNull)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 0);
+    lastRowId("main", 0);
 
     auto isValid = lastRowId.lastRowIdIsValid();
 
@@ -461,7 +434,7 @@ TEST_F(LastChangedRowIdWithNoTable, LastRowIdIsValidForNull)
 
 TEST_F(LastChangedRowIdWithNoTable, LastRowIdIsValidForPositiveValues)
 {
-    lastRowId.callback(Sqlite::ChangeType::Update, "main", "foo", 777);
+    lastRowId("main", 777);
 
     auto isValid = lastRowId.lastRowIdIsValid();
 

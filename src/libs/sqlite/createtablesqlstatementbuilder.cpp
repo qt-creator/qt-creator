@@ -192,6 +192,8 @@ public:
             columnDefinitionString.append(defaultValue.value.toStringView());
             columnDefinitionString.append("'");
             break;
+        default:
+            break;
         }
     }
 

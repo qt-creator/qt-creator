@@ -36,6 +36,6 @@ add_qtc_plugin(ClangRefactoring
     symbol.h
     symbolquery.h
     symbolqueryinterface.h
-    symbolsfindfilter.cpp symbolsfindfilter.h
+    clangsymbolsfindfilter.cpp clangsymbolsfindfilter.h
     symbolsfindfilterconfigwidget.cpp symbolsfindfilterconfigwidget.h
 )

@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "gtest-creator-printing.h"
+#include "gtest-std-printing.h"
 
 #ifdef CLANG_UNIT_TESTS
 #include <clang/Basic/SourceLocation.h>

@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "symbolsfindfilter.h"
+#include "clangsymbolsfindfilter.h"
 
 #include <cpptools/cpptoolsconstants.h>
 

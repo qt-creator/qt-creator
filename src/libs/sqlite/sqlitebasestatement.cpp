@@ -214,6 +214,9 @@ void BaseStatement::bind(int index, const Value &value)
     case ValueType::String:
         bind(index, value.toStringView());
         break;
+    case ValueType::Null:
+        bind(index, NullValue{});
+        break;
     }
 }
 
