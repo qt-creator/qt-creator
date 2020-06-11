@@ -162,6 +162,22 @@ private:
 
 class QTCREATOR_UTILS_EXPORT FileUtils {
 public:
+#ifdef QT_GUI_LIB
+    class QTCREATOR_UTILS_EXPORT CopyAskingForOverwrite
+    {
+    public:
+        CopyAskingForOverwrite(QWidget *dialogParent);
+        bool operator()(const QFileInfo &src, const QFileInfo &dest, QString *error);
+        QStringList files() const;
+
+    private:
+        QWidget *m_parent;
+        QStringList m_files;
+        bool m_overwriteAll = false;
+        bool m_skipAll = false;
+    };
+#endif // QT_GUI_LIB
+
     static bool removeRecursively(const FilePath &filePath, QString *error = nullptr);
     static bool copyRecursively(
             const FilePath &srcFilePath, const FilePath &tgtFilePath, QString *error = nullptr,
