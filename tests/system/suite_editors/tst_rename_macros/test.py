@@ -46,7 +46,6 @@ def main():
                      expectedHeaderName=headerName)
     if not testRenameMacroAfterSourceMoving():
         return
-    invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Exit")
 
 def testRenameMacroAfterSourceModification():
