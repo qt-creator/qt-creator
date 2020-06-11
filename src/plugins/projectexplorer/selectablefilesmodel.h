@@ -34,6 +34,7 @@
 #include <QFutureInterface>
 #include <QFutureWatcher>
 #include <QLabel>
+#include <QRegularExpression>
 #include <QSet>
 #include <QTreeView>
 
@@ -74,7 +75,7 @@ public:
     enum Mode { EXACT, ENDSWITH, REGEXP };
     Mode mode;
     QString matchString;
-    mutable QRegExp matchRegexp;
+    QRegularExpression matchRegexp;
 
     bool isMatch(const QString &text) const
     {
@@ -85,7 +86,7 @@ public:
             if (text.endsWith(matchString))
                 return true;
         } else if (mode == Glob::REGEXP) {
-            if (matchRegexp.exactMatch(text))
+            if (matchRegexp.match(text).hasMatch())
                 return true;
         }
         return false;

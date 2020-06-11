@@ -362,7 +362,8 @@ QList<Glob> SelectableFilesModel::parseFilter(const QString &filter)
             g.matchString = entry.mid(1);
         } else {
             g.mode = Glob::REGEXP;
-            g.matchRegexp = QRegExp(entry, Qt::CaseInsensitive, QRegExp::Wildcard);
+            const QString re = QRegularExpression::wildcardToRegularExpression(entry);
+            g.matchRegexp = QRegularExpression(re, QRegularExpression::CaseInsensitiveOption);
         }
         result.append(g);
     }
