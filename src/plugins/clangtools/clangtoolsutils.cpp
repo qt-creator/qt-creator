@@ -124,7 +124,7 @@ QString fullPath(const QString &executable)
 
 static QString findValidExecutable(const QStringList &candidates)
 {
-    for (QString candidate : candidates) {
+    for (const QString &candidate : candidates) {
         const QString expandedPath = fullPath(candidate);
         if (isFileExecutable(expandedPath))
             return expandedPath;

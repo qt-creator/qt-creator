@@ -1198,7 +1198,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
 
     auto profilesLayout = new QHBoxLayout;
     m_profilesCombo = new QComboBox;
-    for (auto profile : m_profiles)
+    for (const auto &profile : m_profiles)
         m_profilesCombo->addItem(settings->value(profile + "/" + heobProfileNameC).toString());
     if (hasSelProfile) {
         int selIdx = m_profiles.indexOf(selProfile);

@@ -244,7 +244,7 @@ QMultiMap<QString, QUrl> HelpManager::linksForKeyword(const QString &key)
 #else
     QMultiMap<QString, QUrl> links;
     const QList<QHelpLink> docs = d->m_helpEngine->documentsForKeyword(key, QString());
-    for (const auto doc : docs)
+    for (const auto &doc : docs)
         links.insert(doc.title, doc.url);
     return links;
 #endif
@@ -260,7 +260,7 @@ QMultiMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &id)
 #else
     QMultiMap<QString, QUrl> links;
     const QList<QHelpLink> docs = d->m_helpEngine->documentsForIdentifier(id, QString());
-    for (const auto doc : docs)
+    for (const auto &doc : docs)
         links.insert(doc.title, doc.url);
     return links;
 #endif

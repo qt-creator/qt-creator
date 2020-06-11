@@ -118,8 +118,8 @@ FilePath getPylsModulePath(CommandLine pylsCommand)
                                                    QRegularExpression::MultilineOption);
 
     const QString &output = response.allOutput();
-    for (auto regex : {regexCached, regexNotCached}) {
-        QRegularExpressionMatch result = regex.match(output);
+    for (const auto &regex : {regexCached, regexNotCached}) {
+        const QRegularExpressionMatch result = regex.match(output);
         if (result.hasMatch()) {
             const FilePath &modulePath = FilePath::fromUserInput(result.captured(1));
             cache[pylsCommand.executable()] = modulePath;

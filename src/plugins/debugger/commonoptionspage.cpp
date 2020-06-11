@@ -211,7 +211,7 @@ public:
 
         GlobalDebuggerOptions *options = Internal::globalDebuggerOptions();
         SourcePathMap allPathMap = options->sourcePathMap;
-        for (auto regExpMap : qAsConst(options->sourcePathRegExpMap))
+        for (const auto &regExpMap : qAsConst(options->sourcePathRegExpMap))
             allPathMap.insert(regExpMap.first.pattern(), regExpMap.second);
         m_sourceMappingWidget->setSourcePathMap(allPathMap);
     }

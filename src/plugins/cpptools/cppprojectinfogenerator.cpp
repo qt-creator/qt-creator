@@ -56,7 +56,7 @@ ProjectInfo ProjectInfoGenerator::generate()
         if (m_futureInterface.isCanceled())
             return ProjectInfo();
 
-        for (ProjectPart::Ptr part : createProjectParts(rpp))
+        for (const ProjectPart::Ptr part : createProjectParts(rpp))
             projectInfo.appendProjectPart(part);
     }
 

@@ -297,7 +297,8 @@ int ReadOnlyFilesDialog::exec()
 
     ReadOnlyResult result = RO_Cancel;
     FilePaths failedToMakeWritable;
-    for (ReadOnlyFilesDialogPrivate::ButtonGroupForFile buttongroup : qAsConst(d->buttonGroups)) {
+    for (const ReadOnlyFilesDialogPrivate::ButtonGroupForFile &buttongroup
+         : qAsConst(d->buttonGroups)) {
         result = static_cast<ReadOnlyResult>(buttongroup.group->checkedId());
         switch (result) {
         case RO_MakeWritable:

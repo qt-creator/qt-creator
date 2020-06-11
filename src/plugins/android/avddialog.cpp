@@ -135,7 +135,7 @@ void AvdDialog::parseDeviceDefinitionsList()
 
     QStringList avdDeviceInfo;
 
-    for (QString line : output.split('\n')) {
+    for (const QString &line : output.split('\n')) {
         if (line.startsWith("---------") || line.isEmpty()) {
             DeviceDefinitionStruct deviceDefinition;
             for (const QString &line : avdDeviceInfo) {
@@ -171,7 +171,7 @@ void AvdDialog::updateDeviceDefinitionComboBox()
         m_avdDialog.deviceDefinitionTypeComboBox->currentText());
 
     m_avdDialog.deviceDefinitionComboBox->clear();
-    for (auto item : m_deviceDefinitionsList) {
+    for (const DeviceDefinitionStruct &item : m_deviceDefinitionsList) {
         if (item.deviceType == curDeviceType)
             m_avdDialog.deviceDefinitionComboBox->addItem(item.name_id);
     }

@@ -275,7 +275,7 @@ void IosBuildSettingsWidget::populateProvisioningProfiles()
         m_signEntityCombo->clear();
         const ProvisioningProfiles profiles = IosConfigurations::provisioningProfiles();
         if (!profiles.isEmpty()) {
-            for (auto profile : profiles) {
+            for (const auto profile : profiles) {
                 m_signEntityCombo->addItem(profile->displayName());
                 const int index = m_signEntityCombo->count() - 1;
                 m_signEntityCombo->setItemData(index, profile->identifier(), IdentifierRole);

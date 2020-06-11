@@ -1782,7 +1782,7 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
             [this](const QString &path) {
                 return !m_wildcardWatcher->watchesDirectory(path);
             });
-        for (QString path : directoriesToAdd)
+        for (const QString &path : directoriesToAdd)
             m_wildcardDirectoryContents.insert(path, QDir(path).entryList());
         m_wildcardWatcher->addDirectories(directoriesToAdd,
                                           Utils::FileSystemWatcher::WatchModifiedDate);
@@ -1799,7 +1799,7 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
                         return !result->directoriesWithWildcards.contains(path);
                     });
             m_wildcardWatcher->removeDirectories(directoriesToRemove);
-            for (QString path : directoriesToRemove)
+            for (const QString &path : directoriesToRemove)
                 m_wildcardDirectoryContents.remove(path);
         }
     }

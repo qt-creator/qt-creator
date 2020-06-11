@@ -2811,7 +2811,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
             const GlobalDebuggerOptions *options = Internal::globalDebuggerOptions();
             SourcePathRegExpMap globalRegExpSourceMap;
             globalRegExpSourceMap.reserve(options->sourcePathRegExpMap.size());
-            for (auto entry : qAsConst(options->sourcePathRegExpMap)) {
+            for (const auto &entry : qAsConst(options->sourcePathRegExpMap)) {
                 const QString expanded = Utils::globalMacroExpander()->expand(entry.second);
                 if (!expanded.isEmpty())
                     globalRegExpSourceMap.push_back(qMakePair(entry.first, expanded));

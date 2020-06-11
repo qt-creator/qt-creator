@@ -2216,7 +2216,7 @@ Abis BaseQtVersion::qtAbisFromLibrary(const FilePaths &coreLibraries)
 {
     Abis res;
     for (const FilePath &library : coreLibraries) {
-        for (Abi abi : Abi::abisOfBinary(library)) {
+        for (const Abi &abi : Abi::abisOfBinary(library)) {
             Abi tmp = abi;
             if (abi.osFlavor() == Abi::UnknownFlavor)
                 tmp = scanQtBinaryForBuildStringAndRefineAbi(library, abi);

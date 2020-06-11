@@ -223,7 +223,7 @@ void HelpIndexFilter::accept(LocatorFilterEntry selection,
 #else
     QMultiMap<QString, QUrl> links;
     const QList<QHelpLink> docs = LocalHelpManager::helpEngine().documentsForKeyword(key, QString());
-    for (const auto doc : docs)
+    for (const auto &doc : docs)
         links.insert(doc.title, doc.url);
 #endif
     emit linksActivated(links, key);

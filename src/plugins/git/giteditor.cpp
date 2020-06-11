@@ -214,7 +214,7 @@ void GitEditorWidget::setPlainText(const QString &text)
         clear();
         QTextCursor cursor = textCursor();
         cursor.beginEditBlock();
-        for (auto formattedChunk : formattedTextList)
+        for (const auto &formattedChunk : formattedTextList)
             cursor.insertText(formattedChunk.text, formattedChunk.format);
         cursor.endEditBlock();
 

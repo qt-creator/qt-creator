@@ -353,7 +353,7 @@ void CtfTimelineModel::addCounterValue(const json &event, qint64 normalizedTime,
     if (!event.contains("args")) return;
     // CTF documentation says all keys of 'args' should be displayed in
     // one stacked graph, but we will display them separately:
-    for (auto it: event["args"].items()) {
+    for (const auto it : event["args"].items()) {
         std::string counterName = event.contains("id") ?
                     name + event.value("id", "") : name;
         const std::string &key = it.key();

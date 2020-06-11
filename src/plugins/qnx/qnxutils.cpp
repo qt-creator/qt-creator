@@ -237,7 +237,7 @@ QList<QnxTarget> QnxUtils::findTargets(const Utils::FilePath &basePath)
                 qWarning() << libc << "has more than one ABI ... processing all";
 
             FilePath path = FilePath::fromString(iterator.filePath());
-            for (Abi abi : abis)
+            for (const Abi &abi : abis)
                 result.append(QnxTarget(path, QnxUtils::convertAbi(abi)));
         }
     }

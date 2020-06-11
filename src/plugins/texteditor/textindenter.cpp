@@ -78,7 +78,7 @@ IndentationForBlock TextIndenter::indentationForBlocks(const QVector<QTextBlock>
                                                        int /*cursorPositionInEditor*/)
 {
     IndentationForBlock ret;
-    for (QTextBlock block : blocks)
+    for (const QTextBlock &block : blocks)
         ret.insert(block.blockNumber(), indentFor(block, tabSettings));
     return ret;
 }
