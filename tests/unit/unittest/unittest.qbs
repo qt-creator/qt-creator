@@ -762,6 +762,8 @@ CppApplication {
             "clangqueryhighlightmarker.h",
             "clangqueryprojectsfindfilter.cpp",
             "clangqueryprojectsfindfilter.h",
+            "clangsymbolsfindfilter.cpp",
+            "clangsymbolsfindfilter.h",
             "editormanagerinterface.h",
             "locatorfilter.cpp",
             "locatorfilter.h",
@@ -781,8 +783,6 @@ CppApplication {
             "searchinterface.h",
             "symbol.h",
             "symbolqueryinterface.h",
-            "symbolsfindfilter.cpp",
-            "symbolsfindfilter.h",
         ]
     }
 
