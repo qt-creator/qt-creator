@@ -740,7 +740,7 @@ static bool isValid(const QList<QmlItemNode> &list)
         if (!item.isValid())
             return false;
 
-    return true;
+    return !list.isEmpty();
 }
 
 static bool isModelNodeValid(const QList<QmlItemNode> &list)
@@ -749,7 +749,7 @@ static bool isModelNodeValid(const QList<QmlItemNode> &list)
         if (!item.modelNode().isValid())
             return false;
 
-    return true;
+    return !list.isEmpty();
 }
 
 class ResolveConnection
