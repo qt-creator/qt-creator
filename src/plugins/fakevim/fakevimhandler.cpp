@@ -5512,10 +5512,10 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
 
     int count = 1;
     QString line = cmd.args;
-    const int countIndex = line.lastIndexOf(QRegExp("\\d+$"));
-    if (countIndex != -1) {
-        count = line.midRef(countIndex).toInt();
-        line = line.mid(0, countIndex).trimmed();
+    const QRegularExpressionMatch match = QRegularExpression("\\d+$").match(line);
+    if (match.hasMatch()) {
+        count = match.captured().toInt();
+        line = line.left(match.capturedStart()).trimmed();
     }
 
     if (cmd.cmd.isEmpty()) {
