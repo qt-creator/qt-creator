@@ -54,6 +54,9 @@ public:
                                                 const CPlusPlus::Snapshot &snapshot,
                                                 bool strict = false);
 
+    CPlusPlus::Symbol *findMatchingVarDefinition(CPlusPlus::Symbol *declaration,
+                                                 const CPlusPlus::Snapshot &snapshot);
+
     CPlusPlus::Class *findMatchingClassDeclaration(CPlusPlus::Symbol *declaration,
                                                    const CPlusPlus::Snapshot &snapshot);
 

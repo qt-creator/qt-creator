@@ -554,6 +554,31 @@ void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_data()
         "class Foo { void $" TEST_UNICODE_IDENTIFIER "(); };\n"
         "void Foo::@" TEST_UNICODE_IDENTIFIER "() {}\n"
     ) << _();
+
+    QTest::newRow("globalVar")
+            << _("namespace NS { extern int @globalVar; }\n")
+            << _("int globalVar;\n"
+                 "namespace NS {\n"
+                 "extern int globalVar;\n"
+                 "int $globalVar;\n"
+                 "}\n");
+
+    QTest::newRow("staticMemberVar")
+            << _("namespace NS {\n"
+                 "class Test {\n"
+                 "    static int @var;\n"
+                 "};\n"
+                 "class OtherClass { static int var; };\n"
+                 "}\n"
+                 "class OtherClass { static int var; };\n")
+            << _("#include \"file.h\"\n"
+                 "int var;\n"
+                 "int OtherClass::var;\n"
+                 "namespace NS {\n"
+                 "int OtherClass::var;\n"
+                 "float Test::var;\n"
+                 "int Test::$var;\n"
+                 "}\n");
 }
 
 void CppEditorPlugin::test_SwitchMethodDeclarationDefinition()
@@ -1145,6 +1170,34 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_multipleDocuments_data()
                                 "bool *$fun(C *) const {}\n",
                                 "foo.cpp")
     );
+
+    QTest::newRow("globalVar") << QList<TestDocumentPtr>{
+            TestDocument::create("namespace NS { extern int @globalVar; }\n", "file.h"),
+            TestDocument::create(
+                "int globalVar;\n"
+                "namespace NS {\n"
+                "extern int globalVar;\n"
+                "int $globalVar;\n"
+                "}\n", "file.cpp")};
+
+    QTest::newRow("staticMemberVar") << QList<TestDocumentPtr>{
+        TestDocument::create(
+            "namespace NS {\n"
+            "class Test {\n"
+            "    static int @var;\n"
+            "};\n"
+            "class OtherClass { static int var; };\n"
+            "}\n"
+            "class OtherClass { static int var; };\n", "file.h"),
+        TestDocument::create(
+            "#include \"file.h\"\n"
+            "int var;\n"
+            "int OtherClass::var;\n"
+            "namespace NS {\n"
+            "int OtherClass::var;\n"
+            "float Test::var;\n"
+            "int Test::$var;\n"
+            "}\n", "file.cpp")};
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_multipleDocuments()

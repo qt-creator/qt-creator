@@ -36,6 +36,7 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
+#include <QPair>
 
 #include <algorithm>
 #include <utility>
@@ -82,6 +83,46 @@ public:
     {
         return false;
     }
+};
+
+class FindMatchingVarDefinition: public SymbolVisitor
+{
+    Symbol *_declaration = nullptr;
+    QList<Declaration *> _result;
+    const Identifier *_className = nullptr;
+
+public:
+    explicit FindMatchingVarDefinition(Symbol *declaration)
+        : _declaration(declaration)
+    {
+        if (declaration->isStatic() && declaration->enclosingScope()->asClass()
+                && declaration->enclosingClass()->asClass()->name()) {
+            _className = declaration->enclosingScope()->name()->identifier();
+        }
+    }
+
+    const QList<Declaration *> result() const { return _result; }
+
+    using SymbolVisitor::visit;
+
+    bool visit(Declaration *decl) override
+    {
+        if (!decl->type()->match(_declaration->type().type()))
+            return false;
+        if (!_declaration->identifier()->equalTo(decl->identifier()))
+            return false;
+        if (_className) {
+            const QualifiedNameId * const qualName = decl->name()->asQualifiedNameId();
+            if (!qualName)
+                return false;
+            if (!qualName->base() || !qualName->base()->identifier()->equalTo(_className))
+                return false;
+        }
+        _result.append(decl);
+        return false;
+    }
+
+    bool visit(Block *) override { return false; }
 };
 
 } // end of anonymous namespace
@@ -205,6 +246,87 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
     }
 
     return nullptr;
+}
+
+Symbol *SymbolFinder::findMatchingVarDefinition(Symbol *declaration, const Snapshot &snapshot)
+{
+    if (!declaration)
+        return nullptr;
+    for (const Scope *s = declaration->enclosingScope(); s; s = s->enclosingScope()) {
+        if (s->asBlock())
+            return nullptr;
+    }
+
+    QString declFile = QString::fromUtf8(declaration->fileName(), declaration->fileNameLength());
+    const Document::Ptr thisDocument = snapshot.document(declFile);
+    if (!thisDocument) {
+        qWarning() << "undefined document:" << declaration->fileName();
+        return nullptr;
+    }
+
+    using SymbolWithPriority = QPair<Symbol *, bool>;
+    QList<SymbolWithPriority> candidates;
+    QList<SymbolWithPriority> fallbacks;
+    foreach (const QString &fileName, fileIterationOrder(declFile, snapshot)) {
+        Document::Ptr doc = snapshot.document(fileName);
+        if (!doc) {
+            clearCache(declFile, fileName);
+            continue;
+        }
+
+        const Identifier *id = declaration->identifier();
+        if (id && !doc->control()->findIdentifier(id->chars(), id->size()))
+            continue;
+
+        FindMatchingVarDefinition finder(declaration);
+        finder.accept(doc->globalNamespace());
+        if (finder.result().isEmpty())
+            continue;
+
+        LookupContext context(doc, snapshot);
+        ClassOrNamespace * const enclosingType = context.lookupType(declaration);
+        for (Symbol * const symbol : finder.result()) {
+            const QList<LookupItem> items = context.lookup(symbol->name(),
+                                                           symbol->enclosingScope());
+            bool addFallback = true;
+            for (const LookupItem &item : items) {
+                if (item.declaration() == symbol)
+                    addFallback = false;
+                candidates << qMakePair(item.declaration(),
+                                        context.lookupType(item.declaration()) == enclosingType);
+            }
+            // TODO: This is a workaround for static member definitions not being found by
+            //       the lookup() function.
+            if (addFallback)
+                fallbacks << qMakePair(symbol, context.lookupType(symbol) == enclosingType);
+        }
+    }
+
+    candidates << fallbacks;
+    SymbolWithPriority best;
+    for (const auto &candidate : qAsConst(candidates)) {
+        if (candidate.first == declaration)
+            continue;
+        if (QLatin1String(candidate.first->fileName()) == declFile
+                && candidate.first->sourceLocation() == declaration->sourceLocation())
+            continue;
+        if (!candidate.first->asDeclaration())
+            continue;
+        if (declaration->isExtern() && candidate.first->isStatic())
+            continue;
+        if (!best.first) {
+            best = candidate;
+            continue;
+        }
+        if (!best.second && candidate.second) {
+            best = candidate;
+            continue;
+        }
+        if (best.first->isExtern() && !candidate.first->isExtern())
+            best = candidate;
+    }
+
+    return best.first;
 }
 
 Class *SymbolFinder::findMatchingClassDeclaration(Symbol *declaration, const Snapshot &snapshot)

@@ -696,6 +696,7 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
     // Find function declaration or definition under cursor
     Function *functionDefinitionSymbol = nullptr;
     Symbol *functionDeclarationSymbol = nullptr;
+    Symbol *declarationSymbol = nullptr;
 
     ASTPath astPathFinder(d->m_lastSemanticInfo.doc);
     const QList<AST *> astPath = astPathFinder(textCursor());
@@ -707,9 +708,12 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
         } else if (SimpleDeclarationAST *simpleDeclaration = ast->asSimpleDeclaration()) {
             if (List<Symbol *> *symbols = simpleDeclaration->symbols) {
                 if (Symbol *symbol = symbols->value) {
-                    if (symbol->isDeclaration() && symbol->type()->isFunctionType()) {
-                        functionDeclarationSymbol = symbol;
-                        break; // Function declaration found!
+                    if (symbol->isDeclaration()) {
+                        declarationSymbol = symbol;
+                        if (symbol->type()->isFunctionType()) {
+                            functionDeclarationSymbol = symbol;
+                            break; // Function declaration found!
+                        }
                     }
                 }
             }
@@ -721,6 +725,11 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
     if (functionDeclarationSymbol) {
         Symbol *symbol = d->m_modelManager->symbolFinder()
                 ->findMatchingDefinition(functionDeclarationSymbol, d->m_modelManager->snapshot());
+        if (symbol)
+            symbolLink = symbol->toLink();
+    } else if (declarationSymbol) {
+        Symbol *symbol = d->m_modelManager->symbolFinder()
+                ->findMatchingVarDefinition(declarationSymbol, d->m_modelManager->snapshot());
         if (symbol)
             symbolLink = symbol->toLink();
     } else if (functionDefinitionSymbol) {
