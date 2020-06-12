@@ -24,6 +24,8 @@
 ****************************************************************************/
 #pragma once
 
+#include "qmlobjectnode.h"
+
 #include <QJsonObject>
 #include <QByteArrayList>
 
@@ -41,8 +43,13 @@ public:
     virtual bool isExportable() const = 0;
     virtual QJsonObject json() const = 0;
 
-protected:
+    const QByteArrayList& lineage() const { return m_lineage; }
+    const QmlObjectNode& objectNode() const { return m_objectNode; }
+    QVariant propertyValue(const PropertyName &name) const;
+
+private:
     const ModelNode &m_node;
-    const QByteArrayList m_lineage;
+    QmlObjectNode m_objectNode;
+    QByteArrayList m_lineage;
 };
 }

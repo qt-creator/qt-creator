@@ -50,6 +50,8 @@ QtcProduct {
         "parsers/modelitemnodeparser.cpp",
         "parsers/modelitemnodeparser.h",
         "parsers/modelnodeparser.cpp",
-        "parsers/modelnodeparser.h"
+        "parsers/modelnodeparser.h",
+        "parsers/textnodeparser.cpp",
+        "parsers/textnodeparser.h"
     ]
 }

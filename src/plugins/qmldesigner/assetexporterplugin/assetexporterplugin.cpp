@@ -33,6 +33,7 @@
 #include "componentexporter.h"
 
 #include "parsers/modelitemnodeparser.h"
+#include "parsers/textnodeparser.h"
 
 #include "coreplugin/actionmanager/actionmanager.h"
 #include "coreplugin/actionmanager/actioncontainer.h"
@@ -68,6 +69,7 @@ AssetExporterPlugin::AssetExporterPlugin() :
 
     // Add parsers templates for factory instantiation.
     ComponentExporter::addNodeParser<ItemNodeParser>();
+    ComponentExporter::addNodeParser<TextNodeParser>();
 
     // Instantiate actions created by the plugin.
     addActions();

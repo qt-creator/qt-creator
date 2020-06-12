@@ -22,42 +22,20 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+#pragma once
 
 #include "modelitemnodeparser.h"
-#include "assetexportpluginconstants.h"
-
-#include "qmlitemnode.h"
 
 namespace QmlDesigner {
-using namespace Constants;
-ItemNodeParser::ItemNodeParser(const QByteArrayList &lineage, const ModelNode &node) :
-    ModelNodeParser(lineage, node)
+class TextNodeParser : public ItemNodeParser
 {
+public:
+    TextNodeParser(const QByteArrayList &lineage, const ModelNode &node);
+    ~TextNodeParser() override = default;
 
-}
+    bool isExportable() const override;
+    int priority() const override { return 200; }
+    QJsonObject json() const override;
+};
 
-bool QmlDesigner::ItemNodeParser::isExportable() const
-{
-    return lineage().contains("QtQuick.Item");
-}
-
-QJsonObject QmlDesigner::ItemNodeParser::json() const
-{
-    const QmlObjectNode &qmlObjectNode = objectNode();
-    QJsonObject jsonObject;
-    jsonObject.insert(QmlIdTag, qmlObjectNode.id());
-    QmlItemNode itemNode = qmlObjectNode.toQmlItemNode();
-
-    // Position relative to parent
-    QPointF pos = itemNode.instancePosition();
-    jsonObject.insert(XPosTag, pos.x());
-    jsonObject.insert(YPosTag, pos.y());
-
-    // size
-    QSizeF size = itemNode.instanceSize();
-    jsonObject.insert(WidthTag, size.width());
-    jsonObject.insert(HeightTag, size.height());
-
-    return  jsonObject;
-}
 }

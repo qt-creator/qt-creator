@@ -31,5 +31,47 @@ const char EXPORT_QML[] = "Designer.ExportPlugin.ExportQml";
 
 const char TASK_CATEGORY_ASSET_EXPORT[] = "AssetExporter.Export";
 
+//***************************************************************************
+// Metadata tags
+//***************************************************************************
+// Plugin info tags
+const char PluginInfoTag[] = "pluginInfo";
+const char MetadataVersionTag[] = "metadataVersion";
+
+const char DocumentInfoTag[] = "documentInfo";
+const char DocumentNameTag[] = "name";
+
+// Layer data tags
+const char ArtboardListTag[] = "artboards";
+
+const char XPosTag[] = "x";
+const char YPosTag[] = "y";
+const char WidthTag[] = "width";
+const char HeightTag[] = "height";
+
+
+const char QmlIdTag[] = "qmlId";
+const char ExportTypeTag[] = "exportType";
+const char QmlPropertiesTag[] = "qmlProperties";
+const char ImportsTag[] = "extraImports";
+const char UuidTag[] = "uuid";
+const char ClipTag[] = "clip";
+const char AssetDataTag[] = "assetData";
+const char AssetPath[] = "assetPath";
+const char AssetBoundsTag[] = "assetBounds";
+const char OpacityTag[] = "opacity";
+
+const char TextDetailsTag[] = "textDetails";
+const char FontFamilyTag[] = "fontFamily";
+const char FontSizeTag[] = "fontSize";
+const char FontStyleTag[] = "fontStyle";
+const char LetterSpacingTag[] = "kerning";
+const char TextColorTag[] = "textColor";
+const char TextContentTag[] = "contents";
+const char IsMultilineTag[] = "multiline";
+const char LineHeightTag[] = "lineHeight";
+const char HAlignTag[] = "horizontalAlignment";
+const char VAlignTag[] = "verticalAlignment";
+
 }
 }

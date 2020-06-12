@@ -16,7 +16,8 @@ HEADERS += \
     exportnotification.h \
     filepathmodel.h \
     parsers/modelitemnodeparser.h \
-    parsers/modelnodeparser.h
+    parsers/modelnodeparser.h \
+    parsers/textnodeparser.h
 
 SOURCES += \
     assetexportdialog.cpp \
@@ -27,7 +28,8 @@ SOURCES += \
     exportnotification.cpp \
     filepathmodel.cpp \
     parsers/modelitemnodeparser.cpp \
-    parsers/modelnodeparser.cpp
+    parsers/modelnodeparser.cpp \
+    parsers/textnodeparser.cpp
 
 FORMS += \
     assetexportdialog.ui

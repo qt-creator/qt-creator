@@ -27,9 +27,15 @@
 namespace QmlDesigner {
 ModelNodeParser::ModelNodeParser(const QByteArrayList &lineage, const ModelNode &node) :
     m_node(node),
+    m_objectNode(node),
     m_lineage(lineage)
 {
 
+}
+
+QVariant ModelNodeParser::propertyValue(const PropertyName &name) const
+{
+    return m_objectNode.instanceValue(name);
 }
 
 }
