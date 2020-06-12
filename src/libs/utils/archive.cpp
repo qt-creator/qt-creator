@@ -34,6 +34,7 @@
 
 #include <QDir>
 #include <QPushButton>
+#include <QSettings>
 #include <QTimer>
 
 namespace {
@@ -43,28 +44,66 @@ struct Tool
     QString executable;
     QStringList arguments;
     QStringList supportedMimeTypes;
+    QStringList additionalSearchDirs;
 };
 
-const QVector<Tool> sTools = {
-    {{"unzip"}, {"-o", "%{src}", "-d", "%{dest}"}, {"application/zip"}},
-    {{"7z"}, {"x", "-o%{dest}", "-y", "%{src}"}, {"application/zip", "application/x-7z-compressed"}},
-    {{"tar"},
-     {"xvf", "%{src}"},
-     {"application/zip", "application/x-tar", "application/x-7z-compressed"}},
-    {{"tar"}, {"xvzf", "%{src}"}, {"application/x-compressed-tar"}},
-    {{"tar"}, {"xvJf", "%{src}"}, {"application/x-xz-compressed-tar"}},
-    {{"tar"}, {"xvjf", "%{src}"}, {"application/x-bzip-compressed-tar"}},
-    {{"cmake"},
-     {"-E", "tar", "xvf", "%{src}"},
-     {"application/zip", "application/x-tar", "application/x-7z-compressed"}},
-    {{"cmake"}, {"-E", "tar", "xvzf", "%{src}"}, {"application/x-compressed-tar"}},
-    {{"cmake"}, {"-E", "tar", "xvJf", "%{src}"}, {"application/x-xz-compressed-tar"}},
-    {{"cmake"}, {"-E", "tar", "xvjf", "%{src}"}, {"application/x-bzip-compressed-tar"}},
-};
+static const QVector<Tool> &sTools()
+{
+    static QVector<Tool> tools;
+    if (tools.isEmpty()) {
+        tools << Tool{{"unzip"}, {"-o", "%{src}", "-d", "%{dest}"}, {"application/zip"}, {}};
+        QStringList additional7ZipDirs;
+        if (Utils::HostOsInfo::isWindowsHost()) {
+            const QSettings settings64("HKEY_CURRENT_USER\\Software\\7-Zip",
+                                       QSettings::Registry64Format);
+            const QSettings settings32("HKEY_CURRENT_USER\\Software\\7-Zip",
+                                       QSettings::Registry32Format);
+            additional7ZipDirs << settings64.value("Path").toString()
+                               << settings32.value("Path").toString();
+        }
+        tools << Tool{{"7z"},
+                      {"x", "-o%{dest}", "-y", "%{src}"},
+                      {"application/zip", "application/x-7z-compressed"},
+                      additional7ZipDirs};
+        tools << Tool{{"tar"},
+                      {"xvf", "%{src}"},
+                      {"application/zip", "application/x-tar", "application/x-7z-compressed"},
+                      {}};
+        tools << Tool{{"tar"}, {"xvzf", "%{src}"}, {"application/x-compressed-tar"}, {}};
+        tools << Tool{{"tar"}, {"xvJf", "%{src}"}, {"application/x-xz-compressed-tar"}, {}};
+        tools << Tool{{"tar"}, {"xvjf", "%{src}"}, {"application/x-bzip-compressed-tar"}, {}};
+        QStringList additionalCMakeDirs;
+        if (Utils::HostOsInfo::isWindowsHost()) {
+            const QSettings settings64("HKEY_LOCAL_MACHINE\\SOFTWARE\\Kitware\\CMake",
+                                       QSettings::Registry64Format);
+            const QSettings settings32("HKEY_LOCAL_MACHINE\\SOFTWARE\\Kitware\\CMake",
+                                       QSettings::Registry32Format);
+            additionalCMakeDirs << settings64.value("InstallDir").toString()
+                                << settings32.value("InstallDir").toString();
+        }
+        tools << Tool{{"cmake"},
+                      {"-E", "tar", "xvf", "%{src}"},
+                      {"application/zip", "application/x-tar", "application/x-7z-compressed"},
+                      additionalCMakeDirs};
+        tools << Tool{{"cmake"},
+                      {"-E", "tar", "xvzf", "%{src}"},
+                      {"application/x-compressed-tar"},
+                      additionalCMakeDirs};
+        tools << Tool{{"cmake"},
+                      {"-E", "tar", "xvJf", "%{src}"},
+                      {"application/x-xz-compressed-tar"},
+                      additionalCMakeDirs};
+        tools << Tool{{"cmake"},
+                      {"-E", "tar", "xvjf", "%{src}"},
+                      {"application/x-bzip-compressed-tar"},
+                      additionalCMakeDirs};
+    }
+    return tools;
+}
 
 static QVector<Tool> toolsForMimeType(const Utils::MimeType &mimeType)
 {
-    return Utils::filtered(sTools, [mimeType](const Tool &tool) {
+    return Utils::filtered(sTools(), [mimeType](const Tool &tool) {
         return Utils::anyOf(tool.supportedMimeTypes,
                             [mimeType](const QString &mt) { return mimeType.inherits(mt); });
     });
@@ -77,10 +116,11 @@ static QVector<Tool> toolsForFilePath(const Utils::FilePath &fp)
 
 static Utils::optional<Tool> resolveTool(const Tool &tool)
 {
-    const QString executable = Utils::Environment::systemEnvironment()
-                                   .searchInPath(
-                                       Utils::HostOsInfo::withExecutableSuffix(tool.executable))
-                                   .toString();
+    const QString executable
+        = Utils::Environment::systemEnvironment()
+              .searchInPath(Utils::HostOsInfo::withExecutableSuffix(tool.executable),
+                            Utils::transform(tool.additionalSearchDirs, &Utils::FilePath::fromString))
+              .toString();
     Tool resolvedTool = tool;
     resolvedTool.executable = executable;
     return executable.isEmpty() ? Utils::nullopt : Utils::make_optional(resolvedTool);
