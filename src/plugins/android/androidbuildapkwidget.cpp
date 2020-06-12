@@ -224,12 +224,6 @@ QWidget *AndroidBuildApkWidget::createAdvancedGroup()
     auto verboseOutputCheckBox = new QCheckBox(tr("Verbose output"), group);
     verboseOutputCheckBox->setChecked(m_step->verboseOutput());
 
-    auto ministroOption = new QCheckBox(tr("Use Ministro service to install Qt"), group);
-    ministroOption->setToolTip(tr("Uses the external Ministro application to download and maintain Qt libraries."));
-    ministroOption->setChecked(m_step->useMinistro());
-    connect(ministroOption, &QAbstractButton::clicked,
-            m_step, &AndroidBuildApkStep::setUseMinistro);
-
     auto vbox = new QVBoxLayout(group);
     QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(step()->target()->kit());
     if (version && version->qtVersion() >= QtSupport::QtVersionNumber{5,14}) {
@@ -241,7 +235,6 @@ QWidget *AndroidBuildApkWidget::createAdvancedGroup()
     vbox->addWidget(openPackageLocationCheckBox);
     vbox->addWidget(verboseOutputCheckBox);
     vbox->addWidget(m_addDebuggerCheckBox);
-    vbox->addWidget(ministroOption);
 
     connect(verboseOutputCheckBox, &QAbstractButton::toggled,
             this, [this](bool checked) { m_step->setVerboseOutput(checked); });

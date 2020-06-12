@@ -108,15 +108,15 @@ public:
         auto resetDefaultDevices = new QPushButton(this);
         resetDefaultDevices->setText(AndroidDeployQtStep::tr("Reset Default Devices"));
 
-        auto installMinistroButton = new QPushButton(this);
-        installMinistroButton->setText(AndroidDeployQtStep::tr("Install Ministro from APK"));
+        auto installCustomApkButton = new QPushButton(this);
+        installCustomApkButton->setText(AndroidDeployQtStep::tr("Install an APK File"));
 
-        connect(installMinistroButton, &QAbstractButton::clicked, this, [this, step] {
-            QString packagePath =
-                    QFileDialog::getOpenFileName(this,
-                                                 AndroidDeployQtStep::tr("Qt Android Smart Installer"),
-                                                 QDir::homePath(),
-                                                 AndroidDeployQtStep::tr("Android package (*.apk)"));
+        connect(installCustomApkButton, &QAbstractButton::clicked, this, [this, step] {
+            const QString packagePath
+                = QFileDialog::getOpenFileName(this,
+                                               AndroidDeployQtStep::tr("Qt Android Installer"),
+                                               QDir::homePath(),
+                                               AndroidDeployQtStep::tr("Android package (*.apk)"));
             if (!packagePath.isEmpty())
                 AndroidManager::installQASIPackage(step->target(), packagePath);
         });
@@ -131,7 +131,7 @@ public:
         auto layout = new QVBoxLayout(this);
         layout->addWidget(uninstallPreviousPackage);
         layout->addWidget(resetDefaultDevices);
-        layout->addWidget(installMinistroButton);
+        layout->addWidget(installCustomApkButton);
     }
 };
 
@@ -251,11 +251,6 @@ bool AndroidDeployQtStep::init()
                                            "--output", m_workingDirectory.toString(),
                                            "--no-build",
                                            "--input", jsonFile});
-
-            if (androidBuildApkStep && androidBuildApkStep->useMinistro()) {
-                qCDebug(deployStepLog) << "Using ministro";
-                m_androiddeployqtArgs.addArgs({"--deployment", "ministro"});
-            }
 
             m_androiddeployqtArgs.addArg("--gradle");
 

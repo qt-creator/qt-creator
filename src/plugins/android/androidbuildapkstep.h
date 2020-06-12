@@ -68,9 +68,6 @@ public:
     bool verboseOutput() const;
     void setVerboseOutput(bool verbose);
 
-    bool useMinistro() const;
-    void setUseMinistro(bool b);
-
     bool addDebugger() const;
     void setAddDebugger(bool debug);
 
@@ -94,7 +91,6 @@ private:
     bool m_buildAAB = false;
     bool m_signPackage = false;
     bool m_verbose = false;
-    bool m_useMinistro = false;
     bool m_openPackageLocation = false;
     bool m_openPackageLocationForRun = false;
     bool m_addDebugger = true;

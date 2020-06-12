@@ -85,7 +85,6 @@ const QVersionNumber gradleScriptRevokedSdkVersion(25, 3, 0);
 const char KeystoreLocationKey[] = "KeystoreLocation";
 const char BuildTargetSdkKey[] = "BuildTargetSdk";
 const char VerboseOutputKey[] = "VerboseOutput";
-const char UseMinistroKey[] = "UseMinistro";
 
 static void setupProcessParameters(ProcessParameters *pp,
                                    BuildStep *step,
@@ -233,9 +232,6 @@ bool AndroidBuildApkStep::init()
 
     if (m_buildAAB)
         arguments << "--aab" <<  "--jarsigner";
-
-    if (m_useMinistro)
-        arguments << "--deployment" << "ministro";
 
     QStringList argumentsPasswordConcealed = arguments;
 
@@ -489,7 +485,6 @@ bool AndroidBuildApkStep::fromMap(const QVariantMap &map)
                                                           sdkManager()->latestAndroidSdkPlatform());
     }
     m_verbose = map.value(VerboseOutputKey).toBool();
-    m_useMinistro = map.value(UseMinistroKey).toBool();
     return ProjectExplorer::BuildStep::fromMap(map);
 }
 
@@ -499,7 +494,6 @@ QVariantMap AndroidBuildApkStep::toMap() const
     map.insert(KeystoreLocationKey, m_keystorePath.toString());
     map.insert(BuildTargetSdkKey, m_buildTargetSdk);
     map.insert(VerboseOutputKey, m_verbose);
-    map.insert(UseMinistroKey, m_useMinistro);
     return map;
 }
 
@@ -594,16 +588,6 @@ void AndroidBuildApkStep::setOpenPackageLocation(bool open)
 void AndroidBuildApkStep::setVerboseOutput(bool verbose)
 {
     m_verbose = verbose;
-}
-
-bool AndroidBuildApkStep::useMinistro() const
-{
-    return m_useMinistro;
-}
-
-void AndroidBuildApkStep::setUseMinistro(bool useMinistro)
-{
-    m_useMinistro = useMinistro;
 }
 
 bool AndroidBuildApkStep::addDebugger() const
