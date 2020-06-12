@@ -145,12 +145,15 @@ void GlobalOrProjectAspect::resetProjectToGlobalSettings()
 
 /*!
     \class ProjectExplorer::RunConfiguration
+    \inmodule QtCreator
+    \inheaderfile projectexplorer/runconfiguration.h
+
     \brief The RunConfiguration class is the base class for a run configuration.
 
     A run configuration specifies how a target should be run, while a runner
     does the actual running.
 
-    The target owns the RunConfiguraitons and a RunControl will need to copy all
+    The target owns the RunConfigurations and a RunControl will need to copy all
     necessary data as the RunControl may continue to exist after the RunConfiguration
     has been destroyed.
 
@@ -382,42 +385,45 @@ Runnable RunConfiguration::runnable() const
 }
 
 /*!
-    \class ProjectExplorer::IRunConfigurationFactory
+    \class ProjectExplorer::RunConfigurationFactory
+    \inmodule QtCreator
+    \inheaderfile projectexplorer/runconfiguration.h
 
-    \brief The IRunConfigurationFactory class restores run configurations from
-    settings.
+    \brief The RunConfigurationFactory class is used to create and persist
+    run configurations.
 
     The run configuration factory is used for restoring run configurations from
     settings and for creating new run configurations in the \gui {Run Settings}
     dialog.
-    To restore run configurations, use the
-    \c {bool canRestore(Target *parent, const QString &id)}
-    and \c {RunConfiguration* create(Target *parent, const QString &id)}
-    functions.
 
-    To generate a list of creatable run configurations, use the
-    \c {QStringList availableCreationIds(Target *parent)} and
-    \c {QString displayNameForType(const QString&)} functions. To create a
-    run configuration, use \c create().
-*/
+    A RunConfigurationFactory instance is responsible for handling one type of
+    run configurations. This can be restricted to certain project and device
+    types.
 
-/*!
-    \fn QStringList ProjectExplorer::IRunConfigurationFactory::availableCreationIds(Target *parent) const
-
-    Shows the list of possible additions to a target. Returns a list of types.
-*/
-
-/*!
-    \fn QString ProjectExplorer::IRunConfigurationFactory::displayNameForId(Core::Id id) const
-    Translates the types to names to display to the user.
+    RunConfigurationFactory instances register themselves into a global list on
+    construction and deregister on destruction. It is recommended to make them
+    a plain data member of a structure that is allocated in your plugin's
+    ExtensionSystem::IPlugin::initialize() method.
 */
 
 static QList<RunConfigurationFactory *> g_runConfigurationFactories;
+
+/*!
+    Constructs a RunConfigurationFactory instance and registers it into a global
+    list.
+
+    Derived classes should set suitably properties to specify the type of
+    run configurations they can handle.
+*/
 
 RunConfigurationFactory::RunConfigurationFactory()
 {
     g_runConfigurationFactories.append(this);
 }
+
+/*!
+    De-registers the instance from the global list of factories and destructs it.
+*/
 
 RunConfigurationFactory::~RunConfigurationFactory()
 {
@@ -472,11 +478,15 @@ RunConfigurationFactory::availableCreators(Target *target) const
 }
 
 /*!
-    Adds a list of device types for which this RunConfigurationFactory
+    Adds a device type for which this RunConfigurationFactory
     can create RunConfigurations.
 
-    If this function is never called for a RunConfiguarionFactory,
-    the factory will create RunConfigurations for all device types.
+    If this function is never called for a RunConfigurationFactory,
+    the factory will create RunConfiguration objects for all device types.
+
+    This function should be used in the constructor of derived classes.
+
+    \sa addSupportedProjectType()
 */
 
 void RunConfigurationFactory::addSupportedTargetDeviceType(Core::Id id)
@@ -488,6 +498,18 @@ void RunConfigurationFactory::setDecorateDisplayNames(bool on)
 {
     m_decorateDisplayNames = on;
 }
+
+/*!
+    Adds a project type for which this RunConfigurationFactory
+    can create RunConfigurations.
+
+    If this function is never called for a RunConfigurationFactory,
+    the factory will create RunConfigurations for all project types.
+
+    This function should be used in the constructor of derived classes.
+
+    \sa addSupportedTargetDeviceType()
+*/
 
 void RunConfigurationFactory::addSupportedProjectType(Core::Id id)
 {
