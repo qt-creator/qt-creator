@@ -32,7 +32,9 @@ using namespace Core;
 
 /*!
     \class Core::IFindSupport
+    \inheaderfile coreplugin/find/ifindsupport.h
     \inmodule QtCreator
+
     \brief The IFindSupport class provides functions for searching in a document
      or widget.
 

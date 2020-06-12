@@ -53,8 +53,10 @@ using namespace Utils;
 
 /*!
     \class Core::IOptionsPage
+    \inheaderfile coreplugin/dialogs/ioptionspage.h
     \ingroup mainclasses
     \inmodule QtCreator
+
     \brief The IOptionsPage class is an interface for providing pages for the
     \uicontrol Options dialog (called \uicontrol Preferences on \macos).
 

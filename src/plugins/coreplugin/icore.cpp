@@ -88,8 +88,10 @@
 
 /*!
     \class Core::ICore
+    \inheaderfile coreplugin/icore.h
     \inmodule QtCreator
     \ingroup mainclasses
+
     \brief The ICore class allows access to the different parts that make up
     the basic functionality of \QC.
 

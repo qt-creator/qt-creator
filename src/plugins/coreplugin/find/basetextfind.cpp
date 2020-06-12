@@ -83,6 +83,7 @@ BaseTextFindPrivate::BaseTextFindPrivate(QPlainTextEdit *editor)
 
 /*!
     \class Core::BaseTextFind
+    \inheaderfile coreplugin/find/basetextfind.h
     \inmodule QtCreator
 
     \brief The BaseTextFind class implements a find filter for QPlainTextEdit

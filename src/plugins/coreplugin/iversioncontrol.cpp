@@ -37,7 +37,9 @@
 
 /*!
     \class Core::IVersionControl::TopicCache
+    \inheaderfile coreplugin/iversioncontrol.h
     \inmodule QtCreator
+
     \brief The TopicCache class stores a cache which maps a directory to a topic.
 
     A VCS topic is typically the current active branch name, but it can also have other

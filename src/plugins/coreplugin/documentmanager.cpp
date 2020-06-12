@@ -74,9 +74,10 @@ static Q_LOGGING_CATEGORY(log, "qtc.core.documentmanager", QtWarningMsg)
 
 /*!
   \class Core::DocumentManager
+  \inheaderfile coreplugin/documentmanager.h
   \ingroup mainclasses
   \inmodule QtCreator
-  \inheaderfile documentmanager.h
+
   \brief The DocumentManager class manages a set of documents.
 
   The DocumentManager service monitors a set of IDocument objects.
@@ -1539,7 +1540,9 @@ void DocumentManager::registerSaveAllAction()
 
 /*!
     \class Core::FileChangeBlocker
+    \inheaderfile coreplugin/documentmanager.h
     \inmodule QtCreator
+
     \brief The FileChangeBlocker class blocks all change notifications to all
     IDocument objects that match the given filename.
 

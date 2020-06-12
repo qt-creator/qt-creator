@@ -50,6 +50,7 @@ namespace Core {
 
 /*!
     \class Core::ModeManager
+    \inheaderfile coreplugin/modemanager.h
     \inmodule QtCreator
 
     \brief The ModeManager class implements a mode manager.

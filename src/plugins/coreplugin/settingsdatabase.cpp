@@ -38,7 +38,9 @@
 
 /*!
     \class Core::SettingsDatabase
+    \inheaderfile coreplugin/settingsdatabase.h
     \inmodule QtCreator
+
     \brief The SettingsDatabase class offers an alternative to the
     application-wide QSettings that is more
     suitable for storing large amounts of data.

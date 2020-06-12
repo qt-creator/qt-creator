@@ -36,7 +36,9 @@ namespace Core {
 
 /*!
     \class Core::IEditorFactory
+    \inheaderfile coreplugin/editormanager/ieditorfactory.h
     \inmodule QtCreator
+
     \brief The IEditorFactory class creates suitable editors for documents
     according to their MIME type.
 

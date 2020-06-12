@@ -66,6 +66,7 @@ public:
 
 /*!
     \class Core::BaseFileFilter
+    \inheaderfile coreplugin/locator/basefilefilter.h
     \inmodule QtCreator
 
     \brief The BaseFileFilter class is a base class for locator filter classes.

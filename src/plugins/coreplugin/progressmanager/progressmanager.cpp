@@ -63,9 +63,11 @@ using namespace Core::Internal;
 using namespace Utils;
 
 /*!
-    \ingroup mainclasses
-    \inmodule QtCreator
     \class Core::ProgressManager
+    \inheaderfile coreplugin/progressmanager/progressmanager.h
+    \inmodule QtCreator
+    \ingroup mainclasses
+
     \brief The ProgressManager class is used to show a user interface
     for running tasks in Qt Creator.
 

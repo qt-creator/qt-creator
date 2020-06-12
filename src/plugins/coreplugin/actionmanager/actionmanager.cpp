@@ -54,6 +54,7 @@ using namespace Core::Internal;
 
 /*!
     \class Core::ActionManager
+    \inheaderfile coreplugin/actionmanager/actionmanager.h
     \ingroup mainclasses
     \inmodule QtCreator
 

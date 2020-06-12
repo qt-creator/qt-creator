@@ -31,7 +31,9 @@
 
 /*!
     \class Core::BaseTextDocument
+    \inheaderfile coreplugin/textdocument.h
     \inmodule QtCreator
+
     \brief The BaseTextDocument class is a very general base class for
     documents that work with text.
 

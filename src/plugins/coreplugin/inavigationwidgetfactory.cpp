@@ -32,8 +32,10 @@
 
 /*!
     \class Core::INavigationWidgetFactory
+    \inheaderfile coreplugin/inavigationwidgetfactory.h
     \ingroup mainclasses
     \inmodule QtCreator
+
     \brief The INavigationWidgetFactory class provides new instances of navigation widgets.
 
     A navigation widget factory is necessary because there can be more than one navigation widget of
@@ -43,6 +45,7 @@
 
 /*!
     \class Core::NavigationView
+    \inheaderfile coreplugin/inavigationwidgetfactory.h
     \inmodule Qt Creator
     \brief The NavigationView class is a C struct for wrapping a widget and a list of tool buttons.
     Wrapping the widget that is shown in the content area of the navigation widget and a list of

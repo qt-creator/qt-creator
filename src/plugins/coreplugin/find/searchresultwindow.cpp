@@ -260,7 +260,9 @@ using namespace Core::Internal;
 
 /*!
     \class Core::SearchResult
+    \inheaderfile coreplugin/find/searchresultwindow.h
     \inmodule QtCreator
+
     \brief The SearchResult class reports user interaction, such as the
     activation of a search result item.
 
@@ -340,7 +342,9 @@ using namespace Core::Internal;
 
 /*!
     \class Core::SearchResultWindow
+    \inheaderfile coreplugin/find/searchresultwindow.h
     \inmodule QtCreator
+
     \brief The SearchResultWindow class is the implementation of a commonly
     shared \uicontrol{Search Results} output pane.
 

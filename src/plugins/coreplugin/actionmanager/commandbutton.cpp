@@ -34,6 +34,7 @@ using namespace Core;
 
 /*!
     \class Core::CommandButton
+    \inheaderfile coreplugin/actionmanager/commandbutton.h
     \inmodule QtCreator
 
     \brief The CommandButton class is a tool button associated with one of

@@ -31,9 +31,9 @@ namespace Core {
 
 /*!
     \class Core::IMode
+    \inheaderfile coreplugin/imode.h
     \ingroup mainclasses
     \inmodule QtCreator
-    \inheaderfile coreplugin/imode.h
 
     \brief The IMode class represents a mode in \QC.
 

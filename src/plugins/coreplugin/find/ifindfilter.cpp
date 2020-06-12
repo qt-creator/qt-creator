@@ -34,7 +34,9 @@
 
 /*!
     \class Core::IFindFilter
+    \inheaderfile coreplugin/find/ifindfilter.h
     \inmodule QtCreator
+
     \brief The IFindFilter class is the base class for find implementations
     that are invoked by selecting \uicontrol Edit > \uicontrol {Find/Replace} >
     \uicontrol {Advanced Find}.
@@ -96,7 +98,6 @@
     when your search implementation reports search results, and add these
     to the shared \uicontrol{Search Results} window.
 */
-
 
 /*!
     \fn QString Core::IFindFilter::id() const

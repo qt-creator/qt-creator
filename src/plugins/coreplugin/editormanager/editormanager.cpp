@@ -173,7 +173,9 @@ void EditorManagerPlaceHolder::showEvent(QShowEvent *)
 
 /*!
     \class Core::EditorManager
+    \inheaderfile coreplugin/editormanager/editormanager.h
     \inmodule QtCreator
+
     \brief The EditorManager class manages the editors created for files
     according to their MIME type.
 

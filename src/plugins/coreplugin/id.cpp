@@ -40,6 +40,7 @@ namespace Core {
 
 /*!
     \class Core::Id
+    \inheaderfile coreplugin/id.h
     \inmodule QtCreator
 
     \brief The Id class encapsulates an identifier that is unique

@@ -41,6 +41,7 @@
 
 /*!
     \class Core::IWizardFactory
+    \inheaderfile coreplugin/iwizardfactory.h
     \inmodule QtCreator
     \ingroup mainclasses
 

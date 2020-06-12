@@ -338,37 +338,39 @@ void VariableGroupItem::populateGroup(MacroExpander *expander)
 using namespace Internal;
 
 /*!
- * \class Core::VariableChooser
- * \inmodule QtCreator
- * \brief The VariableChooser class is used to add a tool window for selecting \QC variables
- * to line edits, text edits or plain text edits.
- *
- * If you allow users to add \QC variables to strings that are specified in your UI, for example
- * when users can provide a string through a text control, you should add a variable chooser to it.
- * The variable chooser allows users to open a tool window that contains the list of
- * all available variables together with a description. Double-clicking a variable inserts the
- * corresponding string into the corresponding text control like a line edit.
- *
- * \image variablechooser.png "External Tools Preferences with Variable Chooser"
- *
- * The variable chooser monitors focus changes of all children of its parent widget.
- * When a text control gets focus, the variable chooser checks if it has variable support set.
- * If the control supports variables,
- * a tool button which opens the variable chooser is shown in it while it has focus.
- *
- * Supported text controls are QLineEdit, QTextEdit and QPlainTextEdit.
- *
- * The variable chooser is deleted when its parent widget is deleted.
- *
- * Example:
- * \code
- * QWidget *myOptionsContainerWidget = new QWidget;
- * new Core::VariableChooser(myOptionsContainerWidget)
- * QLineEdit *myLineEditOption = new QLineEdit(myOptionsContainerWidget);
- * myOptionsContainerWidget->layout()->addWidget(myLineEditOption);
- * Core::VariableChooser::addVariableSupport(myLineEditOption);
- * \endcode
- */
+    \class Core::VariableChooser
+    \inheaderfile coreplugin/variablechooser.h
+    \inmodule QtCreator
+
+    \brief The VariableChooser class is used to add a tool window for selecting \QC variables
+    to line edits, text edits or plain text edits.
+
+    If you allow users to add \QC variables to strings that are specified in your UI, for example
+    when users can provide a string through a text control, you should add a variable chooser to it.
+    The variable chooser allows users to open a tool window that contains the list of
+    all available variables together with a description. Double-clicking a variable inserts the
+    corresponding string into the corresponding text control like a line edit.
+
+    \image variablechooser.png "External Tools Preferences with Variable Chooser"
+
+    The variable chooser monitors focus changes of all children of its parent widget.
+    When a text control gets focus, the variable chooser checks if it has variable support set.
+    If the control supports variables,
+    a tool button which opens the variable chooser is shown in it while it has focus.
+
+    Supported text controls are QLineEdit, QTextEdit and QPlainTextEdit.
+
+    The variable chooser is deleted when its parent widget is deleted.
+
+    Example:
+    \code
+    QWidget *myOptionsContainerWidget = new QWidget;
+    new Core::VariableChooser(myOptionsContainerWidget)
+    QLineEdit *myLineEditOption = new QLineEdit(myOptionsContainerWidget);
+    myOptionsContainerWidget->layout()->addWidget(myLineEditOption);
+    Core::VariableChooser::addVariableSupport(myLineEditOption);
+    \endcode
+*/
 
 /*!
  * \internal

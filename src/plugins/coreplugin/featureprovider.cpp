@@ -27,6 +27,7 @@
 
 /*!
     \class Core::IFeatureProvider
+    \inheaderfile coreplugin/featureprovider.h
     \inmodule QtCreator
     \ingroup mainclasses
 

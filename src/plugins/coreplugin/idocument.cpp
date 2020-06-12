@@ -35,6 +35,7 @@
 
 /*!
     \class Core::IDocument
+    \inheaderfile coreplugin/idocument.h
     \inmodule QtCreator
 
     \brief The IDocument class describes a document that can be saved and reloaded.

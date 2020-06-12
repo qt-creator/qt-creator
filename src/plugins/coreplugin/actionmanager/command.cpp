@@ -37,9 +37,9 @@
 #include <QToolButton>
 #include <QTextStream>
 
-
 /*!
     \class Core::Command
+    \inheaderfile coreplugin/actionmanager/command.h
     \inmodule QtCreator
     \ingroup mainclasses
 

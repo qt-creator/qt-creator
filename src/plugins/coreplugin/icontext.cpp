@@ -47,8 +47,10 @@ QDebug operator<<(QDebug debug, const Core::Context &context)
 
 /*!
     \class Core::Context
+    \inheaderfile coreplugin/icontext.h
     \inmodule QtCreator
     \ingroup mainclasses
+
     \brief The Context class implements a list of context IDs.
 
     Contexts are used for registering actions with Core::ActionManager, and
@@ -169,6 +171,7 @@ QDebug operator<<(QDebug debug, const Core::Context &context)
 
 /*!
     \class Core::IContext
+    \inheaderfile coreplugin/icontext.h
     \inmodule QtCreator
     \ingroup mainclasses
 

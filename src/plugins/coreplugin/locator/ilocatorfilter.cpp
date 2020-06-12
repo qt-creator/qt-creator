@@ -41,6 +41,7 @@ using namespace Core;
 
 /*!
     \class Core::ILocatorFilter
+    \inheaderfile coreplugin/locator/ilocatorfilter.h
     \inmodule QtCreator
 
     \brief The ILocatorFilter class adds a locator filter.

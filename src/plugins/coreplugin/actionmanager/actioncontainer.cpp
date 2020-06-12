@@ -45,6 +45,7 @@ namespace Core {
 
 /*!
     \class Core::ActionContainer
+    \inheaderfile coreplugin/actionmanager/actioncontainer.h
     \ingroup mainclasses
     \inmodule QtCreator
 

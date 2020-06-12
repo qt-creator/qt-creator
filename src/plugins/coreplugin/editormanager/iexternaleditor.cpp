@@ -31,6 +31,7 @@ namespace Core {
 
 /*!
     \class Core::IExternalEditor
+    \inheaderfile coreplugin/editormanager/iexternaleditor.h
     \inmodule QtCreator
     \ingroup mainclasses
 

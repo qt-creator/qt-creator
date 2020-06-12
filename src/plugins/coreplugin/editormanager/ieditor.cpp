@@ -27,7 +27,9 @@
 
 /*!
   \class Core::IEditor
+  \inheaderfile coreplugin/editormanager/ieditor.h
   \inmodule QtCreator
+
   \brief The IEditor class is an interface for providing suitable editors for
   documents according to their MIME type.
 

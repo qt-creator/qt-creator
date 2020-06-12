@@ -80,6 +80,7 @@ void MiniSplitterHandle::paintEvent(QPaintEvent *event)
 
 /*!
     \class Core::MiniSplitter
+    \inheaderfile coreplugin/minisplitter.h
     \inmodule QtCreator
 
     \brief The MiniSplitter class is a simple helper-class to obtain
@@ -119,6 +120,7 @@ MiniSplitter::MiniSplitter(Qt::Orientation orientation, QWidget *parent, Splitte
 
 /*!
     \class Core::NonResizingSplitter
+    \inheaderfile coreplugin/minisplitter.h
     \inmodule QtCreator
 
     \brief The NonResizingSplitter class is a MiniSplitter that keeps its
