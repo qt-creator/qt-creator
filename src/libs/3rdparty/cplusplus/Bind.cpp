@@ -2252,6 +2252,19 @@ bool Bind::visit(FunctionDefinitionAST *ast)
     Function *fun = type->asFunctionType();
     ast->symbol = fun;
 
+    if (!fun && ast->declarator && ast->declarator->initializer)
+        if (ExpressionListParenAST *exprAst = ast->declarator->initializer->asExpressionListParen()) {
+            // this could be non-expanded function like macro, because
+            // for find usages we parse without expanding them
+            // So we create dummy function type here for findUsages to see function body
+            fun = control()->newFunction(0, nullptr);
+            fun->setStartOffset(tokenAt(exprAst->firstToken()).utf16charsBegin());
+            fun->setEndOffset(tokenAt(exprAst->lastToken() - 1).utf16charsEnd());
+
+            type = fun;
+            ast->symbol = fun;
+        }
+
     if (fun) {
         setDeclSpecifiers(fun, declSpecifiers);
         fun->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());

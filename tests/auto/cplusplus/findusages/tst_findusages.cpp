@@ -126,6 +126,8 @@ private Q_SLOTS:
     void templatePartialSpecialization_2();
     void template_SFINAE_1();
     void variableTemplateInExpression();
+
+    void variadicMacros();
 };
 
 void tst_FindUsages::dump(const QList<Usage> &usages) const
@@ -1613,6 +1615,44 @@ int main(){
     Class *s = doc->globalSymbolAt(0)->asClass();
     QVERIFY(s);
     QCOMPARE(s->name()->identifier()->chars(), "S");
+    QCOMPARE(s->memberCount(), 1);
+
+    Declaration *sv = s->memberAt(0)->asDeclaration();
+    QVERIFY(sv);
+    QCOMPARE(sv->name()->identifier()->chars(), "value");
+
+    FindUsages find(src, doc, snapshot);
+    find(sv);
+    QCOMPARE(find.usages().size(), 2);
+}
+
+void tst_FindUsages::variadicMacros()
+{
+    const QByteArray src =
+        R"(
+struct MyStruct { int value; };
+#define FOO( ... ) int foo()
+FOO(1) {
+    MyStruct s;
+    s.value;
+}
+int main(){}
+)";
+
+    Document::Ptr doc = Document::create("variadicMacros");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QVERIFY(doc->globalSymbolCount() >= 1);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Class *s = doc->globalSymbolAt(0)->asClass();
+    QVERIFY(s);
+    QCOMPARE(s->name()->identifier()->chars(), "MyStruct");
     QCOMPARE(s->memberCount(), 1);
 
     Declaration *sv = s->memberAt(0)->asDeclaration();
