@@ -116,11 +116,11 @@ private:
     Utils::FilePath m_buildDir;
     Utils::FilePath m_srcDir;
     QFuture<ParserData *> m_parserFutureResult;
-    bool m_configuring;
+    bool m_configuring = false;
     IntroDataType m_introType;
     MesonInfoParser::Result m_parserResult;
     QStringList m_targetsNames;
-    Utils::QtVersion m_qtVersion;
+    Utils::QtVersion m_qtVersion = Utils::QtVersion::Unknown;
     std::unique_ptr<MesonProjectNode> m_rootNode; // <- project tree root node
     QString m_projectName;
     // maybe moving meson to build step could make this class simpler

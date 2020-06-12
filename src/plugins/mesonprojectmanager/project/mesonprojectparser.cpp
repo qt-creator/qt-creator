@@ -110,7 +110,6 @@ MesonProjectParser::MesonProjectParser(const Core::Id &meson,
                                        ProjectExplorer::Project *project)
     : m_env{env}
     , m_meson{meson}
-    , m_configuring{false}
     , m_projectName{project->displayName()}
 {
     connect(&m_process, &MesonProcess::finished, this, &MesonProjectParser::processFinished);

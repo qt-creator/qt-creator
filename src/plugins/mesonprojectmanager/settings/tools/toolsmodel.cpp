@@ -62,8 +62,9 @@ void ToolsModel::addMesonTool()
 void ToolsModel::removeMesonTool(ToolTreeItem *item)
 {
     QTC_ASSERT(item, return );
+    const Core::Id id = item->id();
     destroyItem(item);
-    m_itemsToRemove.enqueue(item->id());
+    m_itemsToRemove.enqueue(id);
 }
 
 ToolTreeItem *ToolsModel::cloneMesonTool(ToolTreeItem *item)

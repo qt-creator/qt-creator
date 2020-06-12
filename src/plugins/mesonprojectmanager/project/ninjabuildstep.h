@@ -56,7 +56,7 @@ private:
     QString defaultBuildTarget() const;
     QString m_commandArgs;
     QString m_targetName;
-    NinjaParser *m_ninjaParser;
+    NinjaParser *m_ninjaParser = nullptr;
 };
 
 class MesonBuildStepFactory final : public ProjectExplorer::BuildStepFactory

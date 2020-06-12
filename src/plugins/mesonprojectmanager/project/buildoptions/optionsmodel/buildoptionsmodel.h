@@ -163,9 +163,7 @@ public:
         QTC_ASSERT(column >= 0 && column < 2, return Qt::NoItemFlags);
         if (column == 0)
             return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-        if (column == 1)
-            return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
-        return Qt::NoItemFlags;
+        return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
     }
     BuildOption::Type type() const { return m_option->type(); }
     QString toolTip() const { return m_option->description(); }

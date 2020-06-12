@@ -117,7 +117,7 @@ private:
     bool fromMap(const QVariantMap &map) override;
     MesonBuildType m_buildType;
     ProjectExplorer::NamedWidget *createConfigWidget() final;
-    MesonBuildSystem *m_buildSystem;
+    MesonBuildSystem *m_buildSystem = nullptr;
 };
 
 class MesonBuildConfigurationFactory final : public ProjectExplorer::BuildConfigurationFactory
