@@ -85,17 +85,17 @@ public:
     RunWorkerFactory runWorkerFactory{
         RunWorkerFactory::make<IosRunSupport>(),
         {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        {runConfigurationFactory.id()}
+        {runConfigurationFactory.runConfigurationId()}
     };
     RunWorkerFactory debugWorkerFactory{
         RunWorkerFactory::make<IosDebugSupport>(),
         {ProjectExplorer::Constants::DEBUG_RUN_MODE},
-        {runConfigurationFactory.id()}
+        {runConfigurationFactory.runConfigurationId()}
     };
     RunWorkerFactory qmlProfilerWorkerFactory{
         RunWorkerFactory::make<IosQmlProfilerSupport>(),
         {ProjectExplorer::Constants::QML_PROFILER_RUN_MODE},
-        {runConfigurationFactory.id()}
+        {runConfigurationFactory.runConfigurationId()}
     };
 };
 

@@ -88,7 +88,7 @@ private:
     RunWorkerFactory
         m_mesonRunWorkerFactory{RunWorkerFactory::make<ProjectExplorer::SimpleTargetRunner>(),
                                 {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-                                {m_runConfigurationFactory.id()}};
+                                {m_runConfigurationFactory.runConfigurationId()}};
     void saveAll()
     {
         m_toolsSettings.saveMesonTools(MesonTools::tools(), ICore::dialogParent());

@@ -132,17 +132,17 @@ public:
     RunWorkerFactory runWorkerFactory{
         RunWorkerFactory::make<SimpleTargetRunner>(),
         {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        {runConfigFactory.id()}
+        {runConfigFactory.runConfigurationId()}
     };
     RunWorkerFactory debugWorkerFactory{
         RunWorkerFactory::make<QnxDebugSupport>(),
         {ProjectExplorer::Constants::DEBUG_RUN_MODE},
-        {runConfigFactory.id()}
+        {runConfigFactory.runConfigurationId()}
     };
     RunWorkerFactory qmlProfilerWorkerFactory{
         RunWorkerFactory::make<QnxQmlProfilerSupport>(),
         {}, // FIXME: Shouldn't this use the run mode id somehow?
-        {runConfigFactory.id()}
+        {runConfigFactory.runConfigurationId()}
     };
 };
 

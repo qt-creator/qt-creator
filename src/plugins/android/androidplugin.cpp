@@ -120,22 +120,22 @@ public:
     RunWorkerFactory runWorkerFactory{
         RunWorkerFactory::make<AndroidRunSupport>(),
         {NORMAL_RUN_MODE},
-        {runConfigFactory.id()}
+        {runConfigFactory.runConfigurationId()}
     };
     RunWorkerFactory debugWorkerFactory{
         RunWorkerFactory::make<AndroidDebugSupport>(),
         {DEBUG_RUN_MODE},
-        {runConfigFactory.id()}
+        {runConfigFactory.runConfigurationId()}
     };
     RunWorkerFactory profilerWorkerFactory{
         RunWorkerFactory::make<AndroidQmlToolingSupport>(),
         {QML_PROFILER_RUN_MODE},
-        {runConfigFactory.id()}
+        {runConfigFactory.runConfigurationId()}
     };
     RunWorkerFactory qmlPreviewWorkerFactory{
         RunWorkerFactory::make<AndroidQmlToolingSupport>(),
         {QML_PREVIEW_RUN_MODE},
-        {runConfigFactory.id()}
+        {runConfigFactory.runConfigurationId()}
     };
     RunWorkerFactory qmlPreviewWorkerFactory2{
         RunWorkerFactory::make<AndroidQmlPreviewWorker>(),

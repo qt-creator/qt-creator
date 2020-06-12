@@ -62,13 +62,13 @@ public:
     RunWorkerFactory runWorkerFactory{
         RunWorkerFactory::make<WinRtRunner>(),
         {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        {runConfigFactory.id()}
+        {runConfigFactory.runConfigurationId()}
     };
 
     RunWorkerFactory debugWorkerFactory{
         RunWorkerFactory::make<WinRtDebugSupport>(),
         {ProjectExplorer::Constants::DEBUG_RUN_MODE},
-        {runConfigFactory.id()},
+        {runConfigFactory.runConfigurationId()},
         {Internal::Constants::WINRT_DEVICE_TYPE_LOCAL}
     };
 };

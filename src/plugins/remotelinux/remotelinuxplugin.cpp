@@ -83,8 +83,8 @@ public:
     GenericDeployStepFactory<MakeInstallStep> makeInstallStepFactory;
 
     const QList<Core::Id> supportedRunConfigs {
-        runConfigurationFactory.id(),
-        customRunConfigurationFactory.id(),
+        runConfigurationFactory.runConfigurationId(),
+        customRunConfigurationFactory.runConfigurationId(),
         "QmlProjectManager.QmlRunConfiguration"
     };
 

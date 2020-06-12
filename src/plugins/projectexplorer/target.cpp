@@ -625,7 +625,7 @@ void Target::updateDefaultRunConfigurations()
         bool present = false;
         for (const RunConfigurationCreationInfo &item : creators) {
             QString buildKey = rc->buildKey();
-            if (item.id == rc->id() && item.buildKey == buildKey) {
+            if (item.factory->runConfigurationId() == rc->id() && item.buildKey == buildKey) {
                 existing.append(item);
                 present = true;
             }
@@ -643,7 +643,7 @@ void Target::updateDefaultRunConfigurations()
                 continue;
             bool exists = false;
             for (const RunConfigurationCreationInfo &ex : existing) {
-                if (ex.id == item.id && ex.buildKey == item.buildKey)
+                if (ex.factory == item.factory && ex.buildKey == item.buildKey)
                     exists = true;
             }
             if (exists)
@@ -652,7 +652,7 @@ void Target::updateDefaultRunConfigurations()
             RunConfiguration *rc = item.create(this);
             if (!rc)
                 continue;
-            QTC_CHECK(rc->id() == item.id);
+            QTC_CHECK(rc->id() == item.factory->runConfigurationId());
             if (!rc->isConfigured())
                 newUnconfigured << rc;
             else

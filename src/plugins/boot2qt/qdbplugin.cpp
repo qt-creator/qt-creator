@@ -184,7 +184,7 @@ public:
         m_makeInstallStepFactory{RemoteLinux::Constants::MakeInstallStepId};
 
     const QList<Core::Id> supportedRunConfigs {
-        m_runConfigFactory.id(),
+        m_runConfigFactory.runConfigurationId(),
         "QmlProjectManager.QmlRunConfiguration"
     };
 

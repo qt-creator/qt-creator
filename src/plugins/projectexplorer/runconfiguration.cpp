@@ -458,7 +458,6 @@ RunConfigurationFactory::availableCreators(Target *target) const
             displayName = decoratedTargetName(displayName, target);
         RunConfigurationCreationInfo rci;
         rci.factory = this;
-        rci.id = m_runConfigBaseId;
         rci.buildKey = ti.buildKey;
         rci.projectFilePath = ti.projectFilePath;
         rci.displayName = displayName;
@@ -532,7 +531,6 @@ RunConfiguration *RunConfigurationFactory::create(Target *target) const
 RunConfiguration *RunConfigurationCreationInfo::create(Target *target) const
 {
     QTC_ASSERT(factory->canHandle(target), return nullptr);
-    QTC_ASSERT(id == factory->runConfigurationBaseId(), return nullptr);
 
     RunConfiguration *rc = factory->create(target);
     if (!rc)
@@ -550,7 +548,7 @@ RunConfiguration *RunConfigurationFactory::restore(Target *parent, const QVarian
     for (RunConfigurationFactory *factory : g_runConfigurationFactories) {
         if (factory->canHandle(parent)) {
             const Core::Id id = idFromMap(map);
-            if (id.name().startsWith(factory->m_runConfigBaseId.name())) {
+            if (id.name().startsWith(factory->m_runConfigurationId.name())) {
                 RunConfiguration *rc = factory->create(parent);
                 if (rc->fromMap(map)) {
                     rc->update();
@@ -601,7 +599,6 @@ FixedRunConfigurationFactory::availableCreators(Target *parent) const
                                                : m_fixedBuildTarget;
     RunConfigurationCreationInfo rci;
     rci.factory = this;
-    rci.id = runConfigurationBaseId();
     rci.displayName = displayName;
     return {rci};
 }

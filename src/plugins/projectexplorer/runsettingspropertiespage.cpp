@@ -201,11 +201,11 @@ void RunSettingsWidget::showAddRunConfigDialog()
     if (dlg.exec() != QDialog::Accepted)
         return;
     RunConfigurationCreationInfo rci = dlg.creationInfo();
-    QTC_ASSERT(rci.id.isValid(), return);
+    QTC_ASSERT(rci.factory, return);
     RunConfiguration *newRC = rci.create(m_target);
     if (!newRC)
         return;
-    QTC_CHECK(newRC->id() == rci.id);
+    QTC_CHECK(newRC->id() == rci.factory->runConfigurationId());
     m_target->addRunConfiguration(newRC);
     m_target->setActiveRunConfiguration(newRC);
     m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);

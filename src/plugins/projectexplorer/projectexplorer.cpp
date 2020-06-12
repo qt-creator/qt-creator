@@ -624,7 +624,7 @@ public:
     RunWorkerFactory m_customExecutableRunWorkerFactory{
         RunWorkerFactory::make<SimpleTargetRunner>(),
         {Constants::NORMAL_RUN_MODE},
-        {m_customExecutableRunConfigFactory.id()}
+        {m_customExecutableRunConfigFactory.runConfigurationId()}
     };
 
     ProjectFileWizardExtension m_projectFileWizardExtension;
@@ -657,7 +657,9 @@ public:
     RunWorkerFactory desktopRunWorkerFactory{
         RunWorkerFactory::make<SimpleTargetRunner>(),
         {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        {qmakeRunConfigFactory.id(), qbsRunConfigFactory.id(), cmakeRunConfigFactory.id()}
+        {qmakeRunConfigFactory.runConfigurationId(),
+         qbsRunConfigFactory.runConfigurationId(),
+         cmakeRunConfigFactory.runConfigurationId()}
     };
 
 };

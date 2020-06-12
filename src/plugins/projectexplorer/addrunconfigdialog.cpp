@@ -184,7 +184,7 @@ void AddRunConfigDialog::accept()
     const TreeItem * const item = model->itemForIndex(proxyModel->mapToSource(selected.first()));
     QTC_ASSERT(item, return);
     m_creationInfo = static_cast<const CandidateTreeItem *>(item)->creationInfo();
-    QTC_ASSERT(m_creationInfo.id.isValid(), return);
+    QTC_ASSERT(m_creationInfo.factory, return);
     QDialog::accept();
 }
 
