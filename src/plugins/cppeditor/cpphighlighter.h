@@ -47,6 +47,7 @@ public:
 
 private:
     void highlightWord(QStringRef word, int position, int length);
+    bool highlightRawStringLiteral(const QStringView &text, const CPlusPlus::Token &tk);
 
     void highlightDoxygenComment(const QString &text, int position,
                                  int length);
