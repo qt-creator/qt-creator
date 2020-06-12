@@ -31,8 +31,9 @@
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <utils/qtcassert.h>
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 #include <QFile>
 #include <QFileInfo>
@@ -342,6 +343,9 @@ bool RefactoringFile::apply()
                 c.joinPreviousEditBlock();
             else
                 c.beginEditBlock();
+
+            sort(m_indentRanges);
+            sort(m_reindentRanges);
 
             // build indent selections now, applying the changeset will change locations
             const RefactoringSelections &indentSelections =

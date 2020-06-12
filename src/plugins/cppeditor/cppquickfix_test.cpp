@@ -1582,6 +1582,40 @@ void CppEditorPlugin::test_quickfix_data()
                  "};\n"
                  );
 
+    QTest::newRow("InsertQtPropertyMembersPrivateBeforePublic")
+            << CppQuickFixFactoryPtr(new InsertQtPropertyMembers)
+            << _("class XmarksTheSpot {\n"
+                 "private:\n"
+                 "    @Q_PROPERTY(int it READ getIt WRITE setIt NOTIFY itChanged)\n"
+                 "public:\n"
+                 "    void find();\n"
+                 "};\n"
+                 )
+            << _("class XmarksTheSpot {\n"
+                 "private:\n"
+                 "    Q_PROPERTY(int it READ getIt WRITE setIt NOTIFY itChanged)\n"
+                 "    int m_it;\n"
+                 "\n"
+                 "public:\n"
+                 "    void find();\n"
+                 "    int getIt() const\n"
+                 "    {\n"
+                 "        return m_it;\n"
+                 "    }\n"
+                 "public slots:\n"
+                 "    void setIt(int it)\n"
+                 "    {\n"
+                 "        if (m_it == it)\n"
+                 "            return;\n"
+                 "\n"
+                 "        m_it = it;\n"
+                 "        emit itChanged(m_it);\n"
+                 "    }\n"
+                 "signals:\n"
+                 "    void itChanged(int it);\n"
+                 "};\n"
+                 );
+
     // Escape String Literal as UTF-8 (no-trigger)
     QTest::newRow("EscapeStringLiteral_notrigger")
             << CppQuickFixFactoryPtr(new EscapeStringLiteral)
