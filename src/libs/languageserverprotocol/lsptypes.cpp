@@ -371,7 +371,7 @@ bool DocumentFilter::applies(const Utils::FilePath &fileName, const Utils::MimeT
             return true;
     }
     if (Utils::optional<QString> _pattern = pattern()) {
-        QRegularExpression::PatternOption option;
+        QRegularExpression::PatternOption option = QRegularExpression::NoPatternOption;
         if (Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
             option = QRegularExpression::CaseInsensitiveOption;
         QRegularExpression regexp(QRegularExpression::wildcardToRegularExpression(_pattern.value()),
