@@ -120,8 +120,10 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Core::Id id)
     amStartArgsAspect->setHistoryCompleter("Android.AmStartArgs.History");
 
     auto warning = addAspect<BaseStringAspect>();
+    warning->setDisplayStyle(BaseStringAspect::LabelDisplay);
     warning->setLabelPixmap(Icons::WARNING.pixmap());
-    warning->setValue(tr("If the \"am start\" options conflict, the application might not start."));
+    warning->setValue(tr("If the \"am start\" options conflict, the application might not start.\n"
+                         "Qt Creator uses: am start -n <package_name>/<Activity_name> [-D]."));
 
     auto preStartShellCmdAspect = addAspect<BaseStringListAspect>();
     preStartShellCmdAspect->setId(Constants::ANDROID_PRESTARTSHELLCMDLIST);
