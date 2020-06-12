@@ -90,6 +90,7 @@ enum { debugLeaks = 0 };
 
 /*!
     \class ExtensionSystem::PluginManager
+    \inheaderfile extensionsystem/pluginmanager.h
     \inmodule QtCreator
     \ingroup mainclasses
 

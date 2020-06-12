@@ -44,7 +44,9 @@
 
 /*!
     \class ExtensionSystem::PluginView
+    \inheaderfile extensionsystem/pluginview.h
     \inmodule QtCreator
+
     \brief The PluginView class implements a widget that shows a list of all
     plugins and their state.
 

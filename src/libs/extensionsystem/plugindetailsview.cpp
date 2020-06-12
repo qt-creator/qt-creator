@@ -38,7 +38,9 @@
 
 /*!
     \class ExtensionSystem::PluginDetailsView
+    \inheaderfile extensionsystem/plugindetailsview.h
     \inmodule QtCreator
+
     \brief The PluginDetailsView class implements a widget that displays the
     contents of a PluginSpec.
 

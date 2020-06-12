@@ -42,6 +42,7 @@
 
 /*!
     \class Aggregation::Aggregate
+    \inheaderfile aggregation/aggregate.h
     \inmodule QtCreator
     \ingroup mainclasses
     \threadsafe

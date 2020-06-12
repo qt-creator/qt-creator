@@ -30,8 +30,10 @@
 
 /*!
     \class ExtensionSystem::IPlugin
+    \inheaderfile extensionsystem/iplugin.h
     \inmodule QtCreator
     \ingroup mainclasses
+
     \brief The IPlugin class is an abstract base class that must be implemented
     once for each plugin.
 

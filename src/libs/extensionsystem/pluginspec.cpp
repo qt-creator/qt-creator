@@ -47,7 +47,9 @@
 
 /*!
     \class ExtensionSystem::PluginDependency
+    \inheaderfile extensionsystem/pluginspec.h
     \inmodule QtCreator
+
     \brief The PluginDependency class contains the name and required compatible
     version number of a plugin's dependency.
 
@@ -91,7 +93,9 @@
 
 /*!
     \class ExtensionSystem::PluginSpec
+    \inheaderfile extensionsystem/pluginspec.h
     \inmodule QtCreator
+
     \brief The PluginSpec class contains the information of the plugin's embedded meta data
     and information about the plugin's current state.
 
@@ -134,7 +138,9 @@
 
 /*!
     \class ExtensionSystem::PluginArgumentDescription
+    \inheaderfile extensionsystem/pluginspec.h
     \inmodule QtCreator
+
     \brief The PluginArgumentDescriptions class holds a list of descriptions of
     command line arguments that a plugin processes.
 
