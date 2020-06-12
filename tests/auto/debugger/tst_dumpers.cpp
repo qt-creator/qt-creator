@@ -45,6 +45,22 @@
 using namespace Debugger;
 using namespace Internal;
 
+enum class BuildSystem
+{
+    Qmake,
+    CMake,
+    Nim
+};
+
+enum class Language
+{
+    Cxx,
+    C,
+    ObjectiveCxx,
+    Nim,
+    Fortran90
+};
+
 #ifdef Q_CC_MSVC
 
 // Copied from msvctoolchain.cpp to avoid plugin dependency.
@@ -703,6 +719,7 @@ struct NetworkProfile {};
 struct QmlProfile {};
 struct QmlPrivateProfile {};
 struct SqlProfile {};
+struct XmlProfile {};
 
 struct NimProfile {};
 
@@ -844,6 +861,10 @@ public:
     {
         profileExtra += "QT += core\n";
 
+        cmakelistsExtra +=
+            "find_package(Qt5 COMPONENTS Core REQUIRED)\n"
+            "target_link_libraries(doit PRIVATE Qt5::Core)\n";
+
         useQt = true;
         useQHash = true;
 
@@ -853,6 +874,10 @@ public:
     const Data &operator+(const NetworkProfile &) const
     {
         profileExtra += "QT += core network\n";
+
+        cmakelistsExtra +=
+            "find_package(Qt5 COMPONENTS Core Network REQUIRED)\n"
+            "target_link_libraries(doit PRIVATE Qt5::Core Qt::Network)\n";
 
         useQt = true;
         useQHash = true;
@@ -882,6 +907,10 @@ public:
             "QT += gui\n"
             "greaterThan(QT_MAJOR_VERSION, 4):QT *= widgets\n";
 
+        cmakelistsExtra +=
+             "find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)\n"
+             "target_link_libraries(doit PRIVATE Qt5::Core Qt5::Gui Qt::Widgets)\n";
+
         return *this;
     }
 
@@ -906,6 +935,10 @@ public:
             "  CONFIG += no_private_qt_headers_warning\n"
             "}";
 
+        cmakelistsExtra +=
+             //"find_package(Qt5 COMPONENTS Core Gui GuiPrivate REQUIRED)\n"
+             "target_link_libraries(doit PRIVATE Qt5::Core Qt5::Gui Qt5::GuiPrivate)\n";
+
         return *this;
     }
 
@@ -929,6 +962,23 @@ public:
             "  CONFIG += no_private_qt_headers_warning\n"
             "}";
 
+        cmakelistsExtra +=
+             "find_package(Qt5 COMPONENTS Core Gui Qml REQUIRED)\n"
+             "target_link_libraries(doit PRIVATE Qt5::Core Qt5::Qml Qt5::QmlPrivate)\n";
+
+        return *this;
+    }
+
+    const Data &operator+(const XmlProfile &) const
+    {
+        this->operator+(CoreProfile());
+        profileExtra +=
+            " QT += xml\n";
+
+        cmakelistsExtra +=
+             "find_package(Qt5 COMPONENTS Core Xml REQUIRED)\n"
+             "target_link_libraries(doit PRIVATE Qt5::Core Qt5::Xml)\n";
+
         return *this;
     }
 
@@ -941,13 +991,13 @@ public:
 
         useQt = false;
         useQHash = false;
-        mainFile = "main.mm";
+        language = Language::ObjectiveCxx;
         return *this;
     }
 
     const Data &operator+(const ForceC &) const
     {
-        mainFile = "main.c";
+        language = Language::C;
         return *this;
     }
 
@@ -973,11 +1023,10 @@ public:
     mutable QString allProfile;      // Overrides anything below if not empty.
     mutable QString allCode;         // Overrides anything below if not empty.
 
-    mutable QString mainFile = "main.cpp";
-    mutable QString projectFile = "doit.pro";
-
+    mutable Language language = Language::Cxx;
     mutable QString dumperOptions;
     mutable QString profileExtra;
+    mutable QString cmakelistsExtra;
     mutable QString includes;
     mutable QString code;
     mutable QString unused;
@@ -1021,9 +1070,11 @@ private slots:
 private:
     void disarm() { t->buildTemp.setAutoRemove(!keepTemp()); }
     bool keepTemp() const { return m_keepTemp || m_forceKeepTemp; }
-    TempStuff *t = 0;
+    TempStuff *t = nullptr;
+    BuildSystem m_buildSystem = BuildSystem::Qmake;
     QString m_debuggerBinary;
     QString m_qmakeBinary;
+    QString m_cmakeBinary{"cmake"};
     QProcessEnvironment m_env;
     DebuggerEngine m_debuggerEngine;
     QString m_makeBinary;
@@ -1062,7 +1113,11 @@ void tst_Dumpers::initTestCase()
     m_qmakeBinary = QDir::fromNativeSeparators(QString::fromLocal8Bit(qgetenv("QTC_QMAKE_PATH_FOR_TEST")));
     if (m_qmakeBinary.isEmpty())
         m_qmakeBinary = "qmake";
+    if (qEnvironmentVariableIntValue("QTC_USE_CMAKE_FOR_TEST"))
+        m_buildSystem = BuildSystem::CMake;
+
     qDebug() << "QMake              : " << m_qmakeBinary;
+    qDebug() << "Use CMake          : " << (m_buildSystem == BuildSystem::CMake) << int(m_buildSystem);
 
     m_useGLibCxxDebug = qgetenv("QTC_USE_GLIBCXXDEBUG_FOR_TEST").toInt();
     qDebug() << "Use _GLIBCXX_DEBUG : " << m_useGLibCxxDebug;
@@ -1309,32 +1364,94 @@ void tst_Dumpers::dumper()
         }
     }
 
-    QFile proFile(t->buildPath + '/' + data.projectFile);
-    QVERIFY(proFile.open(QIODevice::ReadWrite));
-    if (data.allProfile.isEmpty()) {
-        proFile.write("SOURCES = ");
-        proFile.write(data.mainFile.toUtf8());
-        proFile.write("\nTARGET = doit\n");
-        proFile.write("\nCONFIG -= app_bundle\n");
-        proFile.write("\nmacos: CONFIG += sdk_no_version_check\n");
-        proFile.write("\nCONFIG -= release\n");
-        proFile.write("\nCONFIG += debug\n");
-        proFile.write("\nCONFIG += console\n");
-        if (data.useQt)
-            proFile.write("QT -= widgets gui\n");
-        else
-            proFile.write("CONFIG -= qt\n");
-        if (m_useGLibCxxDebug)
-            proFile.write("DEFINES += _GLIBCXX_DEBUG\n");
-        if (m_debuggerEngine == GdbEngine && m_debuggerVersion < 70500)
-            proFile.write("QMAKE_CXXFLAGS += -gdwarf-3\n");
-        proFile.write(data.profileExtra.toUtf8());
+    QString mainFile;
+    QByteArray cmakeLanguage;
+    if (data.language == Language::C) {
+        mainFile = "main.c";
+        cmakeLanguage = "C";
+    } else if (data.language == Language::ObjectiveCxx) {
+        mainFile = "main.mm";
+        cmakeLanguage = "CXX";
+    } else if (data.language == Language::Nim) {
+        mainFile = "main.nim";
+        cmakeLanguage = "CXX";
+    } else if (data.language == Language::Fortran90) {
+        mainFile = "main.f90";
+        cmakeLanguage = "Fortran";
     } else {
-        proFile.write(data.allProfile.toUtf8());
+        mainFile = "main.cpp";
+        cmakeLanguage = "CXX";
     }
-    proFile.close();
 
-    QFile source(t->buildPath + '/' + data.mainFile);
+    QFile projectFile;
+    if (m_buildSystem == BuildSystem::CMake) {
+        projectFile.setFileName(t->buildPath + "/CMakeLists.txt");
+        QVERIFY(projectFile.open(QIODevice::ReadWrite));
+        if (data.allProfile.isEmpty()) {
+            projectFile.write("cmake_minimum_required(VERSION 3.5)\n\n");
+            projectFile.write("project(doit LANGUAGES " + cmakeLanguage + ")\n\n");
+            projectFile.write("set(CMAKE_INCLUDE_CURRENT_DIR ON)\n\n");
+
+            if (data.useQt) {
+                projectFile.write("set(CMAKE_AUTOUIC ON)\n");
+                projectFile.write("set(CMAKE_AUTOMOC ON)\n");
+                projectFile.write("set(CMAKE_AUTORCC ON)\n");
+            }
+
+            projectFile.write("set(CMAKE_CXX_STANDARD 11)\n");
+            projectFile.write("set(CMAKE_CXX_STANDARD_REQUIRED ON)\n");
+
+            projectFile.write("add_executable(doit\n");
+            projectFile.write("    " + mainFile.toUtf8() + "\n");
+            projectFile.write(")\n\n");
+
+            //projectFile.write("target_link_libraries(doit PRIVATE Qt5::Widgets)\n");
+
+            //projectFile.write("\nmacos: CONFIG += sdk_no_version_check\n");
+            //projectFile.write("\nCONFIG -= release\n");
+            //projectFile.write("\nCONFIG += debug\n");
+            //projectFile.write("\nCONFIG += console\n");
+
+            //if (m_useGLibCxxDebug)
+            //    projectFile.write("DEFINES += _GLIBCXX_DEBUG\n");
+            //if (m_debuggerEngine == GdbEngine && m_debuggerVersion < 70500)
+            //    projectFile.write("QMAKE_CXXFLAGS += -gdwarf-3\n");
+            projectFile.write(data.cmakelistsExtra.toUtf8());
+        } else {
+            projectFile.write(data.allProfile.toUtf8());
+        }
+        projectFile.close();
+    } else {
+        projectFile.setFileName(t->buildPath + "/doit.pro");
+        QVERIFY(projectFile.open(QIODevice::ReadWrite));
+        if (data.allProfile.isEmpty()) {
+            projectFile.write("SOURCES = ");
+            projectFile.write(mainFile.toUtf8());
+            projectFile.write("\nTARGET = doit\n");
+            projectFile.write("\nCONFIG -= app_bundle\n");
+            projectFile.write("\nmacos: CONFIG += sdk_no_version_check\n");
+            projectFile.write("\nCONFIG -= release\n");
+            projectFile.write("\nCONFIG += debug\n");
+            projectFile.write("\nCONFIG += console\n");
+            if (data.useQt)
+                projectFile.write("QT -= widgets gui\n");
+            else
+                projectFile.write("CONFIG -= qt\n");
+            if (m_useGLibCxxDebug)
+                projectFile.write("DEFINES += _GLIBCXX_DEBUG\n");
+            if (m_debuggerEngine == GdbEngine && m_debuggerVersion < 70500)
+                projectFile.write("QMAKE_CXXFLAGS += -gdwarf-3\n");
+            projectFile.write(data.profileExtra.toUtf8());
+        } else {
+            projectFile.write(data.allProfile.toUtf8());
+        }
+#ifdef Q_OS_WIN
+        projectFile.write("TARGET = ../doit\n"); // avoid handling debug / release folder
+#endif
+        projectFile.close();
+    }
+
+    QFile source(t->buildPath + '/' + mainFile);
     QVERIFY(source.open(QIODevice::ReadWrite));
 
     QString unused;
@@ -1420,23 +1537,47 @@ void tst_Dumpers::dumper()
     source.write(fullCode.toUtf8());
     source.close();
 
-    QProcess qmake;
-    qmake.setWorkingDirectory(t->buildPath);
-    //qDebug() << "Starting qmake: " << m_qmakeBinary;
-    QStringList options;
-#ifdef Q_OS_MAC
-    if (m_qtVersion && m_qtVersion < 0x050000)
-        options << "-spec" << "unsupported/macx-clang";
-#endif
-    qmake.start(m_qmakeBinary, options);
-    QVERIFY(qmake.waitForFinished());
-    output = qmake.readAllStandardOutput();
-    error = qmake.readAllStandardError();
-    //qDebug() << "stdout: " << output;
+    if (m_buildSystem == BuildSystem::CMake) {
+        QProcess cmake;
+        cmake.setWorkingDirectory(t->buildPath);
+        QDir dir = QFileInfo(m_qmakeBinary).dir(); // {Qt:QT_INSTALL_PREFIX}
+        dir.cdUp();
+        QStringList options = {
+            "-DCMAKE_BUILD_TYPE=Debug",
+            "-DCMAKE_PREFIX_PATH=" + dir.absolutePath(),
+            "."
+        };
+        //qDebug() << "Starting cmake: " << m_cmakeBinary << ' ' << qPrintable(options.join(' '));
+        cmake.start(m_cmakeBinary, options);
+        QVERIFY(cmake.waitForFinished());
+        output = cmake.readAllStandardOutput();
+        error = cmake.readAllStandardError();
+        //qDebug() << "stdout: " << output;
 
-    if (data.allProfile.isEmpty()) { // Nim...
-        if (!error.isEmpty()) {
-            qDebug() << error; QVERIFY(false);
+        if (data.allProfile.isEmpty()) { // Nim...
+            if (!error.isEmpty()) {
+                qDebug() << error; QVERIFY(false);
+            }
+        }
+    } else {
+        QProcess qmake;
+        qmake.setWorkingDirectory(t->buildPath);
+        //qDebug() << "Starting qmake: " << m_qmakeBinary;
+        QStringList options;
+    #ifdef Q_OS_MACOS
+        if (m_qtVersion && m_qtVersion < 0x050000)
+            options << "-spec" << "unsupported/macx-clang";
+    #endif
+        qmake.start(m_qmakeBinary, options);
+        QVERIFY(qmake.waitForFinished());
+        output = qmake.readAllStandardOutput();
+        error = qmake.readAllStandardError();
+        //qDebug() << "stdout: " << output;
+
+        if (data.allProfile.isEmpty()) { // Nim...
+            if (!error.isEmpty()) {
+                qDebug() << error; QVERIFY(false);
+            }
         }
     }
 
@@ -1454,7 +1595,7 @@ void tst_Dumpers::dumper()
         qDebug() << "\n------------------ CODE --------------------";
         qDebug().noquote() << fullCode;
         qDebug() << "\n------------------ CODE --------------------";
-        qDebug().noquote() << "Project file: " << proFile.fileName();
+        qDebug().noquote() << "Project file: " << projectFile.fileName();
         QCOMPARE(make.exitCode(), 0);
     }
 
@@ -1527,11 +1668,7 @@ void tst_Dumpers::dumper()
         QByteArray nograb = "-nograb";
 
         cmds = "set confirm off\n"
-#ifdef Q_OS_WIN
-                "file debug/doit\n"
-#else
                 "file doit\n"
-#endif
                 "set auto-load python-scripts off\n";
 
         cmds += "python sys.path.insert(1, '" + dumperDir + "')\n"
@@ -1555,7 +1692,7 @@ void tst_Dumpers::dumper()
              << "0x4000001f"
              << "-c"
              << "bm doit!qtcDebugBreakFunction;g"
-             << "debug\\doit.exe";
+             << "doit.exe";
         cmds += ".symopt+0x8000\n"
                 "!qtcreatorcdbext.script sys.path.insert(1, '" + dumperDir + "')\n"
                 "!qtcreatorcdbext.script from cdbbridge import *\n"
@@ -4275,8 +4412,7 @@ void tst_Dumpers::dumper_data()
                     "atts.append(\"name3\", \"uri3\", \"localPart3\", \"value3\");",
                     "&atts")
 
-               + CoreProfile()
-               + Profile("QT += xml\n")
+               + XmlProfile()
 
                + Check("atts", "<3 items>", "@QXmlAttributes")
                + Check("atts.0", "[0]", "", "@QXmlAttributes::Attribute")
@@ -7827,7 +7963,7 @@ void tst_Dumpers::dumper_data()
         "  i8 = i8 / 0\n"
         "end program\n";
 
-    f90data.mainFile = "main.f90";
+    f90data.language = Language::Fortran90;
 
     QTest::newRow("F90")
         << f90data

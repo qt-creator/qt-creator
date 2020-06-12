@@ -24,6 +24,8 @@ conditions by using environment variables as follows:
   (QTC_CDBEXT_PATH (optional) - path to the cdbextension
       defaults to IDE_BUILD_TREE/IDE_LIBRARY_BASENAME/qtcreatorcdbext64)
 
+   QTC_USE_CMAKE_FOR_TEST - Use cmake to build test cases (incomplete)
+
 The tests should be used for automated testing, but can also
 be used for dumper development and fixing.
 
