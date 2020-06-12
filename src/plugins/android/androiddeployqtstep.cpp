@@ -101,12 +101,19 @@ public:
         setSummaryText(displayName());
 
         auto uninstallPreviousPackage = new QCheckBox(this);
-        uninstallPreviousPackage->setText(AndroidDeployQtStep::tr("Uninstall previous package"));
+        uninstallPreviousPackage->setText(AndroidDeployQtStep::tr("Uninstall the existing app first"));
         uninstallPreviousPackage->setChecked(step->uninstallPreviousPackage() > AndroidDeployQtStep::Keep);
         uninstallPreviousPackage->setEnabled(step->uninstallPreviousPackage() != AndroidDeployQtStep::ForceUnintall);
 
+        connect(uninstallPreviousPackage, &QAbstractButton::toggled,
+                step, &AndroidDeployQtStep::setUninstallPreviousPackage);
+
         auto resetDefaultDevices = new QPushButton(this);
-        resetDefaultDevices->setText(AndroidDeployQtStep::tr("Reset Default Devices"));
+        resetDefaultDevices->setText(AndroidDeployQtStep::tr("Reset Default Deployment Devices"));
+
+        connect(resetDefaultDevices, &QAbstractButton::clicked, this, [step] {
+            AndroidConfigurations::clearDefaultDevices(step->project());
+        });
 
         auto installCustomApkButton = new QPushButton(this);
         installCustomApkButton->setText(AndroidDeployQtStep::tr("Install an APK File"));
@@ -120,13 +127,6 @@ public:
             if (!packagePath.isEmpty())
                 AndroidManager::installQASIPackage(step->target(), packagePath);
         });
-
-        connect(resetDefaultDevices, &QAbstractButton::clicked, this, [step] {
-            AndroidConfigurations::clearDefaultDevices(step->project());
-        });
-
-        connect(uninstallPreviousPackage, &QAbstractButton::toggled,
-                step, &AndroidDeployQtStep::setUninstallPreviousPackage);
 
         auto layout = new QVBoxLayout(this);
         layout->addWidget(uninstallPreviousPackage);
