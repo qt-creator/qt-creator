@@ -1438,10 +1438,13 @@ bool GitClient::synchronousLog(const QString &workingDirectory, const QStringLis
     }
 }
 
-bool GitClient::synchronousAdd(const QString &workingDirectory, const QStringList &files)
+bool GitClient::synchronousAdd(const QString &workingDirectory,
+                               const QStringList &files,
+                               const QStringList &extraOptions)
 {
-    return vcsFullySynchronousExec(workingDirectory, QStringList({"add"}) + files).result
-            == SynchronousProcessResponse::Finished;
+    QStringList args{"add"};
+    args += extraOptions + files;
+    return vcsFullySynchronousExec(workingDirectory, args).result == SynchronousProcessResponse::Finished;
 }
 
 bool GitClient::synchronousDelete(const QString &workingDirectory,
@@ -2890,7 +2893,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
             filesToReset.removeAll(file);
             filesToAdd.append(file);
         } else if (state == AddedFile && checked) {
-            QTC_ASSERT(false, continue); // these should be untracked!
+            filesToAdd.append(file);
         } else if (state == DeletedFile && checked) {
             filesToReset.removeAll(file);
             filesToRemove.append(file);

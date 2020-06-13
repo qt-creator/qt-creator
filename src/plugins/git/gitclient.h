@@ -185,7 +185,8 @@ public:
     bool synchronousLog(const QString &workingDirectory, const QStringList &arguments,
                         QString *output, QString *errorMessage = nullptr,
                         unsigned flags = 0);
-    bool synchronousAdd(const QString &workingDirectory, const QStringList &files);
+    bool synchronousAdd(const QString &workingDirectory, const QStringList &files,
+                        const QStringList &extraOptions = {});
     bool synchronousDelete(const QString &workingDirectory,
                            bool force,
                            const QStringList &files);
