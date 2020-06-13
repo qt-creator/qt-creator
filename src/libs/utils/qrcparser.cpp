@@ -551,18 +551,21 @@ const QStringList QrcParserPrivate::allUiLanguages(const QLocale *locale) const
 {
     if (!locale)
         return languages();
-    QStringList langs = locale->uiLanguages();
-    foreach (const QString &language, langs) { // qt4 support
-        if (language.contains(QLatin1Char('_')) || language.contains(QLatin1Char('-'))) {
-            QStringList splits = QString(language).replace(QLatin1Char('_'), QLatin1Char('-'))
-                    .split(QLatin1Char('-'));
+    bool hasEmptyString = false;
+    const QStringList langs = locale->uiLanguages();
+    QStringList allLangs = langs;
+    for (const QString &language : langs) {
+        if (language.isEmpty())
+            hasEmptyString = true;
+        else if (language.contains('_') || language.contains('-')) {
+            const QStringList splits = QString(language).replace('_', '-').split('-');
             if (splits.size() > 1 && !langs.contains(splits.at(0)))
-                langs.append(splits.at(0));
+                allLangs.append(splits.at(0));
         }
     }
-    if (!langs.contains(QString()))
-        langs.append(QString());
-    return langs;
+    if (!hasEmptyString)
+        allLangs.append(QString());
+    return allLangs;
 }
 
 // ----------------
