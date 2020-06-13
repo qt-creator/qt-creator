@@ -61,7 +61,7 @@ Theme::Theme(Utils::Theme *originTheme, QObject *parent)
     else if (component.status() == QQmlComponent::Error ) {
         qCWarning(themeLog) << "Couldn't load" << constantsPath
                             << "due to the following error(s):";
-        for (QQmlError error : component.errors())
+        for (const QQmlError &error : component.errors())
             qCWarning(themeLog) << error.toString();
     }
     else {

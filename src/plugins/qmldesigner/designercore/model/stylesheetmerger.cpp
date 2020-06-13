@@ -212,7 +212,7 @@ void StylesheetMerger::preprocessStyleSheet()
 {
     try {
         RewriterTransaction transaction(m_styleView, "preprocess-stylesheet");
-        for (ModelNode currentStyleNode : m_styleView->rootModelNode().directSubModelNodes()) {
+        for (const ModelNode &currentStyleNode : m_styleView->rootModelNode().directSubModelNodes()) {
             QString id = currentStyleNode.id();
 
             if (!idExistsInBothModels(id))
@@ -277,7 +277,7 @@ void StylesheetMerger::replaceNode(ModelNode &replacedNode, ModelNode &newNode)
     bool isNodeProperty = false;
 
     PropertyName reparentName;
-    for (NodeProperty prop : parentModelNode.nodeProperties()) {
+    for (const NodeProperty &prop : parentModelNode.nodeProperties()) {
         if (prop.modelNode().id() == replacedNode.id()) {
             isNodeProperty = true;
             reparentName = prop.name();
@@ -441,13 +441,13 @@ void StylesheetMerger::merge()
         replacementNodes.enqueue(styleRootNode);
     }
     // otherwise, the nodes to replace are the direct sub nodes of the style sheet's root
-    for (ModelNode subNode : styleRootNode.allSubModelNodes()) {
+    for (const ModelNode &subNode : styleRootNode.allSubModelNodes()) {
         if (m_templateView->hasId(subNode.id())) {
             replacementNodes.enqueue(subNode);
         }
     }
 
-    for (ModelNode currentNode : replacementNodes) {
+    for (const ModelNode &currentNode : replacementNodes) {
 
         bool hasPos = false;
 

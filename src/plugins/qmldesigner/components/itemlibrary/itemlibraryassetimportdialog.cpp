@@ -125,7 +125,7 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(const QStringList &im
     QString candidatePath = targetDir + defaultAssetFolder + quick3DFolder;
     int candidatePriority = 5;
 
-    for (auto importPath : qAsConst(importPaths)) {
+    for (const auto &importPath : qAsConst(importPaths)) {
         if (importPath.startsWith(targetDir)) {
             const bool isDefaultFolder = importPath.endsWith(defaultAssetFolder);
             const QString assetFolder = importPath + quick3DFolder;

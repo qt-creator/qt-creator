@@ -781,7 +781,7 @@ public:
         }
 
         if (from.empty()) {
-            for (const ModelNode wildcard : QmlFlowViewNode(node.rootModelNode()).wildcards()) {
+            for (const ModelNode &wildcard : QmlFlowViewNode(node.rootModelNode()).wildcards()) {
                 if (wildcard.bindingProperty("target").resolveToModelNode() == node.modelNode()) {
                     from.clear();
                     from.append(wildcard);

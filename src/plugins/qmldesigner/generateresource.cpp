@@ -108,7 +108,7 @@ void GenerateResource::generateMenuEntry()
         const QStringList arguments1 = {"--project", "--output", temp.fileName()};
         const QStringList arguments2 = {"--binary", "--output", resourceFileName, temp.fileName()};
 
-        for (auto arguments : {arguments1, arguments2}) {
+        for (const auto &arguments : {arguments1, arguments2}) {
             rccProcess.start(rccBinary.toString(), arguments);
             if (!rccProcess.waitForStarted()) {
                 Core::MessageManager::write(QCoreApplication::translate("QmlDesigner::GenerateResource",

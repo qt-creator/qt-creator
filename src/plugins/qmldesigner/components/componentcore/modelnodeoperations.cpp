@@ -1140,7 +1140,7 @@ static inline void setAdjustedPos(const QmlDesigner::ModelNode &modelNode)
 void reparentToNodeAndAdjustPosition(const ModelNode &parentModelNode,
                                      const QList<ModelNode> &modelNodeList)
 {
-    for (ModelNode modelNode : modelNodeList) {
+    for (const ModelNode &modelNode : modelNodeList) {
         reparentTo(modelNode, parentModelNode);
         setAdjustedPos(modelNode);
 

@@ -209,7 +209,7 @@ ModelNode TimelineSectionItem::targetNode() const
 QVector<qreal> TimelineSectionItem::keyframePositions() const
 {
     QVector<qreal> out;
-    for (auto frame : m_timeline.keyframeGroupsForTarget(m_targetNode))
+    for (const auto &frame : m_timeline.keyframeGroupsForTarget(m_targetNode))
         out.append(timelineScene()->keyframePositions(frame));
 
     return out;

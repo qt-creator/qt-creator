@@ -238,7 +238,7 @@ void ViewManager::detachAdditionalViews()
 
 void ViewManager::detachStandardViews()
 {
-    for (auto view : standardViews()) {
+    for (const auto view : standardViews()) {
         if (view->isAttached())
             currentModel()->detachView(view);
     }
@@ -280,7 +280,7 @@ void ViewManager::attachViewsExceptRewriterAndComponetView()
     int last = time.elapsed();
     int currentTime = 0;
     if (!d->disableStandardViews) {
-        for (auto view : standardViews()) {
+        for (const auto view : standardViews()) {
             currentModel()->attachView(view);
             currentTime = time.elapsed();
             qCInfo(viewBenchmark) << view->widgetInfo().uniqueId << currentTime - last;

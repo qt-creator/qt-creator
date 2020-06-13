@@ -336,7 +336,7 @@ void CurveItem::setCurve(const AnimationCurve &curve)
 {
     freeClear(m_keyframes);
 
-    for (auto frame : curve.keyframes()) {
+    for (const auto &frame : curve.keyframes()) {
         auto *item = new KeyframeItem(frame, this);
         item->setLocked(locked());
         item->setComponentTransform(m_transform);
