@@ -213,7 +213,9 @@ struct Data // because we have a cycle dependency
                                             pchCreationProgressCounter,
                                             preCompiledHeaderStorage,
                                             database,
-                                            environment};
+                                            environment,
+                                            fileSystem,
+                                            filePathCache};
     ClangBackEnd::PchTasksMerger pchTaskMerger{pchTaskQueue};
     ClangBackEnd::BuildDependenciesStorage<> buildDependencyStorage{database};
     ClangBackEnd::BuildDependencyCollector buildDependencyCollector{filePathCache,

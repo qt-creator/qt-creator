@@ -39,7 +39,7 @@ CONFIG(release, debug|release):QMAKE_LFLAGS += -Wl,--strip-debug
 }
 
 gcc:!clang: QMAKE_CXXFLAGS += -Wno-noexcept-type
-msvc: QMAKE_CXXFLAGS += /bigobj /wd4267 /wd4141 /wd4146
+msvc: QMAKE_CXXFLAGS += /bigobj /wd4267 /wd4141 /wd4146 /wd4624
 
 # create fake CppTools.json for the mime type definitions
 dependencyList = "\"Dependencies\" : []"

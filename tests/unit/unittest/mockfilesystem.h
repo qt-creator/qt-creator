@@ -34,4 +34,5 @@ class MockFileSystem : public ClangBackEnd::FileSystemInterface
 public:
     MOCK_CONST_METHOD1(directoryEntries, ClangBackEnd::FilePathIds(const QString &directoryPath));
     MOCK_CONST_METHOD1(lastModified, long long(ClangBackEnd::FilePathId filePathId));
+    MOCK_METHOD1(remove, void(const ClangBackEnd::FilePathIds &filePathIds));
 };

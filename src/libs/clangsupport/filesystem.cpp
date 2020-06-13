@@ -61,4 +61,10 @@ long long FileSystem::lastModified(FilePathId filePathId) const
     return 0;
 }
 
+void FileSystem::remove(const FilePathIds &filePathIds)
+{
+    for (FilePathId filePathId : filePathIds)
+        QFile::remove(QString{m_filePathCache.filePath(filePathId)});
+}
+
 } // namespace ClangBackEnd

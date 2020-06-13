@@ -60,6 +60,7 @@ public:
     virtual FilePath fetchPrecompiledHeader(ProjectPartId projectPartId) const = 0;
     virtual PchPaths fetchPrecompiledHeaders(ProjectPartId projectPartId) const = 0;
     virtual PrecompiledHeaderTimeStamps fetchTimeStamps(ProjectPartId projectPartId) const = 0;
+    virtual FilePaths fetchAllPchPaths() const = 0;
 
 protected:
     ~PrecompiledHeaderStorageInterface() = default;
