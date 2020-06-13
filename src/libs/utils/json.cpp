@@ -36,7 +36,7 @@ using namespace Utils;
 
 JsonMemoryPool::~JsonMemoryPool()
 {
-    foreach (char *obj, _objs) {
+    for (char *obj : qAsConst(_objs)) {
         reinterpret_cast<JsonValue *>(obj)->~JsonValue();
         delete[] obj;
     }
@@ -92,7 +92,8 @@ JsonValue *JsonValue::build(const QVariant &variant, JsonMemoryPool *pool)
 
     case QVariant::List: {
         auto newValue = new (pool) JsonArrayValue;
-        foreach (const QVariant &element, variant.toList())
+        const QList<QVariant> list = variant.toList();
+        for (const QVariant &element : list)
             newValue->addElement(build(element, pool));
         return newValue;
     }
@@ -204,7 +205,8 @@ QStringList JsonSchema::validTypes(JsonObjectValue *v)
         return validTypes(ov);
 
     if (JsonArrayValue *av = getArrayValue(kType(), v)) {
-        foreach (JsonValue *v, av->elements()) {
+        const QList<JsonValue *> elements = av->elements();
+        for (JsonValue *v : elements) {
             if (JsonStringValue *sv = v->toString())
                 all.append(sv->value());
             else if (JsonObjectValue *ov = v->toObject())
@@ -665,19 +667,20 @@ JsonDoubleValue *JsonSchema::getDoubleValue(const QString &name, JsonObjectValue
 JsonSchemaManager::JsonSchemaManager(const QStringList &searchPaths)
     : m_searchPaths(searchPaths)
 {
-    foreach (const QString &path, m_searchPaths) {
+    for (const QString &path : searchPaths) {
         QDir dir(path);
         if (!dir.exists())
             continue;
         dir.setNameFilters(QStringList(QLatin1String("*.json")));
-        foreach (const QFileInfo &fi, dir.entryInfoList())
+        const QList<QFileInfo> entries = dir.entryInfoList();
+        for (const QFileInfo &fi : entries)
             m_schemas.insert(fi.baseName(), JsonSchemaData(fi.absoluteFilePath()));
     }
 }
 
 JsonSchemaManager::~JsonSchemaManager()
 {
-    foreach (const JsonSchemaData &schemaData, m_schemas)
+    for (const JsonSchemaData &schemaData : qAsConst(m_schemas))
         delete schemaData.m_schema;
 }
 
@@ -701,7 +704,7 @@ JsonSchema *JsonSchemaManager::schemaByName(const QString &baseName) const
 {
     QHash<QString, JsonSchemaData>::iterator it = m_schemas.find(baseName);
     if (it == m_schemas.end()) {
-        foreach (const QString &path, m_searchPaths) {
+        for (const QString &path : m_searchPaths) {
             QFileInfo candidate(path + baseName + ".json");
             if (candidate.exists()) {
                 m_schemas.insert(baseName, candidate.absoluteFilePath());

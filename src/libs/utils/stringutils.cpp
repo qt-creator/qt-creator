@@ -261,7 +261,7 @@ QTCREATOR_UTILS_EXPORT bool readMultiLineString(const QJsonValue &value, QString
     } else if (value.isArray()) {
         QJsonArray array = value.toArray();
         QStringList lines;
-        foreach (const QJsonValue &v, array) {
+        for (const QJsonValue &v : array) {
             if (!v.isString())
                 return false;
             lines.append(v.toString());

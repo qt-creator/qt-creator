@@ -39,8 +39,8 @@ void fromSettings(const QString &postFix,
                   SettingsClassT *obj)
 {
     QVariantMap map;
-    const QStringList &keys = s->allKeys();
-    foreach (const QString &key, keys)
+    const QStringList keys = s->allKeys();
+    for (const QString &key : keys)
         map.insert(key, s->value(key));
 
     QString group = postFix;

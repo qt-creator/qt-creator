@@ -301,7 +301,7 @@ static QString quoteWinArgument(const QString &arg)
 QString createWinCommandline(const QString &program, const QStringList &args)
 {
     QString programName = quoteWinCommand(program);
-    foreach (const QString &arg, args) {
+    for (const QString &arg : args) {
         programName += QLatin1Char(' ');
         programName += quoteWinArgument(arg);
     }

@@ -626,7 +626,7 @@ void QtcProcess::addArg(QString *args, const QString &arg, OsType osType)
 QString QtcProcess::joinArgs(const QStringList &args, OsType osType)
 {
     QString ret;
-    foreach (const QString &arg, args)
+    for (const QString &arg : args)
         addArg(&ret, arg, osType);
     return ret;
 }
@@ -642,7 +642,7 @@ void QtcProcess::addArgs(QString *args, const QString &inArgs)
 
 void QtcProcess::addArgs(QString *args, const QStringList &inArgs)
 {
-    foreach (const QString &arg, inArgs)
+    for (const QString &arg : inArgs)
         addArg(args, arg);
 }
 

@@ -160,9 +160,9 @@ bool FileUtils::removeRecursively(const FilePath &filePath, QString *error)
             return false;
         }
 
-        QStringList fileNames = dir.entryList(QDir::Files | QDir::Hidden
-                                              | QDir::System | QDir::Dirs | QDir::NoDotAndDotDot);
-        foreach (const QString &fileName, fileNames) {
+        const QStringList fileNames = dir.entryList(
+                    QDir::Files | QDir::Hidden | QDir::System | QDir::Dirs | QDir::NoDotAndDotDot);
+        for (const QString &fileName : fileNames) {
             if (!removeRecursively(filePath / fileName, error))
                 return false;
         }
@@ -219,9 +219,9 @@ bool FileUtils::copyRecursively(const FilePath &srcFilePath, const FilePath &tgt
             }
         }
         QDir sourceDir(srcFilePath.toString());
-        QStringList fileNames = sourceDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot
-                                                    | QDir::Hidden | QDir::System);
-        foreach (const QString &fileName, fileNames) {
+        const QStringList fileNames = sourceDir.entryList(
+                    QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
+        for (const QString &fileName : fileNames) {
             const FilePath newSrcFilePath = srcFilePath / fileName;
             const FilePath newTgtFilePath = tgtFilePath / fileName;
             if (!copyRecursively(newSrcFilePath, newTgtFilePath, error, copyHelper))

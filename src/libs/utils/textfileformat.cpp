@@ -41,7 +41,8 @@ QDebug operator<<(QDebug d, const TextFileFormat &format)
     nsp << "TextFileFormat: ";
     if (format.codec) {
         nsp << format.codec->name();
-        foreach (const QByteArray &alias, format.codec->aliases())
+        const QList<QByteArray> aliases = format.codec->aliases();
+        for (const QByteArray &alias : aliases)
             nsp << ' ' << alias;
     } else {
         nsp << "NULL";

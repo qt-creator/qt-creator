@@ -385,9 +385,9 @@ QSet<QString> Wizard::fieldNames() const
 QHash<QString, QVariant> Wizard::variables() const
 {
     QHash<QString, QVariant> result;
-    foreach (const QString &f, fieldNames()) {
+    const QSet<QString> fields = fieldNames();
+    for (const QString &f : fields)
         result.insert(f, field(f));
-    }
     return result;
 }
 
@@ -410,7 +410,7 @@ void Wizard::showVariables()
     QHash<QString, QVariant> vars = variables();
     QList<QString> keys = vars.keys();
     sort(keys);
-    foreach (const QString &key, keys) {
+    for (const QString &key : qAsConst(keys)) {
         const QVariant &v = vars.value(key);
         result += QLatin1String("  <tr><td>")
                 + key + QLatin1String("</td><td>")

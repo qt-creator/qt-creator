@@ -333,7 +333,8 @@ void SavedAction::actionTriggered(bool)
         setValue(isChecked());
     if (actionGroup() && actionGroup()->isExclusive()) {
         // FIXME: should be taken care of more directly
-        foreach (QAction *act, actionGroup()->actions())
+        const QList<QAction *> actions = actionGroup()->actions();
+        for (QAction *act : actions)
             if (auto dact = qobject_cast<SavedAction *>(act))
                 dact->setValue(bool(act == this));
     }
@@ -360,13 +361,13 @@ void SavedActionSet::insert(SavedAction *action, QWidget *widget)
 
 void SavedActionSet::apply(QSettings *settings)
 {
-    foreach (SavedAction *action, m_list)
+    for (SavedAction *action : qAsConst(m_list))
         action->apply(settings);
 }
 
 void SavedActionSet::finish()
 {
-    foreach (SavedAction *action, m_list)
+    for (SavedAction *action : qAsConst(m_list))
         action->disconnectWidget();
 }
 

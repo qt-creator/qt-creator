@@ -308,17 +308,16 @@ QStringList MimeType::parentMimeTypes() const
 
 static void collectParentMimeTypes(const QString &mime, QStringList &allParents)
 {
-    QStringList parents = MimeDatabasePrivate::instance()->provider()->parents(mime);
-    foreach (const QString &parent, parents) {
+    const QStringList parents = MimeDatabasePrivate::instance()->provider()->parents(mime);
+    for (const QString &parent : parents) {
         // I would use QSet, but since order matters I better not
         if (!allParents.contains(parent))
             allParents.append(parent);
     }
     // We want a breadth-first search, so that the least-specific parent (octet-stream) is last
     // This means iterating twice, unfortunately.
-    foreach (const QString &parent, parents) {
+    for (const QString &parent : parents)
         collectParentMimeTypes(parent, allParents);
-    }
 }
 
 /*!
@@ -364,7 +363,7 @@ QStringList MimeType::suffixes() const
     MimeDatabasePrivate::instance()->provider()->loadMimeTypePrivate(*d);
 
     QStringList result;
-    foreach (const QString &pattern, d->globPatterns) {
+    for (const QString &pattern : d->globPatterns) {
         const QString suffix = suffixFromPattern(pattern);
         if (!suffix.isEmpty())
             result.append(suffix);

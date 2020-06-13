@@ -181,7 +181,8 @@ void Theme::readSettings(QSettings &settings)
     }
     {
         settings.beginGroup(QLatin1String("Palette"));
-        foreach (const QString &key, settings.allKeys())
+        const QStringList allKeys = settings.allKeys();
+        for (const QString &key : allKeys)
             d->palette[key] = readNamedColor(settings.value(key).toString()).first;
         settings.endGroup();
     }

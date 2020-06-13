@@ -86,7 +86,7 @@ static void qtSection(const QStringList &qtIncludes, QTextStream &str)
 {
     QStringList sorted = qtIncludes;
     Utils::sort(sorted);
-    foreach (const QString &inc, sorted) {
+    for (const QString &inc : qAsConst(sorted)) {
         if (!inc.isEmpty())
             str << QStringLiteral("#include <%1>\n").arg(inc);
     }

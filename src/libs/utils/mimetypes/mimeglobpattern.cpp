@@ -191,11 +191,7 @@ void MimeAllGlobPatterns::removeMimeType(const QString &mimeType)
 void MimeGlobPatternList::match(MimeGlobMatchResult &result,
                                  const QString &fileName) const
 {
-
-    MimeGlobPatternList::const_iterator it = this->constBegin();
-    const MimeGlobPatternList::const_iterator endIt = this->constEnd();
-    for (; it != endIt; ++it) {
-        const MimeGlobPattern &glob = *it;
+    for (const MimeGlobPattern &glob : *this) {
         if (glob.matchFileName(fileName))
             result.addMatch(glob.mimeType(), glob.weight(), glob.pattern());
     }
@@ -217,9 +213,8 @@ QStringList MimeAllGlobPatterns::matchingGlobs(const QString &fileName, QString 
             // (toLower because fast patterns are always case-insensitive and saved as lowercase)
 
             const QStringList matchingMimeTypes = m_fastPatterns.value(simpleExtension);
-            foreach (const QString &mime, matchingMimeTypes) {
+            for (const QString &mime : matchingMimeTypes)
                 result.addMatch(mime, 50, QLatin1String("*.") + simpleExtension);
-            }
             // Can't return yet; *.tar.bz2 has to win over *.bz2, so we need the low-weight mimetypes anyway,
             // at least those with weight 50.
         }

@@ -475,9 +475,9 @@ void FancyMainWindow::saveSettings(QSettings *settings) const
 void FancyMainWindow::restoreSettings(const QSettings *settings)
 {
     QHash<QString, QVariant> hash;
-    foreach (const QString &key, settings->childKeys()) {
+    const QStringList childKeys = settings->childKeys();
+    for (const QString &key : childKeys)
         hash.insert(key, settings->value(key));
-    }
     restoreSettings(hash);
 }
 
@@ -552,7 +552,7 @@ void FancyMainWindow::addDockActionsToMenu(QMenu *menu)
         QTC_ASSERT(action2, return false);
         return stripAccelerator(action1->text()).toLower() < stripAccelerator(action2->text()).toLower();
     });
-    foreach (QAction *action, actions)
+    for (QAction *action : qAsConst(actions))
         menu->addAction(action);
     menu->addAction(&d->m_showCentralWidget);
     menu->addAction(&d->m_menuSeparator1);

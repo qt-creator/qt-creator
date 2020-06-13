@@ -195,7 +195,7 @@ bool BuildableHelperLibrary::copyFiles(const QString &sourcePath,
         *errorMessage = QCoreApplication::translate("ProjectExplorer::DebuggingHelperLibrary", "The target directory %1 could not be created.").arg(targetDirectory);
         return false;
     }
-    foreach (const QString &file, files) {
+    for (const QString &file : files) {
         const QString source = sourcePath + file;
         const QString dest = targetDirectory + file;
         const QFileInfo destInfo(dest);
@@ -347,7 +347,7 @@ bool BuildableHelperLibrary::getHelperFileInfoFor(const QStringList &validBinary
     if (!info)
         return false;
 
-    foreach (const QString &binaryFilename, validBinaryFilenames) {
+    for (const QString &binaryFilename : validBinaryFilenames) {
         info->setFile(directory + binaryFilename);
         if (info->exists())
             return true;
@@ -365,7 +365,7 @@ QString BuildableHelperLibrary::byInstallDataHelper(const QString &sourcePath,
     // find the latest change to the sources
     QDateTime sourcesModified;
     if (!acceptOutdatedHelper) {
-        foreach (const QString &sourceFileName, sourceFileNames) {
+        for (const QString &sourceFileName : sourceFileNames) {
             const QDateTime fileModified = QFileInfo(sourcePath + sourceFileName).lastModified();
             if (fileModified.isValid() && (!sourcesModified.isValid() || fileModified > sourcesModified))
                 sourcesModified = fileModified;
@@ -383,7 +383,7 @@ QString BuildableHelperLibrary::byInstallDataHelper(const QString &sourcePath,
     QString newestHelper;
     QDateTime newestHelperModified = sourcesModified; // prevent using one that's older than the sources
     QFileInfo fileInfo;
-    foreach (const QString &installDirectory, installDirectories) {
+    for (const QString &installDirectory : installDirectories) {
         if (getHelperFileInfoFor(validBinaryFilenames, installDirectory, &fileInfo)) {
             if (!newestHelperModified.isValid()
                     || (fileInfo.lastModified() > newestHelperModified)) {

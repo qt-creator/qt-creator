@@ -386,7 +386,7 @@ FileInProjectFinder::CacheEntry FileInProjectFinder::findInSearchPath(
 QStringList FileInProjectFinder::filesWithSameFileName(const QString &fileName) const
 {
     QStringList result;
-    foreach (const FilePath &f, m_projectFiles) {
+    for (const FilePath &f : m_projectFiles) {
         if (f.fileName() == fileName)
             result << f.toString();
     }

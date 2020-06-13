@@ -55,7 +55,8 @@ public:
 
     template<class T> T *find() const
     {
-        foreach (int id, pageIds()) {
+        const QList<int> pages = pageIds();
+        for (int id : pages) {
             if (T *result = qobject_cast<T *>(page(id)))
                 return result;
         }

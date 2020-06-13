@@ -53,7 +53,8 @@ void StyledBar::setLightColored(bool lightColored)
     if (isLightColored() == lightColored)
         return;
     setProperty("lightColored", lightColored);
-    foreach (QWidget *childWidget, findChildren<QWidget *>())
+    const QList<QWidget *> children = findChildren<QWidget *>();
+    for (QWidget *childWidget : children)
         childWidget->style()->polish(childWidget);
 }
 

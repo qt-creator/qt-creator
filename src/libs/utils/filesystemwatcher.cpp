@@ -282,7 +282,7 @@ void FileSystemWatcher::addFiles(const QStringList &files, WatchMode wm)
                  << " limit currently: " << (d->m_files.size() + d->m_directories.size())
                  << " of " << d->m_staticData->maxFileOpen;
     QStringList toAdd;
-    foreach (const QString &file, files) {
+    for (const QString &file : files) {
         if (watchesFile(file)) {
             qWarning("FileSystemWatcher: File %s is already being watched", qPrintable(file));
             continue;
@@ -324,7 +324,7 @@ void FileSystemWatcher::removeFiles(const QStringList &files)
     if (debug)
         qDebug() << this << d->m_id << "removeFiles " << files;
     QStringList toRemove;
-    foreach (const QString &file, files) {
+    for (const QString &file : files) {
         WatchEntryMapIterator it = d->m_files.find(file);
         if (it == d->m_files.end()) {
             qWarning("FileSystemWatcher: File %s is not watched.", qPrintable(file));
@@ -372,7 +372,7 @@ void FileSystemWatcher::addDirectories(const QStringList &directories, WatchMode
                  << " limit currently: " << (d->m_files.size() + d->m_directories.size())
                  << " of " << d->m_staticData->maxFileOpen;
     QStringList toAdd;
-    foreach (const QString &directory, directories) {
+    for (const QString &directory : directories) {
         if (watchesDirectory(directory)) {
             qWarning("FileSystemWatcher: Directory %s is already being watched.", qPrintable(directory));
             continue;
@@ -408,7 +408,7 @@ void FileSystemWatcher::removeDirectories(const QStringList &directories)
         qDebug() << this << d->m_id << "removeDirectories" << directories;
 
     QStringList toRemove;
-    foreach (const QString &directory, directories) {
+    for (const QString &directory : directories) {
         WatchEntryMapIterator it = d->m_directories.find(directory);
         if (it == d->m_directories.end()) {
             qWarning("FileSystemWatcher: Directory %s is not watched.", qPrintable(directory));

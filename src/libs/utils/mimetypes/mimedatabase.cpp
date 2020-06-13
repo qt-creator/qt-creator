@@ -207,7 +207,7 @@ MimeType MimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileName
                 return candidateByData;
             }
             // If there is a glob match that is a sub class of sniffedMime, use it
-            foreach (const QString &m, candidatesByName) {
+            for (const QString &m : qAsConst(candidatesByName)) {
                 if (inherits(m, sniffedMime)) {
                     // We have magic + pattern pointing to this, so it's a pretty good match
                     *accuracyPtr = 100;
@@ -247,7 +247,8 @@ bool MimeDatabasePrivate::inherits(const QString &mime, const QString &parent)
         const QString current = toCheck.pop();
         if (current == resolvedParent)
             return true;
-        foreach (const QString &par, provider()->parents(current)) {
+        const QStringList parents = provider()->parents(current);
+        for (const QString &par : parents) {
             int seenSize = seen.size();
             seen.insert(par);
             if (seen.size() != seenSize) // haven't seen before, so add
@@ -348,13 +349,14 @@ QString Utils::allFiltersString(QString *allFilesFilter)
 {
     MimeDatabase mdb;
     QSet<QString> uniqueFilters;
-    foreach (const MimeType &mt, mdb.allMimeTypes()) {
+    const QList<MimeType> allMimeTypes = mdb.allMimeTypes();
+    for (const MimeType &mt : allMimeTypes) {
         const QString &filterString = mt.filterString();
         if (!filterString.isEmpty())
             uniqueFilters.insert(mt.filterString());
     }
     QStringList filters;
-    foreach (const QString &filter, uniqueFilters)
+    for (const QString &filter : uniqueFilters)
         filters.append(filter);
     filters.sort();
     const QString allFiles = allFilesFilterString();
@@ -384,7 +386,8 @@ QStringList Utils::allGlobPatterns()
 
     MimeDatabase mdb;
     QStringList patterns;
-    foreach (const MimeType &mt, mdb.allMimeTypes())
+    const QList<MimeType> allMimeTypes = mdb.allMimeTypes();
+    for (const MimeType &mt : allMimeTypes)
         patterns.append(mt.globPatterns());
     return patterns;
 }
@@ -522,7 +525,7 @@ QList<MimeType> MimeDatabase::mimeTypesForFileName(const QString &fileName) cons
     QStringList matches = d->mimeTypeForFileName(fileName);
     QList<MimeType> mimes;
     matches.sort(); // Make it deterministic
-    foreach (const QString &mime, matches)
+    for (const QString &mime : qAsConst(matches))
         mimes.append(d->mimeTypeForName(mime));
     return mimes;
 }

@@ -208,8 +208,9 @@ public:
             + 2 * fm.horizontalAdvance(QLatin1Char('m'));
         considerItems(column, q->indexAt(QPoint(1, 1)), &minimum, false);
 
-        QVariant extraIndices = m->data(QModelIndex(), BaseTreeView::ExtraIndicesForColumnWidth);
-        foreach (const QModelIndex &a, extraIndices.value<QModelIndexList>())
+        const QVariant extraIndices = m->data(QModelIndex(), BaseTreeView::ExtraIndicesForColumnWidth);
+        const QList<QModelIndex> values = extraIndices.value<QModelIndexList>();
+        for (const QModelIndex &a : values)
             considerItems(column, a, &minimum, true);
 
         return minimum;
