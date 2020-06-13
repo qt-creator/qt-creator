@@ -48,11 +48,7 @@ class CollectSymbolsAction : public clang::WrapperFrontendAction
 public:
     CollectSymbolsAction(std::shared_ptr<IndexDataConsumer> indexDataConsumer)
         : clang::WrapperFrontendAction(
-            clang::index::createIndexingAction(indexDataConsumer, createIndexingOptions()
-#if LLVM_VERSION_MAJOR < 10
-                                               , nullptr
-#endif
-                                               ))
+            clang::index::createIndexingAction(indexDataConsumer, createIndexingOptions()))
         , m_indexDataConsumer(indexDataConsumer)
     {}
 

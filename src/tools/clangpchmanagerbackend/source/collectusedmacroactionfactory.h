@@ -61,7 +61,6 @@ public:
                                                                     diagnosticConsumer);
     }
 
-#if LLVM_VERSION_MAJOR >= 10
     std::unique_ptr<clang::FrontendAction> create() override
     {
         return std::make_unique<CollectUsedMacrosAction>(
@@ -71,16 +70,6 @@ public:
                     m_sourceFiles,
                     m_fileStatuses);
     }
-#else
-    clang::FrontendAction *create() override
-    {
-        return new CollectUsedMacrosAction(m_usedMacros,
-                                           m_filePathCache,
-                                           m_sourceDependencies,
-                                           m_sourceFiles,
-                                           m_fileStatuses);
-    }
-#endif
 
 private:
     UsedMacros &m_usedMacros;

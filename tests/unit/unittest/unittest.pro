@@ -134,18 +134,15 @@ SOURCES += \
     sqlstatementbuilder-test.cpp \
     createtablesqlstatementbuilder-test.cpp
 
-!isEmpty(QTC_UNITTEST_BUILD_CPP_PARSER):matchingtext-test.cpp
+!isEmpty(QTC_UNITTEST_BUILD_CPP_PARSER):SOURCES += matchingtext-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
-    activationsequencecontextprocessor-test.cpp \
-    activationsequenceprocessor-test.cpp \
     chunksreportedmonitor.cpp \
     clangasyncjob-base.cpp \
     clangcodecompleteresults-test.cpp \
     clangcodemodelserver-test.cpp \
     clangcompletecodejob-test.cpp \
-    clangcompletioncontextanalyzer-test.cpp \
     clangdiagnosticfilter-test.cpp \
     clangdocumentprocessors-test.cpp \
     clangdocumentprocessor-test.cpp \
@@ -185,6 +182,12 @@ SOURCES += \
     unsavedfile-test.cpp \
     utf8positionfromlinecolumn-test.cpp \
     readexporteddiagnostics-test.cpp
+
+!isEmpty(QTC_UNITTEST_BUILD_CPP_PARSER):SOURCE += \
+    clangcompletioncontextanalyzer-test.cpp \
+    activationsequencecontextprocessor-test.cpp \
+    activationsequenceprocessor-test.cpp
+
 }
 
 !isEmpty(LIBTOOLING_LIBS) {
@@ -200,7 +203,6 @@ SOURCES += \
     refactoringclientserverinprocess-test.cpp \
     refactoringclient-test.cpp \
     refactoringcompilationdatabase-test.cpp \
-    refactoringengine-test.cpp \
     refactoringserver-test.cpp \
     sourcerangeextractor-test.cpp \
     symbolindexing-test.cpp \
@@ -209,6 +211,9 @@ SOURCES += \
     usedmacrocollector-test.cpp \
     builddependencycollector-test.cpp \
     tokenprocessor-test.cpp
+
+!isEmpty(QTC_UNITTEST_BUILD_CPP_PARSER):SOURCES += refactoringengine-test.cpp
+
 }
 
 !isEmpty(CLANGFORMAT_LIBS) {
