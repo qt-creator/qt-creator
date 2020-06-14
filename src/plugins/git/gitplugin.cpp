@@ -1857,13 +1857,13 @@ bool GitPluginPrivate::vcsOpen(const QString & /*fileName*/)
     return false;
 }
 
-bool GitPluginPrivate::vcsAdd(const QString & fileName)
+bool GitPluginPrivate::vcsAdd(const QString &fileName)
 {
     const QFileInfo fi(fileName);
     return m_gitClient.synchronousAdd(fi.absolutePath(), {fi.fileName()});
 }
 
-bool GitPluginPrivate::vcsDelete(const QString & fileName)
+bool GitPluginPrivate::vcsDelete(const QString &fileName)
 {
     const QFileInfo fi(fileName);
     return m_gitClient.synchronousDelete(fi.absolutePath(), true, {fi.fileName()});
