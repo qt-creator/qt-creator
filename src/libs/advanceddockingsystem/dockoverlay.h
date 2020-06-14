@@ -76,7 +76,7 @@ public:
     /**
      * Virtual destructor
      */
-    virtual ~DockOverlay() override;
+    ~DockOverlay() override;
 
     /**
      * Configures the areas that are allowed for docking
@@ -129,12 +129,12 @@ public:
     /**
      * Handle polish events
      */
-    virtual bool event(QEvent *event) override;
+    bool event(QEvent *event) override;
 
 protected:
-    virtual void paintEvent(QPaintEvent *event) override;
-    virtual void showEvent(QShowEvent *event) override;
-    virtual void hideEvent(QHideEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
+    void showEvent(QShowEvent *event) override;
+    void hideEvent(QHideEvent *event) override;
 };
 
 class DockOverlayCrossPrivate;
@@ -212,7 +212,7 @@ public:
     /**
      * Virtual destructor
      */
-    virtual ~DockOverlayCross() override;
+    ~DockOverlayCross() override;
 
     /**
       * Sets a certain icon color
@@ -265,7 +265,7 @@ public:
     void setIconColors(const QString &colors);
 
 protected:
-    virtual void showEvent(QShowEvent *event) override;
+    void showEvent(QShowEvent *event) override;
     void setAreaWidgets(const QHash<DockWidgetArea, QWidget *> &widgets);
 }; // DockOverlayCross
 

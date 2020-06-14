@@ -57,16 +57,16 @@ private:
     friend struct ElidingLabelPrivate;
 
 protected:
-    virtual void mouseReleaseEvent(QMouseEvent *event) override;
-    virtual void resizeEvent(QResizeEvent *event) override;
-    virtual void mouseDoubleClickEvent(QMouseEvent *ev) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *ev) override;
 
 public:
     using Super = QLabel;
 
     ElidingLabel(QWidget *parent = nullptr, Qt::WindowFlags flags = Qt::Widget);
     ElidingLabel(const QString &text, QWidget *parent = nullptr, Qt::WindowFlags flags = Qt::Widget);
-    virtual ~ElidingLabel() override;
+    ~ElidingLabel() override;
 
     /**
      * Returns the text elide mode.
@@ -85,8 +85,8 @@ public:
     bool isElided() const;
 
 public: // reimplements QLabel
-    virtual QSize minimumSizeHint() const override;
-    virtual QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
+    QSize sizeHint() const override;
     void setText(const QString &text);
     QString text() const;
 

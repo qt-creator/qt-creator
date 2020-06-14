@@ -145,7 +145,7 @@ protected:
     /**
      * Show the floating widgets that has been created floating
      */
-    virtual void showEvent(QShowEvent *event) override;
+    void showEvent(QShowEvent *event) override;
 
 public:
     using Super = DockContainerWidget;
@@ -229,7 +229,7 @@ public:
     /**
      * Virtual Destructor
      */
-    virtual ~DockManager() override;
+    ~DockManager() override;
 
     /**
      * This function returns the global configuration flags.
@@ -349,7 +349,7 @@ public:
      * This function always return 0 because the main window is always behind
      * any floating widget.
      */
-    virtual unsigned int zOrderIndex() const override;
+    unsigned int zOrderIndex() const override;
 
     /**
      * Saves the current state of the dockmanger and all its dock widgets

@@ -71,7 +71,7 @@ private:
     void onTabWidgetMoved(const QPoint &globalPos);
 
 protected:
-    virtual void wheelEvent(QWheelEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
 
 public:
     using Super = QScrollArea;
@@ -84,7 +84,7 @@ public:
     /**
      * Virtual Destructor
      */
-    virtual ~DockAreaTabBar() override;
+    ~DockAreaTabBar() override;
 
     /**
      * Inserts the given dock widget tab at the given position.
@@ -121,7 +121,7 @@ public:
     /**
      * Filters the tab widget events
      */
-    virtual bool eventFilter(QObject *watched, QEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
     /**
      * This function returns true if the tab is open, that means if it is
@@ -137,13 +137,13 @@ public:
      * is reserved in the minimumSizeHint(). This override simply returns
      * sizeHint();
      */
-    virtual QSize minimumSizeHint() const override;
+    QSize minimumSizeHint() const override;
 
     /**
      * The function provides a sizeHint that matches the height of the
      * internal viewport.
      */
-    virtual QSize sizeHint() const override;
+    QSize sizeHint() const override;
 
     /**
      * This property sets the index of the tab bar's visible tab

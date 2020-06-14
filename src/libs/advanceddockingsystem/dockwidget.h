@@ -226,13 +226,13 @@ public:
     /**
      * Virtual Destructor
      */
-    virtual ~DockWidget() override;
+    ~DockWidget() override;
 
     /**
      * We return a fixed minimum size hint or the size hint of the content
      * widget if minimum size hint mode is MinimumSizeHintFromContent
      */
-    virtual QSize minimumSizeHint() const override;
+    QSize minimumSizeHint() const override;
 
     /**
      * Sets the widget for the dock widget to widget.
@@ -439,7 +439,7 @@ public: // reimplements QFrame
     /**
      * Emits titleChanged signal if title change event occurs
      */
-    virtual bool event(QEvent *event) override;
+    bool event(QEvent *event) override;
 
     /**
      * This property controls whether the dock widget is open or closed.

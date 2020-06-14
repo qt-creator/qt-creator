@@ -67,12 +67,12 @@ protected:
     /**
      * Updates the drop overlays
      */
-    virtual void moveEvent(QMoveEvent *event) override;
+    void moveEvent(QMoveEvent *event) override;
 
     /**
      * Cares about painting the
      */
-    virtual void paintEvent(QPaintEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
 
     /**
      * The content is a DockArea or a DockWidget
@@ -102,26 +102,26 @@ public:
      * We filter the events of the assigned content widget to receive
      * escape key presses for canceling the drag operation
      */
-    virtual bool eventFilter(QObject *watched, QEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
 public: // implements AbstractFloatingWidget
-    virtual void startFloating(const QPoint &dragStartMousePos,
-                               const QSize &size,
-                               eDragState dragState,
-                               QWidget *mouseEventHandler) override;
+    void startFloating(const QPoint &dragStartMousePos,
+                       const QSize &size,
+                       eDragState dragState,
+                       QWidget *mouseEventHandler) override;
 
     /**
      * Moves the widget to a new position relative to the position given when
      * startFloating() was called
      */
-    virtual void moveFloating() override;
+    void moveFloating() override;
 
     /**
      * Finishes dragging.
      * Hides the dock overlays and executes the real undocking and docking
      * of the assigned Content widget
      */
-    virtual void finishDragging() override;
+    void finishDragging() override;
 
 signals:
     /**

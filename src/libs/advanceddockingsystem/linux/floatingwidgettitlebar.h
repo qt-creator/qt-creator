@@ -46,9 +46,9 @@ private:
     FloatingWidgetTitleBarPrivate *d; ///< private data (pimpl)
 
 protected:
-    virtual void mousePressEvent(QMouseEvent *event) override;
-    virtual void mouseReleaseEvent(QMouseEvent *event) override;
-    virtual void mouseMoveEvent(QMouseEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 
 public:
     using Super = QWidget;
@@ -57,7 +57,7 @@ public:
     /**
       * Virtual Destructor
       */
-    virtual ~FloatingWidgetTitleBar() override;
+    ~FloatingWidgetTitleBar() override;
 
     /**
       * Enables / disables the window close button.

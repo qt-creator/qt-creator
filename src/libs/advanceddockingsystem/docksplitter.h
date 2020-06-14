@@ -61,7 +61,7 @@ public:
     /**
      * Prints debug info
      */
-    virtual ~DockSplitter() override;
+    ~DockSplitter() override;
 
     /**
      * Returns true, if any of the internal widgets is visible

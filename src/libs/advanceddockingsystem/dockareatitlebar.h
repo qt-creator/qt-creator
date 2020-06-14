@@ -70,7 +70,7 @@ public:
     /**
      * Adjust this visibility change request with our internal settings:
      */
-    virtual void setVisible(bool visible) override;
+    void setVisible(bool visible) override;
 
 protected:
     /**
@@ -92,8 +92,8 @@ class SpacerWidget : public QWidget
     Q_OBJECT
 public:
     SpacerWidget(QWidget *parent = nullptr);
-    virtual QSize sizeHint() const override {return QSize(0, 0);}
-    virtual QSize minimumSizeHint() const override {return QSize(0, 0);}
+    QSize sizeHint() const override {return QSize(0, 0);}
+    QSize minimumSizeHint() const override {return QSize(0, 0);}
 };
 
 /**
@@ -118,28 +118,28 @@ protected:
     /**
      * Stores mouse position to detect dragging
      */
-    virtual void mousePressEvent(QMouseEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
 
     /**
      * Stores mouse position to detect dragging
      */
-    virtual void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
 
     /**
      * Starts floating the complete docking area including all dock widgets,
      * if it is not the last dock area in a floating widget
      */
-    virtual void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 
     /**
      * Double clicking the title bar also starts floating of the complete area
       */
-    virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
 
     /**
      * Show context menu
      */
-    virtual void contextMenuEvent(QContextMenuEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
 public:
     /**
@@ -157,7 +157,7 @@ public:
     /**
      * Virtual Destructor
      */
-    virtual ~DockAreaTitleBar() override;
+    ~DockAreaTitleBar() override;
 
     /**
      * Returns the pointer to the tabBar()
@@ -178,7 +178,7 @@ public:
      * Marks the tabs menu outdated before it calls its base class
      * implementation
      */
-    virtual void setVisible(bool visible) override;
+    void setVisible(bool visible) override;
 
     /**
      * Inserts a custom widget at position index into this title bar.

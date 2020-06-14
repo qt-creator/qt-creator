@@ -84,7 +84,7 @@ protected:
     /**
      * Handles activation events to update zOrderIndex
      */
-    virtual bool event(QEvent *event) override;
+    bool event(QEvent *event) override;
 
 public: // TODO temporary
     /**
@@ -177,7 +177,7 @@ public:
     /**
      * Virtual Destructor
      */
-    virtual ~DockContainerWidget() override;
+    ~DockContainerWidget() override;
 
     /**
      * Adds dockwidget into the given area.
