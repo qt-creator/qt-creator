@@ -57,7 +57,7 @@ QList<T>toList(const QSet<T> &set)
 
 #ifndef MULTILANGUAGE_TRANSLATIONPROVIDER
 namespace MultiLanguage {
-static QByteArray databaseFilePath()
+inline QByteArray databaseFilePath()
 {
     return {};
 }
