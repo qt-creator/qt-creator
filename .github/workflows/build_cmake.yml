@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 env:
   QT_VERSION: 5.15.0
-  CLANG_VERSION: 80
+  CLANG_VERSION: 100
   CMAKE_VERSION: 3.17.0
   NINJA_VERSION: 1.10.0
   BUILD_TYPE: Release
@@ -220,12 +220,12 @@ jobs:
           if ("x${{ matrix.config.environment_script }}" STREQUAL "x")
             set(libclang "libclang-release_${clang_version}-based-windows-mingw_64.7z")
           elseif ("${{ matrix.config.environment_script }}" MATCHES "vcvars64.bat")
-            set(libclang "libclang-release_${clang_version}-based-windows-vs2017_64.7z")
+            set(libclang "libclang-release_${clang_version}-based-windows-vs2019_64.7z")
           elseif ("${{ matrix.config.environment_script }}" MATCHES "vcvars32.bat")
-            set(libclang "libclang-release_${clang_version}-based-windows-vs2017_32.7z")
+            set(libclang "libclang-release_${clang_version}-based-windows-vs2019_32.7z")
           endif()
         elseif ("${{ runner.os }}" STREQUAL "Linux")
-          set(libclang "libclang-release_${clang_version}-based-linux-Ubuntu16.04-gcc5.3-x86_64.7z")
+          set(libclang "libclang-release_${clang_version}-based-linux-Ubuntu18.04-gcc9.2-x86_64.7z")
         elseif ("${{ runner.os }}" STREQUAL "macOS")
           set(libclang "libclang-release_${clang_version}-based-mac.7z")
         endif()
