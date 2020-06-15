@@ -173,7 +173,7 @@ QList<QPointer<AbstractView> > ViewManager::views() const
     return list;
 }
 
-QList<QPointer<AbstractView> > ViewManager::standardViews() const
+const QList<QPointer<AbstractView> > ViewManager::standardViews() const
 {
     QList<QPointer<AbstractView>> list = {
                     &d->edit3DView,
@@ -238,7 +238,7 @@ void ViewManager::detachAdditionalViews()
 
 void ViewManager::detachStandardViews()
 {
-    for (const auto view : standardViews()) {
+    for (const auto &view : standardViews()) {
         if (view->isAttached())
             currentModel()->detachView(view);
     }
@@ -280,7 +280,7 @@ void ViewManager::attachViewsExceptRewriterAndComponetView()
     int last = time.elapsed();
     int currentTime = 0;
     if (!d->disableStandardViews) {
-        for (const auto view : standardViews()) {
+        for (const auto &view : standardViews()) {
             currentModel()->attachView(view);
             currentTime = time.elapsed();
             qCInfo(viewBenchmark) << view->widgetInfo().uniqueId << currentTime - last;

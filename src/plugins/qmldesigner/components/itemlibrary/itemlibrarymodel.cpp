@@ -294,7 +294,7 @@ void ItemLibraryModel::sortSections()
 
     std::sort(m_sections.begin(), m_sections.end(), sectionSort);
 
-    for (const auto itemLibrarySection : m_sections)
+    for (const auto &itemLibrarySection : qAsConst(m_sections))
         itemLibrarySection->sortItems();
 }
 

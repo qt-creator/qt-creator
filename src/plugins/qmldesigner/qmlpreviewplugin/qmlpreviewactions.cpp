@@ -144,7 +144,7 @@ void FpsLabelAction::fpsHandler(quint16 fpsValues[8])
         fpsText = fpsText.arg("--");
     else
         fpsText = fpsText.arg(lastValidFrames);
-    for (const QPointer<QLabel> label : fpsHandlerLabelList) {
+    for (const QPointer<QLabel> &label : qAsConst(fpsHandlerLabelList)) {
         if (label)
             label->setText(fpsText);
     }

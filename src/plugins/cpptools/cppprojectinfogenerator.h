@@ -42,7 +42,7 @@ public:
     ProjectInfo generate();
 
 private:
-    QVector<ProjectPart::Ptr> createProjectParts(
+    const QVector<ProjectPart::Ptr> createProjectParts(
         const ProjectExplorer::RawProjectPart &rawProjectPart);
     ProjectPart::Ptr createProjectPart(const ProjectExplorer::RawProjectPart &rawProjectPart,
                                        const ProjectPart::Ptr &templateProjectPart,

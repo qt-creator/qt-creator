@@ -332,7 +332,7 @@ static FileInfos sortedFileInfos(const QVector<CppTools::ProjectPart::Ptr> &proj
 {
     FileInfos fileInfos;
 
-    for (const CppTools::ProjectPart::Ptr projectPart : projectParts) {
+    for (const CppTools::ProjectPart::Ptr &projectPart : projectParts) {
         QTC_ASSERT(projectPart, continue);
         if (!projectPart->selectedForBuilding)
             continue;

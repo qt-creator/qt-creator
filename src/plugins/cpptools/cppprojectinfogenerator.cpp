@@ -56,7 +56,7 @@ ProjectInfo ProjectInfoGenerator::generate()
         if (m_futureInterface.isCanceled())
             return ProjectInfo();
 
-        for (const ProjectPart::Ptr part : createProjectParts(rpp))
+        for (const ProjectPart::Ptr &part : createProjectParts(rpp))
             projectInfo.appendProjectPart(part);
     }
 
@@ -101,7 +101,7 @@ static ProjectPart::Ptr projectPartFromRawProjectPart(
     return part;
 }
 
-QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(
+const QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(
     const RawProjectPart &rawProjectPart)
 {
     using Utils::LanguageExtension;
