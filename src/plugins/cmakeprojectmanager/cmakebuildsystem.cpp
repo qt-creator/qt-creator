@@ -725,6 +725,7 @@ void CMakeBuildSystem::wireUpConnections(const Project *p)
             setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()),
                                          CMakeBuildSystem::REPARSE_DEFAULT);
         } else {
+            qCDebug(cmakeBuildSystemLog) << "Requesting STOP due to active target changed";
             stopParsingAndClearState();
         }
     });
@@ -736,6 +737,7 @@ void CMakeBuildSystem::wireUpConnections(const Project *p)
                 setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()),
                                              CMakeBuildSystem::REPARSE_DEFAULT);
             } else {
+                qCDebug(cmakeBuildSystemLog) << "Requesting STOP due to active BC changed";
                 stopParsingAndClearState();
             }
         }
