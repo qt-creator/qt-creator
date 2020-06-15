@@ -310,7 +310,7 @@ static std::vector<Project> extractProjects(const QJsonArray &projects, QString 
         project.directories = indexList(obj.value("directoryIndexes"));
         project.targets = indexList(obj.value("targetIndexes"));
 
-        if (project.name.isEmpty() || project.directories.empty()) {
+        if (project.directories.empty()) {
             qCDebug(cmakeFileApi) << "Invalid project skipped!";
             errorMessage = QCoreApplication::translate(
                 "CMakeProjectManager::Internal",

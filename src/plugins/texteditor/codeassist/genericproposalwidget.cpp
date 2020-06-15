@@ -641,7 +641,10 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
         case Qt::Key_End:
         case Qt::Key_Backspace:
             // We want these navigation keys to work in the editor.
-            break;
+            QApplication::sendEvent(const_cast<QWidget *>(d->m_underlyingWidget), e);
+            if (isVisible())
+                d->m_assistant->notifyChange();
+            return true;
 
         default:
             // Only forward keys that insert text and refine the completion.

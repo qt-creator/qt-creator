@@ -258,39 +258,52 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
                     extractBacktraceInformation(t.backtraceGraph, sourceDir, id.backtrace, 500));
             }
 
-            // Is this a terminal application?
-            Utils::FilePaths librarySeachPaths;
-            if (ct.targetType == ExecutableType && t.link && t.link.value().language == "CXX") {
+            if (ct.targetType == ExecutableType) {
+                Utils::FilePaths librarySeachPaths;
+                // Is this a GUI application?
+                ct.linksToQtGui = Utils::contains(t.link.value().fragments,
+                                                  [](const FragmentInfo &f) {
+                                                      return f.role == "libraries"
+                                                             && (f.fragment.contains("QtGui")
+                                                                 || f.fragment.contains("Qt5Gui")
+                                                                 || f.fragment.contains("Qt6Gui"));
+                                                  });
+
+                // Extract library directories for executables:
                 for (const FragmentInfo &f : t.link.value().fragments) {
-                    FilePath tmp;
-                    // Some projects abuse linking to libraries to pass random flags to the linker!
-                    if (f.role != "flags"
-                        && !(f.fragment.startsWith("-") || f.fragment.contains(" -"))) {
-                        tmp = FilePath::fromString(currentBuildDir.absoluteFilePath(
-                            QDir::fromNativeSeparators(f.fragment)));
-                    }
+                    if (f.role == "flags") // ignore all flags fragments
+                        continue;
 
-                    if (f.role == "libraries") {
-                        tmp = tmp.parentDir();
+                    // CMake sometimes mixes several shell-escaped pieces into one fragment. Disentangle that again:
+                    const QStringList parts = QtcProcess::splitArgs(f.fragment);
+                    for (const QString part : parts) {
+                        // Some projects abuse linking to libraries to pass random flags to the linker, so ignore
+                        // flags mixed into a fragment
+                        if (part.startsWith("-"))
+                            continue;
 
-                        if (f.fragment.contains("QtGui") || f.fragment.contains("Qt5Gui")
-                            || f.fragment.contains("Qt6Gui"))
-                            ct.linksToQtGui = true;
-                    }
+                        FilePath tmp = FilePath::fromString(
+                            currentBuildDir.absoluteFilePath(QDir::fromNativeSeparators(part)));
 
-                    if (!tmp.isEmpty()) {
-                        librarySeachPaths.append(tmp);
-                        // Libraries often have their import libs in ../lib and the
-                        // actual dll files in ../bin on windows. Qt is one example of that.
-                        if (tmp.fileName() == "lib" && HostOsInfo::isWindowsHost()) {
-                            const FilePath path = tmp.parentDir().pathAppended("bin");
+                        if (f.role == "libraries")
+                            tmp = tmp.parentDir();
 
-                            librarySeachPaths.append(path);
+                        if (!tmp.isEmpty()
+                            && tmp.isDir()) { // f.role is libraryPath or frameworkPath
+                            librarySeachPaths.append(tmp);
+                            // Libraries often have their import libs in ../lib and the
+                            // actual dll files in ../bin on windows. Qt is one example of that.
+                            if (tmp.fileName() == "lib" && HostOsInfo::isWindowsHost()) {
+                                const FilePath path = tmp.parentDir().pathAppended("bin");
+
+                                if (path.isDir())
+                                    librarySeachPaths.append(path);
+                            }
                         }
                     }
                 }
+                ct.libraryDirectories = filteredUnique(librarySeachPaths);
             }
-            ct.libraryDirectories = filteredUnique(librarySeachPaths);
 
             return ct;
         });
@@ -566,6 +579,8 @@ std::pair<std::unique_ptr<CMakeProjectNode>, QSet<FilePath>> generateRootProject
         = findOrDefault(data.codemodel.projects, equal(&FileApiDetails::Project::parent, -1));
     if (!topLevelProject.name.isEmpty())
         result.first->setDisplayName(topLevelProject.name);
+    else
+        result.first->setDisplayName(sourceDirectory.fileName());
 
     QHash<FilePath, ProjectNode *> cmakeListsNodes = addCMakeLists(result.first.get(),
                                                                    std::move(data.cmakeListNodes));
