@@ -1352,7 +1352,7 @@ class History
 public:
     History() : m_items(QString()) {}
     void append(const QString &item);
-    const QString &move(const QStringRef &prefix, int skip);
+    const QString &move(QStringView prefix, int skip);
     const QString &current() const { return m_items[m_index]; }
     const QStringList &items() const { return m_items; }
     void restart() { m_index = m_items.size() - 1; }
@@ -1373,7 +1373,7 @@ void History::append(const QString &item)
     restart();
 }
 
-const QString &History::move(const QStringRef &prefix, int skip)
+const QString &History::move(QStringView prefix, int skip)
 {
     if (!current().startsWith(prefix))
         restart();
@@ -1403,7 +1403,7 @@ public:
         m_buffer = s; m_pos = m_userPos = pos; m_anchor = anchor >= 0 ? anchor : pos;
     }
 
-    QStringRef userContents() const { return m_buffer.leftRef(m_userPos); }
+    QStringView userContents() const { return QStringView{m_buffer}.left(m_userPos); }
     const QChar &prompt() const { return m_prompt; }
     const QString &contents() const { return m_buffer; }
     bool isEmpty() const { return m_buffer.isEmpty(); }
@@ -1424,8 +1424,9 @@ public:
     void moveEnd() { m_userPos = m_pos = m_buffer.size(); }
 
     void setHistoryAutoSave(bool autoSave) { m_historyAutoSave = autoSave; }
-    void historyDown() { setContents(m_history.move(userContents(), 1)); }
-    void historyUp() { setContents(m_history.move(userContents(), -1)); }
+    bool userContentsValid() const { return m_userPos >= 0 && m_userPos <= m_buffer.size(); }
+    void historyDown() { if (userContentsValid()) setContents(m_history.move(userContents(), 1)); }
+    void historyUp() { if (userContentsValid()) setContents(m_history.move(userContents(), -1)); }
     const QStringList &historyItems() const { return m_history.items(); }
     void historyPush(const QString &item = QString())
     {
