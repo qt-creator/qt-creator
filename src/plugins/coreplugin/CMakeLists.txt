@@ -1,3 +1,5 @@
+option(SHOW_BUILD_DATE "Show build date in about dialog" OFF)
+
 add_qtc_plugin(Core
   DEPENDS Qt5::PrintSupport Qt5::Qml Qt5::Sql Qt5::Gui Qt5::GuiPrivate
   PUBLIC_DEPENDS Aggregation ExtensionSystem Utils app_version
@@ -152,6 +154,11 @@ add_qtc_plugin(Core
     welcomepagehelper.cpp welcomepagehelper.h
     windowsupport.cpp windowsupport.h
   EXPLICIT_MOC dialogs/filepropertiesdialog.h
+)
+
+extend_qtc_plugin(Core
+  CONDITION SHOW_BUILD_DATE
+  DEFINES QTC_SHOW_BUILD_DATE
 )
 
 extend_qtc_plugin(Core

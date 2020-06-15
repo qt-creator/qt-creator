@@ -83,6 +83,8 @@ def get_arguments():
                         action='store_true', default=(not common.is_windows_platform()))
     parser.add_argument('--no-docs', help='Skip documentation generation',
                         action='store_true', default=False)
+    parser.add_argument('--no-build-date', help='Does not show build date in about dialog, for reproducible builds',
+                        action='store_true', default=False)
     parser.add_argument('--no-dmg', help='Skip disk image creation (macOS)',
                         action='store_true', default=False)
     parser.add_argument('--no-zip', help='Skip creation of 7zip files for install and developer package',
@@ -101,9 +103,11 @@ def build_qtcreator(args, paths):
         prefix_paths += [paths.elfutils]
     build_type = 'Debug' if args.debug else 'Release'
     with_docs_str = 'OFF' if args.no_docs else 'ON'
+    build_date_option = 'OFF' if args.no_build_date else 'ON'
     cmake_args = ['cmake',
                   '-DCMAKE_PREFIX_PATH=' + ';'.join(prefix_paths),
                   '-DCMAKE_BUILD_TYPE=' + build_type,
+                  '-DSHOW_BUILD_DATE=' + build_date_option,
                   '-DWITH_DOCS=' + with_docs_str,
                   '-DBUILD_DEVELOPER_DOCS=' + with_docs_str,
                   '-DBUILD_EXECUTABLE_SDKTOOL=OFF',
