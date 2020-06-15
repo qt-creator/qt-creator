@@ -798,17 +798,17 @@ public:
             if (f.isValid()) {
                 for (const QmlFlowActionAreaNode &area : f.flowActionAreas()) {
                     ModelNode target = area.targetTransition();
-                    if (target == node.modelNode()) {
+                    if (target == node.modelNode())
                         areaNode = area;
-                    } else {
-                        const ModelNode decisionNode = area.decisionNodeForTransition(node.modelNode());
-                        if (decisionNode.isValid()) {
-                            from.clear();
-                            from.append(decisionNode);
-                            areaNode = ModelNode();
-                        }
-                    }
                 }
+
+                const ModelNode decisionNode = QmlFlowItemNode::decisionNodeForTransition(node.modelNode());
+                if (decisionNode.isValid()) {
+                    from.clear();
+                    from.append(decisionNode);
+                    areaNode = ModelNode();
+                }
+
                 if (f.modelNode().hasAuxiliaryData("joinConnection"))
                     joinConnection = f.modelNode().auxiliaryData("joinConnection").toBool();
             } else {
