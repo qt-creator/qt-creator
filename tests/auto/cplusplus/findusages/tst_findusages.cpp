@@ -84,6 +84,9 @@ private Q_SLOTS:
     void shadowedNames_2();
     void staticVariables();
 
+    void functionNameFoundInArguments();
+    void memberFunctionFalsePositives_QTCREATORBUG2176();
+
     // Qt keywords
     void qproperty_1();
 
@@ -350,6 +353,116 @@ void tst_FindUsages::staticVariables()
     FindUsages findUsages(src, doc, snapshot);
     findUsages(d);
     QCOMPARE(findUsages.usages().size(), 5);
+}
+
+void tst_FindUsages::functionNameFoundInArguments()
+{
+    const QByteArray src =
+        R"(
+void bar();                 // call find usages for bar from here. This is 1st result
+void foo(int bar);          // should not be found
+void foo(int bar){}         // should not be found
+void foo2(int b=bar());     // 2nd result
+void foo2(int b=bar()){}    // 3rd result
+)";
+
+    Document::Ptr doc = Document::create("functionNameFoundInArguments");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QVERIFY(doc->globalSymbolCount() >= 1);
+
+    Symbol *s = doc->globalSymbolAt(0);
+    QCOMPARE(s->name()->identifier()->chars(), "bar");
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    FindUsages find(src, doc, snapshot);
+    find(s);
+
+    QCOMPARE(find.usages().size(), 3);
+
+    QCOMPARE(find.usages()[0].line, 1);
+    QCOMPARE(find.usages()[0].col, 5);
+
+    QCOMPARE(find.usages()[1].line, 4);
+    QCOMPARE(find.usages()[1].col, 16);
+
+    QCOMPARE(find.usages()[2].line, 5);
+    QCOMPARE(find.usages()[2].col, 16);
+}
+
+void tst_FindUsages::memberFunctionFalsePositives_QTCREATORBUG2176()
+{
+    const QByteArray src =
+        R"(
+void otherFunction(int value){}
+struct Struct{
+    static int foo(){return 1;}
+    int bar(){
+        int foo=Struct::foo();
+        otherFunction(foo);
+    }
+};
+)";
+
+    Document::Ptr doc = Document::create("memberFunctionFalsePositives");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 2);
+
+    Class *s = doc->globalSymbolAt(1)->asClass();
+    QVERIFY(s);
+    QCOMPARE(s->name()->identifier()->chars(), "Struct");
+    QCOMPARE(s->memberCount(), 2);
+
+    Symbol *memberFunctionFoo = s->memberAt(0);
+    QVERIFY(memberFunctionFoo);
+    QCOMPARE(memberFunctionFoo->name()->identifier()->chars(), "foo");
+    QVERIFY(memberFunctionFoo->asFunction());
+
+    Function* bar = s->memberAt(1)->asFunction();
+    QVERIFY(bar);
+    QCOMPARE(bar->name()->identifier()->chars(), "bar");
+    QCOMPARE(bar->memberCount(), 1);
+
+    Block* block = bar->memberAt(0)->asBlock();
+    QVERIFY(block);
+    QCOMPARE(block->memberCount(), 1);
+
+    Symbol *variableFoo = block->memberAt(0);
+    QVERIFY(variableFoo);
+    QCOMPARE(variableFoo->name()->identifier()->chars(), "foo");
+    QVERIFY(variableFoo->asDeclaration());
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    FindUsages find(src, doc, snapshot);
+
+    find(memberFunctionFoo);
+    QCOMPARE(find.usages().size(), 2);
+
+    QCOMPARE(find.usages()[0].line, 3);
+    QCOMPARE(find.usages()[0].col, 15);
+
+    QCOMPARE(find.usages()[1].line, 5);
+    QCOMPARE(find.usages()[1].col, 24);
+
+    find(variableFoo);
+    QCOMPARE(find.usages().size(), 2);
+
+    QCOMPARE(find.usages()[0].line, 5);
+    QCOMPARE(find.usages()[0].col, 12);
+
+    QCOMPARE(find.usages()[1].line, 6);
+    QCOMPARE(find.usages()[1].col, 22);
 }
 
 #if 0

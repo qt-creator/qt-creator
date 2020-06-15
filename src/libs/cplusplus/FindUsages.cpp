@@ -2170,6 +2170,7 @@ bool FindUsages::visit(NestedDeclaratorAST *ast)
 bool FindUsages::visit(FunctionDeclaratorAST *ast)
 {
     // unsigned lparen_token = ast->lparen_token;
+    Scope *previousScope = switchScope(ast->symbol);
     this->parameterDeclarationClause(ast->parameter_declaration_clause);
     // unsigned rparen_token = ast->rparen_token;
     for (SpecifierListAST *it = ast->cv_qualifier_list; it; it = it->next) {
@@ -2178,7 +2179,7 @@ bool FindUsages::visit(FunctionDeclaratorAST *ast)
     this->exceptionSpecification(ast->exception_specification);
     this->trailingReturnType(ast->trailing_return_type);
     this->expression(ast->as_cpp_initializer);
-    // Function *symbol = ast->symbol;
+    (void) switchScope(previousScope);
     return false;
 }
 
