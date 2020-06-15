@@ -1,0 +1,6 @@
+{
+    "Vendor" : "The Qt Company Ltd",
+    "Category" : "Qt Quick",
+    "Description" : "Plugin for exporting assets and QML from QmlDesigner",
+    "Url" : "http://www.qt.io"
+}
