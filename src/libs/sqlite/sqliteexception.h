@@ -91,10 +91,10 @@ public:
     }
 };
 
-class IoError : public Exception
+class InputOutputError : public Exception
 {
 public:
-    IoError(const char *whatErrorHasHappen)
+    InputOutputError(const char *whatErrorHasHappen)
         : Exception(whatErrorHasHappen)
     {
     }
@@ -267,6 +267,14 @@ public:
     }
 };
 
+class TooBig : public Exception
+{
+public:
+    TooBig(const char *whatErrorHasHappen, Utils::SmallString &&errorMessage = Utils::SmallString())
+        : Exception(whatErrorHasHappen, std::move(errorMessage))
+    {}
+};
+
 class CannotConvert : public Exception
 {
 public:
@@ -299,4 +307,84 @@ public:
     {}
 };
 
+class SchemeChangeError : public Exception
+{
+public:
+    SchemeChangeError(const char *whatErrorHasHappen,
+                      Utils::SmallString &&errorMessage = Utils::SmallString())
+        : Exception(whatErrorHasHappen, std::move(errorMessage))
+    {}
+};
+
+class CannotWriteToReadOnlyConnection : public Exception
+{
+public:
+    CannotWriteToReadOnlyConnection(const char *whatErrorHasHappen,
+                                    Utils::SmallString &&errorMessage = Utils::SmallString())
+        : Exception(whatErrorHasHappen, std::move(errorMessage))
+    {}
+};
+
+class ProtocolError : public Exception
+{
+public:
+    ProtocolError(const char *whatErrorHasHappen,
+                  Utils::SmallString &&errorMessage = Utils::SmallString())
+        : Exception(whatErrorHasHappen, std::move(errorMessage))
+    {}
+};
+
+class DatabaseExceedsMaximumFileSize : public Exception
+{
+public:
+    DatabaseExceedsMaximumFileSize(const char *whatErrorHasHappen,
+                                   Utils::SmallString &&errorMessage = Utils::SmallString())
+        : Exception(whatErrorHasHappen, std::move(errorMessage))
+    {}
+};
+
+class DataTypeMismatch : public Exception
+{
+public:
+    DataTypeMismatch(const char *whatErrorHasHappen,
+                     Utils::SmallString &&errorMessage = Utils::SmallString())
+        : Exception(whatErrorHasHappen, std::move(errorMessage))
+    {}
+};
+
+class ConnectionIsLocked : public Exception
+{
+public:
+    ConnectionIsLocked(const char *whatErrorHasHappen,
+                       Utils::SmallString &&errorMessage = Utils::SmallString())
+        : Exception(whatErrorHasHappen, std::move(errorMessage))
+    {}
+};
+
+class ExecutionInterrupted : public Exception
+{
+public:
+    ExecutionInterrupted(const char *whatErrorHasHappen,
+                         Utils::SmallString &&errorMessage = Utils::SmallString())
+        : Exception(whatErrorHasHappen, std::move(errorMessage))
+    {}
+};
+
+class DatabaseIsCorrupt : public Exception
+{
+public:
+    DatabaseIsCorrupt(const char *whatErrorHasHappen,
+                      Utils::SmallString &&errorMessage = Utils::SmallString())
+        : Exception(whatErrorHasHappen, std::move(errorMessage))
+    {}
+};
+
+class CannotOpen : public Exception
+{
+public:
+    CannotOpen(const char *whatErrorHasHappen,
+               Utils::SmallString &&errorMessage = Utils::SmallString())
+        : Exception(whatErrorHasHappen, std::move(errorMessage))
+    {}
+};
 } // namespace Sqlite
