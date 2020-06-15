@@ -39,6 +39,28 @@
     You can export graphics from Maya in the FBX format. The necessary plugin is
     usually enabled by default, but you can check that in the plugin manager.
 
+    Maya exports the transformation as given by the scene. To include frozen
+    transformations in your export, select \uicontrol Modify > \uicontrol
+    {Freeze Transformation} in Maya before exporting your assets. For more
+    information, see Maya documentation.
+
+    We recommend using default pivot points in your designs to avoid problems
+    when importing to \QDS. If you want to use a non-default position for a
+    pivot point, you have to adjust it in Maya before exporting your assets.
+
+    To export certain elements of your design, such as geometry, animations,
+    and textures, you need to adjust the settings for FBX exports under
+    \uicontrol {File Type Specific Options} in Maya export options. The
+    optional steps should only be applied if required by the project. For
+    example, including embedded media in your export simplifies moving the
+    scene to another computer but increases the file size as well as the loading
+    time of the scene since the textures need to be extracted before they can be
+    imported to the scene. This would result in the same texture existing in
+    three locations on your computer: the original location, embedded in the
+    scene, and extracted into the asset import folder.
+
+    These instructions apply to Autodesk Maya 2020.
+
     To export graphics from Maya:
 
     \list 1
@@ -51,10 +73,23 @@
             file.
         \li In the \uicontrol {Files of type} field, select
             \uicontrol {FBX export}.
-        \li In \uicontrol Presets > \uicontrol {Current Preset}, select
-            \uicontrol {Autodesk Media & Entertainment}.
-        \li In \uicontrol Geometry > \uicontrol {Convert NURBS surface to},
-            select \uicontrol {Interactive Display Mesh}.
-        \li To export files, select \uicontrol {Export All}.
+        \li Select \uicontrol {File Type Specific Options} > \uicontrol Presets
+            > \uicontrol {Current Preset} > \uicontrol {Autodesk Media &
+            Entertainment} to select suitable default settings for importing to
+            \QDS. These settings will be adjusted in the following steps, which
+            will cause the \uicontrol {Current Preset} to change to \uicontrol
+            {User defined}.
+        \li Select \uicontrol Include > \uicontrol Geometry > \uicontrol
+            {Convert NURBS surface to} > \uicontrol {Interactive Display Mesh}
+            to convert NURBS surfaces to polygons based on the NURBS display
+            settings.
+        \li Optionally, select \uicontrol Animation > \uicontrol {Baked
+            Animation}, and then select \uicontrol {Bake Animation} check box to
+            include baked animations in your export. Enter the start and end
+            frames to bake into your animation.
+            \image maya-export-options2.png "More export options in Maya"
+        \li Optionally, select \uicontrol {Embed Media}, and then select the
+            \uicontrol {Embed Media} check box to include embedded textures.
+        \li Select \uicontrol {Export All} to export files.
     \endlist
 */
