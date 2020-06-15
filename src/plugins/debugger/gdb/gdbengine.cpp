@@ -95,12 +95,12 @@ static int &currentToken()
     return token;
 }
 
-static bool isMostlyHarmlessMessage(const QStringRef &msg)
+static bool isMostlyHarmlessMessage(const QStringView msg)
 {
-    return msg == "warning: GDB: Failed to set controlling terminal: "
-                  "Inappropriate ioctl for device\\n"
-        || msg == "warning: GDB: Failed to set controlling terminal: "
-                  "Invalid argument\\n";
+    return msg == u"warning: GDB: Failed to set controlling terminal: "
+                   "Inappropriate ioctl for device\\n"
+        || msg == u"warning: GDB: Failed to set controlling terminal: "
+                   "Invalid argument\\n";
 }
 
 static QMessageBox *showMessageBox(QMessageBox::Icon icon,
@@ -605,7 +605,7 @@ void GdbEngine::readDebuggeeOutput(const QByteArray &ba)
     const QString msg = m_inferiorOutputCodec->toUnicode(ba.constData(), ba.size(),
                                                          &m_inferiorOutputCodecState);
 
-    if (msg.startsWith("&\"") && isMostlyHarmlessMessage(msg.midRef(2, msg.size() - 4)))
+    if (msg.startsWith("&\"") && isMostlyHarmlessMessage(QStringView{msg}.mid(2, msg.size() - 4)))
         showMessage("Mostly harmless terminal warning suppressed.", LogWarning);
     else
         showMessage(msg, AppStuff);
