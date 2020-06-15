@@ -628,6 +628,7 @@ public:
     QComboBox *m_fileLineEnding = nullptr;
     QAction *m_fileLineEndingAction = nullptr;
 
+    uint m_optionalActionMask = TextEditorActionHandler::None;
     bool m_contentsChanged = false;
     bool m_lastCursorChangeWasInteresting = false;
 
@@ -7827,6 +7828,16 @@ void TextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
     }
 }
 
+uint TextEditorWidget::optionalActionMask()
+{
+    return d->m_optionalActionMask;
+}
+
+void TextEditorWidget::addOptionalActions(uint optionalActionMask)
+{
+    d->m_optionalActionMask |= optionalActionMask;
+    emit optionalActionMaskChanged();
+}
 
 BaseTextEditor::BaseTextEditor()
     : d(new BaseTextEditorPrivate)

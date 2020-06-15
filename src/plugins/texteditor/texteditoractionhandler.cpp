@@ -543,20 +543,23 @@ void TextEditorActionHandlerPrivate::updateActions()
 
 void TextEditorActionHandlerPrivate::updateOptionalActions()
 {
+    uint optionalActions = m_optionalActions;
+    if (m_currentEditorWidget)
+        optionalActions |= m_currentEditorWidget->optionalActionMask();
     m_followSymbolAction->setEnabled(
-        m_optionalActions & TextEditorActionHandler::FollowSymbolUnderCursor);
+        optionalActions & TextEditorActionHandler::FollowSymbolUnderCursor);
     m_followSymbolInNextSplitAction->setEnabled(
-        m_optionalActions & TextEditorActionHandler::FollowSymbolUnderCursor);
+        optionalActions & TextEditorActionHandler::FollowSymbolUnderCursor);
     m_jumpToFileAction->setEnabled(
-        m_optionalActions & TextEditorActionHandler::JumpToFileUnderCursor);
+        optionalActions & TextEditorActionHandler::JumpToFileUnderCursor);
     m_jumpToFileInNextSplitAction->setEnabled(
-        m_optionalActions & TextEditorActionHandler::JumpToFileUnderCursor);
+        optionalActions & TextEditorActionHandler::JumpToFileUnderCursor);
     m_unfoldAllAction->setEnabled(
-        m_optionalActions & TextEditorActionHandler::UnCollapseAll);
+        optionalActions & TextEditorActionHandler::UnCollapseAll);
     m_renameSymbolAction->setEnabled(
-        m_optionalActions & TextEditorActionHandler::RenameSymbol);
+        optionalActions & TextEditorActionHandler::RenameSymbol);
 
-    bool formatEnabled = (m_optionalActions & TextEditorActionHandler::Format)
+    bool formatEnabled = (optionalActions & TextEditorActionHandler::Format)
                          && m_currentEditorWidget && !m_currentEditorWidget->isReadOnly();
     m_autoIndentAction->setEnabled(formatEnabled);
     m_autoFormatAction->setEnabled(formatEnabled);
@@ -599,6 +602,8 @@ void TextEditorActionHandlerPrivate::updateCurrentEditor(Core::IEditor *editor)
                 this, &TextEditorActionHandlerPrivate::updateCopyAction);
         connect(editorWidget, &TextEditorWidget::readOnlyChanged,
                 this, &TextEditorActionHandlerPrivate::updateActions);
+        connect(editorWidget, &TextEditorWidget::optionalActionMaskChanged,
+                this, &TextEditorActionHandlerPrivate::updateOptionalActions);
     }
     updateActions();
 }

@@ -204,6 +204,9 @@ public:
 
     void appendStandardContextMenuActions(QMenu *menu);
 
+    uint optionalActionMask();
+    void addOptionalActions(uint optionalActionMask);
+
     void setAutoCompleter(AutoCompleter *autoCompleter);
     AutoCompleter *autoCompleter() const;
 
@@ -492,6 +495,7 @@ signals:
                        bool resolveTarget, bool inNextSplit);
     void requestUsages(const QTextCursor &cursor);
     void requestRename(const QTextCursor &cursor);
+    void optionalActionMaskChanged();
 
 protected:
     QTextBlock blockForVisibleRow(int row) const;
