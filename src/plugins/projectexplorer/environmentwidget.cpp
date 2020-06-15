@@ -80,6 +80,7 @@ public:
         mainLayout->addWidget(buttonBox);
 
         m_view.setHeaderLabel(varName);
+        m_view.setDragDropMode(QAbstractItemView::InternalMove);
         const QStringList pathList = paths.split(Utils::HostOsInfo::pathListSeparator(),
                                                  QString::SkipEmptyParts);
         for (const QString &path : pathList)
@@ -125,7 +126,8 @@ private:
     void addPath(const QString &path)
     {
         const auto item = new QTreeWidgetItem(&m_view, {QDir::toNativeSeparators(path)});
-        item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable);
+        item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable
+                       | Qt::ItemIsDragEnabled);
     }
 
     QTreeWidget m_view;
