@@ -208,6 +208,7 @@ CMakeBuildSystem::~CMakeBuildSystem()
         future.cancel();
         future.waitForFinished();
     }
+
     delete m_cppCodeModelUpdater;
     qDeleteAll(m_extraCompilers);
     qDeleteAll(m_allFiles);
@@ -215,7 +216,14 @@ CMakeBuildSystem::~CMakeBuildSystem()
 
 void CMakeBuildSystem::triggerParsing()
 {
-    qCDebug(cmakeBuildSystemLog) << "Parsing has been triggered";
+    qCDebug(cmakeBuildSystemLog) << cmakeBuildConfiguration()->displayName() << "Parsing has been triggered";
+
+    if (!cmakeBuildConfiguration()->isActive()) {
+        qCDebug(cmakeBuildSystemLog)
+            << "Parsing has been triggered: SKIPPING since BC is not active -- clearing state.";
+        stopParsingAndClearState();
+        return; // ignore request, this build configuration is not active!
+    }
 
     auto guard = guardParsingRun();
 
@@ -368,8 +376,16 @@ QString CMakeBuildSystem::reparseParametersString(int reparseFlags)
 void CMakeBuildSystem::setParametersAndRequestParse(const BuildDirParameters &parameters,
                                                     const int reparseParameters)
 {
-    qCDebug(cmakeBuildSystemLog) << "setting parameters and requesting reparse"
+    qCDebug(cmakeBuildSystemLog) << cmakeBuildConfiguration()->displayName()
+                                 << "setting parameters and requesting reparse"
                                  << reparseParametersString(reparseParameters);
+
+    if (!cmakeBuildConfiguration()->isActive()) {
+        qCDebug(cmakeBuildSystemLog) << "setting parameters and requesting reparse: SKIPPING since BC is not active -- clearing state.";
+        stopParsingAndClearState();
+        return; // ignore request, this build configuration is not active!
+    }
+
     if (!parameters.cmakeTool()) {
         TaskHub::addTask(
             BuildSystemTask(Task::Error,
@@ -718,49 +734,27 @@ void CMakeBuildSystem::wireUpConnections(const Project *p)
     });
 
     // Became active/inactive:
-    connect(project(), &Project::activeTargetChanged, this, [this](Target *t) {
-        if (t == target()) {
-            // Build configuration has changed along with the target:
-            qCDebug(cmakeBuildSystemLog) << "Requesting parse due to active target changed";
-            setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()),
-                                         CMakeBuildSystem::REPARSE_DEFAULT);
-        } else {
-            qCDebug(cmakeBuildSystemLog) << "Requesting STOP due to active target changed";
-            stopParsingAndClearState();
-        }
-    });
     connect(target(), &Target::activeBuildConfigurationChanged, this, [this](BuildConfiguration *bc) {
-        if (cmakeBuildConfiguration()->isActive()) {
-            if (cmakeBuildConfiguration() == bc) {
-                // Build configuration has changed:
-                qCDebug(cmakeBuildSystemLog) << "Requesting parse due to active BC changed";
-                setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()),
-                                             CMakeBuildSystem::REPARSE_DEFAULT);
-            } else {
-                qCDebug(cmakeBuildSystemLog) << "Requesting STOP due to active BC changed";
-                stopParsingAndClearState();
-            }
-        }
+        // Build configuration has changed:
+        qCDebug(cmakeBuildSystemLog) << "Requesting parse due to active BC changed";
+        setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()),
+                                        CMakeBuildSystem::REPARSE_DEFAULT);
     });
 
     // BuildConfiguration changed:
     connect(cmakeBuildConfiguration(), &CMakeBuildConfiguration::environmentChanged, this, [this]() {
-        if (cmakeBuildConfiguration()->isActive()) {
-            // The environment on our BC has changed, force CMake run to catch up with possible changes
-            qCDebug(cmakeBuildSystemLog) << "Requesting parse due to environment change";
-            setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()),
-                                         CMakeBuildSystem::REPARSE_FORCE_CMAKE_RUN);
-        }
+        // The environment on our BC has changed, force CMake run to catch up with possible changes
+        qCDebug(cmakeBuildSystemLog) << "Requesting parse due to environment change";
+        setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()),
+                                        CMakeBuildSystem::REPARSE_FORCE_CMAKE_RUN);
     });
     connect(cmakeBuildConfiguration(), &CMakeBuildConfiguration::buildDirectoryChanged, this, [this]() {
-        if (cmakeBuildConfiguration()->isActive()) {
-            // The build directory of our BC has changed:
-            // Run with initial arguments!
-            qCDebug(cmakeBuildSystemLog) << "Requesting parse due to build directory change";
-            setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()),
-                                         CMakeBuildSystem::REPARSE_FORCE_INITIAL_CONFIGURATION
-                                             | CMakeBuildSystem::REPARSE_FORCE_CMAKE_RUN);
-        }
+        // The build directory of our BC has changed:
+        // Run with initial arguments!
+        qCDebug(cmakeBuildSystemLog) << "Requesting parse due to build directory change";
+        setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()),
+                                        CMakeBuildSystem::REPARSE_FORCE_INITIAL_CONFIGURATION
+                                            | CMakeBuildSystem::REPARSE_FORCE_CMAKE_RUN);
     });
 
     connect(project(), &Project::projectFileIsDirty, this, [this]() {
