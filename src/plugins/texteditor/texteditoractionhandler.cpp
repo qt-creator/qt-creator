@@ -114,6 +114,7 @@ public:
     void createActions();
 
     void updateActions();
+    void updateOptionalActions();
     void updateRedoAction(bool on);
     void updateUndoAction(bool on);
     void updateCopyAction(bool on);
@@ -517,13 +518,7 @@ void TextEditorActionHandlerPrivate::createActions()
     m_modifyingActions << m_upperCaseSelectionAction;
     m_modifyingActions << m_sortSelectedLinesAction;
 
-    // set enabled state of optional actions
-    m_followSymbolAction->setEnabled(m_optionalActions & TextEditorActionHandler::FollowSymbolUnderCursor);
-    m_followSymbolInNextSplitAction->setEnabled(m_optionalActions & TextEditorActionHandler::FollowSymbolUnderCursor);
-    m_jumpToFileAction->setEnabled(m_optionalActions & TextEditorActionHandler::JumpToFileUnderCursor);
-    m_jumpToFileInNextSplitAction->setEnabled(m_optionalActions & TextEditorActionHandler::JumpToFileUnderCursor);
-    m_unfoldAllAction->setEnabled(m_optionalActions & TextEditorActionHandler::UnCollapseAll);
-    m_renameSymbolAction->setEnabled(m_optionalActions & TextEditorActionHandler::RenameSymbol);
+    updateOptionalActions();
 }
 
 void TextEditorActionHandlerPrivate::updateActions()
@@ -531,8 +526,6 @@ void TextEditorActionHandlerPrivate::updateActions()
     bool isWritable = m_currentEditorWidget && !m_currentEditorWidget->isReadOnly();
     foreach (QAction *a, m_modifyingActions)
         a->setEnabled(isWritable);
-    m_autoIndentAction->setEnabled((m_optionalActions & TextEditorActionHandler::Format) && isWritable);
-    m_autoFormatAction->setEnabled((m_optionalActions & TextEditorActionHandler::Format) && isWritable);
     m_unCommentSelectionAction->setEnabled((m_optionalActions & TextEditorActionHandler::UnCommentSelection) && isWritable);
     m_visualizeWhitespaceAction->setEnabled(m_currentEditorWidget);
     m_textWrappingAction->setEnabled(m_currentEditorWidget);
@@ -545,6 +538,28 @@ void TextEditorActionHandlerPrivate::updateActions()
     updateRedoAction(m_currentEditorWidget && m_currentEditorWidget->document()->isRedoAvailable());
     updateUndoAction(m_currentEditorWidget && m_currentEditorWidget->document()->isUndoAvailable());
     updateCopyAction(m_currentEditorWidget && m_currentEditorWidget->textCursor().hasSelection());
+    updateOptionalActions();
+}
+
+void TextEditorActionHandlerPrivate::updateOptionalActions()
+{
+    m_followSymbolAction->setEnabled(
+        m_optionalActions & TextEditorActionHandler::FollowSymbolUnderCursor);
+    m_followSymbolInNextSplitAction->setEnabled(
+        m_optionalActions & TextEditorActionHandler::FollowSymbolUnderCursor);
+    m_jumpToFileAction->setEnabled(
+        m_optionalActions & TextEditorActionHandler::JumpToFileUnderCursor);
+    m_jumpToFileInNextSplitAction->setEnabled(
+        m_optionalActions & TextEditorActionHandler::JumpToFileUnderCursor);
+    m_unfoldAllAction->setEnabled(
+        m_optionalActions & TextEditorActionHandler::UnCollapseAll);
+    m_renameSymbolAction->setEnabled(
+        m_optionalActions & TextEditorActionHandler::RenameSymbol);
+
+    bool formatEnabled = (m_optionalActions & TextEditorActionHandler::Format)
+                         && m_currentEditorWidget && !m_currentEditorWidget->isReadOnly();
+    m_autoIndentAction->setEnabled(formatEnabled);
+    m_autoFormatAction->setEnabled(formatEnabled);
 }
 
 void TextEditorActionHandlerPrivate::updateRedoAction(bool on)
