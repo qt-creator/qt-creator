@@ -1245,7 +1245,6 @@ void DebuggerEngine::notifyEngineSetupOk()
     d->m_progress.setProgressValue(250);
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
     setState(EngineSetupOk);
-    // Slaves will get called setupSlaveInferior() below.
     setState(EngineRunRequested);
     showMessage("CALL: RUN ENGINE");
     d->m_progress.setProgressValue(300);
