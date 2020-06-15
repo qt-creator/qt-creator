@@ -195,7 +195,7 @@ void CppHighlighter::highlightBlock(const QString &text)
 
         } else if (tk.isKeyword()
                    || (m_languageFeatures.qtKeywordsEnabled
-                       && CppTools::isQtKeyword(text.midRef(tk.utf16charsBegin(), tk.utf16chars())))
+                       && CppTools::isQtKeyword(QStringView{text}.mid(tk.utf16charsBegin(), tk.utf16chars())))
                    || (m_languageFeatures.objCEnabled && tk.isObjCAtKeyword())) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_KEYWORD));
         } else if (tk.isPrimitiveType()) {
