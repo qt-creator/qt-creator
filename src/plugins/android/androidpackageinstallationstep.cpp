@@ -58,6 +58,8 @@ public:
 
     BuildStepConfigWidget *createConfigWidget() final;
 
+    QString nativeAndroidBuildPath() const;
+
 private:
     bool init() final;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
@@ -74,8 +76,9 @@ public:
     AndroidPackageInstallationStepWidget(BuildStep *step)
         : BuildStepConfigWidget(step)
     {
-        setDisplayName(tr("Make install"));
-        setSummaryText("<b>" + tr("Make install") + "</b>");
+        const QString cmd = static_cast<AndroidPackageInstallationStep *>(step)
+                                ->nativeAndroidBuildPath();
+        setSummaryText(tr("<b>Make install:</b> Copy App Files to %1").arg(cmd));
     }
 };
 
@@ -91,17 +94,14 @@ AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bs
 
 bool AndroidPackageInstallationStep::init()
 {
-    QString dirPath = buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY).toString();
-    if (HostOsInfo::isWindowsHost())
-        if (buildEnvironment().searchInPath("sh.exe").isEmpty())
-            dirPath = QDir::toNativeSeparators(dirPath);
-
     ToolChain *tc = ToolChainKitAspect::cxxToolChain(target()->kit());
     QTC_ASSERT(tc, return false);
 
-    CommandLine cmd{tc->makeCommand(buildEnvironment())};
+    QString dirPath = nativeAndroidBuildPath();
     const QString innerQuoted = QtcProcess::quoteArg(dirPath);
     const QString outerQuoted = QtcProcess::quoteArg("INSTALL_ROOT=" + innerQuoted);
+
+    CommandLine cmd{tc->makeCommand(buildEnvironment())};
     cmd.addArgs(outerQuoted + " install", CommandLine::Raw);
 
     ProcessParameters *pp = processParameters();
@@ -118,6 +118,16 @@ bool AndroidPackageInstallationStep::init()
     m_androidDirsToClean << dirPath + "/libs";
 
     return AbstractProcessStep::init();
+}
+
+QString AndroidPackageInstallationStep::nativeAndroidBuildPath() const
+{
+    QString buildPath = buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY).toString();
+    if (HostOsInfo::isWindowsHost())
+        if (buildEnvironment().searchInPath("sh.exe").isEmpty())
+            buildPath = QDir::toNativeSeparators(buildPath);
+
+    return buildPath;
 }
 
 void AndroidPackageInstallationStep::setupOutputFormatter(OutputFormatter *formatter)
