@@ -55,11 +55,22 @@ def qedit__QByteArray(d, value, data):
 
 
 def qdump__QByteArray(d, value):
-    data, size, alloc = d.byteArrayData(value)
+    if d.qtVersion() >= 0x60000:
+        dd, data, size = value.split('ppi')
+        _, _, alloc = d.split('iii', dd)
+    else:
+        data, size, alloc = d.byteArrayData(value)
+
     d.check(alloc == 0 or (0 <= size and size <= alloc and alloc <= 100000000))
     if size > 0:
         d.putExpandable()
-    elided, p = d.encodeByteArrayHelper(d.extractPointer(value), d.displayStringLimit)
+
+    if d.qtVersion() >= 0x60000:
+        elided, shown = d.computeLimit(size, d.displayStringLimit)
+        p = d.readMemory(data, shown)
+    else:
+        elided, p = d.encodeByteArrayHelper(d.extractPointer(value), d.displayStringLimit)
+
     displayFormat = d.currentItemFormat()
     if displayFormat == DisplayFormat.Automatic or displayFormat == DisplayFormat.Latin1String:
         d.putValue(p, 'latin1', elided=elided)
@@ -965,6 +976,7 @@ def qform__QList():
 
 
 def qdump__QList(d, value):
+    inner_type = value.type.ltarget[0] if value.type.code == TypeCode.Typedef else value.type[0]
     return qdumpHelper_QList(d, value, value.type[0])
 
 
@@ -973,6 +985,12 @@ def qdump__QVariantList(d, value):
 
 
 def qdumpHelper_QList(d, value, innerType):
+    if d.qtVersion() >= 0x60000:
+        dd, data, size = value.split('ppi')
+        _, _, alloc = d.split('iii', dd)
+        d.putItemCount(size)
+        d.putPlotData(data, size, innerType)
+        return
     base = d.extractPointer(value)
     (ref, alloc, begin, end) = d.split('IIII', base)
     array = base + 16
@@ -1536,8 +1554,15 @@ def qform__QString():
 
 
 def qdump__QString(d, value):
-    d.putStringValue(value)
-    (data, size, alloc) = d.stringData(value)
+    if d.qtVersion() >= 0x60000:
+        dd, data, size = value.split('ppi')
+        _, _, alloc = d.split('iii', dd)
+        elided, shown = d.computeLimit(2 * size, d.displayStringLimit)
+        p = d.readMemory(data, shown)
+        d.putValue(p, 'utf16', elided=elided)
+    else:
+        d.putStringValue(value)
+        (data, size, alloc) = d.stringData(value)
     displayFormat = d.currentItemFormat()
     if displayFormat == DisplayFormat.Separate:
         d.putDisplay('utf16:separate', d.encodeString(value, limit=100000))
@@ -1999,8 +2024,12 @@ def qform__QVector():
 
 
 def qdump__QVector(d, value):
-    dd = d.extractPointer(value)
-    data, size, alloc = d.vectorDataHelper(dd)
+    if d.qtVersion() >= 0x060000:
+        dd, data, size = value.split('ppi')
+        _, _, alloc = d.split('iii', dd)
+    else:
+        dd = d.extractPointer(value)
+        data, size, alloc = d.vectorDataHelper(dd)
     d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
     d.putItemCount(size)
     d.putPlotData(data, size, value.type[0])
