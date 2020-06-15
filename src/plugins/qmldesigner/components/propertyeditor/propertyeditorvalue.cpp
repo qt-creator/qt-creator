@@ -304,7 +304,9 @@ void PropertyEditorValue::resetValue()
     if (m_value.isValid() || isBound()) {
         m_value = QVariant();
         m_isBound = false;
+        m_expression = QString();
         emit valueChanged(nameAsQString(), QVariant());
+        emit expressionChanged({});
     }
 }
 
