@@ -40,6 +40,7 @@
 #include <utils/cpplanguage_details.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QDir>
 #include <QRegularExpression>
@@ -742,7 +743,7 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
 {
     static QStringList userBlackList = QString::fromLocal8Bit(
                                            qgetenv("QTC_CLANG_CMD_OPTIONS_BLACKLIST"))
-                                           .split(';', QString::SkipEmptyParts);
+                                           .split(';', Utils::SkipEmptyParts);
 
     const Core::Id &toolChain = m_projectPart.toolchainType;
     bool containsDriverMode = false;

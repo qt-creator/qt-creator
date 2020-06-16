@@ -31,6 +31,7 @@
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/optional.h>
+#include <utils/stringutils.h>
 
 #include <QDir>
 #include <QRegularExpression>
@@ -236,7 +237,7 @@ QStringList splitCommandLine(QString commandLine, QSet<QString> &flagsCache)
             }
         } else { // If 's' is outside quotes ...
             for (const QString &flag :
-                 part.split(QRegularExpression("\\s+"), QString::SkipEmptyParts)) {
+                 part.split(QRegularExpression("\\s+"), Utils::SkipEmptyParts)) {
                 auto flagIt = flagsCache.insert(flag);
                 result.append(*flagIt);
             }
