@@ -582,6 +582,7 @@ namespace {
 PluginSpecPrivate::PluginSpecPrivate(PluginSpec *spec)
     : q(spec)
 {
+    loader.setLoadHints(QLibrary::ExportExternalSymbolsHint);
 }
 
 /*!
