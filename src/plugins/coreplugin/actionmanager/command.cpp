@@ -33,7 +33,6 @@
 #include <utils/stringutils.h>
 
 #include <QAction>
-#include <QRegExp>
 #include <QToolButton>
 #include <QTextStream>
 

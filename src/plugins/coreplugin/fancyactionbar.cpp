@@ -95,13 +95,15 @@ static QVector<QString> splitInTwoLines(const QString &text,
     // to put them in the second line. First line is drawn with ellipsis,
     // second line gets ellipsis if it couldn't split off full words.
     QVector<QString> splitLines(2);
-    const QRegExp rx(QLatin1String("\\s+"));
+    const QRegularExpression rx(QLatin1String("\\s+"));
     int splitPos = -1;
     int nextSplitPos = text.length();
     do {
-        nextSplitPos = rx.lastIndexIn(text, nextSplitPos - text.length() - 1);
+        int offset = nextSplitPos - text.length() - 1;
+        nextSplitPos = text.lastIndexOf(rx, offset);
         if (nextSplitPos != -1) {
-            int splitCandidate = nextSplitPos + rx.matchedLength();
+            const QRegularExpressionMatch match = rx.match(text, offset);
+            int splitCandidate = nextSplitPos + match.capturedLength();
             if (fontMetrics.horizontalAdvance(text.mid(splitCandidate)) <= availableWidth)
                 splitPos = splitCandidate;
             else
