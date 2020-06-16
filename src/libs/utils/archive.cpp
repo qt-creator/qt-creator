@@ -47,24 +47,28 @@ struct Tool
     QStringList additionalSearchDirs;
 };
 
+static QStringList additionalInstallDirs(const QString &registryKey, const QString &valueName)
+{
+#if defined(Q_OS_WIN)
+    const QSettings settings64(registryKey, QSettings::Registry64Format);
+    const QSettings settings32(registryKey, QSettings::Registry32Format);
+    return {settings64.value(valueName).toString(), settings32.value(valueName).toString()};
+#else
+    Q_UNUSED(registryKey)
+    Q_UNUSED(valueName)
+    return {};
+#endif
+}
+
 static const QVector<Tool> &sTools()
 {
     static QVector<Tool> tools;
     if (tools.isEmpty()) {
         tools << Tool{{"unzip"}, {"-o", "%{src}", "-d", "%{dest}"}, {"application/zip"}, {}};
-        QStringList additional7ZipDirs;
-        if (Utils::HostOsInfo::isWindowsHost()) {
-            const QSettings settings64("HKEY_CURRENT_USER\\Software\\7-Zip",
-                                       QSettings::Registry64Format);
-            const QSettings settings32("HKEY_CURRENT_USER\\Software\\7-Zip",
-                                       QSettings::Registry32Format);
-            additional7ZipDirs << settings64.value("Path").toString()
-                               << settings32.value("Path").toString();
-        }
         tools << Tool{{"7z"},
                       {"x", "-o%{dest}", "-y", "%{src}"},
                       {"application/zip", "application/x-7z-compressed"},
-                      additional7ZipDirs};
+                      additionalInstallDirs("HKEY_CURRENT_USER\\Software\\7-Zip", "Path")};
         tools << Tool{{"tar"},
                       {"xvf", "%{src}"},
                       {"application/zip", "application/x-tar", "application/x-7z-compressed"},
@@ -72,15 +76,8 @@ static const QVector<Tool> &sTools()
         tools << Tool{{"tar"}, {"xvzf", "%{src}"}, {"application/x-compressed-tar"}, {}};
         tools << Tool{{"tar"}, {"xvJf", "%{src}"}, {"application/x-xz-compressed-tar"}, {}};
         tools << Tool{{"tar"}, {"xvjf", "%{src}"}, {"application/x-bzip-compressed-tar"}, {}};
-        QStringList additionalCMakeDirs;
-        if (Utils::HostOsInfo::isWindowsHost()) {
-            const QSettings settings64("HKEY_LOCAL_MACHINE\\SOFTWARE\\Kitware\\CMake",
-                                       QSettings::Registry64Format);
-            const QSettings settings32("HKEY_LOCAL_MACHINE\\SOFTWARE\\Kitware\\CMake",
-                                       QSettings::Registry32Format);
-            additionalCMakeDirs << settings64.value("InstallDir").toString()
-                                << settings32.value("InstallDir").toString();
-        }
+        const QStringList additionalCMakeDirs = additionalInstallDirs(
+            "HKEY_LOCAL_MACHINE\\SOFTWARE\\Kitware\\CMake", "InstallDir");
         tools << Tool{{"cmake"},
                       {"-E", "tar", "xvf", "%{src}"},
                       {"application/zip", "application/x-tar", "application/x-7z-compressed"},
