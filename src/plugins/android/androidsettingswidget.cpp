@@ -462,7 +462,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     m_ui.downloadSDKToolButton->setIcon(downloadIcon);
     m_ui.downloadNDKToolButton->setIcon(downloadIcon);
     m_ui.downloadOpenJDKToolButton->setIcon(downloadIcon);
-    m_ui.downloadOpenSSLPrebuiltLibs->setIcon(downloadIcon);
     m_ui.sdkToolsAutoDownloadButton->setToolTip(tr(
             "Automatically download Android SDK Tools to selected location.\n\n"
             "If the selected path contains no valid SDK Tools, the SDK Tools package "
