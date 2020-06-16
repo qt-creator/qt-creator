@@ -33,7 +33,6 @@
 #include <utils/optional.h>
 
 #include <QDir>
-#include <QRegExp>
 #include <QRegularExpression>
 
 namespace CMakeProjectManager {
@@ -56,8 +55,8 @@ private:
 
     Utils::optional<QDir> m_sourceDirectory;
     ProjectExplorer::Task m_lastTask;
-    QRegExp m_commonError;
-    QRegExp m_nextSubError;
+    QRegularExpression m_commonError;
+    QRegularExpression m_nextSubError;
     QRegularExpression m_locationLine;
     bool m_skippedFirstEmptyLine = false;
     int m_lines = 0;

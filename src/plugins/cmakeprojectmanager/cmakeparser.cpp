@@ -34,18 +34,16 @@ using namespace Utils;
 
 namespace CMakeProjectManager {
 
-const char COMMON_ERROR_PATTERN[] = "^CMake Error at (.*):([0-9]*)( \\((.*)\\))?:";
-const char NEXT_SUBERROR_PATTERN[] = "^CMake Error in (.*):";
-const char LOCATION_LINE_PATTERN[] = ":(\\d+):(?:(\\d+))?$";
+const char COMMON_ERROR_PATTERN[] = "^CMake Error at (.*?):([0-9]*?)( \\((.*?)\\))?:";
+const char NEXT_SUBERROR_PATTERN[] = "^CMake Error in (.*?):";
+const char LOCATION_LINE_PATTERN[] = ":(\\d+?):(?:(\\d+?))?$";
 
 CMakeParser::CMakeParser()
 {
     m_commonError.setPattern(QLatin1String(COMMON_ERROR_PATTERN));
-    m_commonError.setMinimal(true);
     QTC_CHECK(m_commonError.isValid());
 
     m_nextSubError.setPattern(QLatin1String(NEXT_SUBERROR_PATTERN));
-    m_nextSubError.setMinimal(true);
     QTC_CHECK(m_nextSubError.isValid());
 
     m_locationLine.setPattern(QLatin1String(LOCATION_LINE_PATTERN));
@@ -65,6 +63,7 @@ OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputForm
     if (type != StdErrFormat)
         return Status::NotHandled;
 
+    QRegularExpressionMatch match;
     QString trimmedLine = rightTrimmed(line);
     switch (m_expectTripleLineErrorData) {
     case NONE:
@@ -79,25 +78,28 @@ OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputForm
         if (m_skippedFirstEmptyLine)
             m_skippedFirstEmptyLine = false;
 
-        if (m_commonError.indexIn(trimmedLine) != -1) {
+        match = m_commonError.match(trimmedLine);
+        if (match.hasMatch()) {
             QString path = m_sourceDirectory ? m_sourceDirectory->absoluteFilePath(
-                               QDir::fromNativeSeparators(m_commonError.cap(1)))
-                                             : QDir::fromNativeSeparators(m_commonError.cap(1));
+                               QDir::fromNativeSeparators(match.captured(1)))
+                                             : QDir::fromNativeSeparators(match.captured(1));
             m_lastTask = BuildSystemTask(Task::Error,
                                          QString(),
                                          absoluteFilePath(FilePath::fromUserInput(path)),
-                                         m_commonError.cap(2).toInt());
+                                         match.captured(2).toInt());
             m_lines = 1;
             LinkSpecs linkSpecs;
             addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line,
-                                           m_commonError, 1);
+                                           match, 1);
             return {Status::InProgress, linkSpecs};
-        } else if (m_nextSubError.indexIn(trimmedLine) != -1) {
+        }
+        match = m_nextSubError.match(trimmedLine);
+        if (match.hasMatch()) {
             m_lastTask = BuildSystemTask(Task::Error, QString(),
-                                         absoluteFilePath(FilePath::fromUserInput(m_nextSubError.cap(1))));
+                                         absoluteFilePath(FilePath::fromUserInput(match.captured(1))));
             LinkSpecs linkSpecs;
             addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line,
-                                           m_nextSubError, 1);
+                                           match, 1);
             m_lines = 1;
             return {Status::InProgress, linkSpecs};
         } else if (trimmedLine.startsWith(QLatin1String("  ")) && !m_lastTask.isNull()) {
@@ -124,15 +126,15 @@ OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputForm
         return Status::NotHandled;
     case LINE_LOCATION:
         {
-            QRegularExpressionMatch m = m_locationLine.match(trimmedLine);
-            QTC_CHECK(m.hasMatch());
+            match = m_locationLine.match(trimmedLine);
+            QTC_CHECK(match.hasMatch());
             m_lastTask.file = absoluteFilePath(FilePath::fromUserInput(
-                                                   trimmedLine.mid(0, m.capturedStart())));
-            m_lastTask.line = m.captured(1).toInt();
+                                                   trimmedLine.mid(0, match.capturedStart())));
+            m_lastTask.line = match.captured(1).toInt();
             m_expectTripleLineErrorData = LINE_DESCRIPTION;
             LinkSpecs linkSpecs;
             addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line, 0,
-                                           m.capturedStart());
+                                           match.capturedStart());
             return {Status::InProgress, linkSpecs};
         }
     case LINE_DESCRIPTION:
