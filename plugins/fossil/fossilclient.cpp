@@ -711,11 +711,15 @@ bool FossilClient::synchronousMove(const QString &workingDir,
 
 bool FossilClient::synchronousPull(const QString &workingDir, const QString &srcLocation, const QStringList &extraOptions)
 {
-    const QString remoteLocation = (!srcLocation.isEmpty() ? srcLocation : synchronousGetRepositoryURL(workingDir));
-    if (remoteLocation.isEmpty())
-        return false;
+    QStringList args(vcsCommandString(PullCommand));
+    if (srcLocation.isEmpty()) {
+        const QString defaultURL(synchronousGetRepositoryURL(workingDir));
+        if (defaultURL.isEmpty())
+            return false;
+    } else {
+        args << srcLocation;
+    }
 
-    QStringList args({vcsCommandString(PullCommand), remoteLocation});
     args << extraOptions;
     // Disable UNIX terminals to suppress SSH prompting
     const unsigned flags =
@@ -731,11 +735,15 @@ bool FossilClient::synchronousPull(const QString &workingDir, const QString &src
 
 bool FossilClient::synchronousPush(const QString &workingDir, const QString &dstLocation, const QStringList &extraOptions)
 {
-    const QString remoteLocation = (!dstLocation.isEmpty() ? dstLocation : synchronousGetRepositoryURL(workingDir));
-    if (remoteLocation.isEmpty())
-        return false;
+    QStringList args(vcsCommandString(PushCommand));
+    if (dstLocation.isEmpty()) {
+        const QString defaultURL(synchronousGetRepositoryURL(workingDir));
+        if (defaultURL.isEmpty())
+            return false;
+    } else {
+        args << dstLocation;
+    }
 
-    QStringList args({vcsCommandString(PushCommand), remoteLocation});
     args << extraOptions;
     // Disable UNIX terminals to suppress SSH prompting
     const unsigned flags =
