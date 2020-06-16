@@ -70,7 +70,7 @@ void tst_treeviewfind::wrapping()
     QCOMPARE(tree->currentItem()->text(0), QString::fromLatin1("FOO2"));
 
     // forward
-    findSupport->findStep(QLatin1String("FOO"), 0);
+    findSupport->findStep(QLatin1String("FOO"), Core::FindFlags());
     QCOMPARE(tree->currentItem(), toplevelitems.at(0)->child(0));
 
     // backward
@@ -115,19 +115,19 @@ void tst_treeviewfind::columns()
     QCOMPARE(tree->currentItem()->text(0), QString::fromLatin1("HEADER1"));
 
     // find in first column
-    findSupport->findStep(QLatin1String("FOO"), 0);
+    findSupport->findStep(QLatin1String("FOO"), Core::FindFlags());
     QCOMPARE(tree->currentItem(), toplevelitems.at(0)->child(0));
     // find in second column of node with children
-    findSupport->findStep(QLatin1String("FOO"), 0);
+    findSupport->findStep(QLatin1String("FOO"), Core::FindFlags());
     QCOMPARE(tree->currentItem(), toplevelitems.at(1));
     // again find in first column
-    findSupport->findStep(QLatin1String("FOO"), 0);
+    findSupport->findStep(QLatin1String("FOO"), Core::FindFlags());
     QCOMPARE(tree->currentItem(), toplevelitems.at(1)->child(0));
     // don't stay in item if multiple columns match, and find in second column
-    findSupport->findStep(QLatin1String("FOO"), 0);
+    findSupport->findStep(QLatin1String("FOO"), Core::FindFlags());
     QCOMPARE(tree->currentItem(), toplevelitems.at(2)->child(0));
     // wrap
-    findSupport->findStep(QLatin1String("FOO"), 0);
+    findSupport->findStep(QLatin1String("FOO"), Core::FindFlags());
     QCOMPARE(tree->currentItem(), toplevelitems.at(0)->child(0));
 
     // backwards

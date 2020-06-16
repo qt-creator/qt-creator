@@ -86,17 +86,17 @@ void tst_FileSearch::multipleResults()
     expectedResults << Utils::FileSearchResult(QLatin1String(FILENAME), 2, QLatin1String("search to find multiple find results"), 10, 4, QStringList());
     expectedResults << Utils::FileSearchResult(QLatin1String(FILENAME), 2, QLatin1String("search to find multiple find results"), 24, 4, QStringList());
     expectedResults << Utils::FileSearchResult(QLatin1String(FILENAME), 4, QLatin1String("here you find another result"), 9, 4, QStringList());
-    test_helper(expectedResults, QLatin1String("find"), QTextDocument::FindFlags(0));
+    test_helper(expectedResults, QLatin1String("find"), QTextDocument::FindFlags());
 
     expectedResults.clear();
     expectedResults << Utils::FileSearchResult(QLatin1String(FILENAME), 5, QLatin1String("aaaaaaaa this line has 2 results for four a in a row"), 0, 4, QStringList());
     expectedResults << Utils::FileSearchResult(QLatin1String(FILENAME), 5, QLatin1String("aaaaaaaa this line has 2 results for four a in a row"), 4, 4, QStringList());
-    test_helper(expectedResults, QLatin1String("aaaa"), QTextDocument::FindFlags(0));
+    test_helper(expectedResults, QLatin1String("aaaa"), QTextDocument::FindFlags());
 
     expectedResults.clear();
     expectedResults << Utils::FileSearchResult(QLatin1String(FILENAME), 5, QLatin1String("aaaaaaaa this line has 2 results for four a in a row"), 0, 4, QStringList() << QLatin1String("aaaa"));
     expectedResults << Utils::FileSearchResult(QLatin1String(FILENAME), 5, QLatin1String("aaaaaaaa this line has 2 results for four a in a row"), 4, 4, QStringList() << QLatin1String("aaaa"));
-    test_helper(expectedResults, QLatin1String("aaaa"), QTextDocument::FindFlags(0), RegExp);
+    test_helper(expectedResults, QLatin1String("aaaa"), QTextDocument::FindFlags(), RegExp);
 }
 
 void tst_FileSearch::caseSensitive()
@@ -111,7 +111,7 @@ void tst_FileSearch::caseInSensitive()
     Utils::FileSearchResultList expectedResults;
     expectedResults << Utils::FileSearchResult(QLatin1String(FILENAME), 3, QLatin1String("search CaseSensitively for casesensitive"), 7, 13, QStringList());
     expectedResults << Utils::FileSearchResult(QLatin1String(FILENAME), 3, QLatin1String("search CaseSensitively for casesensitive"), 27, 13, QStringList());
-    test_helper(expectedResults, QLatin1String("CaseSensitive"), QTextDocument::FindFlags(0));
+    test_helper(expectedResults, QLatin1String("CaseSensitive"), QTextDocument::FindFlags());
 }
 
 void tst_FileSearch::matchCaseReplacement()
