@@ -167,13 +167,6 @@ void OutputLineParser::addLinkSpecForAbsoluteFilePath(OutputLineParser::LinkSpec
 }
 
 void OutputLineParser::addLinkSpecForAbsoluteFilePath(OutputLineParser::LinkSpecs &linkSpecs,
-        const FilePath &filePath, int lineNo, const QRegExp &regex, int capIndex)
-{
-    addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, regex.pos(capIndex),
-                                   regex.cap(capIndex).length());
-}
-
-void OutputLineParser::addLinkSpecForAbsoluteFilePath(OutputLineParser::LinkSpecs &linkSpecs,
         const FilePath &filePath, int lineNo, const QRegularExpressionMatch &match,
         int capIndex)
 {

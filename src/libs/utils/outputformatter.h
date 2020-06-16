@@ -108,8 +108,6 @@ protected:
     void addLinkSpecForAbsoluteFilePath(LinkSpecs &linkSpecs, const FilePath &filePath,
                                         int lineNo, int pos, int len);
     void addLinkSpecForAbsoluteFilePath(LinkSpecs &linkSpecs, const FilePath &filePath,
-                                        int lineNo, const QRegExp &regex, int capIndex);
-    void addLinkSpecForAbsoluteFilePath(LinkSpecs &linkSpecs, const FilePath &filePath,
                                         int lineNo, const QRegularExpressionMatch &match,
                                         int capIndex);
     void addLinkSpecForAbsoluteFilePath(LinkSpecs &linkSpecs, const FilePath &filePath,
