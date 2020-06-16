@@ -144,8 +144,8 @@ private:
 
     QFutureWatcher<AndroidDeviceInfoList> m_virtualDevicesWatcher;
     QString m_lastAddedAvd;
-    AndroidAvdManager m_avdManager{AndroidConfigurations::currentConfig()};
-    AndroidSdkManager m_sdkManager{AndroidConfigurations::currentConfig()};
+    AndroidAvdManager m_avdManager{m_androidConfig};
+    AndroidSdkManager m_sdkManager{m_androidConfig};
     AndroidSdkDownloader m_sdkDownloader;
     bool m_isInitialReloadDone = false;
 
