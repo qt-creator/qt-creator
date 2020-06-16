@@ -779,7 +779,9 @@ QObject *ObjectNodeInstance::createComponent(const QUrl &componentUrl, QQmlConte
     return QmlPrivateGate::createComponent(componentUrl, context);
 }
 
-QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource, const QByteArray &importCode, QQmlContext *context)
+QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource,
+                                                      const QByteArray &importCode,
+                                                      QQmlContext *context)
 {
     QmlPrivateGate::ComponentCompleteDisabler disableComponentComplete;
     Q_UNUSED(disableComponentComplete)
@@ -790,9 +792,11 @@ QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource,
     data.prepend(importCode);
     component.setData(data, context->baseUrl().resolved(QUrl("createCustomParserObject.qml")));
     QObject *object = component.beginCreate(context);
-    QmlPrivateGate::tweakObjects(object);
-    component.completeCreate();
-    QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
+    if (object) {
+        QmlPrivateGate::tweakObjects(object);
+        component.completeCreate();
+        QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
+    }
 
     if (component.isError()) {
         qWarning() << "Error in:" << Q_FUNC_INFO << component.url().toString();
