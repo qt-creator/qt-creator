@@ -40,6 +40,8 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/toolchain.h>
 
+#include <qtsupport/qtkitinformation.h>
+
 #include <utils/executeondestruction.h>
 #include <utils/fileutils.h>
 
@@ -60,9 +62,16 @@ namespace Internal {
 void ClangToolsUnitTests::initTestCase()
 {
     const QList<Kit *> allKits = KitManager::kits();
-    if (allKits.count() != 1)
-        QSKIP("This test requires exactly one kit to be present");
-    const ToolChain *const toolchain = ToolChainKitAspect::cxxToolChain(allKits.first());
+    if (allKits.count() == 0)
+        QSKIP("This test requires at least one kit to be present");
+
+    m_kit = findOr(allKits, nullptr, [](Kit *k) {
+            return k->isValid() && QtSupport::QtKitAspect::qtVersion(k) != nullptr;
+    });
+    if (!m_kit)
+        QSKIP("This test requires at least one valid kit with a valid Qt");
+
+    const ToolChain *const toolchain = ToolChainKitAspect::cxxToolChain(m_kit);
     if (!toolchain)
         QSKIP("This test requires that there is a kit with a toolchain.");
 
@@ -99,14 +108,14 @@ void ClangToolsUnitTests::testProject()
     QFETCH(int, expectedDiagCount);
     QFETCH(ClangDiagnosticConfig, diagnosticConfig);
     if (projectFilePath.contains("mingw")) {
-        const auto toolchain = ToolChainKitAspect::cxxToolChain(KitManager::kits().constFirst());
+        const auto toolchain = ToolChainKitAspect::cxxToolChain(m_kit);
         if (toolchain->typeId() != ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID)
             QSKIP("This test is mingw specific, does not run for other toolchains");
     }
 
     // Open project
     Tests::ProjectOpenerAndCloser projectManager;
-    const ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
+    const ProjectInfo projectInfo = projectManager.open(projectFilePath, true, m_kit);
     const bool isProjectOpen = projectInfo.isValid();
     QVERIFY(isProjectOpen);
 

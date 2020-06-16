@@ -445,9 +445,11 @@ Utils::FilePath CompilationDatabaseProject::rootPathFromSettings() const
 #endif
 }
 
-void CompilationDatabaseProject::configureAsExampleProject()
+void CompilationDatabaseProject::configureAsExampleProject(Kit *kit)
 {
-    if (KitManager::defaultKit())
+    if (kit)
+        addTargetForKit(kit);
+    else if (KitManager::defaultKit())
         addTargetForKit(KitManager::defaultKit());
 }
 

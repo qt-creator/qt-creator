@@ -64,7 +64,7 @@ public:
 
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
 
-    void configureAsExampleProject() final;
+    void configureAsExampleProject(ProjectExplorer::Kit *kit) final;
 
 private:
     mutable ProjectExplorer::ProjectImporter *m_importer = nullptr;

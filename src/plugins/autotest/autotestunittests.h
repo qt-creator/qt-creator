@@ -28,6 +28,7 @@
 #include <QObject>
 
 namespace CppTools { namespace Tests { class TemporaryCopiedDir; } }
+namespace ProjectExplorer { class Kit; }
 
 namespace Autotest {
 
@@ -60,6 +61,7 @@ private:
     CppTools::Tests::TemporaryCopiedDir *m_tmpDir = nullptr;
     bool m_isQt4 = false;
     bool m_checkBoost = false;
+    ProjectExplorer::Kit *m_kit = nullptr;
 };
 
 } // namespace Internal

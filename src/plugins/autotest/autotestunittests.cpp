@@ -61,13 +61,20 @@ AutoTestUnitTests::AutoTestUnitTests(TestTreeModel *model, QObject *parent)
 void AutoTestUnitTests::initTestCase()
 {
     const QList<Kit *> allKits = KitManager::kits();
-    if (allKits.count() != 1)
-        QSKIP("This test requires exactly one kit to be present");
-    if (auto qtVersion = QtSupport::QtKitAspect::qtVersion(allKits.first()))
+    if (allKits.count() == 0)
+        QSKIP("This test requires at least one kit to be present");
+
+    m_kit = findOr(allKits, nullptr, [](Kit *k) {
+            return k->isValid() && QtSupport::QtKitAspect::qtVersion(k) != nullptr;
+    });
+    if (!m_kit)
+        QSKIP("The test requires at least one valid kit with a valid Qt");
+
+    if (auto qtVersion = QtSupport::QtKitAspect::qtVersion(m_kit))
         m_isQt4 = qtVersion->qtVersionString().startsWith('4');
     else
         QSKIP("Could not figure out which Qt version is used for default kit.");
-    const ToolChain * const toolchain = ToolChainKitAspect::cxxToolChain(allKits.first());
+    const ToolChain * const toolchain = ToolChainKitAspect::cxxToolChain(m_kit);
     if (!toolchain)
         QSKIP("This test requires that there is a kit with a toolchain.");
 
@@ -99,7 +106,7 @@ void AutoTestUnitTests::testCodeParser()
     QFETCH(int, expectedDataTagsCount);
 
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
-    const CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
+    const CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true, m_kit);
     QVERIFY(projectInfo.isValid());
 
     QSignalSpy parserSpy(m_model->parser(), SIGNAL(parsingFinished()));
@@ -150,7 +157,7 @@ void AutoTestUnitTests::testCodeParserSwitchStartup()
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
     for (int i = 0; i < projectFilePaths.size(); ++i) {
         qDebug() << "Opening project" << projectFilePaths.at(i);
-        CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePaths.at(i), true);
+        CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePaths.at(i), true, m_kit);
         QVERIFY(projectInfo.isValid());
 
         QSignalSpy parserSpy(m_model->parser(), SIGNAL(parsingFinished()));
@@ -198,7 +205,7 @@ void AutoTestUnitTests::testCodeParserGTest()
 
     QFETCH(QString, projectFilePath);
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
-    CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
+    CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true, m_kit);
     QVERIFY(projectInfo.isValid());
 
     QSignalSpy parserSpy(m_model->parser(), SIGNAL(parsingFinished()));
@@ -247,7 +254,7 @@ void AutoTestUnitTests::testCodeParserBoostTest()
     QFETCH(QString, projectFilePath);
     QFETCH(QString, extension);
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
-    CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
+    CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true, m_kit);
     QVERIFY(projectInfo.isValid());
 
     QSignalSpy parserSpy(m_model->parser(), SIGNAL(parsingFinished()));

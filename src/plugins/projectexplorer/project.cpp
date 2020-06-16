@@ -910,7 +910,7 @@ bool Project::needsBuildConfigurations() const
     return d->m_needsBuildConfigurations;
 }
 
-void Project::configureAsExampleProject()
+void Project::configureAsExampleProject(Kit * /*kit*/)
 {
 }
 

@@ -235,7 +235,7 @@ bool OpenProjectCommand::run()
     QTC_ASSERT(openProjectSucceeded, return false);
 
     Project *project = openProjectSucceeded.project();
-    project->configureAsExampleProject();
+    project->configureAsExampleProject(nullptr);
 
     return CppTools::Tests::TestCase::waitUntilProjectIsFullyOpened(project, timeOutInMs());
 }

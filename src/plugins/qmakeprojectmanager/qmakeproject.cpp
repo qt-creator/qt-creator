@@ -1012,10 +1012,14 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
         m_buildSystem->updateCodeModels();
 }
 
-void QmakeProject::configureAsExampleProject()
+void QmakeProject::configureAsExampleProject(Kit *kit)
 {
     QList<BuildInfo> infoList;
-    const QList<Kit *> kits = KitManager::kits();
+    QList<Kit *> kits;
+    if (kit)
+        kits.append(kit);
+    else
+        kits = KitManager::kits();
     for (Kit *k : kits) {
         if (QtSupport::QtKitAspect::qtVersion(k) != nullptr) {
             if (auto factory = BuildConfigurationFactory::find(k, projectFilePath()))

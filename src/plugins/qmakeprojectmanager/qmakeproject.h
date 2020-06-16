@@ -63,7 +63,7 @@ public:
 
     ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
 
-    void configureAsExampleProject() final;
+    void configureAsExampleProject(ProjectExplorer::Kit *kit) final;
 
     ProjectExplorer::ProjectImporter *projectImporter() const final;
 

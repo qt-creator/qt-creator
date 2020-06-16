@@ -38,7 +38,10 @@ class Snapshot;
 }
 
 namespace Core { class IEditor; }
-namespace ProjectExplorer { class Project; }
+namespace ProjectExplorer {
+class Kit;
+class Project;
+}
 
 namespace TextEditor {
 class BaseTextEditor;
@@ -118,7 +121,8 @@ public:
     ProjectOpenerAndCloser();
     ~ProjectOpenerAndCloser(); // Closes opened projects
 
-    ProjectInfo open(const QString &projectFile, bool configureAsExampleProject = false);
+    ProjectInfo open(const QString &projectFile, bool configureAsExampleProject = false,
+                     ProjectExplorer::Kit *kit = nullptr);
 
 private:
     QList<ProjectExplorer::Project *> m_openProjects;

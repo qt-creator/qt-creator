@@ -32,6 +32,8 @@ class ClangDiagnosticConfig;
 namespace Tests { class TemporaryCopiedDir; }
 } // namespace CppTools
 
+namespace ProjectExplorer { class Kit; }
+
 namespace ClangTools {
 namespace Internal {
 
@@ -55,6 +57,7 @@ private:
 
 private:
     CppTools::Tests::TemporaryCopiedDir *m_tmpDir = nullptr;
+    ProjectExplorer::Kit *m_kit = nullptr;
 };
 
 } // namespace Internal

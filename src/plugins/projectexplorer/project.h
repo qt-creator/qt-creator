@@ -138,7 +138,7 @@ public:
 
     virtual bool needsConfiguration() const;
     bool needsBuildConfigurations() const;
-    virtual void configureAsExampleProject();
+    virtual void configureAsExampleProject(ProjectExplorer::Kit *kit);
 
     virtual ProjectImporter *projectImporter() const;
 

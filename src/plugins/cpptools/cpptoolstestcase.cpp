@@ -277,7 +277,8 @@ ProjectOpenerAndCloser::~ProjectOpenerAndCloser()
         QCoreApplication::processEvents();
 }
 
-ProjectInfo ProjectOpenerAndCloser::open(const QString &projectFile, bool configureAsExampleProject)
+ProjectInfo ProjectOpenerAndCloser::open(const QString &projectFile, bool configureAsExampleProject,
+                                         Kit *kit)
 {
     ProjectExplorerPlugin::OpenProjectResult result = ProjectExplorerPlugin::openProject(projectFile);
     if (!result) {
@@ -287,7 +288,7 @@ ProjectInfo ProjectOpenerAndCloser::open(const QString &projectFile, bool config
 
     Project *project = result.project();
     if (configureAsExampleProject)
-        project->configureAsExampleProject();
+        project->configureAsExampleProject(kit);
 
     if (TestCase::waitUntilProjectIsFullyOpened(project)) {
         m_openProjects.append(project);

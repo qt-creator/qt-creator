@@ -139,10 +139,14 @@ ProjectImporter *QbsProject::projectImporter() const
     return m_importer;
 }
 
-void QbsProject::configureAsExampleProject()
+void QbsProject::configureAsExampleProject(Kit *kit)
 {
     QList<BuildInfo> infoList;
-    const QList<Kit *> kits = KitManager::kits();
+    QList<Kit *> kits;
+    if (kit)
+        kits.append(kit);
+    else
+        kits = KitManager::kits();
     for (Kit *k : kits) {
         if (QtSupport::QtKitAspect::qtVersion(k) != nullptr) {
             if (auto factory = BuildConfigurationFactory::find(k, projectFilePath()))
