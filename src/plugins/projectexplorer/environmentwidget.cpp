@@ -119,14 +119,14 @@ public:
     {
         QStringList pathList;
         for (int i = 0; i < m_view.topLevelItemCount(); ++i)
-            pathList << QDir::fromNativeSeparators(m_view.topLevelItem(i)->text(0));
+            pathList << m_view.topLevelItem(i)->text(0);
         return pathList.join(Utils::HostOsInfo::pathListSeparator());
     }
 
 private:
     void addPath(const QString &path)
     {
-        const auto item = new QTreeWidgetItem(&m_view, {QDir::toNativeSeparators(path)});
+        const auto item = new QTreeWidgetItem(&m_view, {path});
         item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable
                        | Qt::ItemIsDragEnabled);
     }
