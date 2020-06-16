@@ -447,8 +447,12 @@ bool AndroidDeployQtStep::runImpl()
     if (!m_filesToPull.isEmpty())
         emit addOutput(tr("Pulling files necessary for debugging."), OutputFormat::NormalMessage);
 
+    // Note that values are not necessarily unique, e.g. app_process is looked up in several directories
     for (auto itr = m_filesToPull.constBegin(); itr != m_filesToPull.constEnd(); ++itr) {
         QFile::remove(itr.value());
+    }
+
+    for (auto itr = m_filesToPull.constBegin(); itr != m_filesToPull.constEnd(); ++itr) {
         runCommand({m_adbPath,
                    AndroidDeviceInfo::adbSelector(m_serialNumber)
                    << "pull" << itr.key() << itr.value()});
