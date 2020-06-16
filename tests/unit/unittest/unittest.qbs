@@ -13,7 +13,7 @@ CppApplication {
     Depends { name: "libclang"; required: false }
     Depends { name: "clang_defines" }
 
-    Depends { name: "Sqlite" }
+    Depends { name: "sqlite_sources" }
     Depends { name: "Core" }
     Depends { name: "CPlusPlus" }
     Depends { name: "yaml-cpp" }
@@ -24,6 +24,8 @@ CppApplication {
     Depends { name: "benchmark"; required: false }
     Depends { name: "gtest"; required: false }
     Depends { name: "gmock"; required: false }
+
+    sqlite_sources.buildSharedLib: false
 
     cpp.defines: {
         var defines = [
