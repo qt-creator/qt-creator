@@ -38,6 +38,25 @@ if (APPLE)
   set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/QmlDesigner")
 endif()
 
+
+add_qtc_plugin(assetexporterplugin
+  CONDITION TARGET QmlDesigner
+  DEPENDS Core ProjectExplorer QmlDesigner Utils Qt5::Qml
+  PUBLIC_INCLUDES assetexporterplugin
+  SOURCES
+    assetexporterplugin/assetexportdialog.h assetexporterplugin/assetexportdialog.cpp assetexporterplugin/assetexportdialog.ui
+    assetexporterplugin/assetexporter.h assetexporterplugin/assetexporter.cpp
+    assetexporterplugin/assetexporterplugin.h assetexporterplugin/assetexporterplugin.cpp
+    assetexporterplugin/assetexporterview.h assetexporterplugin/assetexporterview.cpp
+    assetexporterplugin/assetexportpluginconstants.h
+    assetexporterplugin/componentexporter.h assetexporterplugin/componentexporter.cpp
+    assetexporterplugin/parsers/modelitemnodeparser.h assetexporterplugin/parsers/modelitemnodeparser.cpp
+    assetexporterplugin/parsers/modelnodeparser.h assetexporterplugin/parsers/modelnodeparser.cpp
+    assetexporterplugin/assetexporterplugin.qrc
+  PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
+  SKIP_DEBUG_CMAKE_FILE_CHECK
+)
+
 add_qtc_plugin(componentsplugin
   CONDITION TARGET QmlDesigner
   DEPENDS Core QmlDesigner Utils Qt5::Qml

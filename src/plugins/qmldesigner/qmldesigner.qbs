@@ -6,5 +6,6 @@ Project {
         "qmldesignerplugin.qbs",
         "qtquickplugin/qtquickplugin.qbs",
         "componentsplugin/componentsplugin.qbs",
+        "assetexporterplugin/assetexporterplugin.qbs"
     ]
 }
