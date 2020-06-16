@@ -39,29 +39,25 @@ LinuxIccParser::LinuxIccParser() :
     setObjectName(QLatin1String("LinuxIccParser"));
     // main.cpp(53): error #308: function \"AClass::privatefunc\" (declared at line 4 of \"main.h\") is inaccessible
 
-    m_firstLine.setPattern(QLatin1String("^([^\\(\\)]+)"    // filename (cap 1)
-                           "\\((\\d+)\\):"                  // line number including : (cap 2)
-                           " ((error|warning)( #\\d+)?: )?" // optional type (cap 4) and optional error number // TODO really optional ?
-                           "(.*)$"));                       // description (cap 6)
-    //m_firstLine.setMinimal(true);
+    m_firstLine.setPattern(QLatin1String("^([^\\(\\)]+?)"    // filename (cap 1)
+                           "\\((\\d+?)\\):"                  // line number including : (cap 2)
+                           " ((error|warning)( #\\d+?)?: )?" // optional type (cap 4) and optional error number // TODO really optional ?
+                           "(.*?)$"));                       // description (cap 6)
     QTC_CHECK(m_firstLine.isValid());
 
                                             // Note pattern also matches caret lines
     m_continuationLines.setPattern(QLatin1String("^\\s+"  // At least one whitespace
                                                  "(.*)$"));// description
-    m_continuationLines.setMinimal(true);
     QTC_CHECK(m_continuationLines.isValid());
 
-    m_caretLine.setPattern(QLatin1String("^\\s*"          // Whitespaces
+    m_caretLine.setPattern(QLatin1String("^\\s*?"          // Whitespaces
                                          "\\^"            // a caret
-                                         "\\s*$"));       // and again whitespaces
-    m_caretLine.setMinimal(true);
+                                         "\\s*?$"));       // and again whitespaces
     QTC_CHECK(m_caretLine.isValid());
 
     // ".pch/Qt5Core.pchi.cpp": creating precompiled header file ".pch/Qt5Core.pchi"
     // "animation/qabstractanimation.cpp": using precompiled header file ".pch/Qt5Core.pchi"
-    m_pchInfoLine.setPattern(QLatin1String("^\".*\": (creating|using) precompiled header file \".*\"\n$"));
-    m_pchInfoLine.setMinimal(true);
+    m_pchInfoLine.setPattern(QLatin1String("^\".*?\": (creating|using) precompiled header file \".*?\"\n$"));
     QTC_CHECK(m_pchInfoLine.isValid());
 }
 
@@ -70,28 +66,31 @@ OutputLineParser::Result LinuxIccParser::handleLine(const QString &line, OutputF
     if (type != Utils::StdErrFormat)
         return Status::NotHandled;
 
-    if (m_pchInfoLine.indexIn(line) != -1)
+    if (line.indexOf(m_pchInfoLine) != -1)
         return Status::Done; // totally ignore this line
 
-    if (m_expectFirstLine  && m_firstLine.indexIn(line) != -1) {
-        // Clear out old task
-        Task::TaskType type = Task::Unknown;
-        QString category = m_firstLine.cap(4);
-        if (category == QLatin1String("error"))
-            type = Task::Error;
-        else if (category == QLatin1String("warning"))
-            type = Task::Warning;
-        const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(m_firstLine.cap(1)));
-        const int lineNo = m_firstLine.cap(2).toInt();
-        LinkSpecs linkSpecs;
-        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, m_firstLine, 1);
-        m_temporary = CompileTask(type, m_firstLine.cap(6).trimmed(), filePath, lineNo);
+    if (m_expectFirstLine) {
+        const QRegularExpressionMatch match = m_firstLine.match(line);
+        if (match.hasMatch()) {
+            // Clear out old task
+            Task::TaskType type = Task::Unknown;
+            QString category = match.captured(4);
+            if (category == QLatin1String("error"))
+                type = Task::Error;
+            else if (category == QLatin1String("warning"))
+                type = Task::Warning;
+            const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
+            const int lineNo = match.captured(2).toInt();
+            LinkSpecs linkSpecs;
+            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, match, 1);
+            m_temporary = CompileTask(type, match.captured(6).trimmed(), filePath, lineNo);
 
-        m_lines = 1;
-        m_expectFirstLine = false;
-        return Status::InProgress;
+            m_lines = 1;
+            m_expectFirstLine = false;
+            return Status::InProgress;
+        }
     }
-    if (!m_expectFirstLine && m_caretLine.indexIn(line) != -1) {
+    if (!m_expectFirstLine && line.indexOf(m_caretLine) != -1) {
         // FIXME: m_temporary.details.append(line);
         return Status::InProgress;
     }
@@ -101,8 +100,9 @@ OutputLineParser::Result LinuxIccParser::handleLine(const QString &line, OutputF
         m_temporary = Task();
         return Status::Done;
     }
-    if (!m_expectFirstLine && m_continuationLines.indexIn(line) != -1) {
-        m_temporary.details.append(m_continuationLines.cap(1).trimmed());
+    const QRegularExpressionMatch match = m_continuationLines.match(line);
+    if (!m_expectFirstLine && match.hasMatch()) {
+        m_temporary.details.append(match.captured(1).trimmed());
         ++m_lines;
         return Status::InProgress;
     }
