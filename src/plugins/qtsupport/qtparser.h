@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 #include "qtsupport_global.h"
 #include <projectexplorer/ioutputparser.h>
@@ -44,8 +44,8 @@ public:
 private:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;
 
-    QRegExp m_mocRegExp;
-    QRegExp m_translationRegExp;
+    QRegularExpression m_mocRegExp;
+    QRegularExpression m_translationRegExp;
 };
 
 } // namespace QtSupport

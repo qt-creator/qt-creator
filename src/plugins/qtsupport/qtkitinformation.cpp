@@ -25,8 +25,6 @@
 
 #include "qtkitinformation.h"
 
-#include <QRegExp>
-
 #include "qtsupportconstants.h"
 #include "qtversionmanager.h"
 #include "qtparser.h"

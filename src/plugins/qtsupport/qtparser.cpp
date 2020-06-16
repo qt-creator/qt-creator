@@ -44,12 +44,10 @@ namespace QtSupport {
 #define FILE_PATTERN "^(([A-Za-z]:)?[^:]+\\.[^:]+)"
 
 QtParser::QtParser() :
-    m_mocRegExp(QLatin1String(FILE_PATTERN"[:\\(](\\d+)\\)?:\\s([Ww]arning|[Ee]rror|[Nn]ote):\\s(.+)$")),
-    m_translationRegExp(QLatin1String("^([Ww]arning|[Ee]rror):\\s+(.*) in '(.*)'$"))
+    m_mocRegExp(QLatin1String(FILE_PATTERN"[:\\(](\\d+?)\\)?:\\s([Ww]arning|[Ee]rror|[Nn]ote):\\s(.+?)$")),
+    m_translationRegExp(QLatin1String("^([Ww]arning|[Ee]rror):\\s+(.*?) in '(.*?)'$"))
 {
     setObjectName(QLatin1String("QtParser"));
-    m_mocRegExp.setMinimal(true);
-    m_translationRegExp.setMinimal(true);
 }
 
 Utils::OutputLineParser::Result QtParser::handleLine(const QString &line, Utils::OutputFormat type)
@@ -58,34 +56,36 @@ Utils::OutputLineParser::Result QtParser::handleLine(const QString &line, Utils:
         return Status::NotHandled;
 
     QString lne = rightTrimmed(line);
-    if (m_mocRegExp.indexIn(lne) > -1) {
+    QRegularExpressionMatch match = m_mocRegExp.match(lne);
+    if (match.hasMatch()) {
         bool ok;
-        int lineno = m_mocRegExp.cap(3).toInt(&ok);
+        int lineno = match.captured(3).toInt(&ok);
         if (!ok)
             lineno = -1;
         Task::TaskType type = Task::Error;
-        const QString level = m_mocRegExp.cap(4);
+        const QString level = match.captured(4);
         if (level.compare(QLatin1String("Warning"), Qt::CaseInsensitive) == 0)
             type = Task::Warning;
         if (level.compare(QLatin1String("Note"), Qt::CaseInsensitive) == 0)
             type = Task::Unknown;
         LinkSpecs linkSpecs;
         const Utils::FilePath file
-                = absoluteFilePath(Utils::FilePath::fromUserInput(m_mocRegExp.cap(1)));
-        addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineno, m_mocRegExp, 1);
-        CompileTask task(type, m_mocRegExp.cap(5).trimmed() /* description */, file, lineno);
+                = absoluteFilePath(Utils::FilePath::fromUserInput(match.captured(1)));
+        addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineno, match, 1);
+        CompileTask task(type, match.captured(5).trimmed() /* description */, file, lineno);
         scheduleTask(task, 1);
         return {Status::Done, linkSpecs};
     }
-    if (m_translationRegExp.indexIn(lne) > -1) {
+    match = m_translationRegExp.match(line);
+    if (match.hasMatch()) {
         Task::TaskType type = Task::Warning;
-        if (m_translationRegExp.cap(1) == QLatin1String("Error"))
+        if (match.captured(1) == QLatin1String("Error"))
             type = Task::Error;
         LinkSpecs linkSpecs;
         const Utils::FilePath file
-                = absoluteFilePath(Utils::FilePath::fromUserInput(m_translationRegExp.cap(3)));
-        addLinkSpecForAbsoluteFilePath(linkSpecs, file, 0, m_translationRegExp, 3);
-        CompileTask task(type, m_translationRegExp.cap(2), file);
+                = absoluteFilePath(Utils::FilePath::fromUserInput(match.captured(3)));
+        addLinkSpecForAbsoluteFilePath(linkSpecs, file, 0, match, 3);
+        CompileTask task(type, match.captured(2), file);
         scheduleTask(task, 1);
         return {Status::Done, linkSpecs};
     }
