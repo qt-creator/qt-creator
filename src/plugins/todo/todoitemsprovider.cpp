@@ -41,7 +41,7 @@
 
 #include <utils/algorithm.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QTimer>
 
 using namespace ProjectExplorer;
@@ -131,8 +131,8 @@ void TodoItemsProvider::setItemsListWithinStartupProject()
         if (filePaths.contains(filePath)) {
             bool skip = false;
             for (const QVariant &pattern : settings[Constants::EXCLUDES_LIST_KEY].toList()) {
-                QRegExp re(pattern.toString());
-                if (re.indexIn(filePath.toString()) != -1) {
+                QRegularExpression re(pattern.toString());
+                if (filePath.toString().indexOf(re) != -1) {
                     skip = true;
                     break;
                 }

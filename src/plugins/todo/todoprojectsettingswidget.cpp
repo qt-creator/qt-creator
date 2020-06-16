@@ -95,7 +95,7 @@ void TodoProjectSettingsWidget::saveSettings()
 
 void TodoProjectSettingsWidget::prepareItem(QListWidgetItem *item) const
 {
-    if (QRegExp(item->text()).isValid())
+    if (QRegularExpression(item->text()).isValid())
         item->setForeground(QBrush(ui->excludedPatternsList->palette().color(QPalette::Active, QPalette::Text)));
     else
         item->setForeground(QBrush(Qt::red));
