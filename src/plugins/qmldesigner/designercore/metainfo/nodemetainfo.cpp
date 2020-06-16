@@ -88,11 +88,17 @@ static TypeName resolveTypeName(const ASTPropertyReference *ref, const ContextPt
     if (ref->ast()->propertyToken.isValid()) {
         type = ref->ast()->memberType->name.toUtf8();
 
-        if (type == "alias") {
-            const Value *value = context->lookupReference(ref);
+        const Value *value = context->lookupReference(ref);
 
-            if (!value)
-                return type;
+        if (!value)
+            return type;
+
+        if (const CppComponentValue * componentObjectValue = value->asCppComponentValue()) {
+            type = componentObjectValue->className().toUtf8();
+            dotProperties = getObjectTypes(componentObjectValue, context);
+        }
+
+        if (type == "alias") {
 
             if (const ASTObjectValue * astObjectValue = value->asAstObjectValue()) {
                 if (astObjectValue->typeName()) {
