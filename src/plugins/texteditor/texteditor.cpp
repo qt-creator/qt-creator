@@ -1836,7 +1836,7 @@ void TextEditorWidget::joinLines()
         QString cutLine = cursor.selectedText();
 
         // Collapse leading whitespaces to one or insert whitespace
-        cutLine.replace(QRegExp(QLatin1String("^\\s*")), QLatin1String(" "));
+        cutLine.replace(QRegularExpression(QLatin1String("^\\s*")), QLatin1String(" "));
         cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
         cursor.removeSelectedText();
 
@@ -7123,7 +7123,7 @@ void TextEditorWidget::autoIndent()
 void TextEditorWidget::rewrapParagraph()
 {
     const int paragraphWidth = marginSettings().m_marginColumn;
-    const QRegExp anyLettersOrNumbers = QRegExp(QLatin1String("\\w"));
+    const QRegularExpression anyLettersOrNumbers("\\w");
     const int tabSize = d->m_document->tabSettings().m_tabSize;
 
     QTextCursor cursor = textCursor();

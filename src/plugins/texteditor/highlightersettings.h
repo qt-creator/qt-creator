@@ -28,7 +28,7 @@
 #include <QString>
 #include <QStringList>
 #include <QList>
-#include <QRegExp>
+#include <QRegularExpression>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -61,7 +61,7 @@ private:
     QStringList listFromExpressions() const;
 
     QString m_definitionFilesPath;
-    QList<QRegExp> m_ignoredFiles;
+    QList<QRegularExpression> m_ignoredFiles;
 };
 
 inline bool operator==(const HighlighterSettings &a, const HighlighterSettings &b)
