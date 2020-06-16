@@ -55,14 +55,15 @@ Utils::OutputLineParser::Result JavaParser::handleLine(const QString &line,
                                                        Utils::OutputFormat type)
 {
     Q_UNUSED(type);
-    if (m_javaRegExp.indexIn(line) == -1)
+    const QRegularExpressionMatch match = m_javaRegExp.match(line);
+    if (!match.hasMatch())
         return Status::NotHandled;
 
     bool ok;
-    int lineno = m_javaRegExp.cap(3).toInt(&ok);
+    int lineno = match.captured(3).toInt(&ok);
     if (!ok)
         lineno = -1;
-    Utils::FilePath file = Utils::FilePath::fromUserInput(m_javaRegExp.cap(2));
+    Utils::FilePath file = Utils::FilePath::fromUserInput(match.captured(2));
     if (file.isChildOf(m_buildDirectory)) {
         Utils::FilePath relativePath = file.relativeChildPath(m_buildDirectory);
         file = m_sourceDirectory.pathAppended(relativePath.toString());
@@ -76,11 +77,11 @@ Utils::OutputLineParser::Result JavaParser::handleLine(const QString &line,
     }
 
     CompileTask task(Task::Error,
-                     m_javaRegExp.cap(4).trimmed(),
+                     match.captured(4).trimmed(),
                      absoluteFilePath(file),
                      lineno);
     LinkSpecs linkSpecs;
-    addLinkSpecForAbsoluteFilePath(linkSpecs, task.file, task.line, m_javaRegExp, 2);
+    addLinkSpecForAbsoluteFilePath(linkSpecs, task.file, task.line, match, 2);
     scheduleTask(task, 1);
     return {Status::Done, linkSpecs};
 }

@@ -35,7 +35,6 @@
 
 #include <QFileInfo>
 #include <QLoggingCategory>
-#include <QRegExp>
 
 
 namespace {

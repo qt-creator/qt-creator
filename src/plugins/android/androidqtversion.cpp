@@ -42,6 +42,8 @@
 
 #include <proparser/profileevaluator.h>
 
+#include <QRegularExpression>
+
 using namespace ProjectExplorer;
 
 namespace Android {
@@ -168,10 +170,11 @@ void AndroidQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
         m_androidAbis = QStringList{evaluator->value("ANDROID_TARGET_ARCH")};
     const QString androidPlatform = evaluator->value("ANDROID_PLATFORM");
     if (!androidPlatform.isEmpty()) {
-        const QRegExp regex("android-(\\d+)");
-        if (regex.exactMatch(androidPlatform)) {
+        const QRegularExpression regex("android-(\\d+)");
+        const QRegularExpressionMatch match = regex.match(androidPlatform);
+        if (match.hasMatch()) {
             bool ok = false;
-            int tmp = regex.cap(1).toInt(&ok);
+            int tmp = match.captured(1).toInt(&ok);
             if (ok)
                 m_minNdk = tmp;
         }

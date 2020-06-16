@@ -28,7 +28,7 @@
 #include <projectexplorer/ioutputparser.h>
 #include <utils/fileutils.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace Android {
 namespace Internal {
@@ -47,7 +47,7 @@ public:
 private:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;
 
-    QRegExp m_javaRegExp;
+    QRegularExpression m_javaRegExp;
     QStringList m_fileList;
     Utils::FilePath m_sourceDirectory;
     Utils::FilePath m_buildDirectory;

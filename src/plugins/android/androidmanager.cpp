@@ -64,7 +64,6 @@
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QProcess>
-#include <QRegExp>
 #include <QRegularExpression>
 #include <QVersionNumber>
 
