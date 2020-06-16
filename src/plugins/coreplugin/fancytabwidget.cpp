@@ -211,8 +211,9 @@ void FancyTabBar::mousePressEvent(QMouseEvent *event)
         if (rect.contains(event->pos())) {
             if (isTabEnabled(index)) {
                 if (m_tabs.at(index)->hasMenu
-                    && rect.right() - event->pos().x() <= kMenuButtonWidth) {
-                    // menu arrow clicked
+                    && ((!m_iconsOnly && rect.right() - event->pos().x() <= kMenuButtonWidth)
+                        || event->button() == Qt::RightButton)) {
+                    // menu arrow clicked or right-click
                     emit menuTriggered(index, event);
                 } else {
                     if (index != m_currentIndex) {
@@ -387,7 +388,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
         paintIconAndText(painter, rect, tab->icon, tab->text, enabled, selected);
 
     // menu arrow
-    if (tab->hasMenu) {
+    if (tab->hasMenu && !m_iconsOnly) {
         QStyleOption opt;
         opt.initFrom(this);
         opt.rect = rect.adjusted(rect.width() - kMenuButtonWidth, 0, -8, 0);

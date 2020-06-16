@@ -158,6 +158,7 @@ public:
     DebuggerMainWindow *q = nullptr;
     QPointer<Perspective> m_currentPerspective = nullptr;
     QComboBox *m_perspectiveChooser = nullptr;
+    QMenu *m_perspectiveMenu;
     QStackedWidget *m_centralWidgetStack = nullptr;
     QHBoxLayout *m_subPerspectiveSwitcherLayout = nullptr;
     QHBoxLayout *m_innerToolsLayout = nullptr;
@@ -186,14 +187,27 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     m_perspectiveChooser->setObjectName("PerspectiveChooser");
     m_perspectiveChooser->setProperty("panelwidget", true);
     m_perspectiveChooser->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    connect(m_perspectiveChooser, QOverload<int>::of(&QComboBox::activated),
-            this, [this](int item) {
+    connect(m_perspectiveChooser, QOverload<int>::of(&QComboBox::activated), this, [this](int item) {
         Perspective *perspective = Perspective::findPerspective(m_perspectiveChooser->itemData(item).toString());
         QTC_ASSERT(perspective, return);
         if (auto subPerspective = Perspective::findPerspective(perspective->d->m_lastActiveSubPerspectiveId))
             subPerspective->select();
         else
             perspective->select();
+    });
+
+    m_perspectiveMenu = new QMenu;
+    connect(m_perspectiveMenu, &QMenu::aboutToShow, this, [this] {
+        m_perspectiveMenu->clear();
+        for (Perspective *perspective : qAsConst(m_perspectives)) {
+            m_perspectiveMenu->addAction(perspective->d->m_name, perspective, [perspective] {
+                if (auto subPerspective = Perspective::findPerspective(
+                        perspective->d->m_lastActiveSubPerspectiveId))
+                    subPerspective->select();
+                else
+                    perspective->select();
+            });
+        }
     });
 
     auto viewButton = new QToolButton;
@@ -263,6 +277,7 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
 DebuggerMainWindowPrivate::~DebuggerMainWindowPrivate()
 {
     delete m_editorPlaceHolder;
+    delete m_perspectiveMenu;
 }
 
 DebuggerMainWindow::DebuggerMainWindow()
@@ -509,6 +524,11 @@ void DebuggerMainWindow::addSubPerspectiveSwitcher(QWidget *widget)
     widget->setVisible(false);
     widget->setProperty("panelwidget", true);
     d->m_subPerspectiveSwitcherLayout->addWidget(widget);
+}
+
+QMenu *DebuggerMainWindow::perspectiveMenu()
+{
+    return theMainWindow ? theMainWindow->d->m_perspectiveMenu : nullptr;
 }
 
 DebuggerMainWindow *DebuggerMainWindow::instance()

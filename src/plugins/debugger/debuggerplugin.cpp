@@ -547,6 +547,8 @@ public:
         mainWindow->addSubPerspectiveSwitcher(EngineManager::engineChooser());
 
         setWidget(splitter);
+
+        setMenu(DebuggerMainWindow::perspectiveMenu());
     }
 
     ~DebugMode() { delete widget(); }
