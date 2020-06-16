@@ -98,14 +98,113 @@
     To determine when a state should be applied, select \uicontrol Actions >
     \uicontrol {Set when Condition}. In \uicontrol {Binding Editor}, specify
     a \l [QtQuick]{State::when}{when} property for the state. Set the value of
-    the property to an expression that evaluates to \c true when you want the
-    state to be applied.
+    the property to a boolean expression that evaluates to \c true when you want
+    the state to be applied.
+
+    This enables you to evaluate the truthfullness of several components'
+    properties and move the UI to the state in which these conditions apply.
+    You can evaluate whether something is true or false, greater than or equal
+    to something else, and so on. You can also use operators, such as AND or
+    OR, to evaluate the truthfulness of several components.
+
+    The when conditions are evaluated from left to right and in order of
+    appearance in the code. Therefore, if you have two conditions for two
+    different states that both evaluate to \c true, the first state is applied.
 
     In \uicontrol {Binding Editor}, select the component and property to
     create the expression. For example, to change the state when a button is
     pressed, you could select a button component and its pressed property.
 
     \image qtquick-states-binding-editor.png "Binding Editor in States view"
+
+    When you compose the expressions in \uicontrol {Binding Editor}, the
+    \l{Completing Code}{code completion} feature lists the components and
+    their properties you can use in the expressions.
+
+    \section2 Summary of Logical Operators
+
+    You can use the following
+    \l{https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Expressions_and_Operators}
+    {logical operators} in the expressions to combine several conditions in one
+    expression:
+
+    \table
+        \header
+            \li Operator
+            \li Meaning
+            \li Evaluates to \c true if
+        \row
+            \li !
+            \li NOT
+            \li The condition is not met.
+        \row
+            \li &&
+            \li AND
+            \li Both conditions are met.
+        \row
+            \li ||
+            \li OR
+            \li Either of the conditions is met.
+        \row
+            \li <
+            \li Less than
+            \li The left operand is less than the right operand.
+        \row
+            \li >
+            \li Greater than
+            \li The left operand is greater than the right operand.
+        \row
+            \li >=
+            \li Greater than or equal
+            \li The left operand is greater than or equal to the right operand.
+        \row
+            \li <=
+            \li Less than or equal
+            \li The left operand is less than or equal to the right operand.
+        \row
+            \li ==
+            \li Equal
+            \li The operands are equal.
+        \row
+            \li ===
+            \li Strict equal
+            \li The operands are equal and of the same type.
+        \row
+            \li !=
+            \li Not equal
+            \li The operands are not equal.
+        \row
+            \li !==
+            \li Strict not equal
+            \li The operands are of the same type but not equal, or are of
+                different type.
+    \endtable
+
+    In addition, you can use arithmetic operators to compare numbers before
+    checks.
+
+    \section2 Examples of when Conditions
+
+    To apply a state to a button when the button is pressed, you could simply
+    write:
+
+    \badcode
+    when: control.pressed
+    \endcode
+
+    To apply a state when the button is not pressed, selected, nor hovered on,
+    you could combine conditions, as follows:
+
+    \badcode
+    when: !control.pressed && !control.checked && !control.hovered
+    \endcode
+
+    To apply a state when the button is pressed or selected, but not hovered on,
+    you could write:
+
+    \badcode
+    when: control.pressed || control.checked && !control.hovered
+    \endcode
 
     \section1 Using States
 
