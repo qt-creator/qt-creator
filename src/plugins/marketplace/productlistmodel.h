@@ -111,6 +111,7 @@ private:
     QMap<Section, ProductGridView *> m_gridViews;
     ProductGridView *m_allProductsView = nullptr;
     Core::ListModelFilter *m_filteredAllProductsModel = nullptr;
+    Core::GridProxyModel * const m_gridModel;
     ProductItemDelegate *m_productDelegate = nullptr;
     bool m_isDownloadingImage = false;
     int m_columnCount = 1;

@@ -164,6 +164,7 @@ SectionedProducts::SectionedProducts(QWidget *parent)
     : QStackedWidget(parent)
     , m_allProductsView(new ProductGridView(this))
     , m_filteredAllProductsModel(new Core::ListModelFilter(new AllProductsModel(this), this))
+    , m_gridModel(new Core::GridProxyModel)
     , m_productDelegate(new ProductItemDelegate)
 {
     auto area = new QScrollArea(this);
@@ -180,10 +181,9 @@ SectionedProducts::SectionedProducts(QWidget *parent)
 
     addWidget(area);
 
-    auto gridModel = new Core::GridProxyModel;
-    gridModel->setSourceModel(m_filteredAllProductsModel);
+    m_gridModel->setSourceModel(m_filteredAllProductsModel);
     m_allProductsView->setItemDelegate(m_productDelegate);
-    m_allProductsView->setModel(gridModel);
+    m_allProductsView->setModel(m_gridModel);
     addWidget(m_allProductsView);
 
     connect(m_productDelegate, &ProductItemDelegate::tagClicked,
@@ -194,6 +194,7 @@ SectionedProducts::~SectionedProducts()
 {
     qDeleteAll(m_gridViews.values());
     delete m_productDelegate;
+    delete m_gridModel;
 }
 
 void SectionedProducts::updateCollections()
