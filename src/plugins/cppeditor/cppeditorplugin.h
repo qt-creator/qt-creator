@@ -205,6 +205,9 @@ private slots:
     void test_useSelections_data();
     void test_useSelections();
 
+    void test_selectionFiltering_data();
+    void test_selectionFiltering();
+
     // tests for "Include Hierarchy"
     void test_includehierarchy_data();
     void test_includehierarchy();

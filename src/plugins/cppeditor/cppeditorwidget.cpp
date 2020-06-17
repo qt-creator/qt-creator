@@ -326,7 +326,8 @@ void CppEditorWidget::onCodeWarningsUpdated(unsigned revision,
     if (revision != documentRevision())
         return;
 
-    setExtraSelections(TextEditorWidget::CodeWarningsSelection, selections);
+    setExtraSelections(TextEditorWidget::CodeWarningsSelection,
+                       unselectLeadingWhitespace(selections));
     setRefactorMarkers(refactorMarkers + RefactorMarker::filterOutType(
             this->refactorMarkers(), CppTools::Constants::CPP_CLANG_FIXIT_AVAILABLE_MARKER_ID));
 }
@@ -1161,6 +1162,63 @@ void CppEditorWidget::invokeTextEditorWidgetAssist(TextEditor::AssistKind assist
                                                    TextEditor::IAssistProvider *provider)
 {
     invokeAssist(assistKind, provider);
+}
+
+const QList<QTextEdit::ExtraSelection> CppEditorWidget::unselectLeadingWhitespace(
+        const QList<QTextEdit::ExtraSelection> &selections)
+{
+    QList<QTextEdit::ExtraSelection> filtered;
+    for (const QTextEdit::ExtraSelection &sel : selections) {
+        QList<QTextEdit::ExtraSelection> splitSelections;
+        int firstNonWhitespacePos = -1;
+        int lastNonWhitespacePos = -1;
+        bool split = false;
+        const QTextBlock firstBlock = sel.cursor.document()->findBlock(sel.cursor.selectionStart());
+        bool inIndentation = firstBlock.position() == sel.cursor.selectionStart();
+        const auto createSplitSelection = [&] {
+            QTextEdit::ExtraSelection newSelection;
+            newSelection.cursor = QTextCursor(sel.cursor.document());
+            newSelection.cursor.setPosition(firstNonWhitespacePos);
+            newSelection.cursor.setPosition(lastNonWhitespacePos + 1, QTextCursor::KeepAnchor);
+            newSelection.format = sel.format;
+            splitSelections << newSelection;
+        };
+        for (int i = sel.cursor.selectionStart(); i < sel.cursor.selectionEnd(); ++i) {
+            const QChar curChar = sel.cursor.document()->characterAt(i);
+            if (!curChar.isSpace()) {
+                if (firstNonWhitespacePos == -1)
+                    firstNonWhitespacePos = i;
+                lastNonWhitespacePos = i;
+            }
+            if (!inIndentation) {
+                if (curChar == QChar::ParagraphSeparator)
+                    inIndentation = true;
+                continue;
+            }
+            if (curChar == QChar::ParagraphSeparator)
+                continue;
+            if (curChar.isSpace()) {
+                if (firstNonWhitespacePos != -1) {
+                    createSplitSelection();
+                    firstNonWhitespacePos = -1;
+                    lastNonWhitespacePos = -1;
+                }
+                split = true;
+                continue;
+            }
+            inIndentation = false;
+        }
+
+        if (!split) {
+            filtered << sel;
+            continue;
+        }
+
+        if (firstNonWhitespacePos != -1)
+            createSplitSelection();
+        filtered << splitSelections;
+    }
+    return filtered;
 }
 
 } // namespace Internal

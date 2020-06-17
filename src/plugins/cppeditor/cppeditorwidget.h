@@ -94,6 +94,9 @@ public:
     void invokeTextEditorWidgetAssist(TextEditor::AssistKind assistKind,
                                       TextEditor::IAssistProvider *provider) override;
 
+    static const QList<QTextEdit::ExtraSelection>
+    unselectLeadingWhitespace(const QList<QTextEdit::ExtraSelection> &selections);
+
 protected:
     bool event(QEvent *e) override;
     void contextMenuEvent(QContextMenuEvent *) override;

@@ -249,5 +249,70 @@ void CppEditorPlugin::test_useSelections()
     Tests::UseSelectionsTestCase(testDocument, expectedSelections);
 }
 
+void CppEditorPlugin::test_selectionFiltering_data()
+{
+    QTest::addColumn<QString>("source");
+    QTest::addColumn<SelectionList>("original");
+    QTest::addColumn<SelectionList>("filtered");
+
+    QTest::addRow("QTCREATORBUG-18659")
+            << QString("int main()\n"
+                       "{\n"
+                       "    [](const Foo &foo) -> Foo {\n"
+                       "        return foo;\n"
+                       "    };\n"
+                       "}\n")
+            << SelectionList{{3, 4, 53}}
+            << SelectionList{{3, 4, 27}, {4, 8, 11}, {5, 4, 1}};
+    QTest::addRow("indentation-selected-in-first-line")
+            << QString("int main()\n"
+                       "{\n"
+                       "    [](const Foo &foo) -> Foo {\n"
+                       "        return foo;\n"
+                       "    };\n"
+                       "}\n")
+            << SelectionList{{3, 0, 57}}
+            << SelectionList{{3, 4, 27}, {4, 8, 11}, {5, 4, 1}};
+}
+
+void CppEditorPlugin::test_selectionFiltering()
+{
+    QFETCH(QString, source);
+    QFETCH(SelectionList, original);
+    QFETCH(SelectionList, filtered);
+
+    QTextDocument doc;
+    doc.setPlainText(source);
+
+    const auto convertList = [&doc](const SelectionList &in) {
+        QList<QTextEdit::ExtraSelection> out;
+        for (const Selection &selIn : in) {
+            QTextEdit::ExtraSelection selOut;
+            selOut.format.setFontItalic(true);
+            const QTextBlock startBlock = doc.findBlockByLineNumber(selIn.line - 1);
+            const int startPos = startBlock.position() + selIn.column;
+            selOut.cursor = QTextCursor(&doc);
+            selOut.cursor.setPosition(startPos);
+            selOut.cursor.setPosition(startPos + selIn.length, QTextCursor::KeepAnchor);
+            out << selOut;
+        }
+        return out;
+    };
+
+    const QList<QTextEdit::ExtraSelection> expected = convertList(filtered);
+    const QList<QTextEdit::ExtraSelection> actual
+            = CppEditorWidget::unselectLeadingWhitespace(convertList(original));
+
+    QCOMPARE(actual.length(), expected.length());
+    for (int i = 0; i < expected.length(); ++i) {
+        const QTextEdit::ExtraSelection &expectedSelection = expected.at(i);
+        const QTextEdit::ExtraSelection &actualSelection = actual.at(i);
+        QCOMPARE(actualSelection.format, expectedSelection.format);
+        QCOMPARE(actualSelection.cursor.document(), expectedSelection.cursor.document());
+        QCOMPARE(actualSelection.cursor.position(), expectedSelection.cursor.position());
+        QCOMPARE(actualSelection.cursor.anchor(), expectedSelection.cursor.anchor());
+    }
+}
+
 } // namespace Internal
 } // namespace CppEditor
