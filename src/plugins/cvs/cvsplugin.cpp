@@ -250,7 +250,7 @@ public:
     bool vcsDelete(const QString &filename) final;
     bool vcsMove(const QString &, const QString &) final { return false; }
     bool vcsCreateRepository(const QString &directory) final;
-    bool vcsAnnotate(const QString &file, int line) final;
+    void vcsAnnotate(const QString &file, int line) final;
 
     QString vcsOpenText() const final;
 
@@ -468,11 +468,10 @@ bool CvsPluginPrivate::vcsCreateRepository(const QString &)
     return false;
 }
 
-bool CvsPluginPrivate::vcsAnnotate(const QString &file, int line)
+void CvsPluginPrivate::vcsAnnotate(const QString &file, int line)
 {
     const QFileInfo fi(file);
     vcsAnnotate(fi.absolutePath(), fi.fileName(), QString(), line);
-    return true;
 }
 
 QString CvsPluginPrivate::vcsOpenText() const

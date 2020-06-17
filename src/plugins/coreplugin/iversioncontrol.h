@@ -199,7 +199,7 @@ public:
     /*!
      * Display annotation for a file and scroll to line
      */
-    virtual bool vcsAnnotate(const QString &file, int line) = 0;
+    virtual void vcsAnnotate(const QString &file, int line) = 0;
 
     /*!
      * Display text for Open operation
@@ -296,7 +296,7 @@ public:
     bool vcsDelete(const QString &) override { return false; }
     bool vcsMove(const QString &, const QString &) override { return false; }
     bool vcsCreateRepository(const QString &) override { return false; }
-    bool vcsAnnotate(const QString &, int) override { return false; }
+    void vcsAnnotate(const QString &, int) override {}
 
 private:
     Id m_id;

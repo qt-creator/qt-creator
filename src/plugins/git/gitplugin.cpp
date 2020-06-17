@@ -249,7 +249,7 @@ public:
     bool vcsMove(const QString &from, const QString &to) final;
     bool vcsCreateRepository(const QString &directory) final;
 
-    bool vcsAnnotate(const QString &file, int line) final;
+    void vcsAnnotate(const QString &file, int line) final;
     QString vcsTopic(const QString &directory) final;
 
     Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
@@ -1937,11 +1937,10 @@ QStringList GitPluginPrivate::unmanagedFiles(const QString &workingDir,
     return m_gitClient.unmanagedFiles(workingDir, filePaths);
 }
 
-bool GitPluginPrivate::vcsAnnotate(const QString &file, int line)
+void GitPluginPrivate::vcsAnnotate(const QString &file, int line)
 {
     const QFileInfo fi(file);
     m_gitClient.annotate(fi.absolutePath(), fi.fileName(), QString(), line);
-    return true;
 }
 
 void GitPlugin::emitFilesChanged(const QStringList &l)

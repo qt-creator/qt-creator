@@ -199,7 +199,7 @@ public:
     bool vcsMove(const QString &from, const QString &to) final;
     bool vcsCreateRepository(const QString &directory) final;
 
-    bool vcsAnnotate(const QString &file, int line) final;
+    void vcsAnnotate(const QString &file, int line) final;
 
     QString vcsOpenText() const final;
     QString vcsMakeWritableText() const final;
@@ -2484,11 +2484,10 @@ bool ClearCasePluginPrivate::vcsMove(const QString &from, const QString &to)
     return vcsMove(ifrom.absolutePath(), ifrom.fileName(), ito.fileName());
 }
 
-bool ClearCasePluginPrivate::vcsAnnotate(const QString &file, int line)
+void ClearCasePluginPrivate::vcsAnnotate(const QString &file, int line)
 {
     const QFileInfo fi(file);
     vcsAnnotateHelper(fi.absolutePath(), fi.fileName(), QString(), line);
-    return true;
 }
 
 QString ClearCasePluginPrivate::vcsOpenText() const

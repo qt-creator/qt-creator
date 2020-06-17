@@ -144,7 +144,7 @@ public:
     bool vcsDelete(const QString &filename) final;
     bool vcsMove(const QString &from, const QString &to) final;
     bool vcsCreateRepository(const QString &directory) final;
-    bool vcsAnnotate(const QString &file, int line) final;
+    void vcsAnnotate(const QString &file, int line) final;
 
     Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
                                                      const Utils::FilePath &baseDirectory,
@@ -826,11 +826,10 @@ bool MercurialPluginPrivate::vcsCreateRepository(const QString &directory)
     return m_client.synchronousCreateRepository(directory);
 }
 
-bool MercurialPluginPrivate::vcsAnnotate(const QString &file, int line)
+void MercurialPluginPrivate::vcsAnnotate(const QString &file, int line)
 {
     const QFileInfo fi(file);
     m_client.annotate(fi.absolutePath(), fi.fileName(), QString(), line);
-    return true;
 }
 
 Core::ShellCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const QString &url,

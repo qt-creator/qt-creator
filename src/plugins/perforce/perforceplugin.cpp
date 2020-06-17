@@ -223,7 +223,7 @@ public:
     bool vcsDelete(const QString &filename) final;
     bool vcsMove(const QString &from, const QString &to) final;
     bool vcsCreateRepository(const QString &directory) final;
-    bool vcsAnnotate(const QString &file, int line) final;
+    void vcsAnnotate(const QString &file, int line) final;
     QString vcsOpenText() const final;
     QString vcsMakeWritableText() const final;
 
@@ -238,9 +238,6 @@ public:
     IEditor *openPerforceSubmitEditor(const QString &fileName, const QStringList &depotFileNames);
 
     void describe(const QString &source, const QString &n);
-    void vcsAnnotate(const QString &workingDirectory, const QString &file,
-                     const QString &revision, int lineNumber);
-
     void getTopLevel(const QString &workingDirectory = QString(), bool isSync = false);
 
     void updateActions(ActionState) override;
@@ -846,12 +843,6 @@ void PerforcePluginPrivate::annotateFile()
     }
 }
 
-void PerforcePluginPrivate::vcsAnnotate(const QString &workingDirectory, const QString &file,
-                                 const QString &revision, int lineNumber)
-{
-    annotate(workingDirectory, file, revision, lineNumber);
-}
-
 void PerforcePluginPrivate::annotate(const QString &workingDir,
                               const QString &fileName,
                               const QString &changeList /* = QString() */,
@@ -1204,11 +1195,10 @@ bool PerforcePluginPrivate::vcsCreateRepository(const QString &)
     return false;
 }
 
-bool PerforcePluginPrivate::vcsAnnotate(const QString &file, int line)
+void PerforcePluginPrivate::vcsAnnotate(const QString &file, int line)
 {
     const QFileInfo fi(file);
-    vcsAnnotate(fi.absolutePath(), fi.fileName(), QString(), line);
-    return true;
+    annotate(fi.absolutePath(), fi.fileName(), QString(), line);
 }
 
 QString PerforcePluginPrivate::vcsOpenText() const

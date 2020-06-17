@@ -221,7 +221,7 @@ public:
     bool vcsMove(const QString &from, const QString &to) final;
     bool vcsCreateRepository(const QString &directory) final;
 
-    bool vcsAnnotate(const QString &file, int line) final;
+    void vcsAnnotate(const QString &file, int line) final;
 
     Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
                                                      const Utils::FilePath &baseDirectory,
@@ -1276,11 +1276,10 @@ bool SubversionPluginPrivate::vcsCreateRepository(const QString &)
     return false;
 }
 
-bool SubversionPluginPrivate::vcsAnnotate(const QString &file, int line)
+void SubversionPluginPrivate::vcsAnnotate(const QString &file, int line)
 {
     const QFileInfo fi(file);
     vcsAnnotateHelper(fi.absolutePath(), fi.fileName(), QString(), line);
-    return true;
 }
 
 Core::ShellCommand *SubversionPluginPrivate::createInitialCheckoutCommand(const QString &url,
