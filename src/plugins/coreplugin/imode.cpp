@@ -131,7 +131,6 @@ IMode::IMode(QObject *parent) : IContext(parent)
 IMode::~IMode()
 {
     ModeManager::instance()->removeMode(this);
-    delete m_menu;
 }
 
 void IMode::setEnabled(bool enabled)
