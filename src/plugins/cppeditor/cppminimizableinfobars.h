@@ -33,7 +33,7 @@
 
 #include <functional>
 
-namespace Core {
+namespace Utils {
 class InfoBar;
 }
 
@@ -52,7 +52,7 @@ public:
     static Actions createShowInfoBarActions(const ActionCreator &actionCreator);
 
 public:
-    explicit MinimizableInfoBars(Core::InfoBar &infoBar, QObject *parent = nullptr);
+    explicit MinimizableInfoBars(Utils::InfoBar &infoBar, QObject *parent = nullptr);
 
     // Expected call order: processHasProjectPart(), processHeaderDiagnostics()
     void processHasProjectPart(bool hasProjectPart);
@@ -70,7 +70,7 @@ private:
                              const DiagnosticWidgetCreator &diagnosticWidgetCreator);
 
 private:
-    Core::InfoBar &m_infoBar;
+    Utils::InfoBar &m_infoBar;
 
     bool m_hasProjectPart = true;
     DiagnosticWidgetCreator m_diagnosticWidgetCreator;

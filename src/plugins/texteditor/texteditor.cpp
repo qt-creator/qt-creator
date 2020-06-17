@@ -58,17 +58,16 @@
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/documentcontentcompletion.h>
 
-#include <coreplugin/dialogs/codecselector.h>
-#include <coreplugin/icore.h>
 #include <aggregation/aggregate.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/infobar.h>
-#include <coreplugin/manhattanstyle.h>
+#include <coreplugin/dialogs/codecselector.h>
 #include <coreplugin/find/basetextfind.h>
 #include <coreplugin/find/highlightscrollbarcontroller.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/manhattanstyle.h>
 #include <utils/algorithm.h>
 #include <utils/camelcasecursor.h>
 #include <utils/dropsupport.h>
@@ -78,6 +77,7 @@
 #include <utils/fileutils.h>
 #include <utils/fixedsizeclicklabel.h>
 #include <utils/hostosinfo.h>
+#include <utils/infobar.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>

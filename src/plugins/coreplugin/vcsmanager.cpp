@@ -28,17 +28,17 @@
 #include "icore.h"
 #include "documentmanager.h"
 #include "idocument.h"
-#include "infobar.h"
 
 #include <coreplugin/dialogs/addtovcsdialog.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <vcsbase/vcsbaseconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
+#include <utils/infobar.h>
 #include <utils/optional.h>
 #include <utils/qtcassert.h>
+#include <vcsbase/vcsbaseconstants.h>
 
 #include <QDir>
 #include <QString>
@@ -296,12 +296,12 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
             }
             return versionControl;
         } else {
-            InfoBar *infoBar = curDocument ? curDocument->infoBar() : nullptr;
+            Utils::InfoBar *infoBar = curDocument ? curDocument->infoBar() : nullptr;
             if (infoBar && infoBar->canInfoBeAdded(vcsWarning)) {
-                InfoBarEntry info(vcsWarning,
-                                  tr("%1 repository was detected but %1 is not configured.")
-                                  .arg(versionControl->displayName()),
-                                  InfoBarEntry::GlobalSuppression::Enabled);
+                Utils::InfoBarEntry info(vcsWarning,
+                                         tr("%1 repository was detected but %1 is not configured.")
+                                             .arg(versionControl->displayName()),
+                                         Utils::InfoBarEntry::GlobalSuppression::Enabled);
                 d->m_unconfiguredVcs = versionControl;
                 info.setCustomButtonInfo(ICore::msgShowOptionsDialog(), []() {
                     QTC_ASSERT(d->m_unconfiguredVcs, return);

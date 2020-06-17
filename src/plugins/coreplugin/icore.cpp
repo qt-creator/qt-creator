@@ -654,7 +654,7 @@ QStatusBar *ICore::statusBar()
     Use for notifying the user of something without interrupting with
     dialog. Use sparingly.
 */
-InfoBar *ICore::infoBar()
+Utils::InfoBar *ICore::infoBar()
 {
     return m_mainwindow->infoBar();
 }

@@ -30,7 +30,6 @@
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/infobar.h>
 #include <coreplugin/patchtool.h>
 
 #include <texteditor/fontsettings.h>
@@ -40,6 +39,7 @@
 
 #include <cpaster/codepasterservice.h>
 
+#include <utils/infobar.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
 #include <utils/temporaryfile.h>
@@ -307,15 +307,15 @@ void DiffEditorWidgetController::updateCannotDecodeInfo()
     if (!m_document)
         return;
 
-    InfoBar *infoBar = m_document->infoBar();
+    Utils::InfoBar *infoBar = m_document->infoBar();
     Id selectEncodingId(Constants::SELECT_ENCODING);
     if (m_document->hasDecodingError()) {
         if (!infoBar->canInfoBeAdded(selectEncodingId))
             return;
-        InfoBarEntry info(selectEncodingId,
-                          tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding.")
-                              .arg(m_document->displayName(),
-                                   QString::fromLatin1(m_document->codec()->name())));
+        Utils::InfoBarEntry info(selectEncodingId,
+                                 tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding.")
+                                     .arg(m_document->displayName(),
+                                          QString::fromLatin1(m_document->codec()->name())));
         info.setCustomButtonInfo(tr("Select Encoding"), [this]() { m_document->selectEncoding(); });
         infoBar->addInfo(info);
     } else {

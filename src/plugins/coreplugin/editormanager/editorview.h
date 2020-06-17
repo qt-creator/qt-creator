@@ -50,10 +50,13 @@ class QStackedWidget;
 class QToolButton;
 QT_END_NAMESPACE
 
+namespace Utils {
+class InfoBarDisplay;
+}
+
 namespace Core {
 class IDocument;
 class IEditor;
-class InfoBarDisplay;
 class EditorToolBar;
 
 namespace Internal {
@@ -130,7 +133,7 @@ private:
     EditorToolBar *m_toolBar;
 
     QStackedWidget *m_container;
-    InfoBarDisplay *m_infoBarDisplay;
+    Utils::InfoBarDisplay *m_infoBarDisplay;
     QString m_statusWidgetId;
     QFrame *m_statusHLine;
     QFrame *m_statusWidget;

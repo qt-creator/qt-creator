@@ -71,7 +71,6 @@ SOURCES += corejsextensions.cpp \
     sidebar.cpp \
     fileiconprovider.cpp \
     icore.cpp \
-    infobar.cpp \
     editormanager/ieditor.cpp \
     dialogs/ioptionspage.cpp \
     settingsdatabase.cpp \
@@ -168,7 +167,6 @@ HEADERS += corejsextensions.h \
     reaper_p.h \
     icontext.h \
     icore.h \
-    infobar.h \
     imode.h \
     ioutputpane.h \
     coreconstants.h \

@@ -31,13 +31,13 @@
 #include "documentmodel_p.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editortoolbar.h>
+#include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/infobar.h>
 #include <coreplugin/locator/locatorconstants.h>
 #include <coreplugin/minisplitter.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/findplaceholder.h>
+#include <utils/infobar.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>

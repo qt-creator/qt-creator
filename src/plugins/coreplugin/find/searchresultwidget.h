@@ -27,7 +27,7 @@
 
 #include "searchresultwindow.h"
 
-#include <coreplugin/infobar.h>
+#include <utils/infobar.h>
 
 #include <QWidget>
 
@@ -127,8 +127,8 @@ private:
     int m_count = 0;
     QString m_dontAskAgainGroup;
     QFrame *m_messageWidget = nullptr;
-    InfoBar m_infoBar;
-    InfoBarDisplay m_infoBarDisplay;
+    Utils::InfoBar m_infoBar;
+    Utils::InfoBarDisplay m_infoBarDisplay;
     QWidget *m_topReplaceWidget = nullptr;
     QLabel *m_replaceLabel = nullptr;
     QLineEdit *m_replaceTextEdit = nullptr;

@@ -36,15 +36,15 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/infobar.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/outputpane.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <utils/qtcassert.h>
 #include <utils/icon.h>
+#include <utils/infobar.h>
+#include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
 #include <QVBoxLayout>
@@ -160,8 +160,8 @@ IEditor *ScxmlEditorData::createEditor()
     m_mainToolBar->addEditor(xmlEditor);
 
     if (xmlEditor) {
-        InfoBarEntry info(Id(Constants::INFO_READ_ONLY),
-            tr("This file can only be edited in <b>Design</b> mode."));
+        Utils::InfoBarEntry info(Id(Constants::INFO_READ_ONLY),
+                                 tr("This file can only be edited in <b>Design</b> mode."));
         info.setCustomButtonInfo(tr("Switch Mode"), []() { ModeManager::activateMode(Core::Constants::MODE_DESIGN); });
         xmlEditor->document()->infoBar()->addInfo(info);
     }

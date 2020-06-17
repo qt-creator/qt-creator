@@ -34,19 +34,19 @@
 #include "designercontext.h"
 #include <widgethost.h>
 
-#include <coreplugin/editortoolbar.h>
-#include <coreplugin/designmode.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/infobar.h>
-#include <coreplugin/helpmanager.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/designmode.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/modemanager.h>
+#include <coreplugin/editortoolbar.h>
+#include <coreplugin/helpmanager.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
+#include <coreplugin/modemanager.h>
 #include <coreplugin/outputpane.h>
+#include <utils/infobar.h>
 #include <utils/qtcassert.h>
 
 #include <QDesignerFormEditorPluginInterface>
@@ -774,8 +774,8 @@ IEditor *FormEditorData::createEditor()
     m_toolBar->addEditor(formWindowEditor);
 
     if (formWindowEditor) {
-        InfoBarEntry info(Id(Constants::INFO_READ_ONLY),
-                                tr("This file can only be edited in <b>Design</b> mode."));
+        Utils::InfoBarEntry info(Id(Constants::INFO_READ_ONLY),
+                                 tr("This file can only be edited in <b>Design</b> mode."));
         info.setCustomButtonInfo(tr("Switch Mode"), []() { ModeManager::activateMode(Core::Constants::MODE_DESIGN); });
         formWindowEditor->document()->infoBar()->addInfo(info);
     }

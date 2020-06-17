@@ -26,9 +26,9 @@
 #include "introductionwidget.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/infobar.h>
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/infobar.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
@@ -54,12 +54,12 @@ void IntroductionWidget::askUserAboutIntroduction(QWidget *parent, QSettings *se
         || !Core::ICore::infoBar()->canInfoBeAdded(kTakeTourSetting))
         return;
 
-    Core::InfoBarEntry
+    Utils::InfoBarEntry
         info(kTakeTourSetting,
              tr("Would you like to take a quick UI tour? This tour highlights important user "
                 "interface elements and shows how they are used. To take the tour later, "
                 "select Help > UI Tour."),
-             Core::InfoBarEntry::GlobalSuppression::Enabled);
+             Utils::InfoBarEntry::GlobalSuppression::Enabled);
     info.setCustomButtonInfo(tr("Take UI Tour"), [parent] {
         Core::ICore::infoBar()->removeInfo(kTakeTourSetting);
         Core::ICore::infoBar()->globallySuppressInfo(kTakeTourSetting);

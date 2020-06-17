@@ -52,7 +52,6 @@
 #include <coreplugin/find/searchresultitem.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
-#include <coreplugin/infobar.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/outputpane.h>
@@ -68,6 +67,7 @@
 #include <utils/executeondestruction.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/infobar.h>
 #include <utils/macroexpander.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/mimetypes/mimetype.h>

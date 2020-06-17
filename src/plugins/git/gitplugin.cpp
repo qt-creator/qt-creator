@@ -50,7 +50,6 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/id.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/locator/commandlocator.h>
@@ -60,12 +59,14 @@
 #include <coreplugin/vcsmanager.h>
 
 #include <aggregation/aggregate.h>
+
+#include <texteditor/texteditor.h>
+#include <utils/infobar.h>
 #include <utils/parameteraction.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
-#include <texteditor/texteditor.h>
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/submitfilemodel.h>

@@ -145,6 +145,8 @@ Project {
             "icon.h",
             "id.cpp",
             "id.h",
+            "infobar.cpp",
+            "infobar.h",
             "infolabel.cpp",
             "infolabel.h",
             "itemviews.cpp",

@@ -30,10 +30,10 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/infobar.h>
 #include <coreplugin/settingsdatabase.h>
 #include <coreplugin/shellcommand.h>
 #include <utils/fileutils.h>
+#include <utils/infobar.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDate>
@@ -192,8 +192,7 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
         if (d->m_progress)
             d->m_progress->setKeepOnFinish(FutureProgress::HideOnFinish);
         emit newUpdatesAvailable(true);
-        Core::InfoBarEntry info(InstallUpdates,
-                                tr("New updates are available. Start the update?"));
+        Utils::InfoBarEntry info(InstallUpdates, tr("New updates are available. Start the update?"));
         info.setCustomButtonInfo(tr("Start Update"), [this] {
             Core::ICore::infoBar()->removeInfo(InstallUpdates);
             startUpdater();

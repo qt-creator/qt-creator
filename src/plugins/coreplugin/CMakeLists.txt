@@ -91,7 +91,6 @@ add_qtc_plugin(Core
     ifilewizardextension.h
     imode.cpp imode.h
     inavigationwidgetfactory.cpp inavigationwidgetfactory.h
-    infobar.cpp infobar.h
     ioutputpane.cpp ioutputpane.h
     iversioncontrol.cpp iversioncontrol.h
     iwelcomepage.cpp iwelcomepage.h

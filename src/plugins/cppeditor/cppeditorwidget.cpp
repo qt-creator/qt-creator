@@ -45,7 +45,6 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/searchresultwindow.h>
-#include <coreplugin/infobar.h>
 
 #include <cpptools/cppcanonicalsymbol.h>
 #include <cpptools/cppchecksymbols.h>
@@ -83,6 +82,7 @@
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/FastPreprocessor.h>
 #include <cplusplus/MatchingText.h>
+#include <utils/infobar.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
 #include <utils/textutils.h>

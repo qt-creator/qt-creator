@@ -102,8 +102,6 @@ Project {
                 "imode.h",
                 "inavigationwidgetfactory.cpp",
                 "inavigationwidgetfactory.h",
-                "infobar.cpp",
-                "infobar.h",
                 "ioutputpane.cpp",
                 "ioutputpane.h",
                 "iversioncontrol.cpp",

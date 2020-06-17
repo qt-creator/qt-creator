@@ -44,7 +44,6 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/infobar.h>
 #include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -58,6 +57,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/infobar.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>

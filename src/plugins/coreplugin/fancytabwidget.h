@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "infobar.h"
+#include <utils/infobar.h>
 
 #include <QIcon>
 #include <QWidget>
@@ -159,7 +159,7 @@ public:
 
     int currentIndex() const;
     QStatusBar *statusBar() const;
-    InfoBar *infoBar();
+    Utils::InfoBar *infoBar();
 
     void setTabEnabled(int index, bool enable);
     bool isTabEnabled(int index) const;
@@ -186,8 +186,8 @@ private:
     QStackedLayout *m_modesStack;
     QWidget *m_selectionWidget;
     QStatusBar *m_statusBar;
-    InfoBarDisplay m_infoBarDisplay;
-    InfoBar m_infoBar;
+    Utils::InfoBarDisplay m_infoBarDisplay;
+    Utils::InfoBar m_infoBar;
 };
 
 } // namespace Internal

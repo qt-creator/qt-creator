@@ -36,12 +36,13 @@
 #include "qmloutlinemodel.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/infobar.h>
 #include <coreplugin/modemanager.h>
 
 #include <qmljstools/qmljsindenter.h>
 #include <qmljstools/qmljsmodelmanager.h>
 #include <qmljstools/qmljsqtstylecodeformatter.h>
+
+#include <utils/infobar.h>
 
 #include <QDebug>
 
@@ -692,8 +693,8 @@ void QmlJSEditorDocument::setIsDesignModePreferred(bool value)
     d->m_isDesignModePreferred = value;
     if (value) {
         if (infoBar()->canInfoBeAdded(QML_UI_FILE_WARNING)) {
-            Core::InfoBarEntry info(QML_UI_FILE_WARNING,
-                                    tr("This file should only be edited in <b>Design</b> mode."));
+            Utils::InfoBarEntry info(QML_UI_FILE_WARNING,
+                                     tr("This file should only be edited in <b>Design</b> mode."));
             info.setCustomButtonInfo(tr("Switch Mode"), []() {
                 Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
             });

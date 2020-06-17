@@ -34,7 +34,7 @@
 #include "textindenter.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/infobar.h>
+#include <utils/infobar.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>

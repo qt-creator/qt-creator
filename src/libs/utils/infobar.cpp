@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,10 +25,10 @@
 
 #include "infobar.h"
 
-#include <utils/algorithm.h>
-#include <utils/qtcassert.h>
-#include <utils/theme/theme.h>
-#include <utils/utilsicons.h>
+#include "algorithm.h"
+#include "qtcassert.h"
+#include "theme/theme.h"
+#include "utilsicons.h"
 
 #include <QHBoxLayout>
 #include <QSettings>
@@ -39,9 +39,7 @@
 
 static const char C_SUPPRESSED_WARNINGS[] = "SuppressedWarnings";
 
-using namespace Utils;
-
-namespace Core {
+namespace Utils {
 
 QSet<Id> InfoBar::globallySuppressed;
 QSettings *InfoBar::m_settings = nullptr;
@@ -358,4 +356,4 @@ void InfoBarDisplay::widgetDestroyed()
     m_infoWidgets.removeOne(static_cast<QWidget *>(sender()));
 }
 
-} // namespace Core
+} // namespace Utils

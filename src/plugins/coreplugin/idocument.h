@@ -30,10 +30,12 @@
 
 #include <QObject>
 
-namespace Utils { class FilePath; }
+namespace Utils {
+class FilePath;
+class InfoBar;
+} // namespace Utils
 
 namespace Core {
-class InfoBar;
 
 namespace Internal {
 class IDocumentPrivate;
@@ -130,7 +132,7 @@ public:
     bool hasWriteWarning() const;
     void setWriteWarning(bool has);
 
-    InfoBar *infoBar();
+    Utils::InfoBar *infoBar();
 
 signals:
     // For meta data changes: file name, modified state, ...

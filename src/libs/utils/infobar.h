@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "core_global.h"
-#include <coreplugin/id.h>
+#include "id.h"
+#include "utils_global.h"
 
 #include <QFrame>
 #include <QObject>
@@ -39,14 +39,13 @@ class QBoxLayout;
 class QSettings;
 QT_END_NAMESPACE
 
-namespace Utils { class Theme; }
-
-namespace Core {
+namespace Utils {
 
 class InfoBar;
 class InfoBarDisplay;
+class Theme;
 
-class CORE_EXPORT InfoBarEntry
+class QTCREATOR_UTILS_EXPORT InfoBarEntry
 {
 public:
     enum class GlobalSuppression
@@ -84,7 +83,7 @@ private:
     friend class InfoBarDisplay;
 };
 
-class CORE_EXPORT InfoBar : public QObject
+class QTCREATOR_UTILS_EXPORT InfoBar : public QObject
 {
     Q_OBJECT
 
@@ -101,7 +100,7 @@ public:
     static void clearGloballySuppressed();
     static bool anyGloballySuppressed();
 
-    static void initialize(QSettings *settings, Utils::Theme *theme);
+    static void initialize(QSettings *settings, Theme *theme);
 
 signals:
     void changed();
@@ -115,12 +114,12 @@ private:
 
     static QSet<Id> globallySuppressed;
     static QSettings *m_settings;
-    static Utils::Theme *m_theme;
+    static Theme *m_theme;
 
     friend class InfoBarDisplay;
 };
 
-class CORE_EXPORT InfoBarDisplay : public QObject
+class QTCREATOR_UTILS_EXPORT InfoBarDisplay : public QObject
 {
     Q_OBJECT
 
@@ -145,4 +144,4 @@ private:
     bool m_isShowingDetailsWidget = false;
 };
 
-} // namespace Core
+} // namespace Utils

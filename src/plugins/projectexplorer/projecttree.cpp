@@ -39,12 +39,12 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/infobar.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/infobar.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -314,7 +314,7 @@ void ProjectTree::updateExternalFileWarning()
     auto document = qobject_cast<Core::IDocument *>(sender());
     if (!document || document->filePath().isEmpty())
         return;
-    Core::InfoBar *infoBar = document->infoBar();
+    Utils::InfoBar *infoBar = document->infoBar();
     Core::Id externalFileId(EXTERNAL_FILE_WARNING);
     if (!document->isModified()) {
         infoBar->removeInfo(externalFileId);
@@ -339,9 +339,10 @@ void ProjectTree::updateExternalFileWarning()
             return;
         }
     }
-    infoBar->addInfo(Core::InfoBarEntry(externalFileId,
-                                        tr("<b>Warning:</b> This file is outside the project directory."),
-                                        Core::InfoBarEntry::GlobalSuppression::Enabled));
+    infoBar->addInfo(
+        Utils::InfoBarEntry(externalFileId,
+                            tr("<b>Warning:</b> This file is outside the project directory."),
+                            Utils::InfoBarEntry::GlobalSuppression::Enabled));
 }
 
 bool ProjectTree::hasFocus(ProjectTreeWidget *widget)

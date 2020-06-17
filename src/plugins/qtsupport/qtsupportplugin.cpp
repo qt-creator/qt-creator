@@ -40,7 +40,6 @@
 #include "uicgenerator.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/infobar.h>
 #include <coreplugin/jsexpander.h>
 
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
@@ -50,6 +49,7 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
+#include <utils/infobar.h>
 #include <utils/macroexpander.h>
 
 const char kHostBins[] = "CurrentProject:QT_HOST_BINS";
@@ -126,12 +126,12 @@ static void askAboutQtInstallation()
         || !ICore::infoBar()->canInfoBeAdded(kLinkWithQtInstallationSetting))
         return;
 
-    InfoBarEntry info(
+    Utils::InfoBarEntry info(
         kLinkWithQtInstallationSetting,
         QtSupportPlugin::tr(
             "Link with a Qt installation to automatically register Qt versions and kits? To do "
             "this later, select Options > Kits > Qt Versions > Link with Qt."),
-        InfoBarEntry::GlobalSuppression::Enabled);
+        Utils::InfoBarEntry::GlobalSuppression::Enabled);
     info.setCustomButtonInfo(QtSupportPlugin::tr("Link with Qt"), [] {
         ICore::infoBar()->removeInfo(kLinkWithQtInstallationSetting);
         ICore::infoBar()->globallySuppressInfo(kLinkWithQtInstallationSetting);

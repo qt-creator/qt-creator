@@ -135,7 +135,8 @@ SOURCES += \
     $$PWD/infolabel.cpp \
     $$PWD/overlaywidget.cpp \
     $$PWD/archive.cpp \
-    $$PWD/id.cpp
+    $$PWD/id.cpp \
+    $$PWD/infobar.cpp
 
 HEADERS += \
     $$PWD/environmentfwd.h \
@@ -287,7 +288,8 @@ HEADERS += \
     $$PWD/infolabel.h \
     $$PWD/overlaywidget.h \
     $$PWD/archive.h \
-    $$PWD/id.h
+    $$PWD/id.h \
+    $$PWD/infobar.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

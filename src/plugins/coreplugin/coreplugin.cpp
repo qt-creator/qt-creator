@@ -29,7 +29,6 @@
 #include "helpmanager.h"
 #include "icore.h"
 #include "idocument.h"
-#include "infobar.h"
 #include "iwizardfactory.h"
 #include "mainwindow.h"
 #include "modemanager.h"
@@ -50,9 +49,10 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 #include <utils/algorithm.h>
-#include <utils/pathchooser.h>
+#include <utils/infobar.h>
 #include <utils/macroexpander.h>
 #include <utils/mimetypes/mimedatabase.h>
+#include <utils/pathchooser.h>
 #include <utils/savefile.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>

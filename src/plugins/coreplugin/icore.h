@@ -42,10 +42,13 @@ class QStatusBar;
 class QWidget;
 QT_END_NAMESPACE
 
+namespace Utils {
+class InfoBar;
+}
+
 namespace Core {
 class Context;
 class IContext;
-class InfoBar;
 class IWizardFactory;
 class SettingsDatabase;
 
@@ -100,7 +103,7 @@ public:
 
     static QMainWindow *mainWindow();
     static QWidget *dialogParent();
-    static InfoBar *infoBar();
+    static Utils::InfoBar *infoBar();
 
     static void raiseWindow(QWidget *widget);
 

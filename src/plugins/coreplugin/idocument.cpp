@@ -25,9 +25,8 @@
 
 #include "idocument.h"
 
-#include "infobar.h"
-
 #include <utils/fileutils.h>
+#include <utils/infobar.h>
 #include <utils/qtcassert.h>
 
 #include <QFile>
@@ -76,7 +75,7 @@ public:
     QString preferredDisplayName;
     QString uniqueDisplayName;
     QString autoSaveName;
-    InfoBar *infoBar = nullptr;
+    Utils::InfoBar *infoBar = nullptr;
     Id id;
     bool temporary = false;
     bool hasWriteWarning = false;
@@ -286,9 +285,9 @@ void IDocument::setRestoredFrom(const QString &name)
 {
     d->autoSaveName = name;
     d->restored = true;
-    InfoBarEntry info(Id(kRestoredAutoSave),
-          tr("File was restored from auto-saved copy. "
-             "Select Save to confirm or Revert to Saved to discard changes."));
+    Utils::InfoBarEntry info(Id(kRestoredAutoSave),
+                             tr("File was restored from auto-saved copy. "
+                                "Select Save to confirm or Revert to Saved to discard changes."));
     infoBar()->addInfo(info);
 }
 
@@ -314,10 +313,10 @@ void IDocument::setWriteWarning(bool has)
     d->hasWriteWarning = has;
 }
 
-InfoBar *IDocument::infoBar()
+Utils::InfoBar *IDocument::infoBar()
 {
     if (!d->infoBar)
-        d->infoBar = new InfoBar;
+        d->infoBar = new Utils::InfoBar;
     return d->infoBar;
 }
 

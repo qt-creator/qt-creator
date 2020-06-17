@@ -47,8 +47,8 @@
 #endif
 
 #include <coreplugin/icore.h>
-#include <coreplugin/infobar.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/infobar.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -194,12 +194,12 @@ void AndroidPlugin::askUserAboutAndroidSetup()
         || !Core::ICore::infoBar()->canInfoBeAdded(kSetupAndroidSetting))
         return;
 
-    Core::InfoBarEntry info(
-        kSetupAndroidSetting,
-        tr("Would you like to configure Android options? This will ensure "
-           "Android kits can be usable and all essential packages are installed. "
-           "To do it later, select Options > Devices > Android."),
-        Core::InfoBarEntry::GlobalSuppression::Enabled);
+    Utils::InfoBarEntry
+        info(kSetupAndroidSetting,
+             tr("Would you like to configure Android options? This will ensure "
+                "Android kits can be usable and all essential packages are installed. "
+                "To do it later, select Options > Devices > Android."),
+             Utils::InfoBarEntry::GlobalSuppression::Enabled);
     info.setCustomButtonInfo(tr("Configure Android"), [this] {
         Core::ICore::infoBar()->removeInfo(kSetupAndroidSetting);
         Core::ICore::infoBar()->globallySuppressInfo(kSetupAndroidSetting);

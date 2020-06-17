@@ -26,7 +26,6 @@
 #include "generalsettings.h"
 #include "coreconstants.h"
 #include "icore.h"
-#include "infobar.h"
 
 #include "ui_generalsettings.h"
 
@@ -34,6 +33,7 @@
 
 #include <utils/checkablemessagebox.h>
 #include <utils/hostosinfo.h>
+#include <utils/infobar.h>
 #include <utils/stylehelper.h>
 
 #include <QCoreApplication>

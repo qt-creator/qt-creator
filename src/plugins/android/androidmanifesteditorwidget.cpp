@@ -34,7 +34,6 @@
 #include "splashiconcontainerwidget.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <qtsupport/qtkitinformation.h>
@@ -53,6 +52,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/infobar.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
@@ -721,13 +721,13 @@ void AndroidManifestEditorWidget::updateSdkVersions()
 
 void AndroidManifestEditorWidget::updateInfoBar(const QString &errorMessage, int line, int column)
 {
-    Core::InfoBar *infoBar = m_textEditorWidget->textDocument()->infoBar();
+    Utils::InfoBar *infoBar = m_textEditorWidget->textDocument()->infoBar();
     QString text;
     if (line < 0)
         text = tr("Could not parse file: \"%1\".").arg(errorMessage);
     else
         text = tr("%2: Could not parse file: \"%1\".").arg(errorMessage).arg(line);
-    Core::InfoBarEntry infoBarEntry(infoBarId, text);
+    Utils::InfoBarEntry infoBarEntry(infoBarId, text);
     infoBarEntry.setCustomButtonInfo(tr("Goto error"), [this]() {
         m_textEditorWidget->gotoLine(m_errorLine, m_errorColumn);
     });
@@ -741,7 +741,7 @@ void AndroidManifestEditorWidget::updateInfoBar(const QString &errorMessage, int
 
 void AndroidManifestEditorWidget::hideInfoBar()
 {
-    Core::InfoBar *infoBar = m_textEditorWidget->textDocument()->infoBar();
+    Utils::InfoBar *infoBar = m_textEditorWidget->textDocument()->infoBar();
         infoBar->removeInfo(infoBarId);
         m_timerParseCheck.stop();
 }
@@ -753,7 +753,7 @@ void AndroidManifestEditorWidget::setInvalidServiceInfo()
     Core::Id id(kServicesInvalid);
     if (m_textEditorWidget->textDocument()->infoBar()->containsInfo(id))
         return;
-    Core::InfoBarEntry info(id,
+    Utils::InfoBarEntry info(id,
           tr("Services invalid. "
              "Manifest cannot be saved. Correct the service definitions before saving."));
     m_textEditorWidget->textDocument()->infoBar()->addInfo(info);

@@ -41,12 +41,15 @@ class QPrinter;
 class QToolButton;
 QT_END_NAMESPACE
 
+namespace Utils {
+class InfoBar;
+}
+
 namespace Core {
 
 class EditorManager;
 class ExternalToolManager;
 class IDocument;
-class InfoBar;
 class JsExpander;
 class MessageManager;
 class ModeManager;
@@ -94,7 +97,7 @@ public:
     virtual QPrinter *printer() const;
     IContext * currentContextObject() const;
     QStatusBar *statusBar() const;
-    InfoBar *infoBar() const;
+    Utils::InfoBar *infoBar() const;
 
     void updateAdditionalContexts(const Context &remove, const Context &add,
                                   ICore::ContextPriority priority);
