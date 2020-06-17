@@ -843,6 +843,26 @@ Project {
                 "timelineeditor/timelineview.h",
                 "timelineeditor/timelinewidget.cpp",
                 "timelineeditor/timelinewidget.h",
+                "transitioneditor/transitioneditorview.cpp",
+                "transitioneditor/transitioneditorview.h",
+                "transitioneditor/transitioneditorwidget.cpp",
+                "transitioneditor/transitioneditorwidget.h",
+                "transitioneditor/transitioneditortoolbar.cpp",
+                "transitioneditor/transitioneditortoolbar.h",
+                "transitioneditor/transitioneditorgraphicsscene.cpp",
+                "transitioneditor/transitioneditorgraphicsscene.h",
+                "transitioneditor/transitioneditorgraphicslayout.cpp",
+                "transitioneditor/transitioneditorgraphicslayout.h",
+                "transitioneditor/transitioneditorsectionitem.cpp",
+                "transitioneditor/transitioneditorsectionitem.h",
+                "transitioneditor/transitioneditorpropertyitem.cpp",
+                "transitioneditor/transitioneditorpropertyitem.h",
+                "transitioneditor/transitioneditorsettingsdialog.cpp",
+                "transitioneditor/transitioneditorsettingsdialog.h",
+                "transitioneditor/transitioneditorsettingsdialog.ui"
+                "transitioneditor/transitionform.cpp",
+                "transitioneditor/transitionform.h",
+                "transitioneditor/transitioneditor.qrc"
             ]
         }
 

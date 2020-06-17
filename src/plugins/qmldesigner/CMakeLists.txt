@@ -669,6 +669,22 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/transitioneditor
+  SOURCES
+    transitioneditorview.cpp transitioneditorview.h
+    transitioneditorwidget.cpp transitioneditorwidget.h
+    transitioneditortoolbar.cpp transitioneditortoolbar.h
+    transitioneditorgraphicsscene.cpp transitioneditorgraphicsscene.h
+    transitioneditorgraphicslayout.cpp transitioneditorgraphicslayout.h
+    transitioneditorsectionitem.cpp transitioneditorsectionitem.h
+    transitioneditorpropertyitem.cpp transitioneditorpropertyitem.h
+    transitioneditorsettingsdialog.cpp transitioneditorsettingsdialog.h
+    transitioneditorsettingsdialog.ui
+    transitionform.cpp transitionform.h
+    transitioneditor.qrc
+)
+
+extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/curveeditor
   SOURCES
     animationcurve.cpp animationcurve.h

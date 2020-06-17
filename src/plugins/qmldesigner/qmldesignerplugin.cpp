@@ -41,6 +41,7 @@
 #include <formeditor/transitiontool.h>
 #include <texttool/texttool.h>
 #include <timelineeditor/timelineview.h>
+#include <transitioneditor/transitioneditorview.h>
 #include <pathtool/pathtool.h>
 
 #include <qmljseditor/qmljseditor.h>
@@ -242,6 +243,10 @@ bool QmlDesignerPlugin::delayedInitialize()
         d->viewManager.registerViewTakingOwnership(timelineView);
         timelineView->registerActions();
     }
+
+    auto transitionEditorView = new QmlDesigner::TransitionEditorView;
+    d->viewManager.registerViewTakingOwnership(transitionEditorView);
+    transitionEditorView->registerActions();
 
     d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::SourceTool);
     d->viewManager.registerFormEditorToolTakingOwnership(new QmlDesigner::ColorTool);
