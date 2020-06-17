@@ -122,11 +122,18 @@ static Utils::FilePath qmakeFromCMakeCache(const CMakeConfig &config)
         return qmake;
 
     // Check Qt5 settings: oh, the horror!
-    const Utils::FilePath qtCMakeDir
-            = Utils::FilePath::fromUtf8(CMakeConfigItem::valueOf(QByteArray("Qt5Core_DIR"), config));
-    qCDebug(cmInputLog()) << "Qt5Core_DIR=" << qtCMakeDir.toUserOutput();
+    const Utils::FilePath qtCMakeDir = [config]() {
+        Utils::FilePath tmp = Utils::FilePath::fromUtf8(
+            CMakeConfigItem::valueOf(QByteArray("Qt5Core_DIR"), config));
+        if (tmp.isEmpty()) {
+            tmp = Utils::FilePath::fromUtf8(
+                CMakeConfigItem::valueOf(QByteArray("Qt6Core_DIR"), config));
+        }
+        return tmp;
+    }();
+    qCDebug(cmInputLog()) << "QtXCore_DIR=" << qtCMakeDir.toUserOutput();
     const Utils::FilePath canQtCMakeDir = Utils::FilePath::fromString(qtCMakeDir.toFileInfo().canonicalFilePath());
-    qCInfo(cmInputLog()) << "Qt5Core_DIR (canonical)=" << canQtCMakeDir.toUserOutput();
+    qCInfo(cmInputLog()) << "QtXCore_DIR (canonical)=" << canQtCMakeDir.toUserOutput();
     if (qtCMakeDir.isEmpty())
         return Utils::FilePath();
     const Utils::FilePath baseQtDir = canQtCMakeDir.parentDir().parentDir().parentDir(); // Up 3 levels...
@@ -147,8 +154,11 @@ static Utils::FilePath qmakeFromCMakeCache(const CMakeConfig &config)
         //    endif()
 
         QFile extras(qtCMakeDir.toString() + "/Qt5CoreConfigExtras.cmake");
-        if (!extras.open(QIODevice::ReadOnly))
-            return Utils::FilePath();
+        if (!extras.open(QIODevice::ReadOnly)) {
+            extras.setFileName(qtCMakeDir.toString() + "/Qt6CoreConfigExtras.cmake");
+            if (!extras.open(QIODevice::ReadOnly))
+                return Utils::FilePath();
+        }
 
         QByteArray data;
         bool inQmakeSection = false;
@@ -172,7 +182,8 @@ static Utils::FilePath qmakeFromCMakeCache(const CMakeConfig &config)
                 line.replace(")", " ) ");
                 line = line.simplified();
 
-                if (line == "if ( NOT TARGET Qt5::qmake )")
+                if (line == "if ( NOT TARGET Qt5::qmake )"
+                        || line == "if ( NOT TARGET Qt6::qmake )")
                     inQmakeSection = true;
 
                 if (!inQmakeSection)
