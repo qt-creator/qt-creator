@@ -101,7 +101,7 @@
     the property to a boolean expression that evaluates to \c true when you want
     the state to be applied.
 
-    This enables you to evaluate the truthfullness of several components'
+    This enables you to evaluate the truthfulness of several components'
     properties and move the UI to the state in which these conditions apply.
     You can evaluate whether something is true or false, greater than or equal
     to something else, and so on. You can also use operators, such as AND or
