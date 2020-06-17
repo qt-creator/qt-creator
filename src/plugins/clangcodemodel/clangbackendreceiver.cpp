@@ -159,10 +159,8 @@ bool BackendReceiver::isExpectingCompletionsMessage() const
 void BackendReceiver::reset()
 {
     // Clean up waiting assist processors
-    for (ClangCompletionAssistProcessor *processor : m_assistProcessorsTable) {
+    for (ClangCompletionAssistProcessor *processor : m_assistProcessorsTable)
         processor->setAsyncProposalAvailable(nullptr);
-        delete processor;
-    }
     m_assistProcessorsTable.clear();
 
     // Clean up futures for references; TODO: Remove duplication
