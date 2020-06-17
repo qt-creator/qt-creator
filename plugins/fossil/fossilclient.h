@@ -49,12 +49,14 @@ public:
         DiffIgnoreWhiteSpaceFeature = 0x8,
         TimelinePathFeature = 0x10,
         AnnotateRevisionFeature = 0x20,
+        InfoHashFeature = 0x40,
         AllSupportedFeatures =  // | all defined features
             AnnotateBlameFeature
             | TimelineWidthFeature
             | DiffIgnoreWhiteSpaceFeature
             | TimelinePathFeature
             | AnnotateRevisionFeature
+            | InfoHashFeature
     };
     Q_DECLARE_FLAGS(SupportedFeatures, SupportedFeature)
 

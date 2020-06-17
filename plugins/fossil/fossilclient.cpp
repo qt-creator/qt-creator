@@ -392,9 +392,12 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const QString &workingDirect
     const QRegularExpression idRx("([0-9a-f]{5,40})");
     QTC_ASSERT(idRx.isValid(), return RevisionInfo());
 
+    const QString hashToken =
+            (supportedFeatures().testFlag(InfoHashFeature) ? "hash: " : "uuid: ");
+
     for (const QString &l : output.split('\n', QString::SkipEmptyParts)) {
         if (l.startsWith("checkout: ", Qt::CaseInsensitive)
-            || l.startsWith("uuid: ", Qt::CaseInsensitive)) {
+            || l.startsWith(hashToken, Qt::CaseInsensitive)) {
             const QRegularExpressionMatch idMatch = idRx.match(l);
             QTC_ASSERT(idMatch.hasMatch(), return RevisionInfo());
             revisionId = idMatch.captured(1);
@@ -407,8 +410,7 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const QString &workingDirect
             const QRegularExpressionMatch idMatch = idRx.match(l);
             if (idMatch.hasMatch())
                 mergeParentIds.append(idMatch.captured(1));
-        } else if (getCommentMsg
-                   && l.startsWith("comment: ", Qt::CaseInsensitive)) {
+        } else if (getCommentMsg && l.startsWith("comment: ", Qt::CaseInsensitive)) {
             const QStringList commentLineParts = parseRevisionCommentLine(l);
             commentMsg = commentLineParts.value(0);
             committer = commentLineParts.value(1);
@@ -891,8 +893,10 @@ FossilClient::SupportedFeatures FossilClient::supportedFeatures() const
 
     const unsigned int version = binaryVersion();
 
-    if (version < 0x20400) {
-        features &= ~AnnotateRevisionFeature;
+    if (version < 0x21200) {
+        features &= ~InfoHashFeature;
+        if (version < 0x20400)
+            features &= ~AnnotateRevisionFeature;
         if (version < 0x13000)
             features &= ~TimelinePathFeature;
         if (version < 0x12900)
