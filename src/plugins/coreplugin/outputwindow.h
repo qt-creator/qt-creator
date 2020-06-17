@@ -92,6 +92,7 @@ public slots:
 
 protected:
     bool isScrollbarAtBottom() const;
+    virtual void handleLink(const QPoint &pos);
 
 private:
     QMimeData *createMimeDataFromSelection() const override;

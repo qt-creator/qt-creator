@@ -104,6 +104,7 @@ public:
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
+    void handleLink(const QPoint &pos) override;
 
 private:
     void setFormat(VcsOutputWindow::MessageStyle style);
@@ -214,6 +215,23 @@ void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
     delete menu;
 }
 
+void OutputWindowPlainTextEdit::handleLink(const QPoint &pos)
+{
+    const QString href = anchorAt(pos);
+    if (href.isEmpty())
+        return;
+    QString repository;
+    identifierUnderCursor(pos, &repository);
+    if (repository.isEmpty()) {
+        OutputWindow::handleLink(pos);
+        return;
+    }
+    if (outputFormatter()->handleFileLink(href))
+        return;
+    if (VcsOutputLineParser * const p = parser())
+        p->handleVcsLink(repository, href);
+}
+
 void OutputWindowPlainTextEdit::appendLines(const QString &s, const QString &repository)
 {
     if (s.isEmpty())
@@ -310,8 +328,6 @@ VcsOutputWindow::VcsOutputWindow()
     connect(this, &IOutputPane::resetZoom, &d->widget, &Core::OutputWindow::resetZoom);
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
             this, updateBehaviorSettings);
-    connect(d->widget.parser(), &VcsOutputLineParser::referenceClicked,
-            VcsOutputWindow::instance(), &VcsOutputWindow::referenceClicked);
 }
 
 static QString filterPasswordFromUrls(QString input)

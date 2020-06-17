@@ -489,20 +489,26 @@ void OutputFormatter::dumpIncompleteLine(const QString &line, OutputFormat forma
     d->incompleteLine.second = format;
 }
 
+bool OutputFormatter::handleFileLink(const QString &href)
+{
+    if (!OutputLineParser::isLinkTarget(href))
+        return false;
+    FilePath filePath;
+    int line;
+    int column;
+    OutputLineParser::parseLinkTarget(href, filePath, line, column);
+    QTC_ASSERT(!filePath.isEmpty(), return false);
+    emit openInEditorRequested(filePath, line, column);
+    return true;
+}
+
 void OutputFormatter::handleLink(const QString &href)
 {
     QTC_ASSERT(!href.isEmpty(), return);
     // We can handle absolute file paths ourselves. Other types of references are forwarded
     // to the line parsers.
-    if (OutputLineParser::isLinkTarget(href)) {
-        FilePath filePath;
-        int line;
-        int column;
-        OutputLineParser::parseLinkTarget(href, filePath, line, column);
-        QTC_ASSERT(!filePath.isEmpty(), return);
-        emit openInEditorRequested(filePath, line, column);
+    if (handleFileLink(href))
         return;
-    }
     for (OutputLineParser * const f : qAsConst(d->lineParsers)) {
         if (f->handleLink(href))
             return;

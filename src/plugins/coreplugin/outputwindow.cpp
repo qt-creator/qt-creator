@@ -183,13 +183,17 @@ void OutputWindow::mousePressEvent(QMouseEvent *e)
     QPlainTextEdit::mousePressEvent(e);
 }
 
+void OutputWindow::handleLink(const QPoint &pos)
+{
+    const QString href = anchorAt(pos);
+    if (!href.isEmpty())
+        d->formatter.handleLink(href);
+}
+
 void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (d->linksActive && d->mouseButtonPressed == Qt::LeftButton) {
-        const QString href = anchorAt(e->pos());
-        if (!href.isEmpty())
-            d->formatter.handleLink(href);
-    }
+    if (d->linksActive && d->mouseButtonPressed == Qt::LeftButton)
+        handleLink(e->pos());
 
     // Mouse was released, activate links again
     d->linksActive = true;

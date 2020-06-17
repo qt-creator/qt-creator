@@ -237,6 +237,8 @@ public:
                                      const QString &workingDirectory,
                                      const QString &reference);
 
+    virtual bool handleLink(const QString &workingDirectory, const QString &reference);
+
     class CORE_EXPORT RepoUrl {
     public:
         RepoUrl(const QString &location);

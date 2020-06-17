@@ -271,6 +271,15 @@ public:
         GitClient::addChangeActions(menu, workingDirectory, reference);
     }
 
+    bool handleLink(const QString &workingDirectory, const QString &reference) final
+    {
+        if (reference.contains(".."))
+            GitClient::instance()->log(workingDirectory, {}, false, {reference});
+        else
+            GitClient::instance()->show(workingDirectory, reference);
+        return true;
+    }
+
     RepoUrl getRepoUrl(const QString &location) const override;
 
     QStringList additionalToolsPath() const final;
@@ -1000,16 +1009,6 @@ GitPluginPrivate::GitPluginPrivate()
     m_gerritPlugin->initialize(remoteRepositoryMenu);
     m_gerritPlugin->updateActions(currentState());
     m_gerritPlugin->addToLocator(m_commandLocator);
-
-    connect(VcsOutputWindow::instance(), &VcsOutputWindow::referenceClicked,
-            this, [this](const QString &name) {
-        const VcsBasePluginState state = currentState();
-        QTC_ASSERT(state.hasTopLevel(), return);
-        if (name.contains(".."))
-            m_gitClient.log(state.topLevel(), {}, false, {name});
-        else
-            m_gitClient.show(state.topLevel(), name);
-    });
 
 }
 

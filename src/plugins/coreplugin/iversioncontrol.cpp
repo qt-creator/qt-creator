@@ -201,6 +201,13 @@ void IVersionControl::fillLinkContextMenu(QMenu *, const QString &, const QStrin
 {
 }
 
+bool IVersionControl::handleLink(const QString &workingDirectory, const QString &reference)
+{
+    QTC_ASSERT(!reference.isEmpty(), return false);
+    vcsDescribe(workingDirectory, reference);
+    return true;
+}
+
 } // namespace Core
 
 #if defined(WITH_TESTS)

@@ -37,13 +37,10 @@ class VcsOutputLineParser : public Utils::OutputLineParser
 public:
     VcsOutputLineParser();
     void fillLinkContextMenu(QMenu *menu, const QString &workingDirectory, const QString &href);
-
-signals:
-    void referenceClicked(const QString &reference);
+    bool handleVcsLink(const QString &workingDirectory, const QString &href);
 
 private:
     Result handleLine(const QString &text, Utils::OutputFormat format) override;
-    bool handleLink(const QString &href) override;
 
     const QRegularExpression m_regexp;
 };

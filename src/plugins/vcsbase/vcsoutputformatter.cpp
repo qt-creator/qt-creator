@@ -64,14 +64,17 @@ Utils::OutputLineParser::Result VcsOutputLineParser::handleLine(const QString &t
     return {Status::Done, linkSpecs};
 }
 
-bool VcsOutputLineParser::handleLink(const QString &href)
+bool VcsOutputLineParser::handleVcsLink(const QString &workingDirectory, const QString &href)
 {
+    using namespace Core;
     QTC_ASSERT(!href.isEmpty(), return false);
-    if (href.startsWith("http://") || href.startsWith("https://"))
+    if (href.startsWith("http://") || href.startsWith("https://")) {
         QDesktopServices::openUrl(QUrl(href));
-    else
-        emit referenceClicked(href);
-    return true;
+        return true;
+    }
+    if (IVersionControl *vcs = VcsManager::findVersionControlForDirectory(workingDirectory))
+        return vcs->handleLink(workingDirectory, href);
+    return false;
 }
 
 void VcsOutputLineParser::fillLinkContextMenu(

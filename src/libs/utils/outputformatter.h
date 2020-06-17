@@ -151,6 +151,7 @@ public:
     void clear(); // Clears the text edit, if there is one.
     void reset(); // Wipes everything except the text edit.
 
+    bool handleFileLink(const QString &href);
     void handleLink(const QString &href);
     void setBoldFontEnabled(bool enabled);
 

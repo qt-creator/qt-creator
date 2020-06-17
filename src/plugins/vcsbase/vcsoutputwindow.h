@@ -76,9 +76,6 @@ public:
         Message, // A blue message text (e.g. "command has finished successfully")
     };
 
-signals:
-    void referenceClicked(const QString &reference);
-
 public slots:
     static void setRepository(const QString &);
     static void clearRepository();
