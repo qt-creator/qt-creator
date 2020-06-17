@@ -559,7 +559,7 @@ const QStringList QrcParserPrivate::allUiLanguages(const QLocale *locale) const
             hasEmptyString = true;
         else if (language.contains('_') || language.contains('-')) {
             const QStringList splits = QString(language).replace('_', '-').split('-');
-            if (splits.size() > 1 && !langs.contains(splits.at(0)))
+            if (splits.size() > 1 && !allLangs.contains(splits.at(0)))
                 allLangs.append(splits.at(0));
         }
     }
