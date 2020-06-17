@@ -1416,4 +1416,28 @@ void NodeInstanceServer::changeLanguage(const ChangeLanguageCommand &command)
 }
 
 void NodeInstanceServer::changePreviewImageSize(const ChangePreviewImageSizeCommand &) {}
+
+void NodeInstanceServer::incrementNeedsExtraRender()
+{
+    ++m_needsExtraRenderCount;
+}
+
+void NodeInstanceServer::decrementNeedsExtraRender()
+{
+    --m_needsExtraRenderCount;
+}
+
+void NodeInstanceServer::handleExtraRender()
+{
+    // If multipass is needed, render two additional times to ensure correct result
+    if (m_extraRenderCurrentPass == 0 && m_needsExtraRenderCount > 0)
+        m_extraRenderCurrentPass = 3;
+
+    if (m_extraRenderCurrentPass > 0) {
+        --m_extraRenderCurrentPass;
+        if (m_extraRenderCurrentPass > 0)
+            startRenderTimer();
+    }
+}
+
 } // namespace QmlDesigner

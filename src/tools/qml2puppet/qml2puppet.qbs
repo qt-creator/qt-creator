@@ -198,6 +198,8 @@ QtcTool {
             "instances/qmlstatenodeinstance.h",
             "instances/quick3dnodeinstance.cpp",
             "instances/quick3dnodeinstance.h",
+            "instances/quick3dtexturenodeinstance.cpp",
+            "instances/quick3dtexturenodeinstance.h",
             "instances/qmltransitionnodeinstance.cpp",
             "instances/qmltransitionnodeinstance.h",
             "instances/qt3dpresentationnodeinstance.cpp",

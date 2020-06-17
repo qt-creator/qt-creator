@@ -86,6 +86,7 @@ void Qt5PreviewNodeInstanceServer::collectItemChangesAndSendChangeCommands()
         nodeInstanceClient()->statePreviewImagesChanged(StatePreviewImageChangedCommand(imageContainerVector));
 
         slowDownRenderTimer();
+        handleExtraRender();
         inFunction = false;
     }
 }

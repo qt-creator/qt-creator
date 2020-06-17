@@ -191,6 +191,11 @@ public:
     void sendDebugOutput(DebugOutputCommand::Type type, const QString &message, const QVector<qint32> &instanceIds);
 
     void removeInstanceRelationsipForDeletedObject(QObject *object);
+
+    void incrementNeedsExtraRender();
+    void decrementNeedsExtraRender();
+    void handleExtraRender();
+
 public slots:
     void refreshLocalFileProperty(const QString &path);
     void refreshDummyData(const QString &path);
@@ -290,6 +295,8 @@ private:
     QPointer<QQmlComponent> m_importComponent;
     QPointer<QObject> m_importComponentObject;
     std::unique_ptr<MultiLanguage::Link> multilanguageLink;
+    int m_needsExtraRenderCount = 0;
+    int m_extraRenderCurrentPass = 0;
 };
 
 }

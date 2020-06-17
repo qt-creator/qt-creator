@@ -386,7 +386,13 @@ QImage QuickItemNodeInstance::renderImage() const
     static double devicePixelRatio = qgetenv("FORMEDITOR_DEVICE_PIXEL_RATIO").toDouble();
     size *= devicePixelRatio;
 
+    // Fake render loop signaling to update things like QML items as 3D textures
+    nodeInstanceServer()->quickView()->beforeSynchronizing();
+    nodeInstanceServer()->quickView()->beforeRendering();
+
     QImage renderImage = designerSupport()->renderImageForItem(quickItem(), renderBoundingRect, size);
+
+    nodeInstanceServer()->quickView()->afterRendering();
 
     renderImage.setDevicePixelRatio(devicePixelRatio);
 
@@ -401,7 +407,15 @@ QImage QuickItemNodeInstance::renderPreviewImage(const QSize &previewImageSize) 
         static double devicePixelRatio = qgetenv("FORMEDITOR_DEVICE_PIXEL_RATIO").toDouble();
         const QSize size = previewImageSize * devicePixelRatio;
         if (quickItem()->isVisible()) {
-            return designerSupport()->renderImageForItem(quickItem(), previewItemBoundingRect, size);
+            // Fake render loop signaling to update things like QML items as 3D textures
+            nodeInstanceServer()->quickView()->beforeSynchronizing();
+            nodeInstanceServer()->quickView()->beforeRendering();
+
+            QImage image = designerSupport()->renderImageForItem(quickItem(), previewItemBoundingRect, size);
+
+            nodeInstanceServer()->quickView()->afterRendering();
+
+            return image;
         } else {
             QImage transparentImage(size, QImage::Format_ARGB32_Premultiplied);
             transparentImage.fill(Qt::transparent);

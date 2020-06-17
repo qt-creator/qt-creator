@@ -40,6 +40,7 @@
 
 #include "quickitemnodeinstance.h"
 #include "quick3dnodeinstance.h"
+#include "quick3dtexturenodeinstance.h"
 
 #include "nodeinstanceserver.h"
 #include "instancecontainer.h"
@@ -176,6 +177,8 @@ Internal::ObjectNodeInstance::Pointer ServerNodeInstance::createInstance(QObject
         instance = Internal::LayoutNodeInstance::create(objectToBeWrapped);
     else if (isSubclassOf(objectToBeWrapped, "QQuickItem"))
         instance = Internal::QuickItemNodeInstance::create(objectToBeWrapped);
+    else if (isSubclassOf(objectToBeWrapped, "QQuick3DTexture"))
+        instance = Internal::Quick3DTextureNodeInstance::create(objectToBeWrapped);
     else if (isSubclassOf(objectToBeWrapped, "QQuick3DNode"))
         instance = Internal::Quick3DNodeInstance::create(objectToBeWrapped);
     else if (isSubclassOf(objectToBeWrapped, "QQmlComponent"))

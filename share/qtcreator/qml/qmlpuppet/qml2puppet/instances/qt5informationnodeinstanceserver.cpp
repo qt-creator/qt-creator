@@ -467,10 +467,16 @@ void Qt5InformationNodeInstanceServer::doRender3DEditView()
         };
         updateNodesRecursive(m_editView3DContentItem);
 
+        // Fake render loop signaling to update things like QML items as 3D textures
+        m_editView3D->beforeSynchronizing();
+        m_editView3D->beforeRendering();
+
         QSizeF size = qobject_cast<QQuickItem *>(m_editView3DContentItem)->size();
         QRectF renderRect(QPointF(0., 0.), size);
         QImage renderImage = designerSupport()->renderImageForItem(m_editView3DContentItem,
                                                                    renderRect, size.toSize());
+
+        m_editView3D->afterRendering();
 
         // There's no instance related to image, so instance id is -1.
         // Key number is selected so that it is unlikely to conflict other ImageContainer use.

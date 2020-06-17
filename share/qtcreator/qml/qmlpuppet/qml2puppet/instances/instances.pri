@@ -29,6 +29,7 @@ HEADERS += $$PWD/positionernodeinstance.h
 HEADERS += $$PWD/layoutnodeinstance.h
 HEADERS += $$PWD/qt3dpresentationnodeinstance.h
 HEADERS += $$PWD/quick3dnodeinstance.h
+HEADERS += $$PWD/quick3dtexturenodeinstance.h
 
 SOURCES += $$PWD/qt5nodeinstanceserver.cpp
 SOURCES += $$PWD/qt5testnodeinstanceserver.cpp
@@ -54,3 +55,4 @@ SOURCES += $$PWD/positionernodeinstance.cpp
 SOURCES += $$PWD/layoutnodeinstance.cpp
 SOURCES += $$PWD/qt3dpresentationnodeinstance.cpp
 SOURCES += $$PWD/quick3dnodeinstance.cpp
+SOURCES += $$PWD/quick3dtexturenodeinstance.cpp
