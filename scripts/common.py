@@ -40,18 +40,20 @@ def is_linux_platform():
 def is_mac_platform():
     return sys.platform.startswith('darwin')
 
-def check_print_call(command, workdir):
+def check_print_call(command, workdir, env=None):
     print('------------------------------------------')
     print('COMMAND:')
     print(' '.join(['"' + c.replace('"', '\\"') + '"' for c in command]))
     print('PWD:      "' + workdir + '"')
     print('------------------------------------------')
-    subprocess.check_call(command, cwd=workdir)
+    subprocess.check_call(command, cwd=workdir, env=env)
 
 
 def get_git_SHA(path):
     try:
-        return subprocess.check_output(['git', 'rev-list', '-n1', 'HEAD'], cwd=path).strip()
+        output = subprocess.check_output(['git', 'rev-list', '-n1', 'HEAD'], cwd=path).strip()
+        decoded_output = output.decode(encoding) if encoding else output
+        return decoded_output
     except subprocess.CalledProcessError:
         return None
     return None

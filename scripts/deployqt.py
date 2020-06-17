@@ -47,6 +47,10 @@ def get_args():
                         action='store_true', default=False)
     parser.add_argument('--elfutils-path',
                         help='Path to elfutils installation for use by perfprofiler (Windows, Linux)')
+    # TODO remove defaulting to LLVM_INSTALL_DIR when we no longer build qmake based packages
+    parser.add_argument('--llvm-path',
+                        help='Path to LLVM installation',
+                        default=os.environ.get('LLVM_INSTALL_DIR'))
     parser.add_argument('qtcreator_binary', help='Path to Qt Creator binary')
     parser.add_argument('qmake_binary', help='Path to qmake binary')
 
@@ -98,8 +102,12 @@ def is_debug(fpath):
     # bootstrap exception
     if coredebug.search(fpath):
         return True
-    output = subprocess.check_output(['dumpbin', '/imports', fpath])
-    return coredebug.search(output.decode(encoding)) != None
+    try:
+        output = subprocess.check_output(['dumpbin', '/imports', fpath])
+        return coredebug.search(output.decode(encoding)) != None
+    except FileNotFoundError:
+        # dumpbin is not there, maybe MinGW ? Just ship all .dlls.
+        return debug_build
 
 def is_ignored_windows_file(use_debug, basepath, filename):
     ignore_patterns = ['.lib', '.pdb', '.exp', '.ilk']
@@ -369,8 +377,8 @@ def main():
     else:
         copy_qt_libs(qt_deploy_prefix, QT_INSTALL_BINS, QT_INSTALL_LIBS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
     copy_translations(install_dir, QT_INSTALL_TRANSLATIONS)
-    if "LLVM_INSTALL_DIR" in os.environ:
-        deploy_libclang(install_dir, os.environ["LLVM_INSTALL_DIR"], chrpath_bin)
+    if args.llvm_path:
+        deploy_libclang(install_dir, args.llvm_path, chrpath_bin)
 
     if args.elfutils_path:
         deploy_elfutils(install_dir, chrpath_bin, args)
