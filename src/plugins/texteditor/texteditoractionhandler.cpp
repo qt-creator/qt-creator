@@ -543,9 +543,8 @@ void TextEditorActionHandlerPrivate::updateActions()
 
 void TextEditorActionHandlerPrivate::updateOptionalActions()
 {
-    uint optionalActions = m_optionalActions;
-    if (m_currentEditorWidget)
-        optionalActions |= m_currentEditorWidget->optionalActionMask();
+    const uint optionalActions = m_currentEditorWidget ? m_currentEditorWidget->optionalActions()
+                                                       : m_optionalActions;
     m_followSymbolAction->setEnabled(
         optionalActions & TextEditorActionHandler::FollowSymbolUnderCursor);
     m_followSymbolInNextSplitAction->setEnabled(
@@ -620,6 +619,11 @@ TextEditorActionHandler::TextEditorActionHandler(Core::Id editorId,
         d->m_findTextWidget = resolver;
     else
         d->m_findTextWidget = TextEditorWidget::fromEditor;
+}
+
+uint TextEditorActionHandler::optionalActions() const
+{
+    return d->m_optionalActions;
 }
 
 TextEditorActionHandler::~TextEditorActionHandler()

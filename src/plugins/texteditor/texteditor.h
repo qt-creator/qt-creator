@@ -204,8 +204,9 @@ public:
 
     void appendStandardContextMenuActions(QMenu *menu);
 
-    uint optionalActionMask();
-    void addOptionalActions(uint optionalActionMask);
+    uint optionalActions();
+    void setOptionalActions(uint optionalActions);
+    void addOptionalActions(uint optionalActions);
 
     void setAutoCompleter(AutoCompleter *autoCompleter);
     AutoCompleter *autoCompleter() const;

@@ -7828,15 +7828,22 @@ void TextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
     }
 }
 
-uint TextEditorWidget::optionalActionMask()
+uint TextEditorWidget::optionalActions()
 {
     return d->m_optionalActionMask;
 }
 
-void TextEditorWidget::addOptionalActions(uint optionalActionMask)
+void TextEditorWidget::setOptionalActions(uint optionalActionMask)
 {
-    d->m_optionalActionMask |= optionalActionMask;
+    if (d->m_optionalActionMask == optionalActionMask)
+        return;
+    d->m_optionalActionMask = optionalActionMask;
     emit optionalActionMaskChanged();
+}
+
+void TextEditorWidget::addOptionalActions( uint optionalActionMask)
+{
+    setOptionalActions(d->m_optionalActionMask | optionalActionMask);
 }
 
 BaseTextEditor::BaseTextEditor()
@@ -8734,6 +8741,7 @@ BaseTextEditor *TextEditorFactoryPrivate::createEditorHelper(const TextDocumentP
     textEditorWidget->setMarksVisible(m_marksVisible);
     textEditorWidget->setParenthesesMatchingEnabled(m_paranthesesMatchinEnabled);
     textEditorWidget->setCodeFoldingSupported(m_codeFoldingSupported);
+    textEditorWidget->setOptionalActions(m_textEditorActionHandler->optionalActions());
 
     BaseTextEditor *editor = m_editorCreator();
     editor->setDuplicateSupported(m_duplicatedSupported);

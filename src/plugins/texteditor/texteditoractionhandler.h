@@ -65,6 +65,7 @@ public:
                             uint optionalActions = None,
                             const TextEditorWidgetResolver &resolver = {});
 
+    uint optionalActions() const;
     ~TextEditorActionHandler();
 
 private:
