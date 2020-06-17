@@ -53,35 +53,34 @@ using namespace TextEditor;
 
 namespace Beautifier {
 namespace Internal {
-namespace ClangFormat {
+
+const char MENU_ID[]               = "ClangFormat.Menu";
 
 ClangFormat::ClangFormat()
 {
-    Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::ClangFormat::MENU_ID);
+    Core::ActionContainer *menu = Core::ActionManager::createMenu(MENU_ID);
     menu->menu()->setTitle(tr("&ClangFormat"));
 
     m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
     Core::Command *cmd
-            = Core::ActionManager::registerAction(m_formatFile,
-                                                  Constants::ClangFormat::ACTION_FORMATFILE);
+            = Core::ActionManager::registerAction(m_formatFile, "ClangFormat.FormatFile");
     menu->addAction(cmd);
     connect(m_formatFile, &QAction::triggered, this, &ClangFormat::formatFile);
 
     m_formatRange = new QAction(BeautifierPlugin::msgFormatAtCursor(), this);
-    cmd = Core::ActionManager::registerAction(m_formatRange,
-                                              Constants::ClangFormat::ACTION_FORMATATCURSOR);
+    cmd = Core::ActionManager::registerAction(m_formatRange, "ClangFormat.FormatAtCursor");
     menu->addAction(cmd);
     connect(m_formatRange, &QAction::triggered, this, &ClangFormat::formatAtCursor);
 
     m_disableFormattingSelectedText
         = new QAction(BeautifierPlugin::msgDisableFormattingSelectedText(), this);
     cmd = Core::ActionManager::registerAction(
-        m_disableFormattingSelectedText, Constants::ClangFormat::ACTION_DISABLEFORMATTINGSELECTED);
+        m_disableFormattingSelectedText, "ClangFormat.DisableFormattingSelectedText");
     menu->addAction(cmd);
     connect(m_disableFormattingSelectedText, &QAction::triggered,
             this, &ClangFormat::disableFormattingSelectedText);
 
-    Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
+    Core::ActionManager::actionContainer(MENU_ID)->addMenu(menu);
 
     connect(&m_settings, &ClangFormatSettings::supportedMimeTypesChanged,
             [this] { updateActions(Core::EditorManager::currentEditor()); });
@@ -89,7 +88,7 @@ ClangFormat::ClangFormat()
 
 QString ClangFormat::id() const
 {
-    return QLatin1String(Constants::ClangFormat::DISPLAY_NAME);
+    return QLatin1String(Constants::CLANGFORMAT_DISPLAY_NAME);
 }
 
 void ClangFormat::updateActions(Core::IEditor *editor)
@@ -200,6 +199,5 @@ Command ClangFormat::command(int offset, int length) const
     return c;
 }
 
-} // namespace ClangFormat
 } // namespace Internal
 } // namespace Beautifier

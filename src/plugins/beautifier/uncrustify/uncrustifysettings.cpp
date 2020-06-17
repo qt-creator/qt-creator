@@ -41,9 +41,7 @@
 
 namespace Beautifier {
 namespace Internal {
-namespace Uncrustify {
 
-namespace {
 const char USE_OTHER_FILES[]               = "useOtherFiles";
 const char USE_HOME_FILE[]                 = "useHomeFile";
 const char USE_SPECIFIC_CONFIG_FILE_PATH[] = "useSpecificConfigFile";
@@ -51,10 +49,10 @@ const char SPECIFIC_CONFIG_FILE_PATH[]     = "specificConfigFile";
 const char USE_CUSTOM_STYLE[]              = "useCustomStyle";
 const char CUSTOM_STYLE[]                  = "customStyle";
 const char FORMAT_ENTIRE_FILE_FALLBACK[]   = "formatEntireFileFallback";
-}
+const char SETTINGS_NAME[]                 = "uncrustify";
 
 UncrustifySettings::UncrustifySettings() :
-    AbstractSettings(Constants::Uncrustify::SETTINGS_NAME, ".cfg")
+    AbstractSettings(SETTINGS_NAME, ".cfg")
 {
     connect(&m_versionProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &UncrustifySettings::parseVersionProcessResult);
@@ -144,7 +142,7 @@ QString UncrustifySettings::documentationFilePath() const
 {
     return Core::ICore::userResourcePath() + '/' + Beautifier::Constants::SETTINGS_DIRNAME + '/'
             + Beautifier::Constants::DOCUMENTATION_DIRNAME + '/'
-            + Constants::Uncrustify::SETTINGS_NAME + ".xml";
+            + SETTINGS_NAME + ".xml";
 }
 
 void UncrustifySettings::createDocumentationFile() const
@@ -243,6 +241,5 @@ void UncrustifySettings::parseVersionProcessResult(int exitCode, QProcess::ExitS
         parseVersion(QString::fromUtf8(m_versionProcess.readAllStandardError()), m_version);
 }
 
-} // namespace Uncrustify
 } // namespace Internal
 } // namespace Beautifier

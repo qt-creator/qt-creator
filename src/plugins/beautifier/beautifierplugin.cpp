@@ -98,9 +98,9 @@ public:
 
     GeneralSettings generalSettings;
 
-    ArtisticStyle::ArtisticStyle artisticStyleBeautifier;
-    ClangFormat::ClangFormat clangFormatBeautifier;
-    Uncrustify::Uncrustify uncrustifyBeautifier;
+    ArtisticStyle artisticStyleBeautifier;
+    ClangFormat clangFormatBeautifier;
+    Uncrustify uncrustifyBeautifier;
 
     BeautifierAbstractTool *m_tools[3] {
         &artisticStyleBeautifier,

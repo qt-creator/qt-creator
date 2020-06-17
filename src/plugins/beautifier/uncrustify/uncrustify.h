@@ -32,7 +32,6 @@
 
 namespace Beautifier {
 namespace Internal {
-namespace Uncrustify {
 
 class Uncrustify : public BeautifierAbstractTool
 {
@@ -58,6 +57,5 @@ private:
     UncrustifyOptionsPage m_page{&m_settings};
 };
 
-} // namespace Uncrustify
 } // namespace Internal
 } // namespace Beautifier

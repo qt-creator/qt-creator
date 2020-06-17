@@ -36,17 +36,15 @@
 
 namespace Beautifier {
 namespace Internal {
-namespace ClangFormat {
 
-namespace {
 const char USE_PREDEFINED_STYLE[]        = "usePredefinedStyle";
 const char PREDEFINED_STYLE[]            = "predefinedStyle";
 const char FALLBACK_STYLE[]              = "fallbackStyle";
 const char CUSTOM_STYLE[]                = "customStyle";
-}
+const char SETTINGS_NAME[]               = "clangformat";
 
 ClangFormatSettings::ClangFormatSettings() :
-    AbstractSettings(Constants::ClangFormat::SETTINGS_NAME, ".clang-format")
+    AbstractSettings(SETTINGS_NAME, ".clang-format")
 {
     setCommand("clang-format");
     m_settings.insert(USE_PREDEFINED_STYLE, QVariant(true));
@@ -60,7 +58,7 @@ QString ClangFormatSettings::documentationFilePath() const
 {
     return Core::ICore::userResourcePath() + '/' + Beautifier::Constants::SETTINGS_DIRNAME + '/'
             + Beautifier::Constants::DOCUMENTATION_DIRNAME + '/'
-            + Constants::ClangFormat::SETTINGS_NAME + ".xml";
+            + SETTINGS_NAME + ".xml";
 }
 
 void ClangFormatSettings::createDocumentationFile() const
@@ -238,6 +236,5 @@ void ClangFormatSettings::readStyles()
     }
 }
 
-} // namespace ClangFormat
 } // namespace Internal
 } // namespace Beautifier

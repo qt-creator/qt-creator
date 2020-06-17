@@ -34,7 +34,6 @@
 
 namespace Beautifier {
 namespace Internal {
-namespace ArtisticStyle {
 
 class ArtisticStyleSettings : public AbstractSettings
 {
@@ -77,6 +76,5 @@ private:
     QFutureWatcher<int> m_versionWatcher;
 };
 
-} // namespace ArtisticStyle
 } // namespace Internal
 } // namespace Beautifier

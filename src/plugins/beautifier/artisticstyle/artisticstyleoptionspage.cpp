@@ -35,7 +35,6 @@
 
 namespace Beautifier {
 namespace Internal {
-namespace ArtisticStyle {
 
 class ArtisticStyleOptionsPageWidget : public Core::IOptionsPageWidget
 {
@@ -62,7 +61,7 @@ ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSett
     ui.command->setExpectedKind(Utils::PathChooser::ExistingCommand);
     ui.command->setCommandVersionArguments({"--version"});
     ui.command->setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
-                                          ArtisticStyle::tr(Constants::ArtisticStyle::DISPLAY_NAME)));
+                                          ArtisticStyle::tr(Constants::ARTISTICSTYLE_DISPLAY_NAME)));
     connect(ui.command, &Utils::PathChooser::validChanged, ui.options, &QWidget::setEnabled);
     ui.configurations->setSettings(m_settings);
 
@@ -94,12 +93,11 @@ void ArtisticStyleOptionsPageWidget::apply()
 
 ArtisticStyleOptionsPage::ArtisticStyleOptionsPage(ArtisticStyleSettings *settings)
 {
-    setId(Constants::ArtisticStyle::OPTION_ID);
+    setId("ArtisticStyle");
     setDisplayName(ArtisticStyleOptionsPageWidget::tr("Artistic Style"));
     setCategory(Constants::OPTION_CATEGORY);
     setWidgetCreator([settings] { return new ArtisticStyleOptionsPageWidget(settings); });
 }
 
-} // namespace ArtisticStyle
 } // namespace Internal
 } // namespace Beautifier

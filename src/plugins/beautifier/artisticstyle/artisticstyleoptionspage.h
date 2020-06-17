@@ -29,7 +29,6 @@
 
 namespace Beautifier {
 namespace Internal {
-namespace ArtisticStyle {
 
 class ArtisticStyleSettings;
 
@@ -39,6 +38,5 @@ public:
     explicit ArtisticStyleOptionsPage(ArtisticStyleSettings *settings);
 };
 
-} // namespace ArtisticStyle
 } // namespace Internal
 } // namespace Beautifier

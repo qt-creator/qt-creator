@@ -43,19 +43,17 @@
 
 namespace Beautifier {
 namespace Internal {
-namespace ArtisticStyle {
 
-namespace {
 const char USE_OTHER_FILES[]          = "useOtherFiles";
 const char USE_SPECIFIC_CONFIG_FILE[] = "useSpecificConfigFile";
 const char SPECIFIC_CONFIG_FILE[]     = "specificConfigFile";
 const char USE_HOME_FILE[]            = "useHomeFile";
 const char USE_CUSTOM_STYLE[]         = "useCustomStyle";
 const char CUSTOM_STYLE[]             = "customStyle";
-}
+const char SETTINGS_NAME[]            = "artisticstyle";
 
 ArtisticStyleSettings::ArtisticStyleSettings() :
-    AbstractSettings(Constants::ArtisticStyle::SETTINGS_NAME, ".astyle")
+    AbstractSettings(SETTINGS_NAME, ".astyle")
 {
     connect(&m_versionWatcher, &QFutureWatcherBase::finished,
             this, &ArtisticStyleSettings::helperSetVersion);
@@ -175,7 +173,7 @@ QString ArtisticStyleSettings::documentationFilePath() const
 {
     return Core::ICore::userResourcePath() + '/' + Beautifier::Constants::SETTINGS_DIRNAME + '/'
             + Beautifier::Constants::DOCUMENTATION_DIRNAME + '/'
-            + Constants::ArtisticStyle::SETTINGS_NAME + ".xml";
+            + SETTINGS_NAME + ".xml";
 }
 
 void ArtisticStyleSettings::createDocumentationFile() const
@@ -250,6 +248,5 @@ void ArtisticStyleSettings::createDocumentationFile() const
     }
 }
 
-} // namespace ArtisticStyle
 } // namespace Internal
 } // namespace Beautifier

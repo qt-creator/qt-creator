@@ -29,7 +29,6 @@
 
 namespace Beautifier {
 namespace Internal {
-namespace Uncrustify {
 
 class UncrustifySettings;
 
@@ -39,6 +38,5 @@ public:
     explicit UncrustifyOptionsPage(UncrustifySettings *settings);
 };
 
-} // namespace Uncrustify
 } // namespace Internal
 } // namespace Beautifier

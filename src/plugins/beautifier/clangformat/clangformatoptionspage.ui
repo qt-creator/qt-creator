@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Beautifier::Internal::ClangFormat::ClangFormatOptionsPage</class>
- <widget class="QWidget" name="Beautifier::Internal::ClangFormat::ClangFormatOptionsPage">
+ <class>Beautifier::Internal::ClangFormatOptionsPage</class>
+ <widget class="QWidget" name="Beautifier::Internal::ClangFormatOptionsPage">
   <property name="geometry">
    <rect>
     <x>0</x>

@@ -31,7 +31,6 @@
 
 namespace Beautifier {
 namespace Internal {
-namespace Uncrustify {
 
 class UncrustifySettings : public AbstractSettings
 {
@@ -71,6 +70,5 @@ private:
     void parseVersionProcessResult(int exitCode, QProcess::ExitStatus exitStatus);
 };
 
-} // namespace Uncrustify
 } // namespace Internal
 } // namespace Beautifier

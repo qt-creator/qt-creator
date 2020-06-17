@@ -32,7 +32,6 @@
 
 namespace Beautifier {
 namespace Internal {
-namespace ClangFormat {
 
 class ClangFormat : public BeautifierAbstractTool
 {
@@ -59,6 +58,5 @@ private:
     ClangFormatOptionsPage m_page{&m_settings};
 };
 
-} // namespace ClangFormat
 } // namespace Internal
 } // namespace Beautifier

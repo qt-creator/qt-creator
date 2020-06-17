@@ -35,7 +35,6 @@
 
 namespace Beautifier {
 namespace Internal {
-namespace Uncrustify {
 
 class UncrustifyOptionsPageWidget : public Core::IOptionsPageWidget
 {
@@ -63,7 +62,7 @@ UncrustifyOptionsPageWidget::UncrustifyOptionsPageWidget(UncrustifySettings *set
     ui.command->setExpectedKind(Utils::PathChooser::ExistingCommand);
     ui.command->setCommandVersionArguments({"--version"});
     ui.command->setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
-                                          Uncrustify::tr(Constants::Uncrustify::DISPLAY_NAME)));
+                                          Uncrustify::tr(Constants::UNCRUSTIFY_DISPLAY_NAME)));
     connect(ui.command, &Utils::PathChooser::validChanged, ui.options, &QWidget::setEnabled);
     ui.configurations->setSettings(m_settings);
 
@@ -97,12 +96,11 @@ void UncrustifyOptionsPageWidget::apply()
 
 UncrustifyOptionsPage::UncrustifyOptionsPage(UncrustifySettings *settings)
 {
-    setId(Constants::Uncrustify::OPTION_ID);
+    setId("Uncrustify");
     setDisplayName(UncrustifyOptionsPageWidget::tr("Uncrustify"));
     setCategory(Constants::OPTION_CATEGORY);
     setWidgetCreator([settings] { return new UncrustifyOptionsPageWidget(settings); });
 }
 
-} // namespace Uncrustify
 } // namespace Internal
 } // namespace Beautifier

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Beautifier::Internal::ArtisticStyle::ArtisticStyleOptionsPage</class>
- <widget class="QWidget" name="Beautifier::Internal::ArtisticStyle::ArtisticStyleOptionsPage">
+ <class>Beautifier::Internal::ArtisticStyleOptionsPage</class>
+ <widget class="QWidget" name="Beautifier::Internal::ArtisticStyleOptionsPage">
   <property name="geometry">
    <rect>
     <x>0</x>

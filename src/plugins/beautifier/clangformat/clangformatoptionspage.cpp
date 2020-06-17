@@ -34,7 +34,6 @@
 
 namespace Beautifier {
 namespace Internal {
-namespace ClangFormat {
 
 class ClangFormatOptionsPageWidget : public Core::IOptionsPageWidget
 {
@@ -104,12 +103,11 @@ void ClangFormatOptionsPageWidget::apply()
 
 ClangFormatOptionsPage::ClangFormatOptionsPage(ClangFormatSettings *settings)
 {
-    setId(Constants::ClangFormat::OPTION_ID);
+    setId("ClangFormat");
     setDisplayName(ClangFormatOptionsPageWidget::tr("Clang Format"));
     setCategory(Constants::OPTION_CATEGORY);
     setWidgetCreator([settings] { return new ClangFormatOptionsPageWidget(settings); });
 }
 
-} // namespace ClangFormat
 } // namespace Internal
 } // namespace Beautifier

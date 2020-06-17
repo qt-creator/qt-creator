@@ -29,7 +29,6 @@
 
 namespace Beautifier {
 namespace Internal {
-namespace ClangFormat {
 
 class ClangFormatSettings : public AbstractSettings
 {
@@ -63,6 +62,5 @@ private:
     void readStyles() override;
 };
 
-} // namespace ClangFormat
 } // namespace Internal
 } // namespace Beautifier

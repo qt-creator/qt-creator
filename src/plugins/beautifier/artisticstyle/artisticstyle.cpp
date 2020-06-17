@@ -58,16 +58,14 @@ using namespace TextEditor;
 
 namespace Beautifier {
 namespace Internal {
-namespace ArtisticStyle {
 
 ArtisticStyle::ArtisticStyle()
 {
-    Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::ArtisticStyle::MENU_ID);
+    Core::ActionContainer *menu = Core::ActionManager::createMenu("ArtisticStyle.Menu");
     menu->menu()->setTitle(tr("&Artistic Style"));
 
     m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
-    menu->addAction(Core::ActionManager::registerAction(m_formatFile,
-                                                        Constants::ArtisticStyle::ACTION_FORMATFILE));
+    menu->addAction(Core::ActionManager::registerAction(m_formatFile, "ArtisticStyle.FormatFile"));
     connect(m_formatFile, &QAction::triggered, this, &ArtisticStyle::formatFile);
 
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
@@ -78,7 +76,7 @@ ArtisticStyle::ArtisticStyle()
 
 QString ArtisticStyle::id() const
 {
-    return QLatin1String(Constants::ArtisticStyle::DISPLAY_NAME);
+    return QLatin1String(Constants::ARTISTICSTYLE_DISPLAY_NAME);
 }
 
 void ArtisticStyle::updateActions(Core::IEditor *editor)
@@ -91,7 +89,7 @@ void ArtisticStyle::formatFile()
     const QString cfgFileName = configurationFile();
     if (cfgFileName.isEmpty()) {
         BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
-                                        tr(Constants::ArtisticStyle::DISPLAY_NAME)));
+                                        tr(Constants::ARTISTICSTYLE_DISPLAY_NAME)));
     } else {
         formatCurrentFile(command(cfgFileName));
     }
@@ -166,6 +164,5 @@ Command ArtisticStyle::command(const QString &cfgFile) const
     return command;
 }
 
-} // namespace ArtisticStyle
 } // namespace Internal
 } // namespace Beautifier
