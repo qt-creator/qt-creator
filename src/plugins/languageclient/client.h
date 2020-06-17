@@ -178,8 +178,11 @@ public:
     HoverHandler *hoverHandler();
     void rehighlight();
 
+    bool documentUpdatePostponed(const QString &fileName) const;
+
 signals:
     void initialized(LanguageServerProtocol::ServerCapabilities capabilities);
+    void documentUpdated(TextEditor::TextDocument *document);
     void finished();
 
 protected:
@@ -207,6 +210,7 @@ private:
     void showDiagnostics(const LanguageServerProtocol::DocumentUri &uri);
     void removeDiagnostics(const LanguageServerProtocol::DocumentUri &uri);
     void resetAssistProviders(TextEditor::TextDocument *document);
+    void sendPostponedDocumentUpdates();
 
     using ContentHandler = std::function<void(const QByteArray &, QTextCodec *, QString &,
                                               LanguageServerProtocol::ResponseHandlers,
@@ -219,6 +223,10 @@ private:
     LanguageFilter m_languagFilter;
     QJsonObject m_initializationOptions;
     QMap<TextEditor::TextDocument *, QString> m_openedDocument;
+    QMap<TextEditor::TextDocument *,
+         QList<LanguageServerProtocol::DidChangeTextDocumentParams::TextDocumentContentChangeEvent>>
+        m_documentsToUpdate;
+    QTimer m_documentUpdateTimer;
     Core::Id m_id;
     LanguageServerProtocol::ServerCapabilities m_serverCapabilities;
     DynamicCapabilities m_dynamicCapabilities;

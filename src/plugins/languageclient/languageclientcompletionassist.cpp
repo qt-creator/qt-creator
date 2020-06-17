@@ -274,6 +274,7 @@ class LanguageClientCompletionAssistProcessor : public IAssistProcessor
 {
 public:
     LanguageClientCompletionAssistProcessor(Client *client);
+    ~LanguageClientCompletionAssistProcessor() override;
     IAssistProposal *perform(const AssistInterface *interface) override;
     bool running() override;
     bool needsRestart() const override { return true; }
@@ -285,12 +286,18 @@ private:
     QPointer<QTextDocument> m_document;
     QPointer<Client> m_client;
     Utils::optional<MessageId> m_currentRequest;
+    QMetaObject::Connection m_postponedUpdateConnection;
     int m_pos = -1;
 };
 
 LanguageClientCompletionAssistProcessor::LanguageClientCompletionAssistProcessor(Client *client)
     : m_client(client)
 { }
+
+LanguageClientCompletionAssistProcessor::~LanguageClientCompletionAssistProcessor()
+{
+    QTC_ASSERT(!running(), cancel());
+}
 
 static QString assistReasonString(AssistReason reason)
 {
@@ -315,7 +322,20 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistIn
             ++delta;
         if (delta < 3)
             return nullptr;
+        if (m_client->documentUpdatePostponed(interface->fileName())) {
+            m_postponedUpdateConnection
+                = QObject::connect(m_client,
+                                   &Client::documentUpdated,
+                                   [this, interface](TextEditor::TextDocument *document) {
+                                       if (document->filePath()
+                                           == Utils::FilePath::fromString(interface->fileName()))
+                                           perform(interface);
+                                   });
+            return nullptr;
+        }
     }
+    if (m_postponedUpdateConnection)
+        QObject::disconnect(m_postponedUpdateConnection);
     CompletionRequest completionRequest;
     CompletionParams::CompletionContext context;
     if (interface->reason() == ActivationCharacter) {
@@ -353,15 +373,17 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistIn
 
 bool LanguageClientCompletionAssistProcessor::running()
 {
-    return m_currentRequest.has_value();
+    return m_currentRequest.has_value() || m_postponedUpdateConnection;
 }
 
 void LanguageClientCompletionAssistProcessor::cancel()
 {
-    if (running()) {
+    if (m_currentRequest.has_value()) {
         m_client->cancelRequest(m_currentRequest.value());
         m_client->removeAssistProcessor(this);
         m_currentRequest.reset();
+    } else if (m_postponedUpdateConnection) {
+        QObject::disconnect(m_postponedUpdateConnection);
     }
 }
 

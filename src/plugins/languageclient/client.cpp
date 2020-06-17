@@ -107,6 +107,10 @@ Client::Client(BaseClientInterface *clientInterface)
     m_clientProviders.functionHintProvider = new FunctionHintAssistProvider(this);
     m_clientProviders.quickFixAssistProvider = new LanguageClientQuickFixProvider(this);
 
+    m_documentUpdateTimer.setSingleShot(true);
+    m_documentUpdateTimer.setInterval(500);
+    connect(&m_documentUpdateTimer, &QTimer::timeout, this, &Client::sendPostponedDocumentUpdates);
+
     m_contentHandler.insert(JsonRpcMessageHandler::jsonRpcMimeType(),
                             &JsonRpcMessageHandler::parseContent);
     QTC_ASSERT(clientInterface, return);
@@ -347,6 +351,7 @@ void Client::sendContent(const IContent &content)
 {
     QTC_ASSERT(m_clientInterface, return);
     QTC_ASSERT(m_state == Initialized, return);
+    sendPostponedDocumentUpdates();
     content.registerResponseHandler(&m_responseHandlers);
     QString error;
     if (!QTC_GUARD(content.isValid(&error)))
@@ -514,15 +519,8 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
             syncKind = option.isValid(nullptr) ? option.syncKind() : syncKind;
         }
     }
-    auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
 
-    const auto uri = DocumentUri::fromFilePath(document->filePath());
-    m_highlights[uri].clear();
     if (syncKind != TextDocumentSyncKind::None) {
-        VersionedTextDocumentIdentifier docId(uri);
-        docId.setVersion(textDocument ? textDocument->document()->revision() : 0);
-        DidChangeTextDocumentParams params;
-        params.setTextDocument(docId);
         if (syncKind == TextDocumentSyncKind::Incremental) {
             DidChangeTextDocumentParams::TextDocumentContentChangeEvent change;
             QTextDocument oldDoc(m_openedDocument[document]);
@@ -539,20 +537,22 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
             change.setRange(Range(cursor));
             change.setRangeLength(cursor.selectionEnd() - cursor.selectionStart());
             change.setText(document->textAt(position, charsAdded));
-            params.setContentChanges({change});
+            m_documentsToUpdate[document] << change;
         } else {
-            params.setContentChanges({document->plainText()});
+            m_documentsToUpdate[document] = {document->plainText()};
         }
         m_openedDocument[document] = document->plainText();
-        sendContent(DidChangeTextDocumentNotification(params));
     }
 
-    if (textDocument) {
-        using namespace TextEditor;
-        for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(textDocument))
-            if (TextEditorWidget *widget = editor->editorWidget())
-                widget->setRefactorMarkers(RefactorMarker::filterOutType(widget->refactorMarkers(), id()));
+    using namespace TextEditor;
+    for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(document)) {
+        if (TextEditorWidget *widget = editor->editorWidget()) {
+            widget->setRefactorMarkers(
+                RefactorMarker::filterOutType(widget->refactorMarkers(), id()));
+        }
     }
+
+    m_documentUpdateTimer.start();
 }
 
 void Client::registerCapabilities(const QList<Registration> &registrations)
@@ -578,6 +578,8 @@ TextEditor::HighlightingResult createHighlightingResult(const SymbolInformation 
 
 void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
 {
+    if (m_documentsToUpdate.contains(widget->textDocument()))
+        return; // we are currently changing this document so postpone the DocumentHighlightsRequest
     const auto uri = DocumentUri::fromFilePath(widget->textDocument()->filePath());
     if (m_dynamicCapabilities.isRegistered(DocumentHighlightsRequest::methodName).value_or(false)) {
         TextDocumentRegistrationOptions option(
@@ -1131,6 +1133,30 @@ void Client::resetAssistProviders(TextEditor::TextDocument *document)
         document->setQuickFixAssistProvider(providers.quickFixAssistProvider);
 }
 
+void Client::sendPostponedDocumentUpdates()
+{
+    m_documentUpdateTimer.stop();
+    if (m_documentsToUpdate.isEmpty())
+        return;
+    TextEditor::TextEditorWidget *currentWidget
+        = TextEditor::TextEditorWidget::currentTextEditorWidget();
+    const QList<TextEditor::TextDocument *> documents = m_documentsToUpdate.keys();
+    for (auto document : documents) {
+        const auto uri = DocumentUri::fromFilePath(document->filePath());
+        m_highlights[uri].clear();
+        VersionedTextDocumentIdentifier docId(uri);
+        docId.setVersion(document->document()->revision());
+        DidChangeTextDocumentParams params;
+        params.setTextDocument(docId);
+        params.setContentChanges(m_documentsToUpdate.take(document));
+        sendContent(DidChangeTextDocumentNotification(params));
+        emit documentUpdated(document);
+
+        if (currentWidget->textDocument() == document)
+            cursorPositionChanged(currentWidget);
+    }
+}
+
 void Client::handleResponse(const MessageId &id, const QByteArray &content, QTextCodec *codec)
 {
     if (auto handler = m_responseHandlers[id])
@@ -1281,6 +1307,13 @@ void Client::rehighlight()
                 SemanticHighligtingSupport::applyHighlight(doc, it.value(), capabilities());
         }
     }
+}
+
+bool Client::documentUpdatePostponed(const QString &fileName) const
+{
+    return Utils::contains(m_documentsToUpdate.keys(), [fileName](const TextEditor::TextDocument *doc) {
+        return doc->filePath() == Utils::FilePath::fromString(fileName);
+    });
 }
 
 void Client::initializeCallback(const InitializeRequest::Response &initResponse)
