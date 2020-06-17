@@ -22,6 +22,7 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #include "androidsdkmanager.h"
 
 #include "androidconstants.h"
@@ -30,9 +31,10 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
-#include <utils/synchronousprocess.h>
 #include <utils/qtcprocess.h>
+#include <utils/runextensions.h>
+#include <utils/stringutils.h>
+#include <utils/synchronousprocess.h>
 
 #include <QFutureWatcher>
 #include <QLoggingCategory>
@@ -107,7 +109,7 @@ int parseProgress(const QString &out, bool &foundAssertion)
     if (out.isEmpty())
         return progress;
     QRegularExpression reg("(?<progress>\\d*)%");
-    QStringList lines = out.split(QRegularExpression("[\\n\\r]"), QString::SkipEmptyParts);
+    QStringList lines = out.split(QRegularExpression("[\\n\\r]"), Utils::SkipEmptyParts);
     for (const QString &line : lines) {
         QRegularExpressionMatch match = reg.match(line);
         if (match.hasMatch()) {

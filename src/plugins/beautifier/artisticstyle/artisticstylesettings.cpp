@@ -32,6 +32,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/runextensions.h>
+#include <utils/stringutils.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDateTime>
@@ -206,7 +207,7 @@ void ArtisticStyleSettings::createDocumentationFile() const
     for (QString line : lines) {
         line = line.trimmed();
         if ((line.startsWith("--") && !line.startsWith("---")) || line.startsWith("OR ")) {
-            const QStringList rawKeys = line.split(" OR ", QString::SkipEmptyParts);
+            const QStringList rawKeys = line.split(" OR ", Utils::SkipEmptyParts);
             for (QString k : rawKeys) {
                 k = k.trimmed();
                 k.remove('#');

@@ -48,6 +48,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/port.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -88,7 +89,7 @@ private:
     {
         QList<DeviceProcessItem> processes;
         const QStringList lines = listProcessesReply.split(QString::fromLatin1(Delimiter0)
-                + QString::fromLatin1(Delimiter1), QString::SkipEmptyParts);
+                + QString::fromLatin1(Delimiter1), Utils::SkipEmptyParts);
         foreach (const QString &line, lines) {
             const QStringList elements = line.split(QLatin1Char('\n'));
             if (elements.count() < 4) {

@@ -30,6 +30,7 @@
 #include "ui_clangbasechecks.h"
 
 #include <utils/executeondestruction.h>
+#include <utils/stringutils.h>
 #include <utils/treemodel.h>
 
 #include <QInputDialog>
@@ -254,7 +255,7 @@ static QString validateDiagnosticOptions(const QStringList &options)
 
 static QStringList normalizeDiagnosticInputOptions(const QString &options)
 {
-    return options.simplified().split(QLatin1Char(' '), QString::SkipEmptyParts);
+    return options.simplified().split(QLatin1Char(' '), Utils::SkipEmptyParts);
 }
 
 void ClangDiagnosticConfigsWidget::onClangOnlyOptionsChanged()

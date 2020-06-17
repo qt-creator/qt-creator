@@ -32,6 +32,7 @@
 
 #include <utils/filesystemwatcher.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QDateTime>
 #include <QFont>
@@ -647,7 +648,7 @@ bool BranchModel::branchIsMerged(const QModelIndex &idx)
         VcsOutputWindow::appendError(errorMessage);
     }
 
-    const QStringList lines = output.split('\n', QString::SkipEmptyParts);
+    const QStringList lines = output.split('\n', Utils::SkipEmptyParts);
     for (const QString &l : lines) {
         QString currentBranch = l.mid(2); // remove first letters (those are either
                                           // "  " or "* " depending on whether it is

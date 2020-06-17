@@ -58,14 +58,15 @@
 #include <projectexplorer/taskhub.h>
 #include <texteditor/texteditor.h>
 
-#include <utils/synchronousprocess.h>
-#include <utils/qtcprocess.h>
-#include <utils/winutils.h>
-#include <utils/qtcassert.h>
-#include <utils/savedaction.h>
 #include <utils/consoleprocess.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
+#include <utils/savedaction.h>
+#include <utils/stringutils.h>
+#include <utils/synchronousprocess.h>
+#include <utils/winutils.h>
 
 #include <cplusplus/findcdbbreakpoint.h>
 #include <cpptools/cppmodelmanager.h>
@@ -2760,7 +2761,7 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
     }
     const QString commands = stringSetting(ExtraDumperCommands);
     if (!commands.isEmpty()) {
-        for (const auto &command : commands.split('\n', QString::SkipEmptyParts))
+        for (const auto &command : commands.split('\n', Utils::SkipEmptyParts))
             runCommand({command, ScriptCommand});
     }
 

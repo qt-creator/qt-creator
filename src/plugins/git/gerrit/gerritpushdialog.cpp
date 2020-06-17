@@ -31,6 +31,7 @@
 #include "../gitconstants.h"
 
 #include <utils/icon.h>
+#include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
 #include <QApplication>
@@ -290,7 +291,7 @@ QString GerritPushDialog::pushTarget() const
     if (!topic.isEmpty())
         target += '/' + topic;
 
-    const QStringList reviewersInput = reviewers().split(',', QString::SkipEmptyParts);
+    const QStringList reviewersInput = reviewers().split(',', Utils::SkipEmptyParts);
     for (const QString &reviewer : reviewersInput)
         options << "r=" + reviewer;
 

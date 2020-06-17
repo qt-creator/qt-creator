@@ -324,7 +324,7 @@ static QStringList environmentTemplatesPaths()
 
     if (!envTempPath.isEmpty()) {
         for (const QString &path : envTempPath
-             .split(Utils::HostOsInfo::pathListSeparator(), QString::SkipEmptyParts)) {
+             .split(Utils::HostOsInfo::pathListSeparator(), Utils::SkipEmptyParts)) {
             QString canonicalPath = QDir(path).canonicalPath();
             if (!canonicalPath.isEmpty() && !paths.contains(canonicalPath))
                 paths.append(canonicalPath);

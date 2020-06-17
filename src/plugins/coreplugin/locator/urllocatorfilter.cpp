@@ -25,6 +25,8 @@
 
 #include "urllocatorfilter.h"
 
+#include <utils/stringutils.h>
+
 #include <QDesktopServices>
 #include <QMutexLocker>
 #include <QUrl>
@@ -190,7 +192,7 @@ void UrlLocatorFilter::restoreState(const QByteArray &state)
 
     QString value;
     in >> value;
-    m_remoteUrls = value.split('^', QString::SkipEmptyParts);
+    m_remoteUrls = value.split('^', Utils::SkipEmptyParts);
 
     QString shortcut;
     in >> shortcut;

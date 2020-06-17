@@ -32,16 +32,19 @@
 #include "openpagesswitcher.h"
 #include "openpageswidget.h"
 
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/modemanager.h>
+
+#include <utils/qtcassert.h>
+#include <utils/stringutils.h>
+#include <utils/styledbar.h>
+
 #include <QApplication>
 #include <QClipboard>
 #include <QComboBox>
 #include <QMenu>
 
 #include <QHelpEngine>
-
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/modemanager.h>
-#include <utils/qtcassert.h>
 
 using namespace Core;
 using namespace Help::Internal;
@@ -110,7 +113,7 @@ QComboBox *OpenPagesManager::openPagesComboBox() const
 QStringList splitString(const QVariant &value)
 {
     using namespace Help::Constants;
-    return value.toString().split(ListSeparator, QString::SkipEmptyParts);
+    return value.toString().split(ListSeparator, Utils::SkipEmptyParts);
 }
 
 void OpenPagesManager::setupInitialPages()

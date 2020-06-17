@@ -54,6 +54,7 @@
 
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
@@ -790,7 +791,7 @@ bool BazaarPluginPrivate::submitEditorAboutToClose()
         //rewrite entries of the form 'file => newfile' to 'newfile' because
         //this would mess the commit command
         for (QStringList::iterator iFile = files.begin(); iFile != files.end(); ++iFile) {
-            const QStringList parts = iFile->split(QLatin1String(" => "), QString::SkipEmptyParts);
+            const QStringList parts = iFile->split(QLatin1String(" => "), Utils::SkipEmptyParts);
             if (!parts.isEmpty())
                 *iFile = parts.last();
         }

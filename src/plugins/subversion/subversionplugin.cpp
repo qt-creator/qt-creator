@@ -59,6 +59,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDebug>
@@ -151,7 +152,7 @@ StatusList parseStatusOutput(const QString &output)
 {
     StatusList changeSet;
     const QString newLine = QString(QLatin1Char('\n'));
-    const QStringList list = output.split(newLine, QString::SkipEmptyParts);
+    const QStringList list = output.split(newLine, Utils::SkipEmptyParts);
     foreach (const QString &l, list) {
         const QString line =l.trimmed();
         if (line.size() > 8) {

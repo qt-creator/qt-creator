@@ -31,31 +31,30 @@
 #include <coreplugin/icore.h>
 
 #include <utils/pathchooser.h>
+#include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
 #include <QApplication>
+#include <QDebug>
 #include <QDesktopWidget>
 #include <QDialogButtonBox>
+#include <QDir>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QFormLayout>
 #include <QHBoxLayout>
-#include <QMessageBox>
-#include <QMenu>
+#include <QImageWriter>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMenu>
+#include <QMessageBox>
 #include <QPushButton>
+#include <QSettings>
 #include <QSpinBox>
+#include <QTextStream>
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QWidgetAction>
-
-#include <QImageWriter>
-
-#include <QDebug>
-#include <QDir>
-#include <QFileInfo>
-#include <QSettings>
-#include <QTextStream>
 
 namespace ImageViewer {
 namespace Internal {
@@ -114,7 +113,7 @@ static QVector<QSize> stringToSizes(const QString &s)
 {
     QVector<QSize> result;
     const QString trimmed = s.trimmed();
-    const QVector<QStringRef> &sizes = trimmed.splitRef(',', QString::SkipEmptyParts);
+    const QVector<QStringRef> &sizes = trimmed.splitRef(',', Utils::SkipEmptyParts);
     result.reserve(sizes.size());
     for (const QStringRef &sizeSpec : sizes) {
         const QSize size = sizeFromString(sizeSpec);

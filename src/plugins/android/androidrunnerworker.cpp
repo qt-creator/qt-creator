@@ -41,13 +41,14 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
+#include <utils/stringutils.h>
 #include <utils/synchronousprocess.h>
 #include <utils/temporaryfile.h>
-#include <utils/qtcprocess.h>
 #include <utils/url.h>
-#include <utils/fileutils.h>
 
 #include <QDir>
 #include <QDirIterator>
@@ -509,7 +510,7 @@ void AndroidRunnerWorker::asyncStartHelper()
     }
 
     for (const QString &entry : m_beforeStartAdbCommands)
-        runAdb(entry.split(' ', QString::SkipEmptyParts));
+        runAdb(entry.split(' ', Utils::SkipEmptyParts));
 
     QStringList args({"shell", "am", "start"});
     args << m_amStartExtraArgs;
@@ -778,7 +779,7 @@ void AndroidRunnerWorker::onProcessIdChanged(qint64 pid)
 
         // Run adb commands after application quit.
         for (const QString &entry: m_afterFinishAdbCommands)
-            runAdb(entry.split(' ', QString::SkipEmptyParts));
+            runAdb(entry.split(' ', Utils::SkipEmptyParts));
     } else {
         // In debugging cases this will be funneled to the engine to actually start
         // and attach gdb. Afterwards this ends up in handleRemoteDebuggerRunning() below.

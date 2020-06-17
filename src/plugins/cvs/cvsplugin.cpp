@@ -46,6 +46,7 @@
 #include <utils/synchronousprocess.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -183,8 +184,7 @@ public:
     QStringList arguments() const override
     {
         QStringList args;
-        args = m_settings.stringValue(CvsSettings::diffOptionsKey).split(QLatin1Char(' '),
-                                                                         QString::SkipEmptyParts);
+        args = m_settings.stringValue(CvsSettings::diffOptionsKey).split(' ', SkipEmptyParts);
         args += VcsBaseEditorConfig::arguments();
         return args;
     }

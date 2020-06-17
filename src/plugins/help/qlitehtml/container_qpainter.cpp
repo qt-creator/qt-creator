@@ -25,6 +25,8 @@
 
 #include "container_qpainter.h"
 
+#include <utils/stringutils.h>
+
 #include <QClipboard>
 #include <QCursor>
 #include <QDebug>
@@ -446,7 +448,7 @@ litehtml::uint_ptr DocumentContainer::create_font(const litehtml::tchar_t *faceN
                                                   unsigned int decoration,
                                                   litehtml::font_metrics *fm)
 {
-    const QStringList splitNames = QString::fromUtf8(faceName).split(',', QString::SkipEmptyParts);
+    const QStringList splitNames = QString::fromUtf8(faceName).split(',', Utils::SkipEmptyParts);
     QStringList familyNames;
     std::transform(splitNames.cbegin(),
                    splitNames.cend(),

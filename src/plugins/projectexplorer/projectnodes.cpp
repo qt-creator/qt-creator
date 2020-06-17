@@ -79,7 +79,7 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
             directoryWithoutPrefix = directory;
         }
     }
-    QStringList parts = directoryWithoutPrefix.toString().split('/', QString::SkipEmptyParts);
+    QStringList parts = directoryWithoutPrefix.toString().split('/', Utils::SkipEmptyParts);
     if (!Utils::HostOsInfo::isWindowsHost() && !isRelative && !parts.isEmpty())
         parts[0].prepend('/');
 

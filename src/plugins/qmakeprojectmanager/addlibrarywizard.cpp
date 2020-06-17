@@ -29,14 +29,14 @@
 
 #include <utils/hostosinfo.h>
 #include <utils/fileutils.h>
+#include <utils/stringutils.h>
 
+#include <QFileInfo>
 #include <QLabel>
 #include <QRadioButton>
 #include <QScrollArea>
-#include <QVBoxLayout>
-
-#include <QFileInfo>
 #include <QTextStream>
+#include <QVBoxLayout>
 
 using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
@@ -52,7 +52,7 @@ QStringList qt_clean_filter_list(const QString &filter)
     int i = regexp.indexIn(f);
     if (i >= 0)
         f = regexp.cap(2);
-    return f.split(QLatin1Char(' '), QString::SkipEmptyParts);
+    return f.split(QLatin1Char(' '), Utils::SkipEmptyParts);
 }
 
 static bool validateLibraryPath(const Utils::FilePath &filePath,

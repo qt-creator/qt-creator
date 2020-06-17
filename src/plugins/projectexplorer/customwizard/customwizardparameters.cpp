@@ -29,12 +29,13 @@
 #include <coreplugin/icore.h>
 #include <cpptools/cpptoolsconstants.h>
 
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/macroexpander.h>
+#include <utils/mimetypes/mimedatabase.h>
+#include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/templateengine.h>
 #include <utils/temporarydirectory.h>
 #include <utils/temporaryfile.h>
-#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 #include <QDate>
@@ -450,7 +451,7 @@ static inline IWizardFactory::WizardKind kindAttribute(const QXmlStreamReader &r
 static inline QSet<Id> readRequiredFeatures(const QXmlStreamReader &reader)
 {
     QString value = reader.attributes().value(QLatin1String(featuresRequiredC)).toString();
-    QStringList stringList = value.split(QLatin1Char(','), QString::SkipEmptyParts);
+    QStringList stringList = value.split(QLatin1Char(','), Utils::SkipEmptyParts);
     QSet<Id> features;
     foreach (const QString &string, stringList)
         features |= Id::fromString(string);

@@ -64,6 +64,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/savedaction.h>
+#include <utils/stringutils.h>
 #include <utils/synchronousprocess.h>
 #include <utils/temporaryfile.h>
 
@@ -2699,7 +2700,7 @@ void GdbEngine::handleShowModuleSections(const DebuggerResponse &response,
                     active = true;
             } else {
                 if (active) {
-                    QStringList items = line.split(' ', QString::SkipEmptyParts);
+                    QStringList items = line.split(' ', Utils::SkipEmptyParts);
                     QString fromTo = items.value(0, QString());
                     const int pos = fromTo.indexOf('-');
                     QTC_ASSERT(pos >= 0, continue);
@@ -3188,7 +3189,7 @@ void GdbEngine::handleRegisterListing(const DebuggerResponse &response)
     m_registers.clear();
     QStringList lines = response.consoleStreamOutput.split('\n');
     for (int i = 1; i < lines.size(); ++i) {
-        const QVector<QStringRef> parts = lines.at(i).splitRef(' ', QString::SkipEmptyParts);
+        const QVector<QStringRef> parts = lines.at(i).splitRef(' ', Utils::SkipEmptyParts);
         if (parts.size() < 7)
             continue;
         int gdbRegisterNumber = parts.at(1).toInt();

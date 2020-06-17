@@ -52,6 +52,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/synchronousprocess.h>
 
 #include <QApplication>
@@ -145,7 +146,7 @@ bool AndroidManager::packageInstalled(const QString &deviceSerial,
     QStringList args = AndroidDeviceInfo::adbSelector(deviceSerial);
     args << "shell" << "pm" << "list" << "packages";
     QStringList lines = runAdbCommand(args).stdOut().split(QRegularExpression("[\\n\\r]"),
-                                                           QString::SkipEmptyParts);
+                                                           Utils::SkipEmptyParts);
     for (const QString &line : lines) {
         // Don't want to confuse com.abc.xyz with com.abc.xyz.def so check with
         // endsWith

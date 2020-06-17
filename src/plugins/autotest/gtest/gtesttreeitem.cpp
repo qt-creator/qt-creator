@@ -32,9 +32,11 @@
 
 #include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/session.h>
+
 #include <utils/algorithm.h>
 #include <utils/icon.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
 #include <QRegularExpression>
@@ -91,10 +93,10 @@ static bool matchesFilter(const QString &filter, const QString &fullTestName)
     QStringList negative;
     int startOfNegative = filter.indexOf('-');
     if (startOfNegative == -1) {
-        positive.append(filter.split(':', QString::SkipEmptyParts));
+        positive.append(filter.split(':', Utils::SkipEmptyParts));
     } else {
-        positive.append(filter.left(startOfNegative).split(':', QString::SkipEmptyParts));
-        negative.append(filter.mid(startOfNegative + 1).split(':', QString::SkipEmptyParts));
+        positive.append(filter.left(startOfNegative).split(':', Utils::SkipEmptyParts));
+        negative.append(filter.mid(startOfNegative + 1).split(':', Utils::SkipEmptyParts));
     }
 
     QString testName = fullTestName;

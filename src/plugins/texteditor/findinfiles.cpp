@@ -28,21 +28,23 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/findplugin.h>
 #include <coreplugin/icore.h>
+
 #include <utils/filesearch.h>
 #include <utils/fileutils.h>
 #include <utils/historycompleter.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
-#include <QDebug>
-#include <QSettings>
-#include <QDir>
-#include <QPushButton>
-#include <QFileDialog>
-#include <QLabel>
-#include <QHBoxLayout>
-#include <QStackedWidget>
 #include <QComboBox>
+#include <QDebug>
+#include <QDir>
+#include <QFileDialog>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QSettings>
+#include <QStackedWidget>
 
 using namespace Core;
 using namespace TextEditor;
@@ -96,7 +98,7 @@ QString FindInFiles::label() const
 
     const QChar slash = QLatin1Char('/');
     const QStringList &nonEmptyComponents = path().toFileInfo().absoluteFilePath()
-            .split(slash, QString::SkipEmptyParts);
+            .split(slash, Utils::SkipEmptyParts);
     return tr("%1 \"%2\":")
             .arg(title)
             .arg(nonEmptyComponents.isEmpty() ? QString(slash) : nonEmptyComponents.last());

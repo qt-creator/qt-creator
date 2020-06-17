@@ -32,6 +32,8 @@
 #include "../itestframework.h"
 #include "../testsettings.h"
 
+#include <utils/stringutils.h>
+
 namespace Autotest {
 namespace Internal {
 
@@ -57,7 +59,7 @@ QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted)
     QStringList arguments;
     if (AutotestPlugin::settings()->processArgs) {
         arguments.append(QTestUtils::filterInterfering
-                         (runnable().commandLineArguments.split(' ', QString::SkipEmptyParts),
+                         (runnable().commandLineArguments.split(' ', Utils::SkipEmptyParts),
                           omitted, true));
     }
 

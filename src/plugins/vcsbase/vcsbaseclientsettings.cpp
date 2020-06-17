@@ -30,6 +30,7 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QSettings>
 #include <QVariant>
@@ -368,7 +369,7 @@ int VcsBaseClientSettings::vcsTimeoutS() const
 
 QStringList VcsBaseClientSettings::searchPathList() const
 {
-    return stringValue(pathKey).split(HostOsInfo::pathListSeparator(), QString::SkipEmptyParts);
+    return stringValue(pathKey).split(HostOsInfo::pathListSeparator(), Utils::SkipEmptyParts);
 }
 
 QString VcsBaseClientSettings::settingsGroup() const

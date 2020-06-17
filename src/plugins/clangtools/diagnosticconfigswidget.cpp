@@ -35,6 +35,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QDesktopServices>
 #include <QDialogButtonBox>
@@ -308,7 +309,7 @@ public:
         propagateDown(index(0, 0, QModelIndex()));
 
         QStringList checksList = checks.simplified().remove(" ")
-                .split(",", QString::SkipEmptyParts);
+                .split(",", Utils::SkipEmptyParts);
 
         for (QString &check : checksList) {
             Qt::CheckState state;
@@ -857,7 +858,7 @@ void DiagnosticConfigsWidget::syncClazyWidgets(const ClangDiagnosticConfig &conf
     const QStringList checkNames = config.clazyMode()
                                            == ClangDiagnosticConfig::ClazyMode::UseDefaultChecks
                                        ? m_clazyInfo.defaultChecks
-                                       : config.clazyChecks().split(',', QString::SkipEmptyParts);
+                                       : config.clazyChecks().split(',', Utils::SkipEmptyParts);
     m_clazyTreeModel->enableChecks(checkNames);
 
     syncClazyChecksGroupBox();

@@ -29,6 +29,8 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/runcontrol.h>
 
+#include <utils/stringutils.h>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -106,7 +108,7 @@ void RemoteLinuxEnvironmentReader::remoteProcessFinished()
         QString remoteOutput = QString::fromUtf8(m_deviceProcess->readAllStandardOutput());
         if (!remoteOutput.isEmpty()) {
             m_env = Utils::Environment(remoteOutput.split(QLatin1Char('\n'),
-                QString::SkipEmptyParts), Utils::OsTypeLinux);
+                Utils::SkipEmptyParts), Utils::OsTypeLinux);
         }
     }
     setFinished();

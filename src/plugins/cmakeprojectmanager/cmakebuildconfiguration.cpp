@@ -41,11 +41,13 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
+
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtbuildaspects.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QDir>
 #include <QLoggingCategory>
@@ -283,13 +285,7 @@ QStringList CMakeBuildConfiguration::extraCMakeArguments() const
 
 QStringList CMakeBuildConfiguration::initialCMakeArguments() const
 {
-    return aspect<InitialCMakeArgumentsAspect>()->value().split('\n',
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-                                                                QString::SkipEmptyParts
-#else
-                                                                Qt::SkipEmptyParts
-#endif
-                                                                );
+    return aspect<InitialCMakeArgumentsAspect>()->value().split('\n', Utils::SkipEmptyParts);
 }
 
 void CMakeBuildConfiguration::setExtraCMakeArguments(const QStringList &args)

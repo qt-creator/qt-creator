@@ -46,16 +46,17 @@
 
 #include <app/app_version.h>
 #include <coreplugin/icore.h>
+
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/optional.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QDesktopServices>
 #include <QFontDatabase>
-#include <QMutexLocker>
-
 #include <QHelpEngine>
+#include <QMutexLocker>
 
 using namespace Help::Internal;
 
@@ -269,7 +270,7 @@ void LocalHelpManager::setScrollWheelZoomingEnabled(bool enabled)
 QStringList LocalHelpManager::lastShownPages()
 {
     const QVariant value = Core::ICore::settings()->value(kLastShownPagesKey, QVariant());
-    return value.toString().split(Constants::ListSeparator, QString::SkipEmptyParts);
+    return value.toString().split(Constants::ListSeparator, Utils::SkipEmptyParts);
 }
 
 void LocalHelpManager::setLastShownPages(const QStringList &pages)
@@ -281,7 +282,7 @@ QList<float> LocalHelpManager::lastShownPagesZoom()
 {
     const QVariant value = Core::ICore::settings()->value(kLastShownPagesZoomKey, QVariant());
     const QStringList stringValues = value.toString().split(Constants::ListSeparator,
-                                                            QString::SkipEmptyParts);
+                                                            Utils::SkipEmptyParts);
     return Utils::transform(stringValues, [](const QString &str) { return str.toFloat(); });
 }
 

@@ -30,6 +30,8 @@
 #include "../itestframework.h"
 #include "../testsettings.h"
 
+#include <utils/stringutils.h>
+
 namespace Autotest {
 namespace Internal {
 
@@ -99,7 +101,7 @@ QStringList CatchConfiguration::argumentsForTestRunner(QStringList *omitted) con
 
     if (AutotestPlugin::settings()->processArgs) {
         arguments << filterInterfering(runnable().commandLineArguments.split(
-                                           ' ', QString::SkipEmptyParts), omitted);
+                                           ' ', Utils::SkipEmptyParts), omitted);
     }
 
     auto settings = dynamic_cast<CatchTestSettings *>(framework()->frameworkSettings());

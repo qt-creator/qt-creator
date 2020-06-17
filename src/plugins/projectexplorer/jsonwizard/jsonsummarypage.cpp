@@ -39,6 +39,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QDir>
 #include <QMessageBox>
@@ -209,7 +210,7 @@ void JsonSummaryPage::addToProject(const JsonWizard::GeneratorFiles &files)
             return;
         }
         const QStringList dependencies = m_wizard->stringValue("Dependencies")
-                .split(':', QString::SkipEmptyParts);
+                .split(':', Utils::SkipEmptyParts);
         if (!dependencies.isEmpty())
             folder->addDependencies(dependencies);
     }

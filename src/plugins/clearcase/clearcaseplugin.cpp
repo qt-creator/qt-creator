@@ -45,21 +45,25 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
+#include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/locator/commandlocator.h>
+
 #include <texteditor/textdocument.h>
-#include <projectexplorer/session.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/session.h>
+
 #include <utils/algorithm.h>
-#include <utils/synchronousprocess.h>
-#include <utils/temporarydirectory.h>
-#include <utils/parameteraction.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
+#include <utils/stringutils.h>
+#include <utils/synchronousprocess.h>
+#include <utils/temporarydirectory.h>
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
@@ -414,7 +418,7 @@ QStringList ClearCasePluginPrivate::getVobList() const
     const ClearCaseResponse response =
             runCleartool(currentState().topLevel(), args, m_settings.timeOutS, SilentRun);
 
-    return response.stdOut.split(QLatin1Char('\n'), QString::SkipEmptyParts);
+    return response.stdOut.split(QLatin1Char('\n'), Utils::SkipEmptyParts);
 }
 
 /// Get the drive letter of a path
@@ -541,7 +545,7 @@ QString ClearCasePluginPrivate::ccManagesDirectory(const QString &directory) con
     if (response.error)
         return QString();
 
-    const QStringList result = response.stdOut.split(QLatin1Char('\n'), QString::SkipEmptyParts);
+    const QStringList result = response.stdOut.split(QLatin1Char('\n'), Utils::SkipEmptyParts);
     if (result.size() != 2)
         return QString();
 
@@ -890,7 +894,7 @@ QStringList ClearCasePluginPrivate::ccGetActiveVobs() const
         prefix += QLatin1Char('/');
 
     const QDir theViewRootDir(theViewRoot);
-    foreach (const QString &line, response.stdOut.split(QLatin1Char('\n'), QString::SkipEmptyParts)) {
+    foreach (const QString &line, response.stdOut.split(QLatin1Char('\n'), Utils::SkipEmptyParts)) {
         const bool isActive = line.at(0) == QLatin1Char('*');
         if (!isActive)
             continue;
@@ -2051,7 +2055,7 @@ QList<QStringPair> ClearCasePluginPrivate::ccGetActivities() const
     QStringList args(QLatin1String("lsactivity"));
     args << QLatin1String("-fmt") << QLatin1String("%n\\t%[headline]p\\n");
     const QString response = runCleartoolSync(currentState().topLevel(), args);
-    QStringList acts = response.split(QLatin1Char('\n'), QString::SkipEmptyParts);
+    QStringList acts = response.split(QLatin1Char('\n'), Utils::SkipEmptyParts);
     foreach (const QString &activity, acts) {
         QStringList act = activity.split(QLatin1Char('\t'));
         if (act.size() >= 2)
@@ -2342,7 +2346,7 @@ QString ClearCasePluginPrivate::runExtDiff(const QString &workingDir, const QStr
                                     int timeOutS, QTextCodec *outputCodec)
 {
     CommandLine diff("diff");
-    diff.addArgs(m_settings.diffArgs.split(' ', QString::SkipEmptyParts));
+    diff.addArgs(m_settings.diffArgs.split(' ', Utils::SkipEmptyParts));
     diff.addArgs(arguments);
 
     SynchronousProcess process;

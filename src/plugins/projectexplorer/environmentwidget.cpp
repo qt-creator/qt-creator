@@ -37,6 +37,7 @@
 #include <utils/itemviews.h>
 #include <utils/namevaluevalidator.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/tooltip/tooltip.h>
 
 #include <QDialogButtonBox>
@@ -82,7 +83,7 @@ public:
         m_view.setHeaderLabel(varName);
         m_view.setDragDropMode(QAbstractItemView::InternalMove);
         const QStringList pathList = paths.split(Utils::HostOsInfo::pathListSeparator(),
-                                                 QString::SkipEmptyParts);
+                                                 Utils::SkipEmptyParts);
         for (const QString &path : pathList)
             addPath(path);
 
@@ -442,7 +443,7 @@ bool EnvironmentWidget::currentEntryIsPathList(const QModelIndex &current) const
     if (valueIndex.column() == 0)
         valueIndex = valueIndex.siblingAtColumn(1);
     const QStringList entries = d->m_model->data(valueIndex).toString()
-            .split(Utils::HostOsInfo::pathListSeparator(), QString::SkipEmptyParts);
+            .split(Utils::HostOsInfo::pathListSeparator(), Utils::SkipEmptyParts);
     if (entries.length() < 2)
         return false;
     for (const QString &potentialDir : entries) {

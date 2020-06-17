@@ -34,14 +34,17 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/variablechooser.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
+
 #include <utils/algorithm.h>
 #include <utils/utilsicons.h>
 #include <utils/delegates.h>
 #include <utils/fancylineedit.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/jsontreeitem.h>
+#include <utils/stringutils.h>
 
 #include <QBoxLayout>
 #include <QComboBox>
@@ -810,8 +813,8 @@ QString BaseSettingsWidget::name() const
 
 LanguageFilter BaseSettingsWidget::filter() const
 {
-    return {m_mimeTypes->text().split(filterSeparator, QString::SkipEmptyParts),
-                m_filePattern->text().split(filterSeparator, QString::SkipEmptyParts)};
+    return {m_mimeTypes->text().split(filterSeparator, Utils::SkipEmptyParts),
+                m_filePattern->text().split(filterSeparator, Utils::SkipEmptyParts)};
 }
 
 BaseSettings::StartBehavior BaseSettingsWidget::startupBehavior() const
@@ -910,7 +913,7 @@ private:
 
 void BaseSettingsWidget::showAddMimeTypeDialog()
 {
-    MimeTypeDialog dialog(m_mimeTypes->text().split(filterSeparator, QString::SkipEmptyParts),
+    MimeTypeDialog dialog(m_mimeTypes->text().split(filterSeparator, Utils::SkipEmptyParts),
                           Core::ICore::dialogParent());
     if (dialog.exec() == QDialog::Rejected)
         return;

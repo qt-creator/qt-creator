@@ -187,7 +187,7 @@ void Core::Internal::MenuBarFilter::prepareSearch(const QString &entry)
     static const QRegularExpression seperatorRegExp(QString("[%1]").arg(separators));
     QString normalized = entry;
     normalized.replace(seperatorRegExp, separators.at(0));
-    const QStringList entryPath = normalized.split(separators.at(0), QString::SkipEmptyParts);
+    const QStringList entryPath = normalized.split(separators.at(0), Utils::SkipEmptyParts);
     m_entries.clear();
     QVector<const QMenu *> processedMenus;
     for (QAction* action : menuBarActions())

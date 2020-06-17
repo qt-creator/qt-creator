@@ -30,9 +30,10 @@
 #include "scxmleditorconstants.h"
 #include "scxmltag.h"
 
-#include <QMenu>
-
 #include <coreplugin/icore.h>
+#include <utils/stringutils.h>
+
+#include <QMenu>
 
 using namespace ScxmlEditor::Common;
 
@@ -152,9 +153,9 @@ void ColorThemes::setDocument(ScxmlEditor::PluginInterface::ScxmlDocument *doc)
     if (m_document) {
         PluginInterface::ScxmlTag *scxmlTag = m_document->scxmlRootTag();
         if (scxmlTag && scxmlTag->hasEditorInfo(Constants::C_SCXML_EDITORINFO_COLORS)) {
-            const QStringList colors = scxmlTag->editorInfo(Constants::C_SCXML_EDITORINFO_COLORS).split(";;", QString::SkipEmptyParts);
+            const QStringList colors = scxmlTag->editorInfo(Constants::C_SCXML_EDITORINFO_COLORS).split(";;", Utils::SkipEmptyParts);
             for (const QString &color : colors) {
-                const QStringList colorInfo = color.split("_", QString::SkipEmptyParts);
+                const QStringList colorInfo = color.split("_", Utils::SkipEmptyParts);
                 if (colorInfo.count() == 2)
                     documentColors[colorInfo[0]] = colorInfo[1];
             }

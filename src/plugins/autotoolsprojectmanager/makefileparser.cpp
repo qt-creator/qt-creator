@@ -29,6 +29,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/stringutils.h>
 
 #include <QDir>
 #include <QFile>
@@ -375,7 +376,7 @@ QStringList MakefileParser::targetValues(bool *hasVariables)
         // Get all values of a line separated by spaces.
         // Values representing a variable like $(value) get
         // removed currently.
-        QStringList lineValues = m_line.split(QLatin1Char(' '), QString::SkipEmptyParts);
+        QStringList lineValues = m_line.split(QLatin1Char(' '), Utils::SkipEmptyParts);
         QStringList::iterator it = lineValues.begin();
         while (it != lineValues.end()) {
             if ((*it).startsWith(QLatin1String("$("))) {

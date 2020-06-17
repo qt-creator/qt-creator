@@ -31,6 +31,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/stringutils.h>
 #include <utils/synchronousprocess.h>
 
 #include <QSettings>
@@ -141,7 +142,7 @@ void HighlighterSettings::fromSettings(const QString &category, QSettings *s)
 
 void HighlighterSettings::setIgnoredFilesPatterns(const QString &patterns)
 {
-    setExpressionsFromList(patterns.split(QLatin1Char(','), QString::SkipEmptyParts));
+    setExpressionsFromList(patterns.split(QLatin1Char(','), Utils::SkipEmptyParts));
 }
 
 QString HighlighterSettings::ignoredFilesPatterns() const

@@ -40,6 +40,7 @@
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QComboBox>
 #include <QFormLayout>
@@ -428,7 +429,7 @@ public:
 
     QStringList entries() const
     {
-        return textEditWidget()->toPlainText().split(QLatin1Char('\n'), QString::SkipEmptyParts);
+        return textEditWidget()->toPlainText().split(QLatin1Char('\n'), Utils::SkipEmptyParts);
     }
 
     QString text() const
@@ -547,7 +548,7 @@ void CustomToolChainConfigWidget::applyImpl()
     tc->setMakeCommand(m_makeCommand->filePath());
     tc->setTargetAbi(m_abiWidget->currentAbi());
     Macros macros = Utils::transform<QVector>(
-                m_predefinedDetails->text().split('\n', QString::SkipEmptyParts),
+                m_predefinedDetails->text().split('\n', Utils::SkipEmptyParts),
                 [](const QString &m) {
         return Macro::fromKeyValue(m);
     });

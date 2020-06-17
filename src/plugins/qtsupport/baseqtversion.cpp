@@ -54,6 +54,7 @@
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
+#include <utils/stringutils.h>
 #include <utils/synchronousprocess.h>
 #include <utils/winutils.h>
 
@@ -2132,7 +2133,7 @@ static QStringList extractFieldsFromBuildString(const QByteArray &buildString)
     result.append(match.captured(1)); // qtVersion
 
     // Abi info string:
-    QStringList abiInfo = match.captured(2).split('-', QString::SkipEmptyParts);
+    QStringList abiInfo = match.captured(2).split('-', Utils::SkipEmptyParts);
 
     result.append(abiInfo.takeFirst()); // cpu
 

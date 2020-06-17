@@ -25,6 +25,8 @@
 
 #include "cvsutils.h"
 
+#include <utils/stringutils.h>
+
 #include <QRegExp>
 #include <QStringList>
 
@@ -60,7 +62,7 @@ QList<CvsLogEntry> parseLogEntries(const QString &o,
     enum ParseState { FileState, RevisionState, StatusLineState };
 
     QList<CvsLogEntry> rc;
-    const QStringList lines = o.split(QString(QLatin1Char('\n')), QString::SkipEmptyParts);
+    const QStringList lines = o.split('\n', Utils::SkipEmptyParts);
     ParseState state = FileState;
 
     const QString workingFilePrefix = QLatin1String("Working file: ");
@@ -173,7 +175,7 @@ StateList parseStatusOutput(const QString &directory, const QString &output)
     const QString dotDir = QString(QLatin1Char('.'));
     const QChar slash = QLatin1Char('/');
 
-    const QStringList list = output.split(QLatin1Char('\n'), QString::SkipEmptyParts);
+    const QStringList list = output.split('\n', Utils::SkipEmptyParts);
 
     QString path = directory;
     if (!path.isEmpty())

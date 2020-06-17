@@ -2014,7 +2014,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
             const QString gitBinary = Core::ICore::settings()->value("Git/BinaryPath", "git")
                     .toString();
             const QStringList rawGitSearchPaths = Core::ICore::settings()->value("Git/Path")
-                    .toString().split(':', QString::SkipEmptyParts);
+                    .toString().split(':', Utils::SkipEmptyParts);
             const Utils::FilePaths gitSearchPaths = Utils::transform(rawGitSearchPaths,
                     [](const QString &rawPath) { return Utils::FilePath::fromString(rawPath); });
             const Utils::FilePath fullGitPath = Utils::Environment::systemEnvironment()

@@ -33,6 +33,7 @@
 #include <utils/fancylineedit.h>
 #include <utils/pathchooser.h>
 #include <utils/runextensions.h>
+#include <utils/stringutils.h>
 
 #include <QDialogButtonBox>
 #include <QDir>
@@ -349,7 +350,7 @@ void SelectableFilesModel::collectFiles(Tree *root, Utils::FilePaths *result) co
 QList<Glob> SelectableFilesModel::parseFilter(const QString &filter)
 {
     QList<Glob> result;
-    const QStringList list = filter.split(QLatin1Char(';'), QString::SkipEmptyParts);
+    const QStringList list = filter.split(QLatin1Char(';'), Utils::SkipEmptyParts);
     for (const QString &e : list) {
         QString entry = e.trimmed();
         Glob g;

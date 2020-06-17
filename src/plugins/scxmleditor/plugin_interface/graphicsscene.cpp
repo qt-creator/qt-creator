@@ -41,6 +41,7 @@
 #include "warningitem.h"
 
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QAction>
 #include <QGuiApplication>
@@ -286,7 +287,7 @@ void GraphicsScene::paste(const QPointF &targetPos)
     QString strMinPos = QLatin1String(mimeData->data("StateChartEditor/CopiedMinPos"));
     QPointF minPos(0, 0);
     if (!strMinPos.isEmpty()) {
-        QStringList coords = strMinPos.split(":", QString::SkipEmptyParts);
+        QStringList coords = strMinPos.split(":", Utils::SkipEmptyParts);
         if (coords.count() == 2)
             minPos = QPointF(coords[0].toDouble(), coords[1].toDouble());
     }

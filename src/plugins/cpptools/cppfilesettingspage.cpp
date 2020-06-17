@@ -39,16 +39,17 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimetypes/mimedatabase.h>
+#include <utils/stringutils.h>
 
-#include <QSettings>
-#include <QDebug>
-#include <QFile>
 #include <QCoreApplication>
 #include <QDate>
+#include <QDebug>
+#include <QFile>
+#include <QFileDialog>
 #include <QLocale>
+#include <QSettings>
 #include <QTextCodec>
 #include <QTextStream>
-#include <QFileDialog>
 
 namespace CppTools {
 namespace Internal {
@@ -308,7 +309,7 @@ void CppFileSettingsWidget::setLicenseTemplatePath(const QString &lp)
 static QStringList trimmedPaths(const QString &paths)
 {
     QStringList res;
-    foreach (const QString &path, paths.split(QLatin1Char(','), QString::SkipEmptyParts))
+    foreach (const QString &path, paths.split(QLatin1Char(','), Utils::SkipEmptyParts))
         res << path.trimmed();
     return res;
 }

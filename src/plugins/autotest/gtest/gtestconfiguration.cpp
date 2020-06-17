@@ -32,6 +32,7 @@
 #include "../testsettings.h"
 
 #include <utils/algorithm.h>
+#include <utils/stringutils.h>
 
 namespace Autotest {
 namespace Internal {
@@ -76,7 +77,7 @@ QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) con
     QStringList arguments;
     if (AutotestPlugin::settings()->processArgs) {
         arguments << filterInterfering(runnable().commandLineArguments.split(
-                                           ' ', QString::SkipEmptyParts), omitted);
+                                           ' ', Utils::SkipEmptyParts), omitted);
     }
 
     const QStringList &testSets = testCases();

@@ -32,7 +32,9 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+
 #include <utils/progressindicator.h>
+#include <utils/stringutils.h>
 #include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 
@@ -261,7 +263,7 @@ void SearchWidget::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
 
 QStringList SearchWidget::currentSearchTerms() const
 {
-    return searchEngine->searchInput().split(QRegExp("\\W+"), QString::SkipEmptyParts);
+    return searchEngine->searchInput().split(QRegExp("\\W+"), Utils::SkipEmptyParts);
 }
 
 // #pragma mark -- SearchSideBarItem

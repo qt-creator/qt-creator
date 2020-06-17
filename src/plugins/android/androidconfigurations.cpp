@@ -36,26 +36,31 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <projectexplorer/kitmanager.h>
-#include <projectexplorer/kitinformation.h>
+
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/toolchainmanager.h>
+
 #include <debugger/debuggeritemmanager.h>
 #include <debugger/debuggeritem.h>
 #include <debugger/debuggerkitinformation.h>
+
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
+
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
+#include <utils/stringutils.h>
 #include <utils/synchronousprocess.h>
-#include <utils/environment.h>
 
 #include <QApplication>
 #include <QDirIterator>
@@ -612,7 +617,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(const FilePath &adbTo
                 .arg(cmd.toUserOutput());
         return devices;
     }
-    QStringList adbDevs = response.allOutput().split('\n', QString::SkipEmptyParts);
+    QStringList adbDevs = response.allOutput().split('\n', Utils::SkipEmptyParts);
     if (adbDevs.empty())
         return devices;
 

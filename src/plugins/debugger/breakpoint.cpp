@@ -31,6 +31,7 @@
 
 #include <projectexplorer/abi.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QDebug>
 #include <QFileInfo>
@@ -155,7 +156,7 @@ bool BreakpointParameters::isQmlFileAndLineBreakpoint() const
     if (qmlExtensionString.isEmpty())
         qmlExtensionString = ".qml;.js";
 
-    const auto qmlFileExtensions = qmlExtensionString.splitRef(';', QString::SkipEmptyParts);
+    const auto qmlFileExtensions = qmlExtensionString.splitRef(';', Utils::SkipEmptyParts);
     const QString file = fileName.toString();
     for (const QStringRef &extension : qmlFileExtensions) {
         if (file.endsWith(extension, Qt::CaseInsensitive))

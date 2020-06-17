@@ -44,8 +44,10 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
+
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QDesignerFormWindowInterface>
 #include <QDesignerFormEditorInterface>
@@ -382,7 +384,7 @@ static QString addParameterNames(const QString &functionSignature, const QString
     const int lastParen = argumentsString.lastIndexOf(')');
     if (lastParen != -1)
         argumentsString.truncate(lastParen);
-    const QStringList arguments = argumentsString.split(',', QString::SkipEmptyParts);
+    const QStringList arguments = argumentsString.split(',', Utils::SkipEmptyParts);
     const int pCount = parameterNames.count();
     const int aCount = arguments.count();
     for (int i = 0; i < aCount; ++i) {

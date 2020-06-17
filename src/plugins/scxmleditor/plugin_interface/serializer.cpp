@@ -25,6 +25,8 @@
 
 #include "serializer.h"
 
+#include <utils/stringutils.h>
+
 using namespace ScxmlEditor::PluginInterface;
 
 Serializer::Serializer()
@@ -106,7 +108,7 @@ void Serializer::read(QPoint &d)
 
 void Serializer::setData(const QString &d)
 {
-    m_data = d.split(m_separator, QString::SkipEmptyParts);
+    m_data = d.split(m_separator, Utils::SkipEmptyParts);
     m_index = 0;
 }
 

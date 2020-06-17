@@ -35,6 +35,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/synchronousprocess.h>
 #include <utils/utilsicons.h>
 #include <utils/winutils.h>
@@ -79,7 +80,7 @@ static QString getConfigurationOfGdbCommand(const FilePath &command)
 static QString extractGdbTargetAbiStringFromGdbOutput(const QString &gdbOutput)
 {
     const auto outputLines = gdbOutput.split('\n');
-    const auto whitespaceSeparatedTokens = outputLines.join(' ').split(' ', QString::SkipEmptyParts);
+    const auto whitespaceSeparatedTokens = outputLines.join(' ').split(' ', Utils::SkipEmptyParts);
 
     const QString targetKey{"--target="};
     const QString targetValue = Utils::findOrDefault(whitespaceSeparatedTokens,

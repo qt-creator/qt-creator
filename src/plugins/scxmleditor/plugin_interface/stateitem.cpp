@@ -40,6 +40,8 @@
 #include "transitionitem.h"
 #include "utilsprovider.h"
 
+#include <utils/stringutils.h>
+
 #include <QBrush>
 #include <QCoreApplication>
 #include <QDebug>
@@ -119,7 +121,7 @@ void StateItem::updateAttributes()
         // Check initial attribute
         QString strNewId = tagValue("id", true);
         if (!m_parallelState) {
-            QStringList NSIDs = strNewId.split(tag()->document()->nameSpaceDelimiter(), QString::SkipEmptyParts);
+            QStringList NSIDs = strNewId.split(tag()->document()->nameSpaceDelimiter(), Utils::SkipEmptyParts);
             if (!NSIDs.isEmpty()) {
                 NSIDs[NSIDs.count() - 1] = m_stateNameItem->toPlainText();
                 QString strOldId = NSIDs.join(tag()->document()->nameSpaceDelimiter());
