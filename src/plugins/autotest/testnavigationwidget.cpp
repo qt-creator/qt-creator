@@ -43,6 +43,7 @@
 #include <utils/utilsicons.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/session.h>
 
 #include <QAction>
 #include <QMenu>
@@ -106,6 +107,14 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
             this, [this] (int numberOfActive) {
         m_missingFrameworksWidget->setVisible(numberOfActive == 0);
     });
+    ProjectExplorer::SessionManager *sm = ProjectExplorer::SessionManager::instance();
+    connect(sm, &ProjectExplorer::SessionManager::startupProjectChanged,
+            [this](ProjectExplorer::Project * /*project*/) {
+        m_expandedStateCache.clear();
+        m_itemUseCache.clear();
+    });
+    connect(m_model, &TestTreeModel::testTreeModelChanged,
+            this, &TestNavigationWidget::reapplyCachedExpandedState);
     connect(m_progressTimer, &QTimer::timeout,
             m_progressIndicator, &Utils::ProgressIndicator::show);
 }
@@ -226,6 +235,28 @@ QList<QToolButton *> TestNavigationWidget::createToolButtons()
     return list;
 }
 
+void TestNavigationWidget::updateExpandedStateCache()
+{
+    // raise generation for cached items and drop anything reaching 10th generation
+    const QList<QString> cachedNames = m_itemUseCache.keys();
+    for (const QString &cachedName : cachedNames) {
+        auto it = m_itemUseCache.find(cachedName);
+        if (it.value()++ >= 10) {
+            m_itemUseCache.erase(it);
+            m_expandedStateCache.remove(cachedName);
+        }
+    }
+
+    for (Utils::TreeItem *rootNode : *m_model->rootItem()) {
+        rootNode->forAllChildren([this](Utils::TreeItem *child) {
+            auto childItem = static_cast<TestTreeItem *>(child);
+            const QString cacheName = childItem->cacheName();
+            m_expandedStateCache.insert(cacheName, m_view->isExpanded(childItem->index()));
+            m_itemUseCache[cacheName] = 0; // explicitly mark as 0-generation
+        });
+    }
+}
+
 void TestNavigationWidget::onItemActivated(const QModelIndex &index)
 {
     const Utils::Link link = index.data(LinkRole).value<Utils::Link>();
@@ -293,6 +324,22 @@ void TestNavigationWidget::onRunThisTestTriggered(TestRunMode runMode)
 
     TestTreeItem *item = static_cast<TestTreeItem *>(sourceIndex.internalPointer());
     TestRunner::instance()->runTest(runMode, item);
+}
+
+void TestNavigationWidget::reapplyCachedExpandedState()
+{
+    for (Utils::TreeItem *rootNode : *m_model->rootItem()) {
+        rootNode->forAllChildren([this](Utils::TreeItem *child) {
+            auto childItem = static_cast<TestTreeItem *>(child);
+            const QString cacheName = childItem->cacheName();
+            const auto it = m_expandedStateCache.find(cacheName);
+            if (it == m_expandedStateCache.end())
+                return;
+            QModelIndex index = child->index();
+            if (m_view->isExpanded(index) != it.value())
+                m_view->setExpanded(index, it.value());
+        });
+    }
 }
 
 TestNavigationWidgetFactory::TestNavigationWidgetFactory()

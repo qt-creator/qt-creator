@@ -104,7 +104,7 @@ private:
     QList<TestTreeItem *> testItemsByName(TestTreeItem *root, const QString &testName);
 
     Internal::TestCodeParser *m_parser = nullptr;
-    QHash<QString, Qt::CheckState> m_checkStateCache; // could be enhanced to store expanded as well
+    QHash<QString, Qt::CheckState> m_checkStateCache;
     QHash<QString, int> m_itemUseCache;
 };
 

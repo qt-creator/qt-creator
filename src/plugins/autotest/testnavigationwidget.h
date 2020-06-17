@@ -64,7 +64,7 @@ public:
     void contextMenuEvent(QContextMenuEvent *event) override;
     QList<QToolButton *> createToolButtons();
 
-signals:
+    void updateExpandedStateCache();
 
 private:
     void onItemActivated(const QModelIndex &index);
@@ -74,6 +74,7 @@ private:
     void onParsingFinished();
     void initializeFilterMenu();
     void onRunThisTestTriggered(TestRunMode runMode);
+    void reapplyCachedExpandedState();
 
     TestTreeModel *m_model;
     TestTreeSortFilterModel *m_sortFilterModel;
@@ -85,6 +86,8 @@ private:
     Utils::ProgressIndicator *m_progressIndicator;
     QTimer *m_progressTimer;
     QFrame *m_missingFrameworksWidget;
+    QHash<QString, bool> m_expandedStateCache;
+    QHash<QString, int> m_itemUseCache;
 };
 
 class TestNavigationWidgetFactory : public Core::INavigationWidgetFactory
