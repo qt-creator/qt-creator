@@ -129,8 +129,19 @@ public:
     ByteArrayRef asByteArrayRef() const
     { return ByteArrayRef(&m_src, byteOffset, bytes()); }
 
+    unsigned originalOffset() const
+    { return m_originalOffset != -1 ? m_originalOffset : byteOffset; }
+
 private:
     QByteArray m_src;
+
+    // TODO: We may or may not be able to get rid of this member. In order to find out,
+    //       all code calling this class' accessors (including the parent class'
+    //       bytes* and utf16* functions) has to be looked at. Essentially, it boils
+    //       down to whether there are contexts where an object of this class is used
+    //       and the original "global" string is no longer available. (If not, then the
+    //       m_src member would also not be needed.)
+    int m_originalOffset = -1;
 };
 
 } // namespace Internal

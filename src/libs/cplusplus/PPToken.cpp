@@ -54,6 +54,7 @@ void PPToken::squeezeSource()
     if (hasSource()) {
         m_src = m_src.mid(byteOffset, f.bytes);
         m_src.squeeze();
+        m_originalOffset = byteOffset;
         byteOffset = 0;
         utf16charOffset = 0;
     }

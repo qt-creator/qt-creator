@@ -405,6 +405,7 @@ private slots:
     void multi_byte_code_point_in_expansion();
     void trigraph();
     void nested_arguments_expansion();
+    void preprocessorSymbolsAsMacroArguments();
 };
 
 // Remove all #... lines, and 'simplify' string, to allow easily comparing the result
@@ -2097,6 +2098,20 @@ void tst_Preprocessor::nested_arguments_expansion()
     const QByteArray output = "# 1 \"<stdin>\"\n";
     // Check that it does not crash.
     QVERIFY(prep.contains(output));
+}
+
+void tst_Preprocessor::preprocessorSymbolsAsMacroArguments()
+{
+    Environment env;
+    Preprocessor preprocess(nullptr, &env);
+    const QByteArray input =
+            "#define IFGEN(if, endif) if (1 == 0) endif\n"
+            "int main()\n"
+            "{\n"
+            "IFGEN(#if, #endif)\n"
+            "return 0;\n"
+            "}\n";
+    QVERIFY(preprocess.run(QLatin1String("<stdin>"), input).startsWith("# 1 \"<stdin>\"\n"));
 }
 
 void tst_Preprocessor::excessive_nesting()

@@ -1856,7 +1856,7 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
 QByteArray Preprocessor::expand(PPToken *tk, PPToken *lastConditionToken)
 {
     unsigned line = tk->lineno;
-    unsigned bytesBegin = tk->bytesBegin();
+    unsigned bytesBegin = tk->originalOffset();
     unsigned utf16charsBegin = tk->utf16charsBegin();
     PPToken lastTk;
     while (isContinuationToken(*tk)) {
