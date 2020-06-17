@@ -42,7 +42,6 @@ QT_END_NAMESPACE
 
 namespace Core {
 class IDocument;
-class Id;
 } // namespace Core
 namespace TextEditor { class TextEditorWidget; }
 namespace CppTools {

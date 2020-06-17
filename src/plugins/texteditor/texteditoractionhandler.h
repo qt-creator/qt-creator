@@ -27,12 +27,13 @@
 
 #include "texteditor_global.h"
 
+#include <coreplugin/id.h>
+
 #include <QObject>
 
 #include <functional>
 
 namespace Core {
-class Id;
 class IEditor;
 }
 

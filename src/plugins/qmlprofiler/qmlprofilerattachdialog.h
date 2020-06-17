@@ -25,9 +25,10 @@
 
 #pragma once
 
+#include <coreplugin/id.h>
+
 #include <QDialog>
 
-namespace Core { class Id; }
 namespace ProjectExplorer { class Kit; }
 
 namespace QmlProfiler {

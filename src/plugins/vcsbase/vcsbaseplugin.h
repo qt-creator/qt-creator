@@ -49,7 +49,6 @@ class SynchronousProcessResponse;
 namespace Core {
 class Context;
 class IVersionControl;
-class Id;
 class IDocument;
 } // namespace Core
 

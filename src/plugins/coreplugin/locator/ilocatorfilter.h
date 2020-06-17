@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <coreplugin/core_global.h>
 #include <coreplugin/id.h>
 
 #include <utils/optional.h>

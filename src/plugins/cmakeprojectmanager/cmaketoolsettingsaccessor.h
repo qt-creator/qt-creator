@@ -29,8 +29,6 @@
 
 #include <coreplugin/id.h>
 
-namespace Core { class Id; }
-
 namespace CMakeProjectManager {
 
 class CMakeTool;

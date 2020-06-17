@@ -27,7 +27,6 @@
 
 #include <QHash>
 
-namespace Core { class Id; }
 namespace Utils { class Environment; }
 
 namespace Autotest {

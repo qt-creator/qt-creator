@@ -143,6 +143,8 @@ Project {
             "htmldocextractor.h",
             "icon.cpp",
             "icon.h",
+            "id.cpp",
+            "id.h",
             "infolabel.cpp",
             "infolabel.h",
             "itemviews.cpp",

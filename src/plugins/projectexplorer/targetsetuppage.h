@@ -40,7 +40,6 @@
 
 QT_FORWARD_DECLARE_CLASS(QSpacerItem)
 
-namespace Core { class Id; }
 namespace Utils { class FilePath; }
 
 namespace ProjectExplorer {

@@ -26,6 +26,7 @@
 #pragma once
 
 #include <coreplugin/core_global.h>
+#include <coreplugin/id.h>
 
 #include <QPointer>
 #include <QString>
@@ -34,7 +35,6 @@
 namespace Core {
 
 class Command;
-class Id;
 
 class CORE_EXPORT CommandButton : public QToolButton
 {

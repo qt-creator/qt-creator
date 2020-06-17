@@ -26,13 +26,13 @@
 #pragma once
 
 #include "core_global.h"
+#include "id.h"
 
 #include <QObject>
 
 namespace Utils { class FilePath; }
 
 namespace Core {
-class Id;
 class InfoBar;
 
 namespace Internal {

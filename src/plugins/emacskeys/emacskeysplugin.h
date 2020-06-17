@@ -26,6 +26,8 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <coreplugin/id.h>
+
 #include <QTextCursor>
 
 // forward declarations
@@ -33,7 +35,6 @@ QT_FORWARD_DECLARE_CLASS(QAction)
 QT_FORWARD_DECLARE_CLASS(QPlainTextEdit)
 
 namespace Core {
-class Id;
 class IEditor;
 }
 namespace TextEditor {

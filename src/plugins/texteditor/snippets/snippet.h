@@ -27,11 +27,11 @@
 
 #include <texteditor/texteditor_global.h>
 
+#include <coreplugin/id.h>
+
 #include <QChar>
 #include <QList>
 #include <QString>
-
-namespace Core { class Id; }
 
 namespace TextEditor {
 

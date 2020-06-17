@@ -40,7 +40,6 @@ QT_END_NAMESPACE
 
 namespace Core {
 class IMode;
-class Id;
 } // namespace Core
 
 namespace Utils {

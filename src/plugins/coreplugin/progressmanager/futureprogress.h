@@ -26,13 +26,13 @@
 #pragma once
 
 #include <coreplugin/core_global.h>
+#include <coreplugin/id.h>
 
 #include <QString>
 #include <QFuture>
 #include <QWidget>
 
 namespace Core {
-class Id;
 class FutureProgressPrivate;
 
 class CORE_EXPORT FutureProgress : public QWidget

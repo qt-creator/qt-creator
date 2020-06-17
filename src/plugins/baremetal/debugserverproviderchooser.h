@@ -32,8 +32,6 @@ class QComboBox;
 class QPushButton;
 QT_END_NAMESPACE
 
-namespace Core { class Id; }
-
 namespace BareMetal {
 namespace Internal {
 

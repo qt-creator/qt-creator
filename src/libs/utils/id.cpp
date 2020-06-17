@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,8 +25,8 @@
 
 #include "id.h"
 
-#include <utils/algorithm.h>
-#include <utils/qtcassert.h>
+#include "algorithm.h"
+#include "qtcassert.h"
 
 #include <QByteArray>
 #include <QDataStream>
@@ -36,17 +36,17 @@
 
 #include <string.h>
 
-namespace Core {
+namespace Utils {
 
 /*!
-    \class Core::Id
-    \inheaderfile coreplugin/id.h
+    \class Utils::Id
+    \inheaderfile utils/id.h
     \inmodule QtCreator
 
     \brief The Id class encapsulates an identifier that is unique
     within a specific running \QC process.
 
-    \c{Core::Id} is used as facility to identify objects of interest
+    \c{Utils::Id} is used as facility to identify objects of interest
     in a more typesafe and faster manner than a plain QString or
     QByteArray would provide.
 
@@ -125,7 +125,7 @@ static quintptr theId(const QByteArray &ba)
 }
 
 /*!
-    \fn Core::Id::Id(quintptr uid)
+    \fn Utils::Id::Id(quintptr uid)
     \internal
 
     Constructs an id given \a UID.
@@ -312,7 +312,7 @@ bool Id::operator==(const char *name) const
 }
 
 // For debugging purposes
-CORE_EXPORT const char *nameForId(quintptr id)
+QTCREATOR_UTILS_EXPORT const char *nameForId(quintptr id)
 {
     return stringFromId.value(id).str;
 }
@@ -338,24 +338,24 @@ QString Id::suffixAfter(Id baseId) const
     return n.startsWith(b) ? QString::fromUtf8(n.mid(b.size())) : QString();
 }
 
-} // namespace Core
+} // namespace Utils
 
 QT_BEGIN_NAMESPACE
 
-QDataStream &operator<<(QDataStream &ds, Core::Id id)
+QDataStream &operator<<(QDataStream &ds, Utils::Id id)
 {
     return ds << id.name();
 }
 
-QDataStream &operator>>(QDataStream &ds, Core::Id &id)
+QDataStream &operator>>(QDataStream &ds, Utils::Id &id)
 {
     QByteArray ba;
     ds >> ba;
-    id = Core::Id::fromName(ba);
+    id = Utils::Id::fromName(ba);
     return ds;
 }
 
-QDebug operator<<(QDebug dbg, const Core::Id &id)
+QDebug operator<<(QDebug dbg, const Utils::Id &id)
 {
     return dbg << id.name();
 }

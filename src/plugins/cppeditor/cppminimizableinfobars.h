@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <coreplugin/id.h>
+
 #include <QAction>
 #include <QHash>
 #include <QObject>
@@ -32,7 +34,6 @@
 #include <functional>
 
 namespace Core {
-class Id;
 class InfoBar;
 }
 

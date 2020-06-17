@@ -27,6 +27,8 @@
 
 #include "projectexplorer_export.h"
 
+#include <coreplugin/id.h>
+
 #include <QObject>
 #include <QVariantMap>
 
@@ -34,7 +36,6 @@
 
 namespace Core {
 class IEditor;
-class Id;
 }
 
 namespace TextEditor {

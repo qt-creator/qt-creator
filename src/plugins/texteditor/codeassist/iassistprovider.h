@@ -29,7 +29,6 @@
 
 #include <QObject>
 
-namespace Core { class Id; }
 namespace TextEditor {
 
 class IAssistProcessor;

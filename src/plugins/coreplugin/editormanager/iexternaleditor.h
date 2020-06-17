@@ -26,6 +26,7 @@
 #pragma once
 
 #include <coreplugin/core_global.h>
+#include <coreplugin/id.h>
 
 #include <utils/mimetypes/mimetype.h>
 
@@ -33,7 +34,6 @@
 
 namespace Core {
 
-class Id;
 class IExternalEditor;
 
 using ExternalEditorList = QList<IExternalEditor *>;

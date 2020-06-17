@@ -27,11 +27,11 @@
 
 #include "projectexplorer_export.h"
 
+#include <coreplugin/id.h>
+
 #include <utils/fancymainwindow.h>
 
 #include <memory>
-
-namespace Core { class Id; }
 
 namespace ProjectExplorer {
 namespace Internal {

@@ -34,10 +34,6 @@
 #include <QFutureWatcher>
 #include <QTimer>
 
-namespace Core {
-class Id;
-}
-
 QT_BEGIN_NAMESPACE
 class QThreadPool;
 QT_END_NAMESPACE

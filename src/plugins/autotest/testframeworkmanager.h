@@ -31,8 +31,6 @@ QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
-namespace Core { class Id; }
-
 namespace Autotest {
 namespace Internal {
 struct TestSettings;

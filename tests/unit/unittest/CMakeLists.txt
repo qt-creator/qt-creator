@@ -349,7 +349,7 @@ extend_qtc_test(unittest
   DEFINES CORE_STATIC_LIBRARY
   SOURCES
     coreicons.cpp coreicons.h
-    id.cpp id.h
+    id.h
     find/ifindfilter.cpp find/ifindfilter.h
     locator/ilocatorfilter.cpp locator/ilocatorfilter.h
 )

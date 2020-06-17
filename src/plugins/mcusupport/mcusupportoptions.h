@@ -25,15 +25,13 @@
 
 #pragma once
 
+#include <coreplugin/id.h>
+
 #include <QObject>
 #include <QVector>
 #include <QVersionNumber>
 
 QT_FORWARD_DECLARE_CLASS(QWidget)
-
-namespace Core {
-class Id;
-}
 
 namespace Utils {
 class FilePath;

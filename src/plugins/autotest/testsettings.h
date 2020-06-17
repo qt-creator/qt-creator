@@ -27,7 +27,9 @@
 
 #include <QHash>
 
-namespace Core { class Id; }
+namespace Utils {
+class Id;
+}
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -60,8 +62,8 @@ struct TestSettings
     bool popupOnFinish = true;
     bool popupOnFail = false;
     RunAfterBuildMode runAfterBuild = RunAfterBuildMode::None;
-    QHash<Core::Id, bool> frameworks;
-    QHash<Core::Id, bool> frameworksGrouping;
+    QHash<Utils::Id, bool> frameworks;
+    QHash<Utils::Id, bool> frameworksGrouping;
 };
 
 } // namespace Internal

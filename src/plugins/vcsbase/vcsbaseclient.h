@@ -27,6 +27,8 @@
 
 #include "vcsbase_global.h"
 
+#include <coreplugin/id.h>
+
 #include <utils/fileutils.h>
 #include <utils/synchronousprocess.h>
 
@@ -41,8 +43,6 @@ class QFileInfo;
 class QProcessEnvironment;
 class QToolBar;
 QT_END_NAMESPACE
-
-namespace Core { class Id; }
 
 namespace VcsBase {
 

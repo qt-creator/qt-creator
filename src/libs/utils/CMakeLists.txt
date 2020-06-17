@@ -26,8 +26,8 @@ add_qtc_library(Utils
     consoleprocess.cpp consoleprocess.h
     cpplanguage_details.h
     crumblepath.cpp crumblepath.h
-    delegates.cpp delegates.h
     declarationmacros.h
+    delegates.cpp delegates.h
     detailsbutton.cpp detailsbutton.h
     detailswidget.cpp detailswidget.h
     differ.cpp differ.h
@@ -36,14 +36,9 @@ add_qtc_library(Utils
     elfreader.cpp elfreader.h
     elidinglabel.cpp elidinglabel.h
     environment.cpp environment.h
-    environmentfwd.h
     environmentdialog.cpp environmentdialog.h
+    environmentfwd.h
     environmentmodel.cpp environmentmodel.h
-    namevaluedictionary.cpp namevaluedictionary.h
-    namevalueitem.cpp namevalueitem.h
-    namevaluemodel.cpp namevaluemodel.h
-    namevaluesdialog.cpp namevaluesdialog.h
-    namevaluevalidator.cpp namevaluevalidator.h
     execmenu.cpp execmenu.h
     executeondestruction.h
     fadingindicator.cpp fadingindicator.h
@@ -70,6 +65,7 @@ add_qtc_library(Utils
     hostosinfo.cpp hostosinfo.h
     htmldocextractor.cpp htmldocextractor.h
     icon.cpp icon.h
+    id.cpp id.h
     infolabel.cpp infolabel.h
     itemviews.cpp itemviews.h
     json.cpp json.h
@@ -88,9 +84,14 @@ add_qtc_library(Utils
     mimetypes/mimetype.cpp mimetypes/mimetype.h mimetypes/mimetype_p.h
     mimetypes/mimetypeparser.cpp mimetypes/mimetypeparser_p.h
     namevaluedictionary.cpp namevaluedictionary.h
+    namevaluedictionary.cpp namevaluedictionary.h
+    namevalueitem.cpp namevalueitem.h
     namevalueitem.cpp namevalueitem.h
     namevaluemodel.cpp namevaluemodel.h
+    namevaluemodel.cpp namevaluemodel.h
     namevaluesdialog.cpp namevaluesdialog.h
+    namevaluesdialog.cpp namevaluesdialog.h
+    namevaluevalidator.cpp namevaluevalidator.h
     namevaluevalidator.cpp namevaluevalidator.h
     navigationtreeview.cpp navigationtreeview.h
     networkaccessmanager.cpp networkaccessmanager.h

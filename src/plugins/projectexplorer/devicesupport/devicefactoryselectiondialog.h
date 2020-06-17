@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include <QDialog>
+#include <coreplugin/id.h>
 
-namespace Core { class Id; }
+#include <QDialog>
 
 namespace ProjectExplorer {
 class IDeviceFactory;

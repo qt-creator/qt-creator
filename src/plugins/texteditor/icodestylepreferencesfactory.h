@@ -29,9 +29,10 @@
 
 #include "indenter.h"
 
+#include <coreplugin/id.h>
+
 #include <QWidget>
 
-namespace Core { class Id; }
 namespace TextEditor {
 
 class ICodeStylePreferences;

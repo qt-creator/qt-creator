@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "core_global.h"
 #include "id.h"
 
 #include <QSharedDataPointer>
