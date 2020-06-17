@@ -399,7 +399,6 @@ QStringList DynamicPropertiesModel::possibleSourceProperties(const BindingProper
             if (metaInfo.propertyTypeName(propertyName) == typeName) //### todo proper check
                 possibleProperties << QString::fromUtf8(propertyName);
         }
-
         return possibleProperties;
     } else {
         qWarning() << " BindingModel::possibleSourcePropertiesForRow no meta info for source node";

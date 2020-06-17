@@ -45,7 +45,7 @@ namespace {
 QStringList propertyNameListToStringList(const QmlDesigner::PropertyNameList &propertyNameList)
 {
     QStringList stringList;
-    foreach (QmlDesigner::PropertyName propertyName, propertyNameList) {
+    for (const QmlDesigner::PropertyName propertyName : propertyNameList) {
         stringList << QString::fromUtf8(propertyName);
     }
     stringList.removeDuplicates();
@@ -58,7 +58,6 @@ bool isConnection(const QmlDesigner::ModelNode &modelNode)
             || modelNode.type() == "QtQuick.Connections"
             || modelNode.type() == "Qt.Connections"
             || modelNode.type() == "QtQml.Connections");
-
 }
 
 } //namespace
@@ -81,7 +80,7 @@ void ConnectionModel::resetModel()
     setHorizontalHeaderLabels(QStringList({ tr("Target"), tr("Signal Handler"), tr("Action") }));
 
     if (connectionView()->isAttached()) {
-        foreach (const ModelNode modelNode, connectionView()->allModelNodes())
+        for (const ModelNode modelNode : connectionView()->allModelNodes())
             addModelNode(modelNode);
     }
 
@@ -96,8 +95,7 @@ SignalHandlerProperty ConnectionModel::signalHandlerPropertyForRow(int rowNumber
     const int internalId = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 1).toInt();
     const QString targetPropertyName = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 2).toString();
 
-    ModelNode  modelNode = connectionView()->modelNodeForInternalId(internalId);
-
+    ModelNode modelNode = connectionView()->modelNodeForInternalId(internalId);
     if (modelNode.isValid())
         return modelNode.signalHandlerProperty(targetPropertyName.toUtf8());
 
@@ -112,7 +110,7 @@ void ConnectionModel::addModelNode(const ModelNode &modelNode)
 
 void ConnectionModel::addConnection(const ModelNode &modelNode)
 {
-    foreach (const AbstractProperty &property, modelNode.properties()) {
+    for (const AbstractProperty &property : modelNode.properties()) {
         if (property.isSignalHandlerProperty() && property.name() != "target") {
             addSignalHandler(property.toSignalHandlerProperty());
         }
@@ -179,7 +177,6 @@ void ConnectionModel::updateSource(int row)
         m_exceptionError = e.description();
         QTimer::singleShot(200, this, &ConnectionModel::handleException);
     }
-
 }
 
 void ConnectionModel::updateSignalName(int rowNumber)
@@ -211,8 +208,14 @@ void ConnectionModel::updateTargetNode(int rowNumber)
     const QString newTarget = data(index(rowNumber, TargetModelNodeRow)).toString();
     ModelNode connectionNode = signalHandlerProperty.parentModelNode();
 
+    const bool isAlias = newTarget.contains(".");
+
     if (!newTarget.isEmpty()) {
-        const ModelNode parent = connectionView()->modelNodeForId(newTarget);
+        //if it's an alias, then let's reparent connections to alias property owner:
+        const ModelNode parent = connectionView()->modelNodeForId(isAlias
+                                                                  ? newTarget.split(".").constFirst()
+                                                                  : newTarget);
+
         if (parent.isValid() && QmlItemNode::isValidQmlItemNode(parent))
             parent.nodeListProperty("data").reparentHere(connectionNode);
 
@@ -236,8 +239,28 @@ ModelNode ConnectionModel::getTargetNodeForConnection(const ModelNode &connectio
     BindingProperty bindingProperty = connection.bindingProperty("target");
 
     if (bindingProperty.isValid()) {
+        bool isAlias = bindingProperty.expression().contains(".");
+
         if (bindingProperty.expression() == QLatin1String("parent"))
             return connection.parentProperty().parentModelNode();
+        else if (isAlias) {
+            QStringList substr = bindingProperty.expression().split(".");
+            if (substr.size() > 1) {
+                ModelNode aliasParent = connectionView()->modelNodeForId(substr.constFirst());
+                QString aliasBody = substr.at(1);
+                if (aliasParent.hasProperty(aliasBody.toUtf8())) {
+                    AbstractProperty abstractProp = aliasParent.property(aliasBody.toUtf8());
+                    if (abstractProp.isBindingProperty()) {
+                        BindingProperty binding = abstractProp.toBindingProperty();
+                        if (connectionView()->hasId(binding.expression())) {
+                            ModelNode resolve = connectionView()->modelNodeForId(binding.expression());
+                            if (resolve.isValid())
+                                return resolve;
+                        }
+                    }
+                }
+            }
+        }
         return connectionView()->modelNodeForId(bindingProperty.expression());
     }
 
@@ -376,9 +399,8 @@ QStringList ConnectionModel::getSignalsForRow(int row) const
     QStringList stringList;
     SignalHandlerProperty signalHandlerProperty = signalHandlerPropertyForRow(row);
 
-    if (signalHandlerProperty.isValid()) {
+    if (signalHandlerProperty.isValid())
         stringList.append(getPossibleSignalsForConnection(signalHandlerProperty.parentModelNode()));
-    }
 
     return stringList;
 }

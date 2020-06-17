@@ -161,7 +161,7 @@ void ConnectionViewWidget::contextMenuEvent(QContextMenuEvent *event)
 
             menu.addAction(tr("Open Connection Editor"), [&]() {
                 if (index.isValid()) {
-                    m_connectonEditor->showWidget(mapToGlobal(event->pos()).x(), mapToGlobal(event->pos()).y());
+                    m_connectonEditor->showWidget();
                     m_connectonEditor->setBindingValue(index.data().toString());
                     m_connectonEditor->setModelIndex(index);
                     m_connectonEditor->updateWindowName();

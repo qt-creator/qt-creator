@@ -54,7 +54,7 @@ void ActionEditor::registerDeclarativeType()
     qmlRegisterType<ActionEditor>("HelperWidgets", 2, 0, "ActionEditor");
 }
 
-void ActionEditor::showWidget(int x, int y)
+void ActionEditor::prepareDialog()
 {
     if (s_lastActionEditor)
         s_lastActionEditor->hideWidget();
@@ -70,8 +70,18 @@ void ActionEditor::showWidget(int x, int y)
                      this, &ActionEditor::rejected);
 
     m_dialog->setAttribute(Qt::WA_DeleteOnClose);
+}
+
+void ActionEditor::showWidget()
+{
+    prepareDialog();
+    m_dialog->showWidget();
+}
+
+void ActionEditor::showWidget(int x, int y)
+{
+    prepareDialog();
     m_dialog->showWidget(x, y);
-    m_dialog->activateWindow();
 }
 
 void ActionEditor::hideWidget()

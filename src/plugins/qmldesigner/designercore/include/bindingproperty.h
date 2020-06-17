@@ -56,7 +56,9 @@ public:
     static void deleteAllReferencesTo(const ModelNode &modelNode);
 
 
+    bool isAlias() const;
     bool isAliasExport() const;
+
 
 protected:
     BindingProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);

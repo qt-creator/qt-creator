@@ -46,7 +46,7 @@ namespace  Internal {
 QStringList prependOnForSignalHandler(const QStringList &signalNames)
 {
     QStringList signalHandlerNames;
-    foreach (const QString &signalName, signalNames) {
+    for (const QString &signalName : signalNames) {
         QString signalHandlerName = signalName;
         if (!signalHandlerName.isEmpty()) {
             QChar firstChar = signalHandlerName.at(0).toUpper();
@@ -284,9 +284,19 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
 
     switch (index.column()) {
     case ConnectionModel::TargetModelNodeRow: {
-        foreach (const ModelNode &modelNode, connectionModel->connectionView()->allModelNodes()) {
+        for (const ModelNode &modelNode : connectionModel->connectionView()->allModelNodes()) {
             if (!modelNode.id().isEmpty()) {
                 connectionComboBox->addItem(modelNode.id());
+
+                for (const BindingProperty &property : modelNode.bindingProperties()) {
+                    if (property.isValid()) {
+                        if (property.isAlias()) {
+                            connectionComboBox->addItem(modelNode.id()
+                                                        + "."
+                                                        + QString::fromUtf8(property.name()));
+                        }
+                    }
+                }
             }
         }
     } break;
