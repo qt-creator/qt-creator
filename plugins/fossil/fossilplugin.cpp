@@ -163,7 +163,8 @@ public:
     bool vcsMove(const QString &from, const QString &to) final;
     bool vcsCreateRepository(const QString &directory) final;
 
-    bool vcsAnnotate(const QString &file, int line) final;
+    void vcsAnnotate(const QString &file, int line) final;
+    void vcsDescribe(const QString &source, const QString &id) final { m_client.view(source, id); }
 
     Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
                                                      const Utils::FilePath &baseDirectory,
@@ -205,7 +206,6 @@ public:
     void createDirectoryActions(const Core::Context &context);
     void createRepositoryActions(const Core::Context &context);
 
-    void describe(const QString &source, const QString &id) { m_client.view(source, id); };
     bool pullOrPush(SyncMode mode);
 
     // Variables
@@ -223,19 +223,19 @@ public:
     VcsEditorFactory fileLogFactory {
         &fileLogParameters,
         [] { return new FossilEditorWidget; },
-        std::bind(&FossilPluginPrivate::describe, this, _1, _2)
+        std::bind(&FossilPluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     VcsEditorFactory annotateLogFactory {
         &annotateLogParameters,
         [] { return new FossilEditorWidget; },
-        std::bind(&FossilPluginPrivate::describe, this, _1, _2)
+        std::bind(&FossilPluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     VcsEditorFactory diffFactory {
         &diffParameters,
         [] { return new FossilEditorWidget; },
-        std::bind(&FossilPluginPrivate::describe, this, _1, _2)
+        std::bind(&FossilPluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     Core::CommandLocator *m_commandLocator = nullptr;
@@ -993,11 +993,10 @@ bool FossilPluginPrivate::vcsCreateRepository(const QString &directory)
     return m_client.synchronousCreateRepository(directory);
 }
 
-bool FossilPluginPrivate::vcsAnnotate(const QString &file, int line)
+void FossilPluginPrivate::vcsAnnotate(const QString &file, int line)
 {
     const QFileInfo fi(file);
     m_client.annotate(fi.absolutePath(), fi.fileName(), QString(), line);
-    return true;
 }
 
 Core::ShellCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sourceUrl,
