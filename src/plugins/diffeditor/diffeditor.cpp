@@ -245,6 +245,7 @@ DiffEditor::~DiffEditor()
 {
     delete m_toolBar;
     delete m_widget;
+    qDeleteAll(m_views);
 }
 
 Core::IEditor *DiffEditor::duplicate()
