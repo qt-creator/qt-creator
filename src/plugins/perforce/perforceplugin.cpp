@@ -224,6 +224,7 @@ public:
     bool vcsMove(const QString &from, const QString &to) final;
     bool vcsCreateRepository(const QString &directory) final;
     void vcsAnnotate(const QString &file, int line) final;
+    void vcsDescribe(const QString &source, const QString &n) final;
     QString vcsOpenText() const final;
     QString vcsMakeWritableText() const final;
 
@@ -237,7 +238,6 @@ public:
 
     IEditor *openPerforceSubmitEditor(const QString &fileName, const QStringList &depotFileNames);
 
-    void describe(const QString &source, const QString &n);
     void getTopLevel(const QString &workingDirectory = QString(), bool isSync = false);
 
     void updateActions(ActionState) override;
@@ -371,19 +371,19 @@ public:
     VcsEditorFactory logEditorFactory {
         &logEditorParameters,
         [] { return new PerforceEditorWidget; },
-        std::bind(&PerforcePluginPrivate::describe, this, _1, _2)
+        std::bind(&PerforcePluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     VcsEditorFactory annotateEditorFactory {
         &annotateEditorParameters,
         [] { return new PerforceEditorWidget; },
-        std::bind(&PerforcePluginPrivate::describe, this, _1, _2)
+        std::bind(&PerforcePluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     VcsEditorFactory diffEditorFactory {
         &diffEditorParameters,
         [] { return new PerforceEditorWidget; },
-        std::bind(&PerforcePluginPrivate::describe, this, _1, _2)
+        std::bind(&PerforcePluginPrivate::vcsDescribe, this, _1, _2)
     };
 };
 
@@ -824,7 +824,7 @@ void PerforcePluginPrivate::describeChange()
 {
     ChangeNumberDialog dia;
     if (dia.exec() == QDialog::Accepted && dia.number() > 0)
-        describe(QString(), QString::number(dia.number()));
+        vcsDescribe(QString(), QString::number(dia.number()));
 }
 
 void PerforcePluginPrivate::annotateCurrentFile()
@@ -1539,7 +1539,7 @@ void PerforcePluginPrivate::p4Diff(const PerforceDiffParameters &p)
     diffEditorWidget->setEditorConfig(pw);
 }
 
-void PerforcePluginPrivate::describe(const QString & source, const QString &n)
+void PerforcePluginPrivate::vcsDescribe(const QString & source, const QString &n)
 {
     QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(nullptr)
                                          : VcsBaseEditor::getCodec(source);

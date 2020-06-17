@@ -222,6 +222,7 @@ public:
     bool vcsCreateRepository(const QString &directory) final;
 
     void vcsAnnotate(const QString &file, int line) final;
+    void vcsDescribe(const QString &source, const QString &changeNr) final;
 
     Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
                                                      const Utils::FilePath &baseDirectory,
@@ -248,7 +249,6 @@ public:
     SubversionResponse runSvn(const QString &workingDir,
                               const QStringList &arguments, int timeOutS,
                               unsigned flags, QTextCodec *outputCodec = nullptr) const;
-    void describe(const QString &source, const QString &changeNr);
     void vcsAnnotateHelper(const QString &workingDir, const QString &file,
                      const QString &revision = QString(), int lineNumber = -1);
 
@@ -335,13 +335,13 @@ public:
     VcsEditorFactory logEditorFactory {
         &logEditorParameters,
         [] { return new SubversionEditorWidget; },
-        std::bind(&SubversionPluginPrivate::describe, this, _1, _2)
+        std::bind(&SubversionPluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     VcsEditorFactory blameEditorFactory {
         &blameEditorParameters,
         [] { return new SubversionEditorWidget; },
-        std::bind(&SubversionPluginPrivate::describe, this, _1, _2)
+        std::bind(&SubversionPluginPrivate::vcsDescribe, this, _1, _2)
     };
 };
 
@@ -967,7 +967,7 @@ void SubversionPluginPrivate::projectStatus()
     svnStatus(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
 
-void SubversionPluginPrivate::describe(const QString &source, const QString &changeNr)
+void SubversionPluginPrivate::vcsDescribe(const QString &source, const QString &changeNr)
 {
     // To describe a complete change, find the top level and then do
     //svn diff -r 472958:472959 <top level>
@@ -1004,7 +1004,7 @@ void SubversionPluginPrivate::slotDescribe()
         return;
 
     const int revision = inputDialog.intValue();
-    describe(state.topLevel(), QString::number(revision));
+    vcsDescribe(state.topLevel(), QString::number(revision));
 }
 
 void SubversionPluginPrivate::commitFromEditor()

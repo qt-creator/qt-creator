@@ -250,6 +250,7 @@ public:
     bool vcsCreateRepository(const QString &directory) final;
 
     void vcsAnnotate(const QString &file, int line) final;
+    void vcsDescribe(const QString &source, const QString &id) final { m_gitClient.show(source, id); };
     QString vcsTopic(const QString &directory) final;
 
     Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
@@ -264,7 +265,7 @@ public:
         menu->addAction(tr("&Copy \"%1\"").arg(reference),
                         [reference] { QApplication::clipboard()->setText(reference); });
         QAction *action = menu->addAction(tr("&Describe Change %1").arg(reference),
-                                          [=] { describe(workingDirectory, reference); });
+                                          [=] { vcsDescribe(workingDirectory, reference); });
         menu->setDefaultAction(action);
         GitClient::addChangeActions(menu, workingDirectory, reference);
     }
@@ -366,7 +367,6 @@ public:
 
 
     void onApplySettings();;
-    void describe(const QString &source, const QString &id) { m_gitClient.show(source, id); };
 
     Core::CommandLocator *m_commandLocator = nullptr;
 
@@ -407,37 +407,37 @@ public:
     VcsEditorFactory svnLogEditorFactory {
         &svnLogEditorParameters,
         [] { return new GitEditorWidget; },
-        std::bind(&GitPluginPrivate::describe, this, _1, _2)
+        std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     VcsEditorFactory logEditorFactory {
         &logEditorParameters,
         [] { return new GitLogEditorWidgetT<GitEditorWidget>; },
-        std::bind(&GitPluginPrivate::describe, this, _1, _2)
+        std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     VcsEditorFactory reflogEditorFactory {
         &reflogEditorParameters,
                 [] { return new GitLogEditorWidgetT<GitReflogEditorWidget>; },
-        std::bind(&GitPluginPrivate::describe, this, _1, _2)
+        std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     VcsEditorFactory blameEditorFactory {
         &blameEditorParameters,
         [] { return new GitEditorWidget; },
-        std::bind(&GitPluginPrivate::describe, this, _1, _2)
+        std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     VcsEditorFactory commitTextEditorFactory {
         &commitTextEditorParameters,
         [] { return new GitEditorWidget; },
-        std::bind(&GitPluginPrivate::describe, this, _1, _2)
+        std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     VcsEditorFactory rebaseEditorFactory {
         &rebaseEditorParameters,
         [] { return new GitEditorWidget; },
-        std::bind(&GitPluginPrivate::describe, this, _1, _2)
+        std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     VcsSubmitEditorFactory submitEditorFactory {

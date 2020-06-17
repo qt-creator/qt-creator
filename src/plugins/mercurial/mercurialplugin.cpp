@@ -145,6 +145,7 @@ public:
     bool vcsMove(const QString &from, const QString &to) final;
     bool vcsCreateRepository(const QString &directory) final;
     void vcsAnnotate(const QString &file, int line) final;
+    void vcsDescribe(const QString &source, const QString &id) final { m_client.view(source, id); }
 
     Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
                                                      const Utils::FilePath &baseDirectory,
@@ -193,8 +194,6 @@ private:
     void createDirectoryActions(const Core::Context &context);
     void createRepositoryActions(const Core::Context &context);
 
-    void describe(const QString &source, const QString &id) { m_client.view(source, id); }
-
     // Variables
     MercurialSettings m_settings;
     MercurialClient m_client{&m_settings};
@@ -232,19 +231,19 @@ public:
     VcsEditorFactory logEditorFactory {
         &logEditorParameters,
         [this] { return new MercurialEditorWidget(&m_client); },
-        std::bind(&MercurialPluginPrivate::describe, this, _1, _2)
+        std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     VcsEditorFactory annotateEditorFactory {
         &annotateEditorParameters,
         [this] { return new MercurialEditorWidget(&m_client); },
-        std::bind(&MercurialPluginPrivate::describe, this, _1, _2)
+        std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     VcsEditorFactory diffEditorFactory {
         &diffEditorParameters,
         [this] { return new MercurialEditorWidget(&m_client); },
-        std::bind(&MercurialPluginPrivate::describe, this, _1, _2)
+        std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
     };
 };
 

@@ -200,6 +200,7 @@ public:
     bool vcsCreateRepository(const QString &directory) final;
 
     void vcsAnnotate(const QString &file, int line) final;
+    void vcsDescribe(const QString &source, const QString &changeNr) final;
 
     QString vcsOpenText() const final;
     QString vcsMakeWritableText() const final;
@@ -250,7 +251,6 @@ public:
                            const QString &revision = QString(), int lineNumber = -1) const;
     bool newActivity();
     void updateStreamAndView();
-    void describe(const QString &source, const QString &changeNr);
 
 protected:
     void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
@@ -363,19 +363,19 @@ private:
     VcsEditorFactory logEditorFactory {
         &logEditorParameters,
         [] { return new ClearCaseEditorWidget; },
-        std::bind(&ClearCasePluginPrivate::describe, this, _1, _2)
+        std::bind(&ClearCasePluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     VcsEditorFactory annotateEditorFactory {
         &annotateEditorParameters,
         [] { return new ClearCaseEditorWidget; },
-        std::bind(&ClearCasePluginPrivate::describe, this, _1, _2)
+        std::bind(&ClearCasePluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     VcsEditorFactory diffEditorFactory {
         &diffEditorParameters,
         [] { return new ClearCaseEditorWidget; },
-        std::bind(&ClearCasePluginPrivate::describe, this, _1, _2)
+        std::bind(&ClearCasePluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     friend class ClearCasePlugin;
@@ -1605,7 +1605,7 @@ void ClearCasePluginPrivate::vcsAnnotateHelper(const QString &workingDir, const 
     }
 }
 
-void ClearCasePluginPrivate::describe(const QString &source, const QString &changeNr)
+void ClearCasePluginPrivate::vcsDescribe(const QString &source, const QString &changeNr)
 {
     const QFileInfo fi(source);
     QString topLevel;

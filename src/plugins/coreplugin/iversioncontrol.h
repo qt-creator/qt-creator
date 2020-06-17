@@ -212,6 +212,11 @@ public:
     virtual QString vcsMakeWritableText() const;
 
     /*!
+     * Display details of reference
+     */
+    virtual void vcsDescribe(const QString &workingDirectory, const QString &reference) = 0;
+
+    /*!
      * Return a list of paths where tools that came with the VCS may be installed.
      * This is helpful on windows where e.g. git comes with a lot of nice unix tools.
      */
@@ -297,6 +302,7 @@ public:
     bool vcsMove(const QString &, const QString &) override { return false; }
     bool vcsCreateRepository(const QString &) override { return false; }
     void vcsAnnotate(const QString &, int) override {}
+    void vcsDescribe(const QString &, const QString &) override {}
 
 private:
     Id m_id;

@@ -161,6 +161,7 @@ public:
     bool vcsMove(const QString &from, const QString &to) final;
     bool vcsCreateRepository(const QString &directory) final;
     void vcsAnnotate(const QString &file, int line) final;
+    void vcsDescribe(const QString &source, const QString &id) final { m_client.view(source, id); }
 
     Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
                                                      const Utils::FilePath &baseDirectory,
@@ -203,8 +204,6 @@ public:
     void createDirectoryActions(const Core::Context &context);
     void createRepositoryActions(const Core::Context &context);
 
-    void describe(const QString &source, const QString &id) { m_client.view(source, id); }
-
     // Variables
     BazaarSettings m_settings;
     BazaarClient m_client{&m_settings};
@@ -238,19 +237,19 @@ public:
     VcsEditorFactory logEditorFactory {
         &logEditorParameters,
         [] { return new BazaarEditorWidget; },
-        std::bind(&BazaarPluginPrivate::describe, this, _1, _2)
+        std::bind(&BazaarPluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     VcsEditorFactory annotateEditorFactory {
         &annotateEditorParameters,
         [] { return new BazaarEditorWidget; },
-        std::bind(&BazaarPluginPrivate::describe, this, _1, _2)
+        std::bind(&BazaarPluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     VcsEditorFactory diffEditorFactory {
         &diffEditorParameters,
         [] { return new BazaarEditorWidget; },
-        std::bind(&BazaarPluginPrivate::describe, this, _1, _2)
+        std::bind(&BazaarPluginPrivate::vcsDescribe, this, _1, _2)
     };
 };
 

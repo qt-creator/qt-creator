@@ -271,6 +271,7 @@ public:
 
     void vcsAnnotate(const QString &workingDirectory, const QString &file,
                      const QString &revision, int lineNumber);
+    void vcsDescribe(const QString &source, const QString &changeNr) final;
 
 protected:
     void updateActions(ActionState) final;
@@ -318,7 +319,6 @@ private:
     bool describe(const QString &source, const QString &changeNr, QString *errorMessage);
     bool describe(const QString &toplevel, const QString &source, const QString &changeNr, QString *errorMessage);
     bool describe(const QString &repository, QList<CvsLogEntry> entries, QString *errorMessage);
-    void describeHelper(const QString &source, const QString &changeNr);
     void filelog(const QString &workingDir,
                  const QString &file = QString(),
                  bool enableAnnotationContextMenu = false);
@@ -379,25 +379,25 @@ public:
     VcsEditorFactory commandLogEditorFactory {
         &commandLogEditorParameters,
         [] { return new CvsEditorWidget; },
-        std::bind(&CvsPluginPrivate::describeHelper, this, _1, _2)
+        std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     VcsEditorFactory logEditorFactory {
         &logEditorParameters,
         [] { return new CvsEditorWidget; },
-        std::bind(&CvsPluginPrivate::describeHelper, this, _1, _2)
+        std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     VcsEditorFactory annotateEditorFactory {
         &annotateEditorParameters,
         [] { return new CvsEditorWidget; },
-        std::bind(&CvsPluginPrivate::describeHelper, this, _1, _2)
+        std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)
     };
 
     VcsEditorFactory diffEditorFactory {
         &diffEditorParameters,
         [] { return new CvsEditorWidget; },
-        std::bind(&CvsPluginPrivate::describeHelper, this, _1, _2)
+        std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)
     };
 };
 
@@ -740,7 +740,7 @@ CvsPluginPrivate::CvsPluginPrivate()
     m_commandLocator->appendCommand(command);
 }
 
-void CvsPluginPrivate::describeHelper(const QString &source, const QString &changeNr)
+void CvsPluginPrivate::vcsDescribe(const QString &source, const QString &changeNr)
 {
     QString errorMessage;
     if (!describe(source, changeNr, &errorMessage))
