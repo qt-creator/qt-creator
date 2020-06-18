@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.14)
 
 project(%{ProjectName} LANGUAGES CXX)
 
@@ -13,11 +13,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 @if '%{QtModule}' != 'none'
 
 @if %{HasTranslation}
-find_package(Qt5 COMPONENTS %{QtModuleUpperCase} LinguistTools REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS %{QtModuleUpperCase} LinguistTools REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS %{QtModuleUpperCase} LinguistTools REQUIRED)
 
 set(TS_FILES %{TsFileName})
 @else
-find_package(Qt5 COMPONENTS %{QtModuleUpperCase} REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS %{QtModuleUpperCase} REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS %{QtModuleUpperCase} REQUIRED)
 @endif
 @endif
 
@@ -36,7 +38,7 @@ add_library(%{ProjectName} %{JS: %{IsStatic} ? 'STATIC' : 'SHARED'}
 )
 @if '%{QtModule}' != 'none'
 
-target_link_libraries(%{ProjectName} PRIVATE Qt5::%{QtModuleUpperCase})
+target_link_libraries(%{ProjectName} PRIVATE Qt${QT_VERSION_MAJOR}::%{QtModuleUpperCase})
 @endif
 @if '%{IsShared}'
 

@@ -25,11 +25,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #endif()
 
 @if %{HasTranslation}
-find_package(Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools REQUIRED)
 
 set(TS_FILES %{TsFileName})
 @else
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 @endif
 
 if(ANDROID)
@@ -58,7 +60,7 @@ else()
   )
 endif()
 
-target_link_libraries(%{ProjectName} PRIVATE Qt5::Widgets)
+target_link_libraries(%{ProjectName} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 @if %{HasTranslation}
 
 qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
