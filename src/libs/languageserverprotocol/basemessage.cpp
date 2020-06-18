@@ -114,7 +114,7 @@ static void parseContentLength(BaseMessage &message, QByteArray contentLength, Q
     message.contentLength = contentLength.toInt(&ok);
     if (!ok) {
         parseError = BaseMessage::tr("Expected an integer in \"%1\", but got \"%2\".")
-                .arg(contentLengthFieldName, QString::fromLatin1(contentLength));
+                .arg(QString::fromLatin1(contentLengthFieldName), QString::fromLatin1(contentLength));
     }
 }
 
