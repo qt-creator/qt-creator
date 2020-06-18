@@ -25,11 +25,12 @@
 
 #pragma once
 
-#include <QLinkedList>
 #include <QTime>
 #include <QWidget>
 
 #include <languageserverprotocol/basemessage.h>
+
+#include <list>
 
 namespace LanguageClient {
 
@@ -53,14 +54,14 @@ public:
              const QString &clientName,
              const LanguageServerProtocol::BaseMessage &message);
 
-    QLinkedList<LspLogMessage> messages(const QString &clientName) const;
+    std::list<LspLogMessage> messages(const QString &clientName) const;
     QList<QString> clients() const;
 
 signals:
     void newMessage(const QString &clientName, const LspLogMessage &message);
 
 private:
-    QMap<QString, QLinkedList<LspLogMessage>> m_logs;
+    QMap<QString, std::list<LspLogMessage>> m_logs;
     int m_logSize = 100; // default log size if no widget is currently visible
 };
 

@@ -93,15 +93,14 @@ void LspLogger::log(const LspLogMessage::MessageSender sender,
                     const QString &clientName,
                     const BaseMessage &message)
 {
-    QLinkedList<LspLogMessage> &clientLog = m_logs[clientName];
-    auto delta = clientLog.size() - m_logSize + 1;
-    if (delta > 0)
-        clientLog.erase(clientLog.begin(), clientLog.begin() + delta);
-    m_logs[clientName].append({sender, QTime::currentTime(), message});
-    emit newMessage(clientName, m_logs[clientName].last());
+    std::list<LspLogMessage> &clientLog = m_logs[clientName];
+    for (auto delta = clientLog.size() - m_logSize + 1; delta > 0; --delta)
+        clientLog.pop_front();
+    m_logs[clientName].push_back({sender, QTime::currentTime(), message});
+    emit newMessage(clientName, m_logs[clientName].back());
 }
 
-QLinkedList<LspLogMessage> LspLogger::messages(const QString &clientName) const
+std::list<LspLogMessage> LspLogger::messages(const QString &clientName) const
 {
     return m_logs[clientName];
 }
