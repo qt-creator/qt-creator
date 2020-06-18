@@ -164,6 +164,7 @@ void AssetExporter::writeMetadata() const
         }
     }
     notifyProgress(1.0);
+    ExportNotification::addInfo(tr("Export finished."));
     m_currentState.change(ParsingState::ExportingDone);
 }
 

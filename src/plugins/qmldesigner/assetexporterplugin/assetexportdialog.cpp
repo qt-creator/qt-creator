@@ -145,7 +145,6 @@ void AssetExportDialog::onExportStateChanged(AssetExporter::ParsingState newStat
     case AssetExporter::ParsingState::ExportingDone:
         m_exportBtn->setVisible(false);
         m_ui->buttonBox->button(QDialogButtonBox::Close)->setVisible(true);
-        QMessageBox::information(this, tr("QML Export"), tr("Done"));
         break;
     default:
         break;
