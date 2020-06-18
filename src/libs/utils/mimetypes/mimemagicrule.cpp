@@ -316,7 +316,6 @@ MimeMagicRule::MimeMagicRule(MimeMagicRule::Type theType,
     case RegExp:
         d->regexp.setPatternOptions(QRegularExpression::MultilineOption
                                     | QRegularExpression::DotMatchesEverythingOption
-                                    | QRegularExpression::OptimizeOnFirstUsageOption
                                     );
         d->regexp.setPattern(QString::fromUtf8(d->value));
         if (!d->regexp.isValid()) {

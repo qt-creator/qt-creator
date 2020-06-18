@@ -50,14 +50,11 @@ class NimParser : public ProjectExplorer::OutputTaskParser
     Result handleLine(const QString &lne, Utils::OutputFormat) override
     {
         const QString line = lne.trimmed();
-        static QRegularExpression regex("(.+.nim)\\((\\d+), (\\d+)\\) (.+)",
-                                        QRegularExpression::OptimizeOnFirstUsageOption);
-        static QRegularExpression warning("(Warning):(.*)",
-                                          QRegularExpression::OptimizeOnFirstUsageOption);
-        static QRegularExpression error("(Error):(.*)",
-                                        QRegularExpression::OptimizeOnFirstUsageOption);
+        static const QRegularExpression regex("(.+.nim)\\((\\d+), (\\d+)\\) (.+)");
+        static const QRegularExpression warning("(Warning):(.*)");
+        static const QRegularExpression error("(Error):(.*)");
 
-        QRegularExpressionMatch match = regex.match(line);
+        const QRegularExpressionMatch match = regex.match(line);
         if (!match.hasMatch())
             return Status::NotHandled;
         const QString filename = match.captured(1);

@@ -199,16 +199,14 @@ NimLexer::Token NimLexer::readNumber()
 
 bool NimLexer::matchIdentifierOrKeywordStart()
 {
-    static QRegularExpression isLetter("[a-zA-Z\x80-\xFF]",
-                                       QRegularExpression::OptimizeOnFirstUsageOption);
+    static const QRegularExpression isLetter("[a-zA-Z\x80-\xFF]");
     return isLetter.match(m_stream.peek()).hasMatch();
 }
 
 NimLexer::Token NimLexer::readIdentifierOrKeyword()
 {
-    static QRegularExpression isLetter("[a-zA-Z\x80-\xFF]",
-                                       QRegularExpression::OptimizeOnFirstUsageOption);
-    static QSet<QString> keywords = {
+    static const QRegularExpression isLetter("[a-zA-Z\x80-\xFF]");
+    static const QSet<QString> keywords = {
         "addr", "and", "as", "asm", "atomic",
         "bind", "block", "break",
         "case", "cast", "concept", "const", "continue", "converter",
