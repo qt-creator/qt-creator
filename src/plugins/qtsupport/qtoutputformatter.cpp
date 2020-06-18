@@ -163,67 +163,66 @@ OutputLineParser::Result QtOutputLineParser::handleLine(const QString &txt, Outp
 
 bool QtOutputLineParser::handleLink(const QString &href)
 {
-    if (!href.isEmpty()) {
-        static const QRegularExpression qmlLineColumnLink("^(" QT_QML_URL_REGEXP ")" // url
-                                                          ":(\\d+)"                  // line
-                                                          ":(\\d+)$");               // column
-        const QRegularExpressionMatch qmlLineColumnMatch = qmlLineColumnLink.match(href);
+    QTC_ASSERT(!href.isEmpty(), return false);
+    static const QRegularExpression qmlLineColumnLink("^(" QT_QML_URL_REGEXP ")" // url
+                                                      ":(\\d+)"                  // line
+                                                      ":(\\d+)$");               // column
+    const QRegularExpressionMatch qmlLineColumnMatch = qmlLineColumnLink.match(href);
 
-        const auto getFileToOpen = [this](const QUrl &fileUrl) {
-            return chooseFileFromList(d->projectFinder.findFile(fileUrl)).toString();
-        };
-        if (qmlLineColumnMatch.hasMatch()) {
-            const QUrl fileUrl = QUrl(qmlLineColumnMatch.captured(1));
-            const int line = qmlLineColumnMatch.captured(2).toInt();
-            const int column = qmlLineColumnMatch.captured(3).toInt();
-            openEditor(getFileToOpen(fileUrl), line, column - 1);
-            return true;
-        }
+    const auto getFileToOpen = [this](const QUrl &fileUrl) {
+        return chooseFileFromList(d->projectFinder.findFile(fileUrl)).toString();
+    };
+    if (qmlLineColumnMatch.hasMatch()) {
+        const QUrl fileUrl = QUrl(qmlLineColumnMatch.captured(1));
+        const int line = qmlLineColumnMatch.captured(2).toInt();
+        const int column = qmlLineColumnMatch.captured(3).toInt();
+        openEditor(getFileToOpen(fileUrl), line, column - 1);
+        return true;
+    }
 
-        static const QRegularExpression qmlLineLink("^(" QT_QML_URL_REGEXP ")" // url
-                                                    ":(\\d+)$");               // line
-        const QRegularExpressionMatch qmlLineMatch = qmlLineLink.match(href);
+    static const QRegularExpression qmlLineLink("^(" QT_QML_URL_REGEXP ")" // url
+                                                ":(\\d+)$");               // line
+    const QRegularExpressionMatch qmlLineMatch = qmlLineLink.match(href);
 
-        if (qmlLineMatch.hasMatch()) {
-            const char scheme[] = "file://";
-            const QString filePath = qmlLineMatch.captured(1);
-            QUrl fileUrl = QUrl(filePath);
-            if (!fileUrl.isValid() && filePath.startsWith(scheme))
-                fileUrl = QUrl::fromLocalFile(filePath.mid(int(strlen(scheme))));
-            const int line = qmlLineMatch.captured(2).toInt();
-            openEditor(getFileToOpen(fileUrl), line);
-            return true;
-        }
+    if (qmlLineMatch.hasMatch()) {
+        const char scheme[] = "file://";
+        const QString filePath = qmlLineMatch.captured(1);
+        QUrl fileUrl = QUrl(filePath);
+        if (!fileUrl.isValid() && filePath.startsWith(scheme))
+            fileUrl = QUrl::fromLocalFile(filePath.mid(int(strlen(scheme))));
+        const int line = qmlLineMatch.captured(2).toInt();
+        openEditor(getFileToOpen(fileUrl), line);
+        return true;
+    }
 
-        QString fileName;
-        int line = -1;
+    QString fileName;
+    int line = -1;
 
-        static const QRegularExpression qtErrorLink("^(.*):(\\d+)$");
-        const QRegularExpressionMatch qtErrorMatch = qtErrorLink.match(href);
-        if (qtErrorMatch.hasMatch()) {
-            fileName = qtErrorMatch.captured(1);
-            line = qtErrorMatch.captured(2).toInt();
-        }
+    static const QRegularExpression qtErrorLink("^(.*):(\\d+)$");
+    const QRegularExpressionMatch qtErrorMatch = qtErrorLink.match(href);
+    if (qtErrorMatch.hasMatch()) {
+        fileName = qtErrorMatch.captured(1);
+        line = qtErrorMatch.captured(2).toInt();
+    }
 
-        static const QRegularExpression qtAssertLink("^(.+), line (\\d+)$");
-        const QRegularExpressionMatch qtAssertMatch = qtAssertLink.match(href);
-        if (qtAssertMatch.hasMatch()) {
-            fileName = qtAssertMatch.captured(1);
-            line = qtAssertMatch.captured(2).toInt();
-        }
+    static const QRegularExpression qtAssertLink("^(.+), line (\\d+)$");
+    const QRegularExpressionMatch qtAssertMatch = qtAssertLink.match(href);
+    if (qtAssertMatch.hasMatch()) {
+        fileName = qtAssertMatch.captured(1);
+        line = qtAssertMatch.captured(2).toInt();
+    }
 
-        static const QRegularExpression qtTestFailLink("^(.*)\\((\\d+)\\)$");
-        const QRegularExpressionMatch qtTestFailMatch = qtTestFailLink.match(href);
-        if (qtTestFailMatch.hasMatch()) {
-            fileName = qtTestFailMatch.captured(1);
-            line = qtTestFailMatch.captured(2).toInt();
-        }
+    static const QRegularExpression qtTestFailLink("^(.*)\\((\\d+)\\)$");
+    const QRegularExpressionMatch qtTestFailMatch = qtTestFailLink.match(href);
+    if (qtTestFailMatch.hasMatch()) {
+        fileName = qtTestFailMatch.captured(1);
+        line = qtTestFailMatch.captured(2).toInt();
+    }
 
-        if (!fileName.isEmpty()) {
-            fileName = getFileToOpen(QUrl::fromLocalFile(fileName));
-            openEditor(fileName, line);
-            return true;
-        }
+    if (!fileName.isEmpty()) {
+        fileName = getFileToOpen(QUrl::fromLocalFile(fileName));
+        openEditor(fileName, line);
+        return true;
     }
     return false;
 }

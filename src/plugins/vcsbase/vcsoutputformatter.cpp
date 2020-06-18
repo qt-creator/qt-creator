@@ -26,6 +26,8 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
+#include <utils/qtcassert.h>
+
 #include <QDesktopServices>
 #include <QMenu>
 #include <QPlainTextEdit>
@@ -64,9 +66,10 @@ Utils::OutputLineParser::Result VcsOutputLineParser::handleLine(const QString &t
 
 bool VcsOutputLineParser::handleLink(const QString &href)
 {
+    QTC_ASSERT(!href.isEmpty(), return false);
     if (href.startsWith("http://") || href.startsWith("https://"))
         QDesktopServices::openUrl(QUrl(href));
-    else if (!href.isEmpty())
+    else
         emit referenceClicked(href);
     return true;
 }
@@ -74,7 +77,8 @@ bool VcsOutputLineParser::handleLink(const QString &href)
 void VcsOutputLineParser::fillLinkContextMenu(
         QMenu *menu, const QString &workingDirectory, const QString &href)
 {
-    if (href.isEmpty() || href.startsWith("http://") || href.startsWith("https://")) {
+    QTC_ASSERT(!href.isEmpty(), return);
+    if (href.startsWith("http://") || href.startsWith("https://")) {
         QAction *action = menu->addAction(
                     tr("&Open \"%1\"").arg(href),
                     [href] { QDesktopServices::openUrl(QUrl(href)); });

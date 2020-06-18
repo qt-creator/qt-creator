@@ -262,8 +262,11 @@ TaskView::Location TaskView::locationForPos(const QPoint &pos)
         loc.file = fp;
         loc.line = line;
         loc.column = column;
-        });
-    formatter.handleLink(delegate->hrefForPos(pos));
+    });
+
+    const QString href = delegate->hrefForPos(pos);
+    if (!href.isEmpty())
+        formatter.handleLink(href);
     return loc;
 }
 

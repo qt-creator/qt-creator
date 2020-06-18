@@ -492,6 +492,7 @@ void OutputFormatter::dumpIncompleteLine(const QString &line, OutputFormat forma
 
 void OutputFormatter::handleLink(const QString &href)
 {
+    QTC_ASSERT(!href.isEmpty(), return);
     // We can handle absolute file paths ourselves. Other types of references are forwarded
     // to the line parsers.
     if (OutputLineParser::isLinkTarget(href)) {

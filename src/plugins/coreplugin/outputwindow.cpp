@@ -187,7 +187,8 @@ void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
 {
     if (d->linksActive && d->mouseButtonPressed == Qt::LeftButton) {
         const QString href = anchorAt(e->pos());
-        d->formatter.handleLink(href);
+        if (!href.isEmpty())
+            d->formatter.handleLink(href);
     }
 
     // Mouse was released, activate links again
