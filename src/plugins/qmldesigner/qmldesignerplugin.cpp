@@ -451,7 +451,6 @@ void QmlDesignerPlugin::activateAutoSynchronization()
         currentDesignDocument()->loadDocument(currentDesignDocument()->plainTextEdit());
 
     currentDesignDocument()->updateActiveTarget();
-    currentDesignDocument()->updateActiveTarget();
     d->mainWidget.enableWidgets();
     currentDesignDocument()->attachRewriterToModel();
 
