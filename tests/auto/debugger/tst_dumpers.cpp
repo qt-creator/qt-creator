@@ -2478,6 +2478,7 @@ void tst_Dumpers::dumper_data()
                     "&l1, &l2, &l3, &l4, &l5, &l6")
 
                + CoreProfile()
+               + QtVersion(0, 0x5ffff)  // QLinkedList was dropped in Qt 6
 
                + Check("l0", "<0 items>", "@QLinkedList<float>")
 

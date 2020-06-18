@@ -154,7 +154,6 @@ void dummyStatement(...) {}
 #include <QDir>
 #include <QHash>
 #include <QLibrary>
-#include <QLinkedList>
 #include <QList>
 #include <QMap>
 #include <QPointer>
@@ -1161,111 +1160,6 @@ namespace painting {
     }
 
 } // namespace painting
-
-
-namespace qlinkedlist {
-
-    void testQLinkedListInt()
-    {
-        QLinkedList<int> list;
-        list.append(101);
-        list.append(102);
-        BREAK_HERE;
-        // Expand list.
-        // Check list <2 items> QLinkedList<int>.
-        // Check list.0 101 int.
-        // Check list.1 102 int.
-        // Continue.
-        dummyStatement(&list);
-    }
-
-    void testQLinkedListUInt()
-    {
-        QLinkedList<uint> list;
-        list.append(103);
-        list.append(104);
-        BREAK_HERE;
-        // Expand list.
-        // Check list <2 items> QLinkedList<unsigned int>.
-        // Check list.0 103 unsigned int.
-        // Check list.1 104 unsigned int.
-        // Continue.
-        dummyStatement(&list);
-    }
-
-    void testQLinkedListFooStar()
-    {
-        QLinkedList<Foo *> list;
-        list.append(new Foo(1));
-        list.append(0);
-        list.append(new Foo(3));
-        BREAK_HERE;
-        // Expand list list.0 list.2.
-        // Check list <3 items> QLinkedList<Foo*>.
-        // CheckType list.0 Foo.
-        // Check list.0.a 1 int.
-        // Check list.1 0x0 Foo *.
-        // CheckType list.2 Foo.
-        // Check list.2.a 3 int.
-        // Continue.
-        dummyStatement(&list);
-    }
-
-    void testQLinkedListULongLong()
-    {
-        QLinkedList<qulonglong> list;
-        list.append(42);
-        list.append(43);
-        BREAK_HERE;
-        // Expand list.
-        // Check list <2 items> QLinkedList<unsigned long long>.
-        // Check list.0 42 unsigned long long.
-        // Check list.1 43 unsigned long long.
-        // Continue.
-        dummyStatement(&list);
-    }
-
-    void testQLinkedListFoo()
-    {
-        QLinkedList<Foo> list;
-        list.append(Foo(1));
-        list.append(Foo(2));
-        BREAK_HERE;
-        // Expand list list.0 list.1.
-        // Check list <2 items> QLinkedList<Foo>.
-        // CheckType list.0 Foo.
-        // Check list.0.a 1 int.
-        // CheckType list.1 Foo.
-        // Check list.1.a 2 int.
-        // Continue.
-        dummyStatement(&list);
-    }
-
-    void testQLinkedListStdString()
-    {
-        QLinkedList<std::string> list;
-        list.push_back("aa");
-        list.push_back("bb");
-        BREAK_HERE;
-        // Expand list.
-        // Check list <2 items> QLinkedList<std::string>.
-        // Check list.0 "aa" std::string.
-        // Check list.1 "bb" std::string.
-        // Continue.
-        dummyStatement(&list);
-    }
-
-    void testQLinkedList()
-    {
-        testQLinkedListInt();
-        testQLinkedListUInt();
-        testQLinkedListFooStar();
-        testQLinkedListULongLong();
-        testQLinkedListFoo();
-        testQLinkedListStdString();
-    }
-
-} // namespace qlinkedlist
 
 
 namespace qlist {
@@ -7290,7 +7184,6 @@ int main(int argc, char *argv[])
     qdir::testQDir();
     qfileinfo::testQFileInfo();
     qhash::testQHash();
-    qlinkedlist::testQLinkedList();
     qlist::testQList();
     qlocale::testQLocale();
     qmap::testQMap();
