@@ -141,7 +141,7 @@ TEST_F(SkippedSourceRanges, DISABLED_ON_WINDOWS(RangeOne))
 {
     auto ranges = skippedSourceRanges.sourceRanges();
 
-    ASSERT_THAT(ranges[0].start(), IsSourceLocation(filePath, 1, 1, 0));
+    ASSERT_THAT(ranges[0].start(), IsSourceLocation(filePath, 2, 1, 6));
     ASSERT_THAT(ranges[0].end(), IsSourceLocation(filePath, 5, 1, 18));
 }
 
@@ -149,7 +149,7 @@ TEST_F(SkippedSourceRanges, DISABLED_ON_WINDOWS(RangeTwo))
 {
     auto ranges = skippedSourceRanges.sourceRanges();
 
-    ASSERT_THAT(ranges[1].start(), IsSourceLocation(filePath, 7, 1, 26));
+    ASSERT_THAT(ranges[1].start(), IsSourceLocation(filePath, 8, 1, 39));
     ASSERT_THAT(ranges[1].end(), IsSourceLocation(filePath, 12, 1, 57));
 }
 

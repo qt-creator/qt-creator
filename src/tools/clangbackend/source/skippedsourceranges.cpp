@@ -58,15 +58,20 @@ SkippedSourceRanges &SkippedSourceRanges::operator=(SkippedSourceRanges &&other)
     return *this;
 }
 
-// The source range reported by clang includes the e.g. #endif line, but we do
-// not want to have that grayed out, too. Overwrite the column number with 1 to
-// exclude the line.
+// For some reason, libclang starts the skipped range on the line containing the
+// preprocessor directive preceding the ifdef'ed out code (i.e. #if or #else)
+// and ends it on the line following the ifdef'ed out code (#else or #endif, respectively).
+// We don't want the preprocessor directives grayed out, so adapt the locations.
 static SourceRange adaptedSourceRange(CXTranslationUnit cxTranslationUnit, const SourceRange &range)
 {
     const SourceLocation end = range.end();
 
     return SourceRange {
-        range.start(),
+        SourceLocation(cxTranslationUnit,
+                       clang_getLocation(cxTranslationUnit,
+                                         clang_getFile(cxTranslationUnit,
+                                                       end.filePath().constData()),
+                                         range.start().line() + 1, 1)),
         SourceLocation(cxTranslationUnit,
                        clang_getLocation(cxTranslationUnit,
                                          clang_getFile(cxTranslationUnit,
