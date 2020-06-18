@@ -955,11 +955,16 @@ bool LanguageFilter::isSupported(const Utils::FilePath &filePath, const QString 
         return true;
     if (filePattern.isEmpty() && filePath.isEmpty())
         return mimeTypes.isEmpty();
-    auto regexps = Utils::transform(filePattern, [](const QString &pattern){
-        return QRegExp(pattern, Utils::HostOsInfo::fileNameCaseSensitivity(), QRegExp::Wildcard);
+    const QRegularExpression::PatternOptions options
+            = Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive
+            ? QRegularExpression::CaseInsensitiveOption : QRegularExpression::NoPatternOption;
+    auto regexps = Utils::transform(filePattern, [&options](const QString &pattern){
+        return QRegularExpression(QRegularExpression::wildcardToRegularExpression(pattern),
+                                  options);
     });
-    return Utils::anyOf(regexps, [filePath](const QRegExp &reg){
-        return reg.exactMatch(filePath.toString()) || reg.exactMatch(filePath.fileName());
+    return Utils::anyOf(regexps, [filePath](const QRegularExpression &reg){
+        return reg.match(filePath.toString()).hasMatch()
+                || reg.match(filePath.fileName()).hasMatch();
     });
 }
 
