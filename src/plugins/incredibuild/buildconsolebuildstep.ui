@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>941</width>
-    <height>624</height>
+    <height>867</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -248,7 +248,7 @@
     </widget>
    </item>
    <item row="31" column="0">
-    <widget class="QLabel" name="setEnvLabel">
+    <widget class="QLabel" name="additionalArgsLabel">
      <property name="toolTip">
       <string>Add additional buildconsole arguments manually. The value of this field will be concatenated to the final buildconsole command line</string>
      </property>
