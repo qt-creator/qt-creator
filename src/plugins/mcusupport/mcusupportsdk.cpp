@@ -344,17 +344,17 @@ void targetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage *> *packa
         const McuTargetDescription desc = parseDescriptionJson(file.readAll());
         if (!McuSupportOptions::supportedQulVersion()
                 .isPrefixOf(QVersionNumber::fromString(desc.qulVersion)))
-            continue;
+            return; // Invalid version means invalid SDK installation.
         descriptions.append(desc);
     }
 
-    if (!descriptions.isEmpty()) {
-        // Workaround for missing JSON file for Desktop target:
+    // Workaround for missing JSON file for Desktop target:
+    if (dir.pathAppended("/lib/QulQuickUltralite_QT_32bpp_Windows_Release.lib").exists()) {
         descriptions.prepend({McuSupportOptions::supportedQulVersion().toString(),
                               {"Qt"}, {"Qt"}, {32}, {"desktop"}, {}, {}});
-
-        mcuTargets->append(targetsFromDescriptions(descriptions, packages));
     }
+
+    mcuTargets->append(targetsFromDescriptions(descriptions, packages));
 }
 
 } // namespace Sdk
