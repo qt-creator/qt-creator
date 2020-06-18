@@ -111,10 +111,10 @@ static void parseContentType(BaseMessage &message, QByteArray contentType, QStri
 static void parseContentLength(BaseMessage &message, QByteArray contentLength, QString &parseError)
 {
     bool ok = true;
-    message.contentLength = QString::fromLatin1(contentLength).toInt(&ok);
+    message.contentLength = contentLength.toInt(&ok);
     if (!ok) {
         parseError = BaseMessage::tr("Expected an integer in \"%1\", but got \"%2\".")
-                .arg(contentLengthFieldName, QLatin1String(contentLength));
+                .arg(contentLengthFieldName, QString::fromLatin1(contentLength));
     }
 }
 
