@@ -25,8 +25,10 @@
 
 #pragma once
 
-#include <QPlainTextEdit>
 #include "qmt/infrastructure/qmt_global.h"
+
+#include <QList>
+#include <QPlainTextEdit>
 
 namespace qmt {
 
