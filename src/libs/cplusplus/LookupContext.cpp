@@ -818,6 +818,10 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
             if (Symbol *inst = instantiateTemplateFunction(name, s->asTemplate()))
                 item.setType(inst->type());
 
+            if (Template *templ = s->asTemplate())
+                if (templ->declaration() && templ->declaration()->asClass())
+                    item.setType(control()->namedType(name));
+
             result->append(item);
         }
     }

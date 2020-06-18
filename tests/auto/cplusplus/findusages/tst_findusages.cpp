@@ -86,6 +86,8 @@ private Q_SLOTS:
 
     void functionNameFoundInArguments();
     void memberFunctionFalsePositives_QTCREATORBUG2176();
+    void resolveTemplateConstructor();
+    void templateConstructorVsCallOperator();
 
     // Qt keywords
     void qproperty_1();
@@ -463,6 +465,112 @@ struct Struct{
 
     QCOMPARE(find.usages()[1].line, 6);
     QCOMPARE(find.usages()[1].col, 22);
+}
+
+void tst_FindUsages::resolveTemplateConstructor()
+{
+    const QByteArray src =
+        R"(
+struct MyStruct { int value; };
+template <class T> struct Tmp {
+    T str;
+};
+template <class T> struct Tmp2 {
+    Tmp2(){}
+    T str;
+};
+template <class T> struct Tmp3 {
+    Tmp3(int i){}
+    T str;
+};
+int main() {
+    auto tmp = Tmp<MyStruct>();
+    auto tmp2 = Tmp2<MyStruct>();
+    auto tmp3 = Tmp3<MyStruct>(1);
+    tmp.str.value;
+    tmp2.str.value;
+    tmp3.str.value;
+    Tmp<MyStruct>().str.value;
+    Tmp2<MyStruct>().str.value;
+    Tmp3<MyStruct>(1).str.value;
+}
+)";
+
+    Document::Ptr doc = Document::create("resolveTemplateConstructor");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QVERIFY(doc->globalSymbolCount() == 5);
+
+    Class *s = doc->globalSymbolAt(0)->asClass();
+    QVERIFY(s);
+    QCOMPARE(s->name()->identifier()->chars(), "MyStruct");
+    QCOMPARE(s->memberCount(), 1);
+
+    Declaration *sv = s->memberAt(0)->asDeclaration();
+    QVERIFY(sv);
+    QCOMPARE(sv->name()->identifier()->chars(), "value");
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    FindUsages find(src, doc, snapshot);
+    find(sv);
+    QCOMPARE(find.usages().size(), 7);
+}
+
+void tst_FindUsages::templateConstructorVsCallOperator()
+{
+    const QByteArray src =
+        R"(
+struct MyStruct { int value; };
+template<class T> struct Tmp {
+    T str;
+    MyStruct operator()() { return MyStruct(); }
+};
+struct Simple {
+    MyStruct str;
+    MyStruct operator()() { return MyStruct(); }
+};
+int main()
+{
+    Tmp<MyStruct>().str.value;
+    Tmp<MyStruct>()().value;
+    Tmp<MyStruct> t;
+    t().value;
+
+    Simple().str.value;
+    Simple()().value;
+    Simple s;
+    s().value;
+}
+)";
+
+    Document::Ptr doc = Document::create("resolveTemplateConstructor");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QVERIFY(doc->globalSymbolCount() == 4);
+
+    Class *s = doc->globalSymbolAt(0)->asClass();
+    QVERIFY(s);
+    QCOMPARE(s->name()->identifier()->chars(), "MyStruct");
+    QCOMPARE(s->memberCount(), 1);
+
+    Declaration *sv = s->memberAt(0)->asDeclaration();
+    QVERIFY(sv);
+    QCOMPARE(sv->name()->identifier()->chars(), "value");
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    FindUsages find(src, doc, snapshot);
+    find(sv);
+    QCOMPARE(find.usages().size(), 7);
 }
 
 #if 0

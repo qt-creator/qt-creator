@@ -880,12 +880,18 @@ bool ResolveExpression::visit(CallAST *ast)
 
         if (NamedType *namedTy = ty->asNamedType()) {
             if (ClassOrNamespace *b = _context.lookupType(namedTy->name(), scope)) {
-                foreach (const LookupItem &r, b->find(functionCallOp)) {
-                    Symbol *overload = r.declaration();
-                    if (Function *funTy = overload->type()->asFunctionType()) {
-                        if (maybeValidPrototype(funTy, actualArgumentCount)) {
-                            if (Function *proto = instantiate(namedTy->name(), funTy)->asFunctionType())
-                                addResult(proto->returnType().simplified(), scope);
+                if (b->templateId() && result.declaration() && result.declaration()->asTemplate()) {
+                    // Template class constructor
+                    addResult(ty.simplified(), scope);
+                } else {
+                    // operator()
+                    foreach (const LookupItem &r, b->find(functionCallOp)) {
+                        Symbol *overload = r.declaration();
+                        if (Function *funTy = overload->type()->asFunctionType()) {
+                            if (maybeValidPrototype(funTy, actualArgumentCount)) {
+                                if (Function *proto = instantiate(namedTy->name(), funTy)->asFunctionType())
+                                    addResult(proto->returnType().simplified(), scope);
+                            }
                         }
                     }
                 }
