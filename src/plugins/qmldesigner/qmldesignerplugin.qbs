@@ -59,6 +59,7 @@ Project {
              "components/stateseditor",
              "components/texteditor",
              "components/timelineeditor",
+             "compenents/listmodeleditor",
         ])
 
         Properties {
@@ -843,6 +844,10 @@ Project {
                 "timelineeditor/timelineview.h",
                 "timelineeditor/timelinewidget.cpp",
                 "timelineeditor/timelinewidget.h",
+                "listmodeleditor/listmodeleditordialog.cpp ",
+                "listmodeleditor/listmodeleditordialog.h ",
+                "listmodeleditor/listmodeleditormodel.cpp ",
+                "listmodeleditor/listmodeleditordialog.h ",
                 "transitioneditor/transitioneditorview.cpp",
                 "transitioneditor/transitioneditorview.h",
                 "transitioneditor/transitioneditorwidget.cpp",

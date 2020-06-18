@@ -25,14 +25,41 @@
 
 #pragma once
 
+#include <modelnode.h>
+
 #include <QStandardItemModel>
 
 namespace QmlDesigner {
 
 class ListModelEditorModel : public QStandardItemModel
 {
+
 public:
-    ListModelEditorModel();
+    void setListModel(ModelNode node)
+    {
+        m_listModelNode = node;
+        populateModel();
+    }
+
+    void addRow();
+    void addColumn(const QString &columnName);
+
+    const QList<QmlDesigner::PropertyName> &propertyNames() const { return m_propertyNames; }
+
+    bool setValue(int row, int column, QVariant value, Qt::ItemDataRole role = Qt::EditRole);
+
+    void removeColumn(int column);
+    void removeRow(int row);
+    void renameColumn(int column, const QString &newColumnName);
+
+private:
+    void populateModel();
+    void createItems(const QList<ModelNode> &listElementNodes);
+    void appendItems(const ModelNode &listElementNode);
+
+private:
+    ModelNode m_listModelNode;
+    QList<QmlDesigner::PropertyName> m_propertyNames;
 };
 
 } // namespace QmlDesigner

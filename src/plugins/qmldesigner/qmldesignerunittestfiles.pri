@@ -14,14 +14,12 @@ SOURCES += \
     $$PWD/designercore/model/import.cpp \
     $$PWD/designercore/model/abstractproperty.cpp \
     $$PWD/designercore/model/abstractview.cpp \
-    $$PWD/components/listmodeleditor/listmodeleditormodel.cpp \
     $$PWD/designercore/model/internalproperty.cpp \
     $$PWD/designercore/model/internalbindingproperty.cpp \
     $$PWD/designercore/model/internalnodeabstractproperty.cpp \
     $$PWD/designercore/model/internalnodelistproperty.cpp \
     $$PWD/designercore/model/internalnodeproperty.cpp \
     $$PWD/designercore/model/internalsignalhandlerproperty.cpp \
-    $$PWD/designercore/model/internalproperty.cpp \
     $$PWD/designercore/model/internalnode.cpp \
     $$PWD/designercore/model/internalvariantproperty.cpp \
     $$PWD/designercore/model/bindingproperty.cpp \
@@ -30,9 +28,9 @@ SOURCES += \
     $$PWD/designercore/model/nodeproperty.cpp \
     $$PWD/designercore/model/signalhandlerproperty.cpp \
     $$PWD/designercore/model/variantproperty.cpp\
-    $$PWD/designercore/model/annotation.cpp\
     $$PWD/designercore/model/annotation.cpp \
-    $$PWD/designercore/rewritertransaction.cpp
+    $$PWD/designercore/rewritertransaction.cpp \
+    $$PWD/components/listmodeleditor/listmodeleditormodel.cpp
 
 HEADERS += \
     $$PWD/designercore/include/modelnode.h \
@@ -41,7 +39,6 @@ HEADERS += \
     $$PWD/designercore/include/import.h \
     $$PWD/designercore/include/abstractproperty.h \
     $$PWD/designercore/include/abstractview.h \
-    $$PWD/components/listmodeleditor/listmodeleditormodel.h \
     $$PWD/designercore/model/model_p.h \
     $$PWD/designercore/include/qmldesignercorelib_global.h \
     $$PWD/designercore/model/internalbindingproperty.h \
@@ -58,4 +55,5 @@ HEADERS += \
     $$PWD/designercore/include/nodeproperty.h \
     $$PWD/designercore/include/signalhandlerproperty.h \
     $$PWD/designercore/include/variantproperty.h \
-    $$PWD/designercore/rewritertransaction.h
+    $$PWD/designercore/rewritertransaction.h \
+    $$PWD/components/listmodeleditor/listmodeleditormodel.h

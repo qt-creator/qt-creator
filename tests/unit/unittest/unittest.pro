@@ -39,8 +39,11 @@ CONFIG(release, debug|release):QMAKE_LFLAGS += -Wl,--strip-debug
 }
 
 gcc:!clang: QMAKE_CXXFLAGS += -Wno-noexcept-type
-msvc: QMAKE_CXXFLAGS += /bigobj /wd4267 /wd4141 /wd4146 /wd4624
+msvc{
+QMAKE_CXXFLAGS += /bigobj /wd4267 /wd4141 /wd4146 /wd4624
+QMAKE_LFLAGS += /INCREMENTAL
 
+}
 # create fake CppTools.json for the mime type definitions
 dependencyList = "\"Dependencies\" : []"
 cpptoolsjson.input = $$PWD/../../../src/plugins/cpptools/CppTools.json.in
@@ -244,6 +247,7 @@ HEADERS += \
     mockclangpathwatcher.h \
     mockclangpathwatchernotifier.h \
     mockfilesystem.h \
+    mocklistmodeleditorview.h \
     mockpchcreator.h \
     mockpchmanagerclient.h \
     mockpchmanagernotifier.h \
