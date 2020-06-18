@@ -28,6 +28,8 @@
 #include "assetexportpluginconstants.h"
 #include "filepathmodel.h"
 
+#include "coreplugin/fileutils.h"
+#include "coreplugin/icore.h"
 #include "projectexplorer/task.h"
 #include "projectexplorer/taskhub.h"
 #include "utils/fileutils.h"
@@ -75,6 +77,14 @@ AssetExportDialog::AssetExportDialog(const Utils::FilePath &exportPath,
     m_outputFormatter(new Utils::OutputFormatter())
 {
     m_ui->setupUi(this);
+
+    m_ui->exportPath->setFileName(exportPath);
+    m_ui->exportPath->setPromptDialogTitle(tr("Choose Export Path"));
+    m_ui->exportPath->lineEdit()->setReadOnly(true);
+    m_ui->exportPath->addButton(tr("Open"), this, [this]() {
+        Core::FileUtils::showInGraphicalShell(Core::ICore::mainWindow(), m_ui->exportPath->path());
+    });
+
     m_ui->buttonBox->button(QDialogButtonBox::Cancel)->setEnabled(false);
 
     m_ui->stackedWidget->addWidget(m_filesView);
@@ -103,9 +113,6 @@ AssetExportDialog::AssetExportDialog(const Utils::FilePath &exportPath,
     });
     m_ui->buttonBox->button(QDialogButtonBox::Close)->setVisible(false);
 
-    m_ui->exportPathEdit->setFileName(exportPath);
-    m_ui->exportPathEdit->setPromptDialogTitle(tr("Choose Export Path"));
-
     connect(&m_assetExporter, &AssetExporter::stateChanged,
             this, &AssetExportDialog::onExportStateChanged);
     connect(&m_assetExporter, &AssetExporter::exportProgressChanged,
@@ -129,7 +136,7 @@ void AssetExportDialog::onExport()
     TaskHub::clearTasks(Constants::TASK_CATEGORY_ASSET_EXPORT);
     m_exportLogs->clear();
 
-    m_assetExporter.exportQml(m_filePathModel.files(), m_ui->exportPathEdit->fileName());
+    m_assetExporter.exportQml(m_filePathModel.files(), m_ui->exportPath->fileName());
 }
 
 void AssetExportDialog::onExportStateChanged(AssetExporter::ParsingState newState)

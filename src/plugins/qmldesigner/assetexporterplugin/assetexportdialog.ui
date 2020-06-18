@@ -15,7 +15,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="1">
-    <widget class="Utils::PathChooser" name="exportPathEdit" native="true"/>
+    <widget class="Utils::PathChooser" name="exportPath" native="true"/>
    </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label">
