@@ -136,24 +136,24 @@
     hidden views, select \uicontrol Window > \uicontrol Views in the Design
     mode. For more information, see \l {Managing Workspaces}.
 
-    To modify \e Screen01.ui.qml in the \uicontrol {Form Editor}:
+    To modify \e Screen01.ui.qml in \uicontrol {Form Editor}:
 
     \list 1
        \li Select \e Rectangle in the \uicontrol Navigator view to display its
-            properties in the \uicontrol Properties view.
+            properties in \uicontrol Properties.
         \li In the \uicontrol Color field, select the
             \inlineimage icons/action-icon-binding.png
             (\uicontrol Actions) menu, and then select \uicontrol Reset to
             reset the rectangle background to the default color, white.
-        \li Select \e Text in the \uicontrol Navigator.
-        \li In the \uicontrol id field, change its id to \e pageTitle.
+        \li Select \e Text in \uicontrol Navigator.
+        \li In the \uicontrol id field, enter the id \e pageTitle.
         \li In the \uicontrol Text field, enter \e {Qt Account}.
         \li In the \uicontrol Font group, \uicontrol Size field, set the font
             size to \e 24 pixels.
         \li Drag and drop an \l Image type from \uicontrol Library >
             \uicontrol {QML Types} > \uicontrol {Qt Quick Basic} to the
             top-left corner of the rectangle.
-        \li In the \uicontrol id field, change its id to \e logo.
+        \li In the \uicontrol id field, change the id of the image to \e logo.
         \li In the \uicontrol Source field, select the \inlineimage browse-button.png
             (\uicontrol Browse) button to locate the Qt logo image file. Click
             \l {https://doc.qt.io/qtdesignstudio/images/used-in-examples/loginui1/qt_logo_green_64x64px.png}
@@ -186,8 +186,8 @@
 
     The \uicontrol Library view lists the QML types in each Qt module that are
     supported by \QDS. You can use the basic types to create your own QML
-    types, and they will be listed in the \uicontrol {My QML Components} tab.
-    The tab is only visible if you have created custom QML components.
+    types, and they will be listed under \uicontrol {My QML Components}.
+    This section is only visible if you have created custom QML components.
 
     For more information about the \l Rectangle and \l Image types used in this
     example, see \l{Use Case - Visual Elements In QML}. For descriptions of all
@@ -196,10 +196,10 @@
     \section1 Creating a Push Button
 
     You can use another wizard to create a push button and to add it to the
-    project. The wizard creates a reusable button component that appears in
-    the \uicontrol {My QML Components} tab in the \uicontrol Library. You can
-    drag and drop it to the \uicontrol {Form Editor} and modify its properties
-    in the \uicontrol Properties view to change its appearance and functionality.
+    project. The wizard creates a reusable button component that appears under
+    \uicontrol {My QML Components} in \uicontrol Library. You can
+    drag and drop it to \uicontrol {Form Editor} and modify its properties
+    in \uicontrol Properties to change its appearance and functionality.
 
     If you find that you cannot use the wizard to create the kind of push
     button that you want, you can create your button from scratch using basic
@@ -271,8 +271,8 @@
         \li On the toolbar, select \uicontrol Master >
             \uicontrol buttonBackground to move into the button background
             component.
-        \li Select the button background in the \uicontrol {Form Editor} or
-            in the \uicontrol Navigator to display its properties in the
+        \li Select the button background in \uicontrol {Form Editor} or
+            \uicontrol Navigator to display its properties in the
             \uicontrol Properties view.
         \li In the \uicontrol Color field, select
             \inlineimage icons/action-icon.png
@@ -306,7 +306,7 @@
 
     An object's property can be assigned a static value which stays constant
     until it is explicitly assigned a new value. In this example, the color
-    values you set in the \uicontrol {Binding Editor} are static.
+    values you set in \uicontrol {Binding Editor} are static.
 
     However, to make the fullest use of QML and its built-in support for dynamic
     object behavior, you can use property bindings that specify relationships
@@ -330,13 +330,13 @@
     You will now add two button instances to the UI and modify their labels.
 
     \list 1
-        \li Double-click \e Screen01.ui.qml in the \uicontrol Projects
-            view to open it in the \uicontrol {Form Editor}.
-        \li Drag and drop two instances of the PushButton type from the
-            \uicontrol Library to the \uicontrol {Form Editor}.
+        \li Double-click \e Screen01.ui.qml in \uicontrol Projects
+            to open it in \uicontrol {Form Editor}.
+        \li Drag and drop two instances of the PushButton type from
+            \uicontrol Library to \uicontrol {Form Editor}.
             \image loginui1-library.png "Library view"
-        \li Select one of the buttons in the \uicontrol Navigator to modify
-            its id and text label in the \uicontrol Properties view.
+        \li Select one of the buttons in \uicontrol Navigator to modify
+            its id and text label in \uicontrol Properties.
         \li In the \uicontrol Id field, enter \e loginButton.
         \li In the \uicontrol Text field, enter \e {Log In} and select
             \uicontrol tr to mark the text

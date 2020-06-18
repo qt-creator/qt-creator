@@ -62,8 +62,6 @@
     simulate changing pages. To make sure that those changes won't interfere
     with the changes to the opacity property you will make in Part 4, you will
     first remove the states.
-    In addition, you will need to remove the line that sets the default state
-    from the \e Screen01.ui.qml file in the \uicontrol {Text Editor}.
 
     Then, you will add a timeline and insert keyframes for the opacity property
     to hide the password verification field and back button on the login page
@@ -83,23 +81,19 @@
     First, you will prepare the page for adding animation:
 
     \list 1
-        \li Open \e {Screen01.ui.qml} in the Design mode for editing.
+        \li Open \e {Screen01.ui.qml} in \uicontrol {Form Editor} for editing.
         \li In the \uicontrol States view, select the \inlineimage close.png
             (\uicontrol Close) button in \e loginState and \e registerState
             to remove the states.
-        \li In the \uicontrol {Text Editor}, remove the following line:
-            \code
-            {state: "loginState"}
-            \endcode
-        \li Select the fields in \e fieldColumn in the \uicontrol Navigator
+        \li Select the fields in \e fieldColumn in \uicontrol Navigator
             and drag and drop them to \e loginPage.
-        \li Select \e fieldColumn in the \uicontrol Navigator and press
+        \li Select \e fieldColumn in \uicontrol Navigator and press
             \key Delete to delete it.
-        \li Select \e usernameField in the \uicontrol Navigator.
+        \li Select \e usernameField in \uicontrol Navigator.
         \li In \uicontrol Properties > \uicontrol Layout, select the
             \inlineimage anchor-top.png
             (\uicontrol Top) button to anchor the top of the field to the top
-            of its parent (the \e loginPage). \QDS will suggest an appropriate
+            of its parent (\e loginPage). \QDS will suggest an appropriate
             margin based on the current Y-position of the field.
         \li Select the \inlineimage anchor-horizontal-center.png
             (\uicontrol {Horizontal Center}) button to anchor
@@ -112,7 +106,7 @@
         \li Select the \uicontrol {Horizontal Center} button to anchor the
             horizontal center of \e passwordField to that of \e usernameField.
         \li Repeat the above steps to anchor the top of \e verifyPasswordField
-            to the bottom of the \e passwordField with a 5-pixel margin and to
+            to the bottom of \e passwordField with a 5-pixel margin and to
             anchor its horizontal center to that of \e passwordField.
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
             to save your changes.
@@ -140,11 +134,12 @@
 
     To add a timeline with settings for running the animation:
 
-    \image loginui4-timeline-settings.png
-
     \list 1
-        \li In the \uicontrol Timeline view, select \inlineimage plus.png
+            \li Select \uicontrol Window > \uicontrol Views >
+            \uicontrol Timeline to open the \uicontrol Timeline view.
+        \li In \uicontrol Timeline, select \inlineimage plus.png
             to add a 1000-frame timeline and settings for running the animation.
+            \image loginui4-timeline-settings.png
         \li In the \uicontrol {Animation ID} field, enter \e toLoginState.
         \li Deselect the \uicontrol {Running in base state} check box, because
             you want the animation to run only after the user clicks the
@@ -161,15 +156,15 @@
             to save the timeline and the animation settings.
     \endlist
 
-    Next, you will record the animation in the \uicontrol Timeline view.
+    Next, you will record the animation in \uicontrol Timeline.
 
     \section2 Inserting Keyframes
 
-    You will now insert keyframes and record property changes in the
-    \uicontrol Timeline view:
+    You will now insert keyframes and record property changes in
+    \uicontrol Timeline:
 
     \list 1
-        \li Select \e backButton in the \uicontrol Navigator.
+        \li Select \e backButton in \uicontrol Navigator.
         \li In \uicontrol Properties > \uicontrol Opacity > \uicontrol Settings,
             select \uicontrol {Insert Keyframe} to insert a keyframe for the
             opacity property of the button.
@@ -185,11 +180,11 @@
         \li Select the record button again to stop recording property changes.
             If you forget this, all the following changes will be recorded, and
             the results will be unpredictable.
-        \li Select \e verifyPasswordField in the \uicontrol Navigator,
+        \li Select \e verifyPasswordField in \uicontrol Navigator,
             and repeat the above steps to insert a keyframe for the
             \uicontrol opacity property of the field and to record
             changes for it.
-        \li Select the \e loginButton in the \uicontrol Navigator, and repeat
+        \li Select \e loginButton in \uicontrol Navigator, and repeat
             the above steps to insert a keyframe for the \uicontrol opacity
             property of the button and to record changes for it. However, this
             time the opacity value needs to be 1 in frame 0 and 0 in frame 1000.
@@ -208,11 +203,11 @@
     To animate the top anchor margin of the verify password field:
 
     \list 1
-        \li Select \e verifyPasswordField in the \uicontrol Navigator.
+        \li Select \e verifyPasswordField in \uicontrol Navigator.
         \li Select \uicontrol Properties > \uicontrol Layout > \uicontrol Margin
             > \uicontrol {Insert Keyframe} to insert a keyframe for the top
             anchor margin of \e verifyPasswordField.
-        \li In the \uicontrol Timeline view, check that the playhead is in
+        \li In \uicontrol Timeline, check that the playhead is in
             frame 0, and select the record button for the \e anchors.topMargin
             property of \e verifyPasswordField.
         \li In the field next to the property, set a negative value for the
@@ -238,7 +233,7 @@
         \li Right-click the keyframe marker to open a context menu, and
             select \uicontrol {Edit Easing Curve} to add an easing curve
             to the animation.
-        \li In the \uicontrol {Easing Curve Editor}, select \e easeOutSine.
+        \li In \uicontrol {Easing Curve Editor}, select \e easeOutSine.
             \image loginui4-easing-curve.png
         \li Select \uicontrol OK to close the editor.
     \endlist
@@ -248,7 +243,7 @@
     to \inlineimage keyframe_manualbezier_inactive.png
     .
 
-    Your timeline now should look something like this:
+    Your timeline should now look something like this:
 
     \image loginui4-timeline.png "Timeline view with the recorded property changes"
 
@@ -259,14 +254,14 @@
 
     You will now bring back the \l{Adding States}{states} in the
     \uicontrol States view and bind them to the animation settings
-    in the \uicontrol Timeline view:
+    in \uicontrol Timeline:
 
     \list 1
-        \li In the \uicontrol States view, select the \inlineimage plus.png
+        \li In \uicontrol States, select the \inlineimage plus.png
             button twice to add two states called \e loginState and
             \e registerState. You don't need to make any property changes this
             time, because you'll bind the states to property animations.
-        \li In the \uicontrol Timeline view, select the \inlineimage animation.png
+        \li In \uicontrol Timeline, select the \inlineimage animation.png
             (\uicontrol {Timeline Settings (S)}) button on the toolbar (or press
             \key S to open the \uicontrol {Timeline Settings} dialog.
             \image loginui4-timeline-settings-states.png
@@ -309,7 +304,7 @@
 
     All the properties and functions of the QML types from this module are
     available in the Design mode, and therefore it is enough to learn how to
-    use the \uicontrol Timeline view, as described in \l {Creating Animations}.
+    use \uicontrol Timeline, as described in \l {Creating Animations}.
 
     \section1 Next Steps
 

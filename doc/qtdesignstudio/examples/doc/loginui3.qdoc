@@ -69,30 +69,27 @@
     To add the text field and a back button needed on the registration page:
 
     \list 1
-        \li Open \e {Screen01.ui.qml} in the Design mode
-            \uicontrol {Form Editor} for editing.
+        \li Open \e {Screen01.ui.qml} in \uicontrol {Form Editor} for editing.
         \li Drag and drop a \uicontrol {Text Field} from \uicontrol Library
             > \uicontrol {QML Types} > \uicontrol {Qt Quick Controls 2} to
-            \e fieldColumn in the \uicontrol Navigator.
+            \e fieldColumn in \uicontrol Navigator.
         \li In \uicontrol Properties, change the id of the text field to
             \e verifyPasswordField.
         \li In the \uicontrol Geometry group, \uicontrol Size field, set the
             width of the field to \e 300 pixels.
         \li In the \uicontrol Placeholder field, set the placeholder text to
-            \e {Verify password}.
-        \li In the \uicontrol Text field, delete the default text to make the
-            placeholder text visible in the \uicontrol {Form Editor}.
-        \li Drag and drop a PushButton type from the \uicontrol Library,
-            \uicontrol {My QML Components} tab, to \e loginPage in the
+            \e {Verify password} and mark the text translatable.
+        \li Drag and drop a PushButton type from \uicontrol Library >
+            \uicontrol {My QML Components} to \e loginPage in
             \uicontrol Navigator.
-        \li Select the button in the \uicontrol Navigator and change its id to
+        \li Select the button in \uicontrol Navigator and change its id to
             \e backButton in \uicontrol Properties.
         \li In the \uicontrol Geometry group, \uicontrol Size field, set the
             button width to \e 40 pixels.
         \li In the \uicontrol Text field, enter \e <.
         \li In the \uicontrol Font group, \uicontrol Size field, set the font
             size to \e 24 pixels.
-        \li In the \uicontrol Layout tab, select the \inlineimage anchor-top.png
+        \li Under \uicontrol Layout, select the \inlineimage anchor-top.png
             (\uicontrol Top) and \inlineimage anchor-right.png
             (\uicontrol Right) anchor buttons to anchor \e backButton to
             the top right corner of its parent (the \e loginPage) with 20-
@@ -127,16 +124,13 @@
             the login state.
             \image loginui3-visibility.png
         \li Repeat the above step for \e backButton.
-        \li In the \uicontrol {Text Editor}, add the following line to the
-            definition of \e root to specify that the application should start
-            in \e loginState:
-                \quotefromfile loginui3/Screen01.ui.qml
-                \skipto Rectangle {
-                \printuntil state: "loginState"
-        \li Add another state and name it \e registerState.
-        \li In this state, reselect the \uicontrol Visibility check box in
-            \e verifyPasswordField and \e backButton properties to show them
-            again.
+        \li In \uicontrol States, select \inlineimage icons/action-icon.png
+            for \e loginState to open the \uicontrol Actions menu, and then
+            select \uicontrol {Set as Default} to determine that \e loginState
+            is applied when the application starts.
+        \li With the base state selected, add another state and name it
+            \e registerState. This state should now look identical to the base
+            state.
         \li Select \e loginButton in the \uicontrol Navigator, and deselect
             the \uicontrol Visibility check box to hide the login button in
             the registration state.
@@ -195,8 +189,10 @@
     to \e loginState:
 
     \list 1
+        \li Select \uicontrol Window > \uicontrol Views >
+            \uicontrol {Connection View} to open the \uicontrol Connection view.
         \li Select \e registerButton in the \uicontrol Navigator.
-        \li In the \uicontrol Connections view, select the \inlineimage plus.png
+        \li In the \uicontrol Connection view, select the \inlineimage plus.png
             button to add the action that the \c onClicked signal handler of
             \e registerButton should apply.
         \li Double-click the value \uicontrol Action column and select
