@@ -1263,7 +1263,6 @@ OutputIterator set_union(InputIterator1 first1,
 
 // Replacement for deprecated Qt functionality
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 template <class T>
 QSet<T> toSet(const QList<T> &list)
 {
@@ -1273,8 +1272,8 @@ QSet<T> toSet(const QList<T> &list)
     return QSet<T>(list.begin(), list.end());
 #endif
 }
-#endif
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 template<class T>
 QSet<T> toSet(const QVector<T> &vec)
 {
@@ -1288,6 +1287,7 @@ QSet<T> toSet(const QVector<T> &vec)
     return QSet<T>(vec.begin(), vec.end());
 #endif
 }
+#endif
 
 template<class T>
 QList<T> toList(const QSet<T> &set)
