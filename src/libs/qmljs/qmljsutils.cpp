@@ -27,6 +27,8 @@
 
 #include "parser/qmljsast_p.h"
 
+#include <utils/stringutils.h>
+
 #include <QColor>
 #include <QDir>
 #include <QRegularExpression>
@@ -239,7 +241,7 @@ QString QmlJS::modulePath(const QString &name, const QString &version,
         return QString();
 
     const QString sanitizedVersion = version == undefinedVersion ? QString() : version;
-    const QStringList parts = name.split(QLatin1Char('.'), QString::SkipEmptyParts);
+    const QStringList parts = name.split('.', Utils::SkipEmptyParts);
     auto mkpath = [] (const QStringList &xs) -> QString { return xs.join(QLatin1Char('/')); };
 
     // Regular expression for building candidates by successively removing minor and major

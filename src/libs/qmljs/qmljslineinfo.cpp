@@ -78,7 +78,7 @@ const int LineInfo::SmallRoof = 40;
 const int LineInfo::BigRoof = 400;
 
 LineInfo::LineInfo()
-    : braceX(QRegExp(QLatin1String("^\\s*\\}\\s*(?:else|catch)\\b")))
+    : braceX(QRegularExpression("^\\s*\\}\\s*(?:else|catch)\\b"))
 {
     /*
         The "linizer" is a group of functions and variables to iterate

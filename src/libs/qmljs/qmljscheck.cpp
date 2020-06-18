@@ -34,7 +34,7 @@
 
 #include <QColor>
 #include <QDir>
-#include <QRegExp>
+#include <QRegularExpression>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
@@ -907,7 +907,7 @@ static bool checkTopLevelBindingForParentReference(ExpressionStatement *expStmt,
     SourceLocation location = locationFromRange(expStmt->firstSourceLocation(), expStmt->lastSourceLocation());
     QString stmtSource = source.mid(int(location.begin()), int(location.length));
 
-    if (stmtSource.contains(QRegExp("(^|\\W)parent\\.")))
+    if (stmtSource.contains(QRegularExpression("(^|\\W)parent\\.")))
         return true;
 
     return false;
@@ -1562,7 +1562,7 @@ void Check::addMessage(StaticAnalysis::Type type, const SourceLocation &location
 void Check::scanCommentsForAnnotations()
 {
     m_disabledMessageTypesByLine.clear();
-    QRegExp disableCommentPattern(Message::suppressionPattern());
+    const QRegularExpression disableCommentPattern = Message::suppressionPattern();
 
     foreach (const SourceLocation &commentLoc, _doc->engine()->comments()) {
         const QString &comment = _doc->source().mid(int(commentLoc.begin()), int(commentLoc.length));
@@ -1575,14 +1575,15 @@ void Check::scanCommentsForAnnotations()
         int lastOffset = -1;
         QList<MessageTypeAndSuppression> disabledMessageTypes;
         forever {
-            lastOffset = disableCommentPattern.indexIn(comment, lastOffset + 1);
-            if (lastOffset == -1)
+            const QRegularExpressionMatch match = disableCommentPattern.match(comment, lastOffset + 1);
+            if (!match.hasMatch())
                 break;
+            lastOffset = match.capturedStart();
             MessageTypeAndSuppression entry;
-            entry.type = static_cast<StaticAnalysis::Type>(disableCommentPattern.cap(1).toInt());
+            entry.type = static_cast<StaticAnalysis::Type>(match.captured(1).toInt());
             entry.wasSuppressed = false;
             entry.suppressionSource = SourceLocation(commentLoc.offset + quint32(lastOffset),
-                                                     quint32(disableCommentPattern.matchedLength()),
+                                                     quint32(match.capturedLength()),
                                                      commentLoc.startLine,
                                                      commentLoc.startColumn + quint32(lastOffset));
             disabledMessageTypes += entry;

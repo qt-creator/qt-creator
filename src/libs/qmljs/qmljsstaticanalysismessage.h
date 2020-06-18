@@ -32,7 +32,7 @@
 #include <QString>
 #include <QList>
 
-QT_FORWARD_DECLARE_CLASS(QRegExp)
+QT_FORWARD_DECLARE_CLASS(QRegularExpression)
 
 namespace QmlJS {
 class DiagnosticMessage;
@@ -157,7 +157,7 @@ public:
     DiagnosticMessage toDiagnosticMessage() const;
 
     QString suppressionString() const;
-    static QRegExp suppressionPattern();
+    static QRegularExpression suppressionPattern();
 
     SourceLocation location;
     QString message;

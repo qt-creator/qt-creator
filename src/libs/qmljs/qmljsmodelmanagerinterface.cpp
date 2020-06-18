@@ -38,6 +38,7 @@
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/runextensions.h>
+#include <utils/stringutils.h>
 
 #include <QDir>
 #include <QDirIterator>
@@ -90,7 +91,7 @@ static QStringList environmentImportPaths()
     QStringList paths;
 
     const QStringList importPaths = QString::fromLocal8Bit(qgetenv("QML_IMPORT_PATH")).split(
-        Utils::HostOsInfo::pathListSeparator(), QString::SkipEmptyParts);
+        Utils::HostOsInfo::pathListSeparator(), Utils::SkipEmptyParts);
 
     for (const QString &path : importPaths) {
         const QString canonicalPath = QDir(path).canonicalPath();
@@ -267,8 +268,10 @@ void ModelManagerInterface::loadQmlTypeDescriptionsInternal(const QString &resou
     }
 
     // load the fallbacks for libraries
-    CppQmlTypesLoader::defaultLibraryObjects.unite(
-                CppQmlTypesLoader::loadQmlTypes(qmlTypesFiles, &errors, &warnings));
+    const CppQmlTypesLoader::BuiltinObjects objs =
+            CppQmlTypesLoader::loadQmlTypes(qmlTypesFiles, &errors, &warnings);
+    for (auto it = objs.cbegin(); it != objs.cend(); ++it)
+        CppQmlTypesLoader::defaultLibraryObjects.insert(it.key(), it.value());
 
     for (const QString &error : qAsConst(errors))
         writeMessageInternal(error);

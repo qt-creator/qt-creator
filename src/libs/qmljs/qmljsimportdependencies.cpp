@@ -147,8 +147,7 @@ ImportKey::ImportKey(const ImportInfo &info)
     , majorVersion(info.version().majorVersion())
     , minorVersion(info.version().minorVersion())
 {
-    splitPath = QFileInfo(info.path()).canonicalFilePath().split(QLatin1Char('/'),
-                                                                 QString::KeepEmptyParts);
+    splitPath = QFileInfo(info.path()).canonicalFilePath().split('/');
 }
 
 ImportKey::ImportKey(ImportType::Enum type, const QString &path, int majorVersion, int minorVersion)

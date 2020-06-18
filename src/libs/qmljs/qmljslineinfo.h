@@ -27,7 +27,7 @@
 
 #include <qmljs/qmljs_global.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QTextBlock>
 
 namespace QmlJS {
@@ -112,7 +112,7 @@ protected:
     const int *yyBraceDepth;
     const bool *yyLeftBraceFollows;
 
-    QRegExp braceX;
+    QRegularExpression braceX;
 };
 
 } // namespace QmlJS

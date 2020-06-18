@@ -31,7 +31,7 @@
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
-#include <QRegExp>
+#include <QRegularExpression>
 
 using namespace QmlJS;
 using namespace QmlJS::StaticAnalysis;
@@ -317,9 +317,9 @@ QString Message::suppressionString() const
     return QString::fromLatin1("@disable-check M%1").arg(QString::number(type));
 }
 
-QRegExp Message::suppressionPattern()
+QRegularExpression Message::suppressionPattern()
 {
-    return QRegExp(QLatin1String("@disable-check M(\\d+)"));
+    return QRegularExpression("@disable-check M(\\d+)");
 }
 
 const PrototypeMessageData Message::prototypeForMessageType(Type type)
