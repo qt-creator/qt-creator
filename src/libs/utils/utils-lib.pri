@@ -289,7 +289,8 @@ HEADERS += \
     $$PWD/overlaywidget.h \
     $$PWD/archive.h \
     $$PWD/id.h \
-    $$PWD/infobar.h
+    $$PWD/infobar.h \
+    $$PWD/porting.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

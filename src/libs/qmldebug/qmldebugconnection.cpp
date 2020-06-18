@@ -27,6 +27,7 @@
 #include "qmldebugclient.h"
 #include "qpacketprotocol.h"
 
+#include <utils/porting.h>
 #include <utils/temporaryfile.h>
 
 #include <QLocalServer>

@@ -108,6 +108,7 @@ add_qtc_library(Utils
     persistentsettings.cpp persistentsettings.h
     pointeralgorithm.h
     port.cpp port.h
+    porting.h
     portlist.cpp portlist.h
     predicates.h
     processhandle.cpp processhandle.h

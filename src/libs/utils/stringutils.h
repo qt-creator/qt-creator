@@ -27,6 +27,8 @@
 
 #include "utils_global.h"
 
+#include "porting.h"
+
 #include <QList>
 #include <QString>
 
@@ -35,12 +37,6 @@ class QJsonValue;
 QT_END_NAMESPACE
 
 namespace Utils {
-
-#if (QT_VERSION < QT_VERSION_CHECK(5, 14, 0))
-constexpr QString::SplitBehavior SkipEmptyParts = QString::SkipEmptyParts;
-#else
-constexpr Qt::SplitBehaviorFlags SkipEmptyParts = Qt::SkipEmptyParts;
-#endif
 
 // Create a usable settings key from a category,
 // for example Editor|C++ -> Editor_C__
