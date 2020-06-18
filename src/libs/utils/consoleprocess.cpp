@@ -34,11 +34,11 @@
 
 #include <QAbstractEventDispatcher>
 #include <QCoreApplication>
-#include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
 #include <QLocalServer>
 #include <QLocalSocket>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QTemporaryFile>
 #include <QTimer>
@@ -283,8 +283,8 @@ static QString quoteWinArgument(const QString &arg)
 
     QString ret(arg);
     // Quotes are escaped and their preceding backslashes are doubled.
-    ret.replace(QRegExp(QLatin1String("(\\\\*)\"")), QLatin1String("\\1\\1\\\""));
-    if (ret.contains(QRegExp(QLatin1String("\\s")))) {
+    ret.replace(QRegularExpression("(\\\\*)\""), "\\1\\1\\\"");
+    if (ret.contains(QRegularExpression("\\s"))) {
         // The argument must not end with a \ since this would be interpreted
         // as escaping the quote -- rather put the \ behind the quote: e.g.
         // rather use "foo"\ than "foo\"

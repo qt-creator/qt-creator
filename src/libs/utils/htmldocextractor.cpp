@@ -26,17 +26,9 @@
 #include "htmldocextractor.h"
 
 #include <QStringList>
-#include <QRegExp>
+#include <QRegularExpression>
 
-using namespace Utils;
-
-namespace {
-    QRegExp createMinimalExp(const QString &pattern) {
-        QRegExp exp(pattern);
-        exp.setMinimal(true);
-        return exp;
-    }
-}
+namespace Utils {
 
 HtmlDocExtractor::HtmlDocExtractor() = default;
 
@@ -100,7 +92,7 @@ QString HtmlDocExtractor::getFunctionDescription(const QString &html,
             startMark.append(QLatin1String("[overload1]"));
         } else {
             QString complement = mark.right(mark.length() - parenthesis);
-            complement.remove(QRegExp(QLatin1String("[\\(\\), ]")));
+            complement.remove(QRegularExpression("[\\(\\), ]"));
             startMark.append(complement);
         }
     }
@@ -115,10 +107,10 @@ QString HtmlDocExtractor::getFunctionDescription(const QString &html,
         // So I try to find the link to this property in the list of properties, extract its
         // anchor and then follow by the name found.
         const QString &pattern =
-            QString::fromLatin1("<a href=\"[a-z\\.]+#([A-Za-z]+)-prop\">%1</a>").arg(cleanMark);
-        QRegExp exp = createMinimalExp(pattern);
-        if (exp.indexIn(html) != -1) {
-            const QString &prop = exp.cap(1);
+            QString("<a href=\"[a-z\\.]+?#([A-Za-z]+?)-prop\">%1</a>").arg(cleanMark);
+        const QRegularExpressionMatch match = QRegularExpression(pattern).match(html);
+        if (match.hasMatch()) {
+            const QString &prop = match.captured(1);
             contents = getClassOrNamespaceMemberDescription(html,
                                                             prop + QLatin1String("-prop"),
                                                             prop);
@@ -278,33 +270,32 @@ void HtmlDocExtractor::processOutput(QString *html) const
 
 void HtmlDocExtractor::stripAllHtml(QString *html)
 {
-    html->remove(createMinimalExp(QLatin1String("<.*>")));
+    html->remove(QRegularExpression("<.*?>"));
 }
 
 void HtmlDocExtractor::stripHeadings(QString *html)
 {
-    html->remove(createMinimalExp(QLatin1String("<h\\d{1}.*>|</h\\d{1}>")));
+    html->remove(QRegularExpression("<h\\d{1}.*?>|</h\\d{1}>"));
 }
 
 void HtmlDocExtractor::stripLinks(QString *html)
 {
-    html->remove(createMinimalExp(QLatin1String("<a\\s+.*>|</a>")));
+    html->remove(QRegularExpression("<a\\s.*?>|</a>"));
 }
 
 void HtmlDocExtractor::stripHorizontalLines(QString *html)
 {
-    html->remove(createMinimalExp(QLatin1String("<hr\\s+/>")));
+    html->remove(QRegularExpression("<hr\\s+/>"));
 }
 
 void HtmlDocExtractor::stripDivs(QString *html)
 {
-    html->remove(createMinimalExp(QLatin1String("<div\\s+.*>|</div>|<div\\s+.*/\\s*>")));
+    html->remove(QRegularExpression("<div\\s.*?>|</div>|<div\\s.*?/\\s*>"));
 }
 
 void HtmlDocExtractor::stripTagsStyles(QString *html)
 {
-    const QRegExp &exp = createMinimalExp(QLatin1String("<(.*\\s+)class=\".*\">"));
-    html->replace(exp, QLatin1String("<\\1>"));
+    html->replace(QRegularExpression("<(.*?\\s+)class=\".*?\">"), "<\\1>");
 }
 
 void HtmlDocExtractor::stripTeletypes(QString *html)
@@ -315,7 +306,7 @@ void HtmlDocExtractor::stripTeletypes(QString *html)
 
 void HtmlDocExtractor::stripImagens(QString *html)
 {
-    html->remove(createMinimalExp(QLatin1String("<img.*>")));
+    html->remove(QRegularExpression("<img.*?>"));
 }
 
 void HtmlDocExtractor::stripBold(QString *html)
@@ -331,34 +322,35 @@ void HtmlDocExtractor::stripEmptyParagraphs(QString *html)
 
 void HtmlDocExtractor::replaceNonStyledHeadingsForBold(QString *html)
 {
-    const QRegExp &hStart = createMinimalExp(QLatin1String("<h\\d{1}>"));
-    const QRegExp &hEnd = createMinimalExp(QLatin1String("</h\\d{1}>"));
+    const QRegularExpression hStart("<h\\d{1}>");
+    const QRegularExpression hEnd("</h\\d{1}>");
     html->replace(hStart, QLatin1String("<p><b>"));
     html->replace(hEnd, QLatin1String("</b></p>"));
 }
 
 void HtmlDocExtractor::replaceTablesForSimpleLines(QString *html)
 {
-    html->replace(createMinimalExp(QLatin1String("(?:<p>)?<table.*>")), QLatin1String("<p>"));
+    html->replace(QRegularExpression("(?:<p>)?<table.*?>"), QLatin1String("<p>"));
     html->replace(QLatin1String("</table>"), QLatin1String("</p>"));
-    html->remove(createMinimalExp(QLatin1String("<thead.*>")));
+    html->remove(QRegularExpression("<thead.*?>"));
     html->remove(QLatin1String("</thead>"));
-    html->remove(createMinimalExp(QLatin1String("<tfoot.*>")));
+    html->remove(QRegularExpression("<tfoot.*?>"));
     html->remove(QLatin1String("</tfoot>"));
-    html->remove(createMinimalExp(QLatin1String("<tr.*><th.*>.*</th></tr>")));
+    html->remove(QRegularExpression("<tr.*?><th.*?>.*?</th></tr>"));
     html->replace(QLatin1String("</td><td"), QLatin1String("</td>&nbsp;<td"));
-    html->remove(createMinimalExp(QLatin1String("<td.*><p>")));
-    html->remove(createMinimalExp(QLatin1String("<td.*>")));
-    html->remove(createMinimalExp(QLatin1String("(?:</p>)?</td>")));
-    html->replace(createMinimalExp(QLatin1String("<tr.*>")),
-                  QLatin1String("&nbsp;&nbsp;&nbsp;&nbsp;"));
+    html->remove(QRegularExpression("<td.*?><p>"));
+    html->remove(QRegularExpression("<td.*?>"));
+    html->remove(QRegularExpression("(?:</p>)?</td>"));
+    html->replace(QRegularExpression("<tr.*?>"), QLatin1String("&nbsp;&nbsp;&nbsp;&nbsp;"));
     html->replace(QLatin1String("</tr>"), QLatin1String("<br />"));
 }
 
 void HtmlDocExtractor::replaceListsForSimpleLines(QString *html)
 {
-    html->remove(createMinimalExp(QLatin1String("<(?:ul|ol).*>")));
-    html->remove(createMinimalExp(QLatin1String("</(?:ul|ol)>")));
+    html->remove(QRegularExpression("<(?:ul|ol).*?>"));
+    html->remove(QRegularExpression("</(?:ul|ol)>"));
     html->replace(QLatin1String("<li>"), QLatin1String("&nbsp;&nbsp;&nbsp;&nbsp;"));
     html->replace(QLatin1String("</li>"), QLatin1String("<br />"));
 }
+
+} // namespace Utils

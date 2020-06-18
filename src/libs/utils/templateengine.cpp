@@ -138,7 +138,7 @@ bool PreprocessContext::process(const QString &in, QString *out, QString *errorM
     reset();
 
     const QChar newLine = QLatin1Char('\n');
-    const QStringList lines = in.split(newLine, QString::KeepEmptyParts);
+    const QStringList lines = in.split(newLine);
     const int lineCount = lines.size();
     bool first = true;
     for (int l = 0; l < lineCount; l++) {
