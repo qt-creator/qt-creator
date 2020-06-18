@@ -70,12 +70,12 @@ struct DirectoryData
 static QStringList scanDirectory(const QString &path, const QString &prefix)
 {
     QStringList result;
-    qCDebug(cmInputLog()) << "Scanning for directories matching" << prefix << "in" << path;
+    qCDebug(cmInputLog) << "Scanning for directories matching" << prefix << "in" << path;
 
     const QDir base = QDir(path);
     foreach (const QString &dir, base.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
         const QString subPath = path + '/' + dir;
-        qCDebug(cmInputLog()) << "Checking" << subPath;
+        qCDebug(cmInputLog) << "Checking" << subPath;
         if (dir.startsWith(prefix))
             result.append(subPath);
     }
@@ -108,7 +108,7 @@ QStringList CMakeProjectImporter::importCandidates()
         candidates << scanDirectory(fi.absolutePath(), QString());
     }
     const QStringList finalists = Utils::filteredUnique(candidates);
-    qCInfo(cmInputLog()) << "import candidates:" << finalists;
+    qCInfo(cmInputLog) << "import candidates:" << finalists;
     return finalists;
 }
 
@@ -117,7 +117,7 @@ static Utils::FilePath qmakeFromCMakeCache(const CMakeConfig &config)
     // Qt4 way to define things (more convenient for us, so try this first;-)
     Utils::FilePath qmake
             = Utils::FilePath::fromUtf8(CMakeConfigItem::valueOf(QByteArray("QT_QMAKE_EXECUTABLE"), config));
-    qCDebug(cmInputLog()) << "QT_QMAKE_EXECUTABLE=" << qmake.toUserOutput();
+    qCDebug(cmInputLog) << "QT_QMAKE_EXECUTABLE=" << qmake.toUserOutput();
     if (!qmake.isEmpty())
         return qmake;
 
@@ -131,13 +131,13 @@ static Utils::FilePath qmakeFromCMakeCache(const CMakeConfig &config)
         }
         return tmp;
     }();
-    qCDebug(cmInputLog()) << "QtXCore_DIR=" << qtCMakeDir.toUserOutput();
+    qCDebug(cmInputLog) << "QtXCore_DIR=" << qtCMakeDir.toUserOutput();
     const Utils::FilePath canQtCMakeDir = Utils::FilePath::fromString(qtCMakeDir.toFileInfo().canonicalFilePath());
-    qCInfo(cmInputLog()) << "QtXCore_DIR (canonical)=" << canQtCMakeDir.toUserOutput();
+    qCInfo(cmInputLog) << "QtXCore_DIR (canonical)=" << canQtCMakeDir.toUserOutput();
     if (qtCMakeDir.isEmpty())
         return Utils::FilePath();
     const Utils::FilePath baseQtDir = canQtCMakeDir.parentDir().parentDir().parentDir(); // Up 3 levels...
-    qCDebug(cmInputLog()) << "BaseQtDir:" << baseQtDir.toUserOutput();
+    qCDebug(cmInputLog) << "BaseQtDir:" << baseQtDir.toUserOutput();
 
     // "Parse" Qt5Core/Qt5CoreConfigExtras.cmake:
     {
@@ -231,25 +231,25 @@ static QVector<ToolChainDescription> extractToolChainsFromCache(const CMakeConfi
 
 QList<void *> CMakeProjectImporter::examineDirectory(const Utils::FilePath &importPath) const
 {
-    qCInfo(cmInputLog()) << "Examining directory:" << importPath.toUserOutput();
+    qCInfo(cmInputLog) << "Examining directory:" << importPath.toUserOutput();
     const FilePath cacheFile = importPath.pathAppended("CMakeCache.txt");
 
     if (!cacheFile.exists()) {
-        qCDebug(cmInputLog()) << cacheFile.toUserOutput() << "does not exist, returning.";
+        qCDebug(cmInputLog) << cacheFile.toUserOutput() << "does not exist, returning.";
         return { };
     }
 
     QString errorMessage;
     const CMakeConfig config = CMakeBuildSystem::parseCMakeCacheDotTxt(cacheFile, &errorMessage);
     if (config.isEmpty() || !errorMessage.isEmpty()) {
-        qCDebug(cmInputLog()) << "Failed to read configuration from" << cacheFile << errorMessage;
+        qCDebug(cmInputLog) << "Failed to read configuration from" << cacheFile << errorMessage;
         return { };
     }
     const auto homeDir
             = Utils::FilePath::fromUserInput(QString::fromUtf8(CMakeConfigItem::valueOf("CMAKE_HOME_DIRECTORY", config)));
     const Utils::FilePath canonicalProjectDirectory = projectDirectory().canonicalPath();
     if (homeDir != canonicalProjectDirectory) {
-        qCDebug(cmInputLog()) << "Wrong source directory:" << homeDir.toUserOutput()
+        qCDebug(cmInputLog) << "Wrong source directory:" << homeDir.toUserOutput()
                               << "expected:" << canonicalProjectDirectory.toUserOutput();
         return { };
     }
@@ -275,7 +275,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const Utils::FilePath &impo
     // ToolChains:
     data->toolChains = extractToolChainsFromCache(config);
 
-    qCInfo(cmInputLog()) << "Offering to import" << importPath.toUserOutput();
+    qCInfo(cmInputLog) << "Offering to import" << importPath.toUserOutput();
     return {static_cast<void *>(data.release())};
 }
 
@@ -305,7 +305,7 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
             return false;
     }
 
-    qCDebug(cmInputLog()) << k->displayName()
+    qCDebug(cmInputLog) << k->displayName()
                           << "matches directoryData for" << data->buildDirectory.toUserOutput();
     return true;
 }
@@ -339,7 +339,7 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
             ToolChainKitAspect::setToolChain(k, tcd.tcs.at(0));
         }
 
-        qCInfo(cmInputLog()) << "Temporary Kit created.";
+        qCInfo(cmInputLog) << "Temporary Kit created.";
     });
 }
 
@@ -353,7 +353,7 @@ const QList<BuildInfo> CMakeProjectImporter::buildInfoList(void *directoryData) 
     info.buildDirectory = data->buildDirectory;
     info.displayName = info.typeName;
 
-    qCDebug(cmInputLog()) << "BuildInfo configured.";
+    qCDebug(cmInputLog) << "BuildInfo configured.";
     return {info};
 }
 
@@ -363,7 +363,7 @@ CMakeProjectImporter::findOrCreateCMakeTool(const Utils::FilePath &cmakeToolPath
     CMakeToolData result;
     result.cmakeTool = CMakeToolManager::findByCommand(cmakeToolPath);
     if (!result.cmakeTool) {
-        qCDebug(cmInputLog()) << "Creating temporary CMakeTool for" << cmakeToolPath.toUserOutput();
+        qCDebug(cmInputLog) << "Creating temporary CMakeTool for" << cmakeToolPath.toUserOutput();
         result.cmakeTool = new CMakeTool(CMakeTool::ManualDetection, CMakeTool::createId());
         result.isTemporary = true;
     }
@@ -382,7 +382,7 @@ void CMakeProjectImporter::cleanupTemporaryCMake(Kit *k, const QVariantList &vl)
     QTC_ASSERT(vl.count() == 1, return);
     CMakeKitAspect::setCMakeTool(k, Core::Id()); // Always mark Kit as not using this Qt
     CMakeToolManager::deregisterCMakeTool(Core::Id::fromSetting(vl.at(0)));
-    qCDebug(cmInputLog()) << "Temporary CMake tool cleaned up.";
+    qCDebug(cmInputLog) << "Temporary CMake tool cleaned up.";
 }
 
 void CMakeProjectImporter::persistTemporaryCMake(Kit *k, const QVariantList &vl)
@@ -398,7 +398,7 @@ void CMakeProjectImporter::persistTemporaryCMake(Kit *k, const QVariantList &vl)
     if (tmpCmake && actualCmake != tmpCmake)
         CMakeToolManager::deregisterCMakeTool(tmpCmake->id());
 
-    qCDebug(cmInputLog()) << "Temporary CMake tool made persistent.";
+    qCDebug(cmInputLog) << "Temporary CMake tool made persistent.";
 }
 
 } // namespace Internal
