@@ -109,7 +109,7 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
     });
     ProjectExplorer::SessionManager *sm = ProjectExplorer::SessionManager::instance();
     connect(sm, &ProjectExplorer::SessionManager::startupProjectChanged,
-            [this](ProjectExplorer::Project * /*project*/) {
+            this, [this](ProjectExplorer::Project * /*project*/) {
         m_expandedStateCache.clear();
         m_itemUseCache.clear();
     });
