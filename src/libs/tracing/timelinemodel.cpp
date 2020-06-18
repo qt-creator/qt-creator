@@ -31,7 +31,8 @@
 #include "timelinenotesrenderpass.h"
 
 #include <utils/qtcassert.h>
-#include <QLinkedList>
+
+#include <list>
 
 namespace Timeline {
 
@@ -59,12 +60,12 @@ namespace Timeline {
 */
 void TimelineModel::computeNesting()
 {
-    QLinkedList<int> parents;
+    std::list<int> parents;
     for (int range = 0; range != count(); ++range) {
         TimelineModelPrivate::Range &current = d->ranges[range];
-        for (QLinkedList<int>::iterator parentIt = parents.begin();;) {
+        for (std::list<int>::iterator parentIt = parents.begin();;) {
             if (parentIt == parents.end()) {
-                parents.append(range);
+                parents.push_back(range);
                 break;
             }
 
@@ -95,7 +96,7 @@ void TimelineModel::computeNesting()
                 // could not find out about the changes in the IDs for range starts then.
 
                 current.parent = *parentIt;
-                parents.append(range);
+                parents.push_back(range);
                 break;
             } else {
                 ++parentIt;
