@@ -31,6 +31,7 @@
 #include "pluginmanager.h"
 
 #include <utils/algorithm.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
@@ -573,7 +574,8 @@ namespace {
 PluginSpecPrivate::PluginSpecPrivate(PluginSpec *spec)
     : q(spec)
 {
-    loader.setLoadHints(QLibrary::ExportExternalSymbolsHint);
+    if (Utils::HostOsInfo::isMacHost())
+        loader.setLoadHints(QLibrary::ExportExternalSymbolsHint);
 }
 
 /*!
