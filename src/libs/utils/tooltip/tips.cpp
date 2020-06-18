@@ -74,15 +74,36 @@ const QMetaObject *TipLabel::metaObject() const
 {
     // CSS Tooltip styling depends on a the name of this class.
     // So set up a minimalist QMetaObject to fake a class name "QTipLabel":
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     static const uint tip_label_meta_data[15] = { 8 /* moc revision */ };
+
     static const QMetaObject tipMetaObject {
-         &QLabel::staticMetaObject,
-         QByteArrayLiteral("QTipLabel").data_ptr(),
-         tip_label_meta_data,
-         nullptr,
-         nullptr,
-         nullptr
+         &QLabel::staticMetaObject,                  // SuperData superdata;
+         QByteArrayLiteral("QTipLabel").data_ptr(),  // const QByteArrayData *stringdata;
+         tip_label_meta_data,                        // const uint *data;
+         nullptr,                                    // StaticMetacallFunction static_metacall;
+         nullptr,                                    // const SuperData *relatedMetaObjects;
+         nullptr                                     // void *extradata;
     };
+#else
+    static const uint tip_label_meta_data[15] = { 9 /* moc revision */ };
+
+    struct qt_meta_stringdata_Utils_t {
+        const uint offsetsAndSize[2];
+        char stringdata0[24];
+    } qt_meta_stringdata =  { 8, sizeof("QTipLabel"), "QTipLabel" };
+
+    static const QMetaObject tipMetaObject {
+        &QLabel::staticMetaObject,                    // SuperData superdata
+        qt_meta_stringdata.offsetsAndSize,            // const uint *stringdata;
+        tip_label_meta_data,                          // const uint *data;
+        nullptr,                                      // StaticMetacallFunction static_metacall;
+        nullptr,                                      // const SuperData *relatedMetaObjects;
+        nullptr,                                      // QtPrivate::QMetaTypeInterface *const *metaTypes;
+        nullptr,                                      // void *extradata;
+    };
+#endif
 
     return &tipMetaObject;
 }
