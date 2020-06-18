@@ -83,6 +83,10 @@
 #include <coreplugin/documentmanager.h>
 #endif
 
+#include <projectexplorer/target.h>
+
+#include <qmlprojectmanager/qmlmultilanguageaspect.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -542,7 +546,12 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
         }
     } else if (node.isRootNode() && name == "language@Internal") {
         const QString languageAsString = value.toString();
-        DesignerSettings::setValue(DesignerSettingsKey::LAST_USED_TRANSLATION_LANGUAGE, languageAsString);
+        if (m_currentTarget) {
+            if (auto rc = m_currentTarget->activeRunConfiguration()) {
+                if (auto multiLanguageAspect = rc->aspect<QmlProjectManager::QmlMultiLanguageAspect>())
+                    multiLanguageAspect->setLastUsedLanguage(languageAsString);
+            }
+        }
         nodeInstanceServer()->changeLanguage({languageAsString});
     } else if (node.isRootNode() && name == "previewSize@Internal") {
         nodeInstanceServer()->changePreviewImageSize(value.toSize());
@@ -984,6 +993,13 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
         }
     }
 
+    QString lastUsedLanguage;
+    if (m_currentTarget) {
+        if (auto rc = m_currentTarget->activeRunConfiguration()) {
+            if (auto multiLanguageAspect = rc->aspect<QmlProjectManager::QmlMultiLanguageAspect>())
+                lastUsedLanguage = multiLanguageAspect->lastUsedLanguage();
+        }
+    }
 
     return CreateSceneCommand(
                 instanceContainerList,
@@ -996,7 +1012,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
                 mockupTypesVector,
                 model()->fileUrl(),
                 m_edit3DToolStates[model()->fileUrl()],
-                DesignerSettings::getValue(DesignerSettingsKey::LAST_USED_TRANSLATION_LANGUAGE).toString()
+                lastUsedLanguage
                 );
 }
 

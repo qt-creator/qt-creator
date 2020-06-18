@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,18 +25,33 @@
 
 #pragma once
 
-#include <qglobal.h>
+#include "qmlprojectmanager_global.h"
+
+#include <qmlprojectmanager/qmlprojectmanagerconstants.h>
+
+#include <projectexplorer/runconfigurationaspects.h>
 
 namespace QmlProjectManager {
-namespace Constants {
 
-const char QML_PROJECT_ID[] = "QmlProjectManager.QmlProject";
-const char QML_VIEWER_ARGUMENTS_KEY[] = "QmlProjectManager.QmlRunConfiguration.QDeclarativeViewerArguments";
-const char QML_VIEWER_TARGET_DISPLAY_NAME[] = "QML Viewer";
-const char QML_MAINSCRIPT_KEY[] = "QmlProjectManager.QmlRunConfiguration.MainScript";
-const char USE_MULTILANGUAGE_KEY[] = "QmlProjectManager.QmlRunConfiguration.UseMultiLanguage";
-const char LAST_USED_LANGUAGE[] = "QmlProjectManager.QmlRunConfiguration.LastUsedLanguage";
-const char USER_ENVIRONMENT_CHANGES_KEY[] = "QmlProjectManager.QmlRunConfiguration.UserEnvironmentChanges";
+class QMLPROJECTMANAGER_EXPORT QmlMultiLanguageAspect : public ProjectExplorer::BaseBoolAspect
+{
+    Q_OBJECT
+public:
+    explicit QmlMultiLanguageAspect(ProjectExplorer::Target *target);
+    ~QmlMultiLanguageAspect() override;
 
-} // namespace Constants
+    QString lastUsedLanguage() const;
+    Utils::FilePath databaseFilePath() const;
+    void toMap(QVariantMap &map) const final;
+    void fromMap(const QVariantMap &map) final;
+
+public slots:
+    void setLastUsedLanguage(const QString &language);
+
+private:
+    ProjectExplorer::Target *m_target = nullptr;
+    mutable Utils::FilePath m_databaseFilePath;
+    QString m_lastUsedLanguage;
+};
+
 } // namespace QmlProjectManager

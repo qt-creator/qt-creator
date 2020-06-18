@@ -48,12 +48,10 @@ const Utils::Icon previewIcon({
 static void handleAction(const SelectionContext &context)
 {
     if (context.view()->isAttached()) {
-        if (context.toggled()) {
-            QmlPreviewPlugin::setLanguageLocale(DesignerSettings::getValue(DesignerSettingsKey::LAST_USED_TRANSLATION_LANGUAGE).toString());
+        if (context.toggled())
             ProjectExplorerPlugin::runStartupProject(Constants::QML_PREVIEW_RUN_MODE);
-        } else {
+         else
             QmlPreviewPlugin::stopAllRunControls();
-        }
     }
 }
 
