@@ -59,7 +59,8 @@ static QString findInProgramFiles(const QString &folder)
 McuPackage *createQtForMCUsPackage()
 {
     auto result = new McuPackage(
-                McuPackage::tr("Qt for MCUs SDK"),
+                McuPackage::tr("Qt for MCUs %1 SDK").arg(
+                    McuSupportOptions::supportedQulVersion().toString()),
                 QDir::homePath(),
                 Utils::HostOsInfo::withExecutableSuffix("bin/qmltocpp"),
                 Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK);
