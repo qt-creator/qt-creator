@@ -92,7 +92,6 @@ void TestTreeModel::setupParsingConnections()
         synchronizeTestFrameworks(); // we might have project settings
         m_parser->onStartupProjectChanged(project);
         m_checkStateCache.clear(); // TODO persist to project settings?
-        m_itemUseCache.clear();
     });
 
     CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
@@ -295,22 +294,12 @@ void TestTreeModel::rebuild(const QList<Utils::Id> &frameworkIds)
 
 void TestTreeModel::updateCheckStateCache()
 {
-    // raise generation for cached items and drop anything reaching 10th generation
-    const QList<QString> cachedNames = m_itemUseCache.keys();
-    for (const QString &cachedName : cachedNames) {
-        auto it = m_itemUseCache.find(cachedName);
-        if (it.value()++ >= 10) {
-            m_itemUseCache.erase(it);
-            m_checkStateCache.remove(cachedName);
-        }
-    }
+    m_checkStateCache.evolve();
 
     for (Utils::TreeItem *rootNode : *rootItem()) {
         rootNode->forAllChildren([this](Utils::TreeItem *child) {
             auto childItem = static_cast<TestTreeItem *>(child);
-            const QString cacheName = childItem->cacheName();
-            m_checkStateCache.insert(cacheName, childItem->checked());
-            m_itemUseCache[cacheName] = 0; // explicitly mark as 0-generation
+            m_checkStateCache.insert(childItem, childItem->checked());
         });
     }
 }
@@ -436,8 +425,8 @@ void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, b
         delete item;
     } else {
         // restore former check state if available
-        auto cached = m_checkStateCache.find(item->cacheName());
-        if (cached != m_checkStateCache.end())
+        Utils::optional<Qt::CheckState> cached = m_checkStateCache.get(item);
+        if (cached.has_value())
             item->setData(0, cached.value(), Qt::CheckStateRole);
         else
             applyParentCheckState(parentNode, item);
@@ -526,8 +515,8 @@ void TestTreeModel::handleParseResult(const TestParseResult *result, TestTreeIte
     // restore former check state if available
     newItem->forAllChildren([this](Utils::TreeItem *child) {
         auto childItem = static_cast<TestTreeItem *>(child);
-        auto cached = m_checkStateCache.find(childItem->cacheName());
-        if (cached != m_checkStateCache.end())
+        Utils::optional<Qt::CheckState> cached = m_checkStateCache.get(childItem);
+        if (cached.has_value())
             childItem->setData(0, cached.value(), Qt::CheckStateRole);
     });
     // it might be necessary to "split" created item

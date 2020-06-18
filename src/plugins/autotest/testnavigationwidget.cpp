@@ -111,7 +111,6 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
     connect(sm, &ProjectExplorer::SessionManager::startupProjectChanged,
             this, [this](ProjectExplorer::Project * /*project*/) {
         m_expandedStateCache.clear();
-        m_itemUseCache.clear();
     });
     connect(m_model, &TestTreeModel::testTreeModelChanged,
             this, &TestNavigationWidget::reapplyCachedExpandedState);
@@ -237,22 +236,12 @@ QList<QToolButton *> TestNavigationWidget::createToolButtons()
 
 void TestNavigationWidget::updateExpandedStateCache()
 {
-    // raise generation for cached items and drop anything reaching 10th generation
-    const QList<QString> cachedNames = m_itemUseCache.keys();
-    for (const QString &cachedName : cachedNames) {
-        auto it = m_itemUseCache.find(cachedName);
-        if (it.value()++ >= 10) {
-            m_itemUseCache.erase(it);
-            m_expandedStateCache.remove(cachedName);
-        }
-    }
+    m_expandedStateCache.evolve();
 
     for (Utils::TreeItem *rootNode : *m_model->rootItem()) {
         rootNode->forAllChildren([this](Utils::TreeItem *child) {
-            auto childItem = static_cast<TestTreeItem *>(child);
-            const QString cacheName = childItem->cacheName();
-            m_expandedStateCache.insert(cacheName, m_view->isExpanded(childItem->index()));
-            m_itemUseCache[cacheName] = 0; // explicitly mark as 0-generation
+            m_expandedStateCache.insert(static_cast<TestTreeItem *>(child),
+                                        m_view->isExpanded(child->index()));
         });
     }
 }
@@ -328,16 +317,15 @@ void TestNavigationWidget::onRunThisTestTriggered(TestRunMode runMode)
 
 void TestNavigationWidget::reapplyCachedExpandedState()
 {
-    for (Utils::TreeItem *rootNode : *m_model->rootItem()) {
-        rootNode->forAllChildren([this](Utils::TreeItem *child) {
-            auto childItem = static_cast<TestTreeItem *>(child);
-            const QString cacheName = childItem->cacheName();
-            const auto it = m_expandedStateCache.find(cacheName);
-            if (it == m_expandedStateCache.end())
-                return;
-            QModelIndex index = child->index();
-            if (m_view->isExpanded(index) != it.value())
-                m_view->setExpanded(index, it.value());
+    using namespace Utils;
+    for (TreeItem *rootNode : *m_model->rootItem()) {
+        rootNode->forAllChildren([this](TreeItem *child) {
+            optional<bool> cached = m_expandedStateCache.get(static_cast<TestTreeItem *>(child));
+            if (cached.has_value()) {
+                QModelIndex index = child->index();
+                if (m_view->isExpanded(index) != cached.value())
+                    m_view->setExpanded(index, cached.value());
+            }
         });
     }
 }
