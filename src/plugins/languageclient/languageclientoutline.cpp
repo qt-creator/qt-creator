@@ -155,6 +155,7 @@ LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
     setLayout(layout);
     m_view.setModel(&m_model);
     m_view.setHeaderHidden(true);
+    m_view.setExpandsOnDoubleClick(false);
     connect(&m_view, &QAbstractItemView::activated,
             this, &LanguageClientOutlineWidget::onItemActivated);
     connect(m_editor->editorWidget(), &TextEditor::TextEditorWidget::cursorPositionChanged,
@@ -317,6 +318,7 @@ void OutlineComboBox::updateModel(const DocumentUri &resultUri, const DocumentSy
     else
         m_model.clear();
 
+    view()->expandAll();
     // The list has changed, update the current item
     updateEntry();
 }
