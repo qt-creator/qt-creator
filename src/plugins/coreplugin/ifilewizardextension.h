@@ -50,7 +50,6 @@ class CORE_EXPORT IFileWizardExtension : public QObject
 public:
     IFileWizardExtension();
     ~IFileWizardExtension() override;
-    static QList<IFileWizardExtension *> allFileWizardExtensions();
 
     /* Return a list of pages to be added to the Wizard (empty list if not
      * applicable). */
