@@ -9,6 +9,7 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "CppTools" }
     Depends { name: "ProjectExplorer" }
+    Depends { name: "QtSupport"; condition: qtc.testsEnabled }
     Depends { name: "QtcSsh" }
     Depends { name: "Utils" }
 
