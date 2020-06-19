@@ -33,7 +33,7 @@
 #include <QXmlStreamWriter>
 #include <QDateTime>
 #include <QTextStream>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QRect>
 
 #ifdef QT_GUI_LIB
@@ -59,11 +59,12 @@ static QString rectangleToString(const QRect &r)
 
 static QRect stringToRectangle(const QString &v)
 {
-    static QRegExp pattern(QLatin1String("(\\d+)x(\\d+)([-+]\\d+)([-+]\\d+)"));
+    static QRegularExpression pattern("^(\\d+)x(\\d+)([-+]\\d+)([-+]\\d+)$");
     Q_ASSERT(pattern.isValid());
-    return pattern.exactMatch(v) ?
-        QRect(QPoint(pattern.cap(3).toInt(), pattern.cap(4).toInt()),
-              QSize(pattern.cap(1).toInt(), pattern.cap(2).toInt())) :
+    const QRegularExpressionMatch match = pattern.match(v);
+    return match.hasMatch() ?
+        QRect(QPoint(match.captured(3).toInt(), match.captured(4).toInt()),
+              QSize(match.captured(1).toInt(), match.captured(2).toInt())) :
         QRect();
 }
 

@@ -31,7 +31,6 @@
 #include <QApplication>
 #include <QDebug>
 #include <QDir>
-#include <QRegExp>
 
 namespace {
 

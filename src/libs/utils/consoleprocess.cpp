@@ -424,13 +424,13 @@ bool ConsoleProcess::start()
         const QStringList fixedEnvironment = [env] {
             QStringList envStrings = env;
             // add PATH if necessary (for DLL loading)
-            if (envStrings.filter(QRegExp(QLatin1String("^PATH="),Qt::CaseInsensitive)).isEmpty()) {
+            if (envStrings.filter(QRegularExpression("^PATH=.*", QRegularExpression::CaseInsensitiveOption)).isEmpty()) {
                 QByteArray path = qgetenv("PATH");
                 if (!path.isEmpty())
                     envStrings.prepend(QString::fromLatin1("PATH=%1").arg(QString::fromLocal8Bit(path)));
             }
             // add systemroot if needed
-            if (envStrings.filter(QRegExp(QLatin1String("^SystemRoot="),Qt::CaseInsensitive)).isEmpty()) {
+            if (envStrings.filter(QRegularExpression("^SystemRoot=.*", QRegularExpression::CaseInsensitiveOption)).isEmpty()) {
                 QByteArray systemRoot = qgetenv("SystemRoot");
                 if (!systemRoot.isEmpty())
                     envStrings.prepend(QString::fromLatin1("SystemRoot=%1").arg(QString::fromLocal8Bit(systemRoot)));

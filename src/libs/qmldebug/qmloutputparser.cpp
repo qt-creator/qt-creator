@@ -25,7 +25,7 @@
 
 #include "qmloutputparser.h"
 #include "qmldebugconstants.h"
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace QmlDebug {
 
@@ -78,11 +78,12 @@ void QmlOutputParser::processOutput(const QString &output)
             if (status.startsWith(waitingForConnection)) {
                 status.remove(0, waitingForConnection.size()); // chop of 'Waiting for connection '
 
-                static QRegExp waitingTcp(
+                static QRegularExpression waitingTcp(
                             QString::fromLatin1(Constants::STR_ON_PORT_PATTERN));
-                if (waitingTcp.indexIn(status) > -1) {
+                const QRegularExpressionMatch match = waitingTcp.match(status);
+                if (match.hasMatch()) {
                     bool canConvert;
-                    quint16 port = waitingTcp.cap(1).toUShort(&canConvert);
+                    quint16 port = match.captured(1).toUShort(&canConvert);
                     if (canConvert)
                         emit waitingForConnectionOnPort(Utils::Port(port));
                     continue;

@@ -36,7 +36,6 @@
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
-class QRegExp;
 class QRegularExpressionMatch;
 class QTextCharFormat;
 class QTextCursor;

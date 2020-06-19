@@ -37,7 +37,6 @@
 #include <QPair>
 #include <QPlainTextEdit>
 #include <QPointer>
-#include <QRegExp>
 #include <QRegularExpressionMatch>
 #include <QTextCursor>
 
