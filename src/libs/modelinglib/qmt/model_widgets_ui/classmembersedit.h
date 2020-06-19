@@ -26,13 +26,12 @@
 #pragma once
 
 #include "qmt/infrastructure/qmt_global.h"
+#include "qmt/model/mclassmember.h"
 
 #include <QList>
 #include <QPlainTextEdit>
 
 namespace qmt {
-
-class MClassMember;
 
 class QMT_EXPORT ClassMembersEdit : public QPlainTextEdit
 {

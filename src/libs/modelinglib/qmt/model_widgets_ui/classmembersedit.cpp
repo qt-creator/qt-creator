@@ -25,7 +25,6 @@
 
 #include "classmembersedit.h"
 
-#include "qmt/model/mclassmember.h"
 #include "qmt/model_ui/stereotypescontroller.h"
 #include "qmt/infrastructure/qmtassert.h"
 
