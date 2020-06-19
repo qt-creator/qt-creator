@@ -25,7 +25,8 @@
 
 #pragma once
 
-#include <coreplugin/core_global.h>
+#include "core_global.h"
+#include "generatedfile.h"
 
 #include <QObject>
 #include <QList>
@@ -38,7 +39,6 @@ QT_END_NAMESPACE
 namespace Core {
 
 class IWizardFactory;
-class GeneratedFile;
 
 /*!
   Hook to add generic wizard pages to implementations of IWizard.

@@ -76,6 +76,7 @@
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
+#include <QActionGroup>
 #include <QApplication>
 #include <QCloseEvent>
 #include <QColorDialog>

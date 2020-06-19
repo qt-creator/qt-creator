@@ -26,7 +26,7 @@
 #pragma once
 
 #include "core_global.h"
-#include "id.h"
+#include "icontext.h"
 
 #include <QList>
 #include <QMainWindow>
@@ -48,7 +48,6 @@ class InfoBar;
 
 namespace Core {
 class Context;
-class IContext;
 class IWizardFactory;
 class SettingsDatabase;
 

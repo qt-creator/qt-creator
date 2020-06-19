@@ -29,6 +29,7 @@
 #include "../idocument.h"
 
 #include "documentmodel.h"
+#include "ieditor.h"
 
 #include "utils/textfileformat.h"
 
@@ -43,7 +44,6 @@ namespace Utils { class MimeType; }
 
 namespace Core {
 
-class IEditor;
 class IDocument;
 class SearchResultItem;
 

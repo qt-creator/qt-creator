@@ -31,6 +31,10 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+QT_BEGIN_NAMESPACE
+class QTextCodec;
+QT_END_NAMESPACE
+
 namespace TextEditor {
 
 class TabSettings;

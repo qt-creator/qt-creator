@@ -31,6 +31,7 @@
 #include <QLabel>
 #include <QDialogButtonBox>
 #include <QListWidget>
+#include <QTextCodec>
 
 namespace Utils { class ListWidget; }
 namespace Core { class BaseTextDocument; }

@@ -300,7 +300,8 @@ void MultiExportDialog::accept()
     }
     if (data.size() > 1 && data.at(0).fileName == data.at(1).fileName) {
         QMessageBox::warning(this, windowTitle(),
-                             tr("The file name must contain one of the placeholders %1, %2.").arg("%1", "%2"));
+                             tr("The file name must contain one of the placeholders %1, %2.")
+                                .arg(QString("%1"), QString("%2")));
         return;
     }
 

@@ -32,6 +32,7 @@
 #include "locator/locatormanager.h"
 
 #include <utils/algorithm.h>
+#include <utils/porting.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
@@ -41,7 +42,7 @@
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
-uint qHash(const QPointer<QAction> &p, uint seed)
+uint qHash(const QPointer<QAction> &p, Utils::QHashSeedType seed)
 {
     return qHash(p.data(), seed);
 }

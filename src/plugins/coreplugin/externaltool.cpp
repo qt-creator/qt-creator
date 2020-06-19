@@ -453,7 +453,7 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
                     tool->m_environment = EnvironmentItem::fromStringList(lines);
                 } else {
                     reader.raiseError(QString::fromLatin1("Unknown element <%1> as subelement of <%2>").arg(
-                                          reader.qualifiedName().toString(), kExecutable));
+                                          reader.qualifiedName().toString(), QString(kExecutable)));
                     break;
                 }
             }

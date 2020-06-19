@@ -465,7 +465,7 @@ void ReadOnlyFilesDialogPrivate::initDialog(const FilePaths &filePaths)
 
         // Also save the buttongroup for every file to get the result for each entry.
         buttonGroups.append({filePath, radioButtonGroup});
-        QObject::connect(radioButtonGroup, QOverload<int>::of(&QButtonGroup::buttonClicked),
+        QObject::connect(radioButtonGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),
                          [this] { updateSelectAll(); });
     }
 
