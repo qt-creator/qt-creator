@@ -515,7 +515,7 @@ void FindToolBar::setFindText(const QString &text)
     disconnect(m_ui.findEdit, &Utils::FancyLineEdit::textChanged,
                this, &FindToolBar::invokeFindIncremental);
     if (hasFindFlag(FindRegularExpression))
-        m_ui.findEdit->setText(QRegExp::escape(text));
+        m_ui.findEdit->setText(QRegularExpression::escape(text));
     else
         m_ui.findEdit->setText(text);
     connect(m_ui.findEdit, &Utils::FancyLineEdit::textChanged,

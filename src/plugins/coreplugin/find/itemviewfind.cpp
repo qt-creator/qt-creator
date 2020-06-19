@@ -191,22 +191,21 @@ IFindSupport::Result ItemViewFind::find(const QString &searchTxt,
     int currentRow = currentIndex.row();
 
     bool sensitive = (findFlags & FindCaseSensitively);
-    QRegExp searchExpr;
+    QRegularExpression searchExpr;
     if (findFlags & FindRegularExpression) {
-        searchExpr = QRegExp(searchTxt,
-                             (sensitive ? Qt::CaseSensitive :
-                                          Qt::CaseInsensitive));
+        searchExpr = QRegularExpression(searchTxt,
+                                        (sensitive ? QRegularExpression::NoPatternOption :
+                                                     QRegularExpression::CaseInsensitiveOption));
     } else if (findFlags & FindWholeWords) {
-        const QString escapedSearchText = QRegExp::escape(searchTxt);
+        const QString escapedSearchText = QRegularExpression::escape(searchTxt);
         const QString wordBoundary = QLatin1String("\b");
-        searchExpr = QRegExp(wordBoundary + escapedSearchText + wordBoundary,
-                             (sensitive ? Qt::CaseSensitive :
-                                          Qt::CaseInsensitive));
+        searchExpr = QRegularExpression(wordBoundary + escapedSearchText + wordBoundary,
+                                        (sensitive ? QRegularExpression::NoPatternOption :
+                                                     QRegularExpression::CaseInsensitiveOption));
     } else {
-        searchExpr = QRegExp(searchTxt,
-                             (sensitive ? Qt::CaseSensitive :
-                                          Qt::CaseInsensitive),
-                             QRegExp::FixedString);
+        searchExpr = QRegularExpression(QRegularExpression::escape(searchTxt),
+                                        (sensitive ? QRegularExpression::NoPatternOption :
+                                                     QRegularExpression::CaseInsensitiveOption));
     }
 
 
@@ -226,7 +225,7 @@ IFindSupport::Result ItemViewFind::find(const QString &searchTxt,
                         index, d->m_role).toString();
             if (d->m_view->model()->flags(index) & Qt::ItemIsSelectable
                     && (index.row() != currentRow || index.parent() != currentIndex.parent())
-                    && searchExpr.indexIn(text) != -1)
+                    && text.indexOf(searchExpr) != -1)
                 resultIndex = index;
         }
         index = followingIndex(index, backward, &stepWrapped);
