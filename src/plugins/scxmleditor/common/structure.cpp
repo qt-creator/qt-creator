@@ -41,7 +41,6 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
-#include <QRegExp>
 #include <QRegularExpressionValidator>
 #include <QToolBar>
 #include <QToolButton>

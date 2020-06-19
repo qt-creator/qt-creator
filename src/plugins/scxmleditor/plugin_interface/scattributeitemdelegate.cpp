@@ -27,7 +27,6 @@
 #include "mytypes.h"
 #include <QComboBox>
 #include <QLineEdit>
-#include <QRegExp>
 #include <QRegularExpressionValidator>
 
 using namespace ScxmlEditor::PluginInterface;
