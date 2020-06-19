@@ -180,9 +180,11 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     expander->registerVariable("CurrentTime:RFC", tr("The current time (RFC2822)."),
                                []() { return QTime::currentTime().toString(Qt::RFC2822Date); });
     expander->registerVariable("CurrentDate:Locale", tr("The current date (Locale)."),
-                               []() { return QDate::currentDate().toString(Qt::DefaultLocaleShortDate); });
+                               []() { return QLocale::system()
+                                        .toString(QDate::currentDate(), QLocale::ShortFormat); });
     expander->registerVariable("CurrentTime:Locale", tr("The current time (Locale)."),
-                               []() { return QTime::currentTime().toString(Qt::DefaultLocaleShortDate); });
+                               []() { return QLocale::system()
+                                        .toString(QTime::currentTime(), QLocale::ShortFormat); });
     expander->registerVariable("Config:DefaultProjectDirectory", tr("The configured default directory for projects."),
                                []() { return DocumentManager::projectsDirectory().toString(); });
     expander->registerVariable("Config:LastFileDialogDirectory", tr("The directory last visited in a file dialog."),

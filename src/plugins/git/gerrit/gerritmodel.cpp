@@ -466,7 +466,7 @@ QString GerritModel::toHtml(const QModelIndex& index) const
         << dependencyHtml(dependsOnHeader, c->dependsOnNumber, serverPrefix)
         << dependencyHtml(neededByHeader, c->neededByNumber, serverPrefix)
         << "<tr><td>" << statusHeader << "</td><td>" << c->status
-        << ", " << c->lastUpdated.toString(Qt::DefaultLocaleShortDate) << "</td></tr>"
+        << ", " << QLocale::system().toString(c->lastUpdated, QLocale::ShortFormat) << "</td></tr>"
         << "<tr><td>" << patchSetHeader << "</td><td>" << "</td></tr>" << c->currentPatchSet.patchSetNumber << "</td></tr>"
         << c->currentPatchSet.approvalsToHtml()
         << "<tr><td>" << urlHeader << "</td><td><a href=\"" << c->url << "\">" << c->url << "</a></td></tr>"

@@ -922,9 +922,9 @@ void CustomWizardContext::reset()
     baseReplacements.insert(QLatin1String("CurrentTime:RFC"),
                             currentTime.toString(Qt::RFC2822Date));
     baseReplacements.insert(QLatin1String("CurrentDate:Locale"),
-                            currentDate.toString(Qt::DefaultLocaleShortDate));
+                            QLocale::system().toString(currentDate, QLocale::ShortFormat));
     baseReplacements.insert(QLatin1String("CurrentTime:Locale"),
-                            currentTime.toString(Qt::DefaultLocaleShortDate));
+                            QLocale::system().toString(currentTime, QLocale::ShortFormat));
     replacements.clear();
     path.clear();
     targetPath.clear();
