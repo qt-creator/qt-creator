@@ -28,7 +28,7 @@
 #include "qtcassert.h"
 
 #include <QJSEngine>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QStack>
 
 namespace Utils {
@@ -73,10 +73,10 @@ private:
     void reset();
     PreprocessorSection preprocessorLine(const QString & in, QString *ifExpression) const;
 
-    mutable QRegExp m_ifPattern;
-    mutable QRegExp m_elsifPattern;
-    mutable QRegExp m_elsePattern;
-    mutable QRegExp m_endifPattern;
+    mutable QRegularExpression m_ifPattern;
+    mutable QRegularExpression m_elsifPattern;
+    mutable QRegularExpression m_elsePattern;
+    mutable QRegularExpression m_endifPattern;
 
     QStack<PreprocessStackEntry> m_sectionStack;
     QJSEngine m_scriptEngine;
@@ -105,20 +105,24 @@ void PreprocessContext::reset()
 PreprocessorSection PreprocessContext::preprocessorLine(const QString &in,
                                                         QString *ifExpression) const
 {
-    if (m_ifPattern.exactMatch(in)) {
-        *ifExpression = m_ifPattern.cap(2).trimmed();
+    QRegularExpressionMatch match = m_ifPattern.match(in);
+    if (match.hasMatch()) {
+        *ifExpression = match.captured(2).trimmed();
         return IfSection;
     }
-    if (m_elsifPattern.exactMatch(in)) {
-        *ifExpression = m_elsifPattern.cap(2).trimmed();
+    match = m_elsifPattern.match(in);
+    if (match.hasMatch()) {
+        *ifExpression = match.captured(2).trimmed();
         return ElsifSection;
     }
 
     ifExpression->clear();
 
-    if (m_elsePattern.exactMatch(in))
+    match = m_elsePattern.match(in);
+    if (match.hasMatch())
         return ElseSection;
-    if (m_endifPattern.exactMatch(in))
+    match = m_endifPattern.match(in);
+    if (match.hasMatch())
         return EndifSection;
     return OtherSection;
 }
