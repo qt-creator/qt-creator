@@ -26,7 +26,7 @@
 #include "simplifytype.h"
 
 #include <QDebug>
-#include <QRegExp>
+#include <QRegularExpression>
 
 #include <ctype.h>
 
@@ -59,7 +59,7 @@ static QString chopConst(QString type)
     return type;
 }
 
-static inline QRegExp stdStringRegExp(const QString &charType)
+static inline QRegularExpression stdStringRegExp(const QString &charType)
 {
     QString rc = "basic_string<";
     rc += charType;
@@ -68,7 +68,7 @@ static inline QRegExp stdStringRegExp(const QString &charType)
     rc += ">,[ ]?std::allocator<";
     rc += charType;
     rc += "> >";
-    const QRegExp re(rc);
+    const QRegularExpression re(rc);
     QTC_ASSERT(re.isValid(), /**/);
     return re;
 }
@@ -78,14 +78,15 @@ static inline QRegExp stdStringRegExp(const QString &charType)
 static inline void simplifyStdString(const QString &charType, const QString &replacement,
                                      QString *type)
 {
-    QRegExp stringRegexp = stdStringRegExp(charType);
+    QRegularExpression stringRegexp = stdStringRegExp(charType);
     const int replacementSize = replacement.size();
     for (int pos = 0; pos < type->size(); ) {
         // Check next match
-        const int matchPos = stringRegexp.indexIn(*type, pos);
-        if (matchPos == -1)
+        const QRegularExpressionMatch match = stringRegexp.match(*type, pos);
+        if (!match.hasMatch())
             break;
-        const int matchedLength = stringRegexp.matchedLength();
+        const int matchPos = match.capturedStart();
+        const int matchedLength = match.capturedLength();
         type->replace(matchPos, matchedLength, replacement);
         pos = matchPos + replacementSize;
         // If we were inside an 'allocator<std::basic_string..char > >'
@@ -124,7 +125,7 @@ QString simplifyType(const QString &typeIn)
     type.replace("std::__cxx11::", "std::");
     type.replace("std::__1::", "std::");
     type.replace("std::__debug::", "std::");
-    QRegExp simpleStringRE("std::basic_string<char> ?");
+    QRegularExpression simpleStringRE("std::basic_string<char> ?");
     type.replace(simpleStringRE, "std::string");
 
     // Normalize space + ptr.
@@ -146,20 +147,20 @@ QString simplifyType(const QString &typeIn)
             type = type.mid(16, type.size() - 31);
 
         // std::ifstream
-        QRegExp ifstreamRE("std::basic_ifstream<char,\\s*std::char_traits<char>\\s*>");
-        ifstreamRE.setMinimal(true);
+        QRegularExpression ifstreamRE("std::basic_ifstream<char,\\s*?std::char_traits<char>\\s*?>");
         QTC_ASSERT(ifstreamRE.isValid(), return typeIn);
-        if (ifstreamRE.indexIn(type) != -1)
-            type.replace(ifstreamRE.cap(0), "std::ifstream");
+        const QRegularExpressionMatch match = ifstreamRE.match(type);
+        if (match.hasMatch())
+            type.replace(match.captured(), "std::ifstream");
 
 
         // std::__1::hash_node<int, void *>::value_type -> int
         if (isLibCpp) {
-            //QRegExp hashNodeRE("std::__hash_node<([^<>]*),\\s*void\\s*@>::value_type");
-            QRegExp hashNodeRE("std::__hash_node<([^<>]*),\\s*void\\s*@>::value_type");
+            QRegularExpression hashNodeRE("std::__hash_node<([^<>]*),\\s*void\\s*@>::value_type");
             QTC_ASSERT(hashNodeRE.isValid(), return typeIn);
-            if (hashNodeRE.indexIn(type) != -1)
-                type.replace(hashNodeRE.cap(0), hashNodeRE.cap(1));
+            const QRegularExpressionMatch match = hashNodeRE.match(type);
+            if (match.hasMatch())
+                type.replace(match.captured(), match.captured(1));
         }
 
         // Anything with a std::allocator
@@ -181,8 +182,8 @@ QString simplifyType(const QString &typeIn)
             const QString alloc = fixNestedTemplates(type.mid(start, pos + 1 - start).trimmed());
             const QString inner = fixNestedTemplates(alloc.mid(15, alloc.size() - 16).trimmed());
 
-            const QString allocEsc = QRegExp::escape(alloc);
-            const QString innerEsc = QRegExp::escape(inner);
+            const QString allocEsc = QRegularExpression::escape(alloc);
+            const QString innerEsc = QRegularExpression::escape(inner);
             if (inner == "char") { // std::string
                 simplifyStdString("char", "string", &type);
             } else if (inner == "wchar_t") { // std::wstring
@@ -191,47 +192,48 @@ QString simplifyType(const QString &typeIn)
                 simplifyStdString("unsigned short", "wstring", &type);
             }
             // std::vector, std::deque, std::list
-            QRegExp re1(QString::fromLatin1("(vector|list|deque)<%1, ?%2\\s*>").arg(innerEsc, allocEsc));
+            QRegularExpression re1(QString::fromLatin1("(vector|list|deque)<%1, ?%2\\s*>").arg(innerEsc, allocEsc));
             QTC_ASSERT(re1.isValid(), return typeIn);
-            if (re1.indexIn(type) != -1)
-                type.replace(re1.cap(0), QString::fromLatin1("%1<%2>").arg(re1.cap(1), inner));
+            QRegularExpressionMatch match = re1.match(type);
+            if (match.hasMatch())
+                type.replace(match.captured(), QString::fromLatin1("%1<%2>").arg(match.captured(1), inner));
 
             // std::stack
-            QRegExp stackRE(QString::fromLatin1("stack<%1, ?std::deque<%2> >").arg(innerEsc, innerEsc));
-            stackRE.setMinimal(true);
+            QRegularExpression stackRE(QString::fromLatin1("stack<%1, ?std::deque<%2> >").arg(innerEsc, innerEsc));
             QTC_ASSERT(stackRE.isValid(), return typeIn);
-            if (stackRE.indexIn(type) != -1)
-                type.replace(stackRE.cap(0), QString::fromLatin1("stack<%1>").arg(inner));
+            match = stackRE.match(type);
+            if (match.hasMatch())
+                type.replace(match.captured(), QString::fromLatin1("stack<%1>").arg(inner));
 
             // std::hash<char>
-            QRegExp hashCharRE(QString::fromLatin1("hash<char, std::char_traits<char>, ?%1\\s*>").arg(allocEsc));
-            hashCharRE.setMinimal(true);
+            QRegularExpression hashCharRE(QString::fromLatin1("hash<char, std::char_traits<char>, ?%1\\s*?>").arg(allocEsc));
             QTC_ASSERT(hashCharRE.isValid(), return typeIn);
-            if (hashCharRE.indexIn(type) != -1)
-                type.replace(hashCharRE.cap(0), QString::fromLatin1("hash<char>"));
+            match = hashCharRE.match(type);
+            if (match.hasMatch())
+                type.replace(match.captured(), QString::fromLatin1("hash<char>"));
 
             // std::set
-            QRegExp setRE(QString::fromLatin1("set<%1, ?std::less<%2>, ?%3\\s*>").arg(innerEsc, innerEsc, allocEsc));
-            setRE.setMinimal(true);
+            QRegularExpression setRE(QString::fromLatin1("set<%1, ?std::less<%2>, ?%3\\s*?>").arg(innerEsc, innerEsc, allocEsc));
             QTC_ASSERT(setRE.isValid(), return typeIn);
-            if (setRE.indexIn(type) != -1)
-                type.replace(setRE.cap(0), QString::fromLatin1("set<%1>").arg(inner));
+            match = setRE.match(type);
+            if (match.hasMatch())
+                type.replace(match.captured(), QString::fromLatin1("set<%1>").arg(inner));
 
             // std::unordered_set
-            QRegExp unorderedSetRE(QString::fromLatin1("unordered_(multi)?set<%1, ?std::hash<%2>, ?std::equal_to<%3>, ?%4\\s*>")
+            QRegularExpression unorderedSetRE(QString::fromLatin1("unordered_(multi)?set<%1, ?std::hash<%2>, ?std::equal_to<%3>, ?%4\\s*?>")
                 .arg(innerEsc, innerEsc, innerEsc, allocEsc));
-            unorderedSetRE.setMinimal(true);
             QTC_ASSERT(unorderedSetRE.isValid(), return typeIn);
-            if (unorderedSetRE.indexIn(type) != -1)
-                type.replace(unorderedSetRE.cap(0), QString::fromLatin1("unordered_%1set<%2>").arg(unorderedSetRE.cap(1), inner));
+            match = unorderedSetRE.match(type);
+            if (match.hasMatch())
+                type.replace(match.captured(), QString::fromLatin1("unordered_%1set<%2>").arg(match.captured(1), inner));
 
             // boost::unordered_set
-            QRegExp boostUnorderedSetRE(QString::fromLatin1("unordered_set<%1, ?boost::hash<%2>, ?std::equal_to<%3>, ?%4\\s*>")
+            QRegularExpression boostUnorderedSetRE(QString::fromLatin1("unordered_set<%1, ?boost::hash<%2>, ?std::equal_to<%3>, ?%4\\s*?>")
                     .arg(innerEsc, innerEsc, innerEsc, allocEsc));
-            boostUnorderedSetRE.setMinimal(true);
             QTC_ASSERT(boostUnorderedSetRE.isValid(), return typeIn);
-            if (boostUnorderedSetRE.indexIn(type) != -1)
-                type.replace(boostUnorderedSetRE.cap(0), QString::fromLatin1("unordered_set<%1>").arg(inner));
+            match = boostUnorderedSetRE.match(type);
+            if (match.hasMatch())
+                type.replace(match.captured(), QString::fromLatin1("unordered_set<%1>").arg(inner));
 
             // std::map
             if (inner.startsWith("std::pair<")) {
@@ -248,24 +250,24 @@ QString simplifyType(const QString &typeIn)
                         break;
                 }
                 const QString key = chopConst(inner.mid(10, pos - 10));
-                const QString keyEsc = QRegExp::escape(key);
+                const QString keyEsc = QRegularExpression::escape(key);
                 // Get value: MSVC: 'pair<a const ,b>', gcc: 'pair<const a, b>'
                 if (inner.at(++pos) == ' ')
                     pos++;
                 const QString value = inner.mid(pos, inner.size() - pos - 1).trimmed();
-                const QString valueEsc = QRegExp::escape(value);
-                QRegExp mapRE1(QString::fromLatin1("map<%1, ?%2, ?std::less<%3 ?>, ?%4\\s*>")
-                               .arg(keyEsc, valueEsc, keyEsc, allocEsc));
-                mapRE1.setMinimal(true);
+                const QString valueEsc = QRegularExpression::escape(value);
+                QRegularExpression mapRE1(QString::fromLatin1("map<%1, ?%2, ?std::less<%3 ?>, ?%4\\s*?>")
+                                          .arg(keyEsc, valueEsc, keyEsc, allocEsc));
                 QTC_ASSERT(mapRE1.isValid(), return typeIn);
-                if (mapRE1.indexIn(type) != -1) {
-                    type.replace(mapRE1.cap(0), QString::fromLatin1("map<%1, %2>").arg(key, value));
+                match = mapRE1.match(type);
+                if (match.hasMatch()) {
+                    type.replace(match.captured(), QString::fromLatin1("map<%1, %2>").arg(key, value));
                 } else {
-                    QRegExp mapRE2(QString::fromLatin1("map<const %1, ?%2, ?std::less<const %3>, ?%4\\s*>")
-                                   .arg(keyEsc, valueEsc, keyEsc, allocEsc));
-                    mapRE2.setMinimal(true);
-                    if (mapRE2.indexIn(type) != -1)
-                        type.replace(mapRE2.cap(0), QString::fromLatin1("map<const %1, %2>").arg(key, value));
+                    QRegularExpression mapRE2(QString::fromLatin1("map<const %1, ?%2, ?std::less<const %3>, ?%4\\s*?>")
+                                              .arg(keyEsc, valueEsc, keyEsc, allocEsc));
+                    match = mapRE2.match(type);
+                    if (match.hasMatch())
+                        type.replace(match.captured(), QString::fromLatin1("map<const %1, %2>").arg(key, value));
                 }
             }
 
@@ -284,27 +286,27 @@ QString simplifyType(const QString &typeIn)
                         break;
                 }
                 const QString key = chopConst(inner.mid(10, pos - 10));
-                const QString keyEsc = QRegExp::escape(key);
+                const QString keyEsc = QRegularExpression::escape(key);
                 // Get value: MSVC: 'pair<a const ,b>', gcc: 'pair<const a, b>'
                 if (inner.at(++pos) == ' ')
                     pos++;
                 const QString value = inner.mid(pos, inner.size() - pos - 1).trimmed();
-                const QString valueEsc = QRegExp::escape(value);
-                QRegExp mapRE1(QString::fromLatin1("unordered_(multi)?map<%1, ?%2, ?std::hash<%3 ?>, ?std::equal_to<%4 ?>, ?%5\\s*>")
+                const QString valueEsc = QRegularExpression::escape(value);
+                QRegularExpression mapRE1(QString::fromLatin1("unordered_(multi)?map<%1, ?%2, ?std::hash<%3 ?>, ?std::equal_to<%4 ?>, ?%5\\s*?>")
                                .arg(keyEsc, valueEsc, keyEsc, keyEsc, allocEsc));
-                mapRE1.setMinimal(true);
                 QTC_ASSERT(mapRE1.isValid(), return typeIn);
-                if (mapRE1.indexIn(type) != -1)
-                    type.replace(mapRE1.cap(0), QString::fromLatin1("unordered_%1map<%2, %3>").arg(mapRE1.cap(1), key, value));
+                match = mapRE1.match(type);
+                if (match.hasMatch())
+                    type.replace(match.captured(), QString::fromLatin1("unordered_%1map<%2, %3>").arg(match.captured(1), key, value));
 
                 if (isLibCpp) {
-                    QRegExp mapRE2(QString::fromLatin1("unordered_map<std::string, ?%1, "
-                                    "?std::hash<char>, ?std::equal_to<std::string>, ?%2\\s*>")
-                                   .arg(valueEsc, allocEsc));
-                    mapRE2.setMinimal(true);
+                    QRegularExpression mapRE2(QString::fromLatin1("unordered_map<std::string, ?%1, "
+                                                                  "?std::hash<char>, ?std::equal_to<std::string>, ?%2\\s*?>")
+                                              .arg(valueEsc, allocEsc));
                     QTC_ASSERT(mapRE2.isValid(), return typeIn);
-                    if (mapRE2.indexIn(type) != -1)
-                        type.replace(mapRE2.cap(0), QString::fromLatin1("unordered_map<std::string, %2>").arg(value));
+                    match = mapRE2.match(type);
+                    if (match.hasMatch())
+                        type.replace(match.captured(), QString::fromLatin1("unordered_map<std::string, %2>").arg(value));
                 }
             }
         } // with std::allocator
