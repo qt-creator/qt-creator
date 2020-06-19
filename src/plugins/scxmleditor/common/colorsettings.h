@@ -29,7 +29,6 @@
 #include <QFrame>
 
 namespace ScxmlEditor {
-
 namespace Common {
 
 class ColorSettings : public QFrame
@@ -41,11 +40,12 @@ public:
 
     void save();
     void updateCurrentColors();
-    void selectTheme(const QString &name);
     void createTheme();
     void removeTheme();
 
 private:
+    void selectTheme(int);
+
     QVariantMap m_colorThemes;
     Ui::ColorSettings m_ui;
 };

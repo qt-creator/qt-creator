@@ -63,8 +63,7 @@ public:
     void onCurrentFontChanged(const QFont &font);
     void onHorizontalAlignmentChanged();
     void onVerticalAlignmentChanged();
-    void onStyleComboBoxChanged(const QString &style);
-
+    void onStyleComboBoxChanged(int index);
 
 signals:
     void propertyChanged(const QString &, const QVariant &);

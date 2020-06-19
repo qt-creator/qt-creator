@@ -103,7 +103,7 @@ ContextPaneTextWidget::ContextPaneTextWidget(QWidget *parent) :
     connect(ui->bottomAlignmentButton, &QToolButton::toggled,
             this, &ContextPaneTextWidget::onVerticalAlignmentChanged);
 
-    connect(ui->styleComboBox, QOverload<const QString &>::of(&QComboBox::currentIndexChanged),
+    connect(ui->styleComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &ContextPaneTextWidget::onStyleComboBoxChanged);
 }
 
@@ -386,8 +386,9 @@ void ContextPaneTextWidget::onHorizontalAlignmentChanged()
     }
 }
 
-void ContextPaneTextWidget::onStyleComboBoxChanged(const QString &style)
+void ContextPaneTextWidget::onStyleComboBoxChanged(int index)
 {
+    const QString style = ui->styleComboBox->itemText(index);
     if (style == QLatin1String("Normal"))
         emit removeProperty(QLatin1String("style"));
     else

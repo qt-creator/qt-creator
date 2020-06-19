@@ -95,8 +95,7 @@ BookmarkDialog::BookmarkDialog(BookmarkManager *manager, const QString &title,
             &QStandardItemModel::itemChanged,
             this, &BookmarkDialog::itemChanged);
 
-    connect(ui.bookmarkFolders,
-            QOverload<const QString &>::of(&QComboBox::currentIndexChanged),
+    connect(ui.bookmarkFolders, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &BookmarkDialog::selectBookmarkFolder);
 
     connect(ui.treeView, &TreeView::customContextMenuRequested,
@@ -188,11 +187,9 @@ void BookmarkDialog::textChanged(const QString& string)
     ui.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(!string.isEmpty());
 }
 
-void BookmarkDialog::selectBookmarkFolder(const QString &folderName)
+void BookmarkDialog::selectBookmarkFolder(int index)
 {
-    if (folderName.isEmpty())
-        return;
-
+    const QString folderName = ui.bookmarkFolders->itemText(index);
     if (folderName == tr("Bookmarks")) {
         ui.treeView->clearSelection();
         return;

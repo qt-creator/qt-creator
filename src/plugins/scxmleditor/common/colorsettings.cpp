@@ -39,7 +39,7 @@ ColorSettings::ColorSettings(QWidget *parent)
     m_ui.setupUi(this);
 
     m_ui.m_colorThemeView->setEnabled(false);
-    connect(m_ui.m_comboColorThemes, QOverload<const QString &>::of(&QComboBox::currentIndexChanged),
+    connect(m_ui.m_comboColorThemes, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &ColorSettings::selectTheme);
     connect(m_ui.m_colorThemeView, &ColorThemeView::colorChanged, this, &ColorSettings::updateCurrentColors);
     connect(m_ui.m_addColorTheme, &QToolButton::clicked, this, &ColorSettings::createTheme);
@@ -68,8 +68,9 @@ void ColorSettings::updateCurrentColors()
     m_colorThemes[m_ui.m_comboColorThemes->currentText()] = m_ui.m_colorThemeView->colorData();
 }
 
-void ColorSettings::selectTheme(const QString &name)
+void ColorSettings::selectTheme(int index)
 {
+    const QString name = m_ui.m_comboColorThemes->itemText(index);
     m_ui.m_colorThemeView->reset();
     if (!name.isEmpty() && m_colorThemes.contains(name)) {
         m_ui.m_colorThemeView->setEnabled(true);

@@ -70,7 +70,7 @@ private:
     void accept() override;
     void reject() override;
     void updateOkButton();
-    void setSelectedPlatform(const QString &platform);
+    void setSelectedPlatform(int index);
 
     Core::IWizardFactory *currentWizardFactory() const;
     void addItem(QStandardItem *topLevelCategoryItem, IWizardFactory *factory);

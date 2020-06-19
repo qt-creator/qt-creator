@@ -228,8 +228,7 @@ NewDialog::NewDialog(QWidget *parent) :
     connect(m_ui->buttonBox, &QDialogButtonBox::accepted, this, &NewDialog::accept);
     connect(m_ui->buttonBox, &QDialogButtonBox::rejected, this, &NewDialog::reject);
 
-    connect(m_ui->comboBox,
-            QOverload<const QString &>::of(&QComboBox::currentIndexChanged),
+    connect(m_ui->comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &NewDialog::setSelectedPlatform);
 }
 
@@ -519,7 +518,7 @@ void NewDialog::updateOkButton()
     m_okButton->setEnabled(currentWizardFactory() != nullptr);
 }
 
-void NewDialog::setSelectedPlatform(const QString & /*platform*/)
+void NewDialog::setSelectedPlatform(int /*platform*/)
 {
     //The static cast allows us to keep PlatformFilterProxyModel anonymous
     static_cast<PlatformFilterProxyModel*>(m_filterProxyModel)->setPlatform(selectedPlatform());

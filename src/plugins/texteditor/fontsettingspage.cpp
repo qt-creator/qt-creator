@@ -139,8 +139,7 @@ public:
 
         connect(m_ui.fontComboBox, &QFontComboBox::currentFontChanged,
                 this, &FontSettingsPageWidget::fontSelected);
-        connect(m_ui.sizeComboBox,
-                QOverload<const QString &>::of(&QComboBox::currentIndexChanged),
+        connect(m_ui.sizeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, &FontSettingsPageWidget::fontSizeSelected);
         connect(m_ui.zoomSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
                 this, &FontSettingsPageWidget::fontZoomChanged);
@@ -165,7 +164,7 @@ public:
 
     void saveSettings();
     void fontSelected(const QFont &font);
-    void fontSizeSelected(const QString &sizeString);
+    void fontSizeSelected(int index);
     void fontZoomChanged();
     void antialiasChanged();
     void colorSchemeSelected(int index);
@@ -400,8 +399,9 @@ QList<int> FontSettingsPageWidget::pointSizesForSelectedFont() const
     return sizeLst;
 }
 
-void FontSettingsPageWidget::fontSizeSelected(const QString &sizeString)
+void FontSettingsPageWidget::fontSizeSelected(int index)
 {
+    const QString sizeString = m_ui.sizeComboBox->itemText(index);
     bool ok = true;
     const int size = sizeString.toInt(&ok);
     if (ok) {

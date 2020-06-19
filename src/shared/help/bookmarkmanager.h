@@ -70,7 +70,7 @@ private:
     void toolButtonClicked();
     void itemChanged(QStandardItem *item);
     void textChanged(const QString& string);
-    void selectBookmarkFolder(const QString &folderName);
+    void selectBookmarkFolder(int index);
     void customContextMenuRequested(const QPoint &point);
     void currentChanged(const QModelIndex& current);
     bool eventFilter(QObject *object, QEvent *e);
