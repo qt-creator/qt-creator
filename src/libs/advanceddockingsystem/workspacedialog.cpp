@@ -40,6 +40,7 @@
 #include <utils/algorithm.h>
 
 #include <QInputDialog>
+#include <QRegularExpression>
 #include <QValidator>
 
 namespace ADS {
@@ -64,9 +65,9 @@ QValidator::State WorkspaceValidator::validate(QString &input, int &pos) const
 {
     Q_UNUSED(pos)
 
-    static QRegExp rx("[a-zA-Z0-9 ()\\-]*");
+    static const QRegularExpression rx("^[a-zA-Z0-9 ()\\-]*$");
 
-    if (!rx.exactMatch(input))
+    if (!rx.match(input).hasMatch())
         return QValidator::Invalid;
 
     if (m_workspaces.contains(input))

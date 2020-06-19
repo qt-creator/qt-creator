@@ -136,9 +136,18 @@ namespace ADS {
         Super::resizeEvent(event);
     }
 
+    bool ElidingLabel::hasPixmap() const
+    {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        return !pixmap().isNull();
+#else
+        return pixmap() != nullptr;
+#endif
+    }
+
     QSize ElidingLabel::minimumSizeHint() const
     {
-        if (pixmap() != nullptr || d->isModeElideNone())
+        if (hasPixmap() || d->isModeElideNone())
             return QLabel::minimumSizeHint();
 
         const QFontMetrics &fm = fontMetrics();
@@ -152,7 +161,7 @@ namespace ADS {
 
     QSize ElidingLabel::sizeHint() const
     {
-        if (pixmap() != nullptr || d->isModeElideNone())
+        if (hasPixmap() || d->isModeElideNone())
             return QLabel::sizeHint();
 
         const QFontMetrics &fm = fontMetrics();

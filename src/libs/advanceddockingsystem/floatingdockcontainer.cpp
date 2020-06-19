@@ -555,7 +555,7 @@ static const char* windowsMessageString(int messageId)
         setWindowFlags(windowFlags() | Qt::Tool);
         QDockWidget::setWidget(d->m_dockContainer);
         QDockWidget::setFloating(true);
-        QDockWidget::setFeatures(QDockWidget::AllDockWidgetFeatures);
+        QDockWidget::setFeatures(DockWidgetClosable | DockWidgetMovable | DockWidgetFloatable);
         setTitleBarWidget(d->m_titleBar);
         connect(d->m_titleBar,
                 &FloatingWidgetTitleBar::closeRequested,

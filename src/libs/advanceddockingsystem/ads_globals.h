@@ -145,7 +145,10 @@ void hideEmptyParentSplitters(DockSplitter *firstParentSplitter);
 class DockInsertParam : public QPair<Qt::Orientation, bool>
 {
 public:
-    using QPair::QPair;
+    DockInsertParam(Qt::Orientation orientation, bool append)
+        : QPair<Qt::Orientation, bool>(orientation, append)
+    {}
+
     Qt::Orientation orientation() const { return this->first; }
     bool append() const { return this->second; }
     int insertOffset() const { return append() ? 1 : 0; }

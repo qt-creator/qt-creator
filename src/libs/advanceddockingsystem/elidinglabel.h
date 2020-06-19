@@ -106,6 +106,12 @@ signals:
      * This signal is emitted when isElided() state of this label is changed
      */
     void elidedChanged(bool elided);
+
+private:
+    /**
+      * Helper to port to Qt 6
+      */
+    bool hasPixmap() const;
 }; //class ElidingLabel
 
 } // namespace ADS

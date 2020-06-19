@@ -39,6 +39,7 @@
 #include "dockareatitlebar.h"
 
 #include <utils/hostosinfo.h>
+#include <utils/porting.h>
 
 #include <QCursor>
 #include <QGridLayout>
@@ -758,9 +759,9 @@ namespace ADS {
                                     {"Arrow", DockOverlayCross::ArrowColor},
                                     {"Shadow", DockOverlayCross::ShadowColor}};
 
-        auto colorList = colors.split(' ', QString::SkipEmptyParts);
+        auto colorList = colors.split(' ', Utils::SkipEmptyParts);
         for (const auto &colorListEntry : colorList) {
-            auto componentColor = colorListEntry.split('=', QString::SkipEmptyParts);
+            auto componentColor = colorListEntry.split('=', Utils::SkipEmptyParts);
             int component = colorCompenentStringMap.value(componentColor[0], -1);
             if (component < 0)
                 continue;
