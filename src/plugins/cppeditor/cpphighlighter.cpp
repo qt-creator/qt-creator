@@ -366,7 +366,7 @@ void CppHighlighter::highlightWord(QStringRef word, int position, int length)
     }
 }
 
-bool CppHighlighter::highlightRawStringLiteral(const QStringView &text, const Token &tk)
+bool CppHighlighter::highlightRawStringLiteral(const QStringView &_text, const Token &tk)
 {
     // Step one: Does the lexer think this is a raw string literal?
     switch (tk.kind()) {
@@ -379,6 +379,9 @@ bool CppHighlighter::highlightRawStringLiteral(const QStringView &text, const To
     default:
         return false;
     }
+
+    // TODO: Remove on upgrade to Qt >= 5.14.
+    const QString text = _text.toString();
 
     // Step two: Find all the components. Bail out if we don't have a complete,
     //           well-formed raw string literal.
@@ -403,7 +406,7 @@ bool CppHighlighter::highlightRawStringLiteral(const QStringView &text, const To
     const QTextCharFormat delimiterFormat = formatForCategory(C_KEYWORD);
     const int stringOffset = delimiterOffset + delimiter.length() + 1;
     setFormat(tk.utf16charsBegin(), stringOffset, delimiterFormat);
-    setFormatWithSpaces(text.toString(), stringOffset, endDelimiterOffset - stringOffset - 1,
+    setFormatWithSpaces(text, stringOffset, endDelimiterOffset - stringOffset - 1,
                         formatForCategory(C_STRING));
     setFormat(endDelimiterOffset - 1, delimiter.length() + 2, delimiterFormat);
     return true;
