@@ -27,7 +27,7 @@
 
 #include <utils/algorithm.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QStringList>
 
 using namespace Qnx;
@@ -53,11 +53,12 @@ QList<ProjectExplorer::DeviceProcessItem> QnxDeviceProcessList::buildProcessList
         return processes;
 
     lines.pop_front(); // drop headers
-    QRegExp re(QLatin1String("\\s*(\\d+)\\s+(.*)'(.*)'"));
+    const QRegularExpression re("\\s*(\\d+)\\s+(.*)'(.*)'");
 
-    foreach (const QString& line, lines) {
-        if (re.exactMatch(line)) {
-            const QStringList captures = re.capturedTexts();
+    for (const QString &line : qAsConst(lines)) {
+        const QRegularExpressionMatch match = re.match(line);
+        if (match.hasMatch()) {
+            const QStringList captures = match.capturedTexts();
             if (captures.size() == 4) {
                 const int pid = captures[1].toInt();
                 const QString args = captures[2];

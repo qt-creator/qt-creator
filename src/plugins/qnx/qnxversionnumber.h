@@ -42,7 +42,7 @@ public:
     QString toString() const;
 
     static QnxVersionNumber fromTargetName(const QString &targetName);
-    static QnxVersionNumber fromFileName(const QString &fileName, const QRegExp &regExp);
+    static QnxVersionNumber fromFileName(const QString &fileName, const QRegularExpression &regExp);
 
     bool operator >(const QnxVersionNumber &b) const;
 

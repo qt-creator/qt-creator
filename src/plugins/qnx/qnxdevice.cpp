@@ -42,7 +42,7 @@
 #include <utils/stringutils.h>
 
 #include <QApplication>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QStringList>
 #include <QThread>
 
@@ -120,11 +120,12 @@ void QnxDevice::updateVersionNumber() const
 
     QByteArray output = versionNumberProcess.readAllStandardOutput();
     QString versionMessage = QString::fromLatin1(output);
-    QRegExp versionNumberRegExp = QRegExp(QLatin1String("(\\d+)\\.(\\d+)\\.(\\d+)"));
-    if (versionNumberRegExp.indexIn(versionMessage) > -1 && versionNumberRegExp.captureCount() == 3) {
-        int major = versionNumberRegExp.cap(1).toInt();
-        int minor = versionNumberRegExp.cap(2).toInt();
-        int patch = versionNumberRegExp.cap(3).toInt();
+    const QRegularExpression versionNumberRegExp("(\\d+)\\.(\\d+)\\.(\\d+)");
+    const QRegularExpressionMatch match = versionNumberRegExp.match(versionMessage);
+    if (match.hasMatch()) {
+        int major = match.captured(1).toInt();
+        int minor = match.captured(2).toInt();
+        int patch = match.captured(3).toInt();
         m_versionNumber = (major << 16)|(minor<<8)|(patch);
     }
 

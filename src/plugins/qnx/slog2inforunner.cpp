@@ -33,7 +33,7 @@
 
 #include <utils/qtcassert.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -160,17 +160,18 @@ void Slog2InfoRunner::processLogLine(const QString &line)
     // The "\\s+(\\b.*)?$" represents a space followed by a message. We are unable to determinate
     // how many spaces represent separators and how many are a part of the messages, so resulting
     // messages has all whitespaces at the beginning of the message trimmed.
-    static QRegExp regexp(QLatin1String(
+    static QRegularExpression regexp(QLatin1String(
         "^[a-zA-Z]+\\s+([0-9]+ [0-9]+:[0-9]+:[0-9]+.[0-9]+)\\s+(\\S+)(\\s+(\\S+))?\\s+([0-9]+)\\s+(.*)?$"));
 
-    if (!regexp.exactMatch(line) || regexp.captureCount() != 6)
+    const QRegularExpressionMatch match = regexp.match(line);
+    if (!match.hasMatch())
         return;
 
     // Note: This is useless if/once slog2info -b displays only logs from recent launches
     if (!m_launchDateTime.isNull()) {
         // Check if logs are from the recent launch
         if (!m_currentLogs) {
-            QDateTime dateTime = QDateTime::fromString(regexp.cap(1),
+            QDateTime dateTime = QDateTime::fromString(match.captured(1),
                                                        QLatin1String("dd HH:mm:ss.zzz"));
             m_currentLogs = dateTime >= m_launchDateTime;
             if (!m_currentLogs)
@@ -178,17 +179,17 @@ void Slog2InfoRunner::processLogLine(const QString &line)
         }
     }
 
-    QString applicationId = regexp.cap(2);
+    QString applicationId = match.captured(2);
     if (!applicationId.startsWith(m_applicationId))
         return;
 
-    QString bufferName = regexp.cap(4);
-    int bufferId = regexp.cap(5).toInt();
+    QString bufferName = match.captured(4);
+    int bufferId = match.captured(5).toInt();
     // filtering out standard BB10 messages
     if (bufferName == QLatin1String("default") && bufferId == 8900)
         return;
 
-    appendMessage(regexp.cap(6).trimmed() + '\n', Utils::StdOutFormat);
+    appendMessage(match.captured(6).trimmed() + '\n', Utils::StdOutFormat);
 }
 
 void Slog2InfoRunner::readLogStandardError()

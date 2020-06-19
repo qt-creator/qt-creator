@@ -26,7 +26,7 @@
 #include "qnxversionnumber.h"
 
 #include <QDir>
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace Qnx {
 namespace Internal {
@@ -89,14 +89,15 @@ QString QnxVersionNumber::segment(int index) const
 
 QnxVersionNumber QnxVersionNumber::fromTargetName(const QString &targetName)
 {
-    return fromFileName(targetName, QRegExp(QLatin1String("^target_(.*)$")));
+    return fromFileName(targetName, QRegularExpression("^target_(.*)$"));
 }
 
-QnxVersionNumber QnxVersionNumber::fromFileName(const QString &fileName, const QRegExp &regExp)
+QnxVersionNumber QnxVersionNumber::fromFileName(const QString &fileName, const QRegularExpression &regExp)
 {
     QStringList segments;
-    if (regExp.exactMatch(fileName) && regExp.captureCount() == 1)
-        segments << regExp.cap(1).split(QLatin1Char('_'));
+    const QRegularExpressionMatch match = regExp.match(fileName);
+    if (match.hasMatch() && regExp.captureCount() == 1)
+        segments << match.captured(1).split(QLatin1Char('_'));
 
     return QnxVersionNumber(segments);
 }
