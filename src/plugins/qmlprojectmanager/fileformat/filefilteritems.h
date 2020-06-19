@@ -28,7 +28,7 @@
 #include "qmlprojectitem.h"
 
 #include <QObject>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QSet>
 #include <QTimer>
 
@@ -91,7 +91,7 @@ private:
     QString m_filter;
     // simple "*.png" patterns are stored in m_fileSuffixes, otherwise store in m_regExpList
     QList<QString> m_fileSuffixes;
-    QList<QRegExp> m_regExpList;
+    QList<QRegularExpression> m_regExpList;
 
     enum RecursiveOption {
         Recurse,

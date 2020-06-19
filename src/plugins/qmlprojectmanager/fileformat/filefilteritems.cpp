@@ -33,7 +33,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QImageReader>
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace QmlProjectManager {
 
@@ -100,7 +100,7 @@ void FileFilterBaseItem::setFilter(const QString &filter)
     m_regExpList.clear();
     m_fileSuffixes.clear();
 
-    foreach (const QString &pattern, filter.split(QLatin1Char(';'))) {
+    for (const QString &pattern : filter.split(QLatin1Char(';'))) {
         if (pattern.isEmpty())
             continue;
         // decide if it's a canonical pattern like *.x
@@ -113,7 +113,7 @@ void FileFilterBaseItem::setFilter(const QString &filter)
                 continue;
             }
         }
-        m_regExpList << QRegExp(pattern, Qt::CaseInsensitive, QRegExp::Wildcard);
+        m_regExpList << QRegularExpression(QRegularExpression::wildcardToRegularExpression(pattern));
     }
 
     updateFileList();
@@ -171,7 +171,7 @@ QStringList FileFilterBaseItem::files() const
   */
 bool FileFilterBaseItem::matchesFile(const QString &filePath) const
 {
-    foreach (const QString &explicitFile, m_explicitFiles) {
+    for (const QString &explicitFile : m_explicitFiles) {
         if (absolutePath(explicitFile) == filePath)
             return true;
     }
@@ -182,7 +182,7 @@ bool FileFilterBaseItem::matchesFile(const QString &filePath) const
         return false;
 
     const QDir fileDir = QFileInfo(filePath).absoluteDir();
-    foreach (const QString &watchedDirectory, watchedDirectories()) {
+    for (const QString &watchedDirectory : watchedDirectories()) {
         if (QDir(watchedDirectory) == fileDir)
             return true;
     }
@@ -225,9 +225,9 @@ void FileFilterBaseItem::updateFileListNow()
 
     QSet<QString> dirsToBeWatched;
     QSet<QString> newFiles;
-    foreach (const QString &explicitPath, m_explicitFiles) {
+    for (const QString &explicitPath : qAsConst(m_explicitFiles))
         newFiles << absolutePath(explicitPath);
-    }
+
     if ((!m_fileSuffixes.isEmpty() || !m_regExpList.isEmpty()) && m_explicitFiles.isEmpty())
         newFiles += filesInSubTree(QDir(m_defaultDir), QDir(projectDir), &dirsToBeWatched);
 
@@ -258,13 +258,13 @@ void FileFilterBaseItem::updateFileListNow()
 
 bool FileFilterBaseItem::fileMatches(const QString &fileName) const
 {
-    foreach (const QString &suffix, m_fileSuffixes) {
+    for (const QString &suffix : qAsConst(m_fileSuffixes)) {
         if (fileName.endsWith(suffix, Qt::CaseInsensitive))
             return true;
     }
 
-    foreach (QRegExp filter, m_regExpList) {
-        if (filter.exactMatch(fileName))
+    for (const QRegularExpression &filter : qAsConst(m_regExpList)) {
+        if (filter.match(fileName).hasMatch())
             return true;
     }
 
@@ -278,7 +278,7 @@ QSet<QString> FileFilterBaseItem::filesInSubTree(const QDir &rootDir, const QDir
     if (parsedDirs)
         parsedDirs->insert(dir.absolutePath());
 
-    foreach (const QFileInfo &file, dir.entryInfoList(QDir::Files)) {
+    for (const QFileInfo &file : dir.entryInfoList(QDir::Files)) {
         const QString fileName = file.fileName();
 
         if (fileMatches(fileName))
@@ -286,7 +286,7 @@ QSet<QString> FileFilterBaseItem::filesInSubTree(const QDir &rootDir, const QDir
     }
 
     if (recursive()) {
-        foreach (const QFileInfo &subDir, dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+        for (const QFileInfo &subDir : dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
             fileSet += filesInSubTree(rootDir, QDir(subDir.absoluteFilePath()), parsedDirs);
         }
     }
@@ -298,10 +298,9 @@ ImageFileFilterItem::ImageFileFilterItem(QObject *parent)
 {
     QString filter;
     // supported image formats according to
-    QList<QByteArray> extensions = QImageReader::supportedImageFormats();
-    foreach (const QByteArray &extension, extensions) {
+    const QList<QByteArray> extensions = QImageReader::supportedImageFormats();
+    for (const QByteArray &extension : extensions)
         filter.append(QString::fromLatin1("*.%1;").arg(QString::fromLatin1(extension)));
-    }
     setFilter(filter);
 }
 
