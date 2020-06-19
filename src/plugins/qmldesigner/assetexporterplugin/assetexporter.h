@@ -29,6 +29,7 @@
 
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QSet>
 
 #include <memory>
 
@@ -41,6 +42,7 @@ class Project;
 }
 
 namespace QmlDesigner {
+class AssetDumper;
 
 class AssetExporter : public QObject
 {
@@ -68,6 +70,8 @@ public:
     void cancel();
     bool isBusy() const;
 
+    Utils::FilePath exportAsset(const QmlObjectNode& node);
+
 signals:
     void stateChanged(ParsingState);
     void exportProgressChanged(double) const;
@@ -82,6 +86,7 @@ private:
     void loadNextFile();
 
     void onQmlFileLoaded();
+
 private:
     mutable class State {
     public:
@@ -96,6 +101,8 @@ private:
     Utils::FilePaths m_exportFiles;
     Utils::FilePath m_exportPath;
     QJsonArray m_components;
+    QSet<QByteArray> m_usedHashes;
+    std::unique_ptr<AssetDumper> m_assetDumper;
 };
 QDebug operator<< (QDebug os, const QmlDesigner::AssetExporter::ParsingState& s);
 

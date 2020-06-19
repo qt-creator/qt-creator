@@ -52,6 +52,7 @@ add_qtc_plugin(assetexporterplugin
     assetexporterplugin/componentexporter.h assetexporterplugin/componentexporter.cpp
     assetexporterplugin/exportnotification.h assetexporterplugin/exportnotification.cpp
     assetexporterplugin/filepathmodel.h assetexporterplugin/filepathmodel.cpp
+    assetexporterplugin/parsers/assetnodeparser.h assetexporterplugin/parsers/assetnodeparser.cpp
     assetexporterplugin/parsers/modelitemnodeparser.h assetexporterplugin/parsers/modelitemnodeparser.cpp
     assetexporterplugin/parsers/modelnodeparser.h assetexporterplugin/parsers/modelnodeparser.cpp
     assetexporterplugin/parsers/textnodeparser.h assetexporterplugin/parsers/textnodeparser.cpp

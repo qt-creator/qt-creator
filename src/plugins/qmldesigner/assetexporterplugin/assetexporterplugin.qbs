@@ -47,6 +47,8 @@ QtcProduct {
         "exportnotification.h",
         "filepathmodel.cpp",
         "filepathmodel.h",
+        "parsers/assetnodeparser.cpp",
+        "parsers/assetnodeparser.h",
         "parsers/modelitemnodeparser.cpp",
         "parsers/modelitemnodeparser.h",
         "parsers/modelnodeparser.cpp",

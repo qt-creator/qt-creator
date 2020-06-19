@@ -34,6 +34,7 @@
 
 #include "parsers/modelitemnodeparser.h"
 #include "parsers/textnodeparser.h"
+#include "parsers/assetnodeparser.h"
 
 #include "coreplugin/actionmanager/actionmanager.h"
 #include "coreplugin/actionmanager/actioncontainer.h"
@@ -68,8 +69,9 @@ AssetExporterPlugin::AssetExporterPlugin() :
     viewManager.registerViewTakingOwnership(m_view);
 
     // Add parsers templates for factory instantiation.
-    ComponentExporter::addNodeParser<ItemNodeParser>();
-    ComponentExporter::addNodeParser<TextNodeParser>();
+    Component::addNodeParser<ItemNodeParser>();
+    Component::addNodeParser<TextNodeParser>();
+    Component::addNodeParser<AssetNodeParser>();
 
     // Instantiate actions created by the plugin.
     addActions();
@@ -93,7 +95,8 @@ void AssetExporterPlugin::onExport()
         return;
 
     FilePathModel model(startupProject);
-    auto exportDir = startupProject->projectFilePath().parentDir();
+    QString exportDirName = startupProject->displayName() + "_export";
+    auto exportDir = startupProject->projectFilePath().parentDir().pathAppended(exportDirName);
     AssetExporter assetExporter(m_view, startupProject);
     AssetExportDialog assetExporterDialog(exportDir, assetExporter, model);
     assetExporterDialog.exec();

@@ -26,21 +26,73 @@
 #include "componentexporter.h"
 #include "exportnotification.h"
 
+#include "qmlitemnode.h"
+#include "qmlobjectnode.h"
 #include "utils/qtcassert.h"
+#include "utils/runextensions.h"
+#include "variantproperty.h"
 
+#include <QCryptographicHash>
+#include <QDir>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QLoggingCategory>
+#include <QWaitCondition>
+
+#include <random>
+#include <queue>
 
 using namespace ProjectExplorer;
-
+using namespace std;
 namespace {
+bool makeParentPath(const Utils::FilePath &path)
+{
+    QDir d;
+    return d.mkpath(path.toFileInfo().absolutePath());
+}
+
+QByteArray generateHash(const QString &token) {
+    static uint counter = 0;
+    std::mt19937 gen(std::random_device().operator()());
+    std::uniform_int_distribution<> distribution(1, 99999);
+    QByteArray data = QString("%1%2%3").arg(token).arg(++counter).arg(distribution(gen)).toLatin1();
+    return QCryptographicHash::hash(data, QCryptographicHash::Md5).toHex();
+}
+
 Q_LOGGING_CATEGORY(loggerInfo, "qtc.designer.assetExportPlugin.assetExporter", QtInfoMsg)
 Q_LOGGING_CATEGORY(loggerWarn, "qtc.designer.assetExportPlugin.assetExporter", QtWarningMsg)
 Q_LOGGING_CATEGORY(loggerError, "qtc.designer.assetExportPlugin.assetExporter", QtCriticalMsg)
 }
 
 namespace QmlDesigner {
+
+class AssetDumper
+{
+public:
+    AssetDumper();
+    ~AssetDumper();
+
+    void dumpAsset(const QPixmap &p, const Utils::FilePath &path);
+
+    /* Keeps on dumping until all assets are dumped, then quits */
+    void quitDumper();
+
+    /* Aborts dumping */
+    void abortDumper();
+
+private:
+    void addAsset(const QPixmap &p, const Utils::FilePath &path);
+    void doDumping(QFutureInterface<void> &fi);
+    void savePixmap(const QPixmap &p, Utils::FilePath &path) const;
+
+    QFuture<void> m_dumpFuture;
+    QMutex m_queueMutex;
+    QWaitCondition m_queueCondition;
+    std::queue<std::pair<QPixmap, Utils::FilePath>> m_assets;
+    std::atomic<bool> m_quitDumper;
+};
+
+
 
 AssetExporter::AssetExporter(AssetExporterView *view, ProjectExplorer::Project *project, QObject *parent) :
     QObject(parent),
@@ -71,11 +123,13 @@ void AssetExporter::exportQml(const Utils::FilePaths &qmlFiles, const Utils::Fil
     m_exportPath = exportPath;
     m_currentState.change(ParsingState::Parsing);
     triggerLoadNextFile();
+    m_assetDumper = make_unique<AssetDumper>();
 }
 
 void AssetExporter::cancel()
 {
     // TODO Cancel export
+    m_assetDumper.reset();
 }
 
 bool AssetExporter::isBusy() const
@@ -83,6 +137,21 @@ bool AssetExporter::isBusy() const
     return m_currentState == AssetExporter::ParsingState::Parsing ||
             m_currentState == AssetExporter::ParsingState::ExportingAssets ||
             m_currentState == AssetExporter::ParsingState::WritingJson;
+}
+
+Utils::FilePath AssetExporter::exportAsset(const QmlObjectNode &node)
+{
+    // TODO: Use this hash as UUID and add to the node.
+    QByteArray hash;
+    do {
+        hash = generateHash(node.id());
+    } while (m_usedHashes.contains(hash));
+    m_usedHashes.insert(hash);
+
+    Utils::FilePath assetPath = m_exportPath.pathAppended(QString("assets/%1.png")
+                                                          .arg(QString::fromLatin1(hash)));
+    m_assetDumper->dumpAsset(node.toQmlItemNode().instanceRenderPixmap(), assetPath);
+    return assetPath;
 }
 
 void AssetExporter::exportComponent(const ModelNode &rootNode)
@@ -149,6 +218,7 @@ void AssetExporter::writeMetadata() const
     Utils::FilePath metadataPath = m_exportPath.pathAppended(m_exportPath.fileName() + ".metadata");
     ExportNotification::addInfo(tr("Writing metadata to file %1.").
                                 arg(metadataPath.toUserOutput()));
+    makeParentPath(metadataPath);
     m_currentState.change(ParsingState::WritingJson);
     QJsonObject jsonRoot; // TODO: Write plugin info to root
     jsonRoot.insert("artboards", m_components);
@@ -165,6 +235,7 @@ void AssetExporter::writeMetadata() const
     }
     notifyProgress(1.0);
     ExportNotification::addInfo(tr("Export finished."));
+    m_assetDumper->quitDumper();
     m_currentState.change(ParsingState::ExportingDone);
 }
 
@@ -187,6 +258,95 @@ QDebug operator<<(QDebug os, const AssetExporter::ParsingState &s)
 {
     os << static_cast<std::underlying_type<QmlDesigner::AssetExporter::ParsingState>::type>(s);
     return os;
+}
+
+AssetDumper::AssetDumper():
+    m_quitDumper(false)
+{
+    m_dumpFuture = Utils::runAsync(&AssetDumper::doDumping, this);
+}
+
+AssetDumper::~AssetDumper()
+{
+    abortDumper();
+}
+
+void AssetDumper::dumpAsset(const QPixmap &p, const Utils::FilePath &path)
+{
+    addAsset(p, path);
+}
+
+void AssetDumper::quitDumper()
+{
+    m_quitDumper = true;
+    m_queueCondition.wakeAll();
+    if (!m_dumpFuture.isFinished())
+        m_dumpFuture.waitForFinished();
+}
+
+void AssetDumper::abortDumper()
+{
+    if (!m_dumpFuture.isFinished()) {
+        m_dumpFuture.cancel();
+        m_queueCondition.wakeAll();
+        m_dumpFuture.waitForFinished();
+    }
+}
+
+void AssetDumper::addAsset(const QPixmap &p, const Utils::FilePath &path)
+{
+    QMutexLocker locker(&m_queueMutex);
+    qDebug() << "Save Asset:" << path;
+    m_assets.push({p, path});
+}
+
+void AssetDumper::doDumping(QFutureInterface<void> &fi)
+{
+    auto haveAsset = [this] (std::pair<QPixmap, Utils::FilePath> *asset) {
+        QMutexLocker locker(&m_queueMutex);
+        if (m_assets.empty())
+            return false;
+        *asset = m_assets.front();
+        m_assets.pop();
+        return true;
+    };
+
+    forever {
+        std::pair<QPixmap, Utils::FilePath> asset;
+        if (haveAsset(&asset)) {
+            if (fi.isCanceled())
+                break;
+            savePixmap(asset.first, asset.second);
+        } else {
+            if (m_quitDumper)
+                break;
+            QMutexLocker locker(&m_queueMutex);
+            m_queueCondition.wait(&m_queueMutex);
+        }
+
+        if (fi.isCanceled())
+            break;
+    }
+    fi.reportFinished();
+}
+
+void AssetDumper::savePixmap(const QPixmap &p, Utils::FilePath &path) const
+{
+    if (p.isNull()) {
+        qCDebug(loggerWarn) << "Dumping null pixmap" << path;
+        return;
+    }
+
+    if (!makeParentPath(path)) {
+        ExportNotification::addError(AssetExporter::tr("Error creating asset directory. %1")
+                                     .arg(path.fileName()));
+        return;
+    }
+
+    if (!p.save(path.toString())) {
+        ExportNotification::addError(AssetExporter::tr("Error saving asset. %1")
+                                     .arg(path.fileName()));
+    }
 }
 
 }
