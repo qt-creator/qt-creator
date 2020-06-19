@@ -83,23 +83,33 @@
     If you imported your screen designs from a design tool as individual
     components (\e {.ui.qml} files), you can use them as content for flow
     items. If you are building your UI from scratch in \QDS, you must first
-    create the screens as you would any QML components. For more information,
-    see \l {Creating Components}. The flow items that you attach the components
-    to are listed under \uicontrol {My QML Components}.
+    add components to the flow items to create the screens as you would
+    any QML components. For more information, see \l {Creating Components}.
+    The flow items that you attach the components to are listed under
+    \uicontrol {My QML Components}.
+
+    \note You must use the wizard to create the flow items. After you create
+    a flow view, the \uicontrol {Flow View} section becomes visible in
+    \uicontrol Library. It contains a \uicontrol {Flow Item} type that you
+    can use to apply states to flow items, and that you should use solely for
+    that purpose.
 
     To add flow items:
 
     \list 1
-        \li Import your UI screens from a design tool or create them in
-            \uicontrol {Form Editor} and save each screen as a separate
-            QML component.
         \li Select \uicontrol File > \uicontrol {New File or Project} >
             \uicontrol {Files and Classes} > \uicontrol {Qt Quick Files} >
             \uicontrol {Flow Item} and follow the instructions of the wizard
             to create flow items for each screen in the UI.
-        \li Drag a screen from \uicontrol Library >
-            \uicontrol {My QML Components} to each flow item in
-            \uicontrol {Form Editor} or \uicontrol Navigator.
+        \li Add content to the flow item in one of the following ways:
+            \list
+                \li Drag and drop components to a flow item in
+                    \uicontrol {Form Editor} or \uicontrol Navigator and
+                    edit their properties in \uicontrol Properties.
+                \li Drag a screen from \uicontrol Library >
+                    \uicontrol {My QML Components} to a flow item in
+                    \uicontrol {Form Editor} or \uicontrol Navigator.
+            \endlist
         \li In \uicontrol Properties, edit the properties globally for all
             flow items, action areas, or transition lines in the flow view.
     \endlist
@@ -239,16 +249,19 @@
     To simulate conditions:
 
     \list 1
+        \li Drag a \uicontrol {Flow Decision} QML type from \uicontrol Library
+            to a flow view in \uicontrol Navigator or \uicontrol {Form Editor}.
         \li Select the screen where you want the application to start in
             \uicontrol Navigator or \uicontrol {Form Editor}, and then select
             \uicontrol {Flow} > \uicontrol {Add Start} in the context menu.
         \li Create an action area for the component that will trigger the
             condition and connect it to the flow decision.
-        \li Drag a \uicontrol {Flow Decision} QML type from \uicontrol Library
-            to a flow view in \uicontrol Navigator or \uicontrol {Form Editor}.
-        \li Select \uicontrol Connect in the context menu to create connections
-            to the screens that will open depending on whether the condition is
-            met.
+        \li In \uicontrol Properties, \uicontrol Question field, enter the text
+            that will appear next to the transition line that represents the
+            connection to the flow decision type.
+        \li Select the flow decision, and then select \uicontrol Connect in the
+            context menu to create connections to the screens that will open
+            depending on whether the condition is met.
         \li In \uicontrol Properties, \uicontrol Title field, enter a title for
             the selection dialog that opens when the condition is triggered.
         \li Select a transition line and add a descriptive text in the
@@ -261,6 +274,33 @@
     that you can use to select which condition is met and see the results.
 
     \image studio-flow-decision.png
+
+    \section1 Applying States in Flows
+
+    You can use \l{Adding States}{states} in flows to modify the appearance of
+    components on screens in response to user interaction, for example. For
+    this purpose, you use the \uicontrol {Flow Item} QML types availabe in
+    \uicontrol Library.
+
+    \list 1
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol {Files and Classes} > \uicontrol {Qt Quick Files} >
+            \uicontrol {Flow Item} to create a flow item.
+        \li In \uicontrol States, add states to the flow item.
+        \li Open the .ui.qml file that contains the flow view in
+            \uicontrol {Form Editor} and drag the flow item to the flow view
+            in \uicontrol Navigator or \uicontrol {Form Editor}.
+        \li Drag an empty \uicontrol {Flow Item} QML type from the
+            \uicontrol Library view \uicontrol {Flow View} tab to the
+            flow for each state that you added.
+        \li In \uicontrol Properties, in the \uicontrol {State change target}
+            field, select the flow item that you created using the wizard.
+        \li In the \uicontrol {Target state} field, select the state to
+            apply to the flow item.
+    \endlist
+
+    You can now add action areas and flow decisions to apply the different
+    states.
 
     \section1 Reacting to External Events
 
