@@ -24,11 +24,9 @@
 ****************************************************************************/
 #pragma once
 
-#include <QJsonValue>
-#include <QPointer>
+#include <QJsonObject>
 #include <QByteArrayList>
 
-#include <vector>
 #include <memory>
 
 #include "utils/qtcassert.h"
@@ -38,9 +36,9 @@ class QJsonArray;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
-class Model;
+class AssetExporter;
 class ModelNode;
-class ComponentExporter;
+class Component;
 class ModelNodeParser;
 
 namespace  Internal {
@@ -50,7 +48,7 @@ public:
     virtual ~NodeParserCreatorBase() {}
 protected:
     virtual ModelNodeParser *instance(const QByteArrayList &, const ModelNode &) const = 0;
-    friend class QmlDesigner::ComponentExporter;
+    friend class QmlDesigner::Component;
 };
 
 template<class T>
@@ -67,12 +65,15 @@ protected:
 };
 } //Internal
 
-class ComponentExporter
+class Component
 {
 public:
-    ComponentExporter(const ModelNode &rootNode);
+    Component(AssetExporter& exporter, const ModelNode &rootNode);
 
-    QJsonObject exportComponent() const;
+    void exportComponent();
+    QJsonObject json() const;
+
+    AssetExporter &exporter();
 
     template<typename T> static void addNodeParser()
     {
@@ -81,10 +82,12 @@ public:
     }
 private:
     ModelNodeParser* createNodeParser(const ModelNode &node) const;
-    QJsonObject nodeToJson(const ModelNode &node) const;
+    QJsonObject nodeToJson(const ModelNode &node);
 
 private:
+    AssetExporter& m_exporter;
     const ModelNode &m_rootNode;
+    QJsonObject m_json;
     static std::vector<std::unique_ptr<Internal::NodeParserCreatorBase>> m_readers;
 };
 }

@@ -30,6 +30,7 @@
 #include <QByteArrayList>
 
 namespace QmlDesigner {
+class Component;
 class ModelNode;
 
 class ModelNodeParser
@@ -41,14 +42,16 @@ public:
 
     virtual int priority() const = 0;
     virtual bool isExportable() const = 0;
-    virtual QJsonObject json() const = 0;
+    virtual QJsonObject json(Component& component) const = 0;
 
     const QByteArrayList& lineage() const { return m_lineage; }
     const QmlObjectNode& objectNode() const { return m_objectNode; }
     QVariant propertyValue(const PropertyName &name) const;
 
-private:
+protected:
     const ModelNode &m_node;
+
+private:
     QmlObjectNode m_objectNode;
     QByteArrayList m_lineage;
 };

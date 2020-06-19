@@ -88,9 +88,9 @@ bool AssetExporter::isBusy() const
 void AssetExporter::exportComponent(const ModelNode &rootNode)
 {
     qCDebug(loggerInfo) << "Exporting component" << rootNode.id();
-    ComponentExporter exporter(rootNode);
-    QJsonObject json = exporter.exportComponent();
-    m_components.append(json);
+    Component exporter(*this, rootNode);
+    exporter.exportComponent();
+    m_components.append(exporter.json());
 }
 
 void AssetExporter::notifyLoadError(AssetExporterView::LoadState state)

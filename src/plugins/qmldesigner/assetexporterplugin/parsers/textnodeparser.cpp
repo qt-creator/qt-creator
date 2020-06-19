@@ -61,9 +61,10 @@ bool TextNodeParser::isExportable() const
     return lineage().contains("QtQuick.Text");
 }
 
-QJsonObject TextNodeParser::json() const
+QJsonObject TextNodeParser::json(Component &component) const
 {
-    QJsonObject jsonObject = ItemNodeParser::json();
+    Q_UNUSED(component);
+    QJsonObject jsonObject = ItemNodeParser::json(component);
 
     QJsonObject textDetails;
     textDetails.insert(TextContentTag, propertyValue("text").toString());

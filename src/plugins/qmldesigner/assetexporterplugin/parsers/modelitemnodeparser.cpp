@@ -30,7 +30,8 @@
 
 namespace QmlDesigner {
 using namespace Constants;
-ItemNodeParser::ItemNodeParser(const QByteArrayList &lineage, const ModelNode &node) :
+ItemNodeParser::ItemNodeParser(const QByteArrayList &lineage,
+                               const ModelNode &node) :
     ModelNodeParser(lineage, node)
 {
 
@@ -41,8 +42,9 @@ bool QmlDesigner::ItemNodeParser::isExportable() const
     return lineage().contains("QtQuick.Item");
 }
 
-QJsonObject QmlDesigner::ItemNodeParser::json() const
+QJsonObject QmlDesigner::ItemNodeParser::json(QmlDesigner::Component &component) const
 {
+    Q_UNUSED(component);
     const QmlObjectNode &qmlObjectNode = objectNode();
     QJsonObject jsonObject;
     jsonObject.insert(QmlIdTag, qmlObjectNode.id());

@@ -51,20 +51,31 @@ static void populateLineage(const QmlDesigner::ModelNode &node, QByteArrayList &
 
 namespace QmlDesigner {
 
-std::vector<std::unique_ptr<Internal::NodeParserCreatorBase>> ComponentExporter::m_readers;
-ComponentExporter::ComponentExporter(const ModelNode &rootNode):
+std::vector<std::unique_ptr<Internal::NodeParserCreatorBase>> Component::m_readers;
+Component::Component(AssetExporter &exporter, const ModelNode &rootNode):
+    m_exporter(exporter),
     m_rootNode(rootNode)
 {
 
 }
 
-QJsonObject ComponentExporter::exportComponent() const
+QJsonObject Component::json() const
 {
-    QTC_ASSERT(m_rootNode.isValid(), return {});
-    return nodeToJson(m_rootNode);
+    return m_json;
 }
 
-ModelNodeParser *ComponentExporter::createNodeParser(const ModelNode &node) const
+AssetExporter &Component::exporter()
+{
+    return m_exporter;
+}
+
+void Component::exportComponent()
+{
+    QTC_ASSERT(m_rootNode.isValid(), return);
+    m_json = nodeToJson(m_rootNode);
+}
+
+ModelNodeParser *Component::createNodeParser(const ModelNode &node) const
 {
     QByteArrayList lineage;
     populateLineage(node, lineage);
@@ -80,18 +91,19 @@ ModelNodeParser *ComponentExporter::createNodeParser(const ModelNode &node) cons
             }
         }
     }
-    if (!reader) {
+
+    if (!reader)
         qCDebug(loggerInfo()) << "No parser for node" << node;
-    }
+
     return reader.release();
 }
 
-QJsonObject ComponentExporter::nodeToJson(const ModelNode &node) const
+QJsonObject Component::nodeToJson(const ModelNode &node)
 {
     QJsonObject jsonObject;
     std::unique_ptr<ModelNodeParser> parser(createNodeParser(node));
     if (parser)
-        jsonObject = parser->json();
+        jsonObject = parser->json(*this);
 
     QJsonArray children;
     for (const ModelNode &childnode : node.directSubModelNodes())

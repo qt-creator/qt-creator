@@ -27,6 +27,8 @@
 #include "modelitemnodeparser.h"
 
 namespace QmlDesigner {
+class Component;
+
 class TextNodeParser : public ItemNodeParser
 {
 public:
@@ -35,7 +37,7 @@ public:
 
     bool isExportable() const override;
     int priority() const override { return 200; }
-    QJsonObject json() const override;
+    QJsonObject json(Component &component) const override;
 };
 
 }

@@ -28,6 +28,7 @@
 
 namespace QmlDesigner {
 class ModelNode;
+class Component;
 
 class ItemNodeParser : public ModelNodeParser
 {
@@ -38,6 +39,6 @@ public:
 
     int priority() const override { return 100; }
     bool isExportable() const override;
-    QJsonObject json() const override;
+    QJsonObject json(Component &component) const override;
 };
 }
