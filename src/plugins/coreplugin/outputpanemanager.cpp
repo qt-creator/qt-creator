@@ -811,7 +811,7 @@ QSize OutputPaneToggleButton::sizeHint() const
     if (!m_badgeNumberLabel.text().isNull())
         s.rwidth() += m_badgeNumberLabel.sizeHint().width() + 1;
 
-    return s.expandedTo(QApplication::globalStrut());
+    return s;
 }
 
 void OutputPaneToggleButton::paintEvent(QPaintEvent*)
@@ -934,7 +934,7 @@ OutputPaneManageButton::OutputPaneManageButton()
 QSize OutputPaneManageButton::sizeHint() const
 {
     ensurePolished();
-    return QSize(numberAreaWidth(), QApplication::globalStrut().height());
+    return QSize(numberAreaWidth(), 16);
 }
 
 void OutputPaneManageButton::paintEvent(QPaintEvent*)
