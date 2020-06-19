@@ -94,10 +94,10 @@ void LspLogger::log(const LspLogMessage::MessageSender sender,
                     const BaseMessage &message)
 {
     std::list<LspLogMessage> &clientLog = m_logs[clientName];
-    for (auto delta = clientLog.size() - m_logSize + 1; delta > 0; --delta)
+    while (clientLog.size() >= m_logSize)
         clientLog.pop_front();
-    m_logs[clientName].push_back({sender, QTime::currentTime(), message});
-    emit newMessage(clientName, m_logs[clientName].back());
+    clientLog.push_back({sender, QTime::currentTime(), message});
+    emit newMessage(clientName, clientLog.back());
 }
 
 std::list<LspLogMessage> LspLogger::messages(const QString &clientName) const
