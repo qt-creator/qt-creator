@@ -41,6 +41,7 @@
 
 #include <QCoreApplication>
 #include <QElapsedTimer>
+#include <QScopedPointer>
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -69,7 +70,6 @@ public:
 
         // Are there any immediate results?
         if (TextEditor::IAssistProposal *proposal = processor->perform(assistInterface)) {
-            delete processor;
             proposalModel = proposal->model();
             delete proposal;
             QTC_ASSERT(proposalModel, return GotInvalidResults);
@@ -80,8 +80,10 @@ public:
         QElapsedTimer timer;
         timer.start();
         while (!gotResults) {
-            if (timer.elapsed() >= timeoutInMs)
+            if (timer.elapsed() >= timeoutInMs) {
+                processor->cancel();
                 return Timeout;
+            }
             QCoreApplication::processEvents();
         }
 
@@ -124,11 +126,11 @@ TextEditor::ProposalModelPtr completionResults(TextEditor::BaseTextEditor *textE
     QTC_ASSERT(assistProvider->runType() == IAssistProvider::Asynchronous,
                return TextEditor::ProposalModelPtr());
 
-    IAssistProcessor *processor = assistProvider->createProcessor();
+    QScopedPointer<IAssistProcessor> processor(assistProvider->createProcessor());
     QTC_ASSERT(processor, return TextEditor::ProposalModelPtr());
 
     WaitForAsyncCompletions waitForCompletions;
-    const WaitForAsyncCompletions::WaitResult result = waitForCompletions.wait(processor,
+    const WaitForAsyncCompletions::WaitResult result = waitForCompletions.wait(processor.data(),
                                                                                assistInterface,
                                                                                timeOutInMs);
     QTC_ASSERT(result == WaitForAsyncCompletions::GotResults,

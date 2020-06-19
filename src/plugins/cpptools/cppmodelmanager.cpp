@@ -975,7 +975,7 @@ void CppModelManager::watchForCanceledProjectIndexer(const QVector<QFuture<void>
         if (future.isCanceled() || future.isFinished())
             continue;
 
-        auto watcher = new QFutureWatcher<void>();
+        auto watcher = new QFutureWatcher<void>(this);
         connect(watcher, &QFutureWatcher<void>::canceled, this, [this, project, watcher]() {
             if (d->m_projectToIndexerCanceled.contains(project)) // Project not yet removed
                 d->m_projectToIndexerCanceled.insert(project, true);
