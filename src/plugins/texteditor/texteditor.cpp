@@ -4251,7 +4251,7 @@ void TextEditorWidgetPrivate::paintSearchResultOverlay(const PaintEventData &dat
                                                        QPainter &painter) const
 {
     m_searchResultOverlay->clear();
-    if (m_searchExpr.pattern().isEmpty())
+    if (m_searchExpr.pattern().isEmpty() || !m_searchExpr.isValid())
         return;
 
     const int margin = 5;

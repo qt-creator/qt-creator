@@ -251,6 +251,10 @@ QRegularExpressionMatch FileSearchRegExp::doGuardedMatch(const QString &line, in
 void FileSearchRegExp::operator()(QFutureInterface<FileSearchResultList> &futureInterface,
                                   const FileIterator::Item &item) const
 {
+    if (!expression.isValid()) {
+        futureInterface.cancel();
+        return;
+    }
     if (futureInterface.isCanceled())
         return;
     futureInterface.setProgressRange(0, 1);
