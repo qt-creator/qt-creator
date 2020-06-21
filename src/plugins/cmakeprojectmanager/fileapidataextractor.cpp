@@ -525,7 +525,7 @@ void addCompileGroups(ProjectNode *targetRoot,
         FolderNode *insertNode = createSourceGroupNode(td.sourceGroups[i],
                                                        baseDirectory,
                                                        targetRoot);
-        insertNode->addNestedNodes(std::move(sourceGroupFileNodes[i]));
+        insertNode->addNestedNodes(std::move(current), baseDirectory);
     }
 
     addCMakeVFolder(targetRoot,
