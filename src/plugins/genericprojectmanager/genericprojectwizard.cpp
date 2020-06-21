@@ -29,6 +29,7 @@
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/customwizard/customwizard.h>
 
 #include <app/app_version.h>
@@ -112,7 +113,7 @@ QString GenericProjectWizardDialog::projectName() const
 GenericProjectWizard::GenericProjectWizard()
 {
     setSupportedProjectTypes({Constants::GENERICPROJECT_ID});
-    setIcon(QIcon(QLatin1String(":/genericprojectmanager/images/genericprojectmanager.png")));
+    setIcon(ProjectExplorer::Icons::WIZARD_IMPORT_AS_PROJECT.icon());
     setDisplayName(tr("Import Existing Project"));
     setId("Z.Makefile");
     setDescription(tr("Imports existing projects that do not use qmake, CMake or Autotools. "

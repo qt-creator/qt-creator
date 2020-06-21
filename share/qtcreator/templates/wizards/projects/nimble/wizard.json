@@ -9,7 +9,7 @@
     "featuresRequired":[
         "ToolChain.Nim.NimToolChain"
     ],
-    "icon":"icon.png",
+    "icon":"../nim/icon.png",
     "enabled":"%{JS: value('Plugins').indexOf('Nim') >= 0 }",
     "options":[
         {

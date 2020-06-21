@@ -16,5 +16,3 @@ SOURCES = genericproject.cpp \
     genericmakestep.cpp \
     genericbuildconfiguration.cpp \
     filesselectionwizardpage.cpp
-
-RESOURCES += genericprojectmanager.qrc

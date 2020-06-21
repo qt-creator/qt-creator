@@ -84,12 +84,7 @@ Project {
         Group {
             name: "Wizard Images"
             prefix: "wizards/images/"
-            files: [
-                "console.png",
-                "gui.png",
-                "lib.png",
-                "qtquickapp.png",
-            ]
+            files: ["*.png"]
         }
 
         Export {

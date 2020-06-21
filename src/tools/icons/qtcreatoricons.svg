@@ -1828,7 +1828,7 @@
          style="fill:#6b7080;fill-opacity:1" />
     </g>
     <g
-       id="src/plugins/qmakeprojectmanager/wizards/images/lib">
+       id="share/qtcreator/templates/wizards/global/lib">
       <use
          transform="translate(240)"
          style="display:inline"
@@ -1881,7 +1881,7 @@
       </g>
     </g>
     <g
-       id="share/qtcreator/templates/wizards/qtquick2-extension/lib">
+       id="share/qtcreator/templates/wizards/projects/qtquick2-extension/lib">
       <use
          transform="translate(300)"
          style="display:inline"
@@ -2259,7 +2259,7 @@
          sodipodi:nodetypes="ccccccccccccccccccccccccccccccssssccccsscccssccssssscccssccccsccccssssscssscccsscccssscsccsscccc" />
     </g>
     <g
-       id="src/plugins/genericprojectmanager/images/genericprojectmanager"
+       id="src/plugins/projectexplorer/images/importasproject"
        transform="translate(60)"
        style="filter:url(#filter4057)">
       <use
@@ -2278,14 +2278,6 @@
          d="m 633,160 v 19 h 7.73077 L 626,199 611.26923,179 H 619 v -19 z"
          style="fill:#848895" />
     </g>
-    <use
-       x="0"
-       y="0"
-       xlink:href="#src/plugins/genericprojectmanager/images/genericprojectmanager"
-       id="src/plugins/qmakeprojectmanager/images/qmakeprojectmanager"
-       transform="translate(60)"
-       width="100%"
-       height="100%" />
     <g
        id="share/qtcreator/templates/wizards/projects/vcs/cvs/icon"
        transform="translate(120)"
@@ -2639,14 +2631,6 @@
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cccccccccccc" />
     </g>
-    <use
-       x="0"
-       y="0"
-       xlink:href="#share/qtcreator/templates/wizards/global/consoleapplication"
-       id="src/plugins/qmakeprojectmanager/wizards/images/console"
-       transform="translate(60,0)"
-       width="100%"
-       height="100%" />
     <g
        id="share/qtcreator/templates/wizards/global/guiapplication"
        transform="translate(-158.5,-80)">
@@ -2730,7 +2714,7 @@
          x="0" />
     </g>
     <g
-       id="share/qtcreator/templates/wizards/projects/qtforpythonapplication/mainwindow/icon">
+       id="share/qtcreator/templates/wizards/projects/qtforpythonapplication/icons/icon">
       <use
          style="display:inline"
          x="0"
@@ -2986,7 +2970,7 @@
          inkscape:connector-curvature="0" />
     </g>
     <g
-       id="src/plugins/cpptools/images/settingscategory_cpp"
+       id="src/plugins/projectexplorer/images/settingscategory_cpp"
        transform="translate(-328,-84)">
       <use
          x="0"
@@ -3988,36 +3972,6 @@
          xlink:href="#big_debugger_function"
          y="0"
          x="0" />
-    </g>
-    <g
-       transform="translate(52)"
-       id="src/plugins/projectexplorer/images/macos_touchbar_debug_start">
-      <use
-         transform="translate(596,-132)"
-         height="100%"
-         width="100%"
-         id="use2428-8-9"
-         xlink:href="#transparentBackgroundRect_22"
-         y="0"
-         x="0" />
-      <use
-         transform="translate(307,-254.5)"
-         style="display:inline;fill:#4d4d4d"
-         x="0"
-         y="0"
-         xlink:href="#play_small"
-         id="use4017"
-         width="100%"
-         height="100%" />
-      <use
-         transform="translate(-192,266)"
-         style="display:inline"
-         x="0"
-         y="0"
-         xlink:href="#big_bug"
-         id="use4013"
-         width="100%"
-         height="100%" />
     </g>
     <g
        transform="translate(75,2.38e-4)"
@@ -5471,7 +5425,7 @@
          sodipodi:nodetypes="cc" />
     </g>
     <g
-       id="src/plugins/autotest/images/runselected_boxes"
+       id="src/libs/utils/images/runselected_boxes"
        transform="translate(16,0)">
       <rect
          style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none"
@@ -5501,7 +5455,7 @@
          height="100%" />
     </g>
     <g
-       id="src/plugins/autotest/images/runselected_tickmarks"
+       id="src/libs/utils/images/runselected_tickmarks"
        transform="translate(32,0)">
       <rect
          id="rect4757"
@@ -10013,7 +9967,7 @@
     </g>
     <g
        transform="translate(-247.75,309.5)"
-       id="../boot2qt/common/images/boot2qtdevice">
+       id="src/plugins/boot2qt/images/qdbdevice">
       <use
          transform="translate(458.75,6.5)"
          style="display:inline"
@@ -10104,7 +10058,7 @@
          inkscape:label="#rect5338" />
     </g>
     <g
-       id="../boot2qt/common/images/boot2qtdevicesmall"
+       id="src/plugins/boot2qt/images/qdbdevicesmall"
        transform="translate(-318,27)">
       <use
          x="0"
@@ -10178,143 +10132,6 @@
          xlink:href="#rect5349"
          id="use5499"
          transform="translate(12.5,9.5)"
-         width="100%"
-         height="100%" />
-    </g>
-    <g
-       transform="translate(-211.75,309.5)"
-       id="../boot2qt/common/images/boot2qtemulator">
-      <use
-         transform="translate(458.75,6.5)"
-         style="display:inline"
-         x="0"
-         y="0"
-         xlink:href="#backgroundRect_32_28"
-         id="use5913-0-8-1-5-6-8-74-0"
-         width="100%"
-         height="100%" />
-      <rect
-         style="fill:#000000;fill-opacity:1"
-         id="rect7751"
-         width="16"
-         height="16"
-         x="501.75"
-         y="53.5" />
-      <path
-         id="rect7756"
-         style="fill:#b3b3b3"
-         d="m 515.75,54.5 h 1 v 1 h -1 z m -4,0 h 1 v 1 h -1 z m 2,0 h 1 v 1 h -1 z m -11,2 h 14 v 12 h -14 z"
-         inkscape:connector-curvature="0"
-         sodipodi:nodetypes="cccccccccccccccccscc" />
-      <use
-         transform="translate(-3,3)"
-         x="0"
-         y="0"
-         xlink:href="#boottoqtscreen"
-         id="use7563"
-         width="100%"
-         height="100%" />
-      <g
-         id="g7856"
-         transform="translate(2,-3)">
-        <rect
-           y="54.5"
-           x="516.75"
-           height="21"
-           width="13"
-           id="rect7751-5"
-           style="fill:#000000;fill-opacity:1" />
-        <path
-           id="rect5261-2-0-1-9-5"
-           style="fill:#b3b3b3"
-           d="m 528.75,74.5 h -11 V 68 h 11 z m 0,-7 h -11 V 61 h 11 z m 0,-7 h -11 v -3 h 11 z m -5,-5 h 1 v 1 h -1 z m 2,0 h 1 v 1 h -1 z m 2,0 h 1 v 1 h -1 z"
-           inkscape:connector-curvature="0"
-           sodipodi:nodetypes="cccccccccccccccccccccccccccccc" />
-      </g>
-      <path
-         inkscape:connector-curvature="0"
-         id="rect7899-2-7-1-7"
-         style="fill:#333333"
-         d="m 525.75,68.5 h 4 v 1 h -4 z m -5,0 h 4 v 1 h -4 z m 5,-2 h 4 v 1 h -4 z m -3,0 h 2 v 1 h -2 z m 3,-5 h 4 v 1 h -4 z m -3,0 h 2 v 1 h -2 z m 3,-2 h 4 v 1 h -4 z m -5,0 h 4 v 1 h -4 z m 5,-4 h 4 v 1 h -4 z m -4,0 h 3 v 1 h -3 z"
-         sodipodi:nodetypes="cccccccccccccccccccccccccccccccccccccccccccccccccc" />
-    </g>
-    <g
-       id="../boot2qt/common/images/boot2qtemulatorsmall"
-       transform="translate(-282,27)">
-      <use
-         x="0"
-         y="0"
-         xlink:href="#backgroundRect"
-         id="use6054-6"
-         width="100%"
-         height="100%"
-         transform="translate(586,-73)" />
-      <rect
-         style="fill:#000000;fill-opacity:1"
-         id="rect7751-2"
-         width="12"
-         height="12"
-         x="572"
-         y="365" />
-      <path
-         id="rect7756-5"
-         style="fill:#b3b3b3"
-         d="m 582,366 h 1 v 1 h -1 z m -4,0 h 1 v 1 h -1 z m 2,0 h 1 v 1 h -1 z m -7,2 h 10 v 8 h -10 z"
-         inkscape:connector-curvature="0"
-         sodipodi:nodetypes="cccccccccccccccccscc" />
-      <use
-         transform="translate(1,2)"
-         x="0"
-         y="0"
-         xlink:href="#boottoqtscreensmall"
-         id="use8195"
-         width="100%"
-         height="100%" />
-    </g>
-    <g
-       transform="translate(-175.75,309.5)"
-       id="../boot2qt/common/images/boot2qtstartvm">
-      <use
-         transform="translate(458.75,6.5)"
-         style="display:inline"
-         x="0"
-         y="0"
-         xlink:href="#backgroundRect_32_28"
-         id="use5913-0-8-1-5-6-8-74-6"
-         width="100%"
-         height="100%" />
-      <use
-         x="0"
-         y="0"
-         xlink:href="#rect8268"
-         id="use8300"
-         transform="translate(-5,-4)"
-         width="100%"
-         height="100%" />
-      <rect
-         style="stroke:#ffffff;stroke-width:2"
-         id="rect8268-8"
-         width="21"
-         height="17"
-         x="508.25"
-         y="55"
-         rx="2"
-         ry="2" />
-      <rect
-         style="fill:#b3b3b3;fill-opacity:1;stroke:#000000"
-         id="rect8268"
-         width="21"
-         height="17"
-         x="508.25"
-         y="55"
-         rx="2"
-         ry="2" />
-      <use
-         transform="translate(6,4)"
-         x="0"
-         y="0"
-         xlink:href="#boottoqtscreen"
-         id="use7563-3"
          width="100%"
          height="100%" />
     </g>
