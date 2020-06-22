@@ -143,6 +143,32 @@ protected:
     DockOverlay *dockAreaOverlay() const;
 
     /**
+     * A container needs to call this function if a widget has been dropped
+     * into it
+     */
+    void notifyWidgetOrAreaRelocation(QWidget *droppedWidget);
+
+    /**
+     * This function is called, if a floating widget has been dropped into
+     * an new position.
+     * When this function is called, all dock widgets of the FloatingWidget
+     * are already inserted into its new position
+     */
+    void notifyFloatingWidgetDrop(FloatingDockContainer *floatingWidget);
+
+    /**
+     * This function is called, if the given DockWidget has been relocated from
+     * the old container ContainerOld to the new container DockWidget->dockContainer()
+     */
+    void notifyDockWidgetRelocation(DockWidget *dockWidget, DockContainerWidget *containerOld);
+
+    /**
+     * This function is called, if the given DockAreahas been relocated from
+     * the old container ContainerOld to the new container DockArea->dockContainer()
+     */
+    void notifyDockAreaRelocation(DockAreaWidget *dockArea, DockContainerWidget *containerOld);
+
+    /**
      * Show the floating widgets that has been created floating
      */
     void showEvent(QShowEvent *event) override;
@@ -190,11 +216,18 @@ public:
         DockAreaHideDisabledButtons
         = 0x10000, //!< If the flag is set disabled dock area buttons will not appear on the tollbar at all (enabling them will bring them back)
         DockAreaDynamicTabsMenuButtonVisibility
-        = 0x20000, //!< If the flag is set dock area will disable a tabs menu button when there is only one tab in the area
+        = 0x20000, //!< If the flag is set, the tabs menu button will be shown only when it is required - that means, if the tabs are elided. If the tabs are not elided, it is hidden
         FloatingContainerHasWidgetTitle
-        = 0x40000,
+        = 0x40000, //!< If set, the Floating Widget window title reflects the title of the current dock widget otherwise it displays application name as window title
         FloatingContainerHasWidgetIcon
-        = 0x80000,
+        = 0x80000, //!< If set, the Floating Widget icon reflects the icon of the current dock widget otherwise it displays application icon
+        HideSingleCentralWidgetTitleBar
+        = 0x100000, //!< If there is only one single visible dock widget in the main dock container (the dock manager) and if this flag is set, then the titlebar of this dock widget will be hidden
+                    //!< this only makes sense for non draggable and non floatable widgets and enables the creation of some kind of "central" widget
+        FocusHighlighting
+        = 0x200000, //!< enables styling of focused dock widget tabs or floating widget titlebar
+        EqualSplitOnInsertion
+        = 0x400000, ///!< if enabled, the space is equally distributed to all widgets in a splitter
 
         DefaultDockAreaButtons = DockAreaHasCloseButton
                                | DockAreaHasUndockButton
@@ -266,6 +299,19 @@ public:
      * hold down before a dock widget start floating.
      */
     static int startDragDistance();
+
+    /**
+     * Helper function to set focus depending on the configuration of the
+     * FocusStyling flag
+     */
+    template <class QWidgetPtr>
+    static void setWidgetFocus(QWidgetPtr widget)
+    {
+        if (!DockManager::testConfigFlag(DockManager::FocusHighlighting))
+            return;
+
+        widget->setFocus(Qt::OtherFocusReason);
+    }
 
     /**
      * Set the QtCreator settings.
@@ -358,8 +404,12 @@ public:
      * If auto formatting is enabled, the output is intended and line wrapped.
      * The XmlMode XmlAutoFormattingDisabled is better if you would like to have
      * a more compact XML output - i.e. for storage in ini files.
+     * The version number is stored as part of the data.
+     * To restore the saved state, pass the return value and version number
+     * to restoreState().
+     * \see restoreState()
      */
-    QByteArray saveState(int version = Version1) const;
+    QByteArray saveState(int version = 0) const;
 
     /**
      * Restores the state of this dockmanagers dockwidgets.
@@ -367,14 +417,22 @@ public:
      * not match, the dockmanager's state is left unchanged, and this function
      * returns false; otherwise, the state is restored, and this function
      * returns true.
+     * \see saveState()
      */
-    bool restoreState(const QByteArray &state, int version = Version1);
+    bool restoreState(const QByteArray &state, int version = 0);
 
     /**
      * This function returns true between the restoringState() and
      * stateRestored() signals.
      */
     bool isRestoringState() const;
+
+    /**
+     * Request a focus change to the given dock widget.
+     * This function only has an effect, if the flag CDockManager::FocusStyling
+     * is enabled
+     */
+    void setDockWidgetFocused(DockWidget *dockWidget);
 
 signals:
     /**
@@ -443,6 +501,13 @@ signals:
      * docking system but it is not deleted yet.
      */
     void dockWidgetRemoved(DockWidget *dockWidget);
+
+    /**
+     * This signal is emitted if the focused dock widget changed.
+     * Both old and now can be nullptr.
+     * The focused dock widget is the one that is highlighted in the GUI
+     */
+    void focusedDockWidgetChanged(DockWidget *old, DockWidget *now);
 
 public:
     void showWorkspaceMananger();

@@ -7,6 +7,7 @@ add_qtc_library(AdvancedDockingSystem
     dockareawidget.cpp dockareawidget.h
     dockcomponentsfactory.cpp dockcomponentsfactory.h
     dockcontainerwidget.cpp dockcontainerwidget.h
+    dockfocuscontroller.cpp dockfocuscontroller.h
     dockingstatereader.cpp dockingstatereader.h
     dockmanager.cpp dockmanager.h
     dockoverlay.cpp dockoverlay.h
@@ -21,7 +22,6 @@ add_qtc_library(AdvancedDockingSystem
     workspacemodel.cpp workspacemodel.h
     workspaceview.cpp workspaceview.h
     workspacedialog.ui
-    resources.qrc
 )
 
 extend_qtc_library(AdvancedDockingSystem

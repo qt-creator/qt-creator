@@ -59,6 +59,7 @@ private:
     DockWidgetTabPrivate *d; ///< private data (pimpl)
     friend class DockWidgetTabPrivate;
     friend class DockWidget;
+    friend class DockManager;
     void onDockWidgetFeaturesChanged();
     void detachDockWidget();
 
@@ -149,6 +150,16 @@ public:
      * Track event ToolTipChange and set child ToolTip
      */
     bool event(QEvent *event) override;
+
+    /**
+     * Sets the text elide mode
+     */
+    void setElideMode(Qt::TextElideMode mode);
+
+    /**
+     * Update stylesheet style if a property changes
+     */
+    void updateStyle();
 
     void setVisible(bool visible) override;
 

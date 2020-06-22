@@ -5,9 +5,6 @@ shared {
 }
 
 ## Input
-RESOURCES += \
-    resources.qrc
-
 HEADERS += \
     ads_globals.h \
     dockareatabbar.h \
@@ -15,6 +12,7 @@ HEADERS += \
     dockareawidget.h \
     dockcomponentsfactory.h \
     dockcontainerwidget.h \
+    dockfocuscontroller.h \
     dockingstatereader.h \
     dockmanager.h \
     dockoverlay.h \
@@ -36,6 +34,7 @@ SOURCES += \
     dockareawidget.cpp \
     dockcomponentsfactory.cpp \
     dockcontainerwidget.cpp \
+    dockfocuscontroller.cpp \
     dockingstatereader.cpp \
     dockmanager.cpp \
     dockoverlay.cpp \

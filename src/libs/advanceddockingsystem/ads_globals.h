@@ -72,8 +72,6 @@ QT_END_NAMESPACE
 
 namespace ADS {
 
-enum eStateFileVersion { InitialVerison = 0, Version1 = 1, CurrentVersion = Version1 };
-
 class DockSplitter;
 
 enum DockWidgetArea {
@@ -227,6 +225,19 @@ void setToolTip(QObjectPtr obj, const QString &tip)
  */
 void setButtonIcon(QAbstractButton *button, QStyle::StandardPixmap standarPixmap,
     ADS::eIcon CustomIconId);
+
+enum eRepolishChildOptions
+{
+    RepolishIgnoreChildren,
+    RepolishDirectChildren,
+    RepolishChildrenRecursively
+};
+
+/**
+ * Calls unpolish() / polish for the style of the given widget to update
+ * stylesheet if a property changes
+ */
+void repolishStyle(QWidget *widget, eRepolishChildOptions options = RepolishIgnoreChildren);
 
 } // namespace internal
 } // namespace ADS

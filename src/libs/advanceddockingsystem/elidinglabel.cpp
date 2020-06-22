@@ -115,9 +115,8 @@ namespace ADS {
     void ElidingLabel::mouseReleaseEvent(QMouseEvent *event)
     {
         Super::mouseReleaseEvent(event);
-        if (event->button() != Qt::LeftButton) {
+        if (event->button() != Qt::LeftButton)
             return;
-        }
 
         emit clicked();
     }
@@ -131,17 +130,17 @@ namespace ADS {
 
     void ElidingLabel::resizeEvent(QResizeEvent *event)
     {
-        if (!d->isModeElideNone()) {
+        if (!d->isModeElideNone())
             d->elideText(event->size().width());
-        }
+
         Super::resizeEvent(event);
     }
 
     QSize ElidingLabel::minimumSizeHint() const
     {
-        if (pixmap() != nullptr || d->isModeElideNone()) {
+        if (pixmap() != nullptr || d->isModeElideNone())
             return QLabel::minimumSizeHint();
-        }
+
         const QFontMetrics &fm = fontMetrics();
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
         QSize size(fm.horizontalAdvance(d->m_text.left(2) + "…"), fm.height());
@@ -153,9 +152,9 @@ namespace ADS {
 
     QSize ElidingLabel::sizeHint() const
     {
-        if (pixmap() != nullptr || d->isModeElideNone()) {
+        if (pixmap() != nullptr || d->isModeElideNone())
             return QLabel::sizeHint();
-        }
+
         const QFontMetrics &fm = fontMetrics();
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
         QSize size(fm.horizontalAdvance(d->m_text), QLabel::sizeHint().height());
@@ -167,10 +166,10 @@ namespace ADS {
 
     void ElidingLabel::setText(const QString &text)
     {
+        d->m_text = text;
         if (d->isModeElideNone()) {
             Super::setText(text);
         } else {
-            d->m_text = text;
             internal::setToolTip(this, text);
             d->elideText(this->size().width());
         }

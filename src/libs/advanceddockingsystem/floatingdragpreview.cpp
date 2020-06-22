@@ -62,7 +62,6 @@ namespace ADS
         FloatingDragPreview *q;
         QWidget *m_content = nullptr;
         DockAreaWidget *m_contentSourceArea = nullptr;
-        DockContainerWidget *m_contenSourceContainer = nullptr;
         QPoint m_dragStartMousePosition;
         DockManager *m_dockManager = nullptr;
         DockContainerWidget *m_dropContainer = nullptr;
@@ -93,6 +92,12 @@ namespace ADS
             m_dockManager->dockAreaOverlay()->hideOverlay();
             q->close();
         }
+
+        /**
+         * Creates the real floating widget in case the mouse is released outside
+         * outside of any drop area
+         */
+        void createFloatingWidget();
     }; // class FloatingDragPreviewPrivate
 
     void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &globalPosition)
@@ -106,7 +111,7 @@ namespace ADS
             if (!containerWidget->isVisible())
                 continue;
 
-            QPoint mappedPosition = containerWidget->mapFromGlobal(globalPosition);
+            const QPoint mappedPosition = containerWidget->mapFromGlobal(globalPosition);
             if (containerWidget->rect().contains(mappedPosition)) {
                 if (!topContainer || containerWidget->isInFrontOf(topContainer))
                     topContainer = containerWidget;
@@ -122,18 +127,16 @@ namespace ADS
         if (!topContainer) {
             containerOverlay->hideOverlay();
             dockAreaOverlay->hideOverlay();
-            if (DockManager::configFlags().testFlag(DockManager::DragPreviewIsDynamic))
+            if (DockManager::testConfigFlag(DockManager::DragPreviewIsDynamic))
                 setHidden(false);
 
             return;
         }
 
-        int visibleDockAreas = topContainer->visibleDockAreaCount();
+        const int visibleDockAreas = topContainer->visibleDockAreaCount();
         containerOverlay->setAllowedAreas(visibleDockAreas > 1 ? OuterDockAreas : AllDockAreas);
-        DockWidgetArea containerArea = containerOverlay->showOverlay(topContainer);
-        containerOverlay->enableDropPreview(containerArea != InvalidDockWidgetArea);
         auto dockArea = topContainer->dockAreaAt(globalPosition);
-        if (dockArea && dockArea->isVisible() && visibleDockAreas > 0
+        if (dockArea && dockArea->isVisible() && visibleDockAreas >= 0
             && dockArea != m_contentSourceArea) {
             dockAreaOverlay->enableDropPreview(true);
             dockAreaOverlay->setAllowedAreas((visibleDockAreas == 1) ? NoDockWidgetArea
@@ -143,25 +146,28 @@ namespace ADS
             // A CenterDockWidgetArea for the dockAreaOverlay() indicates that the mouse is in the
             // title bar. If the ContainerArea is valid then we ignore the dock area of the
             // dockAreaOverlay() and disable the drop preview
-            if ((area == CenterDockWidgetArea) && (containerArea != InvalidDockWidgetArea)) {
+            if ((area == CenterDockWidgetArea) && (containerDropArea != InvalidDockWidgetArea)) {
                 dockAreaOverlay->enableDropPreview(false);
                 containerOverlay->enableDropPreview(true);
             } else {
                 containerOverlay->enableDropPreview(InvalidDockWidgetArea == area);
             }
+            containerOverlay->showOverlay(topContainer);
         } else {
             dockAreaOverlay->hideOverlay();
             // If there is only one single visible dock area in a container, then
             // it does not make sense to show a dock overlay because the dock area
             // would be removed and inserted at the same position
             if (visibleDockAreas <= 1)
-                containerOverlay->hide();
+                containerOverlay->hideOverlay();
+            else
+                containerOverlay->showOverlay(topContainer);
 
             if (dockArea == m_contentSourceArea && InvalidDockWidgetArea == containerDropArea)
                 m_dropContainer = nullptr;
         }
 
-        if (DockManager::configFlags().testFlag(DockManager::DragPreviewIsDynamic)) {
+        if (DockManager::testConfigFlag(DockManager::DragPreviewIsDynamic)) {
             setHidden(dockDropArea != InvalidDockWidgetArea
                       || containerDropArea != InvalidDockWidgetArea);
         }
@@ -171,13 +177,38 @@ namespace ADS
         : q(parent)
     {}
 
+    void FloatingDragPreviewPrivate::createFloatingWidget()
+    {
+        DockWidget *dockWidget = qobject_cast<DockWidget *>(m_content);
+        DockAreaWidget *dockArea = qobject_cast<DockAreaWidget *>(m_content);
+
+        FloatingDockContainer *floatingWidget = nullptr;
+
+        if (dockWidget && dockWidget->features().testFlag(DockWidget::DockWidgetFloatable))
+            floatingWidget = new FloatingDockContainer(dockWidget);
+        else if (dockArea && dockArea->features().testFlag(DockWidget::DockWidgetFloatable))
+            floatingWidget = new FloatingDockContainer(dockArea);
+
+        if (floatingWidget) {
+            floatingWidget->setGeometry(q->geometry());
+            floatingWidget->show();
+            if (!DockManager::testConfigFlag(DockManager::DragPreviewHasWindowFrame)) {
+                QApplication::processEvents();
+                int frameHeight = floatingWidget->frameGeometry().height() - floatingWidget->geometry().height();
+                QRect fixedGeometry = q->geometry();
+                fixedGeometry.adjust(0, frameHeight, 0, 0);
+                floatingWidget->setGeometry(fixedGeometry);
+            }
+        }
+    }
+
     FloatingDragPreview::FloatingDragPreview(QWidget *content, QWidget *parent)
         : QWidget(parent)
         , d(new FloatingDragPreviewPrivate(this))
     {
         d->m_content = content;
         setAttribute(Qt::WA_DeleteOnClose);
-        if (DockManager::configFlags().testFlag(DockManager::DragPreviewHasWindowFrame)) {
+        if (DockManager::testConfigFlag(DockManager::DragPreviewHasWindowFrame)) {
             setWindowFlags(Qt::Window | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
         } else {
             setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
@@ -195,7 +226,7 @@ namespace ADS
 
         // Create a static image of the widget that should get undocked
         // This is like some kind preview image like it is uses in drag and drop operations
-        if (DockManager::configFlags().testFlag(DockManager::DragPreviewShowsContentPixmap)) {
+        if (DockManager::testConfigFlag(DockManager::DragPreviewShowsContentPixmap)) {
             d->m_contentPreviewPixmap = QPixmap(content->size());
             content->render(&d->m_contentPreviewPixmap);
         }
@@ -213,10 +244,9 @@ namespace ADS
                               content->dockManager()) // TODO static_cast?
     {
         d->m_dockManager = content->dockManager();
-        if (content->dockAreaWidget()->openDockWidgetsCount() == 1) {
+        if (content->dockAreaWidget()->openDockWidgetsCount() == 1)
             d->m_contentSourceArea = content->dockAreaWidget();
-            d->m_contenSourceContainer = content->dockContainer();
-        }
+
         setWindowTitle(content->windowTitle());
     }
 
@@ -226,7 +256,6 @@ namespace ADS
     {
         d->m_dockManager = content->dockManager();
         d->m_contentSourceArea = content;
-        d->m_contenSourceContainer = content->dockContainer();
         setWindowTitle(content->currentDockWidget()->windowTitle());
     }
 
@@ -234,10 +263,11 @@ namespace ADS
 
     void FloatingDragPreview::moveFloating()
     {
-        int borderSize = (frameSize().width() - size().width()) / 2;
+        const int borderSize = (frameSize().width() - size().width()) / 2;
         const QPoint moveToPos = QCursor::pos() - d->m_dragStartMousePosition
                                  - QPoint(borderSize, 0);
         move(moveToPos);
+        d->updateDropOverlays(QCursor::pos());
     }
 
     void FloatingDragPreview::startFloating(const QPoint &dragStartMousePos,
@@ -253,46 +283,24 @@ namespace ADS
         show();
     }
 
-    void FloatingDragPreview::moveEvent(QMoveEvent *event)
-    {
-        QWidget::moveEvent(event);
-        d->updateDropOverlays(QCursor::pos());
-    }
-
     void FloatingDragPreview::finishDragging()
     {
         qCInfo(adsLog) << Q_FUNC_INFO;
         auto dockDropArea = d->m_dockManager->dockAreaOverlay()->visibleDropAreaUnderCursor();
         auto containerDropArea = d->m_dockManager->containerOverlay()->visibleDropAreaUnderCursor();
-        if (d->m_dropContainer && (dockDropArea != InvalidDockWidgetArea)) {
-            d->m_dropContainer->dropWidget(d->m_content,
-                                           dockDropArea,
-                                           d->m_dropContainer->dockAreaAt(QCursor::pos()));
-        } else if (d->m_dropContainer && (containerDropArea != InvalidDockWidgetArea)) {
-            d->m_dropContainer->dropWidget(d->m_content, containerDropArea, nullptr);
+        if (!d->m_dropContainer) {
+            d->createFloatingWidget();
+        } else if (dockDropArea != InvalidDockWidgetArea) {
+            d->m_dropContainer->dropWidget(d->m_content, dockDropArea, d->m_dropContainer->dockAreaAt(QCursor::pos()));
+        } else if (containerDropArea != InvalidDockWidgetArea) {
+            // If there is only one single dock area, and we drop into the center
+            // then we tabify the dropped widget into the only visible dock area
+            if (d->m_dropContainer->visibleDockAreaCount() <= 1 && CenterDockWidgetArea == containerDropArea)
+                d->m_dropContainer->dropWidget(d->m_content, containerDropArea, d->m_dropContainer->dockAreaAt(QCursor::pos()));
+            else
+                d->m_dropContainer->dropWidget(d->m_content, containerDropArea, nullptr);
         } else {
-            DockWidget *dockWidget = qobject_cast<DockWidget *>(d->m_content);
-            FloatingDockContainer *floatingWidget = nullptr;
-
-            if (dockWidget && dockWidget->features().testFlag(DockWidget::DockWidgetFloatable)) {
-                floatingWidget = new FloatingDockContainer(dockWidget);
-            } else {
-                DockAreaWidget *dockArea = qobject_cast<DockAreaWidget *>(d->m_content);
-                if (dockArea->features().testFlag(DockWidget::DockWidgetFloatable))
-                    floatingWidget = new FloatingDockContainer(dockArea);
-            }
-
-            if (floatingWidget) {
-                floatingWidget->setGeometry(this->geometry());
-                floatingWidget->show();
-                if (!DockManager::configFlags().testFlag(DockManager::DragPreviewHasWindowFrame)) {
-                    QApplication::processEvents();
-                    int frameHeight = floatingWidget->frameGeometry().height() - floatingWidget->geometry().height();
-                    QRect fixedGeometry = this->geometry();
-                    fixedGeometry.adjust(0, frameHeight, 0, 0);
-                    floatingWidget->setGeometry(fixedGeometry);
-                }
-            }
+            d->createFloatingWidget();
         }
 
         this->close();
@@ -307,11 +315,11 @@ namespace ADS
             return;
 
         QPainter painter(this);
-        if (DockManager::configFlags().testFlag(DockManager::DragPreviewShowsContentPixmap))
+        if (DockManager::testConfigFlag(DockManager::DragPreviewShowsContentPixmap))
             painter.drawPixmap(QPoint(0, 0), d->m_contentPreviewPixmap);
 
         // If we do not have a window frame then we paint a QRubberBand like frameless window
-        if (!DockManager::configFlags().testFlag(DockManager::DragPreviewHasWindowFrame)) {
+        if (!DockManager::testConfigFlag(DockManager::DragPreviewHasWindowFrame)) {
             QColor color = palette().color(QPalette::Active, QPalette::Highlight);
             QPen pen = painter.pen();
             pen.setColor(color.darker(120));

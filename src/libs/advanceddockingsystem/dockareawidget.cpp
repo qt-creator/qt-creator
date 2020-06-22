@@ -103,16 +103,15 @@ namespace ADS
         void insertWidget(int index, QWidget *widget)
         {
             widget->setParent(nullptr);
-            if (index < 0) {
+            if (index < 0)
                 index = m_widgets.count();
-            }
+
             m_widgets.insert(index, widget);
             if (m_currentIndex < 0) {
                 setCurrentIndex(index);
             } else {
-                if (index <= m_currentIndex) {
+                if (index <= m_currentIndex)
                     ++m_currentIndex;
-                }
             }
         }
 
@@ -123,11 +122,13 @@ namespace ADS
         {
             if (currentWidget() == widget) {
                 auto layoutItem = m_parentLayout->takeAt(1);
-                if (layoutItem) {
+                if (layoutItem)
                     layoutItem->widget()->setParent(nullptr);
-                }
+
                 m_currentWidget = nullptr;
                 m_currentIndex = -1;
+            } else if (indexOf(widget) < m_currentIndex) {
+                --m_currentIndex;
             }
             m_widgets.removeOne(widget);
         }
@@ -144,9 +145,8 @@ namespace ADS
         {
             QWidget *prev = currentWidget();
             QWidget *next = widget(index);
-            if (!next || (next == prev && !m_currentWidget)) {
+            if (!next || (next == prev && !m_currentWidget))
                 return;
-            }
 
             bool reenableUpdates = false;
             QWidget *parent = m_parentLayout->parentWidget();
@@ -156,22 +156,18 @@ namespace ADS
                 parent->setUpdatesEnabled(false);
             }
 
-            // TODO
-            auto layoutItem = m_parentLayout->takeAt(1);
-            if (layoutItem) {
+            if (auto layoutItem = m_parentLayout->takeAt(1))
                 layoutItem->widget()->setParent(nullptr);
-            }
 
             m_parentLayout->addWidget(next);
-            if (prev) {
+            if (prev)
                 prev->hide();
-            }
+
             m_currentIndex = index;
             m_currentWidget = next;
 
-            if (reenableUpdates) {
+            if (reenableUpdates)
                 parent->setUpdatesEnabled(true);
-            }
         }
 
         /**
@@ -262,7 +258,7 @@ namespace ADS
         DockAreaTabBar *tabBar() const { return m_titleBar->tabBar(); }
 
         /**
-         * Udpates the enable state of the close and detach button
+         * Updates the enable state of the close and detach button
          */
         void updateTitleBarButtonStates();
 
@@ -330,9 +326,8 @@ namespace ADS
 
         d->createTitleBar();
         d->m_contentsLayout = new DockAreaLayout(d->m_layout);
-        if (d->m_dockManager) {
+        if (d->m_dockManager)
             emit d->m_dockManager->dockAreaCreated(this);
-        }
     }
 
     DockAreaWidget::~DockAreaWidget()
@@ -357,6 +352,7 @@ namespace ADS
     void DockAreaWidget::insertDockWidget(int index, DockWidget *dockWidget, bool activate)
     {
         d->m_contentsLayout->insertWidget(index, dockWidget);
+        dockWidget->setDockArea(this);
         dockWidget->tabWidget()->setDockAreaWidget(this);
         auto tabWidget = dockWidget->tabWidget();
         // Inserting the tab will change the current index which in turn will
@@ -370,10 +366,14 @@ namespace ADS
                                         dockWidget->minimumSizeHint().height()));
         d->m_minSizeHint.setWidth(qMax(d->m_minSizeHint.width(),
                                        dockWidget->minimumSizeHint().width()));
-        if (activate) {
+        if (activate)
             setCurrentIndex(index);
-        }
-        dockWidget->setDockArea(this);
+
+        // If this dock area is hidden, then we need to make it visible again
+        // by calling dockWidget->toggleViewInternal(true);
+        if (!this->isVisible() && d->m_contentsLayout->count() > 1 && !dockManager()->isRestoringState())
+            dockWidget->toggleViewInternal(true);
+
         d->updateTitleBarButtonStates();
     }
 
@@ -389,7 +389,7 @@ namespace ADS
         DockContainerWidget *dockContainerWidget = dockContainer();
         if (nextOpen) {
             setCurrentDockWidget(nextOpen);
-        } else if (d->m_contentsLayout->isEmpty() && dockContainerWidget->dockAreaCount() > 1) {
+        } else if (d->m_contentsLayout->isEmpty() && dockContainerWidget->dockAreaCount() >= 1) {
             qCInfo(adsLog) << "Dock Area empty";
             dockContainerWidget->removeDockArea(this);
             this->deleteLater();
@@ -404,9 +404,8 @@ namespace ADS
         updateTitleBarVisibility();
         d->updateMinimumSizeHint();
         auto topLevelDockWidget = dockContainerWidget->topLevelDockWidget();
-        if (topLevelDockWidget) {
+        if (topLevelDockWidget)
             topLevelDockWidget->emitTopLevelChanged(true);
-        }
 
 #if (ADS_DEBUG_LEVEL > 0)
         dockContainerWidget->dumpLayout();
@@ -423,17 +422,19 @@ namespace ADS
 
         //Hide empty floating widget
         DockContainerWidget *container = this->dockContainer();
-        if (!container->isFloating()) {
+        if (!container->isFloating()
+            && DockManager::testConfigFlag(DockManager::HideSingleCentralWidgetTitleBar))
             return;
-        }
 
         updateTitleBarVisibility();
         auto topLevelWidget = container->topLevelDockWidget();
         auto floatingWidget = container->floatingWidget();
         if (topLevelWidget) {
-            floatingWidget->updateWindowTitle();
+            if (floatingWidget)
+                floatingWidget->updateWindowTitle();
+
             DockWidget::emitTopLevelEventForWidget(topLevelWidget, true);
-        } else if (container->openedDockAreas().isEmpty()) {
+        } else if (container->openedDockAreas().isEmpty() && floatingWidget) {
             floatingWidget->hide();
         }
     }
@@ -442,28 +443,25 @@ namespace ADS
     {
         qCInfo(adsLog) << Q_FUNC_INFO << "index" << index;
         auto *currentDockWidget = dockWidget(index);
-        if (currentDockWidget->features().testFlag(DockWidget::DockWidgetDeleteOnClose)) {
+        if (currentDockWidget->features().testFlag(DockWidget::DockWidgetDeleteOnClose))
             currentDockWidget->closeDockWidgetInternal();
-        } else {
+        else
             currentDockWidget->toggleView(false);
-        }
     }
 
     DockWidget *DockAreaWidget::currentDockWidget() const
     {
         int currentIdx = currentIndex();
-        if (currentIdx < 0) {
+        if (currentIdx < 0)
             return nullptr;
-        }
 
         return dockWidget(currentIdx);
     }
 
     void DockAreaWidget::setCurrentDockWidget(DockWidget *dockWidget)
     {
-        if (dockManager()->isRestoringState()) {
+        if (dockManager()->isRestoringState())
             return;
-        }
 
         internalSetCurrentDockWidget(dockWidget);
     }
@@ -471,9 +469,8 @@ namespace ADS
     void DockAreaWidget::internalSetCurrentDockWidget(DockWidget *dockWidget)
     {
         int index = indexOf(dockWidget);
-        if (index < 0) {
+        if (index < 0)
             return;
-        }
 
         setCurrentIndex(index);
     }
@@ -488,9 +485,8 @@ namespace ADS
 
         auto cw = d->m_contentsLayout->currentWidget();
         auto nw = d->m_contentsLayout->widget(index);
-        if (cw == nw && !nw->isHidden()) {
+        if (cw == nw && !nw->isHidden())
             return;
-        }
 
         emit currentChanging(index);
         currentTabBar->setCurrentIndex(index);
@@ -513,9 +509,9 @@ namespace ADS
     QList<DockWidget *> DockAreaWidget::dockWidgets() const
     {
         QList<DockWidget *> dockWidgetList;
-        for (int i = 0; i < d->m_contentsLayout->count(); ++i) {
+        for (int i = 0; i < d->m_contentsLayout->count(); ++i)
             dockWidgetList.append(dockWidget(i));
-        }
+
         return dockWidgetList;
     }
 
@@ -523,9 +519,8 @@ namespace ADS
     {
         int count = 0;
         for (int i = 0; i < d->m_contentsLayout->count(); ++i) {
-            if (!dockWidget(i)->isClosed()) {
+            if (!dockWidget(i)->isClosed())
                 ++count;
-            }
         }
         return count;
     }
@@ -535,9 +530,8 @@ namespace ADS
         QList<DockWidget *> dockWidgetList;
         for (int i = 0; i < d->m_contentsLayout->count(); ++i) {
             DockWidget *currentDockWidget = dockWidget(i);
-            if (!currentDockWidget->isClosed()) {
+            if (!currentDockWidget->isClosed())
                 dockWidgetList.append(dockWidget(i));
-            }
         }
         return dockWidgetList;
     }
@@ -545,12 +539,11 @@ namespace ADS
     int DockAreaWidget::indexOfFirstOpenDockWidget() const
     {
         for (int i = 0; i < d->m_contentsLayout->count(); ++i) {
-            if (!dockWidget(i)->isClosed()) {
+            if (!dockWidget(i)->isClosed())
                 return i;
-            }
         }
 
-        return -1;
+        return - 1;
     }
 
     int DockAreaWidget::dockWidgetsCount() const { return d->m_contentsLayout->count(); }
@@ -585,24 +578,23 @@ namespace ADS
     void DockAreaWidget::updateTitleBarVisibility()
     {
         DockContainerWidget *container = dockContainer();
-        if (!container) {
+        if (!container)
             return;
-        }
 
-        if (DockManager::configFlags().testFlag(DockManager::AlwaysShowTabs)) {
+        if (DockManager::testConfigFlag(DockManager::AlwaysShowTabs))
             return;
-        }
 
         if (d->m_titleBar) {
-            d->m_titleBar->setVisible(!container->isFloating() || !container->hasTopLevelDockWidget());
+            bool hidden = container->hasTopLevelDockWidget() && (container->isFloating()
+                          || DockManager::testConfigFlag(DockManager::HideSingleCentralWidgetTitleBar));
+            d->m_titleBar->setVisible(!hidden);
         }
     }
 
     void DockAreaWidget::markTitleBarMenuOutdated()
     {
-        if (d->m_titleBar) {
+        if (d->m_titleBar)
             d->m_titleBar->markTabsMenuOutdated();
-        }
     }
 
     void DockAreaWidget::saveState(QXmlStreamWriter &stream) const
@@ -614,9 +606,9 @@ namespace ADS
         stream.writeAttribute("current", name);
         qCInfo(adsLog) << Q_FUNC_INFO << "TabCount: " << d->m_contentsLayout->count()
                        << " Current: " << name;
-        for (int i = 0; i < d->m_contentsLayout->count(); ++i) {
+        for (int i = 0; i < d->m_contentsLayout->count(); ++i)
             dockWidget(i)->saveState(stream);
-        }
+
         stream.writeEndElement();
     }
 
@@ -643,15 +635,15 @@ namespace ADS
     {
         if (BitwiseAnd == mode) {
             DockWidget::DockWidgetFeatures features(DockWidget::AllDockWidgetFeatures);
-            for (const auto dockWidget : dockWidgets()) {
+            for (const auto dockWidget : dockWidgets())
                 features &= dockWidget->features();
-            }
+
             return features;
         } else {
             DockWidget::DockWidgetFeatures features(DockWidget::NoDockWidgetFeatures);
-            for (const auto dockWidget : dockWidgets()) {
+            for (const auto dockWidget : dockWidgets())
                 features |= dockWidget->features();
-            }
+
             return features;
         }
     }
@@ -666,9 +658,8 @@ namespace ADS
     void DockAreaWidget::setVisible(bool visible)
     {
         Super::setVisible(visible);
-        if (d->m_updateTitleBarButtons) {
+        if (d->m_updateTitleBarButtons)
             d->updateTitleBarButtonStates();
-        }
     }
 
     void DockAreaWidget::setAllowedAreas(DockWidgetAreas areas)
@@ -695,9 +686,8 @@ namespace ADS
             && openDockWidgets[0]->features().testFlag(DockWidget::DockWidgetDeleteOnClose)) {
             openDockWidgets[0]->closeDockWidgetInternal();
         } else {
-            for (auto dockWidget : openedDockWidgets()) {
+            for (auto dockWidget : openedDockWidgets())
                 dockWidget->toggleView(false);
-            }
         }
     }
 

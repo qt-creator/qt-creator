@@ -19,6 +19,7 @@ QtcLibrary {
             "dockareawidget.cpp", "dockareawidget.h",
             "dockcomponentsfactory.cpp", "dockcomponentsfactory.h",
             "dockcontainerwidget.cpp", "dockcontainerwidget.h",
+            "dockfocuscontroller.cpp", "dockfocuscontroller.h",
             "dockingstatereader.cpp", "dockingstatereader.h",
             "dockmanager.cpp", "dockmanager.h",
             "dockoverlay.cpp", "dockoverlay.h",
@@ -32,8 +33,7 @@ QtcLibrary {
             "workspacedialog.cpp", "workspacedialog.h",
             "workspacemodel.cpp", "workspacemodel.h",
             "workspaceview.cpp", "workspaceview.h",
-            "workspacedialog.ui",
-            "resources.qrc"
+            "workspacedialog.ui"
         ]
     }
 

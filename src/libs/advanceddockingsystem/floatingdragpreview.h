@@ -65,11 +65,6 @@ private:
 
 protected:
     /**
-     * Updates the drop overlays
-     */
-    void moveEvent(QMoveEvent *event) override;
-
-    /**
      * Cares about painting the
      */
     void paintEvent(QPaintEvent *event) override;

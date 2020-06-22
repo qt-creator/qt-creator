@@ -41,6 +41,7 @@
 
 #include <QAbstractButton>
 #include <QPainter>
+#include <QStyle>
 #include <QVariant>
 
 namespace ADS {
@@ -93,7 +94,7 @@ void hideEmptyParentSplitters(DockSplitter *splitter)
     }
 }
 
-void setButtonIcon(QAbstractButton* button,
+void setButtonIcon(QAbstractButton *button,
                    QStyle::StandardPixmap standarPixmap,
                    ADS::eIcon customIconId)
 {
@@ -113,6 +114,26 @@ void setButtonIcon(QAbstractButton* button,
         icon.addPixmap(internal::createTransparentPixmap(normalPixmap, 0.25), QIcon::Disabled);
         icon.addPixmap(normalPixmap, QIcon::Normal);
         button->setIcon(icon);
+    }
+}
+
+void repolishStyle(QWidget *widget, eRepolishChildOptions options)
+{
+    if (!widget)
+        return;
+
+    widget->style()->unpolish(widget);
+    widget->style()->polish(widget);
+
+    if (RepolishIgnoreChildren == options)
+        return;
+
+    QList<QWidget*> children = widget->findChildren<QWidget *>(QString(),
+        (RepolishDirectChildren == options) ? Qt::FindDirectChildrenOnly : Qt::FindChildrenRecursively);
+    for (auto w : children)
+    {
+        w->style()->unpolish(w);
+        w->style()->polish(w);
     }
 }
 

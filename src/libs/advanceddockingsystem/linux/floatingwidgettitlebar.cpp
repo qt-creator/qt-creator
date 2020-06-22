@@ -41,7 +41,7 @@
 namespace ADS {
 
 using TabLabelType = ElidingLabel;
-using CloseButtonType = QPushButton;
+using CloseButtonType = QToolButton;
 
 /**
  * @brief Private data class of public interface CFloatingWidgetTitleBar
@@ -76,7 +76,7 @@ void FloatingWidgetTitleBarPrivate::createLayout()
 
     m_closeButton = new CloseButtonType();
     m_closeButton->setObjectName("floatingTitleCloseButton");
-    m_closeButton->setFlat(true);
+    m_closeButton->setAutoRaise(true);
     internal::setButtonIcon(m_closeButton,
                             QStyle::SP_TitleBarCloseButton,
                             ADS::FloatingWidgetCloseIcon);
@@ -106,7 +106,7 @@ void FloatingWidgetTitleBarPrivate::createLayout()
 }
 
 FloatingWidgetTitleBar::FloatingWidgetTitleBar(FloatingDockContainer *parent)
-    : QWidget(parent)
+    : QFrame(parent)
     , d(new FloatingWidgetTitleBarPrivate(this))
 {
     d->m_floatingWidget = parent;
@@ -131,9 +131,9 @@ void FloatingWidgetTitleBar::mousePressEvent(QMouseEvent *event)
 void FloatingWidgetTitleBar::mouseReleaseEvent(QMouseEvent *event)
 {
     d->m_dragState = DraggingInactive;
-    if (d->m_floatingWidget) {
+    if (d->m_floatingWidget)
         d->m_floatingWidget->finishDragging();
-    }
+
     Super::mouseReleaseEvent(event);
 }
 
@@ -162,6 +162,11 @@ void FloatingWidgetTitleBar::enableCloseButton(bool enable)
 void FloatingWidgetTitleBar::setTitle(const QString &text)
 {
     d->m_titleLabel->setText(text);
+}
+
+void FloatingWidgetTitleBar::updateStyle()
+{
+    internal::repolishStyle(this, internal::RepolishDirectChildren);
 }
 
 } // namespace ADS

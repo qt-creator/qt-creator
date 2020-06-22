@@ -183,12 +183,21 @@ protected:
 
 protected: // reimplements QWidget
     void changeEvent(QEvent *event) override;
-    void moveEvent(QMoveEvent *event) override;
-    bool event(QEvent *event) override;
     void closeEvent(QCloseEvent *event) override;
     void hideEvent(QHideEvent *event) override;
     void showEvent(QShowEvent *event) override;
-    bool eventFilter(QObject *watched, QEvent *event) override;
+
+#ifdef Q_OS_MACOS
+    virtual bool event(QEvent *event) override;
+    virtual void moveEvent(QMoveEvent *event) override;
+#endif
+
+#ifdef Q_OS_WIN
+    /**
+     * Native event filter for handling WM_MOVING messages on Windows
+     */
+    bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;
+#endif
 
 public:
     using Super = QWidget;

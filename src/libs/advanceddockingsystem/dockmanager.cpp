@@ -36,7 +36,9 @@
 #include "dockmanager.h"
 
 #include "ads_globals.h"
+#include "dockareatitlebar.h"
 #include "dockareawidget.h"
+#include "dockfocuscontroller.h"
 #include "dockingstatereader.h"
 #include "dockoverlay.h"
 #include "dockwidget.h"
@@ -72,6 +74,15 @@ static Q_LOGGING_CATEGORY(adsLog, "qtc.qmldesigner.advanceddockingsystem", QtWar
 
 namespace ADS
 {
+    /**
+     * Internal file version in case the structure changes internally
+     */
+    enum eStateFileVersion {
+        InitialVersion = 0,       //!< InitialVersion
+        Version1 = 1,             //!< Version1
+        CurrentVersion = Version1 //!< CurrentVersion
+    };
+
     static DockManager::ConfigFlags g_staticConfigFlags = DockManager::DefaultNonOpaqueConfig;
 
     /**
@@ -88,6 +99,7 @@ namespace ADS
         QMap<QString, DockWidget *> m_dockWidgetsMap;
         bool m_restoringState = false;
         QVector<FloatingDockContainer *> m_uninitializedFloatingWidgets;
+        DockFocusController *m_focusController = nullptr;
 
         QString m_workspaceName;
         bool m_workspaceListDirty = true;
@@ -159,11 +171,10 @@ namespace ADS
         } else {
             qCInfo(adsLog) << "d->m_containers[i]->restoreState ";
             auto container = m_containers[index];
-            if (container->isFloating()) {
+            if (container->isFloating())
                 result = container->floatingWidget()->restoreState(stream, testing);
-            } else {
+            else
                 result = container->restoreState(stream, testing);
-            }
         }
 
         return result;
@@ -190,6 +201,17 @@ namespace ADS
             return false;
 
         stateReader.setFileVersion(v);
+
+        qCInfo(adsLog) << stateReader.attributes().value("userVersion");
+        // Older files do not support UserVersion but we still want to load them so
+        // we first test if the attribute exists
+        if (!stateReader.attributes().value("userVersion").isEmpty())
+        {
+            v = stateReader.attributes().value("userVersion").toInt(&ok);
+            if (!ok || v != version)
+                return false;
+        }
+
         bool result = true;
 #ifdef ADS_DEBUG_PRINT
         int dockContainers = stateReader.attributes().value("containers").toInt();
@@ -248,9 +270,8 @@ namespace ADS
                 DockAreaWidget *dockArea = dockContainer->dockArea(i);
                 QString dockWidgetName = dockArea->property("currentDockWidget").toString();
                 DockWidget *dockWidget = nullptr;
-                if (!dockWidgetName.isEmpty()) {
+                if (!dockWidgetName.isEmpty())
                     dockWidget = q->findDockWidget(dockWidgetName);
-                }
 
                 if (!dockWidget || dockWidget->isClosed()) {
                     int index = dockArea->indexOfFirstOpenDockWidget();
@@ -276,9 +297,8 @@ namespace ADS
             } else {
                 for (int i = 0; i < dockContainer->dockAreaCount(); ++i) {
                     auto dockArea = dockContainer->dockArea(i);
-                    for (auto dockWidget : dockArea->dockWidgets()) {
+                    for (auto dockWidget : dockArea->dockWidgets())
                         dockWidget->emitTopLevelChanged(false);
-                    }
                 }
             }
         }
@@ -326,6 +346,9 @@ namespace ADS
         d->m_dockAreaOverlay = new DockOverlay(this, DockOverlay::ModeDockAreaOverlay);
         d->m_containerOverlay = new DockOverlay(this, DockOverlay::ModeContainerOverlay);
         d->m_containers.append(this);
+
+        if (DockManager::configFlags().testFlag(DockManager::FocusHighlighting))
+            d->m_focusController = new DockFocusController(this);
     }
 
     DockManager::~DockManager()
@@ -398,13 +421,12 @@ namespace ADS
     DockAreaWidget *DockManager::addDockWidgetTab(DockWidgetArea area, DockWidget *dockWidget)
     {
         DockAreaWidget *areaWidget = lastAddedDockAreaWidget(area);
-        if (areaWidget) {
+        if (areaWidget)
             return addDockWidget(ADS::CenterDockWidgetArea, dockWidget, areaWidget);
-        } else if (!openedDockAreas().isEmpty()) {
+        else if (!openedDockAreas().isEmpty())
             return addDockWidget(area, dockWidget, openedDockAreas().last());
-        } else {
+        else
             return addDockWidget(area, dockWidget, nullptr);
-        }
     }
 
     DockAreaWidget *DockManager::addDockWidgetTabToArea(DockWidget *dockWidget,
@@ -423,11 +445,11 @@ namespace ADS
         dockWidget->setDockManager(this);
         FloatingDockContainer *floatingWidget = new FloatingDockContainer(dockWidget);
         floatingWidget->resize(dockWidget->size());
-        if (isVisible()) {
+        if (isVisible())
             floatingWidget->show();
-        } else {
+        else
             d->m_uninitializedFloatingWidgets.append(floatingWidget);
-        }
+
         return floatingWidget;
     }
 
@@ -450,9 +472,8 @@ namespace ADS
 
     void DockManager::removeDockContainer(DockContainerWidget *dockContainer)
     {
-        if (this != dockContainer) {
+        if (this != dockContainer)
             d->m_containers.removeAll(dockContainer);
-        }
     }
 
     DockOverlay *DockManager::containerOverlay() const { return d->m_containerOverlay; }
@@ -479,7 +500,8 @@ namespace ADS
         stream.setAutoFormatting(configFlags.testFlag(XmlAutoFormattingEnabled));
         stream.writeStartDocument();
         stream.writeStartElement("QtAdvancedDockingSystem");
-        stream.writeAttribute("version", QString::number(version));
+        stream.writeAttribute("version", QString::number(CurrentVersion));
+        stream.writeAttribute("userVersion", QString::number(version));
         stream.writeAttribute("containers", QString::number(d->m_containers.count()));
         for (auto container : d->m_containers)
             container->saveState(stream);
@@ -512,10 +534,10 @@ namespace ADS
         emit restoringState();
         bool result = d->restoreState(state, version);
         d->m_restoringState = false;
-        emit stateRestored();
         if (!isHidden)
             show();
 
+        emit stateRestored();
         return result;
     }
 
@@ -574,15 +596,14 @@ namespace ADS
         emit aboutToSaveWorkspace();
 
         bool result = write(activeWorkspace(), saveState(), parentWidget());
-        if (result) {
+        if (result)
             d->m_workspaceDateTimes.insert(activeWorkspace(), QDateTime::currentDateTime());
-        } else {
+        else
             QMessageBox::warning(parentWidget(),
                                  tr("Cannot Save Workspace"),
                                  tr("Could not save workspace to file %1")
                                      .arg(workspaceNameToFilePath(d->m_workspaceName)
                                               .toUserOutput()));
-        }
 
         return result;
     }
@@ -638,9 +659,8 @@ namespace ADS
                 = workspacePresetsDir.entryInfoList(QStringList() << QLatin1Char('*') + m_fileExt,
                                                     QDir::NoFilter,
                                                     QDir::Time);
-            for (const QFileInfo &fileInfo : workspacePresetsFiles) {
+            for (const QFileInfo &fileInfo : workspacePresetsFiles)
                 d->m_workspacePresets.insert(fileNameToWorkspaceName(fileInfo.completeBaseName()));
-            }
         }
         return d->m_workspacePresets;
     }
@@ -819,8 +839,10 @@ namespace ADS
     {
         if (!cloneWorkspace(original, newName))
             return false;
+
         if (original == activeWorkspace())
             openWorkspace(newName);
+
         return deleteWorkspace(original);
     }
 
@@ -1002,10 +1024,10 @@ namespace ADS
             QFile file(filePath);
 
             if (file.exists()) {
-                if (!file.copy(workspaceDir.filePath(fileName))) {
+                if (!file.copy(workspaceDir.filePath(fileName)))
                     qCInfo(adsLog) << QString("Could not copy '%1' to '%2' error: %3").arg(
                         filePath, workspaceDir.filePath(fileName), file.errorString());
-                }
+
                 d->m_workspaceListDirty = true;
             }
         }
@@ -1018,6 +1040,24 @@ namespace ADS
     {
         QTC_ASSERT(d->m_settings, return );
         d->m_settings->setValue(Constants::STARTUP_WORKSPACE_SETTINGS_KEY, activeWorkspace());
+    }
+
+    void DockManager::notifyWidgetOrAreaRelocation(QWidget *droppedWidget)
+    {
+        if (d->m_focusController)
+            d->m_focusController->notifyWidgetOrAreaRelocation(droppedWidget);
+    }
+
+    void DockManager::notifyFloatingWidgetDrop(FloatingDockContainer *floatingWidget)
+    {
+        if (d->m_focusController)
+            d->m_focusController->notifyFloatingWidgetDrop(floatingWidget);
+    }
+
+    void DockManager::setDockWidgetFocused(DockWidget *dockWidget)
+    {
+        if (d->m_focusController)
+            d->m_focusController->setDockWidgetFocused(dockWidget);
     }
 
 } // namespace ADS

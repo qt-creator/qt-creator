@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/ads">
-        <file>images/close-button.svg</file>
-        <file>images/close-button-disabled.svg</file>
-    </qresource>
-</RCC>

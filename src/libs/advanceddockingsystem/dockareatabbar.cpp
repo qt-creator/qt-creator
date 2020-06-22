@@ -82,12 +82,12 @@ namespace ADS
         /**
          * Convenience function to access first tab
          */
-        DockWidgetTab *firstTab() const {return q->tab(0);}
+        DockWidgetTab *firstTab() const { return q->tab(0); }
 
         /**
          * Convenience function to access last tab
          */
-        DockWidgetTab *lastTab() const {return q->tab(q->count() - 1);}
+        DockWidgetTab *lastTab() const { return q->tab(q->count() - 1); }
     }; // class DockAreaTabBarPrivate
 
     DockAreaTabBarPrivate::DockAreaTabBarPrivate(DockAreaTabBar *parent)
@@ -140,11 +140,10 @@ namespace ADS
     {
         event->accept();
         const int direction = event->angleDelta().y();
-        if (direction < 0) {
+        if (direction < 0)
             horizontalScrollBar()->setValue(horizontalScrollBar()->value() + 20);
-        } else {
+        else
             horizontalScrollBar()->setValue(horizontalScrollBar()->value() - 20);
-        }
     }
 
     void DockAreaTabBar::setCurrentIndex(int index)
@@ -189,9 +188,11 @@ namespace ADS
                 &DockAreaTabBar::elidedChanged);
         dockWidgetTab->installEventFilter(this);
         emit tabInserted(index);
-        if (index <= d->m_currentIndex || d->m_currentIndex == -1) {
+        if (index <= d->m_currentIndex)
             setCurrentIndex(d->m_currentIndex + 1);
-        }
+        else if (d->m_currentIndex == -1)
+            setCurrentIndex(index);
+
         updateGeometry();
     }
 
@@ -235,11 +236,11 @@ namespace ADS
         dockWidgetTab->disconnect(this);
         dockWidgetTab->removeEventFilter(this);
         qCInfo(adsLog) << "NewCurrentIndex " << newCurrentIndex;
-        if (newCurrentIndex != d->m_currentIndex) {
+        if (newCurrentIndex != d->m_currentIndex)
             setCurrentIndex(newCurrentIndex);
-        } else {
+        else
             d->updateTabs();
-        }
+
         updateGeometry();
     }
 
@@ -247,12 +248,11 @@ namespace ADS
 
     DockWidgetTab *DockAreaTabBar::currentTab() const
     {
-        if (d->m_currentIndex < 0) {
+        if (d->m_currentIndex < 0)
             return nullptr;
-        } else {
+        else
             return qobject_cast<DockWidgetTab *>(
                 d->m_tabsLayout->itemAt(d->m_currentIndex)->widget());
-        }
     }
 
     void DockAreaTabBar::onTabClicked()
@@ -292,9 +292,8 @@ namespace ADS
                 // If the the dock widget blocks closing, i.e. if the flag
                 // CustomCloseHandling is set, and the dock widget is still open,
                 // then we do not need to correct the index
-                if (currentTab->dockWidget()->isClosed()) {
+                if (currentTab->dockWidget()->isClosed())
                     i -= offset;
-                }
             }
         }
     }

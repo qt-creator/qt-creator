@@ -59,9 +59,15 @@ ADS--DockWidget
     border-width: 0;
 }
 
-ADS--DockAreaTitleBar{ background-color: creatorTheme.BackgroundColorDark; }
+ADS--DockAreaTitleBar
+{
+    background-color: creatorTheme.BackgroundColorDark;
+}
 
-QWidget#tabsContainerWidget { background-color: creatorTheme.BackgroundColorDark; }
+QWidget#tabsContainerWidget
+{
+    background-color: creatorTheme.BackgroundColorDark;
+}
 
 ADS--TitleBarButton
 {
@@ -125,4 +131,34 @@ QScrollBar::add-page,
 QScrollBar::sub-page {
     height: 0px;
     width: 0px;
+}
+
+/* Focus related styling */
+ADS--DockWidgetTab[focused="true"] {
+    background: creatorTheme.DSinteraction;
+    border-color: creatorTheme.DSinteraction;
+}
+
+ADS--DockWidgetTab[focused="true"] > #tabCloseButton:hover {
+    background: rgba(255, 255, 255, 48);
+}
+
+ADS--DockWidgetTab[focused="true"] > #tabCloseButton:pressed {
+    background: rgba(255, 255, 255, 92);
+}
+
+ADS--DockWidgetTab[focused="true"] QLabel {
+    color: palette(creatorTheme.QmlDesigner_TabDark);
+}
+
+ADS--DockAreaTitleBar {
+    background: transparent;
+    border-bottom: 2px solid creatorTheme.QmlDesigner_TabLight;
+    padding-bottom: 0px;
+}
+
+ADS--DockAreaWidget[focused="true"] ADS--DockAreaTitleBar {
+    background: transparent;
+    border-bottom: 2px solid creatorTheme.DSinteraction;
+    padding-bottom: 0px;
 }

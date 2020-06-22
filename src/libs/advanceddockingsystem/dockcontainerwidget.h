@@ -59,10 +59,10 @@ class FloatingDragPreviewPrivate;
 
 /**
  * Container that manages a number of dock areas with single dock widgets
- * or tabyfied dock widgets in each area.
+ * or tabified dock widgets in each area.
  * Each window that support docking has a DockContainerWidget. That means
- * the main application window and all floating windows contain
- * a DockContainerWidget.
+ * the main application window and all floating windows contain a
+ * DockContainerWidget instance.
  */
 class ADS_EXPORT DockContainerWidget : public QFrame
 {
@@ -86,13 +86,11 @@ protected:
      */
     bool event(QEvent *event) override;
 
-public: // TODO temporary
     /**
      * Access function for the internal root splitter
      */
     QSplitter *rootSplitter() const;
 
-protected:
     /**
      * Helper function for creation of the root splitter
      */

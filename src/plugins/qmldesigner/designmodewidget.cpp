@@ -228,8 +228,9 @@ void DesignModeWidget::setup()
 
     auto settings = Core::ICore::settings(QSettings::UserScope);
 
+    ADS::DockManager::setConfigFlags(ADS::DockManager::DefaultNonOpaqueConfig);
+    ADS::DockManager::setConfigFlag(ADS::DockManager::FocusHighlighting, true);
     m_dockManager = new ADS::DockManager(this);
-    m_dockManager->setConfigFlags(ADS::DockManager::DefaultNonOpaqueConfig);
     m_dockManager->setSettings(settings);
     m_dockManager->setWorkspacePresetsPath(Core::ICore::resourcePath() + QLatin1String("/qmldesigner/workspacePresets/"));
 

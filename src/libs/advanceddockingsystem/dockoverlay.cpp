@@ -36,6 +36,7 @@
 #include "dockoverlay.h"
 
 #include "dockareawidget.h"
+#include "dockareatitlebar.h"
 
 #include <utils/hostosinfo.h>
 
@@ -151,12 +152,10 @@ namespace ADS {
          */
         qreal dropIndicatiorWidth(QLabel *label) const
         {
-#ifdef Q_OS_LINUX
-            Q_UNUSED(label)
-            return 40;
-#else
-            return static_cast<qreal>(label->fontMetrics().height()) * 3.f;
-#endif
+            if (Utils::HostOsInfo::isLinuxHost())
+                return 40;
+            else
+                return static_cast<qreal>(label->fontMetrics().height()) * 3.f;
         }
 
         QWidget *createDropIndicatorWidget(DockWidgetArea dockWidgetArea, DockOverlay::eMode mode)
@@ -190,10 +189,10 @@ namespace ADS {
                                                  DockWidgetArea dockWidgetArea,
                                                  DockOverlay::eMode mode)
         {
-            QColor borderColor = iconColor(DockOverlayCross::FrameColor);
-            QColor backgroundColor = iconColor(DockOverlayCross::WindowBackgroundColor);
-            double devicePixelRatio = q->window()->devicePixelRatioF();
-            QSizeF pixmapSize = size * devicePixelRatio;
+            const QColor borderColor = iconColor(DockOverlayCross::FrameColor);
+            const QColor backgroundColor = iconColor(DockOverlayCross::WindowBackgroundColor);
+            const double devicePixelRatio = q->window()->devicePixelRatioF();
+            const QSizeF pixmapSize = size * devicePixelRatio;
             QPixmap pixmap(pixmapSize.toSize());
             pixmap.fill(QColor(0, 0, 0, 0));
 
@@ -259,7 +258,7 @@ namespace ADS {
                 break;
             }
 
-            QSizeF baseSize = baseRect.size();
+            const QSizeF baseSize = baseRect.size();
             if (DockOverlay::ModeContainerOverlay == mode && dockWidgetArea != CenterDockWidgetArea) {
                 baseRect = areaRect;
             }
@@ -296,7 +295,7 @@ namespace ADS {
 
             // draw window title bar
             painter.setBrush(borderColor);
-            QRectF frameRect(baseRect.topLeft(), QSizeF(baseRect.width(), baseSize.height() / 10));
+            const QRectF frameRect(baseRect.topLeft(), QSizeF(baseRect.width(), baseSize.height() / 10));
             painter.drawRect(frameRect);
             painter.restore();
 
@@ -370,6 +369,7 @@ namespace ADS {
     {
         if (areas == d->m_allowedAreas)
             return;
+
         d->m_allowedAreas = areas;
         d->m_cross->reset();
     }
@@ -382,19 +382,17 @@ namespace ADS {
     DockWidgetArea DockOverlay::dropAreaUnderCursor() const
     {
         DockWidgetArea result = d->m_cross->cursorLocation();
-        if (result != InvalidDockWidgetArea) {
+        if (result != InvalidDockWidgetArea)
             return result;
-        }
 
         DockAreaWidget *dockArea = qobject_cast<DockAreaWidget *>(d->m_targetWidget.data());
-        if (!dockArea) {
+        if (!dockArea)
             return result;
-        }
 
         if (dockArea->allowedAreas().testFlag(CenterDockWidgetArea)
-            && dockArea->titleBarGeometry().contains(dockArea->mapFromGlobal(QCursor::pos()))) {
+            && !dockArea->titleBar()->isHidden()
+            && dockArea->titleBarGeometry().contains(dockArea->mapFromGlobal(QCursor::pos())))
             return CenterDockWidgetArea;
-        }
 
         return result;
     }
@@ -518,9 +516,9 @@ namespace ADS {
     bool DockOverlay::event(QEvent *event)
     {
         bool result = Super::event(event);
-        if (event->type() == QEvent::Polish) {
+        if (event->type() == QEvent::Polish)
             d->m_cross->setupOverlayCross(d->m_mode);
-        }
+
         return result;
     }
 
@@ -622,13 +620,12 @@ namespace ADS {
 
     void DockOverlayCross::updateOverlayIcons()
     {
-        if (windowHandle()->devicePixelRatio() == d->m_lastDevicePixelRatio) { // TODO
+        if (windowHandle()->devicePixelRatio() == d->m_lastDevicePixelRatio) // TODO
             return;
-        }
 
-        for (auto Widget : d->m_dropIndicatorWidgets) {
-            d->updateDropIndicatorIcon(Widget);
-        }
+        for (auto widget : d->m_dropIndicatorWidgets)
+            d->updateDropIndicatorIcon(widget);
+
         d->m_lastDevicePixelRatio = devicePixelRatioF();
     }
 
@@ -661,7 +658,7 @@ namespace ADS {
         for (constIt = areas.begin(); constIt != areas.end(); ++constIt) {
             const DockWidgetArea area = constIt.key();
             QWidget *widget = constIt.value();
-            QPoint position = d->areaGridPosition(area);
+            const QPoint position = d->areaGridPosition(area);
             d->m_gridLayout->addWidget(widget,
                                        position.x(),
                                        position.y(),
@@ -717,9 +714,9 @@ namespace ADS {
 
     void DockOverlayCross::showEvent(QShowEvent *)
     {
-        if (d->m_updateRequired) {
+        if (d->m_updateRequired)
             setupOverlayCross(d->m_mode);
-        }
+
         this->updatePosition();
     }
 
@@ -744,12 +741,11 @@ namespace ADS {
 
         // Update visibility of area widgets based on allowedAreas.
         for (auto area : allAreas) {
-            QPoint position = d->areaGridPosition(area);
+            const QPoint position = d->areaGridPosition(area);
             QLayoutItem *item = d->m_gridLayout->itemAtPosition(position.x(), position.y());
             QWidget *widget = nullptr;
-            if (item && (widget = item->widget()) != nullptr) {
+            if (item && (widget = item->widget()) != nullptr)
                 widget->setVisible(allowedAreas.testFlag(area));
-            }
         }
     }
 
@@ -766,9 +762,9 @@ namespace ADS {
         for (const auto &colorListEntry : colorList) {
             auto componentColor = colorListEntry.split('=', QString::SkipEmptyParts);
             int component = colorCompenentStringMap.value(componentColor[0], -1);
-            if (component < 0) {
+            if (component < 0)
                 continue;
-            }
+
             d->m_iconColors[component] = QColor(componentColor[1]);
         }
 
