@@ -671,7 +671,6 @@ void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphi
     if (qmlItemNode().modelNode().hasAuxiliaryData("color"))
         flowColor = qmlItemNode().modelNode().auxiliaryData("color").value<QColor>();
 
-    const qreal scaleFactor = viewportTransform().m11();
     qreal width = 2;
 
     if (qmlItemNode().modelNode().hasAuxiliaryData("width"))

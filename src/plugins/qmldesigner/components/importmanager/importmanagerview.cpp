@@ -79,8 +79,10 @@ void ImportManagerView::modelAboutToBeDetached(Model *model)
     AbstractView::modelAboutToBeDetached(model);
 }
 
-void ImportManagerView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &removedImports)
+void ImportManagerView::importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
 {
+    Q_UNUSED(addedImports);
+    Q_UNUSED(removedImports);
     if (m_importsWidget) {
         m_importsWidget->setImports(model()->imports());
         // setImports recreates labels, so we need to update used imports, as it is not guaranteed

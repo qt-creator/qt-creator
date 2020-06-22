@@ -734,7 +734,7 @@ void CMakeBuildSystem::wireUpConnections(const Project *p)
     });
 
     // Became active/inactive:
-    connect(target(), &Target::activeBuildConfigurationChanged, this, [this](BuildConfiguration *bc) {
+    connect(target(), &Target::activeBuildConfigurationChanged, this, [this]() {
         // Build configuration has changed:
         qCDebug(cmakeBuildSystemLog) << "Requesting parse due to active BC changed";
         setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()),
