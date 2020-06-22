@@ -221,15 +221,21 @@ SwitchLanguageComboboxAction::SwitchLanguageComboboxAction(QObject *parent)
 QWidget *SwitchLanguageComboboxAction::createWidget(QWidget *parent)
 {
     QPointer<QComboBox> comboBox = new QComboBox(parent);
-    comboBox->setToolTip(tr("Switch the language used by preview."));
+    const QString toolTip(tr("Switch the language used by preview."));
+    comboBox->setToolTip(toolTip);
     comboBox->addItem(tr("Default"));
 
-    auto refreshComboBoxFunction = [this, comboBox] (ProjectExplorer::Project *project) {
+    auto refreshComboBoxFunction = [this, comboBox, toolTip] (ProjectExplorer::Project *project) {
         if (comboBox) {
-            if (updateProjectLocales(project)) {
+            QString errorMessage;
+            auto locales = project->availableQmlPreviewTranslations(&errorMessage);
+            if (!errorMessage.isEmpty())
+                comboBox->setToolTip(QString("%1<br/>(%2)").arg(toolTip, errorMessage));
+            if (m_previousLocales != locales) {
                 comboBox->clear();
                 comboBox->addItem(tr("Default"));
-                comboBox->addItems(m_localeStrings);
+                comboBox->addItems(locales);
+                m_previousLocales = locales;
             }
         }
     };
@@ -248,24 +254,6 @@ QWidget *SwitchLanguageComboboxAction::createWidget(QWidget *parent)
     });
 
     return comboBox;
-}
-
-bool SwitchLanguageComboboxAction::updateProjectLocales(Project *project)
-{
-    if (!project)
-        return false;
-    auto previousLocales = m_localeStrings;
-    m_localeStrings.clear();
-    const auto projectDirectory = project->rootProjectDirectory().toFileInfo().absoluteFilePath();
-    const QDir languageDirectory(projectDirectory + "/i18n");
-    const auto qmFiles = languageDirectory.entryList({"qml_*.qm"});
-    m_localeStrings = Utils::transform(qmFiles, [](const QString &qmFile) {
-        const int localeStartPosition = qmFile.lastIndexOf("_") + 1;
-        const int localeEndPosition = qmFile.size() - QString(".qm").size();
-        const QString locale = qmFile.left(localeEndPosition).mid(localeStartPosition);
-        return locale;
-    });
-    return previousLocales != m_localeStrings;
 }
 
 SwitchLanguageAction::SwitchLanguageAction()

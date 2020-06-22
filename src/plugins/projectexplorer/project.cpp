@@ -983,6 +983,21 @@ QVariant Project::extraData(const QString &key) const
     return d->m_extraData.value(key);
 }
 
+QStringList Project::availableQmlPreviewTranslations(QString *errorMessage)
+{
+    const auto projectDirectory = rootProjectDirectory().toFileInfo().absoluteFilePath();
+    const QDir languageDirectory(projectDirectory + "/i18n");
+    const auto qmFiles = languageDirectory.entryList({"qml_*.qm"});
+    if (qmFiles.isEmpty() && errorMessage)
+        errorMessage->append(tr("Could not find any qml_*.qm file at '%1'").arg(languageDirectory.absolutePath()));
+    return Utils::transform(qmFiles, [](const QString &qmFile) {
+        const int localeStartPosition = qmFile.lastIndexOf("_") + 1;
+        const int localeEndPosition = qmFile.size() - QString(".qm").size();
+        const QString locale = qmFile.left(localeEndPosition).mid(localeStartPosition);
+        return locale;
+    });
+}
+
 #if defined(WITH_TESTS)
 
 } // namespace ProjectExplorer
