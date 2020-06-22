@@ -34,7 +34,6 @@
 namespace Core {
 class ActionContainer;
 class CommandLocator;
-class Id;
 } // namespace Core
 
 namespace Fossil {
