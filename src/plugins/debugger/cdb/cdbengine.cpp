@@ -73,6 +73,7 @@
 #include <cpptools/cppworkingcopy.h>
 
 #include <QDir>
+#include <QRegularExpression>
 
 #include <cctype>
 
@@ -2324,11 +2325,12 @@ void CdbEngine::parseOutputLine(QString line)
     }
     const char versionString[] = "Microsoft (R) Windows Debugger Version";
     if (line.startsWith(versionString)) {
-        QRegExp versionRegEx("(\\d+)\\.(\\d+)\\.\\d+\\.\\d+");
-        if (versionRegEx.indexIn(line) > -1) {
+        const QRegularExpression versionRegEx("(\\d+)\\.(\\d+)\\.\\d+\\.\\d+");
+        const QRegularExpressionMatch match = versionRegEx.match(line);
+        if (match.hasMatch()) {
             bool ok = true;
-            int major = versionRegEx.cap(1).toInt(&ok);
-            int minor = versionRegEx.cap(2).toInt(&ok);
+            int major = match.captured(1).toInt(&ok);
+            int minor = match.captured(2).toInt(&ok);
             if (ok) {
                 // for some incomprehensible reasons Microsoft cdb version 6.2 is newer than 6.12
                 m_autoBreakPointCorrection = major > 6 || (major == 6 && minor >= 2 && minor < 10);
@@ -2341,9 +2343,10 @@ void CdbEngine::parseOutputLine(QString line)
     } else if (line.startsWith("ModLoad: ")) {
         // output(64): ModLoad: 00007ffb`842b0000 00007ffb`843ee000   C:\Windows\system32\KERNEL32.DLL
         // output(32): ModLoad: 00007ffb 00007ffb   C:\Windows\system32\KERNEL32.DLL
-        QRegExp moduleRegExp("[0-9a-fA-F]+(`[0-9a-fA-F]+)? [0-9a-fA-F]+(`[0-9a-fA-F]+)? (.*)");
-        if (moduleRegExp.indexIn(line) > -1)
-            showStatusMessage(tr("Module loaded: %1").arg(moduleRegExp.cap(3).trimmed()), 3000);
+        const QRegularExpression moduleRegExp("[0-9a-fA-F]+(`[0-9a-fA-F]+)? [0-9a-fA-F]+(`[0-9a-fA-F]+)? (.*)");
+        const QRegularExpressionMatch match = moduleRegExp.match(line);
+        if (match.hasMatch())
+            showStatusMessage(tr("Module loaded: %1").arg(match.captured(3).trimmed()), 3000);
     } else {
         showMessage(line, LogMisc);
     }
