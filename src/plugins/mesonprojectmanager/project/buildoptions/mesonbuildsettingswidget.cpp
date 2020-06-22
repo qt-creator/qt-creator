@@ -69,7 +69,6 @@ MesonBuildSettingsWidget::MesonBuildSettingsWidget(MesonBuildConfiguration *buil
     m_optionsFilter.setSourceModel(&m_optionsModel);
     m_optionsFilter.setSortRole(Qt::DisplayRole);
     m_optionsFilter.setFilterKeyColumn(-1);
-    m_optionsFilter.setFilterCaseSensitivity(Qt::CaseInsensitive);
 
     ui->optionsTreeView->setModel(&m_optionsFilter);
 
@@ -109,7 +108,11 @@ MesonBuildSettingsWidget::MesonBuildSettingsWidget(MesonBuildConfiguration *buil
     connect(ui->optionsFilterLineEdit,
             &QLineEdit::textChanged,
             &m_optionsFilter,
-            &QSortFilterProxyModel::setFilterFixedString);
+            [this](const QString &txt) {
+                m_optionsFilter.setFilterRegularExpression(
+                    QRegularExpression(QRegularExpression::escape(txt),
+                                       QRegularExpression::CaseInsensitiveOption));
+            });
     connect(ui->optionsTreeView,
             &Utils::TreeView::activated,
             ui->optionsTreeView,

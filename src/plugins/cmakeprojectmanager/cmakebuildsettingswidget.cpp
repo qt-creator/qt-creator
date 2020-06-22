@@ -153,7 +153,6 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_configTextFilterModel->setSourceModel(m_configFilterModel);
     m_configTextFilterModel->setSortRole(Qt::DisplayRole);
     m_configTextFilterModel->setFilterKeyColumn(-1);
-    m_configTextFilterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
     connect(m_configTextFilterModel, &QAbstractItemModel::layoutChanged, this, [this]() {
         QModelIndex selectedIdx = m_configView->currentIndex();
@@ -271,8 +270,14 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     connect(m_showAdvancedCheckBox, &QCheckBox::stateChanged,
             this, &CMakeBuildSettingsWidget::updateAdvancedCheckBox);
 
-    connect(m_filterEdit, &QLineEdit::textChanged,
-            m_configTextFilterModel, &QSortFilterProxyModel::setFilterFixedString);
+    connect(m_filterEdit,
+            &QLineEdit::textChanged,
+            m_configTextFilterModel,
+            [this](const QString &txt) {
+                m_configTextFilterModel->setFilterRegularExpression(
+                    QRegularExpression(QRegularExpression::escape(txt),
+                                       QRegularExpression::CaseInsensitiveOption));
+            });
 
     connect(m_resetButton, &QPushButton::clicked, m_configModel, &ConfigModel::resetAllChanges);
     connect(m_reconfigureButton,

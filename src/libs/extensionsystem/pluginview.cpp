@@ -315,7 +315,6 @@ PluginView::PluginView(QWidget *parent)
     m_sortModel = new CategorySortFilterModel(this);
     m_sortModel->setSourceModel(m_model);
     m_sortModel->setSortRole(SortRole);
-    m_sortModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_sortModel->setFilterKeyColumn(-1/*all*/);
     m_categoryView->setModel(m_sortModel);
 
@@ -357,7 +356,9 @@ PluginSpec *PluginView::currentPlugin() const
 */
 void PluginView::setFilter(const QString &filter)
 {
-    m_sortModel->setFilterFixedString(filter);
+    m_sortModel->setFilterRegularExpression(
+        QRegularExpression(QRegularExpression::escape(filter),
+                           QRegularExpression::CaseInsensitiveOption));
     m_categoryView->expandAll();
 }
 

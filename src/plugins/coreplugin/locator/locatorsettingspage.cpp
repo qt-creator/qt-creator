@@ -190,7 +190,6 @@ public:
         m_proxyModel = new CategorySortFilterModel(m_ui.filterList);
         m_proxyModel->setSourceModel(m_model);
         m_proxyModel->setSortRole(SortRole);
-        m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
         m_proxyModel->setFilterKeyColumn(-1/*all*/);
         m_ui.filterList->setModel(m_proxyModel);
         m_ui.filterList->expandAll();
@@ -294,7 +293,9 @@ void LocatorSettingsWidget::requestRefresh()
 
 void LocatorSettingsWidget::setFilter(const QString &text)
 {
-    m_proxyModel->setFilterFixedString(text);
+    m_proxyModel->setFilterRegularExpression(
+        QRegularExpression(QRegularExpression::escape(text),
+                           QRegularExpression::CaseInsensitiveOption));
     m_ui.filterList->expandAll();
 }
 
