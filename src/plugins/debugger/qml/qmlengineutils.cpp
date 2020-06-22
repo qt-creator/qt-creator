@@ -218,6 +218,9 @@ void appendDebugOutput(QtMsgType type, const QString &message, const QDebugConte
     case QtFatalMsg:
         itemType = ConsoleItem::ErrorType;
         break;
+    default:
+        itemType = ConsoleItem::DefaultType;
+        break;
     }
 
     QTC_ASSERT(itemType != ConsoleItem::DefaultType, return);
