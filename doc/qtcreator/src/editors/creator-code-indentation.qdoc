@@ -52,6 +52,15 @@
     specify several sets of code style settings and easily switch between them.
     In addition, you can import and export code style settings.
 
+    To automatically fix indentation according to the indentation settings
+    when you save the file, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Text Editor} > \uicontrol Behavior >
+    \uicontrol {Clean whitespace} > \uicontrol {Clean indentation}. Select
+    the \uicontrol {Skip clean whitespace for file types} check box to
+    exclude the specified file types.
+
+    \image qtcreator-options-text-editor-behavior.png "Text Editor Behavior options"
+
     \if defined(qtcreator)
     \section1 Indenting C++ Files
 
