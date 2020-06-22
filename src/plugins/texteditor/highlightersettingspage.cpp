@@ -64,8 +64,8 @@ void HighlighterSettingsPage::HighlighterSettingsPagePrivate::migrateGenericHigh
     QDir userDefinitionPath(m_settings.definitionFilesPath());
     if (userDefinitionPath.mkdir("syntax")) {
         const auto link = Utils::HostOsInfo::isAnyUnixHost()
-                              ? QOverload<const QString &, const QString &>::of(&QFile::link)
-                              : QOverload<const QString &, const QString &>::of(&QFile::copy);
+                              ? static_cast<bool(*)(const QString &, const QString &)>(&QFile::link)
+                              : static_cast<bool(*)(const QString &, const QString &)>(&QFile::copy);
 
         for (const QFileInfo &file : userDefinitionPath.entryInfoList({"*.xml"}, QDir::Files))
             link(file.filePath(), file.absolutePath() + "/syntax/" + file.fileName());

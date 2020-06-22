@@ -222,7 +222,7 @@ static bool extractFuncAndArgs(const QString &s,
     retFuncName = removeWhitespace(s.mid(funcStart, funcEnd - funcStart + 1));
 
     QString argStr = s.mid(openBrace + 1, closeBrace - openBrace - 1);
-    retArgs = argStr.split(QLatin1Char(','), QString::KeepEmptyParts);
+    retArgs = argStr.split(',');
 
     return true;
 }

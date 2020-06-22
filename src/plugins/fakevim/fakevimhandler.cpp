@@ -7234,8 +7234,8 @@ void FakeVimHandler::Private::invertCase(const Range &range)
         [] (const QString &text) -> QString {
             QString result = text;
             for (int i = 0; i < result.length(); ++i) {
-                QCharRef c = result[i];
-                c = c.isUpper() ? c.toLower() : c.toUpper();
+                const QChar c = result[i];
+                result[i] = c.isUpper() ? c.toLower() : c.toUpper();
             }
             return result;
         });

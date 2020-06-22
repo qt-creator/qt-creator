@@ -34,9 +34,9 @@
 
 #include <memory>
 
-namespace Core {
-class IEditor;
-}
+QT_BEGIN_NAMESPACE
+class QTextCodec;
+QT_END_NAMESPACE
 
 namespace TextEditor {
 class BaseTextEditor;

@@ -147,17 +147,17 @@
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
-#include <QFileInfo>
-#include <QSettings>
-
 #include <QAction>
+#include <QActionGroup>
 #include <QApplication>
 #include <QDir>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPair>
+#include <QSettings>
 #include <QThreadPool>
 #include <QTimer>
 
