@@ -42,7 +42,8 @@
     \title Keyboard Shortcuts
 
     \QC provides various keyboard shortcuts to speed up your development
-    process. In addition, you can specify your own keyboard shortcuts for some
+    process. You can add more shortcuts if your favorite combination is
+    missing. In addition, you can specify your own keyboard shortcuts for some
     functions that can be easily performed with a mouse, and therefore do not
     appear in menus or have default keyboard shortcuts. For example, selecting
     and deleting words or lines in an editor.
@@ -105,6 +106,9 @@
                     when you are done.
 
             \endlist
+
+        \li To assign multiple keyboard shortcuts to a function, select
+            \uicontrol Add, and enter or record an additional key combination.
 
         \li To revert to the default shortcut, select \uicontrol Reset.
 
