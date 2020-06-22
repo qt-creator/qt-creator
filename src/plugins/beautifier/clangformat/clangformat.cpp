@@ -54,11 +54,9 @@ using namespace TextEditor;
 namespace Beautifier {
 namespace Internal {
 
-const char MENU_ID[]               = "ClangFormat.Menu";
-
 ClangFormat::ClangFormat()
 {
-    Core::ActionContainer *menu = Core::ActionManager::createMenu(MENU_ID);
+    Core::ActionContainer *menu = Core::ActionManager::createMenu("ClangFormat.Menu");
     menu->menu()->setTitle(tr("&ClangFormat"));
 
     m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
@@ -80,7 +78,7 @@ ClangFormat::ClangFormat()
     connect(m_disableFormattingSelectedText, &QAction::triggered,
             this, &ClangFormat::disableFormattingSelectedText);
 
-    Core::ActionManager::actionContainer(MENU_ID)->addMenu(menu);
+    Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 
     connect(&m_settings, &ClangFormatSettings::supportedMimeTypesChanged,
             [this] { updateActions(Core::EditorManager::currentEditor()); });
