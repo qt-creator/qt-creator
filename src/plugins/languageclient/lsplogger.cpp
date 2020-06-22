@@ -94,7 +94,7 @@ void LspLogger::log(const LspLogMessage::MessageSender sender,
                     const BaseMessage &message)
 {
     std::list<LspLogMessage> &clientLog = m_logs[clientName];
-    while (clientLog.size() >= m_logSize)
+    while (clientLog.size() >= static_cast<std::size_t>(m_logSize))
         clientLog.pop_front();
     clientLog.push_back({sender, QTime::currentTime(), message});
     emit newMessage(clientName, clientLog.back());
