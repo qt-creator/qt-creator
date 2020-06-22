@@ -47,7 +47,7 @@ class NimbleBuildConfiguration : public ProjectExplorer::BuildConfiguration
 private:
     void setBuildType(BuildType buildType);
 
-    BuildType m_buildType;
+    BuildType m_buildType = ProjectExplorer::BuildConfiguration::Unknown;
 };
 
 class NimbleBuildConfigurationFactory final : public ProjectExplorer::BuildConfigurationFactory
