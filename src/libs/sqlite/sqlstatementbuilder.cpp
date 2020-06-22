@@ -183,6 +183,7 @@ Utils::SmallString SqlStatementBuilder::columnTypeToString(ColumnType columnType
         case ColumnType::Integer: return "INTEGER";
         case ColumnType::Real: return "REAL";
         case ColumnType::Text: return "TEXT";
+        case ColumnType::Blob: return "BLOB";
         case ColumnType::None: return {};
     }
 

@@ -141,6 +141,7 @@ TEST(SqlStatementBuilder, ColumnType)
     ASSERT_THAT(SqlStatementBuilder::columnTypeToString(ColumnType::Integer), "INTEGER");
     ASSERT_THAT(SqlStatementBuilder::columnTypeToString(ColumnType::Real), "REAL");
     ASSERT_THAT(SqlStatementBuilder::columnTypeToString(ColumnType::Text), "TEXT");
+    ASSERT_THAT(SqlStatementBuilder::columnTypeToString(ColumnType::Blob), "BLOB");
     ASSERT_TRUE(SqlStatementBuilder::columnTypeToString(ColumnType::None).isEmpty());
 }
 
