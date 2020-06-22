@@ -813,6 +813,7 @@ MsvcToolChain::MsvcToolChain(Core::Id typeId)
 {
     setDisplayName("Microsoft Visual C++ Compiler");
     setTypeDisplayName(tr("MSVC"));
+    addToAvailableMsvcToolchains(this);
 }
 
 void MsvcToolChain::inferWarningsForLevel(int warningLevel, WarningFlags &flags)
@@ -931,8 +932,10 @@ QVariantMap MsvcToolChain::toMap() const
 
 bool MsvcToolChain::fromMap(const QVariantMap &data)
 {
-    if (!ToolChain::fromMap(data))
+    if (!ToolChain::fromMap(data)) {
+        g_availableMsvcToolchains.removeOne(this);
         return false;
+    }
     m_vcvarsBat = QDir::fromNativeSeparators(data.value(QLatin1String(varsBatKeyC)).toString());
     m_varsBatArg = data.value(QLatin1String(varsBatArgKeyC)).toString();
 
@@ -948,8 +951,8 @@ bool MsvcToolChain::fromMap(const QVariantMap &data)
                                       m_varsBatArg));
 
     const bool valid = !m_vcvarsBat.isEmpty() && m_abi.isValid();
-    if (valid)
-        addToAvailableMsvcToolchains(this);
+    if (!valid)
+        g_availableMsvcToolchains.removeOne(this);
 
     return valid;
 }
