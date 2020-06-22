@@ -219,9 +219,6 @@ void ConnectionModel::updateTargetNode(int rowNumber)
             connectionNode.bindingProperty("target").setExpression(newTarget);
         });
 
-        QStandardItem* idItem = item(rowNumber, 0);
-        updateCustomData(idItem, signalHandlerProperty);
-
     } else {
         qWarning() << "BindingModel::updatePropertyName invalid target id";
     }

@@ -134,6 +134,7 @@ BindingEditorFactory::BindingEditorFactory()
 {
     setId(BINDINGEDITOR_CONTEXT_ID);
     setDisplayName(QCoreApplication::translate("OpenWith::Editors", QmlDesigner::BINDINGEDITOR_CONTEXT_ID));
+    setEditorActionHandlers(0);
 
     setDocumentCreator([]() { return new BindingDocument; });
     setEditorWidgetCreator([]() { return new BindingEditorWidget; });
