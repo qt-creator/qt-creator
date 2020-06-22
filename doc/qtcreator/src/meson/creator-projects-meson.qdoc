@@ -1,0 +1,117 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \previouspage creator-project-nimble.html
+    \page creator-project-meson.html
+    \nextpage creator-cli.html
+
+    \title Setting Up Meson
+
+    \l{https://mesonbuild.com/}{Meson} is an open source and multi-platform build
+    system generator using Ninja as main backend. Build definitions are located
+    in \c {meson.build} files while build options are located in
+    \c {meson_options.txt}.
+
+    Meson build support in \QC is not mature yet, you can only use it to build
+    native desktop applications. Many features available with Meson build or
+    usually available from \QC are missing.
+
+    \QC automatically detects the Meson and Ninja executables specified in the
+    \c PATH. You can add paths to other Meson or Ninja executables and use them
+    in different build and run \l{glossary-buildandrun-kit}{kits}.
+
+    \note Meson build plugin is disabled by default, see
+    \l{Enabling and Disabling Plugins}.
+
+    \section1 Adding Meson Tools
+
+    \QC does not have strong requirements on Meson build's version, any version
+    above 0.49.0 should be compatible.
+
+    To specify paths to Meson or Ninja executables:
+
+    \list 1
+
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Meson >
+            \uicontrol Tools > \uicontrol Add.
+
+            \image qtcreator-mesonexecutable.png
+
+        \li In the \uicontrol Name field, specify a name for the tool.
+
+        \li In the \uicontrol Path field, specify the path to the Meson or Ninja
+            executable.
+
+        \li Select \uicontrol Apply to save your changes.
+
+    \endlist
+
+    Select the
+    \uicontrol Tools > \uicontrol Options > \uicontrol Kits > \uicontrol Kits
+    tab to add the Meson and Ninja tools to a build and run kit:
+
+    \image qtcreator-kits.png
+
+    For more information, see \l {Adding Kits}.
+
+    \section1 Editing Meson Build Descriptions
+
+    To open a meson.build file for editing, double-click it from project tree.
+    Only plain text editor is available now.
+
+
+   \section1 Code Completion and External Libraries
+
+    Through external libraries, \QC can support code completion and syntax
+    highlighting as if they were part of the current project or the Qt library.
+
+    \QC handles code completion from compilation flags in Meson introspection
+    data. Any external library added with \c {dependency()} or found in include
+    path will be known by \QC for code completion.
+
+    Syntax completion and highlighting work once your project configures successfully.
+
+    \section1 Current Meson Support Limitations
+
+    The following features are not supported yet:
+
+    \list
+        \li Cross compilation.
+        \li Showing header files in project tree.
+        \li Configuration change detection, for example when building triggers a
+        Meson configuration first.
+        \li Actions from locator such as searching or triggering builds.
+        \li Adding files to Meson projects from \QC.
+    \endlist
+
+    \section1 Related Topics
+
+    \list
+        \li \l {Opening Projects}
+        \li \l {Specifying Build Settings}
+        \li \l {Specifying Run Settings}
+    \endlist
+*/

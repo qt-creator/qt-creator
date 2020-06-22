@@ -178,6 +178,15 @@
             \uicontrol Change to edit the variables of the CMake configuration
             for the kit.
 
+        \li In the \uicontrol {Meson tool} field, select the Meson tool to use
+            for building the project. Select \uicontrol Manage to add installed
+            Meson tools to the list. For more information, see
+            \l{Adding Meson Tools}.
+
+        \li In the \uicontrol {Ninja tool} field, select the Ninja tool to use
+            for building the project with Meson. Select \uicontrol Manage to add installed
+            Ninja tools to the list.
+
     \endlist
 
     \QC uses the \e {default kit} if it does not have enough information to
