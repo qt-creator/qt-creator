@@ -46,8 +46,8 @@
 
     To make \QC behave more like your favorite code editor or IDE, you can
     change the settings for keyboard shortcuts, color schemes, generic
-    highlighting, code snippets, and version control systems. In addition, you
-    can enable experimental plugins and disable plugins that you do not need.
+    highlighting, code snippets, and version control systems. In addition,
+    you can enable and disable \QC features by managing plugins.
 
     The following sections summarize the options that you have and point you to
     detailed information to help you specify any required settings and to make
@@ -162,7 +162,17 @@
     For more information about the supported functions, see
     \l{Using Version Control Systems}.
 
-    \section1 Enabling and Disabling Plugins
+    \section1 Managing Plugins
+
+    \QC comes with a set of plugins, some of which are disabled by default.
+    You can enable disabled plugins if you need them and disable plugins you
+    don't need.
+
+    You can also install additional plugins that you downloaded from
+    \l{https://marketplace.qt.io/}{Qt Marketplace} or some other source,
+    such as \l{https://github.com/}{GitHub}.
+
+    \section2 Enabling and Disabling Plugins
 
     New \QC plugins are often introduced as \e {experimental plugins} to let you
     try them out before they are fully supported. Experimental plugins are
@@ -176,8 +186,34 @@
     To enable and disable plugins, select \uicontrol Help >
     \uicontrol {About Plugins}.
 
-    The \l{https://marketplace.qt.io/}{Qt Marketplace} contains \QC plugins
-    that you can download and install either for free or for a price set by
-    their publisher. You can browse the available plugins in the
-    \uicontrol Marketplace tab in the Welcome mode.
+    \image qtcreator-installed-plugins.png "Installed Plugins dialog"
+
+    \section2 Installing Plugins
+
+    Qt Marketplace contains links to \QC plugins that you can download and
+    install either for free or for a price set by their publisher. You can
+    browse the available plugins in the \uicontrol Marketplace tab in the
+    Welcome mode.
+
+    \note You can install only plugins that are supported by your \QC version.
+
+    To install plugins:
+
+    \list 1
+        \li Select \uicontrol Help > \uicontrol {About Plugins} >
+            \uicontrol {Install Plugins}.
+        \li In the \uicontrol Source dialog, enter the path to the archive
+             or library that contains the plugin.
+            \image qtcreator-install-plugin-source.png
+        \li In the \uicontrol {Install Location} dialog, select
+            \uicontrol {User plugins} to make the plugin available for the
+            current user in all compatible \QC instances or
+            \uicontrol {\QC installation} to make the plugin available for
+            all users of a particular \QC instance.
+            \image qtcreator-install-plugin-location.png
+        \li In the \uicontrol Summary dialog, select \uicontrol Finish to
+            install the plugin.
+            \image qtcreator-install-plugin-summary.png
+        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
+    \endlist
 */
