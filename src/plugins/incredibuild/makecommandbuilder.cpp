@@ -36,7 +36,7 @@
 
 #include <QDebug>
 #include <QFileInfo>
-#include <QRegExp>
+#include <QRegularExpression>
 
 using namespace ProjectExplorer;
 
@@ -84,13 +84,14 @@ QString MakeCommandBuilder::setMultiProcessArg(QString args)
 
     // jom -j 200
     if (fileInfo.baseName().compare("jom", Qt::CaseSensitivity::CaseInsensitive) == 0) {
-        QRegExp regExp("\\s*\\-j\\s+\\d+");
+        QRegularExpression regExp("\\s*\\-j\\s+\\d+");
         args.remove(regExp);
         args.append(" -j 200");
      }
     // make -j200
-    else if ((fileInfo.baseName().compare("make", Qt::CaseSensitivity::CaseInsensitive) == 0) || (fileInfo.baseName().compare("gmake", Qt::CaseSensitivity::CaseInsensitive) == 0)) {
-        QRegExp regExp("\\s*\\-j\\d+");
+    else if ((fileInfo.baseName().compare("make", Qt::CaseSensitivity::CaseInsensitive) == 0)
+          || (fileInfo.baseName().compare("gmake", Qt::CaseSensitivity::CaseInsensitive) == 0)) {
+        QRegularExpression regExp("\\s*\\-j\\d+");
         args.remove(regExp);
         args.append(" -j200");
     }

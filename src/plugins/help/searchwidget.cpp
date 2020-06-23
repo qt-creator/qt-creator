@@ -49,7 +49,7 @@
 #include <QLabel>
 #include <QMap>
 #include <QMenu>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QString>
 #include <QStringList>
 #include <QTextBrowser>
@@ -263,7 +263,7 @@ void SearchWidget::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
 
 QStringList SearchWidget::currentSearchTerms() const
 {
-    return searchEngine->searchInput().split(QRegExp("\\W+"), Utils::SkipEmptyParts);
+    return searchEngine->searchInput().split(QRegularExpression("\\W+"), Utils::SkipEmptyParts);
 }
 
 // #pragma mark -- SearchSideBarItem

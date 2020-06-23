@@ -36,7 +36,7 @@
 
 #include <QFileInfo>
 #include <QMessageBox>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QStandardPaths>
 
 using namespace ProjectExplorer;
@@ -96,7 +96,7 @@ QStringList CMakeCommandBuilder::defaultArguments()
 
 QString CMakeCommandBuilder::setMultiProcessArg(QString args)
 {
-    QRegExp regExp("\\s*\\-j\\s+\\d+");
+    QRegularExpression regExp("\\s*\\-j\\s+\\d+");
     args.remove(regExp);
     args.append(" -- -j 200");
 

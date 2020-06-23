@@ -377,16 +377,17 @@ void PythonBuildSystem::parse()
  */
 static void expandEnvironmentVariables(const QProcessEnvironment &env, QString &string)
 {
-    static QRegExp candidate(QLatin1String("\\$\\$\\((.+)\\)"));
+    const QRegularExpression candidate("\\$\\$\\((.+)\\)");
 
-    int index = candidate.indexIn(string);
+    QRegularExpressionMatch match;
+    int index = string.indexOf(candidate, 0, &match);
     while (index != -1) {
-        const QString value = env.value(candidate.cap(1));
+        const QString value = env.value(match.captured(1));
 
-        string.replace(index, candidate.matchedLength(), value);
+        string.replace(index, match.capturedLength(), value);
         index += value.length();
 
-        index = candidate.indexIn(string, index);
+        index = string.indexOf(candidate, index, &match);
     }
 }
 

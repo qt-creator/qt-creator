@@ -74,8 +74,8 @@ static int parseVersion(const QString &text)
     const QRegularExpression rx("([2-9]{1})\\.([0-9]{2})(\\.[1-9]{1})?$");
     const QRegularExpressionMatch match = rx.match(text);
     if (match.hasMatch()) {
-        const int major = match.capturedRef(1).toInt() * 100;
-        const int minor = match.capturedRef(2).toInt();
+        const int major = match.captured(1).toInt() * 100;
+        const int minor = match.captured(2).toInt();
         return major + minor;
     }
     return 0;

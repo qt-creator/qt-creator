@@ -86,7 +86,7 @@ private:
         if (match.hasMatch()) {
             const LinkSpec link(match.capturedStart(2), match.capturedLength(2), match.captured(2));
             const auto fileName = FilePath::fromString(match.captured(3));
-            const int lineNumber = match.capturedRef(4).toInt();
+            const int lineNumber = match.captured(4).toInt();
             m_tasks.append({Task::Warning, QString(), fileName, lineNumber, category});
             return {Status::InProgress, {link}};
         }
@@ -121,7 +121,7 @@ private:
         if (!match.hasMatch())
             return false;
         const QString fileName = match.captured(3);
-        const int lineNumber = match.capturedRef(4).toInt();
+        const int lineNumber = match.captured(4).toInt();
         Core::EditorManager::openEditorAt(fileName, lineNumber);
         return true;
     }

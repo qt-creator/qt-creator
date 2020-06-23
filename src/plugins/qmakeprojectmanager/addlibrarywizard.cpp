@@ -44,14 +44,13 @@ using namespace QmakeProjectManager::Internal;
 const char qt_file_dialog_filter_reg_exp[] =
 "^(.*)\\(([a-zA-Z0-9_.*? +;#\\-\\[\\]@\\{\\}/!<>\\$%&=^~:\\|]*)\\)$";
 
-// taken from qfiledialog.cpp
-QStringList qt_clean_filter_list(const QString &filter)
+static QStringList qt_clean_filter_list(const QString &filter)
 {
-    QRegExp regexp(QString::fromLatin1(qt_file_dialog_filter_reg_exp));
+    const QRegularExpression regexp(qt_file_dialog_filter_reg_exp);
+    const QRegularExpressionMatch match = regexp.match(filter);
     QString f = filter;
-    int i = regexp.indexIn(f);
-    if (i >= 0)
-        f = regexp.cap(2);
+    if (match.hasMatch())
+        f = match.captured(2);
     return f.split(QLatin1Char(' '), Utils::SkipEmptyParts);
 }
 
@@ -65,12 +64,16 @@ static bool validateLibraryPath(const Utils::FilePath &filePath,
 
     const QString fileName = filePath.fileName();
 
-    QStringList filters = qt_clean_filter_list(pathChooser->promptDialogFilter());
-    for (int i = 0; i < filters.count(); i++) {
-        QRegExp regExp(filters.at(i));
-        regExp.setCaseSensitivity(Utils::HostOsInfo::fileNameCaseSensitivity());
-        regExp.setPatternSyntax(QRegExp::Wildcard);
-        if (regExp.exactMatch(fileName))
+    QRegularExpression::PatternOption option =
+        Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive
+            ? QRegularExpression::CaseInsensitiveOption
+            : QRegularExpression::NoPatternOption;
+
+    const QStringList filters = qt_clean_filter_list(pathChooser->promptDialogFilter());
+    for (const QString &filter : filters) {
+        QString pattern = QRegularExpression::wildcardToRegularExpression(filter);
+        QRegularExpression regExp(pattern, option);
+        if (regExp.match(fileName).hasMatch())
             return true;
         }
     return false;
