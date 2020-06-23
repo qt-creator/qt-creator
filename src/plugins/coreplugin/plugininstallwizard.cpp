@@ -177,7 +177,8 @@ public:
         m_tempDir = std::make_unique<TemporaryDirectory>("plugininstall");
         m_data->extractedPath = FilePath::fromString(m_tempDir->path());
         m_label->setText(PluginInstallWizard::tr("Checking archive..."));
-        //        m_label->setType(InfoLabel::None);
+        m_label->setType(InfoLabel::None);
+
         m_cancelButton->setVisible(true);
         m_output->clear();
 
@@ -220,6 +221,8 @@ public:
     {
         // back button pressed
         if (m_archive) {
+            m_cancelButton->disconnect();
+            m_archive->disconnect();
             m_archive->cancel();
             m_archive = nullptr; // we don't own it
         }
