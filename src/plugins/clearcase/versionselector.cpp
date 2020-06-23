@@ -27,7 +27,7 @@
 #include "versionselector.h"
 #include "ui_versionselector.h"
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QTextStream>
 
 namespace ClearCase {
@@ -73,20 +73,26 @@ bool VersionSelector::readValues()
 {
     QString line;
     line = m_stream->readLine();
-    QRegExp id(QLatin1String("Version ID: (.*)"));
-    if (id.indexIn(line) == -1)
+    const QRegularExpression id("Version ID: (.*)");
+    const QRegularExpressionMatch idMatch = id.match(line);
+    if (!idMatch.hasMatch())
         return false;
-    m_versionID = id.cap(1);
+    m_versionID = idMatch.captured(1);
+
     line = m_stream->readLine();
-    QRegExp owner(QLatin1String("Created by: (.*)"));
-    if (owner.indexIn(line) == -1)
+    const QRegularExpression owner("Created by: (.*)");
+    const QRegularExpressionMatch ownerMatch = owner.match(line);
+    if (!ownerMatch.hasMatch())
         return false;
-    m_createdBy = owner.cap(1);
+    m_createdBy = ownerMatch.captured(1);
+
     line = m_stream->readLine();
-    QRegExp dateTimeRE(QLatin1String("Created on: (.*)"));
-    if (dateTimeRE.indexIn(line) == -1)
+    const QRegularExpression dateTimeRE("Created on: (.*)");
+    const QRegularExpressionMatch dateTimeMatch = dateTimeRE.match(line);
+    if (!dateTimeMatch.hasMatch())
         return false;
-    m_createdOn = dateTimeRE.cap(1);
+    m_createdOn = dateTimeMatch.captured(1);
+
     QStringList messageLines;
     do
     {

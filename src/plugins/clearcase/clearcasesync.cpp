@@ -29,7 +29,7 @@
 #include <QDir>
 #include <QFutureInterface>
 #include <QProcess>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QStringList>
 #include <utils/qtcassert.h>
 
@@ -85,17 +85,19 @@ void ClearCaseSync::processCleartoolLsLine(const QDir &viewRootDir, const QStrin
         return;
 
     // find first whitespace. anything before that is not interesting
-    const int wspos = buffer.indexOf(QRegExp(QLatin1String("\\s")));
+    const int wspos = buffer.indexOf(QRegularExpression("\\s"));
     const QString absFile =
             viewRootDir.absoluteFilePath(
                 QDir::fromNativeSeparators(buffer.left(atatpos)));
     QTC_CHECK(QFileInfo::exists(absFile));
     QTC_CHECK(!absFile.isEmpty());
 
-    QString ccState;
-    const QRegExp reState(QLatin1String("^\\s*\\[[^\\]]*\\]")); // [hijacked]; [loaded but missing]
-    if (reState.indexIn(buffer, wspos + 1, QRegExp::CaretAtOffset) != -1) {
-        ccState = reState.cap();
+    const QRegularExpression reState("^\\s*\\[[^\\]]*\\]"); // [hijacked]; [loaded but missing]
+    const QRegularExpressionMatch match = reState.match(buffer, wspos + 1,
+                                                        QRegularExpression::NormalMatch,
+                                                        QRegularExpression::AnchorAtOffsetMatchOption);
+    if (match.hasMatch()) {
+        const QString ccState = match.captured();
         if (ccState.indexOf(QLatin1String("hijacked")) != -1)
             ClearCasePlugin::setStatus(absFile, FileStatus::Hijacked, true);
         else if (ccState.indexOf(QLatin1String("loaded but missing")) != -1)

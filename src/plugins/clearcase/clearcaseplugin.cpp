@@ -89,7 +89,7 @@
 #include <QMetaObject>
 #include <QMutex>
 #include <QProcess>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QSharedPointer>
 #include <QTextCodec>
 #include <QUrl>
@@ -490,7 +490,7 @@ FileStatus::Status ClearCasePluginPrivate::getFileStatus(const QString &fileName
             return FileStatus::Derived;
 
         // find first whitespace. anything before that is not interesting
-        const int wspos = buffer.indexOf(QRegExp(QLatin1String("\\s")));
+        const int wspos = buffer.indexOf(QRegularExpression("\\s"));
         if (buffer.lastIndexOf(QLatin1String("CHECKEDOUT"), wspos) != -1)
             return FileStatus::CheckedOut;
         else
@@ -1303,7 +1303,7 @@ void ClearCasePluginPrivate::diffActivity()
 
             // pre-first version. only for the first occurrence
             if (filever[file].first.isEmpty()) {
-                int verpos = shortver.lastIndexOf(QRegExp(QLatin1String("[^0-9]"))) + 1;
+                int verpos = shortver.lastIndexOf(QRegularExpression("[^0-9]")) + 1;
                 int vernum = shortver.midRef(verpos).toInt();
                 if (vernum)
                     --vernum;
@@ -1890,11 +1890,12 @@ bool ClearCasePluginPrivate::vcsCheckIn(const QString &messageFile, const QStrin
     const ClearCaseResponse response =
             runCleartool(m_checkInView, args, m_settings.longTimeOutS(),
                          VcsCommand::ShowStdOut);
-    QRegExp checkedIn(QLatin1String("Checked in \\\"([^\"]*)\\\""));
+    const QRegularExpression checkedIn("Checked in \\\"([^\"]*)\\\"");
+    QRegularExpressionMatch match = checkedIn.match(response.stdOut);
     bool anySucceeded = false;
-    int offset = checkedIn.indexIn(response.stdOut);
-    while (offset != -1) {
-        QString file = checkedIn.cap(1);
+    int offset = match.capturedStart();
+    while (match.hasMatch()) {
+        QString file = match.captured(1);
         QFileInfo fi(m_checkInView, file);
         QString absPath = fi.absoluteFilePath();
 
@@ -1902,7 +1903,8 @@ bool ClearCasePluginPrivate::vcsCheckIn(const QString &messageFile, const QStrin
             setStatus(QDir::fromNativeSeparators(absPath), FileStatus::CheckedIn);
         emit filesChanged(files);
         anySucceeded = true;
-        offset = checkedIn.indexIn(response.stdOut, offset + 12);
+        match = checkedIn.match(response.stdOut, offset + 12);
+        offset = match.capturedStart();
     }
     return anySucceeded;
 }
@@ -2139,7 +2141,7 @@ bool ClearCasePluginPrivate::ccCheckUcm(const QString &viewname, const QString &
     QString catcsData = runCleartoolSync(workingDir, catcsArgs);
 
     // check output for the word "ucm"
-    return QRegExp(QLatin1String("(^|\\n)ucm\\n")).indexIn(catcsData) != -1;
+    return catcsData.indexOf(QRegularExpression("(^|\\n)ucm\\n")) != -1;
 }
 
 bool ClearCasePluginPrivate::managesFile(const QString &workingDirectory, const QString &fileName) const
@@ -2182,9 +2184,10 @@ void ClearCasePluginPrivate::updateStreamAndView()
     const QString sresponse = runCleartoolSync(m_topLevel, args);
     int tabPos = sresponse.indexOf(QLatin1Char('\t'));
     m_stream = sresponse.left(tabPos);
-    QRegExp intStreamExp(QLatin1String("stream:([^@]*)"));
-    if (intStreamExp.indexIn(sresponse.mid(tabPos + 1)) != -1)
-        m_intStream = intStreamExp.cap(1);
+    const QRegularExpression intStreamExp("stream:([^@]*)");
+    const QRegularExpressionMatch match = intStreamExp.match(sresponse.mid(tabPos + 1));
+    if (match.hasMatch())
+        m_intStream = match.captured(1);
     m_viewData = ccGetView(m_topLevel);
     m_updateViewAction->setParameter(m_viewData.isDynamic ? QString() : m_viewData.name);
 }
