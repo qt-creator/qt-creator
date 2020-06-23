@@ -596,14 +596,16 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
         case TokBypassNesting:
             blockLen = getBlockLen(tokPtr);
             if ((m_cumulative || okey != or_op) && blockLen) {
-                ProValueMapStack savedValuemapStack = m_valuemapStack;
+                ProValueMapStack savedValuemapStack = std::move(m_valuemapStack);
                 m_valuemapStack.clear();
-                m_valuemapStack.append(savedValuemapStack.takeFirst());
+                m_valuemapStack.splice(m_valuemapStack.end(),
+                                       savedValuemapStack, savedValuemapStack.begin());
                 traceMsg("visiting nesting-bypassing block");
                 ret = visitProBlock(tokPtr);
                 traceMsg("visited nesting-bypassing block");
-                savedValuemapStack.prepend(m_valuemapStack.first());
-                m_valuemapStack = savedValuemapStack;
+                savedValuemapStack.splice(savedValuemapStack.begin(),
+                                          m_valuemapStack, m_valuemapStack.begin());
+                m_valuemapStack = std::move(savedValuemapStack);
             } else {
                 traceMsg("skipped nesting-bypassing block");
                 ret = ReturnTrue;
@@ -1433,7 +1435,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
 
         for (ProValueMap::ConstIterator it = m_extraVars.constBegin();
              it != m_extraVars.constEnd(); ++it)
-            m_valuemapStack.first().insert(it.key(), it.value());
+            m_valuemapStack.front().insert(it.key(), it.value());
 
         // In case default_pre needs to make decisions based on the current
         // build pass configuration.
@@ -1700,7 +1702,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFunction(
 {
     VisitReturn vr;
 
-    if (m_valuemapStack.count() >= 100) {
+    if (m_valuemapStack.size() >= 100) {
         evalError(fL1S("Ran into infinite recursion (depth > 100)."));
         vr = ReturnError;
     } else {
@@ -1850,7 +1852,7 @@ static bool isFunctParam(const ProKey &variableName)
 
 ProValueMap *QMakeEvaluator::findValues(const ProKey &variableName, ProValueMap::Iterator *rit)
 {
-    ProValueMapStack::Iterator vmi = m_valuemapStack.end();
+    ProValueMapStack::iterator vmi = m_valuemapStack.end();
     for (bool first = true; ; first = false) {
         --vmi;
         ProValueMap::Iterator it = (*vmi).find(variableName);
@@ -1870,14 +1872,14 @@ ProValueMap *QMakeEvaluator::findValues(const ProKey &variableName, ProValueMap:
 
 ProStringList &QMakeEvaluator::valuesRef(const ProKey &variableName)
 {
-    ProValueMap::Iterator it = m_valuemapStack.top().find(variableName);
+    ProValueMap::iterator it = m_valuemapStack.top().find(variableName);
     if (it != m_valuemapStack.top().end()) {
         if (it->constBegin() == statics.fakeValue.constBegin())
             it->clear();
         return *it;
     }
     if (!isFunctParam(variableName)) {
-        ProValueMapStack::Iterator vmi = m_valuemapStack.end();
+        ProValueMapStack::iterator vmi = m_valuemapStack.end();
         if (--vmi != m_valuemapStack.begin()) {
             do {
                 --vmi;
@@ -1896,7 +1898,7 @@ ProStringList &QMakeEvaluator::valuesRef(const ProKey &variableName)
 
 ProStringList QMakeEvaluator::values(const ProKey &variableName) const
 {
-    ProValueMapStack::ConstIterator vmi = m_valuemapStack.constEnd();
+    ProValueMapStack::const_iterator vmi = m_valuemapStack.cend();
     for (bool first = true; ; first = false) {
         --vmi;
         ProValueMap::ConstIterator it = (*vmi).constFind(variableName);
@@ -1905,7 +1907,7 @@ ProStringList QMakeEvaluator::values(const ProKey &variableName) const
                 break;
             return *it;
         }
-        if (vmi == m_valuemapStack.constBegin())
+        if (vmi == m_valuemapStack.cbegin())
             break;
         if (first && isFunctParam(variableName))
             break;
@@ -1933,7 +1935,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFile(
         m_current = m_locationStack.pop();
         pro->deref();
         if (ok == ReturnTrue && !(flags & LoadHidden)) {
-            ProStringList &iif = m_valuemapStack.first()[ProKey("QMAKE_INTERNAL_INCLUDED_FILES")];
+            ProStringList &iif = m_valuemapStack.front()[ProKey("QMAKE_INTERNAL_INCLUDED_FILES")];
             ProString ifn(fileName);
             if (!iif.contains(ifn))
                 iif << ifn;
@@ -2062,7 +2064,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFileInto(
         return ret;
     *values = visitor.m_valuemapStack.top();
     ProKey qiif("QMAKE_INTERNAL_INCLUDED_FILES");
-    ProStringList &iif = m_valuemapStack.first()[qiif];
+    ProStringList &iif = m_valuemapStack.front()[qiif];
     const auto ifns = values->value(qiif);
     for (const ProString &ifn : ifns)
         if (!iif.contains(ifn))
