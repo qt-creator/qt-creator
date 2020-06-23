@@ -133,6 +133,8 @@ public:
 
     void setEnabledBySettings(bool value);
 
+    static PluginSpec *read(const QString &filePath);
+
 private:
     PluginSpec();
 

@@ -1559,11 +1559,9 @@ void PluginManagerPrivate::readPluginPaths()
     pluginCategories.insert(QString(), QVector<PluginSpec *>());
 
     for (const QString &pluginFile : pluginFiles(pluginPaths)) {
-        auto *spec = new PluginSpec;
-        if (!spec->d->read(pluginFile)) { // not a Qt Creator plugin
-            delete spec;
+        PluginSpec *spec = PluginSpec::read(pluginFile);
+        if (!spec) // not a Qt Creator plugin
             continue;
-        }
 
         // defaultDisabledPlugins and defaultEnabledPlugins from install settings
         // is used to override the defaults read from the plugin spec

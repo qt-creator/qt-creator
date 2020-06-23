@@ -547,6 +547,16 @@ void PluginSpec::setEnabledBySettings(bool value)
     d->setEnabledBySettings(value);
 }
 
+PluginSpec *PluginSpec::read(const QString &filePath)
+{
+    auto spec = new PluginSpec;
+    if (!spec->d->read(filePath)) { // not a Qt Creator plugin
+        delete spec;
+        return nullptr;
+    }
+    return spec;
+}
+
 //==========PluginSpecPrivate==================
 
 namespace {
