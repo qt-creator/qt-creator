@@ -27,7 +27,7 @@
 
 #include <qdir.h>
 #include <qfile.h>
-#include <qregexp.h>
+#include <qregularexpression.h>
 
 #ifdef Q_OS_WIN
 #  include <windows.h>
@@ -175,9 +175,9 @@ QString IoUtils::shellQuoteWin(const QString &arg)
         // The process-level standard quoting allows escaping quotes with backslashes (note
         // that backslashes don't escape themselves, unless they are followed by a quote).
         // Consequently, quotes are escaped and their preceding backslashes are doubled.
-        ret.replace(QRegExp(QLatin1String("(\\\\*)\"")), QLatin1String("\\1\\1\\\""));
+        ret.replace(QRegularExpression("(\\\\*)\""), QLatin1String("\\1\\1\\\""));
         // Trailing backslashes must be doubled as well, as they are followed by a quote.
-        ret.replace(QRegExp(QLatin1String("(\\\\+)$")), QLatin1String("\\1\\1"));
+        ret.replace(QRegularExpression("(\\\\+)$"), QLatin1String("\\1\\1"));
         // However, the shell also interprets the command, and no backslash-escaping exists
         // there - a quote always toggles the quoting state, but is nonetheless passed down
         // to the called process verbatim. In the unquoted state, the circumflex escapes

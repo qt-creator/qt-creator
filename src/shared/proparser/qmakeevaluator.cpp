@@ -38,7 +38,7 @@
 #include <qfile.h>
 #include <qfileinfo.h>
 #include <qlist.h>
-#include <qregexp.h>
+#include <qregularexpression.h>
 #include <qset.h>
 #include <qstack.h>
 #include <qstring.h>
@@ -330,7 +330,7 @@ ProStringList QMakeEvaluator::split_value_list(const QStringRef &vals, int sourc
 }
 
 static void replaceInList(ProStringList *varlist,
-        const QRegExp &regexp, const QString &replace, bool global, QString &tmp)
+        const QRegularExpression &regexp, const QString &replace, bool global, QString &tmp)
 {
     for (ProStringList::Iterator varit = varlist->begin(); varit != varlist->end(); ) {
         QString val = varit->toQString(tmp);
@@ -893,9 +893,10 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProVariable(
         QString pattern = func[1].toString();
         QString replace = func[2].toString();
         if (quote)
-            pattern = QRegExp::escape(pattern);
+            pattern = QRegularExpression::escape(pattern);
 
-        QRegExp regexp(pattern, case_sense ? Qt::CaseSensitive : Qt::CaseInsensitive);
+        QRegularExpression regexp(pattern, case_sense ? QRegularExpression::NoPatternOption :
+                                                        QRegularExpression::CaseInsensitiveOption);
 
         // We could make a union of modified and unmodified values,
         // but this will break just as much as it fixes, so leave it as is.
