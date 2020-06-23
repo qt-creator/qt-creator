@@ -6923,7 +6923,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>&amp;Debug</source>
-        <translation>Deb&amp;uggen</translation>
+        <translation>Debu&amp;ggen</translation>
     </message>
     <message>
         <source>&amp;Start Debugging</source>
