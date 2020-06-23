@@ -207,6 +207,8 @@ Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
         &QProcess::readyReadStandardOutput,
         archive,
         [archive]() {
+            if (!archive->m_process)
+                return;
             archive->outputReceived(QString::fromUtf8(archive->m_process->readAllStandardOutput()));
         },
         Qt::QueuedConnection);
@@ -215,6 +217,8 @@ Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
         QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
         archive,
         [archive](int, QProcess::ExitStatus) {
+            if (!archive->m_process)
+                return;
             archive->finished(archive->m_process->exitStatus() == QProcess::NormalExit
                               && archive->m_process->exitCode() == 0);
             archive->m_process->deleteLater();
@@ -227,6 +231,8 @@ Archive *Archive::unarchive(const FilePath &src, const FilePath &dest)
         &QProcess::errorOccurred,
         archive,
         [archive](QProcess::ProcessError) {
+            if (!archive->m_process)
+                return;
             archive->outputReceived(tr("Command failed."));
             archive->finished(false);
             archive->m_process->deleteLater();
