@@ -66,7 +66,7 @@ static const QVector<Tool> &sTools()
     if (tools.isEmpty()) {
         tools << Tool{{"unzip"}, {"-o", "%{src}", "-d", "%{dest}"}, {"application/zip"}, {}};
         tools << Tool{{"7z"},
-                      {"x", "-o%{dest}", "-y", "%{src}"},
+                      {"x", "-o%{dest}", "-y", "-bb", "%{src}"},
                       {"application/zip", "application/x-7z-compressed"},
                       additionalInstallDirs("HKEY_CURRENT_USER\\Software\\7-Zip", "Path")};
         tools << Tool{{"tar"},
