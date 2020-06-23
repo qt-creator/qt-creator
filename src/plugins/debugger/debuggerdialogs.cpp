@@ -580,7 +580,7 @@ void AttachToQmlPortDialog::setKitId(Id id)
 // --------- StartRemoteCdbDialog
 static QString cdbRemoteHelp()
 {
-    const char *cdbConnectionSyntax =
+    const char cdbConnectionSyntax[] =
             "Server:Port<br>"
             "tcp:server=Server,port=Port[,password=Password][,ipversion=6]\n"
             "tcp:clicon=Server,port=Port[,password=Password][,ipversion=6]\n"
@@ -599,10 +599,10 @@ static QString cdbRemoteHelp()
                 "Launch the remote CDB as <code>%5 &lt;executable&gt;</code> "
                 "to use TCP/IP as communication protocol.</p><p>Enter the connection parameters as:</p>"
                 "<pre>%6</pre></body></html>")
-            .arg(Core::Constants::IDE_DISPLAY_NAME,
-                 ext32, ext64, "_NT_DEBUGGER_EXTENSION_PATH",
-                 "cdb.exe -server tcp:port=1234",
-                 QLatin1String(cdbConnectionSyntax));
+            .arg(QString(Core::Constants::IDE_DISPLAY_NAME),
+                 ext32, ext64, QString("_NT_DEBUGGER_EXTENSION_PATH"),
+                 QString("cdb.exe -server tcp:port=1234"),
+                 QString(cdbConnectionSyntax));
 }
 
 StartRemoteCdbDialog::StartRemoteCdbDialog(QWidget *parent) :

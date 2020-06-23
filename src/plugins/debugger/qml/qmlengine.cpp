@@ -1400,7 +1400,7 @@ void QmlEnginePrivate::setBreakpoint(const QString type, const QString target,
         QPacket rs(dataStreamVersion());
         rs <<  target.toUtf8() << enabled;
         engine->showMessage(QString("%1 %2 %3")
-                            .arg(BREAKONSIGNAL, target, QLatin1String(enabled ? "enabled" : "disabled")), LogInput);
+                            .arg(QString(BREAKONSIGNAL), target, QLatin1String(enabled ? "enabled" : "disabled")), LogInput);
         runDirectCommand(BREAKONSIGNAL, rs.data());
 
     } else {

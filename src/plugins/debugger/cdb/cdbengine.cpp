@@ -365,7 +365,7 @@ void CdbEngine::setupEngine()
                            "you will need to build a separate CDB extension with the "
                            "same bitness as the CDB you want to use.").
                 arg(QDir::toNativeSeparators(extensionFi.absoluteFilePath()),
-                    Core::Constants::IDE_DISPLAY_NAME));
+                    QString(Core::Constants::IDE_DISPLAY_NAME)));
         return;
     }
 
@@ -427,7 +427,7 @@ void CdbEngine::setupEngine()
     const QString msg = QString("Launching %1\nusing %2 of %3.")
                             .arg(debugger.toUserOutput(),
                                  QDir::toNativeSeparators(extensionFi.absoluteFilePath()),
-                                 extensionFi.lastModified().toString(Qt::SystemLocaleShortDate));
+                                 QLocale::system().toString(extensionFi.lastModified(), QLocale::ShortFormat));
     showMessage(msg, LogMisc);
 
     m_outputBuffer.clear();

@@ -32,6 +32,8 @@
 #include <utils/basetreeview.h>
 #include <utils/savedaction.h>
 
+#include <QActionGroup>
+#include <QFile>
 #include <QItemDelegate>
 #include <QLineEdit>
 #include <QMenu>
