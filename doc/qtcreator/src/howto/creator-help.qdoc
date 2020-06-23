@@ -261,28 +261,32 @@
     contents of the \uicontrol Index and \uicontrol Contents
     view in the sidebar change accordingly.
 
-    \image qtcreator-help-filters.png "Help filters"
+    \image qtcreator-help-filters.png "Filters field on the Help mode toolbar"
 
-    You can modify the filters to include external documentation, for example,
-    or you can define your own filters. To construct filters, you can use the
-    filter attributes that are specified in the documentation. Each document
-    contains at least one filter attribute. If several documents contain the
-    same filter attribute, such as \c tools, you can use that attribute to
-    include all those documents.
+    You can define your own filters to display documentation for a set of
+    Qt modules and versions.
 
     To add filters:
 
     \list 1
 
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Help >
-            \uicontrol Filters > \uicontrol Add.
+            \uicontrol Filters.
 
-        \li Enter a name for the filter and press \uicontrol {OK}.
+            \image qtcreator-help-filter-attributes.png "Filters tab in Help options"
 
-        \li In \uicontrol Attributes, select the documents that you want to include
+        \li Select \inlineimage plus.png
+            to add a new filter in the \uicontrol {Add Filter} dialog.
+
+        \li In the \uicontrol {Filter name} field, enter a name for the filter,
+            and then select \uicontrol {OK} to return to the \uicontrol Filters
+            tab.
+
+        \li In the \uicontrol Components field, select the Qt modules to include
             in the filter.
 
-            \image qtcreator-help-filter-attributes.png "Help filter attributes"
+        \li In the \uicontrol Versions field, select the Qt versions to include
+            in the filter.
 
         \li Click \uicontrol OK.
 
@@ -291,9 +295,11 @@
 
     \endlist
 
-    To modify filters, select a filter in \uicontrol Filters, select the attributes,
-    and then click \uicontrol Apply.
+    To modify the selected filter, add and remove Qt modules and versions, and
+    then select \uicontrol Apply.
 
-    To remove filters, select them in \uicontrol Filters, and click \uicontrol Remove.
+    To rename the selected filter, select \uicontrol Rename.
 
+    To remove the selected filter select \inlineimage minus.png
+    .
 */
