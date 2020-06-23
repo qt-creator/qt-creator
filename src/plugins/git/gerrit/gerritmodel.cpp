@@ -859,8 +859,8 @@ QList<QStandardItem *> GerritModel::changeToRow(const GerritChangePtr &c) const
     row[OwnerColumn]->setText(c->owner.fullName);
     // Shorten columns: Display time if it is today, else date
     const QString dateString = c->lastUpdated.date() == QDate::currentDate() ?
-                c->lastUpdated.time().toString(Qt::SystemLocaleShortDate) :
-                c->lastUpdated.date().toString(Qt::SystemLocaleShortDate);
+                QLocale::system().toString(c->lastUpdated.time(), QLocale::ShortFormat) :
+                QLocale::system().toString(c->lastUpdated.date(), QLocale::ShortFormat);
     row[DateColumn]->setData(dateString, Qt::DisplayRole);
     row[DateColumn]->setData(c->lastUpdated, SortRole);
 
