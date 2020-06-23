@@ -79,6 +79,7 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::I
     });
 
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+    connect(target, &Target::deploymentDataChanged, this, &RunConfiguration::update);
     connect(target, &Target::kitChanged, this, &RunConfiguration::update);
 }
 
