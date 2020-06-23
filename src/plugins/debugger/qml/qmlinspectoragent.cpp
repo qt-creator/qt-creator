@@ -50,6 +50,7 @@
 #include <QElapsedTimer>
 #include <QFileInfo>
 #include <QLoggingCategory>
+#include <QRegularExpression>
 
 using namespace QmlDebug;
 using namespace QmlDebug::Constants;
@@ -555,10 +556,11 @@ void QmlInspectorAgent::buildDebugIdHashRecursive(const ObjectReference &ref)
 
     // handle the case where the url contains the revision number encoded.
     // (for object created by the debugger)
-    static QRegExp rx("(.*)_(\\d+):(\\d+)$");
-    if (rx.exactMatch(fileUrl.path())) {
-        fileUrl.setPath(rx.cap(1));
-        lineNum += rx.cap(3).toInt() - 1;
+    const QRegularExpression rx("^(.*)_(\\d+):(\\d+)$");
+    const QRegularExpressionMatch match = rx.match(fileUrl.path());
+    if (match.hasMatch()) {
+        fileUrl.setPath(match.captured(1));
+        lineNum += match.captured(3).toInt() - 1;
     }
 
     const QString filePath = m_qmlEngine->toFileInProject(fileUrl);
