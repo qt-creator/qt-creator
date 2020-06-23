@@ -31,6 +31,8 @@
 #include <vcsbase/submitfilemodel.h>
 #include <utils/qtcassert.h>
 
+#include <QRegularExpression>
+
 namespace Perforce {
 namespace Internal {
 
@@ -69,10 +71,9 @@ bool PerforceSubmitEditor::setFileContents(const QByteArray &contents)
 
 bool PerforceSubmitEditor::parseText(QString text)
 {
-    QRegExp formField(QLatin1String("^\\S+:"));
+    QRegularExpression formField(QLatin1String("^\\S+:"));
     const QString newLine = QString(QLatin1Char('\n'));
 
-    int match;
     int matchLen;
     QTextStream stream(&text, QIODevice::ReadOnly);
     QString line;
@@ -80,14 +81,14 @@ bool PerforceSubmitEditor::parseText(QString text)
     QString value;
     line = stream.readLine();
     while (!stream.atEnd()) {
-        match = formField.indexIn(line);
-        if (match == 0) {
-            matchLen = formField.matchedLength();
+        const QRegularExpressionMatch match = formField.match(line);
+        if (match.hasMatch()) {
+            matchLen = match.capturedLength();
             key = line.left(matchLen-1);
             value = line.mid(matchLen) + newLine;
             while (!stream.atEnd()) {
                 line = stream.readLine();
-                if (formField.indexIn(line) != -1)
+                if (line.indexOf(formField) != -1)
                     break;
                 value += line + newLine;
             }
@@ -116,7 +117,7 @@ void PerforceSubmitEditor::updateFields()
     lines.removeFirst(); // that is the line break after 'Description:'
     lines.removeLast(); // that is the empty line at the end
 
-    const QRegExp leadingTabPattern = QRegExp(QLatin1String("^\\t"));
+    const QRegularExpression leadingTabPattern("^\\t");
     QTC_CHECK(leadingTabPattern.isValid());
 
     lines.replaceInStrings(leadingTabPattern, QString());
@@ -144,7 +145,7 @@ void PerforceSubmitEditor::updateEntries()
     while (!lines.empty() && lines.last().isEmpty())
             lines.removeLast();
     // Description
-    lines.replaceInStrings(QRegExp(QLatin1String("^")), tab);
+    lines.replaceInStrings(QRegularExpression("^"), tab);
     m_entries.insert(QLatin1String("Description"), newLine + lines.join(newLine) + QLatin1String("\n\n"));
     QString files = newLine;
     // Re-build the file spec '<tab>file#add' from the user data

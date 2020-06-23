@@ -66,6 +66,7 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QTextCodec>
 
@@ -783,7 +784,7 @@ void PerforcePluginPrivate::startSubmitProject()
     QStringList filesLines = filesResult.stdOut.split(QLatin1Char('\n'));
     QStringList depotFileNames;
     foreach (const QString &line, filesLines) {
-        depotFileNames.append(line.left(line.lastIndexOf(QRegExp(QLatin1String("#[0-9]+\\s-\\s")))));
+        depotFileNames.append(line.left(line.lastIndexOf(QRegularExpression("#[0-9]+\\s-\\s"))));
     }
     if (depotFileNames.isEmpty()) {
         VcsOutputWindow::appendWarning(tr("Project has no files"));
@@ -1635,9 +1636,9 @@ QString PerforcePluginPrivate::clientFilePath(const QString &serverFilePath)
     if (response.error)
         return QString();
 
-    QRegExp r(QLatin1String("\\.\\.\\.\\sclientFile\\s(.+)\n"));
-    r.setMinimal(true);
-    return r.indexIn(response.stdOut) != -1 ? r.cap(1).trimmed() : QString();
+    const QRegularExpression r("\\.\\.\\.\\sclientFile\\s(.+?)\n");
+    const QRegularExpressionMatch match = r.match(response.stdOut);
+    return match.hasMatch() ? match.captured(1).trimmed() : QString();
 }
 
 QString PerforcePluginPrivate::pendingChangesData()
@@ -1650,10 +1651,10 @@ QString PerforcePluginPrivate::pendingChangesData()
     if (userResponse.error)
         return QString();
 
-    QRegExp r(QLatin1String("User\\sname:\\s(\\S+)\\s*\n"));
+    const QRegularExpression r("User\\sname:\\s(\\S+?)\\s*?\n");
     QTC_ASSERT(r.isValid(), return QString());
-    r.setMinimal(true);
-    const QString user = r.indexIn(userResponse.stdOut) != -1 ? r.cap(1).trimmed() : QString();
+    const QRegularExpressionMatch match = r.match(userResponse.stdOut);
+    const QString user = match.hasMatch() ? match.captured(1).trimmed() : QString();
     if (user.isEmpty())
         return QString();
     args.clear();
