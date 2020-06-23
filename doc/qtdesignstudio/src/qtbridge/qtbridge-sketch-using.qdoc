@@ -46,30 +46,40 @@
             that you don't want to be part of the final UI, to avoid cluttering
             the \QDS project. The QML code generated in \QDS corresponds to the
             structure of your Sketch document.
-        \li \QBSK supports document \e symbols and \e {symbol overrides}. Each
-            symbol is exported as a QML component, and each symbol instance is
-            generated as a respective \e component instance in the generated
-            QML. The symbol overrides are exported as values of properties for
-            the components. For example, if you use symbol overrides to specify
-            the text for each button instance, it is exported as a value of the
-            text property.
+        \li \QBSK supports document \e symbols and \e {symbol overrides} for
+            text symbols. Each symbol is exported as a QML component, and each
+            symbol instance is generated as a respective \e component instance
+            in the generated QML. The symbol overrides are exported as values of
+            properties for the components. For example, if you use symbol
+            overrides to specify the text for each button instance, it is
+            exported as a value of the text property.
+        \li Create components in Sketch and export them to \QDS before you
+            start making instances of them. In \QDS, add functionality to the
+            components, such as button states and then bring them back to Sketch
+            as assets. If you use functional QML components in Sketch, you will
+            find it easier to merge new iterations of the design to \QDS and
+            continue to build the screens there.
+        \li Use descriptive and unique ids to avoid duplicate QML ids after
+            exporting assets and \l{Importing 2D Assets}{importing} them to
+            \QDS.
         \li Store all assets in the scalable vector graphics (SVG) format
             to be able to easily rescale them for different screen sizes
             and resolutions. You can export assets into JPG, PNG, or SVG format
             and select options for optimizing them during the export.
     \endlist
 
-    To use the fonts that you use in Sketch also in \QDS, you need to load
-    them to \QDS. \QDS deploys them to devices when you preview the UI. For more
-    information, see \l{Using Custom Fonts}.
+    To use the fonts that you use in Sketch also in \QDS, you need to import
+    them to \QDS as assets. \QDS deploys them to devices when you preview the
+    UI. For more information, see \l{Using Custom Fonts}.
 
-    For more information, watch videos about using \QBSK:
+    For more information, see the \QBSK tutorials that are also accessible from
+    the \uicontrol Tutorials tab of the Welcome mode:
 
     \list
-        \li \l{https://youtu.be/oLdEJMoE7l8}
-            {Webinar: Turn your Sketch UI Designs Into Code with Qt Design Studio}
-        \li \l{https://youtu.be/qQM2oEWRBOw}
-            {Talk: Turn Sketch or Photoshop UI designs into working prototypes}
+        \li \l{https://www.qt.io/blog/qt-design-studio-sketch-bridge-tutorial-part-1}
+            {Sketch Bridge Tutorial Part 1}
+        \li \l{https://www.qt.io/blog/qt-design-studio-sketch-bridge-tutorial-part-2}
+            {Sketch Bridge Tutorial Part 2}
     \endlist
 
     \section2 Using Artboards
@@ -94,6 +104,9 @@
     import them as QML files and images that you can drag and drop to the
     \uicontrol {Form Editor} in \QDS Design mode while creating a UI.
 
+    If you want to use the assets on an artboard in \QDS as they are in Sketch,
+    you can import the artboard without generating QML code for it.
+
     \section2 Using Layers and Groups
 
     When you use \QBSK to export your designs, you will determine how you want
@@ -104,6 +117,21 @@
 
     You can select the asset format and DPI to use for each image in
     \uicontrol Settings > \uicontrol {Asset Settings}.
+
+    \section2 Using QML Ids
+
+    The most common issues in using \QBSK are caused by having duplicate ids in
+    your project. Even though the importer in \QDS is capable of detecting and
+    retaining QML ids, you should still manually check all the QML ids to make
+    them unique and descriptive.
+
+    Name the layers in exactly the same way as your QML ids, to be able to find
+    artwork later, especially as the export files can grow very large and
+    complicated as they approach the level of a complete UI project.
+
+    \note Even though \QDS is capable of handling the ids during merges, we
+    recommend that you do not change the ids after the first time you export
+    the assets, to avoid problems.
 
     \section1 Exporting Assets
 
@@ -143,9 +171,9 @@
 
     \list 1
         \li \QBSK automatically proposes identifiers for all groups and layers
-            that you can change in the \uicontrol {QML ID} field. The ids will
-            be made unique when the layer and the respective artwork is imported
-            into \QDS.
+            that you can change in the \uicontrol {QML ID} field. Use unique and
+            descriptive ids to avoid duplicate QML ids when the layer and the
+            respective artwork is imported into \QDS.
         \li In the \uicontrol {Export As} field, select the export type for the
             group or layer:
             \list
