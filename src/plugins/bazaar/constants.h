@@ -41,7 +41,7 @@ const char CHANGESET_ID[] = "^("
                             "| +[.0-9]+"     // short
                             "|[.0-9]+: "     // line
                             ")";
-const char CHANGESET_ID_EXACT[] = "([.0-9]+)";
+const char CHANGESET_ID_EXACT[] = "^([.0-9]+)$";
 const char ANNOTATE_CHANGESET_ID[] = "([.0-9]+)";
 
 // Base editor parameters

@@ -27,7 +27,7 @@
 
 #include <vcsbase/vcsbaseeditor.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace Bazaar {
 namespace Internal {
@@ -44,8 +44,8 @@ private:
     VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(
             const QSet<QString> &changes) const override;
 
-    mutable QRegExp m_changesetId;
-    mutable QRegExp m_exactChangesetId;
+    const QRegularExpression m_changesetId;
+    const QRegularExpression m_exactChangesetId;
 };
 
 } // namespace Internal

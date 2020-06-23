@@ -35,7 +35,7 @@
 #include <QTextEdit>
 
 #include <QDebug>
-#include <QRegExp>
+#include <QRegularExpression>
 
 //see the git submit widget for details of the syntax Highlighter
 
@@ -62,7 +62,7 @@ public:
 private:
     enum State { Header, Comment, Other };
     const QTextCharFormat m_commentFormat;
-    QRegExp m_keywordPattern;
+    QRegularExpression m_keywordPattern;
     const QChar m_hashChar;
 };
 
@@ -97,14 +97,16 @@ void BazaarSubmitHighlighter::highlightBlock(const QString &text)
     case Comment:
         setFormat(0, text.size(), m_commentFormat);
         break;
-    case Other:
+    case Other: {
         // Format key words ("Task:") italic
-        if (m_keywordPattern.indexIn(text, 0, QRegExp::CaretAtZero) == 0) {
+        const QRegularExpressionMatch match = m_keywordPattern.match(text);
+        if (match.hasMatch()) {
             QTextCharFormat charFormat = format(0);
             charFormat.setFontItalic(true);
-            setFormat(0, m_keywordPattern.matchedLength(), charFormat);
+            setFormat(0, match.capturedLength(), charFormat);
         }
         break;
+    }
     }
 }
 
@@ -143,7 +145,7 @@ QString BazaarCommitWidget::committer() const
 
 QStringList BazaarCommitWidget::fixedBugs() const
 {
-    return m_bazaarCommitPanelUi.fixedBugsLineEdit->text().split(QRegExp(QLatin1String("\\s+")));
+    return m_bazaarCommitPanelUi.fixedBugsLineEdit->text().split(QRegularExpression("\\s+"));
 }
 
 bool BazaarCommitWidget::isLocalOptionEnabled() const

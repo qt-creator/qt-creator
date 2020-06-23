@@ -26,7 +26,7 @@
 #pragma once
 
 #include <vcsbase/baseannotationhighlighter.h>
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace Bazaar {
 namespace Internal {
@@ -39,7 +39,7 @@ public:
 
 private:
     QString changeNumber(const QString &block) const override;
-    mutable QRegExp m_changeset;
+    const QRegularExpression m_changeset;
 };
 
 } // namespace Internal

@@ -62,16 +62,16 @@ QString BazaarEditorWidget::changeUnderCursor(const QTextCursor &cursorIn) const
     cursor.select(QTextCursor::LineUnderCursor);
     if (cursor.hasSelection()) {
         const QString line = cursor.selectedText();
-        const int start = m_changesetId.indexIn(line);
-        if (start > -1) {
-            const QString match = m_changesetId.cap(0);
-            const int stop = start + match.length();
+        const QRegularExpressionMatch match = m_changesetId.match(line);
+        if (match.hasMatch()) {
+            const int start = match.capturedStart();
+            const int stop = match.capturedEnd();
             if (start <= cursorCol && cursorCol <= stop) {
                 cursor = cursorIn;
                 cursor.select(QTextCursor::WordUnderCursor);
                 if (cursor.hasSelection()) {
                     const QString change = cursor.selectedText();
-                    if (m_exactChangesetId.exactMatch(change))
+                    if (m_exactChangesetId.match(change).hasMatch())
                         return change;
                 }
             }

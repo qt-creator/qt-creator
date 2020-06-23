@@ -26,6 +26,8 @@
 #include "annotationhighlighter.h"
 #include "constants.h"
 
+#include <QRegularExpression>
+
 using namespace Bazaar::Internal;
 using namespace Bazaar;
 
@@ -37,7 +39,8 @@ BazaarAnnotationHighlighter::BazaarAnnotationHighlighter(const ChangeNumbers &ch
 
 QString BazaarAnnotationHighlighter::changeNumber(const QString &block) const
 {
-    if (m_changeset.indexIn(block) != -1)
-        return m_changeset.cap(1);
+    const QRegularExpressionMatch match = m_changeset.match(block);
+    if (match.hasMatch())
+        return match.captured(1);
     return QString();
 }

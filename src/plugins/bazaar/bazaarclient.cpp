@@ -36,7 +36,7 @@
 
 #include <QDir>
 #include <QFileInfo>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QTextStream>
 #include <QDebug>
 
@@ -123,14 +123,18 @@ BranchInfo BazaarClient::synchronousBranchQuery(const QString &repositoryRoot) c
     QTextStream ts(&branchConfFile);
     QString branchLocation;
     QString isBranchBound;
-    QRegExp branchLocationRx(QLatin1String("bound_location\\s*=\\s*(.+)$"));
-    QRegExp isBranchBoundRx(QLatin1String("bound\\s*=\\s*(.+)$"));
+    QRegularExpression branchLocationRx("bound_location\\s*=\\s*(.+)$");
+    QRegularExpression isBranchBoundRx("bound\\s*=\\s*(.+)$");
     while (!ts.atEnd() && (branchLocation.isEmpty() || isBranchBound.isEmpty())) {
         const QString line = ts.readLine();
-        if (branchLocationRx.indexIn(line) != -1)
-            branchLocation = branchLocationRx.cap(1);
-        else if (isBranchBoundRx.indexIn(line) != -1)
-            isBranchBound = isBranchBoundRx.cap(1);
+        QRegularExpressionMatch match = branchLocationRx.match(line);
+        if (match.hasMatch()) {
+            branchLocation = match.captured(1);
+        } else {
+            QRegularExpressionMatch match = isBranchBoundRx.match(line);
+            if (match.hasMatch())
+                isBranchBound = match.captured(1);
+        }
     }
     if (isBranchBound.simplified().toLower() == QLatin1String("true"))
         return BranchInfo(branchLocation, true);
