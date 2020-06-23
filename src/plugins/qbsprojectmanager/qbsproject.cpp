@@ -902,7 +902,8 @@ static RawProjectParts generateProjectParts(
             list.removeDuplicates();
             for (const QString &p : qAsConst(list))
                 grpHeaderPaths += {FilePath::fromUserInput(p).toString(),  HeaderPathType::User};
-            list = arrayToStringList(props.value("cpp.systemIncludePaths"));
+            list = arrayToStringList(props.value("cpp.distributionIncludePaths"))
+                    + arrayToStringList(props.value("cpp.systemIncludePaths"));
             list.removeDuplicates();
             for (const QString &p : qAsConst(list))
                 grpHeaderPaths += {FilePath::fromUserInput(p).toString(),  HeaderPathType::System};

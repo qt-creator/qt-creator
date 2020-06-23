@@ -381,6 +381,7 @@ void QbsSession::insertRequestedModuleProperties(QJsonObject &request)
         "cpp.cxxLanguageVersion",
         "cpp.cxxStandardLibrary",
         "cpp.defines",
+        "cpp.distributionIncludePaths",
         "cpp.driverFlags",
         "cpp.enableExceptions",
         "cpp.enableRtti",
