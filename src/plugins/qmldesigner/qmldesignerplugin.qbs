@@ -715,6 +715,8 @@ Project {
                 "curveeditor/keyframe.h",
                 "curveeditor/treeitem.cpp",
                 "curveeditor/treeitem.h",
+                "curveeditor/detail/axis.cpp",
+                "curveeditor/detail/axis.h",
                 "curveeditor/detail/colorcontrol.cpp",
                 "curveeditor/detail/colorcontrol.h",
                 "curveeditor/detail/curveeditorstyledialog.cpp",

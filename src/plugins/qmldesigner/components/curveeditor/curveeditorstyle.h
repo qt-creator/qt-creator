@@ -123,6 +123,7 @@ struct CurveEditorStyle
     double valueAxisWidth = 60.0;
     double valueOffsetTop = 10.0;
     double valueOffsetBottom = 10.0;
+    double labelDensityY = 1.5;
 
     HandleItemStyleOption handleStyle;
     KeyframeItemStyleOption keyframeStyle;

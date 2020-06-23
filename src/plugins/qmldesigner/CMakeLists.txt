@@ -649,6 +649,7 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/curveeditor
   SOURCES
+    curveeditor.qrc
     animationcurve.cpp animationcurve.h
     curveeditor.cpp curveeditor.h
     curveeditormodel.cpp curveeditormodel.h
@@ -656,6 +657,7 @@ extend_qtc_plugin(QmlDesigner
     curvesegment.cpp curvesegment.h
     keyframe.cpp keyframe.h
     treeitem.cpp treeitem.h
+    detail/axis.cpp detail/axis.h
     detail/colorcontrol.cpp detail/colorcontrol.h
     detail/curveeditorstyledialog.cpp detail/curveeditorstyledialog.h
     detail/curveitem.cpp detail/curveitem.h

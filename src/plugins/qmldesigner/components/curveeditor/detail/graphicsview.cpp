@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "graphicsview.h"
+#include "axis.h"
 #include "curveeditormodel.h"
 #include "curveitem.h"
 #include "treeitem.h"
@@ -35,6 +36,8 @@
 #include <QScrollBar>
 
 #include <cmath>
+#include <iomanip>
+#include <sstream>
 
 namespace DesignTools {
 
@@ -361,14 +364,14 @@ void GraphicsView::drawForeground(QPainter *painter, const QRectF &rect)
     if (abscissa.isValid())
         drawTimeScale(painter, abscissa);
 
+    painter->fillRect(QRectF(rect.topLeft(), abscissa.bottomLeft()),
+                      m_style.backgroundAlternateBrush);
+
     auto ordinate = valueScaleRect();
     if (ordinate.isValid())
         drawValueScale(painter, ordinate);
 
     m_playhead.paint(painter, this);
-
-    painter->fillRect(QRectF(rect.topLeft(), abscissa.bottomLeft()),
-                      m_style.backgroundAlternateBrush);
 
     m_selector.paint(painter);
 }
@@ -460,10 +463,11 @@ void GraphicsView::applyZoom(double x, double y, const QPoint &pivot)
 
 void GraphicsView::drawGrid(QPainter *painter, const QRectF &rect)
 {
-    QRectF gridRect = rect.adjusted(m_style.valueAxisWidth + m_style.canvasMargin,
-                                    m_style.timeAxisHeight + m_style.canvasMargin,
-                                    -m_style.canvasMargin,
-                                    -m_style.canvasMargin);
+    QRectF gridRect = rect.adjusted(
+        m_style.valueAxisWidth + m_style.canvasMargin,
+        m_style.timeAxisHeight + m_style.canvasMargin,
+        -m_style.canvasMargin,
+        -m_style.canvasMargin);
 
     if (!gridRect.isValid())
         return;
@@ -586,17 +590,24 @@ void GraphicsView::drawValueScale(QPainter *painter, const QRectF &rect)
 
     QFontMetrics fm(painter->font());
     auto paintLabeledTick = [this, painter, rect, fm](double value) {
+        std::stringstream sstr;
+        sstr << std::fixed << std::setprecision(10) << value;
+        sstr >> value;
+
         QString valueText = QString("%1").arg(value);
-
         int position = mapValueToY(value);
-
         QRect textRect = fm.boundingRect(valueText);
         textRect.moveCenter(QPoint(rect.center().x(), position));
+
         painter->drawText(textRect, Qt::AlignCenter, valueText);
     };
 
-    paintLabeledTick(minimumValue());
-    paintLabeledTick(maximumValue());
+    double density = 1. / (static_cast<double>(fm.height()) * m_style.labelDensityY);
+    Axis axis = Axis::compute(minimumValue(), maximumValue(), rect.height(), density);
+    const double eps = 1.0e-10;
+    for (double i = axis.lmin; i <= axis.lmax + eps; i += axis.lstep)
+        paintLabeledTick(i);
+
     painter->restore();
 }
 
