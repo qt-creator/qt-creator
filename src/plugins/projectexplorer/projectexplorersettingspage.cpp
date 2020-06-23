@@ -85,7 +85,7 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
     m_ui.directoryButtonGroup->setId(m_ui.currentDirectoryRadioButton, UseCurrentDirectory);
     m_ui.directoryButtonGroup->setId(m_ui.directoryRadioButton, UseProjectDirectory);
 
-    connect(m_ui.directoryButtonGroup, QOverload<int>::of(&QButtonGroup::buttonClicked),
+    connect(m_ui.directoryButtonGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),
             this, &ProjectExplorerSettingsWidget::slotDirectoryButtonGroupChanged);
 }
 

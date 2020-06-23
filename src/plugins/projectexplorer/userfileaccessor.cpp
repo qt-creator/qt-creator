@@ -42,6 +42,8 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
+#include <QRegularExpression>
+
 using namespace Utils;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -195,7 +197,7 @@ namespace {
 static QString generateSuffix(const QString &suffix)
 {
     QString result = suffix;
-    result.replace(QRegExp("[^a-zA-Z0-9_.-]"), QString('_')); // replace fishy character
+    result.replace(QRegularExpression("[^a-zA-Z0-9_.-]"), QString('_')); // replace fishy character
     if (!result.startsWith('.'))
         result.prepend('.');
     return result;

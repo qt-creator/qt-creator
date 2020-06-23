@@ -933,7 +933,11 @@ void PreviewDialog::setPixmap(const QPixmap &p, int zoom)
     m_label->adjustSize();
     m_zoom = zoom;
     m_label->setZoom(m_zoom);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QSize size = m_label->pixmap().size() + QSize(54, 44);
+#else
     QSize size = m_label->pixmap()->size() + QSize(54, 44);
+#endif
     if (size.width() < 180)
         size.setWidth(180);
     resize(size);

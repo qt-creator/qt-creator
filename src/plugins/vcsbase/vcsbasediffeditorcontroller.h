@@ -31,6 +31,10 @@
 
 #include <QProcessEnvironment>
 
+QT_BEGIN_NAMESPACE
+class QTextCodec;
+QT_END_NAMESPACE
+
 namespace Core { class IDocument; }
 namespace Utils { class FilePath; }
 

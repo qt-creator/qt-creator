@@ -41,6 +41,7 @@
 #include <utils/treeviewcombobox.h>
 #include <utils/utilsicons.h>
 
+#include <QActionGroup>
 #include <QFile>
 #include <QMenu>
 #include <QTextDocument>
@@ -224,7 +225,7 @@ void updateEditorToolBar(Core::IEditor *editor)
         actions[widget] = widget->toolBar()->addAction(
             icon, client->name(), [document]() {
                 auto menu = new QMenu;
-                auto *clientsGroup = new QActionGroup(menu);
+                auto clientsGroup = new QActionGroup(menu);
                 clientsGroup->setExclusive(true);
                 for (auto client : LanguageClientManager::clientsSupportingDocument(document)) {
                     auto action = clientsGroup->addAction(client->name());

@@ -27,13 +27,12 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
-
 #include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QtEndian>
 #include <QFile>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QString>
 #include <QStringList>
 #include <QSysInfo>
@@ -456,7 +455,7 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
     if (machine.isEmpty())
         return Abi();
 
-    const QVector<QStringRef> parts = machine.splitRef(QRegExp("[ /-]"));
+    const QVector<QStringRef> parts = machine.splitRef(QRegularExpression("[ /-]"));
 
     Architecture arch = UnknownArchitecture;
     OS os = UnknownOS;

@@ -33,6 +33,8 @@
 
 #include <utils/mimetypes/mimedatabase.h>
 
+#include <QFile>
+
 using namespace LanguageServerProtocol;
 
 namespace LanguageClient {

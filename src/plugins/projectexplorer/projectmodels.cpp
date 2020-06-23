@@ -509,7 +509,8 @@ public:
                 m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(valid);
             });
             targetDirLayout->addWidget(m_targetDirChooser);
-            connect(m_buttonGroup, QOverload<int>::of(&QButtonGroup::buttonClicked), this, [this] {
+            connect(m_buttonGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),
+                    this, [this] {
                 switch (dropAction()) {
                 case DropAction::CopyWithFiles:
                 case DropAction::MoveWithFiles:

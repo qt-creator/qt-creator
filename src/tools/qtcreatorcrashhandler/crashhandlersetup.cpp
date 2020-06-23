@@ -47,6 +47,8 @@
 #include <unistd.h>
 #include <sys/prctl.h>
 
+#include <utils/porting.h>
+
 // Enable compilation with older header that doesn't contain this constant
 // for running on newer libraries that do support it
 #ifndef PR_SET_PTRACER
@@ -101,7 +103,7 @@ CrashHandlerSetup::CrashHandlerSetup(const QString &appName,
         return;
     if (!QStringList{"1", "all", "yes"}.contains(value)) {
         const QString binaryName = QFileInfo(QCoreApplication::applicationFilePath()).fileName();
-        if (!value.split(",", QString::SkipEmptyParts).contains(binaryName))
+        if (!value.split(",", Utils::SkipEmptyParts).contains(binaryName))
             return;
     }
 
