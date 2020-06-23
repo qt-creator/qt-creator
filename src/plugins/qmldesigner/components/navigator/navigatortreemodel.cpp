@@ -535,25 +535,11 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
         m_view->executeInTransaction("NavigatorTreeModel::handleItemLibraryItemDrop", [&] {
             newQmlObjectNode = QmlItemNode::createQmlObjectNode(m_view, itemLibraryEntry, QPointF(), targetProperty, false);
             ModelNode newModelNode = newQmlObjectNode.modelNode();
-            if (newModelNode.isValid() && newModelNode.isSubclassOf("QtQuick3D.Effect")) {
-                // Insert effects dropped to either View3D or SceneEnvironment into the
-                // SceneEnvironment's effects list
-                ModelNode targetEnv;
-                if (targetProperty.parentModelNode().isSubclassOf("QtQuick3D.SceneEnvironment")) {
-                    targetEnv = targetProperty.parentModelNode();
-                } else if (targetProperty.parentModelNode().isSubclassOf("QtQuick3D.View3D")) {
-                    // see if View3D has environment set to it
-                    BindingProperty envNodeProp = targetProperty.parentModelNode().bindingProperty("environment");
-                    if (envNodeProp.isValid())  {
-                        ModelNode envNode = envNodeProp.resolveToModelNode();
-                        if (envNode.isValid())
-                            targetEnv = envNode;
-                    }
-                }
-                if (targetEnv.isValid()) {
-                    BindingProperty effectsProp = targetEnv.bindingProperty("effects");
-                    if (effectsProp.isValid()) {
-                        QString expression = effectsProp.expression();
+            auto insertIntoList = [&](const QByteArray &listPropertyName, const ModelNode &targetNode) {
+                if (targetNode.isValid()) {
+                    BindingProperty listProp = targetNode.bindingProperty(listPropertyName);
+                    if (listProp.isValid()) {
+                        QString expression = listProp.expression();
                         int bracketIndex = expression.indexOf(']');
                         if (expression.isEmpty())
                             expression = newModelNode.validId();
@@ -561,8 +547,33 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                             expression = QStringLiteral("[%1,%2]").arg(expression).arg(newModelNode.validId());
                         else
                             expression.insert(bracketIndex, QStringLiteral(",%1").arg(newModelNode.validId()));
-                        effectsProp.setExpression(expression);
+                        listProp.setExpression(expression);
                     }
+                }
+            };
+            if (newModelNode.isValid()) {
+                if (newModelNode.isSubclassOf("QtQuick3D.Effect")) {
+                    // Insert effects dropped to either View3D or SceneEnvironment into the
+                    // SceneEnvironment's effects list
+                    ModelNode targetEnv;
+                    if (targetProperty.parentModelNode().isSubclassOf("QtQuick3D.SceneEnvironment")) {
+                        targetEnv = targetProperty.parentModelNode();
+                    } else if (targetProperty.parentModelNode().isSubclassOf("QtQuick3D.View3D")) {
+                        // see if View3D has environment set to it
+                        BindingProperty envNodeProp = targetProperty.parentModelNode().bindingProperty("environment");
+                        if (envNodeProp.isValid())  {
+                            ModelNode envNode = envNodeProp.resolveToModelNode();
+                            if (envNode.isValid())
+                                targetEnv = envNode;
+                        }
+                    }
+                    insertIntoList("effects", targetEnv);
+                } else if (newModelNode.isSubclassOf("QtQuick3D.Material")) {
+                    // Insert material dropped to a model node into the materials list of the model
+                    ModelNode targetModel;
+                    if (targetProperty.parentModelNode().isSubclassOf("QtQuick3D.Model"))
+                        targetModel = targetProperty.parentModelNode();
+                    insertIntoList("materials", targetModel);
                 }
             }
         });
