@@ -44,7 +44,7 @@ struct projectData
 
 namespace {
 static const QList<projectData> projectList{
-    {"Simple C Project", "SimpleCProject", {"SimpleCProject"}}};
+    {"Simple C Project", "simplecproject", {"SimpleCProject"}}};
 } // namespace
 
 #define WITH_CONFIGURED_PROJECT(_source_dir, _build_dir, ...) \
