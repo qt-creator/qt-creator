@@ -33,17 +33,17 @@
 #include <valgrind/callgrind/callgrindproxymodel.h>
 #include <utils/qtcassert.h>
 
+#include <QAbstractItemModel>
+#include <QDebug>
 #include <QGraphicsRectItem>
 #include <QGraphicsScene>
 #include <QGraphicsSimpleTextItem>
 #include <QMouseEvent>
-#include <QStaticText>
-#include <QStyleOptionGraphicsItem>
 #include <QPair>
 #include <QPersistentModelIndex>
-#include <QLinkedList>
-#include <QAbstractItemModel>
-#include <QDebug>
+#include <QStaticText>
+#include <QStyleOptionGraphicsItem>
+#include <QVector>
 
 #define VISUALISATION_DEBUG 0
 // Margin from hardcoded value in:
@@ -364,7 +364,7 @@ void Visualization::populateScene()
     qreal total = 0;
 
     using Pair = QPair<QModelIndex, qreal>;
-    QLinkedList<Pair> costs;
+    QVector<Pair> costs;
     for (int row = 0; row < d->m_model->rowCount(); ++row) {
         const QModelIndex index = d->m_model->index(row, DataModel::InclusiveCostColumn);
 
@@ -402,7 +402,7 @@ void Visualization::populateScene()
 
     // add the canvas elements to the scene
     qreal used = sceneHeight * 0.1;
-    foreach (const Pair &cost, costs) {
+    for (const Pair &cost : qAsConst(costs)) {
         const QModelIndex &index = cost.first;
         const QString text = index.data().toString();
 
