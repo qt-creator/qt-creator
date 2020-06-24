@@ -176,10 +176,10 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
     while (iter.hasNext()) {
         const ObjectValue *prototype = iter.next();
         if (const CppComponentValue *qmlMetaObject = value_cast<CppComponentValue>(prototype)) {
-            if ((qmlMetaObject->className() == QLatin1String("ListElement")
-                    || qmlMetaObject->className() == QLatin1String("Connections")
-                    ) && (qmlMetaObject->moduleName() == QLatin1String("Qt")
-                          || qmlMetaObject->moduleName() == QLatin1String("QtQuick"))) {
+            if ((qmlMetaObject->className() == "ListElement"
+                 || qmlMetaObject->className() == "Connections")
+                && (qmlMetaObject->moduleName() == "Qt" || qmlMetaObject->moduleName() == "QtQml"
+                    || qmlMetaObject->moduleName() == "QtQuick")) {
                 qmlScopeObjects.clear();
                 break;
             }
