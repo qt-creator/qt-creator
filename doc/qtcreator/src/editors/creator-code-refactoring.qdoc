@@ -581,6 +581,11 @@
                 definition of a symbol available.
             \li Undeclared identifier
         \row
+            \li Add Forward Declaration
+            \li Adds a forward declaration for an undeclared identifier
+                operation.
+            \li Undeclared identifier
+        \row
             \li Reformat Pointers or References
             \li Reformats declarations with pointers or references according
                 to the code style settings for the current project. In case no
