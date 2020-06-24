@@ -41,7 +41,7 @@ class TimelineMoveTool : public TimelineAbstractTool
     Q_DECLARE_TR_FUNCTIONS(TimelineMoveTool)
 
 public:
-    explicit TimelineMoveTool(TimelineGraphicsScene *scene, TimelineToolDelegate *delegate);
+    explicit TimelineMoveTool(AbstractScrollGraphicsScene *scene, TimelineToolDelegate *delegate);
     void mousePressEvent(TimelineMovableAbstractItem *item,
                          QGraphicsSceneMouseEvent *event) override;
     void mouseMoveEvent(TimelineMovableAbstractItem *item, QGraphicsSceneMouseEvent *event) override;

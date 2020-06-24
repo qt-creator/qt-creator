@@ -35,6 +35,8 @@ QT_FORWARD_DECLARE_CLASS(QPainterPath)
 
 namespace QmlDesigner {
 
+class TimelineGraphicsScene;
+
 class TimelineItem : public QGraphicsWidget
 {
     Q_OBJECT
@@ -58,6 +60,8 @@ public:
     qreal position() const;
 
     TimelineFrameHandle *asTimelineFrameHandle() override;
+
+    TimelineGraphicsScene *timelineGraphicsScene() const;
 
 protected:
     void scrollOffsetChanged() override;

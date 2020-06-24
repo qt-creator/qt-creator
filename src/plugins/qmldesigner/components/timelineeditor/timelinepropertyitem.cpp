@@ -505,7 +505,7 @@ TimelineKeyframeItem::TimelineKeyframeItem(TimelinePropertyItem *parent, const M
 
 TimelineKeyframeItem::~TimelineKeyframeItem()
 {
-    timelineScene()->selectKeyframes(SelectionMode::Remove, {this});
+    abstractScrollGraphicsScene()->selectKeyframes(SelectionMode::Remove, {this});
 }
 
 void TimelineKeyframeItem::updateFrame()
@@ -555,14 +555,19 @@ void TimelineKeyframeItem::commitPosition(const QPointF &point)
 
 void TimelineKeyframeItem::itemDoubleClicked()
 {
-    std::pair<qreal, qreal> timelineRange = {timelineScene()->currentTimeline().startKeyframe(),
-                                             timelineScene()->currentTimeline().endKeyframe()};
+    std::pair<qreal, qreal> timelineRange = {timelineGraphicsScene()->currentTimeline().startKeyframe(),
+                                             timelineGraphicsScene()->currentTimeline().endKeyframe()};
     editValue(m_frame, timelineRange, propertyItem()->propertyName());
 }
 
 TimelineKeyframeItem *TimelineKeyframeItem::asTimelineKeyframeItem()
 {
     return this;
+}
+
+TimelineGraphicsScene *TimelineKeyframeItem::timelineGraphicsScene() const
+{
+    return qobject_cast<TimelineGraphicsScene *>(abstractScrollGraphicsScene());
 }
 
 void TimelineKeyframeItem::blockUpdates()
@@ -643,21 +648,21 @@ void TimelineKeyframeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *even
     QMenu mainMenu;
     QAction *removeAction = mainMenu.addAction(tr("Delete Keyframe"));
     QObject::connect(removeAction, &QAction::triggered, [this]() {
-        timelineScene()->handleKeyframeDeletion();
+        timelineGraphicsScene()->handleKeyframeDeletion();
     });
 
     QAction *editEasingAction = mainMenu.addAction(tr("Edit Easing Curve..."));
     QObject::connect(editEasingAction, &QAction::triggered, [this]() {
-        const QList<ModelNode> keys = Utils::transform(timelineScene()->selectedKeyframes(),
+        const QList<ModelNode> keys = Utils::transform(abstractScrollGraphicsScene()->selectedKeyframes(),
                                                        &TimelineKeyframeItem::m_frame);
 
-        setEasingCurve(timelineScene(), keys);
+        setEasingCurve(timelineGraphicsScene(), keys);
     });
 
     QAction *editValueAction = mainMenu.addAction(tr("Edit Keyframe..."));
     QObject::connect(editValueAction, &QAction::triggered, [this]() {
-        std::pair<qreal, qreal> timelineRange = {timelineScene()->currentTimeline().startKeyframe(),
-                                                 timelineScene()->currentTimeline().endKeyframe()};
+        std::pair<qreal, qreal> timelineRange = {timelineGraphicsScene()->currentTimeline().startKeyframe(),
+                                                 timelineGraphicsScene()->currentTimeline().endKeyframe()};
         editValue(m_frame, timelineRange, propertyItem()->propertyName());
     });
 
