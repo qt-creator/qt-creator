@@ -84,7 +84,7 @@ def __handleAppOutputWaitForDebuggerFinish__():
     ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
     appOutput = waitForObject("{type='Core::OutputWindow' visible='1' "
                               "windowTitle='Application Output Window'}")
-    if not test.verify(waitFor("str(appOutput.plainText).endswith('Debugging has finished')", 20000),
+    if not test.verify(waitFor("str(appOutput.plainText).rstrip().endswith('Debugging has finished')", 20000),
                        "Verifying whether debugging has finished."):
         test.log("Aborting debugging to let test continue.")
         invokeMenuItem("Debug", "Abort Debugging")
