@@ -212,10 +212,6 @@ void FpsAction::currentContextChanged(const SelectionContext &)
 SwitchLanguageComboboxAction::SwitchLanguageComboboxAction(QObject *parent)
     : QWidgetAction(parent)
 {
-    connect(ProjectExplorer::SessionManager::instance(),
-            &ProjectExplorer::SessionManager::startupProjectChanged,
-            this,
-            &SwitchLanguageComboboxAction::updateProjectLocales);
 }
 
 QWidget *SwitchLanguageComboboxAction::createWidget(QWidget *parent)
