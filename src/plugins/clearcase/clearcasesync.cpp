@@ -79,7 +79,7 @@ void ClearCaseSync::invalidateStatusAllFiles()
 
 void ClearCaseSync::processCleartoolLsLine(const QDir &viewRootDir, const QString &buffer)
 {
-    const int atatpos = buffer.indexOf(QLatin1String("@@"));
+    const int atatpos = buffer.indexOf("@@");
 
     if (atatpos == -1)
         return;
@@ -92,23 +92,16 @@ void ClearCaseSync::processCleartoolLsLine(const QDir &viewRootDir, const QStrin
     QTC_CHECK(QFileInfo::exists(absFile));
     QTC_CHECK(!absFile.isEmpty());
 
-    const QRegularExpression reState("\\s*\\[[^\\]]*\\]"); // [hijacked]; [loaded but missing]
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    const QRegularExpression::MatchOption mo = QRegularExpression::AnchoredMatchOption;
-#else
-    const QRegularExpression::MatchOption mo = QRegularExpression::AnchorAtOffsetMatchOption;
-#endif
-    const QRegularExpressionMatch match = reState.match(buffer, wspos + 1,
-                                                        QRegularExpression::NormalMatch,
-                                                        mo);
+    const QRegularExpression reState("^\\s*\\[[^\\]]*\\]"); // [hijacked]; [loaded but missing]
+    const QRegularExpressionMatch match = reState.match(buffer.midRef(wspos + 1));
     if (match.hasMatch()) {
         const QString ccState = match.captured();
-        if (ccState.indexOf(QLatin1String("hijacked")) != -1)
+        if (ccState.indexOf("hijacked") != -1)
             ClearCasePlugin::setStatus(absFile, FileStatus::Hijacked, true);
-        else if (ccState.indexOf(QLatin1String("loaded but missing")) != -1)
+        else if (ccState.indexOf("loaded but missing") != -1)
             ClearCasePlugin::setStatus(absFile, FileStatus::Missing, false);
     }
-    else if (buffer.lastIndexOf(QLatin1String("CHECKEDOUT"), wspos) != -1)
+    else if (buffer.lastIndexOf("CHECKEDOUT", wspos) != -1)
         ClearCasePlugin::setStatus(absFile, FileStatus::CheckedOut, true);
     // don't care about checked-in files not listed in project
     else if (m_statusMap->contains(absFile))
@@ -146,13 +139,13 @@ void ClearCaseSync::syncSnapshotView(QFutureInterface<void> &future, QStringList
     const QString viewRoot = ClearCasePlugin::viewData().root;
     const QDir viewRootDir(viewRoot);
 
-    QStringList args(QLatin1String("ls"));
+    QStringList args("ls");
     if (hot) {
         files << updateStatusHotFiles(viewRoot, totalFileCount);
         args << files;
     } else {
         invalidateStatus(viewRootDir, files);
-        args << QLatin1String("-recurse");
+        args << "-recurse";
 
         QStringList vobs;
         if (!settings.indexOnlyVOBs.isEmpty())
@@ -217,11 +210,7 @@ void ClearCaseSync::syncDynamicView(QFutureInterface<void> &future,
     // Always invalidate status for all files
     invalidateStatusAllFiles();
 
-    QStringList args(QLatin1String("lscheckout"));
-    args << QLatin1String("-avobs")
-         << QLatin1String("-me")
-         << QLatin1String("-cview")
-         << QLatin1String("-s");
+    QStringList args({"lscheckout", "-avobs", "-me", "-cview", "-s"});
 
     const QString viewRoot = ClearCasePlugin::viewData().root;
 
@@ -309,27 +298,27 @@ void ClearCaseSync::verifyParseStatus(const QString &fileName,
                                  const FileStatus::Status status)
 {
     QCOMPARE(m_statusMap->count(), 0);
-    processCleartoolLsLine(QDir(QLatin1String("/")), cleartoolLsLine);
+    processCleartoolLsLine(QDir("/"), cleartoolLsLine);
 
     if (status == FileStatus::CheckedIn) {
         // The algorithm doesn't store checked in files in the index, unless it was there already
         QCOMPARE(m_statusMap->count(), 0);
         QCOMPARE(m_statusMap->contains(fileName), false);
         ClearCasePlugin::setStatus(fileName, FileStatus::Unknown, false);
-        processCleartoolLsLine(QDir(QLatin1String("/")), cleartoolLsLine);
+        processCleartoolLsLine(QDir("/"), cleartoolLsLine);
     }
 
     QCOMPARE(m_statusMap->count(), 1);
     QCOMPARE(m_statusMap->contains(fileName), true);
     QCOMPARE(m_statusMap->value(fileName).status, status);
 
-    QCOMPARE(m_statusMap->contains(QLatin1String(("notexisting"))), false);
+    QCOMPARE(m_statusMap->contains("notexisting"), false);
 }
 
 void ClearCaseSync::verifyFileNotManaged()
 {
     QCOMPARE(m_statusMap->count(), 0);
-    TempFile temp(QDir::currentPath() + QLatin1String("/notmanaged.cpp"));
+    TempFile temp(QDir::currentPath() + "/notmanaged.cpp");
     const QString fileName = temp.fileName();
 
     updateStatusForNotManagedFiles(QStringList(fileName));
@@ -344,7 +333,7 @@ void ClearCaseSync::verifyFileCheckedOutDynamicView()
 {
     QCOMPARE(m_statusMap->count(), 0);
 
-    QString fileName(QLatin1String("/hello.C"));
+    QString fileName("/hello.C");
     processCleartoolLscheckoutLine(fileName);
 
     QCOMPARE(m_statusMap->count(), 1);
@@ -352,14 +341,14 @@ void ClearCaseSync::verifyFileCheckedOutDynamicView()
     QVERIFY(m_statusMap->contains(fileName));
     QCOMPARE(m_statusMap->value(fileName).status, FileStatus::CheckedOut);
 
-    QVERIFY(!m_statusMap->contains(QLatin1String(("notexisting"))));
+    QVERIFY(!m_statusMap->contains("notexisting"));
 }
 
 void ClearCaseSync::verifyFileCheckedInDynamicView()
 {
     QCOMPARE(m_statusMap->count(), 0);
 
-    QString fileName(QLatin1String("/hello.C"));
+    QString fileName("/hello.C");
 
     // checked in files are not kept in the index
     QCOMPARE(m_statusMap->count(), 0);
@@ -369,7 +358,7 @@ void ClearCaseSync::verifyFileCheckedInDynamicView()
 void ClearCaseSync::verifyFileNotManagedDynamicView()
 {
     QCOMPARE(m_statusMap->count(), 0);
-    TempFile temp(QDir::currentPath() + QLatin1String("/notmanaged.cpp"));
+    TempFile temp(QDir::currentPath() + "/notmanaged.cpp");
     const QString fileName = temp.fileName();
 
     updateStatusForNotManagedFiles(QStringList(fileName));
