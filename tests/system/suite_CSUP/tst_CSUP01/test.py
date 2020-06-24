@@ -123,6 +123,5 @@ def main():
             invokeMenuItem('File', 'Revert "main.cpp" to Saved')
             clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
             # exit qt creator
-            invokeMenuItem("File", "Save All")
             invokeMenuItem("File", "Exit")
             waitForCleanShutdown()
