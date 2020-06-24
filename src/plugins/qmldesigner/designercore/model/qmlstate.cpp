@@ -283,10 +283,7 @@ ModelNode QmlModelState::createQmlState(AbstractView *view, const PropertyListTy
 {
     QTC_CHECK(view->majorQtQuickVersion() < 3);
 
-    if (view->majorQtQuickVersion() > 1)
-        return view->createModelNode("QtQuick.State", 2, 0, propertyList);
-    else
-        return view->createModelNode("QtQuick.State", 1, 0, propertyList);
+    return view->createModelNode("QtQuick.State", 2, 0, propertyList);
 }
 
 void QmlModelState::setAsDefault()
