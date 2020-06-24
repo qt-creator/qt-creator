@@ -92,10 +92,15 @@ void ClearCaseSync::processCleartoolLsLine(const QDir &viewRootDir, const QStrin
     QTC_CHECK(QFileInfo::exists(absFile));
     QTC_CHECK(!absFile.isEmpty());
 
-    const QRegularExpression reState("^\\s*\\[[^\\]]*\\]"); // [hijacked]; [loaded but missing]
+    const QRegularExpression reState("\\s*\\[[^\\]]*\\]"); // [hijacked]; [loaded but missing]
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    const QRegularExpression::MatchOption mo = QRegularExpression::AnchoredMatchOption;
+#else
+    const QRegularExpression::MatchOption mo = QRegularExpression::AnchorAtOffsetMatchOption;
+#endif
     const QRegularExpressionMatch match = reState.match(buffer, wspos + 1,
                                                         QRegularExpression::NormalMatch,
-                                                        QRegularExpression::AnchorAtOffsetMatchOption);
+                                                        mo);
     if (match.hasMatch()) {
         const QString ccState = match.captured();
         if (ccState.indexOf(QLatin1String("hijacked")) != -1)
