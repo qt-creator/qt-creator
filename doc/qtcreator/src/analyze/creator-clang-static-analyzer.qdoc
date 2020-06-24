@@ -66,8 +66,14 @@
 
     \section1 Running Clang Tools
 
-    To run the Clang tools to analyze the currently open file, select
-    \uicontrol Tools > \uicontrol {C++} > \uicontrol {Analyze Current File}.
+    To run the Clang tools to analyze the currently open file:
+
+    \list
+        \li Select the \inlineimage debugger_singleinstructionmode.png
+            (\uicontrol {Analyze File}) button on the editor toolbar.
+        \li Select \uicontrol Tools > \uicontrol {C++} >
+            \uicontrol {Analyze Current File}.
+    \endlist
 
     To run the Clang tools to analyze an open project:
 
