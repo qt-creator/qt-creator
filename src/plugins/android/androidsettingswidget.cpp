@@ -809,22 +809,42 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
 
     connect(openSslProgressDialog, &QProgressDialog::canceled, gitCloner, &QtcProcess::kill);
 
-    gitCloner->start();
-    openSslProgressDialog->show();
+    auto failDialog = [=](const QString &msgSuffix = {}) {
+        QMessageBox msgBox;
+        msgBox.setText(tr("OpenSSL prebuilt libraries cloning failed. ") + msgSuffix
+                       + tr("Opening OpenSSL URL for manual download."));
+        msgBox.addButton(tr("OK"), QMessageBox::YesRole);
+        QAbstractButton *openButton = msgBox.addButton(tr("Open download URL"), QMessageBox::ActionRole);
+        msgBox.exec();
 
-    connect(gitCloner, QOverload<int, QtcProcess::ExitStatus>::of(&QtcProcess::finished),
+        if (msgBox.clickedButton() == openButton)
+            QDesktopServices::openUrl(QUrl::fromUserInput(openSslRepo));
+        openButton->deleteLater();
+    };
+
+    connect(gitCloner,
+            QOverload<int, QtcProcess::ExitStatus>::of(&QtcProcess::finished),
             [=](int exitCode, QProcess::ExitStatus exitStatus) {
                 openSslProgressDialog->close();
                 validateOpenSsl();
 
-                if (!openSslProgressDialog->wasCanceled() ||
-                    (exitStatus == QtcProcess::NormalExit && exitCode != 0)) {
-                    QMessageBox::information(this, openSslCloneTitle,
-                                             tr("OpenSSL prebuilt libraries cloning failed. "
-                                                "Opening OpenSSL URL for manual download."));
-                    QDesktopServices::openUrl(QUrl::fromUserInput(openSslRepo));
+                if (!openSslProgressDialog->wasCanceled()
+                    || (exitStatus == QtcProcess::NormalExit && exitCode != 0)) {
+                    failDialog();
                 }
             });
+
+    connect(gitCloner, &QtcProcess::errorOccurred, this, [=](QProcess::ProcessError error) {
+        openSslProgressDialog->close();
+        if (error == QProcess::FailedToStart) {
+            failDialog(tr("The git tool might not be installed properly on your system. "));
+        } else {
+            failDialog();
+        }
+    });
+
+    openSslProgressDialog->show();
+    gitCloner->start();
 }
 
 void AndroidSettingsWidget::addAVD()
