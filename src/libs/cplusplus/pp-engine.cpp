@@ -1856,7 +1856,8 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
 QByteArray Preprocessor::expand(PPToken *tk, PPToken *lastConditionToken)
 {
     unsigned line = tk->lineno;
-    unsigned bytesBegin = tk->originalOffset();
+    unsigned bytesBegin = tk->bytesBegin();
+    const int originalOffset = tk->originalOffset();
     unsigned utf16charsBegin = tk->utf16charsBegin();
     PPToken lastTk;
     while (isContinuationToken(*tk)) {
@@ -1864,8 +1865,8 @@ QByteArray Preprocessor::expand(PPToken *tk, PPToken *lastConditionToken)
         lex(tk);
     }
     // Gather the exact spelling of the content in the source.
-    QByteArray condition(m_state.m_source.mid(bytesBegin, lastTk.bytesBegin() + lastTk.bytes()
-                                              - bytesBegin));
+    QByteArray condition(m_state.m_source.mid(originalOffset, lastTk.originalOffset() + lastTk.bytes()
+                                              - originalOffset));
 
 //    qDebug("*** Condition before: [%s]", condition.constData());
     QByteArray result;
