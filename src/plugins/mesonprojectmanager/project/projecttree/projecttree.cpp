@@ -42,14 +42,14 @@ void buildTargetTree(std::unique_ptr<MesonProjectNode> &root, const Target &targ
 
 void addTargetNode(std::unique_ptr<MesonProjectNode> &root, const Target &target)
 {
-    root->findNode([&target, path = Utils::FilePath::fromString(target.definedIn)](
+    root->findNode([&root, &target, path = Utils::FilePath::fromString(target.definedIn)](
                        ProjectExplorer::Node *node) {
         if (node->filePath() == path.absolutePath()) {
             auto asFolder = dynamic_cast<ProjectExplorer::FolderNode *>(node);
             if (asFolder) {
-                auto targetNode = std::make_unique<MesonTargetNode>(path.absolutePath().pathAppended(
-                                                                        target.name),
-                                                                    Target::fullName(target));
+                auto targetNode = std::make_unique<MesonTargetNode>(
+                    path.absolutePath().pathAppended(target.name),
+                    Target::fullName(Utils::FilePath::fromString(root->path()), target));
                 targetNode->setDisplayName(target.name);
                 asFolder->addNode(std::move(targetNode));
             }
@@ -84,7 +84,7 @@ std::unique_ptr<MesonProjectNode> ProjectTree::buildTree(const Utils::FilePath &
                       addTargetNode(root, target);
                   });
     for (Utils::FilePath bsFile : bsFiles) {
-        if (!bsFile.startsWith("/"))
+        if (!bsFile.toFileInfo().isAbsolute())
             bsFile = srcDir.pathAppended(bsFile.toString());
         root->addNestedNode(
             std::make_unique<ProjectExplorer::FileNode>(bsFile, ProjectExplorer::FileType::Project));

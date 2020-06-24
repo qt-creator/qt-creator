@@ -23,13 +23,20 @@
 **
 ****************************************************************************/
 #pragma once
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/optional.h>
+#include <QDir>
 #include <QString>
 #include <QVariant>
 
 namespace MesonProjectManager {
 namespace Internal {
+
+inline QStringList cleanPath(QStringList &&paths)
+{
+    return Utils::transform(paths, QDir::cleanPath);
+}
 
 struct Target
 {
@@ -58,8 +65,8 @@ struct Target
             : language{std::move(language)}
             , compiler{std::move(compiler)}
             , parameters{std::move(parameters)}
-            , sources{std::move(sources)}
-            , generatedSources{std::move(generatedSources)}
+            , sources{cleanPath(std::move(sources))}
+            , generatedSources{cleanPath(std::move(generatedSources))}
         {}
     };
     using SourceGroupList = std::vector<SourceGroup>;
@@ -71,17 +78,13 @@ struct Target
     const Utils::optional<QString> subproject;
     const SourceGroupList sources;
 
-    static inline QString fullName(const Target &target)
+    static inline QString fullName(const Utils::FilePath &srcDir, const Target &target)
     {
-        // TODO, this is bad, might be moved in a place where src dir is known
-        if (target.fileName.first().startsWith("/")) {
-            auto fname = target.fileName.first().split('/');
-            auto definedIn = target.definedIn.split('/');
-            definedIn.pop_back();
-            int i = std::min(definedIn.length(), fname.length()) - 1;
-            for (; i >= 0 && fname[i] == definedIn[i]; --i)
-                ;
-            return fname.mid(i + 1).join("/");
+        using namespace Utils;
+        if (FileUtils::isAbsolutePath(target.fileName.first())) {
+            const auto fname = target.fileName.first().split('/').last();
+            QString definedIn = FilePath::fromString(target.definedIn).absolutePath().toString();
+            return definedIn.remove(srcDir.toString()) + '/' + fname;
         } else {
             return target.fileName.first();
         }
@@ -116,8 +119,8 @@ struct Target
         : type{toType(type)}
         , name{std::move(name)}
         , id{std::move(id)}
-        , definedIn{std::move(definedIn)}
-        , fileName{std::move(fileName)}
+        , definedIn{QDir::cleanPath(definedIn)}
+        , fileName{cleanPath(std::move(fileName))}
         , subproject{subproject.isNull() ? Utils::nullopt
                                          : Utils::optional<QString>{std::move(subproject)}}
         , sources{std::move(sources)}
