@@ -52,7 +52,7 @@ def main():
     workingDir = tempDir()
     projectName = createEmptyQtProject(workingDir, "EmptyQtProj", targets)
     waitForProjectParsing()
-    addFileToProject(os.path.join(workingDir, projectName), "  C++", "C++ Source File", "main.cpp")
+    addFileToProject(os.path.join(workingDir, projectName), "  C/C++", "C/C++ Source File", "main.cpp")
     editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
     typeLines(editor, ["int main() {"])
     invokeMenuItem("File", "Save All")

@@ -51,14 +51,14 @@ def handleDebuggerWarnings(config, isMsvcBuild=False):
         clickButton("{text='OK' type='QPushButton' unnamed='1' visible='1' window=%s}" % msgBox)
 
 def takeDebuggerLog():
-    invokeMenuItem("Window", "Views", "Global Debugger Log")
+    invokeMenuItem("View", "Views", "Global Debugger Log")
     debuggerLogWindow = waitForObject("{container=':DebugModeWidget.Debugger Log_QDockWidget' "
                                       "type='Debugger::Internal::DebuggerPane' unnamed='1' visible='1'}")
     debuggerLog = str(debuggerLogWindow.plainText)
     mouseClick(debuggerLogWindow)
     invokeContextMenuItem(debuggerLogWindow, "Clear Contents")
     waitFor("str(debuggerLogWindow.plainText)==''", 5000)
-    invokeMenuItem("Window", "Views", "Global Debugger Log")
+    invokeMenuItem("View", "Views", "Global Debugger Log")
     return debuggerLog
 
 # function to set breakpoints for the current project
