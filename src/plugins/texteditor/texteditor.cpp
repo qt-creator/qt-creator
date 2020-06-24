@@ -8741,7 +8741,8 @@ BaseTextEditor *TextEditorFactoryPrivate::createEditorHelper(const TextDocumentP
     textEditorWidget->setMarksVisible(m_marksVisible);
     textEditorWidget->setParenthesesMatchingEnabled(m_paranthesesMatchinEnabled);
     textEditorWidget->setCodeFoldingSupported(m_codeFoldingSupported);
-    textEditorWidget->setOptionalActions(m_textEditorActionHandler->optionalActions());
+    if (m_textEditorActionHandler)
+        textEditorWidget->setOptionalActions(m_textEditorActionHandler->optionalActions());
 
     BaseTextEditor *editor = m_editorCreator();
     editor->setDuplicateSupported(m_duplicatedSupported);
