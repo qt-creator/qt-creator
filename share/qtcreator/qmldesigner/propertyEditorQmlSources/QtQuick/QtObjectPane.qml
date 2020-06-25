@@ -34,6 +34,11 @@ Rectangle {
     height: 400
     color: Theme.qmlDesignerBackgroundColorDarkAlternate()
 
+    MouseArea {
+        anchors.fill: parent
+        onClicked: forceActiveFocus()
+    }
+
     ScrollView {
         anchors.fill: parent
 
