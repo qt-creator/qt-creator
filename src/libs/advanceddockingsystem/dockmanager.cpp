@@ -110,7 +110,7 @@ namespace ADS
         bool m_autorestoreLastWorkspace; // This option is set in the Workspace Manager!
         QSettings *m_settings = nullptr;
         QString m_workspacePresetsPath;
-        bool m_modeChangeState;
+        bool m_modeChangeState = false;
 
         /**
          * Private data constructor
@@ -719,9 +719,9 @@ namespace ADS
 
     bool DockManager::openWorkspace(const QString &workspace)
     {
-        // Do nothing if we have that workspace already loaded, exception if the
-        // workspace is the default virgin workspace we still want to be able to
-        // load the default workspace.
+        // Do nothing if we have that workspace already loaded, exception if it is
+        // a preset workspace. In this case we still want to be able to load the
+        // default workspace to undo potential user changes.
         if (workspace == d->m_workspaceName && !isWorkspacePreset(workspace))
             return true;
 
