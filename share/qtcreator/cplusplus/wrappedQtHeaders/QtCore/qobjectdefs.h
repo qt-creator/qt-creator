@@ -58,8 +58,7 @@
 #  define Q_SLOT __attribute__((annotate("qt_slot")))
 #endif
 
-// static_assert can be found as a class child but does not add extra AST nodes for completion
-#define Q_PROPERTY(arg) static_assert("Q_PROPERTY", #arg);
+#define Q_PROPERTY(arg...) static_assert("Q_PROPERTY", #arg);
 
 #define SIGNAL(arg) #arg
 #define SLOT(arg) #arg
