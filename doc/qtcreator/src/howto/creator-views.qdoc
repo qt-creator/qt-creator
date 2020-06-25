@@ -305,6 +305,8 @@
 
     The \uicontrol Outline view shows an overview of defined types and other
     symbols, as well as their properties and hierarchy in a source file.
+    You can move the code for types and symbols around in the source file
+    by dragging and dropping them in the outline.
 
     \list
         \li To see a complete list of all bindings, select
