@@ -399,14 +399,14 @@ public:
         const QString kitName = kit->displayName();
         const QString projectName = m_project->displayName();
 
-        QAction *enableAction = menu->addAction(tr("Enable Kit \"%1\" for Project \"%2\"").arg(kitName, projectName));
+        QAction *enableAction = menu->addAction(tr("Enable Kit for Project \"%2\"").arg(projectName));
         enableAction->setEnabled(isSelectable && m_kitId.isValid() && !isEnabled());
         QObject::connect(enableAction, &QAction::triggered, [this, kit] {
             m_project->addTargetForKit(kit);
         });
 
         QAction * const enableForAllAction
-                = menu->addAction(tr("Enable Kit \"%1\" for All Projects").arg(kitName));
+                = menu->addAction(tr("Enable Kit for All Projects"));
         enableForAllAction->setEnabled(isSelectable);
         QObject::connect(enableForAllAction, &QAction::triggered, [kit] {
             for (Project * const p : SessionManager::projects()) {
@@ -415,7 +415,7 @@ public:
             }
         });
 
-        QAction *disableAction = menu->addAction(tr("Disable Kit \"%1\" for Project \"%2\"").arg(kitName, projectName));
+        QAction *disableAction = menu->addAction(tr("Disable Kit for Project \"%2\"").arg(projectName));
         disableAction->setEnabled(isSelectable && m_kitId.isValid() && isEnabled());
         QObject::connect(disableAction, &QAction::triggered, m_project, [this] {
             Target *t = target();
@@ -440,8 +440,7 @@ public:
             m_project->removeTarget(t);
         });
 
-        QAction *disableForAllAction
-                = menu->addAction(tr("Disable Kit \"%1\" for All Projects").arg(kitName));
+        QAction *disableForAllAction = menu->addAction(tr("Disable Kit for All Projects"));
         disableForAllAction->setEnabled(isSelectable);
         QObject::connect(disableForAllAction, &QAction::triggered, [kit] {
             for (Project * const p : SessionManager::projects()) {
