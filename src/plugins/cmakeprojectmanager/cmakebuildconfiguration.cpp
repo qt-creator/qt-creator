@@ -121,8 +121,9 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Core::Id id)
                     == QMessageBox::Ok) {
                     return newDir;
                 }
+                return Utils::nullopt;
             }
-            return Utils::nullopt;
+            return newDir;
         });
 
     addAspect<InitialCMakeArgumentsAspect>();
