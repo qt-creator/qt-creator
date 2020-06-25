@@ -242,7 +242,7 @@ private:
     mutable QReadWriteLock m_licenseInputLock;
 
 public:
-    bool m_packageListingSuccessful = true;
+    bool m_packageListingSuccessful = false;
 };
 
 /*!
@@ -908,6 +908,7 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
     clearPackages();
 
     lastSdkManagerPath = m_config.sdkManagerToolPath();
+    m_packageListingSuccessful = false;
 
     if (m_config.sdkToolsVersion().isNull()) {
         // Configuration has invalid sdk path or corrupt installation.

@@ -196,6 +196,7 @@ public:
     Utils::FilePath openSslLocation() const;
     void setOpenSslLocation(const Utils::FilePath &openSslLocation);
 
+    static Utils::FilePath getJdkPath();
 
 private:
     static QString getDeviceProperty(const Utils::FilePath &adbToolPath,

@@ -103,7 +103,6 @@ private:
     void apply() final { AndroidConfigurations::setConfig(m_androidConfig); }
 
     void validateJdk();
-    FilePath findJdkInCommonPaths() const;
     void validateNdk();
     void updateNdkList();
     void onSdkPathChanged();
@@ -155,8 +154,7 @@ private:
 
 enum JavaValidation {
     JavaPathExistsRow,
-    JavaJdkValidRow,
-    JavaJdkValidVersionRow
+    JavaJdkValidRow
 };
 
 enum AndroidValidation {
@@ -395,7 +393,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     QMap<int, QString> javaValidationPoints;
     javaValidationPoints[JavaPathExistsRow] = tr("JDK path exists.");
     javaValidationPoints[JavaJdkValidRow] = tr("JDK path is a valid JDK root folder.");
-    javaValidationPoints[JavaJdkValidVersionRow] = tr("Working JDK version (8) detected.");
     m_javaSummary = new SummaryWidget(javaValidationPoints, tr("Java Settings are OK."),
                                       tr("Java settings have errors."), m_ui.javaDetailsWidget);
 
@@ -405,7 +402,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     androidValidationPoints[SdkToolsInstalledRow] = tr("SDK tools installed.");
     androidValidationPoints[PlatformToolsInstalledRow] = tr("Platform tools installed.");
     androidValidationPoints[SdkManagerSuccessfulRow] = tr(
-        "SDK manager runs (requires exactly Java 1.8).");
+        "SDK manager runs (SDK Tools versions <= 26.x require exactly Java 1.8).");
     androidValidationPoints[AllEssentialsInstalledRow] = tr(
         "All essential packages installed for all installed Qt versions.");
     androidValidationPoints[BuildToolsInstalledRow] = tr("Build tools installed.");
@@ -433,7 +430,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             this, &AndroidSettingsWidget::validateJdk);
     FilePath currentJdkPath = m_androidConfig.openJDKLocation();
     if (currentJdkPath.isEmpty())
-        currentJdkPath = findJdkInCommonPaths();
+        currentJdkPath = AndroidConfig::getJdkPath();
     m_ui.OpenJDKLocationPathChooser->setFilePath(currentJdkPath);
     m_ui.OpenJDKLocationPathChooser->setPromptDialogTitle(tr("Select JDK Path"));
 
@@ -584,24 +581,6 @@ void AndroidSettingsWidget::validateJdk()
     const FilePath bin = m_androidConfig.openJDKLocation().pathAppended("bin/javac" QTC_HOST_EXE_SUFFIX);
     m_javaSummary->setPointValid(JavaJdkValidRow, jdkPathExists && bin.exists());
 
-    bool jdkVersionCorrect = false;
-    SynchronousProcess javacProcess;
-    const int timeoutS = 5;
-    javacProcess.setTimeoutS(timeoutS);
-    const CommandLine cmd(bin, {"-version"});
-    SynchronousProcessResponse response = javacProcess.runBlocking(cmd);
-    if (response.result == SynchronousProcessResponse::Finished) {
-        QString output = response.stdOut(); // JDK 14 uses stdOut for this output.
-        if (output.isEmpty())
-            output = response.stdErr(); // JDK 8 uses stdErr for this output.
-        if (output.startsWith("javac ")) {
-            const QVersionNumber javacVersion = QVersionNumber::fromString(output.mid(6));
-            if (QVersionNumber(1, 8).isPrefixOf(javacVersion))
-                jdkVersionCorrect = true;
-        }
-    }
-    m_javaSummary->setPointValid(JavaJdkValidVersionRow, jdkVersionCorrect);
-
     updateUI();
 }
 
@@ -618,53 +597,6 @@ void AndroidSettingsWidget::validateOpenSsl()
     m_openSslSummary->setPointValid(OpenSslCmakeListsPathExists, cmakeListsExists);
 
     updateUI();
-}
-
-FilePath AndroidSettingsWidget::findJdkInCommonPaths() const
-{
-    QString jdkFromEnvVar = QString::fromLocal8Bit(getenv("JAVA_HOME"));
-    if (!jdkFromEnvVar.isEmpty())
-        return FilePath::fromUserInput(jdkFromEnvVar);
-
-    if (HostOsInfo::isWindowsHost()) {
-        QString jdkRegisteryPath = "HKEY_LOCAL_MACHINE\\SOFTWARE\\JavaSoft\\JDK\\";
-        QSettings jdkSettings(jdkRegisteryPath, QSettings::NativeFormat);
-
-        QStringList jdkVersions = jdkSettings.childGroups();
-        FilePath jdkHome;
-
-        for (const QString &version : jdkVersions) {
-            jdkSettings.beginGroup(version);
-            jdkHome = FilePath::fromUserInput(jdkSettings.value("JavaHome").toString());
-            jdkSettings.endGroup();
-            if (version.startsWith("1.8"))
-                return jdkHome;
-        }
-
-        return jdkHome;
-    }
-
-    QProcess findJdkPathProc;
-
-    QString cmd;
-    QStringList args;
-
-    if (HostOsInfo::isMacHost()) {
-        cmd = "sh";
-        args << "-c" << "/usr/libexec/java_home";
-    } else {
-        cmd = "sh";
-        args << "-c" << "readlink -f $(which java)";
-    }
-
-    findJdkPathProc.start(cmd, args);
-    findJdkPathProc.waitForFinished();
-    QByteArray jdkPath = findJdkPathProc.readAllStandardOutput().trimmed();
-
-    if (HostOsInfo::isMacHost())
-        return FilePath::fromUtf8(jdkPath);
-    else
-        return FilePath::fromUtf8(jdkPath.replace("jre/bin/java", ""));
 }
 
 void AndroidSettingsWidget::validateNdk()

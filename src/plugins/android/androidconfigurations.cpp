@@ -105,7 +105,8 @@ const char macOsKey[] = "mac";
 
 
 namespace {
-    const char jdkSettingsPath[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\JavaSoft\\Java Development Kit";
+    const char jdk8SettingsPath[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\JavaSoft\\Java Development Kit";
+    const char jdkLatestSettingsPath[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\JavaSoft\\JDK\\";
 
     const QLatin1String SettingsGroup("AndroidConfigurations");
     const QLatin1String SDKLocationKey("SDKLocation");
@@ -1476,103 +1477,77 @@ AndroidConfigurations::AndroidConfigurations()
 
 AndroidConfigurations::~AndroidConfigurations() = default;
 
-static FilePath javaHomeForJavac(const FilePath &location)
+FilePath AndroidConfig::getJdkPath()
 {
-    QFileInfo fileInfo = location.toFileInfo();
-    int tries = 5;
-    while (tries > 0) {
-        QDir dir = fileInfo.dir();
-        dir.cdUp();
-        if (QFileInfo::exists(dir.filePath(QLatin1String("lib/tools.jar"))))
-            return FilePath::fromString(dir.path());
-        if (fileInfo.isSymLink())
-            fileInfo.setFile(fileInfo.symLinkTarget());
+    FilePath jdkHome;
+
+    if (HostOsInfo::isWindowsHost()) {
+        QStringList allVersions;
+        std::unique_ptr<QSettings> settings(
+            new QSettings(jdk8SettingsPath, QSettings::NativeFormat));
+        allVersions = settings->childGroups();
+#ifdef Q_OS_WIN
+        if (allVersions.isEmpty()) {
+            settings.reset(new QSettings(jdk8SettingsPath, QSettings::Registry64Format));
+            allVersions = settings->childGroups();
+        }
+#endif // Q_OS_WIN
+
+        // If no jdk 1.8 can be found, look for jdk versions above 1.8
+        // Android section would warn if sdkmanager cannot run with newer jdk versions
+        if (allVersions.isEmpty()) {
+            settings.reset(new QSettings(jdkLatestSettingsPath, QSettings::NativeFormat));
+            allVersions = settings->childGroups();
+#ifdef Q_OS_WIN
+            if (allVersions.isEmpty()) {
+                settings.reset(new QSettings(jdkLatestSettingsPath, QSettings::Registry64Format));
+                allVersions = settings->childGroups();
+            }
+#endif // Q_OS_WIN
+        }
+
+        for (const QString &version : allVersions) {
+            settings->beginGroup(version);
+            jdkHome = FilePath::fromUserInput(settings->value("JavaHome").toString());
+            settings->endGroup();
+            if (version.startsWith("1.8")) {
+                if (!jdkHome.exists())
+                    continue;
+                break;
+            }
+        }
+    } else {
+        QStringList args;
+        if (HostOsInfo::isMacHost())
+            args << "-c"
+                 << "/usr/libexec/java_home";
         else
-            break;
-        --tries;
+            args << "-c"
+                 << "readlink -f $(which java)";
+
+        QProcess findJdkPathProc;
+        findJdkPathProc.start("sh", args);
+        findJdkPathProc.waitForFinished();
+        QByteArray jdkPath = findJdkPathProc.readAllStandardOutput().trimmed();
+
+        if (HostOsInfo::isMacHost()) {
+            jdkHome = FilePath::fromUtf8(jdkPath);
+        } else {
+            jdkPath.replace("bin/java", ""); // For OpenJDK 11
+            jdkPath.replace("jre/bin/java", "");
+            jdkHome = FilePath::fromUtf8(jdkPath);
+        }
     }
-    return FilePath();
+
+    return jdkHome;
 }
 
 void AndroidConfigurations::load()
 {
-    bool saveSettings = false;
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(SettingsGroup);
     m_config.load(*settings);
-
-    if (m_config.openJDKLocation().isEmpty()) {
-        if (HostOsInfo::isLinuxHost()) {
-            Environment env = Environment::systemEnvironment();
-            FilePath location = env.searchInPath(QLatin1String("javac"));
-            QFileInfo fi = location.toFileInfo();
-            if (fi.exists() && fi.isExecutable() && !fi.isDir()) {
-                m_config.setOpenJDKLocation(javaHomeForJavac(location));
-                saveSettings = true;
-            }
-        } else if (HostOsInfo::isMacHost()) {
-            QFileInfo javaHomeExec(QLatin1String("/usr/libexec/java_home"));
-            if (javaHomeExec.isExecutable() && !javaHomeExec.isDir()) {
-                SynchronousProcess proc;
-                proc.setTimeoutS(2);
-                proc.setProcessChannelMode(QProcess::MergedChannels);
-                SynchronousProcessResponse response =
-                        proc.runBlocking({javaHomeExec.absoluteFilePath(), {}});
-                if (response.result == SynchronousProcessResponse::Finished) {
-                    const QString &javaHome = response.allOutput().trimmed();
-                    if (!javaHome.isEmpty() && QFileInfo::exists(javaHome))
-                        m_config.setOpenJDKLocation(FilePath::fromString(javaHome));
-                }
-            }
-        } else if (HostOsInfo::isWindowsHost()) {
-            QStringList allVersions;
-            std::unique_ptr<QSettings> settings(new QSettings(jdkSettingsPath,
-                                                              QSettings::NativeFormat));
-            allVersions = settings->childGroups();
-#ifdef Q_OS_WIN
-            if (allVersions.isEmpty()) {
-                settings.reset(new QSettings(jdkSettingsPath, QSettings::Registry64Format));
-                allVersions = settings->childGroups();
-            }
-#endif // Q_OS_WIN
-
-            QString javaHome;
-            int major = -1;
-            int minor = -1;
-            foreach (const QString &version, allVersions) {
-                QStringList parts = version.split(QLatin1Char('.'));
-                if (parts.size() != 2) // not interested in 1.7.0_u21
-                    continue;
-                bool okMajor, okMinor;
-                int tmpMajor = parts.at(0).toInt(&okMajor);
-                int tmpMinor = parts.at(1).toInt(&okMinor);
-                if (!okMajor || !okMinor)
-                    continue;
-                if (tmpMajor > major
-                        || (tmpMajor == major
-                            && tmpMinor > minor)) {
-                    settings->beginGroup(version);
-                    QString tmpJavaHome = settings->value(QLatin1String("JavaHome")).toString();
-                    settings->endGroup();
-                    if (!QFileInfo::exists(tmpJavaHome))
-                        continue;
-
-                    major = tmpMajor;
-                    minor = tmpMinor;
-                    javaHome = tmpJavaHome;
-                }
-            }
-            if (!javaHome.isEmpty()) {
-                m_config.setOpenJDKLocation(FilePath::fromString(javaHome));
-                saveSettings = true;
-            }
-        }
-    }
-
     settings->endGroup();
-
-    if (saveSettings)
-        save();
 }
 
 void AndroidConfigurations::updateAndroidDevice()
