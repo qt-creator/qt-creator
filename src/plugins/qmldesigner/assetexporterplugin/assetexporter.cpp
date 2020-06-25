@@ -25,7 +25,9 @@
 #include "assetexporter.h"
 #include "componentexporter.h"
 #include "exportnotification.h"
+#include "assetexportpluginconstants.h"
 
+#include "rewriterview.h"
 #include "qmlitemnode.h"
 #include "qmlobjectnode.h"
 #include "utils/qtcassert.h"
@@ -142,12 +144,7 @@ bool AssetExporter::isBusy() const
 Utils::FilePath AssetExporter::exportAsset(const QmlObjectNode &node)
 {
     // TODO: Use this hash as UUID and add to the node.
-    QByteArray hash;
-    do {
-        hash = generateHash(node.id());
-    } while (m_usedHashes.contains(hash));
-    m_usedHashes.insert(hash);
-
+    QByteArray hash = addNodeUUID(node.modelNode());
     Utils::FilePath assetPath = m_exportPath.pathAppended(QString("assets/%1.png")
                                                           .arg(QString::fromLatin1(hash)));
     m_assetDumper->dumpAsset(node.toQmlItemNode().instanceRenderPixmap(), assetPath);
@@ -189,7 +186,28 @@ void AssetExporter::onQmlFileLoaded()
     QTC_ASSERT(m_view && m_view->model(), qCDebug(loggerError) << "Null model"; return);
     qCDebug(loggerInfo) << "Qml file load done" << m_view->model()->fileUrl();
     exportComponent(m_view->rootModelNode());
+    QString error;
+    if (!m_view->saveQmlFile(&error)) {
+        ExportNotification::addError(tr("Error saving QML file. %1")
+                                     .arg(error.isEmpty()? tr("Unknown") : error));
+    }
     triggerLoadNextFile();
+}
+
+QByteArray AssetExporter::addNodeUUID(ModelNode node)
+{
+    QByteArray uuid = node.auxiliaryData(Constants::UuidTag).toByteArray();
+    qDebug() << node.id() << "UUID" << uuid;
+    if (uuid.isEmpty()) {
+        // Assign a new hash.
+        do {
+            uuid = generateHash(node.id());
+        } while (m_usedHashes.contains(uuid));
+        m_usedHashes.insert(uuid);
+        node.setAuxiliaryData(Constants::UuidAuxTag, QString::fromLatin1(uuid));
+        node.model()->rewriterView()->writeAuxiliaryData();
+    }
+    return uuid;
 }
 
 void AssetExporter::triggerLoadNextFile()

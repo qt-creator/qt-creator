@@ -87,6 +87,8 @@ private:
 
     void onQmlFileLoaded();
 
+    QByteArray addNodeUUID(ModelNode node);
+
 private:
     mutable class State {
     public:

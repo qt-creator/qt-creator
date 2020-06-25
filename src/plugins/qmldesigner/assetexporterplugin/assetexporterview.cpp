@@ -62,12 +62,21 @@ bool AssetExporterView::loadQmlFile(const Utils::FilePath &path, uint timeoutSec
 
     setState(LoadState::Busy);
     m_retryCount = std::max(MinRetry, static_cast<int>((timeoutSecs * 1000) / RetryIntervalMs));
-    Core::EditorManager::openEditor(path.toString(), Core::Id(),
+    m_currentEditor = Core::EditorManager::openEditor(path.toString(), Core::Id(),
                                     Core::EditorManager::DoNotMakeVisible);
     Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
     Core::ModeManager::setFocusToCurrentMode();
     m_timer.start();
     return true;
+}
+
+bool AssetExporterView::saveQmlFile(QString *error) const
+{
+    if (!m_currentEditor) {
+        qCDebug(loggerWarn) << "Saving QML file failed. No editor.";
+        return false;
+    }
+    return m_currentEditor->document()->save(error);
 }
 
 void AssetExporterView::modelAttached(Model *model)

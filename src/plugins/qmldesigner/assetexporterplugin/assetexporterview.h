@@ -54,6 +54,7 @@ public:
     AssetExporterView(QObject *parent = nullptr);
 
     bool loadQmlFile(const Utils::FilePath &path, uint timeoutSecs = 10);
+    bool saveQmlFile(QString *error) const;
 
     void modelAttached(Model *model) override;
     void instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangeHash) override;
