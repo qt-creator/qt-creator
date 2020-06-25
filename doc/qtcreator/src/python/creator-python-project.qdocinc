@@ -48,7 +48,7 @@
     create a Python project that contains the source file for a class. Specify
     the class name, base class, and and source file for the class.
 
-    \image qtcreator-python-wizard-app-window.png
+    \image qtcreator-python-wizard-app-window.png "Qt for Python wizard for creating a widget-based UI"
 
     The wizard adds the imports to the source file to provide
     access to the QApplication, the base class you selected in the Qt
@@ -112,6 +112,13 @@
         sys.exit(app.exec_())
     \endcode
 
+    You can now modify the boilerplate code in the Edit mode to develop your
+    Python application. Select \uicontrol REPL on the toolbar to start the
+    \l{https://pythonprogramminglanguage.com/repl/}{Python interactive shell}.
+    To start the shell and import the current file as a module, select
+    select \uicontrol {REPL Import File}. To also import all functions from
+    the file, select \uicontrol {REPL Import *}.
+
     Open the .ui file in the Design mode to create a widget-based UI in \QD.
 
     The \uicontrol Window wizard adds similar code to the source file, without
@@ -139,7 +146,7 @@
     you to create a Python project that contains a main QML file. Specify the
     minimum PySide version to run the application.
 
-    \image qtcreator-python-wizard-qml.png
+    \image qtcreator-python-wizard-qml.png "Qt for Python wizard for creating an empty Qt Quick application"
 
     The wizard adds the following imports to the source file to provide access
     to QGuiApplication and QQmlApplicationEngine:
