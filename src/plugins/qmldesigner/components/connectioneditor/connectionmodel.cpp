@@ -56,7 +56,8 @@ bool isConnection(const QmlDesigner::ModelNode &modelNode)
 {
     return (modelNode.type() == "Connections"
             || modelNode.type() == "QtQuick.Connections"
-            || modelNode.type() == "Qt.Connections");
+            || modelNode.type() == "Qt.Connections"
+            || modelNode.type() == "QtQml.Connections");
 
 }
 

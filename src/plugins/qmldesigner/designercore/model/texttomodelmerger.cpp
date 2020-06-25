@@ -311,7 +311,7 @@ bool isPropertyChangesType(const QmlDesigner::TypeName &type)
 
 bool isConnectionsType(const QmlDesigner::TypeName &type)
 {
-    return type == "Connections" || type == "QtQuick.Connections" || type == "Qt.Connections";
+    return type == "Connections" || type == "QtQuick.Connections" || type == "Qt.Connections" || type == "QtQml.Connections";
 }
 
 bool propertyIsComponentType(const QmlDesigner::NodeAbstractProperty &property, const QmlDesigner::TypeName &type, QmlDesigner::Model *model)
