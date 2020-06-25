@@ -187,7 +187,7 @@ class ProcessProperties: private MemberProcessor
     QSet<const ObjectValue *> _processed;
     bool _globalCompletion = false;
     bool _enumerateGeneratedSlots = false;
-    bool _enumerateSlots = true;
+    bool _enumerateMethods = true;
     const ScopeChain *_scopeChain;
     const ObjectValue *_currentObject = nullptr;
     PropertyProcessor *_propertyProcessor = nullptr;
@@ -208,9 +208,9 @@ public:
         _enumerateGeneratedSlots = enumerate;
     }
 
-    void setEnumerateSlots(bool enumerate)
+    void setEnumerateMethods(bool enumerate)
     {
-        _enumerateSlots = enumerate;
+        _enumerateMethods = enumerate;
     }
 
     void operator ()(const Value *value, PropertyProcessor *processor)
@@ -251,14 +251,14 @@ private:
 
     bool processSignal(const QString &name, const Value *value) override
     {
-        if (_globalCompletion)
+        if (_globalCompletion || _enumerateMethods)
             process(name, value);
         return true;
     }
 
     bool processSlot(const QString &name, const Value *value) override
     {
-        if (_enumerateSlots)
+        if (_enumerateMethods)
             process(name, value);
         return true;
     }
@@ -771,7 +771,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
             ProcessProperties processProperties(&scopeChain);
             processProperties.setGlobalCompletion(true);
             processProperties.setEnumerateGeneratedSlots(true);
-            processProperties.setEnumerateSlots(false);
+            processProperties.setEnumerateMethods(false);
 
             // id: is special
             AssistProposalItem *idProposalItem = new QmlJSAssistProposalItem;
