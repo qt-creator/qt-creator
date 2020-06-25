@@ -803,7 +803,7 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
     QProgressDialog *openSslProgressDialog
         = new QProgressDialog(tr("Cloning OpenSSL prebuilt libraries..."),
                               tr("Cancel"), 0, 0);
-    openSslProgressDialog->setWindowModality(Qt::WindowModal);
+    openSslProgressDialog->setWindowModality(Qt::ApplicationModal);
     openSslProgressDialog->setWindowTitle(openSslCloneTitle);
     openSslProgressDialog->setFixedSize(openSslProgressDialog->sizeHint());
 
