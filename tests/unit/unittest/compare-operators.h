@@ -34,8 +34,7 @@ inline
 bool operator==(const TextPosition first, class TextPosition second)
 {
     return first.line == second.line
-        && first.column == second.column
-        && first.offset == second.offset;
+        && first.column == second.column;
 }
 
 inline

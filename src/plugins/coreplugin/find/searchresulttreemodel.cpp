@@ -276,7 +276,7 @@ QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) 
         result = row->item.mainRange.begin.column;
         break;
     case ItemDataRoles::SearchTermLengthRole:
-        result = row->item.mainRange.length();
+        result = row->item.mainRange.length(row->item.text);
         break;
     case ItemDataRoles::IsGeneratedRole:
         result = row->isGenerated();

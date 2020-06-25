@@ -40,11 +40,9 @@ class TextPosition
 public:
     TextPosition() = default;
     TextPosition(int line, int column) : line(line), column(column) {}
-    TextPosition(int line, int column, int offset) : line(line), column(column), offset(offset) {}
 
     int line = -1; // (0 or -1 for no line number)
     int column = -1; // 0-based starting position for a mark (-1 for no mark)
-    int offset = -1;
 
     bool operator<(const TextPosition &other)
     { return line < other.line || (line == other.line && column < other.column); }
@@ -56,28 +54,26 @@ public:
     TextRange() = default;
     TextRange(TextPosition begin, TextPosition end) : begin(begin), end(end) {}
 
-    QString mid(const QString &text) const
-    {
-        if (begin.line == end.line)
-            return text.mid(begin.column, end.column - begin.column);
+    QString mid(const QString &text) const { return text.mid(begin.column, length(text)); }
 
-        return QString();
-    }
-
-    int endLineOffsetDifference() const
-    {
-        if (Utils::HostOsInfo::isWindowsHost())
-            return begin.line - end.line;
-
-        return 0;
-    }
-
-    int length() const
+    int length(const QString &text) const
     {
         if (begin.line == end.line)
             return end.column - begin.column;
 
-        return end.offset - begin.offset - endLineOffsetDifference();
+        const int lineCount = end.line - begin.line;
+        int index = text.indexOf(QChar::LineFeed);
+        int currentLine = 1;
+        while (index > 0 && currentLine < lineCount) {
+            ++index;
+            index = text.indexOf(QChar::LineFeed, index);
+            ++currentLine;
+        }
+
+        if (index < 0)
+            return 0;
+
+        return index - begin.column + end.column;
     }
 
     TextPosition begin;

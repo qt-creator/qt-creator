@@ -529,7 +529,7 @@ QStringList BaseFileFind::replaceAll(const QString &text,
             if (item.userData.canConvert<QStringList>() && !item.userData.toStringList().isEmpty()) {
                 replacement = Utils::expandRegExpReplacement(text, item.userData.toStringList());
             } else if (preserveCase) {
-                const QString originalText = (item.mainRange.length() == 0)
+                const QString originalText = (item.mainRange.length(item.text) == 0)
                                                  ? item.text
                                                  : item.mainRange.mid(item.text);
                 replacement = Utils::matchCaseReplacement(originalText, text);
