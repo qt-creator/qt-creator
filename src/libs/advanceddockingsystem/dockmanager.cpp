@@ -137,13 +137,13 @@ namespace ADS
         void hideFloatingWidgets()
         {
             // Hide updates of floating widgets from user
-            for (auto floatingWidget : m_floatingWidgets) // TODO qAsConst()
+            for (auto floatingWidget : qAsConst(m_floatingWidgets))
                 floatingWidget->hide();
         }
 
         void markDockWidgetsDirty()
         {
-            for (auto dockWidget : m_dockWidgetsMap) // TODO qAsConst()
+            for (auto dockWidget : qAsConst(m_dockWidgetsMap))
                 dockWidget->setProperty("dirty", true);
         }
 
