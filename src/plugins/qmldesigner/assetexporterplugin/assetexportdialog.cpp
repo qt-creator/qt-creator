@@ -43,6 +43,7 @@
 #include <QScrollBar>
 
 #include <algorithm>
+#include <cmath>
 
 namespace  {
 static void addFormattedMessage(Utils::OutputFormatter *formatter, const QString &str,
