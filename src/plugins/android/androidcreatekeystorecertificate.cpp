@@ -54,6 +54,12 @@ AndroidCreateKeystoreCertificate::AndroidCreateKeystoreCertificate(QWidget *pare
             this, &AndroidCreateKeystoreCertificate::checkCertificateAlias);
     connect(ui->countryLineEdit, &QLineEdit::textChanged,
             this, &AndroidCreateKeystoreCertificate::checkCountryCode);
+    connect(ui->buttonBox, &QDialogButtonBox::rejected,
+            this, &QDialog::reject);
+    connect(ui->keystorePassLineEdit,
+            &QLineEdit::editingFinished,
+            ui->keystoreRetypePassLineEdit,
+            QOverload<>::of(&QLineEdit::setFocus));
 }
 
 AndroidCreateKeystoreCertificate::~AndroidCreateKeystoreCertificate()
