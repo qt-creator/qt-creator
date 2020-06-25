@@ -92,6 +92,7 @@ public:
     QString description() const;
     QString url() const;
     QString category() const;
+    QString revision() const;
     QRegularExpression platformSpecification() const;
     bool isAvailableForHostPlatform() const;
     bool isRequired() const;

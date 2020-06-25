@@ -70,16 +70,6 @@ PluginDetailsView::~PluginDetailsView()
     delete m_ui;
 }
 
-// TODO: make API in PluginSpec
-static QString getSpecRevision(PluginSpec *spec)
-{
-    const QJsonObject metaData = spec->metaData();
-    const QJsonValue revision = metaData.value("Revision");
-    if (revision.isString())
-        return revision.toString();
-    return QString();
-}
-
 /*!
     Reads the given \a spec and displays its values
     in this PluginDetailsView.
@@ -87,7 +77,7 @@ static QString getSpecRevision(PluginSpec *spec)
 void PluginDetailsView::update(PluginSpec *spec)
 {
     m_ui->name->setText(spec->name());
-    const QString revision = getSpecRevision(spec);
+    const QString revision = spec->revision();
     const QString versionString = spec->version() + (revision.isEmpty() ? QString()
                                                                         : " (" + revision + ")");
     m_ui->version->setText(versionString);

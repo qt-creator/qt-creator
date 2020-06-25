@@ -288,6 +288,14 @@ QString PluginSpec::category() const
     return d->category;
 }
 
+QString PluginSpec::revision() const
+{
+    const QJsonValue revision = metaData().value("Revision");
+    if (revision.isString())
+        return revision.toString();
+    return QString();
+}
+
 /*!
     Returns a QRegularExpression matching the platforms this plugin works on.
     An empty pattern implies all platforms.
