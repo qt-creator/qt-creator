@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -115,9 +115,10 @@
     When you rename a class, you can also change filenames that match the
     class name.
 
-    To rename a specific symbol in a Qt project, place the cursor
-     on it and select \uicontrol Tools > \uicontrol {C++} >
+    To rename a C++ symbol in a project, place the cursor
+    on it and select \uicontrol Tools > \uicontrol {C++} >
     \uicontrol {Rename Symbol Under Cursor} or press \key {Ctrl+Shift+R}.
+    Use the keyboard shortcut to rename Python symbols.
     \endif
 
     To rename a QML type in a project, select \uicontrol Tools >

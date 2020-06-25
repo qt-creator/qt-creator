@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -54,8 +54,10 @@
             in the \uicontrol Symbols list on the \l{Using the Editor Toolbar}
             {editor toolbar}
         \li \l{Finding Symbols}{Finding references to symbols}
+        \li \l{Renaming Symbols}{Renaming the symbol under cursor}
         \li Code actions
-        \li Integrating diagnostics from the language server
+        \li Displaying diagnostics from the language server as tooltips. You can
+            also select a code range to display diagnostics for.
     \endlist
 
     By providing a client for the language server protocol, \QC can support
