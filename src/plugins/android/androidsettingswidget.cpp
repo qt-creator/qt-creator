@@ -118,7 +118,6 @@ private:
     void startAVD();
     void avdActivated(const QModelIndex &);
     void dataPartitionSizeEditingFinished();
-    void manageAVD();
     void createKitToggled();
 
     void updateUI();
@@ -506,8 +505,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             this, &AndroidSettingsWidget::avdActivated);
     connect(m_ui.DataPartitionSizeSpinBox, &QAbstractSpinBox::editingFinished,
             this, &AndroidSettingsWidget::dataPartitionSizeEditingFinished);
-    connect(m_ui.nativeAvdManagerButton, &QAbstractButton::clicked,
-            this, &AndroidSettingsWidget::manageAVD);
     connect(m_ui.CreateKitCheckBox, &QAbstractButton::toggled,
             this, &AndroidSettingsWidget::createKitToggled);
     connect(m_ui.downloadNDKToolButton, &QAbstractButton::clicked,
@@ -735,7 +732,7 @@ void AndroidSettingsWidget::validateSdk()
                                                         PlatformSdkInstalledRow,
                                                         AllEssentialsInstalledRow});
     m_androidConfig.setSdkFullyConfigured(sdkToolsOk && componentsOk);
-    if (sdkToolsOk && !componentsOk && !m_androidConfig.useNativeUiTools()) {
+    if (sdkToolsOk && !componentsOk) {
         // Ask user to install essential SDK components. Works only for sdk tools version >= 26.0.0
         QString message = tr("Android SDK installation is missing necessary packages. Do you "
                              "want to install the missing packages?");
@@ -920,7 +917,6 @@ void AndroidSettingsWidget::updateUI()
 
     m_ui.avdManagerTab->setEnabled(javaSetupOk && androidSetupOk);
     m_ui.sdkManagerTab->setEnabled(sdkToolsOk);
-    m_sdkManagerWidget->setSdkManagerControlsEnabled(!m_androidConfig.useNativeUiTools());
 
     const QListWidgetItem *currentItem = m_ui.ndkListWidget->currentItem();
     const FilePath currentNdk = FilePath::fromString(currentItem ? currentItem->text() : "");
@@ -932,19 +928,6 @@ void AndroidSettingsWidget::updateUI()
     m_javaSummary->setSetupOk(javaSetupOk);
     m_androidSummary->setSetupOk(androidSetupOk);
     m_openSslSummary->setSetupOk(openSslOk);
-}
-
-void AndroidSettingsWidget::manageAVD()
-{
-    if (m_androidConfig.useNativeUiTools()) {
-        m_avdManager.launchAvdManagerUiTool();
-    } else {
-        QMessageBox::warning(this, tr("AVD Manager Not Available"),
-                             tr("AVD manager UI tool is not available in the installed SDK tools "
-                                "(version %1). Use the command line tool \"avdmanager\" for "
-                                "advanced AVD management.")
-                             .arg(m_androidConfig.sdkToolsVersion().toString()));
-    }
 }
 
 void AndroidSettingsWidget::downloadSdk()

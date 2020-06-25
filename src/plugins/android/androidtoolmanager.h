@@ -50,7 +50,6 @@ public:
     ~AndroidToolManager();
 
     SdkPlatformList availableSdkPlatforms(bool *ok = nullptr) const;
-    void launchAvdManager() const;
 
     QFuture<CreateAvdInfo> createAvd(CreateAvdInfo info) const;
     bool removeAvd(const QString &name) const;

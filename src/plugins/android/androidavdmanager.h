@@ -43,7 +43,6 @@ public:
     AndroidAvdManager(const AndroidConfig& config = AndroidConfigurations::currentConfig());
     ~AndroidAvdManager();
 
-    void launchAvdManagerUiTool() const;
     QFuture<CreateAvdInfo> createAvd(CreateAvdInfo info) const;
     bool removeAvd(const QString &name) const;
     QFuture<AndroidDeviceInfoList> avdList() const;

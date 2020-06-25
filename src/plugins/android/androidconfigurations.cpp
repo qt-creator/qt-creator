@@ -841,12 +841,6 @@ QStringList AndroidConfig::getAbis(const FilePath &adbToolPath, const QString &d
     return result;
 }
 
-bool AndroidConfig::useNativeUiTools() const
-{
-    const QVersionNumber version = sdkToolsVersion();
-    return !version.isNull() && version <= QVersionNumber(25, 3, 0) && !isCmdlineSdkToolsInstalled();
-}
-
 bool AndroidConfig::isValidNdk(const QString &ndkLocation) const
 {
     auto ndkPath = Utils::FilePath::fromUserInput(ndkLocation);

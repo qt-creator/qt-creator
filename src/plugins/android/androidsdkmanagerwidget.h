@@ -92,7 +92,6 @@ private:
     void onApplyButton();
     void onUpdatePackages();
     void onCancel();
-    void onNativeSdkManager();
     void onOperationResult(int index);
     void onLicenseCheckResult(const AndroidSdkManager::OperationOutput &output);
     void onSdkManagerOptions();

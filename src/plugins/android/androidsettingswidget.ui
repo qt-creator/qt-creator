@@ -470,13 +470,6 @@
                </property>
               </spacer>
              </item>
-             <item>
-              <widget class="QPushButton" name="nativeAvdManagerButton">
-               <property name="text">
-                <string>Native AVD Manager...</string>
-               </property>
-              </widget>
-             </item>
             </layout>
            </item>
           </layout>

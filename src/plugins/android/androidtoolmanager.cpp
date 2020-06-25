@@ -112,11 +112,6 @@ SdkPlatformList AndroidToolManager::availableSdkPlatforms(bool *ok) const
     return list;
 }
 
-void AndroidToolManager::launchAvdManager() const
-{
-    QProcess::startDetached(m_config.androidToolPath().toString(), QStringList("avd"));
-}
-
 QFuture<CreateAvdInfo> AndroidToolManager::createAvd(CreateAvdInfo info) const
 {
     return Utils::runAsync(&AndroidToolManager::createAvdImpl, info,

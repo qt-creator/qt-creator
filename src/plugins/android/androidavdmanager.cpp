@@ -230,29 +230,13 @@ AndroidAvdManager::AndroidAvdManager(const AndroidConfig &config):
 
 AndroidAvdManager::~AndroidAvdManager() = default;
 
-void AndroidAvdManager::launchAvdManagerUiTool() const
-{
-    if (m_config.useNativeUiTools()) {
-        m_androidTool->launchAvdManager();
-     } else {
-        qCDebug(avdManagerLog) << "AVD Ui tool launch failed. UI tool not available"
-                               << m_config.sdkToolsVersion();
-    }
-}
-
 QFuture<CreateAvdInfo> AndroidAvdManager::createAvd(CreateAvdInfo info) const
 {
-    if (m_config.useNativeUiTools())
-        return m_androidTool->createAvd(info);
-
     return Utils::runAsync(&createAvdCommand, m_config, info);
 }
 
 bool AndroidAvdManager::removeAvd(const QString &name) const
 {
-    if (m_config.useNativeUiTools())
-        return m_androidTool->removeAvd(name);
-
     const CommandLine command(m_config.avdManagerToolPath(), {"delete", "avd", "-n", name});
     qCDebug(avdManagerLog) << "Running command (removeAvd):" << command.toUserOutput();
     Utils::SynchronousProcess proc;
@@ -263,9 +247,6 @@ bool AndroidAvdManager::removeAvd(const QString &name) const
 
 QFuture<AndroidDeviceInfoList> AndroidAvdManager::avdList() const
 {
-    if (m_config.useNativeUiTools())
-        return m_androidTool->androidVirtualDevicesFuture();
-
     return Utils::runAsync(&AvdManagerOutputParser::listVirtualDevices, m_parser.get(), m_config);
 }
 

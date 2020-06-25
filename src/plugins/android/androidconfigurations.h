@@ -184,7 +184,6 @@ public:
     OpenGl getOpenGLEnabled(const QString &emulator) const;
     bool isConnected(const QString &serialNumber) const;
 
-    bool useNativeUiTools() const;
     bool isCmdlineSdkToolsInstalled() const;
 
     bool sdkFullyConfigured() const { return m_sdkFullyConfigured; }

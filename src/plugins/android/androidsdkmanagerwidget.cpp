@@ -76,7 +76,6 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
     m_ui->setupUi(this);
     m_ui->sdkLicensebuttonBox->hide();
     m_ui->sdkLicenseLabel->hide();
-    m_ui->warningLabel->setType(Utils::InfoLabel::Warning);
     m_ui->viewStack->setCurrentWidget(m_ui->packagesStack);
 
     m_formatter = new Utils::OutputFormatter;
@@ -133,8 +132,6 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
             this, &AndroidSdkManagerWidget::onApplyButton);
     connect(m_ui->cancelButton, &QPushButton::clicked, this,
             &AndroidSdkManagerWidget::onCancel);
-    connect(m_ui->nativeSdkManagerButton, &QPushButton::clicked,
-            this, &AndroidSdkManagerWidget::onNativeSdkManager);
     connect(m_ui->optionsButton, &QPushButton::clicked,
             this, &AndroidSdkManagerWidget::onSdkManagerOptions);
     connect(m_ui->sdkLicensebuttonBox, &QDialogButtonBox::accepted, [this]() {
@@ -160,7 +157,6 @@ void AndroidSdkManagerWidget::setSdkManagerControlsEnabled(bool enable)
 {
     m_ui->packagesTypeGroup->setEnabled(enable);
     m_ui->expandCheck->setVisible(enable);
-    m_ui->warningLabel->setVisible(!enable);
     m_ui->packagesView->setEnabled(enable);
     m_ui->updateInstalledButton->setEnabled(enable);
     m_ui->optionsButton->setEnabled(enable);
@@ -251,19 +247,6 @@ void AndroidSdkManagerWidget::onUpdatePackages()
 void AndroidSdkManagerWidget::onCancel()
 {
     cancelPendingOperations();
-}
-
-void AndroidSdkManagerWidget::onNativeSdkManager()
-{
-    if (m_androidConfig.useNativeUiTools()) {
-        QProcess::startDetached(m_androidConfig.androidToolPath().toString(), {});
-    } else {
-        QMessageBox::warning(this, tr("Native SDK Manager Not Available"),
-                             tr("SDK manager UI tool is not available in the installed SDK tools "
-                                "(version %1). Use the command line tool \"sdkmanager\" for "
-                                "advanced SDK management.")
-                             .arg(m_androidConfig.sdkToolsVersion().toString()));
-    }
 }
 
 void AndroidSdkManagerWidget::onOperationResult(int index)
