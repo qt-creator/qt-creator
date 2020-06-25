@@ -470,8 +470,8 @@ void PropertyEditorView::setupQmlBackend()
         if (m_selectedNode.isValid()) {
             qmlObjectNode = QmlObjectNode(m_selectedNode);
             Q_ASSERT(qmlObjectNode.isValid());
+            currentQmlBackend->setup(qmlObjectNode, currentStateName, qmlSpecificsFile, this);
         }
-        currentQmlBackend->setup(qmlObjectNode, currentStateName, qmlSpecificsFile, this);
         currentQmlBackend->context()->setContextProperty("finishedNotify", QVariant(false));
         if (specificQmlData.isEmpty())
             currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
