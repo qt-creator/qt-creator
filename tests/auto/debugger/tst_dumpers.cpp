@@ -5648,8 +5648,10 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("CharPointers")
-            << Data("",
+            << Data("using gchar = char;",
 
+                    "const char *str1 = \"abc\";\n"
+                    "const gchar *str2 = \"abc\";\n"
                     "const char *s = \"aöa\";\n"
                     "const char *t = \"a\\xc3\\xb6\";\n"
                     "unsigned char uu[] = { 'a', 153 /* ö Latin1 */, 'a' };\n"
@@ -5658,6 +5660,8 @@ void tst_Dumpers::dumper_data()
 
                     "&s, &t, &uu, &u, &w")
 
+               + Check("str1", "\"abc\"", "char *")
+               + Check("str2", "\"abc\"", "gchar *")
                + CheckType("u", "unsigned char *")
                + CheckType("uu", "unsigned char [3]")
                + CheckType("s", "char *")
