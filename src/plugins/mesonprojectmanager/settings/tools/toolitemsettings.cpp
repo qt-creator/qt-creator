@@ -67,7 +67,7 @@ void ToolItemSettings::store()
     if (m_currentId)
         emit applyChanges(*m_currentId,
                           ui->mesonNameLineEdit->text(),
-                          ui->mesonPathChooser->fileName());
+                          ui->mesonPathChooser->filePath());
 }
 
 } // namespace Internal
