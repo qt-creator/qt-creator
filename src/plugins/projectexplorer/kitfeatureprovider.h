@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <coreplugin/id.h>
 #include <coreplugin/featureprovider.h>
 
 namespace ProjectExplorer {
@@ -34,9 +33,9 @@ namespace Internal {
 class KitFeatureProvider : public Core::IFeatureProvider
 {
 public:
-    QSet<Core::Id> availableFeatures(Core::Id id) const override;
-    QSet<Core::Id> availablePlatforms() const override;
-    QString displayNameForPlatform(Core::Id id) const override;
+    QSet<Utils::Id> availableFeatures(Utils::Id id) const override;
+    QSet<Utils::Id> availablePlatforms() const override;
+    QString displayNameForPlatform(Utils::Id id) const override;
 };
 
 } // namespace Internal

@@ -39,7 +39,7 @@ class BuildConsoleBuildStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
 public:
-    explicit BuildConsoleBuildStep(ProjectExplorer::BuildStepList *buildStepList, Core::Id id);
+    explicit BuildConsoleBuildStep(ProjectExplorer::BuildStepList *buildStepList, Utils::Id id);
     ~BuildConsoleBuildStep() override;
 
     bool init() override;

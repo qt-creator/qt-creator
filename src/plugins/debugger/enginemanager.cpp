@@ -163,7 +163,7 @@ public:
 
     TreeModel<TypedTreeItem<EngineItem>, EngineItem> m_engineModel;
     QPointer<EngineItem> m_currentItem; // The primary information is DebuggerMainWindow::d->m_currentPerspective
-    Core::Id m_previousMode;
+    Utils::Id m_previousMode;
     QPointer<QComboBox> m_engineChooser;
     bool m_shuttingDown = false;
 
@@ -468,7 +468,7 @@ void EngineManager::deactivateDebugMode()
         // If stopping the application also makes Qt Creator active (as the
         // "previously active application"), doing the switch synchronously
         // leads to funny effects with floating dock widgets
-        const Core::Id mode = d->m_previousMode;
+        const Utils::Id mode = d->m_previousMode;
         QTimer::singleShot(0, d, [mode]() { ModeManager::activateMode(mode); });
         d->m_previousMode = Id();
     }

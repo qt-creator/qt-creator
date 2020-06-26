@@ -35,7 +35,7 @@ using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 
-RemoteLinuxKillAppStep::RemoteLinuxKillAppStep(BuildStepList *bsl, Core::Id id)
+RemoteLinuxKillAppStep::RemoteLinuxKillAppStep(BuildStepList *bsl, Utils::Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
 {
     auto service = createDeployService<RemoteLinuxKillAppService>();
@@ -53,7 +53,7 @@ RemoteLinuxKillAppStep::RemoteLinuxKillAppStep(BuildStepList *bsl, Core::Id id)
     });
 }
 
-Core::Id RemoteLinuxKillAppStep::stepId()
+Utils::Id RemoteLinuxKillAppStep::stepId()
 {
     return "RemoteLinux.KillAppStep";
 }

@@ -303,7 +303,7 @@ void SerialOutputPane::createNewOutputWindow(SerialControl *rc)
 
     // Create new
     static int counter = 0;
-    Core::Id contextId = Core::Id(Constants::C_SERIAL_OUTPUT).withSuffix(counter++);
+    Utils::Id contextId = Utils::Id(Constants::C_SERIAL_OUTPUT).withSuffix(counter++);
     Core::Context context(contextId);
     auto ow = new Core::OutputWindow(context, QString(), m_tabWidget);
     using TextEditor::TextEditorSettings;

@@ -66,6 +66,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace VcsBase {
 namespace Internal {

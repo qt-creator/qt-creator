@@ -89,7 +89,7 @@ static QString cppLanguageOption(const FilePath &compiler)
 }
 
 static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &extraArgs,
-                                   const Core::Id languageId, const QStringList &env)
+                                   const Utils::Id languageId, const QStringList &env)
 {
     if (compiler.isEmpty() || !compiler.toFileInfo().isExecutable())
         return {};
@@ -130,7 +130,7 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &
     return Macro::toMacros(output);
 }
 
-static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Core::Id languageId,
+static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Utils::Id languageId,
                                    const QStringList &env)
 {
     if (!compiler.exists())
@@ -280,7 +280,7 @@ static Abi guessAbi(const Macros &macros)
             guessFormat(arch), guessWordWidth(macros)};
 }
 
-static QString buildDisplayName(Abi::Architecture arch, Core::Id language,
+static QString buildDisplayName(Abi::Architecture arch, Utils::Id language,
                                 const QString &version)
 {
     const auto archName = Abi::toString(arch);
@@ -320,7 +320,7 @@ ToolChain::MacroInspectionRunner IarToolChain::createMacroInspectionRunner() con
     addToEnvironment(env);
 
     const Utils::FilePath compilerCommand = m_compilerCommand;
-    const Core::Id languageId = language();
+    const Utils::Id languageId = language();
     const QStringList extraArgs = m_extraCodeModelFlags;
     MacrosCache macrosCache = predefinedMacrosCache();
 
@@ -367,7 +367,7 @@ ToolChain::BuiltInHeaderPathsRunner IarToolChain::createBuiltInHeaderPathsRunner
     addToEnvironment(env);
 
     const Utils::FilePath compilerCommand = m_compilerCommand;
-    const Core::Id languageId = language();
+    const Utils::Id languageId = language();
 
     HeaderPathsCache headerPaths = headerPathsCache();
 
@@ -583,7 +583,7 @@ QList<ToolChain *> IarToolChainFactory::autoDetectToolchains(
 }
 
 QList<ToolChain *> IarToolChainFactory::autoDetectToolchain(
-        const Candidate &candidate, Core::Id languageId) const
+        const Candidate &candidate, Utils::Id languageId) const
 {
     const auto env = Environment::systemEnvironment();
     const Macros macros = dumpPredefinedMacros(candidate.compilerPath, {}, languageId,

@@ -164,7 +164,7 @@ void GlobalOrProjectAspect::resetProjectToGlobalSettings()
 
 static std::vector<RunConfiguration::AspectFactory> theAspectFactories;
 
-RunConfiguration::RunConfiguration(Target *target, Core::Id id)
+RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
     : ProjectConfiguration(target, id)
 {
     QTC_CHECK(target && target == this->target());
@@ -242,9 +242,9 @@ void RunConfiguration::addAspectFactory(const AspectFactory &aspectFactory)
     theAspectFactories.push_back(aspectFactory);
 }
 
-QMap<Core::Id, QVariantMap> RunConfiguration::aspectData() const
+QMap<Utils::Id, QVariantMap> RunConfiguration::aspectData() const
 {
-    QMap<Core::Id, QVariantMap> data;
+    QMap<Utils::Id, QVariantMap> data;
     for (ProjectConfigurationAspect *aspect : m_aspects)
         aspect->toMap(data[aspect->id()]);
     return data;
@@ -273,7 +273,7 @@ QVariantMap RunConfiguration::toMap() const
 
     // FIXME: Remove this id mangling, e.g. by using a separate entry for the build key.
     if (!m_buildKey.isEmpty()) {
-        const Core::Id mangled = id().withSuffix(m_buildKey);
+        const Utils::Id mangled = id().withSuffix(m_buildKey);
         map.insert(settingsIdKey(), mangled.toSetting());
     }
 
@@ -325,7 +325,7 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
     m_buildKey = map.value(BUILD_KEY).toString();
 
     if (m_buildKey.isEmpty()) {
-        const Core::Id mangledId = Core::Id::fromSetting(map.value(settingsIdKey()));
+        const Utils::Id mangledId = Utils::Id::fromSetting(map.value(settingsIdKey()));
         m_buildKey = mangledId.suffixAfter(id());
 
         // Hack for cmake projects 4.10 -> 4.11.
@@ -435,7 +435,7 @@ QString RunConfigurationFactory::decoratedTargetName(const QString &targetName, 
     QString displayName;
     if (!targetName.isEmpty())
         displayName = QFileInfo(targetName).completeBaseName();
-    Core::Id devType = DeviceTypeKitAspect::deviceTypeId(target->kit());
+    Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(target->kit());
     if (devType != Constants::DESKTOP_DEVICE_TYPE) {
         if (IDevice::ConstPtr dev = DeviceKitAspect::device(target->kit())) {
             if (displayName.isEmpty()) {
@@ -489,7 +489,7 @@ RunConfigurationFactory::availableCreators(Target *target) const
     \sa addSupportedProjectType()
 */
 
-void RunConfigurationFactory::addSupportedTargetDeviceType(Core::Id id)
+void RunConfigurationFactory::addSupportedTargetDeviceType(Utils::Id id)
 {
     m_supportedTargetDeviceTypes.append(id);
 }
@@ -511,7 +511,7 @@ void RunConfigurationFactory::setDecorateDisplayNames(bool on)
     \sa addSupportedTargetDeviceType()
 */
 
-void RunConfigurationFactory::addSupportedProjectType(Core::Id id)
+void RunConfigurationFactory::addSupportedProjectType(Utils::Id id)
 {
     m_supportedProjectTypes.append(id);
 }
@@ -569,7 +569,7 @@ RunConfiguration *RunConfigurationFactory::restore(Target *parent, const QVarian
 {
     for (RunConfigurationFactory *factory : g_runConfigurationFactories) {
         if (factory->canHandle(parent)) {
-            const Core::Id id = idFromMap(map);
+            const Utils::Id id = idFromMap(map);
             if (id.name().startsWith(factory->m_runConfigurationId.name())) {
                 RunConfiguration *rc = factory->create(parent);
                 if (rc->fromMap(map)) {

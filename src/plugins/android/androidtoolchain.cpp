@@ -57,10 +57,10 @@ static const QHash<QString, Abi> ClangTargets = {
     {"aarch64-linux-android",
      Abi(Abi::ArmArchitecture, Abi::LinuxOS, Abi::AndroidLinuxFlavor, Abi::ElfFormat, 64)}};
 
-static const QList<Core::Id> LanguageIds = {ProjectExplorer::Constants::CXX_LANGUAGE_ID,
+static const QList<Utils::Id> LanguageIds = {ProjectExplorer::Constants::CXX_LANGUAGE_ID,
                                             ProjectExplorer::Constants::C_LANGUAGE_ID};
 
-static ToolChain *findToolChain(Utils::FilePath &compilerPath, Core::Id lang, const QString &target,
+static ToolChain *findToolChain(Utils::FilePath &compilerPath, Utils::Id lang, const QString &target,
                                 const ToolChainList &alreadyKnown)
 {
     ToolChain * tc = Utils::findOrDefault(alreadyKnown, [target, compilerPath, lang](ToolChain *tc) {
@@ -218,7 +218,7 @@ ToolChainList AndroidToolChainFactory::autodetectToolChainsFromNdks(
             continue;
         }
 
-        for (const Core::Id &lang : LanguageIds) {
+        for (const Utils::Id &lang : LanguageIds) {
             FilePath compilerCommand = clangPath;
             if (lang == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
                 compilerCommand = clangPlusPlusPath(clangPath);

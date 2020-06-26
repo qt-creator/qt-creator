@@ -48,7 +48,7 @@ public:
     void emitFaultyConfigurationMessage();
 
 protected:
-    AbstractProcessStep(BuildStepList *bsl, Core::Id id);
+    AbstractProcessStep(BuildStepList *bsl, Utils::Id id);
     ~AbstractProcessStep() override;
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;

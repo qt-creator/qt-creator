@@ -31,6 +31,8 @@
 #include <QMutexLocker>
 #include <QUrl>
 
+using namespace Utils;
+
 namespace Core {
 namespace Internal {
 

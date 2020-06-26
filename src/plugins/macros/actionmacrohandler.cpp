@@ -32,7 +32,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
 
 #include <texteditor/texteditorconstants.h>
 
@@ -40,6 +39,7 @@
 #include <QEvent>
 
 using namespace Core;
+using namespace Utils;
 
 namespace Macros {
 namespace Internal {

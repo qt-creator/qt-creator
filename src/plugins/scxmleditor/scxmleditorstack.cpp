@@ -85,7 +85,7 @@ QWidget *ScxmlEditorStack::widgetForEditor(ScxmlTextEditor *xmlEditor)
     return widget(i);
 }
 
-void ScxmlEditorStack::modeAboutToChange(Core::Id m)
+void ScxmlEditorStack::modeAboutToChange(Utils::Id m)
 {
     // Sync the editor when entering edit mode
     if (m == Core::Constants::MODE_EDIT) {

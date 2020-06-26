@@ -26,7 +26,8 @@
 #pragma once
 
 #include <coreplugin/core_global.h>
-#include <coreplugin/id.h>
+
+#include <utils/id.h>
 
 #include <QMap>
 #include <QWidget>
@@ -43,7 +44,7 @@ class CORE_EXPORT OptionsPopup : public QWidget
     Q_OBJECT
 
 public:
-    OptionsPopup(QWidget *parent, const QVector<Id> &commands);
+    OptionsPopup(QWidget *parent, const QVector<Utils::Id> &commands);
 
 protected:
     bool event(QEvent *ev) override;
@@ -52,7 +53,7 @@ protected:
 private:
     void actionChanged();
 
-    QCheckBox *createCheckboxForCommand(Id id);
+    QCheckBox *createCheckboxForCommand(Utils::Id id);
 
     QMap<QAction *, QCheckBox *> m_checkboxMap;
 };

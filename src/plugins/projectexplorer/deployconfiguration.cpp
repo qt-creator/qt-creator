@@ -42,7 +42,7 @@ const char BUILD_STEP_LIST_PREFIX[] = "ProjectExplorer.BuildConfiguration.BuildS
 const char USES_DEPLOYMENT_DATA[] = "ProjectExplorer.DeployConfiguration.CustomDataEnabled";
 const char DEPLOYMENT_DATA[] = "ProjectExplorer.DeployConfiguration.CustomData";
 
-DeployConfiguration::DeployConfiguration(Target *target, Core::Id id)
+DeployConfiguration::DeployConfiguration(Target *target, Utils::Id id)
     : ProjectConfiguration(target, id),
       m_stepList(this, Constants::BUILDSTEPS_DEPLOY)
 {
@@ -133,7 +133,7 @@ DeployConfigurationFactory::~DeployConfigurationFactory()
     g_deployConfigurationFactories.removeOne(this);
 }
 
-Core::Id DeployConfigurationFactory::creationId() const
+Utils::Id DeployConfigurationFactory::creationId() const
 {
     return m_deployConfigBaseId;
 }
@@ -174,7 +174,7 @@ void DeployConfigurationFactory::setUseDeploymentDataView()
     };
 }
 
-void DeployConfigurationFactory::setConfigBaseId(Core::Id deployConfigBaseId)
+void DeployConfigurationFactory::setConfigBaseId(Utils::Id deployConfigBaseId)
 {
     m_deployConfigBaseId = deployConfigBaseId;
 }
@@ -208,7 +208,7 @@ DeployConfiguration *DeployConfigurationFactory::clone(Target *parent,
 
 DeployConfiguration *DeployConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
-    const Core::Id id = idFromMap(map);
+    const Utils::Id id = idFromMap(map);
     DeployConfigurationFactory *factory = Utils::findOrDefault(g_deployConfigurationFactories,
         [parent, id](DeployConfigurationFactory *f) {
             if (!f->canHandle(parent))
@@ -237,7 +237,7 @@ const QList<DeployConfigurationFactory *> DeployConfigurationFactory::find(Targe
         });
 }
 
-void DeployConfigurationFactory::addSupportedTargetDeviceType(Core::Id id)
+void DeployConfigurationFactory::addSupportedTargetDeviceType(Utils::Id id)
 {
     m_supportedTargetDeviceTypes.append(id);
 }
@@ -247,12 +247,12 @@ void DeployConfigurationFactory::setDefaultDisplayName(const QString &defaultDis
     m_defaultDisplayName = defaultDisplayName;
 }
 
-void DeployConfigurationFactory::setSupportedProjectType(Core::Id id)
+void DeployConfigurationFactory::setSupportedProjectType(Utils::Id id)
 {
     m_supportedProjectType = id;
 }
 
-void DeployConfigurationFactory::addInitialStep(Core::Id stepId, const std::function<bool (Target *)> &condition)
+void DeployConfigurationFactory::addInitialStep(Utils::Id stepId, const std::function<bool (Target *)> &condition)
 {
     m_initialSteps.append({stepId, condition});
 }

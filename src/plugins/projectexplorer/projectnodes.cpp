@@ -970,19 +970,19 @@ ProjectNode *ProjectNode::projectNode(const Utils::FilePath &file) const
     return nullptr;
 }
 
-QVariant ProjectNode::data(Core::Id role) const
+QVariant ProjectNode::data(Utils::Id role) const
 {
     return m_fallbackData.value(role);
 }
 
-bool ProjectNode::setData(Core::Id role, const QVariant &value) const
+bool ProjectNode::setData(Utils::Id role, const QVariant &value) const
 {
     Q_UNUSED(role)
     Q_UNUSED(value)
     return false;
 }
 
-void ProjectNode::setFallbackData(Core::Id key, const QVariant &value)
+void ProjectNode::setFallbackData(Utils::Id key, const QVariant &value)
 {
     m_fallbackData.insert(key, value);
 }

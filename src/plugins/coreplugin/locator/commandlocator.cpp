@@ -33,6 +33,8 @@
 #include <QAction>
 #include <QTimer>
 
+using namespace Utils;
+
 namespace Core {
 
 struct CommandLocatorPrivate

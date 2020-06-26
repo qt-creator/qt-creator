@@ -375,7 +375,7 @@ void IosBuildSettingsWidget::updateWarningText()
 
 // IosBuildConfiguration
 
-IosBuildConfiguration::IosBuildConfiguration(Target *target, Core::Id id)
+IosBuildConfiguration::IosBuildConfiguration(Target *target, Utils::Id id)
     : QmakeBuildConfiguration(target, id)
 {
     m_signingIdentifier = addAspect<BaseStringAspect>();
@@ -422,7 +422,7 @@ void IosBuildConfiguration::updateQmakeCommand()
         if (signingIdentifier.isEmpty() )
             extraArgs << forceOverrideArg;
 
-        Core::Id devType = DeviceTypeKitAspect::deviceTypeId(target()->kit());
+        Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(target()->kit());
         if (devType == Constants::IOS_DEVICE_TYPE && !signingIdentifier.isEmpty()) {
             if (m_autoManagedSigning->value()) {
                 extraArgs << qmakeIosTeamSettings + signingIdentifier;

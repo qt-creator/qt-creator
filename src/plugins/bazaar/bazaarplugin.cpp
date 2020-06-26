@@ -44,7 +44,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/id.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -147,7 +146,7 @@ public:
     BazaarPluginPrivate();
 
     QString displayName() const final;
-    Core::Id id() const final;
+    Utils::Id id() const final;
 
     bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
 
@@ -840,9 +839,9 @@ QString BazaarPluginPrivate::displayName() const
     return tr("Bazaar");
 }
 
-Core::Id BazaarPluginPrivate::id() const
+Utils::Id BazaarPluginPrivate::id() const
 {
-    return Core::Id(VcsBase::Constants::VCS_ID_BAZAAR);
+    return Utils::Id(VcsBase::Constants::VCS_ID_BAZAAR);
 }
 
 bool BazaarPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &fileName) const

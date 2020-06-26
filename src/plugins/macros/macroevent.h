@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <QMap>
 #include <QVariant>
@@ -42,8 +42,8 @@ class MacroEvent
 public:
     MacroEvent() = default;
 
-    Core::Id id() const;
-    void setId(Core::Id id);
+    Utils::Id id() const;
+    void setId(Utils::Id id);
 
     QVariant value(quint8 id) const;
     void setValue(quint8 id, const QVariant &value);
@@ -52,7 +52,7 @@ public:
     void save(QDataStream &stream) const;
 
 private:
-    Core::Id m_id;
+    Utils::Id m_id;
     QMap<quint8, QVariant> m_values;
 };
 

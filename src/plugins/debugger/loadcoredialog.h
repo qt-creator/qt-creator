@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <QDialog>
 
@@ -61,7 +61,7 @@ public:
     void setLocalCoreFile(const QString &core);
     void setRemoteCoreFile(const QString &core);
     void setOverrideStartScript(const QString &scriptName);
-    void setKitId(Core::Id id);
+    void setKitId(Utils::Id id);
     void setForceLocalCoreFile(bool on);
 
 private:

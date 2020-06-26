@@ -804,11 +804,11 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
 
     auto leftContext = new IContext(this);
     leftContext->setWidget(m_leftEditor);
-    leftContext->setContext(Core::Context(Core::Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(1)));
+    leftContext->setContext(Core::Context(Utils::Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(1)));
     Core::ICore::addContextObject(leftContext);
     auto rightContext = new IContext(this);
     rightContext->setWidget(m_rightEditor);
-    rightContext->setContext(Core::Context(Core::Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(2)));
+    rightContext->setContext(Core::Context(Utils::Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(2)));
     Core::ICore::addContextObject(rightContext);
 }
 

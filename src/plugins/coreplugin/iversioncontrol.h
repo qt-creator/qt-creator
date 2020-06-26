@@ -26,8 +26,8 @@
 #pragma once
 
 #include "core_global.h"
-#include "id.h"
 
+#include <utils/id.h>
 #include <utils/fileutils.h>
 
 #include <QDateTime>
@@ -92,7 +92,7 @@ public:
     ~IVersionControl() override;
 
     virtual QString displayName() const = 0;
-    virtual Id id() const = 0;
+    virtual Utils::Id id() const = 0;
 
     /*!
      * \brief isVcsFileOrDirectory
@@ -277,7 +277,7 @@ class CORE_EXPORT TestVersionControl : public IVersionControl
 {
     Q_OBJECT
 public:
-    TestVersionControl(Id id, const QString &name) :
+    TestVersionControl(Utils::Id id, const QString &name) :
         m_id(id), m_displayName(name)
     { }
     ~TestVersionControl() override;
@@ -293,7 +293,7 @@ public:
 
     // IVersionControl interface
     QString displayName() const override { return m_displayName; }
-    Id id() const override { return m_id; }
+    Utils::Id id() const override { return m_id; }
     bool managesDirectory(const QString &filename, QString *topLevel) const override;
     bool managesFile(const QString &workingDirectory, const QString &fileName) const override;
     bool isConfigured() const override { return true; }
@@ -307,7 +307,7 @@ public:
     void vcsDescribe(const QString &, const QString &) override {}
 
 private:
-    Id m_id;
+    Utils::Id m_id;
     QString m_displayName;
     QHash<QString, QString> m_managedDirs;
     QSet<QString> m_managedFiles;
@@ -316,4 +316,5 @@ private:
 };
 
 } // namespace Core
+
 #endif

@@ -98,7 +98,7 @@ QVariantMap WinRtDevice::toMap() const
     return map;
 }
 
-QString WinRtDevice::displayNameForType(Core::Id type)
+QString WinRtDevice::displayNameForType(Utils::Id type)
 {
     if (type == Constants::WINRT_DEVICE_TYPE_LOCAL)
         return QCoreApplication::translate("WinRt::Internal::WinRtDevice",
@@ -115,7 +115,7 @@ QString WinRtDevice::displayNameForType(Core::Id type)
 
 // Factory
 
-WinRtDeviceFactory::WinRtDeviceFactory(Core::Id deviceType)
+WinRtDeviceFactory::WinRtDeviceFactory(Utils::Id deviceType)
     : ProjectExplorer::IDeviceFactory(deviceType)
 {
     if (allPrerequisitesLoaded()) {
@@ -311,7 +311,7 @@ void WinRtDeviceFactory::parseRunnerOutput(const QByteArray &output) const
             }
 
             const IDevice::MachineType machineType = machineTypeFromLine(line);
-            Core::Id deviceType;
+            Utils::Id deviceType;
             QString name;
             QString internalName = QStringLiteral("WinRT.");
             if (state == AppxState) {
@@ -334,7 +334,7 @@ void WinRtDeviceFactory::parseRunnerOutput(const QByteArray &output) const
                     deviceType = Constants::WINRT_DEVICE_TYPE_PHONE;
             }
             internalName += QString::number(deviceId);
-            const Core::Id internalId = Core::Id::fromString(internalName);
+            const Utils::Id internalId = Utils::Id::fromString(internalName);
             ++numFound;
             if (DeviceManager::instance()->find(internalId)) {
                 qCDebug(winrtDeviceLog) << __FUNCTION__ << "Skipping device with ID" << deviceId;

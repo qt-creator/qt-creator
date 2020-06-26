@@ -109,7 +109,7 @@ void CMakeTargetNode::setBuildDirectory(const Utils::FilePath &directory)
     m_buildDirectory = directory;
 }
 
-QVariant CMakeTargetNode::data(Core::Id role) const
+QVariant CMakeTargetNode::data(Utils::Id role) const
 {
     auto value = [this](const QByteArray &key) -> QVariant {
         for (const CMakeConfigItem &configItem : m_config) {

@@ -49,7 +49,7 @@ public:
     void setActiveFrameworks(const QMap<ITestFramework *, bool> enabledFrameworks)
     { m_activeTestFrameworks = enabledFrameworks; }
     QMap<ITestFramework *, bool> activeFrameworks() const { return m_activeTestFrameworks; }
-    void activateFramework(const Core::Id &id, bool activate);
+    void activateFramework(const Utils::Id &id, bool activate);
 private:
     void load();
     void save();

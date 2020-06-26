@@ -31,9 +31,8 @@
 #include <QIcon>
 #include <QStringList>
 
-#include <coreplugin/id.h>
-
 #include <utils/fileutils.h>
+#include <utils/id.h>
 #include <utils/optional.h>
 
 #include <functional>
@@ -381,8 +380,8 @@ public:
     virtual bool parseInProgress() const { return false; }
 
     virtual bool validParse() const { return false; }
-    virtual QVariant data(Core::Id role) const;
-    virtual bool setData(Core::Id role, const QVariant &value) const;
+    virtual QVariant data(Utils::Id role) const;
+    virtual bool setData(Utils::Id role, const QVariant &value) const;
 
     bool isProduct() const { return m_productType != ProductType::None; }
     ProductType productType() const { return m_productType; }
@@ -394,7 +393,7 @@ public:
     //       "build single file" case.
     virtual void build() {}
 
-    void setFallbackData(Core::Id key, const QVariant &value);
+    void setFallbackData(Utils::Id key, const QVariant &value);
 
 protected:
     void setProductType(ProductType type) { m_productType = type; }
@@ -404,7 +403,7 @@ protected:
 private:
     BuildSystem *buildSystem() const;
 
-    QHash<Core::Id, QVariant> m_fallbackData; // Used in data(), unless overridden.
+    QHash<Utils::Id, QVariant> m_fallbackData; // Used in data(), unless overridden.
     ProductType m_productType = ProductType::None;
 };
 

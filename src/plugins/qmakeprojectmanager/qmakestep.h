@@ -116,7 +116,7 @@ class QMAKEPROJECTMANAGER_EXPORT QMakeStep : public ProjectExplorer::AbstractPro
     friend class Internal::QMakeStepFactory;
 
 public:
-    QMakeStep(ProjectExplorer::BuildStepList *parent, Core::Id id);
+    QMakeStep(ProjectExplorer::BuildStepList *parent, Utils::Id id);
 
     QmakeBuildConfiguration *qmakeBuildConfiguration() const;
     QmakeBuildSystem *qmakeBuildSystem() const;

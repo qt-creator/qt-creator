@@ -65,9 +65,9 @@ public:
         ForceUnintall
     };
 
-    AndroidDeployQtStep(ProjectExplorer::BuildStepList *bc, Core::Id id);
+    AndroidDeployQtStep(ProjectExplorer::BuildStepList *bc, Utils::Id id);
 
-    static Core::Id stepId();
+    static Utils::Id stepId();
 
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
@@ -116,7 +116,7 @@ private:
     bool m_uninstallPreviousPackageRun = false;
     bool m_useAndroiddeployqt = false;
     bool m_askForUninstall = false;
-    static const Core::Id Id;
+    static const Utils::Id Id;
     Utils::CommandLine m_androiddeployqtArgs;
     Utils::FilePath m_adbPath;
     Utils::FilePath m_command;

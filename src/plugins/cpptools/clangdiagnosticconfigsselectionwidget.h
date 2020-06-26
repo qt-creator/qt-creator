@@ -51,13 +51,13 @@ public:
 
     using CreateEditWidget
         = std::function<ClangDiagnosticConfigsWidget *(const ClangDiagnosticConfigs &configs,
-                                                       const Core::Id &configToSelect)>;
+                                                       const Utils::Id &configToSelect)>;
 
     void refresh(const ClangDiagnosticConfigsModel &model,
-                 const Core::Id &configToSelect,
+                 const Utils::Id &configToSelect,
                  const CreateEditWidget &createEditWidget);
 
-    Core::Id currentConfigId() const;
+    Utils::Id currentConfigId() const;
     ClangDiagnosticConfigs customConfigs() const;
 
 signals:
@@ -67,7 +67,7 @@ private:
     void onButtonClicked();
 
     ClangDiagnosticConfigsModel m_diagnosticConfigsModel;
-    Core::Id m_currentConfigId;
+    Utils::Id m_currentConfigId;
     bool m_showTidyClazyUi = true;
 
     QLabel *m_label = nullptr;

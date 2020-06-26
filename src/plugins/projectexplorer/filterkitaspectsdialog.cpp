@@ -48,7 +48,7 @@ public:
     { }
 
     QString displayName() const { return m_aspect->displayName(); }
-    Core::Id id() const { return m_aspect->id(); }
+    Utils::Id id() const { return m_aspect->id(); }
     bool enabled() const { return m_enabled; }
 
 private:
@@ -96,7 +96,7 @@ public:
         for (const KitAspect * const aspect : KitManager::kitAspects()) {
             if (kit && !aspect->isApplicableToKit(kit))
                 continue;
-            const QSet<Core::Id> irrelevantAspects = kit ? kit->irrelevantAspects()
+            const QSet<Utils::Id> irrelevantAspects = kit ? kit->irrelevantAspects()
                                                          : KitManager::irrelevantAspects();
             auto * const item = new FilterTreeItem(aspect,
                                                    !irrelevantAspects.contains(aspect->id()));
@@ -109,9 +109,9 @@ public:
         rootItem()->sortChildren(cmp);
     }
 
-    QSet<Core::Id> disabledItems() const
+    QSet<Utils::Id> disabledItems() const
     {
-        QSet<Core::Id> ids;
+        QSet<Utils::Id> ids;
         for (int i = 0; i < rootItem()->childCount(); ++i) {
             const FilterTreeItem * const item
                     = static_cast<FilterTreeItem *>(rootItem()->childAt(i));
@@ -154,7 +154,7 @@ FilterKitAspectsDialog::FilterKitAspectsDialog(const Kit *kit, QWidget *parent)
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
-QSet<Core::Id> FilterKitAspectsDialog::irrelevantAspects() const
+QSet<Utils::Id> FilterKitAspectsDialog::irrelevantAspects() const
 {
     return static_cast<FilterKitAspectsModel *>(m_model)->disabledItems();
 }

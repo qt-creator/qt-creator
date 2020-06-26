@@ -45,6 +45,8 @@
 
 Q_DECLARE_METATYPE(Core::IWizardFactory*)
 
+using namespace Utils;
+
 namespace {
 
 const int ICON_SIZE = 48;
@@ -84,7 +86,7 @@ public:
                         Id::fromStringList(ICore::settings()->value(BLACKLISTED_CATEGORIES_KEY).toStringList());
     }
 
-    void setPlatform(Core::Id platform)
+    void setPlatform(Id platform)
     {
         m_platform = platform;
         invalidateFilter();
@@ -114,7 +116,7 @@ public:
                 factoryOfItem(qobject_cast<QStandardItemModel*>(sourceModel())->itemFromIndex(sourceIndex));
 
         if (wizard) {
-            if (m_blacklistedCategories.contains(Core::Id::fromString(wizard->category())))
+            if (m_blacklistedCategories.contains(Id::fromString(wizard->category())))
                 return false;
             return wizard->isAvailable(m_platform);
         }
@@ -122,7 +124,7 @@ public:
         return true;
     }
 private:
-    Core::Id m_platform;
+    Id m_platform;
     QSet<Id> m_blacklistedCategories;
 };
 

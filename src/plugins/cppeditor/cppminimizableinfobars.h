@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <QAction>
 #include <QHash>
@@ -47,7 +47,7 @@ class MinimizableInfoBars : public QObject
 public:
     using DiagnosticWidgetCreator = std::function<QWidget *()>;
     using ActionCreator = std::function<QAction *(QWidget *widget)>;
-    using Actions = QHash<Core::Id, QAction *>;
+    using Actions = QHash<Utils::Id, QAction *>;
 
     static Actions createShowInfoBarActions(const ActionCreator &actionCreator);
 
@@ -59,14 +59,14 @@ public:
     void processHeaderDiagnostics(const DiagnosticWidgetCreator &diagnosticWidgetCreator);
 
 signals:
-    void showAction(const Core::Id &id, bool show);
+    void showAction(const Utils::Id &id, bool show);
 
 private:
     void updateNoProjectConfiguration();
     void updateHeaderErrors();
 
-    void addNoProjectConfigurationEntry(const Core::Id &id);
-    void addHeaderErrorEntry(const Core::Id &id,
+    void addNoProjectConfigurationEntry(const Utils::Id &id);
+    void addHeaderErrorEntry(const Utils::Id &id,
                              const DiagnosticWidgetCreator &diagnosticWidgetCreator);
 
 private:

@@ -26,11 +26,12 @@
 #include "commandbutton.h"
 #include "actionmanager.h"
 #include "command.h"
-#include "../id.h"
+
 
 #include <utils/proxyaction.h>
 
 using namespace Core;
+using namespace Utils;
 
 /*!
     \class Core::CommandButton

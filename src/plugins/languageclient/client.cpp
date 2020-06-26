@@ -74,7 +74,7 @@ static Q_LOGGING_CATEGORY(LOGLSPCLIENT, "qtc.languageclient.client", QtWarningMs
 class TextMark : public TextEditor::TextMark
 {
 public:
-    TextMark(const Utils::FilePath &fileName, const Diagnostic &diag, const Core::Id &clientId)
+    TextMark(const Utils::FilePath &fileName, const Diagnostic &diag, const Utils::Id &clientId)
         : TextEditor::TextMark(fileName, diag.range().start().line() + 1, clientId)
         , m_diagnostic(diag)
     {
@@ -97,7 +97,7 @@ private:
 };
 
 Client::Client(BaseClientInterface *clientInterface)
-    : m_id(Core::Id::fromString(QUuid::createUuid().toString()))
+    : m_id(Utils::Id::fromString(QUuid::createUuid().toString()))
     , m_clientInterface(clientInterface)
     , m_documentSymbolCache(this)
     , m_hoverHandler(this)

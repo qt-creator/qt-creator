@@ -38,8 +38,7 @@ public:
         return nullptr;
     }
 
-    static void addTask(Task::TaskType type, const QString &description,
-                        Core::Id category)
+    static void addTask(Task::TaskType type, const QString &description, Utils::Id category)
     {
     }
 

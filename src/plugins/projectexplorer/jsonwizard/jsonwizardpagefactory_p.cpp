@@ -60,7 +60,7 @@ FieldPageFactory::FieldPageFactory()
     JsonFieldPage::registerFieldFactory(QLatin1String("IconList"), []() { return new IconListField; });
 }
 
-Utils::WizardPage *FieldPageFactory::create(JsonWizard *wizard, Core::Id typeId, const QVariant &data)
+Utils::WizardPage *FieldPageFactory::create(JsonWizard *wizard, Utils::Id typeId, const QVariant &data)
 {
     Q_UNUSED(wizard)
 
@@ -76,7 +76,7 @@ Utils::WizardPage *FieldPageFactory::create(JsonWizard *wizard, Core::Id typeId,
     return page;
 }
 
-bool FieldPageFactory::validateData(Core::Id typeId, const QVariant &data, QString *errorMessage)
+bool FieldPageFactory::validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage)
 {
     QTC_ASSERT(canCreate(typeId), return false);
 
@@ -107,7 +107,7 @@ FilePageFactory::FilePageFactory()
     setTypeIdsSuffix(QLatin1String("File"));
 }
 
-Utils::WizardPage *FilePageFactory::create(JsonWizard *wizard, Core::Id typeId, const QVariant &data)
+Utils::WizardPage *FilePageFactory::create(JsonWizard *wizard, Utils::Id typeId, const QVariant &data)
 {
     Q_UNUSED(wizard)
     Q_UNUSED(data)
@@ -116,7 +116,7 @@ Utils::WizardPage *FilePageFactory::create(JsonWizard *wizard, Core::Id typeId, 
     return new JsonFilePage;
 }
 
-bool FilePageFactory::validateData(Core::Id typeId, const QVariant &data, QString *errorMessage)
+bool FilePageFactory::validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage)
 {
     QTC_ASSERT(canCreate(typeId), return false);
     if (!data.isNull() && (data.type() != QVariant::Map || !data.toMap().isEmpty())) {
@@ -141,7 +141,7 @@ KitsPageFactory::KitsPageFactory()
     setTypeIdsSuffix(QLatin1String("Kits"));
 }
 
-Utils::WizardPage *KitsPageFactory::create(JsonWizard *wizard, Core::Id typeId, const QVariant &data)
+Utils::WizardPage *KitsPageFactory::create(JsonWizard *wizard, Utils::Id typeId, const QVariant &data)
 {
     Q_UNUSED(wizard)
     QTC_ASSERT(canCreate(typeId), return nullptr);
@@ -168,7 +168,7 @@ static bool validateFeatureList(const QVariantMap &data, const QByteArray &key, 
     return true;
 }
 
-bool KitsPageFactory::validateData(Core::Id typeId, const QVariant &data, QString *errorMessage)
+bool KitsPageFactory::validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage)
 {
     QTC_ASSERT(canCreate(typeId), return false);
 
@@ -201,7 +201,7 @@ ProjectPageFactory::ProjectPageFactory()
     setTypeIdsSuffix(QLatin1String("Project"));
 }
 
-Utils::WizardPage *ProjectPageFactory::create(JsonWizard *wizard, Core::Id typeId, const QVariant &data)
+Utils::WizardPage *ProjectPageFactory::create(JsonWizard *wizard, Utils::Id typeId, const QVariant &data)
 {
     Q_UNUSED(wizard)
     Q_UNUSED(data)
@@ -224,7 +224,7 @@ Utils::WizardPage *ProjectPageFactory::create(JsonWizard *wizard, Core::Id typeI
     return page;
 }
 
-bool ProjectPageFactory::validateData(Core::Id typeId, const QVariant &data, QString *errorMessage)
+bool ProjectPageFactory::validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
 
@@ -261,7 +261,7 @@ SummaryPageFactory::SummaryPageFactory()
     setTypeIdsSuffix(QLatin1String("Summary"));
 }
 
-Utils::WizardPage *SummaryPageFactory::create(JsonWizard *wizard, Core::Id typeId, const QVariant &data)
+Utils::WizardPage *SummaryPageFactory::create(JsonWizard *wizard, Utils::Id typeId, const QVariant &data)
 {
     Q_UNUSED(wizard)
     Q_UNUSED(data)
@@ -273,7 +273,7 @@ Utils::WizardPage *SummaryPageFactory::create(JsonWizard *wizard, Core::Id typeI
     return page;
 }
 
-bool SummaryPageFactory::validateData(Core::Id typeId, const QVariant &data, QString *errorMessage)
+bool SummaryPageFactory::validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage)
 {
     QTC_ASSERT(canCreate(typeId), return false);
     if (!data.isNull() && (data.type() != QVariant::Map)) {

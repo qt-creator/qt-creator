@@ -52,15 +52,15 @@ ITestParser *ITestFramework::testParser()
     return m_testParser;
 }
 
-Core::Id ITestFramework::settingsId() const
+Utils::Id ITestFramework::settingsId() const
 {
-    return Core::Id(Constants::SETTINGSPAGE_PREFIX)
+    return Utils::Id(Constants::SETTINGSPAGE_PREFIX)
             .withSuffix(QString("%1.%2").arg(priority()).arg(QLatin1String(name())));
 }
 
-Core::Id ITestFramework::id() const
+Utils::Id ITestFramework::id() const
 {
-    return Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(name());
+    return Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix(name());
 }
 
 void ITestFramework::resetRootNode()

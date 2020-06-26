@@ -94,8 +94,8 @@ public:
 
     QStringList targetApplications() const override;
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
-    QVariant data(Core::Id role) const override;
-    bool setData(Core::Id role, const QVariant &value) const override;
+    QVariant data(Utils::Id role) const override;
+    bool setData(Utils::Id role, const QVariant &value) const override;
 
     QmakeProjectManager::ProjectType projectType() const;
 

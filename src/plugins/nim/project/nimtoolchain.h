@@ -36,7 +36,7 @@ class NimToolChain : public ProjectExplorer::ToolChain
 
 public:
     NimToolChain();
-    explicit NimToolChain(Core::Id typeId);
+    explicit NimToolChain(Utils::Id typeId);
 
     ProjectExplorer::Abi targetAbi() const override;
     bool isValid() const override;

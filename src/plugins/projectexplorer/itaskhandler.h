@@ -27,7 +27,7 @@
 
 #include "projectexplorer_export.h"
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <QObject>
 #include <QString>
@@ -50,7 +50,7 @@ public:
     virtual bool isDefaultHandler() const { return false; }
     virtual bool canHandle(const Task &) const = 0;
     virtual void handle(const Task &) = 0;
-    virtual Core::Id actionManagerId() const { return Core::Id(); }
+    virtual Utils::Id actionManagerId() const { return Utils::Id(); }
     virtual QAction *createAction(QObject *parent) const = 0;
 };
 

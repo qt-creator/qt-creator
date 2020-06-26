@@ -67,7 +67,7 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     m_nameEdit(new QLineEdit),
     m_fileSystemFriendlyNameLineEdit(new QLineEdit),
     m_kit(k),
-    m_modifiedKit(std::make_unique<Kit>(Core::Id(WORKING_COPY_KIT_ID)))
+    m_modifiedKit(std::make_unique<Kit>(Utils::Id(WORKING_COPY_KIT_ID)))
 {
     static auto alignment
             = static_cast<const Qt::Alignment>(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
@@ -146,7 +146,7 @@ KitManagerConfigWidget::~KitManagerConfigWidget()
 
     // Make sure our workingCopy did not get registered somehow:
     QTC_CHECK(!Utils::contains(KitManager::kits(),
-                               Utils::equal(&Kit::id, Core::Id(WORKING_COPY_KIT_ID))));
+                               Utils::equal(&Kit::id, Utils::Id(WORKING_COPY_KIT_ID))));
 }
 
 QString KitManagerConfigWidget::displayName() const
@@ -316,7 +316,7 @@ void KitManagerConfigWidget::removeKit()
 
 void KitManagerConfigWidget::setIcon()
 {
-    const Core::Id deviceType = DeviceTypeKitAspect::deviceTypeId(m_modifiedKit.get());
+    const Utils::Id deviceType = DeviceTypeKitAspect::deviceTypeId(m_modifiedKit.get());
     QList<IDeviceFactory *> allDeviceFactories = IDeviceFactory::allDeviceFactories();
     if (deviceType.isValid()) {
         const auto less = [deviceType](const IDeviceFactory *f1, const IDeviceFactory *f2) {

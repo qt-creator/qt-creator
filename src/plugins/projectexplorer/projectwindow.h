@@ -27,9 +27,8 @@
 
 #include "projectexplorer_export.h"
 
-#include <coreplugin/id.h>
-
 #include <utils/fancymainwindow.h>
+#include <utils/id.h>
 
 #include <memory>
 
@@ -62,7 +61,7 @@ public:
     ProjectWindow();
     ~ProjectWindow() override;
 
-    void activateProjectPanel(Core::Id panelId);
+    void activateProjectPanel(Utils::Id panelId);
 
 private:
     const std::unique_ptr<ProjectWindowPrivate> d;

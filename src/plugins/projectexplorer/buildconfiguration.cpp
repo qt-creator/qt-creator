@@ -146,10 +146,10 @@ public:
     mutable Environment m_cachedEnvironment;
     QString m_configWidgetDisplayName;
     bool m_configWidgetHasFrame = false;
-    QList<Core::Id> m_initialBuildSteps;
-    QList<Core::Id> m_initialCleanSteps;
+    QList<Utils::Id> m_initialBuildSteps;
+    QList<Utils::Id> m_initialCleanSteps;
     Utils::MacroExpander m_macroExpander;
-    QList<Core::Id> m_customParsers;
+    QList<Utils::Id> m_customParsers;
 
     // FIXME: Remove.
     BuildConfiguration::BuildType m_initialBuildType = BuildConfiguration::Unknown;
@@ -158,7 +158,7 @@ public:
 
 } // Internal
 
-BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
+BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     : ProjectConfiguration(target, id), d(new Internal::BuildConfigurationPrivate(this))
 {
     QTC_CHECK(target && target == this->target());
@@ -256,10 +256,10 @@ void BuildConfiguration::doInitialize(const BuildInfo &info)
 
     d->m_initialBuildType = info.buildType;
 
-    for (Core::Id id : qAsConst(d->m_initialBuildSteps))
+    for (Utils::Id id : qAsConst(d->m_initialBuildSteps))
         d->m_buildSteps.appendStep(id);
 
-    for (Core::Id id : qAsConst(d->m_initialCleanSteps))
+    for (Utils::Id id : qAsConst(d->m_initialCleanSteps))
         d->m_cleanSteps.appendStep(id);
 
     acquaintAspects();
@@ -338,12 +338,12 @@ BuildStepList *BuildConfiguration::cleanSteps() const
     return &d->m_cleanSteps;
 }
 
-void BuildConfiguration::appendInitialBuildStep(Core::Id id)
+void BuildConfiguration::appendInitialBuildStep(Utils::Id id)
 {
     d->m_initialBuildSteps.append(id);
 }
 
-void BuildConfiguration::appendInitialCleanStep(Core::Id id)
+void BuildConfiguration::appendInitialCleanStep(Utils::Id id)
 {
     d->m_initialCleanSteps.append(id);
 }
@@ -359,7 +359,7 @@ QVariantMap BuildConfiguration::toMap() const
     map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(0), d->m_buildSteps.toMap());
     map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(1), d->m_cleanSteps.toMap());
 
-    map.insert(CUSTOM_PARSERS_KEY, transform(d->m_customParsers,&Core::Id::toSetting));
+    map.insert(CUSTOM_PARSERS_KEY, transform(d->m_customParsers,&Utils::Id::toSetting));
 
     return map;
 }
@@ -381,7 +381,7 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
             qWarning() << "No data for build step list" << i << "found!";
             continue;
         }
-        Core::Id id = idFromMap(data);
+        Utils::Id id = idFromMap(data);
         if (id == Constants::BUILDSTEPS_BUILD) {
             if (!d->m_buildSteps.fromMap(data))
                 qWarning() << "Failed to restore build step list";
@@ -393,7 +393,7 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
         }
     }
 
-    d->m_customParsers = transform(map.value(CUSTOM_PARSERS_KEY).toList(), &Core::Id::fromSetting);
+    d->m_customParsers = transform(map.value(CUSTOM_PARSERS_KEY).toList(), &Utils::Id::fromSetting);
 
     return ProjectConfiguration::fromMap(map);
 }
@@ -478,12 +478,12 @@ void BuildConfiguration::addToEnvironment(Environment &env) const
     Q_UNUSED(env)
 }
 
-const QList<Core::Id> BuildConfiguration::customParsers() const
+const QList<Utils::Id> BuildConfiguration::customParsers() const
 {
     return d->m_customParsers;
 }
 
-void BuildConfiguration::setCustomParsers(const QList<Core::Id> &parsers)
+void BuildConfiguration::setCustomParsers(const QList<Utils::Id> &parsers)
 {
     d->m_customParsers = parsers;
 }
@@ -622,7 +622,7 @@ const QList<BuildInfo>
     return list;
 }
 
-bool BuildConfigurationFactory::supportsTargetDeviceType(Core::Id id) const
+bool BuildConfigurationFactory::supportsTargetDeviceType(Utils::Id id) const
 {
     if (m_supportedTargetDeviceTypes.isEmpty())
         return true;
@@ -633,7 +633,7 @@ bool BuildConfigurationFactory::supportsTargetDeviceType(Core::Id id) const
 BuildConfigurationFactory *BuildConfigurationFactory::find(const Kit *k, const FilePath &projectPath)
 {
     QTC_ASSERT(k, return nullptr);
-    const Core::Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
+    const Utils::Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
     for (BuildConfigurationFactory *factory : g_buildConfigurationFactories) {
         if (Utils::mimeTypeForFile(projectPath.toString())
                 .matchesName(factory->m_supportedProjectMimeTypeName)
@@ -653,7 +653,7 @@ BuildConfigurationFactory * BuildConfigurationFactory::find(Target *parent)
     return nullptr;
 }
 
-void BuildConfigurationFactory::setSupportedProjectType(Core::Id id)
+void BuildConfigurationFactory::setSupportedProjectType(Utils::Id id)
 {
     m_supportedProjectType = id;
 }
@@ -663,7 +663,7 @@ void BuildConfigurationFactory::setSupportedProjectMimeTypeName(const QString &m
     m_supportedProjectMimeTypeName = mimeTypeName;
 }
 
-void BuildConfigurationFactory::addSupportedTargetDeviceType(Core::Id id)
+void BuildConfigurationFactory::addSupportedTargetDeviceType(Utils::Id id)
 {
     m_supportedTargetDeviceTypes.append(id);
 }
@@ -707,7 +707,7 @@ BuildConfiguration *BuildConfigurationFactory::create(Target *parent, const Buil
 
 BuildConfiguration *BuildConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
-    const Core::Id id = idFromMap(map);
+    const Utils::Id id = idFromMap(map);
     for (BuildConfigurationFactory *factory : g_buildConfigurationFactories) {
         QTC_ASSERT(factory->m_creator, return nullptr);
         if (!factory->canHandle(parent))

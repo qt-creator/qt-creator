@@ -52,7 +52,7 @@ using namespace Utils;
 namespace Git {
 namespace Internal {
 
-ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Core::Id id,
+ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Utils::Id id,
                                              QWidget *parent) :
     QDialog(parent), m_ui(new Ui::ChangeSelectionDialog)
 {

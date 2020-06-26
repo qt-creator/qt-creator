@@ -65,7 +65,7 @@ static FilePath defaultBuildDirectory(const Kit *k,
     return projectDir.pathAppended(buildDirectory);
 }
 
-NimBuildConfiguration::NimBuildConfiguration(Target *target, Core::Id id)
+NimBuildConfiguration::NimBuildConfiguration(Target *target, Utils::Id id)
     : BuildConfiguration(target, id)
 {
     setConfigWidgetDisplayName(tr("General"));

@@ -119,7 +119,6 @@
 #include <coreplugin/fileutils.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/idocumentfactory.h>
 #include <coreplugin/imode.h>
@@ -184,6 +183,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer::Internal;
+using namespace Utils;
 
 namespace ProjectExplorer {
 
@@ -395,7 +395,7 @@ public:
 
     void updateContextMenuActions();
     void updateLocationSubMenus();
-    void executeRunConfiguration(RunConfiguration *, Core::Id mode);
+    void executeRunConfiguration(RunConfiguration *, Utils::Id mode);
     QPair<bool, QString> buildSettingsEnabledForSession();
     QPair<bool, QString> buildSettingsEnabled(const Project *pro);
 
@@ -457,7 +457,7 @@ public:
 
     void doUpdateRunActions();
 
-    void currentModeChanged(Core::Id mode, Core::Id oldMode);
+    void currentModeChanged(Utils::Id mode, Utils::Id oldMode);
 
     void updateWelcomePage();
 
@@ -558,7 +558,7 @@ public:
     QList<Internal::CustomParserSettings> m_customParsers;
     bool m_shouldHaveRunConfiguration = false;
     bool m_shuttingDown = false;
-    Core::Id m_runMode = Constants::NO_RUN_MODE;
+    Utils::Id m_runMode = Constants::NO_RUN_MODE;
 
     ToolChainManager *m_toolChainManager = nullptr;
     QStringList m_arguments;
@@ -940,7 +940,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             ActionManager::createMenu(ProjectExplorer::Constants::M_OPENTERMINALCONTEXT);
     openTerminal->setOnAllDisabledBehavior(ActionContainer::Show);
     dd->m_openTerminalMenu = openTerminal->menu();
-    dd->m_openTerminalMenu->setTitle(FileUtils::msgTerminalWithAction());
+    dd->m_openTerminalMenu->setTitle(Core::FileUtils::msgTerminalWithAction());
 
     // "open with" submenu
     ActionContainer * const openWith =
@@ -994,7 +994,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                        projectTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
 
-    dd->m_searchOnFileSystem = new QAction(FileUtils::msgFindInDirectory(), this);
+    dd->m_searchOnFileSystem = new QAction(Core::FileUtils::msgFindInDirectory(), this);
     cmd = ActionManager::registerAction(dd->m_searchOnFileSystem, Constants::SEARCHONFILESYSTEM, projectTreeContext);
 
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
@@ -1002,14 +1002,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
 
-    dd->m_showInGraphicalShell = new QAction(FileUtils::msgGraphicalShellAction(), this);
+    dd->m_showInGraphicalShell = new QAction(Core::FileUtils::msgGraphicalShellAction(), this);
     cmd = ActionManager::registerAction(dd->m_showInGraphicalShell, Constants::SHOWINGRAPHICALSHELL,
                        projectTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
     mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_FILES);
 
     // Open Terminal Here menu
-    dd->m_openTerminalHere = new QAction(FileUtils::msgTerminalHereAction(), this);
+    dd->m_openTerminalHere = new QAction(Core::FileUtils::msgTerminalHereAction(), this);
     cmd = ActionManager::registerAction(dd->m_openTerminalHere, Constants::OPENTERMINALHERE,
                                         projectTreeContext);
 
@@ -2454,7 +2454,7 @@ void ProjectExplorerPluginPrivate::restoreSession()
     updateActions();
 }
 
-void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *runConfiguration, Core::Id runMode)
+void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *runConfiguration, Utils::Id runMode)
 {
     const Tasks runConfigIssues = runConfiguration->checkForIssues();
     if (!runConfigIssues.isEmpty()) {
@@ -2493,7 +2493,7 @@ void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl)
     m_outputPane.createNewOutputWindow(runControl);
     m_outputPane.flash(); // one flash for starting
     m_outputPane.showTabFor(runControl);
-    Core::Id runMode = runControl->runMode();
+    Utils::Id runMode = runControl->runMode();
     const auto popupMode = runMode == Constants::NORMAL_RUN_MODE
             ? m_outputPane.settings().runOutputMode
             : runMode == Constants::DEBUG_RUN_MODE
@@ -2873,7 +2873,7 @@ static bool hasDeploySettings(Project *pro)
     });
 }
 
-void ProjectExplorerPlugin::runProject(Project *pro, Core::Id mode, const bool forceSkipDeploy)
+void ProjectExplorerPlugin::runProject(Project *pro, Utils::Id mode, const bool forceSkipDeploy)
 {
     if (!pro)
         return;
@@ -2883,13 +2883,13 @@ void ProjectExplorerPlugin::runProject(Project *pro, Core::Id mode, const bool f
             runRunConfiguration(rc, mode, forceSkipDeploy);
 }
 
-void ProjectExplorerPlugin::runStartupProject(Core::Id runMode, bool forceSkipDeploy)
+void ProjectExplorerPlugin::runStartupProject(Utils::Id runMode, bool forceSkipDeploy)
 {
     runProject(SessionManager::startupProject(), runMode, forceSkipDeploy);
 }
 
 void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
-                                                Core::Id runMode,
+                                                Utils::Id runMode,
                                                 const bool forceSkipDeploy)
 {
     if (!rc->isEnabled())
@@ -2999,7 +2999,7 @@ void ProjectExplorerPluginPrivate::updateDeployActions()
     doUpdateRunActions();
 }
 
-bool ProjectExplorerPlugin::canRunStartupProject(Core::Id runMode, QString *whyNot)
+bool ProjectExplorerPlugin::canRunStartupProject(Utils::Id runMode, QString *whyNot)
 {
     Project *project = SessionManager::startupProject();
     if (!project) {
@@ -3427,7 +3427,7 @@ void ProjectExplorerPluginPrivate::addNewSubproject()
         QVariantMap map;
         map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE), QVariant::fromValue(currentNode));
         Project *project = ProjectTree::currentProject();
-        Core::Id projectType;
+        Utils::Id projectType;
         if (project) {
             const QStringList profileIds = Utils::transform(ProjectTree::currentProject()->targets(),
                                                             [](const Target *t) {
@@ -3574,7 +3574,7 @@ void ProjectExplorerPluginPrivate::showInGraphicalShell()
 {
     Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return);
-    FileUtils::showInGraphicalShell(ICore::dialogParent(), currentNode->path());
+    Core::FileUtils::showInGraphicalShell(ICore::dialogParent(), currentNode->path());
 }
 
 void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env)
@@ -3586,7 +3586,7 @@ void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env
     if (!environment)
         return;
 
-    FileUtils::openTerminal(currentNode->directory(), environment.value());
+    Core::FileUtils::openTerminal(currentNode->directory(), environment.value());
 }
 
 void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
@@ -3666,7 +3666,7 @@ void ProjectExplorerPluginPrivate::removeFile()
                 continue;
         }
         FileChangeBlocker changeGuard(filePath.toString());
-        FileUtils::removeFile(filePath.toString(), deleteFile);
+        Core::FileUtils::removeFile(filePath.toString(), deleteFile);
     }
 }
 
@@ -3779,13 +3779,13 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFilePath)
                                             .arg(QDir::toNativeSeparators(oldFilePath))
                                             .arg(QDir::toNativeSeparators(newFilePath)));
             if (res == QMessageBox::Yes) {
-                QTC_CHECK(FileUtils::renameFile(oldFilePath, newFilePath));
+                QTC_CHECK(Core::FileUtils::renameFile(oldFilePath, newFilePath));
             }
         });
         return;
     }
 
-    if (FileUtils::renameFile(oldFilePath, newFilePath)) {
+    if (Core::FileUtils::renameFile(oldFilePath, newFilePath)) {
         // Tell the project plugin about rename
         if (!folderNode->renameFile(oldFilePath, newFilePath)) {
             const QString renameFileError
@@ -3953,7 +3953,7 @@ void ProjectExplorerPlugin::updateActions()
     dd->updateActions();
 }
 
-void ProjectExplorerPlugin::activateProjectPanel(Core::Id panelId)
+void ProjectExplorerPlugin::activateProjectPanel(Utils::Id panelId)
 {
     Core::ModeManager::activateMode(Constants::MODE_SESSION);
     dd->m_proWindow->activateProjectPanel(panelId);

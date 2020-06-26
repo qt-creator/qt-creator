@@ -124,7 +124,7 @@ private:
     void onIfdefedOutBlocksUpdated(unsigned revision,
                                    const QList<TextEditor::BlockRange> ifdefedOutBlocks);
 
-    void onShowInfoBarAction(const Core::Id &id, bool show);
+    void onShowInfoBarAction(const Utils::Id &id, bool show);
 
     void updateSemanticInfo(const CppTools::SemanticInfo &semanticInfo,
                             bool updateUseSelectionSynchronously = false);

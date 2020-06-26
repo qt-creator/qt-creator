@@ -109,17 +109,17 @@ public:
 ///////////////////////////
 // CMakeTool
 ///////////////////////////
-CMakeTool::CMakeTool(Detection d, const Core::Id &id)
+CMakeTool::CMakeTool(Detection d, const Utils::Id &id)
     : m_id(id)
     , m_isAutoDetected(d == AutoDetection)
     , m_introspection(std::make_unique<Internal::IntrospectionData>())
 {
-    QTC_ASSERT(m_id.isValid(), m_id = Core::Id::fromString(QUuid::createUuid().toString()));
+    QTC_ASSERT(m_id.isValid(), m_id = Utils::Id::fromString(QUuid::createUuid().toString()));
 }
 
 CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) :
     CMakeTool(fromSdk ? CMakeTool::AutoDetection : CMakeTool::ManualDetection,
-              Core::Id::fromSetting(map.value(CMAKE_INFORMATION_ID)))
+              Utils::Id::fromSetting(map.value(CMAKE_INFORMATION_ID)))
 {
     m_displayName = map.value(CMAKE_INFORMATION_DISPLAYNAME).toString();
     m_isAutoRun = map.value(CMAKE_INFORMATION_AUTORUN, true).toBool();
@@ -141,9 +141,9 @@ CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) :
 
 CMakeTool::~CMakeTool() = default;
 
-Core::Id CMakeTool::createId()
+Utils::Id CMakeTool::createId()
 {
-    return Core::Id::fromString(QUuid::createUuid().toString());
+    return Utils::Id::fromString(QUuid::createUuid().toString());
 }
 
 void CMakeTool::setFilePath(const Utils::FilePath &executable)

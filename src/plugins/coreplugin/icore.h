@@ -78,13 +78,13 @@ public:
                                   const QString &defaultLocation = QString(),
                                   const QVariantMap &extraVariables = QVariantMap());
 
-    static bool showOptionsDialog(const Id page, QWidget *parent = nullptr);
+    static bool showOptionsDialog(const Utils::Id page, QWidget *parent = nullptr);
     static QString msgShowOptionsDialog();
     static QString msgShowOptionsDialogToolTip();
 
     static bool showWarningWithOptions(const QString &title, const QString &text,
                                        const QString &details = QString(),
-                                       Id settingsId = Id(),
+                                       Utils::Id settingsId = {},
                                        QWidget *parent = nullptr);
 
     static QSettings *settings(QSettings::Scope scope = QSettings::UserScope);

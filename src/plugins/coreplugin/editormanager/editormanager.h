@@ -99,20 +99,20 @@ public:
         int columnNumber; // extracted column number, -1 if none
     };
     static FilePathInfo splitLineAndColumnNumber(const QString &filePath);
-    static IEditor *openEditor(const QString &fileName, Id editorId = Id(),
+    static IEditor *openEditor(const QString &fileName, Utils::Id editorId = {},
         OpenEditorFlags flags = NoFlags, bool *newEditor = nullptr);
     static IEditor *openEditorAt(const QString &fileName,  int line, int column = 0,
-                                 Id editorId = Id(), OpenEditorFlags flags = NoFlags,
+                                 Utils::Id editorId = {}, OpenEditorFlags flags = NoFlags,
                                  bool *newEditor = nullptr);
     static void openEditorAtSearchResult(const SearchResultItem &item, OpenEditorFlags flags = NoFlags);
-    static IEditor *openEditorWithContents(Id editorId, QString *titlePattern = nullptr,
+    static IEditor *openEditorWithContents(Utils::Id editorId, QString *titlePattern = nullptr,
                                            const QByteArray &contents = QByteArray(),
                                            const QString &uniqueId = QString(),
                                            OpenEditorFlags flags = NoFlags);
     static bool skipOpeningBigTextFile(const QString &filePath);
     static void clearUniqueId(IDocument *document);
 
-    static bool openExternalEditor(const QString &fileName, Id editorId);
+    static bool openExternalEditor(const QString &fileName, Utils::Id editorId);
     static void addCloseEditorListener(const std::function<bool(IEditor *)> &listener);
 
     static QStringList getOpenFileNames();

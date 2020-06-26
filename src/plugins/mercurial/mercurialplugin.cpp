@@ -37,7 +37,6 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/id.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -132,7 +131,7 @@ public:
 
     // IVersionControl
     QString displayName() const final;
-    Core::Id id() const final;
+    Utils::Id id() const final;
     bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
 
     bool managesDirectory(const QString &filename, QString *topLevel = nullptr) const final;
@@ -299,7 +298,7 @@ void MercurialPluginPrivate::createMenu(const Core::Context &context)
     m_mercurialContainer->addSeparator(context);
 
     // Request the Tools menu and add the Mercurial menu to it
-    Core::ActionContainer *toolsMenu = Core::ActionManager::actionContainer(Core::Id(Core::Constants::M_TOOLS));
+    Core::ActionContainer *toolsMenu = Core::ActionManager::actionContainer(Utils::Id(Core::Constants::M_TOOLS));
     toolsMenu->addMenu(m_mercurialContainer);
     m_menuAction = m_mercurialContainer->menu()->menuAction();
 }
@@ -309,14 +308,14 @@ void MercurialPluginPrivate::createFileActions(const Core::Context &context)
     Core::Command *command;
 
     annotateFile = new ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(annotateFile, Core::Id(Constants::ANNOTATE), context);
+    command = Core::ActionManager::registerAction(annotateFile, Utils::Id(Constants::ANNOTATE), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(annotateFile, &QAction::triggered, this, &MercurialPluginPrivate::annotateCurrentFile);
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     diffFile = new ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(diffFile, Core::Id(Constants::DIFF), context);
+    command = Core::ActionManager::registerAction(diffFile, Utils::Id(Constants::DIFF), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+H,Meta+D") : tr("Alt+G,Alt+D")));
     connect(diffFile, &QAction::triggered, this, &MercurialPluginPrivate::diffCurrentFile);
@@ -324,7 +323,7 @@ void MercurialPluginPrivate::createFileActions(const Core::Context &context)
     m_commandLocator->appendCommand(command);
 
     logFile = new ParameterAction(tr("Log Current File"), tr("Log \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(logFile, Core::Id(Constants::LOG), context);
+    command = Core::ActionManager::registerAction(logFile, Utils::Id(Constants::LOG), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+H,Meta+L") : tr("Alt+G,Alt+L")));
     connect(logFile, &QAction::triggered, this, &MercurialPluginPrivate::logCurrentFile);
@@ -332,7 +331,7 @@ void MercurialPluginPrivate::createFileActions(const Core::Context &context)
     m_commandLocator->appendCommand(command);
 
     statusFile = new ParameterAction(tr("Status Current File"), tr("Status \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(statusFile, Core::Id(Constants::STATUS), context);
+    command = Core::ActionManager::registerAction(statusFile, Utils::Id(Constants::STATUS), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+H,Meta+S") : tr("Alt+G,Alt+S")));
     connect(statusFile, &QAction::triggered, this, &MercurialPluginPrivate::statusCurrentFile);
@@ -342,21 +341,21 @@ void MercurialPluginPrivate::createFileActions(const Core::Context &context)
     m_mercurialContainer->addSeparator(context);
 
     m_addAction = new ParameterAction(tr("Add"), tr("Add \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_addAction, Core::Id(Constants::ADD), context);
+    command = Core::ActionManager::registerAction(m_addAction, Utils::Id(Constants::ADD), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_addAction, &QAction::triggered, this, &MercurialPluginPrivate::addCurrentFile);
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_deleteAction = new ParameterAction(tr("Delete..."), tr("Delete \"%1\"..."), ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_deleteAction, Core::Id(Constants::DELETE), context);
+    command = Core::ActionManager::registerAction(m_deleteAction, Utils::Id(Constants::DELETE), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_deleteAction, &QAction::triggered, this, &MercurialPluginPrivate::promptToDeleteCurrentFile);
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     revertFile = new ParameterAction(tr("Revert Current File..."), tr("Revert \"%1\"..."), ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(revertFile, Core::Id(Constants::REVERT), context);
+    command = Core::ActionManager::registerAction(revertFile, Utils::Id(Constants::REVERT), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(revertFile, &QAction::triggered, this, &MercurialPluginPrivate::revertCurrentFile);
     m_mercurialContainer->addAction(command);
@@ -417,28 +416,28 @@ void MercurialPluginPrivate::createDirectoryActions(const Core::Context &context
 {
     auto action = new QAction(tr("Diff"), this);
     m_repositoryActionList.append(action);
-    Core::Command *command = Core::ActionManager::registerAction(action, Core::Id(Constants::DIFFMULTI), context);
+    Core::Command *command = Core::ActionManager::registerAction(action, Utils::Id(Constants::DIFFMULTI), context);
     connect(action, &QAction::triggered, this, &MercurialPluginPrivate::diffRepository);
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Log"), this);
     m_repositoryActionList.append(action);
-    command = Core::ActionManager::registerAction(action, Core::Id(Constants::LOGMULTI), context);
+    command = Core::ActionManager::registerAction(action, Utils::Id(Constants::LOGMULTI), context);
     connect(action, &QAction::triggered, this, &MercurialPluginPrivate::logRepository);
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Revert..."), this);
     m_repositoryActionList.append(action);
-    command = Core::ActionManager::registerAction(action, Core::Id(Constants::REVERTMULTI), context);
+    command = Core::ActionManager::registerAction(action, Utils::Id(Constants::REVERTMULTI), context);
     connect(action, &QAction::triggered, this, &MercurialPluginPrivate::revertMulti);
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Status"), this);
     m_repositoryActionList.append(action);
-    command = Core::ActionManager::registerAction(action, Core::Id(Constants::STATUSMULTI), context);
+    command = Core::ActionManager::registerAction(action, Utils::Id(Constants::STATUSMULTI), context);
     connect(action, &QAction::triggered, this, &MercurialPluginPrivate::statusMulti);
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -481,56 +480,56 @@ void MercurialPluginPrivate::createRepositoryActions(const Core::Context &contex
 {
     auto action = new QAction(tr("Pull..."), this);
     m_repositoryActionList.append(action);
-    Core::Command *command = Core::ActionManager::registerAction(action, Core::Id(Constants::PULL), context);
+    Core::Command *command = Core::ActionManager::registerAction(action, Utils::Id(Constants::PULL), context);
     connect(action, &QAction::triggered, this, &MercurialPluginPrivate::pull);
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Push..."), this);
     m_repositoryActionList.append(action);
-    command = Core::ActionManager::registerAction(action, Core::Id(Constants::PUSH), context);
+    command = Core::ActionManager::registerAction(action, Utils::Id(Constants::PUSH), context);
     connect(action, &QAction::triggered, this, &MercurialPluginPrivate::push);
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Update..."), this);
     m_repositoryActionList.append(action);
-    command = Core::ActionManager::registerAction(action, Core::Id(Constants::UPDATE), context);
+    command = Core::ActionManager::registerAction(action, Utils::Id(Constants::UPDATE), context);
     connect(action, &QAction::triggered, this, &MercurialPluginPrivate::update);
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Import..."), this);
     m_repositoryActionList.append(action);
-    command = Core::ActionManager::registerAction(action, Core::Id(Constants::IMPORT), context);
+    command = Core::ActionManager::registerAction(action, Utils::Id(Constants::IMPORT), context);
     connect(action, &QAction::triggered, this, &MercurialPluginPrivate::import);
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Incoming..."), this);
     m_repositoryActionList.append(action);
-    command = Core::ActionManager::registerAction(action, Core::Id(Constants::INCOMING), context);
+    command = Core::ActionManager::registerAction(action, Utils::Id(Constants::INCOMING), context);
     connect(action, &QAction::triggered, this, &MercurialPluginPrivate::incoming);
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Outgoing..."), this);
     m_repositoryActionList.append(action);
-    command = Core::ActionManager::registerAction(action, Core::Id(Constants::OUTGOING), context);
+    command = Core::ActionManager::registerAction(action, Utils::Id(Constants::OUTGOING), context);
     connect(action, &QAction::triggered, this, &MercurialPluginPrivate::outgoing);
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Commit..."), this);
     m_repositoryActionList.append(action);
-    command = Core::ActionManager::registerAction(action, Core::Id(Constants::COMMIT), context);
+    command = Core::ActionManager::registerAction(action, Utils::Id(Constants::COMMIT), context);
     command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+H,Meta+C") : tr("Alt+G,Alt+C")));
     connect(action, &QAction::triggered, this, &MercurialPluginPrivate::commit);
     m_mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_createRepositoryAction = new QAction(tr("Create Repository..."), this);
-    command = Core::ActionManager::registerAction(m_createRepositoryAction, Core::Id(Constants::CREATE_REPOSITORY), context);
+    command = Core::ActionManager::registerAction(m_createRepositoryAction, Utils::Id(Constants::CREATE_REPOSITORY), context);
     connect(m_createRepositoryAction, &QAction::triggered, this, &MercurialPluginPrivate::createRepository);
     m_mercurialContainer->addAction(command);
 }
@@ -742,7 +741,7 @@ QString MercurialPluginPrivate::displayName() const
     return tr("Mercurial");
 }
 
-Core::Id MercurialPluginPrivate::id() const
+Utils::Id MercurialPluginPrivate::id() const
 {
     return {VcsBase::Constants::VCS_ID_MERCURIAL};
 }

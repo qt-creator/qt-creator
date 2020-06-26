@@ -842,7 +842,7 @@ void ModelEditor::expandModelTreeToDepth(int depth)
     d->modelTreeView->expandToDepth(depth);
 }
 
-QToolButton *ModelEditor::createToolbarCommandButton(const Core::Id &id,
+QToolButton *ModelEditor::createToolbarCommandButton(const Utils::Id &id,
                                                      const std::function<void()> &slot,
                                                      QWidget *parent)
 {

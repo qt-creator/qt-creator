@@ -262,7 +262,7 @@ void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, bool revert)
 void GitEditorWidget::init()
 {
     VcsBaseEditorWidget::init();
-    Core::Id editorId = textDocument()->id();
+    Utils::Id editorId = textDocument()->id();
     if (editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID)
         textDocument()->setSyntaxHighlighter(new GitSubmitHighlighter);
     else if (editorId == Git::Constants::GIT_REBASE_EDITOR_ID)
@@ -287,7 +287,7 @@ void GitEditorWidget::addDiffActions(QMenu *menu, const DiffChunk &chunk)
 void GitEditorWidget::aboutToOpen(const QString &fileName, const QString &realFileName)
 {
     Q_UNUSED(realFileName)
-    Core::Id editorId = textDocument()->id();
+    Utils::Id editorId = textDocument()->id();
     if (editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID
             || editorId == Git::Constants::GIT_REBASE_EDITOR_ID) {
         QFileInfo fi(fileName);

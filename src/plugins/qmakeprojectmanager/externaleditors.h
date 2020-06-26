@@ -26,11 +26,11 @@
 #pragma once
 
 #include <coreplugin/editormanager/iexternaleditor.h>
-#include <coreplugin/id.h>
-#include <functional>
 
 #include <QStringList>
 #include <QMap>
+
+#include <functional>
 
 QT_BEGIN_NAMESPACE
 class QTcpSocket;
@@ -59,7 +59,7 @@ public:
     static ExternalQtEditor *createDesignerEditor();
 
     QStringList mimeTypes() const override;
-    Core::Id id() const override;
+    Utils::Id id() const override;
     QString displayName() const override;
 
     bool startEditor(const QString &fileName, QString *errorMessage) override;
@@ -72,7 +72,7 @@ public:
     };
 
 protected:
-    ExternalQtEditor(Core::Id id,
+    ExternalQtEditor(Utils::Id id,
                      const QString &displayName,
                      const QString &mimetype,
                      const CommandForQtVersion &commandForQtVersion);
@@ -89,7 +89,7 @@ protected:
 
 private:
     const QStringList m_mimeTypes;
-    const Core::Id m_id;
+    const Utils::Id m_id;
     const QString m_displayName;
     const CommandForQtVersion m_commandForQtVersion;
 };

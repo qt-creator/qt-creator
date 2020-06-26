@@ -146,7 +146,7 @@ class QMLJSEDITOR_EXPORT QmlJSEditorFactory : public TextEditor::TextEditorFacto
 {
 public:
     QmlJSEditorFactory();
-    QmlJSEditorFactory(Core::Id id);
+    QmlJSEditorFactory(Utils::Id id);
 
     static void decorateEditor(TextEditor::TextEditorWidget *editor);
 };

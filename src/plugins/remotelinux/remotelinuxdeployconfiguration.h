@@ -32,7 +32,7 @@
 
 namespace RemoteLinux {
 
-Core::Id genericDeployConfigurationId();
+Utils::Id genericDeployConfigurationId();
 
 namespace Internal {
 

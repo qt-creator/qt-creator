@@ -35,6 +35,7 @@
 #include <QSettings>
 
 using namespace Core;
+using namespace Utils;
 
 namespace Autotest {
 

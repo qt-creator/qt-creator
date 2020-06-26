@@ -38,7 +38,7 @@ class REMOTELINUX_EXPORT AbstractPackagingStep : public ProjectExplorer::BuildSt
     Q_OBJECT
 
 public:
-    explicit AbstractPackagingStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
+    explicit AbstractPackagingStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
     ~AbstractPackagingStep() override;
 
     QString packageFilePath() const;

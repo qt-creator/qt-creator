@@ -64,7 +64,7 @@ class FlashAndRunConfiguration final : public RunConfiguration
     Q_DECLARE_TR_FUNCTIONS(McuSupport::Internal::FlashAndRunConfiguration)
 
 public:
-    FlashAndRunConfiguration(Target *target, Core::Id id)
+    FlashAndRunConfiguration(Target *target, Utils::Id id)
         : RunConfiguration(target, id)
     {
         auto flashAndRunParameters = addAspect<BaseStringAspect>();

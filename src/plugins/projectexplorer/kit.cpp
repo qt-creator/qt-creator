@@ -372,7 +372,7 @@ int Kit::weight() const
     });
 }
 
-static QIcon iconForDeviceType(Core::Id deviceType)
+static QIcon iconForDeviceType(Utils::Id deviceType)
 {
     const IDeviceFactory *factory = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(),
         [&deviceType](const IDeviceFactory *factory) {
@@ -391,7 +391,7 @@ QIcon Kit::icon() const
         return d->m_cachedIcon;
     }
 
-    const Core::Id deviceType = d->m_deviceTypeForIcon.isValid()
+    const Utils::Id deviceType = d->m_deviceTypeForIcon.isValid()
             ? d->m_deviceTypeForIcon : DeviceTypeKitAspect::deviceTypeId(this);
     const QIcon deviceTypeIcon = iconForDeviceType(deviceType);
     if (!deviceTypeIcon.isNull()) {

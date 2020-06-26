@@ -36,8 +36,9 @@
 #include "languageclientsettings.h"
 #include "languageclientsymbolsupport.h"
 
-#include <coreplugin/id.h>
 #include <coreplugin/messagemanager.h>
+
+#include <utils/id.h>
 #include <utils/link.h>
 
 #include <languageserverprotocol/client.h>
@@ -150,7 +151,7 @@ public:
     void setName(const QString &name) { m_displayName = name; }
     QString name() const { return m_displayName; }
 
-    Core::Id id() const { return m_id; }
+    Utils::Id id() const { return m_id; }
 
     bool needsRestart(const BaseSettings *) const;
 
@@ -227,7 +228,7 @@ private:
          QList<LanguageServerProtocol::DidChangeTextDocumentParams::TextDocumentContentChangeEvent>>
         m_documentsToUpdate;
     QTimer m_documentUpdateTimer;
-    Core::Id m_id;
+    Utils::Id m_id;
     LanguageServerProtocol::ServerCapabilities m_serverCapabilities;
     DynamicCapabilities m_dynamicCapabilities;
     struct AssistProviders

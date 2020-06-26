@@ -33,7 +33,7 @@ using namespace ProjectExplorer;
 namespace RemoteLinux {
 
 RemoteLinuxCustomCommandDeploymentStep::RemoteLinuxCustomCommandDeploymentStep
-        (BuildStepList *bsl, Core::Id id)
+        (BuildStepList *bsl, Utils::Id id)
     : AbstractRemoteLinuxDeployStep(bsl, id)
 {
     auto service = createDeployService<RemoteLinuxCustomCommandDeployService>();
@@ -53,7 +53,7 @@ RemoteLinuxCustomCommandDeploymentStep::RemoteLinuxCustomCommandDeploymentStep
 
 RemoteLinuxCustomCommandDeploymentStep::~RemoteLinuxCustomCommandDeploymentStep() = default;
 
-Core::Id RemoteLinuxCustomCommandDeploymentStep::stepId()
+Utils::Id RemoteLinuxCustomCommandDeploymentStep::stepId()
 {
     return "RemoteLinux.GenericRemoteLinuxCustomCommandDeploymentStep";
 }

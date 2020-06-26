@@ -27,7 +27,6 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
-#include <coreplugin/id.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/stringutils.h>
@@ -257,6 +256,8 @@
 
     \internal
 */
+
+using namespace Utils;
 
 namespace Core {
 namespace Internal {

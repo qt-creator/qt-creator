@@ -45,10 +45,10 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
 private:
-    int indexForId(Core::Id id) const;
+    int indexForId(Utils::Id id) const;
     ProjectExplorer::IDevice::ConstPtr deviceAt(int idx) const;
     ProjectExplorer::IDevice::ConstPtr defaultDeviceConfig() const;
-    ProjectExplorer::IDevice::ConstPtr find(Core::Id id) const;
+    ProjectExplorer::IDevice::ConstPtr find(Utils::Id id) const;
     ProjectExplorer::Target *target() const;
     bool deviceMatches(ProjectExplorer::IDevice::ConstPtr dev) const;
 };

@@ -28,9 +28,10 @@
 #include "clangdiagnosticmanager.h"
 #include "clangeditordocumentparser.h"
 
-#include <coreplugin/id.h>
 #include <cpptools/builtineditordocumentprocessor.h>
 #include <cpptools/semantichighlighter.h>
+
+#include <utils/id.h>
 
 #include <QFutureWatcher>
 #include <QTimer>
@@ -68,7 +69,7 @@ public:
     CppTools::ProjectPart::Ptr projectPart() const;
     void clearProjectPart();
 
-    Core::Id diagnosticConfigId() const;
+    ::Utils::Id diagnosticConfigId() const;
 
     void updateCodeWarnings(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,
                             const ClangBackEnd::DiagnosticContainer &firstHeaderErrorDiagnostic,
@@ -134,7 +135,7 @@ private:
     BackendCommunicator &m_communicator;
     QSharedPointer<ClangEditorDocumentParser> m_parser;
     CppTools::ProjectPart::Ptr m_projectPart;
-    Core::Id m_diagnosticConfigId;
+    ::Utils::Id m_diagnosticConfigId;
     bool m_isProjectFile = false;
     QFutureWatcher<void> m_parserWatcher;
     QTimer m_updateBackendDocumentTimer;

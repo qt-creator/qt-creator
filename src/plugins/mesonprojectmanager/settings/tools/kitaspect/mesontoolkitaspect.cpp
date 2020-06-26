@@ -82,16 +82,16 @@ ProjectExplorer::KitAspectWidget *MesonToolKitAspect::createConfigWidget(Project
     return new ToolKitAspectWidget{k, this, ToolKitAspectWidget::ToolType::Meson};
 }
 
-void MesonToolKitAspect::setMesonTool(ProjectExplorer::Kit *kit, Core::Id id)
+void MesonToolKitAspect::setMesonTool(ProjectExplorer::Kit *kit, Utils::Id id)
 {
     QTC_ASSERT(kit && id.isValid(), return );
     kit->setValue(TOOL_ID, id.toSetting());
 }
 
-Core::Id MesonToolKitAspect::mesonToolId(const ProjectExplorer::Kit *kit)
+Utils::Id MesonToolKitAspect::mesonToolId(const ProjectExplorer::Kit *kit)
 {
     QTC_ASSERT(kit, return {});
-    return Core::Id::fromSetting(kit->value(TOOL_ID));
+    return Utils::Id::fromSetting(kit->value(TOOL_ID));
 }
 } // namespace Internal
 } // namespace MesonProjectManager

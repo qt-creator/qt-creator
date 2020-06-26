@@ -35,7 +35,7 @@ class CatchTestSettings;
 class CatchTestSettingsPage : public Core::IOptionsPage
 {
 public:
-    CatchTestSettingsPage(CatchTestSettings *settings, Core::Id settingsId);
+    CatchTestSettingsPage(CatchTestSettings *settings, Utils::Id settingsId);
 };
 
 } // namespace Internal

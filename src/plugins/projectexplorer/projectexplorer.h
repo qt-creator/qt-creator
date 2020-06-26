@@ -153,10 +153,10 @@ public:
     static bool isProjectFile(const Utils::FilePath &filePath);
     static QList<QPair<QString, QString> > recentProjects();
 
-    static bool canRunStartupProject(Core::Id runMode, QString *whyNot = nullptr);
-    static void runProject(Project *pro, Core::Id, const bool forceSkipDeploy = false);
-    static void runStartupProject(Core::Id runMode, bool forceSkipDeploy = false);
-    static void runRunConfiguration(RunConfiguration *rc, Core::Id runMode,
+    static bool canRunStartupProject(Utils::Id runMode, QString *whyNot = nullptr);
+    static void runProject(Project *pro, Utils::Id, const bool forceSkipDeploy = false);
+    static void runStartupProject(Utils::Id runMode, bool forceSkipDeploy = false);
+    static void runRunConfiguration(RunConfiguration *rc, Utils::Id runMode,
                              const bool forceSkipDeploy = false);
     static QList<QPair<Runnable, Utils::ProcessHandle>> runningRunControlProcesses();
     static QList<RunControl *> allRunControls();
@@ -179,7 +179,7 @@ public:
 
     static void updateActions();
 
-    static void activateProjectPanel(Core::Id panelId);
+    static void activateProjectPanel(Utils::Id panelId);
     static void clearRecentProjects();
     static void removeFromRecentProjects(const QString &fileName, const QString &displayName);
 

@@ -70,7 +70,7 @@ struct TarFileHeader {
 
 } // Anonymous namespace.
 
-TarPackageCreationStep::TarPackageCreationStep(BuildStepList *bsl, Core::Id id)
+TarPackageCreationStep::TarPackageCreationStep(BuildStepList *bsl, Utils::Id id)
     : AbstractPackagingStep(bsl, id)
 {
     setDefaultDisplayName(displayName());
@@ -380,7 +380,7 @@ QVariantMap TarPackageCreationStep::toMap() const
     return map;
 }
 
-Core::Id TarPackageCreationStep::stepId()
+Utils::Id TarPackageCreationStep::stepId()
 {
     return "MaemoTarPackageCreationStep";
 }

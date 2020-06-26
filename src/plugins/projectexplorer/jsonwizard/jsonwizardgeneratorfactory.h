@@ -29,7 +29,7 @@
 
 #include "jsonwizard.h"
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <QList>
 #include <QObject>
@@ -69,15 +69,15 @@ class JsonWizardGeneratorFactory : public QObject
     Q_OBJECT
 
 public:
-    bool canCreate(Core::Id typeId) const { return m_typeIds.contains(typeId); }
-    QList<Core::Id> supportedIds() const { return m_typeIds; }
+    bool canCreate(Utils::Id typeId) const { return m_typeIds.contains(typeId); }
+    QList<Utils::Id> supportedIds() const { return m_typeIds; }
 
-    virtual JsonWizardGenerator *create(Core::Id typeId, const QVariant &data,
-                                        const QString &path, Core::Id platform,
+    virtual JsonWizardGenerator *create(Utils::Id typeId, const QVariant &data,
+                                        const QString &path, Utils::Id platform,
                                         const QVariantMap &variables) = 0;
 
     // Basic syntax check for the data taken from the wizard.json file:
-    virtual bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage) = 0;
+    virtual bool validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage) = 0;
 
 protected:
     // This will add "PE.Wizard.Generator." in front of the suffixes and set those as supported typeIds
@@ -85,7 +85,7 @@ protected:
     void setTypeIdsSuffix(const QString &suffix);
 
 private:
-    QList<Core::Id> m_typeIds;
+    QList<Utils::Id> m_typeIds;
 };
 
 namespace Internal {
@@ -97,10 +97,10 @@ class FileGeneratorFactory : public JsonWizardGeneratorFactory
 public:
     FileGeneratorFactory();
 
-    JsonWizardGenerator *create(Core::Id typeId, const QVariant &data,
-                                const QString &path, Core::Id platform,
+    JsonWizardGenerator *create(Utils::Id typeId, const QVariant &data,
+                                const QString &path, Utils::Id platform,
                                 const QVariantMap &variables) override;
-    bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage) override;
+    bool validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage) override;
 };
 
 class ScannerGeneratorFactory : public JsonWizardGeneratorFactory
@@ -110,10 +110,10 @@ class ScannerGeneratorFactory : public JsonWizardGeneratorFactory
 public:
     ScannerGeneratorFactory();
 
-    JsonWizardGenerator *create(Core::Id typeId, const QVariant &data,
-                                const QString &path, Core::Id platform,
+    JsonWizardGenerator *create(Utils::Id typeId, const QVariant &data,
+                                const QString &path, Utils::Id platform,
                                 const QVariantMap &variables) override;
-    bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage) override;
+    bool validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage) override;
 };
 
 } // namespace Internal

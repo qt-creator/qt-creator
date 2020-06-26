@@ -90,7 +90,7 @@ class WinRtPackageDeploymentStep final : public AbstractProcessStep
     Q_DECLARE_TR_FUNCTIONS(WinRt::Internal::WinRtPackageDeploymentStep)
 
 public:
-    WinRtPackageDeploymentStep(BuildStepList *bsl, Core::Id id);
+    WinRtPackageDeploymentStep(BuildStepList *bsl, Utils::Id id);
 
     QString defaultWinDeployQtArguments() const;
 
@@ -170,7 +170,7 @@ void WinRtArgumentsAspect::restoreDefaultValue()
     setValue(m_defaultValue);
 }
 
-WinRtPackageDeploymentStep::WinRtPackageDeploymentStep(BuildStepList *bsl, Core::Id id)
+WinRtPackageDeploymentStep::WinRtPackageDeploymentStep(BuildStepList *bsl, Utils::Id id)
     : AbstractProcessStep(bsl, id)
 {
     setDisplayName(tr("Run windeployqt"));

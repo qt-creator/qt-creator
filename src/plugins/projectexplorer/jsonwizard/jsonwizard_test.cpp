@@ -39,6 +39,9 @@
 #include <QListView>
 
 #include <functional>
+
+using namespace Utils;
+
 namespace {
 QJsonObject createWidget(const QString &type, const QString& nameSuffix, const QJsonObject &data)
 {
@@ -173,7 +176,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsCheckBox()
     const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), QDir(), &errorMessage));
     QVERIFY2(factory, qPrintable(errorMessage));
 
-    Utils::Wizard *wizard = factory->runWizard(QString(), &parent, Core::Id(), QVariantMap());
+    Wizard *wizard = factory->runWizard(QString(), &parent, Id(), QVariantMap());
 
     QVERIFY(!findCheckBox(wizard, "Default")->isChecked());
     QCOMPARE(wizard->field("DefaultCheckBox"), QVariant(false));
@@ -205,7 +208,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsLineEdit()
     const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), QDir(), &errorMessage));
     QVERIFY2(factory, qPrintable(errorMessage));
 
-    Utils::Wizard *wizard = factory->runWizard(QString(), &parent, Core::Id(), QVariantMap());
+    Wizard *wizard = factory->runWizard(QString(), &parent, Id(), QVariantMap());
     QVERIFY(findLineEdit(wizard, "Default"));
     QVERIFY(findLineEdit(wizard, "Default")->text().isEmpty());
     QCOMPARE(qPrintable(findLineEdit(wizard, "WithText")->text()), "some text");
@@ -233,7 +236,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsComboBox()
     const QJsonObject wizardObject = createGeneralWizard(pages);
     const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), QDir(), &errorMessage));
     QVERIFY2(factory, qPrintable(errorMessage));
-    Utils::Wizard *wizard = factory->runWizard(QString(), &parent, Core::Id(), QVariantMap());
+    Utils::Wizard *wizard = factory->runWizard(QString(), &parent, Id(), QVariantMap());
 
     QComboBox *defaultComboBox = findComboBox(wizard, "Default");
     QVERIFY(defaultComboBox);
@@ -291,7 +294,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsIconList()
     const QJsonObject wizardObject = createGeneralWizard(pages);
     const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), QDir(), &errorMessage));
     QVERIFY2(factory, qPrintable(errorMessage));
-    Utils::Wizard *wizard = factory->runWizard(QString(), &parent, Core::Id(), QVariantMap());
+    Wizard *wizard = factory->runWizard(QString(), &parent, Id(), QVariantMap());
 
     auto view = wizard->findChild<QListView *>("FancyIconList");
     QCOMPARE(view->model()->rowCount(), 2);

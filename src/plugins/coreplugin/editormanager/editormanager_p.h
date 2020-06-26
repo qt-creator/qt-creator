@@ -79,17 +79,17 @@ public:
     static void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
     static IEditor *openEditor(EditorView *view,
                                const QString &fileName,
-                               Id editorId = Id(),
+                               Utils::Id editorId = {},
                                EditorManager::OpenEditorFlags flags = EditorManager::NoFlags,
                                bool *newEditor = nullptr);
     static IEditor *openEditorAt(EditorView *view,
                                  const QString &fileName,
                                  int line,
                                  int column = 0,
-                                 Id editorId = Id(),
+                                 Utils::Id editorId = {},
                                  EditorManager::OpenEditorFlags flags = EditorManager::NoFlags,
                                  bool *newEditor = nullptr);
-    static IEditor *openEditorWith(const QString &fileName, Core::Id editorId);
+    static IEditor *openEditorWith(const QString &fileName, Utils::Id editorId);
     static IEditor *duplicateEditor(IEditor *editor);
     static IEditor *activateEditor(EditorView *view, IEditor *editor,
                                    EditorManager::OpenEditorFlags flags = EditorManager::NoFlags);
@@ -108,7 +108,7 @@ public:
     static MakeWritableResult makeFileWritable(IDocument *document);
     static void doEscapeKeyFocusMoveMagic();
 
-    static Id getOpenWithEditorId(const QString &fileName, bool *isExternalEditor = nullptr);
+    static Utils::Id getOpenWithEditorId(const QString &fileName, bool *isExternalEditor = nullptr);
 
     static void saveSettings();
     static void readSettings();
@@ -193,7 +193,7 @@ private:
     static OpenEditorsWindow *windowPopup();
     static void showPopupOrSelectDocument();
 
-    static EditorFactoryList findFactories(Id editorId, const QString &fileName);
+    static EditorFactoryList findFactories(Utils::Id editorId, const QString &fileName);
     static IEditor *createEditor(IEditorFactory *factory, const QString &fileName);
     static void addEditor(IEditor *editor);
     static void removeEditor(IEditor *editor, bool removeSusependedEntry);

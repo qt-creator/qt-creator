@@ -42,7 +42,7 @@ class IosDsymBuildStep : public ProjectExplorer::AbstractProcessStep
     friend class IosDsymBuildStepConfigWidget;
 
 public:
-    IosDsymBuildStep(ProjectExplorer::BuildStepList *parent, Core::Id id);
+    IosDsymBuildStep(ProjectExplorer::BuildStepList *parent, Utils::Id id);
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     void setArguments(const QStringList &args);

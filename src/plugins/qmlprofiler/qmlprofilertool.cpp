@@ -92,6 +92,7 @@ using namespace Debugger;
 using namespace Debugger::Constants;
 using namespace QmlProfiler::Constants;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace QmlProfiler {
 namespace Internal {

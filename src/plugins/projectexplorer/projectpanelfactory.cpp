@@ -80,12 +80,12 @@ void ProjectPanelFactory::destroyFactories()
     s_factories.clear();
 }
 
-Core::Id ProjectPanelFactory::id() const
+Utils::Id ProjectPanelFactory::id() const
 {
     return m_id;
 }
 
-void ProjectPanelFactory::setId(Core::Id id)
+void ProjectPanelFactory::setId(Utils::Id id)
 {
     m_id = id;
 }

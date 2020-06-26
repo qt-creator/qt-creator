@@ -39,7 +39,7 @@ public:
     LocatorFilter(SymbolQueryInterface &symbolQuery,
                   EditorManagerInterface &editorManager,
                   ClangBackEnd::SymbolKinds &&symbolKinds,
-                  Core::Id id,
+                  Utils::Id id,
                   const QString &displayName,
                   const QString &shortCut,
                   bool includedByDefault=false)

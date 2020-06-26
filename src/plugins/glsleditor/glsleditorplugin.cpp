@@ -44,6 +44,7 @@
 #include <QMenu>
 
 using namespace Core;
+using namespace Utils;
 
 namespace GlslEditor {
 namespace Internal {

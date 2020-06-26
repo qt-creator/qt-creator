@@ -30,15 +30,12 @@
 #include <QTimer>
 #include <QToolButton>
 
-#include <coreplugin/id.h>
-
 #include <cpptools/cpptoolssettings.h>
 
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
-using namespace Core;
 using namespace CppTools;
 using namespace Utils;
 

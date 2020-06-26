@@ -40,11 +40,11 @@ class CMAKE_EXPORT CMakeKitAspect : public ProjectExplorer::KitAspect
 public:
     CMakeKitAspect();
 
-    static Core::Id id();
+    static Utils::Id id();
 
-    static Core::Id cmakeToolId(const ProjectExplorer::Kit *k);
+    static Utils::Id cmakeToolId(const ProjectExplorer::Kit *k);
     static CMakeTool *cmakeTool(const ProjectExplorer::Kit *k);
-    static void setCMakeTool(ProjectExplorer::Kit *k, const Core::Id id);
+    static void setCMakeTool(ProjectExplorer::Kit *k, const Utils::Id id);
 
     // KitAspect interface
     ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const final;
@@ -55,7 +55,7 @@ public:
 
     void addToMacroExpander(ProjectExplorer::Kit *k, Utils::MacroExpander *expander) const final;
 
-    QSet<Core::Id> availableFeatures(const ProjectExplorer::Kit *k) const final;
+    QSet<Utils::Id> availableFeatures(const ProjectExplorer::Kit *k) const final;
 };
 
 class CMAKE_EXPORT CMakeGeneratorKitAspect : public ProjectExplorer::KitAspect

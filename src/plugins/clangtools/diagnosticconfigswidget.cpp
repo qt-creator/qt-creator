@@ -694,7 +694,7 @@ static void setupTreeView(QTreeView *view, QAbstractItemModel *model, int expand
 }
 
 DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &configs,
-                                                 const Core::Id &configToSelect,
+                                                 const Utils::Id &configToSelect,
                                                  const ClangTidyInfo &tidyInfo,
                                                  const ClazyStandaloneInfo &clazyInfo)
     : ClangDiagnosticConfigsWidget(configs, configToSelect)

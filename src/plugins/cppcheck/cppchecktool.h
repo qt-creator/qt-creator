@@ -58,7 +58,7 @@ class CppcheckTool final : public QObject
     Q_OBJECT
 
 public:
-    CppcheckTool(CppcheckDiagnosticManager &manager, const Core::Id &progressId);
+    CppcheckTool(CppcheckDiagnosticManager &manager, const Utils::Id &progressId);
     ~CppcheckTool() override;
 
     void updateOptions(const CppcheckOptions &options);
@@ -87,7 +87,7 @@ private:
     QVector<QRegExp> m_filters;
     QRegularExpression m_progressRegexp;
     QRegularExpression m_messageRegexp;
-    Core::Id m_progressId;
+    Utils::Id m_progressId;
 };
 
 } // namespace Internal

@@ -36,7 +36,7 @@ using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 
-GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl, Core::Id id,
+GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl, Utils::Id id,
                                                  bool offerIncrementalDeployment)
     : AbstractRemoteLinuxDeployStep(bsl, id)
 {
@@ -78,7 +78,7 @@ GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl, Core::Id id
 
 GenericDirectUploadStep::~GenericDirectUploadStep() = default;
 
-Core::Id GenericDirectUploadStep::stepId()
+Utils::Id GenericDirectUploadStep::stepId()
 {
     return Constants::DirectUploadStepId;
 }

@@ -25,14 +25,14 @@
 
 #pragma once
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 namespace Core {
 namespace Internal {
 
 // Run the settings dialog and wait for it to finish.
 // Returns if the changes have been applied.
-bool executeSettingsDialog(QWidget *parent, Id initialPage);
+bool executeSettingsDialog(QWidget *parent, Utils::Id initialPage);
 
 } // namespace Internal
 } // namespace Core

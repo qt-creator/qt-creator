@@ -107,7 +107,7 @@ bool CustomToolChain::isValid() const
 ToolChain::MacroInspectionRunner CustomToolChain::createMacroInspectionRunner() const
 {
     const Macros theMacros = m_predefinedMacros;
-    const Core::Id lang = language();
+    const Utils::Id lang = language();
 
     // This runner must be thread-safe!
     return [theMacros, lang](const QStringList &cxxflags){
@@ -306,7 +306,7 @@ bool CustomToolChain::fromMap(const QVariantMap &data)
     setHeaderPaths(data.value(QLatin1String(headerPathsKeyC)).toStringList());
     m_cxx11Flags = data.value(QLatin1String(cxx11FlagsKeyC)).toStringList();
     setMkspecs(data.value(QLatin1String(mkspecsKeyC)).toString());
-    setOutputParserId(Core::Id::fromSetting(data.value(QLatin1String(outputParserKeyC))));
+    setOutputParserId(Utils::Id::fromSetting(data.value(QLatin1String(outputParserKeyC))));
 
     // Restore Pre-4.13 settings.
     if (outputParserId() == Internal::CustomParser::id()) {
@@ -340,7 +340,7 @@ bool CustomToolChain::fromMap(const QVariantMap &data)
         if (!customParserSettings.error.pattern().isEmpty()
                 || !customParserSettings.error.pattern().isEmpty()) {
             // Found custom parser in old settings, move to new place.
-            customParserSettings.id = Core::Id::fromString(QUuid::createUuid().toString());
+            customParserSettings.id = Utils::Id::fromString(QUuid::createUuid().toString());
             setOutputParserId(customParserSettings.id);
             customParserSettings.displayName = tr("Parser for toolchain %1").arg(displayName());
             QList<Internal::CustomParserSettings> settings
@@ -366,12 +366,12 @@ bool CustomToolChain::operator ==(const ToolChain &other) const
             && m_builtInHeaderPaths == customTc->m_builtInHeaderPaths;
 }
 
-Core::Id CustomToolChain::outputParserId() const
+Utils::Id CustomToolChain::outputParserId() const
 {
     return m_outputParserId;
 }
 
-void CustomToolChain::setOutputParserId(Core::Id parserId)
+void CustomToolChain::setOutputParserId(Utils::Id parserId)
 {
     if (m_outputParserId == parserId)
         return;
@@ -557,7 +557,7 @@ void CustomToolChainConfigWidget::applyImpl()
     tc->setCxx11Flags(m_cxx11Flags->text().split(QLatin1Char(',')));
     tc->setMkspecs(m_mkspecs->text());
     tc->setDisplayName(displayName); // reset display name
-    tc->setOutputParserId(Core::Id::fromSetting(m_errorParserComboBox->currentData()));
+    tc->setOutputParserId(Utils::Id::fromSetting(m_errorParserComboBox->currentData()));
 
     setFromToolchain(); // Refresh with actual data from the toolchain. This shows what e.g. the
                         // macro parser did with the input.
@@ -593,7 +593,7 @@ bool CustomToolChainConfigWidget::isDirtyImpl() const
             || m_headerDetails->entries() != tc->headerPathsList()
             || m_cxx11Flags->text().split(QLatin1Char(',')) != tc->cxx11Flags()
             || m_mkspecs->text() != tc->mkspecs()
-            || Core::Id::fromSetting(m_errorParserComboBox->currentData()) == tc->outputParserId();
+            || Utils::Id::fromSetting(m_errorParserComboBox->currentData()) == tc->outputParserId();
 }
 
 void CustomToolChainConfigWidget::makeReadOnlyImpl()

@@ -376,7 +376,7 @@ static RunSettings runSettings()
     return ClangToolsSettings::instance()->runSettings();
 }
 
-static ClangDiagnosticConfig diagnosticConfig(const Core::Id &diagConfigId)
+static ClangDiagnosticConfig diagnosticConfig(const Utils::Id &diagConfigId)
 {
     const ClangDiagnosticConfigsModel configs = diagnosticConfigsModel();
     QTC_ASSERT(configs.hasConfigWithId(diagConfigId), return ClangDiagnosticConfig());
@@ -879,8 +879,8 @@ void ClangTool::reset()
 static bool canAnalyzeProject(Project *project)
 {
     if (const Target *target = project->activeTarget()) {
-        const Core::Id c = ProjectExplorer::Constants::C_LANGUAGE_ID;
-        const Core::Id cxx = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
+        const Utils::Id c = ProjectExplorer::Constants::C_LANGUAGE_ID;
+        const Utils::Id cxx = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
         const bool projectSupportsLanguage = project->projectLanguages().contains(c)
                                              || project->projectLanguages().contains(cxx);
         return projectSupportsLanguage

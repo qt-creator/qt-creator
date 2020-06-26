@@ -41,7 +41,6 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -64,6 +63,7 @@
 using namespace QmlJSEditor::Constants;
 using namespace ProjectExplorer;
 using namespace Core;
+using namespace Utils;
 
 namespace QmlJSEditor {
 namespace Internal {

@@ -226,7 +226,7 @@ std::function<void()> invokeOnCurrentModelEditor(void (ModelEditor::*function)()
     };
 }
 
-Core::Command *ActionHandler::registerCommand(const Core::Id &id, void (ModelEditor::*function)(),
+Core::Command *ActionHandler::registerCommand(const Utils::Id &id, void (ModelEditor::*function)(),
                                               const Core::Context &context, const QString &title,
                                               const QKeySequence &keySequence, const QIcon &icon)
 {

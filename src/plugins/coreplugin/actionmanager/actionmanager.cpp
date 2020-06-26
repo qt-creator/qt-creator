@@ -29,7 +29,7 @@
 #include "command_p.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
+
 #include <utils/algorithm.h>
 #include <utils/fadingindicator.h>
 #include <utils/qtcassert.h>
@@ -51,6 +51,7 @@ static const char kKeyboardSettingsKeyV2[] = "KeyboardShortcutsV2";
 
 using namespace Core;
 using namespace Core::Internal;
+using namespace Utils;
 
 /*!
     \class Core::ActionManager
@@ -121,7 +122,7 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn void Core::ActionManager::commandAdded(Core::Id id)
+    \fn void Core::ActionManager::commandAdded(Utils::Id id)
 
     Emitted when a command (with the \a id) is added.
 */

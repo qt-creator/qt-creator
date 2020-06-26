@@ -109,7 +109,7 @@ public:
                       QString *errorMessage);
     ParseResult parse(const QString &configFileFullPath, QString *errorMessage);
 
-    Core::Id id;
+    Utils::Id id;
     QString directory;
     QString klass;
     QList<CustomWizardFile> files;
@@ -129,7 +129,7 @@ public:
     QString displayName;
     QString category;
     QString displayCategory;
-    QSet<Core::Id> requiredFeatures;
+    QSet<Utils::Id> requiredFeatures;
     Core::IWizardFactory::WizardFlags flags;
 };
 

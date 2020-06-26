@@ -84,7 +84,7 @@ public:
     virtual bool supportsAction(Node *context, ProjectAction action, const Node *node) const;
 
     virtual QStringList filesGeneratedFrom(const QString &sourceFile) const;
-    virtual QVariant additionalData(Core::Id id) const;
+    virtual QVariant additionalData(Utils::Id id) const;
 
     void setDeploymentData(const DeploymentData &deploymentData);
     DeploymentData deploymentData() const;
@@ -122,8 +122,8 @@ public:
 
     void emitBuildSystemUpdated();
 
-    void setExtraData(const QString &buildKey, Core::Id dataKey, const QVariant &data);
-    QVariant extraData(const QString &buildKey, Core::Id dataKey) const;
+    void setExtraData(const QString &buildKey, Utils::Id dataKey, const QVariant &data);
+    QVariant extraData(const QString &buildKey, Utils::Id dataKey) const;
 
 public:
     // FIXME: Make this private and the BuildSystem a friend

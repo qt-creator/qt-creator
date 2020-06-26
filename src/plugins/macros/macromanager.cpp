@@ -41,7 +41,6 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -144,9 +143,9 @@ void MacroManagerPrivate::initialize()
     }
 }
 
-static Core::Id makeId(const QString &name)
+static Utils::Id makeId(const QString &name)
 {
-    return Core::Id(Macros::Constants::PREFIX_MACRO).withSuffix(name);
+    return Utils::Id(Macros::Constants::PREFIX_MACRO).withSuffix(name);
 }
 
 void MacroManagerPrivate::addMacro(Macro *macro)

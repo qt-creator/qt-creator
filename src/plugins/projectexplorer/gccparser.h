@@ -40,7 +40,7 @@ class PROJECTEXPLORER_EXPORT GccParser : public ProjectExplorer::OutputTaskParse
 public:
     GccParser();
 
-    static Core::Id id();
+    static Utils::Id id();
 
     static QList<OutputLineParser *> gccParserSuite();
 

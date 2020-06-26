@@ -31,7 +31,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
-#include <coreplugin/id.h>
 
 #include <QDebug>
 #include <QAction>

@@ -53,16 +53,16 @@ QString QnxQtVersion::description() const
             .arg(QnxUtils::cpuDirShortDescription(cpuDir()));
 }
 
-QSet<Core::Id> QnxQtVersion::availableFeatures() const
+QSet<Utils::Id> QnxQtVersion::availableFeatures() const
 {
-    QSet<Core::Id> features = QtSupport::BaseQtVersion::availableFeatures();
+    QSet<Utils::Id> features = QtSupport::BaseQtVersion::availableFeatures();
     features.insert(Constants::QNX_QNX_FEATURE);
     features.remove(QtSupport::Constants::FEATURE_QT_CONSOLE);
     features.remove(QtSupport::Constants::FEATURE_QT_WEBKIT);
     return features;
 }
 
-QSet<Core::Id> QnxQtVersion::targetDeviceTypes() const
+QSet<Utils::Id> QnxQtVersion::targetDeviceTypes() const
 {
     return {Constants::QNX_QNX_OS_TYPE};
 }

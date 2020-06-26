@@ -27,7 +27,7 @@
 
 #include "projectexplorer_export.h"
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <QObject>
 #include <QVariantMap>
@@ -78,8 +78,8 @@ public:
     const TextEditor::MarginSettings &marginSettings() const;
 
     TextEditor::ICodeStylePreferences *codeStyle() const;
-    TextEditor::ICodeStylePreferences *codeStyle(Core::Id languageId) const;
-    QMap<Core::Id, TextEditor::ICodeStylePreferences *> codeStyles() const;
+    TextEditor::ICodeStylePreferences *codeStyle(Utils::Id languageId) const;
+    QMap<Utils::Id, TextEditor::ICodeStylePreferences *> codeStyles() const;
 
     void configureEditor(TextEditor::BaseTextEditor *textEditor) const;
     void deconfigureEditor(TextEditor::BaseTextEditor *textEditor) const;

@@ -45,25 +45,25 @@ namespace Internal {
 
 TaskModel::TaskModel(QObject *parent) : QAbstractItemModel(parent)
 {
-    m_categories.insert(Core::Id(), CategoryData());
+    m_categories.insert(Utils::Id(), CategoryData());
 }
 
-int TaskModel::taskCount(Core::Id categoryId)
+int TaskModel::taskCount(Utils::Id categoryId)
 {
     return m_categories.value(categoryId).count;
 }
 
-int TaskModel::errorTaskCount(Core::Id categoryId)
+int TaskModel::errorTaskCount(Utils::Id categoryId)
 {
     return m_categories.value(categoryId).errors;
 }
 
-int TaskModel::warningTaskCount(Core::Id categoryId)
+int TaskModel::warningTaskCount(Utils::Id categoryId)
 {
     return m_categories.value(categoryId).warnings;
 }
 
-int TaskModel::unknownTaskCount(Core::Id categoryId)
+int TaskModel::unknownTaskCount(Utils::Id categoryId)
 {
     return m_categories.value(categoryId).count
             - m_categories.value(categoryId).errors
@@ -78,7 +78,7 @@ bool TaskModel::hasFile(const QModelIndex &index) const
     return !m_tasks.at(row).file.isEmpty();
 }
 
-void TaskModel::addCategory(Core::Id categoryId, const QString &categoryName)
+void TaskModel::addCategory(Utils::Id categoryId, const QString &categoryName)
 {
     QTC_ASSERT(categoryId.isValid(), return);
     CategoryData data;
@@ -86,7 +86,7 @@ void TaskModel::addCategory(Core::Id categoryId, const QString &categoryName)
     m_categories.insert(categoryId, data);
 }
 
-Tasks TaskModel::tasks(Core::Id categoryId) const
+Tasks TaskModel::tasks(Utils::Id categoryId) const
 {
     if (!categoryId.isValid())
         return m_tasks;
@@ -108,7 +108,7 @@ void TaskModel::addTask(const Task &task)
 {
     Q_ASSERT(m_categories.keys().contains(task.category));
     CategoryData &data = m_categories[task.category];
-    CategoryData &global = m_categories[Core::Id()];
+    CategoryData &global = m_categories[Utils::Id()];
 
     auto it = std::lower_bound(m_tasks.begin(), m_tasks.end(),task.taskId, sortById);
     int i = it - m_tasks.begin();
@@ -127,7 +127,7 @@ void TaskModel::removeTask(unsigned int id)
         const Task &t = m_tasks.at(index);
         beginRemoveRows(QModelIndex(), index, index);
         m_categories[t.category].removeTask(t);
-        m_categories[Core::Id()].removeTask(t);
+        m_categories[Utils::Id()].removeTask(t);
         m_tasks.removeAt(index);
         endRemoveRows();
         break;
@@ -164,9 +164,9 @@ void TaskModel::updateTaskLineNumber(unsigned int id, int line)
     }
 }
 
-void TaskModel::clearTasks(Core::Id categoryId)
+void TaskModel::clearTasks(Utils::Id categoryId)
 {
-    using IdCategoryConstIt = QHash<Core::Id,CategoryData>::ConstIterator;
+    using IdCategoryConstIt = QHash<Utils::Id,CategoryData>::ConstIterator;
 
     if (!categoryId.isValid()) {
         if (m_tasks.isEmpty())
@@ -180,7 +180,7 @@ void TaskModel::clearTasks(Core::Id categoryId)
     } else {
         int index = 0;
         int start = 0;
-        CategoryData &global = m_categories[Core::Id()];
+        CategoryData &global = m_categories[Utils::Id()];
         CategoryData &cat = m_categories[categoryId];
 
         while (index < m_tasks.count()) {
@@ -269,14 +269,14 @@ Task TaskModel::task(const QModelIndex &index) const
     return m_tasks.at(row);
 }
 
-QList<Core::Id> TaskModel::categoryIds() const
+QList<Utils::Id> TaskModel::categoryIds() const
 {
-    QList<Core::Id> categories = m_categories.keys();
-    categories.removeAll(Core::Id()); // remove global category we added for bookkeeping
+    QList<Utils::Id> categories = m_categories.keys();
+    categories.removeAll(Utils::Id()); // remove global category we added for bookkeeping
     return categories;
 }
 
-QString TaskModel::categoryDisplayName(Core::Id categoryId) const
+QString TaskModel::categoryDisplayName(Utils::Id categoryId) const
 {
     return m_categories.value(categoryId).displayName;
 }

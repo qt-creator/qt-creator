@@ -35,6 +35,8 @@
 #include <QFileDialog>
 #include <QTimer>
 
+using namespace Utils;
+
 namespace Core {
 
 /*!

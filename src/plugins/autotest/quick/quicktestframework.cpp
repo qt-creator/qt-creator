@@ -56,8 +56,8 @@ unsigned QuickTestFramework::priority() const
 
 IFrameworkSettings *QuickTestFramework::frameworkSettings()
 {
-    static const Core::Id id
-            = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME);
+    static const Utils::Id id
+            = Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME);
     ITestFramework *qtTestFramework = TestFrameworkManager::frameworkForId(id);
     return qtTestFramework->frameworkSettings();
 }

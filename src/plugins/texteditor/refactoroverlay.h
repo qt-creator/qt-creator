@@ -27,7 +27,7 @@
 
 #include "texteditor_global.h"
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <QTextCursor>
 #include <QIcon>
@@ -45,10 +45,10 @@ struct TEXTEDITOR_EXPORT RefactorMarker {
     QIcon icon;
     mutable QRect rect; // used to cache last drawing positin in document coordinates
     std::function<void(TextEditor::TextEditorWidget *)> callback;
-    Core::Id type;
+    Utils::Id type;
     QVariant data;
 
-    static RefactorMarkers filterOutType(const RefactorMarkers &markers, const Core::Id &type);
+    static RefactorMarkers filterOutType(const RefactorMarkers &markers, const Utils::Id &type);
 };
 
 

@@ -27,7 +27,6 @@
 
 #include "clangtoolssettings.h"
 
-#include <coreplugin/id.h>
 #include <projectexplorer/project.h>
 
 #include <utils/fileutils.h>

@@ -77,7 +77,7 @@ private:
     bool m_settingsInitialized = false;
     QList<ILocatorFilter *> m_filters;
     QList<ILocatorFilter *> m_customFilters;
-    QMap<Id, QAction *> m_filterActionMap;
+    QMap<Utils::Id, QAction *> m_filterActionMap;
     QTimer m_refreshTimer;
     QFuture<void> m_refreshTask;
     QList<ILocatorFilter *> m_refreshingFilters;

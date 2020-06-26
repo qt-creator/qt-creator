@@ -34,7 +34,7 @@ inline bool is(const MesonTools::Tool_t &tool)
 }
 
 template<typename T>
-std::shared_ptr<T> tool(const Core::Id &id, const std::vector<MesonTools::Tool_t> &tools)
+std::shared_ptr<T> tool(const Utils::Id &id, const std::vector<MesonTools::Tool_t> &tools)
 {
     static_assert(std::is_base_of<ToolWrapper, T>::value, "Type must derive from ToolWrapper");
     const auto tool = std::find_if(std::cbegin(tools),
@@ -89,11 +89,11 @@ void MesonTools::setTools(std::vector<MesonTools::Tool_t> &&tools)
     fixAutoDetected<NinjaWrapper>(self->m_tools);
 }
 
-std::shared_ptr<NinjaWrapper> MesonTools::ninjaWrapper(const Core::Id &id)
+std::shared_ptr<NinjaWrapper> MesonTools::ninjaWrapper(const Utils::Id &id)
 {
     return tool<NinjaWrapper>(id, MesonTools::instance()->m_tools);
 }
-std::shared_ptr<MesonWrapper> MesonTools::mesonWrapper(const Core::Id &id)
+std::shared_ptr<MesonWrapper> MesonTools::mesonWrapper(const Utils::Id &id)
 {
     return tool<MesonWrapper>(id, MesonTools::instance()->m_tools);
 }

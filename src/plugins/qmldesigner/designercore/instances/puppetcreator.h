@@ -107,7 +107,7 @@ private:
     mutable QString m_compileLog;
     ProjectExplorer::Target *m_target = nullptr;
     PuppetType m_availablePuppetType;
-    static QHash<Core::Id, PuppetType> m_qml2PuppetForKitPuppetHash;
+    static QHash<Utils::Id, PuppetType> m_qml2PuppetForKitPuppetHash;
     const Model *m_model = nullptr;
 #ifndef QMLDESIGNER_TEST
     const DesignerSettings m_designerSettings;

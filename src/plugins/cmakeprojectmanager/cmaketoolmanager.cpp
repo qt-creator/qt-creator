@@ -34,6 +34,7 @@
 #include <utils/qtcassert.h>
 
 using namespace Core;
+using namespace Utils;
 
 namespace CMakeProjectManager {
 
@@ -90,7 +91,7 @@ bool CMakeToolManager::registerCMakeTool(std::unique_ptr<CMakeTool> &&tool)
     if (!tool || Utils::contains(d->m_cmakeTools, tool.get()))
         return true;
 
-    const Core::Id toolId = tool->id();
+    const Utils::Id toolId = tool->id();
     QTC_ASSERT(toolId.isValid(),return false);
 
     //make sure the same id was not used before
@@ -184,9 +185,9 @@ void CMakeToolManager::saveCMakeTools()
 
 void CMakeToolManager::ensureDefaultCMakeToolIsValid()
 {
-    const Core::Id oldId = d->m_defaultCMake;
+    const Utils::Id oldId = d->m_defaultCMake;
     if (d->m_cmakeTools.size() == 0) {
-        d->m_defaultCMake = Core::Id();
+        d->m_defaultCMake = Utils::Id();
     } else {
         if (findById(d->m_defaultCMake))
             return;

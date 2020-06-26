@@ -36,7 +36,6 @@
 #include "target.h"
 #include "toolchain.h"
 
-#include <coreplugin/id.h>
 #include <coreplugin/variablechooser.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -60,7 +59,7 @@ const char MAKEFLAGS[] = "MAKEFLAGS";
 
 namespace ProjectExplorer {
 
-MakeStep::MakeStep(BuildStepList *parent, Core::Id id)
+MakeStep::MakeStep(BuildStepList *parent, Utils::Id id)
     : AbstractProcessStep(parent, id),
       m_userJobCount(defaultJobCount())
 {

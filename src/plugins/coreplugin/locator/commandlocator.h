@@ -39,7 +39,7 @@ class CORE_EXPORT CommandLocator : public ILocatorFilter
     Q_OBJECT
 
 public:
-    CommandLocator(Id id, const QString &displayName,
+    CommandLocator(Utils::Id id, const QString &displayName,
                    const QString &shortCutString, QObject *parent = nullptr);
     ~CommandLocator() override;
 

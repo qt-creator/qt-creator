@@ -36,7 +36,7 @@ class IosBuildConfiguration : public QmakeProjectManager::QmakeBuildConfiguratio
     Q_OBJECT
 
 public:
-    IosBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
+    IosBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
 
 private:
     friend class IosBuildSettingsWidget;

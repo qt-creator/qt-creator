@@ -26,7 +26,8 @@
 #pragma once
 
 #include "core_global.h"
-#include "id.h"
+
+#include <utils/id.h>
 
 #include <QObject>
 #include <QList>
@@ -60,12 +61,12 @@ public:
 
     void setDisplayName(const QString &displayName);
     void setPriority(int priority);
-    void setId(Id id);
+    void setId(Utils::Id id);
     void setActivationSequence(const QKeySequence &keys);
 
     QString displayName() const { return m_displayName ; }
     int priority() const { return m_priority; }
-    Id id() const { return m_id; }
+    Utils::Id id() const { return m_id; }
     QKeySequence activationSequence() const;
 
     // This design is not optimal, think about it again once we need to extend it
@@ -80,7 +81,7 @@ public:
 private:
     QString m_displayName;
     int m_priority = 0;
-    Id m_id;
+    Utils::Id m_id;
     QKeySequence m_activationSequence;
 };
 

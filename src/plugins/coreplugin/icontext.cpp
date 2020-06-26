@@ -78,25 +78,25 @@ QDebug operator<<(QDebug debug, const Core::Context &context)
 */
 
 /*!
-    \fn Core::Context::Context(Core::Id c1)
+    \fn Core::Context::Context(Utils::Id c1)
 
     Creates a context list with a single ID \a c1.
 */
 
 /*!
-    \fn Core::Context::Context(Core::Id c1, Core::Id c2)
+    \fn Core::Context::Context(Utils::Id c1, Utils::Id c2)
 
     Creates a context list with IDs \a c1 and \a c2.
 */
 
 /*!
-    \fn Core::Context::Context(Core::Id c1, Core::Id c2, Core::Id c3)
+    \fn Core::Context::Context(Utils::Id c1, Utils::Id c2, Utils::Id c3)
 
     Creates a context list with IDs \a c1, \a c2 and \a c3.
 */
 
 /*!
-    \fn bool Core::Context::contains(Core::Id c) const
+    \fn bool Core::Context::contains(Utils::Id c) const
 
     Returns whether this context list contains the ID \a c.
 */
@@ -115,7 +115,7 @@ QDebug operator<<(QDebug debug, const Core::Context &context)
 */
 
 /*!
-    \fn Core::Id Core::Context::at(int i) const
+    \fn Utils::Id Core::Context::at(int i) const
 
     Returns the ID at index \a i in the context list.
 */
@@ -134,7 +134,7 @@ QDebug operator<<(QDebug debug, const Core::Context &context)
 */
 
 /*!
-    \fn int Core::Context::indexOf(Core::Id c) const
+    \fn int Core::Context::indexOf(Utils::Id c) const
 
     Returns the index position of the ID \a c in the context list. Returns -1
     if no item matched.
@@ -147,7 +147,7 @@ QDebug operator<<(QDebug debug, const Core::Context &context)
 */
 
 /*!
-    \fn void Core::Context::prepend(Core::Id c)
+    \fn void Core::Context::prepend(Utils::Id c)
 
     Adds the ID \a c as the first item to the context list.
 */
@@ -159,7 +159,7 @@ QDebug operator<<(QDebug debug, const Core::Context &context)
 */
 
 /*!
-    \fn void Core::Context::add(Core::Id c)
+    \fn void Core::Context::add(Utils::Id c)
 
     Adds the ID \a c at the end of the context list.
 */

@@ -57,7 +57,7 @@ public:
 
     Utils::Environment environment;
 
-    Core::Id cmakeToolId;
+    Utils::Id cmakeToolId;
 
     QStringList initialCMakeArguments;
     QStringList extraCMakeArguments;

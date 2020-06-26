@@ -48,7 +48,7 @@ FutureProgress *ShellCommand::futureProgress() const
 void ShellCommand::addTask(QFuture<void> &future)
 {
     const QString name = displayName();
-    const auto id = Core::Id::fromString(name + QLatin1String(".action"));
+    const auto id = Utils::Id::fromString(name + QLatin1String(".action"));
     if (hasProgressParser()) {
         m_progress = ProgressManager::addTask(future, name, id);
     } else {

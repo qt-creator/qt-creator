@@ -46,7 +46,7 @@ public:
     bool registerTestFramework(ITestFramework *framework);
     void synchronizeSettings(QSettings *s);
 
-    static ITestFramework *frameworkForId(Core::Id frameworkId);
+    static ITestFramework *frameworkForId(Utils::Id frameworkId);
     static void activateFrameworksFromSettings(const Internal::TestSettings *settings);
     static TestFrameworks registeredFrameworks();
 

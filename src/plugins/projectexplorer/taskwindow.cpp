@@ -419,7 +419,7 @@ void TaskWindow::delayedInitialization()
         connect(action, &QAction::triggered, this, &TaskWindow::actionTriggered);
         d->m_actions << action;
 
-        Core::Id id = h->actionManagerId();
+        Utils::Id id = h->actionManagerId();
         if (id.isValid()) {
             Core::Command *cmd =
                 Core::ActionManager::registerAction(action, id, d->m_taskWindowContext->context(), true);
@@ -442,7 +442,7 @@ QWidget *TaskWindow::outputWidget(QWidget *)
     return d->m_listview;
 }
 
-void TaskWindow::clearTasks(Core::Id categoryId)
+void TaskWindow::clearTasks(Utils::Id categoryId)
 {
     d->m_model->clearTasks(categoryId);
 
@@ -450,12 +450,12 @@ void TaskWindow::clearTasks(Core::Id categoryId)
     navigateStateChanged();
 }
 
-void TaskWindow::setCategoryVisibility(Core::Id categoryId, bool visible)
+void TaskWindow::setCategoryVisibility(Utils::Id categoryId, bool visible)
 {
     if (!categoryId.isValid())
         return;
 
-    QList<Core::Id> categories = d->m_filter->filteredCategories();
+    QList<Utils::Id> categories = d->m_filter->filteredCategories();
 
     if (visible)
         categories.removeOne(categoryId);
@@ -476,7 +476,7 @@ void TaskWindow::currentChanged(const QModelIndex &index)
 
 void TaskWindow::saveSettings()
 {
-    QStringList categories = Utils::transform(d->m_filter->filteredCategories(), &Core::Id::toString);
+    QStringList categories = Utils::transform(d->m_filter->filteredCategories(), &Utils::Id::toString);
     SessionManager::setValue(QLatin1String(SESSION_FILTER_CATEGORIES), categories);
     SessionManager::setValue(QLatin1String(SESSION_FILTER_WARNINGS), d->m_filter->filterIncludesWarnings());
 }
@@ -485,8 +485,8 @@ void TaskWindow::loadSettings()
 {
     QVariant value = SessionManager::value(QLatin1String(SESSION_FILTER_CATEGORIES));
     if (value.isValid()) {
-        QList<Core::Id> categories
-                = Utils::transform(value.toStringList(), &Core::Id::fromString);
+        QList<Utils::Id> categories
+                = Utils::transform(value.toStringList(), &Utils::Id::fromString);
         d->m_filter->setFilteredCategories(categories);
     }
     value = SessionManager::value(QLatin1String(SESSION_FILTER_WARNINGS));
@@ -503,11 +503,11 @@ void TaskWindow::visibilityChanged(bool visible)
         delayedInitialization();
 }
 
-void TaskWindow::addCategory(Core::Id categoryId, const QString &displayName, bool visible)
+void TaskWindow::addCategory(Utils::Id categoryId, const QString &displayName, bool visible)
 {
     d->m_model->addCategory(categoryId, displayName);
     if (!visible) {
-        QList<Core::Id> filters = d->m_filter->filteredCategories();
+        QList<Utils::Id> filters = d->m_filter->filteredCategories();
         filters += categoryId;
         d->m_filter->setFilteredCategories(filters);
     }
@@ -615,20 +615,20 @@ void TaskWindow::setShowWarnings(bool show)
 
 void TaskWindow::updateCategoriesMenu()
 {
-    using NameToIdsConstIt = QMap<QString, Core::Id>::ConstIterator;
+    using NameToIdsConstIt = QMap<QString, Utils::Id>::ConstIterator;
 
     d->m_categoriesMenu->clear();
 
-    const QList<Core::Id> filteredCategories = d->m_filter->filteredCategories();
+    const QList<Utils::Id> filteredCategories = d->m_filter->filteredCategories();
 
-    QMap<QString, Core::Id> nameToIds;
-    foreach (Core::Id categoryId, d->m_model->categoryIds())
+    QMap<QString, Utils::Id> nameToIds;
+    foreach (Utils::Id categoryId, d->m_model->categoryIds())
         nameToIds.insert(d->m_model->categoryDisplayName(categoryId), categoryId);
 
     const NameToIdsConstIt cend = nameToIds.constEnd();
     for (NameToIdsConstIt it = nameToIds.constBegin(); it != cend; ++it) {
         const QString &displayName = it.key();
-        const Core::Id categoryId = it.value();
+        const Utils::Id categoryId = it.value();
         auto action = new QAction(d->m_categoriesMenu);
         action->setCheckable(true);
         action->setText(displayName);
@@ -640,17 +640,17 @@ void TaskWindow::updateCategoriesMenu()
     }
 }
 
-int TaskWindow::taskCount(Core::Id category) const
+int TaskWindow::taskCount(Utils::Id category) const
 {
     return d->m_model->taskCount(category);
 }
 
-int TaskWindow::errorTaskCount(Core::Id category) const
+int TaskWindow::errorTaskCount(Utils::Id category) const
 {
     return d->m_model->errorTaskCount(category);
 }
 
-int TaskWindow::warningTaskCount(Core::Id category) const
+int TaskWindow::warningTaskCount(Utils::Id category) const
 {
     return d->m_model->warningTaskCount(category);
 }

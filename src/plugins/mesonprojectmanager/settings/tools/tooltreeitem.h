@@ -26,7 +26,7 @@
 #pragma once
 #include "toolssettingspage.h"
 #include <exewrappers/mesontools.h>
-#include <coreplugin/id.h>
+#include <utils/id.h>
 #include <utils/fileutils.h>
 #include <utils/optional.h>
 #include <utils/treemodel.h>
@@ -46,7 +46,7 @@ public:
     inline bool isAutoDetected() const noexcept { return m_autoDetected; }
     inline QString name() const noexcept { return m_name; }
     inline Utils::FilePath executable() const noexcept { return m_executable; }
-    inline Core::Id id() const noexcept { return m_id; }
+    inline Utils::Id id() const noexcept { return m_id; }
     inline bool hasUnsavedChanges() const noexcept { return m_unsavedChanges; }
     inline void setSaved() { m_unsavedChanges = false; }
     void update(const QString &name, const Utils::FilePath &exe);
@@ -62,7 +62,7 @@ private:
     bool m_pathExists;
     bool m_pathIsFile;
     bool m_pathIsExecutable;
-    Core::Id m_id;
+    Utils::Id m_id;
 
     bool m_unsavedChanges = false;
 };

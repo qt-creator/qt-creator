@@ -46,7 +46,7 @@ class NimRunConfiguration final : public RunConfiguration
     Q_DECLARE_TR_FUNCTIONS(Nim::NimRunConfiguration)
 
 public:
-    NimRunConfiguration(Target *target, Core::Id id)
+    NimRunConfiguration(Target *target, Utils::Id id)
         : RunConfiguration(target, id)
     {
         addAspect<LocalEnvironmentAspect>(target);

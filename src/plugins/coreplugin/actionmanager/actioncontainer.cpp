@@ -28,7 +28,6 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
-#include <coreplugin/id.h>
 
 #include <utils/qtcassert.h>
 
@@ -118,13 +117,13 @@ namespace Core {
 */
 
 /*!
-    \fn QAction *Core::ActionContainer::insertLocation(Core::Id group) const
+    \fn QAction *Core::ActionContainer::insertLocation(Utils::Id group) const
     Returns an action representing the \a group,
     that could be used with \c{QWidget::insertAction}.
 */
 
 /*!
-    \fn void Core::ActionContainer::appendGroup(Core::Id group)
+    \fn void Core::ActionContainer::appendGroup(Utils::Id group)
     Adds \a group to the action container.
 
     Use groups to segment your action container into logical parts. You can add
@@ -134,7 +133,7 @@ namespace Core {
 */
 
 /*!
-    \fn void Core::ActionContainer::addAction(Core::Command *action, Core::Id group = Id())
+    \fn void Core::ActionContainer::addAction(Core::Command *action, Utils::Id group = Id())
     Add the \a action as a menu item to this action container. The action is added as the
     last item of the specified \a group.
     \sa appendGroup()
@@ -142,7 +141,7 @@ namespace Core {
 */
 
 /*!
-    \fn void Core::ActionContainer::addMenu(Core::ActionContainer *menu, Core::Id group = Core::Id())
+    \fn void Core::ActionContainer::addMenu(Core::ActionContainer *menu, Utils::Id group = Utils::Id())
     Add the \a menu as a submenu to this action container. The menu is added as the
     last item of the specified \a group.
     \sa appendGroup()
@@ -166,7 +165,7 @@ namespace Core {
 */
 
 /*!
-    \fn Core::ActionContainer::insertGroup(Core::Id before, Core::Id group)
+    \fn Core::ActionContainer::insertGroup(Utils::Id before, Utils::Id group)
 
     Inserts \a group to the action container before the group specified by
     \a before.
@@ -179,7 +178,7 @@ namespace Core {
 */
 
 /*!
-    \fn Core::ActionContainer::addSeparator(const Core::Context &context, Core::Id group, QAction **outSeparator)
+    \fn Core::ActionContainer::addSeparator(const Core::Context &context, Utils::Id group, QAction **outSeparator)
 
     Adds a separator to the end of the given \a group to the action container,
     which is enabled for a given \a context. Returns the created separator

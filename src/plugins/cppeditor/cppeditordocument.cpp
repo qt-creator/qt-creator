@@ -351,7 +351,7 @@ void CppEditorDocument::releaseResources()
 
 void CppEditorDocument::showHideInfoBarAboutMultipleParseContexts(bool show)
 {
-    const Core::Id id = Constants::MULTIPLE_PARSE_CONTEXTS_AVAILABLE;
+    const Utils::Id id = Constants::MULTIPLE_PARSE_CONTEXTS_AVAILABLE;
 
     if (show) {
         Utils::InfoBarEntry info(id,

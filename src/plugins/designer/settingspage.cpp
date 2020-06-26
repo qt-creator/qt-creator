@@ -39,7 +39,7 @@ SettingsPage::SettingsPage(QDesignerOptionsPageInterface *designerPage) :
     Core::IOptionsPage(nullptr, false),
     m_designerPage(designerPage)
 {
-    setId(Core::Id::fromString(m_designerPage->name()));
+    setId(Utils::Id::fromString(m_designerPage->name()));
     setDisplayName(m_designerPage->name());
     setCategory(Designer::Constants::SETTINGS_CATEGORY);
 }

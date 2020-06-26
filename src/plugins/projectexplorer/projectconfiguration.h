@@ -27,8 +27,8 @@
 
 #include "projectexplorer_export.h"
 
-#include <coreplugin/id.h>
 #include <utils/displayname.h>
+#include <utils/id.h>
 
 #include <QObject>
 #include <QPointer>
@@ -86,11 +86,11 @@ public:
     ProjectConfigurationAspect();
     ~ProjectConfigurationAspect() override;
 
-    void setId(Core::Id id) { m_id = id; }
+    void setId(Utils::Id id) { m_id = id; }
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
     void setSettingsKey(const QString &settingsKey) { m_settingsKey = settingsKey; }
 
-    Core::Id id() const { return m_id; }
+    Utils::Id id() const { return m_id; }
     QString displayName() const { return m_displayName; }
     QString settingsKey() const { return  m_settingsKey; }
 
@@ -113,7 +113,7 @@ signals:
 protected:
     virtual void setVisibleDynamic(bool visible) { Q_UNUSED(visible) } // TODO: Better name? Merge with setVisible() somehow?
 
-    Core::Id m_id;
+    Utils::Id m_id;
     QString m_displayName;
     QString m_settingsKey; // Name of data in settings.
     bool m_visible = true;
@@ -139,7 +139,7 @@ public:
         return aspect;
     }
 
-    ProjectConfigurationAspect *aspect(Core::Id id) const;
+    ProjectConfigurationAspect *aspect(Utils::Id id) const;
 
     template <typename T> T *aspect() const
     {
@@ -166,12 +166,12 @@ class PROJECTEXPLORER_EXPORT ProjectConfiguration : public QObject
     Q_OBJECT
 
 protected:
-    explicit ProjectConfiguration(QObject *parent, Core::Id id);
+    explicit ProjectConfiguration(QObject *parent, Utils::Id id);
 
 public:
     ~ProjectConfiguration() override;
 
-    Core::Id id() const;
+    Utils::Id id() const;
 
     QString displayName() const { return m_displayName.value(); }
     bool usesDefaultDisplayName() const { return m_displayName.usesDefaultValue(); }
@@ -200,7 +200,7 @@ public:
 
     const ProjectConfigurationAspects &aspects() const { return m_aspects; }
 
-    ProjectConfigurationAspect *aspect(Core::Id id) const;
+    ProjectConfigurationAspect *aspect(Utils::Id id) const;
     template <typename T> T *aspect() const { return m_aspects.aspect<T>(); }
 
     void acquaintAspects();
@@ -214,12 +214,12 @@ protected:
 
 private:
     QPointer<Target> m_target;
-    const Core::Id m_id;
+    const Utils::Id m_id;
     Utils::DisplayName m_displayName;
     QString m_toolTip;
 };
 
 // helper function:
-PROJECTEXPLORER_EXPORT Core::Id idFromMap(const QVariantMap &map);
+PROJECTEXPLORER_EXPORT Utils::Id idFromMap(const QVariantMap &map);
 
 } // namespace ProjectExplorer

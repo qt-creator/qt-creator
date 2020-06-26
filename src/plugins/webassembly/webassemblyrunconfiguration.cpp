@@ -63,7 +63,7 @@ static CommandLine emrunCommand(Target *target, const QString &browser, const QS
 class EmrunRunConfiguration : public ProjectExplorer::RunConfiguration
 {
 public:
-    EmrunRunConfiguration(Target *target, Core::Id id)
+    EmrunRunConfiguration(Target *target, Utils::Id id)
             : RunConfiguration(target, id)
     {
         auto webBrowserAspect = addAspect<WebBrowserSelectionAspect>(target);

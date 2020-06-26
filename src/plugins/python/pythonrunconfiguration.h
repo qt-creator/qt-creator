@@ -41,7 +41,7 @@ class PythonRunConfiguration : public ProjectExplorer::RunConfiguration
     Q_PROPERTY(QString arguments READ arguments)
 
 public:
-    PythonRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
+    PythonRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
     QString interpreter() const;
 
 private:

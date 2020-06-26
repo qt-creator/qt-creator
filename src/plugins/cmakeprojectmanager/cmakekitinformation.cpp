@@ -66,10 +66,10 @@ namespace CMakeProjectManager {
 // CMakeKitAspect:
 // --------------------------------------------------------------------
 
-static Core::Id defaultCMakeToolId()
+static Utils::Id defaultCMakeToolId()
 {
     CMakeTool *defaultTool = CMakeToolManager::defaultCMakeTool();
-    return defaultTool ? defaultTool->id() : Core::Id();
+    return defaultTool ? defaultTool->id() : Utils::Id();
 }
 
 static const char TOOL_ID[] = "CMakeProjectManager.CMakeKitInformation";
@@ -125,10 +125,10 @@ private:
         m_comboBox->setCurrentIndex(tool ? indexOf(tool->id()) : -1);
     }
 
-    int indexOf(const Core::Id &id)
+    int indexOf(const Utils::Id &id)
     {
         for (int i = 0; i < m_comboBox->count(); ++i) {
-            if (id == Core::Id::fromSetting(m_comboBox->itemData(i)))
+            if (id == Utils::Id::fromSetting(m_comboBox->itemData(i)))
                 return i;
         }
         return -1;
@@ -137,20 +137,20 @@ private:
     void updateComboBox()
     {
         // remove unavailable cmake tool:
-        int pos = indexOf(Core::Id());
+        int pos = indexOf(Utils::Id());
         if (pos >= 0)
             m_comboBox->removeItem(pos);
 
         if (m_comboBox->count() == 0) {
             m_comboBox->addItem(tr("<No CMake Tool available>"),
-                                Core::Id().toSetting());
+                                Utils::Id().toSetting());
             m_comboBox->setEnabled(false);
         } else {
             m_comboBox->setEnabled(true);
         }
     }
 
-    void cmakeToolAdded(const Core::Id &id)
+    void cmakeToolAdded(const Utils::Id &id)
     {
         const CMakeTool *tool = CMakeToolManager::findById(id);
         QTC_ASSERT(tool, return);
@@ -160,7 +160,7 @@ private:
         refresh();
     }
 
-    void cmakeToolUpdated(const Core::Id &id)
+    void cmakeToolUpdated(const Utils::Id &id)
     {
         const int pos = indexOf(id);
         QTC_ASSERT(pos >= 0, return);
@@ -171,7 +171,7 @@ private:
         m_comboBox->setItemText(pos, tool->displayName());
     }
 
-    void cmakeToolRemoved(const Core::Id &id)
+    void cmakeToolRemoved(const Utils::Id &id)
     {
         const int pos = indexOf(id);
         QTC_ASSERT(pos >= 0, return);
@@ -191,7 +191,7 @@ private:
         if (m_removingItem)
             return;
 
-        const Core::Id id = Core::Id::fromSetting(m_comboBox->itemData(index));
+        const Utils::Id id = Utils::Id::fromSetting(m_comboBox->itemData(index));
         CMakeKitAspect::setCMakeTool(m_kit, id);
     }
 
@@ -223,16 +223,16 @@ CMakeKitAspect::CMakeKitAspect()
             [this]() { foreach (Kit *k, KitManager::kits()) fix(k); });
 }
 
-Core::Id CMakeKitAspect::id()
+Utils::Id CMakeKitAspect::id()
 {
     return TOOL_ID;
 }
 
-Core::Id CMakeKitAspect::cmakeToolId(const Kit *k)
+Utils::Id CMakeKitAspect::cmakeToolId(const Kit *k)
 {
     if (!k)
         return {};
-    return Core::Id::fromSetting(k->value(TOOL_ID));
+    return Utils::Id::fromSetting(k->value(TOOL_ID));
 }
 
 CMakeTool *CMakeKitAspect::cmakeTool(const Kit *k)
@@ -240,9 +240,9 @@ CMakeTool *CMakeKitAspect::cmakeTool(const Kit *k)
     return CMakeToolManager::findById(cmakeToolId(k));
 }
 
-void CMakeKitAspect::setCMakeTool(Kit *k, const Core::Id id)
+void CMakeKitAspect::setCMakeTool(Kit *k, const Utils::Id id)
 {
-    const Core::Id toSet = id.isValid() ? id : defaultCMakeToolId();
+    const Utils::Id toSet = id.isValid() ? id : defaultCMakeToolId();
     QTC_ASSERT(!id.isValid() || CMakeToolManager::findById(toSet), return);
     if (k)
         k->setValue(TOOL_ID, toSet.toSetting());
@@ -298,7 +298,7 @@ void CMakeKitAspect::addToMacroExpander(Kit *k, Utils::MacroExpander *expander) 
     });
 }
 
-QSet<Core::Id> CMakeKitAspect::availableFeatures(const Kit *k) const
+QSet<Utils::Id> CMakeKitAspect::availableFeatures(const Kit *k) const
 {
     if (cmakeTool(k))
         return { CMakeProjectManager::Constants::CMAKE_FEATURE_ID };

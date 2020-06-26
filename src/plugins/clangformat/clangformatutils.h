@@ -25,8 +25,9 @@
 
 #pragma once
 
-#include <coreplugin/id.h>
 #include <utils/fileutils.h>
+#include <utils/id.h>
+
 #include <clang/Format/Format.h>
 
 #include <QFile>

@@ -48,6 +48,7 @@ extern void qt_set_sequence_auto_mnemonic(bool enable);
 QT_END_NAMESPACE
 
 using namespace Core;
+using namespace Utils;
 
 namespace {
 QString plainSelectedText(const QTextCursor &cursor)

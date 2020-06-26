@@ -181,7 +181,7 @@ public:
 
     // IVersionControl
     QString displayName() const final;
-    Core::Id id() const final;
+    Utils::Id id() const final;
 
     bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
 
@@ -280,7 +280,7 @@ private:
     void updateIndex();
     void updateView();
     void projectChanged(ProjectExplorer::Project *project);
-    void tasksFinished(Core::Id type);
+    void tasksFinished(Utils::Id type);
     void closing();
 
     inline bool isCheckInEditorOpen() const;
@@ -1682,7 +1682,7 @@ ClearCasePluginPrivate::runCleartool(const QString &workingDir,
 }
 
 IEditor *ClearCasePluginPrivate::showOutputInEditor(const QString& title, const QString &output,
-                                                   Core::Id id, const QString &source,
+                                                   Utils::Id id, const QString &source,
                                                    QTextCodec *codec) const
 {
     if (Constants::debug)
@@ -2393,7 +2393,7 @@ QString ClearCasePluginPrivate::displayName() const
     return QLatin1String("ClearCase");
 }
 
-Core::Id ClearCasePluginPrivate::id() const
+Utils::Id ClearCasePluginPrivate::id() const
 {
     return Constants::VCS_ID_CLEARCASE;
 }

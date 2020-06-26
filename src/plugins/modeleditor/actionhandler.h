@@ -78,7 +78,7 @@ private:
     void onEditProperties();
     void onEditItem();
 
-    Core::Command *registerCommand(const Core::Id &id, void (ModelEditor::*function)(),
+    Core::Command *registerCommand(const Utils::Id &id, void (ModelEditor::*function)(),
                                    const Core::Context &context, const QString &title = QString(),
                                    const QKeySequence &keySequence = QKeySequence(),
                                    const QIcon &icon = QIcon());

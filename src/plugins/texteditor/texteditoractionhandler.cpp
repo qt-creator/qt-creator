@@ -56,10 +56,10 @@ class TextEditorActionHandlerPrivate : public QObject
     Q_DECLARE_TR_FUNCTIONS(TextEditor::Internal::TextEditorActionHandler)
 
 public:
-    TextEditorActionHandlerPrivate(Core::Id editorId, Core::Id contextId, uint optionalActions);
+    TextEditorActionHandlerPrivate(Utils::Id editorId, Utils::Id contextId, uint optionalActions);
 
-    QAction *registerActionHelper(Core::Id id, bool scriptable, const QString &title,
-                            const QKeySequence &keySequence, Core::Id menueGroup,
+    QAction *registerActionHelper(Utils::Id id, bool scriptable, const QString &title,
+                            const QKeySequence &keySequence, Utils::Id menueGroup,
                             Core::ActionContainer *container,
                             std::function<void(bool)> slot)
     {
@@ -75,36 +75,36 @@ public:
         return result;
     }
 
-    QAction *registerAction(Core::Id id,
+    QAction *registerAction(Utils::Id id,
                             std::function<void(TextEditorWidget *)> slot,
                             bool scriptable = false,
                             const QString &title = QString(),
                             const QKeySequence &keySequence = QKeySequence(),
-                            Core::Id menueGroup = Core::Id(),
+                            Utils::Id menueGroup = Utils::Id(),
                             Core::ActionContainer *container = nullptr)
     {
         return registerActionHelper(id, scriptable, title, keySequence, menueGroup, container,
             [this, slot](bool) { if (m_currentEditorWidget) slot(m_currentEditorWidget); });
     }
 
-    QAction *registerBoolAction(Core::Id id,
+    QAction *registerBoolAction(Utils::Id id,
                             std::function<void(TextEditorWidget *, bool)> slot,
                             bool scriptable = false,
                             const QString &title = QString(),
                             const QKeySequence &keySequence = QKeySequence(),
-                            Core::Id menueGroup = Core::Id(),
+                            Utils::Id menueGroup = Utils::Id(),
                             Core::ActionContainer *container = nullptr)
     {
         return registerActionHelper(id, scriptable, title, keySequence, menueGroup, container,
             [this, slot](bool on) { if (m_currentEditorWidget) slot(m_currentEditorWidget, on); });
     }
 
-    QAction *registerIntAction(Core::Id id,
+    QAction *registerIntAction(Utils::Id id,
                             std::function<void(TextEditorWidget *, int)> slot,
                             bool scriptable = false,
                             const QString &title = QString(),
                             const QKeySequence &keySequence = QKeySequence(),
-                            Core::Id menueGroup = Core::Id(),
+                            Utils::Id menueGroup = Utils::Id(),
                             Core::ActionContainer *container = nullptr)
     {
         return registerActionHelper(id, scriptable, title, keySequence, menueGroup, container,
@@ -190,12 +190,12 @@ public:
 
     uint m_optionalActions = TextEditorActionHandler::None;
     QPointer<TextEditorWidget> m_currentEditorWidget;
-    Core::Id m_editorId;
-    Core::Id m_contextId;
+    Utils::Id m_editorId;
+    Utils::Id m_contextId;
 };
 
 TextEditorActionHandlerPrivate::TextEditorActionHandlerPrivate
-    (Core::Id editorId, Core::Id contextId, uint optionalActions)
+    (Utils::Id editorId, Utils::Id contextId, uint optionalActions)
   : m_optionalActions(optionalActions)
   , m_editorId(editorId)
   , m_contextId(contextId)
@@ -609,8 +609,8 @@ void TextEditorActionHandlerPrivate::updateCurrentEditor(Core::IEditor *editor)
 
 } // namespace Internal
 
-TextEditorActionHandler::TextEditorActionHandler(Core::Id editorId,
-                                                 Core::Id contextId,
+TextEditorActionHandler::TextEditorActionHandler(Utils::Id editorId,
+                                                 Utils::Id contextId,
                                                  uint optionalActions,
                                                  const TextEditorWidgetResolver &resolver)
     : d(new Internal::TextEditorActionHandlerPrivate(editorId, contextId, optionalActions))

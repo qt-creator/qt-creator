@@ -26,7 +26,8 @@
 #pragma once
 
 #include "core_global.h"
-#include "id.h"
+
+#include <utils/id.h>
 
 #include <QString>
 #include <QObject>
@@ -59,7 +60,7 @@ public:
     static void extensionsInitialized();
 
     static const QList<IVersionControl *> versionControls();
-    static IVersionControl *versionControl(Id id);
+    static IVersionControl *versionControl(Utils::Id id);
 
     static void resetVersionControlForDirectory(const QString &inputDirectory);
     static IVersionControl *findVersionControlForDirectory(const QString &directory,

@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <coreplugin/id.h>
 #include <coreplugin/ioutputpane.h>
 
 #include <memory>
@@ -54,9 +53,9 @@ public:
 
     void delayedInitialization();
 
-    int taskCount(Core::Id category = Core::Id()) const;
-    int warningTaskCount(Core::Id category = Core::Id()) const;
-    int errorTaskCount(Core::Id category = Core::Id()) const;
+    int taskCount(Utils::Id category = Utils::Id()) const;
+    int warningTaskCount(Utils::Id category = Utils::Id()) const;
+    int errorTaskCount(Utils::Id category = Utils::Id()) const;
 
     // IOutputPane
     QWidget *outputWidget(QWidget *) override;
@@ -83,15 +82,15 @@ signals:
 private:
     void updateFilter() override;
 
-    void addCategory(Core::Id categoryId, const QString &displayName, bool visible);
+    void addCategory(Utils::Id categoryId, const QString &displayName, bool visible);
     void addTask(const ProjectExplorer::Task &task);
     void removeTask(const ProjectExplorer::Task &task);
     void updatedTaskFileName(unsigned int id, const QString &fileName);
     void updatedTaskLineNumber(unsigned int id, int line);
     void showTask(unsigned int id);
     void openTask(unsigned int id);
-    void clearTasks(Core::Id categoryId);
-    void setCategoryVisibility(Core::Id categoryId, bool visible);
+    void clearTasks(Utils::Id categoryId);
+    void setCategoryVisibility(Utils::Id categoryId, bool visible);
     void currentChanged(const QModelIndex &index);
     void saveSettings();
     void loadSettings();

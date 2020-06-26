@@ -44,7 +44,7 @@ using namespace Utils;
 namespace Qnx {
 namespace Internal {
 
-QnxRunConfiguration::QnxRunConfiguration(Target *target, Core::Id id)
+QnxRunConfiguration::QnxRunConfiguration(Target *target, Utils::Id id)
     : RunConfiguration(target, id)
 {
     auto exeAspect = addAspect<ExecutableAspect>();

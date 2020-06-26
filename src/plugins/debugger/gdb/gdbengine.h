@@ -36,8 +36,7 @@
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/outputcollector.h>
 
-#include <coreplugin/id.h>
-
+#include <utils/id.h>
 #include <utils/qtcprocess.h>
 
 #include <QProcess>
@@ -102,7 +101,7 @@ private: ////////// General Interface //////////
     // Something went wrong with the adapter *before* adapterStarted() was emitted.
     // Make sure to clean up everything before emitting this signal.
     void handleAdapterStartFailed(const QString &msg,
-        Core::Id settingsIdHint = Core::Id());
+        Utils::Id settingsIdHint = Utils::Id());
 
     // This triggers the initial breakpoint synchronization and causes
     // finishInferiorSetup() being called once done.

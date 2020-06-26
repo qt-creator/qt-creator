@@ -38,9 +38,9 @@ public:
     WinRtQtVersion() = default;
 
     QString description() const override;
-    QSet<Core::Id> availableFeatures() const override;
+    QSet<Utils::Id> availableFeatures() const override;
 
-    QSet<Core::Id> targetDeviceTypes() const override;
+    QSet<Utils::Id> targetDeviceTypes() const override;
 };
 
 class WinRtQtVersionFactory : public QtSupport::QtVersionFactory

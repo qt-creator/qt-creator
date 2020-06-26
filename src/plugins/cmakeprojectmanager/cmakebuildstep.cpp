@@ -85,7 +85,7 @@ static bool isCurrentExecutableTarget(const QString &target)
     return target == ADD_RUNCONFIGURATION_TEXT;
 }
 
-CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Core::Id id) :
+CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Utils::Id id) :
     AbstractProcessStep(bsl, id)
 {
     m_percentProgress = QRegExp("^\\[\\s*(\\d*)%\\]");
@@ -268,7 +268,7 @@ QString CMakeBuildStep::defaultBuildTarget() const
 {
     const BuildStepList *const bsl = stepList();
     QTC_ASSERT(bsl, return {});
-    const Core::Id parentId = bsl->id();
+    const Utils::Id parentId = bsl->id();
     if (parentId == ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
         return cleanTarget();
     if (parentId == ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)

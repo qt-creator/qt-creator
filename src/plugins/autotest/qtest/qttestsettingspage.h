@@ -35,7 +35,7 @@ class QtTestSettings;
 class QtTestSettingsPage final : public Core::IOptionsPage
 {
 public:
-    QtTestSettingsPage(QtTestSettings *settings, Core::Id settingsId);
+    QtTestSettingsPage(QtTestSettings *settings, Utils::Id settingsId);
 };
 
 } // namespace Internal

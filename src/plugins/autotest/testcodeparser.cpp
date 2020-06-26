@@ -380,7 +380,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList, const QList<ITest
     }
 }
 
-void TestCodeParser::onTaskStarted(Core::Id type)
+void TestCodeParser::onTaskStarted(Utils::Id type)
 {
     if (type == CppTools::Constants::TASK_INDEX) {
         m_codeModelParsing = true;
@@ -394,7 +394,7 @@ void TestCodeParser::onTaskStarted(Core::Id type)
     }
 }
 
-void TestCodeParser::onAllTasksFinished(Core::Id type)
+void TestCodeParser::onAllTasksFinished(Utils::Id type)
 {
     // if we cancel parsing ensure that progress animation is canceled as well
     if (type == Constants::TASK_PARSE && parsingHasFailed)

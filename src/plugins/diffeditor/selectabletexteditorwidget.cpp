@@ -33,7 +33,7 @@
 namespace DiffEditor {
 namespace Internal {
 
-SelectableTextEditorWidget::SelectableTextEditorWidget(Core::Id id, QWidget *parent)
+SelectableTextEditorWidget::SelectableTextEditorWidget(Utils::Id id, QWidget *parent)
     : TextEditorWidget(parent)
 {
     setFrameStyle(QFrame::NoFrame);

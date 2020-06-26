@@ -61,7 +61,7 @@ class DeviceManagerPrivate
 public:
     DeviceManagerPrivate() = default;
 
-    int indexForId(Core::Id id) const
+    int indexForId(Utils::Id id) const
     {
         for (int i = 0; i < devices.count(); ++i) {
             if (devices.at(i)->id() == id)
@@ -72,7 +72,7 @@ public:
 
     static DeviceManager *clonedInstance;
     QList<IDevice::Ptr> devices;
-    QHash<Core::Id, Core::Id> defaultDevices;
+    QHash<Utils::Id, Utils::Id> defaultDevices;
 
     Utils::PersistentSettingsWriter *writer = nullptr;
 };
@@ -147,7 +147,7 @@ void DeviceManager::load()
 
     Utils::PersistentSettingsReader reader;
     // read devices file from global settings path
-    QHash<Core::Id, Core::Id> defaultDevices;
+    QHash<Utils::Id, Utils::Id> defaultDevices;
     QList<IDevice::Ptr> sdkDevices;
     if (reader.load(systemSettingsFilePath(QLatin1String("/devices.xml"))))
         sdkDevices = fromMap(reader.restoreValues().value(DeviceManagerKey).toMap(), &defaultDevices);
@@ -183,14 +183,14 @@ void DeviceManager::load()
 }
 
 QList<IDevice::Ptr> DeviceManager::fromMap(const QVariantMap &map,
-                                           QHash<Core::Id, Core::Id> *defaultDevices)
+                                           QHash<Utils::Id, Utils::Id> *defaultDevices)
 {
     QList<IDevice::Ptr> devices;
 
     if (defaultDevices) {
         const QVariantMap defaultDevsMap = map.value(DefaultDevicesKey).toMap();
         for (auto it = defaultDevsMap.constBegin(); it != defaultDevsMap.constEnd(); ++it)
-            defaultDevices->insert(Core::Id::fromString(it.key()), Core::Id::fromSetting(it.value()));
+            defaultDevices->insert(Utils::Id::fromString(it.key()), Utils::Id::fromSetting(it.value()));
     }
     const QVariantList deviceList = map.value(QLatin1String(DeviceListKey)).toList();
     foreach (const QVariant &v, deviceList) {
@@ -210,7 +210,7 @@ QVariantMap DeviceManager::toMap() const
 {
     QVariantMap map;
     QVariantMap defaultDeviceMap;
-    using TypeIdHash = QHash<Core::Id, Core::Id>;
+    using TypeIdHash = QHash<Utils::Id, Utils::Id>;
     for (TypeIdHash::ConstIterator it = d->defaultDevices.constBegin();
              it != d->defaultDevices.constEnd(); ++it) {
         defaultDeviceMap.insert(it.key().toString(), it.value().toSetting());
@@ -264,14 +264,14 @@ void DeviceManager::addDevice(const IDevice::ConstPtr &_device)
     emit updated();
 }
 
-void DeviceManager::removeDevice(Core::Id id)
+void DeviceManager::removeDevice(Utils::Id id)
 {
     const IDevice::Ptr device = mutableDevice(id);
     QTC_ASSERT(device, return);
     QTC_ASSERT(this != instance() || device->isAutoDetected(), return);
 
     const bool wasDefault = d->defaultDevices.value(device->type()) == device->id();
-    const Core::Id deviceType = device->type();
+    const Utils::Id deviceType = device->type();
     d->devices.removeAt(d->indexForId(id));
     emit deviceRemoved(device->id());
 
@@ -290,7 +290,7 @@ void DeviceManager::removeDevice(Core::Id id)
     emit updated();
 }
 
-void DeviceManager::setDeviceState(Core::Id deviceId, IDevice::DeviceState deviceState)
+void DeviceManager::setDeviceState(Utils::Id deviceId, IDevice::DeviceState deviceState)
 {
     // To see the state change in the DeviceSettingsWidget. This has to happen before
     // the pos check below, in case the device is only present in the cloned instance.
@@ -314,7 +314,7 @@ bool DeviceManager::isLoaded() const
     return d->writer;
 }
 
-void DeviceManager::setDefaultDevice(Core::Id id)
+void DeviceManager::setDefaultDevice(Utils::Id id)
 {
     QTC_ASSERT(this != instance(), return);
 
@@ -332,7 +332,7 @@ void DeviceManager::setDefaultDevice(Core::Id id)
 
 const IDeviceFactory *DeviceManager::restoreFactory(const QVariantMap &map)
 {
-    const Core::Id deviceType = IDevice::typeFromMap(map);
+    const Utils::Id deviceType = IDevice::typeFromMap(map);
     IDeviceFactory *factory = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(),
         [&map, deviceType](IDeviceFactory *factory) {
             return factory->canRestore(map) && factory->deviceType() == deviceType;
@@ -368,7 +368,7 @@ IDevice::ConstPtr DeviceManager::deviceAt(int idx) const
     return d->devices.at(idx);
 }
 
-IDevice::Ptr DeviceManager::mutableDevice(Core::Id id) const
+IDevice::Ptr DeviceManager::mutableDevice(Utils::Id id) const
 {
     const int index = d->indexForId(id);
     return index == -1 ? IDevice::Ptr() : d->devices.at(index);
@@ -381,15 +381,15 @@ bool DeviceManager::hasDevice(const QString &name) const
     });
 }
 
-IDevice::ConstPtr DeviceManager::find(Core::Id id) const
+IDevice::ConstPtr DeviceManager::find(Utils::Id id) const
 {
     const int index = d->indexForId(id);
     return index == -1 ? IDevice::ConstPtr() : deviceAt(index);
 }
 
-IDevice::ConstPtr DeviceManager::defaultDevice(Core::Id deviceType) const
+IDevice::ConstPtr DeviceManager::defaultDevice(Utils::Id deviceType) const
 {
-    const Core::Id id = d->defaultDevices.value(deviceType);
+    const Utils::Id id = d->defaultDevices.value(deviceType);
     return id.isValid() ? find(id) : IDevice::ConstPtr();
 }
 
@@ -409,14 +409,14 @@ class TestDevice : public IDevice
 public:
     TestDevice()
     {
-        setupId(AutoDetected, Core::Id::fromString(QUuid::createUuid().toString()));
+        setupId(AutoDetected, Utils::Id::fromString(QUuid::createUuid().toString()));
         setType(testTypeId());
         setMachineType(Hardware);
         setOsType(HostOsInfo::hostOs());
         setDisplayType("blubb");
     }
 
-    static Core::Id testTypeId() { return "TestType"; }
+    static Utils::Id testTypeId() { return "TestType"; }
 private:
     IDeviceWidget *createWidget() override { return nullptr; }
     DeviceProcessSignalOperation::Ptr signalOperation() const override

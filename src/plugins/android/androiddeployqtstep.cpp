@@ -137,7 +137,7 @@ public:
 
 // AndroidDeployQtStep
 
-AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Core::Id id)
+AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Utils::Id id)
     : BuildStep(parent, id)
 {
     setImmutable(true);
@@ -155,7 +155,7 @@ AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Core::Id id)
             this, &AndroidDeployQtStep::slotSetSerialNumber);
 }
 
-Core::Id AndroidDeployQtStep::stepId()
+Utils::Id AndroidDeployQtStep::stepId()
 {
     return "Qt4ProjectManager.AndroidDeployQtStep";
 }

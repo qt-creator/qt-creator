@@ -54,8 +54,8 @@ public:
 
     QString description() const override;
 
-    QSet<Core::Id> availableFeatures() const override;
-    QSet<Core::Id> targetDeviceTypes() const override;
+    QSet<Utils::Id> availableFeatures() const override;
+    QSet<Utils::Id> targetDeviceTypes() const override;
 };
 
 QStringList DesktopQtVersion::warningReason() const
@@ -73,17 +73,17 @@ QString DesktopQtVersion::description() const
     return QCoreApplication::translate("QtVersion", "Desktop", "Qt Version is meant for the desktop");
 }
 
-QSet<Core::Id> DesktopQtVersion::availableFeatures() const
+QSet<Utils::Id> DesktopQtVersion::availableFeatures() const
 {
-    QSet<Core::Id> features = BaseQtVersion::availableFeatures();
+    QSet<Utils::Id> features = BaseQtVersion::availableFeatures();
     features.insert(Constants::FEATURE_DESKTOP);
     features.insert(Constants::FEATURE_QMLPROJECT);
     return features;
 }
 
-QSet<Core::Id> DesktopQtVersion::targetDeviceTypes() const
+QSet<Utils::Id> DesktopQtVersion::targetDeviceTypes() const
 {
-    QSet<Core::Id> result = {ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE};
+    QSet<Utils::Id> result = {ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE};
     if (Utils::contains(qtAbis(), [](const ProjectExplorer::Abi a) { return a.os() == ProjectExplorer::Abi::LinuxOS; }))
         result.insert(RemoteLinux::Constants::GenericLinuxOsType);
     return result;
@@ -115,7 +115,7 @@ public:
                                            "Qt Version is used for embedded Linux development");
     }
 
-    QSet<Core::Id> targetDeviceTypes() const override
+    QSet<Utils::Id> targetDeviceTypes() const override
     {
         return {RemoteLinux::Constants::GenericLinuxOsType};
     }

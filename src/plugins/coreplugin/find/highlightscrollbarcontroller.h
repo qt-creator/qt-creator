@@ -30,7 +30,8 @@
 #include <QVector>
 
 #include <coreplugin/core_global.h>
-#include <coreplugin/id.h>
+
+#include <utils/id.h>
 #include <utils/theme/theme.h>
 
 QT_BEGIN_NAMESPACE
@@ -50,10 +51,10 @@ struct CORE_EXPORT Highlight
         HighestPriority = 3
     };
 
-    Highlight(Id category, int position, Utils::Theme::Color color, Priority priority);
+    Highlight(Utils::Id category, int position, Utils::Theme::Color color, Priority priority);
     Highlight() = default;
 
-    Id category;
+    Utils::Id category;
     int position = -1;
     Utils::Theme::Color color = Utils::Theme::TextColorNormal;
     Priority priority = Invalid;
@@ -80,14 +81,14 @@ public:
     double margin() const;
     void setMargin(double margin);
 
-    QHash<Id, QVector<Highlight>> highlights() const;
+    QHash<Utils::Id, QVector<Highlight>> highlights() const;
     void addHighlight(Highlight highlight);
 
-    void removeHighlights(Id id);
+    void removeHighlights(Utils::Id id);
     void removeAllHighlights();
 
 private:
-    QHash<Id, QVector<Highlight> > m_highlights;
+    QHash<Utils::Id, QVector<Highlight> > m_highlights;
     double m_lineHeight = 0.0;
     double m_visibleRange = 0.0; // in pixels
     double m_margin = 0.0;       // in pixels

@@ -95,7 +95,7 @@ void DeviceDetector::handleDeviceEvent(QdbDeviceTracker::DeviceEventType eventTy
         return;
     }
 
-    const Core::Id deviceId = Constants::QdbHardwareDevicePrefix.withSuffix(':' + serial);
+    const Utils::Id deviceId = Constants::QdbHardwareDevicePrefix.withSuffix(':' + serial);
     const auto messagePrefix = tr("Device \"%1\" %2").arg(serial);
     DeviceManager * const dm = DeviceManager::instance();
 

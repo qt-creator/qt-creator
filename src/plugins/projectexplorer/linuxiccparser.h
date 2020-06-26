@@ -39,7 +39,7 @@ class LinuxIccParser : public ProjectExplorer::OutputTaskParser
 public:
     LinuxIccParser();
 
-    static Core::Id id();
+    static Utils::Id id();
 
     static QList<Utils::OutputLineParser *> iccParserSuite();
 

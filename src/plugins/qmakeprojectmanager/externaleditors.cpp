@@ -97,7 +97,7 @@ static const char designerDisplayName[] = QT_TRANSLATE_NOOP("OpenWith::Editors",
 static const char linguistDisplayName[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Qt Linguist");
 
 // -------------- ExternalQtEditor
-ExternalQtEditor::ExternalQtEditor(Core::Id id,
+ExternalQtEditor::ExternalQtEditor(Utils::Id id,
                                    const QString &displayName,
                                    const QString &mimetype,
                                    const CommandForQtVersion &commandForQtVersion) :
@@ -133,7 +133,7 @@ QStringList ExternalQtEditor::mimeTypes() const
     return m_mimeTypes;
 }
 
-Core::Id ExternalQtEditor::id() const
+Utils::Id ExternalQtEditor::id() const
 {
     return m_id;
 }

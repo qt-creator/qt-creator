@@ -99,7 +99,7 @@ IDevice::ConstPtr TypeSpecificDeviceConfigurationListModel::defaultDeviceConfig(
     return IDevice::ConstPtr();
 }
 
-IDevice::ConstPtr TypeSpecificDeviceConfigurationListModel::find(Core::Id id) const
+IDevice::ConstPtr TypeSpecificDeviceConfigurationListModel::find(Utils::Id id) const
 {
     const IDevice::ConstPtr &device = DeviceManager::instance()->find(id);
     if (deviceMatches(device))
@@ -107,7 +107,7 @@ IDevice::ConstPtr TypeSpecificDeviceConfigurationListModel::find(Core::Id id) co
     return defaultDeviceConfig();
 }
 
-int TypeSpecificDeviceConfigurationListModel::indexForId(Core::Id id) const
+int TypeSpecificDeviceConfigurationListModel::indexForId(Utils::Id id) const
 {
     const int count = rowCount();
     for (int i = 0; i < count; ++i) {
@@ -126,7 +126,7 @@ bool TypeSpecificDeviceConfigurationListModel::deviceMatches(IDevice::ConstPtr d
 {
     if (dev.isNull())
         return false;
-    Core::Id typeId = DeviceTypeKitAspect::deviceTypeId(target()->kit());
+    Utils::Id typeId = DeviceTypeKitAspect::deviceTypeId(target()->kit());
     return dev->type() == typeId;
 }
 

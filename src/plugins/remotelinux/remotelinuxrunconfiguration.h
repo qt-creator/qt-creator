@@ -37,7 +37,7 @@ class RemoteLinuxRunConfiguration final : public ProjectExplorer::RunConfigurati
     Q_OBJECT
 
 public:
-    RemoteLinuxRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
+    RemoteLinuxRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
 
 private:
     ProjectExplorer::Runnable runnable() const override;

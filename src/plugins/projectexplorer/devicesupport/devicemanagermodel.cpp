@@ -38,8 +38,8 @@ class DeviceManagerModelPrivate
 public:
     const DeviceManager *deviceManager;
     QList<IDevice::ConstPtr> devices;
-    QList<Core::Id> filter;
-    Core::Id typeToKeep;
+    QList<Utils::Id> filter;
+    Utils::Id typeToKeep;
 };
 } // namespace Internal
 
@@ -60,13 +60,13 @@ DeviceManagerModel::DeviceManagerModel(const DeviceManager *deviceManager, QObje
 
 DeviceManagerModel::~DeviceManagerModel() = default;
 
-void DeviceManagerModel::setFilter(const QList<Core::Id> &filter)
+void DeviceManagerModel::setFilter(const QList<Utils::Id> &filter)
 {
     d->filter = filter;
     handleDeviceListChanged();
 }
 
-void DeviceManagerModel::setTypeFilter(Core::Id type)
+void DeviceManagerModel::setTypeFilter(Utils::Id type)
 {
     if (d->typeToKeep == type)
         return;
@@ -74,7 +74,7 @@ void DeviceManagerModel::setTypeFilter(Core::Id type)
     handleDeviceListChanged();
 }
 
-void DeviceManagerModel::updateDevice(Core::Id id)
+void DeviceManagerModel::updateDevice(Utils::Id id)
 {
     handleDeviceUpdated(id);
 }
@@ -86,10 +86,10 @@ IDevice::ConstPtr DeviceManagerModel::device(int pos) const
     return d->devices.at(pos);
 }
 
-Core::Id DeviceManagerModel::deviceId(int pos) const
+Utils::Id DeviceManagerModel::deviceId(int pos) const
 {
     IDevice::ConstPtr dev = device(pos);
-    return dev ? dev->id() : Core::Id();
+    return dev ? dev->id() : Utils::Id();
 }
 
 int DeviceManagerModel::indexOf(IDevice::ConstPtr dev) const
@@ -104,7 +104,7 @@ int DeviceManagerModel::indexOf(IDevice::ConstPtr dev) const
     return -1;
 }
 
-void DeviceManagerModel::handleDeviceAdded(Core::Id id)
+void DeviceManagerModel::handleDeviceAdded(Utils::Id id)
 {
     if (d->filter.contains(id))
         return;
@@ -117,7 +117,7 @@ void DeviceManagerModel::handleDeviceAdded(Core::Id id)
     endInsertRows();
 }
 
-void DeviceManagerModel::handleDeviceRemoved(Core::Id id)
+void DeviceManagerModel::handleDeviceRemoved(Utils::Id id)
 {
     const int idx = indexForId(id);
     QTC_ASSERT(idx != -1, return);
@@ -126,7 +126,7 @@ void DeviceManagerModel::handleDeviceRemoved(Core::Id id)
     endRemoveRows();
 }
 
-void DeviceManagerModel::handleDeviceUpdated(Core::Id id)
+void DeviceManagerModel::handleDeviceUpdated(Utils::Id id)
 {
     const int idx = indexForId(id);
     if (idx < 0) // This occurs when a device not matching the type filter is updated
@@ -180,7 +180,7 @@ bool DeviceManagerModel::matchesTypeFilter(const IDevice::ConstPtr &dev) const
     return !d->typeToKeep.isValid() || dev->type() == d->typeToKeep;
 }
 
-int DeviceManagerModel::indexForId(Core::Id id) const
+int DeviceManagerModel::indexForId(Utils::Id id) const
 {
     for (int i = 0; i < d->devices.count(); ++i) {
         if (d->devices.at(i)->id() == id)

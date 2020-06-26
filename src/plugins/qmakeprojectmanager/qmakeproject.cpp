@@ -1393,7 +1393,7 @@ QStringList QmakeBuildSystem::filesGeneratedFrom(const QString &input) const
     return {};
 }
 
-QVariant QmakeBuildSystem::additionalData(Core::Id id) const
+QVariant QmakeBuildSystem::additionalData(Utils::Id id) const
 {
     if (id == "QmlDesignerImportPath")
         return m_rootProFile->variableValue(Variable::QmlDesignerImportPath);

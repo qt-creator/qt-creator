@@ -89,7 +89,7 @@ public:
     QVariantMap toMap() const;
     void fromMap(const QVariantMap &map);
 
-    Core::Id id;
+    Utils::Id id;
     QString displayName;
     CustomParserExpression error;
     CustomParserExpression warning;
@@ -102,8 +102,8 @@ public:
 
     void setSettings(const CustomParserSettings &settings);
 
-    static CustomParser *createFromId(Core::Id id);
-    static Core::Id id();
+    static CustomParser *createFromId(Utils::Id id);
+    static Utils::Id id();
 
 private:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;
@@ -122,8 +122,8 @@ class CustomParsersSelectionWidget : public Utils::DetailsWidget
 public:
     CustomParsersSelectionWidget(QWidget *parent = nullptr);
 
-    void setSelectedParsers(const QList<Core::Id> &parsers);
-    QList<Core::Id> selectedParsers() const;
+    void setSelectedParsers(const QList<Utils::Id> &parsers);
+    QList<Utils::Id> selectedParsers() const;
 
 signals:
     void selectionChanged();
@@ -138,14 +138,14 @@ class CustomParsersAspect : public ProjectConfigurationAspect
 public:
     CustomParsersAspect(Target *target);
 
-    void setParsers(const QList<Core::Id> &parsers) { m_parsers = parsers; }
-    const QList<Core::Id> parsers() const { return m_parsers; }
+    void setParsers(const QList<Utils::Id> &parsers) { m_parsers = parsers; }
+    const QList<Utils::Id> parsers() const { return m_parsers; }
 
 private:
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 
-    QList<Core::Id> m_parsers;
+    QList<Utils::Id> m_parsers;
 };
 
 } // namespace Internal

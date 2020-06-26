@@ -40,7 +40,7 @@ class PROJECTEXPLORER_EXPORT MsvcParser :  public ProjectExplorer::OutputTaskPar
 public:
     MsvcParser();
 
-    static Core::Id id();
+    static Utils::Id id();
 
 private:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;

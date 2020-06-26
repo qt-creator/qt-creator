@@ -43,9 +43,9 @@ class VcsCommandPageFactory : public ProjectExplorer::JsonWizardPageFactory
 public:
     VcsCommandPageFactory();
 
-    Utils::WizardPage *create(ProjectExplorer::JsonWizard *wizard, Core::Id typeId,
+    Utils::WizardPage *create(ProjectExplorer::JsonWizard *wizard, Utils::Id typeId,
                               const QVariant &data) override;
-    bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage) override;
+    bool validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage) override;
 };
 
 class VcsCommandPage : public Utils::ShellCommandPage

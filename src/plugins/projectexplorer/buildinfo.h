@@ -29,8 +29,8 @@
 
 #include "buildconfiguration.h"
 
-#include <coreplugin/id.h>
 #include <utils/fileutils.h>
+#include <utils/id.h>
 
 namespace ProjectExplorer {
 
@@ -44,7 +44,7 @@ public:
     QString displayName;
     QString typeName;
     Utils::FilePath buildDirectory;
-    Core::Id kitId;
+    Utils::Id kitId;
     BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
 
     QVariant extraInfo;

@@ -70,7 +70,7 @@ EditorWindow::EditorWindow(QWidget *parent) :
     static int windowId = 0;
 
     ICore::registerWindow(this,
-                          Context(Id("EditorManager.ExternalWindow.").withSuffix(++windowId),
+                          Context(Utils::Id("EditorManager.ExternalWindow.").withSuffix(++windowId),
                                   Constants::C_EDITORMANAGER));
 
     connect(m_area, &EditorArea::windowTitleNeedsUpdate,

@@ -78,7 +78,7 @@ public:
 
     bool isComplete() const override;
     bool setupProject(Project *project);
-    QList<Core::Id> selectedKits() const;
+    QList<Utils::Id> selectedKits() const;
 
     void openOptions();
     void changeAllKitsSelections();
@@ -121,7 +121,7 @@ private:
     {
         return k ? widget(k->id(), fallback) : fallback;
     }
-    Internal::TargetSetupWidget *widget(const Core::Id kitId,
+    Internal::TargetSetupWidget *widget(const Utils::Id kitId,
                                         Internal::TargetSetupWidget *fallback = nullptr) const;
 
     TasksGenerator m_tasksGenerator;

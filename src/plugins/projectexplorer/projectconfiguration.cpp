@@ -151,7 +151,7 @@ ProjectConfigurationAspects::~ProjectConfigurationAspects()
     qDeleteAll(base());
 }
 
-ProjectConfigurationAspect *ProjectConfigurationAspects::aspect(Core::Id id) const
+ProjectConfigurationAspect *ProjectConfigurationAspects::aspect(Utils::Id id) const
 {
     return Utils::findOrDefault(base(), Utils::equal(&ProjectConfigurationAspect::id, id));
 }
@@ -171,7 +171,7 @@ void ProjectConfigurationAspects::toMap(QVariantMap &map) const
 
 // ProjectConfiguration
 
-ProjectConfiguration::ProjectConfiguration(QObject *parent, Core::Id id)
+ProjectConfiguration::ProjectConfiguration(QObject *parent, Utils::Id id)
     : QObject(parent)
     , m_id(id)
 {
@@ -194,7 +194,7 @@ Project *ProjectConfiguration::project() const
     return m_target->project();
 }
 
-Core::Id ProjectConfiguration::id() const
+Utils::Id ProjectConfiguration::id() const
 {
     return m_id;
 }
@@ -246,7 +246,7 @@ Target *ProjectConfiguration::target() const
 
 bool ProjectConfiguration::fromMap(const QVariantMap &map)
 {
-    Core::Id id = Core::Id::fromSetting(map.value(QLatin1String(CONFIGURATION_ID_KEY)));
+    Utils::Id id = Utils::Id::fromSetting(map.value(QLatin1String(CONFIGURATION_ID_KEY)));
     // Note: This is only "startsWith", not ==, as RunConfigurations currently still
     // mangle in their build keys.
     QTC_ASSERT(id.toString().startsWith(m_id.toString()), return false);
@@ -256,7 +256,7 @@ bool ProjectConfiguration::fromMap(const QVariantMap &map)
     return true;
 }
 
-ProjectConfigurationAspect *ProjectConfiguration::aspect(Core::Id id) const
+ProjectConfigurationAspect *ProjectConfiguration::aspect(Utils::Id id) const
 {
     return m_aspects.aspect(id);
 }
@@ -267,7 +267,7 @@ void ProjectConfiguration::acquaintAspects()
         aspect->acquaintSiblings(m_aspects);
 }
 
-Core::Id ProjectExplorer::idFromMap(const QVariantMap &map)
+Utils::Id ProjectExplorer::idFromMap(const QVariantMap &map)
 {
-    return Core::Id::fromSetting(map.value(QLatin1String(CONFIGURATION_ID_KEY)));
+    return Utils::Id::fromSetting(map.value(QLatin1String(CONFIGURATION_ID_KEY)));
 }

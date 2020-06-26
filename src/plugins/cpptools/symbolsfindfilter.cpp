@@ -46,6 +46,7 @@
 #include <QButtonGroup>
 
 using namespace Core;
+using namespace Utils;
 
 namespace CppTools {
 namespace Internal {

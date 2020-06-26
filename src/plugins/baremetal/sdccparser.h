@@ -39,7 +39,7 @@ class SdccParser final : public ProjectExplorer::OutputTaskParser
 
 public:
     explicit SdccParser();
-    static Core::Id id();
+    static Utils::Id id();
 
 private:
     void newTask(const ProjectExplorer::Task &task);

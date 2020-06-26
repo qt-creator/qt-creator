@@ -46,7 +46,7 @@ class SelectableTextEditorWidget : public TextEditor::TextEditorWidget
 {
     Q_OBJECT
 public:
-    SelectableTextEditorWidget(Core::Id id, QWidget *parent = nullptr);
+    SelectableTextEditorWidget(Utils::Id id, QWidget *parent = nullptr);
     ~SelectableTextEditorWidget() override;
     void setSelections(const QMap<int, QList<DiffSelection> > &selections);
 

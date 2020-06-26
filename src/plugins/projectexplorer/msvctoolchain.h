@@ -59,7 +59,7 @@ public:
     enum Type { WindowsSDK, VS };
     enum Platform { x86, amd64, x86_amd64, ia64, x86_ia64, arm, x86_arm, amd64_arm, amd64_x86 };
 
-    explicit MsvcToolChain(Core::Id typeId);
+    explicit MsvcToolChain(Utils::Id typeId);
     ~MsvcToolChain() override;
 
     Abi targetAbi() const override;
@@ -127,7 +127,7 @@ protected:
     virtual Macros msvcPredefinedMacros(const QStringList &cxxflags,
                                         const Utils::Environment &env) const;
     virtual Utils::LanguageVersion msvcLanguageVersion(const QStringList &cxxflags,
-                                                       const Core::Id &language,
+                                                       const Utils::Id &language,
                                                        const Macros &macros) const;
 
     struct GenerateEnvResult
@@ -188,7 +188,7 @@ public:
     Macros msvcPredefinedMacros(const QStringList &cxxflags,
                                 const Utils::Environment &env) const override;
     Utils::LanguageVersion msvcLanguageVersion(const QStringList &cxxflags,
-                                               const Core::Id &language,
+                                               const Utils::Id &language,
                                                const Macros &macros) const override;
 
     bool operator==(const ToolChain &) const override;

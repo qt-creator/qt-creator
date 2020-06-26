@@ -55,7 +55,7 @@ int QtMarketplaceWelcomePage::priority() const
     return 60;
 }
 
-Core::Id QtMarketplaceWelcomePage::id() const
+Utils::Id QtMarketplaceWelcomePage::id() const
 {
     return "Marketplace";
 }

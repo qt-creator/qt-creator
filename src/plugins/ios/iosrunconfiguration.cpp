@@ -102,7 +102,7 @@ public:
     QComboBox *m_deviceTypeComboBox = nullptr;
 };
 
-IosRunConfiguration::IosRunConfiguration(Target *target, Core::Id id)
+IosRunConfiguration::IosRunConfiguration(Target *target, Utils::Id id)
     : RunConfiguration(target, id)
 {
     auto executableAspect = addAspect<ExecutableAspect>();
@@ -140,7 +140,7 @@ void IosDeviceTypeAspect::updateDeviceType()
 
 bool IosRunConfiguration::isEnabled() const
 {
-    Core::Id devType = DeviceTypeKitAspect::deviceTypeId(target()->kit());
+    Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(target()->kit());
     if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE)
         return false;
 
@@ -162,7 +162,7 @@ QString IosRunConfiguration::applicationName() const
 
 FilePath IosRunConfiguration::bundleDirectory() const
 {
-    Core::Id devType = DeviceTypeKitAspect::deviceTypeId(target()->kit());
+    Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(target()->kit());
     bool isDevice = (devType == Constants::IOS_DEVICE_TYPE);
     if (!isDevice && devType != Constants::IOS_SIMULATOR_TYPE) {
         qCWarning(iosLog) << "unexpected device type in bundleDirForTarget: " << devType.toString();
@@ -220,7 +220,7 @@ void IosDeviceTypeAspect::toMap(QVariantMap &map) const
 
 QString IosRunConfiguration::disabledReason() const
 {
-    Core::Id devType = DeviceTypeKitAspect::deviceTypeId(target()->kit());
+    Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(target()->kit());
     if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE)
         return tr("Kit has incorrect device type for running on iOS devices.");
     IDevice::ConstPtr dev = DeviceKitAspect::device(target()->kit());

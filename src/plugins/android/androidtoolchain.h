@@ -70,7 +70,7 @@ public:
     class AndroidToolChainInformation
     {
     public:
-        Core::Id language;
+        Utils::Id language;
         Utils::FilePath compilerCommand;
         ProjectExplorer::Abi abi;
         QString version;

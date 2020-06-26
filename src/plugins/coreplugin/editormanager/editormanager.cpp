@@ -807,7 +807,7 @@ IEditor *EditorManagerPrivate::openEditorAt(EditorView *view, const QString &fil
     return editor;
 }
 
-IEditor *EditorManagerPrivate::openEditorWith(const QString &fileName, Core::Id editorId)
+IEditor *EditorManagerPrivate::openEditorWith(const QString &fileName, Utils::Id editorId)
 {
     // close any open editors that have this file open
     // remember the views to open new editors in there
@@ -2722,7 +2722,7 @@ void EditorManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
     if (anyMatches) {
         // Add all suitable editors
         foreach (IEditorFactory *editorFactory, factories) {
-            Core::Id editorId = editorFactory->id();
+            Utils::Id editorId = editorFactory->id();
             // Add action to open with this very editor factory
             QString const actionTitle = editorFactory->displayName();
             QAction *action = menu->addAction(actionTitle);
@@ -2738,7 +2738,7 @@ void EditorManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
         // Add all suitable external editors
         foreach (IExternalEditor *externalEditor, extEditors) {
             QAction *action = menu->addAction(externalEditor->displayName());
-            Core::Id editorId = externalEditor->id();
+            Utils::Id editorId = externalEditor->id();
             connect(action, &QAction::triggered, [fileName, editorId]() {
                 EditorManager::openExternalEditor(fileName, editorId);
             });

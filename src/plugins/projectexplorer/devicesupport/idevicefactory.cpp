@@ -86,7 +86,7 @@ IDevice::Ptr IDeviceFactory::construct() const
 
 static QList<IDeviceFactory *> g_deviceFactories;
 
-IDeviceFactory *IDeviceFactory::find(Core::Id type)
+IDeviceFactory *IDeviceFactory::find(Utils::Id type)
 {
     return Utils::findOrDefault(g_deviceFactories,
         [&type](IDeviceFactory *factory) {
@@ -94,7 +94,7 @@ IDeviceFactory *IDeviceFactory::find(Core::Id type)
         });
 }
 
-IDeviceFactory::IDeviceFactory(Core::Id deviceType)
+IDeviceFactory::IDeviceFactory(Utils::Id deviceType)
     : m_deviceType(deviceType)
 {
     g_deviceFactories.append(this);

@@ -49,7 +49,7 @@ QString WebAssemblyQtVersion::description() const
                                        "Qt Version is meant for WebAssembly");
 }
 
-QSet<Core::Id> WebAssemblyQtVersion::targetDeviceTypes() const
+QSet<Utils::Id> WebAssemblyQtVersion::targetDeviceTypes() const
 {
     return {Constants::WEBASSEMBLY_DEVICE_TYPE};
 }

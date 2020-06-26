@@ -59,7 +59,7 @@ public:
 
     QString title() const override { return tr("Projects"); }
     int priority() const override { return 20; }
-    Core::Id id() const override;
+    Utils::Id id() const override;
     QWidget *createWidget() const override;
 
     void reloadWelcomeScreenData() const;

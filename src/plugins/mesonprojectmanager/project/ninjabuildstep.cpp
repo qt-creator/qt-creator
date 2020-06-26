@@ -31,7 +31,7 @@
 #include "mesonpluginconstants.h"
 #include <settings/general/settings.h>
 #include <settings/tools/kitaspect/ninjatoolkitaspect.h>
-#include <coreplugin/id.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/processparameters.h>
@@ -43,7 +43,7 @@ namespace Internal {
 const char TARGETS_KEY[] = "MesonProjectManager.BuildStep.BuildTargets";
 const char TOOL_ARGUMENTS_KEY[] = "MesonProjectManager.BuildStep.AdditionalArguments";
 
-NinjaBuildStep::NinjaBuildStep(ProjectExplorer::BuildStepList *bsl, Core::Id id)
+NinjaBuildStep::NinjaBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id)
     : ProjectExplorer::AbstractProcessStep{bsl, id}
 {
     setDefaultDisplayName(tr("Meson Build"));
@@ -116,7 +116,7 @@ QString NinjaBuildStep::defaultBuildTarget() const
 {
     const ProjectExplorer::BuildStepList *const bsl = stepList();
     QTC_ASSERT(bsl, return {});
-    const Core::Id parentId = bsl->id();
+    const Utils::Id parentId = bsl->id();
     if (parentId == ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
         return {Constants::Targets::clean};
     if (parentId == ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)

@@ -253,7 +253,7 @@ void BuildStepListWidget::updateEnabledState()
 
 void BuildStepListWidget::updateAddBuildStepMenu()
 {
-    QMap<QString, QPair<Core::Id, BuildStepFactory *> > map;
+    QMap<QString, QPair<Utils::Id, BuildStepFactory *> > map;
     //Build up a list of possible steps and save map the display names to the (internal) name and factories.
     for (BuildStepFactory *factory : BuildStepFactory::allBuildStepFactories()) {
         if (factory->canHandle(m_buildStepList)) {
@@ -270,12 +270,12 @@ void BuildStepListWidget::updateAddBuildStepMenu()
     QMenu *menu = m_addButton->menu();
     menu->clear();
     if (!map.isEmpty()) {
-        QMap<QString, QPair<Core::Id, BuildStepFactory *> >::const_iterator it, end;
+        QMap<QString, QPair<Utils::Id, BuildStepFactory *> >::const_iterator it, end;
         end = map.constEnd();
         for (it = map.constBegin(); it != end; ++it) {
             QAction *action = menu->addAction(it.key());
             BuildStepFactory *factory = it.value().second;
-            Core::Id id = it.value().first;
+            Utils::Id id = it.value().first;
 
             connect(action, &QAction::triggered, [id, factory, this]() {
                 BuildStep *newStep = factory->create(m_buildStepList, id);

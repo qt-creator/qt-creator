@@ -73,11 +73,11 @@ signals:
 
 protected:
     Utils::ProjectIntroPage *introPage() const;
-    Core::Id selectedPlatform() const;
-    void setSelectedPlatform(Core::Id platform);
+    Utils::Id selectedPlatform() const;
+    void setSelectedPlatform(Utils::Id platform);
 
-    QSet<Core::Id> requiredFeatures() const;
-    void setRequiredFeatures(const QSet<Core::Id> &featureSet);
+    QSet<Utils::Id> requiredFeatures() const;
+    void setRequiredFeatures(const QSet<Utils::Id> &featureSet);
 
 private:
     void init();

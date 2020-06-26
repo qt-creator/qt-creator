@@ -42,12 +42,12 @@ class QdbMakeDefaultAppStep final : public RemoteLinux::AbstractRemoteLinuxDeplo
     Q_DECLARE_TR_FUNCTIONS(Qdb::Internal::QdbMakeDefaultAppStep)
 
 public:
-    QdbMakeDefaultAppStep(BuildStepList *bsl, Core::Id id);
+    QdbMakeDefaultAppStep(BuildStepList *bsl, Utils::Id id);
 
     static QString stepDisplayName() { return tr("Change default application"); }
 };
 
-QdbMakeDefaultAppStep::QdbMakeDefaultAppStep(BuildStepList *bsl, Core::Id id)
+QdbMakeDefaultAppStep::QdbMakeDefaultAppStep(BuildStepList *bsl, Utils::Id id)
     : AbstractRemoteLinuxDeployStep(bsl, id)
 {
     setDefaultDisplayName(stepDisplayName());

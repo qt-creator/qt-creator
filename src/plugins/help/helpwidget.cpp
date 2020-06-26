@@ -238,7 +238,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     if (style == ExternalWindow) {
         static int windowId = 0;
         Core::ICore::registerWindow(this,
-                                    Core::Context(Core::Id("Help.Window.").withSuffix(++windowId)));
+                                    Core::Context(Utils::Id("Help.Window.").withSuffix(++windowId)));
         setAttribute(Qt::WA_QuitOnClose, false); // don't prevent Qt Creator from closing
     }
     if (style != SideBarWidget) {

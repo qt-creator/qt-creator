@@ -42,7 +42,7 @@ public:
     static void setProperties(ProjectExplorer::Kit *kit, const QVariantMap &properties);
 
 private:
-    static Core::Id id();
+    static Utils::Id id();
 
     ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *) const override;
     ItemList toUserOutput(const ProjectExplorer::Kit *) const override;

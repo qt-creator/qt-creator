@@ -54,7 +54,7 @@ class AndroidPackageInstallationStep final : public AbstractProcessStep
     Q_DECLARE_TR_FUNCTIONS(Android::AndroidPackageInstallationStep)
 
 public:
-    AndroidPackageInstallationStep(BuildStepList *bsl, Core::Id id);
+    AndroidPackageInstallationStep(BuildStepList *bsl, Utils::Id id);
 
     BuildStepConfigWidget *createConfigWidget() final;
 
@@ -79,7 +79,7 @@ public:
     }
 };
 
-AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bsl, Core::Id id)
+AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bsl, Utils::Id id)
     : AbstractProcessStep(bsl, id)
 {
     const QString name = tr("Copy application data");

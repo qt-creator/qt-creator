@@ -48,7 +48,7 @@ public:
         Display,
         Execution
     };
-    explicit MakeStep(ProjectExplorer::BuildStepList *parent, Core::Id id);
+    explicit MakeStep(ProjectExplorer::BuildStepList *parent, Utils::Id id);
 
     void setBuildTarget(const QString &buildTarget);
     void setAvailableBuildTargets(const QStringList &buildTargets);

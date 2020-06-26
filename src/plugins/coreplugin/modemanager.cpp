@@ -46,6 +46,8 @@
 #include <QMouseEvent>
 #include <QVector>
 
+using namespace Utils;
+
 namespace Core {
 
 /*!

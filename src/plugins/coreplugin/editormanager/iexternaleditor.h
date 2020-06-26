@@ -26,8 +26,8 @@
 #pragma once
 
 #include <coreplugin/core_global.h>
-#include <coreplugin/id.h>
 
+#include <utils/id.h>
 #include <utils/mimetypes/mimetype.h>
 
 #include <QObject>
@@ -50,7 +50,7 @@ public:
     static const ExternalEditorList externalEditors(const Utils::MimeType &mimeType);
 
     virtual QStringList mimeTypes() const = 0;
-    virtual Id id() const = 0;
+    virtual Utils::Id id() const = 0;
     virtual QString displayName() const = 0;
     virtual bool startEditor(const QString &fileName, QString *errorMessage) = 0;
 };

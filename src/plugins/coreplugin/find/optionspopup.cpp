@@ -35,6 +35,8 @@
 #include <QKeyEvent>
 #include <QVBoxLayout>
 
+using namespace Utils;
+
 namespace Core {
 
 /*!

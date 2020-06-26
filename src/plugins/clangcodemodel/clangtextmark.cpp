@@ -71,7 +71,7 @@ bool isWarningOrNote(ClangBackEnd::DiagnosticSeverity severity)
     Q_UNREACHABLE();
 }
 
-static Core::Id categoryForSeverity(ClangBackEnd::DiagnosticSeverity severity)
+static ::Utils::Id categoryForSeverity(ClangBackEnd::DiagnosticSeverity severity)
 {
     return isWarningOrNote(severity) ? Constants::CLANG_WARNING : Constants::CLANG_ERROR;
 }
@@ -134,7 +134,7 @@ ClangDiagnosticConfig diagnosticConfig(const ClangProjectSettings &projectSettin
     QTC_ASSERT(project, return {});
 
     // Get config id
-    Core::Id currentConfigId = projectSettings.warningConfigId();
+    ::Utils::Id currentConfigId = projectSettings.warningConfigId();
     if (projectSettings.useGlobalConfig())
         currentConfigId = globalSettings.clangDiagnosticConfigId();
 

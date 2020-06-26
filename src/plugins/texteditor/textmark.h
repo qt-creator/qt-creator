@@ -27,10 +27,10 @@
 
 #include "texteditor_global.h"
 
-#include <coreplugin/id.h>
-#include <utils/theme/theme.h>
 #include <utils/fileutils.h>
+#include <utils/id.h>
 #include <utils/optional.h>
+#include <utils/theme/theme.h>
 
 #include <QIcon>
 #include <QVector>
@@ -53,7 +53,7 @@ class TEXTEDITOR_EXPORT TextMark
 public:
     TextMark(const Utils::FilePath &fileName,
              int lineNumber,
-             Core::Id category,
+             Utils::Id category,
              double widthFactor = 1.0);
     TextMark() = delete;
     virtual ~TextMark();
@@ -105,7 +105,7 @@ public:
     void setPriority(Priority prioriy);
     bool isVisible() const;
     void setVisible(bool isVisible);
-    Core::Id category() const { return m_category; }
+    Utils::Id category() const { return m_category; }
     double widthFactor() const;
     void setWidthFactor(double factor);
 
@@ -137,7 +137,7 @@ private:
     QIcon m_icon;
     Utils::optional<Utils::Theme::Color> m_color;
     bool m_visible = false;
-    Core::Id m_category;
+    Utils::Id m_category;
     double m_widthFactor = 1.0;
     QString m_lineAnnotation;
     QString m_toolTip;

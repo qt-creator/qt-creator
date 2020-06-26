@@ -171,7 +171,7 @@ QVariantMap CustomParserSettings::toMap() const
 
 void CustomParserSettings::fromMap(const QVariantMap &map)
 {
-    id = Core::Id::fromSetting(map.value(idKey));
+    id = Utils::Id::fromSetting(map.value(idKey));
     displayName = map.value(nameKey).toString();
     error.fromMap(map.value(errorKey).toMap());
     warning.fromMap(map.value(warningKey).toMap());
@@ -190,7 +190,7 @@ void CustomParser::setSettings(const CustomParserSettings &settings)
     m_warning = settings.warning;
 }
 
-CustomParser *CustomParser::createFromId(Core::Id id)
+CustomParser *CustomParser::createFromId(Utils::Id id)
 {
     const Internal::CustomParserSettings parser = findOrDefault(ProjectExplorerPlugin::customParsers(),
             [id](const Internal::CustomParserSettings &p) { return p.id == id; });
@@ -199,9 +199,9 @@ CustomParser *CustomParser::createFromId(Core::Id id)
     return nullptr;
 }
 
-Core::Id CustomParser::id()
+Utils::Id CustomParser::id()
 {
-    return Core::Id("ProjectExplorer.OutputParser.Custom");
+    return Utils::Id("ProjectExplorer.OutputParser.Custom");
 }
 
 OutputLineParser::Result CustomParser::handleLine(const QString &line, OutputFormat type)
@@ -273,16 +273,16 @@ public:
                 this, &SelectionWidget::updateUi);
     }
 
-    void setSelectedParsers(const QList<Core::Id> &parsers)
+    void setSelectedParsers(const QList<Utils::Id> &parsers)
     {
         for (const auto &p : qAsConst(parserCheckBoxes))
             p.first->setChecked(parsers.contains(p.second));
         emit selectionChanged();
     }
 
-    QList<Core::Id> selectedParsers() const
+    QList<Utils::Id> selectedParsers() const
     {
-        QList<Core::Id> parsers;
+        QList<Utils::Id> parsers;
         for (const auto &p : qAsConst(parserCheckBoxes)) {
             if (p.first->isChecked())
                 parsers << p.second;
@@ -298,7 +298,7 @@ private:
     {
         const auto layout = qobject_cast<QVBoxLayout *>(this->layout());
         QTC_ASSERT(layout, return);
-        const QList<Core::Id> parsers = selectedParsers();
+        const QList<Utils::Id> parsers = selectedParsers();
         for (const auto &p : qAsConst(parserCheckBoxes))
             delete p.first;
         parserCheckBoxes.clear();
@@ -312,7 +312,7 @@ private:
         setSelectedParsers(parsers);
     }
 
-    QList<QPair<QCheckBox *, Core::Id>> parserCheckBoxes;
+    QList<QPair<QCheckBox *, Utils::Id>> parserCheckBoxes;
 };
 } // anonymous namespace
 
@@ -327,19 +327,19 @@ CustomParsersSelectionWidget::CustomParsersSelectionWidget(QWidget *parent) : De
     updateSummary();
 }
 
-void CustomParsersSelectionWidget::setSelectedParsers(const QList<Core::Id> &parsers)
+void CustomParsersSelectionWidget::setSelectedParsers(const QList<Utils::Id> &parsers)
 {
     qobject_cast<SelectionWidget *>(widget())->setSelectedParsers(parsers);
 }
 
-QList<Core::Id> CustomParsersSelectionWidget::selectedParsers() const
+QList<Utils::Id> CustomParsersSelectionWidget::selectedParsers() const
 {
     return qobject_cast<SelectionWidget *>(widget())->selectedParsers();
 }
 
 void CustomParsersSelectionWidget::updateSummary()
 {
-    const QList<Core::Id> parsers
+    const QList<Utils::Id> parsers
             = qobject_cast<SelectionWidget *>(widget())->selectedParsers();
     if (parsers.isEmpty())
         setSummaryText(tr("There are no custom parsers active"));
@@ -364,12 +364,12 @@ CustomParsersAspect::CustomParsersAspect(Target *target)
 
 void CustomParsersAspect::fromMap(const QVariantMap &map)
 {
-    m_parsers = transform(map.value(settingsKey()).toList(), &Core::Id::fromSetting);
+    m_parsers = transform(map.value(settingsKey()).toList(), &Utils::Id::fromSetting);
 }
 
 void CustomParsersAspect::toMap(QVariantMap &map) const
 {
-    map.insert(settingsKey(), transform(m_parsers, &Core::Id::toSetting));
+    map.insert(settingsKey(), transform(m_parsers, &Utils::Id::toSetting));
 }
 
 } // namespace Internal

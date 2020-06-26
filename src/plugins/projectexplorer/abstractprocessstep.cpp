@@ -113,7 +113,7 @@ public:
     OutputFormatter *outputFormatter = nullptr;
 };
 
-AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, Core::Id id) :
+AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, Utils::Id id) :
     BuildStep(bsl, id),
     d(new Private(this))
 {

@@ -288,7 +288,7 @@ public:
         return activeItem ? activeItem->index() : QModelIndex();
     }
 
-    TreeItem *itemForProjectPanel(Core::Id panelId)
+    TreeItem *itemForProjectPanel(Utils::Id panelId)
     {
         return m_miscItem->findChildAtLevel(1, [panelId](const TreeItem *item){
             return static_cast<const MiscSettingsPanelItem *>(item)->factory()->id() == panelId;
@@ -539,7 +539,7 @@ public:
             item->setData(0, QVariant(), ItemActivatedDirectlyRole);
     }
 
-    void activateProjectPanel(Core::Id panelId)
+    void activateProjectPanel(Utils::Id panelId)
     {
         if (ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0)) {
             if (TreeItem *item = projectItem->itemForProjectPanel(panelId))
@@ -656,7 +656,7 @@ ProjectWindow::ProjectWindow()
     setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
-void ProjectWindow::activateProjectPanel(Core::Id panelId)
+void ProjectWindow::activateProjectPanel(Utils::Id panelId)
 {
     d->activateProjectPanel(panelId);
 }

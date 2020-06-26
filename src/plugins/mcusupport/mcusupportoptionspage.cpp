@@ -264,7 +264,7 @@ void McuSupportOptionsWidget::populateMcuTargetsComboBox()
 
 McuSupportOptionsPage::McuSupportOptionsPage()
 {
-    setId(Core::Id(Constants::SETTINGS_ID));
+    setId(Utils::Id(Constants::SETTINGS_ID));
     setDisplayName(McuSupportOptionsWidget::tr("MCU"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new McuSupportOptionsWidget; });

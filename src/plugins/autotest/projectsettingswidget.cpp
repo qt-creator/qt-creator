@@ -120,7 +120,7 @@ void ProjectTestSettingsWidget::populateFrameworks(const QMap<ITestFramework *, 
 
 void ProjectTestSettingsWidget::onActiveFrameworkChanged(QTreeWidgetItem *item, int column)
 {
-    auto id = Core::Id::fromSetting(item->data(column, FrameworkIdRole));
+    auto id = Utils::Id::fromSetting(item->data(column, FrameworkIdRole));
     m_projectSettings->activateFramework(id, item->data(0, Qt::CheckStateRole) == Qt::Checked);
     m_syncFrameworksTimer.start(3000);
 }

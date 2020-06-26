@@ -36,7 +36,7 @@ using namespace ProjectExplorer;
 namespace RemoteLinux {
 
 RemoteLinuxCheckForFreeDiskSpaceStep::RemoteLinuxCheckForFreeDiskSpaceStep
-    (BuildStepList *bsl, Core::Id id)
+    (BuildStepList *bsl, Utils::Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
 {
     setDefaultDisplayName(displayName());
@@ -66,7 +66,7 @@ RemoteLinuxCheckForFreeDiskSpaceStep::RemoteLinuxCheckForFreeDiskSpaceStep
 
 RemoteLinuxCheckForFreeDiskSpaceStep::~RemoteLinuxCheckForFreeDiskSpaceStep() = default;
 
-Core::Id RemoteLinuxCheckForFreeDiskSpaceStep::stepId()
+Utils::Id RemoteLinuxCheckForFreeDiskSpaceStep::stepId()
 {
     return "RemoteLinux.CheckForFreeDiskSpaceStep";
 }

@@ -35,7 +35,7 @@ class GenericBuildConfiguration : public ProjectExplorer::BuildConfiguration
     Q_OBJECT
 
     friend class ProjectExplorer::BuildConfigurationFactory;
-    GenericBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
+    GenericBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
 
     void addToEnvironment(Utils::Environment &env) const final;
 };

@@ -105,11 +105,11 @@ void GTestSettingsWidget::apply()
     if (m_settings->groupMode == oldGroupMode && oldFilter == m_settings->gtestFilter)
         return;
 
-    auto id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);
+    auto id = Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);
     TestTreeModel::instance()->rebuild({id});
 }
 
-GTestSettingsPage::GTestSettingsPage(GTestSettings *settings, Core::Id settingsId)
+GTestSettingsPage::GTestSettingsPage(GTestSettings *settings, Utils::Id settingsId)
 {
     setId(settingsId);
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);

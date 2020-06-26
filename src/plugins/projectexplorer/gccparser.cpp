@@ -61,9 +61,9 @@ GccParser::GccParser()
     QTC_CHECK(m_regExpGccNames.isValid());
 }
 
-Core::Id GccParser::id()
+Utils::Id GccParser::id()
 {
-    return Core::Id("ProjectExplorer.OutputParser.Gcc");
+    return Utils::Id("ProjectExplorer.OutputParser.Gcc");
 }
 
 QList<OutputLineParser *> GccParser::gccParserSuite()

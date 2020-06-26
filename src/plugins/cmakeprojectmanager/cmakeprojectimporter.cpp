@@ -217,13 +217,13 @@ static QVector<ToolChainDescription> extractToolChainsFromCache(const CMakeConfi
         if (!i.key.startsWith("CMAKE_") || !i.key.endsWith("_COMPILER"))
             continue;
         const QByteArray language = i.key.mid(6, i.key.count() - 6 - 9); // skip "CMAKE_" and "_COMPILER"
-        Core::Id languageId;
+        Utils::Id languageId;
         if (language == "CXX")
             languageId = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
         else  if (language == "C")
             languageId = ProjectExplorer::Constants::C_LANGUAGE_ID;
         else
-            languageId = Core::Id::fromName(language);
+            languageId = Utils::Id::fromName(language);
         result.append({Utils::FilePath::fromUtf8(i.value), languageId});
     }
     return result;
@@ -380,8 +380,8 @@ void CMakeProjectImporter::cleanupTemporaryCMake(Kit *k, const QVariantList &vl)
     if (vl.isEmpty())
         return; // No temporary CMake
     QTC_ASSERT(vl.count() == 1, return);
-    CMakeKitAspect::setCMakeTool(k, Core::Id()); // Always mark Kit as not using this Qt
-    CMakeToolManager::deregisterCMakeTool(Core::Id::fromSetting(vl.at(0)));
+    CMakeKitAspect::setCMakeTool(k, Utils::Id()); // Always mark Kit as not using this Qt
+    CMakeToolManager::deregisterCMakeTool(Utils::Id::fromSetting(vl.at(0)));
     qCDebug(cmInputLog) << "Temporary CMake tool cleaned up.";
 }
 
@@ -391,7 +391,7 @@ void CMakeProjectImporter::persistTemporaryCMake(Kit *k, const QVariantList &vl)
         return; // No temporary CMake
     QTC_ASSERT(vl.count() == 1, return);
     const QVariant data = vl.at(0);
-    CMakeTool *tmpCmake = CMakeToolManager::findById(Core::Id::fromSetting(data));
+    CMakeTool *tmpCmake = CMakeToolManager::findById(Utils::Id::fromSetting(data));
     CMakeTool *actualCmake = CMakeKitAspect::cmakeTool(k);
 
     // User changed Kit away from temporary CMake that was set up:

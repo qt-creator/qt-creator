@@ -43,7 +43,7 @@ NimToolChain::NimToolChain()
     : NimToolChain(Constants::C_NIMTOOLCHAIN_TYPEID)
 {}
 
-NimToolChain::NimToolChain(Core::Id typeId)
+NimToolChain::NimToolChain(Utils::Id typeId)
     : ToolChain(typeId)
     , m_compilerCommand(FilePath())
     , m_version(std::make_tuple(-1,-1,-1))

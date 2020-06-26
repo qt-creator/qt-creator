@@ -180,7 +180,7 @@ void ClangEditorDocumentProcessor::clearProjectPart()
     m_projectPart.clear();
 }
 
-Core::Id ClangEditorDocumentProcessor::diagnosticConfigId() const
+::Utils::Id ClangEditorDocumentProcessor::diagnosticConfigId() const
 {
     return m_diagnosticConfigId;
 }
@@ -451,7 +451,7 @@ public:
     }
 
     const QStringList &options() const { return m_options; }
-    const Core::Id &diagnosticConfigId() const { return m_diagnosticConfigId; }
+    const ::Utils::Id &diagnosticConfigId() const { return m_diagnosticConfigId; }
     CppTools::UseBuildSystemWarnings useBuildSystemWarnings() const
     {
         return m_useBuildSystemWarnings;
@@ -479,7 +479,7 @@ private:
         if (m_projectPart.project) {
             ClangProjectSettings &projectSettings = getProjectSettings(m_projectPart.project);
             if (!projectSettings.useGlobalConfig()) {
-                const Core::Id warningConfigId = projectSettings.warningConfigId();
+                const ::Utils::Id warningConfigId = projectSettings.warningConfigId();
                 const CppTools::ClangDiagnosticConfigsModel configsModel
                     = CppTools::diagnosticConfigsModel();
                 if (configsModel.hasConfigWithId(warningConfigId)) {
@@ -538,7 +538,7 @@ private:
     const QString &m_filePath;
     const CppTools::ProjectPart &m_projectPart;
 
-    Core::Id m_diagnosticConfigId;
+    ::Utils::Id m_diagnosticConfigId;
     CppTools::UseBuildSystemWarnings m_useBuildSystemWarnings = CppTools::UseBuildSystemWarnings::No;
     CppTools::CompilerOptionsBuilder m_builder;
     bool m_isClMode = false;

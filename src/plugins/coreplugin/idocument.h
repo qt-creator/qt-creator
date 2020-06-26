@@ -26,7 +26,8 @@
 #pragma once
 
 #include "core_global.h"
-#include "id.h"
+
+#include <utils/id.h>
 
 #include <QObject>
 
@@ -84,8 +85,8 @@ public:
     IDocument(QObject *parent = nullptr);
     ~IDocument() override;
 
-    void setId(Id id);
-    Id id() const;
+    void setId(Utils::Id id);
+    Utils::Id id() const;
 
     // required to be re-implemented for documents of IEditors
     virtual OpenResult open(QString *errorString, const QString &fileName, const QString &realFileName);

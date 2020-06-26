@@ -29,8 +29,9 @@
 #include <QSharedPointer>
 #include <QStandardItem>
 
-#include <coreplugin/id.h>
 #include <cplusplus/CppDocument.h>
+
+#include <utils/id.h>
 
 namespace ClassView {
 namespace Internal {
@@ -87,8 +88,8 @@ protected:
     void onStateChanged(bool state);
     void onProjectListChanged();
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
-    void onTaskStarted(Core::Id type);
-    void onAllTasksFinished(Core::Id type);
+    void onTaskStarted(Utils::Id type);
+    void onAllTasksFinished(Utils::Id type);
     void onTreeDataUpdate(QSharedPointer<QStandardItem> result);
 
 protected:

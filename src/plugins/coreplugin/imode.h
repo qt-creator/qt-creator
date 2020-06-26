@@ -39,7 +39,7 @@ class CORE_EXPORT IMode : public IContext
     Q_PROPERTY(QString displayName READ displayName WRITE setDisplayName)
     Q_PROPERTY(QIcon icon READ icon WRITE setIcon)
     Q_PROPERTY(int priority READ priority WRITE setPriority)
-    Q_PROPERTY(Id id READ id WRITE setId)
+    Q_PROPERTY(Utils::Id id READ id WRITE setId)
     Q_PROPERTY(QMenu *menu READ menu WRITE setMenu)
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled NOTIFY enabledStateChanged)
 
@@ -50,7 +50,7 @@ public:
     QString displayName() const { return m_displayName; }
     QIcon icon() const { return m_icon; }
     int priority() const { return m_priority; }
-    Id id() const { return m_id; }
+    Utils::Id id() const { return m_id; }
     bool isEnabled() const;
     QMenu *menu() const { return m_menu; }
 
@@ -58,7 +58,7 @@ public:
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
     void setIcon(const QIcon &icon) { m_icon = icon; }
     void setPriority(int priority) { m_priority = priority; }
-    void setId(Id id) { m_id = id; }
+    void setId(Utils::Id id) { m_id = id; }
     void setMenu(QMenu *menu) { m_menu = menu; }
 
 signals:
@@ -69,7 +69,7 @@ private:
     QIcon m_icon;
     QMenu *m_menu = nullptr;
     int m_priority = -1;
-    Id m_id;
+    Utils::Id m_id;
     bool m_isEnabled = true;
 };
 

@@ -60,7 +60,7 @@ QmlTaskManager::QmlTaskManager()
     connect(&m_updateDelay, &QTimer::timeout, this, [this] { updateMessagesNow(); });
 }
 
-static Tasks convertToTasks(const QList<DiagnosticMessage> &messages, const FilePath &fileName, Core::Id category)
+static Tasks convertToTasks(const QList<DiagnosticMessage> &messages, const FilePath &fileName, Utils::Id category)
 {
     Tasks result;
     foreach (const DiagnosticMessage &msg, messages) {
@@ -71,7 +71,7 @@ static Tasks convertToTasks(const QList<DiagnosticMessage> &messages, const File
     return result;
 }
 
-static Tasks convertToTasks(const QList<StaticAnalysis::Message> &messages, const FilePath &fileName, Core::Id category)
+static Tasks convertToTasks(const QList<StaticAnalysis::Message> &messages, const FilePath &fileName, Utils::Id category)
 {
     QList<DiagnosticMessage> diagnostics;
     foreach (const StaticAnalysis::Message &msg, messages)

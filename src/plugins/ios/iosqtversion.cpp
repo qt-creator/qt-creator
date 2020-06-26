@@ -78,16 +78,16 @@ QString IosQtVersion::description() const
     return tr("iOS");
 }
 
-QSet<Core::Id> IosQtVersion::availableFeatures() const
+QSet<Utils::Id> IosQtVersion::availableFeatures() const
 {
-    QSet<Core::Id> features = QtSupport::BaseQtVersion::availableFeatures();
+    QSet<Utils::Id> features = QtSupport::BaseQtVersion::availableFeatures();
     features.insert(QtSupport::Constants::FEATURE_MOBILE);
     features.remove(QtSupport::Constants::FEATURE_QT_CONSOLE);
     features.remove(QtSupport::Constants::FEATURE_QT_WEBKIT);
     return features;
 }
 
-QSet<Core::Id> IosQtVersion::targetDeviceTypes() const
+QSet<Utils::Id> IosQtVersion::targetDeviceTypes() const
 {
     // iOS Qt version supports ios devices as well as simulator.
     return {Constants::IOS_DEVICE_TYPE, Constants::IOS_SIMULATOR_TYPE};

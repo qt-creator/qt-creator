@@ -56,7 +56,7 @@ public:
     void view(const QString &source, const QString &id,
               const QStringList &extraOptions = QStringList()) override;
 
-    Core::Id vcsEditorKind(VcsCommandTag cmd) const override;
+    Utils::Id vcsEditorKind(VcsCommandTag cmd) const override;
     QString vcsCommandString(VcsCommandTag cmd) const override;
     Utils::ExitCodeInterpreter exitCodeInterpreter(VcsCommandTag cmd) const override;
     QStringList revisionSpec(const QString &revision) const override;

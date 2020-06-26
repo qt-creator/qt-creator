@@ -110,9 +110,9 @@ OutputLineParser::Result LinuxIccParser::handleLine(const QString &line, OutputF
     return Status::NotHandled;
 }
 
-Core::Id LinuxIccParser::id()
+Utils::Id LinuxIccParser::id()
 {
-    return Core::Id("ProjectExplorer.OutputParser.Icc");
+    return Utils::Id("ProjectExplorer.OutputParser.Icc");
 }
 
 QList<OutputLineParser *> LinuxIccParser::iccParserSuite()

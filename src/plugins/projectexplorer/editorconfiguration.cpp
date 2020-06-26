@@ -30,7 +30,6 @@
 
 #include <utils/algorithm.h>
 
-#include <coreplugin/id.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/texteditor.h>
@@ -79,16 +78,16 @@ struct EditorConfigurationPrivate
     MarginSettings m_marginSettings;
     QTextCodec *m_textCodec;
 
-    QMap<Core::Id, ICodeStylePreferences *> m_languageCodeStylePreferences;
+    QMap<Utils::Id, ICodeStylePreferences *> m_languageCodeStylePreferences;
     QList<BaseTextEditor *> m_editors;
 };
 
 EditorConfiguration::EditorConfiguration() : d(std::make_unique<EditorConfigurationPrivate>())
 {
-    const QMap<Core::Id, ICodeStylePreferences *> languageCodeStylePreferences = TextEditorSettings::codeStyles();
+    const QMap<Utils::Id, ICodeStylePreferences *> languageCodeStylePreferences = TextEditorSettings::codeStyles();
     for (auto itCodeStyle = languageCodeStylePreferences.cbegin(), end = languageCodeStylePreferences.cend();
             itCodeStyle != end; ++itCodeStyle) {
-        Core::Id languageId = itCodeStyle.key();
+        Utils::Id languageId = itCodeStyle.key();
         // global prefs for language
         ICodeStylePreferences *originalPreferences = itCodeStyle.value();
         ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(languageId);
@@ -171,12 +170,12 @@ ICodeStylePreferences *EditorConfiguration::codeStyle() const
     return d->m_defaultCodeStyle;
 }
 
-ICodeStylePreferences *EditorConfiguration::codeStyle(Core::Id languageId) const
+ICodeStylePreferences *EditorConfiguration::codeStyle(Utils::Id languageId) const
 {
     return d->m_languageCodeStylePreferences.value(languageId, codeStyle());
 }
 
-QMap<Core::Id, ICodeStylePreferences *> EditorConfiguration::codeStyles() const
+QMap<Utils::Id, ICodeStylePreferences *> EditorConfiguration::codeStyles() const
 {
     return d->m_languageCodeStylePreferences;
 }
@@ -226,7 +225,7 @@ void EditorConfiguration::fromMap(const QVariantMap &map)
             qWarning() << "No data for code style settings list" << i << "found!";
             continue;
         }
-        Core::Id languageId = Core::Id::fromSetting(settingsIdMap.value(QLatin1String("language")));
+        Utils::Id languageId = Utils::Id::fromSetting(settingsIdMap.value(QLatin1String("language")));
         QVariantMap value = settingsIdMap.value(QLatin1String("value")).toMap();
         ICodeStylePreferences *preferences = d->m_languageCodeStylePreferences.value(languageId);
         if (preferences)

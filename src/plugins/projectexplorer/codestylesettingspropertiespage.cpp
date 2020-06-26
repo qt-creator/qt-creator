@@ -41,7 +41,7 @@ CodeStyleSettingsWidget::CodeStyleSettingsWidget(Project *project) : QWidget(), 
     const EditorConfiguration *config = m_project->editorConfiguration();
 
     for (ICodeStylePreferencesFactory *factory : TextEditorSettings::codeStyleFactories()) {
-        Core::Id languageId = factory->languageId();
+        Utils::Id languageId = factory->languageId();
         ICodeStylePreferences *codeStylePreferences = config->codeStyle(languageId);
 
         auto preview = factory->createCodeStyleEditor(codeStylePreferences, m_ui.stackedWidget);

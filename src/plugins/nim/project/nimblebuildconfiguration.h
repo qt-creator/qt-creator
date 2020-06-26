@@ -36,7 +36,7 @@ class NimbleBuildConfiguration : public ProjectExplorer::BuildConfiguration
 
     friend class ProjectExplorer::BuildConfigurationFactory;
 
-    NimbleBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
+    NimbleBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
 
     BuildType buildType() const override;
 

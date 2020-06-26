@@ -45,7 +45,7 @@ namespace Cppcheck {
 namespace Internal {
 
 CppcheckTool::CppcheckTool(CppcheckDiagnosticManager &manager,
-                           const Core::Id &progressId) :
+                           const Utils::Id &progressId) :
     m_manager(manager),
     m_progressRegexp("^.* checked (\\d+)% done$"),
     m_messageRegexp("^(.+),(\\d+),(\\w+),(\\w+),(.*)$"),

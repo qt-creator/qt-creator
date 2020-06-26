@@ -102,7 +102,7 @@ EditMode::~EditMode()
     delete m_splitter;
 }
 
-void EditMode::grabEditorManager(Id mode)
+void EditMode::grabEditorManager(Utils::Id mode)
 {
     if (mode != id())
         return;

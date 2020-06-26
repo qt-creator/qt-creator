@@ -39,6 +39,7 @@
 #include <utils/qtcassert.h>
 
 using namespace Core;
+using namespace Utils;
 
 namespace ProjectExplorer {
 

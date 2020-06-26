@@ -34,9 +34,9 @@ class REMOTELINUX_EXPORT RemoteLinuxKillAppStep : public AbstractRemoteLinuxDepl
     Q_OBJECT
 public:
     explicit RemoteLinuxKillAppStep(ProjectExplorer::BuildStepList *bsl,
-            Core::Id id = stepId());
+            Utils::Id id = stepId());
 
-    static Core::Id stepId();
+    static Utils::Id stepId();
     static QString displayName();
 };
 

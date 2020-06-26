@@ -50,7 +50,7 @@ private:
     void addTool(const MesonTools::Tool_t &tool);
     void removeTool(const MesonTools::Tool_t &tool);
     void setCurrentToolIndex(int index);
-    int indexOf(const Core::Id &id);
+    int indexOf(const Utils::Id &id);
     bool isCompatible(const MesonTools::Tool_t &tool);
     void loadTools();
     void setToDefault();

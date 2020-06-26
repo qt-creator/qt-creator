@@ -47,7 +47,7 @@ ToolTreeItem *ToolsModel::mesoneToolTreeItem(const QModelIndex &index) const
     return itemForIndexAtLevel<2>(index);
 }
 
-void ToolsModel::updateItem(const Core::Id &itemId, const QString &name, const Utils::FilePath &exe)
+void ToolsModel::updateItem(const Utils::Id &itemId, const QString &name, const Utils::FilePath &exe)
 {
     auto treeItem = findItemAtLevel<2>([itemId](ToolTreeItem *n) { return n->id() == itemId; });
     QTC_ASSERT(treeItem, return );
@@ -62,7 +62,7 @@ void ToolsModel::addMesonTool()
 void ToolsModel::removeMesonTool(ToolTreeItem *item)
 {
     QTC_ASSERT(item, return );
-    const Core::Id id = item->id();
+    const Utils::Id id = item->id();
     destroyItem(item);
     m_itemsToRemove.enqueue(id);
 }

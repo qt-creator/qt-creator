@@ -65,7 +65,7 @@ class PROJECTEXPLORER_EXPORT BuildStep : public ProjectConfiguration
 
 protected:
     friend class BuildStepFactory;
-    explicit BuildStep(BuildStepList *bsl, Core::Id id);
+    explicit BuildStep(BuildStepList *bsl, Utils::Id id);
 
 public:
     ~BuildStep() override;
@@ -114,7 +114,7 @@ public:
     bool isImmutable() const { return m_immutable; }
     void setImmutable(bool immutable) { m_immutable = immutable; }
 
-    virtual QVariant data(Core::Id id) const;
+    virtual QVariant data(Utils::Id id) const;
     void setSummaryUpdater(const std::function<QString ()> &summaryUpdater);
 
     void addMacroExpander();
@@ -168,7 +168,7 @@ public:
 
     using BuildStepCreator = std::function<BuildStep *(BuildStepList *)>;
 
-    Core::Id id;
+    Utils::Id id;
     QString displayName;
     Flags flags = Flags();
     BuildStepCreator creator;
@@ -185,8 +185,8 @@ public:
     static const QList<BuildStepFactory *> allBuildStepFactories();
 
     BuildStepInfo stepInfo() const;
-    Core::Id stepId() const;
-    BuildStep *create(BuildStepList *parent, Core::Id id);
+    Utils::Id stepId() const;
+    BuildStep *create(BuildStepList *parent, Utils::Id id);
     BuildStep *restore(BuildStepList *parent, const QVariantMap &map);
 
     bool canHandle(BuildStepList *bsl) const;
@@ -195,19 +195,19 @@ protected:
     using BuildStepCreator = std::function<BuildStep *(BuildStepList *)>;
 
     template <class BuildStepType>
-    void registerStep(Core::Id id)
+    void registerStep(Utils::Id id)
     {
         QTC_CHECK(!m_info.creator);
         m_info.id = id;
         m_info.creator = [id](BuildStepList *bsl) { return new BuildStepType(bsl, id); };
     }
 
-    void setSupportedStepList(Core::Id id);
-    void setSupportedStepLists(const QList<Core::Id> &ids);
-    void setSupportedConfiguration(Core::Id id);
-    void setSupportedProjectType(Core::Id id);
-    void setSupportedDeviceType(Core::Id id);
-    void setSupportedDeviceTypes(const QList<Core::Id> &ids);
+    void setSupportedStepList(Utils::Id id);
+    void setSupportedStepLists(const QList<Utils::Id> &ids);
+    void setSupportedConfiguration(Utils::Id id);
+    void setSupportedProjectType(Utils::Id id);
+    void setSupportedDeviceType(Utils::Id id);
+    void setSupportedDeviceTypes(const QList<Utils::Id> &ids);
     void setRepeatable(bool on) { m_isRepeatable = on; }
     void setDisplayName(const QString &displayName);
     void setFlags(BuildStepInfo::Flags flags);
@@ -215,10 +215,10 @@ protected:
 private:
     BuildStepInfo m_info;
 
-    Core::Id m_supportedProjectType;
-    QList<Core::Id> m_supportedDeviceTypes;
-    QList<Core::Id> m_supportedStepLists;
-    Core::Id m_supportedConfiguration;
+    Utils::Id m_supportedProjectType;
+    QList<Utils::Id> m_supportedDeviceTypes;
+    QList<Utils::Id> m_supportedStepLists;
+    Utils::Id m_supportedConfiguration;
     bool m_isRepeatable = true;
 };
 

@@ -266,9 +266,9 @@ void TestTreeModel::filterAndInsert(TestTreeItem *item, TestTreeItem *root, bool
         insertItemInParent(filtered, root, groupingEnabled);
 }
 
-void TestTreeModel::rebuild(const QList<Core::Id> &frameworkIds)
+void TestTreeModel::rebuild(const QList<Utils::Id> &frameworkIds)
 {
-    for (const Core::Id &id : frameworkIds) {
+    for (const Utils::Id &id : frameworkIds) {
         ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
         TestTreeItem *frameworkRoot = framework->rootNode();
         const bool groupingEnabled = framework->grouping();
@@ -549,25 +549,25 @@ void TestTreeModel::removeAllTestItems()
 // we're inside tests - so use some internal knowledge to make testing easier
 static TestTreeItem *qtRootNode()
 {
-    auto id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix("QtTest");
+    auto id = Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix("QtTest");
     return TestFrameworkManager::frameworkForId(id)->rootNode();
 }
 
 static TestTreeItem *quickRootNode()
 {
-    auto id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix("QtQuickTest");
+    auto id = Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix("QtQuickTest");
     return TestFrameworkManager::frameworkForId(id)->rootNode();
 }
 
 static TestTreeItem *gtestRootNode()
 {
-    auto id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix("GTest");
+    auto id = Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix("GTest");
     return TestFrameworkManager::frameworkForId(id)->rootNode();
 }
 
 static TestTreeItem *boostTestRootNode()
 {
-    auto id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix("Boost");
+    auto id = Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix("Boost");
     return TestFrameworkManager::frameworkForId(id)->rootNode();
 }
 

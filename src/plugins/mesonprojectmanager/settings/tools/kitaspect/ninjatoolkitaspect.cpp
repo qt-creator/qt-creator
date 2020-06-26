@@ -82,16 +82,16 @@ ProjectExplorer::KitAspectWidget *NinjaToolKitAspect::createConfigWidget(Project
     return new ToolKitAspectWidget{k, this, ToolKitAspectWidget::ToolType::Ninja};
 }
 
-void NinjaToolKitAspect::setNinjaTool(ProjectExplorer::Kit *kit, Core::Id id)
+void NinjaToolKitAspect::setNinjaTool(ProjectExplorer::Kit *kit, Utils::Id id)
 {
     QTC_ASSERT(kit && id.isValid(), return );
     kit->setValue(TOOL_ID, id.toSetting());
 }
 
-Core::Id NinjaToolKitAspect::ninjaToolId(const ProjectExplorer::Kit *kit)
+Utils::Id NinjaToolKitAspect::ninjaToolId(const ProjectExplorer::Kit *kit)
 {
     QTC_ASSERT(kit, return {});
-    return Core::Id::fromSetting(kit->value(TOOL_ID));
+    return Utils::Id::fromSetting(kit->value(TOOL_ID));
 }
 } // namespace Internal
 } // namespace MesonProjectManager

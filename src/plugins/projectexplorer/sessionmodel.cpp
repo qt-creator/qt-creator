@@ -29,7 +29,6 @@
 #include "sessiondialog.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/id.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -39,6 +38,7 @@
 #include <QDir>
 
 using namespace Core;
+using namespace Utils;
 
 namespace ProjectExplorer {
 namespace Internal {

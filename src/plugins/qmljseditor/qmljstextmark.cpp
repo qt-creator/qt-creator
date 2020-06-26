@@ -54,7 +54,7 @@ static bool isWarning(QmlJS::Severity::Enum kind)
     return false;
 }
 
-static Core::Id cartegoryForSeverity(QmlJS::Severity::Enum kind)
+static Utils::Id cartegoryForSeverity(QmlJS::Severity::Enum kind)
 {
     return isWarning(kind) ? QMLJS_WARNING : QMLJS_ERROR;
 }

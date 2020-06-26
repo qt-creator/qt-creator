@@ -48,7 +48,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/id.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -234,7 +233,7 @@ public:
 
     // IVersionControl
     QString displayName() const final;
-    Core::Id id() const final;
+    Utils::Id id() const final;
 
     bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
 
@@ -308,7 +307,7 @@ public:
     void resetRepository();
     void recoverDeletedFiles();
     void startRebase();
-    void startChangeRelatedAction(const Core::Id &id);
+    void startChangeRelatedAction(const Utils::Id &id);
     void stageFile();
     void unstageFile();
     void gitkForCurrentFile();
@@ -335,37 +334,37 @@ public:
     void updateContinueAndAbortCommands();
     void delayedPushToGerrit();
 
-    Core::Command *createCommand(QAction *action, Core::ActionContainer *ac, Core::Id id,
+    Core::Command *createCommand(QAction *action, Core::ActionContainer *ac, Utils::Id id,
                                  const Core::Context &context, bool addToLocator,
                                  const std::function<void()> &callback, const QKeySequence &keys);
 
     Utils::ParameterAction *createParameterAction(Core::ActionContainer *ac,
                                                   const QString &defaultText, const QString &parameterText,
-                                                  Core::Id id, const Core::Context &context, bool addToLocator,
+                                                  Utils::Id id, const Core::Context &context, bool addToLocator,
                                                   const std::function<void()> &callback,
                                                   const QKeySequence &keys = QKeySequence());
 
     QAction *createFileAction(Core::ActionContainer *ac,
                               const QString &defaultText, const QString &parameterText,
-                              Core::Id id, const Core::Context &context, bool addToLocator,
+                              Utils::Id id, const Core::Context &context, bool addToLocator,
                               const std::function<void()> &callback,
                               const QKeySequence &keys = QKeySequence());
 
     QAction *createProjectAction(Core::ActionContainer *ac,
                                  const QString &defaultText, const QString &parameterText,
-                                 Core::Id id, const Core::Context &context, bool addToLocator,
+                                 Utils::Id id, const Core::Context &context, bool addToLocator,
                                  void (GitPluginPrivate::*func)(),
                                  const QKeySequence &keys = QKeySequence());
 
-    QAction *createRepositoryAction(Core::ActionContainer *ac, const QString &text, Core::Id id,
+    QAction *createRepositoryAction(Core::ActionContainer *ac, const QString &text, Utils::Id id,
                                     const Core::Context &context, bool addToLocator,
                                     const std::function<void()> &callback,
                                     const QKeySequence &keys = QKeySequence());
-    QAction *createRepositoryAction(Core::ActionContainer *ac, const QString &text, Core::Id id,
+    QAction *createRepositoryAction(Core::ActionContainer *ac, const QString &text, Utils::Id id,
                                     const Core::Context &context, bool addToLocator,
                                     GitClientMemberFunc, const QKeySequence &keys = QKeySequence());
 
-    QAction *createChangeRelatedRepositoryAction(const QString &text, Core::Id id,
+    QAction *createChangeRelatedRepositoryAction(const QString &text, Utils::Id id,
                                                  const Core::Context &context);
 
     void updateRepositoryBrowserAction();
@@ -1812,9 +1811,9 @@ QString GitPluginPrivate::displayName() const
     return QLatin1String("Git");
 }
 
-Core::Id GitPluginPrivate::id() const
+Utils::Id GitPluginPrivate::id() const
 {
-    return Core::Id(VcsBase::Constants::VCS_ID_GIT);
+    return Utils::Id(VcsBase::Constants::VCS_ID_GIT);
 }
 
 bool GitPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &fileName) const

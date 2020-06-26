@@ -27,7 +27,6 @@
 
 #include "gitsettings.h"
 
-#include <coreplugin/id.h>
 #include <coreplugin/iversioncontrol.h>
 
 #include <extensionsystem/iplugin.h>

@@ -26,7 +26,8 @@
 #pragma once
 
 #include <coreplugin/core_global.h>
-#include <coreplugin/id.h>
+
+#include <utils/id.h>
 
 #include <QString>
 #include <QFuture>
@@ -62,8 +63,8 @@ public:
     void setSubtitleVisibleInStatusBar(bool visible);
     bool isSubtitleVisibleInStatusBar() const;
 
-    void setType(Id type);
-    Id type() const;
+    void setType(Utils::Id type);
+    Utils::Id type() const;
 
     void setKeepOnFinish(KeepOnFinishType keepType);
     bool keepOnFinish() const;

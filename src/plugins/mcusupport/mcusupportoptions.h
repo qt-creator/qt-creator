@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <QObject>
 #include <QVector>
@@ -116,7 +116,7 @@ public:
                         const QString &detectionPath, const QString &settingsKey, Type type);
 
     Type type() const;
-    ProjectExplorer::ToolChain *toolChain(Core::Id language) const;
+    ProjectExplorer::ToolChain *toolChain(Utils::Id language) const;
     QString cmakeToolChainFileName() const;
     QVariant debuggerId() const;
 

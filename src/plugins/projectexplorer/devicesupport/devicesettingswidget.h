@@ -59,7 +59,7 @@ private:
 
     void saveSettings();
 
-    void handleDeviceUpdated(Core::Id id);
+    void handleDeviceUpdated(Utils::Id id);
     void currentDeviceChanged(int index);
     void addDevice();
     void removeDevice();

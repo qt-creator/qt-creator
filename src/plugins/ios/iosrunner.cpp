@@ -75,10 +75,10 @@ namespace Internal {
 
 static void stopRunningRunControl(RunControl *runControl)
 {
-    static QMap<Core::Id, QPointer<RunControl>> activeRunControls;
+    static QMap<Utils::Id, QPointer<RunControl>> activeRunControls;
 
     Target *target = runControl->target();
-    Core::Id devId = DeviceKitAspect::deviceId(target->kit());
+    Utils::Id devId = DeviceKitAspect::deviceId(target->kit());
 
     // The device can only run an application at a time, if an app is running stop it.
     if (activeRunControls.contains(devId)) {

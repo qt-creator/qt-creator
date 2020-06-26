@@ -43,7 +43,7 @@ class PROJECTEXPLORER_EXPORT DeployConfiguration final : public ProjectConfigura
 
 private:
     friend class DeployConfigurationFactory;
-    explicit DeployConfiguration(Target *target, Core::Id id);
+    explicit DeployConfiguration(Target *target, Utils::Id id);
 
 public:
     ~DeployConfiguration() override = default;
@@ -81,7 +81,7 @@ public:
     virtual ~DeployConfigurationFactory();
 
     // return possible addition to a target, invalid if there is none
-    Core::Id creationId() const;
+    Utils::Id creationId() const;
     // the name to display to the user
     QString defaultDisplayName() const;
 
@@ -91,12 +91,12 @@ public:
     static DeployConfiguration *restore(Target *parent, const QVariantMap &map);
     static DeployConfiguration *clone(Target *parent, const DeployConfiguration *dc);
 
-    void addSupportedTargetDeviceType(Core::Id id);
+    void addSupportedTargetDeviceType(Utils::Id id);
     void setDefaultDisplayName(const QString &defaultDisplayName);
-    void setSupportedProjectType(Core::Id id);
+    void setSupportedProjectType(Utils::Id id);
 
     // Step is only added if condition is not set, or returns true when called.
-    void addInitialStep(Core::Id stepId, const std::function<bool(Target *)> &condition = {});
+    void addInitialStep(Utils::Id stepId, const std::function<bool(Target *)> &condition = {});
 
     bool canHandle(ProjectExplorer::Target *target) const;
 
@@ -109,13 +109,13 @@ public:
 
 protected:
     using DeployConfigurationCreator = std::function<DeployConfiguration *(Target *)>;
-    void setConfigBaseId(Core::Id deployConfigBaseId);
+    void setConfigBaseId(Utils::Id deployConfigBaseId);
 
 private:
     DeployConfiguration *createDeployConfiguration(Target *target);
-    Core::Id m_deployConfigBaseId;
-    Core::Id m_supportedProjectType;
-    QList<Core::Id> m_supportedTargetDeviceTypes;
+    Utils::Id m_deployConfigBaseId;
+    Utils::Id m_supportedProjectType;
+    QList<Utils::Id> m_supportedTargetDeviceTypes;
     QList<BuildStepList::StepCreationInfo> m_initialSteps;
     QString m_defaultDisplayName;
     DeployConfiguration::WidgetCreator m_configWidgetCreator;

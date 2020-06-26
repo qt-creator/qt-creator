@@ -45,7 +45,7 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/textindenter.h>
 #include <utils/mimetypes/mimedatabase.h>
-#
+
 #include <QPointer>
 #include <QDebug>
 #include <QFileInfo>
@@ -55,6 +55,7 @@
 
 using namespace TextEditor;
 using namespace Core;
+using namespace Utils;
 
 /*!
     \class ProjectExplorer::Internal::ProjectFileWizardExtension

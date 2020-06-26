@@ -611,10 +611,10 @@ private:
             return;
 
         bool addedMutables = false;
-        QList<Core::Id> knownIdList = Utils::transform(m_widgets, &KitAspectWidget::kitInformationId);
+        QList<Utils::Id> knownIdList = Utils::transform(m_widgets, &KitAspectWidget::kitInformationId);
 
         for (KitAspect *aspect : KitManager::kitAspects()) {
-            const Core::Id currentId = aspect->id();
+            const Utils::Id currentId = aspect->id();
             if (m_kit->isMutable(currentId) && !knownIdList.removeOne(currentId)) {
                 addedMutables = true;
                 break;

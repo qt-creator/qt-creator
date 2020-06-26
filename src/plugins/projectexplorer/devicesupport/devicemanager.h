@@ -60,20 +60,20 @@ public:
     int deviceCount() const;
     IDevice::ConstPtr deviceAt(int index) const;
 
-    IDevice::ConstPtr find(Core::Id id) const;
-    IDevice::ConstPtr defaultDevice(Core::Id deviceType) const;
+    IDevice::ConstPtr find(Utils::Id id) const;
+    IDevice::ConstPtr defaultDevice(Utils::Id deviceType) const;
     bool hasDevice(const QString &name) const;
 
     void addDevice(const IDevice::ConstPtr &device);
-    void removeDevice(Core::Id id);
-    void setDeviceState(Core::Id deviceId, IDevice::DeviceState deviceState);
+    void removeDevice(Utils::Id id);
+    void setDeviceState(Utils::Id deviceId, IDevice::DeviceState deviceState);
 
     bool isLoaded() const;
 
 signals:
-    void deviceAdded(Core::Id id);
-    void deviceRemoved(Core::Id id);
-    void deviceUpdated(Core::Id id);
+    void deviceAdded(Utils::Id id);
+    void deviceRemoved(Utils::Id id);
+    void deviceUpdated(Utils::Id id);
     void deviceListReplaced(); // For bulk changes via the settings dialog.
     void updated(); // Emitted for all of the above.
 
@@ -86,12 +86,12 @@ private:
 
     void load();
     static const IDeviceFactory *restoreFactory(const QVariantMap &map);
-    QList<IDevice::Ptr> fromMap(const QVariantMap &map, QHash<Core::Id, Core::Id> *defaultDevices);
+    QList<IDevice::Ptr> fromMap(const QVariantMap &map, QHash<Utils::Id, Utils::Id> *defaultDevices);
     QVariantMap toMap() const;
 
     // For SettingsWidget.
-    IDevice::Ptr mutableDevice(Core::Id id) const;
-    void setDefaultDevice(Core::Id id);
+    IDevice::Ptr mutableDevice(Utils::Id id) const;
+    void setDefaultDevice(Utils::Id id);
     static DeviceManager *cloneInstance();
     static void replaceInstance();
     static void removeClonedInstance();

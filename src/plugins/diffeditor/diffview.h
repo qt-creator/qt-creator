@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <QIcon>
 #include <QString>
@@ -57,7 +57,7 @@ public:
     bool supportsSync() const;
     QString syncToolTip() const;
 
-    Core::Id id() const;
+    Utils::Id id() const;
     virtual QWidget *widget() = 0;
     virtual void setDocument(DiffEditorDocument *document) = 0;
 
@@ -74,14 +74,14 @@ signals:
 protected:
     void setIcon(const QIcon &icon);
     void setToolTip(const QString &toolTip);
-    void setId(const Core::Id &id);
+    void setId(const Utils::Id &id);
     void setSupportsSync(bool sync);
     void setSyncToolTip(const QString &text);
 
 private:
     QIcon m_icon;
     QString m_toolTip;
-    Core::Id m_id;
+    Utils::Id m_id;
     bool m_supportsSync = false;
     QString m_syncToolTip;
 };

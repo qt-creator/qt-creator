@@ -27,7 +27,6 @@
 
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitinformation.h>
-#include <coreplugin/id.h>
 
 #include <QDialogButtonBox>
 #include <QFormLayout>
@@ -108,7 +107,7 @@ Kit *QmlProfilerAttachDialog::kit() const
     return d->kitChooser->currentKit();
 }
 
-void QmlProfilerAttachDialog::setKitId(Core::Id id)
+void QmlProfilerAttachDialog::setKitId(Utils::Id id)
 {
     d->kitChooser->setCurrentKitId(id);
 }

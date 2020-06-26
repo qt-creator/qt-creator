@@ -59,6 +59,7 @@
 #include <utils/qtcassert.h>
 
 using namespace Core;
+using namespace Utils;
 
 /*!
     \class TextEditor::BaseTextDocument

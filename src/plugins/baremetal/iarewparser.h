@@ -39,7 +39,7 @@ class IarParser final : public ProjectExplorer::OutputTaskParser
 
 public:
     explicit IarParser();
-    static Core::Id id();
+    static Utils::Id id();
 
 private:
     void newTask(const ProjectExplorer::Task &task);

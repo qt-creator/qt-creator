@@ -150,7 +150,7 @@ public:
 
     ProjectExplorer::ProjectNode *productNode() const;
 
-    template <class T = ISettingsAspect> T *currentSettings(Core::Id id) const
+    template <class T = ISettingsAspect> T *currentSettings(Utils::Id id) const
     {
         if (auto a = qobject_cast<GlobalOrProjectAspect *>(aspect(id)))
             return qobject_cast<T *>(a->currentSettings());
@@ -163,7 +163,7 @@ public:
         addAspectFactory([](Target *target) { return new T(target); });
     }
 
-    QMap<Core::Id, QVariantMap> aspectData() const;
+    QMap<Utils::Id, QVariantMap> aspectData() const;
 
     void update();
 
@@ -173,7 +173,7 @@ signals:
     void enabledChanged();
 
 protected:
-    RunConfiguration(Target *target, Core::Id id);
+    RunConfiguration(Target *target, Utils::Id id);
 
     /// convenience function to get current build system. Try to avoid.
     BuildSystem *activeBuildSystem() const;
@@ -227,7 +227,7 @@ public:
     static RunConfiguration *clone(Target *parent, RunConfiguration *source);
     static const QList<RunConfigurationCreationInfo> creatorsForTarget(Target *parent);
 
-    Core::Id runConfigurationId() const { return m_runConfigurationId; }
+    Utils::Id runConfigurationId() const { return m_runConfigurationId; }
 
     static QString decoratedTargetName(const QString &targetName, Target *kit);
 
@@ -237,7 +237,7 @@ protected:
     using RunConfigurationCreator = std::function<RunConfiguration *(Target *)>;
 
     template <class RunConfig>
-    void registerRunConfiguration(Core::Id runConfigurationId)
+    void registerRunConfiguration(Utils::Id runConfigurationId)
     {
         m_creator = [runConfigurationId](Target *t) -> RunConfiguration * {
             return new RunConfig(t, runConfigurationId);
@@ -245,8 +245,8 @@ protected:
         m_runConfigurationId = runConfigurationId;
     }
 
-    void addSupportedProjectType(Core::Id projectTypeId);
-    void addSupportedTargetDeviceType(Core::Id deviceTypeId);
+    void addSupportedProjectType(Utils::Id projectTypeId);
+    void addSupportedTargetDeviceType(Utils::Id deviceTypeId);
     void setDecorateDisplayNames(bool on);
 
 private:
@@ -255,9 +255,9 @@ private:
 
     friend class RunConfigurationCreationInfo;
     RunConfigurationCreator m_creator;
-    Core::Id m_runConfigurationId;
-    QList<Core::Id> m_supportedProjectTypes;
-    QList<Core::Id> m_supportedTargetDeviceTypes;
+    Utils::Id m_runConfigurationId;
+    QList<Utils::Id> m_supportedProjectTypes;
+    QList<Utils::Id> m_supportedTargetDeviceTypes;
     bool m_decorateDisplayNames = false;
 };
 

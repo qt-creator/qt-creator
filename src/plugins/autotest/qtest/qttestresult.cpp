@@ -28,7 +28,7 @@
 #include "../testtreeitem.h"
 #include "../quick/quicktestframework.h" // FIXME BAD! - but avoids declaring QuickTestResult
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 #include <utils/qtcassert.h>
 
 namespace Autotest {
@@ -131,11 +131,11 @@ TestResult *QtTestResult::createIntermediateResultFor(const TestResult *other)
 
 const TestTreeItem *QtTestResult::findTestTreeItem() const
 {
-    Core::Id id;
+    Utils::Id id;
     if (m_type == TestType::QtTest)
-        id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME);
+        id = Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME);
     else
-        id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QuickTest::Constants::FRAMEWORK_NAME);
+        id = Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QuickTest::Constants::FRAMEWORK_NAME);
     ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
     QTC_ASSERT(framework, return nullptr);
     const TestTreeItem *rootNode = framework->rootNode();

@@ -30,8 +30,9 @@
 
 #include <cpptools/cppmodelmanagersupport.h>
 
+#include <utils/id.h>
+
 #include <QObject>
-#include <QScopedPointer>
 
 #include <memory>
 
@@ -40,9 +41,6 @@ class QMenu;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace Core {
-class IDocument;
-} // namespace Core
 namespace TextEditor { class TextEditorWidget; }
 namespace CppTools {
 class FollowSymbolInterface;
@@ -108,7 +106,7 @@ private:
     void onProjectPartsUpdated(ProjectExplorer::Project *project);
     void onProjectPartsRemoved(const QStringList &projectPartIds);
 
-    void onDiagnosticConfigsInvalidated(const QVector<Core::Id> &configIds);
+    void onDiagnosticConfigsInvalidated(const QVector<::Utils::Id> &configIds);
 
     void reinitializeBackendDocuments(const QStringList &projectPartIds);
 

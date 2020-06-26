@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <QDialog>
 
@@ -47,7 +47,7 @@ public:
     void setPort(const int port);
 
     ProjectExplorer::Kit *kit() const;
-    void setKitId(Core::Id id);
+    void setKitId(Utils::Id id);
 
 private:
     QmlProfilerAttachDialogPrivate *d;

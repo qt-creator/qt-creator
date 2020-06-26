@@ -72,11 +72,11 @@ public:
     SnippetsSettingsPage m_snippetsSettingsPage;
     CompletionSettingsPage m_completionSettingsPage;
 
-    QMap<Core::Id, ICodeStylePreferencesFactory *> m_languageToFactory;
+    QMap<Utils::Id, ICodeStylePreferencesFactory *> m_languageToFactory;
 
-    QMap<Core::Id, ICodeStylePreferences *> m_languageToCodeStyle;
-    QMap<Core::Id, CodeStylePool *> m_languageToCodeStylePool;
-    QMap<QString, Core::Id> m_mimeTypeToLanguage;
+    QMap<Utils::Id, ICodeStylePreferences *> m_languageToCodeStyle;
+    QMap<Utils::Id, CodeStylePool *> m_languageToCodeStylePool;
+    QMap<QString, Utils::Id> m_mimeTypeToLanguage;
 
 private:
     static std::vector<FormatDescription> initialFormats();
@@ -444,17 +444,17 @@ void TextEditorSettings::registerCodeStyleFactory(ICodeStylePreferencesFactory *
     d->m_languageToFactory.insert(factory->languageId(), factory);
 }
 
-void TextEditorSettings::unregisterCodeStyleFactory(Core::Id languageId)
+void TextEditorSettings::unregisterCodeStyleFactory(Utils::Id languageId)
 {
     d->m_languageToFactory.remove(languageId);
 }
 
-const QMap<Core::Id, ICodeStylePreferencesFactory *> &TextEditorSettings::codeStyleFactories()
+const QMap<Utils::Id, ICodeStylePreferencesFactory *> &TextEditorSettings::codeStyleFactories()
 {
     return d->m_languageToFactory;
 }
 
-ICodeStylePreferencesFactory *TextEditorSettings::codeStyleFactory(Core::Id languageId)
+ICodeStylePreferencesFactory *TextEditorSettings::codeStyleFactory(Utils::Id languageId)
 {
     return d->m_languageToFactory.value(languageId);
 }
@@ -464,22 +464,22 @@ ICodeStylePreferences *TextEditorSettings::codeStyle()
     return d->m_behaviorSettingsPage.codeStyle();
 }
 
-ICodeStylePreferences *TextEditorSettings::codeStyle(Core::Id languageId)
+ICodeStylePreferences *TextEditorSettings::codeStyle(Utils::Id languageId)
 {
     return d->m_languageToCodeStyle.value(languageId, codeStyle());
 }
 
-QMap<Core::Id, ICodeStylePreferences *> TextEditorSettings::codeStyles()
+QMap<Utils::Id, ICodeStylePreferences *> TextEditorSettings::codeStyles()
 {
     return d->m_languageToCodeStyle;
 }
 
-void TextEditorSettings::registerCodeStyle(Core::Id languageId, ICodeStylePreferences *prefs)
+void TextEditorSettings::registerCodeStyle(Utils::Id languageId, ICodeStylePreferences *prefs)
 {
     d->m_languageToCodeStyle.insert(languageId, prefs);
 }
 
-void TextEditorSettings::unregisterCodeStyle(Core::Id languageId)
+void TextEditorSettings::unregisterCodeStyle(Utils::Id languageId)
 {
     d->m_languageToCodeStyle.remove(languageId);
 }
@@ -489,27 +489,27 @@ CodeStylePool *TextEditorSettings::codeStylePool()
     return d->m_behaviorSettingsPage.codeStylePool();
 }
 
-CodeStylePool *TextEditorSettings::codeStylePool(Core::Id languageId)
+CodeStylePool *TextEditorSettings::codeStylePool(Utils::Id languageId)
 {
     return d->m_languageToCodeStylePool.value(languageId);
 }
 
-void TextEditorSettings::registerCodeStylePool(Core::Id languageId, CodeStylePool *pool)
+void TextEditorSettings::registerCodeStylePool(Utils::Id languageId, CodeStylePool *pool)
 {
     d->m_languageToCodeStylePool.insert(languageId, pool);
 }
 
-void TextEditorSettings::unregisterCodeStylePool(Core::Id languageId)
+void TextEditorSettings::unregisterCodeStylePool(Utils::Id languageId)
 {
     d->m_languageToCodeStylePool.remove(languageId);
 }
 
-void TextEditorSettings::registerMimeTypeForLanguageId(const char *mimeType, Core::Id languageId)
+void TextEditorSettings::registerMimeTypeForLanguageId(const char *mimeType, Utils::Id languageId)
 {
     d->m_mimeTypeToLanguage.insert(QString::fromLatin1(mimeType), languageId);
 }
 
-Core::Id TextEditorSettings::languageId(const QString &mimeType)
+Utils::Id TextEditorSettings::languageId(const QString &mimeType)
 {
     return d->m_mimeTypeToLanguage.value(mimeType);
 }

@@ -40,7 +40,7 @@ class BaseStringListAspect : public ProjectExplorer::ProjectConfigurationAspect
 
 public:
     explicit BaseStringListAspect(const QString &settingsKey = QString(),
-                                  Core::Id id = Core::Id());
+                                  Utils::Id id = Utils::Id());
     ~BaseStringListAspect() override;
 
     void addToLayout(ProjectExplorer::LayoutBuilder &builder) override;
@@ -66,7 +66,7 @@ class ANDROID_EXPORT AndroidRunConfiguration : public ProjectExplorer::RunConfig
 {
     Q_OBJECT
 public:
-    explicit AndroidRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
+    explicit AndroidRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
 };
 
 } // namespace Android

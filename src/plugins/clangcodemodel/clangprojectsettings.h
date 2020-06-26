@@ -25,8 +25,9 @@
 
 #pragma once
 
-#include <coreplugin/id.h>
 #include <projectexplorer/project.h>
+
+#include <utils/id.h>
 
 #include <QObject>
 #include <QString>
@@ -48,8 +49,8 @@ public:
     bool useGlobalConfig() const;
     void setUseGlobalConfig(bool useGlobalConfig);
 
-    Core::Id warningConfigId() const;
-    void setWarningConfigId(const Core::Id &warningConfigId);
+    ::Utils::Id warningConfigId() const;
+    void setWarningConfigId(const ::Utils::Id &warningConfigId);
 
     QStringList commandLineOptions() const;
     void setCommandLineOptions(const QStringList &options);
@@ -65,7 +66,7 @@ signals:
 private:
     ProjectExplorer::Project *m_project;
     bool m_useGlobalConfig = true;
-    Core::Id m_warningConfigId;
+    ::Utils::Id m_warningConfigId;
 
     QStringList m_customCommandLineOptions;
 };

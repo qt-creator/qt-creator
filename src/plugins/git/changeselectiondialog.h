@@ -25,9 +25,8 @@
 
 #pragma once
 
-#include <coreplugin/id.h>
-
 #include <utils/fileutils.h>
+#include <utils/id.h>
 
 #include <QDialog>
 #include <QProcessEnvironment>
@@ -55,7 +54,7 @@ class ChangeSelectionDialog : public QDialog
 {
     Q_OBJECT
 public:
-    ChangeSelectionDialog(const QString &workingDirectory, Core::Id id, QWidget *parent);
+    ChangeSelectionDialog(const QString &workingDirectory, Utils::Id id, QWidget *parent);
     ~ChangeSelectionDialog() override;
 
     QString change() const;

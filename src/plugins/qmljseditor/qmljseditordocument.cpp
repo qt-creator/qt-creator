@@ -648,7 +648,7 @@ void QmlJSEditorDocumentPrivate::cleanSemanticMarks()
 
 } // Internal
 
-QmlJSEditorDocument::QmlJSEditorDocument(Core::Id id)
+QmlJSEditorDocument::QmlJSEditorDocument(Utils::Id id)
     : d(new Internal::QmlJSEditorDocumentPrivate(this))
 {
     setId(id);

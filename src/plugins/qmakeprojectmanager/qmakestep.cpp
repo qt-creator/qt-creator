@@ -75,7 +75,7 @@ const char QMAKE_FORCED_KEY[] = "QtProjectManager.QMakeBuildStep.QMakeForced";
 const char QMAKE_SELECTED_ABIS_KEY[] = "QtProjectManager.QMakeBuildStep.SelectedAbis";
 }
 
-QMakeStep::QMakeStep(BuildStepList *bsl, Core::Id id)
+QMakeStep::QMakeStep(BuildStepList *bsl, Utils::Id id)
     : AbstractProcessStep(bsl, id)
 {
     //: QMakeStep default display name

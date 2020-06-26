@@ -589,7 +589,7 @@ QVariantMap UserFileVersion16Upgrader::insertSteps(QVariantMap buildConfiguratio
         QString defaultDisplayName = oldStepMap.androidPackageInstall.value(defaultDisplayNameKey).toString();
         bool enabled = oldStepMap.androidPackageInstall.value(enabledKey).toBool();
 
-        androidPackageInstallStep.insert(idKey, Core::Id("Qt4ProjectManager.AndroidPackageInstallationStep").toSetting());
+        androidPackageInstallStep.insert(idKey, Utils::Id("Qt4ProjectManager.AndroidPackageInstallationStep").toSetting());
         androidPackageInstallStep.insert(displayNameKey, displayName);
         androidPackageInstallStep.insert(defaultDisplayNameKey, defaultDisplayName);
         androidPackageInstallStep.insert(enabledKey, enabled);
@@ -598,7 +598,7 @@ QVariantMap UserFileVersion16Upgrader::insertSteps(QVariantMap buildConfiguratio
         defaultDisplayName = oldStepMap.androidDeployQt.value(defaultDisplayNameKey).toString();
         enabled = oldStepMap.androidDeployQt.value(enabledKey).toBool();
 
-        androidBuildApkStep.insert(idKey, Core::Id("QmakeProjectManager.AndroidBuildApkStep").toSetting());
+        androidBuildApkStep.insert(idKey, Utils::Id("QmakeProjectManager.AndroidBuildApkStep").toSetting());
         androidBuildApkStep.insert(displayNameKey, displayName);
         androidBuildApkStep.insert(defaultDisplayNameKey, defaultDisplayName);
         androidBuildApkStep.insert(enabledKey, enabled);

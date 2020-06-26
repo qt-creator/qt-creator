@@ -60,7 +60,7 @@ AbstractRemoteLinuxPackageInstaller *UploadAndInstallTarPackageService::packageI
 }
 
 
-UploadAndInstallTarPackageStep::UploadAndInstallTarPackageStep(BuildStepList *bsl, Core::Id id)
+UploadAndInstallTarPackageStep::UploadAndInstallTarPackageStep(BuildStepList *bsl, Utils::Id id)
     : AbstractRemoteLinuxDeployStep(bsl, id)
 {
     auto service = createDeployService<UploadAndInstallTarPackageService>();
@@ -85,7 +85,7 @@ UploadAndInstallTarPackageStep::UploadAndInstallTarPackageStep(BuildStepList *bs
     });
 }
 
-Core::Id UploadAndInstallTarPackageStep::stepId()
+Utils::Id UploadAndInstallTarPackageStep::stepId()
 {
     return "MaemoUploadAndInstallTarPackageStep";
 }

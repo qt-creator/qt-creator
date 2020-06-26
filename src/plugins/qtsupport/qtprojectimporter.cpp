@@ -29,7 +29,6 @@
 #include "qtversionfactory.h"
 #include "qtversionmanager.h"
 
-#include <coreplugin/id.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
 
@@ -229,8 +228,8 @@ Kit *TestQtProjectImporter::createKit(void *directoryData) const
     return createTemporaryKit(findOrCreateQtVersion(dd->qmakePath),
                               [dd](Kit *k) {
         BaseQtVersion *qt = QtKitAspect::qtVersion(k);
-        QMap<Core::Id, QVariant> toKeep;
-        for (const Core::Id &key : k->allKeys()) {
+        QMap<Utils::Id, QVariant> toKeep;
+        for (const Utils::Id &key : k->allKeys()) {
             if (key.toString().startsWith("PE.tmp."))
                 toKeep.insert(key, k->value(key));
         }
@@ -458,15 +457,15 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
         QCOMPARE(dd->qmakePath, newQt->qmakeCommand());
 
         // VALIDATE: All keys are unchanged:
-        QList<Core::Id> newKitKeys = newKit->allKeys();
-        const QList<Core::Id> templateKeys = dd->kit->allKeys();
+        QList<Utils::Id> newKitKeys = newKit->allKeys();
+        const QList<Utils::Id> templateKeys = dd->kit->allKeys();
 
         if (dd->isNewKit)
             QVERIFY(templateKeys.count() < newKitKeys.count()); // new kit will have extra keys!
         else
             QCOMPARE(templateKeys.count(), newKitKeys.count()); // existing kit needs to be unchanged!
 
-        for (Core::Id id : templateKeys) {
+        for (Utils::Id id : templateKeys) {
             if (id == QtKitAspect::id())
                 continue; // with the exception of the Qt one...
             QVERIFY(newKit->hasValue(id));
@@ -498,12 +497,12 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
             templateKit = dd->kit->clone(true);
             QtKitAspect::setQtVersionId(templateKit, QtKitAspect::qtVersionId(newKit));
         }
-        const QList<Core::Id> templateKitKeys = templateKit->allKeys();
+        const QList<Utils::Id> templateKitKeys = templateKit->allKeys();
 
         if (newKit != defaultKit)
             toUnregisterLater.append(newKit);
 
-        const Core::Id newKitIdAfterImport = newKit->id();
+        const Utils::Id newKitIdAfterImport = newKit->id();
 
         if (toPersist) {
             // --------------------------------------------------------------------
@@ -519,8 +518,8 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
             importer.cleanupKit(newKit);
         }
 
-        const QList<Core::Id> newKitKeys = newKit->allKeys();
-        const Core::Id newKitId = newKit->id();
+        const QList<Utils::Id> newKitKeys = newKit->allKeys();
+        const Utils::Id newKitId = newKit->id();
         const int qtId = QtKitAspect::qtVersionId(newKit);
 
         // VALIDATE: Kit Id has not changed
@@ -537,7 +536,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
 
             // VALIDATE: All the kit values are as set up in the template before
             QCOMPARE(newKitKeys.count(), templateKitKeys.count());
-            for (Core::Id id : templateKitKeys) {
+            for (Utils::Id id : templateKitKeys) {
                 if (id == QtKitAspect::id())
                     continue;
                 QVERIFY(newKit->hasValue(id));
@@ -551,7 +550,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
 
             // VALIDATE: All keys that got added during import are gone
             QCOMPARE(newKitKeys.count(), templateKitKeys.count());
-            for (Core::Id id : newKitKeys) {
+            for (Utils::Id id : newKitKeys) {
                 if (id == QtKitAspect::id())
                     continue; // Will be checked by Qt version later
                 QVERIFY(templateKit->hasValue(id));

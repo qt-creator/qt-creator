@@ -98,7 +98,7 @@ static QStringList defaultInitialCMakeArguments(const Kit *k, const QString buil
 // CMakeBuildConfiguration:
 // -----------------------------------------------------------------------------
 
-CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Core::Id id)
+CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Utils::Id id)
     : BuildConfiguration(target, id)
 {
     m_buildSystem = new CMakeBuildSystem(this);

@@ -69,7 +69,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
 #include <coreplugin/modemanager.h>
 
 #include <ssh/sshconnection.h>

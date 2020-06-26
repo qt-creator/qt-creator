@@ -72,7 +72,7 @@ public:
     static QStringList escapeFiles(const QStringList &files);
 
 protected:
-    Core::Id vcsEditorKind(VcsCommandTag cmd) const override;
+    Utils::Id vcsEditorKind(VcsCommandTag cmd) const override;
 
 private:
     SubversionDiffEditorController *findOrCreateDiffEditor(const QString &documentId, const QString &source,

@@ -49,7 +49,7 @@ protected:
     void doRun() final;
     void doCancel() override;
 
-    explicit AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
+    explicit AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
 
     void setInternalInitializer(const std::function<CheckResult()> &init);
     void setRunPreparer(const std::function<void()> &prep);

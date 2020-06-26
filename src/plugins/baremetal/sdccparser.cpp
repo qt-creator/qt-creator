@@ -56,7 +56,7 @@ SdccParser::SdccParser()
     setObjectName("SdccParser");
 }
 
-Core::Id SdccParser::id()
+Utils::Id SdccParser::id()
 {
     return "BareMetal.OutputParser.Sdcc";
 }

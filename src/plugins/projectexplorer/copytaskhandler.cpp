@@ -57,9 +57,9 @@ void CopyTaskHandler::handle(const Task &task)
                                        + type + task.description());
 }
 
-Core::Id CopyTaskHandler::actionManagerId() const
+Utils::Id CopyTaskHandler::actionManagerId() const
 {
-    return Core::Id(Core::Constants::COPY);
+    return Utils::Id(Core::Constants::COPY);
 }
 
 QAction *CopyTaskHandler::createAction(QObject *parent) const

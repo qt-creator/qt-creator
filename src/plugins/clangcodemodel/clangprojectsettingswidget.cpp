@@ -41,7 +41,7 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-static Core::Id configIdForProject(ClangProjectSettings &projectSettings)
+static Utils::Id configIdForProject(ClangProjectSettings &projectSettings)
 {
     if (projectSettings.useGlobalConfig())
         return CppTools::codeModelSettings()->clangDiagnosticConfigId();
@@ -67,7 +67,7 @@ ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project 
             this,
             [this]() {
                 // Save project's config id
-                const Core::Id currentConfigId = m_ui.clangDiagnosticConfigsSelectionWidget
+                const Utils::Id currentConfigId = m_ui.clangDiagnosticConfigsSelectionWidget
                                                      ->currentConfigId();
                 m_projectSettings.setWarningConfigId(currentConfigId);
 
@@ -150,7 +150,7 @@ void ClangProjectSettingsWidget::syncOtherWidgetsToComboBox()
         ->refresh(CppTools::diagnosticConfigsModel(),
                   configIdForProject(m_projectSettings),
                   [](const CppTools::ClangDiagnosticConfigs &configs,
-                     const Core::Id &configToSelect) {
+                     const Utils::Id &configToSelect) {
                       return new CppTools::ClangDiagnosticConfigsWidget(configs, configToSelect);
                   });
 }

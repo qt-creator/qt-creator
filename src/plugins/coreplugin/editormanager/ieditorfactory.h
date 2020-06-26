@@ -26,8 +26,8 @@
 #pragma once
 
 #include <coreplugin/core_global.h>
-#include <coreplugin/id.h>
 
+#include <utils/id.h>
 #include <utils/mimetypes/mimetype.h>
 
 #include <QObject>
@@ -54,21 +54,21 @@ public:
     static const EditorFactoryList defaultEditorFactories(const Utils::MimeType &mimeType);
     static const EditorFactoryList preferredEditorFactories(const QString &fileName);
 
-    Id id() const { return m_id; }
+    Utils::Id id() const { return m_id; }
     QString displayName() const { return m_displayName; }
     QStringList mimeTypes() const { return m_mimeTypes; }
 
     IEditor *createEditor() const;
 
 protected:
-    void setId(Id id) { m_id = id; }
+    void setId(Utils::Id id) { m_id = id; }
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
     void setMimeTypes(const QStringList &mimeTypes) { m_mimeTypes = mimeTypes; }
     void addMimeType(const QString &mimeType) { m_mimeTypes.append(mimeType); }
     void setEditorCreator(const std::function<IEditor *()> &creator);
 
 private:
-    Id m_id;
+    Utils::Id m_id;
     QString m_displayName;
     QStringList m_mimeTypes;
     std::function<IEditor *()> m_creator;

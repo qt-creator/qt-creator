@@ -46,8 +46,8 @@ public:
     TestTreeItem *rootNode();
     ITestParser *testParser();
 
-    Core::Id settingsId() const;
-    Core::Id id() const;
+    Utils::Id settingsId() const;
+    Utils::Id id() const;
 
     bool active() const { return m_active; }
     void setActive(bool active) { m_active = active; }

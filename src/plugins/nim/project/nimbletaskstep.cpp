@@ -40,7 +40,7 @@
 using namespace Nim;
 using namespace ProjectExplorer;
 
-NimbleTaskStep::NimbleTaskStep(BuildStepList *parentList, Core::Id id)
+NimbleTaskStep::NimbleTaskStep(BuildStepList *parentList, Utils::Id id)
     : AbstractProcessStep(parentList, id)
 {
     setDefaultDisplayName(tr(Constants::C_NIMBLETASKSTEP_DISPLAY));

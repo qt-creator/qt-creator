@@ -65,7 +65,7 @@ public:
     Kit *kit() const;
     BuildSystem *buildSystem() const;
 
-    Core::Id id() const;
+    Utils::Id id() const;
     QString displayName() const;
     QString toolTip() const;
 
@@ -108,7 +108,7 @@ public:
     QVariant namedSettings(const QString &name) const;
     void setNamedSettings(const QString &name, const QVariant &value);
 
-    QVariant additionalData(Core::Id id) const;
+    QVariant additionalData(Utils::Id id) const;
     MakeInstallCommand makeInstallCommand(const QString &installRoot) const;
 
     Utils::MacroExpander *macroExpander() const;

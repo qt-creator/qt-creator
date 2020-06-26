@@ -60,7 +60,7 @@ class PROJECTEXPLORER_EXPORT CustomToolChain : public ToolChain
 public:
     class Parser {
     public:
-        Core::Id parserId;   ///< A unique id identifying a parser
+        Utils::Id parserId;   ///< A unique id identifying a parser
         QString displayName; ///< A translateable name to show in the user interface
     };
 
@@ -105,8 +105,8 @@ public:
     void setMkspecs(const QString &);
     QString mkspecs() const;
 
-    Core::Id outputParserId() const;
-    void setOutputParserId(Core::Id parserId);
+    Utils::Id outputParserId() const;
+    void setOutputParserId(Utils::Id parserId);
     static QList<CustomToolChain::Parser> parsers();
 
 private:
@@ -123,7 +123,7 @@ private:
     QStringList m_cxx11Flags;
     QStringList m_mkspecs;
 
-    Core::Id m_outputParserId;
+    Utils::Id m_outputParserId;
 
     friend class Internal::CustomToolChainFactory;
     friend class ToolChainFactory;

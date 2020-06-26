@@ -64,7 +64,7 @@ public:
     QList<TestConfiguration *> getTestsForFile(const Utils::FilePath &fileName) const;
     QList<TestTreeItem *> testItemsByName(const QString &testName);
     void synchronizeTestFrameworks();
-    void rebuild(const QList<Core::Id> &frameworkIds);
+    void rebuild(const QList<Utils::Id> &frameworkIds);
 
     void updateCheckStateCache();
 #ifdef WITH_TESTS

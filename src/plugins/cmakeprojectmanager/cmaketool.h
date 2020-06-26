@@ -27,10 +27,10 @@
 
 #include "cmake_global.h"
 
-#include <coreplugin/id.h>
 #include <texteditor/codeassist/keywordscompletionassist.h>
 
 #include <utils/fileutils.h>
+#include <utils/id.h>
 #include <utils/optional.h>
 #include <utils/synchronousprocess.h>
 
@@ -74,15 +74,15 @@ public:
 
     using PathMapper = std::function<Utils::FilePath (const Utils::FilePath &)>;
 
-    explicit CMakeTool(Detection d, const Core::Id &id);
+    explicit CMakeTool(Detection d, const Utils::Id &id);
     explicit CMakeTool(const QVariantMap &map, bool fromSdk);
     ~CMakeTool();
 
-    static Core::Id createId();
+    static Utils::Id createId();
 
     bool isValid() const;
 
-    Core::Id id() const { return m_id; }
+    Utils::Id id() const { return m_id; }
     QVariantMap toMap () const;
 
     void setAutorun(bool autoRun);
@@ -123,7 +123,7 @@ private:
     void fetchFromCapabilities() const;
     void parseFromCapabilities(const QString &input) const;
 
-    Core::Id m_id;
+    Utils::Id m_id;
     QString m_displayName;
     Utils::FilePath m_executable;
     Utils::FilePath m_qchFilePath;

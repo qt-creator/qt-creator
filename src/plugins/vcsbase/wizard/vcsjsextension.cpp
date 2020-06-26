@@ -29,6 +29,7 @@
 #include <coreplugin/vcsmanager.h>
 
 using namespace Core;
+using namespace Utils;
 
 namespace VcsBase {
 namespace Internal {

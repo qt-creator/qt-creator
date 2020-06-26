@@ -27,7 +27,7 @@
 
 #include "../projectexplorer_export.h"
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 #include <utils/hostosinfo.h>
 
 #include <QAbstractSocket>
@@ -147,11 +147,11 @@ public:
     using DeviceInfo = QList<DeviceInfoItem>;
     virtual DeviceInfo deviceInformation() const;
 
-    Core::Id type() const;
-    void setType(Core::Id type);
+    Utils::Id type() const;
+    void setType(Utils::Id type);
 
     bool isAutoDetected() const;
-    Core::Id id() const;
+    Utils::Id id() const;
 
     virtual bool isCompatibleWith(const Kit *k) const;
 
@@ -189,8 +189,8 @@ public:
     virtual void fromMap(const QVariantMap &map);
     virtual QVariantMap toMap() const;
 
-    static Core::Id typeFromMap(const QVariantMap &map);
-    static Core::Id idFromMap(const QVariantMap &map);
+    static Utils::Id typeFromMap(const QVariantMap &map);
+    static Utils::Id idFromMap(const QVariantMap &map);
 
     static QString defaultPrivateKeyFilePath();
     static QString defaultPublicKeyFilePath();
@@ -213,10 +213,10 @@ public:
     QString qmlsceneCommand() const;
     void setQmlsceneCommand(const QString &path);
 
-    void setExtraData(Core::Id kind, const QVariant &data);
-    QVariant extraData(Core::Id kind) const;
+    void setExtraData(Utils::Id kind, const QVariant &data);
+    QVariant extraData(Utils::Id kind) const;
 
-    void setupId(Origin origin, Core::Id id = Core::Id());
+    void setupId(Origin origin, Utils::Id id = Utils::Id());
 
     bool canOpenTerminal() const;
     void openTerminal(const Utils::Environment &env, const QString &workingDir) const;

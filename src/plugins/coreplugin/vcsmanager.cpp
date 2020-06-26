@@ -48,6 +48,8 @@
 #include <QFileInfo>
 #include <QMessageBox>
 
+using namespace Utils;
+
 namespace Core {
 
 #if defined(WITH_TESTS)

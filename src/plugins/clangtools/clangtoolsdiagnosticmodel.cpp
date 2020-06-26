@@ -382,7 +382,7 @@ static TextEditor::TextMark *generateDiagnosticTextMark(const Diagnostic &diag)
 {
     auto mark = new TextEditor::TextMark(Utils::FilePath::fromString(diag.location.filePath),
                                          diag.location.line,
-                                         Core::Id("ClangTool.DiagnosticMark"));
+                                         Utils::Id("ClangTool.DiagnosticMark"));
     if (diag.type == "error" || diag.type == "fatal")
         mark->setColor(Utils::Theme::CodeModel_Error_TextMarkColor);
     else

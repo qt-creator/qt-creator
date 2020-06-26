@@ -57,7 +57,7 @@ CppTools::ClangDiagnosticConfigsSelectionWidget *RunSettingsWidget::diagnosticSe
 }
 
 static CppTools::ClangDiagnosticConfigsWidget *createEditWidget(
-    const CppTools::ClangDiagnosticConfigs &configs, const Core::Id &configToSelect)
+    const CppTools::ClangDiagnosticConfigs &configs, const Utils::Id &configToSelect)
 {
     // Determine executable paths
     QString clangTidyPath;

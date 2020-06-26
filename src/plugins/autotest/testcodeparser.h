@@ -92,8 +92,8 @@ private:
 
     // qml files must be handled slightly different
     void onDocumentUpdated(const QString &fileName, bool isQmlFile = false);
-    void onTaskStarted(Core::Id type);
-    void onAllTasksFinished(Core::Id type);
+    void onTaskStarted(Utils::Id type);
+    void onAllTasksFinished(Utils::Id type);
     void onFinished();
     void onPartialParsingFinished();
     void parsePostponedFiles();

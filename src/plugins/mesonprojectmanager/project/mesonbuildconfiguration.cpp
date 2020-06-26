@@ -45,7 +45,7 @@
 
 namespace MesonProjectManager {
 namespace Internal {
-MesonBuildConfiguration::MesonBuildConfiguration(ProjectExplorer::Target *target, Core::Id id)
+MesonBuildConfiguration::MesonBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id)
     : ProjectExplorer::BuildConfiguration{target, id}
 {
     appendInitialBuildStep(Constants::MESON_BUILD_STEP_ID);

@@ -27,8 +27,6 @@
 
 #include "projectpanelfactory.h"
 
-#include <coreplugin/id.h>
-
 #include <QCoreApplication>
 
 #include <memory>

@@ -34,7 +34,7 @@
 #include <QLatin1String>
 namespace MesonProjectManager {
 namespace Internal {
-MesonRunConfiguration::MesonRunConfiguration(ProjectExplorer::Target *target, Core::Id id)
+MesonRunConfiguration::MesonRunConfiguration(ProjectExplorer::Target *target, Utils::Id id)
     : ProjectExplorer::RunConfiguration{target, id}
 {
     auto envAspect = addAspect<ProjectExplorer::LocalEnvironmentAspect>(target);

@@ -56,7 +56,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/id.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/vcsmanager.h>
@@ -214,13 +213,13 @@ public:
         return Utils::defaultExitCodeInterpreter;
     }
 
-    Core::Id vcsEditorKind(VcsCommandTag cmd) const override
+    Utils::Id vcsEditorKind(VcsCommandTag cmd) const override
     {
         switch (cmd) {
         case DiffCommand:
             return "CVS Diff Editor"; // TODO: replace by string from cvsconstants.h
         default:
-            return Core::Id();
+            return Utils::Id();
         }
     }
 };
@@ -235,7 +234,7 @@ public:
 
     // IVersionControl
     QString displayName() const final { return QLatin1String("cvs"); }
-    Core::Id id() const final;
+    Utils::Id id() const final;
 
     bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
 
@@ -305,7 +304,7 @@ private:
 
     bool isCommitEditorOpen() const;
     Core::IEditor *showOutputInEditor(const QString& title, const QString &output,
-                                      Core::Id id, const QString &source,
+                                      Utils::Id id, const QString &source,
                                       QTextCodec *codec);
 
     CvsResponse runCvs(const QString &workingDirectory,
@@ -401,9 +400,9 @@ public:
     };
 };
 
-Core::Id CvsPluginPrivate::id() const
+Utils::Id CvsPluginPrivate::id() const
 {
-    return Core::Id(VcsBase::Constants::VCS_ID_CVS);
+    return Utils::Id(VcsBase::Constants::VCS_ID_CVS);
 }
 
 bool CvsPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &fileName) const
@@ -1471,7 +1470,7 @@ CvsResponse CvsPluginPrivate::runCvs(const QString &workingDirectory,
 }
 
 IEditor *CvsPluginPrivate::showOutputInEditor(const QString& title, const QString &output,
-                                              Core::Id id, const QString &source,
+                                              Utils::Id id, const QString &source,
                                               QTextCodec *codec)
 {
     QString s = title;

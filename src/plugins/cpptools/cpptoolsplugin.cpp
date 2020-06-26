@@ -68,6 +68,7 @@
 
 using namespace Core;
 using namespace CPlusPlus;
+using namespace Utils;
 
 namespace CppTools {
 namespace Internal {

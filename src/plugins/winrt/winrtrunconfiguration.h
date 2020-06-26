@@ -59,7 +59,7 @@ class WinRtRunConfiguration : public ProjectExplorer::RunConfiguration
     Q_OBJECT
 
 public:
-    WinRtRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
+    WinRtRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
 };
 
 class WinRtRunConfigurationFactory  : public ProjectExplorer::RunConfigurationFactory

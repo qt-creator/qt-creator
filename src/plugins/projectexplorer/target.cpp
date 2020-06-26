@@ -247,7 +247,7 @@ QString Target::activeBuildKey() const
     return d->m_activeRunConfiguration->buildKey();
 }
 
-Core::Id Target::id() const
+Utils::Id Target::id() const
 {
     return d->m_kit->id();
 }
@@ -568,12 +568,12 @@ void Target::updateDefaultDeployConfigurations()
         return;
     }
 
-    QList<Core::Id> dcIds;
+    QList<Utils::Id> dcIds;
     foreach (DeployConfigurationFactory *dcFactory, dcFactories)
         dcIds.append(dcFactory->creationId());
 
     QList<DeployConfiguration *> dcList = deployConfigurations();
-    QList<Core::Id> toCreate = dcIds;
+    QList<Utils::Id> toCreate = dcIds;
 
     foreach (DeployConfiguration *dc, dcList) {
         if (dcIds.contains(dc->id()))
@@ -582,7 +582,7 @@ void Target::updateDefaultDeployConfigurations()
             removeDeployConfiguration(dc);
     }
 
-    foreach (Core::Id id, toCreate) {
+    foreach (Utils::Id id, toCreate) {
         foreach (DeployConfigurationFactory *dcFactory, dcFactories) {
             if (dcFactory->creationId() == id) {
                 DeployConfiguration *dc = dcFactory->create(this);
@@ -736,7 +736,7 @@ void Target::setNamedSettings(const QString &name, const QVariant &value)
         d->m_pluginSettings.insert(name, value);
 }
 
-QVariant Target::additionalData(Core::Id id) const
+QVariant Target::additionalData(Utils::Id id) const
 {
     return buildSystem()->additionalData(id);
 }
@@ -848,7 +848,7 @@ bool Target::fromMap(const QVariantMap &map)
         QVariantMap valueMap = map.value(key).toMap();
         DeployConfiguration *dc = DeployConfigurationFactory::restore(this, valueMap);
         if (!dc) {
-            Core::Id id = idFromMap(valueMap);
+            Utils::Id id = idFromMap(valueMap);
             qWarning("No factory found to restore deployment configuration of id '%s'!",
                      id.isValid() ? qPrintable(id.toString()) : "UNKNOWN");
             continue;
@@ -878,7 +878,7 @@ bool Target::fromMap(const QVariantMap &map)
         RunConfiguration *rc = RunConfigurationFactory::restore(this, valueMap);
         if (!rc)
             continue;
-        const Core::Id theIdFromMap = ProjectExplorer::idFromMap(valueMap);
+        const Utils::Id theIdFromMap = ProjectExplorer::idFromMap(valueMap);
         if (!theIdFromMap.toString().contains("///::///")) { // Hack for cmake 4.10 -> 4.11
             QTC_CHECK(rc->id().withSuffix(rc->buildKey()) == theIdFromMap);
         }

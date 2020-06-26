@@ -93,7 +93,7 @@ void CppCodeModelSettingsWidget::setupClangCodeModelWidgets()
         ->refresh(diagnosticConfigsModel(),
                   m_settings->clangDiagnosticConfigId(),
                   [](const CppTools::ClangDiagnosticConfigs &configs,
-                     const Core::Id &configToSelect) {
+                     const Utils::Id &configToSelect) {
                       return new CppTools::ClangDiagnosticConfigsWidget(configs, configToSelect);
                   });
 
@@ -123,8 +123,8 @@ bool CppCodeModelSettingsWidget::applyClangCodeModelWidgetsToSettings() const
 {
     bool changed = false;
 
-    const Core::Id oldConfigId = m_settings->clangDiagnosticConfigId();
-    const Core::Id currentConfigId = m_ui->clangDiagnosticConfigsSelectionWidget->currentConfigId();
+    const Utils::Id oldConfigId = m_settings->clangDiagnosticConfigId();
+    const Utils::Id currentConfigId = m_ui->clangDiagnosticConfigsSelectionWidget->currentConfigId();
     if (oldConfigId != currentConfigId) {
         m_settings->setClangDiagnosticConfigId(currentConfigId);
         changed = true;

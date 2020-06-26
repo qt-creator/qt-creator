@@ -29,8 +29,6 @@
 #include "idevice.h"
 #include "idevicefactory.h"
 
-#include <coreplugin/id.h>
-
 #include <QPushButton>
 
 namespace ProjectExplorer {
@@ -73,12 +71,12 @@ void DeviceFactorySelectionDialog::handleItemDoubleClicked()
     accept();
 }
 
-Core::Id DeviceFactorySelectionDialog::selectedId() const
+Utils::Id DeviceFactorySelectionDialog::selectedId() const
 {
     QList<QListWidgetItem *> selected = ui->listWidget->selectedItems();
     if (selected.isEmpty())
-        return Core::Id();
-    return selected.at(0)->data(Qt::UserRole).value<Core::Id>();
+        return Utils::Id();
+    return selected.at(0)->data(Qt::UserRole).value<Utils::Id>();
 }
 
 } // namespace Internal

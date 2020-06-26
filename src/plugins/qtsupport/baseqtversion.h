@@ -64,7 +64,7 @@ public:
     QtVersionNumber(int ma = -1, int mi = -1, int p = -1);
     QtVersionNumber(const QString &versionString);
 
-    QSet<Core::Id> features() const;
+    QSet<Utils::Id> features() const;
 
     int majorVersion;
     int minorVersion;
@@ -190,7 +190,7 @@ public:
 
     QString defaultUnexpandedDisplayName() const;
 
-    virtual QSet<Core::Id> targetDeviceTypes() const = 0;
+    virtual QSet<Utils::Id> targetDeviceTypes() const = 0;
 
     virtual ProjectExplorer::Tasks validateKit(const ProjectExplorer::Kit *k);
 
@@ -233,13 +233,13 @@ public:
     static void populateQmlFileFinder(Utils::FileInProjectFinder *finder,
                                       const ProjectExplorer::Target *target);
 
-    QSet<Core::Id> features() const;
+    QSet<Utils::Id> features() const;
 
 protected:
     BaseQtVersion();
     BaseQtVersion(const BaseQtVersion &other) = delete;
 
-    virtual QSet<Core::Id> availableFeatures() const;
+    virtual QSet<Utils::Id> availableFeatures() const;
     virtual ProjectExplorer::Tasks reportIssuesImpl(const QString &proFile, const QString &buildDir) const;
 
     virtual ProjectExplorer::Abis detectQtAbis() const;

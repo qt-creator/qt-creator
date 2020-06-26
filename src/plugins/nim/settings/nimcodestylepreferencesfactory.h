@@ -36,7 +36,7 @@ class NimCodeStylePreferencesFactory : public TextEditor::ICodeStylePreferencesF
 public:
     NimCodeStylePreferencesFactory();
 
-    Core::Id languageId() override;
+    Utils::Id languageId() override;
     QString displayName() override;
     TextEditor::ICodeStylePreferences *createCodeStyle() const override;
     QWidget *createEditor(TextEditor::ICodeStylePreferences *settings,

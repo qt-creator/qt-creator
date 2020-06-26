@@ -32,12 +32,12 @@
 
 namespace CppTools {
 
-Core::Id ClangDiagnosticConfig::id() const
+Utils::Id ClangDiagnosticConfig::id() const
 {
     return m_id;
 }
 
-void ClangDiagnosticConfig::setId(const Core::Id &id)
+void ClangDiagnosticConfig::setId(const Utils::Id &id)
 {
     m_id = id;
 }
@@ -199,7 +199,7 @@ ClangDiagnosticConfigs diagnosticConfigsFromSettings(QSettings *s)
         s->setArrayIndex(i);
 
         ClangDiagnosticConfig config;
-        config.setId(Core::Id::fromSetting(s->value(diagnosticConfigIdKey)));
+        config.setId(Utils::Id::fromSetting(s->value(diagnosticConfigIdKey)));
         config.setDisplayName(s->value(diagnosticConfigDisplayNameKey).toString());
         config.setClangOptions(s->value(diagnosticConfigWarningsKey).toStringList());
         config.setUseBuildSystemWarnings(s->value(useBuildSystemFlagsKey, false).toBool());

@@ -27,7 +27,6 @@
 
 #include "imacrohandler.h"
 
-#include <coreplugin/id.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 
 #include <QSet>
@@ -46,12 +45,12 @@ public:
     bool executeEvent(const MacroEvent &macroEvent) override;
 
 private:
-    void registerCommand(Core::Id id);
+    void registerCommand(Utils::Id id);
     Core::Command *command(const QString &id);
-    void addCommand(Core::Id id);
+    void addCommand(Utils::Id id);
 
 private:
-    QSet<Core::Id> m_commandIds;
+    QSet<Utils::Id> m_commandIds;
 };
 
 } // namespace Internal

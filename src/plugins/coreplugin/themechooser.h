@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "id.h"
+#include <utils/id.h>
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -42,17 +42,17 @@ class ThemeEntry
 {
 public:
     ThemeEntry() = default;
-    ThemeEntry(Id id, const QString &filePath);
+    ThemeEntry(Utils::Id id, const QString &filePath);
 
-    Id id() const;
+    Utils::Id id() const;
     QString displayName() const;
     QString filePath() const;
     static QList<ThemeEntry> availableThemes();
-    static Id themeSetting();
-    static Utils::Theme *createTheme(Id id);
+    static Utils::Id themeSetting();
+    static Utils::Theme *createTheme(Utils::Id id);
 
 private:
-    Id m_id;
+    Utils::Id m_id;
     QString m_filePath;
     mutable QString m_displayName;
 };

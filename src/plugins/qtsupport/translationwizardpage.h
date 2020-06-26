@@ -36,9 +36,9 @@ public:
     TranslationWizardPageFactory();
 
 private:
-    Utils::WizardPage *create(ProjectExplorer::JsonWizard *wizard, Core::Id typeId,
+    Utils::WizardPage *create(ProjectExplorer::JsonWizard *wizard, Utils::Id typeId,
                               const QVariant &data) override;
-    bool validateData(Core::Id, const QVariant &, QString *) override { return true; }
+    bool validateData(Utils::Id, const QVariant &, QString *) override { return true; }
 };
 
 } // namespace Internal

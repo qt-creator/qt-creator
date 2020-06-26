@@ -112,7 +112,7 @@ IosDevice::IosDevice()
 IosDevice::IosDevice(const QString &uid)
     : IosDevice(CtorHelper{})
 {
-    setupId(IDevice::AutoDetected, Core::Id(Constants::IOS_DEVICE_ID).withSuffix(uid));
+    setupId(IDevice::AutoDetected, Utils::Id(Constants::IOS_DEVICE_ID).withSuffix(uid));
 }
 
 IDevice::DeviceInfo IosDevice::deviceInformation() const
@@ -158,7 +158,7 @@ QVariantMap IosDevice::toMap() const
 
 QString IosDevice::uniqueDeviceID() const
 {
-    return id().suffixAfter(Core::Id(Constants::IOS_DEVICE_ID));
+    return id().suffixAfter(Utils::Id(Constants::IOS_DEVICE_ID));
 }
 
 QString IosDevice::name()
@@ -209,9 +209,9 @@ IosDeviceManager::TranslationMap IosDeviceManager::translationMap()
 void IosDeviceManager::deviceConnected(const QString &uid, const QString &name)
 {
     DeviceManager *devManager = DeviceManager::instance();
-    Core::Id baseDevId(Constants::IOS_DEVICE_ID);
-    Core::Id devType(Constants::IOS_DEVICE_TYPE);
-    Core::Id devId = baseDevId.withSuffix(uid);
+    Utils::Id baseDevId(Constants::IOS_DEVICE_ID);
+    Utils::Id devType(Constants::IOS_DEVICE_TYPE);
+    Utils::Id devId = baseDevId.withSuffix(uid);
     IDevice::ConstPtr dev = devManager->find(devId);
     if (dev.isNull()) {
         auto newDev = new IosDevice(uid);
@@ -234,9 +234,9 @@ void IosDeviceManager::deviceDisconnected(const QString &uid)
 {
     qCDebug(detectLog) << "detected disconnection of ios device " << uid;
     DeviceManager *devManager = DeviceManager::instance();
-    Core::Id baseDevId(Constants::IOS_DEVICE_ID);
-    Core::Id devType(Constants::IOS_DEVICE_TYPE);
-    Core::Id devId = baseDevId.withSuffix(uid);
+    Utils::Id baseDevId(Constants::IOS_DEVICE_ID);
+    Utils::Id devType(Constants::IOS_DEVICE_TYPE);
+    Utils::Id devId = baseDevId.withSuffix(uid);
     IDevice::ConstPtr dev = devManager->find(devId);
     if (dev.isNull() || dev->type() != devType) {
         qCWarning(detectLog) << "ignoring disconnection of ios device " << uid; // should neve happen
@@ -266,9 +266,9 @@ void IosDeviceManager::deviceInfo(IosToolHandler *, const QString &uid,
                                   const Ios::IosToolHandler::Dict &info)
 {
     DeviceManager *devManager = DeviceManager::instance();
-    Core::Id baseDevId(Constants::IOS_DEVICE_ID);
-    Core::Id devType(Constants::IOS_DEVICE_TYPE);
-    Core::Id devId = baseDevId.withSuffix(uid);
+    Utils::Id baseDevId(Constants::IOS_DEVICE_ID);
+    Utils::Id devType(Constants::IOS_DEVICE_TYPE);
+    Utils::Id devId = baseDevId.withSuffix(uid);
     IDevice::ConstPtr dev = devManager->find(devId);
     bool skipUpdate = false;
     IosDevice *newDev = nullptr;
@@ -519,7 +519,7 @@ void IosDeviceManager::updateAvailableDevices(const QStringList &devices)
     DeviceManager *devManager = DeviceManager::instance();
     for (int iDevice = 0; iDevice < devManager->deviceCount(); ++iDevice) {
         IDevice::ConstPtr dev = devManager->deviceAt(iDevice);
-        Core::Id devType(Constants::IOS_DEVICE_TYPE);
+        Utils::Id devType(Constants::IOS_DEVICE_TYPE);
         if (dev.isNull() || dev->type() != devType)
             continue;
         auto iosDev = static_cast<const IosDevice *>(dev.data());

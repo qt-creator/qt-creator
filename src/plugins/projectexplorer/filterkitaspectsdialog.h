@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <QDialog>
 
@@ -40,7 +40,7 @@ class FilterKitAspectsDialog : public QDialog
     Q_OBJECT
 public:
     FilterKitAspectsDialog(const Kit *kit, QWidget *parent);
-    QSet<Core::Id> irrelevantAspects() const;
+    QSet<Utils::Id> irrelevantAspects() const;
 
 private:
     Utils::BaseTreeModel * const m_model;

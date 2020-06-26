@@ -58,7 +58,7 @@ public:
     int selectedExampleSet() const { return m_selectedExampleSetIndex; }
     void selectExampleSet(int index);
     QStringList exampleSources(QString *examplesInstallPath, QString *demosInstallPath);
-    bool selectedQtSupports(const Core::Id &target) const;
+    bool selectedQtSupports(const Utils::Id &target) const;
 
 signals:
     void selectedExampleSetChanged(int);
@@ -92,7 +92,7 @@ private:
 
     QVector<ExtraExampleSet> m_extraExampleSets;
     int m_selectedExampleSetIndex = -1;
-    QSet<Core::Id> m_selectedQtTypes;
+    QSet<Utils::Id> m_selectedQtTypes;
 
     bool m_qtVersionManagerInitialized = false;
     bool m_helpManagerInitialized = false;

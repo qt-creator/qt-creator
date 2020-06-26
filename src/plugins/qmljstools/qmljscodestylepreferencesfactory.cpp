@@ -56,7 +56,7 @@ static const char *defaultPreviewText =
 
 QmlJSCodeStylePreferencesFactory::QmlJSCodeStylePreferencesFactory() = default;
 
-Core::Id QmlJSCodeStylePreferencesFactory::languageId()
+Utils::Id QmlJSCodeStylePreferencesFactory::languageId()
 {
     return Constants::QML_JS_SETTINGS_ID;
 }

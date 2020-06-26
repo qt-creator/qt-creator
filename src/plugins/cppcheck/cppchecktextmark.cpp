@@ -65,7 +65,7 @@ static Visual getVisual(Diagnostic::Severity type)
 
 CppcheckTextMark::CppcheckTextMark (const Diagnostic &diagnostic)
     : TextEditor::TextMark (diagnostic.fileName, diagnostic.lineNumber,
-                            Core::Id(Constants::TEXTMARK_CATEGORY_ID)),
+                            Utils::Id(Constants::TEXTMARK_CATEGORY_ID)),
     m_severity(diagnostic.severity),
     m_checkId(diagnostic.checkId),
     m_message(diagnostic.message)

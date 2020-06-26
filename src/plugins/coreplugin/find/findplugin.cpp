@@ -38,7 +38,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
 #include <coreplugin/coreplugin.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -66,6 +65,7 @@
 Q_DECLARE_METATYPE(Core::IFindFilter*)
 
 using namespace Qt;
+using namespace Utils;
 
 namespace {
     const int MAX_COMPLETIONS = 50;

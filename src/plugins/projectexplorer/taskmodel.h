@@ -50,14 +50,14 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     Task task(const QModelIndex &index) const;
 
-    QList<Core::Id> categoryIds() const;
-    QString categoryDisplayName(Core::Id categoryId) const;
-    void addCategory(Core::Id categoryId, const QString &categoryName);
+    QList<Utils::Id> categoryIds() const;
+    QString categoryDisplayName(Utils::Id categoryId) const;
+    void addCategory(Utils::Id categoryId, const QString &categoryName);
 
-    Tasks tasks(Core::Id categoryId = Core::Id()) const;
+    Tasks tasks(Utils::Id categoryId = Utils::Id()) const;
     void addTask(const Task &t);
     void removeTask(unsigned int id);
-    void clearTasks(Core::Id categoryId = Core::Id());
+    void clearTasks(Utils::Id categoryId = Utils::Id());
     void updateTaskFileName(unsigned int id, const QString &fileName);
     void updateTaskLineNumber(unsigned int id, int line);
 
@@ -67,10 +67,10 @@ public:
 
     enum Roles { File = Qt::UserRole, Line, MovedLine, Description, FileNotFound, Type, Category, Icon, Task_t };
 
-    int taskCount(Core::Id categoryId);
-    int errorTaskCount(Core::Id categoryId);
-    int warningTaskCount(Core::Id categoryId);
-    int unknownTaskCount(Core::Id categoryId);
+    int taskCount(Utils::Id categoryId);
+    int errorTaskCount(Utils::Id categoryId);
+    int warningTaskCount(Utils::Id categoryId);
+    int unknownTaskCount(Utils::Id categoryId);
 
     bool hasFile(const QModelIndex &index) const;
 
@@ -110,7 +110,7 @@ private:
         int errors = 0;
     };
 
-    QHash<Core::Id,CategoryData> m_categories; // category id to data
+    QHash<Utils::Id,CategoryData> m_categories; // category id to data
     Tasks m_tasks;   // all tasks (in order of id)
 
     QHash<QString,bool> m_fileNotFound;
@@ -136,8 +136,8 @@ public:
     bool filterIncludesErrors() const { return m_includeErrors; }
     void setFilterIncludesErrors(bool b) { m_includeErrors = b; invalidateFilter(); }
 
-    QList<Core::Id> filteredCategories() const { return m_categoryIds; }
-    void setFilteredCategories(const QList<Core::Id> &categoryIds) { m_categoryIds = categoryIds; invalidateFilter(); }
+    QList<Utils::Id> filteredCategories() const { return m_categoryIds; }
+    void setFilteredCategories(const QList<Utils::Id> &categoryIds) { m_categoryIds = categoryIds; invalidateFilter(); }
 
     Task task(const QModelIndex &index) const { return taskModel()->task(mapToSource(index)); }
     int issuesCount(int startRow, int endRow) const;
@@ -162,7 +162,7 @@ private:
     bool m_filterStringIsRegexp = false;
     bool m_filterIsInverted = false;
     Qt::CaseSensitivity m_filterCaseSensitivity = Qt::CaseInsensitive;
-    QList<Core::Id> m_categoryIds;
+    QList<Utils::Id> m_categoryIds;
     QString m_filterText;
     QRegularExpression m_filterRegexp;
 };

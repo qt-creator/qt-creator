@@ -50,7 +50,6 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
 #include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/messagemanager.h>
 
@@ -207,7 +206,7 @@ public:
 
     // IVersionControl
     QString displayName() const final;
-    Core::Id id() const final;
+    Utils::Id id() const final;
     bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
 
     bool managesDirectory(const QString &directory, QString *topLevel) const final;
@@ -281,7 +280,7 @@ private:
 
     inline bool isCommitEditorOpen() const;
     Core::IEditor *showOutputInEditor(const QString &title, const QString &output,
-                                      Core::Id id, const QString &source,
+                                      Utils::Id id, const QString &source,
                                       QTextCodec *codec);
 
     void filelog(const QString &workingDir,
@@ -1209,9 +1208,9 @@ QString SubversionPluginPrivate::displayName() const
     return QLatin1String("subversion");
 }
 
-Core::Id SubversionPluginPrivate::id() const
+Utils::Id SubversionPluginPrivate::id() const
 {
-    return Core::Id(VcsBase::Constants::VCS_ID_SUBVERSION);
+    return Utils::Id(VcsBase::Constants::VCS_ID_SUBVERSION);
 }
 
 bool SubversionPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &fileName) const

@@ -54,7 +54,7 @@ IarParser::IarParser()
     setObjectName("IarParser");
 }
 
-Core::Id IarParser::id()
+Utils::Id IarParser::id()
 {
     return "BareMetal.OutputParser.Iar";
 }

@@ -29,8 +29,9 @@
 #include "formatter.h"
 #include "indenter.h"
 
-#include <coreplugin/id.h>
 #include <coreplugin/textdocument.h>
+
+#include <utils/id.h>
 #include <utils/link.h>
 
 #include <QList>
@@ -65,7 +66,7 @@ class TEXTEDITOR_EXPORT TextDocument : public Core::BaseTextDocument
     Q_OBJECT
 
 public:
-    explicit TextDocument(Core::Id id = Core::Id());
+    explicit TextDocument(Utils::Id id = Utils::Id());
     ~TextDocument() override;
 
     static QMap<QString, QString> openedTextDocumentContents();

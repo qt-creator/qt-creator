@@ -212,13 +212,13 @@ using namespace Utils;
 */
 
 /*!
-    \fn void Core::ProgressManager::taskStarted(Core::Id type)
+    \fn void Core::ProgressManager::taskStarted(Utils::Id type)
 
     Sent whenever a task of a given \a type is started.
 */
 
 /*!
-    \fn void Core::ProgressManager::allTasksFinished(Core::Id type)
+    \fn void Core::ProgressManager::allTasksFinished(Utils::Id type)
 
     Sent when all tasks of a \a type have finished.
 */
