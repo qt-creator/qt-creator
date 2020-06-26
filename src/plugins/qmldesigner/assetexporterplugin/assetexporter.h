@@ -104,6 +104,7 @@ private:
     QJsonArray m_components;
     QSet<QByteArray> m_usedHashes;
     std::unique_ptr<AssetDumper> m_assetDumper;
+    bool m_cancelled = false;
 };
 QDebug operator<< (QDebug os, const QmlDesigner::AssetExporter::ParsingState& s);
 

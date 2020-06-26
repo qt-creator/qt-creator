@@ -97,6 +97,7 @@ AssetExportDialog::AssetExportDialog(const Utils::FilePath &exportPath,
     switchView(false);
 
     connect(m_ui->buttonBox->button(QDialogButtonBox::Cancel), &QPushButton::clicked, [this]() {
+        m_ui->buttonBox->button(QDialogButtonBox::Cancel)->setEnabled(false);
         m_assetExporter.cancel();
     });
 

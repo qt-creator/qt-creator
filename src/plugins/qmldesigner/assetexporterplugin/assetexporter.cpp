@@ -129,8 +129,11 @@ void AssetExporter::exportQml(const Utils::FilePaths &qmlFiles, const Utils::Fil
 
 void AssetExporter::cancel()
 {
-    // TODO Cancel export
-    m_assetDumper.reset();
+    if (!m_cancelled) {
+        ExportNotification::addInfo(tr("Cancelling export."));
+        m_assetDumper.reset();
+        m_cancelled = true;
+    }
 }
 
 bool AssetExporter::isBusy() const
@@ -142,8 +145,11 @@ bool AssetExporter::isBusy() const
 
 Utils::FilePath AssetExporter::exportAsset(const QmlObjectNode &node, const QString &uuid)
 {
+    if (m_cancelled)
+        return {};
     Utils::FilePath assetPath = m_exportPath.pathAppended(QString("assets/%1.png").arg(uuid));
-    m_assetDumper->dumpAsset(node.toQmlItemNode().instanceRenderPixmap(), assetPath);
+    if (m_assetDumper)
+        m_assetDumper->dumpAsset(node.toQmlItemNode().instanceRenderPixmap(), assetPath);
     return assetPath;
 }
 
@@ -207,7 +213,7 @@ void AssetExporter::triggerLoadNextFile()
 
 void AssetExporter::loadNextFile()
 {
-    if (m_exportFiles.isEmpty()) {
+    if (m_cancelled || m_exportFiles.isEmpty()) {
         notifyProgress(0.8);
         m_currentState.change(ParsingState::ParsingFinished);
         writeMetadata();
@@ -223,6 +229,13 @@ void AssetExporter::loadNextFile()
 
 void AssetExporter::writeMetadata() const
 {
+    if (m_cancelled) {
+        notifyProgress(1.0);
+        ExportNotification::addInfo(tr("Export cancelled."));
+        m_currentState.change(ParsingState::ExportingDone);
+        return;
+    }
+
     Utils::FilePath metadataPath = m_exportPath.pathAppended(m_exportPath.fileName() + ".metadata");
     ExportNotification::addInfo(tr("Writing metadata to file %1.").
                                 arg(metadataPath.toUserOutput()));
@@ -243,7 +256,8 @@ void AssetExporter::writeMetadata() const
     }
     notifyProgress(1.0);
     ExportNotification::addInfo(tr("Export finished."));
-    m_assetDumper->quitDumper();
+    if (m_assetDumper)
+        m_assetDumper->quitDumper();
     m_currentState.change(ParsingState::ExportingDone);
 }
 
