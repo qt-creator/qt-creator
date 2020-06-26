@@ -36,7 +36,8 @@
 
     \list
         \li Place your Illustrator content into Adobe Photoshop and
-            use \QBPS to export the assets to .ui.qml files.
+            use \QBPS to export the assets to \e {.metadata} format that
+            you can import to \QDS.
         \li Use the Illustrator \e {export for screens workflow} to export your
             assets into formats supported by \QDS, such as PNG and JPEG.
     \endlist

@@ -33,7 +33,8 @@
     \section1 Organizing Assets
 
     To get the best results when you use \QBPS to export designs from Adobe
-    Photoshop to \QDS, follow these guidelines when working with Photoshop:
+    Photoshop for importing them to \QDS, follow these guidelines when working
+    with Photoshop:
 
     \list
         \li Arrange your art into artboards and organize it into groups and
@@ -55,9 +56,9 @@
     when you export designs from Adobe Photoshop and import them into \QDS.
 
     When you use \QBPS to export your designs, you will determine how you want
-    each group or layer exported: as a \e component or \e child. A component is
-    a single QML file that can contain other assets. A child is a single PNG
-    file that you can use within QML files.
+    each group or layer exported: as a \e component or \e child. A component
+    will be imported as a single QML file that can contain other assets. A child
+    will be imported as a single PNG file that you can use within QML files.
 
     If you plan to use pieces of your artwork as separate images in the UI,
     group them on an artboard as separate layers. You can then export the group
@@ -74,7 +75,7 @@
 
     Place different parts of the UI, such as menus and pop-ups, on separate
     artboards to be able to export them as components or children and to
-    import them as QML and PNG files that you can drag and drop to the
+    import them as QML and PNG files that you can drag and drop to
     \uicontrol {Form Editor} in \QDS Design mode while creating a UI.
 
     \QDS offers predefined sets of UI controls that you can modify according
@@ -85,12 +86,13 @@
     However, if you want your UI controls, such as check boxes, to look exactly
     like they do in Photoshop, you have to create the control in an Artboard and
     use the artboard in the layers where the control instance is to be created.
-    \QB exports the control as a custom QML component that you can program in
+    \QB imports the control as a custom QML component that you can program in
     \QDS.
 
     \section1 Exporting Assets
 
-    Each artboard is exported automatically as a component. That is, a separate
+    Each artboard is exported automatically as a component, which means that it
+    will be imported as a separate
     QML file that contains all the artwork on the artboard, except layers that
     are set to be skipped or exported as child items. You determine how
     each group or layer in an artboard is exported: as a component or a child
@@ -147,13 +149,14 @@
         \li In the \uicontrol {Export As} field, select the export type for the
             group or layer:
             \list
-                \li \uicontrol Component creates a separate QML file for the
-                    selected artboard, group, or layer that contains all the
-                    artwork in it, except layers that are set to be skipped or
-                    exported as child items.
-                \li \uicontrol Child creates a separate PNG file for each asset
-                    of the selected group or layer, with references to the
-                    images in the component file.
+                \li \uicontrol Component exports the selected artboard, group,
+                    or layer with metadata. The exported data can be used later
+                    to import the component as a separate QML file that contains
+                    all the artwork in it, except layers that are set to be
+                    skipped or exported as child items.
+                \li \uicontrol Child exports each asset of the selected group
+                    or layer as a separate PNG file, with references
+                    to the images in the component file.
                 \li \uicontrol Merged merges the selected groups and layers into
                     the parent as one item.
                 \li \uicontrol Skipped completely skips the selected layer.
@@ -162,9 +165,9 @@
             to reuse. For example, you can use an artboard to define a
             component, such as a button, and reuse it in other artboards.
         \li In the \uicontrol {QML Type} field, specify the QML type
-            or Studio component to morph this layer into. The generated
-            component will be of this type. For example, if you drew a
-            rectangle, you can export it as a Rectangle Studio component.
+            or Studio component to morph this layer into. The component that is
+            generated during import will be of this type. For example, if you
+            drew a rectangle, you can export it as a Rectangle Studio component.
             You can provide the import statement of the module where the QML
             type is defined in the \uicontrol {Add Imports} field.
         \li In the \uicontrol {Add Imports} field, enter additional
@@ -225,8 +228,8 @@
             PSD Document instance. You can undo the temporary changes done in the function
             \e preExport(...).
         \li customDefaultQmlId(name, instance)
-            The function is called for settings the default QML id of the layer. The returned value
-            is used for the QML id. Return \e Falsey to use the auto generated QML id instead.
+            The function is called for setting the default QML id of the layer. The returned value
+            is used for the QML id. Return \c false to use the auto generated QML id instead.
             The parameter \a name is the auto generated QML id by the plugin and \a instance is the
             PSD layer instance.
     \endlist
