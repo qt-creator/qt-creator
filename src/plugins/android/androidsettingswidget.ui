@@ -239,6 +239,16 @@
             </property>
            </widget>
           </item>
+          <item row="2" column="6">
+           <widget class="QToolButton" name="downloadNDKToolButton">
+            <property name="toolTip">
+             <string>Open Android NDK download URL in the system's browser.</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="1">
            <widget class="Utils::PathChooser" name="SDKLocationPathChooser" native="true"/>
           </item>
