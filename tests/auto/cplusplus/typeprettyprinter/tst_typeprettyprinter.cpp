@@ -189,7 +189,7 @@ void tst_TypePrettyPrinter::basic_data()
     QTest::addColumn<QString>("result");
 
     // Define some often used flag combinations.
-    const Overview::StarBindFlags bindToNothing = 0;
+    const Overview::StarBindFlags bindToNothing({});
     const Overview::StarBindFlags bindToBothSpecifiers
         = Overview::StarBindFlags(Overview::BindToLeftSpecifier | Overview::BindToRightSpecifier);
     const Overview::StarBindFlags bindToNameAndType
