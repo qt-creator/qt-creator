@@ -508,6 +508,9 @@ QVector<PropertyInfo> getObjectTypes(const ObjectValue *objectValue, const Conte
 
         if (isValueType(property.second)) {
             const Value *dotValue = objectValue->lookupMember(nameAsString, context);
+            if (!dotValue)
+                continue;
+
             if (const Reference *ref = dotValue->asReference())
                 dotValue = context->lookupReference(ref);
 
