@@ -206,7 +206,7 @@ void IndexWindow::open(const QModelIndex &index, bool newPage)
 #else
     QMultiMap<QString, QUrl> links;
     const QList<QHelpLink> docs = LocalHelpManager::helpEngine().documentsForKeyword(keyword);
-    for (const auto doc : docs)
+    for (const auto &doc : docs)
         links.insert(doc.title, doc.url);
 
 #endif
