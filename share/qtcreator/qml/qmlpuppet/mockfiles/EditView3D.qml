@@ -141,6 +141,14 @@ Item {
             _generalHelper.enableItemUpdate(editView, (scene && scene === activeScene));
     }
 
+    function handleActiveSceneIdChange(newId)
+    {
+        if (sceneId !== newId) {
+            sceneId = newId;
+            storeCurrentToolStates();
+        }
+    }
+
     function fitToView()
     {
         if (editView) {
