@@ -125,7 +125,7 @@ private:
                                                        this);
 };
 
-AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent, Core::Id id)
+AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent, Utils::Id id)
     : AbstractProcessStep(parent, id),
       m_buildTargetSdk(AndroidConfig::apiLevelNameFor(AndroidConfigurations::
                                          sdkManager()->latestAndroidSdkPlatform()))
@@ -512,7 +512,7 @@ void AndroidBuildApkStep::setBuildTargetSdk(const QString &sdk)
     m_buildTargetSdk = sdk;
 }
 
-QVariant AndroidBuildApkStep::data(Core::Id id) const
+QVariant AndroidBuildApkStep::data(Utils::Id id) const
 {
     if (id == Constants::AndroidNdkPlatform) {
         if (auto qtVersion = QtKitAspect::qtVersion(target()->kit()))

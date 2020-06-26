@@ -34,6 +34,8 @@
 #include <QDir>
 #include <QString>
 
+using namespace Utils;
+
 namespace Core {
 
 /*!

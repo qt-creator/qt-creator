@@ -43,6 +43,8 @@
 #include <QSet>
 #include <QUrl>
 
+using namespace Utils;
+
 static Core::Internal::DocumentModelPrivate *d;
 
 namespace Core {

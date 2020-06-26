@@ -27,8 +27,6 @@
 
 #include "qdbconstants.h"
 
-#include <coreplugin/id.h>
-
 namespace Qdb {
 namespace Internal {
 
@@ -37,9 +35,9 @@ QString QdbQtVersion::description() const
     return QCoreApplication::translate("QtVersion", "Boot2Qt", "Qt version is used for Boot2Qt development");
 }
 
-QSet<Core::Id> QdbQtVersion::targetDeviceTypes() const
+QSet<Utils::Id> QdbQtVersion::targetDeviceTypes() const
 {
-    return {Core::Id(Constants::QdbLinuxOsType)};
+    return {Utils::Id(Constants::QdbLinuxOsType)};
 
 }
 

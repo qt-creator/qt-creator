@@ -36,7 +36,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/id.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/documentmanager.h>
@@ -1419,7 +1418,7 @@ PerforceResponse PerforcePluginPrivate::runP4Cmd(const QString &workingDir,
 
 IEditor *PerforcePluginPrivate::showOutputInEditor(const QString &title,
                                                    const QString &output,
-                                                   Core::Id id,
+                                                   Utils::Id id,
                                                    const QString &source,
                                                    QTextCodec *codec)
 {

@@ -262,7 +262,7 @@ static Utils::FilePath gccInstallDir(const FilePath &path, const QStringList &en
 // GccToolChain
 // --------------------------------------------------------------------------
 
-GccToolChain::GccToolChain(Core::Id typeId) :
+GccToolChain::GccToolChain(Utils::Id typeId) :
     ToolChain(typeId)
 {
     setTypeDisplayName(tr("GCC"));
@@ -448,7 +448,7 @@ ToolChain::MacroInspectionRunner GccToolChain::createMacroInspectionRunner() con
     OptionsReinterpreter reinterpretOptions = m_optionsReinterpreter;
     QTC_CHECK(reinterpretOptions);
     MacrosCache macroCache = predefinedMacrosCache();
-    Core::Id lang = language();
+    Utils::Id lang = language();
 
     // This runner must be thread-safe!
     return [env, compilerCommand, platformCodeGenFlags, reinterpretOptions, macroCache, lang]
@@ -567,7 +567,7 @@ WarningFlags GccToolChain::warningFlags(const QStringList &cflags) const
 QStringList GccToolChain::gccPrepareArguments(const QStringList &flags,
                                               const QString &sysRoot,
                                               const QStringList &platformCodeGenFlags,
-                                              Core::Id languageId,
+                                              Utils::Id languageId,
                                               OptionsReinterpreter reinterpretOptions)
 {
     QStringList arguments;
@@ -595,7 +595,7 @@ HeaderPaths GccToolChain::builtInHeaderPaths(const Utils::Environment &env,
                                              const QStringList &platformCodeGenFlags,
                                              OptionsReinterpreter reinterpretOptions,
                                              HeaderPathsCache headerCache,
-                                             Core::Id languageId,
+                                             Utils::Id languageId,
                                              ExtraHeaderPathsFunction extraHeaderPathsFunction,
                                              const QStringList &flags,
                                              const QString &sysRoot,
@@ -1087,8 +1087,8 @@ QList<ToolChain *> GccToolChainFactory::detectForImport(const ToolChainDescripti
 }
 
 QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(
-        const QString &compilerName, DetectVariants detectVariants, Core::Id language,
-        const Core::Id requiredTypeId, const QList<ToolChain *> &alreadyKnown,
+        const QString &compilerName, DetectVariants detectVariants, Utils::Id language,
+        const Utils::Id requiredTypeId, const QList<ToolChain *> &alreadyKnown,
         const ToolchainChecker &checker)
 {
     FilePaths compilerPaths;
@@ -1455,7 +1455,7 @@ ClangToolChain::ClangToolChain() :
 {
 }
 
-ClangToolChain::ClangToolChain(Core::Id typeId) :
+ClangToolChain::ClangToolChain(Utils::Id typeId) :
     GccToolChain(typeId)
 {
     setTypeDisplayName(tr("Clang"));

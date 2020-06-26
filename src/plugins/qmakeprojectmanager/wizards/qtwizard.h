@@ -114,13 +114,13 @@ public:
     int addTargetSetupPage(int id = -1);
 
     bool writeUserFile(const QString &proFileName) const;
-    QList<Core::Id> selectedKits() const;
+    QList<Utils::Id> selectedKits() const;
 
 private:
     void generateProfileName(const QString &name, const QString &path);
 
     ProjectExplorer::TargetSetupPage *m_targetSetupPage = nullptr;
-    QList<Core::Id> m_profileIds;
+    QList<Utils::Id> m_profileIds;
 };
 
 } // namespace Internal

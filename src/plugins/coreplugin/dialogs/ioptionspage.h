@@ -26,9 +26,9 @@
 #pragma once
 
 #include <coreplugin/core_global.h>
-#include <coreplugin/id.h>
 
 #include <utils/icon.h>
+#include <utils/id.h>
 
 #include <QObject>
 #include <QPointer>
@@ -56,9 +56,9 @@ public:
 
     static const QList<IOptionsPage *> allOptionsPages();
 
-    Id id() const { return m_id; }
+    Utils::Id id() const { return m_id; }
     QString displayName() const { return m_displayName; }
-    Id category() const { return m_category; }
+    Utils::Id category() const { return m_category; }
     QString displayCategory() const { return m_displayCategory; }
     QIcon categoryIcon() const;
 
@@ -71,15 +71,15 @@ public:
     virtual void finish();
 
 protected:
-    void setId(Id id) { m_id = id; }
+    void setId(Utils::Id id) { m_id = id; }
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
-    void setCategory(Id category) { m_category = category; }
+    void setCategory(Utils::Id category) { m_category = category; }
     void setDisplayCategory(const QString &displayCategory) { m_displayCategory = displayCategory; }
     void setCategoryIcon(const Utils::Icon &categoryIcon) { m_categoryIcon = categoryIcon; }
     void setCategoryIconPath(const QString &categoryIconPath);
 
-    Id m_id;
-    Id m_category;
+    Utils::Id m_id;
+    Utils::Id m_category;
     QString m_displayName;
     QString m_displayCategory;
     Utils::Icon m_categoryIcon;
@@ -108,7 +108,7 @@ public:
 
     static const QList<IOptionsPageProvider *> allOptionsPagesProviders();
 
-    Id category() const { return m_category; }
+    Utils::Id category() const { return m_category; }
     QString displayCategory() const { return m_displayCategory; }
     QIcon categoryIcon() const;
 
@@ -116,11 +116,11 @@ public:
     virtual bool matches(const QRegularExpression &regexp) const = 0;
 
 protected:
-    void setCategory(Id category) { m_category = category; }
+    void setCategory(Utils::Id category) { m_category = category; }
     void setDisplayCategory(const QString &displayCategory) { m_displayCategory = displayCategory; }
     void setCategoryIcon(const Utils::Icon &categoryIcon) { m_categoryIcon = categoryIcon; }
 
-    Id m_category;
+    Utils::Id m_category;
     QString m_displayCategory;
     Utils::Icon m_categoryIcon;
 };

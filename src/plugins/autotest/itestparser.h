@@ -28,7 +28,7 @@
 #include "testtreeitem.h"
 #include "testtreemodel.h"
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 #include <cplusplus/CppDocument.h>
 #include <cpptools/cppworkingcopy.h>
 #include <qmljs/qmljsdocument.h>

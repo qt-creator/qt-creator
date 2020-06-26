@@ -127,7 +127,7 @@ void INavigationWidgetFactory::setPriority(int priority)
 
     \sa id()
 */
-void INavigationWidgetFactory::setId(Id id)
+void INavigationWidgetFactory::setId(Utils::Id id)
 {
     m_id = id;
 }

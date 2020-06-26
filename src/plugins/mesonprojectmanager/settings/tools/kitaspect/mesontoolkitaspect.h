@@ -26,7 +26,6 @@
 #pragma once
 #include <exewrappers/mesontools.h>
 
-#include <coreplugin/id.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
 
@@ -43,8 +42,8 @@ public:
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const final;
     ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *) const final;
 
-    static void setMesonTool(ProjectExplorer::Kit *kit, Core::Id id);
-    static Core::Id mesonToolId(const ProjectExplorer::Kit *kit);
+    static void setMesonTool(ProjectExplorer::Kit *kit, Utils::Id id);
+    static Utils::Id mesonToolId(const ProjectExplorer::Kit *kit);
 
     static inline decltype(auto) mesonTool(const ProjectExplorer::Kit *kit)
     {

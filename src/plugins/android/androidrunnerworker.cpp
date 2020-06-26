@@ -249,7 +249,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     m_useLldb = Debugger::DebuggerKitAspect::engineType(runControl->kit())
                     == Debugger::LldbEngineType;
     auto aspect = runControl->aspect<Debugger::DebuggerRunConfigurationAspect>();
-    Core::Id runMode = runControl->runMode();
+    Utils::Id runMode = runControl->runMode();
     const bool debuggingMode = runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE;
     m_useCppDebugger = debuggingMode && aspect->useCppDebugger();
     if (debuggingMode && aspect->useQmlDebugger())

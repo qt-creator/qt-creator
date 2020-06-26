@@ -69,7 +69,7 @@ private:
     QVector<ConditionalFeature> m_requiredFeatures;
     QVector<ConditionalFeature> m_preferredFeatures;
 
-    QSet<Core::Id> evaluate(const QVector<ConditionalFeature> &list, const QVariant &defaultSet,
+    QSet<Utils::Id> evaluate(const QVector<ConditionalFeature> &list, const QVariant &defaultSet,
                             JsonWizard *wiz);
 };
 

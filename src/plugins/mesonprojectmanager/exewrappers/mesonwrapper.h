@@ -28,8 +28,8 @@
 #include "toolwrapper.h"
 #include "utils/environment.h"
 #include "utils/fileutils.h"
+#include <utils/id.h>
 #include "utils/optional.h"
-#include <coreplugin/id.h>
 #include <tuple>
 #include <QFile>
 #include <QFileInfo>
@@ -120,7 +120,7 @@ inline MesonWrapper *fromVariantMap<MesonWrapper *>(const QVariantMap &data)
 {
     return new MesonWrapper(data[Constants::ToolsSettings::NAME_KEY].toString(),
                             Utils::FilePath::fromVariant(data[Constants::ToolsSettings::EXE_KEY]),
-                            Core::Id::fromSetting(data[Constants::ToolsSettings::ID_KEY]),
+                            Utils::Id::fromSetting(data[Constants::ToolsSettings::ID_KEY]),
                             data[Constants::ToolsSettings::AUTO_DETECTED_KEY].toBool());
 }
 

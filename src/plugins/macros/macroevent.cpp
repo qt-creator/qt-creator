@@ -60,7 +60,7 @@ void MacroEvent::load(QDataStream &stream)
 {
     QByteArray ba;
     stream >> ba;
-    m_id = Core::Id::fromName(ba);
+    m_id = Utils::Id::fromName(ba);
     int count;
     stream >> count;
     quint8 id;
@@ -80,12 +80,12 @@ void MacroEvent::save(QDataStream &stream) const
         stream << i.key() << i.value();
 }
 
-Core::Id MacroEvent::id() const
+Utils::Id MacroEvent::id() const
 {
     return m_id;
 }
 
-void MacroEvent::setId(Core::Id id)
+void MacroEvent::setId(Utils::Id id)
 {
     m_id = id;
 }

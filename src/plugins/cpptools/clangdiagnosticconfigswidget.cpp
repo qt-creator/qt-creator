@@ -109,13 +109,13 @@ public:
         m_customRoot->appendChild(new ConfigNode(config));
     }
 
-    void removeConfig(const Core::Id &id)
+    void removeConfig(const Utils::Id &id)
     {
        ConfigNode *node = itemForConfigId(id);
        node->parent()->removeChildAt(node->indexInParent());
     }
 
-    ConfigNode *itemForConfigId(const Core::Id &id) const
+    ConfigNode *itemForConfigId(const Utils::Id &id) const
     {
         return findItemAtLevel<2>([id](const ConfigNode *node) {
             return node->config.id() == id;
@@ -128,7 +128,7 @@ private:
 };
 
 ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(const ClangDiagnosticConfigs &configs,
-                                                           const Core::Id &configToSelect,
+                                                           const Utils::Id &configToSelect,
                                                            QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::ClangDiagnosticConfigsWidget)
@@ -215,7 +215,7 @@ const ClangDiagnosticConfig ClangDiagnosticConfigsWidget::currentConfig() const
 
 void ClangDiagnosticConfigsWidget::onRemoveButtonClicked()
 {
-    const Core::Id configToRemove = currentConfig().id();
+    const Utils::Id configToRemove = currentConfig().id();
     if (m_configsModel->customConfigsCount() == 1)
         m_ui->configsView->setCurrentIndex(m_configsModel->fallbackConfigIndex());
     m_configsModel->removeConfig(configToRemove);

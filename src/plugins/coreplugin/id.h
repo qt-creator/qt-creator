@@ -31,4 +31,4 @@ namespace Core {
 
 using Id = Utils::Id;
 
-} // namespace Core
+} // Core

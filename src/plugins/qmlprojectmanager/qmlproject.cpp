@@ -62,6 +62,7 @@
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace QmlProjectManager::Internal;
+using namespace Utils;
 
 namespace {
 Q_LOGGING_CATEGORY(infoLogger, "QmlProjectManager.QmlBuildSystem", QtInfoMsg)

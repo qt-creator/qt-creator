@@ -49,7 +49,7 @@ using namespace Utils;
 namespace GenericProjectManager {
 namespace Internal {
 
-GenericBuildConfiguration::GenericBuildConfiguration(Target *parent, Core::Id id)
+GenericBuildConfiguration::GenericBuildConfiguration(Target *parent, Utils::Id id)
     : BuildConfiguration(parent, id)
 {
     setConfigWidgetDisplayName(tr("Generic Manager"));

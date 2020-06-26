@@ -40,6 +40,7 @@
 #include <QKeySequence>
 
 using namespace Core;
+using namespace Utils;
 
 namespace ImageViewer {
 namespace Internal {

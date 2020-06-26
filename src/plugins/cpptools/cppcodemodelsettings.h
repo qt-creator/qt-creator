@@ -53,9 +53,9 @@ public:
     void toSettings(QSettings *s);
 
 public:
-    Core::Id clangDiagnosticConfigId() const;
-    void setClangDiagnosticConfigId(const Core::Id &configId);
-    static Core::Id defaultClangDiagnosticConfigId() ;
+    Utils::Id clangDiagnosticConfigId() const;
+    void setClangDiagnosticConfigId(const Utils::Id &configId);
+    static Utils::Id defaultClangDiagnosticConfigId() ;
     const ClangDiagnosticConfig clangDiagnosticConfig() const;
 
     ClangDiagnosticConfigs clangCustomDiagnosticConfigs() const;
@@ -77,7 +77,7 @@ public:
     void setIndexerFileSizeLimitInMb(int sizeInMB);
 
 signals:
-    void clangDiagnosticConfigsInvalidated(const QVector<Core::Id> &configId);
+    void clangDiagnosticConfigsInvalidated(const QVector<Utils::Id> &configId);
     void changed();
 
 private:
@@ -86,7 +86,7 @@ private:
     bool m_skipIndexingBigFiles = true;
     int m_indexerFileSizeLimitInMB = 5;
     ClangDiagnosticConfigs m_clangCustomDiagnosticConfigs;
-    Core::Id m_clangDiagnosticConfigId;
+    Utils::Id m_clangDiagnosticConfigId;
     bool m_enableLowerClazyLevels = true; // For UI behavior only
 };
 

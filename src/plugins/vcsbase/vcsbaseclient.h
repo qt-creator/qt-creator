@@ -27,9 +27,8 @@
 
 #include "vcsbase_global.h"
 
-#include <coreplugin/id.h>
-
 #include <utils/fileutils.h>
+#include <utils/id.h>
 #include <utils/synchronousprocess.h>
 
 #include <QObject>
@@ -71,7 +70,7 @@ public:
         VcsWindowOutputBind
     };
 
-    VcsBaseEditorWidget *createVcsEditor(Core::Id kind, QString title,
+    VcsBaseEditorWidget *createVcsEditor(Utils::Id kind, QString title,
                                          const QString &source, QTextCodec *codec,
                                          const char *registerDynamicProperty,
                                          const QString &dynamicPropertyValue) const;
@@ -221,7 +220,7 @@ public:
     };
 protected:
     virtual QString vcsCommandString(VcsCommandTag cmd) const;
-    virtual Core::Id vcsEditorKind(VcsCommandTag cmd) const = 0;
+    virtual Utils::Id vcsEditorKind(VcsCommandTag cmd) const = 0;
     virtual Utils::ExitCodeInterpreter exitCodeInterpreter(VcsCommandTag cmd) const;
 
     virtual QStringList revisionSpec(const QString &/*revision*/) const { return {}; }

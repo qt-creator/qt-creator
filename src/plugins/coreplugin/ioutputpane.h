@@ -26,9 +26,9 @@
 #pragma once
 
 #include "core_global.h"
-#include "id.h"
 
 #include <utils/fancylineedit.h>
+#include <utils/id.h>
 
 #include <QObject>
 #include <QList>
@@ -115,9 +115,9 @@ private:
     void filterOutputButtonClicked();
     void setCaseSensitive(bool caseSensitive);
     void setRegularExpressions(bool regularExpressions);
-    Id filterRegexpActionId() const;
-    Id filterCaseSensitivityActionId() const;
-    Id filterInvertedActionId() const;
+    Utils::Id filterRegexpActionId() const;
+    Utils::Id filterCaseSensitivityActionId() const;
+    Utils::Id filterInvertedActionId() const;
 
     Core::CommandButton * const m_zoomInButton;
     Core::CommandButton * const m_zoomOutButton;

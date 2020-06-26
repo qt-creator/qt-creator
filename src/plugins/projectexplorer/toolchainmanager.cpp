@@ -54,7 +54,7 @@ namespace Internal {
 
 struct LanguageDisplayPair
 {
-    Core::Id id;
+    Utils::Id id;
     QString displayName;
 };
 
@@ -225,12 +225,12 @@ void ToolChainManager::deregisterToolChain(ToolChain *tc)
     delete tc;
 }
 
-QSet<Core::Id> ToolChainManager::allLanguages()
+QSet<Utils::Id> ToolChainManager::allLanguages()
 {
     return Utils::transform<QSet>(d->m_languages, &LanguageDisplayPair::id);
 }
 
-bool ToolChainManager::registerLanguage(const Core::Id &language, const QString &displayName)
+bool ToolChainManager::registerLanguage(const Utils::Id &language, const QString &displayName)
 {
     QTC_ASSERT(language.isValid(), return false);
     QTC_ASSERT(!isLanguageSupported(language), return false);
@@ -239,7 +239,7 @@ bool ToolChainManager::registerLanguage(const Core::Id &language, const QString 
     return true;
 }
 
-QString ToolChainManager::displayNameOfLanguageId(const Core::Id &id)
+QString ToolChainManager::displayNameOfLanguageId(const Utils::Id &id)
 {
     QTC_ASSERT(id.isValid(), return tr("None"));
     auto entry = Utils::findOrDefault(d->m_languages, Utils::equal(&LanguageDisplayPair::id, id));
@@ -247,7 +247,7 @@ QString ToolChainManager::displayNameOfLanguageId(const Core::Id &id)
     return entry.displayName;
 }
 
-bool ToolChainManager::isLanguageSupported(const Core::Id &id)
+bool ToolChainManager::isLanguageSupported(const Utils::Id &id)
 {
     return Utils::contains(d->m_languages, Utils::equal(&LanguageDisplayPair::id, id));
 }

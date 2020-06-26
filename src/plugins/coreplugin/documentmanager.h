@@ -26,7 +26,8 @@
 #pragma once
 
 #include <coreplugin/core_global.h>
-#include <coreplugin/id.h>
+
+#include <utils/id.h>
 
 #include <QObject>
 #include <QPair>
@@ -55,7 +56,7 @@ public:
         KeepLinks
     };
 
-    using RecentFile = QPair<QString, Id>;
+    using RecentFile = QPair<QString, Utils::Id>;
 
     static DocumentManager *instance();
 
@@ -71,7 +72,7 @@ public:
     static void unexpectFileChange(const QString &fileName);
 
     // recent files
-    static void addToRecentFiles(const QString &fileName, Id editorId = Id());
+    static void addToRecentFiles(const QString &fileName, Utils::Id editorId = {});
     Q_SLOT void clearRecentFiles();
     static QList<RecentFile> recentFiles();
 

@@ -38,17 +38,17 @@ QString WinRtQtVersion::description() const
     return tr("Windows Runtime");
 }
 
-QSet<Core::Id> WinRtQtVersion::availableFeatures() const
+QSet<Utils::Id> WinRtQtVersion::availableFeatures() const
 {
-    QSet<Core::Id> features = QtSupport::BaseQtVersion::availableFeatures();
+    QSet<Utils::Id> features = QtSupport::BaseQtVersion::availableFeatures();
     features.insert(QtSupport::Constants::FEATURE_MOBILE);
     features.remove(QtSupport::Constants::FEATURE_QT_CONSOLE);
-    features.remove(Core::Id::versionedId(QtSupport::Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1));
+    features.remove(Utils::Id::versionedId(QtSupport::Constants::FEATURE_QT_QUICK_CONTROLS_PREFIX, 1));
     features.remove(QtSupport::Constants::FEATURE_QT_WEBKIT);
     return features;
 }
 
-QSet<Core::Id> WinRtQtVersion::targetDeviceTypes() const
+QSet<Utils::Id> WinRtQtVersion::targetDeviceTypes() const
 {
     return {Constants::WINRT_DEVICE_TYPE_LOCAL, Constants::WINRT_DEVICE_TYPE_EMULATOR};
 }

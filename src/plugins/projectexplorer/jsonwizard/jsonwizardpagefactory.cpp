@@ -40,7 +40,7 @@ JsonWizardPageFactory::~JsonWizardPageFactory() = default;
 void JsonWizardPageFactory::setTypeIdsSuffixes(const QStringList &suffixes)
 {
     m_typeIds = Utils::transform(suffixes, [](const QString &suffix) {
-        return Core::Id::fromString(QString::fromLatin1(Constants::PAGE_ID_PREFIX) + suffix);});
+        return Utils::Id::fromString(QString::fromLatin1(Constants::PAGE_ID_PREFIX) + suffix);});
 }
 
 void JsonWizardPageFactory::setTypeIdsSuffix(const QString &suffix)

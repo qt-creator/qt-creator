@@ -63,6 +63,8 @@
 #include "spotlightlocatorfilter.h"
 #endif
 
+using namespace Utils;
+
 namespace Core {
 namespace Internal {
 

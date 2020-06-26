@@ -181,7 +181,7 @@ class ProjectPrivate
 public:
     ~ProjectPrivate();
 
-    Core::Id m_id;
+    Utils::Id m_id;
     bool m_needsInitialExpansion = false;
     bool m_canBuildProducts = false;
     bool m_knowsAllBuildExecutables = true;
@@ -241,7 +241,7 @@ QString Project::displayName() const
     return d->m_displayName;
 }
 
-Core::Id Project::id() const
+Utils::Id Project::id() const
 {
     QTC_CHECK(d->m_id.isValid());
     return d->m_id;
@@ -377,7 +377,7 @@ void Project::setExtraProjectFiles(const QSet<Utils::FilePath> &projectDocumentP
     }
 }
 
-Target *Project::target(Core::Id id) const
+Target *Project::target(Utils::Id id) const
 {
     return Utils::findOrDefault(d->m_targets, Utils::equal(&Target::id, id));
 }
@@ -529,7 +529,7 @@ void Project::setDisplayName(const QString &name)
     emit displayNameChanged();
 }
 
-void Project::setId(Core::Id id)
+void Project::setId(Utils::Id id)
 {
     QTC_ASSERT(!d->m_id.isValid(), return); // Id may not change ever!
     d->m_id = id;
@@ -751,7 +751,7 @@ void Project::createTargetFromMap(const QVariantMap &map, int index)
 
     const QVariantMap targetMap = map.value(key).toMap();
 
-    Core::Id id = idFromMap(targetMap);
+    Utils::Id id = idFromMap(targetMap);
     if (target(id)) {
         qWarning("Warning: Duplicated target id found, not restoring second target with id '%s'. Continuing.",
                  qPrintable(id.toString()));
@@ -760,7 +760,7 @@ void Project::createTargetFromMap(const QVariantMap &map, int index)
 
     Kit *k = KitManager::kit(id);
     if (!k) {
-        Core::Id deviceTypeId = Core::Id::fromSetting(targetMap.value(Target::deviceTypeKey()));
+        Utils::Id deviceTypeId = Utils::Id::fromSetting(targetMap.value(Target::deviceTypeKey()));
         if (!deviceTypeId.isValid())
             deviceTypeId = Constants::DESKTOP_DEVICE_TYPE;
         const QString formerKitName = targetMap.value(Target::displayNameKey()).toString();
@@ -810,7 +810,7 @@ void Project::setProjectLanguages(Core::Context language)
     emit projectLanguagesUpdated();
 }
 
-void Project::addProjectLanguage(Core::Id id)
+void Project::addProjectLanguage(Utils::Id id)
 {
     Core::Context lang = projectLanguages();
     int pos = lang.indexOf(id);
@@ -819,7 +819,7 @@ void Project::addProjectLanguage(Core::Id id)
     setProjectLanguages(lang);
 }
 
-void Project::removeProjectLanguage(Core::Id id)
+void Project::removeProjectLanguage(Utils::Id id)
 {
     Core::Context lang = projectLanguages();
     int pos = lang.indexOf(id);
@@ -828,7 +828,7 @@ void Project::removeProjectLanguage(Core::Id id)
     setProjectLanguages(lang);
 }
 
-void Project::setProjectLanguage(Core::Id id, bool enabled)
+void Project::setProjectLanguage(Utils::Id id, bool enabled)
 {
     if (enabled)
         addProjectLanguage(id);
@@ -858,7 +858,7 @@ void Project::setNeedsDeployConfigurations(bool value)
 
 Task Project::createProjectTask(Task::TaskType type, const QString &description)
 {
-    return Task(type, description, Utils::FilePath(), -1, Core::Id());
+    return Task(type, description, Utils::FilePath(), -1, Utils::Id());
 }
 
 void Project::setBuildSystemCreator(const std::function<BuildSystem *(Target *)> &creator)
@@ -1077,7 +1077,7 @@ void ProjectExplorerPlugin::testProject_setup()
     QCOMPARE(project.files(Project::AllFiles), {TEST_PROJECT_PATH});
     QCOMPARE(project.files(Project::GeneratedFiles), {});
 
-    QCOMPARE(project.id(), Core::Id(TEST_PROJECT_ID));
+    QCOMPARE(project.id(), Utils::Id(TEST_PROJECT_ID));
 
     QVERIFY(!project.target->buildSystem()->isParsing());
     QVERIFY(!project.target->buildSystem()->hasParsingData());

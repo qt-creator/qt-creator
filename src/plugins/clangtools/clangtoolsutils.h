@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <coreplugin/id.h>
 #include <cpptools/clangdiagnosticconfig.h>
 
 #include <QtGlobal>

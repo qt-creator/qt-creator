@@ -48,7 +48,7 @@ BareMetalDeviceConfigurationWizard::BareMetalDeviceConfigurationWizard(QWidget *
 ProjectExplorer::IDevice::Ptr BareMetalDeviceConfigurationWizard::device() const
 {
     const auto dev = BareMetalDevice::create();
-    dev->setupId(ProjectExplorer::IDevice::ManuallyAdded, Core::Id());
+    dev->setupId(ProjectExplorer::IDevice::ManuallyAdded, Utils::Id());
     dev->setDisplayName(m_setupPage->configurationName());
     dev->setType(Constants::BareMetalOsType);
     dev->setMachineType(ProjectExplorer::IDevice::Hardware);

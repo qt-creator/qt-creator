@@ -26,9 +26,9 @@
 #pragma once
 
 #include <coreplugin/core_global.h>
-#include <coreplugin/id.h>
 
 #include <utils/hostosinfo.h>
+#include <utils/id.h>
 
 #include <QObject>
 
@@ -69,7 +69,7 @@ public:
     virtual void setDescription(const QString &text) = 0;
     virtual QString description() const = 0;
 
-    virtual Id id() const = 0;
+    virtual Utils::Id id() const = 0;
 
     virtual QAction *action() const = 0;
     virtual Context context() const = 0;

@@ -35,11 +35,11 @@ class REMOTELINUX_EXPORT GenericDirectUploadStep : public AbstractRemoteLinuxDep
     Q_OBJECT
 
 public:
-    GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, Core::Id id,
+    GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id,
                             bool offerIncrementalDeployment = true);
     ~GenericDirectUploadStep() override;
 
-    static Core::Id stepId();
+    static Utils::Id stepId();
     static QString displayName();
 };
 

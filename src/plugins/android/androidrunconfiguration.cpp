@@ -55,7 +55,7 @@ using namespace Utils;
 
 namespace Android {
 
-BaseStringListAspect::BaseStringListAspect(const QString &settingsKey, Core::Id id)
+BaseStringListAspect::BaseStringListAspect(const QString &settingsKey, Utils::Id id)
 {
     setSettingsKey(settingsKey);
     setId(id);
@@ -104,7 +104,7 @@ void BaseStringListAspect::setLabel(const QString &label)
 }
 
 
-AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Core::Id id)
+AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Utils::Id id)
     : RunConfiguration(target, id)
 {
     auto envAspect = addAspect<EnvironmentAspect>();

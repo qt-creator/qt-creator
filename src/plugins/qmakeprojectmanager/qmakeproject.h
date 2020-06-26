@@ -107,7 +107,7 @@ public:
     void triggerParsing() final;
 
     QStringList filesGeneratedFrom(const QString &file) const final;
-    QVariant additionalData(Core::Id id) const final;
+    QVariant additionalData(Utils::Id id) const final;
 
     void asyncUpdate();
     void buildFinished(bool success);

@@ -35,12 +35,12 @@ class PROJECTEXPLORER_EXPORT DeviceCheckBuildStep : public BuildStep
     Q_OBJECT
 
 public:
-    DeviceCheckBuildStep(BuildStepList *bsl, Core::Id id);
+    DeviceCheckBuildStep(BuildStepList *bsl, Utils::Id id);
 
     bool init() override;
     void doRun() override;
 
-    static Core::Id stepId();
+    static Utils::Id stepId();
     static QString displayName();
 };
 

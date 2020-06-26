@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <QStackedWidget>
 
@@ -52,7 +52,7 @@ public:
     bool setVisibleEditor(Core::IEditor *xmlEditor);
 
 private:
-    void modeAboutToChange(Core::Id m);
+    void modeAboutToChange(Utils::Id m);
 
     QVector<ScxmlTextEditor*> m_editors;
 };

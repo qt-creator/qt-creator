@@ -61,7 +61,7 @@ public:
     using Predicate = std::function<bool(const Kit *)>;
     static Predicate defaultPredicate();
 
-    explicit Kit(Core::Id id = Core::Id());
+    explicit Kit(Utils::Id id = Utils::Id());
     explicit Kit(const QVariantMap &data);
     ~Kit();
 
@@ -89,7 +89,7 @@ public:
     bool isAutoDetected() const;
     QString autoDetectionSource() const;
     bool isSdkProvided() const;
-    Core::Id id() const;
+    Utils::Id id() const;
 
     // The higher the weight, the more aspects have sensible values for this kit.
     // For instance, a kit where a matching debugger was found for the toolchain will have a
@@ -101,16 +101,16 @@ public:
     QIcon displayIcon() const; // Error or warning or device icon.
     Utils::FilePath iconPath() const;
     void setIconPath(const Utils::FilePath &path);
-    void setDeviceTypeForIcon(Core::Id deviceType);
+    void setDeviceTypeForIcon(Utils::Id deviceType);
 
-    QList<Core::Id> allKeys() const;
-    QVariant value(Core::Id key, const QVariant &unset = QVariant()) const;
-    bool hasValue(Core::Id key) const;
-    void setValue(Core::Id key, const QVariant &value);
-    void setValueSilently(Core::Id key, const QVariant &value);
-    void removeKey(Core::Id key);
-    void removeKeySilently(Core::Id key);
-    bool isSticky(Core::Id id) const;
+    QList<Utils::Id> allKeys() const;
+    QVariant value(Utils::Id key, const QVariant &unset = QVariant()) const;
+    bool hasValue(Utils::Id key) const;
+    void setValue(Utils::Id key, const QVariant &value);
+    void setValueSilently(Utils::Id key, const QVariant &value);
+    void removeKey(Utils::Id key);
+    void removeKeySilently(Utils::Id key);
+    bool isSticky(Utils::Id id) const;
 
     bool isDataEqual(const Kit *other) const;
     bool isEqual(const Kit *other) const;
@@ -126,18 +126,18 @@ public:
     void setAutoDetected(bool detected);
     void setAutoDetectionSource(const QString &autoDetectionSource);
     void makeSticky();
-    void setSticky(Core::Id id, bool b);
+    void setSticky(Utils::Id id, bool b);
     void makeUnSticky();
 
-    void setMutable(Core::Id id, bool b);
-    bool isMutable(Core::Id id) const;
+    void setMutable(Utils::Id id, bool b);
+    bool isMutable(Utils::Id id) const;
 
-    void setIrrelevantAspects(const QSet<Core::Id> &irrelevant);
-    QSet<Core::Id> irrelevantAspects() const;
+    void setIrrelevantAspects(const QSet<Utils::Id> &irrelevant);
+    QSet<Utils::Id> irrelevantAspects() const;
 
-    QSet<Core::Id> supportedPlatforms() const;
-    QSet<Core::Id> availableFeatures() const;
-    bool hasFeatures(const QSet<Core::Id> &features) const;
+    QSet<Utils::Id> supportedPlatforms() const;
+    QSet<Utils::Id> availableFeatures() const;
+    bool hasFeatures(const QSet<Utils::Id> &features) const;
     Utils::MacroExpander *macroExpander() const;
 
     QString newKitName(const QList<Kit *> &allKits) const;

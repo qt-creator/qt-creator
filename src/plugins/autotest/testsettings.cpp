@@ -27,7 +27,7 @@
 #include "autotestconstants.h"
 #include "testframeworkmanager.h"
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <QSettings>
 
@@ -69,7 +69,7 @@ void TestSettings::toSettings(QSettings *s) const
     s->setValue(popupOnFailKey, popupOnFail);
     s->setValue(runAfterBuildKey, int(runAfterBuild));
     // store frameworks and their current active and grouping state
-    for (const Core::Id &id : frameworks.keys()) {
+    for (const Utils::Id &id : frameworks.keys()) {
         s->setValue(id.toString(), frameworks.value(id));
         s->setValue(id.toString() + groupSuffix, frameworksGrouping.value(id));
     }
@@ -97,7 +97,7 @@ void TestSettings::fromSettings(QSettings *s)
     frameworksGrouping.clear();
     for (const ITestFramework *framework : registered) {
         // get their active state
-        const Core::Id id = framework->id();
+        const Utils::Id id = framework->id();
         const QString key = id.toString();
         frameworks.insert(id, s->value(key, framework->active()).toBool());
         // and whether grouping is enabled

@@ -43,7 +43,7 @@ class ANDROID_EXPORT AndroidBuildApkStep : public ProjectExplorer::AbstractProce
     Q_OBJECT
 
 public:
-    AndroidBuildApkStep(ProjectExplorer::BuildStepList *bc, Core::Id id);
+    AndroidBuildApkStep(ProjectExplorer::BuildStepList *bc, Utils::Id id);
 
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
@@ -74,7 +74,7 @@ public:
     QString buildTargetSdk() const;
     void setBuildTargetSdk(const QString &sdk);
 
-    QVariant data(Core::Id id) const override;
+    QVariant data(Utils::Id id) const override;
 private:
     void showInGraphicalShell();
 

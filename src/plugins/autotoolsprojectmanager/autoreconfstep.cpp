@@ -57,7 +57,7 @@ class AutoreconfStep : public AbstractProcessStep
     Q_DECLARE_TR_FUNCTIONS(AutotoolsProjectManager::Internal::AutoreconfStep)
 
 public:
-    AutoreconfStep(BuildStepList *bsl, Core::Id id);
+    AutoreconfStep(BuildStepList *bsl, Utils::Id id);
 
     bool init() override;
     void doRun() override;
@@ -67,7 +67,7 @@ private:
     bool m_runAutoreconf = false;
 };
 
-AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Core::Id id)
+AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Utils::Id id)
     : AbstractProcessStep(bsl, id)
 {
     setDefaultDisplayName(tr("Autoreconf"));

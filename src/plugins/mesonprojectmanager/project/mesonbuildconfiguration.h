@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 #pragma once
-#include "coreplugin/id.h"
+
 #include "projectexplorer/buildconfiguration.h"
 #include "projectexplorer/target.h"
 #include "utils/fileutils.h"
@@ -95,7 +95,7 @@ class MesonBuildConfiguration final : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
 public:
-    MesonBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
+    MesonBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
     ~MesonBuildConfiguration() final;
 
     static Utils::FilePath shadowBuildDirectory(

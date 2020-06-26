@@ -77,14 +77,14 @@ class QdbRunConfiguration : public RunConfiguration
     Q_DECLARE_TR_FUNCTIONS(Qdb::Internal::QdbRunConfiguration);
 
 public:
-    QdbRunConfiguration(Target *target, Core::Id id);
+    QdbRunConfiguration(Target *target, Utils::Id id);
 
 private:
     Tasks checkForIssues() const override;
     QString defaultDisplayName() const;
 };
 
-QdbRunConfiguration::QdbRunConfiguration(Target *target, Core::Id id)
+QdbRunConfiguration::QdbRunConfiguration(Target *target, Utils::Id id)
     : RunConfiguration(target, id)
 {
     auto exeAspect = addAspect<ExecutableAspect>();

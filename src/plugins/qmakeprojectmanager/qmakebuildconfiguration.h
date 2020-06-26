@@ -45,7 +45,7 @@ class QMAKEPROJECTMANAGER_EXPORT QmakeBuildConfiguration : public ProjectExplore
     Q_OBJECT
 
 public:
-    QmakeBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
+    QmakeBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
     ~QmakeBuildConfiguration() override;
 
     ProjectExplorer::BuildSystem *buildSystem() const final;

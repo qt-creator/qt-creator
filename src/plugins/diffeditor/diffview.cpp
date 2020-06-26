@@ -61,7 +61,7 @@ QString IDiffView::syncToolTip() const
     return m_syncToolTip;
 }
 
-Core::Id IDiffView::id() const
+Utils::Id IDiffView::id() const
 {
     return m_id;
 }
@@ -76,7 +76,7 @@ void IDiffView::setToolTip(const QString &toolTip)
     m_toolTip = toolTip;
 }
 
-void IDiffView::setId(const Core::Id &id)
+void IDiffView::setId(const Utils::Id &id)
 {
     m_id = id;
 }

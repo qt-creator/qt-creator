@@ -29,8 +29,6 @@
 
 #include "toolchain.h"
 
-#include <coreplugin/id.h>
-
 #include <QList>
 #include <QObject>
 #include <QSet>
@@ -73,10 +71,10 @@ public:
     static bool registerToolChain(ToolChain *tc);
     static void deregisterToolChain(ToolChain *tc);
 
-    static QSet<Core::Id> allLanguages();
-    static bool registerLanguage(const Core::Id &language, const QString &displayName);
-    static QString displayNameOfLanguageId(const Core::Id &id);
-    static bool isLanguageSupported(const Core::Id &id);
+    static QSet<Utils::Id> allLanguages();
+    static bool registerLanguage(const Utils::Id &language, const QString &displayName);
+    static QString displayNameOfLanguageId(const Utils::Id &id);
+    static bool isLanguageSupported(const Utils::Id &id);
 
     static void aboutToShutdown();
 

@@ -27,7 +27,7 @@
 
 #include "editordata.h"
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <QStackedWidget>
 #include <QList>
@@ -67,7 +67,7 @@ public:
 
 private:
     void updateFormWindowSelectionHandles();
-    void modeAboutToChange(Core::Id mode);
+    void modeAboutToChange(Utils::Id mode);
     void formSizeChanged(int w, int h);
 
     inline int indexOfFormWindow(const QDesignerFormWindowInterface *) const;

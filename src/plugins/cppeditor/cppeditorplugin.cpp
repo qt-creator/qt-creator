@@ -115,8 +115,8 @@ public:
 class CppEditorPluginPrivate : public QObject
 {
 public:
-    void onTaskStarted(Core::Id type);
-    void onAllTasksFinished(Core::Id type);
+    void onTaskStarted(Utils::Id type);
+    void onAllTasksFinished(Utils::Id type);
     void inspectCppCodeModel();
 
     QAction *m_reparseExternallyChangedFiles = nullptr;

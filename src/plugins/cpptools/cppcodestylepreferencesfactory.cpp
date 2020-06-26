@@ -84,7 +84,7 @@ static const char *defaultPreviewText =
 
 CppCodeStylePreferencesFactory::CppCodeStylePreferencesFactory() = default;
 
-Core::Id CppCodeStylePreferencesFactory::languageId()
+Utils::Id CppCodeStylePreferencesFactory::languageId()
 {
     return Constants::CPP_SETTINGS_ID;
 }

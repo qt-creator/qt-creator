@@ -71,7 +71,7 @@ public:
 
     static void setDebugger(ProjectExplorer::Kit *k, const QVariant &id);
 
-    static Core::Id id();
+    static Utils::Id id();
     static DebuggerEngineType engineType(const ProjectExplorer::Kit *k);
     static QString displayString(const ProjectExplorer::Kit *k);
 };

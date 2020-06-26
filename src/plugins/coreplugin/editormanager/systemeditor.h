@@ -38,7 +38,7 @@ public:
     explicit SystemEditor(QObject *parent = nullptr);
 
     QStringList mimeTypes() const override;
-    Id id() const override;
+    Utils::Id id() const override;
     QString displayName() const override;
 
     bool startEditor(const QString &fileName, QString *errorMessage) override;

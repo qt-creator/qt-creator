@@ -26,7 +26,8 @@
 #pragma once
 
 #include "core_global.h"
-#include "id.h"
+
+#include <utils/id.h>
 
 #include <QObject>
 #include <QStringList>
@@ -58,7 +59,7 @@ public:
     void addMimeType(const QString &mimeType) { m_mimeTypes.append(mimeType); }
 
 private:
-    Id m_id;
+    Utils::Id m_id;
     Opener m_opener;
     QStringList m_mimeTypes;
     QString m_displayName;

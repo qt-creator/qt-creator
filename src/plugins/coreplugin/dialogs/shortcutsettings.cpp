@@ -27,7 +27,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/actionmanager/command_p.h>
@@ -48,6 +47,8 @@
 #include <QTreeWidgetItem>
 #include <QApplication>
 #include <QDebug>
+
+using namespace Utils;
 
 Q_DECLARE_METATYPE(Core::Internal::ShortcutItem*)
 

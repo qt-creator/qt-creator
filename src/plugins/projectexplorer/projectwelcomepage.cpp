@@ -144,7 +144,7 @@ ProjectWelcomePage::ProjectWelcomePage()
     }
 }
 
-Core::Id ProjectWelcomePage::id() const
+Utils::Id ProjectWelcomePage::id() const
 {
     return "Develop";
 }

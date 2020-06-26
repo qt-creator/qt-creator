@@ -425,14 +425,14 @@ void ClangModelManagerSupport::onProjectPartsRemoved(const QStringList &projectP
 }
 
 static ClangEditorDocumentProcessors clangProcessorsWithDiagnosticConfig(
-    const QVector<Core::Id> &configIds)
+    const QVector<::Utils::Id> &configIds)
 {
     return ::Utils::filtered(clangProcessors(), [configIds](ClangEditorDocumentProcessor *p) {
         return configIds.contains(p->diagnosticConfigId());
     });
 }
 
-void ClangModelManagerSupport::onDiagnosticConfigsInvalidated(const QVector<Core::Id> &configIds)
+void ClangModelManagerSupport::onDiagnosticConfigsInvalidated(const QVector<::Utils::Id> &configIds)
 {
     updateProcessors(clangProcessorsWithDiagnosticConfig(configIds));
 }

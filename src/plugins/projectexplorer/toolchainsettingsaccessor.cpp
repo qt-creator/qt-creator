@@ -253,7 +253,7 @@ QList<ToolChain *> ToolChainSettingsAccessor::toolChains(const QVariantMap &data
         const QVariantMap tcMap = data.value(key).toMap();
 
         bool restored = false;
-        const Core::Id tcType = ToolChainFactory::typeIdFromMap(tcMap);
+        const Utils::Id tcType = ToolChainFactory::typeIdFromMap(tcMap);
         if (tcType.isValid()) {
             for (ToolChainFactory *f : factories) {
                 if (f->supportedToolChainType() == tcType) {

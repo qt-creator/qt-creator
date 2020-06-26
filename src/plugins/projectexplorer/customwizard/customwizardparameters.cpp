@@ -51,6 +51,7 @@
 enum { debug = 0 };
 
 using namespace Core;
+using namespace Utils;
 
 static const char customWizardElementC[] = "wizard";
 static const char iconElementC[] = "icon";
@@ -572,7 +573,7 @@ CustomWizardParameters::parse(QIODevice &device, const QString &configFileFullPa
                     {
                         const QString idString = attributeValue(reader, idAttributeC);
                         if (!idString.isEmpty())
-                            id = Core::Id::fromString(idString);
+                            id = Utils::Id::fromString(idString);
                     }
                     category = attributeValue(reader, categoryAttributeC);
                     kind = kindAttribute(reader);

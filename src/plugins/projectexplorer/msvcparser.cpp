@@ -100,9 +100,9 @@ MsvcParser::MsvcParser()
     QTC_CHECK(m_additionalInfoRegExp.isValid());
 }
 
-Core::Id MsvcParser::id()
+Utils::Id MsvcParser::id()
 {
-    return Core::Id("ProjectExplorer.OutputParser.Msvc");
+    return Utils::Id("ProjectExplorer.OutputParser.Msvc");
 }
 
 OutputLineParser::Result MsvcParser::handleLine(const QString &line, OutputFormat type)

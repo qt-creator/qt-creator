@@ -33,7 +33,7 @@ namespace Internal {
 ToolTreeItem::ToolTreeItem(const QString &name)
     : m_name{name}
     , m_autoDetected{false}
-    , m_id(Core::Id::fromString(QUuid::createUuid().toString()))
+    , m_id(Utils::Id::fromString(QUuid::createUuid().toString()))
     , m_unsavedChanges{true}
 {
     self_check();
@@ -54,7 +54,7 @@ ToolTreeItem::ToolTreeItem(const ToolTreeItem &other)
     : m_name{tr("Clone of %1").arg(other.m_name)}
     , m_executable{other.m_executable}
     , m_autoDetected{false}
-    , m_id{Core::Id::fromString(QUuid::createUuid().toString())}
+    , m_id{Utils::Id::fromString(QUuid::createUuid().toString())}
     , m_unsavedChanges{true}
 {
     self_check();

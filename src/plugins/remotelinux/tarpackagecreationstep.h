@@ -43,9 +43,9 @@ class REMOTELINUX_EXPORT TarPackageCreationStep : public AbstractPackagingStep
 {
     Q_OBJECT
 public:
-    TarPackageCreationStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
+    TarPackageCreationStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
 
-    static Core::Id stepId();
+    static Utils::Id stepId();
     static QString displayName();
 
     void setIgnoreMissingFiles(bool ignoreMissingFiles);

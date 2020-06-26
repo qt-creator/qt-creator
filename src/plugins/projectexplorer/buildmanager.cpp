@@ -61,6 +61,7 @@
 #include <QTimer>
 
 using namespace Core;
+using namespace Utils;
 
 namespace ProjectExplorer {
 using namespace Internal;

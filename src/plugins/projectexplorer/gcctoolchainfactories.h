@@ -59,8 +59,8 @@ protected:
     enum class DetectVariants { Yes, No };
     using ToolchainChecker = std::function<bool(const ToolChain *)>;
     QList<ToolChain *> autoDetectToolchains(
-            const QString &compilerName, DetectVariants detectVariants, Core::Id language,
-            const Core::Id requiredTypeId, const QList<ToolChain *> &alreadyKnown,
+            const QString &compilerName, DetectVariants detectVariants, Utils::Id language,
+            const Utils::Id requiredTypeId, const QList<ToolChain *> &alreadyKnown,
             const ToolchainChecker &checker = {});
     QList<ToolChain *> autoDetectToolChain(
             const ToolChainDescription &tcd,

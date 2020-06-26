@@ -26,7 +26,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <QTextCursor>
 
@@ -88,7 +88,7 @@ private:
     void scrollHalfDown();        // C-v
     void scrollHalfUp();          // M-v
 
-    QAction *registerAction(Core::Id id, void (EmacsKeysPlugin::*callback)(),
+    QAction *registerAction(Utils::Id id, void (EmacsKeysPlugin::*callback)(),
                             const QString &title);
     void genericGoto(QTextCursor::MoveOperation op, bool abortAssist = true);
     void genericVScroll(int direction);

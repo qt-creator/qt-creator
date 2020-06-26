@@ -60,7 +60,7 @@ void ClangDiagnosticConfigsModel::appendOrUpdate(const ClangDiagnosticConfig &co
         m_diagnosticConfigs.append(config);
 }
 
-void ClangDiagnosticConfigsModel::removeConfigWithId(const Core::Id &id)
+void ClangDiagnosticConfigsModel::removeConfigWithId(const Utils::Id &id)
 {
     m_diagnosticConfigs.removeOne(configWithId(id));
 }
@@ -77,21 +77,21 @@ ClangDiagnosticConfigs ClangDiagnosticConfigsModel::customConfigs() const
     });
 }
 
-bool ClangDiagnosticConfigsModel::hasConfigWithId(const Core::Id &id) const
+bool ClangDiagnosticConfigsModel::hasConfigWithId(const Utils::Id &id) const
 {
     return indexOfConfig(id) != -1;
 }
 
-const ClangDiagnosticConfig &ClangDiagnosticConfigsModel::configWithId(const Core::Id &id) const
+const ClangDiagnosticConfig &ClangDiagnosticConfigsModel::configWithId(const Utils::Id &id) const
 {
     return m_diagnosticConfigs.at(indexOfConfig(id));
 }
 
-QVector<Core::Id> ClangDiagnosticConfigsModel::changedOrRemovedConfigs(
+QVector<Utils::Id> ClangDiagnosticConfigsModel::changedOrRemovedConfigs(
     const ClangDiagnosticConfigs &oldConfigs, const ClangDiagnosticConfigs &newConfigs)
 {
     ClangDiagnosticConfigsModel newConfigsModel(newConfigs);
-    QVector<Core::Id> changedConfigs;
+    QVector<Utils::Id> changedConfigs;
 
     for (const ClangDiagnosticConfig &old: oldConfigs) {
         const int i = newConfigsModel.indexOfConfig(old.id());
@@ -108,7 +108,7 @@ ClangDiagnosticConfig ClangDiagnosticConfigsModel::createCustomConfig(
     const ClangDiagnosticConfig &baseConfig, const QString &displayName)
 {
     ClangDiagnosticConfig copied = baseConfig;
-    copied.setId(Core::Id::fromString(QUuid::createUuid().toString()));
+    copied.setId(Utils::Id::fromString(QUuid::createUuid().toString()));
     copied.setDisplayName(displayName);
     copied.setIsReadOnly(false);
 
@@ -127,7 +127,7 @@ QStringList ClangDiagnosticConfigsModel::globalDiagnosticOptions()
     };
 }
 
-int ClangDiagnosticConfigsModel::indexOfConfig(const Core::Id &id) const
+int ClangDiagnosticConfigsModel::indexOfConfig(const Utils::Id &id) const
 {
     return Utils::indexOf(m_diagnosticConfigs, [&](const ClangDiagnosticConfig &config) {
        return config.id() == id;

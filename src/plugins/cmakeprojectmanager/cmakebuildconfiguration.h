@@ -44,7 +44,7 @@ class CMakeBuildConfiguration final : public ProjectExplorer::BuildConfiguration
     Q_OBJECT
 
     friend class ProjectExplorer::BuildConfigurationFactory;
-    CMakeBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
+    CMakeBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
     ~CMakeBuildConfiguration() final;
 
 public:

@@ -125,7 +125,7 @@
 */
 
 using namespace Core;
-
+using namespace Utils;
 
 namespace {
 static QList<IFeatureProvider *> s_providerList;

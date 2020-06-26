@@ -62,7 +62,7 @@ public:
     public:
         bool isValid() const { return typeId.isValid(); }
 
-        Core::Id typeId;
+        Utils::Id typeId;
         QVariant data;
     };
 
@@ -73,7 +73,7 @@ public:
         QString subTitle;
         QString shortTitle;
         int index = -1; // page index in the wizard
-        Core::Id typeId;
+        Utils::Id typeId;
         QVariant enabled;
         QVariant data;
     };
@@ -85,10 +85,10 @@ public:
 
     static QString localizedString(const QVariant &value);
 
-    bool isAvailable(Core::Id platformId) const override;
+    bool isAvailable(Utils::Id platformId) const override;
 
 private:
-    Utils::Wizard *runWizardImpl(const QString &path, QWidget *parent, Core::Id platform,
+    Utils::Wizard *runWizardImpl(const QString &path, QWidget *parent, Utils::Id platform,
                                  const QVariantMap &variables) override;
 
     // Create all wizards. As other plugins might register factories for derived
@@ -111,7 +111,7 @@ private:
     QList<Page> m_pages;
     QList<JsonWizard::OptionDefinition> m_options;
 
-    QSet<Core::Id> m_preferredFeatures;
+    QSet<Utils::Id> m_preferredFeatures;
 
     static int m_verbose;
 
@@ -125,16 +125,16 @@ class JsonWizardFactoryJsExtension : public QObject
 {
     Q_OBJECT
 public:
-    JsonWizardFactoryJsExtension(Core::Id platformId,
-                                 const QSet<Core::Id> &availableFeatures,
-                                 const QSet<Core::Id> &pluginFeatures);
+    JsonWizardFactoryJsExtension(Utils::Id platformId,
+                                 const QSet<Utils::Id> &availableFeatures,
+                                 const QSet<Utils::Id> &pluginFeatures);
 
     Q_INVOKABLE QVariant value(const QString &name) const;
 
 private:
-    Core::Id m_platformId;
-    QSet<Core::Id> m_availableFeatures;
-    QSet<Core::Id> m_pluginFeatures;
+    Utils::Id m_platformId;
+    QSet<Utils::Id> m_availableFeatures;
+    QSet<Utils::Id> m_pluginFeatures;
 };
 
 } // namespace Internal

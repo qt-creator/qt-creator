@@ -62,7 +62,7 @@ namespace ProjectExplorer {
 class KitList
 {
 public:
-    Core::Id defaultKit;
+    Utils::Id defaultKit;
     std::vector<std::unique_ptr<Kit>> kits;
 };
 
@@ -175,7 +175,7 @@ void KitManager::restoreKits()
     std::vector<std::unique_ptr<Kit>> resultList;
 
     // read all kits from user file
-    Core::Id defaultUserKit;
+    Utils::Id defaultUserKit;
     std::vector<std::unique_ptr<Kit>> kitsToCheck;
     {
         KitList userKits = restoreKitsHelper(settingsFileName());
@@ -262,7 +262,7 @@ void KitManager::restoreKits()
 
     if (resultList.empty() || !haveKitForBinary) {
         // No kits exist yet, so let's try to autoconfigure some from the toolchains we know.
-        QHash<Abi, QHash<Core::Id, ToolChain *>> uniqueToolchains;
+        QHash<Abi, QHash<Utils::Id, ToolChain *>> uniqueToolchains;
 
         // On Linux systems, we usually detect a plethora of same-ish toolchains. The following
         // algorithm gives precedence to icecc and ccache and otherwise simply chooses the one with
@@ -594,7 +594,7 @@ void KitManager::notifyAboutUpdate(Kit *k)
         emit m_instance->unmanagedKitUpdated(k);
 }
 
-Kit *KitManager::registerKit(const std::function<void (Kit *)> &init, Core::Id id)
+Kit *KitManager::registerKit(const std::function<void (Kit *)> &init, Utils::Id id)
 {
     QTC_ASSERT(isLoaded(), return nullptr);
 
@@ -717,7 +717,7 @@ KitAspectWidget::KitAspectWidget(Kit *kit, const KitAspect *ki) : m_kit(kit),
     m_kitInformation(ki), m_isSticky(kit->isSticky(ki->id()))
 { }
 
-Core::Id KitAspectWidget::kitInformationId() const
+Utils::Id KitAspectWidget::kitInformationId() const
 {
     return m_kitInformation->id();
 }

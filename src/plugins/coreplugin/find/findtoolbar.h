@@ -28,7 +28,7 @@
 #include "ui_findwidget.h"
 #include "currentdocumentfind.h"
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 #include <utils/styledbar.h>
 
 #include <QTimer>

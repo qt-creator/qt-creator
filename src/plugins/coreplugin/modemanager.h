@@ -26,7 +26,9 @@
 #pragma once
 
 #include <coreplugin/core_global.h>
-#include <coreplugin/id.h>
+
+#include <utils/id.h>
+
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
@@ -56,12 +58,12 @@ public:
     static ModeManager *instance();
 
     static IMode *currentMode();
-    static Id currentModeId();
+    static Utils::Id currentModeId();
 
     static void addAction(QAction *action, int priority);
     static void addProjectSelector(QAction *action);
 
-    static void activateMode(Id id);
+    static void activateMode(Utils::Id id);
     static void setFocusToCurrentMode();
     static Style modeStyle();
 
@@ -70,10 +72,10 @@ public slots:
     static void cycleModeStyle();
 
 signals:
-    void currentModeAboutToChange(Core::Id mode);
+    void currentModeAboutToChange(Utils::Id mode);
 
     // the default argument '=0' is important for connects without the oldMode argument.
-    void currentModeChanged(Core::Id mode, Core::Id oldMode = Core::Id());
+    void currentModeChanged(Utils::Id mode, Utils::Id oldMode = {});
 
 private:
     explicit ModeManager(Internal::MainWindow *mainWindow, Internal::FancyTabWidget *modeStack);

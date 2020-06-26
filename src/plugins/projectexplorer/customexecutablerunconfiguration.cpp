@@ -63,7 +63,7 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
     : CustomExecutableRunConfiguration(target, CUSTOM_EXECUTABLE_ID)
 {}
 
-CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *target, Core::Id id)
+CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *target, Utils::Id id)
     : RunConfiguration(target, id)
 {
     auto envAspect = addAspect<LocalEnvironmentAspect>(target);

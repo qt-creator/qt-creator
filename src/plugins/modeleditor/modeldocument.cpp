@@ -37,7 +37,7 @@
 #include "qmt/project_controller/projectcontroller.h"
 #include "qmt/project/project.h"
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 #include <utils/fileutils.h>
 
 #include <QFileInfo>

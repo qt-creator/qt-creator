@@ -69,7 +69,7 @@ class QmlProjectRunConfiguration final : public RunConfiguration
     Q_DECLARE_TR_FUNCTIONS(QmlProjectManager::QmlProjectRunConfiguration)
 
 public:
-    QmlProjectRunConfiguration(Target *target, Core::Id id);
+    QmlProjectRunConfiguration(Target *target, Utils::Id id);
 
 private:
     Runnable runnable() const final;

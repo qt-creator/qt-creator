@@ -60,7 +60,7 @@ class AutogenStep : public AbstractProcessStep
     Q_DECLARE_TR_FUNCTIONS(AutotoolsProjectManager::Internal::AutogenStep)
 
 public:
-    AutogenStep(BuildStepList *bsl, Core::Id id);
+    AutogenStep(BuildStepList *bsl, Utils::Id id);
 
 private:
     bool init() override;
@@ -70,7 +70,7 @@ private:
     bool m_runAutogen = false;
 };
 
-AutogenStep::AutogenStep(BuildStepList *bsl, Core::Id id) : AbstractProcessStep(bsl, id)
+AutogenStep::AutogenStep(BuildStepList *bsl, Utils::Id id) : AbstractProcessStep(bsl, id)
 {
     setDefaultDisplayName(tr("Autogen"));
 

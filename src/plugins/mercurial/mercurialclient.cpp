@@ -399,7 +399,7 @@ QString MercurialClient::findTopLevelForFile(const QFileInfo &file) const
                 VcsBase::findRepositoryForDirectory(file.absolutePath(), repositoryCheckFile);
 }
 
-Core::Id MercurialClient::vcsEditorKind(VcsCommandTag cmd) const
+Utils::Id MercurialClient::vcsEditorKind(VcsCommandTag cmd) const
 {
     switch (cmd) {
     case AnnotateCommand:
@@ -409,7 +409,7 @@ Core::Id MercurialClient::vcsEditorKind(VcsCommandTag cmd) const
     case LogCommand:
         return Constants::FILELOG_ID;
     default:
-        return Core::Id();
+        return Utils::Id();
     }
 }
 

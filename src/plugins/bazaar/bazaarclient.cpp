@@ -26,8 +26,6 @@
 #include "bazaarclient.h"
 #include "constants.h"
 
-#include <coreplugin/id.h>
-
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseeditorconfig.h>
@@ -206,7 +204,7 @@ void BazaarClient::view(const QString &source, const QString &id, const QStringL
     VcsBaseClient::view(source, id, args);
 }
 
-Core::Id BazaarClient::vcsEditorKind(VcsCommandTag cmd) const
+Utils::Id BazaarClient::vcsEditorKind(VcsCommandTag cmd) const
 {
     switch (cmd) {
     case AnnotateCommand:
@@ -216,7 +214,7 @@ Core::Id BazaarClient::vcsEditorKind(VcsCommandTag cmd) const
     case LogCommand:
         return Constants::FILELOG_ID;
     default:
-        return Core::Id();
+        return Utils::Id();
     }
 }
 

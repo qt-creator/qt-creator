@@ -42,7 +42,7 @@ class IosRunConfiguration : public ProjectExplorer::RunConfiguration
     Q_OBJECT
 
 public:
-    IosRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
+    IosRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
 
     QString applicationName() const;
     Utils::FilePath bundleDirectory() const;

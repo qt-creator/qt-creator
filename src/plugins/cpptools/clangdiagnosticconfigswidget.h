@@ -55,7 +55,7 @@ class CPPTOOLS_EXPORT ClangDiagnosticConfigsWidget : public QWidget
 
 public:
     explicit ClangDiagnosticConfigsWidget(const ClangDiagnosticConfigs &configs,
-                                          const Core::Id &configToSelect,
+                                          const Utils::Id &configToSelect,
                                           QWidget *parent = nullptr);
     ~ClangDiagnosticConfigsWidget() override;
 
@@ -85,7 +85,7 @@ private:
 private:
     Ui::ClangDiagnosticConfigsWidget *m_ui;
     ConfigsModel *m_configsModel = nullptr;
-    QHash<Core::Id, QString> m_notAcceptedOptions;
+    QHash<Utils::Id, QString> m_notAcceptedOptions;
 
     std::unique_ptr<CppTools::Ui::ClangBaseChecks> m_clangBaseChecks;
     QWidget *m_clangBaseChecksWidget = nullptr;

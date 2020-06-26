@@ -43,6 +43,8 @@
 
 Q_DECLARE_METATYPE(Core::INavigationWidgetFactory *)
 
+using namespace Utils;
+
 namespace Core {
 namespace Internal {
 

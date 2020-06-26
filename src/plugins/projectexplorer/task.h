@@ -27,7 +27,7 @@
 
 #include "projectexplorer_export.h"
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 #include <utils/fileutils.h>
 
 #include <QIcon>
@@ -64,7 +64,7 @@ public:
 
     Task() = default;
     Task(TaskType type, const QString &description,
-         const Utils::FilePath &file, int line, Core::Id category,
+         const Utils::FilePath &file, int line, Utils::Id category,
          const QIcon &icon = QIcon(),
          Options options = AddTextMark | FlashWorthy);
 
@@ -84,7 +84,7 @@ public:
     Utils::FilePaths fileCandidates;
     int line = -1;
     int movedLine = -1; // contains a line number if the line was moved in the editor
-    Core::Id category;
+    Utils::Id category;
     QIcon icon;
 
     // Having a container of QTextLayout::FormatRange in Task isn't that great

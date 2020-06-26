@@ -56,7 +56,7 @@ KeilParser::KeilParser()
     setObjectName("KeilParser");
 }
 
-Core::Id KeilParser::id()
+Utils::Id KeilParser::id()
 {
     return "BareMetal.OutputParser.Keil";
 }

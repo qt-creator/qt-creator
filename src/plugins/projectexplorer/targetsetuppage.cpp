@@ -239,9 +239,9 @@ void TargetSetupPage::setTasksGenerator(const TasksGenerator &tasksGenerator)
     m_tasksGenerator = defaultTasksGenerator(tasksGenerator);
 }
 
-QList<Core::Id> TargetSetupPage::selectedKits() const
+QList<Utils::Id> TargetSetupPage::selectedKits() const
 {
-    QList<Core::Id> result;
+    QList<Utils::Id> result;
     for (TargetSetupWidget *w : m_widgets) {
         if (w->isKitSelected())
             result.append(w->kit()->id());
@@ -303,7 +303,7 @@ void TargetSetupPage::reset()
     m_ui->allKitsCheckBox->setChecked(false);
 }
 
-TargetSetupWidget *TargetSetupPage::widget(const Core::Id kitId,
+TargetSetupWidget *TargetSetupPage::widget(const Utils::Id kitId,
                                            TargetSetupWidget *fallback) const
 {
     return findOr(m_widgets, fallback, [kitId](const TargetSetupWidget *w) {
@@ -515,7 +515,7 @@ void TargetSetupPage::kitFilterChanged(const QString &filterText)
     // Remember selected kits:
     const std::vector<TargetSetupWidget *> selectedWidgets
         = filtered(m_widgets, &TargetSetupWidget::isKitSelected);
-    const QVector<Core::Id> selectedKitIds = transform<QVector>(selectedWidgets,
+    const QVector<Utils::Id> selectedKitIds = transform<QVector>(selectedWidgets,
                                                                 [](const TargetSetupWidget *w) {
                                                                     return w->kit()->id();
                                                                 });

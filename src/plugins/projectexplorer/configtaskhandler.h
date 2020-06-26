@@ -37,7 +37,7 @@ class ConfigTaskHandler : public ITaskHandler
     Q_OBJECT
 
 public:
-    ConfigTaskHandler(const Task &pattern, Core::Id page);
+    ConfigTaskHandler(const Task &pattern, Utils::Id page);
 
     bool canHandle(const Task &task) const override;
     void handle(const Task &task) override;
@@ -45,7 +45,7 @@ public:
 
 private:
     const Task m_pattern;
-    const Core::Id m_targetPage;
+    const Utils::Id m_targetPage;
 };
 
 } // namespace Internal

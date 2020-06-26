@@ -60,7 +60,7 @@ void TestProjectSettings::setUseGlobalSettings(bool useGlobal)
      m_useGlobalSettings = useGlobal;
 }
 
-void TestProjectSettings::activateFramework(const Core::Id &id, bool activate)
+void TestProjectSettings::activateFramework(const Utils::Id &id, bool activate)
 {
     ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
     m_activeTestFrameworks[framework] = activate;
@@ -81,7 +81,7 @@ void TestProjectSettings::load()
     if (activeFrameworks.isValid()) {
         const QMap<QString, QVariant> frameworksMap = activeFrameworks.toMap();
         for (ITestFramework *framework : registered) {
-            const Core::Id id = framework->id();
+            const Utils::Id id = framework->id();
             bool active = frameworksMap.value(id.toString(), framework->active()).toBool();
             m_activeTestFrameworks.insert(framework, active);
         }

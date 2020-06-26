@@ -82,7 +82,7 @@ class NimParser : public ProjectExplorer::OutputTaskParser
     }
 };
 
-NimCompilerBuildStep::NimCompilerBuildStep(BuildStepList *parentList, Core::Id id)
+NimCompilerBuildStep::NimCompilerBuildStep(BuildStepList *parentList, Utils::Id id)
     : AbstractProcessStep(parentList, id)
 {
     setDefaultDisplayName(tr(Constants::C_NIMCOMPILERBUILDSTEP_DISPLAY));

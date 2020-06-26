@@ -40,8 +40,8 @@ class CORE_EXPORT UrlLocatorFilter final : public Core::ILocatorFilter
 {
     Q_OBJECT
 public:
-    UrlLocatorFilter(Id id);
-    UrlLocatorFilter(const QString &displayName, Id id);
+    UrlLocatorFilter(Utils::Id id);
+    UrlLocatorFilter(const QString &displayName, Utils::Id id);
     ~UrlLocatorFilter() final;
 
     // ILocatorFilter

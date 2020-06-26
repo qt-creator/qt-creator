@@ -82,7 +82,7 @@ class NimParser : public OutputTaskParser
 
 }
 
-NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList, Core::Id id)
+NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList, Utils::Id id)
     : AbstractProcessStep(parentList, id)
 {
     setDefaultDisplayName(tr(Constants::C_NIMBLEBUILDSTEP_DISPLAY));

@@ -221,7 +221,7 @@ public:
     bool m_qmakeIsExecutable = true;
 
     QString m_autodetectionSource;
-    QSet<Core::Id> m_overrideFeatures;
+    QSet<Utils::Id> m_overrideFeatures;
 
     FilePath m_mkspec;
     FilePath m_mkspecFullPath;
@@ -695,7 +695,7 @@ void BaseQtVersion::fromMap(const QVariantMap &map)
     d->m_data.unexpandedDisplayName.fromMap(map, Constants::QTVERSIONNAME);
     d->m_isAutodetected = map.value(QTVERSIONAUTODETECTED).toBool();
     d->m_autodetectionSource = map.value(QTVERSIONAUTODETECTIONSOURCE).toString();
-    d->m_overrideFeatures = Core::Id::fromStringList(map.value(QTVERSION_OVERRIDE_FEATURES).toStringList());
+    d->m_overrideFeatures = Utils::Id::fromStringList(map.value(QTVERSION_OVERRIDE_FEATURES).toStringList());
     QString string = map.value(QTVERSIONQMAKEPATH).toString();
     if (string.startsWith('~'))
         string.remove(0, 1).prepend(QDir::homePath());
@@ -732,7 +732,7 @@ QVariantMap BaseQtVersion::toMap() const
     result.insert(QTVERSIONAUTODETECTED, isAutodetected());
     result.insert(QTVERSIONAUTODETECTIONSOURCE, autodetectionSource());
     if (!d->m_overrideFeatures.isEmpty())
-        result.insert(QTVERSION_OVERRIDE_FEATURES, Core::Id::toStringList(d->m_overrideFeatures));
+        result.insert(QTVERSION_OVERRIDE_FEATURES, Utils::Id::toStringList(d->m_overrideFeatures));
 
     result.insert(QTVERSIONQMAKEPATH, qmakeCommand().toString());
     return result;

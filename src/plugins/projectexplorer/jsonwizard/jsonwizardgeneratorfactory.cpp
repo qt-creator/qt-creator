@@ -56,6 +56,7 @@
 
 using namespace Core;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace ProjectExplorer {
 

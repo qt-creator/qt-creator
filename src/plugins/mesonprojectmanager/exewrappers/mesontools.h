@@ -50,7 +50,7 @@ public:
     static bool isMesonWrapper(const Tool_t &tool);
     static bool isNinjaWrapper(const Tool_t &tool);
 
-    static inline void addTool(const Core::Id &itemId,
+    static inline void addTool(const Utils::Id &itemId,
                                const QString &name,
                                const Utils::FilePath &exe)
     {
@@ -72,7 +72,7 @@ public:
 
     static inline const std::vector<Tool_t> &tools() { return instance()->m_tools; }
 
-    static inline void updateTool(const Core::Id &itemId,
+    static inline void updateTool(const Utils::Id &itemId,
                                   const QString &name,
                                   const Utils::FilePath &exe)
     {
@@ -87,7 +87,7 @@ public:
             addTool(itemId, name, exe);
         }
     }
-    static void removeTool(const Core::Id &id)
+    static void removeTool(const Utils::Id &id)
     {
         auto self = instance();
         auto item = Utils::take(self->m_tools, [&id](const auto &item) { return item->id() == id; });
@@ -95,8 +95,8 @@ public:
         emit self->toolRemoved(*item);
     }
 
-    static std::shared_ptr<NinjaWrapper> ninjaWrapper(const Core::Id &id);
-    static std::shared_ptr<MesonWrapper> mesonWrapper(const Core::Id &id);
+    static std::shared_ptr<NinjaWrapper> ninjaWrapper(const Utils::Id &id);
+    static std::shared_ptr<MesonWrapper> mesonWrapper(const Utils::Id &id);
 
     static std::shared_ptr<NinjaWrapper> ninjaWrapper();
     static std::shared_ptr<MesonWrapper> mesonWrapper();

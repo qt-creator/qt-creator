@@ -45,7 +45,7 @@ class NimCompilerCleanStep final : public BuildStep
     Q_DECLARE_TR_FUNCTIONS(Nim::NimCompilerCleanStep)
 
 public:
-    NimCompilerCleanStep(BuildStepList *parentList, Core::Id id);
+    NimCompilerCleanStep(BuildStepList *parentList, Utils::Id id);
 
 private:
     bool init() final;
@@ -58,7 +58,7 @@ private:
     Utils::FilePath m_buildDir;
 };
 
-NimCompilerCleanStep::NimCompilerCleanStep(BuildStepList *parentList, Core::Id id)
+NimCompilerCleanStep::NimCompilerCleanStep(BuildStepList *parentList, Utils::Id id)
     : BuildStep(parentList, id)
 {
     setDefaultDisplayName(tr("Nim Clean Step"));

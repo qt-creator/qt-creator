@@ -36,10 +36,10 @@ class WinRtPhoneQtVersion : public QtSupport::BaseQtVersion
 public:
     WinRtPhoneQtVersion() = default;
 
-    QSet<Core::Id> availableFeatures() const override;
+    QSet<Utils::Id> availableFeatures() const override;
 
     QString description() const override;
-    QSet<Core::Id> targetDeviceTypes() const override;
+    QSet<Utils::Id> targetDeviceTypes() const override;
 };
 
 class WinRtPhoneQtVersionFactory : public QtSupport::QtVersionFactory

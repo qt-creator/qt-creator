@@ -77,7 +77,7 @@ class ConfigureStep : public ProjectExplorer::AbstractProcessStep
     Q_DECLARE_TR_FUNCTIONS(AutotoolsProjectManager::Internal::ConfigureStep)
 
 public:
-    ConfigureStep(BuildStepList *bsl, Core::Id id);
+    ConfigureStep(BuildStepList *bsl, Utils::Id id);
 
     void setAdditionalArguments(const QString &list);
 
@@ -89,7 +89,7 @@ private:
     bool m_runConfigure = false;
 };
 
-ConfigureStep::ConfigureStep(BuildStepList *bsl, Core::Id id)
+ConfigureStep::ConfigureStep(BuildStepList *bsl, Utils::Id id)
     : AbstractProcessStep(bsl, id)
 {
     setDefaultDisplayName(tr("Configure"));

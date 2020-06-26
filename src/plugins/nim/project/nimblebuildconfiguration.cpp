@@ -47,7 +47,7 @@ using namespace Nim;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-NimbleBuildConfiguration::NimbleBuildConfiguration(Target *target, Core::Id id)
+NimbleBuildConfiguration::NimbleBuildConfiguration(Target *target, Utils::Id id)
     : BuildConfiguration(target, id)
 {
     setConfigWidgetDisplayName(tr("General"));

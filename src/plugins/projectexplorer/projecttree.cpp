@@ -315,7 +315,7 @@ void ProjectTree::updateExternalFileWarning()
     if (!document || document->filePath().isEmpty())
         return;
     Utils::InfoBar *infoBar = document->infoBar();
-    Core::Id externalFileId(EXTERNAL_FILE_WARNING);
+    Utils::Id externalFileId(EXTERNAL_FILE_WARNING);
     if (!document->isModified()) {
         infoBar->removeInfo(externalFileId);
         return;

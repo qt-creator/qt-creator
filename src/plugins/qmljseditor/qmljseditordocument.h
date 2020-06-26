@@ -43,7 +43,7 @@ class QMLJSEDITOR_EXPORT QmlJSEditorDocument : public TextEditor::TextDocument
 {
     Q_OBJECT
 public:
-    QmlJSEditorDocument(Core::Id id);
+    QmlJSEditorDocument(Utils::Id id);
     ~QmlJSEditorDocument() override;
 
     const QmlJSTools::SemanticInfo &semanticInfo() const;

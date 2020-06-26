@@ -37,7 +37,7 @@ public:
     ~QdbQtVersion() = default;
 
     QString description() const final;
-    QSet<Core::Id> targetDeviceTypes() const final;
+    QSet<Utils::Id> targetDeviceTypes() const final;
 };
 
 } // namespace Internal

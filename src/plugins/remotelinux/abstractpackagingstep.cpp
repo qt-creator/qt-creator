@@ -49,7 +49,7 @@ public:
 
 } // namespace Internal
 
-AbstractPackagingStep::AbstractPackagingStep(BuildStepList *bsl, Core::Id id)
+AbstractPackagingStep::AbstractPackagingStep(BuildStepList *bsl, Utils::Id id)
     : BuildStep(bsl, id)
 {
     d = new Internal::AbstractPackagingStepPrivate;

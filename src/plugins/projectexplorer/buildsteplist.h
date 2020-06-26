@@ -27,7 +27,7 @@
 
 #include "projectexplorer_export.h"
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <QObject>
 #include <QVariantMap>
@@ -42,7 +42,7 @@ class PROJECTEXPLORER_EXPORT BuildStepList : public QObject
     Q_OBJECT
 
 public:
-    explicit BuildStepList(QObject *parent, Core::Id id);
+    explicit BuildStepList(QObject *parent, Utils::Id id);
     ~BuildStepList() override;
 
     void clear();
@@ -58,19 +58,19 @@ public:
         }
         return nullptr;
     }
-    BuildStep *firstStepWithId(Core::Id id) const;
+    BuildStep *firstStepWithId(Utils::Id id) const;
 
     int count() const;
     bool isEmpty() const;
-    bool contains(Core::Id id) const;
+    bool contains(Utils::Id id) const;
 
     void insertStep(int position, BuildStep *step);
-    void insertStep(int position, Core::Id id);
+    void insertStep(int position, Utils::Id id);
     void appendStep(BuildStep *step) { insertStep(count(), step); }
-    void appendStep(Core::Id stepId) { insertStep(count(), stepId); }
+    void appendStep(Utils::Id stepId) { insertStep(count(), stepId); }
 
     struct StepCreationInfo {
-        Core::Id stepId;
+        Utils::Id stepId;
         std::function<bool(Target *)> condition; // unset counts as unrestricted
     };
 
@@ -83,7 +83,7 @@ public:
     QVariantMap toMap() const;
     bool fromMap(const QVariantMap &map);
 
-    Core::Id id() const { return m_id; }
+    Utils::Id id() const { return m_id; }
     QString displayName() const;
 
 signals:
@@ -94,7 +94,7 @@ signals:
 
 private:
     Target *m_target;
-    Core::Id m_id;
+    Utils::Id m_id;
     QList<BuildStep *> m_steps;
 };
 

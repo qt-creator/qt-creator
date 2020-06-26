@@ -46,12 +46,12 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/id.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/find/ifindsupport.h>
 #include <coreplugin/idocument.h>
 #include <extensionsystem/pluginmanager.h>
+
 #include <utils/reloadpromptutils.h>
 #include <utils/qtcassert.h>
 

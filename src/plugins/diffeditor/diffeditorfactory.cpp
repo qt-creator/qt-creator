@@ -35,6 +35,7 @@
 
 using namespace Core;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace DiffEditor {
 namespace Internal {
@@ -60,7 +61,7 @@ DiffEditorFactory::DiffEditorFactory() :
     },
     rightHandler {
         Constants::DIFF_EDITOR_ID,
-        Core::Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(2),
+        Utils::Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(2),
         TextEditorActionHandler::None,
         [](Core::IEditor *e) { return static_cast<DiffEditor *>(e)->rightEditorWidget(); }
     }

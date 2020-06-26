@@ -50,7 +50,7 @@ class DiagnosticConfigsWidget : public CppTools::ClangDiagnosticConfigsWidget
 
 public:
     DiagnosticConfigsWidget(const CppTools::ClangDiagnosticConfigs &configs,
-                            const Core::Id &configToSelect,
+                            const Utils::Id &configToSelect,
                             const ClangTidyInfo &tidyInfo,
                             const ClazyStandaloneInfo &clazyInfo);
     ~DiagnosticConfigsWidget();

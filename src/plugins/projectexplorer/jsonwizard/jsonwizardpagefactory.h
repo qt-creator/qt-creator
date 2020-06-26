@@ -27,7 +27,7 @@
 
 #include "../projectexplorer_export.h"
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <QVariant>
 #include <QStringList>
@@ -42,13 +42,13 @@ class PROJECTEXPLORER_EXPORT JsonWizardPageFactory
 public:
     virtual ~JsonWizardPageFactory();
 
-    bool canCreate(Core::Id typeId) const { return m_typeIds.contains(typeId); }
-    QList<Core::Id> supportedIds() const { return m_typeIds; }
+    bool canCreate(Utils::Id typeId) const { return m_typeIds.contains(typeId); }
+    QList<Utils::Id> supportedIds() const { return m_typeIds; }
 
-    virtual Utils::WizardPage *create(JsonWizard *wizard, Core::Id typeId, const QVariant &data) = 0;
+    virtual Utils::WizardPage *create(JsonWizard *wizard, Utils::Id typeId, const QVariant &data) = 0;
 
     // Basic syntax check for the data taken from the wizard.json file:
-    virtual bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage) = 0;
+    virtual bool validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage) = 0;
 
 protected:
     // This will add "PE.Wizard.Page." in front of the suffixes and set those as supported typeIds
@@ -56,7 +56,7 @@ protected:
     void setTypeIdsSuffix(const QString &suffix);
 
 private:
-    QList<Core::Id> m_typeIds;
+    QList<Utils::Id> m_typeIds;
 };
 
 } // namespace ProjectExplorer

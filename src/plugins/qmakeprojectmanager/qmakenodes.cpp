@@ -358,7 +358,7 @@ QStringList QmakeProFileNode::targetApplications() const
     return apps;
 }
 
-QVariant QmakeProFileNode::data(Core::Id role) const
+QVariant QmakeProFileNode::data(Utils::Id role) const
 {
     if (role == Android::Constants::AndroidPackageSourceDir)
         return singleVariableValue(Variable::AndroidPackageSourceDir);
@@ -412,7 +412,7 @@ QVariant QmakeProFileNode::data(Core::Id role) const
     return {};
 }
 
-bool QmakeProFileNode::setData(Core::Id role, const QVariant &value) const
+bool QmakeProFileNode::setData(Utils::Id role, const QVariant &value) const
 {
     QmakeProFile *pro = proFile();
     if (!pro)

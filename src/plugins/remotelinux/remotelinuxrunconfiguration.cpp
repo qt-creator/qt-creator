@@ -46,7 +46,7 @@ using namespace Utils;
 namespace RemoteLinux {
 namespace Internal {
 
-RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::Id id)
+RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Utils::Id id)
     : RunConfiguration(target, id)
 {
     auto exeAspect = addAspect<ExecutableAspect>();

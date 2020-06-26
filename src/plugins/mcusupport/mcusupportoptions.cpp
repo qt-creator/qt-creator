@@ -235,7 +235,7 @@ McuToolChainPackage::Type McuToolChainPackage::type() const
     return m_type;
 }
 
-static ProjectExplorer::ToolChain *desktopToolChain(Core::Id language)
+static ProjectExplorer::ToolChain *desktopToolChain(Utils::Id language)
 {
     using namespace ProjectExplorer;
 
@@ -251,7 +251,7 @@ static ProjectExplorer::ToolChain *desktopToolChain(Core::Id language)
     return toolChain;
 }
 
-static ProjectExplorer::ToolChain* armGccToolChain(const Utils::FilePath &path, Core::Id language)
+static ProjectExplorer::ToolChain* armGccToolChain(const Utils::FilePath &path, Utils::Id language)
 {
     using namespace ProjectExplorer;
 
@@ -277,7 +277,7 @@ static ProjectExplorer::ToolChain* armGccToolChain(const Utils::FilePath &path, 
     return toolChain;
 }
 
-ProjectExplorer::ToolChain *McuToolChainPackage::toolChain(Core::Id language) const
+ProjectExplorer::ToolChain *McuToolChainPackage::toolChain(Utils::Id language) const
 {
     ProjectExplorer::ToolChain *tc = nullptr;
     if (m_type == TypeDesktop) {
@@ -500,7 +500,7 @@ static void setKitProperties(const QString &kitName, ProjectExplorer::Kit *k,
     k->makeSticky();
     if (mcuTarget->toolChainPackage()->type() == McuToolChainPackage::TypeDesktop)
         k->setDeviceTypeForIcon(DEVICE_TYPE);
-    QSet<Core::Id> irrelevant = {
+    QSet<Utils::Id> irrelevant = {
         SysRootKitAspect::id(),
         QtSupport::QtKitAspect::id()
     };

@@ -65,7 +65,7 @@ LoopbackExemptServerAspect::LoopbackExemptServerAspect()
 
 // WinRtRunConfiguration
 
-WinRtRunConfiguration::WinRtRunConfiguration(Target *target, Core::Id id)
+WinRtRunConfiguration::WinRtRunConfiguration(Target *target, Utils::Id id)
     : RunConfiguration(target, id)
 {
     setDisplayName(tr("Run App Package"));

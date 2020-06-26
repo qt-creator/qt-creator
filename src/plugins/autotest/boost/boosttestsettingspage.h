@@ -35,7 +35,7 @@ class BoostTestSettings;
 class BoostTestSettingsPage final : public Core::IOptionsPage
 {
 public:
-    BoostTestSettingsPage(BoostTestSettings *settings, Core::Id settingsId);
+    BoostTestSettingsPage(BoostTestSettings *settings, Utils::Id settingsId);
 };
 
 } // Internal

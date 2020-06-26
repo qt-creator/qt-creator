@@ -44,7 +44,7 @@ static const QLatin1String iosDeviceTypeDisplayNameKey = QLatin1String("displayN
 static const QLatin1String iosDeviceTypeTypeKey = QLatin1String("type");
 static const QLatin1String iosDeviceTypeIdentifierKey = QLatin1String("identifier");
 
-IosSimulator::IosSimulator(Core::Id id)
+IosSimulator::IosSimulator(Utils::Id id)
     : m_lastPort(Constants::IOS_SIMULATOR_PORT_START)
 {
     setupId(IDevice::AutoDetected, id);

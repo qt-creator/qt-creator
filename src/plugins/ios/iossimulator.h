@@ -80,7 +80,7 @@ protected:
     friend class IosSimulatorFactory;
     friend class IosConfigurations;
     IosSimulator();
-    IosSimulator(Core::Id id);
+    IosSimulator(Utils::Id id);
 
 private:
     mutable quint16 m_lastPort;

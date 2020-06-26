@@ -48,7 +48,7 @@ ScxmlEditorDocument::ScxmlEditorDocument(MainWidget *designWidget, QObject *pare
 {
     setMimeType(QLatin1String(ProjectExplorer::Constants::SCXML_MIMETYPE));
     setParent(parent);
-    setId(Core::Id(ScxmlEditor::Constants::K_SCXML_EDITOR_ID));
+    setId(Utils::Id(ScxmlEditor::Constants::K_SCXML_EDITOR_ID));
 
     // Designer needs UTF-8 regardless of settings.
     setCodec(QTextCodec::codecForName("UTF-8"));

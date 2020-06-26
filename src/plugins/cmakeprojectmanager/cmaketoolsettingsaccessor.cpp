@@ -201,7 +201,7 @@ CMakeToolSettingsAccessor::CMakeTools CMakeToolSettingsAccessor::restoreCMakeToo
 }
 
 void CMakeToolSettingsAccessor::saveCMakeTools(const QList<CMakeTool *> &cmakeTools,
-                                               const Core::Id &defaultId,
+                                               const Utils::Id &defaultId,
                                                QWidget *parent)
 {
     QVariantMap data;
@@ -246,8 +246,8 @@ CMakeToolSettingsAccessor::cmakeTools(const QVariantMap &data, bool fromSdk) con
         result.cmakeTools.emplace_back(std::move(item));
     }
 
-    result.defaultToolId = Core::Id::fromSetting(data.value(CMAKE_TOOL_DEFAULT_KEY,
-                                                            Core::Id().toSetting()));
+    result.defaultToolId = Utils::Id::fromSetting(data.value(CMAKE_TOOL_DEFAULT_KEY,
+                                                            Utils::Id().toSetting()));
 
     return result;
 }

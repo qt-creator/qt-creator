@@ -27,7 +27,7 @@
 
 #include "texteditor_global.h"
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <QObject>
 
@@ -78,24 +78,24 @@ public:
     static const ExtraEncodingSettings &extraEncodingSettings();
     static const CommentsSettings &commentsSettings();
 
-    static ICodeStylePreferencesFactory *codeStyleFactory(Core::Id languageId);
-    static const QMap<Core::Id, ICodeStylePreferencesFactory *> &codeStyleFactories();
+    static ICodeStylePreferencesFactory *codeStyleFactory(Utils::Id languageId);
+    static const QMap<Utils::Id, ICodeStylePreferencesFactory *> &codeStyleFactories();
     static void registerCodeStyleFactory(ICodeStylePreferencesFactory *codeStyleFactory);
-    static void unregisterCodeStyleFactory(Core::Id languageId);
+    static void unregisterCodeStyleFactory(Utils::Id languageId);
 
     static CodeStylePool *codeStylePool();
-    static CodeStylePool *codeStylePool(Core::Id languageId);
-    static void registerCodeStylePool(Core::Id languageId, CodeStylePool *pool);
-    static void unregisterCodeStylePool(Core::Id languageId);
+    static CodeStylePool *codeStylePool(Utils::Id languageId);
+    static void registerCodeStylePool(Utils::Id languageId, CodeStylePool *pool);
+    static void unregisterCodeStylePool(Utils::Id languageId);
 
     static ICodeStylePreferences *codeStyle();
-    static ICodeStylePreferences *codeStyle(Core::Id languageId);
-    static QMap<Core::Id, ICodeStylePreferences *> codeStyles();
-    static void registerCodeStyle(Core::Id languageId, ICodeStylePreferences *prefs);
-    static void unregisterCodeStyle(Core::Id languageId);
+    static ICodeStylePreferences *codeStyle(Utils::Id languageId);
+    static QMap<Utils::Id, ICodeStylePreferences *> codeStyles();
+    static void registerCodeStyle(Utils::Id languageId, ICodeStylePreferences *prefs);
+    static void unregisterCodeStyle(Utils::Id languageId);
 
-    static void registerMimeTypeForLanguageId(const char *mimeType, Core::Id languageId);
-    static Core::Id languageId(const QString &mimeType);
+    static void registerMimeTypeForLanguageId(const char *mimeType, Utils::Id languageId);
+    static Utils::Id languageId(const QString &mimeType);
     static int increaseFontZoom(int step);
     static void resetFontZoom();
 

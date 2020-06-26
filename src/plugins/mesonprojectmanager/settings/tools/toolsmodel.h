@@ -41,7 +41,7 @@ class ToolsModel final : public Utils::TreeModel<Utils::TreeItem, Utils::TreeIte
 public:
     ToolsModel();
     ToolTreeItem *mesoneToolTreeItem(const QModelIndex &index) const;
-    void updateItem(const Core::Id &itemId, const QString &name, const Utils::FilePath &exe);
+    void updateItem(const Utils::Id &itemId, const QString &name, const Utils::FilePath &exe);
     void addMesonTool();
     void removeMesonTool(ToolTreeItem *item);
     ToolTreeItem *cloneMesonTool(ToolTreeItem *item);
@@ -52,7 +52,7 @@ private:
     QString uniqueName(const QString &baseName);
     Utils::TreeItem *autoDetectedGroup() const;
     Utils::TreeItem *manualGroup() const;
-    QQueue<Core::Id> m_itemsToRemove;
+    QQueue<Utils::Id> m_itemsToRemove;
 };
 } // namespace Internal
 } // namespace MesonProjectManager

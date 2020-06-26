@@ -51,7 +51,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/id.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -108,7 +107,7 @@ class HelpPluginPrivate : public QObject
 public:
     HelpPluginPrivate();
 
-    void modeChanged(Core::Id mode, Core::Id old);
+    void modeChanged(Utils::Id mode, Utils::Id old);
 
     void requestContextHelp();
     void showContextHelp(const HelpItem &contextHelp);
@@ -451,7 +450,7 @@ void HelpPluginPrivate::showLinksInCurrentViewer(const QMultiMap<QString, QUrl> 
     widget->showLinks(links, key);
 }
 
-void HelpPluginPrivate::modeChanged(Core::Id mode, Core::Id old)
+void HelpPluginPrivate::modeChanged(Utils::Id mode, Utils::Id old)
 {
     Q_UNUSED(old)
     if (mode == m_mode.id()) {

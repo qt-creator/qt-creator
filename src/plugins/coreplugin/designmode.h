@@ -64,7 +64,7 @@ private:
     void updateActions();
 
     void currentEditorChanged(IEditor *editor);
-    void updateContext(Id newMode, Id oldMode);
+    void updateContext(Utils::Id newMode, Utils::Id oldMode);
     void setActiveContext(const Context &context);
 };
 

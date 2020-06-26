@@ -31,7 +31,7 @@
 #include "locatorfilter.h"
 #include "lsplogger.h"
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <languageserverprotocol/diagnostics.h>
 #include <languageserverprotocol/languagefeatures.h>

@@ -57,7 +57,7 @@ public:
     };
     Q_DECLARE_FLAGS(WizardFlags, WizardFlag)
 
-    Id id() const { return m_id; }
+    Utils::Id id() const { return m_id; }
     WizardKind kind() const { return m_supportedProjectTypes.isEmpty() ? FileWizard : ProjectWizard; }
     QIcon icon() const { return m_icon; }
     QString iconText() const { return m_iconText; }
@@ -66,12 +66,12 @@ public:
     QString category() const { return m_category; }
     QString displayCategory() const { return m_displayCategory; }
     QString descriptionImage() const { return m_descriptionImage; }
-    QSet<Id> requiredFeatures() const { return m_requiredFeatures; }
+    QSet<Utils::Id> requiredFeatures() const { return m_requiredFeatures; }
     WizardFlags flags() const { return m_flags; }
-    QSet<Id> supportedProjectTypes() const { return m_supportedProjectTypes; }
+    QSet<Utils::Id> supportedProjectTypes() const { return m_supportedProjectTypes; }
 
-    void setId(const Id id) { m_id = id; }
-    void setSupportedProjectTypes(const QSet<Id> &projectTypes) { m_supportedProjectTypes = projectTypes; }
+    void setId(const Utils::Id id) { m_id = id; }
+    void setSupportedProjectTypes(const QSet<Utils::Id> &projectTypes) { m_supportedProjectTypes = projectTypes; }
     void setIcon(const QIcon &icon) { m_icon = icon; }
     void setIconText(const QString &iconText) { m_iconText = iconText; }
     void setDescription(const QString &description) { m_description = description; }
@@ -79,26 +79,26 @@ public:
     void setCategory(const QString &category) { m_category = category; }
     void setDisplayCategory(const QString &displayCategory) { m_displayCategory = displayCategory; }
     void setDescriptionImage(const QString &descriptionImage) { m_descriptionImage = descriptionImage; }
-    void setRequiredFeatures(const QSet<Id> &featureSet) { m_requiredFeatures = featureSet; }
-    void addRequiredFeature(const Id &feature) { m_requiredFeatures |= feature; }
+    void setRequiredFeatures(const QSet<Utils::Id> &featureSet) { m_requiredFeatures = featureSet; }
+    void addRequiredFeature(const Utils::Id &feature) { m_requiredFeatures |= feature; }
     void setFlags(WizardFlags flags) { m_flags = flags; }
 
     QString runPath(const QString &defaultPath);
 
     // Does bookkeeping and the calls runWizardImpl. Please implement that.
-    Utils::Wizard *runWizard(const QString &path, QWidget *parent, Id platform,
+    Utils::Wizard *runWizard(const QString &path, QWidget *parent, Utils::Id platform,
                              const QVariantMap &variables);
 
-    virtual bool isAvailable(Id platformId) const;
-    QSet<Id> supportedPlatforms() const;
+    virtual bool isAvailable(Utils::Id platformId) const;
+    QSet<Utils::Id> supportedPlatforms() const;
 
     using FactoryCreator = std::function<QList<IWizardFactory *>()>;
     static void registerFactoryCreator(const FactoryCreator &creator);
 
     // Utility to find all registered wizards
     static QList<IWizardFactory*> allWizardFactories();
-    static QSet<Id> allAvailablePlatforms();
-    static QString displayNameForPlatform(Id i);
+    static QSet<Utils::Id> allAvailablePlatforms();
+    static QString displayNameForPlatform(Utils::Id i);
 
     static void registerFeatureProvider(IFeatureProvider *provider);
 
@@ -111,10 +111,10 @@ public:
                                      const QVariantMap &extraVariables);
 
 protected:
-    QSet<Id> pluginFeatures() const;
-    QSet<Id> availableFeatures(Id platformId) const;
+    QSet<Utils::Id> pluginFeatures() const;
+    QSet<Utils::Id> availableFeatures(Utils::Id platformId) const;
 
-    virtual Utils::Wizard *runWizardImpl(const QString &path, QWidget *parent, Id platform,
+    virtual Utils::Wizard *runWizardImpl(const QString &path, QWidget *parent, Utils::Id platform,
                                          const QVariantMap &variables) = 0;
 
 private:
@@ -131,10 +131,10 @@ private:
     QString m_category;
     QString m_displayCategory;
     QString m_descriptionImage;
-    QSet<Id> m_requiredFeatures;
-    QSet<Id> m_supportedProjectTypes;
+    QSet<Utils::Id> m_requiredFeatures;
+    QSet<Utils::Id> m_supportedProjectTypes;
     WizardFlags m_flags;
-    Id m_id;
+    Utils::Id m_id;
 
     friend class Internal::CorePlugin;
 };

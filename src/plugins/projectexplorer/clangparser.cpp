@@ -120,9 +120,9 @@ OutputLineParser::Result ClangParser::handleLine(const QString &line, OutputForm
     return Status::NotHandled;
 }
 
-Core::Id ClangParser::id()
+Utils::Id ClangParser::id()
 {
-    return Core::Id("ProjectExplorer.OutputParser.Clang");
+    return Utils::Id("ProjectExplorer.OutputParser.Clang");
 }
 
 // Unit tests:

@@ -39,7 +39,7 @@ namespace ProjectExplorer {
 const char STEPS_COUNT_KEY[] = "ProjectExplorer.BuildStepList.StepsCount";
 const char STEPS_PREFIX[] = "ProjectExplorer.BuildStepList.Step.";
 
-BuildStepList::BuildStepList(QObject *parent, Core::Id id)
+BuildStepList::BuildStepList(QObject *parent, Utils::Id id)
     : QObject(parent), m_id(id)
 {
     QTC_ASSERT(parent, return);
@@ -91,7 +91,7 @@ bool BuildStepList::isEmpty() const
     return m_steps.isEmpty();
 }
 
-bool BuildStepList::contains(Core::Id id) const
+bool BuildStepList::contains(Utils::Id id) const
 {
     return Utils::anyOf(steps(), [id](BuildStep *bs){
         return bs->id() == id;
@@ -130,7 +130,7 @@ bool BuildStepList::fromMap(const QVariantMap &map)
             continue;
         }
         bool handled = false;
-        Core::Id stepId = idFromMap(bsData);
+        Utils::Id stepId = idFromMap(bsData);
         for (BuildStepFactory *factory : factories) {
             if (factory->stepId() == stepId) {
                 if (factory->canHandle(this)) {
@@ -153,7 +153,7 @@ QList<BuildStep *> BuildStepList::steps() const
     return m_steps;
 }
 
-BuildStep *BuildStepList::firstStepWithId(Core::Id id) const
+BuildStep *BuildStepList::firstStepWithId(Utils::Id id) const
 {
     return Utils::findOrDefault(m_steps, Utils::equal(&BuildStep::id, id));
 }
@@ -164,7 +164,7 @@ void BuildStepList::insertStep(int position, BuildStep *step)
     emit stepInserted(position);
 }
 
-void BuildStepList::insertStep(int position, Core::Id stepId)
+void BuildStepList::insertStep(int position, Utils::Id stepId)
 {
     for (BuildStepFactory *factory : BuildStepFactory::allBuildStepFactories()) {
         if (BuildStep *step = factory->create(this, stepId)) {

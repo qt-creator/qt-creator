@@ -26,7 +26,8 @@
 #pragma once
 
 #include <coreplugin/core_global.h>
-#include <coreplugin/id.h>
+
+#include <utils/id.h>
 
 #include <QFuture>
 #include <QFutureInterfaceBase>
@@ -52,17 +53,17 @@ public:
     static ProgressManager *instance();
 
     static FutureProgress *addTask(const QFuture<void> &future, const QString &title,
-                                   Id type, ProgressFlags flags = {});
+                                   Utils::Id type, ProgressFlags flags = {});
     static FutureProgress *addTimedTask(const QFutureInterface<void> &fi, const QString &title,
-                                   Id type, int expectedSeconds, ProgressFlags flags = {});
+                                        Utils::Id type, int expectedSeconds, ProgressFlags flags = {});
     static void setApplicationLabel(const QString &text);
 
 public slots:
-    static void cancelTasks(Id type);
+    static void cancelTasks(Utils::Id type);
 
 signals:
-    void taskStarted(Core::Id type);
-    void allTasksFinished(Core::Id type);
+    void taskStarted(Utils::Id type);
+    void allTasksFinished(Utils::Id type);
 
 private:
     ProgressManager();

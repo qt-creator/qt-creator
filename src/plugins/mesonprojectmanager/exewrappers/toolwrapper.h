@@ -23,9 +23,9 @@
 **
 ****************************************************************************/
 #pragma once
-#include <coreplugin/id.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/id.h>
 #include <utils/qtcassert.h>
 #include <versionhelper.h>
 #include <QFileInfo>
@@ -64,7 +64,7 @@ public:
     ToolWrapper(const QString &name, const Utils::FilePath &path, bool autoDetected = false);
     ToolWrapper(const QString &name,
                 const Utils::FilePath &path,
-                const Core::Id &id,
+                const Utils::Id &id,
                 bool autoDetected = false);
     ToolWrapper(const ToolWrapper &other) = default;
     ToolWrapper(ToolWrapper &&other) = default;
@@ -74,7 +74,7 @@ public:
     inline const Version &version() const noexcept { return m_version; };
     inline bool isValid() const noexcept { return m_isValid; };
     inline bool autoDetected() const noexcept { return m_autoDetected; };
-    inline Core::Id id() const noexcept { return m_id; };
+    inline Utils::Id id() const noexcept { return m_id; };
     inline Utils::FilePath exe() const noexcept { return m_exe; };
     inline QString name() const noexcept { return m_name; };
 
@@ -94,7 +94,7 @@ protected:
     Version m_version;
     bool m_isValid;
     bool m_autoDetected;
-    Core::Id m_id;
+    Utils::Id m_id;
     Utils::FilePath m_exe;
     QString m_name;
 };

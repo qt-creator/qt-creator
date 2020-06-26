@@ -33,7 +33,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/id.h>
 
 #include <QAction>
 #include <QDir>
@@ -85,7 +84,7 @@ void MacroOptionsWidget::initialize()
 void MacroOptionsWidget::createTable()
 {
     QDir dir(MacroManager::macrosDirectory());
-    const Core::Id base = Core::Id(Constants::PREFIX_MACRO);
+    const Utils::Id base = Utils::Id(Constants::PREFIX_MACRO);
     for (Macro *macro : MacroManager::macros()) {
         QFileInfo fileInfo(macro->fileName());
         if (fileInfo.absoluteDir() == dir.absolutePath()) {

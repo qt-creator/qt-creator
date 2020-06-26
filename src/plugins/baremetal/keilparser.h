@@ -39,7 +39,7 @@ class KeilParser final : public ProjectExplorer::OutputTaskParser
 
 public:
     explicit KeilParser();
-    static Core::Id id();
+    static Utils::Id id();
 
 private:
     void newTask(const ProjectExplorer::Task &task);

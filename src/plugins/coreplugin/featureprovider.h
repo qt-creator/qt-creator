@@ -27,7 +27,7 @@
 
 #include "core_global.h"
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <QSet>
 #include <QStringList>
@@ -41,9 +41,9 @@ class CORE_EXPORT IFeatureProvider
 public:
     virtual ~IFeatureProvider() = default;
 
-    virtual QSet<Id> availableFeatures(Id id) const = 0;
-    virtual QSet<Id> availablePlatforms() const = 0;
-    virtual QString displayNameForPlatform(Id id) const = 0;
+    virtual QSet<Utils::Id> availableFeatures(Utils::Id id) const = 0;
+    virtual QSet<Utils::Id> availablePlatforms() const = 0;
+    virtual QString displayNameForPlatform(Utils::Id id) const = 0;
 };
 
 } // namespace Core

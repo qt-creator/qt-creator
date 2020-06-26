@@ -58,7 +58,7 @@ ClangDiagnosticConfigsSelectionWidget::ClangDiagnosticConfigsSelectionWidget(QWi
 }
 
 void ClangDiagnosticConfigsSelectionWidget::refresh(const ClangDiagnosticConfigsModel &model,
-                                                    const Core::Id &configToSelect,
+                                                    const Utils::Id &configToSelect,
                                                     const CreateEditWidget &createEditWidget)
 {
     m_diagnosticConfigsModel = model;
@@ -69,7 +69,7 @@ void ClangDiagnosticConfigsSelectionWidget::refresh(const ClangDiagnosticConfigs
     m_button->setText(config.displayName());
 }
 
-Core::Id ClangDiagnosticConfigsSelectionWidget::currentConfigId() const
+Utils::Id ClangDiagnosticConfigsSelectionWidget::currentConfigId() const
 {
     return m_currentConfigId;
 }

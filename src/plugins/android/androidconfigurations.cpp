@@ -1188,7 +1188,7 @@ void AndroidConfigurations::registerNewToolChains()
 {
     const QList<ToolChain *> existingAndroidToolChains
             = ToolChainManager::toolChains(Utils::equal(&ToolChain::typeId,
-                                                        Core::Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
+                                                        Utils::Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
     QList<ToolChain *> newToolchains = AndroidToolChainFactory::autodetectToolChains(
         existingAndroidToolChains);
 
@@ -1201,7 +1201,7 @@ void AndroidConfigurations::registerNewToolChains()
 void AndroidConfigurations::registerCustomToolChainsAndDebuggers()
 {
     const QList<ToolChain *> existingAndroidToolChains = ToolChainManager::toolChains(
-        Utils::equal(&ToolChain::typeId, Core::Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
+        Utils::equal(&ToolChain::typeId, Utils::Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
     QList<FilePath> customNdks = Utils::transform(currentConfig().getCustomNdkList(),
                                                   FilePath::fromString);
     QList<ToolChain *> customToolchains
@@ -1240,7 +1240,7 @@ void AndroidConfigurations::registerCustomToolChainsAndDebuggers()
 
 void AndroidConfigurations::removeOldToolChains()
 {
-    foreach (ToolChain *tc, ToolChainManager::toolChains(Utils::equal(&ToolChain::typeId, Core::Id(Constants::ANDROID_TOOLCHAIN_TYPEID)))) {
+    foreach (ToolChain *tc, ToolChainManager::toolChains(Utils::equal(&ToolChain::typeId, Utils::Id(Constants::ANDROID_TOOLCHAIN_TYPEID)))) {
         if (!tc->isValid())
             ToolChainManager::deregisterToolChain(tc);
     }
@@ -1343,9 +1343,9 @@ void AndroidConfigurations::updateAutomaticKitList()
     }
 
     const QList<Kit *> existingKits = Utils::filtered(KitManager::kits(), [](Kit *k) {
-        Core::Id deviceTypeId = DeviceTypeKitAspect::deviceTypeId(k);
+        Utils::Id deviceTypeId = DeviceTypeKitAspect::deviceTypeId(k);
         if (k->isAutoDetected() && !k->isSdkProvided()
-                && deviceTypeId == Core::Id(Constants::ANDROID_DEVICE_TYPE)) {
+                && deviceTypeId == Utils::Id(Constants::ANDROID_DEVICE_TYPE)) {
             if (!QtSupport::QtKitAspect::qtVersion(k))
                 KitManager::deregisterKit(k); // Remove autoDetected kits without Qt.
             else
@@ -1369,7 +1369,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     }
 
     DeviceManager *dm = DeviceManager::instance();
-    IDevice::ConstPtr device = dm->find(Core::Id(Constants::ANDROID_DEVICE_ID));
+    IDevice::ConstPtr device = dm->find(Utils::Id(Constants::ANDROID_DEVICE_ID));
     if (device.isNull()) {
         // no device, means no sdk path
         for (Kit *k : existingKits)
@@ -1384,7 +1384,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             && tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID;
     });
     for (ToolChain *tc : toolchains) {
-        if (tc->language() != Core::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID))
+        if (tc->language() != Utils::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID))
             continue;
 
         for (const QtSupport::BaseQtVersion *qt : qtVersionsForArch.value(tc->targetAbi())) {
@@ -1398,7 +1398,7 @@ void AndroidConfigurations::updateAutomaticKitList()
                       return tc->targetAbi() == otherTc->targetAbi() && tcNdk == otherNdk;
                   });
 
-            QHash<Core::Id, ToolChain *> toolChainForLanguage;
+            QHash<Utils::Id, ToolChain *> toolChainForLanguage;
             for (ToolChain *tc : allLanguages)
                 toolChainForLanguage[tc->language()] = tc;
 
@@ -1414,7 +1414,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             const auto initializeKit = [allLanguages, device, tc, qt](Kit *k) {
                 k->setAutoDetected(true);
                 k->setAutoDetectionSource("AndroidConfiguration");
-                DeviceTypeKitAspect::setDeviceTypeId(k, Core::Id(Constants::ANDROID_DEVICE_TYPE));
+                DeviceTypeKitAspect::setDeviceTypeId(k, Utils::Id(Constants::ANDROID_DEVICE_TYPE));
                 for (ToolChain *tc : allLanguages)
                     ToolChainKitAspect::setToolChain(k, tc);
                 QtSupport::QtKitAspect::setQtVersion(k, qt);
@@ -1597,7 +1597,7 @@ void AndroidConfigurations::updateAndroidDevice()
     if (m_instance->m_config.adbToolPath().exists())
         devMgr->addDevice(AndroidDevice::create());
     else if (devMgr->find(Constants::ANDROID_DEVICE_ID))
-        devMgr->removeDevice(Core::Id(Constants::ANDROID_DEVICE_ID));
+        devMgr->removeDevice(Utils::Id(Constants::ANDROID_DEVICE_ID));
 }
 
 AndroidConfigurations *AndroidConfigurations::m_instance = nullptr;

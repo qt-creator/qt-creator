@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <coreplugin/id.h>
 #include <debugger/debuggerconstants.h>
 #include <projectexplorer/abi.h>
 #include <utils/fileutils.h>

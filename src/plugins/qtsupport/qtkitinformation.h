@@ -57,20 +57,20 @@ public:
     QList<Utils::OutputLineParser *> createOutputParsers(const ProjectExplorer::Kit *k) const override;
     void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const override;
 
-    static Core::Id id();
+    static Utils::Id id();
     static int qtVersionId(const ProjectExplorer::Kit *k);
     static void setQtVersionId(ProjectExplorer::Kit *k, const int id);
     static BaseQtVersion *qtVersion(const ProjectExplorer::Kit *k);
     static void setQtVersion(ProjectExplorer::Kit *k, const BaseQtVersion *v);
 
-    static ProjectExplorer::Kit::Predicate platformPredicate(Core::Id availablePlatforms);
+    static ProjectExplorer::Kit::Predicate platformPredicate(Utils::Id availablePlatforms);
     static ProjectExplorer::Kit::Predicate
-    qtVersionPredicate(const QSet<Core::Id> &required = QSet<Core::Id>(),
+    qtVersionPredicate(const QSet<Utils::Id> &required = QSet<Utils::Id>(),
                        const QtVersionNumber &min = QtVersionNumber(0, 0, 0),
                        const QtVersionNumber &max = QtVersionNumber(INT_MAX, INT_MAX, INT_MAX));
 
-    QSet<Core::Id> supportedPlatforms(const ProjectExplorer::Kit *k) const override;
-    QSet<Core::Id> availableFeatures(const ProjectExplorer::Kit *k) const override;
+    QSet<Utils::Id> supportedPlatforms(const ProjectExplorer::Kit *k) const override;
+    QSet<Utils::Id> availableFeatures(const ProjectExplorer::Kit *k) const override;
 
 private:
     int weight(const ProjectExplorer::Kit *k) const override;

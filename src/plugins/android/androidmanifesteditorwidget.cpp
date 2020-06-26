@@ -750,7 +750,7 @@ static const char kServicesInvalid[] = "AndroidServiceDefinitionInvalid";
 
 void AndroidManifestEditorWidget::setInvalidServiceInfo()
 {
-    Core::Id id(kServicesInvalid);
+    Utils::Id id(kServicesInvalid);
     if (m_textEditorWidget->textDocument()->infoBar()->containsInfo(id))
         return;
     Utils::InfoBarEntry info(id,
@@ -762,7 +762,7 @@ void AndroidManifestEditorWidget::setInvalidServiceInfo()
 
 void AndroidManifestEditorWidget::clearInvalidServiceInfo()
 {
-    m_textEditorWidget->textDocument()->infoBar()->removeInfo(Core::Id(kServicesInvalid));
+    m_textEditorWidget->textDocument()->infoBar()->removeInfo(Utils::Id(kServicesInvalid));
 }
 
 void setApiLevel(QComboBox *box, const QDomElement &element, const QString &attribute)

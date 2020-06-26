@@ -32,7 +32,7 @@ namespace Internal {
 class MesonRunConfiguration final : public ProjectExplorer::RunConfiguration
 {
 public:
-    MesonRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
+    MesonRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
 
 private:
     void updateTargetInformation();

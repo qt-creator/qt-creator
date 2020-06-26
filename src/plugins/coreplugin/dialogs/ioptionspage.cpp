@@ -65,7 +65,7 @@ using namespace Utils;
 
 /*!
 
-    \fn Core::Id Core::IOptionsPage::id() const
+    \fn Utils::Id Core::IOptionsPage::id() const
 
     Returns a unique identifier for referencing the options page.
 */
@@ -77,7 +77,7 @@ using namespace Utils;
 */
 
 /*!
-    \fn Core::Id Core::IOptionsPage::category() const
+    \fn Utils::Id Core::IOptionsPage::category() const
 
     Returns the unique id for the category that the options page should be displayed in. This id is
     used for sorting the list on the left side of the \uicontrol Options dialog.
@@ -171,7 +171,7 @@ void Core::IOptionsPage::setCategoryIconPath(const QString &categoryIconPath)
 }
 
 /*!
-    \fn void Core::IOptionsPage::setId(Core::Id id)
+    \fn void Core::IOptionsPage::setId(Utils::Id id)
 
     Sets the \a id of the options page.
 */
@@ -183,7 +183,7 @@ void Core::IOptionsPage::setCategoryIconPath(const QString &categoryIconPath)
 */
 
 /*!
-    \fn void Core::IOptionsPage::setCategory(Core::Id category)
+    \fn void Core::IOptionsPage::setCategory(Utils::Id category)
 
     Uses \a category to sort the options pages.
 */

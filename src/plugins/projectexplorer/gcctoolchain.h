@@ -52,14 +52,14 @@ class LinuxIccToolChainFactory;
 // GccToolChain
 // --------------------------------------------------------------------------
 
-inline const QStringList languageOption(Core::Id languageId)
+inline const QStringList languageOption(Utils::Id languageId)
 {
     if (languageId == Constants::C_LANGUAGE_ID)
         return {"-x", "c"};
     return {"-x", "c++"};
 }
 
-inline const QStringList gccPredefinedMacrosOptions(Core::Id languageId)
+inline const QStringList gccPredefinedMacrosOptions(Utils::Id languageId)
 {
     return languageOption(languageId) + QStringList({"-E", "-dM"});
 }
@@ -69,7 +69,7 @@ class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
     Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::GccToolChain)
 
 public:
-    GccToolChain(Core::Id typeId);
+    GccToolChain(Utils::Id typeId);
 
     Abi targetAbi() const override;
     QString originalTargetTriple() const override;
@@ -156,7 +156,7 @@ protected:
                                           const QStringList &platformCodeGenFlags,
                                           OptionsReinterpreter reinterpretOptions,
                                           HeaderPathsCache headerCache,
-                                          Core::Id languageId,
+                                          Utils::Id languageId,
                                           ExtraHeaderPathsFunction extraHeaderPathsFunction,
                                           const QStringList &flags,
                                           const QString &sysRoot,
@@ -184,7 +184,7 @@ private:
     static QStringList gccPrepareArguments(const QStringList &flags,
                                            const QString &sysRoot,
                                            const QStringList &platformCodeGenFlags,
-                                           Core::Id languageId,
+                                           Utils::Id languageId,
                                            OptionsReinterpreter reinterpretOptions);
 
 protected:
@@ -218,7 +218,7 @@ class PROJECTEXPLORER_EXPORT ClangToolChain : public GccToolChain
 
 public:
     ClangToolChain();
-    explicit ClangToolChain(Core::Id typeId);
+    explicit ClangToolChain(Utils::Id typeId);
     ~ClangToolChain() override;
 
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;

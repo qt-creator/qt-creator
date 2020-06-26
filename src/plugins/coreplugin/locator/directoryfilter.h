@@ -46,7 +46,7 @@ class CORE_EXPORT DirectoryFilter : public BaseFileFilter
     Q_OBJECT
 
 public:
-    DirectoryFilter(Id id);
+    DirectoryFilter(Utils::Id id);
     QByteArray saveState() const override;
     void restoreState(const QByteArray &state) override;
     bool openConfigDialog(QWidget *parent, bool &needsRefresh) override;

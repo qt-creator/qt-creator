@@ -92,17 +92,17 @@ void ToolKitAspectWidget::removeTool(const MesonTools::Tool_t &tool)
 
 void ToolKitAspectWidget::setCurrentToolIndex(int index)
 {
-    const Core::Id id = Core::Id::fromSetting(m_toolsComboBox->itemData(index));
+    const Utils::Id id = Utils::Id::fromSetting(m_toolsComboBox->itemData(index));
     if (m_type == ToolType::Meson)
         MesonToolKitAspect::setMesonTool(m_kit, id);
     else
         NinjaToolKitAspect::setNinjaTool(m_kit, id);
 }
 
-int ToolKitAspectWidget::indexOf(const Core::Id &id)
+int ToolKitAspectWidget::indexOf(const Utils::Id &id)
 {
     for (int i = 0; i < m_toolsComboBox->count(); ++i) {
-        if (id == Core::Id::fromSetting(m_toolsComboBox->itemData(i)))
+        if (id == Utils::Id::fromSetting(m_toolsComboBox->itemData(i)))
             return i;
     }
     return -1;

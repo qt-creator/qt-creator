@@ -81,7 +81,7 @@ public:
               const QStringList &extraOptions = QStringList()) override;
 
 protected:
-    Core::Id vcsEditorKind(VcsCommandTag cmd) const override;
+    Utils::Id vcsEditorKind(VcsCommandTag cmd) const override;
     QStringList revisionSpec(const QString &revision) const override;
     StatusItem parseStatusLine(const QString &line) const override;
 

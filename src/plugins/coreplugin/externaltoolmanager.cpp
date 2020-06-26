@@ -41,6 +41,7 @@
 #include <QMenu>
 
 using namespace Core::Internal;
+using namespace Utils;
 
 namespace Core {
 

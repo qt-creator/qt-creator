@@ -37,7 +37,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/id.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>

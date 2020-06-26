@@ -71,7 +71,7 @@ class IosBuildStep final : public AbstractProcessStep
     Q_DECLARE_TR_FUNCTIONS(Ios::Internal::IosBuildStep)
 
 public:
-    IosBuildStep(BuildStepList *parent, Core::Id id);
+    IosBuildStep(BuildStepList *parent, Utils::Id id);
 
     BuildStepConfigWidget *createConfigWidget() final;
     void setBaseArguments(const QStringList &args);

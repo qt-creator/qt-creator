@@ -27,7 +27,7 @@
 
 #include "cpptools_global.h"
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <QStringList>
 #include <QVector>
@@ -42,8 +42,8 @@ namespace CppTools {
 class CPPTOOLS_EXPORT ClangDiagnosticConfig
 {
 public:
-    Core::Id id() const;
-    void setId(const Core::Id &id);
+    Utils::Id id() const;
+    void setId(const Utils::Id &id);
 
     QString displayName() const;
     void setDisplayName(const QString &displayName);
@@ -91,7 +91,7 @@ public:
     bool operator!=(const ClangDiagnosticConfig &other) const;
 
 private:
-    Core::Id m_id;
+    Utils::Id m_id;
     QString m_displayName;
     QStringList m_clangOptions;
     TidyMode m_clangTidyMode = TidyMode::UseDefaultChecks;

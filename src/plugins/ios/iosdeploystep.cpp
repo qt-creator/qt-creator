@@ -65,7 +65,7 @@ public:
         TransferFailed
     };
 
-    IosDeployStep(BuildStepList *bc, Core::Id id);
+    IosDeployStep(BuildStepList *bc, Utils::Id id);
 
 private:
     void cleanup();
@@ -99,7 +99,7 @@ private:
     bool m_expectFail = false;
 };
 
-IosDeployStep::IosDeployStep(BuildStepList *parent, Core::Id id)
+IosDeployStep::IosDeployStep(BuildStepList *parent, Utils::Id id)
     : BuildStep(parent, id)
 {
     setImmutable(true);
@@ -322,7 +322,7 @@ IosDeployStepFactory::IosDeployStepFactory()
     setRepeatable(false);
 }
 
-Core::Id IosDeployStepFactory::stepId()
+Utils::Id IosDeployStepFactory::stepId()
 {
     return "Qt4ProjectManager.IosDeployStep";
 }

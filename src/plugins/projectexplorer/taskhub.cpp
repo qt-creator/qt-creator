@@ -44,9 +44,9 @@ const char TASK_MARK_WARNING[] = "Task.Mark.Warning";
 const char TASK_MARK_ERROR[] = "Task.Mark.Error";
 
 static TaskHub *m_instance = nullptr;
-QVector<Core::Id> TaskHub::m_registeredCategories;
+QVector<Utils::Id> TaskHub::m_registeredCategories;
 
-static Core::Id categoryForType(Task::TaskType type)
+static Utils::Id categoryForType(Task::TaskType type)
 {
     switch (type) {
     case Task::Error:
@@ -54,7 +54,7 @@ static Core::Id categoryForType(Task::TaskType type)
     case Task::Warning:
         return TASK_MARK_WARNING;
     default:
-        return Core::Id();
+        return Utils::Id();
     }
 }
 
@@ -131,7 +131,7 @@ TaskHub::~TaskHub()
     m_instance = nullptr;
 }
 
-void TaskHub::addCategory(Core::Id categoryId, const QString &displayName, bool visible)
+void TaskHub::addCategory(Utils::Id categoryId, const QString &displayName, bool visible)
 {
     QTC_CHECK(!displayName.isEmpty());
     QTC_ASSERT(!m_registeredCategories.contains(categoryId), return);
@@ -144,7 +144,7 @@ TaskHub *TaskHub::instance()
     return m_instance;
 }
 
-void TaskHub::addTask(Task::TaskType type, const QString &description, Core::Id category)
+void TaskHub::addTask(Task::TaskType type, const QString &description, Utils::Id category)
 {
     addTask(Task(type, description, {}, -1, category));
 }
@@ -165,7 +165,7 @@ void TaskHub::addTask(Task task)
     emit m_instance->taskAdded(task);
 }
 
-void TaskHub::clearTasks(Core::Id categoryId)
+void TaskHub::clearTasks(Utils::Id categoryId)
 {
     QTC_ASSERT(!categoryId.isValid() || m_registeredCategories.contains(categoryId), return);
     emit m_instance->tasksCleared(categoryId);
@@ -196,7 +196,7 @@ void TaskHub::showTaskInEditor(unsigned int id)
     emit m_instance->openTask(id);
 }
 
-void TaskHub::setCategoryVisibility(Core::Id categoryId, bool visible)
+void TaskHub::setCategoryVisibility(Utils::Id categoryId, bool visible)
 {
     QTC_ASSERT(m_registeredCategories.contains(categoryId), return);
     emit m_instance->categoryVisibilityChanged(categoryId, visible);

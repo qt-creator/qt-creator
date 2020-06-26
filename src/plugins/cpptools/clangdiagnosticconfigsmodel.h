@@ -43,16 +43,16 @@ public:
     const ClangDiagnosticConfig &at(int index) const;
 
     void appendOrUpdate(const ClangDiagnosticConfig &config);
-    void removeConfigWithId(const Core::Id &id);
+    void removeConfigWithId(const Utils::Id &id);
 
     ClangDiagnosticConfigs allConfigs() const;
     ClangDiagnosticConfigs customConfigs() const;
 
-    bool hasConfigWithId(const Core::Id &id) const;
-    const ClangDiagnosticConfig &configWithId(const Core::Id &id) const;
-    int indexOfConfig(const Core::Id &id) const;
+    bool hasConfigWithId(const Utils::Id &id) const;
+    const ClangDiagnosticConfig &configWithId(const Utils::Id &id) const;
+    int indexOfConfig(const Utils::Id &id) const;
 
-    static QVector<Core::Id> changedOrRemovedConfigs(const ClangDiagnosticConfigs &oldConfigs,
+    static QVector<Utils::Id> changedOrRemovedConfigs(const ClangDiagnosticConfigs &oldConfigs,
                                                      const ClangDiagnosticConfigs &newConfigs);
     static ClangDiagnosticConfig createCustomConfig(const ClangDiagnosticConfig &baseConfig,
                                                     const QString &displayName);

@@ -46,7 +46,7 @@ public:
     void fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
-    static QString displayNameForType(Core::Id type);
+    static QString displayNameForType(Utils::Id type);
     int deviceId() const { return m_deviceId; }
     void setDeviceId(int deviceId) { m_deviceId = deviceId; }
 
@@ -60,7 +60,7 @@ class WinRtDeviceFactory final : public QObject, public ProjectExplorer::IDevice
 {
     Q_OBJECT
 public:
-    explicit WinRtDeviceFactory(Core::Id deviceType);
+    explicit WinRtDeviceFactory(Utils::Id deviceType);
 
     void autoDetect();
     void onPrerequisitesLoaded();

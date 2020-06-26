@@ -29,7 +29,7 @@
 #include "../nimconstants.h"
 #include "../editor/nimindenter.h"
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <texteditor/simplecodestylepreferences.h>
 
@@ -44,7 +44,7 @@ NimCodeStylePreferencesFactory::NimCodeStylePreferencesFactory()
 {
 }
 
-Core::Id NimCodeStylePreferencesFactory::languageId()
+Utils::Id NimCodeStylePreferencesFactory::languageId()
 {
     return Constants::C_NIMLANGUAGE_ID;
 }

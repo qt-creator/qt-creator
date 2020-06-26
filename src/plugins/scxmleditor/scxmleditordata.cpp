@@ -51,6 +51,7 @@
 
 using namespace ScxmlEditor::Common;
 using namespace ScxmlEditor::PluginInterface;
+using namespace Utils;
 
 namespace ScxmlEditor {
 

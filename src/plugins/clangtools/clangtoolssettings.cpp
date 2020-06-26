@@ -50,7 +50,7 @@ using namespace CppTools;
 namespace ClangTools {
 namespace Internal {
 
-static Core::Id defaultDiagnosticId()
+static Utils::Id defaultDiagnosticId()
 {
     return ClangTools::Constants::DIAG_CONFIG_TIDY_AND_CLAZY;
 }
@@ -63,7 +63,7 @@ RunSettings::RunSettings()
 
 void RunSettings::fromMap(const QVariantMap &map, const QString &prefix)
 {
-    m_diagnosticConfigId = Core::Id::fromSetting(map.value(prefix + diagnosticConfigIdKey));
+    m_diagnosticConfigId = Utils::Id::fromSetting(map.value(prefix + diagnosticConfigIdKey));
     m_parallelJobs = map.value(prefix + parallelJobsKey).toInt();
     m_buildBeforeAnalysis = map.value(prefix + buildBeforeAnalysisKey).toBool();
 }
@@ -75,7 +75,7 @@ void RunSettings::toMap(QVariantMap &map, const QString &prefix) const
     map.insert(prefix + buildBeforeAnalysisKey, m_buildBeforeAnalysis);
 }
 
-Core::Id RunSettings::diagnosticConfigId() const
+Utils::Id RunSettings::diagnosticConfigId() const
 {
     if (!diagnosticConfigsModel().hasConfigWithId(m_diagnosticConfigId))
         return defaultDiagnosticId();

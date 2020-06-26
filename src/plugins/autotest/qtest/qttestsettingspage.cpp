@@ -100,7 +100,7 @@ void QtTestSettingsWidget::apply()
     m_settings->toSettings(Core::ICore::settings());
 }
 
-QtTestSettingsPage::QtTestSettingsPage(QtTestSettings *settings, Core::Id settingsId)
+QtTestSettingsPage::QtTestSettingsPage(QtTestSettings *settings, Utils::Id settingsId)
 {
     setId(settingsId);
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);

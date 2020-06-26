@@ -56,6 +56,7 @@
 #include <QDir>
 
 using namespace Core;
+using namespace Utils;
 
 namespace TextEditor {
 namespace Internal {

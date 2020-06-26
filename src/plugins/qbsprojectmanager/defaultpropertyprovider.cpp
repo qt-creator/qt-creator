@@ -81,7 +81,7 @@ static QString extractToolchainPrefix(QString *compilerName)
 
 static QString targetPlatform(const ProjectExplorer::Abi &abi, const ProjectExplorer::Kit *k)
 {
-    const Core::Id device = ProjectExplorer::DeviceTypeKitAspect::deviceTypeId(k);
+    const Utils::Id device = ProjectExplorer::DeviceTypeKitAspect::deviceTypeId(k);
     switch (abi.os()) {
     case ProjectExplorer::Abi::WindowsOS:
         return QLatin1String("windows");

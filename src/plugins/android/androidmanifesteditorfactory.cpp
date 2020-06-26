@@ -28,7 +28,6 @@
 #include "androidmanifesteditorwidget.h"
 #include "androidmanifesteditor.h"
 
-#include <coreplugin/id.h>
 #include <texteditor/texteditorsettings.h>
 
 using namespace Android;

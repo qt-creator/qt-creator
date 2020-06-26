@@ -372,7 +372,7 @@ void WelcomeMode::initPlugins()
     if (!m_activePage.isValid() && !m_pageButtons.isEmpty()) {
         const int welcomeIndex = Utils::indexOf(m_pluginList,
                                                 Utils::equal(&IWelcomePage::id,
-                                                             Core::Id("Examples")));
+                                                             Utils::Id("Examples")));
         const int defaultIndex = welcomeIndex >= 0 ? welcomeIndex : 0;
         m_activePage = m_pluginList.at(defaultIndex)->id();
         m_pageButtons.at(defaultIndex)->click();

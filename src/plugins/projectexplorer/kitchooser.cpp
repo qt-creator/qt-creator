@@ -40,6 +40,7 @@
 #include <QSettings>
 
 using namespace Core;
+using namespace Utils;
 
 namespace ProjectExplorer {
 
@@ -157,7 +158,7 @@ Kit *KitChooser::currentKit() const
     return KitManager::kit(id);
 }
 
-void KitChooser::setCurrentKitId(Core::Id id)
+void KitChooser::setCurrentKitId(Utils::Id id)
 {
     QVariant v = id.toSetting();
     for (int i = 0, n = m_chooser->count(); i != n; ++i) {
@@ -168,10 +169,10 @@ void KitChooser::setCurrentKitId(Core::Id id)
     }
 }
 
-Core::Id KitChooser::currentKitId() const
+Utils::Id KitChooser::currentKitId() const
 {
     Kit *kit = currentKit();
-    return kit ? kit->id() : Core::Id();
+    return kit ? kit->id() : Utils::Id();
 }
 
 void KitChooser::setKitPredicate(const Kit::Predicate &predicate)

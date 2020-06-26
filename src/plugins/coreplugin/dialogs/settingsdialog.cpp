@@ -64,6 +64,8 @@ const int kMaxMinimumHeight = 250;
 static const char pageKeyC[] = "General/LastPreferencePage";
 const int categoryIconSize = 24;
 
+using namespace Utils;
+
 namespace Core {
 namespace Internal {
 

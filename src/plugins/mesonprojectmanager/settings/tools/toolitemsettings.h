@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #pragma once
-#include "coreplugin/id.h"
+#include "utils/id.h"
 #include "utils/fileutils.h"
 #include "utils/optional.h"
 #include <QWidget>
@@ -47,11 +47,11 @@ public:
     ~ToolItemSettings();
     void load(ToolTreeItem *item);
     void store();
-    Q_SIGNAL void applyChanges(Core::Id itemId, const QString &name, const Utils::FilePath &exe);
+    Q_SIGNAL void applyChanges(Utils::Id itemId, const QString &name, const Utils::FilePath &exe);
 
 private:
     Ui::ToolItemSettings *ui;
-    Utils::optional<Core::Id> m_currentId{Utils::nullopt};
+    Utils::optional<Utils::Id> m_currentId{Utils::nullopt};
 };
 } // namespace Internal
 } // namespace MesonProjectManager

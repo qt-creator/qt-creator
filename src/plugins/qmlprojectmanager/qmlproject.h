@@ -62,7 +62,7 @@ public:
 
     QmlProject *qmlProject() const;
 
-    QVariant additionalData(Core::Id id) const override;
+    QVariant additionalData(Utils::Id id) const override;
 
     enum RefreshOption {
         ProjectFile   = 0x01,

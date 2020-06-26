@@ -82,7 +82,7 @@ public:
     void setPort(const int port);
 
     ProjectExplorer::Kit *kit() const;
-    void setKitId(Core::Id id);
+    void setKitId(Utils::Id id);
 
 private:
     AttachToQmlPortDialogPrivate *d;

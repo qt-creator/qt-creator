@@ -57,7 +57,7 @@ public:
     void setWizardFactories(QList<IWizardFactory*> factories, const QString &defaultLocation, const QVariantMap &extraVariables);
 
     void showDialog();
-    Id selectedPlatform() const;
+    Utils::Id selectedPlatform() const;
 
     static QWidget *currentDialog();
 

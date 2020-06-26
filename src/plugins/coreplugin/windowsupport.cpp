@@ -42,6 +42,8 @@
 #include <QWidget>
 #include <QWindowStateChangeEvent>
 
+using namespace Utils;
+
 namespace Core {
 namespace Internal {
 

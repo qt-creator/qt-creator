@@ -116,7 +116,7 @@ private:
     CppTools::ProjectInfo m_projectInfoBeforeBuild;
     CppTools::ProjectInfo m_projectInfo;
     QString m_targetTriple;
-    Core::Id m_toolChainType;
+    Utils::Id m_toolChainType;
 
     QFutureInterface<void> m_progress;
     QueueItems m_queue;

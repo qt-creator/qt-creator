@@ -54,7 +54,7 @@ class DesktopRunConfiguration : public RunConfiguration
 protected:
     enum Kind { Qmake, Qbs, CMake }; // FIXME: Remove
 
-    DesktopRunConfiguration(Target *target, Core::Id id, Kind kind);
+    DesktopRunConfiguration(Target *target, Utils::Id id, Kind kind);
 
 private:
     void updateTargetInformation();
@@ -64,7 +64,7 @@ private:
     const Kind m_kind;
 };
 
-DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Kind kind)
+DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Utils::Id id, Kind kind)
     : RunConfiguration(target, id), m_kind(kind)
 {
     auto envAspect = addAspect<LocalEnvironmentAspect>(target);
@@ -168,7 +168,7 @@ Utils::FilePath DesktopRunConfiguration::executableToRun(const BuildTargetInfo &
 class DesktopQmakeRunConfiguration final : public DesktopRunConfiguration
 {
 public:
-    DesktopQmakeRunConfiguration(Target *target, Core::Id id)
+    DesktopQmakeRunConfiguration(Target *target, Utils::Id id)
         : DesktopRunConfiguration(target, id, Qmake)
     {}
 };
@@ -176,7 +176,7 @@ public:
 class QbsRunConfiguration final : public DesktopRunConfiguration
 {
 public:
-    QbsRunConfiguration(Target *target, Core::Id id)
+    QbsRunConfiguration(Target *target, Utils::Id id)
         : DesktopRunConfiguration(target, id, Qbs)
     {}
 };
@@ -184,7 +184,7 @@ public:
 class CMakeRunConfiguration final : public DesktopRunConfiguration
 {
 public:
-    CMakeRunConfiguration(Target *target, Core::Id id)
+    CMakeRunConfiguration(Target *target, Utils::Id id)
         : DesktopRunConfiguration(target, id, CMake)
     {}
 };

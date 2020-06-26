@@ -30,7 +30,6 @@
 #include "deploymentdata.h"
 #include "kit.h"
 
-#include <coreplugin/id.h>
 #include <coreplugin/idocument.h>
 
 #include <utils/environmentfwd.h>
@@ -78,7 +77,7 @@ public:
     ~Project() override;
 
     QString displayName() const;
-    Core::Id id() const;
+    Utils::Id id() const;
 
     QString mimeType() const;
     bool canBuildProducts() const;
@@ -107,7 +106,7 @@ public:
     const QList<Target *> targets() const;
     // Note: activeTarget can be 0 (if no targets are defined).
     Target *activeTarget() const;
-    Target *target(Core::Id id) const;
+    Target *target(Utils::Id id) const;
     Target *target(Kit *k) const;
     virtual Tasks projectIssues(const Kit *k) const;
 
@@ -165,8 +164,8 @@ public:
     void setExtraProjectFiles(const QSet<Utils::FilePath> &projectDocumentPaths);
 
     void setDisplayName(const QString &name);
-    void setProjectLanguage(Core::Id id, bool enabled);
-    void addProjectLanguage(Core::Id id);
+    void setProjectLanguage(Utils::Id id, bool enabled);
+    void addProjectLanguage(Utils::Id id);
 
     void setExtraData(const QString &key, const QVariant &data);
     QVariant extraData(const QString &key) const;
@@ -202,9 +201,9 @@ protected:
 
     void setCanBuildProducts();
 
-    void setId(Core::Id id);
+    void setId(Utils::Id id);
     void setProjectLanguages(Core::Context language);
-    void removeProjectLanguage(Core::Id id);
+    void removeProjectLanguage(Utils::Id id);
     void setHasMakeInstallEquivalent(bool enabled);
 
     void setKnowsAllBuildExecutables(bool value);

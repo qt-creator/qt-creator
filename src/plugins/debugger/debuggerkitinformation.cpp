@@ -445,7 +445,7 @@ void DebuggerKitAspect::setDebugger(Kit *k, const QVariant &id)
     k->setValue(DebuggerKitAspect::id(), id);
 }
 
-Core::Id DebuggerKitAspect::id()
+Utils::Id DebuggerKitAspect::id()
 {
     return "Debugger.Information";
 }

@@ -130,7 +130,7 @@ namespace ProjectExplorer {
 
 static QList<BuildStepFactory *> g_buildStepFactories;
 
-BuildStep::BuildStep(BuildStepList *bsl, Core::Id id) :
+BuildStep::BuildStep(BuildStepList *bsl, Utils::Id id) :
     ProjectConfiguration(bsl, id)
 {
     QTC_CHECK(bsl->target() && bsl->target() == this->target());
@@ -265,7 +265,7 @@ QString BuildStep::fallbackWorkingDirectory() const
 
 void BuildStep::setupOutputFormatter(OutputFormatter *formatter)
 {
-    for (const Core::Id id : buildConfiguration()->customParsers()) {
+    for (const Utils::Id id : buildConfiguration()->customParsers()) {
         if (Internal::CustomParser * const parser = Internal::CustomParser::createFromId(id))
             formatter->addLineParser(parser);
     }
@@ -291,7 +291,7 @@ void BuildStep::setWidgetExpandedByDefault(bool widgetExpandedByDefault)
     m_widgetExpandedByDefault = widgetExpandedByDefault;
 }
 
-QVariant BuildStep::data(Core::Id id) const
+QVariant BuildStep::data(Utils::Id id) const
 {
     Q_UNUSED(id)
     return {};
@@ -386,7 +386,7 @@ bool BuildStepFactory::canHandle(BuildStepList *bsl) const
     if (!m_supportedDeviceTypes.isEmpty()) {
         Target *target = bsl->target();
         QTC_ASSERT(target, return false);
-        Core::Id deviceType = DeviceTypeKitAspect::deviceTypeId(target->kit());
+        Utils::Id deviceType = DeviceTypeKitAspect::deviceTypeId(target->kit());
         if (!m_supportedDeviceTypes.contains(deviceType))
             return false;
     }
@@ -394,7 +394,7 @@ bool BuildStepFactory::canHandle(BuildStepList *bsl) const
     if (m_supportedProjectType.isValid()) {
         if (!config)
             return false;
-        Core::Id projectId = config->project()->id();
+        Utils::Id projectId = config->project()->id();
         if (projectId != m_supportedProjectType)
             return false;
     }
@@ -405,7 +405,7 @@ bool BuildStepFactory::canHandle(BuildStepList *bsl) const
     if (m_supportedConfiguration.isValid()) {
         if (!config)
             return false;
-        Core::Id configId = config->id();
+        Utils::Id configId = config->id();
         if (configId != m_supportedConfiguration)
             return false;
     }
@@ -423,32 +423,32 @@ void BuildStepFactory::setFlags(BuildStepInfo::Flags flags)
     m_info.flags = flags;
 }
 
-void BuildStepFactory::setSupportedStepList(Core::Id id)
+void BuildStepFactory::setSupportedStepList(Utils::Id id)
 {
     m_supportedStepLists = {id};
 }
 
-void BuildStepFactory::setSupportedStepLists(const QList<Core::Id> &ids)
+void BuildStepFactory::setSupportedStepLists(const QList<Utils::Id> &ids)
 {
     m_supportedStepLists = ids;
 }
 
-void BuildStepFactory::setSupportedConfiguration(Core::Id id)
+void BuildStepFactory::setSupportedConfiguration(Utils::Id id)
 {
     m_supportedConfiguration = id;
 }
 
-void BuildStepFactory::setSupportedProjectType(Core::Id id)
+void BuildStepFactory::setSupportedProjectType(Utils::Id id)
 {
     m_supportedProjectType = id;
 }
 
-void BuildStepFactory::setSupportedDeviceType(Core::Id id)
+void BuildStepFactory::setSupportedDeviceType(Utils::Id id)
 {
     m_supportedDeviceTypes = {id};
 }
 
-void BuildStepFactory::setSupportedDeviceTypes(const QList<Core::Id> &ids)
+void BuildStepFactory::setSupportedDeviceTypes(const QList<Utils::Id> &ids)
 {
     m_supportedDeviceTypes = ids;
 }
@@ -458,12 +458,12 @@ BuildStepInfo BuildStepFactory::stepInfo() const
     return m_info;
 }
 
-Core::Id BuildStepFactory::stepId() const
+Utils::Id BuildStepFactory::stepId() const
 {
     return m_info.id;
 }
 
-BuildStep *BuildStepFactory::create(BuildStepList *parent, Core::Id id)
+BuildStep *BuildStepFactory::create(BuildStepList *parent, Utils::Id id)
 {
     BuildStep *bs = nullptr;
     if (id == m_info.id)

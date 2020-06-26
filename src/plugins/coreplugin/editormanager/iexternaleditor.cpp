@@ -45,7 +45,7 @@ namespace Core {
 */
 
 /*!
-    \fn Core::Id Core::IExternalEditor::id() const
+    \fn Utils::Id Core::IExternalEditor::id() const
     Returns the ID of the factory or editor type.
 */
 

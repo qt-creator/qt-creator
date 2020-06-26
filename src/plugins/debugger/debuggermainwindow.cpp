@@ -89,7 +89,7 @@ public:
     bool changedByUser() const;
     void recordVisibility();
 
-    Core::Id commandId;
+    Utils::Id commandId;
     QPointer<QWidget> widget;
     QPointer<QDockWidget> dock;
     QPointer<QWidget> anchorWidget;

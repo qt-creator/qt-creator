@@ -105,7 +105,7 @@ QStringList toAbsolutePath(const Utils::FilePath &refPath, QStringList &pathList
     return allAbs;
 }
 
-MesonProjectParser::MesonProjectParser(const Core::Id &meson,
+MesonProjectParser::MesonProjectParser(const Utils::Id &meson,
                                        Utils::Environment env,
                                        ProjectExplorer::Project *project)
     : m_env{env}
@@ -127,7 +127,7 @@ MesonProjectParser::MesonProjectParser(const Core::Id &meson,
     m_outputParser.setFileFinder(fileFinder);
 }
 
-void MesonProjectParser::setMesonTool(const Core::Id &meson)
+void MesonProjectParser::setMesonTool(const Utils::Id &meson)
 {
     m_meson = meson;
 }

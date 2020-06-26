@@ -80,7 +80,7 @@ struct DirectoryData
 namespace QmakeProjectManager {
 namespace Internal {
 
-const Core::Id QT_IS_TEMPORARY("Qmake.TempQt");
+const Utils::Id QT_IS_TEMPORARY("Qmake.TempQt");
 const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios"; // ugly
 
 QmakeProjectImporter::QmakeProjectImporter(const FilePath &path) :

@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "systemeditor.h"
-#include <coreplugin/id.h>
 
 #include <QStringList>
 #include <QUrl>
@@ -32,6 +31,7 @@
 
 using namespace Core;
 using namespace Core::Internal;
+using namespace Utils;
 
 SystemEditor::SystemEditor(QObject *parent) :
     IExternalEditor(parent)

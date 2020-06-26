@@ -37,7 +37,7 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-ConfigTaskHandler::ConfigTaskHandler(const Task &pattern, Core::Id page) :
+ConfigTaskHandler::ConfigTaskHandler(const Task &pattern, Utils::Id page) :
     m_pattern(pattern),
     m_targetPage(page)
 { }

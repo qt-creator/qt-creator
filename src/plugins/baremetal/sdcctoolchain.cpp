@@ -197,7 +197,7 @@ static Abi guessAbi(const Macros &macros)
             guessFormat(arch), guessWordWidth(macros)};
 }
 
-static QString buildDisplayName(Abi::Architecture arch, Core::Id language,
+static QString buildDisplayName(Abi::Architecture arch, Utils::Id language,
                                 const QString &version)
 {
     const auto archName = Abi::toString(arch);
@@ -244,7 +244,7 @@ ToolChain::MacroInspectionRunner SdccToolChain::createMacroInspectionRunner() co
     addToEnvironment(env);
 
     const Utils::FilePath compilerCommand = m_compilerCommand;
-    const Core::Id lang = language();
+    const Utils::Id lang = language();
     const Abi abi = m_targetAbi;
 
     MacrosCache macrosCache = predefinedMacrosCache();
@@ -458,7 +458,7 @@ QList<ToolChain *> SdccToolChainFactory::autoDetectToolchains(
 }
 
 QList<ToolChain *> SdccToolChainFactory::autoDetectToolchain(
-        const Candidate &candidate, Core::Id language) const
+        const Candidate &candidate, Utils::Id language) const
 {
     const auto env = Environment::systemEnvironment();
 

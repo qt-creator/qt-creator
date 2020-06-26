@@ -42,12 +42,12 @@ class QdbStopApplicationStep final : public RemoteLinux::AbstractRemoteLinuxDepl
     Q_DECLARE_TR_FUNCTIONS(Qdb::Internal::QdbStopApplicationStep)
 
 public:
-    QdbStopApplicationStep(BuildStepList *bsl, Core::Id id);
+    QdbStopApplicationStep(BuildStepList *bsl, Utils::Id id);
 
     static QString stepDisplayName() { return tr("Stop already running application"); }
 };
 
-QdbStopApplicationStep::QdbStopApplicationStep(BuildStepList *bsl, Core::Id id)
+QdbStopApplicationStep::QdbStopApplicationStep(BuildStepList *bsl, Utils::Id id)
     : AbstractRemoteLinuxDeployStep(bsl, id)
 {
     auto service = createDeployService<QdbStopApplicationService>();

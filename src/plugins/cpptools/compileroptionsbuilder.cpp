@@ -745,7 +745,7 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
                                            qgetenv("QTC_CLANG_CMD_OPTIONS_BLACKLIST"))
                                            .split(';', Utils::SkipEmptyParts);
 
-    const Core::Id &toolChain = m_projectPart.toolchainType;
+    const Utils::Id &toolChain = m_projectPart.toolchainType;
     bool containsDriverMode = false;
     bool skipNext = false;
     const QStringList allFlags = m_projectPart.compilerFlags + m_projectPart.extraCodeModelFlags;

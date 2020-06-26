@@ -44,7 +44,7 @@
 using ProjectExplorer::DeviceKitAspect;
 using ProjectExplorer::IDevice;
 using ProjectExplorer::RunControl;
-using Core::Id;
+using Utils::Id;
 using ProjectExplorer::Target;
 
 namespace WinRt {

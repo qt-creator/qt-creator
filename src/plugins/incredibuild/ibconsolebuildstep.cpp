@@ -52,7 +52,7 @@ const QLatin1String IBCONSOLE_FORCEREMOTE("IncrediBuild.IBConsole.ForceRemote");
 const QLatin1String IBCONSOLE_ALTERNATE("IncrediBuild.IBConsole.Alternate");
 }
 
-IBConsoleBuildStep::IBConsoleBuildStep(ProjectExplorer::BuildStepList *buildStepList, Core::Id id)
+IBConsoleBuildStep::IBConsoleBuildStep(ProjectExplorer::BuildStepList *buildStepList, Utils::Id id)
     : ProjectExplorer::AbstractProcessStep(buildStepList, id)
     , m_earlierSteps(buildStepList)
 {

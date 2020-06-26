@@ -124,7 +124,7 @@ void QmakeKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
                 });
 }
 
-Core::Id QmakeKitAspect::id()
+Utils::Id QmakeKitAspect::id()
 {
     return Constants::KIT_INFORMATION_ID;
 }

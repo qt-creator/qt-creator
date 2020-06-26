@@ -35,11 +35,10 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <QPointer>
-#include <QStringList>
 #include <QDebug>
-
+#include <QPointer>
 #include <QStackedWidget>
+#include <QStringList>
 
 namespace Core {
 
@@ -201,7 +200,7 @@ void DesignMode::updateActions()
     emit actionsUpdated(d->m_currentEditor.data());
 }
 
-void DesignMode::updateContext(Id newMode, Id oldMode)
+void DesignMode::updateContext(Utils::Id newMode, Utils::Id oldMode)
 {
     if (newMode == id())
         ICore::addAdditionalContext(d->m_activeContext);

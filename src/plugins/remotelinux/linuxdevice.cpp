@@ -35,7 +35,6 @@
 #include "remotelinuxenvironmentreader.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/devicesupport/sshdeviceprocesslist.h>

@@ -67,7 +67,7 @@ const QLatin1String BUILDCONSOLE_COMMANDBUILDER("IncrediBuild.BuildConsole.Comma
 }
 
 BuildConsoleBuildStep::BuildConsoleBuildStep(ProjectExplorer::BuildStepList *buildStepList,
-                                             Core::Id id)
+                                             Utils::Id id)
     : ProjectExplorer::AbstractProcessStep(buildStepList, id)
     , m_earlierSteps(buildStepList)
 {

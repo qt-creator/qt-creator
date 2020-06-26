@@ -34,14 +34,11 @@
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/rawprojectpart.h>
 
-#include <coreplugin/id.h>
-
-#include <utils/cpplanguage_details.h>
-
 #include <cplusplus/Token.h>
 
 #include <utils/cpplanguage_details.h>
 #include <utils/fileutils.h>
+#include <utils/id.h>
 
 #include <QString>
 #include <QSharedPointer>
@@ -104,7 +101,7 @@ public:
     bool selectedForBuilding = true;
 
     // ToolChain
-    Core::Id toolchainType;
+    Utils::Id toolchainType;
     bool isMsvc2015Toolchain = false;
     QString toolChainTargetTriple;
     ToolChainWordWidth toolChainWordWidth = WordWidth32Bit;

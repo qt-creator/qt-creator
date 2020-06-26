@@ -27,7 +27,6 @@
 
 #include "debuggerconstants.h"
 
-#include <coreplugin/id.h>
 #include <projectexplorer/abi.h>
 
 #include <functional>

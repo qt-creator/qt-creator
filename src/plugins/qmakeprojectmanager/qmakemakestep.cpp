@@ -52,7 +52,7 @@ using namespace ProjectExplorer;
 using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
 
-QmakeMakeStep::QmakeMakeStep(BuildStepList *bsl, Core::Id id)
+QmakeMakeStep::QmakeMakeStep(BuildStepList *bsl, Utils::Id id)
     : MakeStep(bsl, id)
 {
     if (bsl->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {

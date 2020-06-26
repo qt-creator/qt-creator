@@ -652,7 +652,7 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
 // For _MSV_VER values, see https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=vs-2017.
 //
 Utils::LanguageVersion MsvcToolChain::msvcLanguageVersion(const QStringList & /*cxxflags*/,
-                                                          const Core::Id &language,
+                                                          const Utils::Id &language,
                                                           const Macros &macros) const
 {
     using Utils::LanguageVersion;
@@ -808,7 +808,7 @@ static void addToAvailableMsvcToolchains(const MsvcToolChain *toolchain)
         g_availableMsvcToolchains.push_back(toolchain);
 }
 
-MsvcToolChain::MsvcToolChain(Core::Id typeId)
+MsvcToolChain::MsvcToolChain(Utils::Id typeId)
     : ToolChain(typeId)
 {
     setDisplayName("Microsoft Visual C++ Compiler");
@@ -981,7 +981,7 @@ ToolChain::MacroInspectionRunner MsvcToolChain::createMacroInspectionRunner() co
     Utils::Environment env(m_lastEnvironment);
     addToEnvironment(env);
     MacrosCache macroCache = predefinedMacrosCache();
-    const Core::Id lang = language();
+    const Utils::Id lang = language();
 
     // This runner must be thread-safe!
     return [this, env, macroCache, lang](const QStringList &cxxflags) {
@@ -1728,7 +1728,7 @@ Macros ClangClToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
 }
 
 Utils::LanguageVersion ClangClToolChain::msvcLanguageVersion(const QStringList &cxxflags,
-                                                             const Core::Id &language,
+                                                             const Utils::Id &language,
                                                              const Macros &macros) const
 {
     if (cxxflags.contains("--driver-mode=g++"))

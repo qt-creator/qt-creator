@@ -45,6 +45,8 @@
 
 enum { debugWizard = 0 };
 
+using namespace Utils;
+
 namespace Core {
 
 static int indexOfFile(const GeneratedFiles &f, const QString &path)

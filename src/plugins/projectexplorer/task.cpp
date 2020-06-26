@@ -63,7 +63,7 @@ unsigned int Task::s_nextId = 1;
 */
 
 Task::Task(TaskType type_, const QString &description,
-           const Utils::FilePath &file_, int line_, Core::Id category_,
+           const Utils::FilePath &file_, int line_, Utils::Id category_,
            const QIcon &icon, Options options) :
     taskId(s_nextId), type(type_), options(options), summary(description),
     line(line_), movedLine(line_), category(category_),
@@ -107,7 +107,7 @@ void Task::clear()
     file = Utils::FilePath();
     line = -1;
     movedLine = -1;
-    category = Core::Id();
+    category = Utils::Id();
     icon = QIcon();
     formats.clear();
     m_mark.clear();

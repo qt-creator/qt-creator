@@ -166,7 +166,7 @@ void QtKitAspect::setup(ProjectExplorer::Kit *k)
     if (!k || k->hasValue(id()))
         return;
     const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
-    const Core::Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
+    const Utils::Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
 
     const QList<BaseQtVersion *> matches
             = QtVersionManager::versions([&tcAbi, &deviceType](const BaseQtVersion *qt) {
@@ -224,7 +224,7 @@ void QtKitAspect::fix(ProjectExplorer::Kit *k)
     QList<ToolChain *> possibleTcs = ToolChainManager::toolChains(
                 [version](const ToolChain *t) {
         return t->isValid()
-                && t->language() == Core::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID)
+                && t->language() == Utils::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID)
                 && contains(version->qtAbis(), [t](const Abi &qtAbi) {
                        return qtAbi.isFullyCompatibleWith(t->targetAbi());
                    });
@@ -326,7 +326,7 @@ void QtKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
                 });
 }
 
-Core::Id QtKitAspect::id()
+Utils::Id QtKitAspect::id()
 {
     return "QtSupport.QtInformation";
 }
@@ -394,7 +394,7 @@ void QtKitAspect::kitsWereLoaded()
             this, &QtKitAspect::qtVersionsChanged);
 }
 
-Kit::Predicate QtKitAspect::platformPredicate(Core::Id platform)
+Kit::Predicate QtKitAspect::platformPredicate(Utils::Id platform)
 {
     return [platform](const Kit *kit) -> bool {
         BaseQtVersion *version = QtKitAspect::qtVersion(kit);
@@ -402,7 +402,7 @@ Kit::Predicate QtKitAspect::platformPredicate(Core::Id platform)
     };
 }
 
-Kit::Predicate QtKitAspect::qtVersionPredicate(const QSet<Core::Id> &required,
+Kit::Predicate QtKitAspect::qtVersionPredicate(const QSet<Utils::Id> &required,
                                                     const QtVersionNumber &min,
                                                     const QtVersionNumber &max)
 {
@@ -419,16 +419,16 @@ Kit::Predicate QtKitAspect::qtVersionPredicate(const QSet<Core::Id> &required,
     };
 }
 
-QSet<Core::Id> QtKitAspect::supportedPlatforms(const Kit *k) const
+QSet<Utils::Id> QtKitAspect::supportedPlatforms(const Kit *k) const
 {
     BaseQtVersion *version = QtKitAspect::qtVersion(k);
-    return version ? version->targetDeviceTypes() : QSet<Core::Id>();
+    return version ? version->targetDeviceTypes() : QSet<Utils::Id>();
 }
 
-QSet<Core::Id> QtKitAspect::availableFeatures(const Kit *k) const
+QSet<Utils::Id> QtKitAspect::availableFeatures(const Kit *k) const
 {
     BaseQtVersion *version = QtKitAspect::qtVersion(k);
-    return version ? version->features() : QSet<Core::Id>();
+    return version ? version->features() : QSet<Utils::Id>();
 }
 
 int QtKitAspect::weight(const Kit *k) const

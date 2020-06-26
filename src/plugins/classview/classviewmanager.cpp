@@ -45,6 +45,7 @@
 #include <QMutexLocker>
 
 using namespace Core;
+using namespace Utils;
 
 namespace ClassView {
 namespace Internal {

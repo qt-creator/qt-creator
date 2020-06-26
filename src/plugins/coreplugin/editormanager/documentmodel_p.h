@@ -70,7 +70,7 @@ public:
     static void addEditor(IEditor *editor, bool *isNewDocument);
     static DocumentModel::Entry *addSuspendedDocument(const QString &fileName,
                                                       const QString &displayName,
-                                                      Id id);
+                                                      Utils::Id id);
     static DocumentModel::Entry *firstSuspendedEntry();
     static DocumentModel::Entry *removeEditor(IEditor *editor);
     static void removeEntry(DocumentModel::Entry *entry);

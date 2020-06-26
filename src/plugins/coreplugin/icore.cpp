@@ -158,6 +158,7 @@
 
 using namespace Core::Internal;
 using namespace ExtensionSystem;
+using namespace Utils;
 
 namespace Core {
 

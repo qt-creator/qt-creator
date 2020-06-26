@@ -38,6 +38,7 @@
 #include <QRegularExpression>
 
 using namespace Core;
+using namespace Utils;
 
 /*!
     \class Core::ILocatorFilter

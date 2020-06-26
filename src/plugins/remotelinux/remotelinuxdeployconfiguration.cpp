@@ -45,7 +45,7 @@ namespace RemoteLinux {
 
 using namespace Internal;
 
-Core::Id genericDeployConfigurationId()
+Utils::Id genericDeployConfigurationId()
 {
     return "DeployToGenericLinux";
 }

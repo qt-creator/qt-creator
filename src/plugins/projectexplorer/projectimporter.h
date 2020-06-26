@@ -102,17 +102,17 @@ protected:
     // Handle temporary additions to Kits (Qt Versions, ToolChains, etc.)
     using CleanupFunction = std::function<void(Kit *, const QVariantList &)>;
     using PersistFunction = std::function<void(Kit *, const QVariantList &)>;
-    void useTemporaryKitAspect(Core::Id id,
+    void useTemporaryKitAspect(Utils::Id id,
                                     CleanupFunction cleanup, PersistFunction persist);
-    void addTemporaryData(Core::Id id, const QVariant &cleanupData, Kit *k) const;
+    void addTemporaryData(Utils::Id id, const QVariant &cleanupData, Kit *k) const;
     // Does *any* kit feature the requested data yet?
-    bool hasKitWithTemporaryData(Core::Id id, const QVariant &data) const;
+    bool hasKitWithTemporaryData(Utils::Id id, const QVariant &data) const;
 
     ToolChainData findOrCreateToolChains(const ToolChainDescription &tcd) const;
 
 private:
     void markKitAsTemporary(Kit *k) const;
-    bool findTemporaryHandler(Core::Id id) const;
+    bool findTemporaryHandler(Utils::Id id) const;
 
     void cleanupTemporaryToolChains(ProjectExplorer::Kit *k, const QVariantList &vl);
     void persistTemporaryToolChains(ProjectExplorer::Kit *k, const QVariantList &vl);
@@ -122,7 +122,7 @@ private:
 
     class TemporaryInformationHandler {
     public:
-        Core::Id id;
+        Utils::Id id;
         CleanupFunction cleanup;
         PersistFunction persist;
     };

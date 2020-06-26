@@ -98,7 +98,7 @@ const char profileTeamIdTag[] = "TeamIdentifier";
 static const QString xcodePlistPath = QDir::homePath() + "/Library/Preferences/com.apple.dt.Xcode.plist";
 static const QString provisioningProfileDirPath = QDir::homePath() + "/Library/MobileDevice/Provisioning Profiles";
 
-static Core::Id deviceId(const QString &sdkName)
+static Utils::Id deviceId(const QString &sdkName)
 {
     if (sdkName.startsWith("iphoneos", Qt::CaseInsensitive))
         return Constants::IOS_DEVICE_TYPE;
@@ -107,7 +107,7 @@ static Core::Id deviceId(const QString &sdkName)
     return {};
 }
 
-static bool isSimulatorDeviceId(const Core::Id &id)
+static bool isSimulatorDeviceId(const Utils::Id &id)
 {
     return id == Constants::IOS_SIMULATOR_TYPE;
 }
@@ -168,7 +168,7 @@ static QHash<XcodePlatform::ToolchainTarget, ToolChainPair> findToolChains(const
 static QSet<Kit *> existingAutoDetectedIosKits()
 {
     return Utils::toSet(Utils::filtered(KitManager::kits(), [](Kit *kit) -> bool {
-        Core::Id deviceKind = DeviceTypeKitAspect::deviceTypeId(kit);
+        Utils::Id deviceKind = DeviceTypeKitAspect::deviceTypeId(kit);
         return kit->isAutoDetected() && (deviceKind == Constants::IOS_DEVICE_TYPE
                                          || deviceKind == Constants::IOS_SIMULATOR_TYPE);
     }));
@@ -180,7 +180,7 @@ static void printKits(const QSet<Kit *> &kits)
         qCDebug(kitSetupLog) << "  -" << kit->displayName();
 }
 
-static void setupKit(Kit *kit, Core::Id pDeviceType, const ToolChainPair& toolChains,
+static void setupKit(Kit *kit, Utils::Id pDeviceType, const ToolChainPair& toolChains,
                      const QVariant &debuggerId, const Utils::FilePath &sdkPath, BaseQtVersion *qtVersion)
 {
     DeviceTypeKitAspect::setDeviceTypeId(kit, pDeviceType);
@@ -276,7 +276,7 @@ void IosConfigurations::updateAutomaticKitList()
                 qCDebug(kitSetupLog) << "  - No tool chain found";
                 continue;
             }
-            Core::Id pDeviceType = deviceId(sdk.directoryName);
+            Utils::Id pDeviceType = deviceId(sdk.directoryName);
             if (!pDeviceType.isValid()) {
                 qCDebug(kitSetupLog) << "Unsupported/Invalid device type" << sdk.directoryName;
                 continue;
@@ -416,7 +416,7 @@ void IosConfigurations::updateSimulators()
 {
     // currently we have just one simulator
     DeviceManager *devManager = DeviceManager::instance();
-    Core::Id devId = Constants::IOS_SIMULATOR_DEVICE_ID;
+    Utils::Id devId = Constants::IOS_SIMULATOR_DEVICE_ID;
     IDevice::ConstPtr dev = devManager->find(devId);
     if (dev.isNull()) {
         dev = IDevice::ConstPtr(new IosSimulator(devId));
@@ -590,7 +590,7 @@ QList<ToolChain *> IosToolChainFactory::autoDetect(const QList<ToolChain *> &exi
         for (const XcodePlatform::ToolchainTarget &target : platform.targets) {
             ToolChainPair platformToolchains = findToolChainForPlatform(platform, target,
                                                                         existingClangToolChains);
-            auto createOrAdd = [&](ClangToolChain *toolChain, Core::Id l) {
+            auto createOrAdd = [&](ClangToolChain *toolChain, Utils::Id l) {
                 if (!toolChain) {
                     toolChain = new ClangToolChain;
                     toolChain->setDetection(ToolChain::AutoDetection);

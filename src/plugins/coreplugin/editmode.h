@@ -47,7 +47,7 @@ public:
     ~EditMode() override;
 
 private:
-    void grabEditorManager(Id mode);
+    void grabEditorManager(Utils::Id mode);
 
     QSplitter *m_splitter;
     QVBoxLayout *m_rightSplitWidgetLayout;

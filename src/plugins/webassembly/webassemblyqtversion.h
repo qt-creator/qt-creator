@@ -38,7 +38,7 @@ public:
 
     QString description() const override;
 
-    QSet<Core::Id> targetDeviceTypes() const override;
+    QSet<Utils::Id> targetDeviceTypes() const override;
 };
 
 class WebAssemblyQtVersionFactory : public QtSupport::QtVersionFactory

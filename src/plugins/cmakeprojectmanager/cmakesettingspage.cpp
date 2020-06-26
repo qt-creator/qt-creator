@@ -71,7 +71,7 @@ class CMakeToolItemModel : public TreeModel<TreeItem, TreeItem, CMakeToolTreeIte
 public:
     CMakeToolItemModel();
 
-    CMakeToolTreeItem *cmakeToolItem(const Core::Id &id) const;
+    CMakeToolTreeItem *cmakeToolItem(const Utils::Id &id) const;
     CMakeToolTreeItem *cmakeToolItem(const QModelIndex &index) const;
     QModelIndex addCMakeTool(const QString &name,
                              const FilePath &executable,
@@ -83,22 +83,22 @@ public:
     TreeItem *autoGroupItem() const;
     TreeItem *manualGroupItem() const;
     void reevaluateChangedFlag(CMakeToolTreeItem *item) const;
-    void updateCMakeTool(const Core::Id &id,
+    void updateCMakeTool(const Utils::Id &id,
                          const QString &displayName,
                          const FilePath &executable,
                          const FilePath &qchFile,
                          bool autoRun,
                          bool autoCreate);
-    void removeCMakeTool(const Core::Id &id);
+    void removeCMakeTool(const Utils::Id &id);
     void apply();
 
-    Core::Id defaultItemId() const;
-    void setDefaultItemId(const Core::Id &id);
+    Utils::Id defaultItemId() const;
+    void setDefaultItemId(const Utils::Id &id);
 
     QString uniqueDisplayName(const QString &base) const;
 private:
-    Core::Id m_defaultItemId;
-    QList<Core::Id> m_removedItems;
+    Utils::Id m_defaultItemId;
+    QList<Utils::Id> m_removedItems;
 };
 
 class CMakeToolTreeItem : public TreeItem
@@ -129,7 +129,7 @@ public:
                       bool autoRun,
                       bool autoCreate,
                       bool autodetected)
-        : m_id(Core::Id::fromString(QUuid::createUuid().toString()))
+        : m_id(Utils::Id::fromString(QUuid::createUuid().toString()))
         , m_name(name)
         , m_executable(executable)
         , m_qchFile(qchFile)
@@ -213,7 +213,7 @@ public:
         return QVariant();
     }
 
-    Core::Id m_id;
+    Utils::Id m_id;
     QString m_name;
     QString m_tooltip;
     FilePath m_executable;
@@ -238,11 +238,11 @@ CMakeToolItemModel::CMakeToolItemModel()
         addCMakeTool(item, false);
 
     CMakeTool *defTool = CMakeToolManager::defaultCMakeTool();
-    m_defaultItemId = defTool ? defTool->id() : Core::Id();
+    m_defaultItemId = defTool ? defTool->id() : Utils::Id();
     connect(CMakeToolManager::instance(), &CMakeToolManager::cmakeRemoved,
             this, &CMakeToolItemModel::removeCMakeTool);
     connect(CMakeToolManager::instance(), &CMakeToolManager::cmakeAdded,
-            this, [this](const Core::Id &id) { addCMakeTool(CMakeToolManager::findById(id), false); });
+            this, [this](const Utils::Id &id) { addCMakeTool(CMakeToolManager::findById(id), false); });
 
 }
 
@@ -295,7 +295,7 @@ void CMakeToolItemModel::reevaluateChangedFlag(CMakeToolTreeItem *item) const
 
     //make sure the item is marked as changed when the default cmake was changed
     CMakeTool *origDefTool = CMakeToolManager::defaultCMakeTool();
-    Core::Id origDefault = origDefTool ? origDefTool->id() : Core::Id();
+    Utils::Id origDefault = origDefTool ? origDefTool->id() : Utils::Id();
     if (origDefault != m_defaultItemId) {
         if (item->m_id == origDefault || item->m_id == m_defaultItemId)
             item->m_changed = true;
@@ -304,7 +304,7 @@ void CMakeToolItemModel::reevaluateChangedFlag(CMakeToolTreeItem *item) const
     item->update(); // Notify views.
 }
 
-void CMakeToolItemModel::updateCMakeTool(const Core::Id &id,
+void CMakeToolItemModel::updateCMakeTool(const Utils::Id &id,
                                          const QString &displayName,
                                          const FilePath &executable,
                                          const FilePath &qchFile,
@@ -325,7 +325,7 @@ void CMakeToolItemModel::updateCMakeTool(const Core::Id &id,
     reevaluateChangedFlag(treeItem);
 }
 
-CMakeToolTreeItem *CMakeToolItemModel::cmakeToolItem(const Core::Id &id) const
+CMakeToolTreeItem *CMakeToolItemModel::cmakeToolItem(const Utils::Id &id) const
 {
     return findItemAtLevel<2>([id](CMakeToolTreeItem *n) { return n->m_id == id; });
 }
@@ -335,7 +335,7 @@ CMakeToolTreeItem *CMakeToolItemModel::cmakeToolItem(const QModelIndex &index) c
     return itemForIndexAtLevel<2>(index);
 }
 
-void CMakeToolItemModel::removeCMakeTool(const Core::Id &id)
+void CMakeToolItemModel::removeCMakeTool(const Utils::Id &id)
 {
     if (m_removedItems.contains(id))
         return; // Item has already been removed in the model!
@@ -349,7 +349,7 @@ void CMakeToolItemModel::removeCMakeTool(const Core::Id &id)
 
 void CMakeToolItemModel::apply()
 {
-    foreach (const Core::Id &id, m_removedItems)
+    foreach (const Utils::Id &id, m_removedItems)
         CMakeToolManager::deregisterCMakeTool(id);
 
     QList<CMakeToolTreeItem *> toRegister;
@@ -380,17 +380,17 @@ void CMakeToolItemModel::apply()
     CMakeToolManager::setDefaultCMakeTool(defaultItemId());
 }
 
-Core::Id CMakeToolItemModel::defaultItemId() const
+Utils::Id CMakeToolItemModel::defaultItemId() const
 {
     return m_defaultItemId;
 }
 
-void CMakeToolItemModel::setDefaultItemId(const Core::Id &id)
+void CMakeToolItemModel::setDefaultItemId(const Utils::Id &id)
 {
     if (m_defaultItemId == id)
         return;
 
-    Core::Id oldDefaultId = m_defaultItemId;
+    Utils::Id oldDefaultId = m_defaultItemId;
     m_defaultItemId = id;
 
     CMakeToolTreeItem *newDefault = cmakeToolItem(id);
@@ -432,7 +432,7 @@ private:
     QCheckBox *m_autoCreateBuildDirectoryCheckBox;
     PathChooser *m_binaryChooser;
     PathChooser *m_qchFileChooser;
-    Core::Id m_id;
+    Utils::Id m_id;
     bool m_loadingItem;
 };
 
@@ -503,7 +503,7 @@ void CMakeToolItemConfigWidget::updateQchFilePath()
 void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item)
 {
     m_loadingItem = true; // avoid intermediate signal handling
-    m_id = Core::Id();
+    m_id = Utils::Id();
     if (!item) {
         m_loadingItem = false;
         return;

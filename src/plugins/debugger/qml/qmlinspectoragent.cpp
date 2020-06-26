@@ -711,10 +711,10 @@ void QmlInspectorAgent::toolsClientStateChanged(QmlDebugClient::State state)
     if (state == QmlDebugClient::Enabled) {
         Core::ICore::addAdditionalContext(m_inspectorToolsContext);
         Core::ActionManager::registerAction(m_selectAction,
-                                            Core::Id(Constants::QML_SELECTTOOL),
+                                            Utils::Id(Constants::QML_SELECTTOOL),
                                             m_inspectorToolsContext);
         Core::ActionManager::registerAction(m_showAppOnTopAction,
-                                            Core::Id(Constants::QML_SHOW_APP_ON_TOP),
+                                            Utils::Id(Constants::QML_SHOW_APP_ON_TOP),
                                             m_inspectorToolsContext);
 
         enableTools(m_qmlEngine->state() == InferiorRunOk);
@@ -723,9 +723,9 @@ void QmlInspectorAgent::toolsClientStateChanged(QmlDebugClient::State state)
     } else  {
         enableTools(false);
 
-        Core::ActionManager::unregisterAction(m_selectAction, Core::Id(Constants::QML_SELECTTOOL));
+        Core::ActionManager::unregisterAction(m_selectAction, Utils::Id(Constants::QML_SELECTTOOL));
         Core::ActionManager::unregisterAction(m_showAppOnTopAction,
-                                              Core::Id(Constants::QML_SHOW_APP_ON_TOP));
+                                              Utils::Id(Constants::QML_SHOW_APP_ON_TOP));
         Core::ICore::removeAdditionalContext(m_inspectorToolsContext);
     }
 }

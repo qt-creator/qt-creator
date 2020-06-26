@@ -39,7 +39,7 @@ class IBConsoleBuildStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
 public:
-    explicit IBConsoleBuildStep(ProjectExplorer::BuildStepList *buildStepList, Core::Id id);
+    explicit IBConsoleBuildStep(ProjectExplorer::BuildStepList *buildStepList, Utils::Id id);
     ~IBConsoleBuildStep() override;
 
     bool init() override;

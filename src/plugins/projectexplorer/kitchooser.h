@@ -48,8 +48,8 @@ class PROJECTEXPLORER_EXPORT KitChooser : public QWidget
 public:
     explicit KitChooser(QWidget *parent = nullptr);
 
-    void setCurrentKitId(Core::Id id);
-    Core::Id currentKitId() const;
+    void setCurrentKitId(Utils::Id id);
+    Utils::Id currentKitId() const;
 
     void setKitPredicate(const Kit::Predicate &predicate);
     void setShowIcons(bool showIcons);

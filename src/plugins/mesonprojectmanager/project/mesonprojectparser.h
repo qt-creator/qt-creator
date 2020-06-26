@@ -52,8 +52,8 @@ class MesonProjectParser : public QObject
     };
 
 public:
-    MesonProjectParser(const Core::Id &meson, Utils::Environment env, ProjectExplorer::Project* project);
-    void setMesonTool(const Core::Id &meson);
+    MesonProjectParser(const Utils::Id &meson, Utils::Environment env, ProjectExplorer::Project* project);
+    void setMesonTool(const Utils::Id &meson);
     bool configure(const Utils::FilePath &sourcePath,
                    const Utils::FilePath &buildPath,
                    const QStringList &args);
@@ -112,7 +112,7 @@ private:
     MesonProcess m_process;
     MesonOutputParser m_outputParser;
     Utils::Environment m_env;
-    Core::Id m_meson;
+    Utils::Id m_meson;
     Utils::FilePath m_buildDir;
     Utils::FilePath m_srcDir;
     QFuture<ParserData *> m_parserFutureResult;

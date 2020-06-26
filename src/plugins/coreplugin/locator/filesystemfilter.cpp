@@ -43,6 +43,7 @@
 
 using namespace Core;
 using namespace Core::Internal;
+using namespace Utils;
 
 ILocatorFilter::MatchLevel FileSystemFilter::matchLevelFor(const QRegularExpressionMatch &match,
                                                            const QString &matchText) const

@@ -101,6 +101,7 @@ static inline QIcon designerIcon(const QString &iconName)
 
 using namespace Core;
 using namespace Designer::Constants;
+using namespace Utils;
 
 namespace Designer {
 namespace Internal {

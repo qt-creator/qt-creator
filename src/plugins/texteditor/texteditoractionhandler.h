@@ -27,7 +27,7 @@
 
 #include "texteditor_global.h"
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include <QObject>
 
@@ -61,8 +61,8 @@ public:
     };
     using TextEditorWidgetResolver = std::function<TextEditorWidget *(Core::IEditor *)>;
 
-    TextEditorActionHandler(Core::Id editorId,
-                            Core::Id contextId,
+    TextEditorActionHandler(Utils::Id editorId,
+                            Utils::Id contextId,
                             uint optionalActions = None,
                             const TextEditorWidgetResolver &resolver = {});
 

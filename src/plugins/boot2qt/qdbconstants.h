@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 namespace Qdb {
 namespace Constants {
@@ -37,7 +37,7 @@ const char QdbDeployConfigurationId[] = "Qt4ProjectManager.Qdb.QdbDeployConfigur
 const char QdbStopApplicationStepId[] = "Qdb.StopApplicationStep";
 const char QdbMakeDefaultAppStepId[] = "Qdb.MakeDefaultAppStep";
 
-const Core::Id QdbHardwareDevicePrefix = "QdbHardwareDevice";
+const Utils::Id QdbHardwareDevicePrefix = "QdbHardwareDevice";
 const char AppcontrollerFilepath[] = "/usr/bin/appcontroller";
 
 } // namespace Constants

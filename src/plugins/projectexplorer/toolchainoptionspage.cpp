@@ -163,7 +163,7 @@ public:
         auto autoRoot = new StaticTreeItem(ToolChainOptionsPage::tr("Auto-detected"));
         auto manualRoot = new StaticTreeItem(ToolChainOptionsPage::tr("Manual"));
 
-        foreach (const Core::Id &l, ToolChainManager::allLanguages()) {
+        foreach (const Utils::Id &l, ToolChainManager::allLanguages()) {
             const QString dn = ToolChainManager::displayNameOfLanguageId(l);
             auto autoNode = new StaticTreeItem(dn);
             auto manualNode = new StaticTreeItem(dn);
@@ -190,18 +190,18 @@ public:
         m_addButton = new QPushButton(ToolChainOptionsPage::tr("Add"), this);
         auto addMenu = new QMenu;
         foreach (ToolChainFactory *factory, m_factories) {
-            QList<Core::Id> languages = Utils::toList(factory->supportedLanguages());
+            QList<Utils::Id> languages = Utils::toList(factory->supportedLanguages());
             if (languages.isEmpty())
                 continue;
 
             if (languages.count() == 1) {
                 addMenu->addAction(createAction(factory->displayName(), factory, languages.at(0)));
             } else {
-                Utils::sort(languages, [](const Core::Id &l1, const Core::Id &l2) {
+                Utils::sort(languages, [](const Utils::Id &l1, const Utils::Id &l2) {
                                 return ToolChainManager::displayNameOfLanguageId(l1) < ToolChainManager::displayNameOfLanguageId(l2);
                             });
                 auto subMenu = addMenu->addMenu(factory->displayName());
-                foreach (const Core::Id &l, languages)
+                foreach (const Utils::Id &l, languages)
                     subMenu->addAction(createAction(ToolChainManager::displayNameOfLanguageId(l), factory, l));
             }
         }
@@ -289,7 +289,7 @@ public:
 
     void toolChainSelectionChanged();
     void updateState();
-    void createToolChain(ToolChainFactory *factory, const Core::Id &language);
+    void createToolChain(ToolChainFactory *factory, const Utils::Id &language);
     void cloneToolChain();
     ToolChainTreeItem *currentTreeItem();
 
@@ -299,7 +299,7 @@ public:
     void removeToolChain(ProjectExplorer::ToolChain *);
 
     StaticTreeItem *parentForToolChain(ToolChain *tc);
-    QAction *createAction(const QString &name, ToolChainFactory *factory, Core::Id language)
+    QAction *createAction(const QString &name, ToolChainFactory *factory, Utils::Id language)
     {
         auto action = new QAction(name, nullptr);
         connect(action, &QAction::triggered, [this, factory, language] { createToolChain(factory, language); });
@@ -323,7 +323,7 @@ public:
     QPushButton *m_redetectButton;
     QPushButton *m_detectionSettingsButton;
 
-    QHash<Core::Id, QPair<StaticTreeItem *, StaticTreeItem *>> m_languageMap;
+    QHash<Utils::Id, QPair<StaticTreeItem *, StaticTreeItem *>> m_languageMap;
 
     QList<ToolChainTreeItem *> m_toAddList;
     QList<ToolChainTreeItem *> m_toRemoveList;
@@ -458,7 +458,7 @@ void ToolChainOptionsWidget::apply()
     Q_ASSERT(m_toRemoveList.isEmpty());
 
     // Update tool chains:
-    foreach (const Core::Id &l, m_languageMap.keys()) {
+    foreach (const Utils::Id &l, m_languageMap.keys()) {
         const QPair<StaticTreeItem *, StaticTreeItem *> autoAndManual = m_languageMap.value(l);
         for (StaticTreeItem *parent : {autoAndManual.first, autoAndManual.second}) {
             for (TreeItem *item : *parent) {
@@ -504,7 +504,7 @@ void ToolChainOptionsWidget::apply()
     ToolChainManager::setDetectionSettings(m_detectionSettings);
 }
 
-void ToolChainOptionsWidget::createToolChain(ToolChainFactory *factory, const Core::Id &language)
+void ToolChainOptionsWidget::createToolChain(ToolChainFactory *factory, const Utils::Id &language)
 {
     QTC_ASSERT(factory, return);
     QTC_ASSERT(factory->canCreate(), return);

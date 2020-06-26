@@ -40,6 +40,8 @@
 #include <QDebug>
 #include <QDateTime>
 
+using namespace Utils;
+
 namespace Core {
 namespace Internal {
 

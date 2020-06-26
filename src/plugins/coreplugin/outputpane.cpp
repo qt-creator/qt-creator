@@ -32,6 +32,8 @@
 #include <QSplitter>
 #include <QVBoxLayout>
 
+using namespace Utils;
+
 namespace Core {
 
 class OutputPanePlaceHolderPrivate {

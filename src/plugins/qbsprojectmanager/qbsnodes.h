@@ -47,7 +47,7 @@ public:
 private:
     friend class QbsBuildSystem;
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
-    QVariant data(Core::Id role) const override;
+    QVariant data(Utils::Id role) const override;
 
     const QJsonObject m_groupData;
 };
@@ -67,7 +67,7 @@ public:
 
     const QJsonObject productData() const { return m_productData; }
     QJsonObject mainGroup() const;
-    QVariant data(Core::Id role) const override;
+    QVariant data(Utils::Id role) const override;
 
 private:
     const QJsonObject m_productData;

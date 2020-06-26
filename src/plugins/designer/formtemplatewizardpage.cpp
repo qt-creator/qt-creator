@@ -52,7 +52,7 @@ FormPageFactory::FormPageFactory()
     setTypeIdsSuffix("Form");
 }
 
-Utils::WizardPage *FormPageFactory::create(ProjectExplorer::JsonWizard *wizard, Core::Id typeId,
+Utils::WizardPage *FormPageFactory::create(ProjectExplorer::JsonWizard *wizard, Utils::Id typeId,
                                            const QVariant &data)
 {
     Q_UNUSED(wizard)
@@ -63,7 +63,7 @@ Utils::WizardPage *FormPageFactory::create(ProjectExplorer::JsonWizard *wizard, 
     return new FormTemplateWizardPage;
 }
 
-bool FormPageFactory::validateData(Core::Id typeId, const QVariant &data, QString *errorMessage)
+bool FormPageFactory::validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage)
 {
     QTC_ASSERT(canCreate(typeId), return false);
     if (!data.isNull() && (data.type() != QVariant::Map || !data.toMap().isEmpty())) {

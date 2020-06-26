@@ -101,7 +101,7 @@ void QbsKitAspect::setProperties(Kit *kit, const QVariantMap &properties)
     kit->setValue(id(), properties);
 }
 
-Core::Id QbsKitAspect::id()
+Utils::Id QbsKitAspect::id()
 {
     return "Qbs.KitInformation";
 }

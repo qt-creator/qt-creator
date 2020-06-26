@@ -177,7 +177,7 @@ void RsyncDeployService::setFinished()
 
 } // namespace Internal
 
-RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Core::Id id)
+RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Utils::Id id)
     : AbstractRemoteLinuxDeployStep(bsl, id)
 {
     auto service = createDeployService<Internal::RsyncDeployService>();
@@ -209,7 +209,7 @@ RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Core::Id id)
 
 RsyncDeployStep::~RsyncDeployStep() = default;
 
-Core::Id RsyncDeployStep::stepId()
+Utils::Id RsyncDeployStep::stepId()
 {
     return "RemoteLinux.RsyncDeployStep";
 }

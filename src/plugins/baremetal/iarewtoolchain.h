@@ -111,7 +111,7 @@ private:
     QList<ProjectExplorer::ToolChain *> autoDetectToolchains(const Candidates &candidates,
             const QList<ProjectExplorer::ToolChain *> &alreadyKnown) const;
     QList<ProjectExplorer::ToolChain *> autoDetectToolchain(
-            const Candidate &candidate, Core::Id languageId) const;
+            const Candidate &candidate, Utils::Id languageId) const;
 };
 
 // IarToolChainConfigWidget

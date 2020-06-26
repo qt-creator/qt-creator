@@ -73,7 +73,7 @@ public:
             if (dlg.exec() != QDialog::Accepted)
                 return;
             CustomParserSettings newParser = dlg.settings();
-            newParser.id = Core::Id::fromString(QUuid::createUuid().toString());
+            newParser.id = Utils::Id::fromString(QUuid::createUuid().toString());
             newParser.displayName = tr("New Parser");
             m_customParsers << newParser;
             resetListView();

@@ -105,6 +105,7 @@ using namespace Core;
 using namespace CPlusPlus;
 using namespace CppTools;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace CppEditor {
 namespace Internal {

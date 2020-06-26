@@ -148,7 +148,7 @@ public:
     bool isValid() const { return type.isValid(); }
 
 public:
-    Core::Id type;
+    Utils::Id type;
     bool isMsvc2015ToolChain = false;
     unsigned wordWidth = 0;
     QString targetTriple;

@@ -44,21 +44,21 @@ public:
     explicit DeviceManagerModel(const DeviceManager *deviceManager, QObject *parent = nullptr);
     ~DeviceManagerModel() override;
 
-    void setFilter(const QList<Core::Id> &filter);
-    void setTypeFilter(Core::Id type);
+    void setFilter(const QList<Utils::Id> &filter);
+    void setTypeFilter(Utils::Id type);
 
     IDevice::ConstPtr device(int pos) const;
-    Core::Id deviceId(int pos) const;
+    Utils::Id deviceId(int pos) const;
     int indexOf(IDevice::ConstPtr dev) const;
-    int indexForId(Core::Id id) const;
+    int indexForId(Utils::Id id) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
-    void updateDevice(Core::Id id);
+    void updateDevice(Utils::Id id);
 
 private:
-    void handleDeviceAdded(Core::Id id);
-    void handleDeviceRemoved(Core::Id id);
-    void handleDeviceUpdated(Core::Id id);
+    void handleDeviceAdded(Utils::Id id);
+    void handleDeviceRemoved(Utils::Id id);
+    void handleDeviceUpdated(Utils::Id id);
     void handleDeviceListChanged();
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;

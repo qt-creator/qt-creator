@@ -27,9 +27,9 @@
 
 #include "command.h"
 
-#include <coreplugin/id.h>
 #include <coreplugin/icontext.h>
 
+#include <utils/id.h>
 #include <utils/proxyaction.h>
 
 #include <QList>
@@ -47,9 +47,9 @@ class Action : public Command
 {
     Q_OBJECT
 public:
-    Action(Id id);
+    Action(Utils::Id id);
 
-    Id id() const override;
+    Utils::Id id() const override;
 
     void setDefaultKeySequence(const QKeySequence &key) override;
     void setDefaultKeySequences(const QList<QKeySequence> &key) override;
@@ -93,7 +93,7 @@ private:
 
     Context m_context;
     CommandAttributes m_attributes;
-    Id m_id;
+    Utils::Id m_id;
     QList<QKeySequence> m_defaultKeys;
     QString m_defaultText;
     QString m_touchBarText;
@@ -104,7 +104,7 @@ private:
     mutable std::unique_ptr<Utils::ProxyAction> m_touchBarAction;
     QString m_toolTip;
 
-    QMap<Id, QPointer<QAction> > m_contextActionMap;
+    QMap<Utils::Id, QPointer<QAction> > m_contextActionMap;
     QMap<QAction*, bool> m_scriptableMap;
     bool m_active = false;
     bool m_contextInitialized = false;

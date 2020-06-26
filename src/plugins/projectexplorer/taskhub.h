@@ -42,31 +42,31 @@ public:
 
     // Convenience overload
     static void addTask(Task::TaskType type, const QString &description,
-                        Core::Id category);
+                        Utils::Id category);
 
 public slots:
     static void addTask(ProjectExplorer::Task task);
-    static void clearTasks(Core::Id categoryId = Core::Id());
+    static void clearTasks(Utils::Id categoryId = Utils::Id());
     static void removeTask(const ProjectExplorer::Task &task);
 
 public:
-    static void addCategory(Core::Id categoryId, const QString &displayName, bool visible = true);
+    static void addCategory(Utils::Id categoryId, const QString &displayName, bool visible = true);
     static void updateTaskFileName(unsigned int id, const QString &fileName);
     static void updateTaskLineNumber(unsigned int id, int line);
     static void taskMarkClicked(unsigned int id);
     static void showTaskInEditor(unsigned int id);
-    static void setCategoryVisibility(Core::Id categoryId, bool visible);
+    static void setCategoryVisibility(Utils::Id categoryId, bool visible);
 
     static void requestPopup();
 
 signals:
-    void categoryAdded(Core::Id categoryId, const QString &displayName, bool visible);
+    void categoryAdded(Utils::Id categoryId, const QString &displayName, bool visible);
     void taskAdded(const ProjectExplorer::Task &task);
     void taskRemoved(const ProjectExplorer::Task &task);
-    void tasksCleared(Core::Id categoryId);
+    void tasksCleared(Utils::Id categoryId);
     void taskFileNameUpdated(unsigned int id, const QString &fileName);
     void taskLineNumberUpdated(unsigned int id, int line);
-    void categoryVisibilityChanged(Core::Id categoryId, bool visible);
+    void categoryVisibilityChanged(Utils::Id categoryId, bool visible);
     void popupRequested(int);
     void showTask(unsigned int id);
     void openTask(unsigned int id);
@@ -75,7 +75,7 @@ private:
     TaskHub();
     ~TaskHub() override;
 
-    static QVector<Core::Id> m_registeredCategories;
+    static QVector<Utils::Id> m_registeredCategories;
 
     friend class ProjectExplorerPluginPrivate;
 };

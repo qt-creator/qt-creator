@@ -219,7 +219,7 @@ int ExampleSetModel::getQtId(int i) const
     return variant.toInt();
 }
 
-bool ExampleSetModel::selectedQtSupports(const Core::Id &target) const
+bool ExampleSetModel::selectedQtSupports(const Utils::Id &target) const
 {
     return m_selectedQtTypes.contains(target);
 }

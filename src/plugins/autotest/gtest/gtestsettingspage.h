@@ -35,7 +35,7 @@ class GTestSettings;
 class GTestSettingsPage final : public Core::IOptionsPage
 {
 public:
-    GTestSettingsPage(GTestSettings *settings, Core::Id settingsId);
+    GTestSettingsPage(GTestSettings *settings, Utils::Id settingsId);
 };
 
 } // namespace Internal

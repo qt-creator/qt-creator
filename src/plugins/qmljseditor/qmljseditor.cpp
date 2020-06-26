@@ -54,7 +54,6 @@
 #include <coreplugin/designmode.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
 #include <coreplugin/modemanager.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -102,6 +101,7 @@ using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJSTools;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace QmlJSEditor {
 
@@ -1075,7 +1075,7 @@ QmlJSEditorFactory::QmlJSEditorFactory()
     : QmlJSEditorFactory(Constants::C_QMLJSEDITOR_ID)
 {}
 
-QmlJSEditorFactory::QmlJSEditorFactory(Core::Id _id)
+QmlJSEditorFactory::QmlJSEditorFactory(Utils::Id _id)
 {
     setId(_id);
     setDisplayName(QCoreApplication::translate("OpenWith::Editors", "QMLJS Editor"));

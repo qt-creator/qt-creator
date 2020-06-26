@@ -81,7 +81,7 @@ private:
             return Status::NotHandled;
         }
 
-        const Core::Id category(PythonErrorTaskCategory);
+        const Utils::Id category(PythonErrorTaskCategory);
         const QRegularExpressionMatch match = filePattern.match(text);
         if (match.hasMatch()) {
             const LinkSpec link(match.capturedStart(2), match.capturedLength(2), match.captured(2));
@@ -233,7 +233,7 @@ public:
     MainScriptAspect() = default;
 };
 
-PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
+PythonRunConfiguration::PythonRunConfiguration(Target *target, Utils::Id id)
     : RunConfiguration(target, id)
 {
     auto interpreterAspect = addAspect<InterpreterAspect>();

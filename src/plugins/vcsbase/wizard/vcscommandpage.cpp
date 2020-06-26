@@ -25,7 +25,6 @@
 
 #include "vcscommandpage.h"
 
-#include <coreplugin/id.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/shellcommand.h>
 #include <coreplugin/vcsmanager.h>

@@ -36,7 +36,7 @@ class NinjaBuildStep final : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
 public:
-    NinjaBuildStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
+    NinjaBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() final;
     Utils::CommandLine command();
     QStringList projectTargets();

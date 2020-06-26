@@ -58,8 +58,9 @@
     \sa setFilePath()
 */
 
-namespace Core {
+using namespace Utils;
 
+namespace Core {
 namespace Internal {
 
 class IDocumentPrivate

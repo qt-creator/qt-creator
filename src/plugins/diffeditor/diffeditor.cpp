@@ -257,7 +257,7 @@ Core::IEditor *DiffEditor::duplicate()
     editor->m_sync = m_sync;
     editor->m_showDescription = m_showDescription;
 
-    Core::Id id = currentView()->id();
+    Utils::Id id = currentView()->id();
     IDiffView *view = Utils::findOr(editor->m_views, editor->m_views.at(0),
                                     Utils::equal(&IDiffView::id, id));
     QTC_ASSERT(view, view = editor->currentView());
@@ -523,7 +523,7 @@ IDiffView *DiffEditor::loadSettings()
     m_sync = s->value(horizontalScrollBarSynchronizationKeyC, true).toBool();
     m_document->setIgnoreWhitespace(s->value(ignoreWhitespaceKeyC, false).toBool());
     m_document->setContextLineCount(s->value(contextLineCountKeyC, 3).toInt());
-    Core::Id id = Core::Id::fromSetting(s->value(diffViewKeyC));
+    Utils::Id id = Utils::Id::fromSetting(s->value(diffViewKeyC));
     s->endGroup();
 
     IDiffView *view = Utils::findOr(m_views, m_views.at(0),

@@ -51,7 +51,7 @@ class ProcessStep final : public AbstractProcessStep
     Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::ProcessStep)
 
 public:
-    ProcessStep(BuildStepList *bsl, Core::Id id);
+    ProcessStep(BuildStepList *bsl, Utils::Id id);
 
     bool init() final;
     void setupOutputFormatter(Utils::OutputFormatter *formatter);
@@ -62,7 +62,7 @@ public:
     BaseStringAspect *m_workingDirectory;
 };
 
-ProcessStep::ProcessStep(BuildStepList *bsl, Core::Id id)
+ProcessStep::ProcessStep(BuildStepList *bsl, Utils::Id id)
     : AbstractProcessStep(bsl, id)
 {
     //: Default ProcessStep display name

@@ -41,7 +41,7 @@ TestProject::TestProject(const QString &name, QObject *parent) :
     m_name(name)
 {
     setParent(parent);
-    setId(Core::Id::fromString(name));
+    setId(Utils::Id::fromString(name));
     setDisplayName(name);
     qRegisterMetaType<QSet<QString> >();
 }

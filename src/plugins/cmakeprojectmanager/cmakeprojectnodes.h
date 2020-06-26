@@ -71,7 +71,7 @@ public:
 
     void build() override;
 
-    QVariant data(Core::Id role) const override;
+    QVariant data(Utils::Id role) const override;
     void setConfig(const CMakeConfig &config);
 
 private:

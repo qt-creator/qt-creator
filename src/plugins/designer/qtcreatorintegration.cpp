@@ -266,7 +266,7 @@ static Document::Ptr findDefinition(Function *functionDeclaration, int *line)
 static inline BaseTextEditor *editorAt(const QString &fileName, int line, int column)
 {
     return qobject_cast<BaseTextEditor *>(Core::EditorManager::openEditorAt(fileName, line, column,
-                                                                         Core::Id(),
+                                                                         Utils::Id(),
                                                                          Core::EditorManager::DoNotMakeVisible));
 }
 

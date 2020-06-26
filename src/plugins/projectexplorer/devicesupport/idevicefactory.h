@@ -39,7 +39,7 @@ public:
     virtual ~IDeviceFactory();
     static const QList<IDeviceFactory *> allDeviceFactories();
 
-    Core::Id deviceType() const { return m_deviceType; }
+    Utils::Id deviceType() const { return m_deviceType; }
     QString displayName() const { return m_displayName; }
     QIcon icon() const { return m_icon; }
     bool canCreate() const;
@@ -49,10 +49,10 @@ public:
 
     virtual bool canRestore(const QVariantMap &) const { return true; }
 
-    static IDeviceFactory *find(Core::Id type);
+    static IDeviceFactory *find(Utils::Id type);
 
 protected:
-    explicit IDeviceFactory(Core::Id deviceType);
+    explicit IDeviceFactory(Utils::Id deviceType);
     IDeviceFactory(const IDeviceFactory &) = delete;
     IDeviceFactory &operator=(const IDeviceFactory &) = delete;
 
@@ -63,7 +63,7 @@ protected:
     void setConstructionFunction(const std::function<IDevice::Ptr ()> &constructor);
 
 private:
-    const Core::Id m_deviceType;
+    const Utils::Id m_deviceType;
     QString m_displayName;
     QIcon m_icon;
     bool m_canCreate = false;

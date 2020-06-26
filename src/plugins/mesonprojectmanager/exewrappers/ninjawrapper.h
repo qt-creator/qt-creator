@@ -56,7 +56,7 @@ inline NinjaWrapper *fromVariantMap<NinjaWrapper *>(const QVariantMap &data)
 {
     return new NinjaWrapper(data[Constants::ToolsSettings::NAME_KEY].toString(),
                             Utils::FilePath::fromVariant(data[Constants::ToolsSettings::EXE_KEY]),
-                            Core::Id::fromSetting(data[Constants::ToolsSettings::ID_KEY]),
+                            Utils::Id::fromSetting(data[Constants::ToolsSettings::ID_KEY]),
                             data[Constants::ToolsSettings::AUTO_DETECTED_KEY].toBool());
 }
 

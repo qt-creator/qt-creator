@@ -70,7 +70,7 @@ namespace Core {
 */
 
 /*!
-    \fn Core::Id Core::IEditorFactory::id() const
+    \fn Utils::Id Core::IEditorFactory::id() const
     Returns the ID of the factory or editor type.
 */
 

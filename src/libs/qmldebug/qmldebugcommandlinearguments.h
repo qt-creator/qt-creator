@@ -25,8 +25,9 @@
 
 #pragma once
 
-#include <coreplugin/id.h>
 #include <projectexplorer/projectexplorerconstants.h>
+
+#include <utils/id.h>
 
 #include <QString>
 #include <QUrl>
@@ -88,7 +89,7 @@ inline QString qmlDebugLocalArguments(QmlDebugServicesPreset services, const QSt
     return qmlDebugCommandLineArguments(services, QLatin1String("file:") + socket, block);
 }
 
-inline Core::Id runnerIdForRunMode(Core::Id runMode)
+inline Utils::Id runnerIdForRunMode(Utils::Id runMode)
 {
     if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
         return ProjectExplorer::Constants::QML_PROFILER_RUNNER;
@@ -97,7 +98,7 @@ inline Core::Id runnerIdForRunMode(Core::Id runMode)
     return {};
 }
 
-inline QmlDebugServicesPreset servicesForRunMode(Core::Id runMode)
+inline QmlDebugServicesPreset servicesForRunMode(Utils::Id runMode)
 {
     if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
         return QmlDebug::QmlProfilerServices;

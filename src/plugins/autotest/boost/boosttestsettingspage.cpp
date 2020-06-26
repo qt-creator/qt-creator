@@ -101,7 +101,7 @@ void BoostTestSettingsWidget::fillComboBoxes()
     m_ui.reportLevelCB->addItem("No", QVariant::fromValue(ReportLevel::No));
 }
 
-BoostTestSettingsPage::BoostTestSettingsPage(BoostTestSettings *settings, Core::Id settingsId)
+BoostTestSettingsPage::BoostTestSettingsPage(BoostTestSettings *settings, Utils::Id settingsId)
 {
     setId(settingsId);
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);

@@ -42,7 +42,6 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>

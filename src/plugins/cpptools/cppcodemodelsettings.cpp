@@ -36,7 +36,7 @@
 
 using namespace CppTools;
 
-static Core::Id initialClangDiagnosticConfigId()
+static Utils::Id initialClangDiagnosticConfigId()
 { return Constants::CPP_CLANG_DIAG_CONFIG_QUESTIONABLE; }
 
 static CppCodeModelSettings::PCHUsage initialPchUsage()
@@ -60,11 +60,11 @@ static QString skipIndexingBigFilesKey()
 static QString indexerFileSizeLimitKey()
 { return QLatin1String(Constants::CPPTOOLS_INDEXER_FILE_SIZE_LIMIT); }
 
-static Core::Id clangDiagnosticConfigIdFromSettings(QSettings *s)
+static Utils::Id clangDiagnosticConfigIdFromSettings(QSettings *s)
 {
-    QTC_ASSERT(s->group() == QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP), return Core::Id());
+    QTC_ASSERT(s->group() == QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP), return Utils::Id());
 
-    return Core::Id::fromSetting(
+    return Utils::Id::fromSetting(
         s->value(clangDiagnosticConfigKey(), initialClangDiagnosticConfigId().toSetting()));
 }
 
@@ -113,7 +113,7 @@ static ClangDiagnosticConfigs removedBuiltinConfigs()
     return configs;
 }
 
-static ClangDiagnosticConfig convertToCustomConfig(const Core::Id &id)
+static ClangDiagnosticConfig convertToCustomConfig(const Utils::Id &id)
 {
     const ClangDiagnosticConfig config
         = Utils::findOrDefault(removedBuiltinConfigs(), [id](const ClangDiagnosticConfig &config) {
@@ -131,7 +131,7 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
 
     // Qt Creator 4.11 removes some built-in configs.
     bool write = false;
-    const Core::Id id = m_clangDiagnosticConfigId;
+    const Utils::Id id = m_clangDiagnosticConfigId;
     if (id == "Builtin.Pedantic" || id == "Builtin.EverythingWithExceptions") {
         // If one of them was used, continue to use it, but convert it to a custom config.
         const ClangDiagnosticConfig customConfig = convertToCustomConfig(id);
@@ -172,7 +172,7 @@ void CppCodeModelSettings::toSettings(QSettings *s)
 {
     s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
     const ClangDiagnosticConfigs previousConfigs = diagnosticConfigsFromSettings(s);
-    const Core::Id previousConfigId = clangDiagnosticConfigIdFromSettings(s);
+    const Utils::Id previousConfigId = clangDiagnosticConfigIdFromSettings(s);
 
     diagnosticConfigsToSettings(s, m_clangCustomDiagnosticConfigs);
 
@@ -186,7 +186,7 @@ void CppCodeModelSettings::toSettings(QSettings *s)
 
     s->endGroup();
 
-    QVector<Core::Id> invalidated
+    QVector<Utils::Id> invalidated
         = ClangDiagnosticConfigsModel::changedOrRemovedConfigs(previousConfigs,
                                                                m_clangCustomDiagnosticConfigs);
 
@@ -198,19 +198,19 @@ void CppCodeModelSettings::toSettings(QSettings *s)
     emit changed();
 }
 
-Core::Id CppCodeModelSettings::clangDiagnosticConfigId() const
+Utils::Id CppCodeModelSettings::clangDiagnosticConfigId() const
 {
     if (!diagnosticConfigsModel().hasConfigWithId(m_clangDiagnosticConfigId))
         return defaultClangDiagnosticConfigId();
     return m_clangDiagnosticConfigId;
 }
 
-void CppCodeModelSettings::setClangDiagnosticConfigId(const Core::Id &configId)
+void CppCodeModelSettings::setClangDiagnosticConfigId(const Utils::Id &configId)
 {
     m_clangDiagnosticConfigId = configId;
 }
 
-Core::Id CppCodeModelSettings::defaultClangDiagnosticConfigId()
+Utils::Id CppCodeModelSettings::defaultClangDiagnosticConfigId()
 {
     return initialClangDiagnosticConfigId();
 }

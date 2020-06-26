@@ -707,8 +707,8 @@ public:
     void highlightSearchResults(const QTextBlock &block, const PaintEventData &data) const;
     QTimer m_delayedUpdateTimer;
 
-    void setExtraSelections(Core::Id kind, const QList<QTextEdit::ExtraSelection> &selections);
-    QHash<Core::Id, QList<QTextEdit::ExtraSelection>> m_extraSelections;
+    void setExtraSelections(Utils::Id kind, const QList<QTextEdit::ExtraSelection> &selections);
+    QHash<Utils::Id, QList<QTextEdit::ExtraSelection>> m_extraSelections;
 
     // block selection mode
     bool m_inBlockSelectionMode = false;

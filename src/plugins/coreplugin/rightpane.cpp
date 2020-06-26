@@ -37,6 +37,7 @@
 
 using namespace Core;
 using namespace Core::Internal;
+using namespace Utils;
 
 RightPanePlaceHolder *RightPanePlaceHolder::m_current = nullptr;
 

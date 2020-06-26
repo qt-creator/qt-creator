@@ -186,7 +186,7 @@ SharedTools::WidgetHost *FormEditorStack::formWindowEditorForXmlEditor(const Cor
     return i != -1 ? m_formEditors.at(i).widgetHost : static_cast<SharedTools::WidgetHost *>(nullptr);
 }
 
-void FormEditorStack::modeAboutToChange(Core::Id mode)
+void FormEditorStack::modeAboutToChange(Utils::Id mode)
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << "FormEditorStack::modeAboutToChange"  << mode.toString();

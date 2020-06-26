@@ -27,8 +27,7 @@
 
 #include "projectexplorer_export.h"
 
-#include <coreplugin/id.h>
-
+#include <utils/id.h>
 #include <utils/persistentsettings.h>
 
 #include <QDateTime>
@@ -145,7 +144,7 @@ signals: // for tests only
     void projectFinishedParsing(ProjectExplorer::Project *project);
 
 private:
-    static void saveActiveMode(Core::Id mode);
+    static void saveActiveMode(Utils::Id mode);
     static void configureEditor(Core::IEditor *editor, const QString &fileName);
     static void markSessionFileDirty();
     static void configureEditors(Project *project);

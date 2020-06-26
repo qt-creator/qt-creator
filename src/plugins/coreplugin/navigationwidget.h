@@ -26,7 +26,8 @@
 #pragma once
 
 #include <coreplugin/minisplitter.h>
-#include <coreplugin/id.h>
+
+#include <utils/id.h>
 
 #include <QHash>
 
@@ -53,17 +54,17 @@ class CORE_EXPORT NavigationWidgetPlaceHolder : public QWidget
     friend class Core::NavigationWidget;
 
 public:
-    explicit NavigationWidgetPlaceHolder(Id mode, Side side, QWidget *parent = nullptr);
+    explicit NavigationWidgetPlaceHolder(Utils::Id mode, Side side, QWidget *parent = nullptr);
     ~NavigationWidgetPlaceHolder() override;
     static NavigationWidgetPlaceHolder *current(Side side);
     static void setCurrent(Side side, NavigationWidgetPlaceHolder *navWidget);
     void applyStoredSize();
 
 private:
-    void currentModeAboutToChange(Id mode);
+    void currentModeAboutToChange(Utils::Id mode);
     int storedWidth() const;
 
-    Id m_mode;
+    Utils::Id m_mode;
     Side m_side;
     static NavigationWidgetPlaceHolder *s_currentLeft;
     static NavigationWidgetPlaceHolder *s_currentRight;
@@ -89,21 +90,21 @@ public:
     void saveSettings(QSettings *settings);
     void restoreSettings(QSettings *settings);
 
-    QWidget *activateSubWidget(Id factoryId, int preferredPosition);
+    QWidget *activateSubWidget(Utils::Id factoryId, int preferredPosition);
     void closeSubWidgets();
 
     bool isShown() const;
     void setShown(bool b);
 
     static NavigationWidget *instance(Side side);
-    static QWidget *activateSubWidget(Id factoryId, Side fallbackSide);
+    static QWidget *activateSubWidget(Utils::Id factoryId, Side fallbackSide);
 
     int storedWidth();
 
     // Called from the place holders
     void placeHolderChanged(NavigationWidgetPlaceHolder *holder);
 
-    QHash<Id, Command *> commandMap() const;
+    QHash<Utils::Id, Command *> commandMap() const;
     QAbstractItemModel *factoryModel() const;
 
 protected:
@@ -114,7 +115,7 @@ private:
     void closeSubWidget();
     void updateToggleText();
     Internal::NavigationSubWidget *insertSubItem(int position, int factoryIndex);
-    int factoryIndex(Id id);
+    int factoryIndex(Utils::Id id);
     QString settingsKey(const QString &key) const;
     void onSubWidgetFactoryIndexChanged(int factoryIndex);
 

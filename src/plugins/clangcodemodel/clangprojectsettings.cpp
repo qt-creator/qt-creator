@@ -51,9 +51,9 @@ static bool useGlobalConfigFromSettings(ProjectExplorer::Project *project)
     return useGlobalConfigVariant.isValid() ? useGlobalConfigVariant.toBool() : true;
 }
 
-static Core::Id warningConfigIdFromSettings(ProjectExplorer::Project *project)
+static Utils::Id warningConfigIdFromSettings(ProjectExplorer::Project *project)
 {
-    return Core::Id::fromSetting(project->namedSettings(warningConfigIdKey()));
+    return Utils::Id::fromSetting(project->namedSettings(warningConfigIdKey()));
 }
 
 static QStringList customCommandLineFromSettings(ProjectExplorer::Project *project)
@@ -75,7 +75,7 @@ ClangProjectSettings::ClangProjectSettings(ProjectExplorer::Project *project)
             this, &ClangProjectSettings::store);
 }
 
-Core::Id ClangProjectSettings::warningConfigId() const
+Utils::Id ClangProjectSettings::warningConfigId() const
 {
     const CppTools::ClangDiagnosticConfigsModel model = CppTools::diagnosticConfigsModel();
     if (!model.hasConfigWithId(m_warningConfigId))
@@ -83,7 +83,7 @@ Core::Id ClangProjectSettings::warningConfigId() const
     return m_warningConfigId;
 }
 
-void ClangProjectSettings::setWarningConfigId(const Core::Id &customConfigId)
+void ClangProjectSettings::setWarningConfigId(const Utils::Id &customConfigId)
 {
     m_warningConfigId = customConfigId;
 }

@@ -41,7 +41,7 @@ public:
 
     static QList<Utils::OutputLineParser *> clangParserSuite();
 
-    static Core::Id id();
+    static Utils::Id id();
 
 private:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;

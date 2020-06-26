@@ -26,10 +26,11 @@
 #pragma once
 
 #include "core_global.h"
-#include "id.h"
 
-#include <QSharedDataPointer>
+#include <utils/id.h>
+
 #include <QList>
+#include <QSharedDataPointer>
 
 namespace Core {
 class GeneratedFilePrivate;
@@ -75,8 +76,8 @@ public:
     void setBinary(bool b);
 
     // Id of editor to open the file with
-    Id editorId() const;
-    void setEditorId(Id id);
+    Utils::Id editorId() const;
+    void setEditorId(Utils::Id id);
 
     bool write(QString *errorMessage) const;
 

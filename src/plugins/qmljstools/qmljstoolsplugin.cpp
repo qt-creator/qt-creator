@@ -105,13 +105,13 @@ QmlJSToolsPluginPrivate::QmlJSToolsPluginPrivate()
 
     // Watch task progress
     connect(ProgressManager::instance(), &ProgressManager::taskStarted, this,
-            [this](Core::Id type) {
+            [this](Utils::Id type) {
                   if (type == QmlJS::Constants::TASK_INDEX)
                       resetCodeModelAction.setEnabled(false);
             });
 
     connect(ProgressManager::instance(), &ProgressManager::allTasksFinished,
-            [this](Core::Id type) {
+            [this](Utils::Id type) {
                   if (type == QmlJS::Constants::TASK_INDEX)
                       resetCodeModelAction.setEnabled(true);
             });

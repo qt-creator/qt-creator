@@ -97,7 +97,7 @@ void RefactorOverlay::paintMarker(const RefactorMarker& marker, QPainter *painte
     m_maxWidth = qMax(m_maxWidth, x + actualIconSize.width() - int(offset.x()));
 }
 
-RefactorMarkers RefactorMarker::filterOutType(const RefactorMarkers &markers, const Core::Id &type)
+RefactorMarkers RefactorMarker::filterOutType(const RefactorMarkers &markers, const Utils::Id &type)
 {
     return Utils::filtered(markers, [type](const RefactorMarker &marker) {
         return marker.type != type;

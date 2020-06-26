@@ -294,7 +294,7 @@ void SessionManager::setActiveTarget(Project *project, Target *target, SetActive
     if (cascade != SetActive::Cascade || !d->m_casadeSetActive)
         return;
 
-    Core::Id kitId = target->kit()->id();
+    Utils::Id kitId = target->kit()->id();
     for (Project *otherProject : SessionManager::projects()) {
         if (otherProject == project)
             continue;
@@ -314,7 +314,7 @@ void SessionManager::setActiveBuildConfiguration(Target *target, BuildConfigurat
     if (cascade != SetActive::Cascade || !d->m_casadeSetActive)
         return;
 
-    Core::Id kitId = target->kit()->id();
+    Utils::Id kitId = target->kit()->id();
     QString name = bc->displayName(); // We match on displayname
     for (Project *otherProject : SessionManager::projects()) {
         if (otherProject == target->project())
@@ -342,7 +342,7 @@ void SessionManager::setActiveDeployConfiguration(Target *target, DeployConfigur
     if (cascade != SetActive::Cascade || !d->m_casadeSetActive)
         return;
 
-    Core::Id kitId = target->kit()->id();
+    Utils::Id kitId = target->kit()->id();
     QString name = dc->displayName(); // We match on displayname
     for (Project *otherProject : SessionManager::projects()) {
         if (otherProject == target->project())
