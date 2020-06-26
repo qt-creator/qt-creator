@@ -25,6 +25,7 @@
 #include "componentexporter.h"
 #include "assetexporter.h"
 #include "assetexportpluginconstants.h"
+#include "exportnotification.h"
 #include "parsers/modelnodeparser.h"
 
 #include "model.h"
@@ -113,6 +114,9 @@ QJsonObject Component::nodeToJson(const ModelNode &node)
             node.model()->rewriterView()->writeAuxiliaryData();
         }
         jsonObject = parser->json(*this);
+    } else {
+        ExportNotification::addError(tr("Error exporting component %1. Parser unavailable.")
+                                     .arg(node.id()));
     }
 
     QJsonArray children;
