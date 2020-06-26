@@ -44,7 +44,7 @@ public:
 
     Target *activeTarget() const { return {}; }
 
-    QVariant namedSettings(const QString &name) const { return settings.at(name); }
+    QVariant namedSettings(const QString &name) const { return settings[name]; }
     void setNamedSettings(const QString &name, const QVariant &value) { settings[name] = value; }
 
     Utils::FilePath rootProjectDirectoryPath;

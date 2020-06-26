@@ -11,6 +11,7 @@ QTC_PLUGIN_DEPENDS += \
     qtsupport \
     projectexplorer \
     qmakeprojectmanager \
+    qmlprojectmanager \
     resourceeditor
 
 INCLUDEPATH *= \

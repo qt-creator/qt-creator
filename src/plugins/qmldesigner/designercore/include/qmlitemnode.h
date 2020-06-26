@@ -157,7 +157,6 @@ public:
     void assignTargetFlowItem(const QmlFlowTargetNode &flowItem);
     QmlFlowItemNode flowItemParent() const;
     void destroyTarget();
-    ModelNode decisionNodeForTransition(const ModelNode &transition) const;
 };
 
 class QMLDESIGNERCORE_EXPORT QmlFlowItemNode : public QmlItemNode
@@ -168,6 +167,8 @@ public:
     static bool isValidQmlFlowItemNode(const ModelNode &modelNode);
     QList<QmlFlowActionAreaNode> flowActionAreas() const;
     QmlFlowViewNode flowView() const;
+
+    static ModelNode decisionNodeForTransition(const ModelNode &transition);
 };
 
 class QMLDESIGNERCORE_EXPORT QmlFlowViewNode : public QmlItemNode

@@ -27,6 +27,7 @@
 #include "qmlpreviewactions.h"
 
 #include <zoomaction.h>
+#include <designersettings.h>
 
 #include <utils/utilsicons.h>
 #include <projectexplorer/projectexplorer.h>
@@ -47,12 +48,10 @@ const Utils::Icon previewIcon({
 static void handleAction(const SelectionContext &context)
 {
     if (context.view()->isAttached()) {
-        if (context.toggled()) {
+        if (context.toggled())
             ProjectExplorerPlugin::runStartupProject(Constants::QML_PREVIEW_RUN_MODE);
-            QmlPreviewPlugin::setQmlFile();
-        } else {
+         else
             QmlPreviewPlugin::stopAllRunControls();
-        }
     }
 }
 
@@ -216,42 +215,46 @@ SwitchLanguageComboboxAction::SwitchLanguageComboboxAction(QObject *parent)
     connect(ProjectExplorer::SessionManager::instance(),
             &ProjectExplorer::SessionManager::startupProjectChanged,
             this,
-            &SwitchLanguageComboboxAction::refreshProjectLocales);
+            &SwitchLanguageComboboxAction::updateProjectLocales);
 }
 
 QWidget *SwitchLanguageComboboxAction::createWidget(QWidget *parent)
 {
     QPointer<QComboBox> comboBox = new QComboBox(parent);
     comboBox->setToolTip(tr("Switch the language used by preview."));
+    comboBox->addItem(tr("Default"));
+
+    auto refreshComboBoxFunction = [this, comboBox] (ProjectExplorer::Project *project) {
+        if (comboBox) {
+            if (updateProjectLocales(project)) {
+                comboBox->clear();
+                comboBox->addItem(tr("Default"));
+                comboBox->addItems(m_localeStrings);
+            }
+        }
+    };
+    connect(ProjectExplorer::SessionManager::instance(),  &ProjectExplorer::SessionManager::startupProjectChanged,
+        comboBox, refreshComboBoxFunction);
+
+    if (auto project = SessionManager::startupProject())
+        refreshComboBoxFunction(project);
+
+    // do this after refreshComboBoxFunction so we do not get currentLocaleChanged signals at initialization
     connect(comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this, comboBox](int index) {
-        if (index == 0)
+        if (index == 0) // == Default
             emit currentLocaleChanged("");
         else
             emit currentLocaleChanged(comboBox->currentText());
     });
 
-    auto refreshComboBoxFunction = [this, comboBox] (ProjectExplorer::Project *project) {
-        if (comboBox) {
-            refreshProjectLocales(project);
-            comboBox->clear();
-            comboBox->addItem(tr("Default"));
-            comboBox->addItems(m_localeStrings);
-        }
-    };
-    connect(ProjectExplorer::SessionManager::instance(),
-            &ProjectExplorer::SessionManager::startupProjectChanged,
-            refreshComboBoxFunction);
-
-    if (auto project = SessionManager::startupProject())
-        refreshComboBoxFunction(project);
-
     return comboBox;
 }
 
-void SwitchLanguageComboboxAction::refreshProjectLocales(Project *project)
+bool SwitchLanguageComboboxAction::updateProjectLocales(Project *project)
 {
     if (!project)
-        return;
+        return false;
+    auto previousLocales = m_localeStrings;
     m_localeStrings.clear();
     const auto projectDirectory = project->rootProjectDirectory().toFileInfo().absoluteFilePath();
     const QDir languageDirectory(projectDirectory + "/i18n");
@@ -262,6 +265,7 @@ void SwitchLanguageComboboxAction::refreshProjectLocales(Project *project)
         const QString locale = qmFile.left(localeEndPosition).mid(localeStartPosition);
         return locale;
     });
+    return previousLocales != m_localeStrings;
 }
 
 SwitchLanguageAction::SwitchLanguageAction()

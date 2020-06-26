@@ -38,7 +38,7 @@ class TimelineGraphicsScene;
 class TimelineToolDelegate
 {
 public:
-    TimelineToolDelegate(TimelineGraphicsScene* scene);
+    TimelineToolDelegate(AbstractScrollGraphicsScene* scene);
 
     QPointF startPoint() const;
 
@@ -65,7 +65,7 @@ private:
 private:
     static const int dragDistance = 20;
 
-    TimelineGraphicsScene* m_scene;
+    AbstractScrollGraphicsScene* m_scene;
 
     QPointF m_start;
 

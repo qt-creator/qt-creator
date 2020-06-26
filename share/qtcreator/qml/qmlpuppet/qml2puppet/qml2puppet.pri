@@ -5,9 +5,11 @@ CONFIG += c++11
 
 DEFINES -= QT_CREATOR
 
-# This .pri file contains classes to enable a special multilanguage translator debug service
+# This .pri file contains classes to enable a special multilanguage translator
 MULTILANGUAGE_SUPPORT_PRI=$$(MULTILANGUAGE_SUPPORT_PRI)
 !isEmpty(MULTILANGUAGE_SUPPORT_PRI) {
+    exists($$(MULTILANGUAGE_SUPPORT_PRI)): message(including \"$$(MULTILANGUAGE_SUPPORT_PRI)\")
+    else: error("MULTILANGUAGE_SUPPORT_PRI: \"$$(MULTILANGUAGE_SUPPORT_PRI)\" does not exist.")
     include($$(MULTILANGUAGE_SUPPORT_PRI))
     DEFINES += MULTILANGUAGE_TRANSLATIONPROVIDER
 }

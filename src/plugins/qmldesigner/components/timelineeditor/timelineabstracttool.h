@@ -36,14 +36,14 @@ namespace QmlDesigner {
 enum class ToolType { Move, Select };
 
 class TimelineMovableAbstractItem;
-class TimelineGraphicsScene;
+class AbstractScrollGraphicsScene;
 class TimelineToolDelegate;
 
 class TimelineAbstractTool
 {
 public:
-    explicit TimelineAbstractTool(TimelineGraphicsScene *scene);
-    explicit TimelineAbstractTool(TimelineGraphicsScene *scene, TimelineToolDelegate *delegate);
+    explicit TimelineAbstractTool(AbstractScrollGraphicsScene *scene);
+    explicit TimelineAbstractTool(AbstractScrollGraphicsScene *scene, TimelineToolDelegate *delegate);
     virtual ~TimelineAbstractTool();
 
     virtual void mousePressEvent(TimelineMovableAbstractItem *item, QGraphicsSceneMouseEvent *event) = 0;
@@ -56,7 +56,7 @@ public:
     virtual void keyPressEvent(QKeyEvent *keyEvent) = 0;
     virtual void keyReleaseEvent(QKeyEvent *keyEvent) = 0;
 
-    TimelineGraphicsScene *scene() const;
+    AbstractScrollGraphicsScene *scene() const;
 
     TimelineToolDelegate *delegate() const;
 
@@ -65,7 +65,7 @@ public:
     TimelineMovableAbstractItem *currentItem() const;
 
 private:
-    TimelineGraphicsScene *m_scene;
+    AbstractScrollGraphicsScene *m_scene;
 
     TimelineToolDelegate *m_delegate;
 };

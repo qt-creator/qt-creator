@@ -251,10 +251,46 @@ sqlite3 *BaseStatement::sqliteDatabaseHandle() const
 void BaseStatement::checkForStepError(int resultCode) const
 {
     switch (resultCode) {
-        case SQLITE_BUSY: throwStatementIsBusy("SqliteStatement::stepStatement: database engine was unable to acquire the database locks!");
-        case SQLITE_ERROR : throwStatementHasError("SqliteStatement::stepStatement: run-time error (such as a constraint violation) has occurred!");
-        case SQLITE_MISUSE:  throwStatementIsMisused("SqliteStatement::stepStatement: was called inappropriately!");
-        case SQLITE_CONSTRAINT:  throwConstraintPreventsModification("SqliteStatement::stepStatement: contraint prevent insert or update!");
+    case SQLITE_BUSY:
+        throwStatementIsBusy("SqliteStatement::stepStatement: database engine was unable to "
+                             "acquire the database locks!");
+    case SQLITE_ERROR:
+        throwStatementHasError("SqliteStatement::stepStatement: run-time error (such as a "
+                               "constraint violation) has occurred!");
+    case SQLITE_MISUSE:
+        throwStatementIsMisused("SqliteStatement::stepStatement: was called inappropriately!");
+    case SQLITE_CONSTRAINT:
+        throwConstraintPreventsModification(
+            "SqliteStatement::stepStatement: contraint prevent insert or update!");
+    case SQLITE_TOOBIG:
+        throwTooBig("SqliteStatement::stepStatement: Some is to bigger than SQLITE_MAX_LENGTH.");
+    case SQLITE_SCHEMA:
+        throwSchemaChangeError("SqliteStatement::stepStatement: Schema changed but the statement "
+                               "cannot be recompiled.");
+    case SQLITE_READONLY:
+        throwCannotWriteToReadOnlyConnection(
+            "SqliteStatement::stepStatement: Cannot write to read only connection");
+    case SQLITE_PROTOCOL:
+        throwProtocolError(
+            "SqliteStatement::stepStatement: Something strang with the file locking happened.");
+    case SQLITE_NOMEM:
+        throw std::bad_alloc();
+    case SQLITE_NOLFS:
+        throwDatabaseExceedsMaximumFileSize(
+            "SqliteStatement::stepStatement: Database exceeds maximum file size.");
+    case SQLITE_MISMATCH:
+        throwDataTypeMismatch(
+            "SqliteStatement::stepStatement: Most probably you used not an integer for a rowid.");
+    case SQLITE_LOCKED:
+        throwConnectionIsLocked("SqliteStatement::stepStatement: Database connection is locked.");
+    case SQLITE_IOERR:
+        throwInputOutputError("SqliteStatement::stepStatement: An IO error happened.");
+    case SQLITE_INTERRUPT:
+        throwExecutionInterrupted("SqliteStatement::stepStatement: Execution was interrupted.");
+    case SQLITE_CORRUPT:
+        throwDatabaseIsCorrupt("SqliteStatement::stepStatement: Database is corrupt.");
+    case SQLITE_CANTOPEN:
+        throwCannotOpen("SqliteStatement::stepStatement: Cannot open database or temporary file.");
     }
 
     throwUnknowError("SqliteStatement::stepStatement: unknown error has happened");
@@ -263,10 +299,17 @@ void BaseStatement::checkForStepError(int resultCode) const
 void BaseStatement::checkForResetError(int resultCode) const
 {
     switch (resultCode) {
-        case SQLITE_BUSY: throwStatementIsBusy("SqliteStatement::stepStatement: database engine was unable to acquire the database locks!");
-        case SQLITE_ERROR : throwStatementHasError("SqliteStatement::stepStatement: run-time error (such as a constraint violation) has occurred!");
-        case SQLITE_MISUSE:  throwStatementIsMisused("SqliteStatement::stepStatement: was called inappropriately!");
-        case SQLITE_CONSTRAINT:  throwConstraintPreventsModification("SqliteStatement::stepStatement: contraint prevent insert or update!");
+    case SQLITE_BUSY:
+        throwStatementIsBusy("SqliteStatement::stepStatement: database engine was unable to "
+                             "acquire the database locks!");
+    case SQLITE_ERROR:
+        throwStatementHasError("SqliteStatement::stepStatement: run-time error (such as a "
+                               "constraint violation) has occurred!");
+    case SQLITE_MISUSE:
+        throwStatementIsMisused("SqliteStatement::stepStatement: was called inappropriately!");
+    case SQLITE_CONSTRAINT:
+        throwConstraintPreventsModification(
+            "SqliteStatement::stepStatement: contraint prevent insert or update!");
     }
 
     throwUnknowError("SqliteStatement::reset: unknown error has happened");
@@ -278,7 +321,8 @@ void BaseStatement::checkForPrepareError(int resultCode) const
         case SQLITE_BUSY: throwStatementIsBusy("SqliteStatement::prepareStatement: database engine was unable to acquire the database locks!");
         case SQLITE_ERROR : throwStatementHasError("SqliteStatement::prepareStatement: run-time error (such as a constraint violation) has occurred!");
         case SQLITE_MISUSE: throwStatementIsMisused("SqliteStatement::prepareStatement: was called inappropriately!");
-        case SQLITE_IOERR: throwIoError("SqliteStatement::prepareStatement: IO error happened!");
+        case SQLITE_IOERR:
+            throwInputOutputError("SqliteStatement::prepareStatement: IO error happened!");
     }
 
     throwUnknowError("SqliteStatement::prepareStatement: unknown error has happened");
@@ -346,9 +390,9 @@ void BaseStatement::throwStatementIsMisused(const char *whatHasHappened) const
     throw StatementIsMisused(whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle()));
 }
 
-void BaseStatement::throwIoError(const char *whatHasHappened) const
+void BaseStatement::throwInputOutputError(const char *whatHasHappened) const
 {
-    throw IoError(whatHasHappened);
+    throw InputOutputError(whatHasHappened);
 }
 
 void BaseStatement::throwConstraintPreventsModification(const char *whatHasHappened) const
@@ -382,6 +426,56 @@ void BaseStatement::throwUnknowError(const char *whatHasHappened) const
 void BaseStatement::throwBingingTooBig(const char *whatHasHappened) const
 {
     throw BindingTooBig(whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle()));
+}
+
+void BaseStatement::throwTooBig(const char *whatHasHappened) const
+{
+    throw TooBig{whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle())};
+}
+
+void BaseStatement::throwSchemaChangeError(const char *whatHasHappened) const
+{
+    throw SchemeChangeError{whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle())};
+}
+
+void BaseStatement::throwCannotWriteToReadOnlyConnection(const char *whatHasHappened) const
+{
+    throw CannotWriteToReadOnlyConnection{whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle())};
+}
+
+void BaseStatement::throwProtocolError(const char *whatHasHappened) const
+{
+    throw ProtocolError{whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle())};
+}
+
+void BaseStatement::throwDatabaseExceedsMaximumFileSize(const char *whatHasHappened) const
+{
+    throw DatabaseExceedsMaximumFileSize{whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle())};
+}
+
+void BaseStatement::throwDataTypeMismatch(const char *whatHasHappened) const
+{
+    throw DataTypeMismatch{whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle())};
+}
+
+void BaseStatement::throwConnectionIsLocked(const char *whatHasHappened) const
+{
+    throw ConnectionIsLocked{whatHasHappened, sqlite3_errmsg(sqliteDatabaseHandle())};
+}
+
+void BaseStatement::throwExecutionInterrupted(const char *whatHasHappened) const
+{
+    throw ExecutionInterrupted{whatHasHappened};
+}
+
+void BaseStatement::throwDatabaseIsCorrupt(const char *whatHasHappened) const
+{
+    throw DatabaseIsCorrupt{whatHasHappened};
+}
+
+void BaseStatement::throwCannotOpen(const char *whatHasHappened) const
+{
+    throw CannotOpen{whatHasHappened};
 }
 
 QString BaseStatement::columnName(int column) const

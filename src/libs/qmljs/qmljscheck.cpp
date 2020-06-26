@@ -621,7 +621,6 @@ class UnsupportedTypesByQmlUi : public QStringList
 public:
     UnsupportedTypesByQmlUi() : QStringList({"ShaderEffect",
                                              "Component",
-                                             "Transition",
                                              "Drawer"})
     {
         append(UnsupportedTypesByVisualDesigner());

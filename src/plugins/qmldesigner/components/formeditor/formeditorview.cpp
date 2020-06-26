@@ -442,12 +442,49 @@ void FormEditorView::documentMessagesChanged(const QList<DocumentMessage> &error
         m_formEditorWidget->hideErrorMessageBox();
 }
 
-void FormEditorView::customNotification(const AbstractView * /*view*/, const QString &identifier, const QList<ModelNode> &/*nodeList*/, const QList<QVariant> &/*data*/)
+void FormEditorView::customNotification(const AbstractView * /*view*/, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &/*data*/)
 {
     if (identifier == QLatin1String("puppet crashed"))
         m_dragTool->clearMoveDelay();
     if (identifier == QLatin1String("reset QmlPuppet"))
         temporaryBlockView();
+    if (identifier == QLatin1String("fit root to screen")) {
+        if (QmlItemNode(rootModelNode()).isFlowView()) {
+            QRectF boundingRect;
+            for (QGraphicsItem *item : scene()->items()) {
+                if (auto formEditorItem = FormEditorItem::fromQGraphicsItem(item)) {
+                    if (!formEditorItem->qmlItemNode().modelNode().isRootNode()
+                        && !formEditorItem->sceneBoundingRect().isNull())
+                        boundingRect = boundingRect.united(formEditorItem->sceneBoundingRect());
+                }
+            }
+            m_formEditorWidget->graphicsView()->fitInView(boundingRect,
+                                                          Qt::KeepAspectRatio);
+        } else {
+            m_formEditorWidget->graphicsView()->fitInView(m_formEditorWidget->rootItemRect(),
+                                                          Qt::KeepAspectRatio);
+        }
+
+        const qreal scaleFactor = m_formEditorWidget->graphicsView()->viewportTransform().m11();
+        float zoomLevel = ZoomAction::getClosestZoomLevel(scaleFactor);
+        m_formEditorWidget->zoomAction()->forceZoomLevel(zoomLevel);
+    }
+    if (identifier == QLatin1String("fit selection to screen")) {
+        if (nodeList.isEmpty())
+            return;
+
+        QRectF boundingRect;
+        for (const ModelNode &node : nodeList) {
+            if (FormEditorItem *item = scene()->itemForQmlItemNode(node))
+                boundingRect = boundingRect.united(item->sceneBoundingRect());
+        }
+
+        m_formEditorWidget->graphicsView()->fitInView(boundingRect,
+                                                      Qt::KeepAspectRatio);
+        const qreal scaleFactor = m_formEditorWidget->graphicsView()->viewportTransform().m11();
+        float zoomLevel = ZoomAction::getClosestZoomLevel(scaleFactor);
+        m_formEditorWidget->zoomAction()->forceZoomLevel(zoomLevel);
+    }
 }
 
 AbstractFormEditorTool *FormEditorView::currentTool() const

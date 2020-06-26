@@ -38,7 +38,7 @@
 
 namespace QmlDesigner {
 
-TimelineToolDelegate::TimelineToolDelegate(TimelineGraphicsScene *scene)
+TimelineToolDelegate::TimelineToolDelegate(AbstractScrollGraphicsScene *scene)
     : m_scene(scene)
     , m_start()
     , m_moveTool(new TimelineMoveTool(scene, this))
