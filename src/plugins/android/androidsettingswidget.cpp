@@ -456,7 +456,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
 
     m_ui.downloadOpenJDKToolButton->setVisible(!HostOsInfo::isLinuxHost());
 
-    const QIcon downloadIcon = Icons::DOWNLOAD.icon();
+    const QIcon downloadIcon = Icons::ONLINE.icon();
     m_ui.downloadSDKToolButton->setIcon(downloadIcon);
     m_ui.downloadNDKToolButton->setIcon(downloadIcon);
     m_ui.downloadOpenJDKToolButton->setIcon(downloadIcon);

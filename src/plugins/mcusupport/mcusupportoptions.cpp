@@ -120,7 +120,7 @@ QWidget *McuPackage::widget()
 
     if (!m_downloadUrl.isEmpty()) {
         auto downLoadButton = new QToolButton;
-        downLoadButton->setIcon(Utils::Icons::DOWNLOAD.icon());
+        downLoadButton->setIcon(Utils::Icons::ONLINE.icon());
         downLoadButton->setToolTip(tr("Download from \"%1\"").arg(m_downloadUrl));
         QObject::connect(downLoadButton, &QToolButton::pressed, [this]{
             QDesktopServices::openUrl(m_downloadUrl);

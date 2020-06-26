@@ -198,6 +198,8 @@ const Icon SORT_ALPHABETICALLY_TOOLBAR({
         {QLatin1String(":/utils/images/sort_alphabetically.png"), Theme::IconsBaseColor}});
 const Icon TOGGLE_PROGRESSDETAILS_TOOLBAR({
     {QLatin1String(":/utils/images/toggleprogressdetails.png"), Theme::IconsBaseColor}});
+const Icon ONLINE({
+        {QLatin1String(":/utils/images/online.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon ONLINE_TOOLBAR({
         {QLatin1String(":/utils/images/online.png"), Theme::IconsBaseColor}});
 const Icon DOWNLOAD({
