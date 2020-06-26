@@ -161,7 +161,7 @@ Node {
         color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(0.5, 0.5, 0.5, 1))
                                                           : Qt.rgba(0.5, 0.5, 0.5, 1)
         rotation: view3D.camera.rotation
-        priority: 1
+        priority: 10
         targetNode: moveGizmo.targetNode
 
         view3D: moveGizmo.view3D
