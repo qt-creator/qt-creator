@@ -62,10 +62,7 @@ QVariant PropertyEditorValue::value() const
 static bool cleverDoubleCompare(const QVariant &value1, const QVariant &value2)
 { //we ignore slight changes on doubles
     if ((value1.type() == QVariant::Double) && (value2.type() == QVariant::Double)) {
-        int a = value1.toDouble() * 100;
-        int b = value2.toDouble() * 100;
-
-        if (qFuzzyCompare((qreal(a) / 100), (qreal(b) / 100)))
+        if (qFuzzyCompare(value1.toDouble(), value2.toDouble()))
             return true;
     }
     return false;
