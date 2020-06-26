@@ -83,6 +83,7 @@ public:
 private:
     ModelNodeParser* createNodeParser(const ModelNode &node) const;
     QJsonObject nodeToJson(const ModelNode &node);
+    void addImports();
 
 private:
     AssetExporter& m_exporter;

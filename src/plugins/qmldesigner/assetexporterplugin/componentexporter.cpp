@@ -75,6 +75,7 @@ void Component::exportComponent()
 {
     QTC_ASSERT(m_rootNode.isValid(), return);
     m_json = nodeToJson(m_rootNode);
+    addImports();
 }
 
 ModelNodeParser *Component::createNodeParser(const ModelNode &node) const
@@ -121,7 +122,17 @@ QJsonObject Component::nodeToJson(const ModelNode &node)
     if (!children.isEmpty())
         jsonObject.insert("children", children);
 
-    return  jsonObject;
+    return jsonObject;
+}
+
+void Component::addImports()
+{
+    QJsonArray importsArray;
+    for (const Import &import : m_rootNode.model()->imports())
+        importsArray.append(import.toString());
+
+    if (!importsArray.empty())
+        m_json.insert(Constants::ImportsTag, importsArray);
 }
 
 
