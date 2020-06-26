@@ -107,7 +107,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Core::Id id)
     const auto buildDirAspect = aspect<BuildDirectoryAspect>();
     buildDirAspect->setFileDialogOnly(true);
     buildDirAspect->setValueAcceptor(
-        [this](const QString &oldDir, const QString &newDir) -> Utils::optional<QString> {
+        [](const QString &oldDir, const QString &newDir) -> Utils::optional<QString> {
             if (oldDir.isEmpty())
                 return newDir;
 
