@@ -173,25 +173,6 @@ namespace {
 // AndroidConfig
 //////////////////////////////////
 
-Abi AndroidConfig::abiForToolChainPrefix(const QString &toolchainPrefix)
-{
-    Abi::Architecture arch = Abi::UnknownArchitecture;
-    unsigned char wordWidth = 32;
-    if (toolchainPrefix == ArmToolchainPrefix) {
-        arch = Abi::ArmArchitecture;
-    } else if (toolchainPrefix == X86ToolchainPrefix) {
-        arch = Abi::X86Architecture;
-    } else if (toolchainPrefix == AArch64ToolchainPrefix) {
-        arch = Abi::ArmArchitecture;
-        wordWidth = 64;
-    } else if (toolchainPrefix == X86_64ToolchainPrefix) {
-        arch = Abi::X86Architecture;
-        wordWidth = 64;
-    }
-
-    return Abi(arch, Abi::LinuxOS, Abi::AndroidLinuxFlavor, Abi::ElfFormat, wordWidth);
-}
-
 QLatin1String AndroidConfig::toolchainPrefix(const Abi &abi)
 {
     switch (abi.architecture()) {

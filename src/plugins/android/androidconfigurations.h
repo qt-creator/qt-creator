@@ -174,7 +174,6 @@ public:
 
     QString bestNdkPlatformMatch(int target, const QtSupport::BaseQtVersion *qtVersion) const;
 
-    static ProjectExplorer::Abi abiForToolChainPrefix(const QString &toolchainPrefix);
     static QLatin1String toolchainPrefix(const ProjectExplorer::Abi &abi);
     static QLatin1String toolsPrefix(const ProjectExplorer::Abi &abi);
     static QLatin1String displayName(const ProjectExplorer::Abi &abi);
