@@ -45,3 +45,11 @@
     \externalpage https://doc.qt.io/QtForMCUs/qtul-getting-started-windows.html
     \title Getting Started on Windows
 */
+/*!
+    \externalpage https://adoptopenjdk.net/
+    \title AdoptOpenJDK
+*/
+/*!
+    \externalpage http://openjdk.java.net
+    \title OpenJDK
+*/
