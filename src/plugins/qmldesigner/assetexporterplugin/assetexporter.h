@@ -70,7 +70,8 @@ public:
     void cancel();
     bool isBusy() const;
 
-    Utils::FilePath exportAsset(const QmlObjectNode& node);
+    Utils::FilePath exportAsset(const QmlObjectNode& node, const QString &uuid);
+    QByteArray generateUuid(const ModelNode &node);
 
 signals:
     void stateChanged(ParsingState);
@@ -86,8 +87,6 @@ private:
     void loadNextFile();
 
     void onQmlFileLoaded();
-
-    QByteArray addNodeUUID(ModelNode node);
 
 private:
     mutable class State {

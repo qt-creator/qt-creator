@@ -25,7 +25,6 @@
 #include "assetexporter.h"
 #include "componentexporter.h"
 #include "exportnotification.h"
-#include "assetexportpluginconstants.h"
 
 #include "rewriterview.h"
 #include "qmlitemnode.h"
@@ -141,12 +140,9 @@ bool AssetExporter::isBusy() const
             m_currentState == AssetExporter::ParsingState::WritingJson;
 }
 
-Utils::FilePath AssetExporter::exportAsset(const QmlObjectNode &node)
+Utils::FilePath AssetExporter::exportAsset(const QmlObjectNode &node, const QString &uuid)
 {
-    // TODO: Use this hash as UUID and add to the node.
-    QByteArray hash = addNodeUUID(node.modelNode());
-    Utils::FilePath assetPath = m_exportPath.pathAppended(QString("assets/%1.png")
-                                                          .arg(QString::fromLatin1(hash)));
+    Utils::FilePath assetPath = m_exportPath.pathAppended(QString("assets/%1.png").arg(uuid));
     m_assetDumper->dumpAsset(node.toQmlItemNode().instanceRenderPixmap(), assetPath);
     return assetPath;
 }
@@ -194,19 +190,13 @@ void AssetExporter::onQmlFileLoaded()
     triggerLoadNextFile();
 }
 
-QByteArray AssetExporter::addNodeUUID(ModelNode node)
+QByteArray AssetExporter::generateUuid(const ModelNode &node)
 {
-    QByteArray uuid = node.auxiliaryData(Constants::UuidTag).toByteArray();
-    qDebug() << node.id() << "UUID" << uuid;
-    if (uuid.isEmpty()) {
-        // Assign a new hash.
-        do {
-            uuid = generateHash(node.id());
-        } while (m_usedHashes.contains(uuid));
-        m_usedHashes.insert(uuid);
-        node.setAuxiliaryData(Constants::UuidAuxTag, QString::fromLatin1(uuid));
-        node.model()->rewriterView()->writeAuxiliaryData();
-    }
+    QByteArray uuid;
+    do {
+        uuid = generateHash(node.id());
+    } while (m_usedHashes.contains(uuid));
+    m_usedHashes.insert(uuid);
     return uuid;
 }
 

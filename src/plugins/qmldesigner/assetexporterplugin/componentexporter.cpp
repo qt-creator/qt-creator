@@ -23,6 +23,8 @@
 **
 ****************************************************************************/
 #include "componentexporter.h"
+#include "assetexporter.h"
+#include "assetexportpluginconstants.h"
 #include "parsers/modelnodeparser.h"
 
 #include "model.h"
@@ -102,8 +104,15 @@ QJsonObject Component::nodeToJson(const ModelNode &node)
 {
     QJsonObject jsonObject;
     std::unique_ptr<ModelNodeParser> parser(createNodeParser(node));
-    if (parser)
+    if (parser) {
+        if (parser->uuid().isEmpty()) {
+            // Assign an unique identifier to the node.
+            QByteArray uuid = m_exporter.generateUuid(node);
+            node.setAuxiliaryData(Constants::UuidAuxTag, QString::fromLatin1(uuid));
+            node.model()->rewriterView()->writeAuxiliaryData();
+        }
         jsonObject = parser->json(*this);
+    }
 
     QJsonArray children;
     for (const ModelNode &childnode : node.directSubModelNodes())

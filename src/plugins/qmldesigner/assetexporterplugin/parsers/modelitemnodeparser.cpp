@@ -60,6 +60,7 @@ QJsonObject QmlDesigner::ItemNodeParser::json(QmlDesigner::Component &component)
     jsonObject.insert(WidthTag, size.width());
     jsonObject.insert(HeightTag, size.height());
 
+    jsonObject.insert(UuidTag, uuid());
     return  jsonObject;
 }
 }
