@@ -70,6 +70,7 @@ private:
     MesonProjectParser m_parser;
     CppTools::CppProjectUpdater m_cppCodeModelUpdater;
     QStringList m_pendingConfigArgs;
+    Utils::FileSystemWatcher m_IntroWatcher;
     KitData m_kitData;
 };
 } // namespace Internal

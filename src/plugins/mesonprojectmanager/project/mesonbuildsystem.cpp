@@ -27,9 +27,9 @@
 #include "mesonbuildconfiguration.h"
 #include <kithelper/kithelper.h>
 #include <machinefiles/machinefilemanager.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <settings/general/settings.h>
 #include <settings/tools/kitaspect/mesontoolkitaspect.h>
-#include <projectexplorer/buildconfiguration.h>
 
 #include <QDir>
 #include <QLoggingCategory>
@@ -59,9 +59,7 @@ static Q_LOGGING_CATEGORY(mesonBuildSystemLog, "qtc.meson.buildsystem", QtDebugM
 
 MesonBuildSystem::MesonBuildSystem(MesonBuildConfiguration *bc)
     : ProjectExplorer::BuildSystem{bc}
-    , m_parser{MesonToolKitAspect::mesonToolId(bc->target()->kit()),
-               bc->environment(),
-               project()}
+    , m_parser{MesonToolKitAspect::mesonToolId(bc->target()->kit()), bc->environment(), project()}
 {
     init();
 }
@@ -115,8 +113,8 @@ QStringList MesonBuildSystem::configArgs(bool isSetup)
     if (!isSetup)
         return m_pendingConfigArgs + mesonBuildConfiguration()->mesonConfigArgs();
     else {
-        return QStringList{QString("--native-file=%1")
-                               .arg(MachineFileManager::machineFile(kit()).toString())}
+        return QStringList{
+                   QString("--native-file=%1").arg(MachineFileManager::machineFile(kit()).toString())}
                + m_pendingConfigArgs + mesonBuildConfiguration()->mesonConfigArgs();
     }
 }
@@ -170,13 +168,10 @@ void MesonBuildSystem::init()
     connect(buildConfiguration()->target(), &ProjectExplorer::Target::kitChanged, this, [this] {
         updateKit(kit());
     });
-    connect(mesonBuildConfiguration(),
-            &MesonBuildConfiguration::buildDirectoryChanged,
-            this,
-            [this]() {
-                updateKit(kit());
-                this->triggerParsing();
-            });
+    connect(mesonBuildConfiguration(), &MesonBuildConfiguration::buildDirectoryChanged, this, [this]() {
+        updateKit(kit());
+        this->triggerParsing();
+    });
     connect(mesonBuildConfiguration(), &MesonBuildConfiguration::environmentChanged, this, [this]() {
         m_parser.setEnvironment(buildConfiguration()->environment());
     });
@@ -185,11 +180,23 @@ void MesonBuildSystem::init()
         if (buildConfiguration()->isActive())
             parseProject();
     });
-    connect(&m_parser,
-            &MesonProjectParser::parsingCompleted,
-            this,
-            &MesonBuildSystem::parsingCompleted);
+    connect(&m_parser, &MesonProjectParser::parsingCompleted, this, &MesonBuildSystem::parsingCompleted);
+
+    connect(&m_IntroWatcher, &Utils::FileSystemWatcher::fileChanged, this, [this]() {
+        if (buildConfiguration()->isActive())
+            parseProject();
+    });
+
     updateKit(kit());
+    // as specified here https://mesonbuild.com/IDE-integration.html#ide-integration
+    // meson-info.json is the last written file, which ensure that all others introspection
+    // files are ready when a modification is detected on this one.
+    m_IntroWatcher.addFile(buildConfiguration()
+                               ->buildDirectory()
+                               .pathAppended(Constants::MESON_INFO_DIR)
+                               .pathAppended(Constants::MESON_INFO)
+                               .toString(),
+                           Utils::FileSystemWatcher::WatchAllChanges);
 }
 
 bool MesonBuildSystem::parseProject()
