@@ -151,6 +151,7 @@ public:
     static TimelineRulerSectionItem *create(QGraphicsScene *parentScene, TimelineItem *parent);
 
     void invalidateRulerSize(const QmlTimeline &timeline);
+    void invalidateRulerSize(const qreal length);
 
     void setRulerScaleFactor(int scaling);
 

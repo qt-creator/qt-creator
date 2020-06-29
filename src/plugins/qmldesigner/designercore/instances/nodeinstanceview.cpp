@@ -69,6 +69,7 @@
 #include "variantproperty.h"
 #include "view3dactioncommand.h"
 
+#include <designersettings.h>
 #include <metainfo.h>
 #include <model.h>
 #include <modelnode.h>
@@ -81,6 +82,10 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/documentmanager.h>
 #endif
+
+#include <projectexplorer/target.h>
+
+#include <qmlprojectmanager/qmlmultilanguageaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -540,7 +545,14 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
             }
         }
     } else if (node.isRootNode() && name == "language@Internal") {
-        nodeInstanceServer()->changeLanguage({value.toString()});
+        const QString languageAsString = value.toString();
+        if (m_currentTarget) {
+            if (auto rc = m_currentTarget->activeRunConfiguration()) {
+                if (auto multiLanguageAspect = rc->aspect<QmlProjectManager::QmlMultiLanguageAspect>())
+                    multiLanguageAspect->setLastUsedLanguage(languageAsString);
+            }
+        }
+        nodeInstanceServer()->changeLanguage({languageAsString});
     } else if (node.isRootNode() && name == "previewSize@Internal") {
         nodeInstanceServer()->changePreviewImageSize(value.toSize());
     }
@@ -981,17 +993,27 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
         }
     }
 
+    QString lastUsedLanguage;
+    if (m_currentTarget) {
+        if (auto rc = m_currentTarget->activeRunConfiguration()) {
+            if (auto multiLanguageAspect = rc->aspect<QmlProjectManager::QmlMultiLanguageAspect>())
+                lastUsedLanguage = multiLanguageAspect->lastUsedLanguage();
+        }
+    }
 
-    return CreateSceneCommand(instanceContainerList,
-                              reparentContainerList,
-                              idContainerList,
-                              valueContainerList,
-                              bindingContainerList,
-                              auxiliaryContainerVector,
-                              importVector,
-                              mockupTypesVector,
-                              model()->fileUrl(),
-                              m_edit3DToolStates[model()->fileUrl()]);
+    return CreateSceneCommand(
+                instanceContainerList,
+                reparentContainerList,
+                idContainerList,
+                valueContainerList,
+                bindingContainerList,
+                auxiliaryContainerVector,
+                importVector,
+                mockupTypesVector,
+                model()->fileUrl(),
+                m_edit3DToolStates[model()->fileUrl()],
+                lastUsedLanguage
+                );
 }
 
 ClearSceneCommand NodeInstanceView::createClearSceneCommand() const

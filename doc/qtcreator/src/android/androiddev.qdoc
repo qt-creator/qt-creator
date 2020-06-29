@@ -57,11 +57,11 @@
     To use \QC to develop Qt applications for Android, you need the following:
 
     \list
-        \li \l{https://www.oracle.com/java/technologies/javase-jdk8-downloads.html}
-            {Java SE Development Kit (JDK)} version 6 up to 8.
-            You can also use \l{http://openjdk.java.net/}{OpenJDK} on Linux.
+        \li \l{AdoptOpenJDK} for all platforms. You can also use \l{OpenJDK}
+            on Linux.
 
-            \note Android SDK Tools have issues with JDK versions later than 8.
+            \note Android SDK Tools versions <= 26.x have issues with JDK versions
+            later than 8. It is recommended to use the latest Command-line SDK Tools.
 
         \li \l{http://www.gradle.org}{Gradle} for building application packages
             (APK) and app bundles (AAB) for Android devices. Gradle is delivered

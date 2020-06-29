@@ -27,6 +27,7 @@
 
 #include <qmlprojectmanager/qmlproject.h>
 #include <qmlprojectmanager/qmlmainfileaspect.h>
+#include <qmlprojectmanager/qmlmultilanguageaspect.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
@@ -152,10 +153,9 @@ LocalQmlPreviewSupport::LocalQmlPreviewSupport(ProjectExplorer::RunControl *runC
             }
         }
 
-        if (runControl->project()) {
-            auto multilanguageDatabaseFilePath = runControl->project()->projectDirectory().pathAppended("/multilanguage-experimental-v1.db");
-            if (multilanguageDatabaseFilePath.exists())
-                runnable.environment.set("QT_MULTILANGUAGE_DATABASE", multilanguageDatabaseFilePath.toString());
+        if (auto multiLanguageAspect = runControl->aspect<QmlProjectManager::QmlMultiLanguageAspect>()) {
+            if (!multiLanguageAspect->databaseFilePath().isEmpty())
+                runnable.environment.set("QT_MULTILANGUAGE_DATABASE", multiLanguageAspect->databaseFilePath().toString());
         }
 
         Utils::QtcProcess::addArg(&runnable.commandLineArguments,

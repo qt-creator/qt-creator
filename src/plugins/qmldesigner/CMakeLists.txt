@@ -38,6 +38,29 @@ if (APPLE)
   set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/QmlDesigner")
 endif()
 
+
+add_qtc_plugin(assetexporterplugin
+  CONDITION TARGET QmlDesigner
+  DEPENDS Core ProjectExplorer QmlDesigner Utils Qt5::Qml
+  PUBLIC_INCLUDES assetexporterplugin
+  SOURCES
+    assetexporterplugin/assetexportdialog.h assetexporterplugin/assetexportdialog.cpp assetexporterplugin/assetexportdialog.ui
+    assetexporterplugin/assetexporter.h assetexporterplugin/assetexporter.cpp
+    assetexporterplugin/assetexporterplugin.h assetexporterplugin/assetexporterplugin.cpp
+    assetexporterplugin/assetexporterview.h assetexporterplugin/assetexporterview.cpp
+    assetexporterplugin/assetexportpluginconstants.h
+    assetexporterplugin/componentexporter.h assetexporterplugin/componentexporter.cpp
+    assetexporterplugin/exportnotification.h assetexporterplugin/exportnotification.cpp
+    assetexporterplugin/filepathmodel.h assetexporterplugin/filepathmodel.cpp
+    assetexporterplugin/parsers/assetnodeparser.h assetexporterplugin/parsers/assetnodeparser.cpp
+    assetexporterplugin/parsers/modelitemnodeparser.h assetexporterplugin/parsers/modelitemnodeparser.cpp
+    assetexporterplugin/parsers/modelnodeparser.h assetexporterplugin/parsers/modelnodeparser.cpp
+    assetexporterplugin/parsers/textnodeparser.h assetexporterplugin/parsers/textnodeparser.cpp
+    assetexporterplugin/assetexporterplugin.qrc
+  PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
+  SKIP_DEBUG_CMAKE_FILE_CHECK
+)
+
 add_qtc_plugin(componentsplugin
   CONDITION TARGET QmlDesigner
   DEPENDS Core QmlDesigner Utils Qt5::Qml
@@ -644,6 +667,22 @@ extend_qtc_plugin(QmlDesigner
     timelineutils.cpp timelineutils.h
     timelineview.cpp timelineview.h
     timelinewidget.cpp timelinewidget.h
+)
+
+extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/transitioneditor
+  SOURCES
+    transitioneditorview.cpp transitioneditorview.h
+    transitioneditorwidget.cpp transitioneditorwidget.h
+    transitioneditortoolbar.cpp transitioneditortoolbar.h
+    transitioneditorgraphicsscene.cpp transitioneditorgraphicsscene.h
+    transitioneditorgraphicslayout.cpp transitioneditorgraphicslayout.h
+    transitioneditorsectionitem.cpp transitioneditorsectionitem.h
+    transitioneditorpropertyitem.cpp transitioneditorpropertyitem.h
+    transitioneditorsettingsdialog.cpp transitioneditorsettingsdialog.h
+    transitioneditorsettingsdialog.ui
+    transitionform.cpp transitionform.h
+    transitioneditor.qrc
 )
 
 extend_qtc_plugin(QmlDesigner

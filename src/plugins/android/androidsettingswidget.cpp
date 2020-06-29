@@ -454,8 +454,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     m_ui.AVDTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     m_ui.AVDTableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 
-    m_ui.downloadOpenJDKToolButton->setVisible(!HostOsInfo::isLinuxHost());
-
     const QIcon downloadIcon = Icons::ONLINE.icon();
     m_ui.downloadSDKToolButton->setIcon(downloadIcon);
     m_ui.downloadNDKToolButton->setIcon(downloadIcon);
@@ -696,7 +694,10 @@ void AndroidSettingsWidget::openNDKDownloadUrl()
 
 void AndroidSettingsWidget::openOpenJDKDownloadUrl()
 {
-    QDesktopServices::openUrl(QUrl::fromUserInput("https://www.oracle.com/java/technologies/javase-jdk8-downloads.html"));
+    if (HostOsInfo::isLinuxHost())
+        QDesktopServices::openUrl(QUrl::fromUserInput("https://openjdk.java.net/install/"));
+    else
+        QDesktopServices::openUrl(QUrl::fromUserInput("https://adoptopenjdk.net/"));
 }
 
 void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)

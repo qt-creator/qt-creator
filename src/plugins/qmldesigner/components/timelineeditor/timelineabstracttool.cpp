@@ -31,12 +31,12 @@
 
 namespace QmlDesigner {
 
-TimelineAbstractTool::TimelineAbstractTool(TimelineGraphicsScene *scene)
+TimelineAbstractTool::TimelineAbstractTool(AbstractScrollGraphicsScene *scene)
     : m_scene(scene)
     , m_delegate(nullptr)
 {}
 
-TimelineAbstractTool::TimelineAbstractTool(TimelineGraphicsScene *scene,
+TimelineAbstractTool::TimelineAbstractTool(AbstractScrollGraphicsScene *scene,
                                            TimelineToolDelegate *delegate)
     : m_scene(scene)
     , m_delegate(delegate)
@@ -44,7 +44,7 @@ TimelineAbstractTool::TimelineAbstractTool(TimelineGraphicsScene *scene,
 
 TimelineAbstractTool::~TimelineAbstractTool() = default;
 
-TimelineGraphicsScene *TimelineAbstractTool::scene() const
+AbstractScrollGraphicsScene *TimelineAbstractTool::scene() const
 {
     return m_scene;
 }

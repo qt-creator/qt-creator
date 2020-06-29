@@ -83,6 +83,8 @@ const char decreaseIndexOfStackedContainerCommandId[] = "DecreaseIndexOfStackedC
 const char flowAssignEffectCommandId[] = "AssignFlowEffect";
 const char flowAssignCustomEffectCommandId[] = "AssignFlowCustomEffect";
 const char addToGroupItemCommandId[] = "AddToGroupItem";
+const char fitRootToScreenCommandId[] = "FitRootToScreen";
+const char fitSelectionToScreenCommandId[] = "FitSelectionToScreen";
 
 const char selectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Selection");
 const char flowConnectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Connect");
@@ -155,6 +157,9 @@ const char layoutFillHeightDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContext
 const char flowAssignEffectDisplayName[] = "Assign FlowEffect ";
 const char flowAssignCustomEffectDisplayName[] = "Assign Custom FlowEffect ";
 
+const char fitRootToScreenDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Fit root to screen");
+const char fitSelectionToScreenDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Fit selection to screen");
+
 const char raiseToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Raise selected item.");
 const char lowerToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Lower selected item.");
 
@@ -172,6 +177,9 @@ const char increaseIndexOfStackedContainerToolTip[] = QT_TRANSLATE_NOOP("QmlDesi
 const char decreaseIndexOfStackedContainerToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Decrease index of stacked container.");
 const char addItemToStackedContainerToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add item to stacked container.");
 const char addFlowActionToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add flow action.");
+
+const char fitRootToScreenToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Fit the root element inside the available space.");
+const char fitSelectionToScreenToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Fit the selected elements inside the available space.");
 
 const int priorityFirst = 280;
 const int prioritySelectionCategory = 220;

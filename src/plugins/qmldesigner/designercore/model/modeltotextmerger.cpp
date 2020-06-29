@@ -388,6 +388,8 @@ PropertyNameList ModelToTextMerger::propertyOrder()
         PropertyName("wrapMode"),
         PropertyName(),
         PropertyName("states"),
+        PropertyName("to"),
+        PropertyName("from"),
         PropertyName("transitions")
     };
 
