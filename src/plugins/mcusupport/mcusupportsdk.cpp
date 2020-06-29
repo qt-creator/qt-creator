@@ -202,6 +202,23 @@ static McuPackage *createMcuXpressoIdePackage()
     return result;
 }
 
+static McuPackage *createBoardSdkPackage(const QString &envVar)
+{
+    const QString envVarPrefix = envVar.chopped(strlen("_SDK_PATH"));
+
+    const QString defaultPath =
+            qEnvironmentVariableIsSet(envVar.toLatin1()) ?
+                qEnvironmentVariable(envVar.toLatin1()) : QDir::homePath();
+
+    auto result = new McuPackage(
+                QString::fromLatin1("MCU SDK (%1)").arg(envVarPrefix),
+                defaultPath,
+                {},
+                envVar);
+    result->setEnvironmentVariableName(envVar);
+    return result;
+}
+
 static McuPackage *createFreeRTOSSourcesPackage(const QString &envVar)
 {
     const QString envVarPrefix = envVar.chopped(strlen("_FREERTOS_DIR"));
@@ -246,6 +263,7 @@ static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescrip
         {{"Renesas"}, createRGLPackage()}
     };
 
+    QHash<QString, McuPackage *> boardSdkPkgs;
     QHash<QString, McuPackage *> freeRTOSPkgs;
     QVector<McuTarget *> mcuTargets;
 
@@ -262,6 +280,13 @@ static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescrip
                 QVector<McuPackage*> required3rdPartyPkgs = {
                     vendorPkgs.value(desc.platformVendor), tcPkg
                 };
+                if (!desc.boardSdkEnvVar.isEmpty()) {
+                    if (!boardSdkPkgs.contains(desc.boardSdkEnvVar)) {
+                        auto boardSdkPkg = createBoardSdkPackage(desc.boardSdkEnvVar);
+                        boardSdkPkgs.insert(desc.boardSdkEnvVar, boardSdkPkg);
+                    }
+                    required3rdPartyPkgs.append(boardSdkPkgs.value(desc.boardSdkEnvVar));
+                }
                 if (os == McuTarget::OS::FreeRTOS) {
                     if (desc.freeRTOSEnvVar.isEmpty()) {
                         continue;
@@ -286,6 +311,7 @@ static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescrip
     packages->append(Utils::transform<QVector<McuPackage *> >(
                          tcPkgs.values(), [&](McuToolChainPackage *tcPkg) { return tcPkg; }));
     packages->append(vendorPkgs.values().toVector());
+    packages->append(boardSdkPkgs.values().toVector());
     packages->append(freeRTOSPkgs.values().toVector());
 
     return  mcuTargets;
@@ -328,7 +354,7 @@ static McuTargetDescription parseDescriptionJson(const QByteArray &data)
         target.value("platformVendor").toString(),
         colorDepthsVector,
         toolchain.value("id").toString(),
-        boardSdk.value("boardSdkEnvVar").toString(),
+        boardSdk.value("envVar").toString(),
         freeRTOSEnvVarForPlatform(platform) // Workaround for UL-2514: Missing FreeRTOS information
     };
 }
