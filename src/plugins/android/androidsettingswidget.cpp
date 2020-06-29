@@ -308,7 +308,8 @@ FilePath AndroidSettingsWidget::getDefaultSdkPath() const
 
     if (HostOsInfo::isWindowsHost()) {
         return FilePath::fromString(
-            QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/Android/sdk");
+            QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation)
+                    + "/Android/Sdk");
     }
 
     return FilePath::fromString(
