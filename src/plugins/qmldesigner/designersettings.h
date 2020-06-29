@@ -25,7 +25,8 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include <qmldesignercorelib_global.h>
+
 #include <QHash>
 #include <QVariant>
 #include <QByteArray>
@@ -70,7 +71,7 @@ const char ALWAYS_DESIGN_MODE[] = "AlwaysDesignMode";
 const char DISABLE_ITEM_LIBRARY_UPDATE_TIMER[] = "DisableItemLibraryUpdateTimer";
 }
 
-class DesignerSettings : public QHash<QByteArray, QVariant>
+class QMLDESIGNERCORE_EXPORT DesignerSettings : public QHash<QByteArray, QVariant>
 {
 public:
     DesignerSettings();

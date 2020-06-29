@@ -16,6 +16,7 @@ QtcPlugin {
         name: "General"
         files: [
             "qmlmainfileaspect.cpp", "qmlmainfileaspect.h",
+            "qmlmultilanguageaspect.cpp", "qmlmultilanguageaspect.h",
             "qmlproject.cpp", "qmlproject.h",
             "qmlproject.qrc",
             "qmlprojectconstants.h",

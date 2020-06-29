@@ -314,6 +314,7 @@ void NodeInstanceServer::stopRenderTimer()
 
 void NodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
+    setTranslationLanguage(command.language());
     initializeView();
 
     Internal::QmlPrivateGate::stopUnifiedTimer();
@@ -1329,6 +1330,20 @@ void NodeInstanceServer::loadDummyContextObjectFile(const QFileInfo& qmlFileInfo
     refreshBindings();
 }
 
+void NodeInstanceServer::setTranslationLanguage(const QString &language)
+{
+    static QPointer<MultiLanguage::Translator> multilanguageTranslator;
+    if (!MultiLanguage::databaseFilePath().isEmpty()) {
+        if (!multilanguageLink) {
+            multilanguageLink = std::make_unique<MultiLanguage::Link>();
+            multilanguageTranslator = multilanguageLink->translator().release();
+            QCoreApplication::installTranslator(multilanguageTranslator);
+        }
+        if (multilanguageTranslator)
+            multilanguageTranslator->setLanguage(language);
+    }
+}
+
 void NodeInstanceServer::loadDummyDataFiles(const QString& directory)
 {
     QDir dir(directory, "*.qml");
@@ -1400,16 +1415,7 @@ void NodeInstanceServer::view3DAction(const View3DActionCommand &command)
 
 void NodeInstanceServer::changeLanguage(const ChangeLanguageCommand &command)
 {
-    static QPointer<MultiLanguage::Translator> multilanguageTranslator;
-    if (!MultiLanguage::databaseFilePath().isEmpty()) {
-        if (!multilanguageLink) {
-            multilanguageLink = std::make_unique<MultiLanguage::Link>();
-            multilanguageTranslator = multilanguageLink->translator().release();
-            QCoreApplication::installTranslator(multilanguageTranslator);
-        }
-        if (multilanguageTranslator)
-            multilanguageTranslator->setLanguage(command.language);
-    }
+    setTranslationLanguage(command.language);
     QEvent ev(QEvent::LanguageChange);
     QCoreApplication::sendEvent(QCoreApplication::instance(), &ev);
     engine()->retranslate();

@@ -53,6 +53,8 @@
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>
 
+#include <QRegExp>
+
 #include <utility>
 #include <vector>
 
@@ -539,6 +541,9 @@ QString RewriterView::auxiliaryDataAsQML() const
     QTC_ASSERT(!m_canonicalIntModelNode.isEmpty(), return {});
 
     int columnCount = 0;
+
+    const QRegExp safeName("[a-z][a-zA-Z0-9]*");
+
     for (const auto &node : allModelNodes()) {
         QHash<PropertyName, QVariant> data = node.auxiliaryData();
         if (!data.isEmpty()) {
@@ -569,6 +574,9 @@ QString RewriterView::auxiliaryDataAsQML() const
                     continue;
 
                 if (idIsQmlKeyWord(key))
+                    continue;
+
+                if (!safeName.exactMatch(key))
                     continue;
 
                 const QVariant value = data.value(key.toUtf8());

@@ -129,7 +129,7 @@ void FormEditorItem::setup()
 
 QRectF FormEditorItem::boundingRect() const
 {
-    return m_boundingRect.adjusted(-2, -2, 2, 2);
+    return m_boundingRect;
 }
 
 QPainterPath FormEditorItem::shape() const
@@ -150,7 +150,7 @@ void FormEditorItem::updateGeometry()
     prepareGeometryChange();
     m_selectionBoundingRect = qmlItemNode().instanceBoundingRect().adjusted(0, 0, 1., 1.);
     m_paintedBoundingRect = qmlItemNode().instancePaintedBoundingRect();
-    m_boundingRect = m_paintedBoundingRect.united(m_selectionBoundingRect);
+    m_boundingRect = qmlItemNode().instanceBoundingRect();
     setTransform(qmlItemNode().instanceTransformWithContentTransform());
     // the property for zValue is called z in QGraphicsObject
     if (qmlItemNode().instanceValue("z").isValid() && !qmlItemNode().isRootModelNode())
@@ -739,7 +739,7 @@ static bool isValid(const QList<QmlItemNode> &list)
         if (!item.isValid())
             return false;
 
-    return true;
+    return !list.isEmpty();
 }
 
 static bool isModelNodeValid(const QList<QmlItemNode> &list)
@@ -748,7 +748,7 @@ static bool isModelNodeValid(const QList<QmlItemNode> &list)
         if (!item.modelNode().isValid())
             return false;
 
-    return true;
+    return !list.isEmpty();
 }
 
 class ResolveConnection
@@ -797,17 +797,17 @@ public:
             if (f.isValid()) {
                 for (const QmlFlowActionAreaNode &area : f.flowActionAreas()) {
                     ModelNode target = area.targetTransition();
-                    if (target == node.modelNode()) {
+                    if (target == node.modelNode())
                         areaNode = area;
-                    } else {
-                        const ModelNode decisionNode = area.decisionNodeForTransition(node.modelNode());
-                        if (decisionNode.isValid()) {
-                            from.clear();
-                            from.append(decisionNode);
-                            areaNode = ModelNode();
-                        }
-                    }
                 }
+
+                const ModelNode decisionNode = QmlFlowItemNode::decisionNodeForTransition(node.modelNode());
+                if (decisionNode.isValid()) {
+                    from.clear();
+                    from.append(decisionNode);
+                    areaNode = ModelNode();
+                }
+
                 if (f.modelNode().hasAuxiliaryData("joinConnection"))
                     joinConnection = f.modelNode().auxiliaryData("joinConnection").toBool();
             } else {

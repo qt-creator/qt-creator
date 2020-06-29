@@ -53,7 +53,7 @@ void TimelineMovableAbstractItem::itemDoubleClicked()
 
 int TimelineMovableAbstractItem::scrollOffset() const
 {
-    return timelineScene()->scrollOffset();
+    return abstractScrollGraphicsScene()->scrollOffset();
 }
 
 int TimelineMovableAbstractItem::xPosScrollOffset(int x) const
@@ -63,7 +63,7 @@ int TimelineMovableAbstractItem::xPosScrollOffset(int x) const
 
 qreal TimelineMovableAbstractItem::mapFromFrameToScene(qreal x) const
 {
-    return TimelineConstants::sectionWidth + (x - timelineScene()->startFrame()) * rulerScaling()
+    return TimelineConstants::sectionWidth + (x - abstractScrollGraphicsScene()->startFrame()) * rulerScaling()
            - scrollOffset() + TimelineConstants::timelineLeftOffset;
 }
 
@@ -71,8 +71,8 @@ qreal TimelineMovableAbstractItem::mapFromSceneToFrame(qreal x) const
 {
     return xPosScrollOffset(x - TimelineConstants::sectionWidth
                             - TimelineConstants::timelineLeftOffset)
-               / timelineScene()->rulerScaling()
-           + timelineScene()->startFrame();
+               / abstractScrollGraphicsScene()->rulerScaling()
+           + abstractScrollGraphicsScene()->startFrame();
 }
 
 void TimelineMovableAbstractItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -133,7 +133,7 @@ TimelineKeyframeItem *TimelineMovableAbstractItem::asTimelineKeyframeItem(QGraph
 
 qreal TimelineMovableAbstractItem::rulerScaling() const
 {
-    return static_cast<TimelineGraphicsScene *>(scene())->rulerScaling();
+    return qobject_cast<AbstractScrollGraphicsScene *>(scene())->rulerScaling();
 }
 
 int TimelineMovableAbstractItem::type() const
@@ -141,9 +141,9 @@ int TimelineMovableAbstractItem::type() const
     return Type;
 }
 
-TimelineGraphicsScene *TimelineMovableAbstractItem::timelineScene() const
+AbstractScrollGraphicsScene *TimelineMovableAbstractItem::abstractScrollGraphicsScene() const
 {
-    return static_cast<TimelineGraphicsScene *>(scene());
+    return qobject_cast<AbstractScrollGraphicsScene *>(scene());
 }
 
 TimelineKeyframeItem *TimelineMovableAbstractItem::asTimelineKeyframeItem()

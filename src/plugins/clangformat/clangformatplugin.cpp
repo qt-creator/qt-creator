@@ -153,12 +153,15 @@ bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorS
     }
     return true;
 #else
-#ifndef Q_CC_MSVC
+#ifdef _MSC_VER
+#pragma message( \
+    "ClangFormat: building dummy plugin due to unmodified Clang, see README.md for more info")
+#else
 #warning ClangFormat: building dummy plugin due to unmodified Clang, see README.md for more info
 #endif
-    *errorString = QStringLiteral("Disabling ClangFormat plugin as it has not been built against a modified Clang's libFormat."
+    *errorString = "Disabling ClangFormat plugin as it has not been built against a modified Clang's libFormat."
                    "For more information see the Qt Creator README at "
-                   "https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/README.md");
+                   "https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/README.md";
     return false;
 #endif
 }

@@ -113,7 +113,7 @@ signals:
 protected:
     QWidget *createWidget(QWidget *parent) override;
 private:
-    void refreshProjectLocales(ProjectExplorer::Project *project);
+    bool updateProjectLocales(ProjectExplorer::Project *project);
     QStringList m_localeStrings;
 };
 

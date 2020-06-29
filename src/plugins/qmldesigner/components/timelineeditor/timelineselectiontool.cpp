@@ -38,7 +38,7 @@
 
 namespace QmlDesigner {
 
-TimelineSelectionTool::TimelineSelectionTool(TimelineGraphicsScene *scene,
+TimelineSelectionTool::TimelineSelectionTool(AbstractScrollGraphicsScene *scene,
                                              TimelineToolDelegate *delegate)
     : TimelineAbstractTool(scene, delegate)
     , m_selectionRect(new QGraphicsRectItem)
