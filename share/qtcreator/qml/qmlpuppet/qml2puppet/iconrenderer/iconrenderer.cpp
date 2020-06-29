@@ -117,17 +117,16 @@ void IconRenderer::setupRender()
                     // Render once to make sure scene is up to date before we set up the selection box
                     render({});
                     QMetaObject::invokeMethod(containerItem, "setSceneToBox");
-                    bool success = false;
                     int tries = 0;
-                    while (!success && tries < 10) {
+                    while (tries < 10) {
                         ++tries;
                         render({});
-                        QMetaObject::invokeMethod(containerItem, "fitAndHideBox",
-                                                  Q_RETURN_ARG(bool, success));
+                        QMetaObject::invokeMethod(containerItem, "fitAndHideBox");
                     }
                 }
 #else
                 Q_UNUSED(is3D)
+                Q_UNUSED(containerItem)
 #endif
                 QFileInfo fi(m_filePath);
 

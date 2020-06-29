@@ -40,20 +40,15 @@ Item {
         selectionBox.targetNode = view3D.importScene;
     }
 
-    function fitAndHideBox() : bool
+    function fitAndHideBox()
     {
         cameraControl.focusObject(selectionBox.model, viewCamera.eulerRotation, true, true);
-        if (cameraControl._zoomFactor < 0.1) {
+        if (cameraControl._zoomFactor < 0.1)
             view3D.importScene.scale = view3D.importScene.scale.times(10);
-            return false;
-        }
-        if (cameraControl._zoomFactor > 100) {
+        if (cameraControl._zoomFactor > 100)
             view3D.importScene.scale = view3D.importScene.scale.times(0.1);
-            return false;
-        }
 
         selectionBox.visible = false;
-        return true
     }
 
     View3D {
