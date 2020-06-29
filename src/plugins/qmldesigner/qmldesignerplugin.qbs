@@ -861,9 +861,10 @@ Project {
                 "transitioneditor/transitioneditorpropertyitem.h",
                 "transitioneditor/transitioneditorsettingsdialog.cpp",
                 "transitioneditor/transitioneditorsettingsdialog.h",
-                "transitioneditor/transitioneditorsettingsdialog.ui"
+                "transitioneditor/transitioneditorsettingsdialog.ui",
                 "transitioneditor/transitionform.cpp",
                 "transitioneditor/transitionform.h",
+                "transitioneditor/transitionform.ui",
                 "transitioneditor/transitioneditor.qrc"
             ]
         }
