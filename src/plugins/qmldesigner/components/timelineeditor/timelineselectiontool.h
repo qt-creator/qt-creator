@@ -45,7 +45,7 @@ enum class SelectionMode { New, Add, Remove, Toggle };
 class TimelineSelectionTool : public TimelineAbstractTool
 {
 public:
-    explicit TimelineSelectionTool(TimelineGraphicsScene *scene, TimelineToolDelegate *delegate);
+    explicit TimelineSelectionTool(AbstractScrollGraphicsScene *scene, TimelineToolDelegate *delegate);
 
     ~TimelineSelectionTool() override;
 

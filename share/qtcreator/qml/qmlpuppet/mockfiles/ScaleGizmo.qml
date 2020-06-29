@@ -185,7 +185,7 @@ Node {
             height: 120
             rotation: view3D.camera.rotation
             grabsMouse: scaleGizmo.targetNode
-            priority: 1
+            priority: 10
             active: scaleGizmo.visible
             dragHelper: scaleGizmo.dragHelper
 

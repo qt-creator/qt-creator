@@ -30,7 +30,7 @@
 
 namespace QmlDesigner {
 
-const int defaultZoomIndex = 11;
+const int defaultZoomIndex = 13;
 
 ZoomAction::ZoomAction(QObject *parent)
     :  QWidgetAction(parent),
@@ -69,14 +69,19 @@ void ZoomAction::setZoomLevel(float zoomLevel)
     if (qFuzzyCompare(m_zoomLevel, zoomLevel))
         return;
 
+    forceZoomLevel(zoomLevel);
+}
+
+void ZoomAction::forceZoomLevel(float zoomLevel)
+{
     m_zoomLevel = qBound(0.01f, zoomLevel, 16.0f);
     emit zoomLevelChanged(m_zoomLevel);
 }
 
 //initial m_zoomLevel and m_currentComboBoxIndex
-const QVector<float> s_zoomFactors = {0.01f, 0.02f, 0.05f, 0.0625f, 0.125f, 0.25f,
-                                      0.33f, 0.5f, 0.66f, 0.75f, 0.9f, 1.0f, 1.25f,
-                                      1.5f, 1.75f, 2.0f, 3.0f, 4.0f, 6.0f, 8.0f, 10.0f, 16.0f };
+const QVector<float> s_zoomFactors = {0.01f, 0.02f, 0.05f, 0.0625f, 0.1f, 0.125f, 0.2f, 0.25f,
+                                      0.33f, 0.5f, 0.66f, 0.75f, 0.9f, 1.0f, 1.1f, 1.25f, 1.33f,
+                                      1.5f, 1.66f, 1.75f, 2.0f, 3.0f, 4.0f, 6.0f, 8.0f, 10.0f, 16.0f };
 
 int getZoomIndex(float zoom)
 {
@@ -85,6 +90,15 @@ int getZoomIndex(float zoom)
             return i;
     }
     return -1;
+}
+
+float ZoomAction::getClosestZoomLevel(float zoomLevel)
+{
+    int i = 0;
+    while (i < s_zoomFactors.size() && s_zoomFactors[i] < zoomLevel)
+        ++i;
+
+    return s_zoomFactors[qBound(0, i - 1, s_zoomFactors.size() - 1)];
 }
 
 QWidget *ZoomAction::createWidget(QWidget *parent)

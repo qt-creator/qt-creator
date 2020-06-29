@@ -61,7 +61,7 @@ QPointF mapToItem(TimelineMovableAbstractItem *item, QGraphicsSceneMouseEvent *e
     return event->scenePos();
 }
 
-TimelineMoveTool::TimelineMoveTool(TimelineGraphicsScene *scene, TimelineToolDelegate *delegate)
+TimelineMoveTool::TimelineMoveTool(AbstractScrollGraphicsScene *scene, TimelineToolDelegate *delegate)
     : TimelineAbstractTool(scene, delegate)
 {}
 
@@ -155,7 +155,7 @@ void TimelineMoveTool::mouseReleaseEvent(TimelineMovableAbstractItem *item,
             }
         }
 
-        scene()->timelineView()->executeInTransaction("TimelineMoveTool::mouseReleaseEvent",
+        scene()->abstractView()->executeInTransaction("TimelineMoveTool::mouseReleaseEvent",
                                                       [this, current]() {
             current->commitPosition(mapToItem(current, current->rect().center()));
 

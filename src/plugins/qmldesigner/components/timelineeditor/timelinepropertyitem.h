@@ -67,6 +67,7 @@ public:
     void itemDoubleClicked() override;
 
     TimelineKeyframeItem *asTimelineKeyframeItem() override;
+    TimelineGraphicsScene *timelineGraphicsScene() const;
 
 protected:
     bool hasManualBezier() const;

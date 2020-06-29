@@ -56,19 +56,19 @@
 
 namespace QmlDesigner {
 
-bool isSpacer(QObject *object)
+static bool isSpacer(QObject *object)
 {
     return object->property("spacer_widget").toBool();
 }
 
-QWidget *createSpacer()
+static QWidget *createSpacer()
 {
     QWidget *spacer = new QWidget();
     spacer->setProperty("spacer_widget", true);
     return spacer;
 }
 
-int controlWidth(QToolBar *bar, QObject *control)
+static int controlWidth(QToolBar *bar, QObject *control)
 {
     QWidget *widget = nullptr;
 
@@ -84,7 +84,7 @@ int controlWidth(QToolBar *bar, QObject *control)
     return 0;
 }
 
-QAction *createAction(const Core::Id &id,
+static QAction *createAction(const Core::Id &id,
                       const QIcon &icon,
                       const QString &name,
                       const QKeySequence &shortcut)

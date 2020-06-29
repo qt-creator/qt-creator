@@ -241,6 +241,7 @@ protected:
 
     virtual void initializeView() = 0;
     virtual void setupScene(const CreateSceneCommand &command) = 0;
+    void setTranslationLanguage(const QString &language);
     void loadDummyDataFiles(const QString& directory);
     void loadDummyDataContext(const QString& directory);
     void loadDummyDataFile(const QFileInfo& fileInfo);

@@ -45,16 +45,18 @@ class CreateSceneCommand
 
 public:
     CreateSceneCommand();
-    explicit CreateSceneCommand(const QVector<InstanceContainer> &instanceContainer,
-                       const QVector<ReparentContainer> &reparentContainer,
-                       const QVector<IdContainer> &idVector,
-                       const QVector<PropertyValueContainer> &valueChangeVector,
-                       const QVector<PropertyBindingContainer> &bindingChangeVector,
-                       const QVector<PropertyValueContainer> &auxiliaryChangeVector,
-                       const QVector<AddImportContainer> &importVector,
-                       const QVector<MockupTypeContainer> &mockupTypeVector,
-                       const QUrl &fileUrl,
-                       const QHash<QString, QVariantMap> &edit3dToolStates);
+    explicit CreateSceneCommand(
+        const QVector<InstanceContainer> &instanceContainer,
+        const QVector<ReparentContainer> &reparentContainer,
+        const QVector<IdContainer> &idVector,
+        const QVector<PropertyValueContainer> &valueChangeVector,
+        const QVector<PropertyBindingContainer> &bindingChangeVector,
+        const QVector<PropertyValueContainer> &auxiliaryChangeVector,
+        const QVector<AddImportContainer> &importVector,
+        const QVector<MockupTypeContainer> &mockupTypeVector,
+        const QUrl &fileUrl,
+        const QHash<QString, QVariantMap> &edit3dToolStates,
+        const QString &language);
 
     QVector<InstanceContainer> instances() const;
     QVector<ReparentContainer> reparentInstances() const;
@@ -66,6 +68,7 @@ public:
     QVector<MockupTypeContainer> mockupTypes() const;
     QUrl fileUrl() const;
     QHash<QString, QVariantMap> edit3dToolStates() const;
+    QString language() const;
 
 private:
     QVector<InstanceContainer> m_instanceVector;
@@ -78,6 +81,7 @@ private:
     QVector<MockupTypeContainer> m_mockupTypeVector;
     QUrl m_fileUrl;
     QHash<QString, QVariantMap> m_edit3dToolStates;
+    QString m_language;
 };
 
 QDataStream &operator<<(QDataStream &out, const CreateSceneCommand &command);

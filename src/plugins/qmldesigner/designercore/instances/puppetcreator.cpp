@@ -36,17 +36,20 @@
 
 #include <app/app_version.h>
 
+#include <coreplugin/messagebox.h>
+#include <coreplugin/icore.h>
+
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-#include <coreplugin/messagebox.h>
-#include <coreplugin/icore.h>
+
+#include <qmlprojectmanager/qmlmultilanguageaspect.h>
+
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
-#include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -162,18 +165,6 @@ QString PuppetCreator::getStyleConfigFileName() const
     }
 #endif
     return QString();
-}
-
-QString PuppetCreator::getMultilanguageDatabaseFilePath() const
-{
-#ifndef QMLDESIGNER_TEST
-    if (m_target) {
-        auto filePath = m_target->project()->projectDirectory().pathAppended("/multilanguage-experimental-v1.db");
-        if (filePath.exists())
-            return filePath.toString();
-    }
-#endif
-    return {};
 }
 
 PuppetCreator::PuppetCreator(ProjectExplorer::Target *target, const Model *model)
@@ -496,11 +487,6 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
         environment.set("QMLDESIGNER_RC_PATHS", m_qrcMapping);
     }
 
-    const QString multilanguageDatabaseFilePath = getMultilanguageDatabaseFilePath();
-
-    if (!multilanguageDatabaseFilePath.isEmpty())
-        environment.set("QT_MULTILANGUAGE_DATABASE", multilanguageDatabaseFilePath);
-
 #ifndef QMLDESIGNER_TEST
     auto view = QmlDesignerPlugin::instance()->viewManager().nodeInstanceView();
     view->emitCustomNotification("PuppetStatus", {}, {QVariant(m_qrcMapping)});
@@ -527,6 +513,13 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
         importPaths.append(designerImports);
 
         customFileSelectors = m_target->additionalData("CustomFileSelectorsData").toStringList();
+
+        if (auto *rc = m_target->activeRunConfiguration()) {
+            if (auto multiLanguageAspect = rc->aspect<QmlProjectManager::QmlMultiLanguageAspect>()) {
+                if (!multiLanguageAspect->databaseFilePath().isEmpty())
+                    environment.set("QT_MULTILANGUAGE_DATABASE", multiLanguageAspect->databaseFilePath().toString());
+            }
+        }
     }
 
     customFileSelectors.append("DesignMode");

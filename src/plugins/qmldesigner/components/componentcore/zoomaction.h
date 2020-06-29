@@ -48,6 +48,9 @@ public:
     void zoomOut();
     void resetZoomLevel();
     void setZoomLevel(float zoomLevel);
+    void forceZoomLevel(float zoomLevel);
+
+    static float getClosestZoomLevel(float zoomLevel);
 
 protected:
     QWidget *createWidget(QWidget *parent) override;

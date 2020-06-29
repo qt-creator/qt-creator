@@ -614,32 +614,6 @@ void QmlFlowActionAreaNode::destroyTarget()
     }
 }
 
-ModelNode QmlFlowActionAreaNode::decisionNodeForTransition(const ModelNode &transition) const
-{
-    ModelNode target = targetTransition();
-
-    if (target.isValid() && target.hasMetaInfo() && QmlVisualNode::isFlowTransition(target)) {
-
-        ModelNode finalTarget = target.bindingProperty("to").resolveToModelNode();
-
-        if (finalTarget.isValid() && finalTarget.hasMetaInfo() && QmlVisualNode::isFlowDecision(finalTarget)) {
-            if (finalTarget.hasBindingProperty("targets")
-                    && finalTarget.bindingProperty("targets").resolveToModelNodeList().contains(transition))
-                return finalTarget;
-        }
-        QmlFlowViewNode flowView(view()->rootModelNode());
-        if (flowView.isValid()) {
-            for (const ModelNode &target : flowView.decicions()) {
-                if (target.hasBindingProperty("targets")
-                        && target.bindingProperty("targets").resolveToModelNodeList().contains(transition))
-                    return target;
-            }
-        }
-    }
-
-    return {};
-}
-
 bool QmlFlowViewNode::isValid() const
 {
     return isValidQmlFlowViewNode(modelNode());
@@ -781,12 +755,38 @@ QmlFlowViewNode QmlFlowTargetNode::flowView() const
     return view()->rootModelNode();
 }
 
+ModelNode QmlFlowItemNode::decisionNodeForTransition(const ModelNode &transition)
+{
+    ModelNode target = transition;
+
+    if (target.isValid() && target.hasMetaInfo() && QmlVisualNode::isFlowTransition(target)) {
+
+        ModelNode finalTarget = target.bindingProperty("to").resolveToModelNode();
+
+        if (finalTarget.isValid() && finalTarget.hasMetaInfo() && QmlVisualNode::isFlowDecision(finalTarget)) {
+            if (finalTarget.hasBindingProperty("targets")
+                    && finalTarget.bindingProperty("targets").resolveToModelNodeList().contains(transition))
+                return finalTarget;
+        }
+        QmlFlowViewNode flowView(transition.view()->rootModelNode());
+        if (flowView.isValid()) {
+            for (const ModelNode target : flowView.decicions()) {
+                if (target.hasBindingProperty("targets")
+                        && target.bindingProperty("targets").resolveToModelNodeList().contains(transition))
+                    return target;
+            }
+        }
+    }
+
+    return {};
+}
+
 ModelNode QmlFlowTargetNode::findSourceForDecisionNode() const
 {
     if (!isFlowDecision())
         return {};
 
-    for (const ModelNode &transition : flowView().transitionsForTarget(modelNode())) {
+    for (const ModelNode transition : flowView().transitionsForTarget(modelNode())) {
         if (transition.hasBindingProperty("from")) {
             const ModelNode source = transition.bindingProperty("from").resolveToModelNode();
             if (source.isValid()) {

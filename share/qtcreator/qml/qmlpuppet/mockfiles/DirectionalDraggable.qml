@@ -104,6 +104,7 @@ Model {
         grabsMouse: targetNode
         active: rootModel.active
         dragHelper: rootModel.dragHelper
+        priority: 5
 
         onPressed: rootModel.handlePressed(mouseAreaYZ, planePos, screenPos)
         onDragged: rootModel.handleDragged(mouseAreaYZ, planePos, screenPos)
@@ -121,6 +122,7 @@ Model {
         grabsMouse: targetNode
         active: rootModel.active
         dragHelper: rootModel.dragHelper
+        priority: 5
 
         onPressed: rootModel.handlePressed(mouseAreaXZ, planePos, screenPos)
         onDragged: rootModel.handleDragged(mouseAreaXZ, planePos, screenPos)
