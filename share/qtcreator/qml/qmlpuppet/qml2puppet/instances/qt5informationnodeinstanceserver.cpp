@@ -1261,6 +1261,13 @@ void Qt5InformationNodeInstanceServer::changeIds(const ChangeIdsCommand &command
     }
 }
 
+void Qt5InformationNodeInstanceServer::changeState(const ChangeStateCommand &command)
+{
+    Qt5NodeInstanceServer::changeState(command);
+
+    render3DEditView();
+}
+
 // update 3D view size when it changes in creator side
 void Qt5InformationNodeInstanceServer::update3DViewState(const Update3dViewStateCommand &command)
 {
