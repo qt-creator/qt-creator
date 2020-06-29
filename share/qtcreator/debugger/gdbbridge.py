@@ -229,10 +229,11 @@ class Dumper(DumperBase):
     def fromFrameValue(self, nativeValue):
         #DumperBase.warn('FROM FRAME VALUE: %s' % nativeValue.address)
         val = nativeValue
-        try:
-            val = nativeValue.cast(nativeValue.dynamic_type)
-        except:
-            pass
+        if self.useDynamicType:
+            try:
+                val = nativeValue.cast(nativeValue.dynamic_type)
+            except:
+                pass
         return self.fromNativeValue(val)
 
     def fromNativeValue(self, nativeValue):
@@ -1151,7 +1152,9 @@ class Dumper(DumperBase):
     def nativeValueDereferencePointer(self, value):
         # This is actually pretty expensive, up to 100ms.
         deref = value.nativeValue.dereference()
-        return self.fromNativeValue(deref.cast(deref.dynamic_type))
+        if self.useDynamicType:
+            deref = deref.cast(deref.dynamic_type)
+        return self.fromNativeValue(deref)
 
     def nativeValueDereferenceReference(self, value):
         nativeValue = value.nativeValue

@@ -3201,13 +3201,17 @@ class DumperBase():
                     val.laddress = self.pointer()
                     if val.laddress is None and self.laddress is not None:
                         val.laddress = self.laddress
-                    val.type = self.dumper.nativeDynamicType(val.laddress, self.type.dereference())
+                    val.type = self.type.dereference()
+                    if self.dumper.useDynamicType:
+                        val.type = self.dumper.nativeDynamicType(val.laddress, val.type)
                 else:
                     val = self.dumper.nativeValueDereferenceReference(self)
             elif self.type.code == TypeCode.Pointer:
                 if self.nativeValue is None:
                     val.laddress = self.pointer()
-                    val.type = self.dumper.nativeDynamicType(val.laddress, self.type.dereference())
+                    val.type = self.type.dereference()
+                    if self.dumper.useDynamicType:
+                        val.type = self.dumper.nativeDynamicType(val.laddress, val.type)
                 else:
                     val = self.dumper.nativeValueDereferencePointer(self)
             else:
@@ -3662,7 +3666,9 @@ class DumperBase():
                                % type(targetTypish))
         val = self.Value(self)
         val.ldata = self.toPointerData(targetAddress)
-        targetType = self.createType(targetTypish).dynamicType(targetAddress)
+        targetType = self.createType(targetTypish)
+        if self.useDynamicType:
+            targetType = targetType.dynamicType(targetAddress)
         val.type = self.createPointerType(targetType)
         return val
 
@@ -3675,7 +3681,8 @@ class DumperBase():
                                % type(targetType))
         val = self.Value(self)
         val.ldata = self.toPointerData(targetAddress)
-        targetType = targetType.dynamicType(targetAddress)
+        if self.useDynamicType:
+            targetType = targetType.dynamicType(targetAddress)
         val.type = self.createReferenceType(targetType)
         return val
 
@@ -3848,7 +3855,8 @@ class DumperBase():
         if self.isInt(datish):  # Used as address.
             #DumperBase.warn('CREATING %s AT 0x%x' % (val.type.name, datish))
             val.laddress = datish
-            val.type = val.type.dynamicType(datish)
+            if self.useDynamicType:
+                val.type = val.type.dynamicType(datish)
             return val
         if isinstance(datish, bytes):
             #DumperBase.warn('CREATING %s WITH DATA %s' % (val.type.name, self.hexencode(datish)))
