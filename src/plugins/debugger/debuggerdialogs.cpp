@@ -86,6 +86,8 @@ public:
     PathChooser *debuginfoPathChooser;
     QLabel *serverStartScriptLabel;
     PathChooser *serverStartScriptPathChooser;
+    QLabel *sysRootLabel;
+    PathChooser *sysRootPathChooser;
     QLabel *serverInitCommandsLabel;
     QPlainTextEdit *serverInitCommandsTextEdit;
     QLabel *serverResetCommandsLabel;
@@ -126,6 +128,7 @@ public:
     bool breakAtMain = false;
     bool runInTerminal = false;
     FilePath serverStartScript;
+    FilePath sysRoot;
     QString serverInitCommands;
     QString serverResetCommands;
     QString debugInfoLocation;
@@ -140,6 +143,7 @@ bool StartApplicationParameters::equals(const StartApplicationParameters &rhs) c
         && breakAtMain == rhs.breakAtMain
         && runInTerminal == rhs.runInTerminal
         && serverStartScript == rhs.serverStartScript
+        && sysRoot == rhs.sysRoot
         && serverInitCommands == rhs.serverInitCommands
         && serverResetCommands == rhs.serverResetCommands
         && kitId == rhs.kitId
@@ -181,6 +185,7 @@ void StartApplicationParameters::toSettings(QSettings *settings) const
     settings->setValue("LastServerInitCommands", serverInitCommands);
     settings->setValue("LastServerResetCommands", serverResetCommands);
     settings->setValue("LastDebugInfoLocation", debugInfoLocation);
+    settings->setValue("LastSysRoot", sysRoot.toVariant());
 }
 
 void StartApplicationParameters::fromSettings(const QSettings *settings)
@@ -197,6 +202,7 @@ void StartApplicationParameters::fromSettings(const QSettings *settings)
     serverInitCommands = settings->value("LastServerInitCommands").toString();
     serverResetCommands = settings->value("LastServerResetCommands").toString();
     debugInfoLocation = settings->value("LastDebugInfoLocation").toString();
+    sysRoot = FilePath::fromVariant(settings->value("LastSysRoot"));
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -259,6 +265,16 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     d->serverStartScriptLabel->setBuddy(d->serverStartScriptPathChooser);
     d->serverStartScriptLabel->setToolTip(d->serverStartScriptPathChooser->toolTip());
 
+    d->sysRootPathChooser = new PathChooser(this);
+    d->sysRootPathChooser->setExpectedKind(PathChooser::Directory);
+    d->sysRootPathChooser->setHistoryCompleter("Debugger.SysRoot.History");
+    d->sysRootPathChooser->setPromptDialogTitle(tr("Select SysRoot Directory"));
+    d->sysRootPathChooser->setToolTip(tr(
+        "This option can be used to override the kit's SysRoot setting."));
+    d->sysRootLabel = new QLabel(tr("Override S&ysRoot:"), this);
+    d->sysRootLabel->setBuddy(d->sysRootPathChooser);
+    d->sysRootLabel->setToolTip(d->sysRootPathChooser->toolTip());
+
     d->serverInitCommandsTextEdit = new QPlainTextEdit(this);
     d->serverInitCommandsTextEdit->setToolTip(tr(
         "This option can be used to send the target init commands."));
@@ -306,6 +322,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     formLayout->addRow(tr("Run in &terminal:"), d->runInTerminalCheckBox);
     formLayout->addRow(tr("Break at \"&main\":"), d->breakAtMainCheckBox);
     formLayout->addRow(d->serverStartScriptLabel, d->serverStartScriptPathChooser);
+    formLayout->addRow(d->sysRootLabel, d->sysRootPathChooser);
     formLayout->addRow(d->serverInitCommandsLabel, d->serverInitCommandsTextEdit);
     formLayout->addRow(d->serverResetCommandsLabel, d->serverResetCommandsTextEdit);
     formLayout->addRow(tr("Debug &information:"), d->debuginfoPathChooser);
@@ -445,6 +462,7 @@ void StartApplicationDialog::run(bool attachRemote)
     debugger->setCommandsAfterConnect(newParameters.serverInitCommands);
     debugger->setCommandsForReset(newParameters.serverResetCommands);
     debugger->setUseTerminal(newParameters.runInTerminal);
+    debugger->setSysRoot(newParameters.sysRoot);
 
     bool isLocal = !dev || (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     if (isLocal) {
@@ -481,6 +499,7 @@ StartApplicationParameters StartApplicationDialog::parameters() const
     result.serverAddress = d->channelOverrideEdit->text();
     result.runnable.executable = d->localExecutablePathChooser->filePath();
     result.serverStartScript = d->serverStartScriptPathChooser->filePath();
+    result.sysRoot = d->sysRootPathChooser->filePath();
     result.serverInitCommands = d->serverInitCommandsTextEdit->toPlainText();
     result.serverResetCommands = d->serverResetCommandsTextEdit->toPlainText();
     result.kitId = d->kitChooser->currentKitId();
@@ -499,6 +518,7 @@ void StartApplicationDialog::setParameters(const StartApplicationParameters &p)
     d->channelOverrideEdit->setText(p.serverAddress);
     d->localExecutablePathChooser->setFilePath(p.runnable.executable);
     d->serverStartScriptPathChooser->setFilePath(p.serverStartScript);
+    d->sysRootPathChooser->setFilePath(p.sysRoot);
     d->serverInitCommandsTextEdit->setPlainText(p.serverInitCommands);
     d->serverResetCommandsTextEdit->setPlainText(p.serverResetCommands);
     d->debuginfoPathChooser->setPath(p.debugInfoLocation);
