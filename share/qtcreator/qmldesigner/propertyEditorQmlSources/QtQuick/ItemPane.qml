@@ -325,12 +325,10 @@ Rectangle {
                 frameVisible: false
 
                 id: tabView
-                height: Math.max(layoutSectionHeight, specficsHeight, advancedHeight) + extraHeight
 
-                property int advancedHeight: 0
-                property int layoutSectionHeight: 0
-                property int specficsHeight: 0
+                height: currentHeight + extraHeight
 
+                property int currentHeight: getTab(currentIndex).item.implicitHeight
                 property int extraHeight: 40
 
                 Tab {
@@ -339,8 +337,6 @@ Rectangle {
                     component: Column {
                         anchors.left: parent.left
                         anchors.right: parent.right
-
-                        onImplicitHeightChanged: tabView.specficsHeight = implicitHeight
 
                         Loader {
                             anchors.left: parent.left
@@ -366,11 +362,6 @@ Rectangle {
                             source: specificsUrl;
 
                             property int loaderHeight: specificsOne.item.height + tabView.extraHeight
-                            onLoaderHeightChanged: tabView.specficsOneHeight = loaderHeight
-
-                            onLoaded: {
-                                tabView.specficsOneHeight = loaderHeight
-                            }
                         }
                     }
                 }
@@ -380,8 +371,6 @@ Rectangle {
                     component: Column {
                         anchors.left: parent.left
                         anchors.right: parent.right
-
-                        onImplicitHeightChanged: tabView.layoutSectionHeight = implicitHeight
 
                         LayoutSection {
                         }
@@ -712,8 +701,6 @@ Rectangle {
                     component: Column {
                         anchors.left: parent.left
                         anchors.right: parent.right
-
-                        onImplicitHeightChanged: tabView.advancedHeight = implicitHeight
 
                         AdvancedSection {
                         }
