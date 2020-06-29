@@ -107,10 +107,22 @@ Item {
         if (createEditView()) {
             if (activeScene) {
                 var toolStates = _generalHelper.getToolStates(sceneId);
-                if (Object.keys(toolStates).length > 0)
+                if (Object.keys(toolStates).length > 0) {
                     updateToolStates(toolStates, true);
-                else
+                } else {
+                    // Don't inherit the edit light state from the previous scene, but rather
+                    // turn the edit light on for scenes that do not have any scene
+                    // lights, and turn it off for scenes that have.
+                    var hasSceneLight = false;
+                    for (var i = 0; i < lightIconGizmos.length; ++i) {
+                        if (lightIconGizmos[i].scene === activeScene) {
+                            hasSceneLight = true;
+                            break;
+                        }
+                    }
+                    showEditLight = !hasSceneLight;
                     storeCurrentToolStates();
+                }
             } else {
                 // When active scene is deleted, this function gets called by object deletion
                 // handlers without going through setActiveScene, so make sure sceneId is cleared.
