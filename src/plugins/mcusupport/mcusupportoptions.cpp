@@ -61,7 +61,7 @@
 namespace McuSupport {
 namespace Internal {
 
-static const int KIT_VERSION = 6; // Bumps up whenever details in Kit creation change
+static const int KIT_VERSION = 5; // Bumps up whenever details in Kit creation change
 
 static QString packagePathFromSettings(const QString &settingsKey,
                                        QSettings::Scope scope = QSettings::UserScope,
@@ -452,7 +452,7 @@ void McuSupportOptions::deletePackagesAndTargets()
 
 const QVersionNumber &McuSupportOptions::supportedQulVersion()
 {
-    static const QVersionNumber v({1, 3});
+    static const QVersionNumber v({1, 2});
     return v;
 }
 
