@@ -477,14 +477,10 @@ void TargetSelectorDelegate::paint(QPainter *painter,
             ->setData(index, index.model()->data(index, Qt::UserRole + 1).toString(), Qt::ToolTipRole);
     painter->drawText(option.rect.left() + 6, option.rect.top() + (option.rect.height() - fm.height()) / 2 + fm.ascent(), elidedText);
     if (index.column() == 1 && option.state & QStyle::State_MouseOver) {
-        const QIcon icon = Utils::Icons::RUN_SMALL.icon();
-        QRect iconRect(option.rect.right() - option.rect.height(),
-                       option.rect.top(),
-                       option.rect.height() / painter->device()->devicePixelRatio(),
-                       option.rect.height() / painter->device()->devicePixelRatio());
-        iconRect.translate((option.rect.width() - iconRect.width()) / 2,
-                           (option.rect.height() - iconRect.height()) / 2);
-        icon.paint(painter, iconRect, Qt::AlignHCenter | Qt::AlignVCenter);
+        const QIcon icon = Utils::Icons::RUN_SMALL_TOOLBAR.icon();
+        QRect iconRect(0, 0, 16, 16);
+        iconRect.moveCenter(option.rect.center());
+        icon.paint(painter, iconRect);
     }
 
     painter->restore();
