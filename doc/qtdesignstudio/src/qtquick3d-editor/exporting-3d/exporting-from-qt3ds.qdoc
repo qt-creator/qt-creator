@@ -1,0 +1,333 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt 3D Studio.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page exporting-from-qt3ds.html
+    \previouspage exporting-from-maya.html
+    \nextpage creator-quick-tour.html
+    \title Exporting from Qt 3D Studio
+
+    Use the following guidelines to achieve the best results when converting
+    projects from \Q3DS to \QDS.
+
+    \section1 Best Practices
+
+    \list
+    \li If something in UI is clearly 2D, do not import it from \Q3DS
+        presentation. Implement it directly in \QDS.
+    \li QML streams cannot be imported as QML elements directly into \QDS.
+        They need to be copied manually since there is no import functionality
+        for QML files in \QDS.
+    \li If you do import the whole \Q3DS project (\c .uia file), use only the
+        parts you actually need from it. Use \uicontrol
+        {Move Component Into Separate File} for the parts you need, and
+        eventually delete all the rest from the project structure.
+    \li There are extra levels of \c Node elements in most imported QML files,
+        and they should be removed for improved performance. As a rule of thumb,
+        each Node that has only one child is considered an extra level that
+        should be deleted.
+    \li \Q3DS \e slides become \QDS \e states, and there may be problems
+        with state changes. Always go through each of the state changes to make
+        sure they work correctly.
+    \endlist
+
+    \section1 Importing Assets
+
+    \section2 Custom Materials
+    Custom materials (\e something.shader files in \Q3DS) are not imported
+    correctly, and have to be fixed manually.
+    \list
+    \li They are imported as \c {CustomMaterial { id: something; source:
+    "something" }} that neither works nor does anything.
+    \li Remove the \e {source: "something"} altogether.
+    \li Vertex shader part from the \e something.shader needs to be copied to
+        \c {Shader { stage: Shader.Vertex; shader: "vertex shader code here" }}
+        inside the \c CustomMaterial. Fragment shader part needs to be copied
+        to \c {Shader { stage: Shader.Fragment; shader: "fragment shader code
+        here" }}.
+    \li Properties in \e Metadata of the \e something.shader need to be
+        introduced manually as QML properties of the same name and correct type
+        inside the \c CustomMaterial element.
+    \li Add \c {import QtQuick3D.Materials 1.15} import statement to files that
+        have \c CustomMaterial elements.
+    \li If custom material uses textures, they are not imported automatically
+        and must be manually added to the project structure.
+    \li Many custom materials are not rendered in \uicontrol {3D Editor} or
+        \uicontrol {Form Editor} views due to an open bug in \QDS 1.5. The
+        project needs to be run for them to appear.
+    \endlist
+
+    \section2 Standard Materials
+    Some properties of standard materials may not be imported correctly.
+    \list
+    \li The sensible value ranges of some properties may have changed between
+        \Q3DS and \QDS and need to be redefined manually.
+    \li Extra properties may be added and can be removed manually.
+    \endlist
+
+    \section2 Models
+    Models have some extra properties (tessellations), which can be removed.
+
+    \section1 Example: Converting MyOwnCluster Project from \Q3DS to \QDS
+
+    \image exporting-from-qt3ds/porting-example-myowncluster.png "My Own Cluster project in Qt 3D Studio"
+    \e {My Own Cluster project in \Q3DS}
+
+    The following steps describe how to convert the My Own Cluster project from
+    \Q3DS to \QDS.
+
+    \section2 Creating a New Project in \QDS
+
+    \list 1
+    \li To create a new project in \QDS, select \uicontrol {File > New File or
+        Project}, or select \uicontrol {New Project} in the Welcome mode.
+        \image exporting-from-qt3ds/01-welcome-screen.png "Welcome mode in Qt Design Studio"
+
+    \li Creating a new project in \QDS is aided by a wizard that contains
+        templates for creating different types of projects. Choose the
+        \uicontrol {Qt Quick 3D Application} template to get started with your
+        new 3D project.
+        \image exporting-from-qt3ds/02-create-new-project.png "Create a new Project in Qt Design Studio"
+
+    \li In the \uicontrol Name field, enter a name for the project.
+        In the \uicontrol {Create in} field, enter the path for the project
+        files, and then select \uicontrol Next.
+        \image exporting-from-qt3ds/03-folder-and-project-name.png "Project location and name"
+
+    \li In the \uicontrol {Screen resolution} field, select the screen
+        resolution for previewing the UI on the desktop or on a device.
+        You must select one of the predefined screen resolutions, which will
+        later be altered to match the width and height of the original project.
+        In the \uicontrol {Qt Quick Controls Style} field, select one of the
+        predefined UI styles to use, and then select \uicontrol Finish.
+        \image exporting-from-qt3ds/04-project-size.png "Select the screen resolution for the project"
+
+    \li Your new project has now been created. For more information on
+        creating projects in \QDS, see \l {Creating Projects}.
+        For more information on how to get started with \QDS, see
+        \l {Getting Started}.
+        \image exporting-from-qt3ds/05-new-project-created.png "New project in Qt Design Studio"
+        \endlist
+
+    \section2 Getting Started with MyOwnCluster
+
+    \list 1
+    \li Return to your project in \Q3DS to check the size of the presentation.
+        Select \uicontrol {Edit} > \uicontrol {Presentation Settings} to see the
+        values for \uicontrol {Width x Height}.
+        \image exporting-from-qt3ds/06-check-screen-size-in-qt3ds-project.png "Check screen size in Qt 3D Studio presentation"
+
+    \li Adjust the canvas size of your project in \QDS according to the screen
+        size in \Q3DS presentation by editing the \c Constants.qml file in
+        \uicontrol {Text Editor}. If you cannot see the \uicontrol {Text Editor}
+        view, select \uicontrol Window > \uicontrol {Views}, and then select the
+        \uicontrol {Text Editor} checkbox. In the \uicontrol Projects view, open
+        the imports subfolder, then the subfolder named after your project, and
+        double-click \c Constants.qml. Edit the values for \e {readonly property
+        int width} and \e {readonly property int height} to match the \uicontrol
+        {Width x Height} values in \Q3DS presentation.
+         \image exporting-from-qt3ds/07-screen-size-in-text-editor.png "Adjust the canvas size"
+
+    \li To delete the placeholders created by the wizard, multiselect \uicontrol
+        Text and \uicontrol view3D components (\key Ctrl + mouse left click) in
+        \uicontrol Navigator, then right click on the selected items, and select
+        \uicontrol Edit > \uicontrol Delete.
+        \image exporting-from-qt3ds/08-delete-placeholders.png "Delete placeholders in Navigator"
+        \endlist
+
+    \section2 Importing Assets
+    \list 1
+    \li In the \uicontrol Library view, select \uicontrol {Add New Assets}.
+        \image exporting-from-qt3ds/09-add-new-assets.png
+
+    \li Select the \c .uia file for the \Q3DS project you wish to import, and
+        then select \uicontrol Open.
+        \image exporting-from-qt3ds/10-find-project-file.png "Find the uia file in file explorer"
+
+    \li Select \uicontrol Import, and after the import is complete, select \uicontrol
+        Close.
+        \image exporting-from-qt3ds/11-import.png "Import the file"
+
+    \li The 2D assets imported from \Q3DS now appear in \uicontrol Library
+        under \uicontrol Assets tab.
+        \image exporting-from-qt3ds/12-imported-image-assets.png "Imported assets in Library"
+
+    \li The QML components generated from the imported \Q3DS project now appear
+        as available imports in \uicontrol Library under \uicontrol {QML Types}.
+        Select \uicontrol Quick3DAssets.MyOwnCluster to import them to your
+        project.
+        \image exporting-from-qt3ds/13-myowncluster-in-qml-types.png "Available imports in QML Types"
+
+    \li The imported QML types now appear in \uicontrol Library and can be added
+        to the project.
+        \image exporting-from-qt3ds/14-add-myowncluster-to-project.png "MyOwnCluster in Library"
+    \endlist
+
+    \section2 Adding Components to the Project
+
+    \list 1
+    \li Drag \uicontrol MyOwnCluster from \uicontrol {My Quick3D Components}
+        in \uicontrol Library to \uicontrol {Form Editor}.
+        \image exporting-from-qt3ds/15-drag-to-project.png "Drag MyOwnCluster to Form Editor"
+
+    \li In \uicontrol Navigator, right click on myOwnCluster and select \uicontrol
+        {Go into Component}.
+        \image exporting-from-qt3ds/16-go-into-component.png "Go into component My Own Cluster"
+
+    \li Find the offending line in \uicontrol {Text Editor}.
+        \image exporting-from-qt3ds/17-offending-line.png
+
+    \li Comment out the offending line by placing two slashes in the beginning
+        of it (or remove the line).
+        \image exporting-from-qt3ds/17b-commented-out.png
+
+    \li In Navigator, go to each component of the project and comment out
+        (or remove) any offending lines you find.
+        \image exporting-from-qt3ds/18-repeat-where-needed.png
+
+    \li You should now see some parts of the project in \uicontrol {Form Editor}.
+        \image exporting-from-qt3ds/19-see-form-editor.png "Project in Form Editor"
+    \endlist
+
+    \section2 Converting 3D Elements
+
+    \list 1
+    \li Drag subpresentation_ADAS from \uicontrol {My QML Components} in \uicontrol
+        Library into layer folder in \uicontrol Navigator.
+        \image exporting-from-qt3ds/20-drag-subpresentation-adas-into-layer.png "Drag into layer"
+
+    \li To delete the old subpresentation rectangle, right-click on the file
+        name (subpresentation_ADAS2_u52017 in this project), select
+        \uicontrol Edit > \uicontrol Delete.
+
+    \li Go into the component subpresentation_ADAS.
+        \image exporting-from-qt3ds/22-go-into-subpresentation-adas.png "Go into component"
+
+    \li Reposition objects and/or camera in \uicontrol {3D Editor} according to
+        the original \Q3DS project. The desired scene may be achieved
+        simply by changing the z position sign from positive to negative, or
+        vice versa, in some cases.
+
+        For more information on how to edit a scene in \uicontrol {3D Editor},
+        see \l {Working in 3D Editor}.
+        \image exporting-from-qt3ds/23-replace-objects.png "Replace objects in 3D Editor"
+
+    \li Recreate animations in subpresentation_ADAS according to the original
+        project. For more information on creating animations in \QDS, see
+        \l {Creating Animations}.
+        \image exporting-from-qt3ds/24-recreate-animations.png "Recreate animations"
+
+    \li Go to the \uicontrol Timeline View to review the timeline for the
+        project.
+        \image exporting-from-qt3ds/25-adas-timeline.png "ADAS timeline view"
+    \endlist
+
+    \section2 Converting 2D Elements
+
+    \list 1
+    \li Recreate the 2D elements of the original project (in all layers) using
+        the 2D QML elements available in \QDS. You can use the imported 2D layer
+        as a guide for recreating the elements. If the 2D elements in the
+        original project have rotations, especially in a 3D layer, make sure to
+        add rotations that mimic the original ones to the \QDS project. For
+        example, rotation on one axis with perspective camera requires rotation
+        on two axes in pure 2D. You may need to use \uicontrol {Text Editor}
+        to achieve rotation similar to the rotation of the object in \Q3DS.
+        For more information on specifying advanced transformations on
+        \uicontrol Items, see \l Transform.
+        \image exporting-from-qt3ds/26-recreate-2d-elements.png "Recreate 2D elements"
+
+    \li To delete the 2D layer (telltaleLayer_u39332) in \uicontrol Navigator
+        after recreating the 2D elements,  right-click on the component, and
+        select \uicontrol Edit > \uicontrol Delete.
+        \image exporting-from-qt3ds/27-delete-2d-layer.png "Delete the 2D layer"
+
+    \li Next, you need to delete the 2D elements from the 3D layer (speed_u20335
+        and rPM_u10371 from layer_32325). Right-click on the element, and
+        select \uicontrol Edit > \uicontrol Delete.
+        \image exporting-from-qt3ds/28-delete-2d-elements-from-3d-layer.png "Delete old 2D elements from the 3D layer"
+
+    \li Recreate the animations for 2D elements the same way it was done for the
+        3D elements.
+    \endlist
+
+    \section2 Converting QML Streams
+
+    \list 1
+    \li Find QML stream files in file explorer.
+        \image exporting-from-qt3ds/30-find-qml-stream-files-in-file-explorer.png "Find the QML stream file"
+
+    \li Move the QML stream files under the import's main folder (one level up
+        in this example).
+        \image exporting-from-qt3ds/31-move-under-myowncluster.png "Move the QML stream files under the import's main folder"
+
+    \li Make sure that the QML stream file names start with a capital letter
+        to enable \QDS to recognize them as QML component files.
+        \image exporting-from-qt3ds/32-rename-the-qml-stream-file.png "The QML stream file names should start with a capital letter"
+
+    \li Return to \QDS and enter the MyOwnCluster component. The QML stream
+        component now appears in \uicontrol {My QML Components}.
+        \image exporting-from-qt3ds/33-see-qml-stream-component-in-myqmlcomponents.png "QML stream in My QML Components"
+
+    \li Drag and drop the QML stream component to MyOwnCluster in \uicontrol
+        Navigator.
+        \image exporting-from-qt3ds/34-drag-to-myowncluster-in-navigator.png "Drag the QML stream component to MyOwnCluster"
+
+    \li Go to the \uicontrol States view and use the \uicontrol Visibility tab
+        in the \uicontrol Properties view to make the QML stream component
+        visible only in the correct state.
+        \image exporting-from-qt3ds/35-visible-states.png "Make components visible in correct states"
+
+    \li Next, recreate the animations for the QML stream according to the original project.
+        \image exporting-from-qt3ds/36-recreate-qml-animations.png "Recreate animations"
+
+    \li Recreate all the keyframes for the imported QML stream that is now a
+        component.
+        \image exporting-from-qt3ds/37-recreate-keyframes.png "Recreate keyframes"
+    \endlist
+
+    \section2 Cleaning Up the Project Structure
+
+    \list 1
+    \li Go to file explorer and clean up the project structure deleting
+        the folder and files that are not used in the \QDS project.
+        \image exporting-from-qt3ds/38-delete-unnecessary-folders.png "Delete folders in file explorer"
+
+    \li Individual files can also be deleted in the \uicontrol {Projects} view
+        in \QDS. To delete a file, right-click on it, select  \uicontrol
+        {Delete File}, and then select \uicontrol Yes.
+        \image exporting-from-qt3ds/39-delete-individual-files-in-qds.png "Delete individual files"
+
+    \li This is the project structure after clean-up.
+        \image exporting-from-qt3ds/40-done.png "Project structure after clean-up"
+    \endlist
+
+    \section2 Finished
+
+    You have now converted your \Q3DS project to \QDS.
+        \image exporting-from-qt3ds/41-finished-qds-project.png
+*/
