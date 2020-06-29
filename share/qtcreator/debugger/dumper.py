@@ -1336,7 +1336,10 @@ class DumperBase():
             return
 
         displayFormat = self.currentItemFormat(value.type.name)
+
         innerType = value.type.target()  # .unqualified()
+        if innerType.code == TypeCode.Typedef:
+            innerType = innerType.ltarget
 
         if innerType.name == 'void':
             #DumperBase.warn('VOID POINTER: %s' % displayFormat)

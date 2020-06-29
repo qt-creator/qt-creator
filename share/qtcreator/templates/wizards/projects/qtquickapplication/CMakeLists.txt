@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.14)
 
 project(%{ProjectName} LANGUAGES CXX)
 
@@ -25,11 +25,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #endif()
 
 @if %{HasTranslation}
-find_package(Qt5 COMPONENTS Core Quick LinguistTools REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Quick LinguistTools REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick LinguistTools REQUIRED)
 
 set(TS_FILES %{TsFileName})
 @else
-find_package(Qt5 COMPONENTS Core Quick REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Quick REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick REQUIRED)
 @endif
 
 if(ANDROID)
@@ -53,7 +55,7 @@ endif()
 target_compile_definitions(%{ProjectName}
   PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(%{ProjectName}
-  PRIVATE Qt5::Core Qt5::Quick)
+  PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Quick)
 @if %{HasTranslation}
 
 qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
