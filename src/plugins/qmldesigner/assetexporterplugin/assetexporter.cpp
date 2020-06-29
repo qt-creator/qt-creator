@@ -116,15 +116,17 @@ void AssetExporter::exportQml(const Utils::FilePaths &qmlFiles, const Utils::Fil
     ExportNotification::addInfo(tr("Exporting metadata at %1. Export assets: ")
                                 .arg(exportPath.toUserOutput())
                                 .arg(exportAssets? tr("Yes") : tr("No")));
-    // TODO Asset export
     notifyProgress(0.0);
-    Q_UNUSED(exportAssets);
     m_exportFiles = qmlFiles;
+    m_totalFileCount = m_exportFiles.count();
     m_components = QJsonArray();
     m_exportPath = exportPath;
     m_currentState.change(ParsingState::Parsing);
     triggerLoadNextFile();
-    m_assetDumper = make_unique<AssetDumper>();
+    if (exportAssets)
+        m_assetDumper = make_unique<AssetDumper>();
+    else
+        m_assetDumper.reset();
 }
 
 void AssetExporter::cancel()
@@ -159,6 +161,7 @@ void AssetExporter::exportComponent(const ModelNode &rootNode)
     Component exporter(*this, rootNode);
     exporter.exportComponent();
     m_components.append(exporter.json());
+    notifyProgress((m_totalFileCount - m_exportFiles.count()) * 0.8 / m_totalFileCount);
 }
 
 void AssetExporter::notifyLoadError(AssetExporterView::LoadState state)

@@ -35,6 +35,7 @@
 #include "utils/fileutils.h"
 #include "utils/outputformatter.h"
 
+#include <QCheckBox>
 #include <QPushButton>
 #include <QListView>
 #include <QPlainTextEdit>
@@ -85,6 +86,15 @@ AssetExportDialog::AssetExportDialog(const Utils::FilePath &exportPath,
     m_ui->exportPath->addButton(tr("Open"), this, [this]() {
         Core::FileUtils::showInGraphicalShell(Core::ICore::mainWindow(), m_ui->exportPath->path());
     });
+
+    auto optionsWidget = new QWidget;
+    m_ui->advancedOptions->setSummaryText(tr("Advanced Options"));
+    m_ui->advancedOptions->setWidget(optionsWidget);
+    auto optionsLayout = new QHBoxLayout(optionsWidget);
+    optionsLayout->setMargin(8);
+    m_exportAssetsCheck = new QCheckBox(tr("Export assets"), this);
+    m_exportAssetsCheck->setChecked(true);
+    optionsLayout->addWidget(m_exportAssetsCheck);
 
     m_ui->buttonBox->button(QDialogButtonBox::Cancel)->setEnabled(false);
 
@@ -138,7 +148,8 @@ void AssetExportDialog::onExport()
     TaskHub::clearTasks(Constants::TASK_CATEGORY_ASSET_EXPORT);
     m_exportLogs->clear();
 
-    m_assetExporter.exportQml(m_filePathModel.files(), m_ui->exportPath->fileName());
+    m_assetExporter.exportQml(m_filePathModel.files(), m_ui->exportPath->fileName(),
+                              m_exportAssetsCheck->isChecked());
 }
 
 void AssetExportDialog::onExportStateChanged(AssetExporter::ParsingState newState)

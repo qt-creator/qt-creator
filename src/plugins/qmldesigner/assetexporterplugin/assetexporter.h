@@ -100,6 +100,7 @@ private:
     ProjectExplorer::Project *m_project = nullptr;
     AssetExporterView *m_view = nullptr;
     Utils::FilePaths m_exportFiles;
+    unsigned int m_totalFileCount = 0;
     Utils::FilePath m_exportPath;
     QJsonArray m_components;
     QSet<QByteArray> m_usedHashes;
