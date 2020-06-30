@@ -350,13 +350,18 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     sdkMangerLayout->setContentsMargins(0, 0, 0, 0);
     sdkMangerLayout->addWidget(m_sdkManagerWidget);
     connect(m_sdkManagerWidget, &AndroidSdkManagerWidget::updatingSdk, [this] {
-        m_ui.SDKLocationPathChooser->setEnabled(false);
-        // Disable the tab bar to restrict the user moving away from sdk manager tab untill
-        // operations finish.
+        // Disable the top level UI to keep the user from unintentionally interrupting operations
+        m_ui.javaSettingsGroupBox->setEnabled(false);
+        m_ui.androidSettingsGroupBox->setEnabled(false);
+        m_ui.androidOpenSSLSettingsGroupBox->setEnabled(false);
+        m_ui.CreateKitCheckBox->setEnabled(false);
         m_ui.managerTabWidget->tabBar()->setEnabled(false);
     });
     connect(m_sdkManagerWidget, &AndroidSdkManagerWidget::updatingSdkFinished, [this] {
-        m_ui.SDKLocationPathChooser->setEnabled(true);
+        m_ui.javaSettingsGroupBox->setEnabled(true);
+        m_ui.androidSettingsGroupBox->setEnabled(true);
+        m_ui.androidOpenSSLSettingsGroupBox->setEnabled(true);
+        m_ui.CreateKitCheckBox->setEnabled(true);
         m_ui.managerTabWidget->tabBar()->setEnabled(true);
     });
     connect(m_sdkManagerWidget, &AndroidSdkManagerWidget::licenseWorkflowStarted, [this] {
