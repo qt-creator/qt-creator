@@ -57,12 +57,12 @@
 
     To close groups of views, select the \uicontrol {Close Group} button.
 
-    To open closed views, select \uicontrol Window > \uicontrol Views.
+    To open closed views, select \uicontrol View > \uicontrol Views.
 
     \section1 Saving Workspaces
 
     The changes you make to a workspace are saved when you exit \QC.
-    In \QMLD, you can select \uicontrol Window > \uicontrol Workspaces >
+    In \QMLD, you can select \uicontrol View > \uicontrol Workspaces >
     \uicontrol Manage > \uicontrol {Restore last workspace on startup}
     to restore the current workspace the next time you start \QC.
 

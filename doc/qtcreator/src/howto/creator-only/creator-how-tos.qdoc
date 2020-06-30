@@ -135,8 +135,9 @@
     \endlist
 
     To open the other output panes, such as \uicontrol{General Messages} and
-    \uicontrol{Version Control}, select \uicontrol Window > \uicontrol {Output Panes}. The menu
-    items also display the keyboard shortcuts that you can use.
+    \uicontrol{Version Control}, select \uicontrol View >
+    \uicontrol {Output Panes}. The menu items also display
+    the keyboard shortcuts that you can use.
 
     For more information about output panes, see \l{Viewing Output}.
 

@@ -130,7 +130,7 @@
     \endlist
 
     The \uicontrol{Version Control} output pane displays the commands that are
-    executed, a timestamp, and the relevant output. Select \uicontrol Window >
+    executed, a timestamp, and the relevant output. Select \uicontrol View >
     \uicontrol {Output Panes} > \uicontrol {Version Control} to open the pane.
 
     \image qtcreator-vcs-pane.png

@@ -234,7 +234,7 @@
 
     When the application is interrupted by a breakpoint, you can use the
     \uicontrol {QML Debugger Console} to execute JavaScript expressions in the
-    current context. To open it, choose \uicontrol Window >
+    current context. To open it, choose \uicontrol View >
     \uicontrol {Output Panes} > \uicontrol {QML Debugger Console}.
 
     \image qml-script-console.png "QML Debugger Console"

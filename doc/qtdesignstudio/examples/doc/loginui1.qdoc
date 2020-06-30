@@ -133,7 +133,7 @@
     \uicontrol Projects view to open it.
 
     \note The visibility of views depends on the selected workspace. To open
-    hidden views, select \uicontrol Window > \uicontrol Views in the Design
+    hidden views, select \uicontrol View > \uicontrol Views in the Design
     mode. For more information, see \l {Managing Workspaces}.
 
     To modify \e Screen01.ui.qml in \uicontrol {Form Editor}:

@@ -135,7 +135,7 @@
     To add a timeline with settings for running the animation:
 
     \list 1
-            \li Select \uicontrol Window > \uicontrol Views >
+            \li Select \uicontrol View > \uicontrol Views >
             \uicontrol Timeline to open the \uicontrol Timeline view.
         \li In \uicontrol Timeline, select \inlineimage plus.png
             to add a 1000-frame timeline and settings for running the animation.
