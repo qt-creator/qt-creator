@@ -42,7 +42,7 @@ const QHash<QString, QString> AlignMapping{
 
 QString toJsonAlignEnum(QString value) {
     if (value.isEmpty() || !AlignMapping.contains(value))
-        return "";
+        return {};
     return AlignMapping[value];
 }
 }
