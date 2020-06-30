@@ -313,7 +313,8 @@ void AndroidSdkModel::selectMissingEssentials()
     }
 
     m_missingEssentials = pendingPkgs;
-    qCDebug(androidSdkModelLog) << "Couldn't find some essential packages:" << m_missingEssentials;
+    if (!m_missingEssentials.isEmpty())
+        qCDebug(androidSdkModelLog) << "Couldn't find some essential packages:" << m_missingEssentials;
 }
 
 QList<const AndroidSdkPackage *> AndroidSdkModel::userSelection() const

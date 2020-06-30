@@ -130,6 +130,10 @@ void watcherDeleter(QFutureWatcher<void> *watcher)
     delete watcher;
 }
 
+static QString sdkRootArg(const AndroidConfig &config)
+{
+    return "--sdk_root=" + config.sdkLocation().toString();
+}
 /*!
     Runs the \c sdkmanger tool with arguments \a args. Returns \c true if the command is
     successfully executed. Output is copied into \a output. The function blocks the calling thread.
@@ -137,13 +141,16 @@ void watcherDeleter(QFutureWatcher<void> *watcher)
 static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &args,
                               QString *output, int timeout = sdkManagerCmdTimeoutS)
 {
+    QStringList newArgs = args;
+    newArgs.append(sdkRootArg(config));
     qCDebug(sdkManagerLog) << "Running SDK Manager command (sync):"
-                           << CommandLine(config.sdkManagerToolPath(), args).toUserOutput();
+                           << CommandLine(config.sdkManagerToolPath(), newArgs)
+                                  .toUserOutput();
     SynchronousProcess proc;
     proc.setProcessEnvironment(AndroidConfigurations::toolsEnvironment(config));
     proc.setTimeoutS(timeout);
     proc.setTimeOutMessageBoxEnabled(true);
-    SynchronousProcessResponse response = proc.run({config.sdkManagerToolPath(), args});
+    SynchronousProcessResponse response = proc.run({config.sdkManagerToolPath(), newArgs});
     if (output)
         *output = response.allOutput();
     return response.result == SynchronousProcessResponse::Finished;
@@ -160,8 +167,10 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
                               AndroidSdkManager::OperationOutput &output, double progressQuota,
                               bool interruptible = true, int timeout = sdkManagerOperationTimeoutS)
 {
+    QStringList newArgs = args;
+    newArgs.append(sdkRootArg(config));
     qCDebug(sdkManagerLog) << "Running SDK Manager command (async):"
-                           << CommandLine(config.sdkManagerToolPath(), args).toUserOutput();
+                           << CommandLine(config.sdkManagerToolPath(), newArgs).toUserOutput();
     int offset = fi.progressValue();
     SynchronousProcess proc;
     proc.setProcessEnvironment(AndroidConfigurations::toolsEnvironment(config));
@@ -184,7 +193,7 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
         QObject::connect(&sdkManager, &AndroidSdkManager::cancelActiveOperations,
                          &proc, &SynchronousProcess::terminate);
     }
-    SynchronousProcessResponse response = proc.run({config.sdkManagerToolPath(), args});
+    SynchronousProcessResponse response = proc.run({config.sdkManagerToolPath(), newArgs});
     if (assertionFound) {
         output.success = false;
         output.stdOutput = response.stdOut();
@@ -1011,7 +1020,7 @@ void AndroidSdkManagerPrivate::checkPendingLicense(SdkCmdFutureInterface &fi)
     fi.setProgressValue(0);
     AndroidSdkManager::OperationOutput result;
     result.type = AndroidSdkManager::LicenseCheck;
-    QStringList args("--licenses");
+    const QStringList args = {"--licenses", sdkRootArg(m_config)};
     if (!fi.isCanceled())
         sdkManagerCommand(m_config, args, m_sdkManager, fi, result, 100.0);
     else
@@ -1030,7 +1039,7 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdFutureInterface &fi)
     QtcProcess licenseCommand;
     licenseCommand.setProcessEnvironment(AndroidConfigurations::toolsEnvironment(m_config));
     bool reviewingLicenses = false;
-    licenseCommand.setCommand(CommandLine(m_config.sdkManagerToolPath(), {"--licenses"}));
+    licenseCommand.setCommand(CommandLine(m_config.sdkManagerToolPath(), {"--licenses", sdkRootArg(m_config)}));
     if (Utils::HostOsInfo::isWindowsHost())
         licenseCommand.setUseCtrlCStub(true);
     licenseCommand.start();
