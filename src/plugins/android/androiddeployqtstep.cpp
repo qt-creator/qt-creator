@@ -163,8 +163,12 @@ Core::Id AndroidDeployQtStep::stepId()
 bool AndroidDeployQtStep::init()
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target()->kit());
-    if (!version) // TODO: Add error message
+    if (!version) {
+        qCDebug(deployStepLog,
+                "The Qt version for kit %s is not valid.",
+                qPrintable(target()->kit()->displayName()));
         return false;
+    }
 
     m_androiddeployqtArgs = CommandLine();
 
