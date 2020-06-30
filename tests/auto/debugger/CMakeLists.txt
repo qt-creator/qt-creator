@@ -7,6 +7,7 @@ add_qtc_test(tst_debugger_disassembler
     "${DEBUGGERDIR}/disassemblerlines.cpp" "${DEBUGGERDIR}/disassemblerlines.h"
 )
 
+option(WITH_DEBUGGER_DUMPERS "Include tests for debugger pretty printers" OFF)
 if (WITH_DEBUGGER_DUMPERS)
   add_qtc_test(tst_debugger_dumpers
     TIMEOUT 0
