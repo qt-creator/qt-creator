@@ -200,7 +200,7 @@ QList<ProjectExplorer::BuildTargetInfo> MesonProjectParser::appsTargets() const
     QList<ProjectExplorer::BuildTargetInfo> apps;
     std::for_each(std::cbegin(m_parserResult.targets),
                   std::cend(m_parserResult.targets),
-                  [&apps, &srcDir = m_srcDir](const Target &target) {
+                  [&apps, srcDir = m_srcDir](const Target &target) {
                       if (target.type == Target::Type::executable) {
                           ProjectExplorer::BuildTargetInfo bti;
                           bti.displayName = target.name;
