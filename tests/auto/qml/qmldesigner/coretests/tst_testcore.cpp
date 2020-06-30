@@ -4255,7 +4255,7 @@ void tst_TestCore::testMetaInfoSimpleType()
     QCOMPARE(itemMetaInfo.superClasses().size(), 2); // Item, QtQuick.QtObject
     QVERIFY(itemMetaInfo.isSubclassOf("QtQuick.Item", -1, -1));
     QVERIFY(itemMetaInfo.isSubclassOf("<cpp>.QObject", -1, -1));
-    QVERIFY(itemMetaInfo.isSubclassOf("QtQuick.QtObject", -1, -1));
+    QVERIFY(itemMetaInfo.isSubclassOf("QtQml.QtObject", -1, -1));
 
     // availableInVersion
     QVERIFY(itemMetaInfo.availableInVersion(2, 2));
