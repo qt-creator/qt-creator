@@ -543,15 +543,60 @@ Item {
             MouseArea {
                 anchors.fill: parent
                 acceptedButtons: Qt.LeftButton
-                onClicked: {
+                hoverEnabled: false
+
+                property MouseArea3D freeDraggerArea
+                property point pressPoint
+                property bool initialMoveBlock: false
+
+                onPressed: {
                     if (viewRoot.editView) {
                         var pickResult = viewRoot.editView.pick(mouse.x, mouse.y);
                         handleObjectClicked(_generalHelper.resolvePick(pickResult.objectHit),
                                             mouse.modifiers & Qt.ControlModifier);
-                        if (!pickResult.objectHit)
+
+                        if (pickResult.objectHit) {
+                            if (transformMode === EditView3D.TransformMode.Move)
+                                freeDraggerArea = moveGizmo.freeDraggerArea;
+                            else if (transformMode === EditView3D.TransformMode.Rotate)
+                                freeDraggerArea = rotateGizmo.freeDraggerArea;
+                            else if (transformMode === EditView3D.TransformMode.Scale)
+                                freeDraggerArea = scaleGizmo.freeDraggerArea;
+                            pressPoint.x = mouse.x;
+                            pressPoint.y = mouse.y;
+                            initialMoveBlock = true;
+                        } else {
                             mouse.accepted = false;
+                        }
                     }
                 }
+                onPositionChanged: {
+                    if (freeDraggerArea) {
+                        if (initialMoveBlock && Math.abs(pressPoint.x - mouse.x) + Math.abs(pressPoint.y - mouse.y) > 10) {
+                            // Don't force press event at actual press, as that puts the gizmo
+                            // in free-dragging state, which is bad UX if drag is not actually done
+                            freeDraggerArea.forcePressEvent(pressPoint.x, pressPoint.y);
+                            freeDraggerArea.forceMoveEvent(mouse.x, mouse.y);
+                            initialMoveBlock = false;
+                        } else {
+                            freeDraggerArea.forceMoveEvent(mouse.x, mouse.y);
+                        }
+                    }
+                }
+
+                function handleRelease(mouse)
+                {
+                    if (freeDraggerArea) {
+                        if (initialMoveBlock)
+                            freeDraggerArea.forceReleaseEvent(pressPoint.x, pressPoint.y);
+                        else
+                            freeDraggerArea.forceReleaseEvent(mouse.x, mouse.y);
+                        freeDraggerArea = null;
+                    }
+                }
+
+                onReleased: handleRelease(mouse)
+                onCanceled: handleRelease(mouse)
             }
 
             DropArea {

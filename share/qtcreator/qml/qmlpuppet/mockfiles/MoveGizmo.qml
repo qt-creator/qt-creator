@@ -38,6 +38,7 @@ Node {
                                      || planeX.dragging || planeY.dragging || planeZ.dragging
                                      || centerBall.dragging
     property MouseArea3D dragHelper: null
+    property alias freeDraggerArea: centerBall.mouseArea
 
     position: dragHelper.pivotScenePosition(targetNode)
 

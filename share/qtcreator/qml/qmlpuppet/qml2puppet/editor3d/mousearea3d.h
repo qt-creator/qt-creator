@@ -116,6 +116,10 @@ public slots:
     Q_INVOKABLE QVector3D pivotScenePosition(QQuick3DNode *node) const;
     Q_INVOKABLE double getRelativeScale(QQuick3DNode *node) const;
 
+    Q_INVOKABLE void forcePressEvent(double x, double y);
+    Q_INVOKABLE void forceMoveEvent(double x, double y);
+    Q_INVOKABLE void forceReleaseEvent(double x, double y);
+
 signals:
     void view3DChanged();
 
@@ -171,6 +175,7 @@ private:
     qreal m_minAngle = 0.;
     QQuick3DNode *m_pickNode = nullptr;
     MouseArea3D *m_dragHelper = nullptr;
+    bool m_forceCaptureNextPress = false;
 };
 
 }

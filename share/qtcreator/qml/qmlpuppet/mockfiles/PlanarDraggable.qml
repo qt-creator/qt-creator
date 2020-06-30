@@ -37,6 +37,7 @@ Model {
     property bool dragging: mouseArea.dragging
     property bool active: false
     property MouseArea3D dragHelper: null
+    property alias mouseArea: mouseArea
 
     readonly property bool hovering: mouseArea.hovering
 
