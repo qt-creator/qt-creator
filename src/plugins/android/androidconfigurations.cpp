@@ -31,7 +31,6 @@
 #include "androidqtversion.h"
 #include "androiddevicedialog.h"
 #include "androidsdkmanager.h"
-#include "androidtoolmanager.h"
 #include "avddialog.h"
 
 #include <coreplugin/icore.h>

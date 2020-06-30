@@ -24,8 +24,6 @@
 ****************************************************************************/
 #include "androidavdmanager.h"
 
-#include "androidtoolmanager.h"
-
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -222,7 +220,6 @@ private:
 
 AndroidAvdManager::AndroidAvdManager(const AndroidConfig &config):
     m_config(config),
-    m_androidTool(new AndroidToolManager(m_config)),
     m_parser(new AvdManagerOutputParser)
 {
 

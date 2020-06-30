@@ -103,8 +103,6 @@ Project {
             "androidsignaloperation.h",
             "androidtoolchain.cpp",
             "androidtoolchain.h",
-            "androidtoolmanager.cpp",
-            "androidtoolmanager.h",
             "avddialog.cpp",
             "avddialog.h",
             "certificatesmodel.cpp",

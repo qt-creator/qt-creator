@@ -32,7 +32,6 @@
 namespace Android {
 namespace Internal {
 
-class AndroidToolManager;
 class AvdManagerOutputParser;
 
 class AndroidAvdManager
@@ -63,7 +62,6 @@ private:
 
 private:
     const AndroidConfig &m_config;
-    std::unique_ptr<AndroidToolManager> m_androidTool;
     std::unique_ptr<AvdManagerOutputParser> m_parser;
 };
 

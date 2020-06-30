@@ -25,9 +25,9 @@
 
 #include "androidsdkmanager.h"
 
+#include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidmanager.h"
-#include "androidtoolmanager.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -48,10 +48,6 @@ static Q_LOGGING_CATEGORY(sdkManagerLog, "qtc.android.sdkManager", QtWarningMsg)
 
 namespace Android {
 namespace Internal {
-
-// Though sdk manager is introduced in 25.2.3 but the verbose mode is avaialble in 25.3.0
-// and android tool is supported in 25.2.3
-const QVersionNumber sdkManagerIntroVersion(25, 3 ,0);
 
 const char installLocationKey[] = "Installed Location:";
 const char revisionKey[] = "Version:";
@@ -916,23 +912,13 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
         return;
     }
 
-    if (m_config.sdkToolsVersion() < sdkManagerIntroVersion && !m_config.isCmdlineSdkToolsInstalled()) {
-        // Old Sdk tools.
-        m_packageListingSuccessful = true;
-        AndroidToolManager toolManager(m_config);
-        auto toAndroidSdkPackages = [](SdkPlatform *p) -> AndroidSdkPackage *{
-            return p;
-        };
-        m_allPackages = Utils::transform(toolManager.availableSdkPlatforms(), toAndroidSdkPackages);
-    } else {
-        QString packageListing;
-        QStringList args({"--list", "--verbose"});
-        args << m_config.sdkManagerToolArgs();
-        m_packageListingSuccessful = sdkManagerCommand(m_config, args, &packageListing);
-        if (m_packageListingSuccessful) {
-            SdkManagerOutputParser parser(m_allPackages);
-            parser.parsePackageListing(packageListing);
-        }
+    QString packageListing;
+    QStringList args({"--list", "--verbose"});
+    args << m_config.sdkManagerToolArgs();
+    m_packageListingSuccessful = sdkManagerCommand(m_config, args, &packageListing);
+    if (m_packageListingSuccessful) {
+        SdkManagerOutputParser parser(m_allPackages);
+        parser.parsePackageListing(packageListing);
     }
     emit m_sdkManager.packageReloadFinished();
 }
