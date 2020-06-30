@@ -97,14 +97,12 @@ def checkSymbolCompletion(editor, isClangCodeModel):
                           "dummy.o":["one", "ONE"], "Dummy::In":["Internal", "INT"],
                           "Dummy::Internal::":["DOUBLE", "one"]
                           }
-    missing = ["Dummy::s", "Dummy::P", "dummy.b", "dummy.bla(", "internal.o", "freefunc2",
-               "afun"]
+    missing = ["Dummy::s", "Dummy::P", "dummy.b", "dummy.bla(", "internal.o", "freefunc2"]
     expectedResults = {"dummy.":"dummy.foo(", "Dummy::s":"Dummy::sfunc()",
                        "Dummy::P":"Dummy::PI", "dummy.b":"dummy.bla(", "dummy.bla(":"dummy.bla(",
                        "internal.o":"internal.one", "freefunc2":"freefunc2(",
                        "using namespace st":"using namespace std", "afun":"afunc()"}
     if isClangCodeModel:
-        missing.remove("Dummy::s")    # QTCREATORBUG-22729
         missing.remove("internal.o")
         expectedSuggestion["in"] = ["internal", "int"]  #     QTCREATORBUG-22728
         expectedSuggestion["internal.o"] = ["one", "operator="]
@@ -113,7 +111,6 @@ def checkSymbolCompletion(editor, isClangCodeModel):
         else:
             expectedSuggestion["using namespace st"] = ["std", "struct ", "struct template"]
     else:
-        missing.remove("afun")
         expectedSuggestion["using namespace st"] = ["std", "st"]
     # define test function to perform the _real_ auto completion test on the current line
     def testSymb(currentLine, *args):
