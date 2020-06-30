@@ -2,7 +2,7 @@ INCLUDEPATH += ../mockup
 INCLUDEPATH += ../mockup/qmldesigner/designercore/include
 
 QT += core network testlib widgets
-CONFIG += console c++14 testcase
+CONFIG += console c++17 testcase
 CONFIG -= app_bundle shared
 
 QTC_UNITTEST_BUILD_CPP_PARSER = $$(QTC_UNITTEST_BUILD_CPP_PARSER)

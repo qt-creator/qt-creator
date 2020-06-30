@@ -81,7 +81,7 @@ QByteArray CodeStylePoolPrivate::generateUniqueId(const QByteArray &id) const
     }
 
     const QByteArray baseName = id.left(idx);
-    QByteArray newName = baseName.isEmpty() ? "codestyle" : baseName;
+    QByteArray newName = baseName.isEmpty() ? QByteArray("codestyle") : baseName;
     int i = 2;
     while (m_idToCodeStyle.contains(newName))
         newName = baseName + QByteArray::number(i++);

@@ -1426,7 +1426,7 @@ void ClangToolChain::syncAutodetectedWithParentToolchains()
 
     if (!mingwToolChainFromId(m_parentToolChainId)) {
         const QList<ToolChain *> mingwTCs = mingwToolChains();
-        m_parentToolChainId = mingwTCs.isEmpty() ? "" : mingwTCs.front()->id();
+        m_parentToolChainId = mingwTCs.isEmpty() ? QByteArray() : mingwTCs.front()->id();
     }
 
     // Subscribe only autodetected toolchains.
@@ -1445,7 +1445,7 @@ void ClangToolChain::syncAutodetectedWithParentToolchains()
                   QObject::disconnect(m_mingwToolchainAddedConnection);
               } else if (m_parentToolChainId == tc->id()) {
                   const QList<ToolChain *> mingwTCs = mingwToolChains();
-                  m_parentToolChainId = mingwTCs.isEmpty() ? "" : mingwTCs.front()->id();
+                  m_parentToolChainId = mingwTCs.isEmpty() ? QByteArray() : mingwTCs.front()->id();
               }
           });
 }
@@ -1713,8 +1713,8 @@ void ClangToolChainConfigWidget::updateParentToolChainComboBox()
     const MingwToolChain *parentTC = mingwToolChainFromId(parentId);
 
     m_parentToolchainCombo->clear();
-    m_parentToolchainCombo->addItem(parentTC ? parentTC->displayName() : "",
-                                    parentTC ? parentId : "");
+    m_parentToolchainCombo->addItem(parentTC ? parentTC->displayName() : QString(),
+                                    parentTC ? parentId : QByteArray());
 
     if (tc->isAutoDetected())
         return;
@@ -1766,7 +1766,7 @@ bool ClangToolChainConfigWidget::isDirtyImpl() const
     auto tc = static_cast<ClangToolChain *>(toolChain());
     Q_ASSERT(tc);
     const MingwToolChain *parentTC = mingwToolChainFromId(tc->m_parentToolChainId);
-    const QByteArray parentId = parentTC ? parentTC->id() : "";
+    const QByteArray parentId = parentTC ? parentTC->id() : QByteArray();
     return parentId != m_parentToolchainCombo->currentData();
 }
 

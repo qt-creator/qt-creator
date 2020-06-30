@@ -547,4 +547,8 @@ PrepareRenameResult::PrepareRenameResult(const QJsonValue &val)
     }
 }
 
+SemanticHighlightNotification::SemanticHighlightNotification(const SemanticHighlightingParams &params)
+    : Notification(methodName, params)
+{}
+
 } // namespace LanguageServerProtocol

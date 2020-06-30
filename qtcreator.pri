@@ -7,7 +7,7 @@ include($$PWD/qtcreator_ide_branding.pri)
 PRODUCT_BUNDLE_IDENTIFIER=$${PRODUCT_BUNDLE_ORGANIZATION}.$${IDE_ID}
 VERSION = $$QTCREATOR_VERSION
 
-CONFIG += c++14
+CONFIG += c++17
 
 defineReplace(qtLibraryTargetName) {
    unset(LIBRARY_NAME)

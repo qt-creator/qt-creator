@@ -52,7 +52,7 @@ Product {
         return flags;
     }
 
-    cpp.cxxLanguageVersion: "c++14"
+    cpp.cxxLanguageVersion: "c++17"
     cpp.defines: qtc.generalDefines
     cpp.minimumWindowsVersion: "6.1"
     cpp.useCxxPrecompiledHeader: useNonGuiPchFile || useGuiPchFile

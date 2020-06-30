@@ -29,7 +29,10 @@
     See std(::experimental)::variant.
 */
 
-#if __cplusplus >= 201703L
+// std::variant from Apple's Clang supports methods that throw std::bad_optional_access only
+// with deployment target >= macOS 10.14
+// TODO: Use std::variant everywhere when we can require macOS 10.14
+#if !defined(__apple_build_version__)
 #include <variant>
 
 namespace Utils {

@@ -31,11 +31,11 @@ Prerequisites:
 * Qt WebEngine module for QtWebEngine based help viewer
 * On Windows:
     * ActiveState Active Perl
-    * MinGW with g++ 5.3 or Visual Studio 2017 or later
+    * MinGW with GCC 7 or Visual Studio 2017 or later
     * jom
     * Python 3.5 or later (optional, needed for the python enabled debug helper)
 * On Mac OS X: latest Xcode
-* On Linux: g++ 5.3 or later
+* On Linux: GCC 7 or later
 * LLVM/Clang 8.0.0 or later (optional, needed for the Clang Code Model, Clang Tools, ClangFormat,
   Clang PCH Manager and Clang Refactoring plugins, see the section
   "Get LLVM/Clang for the Clang Code Model". The LLVM C++ API provides no compatibility garantee,
