@@ -830,7 +830,7 @@ void AndroidSettingsWidget::updateUI()
 
     const QListWidgetItem *currentItem = m_ui.ndkListWidget->currentItem();
     const FilePath currentNdk = FilePath::fromString(currentItem ? currentItem->text() : "");
-    const QString infoText = tr("(SDK Version: %1, NDK Bundle Version: %2)")
+    const QString infoText = tr("(SDK Version: %1, NDK Version: %2)")
             .arg(m_androidConfig.sdkToolsVersion().toString())
             .arg(currentNdk.isEmpty() ? "" : m_androidConfig.ndkVersion(currentNdk).toString());
     m_androidSummary->setInfoText(androidSetupOk ? infoText : "");
