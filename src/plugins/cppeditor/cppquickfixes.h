@@ -438,6 +438,21 @@ public:
 };
 
 /*!
+  Adds getter and setter functions for several member variables
+ */
+class GenerateGettersSettersForClass : public CppQuickFixFactory
+{
+protected:
+    void setTest() { m_test = true; }
+
+private:
+    void match(const CppQuickFixInterface &interface,
+               TextEditor::QuickFixOperations &result) override;
+
+    bool m_test = false;
+};
+
+/*!
   Adds missing members for a Q_PROPERTY
  */
 class InsertQtPropertyMembers : public CppQuickFixFactory

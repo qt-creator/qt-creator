@@ -2249,6 +2249,97 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_offerSetterWhenGetterPr
     QuickFixOperationTest(testDocuments, &factory);
 }
 
+void CppEditorPlugin::test_quickfix_GenerateGettersSetters_data()
+{
+    QTest::addColumn<QByteArray>("original");
+    QTest::addColumn<QByteArray>("expected");
+
+    const QByteArray noCandidates = R"(
+class @Foo {
+public:
+    int bar() const;
+    void setBar(int bar);
+private:
+    int m_bar;
+};)";
+    QTest::addRow("without candidates") << noCandidates << QByteArray();
+
+    const QByteArray withCandidates = R"(
+class @Foo {
+public:
+    int bar() const;
+    void setBar(int bar) { m_bar = bar; }
+
+    int getBar2() const;
+
+    int m_alreadyPublic;
+
+private:
+    friend void distraction();
+    class AnotherDistraction {};
+    enum EvenMoreDistraction { val1, val2 };
+
+    int m_bar;
+    int bar2_;
+    QString bar3;
+};)";
+    const QByteArray after = R"(
+class Foo {
+public:
+    int bar() const;
+    void setBar(int bar) { m_bar = bar; }
+
+    int getBar2() const;
+
+    int m_alreadyPublic;
+
+    void setBar2(int bar2);
+
+    QString getBar3() const;
+    void setBar3(const QString &value);
+
+private:
+    friend void distraction();
+    class AnotherDistraction {};
+    enum EvenMoreDistraction { val1, val2 };
+
+    int m_bar;
+    int bar2_;
+    QString bar3;
+};
+void Foo::setBar2(int bar2)
+{
+    bar2_ = bar2;
+}
+
+QString Foo::getBar3() const
+{
+    return bar3;
+}
+
+void Foo::setBar3(const QString &value)
+{
+    bar3 = value;
+}
+)";
+    QTest::addRow("with candidates") << withCandidates << after;
+}
+
+void CppEditorPlugin::test_quickfix_GenerateGettersSetters()
+{
+    class TestFactory : public GenerateGettersSettersForClass
+    {
+    public:
+        TestFactory() { setTest(); }
+    };
+
+    QFETCH(QByteArray, original);
+    QFETCH(QByteArray, expected);
+
+    TestFactory factory;
+    QuickFixOperationTest({QuickFixTestDocument::create("file.h", original, expected)}, &factory);
+}
+
 /// Check if definition is inserted right after class for insert definition outside
 void CppEditorPlugin::test_quickfix_InsertDefFromDecl_afterClass()
 {

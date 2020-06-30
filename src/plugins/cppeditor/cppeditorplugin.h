@@ -108,6 +108,8 @@ private slots:
     void test_quickfix_GenerateGetterSetter_onlySetter();
     void test_quickfix_GenerateGetterSetter_offerGetterWhenSetterPresent();
     void test_quickfix_GenerateGetterSetter_offerSetterWhenGetterPresent();
+    void test_quickfix_GenerateGettersSetters_data();
+    void test_quickfix_GenerateGettersSetters();
 
     void test_quickfix_ConvertQt4Connect_connectOutOfClass();
     void test_quickfix_ConvertQt4Connect_connectWithinClass_data();

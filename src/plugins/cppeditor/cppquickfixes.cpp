@@ -59,12 +59,16 @@
 #include <projectexplorer/projecttree.h>
 
 #include <utils/algorithm.h>
+#include <utils/basetreeview.h>
 #include <utils/fancylineedit.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/treemodel.h>
 
 #include <QApplication>
+#include <QCheckBox>
 #include <QComboBox>
+#include <QDialog>
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QFileInfo>
@@ -76,11 +80,13 @@
 #include <QStack>
 #include <QTextCursor>
 #include <QTextCodec>
+#include <QVBoxLayout>
 
 #include <bitset>
 #include <cctype>
 #include <functional>
 #include <limits>
+#include <vector>
 
 using namespace CPlusPlus;
 using namespace CppTools;
@@ -3103,16 +3109,6 @@ public:
         updateDescriptionAndPriority();
     }
 
-    bool generateGetter() const
-    {
-        return (m_type == GetterSetterType || m_type == GetterType);
-    }
-
-    bool generateSetter() const
-    {
-        return (m_type == GetterSetterType || m_type == SetterType);
-    }
-
     void determineGetterSetterNames()
     {
         m_baseName = memberBaseName(m_variableString);
@@ -3169,13 +3165,21 @@ public:
             && m_offerQuickFix;
     }
 
-    void perform() override
+    static void addGetterAndOrSetter(
+            const CppQuickFixInterface *quickFix,
+            Symbol *symbol,
+            const ClassSpecifierAST *classSpecifier,
+            const QString &rawName,
+            const QString &baseName,
+            const QString &getterName,
+            const QString &setterName,
+            OperationType op)
     {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(fileName());
+        CppRefactoringChanges refactoring(quickFix->snapshot());
+        CppRefactoringFilePtr currentFile = refactoring.file(quickFix->fileName());
 
-        QTC_ASSERT(m_symbol, return);
-        FullySpecifiedType fullySpecifiedType = m_symbol->type();
+        QTC_ASSERT(symbol, return);
+        FullySpecifiedType fullySpecifiedType = symbol->type();
         Type *type = fullySpecifiedType.type();
         QTC_ASSERT(type, return);
         Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
@@ -3184,7 +3188,7 @@ public:
         oo.showArgumentNames = true;
         const QString typeString = oo.prettyType(fullySpecifiedType);
 
-        const NameAST *classNameAST = m_classSpecifier->name;
+        const NameAST *classNameAST = classSpecifier->name;
         QTC_ASSERT(classNameAST, return);
         const Name *className = classNameAST->name;
         QTC_ASSERT(className, return);
@@ -3201,12 +3205,11 @@ public:
 
         InsertionPointLocator locator(refactoring);
         InsertionLocation declLocation = locator.methodDeclarationInClass
-            (declFileName, m_classSpecifier->symbol->asClass(), InsertionPointLocator::Public);
+            (declFileName, classSpecifier->symbol->asClass(), InsertionPointLocator::Public);
 
         const bool passByValue = type->isIntegerType() || type->isFloatType()
                 || type->isPointerType() || type->isEnumType();
-        const QString paramName = m_baseName != m_variableString
-            ? m_baseName : QLatin1String("value");
+        const QString paramName = baseName != rawName ? baseName : QLatin1String("value");
         QString paramString;
         if (passByValue) {
             paramString = oo.prettyType(fullySpecifiedType, paramName);
@@ -3220,7 +3223,7 @@ public:
             paramString = oo.prettyType(referenceToConstParamType, paramName);
         }
 
-        const bool isStatic = m_symbol->storage() == Symbol::Static;
+        const bool isStatic = symbol->storage() == Symbol::Static;
 
         // Construct declaration strings
         QString declaration = declLocation.prefix();
@@ -3231,15 +3234,18 @@ public:
             getterTypeString = oo.prettyType(getterType);
         }
 
-        const QString declarationGetterTypeAndNameString = oo.prettyType(getterType, m_getterName);
+        const QString declarationGetterTypeAndNameString = oo.prettyType(getterType, getterName);
         const QString declarationGetter = QString::fromLatin1("%1%2()%3;\n")
                                               .arg(isStatic ? QLatin1String("static ") : QString(),
                                                    declarationGetterTypeAndNameString,
                                                    isStatic ? QString() : QLatin1String(" const"));
         const QString declarationSetter = QString::fromLatin1("%1void %2(%3);\n")
                                               .arg(isStatic ? QLatin1String("static ") : QString(),
-                                                   m_setterName,
+                                                   setterName,
                                                    paramString);
+
+        const auto generateGetter = [op] { return op == GetterSetterType || op == GetterType; };
+        const auto generateSetter = [op] { return op == GetterSetterType || op == SetterType; };
 
         if (generateGetter())
             declaration += declarationGetter;
@@ -3249,22 +3255,22 @@ public:
 
         // Construct implementation strings
         const QString implementationGetterTypeAndNameString = oo.prettyType(
-            getterType, QString::fromLatin1("%1::%2").arg(classString, m_getterName));
+            getterType, QString::fromLatin1("%1::%2").arg(classString, getterName));
         const QString implementationGetter = QString::fromLatin1("%1()%2\n"
                                                                  "{\n"
                                                                  "return %3;\n"
                                                                  "}")
                                                  .arg(implementationGetterTypeAndNameString,
                                                       isStatic ? QString() : QLatin1String(" const"),
-                                                      m_variableString);
+                                                      rawName);
         const QString implementationSetter = QString::fromLatin1("void %1::%2(%3)\n"
                                                                  "{\n"
                                                                  "%4 = %5;\n"
                                                                  "}")
                                                  .arg(classString,
-                                                      m_setterName,
+                                                      setterName,
                                                       paramString,
-                                                      m_variableString,
+                                                      rawName,
                                                       paramName);
 
         QString implementation;
@@ -3283,15 +3289,18 @@ public:
         currChanges.insert(declInsertPos, declaration);
 
         if (sameFile) {
-            InsertionLocation loc = insertLocationForMethodDefinition(m_symbol, false, refactoring,
+            InsertionLocation loc = insertLocationForMethodDefinition(symbol, false, refactoring,
                                                                       currentFile->fileName());
             implementation = loc.prefix() + implementation + loc.suffix();
-            currChanges.insert(currentFile->position(loc.line(), loc.column()), implementation);
+            const int implInsertPos = currentFile->position(loc.line(), loc.column());
+            currChanges.insert(implInsertPos, implementation);
+            currentFile->appendIndentRange(
+                ChangeSet::Range(implInsertPos, implInsertPos + implementation.size()));
         } else {
-            CppRefactoringChanges implRef(snapshot());
+            CppRefactoringChanges implRef(quickFix->snapshot());
             CppRefactoringFilePtr implFile = implRef.file(implFileName);
             ChangeSet implChanges;
-            InsertionLocation loc = insertLocationForMethodDefinition(m_symbol, false,
+            InsertionLocation loc = insertLocationForMethodDefinition(symbol, false,
                                                                       implRef, implFileName);
             implementation = loc.prefix() + implementation + loc.suffix();
             const int implInsertPos = implFile->position(loc.line(), loc.column());
@@ -3305,6 +3314,12 @@ public:
         currentFile->appendIndentRange(
             ChangeSet::Range(declInsertPos, declInsertPos + declaration.size()));
         currentFile->apply();
+    }
+
+    void perform() override
+    {
+        addGetterAndOrSetter(this, m_symbol, m_classSpecifier, m_variableString, m_baseName,
+                             m_getterName, m_setterName, m_type);
     }
 
     OperationType m_type = InvalidType;
@@ -3341,6 +3356,334 @@ void GenerateGetterSetter::match(const CppQuickFixInterface &interface,
         delete op;
     }
 }
+
+class MemberInfo {
+public:
+    MemberInfo(Symbol *m, const QString &r, const QString &b, bool g, bool s)
+        : member(m), rawName(r), baseName(b), hasGetter(g), hasSetter(s) {}
+
+    Symbol *member = nullptr;
+    QString rawName;
+    QString baseName;
+    bool hasGetter = false;
+    bool hasSetter = false;
+    bool getterRequested = false;
+    bool setterRequested = false;
+};
+using GetterSetterCandidates = std::vector<MemberInfo>;
+
+class CandidateTreeItem : public Utils::TreeItem
+{
+public:
+    static const int NameColumn = 0;
+    static const int GetterColumn = 1;
+    static const int SetterColumn = 2;
+
+    CandidateTreeItem(MemberInfo *candidate) : m_candidate(candidate) { }
+
+private:
+    QVariant data(int column, int role) const override
+    {
+        switch (column) {
+        case NameColumn:
+            if (role == Qt::DisplayRole)
+                return m_candidate->rawName;
+            break;
+        case GetterColumn:
+            if (role == Qt::CheckStateRole)
+                return m_candidate->hasGetter || m_candidate->getterRequested
+                        ? Qt::Checked : Qt::Unchecked;
+            break;
+        case SetterColumn:
+            if (role == Qt::CheckStateRole)
+                return m_candidate->hasSetter || m_candidate->setterRequested ?
+                            Qt::Checked : Qt::Unchecked;
+            break;
+        }
+        return {};
+    }
+
+    bool setData(int column, const QVariant &data, int role) override
+    {
+        switch (column) {
+        case GetterColumn:
+            if (role == Qt::CheckStateRole && !m_candidate->hasGetter) {
+                m_candidate->getterRequested = data.toInt() == Qt::Checked;
+                return true;
+            }
+            break;
+        case SetterColumn:
+            if (role == Qt::CheckStateRole && !m_candidate->hasSetter) {
+                m_candidate->setterRequested = data.toInt() == Qt::Checked;
+                return true;
+            }
+            break;
+        default:
+            break;
+        }
+        return false;
+    }
+
+    Qt::ItemFlags flags(int column) const override
+    {
+        switch (column) {
+        case NameColumn:
+            return Qt::ItemIsEnabled;
+        case GetterColumn:
+            if (m_candidate->hasGetter)
+                return {};
+            return Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
+        case SetterColumn:
+            if (m_candidate->hasSetter)
+                return {};
+            return Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
+        }
+        return {};
+    }
+
+    MemberInfo * const m_candidate;
+};
+
+class GenerateGettersSettersDialog : public QDialog
+{
+    Q_DECLARE_TR_FUNCTIONS(GenerateGettersSettersDialog)
+public:
+    GenerateGettersSettersDialog(const GetterSetterCandidates &candidates)
+        : QDialog(), m_candidates(candidates)
+    {
+        setWindowTitle(tr("Getters and Setters"));
+        const auto model = new Utils::TreeModel<Utils::TreeItem, CandidateTreeItem>(this);
+        model->setHeader(QStringList({tr("Member"), tr("Getter"), tr("Setter")}));
+        for (MemberInfo &candidate : m_candidates)
+            model->rootItem()->appendChild(new CandidateTreeItem(&candidate));
+        const auto view = new Utils::BaseTreeView(this);
+        view->setModel(model);
+
+        const auto buttonBox
+                = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+        connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+        const auto setCheckStateForAll = [model](int column, int checkState) {
+            for (int i = 0; i < model->rowCount(); ++i) {
+                model->setData(model->index(i, column), checkState,
+                               Qt::CheckStateRole);
+            }
+        };
+        const auto preventPartiallyChecked = [](QCheckBox *checkbox) {
+            if (checkbox->checkState() == Qt::PartiallyChecked)
+                checkbox->setCheckState(Qt::Checked);
+        };
+
+        QCheckBox *allGettersCheckbox = nullptr;
+        if (Utils::anyOf(candidates, [](const MemberInfo &mi) { return !mi.hasGetter; })) {
+            allGettersCheckbox = new QCheckBox(tr("Create getters for all members"));
+            connect(allGettersCheckbox, &QCheckBox::stateChanged, [setCheckStateForAll](int state) {
+                if (state != Qt::PartiallyChecked)
+                    setCheckStateForAll(CandidateTreeItem::GetterColumn, state);
+            });
+            connect(allGettersCheckbox, &QCheckBox::clicked, this,
+                    [allGettersCheckbox, preventPartiallyChecked] {
+                preventPartiallyChecked(allGettersCheckbox);
+            });
+        }
+        QCheckBox *allSettersCheckbox = nullptr;
+        if (Utils::anyOf(candidates, [](const MemberInfo &mi) { return !mi.hasSetter; })) {
+            allSettersCheckbox = new QCheckBox(tr("Create setters for all members"));
+            connect(allSettersCheckbox, &QCheckBox::stateChanged, [setCheckStateForAll](int state) {
+                if (state != Qt::PartiallyChecked)
+                    setCheckStateForAll(CandidateTreeItem::SetterColumn, state);
+            });
+            connect(allSettersCheckbox, &QCheckBox::clicked, this,
+                    [allSettersCheckbox, preventPartiallyChecked] {
+                preventPartiallyChecked(allSettersCheckbox);
+            });
+        }
+        const auto hasGetterCount = Utils::count(m_candidates, [](const MemberInfo &mi) {
+            return mi.hasGetter; });
+        const auto hasSetterCount = Utils::count(m_candidates, [](const MemberInfo &mi) {
+            return mi.hasSetter; });
+        connect(model, &QAbstractItemModel::dataChanged, this,
+                [this, allGettersCheckbox, allSettersCheckbox, hasGetterCount, hasSetterCount] {
+            const int getterRequestedCount = Utils::count(m_candidates, [](const MemberInfo &mi) {
+                return mi.getterRequested; });
+            const int setterRequestedCount = Utils::count(m_candidates, [](const MemberInfo &mi) {
+                return mi.setterRequested; });
+            const auto countToState = [this](int requestedCount, int alreadyExistsCount) {
+                if (requestedCount == 0)
+                    return Qt::Unchecked;
+                if (int(m_candidates.size()) - requestedCount == alreadyExistsCount)
+                    return Qt::Checked;
+                return Qt::PartiallyChecked;
+            };
+            if (allGettersCheckbox) {
+                allGettersCheckbox->setCheckState(countToState(getterRequestedCount,
+                                                               hasGetterCount));
+            }
+            if (allSettersCheckbox) {
+                allSettersCheckbox->setCheckState(countToState(setterRequestedCount,
+                                                               hasSetterCount));
+            }
+        });
+
+        const auto mainLayout = new QVBoxLayout(this);
+        mainLayout->addWidget(new QLabel(tr("Please select the getters and/or setters "
+                                            "to be created.")));
+        if (allGettersCheckbox)
+            mainLayout->addWidget(allGettersCheckbox);
+        if (allSettersCheckbox)
+            mainLayout->addWidget(allSettersCheckbox);
+        mainLayout->addWidget(view);
+        mainLayout->addWidget(buttonBox);
+    }
+
+    GetterSetterCandidates candidates() const { return m_candidates; }
+
+private:
+    GetterSetterCandidates m_candidates;
+};
+
+class GenerateGettersSettersOperation : public CppQuickFixOperation
+{
+public:
+    GenerateGettersSettersOperation(const CppQuickFixInterface &interface)
+        : CppQuickFixOperation(interface)
+    {
+        setDescription(CppQuickFixFactory::tr("Create Getter and Setter Member Functions"));
+
+        const QList<AST *> &path = interface.path();
+        if (path.size() < 2)
+            return;
+
+        // Determine if cursor is on a class
+        const SimpleNameAST * const nameAST = path.at(path.size() - 1)->asSimpleName();
+        if (!nameAST || !interface.isCursorOn(nameAST))
+           return;
+        m_classAST = path.at(path.size() - 2)->asClassSpecifier();
+        if (!m_classAST)
+            return;
+
+        const Class * const theClass = m_classAST->symbol;
+        if (!theClass)
+            return;
+
+        // Go through all data members and try to find out whether they have getters and/or setters.
+        QList<Symbol *> dataMembers;
+        QList<Symbol *> memberFunctions;
+        for (auto it = theClass->memberBegin(); it != theClass->memberEnd(); ++it) {
+            Symbol * const s = *it;
+            if (!s->identifier() || !s->type())
+                continue;
+            if ((s->isDeclaration() && s->type()->asFunctionType()) || s->asFunction())
+                memberFunctions << s;
+            else if (s->isDeclaration() && (s->isPrivate() || s->isProtected()))
+                dataMembers << s;
+        }
+
+        for (Symbol * const member : dataMembers) {
+            const QString rawName = QString::fromUtf8(member->identifier()->chars(),
+                                                      member->identifier()->size());
+            const QString semanticName = memberBaseName(rawName);
+            const QString capitalizedSemanticName = semanticName.at(0).toUpper()
+                    + semanticName.mid(1);
+            const QStringList getterNames{semanticName, "get_" + semanticName,
+                        "get" + capitalizedSemanticName, "is_" + semanticName,
+                        "is" + capitalizedSemanticName};
+            const QStringList setterNames{"set_" + semanticName,
+                        "set" + capitalizedSemanticName};
+            const bool hasGetter = Utils::anyOf(memberFunctions, [&getterNames](const Symbol *s) {
+                const Identifier * const id = s->identifier();
+                const auto funcName = QString::fromUtf8(id->chars(), id->size());
+                return getterNames.contains(funcName);
+            });
+            const bool hasSetter = Utils::anyOf(memberFunctions, [&setterNames](const Symbol *s) {
+                const Identifier * const id = s->identifier();
+                const auto funcName = QString::fromUtf8(id->chars(), id->size());
+                return setterNames.contains(funcName);
+            });
+            if (!hasGetter || !hasSetter)
+                m_candidates.emplace_back(member, rawName, semanticName, hasGetter, hasSetter);
+        }
+    }
+
+    GetterSetterCandidates candidates() const { return m_candidates; }
+    bool isApplicable() const { return !m_candidates.empty(); }
+
+    void setGetterSetterData(const GetterSetterCandidates &data)
+    {
+        m_candidates = data;
+        m_hasData = true;
+    }
+
+private:
+    void perform() override
+    {
+        if (!m_hasData) {
+            GenerateGettersSettersDialog dlg(m_candidates);
+            if (dlg.exec() == QDialog::Rejected)
+                return;
+            m_candidates = dlg.candidates();
+        }
+
+        for (const MemberInfo &mi : m_candidates) {
+            GenerateGetterSetterOperation::OperationType op
+                    = GenerateGetterSetterOperation::InvalidType;
+            if (mi.getterRequested) {
+                if (mi.setterRequested)
+                    op = GenerateGetterSetterOperation::GetterSetterType;
+                else
+                    op = GenerateGetterSetterOperation::GetterType;
+            } else if (mi.setterRequested) {
+                op = GenerateGetterSetterOperation::SetterType;
+            }
+            if (op == GenerateGetterSetterOperation::InvalidType)
+                continue;
+
+            const Utils::optional<CppCodeStyleSettings> codeStyleSettings
+                    = CppCodeStyleSettings::currentProjectCodeStyle();
+            const CppCodeStyleSettings settings
+                    = codeStyleSettings.value_or(CppCodeStyleSettings::currentGlobalCodeStyle());
+            const QString capitalizedBaseName = mi.baseName.at(0).toUpper() + mi.baseName.mid(1);
+            const QString getterName = settings.preferGetterNameWithoutGetPrefix
+                    && mi.baseName != mi.rawName ? mi.baseName : "get" + capitalizedBaseName;
+            const QString setterName = "set" + capitalizedBaseName;
+            GenerateGetterSetterOperation::addGetterAndOrSetter(
+                        this,
+                        mi.member,
+                        m_classAST,
+                        mi.rawName,
+                        mi.baseName,
+                        getterName,
+                        setterName,
+                        op);
+        }
+    }
+
+
+    GetterSetterCandidates m_candidates;
+    const ClassSpecifierAST *m_classAST = nullptr;
+    bool m_hasData = false;
+};
+
+void GenerateGettersSettersForClass::match(const CppQuickFixInterface &interface,
+                                           QuickFixOperations &result)
+{
+    const auto op = QSharedPointer<GenerateGettersSettersOperation>::create(interface);
+    if (!op->isApplicable())
+        return;
+    if (m_test) {
+        GetterSetterCandidates candidates = op->candidates();
+        for (MemberInfo &mi : candidates) {
+            if (!mi.hasGetter)
+                mi.getterRequested = true;
+            if (!mi.hasSetter)
+                mi.setterRequested = true;
+        }
+        op->setGetterSetterData(candidates);
+    }
+    result << op;
+}
+
 
 namespace {
 
@@ -6233,6 +6576,7 @@ void createCppQuickFixes()
     new ExtractFunction;
     new ExtractLiteralAsParameter;
     new GenerateGetterSetter;
+    new GenerateGettersSettersForClass;
     new InsertDeclFromDef;
     new InsertDefFromDecl;
 
