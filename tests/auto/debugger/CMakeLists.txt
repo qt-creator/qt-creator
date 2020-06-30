@@ -9,6 +9,7 @@ add_qtc_test(tst_debugger_disassembler
 
 if (WITH_DEBUGGER_DUMPERS)
   add_qtc_test(tst_debugger_dumpers
+    TIMEOUT 0
     DEPENDS Qt5::Network Utils
     DEFINES DUMPERDIR="${PROJECT_SOURCE_DIR}/share/qtcreator/debugger"
     INCLUDES
