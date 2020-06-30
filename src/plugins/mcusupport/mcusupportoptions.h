@@ -138,9 +138,11 @@ public:
         FreeRTOS
     };
 
-    McuTarget(const QString &vendor, const QString &platform, OS os,
-              const QVector<McuPackage *> &packages, const McuToolChainPackage *toolChainPackage);
+    McuTarget(const QVersionNumber &qulVersion, const QString &vendor, const QString &platform,
+              OS os, const QVector<McuPackage *> &packages,
+              const McuToolChainPackage *toolChainPackage);
 
+    QVersionNumber qulVersion() const;
     QString vendor() const;
     QVector<McuPackage *> packages() const;
     const McuToolChainPackage *toolChainPackage() const;
@@ -151,6 +153,7 @@ public:
     bool isValid() const;
 
 private:
+    const QVersionNumber m_qulVersion;
     const QString m_vendor;
     const QString m_qulPlatform;
     const OS m_os = OS::BareMetal;
@@ -184,7 +187,7 @@ public:
     static void registerQchFiles();
     static void registerExamples();
 
-    static const QVersionNumber &supportedQulVersion();
+    static const QVersionNumber &minimalQulVersion();
 
 private:
     void deletePackagesAndTargets();

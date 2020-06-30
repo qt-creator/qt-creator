@@ -59,8 +59,8 @@ static QString findInProgramFiles(const QString &folder)
 McuPackage *createQtForMCUsPackage()
 {
     auto result = new McuPackage(
-                McuPackage::tr("Qt for MCUs %1 SDK").arg(
-                    McuSupportOptions::supportedQulVersion().toString()),
+                McuPackage::tr("Qt for MCUs %1+ SDK").arg(
+                    McuSupportOptions::minimalQulVersion().toString()),
                 QDir::homePath(),
                 Utils::HostOsInfo::withExecutableSuffix("bin/qmltocpp"),
                 Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK);
@@ -276,7 +276,8 @@ static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescrip
     for (auto desc : descriptions) {
         McuToolChainPackage *tcPkg = tcPkgs.value(desc.toolchainId);
         if (desc.toolchainId == "desktop") {
-            auto mcuTarget = new McuTarget(desc.platformVendor, desc.platform,
+            auto mcuTarget = new McuTarget(QVersionNumber::fromString(desc.qulVersion),
+                                           desc.platformVendor, desc.platform,
                                            McuTarget::OS::Desktop, {}, tcPkg);
             mcuTargets.append(mcuTarget);
             continue;
@@ -310,7 +311,8 @@ static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescrip
                     }
                 }
 
-                auto mcuTarget = new McuTarget(desc.platformVendor, desc.platform, os,
+                auto mcuTarget = new McuTarget(QVersionNumber::fromString(desc.qulVersion),
+                                               desc.platformVendor, desc.platform, os,
                                                required3rdPartyPkgs, tcPkg);
                 if (desc.colorDepths.count() > 1)
                     mcuTarget->setColorDepth(colorDepth);
@@ -370,16 +372,17 @@ void targetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage *> *packa
         if (!file.open(QFile::ReadOnly))
             continue;
         const McuTargetDescription desc = parseDescriptionJson(file.readAll());
-        if (!McuSupportOptions::supportedQulVersion()
-                .isPrefixOf(QVersionNumber::fromString(desc.qulVersion)))
+        if (QVersionNumber::fromString(desc.qulVersion) < McuSupportOptions::minimalQulVersion())
             return; // Invalid version means invalid SDK installation.
         descriptions.append(desc);
     }
 
     // Workaround for missing JSON file for Desktop target:
     if (dir.pathAppended("/lib/QulQuickUltralite_QT_32bpp_Windows_Release.lib").exists()) {
-        descriptions.prepend({McuSupportOptions::supportedQulVersion().toString(),
-                              {"Qt"}, {"Qt"}, {32}, {"desktop"}, {}, {}, {}});
+        const QString qulVersion = descriptions.empty() ?
+                    McuSupportOptions::minimalQulVersion().toString()
+                  : descriptions.first().qulVersion;
+        descriptions.prepend({qulVersion, {"Qt"}, {"Qt"}, {32}, {"desktop"}, {}, {}, {}});
     }
 
     mcuTargets->append(targetsFromDescriptions(descriptions, packages));
