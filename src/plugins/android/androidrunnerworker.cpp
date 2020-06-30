@@ -331,7 +331,7 @@ bool AndroidRunnerWorker::runAdb(const QStringList &args, QString *stdOut,
     QStringList adbArgs = selector() + args;
     SdkToolResult result = AndroidManager::runAdbCommand(adbArgs, writeData);
     if (!result.success())
-        emit remoteErrorOutput(result.exitMessage() + "\n" + result.stdErr());
+        emit remoteErrorOutput(result.stdErr());
     if (stdOut)
         *stdOut = result.stdOut();
     return result.success();
@@ -391,8 +391,8 @@ bool AndroidRunnerWorker::packageFileExists(const QString &filePath)
 
 void AndroidRunnerWorker::adbKill(qint64 pid)
 {
-    runAdb({"shell", "kill", "-9", QString::number(pid)});
-    runAdb({"shell", "run-as", m_packageName, "kill", "-9", QString::number(pid)});
+    if (!runAdb({"shell", "run-as", m_packageName, "kill", "-9", QString::number(pid)}))
+        runAdb({"shell", "kill", "-9", QString::number(pid)});
 }
 
 QStringList AndroidRunnerWorker::selector() const
@@ -405,7 +405,9 @@ void AndroidRunnerWorker::forceStop()
     runAdb({"shell", "am", "force-stop", m_packageName});
 
     // try killing it via kill -9
-    if (m_processPID != -1)
+    QString output;
+    runAdb({"shell", "pidof", m_packageName}, &output);
+    if (m_processPID != -1 && output == QString::number(m_processPID))
         adbKill(m_processPID);
 }
 
