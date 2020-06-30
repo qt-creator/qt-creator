@@ -105,7 +105,6 @@ private:
     void showEvent(QShowEvent *event) override;
 
     void validateJdk();
-    void validateNdk();
     void updateNdkList();
     void onSdkPathChanged();
     void validateSdk();
@@ -164,9 +163,6 @@ enum AndroidValidation {
     SdkManagerSuccessfulRow,
     PlatformSdkInstalledRow,
     AllEssentialsInstalledRow,
-    NdkPathExistsRow,
-    NdkDirStructureRow,
-    NdkinstallDirOkRow
 };
 
 enum OpenSslValidation {
@@ -384,10 +380,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         "All essential packages installed for all installed Qt versions.");
     androidValidationPoints[BuildToolsInstalledRow] = tr("Build tools installed.");
     androidValidationPoints[PlatformSdkInstalledRow] = tr("Platform SDK installed.");
-    androidValidationPoints[NdkPathExistsRow] = tr("Default Android NDK path exists.");
-    androidValidationPoints[NdkDirStructureRow] = tr("Default Android NDK directory structure is correct.");
-    androidValidationPoints[NdkinstallDirOkRow] = tr("Default Android NDK installed into a path without "
-                                                     "spaces.");
     m_androidSummary = new SummaryWidget(androidValidationPoints, tr("Android settings are OK."),
                                          tr("Android settings have errors."),
                                          m_ui.androidDetailsWidget);
@@ -446,7 +438,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             this, &AndroidSettingsWidget::onSdkPathChanged);
 
     connect(m_ui.ndkListWidget, &QListWidget::currentTextChanged, [this](const QString &ndk) {
-        validateNdk();
+        updateUI();
         m_ui.removeCustomNdkButton->setEnabled(m_androidConfig.getCustomNdkList().contains(ndk));
     });
     connect(m_ui.addCustomNdkButton, &QPushButton::clicked, this,
@@ -577,26 +569,6 @@ void AndroidSettingsWidget::validateOpenSsl()
     updateUI();
 }
 
-void AndroidSettingsWidget::validateNdk()
-{
-    const QListWidgetItem *currentItem = m_ui.ndkListWidget->currentItem();
-    const FilePath ndkPath = FilePath::fromString(currentItem ? currentItem->text() : "");
-
-    m_androidSummary->setPointValid(NdkPathExistsRow, ndkPath.exists());
-
-    const FilePath ndkPlatformsDir = ndkPath.pathAppended("platforms");
-    const FilePath ndkToolChainsDir = ndkPath.pathAppended("toolchains");
-    const FilePath ndkSourcesDir = ndkPath.pathAppended("sources/cxx-stl");
-    m_androidSummary->setPointValid(NdkDirStructureRow,
-                                    ndkPlatformsDir.exists()
-                                    && ndkToolChainsDir.exists()
-                                    && ndkSourcesDir.exists());
-    m_androidSummary->setPointValid(NdkinstallDirOkRow,
-                                    ndkPlatformsDir.exists()
-                                    && !ndkPlatformsDir.toString().contains(' '));
-    updateUI();
-}
-
 void AndroidSettingsWidget::onSdkPathChanged()
 {
     auto sdkPath = FilePath::fromUserInput(m_ui.SDKLocationPathChooser->rawPath());
@@ -628,7 +600,6 @@ void AndroidSettingsWidget::validateSdk()
     m_androidSummary->setPointValid(PlatformSdkInstalledRow,
                                     !m_sdkManager.installedSdkPlatforms().isEmpty());
     m_androidSummary->setPointValid(AllEssentialsInstalledRow, m_androidConfig.allEssentialsInstalled());
-    updateUI();
 
     const bool sdkToolsOk = m_androidSummary->rowsOk({SdkPathExistsRow,
                                                       SdkPathWritableRow,
@@ -653,7 +624,7 @@ void AndroidSettingsWidget::validateSdk()
 
     startUpdateAvd();
     updateNdkList();
-    validateNdk();
+    updateUI();
 }
 
 void AndroidSettingsWidget::openSDKDownloadUrl()
