@@ -1263,7 +1263,21 @@ void NodeMetaInfoPrivate::setupPrototypes()
         description.className = ov->className();
         description.minorVersion = -1;
         description.majorVersion = -1;
-        if (const CppComponentValue * qmlValue = value_cast<CppComponentValue>(ov)) {
+        if (description.className == "QQuickItem") {
+            /* Ugly hack to recover from wrong prototypes for Item */
+            if (const CppComponentValue *qmlValue = value_cast<CppComponentValue>(
+                    context()->lookupType(document(), {"Item"}))) {
+                description.className = "QtQuick.Item";
+                description.minorVersion = qmlValue->componentVersion().minorVersion();
+                description.majorVersion = qmlValue->componentVersion().majorVersion();
+                m_prototypes.append(description);
+            } else {
+                qWarning() << Q_FUNC_INFO << "Lookup for Item failed";
+            }
+            continue;
+        }
+
+        if (const CppComponentValue *qmlValue = value_cast<CppComponentValue>(ov)) {
             description.minorVersion = qmlValue->componentVersion().minorVersion();
             description.majorVersion = qmlValue->componentVersion().majorVersion();
             LanguageUtils::FakeMetaObject::Export qtquickExport = qmlValue->metaObject()->exportInPackage(QLatin1String("QtQuick"));
