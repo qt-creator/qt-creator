@@ -35,8 +35,10 @@
 #include <QHeaderView>
 #include <QInputDialog>
 #include <QKeyEvent>
+#include <QLineEdit>
 #include <QTableView>
 #include <QToolBar>
+#include <QVBoxLayout>
 
 #include <vector>
 
