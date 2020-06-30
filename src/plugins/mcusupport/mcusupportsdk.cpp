@@ -280,7 +280,8 @@ static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescrip
                 QVector<McuPackage*> required3rdPartyPkgs = {
                     vendorPkgs.value(desc.platformVendor), tcPkg
                 };
-                if (!desc.boardSdkEnvVar.isEmpty()) {
+                if (!desc.boardSdkEnvVar.isEmpty()
+                        && desc.boardSdkEnvVar != "RGL_DIR") { // Already included in vendorPkgs
                     if (!boardSdkPkgs.contains(desc.boardSdkEnvVar)) {
                         auto boardSdkPkg = createBoardSdkPackage(desc.boardSdkEnvVar);
                         boardSdkPkgs.insert(desc.boardSdkEnvVar, boardSdkPkg);
