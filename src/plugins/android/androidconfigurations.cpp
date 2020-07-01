@@ -73,6 +73,7 @@
 #include <QProcess>
 #include <QRegularExpression>
 #include <QSettings>
+#include <QStandardPaths>
 #include <QStringList>
 #include <QTcpSocket>
 #include <QThread>
@@ -964,6 +965,27 @@ QStringList AndroidConfig::allEssentials() const
     return allPackages;
 }
 
+bool AndroidConfig::allEssentialsInstalled()
+{
+    QStringList essentialPkgs(allEssentials());
+    for (const AndroidSdkPackage *pkg :
+         AndroidConfigurations::sdkManager()->installedSdkPackages()) {
+        if (essentialPkgs.contains(pkg->sdkStylePath()))
+            essentialPkgs.removeOne(pkg->sdkStylePath());
+        if (essentialPkgs.isEmpty())
+            break;
+    }
+    return essentialPkgs.isEmpty() ? true : false;
+}
+
+bool AndroidConfig::sdkToolsOk() const
+{
+    bool exists = sdkLocation().exists();
+    bool writable = sdkLocation().isWritablePath();
+    bool sdkToolsExist = !sdkToolsVersion().isNull();
+    return exists && writable && sdkToolsExist;
+}
+
 QStringList AndroidConfig::essentialsFromQtVersion(const BaseQtVersion &version) const
 {
     QtVersionNumber qtVersion = version.qtVersion();
@@ -1068,6 +1090,28 @@ bool AndroidConfig::automaticKitCreation() const
 void AndroidConfig::setAutomaticKitCreation(bool b)
 {
     m_automaticKitCreation = b;
+}
+
+FilePath AndroidConfig::defaultSdkPath()
+{
+    QString sdkFromEnvVar = QString::fromLocal8Bit(getenv("ANDROID_SDK_ROOT"));
+    if (!sdkFromEnvVar.isEmpty())
+        return Utils::FilePath::fromString(sdkFromEnvVar);
+
+    // Set default path of SDK as used by Android Studio
+    if (Utils::HostOsInfo::isMacHost()) {
+        return Utils::FilePath::fromString(
+            QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)
+            + "/../Android/sdk");
+    }
+
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        return Utils::FilePath::fromString(
+            QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + "/Android/Sdk");
+    }
+
+    return Utils::FilePath::fromString(
+        QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/Android/Sdk");
 }
 
 ///////////////////////////////////

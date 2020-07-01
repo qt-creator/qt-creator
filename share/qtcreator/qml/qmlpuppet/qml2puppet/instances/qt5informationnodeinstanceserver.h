@@ -62,6 +62,7 @@ public:
     void changeAuxiliaryValues(const ChangeAuxiliaryCommand &command) override;
     void changePropertyBindings(const ChangeBindingsCommand &command) override;
     void changeIds(const ChangeIdsCommand &command) override;
+    void changeState(const ChangeStateCommand &command) override;
 
 private slots:
     void handleSelectionChanged(const QVariant &objs);

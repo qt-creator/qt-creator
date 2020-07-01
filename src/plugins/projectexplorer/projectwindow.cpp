@@ -48,6 +48,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
+#include <utils/hostosinfo.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
@@ -341,10 +342,30 @@ public:
         setContextMenuPolicy(Qt::CustomContextMenu);
     }
 
+private:
     // remove branch indicators
     void drawBranches(QPainter *, const QRect &, const QModelIndex &) const final
     {
         return;
+    }
+
+    bool userWantsContextMenu(const QMouseEvent *e) const
+    {
+        // On Windows, we get additional mouse events for the item view when right-clicking,
+        // causing unwanted kit activation (QTCREATORBUG-24156). Let's suppress these.
+        return HostOsInfo::isWindowsHost() && e->button() == Qt::RightButton;
+    }
+
+    void mousePressEvent(QMouseEvent *e)
+    {
+        if (!userWantsContextMenu(e))
+            BaseTreeView::mousePressEvent(e);
+    }
+
+    void mouseReleaseEvent(QMouseEvent *e)
+    {
+        if (!userWantsContextMenu(e))
+            BaseTreeView::mouseReleaseEvent(e);
     }
 };
 

@@ -49,6 +49,13 @@
     generation of build configurations. For more information, see
     \l {Setting Up CMake}.
 
+    \l {https://mesonbuild.com/}{Meson} Meson is an open source build system meant
+    to be both extremely fast, and, even more importantly, as user friendly as
+    possible. The main design point of Meson is that every second a developer
+    spends writing or debugging build definitions is a second wasted. So is every
+    second spent waiting for the build system to actually start compiling code.
+    For more information, see \l {Setting Up Meson}.
+
     \l{Qbs Manual}{Qbs} is an all-in-one build tool that generates a build graph
     from a high-level project description (like qmake or CMake do) and executes
     the commands in the low-level build graph (like make does). For more

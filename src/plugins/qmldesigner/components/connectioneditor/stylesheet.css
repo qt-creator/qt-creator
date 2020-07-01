@@ -38,10 +38,9 @@ QTableView::item:selected
 
 QHeaderView::section {
     background-color: #494949;
-    padding: 4px;
-    border: 1px solid black;
+    border: 0px;
     color: creatorTheme.DStextColor;
-    margin: 2px
+    margin-right: 1px
 }
 
 QTableView {

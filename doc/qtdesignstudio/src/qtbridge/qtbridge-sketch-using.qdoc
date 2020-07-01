@@ -77,10 +77,10 @@
     The relationships between artboards and layers are preserved when you export
     designs from Sketch and import them into \QDS.
 
-    An artboard can only be exported as a component or skipped. A component is
-    a separate QML file that contains all the artwork on the artboard, except
-    layers that are set to be skipped or exported as child items. The child
-    items can contain graphical assets or text.
+    An artboard can only be exported as a component or skipped. A component will
+    be imported as a separate QML file that contains all the artwork on the
+    artboard, except layers that are set to be skipped or exported as child
+    items. The child items can contain graphical assets or text.
 
     To use the contents of an artboard as a single image in the UI, you can
     merge the groups and layers when you export them. During import, the
@@ -149,23 +149,24 @@
         \li In the \uicontrol {Export As} field, select the export type for the
             group or layer:
             \list
-                \li \uicontrol Component creates a separate QML file for the
-                    selected symbol that contains all the artwork in it, except
-                    layers or groups that are set to be skipped or exported as
-                    child items.
-                \li \uicontrol Child creates a separate file for each asset
-                    of the selected group or layer, with references to the
-                    images in the component file. You select the image format
-                    in the \uicontrol {Asset Format} field.
+                \li \uicontrol Component exports the selected symbol with
+                    metadata. The exported data can be used later to import
+                    the component as a separate QML file that contains all
+                    the artwork in it, except layers or groups that are set
+                    to be skipped or exported as child items.
+                \li \uicontrol Child exports each asset of the selected group
+                    or layer a separate PNG file, with references
+                    to the images in the component file. You select the image
+                    format in the \uicontrol {Asset Format} field.
                 \li \uicontrol Merged merges the selected groups and layers into
                     the parent artboard or group as one item.
                 \li \uicontrol Skipped completely skips the selected layer.
             \endlist
         \li In the \uicontrol {QML Type} field, specify the QML type or
             \l {Studio Components}{Qt Quick Studio Component} to morph this
-            layer into. The generated component will be of this type. For
-            example, if you drew a rectangle, you can export it as a
-            \l Rectangle component.
+            layer into. The component that is generated during import will be
+            of this type. For example, if you drew a rectangle, you can export
+            it as a \l Rectangle component.
             You can provide the import statement of the module where the QML
             type is defined in the \uicontrol {QML Imports} field.
         \li In the \uicontrol {QML Imports} field, enter

@@ -34,7 +34,7 @@
 using namespace MesonProjectManager::Internal;
 
 namespace {
-static const QList<QPair<const char *, QString>> projectList{{"Simple C Project", "SimpleCProject"}};
+static const QList<QPair<const char *, QString>> projectList{{"Simple C Project", "simplecproject"}};
 } // namespace
 
 class AMesonWrapper : public QObject

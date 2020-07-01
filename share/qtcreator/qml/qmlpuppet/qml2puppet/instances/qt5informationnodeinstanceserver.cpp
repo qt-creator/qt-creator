@@ -1253,12 +1253,33 @@ void Qt5InformationNodeInstanceServer::changeIds(const ChangeIdsCommand &command
 {
     Qt5NodeInstanceServer::changeIds(command);
 
+#ifdef QUICK3D_MODULE
+    ServerNodeInstance sceneInstance = active3DSceneInstance();
     if (m_active3DSceneUpdatePending) {
-        ServerNodeInstance sceneInstance = active3DSceneInstance();
         const QString sceneId = sceneInstance.id();
         if (!sceneId.isEmpty())
             updateActiveSceneToEditView3D();
+    } else {
+        qint32 sceneInstanceId = sceneInstance.instanceId();
+        const QVector<IdContainer> ids = command.ids();
+        for (const auto &id : ids) {
+            if (sceneInstanceId == id.instanceId()) {
+                QMetaObject::invokeMethod(m_editView3DRootItem, "handleActiveSceneIdChange",
+                                          Qt::QueuedConnection,
+                                          Q_ARG(QVariant, QVariant(sceneInstance.id())));
+                render3DEditView();
+                break;
+            }
+        }
     }
+#endif
+}
+
+void Qt5InformationNodeInstanceServer::changeState(const ChangeStateCommand &command)
+{
+    Qt5NodeInstanceServer::changeState(command);
+
+    render3DEditView();
 }
 
 // update 3D view size when it changes in creator side

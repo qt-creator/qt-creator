@@ -641,7 +641,7 @@ function(extend_qtc_executable name)
 endfunction()
 
 function(add_qtc_test name)
-  cmake_parse_arguments(_arg "GTEST" "" "DEFINES;DEPENDS;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC" ${ARGN})
+  cmake_parse_arguments(_arg "GTEST" "TIMEOUT" "DEFINES;DEPENDS;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC" ${ARGN})
 
   foreach(dependency ${_arg_DEPENDS})
     if (NOT TARGET ${dependency} AND NOT _arg_GTEST)
@@ -684,7 +684,12 @@ function(add_qtc_test name)
 
   if (NOT _arg_GTEST)
     add_test(NAME ${name} COMMAND ${name})
-    finalize_test_setup(${name})
+    if (DEFINED _arg_TIMEOUT)
+      set(timeout_option TIMEOUT ${_arg_TIMEOUT})
+    else()
+      set(timeout_option)
+    endif()
+    finalize_test_setup(${name} ${timeout_option})
   endif()
 endfunction()
 

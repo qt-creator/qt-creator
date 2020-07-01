@@ -72,7 +72,7 @@
             \image qmldesigner-tutorial-design-mode.png "Transitions project in Design Mode"
 
             \note If a view is hidden, you can show it by selecting
-            \uicontrol Window > \uicontrol Views.
+            \uicontrol View > \uicontrol Views.
 
         \li In the \uicontrol Navigator, select \uicontrol Label and press
             \key Delete to delete it.

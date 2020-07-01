@@ -211,11 +211,17 @@ function(set_public_includes target includes)
 endfunction()
 
 function(finalize_test_setup test_name)
+  cmake_parse_arguments(_arg "" "TIMEOUT" "" ${ARGN})
+  if (DEFINED _arg_TIMEOUT)
+    set(timeout ${_arg_TIMEOUT})
+  else()
+    set(timeout 5)
+  endif()
   # Never translate tests:
   set_tests_properties(${name}
     PROPERTIES
       QT_SKIP_TRANSLATION ON
-      TIMEOUT 5
+      TIMEOUT ${timeout}
   )
 
   if (WIN32)

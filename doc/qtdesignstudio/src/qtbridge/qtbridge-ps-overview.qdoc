@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -32,7 +32,8 @@
 
     \title Exporting Designs from Adobe Photoshop
 
-    You can use \QBPS to export designs from Adobe Photoshop to .ui.qml files.
+    You can use \QBPS to export designs from Adobe Photoshop to \e {.metadata}
+    format that you can \l{Importing 2D Assets}{import} to projects in \QDS.
 
     \image studio-ps-export.png
 
@@ -43,13 +44,12 @@
         \li \l{Setting Up Qt Bridge for Adobe Photoshop}
 
             You must install and set up the \QBPS export tool before you can use
-            it to convert artwork into Qt Quick files that you can import to
-            projects in \QDS.
+            it to export artwork.
 
         \li \l{Using Qt Bridge for Adobe Photoshop}
 
             To get the best results when you use \QBPS to export designs from
-            Photoshop to Qt Quick files, you should follow the guidelines for
-            working with Photoshop and organizing your assets.
+            Photoshop, you should follow the guidelines for working with
+            Photoshop and organizing your assets.
     \endlist
 */

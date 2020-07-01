@@ -608,7 +608,7 @@
     program you are debugging. The availability of views depends on whether
     you are debugging C++ or QML. Frequently used views are shown by
     default and rarely used ones are hidden. To change the default settings,
-    select \uicontrol Window > \uicontrol Views, and then select views to
+    select \uicontrol View > \uicontrol Views, and then select views to
     display or hide. Alternatively, you can enable or disable views from the
     context menu of the title bar of any visible debugger view.
 
@@ -616,10 +616,10 @@
 
     You can drag and drop the views in \QC to new positions on the screen. The
     size and position of views are saved for future sessions. Select
-    \uicontrol Window > \uicontrol Views > \uicontrol {Reset to Default Layout}
+    \uicontrol View > \uicontrol Views > \uicontrol {Reset to Default Layout}
     to reset the views to their original sizes and positions.
 
-    To save space on the screen, select \uicontrol Window > \uicontrol Views >
+    To save space on the screen, select \uicontrol View > \uicontrol Views >
     \uicontrol {Automatically Hide View Titlebars}.
 
     To show and hide columns in views, toggle \uicontrol {Show Column} in
@@ -1478,7 +1478,7 @@
         \li Make sure the debugger is set up properly. For more information,
             see \l{Setting Up Debugger}.
 
-        \li In the \uicontrol Debug mode, select \uicontrol Window >
+        \li In the \uicontrol Debug mode, select \uicontrol View >
             \uicontrol Views > \uicontrol {Debugger Log} to open the
             \uicontrol {Debugger Log} view. Browse the contents of the pane on
             the right hand side to find out what went wrong. Always attach the

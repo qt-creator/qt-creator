@@ -286,7 +286,7 @@
     {corresponding keyboard shortcut}.
 
     To hide the mode selector and to save space on the display, select
-    \uicontrol Window > \uicontrol {Mode Selector Style} > \uicontrol Hidden.
+    \uicontrol View > \uicontrol {Mode Selector Style} > \uicontrol Hidden.
     To only show icons on the mode selector, select the \uicontrol {Icons Only}
     style.
 
@@ -402,7 +402,7 @@
     \else
     \l{Using Git}{Version Control}
     \endif
-     panes, select \uicontrol Window > \uicontrol {Output Panes}.
+     panes, select \uicontrol View > \uicontrol {Output Panes}.
     \if defined(qtcreator)
     To display the \uicontrol {To-Do Entries} pane, enable the Todo plugin.
     \endif

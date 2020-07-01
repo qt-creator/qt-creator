@@ -37,7 +37,7 @@
     \title Using Other Build Systems
 
     Most \QC project wizards enable you to choose the build system to use for
-    building the project: qmake, CMake, or Qbs. qmake is installed and
+    building the project: qmake, CMake, Meson, or Qbs. qmake is installed and
     configured when you install Qt. To use one of the other supported build
     systems, you need to set it up, as described in the the following sections:
 
@@ -72,6 +72,11 @@
             The experimental \l{https://nim-lang.org/}{Nim} plugin integrates
             the Nimble package manager for generating Nim application
             executables that are supported on Windows, Linux, and \macos.
+
+        \li \l{Setting Up Meson}
+
+            Meson is an open source build system meant to be both extremely fast,
+            and, even more importantly, as user friendly as possible.
 
     \endlist
 

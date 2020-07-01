@@ -98,7 +98,7 @@ QStringList toAbsolutePath(const Utils::FilePath &refPath, QStringList &pathList
                    std::cend(pathList),
                    std::back_inserter(allAbs),
                    [refPath](const QString &path) {
-                       if (path.startsWith("/"))
+                       if (Utils::FileUtils::isAbsolutePath(path))
                            return path;
                        return refPath.pathAppended(path).toString();
                    });
@@ -200,11 +200,11 @@ QList<ProjectExplorer::BuildTargetInfo> MesonProjectParser::appsTargets() const
     QList<ProjectExplorer::BuildTargetInfo> apps;
     std::for_each(std::cbegin(m_parserResult.targets),
                   std::cend(m_parserResult.targets),
-                  [&apps](const Target &target) {
+                  [&apps, srcDir = m_srcDir](const Target &target) {
                       if (target.type == Target::Type::executable) {
                           ProjectExplorer::BuildTargetInfo bti;
                           bti.displayName = target.name;
-                          bti.buildKey = Target::fullName(target);
+                          bti.buildKey = Target::fullName(srcDir, target);
                           bti.displayNameUniquifier = bti.buildKey;
                           bti.targetFilePath = Utils::FilePath::fromString(target.fileName.first());
                           bti.workingDirectory
@@ -260,10 +260,9 @@ void MesonProjectParser::update(const QFuture<MesonProjectParser::ParserData *> 
     m_parserResult = std::move(parserData->data);
     m_rootNode = std::move(parserData->rootNode);
     m_targetsNames.clear();
-    std::transform(std::cbegin(m_parserResult.targets),
-                   std::cend(m_parserResult.targets),
-                   std::back_inserter(m_targetsNames),
-                   Target::fullName);
+    for (const Target &target : m_parserResult.targets) {
+        m_targetsNames.push_back(Target::fullName(m_srcDir, target));
+    }
     addMissingTargets(m_targetsNames);
     m_targetsNames.sort();
     delete data;
@@ -278,11 +277,11 @@ ProjectExplorer::RawProjectPart MesonProjectParser::buildRawPart(
 {
     ProjectExplorer::RawProjectPart part;
     part.setDisplayName(target.name);
-    part.setBuildSystemTarget(Target::fullName(target));
+    part.setBuildSystemTarget(Target::fullName(m_srcDir, target));
     part.setFiles(sources.sources + sources.generatedSources);
     auto flags = splitArgs(sources.parameters);
     part.setMacros(flags.macros);
-    part.setIncludePaths(toAbsolutePath(this->m_buildDir, flags.includePaths));
+    part.setIncludePaths(toAbsolutePath(m_buildDir, flags.includePaths));
     part.setProjectFileLocation(target.definedIn);
     if (sources.language == "cpp")
         part.setFlagsForCxx({cxxToolChain, flags.args});

@@ -81,9 +81,6 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="alternatingRowColors">
-          <bool>true</bool>
-         </property>
          <property name="selectionMode">
           <enum>QAbstractItemView::SingleSelection</enum>
          </property>
@@ -128,9 +125,6 @@
        </property>
        <item row="2" column="0" colspan="3">
         <widget class="QTableView" name="bindingView">
-         <property name="alternatingRowColors">
-          <bool>true</bool>
-         </property>
          <property name="selectionMode">
           <enum>QAbstractItemView::SingleSelection</enum>
          </property>
@@ -175,9 +169,6 @@
        </property>
        <item row="0" column="0">
         <widget class="QTableView" name="dynamicPropertiesView">
-         <property name="alternatingRowColors">
-          <bool>true</bool>
-         </property>
          <property name="selectionMode">
           <enum>QAbstractItemView::SingleSelection</enum>
          </property>
@@ -222,9 +213,6 @@
        </property>
        <item row="0" column="0">
         <widget class="QTableView" name="backendView">
-         <property name="alternatingRowColors">
-          <bool>true</bool>
-         </property>
          <property name="selectionMode">
           <enum>QAbstractItemView::SingleSelection</enum>
          </property>

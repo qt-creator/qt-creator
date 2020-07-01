@@ -32,7 +32,8 @@
 
     \title Exporting Designs from Sketch
 
-    You can use \QBSK to export designs from Sketch to .ui.qml files.
+    You can use \QBSK to export designs from Sketch to \e {.metadata}
+    format that you can \l{Importing 2D Assets}{import} to projects in \QDS.
 
     \image studio-sketch-export.png
 
@@ -43,13 +44,12 @@
         \li \l{Setting Up Qt Bridge for Sketch}
 
             You must install Sketch and the \QBSK export tool before you can use
-            the tool to convert artwork into Qt Quick files that you can import
-            to projects in \QDS.
+            the tool to export artwork.
 
         \li \l{Using Qt Bridge for Sketch}
 
             To get the best results when you use \QBSK to export designs from
-            Sketch to Qt Quick files, you should follow the guidelines for
-            working with Sketch and organizing your assets.
+            Sketch, you should follow the guidelines for working with Sketch and
+            organizing your assets.
     \endlist
 */

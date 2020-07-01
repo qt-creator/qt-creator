@@ -69,6 +69,9 @@
     \QC automatically adds run configurations for all targets specified in the
     CMake project file, \c {CMakeLists.txt}.
 
+    \QC automatically adds run configurations for all targets declared with
+    \c {executable()} function in Meson build descriptions.
+
     \section1 Creating Run Configurations for Subprojects
 
     To prevent \QC from automatically creating run configurations for SUBDIRS
@@ -113,7 +116,7 @@
 
     \section1 Specifying a Custom Executable to Run
 
-    If you use CMake or the generic project type in \QC, or want
+    If you use CMake, Meson or the generic project type in \QC, or want
     to run a custom desktop executable, create a \uicontrol {Custom Executable}
     run configuration for your project. For example, when working on a library,
     you can run a test application that links against the library.

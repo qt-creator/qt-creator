@@ -49,7 +49,7 @@
     \image studio-design-mode.png "Design mode"
 
     The Design mode contains different views for designing UIs. To open the
-    following views, select \uicontrol Window > \uicontrol Views:
+    following views, select \uicontrol View > \uicontrol Views:
 
     \list
         \li \uicontrol {Form Editor} (1) provides a canvas for designing 2D UIs.

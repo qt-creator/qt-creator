@@ -68,6 +68,8 @@ using namespace Utils;
 namespace ProjectExplorer {
 namespace Internal {
 
+const int RunColumnWidth = 30;
+
 static QIcon createCenteredIcon(const QIcon &icon, const QIcon &overlay)
 {
     QPixmap targetPixmap;
@@ -475,14 +477,10 @@ void TargetSelectorDelegate::paint(QPainter *painter,
             ->setData(index, index.model()->data(index, Qt::UserRole + 1).toString(), Qt::ToolTipRole);
     painter->drawText(option.rect.left() + 6, option.rect.top() + (option.rect.height() - fm.height()) / 2 + fm.ascent(), elidedText);
     if (index.column() == 1 && option.state & QStyle::State_MouseOver) {
-        const QIcon icon = Utils::Icons::RUN_SMALL.icon();
-        QRect iconRect(option.rect.right() - option.rect.height(),
-                       option.rect.top(),
-                       option.rect.height() / painter->device()->devicePixelRatio(),
-                       option.rect.height() / painter->device()->devicePixelRatio());
-        iconRect.translate((option.rect.width() - iconRect.width()) / 2,
-                           (option.rect.height() - iconRect.height()) / 2);
-        icon.paint(painter, iconRect, Qt::AlignHCenter | Qt::AlignVCenter);
+        const QIcon icon = Utils::Icons::RUN_SMALL_TOOLBAR.icon();
+        QRect iconRect(0, 0, 16, 16);
+        iconRect.moveCenter(option.rect.center());
+        icon.paint(painter, iconRect);
     }
 
     painter->restore();
@@ -545,6 +543,8 @@ int SelectorView::optimalWidth() const
 void SelectorView::setOptimalWidth(int width)
 {
     m_optimalWidth = width;
+    if (model()->columnCount() == 2)
+        m_optimalWidth += RunColumnWidth;
     updateGeometry();
 }
 
@@ -950,7 +950,7 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
 
         QVector<int> widths = listWidgetWidths(minWidth, 1000);
 
-        const int runColumnWidth = widths[RUN] == -1 ? 0 : 30;
+        const int runColumnWidth = widths[RUN] == -1 ? 0 : RunColumnWidth;
         int x = 0;
         for (int i = PROJECT; i < LAST; ++i) {
             int optimalWidth = widths[i];
@@ -968,7 +968,8 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
             x += optimalWidth + 1; //1 extra pixel for the separators or the right border
         }
 
-        m_listWidgets[RUN]->setColumnWidth(0, m_listWidgets[RUN]->size().width() - runColumnWidth);
+        m_listWidgets[RUN]->setColumnWidth(0, m_listWidgets[RUN]->size().width() - runColumnWidth
+                                           - m_listWidgets[RUN]->padding());
         m_listWidgets[RUN]->setColumnWidth(1, runColumnWidth);
         m_summaryLabel->resize(x - 1, summaryLabelHeight);
         m_kitAreaWidget->resize(x - 1, kitAreaHeight);

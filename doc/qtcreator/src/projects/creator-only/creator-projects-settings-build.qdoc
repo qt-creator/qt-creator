@@ -113,6 +113,7 @@
     information, see \l{http://doc.qt.io/QtQuickCompiler/}{Qt Quick Compiler}.
 
     \include creator-projects-cmake-building.qdocinc cmake build configuration
+    \include creator-projects-meson-building.qdocinc meson build configuration
 
     \section1 Starting External Processes
 
@@ -145,7 +146,7 @@
     \section1 Build Steps
 
     In \uicontrol{Build Steps} you can change the settings for the build system
-    selected for building the project: qmake, CMake, or Qbs.
+    selected for building the project: qmake, CMake, Meson, or Qbs.
 
     \section2 qmake Build Steps
 
@@ -166,6 +167,7 @@
 
     \include creator-projects-cmake-building.qdocinc cmake build steps
     \include creator-projects-settings-build-qbs.qdocinc qbs build steps
+    \include creator-projects-meson-building.qdocinc meson build steps
 
     \section2 Adding Custom Build Steps
 
@@ -211,4 +213,5 @@
 
     \include creator-projects-cmake-building.qdocinc cmake clean steps
     \include creator-projects-settings-build-qbs.qdocinc qbs clean steps
+    \include creator-projects-meson-building.qdocinc meson clean steps
 */
