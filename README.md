@@ -27,7 +27,7 @@ https://doc.qt.io/qtcreator-extending/coding-style.html
 
 Prerequisites:
 
-* Qt 5.12.0 or later
+* Qt 5.14.0 or later
 * Qt WebEngine module for QtWebEngine based help viewer
 * On Windows:
     * ActiveState Active Perl
@@ -91,7 +91,7 @@ For detailed information on the supported compilers, see
        for example, `c:\work`. If you plan to use MinGW and Microsoft Visual
        Studio simultaneously or mix different Qt versions, we recommend
        creating a directory structure which reflects that. For example:
-       `C:\work\qt5.12.0-vs15, C:\work\qt5.12.0-mingw`.
+       `C:\work\qt5.14.0-vs17, C:\work\qt5.14.0-mingw`.
 
    4.  Download and install Perl from <https://www.activestate.com/activeperl>
        and check that perl.exe is added to the path. Run `perl -v` to verify
@@ -311,7 +311,7 @@ offer CMake find packages, which reduce the steps of configuring Qt Creator to a
       cmake \
         -G Ninja \
         -D CMAKE_BUILD_TYPE=Release \
-        -D CMAKE_PREFIX_PATH=~/Qt/5.12.5/gcc_64;~/llvm \
+        -D CMAKE_PREFIX_PATH=~/Qt/5.14.2/gcc_64;~/llvm \
         ../qt-creator
       cmake --build .
 
@@ -320,7 +320,7 @@ offer CMake find packages, which reduce the steps of configuring Qt Creator to a
       cmake ^
         -G Ninja ^
         -D CMAKE_BUILD_TYPE=Release ^
-        -D CMAKE_PREFIX_PATH=c:\Qt\5.12.5\msvc2017_64;c:\llvm ^
+        -D CMAKE_PREFIX_PATH=c:\Qt\5.14.2\msvc2017_64;c:\llvm ^
         ..\qt-creator
       cmake --build .
 
