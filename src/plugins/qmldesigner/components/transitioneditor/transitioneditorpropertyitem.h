@@ -67,7 +67,7 @@ private:
     TransitionEditorGraphicsScene *transitionEditorGraphicsScene() const;
 
     ModelNode m_animation;
-    TransitionEditorBarItem *m_barItem;
+    TransitionEditorBarItem *m_barItem = nullptr;
 };
 
 } // namespace QmlDesigner

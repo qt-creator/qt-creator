@@ -137,9 +137,8 @@ private:
     ModelNode m_targetNode;
     ModelNode m_animationNode;
 
-    TransitionEditorBarItem *m_barItem;
-    TimelineItem *m_dummyItem;
-
+    TransitionEditorBarItem *m_barItem = nullptr;
+    TimelineItem *m_dummyItem = nullptr;
 };
 
 } // namespace QmlDesigner
