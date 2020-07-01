@@ -144,7 +144,7 @@ LabelingInfo optLegibility(int k, double lmin, double lstep)
 
 Axis Axis::compute(double dmin, double dmax, double height, double pt)
 {
-    Axis result;
+    Axis result = {0.0, 0.0, 0.0};
 
     auto score = [](double a, double b, double c, double d) {
         return a * 0.2 + b * 0.25 + c * 0.5 + d * 0.05;

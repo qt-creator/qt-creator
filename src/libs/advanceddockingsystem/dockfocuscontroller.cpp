@@ -67,7 +67,7 @@ namespace ADS
     #ifdef Q_OS_LINUX
         QPointer<FloatingDockContainer> m_floatingWidget = nullptr;
     #endif
-        DockManager *m_dockManager;
+        DockManager *m_dockManager = nullptr;
 
         /**
          * Private data constructor
