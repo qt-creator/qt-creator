@@ -65,6 +65,8 @@ using testing::Property;
 using testing::Return;
 using testing::ReturnRef;
 using testing::SafeMatcherCast;
+using testing::SaveArg;
+using testing::SaveArgPointee;
 using testing::Sequence;
 using testing::SizeIs;
 using testing::StrEq;

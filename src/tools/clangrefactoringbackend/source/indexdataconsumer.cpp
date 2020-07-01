@@ -118,11 +118,7 @@ bool IndexDataConsumer::isAlreadyParsed(clang::FileID fileId, SourcesManager &so
     return sourcesManager.alreadyParsed(filePathId(fileEntry), fileEntry->getModificationTime());
 }
 
-#if LLVM_VERSION_MAJOR >= 10
     bool IndexDataConsumer::handleDeclOccurrence(
-#else
-    bool IndexDataConsumer::handleDeclOccurence(
-#endif
         const clang::Decl *declaration,
         clang::index::SymbolRoleSet symbolRoles,
         llvm::ArrayRef<clang::index::SymbolRelation> /*symbolRelations*/,
@@ -180,11 +176,7 @@ SourceLocationKind macroSymbolType(clang::index::SymbolRoleSet roles)
 
 } // namespace
 
-#if LLVM_VERSION_MAJOR >= 10
 bool IndexDataConsumer::handleMacroOccurrence(
-#else
-bool IndexDataConsumer::handleMacroOccurence(
-#endif
         const clang::IdentifierInfo *identifierInfo,
         const clang::MacroInfo *macroInfo,
         clang::index::SymbolRoleSet roles,

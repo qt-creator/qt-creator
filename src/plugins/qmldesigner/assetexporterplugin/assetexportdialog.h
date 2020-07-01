@@ -34,6 +34,7 @@
 
 QT_BEGIN_NAMESPACE
 class QPushButton;
+class QCheckBox;
 class QListView;
 class QPlainTextEdit;
 QT_END_NAMESPACE
@@ -74,6 +75,7 @@ private:
     FilePathModel &m_filePathModel;
     std::unique_ptr<Ui::AssetExportDialog> m_ui;
     QPushButton *m_exportBtn = nullptr;
+    QCheckBox *m_exportAssetsCheck = nullptr;
     QListView *m_filesView = nullptr;
     QPlainTextEdit *m_exportLogs = nullptr;
     Utils::OutputFormatter *m_outputFormatter = nullptr;

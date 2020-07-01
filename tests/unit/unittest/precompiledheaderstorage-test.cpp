@@ -53,6 +53,7 @@ protected:
     MockSqliteReadStatement &fetchPrecompiledHeaderStatement = storage.fetchPrecompiledHeaderStatement;
     MockSqliteReadStatement &fetchPrecompiledHeadersStatement = storage.fetchPrecompiledHeadersStatement;
     MockSqliteReadStatement &fetchTimeStampsStatement = storage.fetchTimeStampsStatement;
+    MockSqliteReadStatement &fetchAllPchPathsStatement = storage.fetchAllPchPathsStatement;
 };
 
 TEST_F(PrecompiledHeaderStorage, UseTransaction)
@@ -458,6 +459,32 @@ TEST_F(PrecompiledHeaderStorage, FetchTimeStampsBusy)
     storage.fetchTimeStamps(23);
 }
 
+TEST_F(PrecompiledHeaderStorage, FetchAllPchPaths)
+{
+    InSequence s;
+
+    EXPECT_CALL(database, deferredBegin());
+    EXPECT_CALL(fetchAllPchPathsStatement, valuesReturnFilePaths(_));
+    EXPECT_CALL(database, commit());
+
+    storage.fetchAllPchPaths();
+}
+
+TEST_F(PrecompiledHeaderStorage, FetchAllPchPathsIsBusy)
+{
+    InSequence s;
+
+    EXPECT_CALL(database, deferredBegin());
+    EXPECT_CALL(fetchAllPchPathsStatement, valuesReturnFilePaths(_))
+        .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
+    EXPECT_CALL(database, rollback());
+    EXPECT_CALL(database, deferredBegin());
+    EXPECT_CALL(fetchAllPchPathsStatement, valuesReturnFilePaths(_));
+    EXPECT_CALL(database, commit());
+
+    storage.fetchAllPchPaths();
+}
+
 class PrecompiledHeaderStorageSlowTest : public testing::Test
 {
 protected:
@@ -476,6 +503,20 @@ TEST_F(PrecompiledHeaderStorageSlowTest, NoFetchTimeStamps)
     ASSERT_THAT(timeStamps,
                 AllOf(Field(&ClangBackEnd::PrecompiledHeaderTimeStamps::project, Eq(22)),
                       Field(&ClangBackEnd::PrecompiledHeaderTimeStamps::system, Eq(33))));
+}
+
+TEST_F(PrecompiledHeaderStorageSlowTest, FetchAllPchPaths)
+{
+    storage.insertProjectPrecompiledHeader(11, "/tmp/yi", 22);
+    storage.insertProjectPrecompiledHeader(12, "/tmp/er", 22);
+    storage.insertSystemPrecompiledHeaders({11, 12}, "/tmp/se", 33);
+    storage.insertSystemPrecompiledHeaders({13}, "/tmp/wu", 33);
+    storage.insertProjectPrecompiledHeader(13, "/tmp/san", 22);
+
+    auto filePathIds = storage.fetchAllPchPaths();
+
+    ASSERT_THAT(filePathIds,
+                UnorderedElementsAre("/tmp/er", "/tmp/san", "/tmp/se", "/tmp/wu", "/tmp/yi"));
 }
 
 } // namespace

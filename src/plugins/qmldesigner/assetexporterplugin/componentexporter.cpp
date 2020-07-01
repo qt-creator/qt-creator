@@ -23,6 +23,9 @@
 **
 ****************************************************************************/
 #include "componentexporter.h"
+#include "assetexporter.h"
+#include "assetexportpluginconstants.h"
+#include "exportnotification.h"
 #include "parsers/modelnodeparser.h"
 
 #include "model.h"
@@ -73,6 +76,7 @@ void Component::exportComponent()
 {
     QTC_ASSERT(m_rootNode.isValid(), return);
     m_json = nodeToJson(m_rootNode);
+    addImports();
 }
 
 ModelNodeParser *Component::createNodeParser(const ModelNode &node) const
@@ -102,8 +106,18 @@ QJsonObject Component::nodeToJson(const ModelNode &node)
 {
     QJsonObject jsonObject;
     std::unique_ptr<ModelNodeParser> parser(createNodeParser(node));
-    if (parser)
+    if (parser) {
+        if (parser->uuid().isEmpty()) {
+            // Assign an unique identifier to the node.
+            QByteArray uuid = m_exporter.generateUuid(node);
+            node.setAuxiliaryData(Constants::UuidAuxTag, QString::fromLatin1(uuid));
+            node.model()->rewriterView()->writeAuxiliaryData();
+        }
         jsonObject = parser->json(*this);
+    } else {
+        ExportNotification::addError(tr("Error exporting component %1. Parser unavailable.")
+                                     .arg(node.id()));
+    }
 
     QJsonArray children;
     for (const ModelNode &childnode : node.directSubModelNodes())
@@ -112,7 +126,17 @@ QJsonObject Component::nodeToJson(const ModelNode &node)
     if (!children.isEmpty())
         jsonObject.insert("children", children);
 
-    return  jsonObject;
+    return jsonObject;
+}
+
+void Component::addImports()
+{
+    QJsonArray importsArray;
+    for (const Import &import : m_rootNode.model()->imports())
+        importsArray.append(import.toString());
+
+    if (!importsArray.empty())
+        m_json.insert(Constants::ImportsTag, importsArray);
 }
 
 

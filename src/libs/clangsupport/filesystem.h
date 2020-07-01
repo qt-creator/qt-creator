@@ -41,6 +41,8 @@ public:
     FilePathIds directoryEntries(const QString &directoryPath) const override;
     long long lastModified(FilePathId filePathId) const override;
 
+    void remove(const FilePathIds &filePathIds) override;
+
 private:
     FilePathCachingInterface &m_filePathCache;
 };

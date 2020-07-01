@@ -70,7 +70,8 @@ public:
     void cancel();
     bool isBusy() const;
 
-    Utils::FilePath exportAsset(const QmlObjectNode& node);
+    Utils::FilePath exportAsset(const QmlObjectNode& node, const QString &uuid);
+    QByteArray generateUuid(const ModelNode &node);
 
 signals:
     void stateChanged(ParsingState);
@@ -87,8 +88,6 @@ private:
 
     void onQmlFileLoaded();
 
-    QByteArray addNodeUUID(ModelNode node);
-
 private:
     mutable class State {
     public:
@@ -101,10 +100,12 @@ private:
     ProjectExplorer::Project *m_project = nullptr;
     AssetExporterView *m_view = nullptr;
     Utils::FilePaths m_exportFiles;
+    unsigned int m_totalFileCount = 0;
     Utils::FilePath m_exportPath;
     QJsonArray m_components;
     QSet<QByteArray> m_usedHashes;
     std::unique_ptr<AssetDumper> m_assetDumper;
+    bool m_cancelled = false;
 };
 QDebug operator<< (QDebug os, const QmlDesigner::AssetExporter::ParsingState& s);
 
