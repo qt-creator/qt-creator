@@ -2176,6 +2176,37 @@ QSet<QPair<QString, QString> > TextToModelMerger::qrcMapping() const
     return m_qrcMapping;
 }
 
+QList<QmlTypeData> TextToModelMerger::getQMLSingletons() const
+{
+    QList<QmlTypeData> list;
+    const QmlJS::Imports *imports = m_scopeChain->context()->imports(
+        m_scopeChain->document().data());
+
+    if (!imports)
+        return list;
+
+    for (const QmlJS::Import &import : imports->all()) {
+        if (import.info.type() == ImportType::Library && !import.libraryPath.isEmpty()) {
+            const LibraryInfo &libraryInfo = m_scopeChain->context()->snapshot().libraryInfo(
+                import.libraryPath);
+
+            for (const QmlDirParser::Component &component : libraryInfo.components()) {
+                if (component.singleton) {
+                    QmlTypeData qmlData;
+
+                    qmlData.typeName = component.typeName;
+                    qmlData.importUrl = import.info.name();
+                    qmlData.versionString = import.info.version().toString();
+                    qmlData.isSingleton = component.singleton;
+
+                    list.append(qmlData);
+                }
+            }
+        }
+    }
+    return list;
+}
+
 QString TextToModelMerger::textAt(const Document::Ptr &doc,
                                   const SourceLocation &location)
 {

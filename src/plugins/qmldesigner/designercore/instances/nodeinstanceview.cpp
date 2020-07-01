@@ -958,7 +958,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
 
     QVector<MockupTypeContainer> mockupTypesVector;
 
-    for (const CppTypeData &cppTypeData : model()->rewriterView()->getCppTypes()) {
+    for (const QmlTypeData &cppTypeData : model()->rewriterView()->getQMLTypes()) {
         const QString versionString = cppTypeData.versionString;
         int majorVersion = -1;
         int minorVersion = -1;

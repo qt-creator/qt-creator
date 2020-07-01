@@ -52,7 +52,7 @@ public:
     void resetModel();
 
     QStringList possibleCppTypes() const;
-    CppTypeData cppTypeDataForType(const QString &typeName) const;
+    QmlTypeData cppTypeDataForType(const QString &typeName) const;
 
     void deletePropertyByRow(int rowNumber);
 

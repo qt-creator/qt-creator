@@ -960,27 +960,31 @@ QStringList RewriterView::autoComplete(const QString &text, int pos, bool explic
     return list;
 }
 
-QList<CppTypeData> RewriterView::getCppTypes()
+QList<QmlTypeData> RewriterView::getQMLTypes() const
 {
-    QList<CppTypeData> cppDataList;
-    for (const QmlJS::ModelManagerInterface::CppData &cppData : QmlJS::ModelManagerInterface::instance()->cppData().values())
+    QList<QmlTypeData> qmlDataList;
+
+    qmlDataList.append(m_textToModelMerger->getQMLSingletons());
+
+    for (const QmlJS::ModelManagerInterface::CppData &cppData :
+         QmlJS::ModelManagerInterface::instance()->cppData().values())
         for (const LanguageUtils::FakeMetaObject::ConstPtr &fakeMetaObject : cppData.exportedTypes) {
-            for (const LanguageUtils::FakeMetaObject::Export &exportItem : fakeMetaObject->exports()) {
+            for (const LanguageUtils::FakeMetaObject::Export &exportItem :
+                 fakeMetaObject->exports()) {
+                QmlTypeData qmlData;
+                qmlData.cppClassName = fakeMetaObject->className();
+                qmlData.typeName = exportItem.type;
+                qmlData.importUrl = exportItem.package;
+                qmlData.versionString = exportItem.version.toString();
+                qmlData.superClassName = fakeMetaObject->superclassName();
+                qmlData.isSingleton = fakeMetaObject->isSingleton();
 
-            CppTypeData cppData;
-            cppData.cppClassName = fakeMetaObject->className();
-            cppData.typeName = exportItem.type;
-            cppData.importUrl = exportItem.package;
-            cppData.versionString = exportItem.version.toString();
-            cppData.superClassName = fakeMetaObject->superclassName();
-            cppData.isSingleton = fakeMetaObject->isSingleton();
-
-            if (cppData.importUrl != "<cpp>") //ignore pure unregistered cpp types
-                cppDataList.append(cppData);
+                if (qmlData.importUrl != "<cpp>") //ignore pure unregistered cpp types
+                    qmlDataList.append(qmlData);
             }
         }
 
-    return cppDataList;
+    return qmlDataList;
 }
 
 void RewriterView::setWidgetStatusCallback(std::function<void (bool)> setWidgetStatusCallback)
@@ -990,7 +994,6 @@ void RewriterView::setWidgetStatusCallback(std::function<void (bool)> setWidgetS
 
 void RewriterView::qmlTextChanged()
 {
-    getCppTypes();
     if (inErrorState())
         return;
 
