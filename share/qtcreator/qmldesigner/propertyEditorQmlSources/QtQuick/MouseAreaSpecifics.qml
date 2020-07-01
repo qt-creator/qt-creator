@@ -39,7 +39,7 @@ Column {
         SectionLayout {
             Label {
                 text: qsTr("Enabled")
-                tooltip: qsTr("This property holds whether the item accepts mouse events.")
+                tooltip: qsTr("Accepts mouse events.")
             }
 
             SecondColumnLayout {
@@ -55,7 +55,7 @@ Column {
 
             Label {
                 text: qsTr("Hover enabled")
-                tooltip: qsTr("This property holds whether hover events are handled.")
+                tooltip: qsTr("Handles hover events.")
             }
 
             SecondColumnLayout {
@@ -71,7 +71,7 @@ Column {
 
             Label {
                 text: qsTr("Accepted buttons")
-                tooltip: qsTr("This property holds the mouse buttons that the mouse area reacts to.")
+                tooltip: qsTr("Mouse buttons that the mouse area reacts to.")
             }
 
             SecondColumnLayout {
@@ -87,7 +87,7 @@ Column {
 
             Label {
                 text: qsTr("Press and hold interval")
-                tooltip: qsTr("This property overrides the elapsed time in milliseconds before pressAndHold is emitted.")
+                tooltip: qsTr("Overrides the elapsed time in milliseconds before pressAndHold signal is emitted.")
             }
 
             SecondColumnLayout {
@@ -103,7 +103,7 @@ Column {
 
             Label {
                 text: qsTr("Scroll gesture enabled")
-                tooltip: qsTr("This property controls whether this MouseArea responds to scroll gestures from non-mouse devices.")
+                tooltip: qsTr("Responds to scroll gestures from non-mouse devices.")
             }
 
             SecondColumnLayout {
@@ -119,7 +119,7 @@ Column {
 
             Label {
                 text: qsTr("Cursor shape")
-                tooltip: qsTr("This property holds the cursor shape for this mouse area.")
+                tooltip: qsTr("Cursor shape for this mouse area.")
             }
 
             SecondColumnLayout {
@@ -140,7 +140,7 @@ Column {
 
             Label {
                 text: qsTr("Prevent stealing")
-                tooltip: qsTr("This property controls whether the mouse events may be stolen from this MouseArea.")
+                tooltip: qsTr("Stops mouse events from being stolen from this mouse area.")
             }
 
             SecondColumnLayout {
@@ -156,7 +156,7 @@ Column {
 
             Label {
                 text: qsTr("Propagate composed events")
-                tooltip: qsTr("This property controls whether composed mouse events will automatically propagate to other MouseAreas.")
+                tooltip: qsTr("Automatically propagates composed mouse events to other mouse areas.")
             }
 
             SecondColumnLayout {
@@ -180,7 +180,7 @@ Column {
         SectionLayout {
             Label {
                 text: qsTr("Target")
-                tooltip: qsTr("Sets the id of the item to drag.")
+                tooltip: qsTr("Id of the item to drag.")
             }
             SecondColumnLayout {
                 ItemFilterComboBox {
@@ -196,7 +196,7 @@ Column {
 
             Label {
                 text: qsTr("Axis")
-                tooltip: qsTr("Specifies whether dragging can be done horizontally, vertically, or both.")
+                tooltip: qsTr("Whether dragging can be done horizontally, vertically, or both.")
             }
             SecondColumnLayout {
                 ComboBox {
@@ -212,7 +212,7 @@ Column {
 
             Label {
                 text: qsTr("Filter children")
-                tooltip: qsTr("Specifies whether a drag overrides descendant MouseAreas.")
+                tooltip: qsTr("Whether dragging overrides descendant mouse areas.")
             }
 
             SecondColumnLayout {
@@ -228,7 +228,7 @@ Column {
 
             Label {
                 text: qsTr("Threshold")
-                tooltip: qsTr("Determines the threshold in pixels of when the drag operation should start.")
+                tooltip: qsTr("Threshold in pixels of when the drag operation should start.")
             }
 
             SecondColumnLayout {
@@ -245,8 +245,8 @@ Column {
 
             Label {
                 text: qsTr("Smoothed")
-                tooltip: qsTr("If set to true, the target will be moved only after the drag operation has started.\n"
-                              + "If set to false, the target will be moved straight to the current mouse position.")
+                tooltip: qsTr("Moves targets only after the drag operation has started.\n"
+                              + "When disabled, moves targets straight to the current mouse position.")
             }
 
             SecondColumnLayout {

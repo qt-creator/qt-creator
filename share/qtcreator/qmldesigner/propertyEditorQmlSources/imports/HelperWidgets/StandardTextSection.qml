@@ -124,7 +124,7 @@ Section {
 
         Label {
             text: qsTr("Render type")
-            toolTip: qsTr("Override the default rendering type for this item.")
+            toolTip: qsTr("Overrides the default rendering type for this item.")
         }
         ComboBox {
             scope: "Text"
@@ -165,7 +165,7 @@ Section {
             }
             Label {
                 text: qsTr("Pixel")
-                tooltip: qsTr("Specifies the minimum font pixel size of scaled text.")
+                tooltip: qsTr("Minimum font pixel size of scaled text.")
                 width: 42
             }
 
@@ -185,7 +185,7 @@ Section {
             }
             Label {
                 text: qsTr("Point")
-                tooltip: qsTr("Specifies the minimum font point size of scaled text.")
+                tooltip: qsTr("Minimum font point size of scaled text.")
                 width: 42
             }
         }
@@ -193,7 +193,7 @@ Section {
         Label {
             visible: showLineHeight
             text: qsTr("Line height")
-            tooltip: qsTr("Sets the line height for the text.")
+            tooltip: qsTr("Line height for the text.")
         }
 
         SpinBox {

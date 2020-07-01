@@ -62,7 +62,7 @@ Column {
 
             Label {
                 text: qsTr("Navigation wraps")
-                tooltip: qsTr("Determines whether the grid wraps key navigation.")
+                tooltip: qsTr("Whether the grid wraps key navigation.")
             }
 
             SectionLayout {
@@ -92,7 +92,7 @@ Column {
             }
 
             Label {
-                text: qsTr("Layout Direction")
+                text: qsTr("Layout direction")
             }
 
             SecondColumnLayout {
@@ -199,7 +199,7 @@ Column {
 
             Label {
                 text: qsTr("Resize duration")
-                tooltip: qsTr("Resize animation duration of the highlight delegate.")
+                tooltip: qsTr("Resizes animation duration of the highlight delegate.")
             }
 
             SectionLayout {
@@ -247,7 +247,7 @@ Column {
 
             Label {
                 text: qsTr("Follows current")
-                tooltip: qsTr("Determines whether the highlight is managed by the view.")
+                tooltip: qsTr("Whether the highlight is managed by the view.")
             }
 
             SectionLayout {

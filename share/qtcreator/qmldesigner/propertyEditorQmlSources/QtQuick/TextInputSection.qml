@@ -90,7 +90,7 @@ Section {
         Label {
             visible: !textInputSection.isTextInput
             text: qsTr("Tab stop distance")
-            tooltip: qsTr("Sets the default distance, in device units, between tab stops.")
+            tooltip: qsTr("Default distance between tab stops in device units.")
         }
         SpinBox {
             visible: !textInputSection.isTextInput
@@ -103,7 +103,7 @@ Section {
         Label {
             visible: !textInputSection.isTextInput
             text: qsTr("Text margin")
-            tooltip: qsTr("Sets the margin, in pixels, around the text in the Text Edit.")
+            tooltip: qsTr("Margin around the text in the Text Edit in pixels.")
         }
         SpinBox {
             visible: !textInputSection.isTextInput
@@ -116,7 +116,7 @@ Section {
         Label {
             visible: textInputSection.isTextInput
             text: qsTr("Maximum length")
-            tooltip: qsTr("Sets the maximum permitted length of the text in the TextInput.")
+            tooltip: qsTr("Maximum permitted length of the text in the TextInput.")
         }
         SpinBox {
             visible: textInputSection.isTextInput

@@ -52,7 +52,7 @@ Column {
             }
 
             Label {
-                text: qsTr("Border Left")
+                text: qsTr("Border left")
             }
 
             SecondColumnLayout {
@@ -70,7 +70,7 @@ Column {
             }
 
             Label {
-                text: qsTr("Border Right")
+                text: qsTr("Border right")
             }
 
             SecondColumnLayout {
@@ -88,7 +88,7 @@ Column {
             }
 
             Label {
-                text: qsTr("Border Top")
+                text: qsTr("Border top")
             }
 
             SecondColumnLayout {
@@ -106,7 +106,7 @@ Column {
             }
 
             Label {
-                text: qsTr("Border Bottom")
+                text: qsTr("Border bottom")
             }
 
             SecondColumnLayout {
@@ -124,7 +124,7 @@ Column {
             }
 
             Label {
-                text: qsTr("Horizontal Tile mode")
+                text: qsTr("Horizontal tile mode")
             }
 
             SecondColumnLayout {
@@ -138,7 +138,7 @@ Column {
             }
 
             Label {
-                text: qsTr("Vertical Tile mode")
+                text: qsTr("Vertical tile mode")
             }
 
             SecondColumnLayout {

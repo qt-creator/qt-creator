@@ -71,7 +71,7 @@ Column {
 
             Label {
                 text: qsTr("Interactive")
-                tooltip: qsTr("A user cannot drag or flick a PathView that is not interactive.")
+                tooltip: qsTr("Allows users to drag or flick a path view.")
             }
 
             SecondColumnLayout {
@@ -102,7 +102,7 @@ Column {
 
             Label {
                 text: qsTr("Item count")
-                tooltip: qsTr("pathItemCount: number of items visible on the path at any one time.")
+                tooltip: qsTr("Number of items visible on the path at any one time.")
             }
 
             SecondColumnLayout {

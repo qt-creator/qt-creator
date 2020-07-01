@@ -39,7 +39,7 @@ Column {
         SectionLayout {
             Label {
                 text: qsTr("Value")
-                tooltip: qsTr("Sets the value of the property.")
+                tooltip: qsTr("Value of the property.")
             }
             LineEdit {
                 backendValue: backendValues.value

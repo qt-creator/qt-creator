@@ -79,7 +79,7 @@ Rectangle {
                                     typeLineEdit.visible = ! typeLineEdit.visible
                                     typeLineEdit.forceActiveFocus()
                                 }
-                                tooltip: qsTr("Change the type of this item.")
+                                tooltip: qsTr("Changes the type of this item.")
                                 enabled: !modelNodeBackend.multiSelection
                             }
 
@@ -136,7 +136,7 @@ Rectangle {
                                 enabled: !modelNodeBackend.multiSelection
                                 anchors.fill: parent
                                 onClicked: toogleExportAlias()
-                                tooltip: qsTr("Toggles whether this item is exported as an alias property of the root item.")
+                                tooltip: qsTr("Exports this item as an alias property of the root item.")
                             }
                         }
                     }

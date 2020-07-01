@@ -38,7 +38,7 @@ Column {
         SectionLayout {
             Label {
                 text: qsTr("From")
-                tooltip: qsTr("Sets the starting value for the animation.")
+                tooltip: qsTr("Start value for the animation.")
             }
 
             SecondColumnLayout {
@@ -56,7 +56,7 @@ Column {
 
             Label {
                 text: qsTr("To")
-                tooltip: qsTr("Sets the end value for the animation.")
+                tooltip: qsTr("End value for the animation.")
             }
 
             SecondColumnLayout {

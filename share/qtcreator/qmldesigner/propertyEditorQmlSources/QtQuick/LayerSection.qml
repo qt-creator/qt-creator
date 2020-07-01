@@ -38,7 +38,7 @@ Section {
 
         Label {
             text: qsTr("Effect")
-            tooltip: qsTr("Sets the effect that is applied to this layer.")
+            tooltip: qsTr("Applies the effect to this layer.")
         }
         SecondColumnLayout {
             ItemFilterComboBox {
@@ -54,7 +54,7 @@ Section {
 
         Label {
             text: qsTr("Enabled")
-            tooltip: qsTr("Sets whether the item is layered or not.")
+            tooltip: qsTr("Whether the item is layered or not.")
         }
         SecondColumnLayout {
             CheckBox {
@@ -69,7 +69,7 @@ Section {
 
         Label {
             text: qsTr("Format")
-            tooltip: qsTr("Defines the internal OpenGL format of the texture.")
+            tooltip: qsTr("Internal OpenGL format of the texture.")
         }
         SecondColumnLayout {
             ComboBox {
@@ -85,7 +85,7 @@ Section {
 
         Label {
             text: qsTr("Mipmap")
-            tooltip: qsTr("Enables the generation of mipmaps for the texture.")
+            tooltip: qsTr("Generates mipmaps for the texture.")
         }
         SecondColumnLayout {
             CheckBox {
@@ -100,7 +100,7 @@ Section {
 
         Label {
             text: qsTr("Sampler name")
-            tooltip: qsTr("Sets the name of the effect's source texture property.")
+            tooltip: qsTr("Name of the effect's source texture property.")
         }
         SecondColumnLayout {
             LineEdit {
@@ -156,7 +156,7 @@ Section {
 
         Label {
             text: qsTr("Smooth")
-            tooltip: qsTr("Sets whether the layer is smoothly transformed.")
+            tooltip: qsTr("Transforms the layer smoothly.")
         }
         SecondColumnLayout {
             CheckBox {
@@ -251,7 +251,7 @@ Section {
 
         Label {
             text: qsTr("Texture mirroring")
-            tooltip: qsTr("Defines how the generated OpenGL texture should be mirrored.")
+            tooltip: qsTr("Sets how the generated OpenGL texture should be mirrored.")
         }
         SecondColumnLayout {
             ComboBox {
@@ -267,7 +267,7 @@ Section {
 
         Label {
             text: qsTr("Texture size")
-            tooltip: qsTr("Sets the requested pixel size of the layers texture.")
+            tooltip: qsTr("Requested pixel size of the layer's texture.")
         }
         SecondColumnLayout {
             Label {
@@ -303,7 +303,7 @@ Section {
 
         Label {
             text: qsTr("Wrap mode")
-            tooltip: qsTr("Defines the OpenGL wrap modes associated with the texture.")
+            tooltip: qsTr("OpenGL wrap modes associated with the texture.")
         }
         SecondColumnLayout {
             ComboBox {

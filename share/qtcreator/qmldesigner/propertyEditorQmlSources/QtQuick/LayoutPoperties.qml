@@ -201,7 +201,7 @@ SectionLayout {
 
     Label {
         text: qsTr("Fill layout")
-        tooltip: qsTr("The item will expand as much as possible while respecting the given constraints if true.")
+        tooltip: qsTr("Expands the item as much as possible within the given constraints.")
     }
 
     SecondColumnLayout {
@@ -340,7 +340,7 @@ SectionLayout {
 
     Label {
         text: qsTr("Row span")
-        tooltip: qsTr("Row span of an item in a GridLayout.")
+        tooltip: qsTr("Row span of an item in a Grid Layout.")
     }
 
     SecondColumnLayout {
@@ -362,7 +362,7 @@ SectionLayout {
 
     Label {
         text: qsTr("Column span")
-        tooltip: qsTr("Column span of an item in a GridLayout.")
+        tooltip: qsTr("Column span of an item in a Grid Layout.")
     }
 
     SecondColumnLayout {

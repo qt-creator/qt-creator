@@ -40,7 +40,7 @@ Section {
     SectionLayout {
         Label {
             text: qsTr("Running")
-            tooltip: qsTr("Sets whether the animation is currently running.")
+            tooltip: qsTr("Whether the animation is running.")
         }
 
         CheckBox {
@@ -50,7 +50,7 @@ Section {
 
         Label {
             text: qsTr("Paused")
-            tooltip: qsTr("Sets whether the animation is currently paused.")
+            tooltip: qsTr("Whether the animation is paused.")
         }
 
         CheckBox {
@@ -59,7 +59,7 @@ Section {
         }
         Label {
             text: qsTr("Loops")
-            tooltip: qsTr("Sets the number of times the animation should play.")
+            tooltip: qsTr("Number of times the animation should play.")
         }
 
         SecondColumnLayout {
@@ -78,7 +78,7 @@ Section {
         Label {
             visible: section.showDuration
             text: qsTr("Duration")
-            tooltip: qsTr("Sets the duration of the animation, in milliseconds.")
+            tooltip: qsTr("Duration of the animation in milliseconds.")
         }
 
         SecondColumnLayout {
@@ -95,8 +95,8 @@ Section {
             }
         }
         Label {
-            text: qsTr("Always Run To End")
-            tooltip: qsTr("Sets whether the animation should run to completion when it is stopped.")
+            text: qsTr("Always run to end")
+            tooltip: qsTr("Runs the animation to completion when it is stopped.")
         }
 
         CheckBox {
@@ -106,8 +106,8 @@ Section {
 
         Label {
             visible: section.showEasingCurve
-            text: qsTr("Easing Curve")
-            tooltip: qsTr("Define custom easing curve")
+            text: qsTr("Easing curve")
+            tooltip: qsTr("Defines a custom easing curve.")
         }
 
         BoolButtonRowButton {

@@ -35,7 +35,7 @@ Section {
     SectionLayout {
         Label {
             text: qsTr("Target")
-            tooltip: qsTr("Sets the target to animate the properties of.")
+            tooltip: qsTr("Target to animate the properties of.")
         }
         SecondColumnLayout {
             ItemFilterComboBox {
@@ -51,7 +51,7 @@ Section {
 
         Label {
             text: qsTr("Property")
-            tooltip: qsTr("Sets the property to animate.")
+            tooltip: qsTr("Property to animate.")
         }
         LineEdit {
             backendValue: backendValues.property
@@ -59,7 +59,7 @@ Section {
         }
         Label {
             text: qsTr("Properties")
-            tooltip: qsTr("Sets the properties to animate.")
+            tooltip: qsTr("Properties to animate.")
         }
         LineEdit {
             backendValue: backendValues.properties

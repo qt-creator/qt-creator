@@ -61,7 +61,7 @@ Column {
 
             Label {
                 text: qsTr("Paused")
-                tooltip: qsTr("Holds whether the animated image is paused.")
+                tooltip: qsTr("Whether the animated image is paused.")
                 disabledState: !backendValues.paused.isAvailable
             }
 
@@ -77,7 +77,7 @@ Column {
 
             Label {
                 text: qsTr("Playing")
-                tooltip: qsTr("Holds whether the animated image is playing.")
+                tooltip: qsTr("Whether the animated image is playing.")
                 disabledState: !backendValues.playing.isAvailable
             }
 
