@@ -209,8 +209,6 @@ ToolChainList AndroidToolChainFactory::autodetectToolChainsFromNdks(
     const AndroidConfig config = AndroidConfigurations::currentConfig();
 
     for (const Utils::FilePath &ndkLocation : ndkLocations) {
-        qCDebug(androidTCLog) << "Detecting toolchains from Android NDK:" << ndkLocation;
-
         FilePath clangPath = config.clangPathFromNdk(ndkLocation);
         if (!clangPath.exists()) {
             qCDebug(androidTCLog) << "Clang toolchains detection fails. Can not find Clang"
@@ -241,12 +239,12 @@ ToolChainList AndroidToolChainFactory::autodetectToolChainsFromNdks(
                                                    AndroidConfig::displayName(abi),
                                                    config.ndkVersion(ndkLocation).toString()));
                 if (tc) {
-                    qCDebug(androidTCLog) << "Tool chain already known" << abi.toString() << lang;
                     // make sure to update the toolchain with current name format
                     if (tc->displayName() != displayName)
                         tc->setDisplayName(displayName);
                 } else {
-                    qCDebug(androidTCLog) << "New Clang toolchain found" << abi.toString() << lang;
+                    qCDebug(androidTCLog) << "New Clang toolchain found" << abi.toString() << lang
+                                          << "for NDK" << ndkLocation;
                     auto atc = new AndroidToolChain();
                     atc->setNdkLocation(ndkLocation);
                     atc->setOriginalTargetTriple(target);
