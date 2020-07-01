@@ -326,6 +326,9 @@ void DesignModeWidget::setup()
             dockWidget->setWindowTitle(title);
             m_dockManager->addDockWidget(ADS::NoDockWidgetArea, dockWidget);
 
+            // Set unique id as object name
+            navigationView.widget->setObjectName(uniqueId);
+
             // Create menu action
             auto command = Core::ActionManager::registerAction(dockWidget->toggleViewAction(),
                                                                actionToggle.withSuffix(uniqueId + "Widget"),
@@ -346,6 +349,9 @@ void DesignModeWidget::setup()
         // Add to view widgets
         m_viewWidgets.append(widgetInfo.widget);
 
+        // Set unique id as object name
+        widgetInfo.widget->setObjectName(widgetInfo.uniqueId);
+
         // Create menu action
         auto command = Core::ActionManager::registerAction(dockWidget->toggleViewAction(),
                                                            actionToggle.withSuffix(widgetInfo.uniqueId + "Widget"),
@@ -356,11 +362,16 @@ void DesignModeWidget::setup()
 
     // Finally the output pane
     {
+        const QString uniqueId = "OutputPane";
         auto outputPanePlaceholder = new Core::OutputPanePlaceHolder(Core::Constants::MODE_DESIGN);
-        m_outputPaneDockWidget = new ADS::DockWidget("OutputPane");
+        m_outputPaneDockWidget = new ADS::DockWidget(uniqueId);
         m_outputPaneDockWidget->setWidget(outputPanePlaceholder);
         m_outputPaneDockWidget->setWindowTitle("Output Pane");
         m_dockManager->addDockWidget(ADS::NoDockWidgetArea, m_outputPaneDockWidget);
+
+        // Set unique id as object name
+        outputPanePlaceholder->setObjectName(uniqueId);
+
         // Create menu action
         auto command = Core::ActionManager::registerAction(m_outputPaneDockWidget->toggleViewAction(),
                                                            actionToggle.withSuffix("OutputPaneWidget"),
