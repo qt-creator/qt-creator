@@ -124,7 +124,6 @@ static qint64 extractPID(const QByteArray &output, const QString &packageName)
 static void findProcessPID(QFutureInterface<qint64> &fi, QStringList selector,
                            const QString &packageName, bool preNougat)
 {
-    qCDebug(androidRunWorkerLog) << "Finding PID. PreNougat:" << preNougat;
     if (packageName.isEmpty())
         return;
 
@@ -144,7 +143,7 @@ static void findProcessPID(QFutureInterface<qint64> &fi, QStringList selector,
         }
     } while (processPID == -1 && !isTimedOut(start) && !fi.isCanceled());
 
-    qCDebug(androidRunWorkerLog) << "PID found:" << processPID;
+    qCDebug(androidRunWorkerLog) << "PID found:" << processPID << ", PreNougat:" << preNougat;
     if (!fi.isCanceled())
         fi.reportResult(processPID);
 }
@@ -157,7 +156,6 @@ static void deleter(QProcess *p)
         p->kill();
         p->waitForFinished();
     }
-    qCDebug(androidRunWorkerLog) << "Done killing process:" << p->objectName();
     // Might get deleted from its own signal handler.
     p->deleteLater();
 }
@@ -308,11 +306,11 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
 
     m_debugServerPath = debugServer(m_useLldb, target).toString();
     qCDebug(androidRunWorkerLog) << "Device Serial:" << m_deviceSerialNumber
-                                 << "API level:" << m_apiLevel
-                                 << "Extra Start Args:" << m_amStartExtraArgs
-                                 << "Before Start ADB cmds:" << m_beforeStartAdbCommands
-                                 << "After finish ADB cmds:" << m_afterFinishAdbCommands
-                                 << "Debug server path:" << m_debugServerPath;
+                                 << ", API level:" << m_apiLevel
+                                 << ", Extra Start Args:" << m_amStartExtraArgs
+                                 << ", Before Start ADB cmds:" << m_beforeStartAdbCommands
+                                 << ", After finish ADB cmds:" << m_afterFinishAdbCommands
+                                 << ", Debug server path:" << m_debugServerPath;
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
     m_useAppParamsForQmlDebugger = version->qtVersion() >= QtSupport::QtVersionNumber(5, 12);

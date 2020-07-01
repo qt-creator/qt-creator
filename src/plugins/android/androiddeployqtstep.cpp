@@ -209,7 +209,7 @@ bool AndroidDeployQtStep::init()
 
     m_avdName = info.avdname;
     m_serialNumber = info.serialNumber;
-    qCDebug(deployStepLog) << "Selected Device:" << info;
+    qCDebug(deployStepLog) << "Selected device info:" << info;
 
     gatherFilesToPull();
 
@@ -246,7 +246,6 @@ bool AndroidDeployQtStep::init()
                 emit addOutput(tr("Cannot find the androiddeployqt tool."), OutputFormat::Stderr);
                 return false;
             }
-            qCDebug(deployStepLog) << "Using androiddeployqt";
             m_command = m_command.pathAppended(HostOsInfo::withExecutableSuffix("androiddeployqt"));
 
             m_workingDirectory = bc->buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY);
@@ -497,9 +496,8 @@ void AndroidDeployQtStep::gatherFilesToPull()
     m_filesToPull["/system/bin/" + linkerName] = buildDir + linkerName;
     m_filesToPull["/system/" + libDirName + "/libc.so"] = buildDir + "libc.so";
 
-    qCDebug(deployStepLog) << "Files to pull from device:";
     for (auto itr = m_filesToPull.constBegin(); itr != m_filesToPull.constEnd(); ++itr)
-        qCDebug(deployStepLog) << itr.key() << "to" << itr.value();
+        qCDebug(deployStepLog) << "Pulling file from device:" << itr.key() << "to:" << itr.value();
 }
 
 void AndroidDeployQtStep::doRun()

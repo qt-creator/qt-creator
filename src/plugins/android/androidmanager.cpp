@@ -433,7 +433,7 @@ QString AndroidManager::deviceSerialNumber(const Target *target)
 
 void AndroidManager::setDeviceSerialNumber(Target *target, const QString &deviceSerialNumber)
 {
-    qCDebug(androidManagerLog) << "Device serial for the target changed"
+    qCDebug(androidManagerLog) << "Target device serial changed:"
                                << target->displayName() << deviceSerialNumber;
     target->setNamedSettings(AndroidDeviceSn, deviceSerialNumber);
 }
@@ -470,7 +470,7 @@ int AndroidManager::deviceApiLevel(const Target *target)
 
 void AndroidManager::setDeviceApiLevel(Target *target, int level)
 {
-    qCDebug(androidManagerLog) << "Device API level for the target changed"
+    qCDebug(androidManagerLog) << "Target device API level changed:"
                                << target->displayName() << level;
     target->setNamedSettings(ApiLevelKey, level);
 }
@@ -815,7 +815,7 @@ SdkToolResult AndroidManager::runCommand(const CommandLine &command,
     cmdResult.m_stdOut = response.stdOut().trimmed();
     cmdResult.m_stdErr = response.stdErr().trimmed();
     cmdResult.m_success = response.result == SynchronousProcessResponse::Finished;
-    qCDebug(androidManagerLog) << "Running command (sync) finshed:" << command.toUserOutput()
+    qCDebug(androidManagerLog) << "Command finshed (sync):" << command.toUserOutput()
                                << "Success:" << cmdResult.m_success
                                << "Output:" << response.allRawOutput();
     if (!cmdResult.success())

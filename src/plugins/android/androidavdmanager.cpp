@@ -74,7 +74,7 @@ bool AndroidAvdManager::avdManagerCommand(const AndroidConfig &config, const QSt
     Utils::SynchronousProcess proc;
     auto env = AndroidConfigurations::toolsEnvironment(config).toStringList();
     proc.setEnvironment(env);
-    qCDebug(avdManagerLog) << "Running command:" << cmd.toUserOutput();
+    qCDebug(avdManagerLog) << "Running AVD Manager command:" << cmd.toUserOutput();
     SynchronousProcessResponse response = proc.runBlocking(cmd);
     if (response.result == Utils::SynchronousProcessResponse::Finished) {
         if (output)
@@ -136,7 +136,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
 
     const QString avdManagerTool = config.avdManagerToolPath().toString();
     qCDebug(avdManagerLog)
-            << "Running command:" << CommandLine(avdManagerTool, arguments).toUserOutput();
+            << "Running AVD Manager command:" << CommandLine(avdManagerTool, arguments).toUserOutput();
     QProcess proc;
     proc.start(avdManagerTool, arguments);
     if (!proc.waitForStarted()) {
