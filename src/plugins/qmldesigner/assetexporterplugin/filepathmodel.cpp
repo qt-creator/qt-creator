@@ -41,8 +41,8 @@ Q_LOGGING_CATEGORY(loggerInfo, "qtc.designer.assetExportPlugin.filePathModel", Q
 
 void findQmlFiles(QFutureInterface<Utils::FilePath> &f, const Project *project)
 {
-    if (!project && !f.isCanceled())
-        f.reportFinished({});
+    if (!project || f.isCanceled())
+        return;
 
     int index = 0;
     Utils::FilePaths qmlFiles = project->files([&f, &index](const Node* node) ->bool {
@@ -54,7 +54,6 @@ void findQmlFiles(QFutureInterface<Utils::FilePath> &f, const Project *project)
             f.reportResult(path, index++);
         return true;
     });
-    f.reportFinished();
 }
 }
 
