@@ -420,10 +420,8 @@ QSet<QString> QuickTestTreeItem::internalTargets() const
     for (const CppTools::ProjectPart::Ptr &projectPart : projectInfo.projectParts()) {
         if (projectPart->buildTargetType != ProjectExplorer::BuildTargetType::Executable)
             continue;
-        if (projectPart->projectFile == proFile()) {
+        if (projectPart->projectFile == proFile())
             result.insert(projectPart->buildSystemTarget);
-            break;
-        }
     }
     return result;
 }
