@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 #include "modelnodeparser.h"
+#include "assetexportpluginconstants.h"
 
 namespace QmlDesigner {
 ModelNodeParser::ModelNodeParser(const QByteArrayList &lineage, const ModelNode &node) :
@@ -36,6 +37,11 @@ ModelNodeParser::ModelNodeParser(const QByteArrayList &lineage, const ModelNode 
 QVariant ModelNodeParser::propertyValue(const PropertyName &name) const
 {
     return m_objectNode.instanceValue(name);
+}
+
+QString ModelNodeParser::uuid() const
+{
+    return m_node.auxiliaryData(Constants::UuidAuxTag).toString();
 }
 
 }

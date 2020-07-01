@@ -1,4 +1,5 @@
 INCLUDEPATH += ../mockup
+INCLUDEPATH += ../mockup/qmldesigner/designercore/include
 
 QT += core network testlib widgets
 CONFIG += console c++14 testcase
@@ -38,8 +39,11 @@ CONFIG(release, debug|release):QMAKE_LFLAGS += -Wl,--strip-debug
 }
 
 gcc:!clang: QMAKE_CXXFLAGS += -Wno-noexcept-type
-msvc: QMAKE_CXXFLAGS += /bigobj /wd4267 /wd4141 /wd4146
+msvc{
+QMAKE_CXXFLAGS += /bigobj /wd4267 /wd4141 /wd4146 /wd4624
+QMAKE_LFLAGS += /INCREMENTAL
 
+}
 # create fake CppTools.json for the mime type definitions
 dependencyList = "\"Dependencies\" : []"
 cpptoolsjson.input = $$PWD/../../../src/plugins/cpptools/CppTools.json.in
@@ -65,6 +69,7 @@ SOURCES += \
     gtest-qt-printing.cpp \
     lastchangedrowid-test.cpp \
     lineprefixer-test.cpp \
+    listmodeleditor-test.cpp \
     locatorfilter-test.cpp \
     mimedatabase-utilities.cpp \
     pchmanagerclientserverinprocess-test.cpp \
@@ -132,18 +137,15 @@ SOURCES += \
     sqlstatementbuilder-test.cpp \
     createtablesqlstatementbuilder-test.cpp
 
-!isEmpty(QTC_UNITTEST_BUILD_CPP_PARSER):matchingtext-test.cpp
+!isEmpty(QTC_UNITTEST_BUILD_CPP_PARSER):SOURCES += matchingtext-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
-    activationsequencecontextprocessor-test.cpp \
-    activationsequenceprocessor-test.cpp \
     chunksreportedmonitor.cpp \
     clangasyncjob-base.cpp \
     clangcodecompleteresults-test.cpp \
     clangcodemodelserver-test.cpp \
     clangcompletecodejob-test.cpp \
-    clangcompletioncontextanalyzer-test.cpp \
     clangdiagnosticfilter-test.cpp \
     clangdocumentprocessors-test.cpp \
     clangdocumentprocessor-test.cpp \
@@ -183,6 +185,12 @@ SOURCES += \
     unsavedfile-test.cpp \
     utf8positionfromlinecolumn-test.cpp \
     readexporteddiagnostics-test.cpp
+
+!isEmpty(QTC_UNITTEST_BUILD_CPP_PARSER):SOURCE += \
+    clangcompletioncontextanalyzer-test.cpp \
+    activationsequencecontextprocessor-test.cpp \
+    activationsequenceprocessor-test.cpp
+
 }
 
 !isEmpty(LIBTOOLING_LIBS) {
@@ -198,7 +206,6 @@ SOURCES += \
     refactoringclientserverinprocess-test.cpp \
     refactoringclient-test.cpp \
     refactoringcompilationdatabase-test.cpp \
-    refactoringengine-test.cpp \
     refactoringserver-test.cpp \
     sourcerangeextractor-test.cpp \
     symbolindexing-test.cpp \
@@ -207,6 +214,9 @@ SOURCES += \
     usedmacrocollector-test.cpp \
     builddependencycollector-test.cpp \
     tokenprocessor-test.cpp
+
+!isEmpty(QTC_UNITTEST_BUILD_CPP_PARSER):SOURCES += refactoringengine-test.cpp
+
 }
 
 !isEmpty(CLANGFORMAT_LIBS) {
@@ -237,6 +247,7 @@ HEADERS += \
     mockclangpathwatcher.h \
     mockclangpathwatchernotifier.h \
     mockfilesystem.h \
+    mocklistmodeleditorview.h \
     mockpchcreator.h \
     mockpchmanagerclient.h \
     mockpchmanagernotifier.h \
@@ -288,7 +299,11 @@ HEADERS += \
     mockbuilddependencygenerator.h \
     mockpchtasksmerger.h \
     mockpchtaskqueue.h \
-    mockpchtaskgenerator.h
+    mockpchtaskgenerator.h \
+    ../mockup/qmldesigner/designercore/include/nodeinstanceview.h \
+    ../mockup/qmldesigner/designercore/include/rewriterview.h \
+    ../mockup/qmldesigner/designercore/include/itemlibraryitem.h
+
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \

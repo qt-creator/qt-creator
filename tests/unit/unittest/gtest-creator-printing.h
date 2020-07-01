@@ -350,4 +350,12 @@ std::ostream &operator<<(std::ostream &out, const Diagnostic &diag);
 } // namespace Internal
 } // namespace CppTools
 
+namespace QmlDesigner {
+class ModelNode;
+class VariantProperty;
+
+std::ostream &operator<<(std::ostream &out, const ModelNode &node);
+std::ostream &operator<<(std::ostream &out, const VariantProperty &property);
+} // namespace QmlDesigner
+
 void setFilePathCache(ClangBackEnd::FilePathCaching *filePathCache);

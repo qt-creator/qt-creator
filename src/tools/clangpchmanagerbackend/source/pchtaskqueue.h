@@ -37,6 +37,8 @@ class PchCreatorInterface;
 class PrecompiledHeaderStorageInterface;
 class ProgressCounter;
 class Environment;
+class FileSystemInterface;
+class FilePathCachingInterface;
 
 class PchTaskQueue final : public PchTaskQueueInterface
 {
@@ -48,13 +50,17 @@ public:
                  ProgressCounter &progressCounter,
                  PrecompiledHeaderStorageInterface &precompiledHeaderStorage,
                  Sqlite::TransactionInterface &transactionsInterface,
-                 const Environment &environment)
+                 const Environment &environment,
+                 FileSystemInterface &fileSystem,
+                 FilePathCachingInterface &filePathCache)
         : m_systemPchTaskScheduler(systemPchTaskScheduler)
         , m_projectPchTaskScheduler(projectPchTaskScheduler)
         , m_precompiledHeaderStorage(precompiledHeaderStorage)
         , m_transactionsInterface(transactionsInterface)
         , m_progressCounter(progressCounter)
         , m_environment(environment)
+        , m_fileSystem(fileSystem)
+        , m_filePathCache(filePathCache)
     {
         Q_UNUSED(m_transactionsInterface)
     }
@@ -74,8 +80,9 @@ public:
 private:
     void addPchTasks(PchTasks &&pchTasks, PchTasks &destination);
     void removePchTasksByProjectPartId(const ProjectPartIds &projectsPartIds, PchTasks &destination);
-    void processProjectPchTasks();
-    void processSystemPchTasks();
+    int processProjectPchTasks();
+    int processSystemPchTasks();
+    void deleteUnusedPchs();
 
 private:
     PchTasks m_systemPchTasks;
@@ -86,6 +93,8 @@ private:
     Sqlite::TransactionInterface &m_transactionsInterface;
     ProgressCounter &m_progressCounter;
     const Environment &m_environment;
+    FileSystemInterface &m_fileSystem;
+    FilePathCachingInterface &m_filePathCache;
 };
 
 } // namespace ClangBackEnd

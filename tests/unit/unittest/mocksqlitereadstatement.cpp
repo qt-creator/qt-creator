@@ -107,6 +107,12 @@ FilePathIds MockSqliteReadStatement::values<ClangBackEnd::FilePathId>(std::size_
     return valuesReturnFilePathIds(reserveSize, projectPartId);
 }
 
+template<>
+ClangBackEnd::FilePaths MockSqliteReadStatement::values<ClangBackEnd::FilePath>(std::size_t reserveSize)
+{
+    return valuesReturnFilePaths(reserveSize);
+}
+
 template <>
 std::vector<Sources::Directory> MockSqliteReadStatement::values<Sources::Directory, 2>(std::size_t reserveSize)
 {

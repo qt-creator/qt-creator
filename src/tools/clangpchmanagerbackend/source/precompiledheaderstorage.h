@@ -219,6 +219,22 @@ public:
         return {};
     }
 
+    FilePaths fetchAllPchPaths() const
+    {
+        try {
+            Sqlite::DeferredTransaction transaction{database};
+
+            auto filePaths = fetchAllPchPathsStatement.template values<FilePath>(1024);
+
+            transaction.commit();
+
+            return filePaths;
+
+        } catch (const Sqlite::StatementIsBusy) {
+            return fetchAllPchPaths();
+        }
+    }
+
 public:
     Sqlite::ImmediateNonThrowingDestructorTransaction transaction;
     Database &database;
@@ -261,6 +277,10 @@ public:
     mutable ReadStatement fetchTimeStampsStatement{
         "SELECT projectPchBuildTime, systemPchBuildTime FROM precompiledHeaders WHERE "
         "projectPartId = ?",
+        database};
+    mutable ReadStatement fetchAllPchPathsStatement{
+        "SELECT DISTINCT systemPchPath FROM precompiledHeaders UNION ALL SELECT "
+        "DISTINCT projectPchPath FROM precompiledHeaders",
         database};
 };
 

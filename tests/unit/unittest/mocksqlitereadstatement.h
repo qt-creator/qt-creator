@@ -113,6 +113,8 @@ public:
 
     MOCK_METHOD1(valueReturnFilePath, Utils::optional<ClangBackEnd::FilePath>(int));
 
+    MOCK_METHOD1(valuesReturnFilePaths, ClangBackEnd::FilePaths(std::size_t));
+
     MOCK_METHOD1(valueReturnSmallString,
                  Utils::optional<Utils::SmallString>(int));
 
@@ -232,6 +234,9 @@ MockSqliteReadStatement::values<ClangBackEnd::UsedMacro, 2>(
 template<>
 FilePathIds MockSqliteReadStatement::values<ClangBackEnd::FilePathId>(std::size_t reserveSize,
                                                                       const int &projectPartId);
+
+template<>
+ClangBackEnd::FilePaths MockSqliteReadStatement::values<ClangBackEnd::FilePath>(std::size_t reserveSize);
 
 template <>
 std::vector<Sources::Directory> MockSqliteReadStatement::values<Sources::Directory, 2>(std::size_t reserveSize);

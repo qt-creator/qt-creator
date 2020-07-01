@@ -26,6 +26,8 @@
 #include "pchtaskqueue.h"
 
 #include <environment.h>
+#include <filepathcaching.h>
+#include <filesystem.h>
 #include <pchcreatorinterface.h>
 #include <precompiledheaderstorageinterface.h>
 #include <progresscounter.h>
@@ -107,36 +109,67 @@ void PchTaskQueue::removePchTasks(const ProjectPartIds &projectsPartIds)
     removePchTasksByProjectPartId(projectsPartIds, m_projectPchTasks);
 }
 
-void PchTaskQueue::processProjectPchTasks()
+int PchTaskQueue::processProjectPchTasks()
 {
-    uint systemRunningTaskCount = m_systemPchTaskScheduler.slotUsage().used;
+    auto slotUsage = m_projectPchTaskScheduler.slotUsage();
+    uint freeTaskCount = slotUsage.free;
 
-    if (!systemRunningTaskCount) {
-        uint freeTaskCount = m_projectPchTaskScheduler.slotUsage().free;
+    int newTaskCount = std::min<int>(int(freeTaskCount), int(m_projectPchTasks.size()));
 
-        auto newEnd = std::prev(m_projectPchTasks.end(),
-                                std::min<int>(int(freeTaskCount), int(m_projectPchTasks.size())));
-        m_projectPchTaskScheduler.addTasks(createProjectTasks(
-            {std::make_move_iterator(newEnd), std::make_move_iterator(m_projectPchTasks.end())}));
-        m_projectPchTasks.erase(newEnd, m_projectPchTasks.end());
-    }
+    auto newEnd = std::prev(m_projectPchTasks.end(), newTaskCount);
+    m_projectPchTaskScheduler.addTasks(createProjectTasks(
+        {std::make_move_iterator(newEnd), std::make_move_iterator(m_projectPchTasks.end())}));
+    m_projectPchTasks.erase(newEnd, m_projectPchTasks.end());
+
+    return newTaskCount + slotUsage.used;
 }
 
-void PchTaskQueue::processSystemPchTasks()
+int PchTaskQueue::processSystemPchTasks()
 {
-    uint freeTaskCount = m_systemPchTaskScheduler.slotUsage().free;
+    auto slotUsage = m_systemPchTaskScheduler.slotUsage();
+    uint freeTaskCount = slotUsage.free;
 
-    auto newEnd = std::prev(m_systemPchTasks.end(),
-                            std::min<int>(int(freeTaskCount), int(m_systemPchTasks.size())));
+    int newTaskCount = std::min<int>(int(freeTaskCount), int(m_systemPchTasks.size()));
+
+    auto newEnd = std::prev(m_systemPchTasks.end(), newTaskCount);
     m_systemPchTaskScheduler.addTasks(createSystemTasks(
         {std::make_move_iterator(newEnd), std::make_move_iterator(m_systemPchTasks.end())}));
     m_systemPchTasks.erase(newEnd, m_systemPchTasks.end());
+
+    return newTaskCount + slotUsage.used;
+}
+
+void PchTaskQueue::deleteUnusedPchs()
+{
+    FilePathIds existingPchFilePathIds = m_fileSystem.directoryEntries(
+        QString{m_environment.pchBuildDirectory()});
+    FilePathIds notAnymoreUsedPchFilePathIds;
+    notAnymoreUsedPchFilePathIds.reserve(existingPchFilePathIds.size());
+
+    FilePathIds usedPchFilePathIds = m_filePathCache.filePathIds(
+        m_precompiledHeaderStorage.fetchAllPchPaths());
+    std::sort(usedPchFilePathIds.begin(), usedPchFilePathIds.end());
+
+    std::set_difference(existingPchFilePathIds.begin(),
+                        existingPchFilePathIds.end(),
+                        usedPchFilePathIds.begin(),
+                        usedPchFilePathIds.end(),
+                        std::back_inserter(notAnymoreUsedPchFilePathIds));
+
+    m_fileSystem.remove(notAnymoreUsedPchFilePathIds);
 }
 
 void PchTaskQueue::processEntries()
 {
-    processSystemPchTasks();
-    processProjectPchTasks();
+    int projectTaskCount = 0;
+    int systemTaskCount = processSystemPchTasks();
+    if (systemTaskCount == 0)
+        projectTaskCount = processProjectPchTasks();
+
+    int totalTaskCount = projectTaskCount + systemTaskCount;
+
+    if (totalTaskCount == 0)
+        deleteUnusedPchs();
 }
 
 std::vector<PchTaskQueue::Task> PchTaskQueue::createProjectTasks(PchTasks &&pchTasks) const

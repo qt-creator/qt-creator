@@ -25,14 +25,18 @@
 
 #include "googletest.h"
 
+#include "mockfilesystem.h"
 #include "mockpchcreator.h"
 #include "mockprecompiledheaderstorage.h"
 #include "mocksqlitetransactionbackend.h"
 #include "mocktaskscheduler.h"
 #include "testenvironment.h"
 
+#include <filepathcaching.h>
 #include <pchtaskqueue.h>
 #include <progresscounter.h>
+#include <refactoringdatabaseinitializer.h>
+#include <sqlitedatabase.h>
 
 namespace {
 
@@ -45,9 +49,26 @@ using ClangBackEnd::SlotUsage;
 class PchTaskQueue : public testing::Test
 {
 protected:
+    ClangBackEnd::FilePathId filePathId(Utils::SmallStringView path)
+    {
+        return filePathCache.filePathId(ClangBackEnd::FilePathView{path});
+    }
+
+    ClangBackEnd::FilePathIds filePathIds(const Utils::PathStringVector &paths)
+    {
+        return filePathCache.filePathIds(Utils::transform(paths, [](const Utils::PathString &path) {
+            return ClangBackEnd::FilePathView(path);
+        }));
+    }
+
+protected:
+    Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
+    ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
+    ClangBackEnd::FilePathCaching filePathCache{database};
     NiceMock<MockTaskScheduler<ClangBackEnd::PchTaskQueue::Task>> mockSytemPchTaskScheduler;
     NiceMock<MockTaskScheduler<ClangBackEnd::PchTaskQueue::Task>> mockProjectPchTaskScheduler;
     NiceMock<MockPrecompiledHeaderStorage> mockPrecompiledHeaderStorage;
+    NiceMock<MockFileSystem> mockFileSystem;
     MockSqliteTransactionBackend mockSqliteTransactionBackend;
     NiceMock<MockFunction<void(int, int)>> mockSetProgressCallback;
     ClangBackEnd::ProgressCounter progressCounter{mockSetProgressCallback.AsStdFunction()};
@@ -57,7 +78,9 @@ protected:
                                      progressCounter,
                                      mockPrecompiledHeaderStorage,
                                      mockSqliteTransactionBackend,
-                                     testEnvironment};
+                                     testEnvironment,
+                                     mockFileSystem,
+                                     filePathCache};
     IncludeSearchPaths systemIncludeSearchPaths{
         {"/includes", 1, IncludeSearchPathType::BuiltIn},
         {"/other/includes", 2, IncludeSearchPathType::System}};
@@ -388,6 +411,93 @@ TEST_F(PchTaskQueue, DeleteSystemPchEntryInDatabaseIfNoPchIsGenerated)
                 deleteSystemPrecompiledHeaders(UnorderedElementsAre(1, 3)));
 
     tasks.front()(mockPchCreator);
+}
+
+TEST_F(PchTaskQueue, DontDeleteUnusedPchsIfSystemTaskAreProcessed)
+{
+    QString pchsDirectory{testEnvironment.pchBuildDirectory()};
+    ON_CALL(mockSytemPchTaskScheduler, slotUsage()).WillByDefault(Return(SlotUsage{2, 1}));
+    ON_CALL(mockProjectPchTaskScheduler, slotUsage()).WillByDefault(Return(SlotUsage{2, 0}));
+    ON_CALL(mockFileSystem, directoryEntries(Eq(pchsDirectory)))
+        .WillByDefault(Return(filePathIds({"/tmp/foo", "/tmp/bar"})));
+    ON_CALL(mockPrecompiledHeaderStorage, fetchAllPchPaths())
+        .WillByDefault(Return(ClangBackEnd::FilePaths{"/tmp/foo", "/tmp/poo"}));
+
+    EXPECT_CALL(mockFileSystem, remove(_)).Times(0);
+
+    queue.processEntries();
+}
+
+TEST_F(PchTaskQueue, DontDeleteUnusedPchsIfProjectTaskAreProcessed)
+{
+    QString pchsDirectory{testEnvironment.pchBuildDirectory()};
+    ON_CALL(mockSytemPchTaskScheduler, slotUsage()).WillByDefault(Return(SlotUsage{2, 0}));
+    ON_CALL(mockProjectPchTaskScheduler, slotUsage()).WillByDefault(Return(SlotUsage{2, 1}));
+    ON_CALL(mockFileSystem, directoryEntries(Eq(pchsDirectory)))
+        .WillByDefault(Return(filePathIds({"/tmp/foo", "/tmp/bar"})));
+    ON_CALL(mockPrecompiledHeaderStorage, fetchAllPchPaths())
+        .WillByDefault(Return(ClangBackEnd::FilePaths{"/tmp/foo", "/tmp/poo"}));
+
+    EXPECT_CALL(mockFileSystem, remove(_)).Times(0);
+
+    queue.processEntries();
+}
+
+TEST_F(PchTaskQueue, DontDeleteUnusedPchsIfSystemTaskIsAdded)
+{
+    QString pchsDirectory{testEnvironment.pchBuildDirectory()};
+    ON_CALL(mockSytemPchTaskScheduler, slotUsage()).WillByDefault(Return(SlotUsage{2, 0}));
+    ON_CALL(mockProjectPchTaskScheduler, slotUsage()).WillByDefault(Return(SlotUsage{2, 0}));
+    ON_CALL(mockFileSystem, directoryEntries(Eq(pchsDirectory)))
+        .WillByDefault(Return(filePathIds({"/tmp/foo", "/tmp/bar"})));
+    ON_CALL(mockPrecompiledHeaderStorage, fetchAllPchPaths())
+        .WillByDefault(Return(ClangBackEnd::FilePaths{"/tmp/foo", "/tmp/poo"}));
+    queue.addSystemPchTasks({systemTask1});
+
+    EXPECT_CALL(mockFileSystem, remove(_)).Times(0);
+
+    queue.processEntries();
+}
+
+TEST_F(PchTaskQueue, DontDeleteUnusedPchsIfProjectTaskIsAdded)
+{
+    QString pchsDirectory{testEnvironment.pchBuildDirectory()};
+    ON_CALL(mockSytemPchTaskScheduler, slotUsage()).WillByDefault(Return(SlotUsage{2, 0}));
+    ON_CALL(mockProjectPchTaskScheduler, slotUsage()).WillByDefault(Return(SlotUsage{2, 0}));
+    ON_CALL(mockFileSystem, directoryEntries(Eq(pchsDirectory)))
+        .WillByDefault(Return(filePathIds({"/tmp/foo", "/tmp/bar"})));
+    ON_CALL(mockPrecompiledHeaderStorage, fetchAllPchPaths())
+        .WillByDefault(Return(ClangBackEnd::FilePaths{"/tmp/foo", "/tmp/poo"}));
+    queue.addProjectPchTasks({projectTask1});
+
+    EXPECT_CALL(mockFileSystem, remove(_)).Times(0);
+
+    queue.processEntries();
+}
+
+TEST_F(PchTaskQueue, DeleteUnusedPchs)
+{
+    QString pchsDirectory{testEnvironment.pchBuildDirectory()};
+    ON_CALL(mockSytemPchTaskScheduler, slotUsage()).WillByDefault(Return(SlotUsage{2, 0}));
+    ON_CALL(mockProjectPchTaskScheduler, slotUsage()).WillByDefault(Return(SlotUsage{2, 0}));
+    ON_CALL(mockFileSystem, directoryEntries(Eq(pchsDirectory)))
+        .WillByDefault(Return(filePathIds({
+            "/tmp/foo",
+            "/tmp/bar",
+            "/tmp/hoo",
+            "/tmp/too",
+        })));
+    ON_CALL(mockPrecompiledHeaderStorage, fetchAllPchPaths())
+        .WillByDefault(Return(ClangBackEnd::FilePaths{
+            "/tmp/foo",
+            "/tmp/poo",
+            "/tmp/too",
+        }));
+
+    EXPECT_CALL(mockFileSystem,
+                remove(UnorderedElementsAre(filePathId("/tmp/bar"), filePathId("/tmp/hoo"))));
+
+    queue.processEntries();
 }
 
 } // namespace

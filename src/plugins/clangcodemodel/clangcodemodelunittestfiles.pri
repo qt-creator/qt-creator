@@ -1,22 +1,28 @@
 INCLUDEPATH += $$PWD
 
 SOURCES += \
-    $$PWD/clangactivationsequencecontextprocessor.cpp \
-    $$PWD/clangactivationsequenceprocessor.cpp \
     $$PWD/clangcompletionchunkstotextconverter.cpp \
-    $$PWD/clangcompletioncontextanalyzer.cpp \
     $$PWD/clangdiagnosticfilter.cpp \
     $$PWD/clangfixitoperation.cpp \
     $$PWD/clanghighlightingresultreporter.cpp \
     $$PWD/clanguiheaderondiskmanager.cpp
 
+!isEmpty(QTC_UNITTEST_BUILD_CPP_PARSER):SOURCES+= \
+    $$PWD/clangactivationsequenceprocessor.cpp \
+    $$PWD/clangactivationsequencecontextprocessor.cpp
+
 HEADERS += \
-    $$PWD/clangactivationsequencecontextprocessor.h \
-    $$PWD/clangactivationsequenceprocessor.h \
     $$PWD/clangcompletionchunkstotextconverter.h \
-    $$PWD/clangcompletioncontextanalyzer.h \
     $$PWD/clangdiagnosticfilter.h \
     $$PWD/clangfixitoperation.h \
     $$PWD/clanghighlightingresultreporter.h \
     $$PWD/clangisdiagnosticrelatedtolocation.h \
     $$PWD/clanguiheaderondiskmanager.h
+
+!isEmpty(QTC_UNITTEST_BUILD_CPP_PARSER):SOURCES+= \
+    $$PWD/clangactivationsequencecontextprocessor.h \
+    $$PWD/clangactivationsequenceprocessor.h \
+    $$PWD/clangcompletioncontextanalyzer.cpp \
+    $$PWD/clangcompletioncontextanalyzer.h
+
+

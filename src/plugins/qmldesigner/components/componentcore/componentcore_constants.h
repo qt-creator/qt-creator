@@ -181,6 +181,9 @@ const char addFlowActionToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", 
 const char fitRootToScreenToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Fit the root element inside the available space.");
 const char fitSelectionToScreenToolTip[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Fit the selected elements inside the available space.");
 
+const char editListModelDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
+                                                          "Edit List Model...");
+
 const int priorityFirst = 280;
 const int prioritySelectionCategory = 220;
 const int priorityQmlPreviewCategory = 200;

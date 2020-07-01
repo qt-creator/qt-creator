@@ -41,10 +41,14 @@
 #include <qmldesignerplugin.h>
 #include <viewmanager.h>
 
+#include <listmodeleditor/listmodeleditordialog.h>
+#include <listmodeleditor/listmodeleditormodel.h>
+
 #include <QHBoxLayout>
 #include <QGraphicsLinearLayout>
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -332,6 +336,64 @@ public:
                 }
             }
         }
+    }
+};
+
+class EditListModelAction final : public ModelNodeContextMenuAction
+{
+public:
+    EditListModelAction()
+        : ModelNodeContextMenuAction("EditListModel",
+                                     ComponentCoreConstants::editListModelDisplayName,
+                                     {},
+                                     ComponentCoreConstants::rootCategory,
+                                     QKeySequence("Alt+e"),
+                                     1001,
+                                     &openDialog,
+                                     &isListViewInBaseState,
+                                     &isListViewInBaseState)
+    {}
+
+    static bool isListViewInBaseState(const SelectionContext &selectionState)
+    {
+        return selectionState.isInBaseState() && selectionState.singleNodeIsSelected()
+               && selectionState.currentSingleSelectedNode().metaInfo().isSubclassOf(
+                   "QtQuick.ListView");
+    }
+
+    bool isEnabled(const SelectionContext &) const override { return true; }
+
+    static ModelNode listModelNode(const ModelNode &listViewNode)
+    {
+        if (listViewNode.hasProperty("model")) {
+            if (listViewNode.hasBindingProperty("model"))
+                return listViewNode.bindingProperty("model").resolveToModelNode();
+            else if (listViewNode.hasNodeProperty("model"))
+                return listViewNode.nodeProperty("model").modelNode();
+        }
+
+        ModelNode newModel = listViewNode.view()->createModelNode("QtQml.Models.ListModel", 2, 15);
+        listViewNode.nodeProperty("mode").reparentHere(newModel);
+
+        return newModel;
+    }
+
+    static void openDialog(const SelectionContext &selectionState)
+    {
+        ListModelEditorModel model;
+
+        ModelNode targetNode = selectionState.targetNode();
+        if (!targetNode.isValid())
+            targetNode = selectionState.currentSingleSelectedNode();
+        if (!targetNode.isValid())
+            return;
+
+        model.setListModel(listModelNode(targetNode));
+
+        ListModelEditorDialog dialog{Core::ICore::mainWindow()};
+        dialog.setModel(&model);
+
+        dialog.exec();
     }
 };
 
@@ -1217,6 +1279,8 @@ void DesignerActionManager::createDefaultDesignerActions()
                           priorityGenericToolBar));
 
     addDesignerAction(new ChangeStyleAction());
+
+    addDesignerAction(new EditListModelAction);
 }
 
 void DesignerActionManager::createDefaultAddResourceHandler()
