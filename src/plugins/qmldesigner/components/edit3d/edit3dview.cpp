@@ -268,7 +268,7 @@ void Edit3DView::createEdit3DActions()
 
     m_showGridAction = new Edit3DAction(
                 QmlDesigner::Constants::EDIT3D_EDIT_SHOW_GRID, View3DActionCommand::ShowGrid,
-                QCoreApplication::translate("ShowGridAction", "Toggle grid visibility"),
+                QCoreApplication::translate("ShowGridAction", "Toggle Grid Visibility"),
                 QKeySequence(Qt::Key_G), true, true, Icons::EDIT3D_GRID_OFF.icon(),
                 Icons::EDIT3D_GRID_ON.icon());
 
