@@ -711,7 +711,7 @@ void UvscEngine::handleReloadPeripheralRegisters(const QList<quint64> &addresses
     for (const quint64 address : addresses) {
         QByteArray data = UvscUtils::encodeU32(0);
         if (!m_client->fetchMemory(address, data)) {
-            showMessage(tr("UVSC: Fetching peripheral register failed"), LogMisc);
+            showMessage(tr("UVSC: Fetching peripheral register failed."), LogMisc);
         } else {
             const quint32 value = UvscUtils::decodeU32(data);
             peripheralRegisterHandler()->updateRegister(address, value);

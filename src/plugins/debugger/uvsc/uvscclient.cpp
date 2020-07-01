@@ -1087,7 +1087,7 @@ void UvscClient::setError(UvscError error, const QString &errorString)
                                                    reinterpret_cast<qint8 *>(buffer.data()),
                                                    buffer.size());
         m_errorString = (st == UVSC_STATUS_SUCCESS)
-                ? QString::fromLocal8Bit(buffer) : tr("Unknown error");
+                ? QString::fromLocal8Bit(buffer) : tr("Unknown error.");
     } else {
         m_errorString = errorString;
     }
@@ -1116,7 +1116,7 @@ void UvscClient::customEvent(QEvent *event)
 bool UvscClient::checkConnection()
 {
     if (m_descriptor == -1) {
-        setError(ConfigurationError, tr("Connection is not open"));
+        setError(ConfigurationError, tr("Connection is not open."));
         return false;
     }
     return true;
