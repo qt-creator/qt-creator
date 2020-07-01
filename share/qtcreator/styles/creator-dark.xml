@@ -57,6 +57,11 @@
   <style name="DiffDestLine" background="#588a2c"/>
   <style name="DiffDestChar" foreground="#2e2f30" background="#7cc33e"/>
   <style name="LogChangeLine" foreground="#d65645"/>
+  <style name="LogAuthorName" foreground="#ceffe5"/>
+  <style name="LogCommitDate" foreground="#00ff00"/>
+  <style name="LogCommitHash" foreground="#ff0000"/>
+  <style name="LogCommitSubject" foreground="#d6cf9a"/>
+  <style name="LogDecoration" foreground="#ff00ff"/>
   <style name="Warning" underlineColor="#d6c545" underlineStyle="SingleUnderline"/>
   <style name="WarningContext" underlineColor="#d6c545" underlineStyle="DotLine"/>
   <style name="Error" underlineColor="#d65645" underlineStyle="SingleUnderline"/>

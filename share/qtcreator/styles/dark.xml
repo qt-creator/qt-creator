@@ -58,4 +58,9 @@
   <style name="DiffDestLine" background="#2d8c2d"/>
   <style name="DiffDestChar" foreground="#000000" background="#41c341"/>
   <style name="LogChangeLine" foreground="#808000"/>
+  <style name="LogAuthorName" foreground="#ceffe5"/>
+  <style name="LogCommitDate" foreground="#00ff00"/>
+  <style name="LogCommitHash" foreground="#ff0000"/>
+  <style name="LogCommitSubject" foreground="#d6cf9a"/>
+  <style name="LogDecoration" foreground="#ff00ff"/>
 </style-scheme>

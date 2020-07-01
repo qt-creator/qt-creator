@@ -570,6 +570,17 @@ static bool gitHasRgbColors()
     return gitVersion >= 0x020300U;
 }
 
+static QString logColorName(TextEditor::TextStyle style)
+{
+    using namespace TextEditor;
+
+    const ColorScheme &scheme = TextEditorSettings::fontSettings().colorScheme();
+    QColor color = scheme.formatFor(style).foreground();
+    if (!color.isValid())
+        color = scheme.formatFor(C_TEXT).foreground();
+    return color.name();
+};
+
 class GitLogArgumentsWidget : public BaseGitLogArgumentsWidget
 {
     Q_OBJECT
@@ -603,12 +614,11 @@ public:
 
     QStringList graphArguments() const
     {
-        auto colorName = [](Theme::Color color) { return creatorTheme()->color(color).name(); };
-        const QString authorName = colorName(Theme::Git_AuthorName_TextColor);
-        const QString commitDate = colorName(Theme::Git_CommitDate_TextColor);
-        const QString commitHash = colorName(Theme::Git_CommitHash_TextColor);
-        const QString commitSubject = colorName(Theme::Git_CommitSubject_TextColor);
-        const QString decoration = colorName(Theme::Git_Decoration_TextColor);
+        const QString authorName = logColorName(TextEditor::C_LOG_AUTHOR_NAME);
+        const QString commitDate = logColorName(TextEditor::C_LOG_COMMIT_DATE);
+        const QString commitHash = logColorName(TextEditor::C_LOG_COMMIT_HASH);
+        const QString commitSubject = logColorName(TextEditor::C_LOG_COMMIT_SUBJECT);
+        const QString decoration = logColorName(TextEditor::C_LOG_DECORATION);
 
         const QString formatArg = QStringLiteral(
                     "--pretty=format:"
@@ -1051,19 +1061,18 @@ static QStringList normalLogArguments()
     if (!gitHasRgbColors())
         return {};
 
-    auto colorName = [](Theme::Color color) { return creatorTheme()->color(color).name(); };
-    const QString authorName = colorName(Theme::Git_AuthorName_TextColor);
-    const QString commitDate = colorName(Theme::Git_CommitDate_TextColor);
-    const QString commitHash = colorName(Theme::Git_CommitHash_TextColor);
-    const QString commitSubject = colorName(Theme::Git_CommitSubject_TextColor);
-    const QString decoration = colorName(Theme::Git_Decoration_TextColor);
+    const QString authorName = logColorName(TextEditor::C_LOG_AUTHOR_NAME);
+    const QString commitDate = logColorName(TextEditor::C_LOG_COMMIT_DATE);
+    const QString commitHash = logColorName(TextEditor::C_LOG_COMMIT_HASH);
+    const QString commitSubject = logColorName(TextEditor::C_LOG_COMMIT_SUBJECT);
+    const QString decoration = logColorName(TextEditor::C_LOG_DECORATION);
 
     const QString logArgs = QStringLiteral(
                 "--pretty=format:"
                 "commit %C(%1)%H%Creset %C(%2)%d%Creset%n"
                 "Author: %C(%3)%an <%ae>%Creset%n"
                 "Date:   %C(%4)%cD%Creset%n%n"
-                "%C(%5)%s%Creset%n%n%b%n"
+                "%C(%5)%w(0,4,4)%s%Creset%n%n%b"
                 ).arg(commitHash, decoration, authorName, commitDate, commitSubject);
 
     return {logArgs};

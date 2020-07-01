@@ -101,7 +101,7 @@ inline bool operator!=(const Format &f1, const Format &f2) { return !f1.equals(f
 /*! A color scheme combines a set of formats for different highlighting
     categories. It also provides saving and loading of the scheme to a file.
  */
-class ColorScheme
+class TEXTEDITOR_EXPORT ColorScheme
 {
 public:
     void setDisplayName(const QString &name)
