@@ -28,6 +28,7 @@
 #include <QByteArrayList>
 
 #include <memory>
+#include <vector>
 
 #include "utils/qtcassert.h"
 
