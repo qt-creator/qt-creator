@@ -52,6 +52,7 @@ private:
     mutable QFont m_lastProcessedFont;
     mutable QTextLayout m_lastCalculatedLayout;
     mutable int m_lastCalculatedHeight;
+    mutable int m_lastWidth = -1;
 
     class LayoutPositions
     {

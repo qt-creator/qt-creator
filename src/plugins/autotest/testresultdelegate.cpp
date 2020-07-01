@@ -186,18 +186,20 @@ void TestResultDelegate::clearCache()
 {
     m_lastProcessedIndex = QModelIndex();
     m_lastProcessedFont = QFont();
+    m_lastWidth = -1;
 }
 
 void TestResultDelegate::recalculateTextLayout(const QModelIndex &index, const QString &output,
                                                const QFont &font, int width) const
 {
-    if (m_lastProcessedIndex == index && m_lastProcessedFont == font)
+    if (m_lastWidth == width && m_lastProcessedIndex == index && m_lastProcessedFont == font)
         return;
 
     const QFontMetrics fm(font);
     const int leading = fm.leading();
     const int fontHeight = fm.height();
 
+    m_lastWidth = width;
     m_lastProcessedIndex = index;
     m_lastProcessedFont = font;
     m_lastCalculatedHeight = 0;
