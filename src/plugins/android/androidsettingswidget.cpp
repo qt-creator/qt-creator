@@ -606,7 +606,8 @@ void AndroidSettingsWidget::validateSdk()
     // after AndroidSdkManager::packageReloadFinished.
     m_androidSummary->setPointValid(PlatformSdkInstalledRow,
                                     !m_sdkManager.installedSdkPlatforms().isEmpty());
-    m_androidSummary->setPointValid(AllEssentialsInstalledRow, m_androidConfig.allEssentialsInstalled());
+    m_androidSummary->setPointValid(AllEssentialsInstalledRow,
+                                    m_androidConfig.allEssentialsInstalled(&m_sdkManager));
 
     const bool sdkToolsOk = m_androidSummary->rowsOk({SdkPathExistsRow,
                                                       SdkPathWritableRow,
