@@ -172,7 +172,7 @@ void AndroidSdkManagerWidget::installEssentials()
                                 "Install them manually after the current operation is done.\n")
                                  .arg(m_sdkModel->missingEssentials().join("\", \"")));
     }
-    m_ui->applySelectionButton->click();
+    onApplyButton();
 }
 
 void AndroidSdkManagerWidget::beginLicenseCheck()
