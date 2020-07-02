@@ -189,7 +189,8 @@ public:
     {
         QTC_CHECK(m_detailsWidget);
         auto layout = new QVBoxLayout(this);
-        layout->setContentsMargins(12, 12, 12, 12);
+        layout->setContentsMargins(22, 0, 0, 12);
+        layout->setSpacing(4);
         for (auto itr = validationPoints.cbegin(); itr != validationPoints.cend(); ++itr) {
             RowData data;
             data.m_infoLabel = new InfoLabel(itr.value());
@@ -198,6 +199,7 @@ public:
             setPointValid(itr.key(), true);
         }
         m_detailsWidget->setWidget(this);
+        setContentsMargins(0, 0, 0, 0);
     }
 
     void setPointValid(int key, bool valid)
