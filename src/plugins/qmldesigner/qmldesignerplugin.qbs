@@ -849,7 +849,7 @@ Project {
                 "listmodeleditor/listmodeleditordialog.cpp",
                 "listmodeleditor/listmodeleditordialog.h",
                 "listmodeleditor/listmodeleditormodel.cpp",
-                "listmodeleditor/listmodeleditordialog.h",
+                "listmodeleditor/listmodeleditormodel.h",
                 "transitioneditor/transitioneditorview.cpp",
                 "transitioneditor/transitioneditorview.h",
                 "transitioneditor/transitioneditorwidget.cpp",
