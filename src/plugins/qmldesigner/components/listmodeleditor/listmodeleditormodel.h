@@ -33,6 +33,8 @@ namespace QmlDesigner {
 
 class ListModelEditorModel : public QStandardItemModel
 {
+    using QStandardItemModel::removeColumns;
+    using QStandardItemModel::removeRows;
 
 public:
     void setListModel(ModelNode node)
@@ -48,11 +50,16 @@ public:
 
     bool setValue(int row, int column, QVariant value, Qt::ItemDataRole role = Qt::EditRole);
 
-    void removeColumn(int column);
-    void removeRow(int row);
+    void removeColumns(const QList<QModelIndex> &indices);
+    void removeRows(const QList<QModelIndex> &indices);
     void renameColumn(int column, const QString &newColumnName);
 
+    static std::vector<int> filterColumns(const QList<QModelIndex> &indices);
+    static std::vector<int> filterRows(const QList<QModelIndex> &indices);
+
 private:
+    void removeRow(int row);
+    void removeColumn(int column);
     void populateModel();
     void createItems(const QList<ModelNode> &listElementNodes);
     void appendItems(const ModelNode &listElementNode);

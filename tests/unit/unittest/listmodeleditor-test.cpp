@@ -39,6 +39,7 @@ namespace {
 
 using QmlDesigner::AbstractProperty;
 using QmlDesigner::AbstractView;
+using QmlDesigner::ListModelEditorModel;
 using QmlDesigner::ModelNode;
 
 MATCHER_P2(HasItem,
@@ -171,6 +172,8 @@ public:
 
         return properties;
     }
+
+    QModelIndex index(int row, int column) const { return model.index(row, column); }
 
 protected:
     std::unique_ptr<QmlDesigner::Model> designerModel{QmlDesigner::Model::create("QtQuick.Item", 1, 1)};
@@ -427,7 +430,7 @@ TEST_F(ListModelEditor, RemoveColumnRemovesDisplayValues)
 {
     model.setListModel(listModelNode);
 
-    model.removeColumn(2);
+    model.removeColumns({index(0, 2)});
 
     ASSERT_THAT(displayValues(),
                 ElementsAre(ElementsAre(IsInvalid(), "foo", 42),
@@ -442,14 +445,14 @@ TEST_F(ListModelEditor, RemoveColumnRemovesProperties)
     EXPECT_CALL(mockView, propertiesRemoved(ElementsAre(IsAbstractProperty(element2, "image"))));
     EXPECT_CALL(mockView, propertiesRemoved(ElementsAre(IsAbstractProperty(element3, "image"))));
 
-    model.removeColumn(0);
+    model.removeColumns({index(0, 0)});
 }
 
 TEST_F(ListModelEditor, RemoveColumnRemovesPropertyName)
 {
     model.setListModel(listModelNode);
 
-    model.removeColumn(1);
+    model.removeColumns({index(0, 1)});
 
     ASSERT_THAT(model.propertyNames(), ElementsAre("image", "value", "value2"));
 }
@@ -458,7 +461,7 @@ TEST_F(ListModelEditor, RemoveRowRemovesDisplayValues)
 {
     model.setListModel(listModelNode);
 
-    model.removeRow(1);
+    model.removeRows({index(1, 0)});
 
     ASSERT_THAT(displayValues(),
                 ElementsAre(ElementsAre(IsInvalid(), "foo", 1, 42),
@@ -471,7 +474,7 @@ TEST_F(ListModelEditor, RemoveRowRemovesElementInListModel)
 
     EXPECT_CALL(mockView, nodeRemoved(Eq(element2), _, _));
 
-    model.removeRow(1);
+    model.removeRows({index(1, 0)});
 }
 
 TEST_F(ListModelEditor, ConvertStringFloatToFloat)
@@ -721,7 +724,7 @@ TEST_F(ListModelEditor, RemoveColumnAfterRenameColumn)
     model.setListModel(listModelNode);
     model.renameColumn(1, "mood");
 
-    model.removeColumn(1);
+    model.removeColumns({index(0, 1)});
 
     ASSERT_THAT(properties(),
                 ElementsAre(UnorderedElementsAre(IsVariantProperty("value", 1),
@@ -909,30 +912,7 @@ TEST_F(ListModelEditor, RemoveLastRow)
     model.addColumn("mood");
     model.addRow();
 
-    model.removeRow(0);
-
-    ASSERT_THAT(displayValues(), IsEmpty());
-}
-
-TEST_F(ListModelEditor, RemoveLastColumn)
-{
-    model.setListModel(emptyListModelNode);
-    model.addColumn("mood");
-    model.addRow();
-
-    model.removeColumn(0);
-
-    ASSERT_THAT(displayValues(), ElementsAre(IsEmpty()));
-}
-
-TEST_F(ListModelEditor, RemoveLastEmptyColumn)
-{
-    model.setListModel(emptyListModelNode);
-    model.addColumn("mood");
-    model.addRow();
-    model.removeRow(0);
-
-    model.removeColumn(0);
+    model.removeRows({index(0, 0)});
 
     ASSERT_THAT(displayValues(), IsEmpty());
 }
@@ -942,11 +922,115 @@ TEST_F(ListModelEditor, RemoveLastEmptyRow)
     model.setListModel(emptyListModelNode);
     model.addColumn("mood");
     model.addRow();
-    model.removeColumn(0);
+    model.removeColumns({index(0, 0)});
 
-    model.removeRow(0);
+    model.removeRows({index(0, 0)});
+
+    ASSERT_THAT(displayValues(), ElementsAre(IsEmpty()));
+}
+
+TEST_F(ListModelEditor, RemoveLastColumn)
+{
+    model.setListModel(emptyListModelNode);
+    model.addColumn("mood");
+    model.addRow();
+
+    model.removeColumns({index(0, 0)});
+
+    ASSERT_THAT(displayValues(), ElementsAre(IsEmpty()));
+}
+
+TEST_F(ListModelEditor, RemoveLastEmptyColumn)
+{
+    model.setListModel(emptyListModelNode);
+    model.addColumn("mood");
+    model.addRow();
+    model.removeRows({index(0, 0)});
+
+    model.removeColumns({index(0, 0)});
 
     ASSERT_THAT(displayValues(), IsEmpty());
+}
+
+TEST_F(ListModelEditor, RemoveColumns)
+{
+    model.setListModel(listModelNode);
+    model.removeColumns({index(0, 1), index(0, 3), index(1, 1), index(0, 4)});
+
+    ASSERT_THAT(properties(),
+                ElementsAre(UnorderedElementsAre(IsVariantProperty("value", 1)),
+                            UnorderedElementsAre(IsVariantProperty("image", "pic.png"),
+                                                 IsVariantProperty("value", 4)),
+                            UnorderedElementsAre(IsVariantProperty("image", "pic.png"),
+                                                 IsVariantProperty("value", 111))));
+}
+
+TEST_F(ListModelEditor, RemoveRows)
+{
+    model.setListModel(listModelNode);
+
+    model.removeRows({index(1, 0), index(2, 0), index(3, 0), index(2, 0)});
+
+    ASSERT_THAT(properties(),
+                ElementsAre(UnorderedElementsAre(IsVariantProperty("name", "foo"),
+                                                 IsVariantProperty("value", 1),
+                                                 IsVariantProperty("value2", 42))));
+}
+
+TEST_F(ListModelEditor, FilterColumns)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(0, 0), index(1, 1), index(0, 2), index(0, 1)};
+
+    auto columns = ListModelEditorModel::filterColumns(indices);
+
+    ASSERT_THAT(columns, ElementsAre(0, 1, 2));
+}
+
+TEST_F(ListModelEditor, FilterColumnsInvalidColumns)
+{
+    QList<QModelIndex> indices = {index(0, 0), index(1, 1), index(0, 2), index(0, 1)};
+
+    auto columns = ListModelEditorModel::filterColumns(indices);
+
+    ASSERT_THAT(columns, IsEmpty());
+}
+
+TEST_F(ListModelEditor, FilterColumnsEmptyInput)
+{
+    QList<QModelIndex> indices;
+
+    auto columns = ListModelEditorModel::filterColumns(indices);
+
+    ASSERT_THAT(columns, IsEmpty());
+}
+
+TEST_F(ListModelEditor, FilterRows)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(0, 0), index(1, 1), index(2, 2), index(0, 1)};
+
+    auto rows = ListModelEditorModel::filterRows(indices);
+
+    ASSERT_THAT(rows, ElementsAre(0, 1, 2));
+}
+
+TEST_F(ListModelEditor, FilterRowsInvalidColumns)
+{
+    QList<QModelIndex> indices = {index(0, 0), index(1, 1), index(2, 2), index(0, 1)};
+
+    auto rows = ListModelEditorModel::filterRows(indices);
+
+    ASSERT_THAT(rows, IsEmpty());
+}
+
+TEST_F(ListModelEditor, FilterRowsEmptyInput)
+{
+    QList<QModelIndex> indices;
+
+    auto rows = ListModelEditorModel::filterRows(indices);
+
+    ASSERT_THAT(rows, IsEmpty());
 }
 
 } // namespace

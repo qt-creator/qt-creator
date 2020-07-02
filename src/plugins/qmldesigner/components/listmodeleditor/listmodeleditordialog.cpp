@@ -114,40 +114,12 @@ void ListModelEditorDialog::openColumnDialog()
 
 void ListModelEditorDialog::removeRows()
 {
-    const QList<QModelIndex> indices = m_tableView->selectionModel()->selectedRows();
-    std::vector<int> rows;
-    rows.reserve(indices.size());
-
-    for (QModelIndex index : indices)
-        rows.push_back(index.row());
-
-    std::sort(rows.begin(), rows.end());
-
-    rows.erase(std::unique(rows.begin(), rows.end()), rows.end());
-
-    std::reverse(rows.begin(), rows.end());
-
-    for (int row : rows)
-        m_model->removeRow(row);
+    m_model->removeRows(m_tableView->selectionModel()->selectedRows());
 }
 
 void ListModelEditorDialog::removeColumns()
 {
-    const QList<QModelIndex> indices = m_tableView->selectionModel()->selectedColumns();
-    std::vector<int> columns;
-    columns.reserve(indices.size());
-
-    for (QModelIndex index : indices)
-        columns.push_back(index.column());
-
-    std::sort(columns.begin(), columns.end());
-
-    columns.erase(std::unique(columns.begin(), columns.end()), columns.end());
-
-    std::reverse(columns.begin(), columns.end());
-
-    for (int row : columns)
-        m_model->removeColumn(row);
+    m_model->removeColumns(m_tableView->selectionModel()->selectedColumns());
 }
 
 void ListModelEditorDialog::changeHeader(int column)

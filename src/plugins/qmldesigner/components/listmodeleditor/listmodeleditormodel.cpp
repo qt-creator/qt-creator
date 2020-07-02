@@ -260,6 +260,26 @@ void ListModelEditorModel::removeColumn(int column)
     }
 }
 
+void ListModelEditorModel::removeColumns(const QList<QModelIndex> &indices)
+{
+    std::vector<int> columns = filterColumns(indices);
+
+    std::reverse(columns.begin(), columns.end());
+
+    for (int column : columns)
+        removeColumn(column);
+}
+
+void ListModelEditorModel::removeRows(const QList<QModelIndex> &indices)
+{
+    std::vector<int> rows = filterRows(indices);
+
+    std::reverse(rows.begin(), rows.end());
+
+    for (int row : rows)
+        removeRow(row);
+}
+
 void ListModelEditorModel::removeRow(int row)
 {
     QList<QStandardItem *> rowItems = QStandardItemModel::takeRow(row);
@@ -297,6 +317,40 @@ void ListModelEditorModel::renameColumn(int oldColumn, const QString &newColumnN
     }
 
     setHorizontalHeaderLabels(convertToStringList(m_propertyNames));
+}
+
+std::vector<int> ListModelEditorModel::filterColumns(const QList<QModelIndex> &indices)
+{
+    std::vector<int> columns;
+    columns.reserve(indices.size());
+
+    for (QModelIndex index : indices) {
+        if (index.column() >= 0)
+            columns.push_back(index.column());
+    }
+
+    std::sort(columns.begin(), columns.end());
+
+    columns.erase(std::unique(columns.begin(), columns.end()), columns.end());
+
+    return columns;
+}
+
+std::vector<int> ListModelEditorModel::filterRows(const QList<QModelIndex> &indices)
+{
+    std::vector<int> rows;
+    rows.reserve(indices.size());
+
+    for (QModelIndex index : indices) {
+        if (index.row() >= 0)
+            rows.push_back(index.row());
+    }
+
+    std::sort(rows.begin(), rows.end());
+
+    rows.erase(std::unique(rows.begin(), rows.end()), rows.end());
+
+    return rows;
 }
 
 } // namespace QmlDesigner
