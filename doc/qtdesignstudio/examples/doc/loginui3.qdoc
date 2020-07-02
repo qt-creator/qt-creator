@@ -214,11 +214,6 @@
 
     \image loginui3.gif "Moving between login page and registration page"
 
-    The \e PushButton type also uses states to change the button background and
-    text color when the button is clicked. Now that clicking buttons performs
-    actions, you will change the background color for the button down state
-    from grey to green to match the color in the normal state that you changed
-    to green in Part 1.
 
     \section2 Learn Qt Quick - Signal and Event Handlers
 
@@ -233,30 +228,6 @@
     event.
 
     For more information, see \l{Signal and Handler Event System}.
-
-    Next, you will modify the properties of the \e PushButton type in the text
-    editor.
-
-    \section1 Changing Button Background Color
-
-    You will modify the button background color for the \e down state of the
-    \e PushButton type in the \e PushButton.ui.qml file.
-
-    \list 1
-        \li Right-click \e loginButton in the \uicontrol Navigator and select
-            \uicontrol {Go into Component} to open \e PushButton.ui.qml for
-            editing in the Design mode.
-        \li Open the \uicontrol {Text Editor}.
-        \li Edit the property values for the \e down state, to set the button
-            text color to white and the background and border colors to
-            darker shades of green by using the \c {Qt.darker()} function:
-            \quotefromfile loginui3/PushButton.ui.qml
-            \skipto states:
-            \printuntil ]
-            You could also specify all the colors here as fixed values.
-        \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
-            to save your changes.
-    \endlist
 
     \section1 Next Steps
 
