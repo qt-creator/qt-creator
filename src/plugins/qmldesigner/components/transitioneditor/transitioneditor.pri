@@ -16,7 +16,7 @@ SOURCES += \
     transitionform.cpp
 
 HEADERS += \
-    transitioneditorconstants \
+    transitioneditorconstants.h \
     transitioneditorview.h \
     transitioneditorwidget.h \
     transitioneditortoolbar.h \
