@@ -3631,7 +3631,7 @@ void ProjectExplorerPluginPrivate::removeFile()
 
     const QMessageBox::StandardButton reply = QMessageBox::question(
                 Core::ICore::dialogParent(), tr("Remove More Files?"),
-                tr("Would you like to remove these files as well?\n    %1")
+                tr("Remove these files as well?\n    %1")
                 .arg(Utils::transform<QStringList>(siblings, [](const NodeAndPath &np) {
         return np.second.toFileInfo().fileName();
     }).join("\n    ")));
