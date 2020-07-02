@@ -390,7 +390,7 @@ extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/listmodeleditor
   SOURCES
     listmodeleditordialog.cpp listmodeleditordialog.h
-    listmodeleditordialog.cpp listmodeleditormodel.h
+    listmodeleditormodel.cpp listmodeleditormodel.h
 )
 
 extend_qtc_plugin(QmlDesigner
