@@ -105,29 +105,14 @@
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
           </spacer>
          </item>
          <item>
           <widget class="QGroupBox" name="packagesTypeGroup">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
            <property name="title">
             <string>Show Packages</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
-            <property name="spacing">
-             <number>12</number>
-            </property>
             <item>
              <widget class="QRadioButton" name="showAvailableRadio">
               <property name="text">
