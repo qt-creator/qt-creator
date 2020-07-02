@@ -324,24 +324,13 @@ static QFileInfoList targetDescriptionFiles(const Utils::FilePath &dir)
     return kitsDir.entryInfoList();
 }
 
-static QString freeRTOSEnvVarForPlatform(const QString &platform)
-{
-    if (platform == "STM32F769I-DISCOVERY" || platform == "STM32F7508-DISCOVERY")
-        return {"STM32F7_FREERTOS_DIR"};
-    else if (platform == "MIMXRT1050-EVK")
-        return {"IMXRT1050_FREERTOS_DIR"};
-    else if (platform == "MIMXRT1064-EVK")
-    return {"IMXRT1064_FREERTOS_DIR"};
-
-    return {};
-}
-
 static McuTargetDescription parseDescriptionJson(const QByteArray &data)
 {
     const QJsonDocument document = QJsonDocument::fromJson(data);
     const QJsonObject target = document.object();
     const QJsonObject toolchain = target.value("toolchain").toObject();
     const QJsonObject boardSdk = target.value("boardSdk").toObject();
+    const QJsonObject freeRTOS = target.value("freeRTOS").toObject();
 
     const QString platform = target.value("platform").toString();
 
@@ -356,7 +345,7 @@ static McuTargetDescription parseDescriptionJson(const QByteArray &data)
         colorDepthsVector,
         toolchain.value("id").toString(),
         boardSdk.value("envVar").toString(),
-        freeRTOSEnvVarForPlatform(platform) // Workaround for UL-2514: Missing FreeRTOS information
+        freeRTOS.value("envVar").toString(),
     };
 }
 
