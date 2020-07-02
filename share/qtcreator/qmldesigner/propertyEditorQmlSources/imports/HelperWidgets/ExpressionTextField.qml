@@ -24,16 +24,18 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import QtQuick.Controls 1.0 as Controls
-import QtQuick.Controls.Styles 1.1
 import "Constants.js" as Constants
+import StudioControls 1.0 as StudioControls
 import QtQuickDesignerTheme 1.0
 
-Controls.TextField {
+StudioControls.TextField {
 
     id: textField
 
     signal rejected
+
+    translationIndicator.visible: false
+    actionIndicator.visible: false
 
     property bool completeOnlyTypes: false
 
@@ -165,72 +167,57 @@ Controls.TextField {
         event.accepted = false
     }
 
-    style: TextFieldStyle {
-        textColor: Theme.color(Theme.PanelTextColorLight)
-        padding.top: 6
-        padding.bottom: 2
-        padding.left: 6
-        placeholderTextColor: Theme.color(Theme.PanelTextColorMid)
-        background: Rectangle {
-            implicitWidth: 100
-            implicitHeight: 23
-            radius: 2
-            color: Theme.qmlDesignerBackgroundColorDarker()
-            border.color: Theme.qmlDesignerBorderColor()
-        }
-    }
-
     Row {
         id: buttonrow
         spacing: 2
-        Button {
+        StudioControls.AbstractButton {
             width: 16
             height: 16
-            style: ButtonStyle {
-                background: Item{
-                    Image {
-                        width: 16
-                        height: 16
-                        source: "image://icons/ok"
-                        opacity: {
-                            if (control.pressed)
-                                return 0.8;
-                            return 1.0;
-                        }
-                        Rectangle {
-                            z: -1
-                            anchors.fill: parent
-                            color: control.pressed || control.hovered ? Theme.qmlDesignerBackgroundColorDarker() : Theme.qmlDesignerButtonColor()
-                            border.color: Theme.qmlDesignerBorderColor()
-                            radius: 2
-                        }
+
+            background: Item{
+                Image {
+                    width: 16
+                    height: 16
+                    source: "image://icons/ok"
+                    opacity: {
+                        if (control.pressed)
+                            return 0.8;
+                        return 1.0;
+                    }
+                    Rectangle {
+                        z: -1
+                        anchors.fill: parent
+                        color: control.pressed || control.hovered ? Theme.qmlDesignerBackgroundColorDarker() : Theme.qmlDesignerButtonColor()
+                        border.color: Theme.qmlDesignerBorderColor()
+                        radius: 2
                     }
                 }
+
             }
             onClicked: accepted()
         }
-        Button {
+        StudioControls.AbstractButton {
             width: 16
             height: 16
-            style: ButtonStyle {
-                background: Item {
-                    Image {
-                        width: 16
-                        height: 16
-                        source: "image://icons/error"
-                        opacity: {
-                            if (control.pressed)
-                                return 0.8;
-                            return 1.0;
-                        }
-                        Rectangle {
-                            z: -1
-                            anchors.fill: parent
-                            color: control.pressed || control.hovered ? Theme.qmlDesignerBackgroundColorDarker() : Theme.qmlDesignerButtonColor()
-                            border.color: Theme.qmlDesignerBorderColor()
-                            radius: 2
-                        }
+
+            background: Item {
+                Image {
+                    width: 16
+                    height: 16
+                    source: "image://icons/error"
+                    opacity: {
+                        if (control.pressed)
+                            return 0.8;
+                        return 1.0;
                     }
+                    Rectangle {
+                        z: -1
+                        anchors.fill: parent
+                        color: control.pressed || control.hovered ? Theme.qmlDesignerBackgroundColorDarker() : Theme.qmlDesignerButtonColor()
+                        border.color: Theme.qmlDesignerBorderColor()
+                        radius: 2
+                    }
+
                 }
             }
             onClicked: {
