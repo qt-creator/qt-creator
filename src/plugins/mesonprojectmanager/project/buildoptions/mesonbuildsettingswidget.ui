@@ -38,7 +38,7 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>Apply configuration changes</string>
+      <string>Apply Configuration Changes</string>
      </property>
     </widget>
    </item>
@@ -51,11 +51,11 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Wipe build directory and reconfigure using previous command line options.
-Userful when build directory got corrupted, or when rebuilding with a newer version of meson.</string>
+      <string>Wipes build directory and reconfigures using previous command line options.
+Useful if build directory is corrupted or when rebuilding with a newer version of Meson.</string>
      </property>
      <property name="text">
-      <string>Wipe project</string>
+      <string>Wipe Project</string>
      </property>
      <property name="icon">
       <iconset theme=":/utils/images/warning.png"/>
