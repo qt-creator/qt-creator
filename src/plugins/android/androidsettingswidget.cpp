@@ -196,7 +196,7 @@ public:
             data.m_infoLabel = new InfoLabel(itr.value());
             layout->addWidget(data.m_infoLabel);
             m_validationData[itr.key()] = data;
-            setPointValid(itr.key(), true);
+            setPointValid(itr.key(), false);
         }
         m_detailsWidget->setWidget(this);
         setContentsMargins(0, 0, 0, 0);
