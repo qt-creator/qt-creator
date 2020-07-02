@@ -78,12 +78,7 @@ QDebug &operator<<(QDebug &debug, const String &string)
 template <uint Size>
 std::ostream &operator<<(std::ostream &out, const BasicSmallString<Size> &string)
 {
-    BasicSmallString<Size> formatedString = string.clone();
-
-    formatedString.replace("\n", "\\n");
-    formatedString.replace("\t", "\\t");
-
-    out.write(formatedString.data(), std::streamsize(formatedString.size()));
+    out.write(string.data(), std::streamsize(string.size()));
 
     return out;
 }
