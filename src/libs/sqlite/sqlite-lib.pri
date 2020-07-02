@@ -67,3 +67,5 @@ CONFIG(debug, debug|release): DEFINES += SQLITE_ENABLE_API_ARMOR
 OTHER_FILES += README.md
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
+
+CONFIG += exceptions
