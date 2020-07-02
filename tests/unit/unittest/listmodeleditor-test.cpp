@@ -175,6 +175,11 @@ public:
 
     QModelIndex index(int row, int column) const { return model.index(row, column); }
 
+    QList<ModelNode> elements(const ModelNode &node) const
+    {
+        return node.defaultNodeListProperty().toModelNodeList();
+    }
+
 protected:
     std::unique_ptr<QmlDesigner::Model> designerModel{QmlDesigner::Model::create("QtQuick.Item", 1, 1)};
     NiceMock<MockListModelEditorView> mockView;
@@ -1031,6 +1036,240 @@ TEST_F(ListModelEditor, FilterRowsEmptyInput)
     auto rows = ListModelEditorModel::filterRows(indices);
 
     ASSERT_THAT(rows, IsEmpty());
+}
+
+TEST_F(ListModelEditor, CannotMoveEmptyRowsUp)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(-1, 1)};
+
+    model.moveRowsUp(indices);
+
+    ASSERT_THAT(elements(listModelNode), ElementsAre(element1, element2, element3));
+}
+
+TEST_F(ListModelEditor, MoveRowUp)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(1, 1), index(1, 2), index(1, 0)};
+
+    model.moveRowsUp(indices);
+
+    ASSERT_THAT(elements(listModelNode), ElementsAre(element2, element1, element3));
+}
+
+TEST_F(ListModelEditor, MoveRowsUp)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(1, 1), index(2, 2), index(1, 0)};
+
+    model.moveRowsUp(indices);
+
+    ASSERT_THAT(elements(listModelNode), ElementsAre(element2, element3, element1));
+}
+
+TEST_F(ListModelEditor, CannotMoveFirstRowsUp)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(0, 1), index(1, 2), index(0, 0)};
+
+    model.moveRowsUp(indices);
+
+    ASSERT_THAT(elements(listModelNode), ElementsAre(element1, element2, element3));
+}
+
+TEST_F(ListModelEditor, CannotMoveEmptyRowsUpDisplayValues)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(-1, 1)};
+
+    model.moveRowsUp(indices);
+
+    ASSERT_THAT(displayValues(),
+                ElementsAre(ElementsAre(IsInvalid(), "foo", 1, 42),
+                            ElementsAre("pic.png", "bar", 4, IsInvalid()),
+                            ElementsAre("pic.png", "poo", 111, IsInvalid())));
+}
+
+TEST_F(ListModelEditor, CannotMoveFirstRowUpDisplayValues)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(0, 1), index(1, 2), index(0, 0)};
+
+    model.moveRowsUp(indices);
+
+    ASSERT_THAT(displayValues(),
+                ElementsAre(ElementsAre(IsInvalid(), "foo", 1, 42),
+                            ElementsAre("pic.png", "bar", 4, IsInvalid()),
+                            ElementsAre("pic.png", "poo", 111, IsInvalid())));
+}
+
+TEST_F(ListModelEditor, MoveRowsUpDisplayValues)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(1, 1), index(2, 2), index(1, 0)};
+
+    model.moveRowsUp(indices);
+
+    ASSERT_THAT(displayValues(),
+                ElementsAre(ElementsAre("pic.png", "bar", 4, IsInvalid()),
+                            ElementsAre("pic.png", "poo", 111, IsInvalid()),
+                            ElementsAre(IsInvalid(), "foo", 1, 42)));
+}
+
+TEST_F(ListModelEditor, NoSelectionAfterCannotMoveLastRowsDown)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(0, 1), index(1, 2), index(0, 0)};
+
+    auto selection = model.moveRowsUp(indices);
+
+    ASSERT_THAT(selection.indexes(), IsEmpty());
+}
+
+TEST_F(ListModelEditor, NoSelectionAfterMoveEmptyRowsDown)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(-1, 1)};
+
+    auto selection = model.moveRowsUp(indices);
+
+    ASSERT_THAT(selection.indexes(), IsEmpty());
+}
+
+TEST_F(ListModelEditor, SelectionAfterMoveRowsDown)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(1, 1), index(2, 2), index(1, 0)};
+
+    auto selection = model.moveRowsUp(indices);
+
+    ASSERT_THAT(selection.indexes(),
+                ElementsAre(index(0, 0),
+                            index(0, 1),
+                            index(0, 2),
+                            index(0, 3),
+                            index(1, 0),
+                            index(1, 1),
+                            index(1, 2),
+                            index(1, 3)));
+}
+
+TEST_F(ListModelEditor, CannotMoveEmptyRowsDown)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(-1, 1)};
+
+    model.moveRowsDown(indices);
+
+    ASSERT_THAT(elements(listModelNode), ElementsAre(element1, element2, element3));
+}
+
+TEST_F(ListModelEditor, MoveRowDown)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(1, 1), index(1, 2), index(1, 0)};
+
+    model.moveRowsDown(indices);
+
+    ASSERT_THAT(elements(listModelNode), ElementsAre(element1, element3, element2));
+}
+
+TEST_F(ListModelEditor, MoveRowsDown)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(1, 1), index(0, 2), index(1, 0)};
+
+    model.moveRowsDown(indices);
+
+    ASSERT_THAT(elements(listModelNode), ElementsAre(element3, element1, element2));
+}
+
+TEST_F(ListModelEditor, CannotMoveLastRowsDown)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(2, 1), index(1, 2), index(2, 0)};
+
+    model.moveRowsDown(indices);
+
+    ASSERT_THAT(elements(listModelNode), ElementsAre(element1, element2, element3));
+}
+
+TEST_F(ListModelEditor, CannotMoveEmptyRowsDownDisplayValues)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(-1, 1)};
+
+    model.moveRowsDown(indices);
+
+    ASSERT_THAT(displayValues(),
+                ElementsAre(ElementsAre(IsInvalid(), "foo", 1, 42),
+                            ElementsAre("pic.png", "bar", 4, IsInvalid()),
+                            ElementsAre("pic.png", "poo", 111, IsInvalid())));
+}
+
+TEST_F(ListModelEditor, CannotMoveLastRowDownDisplayValues)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(2, 1), index(1, 2), index(2, 0)};
+
+    model.moveRowsDown(indices);
+
+    ASSERT_THAT(displayValues(),
+                ElementsAre(ElementsAre(IsInvalid(), "foo", 1, 42),
+                            ElementsAre("pic.png", "bar", 4, IsInvalid()),
+                            ElementsAre("pic.png", "poo", 111, IsInvalid())));
+}
+
+TEST_F(ListModelEditor, MoveRowsDownDisplayValues)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(1, 1), index(0, 2), index(1, 0)};
+
+    model.moveRowsDown(indices);
+
+    ASSERT_THAT(displayValues(),
+                ElementsAre(ElementsAre("pic.png", "poo", 111, IsInvalid()),
+                            ElementsAre(IsInvalid(), "foo", 1, 42),
+                            ElementsAre("pic.png", "bar", 4, IsInvalid())));
+}
+
+TEST_F(ListModelEditor, NoSelectionAfterCannotMoveLastRowsUp)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(2, 1), index(1, 2), index(2, 0)};
+
+    auto selection = model.moveRowsDown(indices);
+
+    ASSERT_THAT(selection.indexes(), IsEmpty());
+}
+
+TEST_F(ListModelEditor, NoSelectionAfterMoveEmptyRowsUp)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(-1, 1)};
+
+    auto selection = model.moveRowsDown(indices);
+
+    ASSERT_THAT(selection.indexes(), IsEmpty());
+}
+
+TEST_F(ListModelEditor, SelectionAfterMoveRowsUp)
+{
+    model.setListModel(listModelNode);
+    QList<QModelIndex> indices = {index(1, 1), index(0, 2), index(1, 0)};
+
+    auto selection = model.moveRowsDown(indices);
+
+    ASSERT_THAT(selection.indexes(),
+                ElementsAre(index(1, 0),
+                            index(1, 1),
+                            index(1, 2),
+                            index(1, 3),
+                            index(2, 0),
+                            index(2, 1),
+                            index(2, 2),
+                            index(2, 3)));
 }
 
 } // namespace

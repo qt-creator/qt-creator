@@ -27,6 +27,7 @@
 
 #include <modelnode.h>
 
+#include <QItemSelection>
 #include <QStandardItemModel>
 
 namespace QmlDesigner {
@@ -53,6 +54,8 @@ public:
     void removeColumns(const QList<QModelIndex> &indices);
     void removeRows(const QList<QModelIndex> &indices);
     void renameColumn(int column, const QString &newColumnName);
+    QItemSelection moveRowsUp(const QList<QModelIndex> &indices);
+    QItemSelection moveRowsDown(const QList<QModelIndex> &indices);
 
     static std::vector<int> filterColumns(const QList<QModelIndex> &indices);
     static std::vector<int> filterRows(const QList<QModelIndex> &indices);

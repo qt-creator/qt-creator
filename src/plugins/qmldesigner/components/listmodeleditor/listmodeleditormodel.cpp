@@ -319,6 +319,42 @@ void ListModelEditorModel::renameColumn(int oldColumn, const QString &newColumnN
     setHorizontalHeaderLabels(convertToStringList(m_propertyNames));
 }
 
+QItemSelection ListModelEditorModel::moveRowsUp(const QList<QModelIndex> &indices)
+{
+    std::vector<int> rows = filterRows(indices);
+
+    if (rows.empty() || rows.front() < 1)
+        return {};
+
+    auto nodeListProperty = m_listModelNode.defaultNodeListProperty();
+
+    for (int row : rows) {
+        insertRow(row - 1, takeRow(row));
+        nodeListProperty.slide(row, row - 1);
+    }
+
+    return {index(rows.front() - 1, 0), index(rows.back() - 1, columnCount() - 1)};
+}
+
+QItemSelection ListModelEditorModel::moveRowsDown(const QList<QModelIndex> &indices)
+{
+    std::vector<int> rows = filterRows(indices);
+
+    if (rows.empty() || rows.back() >= (rowCount() - 1))
+        return {};
+
+    auto nodeListProperty = m_listModelNode.defaultNodeListProperty();
+
+    std::reverse(rows.begin(), rows.end());
+
+    for (int row : rows) {
+        insertRow(row + 1, takeRow(row));
+        nodeListProperty.slide(row, row + 1);
+    }
+
+    return {index(rows.front() + 1, 0), index(rows.back() + 1, columnCount() - 1)};
+}
+
 std::vector<int> ListModelEditorModel::filterColumns(const QList<QModelIndex> &indices)
 {
     std::vector<int> columns;
