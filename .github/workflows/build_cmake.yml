@@ -5,6 +5,7 @@ on: [push, pull_request]
 env:
   QT_VERSION: 5.15.0
   CLANG_VERSION: 100
+  ELFUTILS_VERSION: 0.175
   CMAKE_VERSION: 3.17.0
   NINJA_VERSION: 1.10.0
   BUILD_TYPE: Release
@@ -46,7 +47,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Checkout submodules
-      run: git submodule update --init src/plugins/help/qlitehtml/litehtml
+      run: |
+        git submodule set-url -- perfparser https://code.qt.io/qt-creator/perfparser.git
+        git submodule update --init src/plugins/help/qlitehtml/litehtml
+        git submodule update --init src/tools/perfparser
 
     - name: Download Ninja and CMake
       id: cmake_and_ninja
@@ -261,6 +265,32 @@ jobs:
         file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/libclang" libclang_dir)
         message("::set-output name=libclang_dir::${libclang_dir}")
 
+    - name: Download elfutils
+      if: runner.os == 'Windows' && matrix.config.is_msvc || runner.os == 'Linux'
+      id: elfutils
+      shell: cmake -P {0}
+      run: |
+        set(elfutils_version "$ENV{ELFUTILS_VERSION}")
+
+        if ("${{ runner.os }}" STREQUAL "Windows")
+          if ("${{ matrix.config.environment_script }}" MATCHES "vcvars64.bat")
+            set(elfutils "elfutils-release_${elfutils_version}qt-windows-x86_64.7z")
+          elseif ("${{ matrix.config.environment_script }}" MATCHES "vcvars32.bat")
+            set(elfutils "elfutils-release_${elfutils_version}qt-windows-i686.7z")
+          endif()
+        elseif ("${{ runner.os }}" STREQUAL "Linux")
+          set(elfutils "elfutils-release_${elfutils_version}qt-linux-x86_64.7z")
+        endif()
+
+        set(elfutils_url "https://download.qt.io/development_releases/prebuilt/elfutils/${elfutils}")
+        file(DOWNLOAD "${elfutils_url}" ./elfutils.7z SHOW_PROGRESS)
+        file(MAKE_DIRECTORY elfutils)
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ../elfutils.7z WORKING_DIRECTORY elfutils)
+
+        # Save the path for other steps
+        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/elfutils" elfutils_dir)
+        message("::set-output name=elfutils_dir::${elfutils_dir}")
+
     - name: Download ccache
       id: ccache
       shell: cmake -P {0}
@@ -359,6 +389,12 @@ jobs:
           set(CDB_OPTION)
         endif()
 
+        if (NOT "${{ steps.elfutils.outputs.elfutils_dir }}" STREQUAL "")
+          set(ELFUTILS_OPTION "--elfutils-path;${{ steps.elfutils.outputs.elfutils_dir }}")
+        else()
+          set(ELFUTILS_OPTION)
+        endif()
+
         execute_process(
           COMMAND python
             -u
@@ -369,6 +405,7 @@ jobs:
             --llvm-path "${{ steps.libclang.outputs.libclang_dir }}"
             --with-tests
             ${CDB_OPTION}
+            ${ELFUTILS_OPTION}
             --add-config=-DCMAKE_C_COMPILER_LAUNCHER=ccache
             --add-config=-DCMAKE_CXX_COMPILER_LAUNCHER=ccache
             --add-config=-DIDE_REVISION_URL=https://github.com/$ENV{GITHUB_REPOSITORY}/commits/$ENV{GITHUB_SHA}
