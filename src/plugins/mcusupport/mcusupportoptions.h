@@ -66,6 +66,7 @@ public:
 
     QString path() const;
     QString label() const;
+    QString defaultPath() const;
     QString detectionPath() const;
     Status status() const;
     void setDownloadUrl(const QString &url);

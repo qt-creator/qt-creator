@@ -219,13 +219,18 @@ static McuPackage *createBoardSdkPackage(const QString &envVar)
     return result;
 }
 
-static McuPackage *createFreeRTOSSourcesPackage(const QString &envVar)
+static McuPackage *createFreeRTOSSourcesPackage(const QString &envVar, const QString &boardSdkDir,
+                                                const QString &freeRTOSBoardSdkSubDir)
 {
     const QString envVarPrefix = envVar.chopped(strlen("_FREERTOS_DIR"));
 
-    const QString defaultPath =
-            qEnvironmentVariableIsSet(envVar.toLatin1()) ?
-                qEnvironmentVariable(envVar.toLatin1()) : QDir::homePath();
+    QString defaultPath;
+    if (qEnvironmentVariableIsSet(envVar.toLatin1()))
+        defaultPath = qEnvironmentVariable(envVar.toLatin1());
+    else if (!boardSdkDir.isEmpty() && !freeRTOSBoardSdkSubDir.isEmpty())
+        defaultPath = boardSdkDir + "/" + freeRTOSBoardSdkSubDir;
+    else
+        defaultPath = QDir::homePath();
 
     auto result = new McuPackage(
                 QString::fromLatin1("FreeRTOS Sources (%1)").arg(envVarPrefix),
@@ -246,6 +251,7 @@ struct McuTargetDescription
     QString toolchainId;
     QString boardSdkEnvVar;
     QString freeRTOSEnvVar;
+    QString freeRTOSBoardSdkSubDir;
 };
 
 static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescription> &descriptions,
@@ -280,21 +286,25 @@ static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescrip
                 QVector<McuPackage*> required3rdPartyPkgs = {
                     vendorPkgs.value(desc.platformVendor), tcPkg
                 };
+                QString boardSdkDefaultPath;
                 if (!desc.boardSdkEnvVar.isEmpty()
                         && desc.boardSdkEnvVar != "RGL_DIR") { // Already included in vendorPkgs
                     if (!boardSdkPkgs.contains(desc.boardSdkEnvVar)) {
                         auto boardSdkPkg = createBoardSdkPackage(desc.boardSdkEnvVar);
                         boardSdkPkgs.insert(desc.boardSdkEnvVar, boardSdkPkg);
                     }
-                    required3rdPartyPkgs.append(boardSdkPkgs.value(desc.boardSdkEnvVar));
+                    auto boardSdkPkg = boardSdkPkgs.value(desc.boardSdkEnvVar);
+                    boardSdkDefaultPath = boardSdkPkg->defaultPath();
+                    required3rdPartyPkgs.append(boardSdkPkg);
                 }
                 if (os == McuTarget::OS::FreeRTOS) {
                     if (desc.freeRTOSEnvVar.isEmpty()) {
                         continue;
                     } else {
                         if (!freeRTOSPkgs.contains(desc.freeRTOSEnvVar)) {
-                            auto freeRTOSPkg = createFreeRTOSSourcesPackage(desc.freeRTOSEnvVar);
-                            freeRTOSPkgs.insert(desc.freeRTOSEnvVar, freeRTOSPkg);
+                            freeRTOSPkgs.insert(desc.freeRTOSEnvVar, createFreeRTOSSourcesPackage(
+                                                    desc.freeRTOSEnvVar, boardSdkDefaultPath,
+                                                    desc.freeRTOSBoardSdkSubDir));
                         }
                         required3rdPartyPkgs.append(freeRTOSPkgs.value(desc.freeRTOSEnvVar));
                     }
@@ -346,6 +356,7 @@ static McuTargetDescription parseDescriptionJson(const QByteArray &data)
         toolchain.value("id").toString(),
         boardSdk.value("envVar").toString(),
         freeRTOS.value("envVar").toString(),
+        freeRTOS.value("boardSdkSubDir").toString()
     };
 }
 
@@ -368,7 +379,7 @@ void targetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage *> *packa
     // Workaround for missing JSON file for Desktop target:
     if (dir.pathAppended("/lib/QulQuickUltralite_QT_32bpp_Windows_Release.lib").exists()) {
         descriptions.prepend({McuSupportOptions::supportedQulVersion().toString(),
-                              {"Qt"}, {"Qt"}, {32}, {"desktop"}, {}, {}});
+                              {"Qt"}, {"Qt"}, {32}, {"desktop"}, {}, {}, {}});
     }
 
     mcuTargets->append(targetsFromDescriptions(descriptions, packages));

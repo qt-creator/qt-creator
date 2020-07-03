@@ -95,6 +95,11 @@ QString McuPackage::label() const
     return m_label;
 }
 
+QString McuPackage::defaultPath() const
+{
+    return m_defaultPath;
+}
+
 QString McuPackage::detectionPath() const
 {
     return m_detectionPath;
