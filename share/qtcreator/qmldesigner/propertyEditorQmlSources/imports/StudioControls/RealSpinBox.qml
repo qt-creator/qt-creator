@@ -149,7 +149,7 @@ T.SpinBox {
         myControl: mySpinBox
         validator: doubleValidator
 
-        onEditingFinished: {
+        function handleEditingFinished() {
             // Keep the dirty state before calling setValueFromInput(),
             // it will be set to false (cleared) internally
             var valueModified = mySpinBox.dirty
@@ -161,6 +161,8 @@ T.SpinBox {
             if (valueModified)
                 mySpinBox.compressedRealValueModified()
         }
+
+        onEditingFinished: handleEditingFinished()
         onTextEdited: mySpinBox.dirty = true
     }
 
@@ -278,8 +280,16 @@ T.SpinBox {
     }
     onRealValueModified: myTimer.restart()
     onFocusChanged: {
-        if (mySpinBox.focus)
+        if (mySpinBox.focus) {
             mySpinBox.dirty = false
+        } else {
+            // Make sure displayed value is correct after focus loss, as onEditingFinished
+            // doesn't trigger when value is something validator doesn't accept.
+            spinBoxInput.text = mySpinBox.textFromValue(mySpinBox.realValue, mySpinBox.locale)
+
+            if (mySpinBox.dirty)
+                spinBoxInput.handleEditingFinished()
+        }
     }
     onDisplayTextChanged: spinBoxInput.text = mySpinBox.displayText
     onActiveFocusChanged: {
@@ -348,6 +358,9 @@ T.SpinBox {
     }
 
     function setRealValue(value) {
+        if (Number.isNaN(value))
+            value = 0
+
         if (mySpinBox.decimals === 0)
             value = Math.round(value)
 
