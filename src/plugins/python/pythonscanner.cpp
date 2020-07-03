@@ -98,6 +98,11 @@ FormatToken Scanner::onDefaultState()
         return readComment();
     }
 
+    if (first == '(' || first == '[' || first == '{')
+        return readBrace(true);
+    if (first == ')' || first == ']' || first == '}')
+        return readBrace(false);
+
     if (first.isSpace())
         return readWhiteSpace();
 
@@ -363,13 +368,19 @@ FormatToken Scanner::readWhiteSpace()
   */
 FormatToken Scanner::readOperator()
 {
-    static const QString EXCLUDED_CHARS = "\'\"_#";
+    static const QString EXCLUDED_CHARS = "\'\"_#([{}])";
     QChar ch = peek();
     while (ch.isPunct() && !EXCLUDED_CHARS.contains(ch)) {
         move();
         ch = peek();
     }
     return FormatToken(Format_Operator, anchor(), length());
+}
+
+FormatToken Scanner::readBrace(bool isOpening)
+{
+    Format format = isOpening ? Format_LParen : Format_RParen;
+    return FormatToken(format, anchor(), length());
 }
 
 void Scanner::clearState()
