@@ -51,15 +51,35 @@ namespace Core {
 /*!
     \class Core::ModeManager
     \inheaderfile coreplugin/modemanager.h
+    \ingroup mainclasses
     \inmodule QtCreator
 
-    \brief The ModeManager class implements a mode manager.
+    \brief The ModeManager class manages the activation of modes and the
+    actions in the mode selector's tool bar.
 
-    The mode manager handles everything related to the instances of IMode
-    that were added to the plugin manager's object pool.
+    Modes are implemented with the IMode class. Use the ModeManager to
+    force activation of a mode, or to be notified when the active mode changed.
 
-    In addition, it handles the mode buttons and the tool bar buttons in the
-    lower left corner of \QC.
+    The ModeManager also manages the actions that are visible in the mode
+    selector's toolbar. Adding actions to the tool bar should be done very
+    sparingly.
+*/
+
+/*!
+    \enum ModeManager::Style
+    \internal
+*/
+
+/*!
+    \fn void ModeManager::currentModeAboutToChange(Core::Id mode)
+
+    Emitted before the current mode changes to \a mode.
+*/
+
+/*!
+    \fn void ModeManager::currentModeChanged(Core::Id mode, Core::Id oldMode)
+
+    Emitted after the current mode changed from \a oldMode to \a mode.
 */
 
 struct ModeManagerPrivate
@@ -130,6 +150,12 @@ ModeManager::~ModeManager()
     m_instance = nullptr;
 }
 
+/*!
+    Returns the id of the current mode.
+
+    \sa activateMode()
+    \sa currentMode()
+*/
 Id ModeManager::currentModeId()
 {
     int currentIndex = d->m_modeStack->currentIndex();
@@ -146,6 +172,14 @@ static IMode *findMode(Id id)
     return nullptr;
 }
 
+/*!
+    Makes the mode with ID \a id the current mode.
+
+    \sa currentMode()
+    \sa currentModeId()
+    \sa currentModeAboutToChange()
+    \sa currentModeChanged()
+*/
 void ModeManager::activateMode(Id id)
 {
     d->activateModeHelper(id);
@@ -252,6 +286,11 @@ void ModeManager::removeMode(IMode *mode)
     d->m_mainWindow->removeContextObject(mode);
 }
 
+/*!
+    Adds the \a action to the mode selector's tool bar.
+    Actions are sorted by \a priority in descending order.
+    Use this functionality very sparingly.
+*/
 void ModeManager::addAction(QAction *action, int priority)
 {
     d->m_actions.insert(action, priority);
@@ -266,6 +305,9 @@ void ModeManager::addAction(QAction *action, int priority)
     d->m_actionBar->insertAction(index, action);
 }
 
+/*!
+    \internal
+*/
 void ModeManager::addProjectSelector(QAction *action)
 {
     d->m_actionBar->addProjectSelector(action);
@@ -304,6 +346,9 @@ void ModeManager::currentTabChanged(int index)
     emit currentModeChanged(mode->id(), oldMode ? oldMode->id() : Id());
 }
 
+/*!
+    \internal
+*/
 void ModeManager::setFocusToCurrentMode()
 {
     IMode *mode = findMode(currentModeId());
@@ -317,6 +362,9 @@ void ModeManager::setFocusToCurrentMode()
     }
 }
 
+/*!
+    \internal
+*/
 void ModeManager::setModeStyle(ModeManager::Style style)
 {
     const bool visible = style != Style::Hidden;
@@ -328,22 +376,37 @@ void ModeManager::setModeStyle(ModeManager::Style style)
     d->m_modeStack->setSelectionWidgetVisible(visible);
 }
 
+/*!
+    \internal
+*/
 void ModeManager::cycleModeStyle()
 {
     auto nextStyle = Style((int(modeStyle()) + 1) % 3);
     setModeStyle(nextStyle);
 }
 
+/*!
+    \internal
+*/
 ModeManager::Style ModeManager::modeStyle()
 {
     return d->m_modeStyle;
 }
 
+/*!
+    Returns the pointer to the instance. Only use for connecting to signals.
+*/
 ModeManager *ModeManager::instance()
 {
     return m_instance;
 }
 
+/*!
+    Returns a pointer to the current mode.
+
+    \sa activateMode()
+    \sa currentModeId()
+*/
 IMode *ModeManager::currentMode()
 {
     const int currentIndex = d->m_modeStack->currentIndex();
