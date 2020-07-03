@@ -90,13 +90,13 @@ def dumpLiteral(d, value):
     d.putValue(d.hexencode(readLiteral(d, value)), "latin1")
 
 
-def qdump__Core__Id(d, value):
+def qdump__Utils__Id(d, value):
     val = value.extractPointer()
     if True:
         if d.isMsvcTarget():
             name = d.nameForCoreId(val).address()
         else:
-            name = d.parseAndEvaluate("Core::nameForId(0x%x)" % val).pointer()
+            name = d.parseAndEvaluate("Utils::nameForId(0x%x)" % val).pointer()
         d.putSimpleCharArray(name)
     else:
         d.putValue(val)
