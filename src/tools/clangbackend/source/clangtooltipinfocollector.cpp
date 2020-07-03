@@ -252,9 +252,6 @@ Utf8String ToolTipInfoCollector::text(const Cursor &cursor, const Cursor &refere
     if (referenced.isFunctionLike() || referenced.kind() == CXCursor_Constructor)
         return textForFunctionLike(referenced);
 
-    if (referenced.type().canonical().isBuiltinType())
-        return referenced.type().canonical().builtinTypeToString();
-
     if (referenced.kind() == CXCursor_VarDecl)
         return referenced.type().spelling(); // e.g. "Zii<int>"
 
