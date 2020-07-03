@@ -23,13 +23,37 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import QtQuick.Controls 1.0 as Controls
-import "../../../common/"
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import StudioTheme 1.0 as StudioTheme
 
-Controls.ScrollView {
-    style: DesignerScrollViewStyle {
+Flickable {
+    id: flickable
 
+    property alias horizontalThickness: horizontalScrollBar.height
+    property alias verticalThickness: verticalScrollBar.width
+    property bool bothVisible: verticalScrollBar.scrollBarVisible
+                               && horizontalScrollBar.scrollBarVisible
+
+    contentWidth: areaItem.childrenRect.width
+    contentHeight: areaItem.childrenRect.height
+    boundsBehavior: Flickable.StopAtBounds
+
+    default property alias content: areaItem.children
+
+    Item {
+        id: areaItem
     }
-    frameVisible: false
+
+    ScrollBar.horizontal: HorizontalScrollBar {
+        id: horizontalScrollBar
+        parent: flickable
+        scrollBarVisible: areaItem.childrenRect.width > flickable.width
+    }
+
+    ScrollBar.vertical: VerticalScrollBar {
+        id: verticalScrollBar
+        parent: flickable
+        scrollBarVisible: areaItem.childrenRect.height > flickable.height
+    }
 }

@@ -23,10 +23,10 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
-import HelperWidgets 2.0
+import QtQuick 2.15
 import QtQuick.Layouts 1.0
 import QtQuickDesignerTheme 1.0
+import HelperWidgets 2.0
 
 Rectangle {
     id: itemPane
@@ -43,6 +43,7 @@ Rectangle {
         anchors.fill: parent
 
         Column {
+            id: rootColumn
             y: -1
             width: itemPane.width
             Section {
@@ -54,7 +55,6 @@ Rectangle {
                 SectionLayout {
                     Label {
                         text: qsTr("Type")
-
                     }
 
                     SecondColumnLayout {
@@ -148,68 +148,29 @@ Rectangle {
                 width: 4
             }
 
-            TabView {
+            Column {
                 anchors.left: parent.left
                 anchors.right: parent.right
-                frameVisible: false
+                Loader {
+                    id: specificsTwo
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    visible: theSource !== ""
+                    sourceComponent: specificQmlComponent
 
-                id: tabView
-                height: Math.max(layoutSectionHeight, specficsHeight)
+                    property string theSource: specificQmlData
 
-                property int layoutSectionHeight: 400
-                property int specficsOneHeight: 0
-                property int specficsTwoHeight: 0
-
-                property int specficsHeight: Math.max(specficsOneHeight, specficsTwoHeight)
-
-                property int extraHeight: 40
-
-                Tab {
-                    id: tab
-                    title: backendValues.className.value
-
-                    component: Column {
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        Loader {
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-
-                            visible: theSource !== ""
-
-                            id: specificsTwo;
-                            sourceComponent: specificQmlComponent
-
-                            property string theSource: specificQmlData
-
-                            onTheSourceChanged: {
-                                active = false
-                                active = true
-                            }
-
-                            property int loaderHeight: specificsTwo.item.height + tabView.extraHeight
-                            onLoaderHeightChanged: tabView.specficsTwoHeight = loaderHeight
-
-                            onLoaded: {
-                                tabView.specficsTwoHeight = loaderHeight
-                            }
-                        }
-
-                        Loader {
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-
-                            id: specificsOne;
-                            source: specificsUrl;
-
-                            property int loaderHeight: specificsOne.item.height + tabView.extraHeight
-                            onLoaderHeightChanged: tabView.specficsHeight = loaderHeight
-
-                            onLoaded: {
-                                tabView.specficsOneHeight = loaderHeight
-                            }
-                        }
+                    onTheSourceChanged: {
+                        active = false
+                        active = true
                     }
+                }
+
+                Loader {
+                    id: specificsOne
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    source: specificsUrl
                 }
             }
         }

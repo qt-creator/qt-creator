@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,9 +23,33 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import QtQuick.Controls 1.0 as Controls
+import QtQuick 2.15
+import QtQuick.Templates 2.15 as T
+import StudioTheme 1.0 as StudioTheme
 
-Controls.Tab {
+T.TabBar {
+    id: myButton
 
+    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
+                            implicitContentWidth + leftPadding + rightPadding)
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             implicitContentHeight + topPadding + bottomPadding)
+
+    spacing: 0
+    bottomPadding: 4
+
+    contentItem: ListView {
+        model: myButton.contentModel
+        currentIndex: myButton.currentIndex
+
+        spacing: myButton.spacing
+        orientation: ListView.Horizontal
+        boundsBehavior: Flickable.StopAtBounds
+        flickableDirection: Flickable.AutoFlickIfNeeded
+        snapMode: ListView.SnapToItem
+    }
+
+    background: Rectangle {
+        color: StudioTheme.Values.themeTabLight
+    }
 }

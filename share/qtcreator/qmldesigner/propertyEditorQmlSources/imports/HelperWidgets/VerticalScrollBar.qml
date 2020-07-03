@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,38 +23,29 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.2
-import QtQuick.Controls 1.1
-import QtQuick.Controls.Styles 1.1
-import QtQuickDesignerTheme 1.0
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import StudioTheme 1.0 as StudioTheme
 
-ScrollViewStyle {
-    readonly property color scrollbarColor: Theme.color(Theme.BackgroundColorDark)
-    readonly property color scrollBarHandleColor: Theme.color(Theme.QmlDesigner_ScrollBarHandleColor)
+ScrollBar {
+    id: scrollBar
 
-    padding {left: 0; top: 0; right: 0; bottom: 0}
+    property bool scrollBarVisible: parent.childrenRect.height > parent.height
 
-    scrollBarBackground: Rectangle {
-        height: 10
-        width: 10
-        color: scrollbarColor
-    }
-    handle: Item {
-        implicitWidth: 10
-        implicitHeight: 10
-        Rectangle {
-            anchors.fill: parent
-            color: scrollBarHandleColor
-        }
+    orientation: Qt.Vertical
+    policy: scrollBar.scrollBarVisible ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
+    x: parent.width - width
+    y: 0
+    height: parent.availableHeight
+            - (parent.bothVisible ? parent.horizontalThickness : 0)
+    padding: 0
+
+    background: Rectangle {
+        color: StudioTheme.Values.themeSectionHeadBackground
     }
 
-    decrementControl: Item {}
-    incrementControl: Item {}
-    corner: Item {}
-
-    //Even if the platform style reports touch support a scrollview should not be flickable.
-    Component.onCompleted: {
-        control.flickableItem.interactive = false
+    contentItem: Rectangle {
+        implicitWidth: StudioTheme.Values.scrollBarThickness
+        color: StudioTheme.Values.themeScrollBarHandle
     }
-    transientScrollBars: false
 }

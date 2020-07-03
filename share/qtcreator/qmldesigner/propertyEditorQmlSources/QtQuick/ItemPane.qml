@@ -23,10 +23,11 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
-import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
 import QtQuickDesignerTheme 1.0
+import HelperWidgets 2.0
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
@@ -35,14 +36,15 @@ Rectangle {
     width: 320
     height: 400
     color: Theme.qmlDesignerBackgroundColorDarkAlternate()
+
     MouseArea {
         anchors.fill: parent
         onClicked: forceActiveFocus()
     }
 
     ScrollView {
+        clip: true
         anchors.fill: parent
-        horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
 
         Column {
             y: -1
@@ -57,7 +59,6 @@ Rectangle {
                 SectionLayout {
                     Label {
                         text: qsTr("Type")
-
                     }
 
                     SecondColumnLayout {
@@ -280,7 +281,6 @@ Rectangle {
                         Item {
                             width: 10
                             height: 10
-
                         }
 
                         CheckBox {
@@ -319,88 +319,92 @@ Rectangle {
                 width: 4
             }
 
-            TabView {
+            StudioControls.TabBar {
+                id: tabBar
+
                 anchors.left: parent.left
                 anchors.right: parent.right
-                frameVisible: false
 
-                id: tabView
+                StudioControls.TabButton {
+                    text: backendValues.className.value
+                }
+                StudioControls.TabButton {
+                    text: qsTr("Layout")
+                }
+                StudioControls.TabButton {
+                    text: qsTr("Advanced")
+                }
+            }
+
+            StackLayout {
+                anchors.left: parent.left
+                anchors.right: parent.right
+                currentIndex: tabBar.currentIndex
+
+                property int currentHeight: children[currentIndex].implicitHeight
+                property int extraHeight: 40
 
                 height: currentHeight + extraHeight
 
-                property int currentHeight: getTab(currentIndex).item.implicitHeight
-                property int extraHeight: 40
+                Column {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
 
-                Tab {
-                    title: backendValues.className.value
+                    Loader {
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        visible: theSource !== ""
 
-                    component: Column {
+                        id: specificsTwo;
+                        sourceComponent: specificQmlComponent
+
+                        property string theSource: specificQmlData
+
+                        onTheSourceChanged: {
+                            active = false
+                            active = true
+                        }
+                    }
+
+                    Loader {
                         anchors.left: parent.left
                         anchors.right: parent.right
 
-                        Loader {
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            visible: theSource !== ""
+                        id: specificsOne;
+                        source: specificsUrl;
 
-                            id: specificsTwo;
-                            sourceComponent: specificQmlComponent
-
-                            property string theSource: specificQmlData
-
-                            onTheSourceChanged: {
-                                active = false
-                                active = true
-                            }
-                        }
-
-                        Loader {
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-
-                            id: specificsOne;
-                            source: specificsUrl;
-
-                            property int loaderHeight: specificsOne.item.height + tabView.extraHeight
-                        }
+                        property int loaderHeight: specificsOne.item.height + tabView.extraHeight
                     }
                 }
 
-                Tab {
-                    title: qsTr("Layout")
-                    component: Column {
-                        anchors.left: parent.left
-                        anchors.right: parent.right
+                Column {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
 
-                        LayoutSection {
-                        }
+                    LayoutSection {
+                    }
 
-                        MarginSection {
-                            visible: anchorBackend.isInLayout
-                            backendValueTopMargin: backendValues.Layout_topMargin
-                            backendValueBottomMargin: backendValues.Layout_bottomMargin
-                            backendValueLeftMargin: backendValues.Layout_leftMargin
-                            backendValueRightMargin: backendValues.Layout_rightMargin
-                            backendValueMargins: backendValues.Layout_margins
-                        }
+                    MarginSection {
+                        visible: anchorBackend.isInLayout
+                        backendValueTopMargin: backendValues.Layout_topMargin
+                        backendValueBottomMargin: backendValues.Layout_bottomMargin
+                        backendValueLeftMargin: backendValues.Layout_leftMargin
+                        backendValueRightMargin: backendValues.Layout_rightMargin
+                        backendValueMargins: backendValues.Layout_margins
+                    }
 
-                        AlignDistributeSection {
-                            visible: !anchorBackend.isInLayout
-                        }
+                    AlignDistributeSection {
+                        visible: !anchorBackend.isInLayout
                     }
                 }
 
-                Tab {
-                    anchors.fill: parent
-                    title: qsTr("Advanced")
-                    component: Column {
-                        anchors.left: parent.left
-                        anchors.right: parent.right
+                Column {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
 
-                        AdvancedSection {
-                        }
-                        LayerSection {
-                        }
+                    AdvancedSection {
+                    }
+                    LayerSection {
                     }
                 }
             }

@@ -79,6 +79,8 @@ QtObject {
 
     property real inputHorizontalPadding: Math.round(4 * values.scaleFactor)
 
+    property real scrollBarThickness: 10
+
     // Theme Colors
 
     // COLORS NOW COME FROM THE THEME FILES
@@ -116,6 +118,9 @@ QtObject {
     property string themeControlBackgroundInteraction: Theme.color(Theme.DScontrolBackgroundInteraction) // TODO Name. Right now themeFocusEdit is used for all 'edit' states. Is that correct? Different color!
     property string themeTranslationIndicatorBorder: Theme.color(Theme.DStranlsationIndicatorBorder)
     property string themeSectionHeadBackground: Theme.color(Theme.DSsectionHeadBackground)
+
+    property string themeTabDark: Theme.color(Theme.QmlDesigner_TabDark)
+    property string themeTabLight: Theme.color(Theme.QmlDesigner_TabLight)
 
     // Taken out of Constants.js
     property string themeChangedStateText: Theme.color(Theme.DSchangedStateText)

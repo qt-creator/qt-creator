@@ -38,7 +38,7 @@ Column {
 
     property bool supportGradient: false
 
-    property string caption: "Color"
+    property string caption: qsTr("Color")
 
     property variant backendValue
 
@@ -47,7 +47,6 @@ Column {
             return Qt.rgba(backendValue.value.x, backendValue.value.y, backendValue.value.z, 1);
         else
             return backendValue.value;
-
     }
 
     property alias gradientPropertyName: gradientLine.gradientPropertyName

@@ -73,7 +73,6 @@ Section {
             Layout.fillWidth: true
             width: 160
             property string familyName: backendValue.value
-            onFamilyNameChanged: print(styleNamesForFamily(familyName))
         }
 
         Label {

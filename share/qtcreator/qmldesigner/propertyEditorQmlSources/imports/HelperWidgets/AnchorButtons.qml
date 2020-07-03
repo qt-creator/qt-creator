@@ -156,7 +156,7 @@ StudioControls.ButtonRow {
         buttonIcon: StudioTheme.Constants.centerVertical
         tooltip: qsTr("Anchor item vertically.")
 
-        property bool verticalCentered: anchorBackend.verticalCentered;
+        property bool verticalCentered: anchorBackend.verticalCentered
         onVerticalCenteredChanged: {
             checked = verticalCentered
         }
@@ -179,7 +179,7 @@ StudioControls.ButtonRow {
         buttonIcon: StudioTheme.Constants.centerHorizontal
         tooltip: qsTr("Anchor item horizontally.")
 
-        property bool horizontalCentered: anchorBackend.horizontalCentered;
+        property bool horizontalCentered: anchorBackend.horizontalCentered
         onHorizontalCenteredChanged: {
             checked = horizontalCentered
         }

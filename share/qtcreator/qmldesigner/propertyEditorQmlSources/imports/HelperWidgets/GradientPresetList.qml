@@ -23,12 +23,11 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.11
-import QtQuick.Layouts 1.12
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import QtQuick.Dialogs 1.3
-
-import HelperWidgets 2.0
 import QtQuickDesignerTheme 1.0
+import HelperWidgets 2.0
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
@@ -76,49 +75,52 @@ Dialog {
             anchors.margins: 13
             anchors.bottomMargin: 71
 
-            TabView {
-                id: presetTabView
-                Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
-                Layout.fillHeight: true
-                Layout.fillWidth: true
+            StudioControls.TabBar {
+                id: presetTabBar
 
-                Tab {
-                    title: qsTr("System Presets")
-                    anchors.fill: parent
+                anchors.left: parent.left
+                anchors.right: parent.right
 
-                    GradientPresetTabContent {
-                        id: defaultTabContent
-                        viewModel: defaultPresetListModel
-                        editableName: false
-                    }
+                StudioControls.TabButton {
+                    text: qsTr("System Presets")
+                }
+                StudioControls.TabButton {
+                    text: qsTr("User Presets")
+                }
+            }
+
+            StackLayout {
+                anchors.left: parent.left
+                anchors.right: parent.right
+                currentIndex: presetTabBar.currentIndex
+
+                GradientPresetTabContent {
+                    id: defaultTabContent
+                    viewModel: defaultPresetListModel
+                    editableName: false
                 }
 
-                Tab {
-                    title: qsTr("User Presets")
-                    anchors.fill: parent
+                GradientPresetTabContent {
+                    id: customTabContent
+                    viewModel: customPresetListModel
+                    editableName: true
+                    onPresetNameChanged: customPresetListModel.changePresetName(id, name)
 
-                    GradientPresetTabContent {
-                        id: customTabContent
-                        viewModel: customPresetListModel
-                        editableName: true
-                        onPresetNameChanged: customPresetListModel.changePresetName(id, name)
+                    property int deleteId
 
-                        property int deleteId
+                    onDeleteButtonClicked: {
+                        deleteId = id
+                        deleteDialog.open()
+                    }
 
-                        onDeleteButtonClicked: {
-                            deleteId = id
-                            deleteDialog.open()
-                        }
-
-                        MessageDialog {
-                            id: deleteDialog
-                            visible: false
-                            modality: Qt.WindowModal
-                            standardButtons: Dialog.No | Dialog.Yes
-                            title: qsTr("Delete preset?")
-                            text: qsTr("Are you sure you want to delete this preset?")
-                            onAccepted: customPresetListModel.deletePreset(customTabContent.deleteId)
-                        }
+                    MessageDialog {
+                        id: deleteDialog
+                        visible: false
+                        modality: Qt.WindowModal
+                        standardButtons: Dialog.No | Dialog.Yes
+                        title: qsTr("Delete preset?")
+                        text: qsTr("Are you sure you want to delete this preset?")
+                        onAccepted: customPresetListModel.deletePreset(customTabContent.deleteId)
                     }
                 }
             }

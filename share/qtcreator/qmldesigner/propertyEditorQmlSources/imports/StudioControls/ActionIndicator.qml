@@ -116,7 +116,6 @@ Rectangle {
                 color: StudioTheme.Values.themeHoverHighlight
                 border.color: StudioTheme.Values.themeControlOutline
             }
-
         },
         State {
             name: "edit"

@@ -33,7 +33,7 @@ Section {
     caption: qsTr("Advanced")
 
     SectionLayout {
-        rows: 4
+        columns: 2
 
         Label {
             text: qsTr("Origin")
@@ -171,7 +171,6 @@ Section {
                 backendValue: backendValues.focus
                 text: backendValues.focus.valueToString
                 enabled: backendValues.focus.isAvailable
-                implicitWidth: 180
             }
             ExpandingSpacer {
             }
@@ -187,7 +186,6 @@ Section {
                 backendValue: backendValues.activeFocusOnTab
                 text: backendValues.activeFocusOnTab.valueToString
                 enabled: backendValues.activeFocusOnTab.isAvailable
-                implicitWidth: 180
             }
             ExpandingSpacer {
             }

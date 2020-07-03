@@ -23,9 +23,9 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 2.15
 import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
+import QtQuick.Layouts 1.15
 import QtQuickDesignerTheme 1.0
 
 import StudioControls 1.0 as StudioControls
@@ -34,11 +34,9 @@ import StudioTheme 1.0 as StudioTheme
 RowLayout {
     id: anchorRow
 
-    anchors.left: parent.left
-    anchors.right: parent.right
     opacity: enabled ? 1 : 0.5
 
-    property alias iconSource: icon.source
+    property alias iconSource: iconLabel.icon
 
     property variant anchorMargin
 
@@ -64,8 +62,10 @@ RowLayout {
     readonly property color __defaultTextColor: StudioTheme.Values.themeTextColor
 
     IconLabel {
-        id: icon
+        id: iconLabel
         Layout.alignment: Qt.AlignTop
+        Layout.topMargin: 4
+        Layout.leftMargin: 4
     }
 
     GridLayout {

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,25 +23,29 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.2
-import QtQuick.Controls 1.1
-import QtQuick.Controls.Styles 1.1
-import QtQuickDesignerTheme 1.0
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import StudioTheme 1.0 as StudioTheme
 
-TextFieldStyle {
-    selectionColor: Theme.color(Theme.PanelTextColorLight)
-    selectedTextColor: Theme.color(Theme.PanelTextColorDark)
-    textColor: Theme.color(Theme.PanelTextColorLight)
-    placeholderTextColor: Theme.color(Theme.PanelTextColorMid)
+ScrollBar {
+    id: scrollBar
 
-    padding.top: 4
-    padding.bottom: 4
+    property bool scrollBarVisible: parent.childrenRect.width > parent.width
+
+    orientation: Qt.Horizontal
+    policy: scrollBar.scrollBarVisible ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
+    x: 0
+    y: parent.height - height
+    width: parent.availableWidth
+           - (parent.bothVisible ? parent.verticalThickness : 0)
+    padding: 0
 
     background: Rectangle {
-        implicitWidth: 100
-        implicitHeight: font.pixelSize + padding.top + padding.bottom
-        color: Theme.color(Theme.FancyToolButtonSelectedColor)
-        border.color: Theme.qmlDesignerBackgroundColorDarker()
+        color: StudioTheme.Values.themeSectionHeadBackground
     }
-    renderType: Text.NativeRendering
+
+    contentItem: Rectangle {
+        implicitHeight: StudioTheme.Values.scrollBarThickness
+        color: StudioTheme.Values.themeScrollBarHandle
+    }
 }
