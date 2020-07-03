@@ -260,7 +260,8 @@ bool AddKitOperation::setArguments(const QStringList &args)
             if (next.isNull())
                 return false;
             ++i;
-            m_cmakeConfiguration.append(next);
+            if (!next.isEmpty())
+                m_cmakeConfiguration.append(next);
             continue;
         }
 
