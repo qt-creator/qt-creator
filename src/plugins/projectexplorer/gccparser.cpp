@@ -52,6 +52,10 @@ GccParser::GccParser()
                                 + QLatin1String("(\\d+)(:\\d+)?[,:]?$"));
     QTC_CHECK(m_regExpIncluded.isValid());
 
+    m_regExpInlined.setPattern(QString::fromLatin1("\\binlined from\\s.* at ")
+                               + FILE_PATTERN + "(\\d+)(:\\d+)?[,:]?$");
+    QTC_CHECK(m_regExpInlined.isValid());
+
     // optional path with trailing slash
     // optional arm-linux-none-thingy
     // name of executable
@@ -166,6 +170,8 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
     }
 
     match = m_regExpIncluded.match(lne);
+    if (!match.hasMatch())
+        match = m_regExpInlined.match(lne);
     if (match.hasMatch()) {
         const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
         const int lineNo = match.captured(3).toInt();
@@ -1105,6 +1111,36 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                   "  1 | extern int callee(int one, const char *two, float three);\n"
                                   "    |                            ~~~~~~~~~~~~^~~",
                                   FilePath::fromUserInput("param-type-mismatch.c"), 5)}
+            << QString();
+
+    QTest::newRow(R"("inlined from")")
+            << QString("In file included from smallstringvector.h:30,\n"
+                       "                 from smallstringio.h:28,\n"
+                       "                 from gtest-creator-printing.h:29,\n"
+                       "                 from googletest.h:41,\n"
+                       "                 from smallstring-test.cpp:26:\n"
+                       "In member function ‘void Utils::BasicSmallString<Size>::append(Utils::SmallStringView) [with unsigned int Size = 31]’,\n"
+                       "    inlined from ‘Utils::BasicSmallString<Size>& Utils::BasicSmallString<Size>::operator+=(Utils::SmallStringView) [with unsigned int Size = 31]’ at smallstring.h:471:15,\n"
+                       "    inlined from ‘virtual void SmallString_AppendLongSmallStringToShortSmallString_Test::TestBody()’ at smallstring-test.cpp:850:63:\n"
+                       "smallstring.h:465:21: warning: writing 1 byte into a region of size 0 [-Wstringop-overflow=]\n"
+                       "  465 |         at(newSize) = 0;\n"
+                       "      |         ~~~~~~~~~~~~^~~")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << Tasks{CompileTask(Task::Warning,
+                                 "writing 1 byte into a region of size 0 [-Wstringop-overflow=]\n"
+                                 "In file included from smallstringvector.h:30,\n"
+                                                        "                 from smallstringio.h:28,\n"
+                                                        "                 from gtest-creator-printing.h:29,\n"
+                                                        "                 from googletest.h:41,\n"
+                                                        "                 from smallstring-test.cpp:26:\n"
+                                                        "In member function ‘void Utils::BasicSmallString<Size>::append(Utils::SmallStringView) [with unsigned int Size = 31]’,\n"
+                                                        "    inlined from ‘Utils::BasicSmallString<Size>& Utils::BasicSmallString<Size>::operator+=(Utils::SmallStringView) [with unsigned int Size = 31]’ at smallstring.h:471:15,\n"
+                                                        "    inlined from ‘virtual void SmallString_AppendLongSmallStringToShortSmallString_Test::TestBody()’ at smallstring-test.cpp:850:63:\n"
+                                                        "smallstring.h:465:21: warning: writing 1 byte into a region of size 0 [-Wstringop-overflow=]\n"
+                                                        "  465 |         at(newSize) = 0;\n"
+                                                        "      |         ~~~~~~~~~~~~^~~",
+                                 FilePath::fromUserInput("smallstring.h"), 465)}
             << QString();
 }
 
