@@ -48,35 +48,6 @@
 namespace Debugger {
 namespace Internal {
 
-class ConsoleViewStyle : public ManhattanStyle
-{
-public:
-    ConsoleViewStyle(const QString &baseStyleName) : ManhattanStyle(baseStyleName) {}
-
-    void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter,
-                       const QWidget *widget = nullptr) const final
-    {
-        if (element != QStyle::PE_PanelItemViewRow)
-            ManhattanStyle::drawPrimitive(element, option, painter, widget);
-    }
-
-    int styleHint(StyleHint hint, const QStyleOption *option = nullptr,
-                  const QWidget *widget = nullptr,
-                  QStyleHintReturn *returnData = nullptr) const final
-    {
-        if (hint == SH_ItemView_ShowDecorationSelected)
-            return 0;
-        else
-            return ManhattanStyle::styleHint(hint, option, widget, returnData);
-    }
-};
-
-///////////////////////////////////////////////////////////////////////
-//
-// ConsoleView
-//
-///////////////////////////////////////////////////////////////////////
-
 ConsoleView::ConsoleView(ConsoleItemModel *model, QWidget *parent) :
     Utils::TreeView(parent), m_model(model)
 {
@@ -102,17 +73,6 @@ ConsoleView::ConsoleView(ConsoleItemModel *model, QWidget *parent) :
                   "border-image: none;"
                   "image: none; }");
 
-    QString baseName = QApplication::style()->objectName();
-    if (Utils::HostOsInfo::isAnyUnixHost() && !Utils::HostOsInfo::isMacHost()
-            && baseName == "windows") {
-        // Sometimes we get the standard windows 95 style as a fallback
-        if (QStyleFactory::keys().contains("Fusion")) {
-            baseName = "fusion"; // Qt5
-        }
-    }
-    auto style = new ConsoleViewStyle(baseName);
-    setStyle(style);
-    style->setParent(this);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
