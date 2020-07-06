@@ -5989,7 +5989,7 @@ Class *senderOrReceiverClass(const CppQuickFixInterface &interface,
     toe.init(interface.semanticInfo().doc, interface.snapshot(), context.bindings());
     const QList<LookupItem> objectPointerExpressions = toe(objectPointerExpression,
                                                            objectPointerScope, TypeOfExpression::Preprocess);
-    QTC_ASSERT(objectPointerExpressions.size() == 1, return nullptr);
+    QTC_ASSERT(!objectPointerExpressions.isEmpty(), return nullptr);
 
     Type *objectPointerTypeBase = objectPointerExpressions.first().type().type();
     QTC_ASSERT(objectPointerTypeBase, return nullptr);

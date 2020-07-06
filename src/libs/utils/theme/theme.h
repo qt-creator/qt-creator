@@ -279,13 +279,6 @@ public:
         VcsBase_FileRenamed_TextColor,
         VcsBase_FileUnmerged_TextColor,
 
-        /* Git Plugin */
-        Git_AuthorName_TextColor,
-        Git_CommitDate_TextColor,
-        Git_CommitHash_TextColor,
-        Git_CommitSubject_TextColor,
-        Git_Decoration_TextColor,
-
         /* Bookmarks Plugin */
         Bookmarks_TextMarkColor,
 

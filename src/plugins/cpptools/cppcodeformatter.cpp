@@ -200,10 +200,11 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
                 }
                 break;
             case T_ARROW: // Trailing return type?
-                if (m_currentState.at(m_currentState.size() - 2).type == declaration_start) {
+                if (m_currentState.at(m_currentState.size() - 2).type == declaration_start)
                     leave();
-                    break;
-                }
+                else
+                    tryExpression();
+                break;
             default:            tryExpression(); break;
             } break;
 

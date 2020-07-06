@@ -303,7 +303,21 @@ FormatDescriptions TextEditorSettingsPrivate::initialFormats()
     formatDescr.emplace_back(C_LOG_CHANGE_LINE, tr("Log Change Line"),
                              tr("Applied to lines describing changes in VCS log."),
                              Format(QColor(192, 0, 0), QColor()));
-
+    formatDescr.emplace_back(C_LOG_AUTHOR_NAME, tr("Log Author Name"),
+                             tr("Applied to author names in VCS log."),
+                             Format(QColor("#007af4"), QColor()));
+    formatDescr.emplace_back(C_LOG_COMMIT_DATE, tr("Log Commit Date"),
+                             tr("Applied to commit dates in VCS log."),
+                             Format(QColor("#006600"), QColor()));
+    formatDescr.emplace_back(C_LOG_COMMIT_HASH, tr("Log Commit Hash"),
+                             tr("Applied to commit hashes in VCS log."),
+                             Format(QColor("#ff0000"), QColor()));
+    formatDescr.emplace_back(C_LOG_DECORATION, tr("Log Decoration"),
+                             tr("Applied to commit decorations in VCS log."),
+                             Format(QColor("#ff00ff"), QColor()));
+    formatDescr.emplace_back(C_LOG_COMMIT_SUBJECT, tr("Log Commit Subject"),
+                             tr("Applied to commit subjects in VCS log."),
+                             Format{QColor{}, QColor{}});
 
     // Mixin categories
     formatDescr.emplace_back(C_ERROR,

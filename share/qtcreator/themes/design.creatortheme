@@ -227,12 +227,6 @@ VcsBase_FileDeleted_TextColor=fffff6c6c
 VcsBase_FileRenamed_TextColor=ffffa500
 VcsBase_FileUnmerged_TextColor=ffff4040
 
-Git_AuthorName_TextColor=ceffe5
-Git_CommitDate_TextColor=00ff00
-Git_CommitHash_TextColor=ff4343
-Git_CommitSubject_TextColor=text
-Git_Decoration_TextColor=ff00ff
-
 Bookmarks_TextMarkColor=ff8080ff
 
 TextEditor_SearchResult_ScrollBarColor=ff00c000

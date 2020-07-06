@@ -186,7 +186,13 @@ void BindingEditor::prepareBindings()
     QList<BindingEditorDialog::BindingOption> bindings;
 
     const QList<TypeName> variantTypes = {"alias", "unknown", "variant", "var"};
+    const QList<TypeName> numericTypes = {"double", "real", "int"};
+    const QList<TypeName> colorTypes = {"QColor", "color"};
+    auto isNumeric = [&numericTypes](TypeName compareType) { return numericTypes.contains(compareType); };
+    auto isColor = [&colorTypes](TypeName compareType) { return colorTypes.contains(compareType); };
+
     const bool skipTypeFiltering = variantTypes.contains(m_backendValueTypeName);
+    const bool targetTypeIsNumeric = isNumeric(m_backendValueTypeName);
 
     for (const auto &objnode : allNodes) {
         BindingEditorDialog::BindingOption binding;
@@ -194,9 +200,10 @@ void BindingEditor::prepareBindings()
         {
             TypeName propertyTypeName = objnode.metaInfo().propertyTypeName(propertyName);
 
-            if ((m_backendValueTypeName == propertyTypeName)
-                    || skipTypeFiltering
-                    || variantTypes.contains(propertyTypeName)) {
+            if (skipTypeFiltering
+                    || (m_backendValueTypeName == propertyTypeName)
+                    || variantTypes.contains(propertyTypeName)
+                    || (targetTypeIsNumeric && isNumeric(propertyTypeName))) {
                 binding.properties.append(QString::fromUtf8(propertyName));
             }
         }
@@ -208,7 +215,8 @@ void BindingEditor::prepareBindings()
                     const TypeName dynamicTypeName = bindingProperty.dynamicTypeName();
                     if (skipTypeFiltering
                             || (dynamicTypeName == m_backendValueTypeName)
-                            || variantTypes.contains(dynamicTypeName)) {
+                            || variantTypes.contains(dynamicTypeName)
+                            || (targetTypeIsNumeric && isNumeric(dynamicTypeName))) {
                         binding.properties.append(QString::fromUtf8(bindingProperty.name()));
                     }
                 }
@@ -220,7 +228,8 @@ void BindingEditor::prepareBindings()
                     const TypeName dynamicTypeName = variantProperty.dynamicTypeName();
                     if (skipTypeFiltering
                             || (dynamicTypeName == m_backendValueTypeName)
-                            || variantTypes.contains(dynamicTypeName)) {
+                            || variantTypes.contains(dynamicTypeName)
+                            || (targetTypeIsNumeric && isNumeric(dynamicTypeName))) {
                         binding.properties.append(QString::fromUtf8(variantProperty.name()));
                     }
                 }
@@ -230,6 +239,36 @@ void BindingEditor::prepareBindings()
         if (!binding.properties.isEmpty() && objnode.hasId()) {
             binding.item = objnode.displayName();
             bindings.append(binding);
+        }
+    }
+
+    //singletons:
+    if (RewriterView* rv = m_modelNode.view()->rewriterView()) {
+        for (const QmlTypeData &data : rv->getQMLTypes()) {
+            if (!data.typeName.isEmpty()) {
+                NodeMetaInfo metaInfo = m_modelNode.view()->model()->metaInfo(data.typeName.toUtf8());
+
+                if (metaInfo.isValid()) {
+                    BindingEditorDialog::BindingOption binding;
+
+                    for (const PropertyName &propertyName : metaInfo.propertyNames()) {
+                        TypeName propertyTypeName = metaInfo.propertyTypeName(propertyName);
+
+                        if (skipTypeFiltering
+                                || (m_backendValueTypeName == propertyTypeName)
+                                || (variantTypes.contains(propertyTypeName))
+                                || (targetTypeIsNumeric && isNumeric(propertyTypeName))
+                                || (isColor(m_backendValueTypeName) && isColor(propertyTypeName))) {
+                            binding.properties.append(QString::fromUtf8(propertyName));
+                        }
+                    }
+
+                    if (!binding.properties.isEmpty()) {
+                        binding.item = data.typeName;
+                        bindings.append(binding);
+                    }
+                }
+            }
         }
     }
 
