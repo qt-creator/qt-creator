@@ -1622,10 +1622,15 @@ void ModelManagerInterface::resetCodeModel()
         // reset the snapshot
         m_validSnapshot = Snapshot();
         m_newestSnapshot = Snapshot();
+        m_scannedPaths.clear();
     }
 
     // start a reparse thread
     updateSourceFiles(documents, false);
+
+    // rescan import directories
+    m_shouldScanImports = true;
+    updateImportPaths();
 }
 
 } // namespace QmlJS

@@ -78,6 +78,7 @@ def setKeyboardShortcutForAboutQtC():
     modelIndex = waitForObject("{column='0' text='AboutQtCreator' type='QModelIndex' "
                                "container={column='0' text='QtCreator' type='QModelIndex' "
                                "container=%s}}" % objectMap.realName(treewidget))
+    treewidget.scrollTo(modelIndex)
     mouseClick(modelIndex)
     shortcutGB = "{title='Shortcut' type='QGroupBox' unnamed='1' visible='1'}"
     record = waitForObject("{container=%s type='Core::Internal::ShortcutButton' unnamed='1' "
