@@ -30,6 +30,10 @@ Projects
 Platforms
 ---------
 
+### iOS
+
+* Fixed C++ debugging on devices (QTCREATORBUG-23995)
+
 ### MCU
 
 * Adapted to changes in Qt for MCU 1.3
