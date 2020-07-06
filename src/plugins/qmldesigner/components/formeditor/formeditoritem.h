@@ -117,6 +117,8 @@ public:
 
     virtual bool flowHitTest(const QPointF &point) const;
 
+    void setFrameColor(const QColor &color);
+
 protected:
     AbstractFormEditorTool* tool() const;
     void paintBoundingRect(QPainter *painter) const;
@@ -129,6 +131,7 @@ protected:
     QRectF m_boundingRect;
     QRectF m_paintedBoundingRect;
     QRectF m_selectionBoundingRect;
+    QColor m_frameColor{0xaa, 0xaa, 0xaa};
 
 private: // functions
     void setup();

@@ -283,6 +283,11 @@ bool FormEditorItem::flowHitTest(const QPointF & ) const
     return false;
 }
 
+void FormEditorItem::setFrameColor(const QColor &color)
+{
+    m_frameColor = color;
+}
+
 FormEditorItem::~FormEditorItem()
 {
     scene()->removeItemFromHash(this);
@@ -313,14 +318,21 @@ void FormEditorItem::paintBoundingRect(QPainter *painter) const
     pen.setJoinStyle(Qt::MiterJoin);
 
     const QColor frameColor(0xaa, 0xaa, 0xaa);
-    static const QColor selectionColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_FormEditorSelectionColor);
+    static const QColor selectionColor = Utils::creatorTheme()->color(
+        Utils::Theme::QmlDesigner_FormEditorSelectionColor);
 
     if (scene()->showBoundingRects()) {
         pen.setColor(frameColor.darker(150));
         pen.setStyle(Qt::DotLine);
         painter->setPen(pen);
         painter->drawRect(m_boundingRect.adjusted(0., 0., -1., -1.));
+    }
 
+    if (m_frameColor.isValid()) {
+        pen.setColor(m_frameColor);
+        pen.setStyle(Qt::SolidLine);
+        painter->setPen(pen);
+        painter->drawRect(m_boundingRect.adjusted(0., 0., -1., -1.));
     }
 
     if (m_highlightBoundingRect) {
