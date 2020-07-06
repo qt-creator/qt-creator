@@ -27,6 +27,7 @@
 
 #include "utils_global.h"
 
+#include <QList>
 #include <QMetaType>
 #include <QString>
 
