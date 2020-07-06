@@ -152,9 +152,16 @@ QWidget *BindingDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
             bindingComboBox->addItems(model->possibleTargetProperties(bindingProperty));
         } break;
         case BindingModel::SourceModelNodeRow: {
-            foreach (const ModelNode &modelNode, model->connectionView()->allModelNodes()) {
+            for (const ModelNode &modelNode : model->connectionView()->allModelNodes()) {
                 if (!modelNode.id().isEmpty()) {
                     bindingComboBox->addItem(modelNode.id());
+                }
+            }
+            if (RewriterView* rv = model->connectionView()->rewriterView()) {
+                for (const QmlTypeData &data : rv->getQMLTypes()) {
+                    if (!data.typeName.isEmpty()) {
+                        bindingComboBox->addItem(data.typeName);
+                    }
                 }
             }
             if (!bindingProperty.parentModelNode().isRootNode())
@@ -312,7 +319,7 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
             connectionComboBox->addItem(itemText, source);
             connectionComboBox->disableValidator();
 
-            foreach (const QmlModelState &state, QmlItemNode(rootModelNode).states().allStates()) {
+            for (const QmlModelState &state : QmlItemNode(rootModelNode).states().allStates()) {
                 QString itemText = tr("Change state to %1").arg(state.name());
                 QString source = QString::fromLatin1("{ %1.state = \"%2\" }").arg(rootModelNode.id()).arg(state.name());
                 connectionComboBox->addItem(itemText, source);
