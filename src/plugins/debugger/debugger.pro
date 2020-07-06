@@ -135,7 +135,6 @@ include(pdb/pdb.pri)
 include(lldb/lldb.pri)
 include(uvsc/uvsc.pri)
 include(qml/qml.pri)
-include(namedemangler/namedemangler.pri)
 include(console/console.pri)
 include(analyzer/analyzer.pri)
 

@@ -139,17 +139,6 @@ Project {
         }
 
         Group {
-            name: "Name Demangler"
-            prefix: "namedemangler/"
-            files: [
-                "demanglerexceptions.h",
-                "globalparsestate.cpp", "globalparsestate.h",
-                "namedemangler.cpp", "namedemangler.h",
-                "parsetreenodes.cpp", "parsetreenodes.h",
-            ]
-        }
-
-        Group {
             name: "QML Debugger"
             prefix: "qml/"
             files: [
