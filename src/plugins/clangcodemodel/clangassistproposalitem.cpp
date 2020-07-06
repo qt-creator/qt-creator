@@ -377,12 +377,12 @@ std::pair<int, int> fixItPositionsRange(const FixItContainer &fixIt, const QText
 
     const int fixItStartPos = Text::positionInText(
                 cursor.document(),
-                static_cast<int>(fixIt.range.start.line),
-                cppEditorColumn(startLine, static_cast<int>(fixIt.range.start.column)));
+                fixIt.range.start.line,
+                cppEditorColumn(startLine, fixIt.range.start.column));
     const int fixItEndPos = Text::positionInText(
                 cursor.document(),
-                static_cast<int>(fixIt.range.end.line),
-                cppEditorColumn(endLine, static_cast<int>(fixIt.range.end.column)));
+                fixIt.range.end.line,
+                cppEditorColumn(endLine, fixIt.range.end.column));
     return std::make_pair(fixItStartPos, fixItEndPos);
 }
 
