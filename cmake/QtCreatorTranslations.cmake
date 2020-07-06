@@ -138,6 +138,8 @@ function(add_translation_targets file_prefix)
     add_custom_target("${_arg_ALL_QM_TARGET}" ALL COMMENT "Generate .qm-files")
   endif()
 
+  file(MAKE_DIRECTORY ${_arg_OUTPUT_DIRECTORY})
+
   foreach(l IN ITEMS ${_arg_LANGUAGES})
     set(_ts_file "${CMAKE_CURRENT_SOURCE_DIR}/${file_prefix}_${l}.ts")
     set(_qm_file "${_arg_OUTPUT_DIRECTORY}/${file_prefix}_${l}.qm")

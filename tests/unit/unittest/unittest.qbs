@@ -13,6 +13,8 @@ CppApplication {
     Depends { name: "libclang"; required: false }
     Depends { name: "clang_defines" }
 
+    Depends { name: "QmlDesigner" }
+
     Depends { name: "sqlite_sources" }
     Depends { name: "Core" }
     Depends { name: "CPlusPlus" }
@@ -97,6 +99,7 @@ CppApplication {
             "../../../src/tools/clangbackend/source",
             "../../../src/tools/clangpchmanagerbackend/source",
             "../../../src/tools/clangrefactoringbackend/source",
+            "../../../share/qtcreator/qml/qmlpuppet/types",
         ];
         if (libclang.present) {
             paths.push(libclang.llvmIncludeDir);

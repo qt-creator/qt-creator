@@ -23,32 +23,41 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import QtQuick.Controls 1.1 as Controls
-import QtQuick.Controls.Styles 1.1
-import QtQuickDesignerTheme 1.0
+#pragma once
 
-CheckBoxStyle {
-    spacing: 24
-    label: Controls.Label { text: control.text ; color: checkBox.textColor }
-    indicator: Item {
-        implicitWidth: 16
-        implicitHeight: 16
-        Rectangle {
-            anchors.fill: parent
-            color: control.pressed
-                   ? Theme.color(Theme.FancyToolButtonHoverColor)
-                   : Theme.color(Theme.FancyToolButtonSelectedColor)
-            border.color: Theme.qmlDesignerBorderColor()
-            anchors.margins: 1
-        }
-        Image {
-            x: 2
-            y: 2
-            width: 14
-            height: 13
-            source: "image://icons/checkbox-indicator"
-            visible: control.checked
-        }
-    }
+#include "qmldesignercorelib_global.h"
+
+#include <QSharedPointer>
+#include <QStringList>
+
+#include "itemlibraryinfo.h"
+#include <nodemetainfo.h>
+
+namespace QmlDesigner {
+
+class ModelNode;
+class AbstractProperty;
+class ItemLibraryInfo;
+
+inline bool operator==(const MetaInfo &first, const MetaInfo &second)
+{
+    return {};
 }
+inline bool operator!=(const MetaInfo &first, const MetaInfo &second)
+{
+    return {};
+}
+
+class QMLDESIGNERCORE_EXPORT MetaInfo
+{
+public:
+    ItemLibraryInfo *itemLibraryInfo() const { return {}; }
+
+public:
+    static MetaInfo global() { return {}; }
+    static void clearGlobal() {}
+
+    static void setPluginPaths(const QStringList &paths) {}
+};
+
+} //namespace QmlDesigner

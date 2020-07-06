@@ -25,7 +25,6 @@
 #include "assetexporter.h"
 #include "componentexporter.h"
 #include "exportnotification.h"
-#include "assetexportpluginconstants.h"
 
 #include "rewriterview.h"
 #include "qmlitemnode.h"
@@ -117,21 +116,26 @@ void AssetExporter::exportQml(const Utils::FilePaths &qmlFiles, const Utils::Fil
     ExportNotification::addInfo(tr("Exporting metadata at %1. Export assets: ")
                                 .arg(exportPath.toUserOutput())
                                 .arg(exportAssets? tr("Yes") : tr("No")));
-    // TODO Asset export
     notifyProgress(0.0);
-    Q_UNUSED(exportAssets);
     m_exportFiles = qmlFiles;
+    m_totalFileCount = m_exportFiles.count();
     m_components = QJsonArray();
     m_exportPath = exportPath;
     m_currentState.change(ParsingState::Parsing);
     triggerLoadNextFile();
-    m_assetDumper = make_unique<AssetDumper>();
+    if (exportAssets)
+        m_assetDumper = make_unique<AssetDumper>();
+    else
+        m_assetDumper.reset();
 }
 
 void AssetExporter::cancel()
 {
-    // TODO Cancel export
-    m_assetDumper.reset();
+    if (!m_cancelled) {
+        ExportNotification::addInfo(tr("Cancelling export."));
+        m_assetDumper.reset();
+        m_cancelled = true;
+    }
 }
 
 bool AssetExporter::isBusy() const
@@ -141,13 +145,13 @@ bool AssetExporter::isBusy() const
             m_currentState == AssetExporter::ParsingState::WritingJson;
 }
 
-Utils::FilePath AssetExporter::exportAsset(const QmlObjectNode &node)
+Utils::FilePath AssetExporter::exportAsset(const QmlObjectNode &node, const QString &uuid)
 {
-    // TODO: Use this hash as UUID and add to the node.
-    QByteArray hash = addNodeUUID(node.modelNode());
-    Utils::FilePath assetPath = m_exportPath.pathAppended(QString("assets/%1.png")
-                                                          .arg(QString::fromLatin1(hash)));
-    m_assetDumper->dumpAsset(node.toQmlItemNode().instanceRenderPixmap(), assetPath);
+    if (m_cancelled)
+        return {};
+    Utils::FilePath assetPath = m_exportPath.pathAppended(QString("assets/%1.png").arg(uuid));
+    if (m_assetDumper)
+        m_assetDumper->dumpAsset(node.toQmlItemNode().instanceRenderPixmap(), assetPath);
     return assetPath;
 }
 
@@ -157,6 +161,7 @@ void AssetExporter::exportComponent(const ModelNode &rootNode)
     Component exporter(*this, rootNode);
     exporter.exportComponent();
     m_components.append(exporter.json());
+    notifyProgress((m_totalFileCount - m_exportFiles.count()) * 0.8 / m_totalFileCount);
 }
 
 void AssetExporter::notifyLoadError(AssetExporterView::LoadState state)
@@ -194,19 +199,13 @@ void AssetExporter::onQmlFileLoaded()
     triggerLoadNextFile();
 }
 
-QByteArray AssetExporter::addNodeUUID(ModelNode node)
+QByteArray AssetExporter::generateUuid(const ModelNode &node)
 {
-    QByteArray uuid = node.auxiliaryData(Constants::UuidTag).toByteArray();
-    qDebug() << node.id() << "UUID" << uuid;
-    if (uuid.isEmpty()) {
-        // Assign a new hash.
-        do {
-            uuid = generateHash(node.id());
-        } while (m_usedHashes.contains(uuid));
-        m_usedHashes.insert(uuid);
-        node.setAuxiliaryData(Constants::UuidAuxTag, QString::fromLatin1(uuid));
-        node.model()->rewriterView()->writeAuxiliaryData();
-    }
+    QByteArray uuid;
+    do {
+        uuid = generateHash(node.id());
+    } while (m_usedHashes.contains(uuid));
+    m_usedHashes.insert(uuid);
     return uuid;
 }
 
@@ -217,7 +216,7 @@ void AssetExporter::triggerLoadNextFile()
 
 void AssetExporter::loadNextFile()
 {
-    if (m_exportFiles.isEmpty()) {
+    if (m_cancelled || m_exportFiles.isEmpty()) {
         notifyProgress(0.8);
         m_currentState.change(ParsingState::ParsingFinished);
         writeMetadata();
@@ -233,6 +232,13 @@ void AssetExporter::loadNextFile()
 
 void AssetExporter::writeMetadata() const
 {
+    if (m_cancelled) {
+        notifyProgress(1.0);
+        ExportNotification::addInfo(tr("Export cancelled."));
+        m_currentState.change(ParsingState::ExportingDone);
+        return;
+    }
+
     Utils::FilePath metadataPath = m_exportPath.pathAppended(m_exportPath.fileName() + ".metadata");
     ExportNotification::addInfo(tr("Writing metadata to file %1.").
                                 arg(metadataPath.toUserOutput()));
@@ -253,7 +259,8 @@ void AssetExporter::writeMetadata() const
     }
     notifyProgress(1.0);
     ExportNotification::addInfo(tr("Export finished."));
-    m_assetDumper->quitDumper();
+    if (m_assetDumper)
+        m_assetDumper->quitDumper();
     m_currentState.change(ParsingState::ExportingDone);
 }
 

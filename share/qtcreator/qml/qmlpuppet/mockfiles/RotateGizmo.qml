@@ -39,6 +39,7 @@ Node {
     property MouseArea3D dragHelper: null
     property real currentAngle
     property point currentMousePos
+    property alias freeDraggerArea: mouseAreaFree
 
     position: dragHelper.pivotScenePosition(targetNode)
 

@@ -66,7 +66,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QGroupBox" name="javaSettingsGroup">
+        <widget class="QGroupBox" name="javaSettingsGroupBox">
          <property name="minimumSize">
           <size>
            <width>0</width>
@@ -124,7 +124,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox">
+        <widget class="QGroupBox" name="androidSettingsGroupBox">
          <property name="title">
           <string>Android Settings</string>
          </property>
@@ -151,7 +151,7 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="2" rowspan="3" colspan="3">
+          <item row="2" column="2" rowspan="3" colspan="4">
            <layout class="QVBoxLayout" name="verticalLayout_3">
             <item>
              <widget class="QPushButton" name="addCustomNdkButton">
@@ -252,7 +252,7 @@
           <item row="0" column="1">
            <widget class="Utils::PathChooser" name="SDKLocationPathChooser" native="true"/>
           </item>
-          <item row="0" column="2" colspan="3">
+          <item row="0" column="2" colspan="4">
            <widget class="QPushButton" name="sdkToolsAutoDownloadButton">
             <property name="text">
              <string>Set Up SDK</string>
@@ -263,7 +263,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_2">
+        <widget class="QGroupBox" name="androidOpenSSLSettingsGroupBox">
          <property name="title">
           <string>Android OpenSSL settings (Optional)</string>
          </property>

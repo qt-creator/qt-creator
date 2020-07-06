@@ -127,7 +127,7 @@ void BuildDirectoryAspect::updateProblemLabel()
 
 SeparateDebugInfoAspect::SeparateDebugInfoAspect()
 {
-    setDisplayName(tr("Separate Debug Info:"));
+    setDisplayName(tr("Separate debug info:"));
     setSettingsKey("SeparateDebugInfo");
     setSetting(ProjectExplorerPlugin::buildPropertiesSettings().separateDebugInfo);
 }

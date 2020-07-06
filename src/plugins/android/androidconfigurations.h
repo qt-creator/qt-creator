@@ -27,6 +27,8 @@
 
 #include "android_global.h"
 #include "androidsdkpackage.h"
+#include "androidsdkmanager.h"
+
 #include <projectexplorer/toolchain.h>
 #include <qtsupport/qtversionmanager.h>
 
@@ -134,7 +136,7 @@ public:
     QStringList defaultEssentials() const;
     QStringList essentialsFromQtVersion(const QtSupport::BaseQtVersion &version) const;
     QStringList allEssentials() const;
-    bool allEssentialsInstalled();
+    bool allEssentialsInstalled(Internal::AndroidSdkManager *sdkManager);
     bool sdkToolsOk() const;
 
     Utils::FilePath openJDKLocation() const;

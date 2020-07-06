@@ -51,7 +51,5 @@ private:
     void recheck();
 };
 
-// TODO add "Download" links to the settings page?
-
 }
 }

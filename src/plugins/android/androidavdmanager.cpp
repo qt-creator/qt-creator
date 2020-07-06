@@ -24,8 +24,6 @@
 ****************************************************************************/
 #include "androidavdmanager.h"
 
-#include "androidtoolmanager.h"
-
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -76,7 +74,7 @@ bool AndroidAvdManager::avdManagerCommand(const AndroidConfig &config, const QSt
     Utils::SynchronousProcess proc;
     auto env = AndroidConfigurations::toolsEnvironment(config).toStringList();
     proc.setEnvironment(env);
-    qCDebug(avdManagerLog) << "Running command:" << cmd.toUserOutput();
+    qCDebug(avdManagerLog) << "Running AVD Manager command:" << cmd.toUserOutput();
     SynchronousProcessResponse response = proc.runBlocking(cmd);
     if (response.result == Utils::SynchronousProcessResponse::Finished) {
         if (output)
@@ -138,7 +136,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
 
     const QString avdManagerTool = config.avdManagerToolPath().toString();
     qCDebug(avdManagerLog)
-            << "Running command:" << CommandLine(avdManagerTool, arguments).toUserOutput();
+            << "Running AVD Manager command:" << CommandLine(avdManagerTool, arguments).toUserOutput();
     QProcess proc;
     proc.start(avdManagerTool, arguments);
     if (!proc.waitForStarted()) {
@@ -222,7 +220,6 @@ private:
 
 AndroidAvdManager::AndroidAvdManager(const AndroidConfig &config):
     m_config(config),
-    m_androidTool(new AndroidToolManager(m_config)),
     m_parser(new AvdManagerOutputParser)
 {
 

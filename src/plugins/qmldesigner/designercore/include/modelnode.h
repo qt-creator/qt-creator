@@ -91,9 +91,12 @@ public:
     ModelNode(const Internal::InternalNodePointer &internalNode, Model *model, const AbstractView *view);
     ModelNode(const ModelNode &modelNode, AbstractView *view);
     ModelNode(const ModelNode &other);
+    ModelNode(ModelNode &&other);
     ~ModelNode();
 
-    ModelNode& operator=(const ModelNode &other);
+    ModelNode &operator=(const ModelNode &other);
+    ModelNode &operator=(ModelNode &&other);
+
     TypeName type() const;
     QString simplifiedTypeName() const;
     QString displayName() const;
@@ -225,6 +228,15 @@ public:
     bool isComponent() const;
     bool isSubclassOf(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
     QIcon typeIcon() const;
+
+    friend void swap(ModelNode &first, ModelNode &second)
+    {
+        using std::swap;
+
+        swap(first.m_internalNode, second.m_internalNode);
+        swap(first.m_model, second.m_model);
+        swap(first.m_view, second.m_view);
+    }
 
 private: // functions
     Internal::InternalNodePointer internalNode() const;

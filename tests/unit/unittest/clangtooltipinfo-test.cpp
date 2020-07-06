@@ -115,6 +115,16 @@ TEST_F(ToolTipInfo, LocalVariableInt)
     ASSERT_THAT(actual, IsToolTip(::ToolTipInfo(Utf8StringLiteral("int"))));
 }
 
+TEST_F(ToolTipInfo, LocalVariableConstInt)
+{
+    ASSERT_THAT(tooltip(211, 19), IsToolTip(::ToolTipInfo(Utf8StringLiteral("const int"))));
+}
+
+TEST_F(ToolTipInfo, FileScopeVariableConstInt)
+{
+    ASSERT_THAT(tooltip(206, 11), IsToolTip(::ToolTipInfo(Utf8StringLiteral("const int"))));
+}
+
 TEST_F(ToolTipInfo, LocalVariablePointerToConstInt)
 {
     const ::ToolTipInfo actual = tooltip(4, 5);

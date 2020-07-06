@@ -161,7 +161,7 @@ void ConnectionViewWidget::contextMenuEvent(QContextMenuEvent *event)
 
             menu.addAction(tr("Open Connection Editor"), [&]() {
                 if (index.isValid()) {
-                    m_connectonEditor->showWidget(mapToGlobal(event->pos()).x(), mapToGlobal(event->pos()).y());
+                    m_connectonEditor->showWidget();
                     m_connectonEditor->setBindingValue(index.data().toString());
                     m_connectonEditor->setModelIndex(index);
                     m_connectonEditor->updateWindowName();
@@ -460,11 +460,14 @@ void ConnectionViewWidget::editorForConnection()
         if (m_connectonEditor->hasModelIndex()) {
             ConnectionModel *connectionModel = qobject_cast<ConnectionModel *>(ui->connectionView->model());
             if (connectionModel->connectionView()->isWidgetEnabled()
-                    && (connectionModel->rowCount() > m_connectonEditor->modelIndex().row()))
-            {
-                SignalHandlerProperty signalHandler =
-                        connectionModel->signalHandlerPropertyForRow(m_connectonEditor->modelIndex().row());
-                signalHandler.setSource(m_connectonEditor->bindingValue());
+                && (connectionModel->rowCount() > m_connectonEditor->modelIndex().row())) {
+                connectionModel->connectionView()
+                    ->executeInTransaction("ConnectionView::setSignal", [this, connectionModel]() {
+                        SignalHandlerProperty signalHandler
+                            = connectionModel->signalHandlerPropertyForRow(
+                                m_connectonEditor->modelIndex().row());
+                        signalHandler.setSource(m_connectonEditor->bindingValue());
+                    });
             }
             m_connectonEditor->resetModelIndex();
         }
@@ -487,20 +490,24 @@ void ConnectionViewWidget::editorForBinding()
 
         if (m_bindingIndex.isValid()) {
             if (bindingModel->connectionView()->isWidgetEnabled()
-                    && (bindingModel->rowCount() > m_bindingIndex.row()))
-            {
-                BindingProperty property = bindingModel->bindingPropertyForRow(m_bindingIndex.row());
+                && (bindingModel->rowCount() > m_bindingIndex.row())) {
+                bindingModel->connectionView()->executeInTransaction(
+                    "ConnectionView::setBindingProperty", [this, bindingModel, newValue]() {
+                        BindingProperty property = bindingModel->bindingPropertyForRow(
+                            m_bindingIndex.row());
 
-                if (property.isValid()) {
-                    if (property.isBindingProperty()) {
-                        if (property.isDynamic()) {
-                            property.setDynamicTypeNameAndExpression(property.dynamicTypeName(), newValue);
+                        if (property.isValid()) {
+                            if (property.isBindingProperty()) {
+                                if (property.isDynamic()) {
+                                    property
+                                        .setDynamicTypeNameAndExpression(property.dynamicTypeName(),
+                                                                         newValue);
+                                } else {
+                                    property.setExpression(newValue);
+                                }
+                            }
                         }
-                        else {
-                            property.setExpression(newValue);
-                        }
-                    }
-                }
+                    });
             }
         }
 
@@ -523,29 +530,34 @@ void ConnectionViewWidget::editorForDynamic()
 
         if (m_dynamicIndex.isValid()) {
             if (propertiesModel->connectionView()->isWidgetEnabled()
-                    && (propertiesModel->rowCount() > m_dynamicIndex.row()))
-            {
-                AbstractProperty abProp = propertiesModel->abstractPropertyForRow(m_dynamicIndex.row());
+                && (propertiesModel->rowCount() > m_dynamicIndex.row())) {
+                propertiesModel->connectionView()->executeInTransaction(
+                    "ConnectionView::setBinding", [this, propertiesModel, newValue]() {
+                        AbstractProperty abProp = propertiesModel->abstractPropertyForRow(
+                            m_dynamicIndex.row());
 
-                if (abProp.isValid()) {
-                    if (abProp.isBindingProperty()) {
-                        BindingProperty property = abProp.toBindingProperty();
-                        property.setDynamicTypeNameAndExpression(property.dynamicTypeName(), newValue);
-                    }
+                        if (abProp.isValid()) {
+                            if (abProp.isBindingProperty()) {
+                                BindingProperty property = abProp.toBindingProperty();
+                                property.setDynamicTypeNameAndExpression(property.dynamicTypeName(),
+                                                                         newValue);
+                            }
 
-                    //if it's a variant property, then we remove it and replace with binding
-                    else if (abProp.isVariantProperty()) {
-                        VariantProperty property = abProp.toVariantProperty();
-                        PropertyName name = property.name();
-                        TypeName type = property.dynamicTypeName();
-                        QVariant value = newValue;
+                            //if it's a variant property, then we remove it and replace with binding
+                            else if (abProp.isVariantProperty()) {
+                                VariantProperty property = abProp.toVariantProperty();
+                                PropertyName name = property.name();
+                                TypeName type = property.dynamicTypeName();
+                                QVariant value = newValue;
 
-                        BindingProperty newProperty = propertiesModel->replaceVariantWithBinding(name);
-                        if (newProperty.isValid()) {
-                            newProperty.setDynamicTypeNameAndExpression(type, newValue);
+                                BindingProperty newProperty = propertiesModel
+                                                                  ->replaceVariantWithBinding(name);
+                                if (newProperty.isValid()) {
+                                    newProperty.setDynamicTypeNameAndExpression(type, newValue);
+                                }
+                            }
                         }
-                    }
-                }
+                    });
             }
         }
 

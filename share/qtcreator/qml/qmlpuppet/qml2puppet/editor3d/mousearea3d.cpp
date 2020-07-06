@@ -512,6 +512,32 @@ double MouseArea3D::getRelativeScale(QQuick3DNode *node) const
     return (scenePos1 - scenePos2).length() / 100.;
 }
 
+void MouseArea3D::forcePressEvent(double x, double y)
+{
+    m_forceCaptureNextPress = true;
+
+    Qt::MouseButtons buttons;
+    Qt::KeyboardModifiers mods;
+    QMouseEvent event(QEvent::MouseButtonPress, QPointF(x, y), Qt::LeftButton, buttons, mods);
+    eventFilter(m_view3D, &event);
+}
+
+void QmlDesigner::Internal::MouseArea3D::forceMoveEvent(double x, double y)
+{
+    Qt::MouseButtons buttons;
+    Qt::KeyboardModifiers mods;
+    QMouseEvent event(QEvent::MouseMove, QPointF(x, y), Qt::LeftButton, buttons, mods);
+    eventFilter(m_view3D, &event);
+}
+
+void QmlDesigner::Internal::MouseArea3D::forceReleaseEvent(double x, double y)
+{
+    Qt::MouseButtons buttons;
+    Qt::KeyboardModifiers mods;
+    QMouseEvent event(QEvent::MouseButtonRelease, QPointF(x, y), Qt::LeftButton, buttons, mods);
+    eventFilter(m_view3D, &event);
+}
+
 QVector3D MouseArea3D::getMousePosInPlane(const MouseArea3D *helper,
                                           const QPointF &mousePosInView) const
 {
@@ -535,7 +561,8 @@ QVector3D MouseArea3D::getMousePosInPlane(const MouseArea3D *helper,
 bool MouseArea3D::eventFilter(QObject *, QEvent *event)
 {
     if (!m_active || (m_grabsMouse && s_mouseGrab && s_mouseGrab != this
-            && (m_priority <= s_mouseGrab->m_priority || s_mouseGrab->m_dragging))) {
+            && (m_priority <= s_mouseGrab->m_priority || s_mouseGrab->m_dragging
+                || s_mouseGrab->m_forceCaptureNextPress))) {
         return false;
     }
 
@@ -596,7 +623,8 @@ bool MouseArea3D::eventFilter(QObject *, QEvent *event)
                 m_dragHelper->setScale(sceneScale());
             }
             m_mousePosInPlane = getMousePosInPlane(m_dragHelper, mouseEvent->pos());
-            if (mouseOnTopOfMouseArea(m_mousePosInPlane, mouseEvent->pos())) {
+            if (m_forceCaptureNextPress || mouseOnTopOfMouseArea(m_mousePosInPlane, mouseEvent->pos())) {
+                m_forceCaptureNextPress = false;
                 setDragging(true);
                 emit pressed(m_mousePosInPlane.toVector2D(), mouseEvent->pos(), pickAngle);
                 if (m_grabsMouse) {

@@ -29,9 +29,10 @@
 #include <qmldesignerplugin.h>
 
 #include <bindingproperty.h>
-#include <signalhandlerproperty.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
+#include <nodemetainfo.h>
+#include <signalhandlerproperty.h>
 #include <variantproperty.h>
 
 #include <qmlitemnode.h>
@@ -233,6 +234,13 @@ void DebugView::selectedNodesChanged(const QList<ModelNode> &selectedNodes /*sel
             message << property << lineBreak;
 
         message << lineBreak;
+
+        if (selectedNode.metaInfo().isValid()) {
+            for (const NodeMetaInfo &metaInfo : selectedNode.metaInfo().classHierarchy())
+                message << metaInfo.typeName() << lineBreak;
+
+            message << lineBreak;
+        }
 
         const QHash<PropertyName, QVariant> data = selectedNode.auxiliaryData();
 

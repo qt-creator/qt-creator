@@ -12,7 +12,8 @@ QTC_LIB_DEPENDS += \
 QTC_PLUGIN_DEPENDS += \
     coreplugin \
     qmljseditor \
-    qmakeprojectmanager
+    qmakeprojectmanager \
+    qmlprojectmanager
 
 CONFIG -= qtquickcompiler
 

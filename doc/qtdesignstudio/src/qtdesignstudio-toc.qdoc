@@ -44,7 +44,9 @@
                                 \li \l{Setting Up Qt Bridge for Sketch}
                                 \li \l{Using Qt Bridge for Sketch}
                             \endlist
+                        \li \l{Exporting from Blender}
                         \li \l{Exporting from Maya}
+                        \li \l{Exporting from Qt 3D Studio}
                     \endlist
                 \li \l{User Interface}
                     \list

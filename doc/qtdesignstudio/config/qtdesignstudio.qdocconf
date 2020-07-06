@@ -44,6 +44,7 @@ excludedirs  += ../../qtcreator/examples/accelbubble \
                 ../../qtcreator/src/ios \
                 ../../qtcreator/src/linux-mobile \
                 ../../qtcreator/src/mcu \
+                ../../qtcreator/src/meson \
                 ../../qtcreator/src/overview/creator-only \
                 ../../qtcreator/src/projects \
                 ../../qtcreator/src/qnx \

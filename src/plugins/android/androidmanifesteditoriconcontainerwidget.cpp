@@ -53,7 +53,7 @@ AndroidManifestEditorIconContainerWidget::AndroidManifestEditorIconContainerWidg
     auto masterIconButton = new AndroidManifestEditorIconWidget(this,
                                                                 lowDpiIconSize,
                                                                 lowDpiIconSize,
-                                                                tr("Master icon"), tr("Select master icon"));
+                                                                tr("Master icon"), tr("Select master icon."));
     masterIconButton->setIcon(QIcon::fromTheme(QLatin1String("document-open"), Utils::Icons::OPENFILE.icon()));
     iconLayout->addWidget(masterIconButton);
     iconLayout->addStretch(1);
@@ -69,7 +69,7 @@ AndroidManifestEditorIconContainerWidget::AndroidManifestEditorIconContainerWidg
     auto lIconButton = new AndroidManifestEditorIconWidget(this,
                                                         lowDpiIconSize,
                                                         lowDpiIconSize,
-                                                        tr("Low DPI icon"), tr("Select low DPI icon"),
+                                                        tr("Low DPI icon"), tr("Select low DPI icon."),
                                                         textEditorWidget,
                                                         lowDpiIconPath,
                                                         iconFileName);
@@ -80,7 +80,7 @@ AndroidManifestEditorIconContainerWidget::AndroidManifestEditorIconContainerWidg
     auto mIconButton = new AndroidManifestEditorIconWidget(this,
                                                         mediumDpiIconSize,
                                                         mediumDpiIconSize,
-                                                        tr("Medium DPI icon"), tr("Select medium DPI icon"),
+                                                        tr("Medium DPI icon"), tr("Select medium DPI icon."),
                                                         textEditorWidget,
                                                         mediumDpiIconPath,
                                                         iconFileName);
@@ -91,7 +91,7 @@ AndroidManifestEditorIconContainerWidget::AndroidManifestEditorIconContainerWidg
     auto hIconButton =  new AndroidManifestEditorIconWidget(this,
                                                          highDpiIconSize,
                                                          highDpiIconSize,
-                                                         tr("High DPI icon"), tr("Select high DPI icon"),
+                                                         tr("High DPI icon"), tr("Select high DPI icon."),
                                                          textEditorWidget,
                                                          highDpiIconPath,
                                                          iconFileName);

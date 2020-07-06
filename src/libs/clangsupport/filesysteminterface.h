@@ -36,6 +36,7 @@ class FileSystemInterface
 public:
     virtual FilePathIds directoryEntries(const QString &directoryPath) const = 0;
     virtual long long lastModified(FilePathId filePathId) const = 0;
+    virtual void remove(const FilePathIds &filePathIds) = 0;
 
 protected:
     ~FileSystemInterface() = default;

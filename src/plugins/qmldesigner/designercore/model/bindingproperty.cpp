@@ -277,6 +277,18 @@ void BindingProperty::deleteAllReferencesTo(const ModelNode &modelNode)
     }
 }
 
+bool BindingProperty::isAlias() const
+{
+    if (!isValid())
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    return isDynamic()
+            && dynamicTypeName() == "alias"
+            && !expression().isNull()
+            && !expression().isEmpty()
+            && parentModelNode().view()->modelNodeForId(expression()).isValid();
+}
+
 bool BindingProperty::isAliasExport() const
 {
     if (!isValid())

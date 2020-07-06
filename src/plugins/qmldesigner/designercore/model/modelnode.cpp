@@ -93,7 +93,25 @@ ModelNode::ModelNode(const ModelNode &modelNode, AbstractView *view)
       m_model(modelNode.model()),
       m_view(view)
 {
+}
 
+ModelNode::ModelNode(ModelNode &&other)
+    : m_internalNode(std::move(other.m_internalNode))
+    , m_model(std::move(other.m_model))
+    , m_view(std::move(other.m_view))
+{
+    other.m_model = {};
+    other.m_view = {};
+}
+
+ModelNode &ModelNode::operator=(ModelNode &&other)
+{
+    ModelNode newNode;
+
+    swap(other, newNode);
+    swap(*this, newNode);
+
+    return *this;
 }
 
 /*! \brief contructs a invalid model node
@@ -103,7 +121,6 @@ ModelNode::ModelNode(const ModelNode &modelNode, AbstractView *view)
 ModelNode::ModelNode():
         m_internalNode(new InternalNode)
 {
-
 }
 
 ModelNode::ModelNode(const ModelNode &other) = default;

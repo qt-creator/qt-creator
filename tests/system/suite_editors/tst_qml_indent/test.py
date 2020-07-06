@@ -34,7 +34,6 @@ def main():
     originalText = prepareQmlFile()
     if originalText:
         testReIndent(originalText)
-    invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Exit")
 
 def prepareQmlFile():

@@ -42,7 +42,7 @@ class AddNewBackendDialog : public QDialog
 public:
     explicit AddNewBackendDialog(QWidget *parent = nullptr);
     ~AddNewBackendDialog() override;
-    void setupPossibleTypes(const QList<CppTypeData> &types);
+    void setupPossibleTypes(const QList<QmlTypeData> &types);
     QString importString() const;
     QString type() const;
     bool applied() const;
@@ -53,7 +53,7 @@ private:
     void invalidate();
 
     Ui::AddNewBackendDialog *m_ui;
-    QList<CppTypeData> m_typeData;
+    QList<QmlTypeData> m_typeData;
 
     bool m_applied = false;
     bool m_isSingleton = false;

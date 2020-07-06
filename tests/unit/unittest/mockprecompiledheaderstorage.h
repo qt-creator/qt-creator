@@ -57,4 +57,5 @@ public:
     MOCK_CONST_METHOD1(
         fetchTimeStamps,
         ClangBackEnd::PrecompiledHeaderTimeStamps(ClangBackEnd::ProjectPartId projectPartId));
+    MOCK_CONST_METHOD0(fetchAllPchPaths, ClangBackEnd::FilePaths());
 };

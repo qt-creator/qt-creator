@@ -195,5 +195,6 @@
     \list
         \li \l{Exporting from Blender}{Blender}
         \li \l{Exporting from Maya}{Maya}
+        \li \l{Exporting from Qt 3D Studio}{Qt 3D Studio}
     \endlist
 */

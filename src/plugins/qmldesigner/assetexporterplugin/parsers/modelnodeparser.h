@@ -47,6 +47,7 @@ public:
     const QByteArrayList& lineage() const { return m_lineage; }
     const QmlObjectNode& objectNode() const { return m_objectNode; }
     QVariant propertyValue(const PropertyName &name) const;
+    QString uuid() const;
 
 protected:
     const ModelNode &m_node;

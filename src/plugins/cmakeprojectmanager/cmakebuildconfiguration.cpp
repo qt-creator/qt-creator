@@ -487,7 +487,7 @@ void CMakeBuildConfiguration::runCMakeWithExtraArguments()
 InitialCMakeArgumentsAspect::InitialCMakeArgumentsAspect()
 {
     setSettingsKey("CMake.Initial.Parameters");
-    setLabelText(tr("Initial CMake Parameters:"));
+    setLabelText(tr("Initial CMake parameters:"));
     setDisplayStyle(TextEditDisplay);
 }
 

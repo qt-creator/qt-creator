@@ -30,8 +30,6 @@
 #include "androidmanager.h"
 #include "androidqtversion.h"
 #include "androiddevicedialog.h"
-#include "androidsdkmanager.h"
-#include "androidtoolmanager.h"
 #include "avddialog.h"
 
 #include <coreplugin/icore.h>
@@ -965,11 +963,10 @@ QStringList AndroidConfig::allEssentials() const
     return allPackages;
 }
 
-bool AndroidConfig::allEssentialsInstalled()
+bool AndroidConfig::allEssentialsInstalled(AndroidSdkManager *sdkManager)
 {
     QStringList essentialPkgs(allEssentials());
-    for (const AndroidSdkPackage *pkg :
-         AndroidConfigurations::sdkManager()->installedSdkPackages()) {
+    for (const AndroidSdkPackage *pkg : sdkManager->installedSdkPackages()) {
         if (essentialPkgs.contains(pkg->sdkStylePath()))
             essentialPkgs.removeOne(pkg->sdkStylePath());
         if (essentialPkgs.isEmpty())

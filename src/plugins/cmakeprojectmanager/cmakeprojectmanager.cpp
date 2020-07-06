@@ -60,7 +60,7 @@ CMakeManager::CMakeManager()
     , m_runCMakeActionContextMenu(new QAction(QIcon(), tr("Run CMake"), this))
     , m_rescanProjectAction(new QAction(QIcon(), tr("Rescan Project"), this))
     , m_parseAndValidateCMakeReplyFileAction(
-          new QAction(QIcon(), tr("Parse and verify a CMake reply file"), this))
+          new QAction(QIcon(), tr("Parse and verify a CMake reply file."), this))
 {
     Core::ActionContainer *mbuild =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
@@ -230,7 +230,7 @@ void CMakeManager::enableBuildFileMenus(Node *node)
 void CMakeManager::parseAndValidateCMakeReplyFile()
 {
     QString replyFile = QFileDialog::getOpenFileName(Core::ICore::mainWindow(),
-                                                     tr("Select a CMake reply file"),
+                                                     tr("Select a CMake Reply File"),
                                                      QString(),
                                                      QString("index*.json"));
     if (replyFile.isEmpty())

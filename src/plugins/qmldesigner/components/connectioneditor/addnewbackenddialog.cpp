@@ -51,11 +51,11 @@ AddNewBackendDialog::~AddNewBackendDialog()
     delete m_ui;
 }
 
-void AddNewBackendDialog::setupPossibleTypes(const QList<CppTypeData> &types)
+void AddNewBackendDialog::setupPossibleTypes(const QList<QmlTypeData> &types)
 {
     QSignalBlocker blocker(this);
     m_typeData = types;
-    for (const CppTypeData &typeData : types)
+    for (const QmlTypeData &typeData : types)
         m_ui->comboBox->addItem(typeData.typeName);
 
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(m_ui->comboBox->count() > 0);
@@ -67,7 +67,7 @@ QString AddNewBackendDialog::importString() const
     if (m_ui->comboBox->currentIndex() < 0)
         return QString();
 
-    CppTypeData typeData = m_typeData.at(m_ui->comboBox->currentIndex());
+    QmlTypeData typeData = m_typeData.at(m_ui->comboBox->currentIndex());
 
     return typeData.importUrl + " " + typeData.versionString;
 }
@@ -100,7 +100,7 @@ void AddNewBackendDialog::invalidate()
     if (m_ui->comboBox->currentIndex() < 0)
         return;
 
-    CppTypeData typeData = m_typeData.at(m_ui->comboBox->currentIndex());
+    QmlTypeData typeData = m_typeData.at(m_ui->comboBox->currentIndex());
     m_ui->importLabel->setText(importString());
 
     m_ui->checkBox->setChecked(false);

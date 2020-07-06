@@ -14,12 +14,8 @@ ColorEditor 2.0 ColorEditor.qml
 ColorLine 2.0 ColorLine.qml
 ColorLogic 2.0 ColorLogic.qml
 ComboBox 2.0 ComboBox.qml
-CustomCheckBoxStyle 2.0 CustomCheckBoxStyle.qml
-CustomComboBoxStyle 2.0 CustomComboBoxStyle.qml
-CustomSpinBoxStyle 2.0 CustomSpinBoxStyle.qml
 EditableListView 2.0 EditableListView.qml
 ExpandingSpacer 2.0 ExpandingSpacer.qml
-ExtendedFunctionButton 2.0 ExtendedFunctionButton.qml
 ExtendedFunctionLogic 2.0 ExtendedFunctionLogic.qml
 FlickableSection 2.0 FlickableSection.qml
 FontComboBox 2.0 FontComboBox.qml
@@ -28,7 +24,6 @@ FontStyleButtons 2.0 FontStyleButtons.qml
 GradientLine 2.0 GradientLine.qml
 GradientPresetList 2.0 GradientPresetList.qml
 GradientPresetTabContent 2.0 GradientPresetTabContent.qml
-GroupBox 2.0 GroupBox.qml
 HueSlider 2.0 HueSlider.qml
 IconLabel 2.0 IconLabel.qml
 ItemFilterComboBox 2.0 ItemFilterComboBox.qml

@@ -1,15 +1,15 @@
 {
     "common": {
         "sdk_tools_url": {
-            "linux": "https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip",
-            "linux_sha256": "92ffee5a1d98d856634e8b71132e8a95d96c83a63fde1099be3d86df3106def9",
-            "windows": "https://dl.google.com/android/repository/sdk-tools-windows-4333796.zip",
-            "windows_sha256": "7e81d69c303e47a4f0e748a6352d85cd0c8fd90a5a95ae4e076b5e5f960d3c7a",
-            "mac": "https://dl.google.com/android/repository/sdk-tools-darwin-4333796.zip",
-            "mac_sha256": "ecb29358bc0f13d7c2fa0f9290135a5b608e38434aad9bf7067d0252c160853e"
+            "linux": "https://dl.google.com/android/repository/commandlinetools-linux-6609375_latest.zip",
+            "linux_sha256": "89f308315e041c93a37a79e0627c47f21d5c5edbe5e80ea8dc0aac8a649e0e92",
+            "windows": "https://dl.google.com/android/repository/commandlinetools-win-6609375_latest.zip",
+            "windows_sha256": "40bba20275180194bebf89bb58c74d712bb93cc401f36bd2f8f32383acf9826c",
+            "mac": "https://dl.google.com/android/repository/commandlinetools-mac-6609375_latest.zip",
+            "mac_sha256": "2c3822db1c916655223e5ee8ce0fbf6b73d0b99012045c9dc8eaa6a5736c0c55"
         },
         "sdk_essential_packages": {
-            "default": ["platform-tools", "platforms;android-29"],
+            "default": ["platform-tools", "platforms;android-29", "cmdline-tools;latest"],
             "linux": [],
             "mac": [],
             "windows": ["extras;google;usb_driver"]

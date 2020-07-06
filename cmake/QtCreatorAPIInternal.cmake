@@ -349,6 +349,11 @@ function(enable_pch target)
         file(GENERATE
           OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.cpp
           CONTENT "/*empty file*/")
+        set_source_files_properties(
+            ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.c
+            ${CMAKE_CURRENT_BINARY_DIR}/empty_pch.cpp
+            PROPERTIES GENERATED TRUE)
+
         _add_pch_target(QtCreatorPchGui
           "${PROJECT_SOURCE_DIR}/src/shared/qtcreator_gui_pch.h" Qt5::Widgets)
         _add_pch_target(QtCreatorPchConsole

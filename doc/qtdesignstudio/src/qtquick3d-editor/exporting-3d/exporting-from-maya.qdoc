@@ -29,7 +29,7 @@
     \page exporting-from-maya.html
     \previouspage exporting-from-blender.html
     \if defined (qtdesignstudio)
-    \nextpage creator-quick-tour.html
+    \nextpage exporting-from-maya.html
     \else
     \nextpage studio-importing-3d.html
     \endif

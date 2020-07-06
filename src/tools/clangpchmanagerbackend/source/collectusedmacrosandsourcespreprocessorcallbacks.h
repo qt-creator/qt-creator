@@ -196,17 +196,15 @@ public:
     }
 
     void InclusionDirective(clang::SourceLocation hashLocation,
-                            const clang::Token &/*includeToken*/,
+                            const clang::Token & /*includeToken*/,
                             llvm::StringRef /*fileName*/,
                             bool /*isAngled*/,
                             clang::CharSourceRange /*fileNameRange*/,
                             const clang::FileEntry *file,
                             llvm::StringRef /*searchPath*/,
                             llvm::StringRef /*relativePath*/,
-                            const clang::Module * /*imported*/
-#if LLVM_VERSION_MAJOR >= 7
-                            , clang::SrcMgr::CharacteristicKind /*fileType*/
-#endif
+                            const clang::Module * /*imported*/,
+                            clang::SrcMgr::CharacteristicKind /*fileType*/
                             ) override
     {
         if (!m_skipInclude && file)

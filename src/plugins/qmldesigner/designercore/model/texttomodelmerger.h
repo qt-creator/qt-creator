@@ -41,6 +41,8 @@ namespace QmlDesigner {
 class RewriterView;
 class DocumentMessage;
 
+struct QmlTypeData;
+
 namespace Internal {
 
 class DifferenceHandler;
@@ -131,7 +133,9 @@ public:
 
     void delayedSetup();
 
-    QSet<QPair<QString, QString> > qrcMapping() const;
+    QSet<QPair<QString, QString>> qrcMapping() const;
+
+    QList<QmlTypeData> getQMLSingletons() const;
 
 private:
     void setupCustomParserNode(const ModelNode &node);

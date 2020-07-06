@@ -43,7 +43,6 @@ HEADERS += \
     android_global.h \
     androidbuildapkstep.h \
     androidbuildapkwidget.h \
-    androidtoolmanager.h \
     androidsdkmanager.h \
     androidavdmanager.h \
     adbcommandswidget.h \
@@ -90,7 +89,6 @@ SOURCES += \
     avddialog.cpp \
     androidbuildapkstep.cpp \
     androidbuildapkwidget.cpp \
-    androidtoolmanager.cpp \
     androidsdkmanager.cpp \
     androidavdmanager.cpp \
     adbcommandswidget.cpp \

@@ -87,7 +87,7 @@ AndroidManifestEditorIconWidget::AndroidManifestEditorIconWidget(
         m_scaleWarningLabel->setMinimumSize(clearAndWarningSize);
         m_scaleWarningLabel->setMaximumSize(clearAndWarningSize);
         m_scaleWarningLabel->setPixmap(Utils::Icons::WARNING.icon().pixmap(clearAndWarningSize));
-        m_scaleWarningLabel->setToolTip(tr("Icon scaled up"));
+        m_scaleWarningLabel->setToolTip(tr("Icon scaled up."));
         m_scaleWarningLabel->setVisible(false);
     }
     auto label = new QLabel(tr("Click to select..."), parent);

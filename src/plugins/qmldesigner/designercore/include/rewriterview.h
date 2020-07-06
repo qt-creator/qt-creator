@@ -53,7 +53,7 @@ class ModelNodePositionStorage;
 
 } //Internal
 
-struct CppTypeData
+struct QmlTypeData
 {
     QString superClassName;
     QString importUrl;
@@ -61,6 +61,7 @@ struct CppTypeData
     QString cppClassName;
     QString typeName;
     bool isSingleton = false;
+    bool isCppType = false;
 };
 
 class QMLDESIGNERCORE_EXPORT RewriterView : public AbstractView
@@ -158,7 +159,7 @@ public:
 
     QStringList autoComplete(const QString &text, int pos, bool explicitComplete = true);
 
-    QList<CppTypeData> getCppTypes();
+    QList<QmlTypeData> getQMLTypes() const;
 
     void setWidgetStatusCallback(std::function<void(bool)> setWidgetStatusCallback);
 

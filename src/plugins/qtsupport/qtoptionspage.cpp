@@ -128,7 +128,7 @@ public:
             const QString row = "<tr><td>%1:</td><td>%2</td></tr>";
             return QString("<table>"
                          + row.arg(tr("Qt Version"), m_version->qtVersionString())
-                         + row.arg(tr("Location of qmake)"), m_version->qmakeCommand().toUserOutput())
+                         + row.arg(tr("Location of qmake"), m_version->qmakeCommand().toUserOutput())
                          + "</table>");
         }
 

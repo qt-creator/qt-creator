@@ -433,7 +433,7 @@ void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
         Utils::InfoBarEntry info(startPylsInfoBarId,
                                  message,
                                  Utils::InfoBarEntry::GlobalSuppression::Enabled);
-        info.setCustomButtonInfo(tr("Setup"),
+        info.setCustomButtonInfo(tr("Set Up"),
                                  [=]() { setupPythonLanguageServer(python, document); });
         infoBar->addInfo(info);
         m_infoBarEntries[python] << document;

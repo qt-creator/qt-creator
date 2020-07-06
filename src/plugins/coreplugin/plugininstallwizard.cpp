@@ -25,13 +25,18 @@
 
 #include "plugininstallwizard.h"
 
+#include "coreplugin.h"
 #include "icore.h"
+
+#include <extensionsystem/pluginspec.h>
 
 #include <utils/archive.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/infolabel.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 #include <utils/temporarydirectory.h>
 #include <utils/wizard.h>
 #include <utils/wizardpage.h>
@@ -40,6 +45,7 @@
 
 #include <QButtonGroup>
 #include <QDir>
+#include <QDirIterator>
 #include <QFileInfo>
 #include <QLabel>
 #include <QMessageBox>
@@ -50,6 +56,7 @@
 
 #include <memory>
 
+using namespace ExtensionSystem;
 using namespace Utils;
 
 struct Data
@@ -58,6 +65,15 @@ struct Data
     FilePath extractedPath;
     bool installIntoApplication;
 };
+
+static QStringList libraryNameFilter()
+{
+    if (HostOsInfo().isWindowsHost())
+        return {"*.dll"};
+    if (HostOsInfo().isLinuxHost())
+        return {"*.so"};
+    return {"*.dylib"};
+}
 
 static bool hasLibSuffix(const FilePath &path)
 {
@@ -146,6 +162,12 @@ public:
 class CheckArchivePage : public WizardPage
 {
 public:
+    struct ArchiveIssue
+    {
+        QString message;
+        InfoLabel::InfoType type;
+    };
+
     CheckArchivePage(Data *data, QWidget *parent)
         : WizardPage(parent)
         , m_data(data)
@@ -155,6 +177,8 @@ public:
         setLayout(vlayout);
 
         m_label = new InfoLabel;
+        m_label->setElideMode(Qt::ElideNone);
+        m_label->setWordWrap(true);
         m_cancelButton = new QPushButton(PluginInstallWizard::tr("Cancel"));
         m_output = new QTextEdit;
         m_output->setReadOnly(true);
@@ -177,7 +201,8 @@ public:
         m_tempDir = std::make_unique<TemporaryDirectory>("plugininstall");
         m_data->extractedPath = FilePath::fromString(m_tempDir->path());
         m_label->setText(PluginInstallWizard::tr("Checking archive..."));
-        //        m_label->setType(InfoLabel::None);
+        m_label->setType(InfoLabel::None);
+
         m_cancelButton->setVisible(true);
         m_output->clear();
 
@@ -186,18 +211,17 @@ public:
         if (!m_archive) {
             m_label->setType(InfoLabel::Error);
             m_label->setText(PluginInstallWizard::tr("The file is not an archive."));
+
             return;
         }
         QObject::connect(m_archive, &Archive::outputReceived, this, [this](const QString &output) {
             m_output->append(output);
         });
         QObject::connect(m_archive, &Archive::finished, this, [this](bool success) {
-            m_cancelButton->setVisible(false);
-            m_isComplete = success;
-            if (success) {
-                m_label->setType(InfoLabel::Ok);
-                m_label->setText(PluginInstallWizard::tr("Archive is ok."));
-            } else {
+            m_archive = nullptr; // we don't own it
+            m_cancelButton->disconnect();
+            if (!success) { // unarchiving failed
+                m_cancelButton->setVisible(false);
                 if (m_canceled) {
                     m_label->setType(InfoLabel::Information);
                     m_label->setText(PluginInstallWizard::tr("Canceled."));
@@ -206,9 +230,31 @@ public:
                     m_label->setText(
                         PluginInstallWizard::tr("There was an error while unarchiving."));
                 }
+            } else { // unarchiving was successful, run a check
+                m_archiveCheck = Utils::runAsync(
+                    [this](QFutureInterface<ArchiveIssue> &fi) { return checkContents(fi); });
+                Utils::onFinished(m_archiveCheck, this, [this](const QFuture<ArchiveIssue> &f) {
+                    m_cancelButton->setVisible(false);
+                    m_cancelButton->disconnect();
+                    const bool ok = f.resultCount() == 0 && !f.isCanceled();
+                    if (f.isCanceled()) {
+                        m_label->setType(InfoLabel::Information);
+                        m_label->setText(PluginInstallWizard::tr("Canceled."));
+                    } else if (ok) {
+                        m_label->setType(InfoLabel::Ok);
+                        m_label->setText(PluginInstallWizard::tr("Archive is OK."));
+                    } else {
+                        const ArchiveIssue issue = f.result();
+                        m_label->setType(issue.type);
+                        m_label->setText(issue.message);
+                    }
+                    m_isComplete = ok;
+                    emit completeChanged();
+                });
+                QObject::connect(m_cancelButton, &QPushButton::clicked, this, [this] {
+                    m_archiveCheck.cancel();
+                });
             }
-            m_archive = nullptr; // we don't own it
-            emit completeChanged();
         });
         QObject::connect(m_cancelButton, &QPushButton::clicked, m_archive, [this] {
             m_canceled = true;
@@ -216,12 +262,59 @@ public:
         });
     }
 
+    // Async. Result is set if any issue was found.
+    void checkContents(QFutureInterface<ArchiveIssue> &fi)
+    {
+        QTC_ASSERT(m_tempDir.get(), return );
+
+        PluginSpec *coreplugin = CorePlugin::instance()->pluginSpec();
+
+        // look for plugin
+        QDirIterator it(m_tempDir->path(), libraryNameFilter(), QDir::Files | QDir::NoSymLinks);
+        while (it.hasNext()) {
+            if (fi.isCanceled())
+                return;
+            it.next();
+            PluginSpec *spec = PluginSpec::read(it.filePath());
+            if (spec) {
+                // Is a Qt Creator plugin. Let's see if we find a Core dependency and check the
+                // version
+                const QVector<PluginDependency> dependencies = spec->dependencies();
+                const auto found = std::find_if(dependencies.constBegin(),
+                                                dependencies.constEnd(),
+                                                [coreplugin](const PluginDependency &d) {
+                                                    return d.name == coreplugin->name();
+                                                });
+                if (found != dependencies.constEnd()) {
+                    if (!coreplugin->provides(found->name, found->version)) {
+                        fi.reportResult({PluginInstallWizard::tr(
+                                             "Plugin requires an incompatible version of %1 (%2).")
+                                             .arg(Constants::IDE_DISPLAY_NAME)
+                                             .arg(found->version),
+                                         InfoLabel::Error});
+                        return;
+                    }
+                }
+                return; // successful / no error
+            }
+        }
+        fi.reportResult({PluginInstallWizard::tr("Did not find %1 plugin in toplevel directory.")
+                             .arg(Constants::IDE_DISPLAY_NAME),
+                         InfoLabel::Error});
+    }
+
     void cleanupPage()
     {
         // back button pressed
+        m_cancelButton->disconnect();
         if (m_archive) {
+            m_archive->disconnect();
             m_archive->cancel();
             m_archive = nullptr; // we don't own it
+        }
+        if (m_archiveCheck.isRunning()) {
+            m_archiveCheck.cancel();
+            m_archiveCheck.waitForFinished();
         }
         m_tempDir.reset();
     }
@@ -230,6 +323,7 @@ public:
 
     std::unique_ptr<TemporaryDirectory> m_tempDir;
     Archive *m_archive = nullptr;
+    QFuture<ArchiveIssue> m_archiveCheck;
     InfoLabel *m_label = nullptr;
     QPushButton *m_cancelButton = nullptr;
     QTextEdit *m_output = nullptr;

@@ -1075,9 +1075,11 @@ QList<ToolChain *> GccToolChainFactory::detectForImport(const ToolChainDescripti
 {
     const QString fileName = tcd.compilerPath.toFileInfo().completeBaseName();
     if ((tcd.language == Constants::C_LANGUAGE_ID && (fileName.startsWith("gcc")
-                                                  || fileName.endsWith("gcc")))
+                                                  || fileName.endsWith("gcc")
+                                                  || fileName == "cc"))
             || (tcd.language == Constants::CXX_LANGUAGE_ID && (fileName.startsWith("g++")
-                                                           || fileName.endsWith("g++"))))
+                                                           || fileName.endsWith("g++")
+                                                           || fileName == "c++")))
         return autoDetectToolChain(tcd, [](const ToolChain *tc) {
             return tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor;
         });

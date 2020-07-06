@@ -472,7 +472,7 @@ ClangTool::ClangTool()
     // Load diagnostics from file
     action = new QAction(this);
     action->setIcon(Utils::Icons::OPENFILE_TOOLBAR.icon());
-    action->setToolTip(tr("Load Diagnostics from YAML Files exported with \"-export-fixes\"."));
+    action->setToolTip(tr("Load diagnostics from YAML files exported with \"-export-fixes\"."));
     connect(action, &QAction::triggered, this, &ClangTool::loadDiagnosticsFromFiles);
     m_loadExported = action;
 

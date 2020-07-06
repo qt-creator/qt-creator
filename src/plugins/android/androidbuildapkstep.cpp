@@ -190,7 +190,7 @@ bool AndroidBuildApkStep::init()
         m_packagePath = AndroidManager::apkPath(target()).toString();
     }
 
-    qCDebug(buildapkstepLog) << "Package path:" << m_packagePath;
+    qCDebug(buildapkstepLog) << "APK or AAB path:" << m_packagePath;
 
     if (!AbstractProcessStep::init())
         return false;

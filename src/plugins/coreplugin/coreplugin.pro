@@ -20,6 +20,7 @@ SOURCES += corejsextensions.cpp \
     fancytabwidget.cpp \
     generalsettings.cpp \
     themechooser.cpp \
+    id.cpp \
     icontext.cpp \
     jsexpander.cpp \
     messagemanager.cpp \

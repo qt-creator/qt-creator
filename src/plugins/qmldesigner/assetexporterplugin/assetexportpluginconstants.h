@@ -61,6 +61,7 @@ const char AssetDataTag[] = "assetData";
 const char AssetPathTag[] = "assetPath";
 const char AssetBoundsTag[] = "assetBounds";
 const char OpacityTag[] = "opacity";
+const char TypeNameTag[] = "qmlType";
 
 const char TextDetailsTag[] = "textDetails";
 const char FontFamilyTag[] = "fontFamily";

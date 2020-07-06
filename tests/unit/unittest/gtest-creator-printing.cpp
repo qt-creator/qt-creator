@@ -47,6 +47,7 @@
 #include <filepathview.h>
 #include <filestatus.h>
 #include <includesearchpath.h>
+#include <modelnode.h>
 #include <nativefilepath.h>
 #include <pchpaths.h>
 #include <pchtask.h>
@@ -68,6 +69,7 @@
 #include <tooltipinfo.h>
 #include <usedmacro.h>
 #include <utils/link.h>
+#include <variantproperty.h>
 
 #include <sqlite3ext.h>
 
@@ -1449,6 +1451,25 @@ std::ostream &operator<<(std::ostream &out, const Diagnostic &diag) {
 }
 } // namespace Internal
 } // namespace ClangTools
+
+namespace QmlDesigner {
+
+std::ostream &operator<<(std::ostream &out, const ModelNode &node)
+{
+    if (!node.isValid())
+        return out << "(invalid)";
+
+    return out << "(" << node.id() << ")";
+}
+std::ostream &operator<<(std::ostream &out, const VariantProperty &property)
+{
+    if (!property.isValid())
+        return out << "(invalid)";
+
+    return out << "(" << property.parentModelNode() << ", " << property.name() << ", "
+               << property.value() << ")";
+}
+} // namespace QmlDesigner
 
 void setFilePathCache(ClangBackEnd::FilePathCaching *cache)
 {

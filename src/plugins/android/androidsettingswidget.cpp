@@ -189,15 +189,17 @@ public:
     {
         QTC_CHECK(m_detailsWidget);
         auto layout = new QVBoxLayout(this);
-        layout->setContentsMargins(12, 12, 12, 12);
+        layout->setContentsMargins(22, 0, 0, 12);
+        layout->setSpacing(4);
         for (auto itr = validationPoints.cbegin(); itr != validationPoints.cend(); ++itr) {
             RowData data;
             data.m_infoLabel = new InfoLabel(itr.value());
             layout->addWidget(data.m_infoLabel);
             m_validationData[itr.key()] = data;
-            setPointValid(itr.key(), true);
+            setPointValid(itr.key(), false);
         }
         m_detailsWidget->setWidget(this);
+        setContentsMargins(0, 0, 0, 0);
     }
 
     void setPointValid(int key, bool valid)
@@ -284,7 +286,7 @@ QVariant AvdModel::itemData(const AndroidDeviceInfo &info, int column, int role)
 AvdModel::AvdModel()
 {
     //: AVD - Android Virtual Device
-    setHeader({tr("AVD Name"), tr("API"), tr("CPU/ABI"), tr("Device type"), tr("Target"), tr("SD-card size")});
+    setHeader({tr("AVD Name"), tr("API"), tr("CPU/ABI"), tr("Device Type"), tr("Target"), tr("SD-card Size")});
 }
 
 void AndroidSettingsWidget::showEvent(QShowEvent *event)
@@ -350,13 +352,18 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     sdkMangerLayout->setContentsMargins(0, 0, 0, 0);
     sdkMangerLayout->addWidget(m_sdkManagerWidget);
     connect(m_sdkManagerWidget, &AndroidSdkManagerWidget::updatingSdk, [this] {
-        m_ui.SDKLocationPathChooser->setEnabled(false);
-        // Disable the tab bar to restrict the user moving away from sdk manager tab untill
-        // operations finish.
+        // Disable the top level UI to keep the user from unintentionally interrupting operations
+        m_ui.javaSettingsGroupBox->setEnabled(false);
+        m_ui.androidSettingsGroupBox->setEnabled(false);
+        m_ui.androidOpenSSLSettingsGroupBox->setEnabled(false);
+        m_ui.CreateKitCheckBox->setEnabled(false);
         m_ui.managerTabWidget->tabBar()->setEnabled(false);
     });
     connect(m_sdkManagerWidget, &AndroidSdkManagerWidget::updatingSdkFinished, [this] {
-        m_ui.SDKLocationPathChooser->setEnabled(true);
+        m_ui.javaSettingsGroupBox->setEnabled(true);
+        m_ui.androidSettingsGroupBox->setEnabled(true);
+        m_ui.androidOpenSSLSettingsGroupBox->setEnabled(true);
+        m_ui.CreateKitCheckBox->setEnabled(true);
         m_ui.managerTabWidget->tabBar()->setEnabled(true);
     });
     connect(m_sdkManagerWidget, &AndroidSdkManagerWidget::licenseWorkflowStarted, [this] {
@@ -408,7 +415,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         currentSDKPath = AndroidConfig::defaultSdkPath();
 
     m_ui.SDKLocationPathChooser->setFilePath(currentSDKPath);
-    m_ui.SDKLocationPathChooser->setPromptDialogTitle(tr("Select Android SDK folder"));
+    m_ui.SDKLocationPathChooser->setPromptDialogTitle(tr("Select Android SDK Folder"));
 
     m_ui.openSslPathChooser->setPromptDialogTitle(tr("Select OpenSSL Include Project File"));
     FilePath currentOpenSslPath = m_androidConfig.openSslLocation();
@@ -599,7 +606,8 @@ void AndroidSettingsWidget::validateSdk()
     // after AndroidSdkManager::packageReloadFinished.
     m_androidSummary->setPointValid(PlatformSdkInstalledRow,
                                     !m_sdkManager.installedSdkPlatforms().isEmpty());
-    m_androidSummary->setPointValid(AllEssentialsInstalledRow, m_androidConfig.allEssentialsInstalled());
+    m_androidSummary->setPointValid(AllEssentialsInstalledRow,
+                                    m_androidConfig.allEssentialsInstalled(&m_sdkManager));
 
     const bool sdkToolsOk = m_androidSummary->rowsOk({SdkPathExistsRow,
                                                       SdkPathWritableRow,
@@ -614,7 +622,7 @@ void AndroidSettingsWidget::validateSdk()
         // Ask user to install essential SDK components. Works only for sdk tools version >= 26.0.0
         QString message = tr("Android SDK installation is missing necessary packages. Do you "
                              "want to install the missing packages?");
-        auto userInput = QMessageBox::information(this, tr("Missing Android SDK packages"),
+        auto userInput = QMessageBox::information(this, tr("Missing Android SDK Packages"),
                                                   message, QMessageBox::Yes | QMessageBox::No);
         if (userInput == QMessageBox::Yes) {
             m_ui.managerTabWidget->setCurrentWidget(m_ui.sdkManagerTab);
@@ -692,7 +700,7 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
         msgBox.setText(tr("OpenSSL prebuilt libraries cloning failed. ") + msgSuffix
                        + tr("Opening OpenSSL URL for manual download."));
         msgBox.addButton(tr("OK"), QMessageBox::YesRole);
-        QAbstractButton *openButton = msgBox.addButton(tr("Open download URL"), QMessageBox::ActionRole);
+        QAbstractButton *openButton = msgBox.addButton(tr("Open Download URL"), QMessageBox::ActionRole);
         msgBox.exec();
 
         if (msgBox.clickedButton() == openButton)
@@ -716,7 +724,7 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
     connect(gitCloner, &QtcProcess::errorOccurred, this, [=](QProcess::ProcessError error) {
         openSslProgressDialog->close();
         if (error == QProcess::FailedToStart) {
-            failDialog(tr("The git tool might not be installed properly on your system. "));
+            failDialog(tr("The Git tool might not be installed properly on your system. "));
         } else {
             failDialog();
         }

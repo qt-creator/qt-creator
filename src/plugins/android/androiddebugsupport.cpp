@@ -122,8 +122,6 @@ void AndroidDebugSupport::start()
     setUseContinueInsteadOfRun(true);
     setAttachPid(m_runner->pid());
 
-    qCDebug(androidDebugSupportLog) << "Start. Package name: " << packageName
-                                    << "PID: " << m_runner->pid().pid();
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
     if (!Utils::HostOsInfo::isWindowsHost()
         && (qtVersion
@@ -187,6 +185,8 @@ void AndroidDebugSupport::start()
             addSearchDirectory(qtVersion->qmlPath());
     }
 
+    qCDebug(androidDebugSupportLog) << "Starting debugger - package name: " << packageName
+                                    << ", PID: " << m_runner->pid().pid();
     DebuggerRunTool::start();
 }
 

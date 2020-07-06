@@ -24,8 +24,9 @@
 ****************************************************************************/
 #pragma once
 
-#include <QJsonObject>
 #include <QByteArrayList>
+#include <QCoreApplication>
+#include <QJsonObject>
 
 #include <memory>
 #include <vector>
@@ -68,6 +69,8 @@ protected:
 
 class Component
 {
+    Q_DECLARE_TR_FUNCTIONS(Component);
+
 public:
     Component(AssetExporter& exporter, const ModelNode &rootNode);
 
@@ -84,6 +87,7 @@ public:
 private:
     ModelNodeParser* createNodeParser(const ModelNode &node) const;
     QJsonObject nodeToJson(const ModelNode &node);
+    void addImports();
 
 private:
     AssetExporter& m_exporter;
