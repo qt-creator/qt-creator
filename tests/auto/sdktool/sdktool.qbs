@@ -10,6 +10,6 @@ QtcAutotest {
 
     cpp.defines: base.concat([
         'SDKTOOL_DIR="' + FileInfo.joinPaths(FileInfo.fromNativeSeparators(qbs.installRoot),
-                                             qtc.ide_libexec_path) + '"'
+                                             qbs.installPrefix, qtc.ide_libexec_path) + '"'
     ])
 }
