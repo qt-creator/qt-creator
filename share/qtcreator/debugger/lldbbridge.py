@@ -963,21 +963,25 @@ class Dumper(DumperBase):
 
         elif (self.startMode_ == DebuggerStartMode.AttachToRemoteServer
               or self.startMode_ == DebuggerStartMode.AttachToRemoteProcess):
+            if self.platform_ == 'remote-ios':
+                self.process = self.target.ConnectRemote(
+                    self.debugger.GetListener(),
+                    self.remoteChannel_, None, error)
+            else:
+                f = lldb.SBFileSpec()
+                f.SetFilename(self.executable_)
 
-            f = lldb.SBFileSpec()
-            f.SetFilename(self.executable_)
+                launchInfo = lldb.SBLaunchInfo(self.processArgs_)
+                #launchInfo.SetWorkingDirectory(self.workingDirectory_)
+                launchInfo.SetWorkingDirectory('/tmp')
+                if self.platform_ == 'remote-android':
+                    launchInfo.SetWorkingDirectory('/data/local/tmp')
+                launchInfo.SetEnvironmentEntries(self.environment_, False)
+                launchInfo.SetExecutableFile(f, True)
 
-            launchInfo = lldb.SBLaunchInfo(self.processArgs_)
-            #launchInfo.SetWorkingDirectory(self.workingDirectory_)
-            launchInfo.SetWorkingDirectory('/tmp')
-            if self.platform_ == 'remote-android':
-                launchInfo.SetWorkingDirectory('/data/local/tmp')
-            launchInfo.SetEnvironmentEntries(self.environment_, False)
-            launchInfo.SetExecutableFile(f, True)
-
-            DumperBase.warn("TARGET: %s" % self.target)
-            self.process = self.target.Launch(launchInfo, error)
-            DumperBase.warn("PROCESS: %s" % self.process)
+                DumperBase.warn("TARGET: %s" % self.target)
+                self.process = self.target.Launch(launchInfo, error)
+                DumperBase.warn("PROCESS: %s" % self.process)
 
             if not error.Success():
                 self.report(self.describeError(error))

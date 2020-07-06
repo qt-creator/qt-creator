@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 BlackBerry Limited. All rights reserved.
-** Contact: BlackBerry (qt@blackberry.com)
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
 **
@@ -61,7 +61,7 @@
 namespace McuSupport {
 namespace Internal {
 
-static const int KIT_VERSION = 5; // Bumps up whenever details in Kit creation change
+static const int KIT_VERSION = 6; // Bumps up whenever details in Kit creation change
 
 static QString packagePathFromSettings(const QString &settingsKey,
                                        QSettings::Scope scope = QSettings::UserScope,
@@ -93,6 +93,11 @@ QString McuPackage::path() const
 QString McuPackage::label() const
 {
     return m_label;
+}
+
+QString McuPackage::defaultPath() const
+{
+    return m_defaultPath;
 }
 
 QString McuPackage::detectionPath() const
@@ -331,10 +336,12 @@ QVariant McuToolChainPackage::debuggerId() const
     return debuggerId;
 }
 
-McuTarget::McuTarget(const QString &vendor, const QString &platform, OS os,
+McuTarget::McuTarget(const QVersionNumber &qulVersion, const QString &vendor,
+                     const QString &platform, OS os,
                      const QVector<McuPackage *> &packages,
                      const McuToolChainPackage *toolChainPackage)
-    : m_vendor(vendor)
+    : m_qulVersion(qulVersion)
+    , m_vendor(vendor)
     , m_qulPlatform(platform)
     , m_os(os)
     , m_packages(packages)
@@ -372,6 +379,11 @@ bool McuTarget::isValid() const
     return !Utils::anyOf(packages(), [](McuPackage *package) {
         return package->status() != McuPackage::ValidPackage;
     });
+}
+
+QVersionNumber McuTarget::qulVersion() const
+{
+    return m_qulVersion;
 }
 
 int McuTarget::colorDepth() const
@@ -450,9 +462,9 @@ void McuSupportOptions::deletePackagesAndTargets()
     mcuTargets.clear();
 }
 
-const QVersionNumber &McuSupportOptions::supportedQulVersion()
+const QVersionNumber &McuSupportOptions::minimalQulVersion()
 {
-    static const QVersionNumber v({1, 2});
+    static const QVersionNumber v({1, 3});
     return v;
 }
 
@@ -493,7 +505,7 @@ static void setKitProperties(const QString &kitName, ProjectExplorer::Kit *k,
     k->setValue(KIT_MCUTARGET_VENDOR_KEY, mcuTarget->vendor());
     k->setValue(KIT_MCUTARGET_MODEL_KEY, mcuTarget->qulPlatform());
     k->setValue(KIT_MCUTARGET_COLORDEPTH_KEY, mcuTarget->colorDepth());
-    k->setValue(KIT_MCUTARGET_SDKVERSION_KEY, McuSupportOptions::supportedQulVersion().toString());
+    k->setValue(KIT_MCUTARGET_SDKVERSION_KEY, mcuTarget->qulVersion().toString());
     k->setValue(KIT_MCUTARGET_KITVERSION_KEY, KIT_VERSION);
     k->setValue(KIT_MCUTARGET_OS_KEY, static_cast<int>(mcuTarget->os()));
     k->setAutoDetected(true);
@@ -626,7 +638,7 @@ QString McuSupportOptions::kitName(const McuTarget *mcuTarget)
             ? "Desktop"
             : mcuTarget->qulPlatform();
     return QString::fromLatin1("Qt for MCUs %1 - %2%3%4")
-            .arg(supportedQulVersion().toString(), targetName, os, colorDepth);
+            .arg(mcuTarget->qulVersion().toString(), targetName, os, colorDepth);
 }
 
 QList<ProjectExplorer::Kit *> McuSupportOptions::existingKits(const McuTarget *mcuTarget)
@@ -636,8 +648,6 @@ QList<ProjectExplorer::Kit *> McuSupportOptions::existingKits(const McuTarget *m
     return Utils::filtered(KitManager::kits(), [mcuTarget](Kit *kit) {
         return kit->isAutoDetected()
                 && kit->value(KIT_MCUTARGET_KITVERSION_KEY) == KIT_VERSION
-                && kit->value(KIT_MCUTARGET_SDKVERSION_KEY) ==
-                   McuSupportOptions::supportedQulVersion().toString()
                 && (!mcuTarget || (
                         kit->value(KIT_MCUTARGET_VENDOR_KEY) == mcuTarget->vendor()
                         && kit->value(KIT_MCUTARGET_MODEL_KEY) == mcuTarget->qulPlatform()

@@ -49,9 +49,6 @@
     For a list of Qt for MCU reference implementations, see the
     \l{Qt for MCUs - Supported Target Platforms}{Qt for MCUs} documentation.
 
-    You use the \l{Connecting Bare Metal Devices}{Bare metal plugin} to connect
-    to a debug server provider for debugging on MCUs.
-
     \section1 Requirements
 
     To use \QC to develop QML applications for MCUs, you need the following:
@@ -61,33 +58,40 @@
         \li The Bare Metal plugin
         \li \l{https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm}
             {GNU ARM Embedded Toolchain}
-        \li The hardware-specific requirements vary depending on the hardware platform you are developing for.
-            For more information see:
-            \list
-                \li \l{Getting Started on NXP}
-                \li \l{Getting Started on STM}
-                \li \l{Getting Started on Renesas}
-             \endlist
     \endlist
+
+    The hardware-specific requirements vary depending on the hardware platform you are developing for.
+    For more information see:
+    \list
+        \li \l{Getting Started on NXP}
+        \li \l{Getting Started on STM}
+        \li \l{Getting Started on Renesas}
+     \endlist
 
     \section1 Setting Up the Development Environment
 
     You must download and install the required software and create connections
-    between \QC and MCUs. For more information, see \l{Getting Started on Windows}.
+    between \QC and MCUs. The following subsections guide you through the
+    setup process.
 
-    \section2 Enabling Bare Metal and MCU Plugins
+    \section2 MCU and Bare Metal Plugins
 
-    To be able to develop for MCUs, you must enable the Bare Metal and MCU
-    plugins:
+    To be able to develop applications for MCUs, you need the MCU plugin at least.
+    This plugin is enabled automatically by the installer when you install the
+    Qt for MCUs SDK.
 
+    The Bare Metal plugin is optional unless you want to configure the
+    debug server provider settings explicitly. For more information
+    see \l{Connecting Bare Metal Devices}.
+
+    To explicitly disable or enable any of these plugins, follow these
+    instructions:
     \list 1
         \li Select \uicontrol Help > \uicontrol {About Plugins} >
             \uicontrol {Device Support} > \uicontrol {Bare Metal} and
             \uicontrol {MCU Support} to enable the Bare Metal and MCU
             plugins.
         \li Select \uicontrol {Restart Now} to restart \QC and load the plugins.
-        \li Create connections for debugging on the MCU board, as described in
-            \l{Connecting Bare Metal Devices}.
     \endlist
 
     \section2 Specifying MCU Settings
@@ -103,27 +107,30 @@
             to the directory where you installed Qt for MCUs SDK.
         \li In the \uicontrol {Targets supported by the Qt for MCUs SDK}
             field, select your MCU board.
-        \li In the \uicontrol {GNU ARM Embedded Toolchain} field,
-            specify the path to the directory where you installed the
-            tool chain.
-        \li For STM32 boards:
+        \li In the \uicontrol Requirements section, ensure that the
+            platform-specific requirements are met. This varies depending
+            on the target chosen:
             \list
-                \li In the \uicontrol {STM32Cube SDK} field, specify the
-                    path to the directory where you installed the SDK.
-                \li In the \uicontrol {STM32Cube Programmer} field,
-                    specify the path to the directory where you
-                    installed the tool.
+                \li For STM32 targets:
+                    \list
+                        \li The \uicontrol {GNU ARM Embedded Toolchain} path.
+                        \li The \uicontrol {STM32CubeProgrammer} install path.
+                    \endlist
+                 \li For NXP targets:
+                    \list
+                        \li The \uicontrol {GNU ARM Embedded Toolchain} path.
+                        \li The \uicontrol {MCUXpresso IDE} install path.
+                    \endlist
+                 \li For Renesas targets:
+                    \list
+                        \li The \uicontrol {Green Hills Compiler} path.
+                        \li The \uicontrol {Renesas Graphics Library} path.
+                    \endlist
             \endlist
-        \li For NXP boards:
-            \list
-                \li In the \uicontrol {NXP EVKB-IMXRT 1050 SDK} field,
-                    specify the path to the directory where you
-                    installed the SDK.
-                \li In the \uicontrol {SEGGER JLink} field, specify the
-                    path to the directory where you installed the tool.
-            \endlist
-        \li Select \uicontrol Apply to save the settings and to generate
-            a MCU device and kit.
+        \li Select \uicontrol{Create Kit} to create a kit. If you have
+            an older kit for the selected target, remove it first using
+            \uicontrol{Remove Kit}.
+        \li Select \uicontrol Apply to save the settings.
     \endlist
 
     \section2 Adding MCU Devices
