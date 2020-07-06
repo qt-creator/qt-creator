@@ -120,11 +120,9 @@ void RefactoringClient::addSearchResult(const ClangBackEnd::SourceRangeWithTextC
     m_searchHandle->addResult(QString(filePathCache.filePath(sourceRangeWithText.filePathId()).path()),
                               QString(sourceRangeWithText.text),
                               {{int(sourceRangeWithText.start.line),
-                                int(sourceRangeWithText.start.column - 1),
-                                int(sourceRangeWithText.start.offset)},
+                                int(sourceRangeWithText.start.column - 1)},
                                {int(sourceRangeWithText.end.line),
-                                int(sourceRangeWithText.end.column - 1),
-                                int(sourceRangeWithText.end.offset)}});
+                                int(sourceRangeWithText.end.column - 1)}});
 }
 
 void RefactoringClient::setResultCounterAndSendSearchIsFinishedIfFinished()
