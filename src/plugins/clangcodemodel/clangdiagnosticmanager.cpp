@@ -324,7 +324,7 @@ static void addTask(const ClangBackEnd::DiagnosticContainer &diagnostic, bool is
     }
 
     TaskHub::addTask(Task(taskType,
-                          Utils::diagnosticCategoryPrefixRemoved(diagnostic.text.toString()),
+                          diagnosticCategoryPrefixRemoved(diagnostic.text.toString()),
                           FilePath::fromString(diagnostic.location.filePath.toString()),
                           diagnostic.location.line,
                           Constants::TASK_CATEGORY_DIAGNOSTICS,

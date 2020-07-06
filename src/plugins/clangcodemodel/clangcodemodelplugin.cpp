@@ -52,6 +52,8 @@
 
 #include <QtConcurrent>
 
+using namespace Utils;
+
 namespace ClangCodeModel {
 namespace Internal {
 
@@ -73,8 +75,8 @@ void ClangCodeModelPlugin::generateCompilationDB()
     if (!target)
         return;
 
-    QFuture<Utils::GenerateCompilationDbResult> task
-            = QtConcurrent::run(&Utils::generateCompilationDB,
+    QFuture<GenerateCompilationDbResult> task
+            = QtConcurrent::run(&Internal::generateCompilationDB,
                                 CppModelManager::instance()->projectInfo(target->project()));
     Core::ProgressManager::addTask(task, tr("Generating Compilation DB"), "generate compilation db");
     m_generatorWatcher.setFuture(task);
@@ -121,10 +123,10 @@ void ClangCodeModelPlugin::createCompilationDBButton()
     Core::ActionContainer *mbuild =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
     // generate compile_commands.json
-    m_generateCompilationDBAction = new ::Utils::ParameterAction(
+    m_generateCompilationDBAction = new ParameterAction(
                 tr("Generate Compilation Database"),
                 tr("Generate Compilation Database for \"%1\""),
-                ::Utils::ParameterAction::AlwaysEnabled, this);
+                ParameterAction::AlwaysEnabled, this);
 
     ProjectExplorer::Project *startupProject = ProjectExplorer::SessionManager::startupProject();
     m_generateCompilationDBAction->setEnabled(isDBGenerationEnabled(startupProject));
@@ -137,9 +139,9 @@ void ClangCodeModelPlugin::createCompilationDBButton()
     command->setDescription(m_generateCompilationDBAction->text());
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
 
-    connect(&m_generatorWatcher, &QFutureWatcher<Utils::GenerateCompilationDbResult>::finished,
+    connect(&m_generatorWatcher, &QFutureWatcher<GenerateCompilationDbResult>::finished,
             this, [this] () {
-        const Utils::GenerateCompilationDbResult result = m_generatorWatcher.result();
+        const GenerateCompilationDbResult result = m_generatorWatcher.result();
         QString message;
         if (result.error.isEmpty()) {
             message = tr("Clang compilation database generated at \"%1\".")

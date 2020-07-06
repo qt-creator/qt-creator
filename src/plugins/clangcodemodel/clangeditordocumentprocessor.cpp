@@ -347,7 +347,7 @@ ClangEditorDocumentProcessor::cursorInfo(const CppTools::CursorInfoParams &param
     if (!isCursorOnIdentifier(params.textCursor))
         return defaultCursorInfoFuture();
 
-    column = Utils::clangColumn(params.textCursor.document()->findBlockByNumber(line - 1), column);
+    column = clangColumn(params.textCursor.document()->findBlockByNumber(line - 1), column);
     const CppTools::SemanticInfo::LocalUseMap localUses
         = CppTools::BuiltinCursorInfo::findLocalUses(params.semanticInfo.doc, line, column);
 
@@ -405,7 +405,7 @@ ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const QString &f
 static bool isProjectPartLoadedOrIsFallback(CppTools::ProjectPart::Ptr projectPart)
 {
     return projectPart
-        && (projectPart->id().isEmpty() || ClangCodeModel::Utils::isProjectPartLoaded(projectPart));
+        && (projectPart->id().isEmpty() || isProjectPartLoaded(projectPart));
 }
 
 void ClangEditorDocumentProcessor::updateBackendProjectPartAndDocument()
@@ -565,7 +565,7 @@ void ClangEditorDocumentProcessor::updateBackendDocument(CppTools::ProjectPart &
     const FileOptionsBuilder fileOptions(filePath(), projectPart);
     m_diagnosticConfigId = fileOptions.diagnosticConfigId();
 
-    const QStringList projectPartOptions = ClangCodeModel::Utils::createClangOptions(
+    const QStringList projectPartOptions = createClangOptions(
         projectPart, fileOptions.useBuildSystemWarnings(),
         CppTools::ProjectFile::Unsupported); // No language option as FileOptionsBuilder adds it.
 
@@ -573,7 +573,7 @@ void ClangEditorDocumentProcessor::updateBackendDocument(CppTools::ProjectPart &
 
     m_communicator.documentsOpened(
         {fileContainerWithOptionsAndDocumentContent(compilationArguments, projectPart.headerPaths)});
-    ClangCodeModel::Utils::setLastSentDocumentRevision(filePath(), revision());
+    setLastSentDocumentRevision(filePath(), revision());
 }
 
 void ClangEditorDocumentProcessor::closeBackendDocument()

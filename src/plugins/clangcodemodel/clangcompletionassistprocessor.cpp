@@ -99,9 +99,7 @@ static void addFunctionOverloadAssistProposalItem(QList<AssistProposalItemInterf
     cursor.movePosition(QTextCursor::StartOfWord);
 
     const ClangBackEnd::CodeCompletionChunk resultType = codeCompletion.chunks.first();
-    if (Utils::Text::matchPreviousWord(*interface->textEditorWidget(),
-                                       cursor,
-                                       resultType.text.toString())) {
+    if (matchPreviousWord(*interface->textEditorWidget(), cursor, resultType.text.toString())) {
         // Function definition completion - do not merge completions together.
         addAssistProposalItem(items, codeCompletion, name);
     } else {
@@ -535,7 +533,7 @@ void ClangCompletionAssistProcessor::completeIncludePath(const QString &realPath
             auto *item = new ClangPreprocessorAssistProposalItem;
             item->setText(text);
             item->setDetail(hint);
-            item->setIcon(Icons::keywordIcon());
+            item->setIcon(CPlusPlus::Icons::keywordIcon());
             item->setCompletionOperator(m_completionOperator);
             m_completions.append(item);
         }
@@ -546,11 +544,11 @@ bool ClangCompletionAssistProcessor::completePreprocessorDirectives()
 {
     foreach (const QString &preprocessorCompletion, m_preprocessorCompletions)
         addCompletionItem(preprocessorCompletion,
-                          ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Macro));
+                          Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Macro));
 
     if (m_interface->objcEnabled())
         addCompletionItem(QLatin1String("import"),
-                          ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Macro));
+                          Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Macro));
 
     return !m_completions.isEmpty();
 }
@@ -558,7 +556,7 @@ bool ClangCompletionAssistProcessor::completePreprocessorDirectives()
 bool ClangCompletionAssistProcessor::completeDoxygenKeywords()
 {
     for (int i = 1; i < CppTools::T_DOXY_LAST_TAG; ++i)
-        addCompletionItem(QString::fromLatin1(CppTools::doxygenTagSpell(i)), Icons::keywordIcon());
+        addCompletionItem(QString::fromLatin1(CppTools::doxygenTagSpell(i)), CPlusPlus::Icons::keywordIcon());
     return !m_completions.isEmpty();
 }
 
@@ -602,7 +600,7 @@ namespace {
 bool shouldSendDocumentForCompletion(const QString &filePath,
                                      int completionPosition)
 {
-    CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath);
+    CppTools::CppEditorDocumentHandle *document = cppDocument(filePath);
 
     if (document) {
         auto &sendTracker = document->sendTracker();
@@ -616,7 +614,7 @@ bool shouldSendDocumentForCompletion(const QString &filePath,
 bool shouldSendCodeCompletion(const QString &filePath,
                               int completionPosition)
 {
-    CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath);
+    CppTools::CppEditorDocumentHandle *document = cppDocument(filePath);
 
     if (document) {
         auto &sendTracker = document->sendTracker();
@@ -628,7 +626,7 @@ bool shouldSendCodeCompletion(const QString &filePath,
 
 void setLastDocumentRevision(const QString &filePath)
 {
-    CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath);
+    CppTools::CppEditorDocumentHandle *document = cppDocument(filePath);
 
     if (document)
         document->sendTracker().setLastSentRevision(int(document->revision()));
@@ -637,7 +635,7 @@ void setLastDocumentRevision(const QString &filePath)
 void setLastCompletionPosition(const QString &filePath,
                                int completionPosition)
 {
-    CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath);
+    CppTools::CppEditorDocumentHandle *document = cppDocument(filePath);
 
     if (document)
         document->sendTracker().setLastCompletionPosition(completionPosition);
@@ -652,9 +650,9 @@ ClangCompletionAssistProcessor::extractLineColumn(int position)
         return {-1, -1};
 
     int line = -1, column = -1;
-    ::Utils::Text::convertPosition(m_interface->textDocument(), position, &line, &column);
+    Utils::Text::convertPosition(m_interface->textDocument(), position, &line, &column);
 
-    column = Utils::clangColumn(m_interface->textDocument()->findBlock(position), column);
+    column = clangColumn(m_interface->textDocument()->findBlock(position), column);
     return {line, column};
 }
 

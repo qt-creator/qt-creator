@@ -43,9 +43,8 @@
 #include <QTextDocument>
 #include <QUrl>
 
-using namespace ClangCodeModel;
-using Internal::ClangDiagnosticWidget;
-using Internal::ClangFixItOperation;
+namespace ClangCodeModel {
+namespace Internal {
 
 namespace {
 
@@ -184,7 +183,6 @@ private:
 
         ClangBackEnd::DiagnosticContainer supplementedDiagnostic = diagnostic;
 
-        using namespace ClangCodeModel::Utils;
         DiagnosticTextInfo info(diagnostic.text);
         supplementedDiagnostic.enableOption = info.option();
         supplementedDiagnostic.category = info.category();
@@ -221,7 +219,7 @@ private:
         QString option = optionAsUtf8String.toString();
 
         // Clazy
-        if (ClangCodeModel::Utils::DiagnosticTextInfo::isClazyOption(option)) {
+        if (DiagnosticTextInfo::isClazyOption(option)) {
             option = optionAsUtf8String.mid(8); // Remove "-Wclazy-" prefix.
             return QString::fromUtf8(CppTools::Constants::CLAZY_DOCUMENTATION_URL_TEMPLATE)
                 .arg(option);
@@ -421,9 +419,6 @@ WidgetFromDiagnostics::DisplayHints toHints(const ClangDiagnosticWidget::Destina
 }
 
 } // anonymous namespace
-
-namespace ClangCodeModel {
-namespace Internal {
 
 QString ClangDiagnosticWidget::createText(
     const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics,

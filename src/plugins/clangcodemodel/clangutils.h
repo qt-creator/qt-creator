@@ -41,14 +41,10 @@ class CppEditorDocumentHandle;
 class ProjectInfo;
 }
 
-namespace Utils {
-class FilePath;
-}
-
 namespace ClangBackEnd { class TokenInfoContainer; }
 
 namespace ClangCodeModel {
-namespace Utils {
+namespace Internal {
 
 CppTools::CppEditorDocumentHandle *cppDocument(const QString &filePath);
 void setLastSentDocumentRevision(const QString &filePath, uint revision);
@@ -68,7 +64,7 @@ QString currentCppEditorDocumentFilePath();
 
 QString diagnosticCategoryPrefixRemoved(const QString &text);
 
-::Utils::CodeModelIcon::Type iconTypeForToken(const ClangBackEnd::TokenInfoContainer &token);
+Utils::CodeModelIcon::Type iconTypeForToken(const ClangBackEnd::TokenInfoContainer &token);
 
 class GenerateCompilationDbResult
 {
@@ -100,8 +96,6 @@ private:
     const QString m_text;
     const int m_squareBracketStartIndex;
 };
-
-namespace Text {
 
 template <class CharacterProvider>
 void moveToPreviousChar(CharacterProvider &provider, QTextCursor &cursor)
@@ -148,6 +142,5 @@ bool matchPreviousWord(CharacterProvider &provider, QTextCursor cursor, QString 
     return pattern.isEmpty();
 }
 
-} // namespace Text
-} // namespace Utils
+} // namespace Internal
 } // namespace Clang

@@ -50,6 +50,7 @@
 using namespace CPlusPlus;
 using namespace ClangBackEnd;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -110,9 +111,7 @@ static bool isAtUsingDeclaration(TextDocumentManipulatorInterface &manipulator,
     if (lastToken.kind() != T_COLON_COLON)
         return false;
 
-    return ::Utils::contains(tokens, [](const Token &token) {
-        return token.kind() == T_USING;
-    });
+    return contains(tokens, [](const Token &token) { return token.kind() == T_USING; });
 }
 
 static QString methodDefinitionParameters(const CodeCompletionChunks &chunks)
@@ -238,9 +237,9 @@ void ClangAssistProposalItem::apply(TextDocumentManipulatorInterface &manipulato
             QTextCursor cursor = manipulator.textCursorAt(basePosition);
 
             bool abandonParen = false;
-            if (Utils::Text::matchPreviousWord(manipulator, cursor, "&")) {
-                Utils::Text::moveToPreviousWord(manipulator, cursor);
-                Utils::Text::moveToPreviousChar(manipulator, cursor);
+            if (matchPreviousWord(manipulator, cursor, "&")) {
+                moveToPreviousWord(manipulator, cursor);
+                moveToPreviousChar(manipulator, cursor);
                 const QChar prevChar = manipulator.characterAt(cursor.position());
                 cursor.setPosition(basePosition);
                 abandonParen = QString("(;,{}").contains(prevChar);
@@ -255,7 +254,7 @@ void ClangAssistProposalItem::apply(TextDocumentManipulatorInterface &manipulato
             if (!abandonParen && ccr.completionKind == CodeCompletion::FunctionDefinitionCompletionKind) {
                 const CodeCompletionChunk resultType = ccr.chunks.first();
                 if (resultType.kind == CodeCompletionChunk::ResultType) {
-                    if (Utils::Text::matchPreviousWord(manipulator, cursor, resultType.text.toString())) {
+                    if (matchPreviousWord(manipulator, cursor, resultType.text.toString())) {
                         extraCharacters += methodDefinitionParameters(ccr.chunks);
                         // To skip the next block.
                         abandonParen = true;
@@ -376,14 +375,14 @@ std::pair<int, int> fixItPositionsRange(const FixItContainer &fixIt, const QText
     const QTextBlock startLine = cursor.document()->findBlockByNumber(fixIt.range.start.line - 1);
     const QTextBlock endLine = cursor.document()->findBlockByNumber(fixIt.range.end.line - 1);
 
-    const int fixItStartPos = ::Utils::Text::positionInText(
+    const int fixItStartPos = Text::positionInText(
                 cursor.document(),
                 static_cast<int>(fixIt.range.start.line),
-                Utils::cppEditorColumn(startLine, static_cast<int>(fixIt.range.start.column)));
-    const int fixItEndPos = ::Utils::Text::positionInText(
+                cppEditorColumn(startLine, static_cast<int>(fixIt.range.start.column)));
+    const int fixItEndPos = Text::positionInText(
                 cursor.document(),
                 static_cast<int>(fixIt.range.end.line),
-                Utils::cppEditorColumn(endLine, static_cast<int>(fixIt.range.end.column)));
+                cppEditorColumn(endLine, static_cast<int>(fixIt.range.end.column)));
     return std::make_pair(fixItStartPos, fixItEndPos);
 }
 
@@ -432,11 +431,11 @@ QIcon ClangAssistProposalItem::icon() const
         case CodeCompletion::ClassCompletionKind:
         case CodeCompletion::TemplateClassCompletionKind:
         case CodeCompletion::TypeAliasCompletionKind:
-            return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Class);
+            return CodeModelIcon::iconForType(CodeModelIcon::Class);
         case CodeCompletion::EnumerationCompletionKind:
-            return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Enum);
+            return CodeModelIcon::iconForType(CodeModelIcon::Enum);
         case CodeCompletion::EnumeratorCompletionKind:
-            return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Enumerator);
+            return CodeModelIcon::iconForType(CodeModelIcon::Enumerator);
         case CodeCompletion::ConstructorCompletionKind:
         case CodeCompletion::DestructorCompletionKind:
         case CodeCompletion::FunctionCompletionKind:
@@ -446,40 +445,40 @@ QIcon ClangAssistProposalItem::icon() const
             switch (completion.availability) {
                 case CodeCompletion::Available:
                 case CodeCompletion::Deprecated:
-                    return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::FuncPublic);
+                    return CodeModelIcon::iconForType(CodeModelIcon::FuncPublic);
                 default:
-                    return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::FuncPrivate);
+                    return CodeModelIcon::iconForType(CodeModelIcon::FuncPrivate);
             }
         case CodeCompletion::SignalCompletionKind:
-            return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Signal);
+            return CodeModelIcon::iconForType(CodeModelIcon::Signal);
         case CodeCompletion::SlotCompletionKind:
             switch (completion.availability) {
                 case CodeCompletion::Available:
                 case CodeCompletion::Deprecated:
-                    return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::SlotPublic);
+                    return CodeModelIcon::iconForType(CodeModelIcon::SlotPublic);
                 case CodeCompletion::NotAccessible:
                 case CodeCompletion::NotAvailable:
-                    return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::SlotPrivate);
+                    return CodeModelIcon::iconForType(CodeModelIcon::SlotPrivate);
             }
             break;
         case CodeCompletion::NamespaceCompletionKind:
-            return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Namespace);
+            return CodeModelIcon::iconForType(CodeModelIcon::Namespace);
         case CodeCompletion::PreProcessorCompletionKind:
-            return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Macro);
+            return CodeModelIcon::iconForType(CodeModelIcon::Macro);
         case CodeCompletion::VariableCompletionKind:
             switch (completion.availability) {
                 case CodeCompletion::Available:
                 case CodeCompletion::Deprecated:
-                    return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::VarPublic);
+                    return CodeModelIcon::iconForType(CodeModelIcon::VarPublic);
                 default:
-                    return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::VarPrivate);
+                    return CodeModelIcon::iconForType(CodeModelIcon::VarPrivate);
             }
         case CodeCompletion::KeywordCompletionKind:
-            return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Keyword);
+            return CodeModelIcon::iconForType(CodeModelIcon::Keyword);
         case CodeCompletion::ClangSnippetKind:
             return snippetIcon;
         case CodeCompletion::Other:
-            return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Unknown);
+            return CodeModelIcon::iconForType(CodeModelIcon::Unknown);
         default:
             break;
     }
