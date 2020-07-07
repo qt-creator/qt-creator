@@ -91,7 +91,8 @@ void TestTreeModel::setupParsingConnections()
     connect(sm, &SessionManager::startupProjectChanged, [this](Project *project) {
         synchronizeTestFrameworks(); // we might have project settings
         m_parser->onStartupProjectChanged(project);
-        m_checkStateCache.clear(); // TODO persist to project settings?
+        m_checkStateCache = project ? AutotestPlugin::projectSettings(project)->checkStateCache()
+                                    : nullptr;
     });
 
     CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
@@ -294,12 +295,12 @@ void TestTreeModel::rebuild(const QList<Utils::Id> &frameworkIds)
 
 void TestTreeModel::updateCheckStateCache()
 {
-    m_checkStateCache.evolve();
+    m_checkStateCache->evolve();
 
     for (Utils::TreeItem *rootNode : *rootItem()) {
         rootNode->forAllChildren([this](Utils::TreeItem *child) {
             auto childItem = static_cast<TestTreeItem *>(child);
-            m_checkStateCache.insert(childItem, childItem->checked());
+            m_checkStateCache->insert(childItem, childItem->checked());
         });
     }
 }
@@ -425,7 +426,7 @@ void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, b
         delete item;
     } else {
         // restore former check state if available
-        Utils::optional<Qt::CheckState> cached = m_checkStateCache.get(item);
+        Utils::optional<Qt::CheckState> cached = m_checkStateCache->get(item);
         if (cached.has_value())
             item->setData(0, cached.value(), Qt::CheckStateRole);
         else
@@ -515,7 +516,7 @@ void TestTreeModel::handleParseResult(const TestParseResult *result, TestTreeIte
     // restore former check state if available
     newItem->forAllChildren([this](Utils::TreeItem *child) {
         auto childItem = static_cast<TestTreeItem *>(child);
-        Utils::optional<Qt::CheckState> cached = m_checkStateCache.get(childItem);
+        Utils::optional<Qt::CheckState> cached = m_checkStateCache->get(childItem);
         if (cached.has_value())
             childItem->setData(0, cached.value(), Qt::CheckStateRole);
     });

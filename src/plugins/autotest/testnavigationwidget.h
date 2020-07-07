@@ -25,9 +25,8 @@
 
 #pragma once
 
+#include "itemdatacache.h"
 #include "testrunner.h"
-
-#include "testtreemodel.h"
 
 #include <coreplugin/inavigationwidgetfactory.h>
 
@@ -49,8 +48,12 @@ class ProgressIndicator;
 }
 
 namespace Autotest {
+
+class TestTreeModel;
+
 namespace Internal {
 
+class TestTreeSortFilterModel;
 class TestTreeView;
 
 class TestNavigationWidget : public QWidget
