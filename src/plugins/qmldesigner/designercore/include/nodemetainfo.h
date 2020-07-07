@@ -66,6 +66,7 @@ public:
     bool hasProperty(const PropertyName &propertyName) const;
     PropertyNameList propertyNames() const;
     PropertyNameList signalNames() const;
+    PropertyNameList slotNames() const;
     PropertyNameList directPropertyNames() const;
     PropertyName defaultPropertyName() const;
     bool hasDefaultProperty() const;
