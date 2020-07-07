@@ -136,7 +136,7 @@ void DockWidgetTitleButton::paintEvent(QPaintEvent *)
     QPainter p(this);
 
     QStyleOptionToolButton opt;
-    opt.init(this);
+    opt.initFrom(this);
     opt.state |= QStyle::State_AutoRaise;
     opt.icon = icon();
     opt.subControls = {};
