@@ -772,7 +772,7 @@ VcsBase::VcsBaseEditorWidget *FossilClient::annotate(
     // annotate shows line numbers
 
     QString vcsCmdString = vcsCommandString(AnnotateCommand);
-    const Core::Id kind = vcsEditorKind(AnnotateCommand);
+    const Id kind = vcsEditorKind(AnnotateCommand);
     const QString id = VcsBase::VcsBaseEditor::getTitleId(workingDir, QStringList(file), revision);
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const QString source = VcsBase::VcsBaseEditor::getSource(workingDir, file);
@@ -924,7 +924,7 @@ void FossilClient::view(const QString &source, const QString &id, const QStringL
          << "-v"
          << extraOptions;
 
-    const Core::Id kind = vcsEditorKind(DiffCommand);
+    const Id kind = vcsEditorKind(DiffCommand);
     const QString title = vcsEditorTitle(vcsCommandString(DiffCommand), id);
 
     VcsBase::VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
@@ -995,7 +995,7 @@ void FossilClient::log(const QString &workingDir, const QStringList &files,
     }
 
     const QString vcsCmdString = vcsCommandString(LogCommand);
-    const Core::Id kind = vcsEditorKind(LogCommand);
+    const Id kind = vcsEditorKind(LogCommand);
     const QString id = VcsBase::VcsBaseEditor::getTitleId(workingDir, files);
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const QString source = VcsBase::VcsBaseEditor::getSource(workingDir, files);
@@ -1047,7 +1047,7 @@ void FossilClient::logCurrentFile(const QString &workingDir, const QStringList &
     }
 
     const QString vcsCmdString = "finfo";
-    const Core::Id kind = vcsEditorKind(LogCommand);
+    const Id kind = vcsEditorKind(LogCommand);
     const QString id = VcsBase::VcsBaseEditor::getTitleId(workingDir, files);
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const QString source = VcsBase::VcsBaseEditor::getSource(workingDir, files);
@@ -1157,7 +1157,7 @@ QString FossilClient::vcsCommandString(VcsCommandTag cmd) const
     }
 }
 
-Core::Id FossilClient::vcsEditorKind(VcsCommandTag cmd) const
+Id FossilClient::vcsEditorKind(VcsCommandTag cmd) const
 {
     switch (cmd) {
     case AnnotateCommand:
@@ -1167,7 +1167,7 @@ Core::Id FossilClient::vcsEditorKind(VcsCommandTag cmd) const
     case LogCommand:
         return Constants::FILELOG_ID;
     default:
-        return Core::Id();
+        return Id();
     }
 }
 

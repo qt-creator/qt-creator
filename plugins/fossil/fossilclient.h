@@ -122,7 +122,7 @@ private:
 
     QString sanitizeFossilOutput(const QString &output) const;
     QString vcsCommandString(VcsCommandTag cmd) const final;
-    Core::Id vcsEditorKind(VcsCommandTag cmd) const final;
+    Utils::Id vcsEditorKind(VcsCommandTag cmd) const final;
     QStringList revisionSpec(const QString &revision) const final;
     StatusItem parseStatusLine(const QString &line) const final;
     VcsBase::VcsBaseEditorConfig *createAnnotateEditor(VcsBase::VcsBaseEditorWidget *editor);

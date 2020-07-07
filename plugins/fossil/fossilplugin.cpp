@@ -148,7 +148,7 @@ public:
 
     // IVersionControl
     QString displayName() const final;
-    Core::Id id() const final;
+    Id id() const final;
 
     bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
 
@@ -896,9 +896,9 @@ QString FossilPluginPrivate::displayName() const
     return tr("Fossil");
 }
 
-Core::Id FossilPluginPrivate::id() const
+Id FossilPluginPrivate::id() const
 {
-    return Core::Id(Constants::VCS_ID_FOSSIL);
+    return Id(Constants::VCS_ID_FOSSIL);
 }
 
 bool FossilPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &filePath) const
