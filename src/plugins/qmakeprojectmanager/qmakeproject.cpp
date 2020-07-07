@@ -33,7 +33,6 @@
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakestep.h"
 
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -186,9 +185,6 @@ QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
     , m_qmakeVfs(new QMakeVfs)
     , m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
 {
-    const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
-    m_qmakeVfs->setTextCodec(codec);
-
     setParseDelay(0);
 
     m_rootProFile = std::make_unique<QmakeProFile>(this, projectFilePath());

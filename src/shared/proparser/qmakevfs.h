@@ -34,10 +34,6 @@
 # include <qmutex.h>
 #endif
 
-#ifndef QT_NO_TEXTCODEC
-QT_FORWARD_DECLARE_CLASS(QTextCodec)
-#endif
-
 #ifdef PROEVALUATOR_DUAL_VFS
 # ifndef PROEVALUATOR_CUMULATIVE
 #  error PROEVALUATOR_DUAL_VFS requires PROEVALUATOR_CUMULATIVE
@@ -88,10 +84,6 @@ public:
     void invalidateContents();
 #endif
 
-#ifndef QT_NO_TEXTCODEC
-    void setTextCodec(const QTextCodec *textCodec);
-#endif
-
 private:
 #ifdef PROEVALUATOR_THREAD_SAFE
     static QMutex s_mutex;
@@ -124,9 +116,6 @@ private:
     QHash<int, QString> m_files;
     QString m_magicMissing;
     QString m_magicExisting;
-#endif
-#ifndef QT_NO_TEXTCODEC
-    const QTextCodec *m_textCodec;
 #endif
 };
 
