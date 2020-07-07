@@ -30,10 +30,12 @@
 #include "hostosinfo.h"
 
 #include <QCoreApplication>
-#include <QXmlStreamWriter> // Mac.
+#include <QDir>
+#include <QFileInfo>
 #include <QMetaType>
 #include <QStringList>
 #include <QUrl>
+#include <QXmlStreamWriter> // Mac.
 
 #include <functional>
 #include <memory>
@@ -179,9 +181,14 @@ public:
 #endif // QT_GUI_LIB
 
     static bool removeRecursively(const FilePath &filePath, QString *error = nullptr);
-    static bool copyRecursively(
-            const FilePath &srcFilePath, const FilePath &tgtFilePath, QString *error = nullptr,
-            const std::function<bool (QFileInfo, QFileInfo, QString *)> &copyHelper = nullptr);
+    static bool copyRecursively(const FilePath &srcFilePath,
+                                const FilePath &tgtFilePath,
+                                QString *error = nullptr);
+    template<typename T>
+    static bool copyRecursively(const FilePath &srcFilePath,
+                                const FilePath &tgtFilePath,
+                                QString *error,
+                                T &&copyHelper);
     static FilePath resolveSymlinks(const FilePath &path);
     static QString fileSystemFriendlyName(const QString &name);
     static int indexOfQmakeUnfriendly(const QString &name, int startpos = 0);
@@ -194,6 +201,42 @@ public:
     static FilePath commonPath(const FilePath &oldCommonPath, const FilePath &fileName);
     static QByteArray fileId(const FilePath &fileName);
 };
+
+template<typename T>
+bool FileUtils::copyRecursively(const FilePath &srcFilePath,
+                                const FilePath &tgtFilePath,
+                                QString *error,
+                                T &&copyHelper)
+{
+    const QFileInfo srcFileInfo = srcFilePath.toFileInfo();
+    if (srcFileInfo.isDir()) {
+        if (!tgtFilePath.exists()) {
+            QDir targetDir(tgtFilePath.toString());
+            targetDir.cdUp();
+            if (!targetDir.mkdir(tgtFilePath.fileName())) {
+                if (error) {
+                    *error = QCoreApplication::translate("Utils::FileUtils",
+                                                         "Failed to create directory \"%1\".")
+                                 .arg(tgtFilePath.toUserOutput());
+                }
+                return false;
+            }
+        }
+        const QDir sourceDir(srcFilePath.toString());
+        const QStringList fileNames = sourceDir.entryList(
+            QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
+        for (const QString &fileName : fileNames) {
+            const FilePath newSrcFilePath = srcFilePath / fileName;
+            const FilePath newTgtFilePath = tgtFilePath / fileName;
+            if (!copyRecursively(newSrcFilePath, newTgtFilePath, error, copyHelper))
+                return false;
+        }
+    } else {
+        if (!copyHelper(srcFileInfo, tgtFilePath.toFileInfo(), error))
+            return false;
+    }
+    return true;
+}
 
 // for actually finding out if e.g. directories are writable on Windows
 #ifdef Q_OS_WIN
