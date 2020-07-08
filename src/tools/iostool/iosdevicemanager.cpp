@@ -1593,6 +1593,7 @@ void DevInfoSession::deviceCallbackReturned()
     QString developerStatusKey = QLatin1String("developerStatus");
     QString deviceConnectedKey = QLatin1String("deviceConnected");
     QString osVersionKey = QLatin1String("osVersion");
+    QString cpuArchitectureKey = "cpuArchitecture";
     bool failure = !device;
     if (!failure) {
         failure = !connectDevice();
@@ -1630,6 +1631,18 @@ void DevInfoSession::deviceCallbackReturned()
             CFPropertyListRef cfBuildVersion = lib()->deviceCopyValue(device,
                                                                       0,
                                                                       CFSTR("BuildVersion"));
+            //CFShow(cfBuildVersion);
+            CFPropertyListRef cfCpuArchitecture = lib()->deviceCopyValue(device,
+                                                                         0,
+                                                                         CFSTR("CPUArchitecture"));
+            //CFShow(cfCpuArchitecture);
+            if (cfCpuArchitecture) {
+                if (CFGetTypeID(cfCpuArchitecture) == CFStringGetTypeID()) {
+                    res[cpuArchitectureKey] = QString::fromCFString(
+                        reinterpret_cast<CFStringRef>(cfCpuArchitecture));
+                }
+                CFRelease(cfCpuArchitecture);
+            }
             //CFShow(cfBuildVersion);
             QString versionString;
             if (cfProductVersion) {

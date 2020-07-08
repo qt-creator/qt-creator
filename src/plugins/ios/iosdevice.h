@@ -59,6 +59,7 @@ public:
     QVariantMap toMap() const override;
     QString uniqueDeviceID() const;
     QString osVersion() const;
+    QString cpuArchitecture() const;
     Utils::Port nextPort() const;
     bool canAutoDetectPorts() const override;
 

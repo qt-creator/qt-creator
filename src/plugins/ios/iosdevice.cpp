@@ -171,6 +171,11 @@ QString IosDevice::osVersion() const
     return m_extraInfo.value(QLatin1String("osVersion"));
 }
 
+QString IosDevice::cpuArchitecture() const
+{
+    return m_extraInfo.value("cpuArchitecture");
+}
+
 Utils::Port IosDevice::nextPort() const
 {
     // use qrand instead?

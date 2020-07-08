@@ -436,28 +436,26 @@ void IosDebugSupport::start()
         IosDevice::ConstPtr dev = device().dynamicCast<const IosDevice>();
         setStartMode(AttachToRemoteProcess);
         setIosPlatform("remote-ios");
-        QString osVersion = dev->osVersion();
-        FilePath deviceSdk1 = FilePath::fromString(QDir::homePath()
-                                             + "/Library/Developer/Xcode/iOS DeviceSupport/"
-                                             + osVersion + "/Symbols");
-        QString deviceSdk;
-        if (deviceSdk1.isDir()) {
-            deviceSdk = deviceSdk1.toString();
-        } else {
-            const FilePath deviceSdk2 = IosConfigurations::developerPath()
-                    .pathAppended("Platforms/iPhoneOS.platform/DeviceSupport/"
-                                  + osVersion + "/Symbols");
-            if (deviceSdk2.isDir()) {
-                deviceSdk = deviceSdk2.toString();
-            } else {
-                TaskHub::addTask(DeploymentTask(Task::Warning, tr(
-                  "Could not find device specific debug symbols at %1. "
-                  "Debugging initialization will be slow until you open the Organizer window of "
-                  "Xcode with the device connected to have the symbols generated.")
-                                 .arg(deviceSdk1.toUserOutput())));
-            }
+        const QString osVersion = dev->osVersion();
+        const QString cpuArchitecture = dev->cpuArchitecture();
+        const FilePaths symbolsPathCandidates = {
+            FilePath::fromString(QDir::homePath() + "/Library/Developer/Xcode/iOS DeviceSupport/"
+                                 + osVersion + " " + cpuArchitecture + "/Symbols"),
+            FilePath::fromString(QDir::homePath() + "/Library/Developer/Xcode/iOS DeviceSupport/"
+                                 + osVersion + "/Symbols"),
+            IosConfigurations::developerPath().pathAppended(
+                "Platforms/iPhoneOS.platform/DeviceSupport/" + osVersion + "/Symbols")};
+        const FilePath deviceSdk = Utils::findOrDefault(symbolsPathCandidates, &FilePath::isDir);
+
+        if (deviceSdk.isEmpty()) {
+            TaskHub::addTask(DeploymentTask(
+                Task::Warning,
+                tr("Could not find device specific debug symbols at %1. "
+                   "Debugging initialization will be slow until you open the Organizer window of "
+                   "Xcode with the device connected to have the symbols generated.")
+                    .arg(symbolsPathCandidates.constFirst().toUserOutput())));
         }
-        setDeviceSymbolsRoot(deviceSdk);
+        setDeviceSymbolsRoot(deviceSdk.toString());
     } else {
         setStartMode(AttachExternal);
         setIosPlatform("ios-simulator");
