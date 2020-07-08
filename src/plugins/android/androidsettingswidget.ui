@@ -293,7 +293,7 @@
              </sizepolicy>
             </property>
             <property name="toolTip">
-             <string>Automatically download OpenSSL prebuilt libraries. If the automatic download fails, Qt Creator proposes to open the download URL in the system's browser for manual download.</string>
+             <string>Automatically download OpenSSL prebuilt libraries. These libraries can be shipped with your application from "Projects > Build > Build Steps > Build Android APK > Additional Libraries" if any SSL operations are performed. If the automatic download fails, Qt Creator proposes to open the download URL in the system's browser for manual download.</string>
             </property>
             <property name="text">
              <string>Download OpenSSL</string>
