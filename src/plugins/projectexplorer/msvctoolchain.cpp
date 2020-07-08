@@ -237,6 +237,7 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QSt
 {
     QVector<VisualStudioInstallation> installations;
     Utils::SynchronousProcess vsWhereProcess;
+    vsWhereProcess.setCodec(QTextCodec::codecForName("UTF-8"));
     const int timeoutS = 5;
     vsWhereProcess.setTimeoutS(timeoutS);
     const CommandLine cmd(vswhere,
