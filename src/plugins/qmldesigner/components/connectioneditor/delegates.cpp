@@ -315,13 +315,15 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
         if (QmlItemNode::isValidQmlItemNode(rootModelNode) && !rootModelNode.id().isEmpty()) {
 
             QString itemText = tr("Change to default state");
-            QString source = QString::fromLatin1("{ %1.state = \"\" }").arg(rootModelNode.id());
+            QString source = QString::fromLatin1("%1.state = \"\"").arg(rootModelNode.id());
             connectionComboBox->addItem(itemText, source);
             connectionComboBox->disableValidator();
 
             for (const QmlModelState &state : QmlItemNode(rootModelNode).states().allStates()) {
                 QString itemText = tr("Change state to %1").arg(state.name());
-                QString source = QString::fromLatin1("{ %1.state = \"%2\" }").arg(rootModelNode.id()).arg(state.name());
+                QString source = QString::fromLatin1("%1.state = \"%2\"")
+                                     .arg(rootModelNode.id())
+                                     .arg(state.name());
                 connectionComboBox->addItem(itemText, source);
             }
 
