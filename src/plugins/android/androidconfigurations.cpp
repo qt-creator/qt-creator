@@ -1425,7 +1425,7 @@ void AndroidConfigurations::updateAutomaticKitList()
 
                 QString versionStr = QLatin1String("Qt %{Qt:Version}");
                 if (!qt->isAutodetected())
-                    versionStr = QLatin1String("%1").arg(qt->displayName());
+                    versionStr = QString("%1").arg(qt->displayName());
                 k->setUnexpandedDisplayName(tr("Android %1 Clang %2")
                                                 .arg(versionStr)
                                                 .arg(containsAllAbis(abis) ? "Multi-Abi" : abis.join(",")));
