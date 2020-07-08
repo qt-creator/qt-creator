@@ -1263,15 +1263,14 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &singleSelection,
                           &singleSelection));
 
-    addDesignerAction(new ModelNodeContextMenuAction(
-                          mergeTemplateCommandId,
-                          mergeTemplateDisplayName,
-                          {},
-                          rootCategory,
-                          {},
-                          30,
-                          &mergeWithTemplate,
-                          &SelectionContextFunctors::always));
+    addDesignerAction(new ModelNodeContextMenuAction(mergeTemplateCommandId,
+                                                     mergeTemplateDisplayName,
+                                                     {},
+                                                     rootCategory,
+                                                     {},
+                                                     50,
+                                                     &mergeWithTemplate,
+                                                     &SelectionContextFunctors::always));
 
     addDesignerAction(new ActionGroup(
                           "",
