@@ -1048,7 +1048,7 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
     if (debug) {
         qDebug("CdbEngine::postCommand %dms '%s' %s, pending=%d",
                elapsedLogTime(), qPrintable(dbgCmd.function), qPrintable(stateName(state())),
-               m_commandForToken.size());
+               int(m_commandForToken.size()));
     }
     if (debug) {
         qDebug("CdbEngine::postCommand: resulting command '%s'\n", qPrintable(fullCmd));
@@ -2104,7 +2104,7 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QString &what, c
         const DebuggerCommand command = m_commandForToken.take(token);
         if (debug)
             qDebug("### Completed extension command '%s' for token=%d, pending=%d",
-                   qPrintable(command.function), token, m_commandForToken.size());
+                   qPrintable(command.function), token, int(m_commandForToken.size()));
 
         if (!command.callback) {
             if (!message.isEmpty()) // log unhandled output
@@ -2294,7 +2294,7 @@ void CdbEngine::parseOutputLine(QString line)
             if (debug)
                 qDebug("### Completed builtin command '%s' for token=%d, %d lines, pending=%d",
                        qPrintable(command.function), m_currentBuiltinResponseToken,
-                       m_currentBuiltinResponse.count('\n'), m_commandForToken.size() - 1);
+                       m_currentBuiltinResponse.count('\n'), int(m_commandForToken.size() - 1));
             QTC_ASSERT(token == m_currentBuiltinResponseToken, return);
             showMessage(m_currentBuiltinResponse, LogMisc);
             if (command.callback) {

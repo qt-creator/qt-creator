@@ -27,10 +27,7 @@
 #pragma once
 
 #include <QSharedDataPointer>
-
-QT_BEGIN_NAMESPACE
-template <typename T> class QVector;
-QT_END_NAMESPACE
+#include <QVector>
 
 namespace Valgrind {
 namespace XmlProtocol {

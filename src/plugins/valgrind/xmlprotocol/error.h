@@ -28,10 +28,10 @@
 
 #include <QMetaType>
 #include <QSharedDataPointer>
+#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QString;
-template <typename T> class QVector;
 QT_END_NAMESPACE
 
 namespace Valgrind {
