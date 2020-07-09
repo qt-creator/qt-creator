@@ -232,11 +232,7 @@ static ClientCapabilities generateClientCapabilities()
     documentCapabilities.setCodeAction(codeActionCapabilities);
 
     TextDocumentClientCapabilities::HoverCapabilities hover;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     hover.setContentFormat({MarkupKind::markdown, MarkupKind::plaintext});
-#else
-    hover.setContentFormat({MarkupKind::plaintext});
-#endif
     hover.setDynamicRegistration(true);
     documentCapabilities.setHover(hover);
 

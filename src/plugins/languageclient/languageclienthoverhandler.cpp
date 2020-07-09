@@ -133,24 +133,12 @@ static QString toolTipForMarkedStrings(const QList<MarkedString> &markedStrings)
 
 void HoverHandler::setContent(const HoverContent &hoverContent)
 {
-    if (auto markupContent = Utils::get_if<MarkupContent>(&hoverContent)) {
-        const QString &content = markupContent->content();
-        if (markupContent->kind() == MarkupKind::plaintext) {
-            setToolTip(content);
-        } else if (m_client) {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-            setToolTip(content, Qt::MarkdownText);
-#else
-            m_client->log(tr("Got unsupported markup hover content: ") + content,
-                          Core::MessageManager::Silent);
-            setToolTip(content);
-#endif
-        }
-    } else if (auto markedString = Utils::get_if<MarkedString>(&hoverContent)) {
+    if (auto markupContent = Utils::get_if<MarkupContent>(&hoverContent))
+        setToolTip(markupContent->content(), markupContent->textFormat());
+    else if (auto markedString = Utils::get_if<MarkedString>(&hoverContent))
         setToolTip(toolTipForMarkedStrings({*markedString}));
-    } else if (auto markedStrings = Utils::get_if<QList<MarkedString>>(&hoverContent)) {
+    else if (auto markedStrings = Utils::get_if<QList<MarkedString>>(&hoverContent))
         setToolTip(toolTipForMarkedStrings(*markedStrings));
-    }
 }
 
 } // namespace LanguageClient

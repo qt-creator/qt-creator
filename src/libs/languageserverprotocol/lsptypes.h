@@ -413,6 +413,8 @@ public:
     // The type of the Markup
     MarkupKind kind() const { return value(kindKey); }
     void setKind(MarkupKind kind) { insert(kindKey, kind); }
+    Qt::TextFormat textFormat() const
+    { return kind() == MarkupKind::markdown ? Qt::MarkdownText : Qt::PlainText; }
 
     // The content itself
     QString content() const { return typedValue<QString>(contentKey); }
