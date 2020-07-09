@@ -40,6 +40,7 @@
 #include <QApplication>
 #include <QCursor>
 #include <QFontDatabase>
+#include <QMessageBox>
 #include <QQmlContext>
 
 #include <coreplugin/icore.h>
@@ -180,7 +181,6 @@ void PropertyEditorContextObject::toogleExportAlias()
 
 void PropertyEditorContextObject::changeTypeName(const QString &typeName)
 {
-
     QTC_ASSERT(m_model && m_model->rewriterView(), return);
 
     /* Ideally we should not missuse the rewriterView
@@ -189,19 +189,59 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
 
     QTC_ASSERT(!rewriterView->selectedModelNodes().isEmpty(), return);
 
-    rewriterView->executeInTransaction("PropertyEditorContextObject:changeTypeName", [this, rewriterView, typeName](){
+    try {
+        auto transaction = RewriterTransaction(rewriterView, "PropertyEditorContextObject:changeTypeName");
+
         ModelNode selectedNode = rewriterView->selectedModelNodes().constFirst();
 
         NodeMetaInfo metaInfo = m_model->metaInfo(typeName.toLatin1());
         if (!metaInfo.isValid()) {
-            Core::AsynchronousMessageBox::warning(tr("Invalid Type"),  tr("%1 is an invalid type.").arg(typeName));
+            Core::AsynchronousMessageBox::warning(tr("Invalid Type"), tr("%1 is an invalid type.").arg(typeName));
             return;
         }
+
+        QList<PropertyName> incompatibleProperties;
+        for (auto property : selectedNode.properties()) {
+            if (!metaInfo.propertyNames().contains(property.name()))
+                incompatibleProperties.append(property.name());
+        }
+
+        if (!incompatibleProperties.empty()) {
+            QString detailedText = QString("<b>Incompatible properties:</b><br>");
+
+            for (auto p : incompatibleProperties)
+                detailedText.append("- " + QString::fromUtf8(p) + "<br>");
+
+            detailedText.chop(QString("<br>").size());
+
+            QMessageBox msgBox;
+            msgBox.setTextFormat(Qt::RichText);
+            msgBox.setIcon(QMessageBox::Question);
+            msgBox.setWindowTitle("Change Type");
+            msgBox.setText(QString("Changing the type from %1 to %2 can't be done without removing incompatible properties.<br><br>%3")
+                                   .arg(selectedNode.simplifiedTypeName())
+                                   .arg(typeName)
+                                   .arg(detailedText));
+            msgBox.setInformativeText("Do you want to continue by removing incompatible properties?");
+            msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+            msgBox.setDefaultButton(QMessageBox::Ok);
+
+            if (msgBox.exec() == QMessageBox::Cancel)
+                return;
+
+            for (auto p : incompatibleProperties)
+                selectedNode.removeProperty(p);
+        }
+
         if (selectedNode.isRootNode())
             rewriterView->changeRootNodeType(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
         else
             selectedNode.changeType(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
-    });
+
+        transaction.commit();
+    } catch (const Exception &e) {
+        e.showException();
+    }
 }
 
 void PropertyEditorContextObject::insertKeyframe(const QString &propertyName)

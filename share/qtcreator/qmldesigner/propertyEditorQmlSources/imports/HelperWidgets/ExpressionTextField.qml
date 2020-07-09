@@ -132,7 +132,7 @@ StudioControls.TextField {
 
             event.accepted = true;
 
-            if (list.length == 1)
+            if (list.length === 1)
                 textField.commitCompletion()
 
         } else {

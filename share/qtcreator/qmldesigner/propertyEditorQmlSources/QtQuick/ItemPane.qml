@@ -99,10 +99,19 @@ Rectangle {
                                 showButtons: false
                                 fixedSize: true
 
+                                property bool blockEditingFinished: false
+
                                 onEditingFinished: {
+                                    if (typeLineEdit.blockEditingFinished)
+                                        return
+
+                                    typeLineEdit.blockEditingFinished = true
+
                                     if (visible)
                                         changeTypeName(typeLineEdit.text.trim())
                                     visible = false
+
+                                    typeLineEdit.blockEditingFinished = false
                                 }
                             }
 
