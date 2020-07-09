@@ -186,7 +186,7 @@ ConfigModel::DataItem ConfigModel::dataItemFromIndex(const QModelIndex &idx)
         di.value = cmti->dataItem->currentValue();
         di.description = cmti->dataItem->description;
         di.values = cmti->dataItem->values;
-
+        di.isUnset = cmti->dataItem->isUnset;
         return di;
     }
     return DataItem();

@@ -166,7 +166,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_configView->setSortingEnabled(true);
     m_configView->sortByColumn(0, Qt::AscendingOrder);
     auto stretcher = new Utils::HeaderViewStretcher(m_configView->header(), 0);
-    m_configView->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_configView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_configView->setSelectionBehavior(QAbstractItemView::SelectItems);
     m_configView->setFrameShape(QFrame::NoFrame);
     m_configView->setItemDelegate(new ConfigModelItemDelegate(m_buildConfiguration->project()->projectDirectory(),
@@ -203,12 +203,19 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_editButton = new QPushButton(tr("&Edit"));
     m_editButton->setToolTip(tr("Edit the current CMake configuration value."));
     buttonLayout->addWidget(m_editButton);
+    m_setButton = new QPushButton(tr("&Set"));
+    m_setButton->setToolTip(tr("Set a value in the CMake configuration."));
+    buttonLayout->addWidget(m_setButton);
     m_unsetButton = new QPushButton(tr("&Unset"));
     m_unsetButton->setToolTip(tr("Unset a value in the CMake configuration."));
     buttonLayout->addWidget(m_unsetButton);
     m_resetButton = new QPushButton(tr("&Reset"));
     m_resetButton->setToolTip(tr("Reset all unapplied changes."));
     m_resetButton->setEnabled(false);
+    m_clearSelectionButton = new QPushButton(tr("Clear Selection"));
+    m_clearSelectionButton->setToolTip(tr("Clear selection"));
+    m_clearSelectionButton->setEnabled(false);
+    buttonLayout->addWidget(m_clearSelectionButton);
     buttonLayout->addWidget(m_resetButton);
     buttonLayout->addItem(new QSpacerItem(10, 10, QSizePolicy::Fixed, QSizePolicy::Fixed));
     m_showAdvancedCheckBox = new QCheckBox(tr("Advanced"));
@@ -217,8 +224,10 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     mainLayout->addLayout(buttonLayout, row, 2);
 
-    connect(m_configView->selectionModel(), &QItemSelectionModel::currentChanged,
-            this, &CMakeBuildSettingsWidget::updateSelection);
+    connect(m_configView->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, [this](const QItemSelection &, const QItemSelection &) {
+                updateSelection();
+    });
 
     ++row;
     m_reconfigureButton = new QPushButton(tr("Apply Configuration Changes"));
@@ -284,8 +293,11 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             &QPushButton::clicked,
             m_buildConfiguration,
             &CMakeBuildConfiguration::runCMakeWithExtraArguments);
+    connect(m_setButton, &QPushButton::clicked, this, [this]() {
+        setVariableUnsetFlag(false);
+    });
     connect(m_unsetButton, &QPushButton::clicked, this, [this]() {
-        m_configModel->toggleUnsetFlag(mapToSource(m_configView, m_configView->currentIndex()));
+        setVariableUnsetFlag(true);
     });
     connect(m_editButton, &QPushButton::clicked, this, [this]() {
         QModelIndex idx = m_configView->currentIndex();
@@ -293,6 +305,9 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             idx = idx.sibling(idx.row(), 1);
         m_configView->setCurrentIndex(idx);
         m_configView->edit(idx);
+    });
+    connect(m_clearSelectionButton, &QPushButton::clicked, this, [this]() {
+        m_configView->selectionModel()->clear();
     });
     connect(m_addButtonMenu, &QMenu::triggered, this, [this](QAction *action) {
         ConfigModel::DataItem::Type type =
@@ -325,7 +340,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         setError(m_buildConfiguration->disabledReason());
     });
 
-    updateSelection(QModelIndex(), QModelIndex());
+    updateSelection();
 }
 
 void CMakeBuildSettingsWidget::setError(const QString &message)
@@ -450,12 +465,47 @@ void CMakeBuildSettingsWidget::handleQmlDebugCxxFlags()
     }
 }
 
-void CMakeBuildSettingsWidget::updateSelection(const QModelIndex &current, const QModelIndex &previous)
+void CMakeBuildSettingsWidget::updateSelection()
 {
-    Q_UNUSED(previous)
+    const QModelIndexList selectedIndexes = m_configView->selectionModel()->selectedIndexes();
+    unsigned int setableCount = 0;
+    unsigned int unsetableCount = 0;
+    unsigned int editableCount = 0;
 
-    m_editButton->setEnabled(current.isValid() && current.flags().testFlag(Qt::ItemIsEditable));
-    m_unsetButton->setEnabled(current.isValid() && current.flags().testFlag(Qt::ItemIsSelectable));
+    for (const QModelIndex &index : selectedIndexes) {
+        if (index.isValid() && index.flags().testFlag(Qt::ItemIsSelectable)) {
+            ConfigModel::DataItem di = m_configModel->dataItemFromIndex(index);
+            if (di.isUnset)
+                setableCount++;
+            else
+                unsetableCount++;
+        }
+        if (index.isValid() && index.flags().testFlag(Qt::ItemIsEditable))
+            editableCount++;
+    }
+
+    m_clearSelectionButton->setEnabled(!selectedIndexes.isEmpty());
+    m_setButton->setEnabled(setableCount > 0);
+    m_unsetButton->setEnabled(unsetableCount > 0);
+    m_editButton->setEnabled(editableCount == 1);
+}
+
+void CMakeBuildSettingsWidget::setVariableUnsetFlag(bool unsetFlag)
+{
+    const QModelIndexList selectedIndexes = m_configView->selectionModel()->selectedIndexes();
+    bool unsetFlagToggled = false;
+    for (const QModelIndex &index : selectedIndexes) {
+        if (index.isValid()) {
+            ConfigModel::DataItem di = m_configModel->dataItemFromIndex(index);
+            if (di.isUnset != unsetFlag) {
+                m_configModel->toggleUnsetFlag(mapToSource(m_configView, index));
+                unsetFlagToggled = true;
+            }
+        }
+    }
+
+    if (unsetFlagToggled)
+        updateSelection();
 }
 
 QAction *CMakeBuildSettingsWidget::createForceAction(int type, const QModelIndex &idx)

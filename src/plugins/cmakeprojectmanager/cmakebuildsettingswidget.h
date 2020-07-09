@@ -68,7 +68,8 @@ private:
     void updateFromKit();
     void handleQmlDebugCxxFlags();
 
-    void updateSelection(const QModelIndex &current, const QModelIndex &previous);
+    void updateSelection();
+    void setVariableUnsetFlag(bool unsetFlag);
     QAction *createForceAction(int type, const QModelIndex &idx);
 
     bool eventFilter(QObject *target, QEvent *event) override;
@@ -82,8 +83,10 @@ private:
     QPushButton *m_addButton;
     QMenu *m_addButtonMenu;
     QPushButton *m_editButton;
+    QPushButton *m_setButton;
     QPushButton *m_unsetButton;
     QPushButton *m_resetButton;
+    QPushButton *m_clearSelectionButton;
     QCheckBox *m_showAdvancedCheckBox;
     QPushButton *m_reconfigureButton;
     QTimer m_showProgressTimer;
