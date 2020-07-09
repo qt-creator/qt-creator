@@ -240,6 +240,12 @@ void DebugView::selectedNodesChanged(const QList<ModelNode> &selectedNodes /*sel
                 message << metaInfo.typeName() << lineBreak;
 
             message << lineBreak;
+            message << selectedNode.metaInfo().typeName();
+            message << lineBreak;
+            for (const PropertyName &name : selectedNode.metaInfo().slotNames())
+                message << name << " ";
+
+            message << lineBreak;
         }
 
         const QHash<PropertyName, QVariant> data = selectedNode.auxiliaryData();
