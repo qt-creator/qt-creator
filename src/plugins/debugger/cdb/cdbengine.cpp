@@ -730,8 +730,7 @@ bool CdbEngine::hasCapability(unsigned cap) const
                   | CreateFullBacktraceCapability
                   | OperateByInstructionCapability
                   | RunToLineCapability
-                  | MemoryAddressCapability
-                  | AdditionalQmlStackCapability);
+                  | MemoryAddressCapability);
 }
 
 void CdbEngine::executeStepIn(bool byInstruction)
