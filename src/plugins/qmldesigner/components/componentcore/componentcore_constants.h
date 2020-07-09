@@ -83,6 +83,9 @@ const char decreaseIndexOfStackedContainerCommandId[] = "DecreaseIndexOfStackedC
 const char flowAssignEffectCommandId[] = "AssignFlowEffect";
 const char flowAssignCustomEffectCommandId[] = "AssignFlowCustomEffect";
 const char addToGroupItemCommandId[] = "AddToGroupItem";
+const char removeGroupItemCommandId[] = "RemoveToGroupItem";
+const char fitRootToScreenCommandId[] = "FitRootToScreen";
+const char fitSelectionToScreenCommandId[] = "FitSelectionToScreen";
 
 const char selectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Selection");
 const char flowConnectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Connect");
@@ -139,6 +142,8 @@ const char setFlowStartDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu
 const char removeLayoutDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Remove Layout");
 
 const char addToGroupItemDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Group in GroupItem");
+const char removeGroupItemDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
+                                                            "Remove GroupItem");
 
 const char addItemToStackedContainerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add Item");
 const char addTabBarToStackedContainerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add Tab Bar");

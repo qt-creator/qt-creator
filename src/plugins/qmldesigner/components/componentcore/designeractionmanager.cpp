@@ -660,6 +660,27 @@ bool isStackedContainerAndIndexCanBeIncreased(const SelectionContext &context)
     return value < maxValue;
 }
 
+bool isGroup(const SelectionContext &context)
+{
+    if (!inBaseState(context))
+        return false;
+
+    if (!singleSelection(context))
+        return false;
+
+    ModelNode currentSelectedNode = context.currentSingleSelectedNode();
+
+    if (!currentSelectedNode.isValid())
+        return false;
+
+    NodeMetaInfo metaInfo = currentSelectedNode.metaInfo();
+
+    if (!metaInfo.isValid())
+        return false;
+
+    return metaInfo.isSubclassOf("QtQuick.Studio.Components.GroupItem");
+}
+
 bool isLayout(const SelectionContext &context)
 {
     if (!inBaseState(context))
@@ -937,12 +958,10 @@ void DesignerActionManager::createDefaultDesignerActions()
                           priorityLayoutCategory,
                           &layoutOptionVisible));
 
-    addDesignerAction(new ActionGroup(
-                          groupCategoryDisplayName,
-                          groupCategory,
-                          priorityGroupCategory,
-                          &positionOptionVisible,
-                          &studioComponentsAvailable));
+    addDesignerAction(new ActionGroup(groupCategoryDisplayName,
+                                      groupCategory,
+                                      priorityGroupCategory,
+                                      &studioComponentsAvailable));
 
     addDesignerAction(new ActionGroup(
         flowCategoryDisplayName,
@@ -1085,29 +1104,34 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &isLayout,
                           &isLayout));
 
-    addDesignerAction(new ModelNodeContextMenuAction(
-                          addToGroupItemCommandId,
-                          addToGroupItemDisplayName,
-                          {},
-                          groupCategory,
-                          QKeySequence(),
-                          110,
-                          &addToGroupItem,
-                          &selectionCanBeLayouted,
-                          &selectionCanBeLayouted));
+    addDesignerAction(new ModelNodeContextMenuAction(addToGroupItemCommandId,
+                                                     addToGroupItemDisplayName,
+                                                     {},
+                                                     groupCategory,
+                                                     QKeySequence("Ctrl+Shift+g"),
+                                                     110,
+                                                     &addToGroupItem,
+                                                     &selectionCanBeLayouted));
 
+    addDesignerAction(new ModelNodeContextMenuAction(removeGroupItemCommandId,
+                                                     removeGroupItemDisplayName,
+                                                     {},
+                                                     groupCategory,
+                                                     QKeySequence(),
+                                                     110,
+                                                     &removeGroup,
+                                                     &isGroup));
 
-    addDesignerAction(new ModelNodeFormEditorAction(
-                          addItemToStackedContainerCommandId,
-                          addItemToStackedContainerDisplayName,
-                          addIcon.icon(),
-                          addItemToStackedContainerToolTip,
-                          stackedContainerCategory,
-                          QKeySequence("Ctrl+Shift+a"),
-                          110,
-                          &addItemToStackedContainer,
-                          &isStackedContainer,
-                          &isStackedContainer));
+    addDesignerAction(new ModelNodeFormEditorAction(addItemToStackedContainerCommandId,
+                                                    addItemToStackedContainerDisplayName,
+                                                    addIcon.icon(),
+                                                    addItemToStackedContainerToolTip,
+                                                    stackedContainerCategory,
+                                                    QKeySequence("Ctrl+Shift+a"),
+                                                    110,
+                                                    &addItemToStackedContainer,
+                                                    &isStackedContainer,
+                                                    &isStackedContainer));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           addTabBarToStackedContainerCommandId,
