@@ -29,7 +29,7 @@
     \page exporting-from-maya.html
     \previouspage exporting-from-blender.html
     \if defined (qtdesignstudio)
-    \nextpage exporting-from-maya.html
+    \nextpage exporting-from-qt3ds.html
     \else
     \nextpage studio-importing-3d.html
     \endif
@@ -90,6 +90,8 @@
             \image maya-export-options2.png "More export options in Maya"
         \li Optionally, select \uicontrol {Embed Media}, and then select the
             \uicontrol {Embed Media} check box to include embedded textures.
+            The embedded media will be copied to a \c fileName.fbm folder in
+            the same location as the FBX file.
         \li Select \uicontrol {Export All} to export files.
     \endlist
 */
