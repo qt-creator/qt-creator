@@ -155,6 +155,7 @@ QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
     addExtraOptions();
 
     insertWrappedQtHeaders();
+    insertWrappedMingwHeaders();
 
     return options();
 }
@@ -285,6 +286,16 @@ void CompilerOptionsBuilder::enableExceptions()
     add("-fexceptions");
 }
 
+void CompilerOptionsBuilder::insertWrappedQtHeaders()
+{
+    insertWrappedHeaders(wrappedQtHeadersIncludePath());
+}
+
+void CompilerOptionsBuilder::insertWrappedMingwHeaders()
+{
+    insertWrappedHeaders(wrappedMingwHeadersIncludePath());
+}
+
 static QString creatorResourcePath()
 {
 #ifndef UNIT_TESTS
@@ -294,19 +305,26 @@ static QString creatorResourcePath()
 #endif
 }
 
-void CompilerOptionsBuilder::insertWrappedQtHeaders()
+void CompilerOptionsBuilder::insertWrappedHeaders(const QStringList &relPaths)
 {
     if (m_useTweakedHeaderPaths == UseTweakedHeaderPaths::No)
         return;
+    if (relPaths.isEmpty())
+        return;
 
-    QStringList wrappedQtHeaders;
-    addWrappedQtHeadersIncludePath(wrappedQtHeaders);
+    QStringList args;
+    for (const QString &relPath : relPaths) {
+        static const QString baseDir = creatorResourcePath() + "/cplusplus";
+        const QString fullPath = baseDir + '/' + relPath;
+        QTC_ASSERT(QDir(fullPath).exists(), continue);
+        args << includeUserPathOption << QDir::toNativeSeparators(fullPath);
+    }
 
     const int index = m_options.indexOf(QRegularExpression("\\A-I.*\\z"));
     if (index < 0)
-        add(wrappedQtHeaders);
+        add(args);
     else
-        m_options = m_options.mid(0, index) + wrappedQtHeaders + m_options.mid(index);
+        m_options = m_options.mid(0, index) + args + m_options.mid(index);
 }
 
 void CompilerOptionsBuilder::addHeaderPathOptions()
@@ -686,19 +704,18 @@ bool CompilerOptionsBuilder::excludeDefineDirective(const ProjectExplorer::Macro
     return false;
 }
 
-void CompilerOptionsBuilder::addWrappedQtHeadersIncludePath(QStringList &list) const
+QStringList CompilerOptionsBuilder::wrappedQtHeadersIncludePath() const
 {
-    static const QString resourcePath = creatorResourcePath();
-    static QString wrappedQtHeadersPath = resourcePath + "/cplusplus/wrappedQtHeaders";
-    QTC_ASSERT(QDir(wrappedQtHeadersPath).exists(), return;);
+    if (m_projectPart.qtVersion == Utils::QtVersion::None)
+        return {};
+    return {"wrappedQtHeaders", "wrappedQtHeaders/QtCore"};
+}
 
-    if (m_projectPart.qtVersion != Utils::QtVersion::None) {
-        const QString wrappedQtCoreHeaderPath = wrappedQtHeadersPath + "/QtCore";
-        list.append({includeUserPathOption,
-                     QDir::toNativeSeparators(wrappedQtHeadersPath),
-                     includeUserPathOption,
-                     QDir::toNativeSeparators(wrappedQtCoreHeaderPath)});
-    }
+QStringList CompilerOptionsBuilder::wrappedMingwHeadersIncludePath() const
+{
+    if (m_projectPart.toolchainType != ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID)
+        return {};
+    return {"wrappedMingwHeaders"};
 }
 
 void CompilerOptionsBuilder::addProjectConfigFileInclude()

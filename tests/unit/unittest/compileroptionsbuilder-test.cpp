@@ -475,6 +475,39 @@ TEST_F(CompilerOptionsBuilder, InsertWrappedQtHeaders)
     ASSERT_THAT(compilerOptionsBuilder.options(), Contains(IsPartOfHeader("wrappedQtHeaders")));
 }
 
+TEST_F(CompilerOptionsBuilder, InsertWrappedMingwHeadersWithNonMingwToolchain)
+{
+    CppTools::CompilerOptionsBuilder builder{
+        projectPart,
+        CppTools::UseSystemHeader::Yes,
+        CppTools::UseTweakedHeaderPaths::Yes,
+        CppTools::UseLanguageDefines::No,
+        CppTools::UseBuildSystemWarnings::No,
+        "dummy_version",
+        ""};
+
+    builder.insertWrappedMingwHeaders();
+
+    ASSERT_THAT(builder.options(), Not(Contains(IsPartOfHeader("wrappedMingwHeaders"))));
+}
+
+TEST_F(CompilerOptionsBuilder, InsertWrappedMingwHeadersWithMingwToolchain)
+{
+    CppTools::CompilerOptionsBuilder builder{
+        projectPart,
+        CppTools::UseSystemHeader::Yes,
+        CppTools::UseTweakedHeaderPaths::Yes,
+        CppTools::UseLanguageDefines::No,
+        CppTools::UseBuildSystemWarnings::No,
+        "dummy_version",
+        ""};
+    projectPart.toolchainType = ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID;
+
+    builder.insertWrappedMingwHeaders();
+
+    ASSERT_THAT(builder.options(), Contains(IsPartOfHeader("wrappedMingwHeaders")));
+}
+
 TEST_F(CompilerOptionsBuilder, SetLanguageVersion)
 {
     compilerOptionsBuilder.updateFileLanguage(ProjectFile::CXXSource);
