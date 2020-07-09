@@ -2,6 +2,7 @@ import qbs
 
 QtcPlugin {
     name: "ClangFormat"
+    targetName: "ClangFormatPlugin"
 
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
