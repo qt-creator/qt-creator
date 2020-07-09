@@ -325,7 +325,6 @@ FORMS += \
     devicesupport/devicesettingswidget.ui \
     devicesupport/devicetestdialog.ui \
     customparserconfigdialog.ui \
-    makestep.ui
 
 WINSOURCES += \
     windebuginterface.cpp \

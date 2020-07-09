@@ -29,15 +29,9 @@
 
 #include <utils/fileutils.h>
 
-QT_FORWARD_DECLARE_CLASS(QListWidgetItem);
-
 namespace Utils { class Environment; }
 
 namespace ProjectExplorer {
-
-namespace Internal {
-namespace Ui { class MakeStep; }
-} // namespace Internal
 
 class PROJECTEXPLORER_EXPORT MakeStep : public ProjectExplorer::AbstractProcessStep
 {
@@ -109,26 +103,6 @@ private:
     bool m_clean = false;
     bool m_disablingForSubDirsSupported = false;
     bool m_enabledForSubDirs = true;
-};
-
-class PROJECTEXPLORER_EXPORT MakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
-{
-    Q_OBJECT
-
-public:
-    explicit MakeStepConfigWidget(MakeStep *makeStep);
-    ~MakeStepConfigWidget() override;
-
-private:
-    void itemChanged(QListWidgetItem *item);
-    void makeLineEditTextEdited();
-    void makeArgumentsLineEditTextEdited();
-    void updateDetails();
-    void setUserJobCountVisible(bool visible);
-    void setUserJobCountEnabled(bool enabled);
-
-    Internal::Ui::MakeStep *m_ui;
-    MakeStep *m_makeStep;
 };
 
 } // namespace GenericProjectManager
