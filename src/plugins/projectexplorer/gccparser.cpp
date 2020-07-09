@@ -56,6 +56,10 @@ GccParser::GccParser()
                                + FILE_PATTERN + "(\\d+)(:\\d+)?[,:]?$");
     QTC_CHECK(m_regExpInlined.isValid());
 
+    m_regExpCc1plus.setPattern(QLatin1Char('^') + "cc1plus.*(error|warning): ((?:"
+                               + FILE_PATTERN + " No such file or directory)?.*)");
+    QTC_CHECK(m_regExpCc1plus.isValid());
+
     // optional path with trailing slash
     // optional arm-linux-none-thingy
     // name of executable
@@ -179,6 +183,18 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
         addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, match, 1);
         createOrAmendTask(Task::Unknown, lne.trimmed(), lne, false, filePath, lineNo, linkSpecs);
         return {Status::InProgress, linkSpecs};
+    }
+
+    match = m_regExpCc1plus.match(lne);
+    if (match.hasMatch()) {
+        const Task::TaskType type = match.captured(1) == "error" ? Task::Error : Task::Warning;
+        const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(3)));
+        LinkSpecs linkSpecs;
+        if (!filePath.isEmpty())
+            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, -1, match, 3);
+        createOrAmendTask(type, match.captured(2), lne, false, filePath, -1, linkSpecs);
+        flush();
+        return {Status::Done, linkSpecs};
     }
 
     match = m_regExp.match(lne);
@@ -1181,6 +1197,22 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                  "  110 |     T value;\n"
                                  "      |       ^~~~~",
                                  FilePath::fromUserInput("qmap.h"), 110)}
+            << QString();
+
+    QTest::newRow("cc1plus")
+            << QString(
+                   "cc1plus: error: one or more PCH files were found, but they were invalid\n"
+                   "cc1plus: error: use -Winvalid-pch for more information\n"
+                   "cc1plus: fatal error: .pch/Qt6Core5Compat: No such file or directory\n"
+                   "cc1plus: warning: -Wformat-security ignored without -Wformat [-Wformat-security]\n"
+                   "compilation terminated.")
+            << OutputParserTester::STDERR
+            << QString() << QString("compilation terminated.\n")
+            << Tasks{
+                   CompileTask(Task::Error, "one or more PCH files were found, but they were invalid"),
+                   CompileTask(Task::Error, "use -Winvalid-pch for more information"),
+                   CompileTask(Task::Error, ".pch/Qt6Core5Compat: No such file or directory", FilePath::fromString(".pch/Qt6Core5Compat")),
+                   CompileTask(Task::Warning, "-Wformat-security ignored without -Wformat [-Wformat-security]")}
             << QString();
 }
 
