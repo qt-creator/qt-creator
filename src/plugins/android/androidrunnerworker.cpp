@@ -127,21 +127,23 @@ static void findProcessPID(QFutureInterface<qint64> &fi, QStringList selector,
     if (packageName.isEmpty())
         return;
 
+    QStringList args = {selector};
+    FilePath adbPath = AndroidConfigurations::currentConfig().adbToolPath();
+    args.append("shell");
+    args.append(preNougat ? pidScriptPreNougat : pidScript.arg(packageName));
+
     qint64 processPID = -1;
     chrono::high_resolution_clock::time_point start = chrono::high_resolution_clock::now();
     do {
         QThread::msleep(200);
-        FilePath adbPath = AndroidConfigurations::currentConfig().adbToolPath();
-        selector.append("shell");
-        selector.append(preNougat ? pidScriptPreNougat : pidScript.arg(packageName));
-        const auto out = SynchronousProcess().runBlocking({adbPath, selector}).allRawOutput();
+        const auto out = SynchronousProcess().runBlocking({adbPath, args}).allRawOutput();
         if (preNougat) {
             processPID = extractPID(out, packageName);
         } else {
             if (!out.isEmpty())
                 processPID = out.trimmed().toLongLong();
         }
-    } while (processPID == -1 && !isTimedOut(start) && !fi.isCanceled());
+    } while ((processPID == -1 || processPID == 0) && !isTimedOut(start) && !fi.isCanceled());
 
     qCDebug(androidRunWorkerLog) << "PID found:" << processPID << ", PreNougat:" << preNougat;
     if (!fi.isCanceled())
