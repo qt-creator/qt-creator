@@ -103,6 +103,8 @@ private slots:
     void test_quickfix();
 
     void test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespaceToCpp();
+    void test_quickfix_GenerateGetterSetter_createNamespaceInCpp_data();
+    void test_quickfix_GenerateGetterSetter_createNamespaceInCpp();
     void test_quickfix_GenerateGetterSetter_onlyGetter();
     void test_quickfix_GenerateGetterSetter_onlyGetter_DontPreferGetterWithGet();
     void test_quickfix_GenerateGetterSetter_onlySetter();

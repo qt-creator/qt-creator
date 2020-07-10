@@ -118,31 +118,121 @@ namespace Internal {
 // different quick fixes.
 namespace {
 
+class NSVisitor : public ASTVisitor
+{
+public:
+    NSVisitor(const CppRefactoringFile *file, const QStringList &namespaces, int symbolPos)
+        : ASTVisitor(file->cppDocument()->translationUnit()),
+          m_file(file),
+          m_remainingNamespaces(namespaces),
+          m_symbolPos(symbolPos)
+    {}
+
+    const QStringList remainingNamespaces() const { return m_remainingNamespaces; }
+    const NamespaceAST *firstNamespace() const { return m_firstNamespace; }
+    const AST *firstToken() const { return m_firstToken; }
+    const NamespaceAST *enclosingNamespace() const { return m_enclosingNamespace; }
+
+private:
+    bool preVisit(AST *ast) override
+    {
+        if (!m_firstToken)
+            m_firstToken = ast;
+        if (m_file->startOf(ast) >= m_symbolPos)
+            m_done = true;
+        return !m_done;
+    }
+
+    bool visit(NamespaceAST *ns) override
+    {
+        if (!m_firstNamespace)
+            m_firstNamespace = ns;
+        if (m_remainingNamespaces.isEmpty()) {
+            m_done = true;
+            return false;
+        }
+
+        QString name;
+        const Identifier * const id = translationUnit()->identifier(ns->identifier_token);
+        if (id)
+            name = QString::fromUtf8(id->chars(), id->size());
+        if (name != m_remainingNamespaces.first())
+            return name.isEmpty();
+
+        if (!ns->linkage_body) {
+            m_done = true;
+            return false;
+        }
+
+        m_enclosingNamespace = ns;
+        m_remainingNamespaces.removeFirst();
+        return !m_remainingNamespaces.isEmpty();
+    }
+
+    void postVisit(AST *ast) override
+    {
+        if (ast == m_enclosingNamespace)
+            m_done = true;
+    }
+
+    const CppRefactoringFile * const m_file;
+    const NamespaceAST *m_enclosingNamespace = nullptr;
+    const NamespaceAST *m_firstNamespace = nullptr;
+    const AST *m_firstToken = nullptr;
+    QStringList m_remainingNamespaces;
+    const int m_symbolPos;
+    bool m_done = false;
+};
+
 enum DefPos {
     DefPosInsideClass,
     DefPosOutsideClass,
     DefPosImplementationFile
 };
 
+// TODO: We should use the "CreateMissing" approach everywhere.
+enum class NamespaceHandling { CreateMissing, Ignore };
 InsertionLocation insertLocationForMethodDefinition(Symbol *symbol, const bool useSymbolFinder,
+                                                    NamespaceHandling namespaceHandling,
                                                     CppRefactoringChanges& refactoring,
                                                     const QString& fileName)
 {
     QTC_ASSERT(symbol, return InsertionLocation());
 
+    CppRefactoringFilePtr file = refactoring.file(fileName);
+    QStringList requiredNamespaces;
+    if (namespaceHandling == NamespaceHandling::CreateMissing) {
+        for (const Namespace *scope = symbol->enclosingNamespace(); scope;
+             scope = scope->enclosingNamespace()) {
+            if (scope->name() && scope->name()->identifier()) {
+                requiredNamespaces.prepend(QString::fromUtf8(scope->name()->identifier()->chars(),
+                                                             scope->name()->identifier()->size()));
+            }
+        }
+    }
+
     // Try to find optimal location
+    // FIXME: The locator should not return a valid location if the namespaces don't match
+    //        (or provide enough context).
     const InsertionPointLocator locator(refactoring);
     const QList<InsertionLocation> list
             = locator.methodDefinition(symbol, useSymbolFinder, fileName);
     for (int i = 0; i < list.count(); ++i) {
         InsertionLocation location = list.at(i);
-        if (location.isValid() && location.fileName() == fileName)
-            return location;
+        if (!location.isValid() || location.fileName() != fileName)
+            continue;
+        if (!requiredNamespaces.isEmpty()) {
+            NSVisitor visitor(file.data(), requiredNamespaces,
+                              file->position(location.line(), location.column()));
+            visitor.accept(file->cppDocument()->translationUnit()->ast());
+            if (!visitor.remainingNamespaces().isEmpty())
+                continue;
+        }
+        return location;
     }
 
     // ...failed,
     // if class member try to get position right after class
-    CppRefactoringFilePtr file = refactoring.file(fileName);
     int line = 0, column = 0;
     if (Class *clazz = symbol->enclosingClass()) {
         if (symbol->fileName() == fileName.toUtf8()) {
@@ -155,15 +245,24 @@ InsertionLocation insertLocationForMethodDefinition(Symbol *symbol, const bool u
         }
     }
 
-    // fall through: position at end of file
+    // fall through: position at end of file, unless we find a matching namespace
     const QTextDocument *doc = file->document();
     int pos = qMax(0, doc->characterCount() - 1);
+    QString prefix = "\n\n";
+    QString suffix = "\n\n";
+    NSVisitor visitor(file.data(), requiredNamespaces, pos);
+    visitor.accept(file->cppDocument()->translationUnit()->ast());
+    if (visitor.enclosingNamespace())
+        pos = file->startOf(visitor.enclosingNamespace()->linkage_body) + 1;
+    for (const QString &ns : visitor.remainingNamespaces()) {
+        prefix += "namespace " + ns + " {\n";
+        suffix += "}\n";
+    }
 
-    //TODO watch for matching namespace
     //TODO watch for moc-includes
 
     file->lineAndColumn(pos, &line, &column);
-    return InsertionLocation(fileName, QLatin1String("\n\n"), QLatin1String("\n"), line, column);
+    return InsertionLocation(fileName, prefix, suffix, line, column);
 }
 
 inline bool isQtStringLiteral(const QByteArray &id)
@@ -1776,72 +1875,6 @@ AddForwardDeclForUndefinedIdentifierOp::AddForwardDeclForUndefinedIdentifierOp(
                                            "Add forward declaration for %1").arg(m_className));
 }
 
-class NSVisitor : public ASTVisitor
-{
-public:
-    NSVisitor(const CppRefactoringFile *file, const QStringList &namespaces, int symbolPos)
-        : ASTVisitor(file->cppDocument()->translationUnit()),
-          m_file(file),
-          m_remainingNamespaces(namespaces),
-          m_symbolPos(symbolPos)
-    {}
-
-    const QStringList remainingNamespaces() const { return m_remainingNamespaces; }
-    const NamespaceAST *firstNamespace() const { return m_firstNamespace; }
-    const AST *firstToken() const { return m_firstToken; }
-    const NamespaceAST *enclosingNamespace() const { return m_enclosingNamespace; }
-
-private:
-    bool preVisit(AST *ast) override
-    {
-        if (!m_firstToken)
-            m_firstToken = ast;
-        if (m_file->startOf(ast) >= m_symbolPos)
-            m_done = true;
-        return !m_done;
-    }
-
-    bool visit(NamespaceAST *ns) override
-    {
-        if (!m_firstNamespace)
-            m_firstNamespace = ns;
-        if (m_remainingNamespaces.isEmpty()) {
-            m_done = true;
-            return false;
-        }
-
-        QString name;
-        const Identifier * const id = translationUnit()->identifier(ns->identifier_token);
-        if (id)
-            name = QString::fromUtf8(id->chars(), id->size());
-        if (name != m_remainingNamespaces.first())
-            return name.isEmpty();
-
-        if (!ns->linkage_body) {
-            m_done = true;
-            return false;
-        }
-
-        m_enclosingNamespace = ns;
-        m_remainingNamespaces.removeFirst();
-        return !m_remainingNamespaces.isEmpty();
-    }
-
-    void postVisit(AST *ast) override
-    {
-        if (ast == m_enclosingNamespace)
-            m_done = true;
-    }
-
-    const CppRefactoringFile * const m_file;
-    const NamespaceAST *m_enclosingNamespace = nullptr;
-    const NamespaceAST *m_firstNamespace = nullptr;
-    const AST *m_firstToken = nullptr;
-    QStringList m_remainingNamespaces;
-    const int m_symbolPos;
-    bool m_done = false;
-};
-
 void AddForwardDeclForUndefinedIdentifierOp::perform()
 {
     const QStringList parts = m_className.split("::");
@@ -2744,7 +2777,8 @@ public:
     {
         CppRefactoringChanges refactoring(snapshot());
         if (!m_loc.isValid())
-            m_loc = insertLocationForMethodDefinition(m_decl, true, refactoring, m_targetFileName);
+            m_loc = insertLocationForMethodDefinition(m_decl, true, NamespaceHandling::Ignore,
+                                                      refactoring, m_targetFileName);
         QTC_ASSERT(m_loc.isValid(), return);
 
         CppRefactoringFilePtr targetFile = refactoring.file(m_loc.fileName());
@@ -3289,8 +3323,9 @@ public:
         currChanges.insert(declInsertPos, declaration);
 
         if (sameFile) {
-            InsertionLocation loc = insertLocationForMethodDefinition(symbol, false, refactoring,
-                                                                      currentFile->fileName());
+            InsertionLocation loc = insertLocationForMethodDefinition(
+                        symbol, false, NamespaceHandling::CreateMissing, refactoring,
+                        currentFile->fileName());
             implementation = loc.prefix() + implementation + loc.suffix();
             const int implInsertPos = currentFile->position(loc.line(), loc.column());
             currChanges.insert(implInsertPos, implementation);
@@ -3300,8 +3335,9 @@ public:
             CppRefactoringChanges implRef(quickFix->snapshot());
             CppRefactoringFilePtr implFile = implRef.file(implFileName);
             ChangeSet implChanges;
-            InsertionLocation loc = insertLocationForMethodDefinition(symbol, false,
-                                                                      implRef, implFileName);
+            InsertionLocation loc = insertLocationForMethodDefinition(
+                        symbol, false, NamespaceHandling::CreateMissing,
+                        implRef, implFileName);
             implementation = loc.prefix() + implementation + loc.suffix();
             const int implInsertPos = implFile->position(loc.line(), loc.column());
             implChanges.insert(implInsertPos, implementation);
@@ -5243,8 +5279,9 @@ public:
     void performMove(FunctionDefinitionAST *funcAST)
     {
         // Determine file, insert position and scope
-        InsertionLocation l = insertLocationForMethodDefinition(funcAST->symbol, false,
-                                                                m_changes, m_toFile->fileName());
+        InsertionLocation l = insertLocationForMethodDefinition(
+                    funcAST->symbol, false, NamespaceHandling::Ignore,
+                    m_changes, m_toFile->fileName());
         const QString prefix = l.prefix();
         const QString suffix = l.suffix();
         const int insertPos = m_toFile->position(l.line(), l.column());

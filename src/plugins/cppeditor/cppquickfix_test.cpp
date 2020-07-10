@@ -2018,6 +2018,156 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAn
     QuickFixOperationTest(testDocuments, &factory);
 }
 
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_createNamespaceInCpp_data()
+{
+    QTest::addColumn<QByteArrayList>("headers");
+    QTest::addColumn<QByteArrayList>("sources");
+
+    QByteArray originalSource;
+    QByteArray expectedSource;
+
+    const QByteArray originalHeader =
+            "namespace N1 {\n"
+            "namespace N2 {\n"
+            "class Something\n"
+            "{\n"
+            "    int @it;\n"
+            "};\n"
+            "}\n"
+            "}\n";
+    const QByteArray expectedHeader =
+            "namespace N1 {\n"
+            "namespace N2 {\n"
+            "class Something\n"
+            "{\n"
+            "    int it;\n"
+            "\n"
+            "public:\n"
+            "    int getIt() const;\n"
+            "    void setIt(int value);\n"
+            "};\n"
+            "}\n"
+            "}\n";
+
+    originalSource = "#include \"file.h\"\n";
+    expectedSource =
+            "#include \"file.h\"\n\n\n"
+            "namespace N1 {\n"
+            "namespace N2 {\n"
+            "int Something::getIt() const\n"
+            "{\n"
+            "    return it;\n"
+            "}\n"
+            "\n"
+            "void Something::setIt(int value)\n"
+            "{\n"
+            "    it = value;\n"
+            "}\n\n"
+            "}\n"
+            "}\n";
+    QTest::addRow("insert new namespaces")
+            << QByteArrayList{originalHeader, expectedHeader}
+            << QByteArrayList{originalSource, expectedSource};
+
+    originalSource =
+            "#include \"file.h\"\n"
+            "namespace N2 {} // decoy\n";
+    expectedSource =
+            "#include \"file.h\"\n"
+            "namespace N2 {} // decoy\n\n\n"
+            "namespace N1 {\n"
+            "namespace N2 {\n"
+            "int Something::getIt() const\n"
+            "{\n"
+            "    return it;\n"
+            "}\n"
+            "\n"
+            "void Something::setIt(int value)\n"
+            "{\n"
+            "    it = value;\n"
+            "}\n\n"
+            "}\n"
+            "}\n";
+    QTest::addRow("insert new namespaces (with decoy)")
+            << QByteArrayList{originalHeader, expectedHeader}
+            << QByteArrayList{originalSource, expectedSource};
+
+    originalSource =
+            "#include \"file.h\"\n"
+            "namespace N2 {} // decoy\n"
+            "namespace {\n"
+            "namespace N1 {\n"
+            "namespace {\n"
+            "}\n"
+            "}\n"
+            "}\n";
+    expectedSource =
+            "#include \"file.h\"\n"
+            "namespace N2 {} // decoy\n"
+            "namespace {\n"
+            "namespace N1 {\n\n"
+            "namespace N2 {\n"
+            "int Something::getIt() const\n"
+            "{\n"
+            "    return it;\n"
+            "}\n"
+            "\n"
+            "void Something::setIt(int value)\n"
+            "{\n"
+            "    it = value;\n"
+            "}\n\n"
+            "}\n\n"
+            "namespace {\n"
+            "}\n"
+            "}\n"
+            "}\n";
+    QTest::addRow("insert inner namespace (with decoy)")
+            << QByteArrayList{originalHeader, expectedHeader}
+            << QByteArrayList{originalSource, expectedSource};
+
+    originalSource =
+            "#include \"file.h\"\n"
+            "namespace N1 {\n"
+            "namespace N2 {\n"
+            "namespace N3 {\n"
+            "}\n"
+            "}\n"
+            "}\n";
+    expectedSource =
+            "#include \"file.h\"\n"
+            "namespace N1 {\n"
+            "namespace N2 {\n"
+            "namespace N3 {\n"
+            "}\n\n"
+            "int Something::getIt() const\n"
+            "{\n"
+            "    return it;\n"
+            "}\n"
+            "\n"
+            "void Something::setIt(int value)\n"
+            "{\n"
+            "    it = value;\n"
+            "}\n\n"
+            "}\n"
+            "}\n";
+    QTest::addRow("all namespaces already present")
+            << QByteArrayList{originalHeader, expectedHeader}
+            << QByteArrayList{originalSource, expectedSource};
+}
+
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_createNamespaceInCpp()
+{
+    QFETCH(QByteArrayList, headers);
+    QFETCH(QByteArrayList, sources);
+
+    QList<QuickFixTestDocument::Ptr> testDocuments({
+        QuickFixTestDocument::create("file.h", headers.at(0), headers.at(1)),
+        QuickFixTestDocument::create("file.cpp", sources.at(0), sources.at(1))});
+
+    GenerateGetterSetter factory;
+    QuickFixOperationTest(testDocuments, &factory);
+}
+
 /// Checks: Only generate getter
 void CppEditorPlugin::test_quickfix_GenerateGetterSetter_onlyGetter()
 {
