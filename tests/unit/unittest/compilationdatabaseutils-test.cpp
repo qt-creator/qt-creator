@@ -90,7 +90,6 @@ TEST_F(CompilationDatabaseUtils, FilterArguments)
                     "-DUNICODE",
                     "-DRELATIVE_PLUGIN_PATH=\"../lib/qtcreator/plugins\"",
                     "-DQT_CREATOR",
-                    "-fPIC",
                     "-I",
                     QString::fromUtf8(HostOsInfo::isWindowsHost() ? winPath1 : otherPath1),
                     "-I",
