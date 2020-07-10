@@ -53,6 +53,7 @@ public:
     FormEditorWidget(FormEditorView *view);
 
     ZoomAction *zoomAction() const;
+    QAction *zoomSelectionAction() const;
     QAction *showBoundingRectAction() const;
     QAction *snappingAction() const;
     QAction *snappingAndAnchoringAction() const;
@@ -112,6 +113,10 @@ private:
     QPointer<LineEditAction> m_rootHeightAction;
     QPointer<BackgroundAction> m_backgroundAction;
     QPointer<QAction> m_resetAction;
+    QPointer<QAction> m_zoomAllAction;
+    QPointer<QAction> m_zoomSelectionAction;
+    QPointer<QAction> m_zoomInAction;
+    QPointer<QAction> m_zoomOutAction;
     QPointer<DocumentWarningWidget> m_documentErrorWidget;
     Core::IContext *m_context = nullptr;
 };

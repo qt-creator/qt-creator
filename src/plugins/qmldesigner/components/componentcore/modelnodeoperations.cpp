@@ -329,23 +329,6 @@ void resetPosition(const SelectionContext &selectionState)
     });
 }
 
-void fitRootToScreen(const SelectionContext &selectionState)
-{
-    if (!selectionState.view())
-        return;
-
-    selectionState.view()->emitCustomNotification(QStringLiteral("fit root to screen"));
-}
-
-void fitSelectionToScreen(const SelectionContext &selectionState)
-{
-    if (!selectionState.view())
-        return;
-
-    selectionState.view()->emitCustomNotification(QStringLiteral("fit selection to screen"),
-                                                  selectionState.selectedModelNodes());
-}
-
 void goIntoComponentOperation(const SelectionContext &selectionState)
 {
     goIntoComponent(selectionState.currentSingleSelectedNode());

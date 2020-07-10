@@ -47,14 +47,14 @@ float ZoomAction::zoomLevel() const
 
 void ZoomAction::zoomIn()
 {
-    if (m_currentComboBoxIndex > 0)
-        emit indexChanged(m_currentComboBoxIndex - 1);
+    if (m_currentComboBoxIndex < (m_comboBoxModel->rowCount() - 1))
+        emit indexChanged(m_currentComboBoxIndex + 1);
 }
 
 void ZoomAction::zoomOut()
 {
-    if (m_currentComboBoxIndex < (m_comboBoxModel->rowCount() - 1))
-        emit indexChanged(m_currentComboBoxIndex + 1);
+    if (m_currentComboBoxIndex > 0)
+        emit indexChanged(m_currentComboBoxIndex - 1);
 }
 
 void ZoomAction::resetZoomLevel()

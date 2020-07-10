@@ -883,27 +883,6 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &resetSize,
                           &selectionNotEmptyAndHasWidthOrHeightProperty));
 
-    addDesignerAction(new ModelNodeAction(
-                          fitRootToScreenCommandId,
-                          fitRootToScreenDisplayName,
-                          Utils::Icon({{":/utils/images/fittoview.png", Utils::Theme::IconsBaseColor}}).icon(),
-                          fitRootToScreenToolTip,
-                          genericToolBarCategory,
-                          QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_0),
-                          182,
-                          &fitRootToScreen));
-
-    addDesignerAction(new ModelNodeAction(
-                          fitSelectionToScreenCommandId,
-                          fitSelectionToScreenDisplayName,
-                          Utils::Icon({{":/utils/images/fittoview.png", Utils::Theme::IconsBaseColor}}).icon(),
-                          fitSelectionToScreenToolTip,
-                          genericToolBarCategory,
-                          QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_I),
-                          183,
-                          &fitSelectionToScreen,
-                          &selectionNotEmpty));
-
     addDesignerAction(new SeperatorDesignerAction(editCategory, 170));
 
     addDesignerAction(new VisiblityModelNodeAction(
