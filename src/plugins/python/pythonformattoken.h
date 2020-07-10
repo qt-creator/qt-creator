@@ -41,6 +41,8 @@ enum Format {
     Format_Identifier,
     Format_Whitespace,
     Format_ImportedModule,
+    Format_LParen,
+    Format_RParen,
 
     Format_FormatsAmount
 };

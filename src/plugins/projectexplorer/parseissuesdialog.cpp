@@ -147,6 +147,7 @@ static void parse(QFutureInterface<void> &future, const QString &output,
         if (future.isCanceled())
             return;
     }
+    parser->flush();
 }
 
 void ParseIssuesDialog::accept()

@@ -143,22 +143,23 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
 
     const QSet<QString> buildSystemTargets = m_buildTargets;
     qCDebug(LOG) << "BuildSystemTargets\n    " << buildSystemTargets;
-    const QList<BuildTargetInfo> buildTargets = target->buildSystem()->applicationTargets();
-    BuildTargetInfo targetInfo
-            = Utils::findOrDefault(buildTargets,
-                                   [&buildSystemTargets] (const BuildTargetInfo &bti) {
+    const QList<BuildTargetInfo> buildTargets
+            = Utils::filtered(target->buildSystem()->applicationTargets(),
+                              [&buildSystemTargets](const BuildTargetInfo &bti) {
         return buildSystemTargets.contains(bti.buildKey);
     });
+    if (buildTargets.size() > 1 )  // there are multiple executables with the same build target
+        return;                    // let the user decide which one to run
+
+    const BuildTargetInfo targetInfo = buildTargets.first();
+
     // we might end up with an empty targetFilePath - e.g. when having a library we just link to
     // there would be no BuildTargetInfo that could match
     if (targetInfo.targetFilePath.isEmpty()) {
         qCDebug(LOG) << "BuildTargetInfos";
         // if there is only one build target just use it (but be honest that we're deducing)
-        if (buildTargets.size() == 1) {
-            targetInfo = buildTargets.first();
-            m_deducedConfiguration = true;
-            m_deducedFrom = targetInfo.buildKey;
-        }
+        m_deducedConfiguration = true;
+        m_deducedFrom = targetInfo.buildKey;
     }
 
     const FilePath localExecutable = ensureExeEnding(targetInfo.targetFilePath);

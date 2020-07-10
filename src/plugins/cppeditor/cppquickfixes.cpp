@@ -691,7 +691,8 @@ namespace {
 class AddBracesToIfOp: public CppQuickFixOperation
 {
 public:
-    AddBracesToIfOp(const CppQuickFixInterface &interface, int priority, StatementAST *statement)
+    AddBracesToIfOp(const CppQuickFixInterface &interface, int priority,
+                    const IfStatementAST *statement)
         : CppQuickFixOperation(interface, priority)
         , _statement(statement)
     {
@@ -705,10 +706,10 @@ public:
 
         ChangeSet changes;
 
-        const int start = currentFile->endOf(_statement->firstToken() - 1);
+        const int start = currentFile->endOf(_statement->rparen_token);
         changes.insert(start, QLatin1String(" {"));
 
-        const int end = currentFile->endOf(_statement->lastToken() - 1);
+        const int end = currentFile->endOf(_statement->statement->lastToken() - 1);
         changes.insert(end, QLatin1String("\n}"));
 
         currentFile->setChangeSet(changes);
@@ -717,7 +718,7 @@ public:
     }
 
 private:
-    StatementAST *_statement;
+    const IfStatementAST * const _statement;
 };
 
 } // anonymous namespace
@@ -731,7 +732,7 @@ void AddBracesToIf::match(const CppQuickFixInterface &interface, QuickFixOperati
     IfStatementAST *ifStatement = path.at(index)->asIfStatement();
     if (ifStatement && interface.isCursorOn(ifStatement->if_token) && ifStatement->statement
         && !ifStatement->statement->asCompoundStatement()) {
-        result << new AddBracesToIfOp(interface, index, ifStatement->statement);
+        result << new AddBracesToIfOp(interface, index, ifStatement);
         return;
     }
 
@@ -742,7 +743,7 @@ void AddBracesToIf::match(const CppQuickFixInterface &interface, QuickFixOperati
         if (ifStatement && ifStatement->statement
             && interface.isCursorOn(ifStatement->statement)
             && !ifStatement->statement->asCompoundStatement()) {
-            result << new AddBracesToIfOp(interface, index, ifStatement->statement);
+            result << new AddBracesToIfOp(interface, index, ifStatement);
             return;
         }
     }

@@ -329,13 +329,21 @@ public:
         return true;
     }
 
+    bool processSlot(const QString &name, const Value * /*value*/) override
+    {
+        m_slots.append(name.toUtf8());
+        return true;
+    }
+
     QVector<PropertyInfo> properties() const { return m_properties; }
 
     PropertyNameList signalList() const { return m_signals; }
+    PropertyNameList slotList() const { return m_slots; }
 
 private:
     QVector<PropertyInfo> m_properties;
     PropertyNameList m_signals;
+    PropertyNameList m_slots;
     const ContextPtr m_context;
 };
 
@@ -486,6 +494,31 @@ PropertyNameList getSignals(const ObjectValue *objectValue, const ContextPtr &co
     return signalList;
 }
 
+PropertyNameList getSlots(const ObjectValue *objectValue, const ContextPtr &context, bool local = false)
+{
+    PropertyNameList slotList;
+
+    if (!objectValue)
+        return slotList;
+    if (objectValue->className().isEmpty())
+        return slotList;
+
+    PropertyMemberProcessor processor(context);
+    objectValue->processMembers(&processor);
+
+    slotList.append(processor.slotList());
+
+    PrototypeIterator prototypeIterator(objectValue, context);
+    const QList<const ObjectValue *> objects = prototypeIterator.all();
+
+    if (!local) {
+        for (const ObjectValue *prototype : objects)
+            slotList.append(getSlots(prototype, context, true));
+    }
+
+    return slotList;
+}
+
 QVector<PropertyInfo> getObjectTypes(const ObjectValue *objectValue, const ContextPtr &context, bool local, int rec)
 {
     QVector<PropertyInfo> propertyList;
@@ -555,6 +588,7 @@ public:
     PropertyNameList properties() const;
     PropertyNameList localProperties() const;
     PropertyNameList signalNames() const;
+    PropertyNameList slotNames() const;
     PropertyName defaultPropertyName() const;
     TypeName propertyType(const PropertyName &propertyName) const;
 
@@ -588,7 +622,6 @@ public:
 
     static void clearCache();
 
-
 private:
     NodeMetaInfoPrivate(Model *model, TypeName type, int maj = -1, int min = -1);
 
@@ -611,6 +644,7 @@ private:
     bool m_isFileComponent = false;
     PropertyNameList m_properties;
     PropertyNameList m_signals;
+    PropertyNameList m_slots;
     QList<TypeName> m_propertyTypes;
     PropertyNameList m_localProperties;
     PropertyName m_defaultPropertyName;
@@ -653,6 +687,12 @@ PropertyNameList NodeMetaInfoPrivate::signalNames() const
 {
     ensureProperties();
     return m_signals;
+}
+
+PropertyNameList NodeMetaInfoPrivate::slotNames() const
+{
+    ensureProperties();
+    return m_slots;
 }
 
 QSet<QByteArray> &NodeMetaInfoPrivate::prototypeCachePositives()
@@ -1263,7 +1303,21 @@ void NodeMetaInfoPrivate::setupPrototypes()
         description.className = ov->className();
         description.minorVersion = -1;
         description.majorVersion = -1;
-        if (const CppComponentValue * qmlValue = value_cast<CppComponentValue>(ov)) {
+        if (description.className == "QQuickItem") {
+            /* Ugly hack to recover from wrong prototypes for Item */
+            if (const CppComponentValue *qmlValue = value_cast<CppComponentValue>(
+                    context()->lookupType(document(), {"Item"}))) {
+                description.className = "QtQuick.Item";
+                description.minorVersion = qmlValue->componentVersion().minorVersion();
+                description.majorVersion = qmlValue->componentVersion().majorVersion();
+                m_prototypes.append(description);
+            } else {
+                qWarning() << Q_FUNC_INFO << "Lookup for Item failed";
+            }
+            continue;
+        }
+
+        if (const CppComponentValue *qmlValue = value_cast<CppComponentValue>(ov)) {
             description.minorVersion = qmlValue->componentVersion().minorVersion();
             description.majorVersion = qmlValue->componentVersion().majorVersion();
             LanguageUtils::FakeMetaObject::Export qtquickExport = qmlValue->metaObject()->exportInPackage(QLatin1String("QtQuick"));
@@ -1349,6 +1403,7 @@ void NodeMetaInfoPrivate::initialiseProperties()
     setupLocalPropertyInfo(getTypes(m_objectValue, context(), true));
 
     m_signals = getSignals(m_objectValue, context());
+    m_slots = getSlots(m_objectValue, context());
 }
 
 } //namespace Internal
@@ -1398,6 +1453,11 @@ PropertyNameList NodeMetaInfo::propertyNames() const
 PropertyNameList NodeMetaInfo::signalNames() const
 {
     return m_privateData->signalNames();
+}
+
+PropertyNameList NodeMetaInfo::slotNames() const
+{
+    return m_privateData->slotNames();
 }
 
 PropertyNameList NodeMetaInfo::directPropertyNames() const

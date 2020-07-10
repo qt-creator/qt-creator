@@ -79,6 +79,8 @@ static TextEditor::TextStyle styleForFormat(int format)
     case Format_Identifier: return C_TEXT;
     case Format_Whitespace: return C_VISUAL_WHITESPACE;
     case Format_ImportedModule: return C_STRING;
+    case Format_LParen: return C_OPERATOR;
+    case Format_RParen: return C_OPERATOR;
     case Format_FormatsAmount:
         QTC_CHECK(false); // should never get here
         return C_TEXT;
@@ -164,6 +166,7 @@ int PythonHighlighter::highlightLine(const QString &text, int initialState)
     }
 
     FormatToken tk;
+    TextEditor::Parentheses parentheses;
     bool hasOnlyWhitespace = true;
     while (!(tk = scanner.read()).isEndOfBlock()) {
         Format format = tk.format();
@@ -175,11 +178,20 @@ int PythonHighlighter::highlightLine(const QString &text, int initialState)
                    || format == Format_Doxygen) {
             setFormatWithSpaces(text, tk.begin(), tk.length(), formatForCategory(format));
         } else {
+            if (format == Format_LParen) {
+                parentheses.append(TextEditor::Parenthesis(TextEditor::Parenthesis::Opened,
+                                                           text.at(tk.begin()), tk.begin()));
+            } else if (format == Format_RParen) {
+                parentheses.append(TextEditor::Parenthesis(TextEditor::Parenthesis::Closed,
+                                                           text.at(tk.begin()), tk.begin()));
+            }
             setFormat(tk.begin(), tk.length(), formatForCategory(format));
         }
+
         if (format != Format_Whitespace)
             hasOnlyWhitespace = false;
     }
+    TextEditor::TextDocumentLayout::setParentheses(currentBlock(), parentheses);
     return scanner.state();
 }
 

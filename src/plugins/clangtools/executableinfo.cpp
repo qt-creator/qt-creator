@@ -64,7 +64,7 @@ static QString runExecutable(const Utils::CommandLine &commandLine,
         return {};
     }
 
-    return response.allOutput();
+    return response.stdOut();
 }
 
 static QStringList queryClangTidyChecks(const QString &executable,

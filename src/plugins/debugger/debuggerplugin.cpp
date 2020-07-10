@@ -1278,6 +1278,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         FilePath executable;
         QString remoteChannel;
         QString coreFile;
+        QString sysRoot;
         bool useTerminal = false;
 
         if (!pid) {
@@ -1305,6 +1306,8 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                     coreFile = val;
                 } else if (key == "terminal") {
                     useTerminal = true;
+                } else if (key == "sysroot") {
+                    sysRoot = val;
                 }
             }
         }
@@ -1315,6 +1318,8 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         runControl->setKit(kit);
         auto debugger = new DebuggerRunTool(runControl);
         debugger->setInferiorExecutable(executable);
+        if (!sysRoot.isEmpty())
+            debugger->setSysRoot(FilePath::fromUserInput(sysRoot));
         if (pid) {
             debugger->setStartMode(AttachExternal);
             debugger->setCloseMode(DetachAtClose);
@@ -1541,6 +1546,7 @@ void DebuggerPluginPrivate::attachCore()
     dlg.setLocalCoreFile(configValue("LastLocalCoreFile").toString());
     dlg.setRemoteCoreFile(configValue("LastRemoteCoreFile").toString());
     dlg.setOverrideStartScript(configValue("LastExternalStartScript").toString());
+    dlg.setSysRoot(configValue("LastSysRoot").toString());
     dlg.setForceLocalCoreFile(configValue("LastForceLocalCoreFile").toBool());
 
     if (dlg.exec() != QDialog::Accepted)
@@ -1551,6 +1557,7 @@ void DebuggerPluginPrivate::attachCore()
     setConfigValue("LastRemoteCoreFile", dlg.remoteCoreFile());
     setConfigValue("LastExternalKit", dlg.kit()->id().toSetting());
     setConfigValue("LastExternalStartScript", dlg.overrideStartScript());
+    setConfigValue("LastSysRoot", dlg.sysRoot().toString());
     setConfigValue("LastForceLocalCoreFile", dlg.forcesLocalCoreFile());
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
@@ -1563,6 +1570,9 @@ void DebuggerPluginPrivate::attachCore()
     debugger->setStartMode(AttachCore);
     debugger->setCloseMode(DetachAtClose);
     debugger->setOverrideStartScript(dlg.overrideStartScript());
+    const FilePath sysRoot = dlg.sysRoot();
+    if (!sysRoot.isEmpty())
+        debugger->setSysRoot(sysRoot);
     debugger->startRunControl();
 }
 

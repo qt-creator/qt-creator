@@ -47,6 +47,8 @@
 
 #include <QRegularExpression>
 
+using namespace Utils;
+
 namespace ClangCodeModel {
 namespace Internal {
 
@@ -75,7 +77,7 @@ static Core::LocatorFilterEntry makeEntry(Core::ILocatorFilter *filter,
 {
     const ClangBackEnd::ExtraInfo &extraInfo = info.extraInfo;
     QString displayName = extraInfo.token;
-    ::Utils::LineColumn lineColumn(info.line, info.column);
+    LineColumn lineColumn(info.line, info.column);
     Core::LocatorFilterEntry entry(filter, displayName, QVariant::fromValue(lineColumn));
     QString extra;
     ClangBackEnd::HighlightingType mainType = info.types.mainHighlightingType;
@@ -91,7 +93,7 @@ static Core::LocatorFilterEntry makeEntry(Core::ILocatorFilter *filter,
     }
     entry.displayName = displayName;
     entry.extraInfo = extra;
-    entry.displayIcon = ::Utils::CodeModelIcon::iconForType(Utils::iconTypeForToken(info));
+    entry.displayIcon = CodeModelIcon::iconForType(iconTypeForToken(info));
     return entry;
 }
 
@@ -132,7 +134,7 @@ void ClangCurrentDocumentFilter::accept(Core::LocatorFilterEntry selection,
 {
     if (!m_currentEditor)
         return;
-    auto lineColumn = qvariant_cast<::Utils::LineColumn>(selection.internalData);
+    auto lineColumn = qvariant_cast<LineColumn>(selection.internalData);
     Core::EditorManager::openEditorAt(m_currentPath, lineColumn.line,
                                       lineColumn.column - 1);
 }

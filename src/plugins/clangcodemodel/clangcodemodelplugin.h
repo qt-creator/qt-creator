@@ -54,8 +54,8 @@ private:
     void createCompilationDBButton();
 
     ClangModelManagerSupportProvider m_modelManagerSupportProvider;
-    ::Utils::ParameterAction *m_generateCompilationDBAction = nullptr;
-    QFutureWatcher<Utils::GenerateCompilationDbResult> m_generatorWatcher;
+    Utils::ParameterAction *m_generateCompilationDBAction = nullptr;
+    QFutureWatcher<GenerateCompilationDbResult> m_generatorWatcher;
 #ifdef WITH_TESTS
     QVector<QObject *> createTestObjects() const override;
 #endif

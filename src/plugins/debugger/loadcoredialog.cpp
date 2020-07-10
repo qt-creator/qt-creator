@@ -212,6 +212,7 @@ public:
     QPushButton *selectRemoteCoreButton;
 
     PathChooser *overrideStartScriptFileName;
+    PathChooser *sysRootDirectory;
 
     QDialogButtonBox *buttonBox;
 
@@ -287,6 +288,13 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     d->overrideStartScriptFileName->setExpectedKind(PathChooser::File);
     d->overrideStartScriptFileName->setPromptDialogTitle(tr("Select Startup Script"));
 
+    d->sysRootDirectory = new PathChooser(this);
+    d->sysRootDirectory->setHistoryCompleter("Debugger.SysRoot.History");
+    d->sysRootDirectory->setExpectedKind(PathChooser::Directory);
+    d->sysRootDirectory->setPromptDialogTitle(tr("Select SysRoot Directory"));
+    d->sysRootDirectory->setToolTip(tr(
+        "This option can be used to override the kit's SysRoot setting"));
+
     auto coreLayout = new QHBoxLayout;
     coreLayout->addWidget(d->localCoreFileName);
     coreLayout->addWidget(d->remoteCoreFileName);
@@ -301,6 +309,7 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     formLayout->addRow(tr("Core file:"), coreLayout);
     formLayout->addRow(tr("&Executable or symbol file:"), d->symbolFileName);
     formLayout->addRow(tr("Override &start script:"), d->overrideStartScriptFileName);
+    formLayout->addRow(tr("Override S&ysRoot:"), d->sysRootDirectory);
 
     auto line = new QFrame(this);
     line->setFrameShape(QFrame::HLine);
@@ -467,6 +476,16 @@ QString AttachCoreDialog::overrideStartScript() const
 void AttachCoreDialog::setOverrideStartScript(const QString &scriptName)
 {
     d->overrideStartScriptFileName->setPath(scriptName);
+}
+
+FilePath AttachCoreDialog::sysRoot() const
+{
+    return d->sysRootDirectory->filePath();
+}
+
+void AttachCoreDialog::setSysRoot(const QString &sysRoot)
+{
+    d->sysRootDirectory->setPath(sysRoot);
 }
 
 } // namespace Internal

@@ -197,6 +197,8 @@ private slots:
     void test_quickfix_ExtractLiteralAsParameter_memberFunction_separateFiles();
     void test_quickfix_ExtractLiteralAsParameter_notTriggeringForInvalidCode();
 
+    void test_quickfix_addCurlyBraces();
+
     void test_quickfix_InsertVirtualMethods_data();
     void test_quickfix_InsertVirtualMethods();
     void test_quickfix_InsertVirtualMethods_implementationFile();

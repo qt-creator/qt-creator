@@ -63,6 +63,8 @@ public:
     void handleJdbWaiting();
     void handleJdbSettled();
 
+    void removeForwardPort(const QString &port);
+
 signals:
     void remoteProcessStarted(Utils::Port debugServerPort, const QUrl &qmlServer, qint64 pid);
     void remoteProcessFinished(const QString &errString = QString());

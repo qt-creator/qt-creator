@@ -67,6 +67,7 @@ private:
     FormatToken readDoxygenComment();
     FormatToken readWhiteSpace();
     FormatToken readOperator();
+    FormatToken readBrace(bool isOpening);
 
     void clearState();
     void saveState(State state, QChar savedData);

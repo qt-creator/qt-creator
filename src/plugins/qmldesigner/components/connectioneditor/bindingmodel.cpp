@@ -33,6 +33,7 @@
 #include <variantproperty.h>
 #include <rewritingexception.h>
 #include <rewritertransaction.h>
+#include <rewriterview.h>
 
 #include <QMessageBox>
 #include <QTimer>
@@ -151,6 +152,7 @@ QStringList BindingModel::possibleSourceProperties(const BindingProperty &bindin
 {
     const QString expression = bindingProperty.expression();
     const QStringList stringlist = expression.split(QLatin1String("."));
+    QStringList possibleProperties;
 
     TypeName typeName;
 
@@ -165,26 +167,44 @@ QStringList BindingModel::possibleSourceProperties(const BindingProperty &bindin
     ModelNode modelNode = getNodeByIdOrParent(id, bindingProperty.parentModelNode());
 
     if (!modelNode.isValid()) {
+        //if it's not a valid model node, maybe it's a singleton
+        if (RewriterView* rv = connectionView()->rewriterView()) {
+            for (const QmlTypeData &data : rv->getQMLTypes()) {
+                if (!data.typeName.isEmpty()) {
+                    if (data.typeName == id) {
+                        NodeMetaInfo metaInfo = connectionView()->model()->metaInfo(data.typeName.toUtf8());
+
+                        if (metaInfo.isValid()) {
+                            for (const PropertyName &propertyName : metaInfo.propertyNames()) {
+                                //without check for now
+                                possibleProperties << QString::fromUtf8(propertyName);
+                            }
+
+                            return possibleProperties;
+                        }
+                    }
+                }
+            }
+        }
+
         qWarning() << " BindingModel::possibleSourcePropertiesForRow invalid model node";
         return QStringList();
     }
 
     NodeMetaInfo metaInfo = modelNode.metaInfo();
 
-    QStringList possibleProperties;
-
-    foreach (VariantProperty variantProperty, modelNode.variantProperties()) {
+    for (VariantProperty variantProperty : modelNode.variantProperties()) {
         if (variantProperty.isDynamic())
             possibleProperties << QString::fromUtf8(variantProperty.name());
     }
 
-    foreach (BindingProperty bindingProperty, modelNode.bindingProperties()) {
+    for (BindingProperty bindingProperty : modelNode.bindingProperties()) {
         if (bindingProperty.isDynamic())
             possibleProperties << QString::fromUtf8((bindingProperty.name()));
     }
 
     if (metaInfo.isValid())  {
-        foreach (const PropertyName &propertyName, metaInfo.propertyNames()) {
+        for (const PropertyName &propertyName : metaInfo.propertyNames()) {
             if (metaInfo.propertyTypeName(propertyName) == typeName) //### todo proper check
                 possibleProperties << QString::fromUtf8(propertyName);
         }

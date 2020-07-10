@@ -58,6 +58,7 @@
 using namespace CPlusPlus;
 using namespace ClangBackEnd;
 using namespace TextEditor;
+using namespace Utils;
 
 enum { backEndStartTimeOutInMs = 10000 };
 
@@ -103,9 +104,9 @@ BackendCommunicator::BackendCommunicator()
             this, &BackendCommunicator::onEditorAboutToClose);
     connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose,
             this, &BackendCommunicator::setupDummySender);
-    auto globalFCB = ::Utils::GlobalFileChangeBlocker::instance();
+    auto globalFCB = GlobalFileChangeBlocker::instance();
     m_postponeBackendJobs = globalFCB->isBlocked();
-    connect(globalFCB, &::Utils::GlobalFileChangeBlocker::stateChanged,
+    connect(globalFCB, &GlobalFileChangeBlocker::stateChanged,
             this, &BackendCommunicator::setBackendJobsPostponed);
 
     initializeBackend();
@@ -188,7 +189,7 @@ Utf8StringVector visibleCppEditorDocumentsFilePaths()
 
 void BackendCommunicator::documentVisibilityChanged()
 {
-    documentVisibilityChanged(Utils::currentCppEditorDocumentFilePath(),
+    documentVisibilityChanged(currentCppEditorDocumentFilePath(),
                               visibleCppEditorDocumentsFilePaths());
 }
 
@@ -247,14 +248,14 @@ void BackendCommunicator::unsavedFilesUpdatedForUiHeaders()
 
 void BackendCommunicator::documentsChangedFromCppEditorDocument(const QString &filePath)
 {
-    const CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath);
+    const CppTools::CppEditorDocumentHandle *document = cppDocument(filePath);
     QTC_ASSERT(document, return);
     documentsChanged(filePath, document->contents(), document->revision());
 }
 
 void BackendCommunicator::unsavedFilesUpdatedFromCppEditorDocument(const QString &filePath)
 {
-    const CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath);
+    const CppTools::CppEditorDocumentHandle *document = cppDocument(filePath);
     QTC_ASSERT(document, return);
     unsavedFilesUpdated(filePath, document->contents(), document->revision());
 }
@@ -286,16 +287,10 @@ void BackendCommunicator::unsavedFilesUpdated(const QString &filePath,
 
 static bool documentHasChanged(const QString &filePath, uint revision)
 {
-    if (CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath))
+    if (CppTools::CppEditorDocumentHandle *document = cppDocument(filePath))
         return document->sendTracker().shouldSendRevision(revision);
 
     return true;
-}
-
-static void setLastSentDocumentRevision(const QString &filePath, uint revision)
-{
-    if (CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath))
-        document->sendTracker().setLastSentRevision(int(revision));
 }
 
 void BackendCommunicator::documentsChangedWithRevisionCheck(const FileContainer &fileContainer)
@@ -367,7 +362,7 @@ void BackendCommunicator::documentsChangedWithRevisionCheck(Core::IDocument *doc
 
 void BackendCommunicator::updateChangeContentStartPosition(const QString &filePath, int position)
 {
-    if (CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath))
+    if (CppTools::CppEditorDocumentHandle *document = cppDocument(filePath))
         document->sendTracker().applyContentChange(position);
 }
 
@@ -465,7 +460,7 @@ void BackendCommunicator::documentsOpened(const FileContainers &fileContainers)
     Utf8String currentDocument;
     Utf8StringVector visibleDocuments;
     if (!m_postponeBackendJobs) {
-        currentDocument = Utils::currentCppEditorDocumentFilePath();
+        currentDocument = currentCppEditorDocumentFilePath();
         visibleDocuments = visibleCppEditorDocumentsFilePaths();
     }
 
