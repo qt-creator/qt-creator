@@ -108,8 +108,7 @@ void PrintTo(const TextPosition &position, ::std::ostream *os)
 {
     *os << "("
         << position.line << ", "
-        << position.column << ", "
-        << position.offset << ")";
+        << position.column << ")";
 }
 
 void PrintTo(const TextRange &range, ::std::ostream *os)
