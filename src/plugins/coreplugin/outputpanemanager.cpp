@@ -341,12 +341,12 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     connect(m_clearAction, &QAction::triggered, this, &OutputPaneManager::clearPage);
 
     m_nextAction = new QAction(this);
-    m_nextAction->setIcon(Utils::Icons::NEXT.icon());
+    m_nextAction->setIcon(Utils::Icons::ARROW_DOWN_TOOLBAR.icon());
     m_nextAction->setText(tr("Next Item"));
     connect(m_nextAction, &QAction::triggered, this, &OutputPaneManager::slotNext);
 
     m_prevAction = new QAction(this);
-    m_prevAction->setIcon(Utils::Icons::PREV.icon());
+    m_prevAction->setIcon(Utils::Icons::ARROW_UP_TOOLBAR.icon());
     m_prevAction->setText(tr("Previous Item"));
     connect(m_prevAction, &QAction::triggered, this, &OutputPaneManager::slotPrev);
 
@@ -410,12 +410,12 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     cmd = ActionManager::registerAction(m_prevAction, "Coreplugin.OutputPane.previtem");
     cmd->setDefaultKeySequence(QKeySequence(tr("Shift+F6")));
     m_prevToolButton->setDefaultAction(
-        ProxyAction::proxyActionWithIcon(m_prevAction, Utils::Icons::PREV_TOOLBAR.icon()));
+        ProxyAction::proxyActionWithIcon(m_prevAction, Utils::Icons::ARROW_UP_TOOLBAR.icon()));
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     cmd = ActionManager::registerAction(m_nextAction, "Coreplugin.OutputPane.nextitem");
     m_nextToolButton->setDefaultAction(
-        ProxyAction::proxyActionWithIcon(m_nextAction, Utils::Icons::NEXT_TOOLBAR.icon()));
+        ProxyAction::proxyActionWithIcon(m_nextAction, Utils::Icons::ARROW_DOWN_TOOLBAR.icon()));
     cmd->setDefaultKeySequence(QKeySequence(tr("F6")));
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 

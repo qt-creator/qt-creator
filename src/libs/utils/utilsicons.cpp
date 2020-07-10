@@ -139,8 +139,12 @@ const Icon RESET_TOOLBAR({
 
 const Icon ARROW_UP({
         {":/utils/images/arrowup.png", Theme::IconsBaseColor}});
+const Icon ARROW_UP_TOOLBAR({
+        {":/utils/images/arrowup.png", Theme::IconsNavigationArrowsColor}});
 const Icon ARROW_DOWN({
         {":/utils/images/arrowdown.png", Theme::IconsBaseColor}});
+const Icon ARROW_DOWN_TOOLBAR({
+        {":/utils/images/arrowdown.png", Theme::IconsNavigationArrowsColor}});
 const Icon MINUS({
         {":/utils/images/minus.png", Theme::IconsBaseColor}});
 const Icon PLUS_TOOLBAR({
