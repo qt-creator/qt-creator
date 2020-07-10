@@ -311,7 +311,7 @@ void ClangModelManagerSupport::onAbstractEditorSupportRemoved(const QString &fil
 
     if (!cppModelManager()->cppEditorDocument(filePath)) {
         const QString mappedPath = m_uiHeaderOnDiskManager.remove(filePath);
-        const QString projectPartId = Utils::projectPartIdForFile(filePath);
+        const QString projectPartId = projectPartIdForFile(filePath);
         m_communicator.unsavedFilesRemoved({{mappedPath, projectPartId}});
     }
 }

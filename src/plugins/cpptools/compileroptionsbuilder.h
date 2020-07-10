@@ -71,6 +71,7 @@ public:
     void addCompilerFlags();
     void enableExceptions();
     void insertWrappedQtHeaders();
+    void insertWrappedMingwHeaders();
     void addLanguageVersionAndExtensions();
     void updateFileLanguage(ProjectFile::Kind fileKind);
 
@@ -97,7 +98,9 @@ public:
 private:
     void addIncludeDirOptionForPath(const ProjectExplorer::HeaderPath &path);
     bool excludeDefineDirective(const ProjectExplorer::Macro &macro) const;
-    void addWrappedQtHeadersIncludePath(QStringList &list) const;
+    void insertWrappedHeaders(const QStringList &paths);
+    QStringList wrappedQtHeadersIncludePath() const;
+    QStringList wrappedMingwHeadersIncludePath() const;
     QByteArray msvcVersion() const;
 
 private:

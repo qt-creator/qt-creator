@@ -37,6 +37,8 @@
 using TokenContainer = ClangBackEnd::TokenInfoContainer;
 using TokenContainers = QVector<TokenContainer>;
 
+using namespace Utils;
+
 namespace ClangCodeModel {
 namespace Internal {
 
@@ -171,7 +173,7 @@ QVariant TokenTreeItem::data(int column, int role) const
     }
 
     case Qt::DecorationRole: {
-        return ::Utils::CodeModelIcon::iconForType(ClangCodeModel::Utils::iconTypeForToken(token));
+        return CodeModelIcon::iconForType(iconTypeForToken(token));
     }
 
     case CppTools::AbstractOverviewModel::FileNameRole: {
@@ -219,22 +221,20 @@ bool OverviewModel::isGenerated(const QModelIndex &) const
     return false;
 }
 
-::Utils::Link OverviewModel::linkFromIndex(const QModelIndex &sourceIndex) const
+Link OverviewModel::linkFromIndex(const QModelIndex &sourceIndex) const
 {
     auto item = static_cast<TokenTreeItem *>(itemForIndex(sourceIndex));
     if (!item)
         return {};
-    return ::Utils::Link(m_filePath, static_cast<int>(item->token.line),
-                         static_cast<int>(item->token.column) - 1);
+    return Link(m_filePath, item->token.line, item->token.column - 1);
 }
 
-::Utils::LineColumn OverviewModel::lineColumnFromIndex(const QModelIndex &sourceIndex) const
+LineColumn OverviewModel::lineColumnFromIndex(const QModelIndex &sourceIndex) const
 {
     auto item = static_cast<TokenTreeItem *>(itemForIndex(sourceIndex));
     if (!item)
         return {};
-    return {static_cast<int>(item->token.line),
-            static_cast<int>(item->token.column)};
+    return {item->token.line, item->token.column};
 }
 
 OverviewModel::Range OverviewModel::rangeFromIndex(const QModelIndex &sourceIndex) const
@@ -243,10 +243,8 @@ OverviewModel::Range OverviewModel::rangeFromIndex(const QModelIndex &sourceInde
     if (!item)
         return {};
     const ClangBackEnd::SourceRangeContainer &range = item->token.extraInfo.cursorRange;
-    return std::make_pair(::Utils::LineColumn(static_cast<int>(range.start.line),
-                                              static_cast<int>(range.start.column)),
-                          ::Utils::LineColumn(static_cast<int>(range.end.line),
-                                              static_cast<int>(range.end.column)));
+    return std::make_pair(LineColumn(range.start.line, range.start.column),
+                          LineColumn(range.end.line, range.end.column));
 }
 
 } // namespace Internal

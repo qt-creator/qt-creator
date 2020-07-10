@@ -38,13 +38,21 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitinformation.h>
+
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 
 #include <QDir>
+#include <QLoggingCategory>
 
 using namespace ProjectExplorer;
 using namespace Utils;
+
+namespace {
+static Q_LOGGING_CATEGORY(packageInstallationStepLog, "qtc.android.packageinstallationstep", QtWarningMsg)
+}
 
 namespace Android {
 namespace Internal {
@@ -153,6 +161,26 @@ void AndroidPackageInstallationStep::doRun()
         }
     }
     AbstractProcessStep::doRun();
+
+    // NOTE: This is a workaround for QTCREATORBUG-24155
+    // Needed for Qt 5.15.0 and Qt 5.14.x versions
+    if (buildType() == BuildConfiguration::BuildType::Debug) {
+        QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target()->kit());
+        if (version && version->qtVersion() >= QtSupport::QtVersionNumber{5, 14}
+            && version->qtVersion() <= QtSupport::QtVersionNumber{5, 15, 0}) {
+            const QString assetsDebugDir = nativeAndroidBuildPath().append(
+                "/assets/--Added-by-androiddeployqt--/");
+            QDir dir;
+            if (!dir.exists(assetsDebugDir))
+                dir.mkpath(assetsDebugDir);
+
+            QFile file(assetsDebugDir + "debugger.command");
+            if (file.open(QIODevice::WriteOnly))
+                qCDebug(packageInstallationStepLog, "Successful added %s to the package.", qPrintable(file.fileName()));
+            else
+                qCDebug(packageInstallationStepLog, "Cound't add %s to the package. The QML debugger might not work properly.", qPrintable(file.fileName()));
+        }
+    }
 }
 
 BuildStepConfigWidget *AndroidPackageInstallationStep::createConfigWidget()

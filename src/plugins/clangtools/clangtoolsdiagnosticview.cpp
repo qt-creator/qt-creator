@@ -128,8 +128,9 @@ DiagnosticView::DiagnosticView(QWidget *parent)
 {
     header()->hide();
 
-    const QIcon filterIcon
-        = Utils::Icon({{":/utils/images/filtericon.png", Utils::Theme::IconsBaseColor}}).icon();
+    const QIcon filterIcon = Utils::Icon({{":/utils/images/filtericon.png",
+                                           Utils::Theme::PanelTextColorMid}},
+                                         Utils::Icon::Tint).icon();
 
     m_showFilter = new QAction(tr("Filter..."), this);
     m_showFilter->setIcon(filterIcon);
@@ -155,7 +156,7 @@ DiagnosticView::DiagnosticView(QWidget *parent)
     m_separator2->setSeparator(true);
 
     m_help = new QAction(tr("Web Page"), this);
-    m_help->setIcon(Utils::Icons::INFO.icon());
+    m_help->setIcon(Utils::Icons::ONLINE.icon());
     connect(m_help, &QAction::triggered,
             this, &DiagnosticView::showHelp);
 

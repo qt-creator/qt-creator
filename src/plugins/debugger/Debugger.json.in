@@ -22,15 +22,15 @@
             \"Description\" : \"Attach to local process\"
         },
         {
-            \"Name\" : \"-debug <executable>[,kit=<kit>][,terminal={0,1}]\",
+            \"Name\" : \"-debug <executable>[,kit=<kit>][,terminal={0,1}][,sysroot=<sysroot>]\",
             \"Description\" : \"Start and debug executable\"
         },
         {
-            \"Name\" : \"-debug [executable,]core=<corefile>[,kit=<kit>]\",
+            \"Name\" : \"-debug [executable,]core=<corefile>[,kit=<kit>][,sysroot=<sysroot>]\",
             \"Description\" : \"Attach to core file\"
         },
         {
-            \"Name\" : \"-debug <executable>,server=<server:port>[,kit=<kit>]\",
+            \"Name\" : \"-debug <executable>,server=<server:port>[,kit=<kit>][,sysroot=<sysroot>]\",
             \"Description\" : \"Attach to remote debug server\"
         },
         {

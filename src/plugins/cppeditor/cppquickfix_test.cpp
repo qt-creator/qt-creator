@@ -5417,6 +5417,31 @@ void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_notTriggeringForIn
     QuickFixOperationTest(testDocuments, &factory);
 }
 
+void CppEditorPlugin::test_quickfix_addCurlyBraces()
+{
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+    const QByteArray original = R"delim(
+void MyObject::f()
+{
+    @if (true)
+        emit mySig();
+}
+)delim";
+    const QByteArray expected = R"delim(
+void MyObject::f()
+{
+    if (true) {
+        emit mySig();
+    }
+}
+)delim";
+
+    testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
+    AddBracesToIf factory;
+    QuickFixOperationTest(testDocuments, &factory);
+
+}
+
 void CppEditorPlugin::test_quickfix_ConvertQt4Connect_connectOutOfClass()
 {
     QByteArray prefix =

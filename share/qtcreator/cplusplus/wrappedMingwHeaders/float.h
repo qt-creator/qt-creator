@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,46 +23,12 @@
 **
 ****************************************************************************/
 
-// Include qobjectdefs.h from Qt ...
-#include_next <qobjectdefs.h>
-
-#ifndef WRAPPED_QOBJECT_DEFS_H
-#define WRAPPED_QOBJECT_DEFS_H
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wmacro-redefined"
-#pragma clang diagnostic ignored "-Wgnu-string-literal-operator-template"
-
-// ...and redefine macros for tagging signals/slots
-#ifdef signals
-#  define signals public __attribute__((annotate("qt_signal")))
+// MinGW's "public" float.h includes a "private" float.h via #include_next.
+// We don't have access to the private header, because we cannot add its directory to
+// the list of include paths due to other headers in there that confuse clang.
+// Therefore, we prevent inclusion of the private header by setting a magic macro.
+// See also QTCREATORBUG-24251.
+#ifdef __MINGW32__ // Redundant, but let's play it safe.
+#define __FLOAT_H
+#include_next <float.h>
 #endif
-
-#ifdef slots
-#  define slots __attribute__((annotate("qt_slot")))
-#endif
-
-#ifdef Q_SIGNALS
-#  define Q_SIGNALS public __attribute__((annotate("qt_signal")))
-#endif
-
-#ifdef Q_SLOTS
-#  define Q_SLOTS __attribute__((annotate("qt_slot")))
-#endif
-
-#ifdef Q_SIGNAL
-#  define Q_SIGNAL __attribute__((annotate("qt_signal")))
-#endif
-
-#ifdef Q_SLOT
-#  define Q_SLOT __attribute__((annotate("qt_slot")))
-#endif
-
-#define Q_PROPERTY(arg...) static_assert("Q_PROPERTY", #arg);
-
-#define SIGNAL(arg) #arg
-#define SLOT(arg) #arg
-
-#pragma clang diagnostic pop
-
-#endif // WRAPPED_QOBJECT_DEFS_H

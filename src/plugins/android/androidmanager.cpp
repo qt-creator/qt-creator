@@ -257,7 +257,7 @@ QString AndroidManager::buildTargetSDK(const Target *target)
 QStringList AndroidManager::applicationAbis(const Target *target)
 {
     auto qt = static_cast<AndroidQtVersion *>(QtSupport::QtKitAspect::qtVersion(target->kit()));
-    return qt->androidAbis();
+    return qt ? qt->androidAbis() : QStringList();
 }
 
 QString AndroidManager::archTriplet(const QString &abi)

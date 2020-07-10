@@ -27,6 +27,8 @@
 
 #include "testrunner.h"
 
+#include "testtreemodel.h"
+
 #include <coreplugin/inavigationwidgetfactory.h>
 
 #include <utils/navigationtreeview.h>
@@ -47,12 +49,8 @@ class ProgressIndicator;
 }
 
 namespace Autotest {
-
-class TestTreeModel;
-
 namespace Internal {
 
-class TestTreeSortFilterModel;
 class TestTreeView;
 
 class TestNavigationWidget : public QWidget
@@ -86,8 +84,7 @@ private:
     Utils::ProgressIndicator *m_progressIndicator;
     QTimer *m_progressTimer;
     QFrame *m_missingFrameworksWidget;
-    QHash<QString, bool> m_expandedStateCache;
-    QHash<QString, int> m_itemUseCache;
+    ItemDataCache<bool> m_expandedStateCache;
 };
 
 class TestNavigationWidgetFactory : public Core::INavigationWidgetFactory

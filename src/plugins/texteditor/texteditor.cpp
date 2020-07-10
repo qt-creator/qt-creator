@@ -423,7 +423,7 @@ struct PaintEventData
         , viewportRect(editor->viewport()->rect())
         , eventRect(event->rect())
         , doc(editor->document())
-        , documentLayout(qobject_cast<TextDocumentLayout*>(doc->documentLayout()))
+        , documentLayout(qobject_cast<TextDocumentLayout *>(doc->documentLayout()))
         , documentWidth(int(doc->size().width()))
         , textCursor(editor->textCursor())
         , textCursorBlock(textCursor.block())
@@ -433,7 +433,8 @@ struct PaintEventData
         , searchResultFormat(fontSettings.toTextCharFormat(C_SEARCH_RESULT))
         , visualWhitespaceFormat(fontSettings.toTextCharFormat(C_VISUAL_WHITESPACE))
         , ifdefedOutFormat(fontSettings.toTextCharFormat(C_DISABLED_CODE))
-        , suppressSyntaxInIfdefedOutBlock(ifdefedOutFormat.foreground() != editor->palette().windowText())
+        , suppressSyntaxInIfdefedOutBlock(ifdefedOutFormat.foreground()
+                                          != fontSettings.toTextCharFormat(C_TEXT).foreground())
     { }
     QPointF offset;
     const QRect viewportRect;
@@ -1171,7 +1172,7 @@ void TextEditorWidgetPrivate::print(QPrinter *printer)
     (void)doc->documentLayout(); // make sure that there is a layout
 
 
-    QColor background = q->palette().color(QPalette::Base);
+    QColor background = m_document->fontSettings().toTextCharFormat(C_TEXT).background().color();
     bool backgroundIsDark = background.value() < 128;
 
     for (QTextBlock srcBlock = q->document()->firstBlock(), dstBlock = doc->firstBlock();
@@ -1305,8 +1306,7 @@ int TextEditorWidgetPrivate::visualIndent(const QTextBlock &block) const
 
 void TextEditorWidgetPrivate::updateAutoCompleteHighlight()
 {
-    const QTextCharFormat &matchFormat
-            = q->textDocument()->fontSettings().toTextCharFormat(C_AUTOCOMPLETE);
+    const QTextCharFormat matchFormat = m_document->fontSettings().toTextCharFormat(C_AUTOCOMPLETE);
 
     QList<QTextEdit::ExtraSelection> extraSelections;
     for (const QTextCursor &cursor : qAsConst(m_autoCompleteHighlightPos)) {
@@ -4006,13 +4006,15 @@ static QColor calcBlendColor(const QColor &baseColor, int level, int count)
     return blendColors(color80, color90, blendFactor);
 }
 
-static QTextLayout::FormatRange createBlockCursorCharFormatRange(int pos, const QPalette &palette)
+static QTextLayout::FormatRange createBlockCursorCharFormatRange(int pos,
+                                                                 const QColor &textColor,
+                                                                 const QColor &baseColor)
 {
     QTextLayout::FormatRange o;
     o.start = pos;
     o.length = 1;
-    o.format.setForeground(palette.base());
-    o.format.setBackground(palette.text());
+    o.format.setForeground(baseColor);
+    o.format.setBackground(textColor);
     return o;
 }
 
@@ -4166,11 +4168,10 @@ void TextEditorWidgetPrivate::paintRightMarginLine(const PaintEventData &data,
         return;
 
     const QBrush background = data.ifdefedOutFormat.background();
-    const QColor col = (q->palette().base().color().value() > 128) ? Qt::black : Qt::white;
+    const QColor baseColor = m_document->fontSettings().toTextCharFormat(C_TEXT).background().color();
+    const QColor col = (baseColor.value() > 128) ? Qt::black : Qt::white;
     const QPen pen = painter.pen();
-    painter.setPen(blendColors(background.isOpaque() ? background.color()
-                                                     : q->palette().base().color(),
-                               col, 32));
+    painter.setPen(blendColors(background.isOpaque() ? background.color() : baseColor, col, 32));
     painter.drawLine(QPointF(data.rightMargin, data.eventRect.top()),
                      QPointF(data.rightMargin, data.eventRect.bottom()));
     painter.setPen(pen);
@@ -4197,7 +4198,7 @@ void TextEditorWidgetPrivate::paintBlockHighlight(const PaintEventData &data,
     if (m_highlightBlocksInfo.isEmpty())
         return;
 
-    const QColor baseColor = q->palette().base().color();
+    const QColor baseColor = m_document->fontSettings().toTextCharFormat(C_TEXT).background().color();
 
     // extra pass for the block highlight
 
@@ -4425,12 +4426,20 @@ void TextEditorWidgetPrivate::paintBlockSelection(const PaintEventData &data, QP
     const QTextLine eline = layout->lineForTextPosition(endRelativePos);
     const qreal endX = eline.cursorToX(endRelativePos) + endOffset * spacew;
 
+    const QTextCharFormat textFormat = data.fontSettings.toTextCharFormat(C_TEXT);
+    const QColor &textColor = textFormat.foreground().color();
+    const QColor &baseColor = textFormat.background().color();
+    const QTextCharFormat selectionFormat = data.fontSettings.toTextCharFormat(C_SELECTION);
+    const QBrush &highlight = selectionFormat.background().style() != Qt::NoBrush
+                                  ? selectionFormat.background()
+                                  : QApplication::palette().brush(QPalette::Highlight);
+
     QRectF lineRect = line.naturalTextRect();
     lineRect.moveTop(lineRect.top() + blockBoundingRect.top());
     lineRect.setLeft(blockBoundingRect.left() + startX);
     if (line.lineNumber() == eline.lineNumber())
         lineRect.setRight(blockBoundingRect.left() + endX);
-    painter.fillRect(lineRect, q->palette().highlight());
+    painter.fillRect(lineRect, highlight);
     if (m_cursorVisible
             && m_blockSelection.firstVisualColumn()
             == m_blockSelection.positionColumn) {
@@ -4438,7 +4447,7 @@ void TextEditorWidgetPrivate::paintBlockSelection(const PaintEventData &data, QP
                 && relativePos < text.length()
                 && text.at(relativePos) != QLatin1Char('\t')
                 && text.at(relativePos) != QLatin1Char('\n')) {
-            blockData.selections.append(createBlockCursorCharFormatRange(relativePos, q->palette()));
+            blockData.selections.append(createBlockCursorCharFormatRange(relativePos, textColor, baseColor));
         } else {
             blockData.blockSelectionCursorRect = lineRect;
             blockData.blockSelectionCursorRect.setRight(lineRect.left() + cursorw);
@@ -4447,14 +4456,14 @@ void TextEditorWidgetPrivate::paintBlockSelection(const PaintEventData &data, QP
     for (int i = line.lineNumber() + 1; i < eline.lineNumber(); ++i) {
         lineRect = layout->lineAt(i).naturalTextRect();
         lineRect.moveTop(lineRect.top() + blockBoundingRect.top());
-        painter.fillRect(lineRect, q->palette().highlight());
+        painter.fillRect(lineRect, highlight);
     }
 
     lineRect = eline.naturalTextRect();
     lineRect.moveTop(lineRect.top() + blockBoundingRect.top());
     lineRect.setRight(blockBoundingRect.left() + endX);
     if (line.lineNumber() != eline.lineNumber())
-        painter.fillRect(lineRect, q->palette().highlight());
+        painter.fillRect(lineRect, highlight);
     if (m_cursorVisible
             && m_blockSelection.lastVisualColumn()
             == m_blockSelection.positionColumn) {
@@ -4462,7 +4471,7 @@ void TextEditorWidgetPrivate::paintBlockSelection(const PaintEventData &data, QP
                 && endRelativePos < text.length()
                 && text.at(endRelativePos) != QLatin1Char('\t')
                 && text.at(endRelativePos) != QLatin1Char('\n')) {
-            blockData.selections.append(createBlockCursorCharFormatRange(endRelativePos, q->palette()));
+            blockData.selections.append(createBlockCursorCharFormatRange(endRelativePos, textColor, baseColor));
         } else {
             blockData.blockSelectionCursorRect = lineRect;
             blockData.blockSelectionCursorRect.setLeft(lineRect.right());
@@ -4497,9 +4506,14 @@ void TextEditorWidgetPrivate::paintCursorAsBlock(const PaintEventData &data, QPa
     lineRect.moveTop(lineRect.top() + blockData.boundingRect.top());
     lineRect.moveLeft(blockData.boundingRect.left() + x);
     lineRect.setWidth(w);
-    painter.fillRect(lineRect, q->palette().text());
-    if (doSelection)
-        blockData.selections.append(createBlockCursorCharFormatRange(relativePos, q->palette()));
+    const QTextCharFormat textFormat = data.fontSettings.toTextCharFormat(C_TEXT);
+    painter.fillRect(lineRect, textFormat.foreground());
+    if (doSelection) {
+        blockData.selections.append(
+            createBlockCursorCharFormatRange(relativePos,
+                                             textFormat.foreground().color(),
+                                             textFormat.background().color()));
+    }
 }
 
 void TextEditorWidgetPrivate::paintAdditionalVisualWhitespaces(PaintEventData &data,
@@ -4550,9 +4564,15 @@ void TextEditorWidgetPrivate::paintReplacement(PaintEventData &data, QPainter &p
         const bool selectThis = (data.textCursor.hasSelection()
                                  && nextBlock.position() >= data.textCursor.selectionStart()
                                  && nextBlock.position() < data.textCursor.selectionEnd());
+
+
+        const QTextCharFormat selectionFormat = data.fontSettings.toTextCharFormat(C_SELECTION);
+
         painter.save();
         if (selectThis) {
-            painter.setBrush(q->palette().highlight());
+            painter.setBrush(selectionFormat.background().style() != Qt::NoBrush
+                                 ? selectionFormat.background()
+                                 : QApplication::palette().brush(QPalette::Highlight));
         } else {
             QColor rc = q->replacementPenColor(data.block.blockNumber());
             if (rc.isValid())
@@ -4601,7 +4621,7 @@ void TextEditorWidgetPrivate::paintReplacement(PaintEventData &data, QPainter &p
         }
 
         if (selectThis)
-            painter.setPen(q->palette().highlightedText().color());
+            painter.setPen(selectionFormat.foreground().color());
         painter.drawText(collapseRect, Qt::AlignCenter, replacement);
         painter.restore();
     }
@@ -4610,14 +4630,7 @@ void TextEditorWidgetPrivate::paintReplacement(PaintEventData &data, QPainter &p
 void TextEditorWidgetPrivate::paintWidgetBackground(const PaintEventData &data,
                                                     QPainter &painter) const
 {
-    if (q->backgroundVisible()
-            && !data.block.isValid()
-            && data.offset.y() <= data.eventRect.bottom()
-            && (q->centerOnScroll() || q->verticalScrollBar()->maximum() == q->verticalScrollBar()->minimum())) {
-        const QRect backGroundRect(QPoint(data.eventRect.left(), int(data.offset.y())),
-                                   data.eventRect.bottomRight());
-        painter.fillRect(backGroundRect, q->palette().window());
-    }
+    painter.fillRect(data.eventRect, data.fontSettings.toTextCharFormat(C_TEXT).background());
 }
 
 void TextEditorWidgetPrivate::paintOverlays(const PaintEventData &data, QPainter &painter) const
@@ -4765,10 +4778,14 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
 
     data.block = firstVisibleBlock();
     data.context = getPaintContext();
+    const QTextCharFormat textFormat = textDocument()->fontSettings().toTextCharFormat(C_TEXT);
+    data.context.palette.setBrush(QPalette::Text, textFormat.foreground());
+    data.context.palette.setBrush(QPalette::Base, textFormat.background());
     // clear the back ground of the normal selection when in block selection mode
     d->clearSelectionBackground(data);
 
     { // paint background
+        d->paintWidgetBackground(data, painter);
         // draw backgrond to the right of the wrap column before everything else
         d->paintRightMarginArea(data, painter);
         // paint a blended background color depending on scope depth
@@ -4817,7 +4834,8 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
             if ((!HostOsInfo::isMacHost()
                  || d->m_blockSelection.positionColumn == d->m_blockSelection.anchorColumn)
                     && blockData.blockSelectionCursorRect.isValid()) {
-                painter.fillRect(blockData.blockSelectionCursorRect, palette().text());
+                const QTextCharFormat textFormat = data.fontSettings.toTextCharFormat(C_TEXT);
+                painter.fillRect(blockData.blockSelectionCursorRect, textFormat.foreground());
             }
 
             d->paintAdditionalVisualWhitespaces(data, painter, blockData.boundingRect.top());
@@ -4846,9 +4864,6 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
     d->cleanupAnnotationCache();
 
     painter.setPen(data.context.palette.text().color());
-
-    // paint background of the widget that is not covered by the document
-    d->paintWidgetBackground(data, painter);
 
     d->updateAnimator(d->m_bracketsAnimator, painter);
     d->updateAnimator(d->m_autocompleteAnimator, painter);
@@ -4908,9 +4923,9 @@ void TextEditorWidget::drawCollapsedBlockPopup(QPainter &painter,
     painter.save();
     painter.setRenderHint(QPainter::Antialiasing, true);
     painter.translate(.5, .5);
-    QBrush brush = palette().base();
-    const QTextCharFormat &ifdefedOutFormat
-            = textDocument()->fontSettings().toTextCharFormat(C_DISABLED_CODE);
+    QBrush brush = textDocument()->fontSettings().toTextCharFormat(C_TEXT).background();
+    const QTextCharFormat ifdefedOutFormat = textDocument()->fontSettings().toTextCharFormat(
+        C_DISABLED_CODE);
     if (ifdefedOutFormat.hasProperty(QTextFormat::BackgroundBrush))
         brush = ifdefedOutFormat.background();
     painter.setBrush(brush);
@@ -4959,8 +4974,8 @@ int TextEditorWidget::extraAreaWidth(int *markWidthPtr) const
         QFont fnt = d->m_extraArea->font();
         // this works under the assumption that bold or italic
         // can only make a font wider
-        const QTextCharFormat &currentLineNumberFormat
-                = textDocument()->fontSettings().toTextCharFormat(C_CURRENT_LINE_NUMBER);
+        const QTextCharFormat currentLineNumberFormat
+            = textDocument()->fontSettings().toTextCharFormat(C_CURRENT_LINE_NUMBER);
         fnt.setBold(currentLineNumberFormat.font().bold());
         fnt.setItalic(currentLineNumberFormat.font().italic());
         const QFontMetrics linefm(fnt);
@@ -5290,8 +5305,8 @@ void TextEditorWidgetPrivate::updateCurrentLineHighlight()
 
     if (m_highlightCurrentLine) {
         QTextEdit::ExtraSelection sel;
-        sel.format.setBackground(q->textDocument()->fontSettings()
-                                 .toTextCharFormat(C_CURRENT_LINE).background());
+        sel.format.setBackground(
+            m_document->fontSettings().toTextCharFormat(C_CURRENT_LINE).background());
         sel.format.setProperty(QTextFormat::FullWidthSelection, true);
         sel.cursor = q->textCursor();
         sel.cursor.clearSelection();
@@ -6259,7 +6274,7 @@ void TextEditorWidgetPrivate::showLink(const Utils::Link &link)
     sel.cursor = q->textCursor();
     sel.cursor.setPosition(link.linkTextStart);
     sel.cursor.setPosition(link.linkTextEnd, QTextCursor::KeepAnchor);
-    sel.format = q->textDocument()->fontSettings().toTextCharFormat(C_LINK);
+    sel.format = m_document->fontSettings().toTextCharFormat(C_LINK);
     sel.format.setFontUnderline(true);
     q->setExtraSelections(TextEditorWidget::OtherSelection, QList<QTextEdit::ExtraSelection>() << sel);
     q->viewport()->setCursor(Qt::PointingHandCursor);
@@ -6587,10 +6602,9 @@ void TextEditorWidgetPrivate::_q_matchParentheses()
         return;
     }
 
-    const QTextCharFormat &matchFormat
-            = q->textDocument()->fontSettings().toTextCharFormat(C_PARENTHESES);
-    const QTextCharFormat &mismatchFormat
-            = q->textDocument()->fontSettings().toTextCharFormat(C_PARENTHESES_MISMATCH);
+    const QTextCharFormat matchFormat = m_document->fontSettings().toTextCharFormat(C_PARENTHESES);
+    const QTextCharFormat mismatchFormat = m_document->fontSettings().toTextCharFormat(
+        C_PARENTHESES_MISMATCH);
     int animatePosition = -1;
     if (backwardMatch.hasSelection()) {
         QTextEdit::ExtraSelection sel;
@@ -6738,8 +6752,8 @@ void TextEditorWidgetPrivate::autocompleterHighlight(const QTextCursor &cursor)
         m_autoCompleteHighlightPos.push_back(cursor);
     }
     if (m_animateAutoComplete) {
-        const QTextCharFormat &matchFormat
-                = q->textDocument()->fontSettings().toTextCharFormat(C_AUTOCOMPLETE);
+        const QTextCharFormat matchFormat = m_document->fontSettings().toTextCharFormat(
+            C_AUTOCOMPLETE);
         cancelCurrentAnimations();// one animation is enough
         QPalette pal;
         pal.setBrush(QPalette::Text, matchFormat.foreground());
@@ -7318,26 +7332,9 @@ void TextEditorWidget::applyFontSettings()
     d->m_fontSettingsNeedsApply = false;
     const FontSettings &fs = textDocument()->fontSettings();
     const QTextCharFormat textFormat = fs.toTextCharFormat(C_TEXT);
-    const QTextCharFormat selectionFormat = fs.toTextCharFormat(C_SELECTION);
     const QTextCharFormat lineNumberFormat = fs.toTextCharFormat(C_LINE_NUMBER);
     QFont font(textFormat.font());
 
-    const QColor foreground = textFormat.foreground().color();
-    const QColor background = textFormat.background().color();
-    QPalette p = palette();
-    p.setColor(QPalette::Text, foreground);
-    p.setColor(QPalette::WindowText, foreground);
-    p.setColor(QPalette::Base, background);
-    p.setColor(QPalette::Highlight, (selectionFormat.background().style() != Qt::NoBrush) ?
-               selectionFormat.background().color() :
-               QApplication::palette().color(QPalette::Highlight));
-
-    p.setBrush(QPalette::HighlightedText, selectionFormat.foreground());
-
-    p.setBrush(QPalette::Inactive, QPalette::Highlight, p.highlight());
-    p.setBrush(QPalette::Inactive, QPalette::HighlightedText, p.highlightedText());
-    if (p != palette())
-        setPalette(p);
     if (font != this->font()) {
         setFont(font);
         d->updateTabStops(); // update tab stops, they depend on the font
@@ -7347,7 +7344,7 @@ void TextEditorWidget::applyFontSettings()
     QPalette ep;
     ep.setColor(QPalette::Dark, lineNumberFormat.foreground().color());
     ep.setColor(QPalette::Window, lineNumberFormat.background().style() != Qt::NoBrush ?
-                lineNumberFormat.background().color() : background);
+                lineNumberFormat.background().color() : textFormat.background().color());
     if (ep != d->m_extraArea->palette()) {
         d->m_extraArea->setPalette(ep);
         d->slotUpdateExtraAreaWidth();   // Adjust to new font width

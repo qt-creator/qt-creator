@@ -34,6 +34,9 @@
 
 using ClangBackEnd::DiagnosticContainer;
 
+namespace ClangCodeModel {
+namespace Internal {
+
 namespace {
 
 void capitalizeText(QString &text)
@@ -50,7 +53,7 @@ QString tweakedDiagnosticText(const QString &diagnosticText)
     QString tweakedText = diagnosticText;
 
     if (!tweakedText.isEmpty()) {
-        tweakedText = ClangCodeModel::Utils::diagnosticCategoryPrefixRemoved(tweakedText);
+        tweakedText = diagnosticCategoryPrefixRemoved(tweakedText);
         capitalizeText(tweakedText);
     }
 
@@ -70,9 +73,6 @@ bool hasFixItAt(const QVector<ClangBackEnd::FixItContainer> &fixits,
 }
 
 } // anonymous namespace
-
-namespace ClangCodeModel {
-namespace Internal {
 
 ClangFixItOperationsExtractor::ClangFixItOperationsExtractor(
         const QVector<DiagnosticContainer> &diagnosticContainers)

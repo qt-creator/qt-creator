@@ -185,6 +185,8 @@ isEmpty(LLVM_VERSION) {
     LLVM_BINDIR = $$quote($$system($$llvm_config --bindir, lines))
     LLVM_INCLUDEPATH = $$system($$llvm_config --includedir, lines)
     msvc {
+        # llvm-config returns mixed path separators for --includedir
+        LLVM_INCLUDEPATH = $$replace(LLVM_INCLUDEPATH, /, \\)
         # CLANG-UPGRADE-CHECK: Remove suppression if this warning is resolved.
         # Suppress unreferenced formal parameter warnings
         QMAKE_CXXFLAGS += -wd4100
@@ -233,7 +235,7 @@ isEmpty(LLVM_VERSION) {
         $$llvmWarningOrError("Cannot find Clang shared library in $$LLVM_LIBDIR")
     }
 
-    !contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): LIBCLANG_LIBS = -L$${LLVM_LIBDIR}
+    !contains(QMAKE_DEFAULT_LIBDIRS, $$re_escape($$LLVM_LIBDIR)): LIBCLANG_LIBS = -L$${LLVM_LIBDIR}
     LIBCLANG_LIBS += $${CLANG_LIB}
 
     isEmpty(QTC_CLANG_BUILDMODE_MISMATCH)|!equals(QTC_CLANG_BUILDMODE_MISMATCH, 1) {
@@ -249,7 +251,7 @@ isEmpty(LLVM_VERSION) {
     }
     ALL_CLANG_LIBS = -L$${LLVM_LIBDIR} $$ALL_CLANG_LIBS $$CLANG_LIB $$LLVM_STATIC_LIBS
 
-    contains(QMAKE_DEFAULT_INCDIRS, $$LLVM_INCLUDEPATH): LLVM_INCLUDEPATH =
+    contains(QMAKE_DEFAULT_INCDIRS, $$re_escape($$LLVM_INCLUDEPATH)): LLVM_INCLUDEPATH =
 
     # Remove unwanted flags. It is a workaround for linking.
     # It is not intended for cross compiler linking.

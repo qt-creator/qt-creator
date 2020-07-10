@@ -65,7 +65,7 @@ TextEditor::AssistInterface *ClangCompletionAssistProvider::createAssistInterfac
         int position,
         TextEditor::AssistReason reason) const
 {
-    const CppTools::ProjectPart::Ptr projectPart = Utils::projectPartForFileBasedOnProcessor(filePath);
+    const CppTools::ProjectPart::Ptr projectPart = projectPartForFileBasedOnProcessor(filePath);
     if (projectPart) {
         return new ClangCompletionAssistInterface(m_communicator,
                                                   textEditorWidget,
