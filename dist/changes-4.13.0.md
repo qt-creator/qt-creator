@@ -37,6 +37,7 @@ Editing
 * Added editor tool button for `Analyze File` (QTCREATORBUG-23348)
 * Added `Add forward declaration` refactoring action (QTCREATORBUG-23444)
 * Extended `Add Include` refactoring action to non-Qt classes (QTCREATORBUG-21)
+* Fixed MSVC detection with some locale settings (QTCREATORBUG-24311)
 * Fixed indentation with C++11 list initialization (QTCREATORBUG-16977, QTCREATORBUG-24035)
 * Fixed indentation with trailing return types (QTCREATORBUG-23502)
 * Fixed issue with `std::chrono::time_point` (QTCREATORBUG-24067)
@@ -69,6 +70,7 @@ Editing
 ### Python
 
 * Added tool button for opening interactive Python, optionally importing current file
+* Fixed highlighting of parentheses
 
 ### Diff Viewer
 
@@ -121,6 +123,7 @@ Debugging
 ---------
 
 * Added option to reset all formats for watches to default
+* Added option to override sysroot setting when starting or attaching to external application
 
 Analyzer
 --------
@@ -130,6 +133,7 @@ Analyzer
 * Re-added editor text marks for diagnostics (QTCREATORBUG-23349)
 * Changed to use separate `clazy-standalone` executable
 * Fixed issue with `clang-tidy` and `WarningsAsErrors` (QTCREATORBUG-23423)
+* Fixed output parsing of `clazy`
 
 Version Control Systems
 -----------------------
@@ -163,6 +167,7 @@ Platforms
 * Removed Ministro deployment option (QTCREATORBUG-23761)
 * Added service editor to manifest editor (QTCREATORBUG-23937)
 * Added splash screen editor to manifest editor (QTCREATORBUG-24011, QTCREATORBUG-24013)
+* Fixed QML debugging and profiling (QTCREATORBUG-24155)
 * Fixed debugging on x86 and armv7 architectures (QTCREATORBUG-24191)
 * Fixed issue with long kit names (QTBUG-83875)
 
