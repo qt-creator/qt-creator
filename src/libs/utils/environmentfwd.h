@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QTreeView;

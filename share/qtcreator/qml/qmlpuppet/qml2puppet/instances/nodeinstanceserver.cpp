@@ -84,7 +84,6 @@
 #include <QQmlContext>
 #include <qqmllist.h>
 #include <QAbstractAnimation>
-#include <QMutableVectorIterator>
 #include <QQuickView>
 #include <QSet>
 #include <designersupportdelegate.h>
