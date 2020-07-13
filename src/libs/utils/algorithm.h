@@ -566,52 +566,56 @@ namespace {
 
 // SetInsertIterator, straight from the standard for insert_iterator
 // just without the additional parameter to insert
-template <class Container>
-  class SetInsertIterator :
-    public std::iterator<std::output_iterator_tag,void,void,void,void>
+template<class Container>
+class SetInsertIterator
 {
 protected:
   Container *container;
 
 public:
-  using container_type = Container;
-  explicit SetInsertIterator (Container &x)
-    : container(&x) {}
-  SetInsertIterator<Container> &operator=(const typename Container::value_type &value)
-    { container->insert(value); return *this; }
-  SetInsertIterator<Container> &operator= (typename Container::value_type &&value)
-    { container->insert(std::move(value)); return *this; }
-  SetInsertIterator<Container >&operator*()
-    { return *this; }
-  SetInsertIterator<Container> &operator++()
-    { return *this; }
-  SetInsertIterator<Container> operator++(int)
-    { return *this; }
+    using iterator_category = std::output_iterator_tag;
+    using container_type = Container;
+    explicit SetInsertIterator(Container &x)
+        : container(&x)
+    {}
+    SetInsertIterator<Container> &operator=(const typename Container::value_type &value)
+    {
+        container->insert(value);
+        return *this;
+    }
+    SetInsertIterator<Container> &operator=(typename Container::value_type &&value)
+    {
+        container->insert(std::move(value));
+        return *this;
+    }
+    SetInsertIterator<Container> &operator*() { return *this; }
+    SetInsertIterator<Container> &operator++() { return *this; }
+    SetInsertIterator<Container> operator++(int) { return *this; }
 };
 
 // for QMap / QHash, inserting a std::pair / QPair
-template <class Container>
-    class MapInsertIterator :
-      public std::iterator<std::output_iterator_tag,void,void,void,void>
-  {
-  protected:
+template<class Container>
+class MapInsertIterator
+{
+protected:
     Container *container;
 
-  public:
+public:
+    using iterator_category = std::output_iterator_tag;
     using container_type = Container;
-    explicit MapInsertIterator (Container &x)
-      : container(&x) {}
-    MapInsertIterator<Container> &operator=(const std::pair<const typename Container::key_type, typename Container::mapped_type> &value)
-      { container->insert(value.first, value.second); return *this; }
-    MapInsertIterator<Container> &operator=(const QPair<typename Container::key_type, typename Container::mapped_type> &value)
-      { container->insert(value.first, value.second); return *this; }
-    MapInsertIterator<Container >&operator*()
-      { return *this; }
-    MapInsertIterator<Container> &operator++()
-      { return *this; }
-    MapInsertIterator<Container> operator++(int)
-      { return *this; }
-  };
+    explicit MapInsertIterator(Container &x)
+        : container(&x)
+    {}
+    MapInsertIterator<Container> &operator=(
+        const std::pair<const typename Container::key_type, typename Container::mapped_type> &value)
+    { container->insert(value.first, value.second); return *this; }
+    MapInsertIterator<Container> &operator=(
+        const QPair<typename Container::key_type, typename Container::mapped_type> &value)
+    { container->insert(value.first, value.second); return *this; }
+    MapInsertIterator<Container> &operator*() { return *this; }
+    MapInsertIterator<Container> &operator++() { return *this; }
+    MapInsertIterator<Container> operator++(int) { return *this; }
+};
 
 // inserter helper function, returns a std::back_inserter for most containers
 // and is overloaded for QSet<> and other containers without push_back, returning custom inserters
