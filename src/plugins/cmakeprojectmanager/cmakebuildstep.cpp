@@ -88,8 +88,8 @@ static bool isCurrentExecutableTarget(const QString &target)
 CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Utils::Id id) :
     AbstractProcessStep(bsl, id)
 {
-    m_percentProgress = QRegExp("^\\[\\s*(\\d*)%\\]");
-    m_ninjaProgress = QRegExp("^\\[\\s*(\\d*)/\\s*(\\d*)");
+    m_percentProgress = QRegularExpression("^\\[\\s*(\\d*)%\\]");
+    m_ninjaProgress = QRegularExpression("^\\[\\s*(\\d*)/\\s*(\\d*)");
     m_ninjaProgressString = "[%f/%t "; // ninja: [33/100
     //: Default display name for the cmake make step.
     setDefaultDisplayName(tr("CMake Build"));
@@ -289,26 +289,30 @@ void CMakeBuildStep::stdOutput(const QString &output)
             line = output.mid(offset, newlinePos - offset + 1);
             offset = newlinePos + 1;
         }
-        if (m_percentProgress.indexIn(line) != -1) {
+        QRegularExpressionMatch match = m_percentProgress.match(line);
+        if (match.hasMatch()) {
             AbstractProcessStep::stdOutput(line);
             bool ok = false;
-            int percent = m_percentProgress.cap(1).toInt(&ok);
+            int percent = match.captured(1).toInt(&ok);
             if (ok)
                 emit progress(percent, QString());
             continue;
-        } else if (m_ninjaProgress.indexIn(line) != -1) {
-            AbstractProcessStep::stdOutput(line);
-            m_useNinja = true;
-            bool ok = false;
-            int done = m_ninjaProgress.cap(1).toInt(&ok);
-            if (ok) {
-                int all = m_ninjaProgress.cap(2).toInt(&ok);
-                if (ok && all != 0) {
-                    const int percent = static_cast<int>(100.0 * done/all);
-                    emit progress(percent, QString());
+        } else {
+            match = m_ninjaProgress.match(line);
+            if (match.hasMatch()) {
+                AbstractProcessStep::stdOutput(line);
+                m_useNinja = true;
+                bool ok = false;
+                int done = match.captured(1).toInt(&ok);
+                if (ok) {
+                    int all = match.captured(2).toInt(&ok);
+                    if (ok && all != 0) {
+                        const int percent = static_cast<int>(100.0 * done/all);
+                        emit progress(percent, QString());
+                    }
                 }
+                continue;
             }
-            continue;
         }
         if (m_useNinja)
             AbstractProcessStep::stdError(line);

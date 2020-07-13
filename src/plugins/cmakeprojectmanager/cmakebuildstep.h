@@ -27,6 +27,8 @@
 
 #include <projectexplorer/abstractprocessstep.h>
 
+#include <QRegularExpression>
+
 namespace Utils { class CommandLine; }
 
 namespace ProjectExplorer { class RunConfiguration; }
@@ -98,8 +100,8 @@ private:
 
     QMetaObject::Connection m_runTrigger;
 
-    QRegExp m_percentProgress;
-    QRegExp m_ninjaProgress;
+    QRegularExpression m_percentProgress;
+    QRegularExpression m_ninjaProgress;
     QString m_ninjaProgressString;
     QStringList m_buildTargets;
     QString m_cmakeArguments;
