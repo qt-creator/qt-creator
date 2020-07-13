@@ -1,8 +1,8 @@
 #PROJECT_USER_FILE_EXTENSION = .user
 
-set(IDE_VERSION "4.12.82")                            # The IDE version.
-set(IDE_VERSION_COMPAT "4.12.82")                     # The IDE Compatibility version.
-set(IDE_VERSION_DISPLAY "4.13.0-beta1")               # The IDE display version.
+set(IDE_VERSION "4.12.83")                            # The IDE version.
+set(IDE_VERSION_COMPAT "4.12.83")                     # The IDE Compatibility version.
+set(IDE_VERSION_DISPLAY "4.13.0-beta2")               # The IDE display version.
 set(IDE_COPYRIGHT_YEAR "2020")                        # The IDE current copyright year.
 
 set(IDE_SETTINGSVARIANT "QtProject")                  # The IDE settings variation.
