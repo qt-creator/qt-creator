@@ -80,6 +80,7 @@
 #include <utils/qtcassert.h>
 
 #include <QAction>
+#include <QActionGroup>
 #include <QComboBox>
 #include <QDir>
 #include <QEvent>
