@@ -32,7 +32,7 @@
 
 #include <QFileInfo>
 #include <QProcess>
-#include <QRegExp>
+#include <QRegularExpression>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -164,10 +164,11 @@ bool NimToolChain::parseVersion(const FilePath &path, std::tuple<int, int, int> 
     const QString version = QString::fromUtf8(process.readLine());
     if (version.isEmpty())
         return false;
-    const QRegExp regex("(\\d+)\\.(\\d+)\\.(\\d+)");
-    if (regex.indexIn(version) == -1)
+    const QRegularExpression regex("(\\d+)\\.(\\d+)\\.(\\d+)");
+    const QRegularExpressionMatch match = regex.match(version);
+    if (!match.hasMatch())
         return false;
-    const QStringList text = regex.capturedTexts();
+    const QStringList text = match.capturedTexts();
     if (text.length() != 4)
         return false;
     result = std::make_tuple(text[1].toInt(), text[2].toInt(), text[3].toInt());
