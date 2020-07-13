@@ -27,8 +27,9 @@
 
 #include "texteditor_global.h"
 #include "blockrange.h"
-#include "indenter.h"
 #include "codeassist/assistenums.h"
+#include "indenter.h"
+#include "refactoroverlay.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -62,7 +63,6 @@ class TextDocument;
 class TextMark;
 class BaseHoverHandler;
 class RefactorOverlay;
-struct RefactorMarker;
 class SyntaxHighlighter;
 class AssistInterface;
 class IAssistProvider;
