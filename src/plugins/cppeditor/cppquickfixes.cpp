@@ -1695,9 +1695,9 @@ public:
         CppRefactoringFilePtr currentFile = refactoring.file(fileName());
 
         for (int i = 1; i < m_name.length(); ++i) {
-            QCharRef c = m_name[i];
+            const QChar c = m_name.at(i);
             if (c.isUpper()) {
-                c = c.toLower();
+                m_name[i] = c.toLower();
             } else if (i < m_name.length() - 1
                        && isConvertibleUnderscore(m_name, i)) {
                 m_name.remove(i, 1);
