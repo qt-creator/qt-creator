@@ -33,7 +33,7 @@
 #include <utils/stylehelper.h>
 
 #include <QApplication>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QScreen>
 #include <QPointer>
 #include <QQmlEngine>
@@ -92,13 +92,15 @@ Theme *Theme::instance()
 
 QString Theme::replaceCssColors(const QString &input)
 {
-    QRegExp rx("creatorTheme\\.(\\w+)");
+    const QRegularExpression rx("creatorTheme\\.(\\w+)");
 
     int pos = 0;
     QString output = input;
 
-    while ((pos = rx.indexIn(input, pos)) != -1) {
-        const QString themeColorName = rx.cap(1);
+    QRegularExpressionMatchIterator it = rx.globalMatch(input);
+    while (it.hasNext()) {
+        const QRegularExpressionMatch match = it.next();
+        const QString themeColorName = match.captured(1);
 
         if (themeColorName == "smallFontPixelSize") {
             output.replace("creatorTheme." + themeColorName, QString::number(instance()->smallFontPixelSize()) + "px");
@@ -106,9 +108,9 @@ QString Theme::replaceCssColors(const QString &input)
             output.replace("creatorTheme." + themeColorName, QString::number(instance()->captionFontPixelSize()) + "px");
         } else {
             const QColor color = instance()->evaluateColorAtThemeInstance(themeColorName);
-            output.replace("creatorTheme." + rx.cap(1), color.name());
+            output.replace("creatorTheme." + themeColorName, color.name());
         }
-        pos += rx.matchedLength();
+        pos += match.capturedLength();
     }
 
     return output;

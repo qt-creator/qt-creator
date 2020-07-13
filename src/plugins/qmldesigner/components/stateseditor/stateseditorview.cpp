@@ -29,7 +29,7 @@
 #include <rewritingexception.h>
 
 #include <QDebug>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <cmath>
 
 #include <nodemetainfo.h>
@@ -186,10 +186,10 @@ void StatesEditorView::duplicateCurrentState()
     QString newName = state.name();
 
     // Strip out numbers at the end of the string
-    QRegExp regEx(QLatin1String("[0-9]+$"));
-    int numberIndex = newName.indexOf(regEx);
-    if ((numberIndex != -1) && (numberIndex+regEx.matchedLength()==newName.length()))
-        newName = newName.left(numberIndex);
+    QRegularExpression regEx(QLatin1String("[0-9]+$"));
+    const QRegularExpressionMatch match = regEx.match(newName);
+    if (match.hasMatch() && (match.capturedStart() + match.capturedLength() == newName.length()))
+        newName = newName.left(match.capturedStart());
 
     int i = 1;
     QStringList stateNames = rootStateGroup().names();

@@ -44,7 +44,7 @@
 #include <qmldesignerplugin.h>
 #endif
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace QmlDesigner {
 
@@ -246,8 +246,9 @@ bool QmlObjectNode::isTranslatableText(const PropertyName &name) const
     if (modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name))
         if (modelNode().metaInfo().propertyTypeName(name) == "QString" || modelNode().metaInfo().propertyTypeName(name) == "string") {
             if (modelNode().hasBindingProperty(name)) {
-                static QRegExp regularExpressionPatter(QLatin1String("qsTr(|Id|anslate)\\(\".*\"\\)"));
-                return regularExpressionPatter.exactMatch(modelNode().bindingProperty(name).expression());
+                static QRegularExpression regularExpressionPattern(
+                            QLatin1String("^qsTr(|Id|anslate)\\(\".*\"\\)$"));
+                return modelNode().bindingProperty(name).expression().contains(regularExpressionPattern);
             }
 
             return false;
@@ -259,9 +260,12 @@ bool QmlObjectNode::isTranslatableText(const PropertyName &name) const
 QString QmlObjectNode::stripedTranslatableText(const PropertyName &name) const
 {
     if (modelNode().hasBindingProperty(name)) {
-        static QRegExp regularExpressionPatter(QLatin1String("qsTr(|Id|anslate)\\(\"(.*)\"\\)"));
-        if (regularExpressionPatter.exactMatch(modelNode().bindingProperty(name).expression()))
-            return regularExpressionPatter.cap(2);
+        static QRegularExpression regularExpressionPattern(
+                    QLatin1String("^qsTr(|Id|anslate)\\(\"(.*)\"\\)$"));
+        const QRegularExpressionMatch match = regularExpressionPattern.match(
+                    modelNode().bindingProperty(name).expression());
+        if (match.hasMatch())
+            return match.captured(2);
         return instanceValue(name).toString();
     }
     return instanceValue(name).toString();

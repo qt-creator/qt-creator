@@ -35,7 +35,7 @@
 
 #include <utils/qtcassert.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QUrl>
 
 //using namespace QmlDesigner;
@@ -246,12 +246,13 @@ bool PropertyEditorValue::isTranslated() const
         if (modelNode().metaInfo().propertyTypeName(name()) == "QString" || modelNode().metaInfo().propertyTypeName(name()) == "string") {
             const QmlDesigner::QmlObjectNode objectNode(modelNode());
             if (objectNode.isValid() && objectNode.hasBindingProperty(name())) {
-                QRegExp rx("qsTr(|Id|anslate)\\(\".*\"\\)");
+                const QRegularExpression rx(QRegularExpression::anchoredPattern(
+                                                "qsTr(|Id|anslate)\\(\".*\"\\)"));
                 //qsTr()
                 if (objectNode.propertyAffectedByCurrentState(name())) {
-                    return rx.exactMatch(expression());
+                    return expression().contains(rx);
                 } else {
-                    return rx.exactMatch(modelNode().bindingProperty(name()).expression());
+                    return modelNode().bindingProperty(name()).expression().contains(rx);
                 }
             }
             return false;
@@ -358,9 +359,11 @@ QString PropertyEditorValue::getTranslationContext() const
         if (modelNode().metaInfo().propertyTypeName(name()) == "QString" || modelNode().metaInfo().propertyTypeName(name()) == "string") {
             const QmlDesigner::QmlObjectNode objectNode(modelNode());
             if (objectNode.isValid() && objectNode.hasBindingProperty(name())) {
-                QRegExp rx("qsTranslate\\(\"(.*)\"\\s*,\\s*\".*\"\\s*\\)");
-                if (rx.exactMatch(expression()))
-                    return rx.cap(1);
+                const QRegularExpression rx(QRegularExpression::anchoredPattern(
+                                          "qsTranslate\\(\"(.*)\"\\s*,\\s*\".*\"\\s*\\)"));
+                const QRegularExpressionMatch match = rx.match(expression());
+                if (match.hasMatch())
+                    return match.captured(1);
             }
         }
     }
@@ -372,11 +375,12 @@ bool PropertyEditorValue::isIdList() const
     if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name())) {
         const QmlDesigner::QmlObjectNode objectNode(modelNode());
         if (objectNode.isValid() && objectNode.hasBindingProperty(name())) {
-            static const QRegExp rx("^[a-z_]\\w*|^[A-Z]\\w*\\.{1}([a-z_]\\w*\\.?)+");
+            static const QRegularExpression rx(QRegularExpression::anchoredPattern(
+                                                   "^[a-z_]\\w*|^[A-Z]\\w*\\.{1}([a-z_]\\w*\\.?)+"));
             const QString exp = objectNode.propertyAffectedByCurrentState(name()) ? expression() : modelNode().bindingProperty(name()).expression();
             for (const auto &str : generateStringList(exp))
             {
-                if (!rx.exactMatch(str))
+                if (!str.contains(rx))
                     return false;
             }
             return true;
@@ -397,8 +401,9 @@ bool PropertyEditorValue::idListAdd(const QString &value)
     if (!isIdList() && (objectNode.isValid() && objectNode.hasProperty(name())))
         return false;
 
-    static const QRegExp rx("^[a-z_]\\w*|^[A-Z]\\w*\\.{1}([a-z_]\\w*\\.?)+");
-    if (!rx.exactMatch(value))
+    static const QRegularExpression rx(QRegularExpression::anchoredPattern(
+                                           "^[a-z_]\\w*|^[A-Z]\\w*\\.{1}([a-z_]\\w*\\.?)+"));
+    if (!value.contains(rx))
         return false;
 
     auto stringList = generateStringList(expression());
@@ -426,8 +431,9 @@ bool PropertyEditorValue::idListReplace(int idx, const QString &value)
 {
     QTC_ASSERT(isIdList(), return false);
 
-    static const QRegExp rx("^[a-z_]\\w*|^[A-Z]\\w*\\.{1}([a-z_]\\w*\\.?)+");
-    if (!rx.exactMatch(value))
+    static const QRegularExpression rx(QRegularExpression::anchoredPattern(
+                                           "^[a-z_]\\w*|^[A-Z]\\w*\\.{1}([a-z_]\\w*\\.?)+"));
+    if (!value.contains(rx))
         return false;
 
     auto stringList = generateStringList(expression());
@@ -446,7 +452,7 @@ QStringList PropertyEditorValue::generateStringList(const QString &string) const
     QString copy = string;
     copy = copy.remove("[").remove("]");
 
-    QStringList tmp = copy.split(",", QString::SkipEmptyParts);
+    QStringList tmp = copy.split(',', Qt::SkipEmptyParts);
     for (QString &str : tmp)
         str = str.trimmed();
 

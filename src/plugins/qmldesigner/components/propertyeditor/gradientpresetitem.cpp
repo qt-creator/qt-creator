@@ -28,12 +28,13 @@
 #include <utils/qtcassert.h>
 #include <utils/algorithm.h>
 
-#include <QVariant>
-#include <QMetaObject>
-#include <QMetaEnum>
-#include <algorithm>
 #include <QDebug>
+#include <QMetaEnum>
+#include <QMetaObject>
+#include <QRegularExpression>
+#include <QVariant>
 
+#include <algorithm>
 
 GradientPresetItem::GradientPresetItem()
     : m_gradientVal(QGradient())
@@ -155,7 +156,7 @@ QString GradientPresetItem::getNameByPreset(Preset value)
 
     QString enumName = QString::fromUtf8(metaEnum.valueToKey(static_cast<int>(value)));
 
-    const QStringList sl = enumName.split(QRegExp("(?=[A-Z])"), QString::SkipEmptyParts);
+    const QStringList sl = enumName.split(QRegularExpression("(?=[A-Z])"), Qt::SkipEmptyParts);
 
     enumName.clear();
     std::for_each(sl.begin(), sl.end(), [&enumName](const QString &s) { enumName += (s + " "); });

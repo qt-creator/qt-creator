@@ -46,7 +46,7 @@
 #include <utils/algorithm.h>
 
 #include <QHash>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QSet>
 #include <QTextStream>
 
@@ -224,8 +224,8 @@ static bool isIdToAvoid(const QString& id)
 
 static bool idContainsWrongLetter(const QString& id)
 {
-    static QRegExp idExpr(QStringLiteral("[a-z_][a-zA-Z0-9_]*"));
-    return !idExpr.exactMatch(id);
+    static QRegularExpression idExpr(QStringLiteral("^[a-z_][a-zA-Z0-9_]+$"));
+    return !id.contains(idExpr);
 }
 
 bool ModelNode::isValidId(const QString &id)
