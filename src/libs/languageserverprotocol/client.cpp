@@ -31,7 +31,7 @@ constexpr const char RegisterCapabilityRequest::methodName[];
 constexpr const char UnregisterCapabilityRequest::methodName[];
 
 RegisterCapabilityRequest::RegisterCapabilityRequest(const RegistrationParams &params)
-    : RegisterCapabilityRequest(methodName, params) { }
+    : Request(methodName, params) { }
 
 UnregisterCapabilityRequest::UnregisterCapabilityRequest(const UnregistrationParams &params)
     : UnregisterCapabilityRequest(methodName, params) { }

@@ -155,8 +155,8 @@ InitializeRequest::InitializeRequest(const InitializeParams &params)
     : Request(methodName, params)
 { }
 
-InitializeNotification::InitializeNotification()
-    : Notification(methodName)
+InitializeNotification::InitializeNotification(const InitializedParams &params)
+    : Notification(methodName, params)
 { }
 
 } // namespace LanguageServerProtocol

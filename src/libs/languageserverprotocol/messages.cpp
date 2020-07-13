@@ -42,12 +42,12 @@ ShowMessageRequest::ShowMessageRequest(const ShowMessageRequestParams &params)
     : Request(methodName, params)
 { }
 
-LogMessageNotification::LogMessageNotification()
-    : Notification(methodName)
+LogMessageNotification::LogMessageNotification(const LogMessageParams &params)
+    : Notification(methodName, params)
 { }
 
-TelemetryNotification::TelemetryNotification()
-    : Notification(methodName)
+TelemetryNotification::TelemetryNotification(const JsonObject &params)
+    : Notification(methodName, params)
 { }
 
 bool ShowMessageRequestParams::isValid(ErrorHierarchy *error) const

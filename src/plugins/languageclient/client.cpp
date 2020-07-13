@@ -1367,7 +1367,7 @@ void Client::initializeCallback(const InitializeRequest::Response &initResponse)
 
     qCDebug(LOGLSPCLIENT) << "language server " << m_displayName << " initialized";
     m_state = Initialized;
-    sendContent(InitializeNotification());
+    sendContent(InitializeNotification(InitializedParams()));
     if (m_dynamicCapabilities.isRegistered(DocumentSymbolsRequest::methodName)
             .value_or(capabilities().documentSymbolProvider().value_or(false))) {
         TextEditor::IOutlineWidgetFactory::updateOutline();

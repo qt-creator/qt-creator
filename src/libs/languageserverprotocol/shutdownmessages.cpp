@@ -29,7 +29,7 @@ namespace LanguageServerProtocol {
 
 constexpr const char ShutdownRequest::methodName[];
 constexpr const char ExitNotification::methodName[];
-ShutdownRequest::ShutdownRequest() : Request(methodName) { }
+ShutdownRequest::ShutdownRequest() : Request(methodName, nullptr) { }
 ExitNotification::ExitNotification() : Notification(methodName) { }
 
 } // namespace LanguageServerProtocol

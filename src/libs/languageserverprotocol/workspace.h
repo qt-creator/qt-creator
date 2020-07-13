@@ -80,8 +80,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DidChangeWorkspaceFoldersNotification : publ
         DidChangeWorkspaceFoldersParams>
 {
 public:
-    DidChangeWorkspaceFoldersNotification(
-            const DidChangeWorkspaceFoldersParams &params = DidChangeWorkspaceFoldersParams());
+    DidChangeWorkspaceFoldersNotification(const DidChangeWorkspaceFoldersParams &params);
     constexpr static const char methodName[] = "workspace/didChangeWorkspaceFolders";
     using Notification::Notification;
 };
@@ -101,8 +100,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DidChangeConfigurationNotification : public 
         DidChangeConfigurationParams>
 {
 public:
-    DidChangeConfigurationNotification(
-            const DidChangeConfigurationParams &params = DidChangeConfigurationParams());
+    DidChangeConfigurationNotification(const DidChangeConfigurationParams &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "workspace/didChangeConfiguration";
 };
@@ -138,7 +136,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT ConfigurationRequest : public Request<
         LanguageClientArray<QJsonValue>, std::nullptr_t, ConfigurationParams>
 {
 public:
-    ConfigurationRequest(const ConfigurationParams &params = ConfigurationParams());
+    ConfigurationRequest(const ConfigurationParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "workspace/configuration";
 };
@@ -180,7 +178,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DidChangeWatchedFilesNotification : public N
         DidChangeWatchedFilesParams>
 {
 public:
-    DidChangeWatchedFilesNotification(const DidChangeWatchedFilesParams &params = DidChangeWatchedFilesParams());
+    DidChangeWatchedFilesNotification(const DidChangeWatchedFilesParams &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "workspace/didChangeWatchedFiles";
 };
@@ -200,7 +198,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT WorkspaceSymbolRequest : public Request<
         LanguageClientArray<SymbolInformation>, std::nullptr_t, WorkspaceSymbolParams>
 {
 public:
-    WorkspaceSymbolRequest(const WorkspaceSymbolParams &params = WorkspaceSymbolParams());
+    WorkspaceSymbolRequest(const WorkspaceSymbolParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "workspace/symbol";
 };
@@ -231,7 +229,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT ExecuteCommandRequest : public Request<
         QJsonValue, std::nullptr_t, ExecuteCommandParams>
 {
 public:
-    ExecuteCommandRequest(const ExecuteCommandParams &params = ExecuteCommandParams());
+    ExecuteCommandRequest(const ExecuteCommandParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "workspace/executeCommand";
 };

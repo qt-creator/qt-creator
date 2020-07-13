@@ -256,7 +256,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT CompletionRequest : public Request<
         CompletionResult, std::nullptr_t, CompletionParams>
 {
 public:
-    CompletionRequest(const CompletionParams &params = CompletionParams());
+    CompletionRequest(const CompletionParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/completion";
 };
@@ -265,7 +265,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT CompletionItemResolveRequest : public Reques
         CompletionItem, std::nullptr_t, CompletionItem>
 {
 public:
-    CompletionItemResolveRequest(const CompletionItem &params = CompletionItem());
+    CompletionItemResolveRequest(const CompletionItem &params);
     using Request::Request;
     constexpr static const char methodName[] = "completionItem/resolve";
 };

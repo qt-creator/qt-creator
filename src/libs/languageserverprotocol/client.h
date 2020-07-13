@@ -73,7 +73,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT RegisterCapabilityRequest : public Request<
         std::nullptr_t, std::nullptr_t, RegistrationParams>
 {
 public:
-    RegisterCapabilityRequest(const RegistrationParams &params = RegistrationParams());
+    RegisterCapabilityRequest(const RegistrationParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "client/registerCapability";
 };
@@ -111,7 +111,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT UnregisterCapabilityRequest : public Request
         std::nullptr_t, std::nullptr_t, UnregistrationParams>
 {
 public:
-    UnregisterCapabilityRequest(const UnregistrationParams &params = UnregistrationParams());
+    UnregisterCapabilityRequest(const UnregistrationParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "client/unregisterCapability";
 };

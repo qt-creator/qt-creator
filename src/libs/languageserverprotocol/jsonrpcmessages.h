@@ -88,13 +88,14 @@ template <typename Params>
 class Notification : public JsonRpcMessage
 {
 public:
-    Notification() : Notification(QString()) {}
-    Notification(const QString &methodName, const Params &params = Params())
+    Notification(const QString &methodName, const Params &params)
     {
         setMethod(methodName);
         setParams(params);
     }
-    using JsonRpcMessage::JsonRpcMessage;
+
+    Notification(const QJsonObject &jsonObject) : JsonRpcMessage(jsonObject) {}
+    Notification(QJsonObject &&jsonObject) : JsonRpcMessage(std::move(jsonObject)) {}
 
     QString method() const
     { return fromJsonValue<QString>(m_jsonObject.value(methodKey)); }
@@ -267,8 +268,7 @@ template <typename Result, typename ErrorDataType, typename Params>
 class Request : public Notification<Params>
 {
 public:
-    Request() : Notification<Params>() { setId(QUuid::createUuid().toString()); }
-    Request(const QString &methodName, const Params &params = Params())
+    Request(const QString &methodName, const Params &params)
         : Notification<Params>(methodName, params)
     { setId(QUuid::createUuid().toString()); }
     Request(const QJsonObject &jsonObject) : Notification<Params>(jsonObject) { }
@@ -343,7 +343,7 @@ public:
 class LANGUAGESERVERPROTOCOL_EXPORT CancelRequest : public Notification<CancelParameter>
 {
 public:
-    CancelRequest(const CancelParameter &params = CancelParameter());
+    CancelRequest(const CancelParameter &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "$/cancelRequest";
 };

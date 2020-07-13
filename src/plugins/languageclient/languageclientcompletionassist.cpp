@@ -336,7 +336,6 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistIn
     }
     if (m_postponedUpdateConnection)
         QObject::disconnect(m_postponedUpdateConnection);
-    CompletionRequest completionRequest;
     CompletionParams::CompletionContext context;
     if (interface->reason() == ActivationCharacter) {
         context.setTriggerKind(CompletionParams::TriggerCharacter);
@@ -346,7 +345,7 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistIn
     } else {
         context.setTriggerKind(CompletionParams::Invoked);
     }
-    auto params = completionRequest.params().value_or(CompletionParams());
+    CompletionParams params;
     int line;
     int column;
     if (!Utils::Text::convertPosition(interface->textDocument(), m_pos, &line, &column))
@@ -357,10 +356,10 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistIn
     params.setContext(context);
     params.setTextDocument(
                 DocumentUri::fromFilePath(Utils::FilePath::fromString(interface->fileName())));
+    CompletionRequest completionRequest(params);
     completionRequest.setResponseCallback([this](auto response) {
         this->handleCompletionResponse(response);
     });
-    completionRequest.setParams(params);
     m_client->sendContent(completionRequest);
     m_client->addAssistProcessor(this);
     m_currentRequest = completionRequest.id();

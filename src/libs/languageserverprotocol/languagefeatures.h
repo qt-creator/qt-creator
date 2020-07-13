@@ -898,8 +898,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT SemanticHighlightNotification
     : public Notification<SemanticHighlightingParams>
 {
 public:
-    SemanticHighlightNotification(
-        const SemanticHighlightingParams &params = SemanticHighlightingParams());
+    SemanticHighlightNotification(const SemanticHighlightingParams &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "textDocument/semanticHighlighting";
 };

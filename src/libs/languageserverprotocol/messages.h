@@ -56,7 +56,7 @@ public:
 class LANGUAGESERVERPROTOCOL_EXPORT ShowMessageNotification : public Notification<ShowMessageParams>
 {
 public:
-    ShowMessageNotification(const ShowMessageParams &params = ShowMessageParams());
+    ShowMessageNotification(const ShowMessageParams &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "window/showMessage";
 };
@@ -90,7 +90,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT ShowMessageRequest : public Request<
         LanguageClientValue<MessageActionItem>, std::nullptr_t, ShowMessageRequestParams>
 {
 public:
-    ShowMessageRequest(const ShowMessageRequestParams &params = ShowMessageRequestParams());
+    ShowMessageRequest(const ShowMessageRequestParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "window/showMessageRequest";
 };
@@ -100,7 +100,7 @@ using LogMessageParams = ShowMessageParams;
 class LANGUAGESERVERPROTOCOL_EXPORT LogMessageNotification : public Notification<LogMessageParams>
 {
 public:
-    LogMessageNotification();
+    LogMessageNotification(const LogMessageParams &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "window/logMessage";
 };
@@ -108,7 +108,7 @@ public:
 class LANGUAGESERVERPROTOCOL_EXPORT TelemetryNotification : public Notification<JsonObject>
 {
 public:
-    TelemetryNotification();
+    TelemetryNotification(const JsonObject &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "telemetry/event";
 

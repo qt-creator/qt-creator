@@ -37,7 +37,7 @@ constexpr const char ApplyWorkspaceEditRequest::methodName[];
 constexpr const char DidChangeWatchedFilesNotification::methodName[];
 
 WorkSpaceFolderRequest::WorkSpaceFolderRequest()
-    : Request(methodName)
+    : Request(methodName, nullptr)
 { }
 
 DidChangeWorkspaceFoldersNotification::DidChangeWorkspaceFoldersNotification(

@@ -49,8 +49,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DidOpenTextDocumentNotification : public Not
         DidOpenTextDocumentParams>
 {
 public:
-    DidOpenTextDocumentNotification(
-            const DidOpenTextDocumentParams &params = DidOpenTextDocumentParams());
+    DidOpenTextDocumentNotification(const DidOpenTextDocumentParams &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "textDocument/didOpen";
 };
@@ -123,7 +122,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DidChangeTextDocumentNotification : public N
         DidChangeTextDocumentParams>
 {
 public:
-    DidChangeTextDocumentNotification(const DidChangeTextDocumentParams &params = DidChangeTextDocumentParams());
+    DidChangeTextDocumentNotification(const DidChangeTextDocumentParams &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "textDocument/didChange";
 };
@@ -158,8 +157,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT WillSaveTextDocumentNotification : public No
         WillSaveTextDocumentParams>
 {
 public:
-    WillSaveTextDocumentNotification(
-            const WillSaveTextDocumentParams &params = WillSaveTextDocumentParams());
+    WillSaveTextDocumentNotification(const WillSaveTextDocumentParams &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "textDocument/willSave";
 };
@@ -168,8 +166,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT WillSaveWaitUntilTextDocumentRequest : publi
         LanguageClientArray<TextEdit>, std::nullptr_t, WillSaveTextDocumentParams>
 {
 public:
-    WillSaveWaitUntilTextDocumentRequest(
-            const WillSaveTextDocumentParams &params = WillSaveTextDocumentParams());
+    WillSaveWaitUntilTextDocumentRequest(const WillSaveTextDocumentParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/willSaveWaitUntil";
 };
@@ -210,8 +207,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DidSaveTextDocumentNotification : public Not
         DidSaveTextDocumentParams>
 {
 public:
-    DidSaveTextDocumentNotification(
-            const DidSaveTextDocumentParams &params = DidSaveTextDocumentParams());
+    DidSaveTextDocumentNotification(const DidSaveTextDocumentParams &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "textDocument/didSave";
 };
@@ -236,8 +232,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DidCloseTextDocumentNotification : public No
         DidCloseTextDocumentParams>
 {
 public:
-    DidCloseTextDocumentNotification(
-            const DidCloseTextDocumentParams &params = DidCloseTextDocumentParams());
+    DidCloseTextDocumentNotification(const DidCloseTextDocumentParams &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "textDocument/didClose";
 };
