@@ -114,6 +114,15 @@ const QList<CppQuickFixFactory *> &CppQuickFixFactory::cppQuickFixFactories()
 
 namespace Internal {
 
+QString inlinePrefix(const QString &targetFile, const std::function<bool()> &extraCondition = {})
+{
+    if (ProjectFile::isHeader(ProjectFile::classify(targetFile))
+            && (!extraCondition || extraCondition())) {
+        return "inline ";
+    }
+    return {};
+}
+
 // In the following anonymous namespace all functions are collected, which could be of interest for
 // different quick fixes.
 namespace {
@@ -2831,8 +2840,10 @@ public:
             }
             const QString name = oo.prettyName(LookupContext::minimalName(m_decl, targetCoN,
                                                                           control));
-
-            const QString defText = oo.prettyType(tn, name) + QLatin1String("\n{\n\n}");
+            const QString defText = inlinePrefix(
+                        m_targetFileName, [this] { return m_defpos == DefPosOutsideClass; })
+                    + oo.prettyType(tn, name)
+                    + QLatin1String("\n{\n\n}");
 
             const int targetPos = targetFile->position(m_loc.line(), m_loc.column());
             const int targetPos2 = qMax(0, targetFile->position(m_loc.line(), 1) - 1);
@@ -3290,14 +3301,15 @@ public:
         // Construct implementation strings
         const QString implementationGetterTypeAndNameString = oo.prettyType(
             getterType, QString::fromLatin1("%1::%2").arg(classString, getterName));
-        const QString implementationGetter = QString::fromLatin1("%1()%2\n"
+        const QString inlineSpecifier = sameFile && wasHeader ? QString("inline") : QString();
+        const QString implementationGetter = QString::fromLatin1("%4 %1()%2\n"
                                                                  "{\n"
                                                                  "return %3;\n"
                                                                  "}")
                                                  .arg(implementationGetterTypeAndNameString,
                                                       isStatic ? QString() : QLatin1String(" const"),
-                                                      rawName);
-        const QString implementationSetter = QString::fromLatin1("void %1::%2(%3)\n"
+                                                      rawName, inlineSpecifier);
+        const QString implementationSetter = QString::fromLatin1("%6 void %1::%2(%3)\n"
                                                                  "{\n"
                                                                  "%4 = %5;\n"
                                                                  "}")
@@ -3305,7 +3317,8 @@ public:
                                                       setterName,
                                                       paramString,
                                                       rawName,
-                                                      paramName);
+                                                      paramName,
+                                                      inlineSpecifier);
 
         QString implementation;
         if (generateGetter())
@@ -3872,6 +3885,7 @@ public:
         }
         funcDef.append(QLatin1String("\n}\n\n"));
         funcDef.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
+        funcDef.prepend(inlinePrefix(currentFile->fileName()));
         funcCall.append(QLatin1Char(';'));
 
         // Get starting indentation from original code.
@@ -5288,8 +5302,10 @@ public:
         Scope *scopeAtInsertPos = m_toFile->cppDocument()->scopeAt(l.line(), l.column());
 
         // construct definition
-        const QString funcDec = definitionSignature(m_operation, funcAST, m_fromFile, m_toFile,
-                                                    scopeAtInsertPos);
+        const QString funcDec = inlinePrefix(
+                    m_toFile->fileName(), [this] { return m_type == MoveOutside; })
+                + definitionSignature(m_operation, funcAST, m_fromFile, m_toFile,
+                                      scopeAtInsertPos);
         QString funcDef = prefix + funcDec;
         const int startPosition = m_fromFile->endOf(funcAST->declarator);
         const int endPosition = m_fromFile->endOf(funcAST);
@@ -5686,8 +5702,10 @@ void MoveFuncDefToDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                 }
             }
 
-            if (!declText.isEmpty())
+            if (!declText.isEmpty()) {
+                declText.prepend(inlinePrefix(declFileName));
                 break;
+            }
         }
     }
 

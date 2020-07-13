@@ -2242,6 +2242,31 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_onlySetter()
     QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 2);
 }
 
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_onlySetterHeaderFile()
+{
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+    const QByteArray original =
+        "class Foo\n"
+        "{\n"
+        "public:\n"
+        "    int bar@;\n"
+        "};\n";
+    const QByteArray expected =
+        "class Foo\n"
+        "{\n"
+        "public:\n"
+        "    int bar@;\n"
+        "    void setBar(int value);\n"
+        "};\n\n"
+        "inline void Foo::setBar(int value)\n"
+        "{\n"
+        "    bar = value;\n"
+        "}\n";
+    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
+    GenerateGetterSetter factory;
+    QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 2);
+}
+
 class CppCodeStyleSettingsChanger {
 public:
     CppCodeStyleSettingsChanger(const CppCodeStyleSettings &settings);
@@ -2457,17 +2482,17 @@ private:
     int bar2_;
     QString bar3;
 };
-void Foo::setBar2(int bar2)
+inline void Foo::setBar2(int bar2)
 {
     bar2_ = bar2;
 }
 
-QString Foo::getBar3() const
+inline QString Foo::getBar3() const
 {
     return bar3;
 }
 
-void Foo::setBar3(const QString &value)
+inline void Foo::setBar3(const QString &value)
 {
     bar3 = value;
 }
@@ -2513,7 +2538,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_afterClass()
         "    void a();\n"
         "};\n"
         "\n"
-        "void Foo::a()\n"
+        "inline void Foo::a()\n"
         "{\n\n}\n"
         "\n"
         "class Bar {};\n";
@@ -4422,7 +4447,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside2()
         "    void f3();\n"
         "};\n"
         "\n"
-        "int Foo::f2()\n"
+        "inline int Foo::f2()\n"
         "{\n"
         "    return 1;\n"
         "}\n";
@@ -4728,7 +4753,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_afterClass()
         "    void a();\n"
         "};\n"
         "\n"
-        "void Foo::a() {}\n"
+        "inline void Foo::a() {}\n"
         "\n"
         "class Bar {};\n";
     testDocuments << QuickFixTestDocument::create("file.h", original, expected);
@@ -5017,7 +5042,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCpp()
     // Header File
     original = "int number() const;\n";
     expected =
-        "int number() const\n"
+        "inline int number() const\n"
         "{\n"
         "    return 5;\n"
         "}\n";
@@ -5053,7 +5078,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCppNS()
         "}\n";
     expected =
         "namespace MyNamespace {\n"
-        "int number() const\n"
+        "inline int number() const\n"
         "{\n"
         "    return 5;\n"
         "}\n"
@@ -5442,7 +5467,7 @@ void CppEditorPlugin::test_quickfix_ExtractFunction_data()
              "{\n"
              "    @{start}g();@{end}\n"
              "}\n")
-        << _("void extracted()\n"
+        << _("inline void extracted()\n"
              "{\n"
              "    g();\n"
              "}\n"
@@ -5469,7 +5494,7 @@ void CppEditorPlugin::test_quickfix_ExtractFunction_data()
              "private:\n"
              "    void bar();\n"
              "};\n\n"
-             "void Foo::extracted()\n"
+             "inline void Foo::extracted()\n"
              "{\n"
              "    g();\n"
              "}\n\n"
@@ -5496,7 +5521,7 @@ void CppEditorPlugin::test_quickfix_ExtractFunction_data()
              "    void extracted(NS::C &c);\n" // TODO: Remove non-required qualification
              "};\n"
              "}\n"
-             "void NS::C::extracted(NS::C &c)\n"
+             "inline void NS::C::extracted(NS::C &c)\n"
              "{\n"
              "    C *c = &c;\n"
              "}\n"
