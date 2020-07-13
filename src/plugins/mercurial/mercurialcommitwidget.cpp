@@ -32,7 +32,7 @@
 #include <utils/completingtextedit.h>
 #include <utils/qtcassert.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QSyntaxHighlighter>
 #include <QTextEdit>
 
@@ -52,7 +52,7 @@ public:
 
 private:
     enum State { None = -1, Header, Other };
-    QRegExp m_keywordPattern;
+    const QRegularExpression m_keywordPattern;
 };
 
 MercurialSubmitHighlighter::MercurialSubmitHighlighter(QTextEdit *parent) :
@@ -97,10 +97,11 @@ void MercurialSubmitHighlighter::highlightBlock(const QString &text)
     }
     case Other:
         // Format key words ("Task:") italic
-        if (m_keywordPattern.indexIn(text, 0, QRegExp::CaretAtZero) == 0) {
+        const QRegularExpressionMatch match = m_keywordPattern.match(text);
+        if (match.hasMatch() && match.capturedStart() == 0) {
             QTextCharFormat charFormat = format(0);
             charFormat.setFontItalic(true);
-            setFormat(0, m_keywordPattern.matchedLength(), charFormat);
+            setFormat(0, match.capturedLength(), charFormat);
         }
         break;
     }

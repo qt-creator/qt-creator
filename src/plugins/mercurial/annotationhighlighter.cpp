@@ -38,8 +38,9 @@ MercurialAnnotationHighlighter::MercurialAnnotationHighlighter(const ChangeNumbe
 
 QString MercurialAnnotationHighlighter::changeNumber(const QString &block) const
 {
-    if (changeset.indexIn(block) != -1)
-        return changeset.cap(1);
+    const QRegularExpressionMatch match = changeset.match(block);
+    if (match.hasMatch())
+        return match.captured(1);
     return QString();
 }
 

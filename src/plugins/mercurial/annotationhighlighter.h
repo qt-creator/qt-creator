@@ -26,7 +26,7 @@
 #pragma once
 
 #include <vcsbase/baseannotationhighlighter.h>
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace Mercurial {
 namespace Internal {
@@ -39,7 +39,7 @@ public:
 
 private:
     QString changeNumber(const QString &block) const override;
-    mutable QRegExp changeset;
+    const QRegularExpression changeset;
 };
 
 } //namespace Internal

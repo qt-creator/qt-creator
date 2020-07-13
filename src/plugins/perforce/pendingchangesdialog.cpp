@@ -25,7 +25,7 @@
 
 #include "pendingchangesdialog.h"
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 
 using namespace Perforce::Internal;
@@ -34,15 +34,15 @@ PendingChangesDialog::PendingChangesDialog(const QString &data, QWidget *parent)
 {
     m_ui.setupUi(this);
     if (!data.isEmpty()) {
-        QRegExp r(QLatin1String("Change\\s(\\d+).*\\s\\*pending\\*\\s(.+)\n"));
-        r.setMinimal(true);
-        int pos = 0;
+        const QRegularExpression r(QLatin1String("Change\\s(\\d+?).*?\\s\\*?pending\\*?\\s(.+?)\n"));
         QListWidgetItem *item;
-        while ((pos = r.indexIn(data, pos)) != -1) {
-            item = new QListWidgetItem(tr("Change %1: %2").arg(r.cap(1), r.cap(2).trimmed()),
+        QRegularExpressionMatchIterator it = r.globalMatch(data);
+        while (it.hasNext()) {
+            const QRegularExpressionMatch match = it.next();
+            item = new QListWidgetItem(tr("Change %1: %2").arg(match.captured(1),
+                                                               match.captured(2).trimmed()),
                                        m_ui.listWidget);
-            item->setData(234, r.cap(1).trimmed());
-            ++pos;
+            item->setData(234, match.captured(1).trimmed());
         }
     }
     m_ui.listWidget->setSelectionMode(QListWidget::SingleSelection);
