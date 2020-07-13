@@ -35,10 +35,10 @@ namespace Internal {
 static const char CHANGE_PATTERN[] = "\\b[a-f0-9]{7,40}\\b";
 
 GitSubmitHighlighter::GitSubmitHighlighter(QTextEdit * parent) :
-    TextEditor::SyntaxHighlighter(parent)
+    TextEditor::SyntaxHighlighter(parent),
+    m_keywordPattern("^[\\w-]+:")
 {
     setDefaultTextFormatCategories();
-    m_keywordPattern.setPattern("^[\\w-]+:");
     m_hashChar = '#';
     QTC_CHECK(m_keywordPattern.isValid());
 }
@@ -73,10 +73,11 @@ void GitSubmitHighlighter::highlightBlock(const QString &text)
     }
     case Other:
         // Format key words ("Task:") italic
-        if (m_keywordPattern.indexIn(text, 0, QRegExp::CaretAtZero) == 0) {
+        const QRegularExpressionMatch match = m_keywordPattern.match(text);
+        if (match.hasMatch() && match.capturedStart(0) == 0) {
             QTextCharFormat charFormat = format(0);
             charFormat.setFontItalic(true);
-            setFormat(0, m_keywordPattern.matchedLength(), charFormat);
+            setFormat(0, match.capturedLength(), charFormat);
         }
         break;
     }
@@ -130,20 +131,21 @@ void GitRebaseHighlighter::highlightBlock(const QString &text)
 {
     if (text.startsWith(m_hashChar)) {
         setFormat(0, text.size(), formatForCategory(Format_Comment));
-        int changeIndex = 0;
-        while ((changeIndex = m_changeNumberPattern.indexIn(text, changeIndex)) != -1) {
-            const int changeLen = m_changeNumberPattern.matchedLength();
-            setFormat(changeIndex, changeLen, formatForCategory(Format_Change));
-            changeIndex += changeLen;
+        QRegularExpressionMatchIterator it = m_changeNumberPattern.globalMatch(text);
+        while (it.hasNext()) {
+            const QRegularExpressionMatch match = it.next();
+            setFormat(match.capturedStart(), match.capturedLength(), formatForCategory(Format_Change));
         }
     } else {
         for (const RebaseAction &action : qAsConst(m_actions)) {
-            if (action.exp.indexIn(text) != -1) {
-                const int len = action.exp.matchedLength();
+            const QRegularExpressionMatch match = action.exp.match(text);
+            if (match.hasMatch()) {
+                const int len = match.capturedLength();
                 setFormat(0, len, formatForCategory(action.formatCategory));
-                const int changeIndex = m_changeNumberPattern.indexIn(text, len);
-                if (changeIndex != -1) {
-                    const int changeLen = m_changeNumberPattern.matchedLength();
+                const QRegularExpressionMatch changeMatch = m_changeNumberPattern.match(text, len);
+                const int changeIndex = changeMatch.capturedStart();
+                if (changeMatch.hasMatch()) {
+                    const int changeLen = changeMatch.capturedLength();
                     const int descStart = changeIndex + changeLen + 1;
                     setFormat(changeIndex, changeLen, formatForCategory(Format_Change));
                     setFormat(descStart, text.size() - descStart, formatForCategory(Format_Description));

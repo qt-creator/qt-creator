@@ -55,7 +55,7 @@
 
 #include <QDebug>
 #include <QProcess>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QAction>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -479,20 +479,20 @@ QString GerritPlugin::findLocalRepository(QString project, const QString &branch
         project.remove(0, slashPos + 1);
     // When looking at branch 1.7, try to check folders
     // "qtbase_17", 'qtbase1.7' with a semi-smart regular expression.
-    QScopedPointer<QRegExp> branchRegexp;
+    QScopedPointer<QRegularExpression> branchRegexp;
     if (!branch.isEmpty() && branch != "master") {
         QString branchPattern = branch;
         branchPattern.replace('.', "[\\.-_]?");
         const QString pattern = '^' + project
                                 + "[-_]?"
                                 + branchPattern + '$';
-        branchRegexp.reset(new QRegExp(pattern));
+        branchRegexp.reset(new QRegularExpression(pattern));
         if (!branchRegexp->isValid())
             branchRegexp.reset(); // Oops.
     }
     for (const QString &repository : gitRepositories) {
         const QString fileName = Utils::FilePath::fromString(repository).fileName();
-        if ((!branchRegexp.isNull() && branchRegexp->exactMatch(fileName))
+        if ((!branchRegexp.isNull() && branchRegexp->match(fileName).hasMatch())
             || fileName == project) {
             // Perform a check on the branch.
             if (branch.isEmpty())  {

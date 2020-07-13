@@ -27,7 +27,7 @@
 
 #include <vcsbase/vcsbaseeditor.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace Utils { class FancyLineEdit; }
 
@@ -71,7 +71,7 @@ private:
     QString fileNameForLine(int line) const override;
     QString sourceWorkingDirectory() const;
 
-    mutable QRegExp m_changeNumberPattern;
+    const QRegularExpression m_changeNumberPattern;
     GitLogFilterWidget *m_logFilterWidget = nullptr;
 };
 

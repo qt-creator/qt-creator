@@ -32,7 +32,6 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <vcsbase/submiteditorwidget.h>
 
-#include <QRegExp>
 #include <QSyntaxHighlighter>
 
 QT_BEGIN_NAMESPACE

@@ -46,7 +46,7 @@
 #include <QFileInfo>
 #include <QHBoxLayout>
 #include <QMenu>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QSet>
 #include <QTextBlock>
 #include <QTextCodec>
@@ -108,7 +108,7 @@ public:
 };
 
 GitEditorWidget::GitEditorWidget() :
-    m_changeNumberPattern(CHANGE_PATTERN)
+    m_changeNumberPattern(QRegularExpression::anchoredPattern(CHANGE_PATTERN))
 {
     QTC_ASSERT(m_changeNumberPattern.isValid(), return);
     /* Diff format:
@@ -132,7 +132,7 @@ QString GitEditorWidget::changeUnderCursor(const QTextCursor &c) const
     if (!cursor.hasSelection())
         return QString();
     const QString change = cursor.selectedText();
-    if (m_changeNumberPattern.exactMatch(change))
+    if (m_changeNumberPattern.match(change).hasMatch())
         return change;
     return QString();
 }
@@ -352,9 +352,10 @@ QString GitEditorWidget::fileNameForLine(int line) const
     // 7971b6e7 share/qtcreator/dumper/dumper.py   (hjk
     QTextBlock block = document()->findBlockByLineNumber(line - 1);
     QTC_ASSERT(block.isValid(), return source());
-    static QRegExp renameExp("^" CHANGE_PATTERN "\\s+([^(]+)");
-    if (renameExp.indexIn(block.text()) != -1) {
-        const QString fileName = renameExp.cap(1).trimmed();
+    static QRegularExpression renameExp("^" CHANGE_PATTERN "\\s+([^(]+)");
+    const QRegularExpressionMatch match = renameExp.match(block.text());
+    if (match.hasMatch()) {
+        const QString fileName = match.captured(1).trimmed();
         if (!fileName.isEmpty())
             return fileName;
     }

@@ -38,7 +38,6 @@
 
 #include <QDir>
 #include <QGroupBox>
-#include <QRegExp>
 #include <QVBoxLayout>
 #include <QMenu>
 

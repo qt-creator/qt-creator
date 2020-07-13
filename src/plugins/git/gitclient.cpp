@@ -78,7 +78,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QTextBlock>
 #include <QToolButton>
 #include <QTextCodec>
@@ -702,20 +702,22 @@ private:
 
     void readStdOut(const QString &data)
     {
-        static QRegExp patchFailedRE("Patch failed at ([^\\n]*)");
-        static QRegExp conflictedFilesRE("Merge conflict in ([^\\n]*)");
-        if (patchFailedRE.indexIn(data) != -1)
-            m_commit = patchFailedRE.cap(1);
-        int fileIndex = -1;
-        while ((fileIndex = conflictedFilesRE.indexIn(data, fileIndex + 1)) != -1)
-            m_files.append(conflictedFilesRE.cap(1));
+        static const QRegularExpression patchFailedRE("Patch failed at ([^\\n]*)");
+        static const QRegularExpression conflictedFilesRE("Merge conflict in ([^\\n]*)");
+        const QRegularExpressionMatch match = patchFailedRE.match(data);
+        if (match.hasMatch())
+            m_commit = match.captured(1);
+        QRegularExpressionMatchIterator it = conflictedFilesRE.globalMatch(data);
+        while (it.hasNext())
+            m_files.append(it.next().captured(1));
     }
 
     void readStdErr(const QString &data)
     {
-        static QRegExp couldNotApplyRE("[Cc]ould not (?:apply|revert) ([^\\n]*)");
-        if (couldNotApplyRE.indexIn(data) != -1)
-            m_commit = couldNotApplyRE.cap(1);
+        static const QRegularExpression couldNotApplyRE("[Cc]ould not (?:apply|revert) ([^\\n]*)");
+        const QRegularExpressionMatch match = couldNotApplyRE.match(data);
+        if (match.hasMatch())
+            m_commit = match.captured(1);
     }
 private:
     QString m_workingDirectory;
@@ -738,11 +740,12 @@ private:
 
     void parseProgress(const QString &text) override
     {
-        if (m_progressExp.lastIndexIn(text) != -1)
-            setProgressAndMaximum(m_progressExp.cap(1).toInt(), m_progressExp.cap(2).toInt());
+        const QRegularExpressionMatch match = m_progressExp.match(text);
+        if (match.hasMatch())
+            setProgressAndMaximum(match.captured(1).toInt(), match.captured(2).toInt());
     }
 
-    QRegExp m_progressExp;
+    const QRegularExpression m_progressExp;
 };
 
 static inline QString msgRepositoryNotFound(const QString &dir)
@@ -3546,12 +3549,13 @@ unsigned GitClient::synchronousGitVersion(QString *errorMessage) const
     // cut 'git version 1.6.5.1.sha'
     // another form: 'git version 1.9.rc1'
     const QString output = resp.stdOut();
-    QRegExp versionPattern("^[^\\d]+(\\d+)\\.(\\d+)\\.(\\d+|rc\\d).*$");
+    const QRegularExpression versionPattern("^[^\\d]+(\\d+)\\.(\\d+)\\.(\\d+|rc\\d).*$");
     QTC_ASSERT(versionPattern.isValid(), return 0);
-    QTC_ASSERT(versionPattern.exactMatch(output), return 0);
-    const unsigned majorV = versionPattern.cap(1).toUInt(nullptr, 16);
-    const unsigned minorV = versionPattern.cap(2).toUInt(nullptr, 16);
-    const unsigned patchV = versionPattern.cap(3).toUInt(nullptr, 16);
+    const QRegularExpressionMatch match = versionPattern.match(output);
+    QTC_ASSERT(match.hasMatch(), return 0);
+    const unsigned majorV = match.captured(1).toUInt(nullptr, 16);
+    const unsigned minorV = match.captured(2).toUInt(nullptr, 16);
+    const unsigned patchV = match.captured(3).toUInt(nullptr, 16);
     return version(majorV, minorV, patchV);
 }
 
