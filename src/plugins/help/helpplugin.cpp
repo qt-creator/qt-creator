@@ -80,7 +80,7 @@
 #include <QTimer>
 #include <QTranslator>
 #include <qplugin.h>
-#include <QRegExp>
+#include <QRegularExpression>
 
 #include <QAction>
 #include <QComboBox>
@@ -322,12 +322,12 @@ void HelpPluginPrivate::resetFilter()
 {
     const QString &filterInternal = QString::fromLatin1("Qt Creator %1.%2.%3")
         .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE);
-    QRegExp filterRegExp("Qt Creator \\d*\\.\\d*\\.\\d*");
+    const QRegularExpression filterRegExp("^Qt Creator \\d*\\.\\d*\\.\\d*$");
 
     QHelpEngineCore *engine = &LocalHelpManager::helpEngine();
     const QStringList &filters = engine->customFilters();
-    foreach (const QString &filter, filters) {
-        if (filterRegExp.exactMatch(filter) && filter != filterInternal)
+    for (const QString &filter : filters) {
+        if (filterRegExp.match(filter).hasMatch() && filter != filterInternal)
             engine->removeCustomFilter(filter);
     }
 

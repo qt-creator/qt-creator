@@ -52,7 +52,7 @@
 #include <QDateTime>
 #include <QDir>
 #include <QMessageBox>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QTcpServer>
 #include <QTime>
@@ -275,11 +275,11 @@ void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const QString &bun
 void IosRunner::handleAppOutput(IosToolHandler *handler, const QString &output)
 {
     Q_UNUSED(handler)
-    QRegExp qmlPortRe("QML Debugger: Waiting for connection on port ([0-9]+)...");
-    int index = qmlPortRe.indexIn(output);
+    QRegularExpression qmlPortRe("QML Debugger: Waiting for connection on port ([0-9]+)...");
+    const QRegularExpressionMatch match = qmlPortRe.match(output);
     QString res(output);
-    if (index != -1 && m_qmlServerPort.isValid())
-       res.replace(qmlPortRe.cap(1), QString::number(m_qmlServerPort.number()));
+    if (match.hasMatch() && m_qmlServerPort.isValid())
+       res.replace(match.captured(1), QString::number(m_qmlServerPort.number()));
     appendMessage(output, StdOutFormat);
     appOutput(res);
 }
@@ -297,10 +297,10 @@ void IosRunner::handleErrorMsg(IosToolHandler *handler, const QString &msg)
         TaskHub::addTask(DeploymentTask(Task::Error, message));
         res.replace(lockedErr, message);
     }
-    QRegExp qmlPortRe("QML Debugger: Waiting for connection on port ([0-9]+)...");
-    int index = qmlPortRe.indexIn(msg);
-    if (index != -1 && m_qmlServerPort.isValid())
-       res.replace(qmlPortRe.cap(1), QString::number(m_qmlServerPort.number()));
+    QRegularExpression qmlPortRe("QML Debugger: Waiting for connection on port ([0-9]+)...");
+    const QRegularExpressionMatch match = qmlPortRe.match(msg);
+    if (match.hasMatch() && m_qmlServerPort.isValid())
+       res.replace(match.captured(1), QString::number(m_qmlServerPort.number()));
 
     appendMessage(res, StdErrFormat);
     errorMsg(res);
