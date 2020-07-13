@@ -146,7 +146,7 @@ Version Control Systems
 Test Integration
 ----------------
 
-* Added support for Catch test framework (QTCREATORBUG-19740)
+* Added support for Catch2 test framework (QTCREATORBUG-19740)
 
 ### Google Test
 
