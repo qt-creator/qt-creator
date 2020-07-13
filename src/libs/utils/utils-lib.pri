@@ -14,6 +14,8 @@ shared {
 }
 
 QT += widgets gui network qml xml
+greaterThan(QT_MAJOR_VERSION, 5): QT += core5compat
+
 
 CONFIG += exceptions # used by portlist.cpp, textfileformat.cpp, and ssh/*
 

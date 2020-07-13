@@ -237,6 +237,7 @@ msvc {
 
 qt {
     contains(QT, core): QT += concurrent
+    contains(QT, core): greaterThan(QT_MAJOR_VERSION, 5): QT += core5compat
     contains(QT, gui): QT += widgets
 }
 
