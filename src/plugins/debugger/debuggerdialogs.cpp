@@ -52,7 +52,7 @@
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QRadioButton>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QScrollArea>
 #include <QSpinBox>
 
@@ -681,10 +681,11 @@ QString StartRemoteCdbDialog::connection() const
 {
     const QString rc = m_lineEdit->text();
     // Transform an IP:POrt ('localhost:1234') specification into full spec
-    QRegExp ipRegexp("([\\w\\.\\-_]+):([0-9]{1,4})");
+    QRegularExpression ipRegexp("([\\w\\.\\-_]+):([0-9]{1,4})");
     QTC_ASSERT(ipRegexp.isValid(), return QString());
-    if (ipRegexp.exactMatch(rc))
-        return QString::fromLatin1("tcp:server=%1,port=%2").arg(ipRegexp.cap(1), ipRegexp.cap(2));
+    const QRegularExpressionMatch match = ipRegexp.match(rc);
+    if (match.hasMatch())
+        return QString::fromLatin1("tcp:server=%1,port=%2").arg(match.captured(1), match.captured(2));
     return rc;
 }
 
