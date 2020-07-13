@@ -28,10 +28,10 @@
 
 #include <memory>
 #include <qglobal.h>
+#include <qvector.h>
 
 QT_BEGIN_NAMESPACE
 class QString;
-template<typename T> class QVector;
 QT_END_NAMESPACE
 
 /**
