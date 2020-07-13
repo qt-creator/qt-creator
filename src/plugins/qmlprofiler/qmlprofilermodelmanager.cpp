@@ -37,7 +37,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QMessageBox>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QStack>
 
 #include <functional>
@@ -242,10 +242,10 @@ static QString getInitialDetails(const QmlEventType &event)
             if (event.rangeType() == Javascript)
                 details = QmlProfilerModelManager::tr("anonymous function");
         } else {
-            QRegExp rewrite(QLatin1String("\\(function \\$(\\w+)\\(\\) \\{ (return |)(.+) \\}\\)"));
-            bool match = rewrite.exactMatch(details);
-            if (match)
-                details = rewrite.cap(1) + QLatin1String(": ") + rewrite.cap(3);
+            QRegularExpression rewrite(QLatin1String("^\\(function \\$(\\w+)\\(\\) \\{ (return |)(.+) \\}\\)$"));
+            QRegularExpressionMatch match = rewrite.match(details);
+            if (match.hasMatch())
+                details = match.captured(1) + QLatin1String(": ") + match.captured(3);
             if (details.startsWith(QLatin1String("file://")) ||
                     details.startsWith(QLatin1String("qrc:/")))
                 details = details.mid(details.lastIndexOf(QLatin1Char('/')) + 1);

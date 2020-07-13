@@ -67,7 +67,7 @@
 #include <QQuickItem>
 #include <QQuickWidget>
 #include <QApplication>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QTextCursor>
 
 namespace QmlProfiler {
@@ -403,9 +403,10 @@ bool TraceViewFindSupport::find(const QString &txt, Core::FindFlags findFlags, i
 bool TraceViewFindSupport::findOne(const QString &txt, Core::FindFlags findFlags, int start)
 {
     bool caseSensitiveSearch = (findFlags & Core::FindCaseSensitively);
-    QRegExp regexp(txt);
-    regexp.setPatternSyntax((findFlags & Core::FindRegularExpression) ? QRegExp::RegExp : QRegExp::FixedString);
-    regexp.setCaseSensitivity(caseSensitiveSearch ? Qt::CaseSensitive : Qt::CaseInsensitive);
+    bool regexSearch = (findFlags & Core::FindRegularExpression);
+    QRegularExpression regexp(regexSearch ? txt : QRegularExpression::escape(txt),
+                              caseSensitiveSearch ? QRegularExpression::NoPatternOption
+                                                  : QRegularExpression::CaseInsensitiveOption);
     QTextDocument::FindFlags flags;
     if (caseSensitiveSearch)
         flags |= QTextDocument::FindCaseSensitively;
