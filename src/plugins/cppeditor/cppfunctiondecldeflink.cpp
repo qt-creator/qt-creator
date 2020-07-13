@@ -47,7 +47,7 @@
 #include <utils/runextensions.h>
 #include <utils/tooltip/tooltip.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QVarLengthArray>
 
 using namespace CPlusPlus;
@@ -359,7 +359,7 @@ static int declaredParameterCount(Function *function)
     return argc;
 }
 
-Q_GLOBAL_STATIC(QRegExp, commentArgNameRegexp)
+Q_GLOBAL_STATIC(QRegularExpression, commentArgNameRegexp)
 
 static bool hasCommentedName(
         TranslationUnit *unit,
@@ -410,9 +410,9 @@ static bool hasCommentedName(
 
     QString text = source.mid(nameStart, nameEnd - nameStart);
 
-    if (commentArgNameRegexp()->isEmpty())
-        *commentArgNameRegexp() = QRegExp(QLatin1String("/\\*\\s*(\\w*)\\s*\\*/"));
-    return commentArgNameRegexp()->indexIn(text) != -1;
+    if (commentArgNameRegexp()->pattern().isEmpty())
+        *commentArgNameRegexp() = QRegularExpression(QLatin1String("/\\*\\s*(\\w*)\\s*\\*/"));
+    return text.indexOf(*commentArgNameRegexp()) != -1;
 }
 
 static bool canReplaceSpecifier(TranslationUnit *translationUnit, SpecifierAST *specifier)

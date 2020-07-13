@@ -111,7 +111,7 @@ protected:
         pp(ast);
         QString code = QString::fromStdString(s.str());
         code.replace('\n', ' ');
-        code.replace(QRegExp("\\s+"), " ");
+        code.replace(QRegularExpression("\\s+"), " ");
 
         const char *name = abi::__cxa_demangle(typeid(*ast).name(), 0, 0, 0) + 11;
 
