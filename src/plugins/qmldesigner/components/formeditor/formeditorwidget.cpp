@@ -147,19 +147,31 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
 
     // Zoom actions
     const QString fontName = "qtds_propertyIconFont.ttf";
-    QColor buttonColor(Theme::getColor(Theme::QmlDesigner_TabLight));
+    const QColor textColorNormal(Theme::getColor(Theme::MenuItemTextColorNormal));
+    const QColor textColorDisabled(Theme::getColor(Theme::MenuBarItemTextColorDisabled));
     const QIcon zoomAllIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
                                                                       Theme::getIconUnicode(Theme::Icon::zoomAll),
-                                                                      28, 28, buttonColor);
+                                                                      28, 28, textColorNormal);
+
+    const QString zoomSelectionUnicode = Theme::getIconUnicode(Theme::Icon::zoomSelection);
+    const auto zoomSelectionNormal = Utils::StyleHelper::IconFontHelper(zoomSelectionUnicode,
+                                                                        textColorNormal,
+                                                                        QSize(28, 28),
+                                                                        QIcon::Normal);
+    const auto zoomSelectionDisabeld = Utils::StyleHelper::IconFontHelper(zoomSelectionUnicode,
+                                                                          textColorDisabled,
+                                                                          QSize(28, 28),
+                                                                          QIcon::Disabled);
+
     const QIcon zoomSelectionIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
-                                                                            Theme::getIconUnicode(Theme::Icon::zoomSelection),
-                                                                            28, 28, buttonColor);
+                                                                            {zoomSelectionNormal,
+                                                                             zoomSelectionDisabeld});
     const QIcon zoomInIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
                                                                      Theme::getIconUnicode(Theme::Icon::zoomIn),
-                                                                     28, 28, buttonColor);
+                                                                     28, 28, textColorNormal);
     const QIcon zoomOutIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
                                                                       Theme::getIconUnicode(Theme::Icon::zoomOut),
-                                                                      28, 28, buttonColor);
+                                                                      28, 28, textColorNormal);
 
     m_zoomInAction = new QAction(zoomInIcon, tr("Zoom in"), this);
     m_zoomInAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Plus));
