@@ -28,6 +28,7 @@
 #include "projectexplorer_export.h"
 
 #include <utils/environmentfwd.h>
+#include <utils/namevalueitem.h>
 
 #include <QWidget>
 
@@ -82,7 +83,7 @@ private:
     bool currentEntryIsPathList(const QModelIndex &current) const;
 
     using PathListModifier = std::function<QString(const QString &oldList, const QString &newDir)>;
-    void amendPathList(const PathListModifier &modifier);
+    void amendPathList(Utils::NameValueItem::Operation op);
 
     const std::unique_ptr<EnvironmentWidgetPrivate> d;
 };

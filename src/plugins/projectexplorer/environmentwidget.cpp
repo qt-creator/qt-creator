@@ -495,40 +495,26 @@ void EnvironmentWidget::unsetEnvironmentButtonClicked()
         d->m_model->unsetVariable(name);
 }
 
-void EnvironmentWidget::amendPathList(const PathListModifier &modifier)
+void EnvironmentWidget::amendPathList(Utils::NameValueItem::Operation op)
 {
     const QString varName = d->m_model->indexToVariable(d->m_environmentView->currentIndex());
     const QString dir = QDir::toNativeSeparators(
                 QFileDialog::getExistingDirectory(this, tr("Choose Directory")));
     if (dir.isEmpty())
         return;
-    QModelIndex index = d->m_model->variableToIndex(varName);
-    if (!index.isValid())
-        return;
-    if (index.column() == 0)
-        index = index.siblingAtColumn(1);
-    const QString value = d->m_model->data(index).toString();
-    d->m_model->setData(index, modifier(value, dir));
+    Utils::NameValueItems changes = d->m_model->userChanges();
+    changes.append({varName, dir, op});
+    d->m_model->setUserChanges(changes);
 }
 
 void EnvironmentWidget::appendPathButtonClicked()
 {
-    amendPathList([](const QString &pathList, const QString &dir) {
-        QString newPathList = dir;
-        if (!pathList.isEmpty())
-            newPathList.prepend(Utils::HostOsInfo::pathListSeparator()).prepend(pathList);
-        return newPathList;
-    });
+    amendPathList(Utils::NameValueItem::Append);
 }
 
 void EnvironmentWidget::prependPathButtonClicked()
 {
-    amendPathList([](const QString &pathList, const QString &dir) {
-        QString newPathList = dir;
-        if (!pathList.isEmpty())
-            newPathList.append(Utils::HostOsInfo::pathListSeparator()).append(pathList);
-        return newPathList;
-    });
+    amendPathList(Utils::NameValueItem::Prepend);
 }
 
 void EnvironmentWidget::batchEditEnvironmentButtonClicked()
