@@ -62,7 +62,7 @@ QJsonObject QmlDesigner::ItemNodeParser::json(QmlDesigner::Component &component)
     QJsonObject metadata;
     metadata.insert(QmlIdTag, qmlObjectNode.id());
     metadata.insert(UuidTag, uuid());
-    metadata.insert(ExportTypeTag, "child");
+    metadata.insert(ExportTypeTag, ExportTypeChild);
     metadata.insert(TypeNameTag, QString::fromLatin1(m_node.type()));
 
     jsonObject.insert(MetadataTag, metadata);

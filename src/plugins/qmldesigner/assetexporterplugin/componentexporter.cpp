@@ -53,6 +53,7 @@ static void populateLineage(const QmlDesigner::ModelNode &node, QByteArrayList &
 }
 
 namespace QmlDesigner {
+using namespace Constants;
 
 std::vector<std::unique_ptr<Internal::NodeParserCreatorBase>> Component::m_readers;
 Component::Component(AssetExporter &exporter, const ModelNode &rootNode):
@@ -76,6 +77,10 @@ void Component::exportComponent()
 {
     QTC_ASSERT(m_rootNode.isValid(), return);
     m_json = nodeToJson(m_rootNode);
+    // Change the export type to component
+    QJsonObject metadata = m_json.value(MetadataTag).toObject();
+    metadata.insert(ExportTypeTag, ExportTypeComponent);
+    m_json.insert(MetadataTag, metadata);
     addImports();
 }
 
@@ -124,7 +129,7 @@ QJsonObject Component::nodeToJson(const ModelNode &node)
         children.append(nodeToJson(childnode));
 
     if (!children.isEmpty())
-        jsonObject.insert("children", children);
+        jsonObject.insert(ChildrenTag, children);
 
     return jsonObject;
 }
