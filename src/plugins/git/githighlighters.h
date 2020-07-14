@@ -72,7 +72,7 @@ private:
     class RebaseAction
     {
     public:
-        const QRegularExpression exp;
+        QRegularExpression exp;
         Format formatCategory;
         RebaseAction(const QString &regexp, const Format formatCategory);
     };
