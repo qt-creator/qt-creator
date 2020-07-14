@@ -38,7 +38,7 @@
 #include "settings.h"
 
 #include <QDir>
-#include <QRegExp>
+#include <QRegularExpression>
 
 #include <iostream>
 
@@ -582,8 +582,8 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QVariantMap &t
 
     for (auto i = tcs.constBegin(); i != tcs.constEnd(); ++i) {
         if (!i.value().isEmpty() && !AddToolChainOperation::exists(tcMap, i.value())) {
-            QRegExp abiRegExp = QRegExp("[a-z0-9_]+-[a-z0-9_]+-[a-z0-9_]+-[a-z0-9_]+-(8|16|32|64|128)bit");
-            if (!abiRegExp.exactMatch(i.value())) {
+            const QRegularExpression abiRegExp("^[a-z0-9_]+-[a-z0-9_]+-[a-z0-9_]+-[a-z0-9_]+-(8|16|32|64|128)bit$");
+            if (!abiRegExp.match(i.value()).hasMatch()) {
                 std::cerr << "Error: Toolchain " << qPrintable(i.value())
                           << " for language " << qPrintable(i.key()) << " does not exist." << std::endl;
                 return QVariantMap();

@@ -33,7 +33,7 @@
 #include <QTimer>
 #include <QThread>
 #include <QSettings>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QUrl>
 #include <mach/error.h>
 
@@ -1437,11 +1437,12 @@ void AppOpSession::deviceCallbackReturned()
 
 int AppOpSession::qmljsDebugPort() const
 {
-    QRegExp qmlPortRe = QRegExp(QLatin1String("-qmljsdebugger=port:([0-9]+)"));
-    foreach (const QString &arg, extraArgs) {
-        if (qmlPortRe.indexIn(arg) == 0) {
+    const QRegularExpression qmlPortRe(QLatin1String("-qmljsdebugger=port:([0-9]+)"));
+    for (const QString &arg : qAsConst(extraArgs)) {
+        const QRegularExpressionMatch match = qmlPortRe.match(arg);
+        if (match.hasMatch()) {
             bool ok;
-            int res = qmlPortRe.cap(1).toInt(&ok);
+            int res = match.captured(1).toInt(&ok);
             if (ok && res >0 && res <= 0xFFFF)
                 return res;
         }

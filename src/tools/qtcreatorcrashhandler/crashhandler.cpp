@@ -36,7 +36,7 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QFile>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QTextStream>
 #include <QUrl>
 #include <QVector>
@@ -166,11 +166,11 @@ void CrashHandler::onBacktraceFinished(const QString &backtrace)
     // ...
     // Thread 1 (Thread 0x7f1c33c79780 (LWP 975)):
     // ...
-    QRegExp rx(QLatin1String("\\[Current thread is (\\d+)"));
-    const int pos = rx.indexIn(backtrace);
-    if (pos == -1)
+    const QRegularExpression rx(QLatin1String("\\[Current thread is (\\d+)"));
+    const QRegularExpressionMatch match = rx.match(backtrace);
+    if (!match.hasMatch())
         return;
-    const QString threadNumber = rx.cap(1);
+    const QString threadNumber = match.captured(1);
     const QString textToSelect = QString::fromLatin1("Thread %1").arg(threadNumber);
     d->dialog.selectLineWithContents(textToSelect);
 }
