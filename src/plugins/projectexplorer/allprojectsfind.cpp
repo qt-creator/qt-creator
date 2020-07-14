@@ -36,11 +36,9 @@
 #include <utils/filesearch.h>
 #include <utils/algorithm.h>
 
-#include <QSettings>
-#include <QRegExp>
-
 #include <QGridLayout>
 #include <QLabel>
+#include <QSettings>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

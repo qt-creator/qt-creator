@@ -31,7 +31,6 @@
 #include <utils/textfieldcheckbox.h>
 #include <utils/textfieldcombobox.h>
 
-#include <QRegExp>
 #include <QDebug>
 #include <QDir>
 #include <QDate>

@@ -42,13 +42,13 @@ static const char buildRe[] = "=== BUILD (AGGREGATE )?TARGET (.*) OF PROJECT (.*
 static const char signatureChangeEndsWithPattern[] = ": replacing existing signature";
 
 XcodebuildParser::XcodebuildParser()
+    : m_failureRe(QLatin1String(failureRe))
+    , m_successRe(QLatin1String(successRe))
+    , m_buildRe(QLatin1String(buildRe))
 {
     setObjectName(QLatin1String("XcodeParser"));
-    m_failureRe.setPattern(QLatin1String(failureRe));
     QTC_CHECK(m_failureRe.isValid());
-    m_successRe.setPattern(QLatin1String(successRe));
     QTC_CHECK(m_successRe.isValid());
-    m_buildRe.setPattern(QLatin1String(buildRe));
     QTC_CHECK(m_buildRe.isValid());
 }
 
@@ -56,15 +56,17 @@ OutputLineParser::Result XcodebuildParser::handleLine(const QString &line, Outpu
 {
     const QString lne = rightTrimmed(line);
     if (type == StdOutFormat) {
-        if (m_buildRe.indexIn(lne) > -1) {
+        QRegularExpressionMatch match = m_buildRe.match(line);
+        if (match.hasMatch()) {
             m_xcodeBuildParserState = InXcodebuild;
-            m_lastTarget = m_buildRe.cap(2);
-            m_lastProject = m_buildRe.cap(3);
+            m_lastTarget = match.captured(2);
+            m_lastProject = match.captured(3);
             return Status::Done;
         }
         if (m_xcodeBuildParserState == InXcodebuild
                 || m_xcodeBuildParserState == UnknownXcodebuildState) {
-            if (m_successRe.indexIn(lne) > -1) {
+            match = m_successRe.match(lne);
+            if (match.hasMatch()) {
                 m_xcodeBuildParserState = OutsideXcodebuild;
                 return Status::Done;
             }
@@ -83,7 +85,8 @@ OutputLineParser::Result XcodebuildParser::handleLine(const QString &line, Outpu
         }
         return Status::NotHandled;
     }
-    if (m_failureRe.indexIn(lne) > -1) {
+    const QRegularExpressionMatch match = m_failureRe.match(lne);
+    if (match.hasMatch()) {
         ++m_fatalErrorCount;
         m_xcodeBuildParserState = UnknownXcodebuildState;
         // unfortunately the m_lastTarget, m_lastProject might not be in sync

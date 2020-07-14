@@ -29,7 +29,7 @@
 #include "ioutputparser.h"
 #include "devicesupport/idevice.h"
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QStringList>
 
 namespace ProjectExplorer {
@@ -52,9 +52,9 @@ private:
     bool hasFatalErrors() const override { return m_fatalErrorCount > 0; }
 
     int m_fatalErrorCount = 0;
-    QRegExp m_failureRe;
-    QRegExp m_successRe;
-    QRegExp m_buildRe;
+    const QRegularExpression m_failureRe;
+    const QRegularExpression m_successRe;
+    const QRegularExpression m_buildRe;
     XcodebuildStatus m_xcodeBuildParserState = OutsideXcodebuild;
     QString m_lastTarget;
     QString m_lastProject;

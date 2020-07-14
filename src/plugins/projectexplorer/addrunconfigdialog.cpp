@@ -39,7 +39,6 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QRegExp>
 #include <QSortFilterProxyModel>
 #include <QVBoxLayout>
 

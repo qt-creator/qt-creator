@@ -29,8 +29,6 @@
 
 #include <projectexplorer/task.h>
 
-#include <QRegExp>
-
 namespace ProjectExplorer {
 
 class PROJECTEXPLORER_EXPORT OsParser : public ProjectExplorer::OutputTaskParser
