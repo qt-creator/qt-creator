@@ -50,7 +50,7 @@ const char YPosTag[] = "y";
 const char WidthTag[] = "width";
 const char HeightTag[] = "height";
 
-
+const char MetadataTag[] = "metadata";
 const char QmlIdTag[] = "qmlId";
 const char ExportTypeTag[] = "exportType";
 const char QmlPropertiesTag[] = "qmlProperties";

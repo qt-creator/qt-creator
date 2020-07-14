@@ -47,10 +47,9 @@ QJsonObject QmlDesigner::ItemNodeParser::json(QmlDesigner::Component &component)
     Q_UNUSED(component);
     const QmlObjectNode &qmlObjectNode = objectNode();
     QJsonObject jsonObject;
-    jsonObject.insert(QmlIdTag, qmlObjectNode.id());
-    QmlItemNode itemNode = qmlObjectNode.toQmlItemNode();
 
     // Position relative to parent
+    QmlItemNode itemNode = qmlObjectNode.toQmlItemNode();
     QPointF pos = itemNode.instancePosition();
     jsonObject.insert(XPosTag, pos.x());
     jsonObject.insert(YPosTag, pos.y());
@@ -60,10 +59,13 @@ QJsonObject QmlDesigner::ItemNodeParser::json(QmlDesigner::Component &component)
     jsonObject.insert(WidthTag, size.width());
     jsonObject.insert(HeightTag, size.height());
 
-    jsonObject.insert(UuidTag, uuid());
-    jsonObject.insert(ExportTypeTag, "child");
-    jsonObject.insert(TypeNameTag, QString::fromLatin1(m_node.type()));
+    QJsonObject metadata;
+    metadata.insert(QmlIdTag, qmlObjectNode.id());
+    metadata.insert(UuidTag, uuid());
+    metadata.insert(ExportTypeTag, "child");
+    metadata.insert(TypeNameTag, QString::fromLatin1(m_node.type()));
 
-    return  jsonObject;
+    jsonObject.insert(MetadataTag, metadata);
+    return jsonObject;
 }
 }
