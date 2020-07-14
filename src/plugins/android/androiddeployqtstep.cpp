@@ -38,6 +38,7 @@
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
@@ -206,6 +207,18 @@ bool AndroidDeployQtStep::init()
 
     if (!info.isValid()) // aborted
         return false;
+
+    const QString buildKey = target()->activeBuildKey();
+    auto selectedAbis = buildSystem()->extraData(buildKey, Constants::ANDROID_ABIS).toStringList();
+
+    if (!selectedAbis.contains(info.cpuAbi.first())) {
+        Core::MessageManager::write(
+            tr("Android: The selected device main ABI (%1) is not selected! The app execution or "
+               "debugging might not work properly. Add it from Projects > Build > Build Steps > "
+               "qmake > ABIs.")
+                .arg(info.cpuAbi.first()),
+            Core::MessageManager::WithFocus);
+    }
 
     m_avdName = info.avdname;
     m_serialNumber = info.serialNumber;
