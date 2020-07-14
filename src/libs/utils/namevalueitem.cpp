@@ -41,7 +41,17 @@ NameValueItems NameValueItem::fromStringList(const QStringList &list)
 {
     NameValueItems result;
     for (const QString &string : list) {
-        int pos = string.indexOf('=', 1);
+        int pos = string.indexOf("+=");
+        if (pos != -1) {
+            result.append({string.left(pos), string.mid(pos + 2), NameValueItem::Append});
+            continue;
+        }
+        pos = string.indexOf("=+");
+        if (pos != -1) {
+            result.append({string.left(pos), string.mid(pos + 2), NameValueItem::Prepend});
+            continue;
+        }
+        pos = string.indexOf('=', 1);
         if (pos == -1) {
             result.append(NameValueItem(string, QString(), NameValueItem::Unset));
             continue;
@@ -60,10 +70,19 @@ NameValueItems NameValueItem::fromStringList(const QStringList &list)
 QStringList NameValueItem::toStringList(const NameValueItems &list)
 {
     return Utils::transform<QStringList>(list, [](const NameValueItem &item) {
-        if (item.operation == NameValueItem::Unset)
-            return QString(item.name);
-        return QString((item.operation == NameValueItem::SetDisabled ? "#" : "")
-                       + item.name + '=' + item.value);
+        switch (item.operation) {
+        case NameValueItem::Unset:
+            return item.name;
+        case NameValueItem::Append:
+            return QString(item.name + "+=" + item.value);
+        case NameValueItem::Prepend:
+            return QString(item.name + "=+" + item.value);
+        case NameValueItem::SetDisabled:
+            return QString('#' + item.name + '=' + item.value);
+        case NameValueItem::SetEnabled:
+            return QString(item.name + '=' + item.value);
+        }
+        return QString();
     });
 }
 
