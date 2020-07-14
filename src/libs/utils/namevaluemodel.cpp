@@ -161,8 +161,8 @@ QVariant NameValueModel::data(const QModelIndex &index, int role) const
             // Do not return "<UNSET>" when editing a previously unset variable:
             if (role == Qt::EditRole) {
                 int pos = d->findInChanges(indexToVariable(index));
-                if (pos != -1)
-                    return d->m_items.at(pos).value;
+                if (pos != -1 && d->m_items.at(pos).operation == NameValueItem::Unset)
+                    return QString();
             }
             QString value = d->m_resultNameValueDictionary.value(resultIterator);
             if (role == Qt::ToolTipRole && value.length() > 80) {
