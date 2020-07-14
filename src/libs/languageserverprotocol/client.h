@@ -33,7 +33,7 @@ class Registration : public JsonObject
 {
 public:
     Registration() : Registration(QString()) {}
-    Registration(const QString &method)
+    explicit Registration(const QString &method)
     {
         setId(QUuid::createUuid().toString());
         setMethod(method);
@@ -58,7 +58,8 @@ class RegistrationParams : public JsonObject
 {
 public:
     RegistrationParams() : RegistrationParams(QList<Registration>()) {}
-    RegistrationParams(const QList<Registration> &registrations) { setRegistrations(registrations); }
+    explicit RegistrationParams(const QList<Registration> &registrations)
+    { setRegistrations(registrations); }
     using JsonObject::JsonObject;
 
     QList<Registration> registrations() const { return array<Registration>(registrationsKey); }
@@ -73,7 +74,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT RegisterCapabilityRequest : public Request<
         std::nullptr_t, std::nullptr_t, RegistrationParams>
 {
 public:
-    RegisterCapabilityRequest(const RegistrationParams &params);
+    explicit RegisterCapabilityRequest(const RegistrationParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "client/registerCapability";
 };
@@ -111,7 +112,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT UnregisterCapabilityRequest : public Request
         std::nullptr_t, std::nullptr_t, UnregistrationParams>
 {
 public:
-    UnregisterCapabilityRequest(const UnregistrationParams &params);
+    explicit UnregisterCapabilityRequest(const UnregistrationParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "client/unregisterCapability";
 };

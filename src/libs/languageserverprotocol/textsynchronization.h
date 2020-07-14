@@ -34,7 +34,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DidOpenTextDocumentParams : public JsonObjec
 {
 public:
     DidOpenTextDocumentParams() = default;
-    DidOpenTextDocumentParams(const TextDocumentItem &document);
+    explicit DidOpenTextDocumentParams(const TextDocumentItem &document);
     using JsonObject::JsonObject;
 
     TextDocumentItem textDocument() const { return typedValue<TextDocumentItem>(textDocumentKey); }
@@ -49,7 +49,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DidOpenTextDocumentNotification : public Not
         DidOpenTextDocumentParams>
 {
 public:
-    DidOpenTextDocumentNotification(const DidOpenTextDocumentParams &params);
+    explicit DidOpenTextDocumentNotification(const DidOpenTextDocumentParams &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "textDocument/didOpen";
 };
@@ -58,7 +58,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT TextDocumentChangeRegistrationOptions : publ
 {
 public:
     TextDocumentChangeRegistrationOptions();
-    TextDocumentChangeRegistrationOptions(TextDocumentSyncKind kind);
+    explicit TextDocumentChangeRegistrationOptions(TextDocumentSyncKind kind);
     using JsonObject::JsonObject;
 
     TextDocumentSyncKind syncKind() const
@@ -73,8 +73,8 @@ class LANGUAGESERVERPROTOCOL_EXPORT DidChangeTextDocumentParams : public JsonObj
 {
 public:
     DidChangeTextDocumentParams();
-    DidChangeTextDocumentParams(const VersionedTextDocumentIdentifier &docId,
-                                const QString &text = QString());
+    explicit DidChangeTextDocumentParams(const VersionedTextDocumentIdentifier &docId,
+                                         const QString &text = QString());
     using JsonObject::JsonObject;
 
     VersionedTextDocumentIdentifier textDocument() const
@@ -90,7 +90,7 @@ public:
          */
     public:
         TextDocumentContentChangeEvent() = default;
-        TextDocumentContentChangeEvent(const QString text);
+        explicit TextDocumentContentChangeEvent(const QString &text);
         using JsonObject::JsonObject;
 
         // The range of the document that changed.
@@ -122,7 +122,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DidChangeTextDocumentNotification : public N
         DidChangeTextDocumentParams>
 {
 public:
-    DidChangeTextDocumentNotification(const DidChangeTextDocumentParams &params);
+    explicit DidChangeTextDocumentNotification(const DidChangeTextDocumentParams &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "textDocument/didChange";
 };
@@ -137,8 +137,9 @@ public:
     };
 
     WillSaveTextDocumentParams() : WillSaveTextDocumentParams(TextDocumentIdentifier()) {}
-    WillSaveTextDocumentParams(const TextDocumentIdentifier &document,
-                               const TextDocumentSaveReason &reason = TextDocumentSaveReason::Manual);
+    explicit WillSaveTextDocumentParams(
+        const TextDocumentIdentifier &document,
+        const TextDocumentSaveReason &reason = TextDocumentSaveReason::Manual);
     using JsonObject::JsonObject;
 
     TextDocumentIdentifier textDocument() const
@@ -157,7 +158,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT WillSaveTextDocumentNotification : public No
         WillSaveTextDocumentParams>
 {
 public:
-    WillSaveTextDocumentNotification(const WillSaveTextDocumentParams &params);
+    explicit WillSaveTextDocumentNotification(const WillSaveTextDocumentParams &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "textDocument/willSave";
 };
@@ -166,7 +167,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT WillSaveWaitUntilTextDocumentRequest : publi
         LanguageClientArray<TextEdit>, std::nullptr_t, WillSaveTextDocumentParams>
 {
 public:
-    WillSaveWaitUntilTextDocumentRequest(const WillSaveTextDocumentParams &params);
+    explicit WillSaveWaitUntilTextDocumentRequest(const WillSaveTextDocumentParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/willSaveWaitUntil";
 };
@@ -188,7 +189,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DidSaveTextDocumentParams : public JsonObjec
 {
 public:
     DidSaveTextDocumentParams() : DidSaveTextDocumentParams(TextDocumentIdentifier()) {}
-    DidSaveTextDocumentParams(const TextDocumentIdentifier &document);
+    explicit DidSaveTextDocumentParams(const TextDocumentIdentifier &document);
     using JsonObject::JsonObject;
 
     TextDocumentIdentifier textDocument()
@@ -207,7 +208,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DidSaveTextDocumentNotification : public Not
         DidSaveTextDocumentParams>
 {
 public:
-    DidSaveTextDocumentNotification(const DidSaveTextDocumentParams &params);
+    explicit DidSaveTextDocumentNotification(const DidSaveTextDocumentParams &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "textDocument/didSave";
 };
@@ -216,7 +217,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DidCloseTextDocumentParams : public JsonObje
 {
 public:
     DidCloseTextDocumentParams() = default;
-    DidCloseTextDocumentParams(const TextDocumentIdentifier &document);
+    explicit DidCloseTextDocumentParams(const TextDocumentIdentifier &document);
     using JsonObject::JsonObject;
 
     TextDocumentIdentifier textDocument() const
@@ -232,7 +233,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DidCloseTextDocumentNotification : public No
         DidCloseTextDocumentParams>
 {
 public:
-    DidCloseTextDocumentNotification(const DidCloseTextDocumentParams &params);
+    explicit DidCloseTextDocumentNotification(const DidCloseTextDocumentParams &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "textDocument/didClose";
 };

@@ -89,7 +89,7 @@ QFutureWatcher<Utils::Text::Replacements> *LanguageClientFormatter::format(
     }
     DocumentRangeFormattingParams params;
     const DocumentUri uri = DocumentUri::fromFilePath(filePath);
-    params.setTextDocument(uri);
+    params.setTextDocument(TextDocumentIdentifier(uri));
     params.setOptions(formattingOptions(tabSettings));
     if (!cursor.hasSelection()) {
         QTextCursor c = cursor;

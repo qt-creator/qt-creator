@@ -257,8 +257,7 @@ void Client::initialize()
     QTC_ASSERT(m_clientInterface, return);
     QTC_ASSERT(m_state == Uninitialized, return);
     qCDebug(LOGLSPCLIENT) << "initializing language server " << m_displayName;
-    InitializeRequest initRequest;
-    auto params = initRequest.params().value_or(InitializeParams());
+    InitializeParams params;
     params.setCapabilities(generateClientCapabilities());
     params.setInitializationOptions(m_initializationOptions);
     if (m_project) {
@@ -267,7 +266,7 @@ void Client::initialize()
             return WorkSpaceFolder(pro->projectDirectory().toString(), pro->displayName());
         }));
     }
-    initRequest.setParams(params);
+    InitializeRequest initRequest(params);
     initRequest.setResponseCallback([this](const InitializeRequest::Response &initResponse){
         initializeCallback(initResponse);
     });
@@ -535,7 +534,8 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
             change.setText(document->textAt(position, charsAdded));
             m_documentsToUpdate[document] << change;
         } else {
-            m_documentsToUpdate[document] = {document->plainText()};
+            m_documentsToUpdate[document] = {
+                DidChangeTextDocumentParams::TextDocumentContentChangeEvent(document->plainText())};
         }
         m_openedDocument[document] = document->plainText();
     }
@@ -590,7 +590,8 @@ void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
     if (runningRequest != m_highlightRequests.end())
         cancelRequest(runningRequest.value());
 
-    DocumentHighlightsRequest request(TextDocumentPositionParams(uri, widget->textCursor()));
+    DocumentHighlightsRequest request(
+        TextDocumentPositionParams(TextDocumentIdentifier(uri), Position(widget->textCursor())));
     request.setResponseCallback(
                 [widget = QPointer<TextEditor::TextEditorWidget>(widget), this, uri]
                 (DocumentHighlightsRequest::Response response)
@@ -641,7 +642,7 @@ void Client::requestCodeActions(const DocumentUri &uri, const QList<Diagnostic> 
     CodeActionParams::CodeActionContext context;
     context.setDiagnostics(diagnostics);
     codeActionParams.setContext(context);
-    codeActionParams.setTextDocument(uri);
+    codeActionParams.setTextDocument(TextDocumentIdentifier(uri));
     Position start(0, 0);
     const QTextBlock &lastBlock = doc->document()->lastBlock();
     Position end(lastBlock.blockNumber(), lastBlock.length() - 1);
@@ -768,7 +769,7 @@ void Client::formatFile(const TextEditor::TextDocument *document)
 
     DocumentFormattingParams params;
     const DocumentUri uri = DocumentUri::fromFilePath(filePath);
-    params.setTextDocument(uri);
+    params.setTextDocument(TextDocumentIdentifier(uri));
     params.setOptions(formattingOptions(document->tabSettings()));
     DocumentFormattingRequest request(params);
     request.setResponseCallback(
@@ -799,7 +800,7 @@ void Client::formatRange(const TextEditor::TextDocument *document, const QTextCu
     }
     DocumentRangeFormattingParams params;
     const DocumentUri uri = DocumentUri::fromFilePath(filePath);
-    params.setTextDocument(uri);
+    params.setTextDocument(TextDocumentIdentifier(uri));
     params.setOptions(formattingOptions(document->tabSettings()));
     if (!cursor.hasSelection()) {
         QTextCursor c = cursor;

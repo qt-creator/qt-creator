@@ -65,7 +65,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT Position : public JsonObject
 public:
     Position() = default;
     Position(int line, int character);
-    Position(const QTextCursor &cursor);
+    explicit Position(const QTextCursor &cursor);
     using JsonObject::JsonObject;
 
     // Line position in a document (zero-based).
@@ -233,7 +233,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT TextDocumentIdentifier : public JsonObject
 {
 public:
     TextDocumentIdentifier() : TextDocumentIdentifier(DocumentUri()) {}
-    TextDocumentIdentifier(const DocumentUri &uri) { setUri(uri); }
+    explicit TextDocumentIdentifier(const DocumentUri &uri) { setUri(uri); }
     using JsonObject::JsonObject;
 
     // The text document's URI.
@@ -393,7 +393,7 @@ public:
     MarkupKind(const Value value)
         : m_value(value)
     {}
-    MarkupKind(const QJsonValue &value);
+    explicit MarkupKind(const QJsonValue &value);
 
     operator QJsonValue() const;
     Value value() const { return m_value; }
@@ -411,7 +411,7 @@ public:
     using JsonObject::JsonObject;
 
     // The type of the Markup
-    MarkupKind kind() const { return value(kindKey); }
+    MarkupKind kind() const { return MarkupKind(value(kindKey)); }
     void setKind(MarkupKind kind) { insert(kindKey, kind); }
     Qt::TextFormat textFormat() const
     { return kind() == MarkupKind::markdown ? Qt::MarkdownText : Qt::PlainText; }
@@ -428,7 +428,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT MarkupOrString : public Utils::variant<QStri
 {
 public:
     MarkupOrString() = default;
-    MarkupOrString(const Utils::variant<QString, MarkupContent> &val);
+    explicit MarkupOrString(const Utils::variant<QString, MarkupContent> &val);
     explicit MarkupOrString(const QString &val);
     explicit MarkupOrString(const MarkupContent &val);
     MarkupOrString(const QJsonValue &val);

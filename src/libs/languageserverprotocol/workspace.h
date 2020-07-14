@@ -80,7 +80,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DidChangeWorkspaceFoldersNotification : publ
         DidChangeWorkspaceFoldersParams>
 {
 public:
-    DidChangeWorkspaceFoldersNotification(const DidChangeWorkspaceFoldersParams &params);
+    explicit DidChangeWorkspaceFoldersNotification(const DidChangeWorkspaceFoldersParams &params);
     constexpr static const char methodName[] = "workspace/didChangeWorkspaceFolders";
     using Notification::Notification;
 };
@@ -100,7 +100,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DidChangeConfigurationNotification : public 
         DidChangeConfigurationParams>
 {
 public:
-    DidChangeConfigurationNotification(const DidChangeConfigurationParams &params);
+    explicit DidChangeConfigurationNotification(const DidChangeConfigurationParams &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "workspace/didChangeConfiguration";
 };
@@ -136,7 +136,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT ConfigurationRequest : public Request<
         LanguageClientArray<QJsonValue>, std::nullptr_t, ConfigurationParams>
 {
 public:
-    ConfigurationRequest(const ConfigurationParams &params);
+    explicit ConfigurationRequest(const ConfigurationParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "workspace/configuration";
 };
@@ -178,7 +178,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DidChangeWatchedFilesNotification : public N
         DidChangeWatchedFilesParams>
 {
 public:
-    DidChangeWatchedFilesNotification(const DidChangeWatchedFilesParams &params);
+    explicit DidChangeWatchedFilesNotification(const DidChangeWatchedFilesParams &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "workspace/didChangeWatchedFiles";
 };
@@ -229,7 +229,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT ExecuteCommandRequest : public Request<
         QJsonValue, std::nullptr_t, ExecuteCommandParams>
 {
 public:
-    ExecuteCommandRequest(const ExecuteCommandParams &params);
+    explicit ExecuteCommandRequest(const ExecuteCommandParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "workspace/executeCommand";
 };
@@ -265,7 +265,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT ApplyWorkspaceEditRequest : public Request<
         ApplyWorkspaceEditResponse, std::nullptr_t, ApplyWorkspaceEditParams>
 {
 public:
-    ApplyWorkspaceEditRequest(const ApplyWorkspaceEditParams &params = ApplyWorkspaceEditParams());
+    explicit ApplyWorkspaceEditRequest(const ApplyWorkspaceEditParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "workspace/applyEdit";
 };

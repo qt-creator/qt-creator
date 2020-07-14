@@ -129,7 +129,7 @@ using InitializedParams = JsonObject;
 class LANGUAGESERVERPROTOCOL_EXPORT InitializeNotification : public Notification<InitializedParams>
 {
 public:
-    InitializeNotification(const InitializedParams &params);
+    explicit InitializeNotification(const InitializedParams &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "initialized";
 
@@ -173,7 +173,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT InitializeRequest : public Request<
         InitializeResult, InitializeError, InitializeParams>
 {
 public:
-    InitializeRequest(const InitializeParams &params = InitializeParams());
+    explicit InitializeRequest(const InitializeParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "initialize";
 };

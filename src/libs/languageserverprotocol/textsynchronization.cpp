@@ -71,7 +71,7 @@ DidChangeTextDocumentParams::DidChangeTextDocumentParams(
         const VersionedTextDocumentIdentifier &docId, const QString &text)
 {
     setTextDocument(docId);
-    setContentChanges({text});
+    setContentChanges({TextDocumentContentChangeEvent(text)});
 }
 
 bool DidChangeTextDocumentParams::isValid(ErrorHierarchy *error) const
@@ -91,7 +91,7 @@ DidCloseTextDocumentParams::DidCloseTextDocumentParams(const TextDocumentIdentif
 }
 
 DidChangeTextDocumentParams::TextDocumentContentChangeEvent::TextDocumentContentChangeEvent(
-        const QString text)
+    const QString &text)
 {
     setText(text);
 }

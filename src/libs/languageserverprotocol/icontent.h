@@ -47,17 +47,17 @@ class LANGUAGESERVERPROTOCOL_EXPORT MessageId : public Utils::variant<int, QStri
 {
 public:
     MessageId() = default;
-    MessageId(int id) : variant(id) {}
-    MessageId(QString id) : variant(id) {}
+    explicit MessageId(int id) : variant(id) {}
+    explicit MessageId(const QString &id) : variant(id) {}
     explicit MessageId(const QJsonValue &value)
     {
         if (value.isUndefined())
             return;
         QTC_CHECK(value.isDouble() || value.isString());
         if (value.isDouble())
-            *this = value.toInt();
+            *this = MessageId(value.toInt());
         else if (value.isString())
-            *this = value.toString();
+            *this = MessageId(value.toString());
     }
 
     QJsonValue toJson() const

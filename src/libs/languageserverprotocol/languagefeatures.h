@@ -106,7 +106,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT HoverRequest
     : public Request<Hover, std::nullptr_t, TextDocumentPositionParams>
 {
 public:
-    HoverRequest(const TextDocumentPositionParams &params = TextDocumentPositionParams());
+    explicit HoverRequest(const TextDocumentPositionParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/hover";
 };
@@ -201,7 +201,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT SignatureHelpRequest
     : public Request<LanguageClientValue<SignatureHelp>, std::nullptr_t, TextDocumentPositionParams>
 {
 public:
-    SignatureHelpRequest(const TextDocumentPositionParams &params = TextDocumentPositionParams());
+    explicit SignatureHelpRequest(const TextDocumentPositionParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/signatureHelp";
 };
@@ -211,7 +211,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT GotoResult
         : public Utils::variant<Location, QList<Location>, std::nullptr_t>
 {
 public:
-    GotoResult(const QJsonValue &value);
+    explicit GotoResult(const QJsonValue &value);
     using variant::variant;
 };
 
@@ -219,7 +219,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT GotoDefinitionRequest
     : public Request<GotoResult, std::nullptr_t, TextDocumentPositionParams>
 {
 public:
-    GotoDefinitionRequest(const TextDocumentPositionParams &params = TextDocumentPositionParams());
+    explicit GotoDefinitionRequest(const TextDocumentPositionParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/definition";
 };
@@ -228,8 +228,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT GotoTypeDefinitionRequest : public Request<
         GotoResult, std::nullptr_t, TextDocumentPositionParams>
 {
 public:
-    GotoTypeDefinitionRequest(
-            const TextDocumentPositionParams &params = TextDocumentPositionParams());
+    explicit GotoTypeDefinitionRequest(const TextDocumentPositionParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/typeDefinition";
 };
@@ -238,8 +237,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT GotoImplementationRequest : public Request<
         GotoResult, std::nullptr_t, TextDocumentPositionParams>
 {
 public:
-    GotoImplementationRequest(
-            const TextDocumentPositionParams &params = TextDocumentPositionParams());
+    explicit GotoImplementationRequest(const TextDocumentPositionParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/implementation";
 };
@@ -277,7 +275,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT FindReferencesRequest : public Request<
         LanguageClientArray<Location>, std::nullptr_t, ReferenceParams>
 {
 public:
-    FindReferencesRequest(const ReferenceParams &params = ReferenceParams());
+    explicit FindReferencesRequest(const ReferenceParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/references";
 };
@@ -310,7 +308,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DocumentHighlightsResult
 public:
     using variant::variant;
     DocumentHighlightsResult() : variant(nullptr) {}
-    DocumentHighlightsResult(const QJsonValue &value);
+    explicit DocumentHighlightsResult(const QJsonValue &value);
     using variant::operator=;
 };
 
@@ -318,8 +316,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DocumentHighlightsRequest : public Request<
         DocumentHighlightsResult, std::nullptr_t, TextDocumentPositionParams>
 {
 public:
-    DocumentHighlightsRequest(
-            const TextDocumentPositionParams &params = TextDocumentPositionParams());
+    explicit DocumentHighlightsRequest(const TextDocumentPositionParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/documentHighlight";
 };
@@ -328,7 +325,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT TextDocumentParams : public JsonObject
 {
 public:
     TextDocumentParams();
-    TextDocumentParams(const TextDocumentIdentifier &identifier);
+    explicit TextDocumentParams(const TextDocumentIdentifier &identifier);
     using JsonObject::JsonObject;
 
     TextDocumentIdentifier textDocument() const
@@ -348,7 +345,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DocumentSymbolsResult
 public:
     using variant::variant;
     DocumentSymbolsResult() : variant(nullptr) {}
-    DocumentSymbolsResult(const QJsonValue &value);
+    explicit DocumentSymbolsResult(const QJsonValue &value);
     DocumentSymbolsResult(const DocumentSymbolsResult &other) : variant(other) {}
     DocumentSymbolsResult(DocumentSymbolsResult &&other) : variant(std::move(other)) {}
 
@@ -370,7 +367,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DocumentSymbolsRequest
         : public Request<DocumentSymbolsResult, std::nullptr_t, DocumentSymbolParams>
 {
 public:
-    DocumentSymbolsRequest(const DocumentSymbolParams &params = DocumentSymbolParams());
+    explicit DocumentSymbolsRequest(const DocumentSymbolParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/documentSymbol";
 };
@@ -476,7 +473,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT CodeActionRequest : public Request<
         CodeActionResult, std::nullptr_t, CodeActionParams>
 {
 public:
-    CodeActionRequest(const CodeActionParams &params = CodeActionParams());
+    explicit CodeActionRequest(const CodeActionParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/codeAction";
 };
@@ -507,7 +504,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT CodeLensRequest : public Request<
         LanguageClientArray<CodeLens>, std::nullptr_t, CodeLensParams>
 {
 public:
-    CodeLensRequest(const CodeLensParams &params = CodeLensParams());
+    explicit CodeLensRequest(const CodeLensParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/codeLens";
 };
@@ -516,7 +513,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT CodeLensResolveRequest : public Request<
         CodeLens, std::nullptr_t, CodeLens>
 {
 public:
-    CodeLensResolveRequest(const CodeLens &params = CodeLens());
+    explicit CodeLensResolveRequest(const CodeLens &params);
     using Request::Request;
     constexpr static const char methodName[] = "codeLens/resolve";
 };
@@ -547,7 +544,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DocumentLinkRequest : public Request<
         LanguageClientValue<DocumentLink>, std::nullptr_t, DocumentLinkParams>
 {
 public:
-    DocumentLinkRequest(const DocumentLinkParams &params = DocumentLinkParams());
+    explicit DocumentLinkRequest(const DocumentLinkParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/documentLink";
 };
@@ -556,7 +553,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DocumentLinkResolveRequest : public Request<
         DocumentLink, std::nullptr_t, DocumentLink>
 {
 public:
-    DocumentLinkResolveRequest(const DocumentLink &params = DocumentLink());
+    explicit DocumentLinkResolveRequest(const DocumentLink &params);
     using Request::Request;
     constexpr static const char methodName[] = "documentLink/resolve";
 };
@@ -602,7 +599,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DocumentColorRequest : public Request<
         QList<ColorInformation>, std::nullptr_t, DocumentColorParams>
 {
 public:
-    DocumentColorRequest(const DocumentColorParams &params = DocumentColorParams());
+    explicit DocumentColorRequest(const DocumentColorParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/documentColor";
 };
@@ -656,7 +653,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT ColorPresentationRequest : public Request<
         QList<ColorPresentation>, std::nullptr_t, ColorPresentationParams>
 {
 public:
-    ColorPresentationRequest(const ColorPresentationParams &params = ColorPresentationParams());
+    explicit ColorPresentationRequest(const ColorPresentationParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/colorPresentation";
 };
@@ -665,8 +662,8 @@ class DocumentFormattingProperty : public Utils::variant<bool, double, QString>
 {
 public:
     DocumentFormattingProperty() = default;
-    DocumentFormattingProperty(const QJsonValue &value);
-    DocumentFormattingProperty(const DocumentFormattingProperty &other)
+    explicit DocumentFormattingProperty(const QJsonValue &value);
+    explicit DocumentFormattingProperty(const DocumentFormattingProperty &other)
         : Utils::variant<bool, double, QString>(other) {}
 
     using variant::variant;
@@ -713,7 +710,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DocumentFormattingRequest : public Request<
         LanguageClientArray<TextEdit>, std::nullptr_t, DocumentFormattingParams>
 {
 public:
-    DocumentFormattingRequest(const DocumentFormattingParams &params = DocumentFormattingParams());
+    explicit DocumentFormattingRequest(const DocumentFormattingParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/formatting";
 };
@@ -741,7 +738,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DocumentRangeFormattingRequest : public Requ
         LanguageClientArray<TextEdit>, std::nullptr_t, DocumentRangeFormattingParams>
 {
 public:
-    DocumentRangeFormattingRequest(const DocumentRangeFormattingParams &params = DocumentRangeFormattingParams());
+    explicit DocumentRangeFormattingRequest(const DocumentRangeFormattingParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/rangeFormatting";
 };
@@ -772,8 +769,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT DocumentOnTypeFormattingRequest : public Req
         QList<TextEdit>, std::nullptr_t, DocumentFormattingParams>
 {
 public:
-    DocumentOnTypeFormattingRequest(
-            const DocumentFormattingParams &params = DocumentFormattingParams());
+    explicit DocumentOnTypeFormattingRequest(const DocumentFormattingParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/onTypeFormatting";
 };
@@ -803,7 +799,7 @@ public:
     PrepareRenameResult(const Utils::variant<PlaceHolderResult, Range, std::nullptr_t> &val);
     explicit PrepareRenameResult(const PlaceHolderResult &val);
     explicit PrepareRenameResult(const Range &val);
-    PrepareRenameResult(const QJsonValue &val);
+    explicit PrepareRenameResult(const QJsonValue &val);
 
     bool isValid(ErrorHierarchy *error) const;
 };
@@ -812,7 +808,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT PrepareRenameRequest
     : public Request<PrepareRenameResult, std::nullptr_t, TextDocumentPositionParams>
 {
 public:
-    PrepareRenameRequest(const TextDocumentPositionParams &params = TextDocumentPositionParams());
+    explicit PrepareRenameRequest(const TextDocumentPositionParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/prepareRename";
 };
@@ -840,7 +836,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT RenameRequest : public Request<
         WorkspaceEdit, std::nullptr_t, RenameParams>
 {
 public:
-    RenameRequest(const RenameParams &params = RenameParams());
+    explicit RenameRequest(const RenameParams &params);
     using Request::Request;
     constexpr static const char methodName[] = "textDocument/rename";
 };
@@ -849,7 +845,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT SemanticHighlightToken
 {
 public:
     // Just accepts token with 8 bytes
-    SemanticHighlightToken(const QByteArray &token);
+    explicit SemanticHighlightToken(const QByteArray &token);
     SemanticHighlightToken() = default;
 
     void appendToByteArray(QByteArray &byteArray) const;
@@ -898,7 +894,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT SemanticHighlightNotification
     : public Notification<SemanticHighlightingParams>
 {
 public:
-    SemanticHighlightNotification(const SemanticHighlightingParams &params);
+    explicit SemanticHighlightNotification(const SemanticHighlightingParams &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "textDocument/semanticHighlighting";
 };

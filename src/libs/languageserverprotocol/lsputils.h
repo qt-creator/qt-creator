@@ -73,10 +73,10 @@ public:
 
     LanguageClientArray() {}
 
-    LanguageClientArray(const QList<T> &list)
+    explicit LanguageClientArray(const QList<T> &list)
     { *this = list; }
 
-    LanguageClientArray(const QJsonValue &value)
+    explicit LanguageClientArray(const QJsonValue &value)
     {
         if (value.isArray()) {
             QList<T> values;

@@ -49,7 +49,7 @@ public:
 class LANGUAGESERVERPROTOCOL_EXPORT PublishDiagnosticsNotification : public Notification<PublishDiagnosticsParams>
 {
 public:
-    PublishDiagnosticsNotification(const PublishDiagnosticsParams &params);
+    explicit PublishDiagnosticsNotification(const PublishDiagnosticsParams &params);
     using Notification::Notification;
     constexpr static const char methodName[] = "textDocument/publishDiagnostics";
 };
