@@ -27,6 +27,7 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.0
 import QtQuickDesignerTheme 1.0
 import HelperWidgets 2.0
+import StudioTheme 1.0 as StudioTheme
 
 Rectangle {
     id: itemPane
@@ -104,8 +105,8 @@ Rectangle {
 
                         }
                         Item {
-                            Layout.preferredWidth: 16
-                            Layout.preferredHeight: 16
+                            Layout.preferredWidth: 20
+                            Layout.preferredHeight: 20
                         }
                     }
 
@@ -114,6 +115,7 @@ Rectangle {
                     }
 
                     SecondColumnLayout {
+                        spacing: 2
                         LineEdit {
                             id: lineEdit
 
@@ -127,12 +129,48 @@ Rectangle {
                             enabled: !modelNodeBackend.multiSelection
                         }
 
-                        Image {
-                            visible: !modelNodeBackend.multiSelection
-                            Layout.preferredWidth: 16
-                            Layout.preferredHeight: 16
-                            source: hasAliasExport ? "image://icons/alias-export-checked" : "image://icons/alias-export-unchecked"
+                        Rectangle {
+                            id: aliasIndicator
+                            color: "transparent"
+                            border.color: "transparent"
+                            implicitWidth: StudioTheme.Values.height
+                            implicitHeight: StudioTheme.Values.height
+                            z: 10
+
+                            Label {
+                                id: aliasIndicatorIcon
+                                enabled: !modelNodeBackend.multiSelection
+                                anchors.fill: parent
+                                text: {
+                                    if (!aliasIndicatorIcon.enabled)
+                                        return StudioTheme.Constants.idAliasOff
+
+                                    return hasAliasExport ? StudioTheme.Constants.idAliasOn : StudioTheme.Constants.idAliasOff
+                                }
+                                color: {
+                                    if (!aliasIndicatorIcon.enabled)
+                                        return StudioTheme.Values.themeTextColorDisabled
+
+                                    return hasAliasExport ? StudioTheme.Values.themeInteraction : StudioTheme.Values.themeTextColor
+                                }
+                                font.family: StudioTheme.Constants.iconFont.family
+                                font.pixelSize: Math.round(16 * StudioTheme.Values.scaleFactor)
+                                verticalAlignment: Text.AlignVCenter
+                                horizontalAlignment: Text.AlignHCenter
+                                states: [
+                                    State {
+                                        name: "hovered"
+                                        when: toolTipArea.containsMouse && aliasIndicatorIcon.enabled
+                                        PropertyChanges {
+                                            target: aliasIndicatorIcon
+                                            scale: 1.2
+                                        }
+                                    }
+                                ]
+                            }
+
                             ToolTipArea {
+                                id: toolTipArea
                                 enabled: !modelNodeBackend.multiSelection
                                 anchors.fill: parent
                                 onClicked: toogleExportAlias()

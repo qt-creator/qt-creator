@@ -127,6 +127,7 @@ Rectangle {
                     }
 
                     SecondColumnLayout {
+                        spacing: 2
                         LineEdit {
                             id: lineEdit
 
@@ -139,28 +140,54 @@ Rectangle {
                             showExtendedFunctionButton: false
                             enabled: !modelNodeBackend.multiSelection
                         }
-                        // workaround: without this item the lineedit does not shrink to the
-                        // right size after resizing to a wider width
 
-                        Image {
-                            visible: !modelNodeBackend.multiSelection
-                            Layout.preferredWidth: 20
-                            Layout.preferredHeight: 20
-                            horizontalAlignment: Image.AlignHCenter
-                            verticalAlignment: Image.AlignVCenter
-                            source: hasAliasExport ? "image://icons/alias-export-checked" : "image://icons/alias-export-unchecked"
+                        Rectangle {
+                            id: aliasIndicator
+                            color: "transparent"
+                            border.color: "transparent"
+                            implicitWidth: StudioTheme.Values.height
+                            implicitHeight: StudioTheme.Values.height
+                            z: 10
+
+                            Label {
+                                id: aliasIndicatorIcon
+                                enabled: !modelNodeBackend.multiSelection
+                                anchors.fill: parent
+                                text: {
+                                    if (!aliasIndicatorIcon.enabled)
+                                        return StudioTheme.Constants.idAliasOff
+
+                                    return hasAliasExport ? StudioTheme.Constants.idAliasOn : StudioTheme.Constants.idAliasOff
+                                }
+                                color: {
+                                    if (!aliasIndicatorIcon.enabled)
+                                        return StudioTheme.Values.themeTextColorDisabled
+
+                                    return hasAliasExport ? StudioTheme.Values.themeInteraction : StudioTheme.Values.themeTextColor
+                                }
+                                font.family: StudioTheme.Constants.iconFont.family
+                                font.pixelSize: Math.round(16 * StudioTheme.Values.scaleFactor)
+                                verticalAlignment: Text.AlignVCenter
+                                horizontalAlignment: Text.AlignHCenter
+                                states: [
+                                    State {
+                                        name: "hovered"
+                                        when: toolTipArea.containsMouse && aliasIndicatorIcon.enabled
+                                        PropertyChanges {
+                                            target: aliasIndicatorIcon
+                                            scale: 1.2
+                                        }
+                                    }
+                                ]
+                            }
+
                             ToolTipArea {
+                                id: toolTipArea
                                 enabled: !modelNodeBackend.multiSelection
                                 anchors.fill: parent
                                 onClicked: toogleExportAlias()
                                 tooltip: qsTr("Toggles whether this item is exported as an alias property of the root item.")
                             }
-                        }
-                        Item { //dummy object to preserve layout in case of multiselection
-                            Layout.preferredWidth: 20
-                            Layout.preferredHeight: 20
-                            enabled: modelNodeBackend.multiSelection
-                            visible: enabled
                         }
                     }
 
