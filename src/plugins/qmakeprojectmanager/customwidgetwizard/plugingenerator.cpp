@@ -36,12 +36,12 @@
 
 #include <QFileInfo>
 #include <QDir>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QSet>
 
 static QString headerGuard(const QString &header)
 {
-    return header.toUpper().replace(QRegExp(QLatin1String("[^A-Z0-9]+")), QLatin1String("_"));
+    return header.toUpper().replace(QRegularExpression("[^A-Z0-9]+"), QString("_"));
 }
 
 namespace QmakeProjectManager {

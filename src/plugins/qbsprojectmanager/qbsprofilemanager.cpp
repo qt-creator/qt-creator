@@ -44,7 +44,7 @@
 #include <QCryptographicHash>
 #include <QJSEngine>
 #include <QProcess>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QVariantMap>
 
 namespace QbsProjectManager {
@@ -71,7 +71,7 @@ static QString toJSLiteral(const bool b)
 static QString toJSLiteral(const QString &str)
 {
     QString js = str;
-    js.replace(QRegExp("([\\\\\"])"), "\\\\1");
+    js.replace(QRegularExpression("([\\\\\"])"), "\\\\1");
     js.prepend('"');
     js.append('"');
     return js;

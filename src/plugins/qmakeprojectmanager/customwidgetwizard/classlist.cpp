@@ -33,7 +33,7 @@
 #include <QStandardItem>
 
 #include <QDebug>
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace QmakeProjectManager {
 namespace Internal {
@@ -53,7 +53,7 @@ public:
 private:
     void appendClass(const QString &);
 
-    QRegExp m_validator;
+    QRegularExpression m_validator;
     const QString m_newClassPlaceHolder;
 };
 
@@ -75,7 +75,7 @@ void ClassModel::appendClass(const QString &c)
 
 bool ClassModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (role == Qt::EditRole && !m_validator.exactMatch(value.toString()))
+    if (role == Qt::EditRole && !m_validator.match(value.toString()).hasMatch())
         return false;
     return QStandardItemModel::setData(index, value, role);
 }

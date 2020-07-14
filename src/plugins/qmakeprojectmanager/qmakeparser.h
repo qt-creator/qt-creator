@@ -29,7 +29,7 @@
 
 #include <projectexplorer/ioutputparser.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace QmakeProjectManager {
 
@@ -43,7 +43,7 @@ public:
 private:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;
 
-    QRegExp m_error;
+    const QRegularExpression m_error;
 };
 
 } // namespace QmakeProjectManager

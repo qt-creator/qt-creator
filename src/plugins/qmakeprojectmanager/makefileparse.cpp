@@ -32,7 +32,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QTextStream>
 #include <QLoggingCategory>
 
@@ -72,7 +72,7 @@ void MakeFileParse::parseArgs(const QString &args, const QString &project,
                               QList<QMakeAssignment> *assignments,
                               QList<QMakeAssignment> *afterAssignments)
 {
-    QRegExp regExp(QLatin1String("([^\\s\\+-]*)\\s*(\\+=|=|-=|~=)(.*)"));
+    const QRegularExpression regExp(QLatin1String("^([^\\s\\+-]*)\\s*(\\+=|=|-=|~=)(.*)$"));
     bool after = false;
     bool ignoreNext = false;
     m_unparsedArguments = args;
@@ -88,11 +88,12 @@ void MakeFileParse::parseArgs(const QString &args, const QString &project,
             after = true;
             ait.deleteArg();
         } else if (ait.value().contains(QLatin1Char('='))) {
-            if (regExp.exactMatch(ait.value())) {
+            const QRegularExpressionMatch match = regExp.match(ait.value());
+            if (match.hasMatch()) {
                 QMakeAssignment qa;
-                qa.variable = regExp.cap(1);
-                qa.op = regExp.cap(2);
-                qa.value = regExp.cap(3).trimmed();
+                qa.variable = match.captured(1);
+                qa.op = match.captured(2);
+                qa.value = match.captured(3).trimmed();
                 if (after)
                     afterAssignments->append(qa);
                 else
@@ -248,11 +249,12 @@ static FilePath findQMakeBinaryFromMakefile(const QString &makefile)
     QFile fi(makefile);
     if (fi.exists() && fi.open(QFile::ReadOnly)) {
         QTextStream ts(&fi);
-        QRegExp r1(QLatin1String("QMAKE\\s*=(.*)"));
+        const QRegularExpression r1(QLatin1String("^QMAKE\\s*=(.*)$"));
         while (!ts.atEnd()) {
             QString line = ts.readLine();
-            if (r1.exactMatch(line)) {
-                QFileInfo qmake(r1.cap(1).trimmed());
+            const QRegularExpressionMatch match = r1.match(line);
+            if (match.hasMatch()) {
+                QFileInfo qmake(match.captured(1).trimmed());
                 QString qmakePath = qmake.filePath();
                 if (!QString::fromLatin1(QTC_HOST_EXE_SUFFIX).isEmpty()
                         && !qmakePath.endsWith(QLatin1String(QTC_HOST_EXE_SUFFIX))) {

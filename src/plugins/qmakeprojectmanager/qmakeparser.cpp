@@ -34,10 +34,9 @@ using namespace Utils;
 
 namespace QmakeProjectManager {
 
-QMakeParser::QMakeParser() : m_error(QLatin1String("^(.+):(\\d+):\\s(.+)$"))
+QMakeParser::QMakeParser() : m_error(QLatin1String("^(.+?):(\\d+?):\\s(.+?)$"))
 {
     setObjectName(QLatin1String("QMakeParser"));
-    m_error.setMinimal(true);
 }
 
 OutputLineParser::Result QMakeParser::handleLine(const QString &line, OutputFormat type)
@@ -45,11 +44,12 @@ OutputLineParser::Result QMakeParser::handleLine(const QString &line, OutputForm
     if (type != Utils::StdErrFormat)
         return Status::NotHandled;
     QString lne = rightTrimmed(line);
-    if (m_error.indexIn(lne) > -1) {
-        QString fileName = m_error.cap(1);
+    QRegularExpressionMatch match = m_error.match(lne);
+    if (match.hasMatch()) {
+        QString fileName = match.captured(1);
         Task::TaskType type = Task::Error;
-        const QString description = m_error.cap(3);
-        int fileNameOffset = m_error.pos(1);
+        const QString description = match.captured(3);
+        int fileNameOffset = match.capturedStart(1);
         if (fileName.startsWith(QLatin1String("WARNING: "))) {
             type = Task::Warning;
             fileName = fileName.mid(9);
@@ -66,7 +66,7 @@ OutputLineParser::Result QMakeParser::handleLine(const QString &line, OutputForm
             type = Task::Error;
 
         BuildSystemTask t(type, description, absoluteFilePath(FilePath::fromUserInput(fileName)),
-                          m_error.cap(2).toInt() /* line */);
+                          match.captured(2).toInt() /* line */);
         LinkSpecs linkSpecs;
         addLinkSpecForAbsoluteFilePath(linkSpecs, t.file, t.line, fileNameOffset,
                                        fileName.length());
