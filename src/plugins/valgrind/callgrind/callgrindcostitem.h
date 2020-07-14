@@ -25,12 +25,7 @@
 
 #pragma once
 
-#include <QtGlobal>
-
-QT_BEGIN_NAMESPACE
-class QString;
-template<typename T> class QVector;
-QT_END_NAMESPACE
+#include <QVector>
 
 namespace Valgrind {
 namespace Callgrind {

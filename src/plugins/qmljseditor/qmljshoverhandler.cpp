@@ -173,7 +173,7 @@ bool QmlJSHoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Docum
     QRegularExpressionMatch m = version.match(moduleName);
     if (m.hasMatch()) {
         QMap<QString, QUrl> filteredUrlMap;
-        QStringRef maj = m.capturedRef(2);
+        const QString maj = m.captured(2);
         for (const HelpItem::Link &link : links) {
             QString urlModuleName = link.second.path().split('/')[1];
             if (urlModuleName.contains(maj))
