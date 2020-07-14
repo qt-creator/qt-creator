@@ -389,9 +389,13 @@ void EnvironmentWidget::updateSummaryText()
                 text.append(tr("Unset <a href=\"%1\"><b>%1</b></a>").arg(item.name.toHtmlEscaped()));
                 break;
             case Utils::EnvironmentItem::SetEnabled:
-            case Utils::EnvironmentItem::Append:
-            case Utils::EnvironmentItem::Prepend:
                 text.append(tr("Set <a href=\"%1\"><b>%1</b></a> to <b>%2</b>").arg(item.name.toHtmlEscaped(), item.value.toHtmlEscaped()));
+                break;
+            case Utils::EnvironmentItem::Append:
+                text.append(tr("Append <b>%2</b> to <a href=\"%1\"><b>%1</b></a>").arg(item.name.toHtmlEscaped(), item.value.toHtmlEscaped()));
+                break;
+            case Utils::EnvironmentItem::Prepend:
+                text.append(tr("Prepend <b>%2</b> to <a href=\"%1\"><b>%1</b></a>").arg(item.name.toHtmlEscaped(), item.value.toHtmlEscaped()));
                 break;
             case Utils::EnvironmentItem::SetDisabled:
                 text.append(tr("Set <a href=\"%1\"><b>%1</b></a> to <b>%2</b> [disabled]").arg(item.name.toHtmlEscaped(), item.value.toHtmlEscaped()));
