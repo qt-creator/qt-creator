@@ -233,6 +233,19 @@ void DebuggerKitAspect::setup(Kit *k)
         if (level > bestLevel) {
             bestLevel = level;
             bestItem = item;
+        } else if (level == bestLevel) {
+            if (item.engineType() == bestItem.engineType()) {
+                const QStringList itemVersion = item.version().split('.');
+                const QStringList bestItemVersion = bestItem.version().split('.');
+                int end = qMax(item.version().size(), bestItemVersion.size());
+                for (int i = 0; i < end; ++i) {
+                    if (itemVersion.value(i) == bestItemVersion.value(i))
+                        continue;
+                    if (itemVersion.value(i).toInt() > bestItemVersion.value(i).toInt())
+                        bestItem = item;
+                    break;
+                }
+            }
         }
     }
 

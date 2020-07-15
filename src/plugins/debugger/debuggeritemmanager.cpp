@@ -675,6 +675,7 @@ void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
         item.setCommand(cdb);
         item.setEngineType(CdbEngineType);
         item.setUnexpandedDisplayName(uniqueDisplayName(tr("Auto-detected CDB at %1").arg(cdb.toUserOutput())));
+        item.reinitializeFromFile(); // collect version number
         m_model->addDebugger(item);
     }
 }
