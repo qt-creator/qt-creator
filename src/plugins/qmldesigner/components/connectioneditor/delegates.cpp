@@ -295,6 +295,35 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
 
     switch (index.column()) {
     case ConnectionModel::TargetModelNodeRow: {
+
+        auto addMetaInfoProperties = [&](const NodeMetaInfo& itemMetaInfo, QString itemName){
+            if (itemMetaInfo.isValid()) {
+                for (const PropertyName &propertyName : itemMetaInfo.directPropertyNames()) {
+                    TypeName propertyType = itemMetaInfo.propertyTypeName(propertyName);
+                    if (!propertyType.isEmpty()) {
+                        //first letter is a reliable item indicator
+                        QChar firstLetter = QString::fromUtf8(propertyType).at(0);
+                        if (firstLetter.isLetter() && firstLetter.isUpper()) {
+                            if (!itemMetaInfo.propertyIsEnumType(propertyName)
+                                    && !itemMetaInfo.propertyIsPrivate(propertyName)
+                                    && !itemMetaInfo.propertyIsListProperty(propertyName)
+                                    && !itemMetaInfo.propertyIsPointer(propertyName)) {
+                                NodeMetaInfo propertyMetaInfo =
+                                        connectionModel->connectionView()->model()->metaInfo(propertyType);
+                                if (propertyMetaInfo.isValid()) {
+                                    if (propertyMetaInfo.isQmlItem()) {
+                                        connectionComboBox->addItem(itemName
+                                                                    + "."
+                                                                    + propertyName);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
         for (const ModelNode &modelNode : connectionModel->connectionView()->allModelNodes()) {
             if (!modelNode.id().isEmpty()) {
                 connectionComboBox->addItem(modelNode.id());
@@ -308,25 +337,24 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
                         }
                     }
                 }
+
+                //Components
+                if (modelNode.isComponent()) {
+                    NodeMetaInfo componentMetaInfo = modelNode.metaInfo();
+                    addMetaInfoProperties(componentMetaInfo, modelNode.id());
+                }
             }
         }
         //singletons:
         if (RewriterView* rv = connectionModel->connectionView()->rewriterView()) {
             for (const QmlTypeData &data : rv->getQMLTypes()) {
                 if (!data.typeName.isEmpty()) {
+                    //singleton itself
                     connectionComboBox->addItem(data.typeName);
 
+                    //its properties, mostly looking for aliases:
                     NodeMetaInfo metaInfo = connectionModel->connectionView()->model()->metaInfo(data.typeName.toUtf8());
-
-                    if (metaInfo.isValid()) {
-                        for (const PropertyName &propertyName : metaInfo.propertyNames()) {
-                            if (metaInfo.propertyTypeName(propertyName) == "alias") {
-                                connectionComboBox->addItem(data.typeName
-                                                            + "."
-                                                            + QString::fromUtf8(propertyName));
-                            }
-                        }
-                    }
+                    addMetaInfoProperties(metaInfo, data.typeName);
                 }
             }
         }
