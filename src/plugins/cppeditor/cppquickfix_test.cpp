@@ -2267,6 +2267,38 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_onlySetterHeaderFile()
     QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 2);
 }
 
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_onlySetterHeaderFileWithIncludeGuard()
+{
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+    const QByteArray     original =
+            "#ifndef FILE__H__DECLARED\n"
+            "#define FILE__H__DECLARED\n"
+            "class Foo\n"
+            "{\n"
+            "public:\n"
+            "    int bar@;\n"
+            "};\n"
+            "#endif\n";
+    const QByteArray expected =
+            "#ifndef FILE__H__DECLARED\n"
+            "#define FILE__H__DECLARED\n"
+            "class Foo\n"
+            "{\n"
+            "public:\n"
+            "    int bar@;\n"
+            "    void setBar(int value);\n"
+            "};\n\n"
+            "inline void Foo::setBar(int value)\n"
+            "{\n"
+            "    bar = value;\n"
+            "}\n"
+            "#endif\n";
+
+    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
+    GenerateGetterSetter factory;
+    QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 2);
+}
+
 class CppCodeStyleSettingsChanger {
 public:
     CppCodeStyleSettingsChanger(const CppCodeStyleSettings &settings);

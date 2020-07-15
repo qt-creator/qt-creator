@@ -226,9 +226,20 @@ InsertionLocation insertLocationForMethodDefinition(Symbol *symbol, const bool u
     const InsertionPointLocator locator(refactoring);
     const QList<InsertionLocation> list
             = locator.methodDefinition(symbol, useSymbolFinder, fileName);
-    for (int i = 0; i < list.count(); ++i) {
+    const bool isHeader = ProjectFile::isHeader(ProjectFile::classify(fileName));
+    const bool hasIncludeGuard = isHeader
+            && !file->cppDocument()->includeGuardMacroName().isEmpty();
+    int lastLine;
+    if (hasIncludeGuard) {
+        const TranslationUnit * const tu = file->cppDocument()->translationUnit();
+        tu->getTokenStartPosition(tu->ast()->lastToken(), &lastLine);
+    }
+    int i = 0;
+    for ( ; i < list.count(); ++i) {
         InsertionLocation location = list.at(i);
         if (!location.isValid() || location.fileName() != fileName)
+            continue;
+        if (hasIncludeGuard && location.line() == lastLine)
             continue;
         if (!requiredNamespaces.isEmpty()) {
             NSVisitor visitor(file.data(), requiredNamespaces,
