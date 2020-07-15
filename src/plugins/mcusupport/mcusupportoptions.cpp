@@ -212,7 +212,7 @@ void McuPackage::updateStatus()
     switch (m_status) {
     case ValidPackage:
         statusText = m_detectionPath.isEmpty()
-                ? "Path exists." // TODO tr()
+                ? tr("Path exists.")
                 : tr("Path is valid, \"%1\" was found.").arg(displayDetectionPath);
         break;
     case ValidPathInvalidPackage:
