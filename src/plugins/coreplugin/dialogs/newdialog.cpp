@@ -459,9 +459,9 @@ void NewDialog::currentItemChanged(const QModelIndex &index)
             desciption += tr("Platform independent") + QLatin1String("</b>");
         else
             desciption += tr("Supported Platforms")
-                    + QLatin1String("</b>: <tt>")
-                    + displayNamesForSupportedPlatforms.join(QLatin1Char(' '))
-                    + QLatin1String("</tt>");
+                    + QLatin1String("</b>: <ul>")
+                    + "<li>" + displayNamesForSupportedPlatforms.join("</li><li>") + "</li>"
+                    + QLatin1String("</ul>");
 
         m_ui->templateDescription->setHtml(desciption);
 
