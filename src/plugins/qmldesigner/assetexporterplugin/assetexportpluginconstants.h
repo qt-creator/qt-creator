@@ -45,6 +45,8 @@ const char DocumentNameTag[] = "name";
 // Layer data tags
 const char ArtboardListTag[] = "artboards";
 
+const char NameTag[] = "name";
+
 const char XPosTag[] = "x";
 const char YPosTag[] = "y";
 const char WidthTag[] = "width";

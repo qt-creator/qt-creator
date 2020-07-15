@@ -28,6 +28,17 @@
 
 #include "qmlitemnode.h"
 
+namespace  {
+static QString capitalize(const QString &str)
+{
+    if (str.isEmpty())
+        return {};
+    QString tmp = str;
+    tmp[0] = QChar(str[0]).toUpper().toLatin1();
+    return tmp;
+}
+}
+
 namespace QmlDesigner {
 using namespace Constants;
 ItemNodeParser::ItemNodeParser(const QByteArrayList &lineage,
@@ -48,6 +59,13 @@ QJsonObject QmlDesigner::ItemNodeParser::json(QmlDesigner::Component &component)
     const QmlObjectNode &qmlObjectNode = objectNode();
     QJsonObject jsonObject;
 
+    const QString qmlId = qmlObjectNode.id();
+    QString name = m_node.simplifiedTypeName();
+    if (!qmlId.isEmpty())
+        name.append("_" + capitalize(qmlId));
+
+    jsonObject.insert(NameTag, name);
+
     // Position relative to parent
     QmlItemNode itemNode = qmlObjectNode.toQmlItemNode();
     QPointF pos = itemNode.instancePosition();
@@ -60,7 +78,7 @@ QJsonObject QmlDesigner::ItemNodeParser::json(QmlDesigner::Component &component)
     jsonObject.insert(HeightTag, size.height());
 
     QJsonObject metadata;
-    metadata.insert(QmlIdTag, qmlObjectNode.id());
+    metadata.insert(QmlIdTag, qmlId);
     metadata.insert(UuidTag, uuid());
     metadata.insert(ExportTypeTag, ExportTypeChild);
     metadata.insert(TypeNameTag, QString::fromLatin1(m_node.type()));
