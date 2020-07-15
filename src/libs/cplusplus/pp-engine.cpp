@@ -1557,7 +1557,8 @@ bool Preprocessor::collectActualArguments(PPToken *tk, QVector<QVector<PPToken> 
     }
 
     if (!tk->is(T_RPAREN)) {
-        //###TODO: else error message
+        return false;
+        //###TODO: error message
     }
     return true;
 }
