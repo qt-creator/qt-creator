@@ -27,6 +27,8 @@
 
 #include <clangsupport_global.h>
 
+#include <QVector>
+
 #include <clang-c/Index.h>
 
 #include <functional>

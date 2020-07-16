@@ -27,6 +27,7 @@
 
 #include "qmljseditor_global.h"
 
+#include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsscanner.h>
 #include <qmljstools/qmljssemanticinfo.h>
 #include <texteditor/texteditor.h>
@@ -41,10 +42,7 @@ QT_BEGIN_NAMESPACE
 class QComboBox;
 QT_END_NAMESPACE
 
-namespace QmlJS {
-    class ModelManagerInterface;
-namespace AST { class UiObjectMember; }
-}
+namespace QmlJS { class ModelManagerInterface; }
 
 namespace QmlJSEditor {
 

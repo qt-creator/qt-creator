@@ -57,6 +57,7 @@
 #include <QMessageBox>
 #include <QModelIndex>
 #include <QSettings>
+#include <QStandardPaths>
 #include <QString>
 #include <QTimer>
 #include <QUrl>

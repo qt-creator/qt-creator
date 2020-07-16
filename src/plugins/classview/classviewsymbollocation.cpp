@@ -54,7 +54,11 @@ SymbolLocation::SymbolLocation(QString file, int lineNumber, int columnNumber) :
         m_column = 0;
 
     // pre-computate hash value
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    m_hash = qHashMulti(0, m_fileName, m_line, m_column);
+#else
     m_hash = qHash(qMakePair(m_fileName, qMakePair(m_line, m_column)));
+#endif
 }
 
 } // namespace Internal

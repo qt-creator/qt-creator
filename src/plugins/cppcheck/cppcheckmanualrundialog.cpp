@@ -81,7 +81,7 @@ ManualRunDialog::ManualRunDialog(const CppcheckOptions &options,
     layout->addWidget(buttons);
 
     if (auto layout = m_options->layout())
-        layout->setMargin(0);
+        layout->setContentsMargins(0, 0, 0, 0);
 
     m_options->load(options);
 }

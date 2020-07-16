@@ -38,9 +38,9 @@ constexpr Qt::SplitBehaviorFlags SkipEmptyParts = Qt::SkipEmptyParts;
 #endif
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-using QHashSeedType = uint;
+using QHashValueType = uint;
 #else
-using QHashSeedType = size_t;
+using QHashValueType = size_t;
 #endif
 
 } // namespace Utils

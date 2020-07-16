@@ -42,7 +42,7 @@
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
-uint qHash(const QPointer<QAction> &p, Utils::QHashSeedType seed)
+Utils::QHashValueType qHash(const QPointer<QAction> &p, Utils::QHashValueType seed)
 {
     return qHash(p.data(), seed);
 }

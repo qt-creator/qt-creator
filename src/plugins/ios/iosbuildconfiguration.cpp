@@ -363,7 +363,8 @@ void IosBuildSettingsWidget::updateWarningText()
             auto profile = IosConfigurations::provisioningProfile(identifier);
             if (profile && QDateTime::currentDateTimeUtc() > profile->expirationDate()) {
                warningText = IosBuildConfiguration::tr("Provisioning profile expired. Expiration date: %1")
-                       .arg(profile->expirationDate().toLocalTime().toString(Qt::SystemLocaleLongDate));
+                       .arg(QLocale::system().toString(profile->expirationDate().toLocalTime(),
+                                                       QLocale::LongFormat));
             }
         }
     }

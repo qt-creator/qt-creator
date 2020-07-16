@@ -545,7 +545,8 @@ FilePath AndroidConfig::gdbPath(const ProjectExplorer::Abi &abi, const BaseQtVer
 FilePath AndroidConfig::gdbPathFromNdk(const Abi &abi, const FilePath &ndkLocation) const
 {
     const FilePath path = ndkLocation.pathAppended(
-        QString("prebuilt/%1/bin/gdb%2").arg(toolchainHostFromNdk(ndkLocation), QTC_HOST_EXE_SUFFIX));
+        QString("prebuilt/%1/bin/gdb%2").arg(toolchainHostFromNdk(ndkLocation),
+                                             QString(QTC_HOST_EXE_SUFFIX)));
     if (path.exists())
         return path;
     // fallback for old NDKs (e.g. 10e)
@@ -553,7 +554,7 @@ FilePath AndroidConfig::gdbPathFromNdk(const Abi &abi, const FilePath &ndkLocati
                                                    .arg(toolchainPrefix(abi),
                                                         toolchainHostFromNdk(ndkLocation),
                                                         toolsPrefix(abi),
-                                                        QTC_HOST_EXE_SUFFIX));
+                                                        QString(QTC_HOST_EXE_SUFFIX)));
 }
 
 FilePath AndroidConfig::makePath(const BaseQtVersion *qtVersion) const
@@ -564,7 +565,8 @@ FilePath AndroidConfig::makePath(const BaseQtVersion *qtVersion) const
 FilePath AndroidConfig::makePathFromNdk(const FilePath &ndkLocation) const
 {
     return ndkLocation.pathAppended(
-                QString("prebuilt/%1/bin/make%2").arg(toolchainHostFromNdk(ndkLocation), QTC_HOST_EXE_SUFFIX));
+                QString("prebuilt/%1/bin/make%2").arg(toolchainHostFromNdk(ndkLocation),
+                                                      QString(QTC_HOST_EXE_SUFFIX)));
 }
 
 FilePath AndroidConfig::openJDKBinPath() const

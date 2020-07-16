@@ -650,7 +650,7 @@ QString ProvisioningProfile::displayName() const
 QString ProvisioningProfile::details() const
 {
     return tr("Team: %1\nApp ID: %2\nExpiration date: %3").arg(m_team->identifier()).arg(m_appID)
-            .arg(m_expirationDate.toLocalTime().toString(Qt::SystemLocaleShortDate));
+            .arg(QLocale::system().toString(m_expirationDate.toLocalTime(), QLocale::ShortFormat));
 }
 
 QDebug &operator<<(QDebug &stream, std::shared_ptr<ProvisioningProfile> profile)

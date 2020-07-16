@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/porting.h>
+
 #include <QMetaType>
 #include <QString>
 
@@ -43,7 +45,7 @@ public:
     inline const QString &fileName() const { return m_fileName; }
     inline int line() const { return m_line; }
     inline int column() const { return m_column; }
-    inline int hash() const { return m_hash; }
+    inline Utils::QHashValueType hash() const { return m_hash; }
     inline bool operator==(const SymbolLocation &other) const
     {
         return line() == other.line() && column() == other.column()
@@ -54,11 +56,11 @@ private:
     QString m_fileName; //!< file name
     int m_line;         //!< line number
     int m_column;       //!< column
-    int m_hash;         //!< precalculated hash value for the object, to speed up qHash
+    Utils::QHashValueType m_hash;   //!< precalculated hash value for the object, to speed up qHash
 };
 
 //! qHash overload for QHash/QSet
-inline uint qHash(const SymbolLocation &location)
+inline Utils::QHashValueType qHash(const ClassView::Internal::SymbolLocation &location)
 {
     return location.hash();
 }
