@@ -7561,7 +7561,7 @@ void tst_Dumpers::dumper_data()
             + Check("ob.4", "[4] \"s\"",    "\"ssss\"",       ""                   ) % jsonv2;
 
 
-    QTest::newRow("Q&qstring_literal_temp,V4")
+    QTest::newRow("QV4")
             << Data("#include <private/qv4value_p.h>\n"
                     "#include <private/qjsvalue_p.h>\n"
                     "#include <QCoreApplication>\n"
