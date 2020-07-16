@@ -55,7 +55,7 @@ public:
     QString nameSpace;
 };
 
-static bool operator<(const DocEntry &d1, const DocEntry &d2)
+bool operator<(const DocEntry &d1, const DocEntry &d2)
 { return d1.name < d2.name; }
 
 class DocModel : public QAbstractListModel
