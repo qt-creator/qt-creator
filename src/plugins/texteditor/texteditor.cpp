@@ -6521,7 +6521,7 @@ TextEditorAnimator::TextEditorAnimator(QObject *parent)
     : QObject(parent), m_timeline(256)
 {
     m_value = 0;
-    m_timeline.setCurveShape(QTimeLine::SineCurve);
+    m_timeline.setEasingCurve(QEasingCurve::SineCurve);
     connect(&m_timeline, &QTimeLine::valueChanged, this, &TextEditorAnimator::step);
     connect(&m_timeline, &QTimeLine::finished, this, &QObject::deleteLater);
     m_timeline.start();
