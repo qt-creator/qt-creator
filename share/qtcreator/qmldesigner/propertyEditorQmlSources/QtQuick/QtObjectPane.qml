@@ -63,15 +63,12 @@ Rectangle {
 
                         RoundedPanel {
                             Layout.fillWidth: true
-                            height: 24
+                            height: StudioTheme.Values.height
 
                             Label {
-                                x: 6
                                 anchors.fill: parent
-                                anchors.leftMargin: 16
-
+                                anchors.leftMargin: StudioTheme.Values.inputHorizontalPadding
                                 text: backendValues.className.value
-                                verticalAlignment: Text.AlignVCenter
                             }
                             ToolTipArea {
                                 anchors.fill: parent
@@ -88,7 +85,7 @@ Rectangle {
                                 z: 2
                                 id: typeLineEdit
                                 completeOnlyTypes: true
-
+                                replaceCurrentTextByCompletion: true
                                 anchors.fill: parent
 
                                 visible: false
@@ -96,10 +93,26 @@ Rectangle {
                                 showButtons: false
                                 fixedSize: true
 
+                                property bool blockEditingFinished: false
+
                                 onEditingFinished: {
-                                    if (visible)
+                                    if (typeLineEdit.blockEditingFinished)
+                                        return
+
+                                    typeLineEdit.blockEditingFinished = true
+
+                                    if (typeLineEdit.visible)
                                         changeTypeName(typeLineEdit.text.trim())
-                                    visible = false
+                                    typeLineEdit.visible = false
+
+                                    typeLineEdit.blockEditingFinished = false
+
+                                    typeLineEdit.completionList.model = null
+                                }
+
+                                onRejected: {
+                                    typeLineEdit.visible = false
+                                    typeLineEdit.completionList.model = null
                                 }
                             }
 
