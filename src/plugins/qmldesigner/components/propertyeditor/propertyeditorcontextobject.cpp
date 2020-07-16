@@ -206,6 +206,8 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
                 incompatibleProperties.append(property.name());
         }
 
+        Utils::sort(incompatibleProperties);
+
         if (!incompatibleProperties.empty()) {
             QString detailedText = QString("<b>Incompatible properties:</b><br>");
 
