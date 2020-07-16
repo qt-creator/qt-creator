@@ -394,7 +394,7 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const QString &workingDirect
     QTC_ASSERT(idRx.isValid(), return RevisionInfo());
 
     const QString hashToken =
-            (supportedFeatures().testFlag(InfoHashFeature) ? "hash: " : "uuid: ");
+            QString::fromUtf8(supportedFeatures().testFlag(InfoHashFeature) ? "hash: " : "uuid: ");
 
     for (const QString &l : output.split('\n', Utils::SkipEmptyParts)) {
         if (l.startsWith("checkout: ", Qt::CaseInsensitive)
