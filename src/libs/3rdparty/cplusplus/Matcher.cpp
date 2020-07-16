@@ -154,19 +154,7 @@ bool Matcher::match(const NamedType *type, const NamedType *otherType)
 {
     if (type == otherType)
         return true;
-
-    const Name *name = type->name();
-    if (const QualifiedNameId *q = name->asQualifiedNameId())
-        name = q->name();
-
-    const Name *otherName = otherType->name();
-    if (const QualifiedNameId *q = otherName->asQualifiedNameId())
-        otherName = q->name();
-
-    if (! Matcher::match(name, otherName, this))
-        return false;
-
-    return true;
+    return Matcher::match(type->name(), otherType->name(), this);
 }
 
 bool Matcher::match(const Function *type, const Function *otherType)

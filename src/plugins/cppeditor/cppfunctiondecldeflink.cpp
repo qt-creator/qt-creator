@@ -794,8 +794,9 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
                     renamedTargetParameters[targetParam] = overview.prettyName(replacementName);
 
                 // need to change the type (and name)?
+                FullySpecifiedType replacementType = rewriteType(newParam->type(), &env, control);
                 if (!newParam->type().match(sourceParam->type())
-                        && !newParam->type().match(targetParam->type())) {
+                        && !replacementType.match(targetParam->type())) {
                     const int parameterTypeStart = targetFile->startOf(targetParamAst);
                     int parameterTypeEnd = 0;
                     if (targetParamAst->declarator)
@@ -805,7 +806,6 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
                     else
                         parameterTypeEnd = targetFile->startOf(targetParamAst);
 
-                    FullySpecifiedType replacementType = rewriteType(newParam->type(), &env, control);
                     newTargetParam = targetFile->textOf(parameterStart, parameterTypeStart);
                     newTargetParam += overview.prettyType(replacementType, replacementName);
                     newTargetParam += targetFile->textOf(parameterTypeEnd, parameterEnd);
