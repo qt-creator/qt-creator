@@ -99,7 +99,7 @@ private:
 
     QString m_recentDialogPath;
 
-    using NameSpaceToPathHash = QHash<QString, QString>;
+    using NameSpaceToPathHash = QMultiHash<QString, QString>;
     NameSpaceToPathHash m_filesToRegister;
     QHash<QString, bool> m_filesToRegisterUserManaged;
     NameSpaceToPathHash m_filesToUnregister;
@@ -213,7 +213,7 @@ void DocSettingsPageWidget::addDocumentation()
         const QString filePath = QDir::cleanPath(file);
         const QString &nameSpace = HelpManager::namespaceFromFile(filePath);
         if (nameSpace.isEmpty()) {
-            docsUnableToRegister.insertMulti("UnknownNamespace", QDir::toNativeSeparators(filePath));
+            docsUnableToRegister.insert("UnknownNamespace", QDir::toNativeSeparators(filePath));
             continue;
         }
 
@@ -240,7 +240,7 @@ void DocSettingsPageWidget::addDocumentation()
             values.remove(filePath);
             m_filesToUnregister.remove(nameSpace);
             foreach (const QString &value, values)
-                m_filesToUnregister.insertMulti(nameSpace, value);
+                m_filesToUnregister.insert(nameSpace, value);
         }
     }
 
@@ -317,7 +317,7 @@ void DocSettingsPageWidget::removeDocumentation(const QList<QModelIndex> &items)
 
         m_filesToRegister.remove(nameSpace);
         m_filesToRegisterUserManaged.remove(nameSpace);
-        m_filesToUnregister.insertMulti(nameSpace, QDir::cleanPath(HelpManager::fileFromNamespace(nameSpace)));
+        m_filesToUnregister.insert(nameSpace, QDir::cleanPath(HelpManager::fileFromNamespace(nameSpace)));
 
         m_model.removeAt(row);
     }
