@@ -65,7 +65,6 @@
 #include <QTextDocument>
 #include <QTextStream>
 #include <QTimer>
-#include <QRegExp>
 #include <QSet>
 #include <QString>
 #include <QLibraryInfo>
