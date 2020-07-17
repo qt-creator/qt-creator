@@ -30,7 +30,6 @@
 
 #include <QCoreApplication>
 #include <QMutex>
-#include <QRegExp>
 #include <QRegularExpression>
 #include <QTextCodec>
 
@@ -475,22 +474,24 @@ QString matchCaseReplacement(const QString &originalText, const QString &replace
 }
 } // namespace
 
-static QList<QRegExp> filtersToRegExps(const QStringList &filters)
+static QList<QRegularExpression> filtersToRegExps(const QStringList &filters)
 {
     return Utils::transform(filters, [](const QString &filter) {
-        return QRegExp(filter, Qt::CaseInsensitive, QRegExp::Wildcard);
+        return QRegularExpression(QRegularExpression::wildcardToRegularExpression(filter),
+                                  QRegularExpression::CaseInsensitiveOption);
     });
 }
 
-static bool matches(const QList<QRegExp> &exprList, const QString &filePath)
+static bool matches(const QList<QRegularExpression> &exprList, const QString &filePath)
 {
-    return Utils::anyOf(exprList, [&filePath](QRegExp reg) {
-        return (reg.exactMatch(filePath)
-                || reg.exactMatch(FilePath::fromString(filePath).fileName()));
+    return Utils::anyOf(exprList, [&filePath](const QRegularExpression &reg) {
+        return (reg.match(filePath).hasMatch()
+                || reg.match(FilePath::fromString(filePath).fileName()).hasMatch());
     });
 }
 
-static bool isFileIncluded(const QList<QRegExp> &filterRegs, const QList<QRegExp> &exclusionRegs,
+static bool isFileIncluded(const QList<QRegularExpression> &filterRegs,
+                           const QList<QRegularExpression> &exclusionRegs,
                            const QString &filePath)
 {
     const bool isIncluded = filterRegs.isEmpty() || matches(filterRegs, filePath);
@@ -500,8 +501,8 @@ static bool isFileIncluded(const QList<QRegExp> &filterRegs, const QList<QRegExp
 std::function<bool(const QString &)>
 filterFileFunction(const QStringList &filters, const QStringList &exclusionFilters)
 {
-    const QList<QRegExp> filterRegs = filtersToRegExps(filters);
-    const QList<QRegExp> exclusionRegs = filtersToRegExps(exclusionFilters);
+    const QList<QRegularExpression> filterRegs = filtersToRegExps(filters);
+    const QList<QRegularExpression> exclusionRegs = filtersToRegExps(exclusionFilters);
     return [filterRegs, exclusionRegs](const QString &filePath) {
         return isFileIncluded(filterRegs, exclusionRegs, filePath);
     };
@@ -510,8 +511,8 @@ filterFileFunction(const QStringList &filters, const QStringList &exclusionFilte
 std::function<QStringList(const QStringList &)>
 filterFilesFunction(const QStringList &filters, const QStringList &exclusionFilters)
 {
-    const QList<QRegExp> filterRegs = filtersToRegExps(filters);
-    const QList<QRegExp> exclusionRegs = filtersToRegExps(exclusionFilters);
+    const QList<QRegularExpression> filterRegs = filtersToRegExps(filters);
+    const QList<QRegularExpression> exclusionRegs = filtersToRegExps(exclusionFilters);
     return [filterRegs, exclusionRegs](const QStringList &filePaths) {
         return Utils::filtered(filePaths, [&filterRegs, &exclusionRegs](const QString &filePath) {
             return isFileIncluded(filterRegs, exclusionRegs, filePath);

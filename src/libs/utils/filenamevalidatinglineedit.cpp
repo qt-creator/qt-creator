@@ -26,7 +26,7 @@
 #include "filenamevalidatinglineedit.h"
 #include "qtcassert.h"
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QDebug>
 
 /*!
@@ -46,16 +46,18 @@ namespace Utils {
 // Naming a file like a device name will break on Windows, even if it is
 // "com1.txt". Since we are cross-platform, we generally disallow such file
 //  names.
-static const QRegExp &windowsDeviceNoSubDirPattern()
+static const QRegularExpression &windowsDeviceNoSubDirPattern()
 {
-    static const QRegExp rc(QLatin1String(WINDOWS_DEVICES_PATTERN), Qt::CaseInsensitive);
+    static const QRegularExpression rc(QString("^" WINDOWS_DEVICES_PATTERN "$"),
+                                       QRegularExpression::CaseInsensitiveOption);
     QTC_ASSERT(rc.isValid(), return rc);
     return rc;
 }
 
-static const QRegExp &windowsDeviceSubDirPattern()
+static const QRegularExpression &windowsDeviceSubDirPattern()
 {
-    static const QRegExp rc(QLatin1String(".*[/\\\\]" WINDOWS_DEVICES_PATTERN), Qt::CaseInsensitive);
+    static const QRegularExpression rc(QString("^.*[/\\\\]" WINDOWS_DEVICES_PATTERN "$"),
+                                       QRegularExpression::CaseInsensitiveOption);
     QTC_ASSERT(rc.isValid(), return rc);
     return rc;
 }
@@ -135,9 +137,9 @@ bool FileNameValidatingLineEdit::validateFileName(const QString &name,
         }
     }
     // Windows devices
-    bool matchesWinDevice = windowsDeviceNoSubDirPattern().exactMatch(name);
+    bool matchesWinDevice = name.contains(windowsDeviceNoSubDirPattern());
     if (!matchesWinDevice && allowDirectories)
-        matchesWinDevice = windowsDeviceSubDirPattern().exactMatch(name);
+        matchesWinDevice = name.contains(windowsDeviceSubDirPattern());
     if (matchesWinDevice) {
         if (errorMessage)
             *errorMessage = tr("Name matches MS Windows device"
