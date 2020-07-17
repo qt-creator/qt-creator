@@ -35,7 +35,10 @@
                     "trDisplayName": "Class name:",
                     "mandatory": true,
                     "type": "LineEdit",
-                    "data": { "validator": "(?:(?:[a-zA-Z_][a-zA-Z_0-9]*::)*[a-zA-Z_][a-zA-Z_0-9]*|)" }
+                    "data": {
+                        "validator": "(?:(?:[a-zA-Z_][a-zA-Z_0-9]*::)*[a-zA-Z_][a-zA-Z_0-9]*|)",
+                        "completion": "namespaces"
+                    }
                 },
                 {
                     "name": "BaseCB",
@@ -55,7 +58,8 @@
                     "data":
                     {
                         "trText": "%{BaseCB}",
-                        "trDisabledText": "%{BaseCB}"
+                        "trDisabledText": "%{BaseCB}",
+                        "completion": "classes"
                     }
                 },
 

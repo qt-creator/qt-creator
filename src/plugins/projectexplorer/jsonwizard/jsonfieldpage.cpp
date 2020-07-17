@@ -29,28 +29,37 @@
 #include "jsonwizard.h"
 #include "jsonwizardfactory.h"
 
+#include "../project.h"
+#include "../projecttree.h"
+
 #include <coreplugin/icore.h>
+#include <coreplugin/locator/ilocatorfilter.h>
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
+#include <QApplication>
 #include <QComboBox>
 #include <QCheckBox>
-#include <QApplication>
+#include <QCompleter>
 #include <QDebug>
+#include <QDir>
 #include <QFormLayout>
+#include <QFutureWatcher>
+#include <QItemSelectionModel>
 #include <QLabel>
+#include <QListView>
+#include <QRegularExpression>
 #include <QRegularExpressionValidator>
+#include <QStandardItem>
 #include <QTextEdit>
 #include <QVariant>
 #include <QVariantMap>
 #include <QVBoxLayout>
-#include <QListView>
-#include <QStandardItem>
-#include <QItemSelectionModel>
-#include <QDir>
 
 using namespace Utils;
 
@@ -510,6 +519,18 @@ bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
     }
     m_fixupExpando = consumeValue(tmp, "fixup").toString();
 
+    const QString completion = consumeValue(tmp, "completion").toString();
+    if (completion == "classes") {
+        m_completion = Completion::Classes;
+    } else if (completion == "namespaces") {
+        m_completion = Completion::Namespaces;
+    } else if (!completion.isEmpty()) {
+        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
+                "LineEdit (\"%1\") has an invalid value \"%2\" in \"completion\".")
+                .arg(name(), completion);
+        return false;
+    }
+
     warnAboutUnsupportedKeys(tmp, name(), type());
 
     return true;
@@ -531,6 +552,7 @@ QWidget *LineEditField::createWidget(const QString &displayName, JsonFieldPage *
 
     w->setEchoMode(m_isPassword ? QLineEdit::Password : QLineEdit::Normal);
     QObject::connect(w, &FancyLineEdit::textEdited, [this] { setHasUserChanges(); });
+    setupCompletion(w);
 
     return w;
 }
@@ -596,6 +618,78 @@ void LineEditField::fromSettings(const QVariant &value)
 QVariant LineEditField::toSettings() const
 {
     return qobject_cast<FancyLineEdit *>(widget())->text();
+}
+
+void LineEditField::setupCompletion(FancyLineEdit *lineEdit)
+{
+    using namespace Core;
+    using namespace Utils;
+    if (m_completion == Completion::None)
+        return;
+    ILocatorFilter * const classesFilter = findOrDefault(
+                ILocatorFilter::allLocatorFilters(),
+                equal(&ILocatorFilter::id, Id("Classes")));
+    if (!classesFilter)
+        return;
+    classesFilter->prepareSearch({});
+    const auto watcher = new QFutureWatcher<LocatorFilterEntry>(lineEdit);
+    const auto handleResults = [this, lineEdit, watcher](int firstIndex, int endIndex) {
+        QSet<QString> namespaces;
+        QStringList classes;
+        QString projectBaseDir;
+        Project * const project = ProjectTree::currentProject();
+        for (int i = firstIndex; i < endIndex; ++i) {
+            static const auto isReservedName = [](const QString &name) {
+                static const QRegularExpression rx1("^_[A-Z].*");
+                static const QRegularExpression rx2(".*::_[A-Z].*");
+                return name.contains("__") || rx1.match(name).hasMatch()
+                        || rx2.match(name).hasMatch();
+            };
+            const LocatorFilterEntry &entry = watcher->resultAt(i);
+            const bool hasNamespace = !entry.extraInfo.isEmpty()
+                    && !entry.extraInfo.startsWith('<')  && !entry.extraInfo.contains("::<")
+                    && !isReservedName(entry.extraInfo)
+                    && !entry.extraInfo.startsWith('~')
+                    && !entry.extraInfo.contains("Anonymous:")
+                    && !FileUtils::isAbsolutePath(entry.extraInfo);
+            const bool isBaseClassCandidate = !isReservedName(entry.displayName)
+                    && !entry.displayName.startsWith("Anonymous:");
+            if (isBaseClassCandidate)
+                classes << entry.displayName;
+            if (hasNamespace) {
+                if (isBaseClassCandidate)
+                    classes << (entry.extraInfo + "::" + entry.displayName);
+                if (m_completion == Completion::Namespaces) {
+                    if (!project
+                            || entry.fileName.startsWith(project->projectDirectory().toString())) {
+                        namespaces << entry.extraInfo;
+                    }
+                }
+            }
+        }
+        QStringList completionList;
+        if (m_completion == Completion::Namespaces) {
+            completionList = toList(namespaces);
+            completionList = filtered(completionList, [&classes](const QString &ns) {
+                return !classes.contains(ns);
+            });
+            completionList = transform(completionList, [](const QString &ns) {
+                return QString(ns + "::");
+            });
+        } else {
+            completionList = classes;
+        }
+        completionList.sort();
+        lineEdit->setSpecialCompleter(new QCompleter(completionList, lineEdit));
+        watcher->deleteLater();
+    };
+    QObject::connect(watcher, &QFutureWatcher<LocatorFilterEntry>::resultsReadyAt, lineEdit,
+                     handleResults);
+    watcher->setFuture(runAsync([classesFilter](QFutureInterface<LocatorFilterEntry> &f) {
+        const QList<LocatorFilterEntry> matches = classesFilter->matchesFor(f, {});
+        f.reportResults(QVector<LocatorFilterEntry>(matches.cbegin(), matches.cend()));
+        f.reportFinished();
+    }));
 }
 
 // --------------------------------------------------------------------

@@ -111,6 +111,8 @@ private:
     void fromSettings(const QVariant &value) override;
     QVariant toSettings() const override;
 
+    void setupCompletion(Utils::FancyLineEdit *lineEdit);
+
     bool m_isModified = false;
     bool m_isValidating = false;
     bool m_restoreLastHistoryItem = false;
@@ -122,6 +124,9 @@ private:
     QRegularExpression m_validatorRegExp;
     QString m_fixupExpando;
     mutable QString m_currentText;
+
+    enum class Completion { Classes, Namespaces, None };
+    Completion m_completion = Completion::None;
 };
 
 class TextEditField : public JsonFieldPage::Field
