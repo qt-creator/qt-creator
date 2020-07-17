@@ -310,10 +310,10 @@ QModelIndex IndexFilterModel::filter(const QString &filter, const QString &wildc
     int perfectMatch = -1;
 
     if (!wildcard.isEmpty()) {
-        QRegExp regExp(wildcard, Qt::CaseInsensitive);
-        regExp.setPatternSyntax(QRegExp::Wildcard);
+        const QRegularExpression regExp(QRegularExpression::wildcardToRegularExpression(wildcard),
+                                        QRegularExpression::CaseInsensitiveOption);
         int i = 0;
-        foreach (const QString &index, indices) {
+        for (const QString &index : indices) {
             if (index.contains(regExp)) {
                 m_toSource.append(i);
                 if (perfectMatch == -1 && index.startsWith(filter, Qt::CaseInsensitive)) {

@@ -25,7 +25,7 @@
 
 #include "splitter.h"
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 FileDataList splitDiffToFiles(const QString &strData)
 {
@@ -51,13 +51,15 @@ FileDataList splitDiffToFiles(const QString &strData)
     }
 
     int splitIndex = 0, previousSplit = -1;
-    QRegExp splitExpr(splitExpression);
+    const QRegularExpression splitExpr(splitExpression);
     QString filename;
     // The algorithm works like this:
     // On the first match we only get the filename of the first patch part
     // On the second match (if any) we get the diff content, and the name of the next file patch
 
-    while (-1 != (splitIndex = splitExpr.indexIn(strData,splitIndex))) {
+    QRegularExpressionMatch match;
+    while ((match = splitExpr.match(strData, splitIndex)).hasMatch()) {
+        splitIndex = match.capturedStart();
         if (!filename.isEmpty()) {
             QString content = strData.mid(previousSplit, splitIndex - previousSplit);
             ret.append(FileData(filename, content));
@@ -71,7 +73,7 @@ FileDataList splitDiffToFiles(const QString &strData)
             ret.append(FileData(QLatin1String("<Header information>"), content));
         }
 
-        filename = splitExpr.cap(1);
+        filename = match.captured(1);
         previousSplit = splitIndex;
         ++splitIndex;
     }
