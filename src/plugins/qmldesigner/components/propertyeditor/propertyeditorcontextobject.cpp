@@ -194,24 +194,60 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
 
         ModelNode selectedNode = rewriterView->selectedModelNodes().constFirst();
 
+        // Check if the requested type is the same as already set
+        if (selectedNode.simplifiedTypeName() == typeName)
+            return;
+
         NodeMetaInfo metaInfo = m_model->metaInfo(typeName.toLatin1());
         if (!metaInfo.isValid()) {
             Core::AsynchronousMessageBox::warning(tr("Invalid Type"), tr("%1 is an invalid type.").arg(typeName));
             return;
         }
 
+        // Create a list of properties available for the new type
+        QList<PropertyName> propertiesAndSignals(metaInfo.propertyNames());
+        // Add signals to the list
+        for (const auto &signal : metaInfo.signalNames()) {
+            if (signal.isEmpty())
+                continue;
+
+            PropertyName name = signal;
+            QChar firstChar = QChar(signal.at(0)).toUpper().toLatin1();
+            name[0] = firstChar.toLatin1();
+            name.prepend("on");
+            propertiesAndSignals.append(name);
+        }
+
+        // Add dynamic properties and respective change signals
+        for (const auto &property : selectedNode.properties()) {
+            if (!property.isDynamic())
+                continue;
+
+            // Add dynamic property
+            propertiesAndSignals.append(property.name());
+            // Add its change signal
+            PropertyName name = property.name();
+            QChar firstChar = QChar(property.name().at(0)).toUpper().toLatin1();
+            name[0] = firstChar.toLatin1();
+            name.prepend("on");
+            name.append("Changed");
+            propertiesAndSignals.append(name);
+        }
+
+        // Compare current properties and signals with the once available for change type
         QList<PropertyName> incompatibleProperties;
-        for (auto property : selectedNode.properties()) {
-            if (!metaInfo.propertyNames().contains(property.name()))
+        for (const auto &property : selectedNode.properties()) {
+            if (!propertiesAndSignals.contains(property.name()))
                 incompatibleProperties.append(property.name());
         }
 
         Utils::sort(incompatibleProperties);
 
+        // Create a dialog showing incompatible properties and signals
         if (!incompatibleProperties.empty()) {
             QString detailedText = QString("<b>Incompatible properties:</b><br>");
 
-            for (auto p : incompatibleProperties)
+            for (const auto &p : incompatibleProperties)
                 detailedText.append("- " + QString::fromUtf8(p) + "<br>");
 
             detailedText.chop(QString("<br>").size());
