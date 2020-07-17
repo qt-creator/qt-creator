@@ -47,7 +47,7 @@ public:
     {
     }
 
-    Core::Id m_vscId;
+    Utils::Id m_vscId;
     VcsBase::VcsBaseClientSettings *m_settings;
 };
 
