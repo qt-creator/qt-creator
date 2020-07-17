@@ -35,7 +35,6 @@
 #include <qfile.h>
 #include <qfileinfo.h>
 #include <qlist.h>
-#include <qregexp.h>
 #include <qset.h>
 #include <qstack.h>
 #include <qstring.h>

@@ -1630,16 +1630,17 @@ bool QMakeEvaluator::isActiveConfig(const QStringRef &config, bool regex)
         return m_hostBuild;
 
     if (regex && (config.contains(QLatin1Char('*')) || config.contains(QLatin1Char('?')))) {
-        QRegExp re(config.toString(), Qt::CaseSensitive, QRegExp::Wildcard);
+        const QRegularExpression re(
+                    QRegularExpression::wildcardToRegularExpression(config.toString()));
 
         // mkspecs
-        if (re.exactMatch(m_qmakespecName))
+        if (re.match(m_qmakespecName).hasMatch())
             return true;
 
         // CONFIG variable
         const auto configValues = values(statics.strCONFIG);
         for (const ProString &configValue : configValues) {
-            if (re.exactMatch(configValue.toQString(m_tmp[m_toggle ^= 1])))
+            if (re.match(configValue.toQString(m_tmp[m_toggle ^= 1])).hasMatch())
                 return true;
         }
     } else {
