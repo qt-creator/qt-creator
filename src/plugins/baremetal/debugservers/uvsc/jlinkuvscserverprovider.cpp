@@ -177,7 +177,7 @@ bool JLinkUvscAdapterOptions::operator==(const JLinkUvscAdapterOptions &other) c
 JLinkUvscServerProvider::JLinkUvscServerProvider()
     : UvscServerProvider(Constants::UVSC_JLINK_PROVIDER_ID)
 {
-    setTypeDisplayName(tr("uVision JLink"));
+    setTypeDisplayName(UvscServerProvider::tr("uVision JLink"));
     setConfigurationWidgetCreator([this] { return new JLinkUvscServerProviderConfigWidget(this); });
     setSupportedDrivers({"Segger\\JL2CM3.dll"});
 }

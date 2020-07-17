@@ -27,11 +27,15 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QCoreApplication>
+
 namespace MesonProjectManager {
 namespace Internal {
 class MesonTools;
 class GeneralSettingsPage final : public Core::IOptionsPage
 {
+    Q_DECLARE_TR_FUNCTIONS(MesonProjectManager::Internal::GeneralSettingsPage)
+
 public:
     GeneralSettingsPage();
     void saveAll();

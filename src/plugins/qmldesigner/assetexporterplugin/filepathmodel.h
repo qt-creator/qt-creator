@@ -38,6 +38,8 @@ class Project;
 namespace QmlDesigner {
 class FilePathModel : public QAbstractListModel
 {
+    Q_DECLARE_TR_FUNCTIONS(QmlDesigner::FilePathModel)
+
 public:
     FilePathModel(ProjectExplorer::Project *project, QObject *parent = nullptr);
     ~FilePathModel() override;
