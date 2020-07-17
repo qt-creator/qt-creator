@@ -35,7 +35,7 @@
 #include <QCryptographicHash>
 #include <QDir>
 #include <QFileInfo>
-#include <QRegExp>
+#include <QRegularExpression>
 
 #include <algorithm>
 
@@ -510,17 +510,19 @@ void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
     }
 
     QStringList splitPath = path.split(QLatin1Char('/'));
-    QRegExp vNr(QLatin1String("^(.+)\\.([0-9]+)(?:\\.([0-9]+))?$"));
-    QRegExp safeName(QLatin1String("^[a-zA-Z_][[a-zA-Z0-9_]*$"));
+    const QRegularExpression vNr(QLatin1String("^(.+)\\.([0-9]+)(?:\\.([0-9]+))?$"));
+    const QRegularExpression safeName(QLatin1String("^[a-zA-Z_][[a-zA-Z0-9_]*$"));
     foreach (const ImportKey &importKey, packages) {
         if (importKey.splitPath.size() == 1 && importKey.splitPath.at(0).isEmpty() && splitPath.length() > 0) {
             // relocatable
             QStringList myPath = splitPath;
-            if (vNr.indexIn(myPath.last()) == 0)
-                myPath.last() = vNr.cap(1);
+            QRegularExpressionMatch match = vNr.match(myPath.last());
+            if (match.hasMatch())
+                myPath.last() = match.captured(1);
             for (int iPath = myPath.size(); iPath != 1; ) {
                 --iPath;
-                if (safeName.indexIn(myPath.at(iPath)) != 0)
+                match = safeName.match(myPath.at(iPath));
+                if (!match.hasMatch())
                     break;
                 ImportKey iKey(ImportType::Library, QStringList(myPath.mid(iPath)).join(QLatin1Char('.')),
                                importKey.majorVersion, importKey.minorVersion);
@@ -534,8 +536,8 @@ void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
         }
     }
     if (cImport.possibleExports.isEmpty() && splitPath.size() > 0) {
-        QRegExp vNr(QLatin1String("^(.+)\\.([0-9]+)(?:\\.([0-9]+))?$"));
-        QRegExp safeName(QLatin1String("^[a-zA-Z_][[a-zA-Z0-9_]*$"));
+        const QRegularExpression vNr(QLatin1String("^(.+)\\.([0-9]+)(?:\\.([0-9]+))?$"));
+        const QRegularExpression safeName(QLatin1String("^[a-zA-Z_][[a-zA-Z0-9_]*$"));
         int majorVersion = LanguageUtils::ComponentVersion::NoVersion;
         int minorVersion = LanguageUtils::ComponentVersion::NoVersion;
 
@@ -546,20 +548,22 @@ void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
                 minorVersion = component.minorVersion;
         }
 
-        if (vNr.indexIn(splitPath.last()) == 0) {
-            splitPath.last() = vNr.cap(1);
+        QRegularExpressionMatch match = vNr.match(splitPath.last());
+        if (match.hasMatch()) {
+            splitPath.last() = match.captured(1);
             bool ok;
-            majorVersion = vNr.cap(2).toInt(&ok);
+            majorVersion = match.captured(2).toInt(&ok);
             if (!ok)
                 majorVersion = LanguageUtils::ComponentVersion::NoVersion;
-            minorVersion = vNr.cap(3).toInt(&ok);
-            if (vNr.cap(3).isEmpty() || !ok)
+            minorVersion = match.captured(3).toInt(&ok);
+            if (match.captured(3).isEmpty() || !ok)
                 minorVersion = LanguageUtils::ComponentVersion::NoVersion;
         }
 
         for (int iPath = splitPath.size(); iPath != 1; ) {
             --iPath;
-            if (safeName.indexIn(splitPath.at(iPath)) != 0)
+            match = safeName.match(splitPath.at(iPath));
+            if (!match.hasMatch())
                 break;
             ImportKey iKey(ImportType::Library, QStringList(splitPath.mid(iPath)).join(QLatin1Char('.')),
                            majorVersion, minorVersion);

@@ -28,7 +28,7 @@
 #include <qmljs/qmljs_global.h>
 #include <qmljs/qmljslineinfo.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 QT_FORWARD_DECLARE_CLASS(QTextBlock)
 
@@ -67,7 +67,7 @@ private:
     int ppCommentOffset;
 
 private:
-    QRegExp caseOrDefault;
+    QRegularExpression caseOrDefault;
 };
 
 } // namespace QmlJS

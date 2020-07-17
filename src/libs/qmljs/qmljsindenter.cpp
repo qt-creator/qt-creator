@@ -79,11 +79,11 @@ using namespace QmlJS;
 
 
 QmlJSIndenter::QmlJSIndenter()
-    : caseOrDefault(QRegExp(QLatin1String(
-            "\\s*(?:"
+    : caseOrDefault(QRegularExpression(QLatin1String(
+            "^\\s*(?:"
             "case\\b[^:]+|"
             "default)"
-            "\\s*:.*")))
+            "\\s*:.*$")))
 
 {
 
@@ -534,7 +534,7 @@ int QmlJSIndenter::indentForStandaloneLine()
                 readLine();
 
             int indentChange = - *yyBraceDepth;
-            if (caseOrDefault.exactMatch(*yyLine))
+            if (caseOrDefault.match(*yyLine).hasMatch())
                 ++indentChange;
 
             /*
@@ -598,7 +598,7 @@ int QmlJSIndenter::indentForBottomLine(QTextBlock begin, QTextBlock end, QChar t
             */
             indent -= ppIndentSize;
         } else if (okay(typedIn, QLatin1Char(':'))) {
-            if (caseOrDefault.exactMatch(bottomLine)) {
+            if (caseOrDefault.match(bottomLine).hasMatch()) {
                 /*
                     Move a case label (or the ':' in front of a
                     constructor initialization list) one level to the

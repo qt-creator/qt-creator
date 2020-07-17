@@ -34,7 +34,7 @@
 #include <utils/qtcassert.h>
 
 #include <QList>
-#include <QRegExp>
+#include <QRegularExpression>
 
 //using namespace QmlJS;
 
@@ -294,7 +294,7 @@ protected:
         }
         if (packageName.isEmpty() && _compound) {
             // check the comments in _compound for annotations
-            QRegExp uriAnnotation(QLatin1String("@uri\\s*([\\w\\.]*)"));
+            const QRegularExpression uriAnnotation(QLatin1String("@uri\\s*([\\w\\.]*)"));
 
             // scan every comment between the pipes in
             // {|
@@ -312,8 +312,9 @@ protected:
                     continue;
                 }
                 const QString comment = stringOf(commentToken);
-                if (uriAnnotation.indexIn(comment) != -1) {
-                    packageName = uriAnnotation.cap(1);
+                const QRegularExpressionMatch match = uriAnnotation.match(comment);
+                if (match.hasMatch()) {
+                    packageName = match.captured(1);
                     break;
                 }
             }
