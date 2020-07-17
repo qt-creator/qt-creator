@@ -134,12 +134,13 @@ static bool generateEnvironmentSettings(Utils::Environment &env,
     if (!varsFile.open(QIODevice::ReadOnly))
         return false;
 
-    QRegExp regexp("(\\w*)=(.*)");
+    const QRegularExpression regexp("^(\\w*)=(.*)$");
     while (!varsFile.atEnd()) {
         const QString line = QString::fromLocal8Bit(varsFile.readLine()).trimmed();
-        if (regexp.exactMatch(line)) {
-            const QString varName = regexp.cap(1);
-            const QString varValue = regexp.cap(2);
+        const QRegularExpressionMatch match = regexp.match(line);
+        if (match.hasMatch()) {
+            const QString varName = match.captured(1);
+            const QString varValue = match.captured(2);
 
             if (!varValue.isEmpty())
                 envPairs.insert(varName, varValue);
@@ -336,9 +337,10 @@ struct Value
             expectedValue.replace(")", "!");
             actualValue.replace("(", "!");
             actualValue.replace(")", "!");
+            const QString anchoredPattern = QRegularExpression::anchoredPattern(expectedValue);
             //QWARN(qPrintable("MATCH EXP: " + expectedValue + "   ACT: " + actualValue));
-            //QWARN(QRegExp(expectedValue).exactMatch(actualValue) ? "OK" : "NOT OK");
-            return QRegExp(expectedValue).exactMatch(actualValue);
+            //QWARN(QRegularExpression(anchoredPattern).match(actualValue).hasMatch() ? "OK" : "NOT OK");
+            return QRegularExpression(anchoredPattern).match(actualValue).hasMatch();
         }
 
         if (hasPtrSuffix)
@@ -435,9 +437,10 @@ struct Type
         expectedType.replace("const", "");
         expectedType.replace('@', context.nameSpace);
 
-        if (isPattern)
-            return QRegExp(expectedType).exactMatch(actualType);
-
+        if (isPattern) {
+            return QRegularExpression(QRegularExpression::anchoredPattern(expectedType))
+                    .match(actualType).hasMatch();
+        }
         if (fullNamespaceMatch)
             expectedType.replace('?', context.nameSpace);
         else
@@ -626,7 +629,7 @@ struct CheckType : public Check
 };
 
 const QtVersion Qt4 = QtVersion(0, 0x4ffff);
-const QtVersion Qt5 = QtVersion(0x50000);
+const QtVersion Qt5 = QtVersion(0x50000, 0x5ffff);
 
 struct Check4 : Check
 {
@@ -3159,6 +3162,7 @@ void tst_Dumpers::dumper_data()
 
                     "&pos1, &pos2, &caps")
 
+               + Qt5
                + CoreProfile()
 
                + Check("re", "\"a(.*)b(.*)c\"", "@QRegExp")
@@ -4025,7 +4029,9 @@ void tst_Dumpers::dumper_data()
                      "QVariant var24 = QLineF(); unused(&var24);                     // 24 QLineF\n"
                      "QVariant var25 = QPoint(); unused(&var25);                     // 25 QPoint\n"
                      "QVariant var26 = QPointF(); unused(&var26);                    // 26 QPointF\n"
+                     "#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)\n"
                      "QVariant var27 = QRegExp(); unused(&var27);                    // 27 QRegExp\n"
+                     "#endif"
                      "QVariant var28 = QVariantHash(); unused(&var28);               // 28 QVariantHash\n"
                      "QVariant var31 = QVariant::fromValue<void *>(&r); unused(&var31);         // 31 void *\n"
                      "QVariant var32 = QVariant::fromValue<long>(32); unused(&var32);           // 32 long\n"
@@ -4095,7 +4101,7 @@ void tst_Dumpers::dumper_data()
                + Check("var24", "", "@QVariant (QLineF)")
                + Check("var25", "(0, 0)", "@QVariant (QPoint)")
                + Check("var26", "(0.0, 0.0)", "@QVariant (QPointF)")
-               + Check("var27", "\"\"", "@QVariant (QRegExp)")
+               + Check("var27", "\"\"", "@QVariant (QRegExp)") % Qt5
                + Check("var28", "<0 items>", "@QVariant (QVariantHash)")
                + CheckType("var31", "@QVariant (void *)")
                + Check("var32", "32", "@QVariant (long)")

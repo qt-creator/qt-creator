@@ -131,17 +131,17 @@ void tst_Check::test()
     QList<Message> messages = checker();
     std::sort(messages.begin(), messages.end(), &offsetComparator);
 
-    const QRegExp messagePattern(" (\\d+) (\\d+) (\\d+)");
+    const QRegularExpression messagePattern(" (\\d+) (\\d+) (\\d+)");
 
     QList<Message> expectedMessages;
-    foreach (const SourceLocation &comment, doc->engine()->comments()) {
+    for (const SourceLocation &comment : doc->engine()->comments()) {
         const QString text = doc->source().mid(comment.begin(), comment.end() - comment.begin());
-
-        if (messagePattern.indexIn(text) == -1)
+        const QRegularExpressionMatch match = messagePattern.match(text);
+        if (match.hasMatch())
             continue;
-        const int type = messagePattern.cap(1).toInt();
-        const int columnStart = messagePattern.cap(2).toInt();
-        const int columnEnd = messagePattern.cap(3).toInt() + 1;
+        const int type = match.captured(1).toInt();
+        const int columnStart = match.captured(2).toInt();
+        const int columnEnd = match.captured(3).toInt() + 1;
 
         Message message;
         message.location = SourceLocation(

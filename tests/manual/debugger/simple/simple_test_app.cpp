@@ -158,7 +158,9 @@ void dummyStatement(...) {}
 #include <QMap>
 #include <QPointer>
 #include <QProcess>
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QRegExp>
+#endif
 #include <QString>
 #include <QStringList>
 #include <QSettings>
@@ -1991,7 +1993,7 @@ namespace qobject {
 } // namespace qobject
 
 
-
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 namespace qregexp {
 
     void testQRegExp()
@@ -2017,6 +2019,7 @@ namespace qregexp {
     }
 
 } // namespace qregexp
+#endif
 
 namespace qrect {
 
@@ -7189,7 +7192,9 @@ int main(int argc, char *argv[])
     qmap::testQMap();
     qobject::testQObject();
     qrect::testGeometry();
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     qregexp::testQRegExp();
+#endif
     qregion::testQRegion();
     qscript::testQScript();
     qjson::testQJson();

@@ -187,22 +187,23 @@ QString niceType(QString type)
                 "std::allocator<wchar_t> >"), QLatin1String("wstring"));
 
         // std::vector, std::deque, std::list
-        QRegExp re1(QString("(vector|list|deque)<%1, %2\\s*>").arg(inner, alloc));
-        if (re1.indexIn(type) != -1)
-            type.replace(re1.cap(0), QString("%1<%2>").arg(re1.cap(1), inner));
+        const QRegularExpression re1(QString("(vector|list|deque)<%1, %2\\s*?>").arg(inner, alloc));
+        QRegularExpressionMatch match = re1.match(type);
+        if (match.hasMatch())
+            type.replace(match.captured(), QString("%1<%2>").arg(match.captured(1), inner));
 
 
         // std::stack
-        QRegExp re6(QString("stack<%1, std::deque<%2> >").arg(inner, inner));
-        re6.setMinimal(true);
-        if (re6.indexIn(type) != -1)
-            type.replace(re6.cap(0), QString("stack<%1>").arg(inner));
+        const QRegularExpression re6(QString("stack<%1, std::deque<%2> >").arg(inner, inner));
+         match = re6.match(type);
+        if (match.hasMatch())
+            type.replace(match.captured(), QString("stack<%1>").arg(inner));
 
         // std::set
-        QRegExp re4(QString("set<%1, std::less<%2>, %3\\s*>").arg(inner, inner, alloc));
-        re4.setMinimal(true);
-        if (re4.indexIn(type) != -1)
-            type.replace(re4.cap(0), QString("set<%1>").arg(inner));
+        const QRegularExpression re4(QString("set<%1, std::less<%2>, %3\\s*?>").arg(inner, inner, alloc));
+        match = re4.match(type);
+        if (match.hasMatch())
+            type.replace(match.captured(), QString("set<%1>").arg(inner));
 
 
         // std::map
@@ -223,17 +224,17 @@ QString niceType(QString type)
             QString key = chopConst(ckey);
             QString value = inner.mid(pos + 2, inner.size() - 3 - pos);
 
-            QRegExp re5(QString("map<%1, %2, std::less<%3>, %4\\s*>")
+            const QRegularExpression re5(QString("map<%1, %2, std::less<%3>, %4\\s*?>")
                 .arg(key, value, key, alloc));
-            re5.setMinimal(true);
-            if (re5.indexIn(type) != -1) {
-                type.replace(re5.cap(0), QString("map<%1, %2>").arg(key, value));
+            match = re5.match(type);
+            if (match.hasMatch()) {
+                type.replace(match.captured(), QString("map<%1, %2>").arg(key, value));
             } else {
-                QRegExp re7(QString("map<const %1, %2, std::less<const %3>, %4\\s*>")
+                const QRegularExpression re7(QString("map<const %1, %2, std::less<const %3>, %4\\s*?>")
                     .arg(key, value, key, alloc));
-                re7.setMinimal(true);
-                if (re7.indexIn(type) != -1)
-                    type.replace(re7.cap(0), QString("map<const %1, %2>").arg(key, value));
+                match = re7.match(type);
+                if (match.hasMatch())
+                    type.replace(match.captured(), QString("map<const %1, %2>").arg(key, value));
             }
         }
     }

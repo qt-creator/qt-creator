@@ -31,6 +31,7 @@
 #include <QMessageBox>
 #include <QPainter>
 #include <QPlainTextEdit>
+#include <QRegularExpression>
 #include <QStatusBar>
 #include <QTextEdit>
 
@@ -61,7 +62,7 @@ public:
 
             if ( TextEdit::overwriteMode() ) {
                 QFontMetrics fm(TextEdit::font());
-                rect.setWidth(fm.width('m'));
+                rect.setWidth(fm.horizontalAdvance('m'));
                 painter.setPen(Qt::NoPen);
                 painter.setBrush(TextEdit::palette().color(QPalette::Base));
                 painter.setCompositionMode(QPainter::CompositionMode_Difference);
@@ -89,7 +90,7 @@ static void highlightMatches(QWidget *widget, const QString &pattern)
 
     // Highlight matches.
     QTextDocument *doc = ed->document();
-    QRegExp re(pattern);
+    const QRegularExpression re(pattern);
     cur = doc->find(re);
 
     int a = cur.position();
