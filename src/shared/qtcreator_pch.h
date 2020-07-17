@@ -59,7 +59,7 @@
 #include <QList>
 #include <QVariant>
 #include <QObject>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QString>
 #include <QStringList>
 #include <QTextCodec>
