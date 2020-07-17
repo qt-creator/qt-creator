@@ -60,6 +60,8 @@ private slots:
     void expansion_data();
     void expansion();
 
+    void incrementalChanges();
+
     void find_data();
     void find();
 
@@ -274,6 +276,45 @@ void tst_Environment::expansion()
     const Environment env(QStringList{"eu=${v}", "ew=%v%", "v=blubb"}, osType);
     QCOMPARE(env.expandedValueForKey("eu"), eu);
     QCOMPARE(env.expandedValueForKey("ew"), ew);
+}
+
+void tst_Environment::incrementalChanges()
+{
+    const Environment origEnv({{"VAR1", "VALUE1"}, {"VAR2", "VALUE2"}, {"PATH", "/usr/bin"}});
+    const NameValueItems changes({
+        {"VAR1", QString(), NameValueItem::Unset},
+        {"VAR2", "VALUE2", NameValueItem::SetDisabled},
+        {"PATH", "/usr/local/bin", NameValueItem::Append},
+        {"PATH", "/tmp", NameValueItem::Prepend}});
+
+    // Check values after change application.
+    Environment newEnv = origEnv;
+    newEnv.modify(changes);
+    QVERIFY(!newEnv.hasKey("VAR1"));
+    QCOMPARE(newEnv.value("VAR2"), QString());
+    QCOMPARE(newEnv.constFind("VAR2")->first, "VALUE2");
+    QVERIFY(!newEnv.isEnabled(newEnv.constFind("VAR2")));
+    const QChar sep = HostOsInfo::pathListSeparator();
+    QCOMPARE(newEnv.value("PATH"),
+             QString("/tmp").append(sep).append("/usr/bin").append(sep).append("/usr/local/bin"));
+
+    // Check apply/diff round-trips.
+    const NameValueItems diff = origEnv.diff(newEnv);
+    const NameValueItems reverseDiff = newEnv.diff(origEnv);
+    Environment newEnv2 = origEnv;
+    newEnv2.modify(diff);
+    QCOMPARE(newEnv, newEnv2);
+    newEnv2.modify(reverseDiff);
+    QCOMPARE(newEnv2, origEnv);
+
+    // Check conversion round-trips.
+    QCOMPARE(NameValueItem::fromStringList(NameValueItem::toStringList(changes)), changes);
+    QCOMPARE(NameValueItem::fromStringList(NameValueItem::toStringList(diff)), diff);
+    QCOMPARE(NameValueItem::fromStringList(NameValueItem::toStringList(reverseDiff)), reverseDiff);
+    QCOMPARE(NameValueItem::itemsFromVariantList(NameValueItem::toVariantList(changes)), changes);
+    QCOMPARE(NameValueItem::itemsFromVariantList(NameValueItem::toVariantList(diff)), diff);
+    QCOMPARE(NameValueItem::itemsFromVariantList(NameValueItem::toVariantList(reverseDiff)),
+             reverseDiff);
 }
 
 void tst_Environment::find_data()
