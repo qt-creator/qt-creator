@@ -59,7 +59,7 @@ void FossilJsExtension::parseArgOptions(const QStringList &args, QMap<QString, Q
     foreach (const QString &arg, args) {
         if (arg.isEmpty()) continue;
 
-        QStringList opt = arg.split('|', QString::KeepEmptyParts);
+        QStringList opt = arg.split('|'); //keep empty parts
         options.insert(opt[0], opt.size() > 1 ? opt[1] : QString());
     }
 }

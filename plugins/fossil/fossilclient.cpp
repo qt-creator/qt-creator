@@ -39,6 +39,7 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
 #include <QSyntaxHighlighter>
@@ -282,7 +283,7 @@ QList<BranchInfo> FossilClient::branchListFromOutput(const QString &output, cons
     // Branch list format:
     // "  branch-name"
     // "* current-branch"
-    return Utils::transform(output.split('\n', QString::SkipEmptyParts), [=](const QString& l) {
+    return Utils::transform(output.split('\n', Utils::SkipEmptyParts), [=](const QString& l) {
         const QString &name = l.mid(2);
         QTC_ASSERT(!name.isEmpty(), return BranchInfo());
         const BranchInfo::BranchFlags flags = (l.startsWith("* ") ? defaultFlags | BranchInfo::Current : defaultFlags);
@@ -395,7 +396,7 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const QString &workingDirect
     const QString hashToken =
             QString::fromUtf8(supportedFeatures().testFlag(InfoHashFeature) ? "hash: " : "uuid: ");
 
-    for (const QString &l : output.split('\n', QString::SkipEmptyParts)) {
+    for (const QString &l : output.split('\n', Utils::SkipEmptyParts)) {
         if (l.startsWith("checkout: ", Qt::CaseInsensitive)
             || l.startsWith(hashToken, Qt::CaseInsensitive)) {
             const QRegularExpressionMatch idMatch = idRx.match(l);
@@ -446,7 +447,7 @@ QStringList FossilClient::synchronousTagQuery(const QString &workingDirectory, c
 
     const QString output = sanitizeFossilOutput(response.stdOut());
 
-    return output.split('\n', QString::SkipEmptyParts);
+    return output.split('\n', Utils::SkipEmptyParts);
 }
 
 RepositorySettings FossilClient::synchronousSettingsQuery(const QString &workingDirectory)
@@ -468,12 +469,12 @@ RepositorySettings FossilClient::synchronousSettingsQuery(const QString &working
 
     const QString output = sanitizeFossilOutput(response.stdOut());
 
-    for (const QString &line : output.split('\n', QString::SkipEmptyParts)) {
+    for (const QString &line : output.split('\n', Utils::SkipEmptyParts)) {
         // parse settings line:
         // <property> <(local|global)> <value>
         // Fossil properties are case-insensitive; force them to lower-case.
         // Values may be in mixed-case; force lower-case for fixed values.
-        const QStringList fields = line.split(' ', QString::SkipEmptyParts);
+        const QStringList fields = line.split(' ', Utils::SkipEmptyParts);
 
         const QString property = fields.at(0).toLower();
         const QString value = (fields.size() >= 3 ? fields.at(2) : QString());
