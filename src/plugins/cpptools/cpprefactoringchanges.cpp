@@ -47,11 +47,14 @@ namespace CppTools {
 
 class CppRefactoringChangesData : public TextEditor::RefactoringChangesData
 {
-    static std::unique_ptr<TextEditor::Indenter> createIndenter(QTextDocument *textDocument)
+    static std::unique_ptr<TextEditor::Indenter> createIndenter(const QString &fileName,
+                                                                QTextDocument *textDocument)
     {
         TextEditor::ICodeStylePreferencesFactory *factory
             = TextEditor::TextEditorSettings::codeStyleFactory(CppTools::Constants::CPP_SETTINGS_ID);
-        return std::unique_ptr<TextEditor::Indenter>(factory->createIndenter(textDocument));
+        std::unique_ptr<TextEditor::Indenter> indenter(factory->createIndenter(textDocument));
+        indenter->setFileName(Utils::FilePath::fromString(fileName));
+        return indenter;
     }
 
 public:
@@ -69,7 +72,7 @@ public:
             textDocument->indenter()->indent(selection, QChar::Null, textDocument->tabSettings());
         } else {
             const auto &tabSettings = ProjectExplorer::actualTabSettings(fileName, textDocument);
-            auto indenter = createIndenter(selection.document());
+            auto indenter = createIndenter(fileName, selection.document());
             indenter->indent(selection, QChar::Null, tabSettings);
         }
     }
@@ -82,7 +85,7 @@ public:
             textDocument->indenter()->reindent(selection, textDocument->tabSettings());
         } else {
             const auto &tabSettings = ProjectExplorer::actualTabSettings(fileName, textDocument);
-            auto indenter = createIndenter(selection.document());
+            auto indenter = createIndenter(fileName, selection.document());
             indenter->reindent(selection, tabSettings);
         }
     }
