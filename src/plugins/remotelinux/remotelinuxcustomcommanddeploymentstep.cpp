@@ -42,6 +42,7 @@ RemoteLinuxCustomCommandDeploymentStep::RemoteLinuxCustomCommandDeploymentStep
     commandLine->setSettingsKey("RemoteLinuxCustomCommandDeploymentStep.CommandLine");
     commandLine->setLabelText(tr("Command line:"));
     commandLine->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    commandLine->setHistoryCompleter("RemoteLinuxCustomCommandDeploymentStep.History");
 
     setDefaultDisplayName(displayName());
 
@@ -49,6 +50,8 @@ RemoteLinuxCustomCommandDeploymentStep::RemoteLinuxCustomCommandDeploymentStep
         service->setCommandLine(commandLine->value().trimmed());
         return service->isDeploymentPossible();
     });
+
+    addMacroExpander();
 }
 
 RemoteLinuxCustomCommandDeploymentStep::~RemoteLinuxCustomCommandDeploymentStep() = default;
