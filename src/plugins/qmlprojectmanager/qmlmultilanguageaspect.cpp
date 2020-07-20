@@ -97,7 +97,6 @@ void QmlMultiLanguageAspect::setLastUsedLanguage(const QString &language)
         previewPlugin->setProperty("locale", language);
     if (m_lastUsedLanguage != language) {
         m_lastUsedLanguage = language;
-        emit changed();
     }
 }
 
