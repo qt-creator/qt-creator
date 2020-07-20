@@ -33,6 +33,16 @@ namespace Utils { class Environment; }
 
 namespace ProjectExplorer {
 
+namespace Internal {
+class MakeStepConfigWidget;
+class OverrideMakeflagsAspect;
+} // Internal
+
+class BaseBoolAspect;
+class BaseIntegerAspect;
+class BaseStringAspect;
+class BaseStringListAspect;
+
 class PROJECTEXPLORER_EXPORT MakeStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
@@ -71,9 +81,7 @@ public:
 
     virtual bool isJobCountSupported() const;
     int jobCount() const;
-    void setJobCount(int count);
     bool jobCountOverridesMakeflags() const;
-    void setJobCountOverrideMakeflags(bool override);
     bool makeflagsContainsJobCount() const;
     bool userArgsContainsJobCount() const;
     bool makeflagsJobCountMismatch() const;
@@ -85,24 +93,24 @@ public:
     Utils::Environment makeEnvironment() const;
 
 protected:
-    bool fromMap(const QVariantMap &map) override;
     void supportDisablingForSubdirs() { m_disablingForSubDirsSupported = true; }
     virtual QStringList displayArguments() const;
 
 private:
-    QVariantMap toMap() const override;
+    friend class Internal::MakeStepConfigWidget;
+
     static int defaultJobCount();
     QStringList jobArguments() const;
 
-    QStringList m_buildTargets;
+    BaseStringListAspect *m_buildTargetsAspect = nullptr;
     QStringList m_availableTargets;
-    QString m_userArguments;
-    Utils::FilePath m_makeCommand;
-    int m_userJobCount = 4;
-    bool m_overrideMakeflags = false;
-    bool m_clean = false;
+    BaseStringAspect *m_makeCommandAspect = nullptr;
+    BaseStringAspect *m_userArgumentsAspect = nullptr;
+    BaseIntegerAspect *m_userJobCountAspect = nullptr;
+    Internal::OverrideMakeflagsAspect *m_overrideMakeflagsAspect = nullptr;
+    BaseBoolAspect *m_cleanAspect = nullptr;
     bool m_disablingForSubDirsSupported = false;
     bool m_enabledForSubDirs = true;
 };
 
-} // namespace GenericProjectManager
+} // namespace ProjectExplorer
