@@ -27,7 +27,6 @@
 
 #include <qmlprojectmanager/qmlproject.h>
 #include <qmlprojectmanager/qmlmainfileaspect.h>
-#include <qmlprojectmanager/qmlmultilanguageaspect.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
