@@ -117,7 +117,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
 
         if (m_multiLanguageAspect && m_multiLanguageAspect->value() && !m_multiLanguageAspect->databaseFilePath().isEmpty()) {
             env.set("QT_MULTILANGUAGE_DATABASE", m_multiLanguageAspect->databaseFilePath().toString());
-            env.set("QT_MULTILANGUAGE_LANGUAGE", m_multiLanguageAspect->lastUsedLanguage());
+            env.set("QT_MULTILANGUAGE_LANGUAGE", m_multiLanguageAspect->currentLocale());
         } else {
             env.unset("QT_MULTILANGUAGE_DATABASE");
             env.unset("QT_MULTILANGUAGE_LANGUAGE");

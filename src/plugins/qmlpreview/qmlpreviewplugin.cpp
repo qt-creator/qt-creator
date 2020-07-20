@@ -193,7 +193,10 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
     action->setEnabled(SessionManager::startupProject() != nullptr);
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged, action,
             &QAction::setEnabled);
-    connect(action, &QAction::triggered, this, []() {
+    connect(action, &QAction::triggered, this, [this]() {
+        if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current())
+            m_locale = multiLanguageAspect->currentLocale();
+
         ProjectExplorerPlugin::runStartupProject(Constants::QML_PREVIEW_RUN_MODE);
     });
     menu->addAction(Core::ActionManager::registerAction(action, "QmlPreview.Internal"),
@@ -334,6 +337,8 @@ QString QmlPreviewPlugin::locale() const
 
 void QmlPreviewPlugin::setLocale(const QString &locale)
 {
+    if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current())
+        multiLanguageAspect->setCurrentLocale(locale);
     if (d->m_locale == locale)
         return;
 
