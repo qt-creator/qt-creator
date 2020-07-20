@@ -1522,6 +1522,21 @@ AndroidConfigurations::AndroidConfigurations()
 
 AndroidConfigurations::~AndroidConfigurations() = default;
 
+static Utils::FilePath androidStudioPath()
+{
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        const QLatin1String registryKey("HKEY_LOCAL_MACHINE\\SOFTWARE\\Android Studio");
+        const QLatin1String valueName("Path");
+    #if defined(Q_OS_WIN)
+        const QSettings settings64(registryKey, QSettings::Registry64Format);
+        const QSettings settings32(registryKey, QSettings::Registry32Format);
+        return Utils::FilePath::fromUserInput(
+                    settings64.value(valueName, settings32.value(valueName).toString()).toString());
+    #endif
+    }
+    return {}; // TODO non-Windows
+}
+
 FilePath AndroidConfig::getJdkPath()
 {
     FilePath jdkHome;
@@ -1559,6 +1574,16 @@ FilePath AndroidConfig::getJdkPath()
                 if (!jdkHome.exists())
                     continue;
                 break;
+            }
+        }
+
+        // Nothing found yet? Let's try finding Android Studio's jdk
+        if (jdkHome.isEmpty()) {
+            const Utils::FilePath androidStudioSdkPath = androidStudioPath();
+            if (!androidStudioSdkPath.isEmpty()) {
+                const Utils::FilePath androidStudioSdkJrePath = androidStudioSdkPath / "jre";
+                if (androidStudioSdkJrePath.exists())
+                    jdkHome = androidStudioSdkJrePath;
             }
         }
     } else {
