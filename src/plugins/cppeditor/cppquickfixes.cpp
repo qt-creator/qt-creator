@@ -5022,19 +5022,21 @@ public:
         GenerateGetter = 1 << 0,
         GenerateSetter = 1 << 1,
         GenerateSignal = 1 << 2,
-        GenerateStorage = 1 << 3
+        GenerateStorage = 1 << 3,
+        GenerateReset = 1 << 4
     };
 
     InsertQtPropertyMembersOp(const CppQuickFixInterface &interface,
               int priority, QtPropertyDeclarationAST *declaration, Class *klass, int generateFlags,
-              const QString &getterName, const QString &setterName, const QString &signalName,
-              const QString &storageName)
+              const QString &getterName, const QString &setterName, const QString &resetName,
+              const QString &signalName, const QString &storageName)
         : CppQuickFixOperation(interface, priority)
         , m_declaration(declaration)
         , m_class(klass)
         , m_generateFlags(generateFlags)
         , m_getterName(getterName)
         , m_setterName(setterName)
+        , m_resetName(resetName)
         , m_signalName(signalName)
         , m_storageName(storageName)
     {
@@ -5065,6 +5067,7 @@ public:
         }
 
         // setter declaration
+        InsertionLocation setterLoc;
         if (m_generateFlags & GenerateSetter) {
             QString setterDeclaration;
             QTextStream setter(&setterDeclaration);
@@ -5081,9 +5084,34 @@ public:
                 setter << m_storageName << " = " << baseName << ";\nemit " << m_signalName
                        << '(' << m_storageName << ");\n}\n";
             }
-            InsertionLocation setterLoc = locator.methodDeclarationInClass(file->fileName(), m_class, InsertionPointLocator::PublicSlot);
+            setterLoc = locator.methodDeclarationInClass(file->fileName(), m_class, InsertionPointLocator::PublicSlot);
             QTC_ASSERT(setterLoc.isValid(), return);
             insertAndIndent(file, &declarations, setterLoc, setterDeclaration);
+        }
+
+        // reset declaration
+        if (m_generateFlags & GenerateReset) {
+            QString declaration;
+            QTextStream stream(&declaration);
+            stream << "void " << m_resetName << "()\n{\n";
+            if (m_generateFlags & GenerateSetter) {
+                stream << m_setterName << "({}); // TODO: Adapt to use your actual default value\n";
+            } else {
+                stream << "static const " << typeName << " defaultValue{}; "
+                          "// TODO: Adapt to use your actual default value\n";
+                if (!m_signalName.isEmpty())
+                    stream << "if (" << m_storageName << " == defaultValue)\nreturn;\n\n";
+                stream << m_storageName <<  " = defaultValue;\n";
+                if (!m_signalName.isEmpty())
+                    stream << "emit " << m_signalName << '(' << m_storageName << ");\n";
+            }
+            stream << "}\n";
+            const InsertionLocation loc = setterLoc.isValid()
+                    ? InsertionLocation(setterLoc.fileName(), {}, {}, setterLoc.line(), 1)
+                    : locator.methodDeclarationInClass(file->fileName(), m_class,
+                                                       InsertionPointLocator::PublicSlot);
+            QTC_ASSERT(loc.isValid(), return);
+            insertAndIndent(file, &declarations, loc, declaration);
         }
 
         // signal declaration
@@ -5124,6 +5152,7 @@ private:
     int m_generateFlags;
     QString m_getterName;
     QString m_setterName;
+    QString m_resetName;
     QString m_signalName;
     QString m_storageName;
 };
@@ -5156,6 +5185,7 @@ void InsertQtPropertyMembers::match(const CppQuickFixInterface &interface,
     const QString propertyName = file->textOf(qtPropertyDeclaration->property_name);
     QString getterName;
     QString setterName;
+    QString resetName;
     QString signalName;
     int generateFlags = 0;
     QtPropertyDeclarationItemListAST *it = qtPropertyDeclaration->property_declaration_item_list;
@@ -5167,6 +5197,9 @@ void InsertQtPropertyMembers::match(const CppQuickFixInterface &interface,
         } else if (!qstrcmp(tokenString, "WRITE")) {
             setterName = file->textOf(it->value->expression);
             generateFlags |= InsertQtPropertyMembersOp::GenerateSetter;
+        } else if (!qstrcmp(tokenString, "RESET")) {
+            resetName = file->textOf(it->value->expression);
+            generateFlags |= InsertQtPropertyMembersOp::GenerateReset;
         } else if (!qstrcmp(tokenString, "NOTIFY")) {
             signalName = file->textOf(it->value->expression);
             generateFlags |= InsertQtPropertyMembersOp::GenerateSignal;
@@ -5187,6 +5220,8 @@ void InsertQtPropertyMembers::match(const CppQuickFixInterface &interface,
                 generateFlags &= ~InsertQtPropertyMembersOp::GenerateGetter;
             else if (name == setterName)
                 generateFlags &= ~InsertQtPropertyMembersOp::GenerateSetter;
+            else if (name == resetName)
+                generateFlags &= ~InsertQtPropertyMembersOp::GenerateReset;
             else if (name == signalName)
                 generateFlags &= ~InsertQtPropertyMembersOp::GenerateSignal;
         } else if (member->asDeclaration()) {
@@ -5200,7 +5235,7 @@ void InsertQtPropertyMembers::match(const CppQuickFixInterface &interface,
         return;
 
     result << new InsertQtPropertyMembersOp(interface, path.size() - 1, qtPropertyDeclaration, c,
-                                            generateFlags, getterName, setterName,
+                                            generateFlags, getterName, setterName, resetName,
                                             signalName, storageName);
 }
 
