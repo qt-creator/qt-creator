@@ -404,24 +404,20 @@ AndroidSettingsWidget::AndroidSettingsWidget()
 
     connect(m_ui.OpenJDKLocationPathChooser, &PathChooser::rawPathChanged,
             this, &AndroidSettingsWidget::validateJdk);
-    FilePath currentJdkPath = m_androidConfig.openJDKLocation();
-    if (currentJdkPath.isEmpty())
-        currentJdkPath = AndroidConfig::getJdkPath();
-    m_ui.OpenJDKLocationPathChooser->setFilePath(currentJdkPath);
+    if (m_androidConfig.openJDKLocation().isEmpty())
+        m_androidConfig.setOpenJDKLocation(AndroidConfig::getJdkPath());
+    m_ui.OpenJDKLocationPathChooser->setFilePath(m_androidConfig.openJDKLocation());
     m_ui.OpenJDKLocationPathChooser->setPromptDialogTitle(tr("Select JDK Path"));
 
-    FilePath currentSDKPath = m_androidConfig.sdkLocation();
-    if (currentSDKPath.isEmpty())
-        currentSDKPath = AndroidConfig::defaultSdkPath();
-
-    m_ui.SDKLocationPathChooser->setFilePath(currentSDKPath);
+    if (m_androidConfig.sdkLocation().isEmpty())
+        m_androidConfig.setSdkLocation(AndroidConfig::defaultSdkPath());
+    m_ui.SDKLocationPathChooser->setFilePath(m_androidConfig.sdkLocation());
     m_ui.SDKLocationPathChooser->setPromptDialogTitle(tr("Select Android SDK Folder"));
 
     m_ui.openSslPathChooser->setPromptDialogTitle(tr("Select OpenSSL Include Project File"));
-    FilePath currentOpenSslPath = m_androidConfig.openSslLocation();
-    if (currentOpenSslPath.isEmpty())
-        currentOpenSslPath = currentSDKPath.pathAppended("android_openssl");
-    m_ui.openSslPathChooser->setFilePath(currentOpenSslPath);
+    if (m_androidConfig.openSslLocation().isEmpty())
+        m_androidConfig.setOpenSslLocation(m_androidConfig.sdkLocation() / ("android_openssl"));
+    m_ui.openSslPathChooser->setFilePath(m_androidConfig.openSslLocation());
 
     m_ui.DataPartitionSizeSpinBox->setValue(m_androidConfig.partitionSize());
     m_ui.CreateKitCheckBox->setChecked(m_androidConfig.automaticKitCreation());
