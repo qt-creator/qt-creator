@@ -43,6 +43,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
+#include <cplusplus/SimpleLexer.h>
+
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
@@ -72,6 +74,51 @@ using namespace GLSL;
 
 namespace GlslEditor {
 namespace Internal {
+
+static int versionFor(const QString &source)
+{
+    CPlusPlus::SimpleLexer lexer;
+    lexer.setPreprocessorMode(false);
+    const CPlusPlus::Tokens tokens = lexer(source);
+
+    int version = -1;
+//    QString profile;
+    const int end = tokens.size();
+    for (int it = 0; it + 2 < end; ++it) {
+        const CPlusPlus::Token &token = tokens.at(it);
+        if (token.isComment())
+            continue;
+        if (token.kind() == CPlusPlus::T_POUND) {
+            const int line = token.lineno;
+            const CPlusPlus::Token &successor = tokens.at(it + 1);
+            if (line != successor.lineno)
+                break;
+            if (successor.kind() != CPlusPlus::T_IDENTIFIER)
+                break;
+            if (source.mid(successor.bytesBegin(), successor.bytes()) != "version")
+                break;
+
+            const CPlusPlus::Token &versionToken = tokens.at(it + 2);
+            if (line != versionToken.lineno)
+                break;
+            if (versionToken.kind() != CPlusPlus::T_NUMERIC_LITERAL)
+                break;
+            version = source.mid(versionToken.bytesBegin(), versionToken.bytes()).toInt();
+
+//            if (version >= 150 && it + 3 < end) {
+//                const CPlusPlus::Token &profileToken = tokens.at(it + 3);
+//                if (line != profileToken.lineno)
+//                    break;
+//                if (profileToken.kind() != CPlusPlus::T_IDENTIFIER)
+//                    break;
+//                profile = source.mid(profileToken.bytesBegin(), profileToken.bytes());
+//            }
+            break;
+        }
+        break;
+    }
+    return version;
+}
 
 enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 150
@@ -193,18 +240,13 @@ void GlslEditorWidget::updateDocumentNow()
 {
     m_updateDocumentTimer.stop();
 
-    static const QRegularExpression versionRegex("^#version\\s+(\\d{3})\\s+(.*)?$",
-                                                 QRegularExpression::MultilineOption);
     int variant = languageVariant(textDocument()->mimeType());
     const QString contents = toPlainText(); // get the code from the editor
-    const QByteArray preprocessedCode = contents.toLatin1(); // ### use the QtCreator C++ preprocessor.
+    int version = versionFor(contents);
+    if (version >= 330)
+        variant |= GLSL::Lexer::Variant_GLSL_400;
 
-    QRegularExpressionMatch match = versionRegex.match(contents);
-    if (match.hasMatch()) {
-        const int version = match.captured(1).toInt();
-        if (version >= 330)
-            variant |= GLSL::Lexer::Variant_GLSL_400;
-    }
+    const QByteArray preprocessedCode = contents.toLatin1(); // ### use the QtCreator C++ preprocessor.
 
     Document::Ptr doc(new Document());
     doc->_engine = new Engine();
