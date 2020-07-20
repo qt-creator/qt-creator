@@ -222,7 +222,7 @@ QWidget *SwitchLanguageComboboxAction::createWidget(QWidget *parent)
     comboBox->addItem(tr("Default"));
 
     auto refreshComboBoxFunction = [this, comboBox, toolTip] (ProjectExplorer::Project *project) {
-        if (comboBox) {
+        if (comboBox && project) {
             QString errorMessage;
             auto locales = project->availableQmlPreviewTranslations(&errorMessage);
             if (!errorMessage.isEmpty())
