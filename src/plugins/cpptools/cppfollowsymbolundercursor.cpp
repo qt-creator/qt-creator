@@ -111,8 +111,17 @@ VirtualFunctionHelper::VirtualFunctionHelper(TypeOfExpression &typeOfExpression,
 bool VirtualFunctionHelper::canLookupVirtualFunctionOverrides(Function *function)
 {
     m_function = function;
-    if (!m_function || !m_baseExpressionAST || !m_expressionDocument || !m_document || !m_scope
-            || m_scope->isClass() || m_scope->isFunction() || m_snapshot.isEmpty()) {
+
+    if (!m_document || m_snapshot.isEmpty() || !m_function || !m_scope)
+        return false;
+
+    if (m_scope->isClass() && m_function->isPureVirtual()) {
+        m_staticClassOfFunctionCallExpression = m_scope->asClass();
+        return true;
+    }
+
+    if (!m_baseExpressionAST || !m_expressionDocument
+            || m_scope->isClass() || m_scope->isFunction()) {
         return false;
     }
 

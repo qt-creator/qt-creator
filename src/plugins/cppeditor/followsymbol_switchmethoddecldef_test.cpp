@@ -1413,6 +1413,31 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_data()
             << OverrideItem(QLatin1String("CD1::virt"), 11)
             << OverrideItem(QLatin1String("CD2::virt"), 14));
 
+    /// Check: Cursor on unimplemented base declaration.
+    QTest::newRow("allOverrides from base declaration") << _(
+            "struct A { virtual void $@virt() = 0; };\n"
+            "\n"
+            "struct B : A { void virt(); };\n"
+            "void B::virt() {}\n"
+            "\n"
+            "struct C : B { void virt(); };\n"
+            "void C::virt() {}\n"
+            "\n"
+            "struct CD1 : C { void virt(); };\n"
+            "void CD1::virt() {}\n"
+            "\n"
+            "struct CD2 : C { void virt(); };\n"
+            "void CD2::virt() {}\n"
+            "\n"
+            "int f(A *o) { o->virt(); }\n"
+            "\n")
+        << (OverrideItemList()
+            << OverrideItem(QLatin1String("A::virt = 0"), 1)
+            << OverrideItem(QLatin1String("B::virt"), 4)
+            << OverrideItem(QLatin1String("C::virt"), 7)
+            << OverrideItem(QLatin1String("CD1::virt"), 10)
+            << OverrideItem(QLatin1String("CD2::virt"), 13));
+
     /// Check: Static type is derived class pointer, only overrides of sub classes are presented.
     QTest::newRow("possibleOverrides1") << _(
             "struct A { virtual void virt() = 0; };\n"
