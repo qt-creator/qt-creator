@@ -514,7 +514,7 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
 
         if (auto *rc = m_target->activeRunConfiguration()) {
             if (auto multiLanguageAspect = rc->aspect<QmlProjectManager::QmlMultiLanguageAspect>()) {
-                if (multiLanguageAspect->value() && !multiLanguageAspect->databaseFilePath().isEmpty())
+                if (!multiLanguageAspect->databaseFilePath().isEmpty())
                     environment.set("QT_MULTILANGUAGE_DATABASE", multiLanguageAspect->databaseFilePath().toString());
             }
         }
