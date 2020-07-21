@@ -2218,6 +2218,85 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_createNamespaceInCpp_da
     QTest::addRow("all namespaces already present")
             << QByteArrayList{originalHeader, expectedHeader}
             << QByteArrayList{originalSource, expectedSource};
+
+    originalSource = "#include \"file.h\"\n"
+                     "namespace N1 {\n"
+                     "using namespace N2::N3;\n"
+                     "using namespace N2;\n"
+                     "using namespace N2;\n"
+                     "using namespace N3;\n"
+                     "}\n";
+    expectedSource = "#include \"file.h\"\n"
+                     "namespace N1 {\n"
+                     "using namespace N2::N3;\n"
+                     "using namespace N2;\n"
+                     "using namespace N2;\n"
+                     "using namespace N3;\n"
+                     "\n"
+                     "int Something::getIt() const\n"
+                     "{\n"
+                     "    return it;\n"
+                     "}\n"
+                     "\n"
+                     "void Something::setIt(int value)\n"
+                     "{\n"
+                     "    it = value;\n"
+                     "}\n\n"
+                     "}\n";
+    QTest::addRow("namespaces present and using namespace")
+        << QByteArrayList{originalHeader, expectedHeader}
+        << QByteArrayList{originalSource, expectedSource};
+
+    originalSource = "#include \"file.h\"\n"
+                     "using namespace N1::N2::N3;\n"
+                     "using namespace N1::N2;\n"
+                     "namespace N1 {\n"
+                     "using namespace N3;\n"
+                     "}\n";
+    expectedSource = "#include \"file.h\"\n"
+                     "using namespace N1::N2::N3;\n"
+                     "using namespace N1::N2;\n"
+                     "namespace N1 {\n"
+                     "using namespace N3;\n"
+                     "\n"
+                     "int Something::getIt() const\n"
+                     "{\n"
+                     "    return it;\n"
+                     "}\n"
+                     "\n"
+                     "void Something::setIt(int value)\n"
+                     "{\n"
+                     "    it = value;\n"
+                     "}\n"
+                     "\n"
+                     "}\n";
+    QTest::addRow("namespaces present and outer using namespace")
+        << QByteArrayList{originalHeader, expectedHeader}
+        << QByteArrayList{originalSource, expectedSource};
+
+    originalSource = "#include \"file.h\"\n"
+                     "using namespace N1;\n"
+                     "using namespace N2;\n"
+                     "namespace N3 {\n"
+                     "}\n";
+    expectedSource = "#include \"file.h\"\n"
+                     "using namespace N1;\n"
+                     "using namespace N2;\n"
+                     "namespace N3 {\n"
+                     "}\n"
+                     "\n"
+                     "int Something::getIt() const\n"
+                     "{\n"
+                     "    return it;\n"
+                     "}\n"
+                     "\n"
+                     "void Something::setIt(int value)\n"
+                     "{\n"
+                     "    it = value;\n"
+                     "}\n";
+    QTest::addRow("namespaces present and outer using namespace")
+        << QByteArrayList{originalHeader, expectedHeader}
+        << QByteArrayList{originalSource, expectedSource};
 }
 
 void CppEditorPlugin::test_quickfix_GenerateGetterSetter_createNamespaceInCpp()

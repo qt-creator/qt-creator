@@ -193,11 +193,215 @@ private:
     bool m_done = false;
 };
 
+/**
+ * @brief The NSCheckerVisitor class checks which namespaces are missing for a given list
+ * of enclosing namespaces at a given position
+ */
+class NSCheckerVisitor : public ASTVisitor
+{
+public:
+    NSCheckerVisitor(const CppRefactoringFile *file, const QStringList &namespaces, int symbolPos)
+        : ASTVisitor(file->cppDocument()->translationUnit())
+        , m_file(file)
+        , m_remainingNamespaces(namespaces)
+        , m_symbolPos(symbolPos)
+    {}
+    /**
+     * @brief returns the names of the namespaces that are additionally needed at the symbolPos
+     * @return A list of namespace names, the outermost namespace at index 0 and the innermost
+     * at the last index
+     */
+    const QStringList remainingNamespaces() const { return m_remainingNamespaces; }
+
+private:
+    bool preVisit(AST *ast) override
+    {
+        if (m_file->startOf(ast) >= m_symbolPos)
+            m_done = true;
+        return !m_done;
+    }
+
+    void postVisit(AST *ast) override
+    {
+        if (!m_done && m_file->endOf(ast) > m_symbolPos)
+            m_done = true;
+    }
+
+    bool visit(NamespaceAST *ns) override
+    {
+        if (m_remainingNamespaces.isEmpty())
+            return false;
+
+        QString name = getName(ns);
+        if (name != m_remainingNamespaces.first())
+            return false;
+
+        m_enteredNamespaces.push_back(ns);
+        m_remainingNamespaces.removeFirst();
+        // if we reached the searched namespace we don't have to search deeper
+        return !m_remainingNamespaces.isEmpty();
+    }
+
+    bool visit(UsingDirectiveAST *usingNS) override
+    {
+        // example: we search foo::bar and get 'using namespace foo;using namespace foo::bar;'
+        const QString fullName = Overview{}.prettyName(usingNS->name->name);
+        const QStringList namespaces = fullName.split("::");
+        if (namespaces.length() > m_remainingNamespaces.length())
+            return false;
+
+        // from other using namespace statements
+        const auto curList = m_usingsPerNamespace.find(currentNamespace());
+        const bool isCurListValid = curList != m_usingsPerNamespace.end();
+
+        const bool startEqual = std::equal(namespaces.cbegin(),
+                                           namespaces.cend(),
+                                           m_remainingNamespaces.cbegin());
+        if (startEqual) {
+            if (isCurListValid) {
+                if (namespaces.length() > curList->second.length()) {
+                    // eg. we already have 'using namespace foo;' and
+                    // now get 'using namespace foo::bar;'
+                    curList->second = namespaces;
+                }
+                // the other case: first 'using namespace foo::bar;' and now 'using namespace foo;'
+            } else
+                m_usingsPerNamespace.emplace(currentNamespace(), namespaces);
+        } else if (isCurListValid) {
+            // ex: we have already 'using namespace foo;' and get 'using namespace bar;' now
+            QStringList newlist = curList->second;
+            newlist.append(namespaces);
+            if (newlist.length() <= m_remainingNamespaces.length()) {
+                const bool startEqual = std::equal(newlist.cbegin(),
+                                                   newlist.cend(),
+                                                   m_remainingNamespaces.cbegin());
+                if (startEqual)
+                    curList->second.append(namespaces);
+            }
+        }
+        return false;
+    }
+
+    void endVisit(NamespaceAST *ns) override
+    {
+        // if the symbolPos was in the namespace and the
+        // namespace has no children, m_done should be true
+        postVisit(ns);
+        if (!m_done && currentNamespace() == ns) {
+            // we were not succesfull in this namespace, so undo all changes
+            m_remainingNamespaces.push_front(getName(currentNamespace()));
+            m_usingsPerNamespace.erase(currentNamespace());
+            m_enteredNamespaces.pop_back();
+        }
+    }
+
+    void endVisit(TranslationUnitAST *) override
+    {
+        // the last node, create the final result
+        // we must handle like the following: We search for foo::bar and have:
+        // using namespace foo::bar;
+        // namespace foo {
+        //    // cursor/symbolPos here
+        // }
+        if (m_remainingNamespaces.empty()) {
+            // we are already finished
+            return;
+        }
+        // find the longest combination of normal namespaces + using statements
+        int longestNamespaceList = 0;
+        int enteredNamespaceCount = 0;
+        // check 'using namespace ...;' statements in the global scope
+        const auto namespaces = m_usingsPerNamespace.find(nullptr);
+        if (namespaces != m_usingsPerNamespace.end())
+            longestNamespaceList = namespaces->second.length();
+
+        for (auto ns : m_enteredNamespaces) {
+            ++enteredNamespaceCount;
+            const auto namespaces = m_usingsPerNamespace.find(ns);
+            int newListLength = enteredNamespaceCount;
+            if (namespaces != m_usingsPerNamespace.end())
+                newListLength += namespaces->second.length();
+            longestNamespaceList = std::max(newListLength, longestNamespaceList);
+        }
+        m_remainingNamespaces.erase(m_remainingNamespaces.begin(),
+                                    m_remainingNamespaces.begin() + longestNamespaceList
+                                        - m_enteredNamespaces.size());
+    }
+
+    QString getName(NamespaceAST *ns)
+    {
+        const Identifier *const id = translationUnit()->identifier(ns->identifier_token);
+        if (id)
+            return QString::fromUtf8(id->chars(), id->size());
+        return {};
+    }
+
+    NamespaceAST *currentNamespace()
+    {
+        return m_enteredNamespaces.empty() ? nullptr : m_enteredNamespaces.back();
+    }
+
+    const CppRefactoringFile *const m_file;
+    QStringList m_remainingNamespaces;
+    const int m_symbolPos;
+    std::vector<NamespaceAST *> m_enteredNamespaces;
+    // track 'using namespace ...' statements
+    std::unordered_map<NamespaceAST *, QStringList> m_usingsPerNamespace;
+    bool m_done = false;
+};
+
+/**
+ * @brief getListOfMissingNamespacesForLocation checks which namespaces are present at a given
+ * location and returns a list of namespace names that are needed to get the wanted namespace
+ * @param file The file of the location
+ * @param wantedNamespaces the namespace as list that should exists at the insert location
+ * @param loc The location that should be checked (the namespaces should be available there)
+ * @return A list of namespaces that are missing to reach the wanted namespaces.
+ */
+QStringList getListOfMissingNamespacesForLocation(const CppRefactoringFile *file,
+                                                  const QStringList &wantedNamespaces,
+                                                  InsertionLocation loc)
+{
+    NSCheckerVisitor visitor(file, wantedNamespaces, file->position(loc.line(), loc.column()));
+    visitor.accept(file->cppDocument()->translationUnit()->ast());
+    return visitor.remainingNamespaces();
+}
+
 enum DefPos {
     DefPosInsideClass,
     DefPosOutsideClass,
     DefPosImplementationFile
 };
+
+/**
+ * @brief getNamespaceNames Returns a list of namespaces for an enclosing namespaces of a
+ * namespace (contains the namespace itself)
+ * @param firstNamespace the starting namespace (included in the list)
+ * @return the enclosing namespaces, the outermost namespace is at the first index, the innermost
+ * at the last index
+ */
+QStringList getNamespaceNames(const Namespace *firstNamespace)
+{
+    QStringList namespaces;
+    for (const Namespace *scope = firstNamespace; scope; scope = scope->enclosingNamespace()) {
+        if (scope->name() && scope->name()->identifier()) {
+            namespaces.prepend(QString::fromUtf8(scope->name()->identifier()->chars(),
+                                                 scope->name()->identifier()->size()));
+        }
+    }
+    return namespaces;
+}
+
+/**
+ * @brief getNamespaceNames Returns a list of enclosing namespaces for a symbol
+ * @param symbol a symbol from which we want the enclosing namespaces
+ * @return the enclosing namespaces, the outermost namespace is at the first index, the innermost
+ * at the last index
+ */
+QStringList getNamespaceNames(const Symbol *symbol)
+{
+    return getNamespaceNames(symbol->enclosingNamespace());
+}
 
 // TODO: We should use the "CreateMissing" approach everywhere.
 enum class NamespaceHandling { CreateMissing, Ignore };
@@ -211,13 +415,7 @@ InsertionLocation insertLocationForMethodDefinition(Symbol *symbol, const bool u
     CppRefactoringFilePtr file = refactoring.file(fileName);
     QStringList requiredNamespaces;
     if (namespaceHandling == NamespaceHandling::CreateMissing) {
-        for (const Namespace *scope = symbol->enclosingNamespace(); scope;
-             scope = scope->enclosingNamespace()) {
-            if (scope->name() && scope->name()->identifier()) {
-                requiredNamespaces.prepend(QString::fromUtf8(scope->name()->identifier()->chars(),
-                                                             scope->name()->identifier()->size()));
-            }
-        }
+        requiredNamespaces = getNamespaceNames(symbol);
     }
 
     // Try to find optimal location
@@ -242,10 +440,10 @@ InsertionLocation insertLocationForMethodDefinition(Symbol *symbol, const bool u
         if (hasIncludeGuard && location.line() == lastLine)
             continue;
         if (!requiredNamespaces.isEmpty()) {
-            NSVisitor visitor(file.data(), requiredNamespaces,
-                              file->position(location.line(), location.column()));
-            visitor.accept(file->cppDocument()->translationUnit()->ast());
-            if (!visitor.remainingNamespaces().isEmpty())
+            QStringList missing = getListOfMissingNamespacesForLocation(file.get(),
+                                                                        requiredNamespaces,
+                                                                        location);
+            if (!missing.isEmpty())
                 continue;
         }
         return location;
