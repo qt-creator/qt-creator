@@ -115,6 +115,9 @@ private slots:
     void test_quickfix_GenerateGettersSetters_data();
     void test_quickfix_GenerateGettersSetters();
 
+    void test_quickfix_InsertMemberFromInitialization_data();
+    void test_quickfix_InsertMemberFromInitialization();
+
     void test_quickfix_ConvertQt4Connect_connectOutOfClass();
     void test_quickfix_ConvertQt4Connect_connectWithinClass_data();
     void test_quickfix_ConvertQt4Connect_connectWithinClass();

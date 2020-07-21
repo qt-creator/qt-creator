@@ -2987,6 +2987,149 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
     }
 }
 
+class InsertMemberFromInitializationOp : public CppQuickFixOperation
+{
+public:
+    InsertMemberFromInitializationOp(
+            const CppQuickFixInterface &interface,
+            const Class *theClass,
+            const QString &member,
+            const QString &type)
+        : CppQuickFixOperation(interface), m_class(theClass), m_member(member), m_type(type)
+    {
+        setDescription(QCoreApplication::translate("CppTools::Quickfix",
+                                                   "Add class member \"%1\"").arg(m_member));
+    }
+
+private:
+    void perform() override
+    {
+        QString type = m_type;
+        if (type.isEmpty()) {
+            type = QInputDialog::getText(
+                        Core::ICore::dialogParent(),
+                        QCoreApplication::translate("CppTools::Quickfix","Please provide the type"),
+                        QCoreApplication::translate("CppTools::Quickfix","Data type:"),
+                        QLineEdit::Normal);
+        }
+        if (type.isEmpty())
+            return;
+
+        const CppRefactoringChanges refactoring(snapshot());
+        const InsertionPointLocator locator(refactoring);
+        const QString filePath = QString::fromUtf8(m_class->fileName());
+        const InsertionLocation loc = locator.methodDeclarationInClass(
+                    filePath, m_class, InsertionPointLocator::Private);
+        QTC_ASSERT(loc.isValid(), return);
+
+        CppRefactoringFilePtr targetFile = refactoring.file(filePath);
+        const int targetPosition1 = targetFile->position(loc.line(), loc.column());
+        const int targetPosition2 = qMax(0, targetFile->position(loc.line(), 1) - 1);
+        ChangeSet target;
+        target.insert(targetPosition1, loc.prefix() + type + ' ' + m_member + ";\n");
+        targetFile->setChangeSet(target);
+        targetFile->appendIndentRange(ChangeSet::Range(targetPosition2, targetPosition1));
+        targetFile->apply();
+    }
+
+    const Class * const m_class;
+    const QString m_member;
+    const QString m_type;
+};
+
+void InsertMemberFromInitialization::match(const CppQuickFixInterface &interface,
+                                           QuickFixOperations &result)
+{
+    // First check whether we are on a member initialization.
+    const QList<AST *> path = interface.path();
+    const int size = path.size();
+    if (size < 4)
+        return;
+    const SimpleNameAST * const name = path.at(size - 1)->asSimpleName();
+    if (!name)
+        return;
+    const MemInitializerAST * const memInitializer = path.at(size - 2)->asMemInitializer();
+    if (!memInitializer)
+        return;
+    if (!path.at(size - 3)->asCtorInitializer())
+        return;
+    const FunctionDefinitionAST * ctor = path.at(size - 4)->asFunctionDefinition();
+    if (!ctor)
+        return;
+
+    // Now find the class.
+    const Class *theClass = nullptr;
+    if (size > 4) {
+        const ClassSpecifierAST * const classSpec = path.at(size - 5)->asClassSpecifier();
+        if (classSpec) // Inline constructor. We get the class directly.
+            theClass = classSpec->symbol;
+    }
+    if (!theClass) {
+        // Out-of-line constructor. We need to find the class.
+        SymbolFinder finder;
+        const QList<Declaration *> matches = finder.findMatchingDeclaration(
+                    LookupContext(interface.currentFile()->cppDocument(), interface.snapshot()),
+                    ctor->symbol);
+        if (!matches.isEmpty())
+            theClass = matches.first()->enclosingClass();
+    }
+
+    if (!theClass)
+        return;
+
+    // Check whether the member exists already.
+    if (theClass->find(interface.currentFile()->cppDocument()->translationUnit()->identifier(
+                           name->identifier_token))) {
+        return;
+    }
+
+    const QString type = getType(interface, memInitializer, ctor);
+    const Identifier * const memberId = interface.currentFile()->cppDocument()
+            ->translationUnit()->identifier(name->identifier_token);
+    const QString member = QString::fromUtf8(memberId->chars(), memberId->size());
+
+    result << new InsertMemberFromInitializationOp(interface, theClass, member, type);
+}
+
+QString InsertMemberFromInitialization::getType(
+        const CppQuickFixInterface &interface,
+        const MemInitializerAST *memInitializer,
+        const FunctionDefinitionAST *ctor) const
+{
+    // Try to deduce the type: If the initialization expression is just a name
+    // (e.g. a constructor argument) or a function call, we don't bother the user.
+    if (!memInitializer->expression)
+        return {};
+    const ExpressionListParenAST * const lParenAst
+            = memInitializer->expression->asExpressionListParen();
+    if (!lParenAst || !lParenAst->expression_list || !lParenAst->expression_list->value)
+        return {};
+    const IdExpressionAST *idExpr = lParenAst->expression_list->value->asIdExpression();
+    if (!idExpr) { // Not a variable, so check for function call.
+        const CallAST * const call = lParenAst->expression_list->value->asCall();
+        if (!call || !call->base_expression)
+            return {};
+        idExpr = call->base_expression->asIdExpression();
+    }
+    if (!idExpr || !idExpr->name)
+        return {};
+
+    LookupContext context(interface.currentFile()->cppDocument(), interface.snapshot());
+    const QList<LookupItem> matches = context.lookup(idExpr->name->name, ctor->symbol);
+    if (matches.isEmpty())
+        return {};
+    Overview o = CppCodeStyleSettings::currentProjectCodeStyleOverview();
+    TypePrettyPrinter tpp(&o);
+    FullySpecifiedType type = matches.first().type();
+    if (!type.type())
+        return {};
+    const Function * const funcType = type.type()->asFunctionType();
+    if (funcType)
+        type = funcType->returnType();
+    return tpp(type);
+}
+
+
 namespace {
 
 bool hasClassMemberWithGetPrefix(const Class *klass)
@@ -6680,6 +6823,7 @@ void createCppQuickFixes()
     new GenerateGettersSettersForClass;
     new InsertDeclFromDef;
     new InsertDefFromDecl;
+    new InsertMemberFromInitialization;
 
     new MoveFuncDefOutside;
     new MoveAllFuncDefOutside;

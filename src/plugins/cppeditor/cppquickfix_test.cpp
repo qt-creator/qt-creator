@@ -2612,6 +2612,93 @@ void CppEditorPlugin::test_quickfix_GenerateGettersSetters()
     QuickFixOperationTest({QuickFixTestDocument::create("file.h", original, expected)}, &factory);
 }
 
+void CppEditorPlugin::test_quickfix_InsertMemberFromInitialization_data()
+{
+    QTest::addColumn<QByteArray>("original");
+    QTest::addColumn<QByteArray>("expected");
+
+    QByteArray original;
+    QByteArray expected;
+
+    original =
+            "class C {\n"
+            "public:\n"
+            "    C(int x) : @m_x(x) {}\n"
+            "private:\n"
+            "    int m_y;\n"
+            "};\n";
+    expected =
+            "class C {\n"
+            "public:\n"
+            "    C(int x) : m_x(x) {}\n"
+            "private:\n"
+            "    int m_y;\n"
+            "    int m_x;\n"
+            "};\n";
+    QTest::addRow("inline constructor") << original << expected;
+
+    original =
+        "class C {\n"
+        "public:\n"
+        "    C(int x, double d);\n"
+        "private:\n"
+        "    int m_x;\n"
+        "};\n"
+        "C::C(int x, double d) : m_x(x), @m_d(d)\n";
+    expected =
+        "class C {\n"
+        "public:\n"
+        "    C(int x, double d);\n"
+        "private:\n"
+        "    int m_x;\n"
+        "    double m_d;\n"
+        "};\n"
+        "C::C(int x, double d) : m_x(x), m_d(d)\n";
+    QTest::addRow("out-of-line constructor") << original << expected;
+
+    original =
+            "class C {\n"
+            "public:\n"
+            "    C(int x) : @m_x(x) {}\n"
+            "private:\n"
+            "    int m_x;\n"
+            "};\n";
+    expected = "";
+    QTest::addRow("member already present") << original << expected;
+
+    original =
+            "int func() { return 0; }\n"
+            "class C {\n"
+            "public:\n"
+            "    C() : @m_x(func()) {}\n"
+            "private:\n"
+            "    int m_y;\n"
+            "};\n";
+    expected =
+            "int func() { return 0; }\n"
+            "class C {\n"
+            "public:\n"
+            "    C() : m_x(func()) {}\n"
+            "private:\n"
+            "    int m_y;\n"
+            "    int m_x;\n"
+            "};\n";
+    QTest::addRow("initialization via function call") << original << expected;
+}
+
+void CppEditorPlugin::test_quickfix_InsertMemberFromInitialization()
+{
+    QFETCH(QByteArray, original);
+    QFETCH(QByteArray, expected);
+
+    QList<QuickFixTestDocument::Ptr> testDocuments({
+        QuickFixTestDocument::create("file.h", original, expected)
+    });
+
+    InsertMemberFromInitialization factory;
+    QuickFixOperationTest(testDocuments, &factory);
+}
+
 /// Check if definition is inserted right after class for insert definition outside
 void CppEditorPlugin::test_quickfix_InsertDefFromDecl_afterClass()
 {

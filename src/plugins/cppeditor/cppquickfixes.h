@@ -392,6 +392,22 @@ public:
 };
 
 /*!
+  Adds a class member from an initialization in the constructor.
+ */
+class InsertMemberFromInitialization : public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface,
+               TextEditor::QuickFixOperations &result) override;
+
+private:
+    QString getType(
+            const CppQuickFixInterface &interface,
+            const CPlusPlus::MemInitializerAST *memInitializer,
+            const CPlusPlus::FunctionDefinitionAST *ctor) const;
+};
+
+/*!
   Extracts the selected code and puts it to a function
  */
 class ExtractFunction : public CppQuickFixFactory
