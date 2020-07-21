@@ -202,7 +202,7 @@ QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFi
     for (const QString &keyword : qAsConst(m_lastIndicesCache)) {
         const int index = keyword.indexOf(entry, 0, cs);
         LocatorFilterEntry filterEntry(this, keyword, QVariant(), m_icon);
-        filterEntry.highlightInfo = {index, entry.length()};
+        filterEntry.highlightInfo = {index, int(entry.length())};
         entries.append(filterEntry);
     }
 

@@ -90,7 +90,7 @@ QList<LocatorFilterEntry> CommandLocator::matchesFor(QFutureInterface<LocatorFil
             const int index = text.indexOf(entry, 0, entryCaseSensitivity);
             if (index >= 0) {
                 LocatorFilterEntry filterEntry(this, text, QVariant(i));
-                filterEntry.highlightInfo = {index, entry.length()};
+                filterEntry.highlightInfo = {index, int(entry.length())};
 
                 if (index == 0)
                     betterEntries.append(filterEntry);

@@ -184,13 +184,13 @@ void FancyTabBar::leaveEvent(QEvent *event)
 QSize FancyTabBar::sizeHint() const
 {
     const QSize sh = tabSizeHint();
-    return {sh.width(), sh.height() * m_tabs.count()};
+    return {sh.width(), sh.height() * int(m_tabs.count())};
 }
 
 QSize FancyTabBar::minimumSizeHint() const
 {
     const QSize sh = tabSizeHint(true);
-    return {sh.width(), sh.height() * m_tabs.count()};
+    return {sh.width(), sh.height() * int(m_tabs.count())};
 }
 
 QRect FancyTabBar::tabRect(int index) const

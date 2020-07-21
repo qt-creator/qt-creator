@@ -69,7 +69,7 @@ QList<LocatorFilterEntry> ExecuteFilter::matchesFor(QFutureInterface<LocatorFilt
         LocatorFilterEntry filterEntry(this, cmd, QVariant());
         const int index = cmd.indexOf(entry, 0, entryCaseSensitivity);
         if (index >= 0) {
-            filterEntry.highlightInfo = {index, entry.length()};
+            filterEntry.highlightInfo = {index, int(entry.length())};
             value.append(filterEntry);
         } else {
             others.append(filterEntry);

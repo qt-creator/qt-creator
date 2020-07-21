@@ -171,7 +171,7 @@ public:
     template<typename String>
     static NativeFilePath fromFilePath(String filePath)
     {
-        Utils::PathString nativePath{filePath.data(), filePath.size()};
+        Utils::PathString nativePath{filePath.data(), size_type(filePath.size())};
 
         if (Utils::HostOsInfo::isWindowsHost())
             nativePath.replace('/', '\\');

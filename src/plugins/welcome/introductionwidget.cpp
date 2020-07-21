@@ -284,7 +284,7 @@ void IntroductionWidget::paintEvent(QPaintEvent *)
     p.setOpacity(.87);
     const QColor backgroundColor = Qt::black;
     if (m_stepPointerAnchor) {
-        const QPoint anchorPos = m_stepPointerAnchor->mapTo(parentWidget(), {0, 0});
+        const QPoint anchorPos = m_stepPointerAnchor->mapTo(parentWidget(), QPoint{0, 0});
         const QRect anchorRect(anchorPos, m_stepPointerAnchor->size());
         const QRect spotlightRect = anchorRect.adjusted(-SPOTLIGHTMARGIN,
                                                         -SPOTLIGHTMARGIN,

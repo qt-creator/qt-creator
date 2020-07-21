@@ -99,7 +99,7 @@ Core::GeneratedFiles JsonWizardScannerGenerator::fileList(Utils::MacroExpander *
 
     result = scan(project.absolutePath(), project);
 
-    static const auto getDepth = [](const QString &filePath) { return filePath.count('/'); };
+    static const auto getDepth = [](const QString &filePath) { return int(filePath.count('/')); };
     int minDepth = std::numeric_limits<int>::max();
     for (auto it = result.begin(); it != result.end(); ++it) {
         const QString relPath = project.relativeFilePath(it->path());

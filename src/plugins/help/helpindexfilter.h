@@ -28,6 +28,7 @@
 #include <coreplugin/locator/ilocatorfilter.h>
 
 #include <QIcon>
+#include <QMultiMap>
 #include <QMutex>
 
 namespace Help {

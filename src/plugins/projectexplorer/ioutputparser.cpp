@@ -108,7 +108,7 @@ void OutputTaskParser::setDetailsFormat(Task &task, const LinkSpecs &linkSpecs)
     task.formats.clear();
     int offset = task.summary.length() + 1;
     for (const Utils::FormattedText &ft : linkifiedText) {
-        task.formats << QTextLayout::FormatRange{offset, ft.text.length(), ft.format};
+        task.formats << QTextLayout::FormatRange{offset, int(ft.text.length()), ft.format};
         offset += ft.text.length();
     }
 }

@@ -152,7 +152,7 @@ QList<Core::LocatorFilterEntry> UrlLocatorFilter::matchesFor(
             break;
         const QString name = url.arg(entry);
         Core::LocatorFilterEntry filterEntry(this, name, QVariant(), m_icon);
-        filterEntry.highlightInfo = {name.lastIndexOf(entry), entry.length()};
+        filterEntry.highlightInfo = {int(name.lastIndexOf(entry)), int(entry.length())};
         entries.append(filterEntry);
     }
     return entries;

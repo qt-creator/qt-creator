@@ -319,8 +319,9 @@ void CenteredLocatorPopup::updateGeometry()
     QTC_ASSERT(parentWidget(), return);
     const QSize size = preferredSize();
     const QSize parentSize = parentWidget()->size();
-    const QPoint pos = parentWidget()->mapToGlobal({(parentSize.width() - size.width()) / 2,
-                                                    parentSize.height() / 2 - size.height()});
+    const QPoint local((parentSize.width() - size.width()) / 2,
+                        parentSize.height() / 2 - size.height());
+    const QPoint pos = parentWidget()->mapToGlobal(local);
     QRect rect(pos, size);
     // invisible widget doesn't have the right screen set yet, so use the parent widget to
     // check for available geometry

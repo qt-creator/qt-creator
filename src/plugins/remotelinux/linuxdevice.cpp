@@ -93,7 +93,7 @@ private:
             const QStringList elements = line.split(QLatin1Char('\n'));
             if (elements.count() < 4) {
                 qDebug("%s: Expected four list elements, got %d. Line was '%s'.", Q_FUNC_INFO,
-                       elements.count(), qPrintable(visualizeNull(line)));
+                       int(elements.count()), qPrintable(visualizeNull(line)));
                 continue;
             }
             bool ok;
