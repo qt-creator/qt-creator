@@ -512,11 +512,9 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
 
         customFileSelectors = m_target->additionalData("CustomFileSelectorsData").toStringList();
 
-        if (auto *rc = m_target->activeRunConfiguration()) {
-            if (auto multiLanguageAspect = rc->aspect<QmlProjectManager::QmlMultiLanguageAspect>()) {
-                if (!multiLanguageAspect->databaseFilePath().isEmpty())
-                    environment.set("QT_MULTILANGUAGE_DATABASE", multiLanguageAspect->databaseFilePath().toString());
-            }
+        if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current(m_target)) {
+            if (!multiLanguageAspect->databaseFilePath().isEmpty())
+                environment.set("QT_MULTILANGUAGE_DATABASE", multiLanguageAspect->databaseFilePath().toString());
         }
     }
 

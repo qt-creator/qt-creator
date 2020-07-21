@@ -546,12 +546,8 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
         }
     } else if (node.isRootNode() && name == "language@Internal") {
         const QString languageAsString = value.toString();
-        if (m_currentTarget) {
-            if (auto rc = m_currentTarget->activeRunConfiguration()) {
-                if (auto multiLanguageAspect = rc->aspect<QmlProjectManager::QmlMultiLanguageAspect>())
-                    multiLanguageAspect->setLastUsedLanguage(languageAsString);
-            }
-        }
+        if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current(m_currentTarget))
+            multiLanguageAspect->setLastUsedLanguage(languageAsString);
         nodeInstanceServer()->changeLanguage({languageAsString});
     } else if (node.isRootNode() && name == "previewSize@Internal") {
         nodeInstanceServer()->changePreviewImageSize(value.toSize());
@@ -994,12 +990,8 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     }
 
     QString lastUsedLanguage;
-    if (m_currentTarget) {
-        if (auto rc = m_currentTarget->activeRunConfiguration()) {
-            if (auto multiLanguageAspect = rc->aspect<QmlProjectManager::QmlMultiLanguageAspect>())
-                lastUsedLanguage = multiLanguageAspect->lastUsedLanguage();
-        }
-    }
+    if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current(m_currentTarget))
+        lastUsedLanguage = multiLanguageAspect->lastUsedLanguage();
 
     return CreateSceneCommand(
                 instanceContainerList,

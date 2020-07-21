@@ -45,6 +45,10 @@ public:
     void toMap(QVariantMap &map) const final;
     void fromMap(const QVariantMap &map) final;
 
+    static QmlMultiLanguageAspect *current();
+    static QmlMultiLanguageAspect *current(ProjectExplorer::Project *project);
+    static QmlMultiLanguageAspect *current(ProjectExplorer::Target *target);
+
 public slots:
     void setLastUsedLanguage(const QString &language);
 

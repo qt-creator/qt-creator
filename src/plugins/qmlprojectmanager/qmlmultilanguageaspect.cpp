@@ -30,6 +30,7 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 static bool isMultilanguagePresent()
@@ -123,6 +124,29 @@ void QmlMultiLanguageAspect::fromMap(const QVariantMap &map)
 {
     BaseBoolAspect::fromMap(map);
     setLastUsedLanguage(map.value(Constants::LAST_USED_LANGUAGE, "en").toString());
+}
+
+QmlMultiLanguageAspect *QmlMultiLanguageAspect::current()
+{
+    if (auto project = ProjectExplorer::SessionManager::startupProject())
+        return current(project);
+    return {};
+}
+
+QmlMultiLanguageAspect *QmlMultiLanguageAspect::current(ProjectExplorer::Project *project)
+{
+    if (auto target = project->activeTarget())
+        return current(target);
+    return {};
+}
+
+QmlMultiLanguageAspect *QmlMultiLanguageAspect::current(ProjectExplorer::Target *target)
+{
+    if (auto runConfiguration = target->activeRunConfiguration()) {
+        if (auto multiLanguageAspect = runConfiguration->aspect<QmlProjectManager::QmlMultiLanguageAspect>())
+            return multiLanguageAspect;
+    }
+    return {};
 }
 
 } // namespace QmlProjectManager
