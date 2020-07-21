@@ -182,7 +182,7 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
 
     if (wizard->copyGradle()) {
         auto checkBox = new QCheckBox(this);
-        checkBox->setChecked(true);
+        checkBox->setChecked(false);
         connect(checkBox, &QCheckBox::toggled, wizard, &CreateAndroidManifestWizard::setCopyGradle);
         checkBox->setText(tr("Copy the Gradle files to Android directory"));
         checkBox->setToolTip(tr("It is highly recommended if you are planning to extend the Java part of your Qt application."));
