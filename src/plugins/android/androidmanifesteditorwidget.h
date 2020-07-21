@@ -28,6 +28,9 @@
 #include <texteditor/texteditor.h>
 
 #include <QAbstractListModel>
+#include <QGroupBox>
+#include <QGridLayout>
+#include <QTabWidget>
 #include <QStackedWidget>
 #include <QTimer>
 
@@ -156,6 +159,11 @@ private:
     QString parseComment(QXmlStreamReader &reader, QXmlStreamWriter &writer);
     void parseUnknownElement(QXmlStreamReader &reader, QXmlStreamWriter &writer, bool ignore=false);
 
+    QGroupBox *createPermissionsGroupBox(QWidget *parent);
+    QGroupBox *createPackageFormLayout(QWidget *parent);
+    QGroupBox *createApplicationGroupBox(QWidget *parent);
+    QGroupBox *createAdvancedGroupBox(QWidget *parent);
+
     bool m_dirty; // indicates that we need to call syncToEditor()
     bool m_stayClean;
     int m_errorLine;
@@ -192,6 +200,7 @@ private:
     TextEditor::TextEditorWidget *m_textEditorWidget;
     AndroidManifestEditor *m_editor;
     QString m_androidNdkPlatform;
+    QTabWidget *m_advanvedTabWidget = nullptr;
 };
 } // namespace Internal
 } // namespace Android

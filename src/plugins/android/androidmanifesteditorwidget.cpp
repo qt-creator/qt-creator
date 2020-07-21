@@ -64,7 +64,6 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFormLayout>
-#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QImage>
 #include <QLabel>
@@ -134,338 +133,351 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget()
             this, &AndroidManifestEditorWidget::updateAfterFileLoad);
 }
 
+QGroupBox *AndroidManifestEditorWidget::createPermissionsGroupBox(QWidget *parent)
+{
+    auto permissionsGroupBox = new QGroupBox(parent);
+    permissionsGroupBox->setTitle(tr("Permissions"));
+    auto layout = new QGridLayout(permissionsGroupBox);
+
+    m_defaultPermissonsCheckBox = new QCheckBox(this);
+    m_defaultPermissonsCheckBox->setText(tr("Include default permissions for Qt modules."));
+    layout->addWidget(m_defaultPermissonsCheckBox, 0, 0);
+
+    m_defaultFeaturesCheckBox = new QCheckBox(this);
+    m_defaultFeaturesCheckBox->setText(tr("Include default features for Qt modules."));
+    layout->addWidget(m_defaultFeaturesCheckBox, 1, 0);
+
+    m_permissionsComboBox = new QComboBox(permissionsGroupBox);
+    m_permissionsComboBox->insertItems(0, QStringList()
+     << QLatin1String("android.permission.ACCESS_CHECKIN_PROPERTIES")
+     << QLatin1String("android.permission.ACCESS_COARSE_LOCATION")
+     << QLatin1String("android.permission.ACCESS_FINE_LOCATION")
+     << QLatin1String("android.permission.ACCESS_LOCATION_EXTRA_COMMANDS")
+     << QLatin1String("android.permission.ACCESS_MOCK_LOCATION")
+     << QLatin1String("android.permission.ACCESS_NETWORK_STATE")
+     << QLatin1String("android.permission.ACCESS_SURFACE_FLINGER")
+     << QLatin1String("android.permission.ACCESS_WIFI_STATE")
+     << QLatin1String("android.permission.ACCOUNT_MANAGER")
+     << QLatin1String("com.android.voicemail.permission.ADD_VOICEMAIL")
+     << QLatin1String("android.permission.AUTHENTICATE_ACCOUNTS")
+     << QLatin1String("android.permission.BATTERY_STATS")
+     << QLatin1String("android.permission.BIND_ACCESSIBILITY_SERVICE")
+     << QLatin1String("android.permission.BIND_APPWIDGET")
+     << QLatin1String("android.permission.BIND_DEVICE_ADMIN")
+     << QLatin1String("android.permission.BIND_INPUT_METHOD")
+     << QLatin1String("android.permission.BIND_REMOTEVIEWS")
+     << QLatin1String("android.permission.BIND_TEXT_SERVICE")
+     << QLatin1String("android.permission.BIND_VPN_SERVICE")
+     << QLatin1String("android.permission.BIND_WALLPAPER")
+     << QLatin1String("android.permission.BLUETOOTH")
+     << QLatin1String("android.permission.BLUETOOTH_ADMIN")
+     << QLatin1String("android.permission.BRICK")
+     << QLatin1String("android.permission.BROADCAST_PACKAGE_REMOVED")
+     << QLatin1String("android.permission.BROADCAST_SMS")
+     << QLatin1String("android.permission.BROADCAST_STICKY")
+     << QLatin1String("android.permission.BROADCAST_WAP_PUSH")
+     << QLatin1String("android.permission.CALL_PHONE")
+     << QLatin1String("android.permission.CALL_PRIVILEGED")
+     << QLatin1String("android.permission.CAMERA")
+     << QLatin1String("android.permission.CHANGE_COMPONENT_ENABLED_STATE")
+     << QLatin1String("android.permission.CHANGE_CONFIGURATION")
+     << QLatin1String("android.permission.CHANGE_NETWORK_STATE")
+     << QLatin1String("android.permission.CHANGE_WIFI_MULTICAST_STATE")
+     << QLatin1String("android.permission.CHANGE_WIFI_STATE")
+     << QLatin1String("android.permission.CLEAR_APP_CACHE")
+     << QLatin1String("android.permission.CLEAR_APP_USER_DATA")
+     << QLatin1String("android.permission.CONTROL_LOCATION_UPDATES")
+     << QLatin1String("android.permission.DELETE_CACHE_FILES")
+     << QLatin1String("android.permission.DELETE_PACKAGES")
+     << QLatin1String("android.permission.DEVICE_POWER")
+     << QLatin1String("android.permission.DIAGNOSTIC")
+     << QLatin1String("android.permission.DISABLE_KEYGUARD")
+     << QLatin1String("android.permission.DUMP")
+     << QLatin1String("android.permission.EXPAND_STATUS_BAR")
+     << QLatin1String("android.permission.FACTORY_TEST")
+     << QLatin1String("android.permission.FLASHLIGHT")
+     << QLatin1String("android.permission.FORCE_BACK")
+     << QLatin1String("android.permission.GET_ACCOUNTS")
+     << QLatin1String("android.permission.GET_PACKAGE_SIZE")
+     << QLatin1String("android.permission.GET_TASKS")
+     << QLatin1String("android.permission.GLOBAL_SEARCH")
+     << QLatin1String("android.permission.HARDWARE_TEST")
+     << QLatin1String("android.permission.INJECT_EVENTS")
+     << QLatin1String("android.permission.INSTALL_LOCATION_PROVIDER")
+     << QLatin1String("android.permission.INSTALL_PACKAGES")
+     << QLatin1String("android.permission.INTERNAL_SYSTEM_WINDOW")
+     << QLatin1String("android.permission.INTERNET")
+     << QLatin1String("android.permission.KILL_BACKGROUND_PROCESSES")
+     << QLatin1String("android.permission.MANAGE_ACCOUNTS")
+     << QLatin1String("android.permission.MANAGE_APP_TOKENS")
+     << QLatin1String("android.permission.MASTER_CLEAR")
+     << QLatin1String("android.permission.MODIFY_AUDIO_SETTINGS")
+     << QLatin1String("android.permission.MODIFY_PHONE_STATE")
+     << QLatin1String("android.permission.MOUNT_FORMAT_FILESYSTEMS")
+     << QLatin1String("android.permission.MOUNT_UNMOUNT_FILESYSTEMS")
+     << QLatin1String("android.permission.NFC")
+     << QLatin1String("android.permission.PERSISTENT_ACTIVITY")
+     << QLatin1String("android.permission.PROCESS_OUTGOING_CALLS")
+     << QLatin1String("android.permission.READ_CALENDAR")
+     << QLatin1String("android.permission.READ_CALL_LOG")
+     << QLatin1String("android.permission.READ_CONTACTS")
+     << QLatin1String("android.permission.READ_EXTERNAL_STORAGE")
+     << QLatin1String("android.permission.READ_FRAME_BUFFER")
+     << QLatin1String("com.android.browser.permission.READ_HISTORY_BOOKMARKS")
+     << QLatin1String("android.permission.READ_INPUT_STATE")
+     << QLatin1String("android.permission.READ_LOGS")
+     << QLatin1String("android.permission.READ_PHONE_STATE")
+     << QLatin1String("android.permission.READ_PROFILE")
+     << QLatin1String("android.permission.READ_SMS")
+     << QLatin1String("android.permission.READ_SOCIAL_STREAM")
+     << QLatin1String("android.permission.READ_SYNC_SETTINGS")
+     << QLatin1String("android.permission.READ_SYNC_STATS")
+     << QLatin1String("android.permission.READ_USER_DICTIONARY")
+     << QLatin1String("android.permission.REBOOT")
+     << QLatin1String("android.permission.RECEIVE_BOOT_COMPLETED")
+     << QLatin1String("android.permission.RECEIVE_MMS")
+     << QLatin1String("android.permission.RECEIVE_SMS")
+     << QLatin1String("android.permission.RECEIVE_WAP_PUSH")
+     << QLatin1String("android.permission.RECORD_AUDIO")
+     << QLatin1String("android.permission.REORDER_TASKS")
+     << QLatin1String("android.permission.RESTART_PACKAGES")
+     << QLatin1String("android.permission.SEND_SMS")
+     << QLatin1String("android.permission.SET_ACTIVITY_WATCHER")
+     << QLatin1String("com.android.alarm.permission.SET_ALARM")
+     << QLatin1String("android.permission.SET_ALWAYS_FINISH")
+     << QLatin1String("android.permission.SET_ANIMATION_SCALE")
+     << QLatin1String("android.permission.SET_DEBUG_APP")
+     << QLatin1String("android.permission.SET_ORIENTATION")
+     << QLatin1String("android.permission.SET_POINTER_SPEED")
+     << QLatin1String("android.permission.SET_PREFERRED_APPLICATIONS")
+     << QLatin1String("android.permission.SET_PROCESS_LIMIT")
+     << QLatin1String("android.permission.SET_TIME")
+     << QLatin1String("android.permission.SET_TIME_ZONE")
+     << QLatin1String("android.permission.SET_WALLPAPER")
+     << QLatin1String("android.permission.SET_WALLPAPER_HINTS")
+     << QLatin1String("android.permission.SIGNAL_PERSISTENT_PROCESSES")
+     << QLatin1String("android.permission.STATUS_BAR")
+     << QLatin1String("android.permission.SUBSCRIBED_FEEDS_READ")
+     << QLatin1String("android.permission.SUBSCRIBED_FEEDS_WRITE")
+     << QLatin1String("android.permission.SYSTEM_ALERT_WINDOW")
+     << QLatin1String("android.permission.UPDATE_DEVICE_STATS")
+     << QLatin1String("android.permission.USE_CREDENTIALS")
+     << QLatin1String("android.permission.USE_SIP")
+     << QLatin1String("android.permission.VIBRATE")
+     << QLatin1String("android.permission.WAKE_LOCK")
+     << QLatin1String("android.permission.WRITE_APN_SETTINGS")
+     << QLatin1String("android.permission.WRITE_CALENDAR")
+     << QLatin1String("android.permission.WRITE_CALL_LOG")
+     << QLatin1String("android.permission.WRITE_CONTACTS")
+     << QLatin1String("android.permission.WRITE_EXTERNAL_STORAGE")
+     << QLatin1String("android.permission.WRITE_GSERVICES")
+     << QLatin1String("com.android.browser.permission.WRITE_HISTORY_BOOKMARKS")
+     << QLatin1String("android.permission.WRITE_PROFILE")
+     << QLatin1String("android.permission.WRITE_SECURE_SETTINGS")
+     << QLatin1String("android.permission.WRITE_SETTINGS")
+     << QLatin1String("android.permission.WRITE_SMS")
+     << QLatin1String("android.permission.WRITE_SOCIAL_STREAM")
+     << QLatin1String("android.permission.WRITE_SYNC_SETTINGS")
+     << QLatin1String("android.permission.WRITE_USER_DICTIONARY")
+    );
+    m_permissionsComboBox->setEditable(true);
+    layout->addWidget(m_permissionsComboBox, 2, 0);
+
+    m_addPermissionButton = new QPushButton(permissionsGroupBox);
+    m_addPermissionButton->setText(tr("Add"));
+    layout->addWidget(m_addPermissionButton, 2, 1);
+
+    m_permissionsModel = new PermissionsModel(this);
+
+    m_permissionsListView = new QListView(permissionsGroupBox);
+    m_permissionsListView->setModel(m_permissionsModel);
+    layout->addWidget(m_permissionsListView, 3, 0, 3, 1);
+
+    m_removePermissionButton = new QPushButton(permissionsGroupBox);
+    m_removePermissionButton->setText(tr("Remove"));
+    layout->addWidget(m_removePermissionButton, 3, 1);
+
+    permissionsGroupBox->setLayout(layout);
+
+    connect(m_defaultPermissonsCheckBox, &QCheckBox::stateChanged,
+            this, &AndroidManifestEditorWidget::defaultPermissionOrFeatureCheckBoxClicked);
+    connect(m_defaultFeaturesCheckBox, &QCheckBox::stateChanged,
+            this, &AndroidManifestEditorWidget::defaultPermissionOrFeatureCheckBoxClicked);
+
+    connect(m_addPermissionButton, &QAbstractButton::clicked,
+            this, &AndroidManifestEditorWidget::addPermission);
+    connect(m_removePermissionButton, &QAbstractButton::clicked,
+            this, &AndroidManifestEditorWidget::removePermission);
+    connect(m_permissionsComboBox, &QComboBox::currentTextChanged,
+            this, &AndroidManifestEditorWidget::updateAddRemovePermissionButtons);
+
+    return permissionsGroupBox;
+}
+
+QGroupBox *AndroidManifestEditorWidget::createPackageFormLayout(QWidget *parent)
+{
+    auto packageGroupBox = new QGroupBox(parent);
+    packageGroupBox->setTitle(tr("Package"));
+    auto formLayout = new QFormLayout();
+
+    m_packageNameLineEdit = new QLineEdit(packageGroupBox);
+    m_packageNameLineEdit->setToolTip(tr(
+        "<p align=\"justify\">Please choose a valid package name for your application (for "
+        "example, \"org.example.myapplication\").</p><p align=\"justify\">Packages are usually "
+        "defined using a hierarchical naming pattern, with levels in the hierarchy separated "
+        "by periods (.) (pronounced \"dot\").</p><p align=\"justify\">In general, a package "
+        "name begins with the top level domain name of the organization and then the "
+        "organization's domain and then any subdomains listed in reverse order. The "
+        "organization can then choose a specific name for their package. Package names should "
+        "be all lowercase characters whenever possible.</p><p align=\"justify\">Complete "
+        "conventions for disambiguating package names and rules for naming packages when the "
+        "Internet domain name cannot be directly used as a package name are described in "
+        "section 7.7 of the Java Language Specification.</p>"));
+    formLayout->addRow(tr("Package name:"), m_packageNameLineEdit);
+
+    m_packageNameWarning = new QLabel;
+    m_packageNameWarning->setText(tr("The package name is not valid."));
+    m_packageNameWarning->setVisible(false);
+
+    m_packageNameWarningIcon = new QLabel;
+    m_packageNameWarningIcon->setPixmap(Utils::Icons::WARNING.pixmap());
+    m_packageNameWarningIcon->setVisible(false);
+    m_packageNameWarningIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
+    auto warningRow = new QHBoxLayout;
+    warningRow->setContentsMargins(0, 0, 0, 0);
+    warningRow->addWidget(m_packageNameWarningIcon);
+    warningRow->addWidget(m_packageNameWarning);
+
+    formLayout->addRow(QString(), warningRow);
+
+    m_versionCodeLineEdit = new QLineEdit(packageGroupBox);
+    formLayout->addRow(tr("Version code:"), m_versionCodeLineEdit);
+
+    m_versionNameLinedit = new QLineEdit(packageGroupBox);
+    formLayout->addRow(tr("Version name:"), m_versionNameLinedit);
+
+    m_androidMinSdkVersion = new QComboBox(packageGroupBox);
+    m_androidMinSdkVersion->setToolTip(
+                tr("Sets the minimum required version on which this application can be run."));
+    m_androidMinSdkVersion->addItem(tr("Not set"), 0);
+
+    formLayout->addRow(tr("Minimum required SDK:"), m_androidMinSdkVersion);
+
+    m_androidTargetSdkVersion = new QComboBox(packageGroupBox);
+    m_androidTargetSdkVersion->setToolTip(
+              tr("Sets the target SDK. Set this to the highest tested version. "
+                 "This disables compatibility behavior of the system for your application."));
+    m_androidTargetSdkVersion->addItem(tr("Not set"), 0);
+
+    formLayout->addRow(tr("Target SDK:"), m_androidTargetSdkVersion);
+
+    packageGroupBox->setLayout(formLayout);
+
+    updateSdkVersions();
+
+    connect(m_packageNameLineEdit, &QLineEdit::textEdited,
+            this, &AndroidManifestEditorWidget::setPackageName);
+    connect(m_versionCodeLineEdit, &QLineEdit::textEdited,
+            this, [this]() { setDirty(); });
+    connect(m_versionNameLinedit, &QLineEdit::textEdited,
+            this, [this]() { setDirty(); });
+    connect(m_androidMinSdkVersion,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, [this]() { setDirty(); });
+    connect(m_androidTargetSdkVersion,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, [this]() { setDirty(); });
+
+    return packageGroupBox;
+}
+
+QGroupBox *Android::Internal::AndroidManifestEditorWidget::createApplicationGroupBox(QWidget *parent)
+{
+    auto applicationGroupBox = new QGroupBox(parent);
+    applicationGroupBox->setTitle(tr("Application"));
+    auto formLayout = new QFormLayout();
+
+    m_appNameLineEdit = new QLineEdit(applicationGroupBox);
+    formLayout->addRow(tr("Application name:"), m_appNameLineEdit);
+
+    m_activityNameLineEdit = new QLineEdit(applicationGroupBox);
+    formLayout->addRow(tr("Activity name:"), m_activityNameLineEdit);
+
+    m_targetLineEdit = new QComboBox(applicationGroupBox);
+    m_targetLineEdit->setEditable(true);
+    m_targetLineEdit->setDuplicatesEnabled(true);
+    m_targetLineEdit->installEventFilter(this);
+    formLayout->addRow(tr("Run:"), m_targetLineEdit);
+
+    m_styleExtractMethod = new QComboBox(applicationGroupBox);
+    formLayout->addRow(tr("Style extraction:"), m_styleExtractMethod);
+    const QList<QStringList> styleMethodsMap = {
+        {"default",
+         "In most cases this will be the same as \"full\", but it can also be something else "
+         "if needed, e.g. for compatibility reasons."},
+        {"full", "Useful for Qt Widgets & Qt Quick Controls 1 apps."},
+        {"minimal", "Useful for Qt Quick Controls 2 apps, it is much faster than \"full\"."},
+        {"none", "Useful for apps that don't use Qt Widgets, Qt Quick Controls 1 or Qt Quick Controls 2."}};
+    for (int i = 0; i <styleMethodsMap.size(); ++i) {
+        m_styleExtractMethod->addItem(styleMethodsMap.at(i).first());
+        m_styleExtractMethod->setItemData(i, styleMethodsMap.at(i).at(1), Qt::ToolTipRole);
+    }
+    applicationGroupBox->setLayout(formLayout);
+
+    connect(m_appNameLineEdit, &QLineEdit::textEdited,
+            this, [this]() { setDirty(); });
+    connect(m_activityNameLineEdit, &QLineEdit::textEdited,
+            this, [this]() { setDirty(); });
+    connect(m_targetLineEdit, &QComboBox::currentTextChanged,
+            this, [this]() { setDirty(); });
+    connect(m_styleExtractMethod,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, [this]() { setDirty(); });
+
+    return applicationGroupBox;
+}
+
+QGroupBox *AndroidManifestEditorWidget::createAdvancedGroupBox(QWidget *parent)
+{
+    auto otherGroupBox = new QGroupBox(parent);
+    otherGroupBox->setTitle(tr("Advanced"));
+    m_advanvedTabWidget = new QTabWidget(otherGroupBox);
+    auto formLayout = new QFormLayout();
+
+    m_iconButtons = new AndroidManifestEditorIconContainerWidget(otherGroupBox, m_textEditorWidget);
+    m_advanvedTabWidget->addTab(m_iconButtons, tr("Application icon"));
+
+    m_services = new AndroidServiceWidget(otherGroupBox);
+    m_advanvedTabWidget->addTab(m_services, tr("Android services"));
+
+    m_splashButtons = new SplashIconContainerWidget(otherGroupBox, m_textEditorWidget);
+    m_advanvedTabWidget->addTab(m_splashButtons, tr("Splash screen"));
+
+    connect(m_services, &AndroidServiceWidget::servicesModified, this, [this]() { setDirty(); });
+    connect(m_services, &AndroidServiceWidget::servicesModified,
+            this, &AndroidManifestEditorWidget::clearInvalidServiceInfo);
+    connect(m_services, &AndroidServiceWidget::servicesInvalid,
+            this, &AndroidManifestEditorWidget::setInvalidServiceInfo);
+    connect(m_splashButtons, &SplashIconContainerWidget::splashScreensModified,
+            this, [this]() { setDirty(); });
+
+    formLayout->addRow(m_advanvedTabWidget);
+    otherGroupBox->setLayout(formLayout);
+
+    return otherGroupBox;
+}
+
 void AndroidManifestEditorWidget::initializePage()
 {
-    QWidget *mainWidget = new QWidget; // different name
+    QWidget *mainWidget = new QWidget(); // different name
+    auto topLayout = new QGridLayout(mainWidget);
 
-    auto topLayout = new QVBoxLayout(mainWidget);
-
-    auto packageGroupBox = new QGroupBox(mainWidget);
-    topLayout->addWidget(packageGroupBox);
-
-    auto setDirtyFunc = [this] { setDirty(); };
-    packageGroupBox->setTitle(tr("Package"));
-    {
-        auto formLayout = new QFormLayout();
-
-        m_packageNameLineEdit = new QLineEdit(packageGroupBox);
-        m_packageNameLineEdit->setToolTip(tr(
-                    "<p align=\"justify\">Please choose a valid package name "
-                    "for your application (for example, \"org.example.myapplication\").</p>"
-                    "<p align=\"justify\">Packages are usually defined using a hierarchical naming pattern, "
-                    "with levels in the hierarchy separated by periods (.) (pronounced \"dot\").</p>"
-                    "<p align=\"justify\">In general, a package name begins with the top level domain name"
-                    " of the organization and then the organization's domain and then any subdomains listed"
-                    " in reverse order. The organization can then choose a specific name for their package."
-                    " Package names should be all lowercase characters whenever possible.</p>"
-                    "<p align=\"justify\">Complete conventions for disambiguating package names and rules for"
-                    " naming packages when the Internet domain name cannot be directly used as a package name"
-                    " are described in section 7.7 of the Java Language Specification.</p>"));
-        formLayout->addRow(tr("Package name:"), m_packageNameLineEdit);
-
-        m_packageNameWarning = new QLabel;
-        m_packageNameWarning->setText(tr("The package name is not valid."));
-        m_packageNameWarning->setVisible(false);
-
-        m_packageNameWarningIcon = new QLabel;
-        m_packageNameWarningIcon->setPixmap(Utils::Icons::WARNING.pixmap());
-        m_packageNameWarningIcon->setVisible(false);
-        m_packageNameWarningIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
-        auto warningRow = new QHBoxLayout;
-        warningRow->setContentsMargins(0, 0, 0, 0);
-        warningRow->addWidget(m_packageNameWarningIcon);
-        warningRow->addWidget(m_packageNameWarning);
-
-        formLayout->addRow(QString(), warningRow);
-
-        m_versionCodeLineEdit = new QLineEdit(packageGroupBox);
-        formLayout->addRow(tr("Version code:"), m_versionCodeLineEdit);
-
-        m_versionNameLinedit = new QLineEdit(packageGroupBox);
-        formLayout->addRow(tr("Version name:"), m_versionNameLinedit);
-
-        m_androidMinSdkVersion = new QComboBox(packageGroupBox);
-        m_androidMinSdkVersion->setToolTip(
-                    tr("Sets the minimum required version on which this application can be run."));
-        m_androidMinSdkVersion->addItem(tr("Not set"), 0);
-
-        formLayout->addRow(tr("Minimum required SDK:"), m_androidMinSdkVersion);
-
-        m_androidTargetSdkVersion = new QComboBox(packageGroupBox);
-        m_androidTargetSdkVersion->setToolTip(
-                  tr("Sets the target SDK. Set this to the highest tested version. "
-                     "This disables compatibility behavior of the system for your application."));
-        m_androidTargetSdkVersion->addItem(tr("Not set"), 0);
-
-        formLayout->addRow(tr("Target SDK:"), m_androidTargetSdkVersion);
-
-        packageGroupBox->setLayout(formLayout);
-
-        updateSdkVersions();
-
-        connect(m_packageNameLineEdit, &QLineEdit::textEdited,
-                this, &AndroidManifestEditorWidget::setPackageName);
-        connect(m_versionCodeLineEdit, &QLineEdit::textEdited,
-                 this, setDirtyFunc);
-        connect(m_versionNameLinedit, &QLineEdit::textEdited,
-                this, setDirtyFunc);
-        connect(m_androidMinSdkVersion,
-                QOverload<int>::of(&QComboBox::currentIndexChanged),
-                this, setDirtyFunc);
-        connect(m_androidTargetSdkVersion,
-                QOverload<int>::of(&QComboBox::currentIndexChanged),
-                this, setDirtyFunc);
-
-    }
-
-    // Application
-    auto applicationGroupBox = new QGroupBox(mainWidget);
-    topLayout->addWidget(applicationGroupBox);
-
-    applicationGroupBox->setTitle(tr("Application"));
-    {
-        auto formLayout = new QFormLayout();
-
-        m_appNameLineEdit = new QLineEdit(applicationGroupBox);
-        formLayout->addRow(tr("Application name:"), m_appNameLineEdit);
-
-        m_activityNameLineEdit = new QLineEdit(applicationGroupBox);
-        formLayout->addRow(tr("Activity name:"), m_activityNameLineEdit);
-
-        m_targetLineEdit = new QComboBox(applicationGroupBox);
-        m_targetLineEdit->setEditable(true);
-        m_targetLineEdit->setDuplicatesEnabled(true);
-        m_targetLineEdit->installEventFilter(this);
-        formLayout->addRow(tr("Run:"), m_targetLineEdit);
-
-        m_styleExtractMethod = new QComboBox(applicationGroupBox);
-        formLayout->addRow(tr("Style extraction:"), m_styleExtractMethod);
-        const QList<QStringList> styleMethodsMap = {
-            {"default", "In most cases this will be the same as \"full\", but it can also be something else if needed, e.g. for compatibility reasons."},
-            {"full", "Useful for Qt Widgets & Qt Quick Controls 1 apps."},
-            {"minimal", "Useful for Qt Quick Controls 2 apps, it is much faster than \"full\"."},
-            {"none", "Useful for apps that don't use Qt Widgets, Qt Quick Controls 1 or Qt Quick Controls 2."}};
-        for (int i = 0; i <styleMethodsMap.size(); ++i) {
-            m_styleExtractMethod->addItem(styleMethodsMap.at(i).first());
-            m_styleExtractMethod->setItemData(i, styleMethodsMap.at(i).at(1), Qt::ToolTipRole);
-        }
-
-        m_iconButtons = new AndroidManifestEditorIconContainerWidget(applicationGroupBox, m_textEditorWidget);
-        formLayout->addRow(tr("Application icon:"), new QLabel());
-        formLayout->addRow(QString(), m_iconButtons);
-
-        m_splashButtons = new SplashIconContainerWidget(applicationGroupBox, m_textEditorWidget);
-        formLayout->addRow(tr("Splash screen:"), new QLabel());
-        formLayout->addRow(QString(), m_splashButtons);
-
-        m_services = new AndroidServiceWidget(this);
-        formLayout->addRow(tr("Android services:"), m_services);
-
-        applicationGroupBox->setLayout(formLayout);
-
-        connect(m_appNameLineEdit, &QLineEdit::textEdited,
-                this, setDirtyFunc);
-        connect(m_activityNameLineEdit, &QLineEdit::textEdited,
-                this, setDirtyFunc);
-        connect(m_targetLineEdit, &QComboBox::currentTextChanged,
-                this, setDirtyFunc);
-        connect(m_styleExtractMethod,
-                QOverload<int>::of(&QComboBox::currentIndexChanged),
-                this, setDirtyFunc);
-        connect(m_services, &AndroidServiceWidget::servicesModified,
-                this, setDirtyFunc);
-        connect(m_splashButtons, &SplashIconContainerWidget::splashScreensModified,
-                this, setDirtyFunc);
-        connect(m_services, &AndroidServiceWidget::servicesModified,
-                this, &AndroidManifestEditorWidget::clearInvalidServiceInfo);
-        connect(m_services, &AndroidServiceWidget::servicesInvalid,
-                this, &AndroidManifestEditorWidget::setInvalidServiceInfo);
-    }
-
-
-    // Permissions
-    auto permissionsGroupBox = new QGroupBox(mainWidget);
-    topLayout->addWidget(permissionsGroupBox);
-
-    permissionsGroupBox->setTitle(tr("Permissions"));
-    {
-        auto layout = new QGridLayout(permissionsGroupBox);
-
-        m_defaultPermissonsCheckBox = new QCheckBox(this);
-        m_defaultPermissonsCheckBox->setText(tr("Include default permissions for Qt modules."));
-        layout->addWidget(m_defaultPermissonsCheckBox, 0, 0);
-
-        m_defaultFeaturesCheckBox = new QCheckBox(this);
-        m_defaultFeaturesCheckBox->setText(tr("Include default features for Qt modules."));
-        layout->addWidget(m_defaultFeaturesCheckBox, 1, 0);
-
-        m_permissionsComboBox = new QComboBox(permissionsGroupBox);
-        m_permissionsComboBox->insertItems(0, QStringList()
-         << QLatin1String("android.permission.ACCESS_CHECKIN_PROPERTIES")
-         << QLatin1String("android.permission.ACCESS_COARSE_LOCATION")
-         << QLatin1String("android.permission.ACCESS_FINE_LOCATION")
-         << QLatin1String("android.permission.ACCESS_LOCATION_EXTRA_COMMANDS")
-         << QLatin1String("android.permission.ACCESS_MOCK_LOCATION")
-         << QLatin1String("android.permission.ACCESS_NETWORK_STATE")
-         << QLatin1String("android.permission.ACCESS_SURFACE_FLINGER")
-         << QLatin1String("android.permission.ACCESS_WIFI_STATE")
-         << QLatin1String("android.permission.ACCOUNT_MANAGER")
-         << QLatin1String("com.android.voicemail.permission.ADD_VOICEMAIL")
-         << QLatin1String("android.permission.AUTHENTICATE_ACCOUNTS")
-         << QLatin1String("android.permission.BATTERY_STATS")
-         << QLatin1String("android.permission.BIND_ACCESSIBILITY_SERVICE")
-         << QLatin1String("android.permission.BIND_APPWIDGET")
-         << QLatin1String("android.permission.BIND_DEVICE_ADMIN")
-         << QLatin1String("android.permission.BIND_INPUT_METHOD")
-         << QLatin1String("android.permission.BIND_REMOTEVIEWS")
-         << QLatin1String("android.permission.BIND_TEXT_SERVICE")
-         << QLatin1String("android.permission.BIND_VPN_SERVICE")
-         << QLatin1String("android.permission.BIND_WALLPAPER")
-         << QLatin1String("android.permission.BLUETOOTH")
-         << QLatin1String("android.permission.BLUETOOTH_ADMIN")
-         << QLatin1String("android.permission.BRICK")
-         << QLatin1String("android.permission.BROADCAST_PACKAGE_REMOVED")
-         << QLatin1String("android.permission.BROADCAST_SMS")
-         << QLatin1String("android.permission.BROADCAST_STICKY")
-         << QLatin1String("android.permission.BROADCAST_WAP_PUSH")
-         << QLatin1String("android.permission.CALL_PHONE")
-         << QLatin1String("android.permission.CALL_PRIVILEGED")
-         << QLatin1String("android.permission.CAMERA")
-         << QLatin1String("android.permission.CHANGE_COMPONENT_ENABLED_STATE")
-         << QLatin1String("android.permission.CHANGE_CONFIGURATION")
-         << QLatin1String("android.permission.CHANGE_NETWORK_STATE")
-         << QLatin1String("android.permission.CHANGE_WIFI_MULTICAST_STATE")
-         << QLatin1String("android.permission.CHANGE_WIFI_STATE")
-         << QLatin1String("android.permission.CLEAR_APP_CACHE")
-         << QLatin1String("android.permission.CLEAR_APP_USER_DATA")
-         << QLatin1String("android.permission.CONTROL_LOCATION_UPDATES")
-         << QLatin1String("android.permission.DELETE_CACHE_FILES")
-         << QLatin1String("android.permission.DELETE_PACKAGES")
-         << QLatin1String("android.permission.DEVICE_POWER")
-         << QLatin1String("android.permission.DIAGNOSTIC")
-         << QLatin1String("android.permission.DISABLE_KEYGUARD")
-         << QLatin1String("android.permission.DUMP")
-         << QLatin1String("android.permission.EXPAND_STATUS_BAR")
-         << QLatin1String("android.permission.FACTORY_TEST")
-         << QLatin1String("android.permission.FLASHLIGHT")
-         << QLatin1String("android.permission.FORCE_BACK")
-         << QLatin1String("android.permission.GET_ACCOUNTS")
-         << QLatin1String("android.permission.GET_PACKAGE_SIZE")
-         << QLatin1String("android.permission.GET_TASKS")
-         << QLatin1String("android.permission.GLOBAL_SEARCH")
-         << QLatin1String("android.permission.HARDWARE_TEST")
-         << QLatin1String("android.permission.INJECT_EVENTS")
-         << QLatin1String("android.permission.INSTALL_LOCATION_PROVIDER")
-         << QLatin1String("android.permission.INSTALL_PACKAGES")
-         << QLatin1String("android.permission.INTERNAL_SYSTEM_WINDOW")
-         << QLatin1String("android.permission.INTERNET")
-         << QLatin1String("android.permission.KILL_BACKGROUND_PROCESSES")
-         << QLatin1String("android.permission.MANAGE_ACCOUNTS")
-         << QLatin1String("android.permission.MANAGE_APP_TOKENS")
-         << QLatin1String("android.permission.MASTER_CLEAR")
-         << QLatin1String("android.permission.MODIFY_AUDIO_SETTINGS")
-         << QLatin1String("android.permission.MODIFY_PHONE_STATE")
-         << QLatin1String("android.permission.MOUNT_FORMAT_FILESYSTEMS")
-         << QLatin1String("android.permission.MOUNT_UNMOUNT_FILESYSTEMS")
-         << QLatin1String("android.permission.NFC")
-         << QLatin1String("android.permission.PERSISTENT_ACTIVITY")
-         << QLatin1String("android.permission.PROCESS_OUTGOING_CALLS")
-         << QLatin1String("android.permission.READ_CALENDAR")
-         << QLatin1String("android.permission.READ_CALL_LOG")
-         << QLatin1String("android.permission.READ_CONTACTS")
-         << QLatin1String("android.permission.READ_EXTERNAL_STORAGE")
-         << QLatin1String("android.permission.READ_FRAME_BUFFER")
-         << QLatin1String("com.android.browser.permission.READ_HISTORY_BOOKMARKS")
-         << QLatin1String("android.permission.READ_INPUT_STATE")
-         << QLatin1String("android.permission.READ_LOGS")
-         << QLatin1String("android.permission.READ_PHONE_STATE")
-         << QLatin1String("android.permission.READ_PROFILE")
-         << QLatin1String("android.permission.READ_SMS")
-         << QLatin1String("android.permission.READ_SOCIAL_STREAM")
-         << QLatin1String("android.permission.READ_SYNC_SETTINGS")
-         << QLatin1String("android.permission.READ_SYNC_STATS")
-         << QLatin1String("android.permission.READ_USER_DICTIONARY")
-         << QLatin1String("android.permission.REBOOT")
-         << QLatin1String("android.permission.RECEIVE_BOOT_COMPLETED")
-         << QLatin1String("android.permission.RECEIVE_MMS")
-         << QLatin1String("android.permission.RECEIVE_SMS")
-         << QLatin1String("android.permission.RECEIVE_WAP_PUSH")
-         << QLatin1String("android.permission.RECORD_AUDIO")
-         << QLatin1String("android.permission.REORDER_TASKS")
-         << QLatin1String("android.permission.RESTART_PACKAGES")
-         << QLatin1String("android.permission.SEND_SMS")
-         << QLatin1String("android.permission.SET_ACTIVITY_WATCHER")
-         << QLatin1String("com.android.alarm.permission.SET_ALARM")
-         << QLatin1String("android.permission.SET_ALWAYS_FINISH")
-         << QLatin1String("android.permission.SET_ANIMATION_SCALE")
-         << QLatin1String("android.permission.SET_DEBUG_APP")
-         << QLatin1String("android.permission.SET_ORIENTATION")
-         << QLatin1String("android.permission.SET_POINTER_SPEED")
-         << QLatin1String("android.permission.SET_PREFERRED_APPLICATIONS")
-         << QLatin1String("android.permission.SET_PROCESS_LIMIT")
-         << QLatin1String("android.permission.SET_TIME")
-         << QLatin1String("android.permission.SET_TIME_ZONE")
-         << QLatin1String("android.permission.SET_WALLPAPER")
-         << QLatin1String("android.permission.SET_WALLPAPER_HINTS")
-         << QLatin1String("android.permission.SIGNAL_PERSISTENT_PROCESSES")
-         << QLatin1String("android.permission.STATUS_BAR")
-         << QLatin1String("android.permission.SUBSCRIBED_FEEDS_READ")
-         << QLatin1String("android.permission.SUBSCRIBED_FEEDS_WRITE")
-         << QLatin1String("android.permission.SYSTEM_ALERT_WINDOW")
-         << QLatin1String("android.permission.UPDATE_DEVICE_STATS")
-         << QLatin1String("android.permission.USE_CREDENTIALS")
-         << QLatin1String("android.permission.USE_SIP")
-         << QLatin1String("android.permission.VIBRATE")
-         << QLatin1String("android.permission.WAKE_LOCK")
-         << QLatin1String("android.permission.WRITE_APN_SETTINGS")
-         << QLatin1String("android.permission.WRITE_CALENDAR")
-         << QLatin1String("android.permission.WRITE_CALL_LOG")
-         << QLatin1String("android.permission.WRITE_CONTACTS")
-         << QLatin1String("android.permission.WRITE_EXTERNAL_STORAGE")
-         << QLatin1String("android.permission.WRITE_GSERVICES")
-         << QLatin1String("com.android.browser.permission.WRITE_HISTORY_BOOKMARKS")
-         << QLatin1String("android.permission.WRITE_PROFILE")
-         << QLatin1String("android.permission.WRITE_SECURE_SETTINGS")
-         << QLatin1String("android.permission.WRITE_SETTINGS")
-         << QLatin1String("android.permission.WRITE_SMS")
-         << QLatin1String("android.permission.WRITE_SOCIAL_STREAM")
-         << QLatin1String("android.permission.WRITE_SYNC_SETTINGS")
-         << QLatin1String("android.permission.WRITE_USER_DICTIONARY")
-        );
-        m_permissionsComboBox->setEditable(true);
-        layout->addWidget(m_permissionsComboBox, 2, 0);
-
-        m_addPermissionButton = new QPushButton(permissionsGroupBox);
-        m_addPermissionButton->setText(tr("Add"));
-        layout->addWidget(m_addPermissionButton, 2, 1);
-
-        m_permissionsModel = new PermissionsModel(this);
-
-        m_permissionsListView = new QListView(permissionsGroupBox);
-        m_permissionsListView->setModel(m_permissionsModel);
-        layout->addWidget(m_permissionsListView, 3, 0, 3, 1);
-
-        m_removePermissionButton = new QPushButton(permissionsGroupBox);
-        m_removePermissionButton->setText(tr("Remove"));
-        layout->addWidget(m_removePermissionButton, 3, 1);
-
-        permissionsGroupBox->setLayout(layout);
-
-        connect(m_defaultPermissonsCheckBox, &QCheckBox::stateChanged,
-                this, &AndroidManifestEditorWidget::defaultPermissionOrFeatureCheckBoxClicked);
-        connect(m_defaultFeaturesCheckBox, &QCheckBox::stateChanged,
-                this, &AndroidManifestEditorWidget::defaultPermissionOrFeatureCheckBoxClicked);
-
-        connect(m_addPermissionButton, &QAbstractButton::clicked,
-                this, &AndroidManifestEditorWidget::addPermission);
-        connect(m_removePermissionButton, &QAbstractButton::clicked,
-                this, &AndroidManifestEditorWidget::removePermission);
-        connect(m_permissionsComboBox, &QComboBox::currentTextChanged,
-                this, &AndroidManifestEditorWidget::updateAddRemovePermissionButtons);
-    }
-
-    topLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::MinimumExpanding));
+    topLayout->addWidget(createPackageFormLayout(mainWidget), 0, 0);
+    topLayout->addWidget(createApplicationGroupBox(mainWidget), 0, 1);
+    topLayout->addWidget(createPermissionsGroupBox(mainWidget), 1, 0, 1, 2);
+    topLayout->addWidget(createAdvancedGroupBox(mainWidget), 2, 0, 1, 2);
+    topLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::MinimumExpanding), 3, 0);
 
     auto mainWidgetScrollArea = new QScrollArea;
     mainWidgetScrollArea->setWidgetResizable(true);
@@ -575,6 +587,7 @@ bool AndroidManifestEditorWidget::setActivePage(EditorPage page)
         if (!servicesValid(m_services->services())) {
             QMessageBox::critical(nullptr, tr("Service Definition Invalid"),
                                   tr("Cannot switch to source when there are invalid services."));
+            m_advanvedTabWidget->setCurrentIndex(1);
             return false;
         }
         syncToEditor();
