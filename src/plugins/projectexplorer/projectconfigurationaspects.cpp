@@ -140,6 +140,12 @@ public:
     bool m_enabled = true;
 };
 
+class BaseStringListAspectPrivate
+{
+public:
+    QStringList m_value;
+};
+
 } // Internal
 
 /*!
@@ -783,6 +789,43 @@ TriState TriState::fromVariant(const QVariant &variant)
     int v = variant.toInt();
     QTC_ASSERT(v == EnabledValue || v == DisabledValue || v == DefaultValue, v = DefaultValue);
     return TriState(Value(v));
+}
+
+
+/*!
+    \class ProjectExplorer::BaseStringListAspect
+*/
+
+BaseStringListAspect::BaseStringListAspect()
+    : d(new Internal::BaseStringListAspectPrivate)
+{}
+
+BaseStringListAspect::~BaseStringListAspect() = default;
+
+void BaseStringListAspect::addToLayout(LayoutBuilder &builder)
+{
+    Q_UNUSED(builder)
+    // TODO - when needed.
+}
+
+void BaseStringListAspect::fromMap(const QVariantMap &map)
+{
+    d->m_value = map.value(settingsKey()).toStringList();
+}
+
+void BaseStringListAspect::toMap(QVariantMap &data) const
+{
+    data.insert(settingsKey(), d->m_value);
+}
+
+QStringList BaseStringListAspect::value() const
+{
+    return d->m_value;
+}
+
+void BaseStringListAspect::setValue(const QStringList &value)
+{
+    d->m_value = value;
 }
 
 } // namespace ProjectExplorer

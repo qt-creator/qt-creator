@@ -42,9 +42,10 @@ namespace ProjectExplorer {
 
 namespace Internal {
 class BaseBoolAspectPrivate;
-class BaseStringAspectPrivate;
 class BaseIntegerAspectPrivate;
 class BaseSelectionAspectPrivate;
+class BaseStringAspectPrivate;
+class BaseStringListAspectPrivate;
 } // Internal
 
 class PROJECTEXPLORER_EXPORT BaseBoolAspect : public ProjectConfigurationAspect
@@ -229,6 +230,26 @@ public:
 
     TriState setting() const;
     void setSetting(TriState setting);
+};
+
+class PROJECTEXPLORER_EXPORT BaseStringListAspect : public ProjectConfigurationAspect
+{
+    Q_OBJECT
+
+public:
+    BaseStringListAspect();
+    ~BaseStringListAspect() override;
+
+    void addToLayout(LayoutBuilder &builder) override;
+
+    QStringList value() const;
+    void setValue(const QStringList &val);
+
+    void fromMap(const QVariantMap &map) override;
+    void toMap(QVariantMap &map) const override;
+
+private:
+    std::unique_ptr<Internal::BaseStringListAspectPrivate> d;
 };
 
 } // namespace ProjectExplorer
