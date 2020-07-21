@@ -60,6 +60,7 @@ public:
     BaseBoolAspect::LabelPlacement m_labelPlacement = BaseBoolAspect::LabelPlacement::AtCheckBox;
     bool m_value = false;
     bool m_defaultValue = false;
+    bool m_enabled = true;
     QString m_label;
     QString m_tooltip;
     QPointer<QCheckBox> m_checkBox; // Owned by configuration widget
@@ -130,10 +131,12 @@ public:
     QVariant m_maximumValue;
     int m_displayIntegerBase = 10;
     qint64 m_displayScaleFactor = 1;
-    QString m_label;
+    QString m_labelText;
     QString m_prefix;
     QString m_suffix;
+    QPointer<QLabel> m_label;
     QPointer<QSpinBox> m_spinBox; // Owned by configuration widget
+    bool m_enabled = true;
 };
 
 } // Internal
@@ -481,6 +484,7 @@ void BaseBoolAspect::addToLayout(LayoutBuilder &builder)
     }
     d->m_checkBox->setChecked(d->m_value);
     d->m_checkBox->setToolTip(d->m_tooltip);
+    d->m_checkBox->setEnabled(d->m_enabled);
     builder.addItem(d->m_checkBox.data());
     connect(d->m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
         d->m_value = d->m_checkBox->isChecked();
@@ -530,6 +534,13 @@ void BaseBoolAspect::setLabel(const QString &label, LabelPlacement labelPlacemen
 void BaseBoolAspect::setToolTip(const QString &tooltip)
 {
     d->m_tooltip = tooltip;
+}
+
+void BaseBoolAspect::setEnabled(bool enabled)
+{
+    d->m_enabled = enabled;
+    if (d->m_checkBox)
+        d->m_checkBox->setEnabled(enabled);
 }
 
 /*!
@@ -648,16 +659,22 @@ BaseIntegerAspect::~BaseIntegerAspect() = default;
 
 void BaseIntegerAspect::addToLayout(LayoutBuilder &builder)
 {
+    QTC_CHECK(!d->m_label);
+    d->m_label = new QLabel(d->m_labelText);
+    d->m_label->setEnabled(d->m_enabled);
+
     QTC_CHECK(!d->m_spinBox);
     d->m_spinBox = new QSpinBox;
     d->m_spinBox->setValue(int(d->m_value / d->m_displayScaleFactor));
     d->m_spinBox->setDisplayIntegerBase(d->m_displayIntegerBase);
     d->m_spinBox->setPrefix(d->m_prefix);
     d->m_spinBox->setSuffix(d->m_suffix);
+    d->m_spinBox->setEnabled(d->m_enabled);
     if (d->m_maximumValue.isValid() && d->m_maximumValue.isValid())
         d->m_spinBox->setRange(int(d->m_minimumValue.toLongLong() / d->m_displayScaleFactor),
                                int(d->m_maximumValue.toLongLong() / d->m_displayScaleFactor));
-    builder.addItems(d->m_label, d->m_spinBox.data());
+
+    builder.addItems(d->m_label.data(), d->m_spinBox.data());
     connect(d->m_spinBox.data(), QOverload<int>::of(&QSpinBox::valueChanged),
             this, [this](int value) {
         d->m_value = value * d->m_displayScaleFactor;
@@ -695,7 +712,9 @@ void BaseIntegerAspect::setRange(qint64 min, qint64 max)
 
 void BaseIntegerAspect::setLabel(const QString &label)
 {
-    d->m_label = label;
+    d->m_labelText = label;
+    if (d->m_label)
+        d->m_label->setText(label);
 }
 
 void BaseIntegerAspect::setPrefix(const QString &prefix)
@@ -716,6 +735,15 @@ void BaseIntegerAspect::setDisplayIntegerBase(int base)
 void BaseIntegerAspect::setDisplayScaleFactor(qint64 factor)
 {
     d->m_displayScaleFactor = factor;
+}
+
+void BaseIntegerAspect::setEnabled(bool enabled)
+{
+    d->m_enabled = enabled;
+    if (d->m_label)
+        d->m_label->setEnabled(enabled);
+    if (d->m_spinBox)
+        d->m_spinBox->setEnabled(enabled);
 }
 
 BaseTriStateAspect::BaseTriStateAspect()

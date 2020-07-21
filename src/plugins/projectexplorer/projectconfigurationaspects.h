@@ -66,6 +66,7 @@ public:
     enum class LabelPlacement { AtCheckBox, InExtraLabel };
     void setLabel(const QString &label, LabelPlacement labelPlacement);
     void setToolTip(const QString &tooltip);
+    void setEnabled(bool enabled);
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
@@ -188,6 +189,7 @@ public:
     void setSuffix(const QString &suffix);
     void setDisplayIntegerBase(int base);
     void setDisplayScaleFactor(qint64 factor);
+    void setEnabled(bool enabled);
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
