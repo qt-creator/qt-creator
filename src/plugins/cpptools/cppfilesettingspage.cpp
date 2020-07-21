@@ -308,7 +308,7 @@ void CppFileSettingsWidget::setLicenseTemplatePath(const QString &lp)
 static QStringList trimmedPaths(const QString &paths)
 {
     QStringList res;
-    foreach (const QString &path, paths.split(QLatin1Char(','), Utils::SkipEmptyParts))
+    foreach (const QString &path, paths.split(QLatin1Char(','), Qt::SkipEmptyParts))
         res << path.trimmed();
     return res;
 }

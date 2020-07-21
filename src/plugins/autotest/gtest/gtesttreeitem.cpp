@@ -93,10 +93,10 @@ static bool matchesFilter(const QString &filter, const QString &fullTestName)
     QStringList negative;
     int startOfNegative = filter.indexOf('-');
     if (startOfNegative == -1) {
-        positive.append(filter.split(':', Utils::SkipEmptyParts));
+        positive.append(filter.split(':', Qt::SkipEmptyParts));
     } else {
-        positive.append(filter.left(startOfNegative).split(':', Utils::SkipEmptyParts));
-        negative.append(filter.mid(startOfNegative + 1).split(':', Utils::SkipEmptyParts));
+        positive.append(filter.left(startOfNegative).split(':', Qt::SkipEmptyParts));
+        negative.append(filter.mid(startOfNegative + 1).split(':', Qt::SkipEmptyParts));
     }
 
     QString testName = fullTestName;

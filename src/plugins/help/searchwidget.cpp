@@ -263,7 +263,7 @@ void SearchWidget::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
 
 QStringList SearchWidget::currentSearchTerms() const
 {
-    return searchEngine->searchInput().split(QRegularExpression("\\W+"), Utils::SkipEmptyParts);
+    return searchEngine->searchInput().split(QRegularExpression("\\W+"), Qt::SkipEmptyParts);
 }
 
 // #pragma mark -- SearchSideBarItem

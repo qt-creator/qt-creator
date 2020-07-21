@@ -166,7 +166,7 @@ QStringList PathListEditor::pathList() const
     if (text.isEmpty())
         return QStringList();
     // trim each line
-    QStringList rc = text.split('\n', Utils::SkipEmptyParts);
+    QStringList rc = text.split('\n', Qt::SkipEmptyParts);
     const QStringList::iterator end = rc.end();
     for (QStringList::iterator it = rc.begin(); it != end; ++it)
         *it = it->trimmed();
@@ -184,7 +184,7 @@ void PathListEditor::setPathList(const QString &pathString)
         clear();
     } else {
         setPathList(pathString.split(HostOsInfo::pathListSeparator(),
-                                     Utils::SkipEmptyParts));
+                                     Qt::SkipEmptyParts));
     }
 }
 

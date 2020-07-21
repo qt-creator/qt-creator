@@ -237,7 +237,7 @@ QStringList splitCommandLine(QString commandLine, QSet<QString> &flagsCache)
             }
         } else { // If 's' is outside quotes ...
             for (const QString &flag :
-                 part.split(QRegularExpression("\\s+"), Utils::SkipEmptyParts)) {
+                 part.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts)) {
                 auto flagIt = flagsCache.insert(flag);
                 result.append(*flagIt);
             }

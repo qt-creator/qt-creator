@@ -108,7 +108,7 @@ void RemoteLinuxEnvironmentReader::remoteProcessFinished()
         QString remoteOutput = QString::fromUtf8(m_deviceProcess->readAllStandardOutput());
         if (!remoteOutput.isEmpty()) {
             m_env = Utils::Environment(remoteOutput.split(QLatin1Char('\n'),
-                Utils::SkipEmptyParts), Utils::OsTypeLinux);
+                Qt::SkipEmptyParts), Utils::OsTypeLinux);
         }
     }
     setFinished();

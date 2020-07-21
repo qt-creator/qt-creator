@@ -382,7 +382,7 @@ void MimeTypeSettingsPrivate::handlePatternEdited()
     const Utils::MimeType mt = m_model->m_mimeTypes.at(index);
     ensurePendingMimeType(mt);
     m_pendingModifiedMimeTypes[mt.name()].globPatterns
-            = m_ui.patternsLineEdit->text().split(kSemiColon, Utils::SkipEmptyParts);
+            = m_ui.patternsLineEdit->text().split(kSemiColon, Qt::SkipEmptyParts);
 }
 
 void MimeTypeSettingsPrivate::addMagicHeaderRow(const MagicData &data)
@@ -579,7 +579,7 @@ MimeTypeSettingsPrivate::UserMimeTypeHash MimeTypeSettingsPrivate::readUserModif
                 if (reader.name() == QLatin1String(mimeTypeTagC)) {
                     mt.name = atts.value(QLatin1String(mimeTypeAttributeC)).toString();
                     mt.globPatterns = atts.value(QLatin1String(patternAttributeC)).toString()
-                            .split(kSemiColon, Utils::SkipEmptyParts);
+                            .split(kSemiColon, Qt::SkipEmptyParts);
                 } else if (reader.name() == QLatin1String(matchTagC)) {
                     QByteArray value = atts.value(QLatin1String(matchValueAttributeC)).toUtf8();
                     QByteArray typeName = atts.value(QLatin1String(matchTypeAttributeC)).toUtf8();

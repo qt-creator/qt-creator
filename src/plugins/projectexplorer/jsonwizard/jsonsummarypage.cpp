@@ -210,7 +210,7 @@ void JsonSummaryPage::addToProject(const JsonWizard::GeneratorFiles &files)
             return;
         }
         const QStringList dependencies = m_wizard->stringValue("Dependencies")
-                .split(':', Utils::SkipEmptyParts);
+                .split(':', Qt::SkipEmptyParts);
         if (!dependencies.isEmpty())
             folder->addDependencies(dependencies);
     }

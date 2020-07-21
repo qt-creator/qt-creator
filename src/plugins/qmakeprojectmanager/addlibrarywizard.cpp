@@ -51,7 +51,7 @@ static QStringList qt_clean_filter_list(const QString &filter)
     QString f = filter;
     if (match.hasMatch())
         f = match.captured(2);
-    return f.split(QLatin1Char(' '), Utils::SkipEmptyParts);
+    return f.split(QLatin1Char(' '), Qt::SkipEmptyParts);
 }
 
 static bool validateLibraryPath(const Utils::FilePath &filePath,

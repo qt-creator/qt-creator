@@ -312,7 +312,7 @@ public:
                         }
 
                         Core::SearchResultItem item;
-                        item.path = scope.split(QLatin1String("::"), Utils::SkipEmptyParts);
+                        item.path = scope.split(QLatin1String("::"), Qt::SkipEmptyParts);
                         item.text = text;
                         item.icon = info->icon();
                         item.userData = QVariant::fromValue(info);

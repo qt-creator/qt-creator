@@ -194,7 +194,7 @@ void UrlLocatorFilter::restoreState(const QByteArray &state)
 
     QString value;
     in >> value;
-    m_remoteUrls = value.split('^', Utils::SkipEmptyParts);
+    m_remoteUrls = value.split('^', Qt::SkipEmptyParts);
 
     QString shortcut;
     in >> shortcut;

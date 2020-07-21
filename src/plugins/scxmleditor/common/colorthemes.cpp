@@ -153,9 +153,9 @@ void ColorThemes::setDocument(ScxmlEditor::PluginInterface::ScxmlDocument *doc)
     if (m_document) {
         PluginInterface::ScxmlTag *scxmlTag = m_document->scxmlRootTag();
         if (scxmlTag && scxmlTag->hasEditorInfo(Constants::C_SCXML_EDITORINFO_COLORS)) {
-            const QStringList colors = scxmlTag->editorInfo(Constants::C_SCXML_EDITORINFO_COLORS).split(";;", Utils::SkipEmptyParts);
+            const QStringList colors = scxmlTag->editorInfo(Constants::C_SCXML_EDITORINFO_COLORS).split(";;", Qt::SkipEmptyParts);
             for (const QString &color : colors) {
-                const QStringList colorInfo = color.split("_", Utils::SkipEmptyParts);
+                const QStringList colorInfo = color.split("_", Qt::SkipEmptyParts);
                 if (colorInfo.count() == 2)
                     documentColors[colorInfo[0]] = colorInfo[1];
             }

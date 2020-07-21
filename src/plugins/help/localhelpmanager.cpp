@@ -270,7 +270,7 @@ void LocalHelpManager::setScrollWheelZoomingEnabled(bool enabled)
 QStringList LocalHelpManager::lastShownPages()
 {
     const QVariant value = Core::ICore::settings()->value(kLastShownPagesKey, QVariant());
-    return value.toString().split(Constants::ListSeparator, Utils::SkipEmptyParts);
+    return value.toString().split(Constants::ListSeparator, Qt::SkipEmptyParts);
 }
 
 void LocalHelpManager::setLastShownPages(const QStringList &pages)
@@ -282,7 +282,7 @@ QList<float> LocalHelpManager::lastShownPagesZoom()
 {
     const QVariant value = Core::ICore::settings()->value(kLastShownPagesZoomKey, QVariant());
     const QStringList stringValues = value.toString().split(Constants::ListSeparator,
-                                                            Utils::SkipEmptyParts);
+                                                            Qt::SkipEmptyParts);
     return Utils::transform(stringValues, [](const QString &str) { return str.toFloat(); });
 }
 

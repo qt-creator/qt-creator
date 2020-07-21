@@ -103,7 +103,7 @@ CrashHandlerSetup::CrashHandlerSetup(const QString &appName,
         return;
     if (!QStringList{"1", "all", "yes"}.contains(value)) {
         const QString binaryName = QFileInfo(QCoreApplication::applicationFilePath()).fileName();
-        if (!value.split(",", Utils::SkipEmptyParts).contains(binaryName))
+        if (!value.split(",", Qt::SkipEmptyParts).contains(binaryName))
             return;
     }
 

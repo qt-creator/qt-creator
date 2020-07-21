@@ -294,11 +294,11 @@ void Parser::Private::parseHeader(QIODevice *device)
             continue;
         } else if (line.startsWith("positions: ")) {
             QString values = getValue(line, 11);
-            data->setPositions(values.split(' ', Utils::SkipEmptyParts));
+            data->setPositions(values.split(' ', Qt::SkipEmptyParts));
             addressValuesCount = data->positions().count();
         } else if (line.startsWith("events: ")) {
             QString values = getValue(line, 8);
-            data->setEvents(values.split(' ', Utils::SkipEmptyParts));
+            data->setEvents(values.split(' ', Qt::SkipEmptyParts));
             costValuesCount = data->events().count();
         } else if (line.startsWith("version: ")) {
             QString value = getValue(line, 9);
@@ -321,7 +321,7 @@ void Parser::Private::parseHeader(QIODevice *device)
         } else if (line.startsWith("summary: ")) {
             QString values = getValue(line, 9);
             uint i = 0;
-            foreach (const QStringRef &value, values.splitRef(' ', Utils::SkipEmptyParts))
+            foreach (const QStringRef &value, values.splitRef(' ', Qt::SkipEmptyParts))
                 data->setTotalCost(i++, value.toULongLong());
         } else if (!line.trimmed().isEmpty()) {
             // handle line and exit parseHeader

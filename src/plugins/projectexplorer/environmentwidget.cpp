@@ -83,7 +83,7 @@ public:
         m_view.setHeaderLabel(varName);
         m_view.setDragDropMode(QAbstractItemView::InternalMove);
         const QStringList pathList = paths.split(Utils::HostOsInfo::pathListSeparator(),
-                                                 Utils::SkipEmptyParts);
+                                                 Qt::SkipEmptyParts);
         for (const QString &path : pathList)
             addPath(path);
 
@@ -447,7 +447,7 @@ bool EnvironmentWidget::currentEntryIsPathList(const QModelIndex &current) const
     if (valueIndex.column() == 0)
         valueIndex = valueIndex.siblingAtColumn(1);
     const QStringList entries = d->m_model->data(valueIndex).toString()
-            .split(Utils::HostOsInfo::pathListSeparator(), Utils::SkipEmptyParts);
+            .split(Utils::HostOsInfo::pathListSeparator(), Qt::SkipEmptyParts);
     if (entries.length() < 2)
         return false;
     for (const QString &potentialDir : entries) {

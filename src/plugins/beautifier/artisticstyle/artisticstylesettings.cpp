@@ -205,7 +205,7 @@ void ArtisticStyleSettings::createDocumentationFile() const
     for (QString line : lines) {
         line = line.trimmed();
         if ((line.startsWith("--") && !line.startsWith("---")) || line.startsWith("OR ")) {
-            const QStringList rawKeys = line.split(" OR ", Utils::SkipEmptyParts);
+            const QStringList rawKeys = line.split(" OR ", Qt::SkipEmptyParts);
             for (QString k : rawKeys) {
                 k = k.trimmed();
                 k.remove('#');

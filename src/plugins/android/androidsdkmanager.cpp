@@ -105,7 +105,7 @@ int parseProgress(const QString &out, bool &foundAssertion)
     if (out.isEmpty())
         return progress;
     QRegularExpression reg("(?<progress>\\d*)%");
-    QStringList lines = out.split(QRegularExpression("[\\n\\r]"), Utils::SkipEmptyParts);
+    QStringList lines = out.split(QRegularExpression("[\\n\\r]"), Qt::SkipEmptyParts);
     for (const QString &line : lines) {
         QRegularExpressionMatch match = reg.match(line);
         if (match.hasMatch()) {

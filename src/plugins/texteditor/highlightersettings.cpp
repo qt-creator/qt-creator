@@ -142,7 +142,7 @@ void HighlighterSettings::fromSettings(const QString &category, QSettings *s)
 
 void HighlighterSettings::setIgnoredFilesPatterns(const QString &patterns)
 {
-    setExpressionsFromList(patterns.split(QLatin1Char(','), Utils::SkipEmptyParts));
+    setExpressionsFromList(patterns.split(QLatin1Char(','), Qt::SkipEmptyParts));
 }
 
 QString HighlighterSettings::ignoredFilesPatterns() const

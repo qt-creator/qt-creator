@@ -90,7 +90,7 @@ static QStringList environmentImportPaths()
     QStringList paths;
 
     const QStringList importPaths = QString::fromLocal8Bit(qgetenv("QML_IMPORT_PATH")).split(
-        Utils::HostOsInfo::pathListSeparator(), Utils::SkipEmptyParts);
+        Utils::HostOsInfo::pathListSeparator(), Qt::SkipEmptyParts);
 
     for (const QString &path : importPaths) {
         const QString canonicalPath = QDir(path).canonicalPath();

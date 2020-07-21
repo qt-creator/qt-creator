@@ -101,7 +101,7 @@ QStringList CatchConfiguration::argumentsForTestRunner(QStringList *omitted) con
 
     if (AutotestPlugin::settings()->processArgs) {
         arguments << filterInterfering(runnable().commandLineArguments.split(
-                                           ' ', Utils::SkipEmptyParts), omitted);
+                                           ' ', Qt::SkipEmptyParts), omitted);
     }
 
     auto settings = dynamic_cast<CatchTestSettings *>(framework()->frameworkSettings());

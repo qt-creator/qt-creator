@@ -146,7 +146,7 @@ bool AndroidManager::packageInstalled(const QString &deviceSerial,
     QStringList args = AndroidDeviceInfo::adbSelector(deviceSerial);
     args << "shell" << "pm" << "list" << "packages";
     QStringList lines = runAdbCommand(args).stdOut().split(QRegularExpression("[\\n\\r]"),
-                                                           Utils::SkipEmptyParts);
+                                                           Qt::SkipEmptyParts);
     for (const QString &line : lines) {
         // Don't want to confuse com.abc.xyz with com.abc.xyz.def so check with
         // endsWith

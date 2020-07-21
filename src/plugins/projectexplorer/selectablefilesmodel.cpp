@@ -350,7 +350,7 @@ void SelectableFilesModel::collectFiles(Tree *root, Utils::FilePaths *result) co
 QList<Glob> SelectableFilesModel::parseFilter(const QString &filter)
 {
     QList<Glob> result;
-    const QStringList list = filter.split(QLatin1Char(';'), Utils::SkipEmptyParts);
+    const QStringList list = filter.split(QLatin1Char(';'), Qt::SkipEmptyParts);
     for (const QString &e : list) {
         QString entry = e.trimmed();
         Glob g;

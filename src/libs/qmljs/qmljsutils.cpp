@@ -241,7 +241,7 @@ QString QmlJS::modulePath(const QString &name, const QString &version,
         return QString();
 
     const QString sanitizedVersion = version == undefinedVersion ? QString() : version;
-    const QStringList parts = name.split('.', Utils::SkipEmptyParts);
+    const QStringList parts = name.split('.', Qt::SkipEmptyParts);
     auto mkpath = [] (const QStringList &xs) -> QString { return xs.join(QLatin1Char('/')); };
 
     // Regular expression for building candidates by successively removing minor and major

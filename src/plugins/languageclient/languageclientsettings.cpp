@@ -813,8 +813,8 @@ QString BaseSettingsWidget::name() const
 
 LanguageFilter BaseSettingsWidget::filter() const
 {
-    return {m_mimeTypes->text().split(filterSeparator, Utils::SkipEmptyParts),
-                m_filePattern->text().split(filterSeparator, Utils::SkipEmptyParts)};
+    return {m_mimeTypes->text().split(filterSeparator, Qt::SkipEmptyParts),
+                m_filePattern->text().split(filterSeparator, Qt::SkipEmptyParts)};
 }
 
 BaseSettings::StartBehavior BaseSettingsWidget::startupBehavior() const
@@ -913,7 +913,7 @@ private:
 
 void BaseSettingsWidget::showAddMimeTypeDialog()
 {
-    MimeTypeDialog dialog(m_mimeTypes->text().split(filterSeparator, Utils::SkipEmptyParts),
+    MimeTypeDialog dialog(m_mimeTypes->text().split(filterSeparator, Qt::SkipEmptyParts),
                           Core::ICore::dialogParent());
     if (dialog.exec() == QDialog::Rejected)
         return;

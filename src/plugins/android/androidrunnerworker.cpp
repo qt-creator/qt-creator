@@ -510,7 +510,7 @@ void AndroidRunnerWorker::asyncStartHelper()
     }
 
     for (const QString &entry : m_beforeStartAdbCommands)
-        runAdb(entry.split(' ', Utils::SkipEmptyParts));
+        runAdb(entry.split(' ', Qt::SkipEmptyParts));
 
     QStringList args({"shell", "am", "start"});
     args << m_amStartExtraArgs;
@@ -800,7 +800,7 @@ void AndroidRunnerWorker::onProcessIdChanged(qint64 pid)
 
         // Run adb commands after application quit.
         for (const QString &entry: m_afterFinishAdbCommands)
-            runAdb(entry.split(' ', Utils::SkipEmptyParts));
+            runAdb(entry.split(' ', Qt::SkipEmptyParts));
     } else {
         // In debugging cases this will be funneled to the engine to actually start
         // and attach gdb. Afterwards this ends up in handleRemoteDebuggerRunning() below.

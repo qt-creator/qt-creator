@@ -77,7 +77,7 @@ QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) con
     QStringList arguments;
     if (AutotestPlugin::settings()->processArgs) {
         arguments << filterInterfering(runnable().commandLineArguments.split(
-                                           ' ', Utils::SkipEmptyParts), omitted);
+                                           ' ', Qt::SkipEmptyParts), omitted);
     }
 
     const QStringList &testSets = testCases();

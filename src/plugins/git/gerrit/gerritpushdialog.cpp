@@ -291,7 +291,7 @@ QString GerritPushDialog::pushTarget() const
     if (!topic.isEmpty())
         target += '/' + topic;
 
-    const QStringList reviewersInput = reviewers().split(',', Utils::SkipEmptyParts);
+    const QStringList reviewersInput = reviewers().split(',', Qt::SkipEmptyParts);
     for (const QString &reviewer : reviewersInput)
         options << "r=" + reviewer;
 

@@ -62,7 +62,7 @@ QList<CvsLogEntry> parseLogEntries(const QString &o,
     enum ParseState { FileState, RevisionState, StatusLineState };
 
     QList<CvsLogEntry> rc;
-    const QStringList lines = o.split('\n', Utils::SkipEmptyParts);
+    const QStringList lines = o.split('\n', Qt::SkipEmptyParts);
     ParseState state = FileState;
 
     const QString workingFilePrefix = QLatin1String("Working file: ");
@@ -178,7 +178,7 @@ StateList parseStatusOutput(const QString &directory, const QString &output)
     const QString dotDir = QString(QLatin1Char('.'));
     const QChar slash = QLatin1Char('/');
 
-    const QStringList list = output.split('\n', Utils::SkipEmptyParts);
+    const QStringList list = output.split('\n', Qt::SkipEmptyParts);
 
     QString path = directory;
     if (!path.isEmpty())

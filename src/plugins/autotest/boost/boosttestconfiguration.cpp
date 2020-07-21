@@ -128,7 +128,7 @@ QStringList BoostTestConfiguration::argumentsForTestRunner(QStringList *omitted)
 
     if (AutotestPlugin::settings()->processArgs) {
         arguments << filterInterfering(runnable().commandLineArguments.split(
-                                           ' ', Utils::SkipEmptyParts), omitted);
+                                           ' ', Qt::SkipEmptyParts), omitted);
     }
     return arguments;
 }

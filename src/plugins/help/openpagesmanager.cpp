@@ -113,7 +113,7 @@ QComboBox *OpenPagesManager::openPagesComboBox() const
 QStringList splitString(const QVariant &value)
 {
     using namespace Help::Constants;
-    return value.toString().split(ListSeparator, Utils::SkipEmptyParts);
+    return value.toString().split(ListSeparator, Qt::SkipEmptyParts);
 }
 
 void OpenPagesManager::setupInitialPages()

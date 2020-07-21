@@ -88,7 +88,7 @@ private:
     {
         QList<DeviceProcessItem> processes;
         const QStringList lines = listProcessesReply.split(QString::fromLatin1(Delimiter0)
-                + QString::fromLatin1(Delimiter1), Utils::SkipEmptyParts);
+                + QString::fromLatin1(Delimiter1), Qt::SkipEmptyParts);
         foreach (const QString &line, lines) {
             const QStringList elements = line.split(QLatin1Char('\n'));
             if (elements.count() < 4) {

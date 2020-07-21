@@ -429,7 +429,7 @@ public:
 
     QStringList entries() const
     {
-        return textEditWidget()->toPlainText().split(QLatin1Char('\n'), Utils::SkipEmptyParts);
+        return textEditWidget()->toPlainText().split(QLatin1Char('\n'), Qt::SkipEmptyParts);
     }
 
     QString text() const
@@ -548,7 +548,7 @@ void CustomToolChainConfigWidget::applyImpl()
     tc->setMakeCommand(m_makeCommand->filePath());
     tc->setTargetAbi(m_abiWidget->currentAbi());
     Macros macros = Utils::transform<QVector>(
-                m_predefinedDetails->text().split('\n', Utils::SkipEmptyParts),
+                m_predefinedDetails->text().split('\n', Qt::SkipEmptyParts),
                 [](const QString &m) {
         return Macro::fromKeyValue(m);
     });

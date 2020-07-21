@@ -376,7 +376,7 @@ QStringList MakefileParser::targetValues(bool *hasVariables)
         // Get all values of a line separated by spaces.
         // Values representing a variable like $(value) get
         // removed currently.
-        QStringList lineValues = m_line.split(QLatin1Char(' '), Utils::SkipEmptyParts);
+        QStringList lineValues = m_line.split(QLatin1Char(' '), Qt::SkipEmptyParts);
         QStringList::iterator it = lineValues.begin();
         while (it != lineValues.end()) {
             if ((*it).startsWith(QLatin1String("$("))) {

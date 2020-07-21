@@ -851,7 +851,7 @@ QStringList GitClient::unmanagedFiles(const QString &workingDirectory,
     if (response.result != SynchronousProcessResponse::Finished)
         return filePaths;
     const QStringList managedFilePaths
-            = transform(response.stdOut().split('\0', Utils::SkipEmptyParts),
+            = transform(response.stdOut().split('\0', Qt::SkipEmptyParts),
                         [&wd](const QString &fp) { return wd.absoluteFilePath(fp); });
     return filtered(filePaths, [&managedFilePaths](const QString &fp) {
         return !managedFilePaths.contains(fp);
@@ -3243,7 +3243,7 @@ void GitClient::push(const QString &workingDirectory, const QStringList &pushArg
             command->setCookie(NoRemoteBranch);
 
         if (command->cookie().toInt() == NoRemoteBranch) {
-            const QStringList lines = text.split('\n', Utils::SkipEmptyParts);
+            const QStringList lines = text.split('\n', Qt::SkipEmptyParts);
             for (const QString &line : lines) {
                 /* Extract the suggested command from the git output which
                  * should be similar to the following:
@@ -3293,7 +3293,7 @@ void GitClient::push(const QString &workingDirectory, const QStringList &pushArg
                             QMessageBox::No) == QMessageBox::Yes) {
 
                     const QStringList fallbackCommandParts =
-                            m_pushFallbackCommand.split(' ', Utils::SkipEmptyParts);
+                            m_pushFallbackCommand.split(' ', Qt::SkipEmptyParts);
                     VcsCommand *rePushCommand = vcsExec(workingDirectory,
                                                         fallbackCommandParts.mid(1),
                             nullptr, true, VcsCommand::ShowSuccessMessage);

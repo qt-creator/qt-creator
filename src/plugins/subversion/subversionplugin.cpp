@@ -151,7 +151,7 @@ StatusList parseStatusOutput(const QString &output)
 {
     StatusList changeSet;
     const QString newLine = QString(QLatin1Char('\n'));
-    const QStringList list = output.split(newLine, Utils::SkipEmptyParts);
+    const QStringList list = output.split(newLine, Qt::SkipEmptyParts);
     foreach (const QString &l, list) {
         const QString line =l.trimmed();
         if (line.size() > 8) {

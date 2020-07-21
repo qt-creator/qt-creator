@@ -648,7 +648,7 @@ bool BranchModel::branchIsMerged(const QModelIndex &idx)
         VcsOutputWindow::appendError(errorMessage);
     }
 
-    const QStringList lines = output.split('\n', Utils::SkipEmptyParts);
+    const QStringList lines = output.split('\n', Qt::SkipEmptyParts);
     for (const QString &l : lines) {
         QString currentBranch = l.mid(2); // remove first letters (those are either
                                           // "  " or "* " depending on whether it is

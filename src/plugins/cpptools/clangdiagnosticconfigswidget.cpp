@@ -255,7 +255,7 @@ static QString validateDiagnosticOptions(const QStringList &options)
 
 static QStringList normalizeDiagnosticInputOptions(const QString &options)
 {
-    return options.simplified().split(QLatin1Char(' '), Utils::SkipEmptyParts);
+    return options.simplified().split(QLatin1Char(' '), Qt::SkipEmptyParts);
 }
 
 void ClangDiagnosticConfigsWidget::onClangOnlyOptionsChanged()

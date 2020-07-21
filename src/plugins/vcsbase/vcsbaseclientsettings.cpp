@@ -369,7 +369,7 @@ int VcsBaseClientSettings::vcsTimeoutS() const
 
 QStringList VcsBaseClientSettings::searchPathList() const
 {
-    return stringValue(pathKey).split(HostOsInfo::pathListSeparator(), Utils::SkipEmptyParts);
+    return stringValue(pathKey).split(HostOsInfo::pathListSeparator(), Qt::SkipEmptyParts);
 }
 
 QString VcsBaseClientSettings::settingsGroup() const

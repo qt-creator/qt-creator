@@ -52,7 +52,7 @@ QStringList QtTestConfiguration::argumentsForTestRunner(QStringList *omitted) co
     QStringList arguments;
     if (AutotestPlugin::settings()->processArgs) {
         arguments.append(QTestUtils::filterInterfering(
-                             runnable().commandLineArguments.split(' ', Utils::SkipEmptyParts),
+                             runnable().commandLineArguments.split(' ', Qt::SkipEmptyParts),
                              omitted, false));
     }
     auto qtSettings = dynamic_cast<QtTestSettings *>(framework()->frameworkSettings());

@@ -113,7 +113,7 @@ static QVector<QSize> stringToSizes(const QString &s)
 {
     QVector<QSize> result;
     const QString trimmed = s.trimmed();
-    const QVector<QStringRef> &sizes = trimmed.splitRef(',', Utils::SkipEmptyParts);
+    const QVector<QStringRef> &sizes = trimmed.splitRef(',', Qt::SkipEmptyParts);
     result.reserve(sizes.size());
     for (const QStringRef &sizeSpec : sizes) {
         const QSize size = sizeFromString(sizeSpec);

@@ -760,7 +760,7 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
 {
     static QStringList userBlackList = QString::fromLocal8Bit(
                                            qgetenv("QTC_CLANG_CMD_OPTIONS_BLACKLIST"))
-                                           .split(';', Utils::SkipEmptyParts);
+                                           .split(';', Qt::SkipEmptyParts);
 
     const Utils::Id &toolChain = m_projectPart.toolchainType;
     bool containsDriverMode = false;

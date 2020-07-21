@@ -384,7 +384,7 @@ static QString addParameterNames(const QString &functionSignature, const QString
     const int lastParen = argumentsString.lastIndexOf(')');
     if (lastParen != -1)
         argumentsString.truncate(lastParen);
-    const QStringList arguments = argumentsString.split(',', Utils::SkipEmptyParts);
+    const QStringList arguments = argumentsString.split(',', Qt::SkipEmptyParts);
     const int pCount = parameterNames.count();
     const int aCount = arguments.count();
     for (int i = 0; i < aCount; ++i) {

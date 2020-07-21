@@ -286,7 +286,7 @@ QStringList CMakeBuildConfiguration::extraCMakeArguments() const
 
 QStringList CMakeBuildConfiguration::initialCMakeArguments() const
 {
-    return aspect<InitialCMakeArgumentsAspect>()->value().split('\n', Utils::SkipEmptyParts);
+    return aspect<InitialCMakeArgumentsAspect>()->value().split('\n', Qt::SkipEmptyParts);
 }
 
 void CMakeBuildConfiguration::setExtraCMakeArguments(const QStringList &args)
