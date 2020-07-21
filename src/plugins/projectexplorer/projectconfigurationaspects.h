@@ -190,6 +190,7 @@ public:
     void setDisplayIntegerBase(int base);
     void setDisplayScaleFactor(qint64 factor);
     void setEnabled(bool enabled);
+    void setDefaultValue(qint64 defaultValue);
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;

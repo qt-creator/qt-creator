@@ -127,6 +127,7 @@ class BaseIntegerAspectPrivate
 {
 public:
     qint64 m_value = 0;
+    qint64 m_defaultValue = 0;
     QVariant m_minimumValue;
     QVariant m_maximumValue;
     int m_displayIntegerBase = 10;
@@ -684,12 +685,15 @@ void BaseIntegerAspect::addToLayout(LayoutBuilder &builder)
 
 void BaseIntegerAspect::fromMap(const QVariantMap &map)
 {
-    d->m_value = map.value(settingsKey()).toLongLong();
+    d->m_value = map.value(settingsKey(), d->m_defaultValue).toLongLong();
 }
 
 void BaseIntegerAspect::toMap(QVariantMap &data) const
 {
-    data.insert(settingsKey(), d->m_value);
+    if (d->m_value != d->m_defaultValue)
+        data.insert(settingsKey(), d->m_value);
+    else
+        data.remove(settingsKey());
 }
 
 qint64 BaseIntegerAspect::value() const
@@ -744,6 +748,11 @@ void BaseIntegerAspect::setEnabled(bool enabled)
         d->m_label->setEnabled(enabled);
     if (d->m_spinBox)
         d->m_spinBox->setEnabled(enabled);
+}
+
+void BaseIntegerAspect::setDefaultValue(qint64 defaultValue)
+{
+    d->m_defaultValue = defaultValue;
 }
 
 BaseTriStateAspect::BaseTriStateAspect()
