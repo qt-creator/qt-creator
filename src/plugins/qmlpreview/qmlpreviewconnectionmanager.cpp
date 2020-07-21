@@ -76,17 +76,22 @@ void QmlPreviewConnectionManager::createClients()
 
 QUrl QmlPreviewConnectionManager::findValidI18nDirectoryAsUrl(const QString &locale)
 {
+    QTC_ASSERT(!m_lastLoadedUrl.isEmpty(), return {};);
+
     const QString shortLocale = locale.left(locale.indexOf("_"));
     QString path = m_lastLoadedUrl.path();
 
+    QString foundPath;
     while (!path.isEmpty()) {
         path = path.left(qMax(0, path.lastIndexOf("/")));
         QUrl url = m_lastLoadedUrl;
 
+
         auto tryPath = [&](const QString &postfix) {
             url.setPath(path + "/i18n/qml_" + postfix);
             bool success = false;
-            m_projectFileFinder.findFile(url, &success);
+            foundPath = m_projectFileFinder.findFile(url, &success).first().toString();
+            foundPath = foundPath.left(qMax(0, foundPath.lastIndexOf("/i18n")));
             return success;
         };
 
@@ -101,7 +106,10 @@ QUrl QmlPreviewConnectionManager::findValidI18nDirectoryAsUrl(const QString &loc
     }
 
     QUrl url = m_lastLoadedUrl;
-    url.setPath(path);
+    if (foundPath.isEmpty())
+        url.setPath(path);
+    else
+        url.setPath(foundPath);
     return url;
 }
 
