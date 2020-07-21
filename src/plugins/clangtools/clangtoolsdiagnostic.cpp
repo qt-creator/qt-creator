@@ -25,6 +25,8 @@
 
 #include "clangtoolsdiagnostic.h"
 
+#include <utils/utilsicons.h>
+
 namespace ClangTools {
 namespace Internal {
 
@@ -45,6 +47,19 @@ bool operator==(const ExplainingStep &lhs, const ExplainingStep &rhs)
 bool Diagnostic::isValid() const
 {
     return !description.isEmpty();
+}
+
+QIcon Diagnostic::icon() const
+{
+    if (type == "warning")
+        return Utils::Icons::CODEMODEL_WARNING.icon();
+    if (type == "error" || type == "fatal")
+        return Utils::Icons::CODEMODEL_ERROR.icon();
+    if (type == "note")
+        return Utils::Icons::INFO.icon();
+    if (type == "fix-it")
+        return Utils::Icons::CODEMODEL_FIXIT.icon();
+    return {};
 }
 
 quint32 qHash(const Diagnostic &diagnostic)

@@ -66,6 +66,8 @@ QtcPlugin {
         "clazychecks.ui",
         "diagnosticconfigswidget.cpp",
         "diagnosticconfigswidget.h",
+        "diagnosticmark.cpp",
+        "diagnosticmark.h",
         "executableinfo.cpp",
         "executableinfo.h",
         "filterdialog.cpp",

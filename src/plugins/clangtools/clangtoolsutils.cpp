@@ -43,12 +43,101 @@
 #include <QFileInfo>
 
 #include <cpptools/clangdiagnosticconfigsmodel.h>
-#include <cpptools/clangdiagnosticconfigsmodel.h>
 
 using namespace CppTools;
 
 namespace ClangTools {
 namespace Internal {
+
+static QString lineColumnString(const Debugger::DiagnosticLocation &location)
+{
+    return QString("%1:%2").arg(QString::number(location.line), QString::number(location.column));
+}
+
+static QString fixitStatus(FixitStatus status)
+{
+    switch (status) {
+    case FixitStatus::NotAvailable:
+        return QCoreApplication::translate("ClangToolsDiagnosticModel", "No Fixits");
+    case FixitStatus::NotScheduled:
+        return QCoreApplication::translate("ClangToolsDiagnosticModel", "Not Scheduled");
+    case FixitStatus::Invalidated:
+        return QCoreApplication::translate("ClangToolsDiagnosticModel", "Invalidated");
+    case FixitStatus::Scheduled:
+        return QCoreApplication::translate("ClangToolsDiagnosticModel", "Scheduled");
+    case FixitStatus::FailedToApply:
+        return QCoreApplication::translate("ClangToolsDiagnosticModel", "Failed to Apply");
+    case FixitStatus::Applied:
+        return QCoreApplication::translate("ClangToolsDiagnosticModel", "Applied");
+    }
+    return QString();
+}
+
+QString createDiagnosticToolTipString(
+    const Diagnostic &diagnostic,
+    Utils::optional<FixitStatus> status,
+    bool showSteps)
+{
+    using StringPair = QPair<QString, QString>;
+    QList<StringPair> lines;
+
+    if (!diagnostic.category.isEmpty()) {
+        lines << qMakePair(
+                     QCoreApplication::translate("ClangTools::Diagnostic", "Category:"),
+                     diagnostic.category.toHtmlEscaped());
+    }
+
+    if (!diagnostic.type.isEmpty()) {
+        lines << qMakePair(
+                     QCoreApplication::translate("ClangTools::Diagnostic", "Type:"),
+                     diagnostic.type.toHtmlEscaped());
+    }
+
+    if (!diagnostic.description.isEmpty()) {
+        lines << qMakePair(
+                     QCoreApplication::translate("ClangTools::Diagnostic", "Description:"),
+                     diagnostic.description.toHtmlEscaped());
+    }
+
+    lines << qMakePair(
+                 QCoreApplication::translate("ClangTools::Diagnostic", "Location:"),
+                 createFullLocationString(diagnostic.location));
+
+    if (status) {
+        lines << qMakePair(QCoreApplication::translate("ClangTools::Diagnostic", "Fixit status:"),
+                           fixitStatus(*status));
+    }
+
+    if (showSteps && !diagnostic.explainingSteps.isEmpty()) {
+        StringPair steps;
+        steps.first = QCoreApplication::translate("ClangTools::Diagnostic", "Steps:");
+        for (const ExplainingStep &step : diagnostic.explainingSteps) {
+            if (!steps.second.isEmpty())
+                steps.second += "<br>";
+            steps.second += QString("%1:%2: %3")
+                    .arg(step.location.filePath,
+                         lineColumnString(step.location),
+                         step.message);
+        }
+        lines << steps;
+    }
+
+    QString html = QLatin1String("<html>"
+                                 "<head>"
+                                 "<style>dt { font-weight:bold; } dd { font-family: monospace; }</style>"
+                                 "</head>\n"
+                                 "<body><dl>");
+
+    for (const StringPair &pair : qAsConst(lines)) {
+        html += QLatin1String("<dt>");
+        html += pair.first;
+        html += QLatin1String("</dt><dd>");
+        html += pair.second;
+        html += QLatin1String("</dd>\n");
+    }
+    html += QLatin1String("</dl></body></html>");
+    return html;
+}
 
 QString createFullLocationString(const Debugger::DiagnosticLocation &location)
 {

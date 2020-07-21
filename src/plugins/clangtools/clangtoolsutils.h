@@ -27,6 +27,8 @@
 
 #include <cpptools/clangdiagnosticconfig.h>
 
+#include <utils/optional.h>
+
 #include <QtGlobal>
 
 QT_BEGIN_NAMESPACE
@@ -38,6 +40,22 @@ namespace Debugger { class DiagnosticLocation; }
 
 namespace ClangTools {
 namespace Internal {
+
+class Diagnostic;
+
+enum class FixitStatus {
+    NotAvailable,
+    NotScheduled,
+    Scheduled,
+    Applied,
+    FailedToApply,
+    Invalidated,
+};
+
+QString createDiagnosticToolTipString(
+    const Diagnostic &diagnostic,
+    Utils::optional<FixitStatus> status = Utils::nullopt,
+    bool showSteps = true);
 
 QString createFullLocationString(const Debugger::DiagnosticLocation &location);
 

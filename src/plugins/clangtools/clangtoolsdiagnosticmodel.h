@@ -28,6 +28,7 @@
 #include "clangfixitsrefactoringchanges.h"
 #include "clangtoolsdiagnostic.h"
 #include "clangtoolsprojectsettings.h"
+#include "clangtoolsutils.h"
 
 #include <debugger/analyzer/detailederrorview.h>
 #include <utils/fileutils.h>
@@ -47,15 +48,6 @@ namespace ProjectExplorer { class Project; }
 
 namespace ClangTools {
 namespace Internal {
-
-enum class FixitStatus {
-    NotAvailable,
-    NotScheduled,
-    Scheduled,
-    Applied,
-    FailedToApply,
-    Invalidated,
-};
 
 class ClangToolsDiagnosticModel;
 

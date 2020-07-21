@@ -29,6 +29,7 @@ SOURCES += \
     clangtoolssettings.cpp \
     clangtoolsutils.cpp \
     diagnosticconfigswidget.cpp \
+    diagnosticmark.cpp \
     executableinfo.cpp \
     filterdialog.cpp \
     runsettingswidget.cpp \
@@ -54,6 +55,7 @@ HEADERS += \
     clangtoolssettings.h \
     clangtoolsutils.h \
     diagnosticconfigswidget.h \
+    diagnosticmark.h \
     executableinfo.h \
     filterdialog.h \
     runsettingswidget.h \

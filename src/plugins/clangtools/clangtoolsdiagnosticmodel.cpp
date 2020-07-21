@@ -28,6 +28,7 @@
 #include "clangtoolsdiagnosticview.h"
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolsutils.h"
+#include "diagnosticmark.h"
 
 #include <coreplugin/fileiconprovider.h>
 #include <projectexplorer/project.h>
@@ -199,93 +200,9 @@ void ClangToolsDiagnosticModel::addWatchedPath(const QString &path)
     m_filesWatcher->addPath(path);
 }
 
-static QString fixitStatus(FixitStatus status)
-{
-    switch (status) {
-    case FixitStatus::NotAvailable:
-        return ClangToolsDiagnosticModel::tr("No Fixits");
-    case FixitStatus::NotScheduled:
-        return ClangToolsDiagnosticModel::tr("Not Scheduled");
-    case FixitStatus::Invalidated:
-        return ClangToolsDiagnosticModel::tr("Invalidated");
-    case FixitStatus::Scheduled:
-        return ClangToolsDiagnosticModel::tr("Scheduled");
-    case FixitStatus::FailedToApply:
-        return ClangToolsDiagnosticModel::tr("Failed to Apply");
-    case FixitStatus::Applied:
-        return ClangToolsDiagnosticModel::tr("Applied");
-    }
-    return QString();
-}
-
 static QString lineColumnString(const Debugger::DiagnosticLocation &location)
 {
     return QString("%1:%2").arg(QString::number(location.line), QString::number(location.column));
-}
-
-static QString createDiagnosticToolTipString(
-    const Diagnostic &diagnostic,
-    Utils::optional<FixitStatus> fixItStatus = Utils::nullopt,
-    bool showSteps = true)
-{
-    using StringPair = QPair<QString, QString>;
-    QList<StringPair> lines;
-
-    if (!diagnostic.category.isEmpty()) {
-        lines << qMakePair(
-                     QCoreApplication::translate("ClangTools::Diagnostic", "Category:"),
-                     diagnostic.category.toHtmlEscaped());
-    }
-
-    if (!diagnostic.type.isEmpty()) {
-        lines << qMakePair(
-                     QCoreApplication::translate("ClangTools::Diagnostic", "Type:"),
-                     diagnostic.type.toHtmlEscaped());
-    }
-
-    if (!diagnostic.description.isEmpty()) {
-        lines << qMakePair(
-                     QCoreApplication::translate("ClangTools::Diagnostic", "Description:"),
-                     diagnostic.description.toHtmlEscaped());
-    }
-
-    lines << qMakePair(
-        QCoreApplication::translate("ClangTools::Diagnostic", "Location:"),
-                createFullLocationString(diagnostic.location));
-
-    if (fixItStatus.has_value()) {
-        lines << qMakePair(QCoreApplication::translate("ClangTools::Diagnostic", "Fixit status:"),
-                           fixitStatus(fixItStatus.value()));
-    }
-
-    if (showSteps && !diagnostic.explainingSteps.isEmpty()) {
-        StringPair steps;
-        steps.first = QCoreApplication::translate("ClangTools::Diagnostic", "Steps:");
-        for (const ExplainingStep &step : diagnostic.explainingSteps) {
-            if (!steps.second.isEmpty())
-                steps.second += "<br>";
-            steps.second += QString("%1:%2: %3")
-                                .arg(step.location.filePath,
-                                     lineColumnString(step.location),
-                                     step.message);
-        }
-        lines << steps;
-    }
-
-    QString html = QLatin1String("<html>"
-                   "<head>"
-                   "<style>dt { font-weight:bold; } dd { font-family: monospace; }</style>\n"
-                   "<body><dl>");
-
-    foreach (const StringPair &pair, lines) {
-        html += QLatin1String("<dt>");
-        html += pair.first;
-        html += QLatin1String("</dt><dd>");
-        html += pair.second;
-        html += QLatin1String("</dd>\n");
-    }
-    html += QLatin1String("</dl></body></html>");
-    return html;
 }
 
 static QString createExplainingStepToolTipString(const ExplainingStep &step)
@@ -365,46 +282,16 @@ static QString fullText(const Diagnostic &diagnostic)
     return text;
 }
 
-static Utils::optional<QIcon> iconForType(const QString &type)
-{
-    if (type == "warning")
-        return Utils::Icons::CODEMODEL_WARNING.icon();
-    if (type == "error" || type == "fatal")
-        return Utils::Icons::CODEMODEL_ERROR.icon();
-    if (type == "note")
-        return Utils::Icons::INFO.icon();
-    if (type == "fix-it")
-        return Utils::Icons::CODEMODEL_FIXIT.icon();
-    return Utils::nullopt;
-}
-
-static TextEditor::TextMark *generateDiagnosticTextMark(const Diagnostic &diag)
-{
-    auto mark = new TextEditor::TextMark(Utils::FilePath::fromString(diag.location.filePath),
-                                         diag.location.line,
-                                         Utils::Id("ClangTool.DiagnosticMark"));
-    if (diag.type == "error" || diag.type == "fatal")
-        mark->setColor(Utils::Theme::CodeModel_Error_TextMarkColor);
-    else
-        mark->setColor(Utils::Theme::CodeModel_Warning_TextMarkColor);
-    mark->setPriority(TextEditor::TextMark::HighPriority);
-    mark->setIcon(iconForType(diag.type).value_or(Utils::Icons::CODEMODEL_WARNING.icon()));
-    mark->setToolTip(createDiagnosticToolTipString(diag));
-    mark->setLineAnnotation(diag.description);
-    return mark;
-}
-
 DiagnosticItem::DiagnosticItem(const Diagnostic &diag,
                                const OnFixitStatusChanged &onFixitStatusChanged,
                                ClangToolsDiagnosticModel *parent)
     : m_diagnostic(diag)
     , m_onFixitStatusChanged(onFixitStatusChanged)
     , m_parentModel(parent)
+    , m_mark(new DiagnosticMark(diag))
 {
     if (diag.hasFixits)
         m_fixitStatus = FixitStatus::NotScheduled;
-
-    m_mark = generateDiagnosticTextMark(diag);
 
     // Don't show explaining steps if they add no information.
     if (diag.explainingSteps.count() == 1) {
@@ -434,10 +321,10 @@ Qt::ItemFlags DiagnosticItem::flags(int column) const
     return itemFlags;
 }
 
-static QVariant iconData(const QString &type)
+static QVariant iconData(const Diagnostic &diagnostic)
 {
-    Utils::optional<QIcon> icon = iconForType(type);
-    return icon.has_value() ? QVariant(*icon) : QVariant();
+    QIcon icon = diagnostic.icon();
+    return icon.isNull() ? QVariant() : QVariant(icon);
 }
 
 QVariant DiagnosticItem::data(int column, int role) const
@@ -485,7 +372,7 @@ QVariant DiagnosticItem::data(int column, int role) const
         case Qt::ToolTipRole:
             return createDiagnosticToolTipString(m_diagnostic, m_fixitStatus, false);
         case Qt::DecorationRole:
-            return iconData(m_diagnostic.type);
+            return iconData(m_diagnostic);
         default:
             return QVariant();
         }
