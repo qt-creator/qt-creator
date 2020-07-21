@@ -154,7 +154,7 @@ public:
     RunWorkerFactory runWorkerFactory{
         [this](RunControl *runControl) {
             QmlPreviewRunner *runner = new QmlPreviewRunner(runControl, m_fileLoader, m_fileClassifer,
-                                                            m_fpsHandler, m_zoomFactor, m_locale);
+                                                            m_fpsHandler, m_zoomFactor);
             connect(q, &QmlPreviewPlugin::updatePreviews,
                     runner, &QmlPreviewRunner::loadFile);
             connect(q, &QmlPreviewPlugin::rerunPreviews,

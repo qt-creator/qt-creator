@@ -119,9 +119,14 @@ void QmlPreviewConnectionManager::createDebugTranslationClient()
     QObject::connect(this, &QmlPreviewConnectionManager::language,
                      m_qmlDebugTranslationClient.data(), [this](const QString &locale) {
 
-        // service expects a context URL.
-        // Search the parent directories of the last loaded URL for i18n files.
-        m_qmlDebugTranslationClient->changeLanguage(findValidI18nDirectoryAsUrl(locale), locale);
+        if (m_lastLoadedUrl.isEmpty()) {
+            // findValidI18nDirectoryAsUrl does not work if we didn't load any file
+            m_initLocale = locale;
+        } else {
+            // service expects a context URL.
+            // Search the parent directories of the last loaded URL for i18n files.
+            m_qmlDebugTranslationClient->changeLanguage(findValidI18nDirectoryAsUrl(locale), locale);
+        }
     });
     QObject::connect(m_qmlDebugTranslationClient.data(), &QmlDebugTranslationClient::debugServiceUnavailable,
                      this, []() {
@@ -152,6 +157,10 @@ void QmlPreviewConnectionManager::createPreviewClient()
 
         m_lastLoadedUrl = m_targetFileFinder.findUrl(filename);
         m_qmlPreviewClient->loadUrl(m_lastLoadedUrl);
+        if (!m_initLocale.isEmpty()) {
+            emit language(m_initLocale);
+            m_initLocale.clear();
+        }
     });
 
     QObject::connect(this, &QmlPreviewConnectionManager::rerun,
@@ -163,9 +172,14 @@ void QmlPreviewConnectionManager::createPreviewClient()
     QObject::connect(this, &QmlPreviewConnectionManager::language,
                      m_qmlPreviewClient.data(), [this](const QString &locale) {
 
-        // service expects a context URL.
-        // Search the parent directories of the last loaded URL for i18n files.
-        m_qmlPreviewClient->language(findValidI18nDirectoryAsUrl(locale), locale);
+        if (m_lastLoadedUrl.isEmpty()) {
+            // findValidI18nDirectoryAsUrl does not work if we didn't load any file
+            m_initLocale = locale;
+        } else {
+            // service expects a context URL.
+            // Search the parent directories of the last loaded URL for i18n files.
+            m_qmlPreviewClient->language(findValidI18nDirectoryAsUrl(locale), locale);
+        }
     });
 
     QObject::connect(m_qmlPreviewClient.data(), &QmlPreviewClient::pathRequested,

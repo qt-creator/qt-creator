@@ -49,8 +49,7 @@ QmlPreviewRunner::QmlPreviewRunner(ProjectExplorer::RunControl *runControl,
                                    QmlPreviewFileLoader fileLoader,
                                    QmlPreviewFileClassifier fileClassifier,
                                    QmlPreviewFpsHandler fpsHandler,
-                                   float initialZoom,
-                                   const QString &initialLocale)
+                                   float initialZoom)
     : RunWorker(runControl)
 {
     setId("QmlPreviewRunner");
@@ -68,11 +67,9 @@ QmlPreviewRunner::QmlPreviewRunner(ProjectExplorer::RunControl *runControl,
     connect(this, &QmlPreviewRunner::language,
             &m_connectionManager, &Internal::QmlPreviewConnectionManager::language);
     connect(&m_connectionManager, &Internal::QmlPreviewConnectionManager::connectionOpened,
-            this, [this, initialZoom, initialLocale]() {
+            this, [this, initialZoom]() {
         if (initialZoom > 0)
             emit zoom(initialZoom);
-        if (!initialLocale.isEmpty())
-            emit language(initialLocale);
         emit ready();
     });
 
