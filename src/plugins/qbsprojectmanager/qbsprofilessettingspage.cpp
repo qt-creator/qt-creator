@@ -86,15 +86,14 @@ public:
         ProfileTreeItem * const newRoot = new ProfileTreeItem(QString(), QString());
         QHash<QStringList, ProfileTreeItem *> itemMap;
         const QStringList output = QbsProfileManager::runQbsConfig(
-                    QbsProfileManager::QbsConfigOp::Get, "profiles").split('\n', QString::SkipEmptyParts);
+                    QbsProfileManager::QbsConfigOp::Get, "profiles").split('\n', Qt::SkipEmptyParts);
         for (QString line : output) {
             line = line.trimmed();
             line = line.mid(QString("profiles.").length());
             const int colonIndex = line.indexOf(':');
             if (colonIndex == -1)
                 continue;
-            const QStringList key = line.left(colonIndex).trimmed()
-                    .split('.', QString::SkipEmptyParts);
+            const QStringList key = line.left(colonIndex).trimmed().split('.', Qt::SkipEmptyParts);
             const QString value = line.mid(colonIndex + 1).trimmed();
             QStringList partialKey;
             ProfileTreeItem *parent = newRoot;

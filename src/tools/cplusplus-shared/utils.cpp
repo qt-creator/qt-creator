@@ -87,7 +87,7 @@ SystemPreprocessor::SystemPreprocessor(bool verbose)
             = Utils::Environment::systemEnvironment().searchInPath(key);
         if (!executablePath.isEmpty()) {
             m_compiler = key;
-            m_compilerArguments = m_knownCompilers[key].split(QLatin1Char(' '), QString::SkipEmptyParts);
+            m_compilerArguments = m_knownCompilers[key].split(QLatin1Char(' '), Qt::SkipEmptyParts);
             m_compilerArguments
                 << QDir::toNativeSeparators(QLatin1String(PATH_PREPROCESSOR_CONFIG));
             break;
