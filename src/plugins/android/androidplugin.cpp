@@ -77,7 +77,7 @@ public:
         setConfigBaseId("Qt4ProjectManager.AndroidDeployConfiguration2");
         addSupportedTargetDeviceType(Constants::ANDROID_DEVICE_TYPE);
         setDefaultDisplayName(QCoreApplication::translate("Android::Internal",
-                                                          "Deploy to Android device"));
+                                                          "Deploy to Android Device"));
         addInitialStep(AndroidDeployQtStep::stepId());
     }
 };

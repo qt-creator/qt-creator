@@ -145,7 +145,7 @@ AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Utils::Id id)
     m_uninstallPreviousPackage = qt && qt->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0);
 
     //: AndroidDeployQtStep default display name
-    setDefaultDisplayName(tr("Deploy to Android device"));
+    setDefaultDisplayName(tr("Deploy to Android Device"));
 
     connect(this, &AndroidDeployQtStep::askForUninstall,
             this, &AndroidDeployQtStep::slotAskForUninstall,
