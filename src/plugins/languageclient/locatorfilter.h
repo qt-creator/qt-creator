@@ -32,6 +32,8 @@
 #include <languageserverprotocol/languagefeatures.h>
 #include <languageserverprotocol/workspace.h>
 
+#include <QVector>
+
 namespace Core { class IEditor; }
 
 namespace LanguageClient {

@@ -30,6 +30,8 @@
 #include <QIcon>
 #include <QMultiMap>
 #include <QMutex>
+#include <QSet>
+#include <QUrl>
 
 namespace Help {
 namespace Internal {

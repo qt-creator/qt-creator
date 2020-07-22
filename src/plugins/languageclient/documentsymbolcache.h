@@ -28,8 +28,11 @@
 #include "utils/optional.h"
 
 #include <languageserverprotocol/languagefeatures.h>
+#include <languageserverprotocol/lsptypes.h>
 
+#include <QMap>
 #include <QObject>
+#include <QSet>
 #include <QTimer>
 
 namespace LanguageClient {
