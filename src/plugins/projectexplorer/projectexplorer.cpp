@@ -3654,21 +3654,22 @@ void ProjectExplorerPluginPrivate::removeFile()
         FolderNode *folderNode = file.first->asFileNode()->parentFolderNode();
         QTC_ASSERT(folderNode, return);
 
+        const Utils::FilePath &currentFilePath = file.second;
         const RemovedFilesFromProject status
-                = folderNode->removeFiles(QStringList(file.second.toString()));
+                = folderNode->removeFiles(QStringList(currentFilePath.toString()));
         const bool success = status == RemovedFilesFromProject::Ok
                 || (status == RemovedFilesFromProject::Wildcard
                     && removeFileDialog.isDeleteFileChecked());
         if (!success) {
             TaskHub::addTask(BuildSystemTask(Task::Error,
                     tr("Could not remove file \"%1\" from project \"%2\".")
-                        .arg(filePath.toUserOutput(), folderNode->managingProject()->displayName()),
+                        .arg(currentFilePath.toUserOutput(), folderNode->managingProject()->displayName()),
                     folderNode->managingProject()->filePath()));
             if (!deleteFile)
                 continue;
         }
-        FileChangeBlocker changeGuard(filePath.toString());
-        Core::FileUtils::removeFile(filePath.toString(), deleteFile);
+        FileChangeBlocker changeGuard(currentFilePath.toString());
+        Core::FileUtils::removeFile(currentFilePath.toString(), deleteFile);
     }
 }
 
