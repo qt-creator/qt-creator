@@ -56,6 +56,7 @@
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QModelIndex>
+#include <QScrollArea>
 #include <QSettings>
 #include <QString>
 #include <QTimer>
@@ -367,7 +368,14 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         m_ui.managerTabWidget->tabBar()->setEnabled(true);
     });
     connect(m_sdkManagerWidget, &AndroidSdkManagerWidget::licenseWorkflowStarted, [this] {
-       m_ui.scrollArea->ensureWidgetVisible(m_ui.managerTabWidget);
+        QObject *parentWidget = parent();
+        while (parentWidget) {
+            if (auto scrollArea = qobject_cast<QScrollArea *>(parentWidget)) {
+                scrollArea->ensureWidgetVisible(m_ui.managerTabWidget);
+                break;
+            }
+            parentWidget = parentWidget->parent();
+        };
     });
 
     QMap<int, QString> javaValidationPoints;
