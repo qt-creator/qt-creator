@@ -106,7 +106,7 @@ public:
             if (m_rollback)
                 m_interface.sessionRollback();
         } catch (...) {
-            if (!std::uncaught_exception())
+            if (!std::uncaught_exceptions())
                 throw;
         }
     }
@@ -134,7 +134,7 @@ public:
             if (m_rollback)
                 m_interface.rollback();
         } catch (...) {
-            if (!std::uncaught_exception())
+            if (!std::uncaught_exceptions())
                 throw;
         }
     }
