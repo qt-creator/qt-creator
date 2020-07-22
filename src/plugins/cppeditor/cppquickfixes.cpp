@@ -73,7 +73,10 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFormLayout>
+#include <QGridLayout>
+#include <QHash>
 #include <QInputDialog>
+#include <QPair>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QSharedPointer>
@@ -2991,95 +2994,124 @@ public:
         }
     }
 
-    void perform() override
+    static void insertDefinition(
+            const CppQuickFixOperation *op,
+            InsertionLocation loc,
+            DefPos defPos,
+            DeclaratorAST *declAST,
+            Declaration *decl,
+            const QString &targetFilePath,
+            ChangeSet *changeSet = nullptr,
+            QList<ChangeSet::Range> *indentRanges = nullptr)
     {
-        CppRefactoringChanges refactoring(snapshot());
-        if (!m_loc.isValid())
-            m_loc = insertLocationForMethodDefinition(m_decl, true, NamespaceHandling::Ignore,
-                                                      refactoring, m_targetFileName);
-        QTC_ASSERT(m_loc.isValid(), return);
+        CppRefactoringChanges refactoring(op->snapshot());
+        if (!loc.isValid())
+            loc = insertLocationForMethodDefinition(decl, true, NamespaceHandling::Ignore,
+                                                      refactoring, targetFilePath);
+        QTC_ASSERT(loc.isValid(), return);
 
-        CppRefactoringFilePtr targetFile = refactoring.file(m_loc.fileName());
+        CppRefactoringFilePtr targetFile = refactoring.file(loc.fileName());
         Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
         oo.showFunctionSignatures = true;
         oo.showReturnTypes = true;
         oo.showArgumentNames = true;
         oo.showEnclosingTemplate = true;
 
-        if (m_defpos == DefPosInsideClass) {
-            const int targetPos = targetFile->position(m_loc.line(), m_loc.column());
-            ChangeSet target;
-            target.replace(targetPos - 1, targetPos, QLatin1String("\n {\n\n}")); // replace ';'
-            targetFile->setChangeSet(target);
-            targetFile->appendIndentRange(ChangeSet::Range(targetPos, targetPos + 4));
-            targetFile->setOpenEditor(true, targetPos);
-            targetFile->apply();
+        if (defPos == DefPosInsideClass) {
+            const int targetPos = targetFile->position(loc.line(), loc.column());
+            ChangeSet localChangeSet;
+            ChangeSet * const target = changeSet ? changeSet : &localChangeSet;
+            target->replace(targetPos - 1, targetPos, QLatin1String("\n {\n\n}")); // replace ';'
+            const ChangeSet::Range indentRange(targetPos, targetPos + 4);
+            if (indentRanges)
+                indentRanges->append(indentRange);
+            else
+                targetFile->appendIndentRange(indentRange);
 
-            // Move cursor inside definition
-            QTextCursor c = targetFile->cursor();
-            c.setPosition(targetPos);
-            c.movePosition(QTextCursor::Down);
-            c.movePosition(QTextCursor::EndOfLine);
-            editor()->setTextCursor(c);
+            if (!changeSet) {
+                targetFile->setChangeSet(*target);
+                targetFile->setOpenEditor(true, targetPos);
+                targetFile->apply();
+
+                // Move cursor inside definition
+                QTextCursor c = targetFile->cursor();
+                c.setPosition(targetPos);
+                c.movePosition(QTextCursor::Down);
+                c.movePosition(QTextCursor::EndOfLine);
+                op->editor()->setTextCursor(c);
+            }
         } else {
             // make target lookup context
             Document::Ptr targetDoc = targetFile->cppDocument();
-            Scope *targetScope = targetDoc->scopeAt(m_loc.line(), m_loc.column());
-            LookupContext targetContext(targetDoc, snapshot());
+            Scope *targetScope = targetDoc->scopeAt(loc.line(), loc.column());
+            LookupContext targetContext(targetDoc, op->snapshot());
             ClassOrNamespace *targetCoN = targetContext.lookupType(targetScope);
             if (!targetCoN)
                 targetCoN = targetContext.globalNamespace();
 
             // setup rewriting to get minimally qualified names
             SubstitutionEnvironment env;
-            env.setContext(context());
-            env.switchScope(m_decl->enclosingScope());
+            env.setContext(op->context());
+            env.switchScope(decl->enclosingScope());
             UseMinimalNames q(targetCoN);
             env.enter(&q);
-            Control *control = context().bindings()->control().data();
+            Control *control = op->context().bindings()->control().data();
 
             // rewrite the function type
-            const FullySpecifiedType tn = rewriteType(m_decl->type(), &env, control);
+            const FullySpecifiedType tn = rewriteType(decl->type(), &env, control);
 
             // rewrite the function name
-            if (nameIncludesOperatorName(m_decl->name())) {
-                CppRefactoringFilePtr file = refactoring.file(fileName());
-                const QString operatorNameText = file->textOf(m_declAST->core_declarator);
+            if (nameIncludesOperatorName(decl->name())) {
+                CppRefactoringFilePtr file = refactoring.file(op->fileName());
+                const QString operatorNameText = file->textOf(declAST->core_declarator);
                 oo.includeWhiteSpaceInOperatorName = operatorNameText.contains(QLatin1Char(' '));
             }
-            const QString name = oo.prettyName(LookupContext::minimalName(m_decl, targetCoN,
+            const QString name = oo.prettyName(LookupContext::minimalName(decl, targetCoN,
                                                                           control));
             const QString defText = inlinePrefix(
-                        m_targetFileName, [this] { return m_defpos == DefPosOutsideClass; })
+                        targetFilePath, [defPos] { return defPos == DefPosOutsideClass; })
                     + oo.prettyType(tn, name)
                     + QLatin1String("\n{\n\n}");
 
-            const int targetPos = targetFile->position(m_loc.line(), m_loc.column());
-            const int targetPos2 = qMax(0, targetFile->position(m_loc.line(), 1) - 1);
+            const int targetPos = targetFile->position(loc.line(), loc.column());
+            const int targetPos2 = qMax(0, targetFile->position(loc.line(), 1) - 1);
 
-            ChangeSet target;
-            target.insert(targetPos,  m_loc.prefix() + defText + m_loc.suffix());
-            targetFile->setChangeSet(target);
-            targetFile->appendIndentRange(ChangeSet::Range(targetPos2, targetPos));
-            targetFile->setOpenEditor(true, targetPos);
-            targetFile->apply();
+            ChangeSet localChangeSet;
+            ChangeSet * const target = changeSet ? changeSet : &localChangeSet;
+            target->insert(targetPos,  loc.prefix() + defText + loc.suffix());
+            const ChangeSet::Range indentRange(targetPos2, targetPos);
+            if (indentRanges)
+                indentRanges->append(indentRange);
+            else
+                targetFile->appendIndentRange(indentRange);
 
-            // Move cursor inside definition
-            QTextCursor c = targetFile->cursor();
-            c.setPosition(targetPos);
-            c.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor,
-                           m_loc.prefix().count(QLatin1String("\n")) + 2);
-            c.movePosition(QTextCursor::EndOfLine);
-            if (m_defpos == DefPosImplementationFile) {
-                if (targetFile->editor())
-                    targetFile->editor()->setTextCursor(c);
-            } else {
-                editor()->setTextCursor(c);
+            if (!changeSet) {
+                targetFile->setChangeSet(*target);
+                targetFile->setOpenEditor(true, targetPos);
+                targetFile->apply();
+
+                // Move cursor inside definition
+                QTextCursor c = targetFile->cursor();
+                c.setPosition(targetPos);
+                c.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor,
+                               loc.prefix().count(QLatin1String("\n")) + 2);
+                c.movePosition(QTextCursor::EndOfLine);
+                if (defPos == DefPosImplementationFile) {
+                    if (targetFile->editor())
+                        targetFile->editor()->setTextCursor(c);
+                } else {
+                    op->editor()->setTextCursor(c);
+                }
             }
         }
     }
 
 private:
+    void perform() override
+    {
+        insertDefinition(this, m_loc, m_defpos, m_declAST, m_decl, m_targetFileName);
+    }
+
     Declaration *m_decl;
     DeclaratorAST *m_declAST;
     InsertionLocation m_loc;
@@ -3327,6 +3359,250 @@ QString InsertMemberFromInitialization::getType(
     return tpp(type);
 }
 
+class MemberFunctionImplSetting
+{
+public:
+    Symbol *func = nullptr;
+    DefPos defPos = DefPosImplementationFile;
+};
+using MemberFunctionImplSettings = QList<MemberFunctionImplSetting>;
+
+class AddImplementationsDialog : public QDialog
+{
+    Q_DECLARE_TR_FUNCTIONS(AddImplementationsDialog)
+public:
+    AddImplementationsDialog(const QList<Symbol *> &candidates, const Utils::FilePath &implFile)
+        : QDialog(Core::ICore::dialogParent()), m_candidates(candidates)
+    {
+        setWindowTitle(tr("Member Function Implementations"));
+
+        const auto defaultImplTargetComboBox = new QComboBox;
+        QStringList implTargetStrings{tr("None"), tr("Inline"), tr("Outside Class")};
+        if (!implFile.isEmpty())
+            implTargetStrings.append(implFile.fileName());
+        defaultImplTargetComboBox->insertItems(0, implTargetStrings);
+        connect(defaultImplTargetComboBox, qOverload<int>(&QComboBox::currentIndexChanged), this,
+                [this](int index) {
+            for (QComboBox * const cb : m_implTargetBoxes)
+                cb->setCurrentIndex(index);
+        });
+        const auto defaultImplTargetLayout = new QHBoxLayout;
+        defaultImplTargetLayout->addWidget(new QLabel(tr("Default Implementation Location:")));
+        defaultImplTargetLayout->addWidget(defaultImplTargetComboBox);
+
+        const auto candidatesLayout = new QGridLayout;
+        Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
+        oo.showFunctionSignatures = true;
+        oo.showReturnTypes = true;
+        for (int i = 0; i < m_candidates.size(); ++i) {
+            const auto implTargetComboBox = new QComboBox;
+            m_implTargetBoxes.append(implTargetComboBox);
+            implTargetComboBox->insertItems(0, implTargetStrings);
+            const Symbol * const func = m_candidates.at(i);
+            candidatesLayout->addWidget(new QLabel(oo.prettyType(func->type(), func->name())),
+                                        i, 0);
+            candidatesLayout->addWidget(implTargetComboBox, i, 1);
+        }
+
+        const auto buttonBox
+                = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+        connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+        defaultImplTargetComboBox->setCurrentIndex(implTargetStrings.size() - 1);
+        const auto mainLayout = new QVBoxLayout(this);
+        mainLayout->addLayout(defaultImplTargetLayout);
+        const auto separator = new QFrame();
+        separator->setFrameShape(QFrame::HLine);
+        mainLayout->addWidget(separator);
+        mainLayout->addLayout(candidatesLayout);
+        mainLayout->addWidget(buttonBox);
+    }
+
+    MemberFunctionImplSettings settings() const
+    {
+        QTC_ASSERT(m_candidates.size() == m_implTargetBoxes.size(), return {});
+        MemberFunctionImplSettings settings;
+        for (int i = 0; i < m_candidates.size(); ++i) {
+            MemberFunctionImplSetting setting;
+            const int index = m_implTargetBoxes.at(i)->currentIndex();
+            const bool addImplementation = index != 0;
+            if (!addImplementation)
+                continue;
+            setting.func = m_candidates.at(i);
+            setting.defPos = static_cast<DefPos>(index - 1);
+            settings << setting;
+        }
+        return settings;
+    }
+
+private:
+    const QList<Symbol *> m_candidates;
+    QList<QComboBox *> m_implTargetBoxes;
+};
+
+class InsertDefsOperation: public CppQuickFixOperation
+{
+public:
+    InsertDefsOperation(const CppQuickFixInterface &interface)
+        : CppQuickFixOperation(interface)
+    {
+        setDescription(CppQuickFixFactory::tr("Create Implementations for Member Functions"));
+
+        const QList<AST *> &path = interface.path();
+        if (path.size() < 2)
+            return;
+
+        // Determine if cursor is on a class
+        const SimpleNameAST * const nameAST = path.at(path.size() - 1)->asSimpleName();
+        if (!nameAST || !interface.isCursorOn(nameAST))
+           return;
+        m_classAST = path.at(path.size() - 2)->asClassSpecifier();
+        if (!m_classAST)
+            return;
+
+        const Class * const theClass = m_classAST->symbol;
+        if (!theClass)
+            return;
+
+        // Collect all member functions without an implementation.
+        for (auto it = theClass->memberBegin(); it != theClass->memberEnd(); ++it) {
+            Symbol * const s = *it;
+            if (!s->identifier() || !s->type() || !s->isDeclaration() || s->asFunction())
+                continue;
+            Function * const func = s->type()->asFunctionType();
+            if (!func || func->isSignal() || func->isFriend())
+                continue;
+            if (SymbolFinder().findMatchingDefinition(s, interface.snapshot()))
+                continue;
+            m_declarations << s;
+        }
+    }
+
+    bool isApplicable() const { return !m_declarations.isEmpty(); }
+    void setMode(InsertDefsFromDecls::Mode mode) { m_mode = mode; }
+
+private:
+    void perform() override
+    {
+        QTC_ASSERT(!m_declarations.isEmpty(), return);
+
+        CppRefactoringChanges refactoring(snapshot());
+        const bool isHeaderFile = ProjectFile::isHeader(ProjectFile::classify(fileName()));
+        QString cppFile; // Only set if the class is defined in a header file.
+        if (isHeaderFile) {
+            InsertionPointLocator locator(refactoring);
+            for (const InsertionLocation &location
+                 : locator.methodDefinition(m_declarations.first(), false, {})) {
+                if (!location.isValid())
+                    continue;
+                const QString fileName = location.fileName();
+                if (ProjectFile::isHeader(ProjectFile::classify(fileName))) {
+                    const QString source = CppTools::correspondingHeaderOrSource(fileName);
+                    if (!source.isEmpty())
+                        cppFile = source;
+                } else {
+                    cppFile = fileName;
+                }
+                break;
+            }
+        }
+
+        MemberFunctionImplSettings settings;
+        switch (m_mode) {
+        case InsertDefsFromDecls::Mode::User: {
+            AddImplementationsDialog dlg(m_declarations, Utils::FilePath::fromString(cppFile));
+            if (dlg.exec() == QDialog::Accepted)
+                settings = dlg.settings();
+            break;
+        }
+        case InsertDefsFromDecls::Mode::Alternating: {
+            int defPos = DefPosImplementationFile;
+            const auto incDefPos = [&defPos] {
+                defPos = (defPos + 1) % (DefPosImplementationFile + 2);
+            };
+            for (Symbol * const func : qAsConst(m_declarations)) {
+                incDefPos();
+                if (defPos > DefPosImplementationFile)
+                    continue;
+                MemberFunctionImplSetting setting;
+                setting.func = func;
+                setting.defPos = static_cast<DefPos>(defPos);
+                settings << setting;
+            }
+            break;
+        }
+        case InsertDefsFromDecls::Mode::Off:
+            break;
+        }
+
+        if (settings.isEmpty())
+            return;
+
+        class DeclFinder : public ASTVisitor
+        {
+        public:
+            DeclFinder(const CppRefactoringFile *file, const Symbol *func)
+                : ASTVisitor(file->cppDocument()->translationUnit()), m_func(func) {}
+
+            SimpleDeclarationAST *decl() const { return m_decl; }
+
+        private:
+            bool visit(SimpleDeclarationAST *decl) override
+            {
+                if (m_decl)
+                    return false;
+                if (decl->symbols && decl->symbols->value == m_func)
+                    m_decl = decl;
+                return !m_decl;
+            }
+
+            const Symbol * const m_func;
+            SimpleDeclarationAST *m_decl = nullptr;
+        };
+
+        QHash<QString, QPair<ChangeSet, QList<ChangeSet::Range>>> changeSets;
+        for (const MemberFunctionImplSetting &setting : qAsConst(settings)) {
+            DeclFinder finder(currentFile().data(), setting.func);
+            finder.accept(m_classAST);
+            QTC_ASSERT(finder.decl(), continue);
+            InsertionLocation loc;
+            const QString targetFilePath = setting.defPos == DefPosImplementationFile
+                    ? cppFile : fileName();
+            QTC_ASSERT(!targetFilePath.isEmpty(), continue);
+            if (setting.defPos == DefPosInsideClass) {
+                int line, column;
+                currentFile()->lineAndColumn(currentFile()->endOf(finder.decl()), &line, &column);
+                loc = InsertionLocation(fileName(), QString(), QString(), line, column);
+            }
+            auto &changeSet = changeSets[targetFilePath];
+            InsertDefOperation::insertDefinition(
+                        this, loc, setting.defPos, finder.decl()->declarator_list->value,
+                        setting.func->asDeclaration(),targetFilePath,
+                        &changeSet.first, &changeSet.second);
+        }
+        for (auto it = changeSets.cbegin(); it != changeSets.cend(); ++it) {
+            const CppRefactoringFilePtr file = refactoring.file(it.key());
+            for (const ChangeSet::Range &r : it.value().second)
+                file->appendIndentRange(r);
+            file->setChangeSet(it.value().first);
+            file->apply();
+        }
+    }
+
+    ClassSpecifierAST *m_classAST = nullptr;
+    QList<Symbol *> m_declarations;
+    InsertDefsFromDecls::Mode m_mode;
+};
+
+
+void InsertDefsFromDecls::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
+{
+    const auto op = QSharedPointer<InsertDefsOperation>::create(interface);
+    op->setMode(m_mode);
+    if (op->isApplicable())
+        result << op;
+}
 
 namespace {
 
@@ -7022,6 +7298,7 @@ void createCppQuickFixes()
     new InsertDeclFromDef;
     new InsertDefFromDecl;
     new InsertMemberFromInitialization;
+    new InsertDefsFromDecls;
 
     new MoveFuncDefOutside;
     new MoveAllFuncDefOutside;

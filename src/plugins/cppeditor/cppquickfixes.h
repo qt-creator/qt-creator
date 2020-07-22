@@ -408,6 +408,26 @@ private:
 };
 
 /*!
+  Adds a definition for any number of member function declarations.
+ */
+class InsertDefsFromDecls : public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface,
+               TextEditor::QuickFixOperations &result) override;
+
+    enum class Mode {
+            Off,         // Testing: simulates user canceling the dialog
+            Alternating, // Testing: simulates user choosing a different DefPos for every function
+            User         // Normal interactive mode
+    };
+    void setMode(Mode mode) { m_mode = mode; }
+
+private:
+    Mode m_mode = Mode::User;
+};
+
+/*!
   Extracts the selected code and puts it to a function
  */
 class ExtractFunction : public CppQuickFixFactory

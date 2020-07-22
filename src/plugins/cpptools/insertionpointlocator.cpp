@@ -550,9 +550,8 @@ static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration,
     return InsertionLocation(QString::fromUtf8(definitionFunction->fileName()), prefix, suffix, line, column);
 }
 
-QList<InsertionLocation> InsertionPointLocator::methodDefinition(Symbol *declaration,
-                                                                 bool useSymbolFinder,
-                                                                 const QString &destinationFile) const
+const QList<InsertionLocation> InsertionPointLocator::methodDefinition(
+        Symbol *declaration, bool useSymbolFinder, const QString &destinationFile) const
 {
     QList<InsertionLocation> result;
     if (!declaration)

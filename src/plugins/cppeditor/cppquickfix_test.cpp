@@ -254,6 +254,10 @@ QuickFixOperationTest::QuickFixOperationTest(const QList<QuickFixTestDocument::P
         removeTrailingWhitespace(result);
         if (!expectedFailMessage.isEmpty())
             QEXPECT_FAIL("", expectedFailMessage.data(), Continue);
+        else if (result != testDocument->m_expectedSource) {
+            qDebug() << "---" << testDocument->m_expectedSource;
+            qDebug() << "+++" << result;
+        }
         QCOMPARE(result, testDocument->m_expectedSource);
 
         // Undo the change
@@ -3483,6 +3487,133 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_notTriggeredForFriendFunc(
 
     InsertDefFromDecl factory;
     QuickFixOperationTest(singleDocument(contents, ""), &factory);
+}
+
+void CppEditorPlugin::test_quickfix_InsertDefsFromDecls_data()
+{
+    QTest::addColumn<QByteArrayList>("headers");
+    QTest::addColumn<QByteArrayList>("sources");
+    QTest::addColumn<int>("mode");
+
+    QByteArray origHeader = R"(
+        namespace N {
+        class @C
+        {
+            Q_OBJECT
+        public:
+            friend void ignoredFriend();
+            void ignoredImplemented() {};
+            void ignoredImplemented2(); // Below
+            void ignoredImplemented3(); // In cpp file
+            void funcNotSelected();
+            void funcInline();
+            void funcBelow();
+            void funcCppFile();
+
+        signals:
+            void ignoredSignal();
+        };
+
+        inline void C::ignoredImplemented2() {}
+
+        } // namespace N)";
+    QByteArray origSource = R"(
+        #include "file.h"
+
+        namespace N {
+
+        void C::ignoredImplemented3() {}
+
+        } // namespace N)";
+
+    QByteArray expectedHeader = R"(
+        namespace N {
+        class C
+        {
+            Q_OBJECT
+        public:
+            friend void ignoredFriend();
+            void ignoredImplemented() {};
+            void ignoredImplemented2(); // Below
+            void ignoredImplemented3(); // In cpp file
+            void funcNotSelected();
+            void funcInline()
+            {
+
+            }
+            void funcBelow();
+            void funcCppFile();
+
+        signals:
+            void ignoredSignal();
+        };
+
+        inline void C::ignoredImplemented2() {}
+
+        inline void C::funcBelow()
+        {
+
+        }
+
+        } // namespace N)";
+    QByteArray expectedSource = R"(
+        #include "file.h"
+
+        namespace N {
+
+        void C::ignoredImplemented3() {}
+
+        void C::funcCppFile()
+        {
+
+        }
+
+        } // namespace N)";
+    QTest::addRow("normal case")
+            << QByteArrayList{origHeader, expectedHeader}
+            << QByteArrayList{origSource, expectedSource}
+            << int(InsertDefsFromDecls::Mode::Alternating);
+    QTest::addRow("aborted dialog")
+            << QByteArrayList{origHeader, origHeader}
+            << QByteArrayList{origSource, origSource}
+            << int(InsertDefsFromDecls::Mode::Off);
+
+    origHeader = R"(
+        namespace N {
+        class @C
+        {
+            Q_OBJECT
+        public:
+            friend void ignoredFriend();
+            void ignoredImplemented() {};
+            void ignoredImplemented2(); // Below
+            void ignoredImplemented3(); // In cpp file
+
+        signals:
+            void ignoredSignal();
+        };
+
+        inline void C::ignoredImplemented2() {}
+
+        } // namespace N)";
+    QTest::addRow("no candidates")
+            << QByteArrayList{origHeader, ""}
+            << QByteArrayList{origSource, ""}
+            << int(InsertDefsFromDecls::Mode::Alternating);
+}
+
+void CppEditorPlugin::test_quickfix_InsertDefsFromDecls()
+{
+    QFETCH(QByteArrayList, headers);
+    QFETCH(QByteArrayList, sources);
+    QFETCH(int, mode);
+
+    QList<QuickFixTestDocument::Ptr> testDocuments({
+        QuickFixTestDocument::create("file.h", headers.at(0), headers.at(1)),
+        QuickFixTestDocument::create("file.cpp", sources.at(0), sources.at(1))});
+    InsertDefsFromDecls factory;
+    factory.setMode(static_cast<InsertDefsFromDecls::Mode>(mode));
+    QuickFixOperationTest(testDocuments, &factory);
 }
 
 // Function for one of InsertDeclDef section cases
