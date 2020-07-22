@@ -165,8 +165,8 @@ void InterpreterOptionsWidget::apply()
     }
 
     QList<Interpreter> interpreters;
-    for (const ListItem<Interpreter> *treeItem : m_model)
-        interpreters << treeItem->itemData;
+    for (const TreeItem *treeItem : m_model)
+        interpreters << static_cast<const ListItem<Interpreter> *>(treeItem)->itemData;
     PythonSettings::setInterpreter(interpreters, m_defaultId);
 }
 

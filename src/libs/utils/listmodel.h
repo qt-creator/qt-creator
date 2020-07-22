@@ -67,10 +67,8 @@ public:
 
     void clear() { rootItem()->removeChildren(); }
 
-    using const_iterator = typename QVector<ChildType *>::const_iterator;
-    const_iterator begin() const { return const_iterator(rootItem()->begin()); }
-    const_iterator end() const { return const_iterator(rootItem()->end()); }
-
+    auto begin() const { return rootItem()->begin(); }
+    auto end() const { return rootItem()->end(); }
 };
 
 template <class ItemData>
