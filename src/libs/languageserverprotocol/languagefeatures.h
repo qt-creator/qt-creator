@@ -360,6 +360,8 @@ public:
         variant::operator=(other);
         return *this;
     }
+    // Needed to make it usable in Qt 6 signals.
+    bool operator<(const DocumentSymbolsResult &other) const = delete;
 };
 
 
