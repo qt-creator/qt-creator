@@ -269,6 +269,7 @@ Section {
                 }
                 onAccepted: {
                     backendValues.text.value = richTextEditor.richText
+                    backendValues.textFormat.setEnumeration("Text", "RichText")
                     hideWidget()
                     richTextDialogLoader.visible = false
                 }
