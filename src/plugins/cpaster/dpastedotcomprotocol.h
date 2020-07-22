@@ -40,6 +40,7 @@ private:
     bool hasSettings() const override { return false; }
     unsigned capabilities() const override;
     void fetch(const QString &id) override;
+    void fetchFinished(const QString &id, QNetworkReply * const reply, bool alreadyRedirected);
     void paste(const QString &text,
                ContentType ct = Text,
                int expiryDays = 1,
