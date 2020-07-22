@@ -844,13 +844,7 @@ AndroidSettingsPage::AndroidSettingsPage()
     setId(Constants::ANDROID_SETTINGS_ID);
     setDisplayName(AndroidSettingsWidget::tr("Android"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
-    setWidgetCreator([] {
-        auto widget = new AndroidSettingsWidget;
-        QPalette pal = widget->palette();
-        pal.setColor(QPalette::Window, Utils::creatorTheme()->color(Theme::BackgroundColorNormal));
-        widget->setPalette(pal);
-        return widget;
-    });
+    setWidgetCreator([] { return new AndroidSettingsWidget; });
 }
 
 } // namespace Internal
