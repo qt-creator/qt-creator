@@ -3629,14 +3629,16 @@ void ProjectExplorerPluginPrivate::removeFile()
 
     const bool deleteFile = removeFileDialog.isDeleteFileChecked();
 
-    const QMessageBox::StandardButton reply = QMessageBox::question(
-                Core::ICore::dialogParent(), tr("Remove More Files?"),
-                tr("Remove these files as well?\n    %1")
-                .arg(Utils::transform<QStringList>(siblings, [](const NodeAndPath &np) {
-        return np.second.toFileInfo().fileName();
-    }).join("\n    ")));
-    if (reply == QMessageBox::Yes)
-        filesToRemove << siblings;
+    if (!siblings.isEmpty()) {
+        const QMessageBox::StandardButton reply = QMessageBox::question(
+                    Core::ICore::dialogParent(), tr("Remove More Files?"),
+                    tr("Remove these files as well?\n    %1")
+                    .arg(Utils::transform<QStringList>(siblings, [](const NodeAndPath &np) {
+            return np.second.toFileInfo().fileName();
+        }).join("\n    ")));
+        if (reply == QMessageBox::Yes)
+            filesToRemove << siblings;
+    }
 
     for (const NodeAndPath &file : filesToRemove) {
         // Nodes can become invalid if the project was re-parsed while the dialog was open
