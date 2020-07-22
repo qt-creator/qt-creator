@@ -3885,7 +3885,7 @@ public:
             funcDef.append(QLatin1String(" const"));
             funcDecl.append(QLatin1String(" const"));
         }
-        funcDef.append(QLatin1String("\n{\n"));
+        funcDef.append(QLatin1String("\n{"));
         if (matchingClass)
             funcDecl.append(QLatin1String(";\n"));
         if (m_funcReturn) {
@@ -3925,7 +3925,7 @@ public:
         QTC_ASSERT(tc.hasSelection(), return);
         position = tc.selectionEnd() + 1;
         change.clear();
-        change.insert(position, extract);
+        change.insert(position, extract + '\n');
         currentFile->setChangeSet(change);
         currentFile->appendReindentRange(ChangeSet::Range(position, position + 1));
         currentFile->apply();

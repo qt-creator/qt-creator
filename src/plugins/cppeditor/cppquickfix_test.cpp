@@ -5627,6 +5627,26 @@ void CppEditorPlugin::test_quickfix_ExtractFunction_data()
              "{\n"
              "    extracted(c);\n"
              "}\n");
+
+    QTest::newRow("if-block")
+            << _("inline void func()\n"
+                 "{\n"
+                 "    int dummy = 0;\n"
+                 "    @{start}if@{end} (dummy < 10) {\n"
+                 "        ++dummy;\n"
+                 "    }\n"
+                 "}\n")
+            << _("inline void extracted(int dummy)\n"
+                 "{\n"
+                 "    if (dummy < 10) {\n"
+                 "        ++dummy;\n"
+                 "    }\n"
+                 "}\n\n"
+                 "inline void func()\n"
+                 "{\n"
+                 "    int dummy = 0;\n"
+                 "    extracted(dummy);\n"
+                 "}\n");
 }
 
 void CppEditorPlugin::test_quickfix_ExtractFunction()
