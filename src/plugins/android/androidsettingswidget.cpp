@@ -429,13 +429,22 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     m_ui.downloadSDKToolButton->setIcon(downloadIcon);
     m_ui.downloadNDKToolButton->setIcon(downloadIcon);
     m_ui.downloadOpenJDKToolButton->setIcon(downloadIcon);
-    m_ui.sdkToolsAutoDownloadButton->setToolTip(tr(
-            "Automatically download Android SDK Tools to selected location.\n\n"
-            "If the selected path contains no valid SDK Tools, the SDK Tools package "
-            "is downloaded from %1, and extracted to the selected path.\n"
-            "After the SDK Tools are properly set up, you are prompted to install "
-            "any essential packages required for Qt to build for Android.")
-                                                 .arg(m_androidConfig.sdkToolsUrl().toString()));
+    m_ui.sdkToolsAutoDownloadButton->setToolTip(
+        tr("Automatically download Android SDK Tools to selected location.\n\n"
+           "If the selected path contains no valid SDK Tools, the SDK Tools package is downloaded\n"
+           "from %1,\n"
+           "and extracted to the selected path.\n"
+           "After the SDK Tools are properly set up, you are prompted to install any essential\n"
+           "packages required for Qt to build for Android.")
+            .arg(m_androidConfig.sdkToolsUrl().toString()));
+
+    m_ui.downloadOpenSSLPrebuiltLibs->setToolTip(
+        tr("Automatically download OpenSSL prebuilt libraries.\n\n"
+           "These libraries can be shipped with your application if any SSL operations\n"
+           "are performed. Find the checkbox under \"Projects > Build > Build Steps >\n"
+           "Build Android APK > Additional Libraries\".\n"
+           "If the automatic download fails, Qt Creator proposes to open the download URL\n"
+           "in the system's browser for manual download."));
 
     connect(m_ui.SDKLocationPathChooser, &PathChooser::rawPathChanged,
             this, &AndroidSettingsWidget::onSdkPathChanged);
