@@ -75,7 +75,15 @@ void ClangToolRunner::init(const QString &outputDirPath,
 
 ClangToolRunner::~ClangToolRunner()
 {
-    Utils::SynchronousProcess::stopProcess(m_process);
+    if (m_process.state() != QProcess::NotRunning) {
+        // asking politly to terminate costs ~300 ms on windows so skip the courtasy and direct kill the process
+        if (Utils::HostOsInfo::isWindowsHost()) {
+            m_process.kill();
+            m_process.waitForFinished(100);
+        } else {
+            Utils::SynchronousProcess::stopProcess(m_process);
+        }
+    }
 }
 
 static QString createOutputFilePath(const QString &dirPath, const QString &fileToAnalyze)

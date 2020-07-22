@@ -42,7 +42,7 @@ static const char clazyStandaloneExecutableKey[] = "ClazyStandaloneExecutable";
 
 static const char parallelJobsKey[] = "ParallelJobs";
 static const char buildBeforeAnalysisKey[] = "BuildBeforeAnalysis";
-
+static const char analyzeOpenFilesKey[] = "AnalyzeOpenFiles";
 static const char oldDiagnosticConfigIdKey[] = "diagnosticConfigId";
 
 using namespace CppTools;
@@ -66,6 +66,7 @@ void RunSettings::fromMap(const QVariantMap &map, const QString &prefix)
     m_diagnosticConfigId = Utils::Id::fromSetting(map.value(prefix + diagnosticConfigIdKey));
     m_parallelJobs = map.value(prefix + parallelJobsKey).toInt();
     m_buildBeforeAnalysis = map.value(prefix + buildBeforeAnalysisKey).toBool();
+    m_analyzeOpenFiles = map.value(prefix + analyzeOpenFilesKey).toBool();
 }
 
 void RunSettings::toMap(QVariantMap &map, const QString &prefix) const
@@ -73,6 +74,7 @@ void RunSettings::toMap(QVariantMap &map, const QString &prefix) const
     map.insert(prefix + diagnosticConfigIdKey, m_diagnosticConfigId.toSetting());
     map.insert(prefix + parallelJobsKey, m_parallelJobs);
     map.insert(prefix + buildBeforeAnalysisKey, m_buildBeforeAnalysis);
+    map.insert(prefix + analyzeOpenFilesKey, m_analyzeOpenFiles);
 }
 
 Utils::Id RunSettings::diagnosticConfigId() const
@@ -80,6 +82,14 @@ Utils::Id RunSettings::diagnosticConfigId() const
     if (!diagnosticConfigsModel().hasConfigWithId(m_diagnosticConfigId))
         return defaultDiagnosticId();
     return m_diagnosticConfigId;
+}
+
+bool RunSettings::operator==(const RunSettings &other) const
+{
+    return m_diagnosticConfigId == other.m_diagnosticConfigId
+           && m_parallelJobs == other.m_parallelJobs
+           && m_buildBeforeAnalysis == other.m_buildBeforeAnalysis
+           && m_analyzeOpenFiles == other.m_analyzeOpenFiles;
 }
 
 ClangToolsSettings::ClangToolsSettings()
@@ -154,6 +164,7 @@ void ClangToolsSettings::readSettings()
         defaults.insert(diagnosticConfigIdKey, defaultDiagnosticId().toSetting());
         defaults.insert(parallelJobsKey, m_runSettings.parallelJobs());
         defaults.insert(buildBeforeAnalysisKey, m_runSettings.buildBeforeAnalysis());
+        defaults.insert(analyzeOpenFilesKey, m_runSettings.analyzeOpenFiles());
         map = defaults;
         for (QVariantMap::ConstIterator it = defaults.constBegin(); it != defaults.constEnd(); ++it)
             map.insert(it.key(), s->value(it.key(), it.value()));

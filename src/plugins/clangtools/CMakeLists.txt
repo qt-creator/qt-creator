@@ -32,11 +32,13 @@ add_qtc_plugin(ClangTools
     clazychecks.ui
     diagnosticconfigswidget.cpp diagnosticconfigswidget.h
     diagnosticmark.cpp diagnosticmark.h
+    documentclangtoolrunner.cpp documentclangtoolrunner.h
     executableinfo.cpp executableinfo.h
     filterdialog.cpp filterdialog.h filterdialog.ui
     runsettingswidget.cpp runsettingswidget.h runsettingswidget.ui
     settingswidget.cpp settingswidget.h settingswidget.ui
     tidychecks.ui
+    virtualfilesystemoverlay.cpp virtualfilesystemoverlay.h
 )
 
 extend_qtc_plugin(ClangTools

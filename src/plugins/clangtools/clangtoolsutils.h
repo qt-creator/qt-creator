@@ -80,5 +80,10 @@ CppTools::ClangDiagnosticConfigsModel diagnosticConfigsModel();
 CppTools::ClangDiagnosticConfigsModel diagnosticConfigsModel(
     const CppTools::ClangDiagnosticConfigs &customConfigs);
 
+CppTools::ClangDiagnosticConfig diagnosticConfig(const Utils::Id &diagConfigId);
+
+QStringList extraClangToolsPrependOptions();
+QStringList extraClangToolsAppendOptions();
+
 } // namespace Internal
 } // namespace ClangTools

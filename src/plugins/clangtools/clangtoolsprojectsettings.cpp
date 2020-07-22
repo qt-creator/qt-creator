@@ -48,6 +48,8 @@ ClangToolsProjectSettings::ClangToolsProjectSettings(ProjectExplorer::Project *p
     : m_project(project)
 {
     load();
+    connect(this, &ClangToolsProjectSettings::suppressedDiagnosticsChanged,
+            this, &ClangToolsProjectSettings::changed);
     connect(project, &ProjectExplorer::Project::settingsLoaded,
             this, &ClangToolsProjectSettings::load);
     connect(project, &ProjectExplorer::Project::aboutToSaveSettings, this,
@@ -57,6 +59,38 @@ ClangToolsProjectSettings::ClangToolsProjectSettings(ProjectExplorer::Project *p
 ClangToolsProjectSettings::~ClangToolsProjectSettings()
 {
     store();
+}
+
+void ClangToolsProjectSettings::setUseGlobalSettings(bool useGlobalSettings)
+{
+    if (m_useGlobalSettings == useGlobalSettings)
+        return;
+    m_useGlobalSettings = useGlobalSettings;
+    emit changed();
+}
+
+void ClangToolsProjectSettings::setRunSettings(const RunSettings &settings)
+{
+    if (m_runSettings == settings)
+        return;
+    m_runSettings = settings;
+    emit changed();
+}
+
+void ClangToolsProjectSettings::setSelectedDirs(const QSet<Utils::FilePath> &value)
+{
+    if (m_selectedDirs == value)
+        return;
+    m_selectedDirs = value;
+    emit changed();
+}
+
+void ClangToolsProjectSettings::setSelectedFiles(const QSet<Utils::FilePath> &value)
+{
+    if (m_selectedFiles == value)
+        return;
+    m_selectedFiles = value;
+    emit changed();
 }
 
 void ClangToolsProjectSettings::addSuppressedDiagnostic(const SuppressedDiagnostic &diag)

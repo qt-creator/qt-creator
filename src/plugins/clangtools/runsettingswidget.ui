@@ -43,6 +43,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="analyzeOpenFiles">
+        <property name="text">
+         <string>Analyze open files</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <layout class="QHBoxLayout" name="processesLayout">
         <item>
          <widget class="QLabel" name="label_2">

@@ -35,6 +35,7 @@
 #include <cpptools/cpptoolsreuse.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/qtcprocess.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -302,6 +303,52 @@ QString documentationUrl(const QString &checkName)
     }
 
     return url;
+}
+
+ClangDiagnosticConfig diagnosticConfig(const Utils::Id &diagConfigId)
+{
+    const ClangDiagnosticConfigsModel configs = diagnosticConfigsModel();
+    QTC_ASSERT(configs.hasConfigWithId(diagConfigId), return ClangDiagnosticConfig());
+    return configs.configWithId(diagConfigId);
+}
+
+QStringList splitArgs(QString &argsString)
+{
+    QStringList result;
+    Utils::QtcProcess::ArgIterator it(&argsString);
+    while (it.next())
+        result.append(it.value());
+    return result;
+}
+
+QStringList extraOptions(const char *envVar)
+{
+    if (!qEnvironmentVariableIsSet(envVar))
+        return QStringList();
+    QString arguments = QString::fromLocal8Bit(qgetenv(envVar));
+    return splitArgs(arguments);
+}
+
+QStringList extraClangToolsPrependOptions()
+{
+    constexpr char csaPrependOptions[] = "QTC_CLANG_CSA_CMD_PREPEND";
+    constexpr char toolsPrependOptions[] = "QTC_CLANG_TOOLS_CMD_PREPEND";
+    static const QStringList options = extraOptions(csaPrependOptions)
+                                       + extraOptions(toolsPrependOptions);
+    if (!options.isEmpty())
+        qWarning() << "ClangTools options are prepended with " << options.toVector();
+    return options;
+}
+
+QStringList extraClangToolsAppendOptions()
+{
+    constexpr char csaAppendOptions[] = "QTC_CLANG_CSA_CMD_APPEND";
+    constexpr char toolsAppendOptions[] = "QTC_CLANG_TOOLS_CMD_APPEND";
+    static const QStringList options = extraOptions(csaAppendOptions)
+                                       + extraOptions(toolsAppendOptions);
+    if (!options.isEmpty())
+        qWarning() << "ClangTools options are appended with " << options.toVector();
+    return options;
 }
 
 } // namespace Internal

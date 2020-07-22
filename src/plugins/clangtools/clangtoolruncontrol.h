@@ -46,8 +46,9 @@ class ClangToolRunner;
 class ProjectBuilder;
 
 struct AnalyzeUnit {
-    AnalyzeUnit(const QString &file, const QStringList &options)
-        : file(file), arguments(options) {}
+    AnalyzeUnit(const FileInfo &fileInfo,
+                const Utils::FilePath &clangResourceDir,
+                const QString &clangVersion);
 
     QString file;
     QStringList arguments; // without file itself and "-o somePath"

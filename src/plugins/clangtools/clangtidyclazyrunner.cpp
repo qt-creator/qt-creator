@@ -80,6 +80,13 @@ static QStringList mainToolArguments(const QString &mainFilePath, const QString 
     };
 }
 
+static QString virtualFileSystemOverlay(const QString &overlayFilePath)
+{
+    if (overlayFilePath.isEmpty())
+        return {};
+    return "--vfsoverlay=" + overlayFilePath;
+}
+
 static QStringList clangArguments(const ClangDiagnosticConfig &diagnosticConfig,
                                   const QStringList &baseOptions)
 {
@@ -102,11 +109,11 @@ ClangTidyRunner::ClangTidyRunner(const ClangDiagnosticConfig &config, QObject *p
     setOutputFileFormat(OutputFileFormat::Yaml);
     setExecutable(clangTidyExecutable());
     setArgsCreator([this, config](const QStringList &baseOptions) {
-        return QStringList()
-            << tidyChecksArguments(config)
-            << mainToolArguments(fileToAnalyze(), outputFilePath())
-            << "--"
-            << clangArguments(config, baseOptions);
+        return QStringList() << tidyChecksArguments(config)
+                             << mainToolArguments(fileToAnalyze(), outputFilePath())
+                             << virtualFileSystemOverlay(m_overlayFilePath)
+                             << "--"
+                             << clangArguments(config, baseOptions);
     });
 }
 

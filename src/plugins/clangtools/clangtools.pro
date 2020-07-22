@@ -30,10 +30,12 @@ SOURCES += \
     clangtoolsutils.cpp \
     diagnosticconfigswidget.cpp \
     diagnosticmark.cpp \
+    documentclangtoolrunner.cpp \
     executableinfo.cpp \
     filterdialog.cpp \
     runsettingswidget.cpp \
     settingswidget.cpp \
+    virtualfilesystemoverlay.cpp \
 
 HEADERS += \
     clangfileinfo.h \
@@ -56,10 +58,12 @@ HEADERS += \
     clangtoolsutils.h \
     diagnosticconfigswidget.h \
     diagnosticmark.h \
+    documentclangtoolrunner.h \
     executableinfo.h \
     filterdialog.h \
     runsettingswidget.h \
     settingswidget.h \
+    virtualfilesystemoverlay.h \
 
 FORMS += \
     clangselectablefilesdialog.ui \

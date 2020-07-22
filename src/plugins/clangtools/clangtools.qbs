@@ -68,6 +68,8 @@ QtcPlugin {
         "diagnosticconfigswidget.h",
         "diagnosticmark.cpp",
         "diagnosticmark.h",
+        "documentclangtoolrunner.cpp",
+        "documentclangtoolrunner.h",
         "executableinfo.cpp",
         "executableinfo.h",
         "filterdialog.cpp",
@@ -80,6 +82,8 @@ QtcPlugin {
         "settingswidget.h",
         "settingswidget.ui",
         "tidychecks.ui",
+        "virtualfilesystemoverlay.cpp",
+        "virtualfilesystemoverlay.h",
     ]
 
     Group {

@@ -29,6 +29,7 @@
 #include "clangtoolsconstants.h"
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolsprojectsettingswidget.h"
+#include "documentclangtoolrunner.h"
 #include "settingswidget.h"
 
 #ifdef WITH_TESTS
@@ -84,6 +85,7 @@ class ClangToolsPluginPrivate
 public:
     ClangTool clangTool;
     ClangToolsOptionsPage optionsPage;
+    QMap<Core::IDocument *, DocumentClangToolRunner *> documentRunners;
 };
 
 ClangToolsPlugin::~ClangToolsPlugin()
@@ -111,7 +113,26 @@ bool ClangToolsPlugin::initialize(const QStringList &arguments, QString *errorSt
     panelFactory->setCreateWidgetFunction([](Project *project) { return new ProjectSettingsWidget(project); });
     ProjectPanelFactory::registerFactory(panelFactory);
 
+    connect(Core::EditorManager::instance(),
+            &Core::EditorManager::currentEditorChanged,
+            this,
+            &ClangToolsPlugin::onCurrentEditorChanged);
+
     return true;
+}
+
+void ClangToolsPlugin::onCurrentEditorChanged()
+{
+    for (Core::IEditor *editor : Core::EditorManager::visibleEditors()) {
+        IDocument *document = editor->document();
+        if (d->documentRunners.contains(document))
+            continue;
+        auto runner = new DocumentClangToolRunner(document);
+        connect(runner, &DocumentClangToolRunner::destroyed, this, [this, document]() {
+            d->documentRunners.remove(document);
+        });
+        d->documentRunners[document] = runner;
+    }
 }
 
 void ClangToolsPlugin::registerAnalyzeActions()

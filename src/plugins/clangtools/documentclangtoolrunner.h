@@ -25,27 +25,56 @@
 
 #pragma once
 
-#include "clangtoolsdiagnostic.h"
+#include "clangfileinfo.h"
 
-#include <texteditor/textmark.h>
+#include <utils/fileutils.h>
+#include <utils/temporarydirectory.h>
+
+#include <QObject>
+#include <QTimer>
+
+namespace Core { class IDocument; }
+namespace CppTools { class ClangDiagnosticConfig; }
 
 namespace ClangTools {
+
 namespace Internal {
 
+class ClangToolRunner;
+class DiagnosticMark;
 
-class DiagnosticMark : public TextEditor::TextMark
+class DocumentClangToolRunner : public QObject
 {
+    Q_OBJECT
 public:
-    explicit DiagnosticMark(const Diagnostic &diagnostic);
-
-    void disable();
-    bool enabled() const;
-
-    QString source;
+    DocumentClangToolRunner(Core::IDocument *doc);
+    ~DocumentClangToolRunner();
 
 private:
-    const Diagnostic m_diagnostic;
-    bool m_enabled = true;
+    void scheduleRun();
+    void run();
+    void runNext();
+
+    void onSuccess();
+    void onFailure(const QString &errorMessage, const QString &errorDetails);
+
+    void finalize();
+
+    void cancel();
+
+    const CppTools::ClangDiagnosticConfig getDiagnosticConfig(ProjectExplorer::Project *project);
+    template<class T>
+    ClangToolRunner *createRunner(const CppTools::ClangDiagnosticConfig &config,
+                                  const Utils::Environment &env);
+
+    QTimer m_runTimer;
+    Core::IDocument *m_document = nullptr;
+    Utils::TemporaryDirectory m_temporaryDir;
+    std::unique_ptr<ClangToolRunner> m_currentRunner;
+    QList<std::function<ClangToolRunner *()>> m_runnerCreators;
+    QList<DiagnosticMark *> m_marks;
+    FileInfo m_fileInfo;
+    QMetaObject::Connection m_projectSettingsUpdate;
 };
 
 } // namespace Internal

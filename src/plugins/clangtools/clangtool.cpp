@@ -376,13 +376,6 @@ static RunSettings runSettings()
     return ClangToolsSettings::instance()->runSettings();
 }
 
-static ClangDiagnosticConfig diagnosticConfig(const Utils::Id &diagConfigId)
-{
-    const ClangDiagnosticConfigsModel configs = diagnosticConfigsModel();
-    QTC_ASSERT(configs.hasConfigWithId(diagConfigId), return ClangDiagnosticConfig());
-    return configs.configWithId(diagConfigId);
-}
-
 ClangTool *ClangTool::instance()
 {
     return s_instance;

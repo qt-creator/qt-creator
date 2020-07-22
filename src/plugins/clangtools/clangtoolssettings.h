@@ -54,10 +54,16 @@ public:
     int parallelJobs() const { return m_parallelJobs; }
     void setParallelJobs(int jobs) { m_parallelJobs = jobs; }
 
+    bool analyzeOpenFiles() const { return m_analyzeOpenFiles; }
+    void setAnalyzeOpenFiles(bool analyzeOpenFiles) { m_analyzeOpenFiles = analyzeOpenFiles; }
+
+    bool operator==(const RunSettings &other) const;
+
 private:
     Utils::Id m_diagnosticConfigId;
     int m_parallelJobs = -1;
     bool m_buildBeforeAnalysis = true;
+    bool m_analyzeOpenFiles = true;
 };
 
 class ClangToolsSettings : public QObject

@@ -52,6 +52,7 @@ public:
     void setExecutable(const QString &executable) { m_executable = executable; }
     void setArgsCreator(const ArgsCreator &argsCreator) { m_argsCreator = argsCreator; }
     void setOutputFileFormat(const OutputFileFormat &format) { m_outputFileFormat = format; }
+    void setVFSOverlay(const QString overlayFilePath) { m_overlayFilePath = overlayFilePath; }
 
     QString name() const { return m_name; }
     QString executable() const { return m_executable; }
@@ -67,6 +68,9 @@ public:
 signals:
     void finishedWithSuccess(const QString &fileToAnalyze);
     void finishedWithFailure(const QString &errorMessage, const QString &errorDetails);
+
+protected:
+    QString m_overlayFilePath;
 
 private:
     void onProcessOutput();

@@ -110,6 +110,9 @@ void RunSettingsWidget::fromSettings(const RunSettings &s)
     connect(m_ui->parallelJobsSpinBox,
             QOverload<int>::of(&QSpinBox::valueChanged),
             [this](int) { emit changed(); });
+    m_ui->analyzeOpenFiles->setChecked(s.analyzeOpenFiles());
+    connect(m_ui->analyzeOpenFiles, &QCheckBox::toggled, this, &RunSettingsWidget::changed);
+
 }
 
 RunSettings RunSettingsWidget::toSettings() const
@@ -118,6 +121,7 @@ RunSettings RunSettingsWidget::toSettings() const
     s.setDiagnosticConfigId(m_ui->diagnosticWidget->currentConfigId());
     s.setBuildBeforeAnalysis(m_ui->buildBeforeAnalysis->checkState() == Qt::CheckState::Checked);
     s.setParallelJobs(m_ui->parallelJobsSpinBox->value());
+    s.setAnalyzeOpenFiles(m_ui->analyzeOpenFiles->checkState() == Qt::CheckState::Checked);
 
     return s;
 }
