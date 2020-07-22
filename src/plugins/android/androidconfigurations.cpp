@@ -1604,7 +1604,8 @@ FilePath AndroidConfig::getJdkPath()
             jdkHome = FilePath::fromUtf8(jdkPath);
         } else {
             jdkPath.replace("bin/java", ""); // For OpenJDK 11
-            jdkPath.replace("jre/bin/java", "");
+            jdkPath.replace("jre", "");
+            jdkPath.replace("//", "/");
             jdkHome = FilePath::fromUtf8(jdkPath);
         }
     }
