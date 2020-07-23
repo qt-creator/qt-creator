@@ -56,7 +56,12 @@ void DPasteDotComProtocol::fetchFinished(const QString &id, QNetworkReply * cons
     const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     if (status >= 300 && status <= 308 && status != 306) {
         if (!alreadyRedirected) {
-            QNetworkReply * const newRep = httpGet(QString::fromUtf8(reply->rawHeader("Location")));
+            const QString location = QString::fromUtf8(reply->rawHeader("Location"));
+            if (status == 301 || status == 308) {
+                const QString m = QString("HTTP redirect (%1) to \"%2\"").arg(status).arg(location);
+                Core::MessageManager::write(m, Core::MessageManager::ModeSwitch);
+            }
+            QNetworkReply * const newRep = httpGet(location);
             connect(newRep, &QNetworkReply::finished, this, [this, id, newRep] {
                 fetchFinished(id, newRep, true);
             });
