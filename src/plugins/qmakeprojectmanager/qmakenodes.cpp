@@ -435,7 +435,7 @@ bool QmakeProFileNode::setData(Utils::Id role, const QVariant &value) const
     if (role == Android::Constants::AndroidPackageSourceDir)
         return pro->setProVariable("ANDROID_PACKAGE_SOURCE_DIR", {value.toString()}, scope, flags);
     if (role == Android::Constants::ANDROID_ABIS)
-        return pro->setProVariable("ANDROID_ABIS", {value.toString()}, scope, flags);
+        return pro->setProVariable("ANDROID_ABIS", {value.toStringList()}, scope, flags);
 
     return false;
 }
