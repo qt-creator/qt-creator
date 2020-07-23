@@ -292,7 +292,7 @@ void QmlDebugTranslationWidget::runTest()
         int timerCounter = 1;
         const auto testLanguageList = m_testLanguages;
 
-        auto testLanguages = [previewPlugin, runControl, testLanguageList](int timerCounter, const QString &previewedFile = QString()) {
+        auto testLanguages = [previewPlugin, runControl, testLanguageList](int timerCounter, const QString &previewedFile) {
             qDebug() << "testLanguages" << previewedFile;
             for (auto language : testLanguageList) {
                 QTimer::singleShot(timerCounter * 1000, previewPlugin, [previewPlugin, runControl, language, previewedFile]() {
@@ -309,7 +309,7 @@ void QmlDebugTranslationWidget::runTest()
                 testLanguages(timerCounter++, filePath.toString());
             }
         } else {
-            testLanguages(timerCounter);
+            testLanguages(timerCounter, QString());
         }
 
     });
