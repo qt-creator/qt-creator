@@ -4031,7 +4031,7 @@ void tst_Dumpers::dumper_data()
                      "QVariant var26 = QPointF(); unused(&var26);                    // 26 QPointF\n"
                      "#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)\n"
                      "QVariant var27 = QRegExp(); unused(&var27);                    // 27 QRegExp\n"
-                     "#endif"
+                     "#endif\n"
                      "QVariant var28 = QVariantHash(); unused(&var28);               // 28 QVariantHash\n"
                      "QVariant var31 = QVariant::fromValue<void *>(&r); unused(&var31);         // 31 void *\n"
                      "QVariant var32 = QVariant::fromValue<long>(32); unused(&var32);           // 32 long\n"
