@@ -290,11 +290,13 @@ void QmlDebugTranslationWidget::runTest()
         m_currentRunControl = runControl;
         m_runOutputWindow->setFormatter(runControl->outputFormatter());
         int timerCounter = 1;
-        auto testLanguages = [this, previewPlugin](int timerCounter, const QString &previewedFile = QString()) {
+        const auto testLanguageList = m_testLanguages;
+
+        auto testLanguages = [previewPlugin, runControl, testLanguageList](int timerCounter, const QString &previewedFile = QString()) {
             qDebug() << "testLanguages" << previewedFile;
-            for (auto language : m_testLanguages) {
-                QTimer::singleShot(timerCounter * 1000, previewPlugin, [this, previewPlugin, language, previewedFile]() {
-                    if (m_currentRunControl && m_currentRunControl->isRunning()) {
+            for (auto language : testLanguageList) {
+                QTimer::singleShot(timerCounter * 1000, previewPlugin, [previewPlugin, runControl, language, previewedFile]() {
+                    if (runControl && runControl->isRunning()) {
                         if (!previewedFile.isEmpty())
                             previewPlugin->setPreviewedFile(previewedFile);
                         previewPlugin->setLocale(language);
