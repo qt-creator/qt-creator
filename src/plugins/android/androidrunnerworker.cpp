@@ -33,6 +33,7 @@
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
@@ -164,32 +165,32 @@ static void deleter(QProcess *p)
 
 static QString gdbServerArch(const QString &androidAbi)
 {
-    if (androidAbi == "arm64-v8a")
+    if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A)
         return QString("arm64");
-    if (androidAbi == "armeabi-v7a")
+    if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A)
         return QString("arm");
-    // That's correct for "x86_64" and "x86", and best guess at anything that will evolve:
+    // That's correct for x86_64 and x86, and best guess at anything that will evolve:
     return androidAbi;
 }
 
 static QString lldbServerArch(const QString &androidAbi)
 {
-    if (androidAbi == "armeabi-v7a")
-        return QString("armeabi");
-    // Correct for arm64-v8a "x86_64" and "x86", and best guess at anything that will evolve:
+    if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A)
+        return {ProjectExplorer::Constants::ANDROID_ABI_ARMEABI};
+    // Correct for arm64-v8a, x86 and x86_64, and best guess at anything that will evolve:
     return androidAbi; // arm64-v8a, x86, x86_64
 }
 
 static QString lldbServerArch2(const QString &androidAbi)
 {
-    if (androidAbi == "armeabi-v7a")
+    if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A)
         return {"arm"};
-    if (androidAbi == "x86")
+    if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_X86)
         return {"i386"};
-    if (androidAbi == "arm64-v8a")
+    if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A)
         return {"aarch64"};
-    // Correct for "x86_64" a and best guess at anything that will evolve:
-    return androidAbi; // arm64-v8a
+    // Correct for x86_64 and best guess at anything that will evolve:
+    return androidAbi; // x86_64
 }
 
 static FilePath debugServer(bool useLldb, const Target *target)

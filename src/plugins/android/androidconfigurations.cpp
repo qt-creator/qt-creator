@@ -39,6 +39,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/toolchainmanager.h>
 
@@ -1282,7 +1283,12 @@ void AndroidConfigurations::removeUnusedDebuggers()
 
 static bool containsAllAbis(const QStringList &abis)
 {
-    QStringList supportedAbis{"armeabi-v7a", "arm64-v8a", "x86", "x86_64"};
+    QStringList supportedAbis{
+        ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A,
+        ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A,
+        ProjectExplorer::Constants::ANDROID_ABI_X86,
+        ProjectExplorer::Constants::ANDROID_ABI_X86_64,
+    };
     for (const QString &abi : abis)
         if (supportedAbis.contains(abi))
             supportedAbis.removeOne(abi);

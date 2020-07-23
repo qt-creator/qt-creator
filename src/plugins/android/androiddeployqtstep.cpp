@@ -497,7 +497,8 @@ void AndroidDeployQtStep::gatherFilesToPull()
     QString linkerName("linker");
     QString libDirName("lib");
     auto preferreABI = AndroidManager::apkDevicePreferredAbi(target());
-    if (preferreABI == "arm64-v8a" || preferreABI == "x86_64") {
+    if (preferreABI == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A
+            || preferreABI == ProjectExplorer::Constants::ANDROID_ABI_X86_64) {
         m_filesToPull["/system/bin/app_process64"] = buildDir + "app_process";
         libDirName = "lib64";
         linkerName = "linker64";

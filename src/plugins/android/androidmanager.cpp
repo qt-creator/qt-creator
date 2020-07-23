@@ -44,6 +44,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
@@ -262,11 +263,11 @@ QStringList AndroidManager::applicationAbis(const Target *target)
 
 QString AndroidManager::archTriplet(const QString &abi)
 {
-    if (abi == "x86") {
+    if (abi == ProjectExplorer::Constants::ANDROID_ABI_X86) {
         return {"i686-linux-android"};
-    } else if (abi == "x86_64") {
+    } else if (abi == ProjectExplorer::Constants::ANDROID_ABI_X86_64) {
         return {"x86_64-linux-android"};
-    } else if (abi == "arm64-v8a") {
+    } else if (abi == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A) {
         return {"aarch64-linux-android"};
     }
     return {"arm-linux-androideabi"};
@@ -361,25 +362,25 @@ QString AndroidManager::devicePreferredAbi(const QStringList &deviceAbis, const 
 
 Abi AndroidManager::androidAbi2Abi(const QString &androidAbi)
 {
-    if (androidAbi == "arm64-v8a") {
+    if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A) {
         return Abi{Abi::Architecture::ArmArchitecture,
                    Abi::OS::LinuxOS,
                    Abi::OSFlavor::AndroidLinuxFlavor,
                    Abi::BinaryFormat::ElfFormat,
                    64, androidAbi};
-    } else if (androidAbi == "armeabi-v7a") {
+    } else if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A) {
         return Abi{Abi::Architecture::ArmArchitecture,
                    Abi::OS::LinuxOS,
                    Abi::OSFlavor::AndroidLinuxFlavor,
                    Abi::BinaryFormat::ElfFormat,
                    32, androidAbi};
-    } else if (androidAbi == "x86_64") {
+    } else if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_X86_64) {
         return Abi{Abi::Architecture::X86Architecture,
                    Abi::OS::LinuxOS,
                    Abi::OSFlavor::AndroidLinuxFlavor,
                    Abi::BinaryFormat::ElfFormat,
                    64, androidAbi};
-    } else if (androidAbi == "x86") {
+    } else if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_X86) {
         return Abi{Abi::Architecture::X86Architecture,
                    Abi::OS::LinuxOS,
                    Abi::OSFlavor::AndroidLinuxFlavor,

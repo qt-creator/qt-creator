@@ -749,12 +749,12 @@ void QMakeStepConfigWidget::updateSummaryLabel()
         if (selectedAbis.isEmpty() && isAndroidKit()) {
             // Prefer ARM for Android, prefer 32bit.
             for (const Abi &abi : abis) {
-                if (abi.param() == "armeabi-v7a")
+                if (abi.param() == ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A)
                     selectedAbis.append(abi.param());
             }
             if (selectedAbis.isEmpty()) {
                 for (const Abi &abi : abis) {
-                    if (abi.param() == "arm64-v8a")
+                    if (abi.param() == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A)
                         selectedAbis.append(abi.param());
                 }
             }
