@@ -423,7 +423,9 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     m_ui.CreateKitCheckBox->setChecked(m_androidConfig.automaticKitCreation());
     m_ui.AVDTableView->setModel(&m_AVDModel);
     m_ui.AVDTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    m_ui.AVDTableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    for (int column : {1, 2, 5})
+        m_ui.AVDTableView->horizontalHeader()->setSectionResizeMode(
+                    column, QHeaderView::ResizeToContents);
 
     const QIcon downloadIcon = Icons::ONLINE.icon();
     m_ui.downloadSDKToolButton->setIcon(downloadIcon);
