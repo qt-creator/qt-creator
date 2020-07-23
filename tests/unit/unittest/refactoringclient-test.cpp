@@ -199,7 +199,7 @@ TEST_F(RefactoringClient, ResultCounterIsZeroAfterSettingExpectedResultCount)
 
 TEST_F(RefactoringClient, XXX)
 {
-    const Core::Search::TextRange textRange{{1,0,1},{1,0,1}};
+    const Core::Search::TextRange textRange{{1,0},{1,0}};
     const ClangBackEnd::SourceRangeWithTextContainer sourceRange{1, 1, 1, 1, 1, 1, 1, "function"};
 
     EXPECT_CALL(mockSearchHandle, addResult(QString("/path/to/file"), QString("function"), textRange))
