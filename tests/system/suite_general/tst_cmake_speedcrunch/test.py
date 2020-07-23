@@ -28,7 +28,7 @@ source("../../shared/qtcreator.py")
 SpeedCrunchPath = ""
 BuildPath = tempDir()
 
-def cmakeSupportsServerMode():
+def cmakeSupported():
     versionLines = filter(lambda line: "cmake version " in line,
                           getOutputFromCmdline(["cmake", "--version"]).splitlines())
     try:
@@ -38,16 +38,15 @@ def cmakeSupportsServerMode():
         minor = __builtin__.int(matcher.group(2))
     except:
         return False
-    if major < 3:
-        return False
-    elif major > 3:
-        return True
-    else:
-        return minor >= 7
+
+    return (major, minor) >= (3, 14)
 
 def main():
     if (which("cmake") == None):
         test.fatal("cmake not found in PATH - needed to run this test")
+        return
+    if not cmakeSupported():
+        test.warning("CMake version is no more supported for QC")
         return
     if not neededFilePresent(SpeedCrunchPath):
         return
@@ -62,10 +61,7 @@ def main():
         return
     waitForProjectParsing()
     naviTreeView = "{column='0' container=':Qt Creator_Utils::NavigationTreeView' text~='%s' type='QModelIndex'}"
-    if cmakeSupportsServerMode():
-        treeFile = "projecttree_speedcrunch_server.tsv"
-    else:
-        treeFile = "projecttree_speedcrunch.tsv"
+    treeFile = "projecttree_speedcrunch.tsv"
     compareProjectTree(naviTreeView % "speedcrunch( \[\S+\])?", treeFile)
 
     # Invoke a rebuild of the application
