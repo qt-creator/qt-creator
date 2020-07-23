@@ -66,6 +66,9 @@ QmlPreviewRunner::QmlPreviewRunner(ProjectExplorer::RunControl *runControl,
             &m_connectionManager, &Internal::QmlPreviewConnectionManager::zoom);
     connect(this, &QmlPreviewRunner::language,
             &m_connectionManager, &Internal::QmlPreviewConnectionManager::language);
+    connect(this, &QmlPreviewRunner::changeElideWarning,
+            &m_connectionManager, &Internal::QmlPreviewConnectionManager::changeElideWarning);
+
     connect(&m_connectionManager, &Internal::QmlPreviewConnectionManager::connectionOpened,
             this, [this, initialZoom]() {
         if (initialZoom > 0)

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -24,47 +24,27 @@
 ****************************************************************************/
 
 #pragma once
+#include <projectexplorer/projectnodes.h>
+#include <utils/fileutils.h>
 
-#include "qmlpreviewconnectionmanager.h"
-#include "qmlpreviewfileontargetfinder.h"
-#include "qmlpreviewplugin.h"
-#include <projectexplorer/runconfiguration.h>
+#include <QWidget>
 
 namespace QmlPreview {
 
-class QmlPreviewRunner : public ProjectExplorer::RunWorker
+class ProjectFileSelectionsWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    QmlPreviewRunner(ProjectExplorer::RunControl *runControl, QmlPreviewFileLoader fileLoader,
-                     QmlPreviewFileClassifier fileClassifier, QmlPreviewFpsHandler fpsHandler,
-                     float initialZoom);
-
-    void setServerUrl(const QUrl &serverUrl);
-    QUrl serverUrl() const;
-
+    explicit ProjectFileSelectionsWidget(const QString &projectSettingsKey, ProjectExplorer::FileType fileType, QWidget *parent = nullptr);
+    Utils::FilePaths checkedFiles();
 signals:
-    void loadFile(const QString &previewedFile, const QString &changedFile,
-                  const QByteArray &contents);
-    void language(const QString &locale);
-    void zoom(float zoomFactor);
-    void rerun();
-    void ready();
-    void changeElideWarning(bool elideWarning);
+    void selectionChanged(const Utils::FilePaths &selectedFiles);
 private:
-    void start() override;
-    void stop() override;
+    const QString m_projectSettingsKey;
+    ProjectExplorer::FileType m_fileType;
 
-    Internal::QmlPreviewConnectionManager m_connectionManager;
+    Utils::FilePaths m_checkedFiles;
 };
 
-class LocalQmlPreviewSupport : public ProjectExplorer::SimpleTargetRunner
-{
-    Q_OBJECT
-
-public:
-    LocalQmlPreviewSupport(ProjectExplorer::RunControl *runControl);
-};
-
-} // namespace QmlPreview
+} // QmlPreview

@@ -116,7 +116,7 @@ QUrl QmlPreviewConnectionManager::findValidI18nDirectoryAsUrl(const QString &loc
 void QmlPreviewConnectionManager::createDebugTranslationClient()
 {
     m_qmlDebugTranslationClient = new QmlDebugTranslationClient(connection());
-    QObject::connect(this, &QmlPreviewConnectionManager::language,
+    connect(this, &QmlPreviewConnectionManager::language,
                      m_qmlDebugTranslationClient.data(), [this](const QString &locale) {
 
         if (m_lastLoadedUrl.isEmpty()) {
@@ -128,7 +128,10 @@ void QmlPreviewConnectionManager::createDebugTranslationClient()
             m_qmlDebugTranslationClient->changeLanguage(findValidI18nDirectoryAsUrl(locale), locale);
         }
     });
-    QObject::connect(m_qmlDebugTranslationClient.data(), &QmlDebugTranslationClient::debugServiceUnavailable,
+    connect(this, &QmlPreviewConnectionManager::changeElideWarning,
+            m_qmlDebugTranslationClient, &QmlDebugTranslationClient::changeElideWarning);
+
+    connect(m_qmlDebugTranslationClient.data(), &QmlDebugTranslationClient::debugServiceUnavailable,
                      this, []() {
         QMessageBox::warning(Core::ICore::dialogParent(), "Error connect to QML DebugTranslation service",
                              "QML DebugTranslation feature is not available for this version of Qt.");
@@ -139,8 +142,7 @@ void QmlPreviewConnectionManager::createPreviewClient()
 {
     m_qmlPreviewClient = new QmlPreviewClient(connection());
 
-    QObject::connect(
-                this, &QmlPreviewConnectionManager::loadFile, m_qmlPreviewClient.data(),
+    connect(this, &QmlPreviewConnectionManager::loadFile, m_qmlPreviewClient.data(),
                 [this](const QString &filename, const QString &changedFile,
                        const QByteArray &contents) {
         if (!m_fileClassifier(changedFile)) {
@@ -163,13 +165,13 @@ void QmlPreviewConnectionManager::createPreviewClient()
         }
     });
 
-    QObject::connect(this, &QmlPreviewConnectionManager::rerun,
+    connect(this, &QmlPreviewConnectionManager::rerun,
                      m_qmlPreviewClient.data(), &QmlPreviewClient::rerun);
 
-    QObject::connect(this, &QmlPreviewConnectionManager::zoom,
+    connect(this, &QmlPreviewConnectionManager::zoom,
                      m_qmlPreviewClient.data(), &QmlPreviewClient::zoom);
 
-    QObject::connect(this, &QmlPreviewConnectionManager::language,
+    connect(this, &QmlPreviewConnectionManager::language,
                      m_qmlPreviewClient.data(), [this](const QString &locale) {
 
         if (m_lastLoadedUrl.isEmpty()) {
@@ -182,7 +184,7 @@ void QmlPreviewConnectionManager::createPreviewClient()
         }
     });
 
-    QObject::connect(m_qmlPreviewClient.data(), &QmlPreviewClient::pathRequested,
+    connect(m_qmlPreviewClient.data(), &QmlPreviewClient::pathRequested,
                      this, [this](const QString &path) {
         const bool found = m_projectFileFinder.findFileOrDirectory(
                     path, [&](const QString &filename, int confidence) {
@@ -212,13 +214,13 @@ void QmlPreviewConnectionManager::createPreviewClient()
             m_qmlPreviewClient->announceError(path);
     });
 
-    QObject::connect(m_qmlPreviewClient.data(), &QmlPreviewClient::errorReported,
+    connect(m_qmlPreviewClient.data(), &QmlPreviewClient::errorReported,
                      this, [](const QString &error) {
         Core::MessageManager::write("Error loading QML Live Preview:");
         Core::MessageManager::write(error);
     });
 
-    QObject::connect(m_qmlPreviewClient.data(), &QmlPreviewClient::fpsReported,
+    connect(m_qmlPreviewClient.data(), &QmlPreviewClient::fpsReported,
                      this, [this](const QmlPreviewClient::FpsInfo &frames) {
         if (m_fpsHandler) {
             quint16 stats[] = {
@@ -229,13 +231,13 @@ void QmlPreviewConnectionManager::createPreviewClient()
         }
     });
 
-    QObject::connect(m_qmlPreviewClient.data(), &QmlPreviewClient::debugServiceUnavailable,
+    connect(m_qmlPreviewClient.data(), &QmlPreviewClient::debugServiceUnavailable,
                      this, []() {
         QMessageBox::warning(Core::ICore::dialogParent(), "Error loading QML Live Preview",
                              "QML Live Preview is not available for this version of Qt.");
     }, Qt::QueuedConnection); // Queue it, so that it interfere with the connection timer
 
-    QObject::connect(&m_fileSystemWatcher, &Utils::FileSystemWatcher::fileChanged,
+    connect(&m_fileSystemWatcher, &Utils::FileSystemWatcher::fileChanged,
                      m_qmlPreviewClient.data(), [this](const QString &changedFile) {
         if (!m_fileLoader || !m_lastLoadedUrl.isValid())
             return;

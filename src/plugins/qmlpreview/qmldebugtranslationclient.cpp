@@ -57,6 +57,14 @@ void QmlDebugTranslationClient::changeElidedTextWarningString(const QString &war
     sendMessage(packet.data());
 }
 
+void QmlDebugTranslationClient::changeElideWarning(bool elideWarning)
+{
+    if (elideWarning)
+        enableElidedTextWarning();
+    else
+        disableElidedTextWarning();
+}
+
 void QmlDebugTranslationClient::setDebugTranslationServiceLogFile(const QString &logFilePath)
 {
     QmlDebug::QPacket packet(dataStreamVersion());
