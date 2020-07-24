@@ -990,19 +990,17 @@ def qdump__QVariantList(d, value):
 def qdumpHelper_QList(d, value, innerType):
     if d.qtVersion() >= 0x60000:
         dd, data, size = value.split('ppi')
-        _, _, alloc = d.split('iii', dd)
         d.putItemCount(size)
         d.putPlotData(data, size, innerType)
         return
     base = d.extractPointer(value)
-    (ref, alloc, begin, end) = d.split('IIII', base)
+    _, _, begin, end = d.split('IIII', base)
     array = base + 16
     if d.qtVersion() < 0x50000:
         array += d.ptrSize()
     d.check(begin >= 0 and end >= 0 and end <= 1000 * 1000 * 1000)
     size = end - begin
     d.check(size >= 0)
-    #d.checkRef(private['ref'])
 
     d.putItemCount(size)
     if d.isExpanded():
