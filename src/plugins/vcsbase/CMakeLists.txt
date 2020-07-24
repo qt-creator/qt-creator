@@ -35,5 +35,5 @@ add_qtc_plugin(VcsBase
 
 extend_qtc_plugin(VcsBase
   CONDITION WITH_TESTS
-  DEFINES SRC_DIR="${IDE_SOURCE_TREE}"
+  DEFINES SRC_DIR="${PROJECT_SOURCE_DIR}"
 )

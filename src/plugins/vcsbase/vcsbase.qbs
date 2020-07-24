@@ -80,5 +80,5 @@ QtcPlugin {
         "wizard/vcsjsextension.h",
     ]
 
-    cpp.defines: base.concat(qtc.testsEnabled ? ['SRC_DIR="' + qtc.ide_source_tree + '"'] : [])
+    cpp.defines: base.concat(qtc.testsEnabled ? ['SRC_DIR="' + project.ide_source_tree + '"'] : [])
 }
