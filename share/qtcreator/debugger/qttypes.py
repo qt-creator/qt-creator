@@ -101,8 +101,11 @@ def qdump__QByteArrayData(d, value):
 
 
 def qdump__QBitArray(d, value):
-    data, basize, alloc = d.byteArrayDataHelper(d.extractPointer(value['d']))
-    unused = d.extractByte(data)
+    if d.qtVersion() >= 0x60000:
+        _, data, basize = value.split('ppi')
+    else:
+        data, basize, _ = d.byteArrayDataHelper(d.extractPointer(value['d']))
+    unused = d.extractByte(data) if data else 0
     size = basize * 8 - unused
     d.putItemCount(size)
     if d.isExpanded():
