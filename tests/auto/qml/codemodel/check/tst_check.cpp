@@ -181,7 +181,8 @@ void tst_Check::test()
     if (expectedMessages.size() < messages.size()) {
         for (int i = expectedMessages.size(); i < messages.size(); ++i) {
             Message extraMessage = messages.at(i);
-            qDebug() << "unexpected message of type" << extraMessage.type << "on line" << extraMessage.location.startLine;
+            qDebug() << "unexpected message of type" << extraMessage.type << "on line" << extraMessage.location.startLine
+                     << extraMessage.message;
         }
         QFAIL("fewer messages expected");
     }
