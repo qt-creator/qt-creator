@@ -57,7 +57,10 @@ def qedit__QByteArray(d, value, data):
 def qdump__QByteArray(d, value):
     if d.qtVersion() >= 0x60000:
         dd, data, size = value.split('ppi')
-        _, _, alloc = d.split('iii', dd)
+        if dd:
+            _, _, alloc = d.split('iii', dd)
+        else: # fromRawData
+            alloc = size
     else:
         data, size, alloc = d.byteArrayData(value)
 
@@ -1556,8 +1559,11 @@ def qform__QString():
 def qdump__QString(d, value):
     if d.qtVersion() >= 0x60000:
         dd, data, size = value.split('ppi')
-        _, _, alloc = d.split('iii', dd)
-        elided, shown = d.computeLimit(2 * size, d.displayStringLimit)
+        if dd:
+            _, _, alloc = d.split('iii', dd)
+        else: # fromRawData
+            alloc = size
+        elided, shown = d.computeLimit(2 * size, 2 * d.displayStringLimit)
         p = d.readMemory(data, shown)
         d.putValue(p, 'utf16', elided=elided)
     else:
