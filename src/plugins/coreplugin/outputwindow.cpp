@@ -412,7 +412,7 @@ void OutputWindow::handleOutputChunk(const QString &output, OutputFormat format)
         const int elided = out.size() - d->maxCharCount;
         out = out.left(d->maxCharCount / 2)
                 + "[[[... "
-                + tr("Elided %1 characters due to Application Output settings").arg(elided)
+                + tr("Elided %n characters due to Application Output settings", nullptr, elided)
                 + " ...]]]"
                 + out.right(d->maxCharCount / 2);
         setMaximumBlockCount(out.count('\n') + 1);
