@@ -4,7 +4,7 @@ Project {
     name: "MesonProjectManager"
 
     property stringList testDefines: [
-        'MESON_SAMPLES_DIR="' + FileInfo.joinPaths(sourceDirectory, "tests", "resources") + '"',
+        'MESON_SAMPLES_DIR="' + FileInfo.joinPaths(path, "tests", "resources") + '"',
     ]
 
     QtcPlugin {
