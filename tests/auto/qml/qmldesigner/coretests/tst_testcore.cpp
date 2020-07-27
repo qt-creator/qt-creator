@@ -46,11 +46,12 @@
 #include <stylesheetmerger.h>
 #include <QDebug>
 
+#include "../testconnectionmanager.h"
 #include "../testview.h"
-#include <variantproperty.h>
 #include <abstractproperty.h>
 #include <bindingproperty.h>
 #include <nodeproperty.h>
+#include <variantproperty.h>
 
 #include <nodelistproperty.h>
 #include <nodeabstractproperty.h>
@@ -1999,8 +2000,9 @@ void tst_TestCore::testModelRemoveNode()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    NodeInstanceView *nodeInstanceView = new NodeInstanceView(model.data(), NodeInstanceServerInterface::TestModus);
-    model->attachView(nodeInstanceView);
+    TestConnectionManager connectionManager;
+    NodeInstanceView nodeInstanceView{connectionManager};
+    model->attachView(&nodeInstanceView);
 
     QCOMPARE(view->rootModelNode().directSubModelNodes().count(), 0);
 
@@ -2051,7 +2053,7 @@ void tst_TestCore::testModelRemoveNode()
     childNode = view->createModelNode("QtQuick.Item", 1, 1);
     childNode.destroy();
 
-    model->detachView(nodeInstanceView);
+    model->detachView(&nodeInstanceView);
 }
 
 void tst_TestCore::reparentingNode()
@@ -6140,17 +6142,21 @@ void tst_TestCore::testInstancesAttachToExistingModel()
 
     // Attach NodeInstanceView
 
-    QScopedPointer<NodeInstanceView> instanceView(new NodeInstanceView(0, NodeInstanceServerInterface::TestModus));
-    QVERIFY(instanceView.data());
-    model->attachView(instanceView.data());
+    TestConnectionManager connectionManager;
 
-    NodeInstance rootInstance = instanceView->instanceForModelNode(rootNode);
-    NodeInstance rectangleInstance = instanceView->instanceForModelNode(rectangleNode);
+    NodeInstanceView instanceView{connectionManager};
+
+    model->attachView(&instanceView);
+
+    NodeInstance rootInstance = instanceView.instanceForModelNode(rootNode);
+    NodeInstance rectangleInstance = instanceView.instanceForModelNode(rectangleNode);
     QVERIFY(rootInstance.isValid());
     QVERIFY(rectangleInstance.isValid());
     QCOMPARE(QVariant(100), rectangleInstance.property("width"));
     QVERIFY(rootInstance.instanceId() >= 0);
     QVERIFY(rectangleInstance.instanceId() >= 0);
+
+    model->detachView(&instanceView);
 }
 
 void tst_TestCore::testQmlModelAddMultipleStates()

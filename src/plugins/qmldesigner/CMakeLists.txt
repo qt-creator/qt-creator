@@ -505,6 +505,12 @@ extend_qtc_plugin(QmlDesigner
     puppetbuildprogressdialog.cpp puppetbuildprogressdialog.h puppetbuildprogressdialog.ui
     puppetcreator.cpp puppetcreator.h
     puppetdialog.cpp puppetdialog.h puppetdialog.ui
+    connectionmanagerinterface.cpp connectionmanagerinterface.h
+    baseconnectionmanager.cpp baseconnectionmanager.h
+    connectionmanager.cpp connectionmanager.h
+    capturingconnectionmanager.cpp capturingconnectionmanager.h
+    interactiveconnectionmanager.cpp interactiveconnectionmanager.h
+    qprocessuniqueptr.h
 )
 
 extend_qtc_plugin(QmlDesigner

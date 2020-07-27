@@ -42,6 +42,7 @@ class DebugOutputCommand;
 class PuppetAliveCommand;
 class ChangeSelectionCommand;
 class PuppetToCreatorCommand;
+class CapturedDataCommand;
 
 class NodeInstanceClientInterface
 {
@@ -57,6 +58,7 @@ public:
     virtual void debugOutput(const DebugOutputCommand &command) = 0;
     virtual void selectionChanged(const ChangeSelectionCommand &command) = 0;
     virtual void handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command) = 0;
+    virtual void capturedData(const CapturedDataCommand &command) = 0;
 
     virtual void flush() {}
     virtual void synchronizeWithClientProcess() {}

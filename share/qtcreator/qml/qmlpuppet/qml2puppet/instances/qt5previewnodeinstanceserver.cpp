@@ -84,7 +84,8 @@ void Qt5PreviewNodeInstanceServer::collectItemChangesAndSendChangeCommands()
             instance.deactivateState();
         }
 
-        nodeInstanceClient()->statePreviewImagesChanged(StatePreviewImageChangedCommand(imageContainerVector));
+        nodeInstanceClient()->statePreviewImagesChanged(
+            StatePreviewImageChangedCommand(imageContainerVector));
 
         slowDownRenderTimer();
         inFunction = false;

@@ -86,7 +86,7 @@ void ItemLibraryAssetImporter::importQuick3D(const QStringList &inputFiles,
 
     if (!isCancelled()) {
         // Wait for icon generation processes to finish
-        if (m_qmlPuppetProcesses.isEmpty()) {
+        if (m_qmlPuppetProcesses.empty()) {
             finalizeQuick3DImport();
         } else {
             m_qmlPuppetCount = m_qmlPuppetProcesses.size();
@@ -186,10 +186,12 @@ void ItemLibraryAssetImporter::processFinished(int exitCode, QProcess::ExitStatu
 
     auto process = qobject_cast<QProcess *>(sender());
     if (process) {
-        m_qmlPuppetProcesses.remove(process);
-        process->deleteLater();
+        m_qmlPuppetProcesses.erase(
+            std::remove_if(m_qmlPuppetProcesses.begin(),
+                           m_qmlPuppetProcesses.end(),
+                           [&](const auto &entry) { return entry.get() == process; }));
         const QString progressTitle = tr("Generating icons.");
-        if (m_qmlPuppetProcesses.isEmpty()) {
+        if (m_qmlPuppetProcesses.empty()) {
             notifyProgress(100, progressTitle);
             finalizeQuick3DImport();
         } else {
@@ -215,7 +217,6 @@ void ItemLibraryAssetImporter::reset()
     m_tempDir = new QTemporaryDir;
     m_importFiles.clear();
     m_overwrittenImports.clear();
-    qDeleteAll(m_qmlPuppetProcesses);
     m_qmlPuppetProcesses.clear();
     m_qmlPuppetCount = 0;
 #endif
@@ -498,16 +499,21 @@ bool ItemLibraryAssetImporter::generateComponentIcon(int size, const QString &ic
         puppetCreator.createQml2PuppetExecutableIfMissing();
         QStringList puppetArgs;
         puppetArgs << "--rendericon" << QString::number(size) << iconFile << iconSource;
-        QProcess *process = puppetCreator.createPuppetProcess(
-                    "custom", {}, this, "", SLOT(processFinished(int, QProcess::ExitStatus)), puppetArgs);
+        QProcessUniquePointer process = puppetCreator.createPuppetProcess(
+            "custom",
+            {},
+            this,
+            std::function<void()>(),
+            [&](int exitCode, QProcess::ExitStatus exitStatus) {
+                processFinished(exitCode, exitStatus);
+            },
+            puppetArgs);
 
         if (process->waitForStarted(5000)) {
-            connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                    process, &QProcess::deleteLater);
-            m_qmlPuppetProcesses << process;
+            m_qmlPuppetProcesses.push_back(std::move(process));
             return true;
         } else {
-            delete process;
+            process.reset();
         }
     }
     return false;

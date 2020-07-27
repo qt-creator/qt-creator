@@ -160,6 +160,8 @@ public:
     ServerNodeInstance instanceForObject(QObject *object) const;
     bool hasInstanceForObject(QObject *object) const;
 
+    const QVector<ServerNodeInstance> &nodeInstances() const { return m_idInstances; }
+
     virtual QQmlEngine *engine() const = 0;
     QQmlContext *context() const;
 
@@ -272,7 +274,7 @@ private:
     void setupOnlyWorkingImports(const QStringList &workingImportStatementList);
     ServerNodeInstance m_rootNodeInstance;
     ServerNodeInstance m_activeStateInstance;
-    QHash<qint32, ServerNodeInstance> m_idInstanceHash;
+    QVector<ServerNodeInstance> m_idInstances;
     QHash<QObject*, ServerNodeInstance> m_objectInstanceHash;
     QMultiHash<QString, ObjectPropertyPair> m_fileSystemWatcherHash;
     QList<QPair<QString, QPointer<QObject> > > m_dummyObjectList;

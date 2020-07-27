@@ -176,39 +176,46 @@ PuppetCreator::PuppetCreator(ProjectExplorer::Target *target, const Model *model
 {
 }
 
-QProcess *PuppetCreator::createPuppetProcess(const QString &puppetMode,
-                                             const QString &socketToken,
-                                             QObject *handlerObject,
-                                             const char *outputSlot,
-                                             const char *finishSlot,
-                                             const QStringList &customOptions) const
+QProcessUniquePointer PuppetCreator::createPuppetProcess(
+    const QString &puppetMode,
+    const QString &socketToken,
+    QObject *handlerObject,
+    std::function<void()> processOutputCallback,
+    std::function<void(int, QProcess::ExitStatus)> processFinishCallback,
+    const QStringList &customOptions) const
 {
     return puppetProcess(qml2PuppetPath(m_availablePuppetType),
                          qmlPuppetDirectory(m_availablePuppetType),
                          puppetMode,
                          socketToken,
                          handlerObject,
-                         outputSlot,
-                         finishSlot,
+                         processOutputCallback,
+                         processFinishCallback,
                          customOptions);
 }
 
-
-QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
-                                       const QString &workingDirectory,
-                                       const QString &puppetMode,
-                                       const QString &socketToken,
-                                       QObject *handlerObject,
-                                       const char *outputSlot,
-                                       const char *finishSlot,
-                                       const QStringList &customOptions) const
+QProcessUniquePointer PuppetCreator::puppetProcess(
+    const QString &puppetPath,
+    const QString &workingDirectory,
+    const QString &puppetMode,
+    const QString &socketToken,
+    QObject *handlerObject,
+    std::function<void()> processOutputCallback,
+    std::function<void(int, QProcess::ExitStatus)> processFinishCallback,
+    const QStringList &customOptions) const
 {
-    auto puppetProcess = new QProcess;
+    QProcessUniquePointer puppetProcess{new QProcess};
     puppetProcess->setObjectName(puppetMode);
     puppetProcess->setProcessEnvironment(processEnvironment());
 
-    QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, puppetProcess, &QProcess::kill);
-    QObject::connect(puppetProcess, SIGNAL(finished(int,QProcess::ExitStatus)), handlerObject, finishSlot);
+    QObject::connect(QCoreApplication::instance(),
+                     &QCoreApplication::aboutToQuit,
+                     puppetProcess.get(),
+                     &QProcess::kill);
+    QObject::connect(puppetProcess.get(),
+                     static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+                     handlerObject,
+                     processFinishCallback);
 
 #ifndef QMLDESIGNER_TEST
     QString forwardOutput = m_designerSettings.value(DesignerSettingsKey::
@@ -218,7 +225,7 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
 #endif
     if (forwardOutput == puppetMode || forwardOutput == "all") {
         puppetProcess->setProcessChannelMode(QProcess::MergedChannels);
-        QObject::connect(puppetProcess, SIGNAL(readyRead()), handlerObject, outputSlot);
+        QObject::connect(puppetProcess.get(), &QProcess::readyRead, handlerObject, processOutputCallback);
     }
     puppetProcess->setWorkingDirectory(workingDirectory);
 
