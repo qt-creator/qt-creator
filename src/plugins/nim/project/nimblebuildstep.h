@@ -29,42 +29,10 @@
 
 namespace Nim {
 
-class NimbleBuildStep : public ProjectExplorer::AbstractProcessStep
-{
-    Q_OBJECT
-
-public:
-    NimbleBuildStep(ProjectExplorer::BuildStepList *parentList, Utils::Id id);
-
-    bool init() override;
-    void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-
-    QString arguments() const;
-
-    void setArguments(const QString &args);
-
-    void resetArguments();
-
-    bool fromMap(const QVariantMap &map) override;
-
-    QVariantMap toMap() const override;
-
-signals:
-    void argumentsChanged(const QString &args);
-
-private:
-    QString defaultArguments() const;
-
-    void onArgumentsChanged();
-
-    QString m_arguments;
-};
-
-class NimbleBuildStepFactory : public ProjectExplorer::BuildStepFactory
+class NimbleBuildStepFactory final : public ProjectExplorer::BuildStepFactory
 {
 public:
     NimbleBuildStepFactory();
 };
 
-}
+} // Nim

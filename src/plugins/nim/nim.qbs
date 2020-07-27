@@ -48,7 +48,6 @@ QtcPlugin {
             "nimtoolchain.h", "nimtoolchain.cpp",
             "nimtoolchainfactory.h", "nimtoolchainfactory.cpp",
             "nimblebuildstep.h", "nimblebuildstep.cpp",
-            "nimblebuildstepwidget.h", "nimblebuildstepwidget.cpp", "nimblebuildstepwidget.ui",
             "nimbleproject.h", "nimbleproject.cpp",
             "nimblerunconfiguration.h", "nimblerunconfiguration.cpp",
             "nimbletaskstep.h", "nimbletaskstep.cpp",
