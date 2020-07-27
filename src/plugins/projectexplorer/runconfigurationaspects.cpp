@@ -289,6 +289,19 @@ void ArgumentsAspect::setArguments(const QString &arguments)
         m_multiLineChooser->setPlainText(arguments);
 }
 
+void ArgumentsAspect::setResetter(const std::function<QString()> &resetter)
+{
+    m_resetter = resetter;
+}
+
+void ArgumentsAspect::resetArguments()
+{
+    QString arguments;
+    if (m_resetter)
+        arguments = m_resetter();
+    setArguments(arguments);
+}
+
 void ArgumentsAspect::fromMap(const QVariantMap &map)
 {
     QVariant args = map.value(settingsKey());
@@ -369,6 +382,16 @@ void ArgumentsAspect::addToLayout(LayoutBuilder &builder)
     });
     containerLayout->addWidget(m_multiLineButton);
     containerLayout->setAlignment(m_multiLineButton, Qt::AlignTop);
+
+    if (m_resetter) {
+        m_resetButton = new QToolButton;
+        m_resetButton->setToolTip(tr("Reset to Default"));
+        m_resetButton->setIcon(Icons::RESET.icon());
+        connect(m_resetButton.data(), &QAbstractButton::clicked,
+                this, &ArgumentsAspect::resetArguments);
+        containerLayout->addWidget(m_resetButton);
+        containerLayout->setAlignment(m_resetButton, Qt::AlignTop);
+    }
 
     builder.addItem(container);
 }

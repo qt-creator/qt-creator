@@ -110,6 +110,8 @@ public:
     QString unexpandedArguments() const;
 
     void setArguments(const QString &arguments);
+    void setResetter(const std::function<QString()> &resetter);
+    void resetArguments();
 
 signals:
     void argumentsChanged(const QString &arguments);
@@ -124,8 +126,10 @@ private:
     QPointer<Utils::FancyLineEdit> m_chooser;
     QPointer<QPlainTextEdit> m_multiLineChooser;
     QPointer<Utils::ExpandButton> m_multiLineButton;
+    QPointer<QToolButton> m_resetButton;
     bool m_multiLine = false;
     mutable bool m_currentlyExpanding = false;
+    std::function<QString()> m_resetter;
 };
 
 class PROJECTEXPLORER_EXPORT UseLibraryPathsAspect : public BaseBoolAspect
