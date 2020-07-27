@@ -1,11 +1,12 @@
 import qbs
 
-QtcAutotest {
-    type: ["application"] // Not to be executed directly by autotest-runner
+QtcTestApp {
     name: "Memcheck " + testName + " autotest"
-    cpp.warningLevel: "none"
-    sanitizable: false
+
+    Depends { name: "qtc" }
+
     property string testName
+    cpp.warningLevel: "none"
     targetName: testName // Test runner hardcodes the names of the executables
     destinationDirectory: project.buildDirectory + '/'
                           + qtc.ide_bin_path + '/testapps/' + testName
