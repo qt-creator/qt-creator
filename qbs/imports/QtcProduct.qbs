@@ -16,6 +16,7 @@ Product {
     property string pathToSharedSources: FileInfo.joinPaths(path,
             FileInfo.relativePath(FileInfo.joinPaths('/', qtc.ide_qbs_imports_path),
                                   FileInfo.joinPaths('/', qtc.ide_shared_sources_path)))
+    property bool sanitizable: true
 
     Depends { name: "cpp" }
     Depends { name: "qtc" }
@@ -36,20 +37,38 @@ Product {
 
     cpp.cxxFlags: {
         var flags = [];
-        if (qbs.toolchain.contains("clang")
-                && !qbs.hostOS.contains("darwin")
-                && Utilities.versionCompare(cpp.compilerVersion, "10") >= 0) {
-             // Triggers a lot in Qt.
-            flags.push("-Wno-deprecated-copy", "-Wno-constant-logical-operand");
-        }
-        if (qbs.toolchain.contains("gcc") && !qbs.toolchain.contains("clang")) {
-            flags.push("-Wno-noexcept-type");
-            if (Utilities.versionCompare(cpp.compilerVersion, "9") >= 0)
-                flags.push("-Wno-deprecated-copy", "-Wno-init-list-lifetime");
+        if (qbs.toolchain.contains("gcc")) {
+            if (qbs.toolchain.contains("clang")
+                    && !qbs.hostOS.contains("darwin")
+                    && Utilities.versionCompare(cpp.compilerVersion, "10") >= 0) {
+                // Triggers a lot in Qt.
+                flags.push("-Wno-deprecated-copy", "-Wno-constant-logical-operand");
+            }
+            if (!qbs.toolchain.contains("clang")) {
+                flags.push("-Wno-noexcept-type");
+                if (Utilities.versionCompare(cpp.compilerVersion, "9") >= 0)
+                    flags.push("-Wno-deprecated-copy", "-Wno-init-list-lifetime");
+            }
+            if (qtc.enableAddressSanitizer)
+                flags.push("-fno-omit-frame-pointer");
         } else if (qbs.toolchain.contains("msvc")) {
             flags.push("/w44996");
         }
         return flags;
+    }
+
+    Properties {
+        condition: sanitizable && qbs.toolchain.contains("gcc")
+        cpp.driverFlags: {
+            var flags = [];
+            if (qtc.enableAddressSanitizer)
+                flags.push("-fsanitize=address");
+            if (qtc.enableUbSanitizer)
+                flags.push("-fsanitize=undefined");
+            if (qtc.enableThreadSanitizer)
+                flags.push("-fsanitize=thread");
+            return flags;
+        }
     }
 
     cpp.cxxLanguageVersion: "c++17"

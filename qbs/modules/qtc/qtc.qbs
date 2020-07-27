@@ -65,6 +65,10 @@ Module {
 
     property string litehtmlInstallDir: Environment.getEnv("LITEHTML_INSTALL_DIR")
 
+    property bool enableAddressSanitizer: false
+    property bool enableUbSanitizer: false
+    property bool enableThreadSanitizer: false
+
     property bool make_dev_package: false
 
     // Will be replaced when creating modules from products

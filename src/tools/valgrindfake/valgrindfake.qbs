@@ -6,6 +6,7 @@ QtcTool {
     consoleApplication: true
     destinationDirectory: qtc.ide_bin_path
     install: false
+    sanitizable: false
     Depends { name: "Qt"; submodules: ["network", "xml"]; }
 
     files: [
