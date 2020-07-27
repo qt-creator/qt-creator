@@ -40,7 +40,7 @@ class TestOutputReader : public QObject
 public:
     TestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
                      QProcess *testApplication, const QString &buildDirectory);
-
+    virtual ~TestOutputReader();
     void processStdOutput(const QByteArray &outputLine);
     virtual void processStdError(const QByteArray &outputLine);
     void reportCrash();
@@ -59,6 +59,8 @@ protected:
     QString removeCommandlineColors(const QString &original);
     virtual void processOutputLine(const QByteArray &outputLine) = 0;
     virtual TestResultPtr createDefaultResult() const = 0;
+    void checkForSanitizerOutput(const QByteArray &line);
+    void sendAndResetSanitizerResult();
 
     void reportResult(const TestResultPtr &result);
     QFutureInterface<TestResultPtr> m_futureInterface;
@@ -68,6 +70,10 @@ protected:
     QHash<ResultType, int> m_summary;
     int m_disabled = -1;
 private:
+    enum class SanitizerOutputMode { None, Asan};
+    TestResultPtr m_sanitizerResult;
+    QStringList m_sanitizerLines;
+    SanitizerOutputMode m_sanitizerOutputMode = SanitizerOutputMode::None;
     bool m_hadValidOutput = false;
 };
 

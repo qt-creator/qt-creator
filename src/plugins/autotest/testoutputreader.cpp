@@ -27,6 +27,7 @@
 
 #include "testresult.h"
 #include "testresultspane.h"
+#include "testtreeitem.h"
 
 #include <utils/qtcassert.h>
 
@@ -66,6 +67,12 @@ TestOutputReader::TestOutputReader(const QFutureInterface<TestResultPtr> &future
     }
 }
 
+TestOutputReader::~TestOutputReader()
+{
+    if (m_sanitizerResult)
+        sendAndResetSanitizerResult();
+}
+
 void TestOutputReader::processStdOutput(const QByteArray &outputLine)
 {
     processOutputLine(outputLine);
@@ -74,7 +81,7 @@ void TestOutputReader::processStdOutput(const QByteArray &outputLine)
 
 void TestOutputReader::processStdError(const QByteArray &outputLine)
 {
-    qWarning() << "AutoTest.Run: Ignored plain output:" << outputLine;
+    checkForSanitizerOutput(outputLine);
     emit newOutputLineAvailable(outputLine, OutputChannel::StdErr);
 }
 
@@ -118,6 +125,45 @@ void TestOutputReader::reportResult(const TestResultPtr &result)
 {
     m_futureInterface.reportResult(result);
     m_hadValidOutput = true;
+}
+
+void TestOutputReader::checkForSanitizerOutput(const QByteArray &line)
+{
+    const QString lineStr = removeCommandlineColors(QString::fromUtf8(line));
+    if (m_sanitizerOutputMode == SanitizerOutputMode::Asan) {
+        // append the new line and check for end
+        m_sanitizerLines.append(lineStr);
+        const QRegularExpression regex("^==\\d+==\\s*ABORTING.*");
+        if (regex.match(lineStr).hasMatch())
+            sendAndResetSanitizerResult();
+    } else {
+        const QRegularExpression regex("^==\\d+==\\s*(ERROR|WARNING|Sanitizer CHECK failed):.*");
+        if (regex.match(lineStr).hasMatch()) {
+            m_sanitizerOutputMode = SanitizerOutputMode::Asan;
+            m_sanitizerResult = createDefaultResult();
+            m_sanitizerLines.append("Sanitizer Issue");
+            m_sanitizerLines.append(lineStr);
+        }
+    }
+}
+
+void TestOutputReader::sendAndResetSanitizerResult()
+{
+    m_sanitizerResult->setDescription(m_sanitizerLines.join('\n'));
+    m_sanitizerResult->setResult(ResultType::MessageFatal);
+
+    if (m_sanitizerResult->fileName().isEmpty()) {
+        const TestTreeItem *testItem = m_sanitizerResult->findTestTreeItem();
+        if (testItem && testItem->line()) {
+            m_sanitizerResult->setFileName(testItem->filePath());
+            m_sanitizerResult->setLine(testItem->line());
+        }
+    }
+
+    reportResult(m_sanitizerResult);
+    m_sanitizerLines.clear();
+    m_sanitizerResult.reset();
+    m_sanitizerOutputMode = SanitizerOutputMode::None;
 }
 
 } // namespace Autotest

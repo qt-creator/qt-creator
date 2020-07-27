@@ -396,6 +396,7 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLine)
 void BoostTestOutputReader::processStdError(const QByteArray &outputLine)
 {
     // we need to process the output, Boost UTF uses both out streams
+    checkForSanitizerOutput(outputLine);
     processOutputLine(outputLine);
     emit newOutputLineAvailable(outputLine, OutputChannel::StdErr);
 }

@@ -192,6 +192,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
 void GTestOutputReader::processStdError(const QByteArray &outputLine)
 {
     // we need to process the output, GTest may uses both out streams
+    checkForSanitizerOutput(outputLine);
     processOutputLine(outputLine);
     emit newOutputLineAvailable(outputLine, OutputChannel::StdErr);
 }
