@@ -1,8 +1,12 @@
 SOURCES += \
+    ../common/themeselector.cpp \
     tst_manual_widgets_crumblepath.cpp
 
+HEADERS += \
+    ../common/themeselector.h
+
 RESOURCES += \
-    ../themes.qrc
+    ../common/themes.qrc
 
 QTC_LIB_DEPENDS += \
     utils

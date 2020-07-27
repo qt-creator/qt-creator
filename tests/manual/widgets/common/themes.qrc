@@ -1,0 +1,10 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/themes">
+    <file alias="dark.creatortheme">../../../../share/qtcreator/themes/dark.creatortheme</file>
+    <file alias="default.creatortheme">../../../../share/qtcreator/themes/default.creatortheme</file>
+    <file alias="flat-dark.creatortheme">../../../../share/qtcreator/themes/flat-dark.creatortheme</file>
+    <file alias="flat-light.creatortheme">../../../../share/qtcreator/themes/flat-light.creatortheme</file>
+    <file alias="flat.creatortheme">../../../../share/qtcreator/themes/flat.creatortheme</file>
+    <file alias="design.creatortheme">../../../../share/qtcreator/themes/design.creatortheme</file>
+</qresource>
+</RCC>

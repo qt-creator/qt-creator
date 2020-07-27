@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -31,11 +31,8 @@
 
 #include <utils/crumblepath.h>
 #include <utils/styledbar.h>
-#include <utils/stylehelper.h>
-#include <utils/theme/theme.h>
-#include <utils/theme/theme_p.h>
 
-#include <coreplugin/manhattanstyle.h>
+#include "../common/themeselector.h"
 
 using namespace Utils;
 
@@ -100,15 +97,9 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
 
-    Theme theme("");
-    QSettings settings(":/themes/flat.creatortheme", QSettings::IniFormat);
-    theme.readSettings(settings);
-    setCreatorTheme(&theme);
-    StyleHelper::setBaseColor(QColor(StyleHelper::DEFAULT_BASE_COLOR));
-    QApplication::setStyle(new ManhattanStyle(creatorTheme()->preferredStyles().value(0)));
-
     auto *widget = new QWidget;
     auto *layout = new QVBoxLayout(widget);
+    layout->addWidget(new ManualTest::ThemeSelector);
     for (auto creatorFunction : {crumblePathWithMenu,
                                  disabledCrumblePathWithMenu,
                                  growingCrumblePath,

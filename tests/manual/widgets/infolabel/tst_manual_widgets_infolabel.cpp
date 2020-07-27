@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,6 +23,8 @@
 **
 ****************************************************************************/
 
+#include "../common/themeselector.h"
+
 #include <QApplication>
 #include <QFormLayout>
 #include <QLayout>
@@ -30,9 +32,6 @@
 #include <QSettings>
 
 #include <utils/infolabel.h>
-#include <utils/stylehelper.h>
-#include <utils/theme/theme.h>
-#include <utils/theme/theme_p.h>
 
 #include <coreplugin/manhattanstyle.h>
 
@@ -44,15 +43,9 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
 
-    Theme theme("");
-    QSettings settings(":/themes/flat.creatortheme", QSettings::IniFormat);
-    theme.readSettings(settings);
-    setCreatorTheme(&theme);
-    StyleHelper::setBaseColor(QColor(StyleHelper::DEFAULT_BASE_COLOR));
-    QApplication::setStyle(new ManhattanStyle(creatorTheme()->preferredStyles().value(0)));
-
     auto widget = new QWidget;
     auto mainLayout = new QVBoxLayout(widget);
+    mainLayout->addWidget(new ManualTest::ThemeSelector);
     auto variationsLayout = new QGridLayout;
     mainLayout->addLayout(variationsLayout);
 
