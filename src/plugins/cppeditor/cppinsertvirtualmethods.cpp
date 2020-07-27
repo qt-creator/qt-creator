@@ -619,10 +619,12 @@ public:
                     // Do not implement existing functions inside target class
                     bool funcExistsInClass = false;
                     const Name *funcName = func->name();
-                    for (Symbol *symbol = m_classAST->symbol->find(funcName->identifier());
-                         symbol; symbol = symbol->next()) {
-                        if (!symbol->name()
-                                || !funcName->identifier()->match(symbol->identifier())) {
+                    const OperatorNameId * const opName = funcName->asOperatorNameId();
+                    Symbol *symbol = opName ? m_classAST->symbol->find(opName->kind())
+                                            : m_classAST->symbol->find(funcName->identifier());
+                    for (; symbol; symbol = symbol->next()) {
+                        if (!opName && (!symbol->name()
+                                        || !funcName->identifier()->match(symbol->identifier()))) {
                             continue;
                         }
                         if (symbol->type().match(func->type())) {
@@ -1541,10 +1543,12 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "class BaseA {\n"
         "public:\n"
         "    virtual int virtualFuncA();\n"
+        "    virtual operator==(const BaseA &);\n"
         "};\n\n"
         "class Derived : public Bas@eA {\n"
         "public:\n"
         "    virtual int virtualFuncA() = 0;\n"
+        "    virtual operator==(const BaseA &);\n"
         "};\n"
         ) << _();
 
