@@ -408,7 +408,11 @@ void ValgrindTestRunnerTest::testUninit2()
               "manually before executing this test.");
     const QString srcDir = srcDirForApp(app);
 
-    QVERIFY(m_logMessages.isEmpty());
+    QVERIFY(m_logMessages.size() < 2);
+    if (!m_logMessages.isEmpty()) {
+        QVERIFY2(m_logMessages.first().contains("If you believe"),
+                 m_logMessages.first().constData());
+    }
 
     QCOMPARE(m_errors.count(), 2);
     //BEGIN first error
@@ -475,7 +479,11 @@ void ValgrindTestRunnerTest::testUninit3()
               "manually before executing this test.");
     const QString srcDir = srcDirForApp(app);
 
-    QVERIFY(m_logMessages.isEmpty());
+    QVERIFY(m_logMessages.size() < 2);
+    if (!m_logMessages.isEmpty()) {
+        QVERIFY2(m_logMessages.first().contains("If you believe"),
+                 m_logMessages.first().constData());
+    }
 
     QCOMPARE(m_errors.count(), 2);
     //BEGIN first error
@@ -617,7 +625,7 @@ void ValgrindTestRunnerTest::testFree1()
 
     {
     const Frame frame = stack.frames().constFirst();
-    QCOMPARE(frame.functionName(), QString("operator delete(void*)"));
+    QVERIFY2(frame.functionName().contains("operator delete"), qPrintable(frame.functionName()));
     }
     {
     const Frame frame = stack.frames().constLast();
@@ -637,7 +645,7 @@ void ValgrindTestRunnerTest::testFree1()
 
     {
     const Frame frame = stack.frames().constFirst();
-    QCOMPARE(frame.functionName(), QString("operator delete(void*)"));
+    QVERIFY2(frame.functionName().contains("operator delete"), qPrintable(frame.functionName()));
     }
     {
     const Frame frame = stack.frames().constLast();
@@ -753,7 +761,10 @@ void ValgrindTestRunnerTest::testOverlap()
 
     QVERIFY(m_logMessages.isEmpty());
 
-    QCOMPARE(m_errors.count(), 1);
+    QVERIFY(m_errors.count() <= 1);
+    if (m_errors.isEmpty())
+        QSKIP("Some libc implementations automatically use memmove in case of an overlap.");
+
     const Error error = m_errors.first();
     QCOMPARE(error.kind(), int(Overlap));
     QCOMPARE(error.stacks().count(), 1);
