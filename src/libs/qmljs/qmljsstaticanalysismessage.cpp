@@ -246,7 +246,7 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(ErrHitMaximumRecursion, Error,
            tr("Hit maximum recursion limit when visiting AST."));
     newMsg(ErrTypeIsInstantiatedRecursively, Error,
-            tr("Type cannot be instantiated  recursively (%1)."), 1);
+            tr("Type cannot be instantiated recursively (%1)."), 1);
 }
 
 } // anonymous namespace
