@@ -27,7 +27,7 @@
 
 #include "incredibuild_global.h"
 #include "buildconsolestepfactory.h"
-#include "ibconsolestepfactory.h"
+#include "ibconsolebuildstep.h"
 
 #include <extensionsystem/iplugin.h>
 

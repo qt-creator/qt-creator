@@ -15,11 +15,6 @@ add_qtc_plugin(IncrediBuild
   commandbuilder.h
   ibconsolebuildstep.cpp
   ibconsolebuildstep.h
-  ibconsolebuildstep.ui
-  ibconsolestepconfigwidget.cpp
-  ibconsolestepconfigwidget.h
-  ibconsolestepfactory.cpp
-  ibconsolestepfactory.h
   incredibuild_global.h
   incredibuildconstants.h
   incredibuildplugin.cpp

@@ -25,62 +25,15 @@
 
 #pragma once
 
-#include "commandbuilder.h"
-
-#include <projectexplorer/abstractprocessstep.h>
-#include <projectexplorer/buildsteplist.h>
-
-#include <QList>
+#include <projectexplorer/buildstep.h>
 
 namespace IncrediBuild {
 namespace Internal {
 
-class IBConsoleBuildStep : public ProjectExplorer::AbstractProcessStep
+class IBConsoleStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
 public:
-    explicit IBConsoleBuildStep(ProjectExplorer::BuildStepList *buildStepList, Utils::Id id);
-    ~IBConsoleBuildStep() override;
-
-    bool init() override;
-
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap    toMap() const override;
-
-    int nice() const { return m_nice; }
-    void nice(int nice) { m_nice = nice; }
-
-    bool keepJobNum() const { return m_keepJobNum; }
-    void keepJobNum(bool keepJobNum) { m_keepJobNum = keepJobNum; }
-
-    bool forceRemote() const { return m_forceRemote; }
-    void forceRemote(bool forceRemote) { m_forceRemote = forceRemote; }
-
-    bool alternate() const { return m_alternate; }
-    void alternate(bool alternate) { m_alternate = alternate; }
-
-    const QStringList& supportedCommandBuilders();
-    CommandBuilder* commandBuilder() const { return m_activeCommandBuilder; }
-    void commandBuilder(const QString &commandBuilder);
-
-    bool loadedFromMap() const { return m_loadedFromMap; }
-    void tryToMigrate();
-
-    void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
-
-private:
-    void initCommandBuilders();
-
-    int m_nice{0};
-    bool m_keepJobNum{false};
-    bool m_forceRemote{false};
-    bool m_alternate{false};
-    ProjectExplorer::BuildStepList *m_earlierSteps{};
-    bool m_loadedFromMap{false};
-    CommandBuilder* m_activeCommandBuilder{};
-    QList<CommandBuilder*> m_commandBuildersList{};
+    IBConsoleStepFactory();
 };
 
 } // namespace Internal
