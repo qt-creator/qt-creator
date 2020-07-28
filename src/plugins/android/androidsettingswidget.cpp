@@ -714,7 +714,7 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
         QMessageBox msgBox;
         msgBox.setText(tr("OpenSSL prebuilt libraries cloning failed. ") + msgSuffix
                        + tr("Opening OpenSSL URL for manual download."));
-        msgBox.addButton(tr("OK"), QMessageBox::YesRole);
+        msgBox.addButton(tr("Cancel"), QMessageBox::RejectRole);
         QAbstractButton *openButton = msgBox.addButton(tr("Open Download URL"), QMessageBox::ActionRole);
         msgBox.exec();
 
