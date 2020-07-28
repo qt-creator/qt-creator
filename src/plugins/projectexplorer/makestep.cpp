@@ -98,22 +98,13 @@ class MakeStepConfigWidget : public BuildStepConfigWidget
 public:
     explicit MakeStepConfigWidget(MakeStep *makeStep);
 
-private:
-    void itemChanged(QListWidgetItem *item);
-    void updateDetails();
-    void setUserJobCountVisible(bool visible);
-    void setUserJobCountEnabled(bool enabled);
-
-    MakeStep *m_makeStep;
-
     QLabel *m_targetsLabel;
     QListWidget *m_targetsList;
     QCheckBox *m_disableInSubDirsCheckBox;
 };
 
-
 MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
-    : BuildStepConfigWidget(makeStep), m_makeStep(makeStep)
+    : BuildStepConfigWidget(makeStep)
 {
     m_targetsLabel = new QLabel(this);
     m_targetsLabel->setText(tr("Targets:"));
@@ -136,8 +127,8 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
         disableInSubDirsLabel->hide();
         m_disableInSubDirsCheckBox->hide();
     } else {
-        connect(m_disableInSubDirsCheckBox, &QCheckBox::toggled, this, [this] {
-            m_makeStep->setEnabledForSubDirs(!m_disableInSubDirsCheckBox->isChecked());
+        connect(m_disableInSubDirsCheckBox, &QCheckBox::toggled, this, [this, makeStep] {
+            makeStep->setEnabledForSubDirs(!m_disableInSubDirsCheckBox->isChecked());
         });
     }
 
@@ -145,91 +136,14 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     for (const QString &target : availableTargets) {
         auto item = new QListWidgetItem(target, m_targetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-        item->setCheckState(m_makeStep->buildsTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
+        item->setCheckState(makeStep->buildsTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
     }
     if (availableTargets.isEmpty()) {
         m_targetsLabel->hide();
         m_targetsList->hide();
     }
 
-    updateDetails();
-
-    connect(makeStep->m_makeCommandAspect, &BaseStringAspect::changed,
-            this, &MakeStepConfigWidget::updateDetails);
-    connect(makeStep->m_userArgumentsAspect, &BaseStringAspect::changed,
-            this, &MakeStepConfigWidget::updateDetails);
-    connect(makeStep->m_userJobCountAspect, &BaseIntegerAspect::changed,
-            this, &MakeStepConfigWidget::updateDetails);
-    connect(makeStep->m_overrideMakeflagsAspect, &BaseBoolAspect::changed,
-            this, &MakeStepConfigWidget::updateDetails);
-    connect(m_targetsList, &QListWidget::itemChanged,
-            this, &MakeStepConfigWidget::itemChanged);
-
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
-            this, &MakeStepConfigWidget::updateDetails);
-
-    connect(m_makeStep->target(), &Target::kitChanged,
-            this, &MakeStepConfigWidget::updateDetails);
-
-    connect(m_makeStep->buildConfiguration(), &BuildConfiguration::environmentChanged,
-            this, &MakeStepConfigWidget::updateDetails);
-    connect(m_makeStep->buildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
-            this, &MakeStepConfigWidget::updateDetails);
-    connect(m_makeStep->target(), &Target::parsingFinished,
-            this, &MakeStepConfigWidget::updateDetails);
-
-    Core::VariableChooser::addSupportForChildWidgets(this, m_makeStep->macroExpander());
-}
-
-void MakeStepConfigWidget::setUserJobCountVisible(bool visible)
-{
-    m_makeStep->m_userJobCountAspect->setVisible(visible);
-    m_makeStep->m_overrideMakeflagsAspect->setVisible(visible);
-}
-
-void MakeStepConfigWidget::setUserJobCountEnabled(bool enabled)
-{
-    m_makeStep->m_userJobCountAspect->setEnabled(enabled);
-    m_makeStep->m_overrideMakeflagsAspect->setEnabled(enabled);
-}
-
-void MakeStepConfigWidget::updateDetails()
-{
-    BuildConfiguration *bc = m_makeStep->buildConfiguration();
-
-    const CommandLine make = m_makeStep->effectiveMakeCommand(MakeStep::Display);
-    if (make.executable().isEmpty()) {
-        setSummaryText(tr("<b>Make:</b> %1").arg(MakeStep::msgNoMakeCommand()));
-        return;
-    }
-    if (!bc) {
-        setSummaryText(tr("<b>Make:</b> No build configuration."));
-        return;
-    }
-
-    setUserJobCountVisible(m_makeStep->isJobCountSupported());
-    setUserJobCountEnabled(!m_makeStep->userArgsContainsJobCount());
-    m_makeStep->m_overrideMakeflagsAspect->m_nonOverrideWarning->setVisible(
-            m_makeStep->makeflagsJobCountMismatch() && !m_makeStep->jobCountOverridesMakeflags());
-    m_disableInSubDirsCheckBox->setChecked(!m_makeStep->enabledForSubDirs());
-
-    ProcessParameters param;
-    param.setMacroExpander(m_makeStep->macroExpander());
-    param.setWorkingDirectory(m_makeStep->buildDirectory());
-    param.setCommandLine(make);
-    param.setEnvironment(m_makeStep->buildEnvironment());
-
-    if (param.commandMissing())
-        setSummaryText(tr("<b>Make:</b> %1 not found in the environment.")
-                       .arg(param.command().executable().toUserOutput())); // Override display text
-    else
-        setSummaryText(param.summaryInWorkdir(displayName()));
-}
-
-void MakeStepConfigWidget::itemChanged(QListWidgetItem *item)
-{
-    m_makeStep->setBuildTarget(item->text(), item->checkState() & Qt::Checked);
-    updateDetails();
+    Core::VariableChooser::addSupportForChildWidgets(this, makeStep->macroExpander());
 }
 
 } // Internal
@@ -278,6 +192,7 @@ MakeStep::MakeStep(BuildStepList *parent, Utils::Id id)
     };
 
     updateMakeLabel();
+
     connect(m_makeCommandAspect, &BaseStringAspect::changed, this, updateMakeLabel);
 }
 
@@ -522,7 +437,69 @@ CommandLine MakeStep::effectiveMakeCommand(MakeCommandType type) const
 
 BuildStepConfigWidget *MakeStep::createConfigWidget()
 {
-    return new Internal::MakeStepConfigWidget(this);
+    auto widget = new Internal::MakeStepConfigWidget(this);
+
+    widget->setSummaryUpdater([this] {
+        const CommandLine make = effectiveMakeCommand(MakeStep::Display);
+        if (make.executable().isEmpty())
+            return tr("<b>Make:</b> %1").arg(MakeStep::msgNoMakeCommand());
+
+        if (!buildConfiguration())
+            return tr("<b>Make:</b> No build configuration.");
+
+        ProcessParameters param;
+        param.setMacroExpander(macroExpander());
+        param.setWorkingDirectory(buildDirectory());
+        param.setCommandLine(make);
+        param.setEnvironment(buildEnvironment());
+
+        if (param.commandMissing()) {
+            return tr("<b>Make:</b> %1 not found in the environment.")
+                        .arg(param.command().executable().toUserOutput()); // Override display text
+        }
+
+        return param.summaryInWorkdir(displayName());
+    });
+
+    auto updateDetails = [this, widget] {
+        const bool jobCountVisible = isJobCountSupported();
+        m_userJobCountAspect->setVisible(jobCountVisible);
+        m_overrideMakeflagsAspect->setVisible(jobCountVisible);
+
+        const bool jobCountEnabled = !userArgsContainsJobCount();
+        m_userJobCountAspect->setEnabled(jobCountEnabled);
+        m_overrideMakeflagsAspect->setEnabled(jobCountEnabled);
+
+        m_overrideMakeflagsAspect->m_nonOverrideWarning->setVisible(
+                makeflagsJobCountMismatch() && !jobCountOverridesMakeflags());
+        widget->m_disableInSubDirsCheckBox->setChecked(!enabledForSubDirs());
+
+        widget->recreateSummary();
+    };
+
+    updateDetails();
+
+    connect(m_makeCommandAspect, &BaseStringAspect::changed, this, updateDetails);
+    connect(m_userArgumentsAspect, &BaseStringAspect::changed, this, updateDetails);
+    connect(m_userJobCountAspect, &BaseIntegerAspect::changed, this, updateDetails);
+    connect(m_overrideMakeflagsAspect, &BaseBoolAspect::changed, this, updateDetails);
+
+    connect(widget->m_targetsList, &QListWidget::itemChanged, this,
+            [this, updateDetails](QListWidgetItem *item) {
+        setBuildTarget(item->text(), item->checkState() & Qt::Checked);
+        updateDetails();
+    });
+
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
+            this, updateDetails);
+
+    connect(target(), &Target::kitChanged, this, updateDetails);
+
+    connect(buildConfiguration(), &BuildConfiguration::environmentChanged, this, updateDetails);
+    connect(buildConfiguration(), &BuildConfiguration::buildDirectoryChanged, this, updateDetails);
+    connect(target(), &Target::parsingFinished, this, updateDetails);
+
+    return widget;
 }
 
 bool MakeStep::buildsTarget(const QString &target) const
