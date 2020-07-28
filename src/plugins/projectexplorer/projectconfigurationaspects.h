@@ -192,6 +192,7 @@ public:
     void setDisplayScaleFactor(qint64 factor);
     void setEnabled(bool enabled);
     void setDefaultValue(qint64 defaultValue);
+    void setToolTip(const QString &tooltip);
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;

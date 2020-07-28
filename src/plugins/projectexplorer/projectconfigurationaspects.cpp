@@ -135,6 +135,7 @@ public:
     QString m_labelText;
     QString m_prefix;
     QString m_suffix;
+    QString m_tooltip;
     QPointer<QLabel> m_label;
     QPointer<QSpinBox> m_spinBox; // Owned by configuration widget
     bool m_enabled = true;
@@ -677,6 +678,7 @@ void BaseIntegerAspect::addToLayout(LayoutBuilder &builder)
     d->m_spinBox->setPrefix(d->m_prefix);
     d->m_spinBox->setSuffix(d->m_suffix);
     d->m_spinBox->setEnabled(d->m_enabled);
+    d->m_spinBox->setToolTip(d->m_tooltip);
     if (d->m_maximumValue.isValid() && d->m_maximumValue.isValid())
         d->m_spinBox->setRange(int(d->m_minimumValue.toLongLong() / d->m_displayScaleFactor),
                                int(d->m_maximumValue.toLongLong() / d->m_displayScaleFactor));
@@ -760,6 +762,15 @@ void BaseIntegerAspect::setDefaultValue(qint64 defaultValue)
 {
     d->m_defaultValue = defaultValue;
 }
+
+void BaseIntegerAspect::setToolTip(const QString &tooltip)
+{
+    d->m_tooltip = tooltip;
+}
+
+/*!
+    \class ProjectExplorer::BaseTristateAspect
+*/
 
 BaseTriStateAspect::BaseTriStateAspect()
 {
