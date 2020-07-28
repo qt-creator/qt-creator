@@ -70,7 +70,7 @@ protected:
     QHash<ResultType, int> m_summary;
     int m_disabled = -1;
 private:
-    enum class SanitizerOutputMode { None, Asan};
+    enum class SanitizerOutputMode { None, Asan, Ubsan};
     TestResultPtr m_sanitizerResult;
     QStringList m_sanitizerLines;
     SanitizerOutputMode m_sanitizerOutputMode = SanitizerOutputMode::None;
