@@ -530,12 +530,9 @@ void AndroidRunnerWorker::asyncStartHelper()
         runAdb({"shell", "run-as", m_packageName, "chmod", "a+x", packageDir.trimmed()});
 
         if (!QFileInfo::exists(m_debugServerPath)) {
-            QString msg = tr("Cannot find C++ debug server in NDK installation");
-            if (m_useLldb) {
-                msg += "\n" + tr("The lldb-server binary has not been found. Maybe "
-                                 "sdk_definitions.json does not contain 'lldb;x.y' as "
-                                 "sdk_essential_package or LLDB was not installed.");
-            }
+            QString msg = tr("Cannot find C++ debug server in NDK installation.");
+            if (m_useLldb)
+                msg += "\n" + tr("The lldb-server binary has not been found.");
             emit remoteProcessFinished(msg);
             return;
         }
