@@ -85,10 +85,10 @@ public:
     void addToLayout(LayoutBuilder &builder) final
     {
         BaseBoolAspect::addToLayout(builder);
-        builder.addItem(m_nonOverrideWarning);
+        builder.addItem(m_nonOverrideWarning.data());
     }
 
-    QLabel *m_nonOverrideWarning;
+    QPointer<QLabel> m_nonOverrideWarning;
 };
 
 class MakeStepConfigWidget : public BuildStepConfigWidget
@@ -470,6 +470,7 @@ BuildStepConfigWidget *MakeStep::createConfigWidget()
         m_userJobCountAspect->setEnabled(jobCountEnabled);
         m_overrideMakeflagsAspect->setEnabled(jobCountEnabled);
 
+        QTC_ASSERT(m_overrideMakeflagsAspect->m_nonOverrideWarning, return);
         m_overrideMakeflagsAspect->m_nonOverrideWarning->setVisible(
                 makeflagsJobCountMismatch() && !jobCountOverridesMakeflags());
         widget->m_disableInSubDirsCheckBox->setChecked(!enabledForSubDirs());
