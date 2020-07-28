@@ -41,6 +41,8 @@ Rectangle {
     property int delegateStateImageSize
     property bool delegateHasWhenCondition
     property string delegateWhenConditionString
+    property bool hasAnnotation: checkAnnotation()
+
     readonly property bool isDefaultState: isDefault
 
     signal delegateInteraction
@@ -51,6 +53,10 @@ Rectangle {
     function autoComplete(text, pos, explicitComplete, filter) {
         var stringList = statesEditorModel.autoComplete(text, pos, explicitComplete)
         return stringList
+    }
+
+    function checkAnnotation() {
+        return statesEditorModel.hasAnnotation(internalNodeId)
     }
 
     MouseArea {
@@ -120,11 +126,31 @@ Rectangle {
             }
         }
 
+        StudioControls.MenuItem {
+            enabled: !isBaseState
+            text: (hasAnnotation ? qsTr("Edit Annotation")
+                                 : qsTr("Add Annotation"))
+            onTriggered: {
+                statesEditorModel.setAnnotation(internalNodeId)
+                hasAnnotation = checkAnnotation()
+            }
+        }
+
+        StudioControls.MenuItem {
+            enabled: !isBaseState && hasAnnotation
+            text: qsTr("Remove Annotation")
+            onTriggered: {
+                statesEditorModel.removeAnnotation(internalNodeId)
+                hasAnnotation = checkAnnotation()
+            }
+        }
+
         onClosed: {
             stateNameField.actionIndicator.forceVisible = false
         }
 
         onOpened: {
+            hasAnnotation = checkAnnotation()
             myRoot.delegateInteraction()
         }
     }

@@ -249,4 +249,19 @@ bool StatesEditorModel::hasDefaultState() const
     return m_statesEditorView->hasDefaultState();
 }
 
+void StatesEditorModel::setAnnotation(int internalNodeId)
+{
+    m_statesEditorView->setAnnotation(internalNodeId);
+}
+
+void StatesEditorModel::removeAnnotation(int internalNodeId)
+{
+    m_statesEditorView->removeAnnotation(internalNodeId);
+}
+
+bool StatesEditorModel::hasAnnotation(int internalNodeId) const
+{
+    return m_statesEditorView->hasAnnotation(internalNodeId);
+}
+
 } // namespace QmlDesigner

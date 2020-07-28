@@ -38,7 +38,8 @@
 
 namespace QmlDesigner {
 
-AnnotationEditor::AnnotationEditor(QObject *)
+AnnotationEditor::AnnotationEditor(QObject *parent)
+    : QObject(parent)
 {
 }
 
@@ -55,9 +56,9 @@ void AnnotationEditor::registerDeclarativeType()
 void AnnotationEditor::showWidget()
 {
     m_dialog = new AnnotationEditorDialog(Core::ICore::dialogParent(),
-                                          modelNode().validId(),
-                                          modelNode().customId(),
-                                          modelNode().annotation());
+                                          m_modelNode.id(),
+                                          m_modelNode.customId(),
+                                          m_modelNode.annotation());
 
     QObject::connect(m_dialog, &AnnotationEditorDialog::accepted,
                      this, &AnnotationEditor::acceptedClicked);

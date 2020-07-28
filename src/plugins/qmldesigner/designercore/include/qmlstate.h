@@ -34,6 +34,8 @@ namespace QmlDesigner {
 class AbstractViewAbstractVieweGroup;
 class QmlObjectNode;
 class QmlModelStateGroup;
+class Annotation;
+class AnnotationEditor;
 
 class QMLDESIGNERCORE_EXPORT QmlModelState : public QmlModelNodeFacade
 {
@@ -71,6 +73,12 @@ public:
 
     void setAsDefault();
     bool isDefault() const;
+
+    void setAnnotation(const Annotation &annotation, const QString &id);
+    Annotation annotation() const;
+    QString annotationName() const;
+    bool hasAnnotation() const;
+    void removeAnnotation();
 
 protected:
     void addChangeSetIfNotExists(const ModelNode &node);

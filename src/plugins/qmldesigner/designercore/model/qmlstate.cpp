@@ -32,6 +32,8 @@
 #include "bindingproperty.h"
 #include "qmlchangeset.h"
 #include "qmlitemnode.h"
+#include "annotation.h"
+#include "annotationeditor/annotationeditor.h"
 
 #include <utils/qtcassert.h>
 
@@ -302,6 +304,43 @@ bool QmlModelState::isDefault() const
     }
 
     return false;
+}
+
+void QmlModelState::setAnnotation(const Annotation &annotation, const QString &id)
+{
+    if (modelNode().isValid()) {
+        modelNode().setCustomId(id);
+        modelNode().setAnnotation(annotation);
+    }
+}
+
+Annotation QmlModelState::annotation() const
+{
+    if (modelNode().isValid())
+        return modelNode().annotation();
+    return {};
+}
+
+QString QmlModelState::annotationName() const
+{
+    if (modelNode().isValid())
+        return modelNode().customId();
+    return {};
+}
+
+bool QmlModelState::hasAnnotation() const
+{
+    if (modelNode().isValid())
+        return modelNode().hasAnnotation() || modelNode().hasCustomId();
+    return false;
+}
+
+void QmlModelState::removeAnnotation()
+{
+    if (modelNode().isValid()) {
+        modelNode().removeCustomId();
+        modelNode().removeAnnotation();
+    }
 }
 
 QmlModelState QmlModelState::createBaseState(const AbstractView *view)
