@@ -213,9 +213,9 @@ bool AndroidDeployQtStep::init()
 
     if (!selectedAbis.contains(info.cpuAbi.first())) {
         Core::MessageManager::write(
-            tr("Android: The selected device main ABI (%1) is not selected! The app execution or "
-               "debugging might not work properly. Add it from Projects > Build > Build Steps > "
-               "qmake > ABIs.")
+            tr("Android: The main ABI of the deployment device (%1) is not selected! The app "
+               "execution or debugging might not work properly. Add it from Projects > Build > "
+               "Build Steps > qmake > ABIs.")
                 .arg(info.cpuAbi.first()),
             Core::MessageManager::WithFocus);
     }
