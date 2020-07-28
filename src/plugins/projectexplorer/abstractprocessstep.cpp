@@ -103,6 +103,8 @@ class AbstractProcessStep::Private
 public:
     Private(AbstractProcessStep *q) : q(q) {}
 
+    void cleanUp(QProcess *process);
+
     AbstractProcessStep *q;
     std::unique_ptr<Utils::QtcProcess> m_process;
     ProcessParameters m_param;
@@ -130,7 +132,7 @@ void AbstractProcessStep::emitFaultyConfigurationMessage()
                    BuildStep::OutputFormat::NormalMessage);
 }
 
-bool AbstractProcessStep::ignoreReturnValue()
+bool AbstractProcessStep::ignoreReturnValue() const
 {
     return d->m_ignoreReturnValue;
 }
@@ -240,16 +242,17 @@ ProcessParameters *AbstractProcessStep::processParameters()
     return &d->m_param;
 }
 
-void AbstractProcessStep::cleanUp(QProcess *process)
+void AbstractProcessStep::Private::cleanUp(QProcess *process)
 {
     // The process has finished, leftover data is read in processFinished
-    processFinished(process->exitCode(), process->exitStatus());
-    const bool returnValue = processSucceeded(process->exitCode(), process->exitStatus()) || d->m_ignoreReturnValue;
+    q->processFinished(process->exitCode(), process->exitStatus());
+    const bool returnValue = q->processSucceeded(process->exitCode(), process->exitStatus())
+                                || m_ignoreReturnValue;
 
-    d->m_process.reset();
+    m_process.reset();
 
     // Report result
-    finish(returnValue);
+    q->finish(returnValue);
 }
 
 /*!
@@ -355,11 +358,6 @@ void AbstractProcessStep::finish(bool success)
     emit finished(success);
 }
 
-void AbstractProcessStep::outputAdded(const QString &string, BuildStep::OutputFormat format)
-{
-    emit addOutput(string, format, BuildStep::DontAppendNewline);
-}
-
 void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
 {
     QProcess *process = d->m_process.get();
@@ -369,7 +367,7 @@ void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
         stdError(d->stderrStream->toUnicode(process->readAllStandardError()));
         stdOutput(d->stdoutStream->toUnicode(process->readAllStandardOutput()));
     }
-    cleanUp(process);
+    d->cleanUp(process);
 }
 
 } // namespace ProjectExplorer

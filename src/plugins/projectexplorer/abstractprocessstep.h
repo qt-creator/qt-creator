@@ -29,9 +29,7 @@
 
 #include <QProcess>
 
-namespace Utils { class FilePath; }
 namespace ProjectExplorer {
-class OutputTaskParser;
 class ProcessParameters;
 
 // Documentation inside.
@@ -42,7 +40,7 @@ class PROJECTEXPLORER_EXPORT AbstractProcessStep : public BuildStep
 public:
     ProcessParameters *processParameters();
 
-    bool ignoreReturnValue();
+    bool ignoreReturnValue() const;
     void setIgnoreReturnValue(bool b);
 
     void emitFaultyConfigurationMessage();
@@ -50,12 +48,14 @@ public:
 protected:
     AbstractProcessStep(BuildStepList *bsl, Utils::Id id);
     ~AbstractProcessStep() override;
+
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     void doRun() override;
+    void doCancel() override;
     void setLowPriority();
-    virtual void finish(bool success);
 
+    virtual void finish(bool success);
     virtual void processStarted();
     virtual void processFinished(int exitCode, QProcess::ExitStatus status);
     virtual void processStartupFailed();
@@ -63,17 +63,10 @@ protected:
     virtual void stdOutput(const QString &output);
     virtual void stdError(const QString &output);
 
-    void doCancel() override;
-
 private:
-
     void processReadyReadStdOutput();
     void processReadyReadStdError();
     void slotProcessFinished(int, QProcess::ExitStatus);
-
-    void cleanUp(QProcess *process);
-
-    void outputAdded(const QString &string, BuildStep::OutputFormat format);
 
     class Private;
     Private *d;
