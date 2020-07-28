@@ -62,6 +62,7 @@ private:
     bool isContinuation(const QString &newLine) const;
 
     QRegularExpression m_regExp;
+    QRegularExpression m_regExpScope;
     QRegularExpression m_regExpIncluded;
     QRegularExpression m_regExpInlined;
     QRegularExpression m_regExpGccNames;
