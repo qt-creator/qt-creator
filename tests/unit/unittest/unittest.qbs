@@ -1,12 +1,13 @@
 import qbs.File
 import qbs.FileInfo
 
-CppApplication {
+QtcProduct {
     condition: gtest.present && gmock.present
-    type: base.concat(["autotest", "json_copy"])
+    type: ["application", "autotest", "json_copy"]
     consoleApplication: true
     destinationDirectory: FileInfo.joinPaths(project.buildDirectory,
         FileInfo.relativePath(project.ide_source_tree, sourceDirectory))
+    install: false
 
     Depends { name: "echoserver" }
     Depends { name: "pluginjson" }
