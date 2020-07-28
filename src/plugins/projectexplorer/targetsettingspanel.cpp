@@ -399,7 +399,7 @@ public:
         const QString kitName = kit->displayName();
         const QString projectName = m_project->displayName();
 
-        QAction *enableAction = menu->addAction(tr("Enable Kit for Project \"%2\"").arg(projectName));
+        QAction *enableAction = menu->addAction(tr("Enable Kit for Project \"%1\"").arg(projectName));
         enableAction->setEnabled(isSelectable && m_kitId.isValid() && !isEnabled());
         QObject::connect(enableAction, &QAction::triggered, [this, kit] {
             m_project->addTargetForKit(kit);
@@ -415,7 +415,7 @@ public:
             }
         });
 
-        QAction *disableAction = menu->addAction(tr("Disable Kit for Project \"%2\"").arg(projectName));
+        QAction *disableAction = menu->addAction(tr("Disable Kit for Project \"%1\"").arg(projectName));
         disableAction->setEnabled(isSelectable && m_kitId.isValid() && isEnabled());
         QObject::connect(disableAction, &QAction::triggered, m_project, [this] {
             Target *t = target();
