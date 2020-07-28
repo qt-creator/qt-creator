@@ -62,35 +62,19 @@ class AndroidPackageInstallationStep final : public AbstractProcessStep
     Q_DECLARE_TR_FUNCTIONS(Android::AndroidPackageInstallationStep)
 
 public:
-    AndroidPackageInstallationStep(BuildStepList *bsl, Utils::Id id);
-
-    BuildStepConfigWidget *createConfigWidget() final;
+    AndroidPackageInstallationStep(BuildStepList *bsl, Id id);
 
     QString nativeAndroidBuildPath() const;
 
 private:
     bool init() final;
-    void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
+    void setupOutputFormatter(OutputFormatter *formatter) final;
     void doRun() final;
 
     QStringList m_androidDirsToClean;
 };
 
-class AndroidPackageInstallationStepWidget final : public BuildStepConfigWidget
-{
-    Q_DECLARE_TR_FUNCTIONS(Android::AndroidPackageInstallationStepWidget)
-
-public:
-    AndroidPackageInstallationStepWidget(BuildStep *step)
-        : BuildStepConfigWidget(step)
-    {
-        const QString cmd = static_cast<AndroidPackageInstallationStep *>(step)
-                                ->nativeAndroidBuildPath();
-        setSummaryText(tr("<b>Make install:</b> Copy App Files to %1").arg(cmd));
-    }
-};
-
-AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bsl, Utils::Id id)
+AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bsl, Id id)
     : AbstractProcessStep(bsl, id)
 {
     const QString name = tr("Copy application data");
@@ -98,6 +82,9 @@ AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bs
     setDisplayName(name);
     setWidgetExpandedByDefault(false);
     setImmutable(true);
+    setSummaryUpdater([this] {
+        return tr("<b>Make install:</b> Copy App Files to %1").arg(nativeAndroidBuildPath());
+    });
 }
 
 bool AndroidPackageInstallationStep::init()
@@ -181,11 +168,6 @@ void AndroidPackageInstallationStep::doRun()
                 qCDebug(packageInstallationStepLog, "Cound't add %s to the package. The QML debugger might not work properly.", qPrintable(file.fileName()));
         }
     }
-}
-
-BuildStepConfigWidget *AndroidPackageInstallationStep::createConfigWidget()
-{
-    return new AndroidPackageInstallationStepWidget(this);
 }
 
 //
