@@ -34,11 +34,13 @@
 #include <utils/fancymainwindow.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
+#include <utils/qtcassert.h>
 
 #include <QApplication>
 #include <QComboBox>
 #include <QDockWidget>
 #include <QFormLayout>
+#include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenuBar>
@@ -114,6 +116,12 @@ bool lightColored(const QWidget *widget)
         p = p->parentWidget();
     }
     return false;
+}
+
+static bool isDarkFusionStyle(const QStyle *style)
+{
+    return creatorTheme()->flag(Theme::DarkUserInterface)
+            && strcmp(style->metaObject()->className(), "QFusionStyle") == 0;
 }
 
 class ManhattanStylePrivate
@@ -385,11 +393,150 @@ int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const 
     return ret;
 }
 
+static void drawPrimitiveTweakedForDarkTheme(QStyle::PrimitiveElement element,
+                                             const QStyleOption *option,
+                                             QPainter *painter, const QWidget *widget)
+{
+    const bool hasFocus = option->state & QStyle::State_HasFocus;
+    const bool isChecked = option->state & QStyle::State_On;
+    const bool isPartiallyChecked = option->state & QStyle::State_NoChange;
+    const bool isEnabled = option->state & QStyle::State_Enabled;
+    const bool isSunken = option->state & QStyle::State_Sunken;
+
+    const QColor frameColor = isEnabled ? option->palette.color(QPalette::Mid).darker(132)
+                                        : creatorTheme()->color(Theme::BackgroundColorDisabled);
+    const QColor indicatorColor = isEnabled ? option->palette.color(QPalette::Mid).darker(90)
+                                            : creatorTheme()->color(Theme::BackgroundColorDisabled);
+    const QColor bgColor = isSunken ? option->palette.color(QPalette::Mid).darker()
+                                    : option->palette.color(QPalette::Window);
+    const QColor hlColor = option->palette.color(QPalette::Highlight);
+
+    QPen framePen(hasFocus ? hlColor : frameColor, 1);
+    framePen.setJoinStyle(Qt::MiterJoin);
+    QPen indicatorPen(indicatorColor, 1);
+    indicatorPen.setJoinStyle(Qt::MiterJoin);
+
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing);
+
+    switch (element) {
+    case QStyle::PE_Frame: {
+        const QRectF frameRectF = QRectF(option->rect).adjusted(0.5, 0.5, -0.5, -0.5);
+        painter->setPen(framePen);
+        painter->drawRect(frameRectF);
+        break;
+    }
+    case QStyle::PE_FrameLineEdit: {
+        const bool isComboBox = widget->inherits("QComboBox");
+        const QRectF frameRectF =
+                QRectF(option->rect).adjusted(0.5, 0.5, isComboBox ? -8.5 : -0.5, -0.5);
+        painter->setPen(framePen);
+        painter->drawRect(frameRectF);
+        break;
+    }
+    case QStyle::PE_FrameGroupBox: {
+        // Snippet from QFusionStyle::drawPrimitive - BEGIN
+        static const int groupBoxTopMargin =  3;
+        int topMargin = 0;
+        auto control = dynamic_cast<const QGroupBox *>(widget);
+        if (control && !control->isCheckable() && control->title().isEmpty()) {
+            // Shrinking the topMargin if Not checkable AND title is empty
+            topMargin = groupBoxTopMargin;
+        } else {
+            topMargin = qMax(widget->style()->pixelMetric(QStyle::PM_ExclusiveIndicatorHeight),
+                             option->fontMetrics.height()) + groupBoxTopMargin;
+        }
+        // Snippet from QFusionStyle::drawPrimitive - END
+
+        const QRectF frameRectF = QRectF(option->rect).adjusted(0.5, topMargin + 0.5, -0.5, -0.5);
+        painter->setPen(framePen);
+        if (isEnabled)
+            painter->setOpacity(0.5);
+        painter->drawRect(frameRectF);
+        break;
+    }
+    case QStyle::PE_IndicatorRadioButton: {
+        const double lineWidth = 1.666;
+        const double o = lineWidth / 2;
+        indicatorPen.setWidth(lineWidth);
+        painter->setPen(framePen);
+        if (isEnabled)
+            painter->setBrush(bgColor);
+        painter->drawRoundedRect(QRectF(option->rect).adjusted(o, o, -o, -o),
+                                 100, 100, Qt::RelativeSize);
+
+        if (isChecked) {
+            painter->setPen(Qt::NoPen);
+            painter->setBrush(indicatorColor);
+            const double o = 4.25;
+            painter->drawRoundedRect(QRectF(option->rect).adjusted(o, o, -o, -o),
+                                     100, 100, Qt::RelativeSize);
+        }
+        break;
+    }
+    case QStyle::PE_IndicatorCheckBox: {
+        const QRectF frameRectF = QRectF(option->rect).adjusted(0.5, 0.5, -0.5, -0.5);
+        painter->setPen(framePen);
+        if (isEnabled)
+            painter->setBrush(bgColor);
+        painter->drawRect(frameRectF);
+
+        if (isPartiallyChecked) {
+            QPen outline(indicatorColor, 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin);
+            painter->setPen(outline);
+            QColor fill(frameColor);
+            fill.setAlphaF(0.8);
+            painter->setBrush(fill);
+            const double o = 3.5;
+            painter->drawRect(QRectF(option->rect).adjusted(o, o, -o, -o));
+        } else if (isChecked) {
+            const double o = 3;
+            const QRectF r = QRectF(option->rect).adjusted(o, o, -o, -o);
+            QPen checkMarkPen(indicatorColor, 1.75, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin);
+            painter->setPen(checkMarkPen);
+            painter->drawPolyline(QPolygonF({QPointF(r.left(), r.top() + r.height() / 2),
+                                             QPointF(r.left() + r.width() / 2.3, r.bottom()),
+                                             r.topRight()}));
+        }
+        break;
+    }
+    case QStyle::PE_IndicatorTabClose: {
+        QWindow *window = widget->window()->windowHandle();
+        QRect iconRect = QRect(0, 0, 16, 16);
+        iconRect.moveCenter(option->rect.center());
+        const QIcon::Mode mode = !isEnabled ? QIcon::Disabled : QIcon::Normal;
+        const static QIcon closeIcon = Utils::Icons::CLOSE_FOREGROUND.icon();
+        if (option->state & QStyle::State_MouseOver)
+            widget->style()->drawPrimitive(QStyle::PE_PanelButtonCommand, option, painter, widget);
+        const QPixmap iconPx =
+                closeIcon.pixmap(window, iconRect.size() * widget->devicePixelRatio(), mode);
+        painter->drawPixmap(iconRect, iconPx);
+        break;
+    }
+    default:
+        QTC_ASSERT_STRING("Unhandled QStyle::PrimitiveElement case");
+        break;
+    }
+    painter->restore();
+}
+
 void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *option,
                                    QPainter *painter, const QWidget *widget) const
 {
-    if (!panelWidget(widget)) {
-        QProxyStyle::drawPrimitive(element, option, painter, widget);
+    const bool isPanelWidget = panelWidget(widget);
+    if (!isPanelWidget) {
+        const bool tweakDarkTheme =
+                (element == PE_Frame
+                 || element == PE_FrameLineEdit
+                 || element == PE_FrameGroupBox
+                 || element == PE_IndicatorRadioButton
+                 || element == PE_IndicatorCheckBox
+                 || element == PE_IndicatorTabClose)
+                && isDarkFusionStyle(baseStyle());
+        if (tweakDarkTheme)
+            drawPrimitiveTweakedForDarkTheme(element, option, painter, widget);
+        else
+            QProxyStyle::drawPrimitive(element, option, painter, widget);
         return;
     }
 
