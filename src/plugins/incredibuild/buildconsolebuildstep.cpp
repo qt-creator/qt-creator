@@ -25,23 +25,35 @@
 
 #include "buildconsolebuildstep.h"
 
-#include "buildconsolestepconfigwidget.h"
 #include "cmakecommandbuilder.h"
 #include "incredibuildconstants.h"
 #include "makecommandbuilder.h"
-#include "ui_buildconsolebuildstep.h"
 
+#include <coreplugin/variablechooser.h>
+
+#include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/processparameters.h>
+#include <projectexplorer/projectconfigurationaspects.h>
 #include <projectexplorer/target.h>
+
+#include <utils/pathchooser.h>
 #include <utils/environment.h>
+
+#include <QCheckBox>
+#include <QComboBox>
+#include <QGridLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QSpinBox>
+
+using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace IncrediBuild {
 namespace Internal {
-
-using namespace ProjectExplorer;
 
 namespace Constants {
 const QLatin1String BUILDCONSOLE_AVOIDLOCAL("IncrediBuild.BuildConsole.AvoidLocal");
@@ -66,33 +78,409 @@ const QLatin1String BUILDCONSOLE_KEEPJOBNUM("IncrediBuild.BuildConsole.KeepJobNu
 const QLatin1String BUILDCONSOLE_COMMANDBUILDER("IncrediBuild.BuildConsole.CommandBuilder");
 }
 
-BuildConsoleBuildStep::BuildConsoleBuildStep(ProjectExplorer::BuildStepList *buildStepList,
-                                             Utils::Id id)
-    : ProjectExplorer::AbstractProcessStep(buildStepList, id)
-    , m_earlierSteps(buildStepList)
+class BuildConsoleBuildStep : public AbstractProcessStep
 {
-    setDisplayName("IncrediBuild for Windows");
-    initCommandBuilders();
+    Q_DECLARE_TR_FUNCTIONS(IncrediBuild::Internal::BuildConsoleBuildStep)
+
+public:
+    BuildConsoleBuildStep(BuildStepList *buildStepList, Id id);
+
+    bool init() final;
+
+    BuildStepConfigWidget *createConfigWidget() final;
+
+    bool fromMap(const QVariantMap &map) final;
+    QVariantMap toMap() const final;
+
+    const QStringList &supportedWindowsVersions() const;
+    const QStringList &supportedCommandBuilders();
+
+    CommandBuilder *commandBuilder() const { return m_activeCommandBuilder; }
+    void commandBuilder(const QString &commandBuilder);
+
+    void tryToMigrate();
+
+    void setupOutputFormatter(OutputFormatter *formatter) final;
+
+    QString normalizeWinVerArgument(QString winVer);
+
+    bool m_loadedFromMap{false};
+
+    BaseBoolAspect *m_avoidLocal{nullptr};
+    BaseStringAspect *m_profileXml{nullptr};
+    BaseIntegerAspect *m_maxCpu{nullptr};
+    BaseSelectionAspect *m_maxWinVer{nullptr};
+    BaseSelectionAspect *m_minWinVer{nullptr};
+    BaseStringAspect *m_title{nullptr};
+    BaseStringAspect *m_monFile{nullptr};
+    BaseBoolAspect *m_suppressStdOut{nullptr};
+    BaseStringAspect *m_logFile{nullptr};
+    BaseBoolAspect *m_showCmd{nullptr};
+    BaseBoolAspect *m_showAgents{nullptr};
+    BaseBoolAspect *m_showTime{nullptr};
+    BaseBoolAspect *m_hideHeader{nullptr};
+    BaseSelectionAspect *m_logLevel{nullptr};
+    BaseStringAspect *m_setEnv{nullptr};
+    BaseBoolAspect *m_stopOnError{nullptr};
+    BaseStringAspect *m_additionalArguments{nullptr};
+    BaseBoolAspect *m_openMonitor{nullptr};
+    BaseBoolAspect *m_keepJobNum{nullptr};
+
+    CommandBuilder m_customCommandBuilder{this};
+    MakeCommandBuilder m_makeCommandBuilder{this};
+    CMakeCommandBuilder m_cmakeCommandBuilder{this};
+
+    CommandBuilder *m_commandBuilders[3] {
+        &m_customCommandBuilder,
+        &m_makeCommandBuilder,
+        &m_cmakeCommandBuilder
+    };
+
+    CommandBuilder *m_activeCommandBuilder{m_commandBuilders[0]};
+};
+
+
+class BuildConsoleStepConfigWidget : public BuildStepConfigWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(IncrediBuild::Internal::BuildConsoleBuildStep)
+
+public:
+    explicit BuildConsoleStepConfigWidget(BuildConsoleBuildStep *buildConsoleStep);
+
+private:
+    void commandBuilderChanged();
+    void commandArgsChanged();
+    void makePathEdited();
+
+    BuildConsoleBuildStep *m_buildStep;
+
+    QLineEdit *makeArgumentsLineEdit;
+    QComboBox *commandBuilder;
+    PathChooser *makePathChooser;
+};
+
+// BuildConsoleStepConfigWidget
+
+BuildConsoleStepConfigWidget::BuildConsoleStepConfigWidget(BuildConsoleBuildStep *buildConsoleStep)
+    : BuildStepConfigWidget(buildConsoleStep)
+    , m_buildStep(buildConsoleStep)
+{
+    setDisplayName(tr("IncrediBuild for Windows"));
+
+    QFont font;
+    font.setBold(true);
+    font.setWeight(75);
+
+    auto sectionTarget = new QLabel(tr("Target and configuration"), this);
+    sectionTarget->setFont(font);
+
+    auto sectionMisc = new QLabel(tr("Miscellaneous"), this);
+    sectionMisc->setFont(font);
+
+    auto sectionDistribution = new QLabel(tr("IncrediBuild Distribution control"), this);
+    sectionDistribution->setFont(font);
+
+    auto sectionLogging = new QLabel(tr("Output and Logging"), this);
+    sectionLogging->setFont(font);
+
+    commandBuilder = new QComboBox(this);
+
+    const auto emphasize = [](const QString &msg) { return QString("<i>" + msg); };
+    auto infoLabel1 = new QLabel(emphasize(tr("Enter the appropriate arguments to your build "
+                                              "command.")), this);
+    auto infoLabel2 = new QLabel(emphasize(tr("Make sure the build command's "
+                                              "multi-job parameter value is large enough (such as "
+                                              "-j200 for the JOM or Make build tools)")), this);
+
+    auto label = new QLabel(tr("Command Helper:"), this);
+    label->setToolTip(tr("Select an helper to establish the build command."));
+
+    commandBuilder->addItems(m_buildStep->supportedCommandBuilders());
+    commandBuilder->setCurrentText(m_buildStep->commandBuilder()->displayName());
+    connect(commandBuilder, &QComboBox::currentTextChanged, this, &BuildConsoleStepConfigWidget::commandBuilderChanged);
+
+    makePathChooser = new PathChooser;
+    makeArgumentsLineEdit = new QLineEdit(this);
+    const QString defaultCommand = m_buildStep->commandBuilder()->defaultCommand();
+    makePathChooser->lineEdit()->setPlaceholderText(defaultCommand);
+    const QString command = m_buildStep->commandBuilder()->command();
+    if (command != defaultCommand)
+        makePathChooser->setPath(command);
+
+    makePathChooser->setExpectedKind(PathChooser::Kind::ExistingCommand);
+    makePathChooser->setBaseDirectory(FilePath::fromString(PathChooser::homePath()));
+    makePathChooser->setHistoryCompleter("IncrediBuild.BuildConsole.MakeCommand.History");
+    connect(makePathChooser, &PathChooser::rawPathChanged, this, &BuildConsoleStepConfigWidget::makePathEdited);
+
+    QString defaultArgs;
+    for (const QString &a : m_buildStep->commandBuilder()->defaultArguments())
+        defaultArgs += "\"" + a + "\" ";
+
+    QString args;
+    for (const QString &a : m_buildStep->commandBuilder()->arguments())
+        args += "\"" + a + "\" ";
+
+    makeArgumentsLineEdit->setPlaceholderText(defaultArgs);
+    if (args != defaultArgs)
+        makeArgumentsLineEdit->setText(args);
+
+    connect(makeArgumentsLineEdit, &QLineEdit::textEdited, this, &BuildConsoleStepConfigWidget::commandArgsChanged);
+
+    LayoutBuilder builder(this);
+    builder.addRow(sectionTarget);
+    builder.startNewRow().addItems(label, commandBuilder);
+    builder.startNewRow().addItems(tr("Make command:"), makePathChooser);
+    builder.startNewRow().addItems(tr("Make arguments:"), makeArgumentsLineEdit);
+    builder.addRow(infoLabel1);
+    builder.addRow(infoLabel2);
+    builder.addRow(buildConsoleStep->m_keepJobNum);
+
+    builder.addRow(sectionDistribution);
+    builder.addRow(buildConsoleStep->m_profileXml);
+    builder.addRow(buildConsoleStep->m_avoidLocal);
+    builder.addRow(buildConsoleStep->m_maxCpu);
+    builder.addRow(buildConsoleStep->m_maxWinVer);
+    builder.addRow(buildConsoleStep->m_minWinVer);
+
+    builder.addRow(sectionLogging);
+    builder.addRow(buildConsoleStep->m_title);
+    builder.addRow(buildConsoleStep->m_monFile);
+    builder.addRow(buildConsoleStep->m_suppressStdOut);
+    builder.addRow(buildConsoleStep->m_logFile);
+    builder.addRow(buildConsoleStep->m_showCmd);
+    builder.addRow(buildConsoleStep->m_showAgents);
+    builder.addRow(buildConsoleStep->m_showTime);
+    builder.addRow(buildConsoleStep->m_hideHeader);
+    builder.addRow(buildConsoleStep->m_logLevel);
+
+    builder.addRow(sectionMisc);
+    builder.addRow(buildConsoleStep->m_setEnv);
+    builder.addRow(buildConsoleStep->m_stopOnError);
+    builder.addRow(buildConsoleStep->m_additionalArguments);
+    builder.addRow(buildConsoleStep->m_openMonitor);
+
+    Core::VariableChooser::addSupportForChildWidgets(this, buildConsoleStep->macroExpander());
 }
 
-BuildConsoleBuildStep::~BuildConsoleBuildStep()
+void BuildConsoleStepConfigWidget::commandBuilderChanged()
 {
-    qDeleteAll(m_commandBuildersList);
+    m_buildStep->commandBuilder(commandBuilder->currentText());
+
+    QString defaultArgs;
+    for (const QString &a : m_buildStep->commandBuilder()->defaultArguments())
+        defaultArgs += "\"" + a + "\" ";
+
+    QString args;
+    for (const QString &a : m_buildStep->commandBuilder()->arguments())
+        args += "\"" + a + "\" ";
+
+    if (args == defaultArgs)
+        makeArgumentsLineEdit->clear();
+    makeArgumentsLineEdit->setText(args);
+
+    const QString defaultCommand = m_buildStep->commandBuilder()->defaultCommand();
+    makePathChooser->lineEdit()->setPlaceholderText(defaultCommand);
+    QString command = m_buildStep->commandBuilder()->command();
+    if (command == defaultCommand)
+        command.clear();
+    makePathChooser->setPath(command);
+}
+
+void BuildConsoleStepConfigWidget::commandArgsChanged()
+{
+    m_buildStep->commandBuilder()->arguments(makeArgumentsLineEdit->text());
+}
+
+void BuildConsoleStepConfigWidget::makePathEdited()
+{
+    m_buildStep->commandBuilder()->command(makePathChooser->rawPath());
+}
+
+// BuildConsoleBuilStep
+
+BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id)
+    : AbstractProcessStep(buildStepList, id)
+{
+    setDisplayName("IncrediBuild for Windows");
+
+    m_maxCpu = addAspect<BaseIntegerAspect>();
+    m_maxCpu->setSettingsKey(Constants::BUILDCONSOLE_MAXCPU);
+    m_maxCpu->setToolTip(tr("Determines the maximum number of CPU cores that can be used in a "
+                            "build, regardless of the number of available Agents. "
+                            "It takes into account both local and remote cores, even if the "
+                            "Avoid Task Execution on Local Machine option is selected."));
+    m_maxCpu->setLabel(tr("Maximum CPUs to utilize in the build:"));
+    m_maxCpu->setRange(0, 65536);
+
+    m_avoidLocal = addAspect<BaseBoolAspect>();
+    m_avoidLocal->setSettingsKey(Constants::BUILDCONSOLE_AVOIDLOCAL);
+    m_avoidLocal->setLabel(tr("Avoid Local:"), BaseBoolAspect::LabelPlacement::InExtraLabel);
+    m_avoidLocal->setToolTip(tr("Overrides the Agent Settings dialog Avoid task execution on local "
+                                "machine when possible option. This allows to free more resources "
+                                "on the initiator machine and could be beneficial to distribution "
+                                "in scenarios where the initiating machine is bottlenecking the "
+                                "build with High CPU usage."));
+
+    m_profileXml = addAspect<BaseStringAspect>();
+    m_profileXml->setSettingsKey(Constants::BUILDCONSOLE_PROFILEXML);
+    m_profileXml->setLabelText(tr("Profile.xml:"));
+    m_profileXml->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
+    m_profileXml->setExpectedKind(PathChooser::Kind::File);
+    m_profileXml->setBaseFileName(FilePath::fromString(PathChooser::homePath()));
+    m_profileXml->setHistoryCompleter("IncrediBuild.BuildConsole.ProfileXml.History");
+    m_profileXml->setToolTip(tr("The Profile XML file is used to define how Automatic "
+                                "Interception Interface should handle the various processes "
+                                "involved in a distributed job. It is not necessary for "
+                                "\"Visual Studio\" or \"InExtraLabel and Build tools\" builds, "
+                                "but can be used to provide configuration options if those "
+                                "builds use additional processes that are not included in "
+                                "those packages. It is required to configure distributable "
+                                "processes in \"Dev Tools\" builds."));
+
+    m_maxWinVer = addAspect<BaseSelectionAspect>();
+    m_maxWinVer->setSettingsKey(Constants::BUILDCONSOLE_MAXWINVER);
+    m_maxWinVer->setDisplayName(tr("Newest allowed helper machine OS:"));
+    m_maxWinVer->setDisplayStyle(BaseSelectionAspect::DisplayStyle::ComboBox);
+    m_maxWinVer->setToolTip(tr("Specifies the newest operating system installed on a helper "
+                               "machine to be allowed to participate as helper in the build."));
+    for (const QString &version : supportedWindowsVersions())
+        m_maxWinVer->addOption(version);
+
+    m_minWinVer = addAspect<BaseSelectionAspect>();
+    m_minWinVer->setSettingsKey(Constants::BUILDCONSOLE_MINWINVER);
+    m_minWinVer->setDisplayName(tr("Oldest allowed helper machine OS:"));
+    m_minWinVer->setDisplayStyle(BaseSelectionAspect::DisplayStyle::ComboBox);
+    m_minWinVer->setToolTip(tr("Specifies the oldest operating system installed on a helper "
+                               "machine to be allowed to participate as helper in the build."));
+    for (const QString &version : supportedWindowsVersions())
+        m_minWinVer->addOption(version);
+
+    m_title = addAspect<BaseStringAspect>();
+    m_title->setSettingsKey(Constants::BUILDCONSOLE_TITLE);
+    m_title->setLabelText(tr("Build Title:"));
+    m_title->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    m_title->setToolTip(tr("Specifies a custom header line which will be displayed in the "
+                           "beginning of the build output text. This title will also be used "
+                           "for the Build History and Build Monitor displays."));
+
+    m_monFile = addAspect<BaseStringAspect>();
+    m_monFile->setSettingsKey(Constants::BUILDCONSOLE_MONFILE);
+    m_monFile->setLabelText(tr("Save IncrediBuild monitor file:"));
+    m_monFile->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
+    m_monFile->setExpectedKind(PathChooser::Kind::Any);
+    m_monFile->setBaseFileName(FilePath::fromString(PathChooser::homePath()));
+    m_monFile->setHistoryCompleter(QLatin1String("IncrediBuild.BuildConsole.MonFile.History"));
+    m_monFile->setToolTip(tr("Writes a copy of the build progress (.ib_mon) file to the specified "
+                             "location. - If only a folder name is given, IncrediBuild generates a "
+                             "GUID for the file name. - A message containing the location of the "
+                             "saved .ib_mon file is added to the end of the build output"));
+
+    m_suppressStdOut = addAspect<BaseBoolAspect>();
+    m_suppressStdOut->setSettingsKey(Constants::BUILDCONSOLE_SUPPRESSSTDOUT);
+    m_suppressStdOut->setLabel(tr("Suppress STDOUT:"),
+                               BaseBoolAspect::LabelPlacement::InExtraLabel);
+    m_suppressStdOut->setToolTip(tr("Does not write anything to the standard output."));
+
+    m_logFile = addAspect<BaseStringAspect>();
+    m_logFile->setSettingsKey(Constants::BUILDCONSOLE_LOGFILE);
+    m_logFile->setLabelText(tr("Output Log file:"));
+    m_logFile->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
+    m_logFile->setExpectedKind(PathChooser::Kind::SaveFile);
+    m_logFile->setBaseFileName(FilePath::fromString(PathChooser::homePath()));
+    m_logFile->setHistoryCompleter(QLatin1String("IncrediBuild.BuildConsole.LogFile.History"));
+    m_logFile->setToolTip(tr("Writes build output to a file."));
+
+    m_showCmd = addAspect<BaseBoolAspect>();
+    m_showCmd->setSettingsKey(Constants::BUILDCONSOLE_SHOWCMD);
+    m_showCmd->setLabel(tr("Show Commands in output:"),
+                        BaseBoolAspect::LabelPlacement::InExtraLabel);
+    m_showCmd->setToolTip(tr("Shows, for each file built, the command-line used by IncrediBuild "
+                             "to build the file."));
+
+    m_showAgents = addAspect<BaseBoolAspect>();
+    m_showAgents->setSettingsKey(Constants::BUILDCONSOLE_SHOWAGENTS);
+    m_showAgents->setLabel(tr("Show Agents in output:"),
+                           BaseBoolAspect::LabelPlacement::InExtraLabel);
+    m_showAgents->setToolTip(tr("Shows the Agent used to build each file."));
+
+    m_showTime = addAspect<BaseBoolAspect>();
+    m_showTime->setSettingsKey(Constants::BUILDCONSOLE_SHOWTIME);
+    m_showTime->setLabel(tr("Show Time in output:"),
+                         BaseBoolAspect::LabelPlacement::InExtraLabel);
+    m_showTime->setToolTip(tr("Shows the Start and Finish time for each file built."));
+
+    m_hideHeader = addAspect<BaseBoolAspect>();
+    m_hideHeader->setSettingsKey(Constants::BUILDCONSOLE_HIDEHEADER);
+    m_hideHeader->setLabel(tr("Hide IncrediBuild Header in output:"),
+                           BaseBoolAspect::LabelPlacement::InExtraLabel);
+    m_hideHeader->setToolTip(tr("Suppresses the \"IncrediBuild\" header in the build output"));
+
+    m_logLevel = addAspect<BaseSelectionAspect>();
+    m_logLevel->setSettingsKey(Constants::BUILDCONSOLE_LOGLEVEL);
+    m_logLevel->setDisplayName(tr("Internal IncrediBuild logging level:"));
+    m_logLevel->setDisplayStyle(BaseSelectionAspect::DisplayStyle::ComboBox);
+    m_logLevel->addOption(QString());
+    m_logLevel->addOption("Minimal");
+    m_logLevel->addOption("Extended");
+    m_logLevel->addOption("Detailed");
+    m_logLevel->setToolTip(tr("Overrides the internal Incredibuild logging level for this build. "
+                              "Does not affect output or any user accessible logging. Used mainly "
+                              "to troubleshoot issues with the help of IncrediBuild support"));
+
+    m_setEnv = addAspect<BaseStringAspect>();
+    m_setEnv->setSettingsKey(Constants::BUILDCONSOLE_SETENV);
+    m_setEnv->setLabelText(tr("Set an Environment Variable:"));
+    m_setEnv->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    m_setEnv->setToolTip(tr("Sets or overrides environment variables for the context of the build."));
+
+    m_stopOnError = addAspect<BaseBoolAspect>();
+    m_stopOnError->setSettingsKey(Constants::BUILDCONSOLE_STOPONERROR);
+    m_stopOnError->setLabel(tr("Stop On Errors:"), BaseBoolAspect::LabelPlacement::InExtraLabel);
+    m_stopOnError->setToolTip(tr("When specified, the execution will stop as soon as an error "
+                                 "is encountered. This is the default behavior in "
+                                 "\"Visual Studio\" builds, but not the default for "
+                                 "\"Make and Build tools\" or \"Dev Tools\" builds"));
+
+    m_additionalArguments = addAspect<BaseStringAspect>();
+    m_additionalArguments->setSettingsKey(Constants::BUILDCONSOLE_ADDITIONALARGUMENTS);
+    m_additionalArguments->setLabelText(tr("Additional Arguments:"));
+    m_additionalArguments->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    m_additionalArguments->setToolTip(tr("Add additional buildconsole arguments manually. "
+                                         "The value of this field will be concatenated to the "
+                                         "final buildconsole command line"));
+
+
+    m_openMonitor = addAspect<BaseBoolAspect>();
+    m_openMonitor->setSettingsKey(Constants::BUILDCONSOLE_OPENMONITOR);
+    m_openMonitor->setLabel(tr("Open Monitor:"), BaseBoolAspect::LabelPlacement::InExtraLabel);
+    m_openMonitor->setToolTip(tr("Opens an IncrediBuild Build Monitor that graphically displays "
+                                 "the build progress once the build starts."));
+
+    m_keepJobNum = addAspect<BaseBoolAspect>();
+    m_keepJobNum->setSettingsKey(Constants::BUILDCONSOLE_KEEPJOBNUM);
+    m_keepJobNum->setLabel(tr("Keep Original Jobs Num:"),
+                           BaseBoolAspect::LabelPlacement::InExtraLabel);
+    m_keepJobNum->setToolTip(tr("Setting this option to true, forces IncrediBuild to not override "
+                                "the -j command line switch. </p>The default IncrediBuild "
+                                "behavior is to set a high value to the -j command line switch "
+                                "which controls the number of processes that the build tools "
+                                "executed by Qt Creator will execute in parallel (the default "
+                                "IncrediBuild behavior will set this value to 200)"));
 }
 
 void BuildConsoleBuildStep::tryToMigrate()
 {
     // This constructor is called when creating a fresh build step.
     // Attempt to detect build system from pre-existing steps.
-    for (CommandBuilder* p : m_commandBuildersList) {
-        if (p->canMigrate(m_earlierSteps)) {
+    for (CommandBuilder *p : m_commandBuilders) {
+        if (p->canMigrate(stepList())) {
             m_activeCommandBuilder = p;
             break;
         }
     }
 }
 
-void BuildConsoleBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
+void BuildConsoleBuildStep::setupOutputFormatter(OutputFormatter *formatter)
 {
     formatter->addLineParser(new GnuMakeParser());
     formatter->addLineParsers(target()->kit()->createOutputParsers());
@@ -103,29 +491,10 @@ void BuildConsoleBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatt
 bool BuildConsoleBuildStep::fromMap(const QVariantMap &map)
 {
     m_loadedFromMap = true;
-    m_avoidLocal = map.value(Constants::BUILDCONSOLE_AVOIDLOCAL, QVariant(false)).toBool();
-    m_profileXml = map.value(Constants::BUILDCONSOLE_PROFILEXML, QVariant(QString())).toString();
-    m_maxCpu = map.value(Constants::BUILDCONSOLE_MAXCPU, QVariant(0)).toInt();
-    m_maxWinVer = map.value(Constants::BUILDCONSOLE_MAXWINVER, QVariant(QString())).toString();
-    m_minWinVer = map.value(Constants::BUILDCONSOLE_MINWINVER, QVariant(QString())).toString();
-    m_title = map.value(Constants::BUILDCONSOLE_TITLE, QVariant(QString())).toString();
-    m_monFile = map.value(Constants::BUILDCONSOLE_MONFILE, QVariant(QString())).toString();
-    m_suppressStdOut = map.value(Constants::BUILDCONSOLE_SUPPRESSSTDOUT, QVariant(false)).toBool();
-    m_logFile = map.value(Constants::BUILDCONSOLE_LOGFILE, QVariant(QString())).toString();
-    m_showCmd = map.value(Constants::BUILDCONSOLE_SHOWCMD, QVariant(false)).toBool();
-    m_showAgents = map.value(Constants::BUILDCONSOLE_SHOWAGENTS, QVariant(false)).toBool();
-    m_showTime = map.value(Constants::BUILDCONSOLE_SHOWTIME, QVariant(false)).toBool();
-    m_hideHeader = map.value(Constants::BUILDCONSOLE_HIDEHEADER, QVariant(false)).toBool();
-    m_logLevel = map.value(Constants::BUILDCONSOLE_LOGLEVEL, QVariant(QString())).toString();
-    m_setEnv = map.value(Constants::BUILDCONSOLE_SETENV, QVariant(QString())).toString();
-    m_stopOnError = map.value(Constants::BUILDCONSOLE_STOPONERROR, QVariant(false)).toBool();
-    m_additionalArguments = map.value(Constants::BUILDCONSOLE_ADDITIONALARGUMENTS, QVariant(QString())).toString();
-    m_openMonitor = map.value(Constants::BUILDCONSOLE_OPENMONITOR, QVariant(false)).toBool();
-    m_keepJobNum = map.value(Constants::BUILDCONSOLE_KEEPJOBNUM, QVariant(false)).toBool();
 
     // Command builder. Default to the first in list, which should be the "Custom Command"
     commandBuilder(map.value(Constants::BUILDCONSOLE_COMMANDBUILDER,
-                             QVariant(m_commandBuildersList.front()->displayName()))
+                             QVariant(m_commandBuilders[0]->displayName()))
                        .toString());
     bool result = m_activeCommandBuilder->fromMap(map);
 
@@ -138,25 +507,6 @@ QVariantMap BuildConsoleBuildStep::toMap() const
 
     map[IncrediBuild::Constants::INCREDIBUILD_BUILDSTEP_TYPE] = QVariant(
         IncrediBuild::Constants::BUILDCONSOLE_BUILDSTEP_ID);
-    map[Constants::BUILDCONSOLE_AVOIDLOCAL] = QVariant(m_avoidLocal);
-    map[Constants::BUILDCONSOLE_PROFILEXML] = QVariant(m_profileXml);
-    map[Constants::BUILDCONSOLE_MAXCPU] = QVariant(m_maxCpu);
-    map[Constants::BUILDCONSOLE_MAXWINVER] = QVariant(m_maxWinVer);
-    map[Constants::BUILDCONSOLE_MINWINVER] = QVariant(m_minWinVer);
-    map[Constants::BUILDCONSOLE_TITLE] = QVariant(m_title);
-    map[Constants::BUILDCONSOLE_MONFILE] = QVariant(m_monFile);
-    map[Constants::BUILDCONSOLE_SUPPRESSSTDOUT] = QVariant(m_suppressStdOut);
-    map[Constants::BUILDCONSOLE_LOGFILE] = QVariant(m_logFile);
-    map[Constants::BUILDCONSOLE_SHOWCMD] = QVariant(m_showCmd);
-    map[Constants::BUILDCONSOLE_SHOWAGENTS] = QVariant(m_showAgents);
-    map[Constants::BUILDCONSOLE_SHOWTIME] = QVariant(m_showTime);
-    map[Constants::BUILDCONSOLE_HIDEHEADER] = QVariant(m_hideHeader);
-    map[Constants::BUILDCONSOLE_LOGLEVEL] = QVariant(m_logLevel);
-    map[Constants::BUILDCONSOLE_SETENV] = QVariant(m_setEnv);
-    map[Constants::BUILDCONSOLE_STOPONERROR] = QVariant(m_stopOnError);
-    map[Constants::BUILDCONSOLE_ADDITIONALARGUMENTS] = QVariant(m_additionalArguments);
-    map[Constants::BUILDCONSOLE_OPENMONITOR] = QVariant(m_openMonitor);
-    map[Constants::BUILDCONSOLE_KEEPJOBNUM] = QVariant(m_keepJobNum);
     map[Constants::BUILDCONSOLE_COMMANDBUILDER] = QVariant(m_activeCommandBuilder->displayName());
 
     m_activeCommandBuilder->toMap(&map);
@@ -185,87 +535,78 @@ QString BuildConsoleBuildStep::normalizeWinVerArgument(QString winVer)
     return winVer.toUpper();
 }
 
-const QStringList& BuildConsoleBuildStep::supportedLogLevels() const
-{
-    static QStringList list({ QString(), "Minimal", "Extended", "Detailed"});
-    return list;
-}
-
 bool BuildConsoleBuildStep::init()
 {
     QStringList args;
 
-    m_activeCommandBuilder->keepJobNum(m_keepJobNum);
+    m_activeCommandBuilder->keepJobNum(m_keepJobNum->value());
     QString cmd("/Command= %0");
     cmd = cmd.arg(m_activeCommandBuilder->fullCommandFlag());
     args.append(cmd);
 
-    if (!m_profileXml.isEmpty())
-        args.append(QString("/Profile=" + m_profileXml));
+    if (!m_profileXml->value().isEmpty())
+        args.append("/Profile=" + m_profileXml->value());
 
-    args.append(QString("/AvoidLocal=%1").arg(m_avoidLocal ? QString("ON") : QString("OFF")));
+    args.append(QString("/AvoidLocal=%1").arg(m_avoidLocal->value() ? QString("ON") : QString("OFF")));
 
-    if (m_maxCpu > 0)
-        args.append(QString("/MaxCPUs=%1").arg(m_maxCpu));
+    if (m_maxCpu->value() > 0)
+        args.append(QString("/MaxCPUs=%1").arg(m_maxCpu->value()));
 
-    if (!m_maxWinVer.isEmpty())
-        args.append(QString("/MaxWinVer=%1").arg(normalizeWinVerArgument(m_maxWinVer)));
+    if (!m_maxWinVer->stringValue().isEmpty())
+        args.append(QString("/MaxWinVer=%1").arg(normalizeWinVerArgument(m_maxWinVer->stringValue())));
 
-    if (!m_minWinVer.isEmpty())
-        args.append(QString("/MinWinVer=%1").arg(normalizeWinVerArgument(m_minWinVer)));
+    if (!m_minWinVer->stringValue().isEmpty())
+        args.append(QString("/MinWinVer=%1").arg(normalizeWinVerArgument(m_minWinVer->stringValue())));
 
-    if (!m_title.isEmpty())
-        args.append(QString("/Title=" + m_title));
+    if (!m_title->value().isEmpty())
+        args.append(QString("/Title=" + m_title->value()));
 
-    if (!m_monFile.isEmpty())
-        args.append(QString("/Mon=" + m_monFile));
+    if (!m_monFile->value().isEmpty())
+        args.append(QString("/Mon=" + m_monFile->value()));
 
-    if (m_suppressStdOut)
+    if (m_suppressStdOut->value())
         args.append("/Silent");
 
-    if (!m_logFile.isEmpty())
-        args.append(QString("/Log=" + m_logFile));
+    if (!m_logFile->value().isEmpty())
+        args.append(QString("/Log=" + m_logFile->value()));
 
-    if (m_showCmd)
+    if (m_showCmd->value())
         args.append("/ShowCmd");
 
-    if (m_showAgents)
+    if (m_showAgents->value())
         args.append("/ShowAgent");
 
-    if (m_showAgents)
+    if (m_showAgents->value())
         args.append("/ShowTime");
 
-    if (m_hideHeader)
+    if (m_hideHeader->value())
         args.append("/NoLogo");
 
-    if (!m_logLevel.isEmpty())
-        args.append(QString("/LogLevel=" + m_logLevel));
+    if (!m_logLevel->stringValue().isEmpty())
+        args.append(QString("/LogLevel=" + m_logLevel->stringValue()));
 
-    if (!m_setEnv.isEmpty())
-        args.append(QString("/SetEnv=" + m_setEnv));
+    if (!m_setEnv->value().isEmpty())
+        args.append(QString("/SetEnv=" + m_setEnv->value()));
 
-    if (m_stopOnError)
+    if (m_stopOnError->value())
         args.append("/StopOnErrors");
 
-    if (!m_additionalArguments.isEmpty())
-        args.append(m_additionalArguments);
+    if (!m_additionalArguments->value().isEmpty())
+        args.append(m_additionalArguments->value());
 
-    if (m_openMonitor)
+    if (m_openMonitor->value())
         args.append("/OpenMonitor");
 
-    Utils::CommandLine cmdLine("BuildConsole.exe", args);
+    CommandLine cmdLine("BuildConsole.exe", args);
     ProcessParameters* procParams = processParameters();
     procParams->setCommandLine(cmdLine);
-    procParams->setEnvironment(Utils::Environment::systemEnvironment());
+    procParams->setEnvironment(Environment::systemEnvironment());
 
     BuildConfiguration *buildConfig = buildConfiguration();
     if (buildConfig) {
         procParams->setWorkingDirectory(buildConfig->buildDirectory());
         procParams->setEnvironment(buildConfig->environment());
-
-        Utils::MacroExpander *macroExpander = buildConfig->macroExpander();
-        if (macroExpander)
-            procParams->setMacroExpander(macroExpander);
+        procParams->setMacroExpander(buildConfig->macroExpander());
     }
 
     return AbstractProcessStep::init();
@@ -273,29 +614,18 @@ bool BuildConsoleBuildStep::init()
 
 BuildStepConfigWidget* BuildConsoleBuildStep::createConfigWidget()
 {
+    // On first creation of the step, attempt to detect and migrate from preceding steps
+    if (!m_loadedFromMap)
+        tryToMigrate();
+
     return new BuildConsoleStepConfigWidget(this);
-}
-
-void BuildConsoleBuildStep::initCommandBuilders()
-{
-    if (m_commandBuildersList.empty()) {
-        // "Custom Command"- needs to be first in the list.
-        m_commandBuildersList.push_back(new CommandBuilder(this));
-        m_commandBuildersList.push_back(new MakeCommandBuilder(this));
-        m_commandBuildersList.push_back(new CMakeCommandBuilder(this));
-    }
-
-    // Default to "Custom Command".
-    if (!m_activeCommandBuilder)
-        m_activeCommandBuilder = m_commandBuildersList.front();
 }
 
 const QStringList& BuildConsoleBuildStep::supportedCommandBuilders()
 {
     static QStringList list;
     if (list.empty()) {
-        initCommandBuilders();
-        for (CommandBuilder* p : m_commandBuildersList)
+        for (CommandBuilder *p : m_commandBuilders)
             list.push_back(p->displayName());
     }
 
@@ -304,12 +634,23 @@ const QStringList& BuildConsoleBuildStep::supportedCommandBuilders()
 
 void BuildConsoleBuildStep::commandBuilder(const QString& commandBuilder)
 {
-    for (CommandBuilder* p : m_commandBuildersList) {
+    for (CommandBuilder *p : m_commandBuilders) {
         if (p->displayName().compare(commandBuilder) == 0) {
             m_activeCommandBuilder = p;
             break;
         }
     }
+}
+
+
+// BuildConsoleStepFactory
+
+BuildConsoleStepFactory::BuildConsoleStepFactory()
+{
+    registerStep<BuildConsoleBuildStep>(IncrediBuild::Constants::BUILDCONSOLE_BUILDSTEP_ID);
+    setDisplayName(QObject::tr("IncrediBuild for Windows"));
+    setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_BUILD,
+                           ProjectExplorer::Constants::BUILDSTEPS_CLEAN});
 }
 
 } // namespace Internal

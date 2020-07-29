@@ -11,11 +11,6 @@ QtcPlugin {
     files: [
         "buildconsolebuildstep.cpp",
         "buildconsolebuildstep.h",
-        "buildconsolebuildstep.ui",
-        "buildconsolestepconfigwidget.cpp",
-        "buildconsolestepconfigwidget.h",
-        "buildconsolestepfactory.cpp",
-        "buildconsolestepfactory.h",
         "cmakecommandbuilder.cpp",
         "cmakecommandbuilder.h",
         "commandbuilder.cpp",

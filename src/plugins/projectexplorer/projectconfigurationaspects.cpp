@@ -81,6 +81,7 @@ public:
     QPointer<QComboBox> m_comboBox;
     QPointer<QLabel> m_label;
     QPointer<QButtonGroup> m_buttonGroup;
+    QString m_tooltip;
 };
 
 class BaseStringAspectPrivate
@@ -602,7 +603,9 @@ void BaseSelectionAspect::addToLayout(LayoutBuilder &builder)
         break;
     case DisplayStyle::ComboBox:
         d->m_label = new QLabel(displayName());
+        d->m_label->setToolTip(d->m_tooltip);
         d->m_comboBox = new QComboBox;
+        d->m_comboBox->setToolTip(d->m_tooltip);
         for (int i = 0, n = d->m_options.size(); i < n; ++i)
             d->m_comboBox->addItem(d->m_options.at(i).displayName);
         connect(d->m_comboBox.data(), QOverload<int>::of(&QComboBox::activated), this,
@@ -648,6 +651,11 @@ void BaseSelectionAspect::setDisplayStyle(BaseSelectionAspect::DisplayStyle styl
     d->m_displayStyle = style;
 }
 
+void BaseSelectionAspect::setToolTip(const QString &tooltip)
+{
+    d->m_tooltip = tooltip;
+}
+
 int BaseSelectionAspect::value() const
 {
     return d->m_value;
@@ -661,6 +669,11 @@ void BaseSelectionAspect::setValue(int value)
     else if (d->m_comboBox) {
         d->m_comboBox->setCurrentIndex(value);
     }
+}
+
+QString BaseSelectionAspect::stringValue() const
+{
+    return d->m_options.at(d->m_value).displayName;
 }
 
 void BaseSelectionAspect::addOption(const QString &displayName, const QString &toolTip)

@@ -26,7 +26,7 @@
 #pragma once
 
 #include "incredibuild_global.h"
-#include "buildconsolestepfactory.h"
+#include "buildconsolebuildstep.h"
 #include "ibconsolebuildstep.h"
 
 #include <extensionsystem/iplugin.h>

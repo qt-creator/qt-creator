@@ -90,11 +90,15 @@ public:
     int value() const;
     void setValue(int val);
 
+    QString stringValue() const;
+
     int defaultValue() const;
     void setDefaultValue(int defaultValue);
 
     enum class DisplayStyle { RadioButtons, ComboBox };
     void setDisplayStyle(DisplayStyle style);
+
+    void setToolTip(const QString &tooltip);
 
     void addOption(const QString &displayName, const QString &toolTip = {});
 
