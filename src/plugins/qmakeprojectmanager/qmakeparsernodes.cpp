@@ -2028,7 +2028,7 @@ InstallsList QmakeProFile::installsList(const QtSupport::ProFileReader *reader, 
         const QStringList &itemPaths = reader->values(pathVar);
         if (itemPaths.count() != 1) {
             qDebug("Invalid RHS: Variable '%s' has %d values.",
-                qPrintable(pathVar), itemPaths.count());
+                qPrintable(pathVar), int(itemPaths.count()));
             if (itemPaths.isEmpty()) {
                 qDebug("%s: Ignoring INSTALLS item '%s', because it has no path.",
                     qPrintable(projectFilePath), qPrintable(item));

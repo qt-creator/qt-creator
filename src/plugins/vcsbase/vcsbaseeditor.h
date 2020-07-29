@@ -30,9 +30,9 @@
 #include <texteditor/texteditor.h>
 
 #include <QSet>
+#include <QTextCodec>
 
 QT_BEGIN_NAMESPACE
-class QTextCodec;
 class QTextCursor;
 QT_END_NAMESPACE
 

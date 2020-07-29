@@ -89,18 +89,18 @@ QList<LocatorFilterEntry> BookmarkFilter::matchesFor(QFutureInterface<LocatorFil
             filterEntry.extraInfo = bookmark->fileName().toString();
         int highlightIndex = filterEntry.displayName.indexOf(entry, 0, Qt::CaseInsensitive);
         if (highlightIndex >= 0) {
-            filterEntry.highlightInfo = {highlightIndex, entry.length()};
+            filterEntry.highlightInfo = {highlightIndex, int(entry.length())};
         } else  {
             highlightIndex = filterEntry.extraInfo.indexOf(entry, 0, Qt::CaseInsensitive);
             if (highlightIndex >= 0) {
-                filterEntry.highlightInfo = {highlightIndex, entry.length(),
+                filterEntry.highlightInfo = {highlightIndex, int(entry.length()),
                                              LocatorFilterEntry::HighlightInfo::ExtraInfo};
             } else if (colonIndex >= 0) {
                 const QString fileName = entry.left(colonIndex);
                 const QString lineNumber = entry.mid(colonIndex + 1);
                 highlightIndex = filterEntry.displayName.indexOf(fileName, 0, Qt::CaseInsensitive);
                 if (highlightIndex >= 0) {
-                    filterEntry.highlightInfo = {highlightIndex, fileName.length()};
+                    filterEntry.highlightInfo = {highlightIndex, int(fileName.length())};
                     highlightIndex = filterEntry.displayName.indexOf(
                         lineNumber, highlightIndex, Qt::CaseInsensitive);
                     if (highlightIndex >= 0) {

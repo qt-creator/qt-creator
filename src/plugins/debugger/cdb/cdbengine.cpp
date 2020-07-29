@@ -2294,7 +2294,7 @@ void CdbEngine::parseOutputLine(QString line)
             if (debug)
                 qDebug("### Completed builtin command '%s' for token=%d, %d lines, pending=%d",
                        qPrintable(command.function), m_currentBuiltinResponseToken,
-                       m_currentBuiltinResponse.count('\n'), int(m_commandForToken.size() - 1));
+                       int(m_currentBuiltinResponse.count('\n')), int(m_commandForToken.size() - 1));
             QTC_ASSERT(token == m_currentBuiltinResponseToken, return);
             showMessage(m_currentBuiltinResponse, LogMisc);
             if (command.callback) {

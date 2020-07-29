@@ -256,7 +256,11 @@ bool ServerCapabilities::SemanticHighlightingServerCapabilities::isValid(ErrorHi
 {
     return contains(scopesKey) && value(scopesKey).isArray()
            && Utils::allOf(value(scopesKey).toArray(), [](const QJsonValue &array) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
                   return array.isArray() && Utils::allOf(array.toArray(), &QJsonValue::isString);
+#else
+                  return array.isArray() && Utils::allOf(array.toArray(), &QJsonValueRef::isString);
+#endif
               });
 }
 
