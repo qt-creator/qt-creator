@@ -137,7 +137,7 @@ void tst_Check::test()
     for (const SourceLocation &comment : doc->engine()->comments()) {
         const QString text = doc->source().mid(comment.begin(), comment.end() - comment.begin());
         const QRegularExpressionMatch match = messagePattern.match(text);
-        if (match.hasMatch())
+        if (!match.hasMatch())
             continue;
         const int type = match.captured(1).toInt();
         const int columnStart = match.captured(2).toInt();
