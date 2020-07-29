@@ -135,9 +135,13 @@ QLayout *LayoutBuilder::layout() const
 
 LayoutBuilder &LayoutBuilder::addItem(LayoutItem item)
 {
-    if (item.widget && !item.widget->parent())
-        item.widget->setParent(m_layout->parentWidget());
-    m_pendingItems.append(item);
+    if (item.aspect) {
+        item.aspect->addToLayout(*this);
+    } else {
+        if (item.widget && !item.widget->parent())
+            item.widget->setParent(m_layout->parentWidget());
+        m_pendingItems.append(item);
+    }
     return *this;
 }
 

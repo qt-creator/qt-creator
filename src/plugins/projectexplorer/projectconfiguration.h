@@ -39,6 +39,7 @@
 namespace ProjectExplorer {
 
 class Project;
+class ProjectConfigurationAspect;
 class ProjectConfigurationAspects;
 class Target;
 
@@ -53,10 +54,12 @@ public:
     public:
         LayoutItem(QLayout *layout) : layout(layout) {}
         LayoutItem(QWidget *widget) : widget(widget) {}
+        LayoutItem(ProjectConfigurationAspect *aspect) : aspect(aspect) {}
         LayoutItem(const QString &text) : text(text) {}
 
         QLayout *layout = nullptr;
         QWidget *widget = nullptr;
+        ProjectConfigurationAspect *aspect = nullptr;
         QString text;
     };
 
