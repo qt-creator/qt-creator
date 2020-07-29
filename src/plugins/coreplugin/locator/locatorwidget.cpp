@@ -48,21 +48,20 @@
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
-#include <QApplication>
-#include <QColor>
-#include <QDesktopWidget>
-#include <QFileInfo>
-#include <QTimer>
-#include <QEvent>
 #include <QAction>
 #include <QApplication>
+#include <QColor>
+#include <QEvent>
+#include <QFileInfo>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QKeyEvent>
 #include <QMenu>
+#include <QScreen>
 #include <QScrollBar>
-#include <QTreeView>
+#include <QTimer>
 #include <QToolTip>
+#include <QTreeView>
 
 Q_DECLARE_METATYPE(Core::LocatorFilterEntry)
 
@@ -325,7 +324,7 @@ void CenteredLocatorPopup::updateGeometry()
     QRect rect(pos, size);
     // invisible widget doesn't have the right screen set yet, so use the parent widget to
     // check for available geometry
-    const QRect available = QApplication::desktop()->availableGeometry(parentWidget());
+    const QRect available = parentWidget()->screen()->availableGeometry();
     if (rect.right() > available.right())
         rect.moveRight(available.right());
     if (rect.bottom() > available.bottom())

@@ -26,10 +26,10 @@
 #include "execmenu.h"
 
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QMenu>
 #include <QPoint>
 #include <QRect>
+#include <QScreen>
 #include <QSize>
 #include <QWidget>
 
@@ -43,7 +43,7 @@ namespace Utils {
 QAction *execMenuAtWidget(QMenu *menu, QWidget *widget)
 {
     QPoint p;
-    QRect screen = QApplication::desktop()->availableGeometry(widget);
+    QRect screen = widget->screen()->availableGeometry();
     QSize sh = menu->sizeHint();
     QRect rect = widget->rect();
     if (widget->isRightToLeft()) {

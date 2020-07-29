@@ -34,26 +34,17 @@
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
-#include <QApplication>
-#include <QDebug>
-#include <QDesktopWidget>
 #include <QDialogButtonBox>
 #include <QDir>
-#include <QFileDialog>
 #include <QFileInfo>
 #include <QFormLayout>
-#include <QHBoxLayout>
-#include <QImageWriter>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
 #include <QMessageBox>
-#include <QPushButton>
+#include <QScreen>
 #include <QSettings>
-#include <QSpinBox>
-#include <QTextStream>
 #include <QToolButton>
-#include <QVBoxLayout>
 #include <QWidgetAction>
 
 namespace ImageViewer {
@@ -185,7 +176,7 @@ MultiExportDialog::MultiExportDialog(QWidget *parent)
 {
     auto formLayout = new QFormLayout(this);
 
-    m_pathChooser->setMinimumWidth(QApplication::desktop()->availableGeometry(this).width() / 5);
+    m_pathChooser->setMinimumWidth(screen()->availableGeometry().width() / 5);
     m_pathChooser->setExpectedKind(Utils::PathChooser::SaveFile);
     m_pathChooser->setPromptDialogFilter(ExportDialog::imageNameFilterString());
     const QString pathChooserToolTip =
