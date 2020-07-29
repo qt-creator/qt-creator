@@ -1320,6 +1320,40 @@ UiObjectMember: T_DEFAULT UiObjectMemberPropertyNoInitialiser;
     } break;
 ./
 
+UiObjectMember: T_REQUIRED UiObjectMemberListPropertyNoInitialiser;
+/.
+    case $rule_number: {
+        AST::UiPublicMember *node = sym(2).UiPublicMember;
+        node->isRequired = true;
+        node->requiredToken = loc(1);
+        sym(1).Node = node;
+    } break;
+./
+
+UiObjectMember: T_DEFAULT T_REQUIRED UiObjectMemberListPropertyNoInitialiser;
+/.
+    case $rule_number: {
+        AST::UiPublicMember *node = sym(3).UiPublicMember;
+        node->isRequired = true;
+        node->requiredToken = loc(2);
+        node->isDefaultMember = true;
+        node->defaultToken = loc(1);
+        sym(1).Node = node;
+    } break;
+./
+
+UiObjectMember: T_REQUIRED T_DEFAULT UiObjectMemberListPropertyNoInitialiser;
+/.
+    case $rule_number: {
+        AST::UiPublicMember *node = sym(3).UiPublicMember;
+        node->isRequired = true;
+        node->requiredToken = loc(1);
+        node->isDefaultMember = true;
+        node->defaultToken = loc(2);
+        sym(1).Node = node;
+    } break;
+./
+
 UiObjectMember: T_DEFAULT UiObjectMemberListPropertyNoInitialiser;
 /.
     case $rule_number: {
