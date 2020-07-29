@@ -169,13 +169,13 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
     setConfigWidgetCreator([this] {
         QWidget *w = new QWidget;
         LayoutBuilder builder(w);
-        m_cppAspect->addToLayout(builder);
-        m_qmlAspect->addToLayout(builder.startNewRow());
-        m_overrideStartupAspect->addToLayout(builder.startNewRow());
+        builder.addRow(m_cppAspect);
+        builder.addRow(m_qmlAspect);
+        builder.addRow(m_overrideStartupAspect);
 
         static const QByteArray env = qgetenv("QTC_DEBUGGER_MULTIPROCESS");
         if (env.toInt())
-            m_multiProcessAspect->addToLayout(builder.startNewRow());
+            builder.addRow(m_multiProcessAspect);
 
         return w;
     });

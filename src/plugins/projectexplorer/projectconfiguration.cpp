@@ -79,6 +79,13 @@ LayoutBuilder &LayoutBuilder::startNewRow()
     return *this;
 }
 
+LayoutBuilder &LayoutBuilder::addRow(const LayoutItem &item)
+{
+    startNewRow();
+    addItem(item);
+    return *this;
+}
+
 void LayoutBuilder::flushPendingItems()
 {
     if (m_pendingItems.isEmpty())

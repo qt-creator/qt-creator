@@ -71,6 +71,7 @@ public:
     LayoutBuilder &addItem(LayoutItem item);
 
     LayoutBuilder &startNewRow();
+    LayoutBuilder &addRow(const LayoutItem &item);
 
     QLayout *layout() const;
 
