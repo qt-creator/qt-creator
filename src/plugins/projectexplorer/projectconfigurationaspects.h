@@ -135,6 +135,7 @@ public:
     void setFileDialogOnly(bool requireFileDialog);
     void setEnvironment(const Utils::Environment &env);
     void setBaseFileName(const Utils::FilePath &baseFileName);
+    void setToolTip(const QString &tooltip);
     void setReadOnly(bool readOnly);
     void setMacroExpanderProvider(const Utils::MacroExpanderProvider &expanderProvider);
 

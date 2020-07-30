@@ -98,6 +98,7 @@ public:
     QString m_value;
     QString m_placeHolderText;
     QString m_historyCompleterKey;
+    QString m_tooltip;
     PathChooser::Kind m_expectedKind = PathChooser::File;
     Environment m_environment;
     QPointer<QLabel> m_label;
@@ -308,6 +309,17 @@ void BaseStringAspect::setBaseFileName(const FilePath &baseFileName)
         d->m_pathChooserDisplay->setBaseDirectory(baseFileName);
 }
 
+void BaseStringAspect::setToolTip(const QString &tooltip)
+{
+    d->m_tooltip = tooltip;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setToolTip(tooltip);
+    if (d->m_lineEditDisplay)
+        d->m_lineEditDisplay->setToolTip(tooltip);
+    if (d->m_textEditDisplay)
+        d->m_textEditDisplay->setToolTip(tooltip);
+}
+
 void BaseStringAspect::setReadOnly(bool readOnly)
 {
     d->m_readOnly = readOnly;
@@ -423,22 +435,25 @@ void BaseStringAspect::update()
 
     if (d->m_pathChooserDisplay) {
         d->m_pathChooserDisplay->setFilePath(FilePath::fromString(displayedString));
+        d->m_pathChooserDisplay->setToolTip(d->m_tooltip);
         d->updateWidgetFromCheckStatus(d->m_pathChooserDisplay.data());
     }
 
     if (d->m_lineEditDisplay) {
         d->m_lineEditDisplay->setTextKeepingActiveCursor(displayedString);
+        d->m_lineEditDisplay->setToolTip(d->m_tooltip);
         d->updateWidgetFromCheckStatus(d->m_lineEditDisplay.data());
     }
 
     if (d->m_textEditDisplay) {
         d->m_textEditDisplay->setText(displayedString);
+        d->m_textEditDisplay->setToolTip(d->m_tooltip);
         d->updateWidgetFromCheckStatus(d->m_textEditDisplay.data());
     }
 
     if (d->m_labelDisplay) {
         d->m_labelDisplay->setText(displayedString);
-        d->m_labelDisplay->setToolTip(d->m_showToolTipOnLabel ? displayedString : QString());
+        d->m_labelDisplay->setToolTip(d->m_showToolTipOnLabel ? displayedString : d->m_tooltip);
     }
 
     if (d->m_label) {
