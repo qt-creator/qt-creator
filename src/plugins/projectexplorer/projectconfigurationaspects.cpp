@@ -61,9 +61,10 @@ public:
     bool m_value = false;
     bool m_defaultValue = false;
     bool m_enabled = true;
-    QString m_label;
+    QString m_labelText;
     QString m_tooltip;
     QPointer<QCheckBox> m_checkBox; // Owned by configuration widget
+    QPointer<QLabel> m_label; // Owned by configuration widget
 };
 
 class BaseSelectionAspectPrivate
@@ -501,10 +502,12 @@ void BaseBoolAspect::addToLayout(LayoutBuilder &builder)
     QTC_CHECK(!d->m_checkBox);
     d->m_checkBox = new QCheckBox();
     if (d->m_labelPlacement == LabelPlacement::AtCheckBox) {
-        d->m_checkBox->setText(d->m_label);
+        d->m_checkBox->setText(d->m_labelText);
         builder.addItem(new QLabel);
     } else {
-        builder.addItem(d->m_label);
+        d->m_label = new QLabel(d->m_labelText);
+        d->m_label->setToolTip(d->m_tooltip);
+        builder.addItem(d->m_label.data());
     }
     d->m_checkBox->setChecked(d->m_value);
     d->m_checkBox->setToolTip(d->m_tooltip);
@@ -549,9 +552,9 @@ void BaseBoolAspect::setValue(bool value)
         d->m_checkBox->setChecked(d->m_value);
 }
 
-void BaseBoolAspect::setLabel(const QString &label, LabelPlacement labelPlacement)
+void BaseBoolAspect::setLabel(const QString &labelText, LabelPlacement labelPlacement)
 {
-    d->m_label = label;
+    d->m_labelText = labelText;
     d->m_labelPlacement = labelPlacement;
 }
 
