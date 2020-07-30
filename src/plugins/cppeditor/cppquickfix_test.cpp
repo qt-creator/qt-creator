@@ -3499,7 +3499,6 @@ void CppEditorPlugin::test_quickfix_InsertDefsFromDecls_data()
         namespace N {
         class @C
         {
-            Q_OBJECT
         public:
             friend void ignoredFriend();
             void ignoredImplemented() {};
@@ -3530,7 +3529,6 @@ void CppEditorPlugin::test_quickfix_InsertDefsFromDecls_data()
         namespace N {
         class C
         {
-            Q_OBJECT
         public:
             friend void ignoredFriend();
             void ignoredImplemented() {};
@@ -3582,7 +3580,6 @@ void CppEditorPlugin::test_quickfix_InsertDefsFromDecls_data()
         namespace N {
         class @C
         {
-            Q_OBJECT
         public:
             friend void ignoredFriend();
             void ignoredImplemented() {};
