@@ -77,10 +77,10 @@ CustomToolChain::CustomToolChain() :
     setTypeDisplayName(tr("Custom"));
 }
 
-Internal::CustomParserSettings CustomToolChain::customParserSettings() const
+CustomParserSettings CustomToolChain::customParserSettings() const
 {
     return findOrDefault(ProjectExplorerPlugin::customParsers(),
-                         [this](const Internal::CustomParserSettings &s) {
+                         [this](const CustomParserSettings &s) {
         return s.id == outputParserId();
     });
 }
@@ -310,7 +310,7 @@ bool CustomToolChain::fromMap(const QVariantMap &data)
 
     // Restore Pre-4.13 settings.
     if (outputParserId() == Internal::CustomParser::id()) {
-        Internal::CustomParserSettings customParserSettings;
+        CustomParserSettings customParserSettings;
         customParserSettings.error.setPattern(
                     data.value("ProjectExplorer.CustomToolChain.ErrorPattern").toString());
         customParserSettings.error.setFileNameCap(
@@ -320,7 +320,7 @@ bool CustomToolChain::fromMap(const QVariantMap &data)
         customParserSettings.error.setMessageCap(
                     data.value("ProjectExplorer.CustomToolChain.ErrorMessageCap").toInt());
         customParserSettings.error.setChannel(
-                    static_cast<Internal::CustomParserExpression::CustomParserChannel>(
+                    static_cast<CustomParserExpression::CustomParserChannel>(
                         data.value("ProjectExplorer.CustomToolChain.ErrorChannel").toInt()));
         customParserSettings.error.setExample(
                     data.value("ProjectExplorer.CustomToolChain.ErrorExample").toString());
@@ -333,7 +333,7 @@ bool CustomToolChain::fromMap(const QVariantMap &data)
         customParserSettings.warning.setMessageCap(
                     data.value("ProjectExplorer.CustomToolChain.WarningMessageCap").toInt());
         customParserSettings.warning.setChannel(
-                    static_cast<Internal::CustomParserExpression::CustomParserChannel>(
+                    static_cast<CustomParserExpression::CustomParserChannel>(
                         data.value("ProjectExplorer.CustomToolChain.WarningChannel").toInt()));
         customParserSettings.warning.setExample(
                     data.value("ProjectExplorer.CustomToolChain.WarningExample").toString());
@@ -343,8 +343,7 @@ bool CustomToolChain::fromMap(const QVariantMap &data)
             customParserSettings.id = Utils::Id::fromString(QUuid::createUuid().toString());
             setOutputParserId(customParserSettings.id);
             customParserSettings.displayName = tr("Parser for toolchain %1").arg(displayName());
-            QList<Internal::CustomParserSettings> settings
-                    = ProjectExplorerPlugin::customParsers();
+            QList<CustomParserSettings> settings = ProjectExplorerPlugin::customParsers();
             settings << customParserSettings;
             ProjectExplorerPlugin::setCustomParsers(settings);
         }
@@ -476,7 +475,7 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
     const QList<CustomToolChain::Parser> parsers = CustomToolChain::parsers();
     for (const auto &parser : parsers)
         m_errorParserComboBox->addItem(parser.displayName, parser.parserId.toString());
-    for (const Internal::CustomParserSettings &s : ProjectExplorerPlugin::customParsers())
+    for (const CustomParserSettings &s : ProjectExplorerPlugin::customParsers())
         m_errorParserComboBox->addItem(s.displayName, s.id.toString());
 
     auto parserLayoutWidget = new QWidget;

@@ -555,7 +555,7 @@ public:
     MiniProjectTargetSelector * m_targetSelector;
     ProjectExplorerSettings m_projectExplorerSettings;
     BuildPropertiesSettings m_buildPropertiesSettings;
-    QList<Internal::CustomParserSettings> m_customParsers;
+    QList<CustomParserSettings> m_customParsers;
     bool m_shouldHaveRunConfiguration = false;
     bool m_shuttingDown = false;
     Utils::Id m_runMode = Constants::NO_RUN_MODE;
@@ -3895,6 +3895,25 @@ void ProjectExplorerPlugin::setCustomParsers(const QList<CustomParserSettings> &
         dd->m_customParsers = settings;
         emit m_instance->customParsersChanged();
     }
+}
+
+void ProjectExplorerPlugin::addCustomParser(const CustomParserSettings &settings)
+{
+    QTC_ASSERT(settings.id.isValid(), return);
+    QTC_ASSERT(!contains(dd->m_customParsers, [&settings](const CustomParserSettings &s) {
+        return s.id == settings.id;
+    }), return);
+
+    dd->m_customParsers << settings;
+    emit m_instance->customParsersChanged();
+}
+
+void ProjectExplorerPlugin::removeCustomParser(Id id)
+{
+    erase(dd->m_customParsers, [id](const CustomParserSettings &s) {
+        return s.id == id;
+    });
+    emit m_instance->customParsersChanged();
 }
 
 const QList<CustomParserSettings> ProjectExplorerPlugin::customParsers()

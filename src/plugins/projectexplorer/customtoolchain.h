@@ -112,7 +112,7 @@ public:
 private:
     CustomToolChain();
 
-    Internal::CustomParserSettings customParserSettings() const;
+    CustomParserSettings customParserSettings() const;
 
     Utils::FilePath m_compilerCommand;
     Utils::FilePath m_makeCommand;

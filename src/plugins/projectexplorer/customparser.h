@@ -37,9 +37,7 @@
 namespace ProjectExplorer {
 class Target;
 
-namespace Internal {
-
-class CustomParserExpression
+class PROJECTEXPLORER_EXPORT CustomParserExpression
 {
 public:
     enum CustomParserChannel {
@@ -80,7 +78,7 @@ private:
     int m_messageCap = 3;
 };
 
-class CustomParserSettings
+class PROJECTEXPLORER_EXPORT CustomParserSettings
 {
 public:
     bool operator ==(const CustomParserSettings &other) const;
@@ -94,6 +92,24 @@ public:
     CustomParserExpression error;
     CustomParserExpression warning;
 };
+
+class PROJECTEXPLORER_EXPORT CustomParsersAspect : public ProjectConfigurationAspect
+{
+    Q_OBJECT
+public:
+    CustomParsersAspect(Target *target);
+
+    void setParsers(const QList<Utils::Id> &parsers) { m_parsers = parsers; }
+    const QList<Utils::Id> parsers() const { return m_parsers; }
+
+private:
+    void fromMap(const QVariantMap &map) override;
+    void toMap(QVariantMap &map) const override;
+
+    QList<Utils::Id> m_parsers;
+};
+
+namespace Internal {
 
 class CustomParser : public ProjectExplorer::OutputTaskParser
 {
@@ -132,23 +148,7 @@ private:
     void updateSummary();
 };
 
-class CustomParsersAspect : public ProjectConfigurationAspect
-{
-    Q_OBJECT
-public:
-    CustomParsersAspect(Target *target);
-
-    void setParsers(const QList<Utils::Id> &parsers) { m_parsers = parsers; }
-    const QList<Utils::Id> parsers() const { return m_parsers; }
-
-private:
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
-
-    QList<Utils::Id> m_parsers;
-};
-
 } // namespace Internal
 } // namespace ProjectExplorer
 
-Q_DECLARE_METATYPE(ProjectExplorer::Internal::CustomParserExpression::CustomParserChannel);
+Q_DECLARE_METATYPE(ProjectExplorer::CustomParserExpression::CustomParserChannel);

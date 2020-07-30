@@ -59,7 +59,6 @@ const char channelKey[] = "Channel";
 const char exampleKey[] = "Example";
 
 namespace ProjectExplorer {
-namespace Internal {
 
 bool CustomParserExpression::operator ==(const CustomParserExpression &other) const
 {
@@ -177,6 +176,33 @@ void CustomParserSettings::fromMap(const QVariantMap &map)
     warning.fromMap(map.value(warningKey).toMap());
 }
 
+CustomParsersAspect::CustomParsersAspect(Target *target)
+{
+    Q_UNUSED(target)
+    setId("CustomOutputParsers");
+    setSettingsKey("CustomOutputParsers");
+    setDisplayName(tr("Custom Output Parsers"));
+    setConfigWidgetCreator([this] {
+        const auto widget = new Internal::CustomParsersSelectionWidget;
+        widget->setSelectedParsers(m_parsers);
+        connect(widget, &Internal::CustomParsersSelectionWidget::selectionChanged,
+                this, [this, widget] { m_parsers = widget->selectedParsers(); });
+        return widget;
+    });
+}
+
+void CustomParsersAspect::fromMap(const QVariantMap &map)
+{
+    m_parsers = transform(map.value(settingsKey()).toList(), &Utils::Id::fromSetting);
+}
+
+void CustomParsersAspect::toMap(QVariantMap &map) const
+{
+    map.insert(settingsKey(), transform(m_parsers, &Utils::Id::toSetting));
+}
+
+namespace Internal {
+
 CustomParser::CustomParser(const CustomParserSettings &settings)
 {
     setObjectName("CustomParser");
@@ -192,8 +218,8 @@ void CustomParser::setSettings(const CustomParserSettings &settings)
 
 CustomParser *CustomParser::createFromId(Utils::Id id)
 {
-    const Internal::CustomParserSettings parser = findOrDefault(ProjectExplorerPlugin::customParsers(),
-            [id](const Internal::CustomParserSettings &p) { return p.id == id; });
+    const CustomParserSettings parser = findOrDefault(ProjectExplorerPlugin::customParsers(),
+            [id](const CustomParserSettings &p) { return p.id == id; });
     if (parser.id.isValid())
         return new CustomParser(parser);
     return nullptr;
@@ -345,31 +371,6 @@ void CustomParsersSelectionWidget::updateSummary()
         setSummaryText(tr("There are no custom parsers active"));
     else
         setSummaryText(tr("There are %n custom parsers active", nullptr, parsers.count()));
-}
-
-CustomParsersAspect::CustomParsersAspect(Target *target)
-{
-    Q_UNUSED(target)
-    setId("CustomOutputParsers");
-    setSettingsKey("CustomOutputParsers");
-    setDisplayName(tr("Custom Output Parsers"));
-    setConfigWidgetCreator([this] {
-        const auto widget = new CustomParsersSelectionWidget;
-        widget->setSelectedParsers(m_parsers);
-        connect(widget, &CustomParsersSelectionWidget::selectionChanged,
-                this, [this, widget] { m_parsers = widget->selectedParsers(); });
-        return widget;
-    });
-}
-
-void CustomParsersAspect::fromMap(const QVariantMap &map)
-{
-    m_parsers = transform(map.value(settingsKey()).toList(), &Utils::Id::fromSetting);
-}
-
-void CustomParsersAspect::toMap(QVariantMap &map) const
-{
-    map.insert(settingsKey(), transform(m_parsers, &Utils::Id::toSetting));
 }
 
 } // namespace Internal

@@ -49,6 +49,7 @@ class FilePath;
 
 namespace ProjectExplorer {
 class BuildPropertiesSettings;
+class CustomParserSettings;
 class RunControl;
 class RunConfiguration;
 class Project;
@@ -58,7 +59,6 @@ class FileNode;
 
 namespace Internal {
 class AppOutputSettings;
-class CustomParserSettings;
 class MiniProjectTargetSelector;
 class ProjectExplorerSettings;
 }
@@ -141,8 +141,10 @@ public:
     static const BuildPropertiesSettings &buildPropertiesSettings();
     static void showQtSettings();
 
-    static void setCustomParsers(const QList<Internal::CustomParserSettings> &settings);
-    static const QList<Internal::CustomParserSettings> customParsers();
+    static void setCustomParsers(const QList<CustomParserSettings> &settings);
+    static void addCustomParser(const CustomParserSettings &settings);
+    static void removeCustomParser(Utils::Id id);
+    static const QList<CustomParserSettings> customParsers();
 
     static void startRunControl(RunControl *runControl);
     static void showOutputPaneForRunControl(RunControl *runControl);
