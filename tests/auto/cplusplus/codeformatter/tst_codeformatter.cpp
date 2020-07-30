@@ -127,6 +127,7 @@ private Q_SLOTS:
     void strings();
     void initializerWithinFunctionArg();
     void shiftWithinInitializer();
+    void lambdaWithReturnType();
 };
 
 struct Line {
@@ -2191,6 +2192,18 @@ void tst_CodeFormatter::shiftWithinInitializer()
     data << Line("void f() {")
          << Line("    list << A{1 << 1};")
          << Line("    list;") // OK, same indentation/padding as above.
+         << Line("}")
+            ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::lambdaWithReturnType()
+{
+    QList<Line> data;
+    data << Line("int main() {")
+         << Line("    hello([]() -> void {")
+         << Line("        cout << \"world\";") // OK, same indentation/padding as above.
+         << Line("    });")
          << Line("}")
             ;
     checkIndent(data);

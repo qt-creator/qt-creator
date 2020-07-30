@@ -273,7 +273,13 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case T_RBRACKET:    // '[', ']' and '->' can be part of lambda declarator
             case T_LBRACKET:
             case T_ARROW:       break;
-            default:            leave(); continue;
+            default:
+                if (m_tokenIndex > 0 && tokenAt(m_tokenIndex - 1).kind() == T_ARROW) {
+                    break;
+                } else {
+                    leave();
+                    continue;
+                }
             } break;
 
         case lambda_declarator:
