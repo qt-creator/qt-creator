@@ -282,12 +282,24 @@ void OutputFormatter::overridePostPrintAction(const PostPrintAction &postPrintAc
 
 void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
 {
-    const QTextCharFormat charFmt = charFormat(format);
-    const QList<FormattedText> formattedText = parseAnsi(text, charFmt);
+    QTextCharFormat charFmt = charFormat(format);
+    QList<FormattedText> formattedText = parseAnsi(text, charFmt);
     const QString cleanLine = std::accumulate(formattedText.begin(), formattedText.end(), QString(),
             [](const FormattedText &t1, const FormattedText &t2) { return t1.text + t2.text; });
     QList<OutputLineParser *> involvedParsers;
     const OutputLineParser::Result res = handleMessage(cleanLine, format, involvedParsers);
+
+    // If the line was recognized by a parser and a redirection was detected for that parser,
+    // then our formatting should reflect that redirection as well, i.e. print in red
+    // even if the nominal format is stdout.
+    if (!involvedParsers.isEmpty()) {
+        const OutputFormat formatForParser = outputTypeForParser(involvedParsers.last(), format);
+        if (formatForParser != format && cleanLine == text && formattedText.length() == 1) {
+            charFmt = charFormat(formatForParser);
+            formattedText.first().format = charFmt;
+        }
+    }
+
     if (res.newContent) {
         append(res.newContent.value(), charFmt);
         return;
