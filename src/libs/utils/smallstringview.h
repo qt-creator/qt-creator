@@ -54,7 +54,7 @@ public:
 
     constexpr SmallStringView() = default;
 
-    constexpr17 SmallStringView(const char *characterPointer) noexcept
+    constexpr SmallStringView(const char *characterPointer) noexcept
         : m_pointer(characterPointer)
         , m_size(std::char_traits<char>::length(characterPointer))
     {}
@@ -77,7 +77,7 @@ public:
         , m_size(string.size())
     {}
 
-    static constexpr17 SmallStringView fromUtf8(const char *const characterPointer)
+    static constexpr SmallStringView fromUtf8(const char *const characterPointer)
     {
         return SmallStringView(characterPointer);
     }
@@ -130,12 +130,12 @@ public:
         return data() + size();
     }
 
-    constexpr17 const_reverse_iterator rbegin() const noexcept
+    constexpr const_reverse_iterator rbegin() const noexcept
     {
         return const_reverse_iterator(end());
     }
 
-    constexpr17 const_reverse_iterator rend() const noexcept
+    constexpr const_reverse_iterator rend() const noexcept
     {
         return const_reverse_iterator(begin());
     }
@@ -147,7 +147,7 @@ public:
         return QString::fromUtf8(data(), int(size()));
     }
 
-    constexpr17 bool startsWith(SmallStringView subStringToSearch) const noexcept
+    constexpr bool startsWith(SmallStringView subStringToSearch) const noexcept
     {
         if (size() >= subStringToSearch.size())
             return !std::char_traits<char>::compare(m_pointer,
@@ -171,18 +171,18 @@ private:
     size_type m_size = 0;
 };
 
-constexpr17 bool operator==(SmallStringView first, SmallStringView second) noexcept
+constexpr bool operator==(SmallStringView first, SmallStringView second) noexcept
 {
     return first.size() == second.size()
            && std::char_traits<char>::compare(first.data(), second.data(), first.size()) == 0;
 }
 
-constexpr17 bool operator!=(SmallStringView first, SmallStringView second) noexcept
+constexpr bool operator!=(SmallStringView first, SmallStringView second) noexcept
 {
     return !(first == second);
 }
 
-constexpr17 int compare(SmallStringView first, SmallStringView second) noexcept
+constexpr int compare(SmallStringView first, SmallStringView second) noexcept
 {
     int sizeDifference = int(first.size() - second.size());
 
@@ -192,12 +192,12 @@ constexpr17 int compare(SmallStringView first, SmallStringView second) noexcept
     return sizeDifference;
 }
 
-constexpr17 bool operator<(SmallStringView first, SmallStringView second) noexcept
+constexpr bool operator<(SmallStringView first, SmallStringView second) noexcept
 {
     return compare(first, second) < 0;
 }
 
-constexpr17 bool operator>(SmallStringView first, SmallStringView second) noexcept
+constexpr bool operator>(SmallStringView first, SmallStringView second) noexcept
 {
     return second < first;
 }

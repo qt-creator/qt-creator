@@ -25,12 +25,6 @@
 
 #pragma once
 
-#if __cplusplus >= 201703L
-#define constexpr17 constexpr
-#else
-#define constexpr17 inline
-#endif
-
 #if __cplusplus >= 202002L
 #define constexpr20 constexpr
 #else
