@@ -2903,11 +2903,11 @@ class DumperBase():
             return dd(intval, self.laddress, form)
 
         def display(self):
+            if self.ldisplay is not None:
+                return self.ldisplay
             simple = self.value()
             if simple is not None:
                 return str(simple)
-            if self.ldisplay is not None:
-                return self.ldisplay
             #if self.ldata is not None:
             #    if sys.version_info[0] == 2 and isinstance(self.ldata, buffer):
             #        return bytes(self.ldata).encode('hex')
