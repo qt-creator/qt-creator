@@ -1442,6 +1442,11 @@ CppCompletionAssistProvider *CppModelManager::completionAssistProvider() const
     return d->m_activeModelManagerSupport->completionAssistProvider();
 }
 
+CppCompletionAssistProvider *CppModelManager::functionHintAssistProvider() const
+{
+    return d->m_activeModelManagerSupport->functionHintAssistProvider();
+}
+
 TextEditor::BaseHoverHandler *CppModelManager::createHoverHandler() const
 {
     return d->m_activeModelManagerSupport->createHoverHandler();

@@ -48,6 +48,7 @@ void PrintTo(const ClangCompletionContextAnalyzer::CompletionAction &completionA
         case CCA::CompletePreprocessorDirective: *os << "CompletePreprocessorDirective"; break;
         case CCA::CompleteSignal: *os << "CompleteSignal"; break;
         case CCA::CompleteSlot: *os << "CompleteSlot"; break;
+        case CCA::CompleteNone: *os << "CompleteNone"; break;
     }
 }
 

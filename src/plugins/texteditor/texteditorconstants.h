@@ -124,6 +124,7 @@ const char G_COPYPASTE[]           = "TextEditor.CopyPasteGroup";
 const char G_SELECT[]              = "TextEditor.SelectGroup";
 const char G_BOM[]                 = "TextEditor.BomGroup";
 const char COMPLETE_THIS[]         = "TextEditor.CompleteThis";
+const char FUNCTION_HINT[]         = "TextEditor.FunctionHint";
 const char QUICKFIX_THIS[]         = "TextEditor.QuickFix";
 const char SHOWCONTEXTMENU[]       = "TextEditor.ShowContextMenu";
 const char CREATE_SCRATCH_BUFFER[] = "TextEditor.CreateScratchBuffer";

@@ -69,7 +69,8 @@ static CppTools::CppModelManager *cppModelManager()
 }
 
 ClangModelManagerSupport::ClangModelManagerSupport()
-    : m_completionAssistProvider(m_communicator)
+    : m_completionAssistProvider(m_communicator, CompletionType::Other)
+    , m_functionHintAssistProvider(m_communicator, CompletionType::FunctionHint)
     , m_followSymbol(new ClangFollowSymbol)
     , m_refactoringEngine(new RefactoringEngine)
 {
@@ -117,6 +118,11 @@ ClangModelManagerSupport::~ClangModelManagerSupport()
 CppTools::CppCompletionAssistProvider *ClangModelManagerSupport::completionAssistProvider()
 {
     return &m_completionAssistProvider;
+}
+
+CppTools::CppCompletionAssistProvider *ClangModelManagerSupport::functionHintAssistProvider()
+{
+    return &m_functionHintAssistProvider;
 }
 
 TextEditor::BaseHoverHandler *ClangModelManagerSupport::createHoverHandler()

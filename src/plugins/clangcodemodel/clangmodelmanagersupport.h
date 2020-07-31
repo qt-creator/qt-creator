@@ -63,6 +63,7 @@ public:
     ~ClangModelManagerSupport() override;
 
     CppTools::CppCompletionAssistProvider *completionAssistProvider() override;
+    CppTools::CppCompletionAssistProvider *functionHintAssistProvider() override;
     TextEditor::BaseHoverHandler *createHoverHandler() override;
     CppTools::BaseEditorDocumentProcessor *createEditorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument) override;
@@ -121,6 +122,7 @@ private:
     UiHeaderOnDiskManager m_uiHeaderOnDiskManager;
     BackendCommunicator m_communicator;
     ClangCompletionAssistProvider m_completionAssistProvider;
+    ClangCompletionAssistProvider m_functionHintAssistProvider;
     std::unique_ptr<CppTools::FollowSymbolInterface> m_followSymbol;
     std::unique_ptr<CppTools::RefactoringEngineInterface> m_refactoringEngine;
 

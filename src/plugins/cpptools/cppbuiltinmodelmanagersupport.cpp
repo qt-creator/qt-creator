@@ -74,6 +74,12 @@ CppCompletionAssistProvider *BuiltinModelManagerSupport::completionAssistProvide
     return m_completionAssistProvider.data();
 }
 
+
+CppCompletionAssistProvider *BuiltinModelManagerSupport::functionHintAssistProvider()
+{
+    return nullptr;
+}
+
 TextEditor::BaseHoverHandler *BuiltinModelManagerSupport::createHoverHandler()
 {
     return new CppHoverHandler;

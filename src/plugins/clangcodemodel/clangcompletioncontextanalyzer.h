@@ -51,7 +51,8 @@ public:
         CompleteIncludePath,
         CompletePreprocessorDirective,
         CompleteSignal,
-        CompleteSlot
+        CompleteSlot,
+        CompleteNone
     };
     CompletionAction completionAction() const { return m_completionAction; }
     unsigned completionOperator() const { return m_completionOperator; }

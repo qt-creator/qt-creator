@@ -84,7 +84,8 @@ void ClangCompletionContextAnalyzer::analyze()
     m_positionEndOfExpression = activationSequenceContextProcessor.operatorStartPosition();
     m_positionForProposal = activationSequenceContextProcessor.startOfNamePosition();
 
-    const bool actionIsSet = handleNonFunctionCall(afterOperatorPosition);
+    const bool actionIsSet = m_interface->type() != CompletionType::FunctionHint
+            && handleNonFunctionCall(afterOperatorPosition);
     if (!actionIsSet) {
         handleCommaInFunctionCall();
         handleFunctionCall(afterOperatorPosition);
@@ -150,6 +151,19 @@ void ClangCompletionContextAnalyzer::handleCommaInFunctionCall()
 
 void ClangCompletionContextAnalyzer::handleFunctionCall(int afterOperatorPosition)
 {
+    if (m_interface->type() == CompletionType::FunctionHint) {
+        const int functionNameStart = startOfFunctionCall(afterOperatorPosition);
+        if (functionNameStart >= 0) {
+            m_addSnippets = functionNameStart == afterOperatorPosition;
+            setActionAndClangPosition(PassThroughToLibClangAfterLeftParen,
+                                      m_positionForProposal,
+                                      functionNameStart);
+        } else {
+            m_completionAction = CompleteNone;
+        }
+        return;
+    }
+
     if (m_completionOperator == T_LPAREN || m_completionOperator == T_LBRACE) {
         ExpressionUnderCursor expressionUnderCursor(m_languageFeatures);
         QTextCursor textCursor(m_interface->textDocument());

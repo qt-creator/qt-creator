@@ -32,6 +32,8 @@
 namespace ClangCodeModel {
 namespace Internal {
 
+enum class CompletionType { FunctionHint, Other };
+
 class ClangCompletionAssistInterface: public TextEditor::AssistInterface
 {
 public:
@@ -41,6 +43,7 @@ public:
           languageFeatures_(CPlusPlus::LanguageFeatures::defaultFeatures())
     {}
 
+    CompletionType type() const { return CompletionType::Other; }
     CPlusPlus::LanguageFeatures languageFeatures() const { return languageFeatures_; }
 
 private:

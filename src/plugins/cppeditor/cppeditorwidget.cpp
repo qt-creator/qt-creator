@@ -1017,8 +1017,11 @@ void CppEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo,
 
 AssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistReason reason) const
 {
-    if (kind == Completion) {
-        if (CppCompletionAssistProvider *cap = cppEditorDocument()->completionAssistProvider()) {
+    if (kind == Completion || kind == FunctionHint) {
+        CppCompletionAssistProvider * const cap = kind == Completion
+                ? cppEditorDocument()->completionAssistProvider()
+                : cppEditorDocument()->functionHintAssistProvider();
+        if (cap) {
             LanguageFeatures features = LanguageFeatures::defaultFeatures();
             if (Document::Ptr doc = d->m_lastSemanticInfo.doc)
                 features = doc->languageFeatures();

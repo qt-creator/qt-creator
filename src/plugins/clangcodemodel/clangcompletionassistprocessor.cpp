@@ -347,6 +347,7 @@ IAssistProposal *ClangCompletionAssistProcessor::startCompletionHelper()
                                               analyzer.functionNameStart());
         break;
     }
+    case ClangCompletionContextAnalyzer::CompleteNone:
     default:
         break;
     }

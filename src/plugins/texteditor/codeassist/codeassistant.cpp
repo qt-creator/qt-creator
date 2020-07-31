@@ -180,7 +180,7 @@ void CodeAssistantPrivate::process()
         }
 
         startAutomaticProposalTimer();
-    } else {
+    } else if (m_assistKind != FunctionHint){
         m_assistKind = TextEditor::Completion;
     }
 }
@@ -204,6 +204,8 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
     if (!provider) {
         if (kind == Completion)
             provider = m_editorWidget->textDocument()->completionAssistProvider();
+        else if (kind == FunctionHint)
+            provider = m_editorWidget->textDocument()->functionHintAssistProvider();
         else
             provider = m_editorWidget->textDocument()->quickFixAssistProvider();
 

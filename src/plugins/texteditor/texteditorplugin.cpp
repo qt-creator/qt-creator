@@ -131,6 +131,16 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     });
     Utils::FancyLineEdit::setCompletionShortcut(command->keySequence());
 
+    // Add shortcut for invoking function hint completion
+    QAction *functionHintAction = new QAction(tr("Display Function Hint"), this);
+    command = ActionManager::registerAction(functionHintAction, Constants::FUNCTION_HINT, context);
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Shift+D")
+                                                                : tr("Ctrl+Shift+D")));
+    connect(functionHintAction, &QAction::triggered, []() {
+        if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
+            editor->editorWidget()->invokeAssist(FunctionHint);
+    });
+
     // Add shortcut for invoking quick fix options
     QAction *quickFixAction = new QAction(tr("Trigger Refactoring Action"), this);
     Command *quickFixCommand = ActionManager::registerAction(quickFixAction, Constants::QUICKFIX_THIS, context);

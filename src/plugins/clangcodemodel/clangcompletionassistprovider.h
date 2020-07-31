@@ -26,6 +26,7 @@
 #pragma once
 
 #include "clangbackendcommunicator.h"
+#include "clangcompletionassistinterface.h"
 
 #include <cpptools/cppcompletionassistprovider.h>
 
@@ -39,7 +40,7 @@ class ClangCompletionAssistProvider : public CppTools::CppCompletionAssistProvid
     Q_OBJECT
 
 public:
-    ClangCompletionAssistProvider(BackendCommunicator &communicator);
+    ClangCompletionAssistProvider(BackendCommunicator &communicator, CompletionType type);
 
     IAssistProvider::RunType runType() const override;
 
@@ -53,6 +54,7 @@ public:
 
 private:
     BackendCommunicator &m_communicator;
+    CompletionType m_type;
 };
 
 } // namespace Internal

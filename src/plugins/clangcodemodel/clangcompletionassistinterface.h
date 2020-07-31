@@ -33,10 +33,13 @@
 namespace ClangCodeModel {
 namespace Internal {
 
+enum class CompletionType { FunctionHint, Other };
+
 class ClangCompletionAssistInterface: public TextEditor::AssistInterface
 {
 public:
     ClangCompletionAssistInterface(BackendCommunicator &communicator,
+                                   CompletionType type,
                                    const TextEditor::TextEditorWidget *textEditorWidget,
                                    int position,
                                    const QString &fileName,
@@ -45,6 +48,7 @@ public:
                                    const CPlusPlus::LanguageFeatures &features);
 
     BackendCommunicator &communicator() const;
+    CompletionType type() const { return m_type; }
     bool objcEnabled() const;
     const ProjectExplorer::HeaderPaths &headerPaths() const;
     CPlusPlus::LanguageFeatures languageFeatures() const;
@@ -54,6 +58,7 @@ public:
 
 private:
     BackendCommunicator &m_communicator;
+    const CompletionType m_type;
     QStringList m_options;
     ProjectExplorer::HeaderPaths m_headerPaths;
     CPlusPlus::LanguageFeatures m_languageFeatures;

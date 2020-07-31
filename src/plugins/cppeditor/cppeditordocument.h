@@ -53,6 +53,7 @@ public:
 
     bool isObjCEnabled() const;
     CppTools::CppCompletionAssistProvider *completionAssistProvider() const override;
+    CppTools::CppCompletionAssistProvider *functionHintAssistProvider() const override;
     TextEditor::IAssistProvider *quickFixAssistProvider() const override;
 
     void recalculateSemanticInfoDetached();
@@ -128,6 +129,7 @@ private:
     QScopedPointer<CppTools::BaseEditorDocumentProcessor> m_processor;
 
     CppTools::CppCompletionAssistProvider *m_completionAssistProvider = nullptr;
+    CppTools::CppCompletionAssistProvider *m_functionHintAssistProvider = nullptr;
 
     // (Un)Registration in CppModelManager
     QScopedPointer<CppTools::CppEditorDocumentHandle> m_editorDocumentHandle;
