@@ -265,7 +265,7 @@ void MesonProjectParser::update(const QFuture<MesonProjectParser::ParserData *> 
     }
     addMissingTargets(m_targetsNames);
     m_targetsNames.sort();
-    delete data;
+    delete parserData;
     emit parsingCompleted(true);
 }
 
