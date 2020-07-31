@@ -40,6 +40,7 @@
 #include <QVBoxLayout>
 #include <QComboBox>
 #include <QPainter>
+#include <QModelIndex>
 
 using namespace VcsBase;
 
@@ -53,9 +54,36 @@ enum Columns
     ColumnCount
 };
 
+class LogChangeModel : public QStandardItemModel
+{
+public:
+    explicit LogChangeModel(LogChangeWidget *parent) : QStandardItemModel(0, ColumnCount, parent) {}
+
+    QVariant data(const QModelIndex &index, int role) const override
+    {
+        if (role == Qt::ToolTipRole) {
+            const QString revision = index.sibling(index.row(), Sha1Column).data(Qt::EditRole).toString();
+            const auto it = m_descriptions.constFind(revision);
+            if (it != m_descriptions.constEnd())
+                return *it;
+            const QString desc = QString::fromUtf8(
+                        GitClient::instance()->synchronousShow(
+                            m_workingDirectory, revision, VcsCommand::NoOutput));
+            m_descriptions[revision] = desc;
+            return desc;
+        }
+        return QStandardItemModel::data(index, role);
+    }
+
+    void setWorkingDirectory(const QString &workingDir) { m_workingDirectory = workingDir; }
+private:
+    QString m_workingDirectory;
+    mutable QHash<QString, QString> m_descriptions;
+};
+
 LogChangeWidget::LogChangeWidget(QWidget *parent)
     : Utils::TreeView(parent)
-    , m_model(new QStandardItemModel(0, ColumnCount, this))
+    , m_model(new LogChangeModel(this))
     , m_hasCustomDelegate(false)
 {
     QStringList headers;
@@ -72,6 +100,7 @@ LogChangeWidget::LogChangeWidget(QWidget *parent)
 
 bool LogChangeWidget::init(const QString &repository, const QString &commit, LogFlags flags)
 {
+    m_model->setWorkingDirectory(repository);
     if (!populateLog(repository, commit, flags))
         return false;
     if (m_model->rowCount() > 0)

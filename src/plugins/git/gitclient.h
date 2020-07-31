@@ -242,8 +242,8 @@ public:
     QStringList synchronousSubmoduleStatus(const QString &workingDirectory,
                                            QString *errorMessage = nullptr) const;
     SubmoduleDataMap submoduleList(const QString &workingDirectory) const;
-    bool synchronousShow(const QString &workingDirectory, const QString &id,
-                         QByteArray *output, QString *errorMessage) const;
+    QByteArray synchronousShow(const QString &workingDirectory, const QString &id,
+                               unsigned flags = 0) const;
 
     bool synchronousRevListCmd(const QString &workingDirectory, const QStringList &extraArguments,
                                QString *output, QString *errorMessage = nullptr) const;

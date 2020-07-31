@@ -315,13 +315,9 @@ IEditor *GitGrep::openEditor(const SearchResultItem &item,
     if (params.ref.isEmpty() || item.path.isEmpty())
         return nullptr;
     const QString path = QDir::fromNativeSeparators(item.path.first());
-    QByteArray content;
     const QString topLevel = parameters.additionalParameters.toString();
     const QString relativePath = QDir(topLevel).relativeFilePath(path);
-    if (!m_client->synchronousShow(topLevel, params.ref + ":./" + relativePath,
-                                              &content, nullptr)) {
-        return nullptr;
-    }
+    const QByteArray content = m_client->synchronousShow(topLevel, params.ref + ":./" + relativePath);
     if (content.isEmpty())
         return nullptr;
     QByteArray fileContent;

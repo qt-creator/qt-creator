@@ -2089,21 +2089,20 @@ SubmoduleDataMap GitClient::submoduleList(const QString &workingDirectory) const
     return result;
 }
 
-bool GitClient::synchronousShow(const QString &workingDirectory, const QString &id,
-                                QByteArray *output, QString *errorMessage) const
+QByteArray GitClient::synchronousShow(const QString &workingDirectory, const QString &id,
+                                      unsigned flags) const
 {
     if (!canShow(id)) {
-        *errorMessage = msgCannotShow(id);
-        return false;
+        VcsOutputWindow::appendError(msgCannotShow(id));
+        return {};
     }
-    const QStringList arguments = {"show", decorateOption, noColorOption, id};
-    const SynchronousProcessResponse resp = vcsFullySynchronousExec(workingDirectory, arguments);
+    const QStringList arguments = {"show", decorateOption, noColorOption, "--no-patch", id};
+    const SynchronousProcessResponse resp = vcsFullySynchronousExec(workingDirectory, arguments, flags);
     if (resp.result != SynchronousProcessResponse::Finished) {
-        msgCannotRun(arguments, workingDirectory, resp.stdErr(), errorMessage);
-        return false;
+        msgCannotRun(arguments, workingDirectory, resp.stdErr(), nullptr);
+        return {};
     }
-    *output = resp.rawStdOut;
-    return true;
+    return resp.rawStdOut;
 }
 
 // Retrieve list of files to be cleaned
