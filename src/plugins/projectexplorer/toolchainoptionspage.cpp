@@ -31,6 +31,7 @@
 #include "toolchainconfigwidget.h"
 #include "toolchainmanager.h"
 
+#include <app/app_version.h>
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 
@@ -123,10 +124,10 @@ public:
         const auto layout = new QVBoxLayout(this);
         m_detectX64AsX32CheckBox.setText(ToolChainOptionsPage::tr("Detect x86_64 GCC compilers "
                                                                   "as x86_64 and x86"));
-        m_detectX64AsX32CheckBox.setToolTip(ToolChainOptionsPage::tr("If checked, Qt Creator will "
-            "set up two instances of each x86_64 compiler:\nOne for the native x86_64 target, "
-            "and one for a plain x86 target.\nEnable this if you plan to create 32-bit x86 "
-            "binaries without using a dedicated cross compiler."));
+        m_detectX64AsX32CheckBox.setToolTip(ToolChainOptionsPage::tr("If checked, %1 will "
+            "set up two instances of each x86_64 compiler:\nOne for the native x86_64 target, and "
+            "one for a plain x86 target.\nEnable this if you plan to create 32-bit x86 binaries "
+            "without using a dedicated cross compiler.").arg(Core::Constants::IDE_DISPLAY_NAME));
         m_detectX64AsX32CheckBox.setChecked(settings.detectX64AsX32);
         layout->addWidget(&m_detectX64AsX32CheckBox);
         const auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);

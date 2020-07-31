@@ -29,6 +29,7 @@
 #include "androidsdkmanager.h"
 #include "androidsdkmodel.h"
 
+#include <app/app_version.h>
 #include <utils/runextensions.h>
 #include <utils/outputformatter.h>
 #include <utils/runextensions.h>
@@ -168,8 +169,9 @@ void AndroidSdkManagerWidget::installEssentials()
     if (!m_sdkModel->missingEssentials().isEmpty()) {
         QMessageBox::warning(this,
                              tr("Android SDK Changes"),
-                             tr("Qt Creator couldn't find the following essential packages: \"%1\".\n"
+                             tr("%1 couldn't find the following essential packages: \"%2\".\n"
                                 "Install them manually after the current operation is done.\n")
+                                 .arg(Core::Constants::IDE_DISPLAY_NAME)
                                  .arg(m_sdkModel->missingEssentials().join("\", \"")));
     }
     onApplyButton();

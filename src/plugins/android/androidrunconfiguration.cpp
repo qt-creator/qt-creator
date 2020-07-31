@@ -31,6 +31,8 @@
 #include "androidmanager.h"
 #include "adbcommandswidget.h"
 
+#include <app/app_version.h>
+
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
@@ -123,7 +125,8 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Utils::Id id)
     warning->setDisplayStyle(BaseStringAspect::LabelDisplay);
     warning->setLabelPixmap(Icons::WARNING.pixmap());
     warning->setValue(tr("If the \"am start\" options conflict, the application might not start.\n"
-                         "Qt Creator uses: am start -n <package_name>/<Activity_name> [-D]."));
+                         "%1 uses: am start -n <package_name>/<Activity_name> [-D].")
+                          .arg(Core::Constants::IDE_DISPLAY_NAME));
 
     auto preStartShellCmdAspect = addAspect<BaseStringListAspect>();
     preStartShellCmdAspect->setId(Constants::ANDROID_PRESTARTSHELLCMDLIST);

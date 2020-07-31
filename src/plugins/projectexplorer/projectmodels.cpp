@@ -33,6 +33,7 @@
 #include "session.h"
 #include "target.h"
 
+#include <app/app_version.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
@@ -479,8 +480,9 @@ public:
         setWindowTitle(tr("Choose Drop Action"));
         const bool offerFileIo = !defaultTargetDir.isEmpty();
         auto * const layout = new QVBoxLayout(this);
+        const QString idename(Core::Constants::IDE_DISPLAY_NAME);
         layout->addWidget(new QLabel(tr("You just dragged some files from one project node to "
-                                        "another.\nWhat should Qt Creator do now?"), this));
+                                        "another.\nWhat should %1 do now?").arg(idename), this));
         auto * const copyButton = new QRadioButton(this);
         m_buttonGroup->addButton(copyButton, int(DropAction::Copy));
         layout->addWidget(copyButton);

@@ -29,6 +29,7 @@
 #include "qbsprojectmanagerconstants.h"
 #include "qbssettings.h"
 
+#include <app/app_version.h>
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
@@ -269,7 +270,8 @@ QString QbsSession::errorString(QbsSession::Error error)
     case Error::ProtocolError:
         return tr("The qbs process sent invalid data.");
     case Error::VersionMismatch:
-        return tr("The qbs API level is not compatible with what Qt Creator expects.");
+        return tr("The qbs API level is not compatible with "
+                  "what %1 expects.").arg(Core::Constants::IDE_DISPLAY_NAME);
     }
     return QString(); // For dumb compilers.
 }
