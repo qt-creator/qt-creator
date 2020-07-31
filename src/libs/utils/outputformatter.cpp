@@ -140,12 +140,15 @@ FilePath OutputLineParser::absoluteFilePath(const FilePath &filePath)
         return filePath;
     FilePaths candidates;
     for (const FilePath &dir : searchDirectories()) {
-        const FilePath candidate = dir.pathAppended(filePath.toString());
-        if (candidate.exists() || d->skipFileExistsCheck)
-            candidates << candidate;
+        FilePath candidate = dir.pathAppended(filePath.toString());
+        if (candidate.exists() || d->skipFileExistsCheck) {
+            candidate = FilePath::fromString(QDir::cleanPath(candidate.toString()));
+            if (!candidates.contains(candidate))
+                candidates << candidate;
+        }
     }
     if (candidates.count() == 1)
-        return FilePath::fromString(QDir::cleanPath(candidates.first().toString()));
+        return candidates.first();
 
     QString fp = filePath.toString();
     while (fp.startsWith("../"))
