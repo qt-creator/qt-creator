@@ -678,15 +678,18 @@ GitPluginPrivate::GitPluginPrivate()
     currentFileMenu->menu()->setTitle(tr("Current &File"));
     gitContainer->addMenu(currentFileMenu);
 
-    createFileAction(currentFileMenu, tr("Diff Current File"), tr("Diff of \"%1\""),
+    createFileAction(currentFileMenu, tr("Diff Current File", "Avoid translating \"Diff\""),
+                     tr("Diff of \"%1\"", "Avoid translating \"Diff\""),
                      "Git.Diff", context, true, std::bind(&GitPluginPrivate::diffCurrentFile, this),
                       QKeySequence(useMacShortcuts ? tr("Meta+G,Meta+D") : tr("Alt+G,Alt+D")));
 
-    createFileAction(currentFileMenu, tr("Log Current File"), tr("Log of \"%1\""),
+    createFileAction(currentFileMenu, tr("Log Current File", "Avoid translating \"Log\""),
+                     tr("Log of \"%1\"", "Avoid translating \"Log\""),
                      "Git.Log", context, true, std::bind(&GitPluginPrivate::logFile, this),
                      QKeySequence(useMacShortcuts ? tr("Meta+G,Meta+L") : tr("Alt+G,Alt+L")));
 
-    createFileAction(currentFileMenu, tr("Blame Current File"), tr("Blame for \"%1\""),
+    createFileAction(currentFileMenu, tr("Blame Current File", "Avoid translating \"Blame\""),
+                     tr("Blame for \"%1\"", "Avoid translating \"Blame\""),
                      "Git.Blame", context, true, std::bind(&GitPluginPrivate::blameFile, this),
                      QKeySequence(useMacShortcuts ? tr("Meta+G,Meta+B") : tr("Alt+G,Alt+B")));
 
@@ -714,15 +717,18 @@ GitPluginPrivate::GitPluginPrivate()
     currentProjectMenu->menu()->setTitle(tr("Current &Project"));
     gitContainer->addMenu(currentProjectMenu);
 
-    createProjectAction(currentProjectMenu, tr("Diff Current Project"), tr("Diff Project \"%1\""),
+    createProjectAction(currentProjectMenu, tr("Diff Current Project", "Avoid translating \"Diff\""),
+                        tr("Diff Project \"%1\"", "Avoid translating \"Diff\""),
                         "Git.DiffProject", context, true, &GitPluginPrivate::diffCurrentProject,
                         QKeySequence(useMacShortcuts ? tr("Meta+G,Meta+Shift+D") : tr("Alt+G,Alt+Shift+D")));
 
-    createProjectAction(currentProjectMenu, tr("Log Project"), tr("Log Project \"%1\""),
+    createProjectAction(currentProjectMenu, tr("Log Project", "Avoid translating \"Log\""),
+                        tr("Log Project \"%1\"", "Avoid translating \"Log\""),
                         "Git.LogProject", context, true, &GitPluginPrivate::logProject,
                         QKeySequence(useMacShortcuts ? tr("Meta+G,Meta+K") : tr("Alt+G,Alt+K")));
 
-    createProjectAction(currentProjectMenu, tr("Clean Project..."), tr("Clean Project \"%1\"..."),
+    createProjectAction(currentProjectMenu, tr("Clean Project...", "Avoid translating \"Clean\""),
+                        tr("Clean Project \"%1\"...", "Avoid translating \"Clean\""),
                         "Git.CleanProject", context, true, &GitPluginPrivate::cleanProject);
 
 
@@ -731,40 +737,43 @@ GitPluginPrivate::GitPluginPrivate()
     localRepositoryMenu->menu()->setTitle(tr("&Local Repository"));
     gitContainer->addMenu(localRepositoryMenu);
 
-    createRepositoryAction(localRepositoryMenu, tr("Diff"), "Git.DiffRepository",
+    createRepositoryAction(localRepositoryMenu, "Diff", "Git.DiffRepository",
                            context, true, &GitClient::diffRepository);
 
-    createRepositoryAction(localRepositoryMenu, tr("Log"), "Git.LogRepository",
+    createRepositoryAction(localRepositoryMenu, "Log", "Git.LogRepository",
                            context, true, std::bind(&GitPluginPrivate::logRepository, this));
 
-    createRepositoryAction(localRepositoryMenu, tr("Reflog"), "Git.ReflogRepository",
+    createRepositoryAction(localRepositoryMenu, "Reflog", "Git.ReflogRepository",
                            context, true, std::bind(&GitPluginPrivate::reflogRepository, this));
 
-    createRepositoryAction(localRepositoryMenu, tr("Clean..."), "Git.CleanRepository",
+    createRepositoryAction(localRepositoryMenu, "Clean...", "Git.CleanRepository",
                            context, true, [this] { cleanRepository(); });
 
-    createRepositoryAction(localRepositoryMenu, tr("Status"), "Git.StatusRepository",
+    createRepositoryAction(localRepositoryMenu, "Status", "Git.StatusRepository",
                            context, true, &GitClient::status);
 
     // --------------
     localRepositoryMenu->addSeparator(context);
 
-    createRepositoryAction(localRepositoryMenu, tr("Commit..."), "Git.Commit",
+    createRepositoryAction(localRepositoryMenu, "Commit...", "Git.Commit",
                            context, true, std::bind(&GitPluginPrivate::startCommit, this, SimpleCommit),
                            QKeySequence(useMacShortcuts ? tr("Meta+G,Meta+C") : tr("Alt+G,Alt+C")));
 
-    createRepositoryAction(localRepositoryMenu, tr("Amend Last Commit..."), "Git.AmendCommit",
+    createRepositoryAction(localRepositoryMenu,
+                           tr("Amend Last Commit...", "Avoid translating \"Commit\""),
+                           "Git.AmendCommit",
                            context, true, std::bind(&GitPluginPrivate::startCommit, this, AmendCommit));
 
     m_fixupCommitAction
             = createRepositoryAction(localRepositoryMenu,
-                                     tr("Fixup Previous Commit..."), "Git.FixupCommit", context, true,
+                                     tr("Fixup Previous Commit...", "Avoid translating \"Commit\""),
+                                     "Git.FixupCommit", context, true,
                                      std::bind(&GitPluginPrivate::startCommit, this, FixupCommit));
 
     // --------------
     localRepositoryMenu->addSeparator(context);
 
-    createRepositoryAction(localRepositoryMenu, tr("Reset..."), "Git.Reset",
+    createRepositoryAction(localRepositoryMenu, "Reset...", "Git.Reset",
                            context, true, std::bind(&GitPluginPrivate::resetRepository, this));
 
     createRepositoryAction(localRepositoryMenu, tr("Recover Deleted Files"), "Git.RecoverDeleted",
@@ -772,7 +781,8 @@ GitPluginPrivate::GitPluginPrivate()
 
     m_interactiveRebaseAction
             = createRepositoryAction(localRepositoryMenu,
-                                     tr("Interactive Rebase..."), "Git.InteractiveRebase",
+                                     tr("Interactive Rebase...", "Avoid translating \"Rebase\""),
+                                     "Git.InteractiveRebase",
                                      context, true, std::bind(&GitPluginPrivate::startRebase, this));
 
     m_submoduleUpdateAction
@@ -781,25 +791,26 @@ GitPluginPrivate::GitPluginPrivate()
                                      context, true, std::bind(&GitPluginPrivate::updateSubmodules, this));
     m_abortMergeAction
             = createRepositoryAction(localRepositoryMenu,
-                                     tr("Abort Merge"), "Git.MergeAbort",
-                                     context, true,
+                                     tr("Abort Merge", "Avoid translating \"Merge\""),
+                                     "Git.MergeAbort", context, true,
                                      std::bind(&GitPluginPrivate::continueOrAbortCommand, this));
 
     m_abortRebaseAction
             = createRepositoryAction(localRepositoryMenu,
-                                     tr("Abort Rebase"), "Git.RebaseAbort",
-                                     context, true,
+                                     tr("Abort Rebase", "Avoid translating \"Rebase\""),
+                                     "Git.RebaseAbort", context, true,
                                      std::bind(&GitPluginPrivate::continueOrAbortCommand, this));
 
     m_abortCherryPickAction
             = createRepositoryAction(localRepositoryMenu,
-                                     tr("Abort Cherry Pick"), "Git.CherryPickAbort",
+                                     tr("Abort Cherry Pick", "Avoid translating \"Cherry Pick\""),
+                                     "Git.CherryPickAbort",
                                      context, true,
                                      std::bind(&GitPluginPrivate::continueOrAbortCommand, this));
 
     m_abortRevertAction
             = createRepositoryAction(localRepositoryMenu,
-                                     tr("Abort Revert"), "Git.RevertAbort",
+                                     tr("Abort Revert", "Avoid translating \"Revert\""), "Git.RevertAbort",
                                      context, true,
                                      std::bind(&GitPluginPrivate::continueOrAbortCommand, this));
 
@@ -855,16 +866,17 @@ GitPluginPrivate::GitPluginPrivate()
     stashMenu->menu()->setTitle(tr("&Stash"));
     localRepositoryMenu->addMenu(stashMenu);
 
-    createRepositoryAction(stashMenu, tr("Stashes..."), "Git.StashList",
+    createRepositoryAction(stashMenu, "Stashes...", "Git.StashList",
                            context, false, std::bind(&GitPluginPrivate::stashList, this));
 
     stashMenu->addSeparator(context);
 
-    QAction *action = createRepositoryAction(stashMenu, tr("Stash"), "Git.Stash",
+    QAction *action = createRepositoryAction(stashMenu, "Stash", "Git.Stash",
                                              context, true, std::bind(&GitPluginPrivate::stash, this, false));
     action->setToolTip(tr("Saves the current state of your work and resets the repository."));
 
-    action = createRepositoryAction(stashMenu, tr("Stash Unstaged Files"), "Git.StashUnstaged",
+    action = createRepositoryAction(stashMenu, tr("Stash Unstaged Files", "Avoid translating \"Stash\""),
+                                    "Git.StashUnstaged",
                                     context, true, std::bind(&GitPluginPrivate::stashUnstaged, this));
     action->setToolTip(tr("Saves the current state of your unstaged files and resets the repository "
                           "to its staged state."));
@@ -875,7 +887,8 @@ GitPluginPrivate::GitPluginPrivate()
 
     stashMenu->addSeparator(context);
 
-    action = createRepositoryAction(stashMenu, tr("Stash Pop"), "Git.StashPop",
+    action = createRepositoryAction(stashMenu, tr("Stash Pop", "Avoid translating \"Stash\""),
+                                    "Git.StashPop",
                                     context, true, std::bind(&GitPluginPrivate::stashPop, this));
     action->setToolTip(tr("Restores changes saved to the stash list using \"Stash\"."));
 
@@ -889,13 +902,13 @@ GitPluginPrivate::GitPluginPrivate()
     remoteRepositoryMenu->menu()->setTitle(tr("&Remote Repository"));
     gitContainer->addMenu(remoteRepositoryMenu);
 
-    createRepositoryAction(remoteRepositoryMenu, tr("Fetch"), "Git.Fetch",
+    createRepositoryAction(remoteRepositoryMenu, "Fetch", "Git.Fetch",
                            context, true, std::bind(&GitPluginPrivate::fetch, this));
 
-    createRepositoryAction(remoteRepositoryMenu, tr("Pull"), "Git.Pull",
+    createRepositoryAction(remoteRepositoryMenu, "Pull", "Git.Pull",
                            context, true, std::bind(&GitPluginPrivate::pull, this));
 
-    createRepositoryAction(remoteRepositoryMenu, tr("Push"), "Git.Push",
+    createRepositoryAction(remoteRepositoryMenu, "Push", "Git.Push",
                            context, true, std::bind(&GitPluginPrivate::push, this));
 
     // --------------
@@ -906,10 +919,10 @@ GitPluginPrivate::GitPluginPrivate()
     subversionMenu->menu()->setTitle(tr("&Subversion"));
     remoteRepositoryMenu->addMenu(subversionMenu);
 
-    createRepositoryAction(subversionMenu, tr("Log"), "Git.Subversion.Log",
+    createRepositoryAction(subversionMenu, "Log", "Git.Subversion.Log",
                            context, false, &GitClient::subversionLog);
 
-    createRepositoryAction(subversionMenu, tr("Fetch"), "Git.Subversion.Fetch",
+    createRepositoryAction(subversionMenu, "Fetch", "Git.Subversion.Fetch",
                            context, false, &GitClient::synchronousSubversionFetch);
 
     createRepositoryAction(subversionMenu, tr("DCommit"), "Git.Subversion.DCommit",
@@ -926,15 +939,15 @@ GitPluginPrivate::GitPluginPrivate()
     // --------------
 
     /*  Actions only in locator */
-    createChangeRelatedRepositoryAction(tr("Show..."), "Git.Show", context);
-    createChangeRelatedRepositoryAction(tr("Revert..."), "Git.Revert", context);
-    createChangeRelatedRepositoryAction(tr("Cherry Pick..."), "Git.CherryPick", context);
-    createChangeRelatedRepositoryAction(tr("Checkout..."), "Git.Checkout", context);
+    createChangeRelatedRepositoryAction("Show...", "Git.Show", context);
+    createChangeRelatedRepositoryAction("Revert...", "Git.Revert", context);
+    createChangeRelatedRepositoryAction("Cherry Pick...", "Git.CherryPick", context);
+    createChangeRelatedRepositoryAction("Checkout...", "Git.Checkout", context);
     createChangeRelatedRepositoryAction(tr("Archive..."), "Git.Archive", context);
 
-    createRepositoryAction(nullptr, tr("Rebase..."), "Git.Rebase", context, true,
+    createRepositoryAction(nullptr, "Rebase...", "Git.Rebase", context, true,
                            std::bind(&GitPluginPrivate::branchList, this));
-    createRepositoryAction(nullptr, tr("Merge..."), "Git.Merge", context, true,
+    createRepositoryAction(nullptr, "Merge...", "Git.Merge", context, true,
                            std::bind(&GitPluginPrivate::branchList, this));
     /*  \Actions only in locator */
 
