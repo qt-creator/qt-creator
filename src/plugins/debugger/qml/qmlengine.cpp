@@ -2383,23 +2383,22 @@ void QmlEnginePrivate::handleLookup(const QVariantMap &response)
     for (const QString &handleString : handlesList) {
         const int handle = handleString.toInt();
         const QmlV8ObjectData bodyObjectData = extractData(body.value(handleString));
-        const QList<LookupData> vals = currentlyLookingUp.values(handle);
+        const LookupData res = currentlyLookingUp.value(handle);
         currentlyLookingUp.remove(handle);
-        for (const LookupData &res : vals) {
-            auto item = new WatchItem;
-            item->exp = res.exp;
-            item->iname = res.iname;
-            item->name = res.name;
-            item->id = handle;
 
-            item->type = bodyObjectData.type;
-            item->value = bodyObjectData.value.toString();
+        auto item = new WatchItem;
+        item->exp = res.exp;
+        item->iname = res.iname;
+        item->name = res.name;
+        item->id = handle;
 
-            setWatchItemHasChildren(item, bodyObjectData.hasChildren());
-            insertSubItems(item, bodyObjectData.properties);
+        item->type = bodyObjectData.type;
+        item->value = bodyObjectData.value.toString();
 
-            engine->watchHandler()->insertItem(item);
-        }
+        setWatchItemHasChildren(item, bodyObjectData.hasChildren());
+        insertSubItems(item, bodyObjectData.properties);
+
+        engine->watchHandler()->insertItem(item);
     }
     checkForFinishedUpdate();
 }
