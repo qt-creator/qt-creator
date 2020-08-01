@@ -44,7 +44,7 @@ class TouchBarPrivate;
 @property (retain, atomic) NSString *closeButtonIdentifier;
 
 - (id)initWithParent:(Utils::Internal::TouchBarPrivate *)parent;
-
+- (NSTouchBar *)makeTouchBar;
 @end
 
 namespace Utils {
