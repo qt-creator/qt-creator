@@ -784,6 +784,7 @@ void Project::createTargetFromMap(const QVariantMap &map, int index)
                 kit->makeReplacementKit();
                 kit->setup();
         }, id);
+        QTC_ASSERT(k, return);
         TaskHub::addTask(BuildSystemTask(Task::Warning, tr("Project \"%1\" was configured for "
             "kit \"%2\" with id %3, which does not exist anymore. The new kit \"%4\" was "
             "created in its place, in an attempt not to lose custom project settings.")
