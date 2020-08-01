@@ -56,6 +56,7 @@
 #include <QStyle>
 #include <QTextBlock>
 #include <QTextCodec>
+#include <QTimer>
 #include <QToolBar>
 #include <QToolButton>
 
@@ -80,9 +81,13 @@ public:
 
     QSize sizeHint() const override;
 
+signals:
+    void requestResize();
+
 protected:
     void setDisplaySettings(const DisplaySettings &ds) override;
     void setMarginSettings(const MarginSettings &ms) override;
+    void applyFontSettings() override;
 };
 
 DescriptionEditorWidget::DescriptionEditorWidget(QWidget *parent)
@@ -133,6 +138,12 @@ void DescriptionEditorWidget::setMarginSettings(const MarginSettings &ms)
     TextEditorWidget::setMarginSettings(MarginSettings());
 }
 
+void DescriptionEditorWidget::applyFontSettings()
+{
+    TextEditorWidget::applyFontSettings();
+    emit requestResize();
+}
+
 ///////////////////////////////// DiffEditor //////////////////////////////////
 
 DiffEditor::DiffEditor()
@@ -145,6 +156,18 @@ DiffEditor::DiffEditor()
 
     m_descriptionWidget = new DescriptionEditorWidget(splitter);
     m_descriptionWidget->setReadOnly(true);
+    connect(m_descriptionWidget, &DescriptionEditorWidget::requestResize, this, [splitter](){
+        if (splitter->count() == 0)
+            return;
+        QList<int> sizes = splitter->sizes();
+        const int descHeight = splitter->widget(0)->fontMetrics().lineSpacing() * 8;
+        const int diff = descHeight - sizes[0];
+        if (diff > 0) {
+            sizes[0] += diff;
+            sizes[1] -= diff;
+            splitter->setSizes(sizes);
+        }
+    });
     splitter->addWidget(m_descriptionWidget);
 
     m_stackedWidget = new QStackedWidget(splitter);
