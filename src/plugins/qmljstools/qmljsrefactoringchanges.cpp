@@ -60,11 +60,18 @@ public:
             ProjectExplorer::actualTabSettings(fileName, textDocument);
         CreatorCodeFormatter codeFormatter(tabSettings);
         codeFormatter.updateStateUntil(block);
-
         do {
-            const int depth = codeFormatter.indentFor(block);
-            if (depth != -1)
+            int depth = codeFormatter.indentFor(block);
+            if (depth != -1) {
+                if (QStringView(block.text()).trimmed().isEmpty()) {
+                    // we do not want to indent empty lines (as one is indentent when pressing tab
+                    // assuming that the user will start writing something), and get rid of that
+                    // space if one had pressed tab in an empty line just before refactoring.
+                    // If depth == -1 (inside a multiline string for example) leave the spaces.
+                    depth = 0;
+                }
                 tabSettings.indentLine(block, depth);
+            }
             codeFormatter.updateLineStateChange(block);
             block = block.next();
         } while (block.isValid() && block != end);
