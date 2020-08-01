@@ -31,16 +31,16 @@
 
 #include <utils/qtcassert.h>
 
-#include <QTreeView>
-#include <QLabel>
-#include <QPushButton>
-#include <QStandardItemModel>
+#include <QComboBox>
 #include <QDialogButtonBox>
 #include <QItemSelectionModel>
-#include <QVBoxLayout>
-#include <QComboBox>
-#include <QPainter>
+#include <QLabel>
 #include <QModelIndex>
+#include <QPainter>
+#include <QPushButton>
+#include <QStandardItemModel>
+#include <QTreeView>
+#include <QVBoxLayout>
 
 using namespace VcsBase;
 
