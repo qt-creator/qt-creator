@@ -1348,7 +1348,14 @@ QStringList GitClient::setupCheckoutArguments(const QString &workingDirectory,
         }
     }
 
-    const QString suggestedName = suggestedLocalBranchName(localBranches, remoteBranch);
+    QString target = remoteBranch;
+    BranchTargetType targetType = BranchTargetType::Remote;
+    if (remoteBranch.isEmpty()) {
+        target = ref;
+        targetType = BranchTargetType::Commit;
+    }
+    const QString suggestedName = suggestedLocalBranchName(
+                workingDirectory, localBranches, target, targetType);
     BranchAddDialog branchAddDialog(localBranches, BranchAddDialog::Type::AddBranch, ICore::dialogParent());
     branchAddDialog.setBranchName(suggestedName);
     branchAddDialog.setTrackedBranchName(remoteBranch, true);
@@ -3679,14 +3686,25 @@ GitRemote::GitRemote(const QString &location) : Core::IVersionControl::RepoUrl(l
         isValid = QDir(path).exists() || QDir(path + ".git").exists();
 }
 
-QString GitClient::suggestedLocalBranchName(const QStringList localNames,
-                                            const QString trackedBranch)
+QString GitClient::suggestedLocalBranchName(
+        const QString &workingDirectory,
+        const QStringList &localNames,
+        const QString &target,
+        BranchTargetType targetType)
 {
-    const QString suggestedNameBase = trackedBranch.mid(trackedBranch.lastIndexOf('/') + 1);
-    QString suggestedName = suggestedNameBase;
+    QString initialName;
+    if (targetType == BranchTargetType::Remote) {
+        initialName = target.mid(target.lastIndexOf('/') + 1);
+    } else {
+        QString subject;
+        instance()->synchronousLog(workingDirectory, {"-n", "1", "--format=%s", target},
+                                   &subject, nullptr, VcsCommand::NoOutput);
+        initialName = subject.trimmed();
+    }
+    QString suggestedName = initialName;
     int i = 2;
     while (localNames.contains(suggestedName)) {
-        suggestedName = suggestedNameBase + QString::number(i);
+        suggestedName = initialName + QString::number(i);
         ++i;
     }
 

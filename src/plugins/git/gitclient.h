@@ -361,8 +361,10 @@ public:
     VcsBase::VcsCommand *asyncUpstreamStatus(const QString &workingDirectory,
                                              const QString &branch, const QString &upstream);
 
-    static QString suggestedLocalBranchName(const QStringList existingLocalNames,
-                                            const QString trackedBranch);
+    enum class BranchTargetType { Remote, Commit };
+    static QString suggestedLocalBranchName(
+            const QString &workingDirectory, const QStringList &existingLocalNames,
+            const QString &target, BranchTargetType targetType);
     static void addChangeActions(QMenu *menu, const QString &workingDir, const QString &change);
 
 private:
