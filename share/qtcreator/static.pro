@@ -30,7 +30,7 @@ macx: DATA_DIRS += scripts
 for(data_dir, DATA_DIRS) {
     files = $$files($$PWD/$$data_dir/*, true)
     # Info.plist.in are handled below
-    for(file, files):!contains(file, ".*/Info\\.plist\\.in$"):!exists($$file/*): \
+    for(file, files):!contains(file, ".*/Info\\.plist\\.in$"):!contains(file, ".*__pycache__.*"):!exists($$file/*): \
         STATIC_FILES += $$file
 }
 

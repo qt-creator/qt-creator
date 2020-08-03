@@ -32,6 +32,7 @@ Product {
         excludeFiles: [
             "qml-type-descriptions/qbs-bundle.json",
             "qml-type-descriptions/qbs.qmltypes",
+            "debugger/**/__pycache__/*",
         ]
     }
 
