@@ -1004,9 +1004,17 @@ public:
         return *this;
     }
 
+    const Data &operator+(const BoostProfile &p) const
+    {
+        useBoost = true;
+        this->operator+(Profile(p));
+        return *this;
+    }
+
 public:
     mutable bool useQt = false;
     mutable bool useQHash = false;
+    mutable bool useBoost = false;
     mutable int engines = AllEngines;
     mutable int skipLevels = 0;              // Levels to go 'up' before dumping variables.
     mutable bool glibcxxDebug = false;
@@ -1594,6 +1602,9 @@ void tst_Dumpers::dumper()
     error = make.readAllStandardError();
     //qDebug() << "stdout: " << output;
     if (make.exitCode()) {
+        if (data.useBoost && make.exitStatus() == QProcess::NormalExit)
+            MSKIP_SINGLE("Compile failed - probably missing Boost?");
+
         qDebug().noquote() << error;
         qDebug() << "\n------------------ CODE --------------------";
         qDebug().noquote() << fullCode;
