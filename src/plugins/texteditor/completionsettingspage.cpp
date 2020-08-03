@@ -100,6 +100,7 @@ CompletionSettingsPageWidget::CompletionSettingsPageWidget(CompletionSettingsPag
     m_ui.completionTrigger->setCurrentIndex(completionTriggerIndex);
     m_ui.automaticProposalTimeoutSpinBox
             ->setValue(m_owner->m_completionSettings.m_automaticProposalTimeoutInMs);
+    m_ui.thresholdSpinBox->setValue(m_owner->m_completionSettings.m_characterThreshold);
     m_ui.insertBrackets->setChecked(m_owner->m_completionSettings.m_autoInsertBrackets);
     m_ui.surroundBrackets->setChecked(m_owner->m_completionSettings.m_surroundingAutoBrackets);
     m_ui.insertQuotes->setChecked(m_owner->m_completionSettings.m_autoInsertQuotes);
@@ -173,6 +174,7 @@ void CompletionSettingsPageWidget::settingsFromUi(CompletionSettings &completion
     completion.m_completionTrigger = completionTrigger();
     completion.m_automaticProposalTimeoutInMs
             = m_ui.automaticProposalTimeoutSpinBox->value();
+    completion.m_characterThreshold = m_ui.thresholdSpinBox->value();
     completion.m_autoInsertBrackets = m_ui.insertBrackets->isChecked();
     completion.m_surroundingAutoBrackets = m_ui.surroundBrackets->isChecked();
     completion.m_autoInsertQuotes = m_ui.insertQuotes->isChecked();

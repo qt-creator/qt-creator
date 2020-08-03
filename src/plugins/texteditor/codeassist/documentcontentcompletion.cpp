@@ -31,6 +31,8 @@
 #include "genericproposalmodel.h"
 #include "iassistprocessor.h"
 #include "../snippets/snippetassistcollector.h"
+#include "../completionsettings.h"
+#include "../texteditorsettings.h"
 
 #include <utils/algorithm.h>
 #include <utils/runextensions.h>
@@ -127,8 +129,10 @@ IAssistProposal *DocumentContentCompletionProcessor::perform(const AssistInterfa
 
     if (interface->reason() == IdleEditor) {
         QChar characterUnderCursor = interface->characterAt(interface->position());
-        if (characterUnderCursor.isLetterOrNumber() || length < 3)
+        if (characterUnderCursor.isLetterOrNumber()
+                || length < TextEditorSettings::completionSettings().m_characterThreshold) {
             return nullptr;
+        }
     }
 
     const QString wordUnderCursor = interface->textAt(pos, length);

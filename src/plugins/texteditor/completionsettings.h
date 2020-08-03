@@ -59,6 +59,7 @@ public:
     CaseSensitivity m_caseSensitivity = CaseInsensitive;
     CompletionTrigger m_completionTrigger = AutomaticCompletion;
     int m_automaticProposalTimeoutInMs = 400;
+    int m_characterThreshold = 3;
     bool m_autoInsertBrackets = true;
     bool m_surroundingAutoBrackets = true;
     bool m_autoInsertQuotes = true;

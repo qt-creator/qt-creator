@@ -40,6 +40,7 @@
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/functionhintproposal.h>
+#include <texteditor/texteditorsettings.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/Icons.h>
 
@@ -528,7 +529,8 @@ bool GlslCompletionAssistProcessor::acceptsIdleEditor() const
         ++pos;
 
         const QString word = m_interface->textAt(pos, cursorPosition - pos);
-        if (word.length() > 2 && checkStartOfIdentifier(word)) {
+        if (word.length() >= TextEditorSettings::completionSettings().m_characterThreshold
+                && checkStartOfIdentifier(word)) {
             for (auto character : word) {
                 if (!isIdentifierChar(character))
                     return false;

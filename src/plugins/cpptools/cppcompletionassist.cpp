@@ -851,12 +851,12 @@ bool InternalCppCompletionAssistProcessor::accepts() const
 
         return true;
     } else {
-        // Trigger completion after three characters of a name have been typed, when not editing an existing name
+        // Trigger completion after n characters of a name have been typed, when not editing an existing name
         QChar characterUnderCursor = m_interface->characterAt(pos);
 
         if (!isValidIdentifierChar(characterUnderCursor)) {
             const int startOfName = findStartOfName(pos);
-            if (pos - startOfName >= 3) {
+            if (pos - startOfName >= TextEditorSettings::completionSettings().m_characterThreshold) {
                 const QChar firstCharacter = m_interface->characterAt(startOfName);
                 if (isValidFirstIdentifierChar(firstCharacter)) {
                     // Finally check that we're not inside a comment or string (code copied from startOfOperator)

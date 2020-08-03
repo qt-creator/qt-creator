@@ -31,6 +31,7 @@ static const char settingsGroup[]               = "CppTools/Completion";
 static const char caseSensitivityKey[]          = "CaseSensitivity";
 static const char completionTriggerKey[]        = "CompletionTrigger";
 static const char automaticProposalTimeoutKey[] = "AutomaticProposalTimeout";
+static const char characterThresholdKey[]       = "CharacterThreshold";
 static const char autoInsertBracesKey[]         = "AutoInsertBraces";
 static const char surroundingAutoBracketsKey[]  = "SurroundingAutoBrackets";
 static const char autoInsertQuotesKey[]         = "AutoInsertQuotes";
@@ -52,6 +53,7 @@ void CompletionSettings::toSettings(QSettings *s) const
     s->setValue(caseSensitivityKey, (int) m_caseSensitivity);
     s->setValue(completionTriggerKey, (int) m_completionTrigger);
     s->setValue(automaticProposalTimeoutKey, m_automaticProposalTimeoutInMs);
+    s->setValue(characterThresholdKey, m_characterThreshold);
     s->setValue(autoInsertBracesKey, m_autoInsertBrackets);
     s->setValue(surroundingAutoBracketsKey, m_surroundingAutoBrackets);
     s->setValue(autoInsertQuotesKey, m_autoInsertQuotes);
@@ -78,6 +80,8 @@ void CompletionSettings::fromSettings(QSettings *s)
             s->value(completionTriggerKey, m_completionTrigger).toInt();
     m_automaticProposalTimeoutInMs =
             s->value(automaticProposalTimeoutKey, m_automaticProposalTimeoutInMs).toInt();
+    m_characterThreshold =
+            s->value(characterThresholdKey, m_characterThreshold).toInt();
     m_autoInsertBrackets =
             s->value(autoInsertBracesKey, m_autoInsertBrackets).toBool();
     m_surroundingAutoBrackets =
@@ -110,6 +114,7 @@ bool CompletionSettings::equals(const CompletionSettings &cs) const
     return m_caseSensitivity                == cs.m_caseSensitivity
         && m_completionTrigger              == cs.m_completionTrigger
         && m_automaticProposalTimeoutInMs   == cs.m_automaticProposalTimeoutInMs
+        && m_characterThreshold             == cs.m_characterThreshold
         && m_autoInsertBrackets             == cs.m_autoInsertBrackets
         && m_surroundingAutoBrackets        == cs.m_surroundingAutoBrackets
         && m_autoInsertQuotes               == cs.m_autoInsertQuotes

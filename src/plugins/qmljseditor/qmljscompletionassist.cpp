@@ -891,7 +891,8 @@ bool QmlJSCompletionAssistProcessor::acceptsIdleEditor() const
             ++startPos;
 
             const QString &word = m_interface->textAt(startPos, cursorPos - startPos);
-            if (word.length() > 2 && isIdentifierChar(word.at(0), true)) {
+            if (word.length() >= TextEditorSettings::completionSettings().m_characterThreshold
+                    && isIdentifierChar(word.at(0), true)) {
                 for (int i = 1; i < word.length(); ++i) {
                     if (!isIdentifierChar(word.at(i)))
                         return false;

@@ -43,6 +43,7 @@
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/ExpressionUnderCursor.h>
@@ -405,11 +406,11 @@ bool ClangCompletionAssistProcessor::accepts() const
 
         return true;
     } else {
-        // Trigger completion after three characters of a name have been typed, when not editing an existing name
+        // Trigger completion after n characters of a name have been typed, when not editing an existing name
         QChar characterUnderCursor = m_interface->characterAt(pos);
         if (!characterUnderCursor.isLetterOrNumber() && characterUnderCursor != QLatin1Char('_')) {
             const int startOfName = findStartOfName(pos);
-            if (pos - startOfName >= 3) {
+            if (pos - startOfName >= TextEditorSettings::completionSettings().m_characterThreshold) {
                 const QChar firstCharacter = m_interface->characterAt(startOfName);
                 if (firstCharacter.isLetter() || firstCharacter == QLatin1Char('_')) {
                     // Finally check that we're not inside a comment or string (code copied from startOfOperator)

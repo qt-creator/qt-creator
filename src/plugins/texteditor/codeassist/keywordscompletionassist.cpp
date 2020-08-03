@@ -195,7 +195,8 @@ IAssistProposal *KeywordsCompletionAssistProcessor::perform(const AssistInterfac
 
     if (interface->reason() == IdleEditor) {
         QChar characterUnderCursor = interface->characterAt(interface->position());
-        if (characterUnderCursor.isLetterOrNumber() || interface->position() - startPosition < 3) {
+        if (characterUnderCursor.isLetterOrNumber() || interface->position() - startPosition
+                < TextEditorSettings::completionSettings().m_characterThreshold) {
             QList<AssistProposalItemInterface *> items;
             if (m_dynamicCompletionFunction)
                 m_dynamicCompletionFunction(interface, &items, startPosition);

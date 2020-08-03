@@ -34,6 +34,7 @@
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
+#include <texteditor/texteditorsettings.h>
 #include <utils/algorithm.h>
 #include <utils/textutils.h>
 #include <utils/utilsicons.h>
@@ -314,13 +315,13 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistIn
     QTC_ASSERT(m_client, return nullptr);
     m_pos = interface->position();
     if (interface->reason() == IdleEditor) {
-        // Trigger an automatic completion request only when we are on a word with more than 2 "identifier" character
+        // Trigger an automatic completion request only when we are on a word with at least n "identifier" characters
         const QRegularExpression regexp("[_a-zA-Z0-9]+");
         auto hasMatch = [&regexp](const QString &txt) { return regexp.match(txt).hasMatch(); };
         int delta = 0;
         while (m_pos - delta > 0 && hasMatch(interface->textAt(m_pos - delta - 1, delta + 1)))
             ++delta;
-        if (delta < 3)
+        if (delta < TextEditorSettings::completionSettings().m_characterThreshold)
             return nullptr;
         if (m_client->documentUpdatePostponed(interface->fileName())) {
             m_postponedUpdateConnection
