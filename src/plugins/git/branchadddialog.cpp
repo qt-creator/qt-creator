@@ -50,7 +50,7 @@ class BranchNameValidator : public QValidator
 public:
     BranchNameValidator(const QStringList &localBranches, QObject *parent = nullptr) :
         QValidator(parent),
-        m_invalidChars(GitPlugin::invalidBranchAndRemoteNamePattern()),
+        m_invalidChars('(' + GitPlugin::invalidBranchAndRemoteNamePattern() + ")+"),
         m_localBranches(localBranches)
     {
     }
