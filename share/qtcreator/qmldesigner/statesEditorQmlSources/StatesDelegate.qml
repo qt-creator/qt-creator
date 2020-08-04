@@ -132,7 +132,6 @@ Rectangle {
 
     StudioControls.TextField {
         id: stateNameField
-        actionIndicatorVisible: !isBaseState || (isBaseState && modelHasDefaultState)
 
         actionIndicator.onClicked: {
             stateNameField.actionIndicator.forceVisible = true
@@ -151,7 +150,7 @@ Rectangle {
         y: 4
         anchors.left: parent.left
         // use the spacing which the image to the delegate rectangle has
-        anchors.leftMargin: (isBaseState ? StudioTheme.Values.height : 0) + 4
+        anchors.leftMargin: 4
         anchors.right: removeStateButton.left
         anchors.rightMargin: 2
 
