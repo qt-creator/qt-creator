@@ -48,7 +48,7 @@ Model {
     materials: [
         DefaultMaterial {
             id: defaultMaterial
-            emissiveColor: cameraFrustum.selected ? "#FF0000" : "#555555"
+            diffuseColor: cameraFrustum.selected ? "#FF0000" : "#555555"
             lighting: DefaultMaterial.NoLighting
             cullMode: Material.NoCulling
         }

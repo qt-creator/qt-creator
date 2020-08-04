@@ -520,7 +520,7 @@ Item {
                         id: lineMat
                         lighting: DefaultMaterial.NoLighting
                         cullMode: Material.NoCulling
-                        emissiveColor: pivotLine.color
+                        diffuseColor: pivotLine.color
                     }
                 ]
             }

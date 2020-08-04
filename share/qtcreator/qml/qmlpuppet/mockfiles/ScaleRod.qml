@@ -44,7 +44,7 @@ DirectionalDraggable {
         scale: Qt.vector3d(0.020, 0.020, 0.020)
         materials: DefaultMaterial {
             id: material
-            emissiveColor: scaleRod.color
+            diffuseColor: scaleRod.color
             lighting: DefaultMaterial.NoLighting
         }
     }
