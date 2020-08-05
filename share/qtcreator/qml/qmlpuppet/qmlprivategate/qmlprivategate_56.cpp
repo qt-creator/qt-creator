@@ -87,9 +87,14 @@ void registerNodeInstanceMetaObject(QObject *object, QQmlEngine *engine)
     QQuickDesignerSupportProperties::registerNodeInstanceMetaObject(object, engine);
 }
 
+// This is used in share/qtcreator/qml/qmlpuppet/qml2puppet/instances/objectnodeinstance.cpp
 QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return QQuickDesignerSupportItems::createPrimitive(typeName, QTypeRevision::fromVersion(majorNumber, minorNumber), context);
+#else
     return QQuickDesignerSupportItems::createPrimitive(typeName, majorNumber, minorNumber, context);
+#endif
 }
 
 static QString qmlDesignerRCPath()
