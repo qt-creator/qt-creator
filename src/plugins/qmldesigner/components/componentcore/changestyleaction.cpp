@@ -37,10 +37,11 @@ static QString styleConfigFileName(const QString &qmlFileName)
 {
     ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(Utils::FilePath::fromString(qmlFileName));
 
-    if (currentProject)
+    if (currentProject) {
         foreach (const Utils::FilePath &fileName, currentProject->files(ProjectExplorer::Project::SourceFiles))
             if (fileName.endsWith("qtquickcontrols2.conf"))
                 return fileName.toString();
+    }
 
     return QString();
 }

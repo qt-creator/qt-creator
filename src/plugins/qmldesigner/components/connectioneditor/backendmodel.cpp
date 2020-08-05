@@ -104,7 +104,7 @@ void BackendModel::resetModel()
                   }
             }
 
-    if (rootNode.isValid())
+    if (rootNode.isValid()) {
         foreach (const AbstractProperty &property ,rootNode.properties())
             if (property.isDynamic() && !simpleTypes.contains(property.dynamicTypeName())) {
 
@@ -133,6 +133,7 @@ void BackendModel::resetModel()
                     appendRow({ type, name, singletonItem, inlineItem });
                 }
             }
+    }
 
     m_lock = false;
 
@@ -145,9 +146,10 @@ QStringList BackendModel::possibleCppTypes() const
 
     QStringList list;
 
-    if (rewriterView)
+    if (rewriterView) {
         foreach (const QmlTypeData &cppTypeData, rewriterView->getQMLTypes())
             list.append(cppTypeData.typeName);
+    }
 
     return list;
 }

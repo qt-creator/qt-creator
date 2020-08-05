@@ -60,7 +60,7 @@ public:
 
     QVariant data(int role) const override
     {
-        if (role == Qt::BackgroundColorRole && hasInvalidValue)
+        if (role == Qt::BackgroundRole && hasInvalidValue)
             return QColor{Qt::darkYellow};
 
         return QStandardItem::data(role);

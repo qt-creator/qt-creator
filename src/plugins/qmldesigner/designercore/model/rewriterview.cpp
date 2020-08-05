@@ -256,11 +256,12 @@ void RewriterView::importAdded(const Import &import)
     if (textToModelMerger()->isActive())
         return;
 
-    if (import.url() == QLatin1String("Qt"))
+    if (import.url() == QLatin1String("Qt")) {
         foreach (const Import &import, model()->imports()) {
             if (import.url() == QLatin1String("QtQuick"))
                 return; //QtQuick magic we do not have to add an import for Qt
         }
+    }
 
     modelToTextMerger()->addImport(import);
 

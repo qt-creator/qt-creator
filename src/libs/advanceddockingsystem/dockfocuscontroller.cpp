@@ -178,6 +178,8 @@ namespace ADS
 
     void DockFocusController::onApplicationFocusChanged(QWidget *focusedOld, QWidget *focusedNow)
     {
+        Q_UNUSED(focusedOld);
+
         if (d->m_dockManager->isRestoringState())
             return;
 

@@ -267,7 +267,7 @@ QString Annotation::toQString() const
 
 void Annotation::fromQString(const QString &str)
 {
-    QStringList strl (str.split(s_sep, QString::SplitBehavior::KeepEmptyParts));
+    QStringList strl (str.split(s_sep, Qt::KeepEmptyParts));
     removeComments();
 
     const int intro = 1;
