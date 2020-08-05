@@ -632,7 +632,7 @@ void LineEditField::setupCompletion(FancyLineEdit *lineEdit)
     if (!classesFilter)
         return;
     classesFilter->prepareSearch({});
-    const auto watcher = new QFutureWatcher<LocatorFilterEntry>(lineEdit);
+    const auto watcher = new QFutureWatcher<LocatorFilterEntry>;
     const auto handleResults = [this, lineEdit, watcher](int firstIndex, int endIndex) {
         QSet<QString> namespaces;
         QStringList classes;
@@ -681,13 +681,15 @@ void LineEditField::setupCompletion(FancyLineEdit *lineEdit)
         }
         completionList.sort();
         lineEdit->setSpecialCompleter(new QCompleter(completionList, lineEdit));
-        watcher->deleteLater();
     };
     QObject::connect(watcher, &QFutureWatcher<LocatorFilterEntry>::resultsReadyAt, lineEdit,
                      handleResults);
+    QObject::connect(watcher, &QFutureWatcher<LocatorFilterEntry>::finished,
+                     watcher, &QFutureWatcher<LocatorFilterEntry>::deleteLater);
     watcher->setFuture(runAsync([classesFilter](QFutureInterface<LocatorFilterEntry> &f) {
         const QList<LocatorFilterEntry> matches = classesFilter->matchesFor(f, {});
-        f.reportResults(QVector<LocatorFilterEntry>(matches.cbegin(), matches.cend()));
+        if (!matches.isEmpty())
+            f.reportResults(QVector<LocatorFilterEntry>(matches.cbegin(), matches.cend()));
         f.reportFinished();
     }));
 }
