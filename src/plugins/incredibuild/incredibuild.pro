@@ -10,6 +10,7 @@ DEFINES += INCREDIBUILD_LIBRARY
 SOURCES += incredibuildplugin.cpp \
     buildconsolebuildstep.cpp \
     commandbuilder.cpp \
+    commandbuilderaspect.cpp \
     makecommandbuilder.cpp \
     cmakecommandbuilder.cpp \
     ibconsolebuildstep.cpp
@@ -17,6 +18,7 @@ SOURCES += incredibuildplugin.cpp \
 HEADERS += incredibuildplugin.h \
     cmakecommandbuilder.h \
     commandbuilder.h \
+    commandbuilderaspect.h \
     incredibuild_global.h \
     incredibuildconstants.h \
     buildconsolebuildstep.h \

@@ -8,6 +8,8 @@ add_qtc_plugin(IncrediBuild
   cmakecommandbuilder.h
   commandbuilder.cpp
   commandbuilder.h
+  commandbuilderaspect.cpp
+  commandbuilderaspect.h
   ibconsolebuildstep.cpp
   ibconsolebuildstep.h
   incredibuild_global.h

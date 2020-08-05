@@ -25,9 +25,9 @@
 
 #include "buildconsolebuildstep.h"
 
-#include "cmakecommandbuilder.h"
+#include "commandbuilder.h"
+#include "commandbuilderaspect.h"
 #include "incredibuildconstants.h"
-#include "makecommandbuilder.h"
 
 #include <coreplugin/variablechooser.h>
 
@@ -86,26 +86,15 @@ public:
     BuildConsoleBuildStep(BuildStepList *buildStepList, Id id);
 
     bool init() final;
-
     BuildStepConfigWidget *createConfigWidget() final;
-
-    bool fromMap(const QVariantMap &map) final;
-    QVariantMap toMap() const final;
-
-    const QStringList &supportedWindowsVersions() const;
-    const QStringList &supportedCommandBuilders();
-
-    CommandBuilder *commandBuilder() const { return m_activeCommandBuilder; }
-    void commandBuilder(const QString &commandBuilder);
-
-    void tryToMigrate();
-
     void setupOutputFormatter(OutputFormatter *formatter) final;
 
+    const QStringList &supportedWindowsVersions() const;
     QString normalizeWinVerArgument(QString winVer);
 
     bool m_loadedFromMap{false};
 
+    CommandBuilderAspect *m_commandBuilder;
     BaseBoolAspect *m_avoidLocal{nullptr};
     BaseStringAspect *m_profileXml{nullptr};
     BaseIntegerAspect *m_maxCpu{nullptr};
@@ -125,20 +114,7 @@ public:
     BaseStringAspect *m_additionalArguments{nullptr};
     BaseBoolAspect *m_openMonitor{nullptr};
     BaseBoolAspect *m_keepJobNum{nullptr};
-
-    CommandBuilder m_customCommandBuilder{this};
-    MakeCommandBuilder m_makeCommandBuilder{this};
-    CMakeCommandBuilder m_cmakeCommandBuilder{this};
-
-    CommandBuilder *m_commandBuilders[3] {
-        &m_customCommandBuilder,
-        &m_makeCommandBuilder,
-        &m_cmakeCommandBuilder
-    };
-
-    CommandBuilder *m_activeCommandBuilder{m_commandBuilders[0]};
 };
-
 
 class BuildConsoleStepConfigWidget : public BuildStepConfigWidget
 {
@@ -146,24 +122,12 @@ class BuildConsoleStepConfigWidget : public BuildStepConfigWidget
 
 public:
     explicit BuildConsoleStepConfigWidget(BuildConsoleBuildStep *buildConsoleStep);
-
-private:
-    void commandBuilderChanged();
-    void commandArgsChanged();
-    void makePathEdited();
-
-    BuildConsoleBuildStep *m_buildStep;
-
-    QLineEdit *makeArgumentsLineEdit;
-    QComboBox *commandBuilder;
-    PathChooser *makePathChooser;
 };
 
 // BuildConsoleStepConfigWidget
 
 BuildConsoleStepConfigWidget::BuildConsoleStepConfigWidget(BuildConsoleBuildStep *buildConsoleStep)
     : BuildStepConfigWidget(buildConsoleStep)
-    , m_buildStep(buildConsoleStep)
 {
     setDisplayName(tr("IncrediBuild for Windows"));
 
@@ -183,8 +147,6 @@ BuildConsoleStepConfigWidget::BuildConsoleStepConfigWidget(BuildConsoleBuildStep
     auto sectionLogging = new QLabel(tr("Output and Logging"), this);
     sectionLogging->setFont(font);
 
-    commandBuilder = new QComboBox(this);
-
     const auto emphasize = [](const QString &msg) { return QString("<i>" + msg); };
     auto infoLabel1 = new QLabel(emphasize(tr("Enter the appropriate arguments to your build "
                                               "command.")), this);
@@ -192,45 +154,9 @@ BuildConsoleStepConfigWidget::BuildConsoleStepConfigWidget(BuildConsoleBuildStep
                                               "multi-job parameter value is large enough (such as "
                                               "-j200 for the JOM or Make build tools)")), this);
 
-    auto label = new QLabel(tr("Command Helper:"), this);
-    label->setToolTip(tr("Select an helper to establish the build command."));
-
-    commandBuilder->addItems(m_buildStep->supportedCommandBuilders());
-    commandBuilder->setCurrentText(m_buildStep->commandBuilder()->displayName());
-    connect(commandBuilder, &QComboBox::currentTextChanged, this, &BuildConsoleStepConfigWidget::commandBuilderChanged);
-
-    makePathChooser = new PathChooser;
-    makeArgumentsLineEdit = new QLineEdit(this);
-    const QString defaultCommand = m_buildStep->commandBuilder()->defaultCommand();
-    makePathChooser->lineEdit()->setPlaceholderText(defaultCommand);
-    const QString command = m_buildStep->commandBuilder()->command();
-    if (command != defaultCommand)
-        makePathChooser->setPath(command);
-
-    makePathChooser->setExpectedKind(PathChooser::Kind::ExistingCommand);
-    makePathChooser->setBaseDirectory(FilePath::fromString(PathChooser::homePath()));
-    makePathChooser->setHistoryCompleter("IncrediBuild.BuildConsole.MakeCommand.History");
-    connect(makePathChooser, &PathChooser::rawPathChanged, this, &BuildConsoleStepConfigWidget::makePathEdited);
-
-    QString defaultArgs;
-    for (const QString &a : m_buildStep->commandBuilder()->defaultArguments())
-        defaultArgs += "\"" + a + "\" ";
-
-    QString args;
-    for (const QString &a : m_buildStep->commandBuilder()->arguments())
-        args += "\"" + a + "\" ";
-
-    makeArgumentsLineEdit->setPlaceholderText(defaultArgs);
-    if (args != defaultArgs)
-        makeArgumentsLineEdit->setText(args);
-
-    connect(makeArgumentsLineEdit, &QLineEdit::textEdited, this, &BuildConsoleStepConfigWidget::commandArgsChanged);
-
     LayoutBuilder builder(this);
     builder.addRow(sectionTarget);
-    builder.startNewRow().addItems(label, commandBuilder);
-    builder.startNewRow().addItems(tr("Make command:"), makePathChooser);
-    builder.startNewRow().addItems(tr("Make arguments:"), makeArgumentsLineEdit);
+    builder.addRow(buildConsoleStep->m_commandBuilder);
     builder.addRow(infoLabel1);
     builder.addRow(infoLabel2);
     builder.addRow(buildConsoleStep->m_keepJobNum);
@@ -262,46 +188,15 @@ BuildConsoleStepConfigWidget::BuildConsoleStepConfigWidget(BuildConsoleBuildStep
     Core::VariableChooser::addSupportForChildWidgets(this, buildConsoleStep->macroExpander());
 }
 
-void BuildConsoleStepConfigWidget::commandBuilderChanged()
-{
-    m_buildStep->commandBuilder(commandBuilder->currentText());
-
-    QString defaultArgs;
-    for (const QString &a : m_buildStep->commandBuilder()->defaultArguments())
-        defaultArgs += "\"" + a + "\" ";
-
-    QString args;
-    for (const QString &a : m_buildStep->commandBuilder()->arguments())
-        args += "\"" + a + "\" ";
-
-    if (args == defaultArgs)
-        makeArgumentsLineEdit->clear();
-    makeArgumentsLineEdit->setText(args);
-
-    const QString defaultCommand = m_buildStep->commandBuilder()->defaultCommand();
-    makePathChooser->lineEdit()->setPlaceholderText(defaultCommand);
-    QString command = m_buildStep->commandBuilder()->command();
-    if (command == defaultCommand)
-        command.clear();
-    makePathChooser->setPath(command);
-}
-
-void BuildConsoleStepConfigWidget::commandArgsChanged()
-{
-    m_buildStep->commandBuilder()->arguments(makeArgumentsLineEdit->text());
-}
-
-void BuildConsoleStepConfigWidget::makePathEdited()
-{
-    m_buildStep->commandBuilder()->command(makePathChooser->rawPath());
-}
-
 // BuildConsoleBuilStep
 
 BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id)
     : AbstractProcessStep(buildStepList, id)
 {
     setDisplayName("IncrediBuild for Windows");
+
+    m_commandBuilder = addAspect<CommandBuilderAspect>(this);
+    m_commandBuilder->setSettingsKey(Constants::BUILDCONSOLE_COMMANDBUILDER);
 
     m_maxCpu = addAspect<BaseIntegerAspect>();
     m_maxCpu->setSettingsKey(Constants::BUILDCONSOLE_MAXCPU);
@@ -468,50 +363,12 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
                                 "IncrediBuild behavior will set this value to 200)"));
 }
 
-void BuildConsoleBuildStep::tryToMigrate()
-{
-    // This constructor is called when creating a fresh build step.
-    // Attempt to detect build system from pre-existing steps.
-    for (CommandBuilder *p : m_commandBuilders) {
-        if (p->canMigrate(stepList())) {
-            m_activeCommandBuilder = p;
-            break;
-        }
-    }
-}
-
 void BuildConsoleBuildStep::setupOutputFormatter(OutputFormatter *formatter)
 {
     formatter->addLineParser(new GnuMakeParser());
     formatter->addLineParsers(target()->kit()->createOutputParsers());
     formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
     AbstractProcessStep::setupOutputFormatter(formatter);
-}
-
-bool BuildConsoleBuildStep::fromMap(const QVariantMap &map)
-{
-    m_loadedFromMap = true;
-
-    // Command builder. Default to the first in list, which should be the "Custom Command"
-    commandBuilder(map.value(Constants::BUILDCONSOLE_COMMANDBUILDER,
-                             QVariant(m_commandBuilders[0]->displayName()))
-                       .toString());
-    bool result = m_activeCommandBuilder->fromMap(map);
-
-    return result && AbstractProcessStep::fromMap(map);
-}
-
-QVariantMap BuildConsoleBuildStep::toMap() const
-{
-    QVariantMap map = AbstractProcessStep::toMap();
-
-    map[IncrediBuild::Constants::INCREDIBUILD_BUILDSTEP_TYPE] = QVariant(
-        IncrediBuild::Constants::BUILDCONSOLE_BUILDSTEP_ID);
-    map[Constants::BUILDCONSOLE_COMMANDBUILDER] = QVariant(m_activeCommandBuilder->displayName());
-
-    m_activeCommandBuilder->toMap(&map);
-
-    return map;
 }
 
 const QStringList& BuildConsoleBuildStep::supportedWindowsVersions() const
@@ -539,9 +396,10 @@ bool BuildConsoleBuildStep::init()
 {
     QStringList args;
 
-    m_activeCommandBuilder->keepJobNum(m_keepJobNum->value());
+    CommandBuilder *activeCommandBuilder = m_commandBuilder->commandBuilder();
+    activeCommandBuilder->keepJobNum(m_keepJobNum->value());
     QString cmd("/Command= %0");
-    cmd = cmd.arg(m_activeCommandBuilder->fullCommandFlag());
+    cmd = cmd.arg(activeCommandBuilder->fullCommandFlag());
     args.append(cmd);
 
     if (!m_profileXml->value().isEmpty())
@@ -614,34 +472,8 @@ bool BuildConsoleBuildStep::init()
 
 BuildStepConfigWidget* BuildConsoleBuildStep::createConfigWidget()
 {
-    // On first creation of the step, attempt to detect and migrate from preceding steps
-    if (!m_loadedFromMap)
-        tryToMigrate();
-
     return new BuildConsoleStepConfigWidget(this);
 }
-
-const QStringList& BuildConsoleBuildStep::supportedCommandBuilders()
-{
-    static QStringList list;
-    if (list.empty()) {
-        for (CommandBuilder *p : m_commandBuilders)
-            list.push_back(p->displayName());
-    }
-
-    return list;
-}
-
-void BuildConsoleBuildStep::commandBuilder(const QString& commandBuilder)
-{
-    for (CommandBuilder *p : m_commandBuilders) {
-        if (p->displayName().compare(commandBuilder) == 0) {
-            m_activeCommandBuilder = p;
-            break;
-        }
-    }
-}
-
 
 // BuildConsoleStepFactory
 
