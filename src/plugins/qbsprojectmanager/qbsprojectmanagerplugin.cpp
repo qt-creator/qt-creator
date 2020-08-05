@@ -254,6 +254,13 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
             this, &QbsProjectManagerPlugin::updateBuildActions);
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
             this, &QbsProjectManagerPlugin::updateReparseQbsAction);
+    connect(SessionManager::instance(), &SessionManager::projectAdded,
+            this, [this](Project *project) {
+        connect(project, &Project::anyParsingStarted,
+                this, &QbsProjectManagerPlugin::projectChanged);
+        connect(project, &Project::anyParsingFinished,
+                this, &QbsProjectManagerPlugin::projectChanged);
+    });
 
     // Run initial setup routines
     updateContextActions();
