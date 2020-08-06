@@ -46,6 +46,7 @@ class BaseIntegerAspectPrivate;
 class BaseSelectionAspectPrivate;
 class BaseStringAspectPrivate;
 class BaseStringListAspectPrivate;
+class TextDisplayPrivate;
 } // Internal
 
 class PROJECTEXPLORER_EXPORT BaseBoolAspect : public ProjectConfigurationAspect

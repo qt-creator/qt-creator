@@ -29,18 +29,13 @@
 #include "commandbuilderaspect.h"
 #include "incredibuildconstants.h"
 
-#include <coreplugin/variablechooser.h>
-
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectconfigurationaspects.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
-
-#include <QLabel>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -56,16 +51,6 @@ const QLatin1String IBCONSOLE_FORCEREMOTE("IncrediBuild.IBConsole.ForceRemote");
 const QLatin1String IBCONSOLE_ALTERNATE("IncrediBuild.IBConsole.Alternate");
 }
 
-class IBConsoleBuildStep;
-
-class IBConsoleStepConfigWidget : public BuildStepConfigWidget
-{
-    Q_DECLARE_TR_FUNCTIONS(IncrediBuild::Internal::IBConsoleBuildStep)
-
-public:
-    explicit IBConsoleStepConfigWidget(IBConsoleBuildStep *ibConsoleStep);
-};
-
 class IBConsoleBuildStep final : public AbstractProcessStep
 {
     Q_DECLARE_TR_FUNCTIONS(IncrediBuild::Internal::IBConsoleBuildStep)
@@ -74,74 +59,30 @@ public:
     IBConsoleBuildStep(BuildStepList *buildStepList, Id id);
 
     bool init() final;
-    BuildStepConfigWidget *createConfigWidget() final;
     void setupOutputFormatter(OutputFormatter *formatter) final;
 
-public:
+private:
     CommandBuilderAspect *m_commandBuilder;
     BaseIntegerAspect *m_nice{nullptr};
     BaseBoolAspect *m_keepJobNum{nullptr};
     BaseBoolAspect *m_forceRemote{nullptr};
     BaseBoolAspect *m_alternate{nullptr};
-
-    BuildStepList *m_earlierSteps{};
 };
-
-IBConsoleStepConfigWidget::IBConsoleStepConfigWidget(IBConsoleBuildStep *ibConsoleStep)
-    : BuildStepConfigWidget(ibConsoleStep)
-{
-    setDisplayName(tr("IncrediBuild for Linux"));
-    setSummaryText("<b>" + displayName() + "</b>");
-
-    QFont font;
-    font.setBold(true);
-    font.setWeight(75);
-
-    auto section1 = new QLabel("Target and configuration", this);
-    section1->setFont(font);
-
-    auto section2 = new QLabel(this);
-    section2->setText(tr("IncrediBuild Distribution control"));
-    section2->setFont(font);
-
-    const auto emphasize = [](const QString &msg) { return QString("<i>" + msg); };
-    auto infoLabel1 = new QLabel(emphasize(tr("Enter the appropriate arguments to your build "
-                                              "command.")), this);
-    auto infoLabel2 = new QLabel(emphasize(tr("Make sure the build command's "
-                                              "multi-job parameter value is large enough (such as "
-                                               "-j200 for the JOM or Make build tools)")), this);
-
-    LayoutBuilder builder(this);
-    builder.addRow(section1);
-    builder.addRow(ibConsoleStep->m_commandBuilder);
-    builder.addRow(infoLabel1);
-    builder.addRow(infoLabel2);
-    builder.addRow(ibConsoleStep->m_keepJobNum);
-
-    builder.addRow(section2);
-    builder.addRow(ibConsoleStep->m_nice);
-    builder.addRow(ibConsoleStep->m_forceRemote);
-    builder.addRow(ibConsoleStep->m_alternate);
-
-    Core::VariableChooser::addSupportForChildWidgets(this, ibConsoleStep->macroExpander());
-}
-
-// IBConsoleBuildStep
 
 IBConsoleBuildStep::IBConsoleBuildStep(BuildStepList *buildStepList, Id id)
     : AbstractProcessStep(buildStepList, id)
-    , m_earlierSteps(buildStepList)
 {
-    setDisplayName("IncrediBuild for Linux");
+    setDisplayName(tr("IncrediBuild for Linux"));
+
+    addAspect<TextDisplay>("<b>" + tr("Target and Configuration"));
 
     m_commandBuilder = addAspect<CommandBuilderAspect>(this);
     m_commandBuilder->setSettingsKey(Constants::IBCONSOLE_COMMANDBUILDER);
 
-    m_nice = addAspect<BaseIntegerAspect>();
-    m_nice->setSettingsKey(Constants::IBCONSOLE_NICE);
-    m_nice->setToolTip(tr("Specify nice value. Nice Value should be numeric and between -20 and 19"));
-    m_nice->setLabel(tr("Nice value:"));
-    m_nice->setRange(-20, 19);
+    addAspect<TextDisplay>("<i>" + tr("Enter the appropriate arguments to your build command."));
+    addAspect<TextDisplay>("<i>" + tr("Make sure the build command's "
+                                      "multi-job parameter value is large enough (such as "
+                                      "-j200 for the JOM or Make build tools)"));
 
     m_keepJobNum = addAspect<BaseBoolAspect>();
     m_keepJobNum->setSettingsKey(Constants::IBCONSOLE_KEEPJOBNUM);
@@ -152,6 +93,14 @@ IBConsoleBuildStep::IBConsoleBuildStep(BuildStepList *buildStepList, Id id)
                                 "the number of processes that the build tools executed by Qt will "
                                 "execute in parallel (the default IncrediBuild behavior will set "
                                 "this value to 200)."));
+
+    addAspect<TextDisplay>("<b>" + tr("IncrediBuild Distribution Control"));
+
+    m_nice = addAspect<BaseIntegerAspect>();
+    m_nice->setSettingsKey(Constants::IBCONSOLE_NICE);
+    m_nice->setToolTip(tr("Specify nice value. Nice Value should be numeric and between -20 and 19"));
+    m_nice->setLabel(tr("Nice value:"));
+    m_nice->setRange(-20, 19);
 
     m_forceRemote = addAspect<BaseBoolAspect>();
     m_forceRemote->setSettingsKey(Constants::IBCONSOLE_ALTERNATE);
@@ -202,18 +151,13 @@ bool IBConsoleBuildStep::init()
     return AbstractProcessStep::init();
 }
 
-BuildStepConfigWidget *IBConsoleBuildStep::createConfigWidget()
-{
-    return new IBConsoleStepConfigWidget(this);
-}
-
 
 // IBConsoleStepFactory
 
 IBConsoleStepFactory::IBConsoleStepFactory()
 {
     registerStep<IBConsoleBuildStep>(IncrediBuild::Constants::IBCONSOLE_BUILDSTEP_ID);
-    setDisplayName(QObject::tr("IncrediBuild for Linux"));
+    setDisplayName(IBConsoleBuildStep::tr("IncrediBuild for Linux"));
     setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_BUILD,
                            ProjectExplorer::Constants::BUILDSTEPS_CLEAN});
 }

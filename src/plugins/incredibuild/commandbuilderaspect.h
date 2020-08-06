@@ -28,6 +28,9 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/projectconfigurationaspects.h>
 
+#include <QLabel>
+#include <QPointer>
+
 namespace IncrediBuild {
 namespace Internal {
 
@@ -47,6 +50,18 @@ private:
     void toMap(QVariantMap &map) const final;
 
     class CommandBuilderAspectPrivate *d = nullptr;
+};
+
+class TextDisplay final : public ProjectExplorer::ProjectConfigurationAspect
+{
+public:
+    TextDisplay(const QString &message) : m_message(message) {}
+
+private:
+    void addToLayout(ProjectExplorer::LayoutBuilder &builder) final;
+
+    QString m_message;
+    QPointer<QLabel> m_label;
 };
 
 } // namespace Internal
