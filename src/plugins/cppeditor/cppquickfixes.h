@@ -575,5 +575,15 @@ public:
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
+/*!
+  Removes a using directive (using namespace xyz).
+
+*/
+class RemoveUsingNamespace : public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
+};
+
 } // namespace Internal
 } // namespace CppEditor

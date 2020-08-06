@@ -6251,5 +6251,251 @@ void CppEditorPlugin::test_quickfix_ConvertQt4Connect_differentNamespace()
     QuickFixOperationTest(testDocuments, &factory);
 }
 
+void CppEditorPlugin::test_quickfix_removeUsingNamespace_data()
+{
+    QTest::addColumn<QByteArray>("header1");
+    QTest::addColumn<QByteArray>("header2");
+    QTest::addColumn<QByteArray>("header3");
+    QTest::addColumn<QByteArray>("expected1");
+    QTest::addColumn<QByteArray>("expected2");
+    QTest::addColumn<QByteArray>("expected3");
+    QTest::addColumn<int>("operation");
+
+    const QByteArray header1 = "namespace std{\n"
+                               "    template<typename T>\n"
+                               "    class vector{};\n"
+                               "    namespace chrono{\n"
+                               "        using seconds = int;\n"
+                               "    }\n"
+                               "}\n"
+                               "using namespace std;\n"
+                               "namespace test{\n"
+                               "    class vector{\n"
+                               "       std::vector<int> ints;\n"
+                               "    };\n"
+                               "}\n";
+    const QByteArray header2 = "#include \"header1.h\"\n"
+                               "using foo = test::vector;\n"
+                               "using namespace std;\n"
+                               "using namespace test;\n"
+                               "vector<int> others;\n";
+
+    const QByteArray header3 = "#include \"header2.h\"\n"
+                               "using namespace std;\n"
+                               "using namespace chrono;\n"
+                               "namespace test{\n"
+                               "   vector vec;\n"
+                               "   seconds t;\n"
+                               "}\n"
+                               "void scope(){\n"
+                               "    for (;;) {\n"
+                               "        using namespace std;\n"
+                               "        vector<int> fori;\n"
+                               "    }\n"
+                               "    vector<int> no;\n"
+                               "    using namespace std;\n"
+                               "    vector<int> _no_change;\n"
+                               "}\n"
+                               "foo foos;\n";
+
+    QByteArray h3 = "#include \"header2.h\"\n"
+                    "using namespace s@td;\n"
+                    "using namespace chrono;\n"
+                    "namespace test{\n"
+                    "   vector vec;\n"
+                    "   seconds t;\n"
+                    "}\n"
+                    "void scope(){\n"
+                    "    for (;;) {\n"
+                    "        using namespace std;\n"
+                    "        vector<int> fori;\n"
+                    "    }\n"
+                    "    vector<int> no;\n"
+                    "    using namespace std;\n"
+                    "    vector<int> _no_change;\n"
+                    "}\n"
+                    "foo foos;\n";
+
+    QByteArray expected3 = "#include \"header2.h\"\n"
+                           "using namespace std::chrono;\n"
+                           "namespace test{\n"
+                           "   vector vec;\n"
+                           "   seconds t;\n"
+                           "}\n"
+                           "void scope(){\n"
+                           "    for (;;) {\n"
+                           "        using namespace std;\n"
+                           "        vector<int> fori;\n"
+                           "    }\n"
+                           "    std::vector<int> no;\n"
+                           "    using namespace std;\n"
+                           "    vector<int> _no_change;\n"
+                           "}\n"
+                           "foo foos;\n";
+
+    QTest::newRow("remove only in one file local")
+        << header1 << header2 << h3 << header1 << header2 << expected3 << 0;
+    QTest::newRow("remove only in one file globally")
+        << header1 << header2 << h3 << header1 << header2 << expected3 << 1;
+
+    QByteArray h2 = "#include \"header1.h\"\n"
+                    "using foo = test::vector;\n"
+                    "using namespace s@td;\n"
+                    "using namespace test;\n"
+                    "vector<int> others;\n";
+    QByteArray expected2 = "#include \"header1.h\"\n"
+                           "using foo = test::vector;\n"
+                           "using namespace test;\n"
+                           "std::vector<int> others;\n";
+
+    QTest::newRow("remove across two files only this")
+        << header1 << h2 << header3 << header1 << expected2 << header3 << 0;
+    QTest::newRow("remove across two files globally1")
+        << header1 << h2 << header3 << header1 << expected2 << expected3 << 1;
+
+    QByteArray h1 = "namespace std{\n"
+                    "    template<typename T>\n"
+                    "    class vector{};\n"
+                    "    namespace chrono{\n"
+                    "        using seconds = int;\n"
+                    "    }\n"
+                    "}\n"
+                    "using namespace s@td;\n"
+                    "namespace test{\n"
+                    "    class vector{\n"
+                    "       std::vector<int> ints;\n"
+                    "    };\n"
+                    "}\n";
+    QByteArray expected1 = "namespace std{\n"
+                           "    template<typename T>\n"
+                           "    class vector{};\n"
+                           "    namespace chrono{\n"
+                           "        using seconds = int;\n"
+                           "    }\n"
+                           "}\n"
+                           "namespace test{\n"
+                           "    class vector{\n"
+                           "       std::vector<int> ints;\n"
+                           "    };\n"
+                           "}\n";
+
+    QTest::newRow("remove across tree files only this")
+        << h1 << header2 << header3 << expected1 << header2 << header3 << 0;
+    QTest::newRow("remove across tree files globally")
+        << h1 << header2 << header3 << expected1 << expected2 << expected3 << 1;
+
+    expected3 = "#include \"header2.h\"\n"
+                "using namespace std::chrono;\n"
+                "namespace test{\n"
+                "   vector vec;\n"
+                "   seconds t;\n"
+                "}\n"
+                "void scope(){\n"
+                "    for (;;) {\n"
+                "        using namespace s@td;\n"
+                "        vector<int> fori;\n"
+                "    }\n"
+                "    std::vector<int> no;\n"
+                "    using namespace std;\n"
+                "    vector<int> _no_change;\n"
+                "}\n"
+                "foo foos;\n";
+
+    QByteArray expected3_new = "#include \"header2.h\"\n"
+                               "using namespace std::chrono;\n"
+                               "namespace test{\n"
+                               "   vector vec;\n"
+                               "   seconds t;\n"
+                               "}\n"
+                               "void scope(){\n"
+                               "    for (;;) {\n"
+                               "        std::vector<int> fori;\n"
+                               "    }\n"
+                               "    std::vector<int> no;\n"
+                               "    using namespace std;\n"
+                               "    vector<int> _no_change;\n"
+                               "}\n"
+                               "foo foos;\n";
+
+    QTest::newRow("scoped remove")
+        << expected1 << expected2 << expected3 << expected1 << expected2 << expected3_new << 0;
+
+    h2 = "#include \"header1.h\"\n"
+         "using foo = test::vector;\n"
+         "using namespace std;\n"
+         "using namespace t@est;\n"
+         "vector<int> others;\n";
+    expected2 = "#include \"header1.h\"\n"
+                "using foo = test::vector;\n"
+                "using namespace std;\n"
+                "vector<int> others;\n";
+
+    QTest::newRow("existing namespace")
+        << header1 << h2 << header3 << header1 << expected2 << header3 << 1;
+}
+
+void CppEditorPlugin::test_quickfix_removeUsingNamespace()
+{
+    QFETCH(QByteArray, header1);
+    QFETCH(QByteArray, header2);
+    QFETCH(QByteArray, header3);
+    QFETCH(QByteArray, expected1);
+    QFETCH(QByteArray, expected2);
+    QFETCH(QByteArray, expected3);
+    QFETCH(int, operation);
+
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+    testDocuments << QuickFixTestDocument::create("header1.h", header1, expected1);
+    testDocuments << QuickFixTestDocument::create("header2.h", header2, expected2);
+    testDocuments << QuickFixTestDocument::create("header3.h", header3, expected3);
+
+    RemoveUsingNamespace factory;
+    QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), operation);
+}
+
+void CppEditorPlugin::test_quickfix_removeUsingNamespace_differentSymbols()
+{
+    QByteArray header = "namespace test{\n"
+                        "  struct foo{\n"
+                        "    foo();\n"
+                        "    void bar();\n"
+                        "  };\n"
+                        "  void func();\n"
+                        "  enum E {E1, E2};\n"
+                        "  int bar;\n"
+                        "}\n"
+                        "using namespace t@est;\n"
+                        "foo::foo(){}\n"
+                        "void foo::bar(){}\n"
+                        "void test(){\n"
+                        "  int i = bar * 4;\n"
+                        "  E val = E1;\n"
+                        "  auto p = &foo::bar;\n"
+                        "  func()\n"
+                        "}\n";
+    QByteArray expected = "namespace test{\n"
+                          "  struct foo{\n"
+                          "    foo();\n"
+                          "    void bar();\n"
+                          "  };\n"
+                          "  void func();\n"
+                          "  enum E {E1, E2};\n"
+                          "  int bar;\n"
+                          "}\n"
+                          "test::foo::foo(){}\n"
+                          "void test::foo::bar(){}\n"
+                          "void test(){\n"
+                          "  int i = test::bar * 4;\n"
+                          "  test::E val = test::E1;\n"
+                          "  auto p = &test::foo::bar;\n"
+                          "  test::func()\n"
+                          "}\n";
+
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+    testDocuments << QuickFixTestDocument::create("file.h", header, expected);
+    RemoveUsingNamespace factory;
+    QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 0);
+}
+
 } // namespace Internal
 } // namespace CppEditor

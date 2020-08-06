@@ -7259,6 +7259,413 @@ void ExtraRefactoringOperations::match(const CppQuickFixInterface &interface,
     }
 }
 
+namespace {
+
+/**
+ * @brief The NameCounter class counts the parts of a name. E.g. 2 for std::vector or 1 for variant
+ */
+class NameCounter : private NameVisitor
+{
+public:
+    int count(const Name *name)
+    {
+        counter = 0;
+        accept(name);
+        return counter;
+    }
+
+private:
+    void visit(const Identifier *) override { ++counter; }
+    void visit(const DestructorNameId *) override { ++counter; }
+    void visit(const TemplateNameId *) override { ++counter; }
+    void visit(const QualifiedNameId *name) override
+    {
+        if (name->base())
+            accept(name->base());
+        accept(name->name());
+    }
+    int counter;
+};
+
+/**
+ * @brief countNames counts the parts of the Name.
+ * E.g. if the name is std::vector, the function returns 2, if the name is variant, returns 1
+ * @param name The name that should be counted
+ * @return the number of parts of the name
+ */
+int countNames(const Name *name)
+{
+    return NameCounter{}.count(name);
+}
+
+/**
+ * @brief removeLine removes the whole line in which the ast node is located if there are otherwise only whitespaces
+ * @param file The file in which the AST node is located
+ * @param ast The ast node
+ * @param changeSet The ChangeSet of the file
+ */
+void removeLine(const CppRefactoringFile *file, AST *ast, ChangeSet &changeSet)
+{
+    RefactoringFile::Range range = file->range(ast);
+    --range.start;
+    while (range.start >= 0) {
+        QChar current = file->charAt(range.start);
+        if (!current.isSpace()) {
+            ++range.start;
+            break;
+        }
+        if (current == QChar::ParagraphSeparator)
+            break;
+        --range.start;
+    }
+    range.start = std::max(0, range.start);
+    while (range.end < file->document()->characterCount()) {
+        QChar current = file->charAt(range.end);
+        if (!current.isSpace())
+            break;
+        if (current == QChar::ParagraphSeparator)
+            break;
+        ++range.end;
+    }
+    range.end = std::min(file->document()->characterCount(), range.end);
+    const bool newLineStart = file->charAt(range.start) == QChar::ParagraphSeparator;
+    const bool newLineEnd = file->charAt(range.end) == QChar::ParagraphSeparator;
+    if (!newLineEnd && newLineStart)
+        ++range.start;
+    changeSet.remove(range);
+}
+
+/**
+ * @brief The RemoveNamespaceVisitor class removes a using namespace and rewrites all types that
+ * are in the namespace if needed
+ */
+class RemoveNamespaceVisitor : public ASTVisitor
+{
+public:
+    RemoveNamespaceVisitor(const CppRefactoringFile *file,
+                           const Snapshot &snapshot,
+                           const Name *namespace_,
+                           int symbolPos,
+                           bool removeAllAtGlobalScope)
+        : ASTVisitor(file->cppDocument()->translationUnit())
+        , m_file(file)
+        , m_snapshot(snapshot)
+        , m_namespace(namespace_)
+        , m_missingNamespace(toString(namespace_) + "::")
+        , m_context(m_file->cppDocument(), m_snapshot)
+        , m_symbolPos(symbolPos)
+        , m_removeAllAtGlobalScope(removeAllAtGlobalScope)
+
+    {}
+
+    const ChangeSet &getChanges() { return m_changeSet; }
+
+    /**
+     * @brief isGlobalUsingNamespace return true if the using namespace that should be removed
+     * is not scoped and other files that include this file will also use the using namespace
+     * @return true if using namespace statement is global and not scoped, false otherwise
+     */
+    bool isGlobalUsingNamespace() const { return m_parentNode == nullptr; }
+
+    /**
+     * @brief foundGlobalUsingNamespace return true if removeAllAtGlobalScope is false and
+     * another using namespace is found at the global scope, so that other files that include this
+     * file don't have to be processed
+     * @return true if there was a 'global' second using namespace in this file and
+     * removeAllAtGlobalScope is false
+     */
+    bool foundGlobalUsingNamespace() const { return m_foundNamespace; }
+
+private:
+    bool preVisit(AST *ast) override
+    {
+        if (!m_start) {
+            if (UsingDirectiveAST *usingDirective = ast->asUsingDirective()) {
+                if (nameEqual(usingDirective->name->name, m_namespace)) {
+                    // ignore the using namespace that should be removed
+                    if (m_file->endOf(ast) != m_symbolPos) {
+                        if (m_removeAllAtGlobalScope)
+                            removeLine(m_file, ast, m_changeSet);
+                        else
+                            m_done = true;
+                    }
+                }
+            }
+            // if the end of the ast is before we should start, we are not interested in the node
+            if (m_file->endOf(ast) <= m_symbolPos)
+                return false;
+
+            if (m_file->startOf(ast) > m_symbolPos)
+                m_start = true;
+        }
+        return !m_foundNamespace && !m_done;
+    }
+
+    bool visit(NamespaceAST *ast) override
+    {
+        if (m_start && nameEqual(m_namespace, ast->symbol->name()))
+            return false;
+
+        return m_start;
+    }
+
+    // scopes for using namespace statements:
+    bool visit(LinkageBodyAST *ast) override { return visitNamespaceScope(ast); }
+    bool visit(CompoundStatementAST *ast) override { return visitNamespaceScope(ast); }
+    bool visitNamespaceScope(AST *ast)
+    {
+        ++m_namespaceScopeCounter;
+        if (!m_start)
+            m_parentNode = ast;
+        return true;
+    }
+
+    void endVisit(LinkageBodyAST *ast) override { endVisitNamespaceScope(ast); }
+    void endVisit(CompoundStatementAST *ast) override { endVisitNamespaceScope(ast); }
+    void endVisitNamespaceScope(AST *ast)
+    {
+        --m_namespaceScopeCounter;
+        m_foundNamespace = false;
+        // if we exit the scope of the using namespace we are done
+        if (ast == m_parentNode)
+            m_done = true;
+    }
+
+    bool visit(UsingDirectiveAST *ast) override
+    {
+        if (nameEqual(ast->name->name, m_namespace)) {
+            if (m_removeAllAtGlobalScope && m_namespaceScopeCounter == 0)
+                removeLine(m_file, ast, m_changeSet);
+            else
+                m_foundNamespace = true;
+            return false;
+        }
+        return handleAstWithLongestName(ast);
+    }
+
+    bool visit(DeclaratorIdAST *ast) override
+    {
+        // e.g. we have the following code and get the following Lookup items:
+        // namespace test {
+        //   struct foo { // 1. item with test::foo
+        //     foo();     // 2. item with test::foo::foo
+        //   };
+        // }
+        // using namespace foo;
+        // foo::foo() { ... } // 3. item with foo::foo
+        // Our current name is foo::foo so we have to match with the 2. item / longest name
+        return handleAstWithLongestName(ast);
+    }
+
+    template<typename AST>
+    bool handleAstWithLongestName(AST *ast)
+    {
+        if (m_start) {
+            Scope *scope = m_file->scopeAt(ast->firstToken());
+            const QList<LookupItem> localLookup = m_context.lookup(ast->name->name, scope);
+            QList<const Name *> longestName;
+            for (const LookupItem &item : localLookup) {
+                QList<const Name *> names = m_context.fullyQualifiedName(item.declaration());
+                if (names.length() > longestName.length())
+                    longestName = names;
+            }
+            const int currentNameCount = countNames(ast->name->name);
+            const bool needNew = needMissingNamespaces(std::move(longestName), currentNameCount);
+            if (needNew)
+                insertMissingNamespace(ast);
+        }
+        return false;
+    }
+
+    bool visit(NamedTypeSpecifierAST *ast) override { return handleAstWithName(ast); }
+
+    bool visit(IdExpressionAST *ast) override { return handleAstWithName(ast); }
+
+    template<typename AST>
+    bool handleAstWithName(AST *ast)
+    {
+        if (m_start) {
+            Scope *scope = m_file->scopeAt(ast->firstToken());
+            const QList<LookupItem> lookups = m_context.lookup(ast->name->name, scope);
+            if (!lookups.empty()) {
+                QList<const Name *> fullName = m_context.fullyQualifiedName(
+                    lookups.first().declaration());
+                const int currentNameCount = countNames(ast->name->name);
+                const bool needNamespace = needMissingNamespaces(std::move(fullName),
+                                                                 currentNameCount);
+                if (needNamespace)
+                    insertMissingNamespace(ast);
+            }
+        }
+        return true;
+    }
+
+    template<typename AST>
+    void insertMissingNamespace(AST *ast)
+    {
+        DestructorNameAST *destructorName = ast->name->asDestructorName();
+        if (destructorName)
+            m_changeSet.insert(m_file->startOf(destructorName->unqualified_name), m_missingNamespace);
+        else
+            m_changeSet.insert(m_file->startOf(ast->name), m_missingNamespace);
+    }
+
+    bool needMissingNamespaces(QList<const Name *> &&fullName, int currentNameCount)
+    {
+        if (currentNameCount > fullName.length())
+            return false;
+
+        // eg. fullName = std::vector, currentName = vector => result should be std
+        fullName.erase(fullName.end() - currentNameCount, fullName.end());
+        if (fullName.empty())
+            return false;
+        return nameEqual(m_namespace, fullName.last());
+    }
+
+    static bool nameEqual(const Name *name1, const Name *name2)
+    {
+        return Matcher::match(name1, name2);
+    }
+
+    QString toString(const Name *id)
+    {
+        const Identifier *identifier = id->asNameId();
+        QTC_ASSERT(identifier, return {});
+        return QString::fromUtf8(identifier->chars(), identifier->size());
+    }
+
+    const CppRefactoringFile *const m_file;
+    const Snapshot &m_snapshot;
+
+    const Name *m_namespace;          // the name of the namespace that should be removed
+    const QString m_missingNamespace; // that should be added if a type was using the namespace
+    LookupContext m_context;
+    ChangeSet m_changeSet;
+    const int m_symbolPos; // the end position of the start symbol
+    bool m_done = false;
+    bool m_start = false;
+    // true if a using namespace was found at a scope and the scope should be left
+    bool m_foundNamespace = false;
+    bool m_removeAllAtGlobalScope;
+    // the scope where the using namespace that should be removed is valid
+    AST *m_parentNode = nullptr;
+    int m_namespaceScopeCounter = 0;
+};
+
+class RemoveUsingNamespaceOperation : public CppQuickFixOperation
+{
+public:
+    RemoveUsingNamespaceOperation(const CppQuickFixInterface &interface,
+                                  UsingDirectiveAST *usingDirective,
+                                  bool removeAllAtGlobalScope)
+        : CppQuickFixOperation(interface, 1)
+        , m_usingDirective(usingDirective)
+        , m_removeAllAtGlobalScope(removeAllAtGlobalScope)
+    {
+        const QString name = Overview{}.prettyName(usingDirective->name->name);
+        if (m_removeAllAtGlobalScope) {
+            setDescription(QApplication::translate(
+                               "CppTools::QuickFix",
+                               "Remove all occurrences of 'using namespace %1' at the global scope "
+                               "and adjust type names accordingly")
+                               .arg(name));
+        } else {
+            setDescription(QApplication::translate("CppTools::QuickFix",
+                                                   "Remove 'using namespace %1' and "
+                                                   "adjust type names accordingly")
+                               .arg(name));
+        }
+    }
+
+private:
+    void perform() override
+    {
+        CppRefactoringChanges refactoring(snapshot());
+        CppRefactoringFilePtr currentFile = refactoring.file(fileName());
+        if (refactorFile(currentFile, refactoring.snapshot(), currentFile->endOf(m_usingDirective), true))
+            processIncludes(refactoring, fileName());
+
+        for (auto &file : m_changes)
+            file->apply();
+    }
+
+    /**
+     * @brief refactorFile remove using namespace xyz in the given file and rewrite types
+     * @param file The file that should be processed
+     * @param snapshot The snapshot to work on
+     * @param startSymbol start processing after this index
+     * @param removeUsing if the using directive is in this file, remove it
+     * @return true if the using statement is global and there is no other global using namespace
+     */
+    bool refactorFile(CppRefactoringFilePtr &file,
+                      const Snapshot &snapshot,
+                      int startSymbol,
+                      bool removeUsing = false)
+    {
+        RemoveNamespaceVisitor visitor(file.get(),
+                                       snapshot,
+                                       m_usingDirective->name->name,
+                                       startSymbol,
+                                       m_removeAllAtGlobalScope);
+        visitor.accept(file->cppDocument()->translationUnit()->ast());
+        Utils::ChangeSet changes = visitor.getChanges();
+        if (removeUsing)
+            removeLine(file.get(), m_usingDirective, changes);
+        file->setChangeSet(changes);
+        // apply changes at the end, otherwise the symbol finder will fail to resolve symbols if
+        // the using namespace is missing
+        m_changes.insert(file);
+        return visitor.isGlobalUsingNamespace() && !visitor.foundGlobalUsingNamespace();
+    }
+
+    void processIncludes(CppRefactoringChanges &refactoring, const QString &fileName)
+    {
+        QList<Snapshot::IncludeLocation>
+            includeLocationsOfDocument = refactoring.snapshot().includeLocationsOfDocument(fileName);
+        for (Snapshot::IncludeLocation &loc : includeLocationsOfDocument) {
+            if (m_processed.contains(loc.first))
+                continue;
+
+            CppRefactoringFilePtr file = refactoring.file(loc.first->fileName());
+            const bool noGlobalUsing = refactorFile(file,
+                                                    refactoring.snapshot(),
+                                                    file->position(loc.second, 1));
+            m_processed.insert(loc.first);
+            if (noGlobalUsing)
+                processIncludes(refactoring, loc.first->fileName());
+        }
+    }
+
+    QSet<Document::Ptr> m_processed;
+    QSet<CppRefactoringFilePtr> m_changes;
+
+    UsingDirectiveAST *m_usingDirective;
+    bool m_removeAllAtGlobalScope;
+};
+} // namespace
+
+void RemoveUsingNamespace::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
+{
+    const QList<AST *> &path = interface.path();
+    // We expect something like
+    // [0] TranslationUnitAST
+    // ...
+    // [] UsingDirectiveAST : if activated at 'using namespace'
+    // [] NameAST (optional): if activated at the name e.g. 'std'
+    int n = path.size() - 1;
+    if (n <= 0)
+        return;
+    if (path.last()->asName())
+        --n;
+    UsingDirectiveAST *usingDirective = path.at(n)->asUsingDirective();
+    if (usingDirective && usingDirective->name->name->isNameId()) {
+        result << new RemoveUsingNamespaceOperation(interface, usingDirective, false);
+        const bool isHeader = ProjectFile::isHeader(ProjectFile::classify(interface.fileName()));
+        if (isHeader && path.at(n - 1)->asTranslationUnit()) // using namespace at global scope
+            result << new RemoveUsingNamespaceOperation(interface, usingDirective, true);
+    }
+}
+
 void createCppQuickFixes()
 {
     new AddIncludeForUndefinedIdentifier;
@@ -7313,6 +7720,8 @@ void createCppQuickFixes()
     new EscapeStringLiteral;
 
     new ExtraRefactoringOperations;
+
+    new RemoveUsingNamespace;
 }
 
 void destroyCppQuickFixes()

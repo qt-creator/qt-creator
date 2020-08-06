@@ -211,6 +211,10 @@ private slots:
 
     void test_quickfix_addCurlyBraces();
 
+    void test_quickfix_removeUsingNamespace_data();
+    void test_quickfix_removeUsingNamespace();
+    void test_quickfix_removeUsingNamespace_differentSymbols();
+
     void test_quickfix_InsertVirtualMethods_data();
     void test_quickfix_InsertVirtualMethods();
     void test_quickfix_InsertVirtualMethods_implementationFile();
