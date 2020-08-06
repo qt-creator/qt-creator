@@ -355,8 +355,8 @@ void NodeInstanceView::resetVerticalAnchors(const ModelNode &modelNode)
     QList<BindingProperty> bindingList;
     QList<VariantProperty> valueList;
 
-    if (modelNode.hasBindingProperty("yx"))
-        bindingList.append(modelNode.bindingProperty("yx"));
+    if (modelNode.hasBindingProperty("x"))
+        bindingList.append(modelNode.bindingProperty("x"));
     else if (modelNode.hasVariantProperty("y"))
         valueList.append(modelNode.variantProperty("y"));
 
