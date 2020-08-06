@@ -104,7 +104,6 @@ CppEditorOutline::CppEditorOutline(TextEditor::TextEditorWidget *editorWidget)
     else
         m_proxyModel->sort(-1, Qt::AscendingOrder); // don't sort yet, but set column for sortedOutline()
     m_proxyModel->setDynamicSortFilter(true);
-    m_proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
 
     // Set up combo box
     m_combo->setModel(m_proxyModel);
