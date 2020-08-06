@@ -139,8 +139,7 @@
     This field does not specify the minimum supported API level nor the target
     API level, which you can specify in the Android manifest. See
     \l{Editing Manifest Files}. For more information about Android API levels, see
-    \l{http://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels}
-    {What is API Level?}.
+    \l{What is API Level?}.
 
     \section3 Building AABs
 
@@ -149,15 +148,16 @@
     distribution to the Google Play store, create an AAB by selecting
     the \uicontrol {Build .aab (Android App Bundle)} check box.
 
-    When building with CMake, you can select the ABIs to build the application
-    for in the \uicontrol CMake settings:
+    When building with CMake, you can view the selected ABIs in the
+    \uicontrol {Initial CMake parameters} field in the \uicontrol CMake section.
+    You can set additional ABIs as values of the ANDROID_ABI key:
 
     \image qtcreator-android-cmake-settings.png "CMake settings for building AABs"
 
     When building with qmake, you can select the ABIs in the \uicontrol ABIs
     field in the \uicontrol {Build Steps}:
 
-    \image qtcreator-android-build-steps.png "Android Build Steps"
+    \image qtcreator-android-build-steps.png "qmake settings for building AABs"
 
     \section3 Signing Android Packages
 
@@ -258,7 +258,8 @@
     Android manifest file unless you need to specify Android specific settings
     like the application's icon. Also, the manifest file is needed if you want
     to publish the package in the Play Store.
-    You can create an Android manifest file and edit it in \QC. Select
+    If you use qmake as the build system, you can create an Android manifest
+    file and edit it in \QC. Select
     \uicontrol Projects > \uicontrol Build > \uicontrol {Build Android APK}
     > \uicontrol {Create Templates} to create the file and to open it in the
     Android Manifest Editor.
@@ -270,9 +271,7 @@
     \li In the \uicontrol {Package name} field, enter a package name for the application.
     The application is launched by an automatically generated Java launcher that
     is packaged with the application into an Android package (.apk). For more
-    information, see
-    \l{http://developer.android.com/guide/components/fundamentals.html}
-    {Android Application Fundamentals}.
+    information, see \l{Android Application Fundamentals}.
 
     \li You can specify an internal version number for the package in the
     \uicontrol {Version code} field. It is used to determine whether one version of
@@ -291,29 +290,36 @@
     means that the overflow button in the system navigation bar will not be
     enabled by default.
 
-    \li In the \uicontrol Application group, you can set the application's name.
+    \li In the \uicontrol Application group, set the application's name.
         You can also give an activity a name and select the activity to run.
 
-    \li The \uicontrol {Style extraction} combo box sets the used method that Qt
-        uses to extract style information. It has the following values:
+    \li In the \uicontrol {Style extraction} field, set the method that Qt
+        uses to extract style information:
         \list
-            \li \uicontrol Default or \uicontrol Full: Use this when working with
-                Qt Widgets or Qt Quick Controls 1.
+            \li Select \uicontrol Default or \uicontrol Full when using
+                Qt Widgets or Qt Quick Controls 1 in your project.
 
                 \note This method uses some Android non-SDK interfaces,
                       that are being restricted by Google starting from Android 9.0
                       (API 28).
-            \li \uicontrol minimal: Use this when working with Qt Quick Controls 2
-                with no Qt Widgets or Qt Quick Controls 1. This is faster than
-                \uicontrol full or \uicontrol default.
-            \li \uicontrol none: Use this if you're not working with Qt Widgets,
-                or Qt Quick Controls 1 or 2 in your project.
+            \li Select \uicontrol Minimal when using Qt Quick Controls 2
+                but no Qt Widgets or Qt Quick Controls 1. This is faster than
+                using the default or full options.
+            \li Select \uicontrol None when using neither Qt Widgets
+                nor Qt Quick Controls 1 or 2.
         \endlist
 
     \li In \uicontrol {Application icon}, select an icon. Click the
     \uicontrol {Master icon} button to select an icon with the highest resolution,
     then, it will resize and set the three icon fields for low, medium, and high DPI icons
     as needed.
+
+    \li In \uicontrol {Splash screen}, select images to display as splash
+    screens depending on the device orientation. You can set different images
+    to be shown on low, medium, and high DPI displays. By default, the splash
+    screen is hidden automatically when an activity is drawn. To keep it
+    visible until \l{QtAndroid::hideSplashScreen()} is called, select the
+    \uicontrol {Sticky splash screen} check box.
 
     \li In \uicontrol {Android services}, you can add and remove services. You must
     enter at least a service class name for a new service. If you select
@@ -333,8 +339,8 @@
     \li Select the \uicontrol {Include default permissions for Qt modules} and
     \uicontrol {Include default features for Qt modules} check boxes to add the
     permissions needed by Qt libraries. This can be
-    android.permission.WRITE_EXTERNAL_STORAGE for QtCore, or
-    android.permission.ACCESS_COARSE_LOCATION for QtLocation.
+    \c {android.permission.WRITE_EXTERNAL_STORAGE} for \l{Qt Core} or
+    \c {android.permission.ACCESS_COARSE_LOCATION} for \l{Qt Location}.
 
     \li To add a permission, select it from the list, and then click \uicontrol Add.
 
