@@ -402,7 +402,7 @@ QString saveImageFileFilter()
 {
     const auto imageFormats = QImageWriter::supportedImageFormats();
     const QByteArrayList supportedFormats = Utils::transform(imageFormats, [](const QByteArray &in)
-        { return QByteArray("*.") + in; });
+        { return QByteArray{"*." + in}; });
     return MainWidget::tr("Images (%1)").arg(QString::fromUtf8(supportedFormats.join(' ')));
 }
 

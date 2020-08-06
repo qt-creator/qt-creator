@@ -32,7 +32,7 @@
 
 #include <cctype>
 
-const char *toString(char c) { return (QByteArray("'") + c + "'").constData(); }
+const QByteArray toString(char c) { return QByteArray("'") + c + "'"; }
 
 using namespace Debugger::Internal;
 using namespace QTest;
@@ -349,7 +349,7 @@ void NameDemanglerAutoTest::testDisjunctFirstSets()
                 || !FunctionParamNode::mangledRepresentationStartsWith(c));
         QVERIFY2(!OperatorNameNode::mangledRepresentationStartsWith(c)
                 || !UnresolvedNameNode::mangledRepresentationStartsWith(c)
-                 || c == 'd' || c == 'g' || c == 'o' || c == 's', toString(c));
+                 || c == 'd' || c == 'g' || c == 'o' || c == 's', toString(c).constData());
         QVERIFY(!OperatorNameNode::mangledRepresentationStartsWith(c)
                 || !ExprPrimaryNode::mangledRepresentationStartsWith(c));
         QVERIFY(!TemplateParamNode::mangledRepresentationStartsWith(c)
@@ -373,7 +373,7 @@ void NameDemanglerAutoTest::testDisjunctFirstSets()
         QVERIFY(!BuiltinTypeNode::mangledRepresentationStartsWith(c)
                 || !FunctionTypeNode::mangledRepresentationStartsWith(c));
         QVERIFY2(!BuiltinTypeNode::mangledRepresentationStartsWith(c)
-                || !ClassEnumTypeRule::mangledRepresentationStartsWith(c) || c == 'D', toString(c));
+                || !ClassEnumTypeRule::mangledRepresentationStartsWith(c) || c == 'D', toString(c).constData());
         QVERIFY(!BuiltinTypeNode::mangledRepresentationStartsWith(c)
                 || !ArrayTypeNode::mangledRepresentationStartsWith(c));
         QVERIFY(!BuiltinTypeNode::mangledRepresentationStartsWith(c)

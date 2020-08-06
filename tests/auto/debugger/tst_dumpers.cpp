@@ -1258,20 +1258,20 @@ void tst_Dumpers::dumper()
 
     if (data.neededGdbVersion.isRestricted && m_debuggerEngine == GdbEngine) {
         if (data.neededGdbVersion.min > m_debuggerVersion)
-            MSKIP_SINGLE("Need minimum GDB version "
-                + QByteArray::number(data.neededGdbVersion.min));
+            MSKIP_SINGLE(QByteArray("Need minimum GDB version "
+                + QByteArray::number(data.neededGdbVersion.min)));
         if (data.neededGdbVersion.max < m_debuggerVersion)
-            MSKIP_SINGLE("Need maximum GDB version "
-                + QByteArray::number(data.neededGdbVersion.max));
+            MSKIP_SINGLE(QByteArray("Need maximum GDB version "
+                + QByteArray::number(data.neededGdbVersion.max)));
     }
 
     if (data.neededLldbVersion.isRestricted && m_debuggerEngine == LldbEngine) {
         if (data.neededLldbVersion.min > m_debuggerVersion)
-            MSKIP_SINGLE("Need minimum LLDB version "
-                + QByteArray::number(data.neededLldbVersion.min));
+            MSKIP_SINGLE(QByteArray("Need minimum LLDB version "
+                + QByteArray::number(data.neededLldbVersion.min)));
         if (data.neededLldbVersion.max < m_debuggerVersion)
-            MSKIP_SINGLE("Need maximum LLDB version "
-                + QByteArray::number(data.neededLldbVersion.max));
+            MSKIP_SINGLE(QByteArray("Need maximum LLDB version "
+                + QByteArray::number(data.neededLldbVersion.max)));
     }
 
     QByteArray output;
@@ -1300,11 +1300,11 @@ void tst_Dumpers::dumper()
         m_qtVersion = 0x10000 * major + 0x100 * minor + patch;
 
         if (data.neededQtVersion.min > m_qtVersion)
-            MSKIP_SINGLE("Need minimum Qt version "
-                + QByteArray::number(data.neededQtVersion.min, 16));
+            MSKIP_SINGLE(QByteArray("Need minimum Qt version "
+                + QByteArray::number(data.neededQtVersion.min, 16)));
         if (data.neededQtVersion.max < m_qtVersion)
-            MSKIP_SINGLE("Need maximum Qt version "
-                + QByteArray::number(data.neededQtVersion.max, 16));
+            MSKIP_SINGLE(QByteArray("Need maximum Qt version "
+                + QByteArray::number(data.neededQtVersion.max, 16)));
     }
 
     if (data.neededGccVersion.isRestricted) {
@@ -1336,20 +1336,20 @@ void tst_Dumpers::dumper()
         qDebug() << "GCC version: " << m_gccVersion;
 
         if (data.neededGccVersion.min > m_gccVersion)
-            MSKIP_SINGLE("Need minimum GCC version "
-                + QByteArray::number(data.neededGccVersion.min));
+            MSKIP_SINGLE(QByteArray("Need minimum GCC version "
+                + QByteArray::number(data.neededGccVersion.min)));
         if (data.neededGccVersion.max < m_gccVersion)
-            MSKIP_SINGLE("Need maximum GCC version "
-                + QByteArray::number(data.neededGccVersion.max));
+            MSKIP_SINGLE(QByteArray("Need maximum GCC version "
+                + QByteArray::number(data.neededGccVersion.max)));
     }
 
     if (data.neededMsvcVersion.isRestricted && m_debuggerEngine == CdbEngine) {
         if (data.neededMsvcVersion.min > m_msvcVersion)
-            MSKIP_SINGLE("Need minimum Msvc version "
-                         + QByteArray::number(data.neededMsvcVersion.min));
+            MSKIP_SINGLE(QByteArray("Need minimum Msvc version "
+                         + QByteArray::number(data.neededMsvcVersion.min)));
         if (data.neededMsvcVersion.max < m_msvcVersion)
-            MSKIP_SINGLE("Need maximum Msvc version "
-                         + QByteArray::number(data.neededMsvcVersion.max));
+            MSKIP_SINGLE(QByteArray("Need maximum Msvc version "
+                         + QByteArray::number(data.neededMsvcVersion.max)));
     }
 
     if (!data.configTest.executable.isEmpty()) {
@@ -1617,11 +1617,11 @@ void tst_Dumpers::dumper()
         qDebug() << "DWARF Version : " << dwarfVersion;
 
         if (data.neededDwarfVersion.min > dwarfVersion)
-            MSKIP_SINGLE("Need minimum DWARF version "
-                + QByteArray::number(data.neededDwarfVersion.min));
+            MSKIP_SINGLE(QByteArray("Need minimum DWARF version "
+                + QByteArray::number(data.neededDwarfVersion.min)));
         if (data.neededDwarfVersion.max < dwarfVersion)
-            MSKIP_SINGLE("Need maximum DWARF version "
-                + QByteArray::number(data.neededDwarfVersion.max));
+            MSKIP_SINGLE(QByteArray("Need maximum DWARF version "
+                + QByteArray::number(data.neededDwarfVersion.max)));
     }
 
     QByteArray dumperDir = DUMPERDIR;

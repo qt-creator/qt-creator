@@ -427,11 +427,11 @@ static void enumTestCase(const QByteArray &tag, const QByteArray &source,
     QTest::newRow(tag) << fullSource << (prefix + "val")
             << QStringList({"val1", "val2", "val3"});
 
-    QTest::newRow(tag + "_cxx11") << fullSource << (prefix + "E::")
+    QTest::newRow(QByteArray{tag + "_cxx11"}) << fullSource << QByteArray{prefix + "E::"}
             << QStringList({"E", "val1", "val2", "val3"});
 
     fullSource.replace("enum E ", "enum ");
-    QTest::newRow(tag + "_anon") << fullSource << (prefix + "val")
+    QTest::newRow(QByteArray{tag + "_anon"}) << fullSource << QByteArray{prefix + "val"}
             << QStringList({"val1", "val2", "val3"});
 }
 

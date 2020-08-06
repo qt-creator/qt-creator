@@ -27,7 +27,7 @@ QtcAutotest {
         files: "tst_profilewriter.cpp"
     }
     cpp.includePaths: base.concat([proParserGroup.prefix])
-    cpp.defines: base.concat("QT_USE_FAST_OPERATOR_PLUS")
+    cpp.defines: base.concat("QT_USE_QSTRINGBUILDER")
     Properties {
         condition: qbs.targetOS.contains("windows")
         cpp.dynamicLibraries: "advapi32"
