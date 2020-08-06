@@ -487,6 +487,12 @@ Item {
             position: moveGizmo.scenePosition
         }
 
+        AutoScaleHelper {
+            id: pivotAutoScale
+            view3D: overlayView
+            position: pivotLine.startPos
+        }
+
         Line3D {
             id: pivotLine
             visible: viewRoot.selectedNode
@@ -513,7 +519,7 @@ Item {
             Model {
                 id: pivotCap
                 source: "#Sphere"
-                scale: autoScale.getScale(Qt.vector3d(0.03, 0.03, 0.03))
+                scale: pivotAutoScale.getScale(Qt.vector3d(0.03, 0.03, 0.03))
                 position: pivotLine.startPos
                 materials: [
                     DefaultMaterial {
