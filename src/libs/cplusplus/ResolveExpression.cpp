@@ -1085,7 +1085,12 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
             qDebug() << "-  after typedef resolving:" << oo(ty);
 
         if (accessOp == T_ARROW) {
-            if (PointerType *ptrTy = ty->asPointerType()) {
+            PointerType *ptrTy = ty->asPointerType();
+            if (!ptrTy) {
+                if (Function * const func = ty->asFunctionType())
+                    ptrTy = func->returnType()->asPointerType();
+            }
+            if (ptrTy) {
                 FullySpecifiedType type = ptrTy->elementType();
                 if (ClassOrNamespace *binding
                         = findClassForTemplateParameterInExpressionScope(r.binding(),

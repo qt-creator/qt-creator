@@ -1309,6 +1309,26 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_QObject_connect()
     F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source));
 }
 
+void CppEditorPlugin::test_FollowSymbolUnderCursor_QObject_oldStyleConnect()
+{
+    const QByteArray source =
+            "class O : public QObject {\n"
+            "    Q_OBJECT\n"
+            "signals:\n"
+            "    void $theSignal();\n"
+            "};\n"
+            "struct S {\n"
+            "    O* o();\n"
+            "};\n"
+            "int main()\n"
+            "{\n"
+            "    S s;\n"
+            "    QObject::connect(s.o(), SIGNAL(@theSignal()), s.o(), SIGNAL(theSignal()));\n"
+            "}\n";
+
+    F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source));
+}
+
 void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_onOperatorToken_data()
 {
     QTest::addColumn<bool>("toDeclaration");
