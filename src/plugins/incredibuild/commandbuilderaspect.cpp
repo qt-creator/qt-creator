@@ -55,10 +55,8 @@ public:
           m_cmakeCommandBuilder{step}
      {}
 
-    void commandBuilderChanged();
-    const QStringList &supportedCommandBuilders();
-    void setCommandBuilder(const QString &commandBuilder);
     void tryToMigrate();
+    void setActiveCommandBuilder(const QString &commandBuilderId);
 
     BuildStep *m_buildStep;
     CommandBuilder m_customCommandBuilder;
@@ -71,14 +69,15 @@ public:
         &m_cmakeCommandBuilder
     };
 
+    // Default to the first in list, which should be the "Custom Command"
     CommandBuilder *m_activeCommandBuilder = m_commandBuilders[0];
 
     bool m_loadedFromMap = false;
 
     QPointer<QLabel> label;
-    QPointer<QLineEdit> makeArgumentsLineEdit;
     QPointer<QComboBox> commandBuilder;
     QPointer<PathChooser> makePathChooser;
+    QPointer<QLineEdit> makeArgumentsLineEdit;
 };
 
 CommandBuilderAspect::CommandBuilderAspect(BuildStep *step)
@@ -91,54 +90,27 @@ CommandBuilderAspect::~CommandBuilderAspect()
     delete d;
 }
 
-CommandBuilder *CommandBuilderAspect::commandBuilder() const
+QString CommandBuilderAspect::fullCommandFlag(bool keepJobNum) const
 {
-    return d->m_activeCommandBuilder;
+    QString argsLine = d->m_activeCommandBuilder->arguments();
+
+    if (!keepJobNum)
+        argsLine = d->m_activeCommandBuilder->setMultiProcessArg(argsLine);
+
+    QString fullCommand("\"%0\" %1");
+    fullCommand = fullCommand.arg(d->m_activeCommandBuilder->command(), argsLine);
+
+    return fullCommand;
 }
 
-const QStringList& CommandBuilderAspectPrivate::supportedCommandBuilders()
-{
-    static QStringList list;
-    if (list.empty()) {
-        for (CommandBuilder *p : m_commandBuilders)
-            list.push_back(p->displayName());
-    }
-
-    return list;
-}
-
-void CommandBuilderAspectPrivate::setCommandBuilder(const QString &commandBuilder)
+void CommandBuilderAspectPrivate::setActiveCommandBuilder(const QString &commandBuilderId)
 {
     for (CommandBuilder *p : m_commandBuilders) {
-        if (p->displayName().compare(commandBuilder) == 0) {
+        if (p->id() == commandBuilderId) {
             m_activeCommandBuilder = p;
             break;
         }
     }
-}
-
-void CommandBuilderAspectPrivate::commandBuilderChanged()
-{
-    setCommandBuilder(commandBuilder->currentText());
-
-    QString defaultArgs;
-    for (const QString &a : m_activeCommandBuilder->defaultArguments())
-        defaultArgs += "\"" + a + "\" ";
-
-    QString args;
-    for (const QString &a : m_activeCommandBuilder->arguments())
-        args += "\"" + a + "\" ";
-
-    if (args == defaultArgs)
-        makeArgumentsLineEdit->clear();
-    makeArgumentsLineEdit->setText(args);
-
-    const QString defaultCommand = m_activeCommandBuilder->defaultCommand();
-    makePathChooser->lineEdit()->setPlaceholderText(defaultCommand);
-    QString command = m_activeCommandBuilder->command();
-    if (command == defaultCommand)
-        command.clear();
-    makePathChooser->setPath(command);
 }
 
 void CommandBuilderAspectPrivate::tryToMigrate()
@@ -157,45 +129,33 @@ void CommandBuilderAspect::addToLayout(LayoutBuilder &builder)
 {
     if (!d->commandBuilder) {
         d->commandBuilder = new QComboBox;
-        d->commandBuilder->addItems(d->supportedCommandBuilders());
-        d->commandBuilder->setCurrentText(d->m_activeCommandBuilder->displayName());
-        connect(d->commandBuilder, &QComboBox::currentTextChanged, this,
-            [this] { d->commandBuilderChanged(); });
+        for (CommandBuilder *p : d->m_commandBuilders)
+            d->commandBuilder->addItem(p->displayName());
+        connect(d->commandBuilder, QOverload<int>::of(&QComboBox::currentIndexChanged),
+                this, [this](int idx) {
+            if (idx >= 0 && idx < int(sizeof(d->m_commandBuilders) / sizeof(d->m_commandBuilders[0])))
+                d->m_activeCommandBuilder = d->m_commandBuilders[idx];
+            updateGui();
+        });
     }
 
     if (!d->makePathChooser) {
         d->makePathChooser = new PathChooser;
-        d->makeArgumentsLineEdit = new QLineEdit;
-        const QString defaultCommand = d->m_activeCommandBuilder->defaultCommand();
-        d->makePathChooser->lineEdit()->setPlaceholderText(defaultCommand);
-        const QString command = d->m_activeCommandBuilder->command();
-        if (command != defaultCommand)
-            d->makePathChooser->setPath(command);
-
         d->makePathChooser->setExpectedKind(PathChooser::Kind::ExistingCommand);
         d->makePathChooser->setBaseDirectory(FilePath::fromString(PathChooser::homePath()));
         d->makePathChooser->setHistoryCompleter("IncrediBuild.BuildConsole.MakeCommand.History");
         connect(d->makePathChooser, &PathChooser::rawPathChanged, this, [this] {
-            d->m_activeCommandBuilder->command(d->makePathChooser->rawPath());
+            d->m_activeCommandBuilder->setCommand(d->makePathChooser->rawPath());
+            updateGui();
         });
+    }
 
-
-        QString defaultArgs;
-        for (const QString &a : d->m_activeCommandBuilder->defaultArguments())
-            defaultArgs += "\"" + a + "\" ";
-
-        QString args;
-        for (const QString &a : d->m_activeCommandBuilder->arguments())
-            args += "\"" + a + "\" ";
-
-        d->makeArgumentsLineEdit->setPlaceholderText(defaultArgs);
-        if (args != defaultArgs)
-            d->makeArgumentsLineEdit->setText(args);
-
-        connect(d->makeArgumentsLineEdit, &QLineEdit::textEdited, this, [this] {
-            d->m_activeCommandBuilder->arguments(d->makeArgumentsLineEdit->text());
+   if (!d->makeArgumentsLineEdit) {
+        d->makeArgumentsLineEdit = new QLineEdit;
+        connect(d->makeArgumentsLineEdit, &QLineEdit::textEdited, this, [this](const QString &arg) {
+            d->m_activeCommandBuilder->setArguments(arg);
+            updateGui();
         });
-
     }
 
     if (!d->label) {
@@ -210,24 +170,47 @@ void CommandBuilderAspect::addToLayout(LayoutBuilder &builder)
     builder.startNewRow().addItems(d->label.data(), d->commandBuilder.data());
     builder.startNewRow().addItems(tr("Make command:"), d->makePathChooser.data());
     builder.startNewRow().addItems(tr("Make arguments:"), d->makeArgumentsLineEdit.data());
+
+    updateGui();
 }
 
 void CommandBuilderAspect::fromMap(const QVariantMap &map)
 {
     d->m_loadedFromMap = true;
 
-    // Command builder. Default to the first in list, which should be the "Custom Command"
-    d->setCommandBuilder(map.value(settingsKey(), d->m_commandBuilders[0]->displayName()).toString());
-    d->m_activeCommandBuilder->fromMap(map);
+    d->setActiveCommandBuilder(map.value(settingsKey()).toString());
+    d->m_customCommandBuilder.fromMap(map);
+    d->m_makeCommandBuilder.fromMap(map);
+    d->m_cmakeCommandBuilder.fromMap(map);
+
+    updateGui();
 }
 
 void CommandBuilderAspect::toMap(QVariantMap &map) const
 {
     map[IncrediBuild::Constants::INCREDIBUILD_BUILDSTEP_TYPE]
             = QVariant(IncrediBuild::Constants::BUILDCONSOLE_BUILDSTEP_ID);
-    map[settingsKey()] = QVariant(d->m_activeCommandBuilder->displayName());
+    map[settingsKey()] = QVariant(d->m_activeCommandBuilder->id());
 
-    d->m_activeCommandBuilder->toMap(&map);
+    d->m_customCommandBuilder.toMap(&map);
+    d->m_makeCommandBuilder.toMap(&map);
+    d->m_cmakeCommandBuilder.toMap(&map);
+}
+
+void CommandBuilderAspect::updateGui()
+{
+    if (!d->commandBuilder)
+        return;
+
+    d->commandBuilder->setCurrentText(d->m_activeCommandBuilder->displayName());
+
+    const QString defaultCommand = d->m_activeCommandBuilder->defaultCommand();
+    d->makePathChooser->lineEdit()->setPlaceholderText(defaultCommand);
+    d->makePathChooser->setPath(d->m_activeCommandBuilder->command());
+
+    const QString defaultArgs = d->m_activeCommandBuilder->defaultArguments();
+    d->makeArgumentsLineEdit->setPlaceholderText(defaultArgs);
+    d->makeArgumentsLineEdit->setText(d->m_activeCommandBuilder->arguments());
 }
 
 // TextDisplay

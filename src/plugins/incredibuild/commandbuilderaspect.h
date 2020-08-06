@@ -34,20 +34,20 @@
 namespace IncrediBuild {
 namespace Internal {
 
-class CommandBuilder;
-
 class CommandBuilderAspect final : public ProjectExplorer::ProjectConfigurationAspect
 {
 public:
     explicit CommandBuilderAspect(ProjectExplorer::BuildStep *step);
     ~CommandBuilderAspect() final;
 
-    CommandBuilder *commandBuilder() const;
+    QString fullCommandFlag(bool keepJobNum) const;
 
 private:
     void addToLayout(ProjectExplorer::LayoutBuilder &builder) final;
     void fromMap(const QVariantMap &map) final;
     void toMap(QVariantMap &map) const final;
+
+    void updateGui();
 
     class CommandBuilderAspectPrivate *d = nullptr;
 };

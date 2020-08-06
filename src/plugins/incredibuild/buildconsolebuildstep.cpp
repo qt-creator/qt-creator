@@ -25,7 +25,6 @@
 
 #include "buildconsolebuildstep.h"
 
-#include "commandbuilder.h"
 #include "commandbuilderaspect.h"
 #include "incredibuildconstants.h"
 
@@ -317,10 +316,8 @@ bool BuildConsoleBuildStep::init()
 {
     QStringList args;
 
-    CommandBuilder *activeCommandBuilder = m_commandBuilder->commandBuilder();
-    activeCommandBuilder->keepJobNum(m_keepJobNum->value());
     QString cmd("/Command= %0");
-    cmd = cmd.arg(activeCommandBuilder->fullCommandFlag());
+    cmd = cmd.arg(m_commandBuilder->fullCommandFlag(m_keepJobNum->value()));
     args.append(cmd);
 
     if (!m_profileXml->value().isEmpty())

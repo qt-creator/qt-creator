@@ -27,27 +27,21 @@
 
 #include "commandbuilder.h"
 
-#include <QCoreApplication>
-
 namespace IncrediBuild {
 namespace Internal {
 
 class CMakeCommandBuilder : public CommandBuilder
 {
-    Q_DECLARE_TR_FUNCTIONS(CommandBuilder)
 public:
     CMakeCommandBuilder(ProjectExplorer::BuildStep *buildStep) : CommandBuilder(buildStep) {}
 
-    bool canMigrate(ProjectExplorer::BuildStepList *buildStepList) override;
-
-    QString displayName() const override { return tr("CMake"); }
-    QString defaultCommand() override;
-    QStringList defaultArguments() override;
-    QString setMultiProcessArg(QString args) override;
-
 private:
-    QString m_defaultMake{};
-    QStringList m_defaultArgs{};
+    bool canMigrate(ProjectExplorer::BuildStepList *buildStepList) final;
+    QString id() const final { return "CMakeCommandBuilder"; }
+    QString displayName() const final { return tr("CMake"); }
+    QString defaultCommand() const final;
+    QString defaultArguments() const final;
+    QString setMultiProcessArg(QString args) final;
 };
 
 } // namespace Internal

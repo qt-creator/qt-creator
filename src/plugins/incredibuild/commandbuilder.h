@@ -27,50 +27,43 @@
 
 #include <projectexplorer/buildsteplist.h>
 
-#include <QObject>
+#include <QCoreApplication>
 
 namespace IncrediBuild {
 namespace Internal {
 
 class CommandBuilder
 {
+    Q_DECLARE_TR_FUNCTIONS(IncrediBuild::Internal::CommandBuilder)
+
 public:
     CommandBuilder(ProjectExplorer::BuildStep *buildStep) : m_buildStep(buildStep) {}
     virtual ~CommandBuilder() = default;
 
     virtual bool canMigrate(ProjectExplorer::BuildStepList*) { return false; }
 
-    ProjectExplorer::BuildStep* buildStep() { return m_buildStep; }
+    ProjectExplorer::BuildStep *buildStep() const { return m_buildStep; }
 
-    virtual QString displayName() const { return QString("Custom Command"); }
+    virtual QString id() const { return "CustomCommandBuilder"; }
+    virtual QString displayName() const { return tr("Custom Command"); }
 
-    virtual bool fromMap(const QVariantMap &map);
+    virtual void fromMap(const QVariantMap &map);
     virtual void toMap(QVariantMap *map) const;
 
-    virtual QString defaultCommand() { return QString(); }
-    virtual QStringList defaultArguments() { return QStringList(); }
+    virtual QString defaultCommand() const { return QString(); }
+    virtual QString defaultArguments() const { return QString(); }
     virtual QString setMultiProcessArg(QString args) { return args; }
 
-    void reset();
-
     QString command() { return m_command.isEmpty() ? defaultCommand() : m_command; }
-    void command(const QString &command) { m_command = command; }
+    void setCommand(const QString &command);
 
-    QStringList arguments() { return m_argsSet ? m_args : defaultArguments(); }
-    void arguments(const QStringList &arguments) { m_args = arguments; m_argsSet = !arguments.isEmpty(); }
-    void arguments(const QString &arguments);
-
-    bool keepJobNum() const { return m_keepJobNum; }
-    void keepJobNum(bool keepJobNum) { m_keepJobNum = keepJobNum; }
-
-    QString fullCommandFlag();
+    QString arguments() { return m_args.isEmpty() ? defaultArguments() : m_args; }
+    void setArguments(const QString &arguments);
 
 private:
     ProjectExplorer::BuildStep *m_buildStep{};
-    QString m_command{};
-    QStringList m_args{};
-    bool m_argsSet{false}; // Args may be overridden to empty
-    bool m_keepJobNum{false};
+    QString m_command;
+    QString m_args;
 };
 
 } // namespace Internal

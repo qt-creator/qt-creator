@@ -58,24 +58,20 @@ bool MakeCommandBuilder::canMigrate(BuildStepList *buildStepList)
     return false;
 }
 
-QString MakeCommandBuilder::defaultCommand()
+QString MakeCommandBuilder::defaultCommand() const
 {
-    if (!m_defaultMake.isEmpty())
-        return m_defaultMake;
-
     BuildConfiguration *buildConfig = buildStep()->buildConfiguration();
     if (buildConfig) {
         Target *target = buildStep()->target();
         if (target) {
             ToolChain *toolChain = ToolChainKitAspect::toolChain(target->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
             if (toolChain)
-                m_defaultMake = toolChain->makeCommand(buildConfig->environment()).toString();
+                return toolChain->makeCommand(buildConfig->environment()).toString();
         }
     }
 
-    return m_defaultMake;
+    return QString();
 }
-
 
 QString MakeCommandBuilder::setMultiProcessArg(QString args)
 {

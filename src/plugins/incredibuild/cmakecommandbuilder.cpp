@@ -25,7 +25,6 @@
 
 #include "cmakecommandbuilder.h"
 
-#include <coreplugin/icore.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
@@ -34,8 +33,8 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/project.h>
 
-#include <QFileInfo>
-#include <QMessageBox>
+#include <utils/qtcprocess.h>
+
 #include <QRegularExpression>
 #include <QStandardPaths>
 
@@ -59,24 +58,15 @@ bool CMakeCommandBuilder::canMigrate(BuildStepList *buildStepList)
     return false;
 }
 
-QString CMakeCommandBuilder::defaultCommand()
+QString CMakeCommandBuilder::defaultCommand() const
 {
-    if (!m_defaultMake.isEmpty())
-        return m_defaultMake;
-
-    m_defaultMake = "cmake";
-    QString cmake = QStandardPaths::findExecutable(m_defaultMake);
-    if (!cmake.isEmpty())
-        m_defaultMake = cmake;
-
-    return m_defaultMake;
+    const QString defaultCMake = "cmake";
+    const QString cmake = QStandardPaths::findExecutable(defaultCMake);
+    return cmake.isEmpty() ? defaultCMake : cmake;
 }
 
-QStringList CMakeCommandBuilder::defaultArguments()
+QString CMakeCommandBuilder::defaultArguments() const
 {
-    if (!m_defaultArgs.isEmpty())
-        return m_defaultArgs;
-
     // Build folder or "."
     QString buildDir;
     BuildConfiguration *buildConfig = buildStep()->buildConfiguration();
@@ -86,12 +76,7 @@ QStringList CMakeCommandBuilder::defaultArguments()
     if (buildDir.isEmpty())
         buildDir = ".";
 
-    m_defaultArgs.append("--build");
-    m_defaultArgs.append(buildDir);
-    m_defaultArgs.append("--target");
-    m_defaultArgs.append("all");
-
-    return m_defaultArgs;
+    return Utils::QtcProcess::joinArgs({"--build", buildDir, "--target", "all"});
 }
 
 QString CMakeCommandBuilder::setMultiProcessArg(QString args)

@@ -29,114 +29,37 @@ namespace IncrediBuild {
 namespace Internal {
 
 namespace Constants {
-const QLatin1String CUSTOMCOMMANDBUILDER_COMMAND("IncrediBuild.BuildConsole.CustomCommandBuilder.Command");
-const QLatin1String CUSTOMCOMMANDBUILDER_ARGS("IncrediBuild.BuildConsole.CustomCommandBuilder.Arguments");
-const QLatin1String CUSTOMCOMMANDBUILDER_ARGSSET("IncrediBuild.BuildConsole.CustomCommandBuilder.ArgumentsSet");
+const QLatin1String CUSTOMCOMMANDBUILDER_COMMAND("IncrediBuild.BuildConsole.%1.Command");
+const QLatin1String CUSTOMCOMMANDBUILDER_ARGS("IncrediBuild.BuildConsole.%1.Arguments");
+const QLatin1String CUSTOMCOMMANDBUILDER_ARGSSET("IncrediBuild.BuildConsole.%1.ArgumentsSet");
 } // namespace Constants
 
-QString CommandBuilder::fullCommandFlag()
+void CommandBuilder::fromMap(const QVariantMap &map)
 {
-    QString argsLine;
-    for (const QString &a : arguments())
-        argsLine += "\"" + a + "\" ";
-
-    if (!keepJobNum())
-        argsLine = setMultiProcessArg(argsLine);
-
-    QString fullCommand("\"%0\" %1");
-    fullCommand = fullCommand.arg(command(), argsLine);
-
-    return fullCommand;
-}
-
-void CommandBuilder::reset()
-{
-    m_command.clear();
-    m_args.clear();
-    m_argsSet = false;
-}
-
-bool CommandBuilder::fromMap(const QVariantMap &map)
-{
-    m_command = map.value(Constants::CUSTOMCOMMANDBUILDER_COMMAND, QVariant(QString())).toString();
-    m_argsSet = map.value(Constants::CUSTOMCOMMANDBUILDER_ARGSSET, QVariant(false)).toBool();
-    if (m_argsSet)
-        arguments(map.value(Constants::CUSTOMCOMMANDBUILDER_ARGS, QVariant(QString())).toString());
-
-    // Not loading m_keepJobNum as it is managed by the build step.
-    return true;
+    m_command = map.value(QString(Constants::CUSTOMCOMMANDBUILDER_COMMAND).arg(id())).toString();
+    m_args = map.value(QString(Constants::CUSTOMCOMMANDBUILDER_ARGS).arg(id())).toString();
 }
 
 void CommandBuilder::toMap(QVariantMap *map) const
 {
-    (*map)[Constants::CUSTOMCOMMANDBUILDER_COMMAND] = QVariant(m_command);
-    (*map)[Constants::CUSTOMCOMMANDBUILDER_ARGSSET] = QVariant(m_argsSet);
-    if (m_argsSet)
-        (*map)[Constants::CUSTOMCOMMANDBUILDER_ARGS] = QVariant(m_args);
-
-    // Not saving m_keepJobNum as it is managed by the build step.
+    (*map)[QString(Constants::CUSTOMCOMMANDBUILDER_COMMAND).arg(id())] = QVariant(m_command);
+    (*map)[QString(Constants::CUSTOMCOMMANDBUILDER_ARGS).arg(id())] = QVariant(m_args);
 }
 
-// Split args to quoted or spaced parts
-void CommandBuilder::arguments(const QString &argsLine)
+void CommandBuilder::setCommand(const QString &command)
 {
-    QStringList args;
-    QString currArg;
-    bool inQuote = false;
-    bool inArg = false;
-    for (int i = 0; i < argsLine.length(); ++i) {
-        QChar c = argsLine[i];
-        if (c.isSpace()) {
-            if (!inArg) // Spaces between arguments
-                continue;
+    if (command == defaultCommand())
+        m_command.clear();
+    else
+        m_command = command;
+}
 
-            if (!inQuote) { // Arg termination
-                if (currArg.length() > 0) {
-                    args.append(currArg);
-                    currArg.clear();
-                }
-                inArg = false;
-                continue;
-            } else { // Space within argument
-                currArg += c;
-                continue;
-            }
-        }
-
-        inArg = true;
-        if (c == '"') {
-            if ((i < (argsLine.length() - 1))
-                && (argsLine[i + 1] == '"')) { // Convert '""' to double-quote within arg
-                currArg += '"';
-                ++i;
-                continue;
-            }
-
-            if (inQuote) { // Arg termination
-                if (currArg.length() > 0) {
-                    args.append(currArg);
-                    currArg.clear();
-                }
-                inArg = false;
-                inQuote = false;
-                continue;
-            }
-
-            // Arg start
-            inArg = true;
-            inQuote = true;
-            continue;
-        }
-
-        // Simple character
-        inArg = true;
-        currArg += c;
-    }
-
-    if (currArg.length() > 0)
-        args.append(currArg);
-
-    arguments(args);
+void CommandBuilder::setArguments(const QString &arguments)
+{
+    if (arguments == defaultArguments())
+        m_args.clear();
+    else
+        m_args = arguments;
 }
 
 } // namespace Internal

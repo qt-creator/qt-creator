@@ -25,7 +25,6 @@
 
 #include "ibconsolebuildstep.h"
 
-#include "commandbuilder.h"
 #include "commandbuilderaspect.h"
 #include "incredibuildconstants.h"
 
@@ -132,9 +131,7 @@ bool IBConsoleBuildStep::init()
     if (m_forceRemote->value())
         args.append("--force-remote");
 
-    CommandBuilder *commandBuilder = m_commandBuilder->commandBuilder();
-    commandBuilder->keepJobNum(m_keepJobNum->value());
-    args.append(commandBuilder->fullCommandFlag());
+    args.append(m_commandBuilder->fullCommandFlag(m_keepJobNum->value()));
 
     CommandLine cmdLine("ib_console", args);
     ProcessParameters *procParams = processParameters();
