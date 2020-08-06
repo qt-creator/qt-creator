@@ -47,9 +47,9 @@
 #include <QVBoxLayout>
 #include <QListView>
 #include <QAbstractItemView>
+#include <QScreen>
 #include <QScrollBar>
 #include <QKeyEvent>
-#include <QDesktopWidget>
 #include <QLabel>
 #include <QStyledItemDelegate>
 
@@ -143,10 +143,7 @@ public:
     // Workaround QTCREATORBUG-11653
     void calculateMaximumWidth()
     {
-        const QDesktopWidget *desktopWidget = QApplication::desktop();
-        const int desktopWidth = desktopWidget->isVirtualDesktop()
-                ? desktopWidget->width()
-                : desktopWidget->availableGeometry(desktopWidget->primaryScreen()).width();
+        const int desktopWidth = screen()->availableGeometry().width();
         const QMargins widgetMargins = contentsMargins();
         const QMargins layoutMargins = layout()->contentsMargins();
         const int margins = widgetMargins.left() + widgetMargins.right()
@@ -531,10 +528,7 @@ void GenericProposalWidget::updatePositionAndSize()
     const int height = shint.height() + fw * 2;
 
     // Determine the position, keeping the popup on the screen
-    const QDesktopWidget *desktop = QApplication::desktop();
-    const QRect screen = HostOsInfo::isMacHost()
-            ? desktop->availableGeometry(desktop->screenNumber(d->m_underlyingWidget))
-            : desktop->screenGeometry(desktop->screenNumber(d->m_underlyingWidget));
+    const QRect screen = d->m_underlyingWidget->screen()->availableGeometry();
 
     QPoint pos = d->m_displayRect.bottomLeft();
     pos.rx() -= 16 + fw;    // Space for the icons

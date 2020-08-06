@@ -29,25 +29,21 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
-#include <QRect>
+#include <QApplication>
 #include <QColor>
+#include <QFontMetrics>
+#include <QPaintEvent>
 #include <QPainter>
 #include <QPen>
-#include <QPixmap>
-#include <QStyle>
-#include <QFontMetrics>
-#include <QTextDocument>
-#include <QStylePainter>
-#include <QStyleOptionFrame>
-#include <QResizeEvent>
-#include <QPaintEvent>
-#include <QVBoxLayout>
-
 #include <QPoint>
 #include <QRect>
+#include <QResizeEvent>
+#include <QStyle>
+#include <QStylePainter>
+#include <QStyleOptionFrame>
+#include <QTextDocument>
+#include <QScreen>
 #include <QWidget>
-#include <QApplication>
-#include <QDesktopWidget>
 
 #include <memory>
 
@@ -127,10 +123,9 @@ void ColorTip::setContent(const QVariant &content)
     tilePainter.fillRect(size, size, size, size, col);
 }
 
-void ColorTip::configure(const QPoint &pos, QWidget *w)
+void ColorTip::configure(const QPoint &pos)
 {
     Q_UNUSED(pos)
-    Q_UNUSED(w)
 
     update();
 }
@@ -197,7 +192,7 @@ bool TextTip::isInteractive() const
     return likelyContainsLink(m_text);
 }
 
-void TextTip::configure(const QPoint &pos, QWidget *w)
+void TextTip::configure(const QPoint &pos)
 {
     setTextFormat(m_format);
     setText(m_text);
@@ -211,7 +206,7 @@ void TextTip::configure(const QPoint &pos, QWidget *w)
     // Try to find a nice width without unnecessary wrapping.
     setWordWrap(false);
     int tipWidth = sizeHint().width();
-    const int screenWidth = screenGeometry(pos, w).width();
+    const int screenWidth = QGuiApplication::screenAt(pos)->availableGeometry().width();
     const int maxDesiredWidth = int(screenWidth * .5);
     if (tipWidth > maxDesiredWidth) {
         setWordWrap(true);
@@ -273,7 +268,7 @@ void WidgetTip::setContent(const QVariant &content)
     m_widget = content.value<QWidget *>();
 }
 
-void WidgetTip::configure(const QPoint &pos, QWidget *)
+void WidgetTip::configure(const QPoint &pos)
 {
     QTC_ASSERT(m_widget && m_layout->count() == 0, return);
 
@@ -317,22 +312,6 @@ bool WidgetTip::equals(int typeId, const QVariant &other, const QVariant &otherC
 {
     return typeId == ToolTip::WidgetContent && otherContextHelp == contextHelp()
             && other.value<QWidget *>() == m_widget;
-}
-
-
-int screenNumber(const QPoint &pos, QWidget *w)
-{
-    if (QApplication::desktop()->isVirtualDesktop())
-        return QApplication::desktop()->screenNumber(pos);
-    else
-        return QApplication::desktop()->screenNumber(w);
-}
-
-QRect screenGeometry(const QPoint &pos, QWidget *w)
-{
-    if (HostOsInfo::isMacHost())
-        return QApplication::desktop()->availableGeometry(screenNumber(pos, w));
-    return QApplication::desktop()->screenGeometry(screenNumber(pos, w));
 }
 
 } // namespace Internal

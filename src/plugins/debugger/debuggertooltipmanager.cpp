@@ -1235,7 +1235,7 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
         if (tooltip) {
             DEBUG("REUSING LOCALS TOOLTIP");
             tooltip->context.mousePosition = point;
-            ToolTip::move(point, DebuggerMainWindow::instance());
+            ToolTip::move(point);
         } else {
             DEBUG("CREATING LOCALS, WAITING...");
             tooltip = new DebuggerToolTipHolder(context);
@@ -1257,7 +1257,7 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
         if (tooltip) {
             //tooltip->destroy();
             tooltip->context.mousePosition = point;
-            ToolTip::move(point, DebuggerMainWindow::instance());
+            ToolTip::move(point);
             DEBUG("UPDATING DELAYED.");
         } else {
             DEBUG("CREATING DELAYED.");

@@ -37,7 +37,6 @@
 #include <QAction>
 #include <QApplication>
 #include <QDebug>
-#include <QDesktopWidget>
 #include <QMenu>
 #include <QMenuBar>
 #include <QSettings>
@@ -457,9 +456,7 @@ void ActionManagerPrivate::showShortcutPopup(const QString &shortcut)
         if (!QApplication::topLevelWidgets().isEmpty()) {
             window = QApplication::topLevelWidgets().first();
         } else {
-            QTC_ASSERT(QApplication::desktop(), return);
-            window = QApplication::desktop()->screen();
-            QTC_ASSERT(window, return);
+            window = ICore::mainWindow();
         }
     }
 

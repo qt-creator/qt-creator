@@ -37,7 +37,6 @@
 #include <QLabel>
 #include <QToolButton>
 #include <QHBoxLayout>
-#include <QDesktopWidget>
 #include <QKeyEvent>
 #include <QPointer>
 #include <QScreen>
@@ -366,9 +365,7 @@ void FunctionHintProposalWidget::updateContent()
 
 void FunctionHintProposalWidget::updatePosition()
 {
-    const QDesktopWidget *desktop = QApplication::desktop();
-    const int screenNumber = desktop->screenNumber(d->m_underlyingWidget);
-    auto widgetScreen = QGuiApplication::screens().value(screenNumber, QGuiApplication::primaryScreen());
+    auto widgetScreen = d->m_underlyingWidget->screen();
     const QRect &screen = Utils::HostOsInfo::isMacHost()
         ? widgetScreen->availableGeometry() : widgetScreen->geometry();
 

@@ -33,12 +33,11 @@
 
 #include <QApplication>
 #include <QColor>
-#include <QDebug>
-#include <QDesktopWidget>
 #include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QMouseEvent>
+#include <QScreen>
 #include <QWidget>
 
 using namespace Utils;
@@ -171,10 +170,10 @@ void ToolTip::show(
     }
 }
 
-void ToolTip::move(const QPoint &pos, QWidget *w)
+void ToolTip::move(const QPoint &pos)
 {
     if (isVisible())
-        instance()->placeTip(pos, w);
+        instance()->placeTip(pos);
 }
 
 bool ToolTip::pinToolTip(QWidget *w, QWidget *parent)
@@ -232,9 +231,9 @@ bool ToolTip::acceptShow(const QVariant &content,
 
 void ToolTip::setUp(const QPoint &pos, QWidget *w, const QRect &rect)
 {
-    m_tip->configure(pos, w);
+    m_tip->configure(pos);
 
-    placeTip(pos, w);
+    placeTip(pos);
     setTipRect(w, rect);
 
     if (m_hideDelayTimer.isActive())
@@ -320,21 +319,15 @@ void ToolTip::showInternal(const QPoint &pos, const QVariant &content,
                            int typeId, QWidget *w, const QVariant &contextHelp, const QRect &rect)
 {
     if (acceptShow(content, typeId, pos, w, contextHelp, rect)) {
-        QWidget *target = nullptr;
-        if (HostOsInfo::isWindowsHost())
-            target = QApplication::desktop()->screen(Internal::screenNumber(pos, w));
-        else
-            target = w;
-
         switch (typeId) {
             case ColorContent:
-                m_tip = new ColorTip(target);
+                m_tip = new ColorTip(w);
                 break;
             case TextContent:
-                m_tip = new TextTip(target);
+                m_tip = new TextTip(w);
                 break;
             case WidgetContent:
-                m_tip = new WidgetTip(target);
+                m_tip = new WidgetTip(w);
                 break;
         }
         m_tip->setObjectName("qcToolTip");
@@ -347,9 +340,9 @@ void ToolTip::showInternal(const QPoint &pos, const QVariant &content,
     emit shown();
 }
 
-void ToolTip::placeTip(const QPoint &pos, QWidget *w)
+void ToolTip::placeTip(const QPoint &pos)
 {
-    QRect screen = Internal::screenGeometry(pos, w);
+    QRect screen = QGuiApplication::screenAt(pos)->availableGeometry();
     QPoint p = pos;
     p += offsetFromPosition();
     if (p.x() + m_tip->width() > screen.x() + screen.width())

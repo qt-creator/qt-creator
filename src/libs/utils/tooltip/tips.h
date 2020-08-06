@@ -36,9 +36,6 @@
 namespace Utils {
 namespace Internal {
 
-int screenNumber(const QPoint &pos, QWidget *w);
-QRect screenGeometry(const QPoint &pos, QWidget *w);
-
 class TipLabel : public QLabel
 {
 public:
@@ -47,7 +44,7 @@ public:
     virtual void setContent(const QVariant &content) = 0;
     virtual bool isInteractive() const { return false; }
     virtual int showTime() const = 0;
-    virtual void configure(const QPoint &pos, QWidget *w) = 0;
+    virtual void configure(const QPoint &pos) = 0;
     virtual bool canHandleContentReplacement(int typeId) const = 0;
     virtual bool equals(int typeId, const QVariant &other, const QVariant &contextHelp) const = 0;
     virtual void setContextHelp(const QVariant &help);
@@ -69,7 +66,7 @@ public:
 
     void setContent(const QVariant &content) override;
     bool isInteractive() const override;
-    void configure(const QPoint &pos, QWidget *w) override;
+    void configure(const QPoint &pos) override;
     bool canHandleContentReplacement(int typeId) const override;
     int showTime() const override;
     bool equals(int typeId, const QVariant &other, const QVariant &otherContextHelp) const override;
@@ -87,7 +84,7 @@ public:
     ColorTip(QWidget *parent);
 
     void setContent(const QVariant &content) override;
-    void configure(const QPoint &pos, QWidget *w) override;
+    void configure(const QPoint &pos) override;
     bool canHandleContentReplacement(int typeId) const override;
     int showTime() const override { return 4000; }
     bool equals(int typeId, const QVariant &other, const QVariant &otherContextHelp) const override;
@@ -107,7 +104,7 @@ public:
     void pinToolTipWidget(QWidget *parent);
 
     void setContent(const QVariant &content) override;
-    void configure(const QPoint &pos, QWidget *w) override;
+    void configure(const QPoint &pos) override;
     bool canHandleContentReplacement(int typeId) const override;
     int showTime() const override { return 30000; }
     bool equals(int typeId, const QVariant &other, const QVariant &otherContextHelp) const override;

@@ -89,7 +89,7 @@ public:
                      const QVariant &contextHelp = {}, const QRect &rect = QRect());
     static void show(const QPoint &pos, QLayout *content, QWidget *w = nullptr,
                      const QVariant &contextHelp = {}, const QRect &rect = QRect());
-    static void move(const QPoint &pos, QWidget *w);
+    static void move(const QPoint &pos);
     static void hide();
     static void hideImmediately();
     static bool isVisible();
@@ -116,7 +116,7 @@ private:
     bool tipChanged(const QPoint &pos, const QVariant &content, int typeId, QWidget *w,
                     const QVariant &contextHelp) const;
     void setTipRect(QWidget *w, const QRect &rect);
-    void placeTip(const QPoint &pos, QWidget *w);
+    void placeTip(const QPoint &pos);
     void showTip();
     void hideTipWithDelay();
 
