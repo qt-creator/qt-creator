@@ -51,6 +51,17 @@ public:
 
     QVariant maybeConvertToNumber(const QVariant &value)
     {
+        if (value.type() == QVariant::Bool)
+            return value;
+
+        if (value.type() == QVariant::String) {
+            const QString text = value.toString();
+            if (text == "true")
+                return QVariant(true);
+            if (text == "false")
+                return QVariant(false);
+        }
+
         bool canConvert = false;
         double convertedValue = value.toDouble(&canConvert);
         if (canConvert) {

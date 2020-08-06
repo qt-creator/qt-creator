@@ -1310,4 +1310,70 @@ TEST_F(ListModelEditor, ListViewHasModelBinding)
                             ElementsAre("pic.png", "poo", 111, IsInvalid())));
 }
 
+TEST_F(ListModelEditor, AddBooleanDisplayValues)
+{
+    model.setListModel(listModelNode);
+
+    model.setValue(0, 1, true);
+
+    ASSERT_THAT(displayValues(),
+                ElementsAre(ElementsAre(IsInvalid(), true, 1, 42),
+                            ElementsAre("pic.png", "bar", 4, IsInvalid()),
+                            ElementsAre("pic.png", "poo", 111, IsInvalid())));
+}
+
+TEST_F(ListModelEditor, AddBooleanProperties)
+{
+    model.setListModel(listModelNode);
+
+    model.setValue(0, 1, true);
+
+    ASSERT_THAT(properties(),
+                ElementsAre(UnorderedElementsAre(IsVariantProperty("name", "foo"),
+                                                 IsVariantProperty("value", true),
+                                                 IsVariantProperty("value2", 42)),
+                            UnorderedElementsAre(IsVariantProperty("image", "pic.png"),
+                                                 IsVariantProperty("name", "bar"),
+                                                 IsVariantProperty("value", 4)),
+                            UnorderedElementsAre(IsVariantProperty("image", "pic.png"),
+                                                 IsVariantProperty("name", "poo"),
+                                                 IsVariantProperty("value", 111))));
+}
+
+TEST_F(ListModelEditor, AddTrueAsStringProperties)
+{
+    model.setListModel(listModelNode);
+
+    model.setValue(0, 1, "true");
+
+    ASSERT_THAT(properties(),
+                ElementsAre(UnorderedElementsAre(IsVariantProperty("name", true),
+                                                 IsVariantProperty("value", 1),
+                                                 IsVariantProperty("value2", 42)),
+                            UnorderedElementsAre(IsVariantProperty("image", "pic.png"),
+                                                 IsVariantProperty("name", "bar"),
+                                                 IsVariantProperty("value", 4)),
+                            UnorderedElementsAre(IsVariantProperty("image", "pic.png"),
+                                                 IsVariantProperty("name", "poo"),
+                                                 IsVariantProperty("value", 111))));
+}
+
+TEST_F(ListModelEditor, AddFalseAsStringProperties)
+{
+    model.setListModel(listModelNode);
+
+    model.setValue(0, 1, "false");
+
+    ASSERT_THAT(properties(),
+                ElementsAre(UnorderedElementsAre(IsVariantProperty("name", false),
+                                                 IsVariantProperty("value", 1),
+                                                 IsVariantProperty("value2", 42)),
+                            UnorderedElementsAre(IsVariantProperty("image", "pic.png"),
+                                                 IsVariantProperty("name", "bar"),
+                                                 IsVariantProperty("value", 4)),
+                            UnorderedElementsAre(IsVariantProperty("image", "pic.png"),
+                                                 IsVariantProperty("name", "poo"),
+                                                 IsVariantProperty("value", 111))));
+}
+
 } // namespace
