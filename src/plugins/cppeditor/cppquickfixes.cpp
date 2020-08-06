@@ -2700,7 +2700,7 @@ public:
                        + values.join(QLatin1String(":\nbreak;\ncase "))
                        + QLatin1String(":\nbreak;"));
         currentFile->setChangeSet(changes);
-        currentFile->appendIndentRange(currentFile->range(compoundStatement));
+        currentFile->appendIndentRange(ChangeSet::Range(start, start + 1));
         currentFile->apply();
     }
 

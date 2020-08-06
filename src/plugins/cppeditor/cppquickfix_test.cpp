@@ -433,7 +433,7 @@ void CppEditorPlugin::test_quickfix_data()
         "    EnumType t;\n"
         "    @switch (t) {\n"
         "    default:\n"
-        "        break;\n"
+        "    break;\n"
         "    }\n"
         "}\n"
         ) << _(
@@ -448,7 +448,7 @@ void CppEditorPlugin::test_quickfix_data()
         "    case V2:\n"
         "        break;\n"
         "    default:\n"
-        "        break;\n"
+        "    break;\n"
         "    }\n"
         "}\n"
     );
