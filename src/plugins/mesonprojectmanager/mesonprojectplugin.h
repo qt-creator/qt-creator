@@ -30,22 +30,16 @@
 namespace MesonProjectManager {
 namespace Internal {
 
-class MesonProjectPlugin : public ExtensionSystem::IPlugin
+class MesonProjectPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "MesonProjectManager.json")
 
 public:
-    ~MesonProjectPlugin() override;
-
-#ifdef WITH_TESTS
-private slots:
-
-#endif
+    ~MesonProjectPlugin() final;
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
-    void extensionsInitialized() override;
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
 
     class MesonProjectPluginPrivate *d = nullptr;
 };

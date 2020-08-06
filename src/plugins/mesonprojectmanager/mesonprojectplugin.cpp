@@ -38,19 +38,10 @@
 #include "settings/tools/toolssettingsaccessor.h"
 #include "settings/tools/toolssettingspage.h"
 
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
 
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runcontrol.h>
-
-#include <extensionsystem/pluginmanager.h>
-
-#include <utils/parameteraction.h>
-
-#include <QObject>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -112,8 +103,6 @@ bool MesonProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     FileIconProvider::registerIconOverlayForFilename(Constants::Icons::MESON, "meson_options.txt");
     return true;
 }
-
-void MesonProjectPlugin::extensionsInitialized() {}
 
 } // namespace Internal
 } // namespace MesonProjectManager
