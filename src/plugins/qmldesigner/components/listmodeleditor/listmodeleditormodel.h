@@ -38,11 +38,15 @@ class ListModelEditorModel : public QStandardItemModel
     using QStandardItemModel::removeRows;
 
 public:
-    void setListModel(ModelNode node)
-    {
-        m_listModelNode = node;
-        populateModel();
-    }
+    ListModelEditorModel(std::function<ModelNode()> createModelCallback,
+                         std::function<ModelNode()> createElementCallback)
+        : m_createModelCallback(std::move(createModelCallback))
+        , m_createElementCallback(std::move(createElementCallback))
+    {}
+
+    void setListModel(ModelNode node);
+
+    void setListView(ModelNode listView);
 
     void addRow();
     void addColumn(const QString &columnName);
@@ -70,6 +74,8 @@ private:
 private:
     ModelNode m_listModelNode;
     QList<QmlDesigner::PropertyName> m_propertyNames;
+    std::function<ModelNode()> m_createModelCallback;
+    std::function<ModelNode()> m_createElementCallback;
 };
 
 } // namespace QmlDesigner

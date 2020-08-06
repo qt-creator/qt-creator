@@ -31,8 +31,10 @@
 
 #include <qmldesigner/components/listmodeleditor/listmodeleditormodel.h>
 #include <qmldesigner/designercore/include/abstractview.h>
+#include <qmldesigner/designercore/include/bindingproperty.h>
 #include <qmldesigner/designercore/include/model.h>
 #include <qmldesigner/designercore/include/nodelistproperty.h>
+#include <qmldesigner/designercore/include/nodeproperty.h>
 #include <qmldesigner/designercore/include/variantproperty.h>
 
 namespace {
@@ -94,6 +96,7 @@ public:
 
         emptyListModelNode = mockView.createModelNode("QtQml.Models.ListModel", 2, 15);
 
+        listViewNode = mockView.createModelNode("QtQuick.ListView", 2, 15);
         listModelNode = mockView.createModelNode("QtQml.Models.ListModel", 2, 15);
         mockView.rootModelNode().defaultNodeListProperty().reparentHere(listModelNode);
         element1 = createElement({{"name", "foo"}, {"value", 1}, {"value2", 42}});
@@ -183,7 +186,10 @@ public:
 protected:
     std::unique_ptr<QmlDesigner::Model> designerModel{QmlDesigner::Model::create("QtQuick.Item", 1, 1)};
     NiceMock<MockListModelEditorView> mockView;
-    QmlDesigner::ListModelEditorModel model;
+    QmlDesigner::ListModelEditorModel model{
+        [&] { return mockView.createModelNode("QtQml.Models.ListModel", 2, 15); },
+        [&] { return mockView.createModelNode("QtQml.Models.ListElement", 2, 15); }};
+    ModelNode listViewNode;
     ModelNode listModelNode;
     ModelNode emptyListModelNode;
     ModelNode element1;
@@ -1270,6 +1276,38 @@ TEST_F(ListModelEditor, SelectionAfterMoveRowsUp)
                             index(2, 1),
                             index(2, 2),
                             index(2, 3)));
+}
+
+TEST_F(ListModelEditor, ListViewHasNoModel)
+{
+    model.setListView(listViewNode);
+
+    ASSERT_THAT(listViewNode.nodeProperty("model").modelNode().type(), Eq("QtQml.Models.ListModel"));
+}
+
+TEST_F(ListModelEditor, ListViewHasModelInside)
+{
+    listViewNode.nodeProperty("model").reparentHere(listModelNode);
+
+    model.setListView(listViewNode);
+
+    ASSERT_THAT(displayValues(),
+                ElementsAre(ElementsAre(IsInvalid(), "foo", 1, 42),
+                            ElementsAre("pic.png", "bar", 4, IsInvalid()),
+                            ElementsAre("pic.png", "poo", 111, IsInvalid())));
+}
+
+TEST_F(ListModelEditor, ListViewHasModelBinding)
+{
+    listModelNode.setIdWithoutRefactoring("listModel");
+    listViewNode.bindingProperty("model").setExpression("listModel");
+
+    model.setListView(listViewNode);
+
+    ASSERT_THAT(displayValues(),
+                ElementsAre(ElementsAre(IsInvalid(), "foo", 1, 42),
+                            ElementsAre("pic.png", "bar", 4, IsInvalid()),
+                            ElementsAre("pic.png", "poo", 111, IsInvalid())));
 }
 
 } // namespace

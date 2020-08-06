@@ -26,7 +26,9 @@
 #include "listmodeleditormodel.h"
 
 #include <abstractview.h>
+#include <bindingproperty.h>
 #include <nodelistproperty.h>
+#include <nodeproperty.h>
 #include <variantproperty.h>
 
 #include <QVariant>
@@ -185,6 +187,22 @@ void renameProperties(const QStandardItemModel *model,
         static_cast<ListModelItem *>(model->item(rowIndex, columnIndex))->renameProperty(newPropertyName);
 }
 
+ModelNode listModelNode(const ModelNode &listViewNode,
+                        const std::function<ModelNode()> &createModelCallback)
+{
+    if (listViewNode.hasProperty("model")) {
+        if (listViewNode.hasBindingProperty("model"))
+            return listViewNode.bindingProperty("model").resolveToModelNode();
+        else if (listViewNode.hasNodeProperty("model"))
+            return listViewNode.nodeProperty("model").modelNode();
+    }
+
+    ModelNode newModel = createModelCallback();
+    listViewNode.nodeProperty("model").reparentHere(newModel);
+
+    return newModel;
+}
+
 } // namespace
 
 void ListModelEditorModel::populateModel()
@@ -214,9 +232,20 @@ void ListModelEditorModel::appendItems(const ModelNode &listElementNode)
     appendRow(row);
 }
 
+void ListModelEditorModel::setListModel(ModelNode node)
+{
+    m_listModelNode = node;
+    populateModel();
+}
+
+void ListModelEditorModel::setListView(ModelNode listView)
+{
+    setListModel(listModelNode(listView, m_createModelCallback));
+}
+
 void ListModelEditorModel::addRow()
 {
-    auto newElement = m_listModelNode.view()->createModelNode("QtQml.Models.ListElement", 2, 15);
+    auto newElement = m_createElementCallback();
     m_listModelNode.defaultNodeListProperty().reparentHere(newElement);
 
     appendItems(newElement);
