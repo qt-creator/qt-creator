@@ -26,14 +26,11 @@
 #include "cmakecommandbuilder.h"
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/project.h>
 
 #include <utils/qtcprocess.h>
+
+#include <cmakeprojectmanager/cmakeprojectconstants.h> // Compile-time only
 
 #include <QRegularExpression>
 #include <QStandardPaths>
@@ -43,19 +40,9 @@ using namespace ProjectExplorer;
 namespace IncrediBuild {
 namespace Internal {
 
-bool CMakeCommandBuilder::canMigrate(BuildStepList *buildStepList)
+QList<Utils::Id> CMakeCommandBuilder::migratableSteps() const
 {
-    // "Make"
-    QString makeClassName("CMakeProjectManager::Internal::CMakeBuildStep");
-    for (int i = buildStepList->count() - 1; i >= 0; --i) {
-        QString className = QString::fromUtf8(buildStepList->at(i)->metaObject()->className());
-        if (className.compare(makeClassName) == 0) {
-            buildStepList->at(i)->setEnabled(false);
-            buildStepList->at(i)->projectConfiguration()->project()->saveSettings();
-            return true;
-        }
-    }
-    return false;
+    return {CMakeProjectManager::Constants::CMAKE_BUILD_STEP_ID};
 }
 
 QString CMakeCommandBuilder::defaultCommand() const

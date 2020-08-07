@@ -34,6 +34,8 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/project.h>
 
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h> // Compile-time only
+
 #include <QDebug>
 #include <QFileInfo>
 #include <QRegularExpression>
@@ -43,19 +45,9 @@ using namespace ProjectExplorer;
 namespace IncrediBuild {
 namespace Internal {
 
-bool MakeCommandBuilder::canMigrate(BuildStepList *buildStepList)
+QList<Utils::Id> MakeCommandBuilder::migratableSteps() const
 {
-    // "Make"
-    QString makeClassName("QmakeProjectManager::QmakeMakeStep");
-    for (int i = buildStepList->count() - 1; i >= 0; --i) {
-        QString className = QString::fromUtf8(buildStepList->at(i)->metaObject()->className());
-        if (className.compare(makeClassName) == 0) {
-            buildStepList->at(i)->setEnabled(false);
-            buildStepList->at(i)->projectConfiguration()->project()->saveSettings();
-            return true;
-        }
-    }
-    return false;
+    return {QmakeProjectManager::Constants::MAKESTEP_BS_ID};
 }
 
 QString MakeCommandBuilder::defaultCommand() const

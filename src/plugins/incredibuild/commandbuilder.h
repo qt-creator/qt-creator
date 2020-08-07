@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/buildstep.h>
 
 #include <QCoreApplication>
 
@@ -40,7 +40,7 @@ public:
     CommandBuilder(ProjectExplorer::BuildStep *buildStep) : m_buildStep(buildStep) {}
     virtual ~CommandBuilder() = default;
 
-    virtual bool canMigrate(ProjectExplorer::BuildStepList*) { return false; }
+    virtual QList<Utils::Id> migratableSteps() const { return {}; }
 
     ProjectExplorer::BuildStep *buildStep() const { return m_buildStep; }
 

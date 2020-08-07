@@ -36,7 +36,7 @@ public:
     CMakeCommandBuilder(ProjectExplorer::BuildStep *buildStep) : CommandBuilder(buildStep) {}
 
 private:
-    bool canMigrate(ProjectExplorer::BuildStepList *buildStepList) final;
+    QList<Utils::Id> migratableSteps() const final;
     QString id() const final { return "CMakeCommandBuilder"; }
     QString displayName() const final { return tr("CMake"); }
     QString defaultCommand() const final;

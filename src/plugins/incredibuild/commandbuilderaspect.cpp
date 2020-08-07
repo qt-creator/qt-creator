@@ -30,6 +30,8 @@
 #include "makecommandbuilder.h"
 
 #include <projectexplorer/abstractprocessstep.h>
+#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/project.h>
 
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
@@ -69,7 +71,7 @@ public:
         &m_cmakeCommandBuilder
     };
 
-    // Default to the first in list, which should be the "Custom Command"
+    // Default to "Custom Command", but try to upgrade in tryToMigrate() later.
     CommandBuilder *m_activeCommandBuilder = m_commandBuilders[0];
 
     bool m_loadedFromMap = false;
@@ -115,12 +117,17 @@ void CommandBuilderAspectPrivate::setActiveCommandBuilder(const QString &command
 
 void CommandBuilderAspectPrivate::tryToMigrate()
 {
-    // This constructor is called when creating a fresh build step.
+    // This function is called when creating a fresh build step.
     // Attempt to detect build system from pre-existing steps.
     for (CommandBuilder *p : m_commandBuilders) {
-        if (p->canMigrate(m_buildStep->stepList())) {
-            m_activeCommandBuilder = p;
-            break;
+        const QList<Utils::Id> migratableSteps = p->migratableSteps();
+        for (Utils::Id stepId : migratableSteps) {
+            if (BuildStep *bs = m_buildStep->stepList()->firstStepWithId(stepId)) {
+                m_activeCommandBuilder = p;
+                bs->setEnabled(false);
+                m_buildStep->project()->saveSettings();
+                return;
+            }
         }
     }
 }

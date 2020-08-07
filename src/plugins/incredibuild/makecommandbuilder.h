@@ -36,7 +36,7 @@ public:
     MakeCommandBuilder(ProjectExplorer::BuildStep *buildStep) : CommandBuilder(buildStep) {}
 
 private:
-    bool canMigrate(ProjectExplorer::BuildStepList *buildStepList) final;
+    QList<Utils::Id> migratableSteps() const final;
     QString id() const final { return "MakeCommandBuilder"; }
     QString displayName() const final { return tr("Make"); }
     QString defaultCommand() const final;
