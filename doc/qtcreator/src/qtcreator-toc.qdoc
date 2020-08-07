@@ -257,6 +257,7 @@
                 \li \l{Setting Up a Generic Project}
                 \li \l{Setting Up Nimble}
                 \li \l{Setting Up Meson}
+                \li \l{Setting Up IncrediBuild}
             \endlist
             \li \l{Using Command Line Options}
             \li \l{Keyboard Shortcuts}

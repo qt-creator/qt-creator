@@ -78,6 +78,10 @@
             Meson is an open source build system meant to be both extremely fast,
             and, even more importantly, as user friendly as possible.
 
+        \li \l{Setting Up IncrediBuild}
+
+            IncrediBuild decreases the time it takes to build C++ code.
+
     \endlist
 
 */

@@ -41,6 +41,7 @@ excludedirs  += ../../qtcreator/examples/accelbubble \
                 ../../qtcreator/src/debugger/creator-only \
                 ../../qtcreator/src/editors/creator-only \
                 ../../qtcreator/src/howto/creator-only \
+                ../../qtcreator/src/incredibuild \
                 ../../qtcreator/src/ios \
                 ../../qtcreator/src/linux-mobile \
                 ../../qtcreator/src/mcu \
