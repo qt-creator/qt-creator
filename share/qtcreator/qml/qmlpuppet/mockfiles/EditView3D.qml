@@ -202,7 +202,7 @@ Item {
         if ("transformMode" in toolStates)
             transformMode = toolStates.transformMode;
         else if (resetToDefault)
-            selectionMode = EditView3D.TransformMode.Move;
+            transformMode = EditView3D.TransformMode.Move;
 
         if ("editCamState" in toolStates)
             cameraControl.restoreCameraState(toolStates.editCamState);
