@@ -266,8 +266,10 @@ Item {
     {
         var theObject = object;
         if (selectionMode === EditView3D.SelectionMode.Group) {
-            while (theObject && theObject !== activeScene && theObject.parent !== activeScene)
+            while (theObject && theObject !== activeScene
+                   && (activeScene instanceof Model || theObject.parent !== activeScene)) {
                 theObject = theObject.parent;
+            }
         }
         // Object selection logic:
         // Regular click: Clear any multiselection, single-selects the clicked object
