@@ -35,9 +35,7 @@
 #include <QtCore/qdebug.h>
 #include <QtCore/QScopedValueRollback>
 
-QT_BEGIN_NAMESPACE
-Q_CORE_EXPORT double qstrtod(const char *s00, char const **se, bool *ok);
-QT_END_NAMESPACE
+#include <QtCore/private/qlocale_tools_p.h>
 
 QT_QML_BEGIN_NAMESPACE
 

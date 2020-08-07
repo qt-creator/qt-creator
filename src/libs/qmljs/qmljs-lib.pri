@@ -84,4 +84,4 @@ contains(QT, gui) {
         $$PWD/qmljsreformatter.h
 }
 
-QT += xml
+QT += xml core-private
