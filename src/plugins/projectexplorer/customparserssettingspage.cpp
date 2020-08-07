@@ -34,6 +34,7 @@
 #include <utils/qtcassert.h>
 
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QList>
 #include <QListWidget>
 #include <QPushButton>
@@ -56,6 +57,10 @@ public:
         const auto mainLayout = new QVBoxLayout(this);
         const auto widgetLayout = new QHBoxLayout;
         mainLayout->addLayout(widgetLayout);
+        const auto hintLabel = new QLabel(tr(
+            "Custom output parsers defined here can be enabled individually "
+            "in the project's build or run settings."));
+        mainLayout->addWidget(hintLabel);
         widgetLayout->addWidget(&m_parserListView);
         const auto buttonLayout = new QVBoxLayout;
         widgetLayout->addLayout(buttonLayout);
