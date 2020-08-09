@@ -183,8 +183,12 @@ bool LogChangeWidget::populateLog(const QString &repository, const QString &comm
     QStringList arguments;
     arguments << "--max-count=1000" << "--format=%h:%s %d";
     arguments << (commit.isEmpty() ? "HEAD" : commit);
-    if (!(flags & IncludeRemotes))
-        arguments << "--not" << "--remotes";
+    if (!(flags & IncludeRemotes)) {
+        QString remotesFlag("--remotes");
+        if (!m_excludedRemote.isEmpty())
+            remotesFlag += '=' + m_excludedRemote;
+        arguments << "--not" << remotesFlag;
+    }
     arguments << "--";
     QString output;
     if (!GitClient::instance()->synchronousLog(

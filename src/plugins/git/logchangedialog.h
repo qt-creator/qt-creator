@@ -67,6 +67,7 @@ public:
     int commitIndex() const;
     QString earliestCommit() const;
     void setItemDelegate(QAbstractItemDelegate *delegate);
+    void setExcludedRemote(const QString &remote) { m_excludedRemote = remote; }
 
 signals:
     void commitActivated(const QString &commit);
@@ -80,6 +81,7 @@ private:
 
     LogChangeModel *m_model;
     bool m_hasCustomDelegate;
+    QString m_excludedRemote;
 };
 
 class LogChangeDialog : public QDialog

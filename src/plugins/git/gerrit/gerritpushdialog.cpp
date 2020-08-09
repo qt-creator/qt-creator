@@ -66,6 +66,8 @@ protected:
 QString GerritPushDialog::determineRemoteBranch(const QString &localBranch)
 {
     const QString earliestCommit = m_ui->commitView->earliestCommit();
+    if (earliestCommit.isEmpty())
+        return {};
 
     QString output;
     QString error;
@@ -233,6 +235,13 @@ void GerritPushDialog::onRemoteChanged(bool force)
 {
     setRemoteBranches();
     const QString version = m_ui->remoteComboBox->currentServer().version;
+    const QString remote = m_ui->remoteComboBox->currentRemoteName();
+
+    m_ui->commitView->setExcludedRemote(remote);
+    const QString branch = m_ui->localBranchComboBox->itemText(m_ui->localBranchComboBox->currentIndex());
+    m_hasLocalCommits = m_ui->commitView->init(m_workingDir, branch, LogChangeWidget::Silent);
+    validate();
+
     const bool supportsWip = versionSupportsWip(version);
     if (!force && supportsWip == m_currentSupportsWip)
         return;
