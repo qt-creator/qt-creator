@@ -57,6 +57,9 @@ DScontrolBackgroundInteraction=ff4d4d4d
 DStranslationIndicatorBorder=ff7f7f7f
 DSsectionHeadBackground=ff424242
 DSchangedStateText=ff99ccff
+DS3DAxisXColor=ffe00000
+DS3DAxisYColor=ff009900
+DS3DAxisZColor=ff6060ff
 ;DS controls theme END
 
 BackgroundColorAlternate=alternateBackground
