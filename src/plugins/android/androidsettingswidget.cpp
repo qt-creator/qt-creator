@@ -712,9 +712,13 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
     connect(openSslProgressDialog, &QProgressDialog::canceled, gitCloner, &QtcProcess::kill);
 
     auto failDialog = [=](const QString &msgSuffix = {}) {
+        QStringList sl;
+        sl << tr("OpenSSL prebuilt libraries cloning failed.");
+        if (!msgSuffix.isEmpty())
+            sl << msgSuffix;
+        sl << tr("Opening OpenSSL URL for manual download.");
         QMessageBox msgBox;
-        msgBox.setText(tr("OpenSSL prebuilt libraries cloning failed. ") + msgSuffix
-                       + tr("Opening OpenSSL URL for manual download."));
+        msgBox.setText(sl.join(" "));
         msgBox.addButton(tr("Cancel"), QMessageBox::RejectRole);
         QAbstractButton *openButton = msgBox.addButton(tr("Open Download URL"), QMessageBox::ActionRole);
         msgBox.exec();
@@ -740,7 +744,7 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
     connect(gitCloner, &QtcProcess::errorOccurred, this, [=](QProcess::ProcessError error) {
         openSslProgressDialog->close();
         if (error == QProcess::FailedToStart) {
-            failDialog(tr("The Git tool might not be installed properly on your system. "));
+            failDialog(tr("The Git tool might not be installed properly on your system."));
         } else {
             failDialog();
         }
