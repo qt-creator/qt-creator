@@ -57,6 +57,15 @@
 
 namespace ProjectExplorer {
 
+class PathTreeWidget : public QTreeWidget
+{
+public:
+    QSize sizeHint() const override
+    {
+        return QSize(800, 600);
+    }
+};
+
 class PathListDialog : public QDialog
 {
     Q_DECLARE_TR_FUNCTIONS(EnvironmentWidget)
@@ -131,7 +140,7 @@ private:
                        | Qt::ItemIsDragEnabled);
     }
 
-    QTreeWidget m_view;
+    PathTreeWidget m_view;
 };
 
 class EnvironmentDelegate : public QStyledItemDelegate
