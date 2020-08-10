@@ -502,13 +502,13 @@ protected:
         return false;
     }
 
-    bool visit(Block *) override
+    bool openBlock()
     {
         ++_block;
         return true;
     }
 
-    void endVisit(Block *) override
+    void closeBlock()
     {
         auto it = _declaredBlockVariables.begin();
         auto end = _declaredBlockVariables.end();
@@ -519,6 +519,26 @@ protected:
                 ++it;
         }
         --_block;
+    }
+
+    bool visit(Block *) override
+    {
+        return openBlock();
+    }
+
+    void endVisit(Block *) override
+    {
+        closeBlock();
+    }
+
+    bool visit(Catch *) override
+    {
+        return openBlock();
+    }
+
+    void endVisit(Catch *) override
+    {
+        closeBlock();
     }
 
     void throwRecursionDepthError() override

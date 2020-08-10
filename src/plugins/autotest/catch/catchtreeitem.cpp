@@ -27,6 +27,7 @@
 #include "catchconfiguration.h"
 #include "catchframework.h"
 
+#include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
 
@@ -38,14 +39,26 @@ QString CatchTreeItem::testCasesString() const
     return m_state & CatchTreeItem::Parameterized ? QString(name() + " -*") : name();
 }
 
+static QString nonRootDisplayName(const CatchTreeItem *it)
+{
+    if (it->type() != TestTreeItem::TestSuite)
+        return it->name();
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    if (!project)
+        return it->name();
+    TestTreeItem *parent = it->parentItem();
+    int baseDirSize = (parent->type() == TestTreeItem::GroupNode)
+            ? parent->filePath().size() : project->projectDirectory().toString().size();
+    return it->name().mid(baseDirSize + 1);
+}
+
 QVariant CatchTreeItem::data(int column, int role) const
 {
-
     switch (role) {
     case Qt::DisplayRole:
         if (type() == Root)
             break;
-        return QString(name() + stateSuffix());
+        return QString(nonRootDisplayName(this) + stateSuffix());
     case Qt::CheckStateRole:
         switch (type()) {
         case Root:

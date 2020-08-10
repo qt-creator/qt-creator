@@ -34,6 +34,8 @@
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakesettings.h"
 
+#include <android/androidconstants.h>
+
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
@@ -664,8 +666,12 @@ void QMakeStepConfigWidget::abisChanged()
                 break;
             }
         }
-        args << prefix + '"' + abis.join(' ') + '"';
+        if (!abis.isEmpty())
+            args << prefix + '"' + abis.join(' ') + '"';
         m_step->setExtraArguments(args);
+
+        const QString buildKey = m_step->target()->activeBuildKey();
+        m_step->buildSystem()->setExtraData(buildKey, Android::Constants::ANDROID_ABIS, m_step->selectedAbis());
     }
 
     updateSummaryLabel();
@@ -743,12 +749,12 @@ void QMakeStepConfigWidget::updateSummaryLabel()
         if (selectedAbis.isEmpty() && isAndroidKit()) {
             // Prefer ARM for Android, prefer 32bit.
             for (const Abi &abi : abis) {
-                if (abi.param() == "armeabi-v7a")
+                if (abi.param() == ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A)
                     selectedAbis.append(abi.param());
             }
             if (selectedAbis.isEmpty()) {
                 for (const Abi &abi : abis) {
-                    if (abi.param() == "arm64-v8a")
+                    if (abi.param() == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A)
                         selectedAbis.append(abi.param());
                 }
             }

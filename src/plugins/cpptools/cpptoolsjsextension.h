@@ -60,7 +60,7 @@ public:
     Q_INVOKABLE QString includeStatement(
             const QString &fullyQualifiedClassName,
             const QString &suffix,
-            const QString &specialClasses,
+            const QStringList &specialClasses,
             const QString &pathOfIncludingFile
             );
 };

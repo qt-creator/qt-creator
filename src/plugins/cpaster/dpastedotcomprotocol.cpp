@@ -46,18 +46,40 @@ void DPasteDotComProtocol::fetch(const QString &id)
 {
     QNetworkReply * const reply = httpGet(baseUrl() + '/' + id + ".txt");
     connect(reply, &QNetworkReply::finished, this, [this, id, reply] {
-        QString title;
-        QString content;
-        const bool error = reply->error();
-        if (error) {
-            content = reply->errorString();
-        } else {
-            title = name() + ": " + id;
-            content = QString::fromUtf8(reply->readAll());
-        }
-        reply->deleteLater();
-        emit fetchDone(title, content, error);
+        fetchFinished(id, reply, false);
     });
+}
+
+void DPasteDotComProtocol::fetchFinished(const QString &id, QNetworkReply * const reply,
+                                         bool alreadyRedirected)
+{
+    const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    if (status >= 300 && status <= 308 && status != 306) {
+        if (!alreadyRedirected) {
+            const QString location = QString::fromUtf8(reply->rawHeader("Location"));
+            if (status == 301 || status == 308) {
+                const QString m = QString("HTTP redirect (%1) to \"%2\"").arg(status).arg(location);
+                Core::MessageManager::write(m, Core::MessageManager::ModeSwitch);
+            }
+            QNetworkReply * const newRep = httpGet(location);
+            connect(newRep, &QNetworkReply::finished, this, [this, id, newRep] {
+                fetchFinished(id, newRep, true);
+            });
+            reply->deleteLater();
+            return;
+        }
+    }
+    QString title;
+    QString content;
+    const bool error = reply->error();
+    if (error) {
+        content = reply->errorString();
+    } else {
+        title = name() + ": " + id;
+        content = QString::fromUtf8(reply->readAll());
+    }
+    reply->deleteLater();
+    emit fetchDone(title, content, error);
 }
 
 static QByteArray typeToString(Protocol::ContentType type)

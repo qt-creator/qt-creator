@@ -336,7 +336,7 @@ Node {
 
         DefaultMaterial {
             id: lightMaterial
-            emissiveColor: lightGizmo.color
+            diffuseColor: lightGizmo.color
             lighting: DefaultMaterial.NoLighting
             cullMode: Material.NoCulling
         }

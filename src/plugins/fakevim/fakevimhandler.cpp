@@ -278,6 +278,23 @@ QDebug operator<<(QDebug ts, const CursorPosition &pos)
     return ts << "(line: " << pos.line << ", column: " << pos.column << ")";
 }
 
+// vi style configuration
+static QVariant config(int code)
+{
+    return theFakeVimSetting(code)->value();
+}
+
+static bool hasConfig(int code)
+{
+    return config(code).toBool();
+}
+
+static bool hasConfig(int code, const QString &value)
+{
+    return config(code).toString().contains(value);
+}
+
+
 class Mark
 {
 public:
@@ -387,7 +404,7 @@ static bool eatString(const QString &prefix, QString *str)
     return true;
 }
 
-static QRegularExpression vimPatternToQtPattern(QString needle, bool ignoreCaseOption, bool smartCaseOption)
+static QRegularExpression vimPatternToQtPattern(const QString &needle)
 {
     /* Transformations (Vim regexp -> QRegularExpression):
      *   \a -> [A-Za-z]
@@ -418,9 +435,15 @@ static QRegularExpression vimPatternToQtPattern(QString needle, bool ignoreCaseO
      *   \c - set ignorecase for rest
      *   \C - set noignorecase for rest
      */
+
     // FIXME: Option smartcase should be used only if search was typed by user.
-    bool ignorecase = ignoreCaseOption
+    const bool ignoreCaseOption = hasConfig(ConfigIgnoreCase);
+    const bool smartCaseOption = hasConfig(ConfigSmartCase);
+    const bool initialIgnoreCase = ignoreCaseOption
         && !(smartCaseOption && needle.contains(QRegularExpression("[A-Z]")));
+
+    bool ignorecase = initialIgnoreCase;
+
     QString pattern;
     pattern.reserve(2 * needle.size());
 
@@ -429,7 +452,7 @@ static QRegularExpression vimPatternToQtPattern(QString needle, bool ignoreCaseO
     bool embraced = false;
     bool range = false;
     bool curly = false;
-    foreach (const QChar &c, needle) {
+    for (const QChar &c : needle) {
         if (brace) {
             brace = false;
             if (c == ']') {
@@ -530,7 +553,8 @@ static QRegularExpression vimPatternToQtPattern(QString needle, bool ignoreCaseO
     else if (brace)
         pattern.append('[');
 
-    return QRegularExpression(pattern);
+    return QRegularExpression(pattern, initialIgnoreCase ? QRegularExpression::CaseInsensitiveOption
+                                                         : QRegularExpression::NoPatternOption);
 }
 
 static bool afterEndOfLine(const QTextDocument *doc, int position)
@@ -544,17 +568,21 @@ static void searchForward(QTextCursor *tc, const QRegularExpression &needleExp, 
     const QTextDocument *doc = tc->document();
     const int startPos = tc->position();
 
+    QTextDocument::FindFlags flags = {};
+    if (!(needleExp.patternOptions() & QRegularExpression::CaseInsensitiveOption))
+        flags |= QTextDocument::FindCaseSensitively;
+
     // Search from beginning of line so that matched text is the same.
     tc->movePosition(StartOfLine);
 
     // forward to current position
-    *tc = doc->find(needleExp, *tc);
+    *tc = doc->find(needleExp, *tc, flags);
     while (!tc->isNull() && tc->anchor() < startPos) {
         if (!tc->hasSelection())
             tc->movePosition(Right);
         if (tc->atBlockEnd())
             tc->movePosition(NextBlock);
-        *tc = doc->find(needleExp, *tc);
+        *tc = doc->find(needleExp, *tc, flags);
     }
 
     if (tc->isNull())
@@ -567,7 +595,7 @@ static void searchForward(QTextCursor *tc, const QRegularExpression &needleExp, 
             tc->movePosition(Right);
         if (tc->atBlockEnd())
             tc->movePosition(NextBlock);
-        *tc = doc->find(needleExp, *tc);
+        *tc = doc->find(needleExp, *tc, flags);
         if (tc->isNull())
             return;
         --*repeat;
@@ -2116,12 +2144,6 @@ public:
     void updateMarks(const Marks &newMarks);
     CursorPosition markLessPosition() const { return mark('<').position(document()); }
     CursorPosition markGreaterPosition() const { return mark('>').position(document()); }
-
-    // vi style configuration
-    QVariant config(int code) const { return theFakeVimSetting(code)->value(); }
-    bool hasConfig(int code) const { return config(code).toBool(); }
-    bool hasConfig(int code, const QString &value) const
-        { return config(code).toString().contains(value); }
 
     int m_targetColumn; // -1 if past end of line
     int m_visualTargetColumn; // 'l' can move past eol in visual mode only
@@ -5559,9 +5581,7 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
     if (g.lastSubstituteFlags.contains('i'))
         needle.prepend("\\c");
 
-    const QRegularExpression pattern = vimPatternToQtPattern(needle,
-                                                             hasConfig(ConfigIgnoreCase),
-                                                             hasConfig(ConfigSmartCase));
+    const QRegularExpression pattern = vimPatternToQtPattern(needle);
 
     QTextBlock lastBlock;
     QTextBlock firstBlock;
@@ -6355,9 +6375,8 @@ void FakeVimHandler::Private::searchBalanced(bool forward, QChar needle, QChar o
 QTextCursor FakeVimHandler::Private::search(const SearchData &sd, int startPos, int count,
     bool showMessages)
 {
-    const QRegularExpression needleExp = vimPatternToQtPattern(sd.needle,
-                                                               hasConfig(ConfigIgnoreCase),
-                                                               hasConfig(ConfigSmartCase));
+    const QRegularExpression needleExp = vimPatternToQtPattern(sd.needle);
+
     if (!needleExp.isValid()) {
         if (showMessages) {
             QString error = needleExp.errorString();

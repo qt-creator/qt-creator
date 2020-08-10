@@ -75,13 +75,9 @@ signals:
     void buildTargetsChanged();
 
 protected:
-    void processStarted() override;
     void processFinished(int exitCode, QProcess::ExitStatus status) override;
 
     bool fromMap(const QVariantMap &map) override;
-
-    // For parsing [ 76%]
-    void stdOutput(const QString &output) override;
 
 private:
     void ctor(ProjectExplorer::BuildStepList *bsl);
@@ -100,13 +96,10 @@ private:
 
     QMetaObject::Connection m_runTrigger;
 
-    QRegularExpression m_percentProgress;
-    QRegularExpression m_ninjaProgress;
     QString m_ninjaProgressString;
     QStringList m_buildTargets;
     QString m_cmakeArguments;
     QString m_toolArguments;
-    bool m_useNinja = false;
     bool m_waiting = false;
 };
 

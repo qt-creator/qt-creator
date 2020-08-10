@@ -32,15 +32,6 @@ add_qtc_test(tst_debugger_gdb
     "${DEBUGGERDIR}/debuggerprotocol.cpp" "${DEBUGGERDIR}/debuggerprotocol.h"
 )
 
-add_qtc_test(tst_debugger_namedemangler
-  INCLUDES "${DEBUGGERDIR}"
-  SOURCES
-    tst_namedemangler.cpp
-    "${DEBUGGERDIR}/namedemangler/globalparsestate.cpp" "${DEBUGGERDIR}/namedemangler/globalparsestate.h"
-    "${DEBUGGERDIR}/namedemangler/namedemangler.cpp" "${DEBUGGERDIR}/namedemangler/namedemangler.h"
-    "${DEBUGGERDIR}/namedemangler/parsetreenodes.cpp" "${DEBUGGERDIR}/namedemangler/parsetreenodes.h"
-)
-
 add_qtc_test(tst_debugger_offsets
   DEPENDS Qt5::CorePrivate
   INCLUDES "${DEBUGGERDIR}"

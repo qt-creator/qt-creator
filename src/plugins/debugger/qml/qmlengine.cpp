@@ -570,7 +570,6 @@ void QmlEngine::shutdownEngine()
     stopApplicationLauncher();
 
     notifyEngineShutdownFinished();
-    showMessage(QString(), StatusBar);
 }
 
 void QmlEngine::setupEngine()

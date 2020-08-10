@@ -27,6 +27,7 @@
 #include "androidsdkmanager.h"
 #include "androidavdmanager.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/algorithm.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/utilsicons.h>
@@ -58,8 +59,12 @@ AvdDialog::AvdDialog(int minApiLevel, AndroidSdkManager *sdkManager, const QStri
     m_hideTipTimer.setSingleShot(true);
 
     if (abis.isEmpty()) {
-        m_avdDialog.abiComboBox->addItems(QStringList({"x86", "x86_64", "armeabi-v7a",
-                                                       "armeabi", "arm64-v8a"}));
+        m_avdDialog.abiComboBox->addItems(QStringList({
+                                               ProjectExplorer::Constants::ANDROID_ABI_X86,
+                                               ProjectExplorer::Constants::ANDROID_ABI_X86_64,
+                                               ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A,
+                                               ProjectExplorer::Constants::ANDROID_ABI_ARMEABI,
+                                               ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A}));
     } else {
         m_avdDialog.abiComboBox->addItems(abis);
     }

@@ -30,6 +30,7 @@
 #include "bindingmodel.h"
 #include "dynamicpropertiesmodel.h"
 #include "connectionview.h"
+#include "nodemetainfo.h"
 
 #include <bindingproperty.h>
 
@@ -152,11 +153,13 @@ QWidget *BindingDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
             bindingComboBox->addItems(model->possibleTargetProperties(bindingProperty));
         } break;
         case BindingModel::SourceModelNodeRow: {
+            //common items
             for (const ModelNode &modelNode : model->connectionView()->allModelNodes()) {
                 if (!modelNode.id().isEmpty()) {
                     bindingComboBox->addItem(modelNode.id());
                 }
             }
+            //singletons:
             if (RewriterView* rv = model->connectionView()->rewriterView()) {
                 for (const QmlTypeData &data : rv->getQMLTypes()) {
                     if (!data.typeName.isEmpty()) {
@@ -164,6 +167,7 @@ QWidget *BindingDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
                     }
                 }
             }
+            //parent:
             if (!bindingProperty.parentModelNode().isRootNode())
                 bindingComboBox->addItem(QLatin1String("parent"));
         } break;
@@ -301,6 +305,26 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
                             connectionComboBox->addItem(modelNode.id()
                                                         + "."
                                                         + QString::fromUtf8(property.name()));
+                        }
+                    }
+                }
+            }
+        }
+        //singletons:
+        if (RewriterView* rv = connectionModel->connectionView()->rewriterView()) {
+            for (const QmlTypeData &data : rv->getQMLTypes()) {
+                if (!data.typeName.isEmpty()) {
+                    connectionComboBox->addItem(data.typeName);
+
+                    NodeMetaInfo metaInfo = connectionModel->connectionView()->model()->metaInfo(data.typeName.toUtf8());
+
+                    if (metaInfo.isValid()) {
+                        for (const PropertyName &propertyName : metaInfo.propertyNames()) {
+                            if (metaInfo.propertyTypeName(propertyName) == "alias") {
+                                connectionComboBox->addItem(data.typeName
+                                                            + "."
+                                                            + QString::fromUtf8(propertyName));
+                            }
                         }
                     }
                 }

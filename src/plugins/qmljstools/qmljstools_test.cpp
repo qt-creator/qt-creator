@@ -55,7 +55,7 @@ void QmlJSToolsPlugin::test_basic()
     QVERIFY(context);
 
     const CppComponentValue *rectangleValue = context->valueOwner()->cppQmlTypes().objectByQualifiedName(
-                QLatin1String("QtQuick"), QLatin1String("QDeclarativeRectangle"), LanguageUtils::ComponentVersion(2, 1));
+                QLatin1String("QtQuick"), QLatin1String("QDeclarativeRectangle"), LanguageUtils::ComponentVersion(2, 15));
     QVERIFY(rectangleValue);
     QVERIFY(!rectangleValue->isWritable(QLatin1String("border")));
     QVERIFY(rectangleValue->hasProperty(QLatin1String("border")));

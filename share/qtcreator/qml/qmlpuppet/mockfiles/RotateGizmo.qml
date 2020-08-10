@@ -175,7 +175,7 @@ Node {
         source: "#Sphere"
         materials: DefaultMaterial {
             id: material
-            emissiveColor: "black"
+            diffuseColor: "black"
             opacity: mouseAreaFree.hovering ? 0.15 : 0
             lighting: DefaultMaterial.NoLighting
         }

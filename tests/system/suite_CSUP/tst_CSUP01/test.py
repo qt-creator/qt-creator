@@ -111,7 +111,7 @@ def main():
                 proposal = "return"
                 if useClang:
                     # clang adds a whitespace because the function needs to return a value
-                    proposal += " "
+                    proposal += " ;"
                 waitForObjectItem(":popupFrame_Proposal_QListView", proposal)
             except:
                 test.fail("Could not find proposal popup.")

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,47 +23,29 @@
 **
 ****************************************************************************/
 
-#include "globalparsestate.h"
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import StudioTheme 1.0 as StudioTheme
 
-#include "demanglerexceptions.h"
-#include "parsetreenodes.h"
+ScrollBar {
+    id: scrollBar
 
-namespace Debugger {
-namespace Internal {
+    property bool scrollBarVisible: parent.childrenRect.width > parent.width
 
-char GlobalParseState::peek(int ahead)
-{
-    Q_ASSERT(m_pos >= 0);
-    if (m_pos + ahead < m_mangledName.size())
-        return m_mangledName[m_pos + ahead];
-    return eoi;
+    orientation: Qt.Horizontal
+    policy: scrollBar.scrollBarVisible ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
+    x: 0
+    y: parent.height - height
+    width: parent.availableWidth
+           - (parent.bothVisible ? parent.verticalThickness : 0)
+    padding: 0
+
+    background: Rectangle {
+        color: StudioTheme.Values.themeSectionHeadBackground
+    }
+
+    contentItem: Rectangle {
+        implicitHeight: StudioTheme.Values.scrollBarThickness
+        color: StudioTheme.Values.themeScrollBarHandle
+    }
 }
-
-char GlobalParseState::advance(int steps)
-{
-    Q_ASSERT(steps > 0);
-    if (m_pos + steps > m_mangledName.size())
-        throw ParseException("Unexpected end of input");
-
-    const char c = m_mangledName[m_pos];
-    m_pos += steps;
-    return c;
-}
-
-QByteArray GlobalParseState::readAhead(int charCount) const
-{
-    QByteArray str;
-    if (m_pos + charCount <= m_mangledName.size())
-        str = m_mangledName.mid(m_pos, charCount);
-    else
-        str.fill(eoi, charCount);
-    return str;
-}
-
-void GlobalParseState::addSubstitution(const QSharedPointer<ParseTreeNode> &node)
-{
-    m_substitutions << node->clone();
-}
-
-} // namespace Internal
-} // namespace Debugger

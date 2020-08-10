@@ -139,23 +139,40 @@ struct ItemData
     QVariant userData;
 };
 
+static QStringList getFileContents(const QString &filePath)
+{
+    QString fileContent;
+    if (TextEditor::TextDocument *document = TextEditor::TextDocument::textDocumentForFilePath(
+            Utils::FilePath::fromString(filePath))) {
+        fileContent = document->plainText();
+    } else {
+        Utils::TextFileFormat format;
+        format.lineTerminationMode = Utils::TextFileFormat::LFLineTerminator;
+        QString error;
+        const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
+        if (Utils::TextFileFormat::readFile(filePath, codec, &fileContent, &format, &error)
+            != Utils::TextFileFormat::ReadSuccess) {
+            qDebug() << "Failed to read file" << filePath << ":" << error;
+        }
+    }
+    return fileContent.split("\n");
+}
+
 QList<Core::SearchResultItem> generateSearchResultItems(
     const QMap<QString, QList<ItemData>> &rangesInDocument)
 {
     QList<Core::SearchResultItem> result;
     for (auto it = rangesInDocument.begin(); it != rangesInDocument.end(); ++it) {
         const QString &fileName = it.key();
-        QFile file(fileName);
-        file.open(QFile::ReadOnly);
 
         Core::SearchResultItem item;
         item.path = QStringList() << fileName;
         item.useTextEditorFont = true;
 
-        QStringList lines = QString::fromLocal8Bit(file.readAll()).split(QChar::LineFeed);
+        QStringList lines = getFileContents(fileName);
         for (const ItemData &data : it.value()) {
             item.mainRange = data.range;
-            if (file.isOpen() && data.range.begin.line > 0 && data.range.begin.line <= lines.size())
+            if (data.range.begin.line > 0 && data.range.begin.line <= lines.size())
                 item.text = lines[data.range.begin.line - 1];
             else
                 item.text.clear();

@@ -329,23 +329,6 @@ void resetPosition(const SelectionContext &selectionState)
     });
 }
 
-void fitRootToScreen(const SelectionContext &selectionState)
-{
-    if (!selectionState.view())
-        return;
-
-    selectionState.view()->emitCustomNotification(QStringLiteral("fit root to screen"));
-}
-
-void fitSelectionToScreen(const SelectionContext &selectionState)
-{
-    if (!selectionState.view())
-        return;
-
-    selectionState.view()->emitCustomNotification(QStringLiteral("fit selection to screen"),
-                                                  selectionState.selectedModelNodes());
-}
-
 void goIntoComponentOperation(const SelectionContext &selectionState)
 {
     goIntoComponent(selectionState.currentSingleSelectedNode());
@@ -1499,6 +1482,42 @@ void mergeWithTemplate(const SelectionContext &selectionContext)
         styleMerge(selectionContext, templateFile);
 }
 
-} // namespace Mode
+void removeGroup(const SelectionContext &selectionContext)
+{
+    if (!selectionContext.view() || !selectionContext.hasSingleSelectedModelNode())
+        return;
+
+    ModelNode group = selectionContext.currentSingleSelectedNode();
+
+    if (!QmlItemNode::isValidQmlItemNode(group))
+        return;
+
+    QmlItemNode groupItem(group);
+
+    QmlItemNode parent = groupItem.instanceParentItem();
+
+    if (!parent.isValid())
+        return;
+
+    selectionContext.view()->executeInTransaction(
+        "DesignerActionManager::removeGroup", [selectionContext, &groupItem, parent]() {
+            for (const ModelNode &modelNode :
+                 selectionContext.currentSingleSelectedNode().directSubModelNodes()) {
+                if (modelNode.isValid()) {
+                    QmlItemNode qmlItem(modelNode);
+
+                    QPointF pos = qmlItem.instancePosition();
+                    pos = groupItem.instanceTransform().map(pos);
+                    modelNode.variantProperty("x").setValue(pos.x());
+                    modelNode.variantProperty("y").setValue(pos.y());
+
+                    parent.modelNode().defaultNodeListProperty().reparentHere(modelNode);
+                }
+            }
+            groupItem.destroy();
+        });
+}
+
+} // namespace ModelNodeOperations
 
 } //QmlDesigner

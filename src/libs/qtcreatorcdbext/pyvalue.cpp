@@ -278,11 +278,16 @@ PyValue PyValue::childFromIndex(int index)
 
     int offset = index + 1;
     for (ULONG childIndex = m_index + 1; childIndex < m_index + offset; ) {
-        const ULONG childDescendantCount = currentNumberOfDescendants(childIndex, m_symbolGroup);
+        const ULONG childDescendantCount = ::currentNumberOfDescendants(childIndex, m_symbolGroup);
         childIndex += childDescendantCount + 1;
         offset += childDescendantCount;
     }
     return PyValue(m_index + offset, m_symbolGroup);
+}
+
+ULONG PyValue::currentNumberOfDescendants()
+{
+    return ::currentNumberOfDescendants(m_index, m_symbolGroup);
 }
 
 PyValue PyValue::createValue(ULONG64 address, const PyType &type)

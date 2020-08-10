@@ -1250,7 +1250,7 @@ extern "C" HRESULT CALLBACK qmlstack(CIDebugClient *client, PCSTR argsIn)
         // the start assuming this is invoked for crashed applications.
         std::ostringstream callStr;
         const QtInfo &qtInfo = QtInfo::get(SymbolGroupValueContext(exc.dataSpaces(), exc.symbols()));
-        callStr << qtInfo.prependQtModule("qt_v4StackTrace(", QtInfo::Qml) << std::showbase << std::hex
+        callStr << qtInfo.prependQtModule("qt_v4StackTraceForEngine(", QtInfo::Qml) << std::showbase << std::hex
                 << jsExecutionEngine << std::dec << std::noshowbase << ')';
         std::wstring wOutput;
         if (!ExtensionContext::instance().call(callStr.str(), ExtensionContext::CallWithExceptionsHandled, &wOutput, &errorMessage))

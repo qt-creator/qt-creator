@@ -546,6 +546,41 @@ QLinearGradient StyleHelper::statusBarGradient(const QRect &statusBarRect)
     return grad;
 }
 
+QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QList<IconFontHelper> &parameters)
+{
+    QFontDatabase a;
+
+    QTC_ASSERT(a.hasFamily(fontName), {});
+
+    if (!a.hasFamily(fontName))
+        return {};
+
+    QIcon icon;
+
+    for (const IconFontHelper &p : parameters) {
+        const int maxDpr = qRound(qApp->devicePixelRatio());
+        for (int dpr = 1; dpr <= maxDpr; dpr++) {
+            QPixmap pixmap(p.size() * dpr);
+            pixmap.setDevicePixelRatio(dpr);
+            pixmap.fill(Qt::transparent);
+
+            QFont font(fontName);
+            font.setPixelSize(p.size().height());
+
+            QPainter painter(&pixmap);
+            painter.save();
+            painter.setPen(p.color());
+            painter.setFont(font);
+            painter.drawText(QRectF(QPoint(0, 0), p.size()), p.iconSymbol());
+            painter.restore();
+
+            icon.addPixmap(pixmap, p.mode(), p.state());
+        }
+    }
+
+    return icon;
+}
+
 QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QString &iconSymbol, int fontSize, int iconSize, QColor color)
 {
     QFontDatabase a;

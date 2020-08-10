@@ -408,10 +408,14 @@ void OutputWindow::handleOutputChunk(const QString &output, OutputFormat format)
 {
     QString out = output;
     if (out.size() > d->maxCharCount) {
-        // Current line alone exceeds limit, we need to cut it.
-        out.truncate(d->maxCharCount);
-        out.append("[...]");
-        setMaximumBlockCount(1);
+        // Current chunk alone exceeds limit, we need to cut it.
+        const int elided = out.size() - d->maxCharCount;
+        out = out.left(d->maxCharCount / 2)
+                + "[[[... "
+                + tr("Elided %n characters due to Application Output settings", nullptr, elided)
+                + " ...]]]"
+                + out.right(d->maxCharCount / 2);
+        setMaximumBlockCount(out.count('\n') + 1);
     } else {
         int plannedChars = document()->characterCount() + out.size();
         if (plannedChars > d->maxCharCount) {

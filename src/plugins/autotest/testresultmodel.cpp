@@ -289,8 +289,11 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
     addFileName(testResult->fileName()); // ensure we calculate the results pane correctly
     if (parentItem) {
         parentItem->appendChild(newItem);
-        if (autoExpand)
+        if (autoExpand) {
             parentItem->expand();
+            newItem->expand();
+            newItem->forAllChildren([](Utils::TreeItem *it) { it->expand(); });
+        }
         updateParent(newItem);
     } else {
         if (lastRow >= 0) {

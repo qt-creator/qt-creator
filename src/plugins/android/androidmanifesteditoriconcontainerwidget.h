@@ -29,6 +29,8 @@
 #include <QVector>
 #include <QWidget>
 
+#include <QCoreApplication>
+
 namespace TextEditor {
     class TextEditorWidget;
 }
@@ -40,6 +42,8 @@ class AndroidManifestEditorIconWidget;
 
 class AndroidManifestEditorIconContainerWidget : public QWidget
 {
+    Q_DECLARE_TR_FUNCTIONS(Android::Internal::AndroidManifestEditorIconContainerWidget)
+
 public:
     explicit AndroidManifestEditorIconContainerWidget(QWidget *parent,
                                                       TextEditor::TextEditorWidget *textEditorWidget);

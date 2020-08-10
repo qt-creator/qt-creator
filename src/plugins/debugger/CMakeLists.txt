@@ -58,10 +58,6 @@ add_qtc_plugin(Debugger
     logwindow.cpp logwindow.h
     memoryagent.cpp memoryagent.h
     moduleshandler.cpp moduleshandler.h
-    namedemangler/demanglerexceptions.h
-    namedemangler/globalparsestate.cpp namedemangler/globalparsestate.h
-    namedemangler/namedemangler.cpp namedemangler/namedemangler.h
-    namedemangler/parsetreenodes.cpp namedemangler/parsetreenodes.h
     outputcollector.cpp outputcollector.h
     pdb/pdbengine.cpp pdb/pdbengine.h
     peripheralregisterhandler.cpp peripheralregisterhandler.h

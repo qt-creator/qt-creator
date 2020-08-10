@@ -384,6 +384,11 @@ void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
     m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeListKeppInvalid(selectedNodeList)));
 
     m_scene->update();
+
+    if (selectedNodeList.empty())
+        m_formEditorWidget->zoomSelectionAction()->setEnabled(false);
+    else
+        m_formEditorWidget->zoomSelectionAction()->setEnabled(true);
 }
 
 void FormEditorView::variantPropertiesChanged(const QList<VariantProperty> &propertyList,
@@ -448,7 +453,7 @@ void FormEditorView::customNotification(const AbstractView * /*view*/, const QSt
         m_dragTool->clearMoveDelay();
     if (identifier == QLatin1String("reset QmlPuppet"))
         temporaryBlockView();
-    if (identifier == QLatin1String("fit root to screen")) {
+    if (identifier == QLatin1String("zoom all")) {
         if (QmlItemNode(rootModelNode()).isFlowView()) {
             QRectF boundingRect;
             for (QGraphicsItem *item : scene()->items()) {
@@ -469,7 +474,7 @@ void FormEditorView::customNotification(const AbstractView * /*view*/, const QSt
         float zoomLevel = ZoomAction::getClosestZoomLevel(scaleFactor);
         m_formEditorWidget->zoomAction()->forceZoomLevel(zoomLevel);
     }
-    if (identifier == QLatin1String("fit selection to screen")) {
+    if (identifier == QLatin1String("zoom selection")) {
         if (nodeList.isEmpty())
             return;
 
@@ -485,6 +490,10 @@ void FormEditorView::customNotification(const AbstractView * /*view*/, const QSt
         float zoomLevel = ZoomAction::getClosestZoomLevel(scaleFactor);
         m_formEditorWidget->zoomAction()->forceZoomLevel(zoomLevel);
     }
+    if (identifier == QLatin1String("zoom in"))
+        m_formEditorWidget->zoomAction()->zoomIn();
+    if (identifier == QLatin1String("zoom out"))
+        m_formEditorWidget->zoomAction()->zoomOut();
 }
 
 AbstractFormEditorTool *FormEditorView::currentTool() const

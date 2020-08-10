@@ -32,10 +32,10 @@ import StudioTheme 1.0 as StudioTheme
 Section {
     anchors.left: parent.left
     anchors.right: parent.right
+
     caption: qsTr("Align")
 
-    ColumnLayout {
-        width: parent.width
+    SectionLayout {
         enabled: alignDistribute.multiSelection &&
                  !alignDistribute.selectionHasAnchors &&
                  alignDistribute.selectionExclusivlyItems &&
@@ -49,8 +49,11 @@ Section {
         Label {
             text: qsTr("Align objects")
             width: 120
+            Layout.columnSpan: 2
         }
+
         RowLayout {
+            Layout.columnSpan: 2
             Row {
                 spacing: -StudioTheme.Values.border
                 AbstractButton {
@@ -105,8 +108,11 @@ Section {
         Label {
             text: qsTr("Distribute objects")
             width: 120
+            Layout.columnSpan: 2
         }
+
         RowLayout {
+            Layout.columnSpan: 2
             Row {
                 spacing: -StudioTheme.Values.border
                 AbstractButton {
@@ -161,8 +167,11 @@ Section {
         Label {
             text: qsTr("Distribute spacing")
             width: 120
+            Layout.columnSpan: 2
         }
+
         RowLayout {
+            Layout.columnSpan: 2
             Row {
                 spacing: -StudioTheme.Values.border
                 AbstractButton {
@@ -242,18 +251,16 @@ Section {
             }
         }
 
-        SectionLayout {
-            columns: 2
+        ItemFilterModel {
+            id: itemFilterModel
+            modelNodeBackendProperty: modelNodeBackend
+            selectionOnly: true
+        }
 
-            ItemFilterModel {
-                id: itemFilterModel
-                modelNodeBackendProperty: modelNodeBackend
-                selectionOnly: true
-            }
-
-            Label {
-                text: qsTr("Align to")
-            }
+        Label {
+            text: qsTr("Align to")
+        }
+        SecondColumnLayout {
             ComboBox {
                 id: alignToComboBox
                 Layout.fillWidth: true
@@ -267,9 +274,14 @@ Section {
                 }
             }
 
-            Label {
-                text: qsTr("Key object")
+            ExpandingSpacer {
             }
+        }
+
+        Label {
+            text: qsTr("Key object")
+        }
+        SecondColumnLayout {
             ComboBox {
                 id: keyObjectComboBox
                 enabled: alignToComboBox.currentIndex === 2
@@ -285,11 +297,15 @@ Section {
                         lastSelectedItem = "" // TODO
                 }
             }
+
+            ExpandingSpacer {
+            }
         }
 
         SectionLayout {
             columns: 1
             Layout.topMargin: 30
+            Layout.columnSpan: 2
             visible: alignDistribute.multiSelection &&
                      (alignDistribute.selectionHasAnchors ||
                      !alignDistribute.selectionExclusivlyItems ||

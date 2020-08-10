@@ -28,6 +28,7 @@ QtcProduct {
     Depends { name: "gtest"; required: false }
     Depends { name: "gmock"; required: false }
 
+    pluginjson.useVcsData: false
     sqlite_sources.buildSharedLib: false
 
     cpp.defines: {

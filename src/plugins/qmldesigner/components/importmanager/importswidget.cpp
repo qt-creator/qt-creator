@@ -122,8 +122,15 @@ void ImportsWidget::removePossibleImports()
 
 void ImportsWidget::setUsedImports(const QList<Import> &usedImports)
 {
+    const QStringList excludeList = {"SimulinkConnector"};
+
+    // exclude imports in the excludeList from being readonly (i.e. always enable their x button)
+    QList<Import> filteredImports = Utils::filtered(usedImports, [excludeList](const Import &import) {
+        return !excludeList.contains(import.url());
+    });
+
     foreach (ImportLabel *importLabel, m_importLabels)
-        importLabel->setReadOnly(usedImports.contains(importLabel->import()));
+        importLabel->setReadOnly(filteredImports.contains(importLabel->import()));
 }
 
 void ImportsWidget::removeUsedImports()

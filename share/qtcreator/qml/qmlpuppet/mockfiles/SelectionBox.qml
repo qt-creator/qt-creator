@@ -56,7 +56,7 @@ Node {
 
         materials: [
             DefaultMaterial {
-                emissiveColor: "#fff600"
+                diffuseColor: "#fff600"
                 lighting: DefaultMaterial.NoLighting
                 cullMode: Material.NoCulling
             }

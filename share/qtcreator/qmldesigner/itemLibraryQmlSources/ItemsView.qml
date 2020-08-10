@@ -23,15 +23,11 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import QtQuick.Controls 1.1
-import QtQuick.Controls.Styles 1.0
-import "../common"
-
-import QtQuick.Layouts 1.0
-import HelperWidgets 2.0
-
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import QtQuickDesignerTheme 1.0
+import HelperWidgets 2.0
+import StudioTheme 1.0 as StudioTheme
 
 /* The view displaying the item grid.
 
@@ -65,9 +61,6 @@ ScrollView {
 
     Item {
         id: styleConstants
-        readonly property color backgroundColor: Theme.qmlDesignerBackgroundColorDarkAlternate()
-        readonly property color lighterBackgroundColor: Theme.color(Theme.FancyToolBarSeparatorColor)
-
         property int textWidth: 58
         property int textHeight: Theme.smallFontPixelSize() * 2
 
@@ -81,48 +74,37 @@ ScrollView {
         2 * cellVerticalMargin + cellVerticalSpacing
     }
 
-    Rectangle {
-        id: background
-        anchors.fill: parent
-        color: styleConstants.backgroundColor
-    }
+    Column {
+        id: column
+        Repeater {
+            model: itemLibraryModel  // to be set in Qml context
+            delegate: Section {
+                width: itemsView.width -
+                       (itemsView.verticalScrollBarVisible ? StudioTheme.Values.scrollBarThickness : 0)
+                caption: sectionName // to be set by model
+                visible: sectionVisible
+                topPadding: 2
+                leftPadding: 2
+                rightPadding: 1
+                expanded: sectionExpanded
+                onExpandedChanged: itemLibraryModel.setExpanded(expanded, sectionName);
+                Grid {
+                    id: itemGrid
 
-    style: DesignerScrollViewStyle {
+                    columns: parent.width / styleConstants.cellWidth
+                    property int flexibleWidth: (parent.width - styleConstants.cellWidth * columns) / columns
 
-    }
-
-    Flickable {
-        contentHeight: column.height
-        Column {
-            id: column
-            Repeater {
-                model: itemLibraryModel  // to be set in Qml context
-                delegate: Section {
-                    width: itemsView.viewport.width
-                    caption: sectionName // to be set by model
-                    visible: sectionVisible
-                    topPadding: 2
-                    leftPadding: 2
-                    rightPadding: 1
-                    expanded: sectionExpanded
-                    onExpandedChanged: itemLibraryModel.setExpanded(expanded, sectionName);
-                    Grid {
-                        id: itemGrid
-
-                        columns: parent.width / styleConstants.cellWidth
-                        property int flexibleWidth: (parent.width - styleConstants.cellWidth * columns) / columns
-
-                        Repeater {
-                            model: sectionEntries
-                            delegate: ItemDelegate {
-                                visible: itemVisible
-                                width: styleConstants.cellWidth + itemGrid.flexibleWidth
-                                height: styleConstants.cellHeight
-                            }
+                    Repeater {
+                        model: sectionEntries
+                        delegate: ItemDelegate {
+                            visible: itemVisible
+                            width: styleConstants.cellWidth + itemGrid.flexibleWidth
+                            height: styleConstants.cellHeight
                         }
                     }
                 }
             }
         }
     }
+
 }

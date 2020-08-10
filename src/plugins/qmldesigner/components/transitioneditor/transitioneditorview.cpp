@@ -272,6 +272,16 @@ ModelNode TransitionEditorView::addNewTransition()
                     }
                 }
             });
+    } else {
+        QString properties;
+        for (const PropertyName &property : validProperties)
+            properties.append(QString::fromUtf8(property) + ", ");
+        if (!properties.isEmpty())
+            properties.chop(2);
+        Core::AsynchronousMessageBox::warning(
+            tr("No properties to animate found."),
+            tr("To add transitions, first change the properties that you want to animate in states (%1).")
+                .arg(properties));
     }
 
     if (m_transitionEditorWidget)
@@ -284,9 +294,6 @@ TransitionEditorWidget *TransitionEditorView::createWidget()
 {
     if (!m_transitionEditorWidget)
         m_transitionEditorWidget = new TransitionEditorWidget(this);
-
-    //auto *timelineContext = new TimelineContext(m_timelineWidget);
-    //Core::ICore::addContextObject(timelineContext);
 
     return m_transitionEditorWidget;
 }

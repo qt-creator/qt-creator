@@ -93,6 +93,36 @@ public:
     static void tintImage(QImage &img, const QColor &tintColor);
     static QLinearGradient statusBarGradient(const QRect &statusBarRect);
 
+    class IconFontHelper
+    {
+        public:
+            IconFontHelper(const QString &iconSymbol,
+                           const QColor &color,
+                           const QSize &size,
+                           QIcon::Mode mode = QIcon::Normal,
+                           QIcon::State state = QIcon::Off)
+                : m_iconSymbol(iconSymbol)
+                , m_color(color)
+                , m_size(size)
+                , m_mode(mode)
+                , m_state(state)
+            {}
+
+            QString iconSymbol() const { return m_iconSymbol; }
+            QColor color() const { return m_color; }
+            QSize size() const { return m_size; }
+            QIcon::Mode mode() const { return m_mode; }
+            QIcon::State state() const { return m_state; }
+
+        private:
+            QString m_iconSymbol;
+            QColor m_color;
+            QSize m_size;
+            QIcon::Mode m_mode;
+            QIcon::State m_state;
+    };
+
+    static QIcon getIconFromIconFont(const QString &fontName, const QList<IconFontHelper> &parameters);
     static QIcon getIconFromIconFont(const QString &fontName, const QString &iconSymbol, int fontSize, int iconSize, QColor color);
     static QIcon getIconFromIconFont(const QString &fontName, const QString &iconSymbol, int fontSize, int iconSize);
 

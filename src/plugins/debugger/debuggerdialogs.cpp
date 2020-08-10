@@ -462,7 +462,8 @@ void StartApplicationDialog::run(bool attachRemote)
     debugger->setCommandsAfterConnect(newParameters.serverInitCommands);
     debugger->setCommandsForReset(newParameters.serverResetCommands);
     debugger->setUseTerminal(newParameters.runInTerminal);
-    debugger->setSysRoot(newParameters.sysRoot);
+    if (!newParameters.sysRoot.isEmpty())
+        debugger->setSysRoot(newParameters.sysRoot);
 
     bool isLocal = !dev || (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     if (isLocal) {

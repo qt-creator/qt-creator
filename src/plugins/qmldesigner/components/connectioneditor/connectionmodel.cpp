@@ -34,6 +34,8 @@
 #include <exception.h>
 #include <nodemetainfo.h>
 #include <nodelistproperty.h>
+#include <rewriterview.h>
+#include <nodemetainfo.h>
 
 #include <QStandardItemModel>
 #include <QMessageBox>
@@ -209,10 +211,27 @@ void ConnectionModel::updateTargetNode(int rowNumber)
     ModelNode connectionNode = signalHandlerProperty.parentModelNode();
 
     const bool isAlias = newTarget.contains(".");
+    bool isSingleton = false;
+
+    if (RewriterView* rv = connectionView()->rewriterView()) {
+        for (const QmlTypeData &data : rv->getQMLTypes()) {
+            if (!data.typeName.isEmpty()) {
+                if (data.typeName == newTarget) {
+                    if (connectionView()->model()->metaInfo(data.typeName.toUtf8()).isValid()) {
+                        isSingleton = true;
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
     if (!newTarget.isEmpty()) {
-        //if it's an alias, then let's reparent connections to alias property owner:
-        const ModelNode parent = connectionView()->modelNodeForId(isAlias
+        //if it's a singleton, then let's reparent connections to rootNode,
+        //if it's an alias, then reparent to alias property owner:
+        const ModelNode parent = connectionView()->modelNodeForId(isSingleton
+                                                                  ? connectionView()->rootModelNode().id()
+                                                                  : isAlias
                                                                   ? newTarget.split(".").constFirst()
                                                                   : newTarget);
 
@@ -430,6 +449,28 @@ QStringList ConnectionModel::getPossibleSignalsForConnection(const ModelNode &co
     QStringList stringList;
 
     if (connection.isValid()) {
+
+        //separate check for singletons
+        if (connection.hasBindingProperty("target")) {
+            BindingProperty bp = connection.bindingProperty("target");
+
+            if (bp.isValid()) {
+                if (RewriterView *rv = connectionView()->rewriterView()) {
+                    for (const QmlTypeData &data : rv->getQMLTypes()) {
+                        if (!data.typeName.isEmpty()) {
+                            if (data.typeName == bp.expression()) {
+                                NodeMetaInfo metaInfo = connectionView()->model()->metaInfo(data.typeName.toUtf8());
+                                if (metaInfo.isValid()) {
+                                    stringList.append(propertyNameListToStringList(metaInfo.signalNames()));
+                                    return stringList;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         ModelNode targetNode = getTargetNodeForConnection(connection);
         if (targetNode.isValid() && targetNode.metaInfo().isValid()) {
             stringList.append(propertyNameListToStringList(targetNode.metaInfo().signalNames()));

@@ -23,31 +23,16 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import QtQuick.Controls 2.0 as Controls
-import QtQuick.Layouts 1.0
+import QtQuick 2.15
+import HelperWidgets 2.0
+import StudioTheme 1.0 as StudioTheme
 
-Item {
-    id: label
-    width:  parent.width < 300 ? 80 : Math.min(140, parent.width - 220)
-    height: 16
-    property alias source: image.source
+Label {
+    id: myLabel
 
-    Item {
-        width: 16
-        height: 16
-        Image {
-            id: image
-            anchors.fill: parent
-        }
+    property alias icon: myLabel.text
 
-    }
-
-    Layout.preferredWidth: width
-    Layout.minimumWidth: width
-    Layout.maximumWidth: width
-
-//    Component.onCompleted: {
-//        label.Layout.preferredWidth = width
-//    }
+    text: StudioTheme.Constants.actionIcon
+    font.family: StudioTheme.Constants.iconFont.family
+    font.pixelSize: StudioTheme.Values.myIconFontSize
 }

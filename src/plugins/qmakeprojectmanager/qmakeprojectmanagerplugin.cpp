@@ -435,7 +435,7 @@ void QmakeProjectManagerPluginPrivate::runQMakeImpl(Project *p, Node *node)
         if (auto *profile = dynamic_cast<QmakeProFileNode *>(node))
             bc->setSubNodeBuild(profile);
 
-    BuildManager::appendStep(qs, tr("QMake"));
+    BuildManager::appendStep(qs, QmakeProjectManagerPlugin::tr("QMake"));
     bc->setSubNodeBuild(nullptr);
 }
 

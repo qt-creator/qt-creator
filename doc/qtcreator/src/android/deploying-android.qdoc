@@ -102,7 +102,7 @@
 
     The packages are deployed on the connected Android devices. To switch the
     device used as a default device for the selected kit, select
-    \uicontrol Projects > \uicontrol Run > \uicontrol {Deploy to Android device}
+    \uicontrol Projects > \uicontrol Run > \uicontrol {Deploy to Android Device}
     > \uicontrol {Reset Default Devices}. The setting applies until you restart \QC.
     For more information, see \l{Selecting Android Devices}.
 

@@ -143,12 +143,11 @@ void StatusBarManager::addStatusBarWidget(QWidget *widget,
 void StatusBarManager::destroyStatusBarWidget(QWidget *widget)
 {
     QTC_ASSERT(widget, return);
-    for (const QPointer<IContext> &context : m_contexts) {
-        if (context->widget() == widget) {
-            m_contexts.removeAll(context);
-            delete context;
-            break;
-        }
+    const auto it = std::find_if(m_contexts.begin(), m_contexts.end(),
+            [widget](const auto &context) { return context->widget() == widget; });
+    if (it != m_contexts.end()) {
+        delete *it;
+        m_contexts.erase(it);
     }
     widget->setParent(nullptr);
     delete widget;

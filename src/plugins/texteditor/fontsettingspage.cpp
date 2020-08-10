@@ -279,7 +279,9 @@ FormatDescription::FormatDescription(TextStyle id,
 
 QColor FormatDescription::defaultForeground(TextStyle id)
 {
-    if (id == C_LINE_NUMBER) {
+    if (id == C_TEXT) {
+        return Qt::black;
+    } else if (id == C_LINE_NUMBER) {
         const QPalette palette = Utils::Theme::initialPalette();
         const QColor bg = palette.window().color();
         if (bg.value() < 128)

@@ -2,7 +2,7 @@ import QtQuick 2.0
 
 Item {
     x: {
-        switch (a) {
+        switch (a) { // 108 17 17
         case 1:
         case 2:
             x = 1
@@ -21,7 +21,7 @@ Item {
             break
         case 9:
         }
-        switch (a) {
+        switch (a) { // 108 17 17
         case 1:
         case 2: // 20 9 12
             x = 1

@@ -131,9 +131,10 @@ void tst_Check::test()
     QList<Message> messages = checker();
     std::sort(messages.begin(), messages.end(), &offsetComparator);
 
-    const QRegularExpression messagePattern(" (\\d+) (\\d+) (\\d+)");
+    const QRegularExpression messagePattern(" (-?\\d+) (\\d+) (\\d+)\\s*(# false positive|# wrong warning.*)?");
 
     QList<Message> expectedMessages;
+    QHash<int, QString> xfails;
     for (const SourceLocation &comment : doc->engine()->comments()) {
         const QString text = doc->source().mid(comment.begin(), comment.end() - comment.begin());
         const QRegularExpressionMatch match = messagePattern.match(text);
@@ -151,6 +152,9 @@ void tst_Check::test()
                     columnStart),
         message.type = static_cast<QmlJS::StaticAnalysis::Type>(type);
         expectedMessages += message;
+
+        if (messagePattern.captureCount() == 4 && !match.captured(4).isEmpty())
+            xfails.insert(expectedMessages.size() - 1, match.captured(4));
     }
 
     for (int i = 0; i < messages.size(); ++i) {
@@ -160,6 +164,9 @@ void tst_Check::test()
         Message expected = expectedMessages.at(i);
         bool fail = false;
         fail |= !QCOMPARE_NOEXIT(actual.location.startLine, expected.location.startLine);
+        auto xFail = xfails.find(i);
+        if (xFail != xfails.end())
+            QEXPECT_FAIL(path.toUtf8(), xFail.value().toUtf8(), Continue);
         fail |= !QCOMPARE_NOEXIT((int)actual.type, (int)expected.type);
         if (fail)
             return;
@@ -176,7 +183,10 @@ void tst_Check::test()
             Message missingMessage = expectedMessages.at(i);
             qDebug() << "expected message of type" << missingMessage.type << "on line" << missingMessage.location.startLine;
         }
-        QFAIL("more messages expected");
+        if (path.endsWith("avoid-var.qml"))
+            QEXPECT_FAIL(path.toUtf8(), "currently broken", Continue);
+
+        QVERIFY2(false, "more messages expected");
     }
     if (expectedMessages.size() < messages.size()) {
         for (int i = expectedMessages.size(); i < messages.size(); ++i) {

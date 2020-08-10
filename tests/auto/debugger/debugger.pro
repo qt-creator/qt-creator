@@ -10,7 +10,5 @@ CONFIG += ordered
 SUBDIRS += gdb.pro
 SUBDIRS += simplifytypes.pro
 SUBDIRS += dumpers.pro
-SUBDIRS += namedemangler.pro
 SUBDIRS += disassembler.pro
 SUBDIRS += offsets.pro
-

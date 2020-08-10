@@ -23,10 +23,11 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
-import HelperWidgets 2.0
-import QtQuick.Layouts 1.0
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
 import QtQuickDesignerTheme 1.0
+import HelperWidgets 2.0
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
@@ -35,14 +36,15 @@ Rectangle {
     width: 320
     height: 400
     color: Theme.qmlDesignerBackgroundColorDarkAlternate()
+
     MouseArea {
         anchors.fill: parent
         onClicked: forceActiveFocus()
     }
 
     ScrollView {
+        clip: true
         anchors.fill: parent
-        horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
 
         Column {
             y: -1
@@ -57,7 +59,6 @@ Rectangle {
                 SectionLayout {
                     Label {
                         text: qsTr("Type")
-
                     }
 
                     SecondColumnLayout {
@@ -65,15 +66,12 @@ Rectangle {
 
                         RoundedPanel {
                             Layout.fillWidth: true
-                            height: 24
+                            height: StudioTheme.Values.height
 
                             Label {
-                                x: 6
                                 anchors.fill: parent
-                                anchors.leftMargin: 16
-
+                                anchors.leftMargin: StudioTheme.Values.inputHorizontalPadding
                                 text: backendValues.className.value
-                                verticalAlignment: Text.AlignVCenter
                             }
                             ToolTipArea {
                                 anchors.fill: parent
@@ -87,10 +85,10 @@ Rectangle {
                             }
 
                             ExpressionTextField {
-                                z: 2
                                 id: typeLineEdit
+                                z: 2
                                 completeOnlyTypes: true
-
+                                replaceCurrentTextByCompletion: true
                                 anchors.fill: parent
 
                                 visible: false
@@ -98,10 +96,26 @@ Rectangle {
                                 showButtons: false
                                 fixedSize: true
 
+                                property bool blockEditingFinished: false
+
                                 onEditingFinished: {
-                                    if (visible)
+                                    if (typeLineEdit.blockEditingFinished)
+                                        return
+
+                                    typeLineEdit.blockEditingFinished = true
+
+                                    if (typeLineEdit.visible)
                                         changeTypeName(typeLineEdit.text.trim())
-                                    visible = false
+                                    typeLineEdit.visible = false
+
+                                    typeLineEdit.blockEditingFinished = false
+
+                                    typeLineEdit.completionList.model = null
+                                }
+
+                                onRejected: {
+                                    typeLineEdit.visible = false
+                                    typeLineEdit.completionList.model = null
                                 }
                             }
 
@@ -117,6 +131,7 @@ Rectangle {
                     }
 
                     SecondColumnLayout {
+                        spacing: 2
                         LineEdit {
                             id: lineEdit
 
@@ -129,28 +144,54 @@ Rectangle {
                             showExtendedFunctionButton: false
                             enabled: !modelNodeBackend.multiSelection
                         }
-                        // workaround: without this item the lineedit does not shrink to the
-                        // right size after resizing to a wider width
 
-                        Image {
-                            visible: !modelNodeBackend.multiSelection
-                            Layout.preferredWidth: 20
-                            Layout.preferredHeight: 20
-                            horizontalAlignment: Image.AlignHCenter
-                            verticalAlignment: Image.AlignVCenter
-                            source: hasAliasExport ? "image://icons/alias-export-checked" : "image://icons/alias-export-unchecked"
+                        Rectangle {
+                            id: aliasIndicator
+                            color: "transparent"
+                            border.color: "transparent"
+                            implicitWidth: StudioTheme.Values.height
+                            implicitHeight: StudioTheme.Values.height
+                            z: 10
+
+                            Label {
+                                id: aliasIndicatorIcon
+                                enabled: !modelNodeBackend.multiSelection
+                                anchors.fill: parent
+                                text: {
+                                    if (!aliasIndicatorIcon.enabled)
+                                        return StudioTheme.Constants.idAliasOff
+
+                                    return hasAliasExport ? StudioTheme.Constants.idAliasOn : StudioTheme.Constants.idAliasOff
+                                }
+                                color: {
+                                    if (!aliasIndicatorIcon.enabled)
+                                        return StudioTheme.Values.themeTextColorDisabled
+
+                                    return hasAliasExport ? StudioTheme.Values.themeInteraction : StudioTheme.Values.themeTextColor
+                                }
+                                font.family: StudioTheme.Constants.iconFont.family
+                                font.pixelSize: Math.round(16 * StudioTheme.Values.scaleFactor)
+                                verticalAlignment: Text.AlignVCenter
+                                horizontalAlignment: Text.AlignHCenter
+                                states: [
+                                    State {
+                                        name: "hovered"
+                                        when: toolTipArea.containsMouse && aliasIndicatorIcon.enabled
+                                        PropertyChanges {
+                                            target: aliasIndicatorIcon
+                                            scale: 1.2
+                                        }
+                                    }
+                                ]
+                            }
+
                             ToolTipArea {
+                                id: toolTipArea
                                 enabled: !modelNodeBackend.multiSelection
                                 anchors.fill: parent
                                 onClicked: toogleExportAlias()
                                 tooltip: qsTr("Exports this item as an alias property of the root item.")
                             }
-                        }
-                        Item { //dummy object to preserve layout in case of multiselection
-                            Layout.preferredWidth: 20
-                            Layout.preferredHeight: 20
-                            enabled: modelNodeBackend.multiSelection
-                            visible: enabled
                         }
                     }
 
@@ -280,7 +321,6 @@ Rectangle {
                         Item {
                             width: 10
                             height: 10
-
                         }
 
                         CheckBox {
@@ -319,88 +359,92 @@ Rectangle {
                 width: 4
             }
 
-            TabView {
+            StudioControls.TabBar {
+                id: tabBar
+
                 anchors.left: parent.left
                 anchors.right: parent.right
-                frameVisible: false
 
-                id: tabView
+                StudioControls.TabButton {
+                    text: backendValues.className.value
+                }
+                StudioControls.TabButton {
+                    text: qsTr("Layout")
+                }
+                StudioControls.TabButton {
+                    text: qsTr("Advanced")
+                }
+            }
+
+            StackLayout {
+                anchors.left: parent.left
+                anchors.right: parent.right
+                currentIndex: tabBar.currentIndex
+
+                property int currentHeight: children[currentIndex].implicitHeight
+                property int extraHeight: 40
 
                 height: currentHeight + extraHeight
 
-                property int currentHeight: getTab(currentIndex).item.implicitHeight
-                property int extraHeight: 40
+                Column {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
 
-                Tab {
-                    title: backendValues.className.value
+                    Loader {
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        visible: theSource !== ""
 
-                    component: Column {
+                        id: specificsTwo;
+                        sourceComponent: specificQmlComponent
+
+                        property string theSource: specificQmlData
+
+                        onTheSourceChanged: {
+                            active = false
+                            active = true
+                        }
+                    }
+
+                    Loader {
                         anchors.left: parent.left
                         anchors.right: parent.right
 
-                        Loader {
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            visible: theSource !== ""
+                        id: specificsOne;
+                        source: specificsUrl;
 
-                            id: specificsTwo;
-                            sourceComponent: specificQmlComponent
-
-                            property string theSource: specificQmlData
-
-                            onTheSourceChanged: {
-                                active = false
-                                active = true
-                            }
-                        }
-
-                        Loader {
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-
-                            id: specificsOne;
-                            source: specificsUrl;
-
-                            property int loaderHeight: specificsOne.item.height + tabView.extraHeight
-                        }
+                        property int loaderHeight: specificsOne.item.height + tabView.extraHeight
                     }
                 }
 
-                Tab {
-                    title: qsTr("Layout")
-                    component: Column {
-                        anchors.left: parent.left
-                        anchors.right: parent.right
+                Column {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
 
-                        LayoutSection {
-                        }
+                    LayoutSection {
+                    }
 
-                        MarginSection {
-                            visible: anchorBackend.isInLayout
-                            backendValueTopMargin: backendValues.Layout_topMargin
-                            backendValueBottomMargin: backendValues.Layout_bottomMargin
-                            backendValueLeftMargin: backendValues.Layout_leftMargin
-                            backendValueRightMargin: backendValues.Layout_rightMargin
-                            backendValueMargins: backendValues.Layout_margins
-                        }
+                    MarginSection {
+                        visible: anchorBackend.isInLayout
+                        backendValueTopMargin: backendValues.Layout_topMargin
+                        backendValueBottomMargin: backendValues.Layout_bottomMargin
+                        backendValueLeftMargin: backendValues.Layout_leftMargin
+                        backendValueRightMargin: backendValues.Layout_rightMargin
+                        backendValueMargins: backendValues.Layout_margins
+                    }
 
-                        AlignDistributeSection {
-                            visible: !anchorBackend.isInLayout
-                        }
+                    AlignDistributeSection {
+                        visible: !anchorBackend.isInLayout
                     }
                 }
 
-                Tab {
-                    anchors.fill: parent
-                    title: qsTr("Advanced")
-                    component: Column {
-                        anchors.left: parent.left
-                        anchors.right: parent.right
+                Column {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
 
-                        AdvancedSection {
-                        }
-                        LayerSection {
-                        }
+                    AdvancedSection {
+                    }
+                    LayerSection {
                     }
                 }
             }

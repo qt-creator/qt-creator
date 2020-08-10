@@ -272,17 +272,6 @@ QList<ItemLibraryEntry> ItemLibraryInfo::entriesForType(const QByteArray &typeNa
     return entries;
 }
 
-ItemLibraryEntry ItemLibraryInfo::entry(const QString &name) const
-{
-    if (m_nameToEntryHash.contains(name))
-        return m_nameToEntryHash.value(name);
-
-    if (m_baseInfo)
-        return m_baseInfo->entry(name);
-
-    return ItemLibraryEntry();
-}
-
 QList<ItemLibraryEntry> ItemLibraryInfo::entries() const
 {
     QList<ItemLibraryEntry> list = m_nameToEntryHash.values();

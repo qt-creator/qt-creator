@@ -60,6 +60,10 @@ GccParser::GccParser()
                                + FILE_PATTERN + "(\\d+)(:\\d+)?[,:]?$");
     QTC_CHECK(m_regExpInlined.isValid());
 
+    m_regExpCc1plus.setPattern(QLatin1Char('^') + "cc1plus.*(error|warning): ((?:"
+                               + FILE_PATTERN + " No such file or directory)?.*)");
+    QTC_CHECK(m_regExpCc1plus.isValid());
+
     // optional path with trailing slash
     // optional arm-linux-none-thingy
     // name of executable
@@ -185,6 +189,18 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
         return {Status::InProgress, linkSpecs};
     }
 
+    match = m_regExpCc1plus.match(lne);
+    if (match.hasMatch()) {
+        const Task::TaskType type = match.captured(1) == "error" ? Task::Error : Task::Warning;
+        const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(3)));
+        LinkSpecs linkSpecs;
+        if (!filePath.isEmpty())
+            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, -1, match, 3);
+        createOrAmendTask(type, match.captured(2), lne, false, filePath, -1, linkSpecs);
+        flush();
+        return {Status::Done, linkSpecs};
+    }
+
     match = m_regExp.match(lne);
     if (match.hasMatch()) {
         int lineno = match.captured(3).toInt();
@@ -233,6 +249,7 @@ bool GccParser::isContinuation(const QString &newLine) const
     return !m_currentTask.isNull()
             && (m_currentTask.details.last().endsWith(':')
                 || m_currentTask.details.last().endsWith(',')
+                || m_currentTask.details.last().contains(" required from ")
                 || newLine.contains("within this context")
                 || newLine.contains("note:"));
 }
@@ -1137,6 +1154,61 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                                         "  465 |         at(newSize) = 0;\n"
                                                         "      |         ~~~~~~~~~~~~^~~",
                                  FilePath::fromUserInput("smallstring.h"), 465)}
+            << QString();
+
+    QTest::newRow(R"("required from")")
+            << QString(
+                   "In file included from qmap.h:1,\n"
+                   "                 from qvariant.h:47,\n"
+                   "                 from ilocatorfilter.h:33,\n"
+                   "                 from helpindexfilter.h:28,\n"
+                   "                 from moc_helpindexfilter.cpp:10:\n"
+                   "qmap.h: In instantiation of ‘struct QMapNode<QString, QUrl>’:\n"
+                   "qmap.h:606:30:   required from ‘QMap<K, V>::QMap(const QMap<K, V>&) [with Key = QString; T = QUrl]’\n"
+                   "qmap.h:1090:7:   required from ‘static constexpr void (* QtPrivate::QMetaTypeForType<S>::getCopyCtr())(const QtPrivate::QMetaTypeInterface*, void*, const void*) [with T = QMultiMap<QString, QUrl>; S = QMultiMap<QString, QUrl>; QtPrivate::QMetaTypeInterface::CopyCtrFn = void (*)(const QtPrivate::QMetaTypeInterface*, void*, const void*)]’\n"
+                   "qmetatype.h:2765:32:   required from ‘QtPrivate::QMetaTypeInterface QtPrivate::QMetaTypeForType<QMultiMap<QString, QUrl> >::metaType’\n"
+                   "qmetatype.h:2865:16:   required from ‘constexpr QtPrivate::QMetaTypeInterface* QtPrivate::qTryMetaTypeInterfaceForType() [with Unique = qt_meta_stringdata_Help__Internal__HelpIndexFilter_t; T = const QMultiMap<QString, QUrl>&]’\n"
+                   "qmetatype.h:2884:55:   required from ‘QtPrivate::QMetaTypeInterface* const qt_incomplete_metaTypeArray [4]<qt_meta_stringdata_Help__Internal__HelpIndexFilter_t, void, const QMultiMap<QString, QUrl>&, const QString&, QStringList>’\n"
+                   "moc_helpindexfilter.cpp:105:1:   required from here\n"
+                   "qmap.h:110:7: error: ‘QMapNode<Key, T>::value’ has incomplete type\n"
+                   "  110 |     T value;\n"
+                   "      |       ^~~~~")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << Tasks{CompileTask(Task::Error,
+                                 "‘QMapNode<Key, T>::value’ has incomplete type\n"
+                                 "In file included from qmap.h:1,\n"
+                                 "                 from qvariant.h:47,\n"
+                                 "                 from ilocatorfilter.h:33,\n"
+                                 "                 from helpindexfilter.h:28,\n"
+                                 "                 from moc_helpindexfilter.cpp:10:\n"
+                                 "qmap.h: In instantiation of ‘struct QMapNode<QString, QUrl>’:\n"
+                                 "qmap.h:606:30:   required from ‘QMap<K, V>::QMap(const QMap<K, V>&) [with Key = QString; T = QUrl]’\n"
+                                 "qmap.h:1090:7:   required from ‘static constexpr void (* QtPrivate::QMetaTypeForType<S>::getCopyCtr())(const QtPrivate::QMetaTypeInterface*, void*, const void*) [with T = QMultiMap<QString, QUrl>; S = QMultiMap<QString, QUrl>; QtPrivate::QMetaTypeInterface::CopyCtrFn = void (*)(const QtPrivate::QMetaTypeInterface*, void*, const void*)]’\n"
+                                 "qmetatype.h:2765:32:   required from ‘QtPrivate::QMetaTypeInterface QtPrivate::QMetaTypeForType<QMultiMap<QString, QUrl> >::metaType’\n"
+                                 "qmetatype.h:2865:16:   required from ‘constexpr QtPrivate::QMetaTypeInterface* QtPrivate::qTryMetaTypeInterfaceForType() [with Unique = qt_meta_stringdata_Help__Internal__HelpIndexFilter_t; T = const QMultiMap<QString, QUrl>&]’\n"
+                                 "qmetatype.h:2884:55:   required from ‘QtPrivate::QMetaTypeInterface* const qt_incomplete_metaTypeArray [4]<qt_meta_stringdata_Help__Internal__HelpIndexFilter_t, void, const QMultiMap<QString, QUrl>&, const QString&, QStringList>’\n"
+                                 "moc_helpindexfilter.cpp:105:1:   required from here\n"
+                                 "qmap.h:110:7: error: ‘QMapNode<Key, T>::value’ has incomplete type\n"
+                                 "  110 |     T value;\n"
+                                 "      |       ^~~~~",
+                                 FilePath::fromUserInput("qmap.h"), 110)}
+            << QString();
+
+    QTest::newRow("cc1plus")
+            << QString(
+                   "cc1plus: error: one or more PCH files were found, but they were invalid\n"
+                   "cc1plus: error: use -Winvalid-pch for more information\n"
+                   "cc1plus: fatal error: .pch/Qt6Core5Compat: No such file or directory\n"
+                   "cc1plus: warning: -Wformat-security ignored without -Wformat [-Wformat-security]\n"
+                   "compilation terminated.")
+            << OutputParserTester::STDERR
+            << QString() << QString("compilation terminated.\n")
+            << Tasks{
+                   CompileTask(Task::Error, "one or more PCH files were found, but they were invalid"),
+                   CompileTask(Task::Error, "use -Winvalid-pch for more information"),
+                   CompileTask(Task::Error, ".pch/Qt6Core5Compat: No such file or directory", FilePath::fromString(".pch/Qt6Core5Compat")),
+                   CompileTask(Task::Warning, "-Wformat-security ignored without -Wformat [-Wformat-security]")}
             << QString();
 }
 

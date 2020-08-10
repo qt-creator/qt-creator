@@ -47,6 +47,7 @@
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QListWidget>
+#include <QRegularExpression>
 
 using namespace ProjectExplorer;
 
@@ -58,6 +59,53 @@ const char CMAKE_ARGUMENTS_KEY[] = "CMakeProjectManager.MakeStep.CMakeArguments"
 const char TOOL_ARGUMENTS_KEY[] = "CMakeProjectManager.MakeStep.AdditionalArguments";
 const char ADD_RUNCONFIGURATION_ARGUMENT_KEY[] = "CMakeProjectManager.MakeStep.AddRunConfigurationArgument";
 const char ADD_RUNCONFIGURATION_TEXT[] = "Current executable";
+
+class CmakeProgressParser : public Utils::OutputLineParser
+{
+    Q_OBJECT
+
+signals:
+    void progress(int percentage);
+
+private:
+    Result handleLine(const QString &line, Utils::OutputFormat format) override
+    {
+        if (format != Utils::StdOutFormat)
+            return Status::NotHandled;
+
+        static const QRegularExpression percentProgress("^\\[\\s*(\\d*)%\\]");
+        static const QRegularExpression ninjaProgress("^\\[\\s*(\\d*)/\\s*(\\d*)");
+
+        QRegularExpressionMatch match = percentProgress.match(line);
+        if (match.hasMatch()) {
+            bool ok = false;
+            const int percent = match.captured(1).toInt(&ok);
+            if (ok)
+                emit progress(percent);
+            return Status::Done;
+        }
+        match = ninjaProgress.match(line);
+        if (match.hasMatch()) {
+            m_useNinja = true;
+            bool ok = false;
+            const int done = match.captured(1).toInt(&ok);
+            if (ok) {
+                const int all = match.captured(2).toInt(&ok);
+                if (ok && all != 0) {
+                    const int percent = static_cast<int>(100.0 * done / all);
+                    emit progress(percent);
+                }
+            }
+            return Status::Done;
+        }
+        return Status::NotHandled;
+    }
+    bool hasDetectedRedirection() const override { return m_useNinja; }
+
+    // TODO: Shouldn't we know the backend in advance? Then we could merge this class
+    //       with CmakeParser.
+    bool m_useNinja = false;
+};
 
 class CMakeBuildStepConfigWidget : public BuildStepConfigWidget
 {
@@ -88,8 +136,6 @@ static bool isCurrentExecutableTarget(const QString &target)
 CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Utils::Id id) :
     AbstractProcessStep(bsl, id)
 {
-    m_percentProgress = QRegularExpression("^\\[\\s*(\\d*)%\\]");
-    m_ninjaProgress = QRegularExpression("^\\[\\s*(\\d*)/\\s*(\\d*)");
     m_ninjaProgressString = "[%f/%t "; // ninja: [33/100
     //: Default display name for the cmake make step.
     setDefaultDisplayName(tr("CMake Build"));
@@ -211,9 +257,18 @@ bool CMakeBuildStep::init()
 void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
 {
     CMakeParser *cmakeParser = new CMakeParser;
+    CmakeProgressParser * const progressParser = new CmakeProgressParser;
+    connect(progressParser, &CmakeProgressParser::progress, this, [this](int percent) {
+        emit progress(percent, {});
+    });
+    formatter->addLineParser(progressParser);
     cmakeParser->setSourceDirectory(project()->projectDirectory().toString());
     formatter->addLineParsers({cmakeParser, new GnuMakeParser});
-    formatter->addLineParsers(target()->kit()->createOutputParsers());
+    const QList<Utils::OutputLineParser *> additionalParsers
+            = target()->kit()->createOutputParsers();
+    for (Utils::OutputLineParser * const p : additionalParsers)
+        p->setRedirectionDetector(progressParser);
+    formatter->addLineParsers(additionalParsers);
     formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
     AbstractProcessStep::setupOutputFormatter(formatter);
 }
@@ -274,51 +329,6 @@ QString CMakeBuildStep::defaultBuildTarget() const
     if (parentId == ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
         return installTarget();
     return allTarget();
-}
-
-void CMakeBuildStep::stdOutput(const QString &output)
-{
-    int offset = 0;
-    while (offset != -1) {
-        const int newlinePos = output.indexOf('\n', offset);
-        QString line;
-        if (newlinePos == -1) {
-            line = output.mid(offset);
-            offset = -1;
-        } else {
-            line = output.mid(offset, newlinePos - offset + 1);
-            offset = newlinePos + 1;
-        }
-        QRegularExpressionMatch match = m_percentProgress.match(line);
-        if (match.hasMatch()) {
-            AbstractProcessStep::stdOutput(line);
-            bool ok = false;
-            int percent = match.captured(1).toInt(&ok);
-            if (ok)
-                emit progress(percent, QString());
-            continue;
-        } else {
-            match = m_ninjaProgress.match(line);
-            if (match.hasMatch()) {
-                AbstractProcessStep::stdOutput(line);
-                m_useNinja = true;
-                bool ok = false;
-                int done = match.captured(1).toInt(&ok);
-                if (ok) {
-                    int all = match.captured(2).toInt(&ok);
-                    if (ok && all != 0) {
-                        const int percent = static_cast<int>(100.0 * done/all);
-                        emit progress(percent, QString());
-                    }
-                }
-                continue;
-            }
-        }
-        if (m_useNinja)
-            AbstractProcessStep::stdError(line);
-        else
-            AbstractProcessStep::stdOutput(line);
-    }
 }
 
 QStringList CMakeBuildStep::buildTargets() const
@@ -577,12 +587,6 @@ CMakeBuildStepFactory::CMakeBuildStepFactory()
     setSupportedProjectType(Constants::CMAKE_PROJECT_ID);
 }
 
-void CMakeBuildStep::processStarted()
-{
-    m_useNinja = false;
-    AbstractProcessStep::processStarted();
-}
-
 void CMakeBuildStep::processFinished(int exitCode, QProcess::ExitStatus status)
 {
     AbstractProcessStep::processFinished(exitCode, status);
@@ -591,3 +595,5 @@ void CMakeBuildStep::processFinished(int exitCode, QProcess::ExitStatus status)
 
 } // Internal
 } // CMakeProjectManager
+
+#include <cmakebuildstep.moc>

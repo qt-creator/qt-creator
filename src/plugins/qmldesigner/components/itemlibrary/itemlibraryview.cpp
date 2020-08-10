@@ -29,6 +29,10 @@
 #include <importmanagerview.h>
 #include <qmlitemnode.h>
 #include <rewriterview.h>
+#include <bindingproperty.h>
+#include <nodelistproperty.h>
+#include <utils/algorithm.h>
+#include "metainfo.h"
 
 namespace QmlDesigner {
 
@@ -82,9 +86,35 @@ void ItemLibraryView::modelAboutToBeDetached(Model *model)
     m_widget->setModel(nullptr);
 }
 
-void ItemLibraryView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
+void ItemLibraryView::importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
 {
     updateImports();
+
+    // TODO: generalize the logic below to allow adding/removing any Qml component when its import is added/removed
+    bool simulinkImportAdded = std::any_of(addedImports.cbegin(), addedImports.cend(), [](const Import &import) {
+        return import.url() == "SimulinkConnector";
+    });
+    if (simulinkImportAdded) {
+        // add SLConnector component when SimulinkConnector import is added
+        ModelNode node = createModelNode("SLConnector", 1, 0);
+        node.bindingProperty("root").setExpression(rootModelNode().validId());
+        rootModelNode().defaultNodeListProperty().reparentHere(node);
+    } else {
+        bool simulinkImportRemoved = std::any_of(removedImports.cbegin(), removedImports.cend(), [](const Import &import) {
+            return import.url() == "SimulinkConnector";
+        });
+
+        if (simulinkImportRemoved) {
+            // remove SLConnector component when SimulinkConnector import is removed
+            const QList<ModelNode> slConnectors = Utils::filtered(rootModelNode().directSubModelNodes(),
+                                                                  [](const ModelNode &node) {
+                return node.type() == "SLConnector" || node.type() == "SimulinkConnector.SLConnector";
+            });
+
+            for (ModelNode node : slConnectors)
+                node.destroy();
+        }
+    }
 }
 
 void ItemLibraryView::setResourcePath(const QString &resourcePath)

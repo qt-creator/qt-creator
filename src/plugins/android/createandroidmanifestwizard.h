@@ -54,19 +54,11 @@ public:
     ProjectExplorer::BuildSystem *buildSystem() const;
 
 private:
-    enum CopyState {
-        Ask,
-        OverwriteAll,
-        SkipAll
-    };
-    bool copy(const QFileInfo &src, const QFileInfo &dst, QStringList *addedFiles);
-
     void createAndroidManifestFile();
     void createAndroidTemplateFiles();
     ProjectExplorer::BuildSystem *m_buildSystem;
     QString m_buildKey;
     QString m_directory;
-    CopyState m_copyState;
     bool m_copyGradle;
 };
 

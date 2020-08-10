@@ -25,6 +25,7 @@
 #include "androidavdmanager.h"
 
 #include <coreplugin/icore.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
@@ -424,8 +425,8 @@ AndroidDeviceInfoList AvdManagerOutputParser::parseAvdList(const QString &output
             }
         } else if (parseAvd(avdInfo, &avd)) {
             // armeabi-v7a devices can also run armeabi code
-            if (avd.cpuAbi.contains("armeabi-v7a"))
-                avd.cpuAbi << "armeabi";
+            if (avd.cpuAbi.contains(ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A))
+                avd.cpuAbi << ProjectExplorer::Constants::ANDROID_ABI_ARMEABI;
             avd.state = AndroidDeviceInfo::OkState;
             avd.type = AndroidDeviceInfo::Emulator;
             avdList << avd;

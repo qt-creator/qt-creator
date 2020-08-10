@@ -23,13 +23,15 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.2
-import QtQuick.Controls 1.1
-import QtQuick.Controls.Styles 1.1
-import HelperWidgets 2.0
+import QtQuick 2.15
 import QtQuickDesignerTheme 1.0
+import HelperWidgets 2.0
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 Rectangle {
+    id: myRoot
+
     border.width: 1
     property bool isBaseState
     property bool isCurrentState
@@ -41,6 +43,8 @@ Rectangle {
     property string delegateWhenConditionString
     readonly property bool isDefaultState: isDefault
 
+    signal delegateInteraction
+
     color: baseColor
     border.color: Theme.qmlDesignerBorderColor()
 
@@ -50,38 +54,28 @@ Rectangle {
     }
 
     MouseArea {
+        id: mouseArea
         anchors.fill: parent
 
         acceptedButtons: Qt.LeftButton
         onClicked: {
             focus = true
             root.currentStateInternalId = internalNodeId
+            contextMenu.dismiss() // close potentially open context menu
+            myRoot.delegateInteraction()
         }
     }
 
-    ToolButton {
+    StudioControls.AbstractButton {
         id: removeStateButton
-
-        style: ButtonStyle {
-            background: Rectangle {
-                color: control.hovered ? Qt.lighter(baseColor, 1.2)  : "transparent"
-                Image {
-                    source: "image://icons/close"
-                    height: 16
-                    width: 16
-                }
-            }
-        }
-
-
+        buttonIcon: StudioTheme.Constants.closeCross
         anchors.right: parent.right
-        anchors.rightMargin: 2
+        anchors.rightMargin: 4
         anchors.verticalCenter: stateNameField.verticalCenter
-        height: 16
-        width: 16
         visible: !isBaseState
 
         onClicked: {
+            myRoot.delegateInteraction()
             if (isDefaultState)
                 statesEditorModel.resetDefaultState()
 
@@ -89,86 +83,77 @@ Rectangle {
         }
     }
 
-    Image {
-        id: whenButton
-        visible: !isBaseState || (isBaseState && modelHasDefaultState)
-        width: 14
-        height: 14
-        x: 4
-        y: 6
-        source: {
-            if (whenMouseArea.containsMouse)
-                return "image://icons/submenu"
+    StudioControls.Menu {
+        id: contextMenu
 
-            return delegateHasWhenCondition ? "image://icons/expression" : "image://icons/placeholder"
-
+        StudioControls.MenuItem {
+            enabled: !isBaseState
+            text: qsTr("Set when Condition")
+            onTriggered: {
+                bindingEditor.showWidget()
+                bindingEditor.text = delegateWhenConditionString
+                bindingEditor.prepareBindings()
+            }
         }
 
-        MouseArea {
-            id: whenMouseArea
-            hoverEnabled: true
-            anchors.fill: parent
-            onClicked: contextMenu.popup()
+        StudioControls.MenuItem {
+            enabled: !isBaseState && delegateHasWhenCondition
+            text: qsTr("Reset when Condition")
+            onTriggered: {
+               statesEditorModel.resetWhenCondition(internalNodeId)
+            }
         }
-        Menu {
-            id: contextMenu
 
-            MenuItem {
-                visible: !isBaseState
-                text: qsTr("Set when Condition")
-                onTriggered: {
-                    bindingEditor.showWidget()
-                    bindingEditor.text = delegateWhenConditionString
-                    bindingEditor.prepareBindings()
-                }
+        StudioControls.MenuItem {
+            enabled: !isBaseState && !isDefaultState
+            text: qsTr("Set as Default")
+            onTriggered: {
+                statesEditorModel.setStateAsDefault(internalNodeId)
             }
+        }
 
-            MenuItem {
-                visible: !isBaseState && delegateHasWhenCondition
-                text: qsTr("Reset when Condition")
-                onTriggered: {
-                   statesEditorModel.resetWhenCondition(internalNodeId)
-                }
+        StudioControls.MenuItem {
+            enabled: (!isBaseState && isDefaultState) || (isBaseState && modelHasDefaultState)
+            text: qsTr("Reset Default")
+            onTriggered: {
+                statesEditorModel.resetDefaultState()
             }
+        }
 
-            MenuItem {
-                visible: !isBaseState && !isDefaultState
-                text: qsTr("Set as Default")
-                onTriggered: {
-                    statesEditorModel.setStateAsDefault(internalNodeId)
-                }
-            }
+        onClosed: {
+            stateNameField.actionIndicator.forceVisible = false
+        }
 
-            MenuItem {
-                visible: (!isBaseState && isDefaultState) || (isBaseState && modelHasDefaultState)
-                text: qsTr("Reset Default")
-                onTriggered: {
-                    statesEditorModel.resetDefaultState()
-                }
-            }
+        onOpened: {
+            myRoot.delegateInteraction()
         }
     }
 
-    TextField {
+
+    StudioControls.TextField {
         id: stateNameField
+
+        actionIndicator.onClicked: {
+            stateNameField.actionIndicator.forceVisible = true
+            contextMenu.popup()
+        }
+
+        onEditChanged: {
+            if (contextMenu.open && stateNameField.edit)
+                contextMenu.dismiss()
+        }
+
+        actionIndicator.icon.text: delegateHasWhenCondition
+                              ? StudioTheme.Constants.actionIconBinding : StudioTheme.Constants.actionIcon
+
+        translationIndicatorVisible: false
         y: 4
-        font.pixelSize: Theme.smallFontPixelSize()
-        anchors.left: whenButton.right
+        anchors.left: parent.left
         // use the spacing which the image to the delegate rectangle has
         anchors.leftMargin: 4
         anchors.right: removeStateButton.left
-        anchors.rightMargin: 4
-        style: DesignerTextFieldStyle {
-            background: Rectangle {
-                implicitWidth: 100
-                implicitHeight: font.pixelSize + padding.top + padding.bottom
-                color: ((isBaseState && modelHasDefaultState) ? "transparent"
-                         : Theme.color(Theme.FancyToolButtonSelectedColor))
-                border.color: ((isBaseState && !modelHasDefaultState) || isDefaultState) ? "#ffd700"
-                                : (isBaseState && modelHasDefaultState) ? "transparent"
-                                : Theme.qmlDesignerBackgroundColorDarker()
-            }
-        }
+        anchors.rightMargin: 2
+
         readOnly: isBaseState
 
         onActiveFocusChanged: {
@@ -188,7 +173,7 @@ Rectangle {
 
             stateNameField.oldValue = stateNameField.text
 
-            if (stateNameField.text != delegateStateName)
+            if (stateNameField.text !== delegateStateName)
                 statesEditorModel.renameState(internalNodeId, stateNameField.text)
         }
     }
@@ -220,8 +205,8 @@ Rectangle {
 
     Text {
         id: stateDefaultIndicator
-        anchors.left: whenButton.left
-        anchors.leftMargin: 0
+        anchors.left: parent.left
+        anchors.leftMargin: StudioTheme.Values.height
         anchors.right: removeStateButton.left
         anchors.rightMargin: 4
         anchors.bottom: parent.bottom

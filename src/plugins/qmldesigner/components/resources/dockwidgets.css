@@ -148,7 +148,7 @@ ADS--DockWidgetTab[focused="true"] > #tabCloseButton:pressed {
 }
 
 ADS--DockWidgetTab[focused="true"] QLabel {
-    color: palette(creatorTheme.QmlDesigner_TabDark);
+    color: palette(creatorTheme.DStextColor);
 }
 
 ADS--DockAreaTitleBar {

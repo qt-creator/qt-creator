@@ -55,6 +55,7 @@ public:
     PyValue childFromName(const std::string &name);
     PyValue childFromField(const PyField &field);
     PyValue childFromIndex(int index);
+    ULONG currentNumberOfDescendants();
 
     static PyValue createValue(ULONG64 address, const PyType &type);
     static int tag(const std::string &typeName);

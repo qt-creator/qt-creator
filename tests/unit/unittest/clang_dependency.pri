@@ -18,7 +18,7 @@ include(../../../src/shared/clang/clang_defines.pri)
 
     LIBS += $$ALL_CLANG_LIBS
 
-    !contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): QMAKE_RPATHDIR += $$LLVM_LIBDIR
+    !contains(QMAKE_DEFAULT_LIBDIRS, $$re_escape($$LLVM_LIBDIR)): QMAKE_RPATHDIR += $$LLVM_LIBDIR
 
     LLVM_CXXFLAGS ~= s,-g\d?,
     QMAKE_CXXFLAGS_WARN_ON *= $$LLVM_CXXFLAGS_WARNINGS

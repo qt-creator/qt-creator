@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,9 +23,29 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import QtQuick.Controls 1.0 as Controls
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import StudioTheme 1.0 as StudioTheme
 
-Controls.Tab {
+ScrollBar {
+    id: scrollBar
 
+    property bool scrollBarVisible: parent.childrenRect.height > parent.height
+
+    orientation: Qt.Vertical
+    policy: scrollBar.scrollBarVisible ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
+    x: parent.width - width
+    y: 0
+    height: parent.availableHeight
+            - (parent.bothVisible ? parent.horizontalThickness : 0)
+    padding: 0
+
+    background: Rectangle {
+        color: StudioTheme.Values.themeSectionHeadBackground
+    }
+
+    contentItem: Rectangle {
+        implicitWidth: StudioTheme.Values.scrollBarThickness
+        color: StudioTheme.Values.themeScrollBarHandle
+    }
 }

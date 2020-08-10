@@ -23,13 +23,14 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import "Constants.js" as Constants
-import StudioControls 1.0 as StudioControls
+import QtQuick 2.15
+import QtQuick.Window 2.15
+import QtQuick.Controls 2.15
 import QtQuickDesignerTheme 1.0
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 StudioControls.TextField {
-
     id: textField
 
     signal rejected
@@ -38,103 +39,199 @@ StudioControls.TextField {
     actionIndicator.visible: false
 
     property bool completeOnlyTypes: false
-
-    property bool completionActive: listView.count > 0
+    property bool completionActive: listView.model !== null
     property bool dotCompletion: false
     property int dotCursorPos: 0
     property string prefix
-
     property alias showButtons: buttonrow.visible
-
     property bool fixedSize: false
+    property bool replaceCurrentTextByCompletion: false
+
+    property alias completionList: listView
 
     function commitCompletion() {
-        var cursorPos = textField.cursorPosition
+        if (replaceCurrentTextByCompletion) {
+            textField.text = listView.currentItem.text
+        } else {
+            var cursorPos = textField.cursorPosition
+            var string = textField.text
+            var before = string.slice(0, cursorPos - textField.prefix.length)
+            var after = string.slice(cursorPos)
 
-        var string = textField.text
-        var before = string.slice(0, cursorPos - textField.prefix.length)
-        var after = string.slice(cursorPos)
-
-        textField.text = before + listView.currentItem.text + after
-
-        textField.cursorPosition = cursorPos + listView.currentItem.text.length - prefix.length
-
+            textField.text = before + listView.currentItem.text + after
+            textField.cursorPosition = cursorPos + listView.currentItem.text.length - prefix.length
+        }
         listView.model = null
     }
 
-    ListView {
-        id: listView
+    Popup {
+        id: textFieldPopup
+        x: textField.x
+        y: textField.height - StudioTheme.Values.border
+        width: textField.width
+        // TODO Setting the height on the popup solved the problem with the popup of height 0,
+        // but it has the problem that it sometimes extend over the border of the actual window
+        // and is then cut off.
+        height: Math.min(contentItem.implicitHeight + textFieldPopup.topPadding + textFieldPopup.bottomPadding,
+                         textField.Window.height - topMargin - bottomMargin,
+                         StudioTheme.Values.maxComboBoxPopupHeight)
+        padding: StudioTheme.Values.border
+        margins: 0 // If not defined margin will be -1
+        closePolicy: Popup.CloseOnPressOutside | Popup.CloseOnPressOutsideParent
+                     | Popup.CloseOnEscape | Popup.CloseOnReleaseOutside
+                     | Popup.CloseOnReleaseOutsideParent
 
-        clip: true
-        cacheBuffer: 0
-        snapMode: ListView.SnapToItem
-        boundsBehavior: Flickable.StopAtBounds
         visible: textField.completionActive
-        delegate: Text {
-            text: modelData
-            color: Theme.color(Theme.PanelTextColorLight)
-            Rectangle {
-                visible: index === listView.currentIndex
-                z: -1
-                anchors.fill: parent
-                color: Theme.qmlDesignerBackgroundColorDarkAlternate()
+
+        onClosed: listView.model = null
+
+        contentItem: ListView {
+            id: listView
+            clip: true
+            implicitHeight: contentHeight
+            boundsBehavior: Flickable.StopAtBounds
+            ScrollBar.vertical: StudioControls.ScrollBar {
+                id: popupScrollBar
             }
+
+            model: null
+
+            delegate: ItemDelegate {
+                id: myItemDelegate
+
+                width: textFieldPopup.width - textFieldPopup.leftPadding - textFieldPopup.rightPadding
+                       - (popupScrollBar.visible ? popupScrollBar.contentItem.implicitWidth
+                                                           + 2 : 0) // TODO Magic number
+                height: StudioTheme.Values.height - 2 * StudioTheme.Values.border
+                padding: 0
+                text: itemDelegateText.text
+
+                contentItem: Text {
+                    id: itemDelegateText
+                    leftPadding: 8
+                    text: modelData
+                    color: StudioTheme.Values.themeTextColor
+                    font: textField.font
+                    elide: Text.ElideRight
+                    verticalAlignment: Text.AlignVCenter
+                }
+                background: Rectangle {
+                    color: "transparent"
+                }
+
+                hoverEnabled: true
+                onHoveredChanged: {
+                    if (hovered)
+                        listView.currentIndex = index
+                }
+                onClicked: {
+                    listView.currentIndex = index
+                    if (textField.completionActive)
+                        textField.commitCompletion()
+                }
+            }
+
+            highlight: Rectangle {
+                id: listViewHighlight
+                width: textFieldPopup.width - textFieldPopup.leftPadding - textFieldPopup.rightPadding
+                       - (popupScrollBar.visible ? popupScrollBar.contentItem.implicitWidth
+                                                           + 2 : 0)
+                height: StudioTheme.Values.height - 2 * StudioTheme.Values.border
+                color: StudioTheme.Values.themeInteraction
+                y: listView.currentItem.y
+            }
+            highlightFollowsCurrentItem: false
         }
 
-        anchors.top: parent.top
-        anchors.topMargin: 26
-        anchors.bottomMargin: textField.fixedSize ? -180 : 12
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        width: 200
-        spacing: 2
-        children: [
-            Rectangle {
-                visible: textField.fixedSize
-                anchors.fill: parent
-                color: Theme.qmlDesignerBackgroundColorDarker()
-                border.color: Theme.qmlDesignerBorderColor()
-                anchors.rightMargin: 12
-                z: -1
-            }
+        background: Rectangle {
+            color: StudioTheme.Values.themeControlBackground
+            border.color: StudioTheme.Values.themeInteraction
+            border.width: StudioTheme.Values.border
+        }
 
-        ]
+        enter: Transition {
+        }
+        exit: Transition {
+        }
     }
 
     verticalAlignment: Text.AlignTop
 
+    onPressed: listView.model = null
+
     Keys.priority: Keys.BeforeItem
     Keys.onPressed: {
+        var text = textField.text
+        var pos = textField.cursorPosition
+        var explicitComplete = true
 
-        if (event.key === Qt.Key_Period) {
+        switch (event.key) {
+
+        case Qt.Key_Period:
             textField.dotCursorPos = textField.cursorPosition + 1
-            var list = autoComplete(textField.text+".", textField.dotCursorPos, false, textField.completeOnlyTypes)
-            textField.prefix = list.pop()
-            listView.model = list;
+            text = textField.text + "."
+            pos = textField.dotCursorPos
+            explicitComplete = false
             textField.dotCompletion = true
-        } else {
-            if (textField.completionActive) {
-                var list2 = autoComplete(textField.text + event.text,
-                                         textField.cursorPosition + event.text.length,
-                                         true, textField.completeOnlyTypes)
-                textField.prefix = list2.pop()
-                listView.model = list2;
-            }
+            break
+
+        case Qt.Key_Right:
+            if (!textField.completionActive)
+                return
+
+            pos = Math.min(textField.cursorPosition + 1, textField.text.length)
+            break
+
+        case Qt.Key_Left:
+            if (!textField.completionActive)
+                return
+
+            pos = Math.max(0, textField.cursorPosition - 1)
+            break
+
+        case Qt.Key_Backspace:
+            if (!textField.completionActive)
+                return
+
+            pos = textField.cursorPosition - 1
+            if (pos < 0)
+                return
+
+            text = textField.text.substring(0, pos) + textField.text.substring(textField.cursorPosition)
+            break
+
+        case Qt.Key_Delete:
+            return
+
+        default:
+            if (!textField.completionActive)
+                return
+
+            var tmp = textField.text
+            text = tmp.substring(0, textField.cursorPosition) + event.text + tmp.substring(textField.cursorPosition)
+            pos = textField.cursorPosition + event.text.length
         }
+
+        var list = autoComplete(text.trim(), pos, explicitComplete, textField.completeOnlyTypes)
+        textField.prefix = text.substring(0, pos)
+
+        if (list.length && list[list.length - 1] === textField.prefix)
+            list.pop()
+
+        listView.model = list
     }
 
     Keys.onSpacePressed: {
         if (event.modifiers & Qt.ControlModifier) {
             var list = autoComplete(textField.text, textField.cursorPosition, true, textField.completeOnlyTypes)
-            textField.prefix = list.pop()
-            listView.model = list;
+            textField.prefix = textField.text.substring(0, textField.cursorPosition)
+            if (list.length && list[list.length - 1] === textField.prefix)
+                list.pop()
+
+            listView.model = list
             textField.dotCompletion = false
 
             event.accepted = true;
-
-            if (list.length == 1)
-                textField.commitCompletion()
-
         } else {
             event.accepted = false
         }

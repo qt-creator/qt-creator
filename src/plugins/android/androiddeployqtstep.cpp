@@ -38,6 +38,7 @@
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
@@ -145,7 +146,7 @@ AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Utils::Id id)
     m_uninstallPreviousPackage = qt && qt->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0);
 
     //: AndroidDeployQtStep default display name
-    setDefaultDisplayName(tr("Deploy to Android device"));
+    setDefaultDisplayName(tr("Deploy to Android Device"));
 
     connect(this, &AndroidDeployQtStep::askForUninstall,
             this, &AndroidDeployQtStep::slotAskForUninstall,
@@ -206,6 +207,18 @@ bool AndroidDeployQtStep::init()
 
     if (!info.isValid()) // aborted
         return false;
+
+    const QString buildKey = target()->activeBuildKey();
+    auto selectedAbis = buildSystem()->extraData(buildKey, Constants::ANDROID_ABIS).toStringList();
+
+    if (!selectedAbis.contains(info.cpuAbi.first())) {
+        Core::MessageManager::write(
+            tr("Android: The main ABI of the deployment device (%1) is not selected! The app "
+               "execution or debugging might not work properly. Add it from Projects > Build > "
+               "Build Steps > qmake > ABIs.")
+                .arg(info.cpuAbi.first()),
+            Core::MessageManager::WithFocus);
+    }
 
     m_avdName = info.avdname;
     m_serialNumber = info.serialNumber;
@@ -484,7 +497,8 @@ void AndroidDeployQtStep::gatherFilesToPull()
     QString linkerName("linker");
     QString libDirName("lib");
     auto preferreABI = AndroidManager::apkDevicePreferredAbi(target());
-    if (preferreABI == "arm64-v8a" || preferreABI == "x86_64") {
+    if (preferreABI == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A
+            || preferreABI == ProjectExplorer::Constants::ANDROID_ABI_X86_64) {
         m_filesToPull["/system/bin/app_process64"] = buildDir + "app_process";
         libDirName = "lib64";
         linkerName = "linker64";

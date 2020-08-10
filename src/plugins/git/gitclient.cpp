@@ -1448,10 +1448,13 @@ bool GitClient::synchronousLog(const QString &workingDirectory, const QStringLis
     }
 }
 
-bool GitClient::synchronousAdd(const QString &workingDirectory, const QStringList &files)
+bool GitClient::synchronousAdd(const QString &workingDirectory,
+                               const QStringList &files,
+                               const QStringList &extraOptions)
 {
-    return vcsFullySynchronousExec(workingDirectory, QStringList({"add"}) + files).result
-            == SynchronousProcessResponse::Finished;
+    QStringList args{"add"};
+    args += extraOptions + files;
+    return vcsFullySynchronousExec(workingDirectory, args).result == SynchronousProcessResponse::Finished;
 }
 
 bool GitClient::synchronousDelete(const QString &workingDirectory,
@@ -2899,7 +2902,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
             filesToReset.removeAll(file);
             filesToAdd.append(file);
         } else if (state == AddedFile && checked) {
-            QTC_ASSERT(false, continue); // these should be untracked!
+            filesToAdd.append(file);
         } else if (state == DeletedFile && checked) {
             filesToReset.removeAll(file);
             filesToRemove.append(file);
@@ -3598,7 +3601,7 @@ void GitClient::StashInfo::stashPrompt(const QString &command, const QString &st
                                        QString *errorMessage)
 {
     QMessageBox msgBox(QMessageBox::Question, tr("Uncommitted Changes Found"),
-                       tr("What would you like to do with local changes in:") + "\n\n"
+                       tr("What would you like to do with local changes in:") + "\n\n\""
                        + QDir::toNativeSeparators(m_workingDir) + '\"',
                        QMessageBox::NoButton, ICore::dialogParent());
 

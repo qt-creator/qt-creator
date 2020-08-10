@@ -31,7 +31,7 @@ Model {
     id: rootModel
 
     property View3D view3D
-    property alias color: material.emissiveColor
+    property alias color: material.diffuseColor
     property Node targetNode: null
     property bool dragging: mouseAreaYZ.dragging || mouseAreaXZ.dragging
     property bool active: false
@@ -52,7 +52,7 @@ Model {
 
     DefaultMaterial {
         id: material
-        emissiveColor: "white"
+        diffuseColor: "white"
         lighting: DefaultMaterial.NoLighting
     }
 

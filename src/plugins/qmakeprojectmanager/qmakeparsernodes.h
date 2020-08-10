@@ -98,6 +98,7 @@ enum class Variable {
     ShLibExtension,
     AndroidArch,
     AndroidDeploySettingsFile,
+    AndroidAbis,
     AndroidPackageSourceDir,
     AndroidExtraLibs,
     AppmanPackageDir,
