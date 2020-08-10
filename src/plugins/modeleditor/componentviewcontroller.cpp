@@ -240,7 +240,7 @@ void UpdateIncludeDependenciesVisitor::collectElementPaths(const ProjectExplorer
         QFileInfo fileInfo = fileNode->filePath().toFileInfo();
         QString nodePath = fileInfo.path();
         QStringList elementsPath = qmt::NameController::buildElementsPath(nodePath, false);
-        filePathsMap->insertMulti(elementName, Node(fileNode->filePath().toString(), elementsPath));
+        filePathsMap->insert(elementName, Node(fileNode->filePath().toString(), elementsPath));
     }
     foreach (const ProjectExplorer::FolderNode *subNode, folderNode->folderNodes())
         collectElementPaths(subNode, filePathsMap);
