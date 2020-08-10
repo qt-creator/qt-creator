@@ -59,7 +59,7 @@ Project {
              "components/stateseditor",
              "components/texteditor",
              "components/timelineeditor",
-             "compenents/listmodeleditor",
+             "components/listmodeleditor",
         ])
 
         Properties {
