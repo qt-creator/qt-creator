@@ -115,7 +115,10 @@ ProjectFileSelectionsWidget::ProjectFileSelectionsWidget(const QString &projectS
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addLayout(viewLayout);
 
-    auto initModel = [this, model, updateCheckedFiles] (ProjectExplorer::Project *project) {
+    auto initModel = [this, model, updateCheckedFiles](ProjectExplorer::Project *project) {
+        if (!project)
+            return;
+
         auto refreshModel = [this, model, updateCheckedFiles] () {
             model->clear();
             if (auto project = ProjectExplorer::SessionManager::startupProject()) {
