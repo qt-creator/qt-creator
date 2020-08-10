@@ -131,7 +131,11 @@ FollowSymbolResult FollowSymbol::followSymbol(CXTranslationUnit tu,
             return extractMatchingTokenRange(declCursor, declCursor.spelling());
         }
 
-        return extractMatchingTokenRange(cursor.canonical(), tokenSpelling);
+        const Cursor declCursor = cursor.canonical();
+        FollowSymbolResult result;
+        result.range = extractMatchingTokenRange(declCursor, tokenSpelling);
+        result.isResultOnlyForFallBack = cursor.isFunctionLike() && declCursor == cursor;
+        return result;
     }
 
     if (!cursor.isDeclaration()) {
@@ -150,12 +154,13 @@ FollowSymbolResult FollowSymbol::followSymbol(CXTranslationUnit tu,
         return result;
     }
 
+    const bool isFunction = cursor.isFunctionLike();
     cursor = cursor.definition();
     // If we are able to find a definition in current TU
     if (!cursor.isNull())
         return extractMatchingTokenRange(cursor, tokenSpelling);
 
-    return SourceRangeContainer();
+    return FollowSymbolResult({}, isFunction);
 }
 
 } // namespace ClangBackEnd

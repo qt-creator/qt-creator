@@ -935,6 +935,16 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
         "void Foo::foo(int) {}\n"
     );
 
+    QTest::newRow("matchFunctionSignature_Follow_3.5") << _(
+        "void foo(int);\n"
+        "void @$foo() {}\n"
+    );
+
+    QTest::newRow("matchFunctionSignature_Follow_3.6") << _(
+        "void foo(int);\n"
+        "void @$foo(double) {}\n"
+    );
+
     QTest::newRow("matchFunctionSignature_Follow_4") << _(
         "class Foo {\n"
         "    void foo(int);\n"
@@ -963,17 +973,33 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
         "void Foo::@foo(int) {}\n"
     );
 
-    QTest::newRow("matchFunctionSignature_Follow_8") << _(
+    QTest::newRow("matchFunctionSignature_Follow_8_fuzzy") << _(
         "class Foo {\n"
-        "    void @$foo(int *);\n"
+        "    void @foo(int *);\n"
         "};\n"
-        "void Foo::foo(const int *) {}\n"
+        "void Foo::$foo(const int *) {}\n"
     );
 
-    QTest::newRow("matchFunctionSignature_Follow_9") << _(
+    QTest::newRow("matchFunctionSignature_Follow_8_exact") << _(
         "class Foo {\n"
-        "    void @$foo(int&);\n"
+        "    void @foo(int *);\n"
         "};\n"
+        "void Foo::foo(const int *) {}\n"
+        "void Foo::$foo(int *) {}\n"
+    );
+
+    QTest::newRow("matchFunctionSignature_Follow_9_fuzzy") << _(
+        "class Foo {\n"
+        "    void @foo(int&);\n"
+        "};\n"
+        "void Foo::$foo(const int&) {}\n"
+    );
+
+    QTest::newRow("matchFunctionSignature_Follow_9_exact") << _(
+        "class Foo {\n"
+        "    void @foo(int&);\n"
+        "};\n"
+        "void Foo::$foo(int&) {}\n"
         "void Foo::foo(const int&) {}\n"
     );
 
@@ -1168,6 +1194,48 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_multipleDocuments_data()
         << TestDocument::create("#include \"foo.h\"\n"
                                 "using namespace N;\n"
                                 "bool *$fun(C *) const {}\n",
+                                "foo.cpp")
+    );
+
+    QTest::newRow("matchFunctionSignatureFuzzy1Forward") << (QList<TestDocumentPtr>()
+        << TestDocument::create("class Foo {\n"
+                                "    void @foo(int);\n"
+                                "    void foo();\n"
+                                "};\n",
+                                "foo.h")
+        << TestDocument::create("#include \"foo.h\"\n"
+                                "void Foo::$foo() {}\n",
+                                "foo.cpp")
+    );
+
+    QTest::newRow("matchFunctionSignatureFuzzy1Backward") << (QList<TestDocumentPtr>()
+        << TestDocument::create("class Foo {\n"
+                                "    void $foo(int);\n"
+                                "};\n",
+                                "foo.h")
+        << TestDocument::create("#include \"foo.h\"\n"
+                                "void Foo::@foo() {}\n",
+                                "foo.cpp")
+    );
+
+    QTest::newRow("matchFunctionSignatureFuzzy2Forward") << (QList<TestDocumentPtr>()
+        << TestDocument::create("class Foo {\n"
+                                "    void foo(int);\n"
+                                "    void @foo();\n"
+                                "};\n",
+                                "foo.h")
+        << TestDocument::create("#include \"foo.h\"\n"
+                                "void Foo::$foo(int) {}\n",
+                                "foo.cpp")
+    );
+
+    QTest::newRow("matchFunctionSignatureFuzzy2Backward") << (QList<TestDocumentPtr>()
+        << TestDocument::create("class Foo {\n"
+                                "    void $foo();\n"
+                                "};\n",
+                                "foo.h")
+        << TestDocument::create("#include \"foo.h\"\n"
+                                "void Foo::@foo(int) {}\n",
                                 "foo.cpp")
     );
 
