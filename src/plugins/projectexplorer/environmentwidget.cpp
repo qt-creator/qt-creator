@@ -75,7 +75,7 @@ public:
         const auto mainLayout = new QVBoxLayout(this);
         const auto viewLayout = new QHBoxLayout;
         const auto buttonsLayout = new QVBoxLayout;
-        const auto addButton = new QPushButton(tr("Add ..."));
+        const auto addButton = new QPushButton(tr("Add..."));
         const auto removeButton = new QPushButton(tr("Remove"));
         const auto editButton = new QPushButton(tr("Edit..."));
         buttonsLayout->addWidget(addButton);
