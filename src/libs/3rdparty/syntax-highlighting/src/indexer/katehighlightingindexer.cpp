@@ -25,7 +25,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QFileInfo>
-#include <QJsonDocument>
+#include <QCborValue>
 #include <QRegularExpression>
 #include <QVariant>
 #include <QXmlStreamReader>
@@ -774,7 +774,7 @@ int main(int argc, char *argv[])
         return 9;
 
     // write out json
-    outFile.write(QJsonDocument::fromVariant(QVariant(hls)).toBinaryData());
+    outFile.write(QCborValue::fromVariant(QVariant(hls)).toCbor());
 
     // be done
     return 0;
