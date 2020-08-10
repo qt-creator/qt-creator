@@ -35,7 +35,13 @@
 #include <QtCore/qdebug.h>
 #include <QtCore/QScopedValueRollback>
 
-#include <QtCore/private/qlocale_tools_p.h>
+QT_BEGIN_NAMESPACE
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+Q_CORE_EXPORT double qstrntod(const char *s00, int len, char const **se, bool *ok);
+#else
+Q_CORE_EXPORT double qstrntod(const char *s00, qsizetype len, char const **se, bool *ok);
+#endif
+QT_END_NAMESPACE
 
 QT_QML_BEGIN_NAMESPACE
 
@@ -1175,15 +1181,13 @@ int Lexer::scanNumber(QChar ch)
         }
     }
 
-    chars.append('\0');
-
     const char *begin = chars.constData();
     const char *end = nullptr;
     bool ok = false;
 
-    _tokenValue = qstrtod(begin, &end, &ok);
+    _tokenValue = qstrntod(begin, chars.size(), &end, &ok);
 
-    if (end - begin != chars.size() - 1) {
+    if (end - begin != chars.size()) {
         _errorCode = IllegalExponentIndicator;
         _errorMessage = QCoreApplication::translate("QmlParser", "Illegal syntax for exponential number");
         return T_ERROR;
