@@ -258,7 +258,7 @@ http://llvm.org/docs/GettingStarted.html#git-mirror:
 
    1. Clone LLVM/Clang and checkout a suitable branch
 
-          git clone -b release_80-based --recursive https://code.qt.io/clang/llvm-project.git
+          git clone -b release_100-based --recursive https://code.qt.io/clang/llvm-project.git
 
    2. Build and install LLVM/Clang
 
@@ -278,7 +278,7 @@ http://llvm.org/docs/GettingStarted.html#git-mirror:
       For Windows:
 
           cmake ^
-            -G "NMake Makefiles JOM" ^
+            -G Ninja ^
             -D CMAKE_BUILD_TYPE=Release ^
             -D LLVM_ENABLE_RTTI=ON ^
             -D LLVM_ENABLE_PROJECTS="clang;clang-tools-extra" ^
@@ -290,7 +290,7 @@ http://llvm.org/docs/GettingStarted.html#git-mirror:
 
 The ClangFormat plugin depends on the additional patch
 
-    https://code.qt.io/cgit/clang/clang.git/commit/?h=release_80-based&id=fa1b9053729ec6a4425a44ec5502dd388928274a
+    https://code.qt.io/cgit/clang/llvm-project.git/commit/?h=release_100-based&id=9b992a0f7f160dd6c75f20a4dcfcf7c60a4894df
 
 While the plugin builds without it, it will be disabled on start with an error message.
 

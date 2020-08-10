@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,40 +23,38 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import QtQuick.Controls 1.0 as Controls
-import QtQuick.Controls.Styles 1.1
-import QtQuickDesignerTheme 1.0
+import QtQuick 2.15
+import QtQuick.Templates 2.15 as T
 import StudioTheme 1.0 as StudioTheme
 
-Controls.TabView {
-    id: root
+T.TabButton {
+    id: myButton
 
-    frameVisible: false
-    style: TabViewStyle {
-        frameOverlap: 0
-        frame: Item { }
-        tab: Rectangle {
-            color: styleData.selected ? Theme.qmlDesignerTabLight() : Theme.qmlDesignerTabDark()
-            implicitWidth: root.width/root.count + 2
-            implicitHeight: 28
-            Text {
-                id: text
-                font.bold: true
-                font.pixelSize: StudioTheme.Values.myFontSize
-                anchors.centerIn: parent
-                anchors.verticalCenterOffset: -1
-                text: styleData.title
-                renderType: Text.NativeRendering
-                color: styleData.selected ? Theme.qmlDesignerTabDark() : Theme.qmlDesignerTabLight()
-            }
+    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
+                            implicitContentWidth + leftPadding + rightPadding)
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             implicitContentHeight + topPadding + bottomPadding)
 
-            Rectangle {
-                color:Theme.qmlDesignerTabLight()
-                width: parent.width
-                height: 4
-                anchors.bottom: parent.bottom
-            }
-        }
+    padding: 1
+
+    background: Rectangle {
+        id: buttonBackground
+        color: myButton.checked ? StudioTheme.Values.themeTabLight : StudioTheme.Values.themeTabDark
+        border.color: StudioTheme.Values.themeControlOutline
+        border.width: 0
+    }
+
+    contentItem: T.Label {
+        id: buttonIcon
+        color: myButton.checked ? StudioTheme.Values.themeTabDark : StudioTheme.Values.themeTabLight
+        font.weight: Font.Bold
+        //font.family: StudioTheme.Constants.font.family
+        font.pixelSize: StudioTheme.Values.myFontSize
+        verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignHCenter
+        anchors.fill: parent
+        renderType: Text.QtRendering
+
+        text: myButton.text
     }
 }

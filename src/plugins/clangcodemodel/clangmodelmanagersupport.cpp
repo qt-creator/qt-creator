@@ -155,8 +155,10 @@ void ClangModelManagerSupport::onCurrentEditorChanged(Core::IEditor *editor)
         return;
 
     const ::Utils::FilePath filePath = editor->document()->filePath();
-    if (auto processor = ClangEditorDocumentProcessor::get(filePath.toString()))
+    if (auto processor = ClangEditorDocumentProcessor::get(filePath.toString())) {
+        processor->semanticRehighlight();
         processor->generateTaskHubIssues();
+    }
 }
 
 void ClangModelManagerSupport::connectTextDocumentToTranslationUnit(TextEditor::TextDocument *textDocument)

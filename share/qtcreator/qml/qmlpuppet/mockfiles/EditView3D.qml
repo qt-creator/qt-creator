@@ -202,7 +202,7 @@ Item {
         if ("transformMode" in toolStates)
             transformMode = toolStates.transformMode;
         else if (resetToDefault)
-            selectionMode = EditView3D.TransformMode.Move;
+            transformMode = EditView3D.TransformMode.Move;
 
         if ("editCamState" in toolStates)
             cameraControl.restoreCameraState(toolStates.editCamState);
@@ -266,8 +266,10 @@ Item {
     {
         var theObject = object;
         if (selectionMode === EditView3D.SelectionMode.Group) {
-            while (theObject && theObject !== activeScene && theObject.parent !== activeScene)
+            while (theObject && theObject !== activeScene
+                   && (activeScene instanceof Model || theObject.parent !== activeScene)) {
                 theObject = theObject.parent;
+            }
         }
         // Object selection logic:
         // Regular click: Clear any multiselection, single-selects the clicked object
@@ -487,6 +489,12 @@ Item {
             position: moveGizmo.scenePosition
         }
 
+        AutoScaleHelper {
+            id: pivotAutoScale
+            view3D: overlayView
+            position: pivotLine.startPos
+        }
+
         Line3D {
             id: pivotLine
             visible: viewRoot.selectedNode
@@ -513,14 +521,14 @@ Item {
             Model {
                 id: pivotCap
                 source: "#Sphere"
-                scale: autoScale.getScale(Qt.vector3d(0.03, 0.03, 0.03))
+                scale: pivotAutoScale.getScale(Qt.vector3d(0.03, 0.03, 0.03))
                 position: pivotLine.startPos
                 materials: [
                     DefaultMaterial {
                         id: lineMat
                         lighting: DefaultMaterial.NoLighting
                         cullMode: Material.NoCulling
-                        emissiveColor: pivotLine.color
+                        diffuseColor: pivotLine.color
                     }
                 ]
             }

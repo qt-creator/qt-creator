@@ -406,6 +406,9 @@
     Select \uicontrol {Add Files} to locate and add individual
     files.
 
+    To list the folders and files in ascending alphabetic order in the source
+    tree, select \uicontrol {Sort Alphabetically} in the context menu.
+
     By default, resources are accessible in the application under the same file
     name as they have in the source tree, with a \c{:/} prefix, or by a URL with
     a \c qrc scheme. To specify a path prefix for all files in the \c .qrc file,

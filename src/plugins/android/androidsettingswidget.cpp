@@ -56,6 +56,7 @@
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QModelIndex>
+#include <QScrollArea>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QString>
@@ -368,7 +369,14 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         m_ui.managerTabWidget->tabBar()->setEnabled(true);
     });
     connect(m_sdkManagerWidget, &AndroidSdkManagerWidget::licenseWorkflowStarted, [this] {
-       m_ui.scrollArea->ensureWidgetVisible(m_ui.managerTabWidget);
+        QObject *parentWidget = parent();
+        while (parentWidget) {
+            if (auto scrollArea = qobject_cast<QScrollArea *>(parentWidget)) {
+                scrollArea->ensureWidgetVisible(m_ui.managerTabWidget);
+                break;
+            }
+            parentWidget = parentWidget->parent();
+        };
     });
 
     QMap<int, QString> javaValidationPoints;
@@ -405,42 +413,49 @@ AndroidSettingsWidget::AndroidSettingsWidget()
 
     connect(m_ui.OpenJDKLocationPathChooser, &PathChooser::rawPathChanged,
             this, &AndroidSettingsWidget::validateJdk);
-    FilePath currentJdkPath = m_androidConfig.openJDKLocation();
-    if (currentJdkPath.isEmpty())
-        currentJdkPath = AndroidConfig::getJdkPath();
-    m_ui.OpenJDKLocationPathChooser->setFilePath(currentJdkPath);
+    if (m_androidConfig.openJDKLocation().isEmpty())
+        m_androidConfig.setOpenJDKLocation(AndroidConfig::getJdkPath());
+    m_ui.OpenJDKLocationPathChooser->setFilePath(m_androidConfig.openJDKLocation());
     m_ui.OpenJDKLocationPathChooser->setPromptDialogTitle(tr("Select JDK Path"));
 
-    FilePath currentSDKPath = m_androidConfig.sdkLocation();
-    if (currentSDKPath.isEmpty())
-        currentSDKPath = AndroidConfig::defaultSdkPath();
-
-    m_ui.SDKLocationPathChooser->setFilePath(currentSDKPath);
+    if (m_androidConfig.sdkLocation().isEmpty())
+        m_androidConfig.setSdkLocation(AndroidConfig::defaultSdkPath());
+    m_ui.SDKLocationPathChooser->setFilePath(m_androidConfig.sdkLocation());
     m_ui.SDKLocationPathChooser->setPromptDialogTitle(tr("Select Android SDK Folder"));
 
     m_ui.openSslPathChooser->setPromptDialogTitle(tr("Select OpenSSL Include Project File"));
-    FilePath currentOpenSslPath = m_androidConfig.openSslLocation();
-    if (currentOpenSslPath.isEmpty())
-        currentOpenSslPath = currentSDKPath.pathAppended("android_openssl");
-    m_ui.openSslPathChooser->setFilePath(currentOpenSslPath);
+    if (m_androidConfig.openSslLocation().isEmpty())
+        m_androidConfig.setOpenSslLocation(m_androidConfig.sdkLocation() / ("android_openssl"));
+    m_ui.openSslPathChooser->setFilePath(m_androidConfig.openSslLocation());
 
     m_ui.DataPartitionSizeSpinBox->setValue(m_androidConfig.partitionSize());
     m_ui.CreateKitCheckBox->setChecked(m_androidConfig.automaticKitCreation());
     m_ui.AVDTableView->setModel(&m_AVDModel);
     m_ui.AVDTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    m_ui.AVDTableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    for (int column : {1, 2, 5})
+        m_ui.AVDTableView->horizontalHeader()->setSectionResizeMode(
+                    column, QHeaderView::ResizeToContents);
 
     const QIcon downloadIcon = Icons::ONLINE.icon();
     m_ui.downloadSDKToolButton->setIcon(downloadIcon);
     m_ui.downloadNDKToolButton->setIcon(downloadIcon);
     m_ui.downloadOpenJDKToolButton->setIcon(downloadIcon);
-    m_ui.sdkToolsAutoDownloadButton->setToolTip(tr(
-            "Automatically download Android SDK Tools to selected location.\n\n"
-            "If the selected path contains no valid SDK Tools, the SDK Tools package "
-            "is downloaded from %1, and extracted to the selected path.\n"
-            "After the SDK Tools are properly set up, you are prompted to install "
-            "any essential packages required for Qt to build for Android.")
-                                                 .arg(m_androidConfig.sdkToolsUrl().toString()));
+    m_ui.sdkToolsAutoDownloadButton->setToolTip(
+        tr("Automatically download Android SDK Tools to selected location.\n\n"
+           "If the selected path contains no valid SDK Tools, the SDK Tools package is downloaded\n"
+           "from %1,\n"
+           "and extracted to the selected path.\n"
+           "After the SDK Tools are properly set up, you are prompted to install any essential\n"
+           "packages required for Qt to build for Android.")
+            .arg(m_androidConfig.sdkToolsUrl().toString()));
+
+    m_ui.downloadOpenSSLPrebuiltLibs->setToolTip(
+        tr("Automatically download OpenSSL prebuilt libraries.\n\n"
+           "These libraries can be shipped with your application if any SSL operations\n"
+           "are performed. Find the checkbox under \"Projects > Build > Build Steps >\n"
+           "Build Android APK > Additional Libraries\".\n"
+           "If the automatic download fails, Qt Creator proposes to open the download URL\n"
+           "in the system's browser for manual download."));
 
     connect(m_ui.SDKLocationPathChooser, &PathChooser::rawPathChanged,
             this, &AndroidSettingsWidget::onSdkPathChanged);
@@ -700,7 +715,7 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
         QMessageBox msgBox;
         msgBox.setText(tr("OpenSSL prebuilt libraries cloning failed. ") + msgSuffix
                        + tr("Opening OpenSSL URL for manual download."));
-        msgBox.addButton(tr("OK"), QMessageBox::YesRole);
+        msgBox.addButton(tr("Cancel"), QMessageBox::RejectRole);
         QAbstractButton *openButton = msgBox.addButton(tr("Open Download URL"), QMessageBox::ActionRole);
         msgBox.exec();
 
@@ -849,13 +864,7 @@ AndroidSettingsPage::AndroidSettingsPage()
     setId(Constants::ANDROID_SETTINGS_ID);
     setDisplayName(AndroidSettingsWidget::tr("Android"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
-    setWidgetCreator([] {
-        auto widget = new AndroidSettingsWidget;
-        QPalette pal = widget->palette();
-        pal.setColor(QPalette::Window, Utils::creatorTheme()->color(Theme::BackgroundColorNormal));
-        widget->setPalette(pal);
-        return widget;
-    });
+    setWidgetCreator([] { return new AndroidSettingsWidget; });
 }
 
 } // namespace Internal

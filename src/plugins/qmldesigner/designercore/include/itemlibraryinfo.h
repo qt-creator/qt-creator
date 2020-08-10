@@ -98,7 +98,6 @@ public:
 
     QList<ItemLibraryEntry> entries() const;
     QList<ItemLibraryEntry> entriesForType(const QByteArray &typeName, int majorVersion, int minorVersion) const;
-    ItemLibraryEntry entry(const QString &name) const;
 
     void addEntries(const QList<ItemLibraryEntry> &entries, bool overwriteDuplicate = false);
     bool containsEntry(const ItemLibraryEntry &entry);

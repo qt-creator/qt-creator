@@ -154,10 +154,11 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Utils::Id id)
 
             auto androidAbis = bs->data(Android::Constants::AndroidABIs).toStringList();
             QString preferredAbi;
-            if (androidAbis.contains("armeabi-v7a")) {
-                preferredAbi = "armeabi-v7a";
-            } else if (androidAbis.isEmpty() || androidAbis.contains("arm64-v8a")) {
-                preferredAbi = "arm64-v8a";
+            if (androidAbis.contains(ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A)) {
+                preferredAbi = ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A;
+            } else if (androidAbis.isEmpty()
+                       || androidAbis.contains(ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A)) {
+                preferredAbi = ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A;
             } else {
                 preferredAbi = androidAbis.first();
             }

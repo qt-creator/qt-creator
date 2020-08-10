@@ -26,6 +26,7 @@
 #pragma once
 
 #include "testsettings.h"
+#include "testtreemodel.h"
 
 #include <projectexplorer/project.h>
 
@@ -50,6 +51,7 @@ public:
     { m_activeTestFrameworks = enabledFrameworks; }
     QMap<ITestFramework *, bool> activeFrameworks() const { return m_activeTestFrameworks; }
     void activateFramework(const Utils::Id &id, bool activate);
+    Internal::ItemDataCache<Qt::CheckState> *checkStateCache() { return &m_checkStateCache; }
 private:
     void load();
     void save();
@@ -58,6 +60,7 @@ private:
     bool m_useGlobalSettings = true;
     RunAfterBuildMode m_runAfterBuild = RunAfterBuildMode::None;
     QMap<ITestFramework *, bool> m_activeTestFrameworks;
+    Internal::ItemDataCache<Qt::CheckState> m_checkStateCache;
 };
 
 } // namespace Internal

@@ -15,12 +15,13 @@ endif()
 add_qtc_test(unittest GTEST
   INCLUDES
     BEFORE "../mockup"
+    BEFORE "../mockup/qmldesigner/designercore/include"
   DEPENDS
     Qt5::Core Qt5::Network Qt5::Widgets
     Qt5::Xml Qt5::Concurrent Qt5::Qml Qt5::Gui
     Googletest
     clangrefactoringbackend_lib clangbackend_lib clangpchmanagerbackend_lib
-    CPlusPlus Utils
+    CPlusPlus Utils QmlDesigner
   DEFINES
     QT_NO_CAST_TO_ASCII
     QT_RESTRICTED_CAST_FROM_ASCII

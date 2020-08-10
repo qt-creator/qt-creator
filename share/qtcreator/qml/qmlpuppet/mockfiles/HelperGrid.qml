@@ -47,7 +47,7 @@ Node {
         materials: [
             DefaultMaterial {
                 id: mainGridMaterial
-                emissiveColor: "#aaaaaa"
+                diffuseColor: "#aaaaaa"
                 lighting: DefaultMaterial.NoLighting
                 cullMode: Material.NoCulling
             }
@@ -65,7 +65,7 @@ Node {
         materials: [
             DefaultMaterial {
                 id: subGridMaterial
-                emissiveColor: mainGridMaterial.emissiveColor
+                diffuseColor: mainGridMaterial.diffuseColor
                 lighting: DefaultMaterial.NoLighting
                 cullMode: Material.NoCulling
             }
@@ -82,7 +82,7 @@ Node {
         materials: [
             DefaultMaterial {
                 id: vCenterLineMaterial
-                emissiveColor: "#00a1d2"
+                diffuseColor: "#00a1d2"
                 lighting: DefaultMaterial.NoLighting
                 cullMode: Material.NoCulling
             }
@@ -99,7 +99,7 @@ Node {
         materials: [
             DefaultMaterial {
                 id: hCenterLineMaterial
-                emissiveColor: "#cb211a"
+                diffuseColor: "#cb211a"
                 lighting: DefaultMaterial.NoLighting
                 cullMode: Material.NoCulling
             }

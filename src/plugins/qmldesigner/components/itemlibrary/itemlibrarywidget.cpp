@@ -110,6 +110,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
             {{"highlightColor"}, Utils::StyleHelper::notTooBrightHighlightColor()}
         }
     );
+    m_itemViewQuickWidget->setClearColor(Theme::getColor(Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
 
     /* create Resources view and its model */
     m_resourcesFileSystemModel = new CustomFileSystemModel(this);

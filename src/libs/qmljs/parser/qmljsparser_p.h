@@ -1,3 +1,5 @@
+
+#line 185 "qmljs.g"
 /****************************************************************************
 **
 ** Copyright (C) 2016 The Qt Company Ltd.
@@ -22,7 +24,6 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-#line 223 "qmljs.g"
 
 
 //
@@ -291,27 +292,27 @@ protected:
 
 
 
-#line 1828 "qmljs.g"
+#line 1862 "qmljs.g"
 
-#define J_SCRIPT_REGEXPLITERAL_RULE1 161
+#define J_SCRIPT_REGEXPLITERAL_RULE1 164
 
-#line 1840 "qmljs.g"
+#line 1874 "qmljs.g"
 
-#define J_SCRIPT_REGEXPLITERAL_RULE2 162
+#define J_SCRIPT_REGEXPLITERAL_RULE2 165
 
-#line 3389 "qmljs.g"
+#line 3423 "qmljs.g"
 
-#define J_SCRIPT_EXPRESSIONSTATEMENTLOOKAHEAD_RULE 460
+#define J_SCRIPT_EXPRESSIONSTATEMENTLOOKAHEAD_RULE 463
 
-#line 4041 "qmljs.g"
+#line 4075 "qmljs.g"
 
-#define J_SCRIPT_CONCISEBODYLOOKAHEAD_RULE 530
+#define J_SCRIPT_CONCISEBODYLOOKAHEAD_RULE 533
 
-#line 4583 "qmljs.g"
+#line 4617 "qmljs.g"
 
-#define J_SCRIPT_EXPORTDECLARATIONLOOKAHEAD_RULE 599
+#define J_SCRIPT_EXPORTDECLARATIONLOOKAHEAD_RULE 602
 
-#line 4867 "qmljs.g"
+#line 4901 "qmljs.g"
 
 QT_QML_END_NAMESPACE
 

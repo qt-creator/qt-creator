@@ -35,6 +35,7 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
@@ -86,25 +87,25 @@ QString AndroidQtVersion::invalidReason() const
 Abis AndroidQtVersion::detectQtAbis() const
 {
     auto androidAbi2Abi = [](const QString &androidAbi) {
-        if (androidAbi == "arm64-v8a") {
+        if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A) {
             return Abi{Abi::Architecture::ArmArchitecture,
                        Abi::OS::LinuxOS,
                        Abi::OSFlavor::AndroidLinuxFlavor,
                        Abi::BinaryFormat::ElfFormat,
                        64, androidAbi};
-        } else if (androidAbi == "armeabi-v7a") {
+        } else if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A) {
             return Abi{Abi::Architecture::ArmArchitecture,
                        Abi::OS::LinuxOS,
                        Abi::OSFlavor::AndroidLinuxFlavor,
                        Abi::BinaryFormat::ElfFormat,
                        32, androidAbi};
-        } else if (androidAbi == "x86_64") {
+        } else if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_X86_64) {
             return Abi{Abi::Architecture::X86Architecture,
                        Abi::OS::LinuxOS,
                        Abi::OSFlavor::AndroidLinuxFlavor,
                        Abi::BinaryFormat::ElfFormat,
                        64, androidAbi};
-        } else if (androidAbi == "x86") {
+        } else if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_X86) {
             return Abi{Abi::Architecture::X86Architecture,
                        Abi::OS::LinuxOS,
                        Abi::OSFlavor::AndroidLinuxFlavor,

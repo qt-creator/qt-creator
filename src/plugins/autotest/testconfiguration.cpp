@@ -151,7 +151,8 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     if (buildTargets.size() > 1 )  // there are multiple executables with the same build target
         return;                    // let the user decide which one to run
 
-    const BuildTargetInfo targetInfo = buildTargets.first();
+    const BuildTargetInfo targetInfo = buildTargets.size() ? buildTargets.first()
+                                                           : BuildTargetInfo();
 
     // we might end up with an empty targetFilePath - e.g. when having a library we just link to
     // there would be no BuildTargetInfo that could match

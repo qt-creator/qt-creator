@@ -31,7 +31,7 @@ Model {
     id: rotateRing
 
     property View3D view3D
-    property alias color: material.emissiveColor
+    property alias color: material.diffuseColor
     property Node targetNode: null
     property bool dragging: mouseAreaMain.dragging
     property bool active: false
@@ -60,7 +60,7 @@ Model {
 
     materials: DefaultMaterial {
         id: material
-        emissiveColor: "white"
+        diffuseColor: "white"
         lighting: DefaultMaterial.NoLighting
     }
 

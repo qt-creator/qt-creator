@@ -27,6 +27,7 @@
 
 #include "autotest_global.h"
 
+#include "itemdatacache.h"
 #include "testconfiguration.h"
 #include "testtreeitem.h"
 
@@ -39,40 +40,6 @@ namespace Autotest {
 namespace Internal {
 class AutotestPluginPrivate;
 class TestCodeParser;
-
-template<class T>
-class ItemDataCache
-{
-public:
-    void insert(TestTreeItem *item, const T &value) { m_cache[item->cacheName()] = {0, value}; }
-    void evolve()
-    {
-        auto it = m_cache.begin(), end = m_cache.end();
-        while (it != end)
-            it = it->generation++ >= maxGen ? m_cache.erase(it) : ++it;
-    }
-
-    Utils::optional<T> get(TestTreeItem *item)
-    {
-        auto entry = m_cache.find(item->cacheName());
-        if (entry == m_cache.end())
-            return Utils::nullopt;
-        entry->generation = 0;
-        return Utils::make_optional(entry->value);
-    };
-
-    void clear() { m_cache.clear(); }
-
-private:
-    static constexpr int maxGen = 10;
-    struct Entry
-    {
-        int generation = 0;
-        T value;
-    };
-    QHash<QString, Entry> m_cache;
-};
-
 } // namespace Internal
 
 class TestParseResult;
@@ -139,7 +106,7 @@ private:
     QList<TestTreeItem *> testItemsByName(TestTreeItem *root, const QString &testName);
 
     Internal::TestCodeParser *m_parser = nullptr;
-    Internal::ItemDataCache<Qt::CheckState> m_checkStateCache;
+    Internal::ItemDataCache<Qt::CheckState> *m_checkStateCache = nullptr; // not owned
 };
 
 namespace Internal {

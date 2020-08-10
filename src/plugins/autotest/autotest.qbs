@@ -37,6 +37,7 @@ QtcPlugin {
         "autotestconstants.h",
         "autotestplugin.cpp",
         "autotestplugin.h",
+        "itemdatacache.h",
         "projectsettingswidget.cpp",
         "projectsettingswidget.h",
         "testcodeparser.cpp",

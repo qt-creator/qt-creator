@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,48 +23,79 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import QtQuick.Controls 1.1 as Controls
-import QtQuick.Controls.Styles 1.1
-import "Constants.js" as Constants
+import QtQuick 2.15
+import QtQuick.Templates 2.15 as T
+import StudioTheme 1.0 as StudioTheme
 
-Controls.Button {
-    property color borderColor: "#222"
-    property color highlightColor: "orange"
-    property color textColor: "#eee"
-    style: ButtonStyle {
-        label: Text {
-            color: Constants.colorsDefaultText
-            anchors.fill: parent
-            renderType: Text.NativeRendering
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            text: control.text
-            opacity: enabled ? 1 : 0.7
-        }
-        background: Rectangle {
-            implicitWidth: 100
-            implicitHeight: 23
-            radius: 3
-            gradient: control.pressed ? pressedGradient : gradient
-            Gradient{
-                id: pressedGradient
-                GradientStop{color: "#333" ; position: 0}
-            }
-            Gradient {
-                id: gradient
-                GradientStop {color: "#606060" ; position: 0}
-                GradientStop {color: "#404040" ; position: 0.07}
-                GradientStop {color: "#303030" ; position: 1}
-            }
-            Rectangle {
-                anchors.fill: parent
-                anchors.margins: -1
-                color: "transparent"
-                radius: 4
-                opacity: 0.3
-                visible: control.activeFocus
-            }
-        }
+T.AbstractButton {
+    id: myButton
+
+    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
+                            implicitContentWidth + leftPadding + rightPadding)
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             implicitContentHeight + topPadding + bottomPadding)
+
+    background: Rectangle {
+        id: buttonBackground
+        implicitWidth: 100
+        implicitHeight: 23
+        radius: 3
+        color: StudioTheme.Values.themeControlBackground
+        border.color: StudioTheme.Values.themeControlOutline
+        border.width: StudioTheme.Values.border
     }
+
+    contentItem: Text {
+        id: buttonText
+        color: StudioTheme.Values.themeTextColor
+        font.family: StudioTheme.Constants.font.family
+        font.pixelSize: StudioTheme.Values.myFontSize
+        verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignHCenter
+        anchors.fill: parent
+        renderType: Text.QtRendering
+        text: myButton.text
+    }
+
+    states: [
+        State {
+            name: "default"
+            when: myButton.enabled && !myButton.hovered && !myButton.pressed
+                  && !myButton.checked
+            PropertyChanges {
+                target: buttonBackground
+                color: StudioTheme.Values.themeControlBackground
+            }
+        },
+        State {
+            name: "hovered"
+            when: myButton.hovered && !myButton.pressed
+            PropertyChanges {
+                target: buttonBackground
+                color: StudioTheme.Values.themeHoverHighlight
+            }
+        },
+        State {
+            name: "pressed"
+            when: myButton.hovered && myButton.pressed
+            PropertyChanges {
+                target: buttonBackground
+                color: StudioTheme.Values.themeControlBackgroundPressed
+                border.color: StudioTheme.Values.themeInteraction
+            }
+        },
+        State {
+            name: "disabled"
+            when: !myButton.enabled
+            PropertyChanges {
+                target: buttonBackground
+                color: StudioTheme.Values.themeControlBackgroundDisabled
+                border.color: StudioTheme.Values.themeControlOutlineDisabled
+            }
+            PropertyChanges {
+                target: buttonText
+                color: StudioTheme.Values.themeTextColorDisabled
+            }
+        }
+    ]
 }

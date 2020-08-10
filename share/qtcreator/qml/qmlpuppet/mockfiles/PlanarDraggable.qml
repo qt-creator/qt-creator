@@ -31,7 +31,7 @@ Model {
     id: rootModel
 
     property View3D view3D
-    property alias color: gizmoMaterial.emissiveColor
+    property alias color: gizmoMaterial.diffuseColor
     property alias priority: mouseArea.priority
     property Node targetNode: null
     property bool dragging: mouseArea.dragging
@@ -53,7 +53,7 @@ Model {
 
     DefaultMaterial {
         id: gizmoMaterial
-        emissiveColor: "white"
+        diffuseColor: "white"
         lighting: DefaultMaterial.NoLighting
         cullMode: Material.NoCulling
     }

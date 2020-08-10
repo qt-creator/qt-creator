@@ -139,8 +139,13 @@ void ClangEditorDocumentProcessor::recalculateSemanticInfoDetached(bool force)
 
 void ClangEditorDocumentProcessor::semanticRehighlight()
 {
-    m_semanticHighlighter.updateFormatMapFromFontSettings();
+    const auto matchesEditor = [this](const Core::IEditor *editor) {
+        return editor->document()->filePath() == m_document.filePath();
+    };
+    if (!Utils::contains(Core::EditorManager::visibleEditors(), matchesEditor))
+        return;
 
+    m_semanticHighlighter.updateFormatMapFromFontSettings();
     if (m_projectPart)
         requestAnnotationsFromBackend();
 }

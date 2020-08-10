@@ -238,18 +238,31 @@ void DesignModeWidget::setup()
     m_dockManager->setStyleSheet(Theme::replaceCssColors(sheet));
 
     // Setup icons
-    QColor buttonColor(Theme::getColor(Theme::QmlDesigner_TabLight)); // TODO Use correct color roles
-    QColor tabColor(Theme::getColor(Theme::QmlDesigner_TabDark));
+    const QColor buttonColor(Theme::getColor(Theme::QmlDesigner_TabLight)); // TODO Use correct color roles
+    const QColor tabColor(Theme::getColor(Theme::QmlDesigner_TabDark));
 
     const QString closeUnicode = Theme::getIconUnicode(Theme::Icon::adsClose);
     const QString menuUnicode = Theme::getIconUnicode(Theme::Icon::adsDropDown);
     const QString undockUnicode = Theme::getIconUnicode(Theme::Icon::adsDetach);
 
     const QString fontName = "qtds_propertyIconFont.ttf";
-    const QIcon tabsCloseIcon = Utils::StyleHelper::getIconFromIconFont(fontName, closeUnicode, 28, 28, tabColor);
     const QIcon menuIcon = Utils::StyleHelper::getIconFromIconFont(fontName, menuUnicode, 28, 28, buttonColor);
     const QIcon undockIcon = Utils::StyleHelper::getIconFromIconFont(fontName, undockUnicode, 28, 28, buttonColor);
     const QIcon closeIcon = Utils::StyleHelper::getIconFromIconFont(fontName, closeUnicode, 28, 28, buttonColor);
+
+    auto closeIconNormal = Utils::StyleHelper::IconFontHelper(closeUnicode,
+                                                              tabColor,
+                                                              QSize(28, 28),
+                                                              QIcon::Normal,
+                                                              QIcon::Off);
+
+    auto closeIconFocused = Utils::StyleHelper::IconFontHelper(closeUnicode,
+                                                               Theme::getColor(Theme::DStextColor),
+                                                               QSize(28, 28),
+                                                               QIcon::Normal,
+                                                               QIcon::On);
+
+    const QIcon tabsCloseIcon = Utils::StyleHelper::getIconFromIconFont(fontName, {closeIconNormal, closeIconFocused});
 
     m_dockManager->iconProvider().registerCustomIcon(ADS::TabCloseIcon, tabsCloseIcon);
     m_dockManager->iconProvider().registerCustomIcon(ADS::DockAreaMenuIcon, menuIcon);
@@ -326,6 +339,9 @@ void DesignModeWidget::setup()
             dockWidget->setWindowTitle(title);
             m_dockManager->addDockWidget(ADS::NoDockWidgetArea, dockWidget);
 
+            // Set unique id as object name
+            navigationView.widget->setObjectName(uniqueId);
+
             // Create menu action
             auto command = Core::ActionManager::registerAction(dockWidget->toggleViewAction(),
                                                                actionToggle.withSuffix(uniqueId + "Widget"),
@@ -346,6 +362,9 @@ void DesignModeWidget::setup()
         // Add to view widgets
         m_viewWidgets.append(widgetInfo.widget);
 
+        // Set unique id as object name
+        widgetInfo.widget->setObjectName(widgetInfo.uniqueId);
+
         // Create menu action
         auto command = Core::ActionManager::registerAction(dockWidget->toggleViewAction(),
                                                            actionToggle.withSuffix(widgetInfo.uniqueId + "Widget"),
@@ -356,11 +375,16 @@ void DesignModeWidget::setup()
 
     // Finally the output pane
     {
+        const QString uniqueId = "OutputPane";
         auto outputPanePlaceholder = new Core::OutputPanePlaceHolder(Core::Constants::MODE_DESIGN);
-        m_outputPaneDockWidget = new ADS::DockWidget("OutputPane");
+        m_outputPaneDockWidget = new ADS::DockWidget(uniqueId);
         m_outputPaneDockWidget->setWidget(outputPanePlaceholder);
         m_outputPaneDockWidget->setWindowTitle("Output Pane");
         m_dockManager->addDockWidget(ADS::NoDockWidgetArea, m_outputPaneDockWidget);
+
+        // Set unique id as object name
+        outputPanePlaceholder->setObjectName(uniqueId);
+
         // Create menu action
         auto command = Core::ActionManager::registerAction(m_outputPaneDockWidget->toggleViewAction(),
                                                            actionToggle.withSuffix("OutputPaneWidget"),

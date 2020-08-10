@@ -1149,7 +1149,7 @@ void Client::sendPostponedDocumentUpdates()
         sendContent(DidChangeTextDocumentNotification(params));
         emit documentUpdated(document);
 
-        if (currentWidget->textDocument() == document)
+        if (currentWidget && currentWidget->textDocument() == document)
             cursorPositionChanged(currentWidget);
     }
 }

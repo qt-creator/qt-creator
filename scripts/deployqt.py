@@ -253,25 +253,29 @@ def deploy_libclang(install_dir, llvm_install_dir, chrpath_bin):
                            clangbindirtarget))
         resourcetarget = os.path.join(clanglibdirtarget, 'clang')
     else:
+        # libclang -> Qt Creator libraries
         libsources = glob(os.path.join(llvm_install_dir, 'lib', 'libclang.so*'))
         for libsource in libsources:
             deployinfo.append((libsource, os.path.join(install_dir, 'lib', 'qtcreator')))
-        clangbinary = os.path.join(llvm_install_dir, 'bin', 'clang')
-        clangdbinary = os.path.join(llvm_install_dir, 'bin', 'clangd')
-        clangtidybinary = os.path.join(llvm_install_dir, 'bin', 'clang-tidy')
-        clazybinary = os.path.join(llvm_install_dir, 'bin', 'clazy-standalone')
+        # clang binaries -> clang libexec
         clangbinary_targetdir = os.path.join(install_dir, 'libexec', 'qtcreator', 'clang', 'bin')
         if not os.path.exists(clangbinary_targetdir):
             os.makedirs(clangbinary_targetdir)
-        deployinfo.append((clangbinary, clangbinary_targetdir))
-        deployinfo.append((clangdbinary, clangbinary_targetdir))
-        deployinfo.append((clangtidybinary, clangbinary_targetdir))
-        deployinfo.append((clazybinary, clangbinary_targetdir))
-        # copy link target if clang is actually a symlink
-        if os.path.islink(clangbinary):
-            linktarget = os.readlink(clangbinary)
-            deployinfo.append((os.path.join(os.path.dirname(clangbinary), linktarget),
-                               os.path.join(clangbinary_targetdir, linktarget)))
+        for binary in ['clang', 'clangd', 'clang-tidy', 'clazy-standalone']:
+            binary_filepath = os.path.join(llvm_install_dir, 'bin', binary)
+            deployinfo.append((binary_filepath, clangbinary_targetdir))
+            # add link target if binary is actually a symlink (to a binary in the same directory)
+            if os.path.islink(binary_filepath):
+                linktarget = os.readlink(binary_filepath)
+                deployinfo.append((os.path.join(os.path.dirname(binary_filepath), linktarget),
+                                   os.path.join(clangbinary_targetdir, linktarget)))
+        clanglibs_targetdir = os.path.join(install_dir, 'libexec', 'qtcreator', 'clang', 'lib')
+        # support libraries (for clazy) -> clang libexec
+        if not os.path.exists(clanglibs_targetdir):
+            os.makedirs(clanglibs_targetdir)
+        for lib_pattern in ['ClazyPlugin.so', 'libclang-cpp.so*']:
+            for lib in glob(os.path.join(llvm_install_dir, 'lib', lib_pattern)):
+                deployinfo.append((lib, clanglibs_targetdir))
         resourcetarget = os.path.join(install_dir, 'libexec', 'qtcreator', 'clang', 'lib', 'clang')
 
     print("copying libclang...")
@@ -281,10 +285,15 @@ def deploy_libclang(install_dir, llvm_install_dir, chrpath_bin):
 
     if common.is_linux_platform():
         # libclang was statically compiled, so there is no need for the RPATHs
-        # and they are confusing when fixing RPATHs later in the process
-        print("removing libclang RPATHs...")
+        # and they are confusing when fixing RPATHs later in the process.
+        # Also fix clazy-standalone RPATH.
+        print("fixing Clang RPATHs...")
         for source, target in deployinfo:
-            if not os.path.islink(target):
+            filename = os.path.basename(source)
+            targetfilepath = target if not os.path.isdir(target) else os.path.join(target, filename)
+            if filename == 'clazy-standalone':
+                subprocess.check_call([chrpath_bin, '-r', '$ORIGIN/../lib', targetfilepath])
+            elif not os.path.islink(target):
                 targetfilepath = target if not os.path.isdir(target) else os.path.join(target, os.path.basename(source))
                 subprocess.check_call([chrpath_bin, '-d', targetfilepath])
 

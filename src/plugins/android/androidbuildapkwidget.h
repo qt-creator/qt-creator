@@ -63,7 +63,6 @@ private:
     QWidget *createApplicationGroup();
     QWidget *createSignPackageGroup();
     QWidget *createAdvancedGroup();
-    QWidget *createCreateTemplatesGroup();
     QWidget *createAdditionalLibrariesGroup();
 
 private:

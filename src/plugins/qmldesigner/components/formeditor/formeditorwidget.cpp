@@ -48,6 +48,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/utilsicons.h>
+#include <utils/stylehelper.h>
 
 #include <QActionGroup>
 #include <QFileDialog>
@@ -144,12 +145,89 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     upperActions.append(m_backgroundAction.data());
     m_toolBox->addRightSideAction(m_backgroundAction.data());
 
+    // Zoom actions
+    const QString fontName = "qtds_propertyIconFont.ttf";
+    const QColor textColorNormal(Theme::getColor(Theme::MenuItemTextColorNormal));
+    const QColor textColorDisabled(Theme::getColor(Theme::MenuBarItemTextColorDisabled));
+    const QIcon zoomAllIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
+                                                                      Theme::getIconUnicode(Theme::Icon::zoomAll),
+                                                                      28, 28, textColorNormal);
+
+    const QString zoomSelectionUnicode = Theme::getIconUnicode(Theme::Icon::zoomSelection);
+    const auto zoomSelectionNormal = Utils::StyleHelper::IconFontHelper(zoomSelectionUnicode,
+                                                                        textColorNormal,
+                                                                        QSize(28, 28),
+                                                                        QIcon::Normal);
+    const auto zoomSelectionDisabeld = Utils::StyleHelper::IconFontHelper(zoomSelectionUnicode,
+                                                                          textColorDisabled,
+                                                                          QSize(28, 28),
+                                                                          QIcon::Disabled);
+
+    const QIcon zoomSelectionIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
+                                                                            {zoomSelectionNormal,
+                                                                             zoomSelectionDisabeld});
+    const QIcon zoomInIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
+                                                                     Theme::getIconUnicode(Theme::Icon::zoomIn),
+                                                                     28, 28, textColorNormal);
+    const QIcon zoomOutIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
+                                                                      Theme::getIconUnicode(Theme::Icon::zoomOut),
+                                                                      28, 28, textColorNormal);
+
+    m_zoomInAction = new QAction(zoomInIcon, tr("Zoom in"), this);
+    m_zoomInAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Plus));
+    connect(m_zoomInAction.data(), &QAction::triggered, this, [this] {
+        if (!m_formEditorView)
+            return;
+
+        m_formEditorView->emitCustomNotification(QStringLiteral("zoom in"));
+    });
+    addAction(m_zoomInAction.data());
+    upperActions.append(m_zoomInAction.data());
+    m_toolBox->addRightSideAction(m_zoomInAction.data());
+
+    m_zoomOutAction = new QAction(zoomOutIcon, tr("Zoom out"), this);
+    m_zoomOutAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Minus));
+    connect(m_zoomOutAction.data(), &QAction::triggered, this, [this] {
+        if (!m_formEditorView)
+            return;
+
+        m_formEditorView->emitCustomNotification(QStringLiteral("zoom out"));
+    });
+    addAction(m_zoomOutAction.data());
+    upperActions.append(m_zoomOutAction.data());
+    m_toolBox->addRightSideAction(m_zoomOutAction.data());
+
     m_zoomAction = new ZoomAction(m_toolActionGroup.data());
     connect(m_zoomAction.data(), &ZoomAction::zoomLevelChanged,
             this, &FormEditorWidget::setZoomLevel);
     addAction(m_zoomAction.data());
     upperActions.append(m_zoomAction.data());
     m_toolBox->addRightSideAction(m_zoomAction.data());
+
+    m_zoomAllAction = new QAction(zoomAllIcon, tr("Zoom screen to fit all content"), this);
+    m_zoomAllAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_0));
+    connect(m_zoomAllAction.data(), &QAction::triggered, this, [this] {
+        if (!m_formEditorView)
+            return;
+
+        m_formEditorView->emitCustomNotification(QStringLiteral("zoom all"));
+    });
+    addAction(m_zoomAllAction.data());
+    upperActions.append(m_zoomAllAction.data());
+    m_toolBox->addRightSideAction(m_zoomAllAction.data());
+
+    m_zoomSelectionAction = new QAction(zoomSelectionIcon, tr("Zoom screen to fit current selection"), this);
+    m_zoomSelectionAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_I));
+    connect(m_zoomSelectionAction.data(), &QAction::triggered, this, [this] {
+        if (!m_formEditorView)
+            return;
+
+        m_formEditorView->emitCustomNotification(QStringLiteral("zoom selection"),
+                                                 m_formEditorView->selectedModelNodes());
+    });
+    addAction(m_zoomSelectionAction.data());
+    upperActions.append(m_zoomSelectionAction.data());
+    m_toolBox->addRightSideAction(m_zoomSelectionAction.data());
 
     m_resetAction = new QAction(Utils::Icons::RESET_TOOLBAR.icon(), tr("Reset View"), this);
     registerActionAsCommand(m_resetAction, Constants::FORMEDITOR_REFRESH, QKeySequence(Qt::Key_R));
@@ -218,9 +296,9 @@ void FormEditorWidget::wheelEvent(QWheelEvent *event)
 {
     if (event->modifiers().testFlag(Qt::ControlModifier)) {
         if (event->angleDelta().y() > 0)
-            zoomAction()->zoomOut();
-        else
             zoomAction()->zoomIn();
+        else
+            zoomAction()->zoomOut();
 
         event->accept();
     } else {
@@ -302,6 +380,11 @@ void FormEditorWidget::showWarningMessageBox(const QList<DocumentMessage> &warni
 ZoomAction *FormEditorWidget::zoomAction() const
 {
     return m_zoomAction.data();
+}
+
+QAction *FormEditorWidget::zoomSelectionAction() const
+{
+    return m_zoomSelectionAction.data();
 }
 
 QAction *FormEditorWidget::resetAction() const

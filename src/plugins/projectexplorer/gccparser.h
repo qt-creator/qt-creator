@@ -66,6 +66,7 @@ private:
     QRegularExpression m_regExpIncluded;
     QRegularExpression m_regExpInlined;
     QRegularExpression m_regExpGccNames;
+    QRegularExpression m_regExpCc1plus;
 
     Task m_currentTask;
     LinkSpecs m_linkSpecs;

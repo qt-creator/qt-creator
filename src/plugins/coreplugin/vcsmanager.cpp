@@ -348,8 +348,8 @@ bool VcsManager::promptToDelete(IVersionControl *vc, const QString &fileName)
     if (!vc->supportsOperation(IVersionControl::DeleteOperation))
         return true;
     const QString title = tr("Version Control");
-    const QString msg = tr("Would you like to remove this file from the version control system (%1)?\n"
-                           "Note: This might remove the local file.").arg(vc->displayName());
+    const QString msg = tr("Would you like to remove\n\t%1\nfrom the version control system (%2)?\n"
+                           "Note: This might remove the local file.").arg(fileName, vc->displayName());
     const QMessageBox::StandardButton button =
         QMessageBox::question(ICore::dialogParent(), title, msg, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
     if (button != QMessageBox::Yes)

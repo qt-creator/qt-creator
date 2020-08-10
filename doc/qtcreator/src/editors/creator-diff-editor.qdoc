@@ -75,6 +75,10 @@
 
     \endlist
 
+    If \QC cannot detect the encoding of the files to compare, an info bar
+    appears that displays the option to reload the document using some other
+    encoding. For more information, see \l {File Encoding}.
+
     \section1 Viewing the Changes
 
     \image creator-diff-editor.png "Diff editor output in the Edit mode"

@@ -33,7 +33,7 @@ Node {
     property alias startPos: lineGeometry.startPos
     property alias endPos: lineGeometry.endPos
     property alias name: lineGeometry.name // Name must be unique for each line
-    property alias color: lineMat.emissiveColor
+    property alias color: lineMat.diffuseColor
 
     Model {
         geometry: LineGeometry {

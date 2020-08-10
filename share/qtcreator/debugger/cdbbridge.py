@@ -110,7 +110,10 @@ class Dumper(DumperBase):
         # There is no cdb api for the size of bitfields.
         # Workaround this issue by parsing the native debugger text for integral types.
         if val.type.code == TypeCode.Integral:
-            integerString = nativeValue.nativeDebuggerValue()
+            try:
+                integerString = nativeValue.nativeDebuggerValue()
+            except UnicodeDecodeError:
+                integerString = ''  # cannot decode - read raw
             if integerString == 'true':
                 val.ldata = int(1).to_bytes(1, byteorder='little')
             elif integerString == 'false':

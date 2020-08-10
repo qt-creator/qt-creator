@@ -1,4 +1,4 @@
-import Qt 4.7
+import QtQuick 1.0
 
 Rectangle {
     function foo(k) {
@@ -10,54 +10,54 @@ Rectangle {
         var b = true
         var o = {}
 
-        if (s == s) {}
+        if (s == s) {} // -1 15 16 # false positive
         if (s == n) {} // 126 15 16
-        if (s == N) {} // ### should warn: always false
-        if (s == u) {} // ### should warn: always false
+        if (s == N) {} // -2 15 16 # wrong warning (always false)
+        if (s == u) {} // -2 15 16 # wrong warning (always false)
         if (s == b) {} // 126 15 16
         if (s == o) {} // 126 15 16
         if (s == k) {} // 126 15 16
 
         if (n == s) {} // 126 15 16
-        if (n == n) {}
-        if (n == N) {} // ### should warn: always false
-        if (n == u) {} // ### should warn: always false
+        if (n == n) {} // -1 15 16 # false positive
+        if (n == N) {} // -2 15 16 # wrong warning (always false)
+        if (n == u) {} // -2 15 16 # wrong warning (always false)
         if (n == b) {} // 126 15 16
         if (n == o) {} // 126 15 16
         if (n == k) {} // 126 15 16
 
-        if (N == s) {} // ### should warn: always false
-        if (N == n) {} // ### should warn: always false
-        if (N == N) {}
-        if (N == u) {} // ### should warn: always true
-        // ### should warn: always false
-        if (N == b) {} // 126 15 16
-        if (N == o) {} // ### should warn: always false
+        if (N == s) {} // -2 15 16 # wrong warning (always false)
+        if (N == n) {} // -2 15 16 # wrong warning (always false)
+        if (N == N) {} // -1 15 16 # false positive
+        if (N == u) {} // -2 15 16 # wrong warning (always true)
+
+        if (N == b) {} // -2 15 16 # wrong warning (always false)
+        if (N == o) {} // -2 15 16 # wrong warning (always false)
         if (N == k) {} // 126 15 16
 
-        if (u == s) {} // ### should warn: always false
-        if (u == n) {} // ### should warn: always false
-        if (u == N) {} // ### should warn: always true
-        if (u == u) {} // ### should warn: always true
-        if (u == b) {} // ### should warn: always false
-        if (u == o) {} // ### should warn: always false
+        if (u == s) {} // -2 15 16 # wrong warning (always false)
+        if (u == n) {} // -2 15 16 # wrong warning (always false)
+        if (u == N) {} // -2 15 16 # wrong warning (always true)
+        if (u == u) {} // -2 15 16 # wrong warning (always true)
+        if (u == b) {} // -2 15 16 # wrong warning (always false)
+        if (u == o) {} // -2 15 16 # wrong warning (always false)
         if (u == k) {} // 126 15 16
 
         if (b == s) {} // 126 15 16
         if (b == n) {} // 126 15 16
-        // ### should warn: always false
-        if (b == N) {} // 126 15 16
-        if (b == u) {} // ### should warn: always false
-        if (b == b) {}
+
+        if (b == N) {} // -2 15 16 # wrong warning (always false)
+        if (b == u) {} // -2 15 16 # wrong warning (always false)
+        if (b == b) {} // -1 15 16 # false positive
         if (b == o) {} // 126 15 16
         if (b == k) {} // 126 15 16
 
         if (o == s) {} // 126 15 16
         if (o == n) {} // 126 15 16
-        if (o == N) {} // ### should warn: always false
-        if (o == u) {} // ### should warn: always false
+        if (o == N) {} // -2 15 16 # wrong warning (always false)
+        if (o == u) {} // -2 15 16 # wrong warning (always false)
         if (o == b) {} // 126 15 16
-        if (o == o) {}
+        if (o == o) {} // -1 15 16 # false positive
         if (o == k) {} // 126 15 16
 
         if (k == s) {} // 126 15 16

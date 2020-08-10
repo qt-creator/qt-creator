@@ -33,6 +33,8 @@ namespace MesonProjectManager {
 namespace Internal {
 class NinjaToolKitAspect final : public ProjectExplorer::KitAspect
 {
+    Q_DECLARE_TR_FUNCTIONS(MesonProjectManager::Internal::NinjaToolKitAspect)
+
 public:
     NinjaToolKitAspect();
 

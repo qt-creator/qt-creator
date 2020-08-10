@@ -46,8 +46,7 @@ T.CheckBox {
 
     implicitWidth: Math.max(
                        implicitBackgroundWidth + leftInset + rightInset,
-                       implicitContentWidth + leftPadding + rightPadding
-                       + implicitIndicatorWidth + spacing + actionIndicator.width)
+                       implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(
                         implicitBackgroundHeight + topInset + bottomInset,
                         implicitContentHeight + topPadding + bottomPadding,

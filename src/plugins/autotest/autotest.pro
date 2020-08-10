@@ -79,6 +79,7 @@ HEADERS += \
     autotesticons.h \
     autotestplugin.h \
     iframeworksettings.h \
+    itemdatacache.h \
     itestframework.h \
     itestparser.h \
     projectsettingswidget.h \

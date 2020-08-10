@@ -133,6 +133,8 @@ if [ $LLVM_INSTALL_DIR ]; then
         mkdir -p "$libexec_path/clang/lib"
         cp -Rf "$LLVM_INSTALL_DIR"/lib/libclang.*dylib "$app_path/Contents/Frameworks/" || exit 1
         cp -Rf "$LLVM_INSTALL_DIR"/lib/clang "$libexec_path/clang/lib/" || exit 1
+        cp -Rf "$LLVM_INSTALL_DIR"/lib/libclang-cpp.dylib "$libexec_path/clang/lib/" || exit 1
+        cp -Rf "$LLVM_INSTALL_DIR"/lib/ClazyPlugin.dylib "$libexec_path/clang/lib/" || exit 1
         clangsource="$LLVM_INSTALL_DIR"/bin/clang
         clanglinktarget="$(readlink "$clangsource")"
         cp -Rf "$clangsource" "$libexec_path/clang/bin/" || exit 1
@@ -145,6 +147,7 @@ if [ $LLVM_INSTALL_DIR ]; then
         cp -Rf "$clangtidysource" "$libexec_path/clang/bin/" || exit 1
         clazysource="$LLVM_INSTALL_DIR"/bin/clazy-standalone
         cp -Rf "$clazysource" "$libexec_path/clang/bin/" || exit 1
+        install_name_tool -add_rpath "@executable_path/../lib" "$libexec_path/clang/bin/clazy-standalone" || exit 1
     fi
     clangbackendArgument="-executable=$libexec_path/clangbackend"
     clangpchmanagerArgument="-executable=$libexec_path/clangpchmanagerbackend"

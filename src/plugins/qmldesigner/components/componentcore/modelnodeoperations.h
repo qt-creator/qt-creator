@@ -49,8 +49,6 @@ void setFillWidth(const SelectionContext &selectionState);
 void setFillHeight(const SelectionContext &selectionState);
 void resetSize(const SelectionContext &selectionState);
 void resetPosition(const SelectionContext &selectionState);
-void fitRootToScreen(const SelectionContext &selectionState);
-void fitSelectionToScreen(const SelectionContext &selectionState);
 void goIntoComponentOperation(const SelectionContext &selectionState);
 void setId(const SelectionContext &selectionState);
 void resetZ(const SelectionContext &selectionState);
@@ -84,6 +82,7 @@ void setFlowStartItem(const SelectionContext &selectionContext);
 void addToGroupItem(const SelectionContext &selectionContext);
 void selectFlowEffect(const SelectionContext &selectionContext);
 void mergeWithTemplate(const SelectionContext &selectionContext);
+void removeGroup(const SelectionContext &selectionContext);
 
 } // namespace ModelNodeOperationso
 } //QmlDesigner

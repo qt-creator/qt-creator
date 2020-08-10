@@ -50,6 +50,7 @@
 #include <QComboBox>
 #include <QGroupBox>
 #include <QFileDialog>
+#include <QFormLayout>
 #include <QLabel>
 #include <QListView>
 #include <QPushButton>
@@ -74,7 +75,6 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     vbox->addWidget(createSignPackageGroup());
     vbox->addWidget(createApplicationGroup());
     vbox->addWidget(createAdvancedGroup());
-    vbox->addWidget(createCreateTemplatesGroup());
     vbox->addWidget(createAdditionalLibrariesGroup());
 
     connect(m_step->buildConfiguration(), &BuildConfiguration::buildTypeChanged,
@@ -96,7 +96,7 @@ QWidget *AndroidBuildApkWidget::createApplicationGroup()
 
     auto group = new QGroupBox(tr("Application"), this);
 
-    auto targetSDKComboBox = new QComboBox(group);
+    auto targetSDKComboBox = new QComboBox();
     targetSDKComboBox->addItems(targets);
     targetSDKComboBox->setCurrentIndex(targets.indexOf(m_step->buildTargetSdk()));
 
@@ -107,9 +107,18 @@ QWidget *AndroidBuildApkWidget::createApplicationGroup()
        AndroidManager::updateGradleProperties(step()->target(), QString()); // FIXME: Use real key.
    });
 
-    auto hbox = new QHBoxLayout(group);
-    hbox->addWidget(new QLabel(tr("Android build SDK:"), group));
-    hbox->addWidget(targetSDKComboBox);
+    auto formLayout = new QFormLayout(group);
+    formLayout->addRow(tr("Android build SDK:"), targetSDKComboBox);
+
+    auto createAndroidTemplatesButton = new QPushButton(tr("Create Templates"));
+    createAndroidTemplatesButton->setToolTip(
+        tr("Create an Android package for Custom Java code, assets, and Gradle configurations."));
+    connect(createAndroidTemplatesButton, &QAbstractButton::clicked, this, [this] {
+        CreateAndroidManifestWizard wizard(m_step->buildSystem());
+        wizard.exec();
+    });
+
+    formLayout->addRow(tr("Android customization:"), createAndroidTemplatesButton);
 
     return group;
 }
@@ -120,7 +129,7 @@ QWidget *AndroidBuildApkWidget::createSignPackageGroup()
     sizePolicy.setHorizontalStretch(0);
     sizePolicy.setVerticalStretch(0);
 
-    auto group = new QGroupBox(tr("Sign package"), this);
+    auto group = new QGroupBox(tr("Application Signature"), this);
 
     auto keystoreLocationLabel = new QLabel(tr("Keystore:"), group);
     keystoreLocationLabel->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
@@ -240,24 +249,6 @@ QWidget *AndroidBuildApkWidget::createAdvancedGroup()
             this, [this](bool checked) { m_step->setVerboseOutput(checked); });
 
     return group;
-}
-
-QWidget *AndroidBuildApkWidget::createCreateTemplatesGroup()
-{
-    auto createTemplatesGroupBox = new QGroupBox(tr("Android"));
-    createTemplatesGroupBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-    auto createAndroidTemplatesButton = new QPushButton(tr("Create Templates"));
-    connect(createAndroidTemplatesButton, &QAbstractButton::clicked, this, [this] {
-        CreateAndroidManifestWizard wizard(m_step->buildSystem());
-        wizard.exec();
-    });
-
-    auto horizontalLayout = new QHBoxLayout(createTemplatesGroupBox);
-    horizontalLayout->addWidget(createAndroidTemplatesButton);
-    horizontalLayout->addStretch(1);
-
-    return createTemplatesGroupBox;
 }
 
 QWidget *AndroidBuildApkWidget::createAdditionalLibrariesGroup()

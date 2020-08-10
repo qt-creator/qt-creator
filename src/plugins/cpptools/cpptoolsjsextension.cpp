@@ -121,7 +121,7 @@ QString CppToolsJsExtension::closeNamespaces(const QString &klass) const
 QString CppToolsJsExtension::includeStatement(
         const QString &fullyQualifiedClassName,
         const QString &suffix,
-        const QString &specialClasses,
+        const QStringList &specialClasses,
         const QString &pathOfIncludingFile
         )
 {

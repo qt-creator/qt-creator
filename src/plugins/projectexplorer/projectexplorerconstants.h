@@ -179,6 +179,13 @@ const char DESKTOP_DEVICE_TYPE[] = "Desktop";
 const int DESKTOP_PORT_START = 30000;
 const int DESKTOP_PORT_END = 31000;
 
+// Android ABIs
+const char ANDROID_ABI_ARMEABI[] = "armeabi";
+const char ANDROID_ABI_ARMEABI_V7A[] = "armeabi-v7a";
+const char ANDROID_ABI_ARM64_V8A[] = "arm64-v8a";
+const char ANDROID_ABI_X86[] = "x86";
+const char ANDROID_ABI_X86_64[] = "x86_64";
+
 // Variable Names:
 const char VAR_CURRENTPROJECT_PREFIX[] = "CurrentProject";
 const char VAR_CURRENTPROJECT_NAME[] = "CurrentProject:Name";

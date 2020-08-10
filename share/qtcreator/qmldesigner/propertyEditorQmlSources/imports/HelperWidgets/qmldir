@@ -39,11 +39,11 @@ SimpleColorPalette 2.0 SimpleColorPalette.qml
 DoubleSpinBox 2.0 DoubleSpinBox.qml
 SpinBox 2.0 SpinBox.qml
 StandardTextSection 2.0 StandardTextSection.qml
-Tab 2.0 Tab.qml
-TabView 2.0 TabView.qml
 ToolTipArea 2.0 ToolTipArea.qml
 UrlChooser 2.0 UrlChooser.qml
 PaddingSection 2.0 PaddingSection.qml
 RoundedPanel 2.0 RoundedPanel.qml
 ExpressionTextField 2.0 ExpressionTextField.qml
 MarginSection 2.0 MarginSection.qml
+HorizontalScrollBar 2.0 HorizontalScrollBar.qml
+VerticalScrollBar 2.0 VerticalScrollBar.qml

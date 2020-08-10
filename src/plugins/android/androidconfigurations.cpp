@@ -39,6 +39,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/toolchainmanager.h>
 
@@ -1284,7 +1285,12 @@ void AndroidConfigurations::removeUnusedDebuggers()
 
 static bool containsAllAbis(const QStringList &abis)
 {
-    QStringList supportedAbis{"armeabi-v7a", "arm64-v8a", "x86", "x86_64"};
+    QStringList supportedAbis{
+        ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A,
+        ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A,
+        ProjectExplorer::Constants::ANDROID_ABI_X86,
+        ProjectExplorer::Constants::ANDROID_ABI_X86_64,
+    };
     for (const QString &abi : abis)
         if (supportedAbis.contains(abi))
             supportedAbis.removeOne(abi);
@@ -1524,6 +1530,21 @@ AndroidConfigurations::AndroidConfigurations()
 
 AndroidConfigurations::~AndroidConfigurations() = default;
 
+static Utils::FilePath androidStudioPath()
+{
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        const QLatin1String registryKey("HKEY_LOCAL_MACHINE\\SOFTWARE\\Android Studio");
+        const QLatin1String valueName("Path");
+    #if defined(Q_OS_WIN)
+        const QSettings settings64(registryKey, QSettings::Registry64Format);
+        const QSettings settings32(registryKey, QSettings::Registry32Format);
+        return Utils::FilePath::fromUserInput(
+                    settings64.value(valueName, settings32.value(valueName).toString()).toString());
+    #endif
+    }
+    return {}; // TODO non-Windows
+}
+
 FilePath AndroidConfig::getJdkPath()
 {
     FilePath jdkHome;
@@ -1563,6 +1584,16 @@ FilePath AndroidConfig::getJdkPath()
                 break;
             }
         }
+
+        // Nothing found yet? Let's try finding Android Studio's jdk
+        if (jdkHome.isEmpty()) {
+            const Utils::FilePath androidStudioSdkPath = androidStudioPath();
+            if (!androidStudioSdkPath.isEmpty()) {
+                const Utils::FilePath androidStudioSdkJrePath = androidStudioSdkPath / "jre";
+                if (androidStudioSdkJrePath.exists())
+                    jdkHome = androidStudioSdkJrePath;
+            }
+        }
     } else {
         QStringList args;
         if (HostOsInfo::isMacHost())
@@ -1581,7 +1612,8 @@ FilePath AndroidConfig::getJdkPath()
             jdkHome = FilePath::fromUtf8(jdkPath);
         } else {
             jdkPath.replace("bin/java", ""); // For OpenJDK 11
-            jdkPath.replace("jre/bin/java", "");
+            jdkPath.replace("jre", "");
+            jdkPath.replace("//", "/");
             jdkHome = FilePath::fromUtf8(jdkPath);
         }
     }

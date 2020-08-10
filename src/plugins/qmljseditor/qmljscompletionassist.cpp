@@ -355,7 +355,7 @@ QStringList qmlJSAutoComplete(QTextDocument *textDocument,
         }
 
         for (int i = 0; i < model->size(); ++i)
-            list.append(proposal->model()->text(i));
+            list.append(proposal->model()->text(i).trimmed());
         list.append(prefix);
     }
 

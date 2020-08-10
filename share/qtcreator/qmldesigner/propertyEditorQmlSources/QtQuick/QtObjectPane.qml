@@ -23,10 +23,11 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
-import HelperWidgets 2.0
+import QtQuick 2.15
 import QtQuick.Layouts 1.0
 import QtQuickDesignerTheme 1.0
+import HelperWidgets 2.0
+import StudioTheme 1.0 as StudioTheme
 
 Rectangle {
     id: itemPane
@@ -43,6 +44,7 @@ Rectangle {
         anchors.fill: parent
 
         Column {
+            id: rootColumn
             y: -1
             width: itemPane.width
             Section {
@@ -54,7 +56,6 @@ Rectangle {
                 SectionLayout {
                     Label {
                         text: qsTr("Type")
-
                     }
 
                     SecondColumnLayout {
@@ -62,15 +63,12 @@ Rectangle {
 
                         RoundedPanel {
                             Layout.fillWidth: true
-                            height: 24
+                            height: StudioTheme.Values.height
 
                             Label {
-                                x: 6
                                 anchors.fill: parent
-                                anchors.leftMargin: 16
-
+                                anchors.leftMargin: StudioTheme.Values.inputHorizontalPadding
                                 text: backendValues.className.value
-                                verticalAlignment: Text.AlignVCenter
                             }
                             ToolTipArea {
                                 anchors.fill: parent
@@ -87,7 +85,7 @@ Rectangle {
                                 z: 2
                                 id: typeLineEdit
                                 completeOnlyTypes: true
-
+                                replaceCurrentTextByCompletion: true
                                 anchors.fill: parent
 
                                 visible: false
@@ -95,17 +93,33 @@ Rectangle {
                                 showButtons: false
                                 fixedSize: true
 
+                                property bool blockEditingFinished: false
+
                                 onEditingFinished: {
-                                    if (visible)
+                                    if (typeLineEdit.blockEditingFinished)
+                                        return
+
+                                    typeLineEdit.blockEditingFinished = true
+
+                                    if (typeLineEdit.visible)
                                         changeTypeName(typeLineEdit.text.trim())
-                                    visible = false
+                                    typeLineEdit.visible = false
+
+                                    typeLineEdit.blockEditingFinished = false
+
+                                    typeLineEdit.completionList.model = null
+                                }
+
+                                onRejected: {
+                                    typeLineEdit.visible = false
+                                    typeLineEdit.completionList.model = null
                                 }
                             }
 
                         }
                         Item {
-                            Layout.preferredWidth: 16
-                            Layout.preferredHeight: 16
+                            Layout.preferredWidth: 20
+                            Layout.preferredHeight: 20
                         }
                     }
 
@@ -114,6 +128,7 @@ Rectangle {
                     }
 
                     SecondColumnLayout {
+                        spacing: 2
                         LineEdit {
                             id: lineEdit
 
@@ -127,12 +142,48 @@ Rectangle {
                             enabled: !modelNodeBackend.multiSelection
                         }
 
-                        Image {
-                            visible: !modelNodeBackend.multiSelection
-                            Layout.preferredWidth: 16
-                            Layout.preferredHeight: 16
-                            source: hasAliasExport ? "image://icons/alias-export-checked" : "image://icons/alias-export-unchecked"
+                        Rectangle {
+                            id: aliasIndicator
+                            color: "transparent"
+                            border.color: "transparent"
+                            implicitWidth: StudioTheme.Values.height
+                            implicitHeight: StudioTheme.Values.height
+                            z: 10
+
+                            Label {
+                                id: aliasIndicatorIcon
+                                enabled: !modelNodeBackend.multiSelection
+                                anchors.fill: parent
+                                text: {
+                                    if (!aliasIndicatorIcon.enabled)
+                                        return StudioTheme.Constants.idAliasOff
+
+                                    return hasAliasExport ? StudioTheme.Constants.idAliasOn : StudioTheme.Constants.idAliasOff
+                                }
+                                color: {
+                                    if (!aliasIndicatorIcon.enabled)
+                                        return StudioTheme.Values.themeTextColorDisabled
+
+                                    return hasAliasExport ? StudioTheme.Values.themeInteraction : StudioTheme.Values.themeTextColor
+                                }
+                                font.family: StudioTheme.Constants.iconFont.family
+                                font.pixelSize: Math.round(16 * StudioTheme.Values.scaleFactor)
+                                verticalAlignment: Text.AlignVCenter
+                                horizontalAlignment: Text.AlignHCenter
+                                states: [
+                                    State {
+                                        name: "hovered"
+                                        when: toolTipArea.containsMouse && aliasIndicatorIcon.enabled
+                                        PropertyChanges {
+                                            target: aliasIndicatorIcon
+                                            scale: 1.2
+                                        }
+                                    }
+                                ]
+                            }
+
                             ToolTipArea {
+                                id: toolTipArea
                                 enabled: !modelNodeBackend.multiSelection
                                 anchors.fill: parent
                                 onClicked: toogleExportAlias()
@@ -148,68 +199,29 @@ Rectangle {
                 width: 4
             }
 
-            TabView {
+            Column {
                 anchors.left: parent.left
                 anchors.right: parent.right
-                frameVisible: false
+                Loader {
+                    id: specificsTwo
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    visible: theSource !== ""
+                    sourceComponent: specificQmlComponent
 
-                id: tabView
-                height: Math.max(layoutSectionHeight, specficsHeight)
+                    property string theSource: specificQmlData
 
-                property int layoutSectionHeight: 400
-                property int specficsOneHeight: 0
-                property int specficsTwoHeight: 0
-
-                property int specficsHeight: Math.max(specficsOneHeight, specficsTwoHeight)
-
-                property int extraHeight: 40
-
-                Tab {
-                    id: tab
-                    title: backendValues.className.value
-
-                    component: Column {
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        Loader {
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-
-                            visible: theSource !== ""
-
-                            id: specificsTwo;
-                            sourceComponent: specificQmlComponent
-
-                            property string theSource: specificQmlData
-
-                            onTheSourceChanged: {
-                                active = false
-                                active = true
-                            }
-
-                            property int loaderHeight: specificsTwo.item.height + tabView.extraHeight
-                            onLoaderHeightChanged: tabView.specficsTwoHeight = loaderHeight
-
-                            onLoaded: {
-                                tabView.specficsTwoHeight = loaderHeight
-                            }
-                        }
-
-                        Loader {
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-
-                            id: specificsOne;
-                            source: specificsUrl;
-
-                            property int loaderHeight: specificsOne.item.height + tabView.extraHeight
-                            onLoaderHeightChanged: tabView.specficsHeight = loaderHeight
-
-                            onLoaded: {
-                                tabView.specficsOneHeight = loaderHeight
-                            }
-                        }
+                    onTheSourceChanged: {
+                        active = false
+                        active = true
                     }
+                }
+
+                Loader {
+                    id: specificsOne
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    source: specificsUrl
                 }
             }
         }

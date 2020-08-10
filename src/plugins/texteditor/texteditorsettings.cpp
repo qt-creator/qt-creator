@@ -90,7 +90,7 @@ FormatDescriptions TextEditorSettingsPrivate::initialFormats()
     formatDescr.emplace_back(C_TEXT, tr("Text"),
                              tr("Generic text and punctuation tokens.\n"
                                                     "Applied to text that matched no other rule."),
-                             Format{QColor{}, Qt::white});
+                             Format{Qt::black, Qt::white});
 
     // Special categories
     const QPalette p = QApplication::palette();

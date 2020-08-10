@@ -104,6 +104,7 @@ Rectangle {
         color: "transparent"
         border.width: StudioTheme.Values.border
         border.color: StudioTheme.Values.themeInteraction
+        visible: myColumn.currentItem ? myColumn.currentItem.focus : false
         x: myColumn.currentItem ? myColumn.currentItem.x : 0
         y: myColumn.currentItem ? myColumn.currentItem.y : 0
         z: 10

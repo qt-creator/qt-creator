@@ -50,8 +50,8 @@ Section {
         }
 
         AnchorRow {
-            visible: anchorBackend.topAnchored;
-            iconSource: "image://icons/anchor-top"
+            visible: anchorBackend.topAnchored
+            iconSource: StudioTheme.Constants.anchorTop
             anchorMargin: backendValues.anchors_topMargin
             targetName: anchorBackend.topTarget
             onTargetChanged: {
@@ -73,8 +73,8 @@ Section {
         }
 
         AnchorRow {
-            visible: anchorBackend.bottomAnchored;
-            iconSource: "image://icons/anchor-bottom"
+            visible: anchorBackend.bottomAnchored
+            iconSource: StudioTheme.Constants.anchorBottom
             anchorMargin: backendValues.anchors_bottomMargin
             targetName: anchorBackend.bottomTarget
             onTargetChanged: {
@@ -97,8 +97,8 @@ Section {
         }
 
         AnchorRow {
-            visible: anchorBackend.leftAnchored;
-            iconSource: "image://icons/anchor-left"
+            visible: anchorBackend.leftAnchored
+            iconSource: StudioTheme.Constants.anchorLeft
             anchorMargin: backendValues.anchors_leftMargin
             targetName: anchorBackend.leftTarget
             onTargetChanged: {
@@ -120,8 +120,8 @@ Section {
         }
 
         AnchorRow {
-            visible: anchorBackend.rightAnchored;
-            iconSource: "image://icons/anchor-right"
+            visible: anchorBackend.rightAnchored
+            iconSource: StudioTheme.Constants.anchorRight
             anchorMargin: backendValues.anchors_rightMargin
             targetName: anchorBackend.rightTarget
             onTargetChanged: {
@@ -145,8 +145,8 @@ Section {
 
         AnchorRow {
             showAlternativeTargets: false
-            visible: anchorBackend.horizontalCentered;
-            iconSource: "image://icons/anchor-horizontal"
+            visible: anchorBackend.horizontalCentered
+            iconSource: StudioTheme.Constants.centerHorizontal
             anchorMargin: backendValues.anchors_horizontalCenterOffset
             targetName: anchorBackend.horizontalTarget
             onTargetChanged: {
@@ -158,8 +158,8 @@ Section {
 
         AnchorRow {
             showAlternativeTargets: false
-            visible: anchorBackend.verticalCentered;
-            iconSource: "image://icons/anchor-vertical"
+            visible: anchorBackend.verticalCentered
+            iconSource: StudioTheme.Constants.centerVertical
             anchorMargin: backendValues.anchors_verticalCenterOffset
             targetName: anchorBackend.verticalTarget
             onTargetChanged: {

@@ -154,7 +154,7 @@ NameValueItems NameValueDictionary::diff(const NameValueDictionary &other, bool 
             const QString &newValue = otherIt.value().first;
             const bool oldEnabled = thisIt.value().second;
             const bool newEnabled = otherIt.value().second;
-            if (oldValue != newValue) {
+            if (oldValue != newValue || oldEnabled != newEnabled) {
                 if (checkAppendPrepend && newValue.startsWith(oldValue)
                         && oldEnabled == newEnabled) {
                     QString appended = newValue.right(newValue.size() - oldValue.size());

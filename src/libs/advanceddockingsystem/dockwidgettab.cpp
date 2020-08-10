@@ -201,6 +201,9 @@ namespace ADS
         boxLayout->addSpacing(qRound(spacing * 4.0 / 3.0));
         boxLayout->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
 
+        if (DockManager::testConfigFlag(DockManager::FocusHighlighting))
+            m_closeButton->setCheckable(true);
+
         m_titleLabel->setVisible(true);
     }
 
@@ -425,7 +428,6 @@ namespace ADS
                 setFocus(Qt::OtherFocusReason);
                 updateFocusStyle = true;
             }
-
             if (d->m_isActiveTab == active) {
                 if (updateFocusStyle)
                     updateStyle();
@@ -527,6 +529,7 @@ namespace ADS
             d->m_titleLabel->setToolTip(text);
         }
 #endif
+
         return Super::event(event);
     }
 
@@ -547,6 +550,13 @@ namespace ADS
 
     void DockWidgetTab::updateStyle()
     {
+        if (DockManager::testConfigFlag(DockManager::FocusHighlighting)) {
+            if (property("focused").toBool())
+                d->m_closeButton->setChecked(true);
+            else
+                d->m_closeButton->setChecked(false);
+        }
+
         internal::repolishStyle(this, internal::RepolishDirectChildren);
     }
 

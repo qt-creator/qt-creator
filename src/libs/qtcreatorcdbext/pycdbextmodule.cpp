@@ -220,17 +220,13 @@ static PyObject *cdbext_listOfLocals(PyObject *, PyObject *args) // -> [ Value ]
         ++currentPartialIname; // skip "local" part
 
         ULONG symbolGroupIndex = 0;
-        ULONG childEndIndex = 0;
         for (;symbolGroupIndex < scopeEnd; ++symbolGroupIndex) {
             PyValue value(symbolGroupIndex, symbolGroup);
-            if (childEndIndex <= symbolGroupIndex) { // do not return a child value
-                if (value.name() == *currentPartialIname) {
-                    PyList_Append(locals, createPythonObject(value));
-                    return locals;
-                }
-                ++childEndIndex;
+            if (value.name() == *currentPartialIname) {
+                PyList_Append(locals, createPythonObject(value));
+                return locals;
             }
-            childEndIndex += ULONG(value.childCount());
+            symbolGroupIndex += value.currentNumberOfDescendants();
         }
     }
 
