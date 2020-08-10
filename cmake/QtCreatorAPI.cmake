@@ -244,6 +244,7 @@ function(add_qtc_library name)
   unset(NAMELINK_OPTION)
   if (library_type STREQUAL "SHARED")
     set(NAMELINK_OPTION NAMELINK_SKIP)
+    qtc_add_link_flags_no_undefined(${name})
   endif()
 
   unset(COMPONENT_OPTION)

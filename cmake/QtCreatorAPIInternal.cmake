@@ -4,6 +4,7 @@ if (CMAKE_VERSION VERSION_LESS 3.18)
   endif()
 endif()
 
+include(CheckLinkerFlag)
 include(FeatureSummary)
 
 #
@@ -159,6 +160,19 @@ function(qtc_enable_sanitize _sanitize_flags)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=${_sanitize_flags}")
   endif()
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}" PARENT_SCOPE)
+endfunction()
+
+function(qtc_add_link_flags_no_undefined target)
+    set(no_undefined_flag "-Wl,--no-undefined")
+    check_linker_flag(CXX ${no_undefined_flag} QTC_LINKER_SUPPORTS_NO_UNDEFINED)
+    if (NOT QTC_LINKER_SUPPORTS_NO_UNDEFINED)
+        set(no_undefined_flag "-Wl,-undefined,error")
+        check_linker_flag(CXX ${no_undefined_flag} QTC_LINKER_SUPPORTS_UNDEFINED_ERROR)
+        if (NOT QTC_LINKER_SUPPORTS_UNDEFINED_ERROR)
+            return()
+        endif()
+    endif()
+    target_link_options("${target}" PRIVATE "${no_undefined_flag}")
 endfunction()
 
 function(append_extra_translations target_name)
