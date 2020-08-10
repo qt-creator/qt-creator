@@ -1178,9 +1178,9 @@ void tst_Dumpers::initTestCase()
         QVERIFY(generateEnvironmentSettings(env, QString::fromLatin1(envBat), QString(), envPairs));
         for (auto envIt = envPairs.begin(); envIt != envPairs.end(); ++envIt)
             env.set(envIt.key(), envIt.value());
-        QByteArray cdbextPath = qgetenv("QTC_CDBEXT_PATH");
+        QString cdbextPath = qEnvironmentVariable("QTC_CDBEXT_PATH");
         if (cdbextPath.isEmpty())
-            cdbextPath = CDBEXT_PATH "\\qtcreatorcdbext64";
+            cdbextPath = QString(CDBEXT_PATH "\\qtcreatorcdbext64");
         QVERIFY(QFile::exists(cdbextPath + "\\qtcreatorcdbext.dll"));
         env.set("_NT_DEBUGGER_EXTENSION_PATH", cdbextPath);
         env.prependOrSetPath(QDir::toNativeSeparators(QFileInfo(m_qmakeBinary).absolutePath()));
