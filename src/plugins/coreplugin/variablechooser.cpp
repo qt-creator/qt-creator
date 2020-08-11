@@ -42,6 +42,7 @@
 #include <QMenu>
 #include <QPlainTextEdit>
 #include <QPointer>
+#include <QScrollBar>
 #include <QSortFilterProxyModel>
 #include <QTextEdit>
 #include <QTimer>
@@ -466,9 +467,15 @@ void VariableChooserPrivate::updateButtonGeometry()
 {
     QWidget *current = currentWidget();
     int margin = buttonMargin();
+    int rightPadding = 0;
+    if (const auto scrollArea = qobject_cast<const QAbstractScrollArea*>(current)) {
+        rightPadding = m_textEdit->verticalScrollBar()->isVisible() ?
+                    m_textEdit->verticalScrollBar()->width() : 0;
+    }
     m_iconButton->setGeometry(current->rect().adjusted(
                                   current->width() - (margin + 4), 0,
-                                  0, -qMax(0, current->height() - (margin + 4))));
+                                  0, -qMax(0, current->height() - (margin + 4)))
+                              .translated(-rightPadding, 0));
 }
 
 void VariableChooserPrivate::updateCurrentEditor(QWidget *old, QWidget *widget)
@@ -629,7 +636,7 @@ bool VariableChooser::eventFilter(QObject *obj, QEvent *event)
     if ((event->type() == QEvent::KeyPress || event->type() == QEvent::ShortcutOverride) && isVisible()) {
         auto ke = static_cast<QKeyEvent *>(event);
         return handleEscapePressed(ke, this);
-    } else if (event->type() == QEvent::Resize) {
+    } else if (event->type() == QEvent::Resize || event->type() == QEvent::LayoutRequest) {
         d->updateButtonGeometry();
     } else if (event->type() == QEvent::Hide) {
         close();
