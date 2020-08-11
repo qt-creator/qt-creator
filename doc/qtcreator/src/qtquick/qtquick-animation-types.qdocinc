@@ -1,0 +1,70 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+//! [qtquick animation types]
+
+    \section1 Using Qt Quick Animation Types
+
+    To create an animation, use an appropriate animation type for the type of
+    the property that is to be animated, and apply the animation depending on
+    the type of behavior that is required.
+
+    You can drag and drop the following QML types from \uicontrol Library
+    > \uicontrol {QML Types} > \uicontrol {Qt Quick - Animation} to
+    \uicontrol Navigator or \uicontrol {Form Editor}:
+
+    \list
+        \li \l [QML] {ColorAnimation}{Color Animation} is a specialized
+            property animation that defines an animation to be applied when a
+            color value changes.
+        \li \l [QML] {NumberAnimation}{Number Animation} is a specialized
+            property animation that defines an animation to be applied when a
+            numerical value changes.
+        \li \l [QML] {ParallelAnimation}{Parallel Animation} enables
+            animations to be run in parallel.
+        \li \l [QML] {PauseAnimation}{Pause Animation} is used in a
+            sequential animation to create a step where nothing happens, for
+            a specified duration.
+        \li \l [QML] {PropertyAction}{Property Action} immediately changes
+             a property value during an animation, without animating the
+             property change.
+        \li \l [QML] {PropertyAnimation}{Property Animation} animates
+             changes in the value of a property.
+        \li \l [QML] {ScriptAction}{Script Action} defines scripts to be
+            run during an animation.
+        \li \l [QML] {SequentialAnimation}{Sequential Animation} enables
+            animations to be run sequentially.
+    \endlist
+
+    For more information about using the QML types, see
+    \l{Animation and Transitions in Qt Quick}.
+
+    For more information about animating properties in the \uicontrol Timeline
+    view, see \l{Creating Animations}. For more information about animating
+    property changes in states, see \l{Animating Transitions Between States}.
+
+//! [qtquick animation types]
+*/
