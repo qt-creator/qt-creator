@@ -126,7 +126,8 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Utils::Id id)
             return newDir;
         });
 
-    addAspect<InitialCMakeArgumentsAspect>();
+    auto initialCMakeArgumentsAspect = addAspect<InitialCMakeArgumentsAspect>();
+    initialCMakeArgumentsAspect->setMacroExpanderProvider([this]{ return macroExpander(); });
 
     appendInitialBuildStep(Constants::CMAKE_BUILD_STEP_ID);
     appendInitialCleanStep(Constants::CMAKE_BUILD_STEP_ID);
