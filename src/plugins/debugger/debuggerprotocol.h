@@ -32,7 +32,6 @@
 #include <QJsonObject>
 #include <QVector>
 
-#include <functional>
 #include <utils/fileutils.h>
 
 namespace Utils { class ProcessHandle; }
@@ -125,7 +124,35 @@ public:
     bool m_continue = false;
 };
 
-// FIXME: rename into GdbMiValue
+class DebuggerOutputParser
+{
+public:
+    explicit DebuggerOutputParser(const QString &output);
+
+    QChar current() const { return *from; }
+    bool isCurrent(QChar c) const { return *from == c; }
+    bool isAtEnd() const { return from == to; }
+
+    void advance() { ++from; }
+    void advance(int n) { from += n; }
+    QChar lookAhead(int offset) const { return from[offset]; }
+
+    int readInt();
+    QChar readChar();
+    QString readCString();
+    QString readString(const std::function<bool(char)> &isValidChar);
+
+    QString buffer() const { return QString(from, to - from); }
+    int remainingChars() const { return int(to - from); }
+
+    void skipCommas();
+    void skipSpaces();
+
+private:
+    const QChar *from = nullptr;
+    const QChar *to = nullptr;
+};
+
 class GdbMi
 {
 public:
@@ -163,13 +190,12 @@ public:
     void fromString(const QString &str);
     void fromStringMultiple(const QString &str);
 
-    static QString parseCString(const QChar *&from, const QChar *to);
     static QString escapeCString(const QString &ba);
-    void parseResultOrValue(const QChar *&from, const QChar *to);
-    void parseValue(const QChar *&from, const QChar *to);
-    void parseTuple(const QChar *&from, const QChar *to);
-    void parseTuple_helper(const QChar *&from, const QChar *to);
-    void parseList(const QChar *&from, const QChar *to);
+    void parseResultOrValue(DebuggerOutputParser &state);
+    void parseValue(DebuggerOutputParser &state);
+    void parseTuple(DebuggerOutputParser &state);
+    void parseTuple_helper(DebuggerOutputParser &state);
+    void parseList(DebuggerOutputParser &state);
 
 private:
     void dumpChildren(QString *str, bool multiline, int indent) const;

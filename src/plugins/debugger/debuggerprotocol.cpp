@@ -46,7 +46,7 @@
 namespace Debugger {
 namespace Internal {
 
-uchar fromhex(uchar c)
+static uchar fromhex(uchar c)
 {
     if (c >= '0' && c <= '9')
         return c - '0';
@@ -57,84 +57,122 @@ uchar fromhex(uchar c)
     return UCHAR_MAX;
 }
 
-void skipCommas(const QChar *&from, const QChar *to)
+// DebuggerOutputParser
+
+DebuggerOutputParser::DebuggerOutputParser(const QString &output)
+    : from(output.begin()), to(output.end())
 {
-    while (*from == ',' && from != to)
+}
+
+void DebuggerOutputParser::skipCommas()
+{
+    while (from != to && *from == ',')
         ++from;
 }
 
-void GdbMi::parseResultOrValue(const QChar *&from, const QChar *to)
+void DebuggerOutputParser::skipSpaces()
 {
     while (from != to && isspace(from->unicode()))
         ++from;
+}
 
-    //qDebug() << "parseResultOrValue: " << QString(from, to - from);
-    parseValue(from, to);
+QString DebuggerOutputParser::readString(const std::function<bool(char)> &isValidChar)
+{
+    QString res;
+    while (from != to && isValidChar(from->unicode()))
+        res += *from++;
+    return res;
+}
+
+int DebuggerOutputParser::readInt()
+{
+    int res = 0;
+    while (from != to && *from >= '0' && *from <= '9') {
+        res *= 10;
+        res += (*from++).unicode() - '0';
+    }
+    return res;
+}
+
+QChar DebuggerOutputParser::readChar()
+{
+    return *from++;
+}
+
+static bool isNameChar(char c)
+{
+    return c != '=' && c != ':' && !isspace(c);
+}
+
+void GdbMi::parseResultOrValue(DebuggerOutputParser &parser)
+{
+    parser.skipSpaces();
+
+    //qDebug() << "parseResultOrValue: " << parser.buffer();
+    parseValue(parser);
+    parser.skipSpaces();
     if (isValid()) {
-        //qDebug() << "no valid result in " << QString(from, to - from);
+        //qDebug() << "no valid result in " << parser.buffer();
         return;
     }
-    if (from == to || *from == '(')
+    if (parser.isAtEnd() || parser.isCurrent('('))
         return;
-    const QChar *ptr = from;
-    while (ptr < to && *ptr != '=' && *ptr != ':') {
-        //qDebug() << "adding" << QChar(*ptr) << "to name";
-        ++ptr;
-    }
-    m_name = QString(from, ptr - from);
-    from = ptr;
-    if (from < to && *from == '=') {
-        ++from;
-        parseValue(from, to);
+
+    m_name = parser.readString(isNameChar);
+
+    if (!parser.isAtEnd() && parser.isCurrent('=')) {
+        parser.advance();
+        parseValue(parser);
     }
 }
 
 // Reads one \ooo entity.
-static bool parseOctalEscapedHelper(const QChar *&from, const QChar *to, QByteArray &buffer)
+static bool parseOctalEscapedHelper(DebuggerOutputParser &parser, QByteArray &buffer)
 {
-    if (to - from < 4)
+    if (parser.remainingChars() < 4)
         return false;
-    if (*from != '\\')
+    if (!parser.isCurrent('\\'))
         return false;
 
-    const char c1 = from[1].unicode();
-    const char c2 = from[2].unicode();
-    const char c3 = from[3].unicode();
+    const char c1 = parser.lookAhead(1).unicode();
+    const char c2 = parser.lookAhead(2).unicode();
+    const char c3 = parser.lookAhead(3).unicode();
     if (!isdigit(c1) || !isdigit(c2) || !isdigit(c3))
         return false;
 
     buffer += char((c1 - '0') * 64 + (c2 - '0') * 8 + (c3 - '0'));
-    from += 4;
+    parser.advance(4);
     return true;
 }
 
-static bool parseHexEscapedHelper(const QChar *&from, const QChar *to, QByteArray &buffer)
+static bool parseHexEscapedHelper(DebuggerOutputParser &parser, QByteArray &buffer)
 {
-    if (to - from < 4)
+    if (parser.remainingChars() < 4)
         return false;
-    if (from[0]!= '\\')
+    if (!parser.isCurrent('\\'))
         return false;
-    if (from[1] != 'x')
+    if (parser.lookAhead(1) != 'x')
         return false;
 
-    const char c1 = from[2].unicode();
-    const char c2 = from[3].unicode();
+    const char c1 = parser.lookAhead(2).unicode();
+    const char c2 = parser.lookAhead(3).unicode();
     if (!isxdigit(c1) || !isxdigit(c2))
         return false;
 
     buffer += char(16 * fromhex(c1) + fromhex(c2));
-    from += 4;
+    parser.advance(4);
     return true;
 }
 
-static void parseSimpleEscape(const QChar *&from, const QChar *to, QString &result)
+static void parseSimpleEscape(DebuggerOutputParser &parser, QString &result)
 {
-    if (from == to) {
+    if (parser.isAtEnd()) {
         qDebug() << "MI Parse Error, unterminated backslash escape";
         return;
     }
 
-    QChar c = *from++;
+    const QChar c = parser.current();
+    parser.advance();
     switch (c.unicode()) {
     case 'a': result += '\a'; break;
     case 'b': result += '\b'; break;
@@ -153,28 +191,29 @@ static void parseSimpleEscape(const QChar *&from, const QChar *to, QString &resu
 
 // Reads subsequent \123 or \x12 entities and converts to Utf8,
 // *or* one escaped char, *or* one unescaped char.
-static void parseCharOrEscape(const QChar *&from, const QChar *to, QString &result)
+static void parseCharOrEscape(DebuggerOutputParser &parser, QString &result)
 {
     QByteArray buffer;
-    while (parseOctalEscapedHelper(from, to, buffer))
+    while (parseOctalEscapedHelper(parser, buffer))
         ;
-    while (parseHexEscapedHelper(from, to, buffer))
+    while (parseHexEscapedHelper(parser, buffer))
         ;
 
-    if (!buffer.isEmpty())
+    if (!buffer.isEmpty()) {
         result.append(QString::fromUtf8(buffer));
-    else if (*from == '\\')
-        parseSimpleEscape(++from, to, result);
-    else
-        result += *from++;
+    } else if (parser.isCurrent('\\')) {
+        parser.advance();
+        parseSimpleEscape(parser, result);
+    } else {
+        result += parser.readChar();
+    }
 }
 
-QString GdbMi::parseCString(const QChar *&from, const QChar *to)
+QString DebuggerOutputParser::readCString()
 {
-    if (to == from)
+    if (isAtEnd())
         return QString();
 
-    //qDebug() << "parseCString: " << QString(from, to - from);
     if (*from != '"') {
         qDebug() << "MI Parse Error, double quote expected";
         ++from; // So we don't hang
@@ -189,82 +228,83 @@ QString GdbMi::parseCString(const QChar *&from, const QChar *to)
             ++from;
             return result;
         }
-        parseCharOrEscape(from, to, result);
+        parseCharOrEscape(*this, result);
     }
 
     qDebug() << "MI Parse Error, unfinished string";
     return QString();
 }
 
-void GdbMi::parseValue(const QChar *&from, const QChar *to)
+void GdbMi::parseValue(DebuggerOutputParser &parser)
 {
-    if (from == to)
+    if (parser.isAtEnd())
         return;
 
-    //qDebug() << "parseValue: " << QString(from, to - from);
-    switch (from->unicode()) {
+    //qDebug() << "parseValue: " << parser;
+    switch (parser.current().unicode()) {
         case '{':
-            parseTuple(from, to);
+            parseTuple(parser);
             break;
         case '[':
-            parseList(from, to);
+            parseList(parser);
             break;
         case '"':
             m_type = Const;
-            m_data = parseCString(from, to);
+            m_data = parser.readCString();
             break;
         default:
             break;
     }
 }
 
-void GdbMi::parseTuple(const QChar *&from, const QChar *to)
+void GdbMi::parseTuple(DebuggerOutputParser &parser)
 {
-    //qDebug() << "parseTuple: " << QString(from, to - from);
-    //QTC_CHECK(*from == '{');
-    ++from;
-    parseTuple_helper(from, to);
+    //qDebug() << "parseTuple: " << parser.buffer();
+    QTC_CHECK(parser.isCurrent('{'));
+    parser.advance();
+    parseTuple_helper(parser);
 }
 
-void GdbMi::parseTuple_helper(const QChar *&from, const QChar *to)
+void GdbMi::parseTuple_helper(DebuggerOutputParser &parser)
 {
-    skipCommas(from, to);
-    //qDebug() << "parseTuple_helper: " << QString(from, to - from);
+    parser.skipCommas();
+    //qDebug() << "parseTuple_helper: " << parser.buffer();
+    QString buf = parser.buffer();
     m_type = Tuple;
-    while (from < to) {
-        if (*from == '}') {
-            ++from;
+    while (!parser.isAtEnd()) {
+        if (parser.isCurrent('}')) {
+            parser.advance();
             break;
         }
         GdbMi child;
-        child.parseResultOrValue(from, to);
+        child.parseResultOrValue(parser);
         //qDebug() << "\n=======\n" << qPrintable(child.toString()) << "\n========\n";
         if (!child.isValid())
             return;
         m_children.push_back(child);
-        skipCommas(from, to);
+        parser.skipCommas();
     }
 }
 
-void GdbMi::parseList(const QChar *&from, const QChar *to)
+void GdbMi::parseList(DebuggerOutputParser &parser)
 {
-    //qDebug() << "parseList: " << QString(from, to - from);
-    //QTC_CHECK(*from == '[');
-    ++from;
+    //qDebug() << "parseList: " << parser.buffer();
+    QTC_CHECK(parser.isCurrent('['));
+    parser.advance();
     m_type = List;
-    skipCommas(from, to);
-    while (from < to) {
-        if (*from == ']') {
-            ++from;
+    parser.skipCommas();
+    while (!parser.isAtEnd()) {
+        if (parser.isCurrent(']')) {
+            parser.advance();
             break;
         }
         GdbMi child;
-        child.parseResultOrValue(from, to);
+        child.parseResultOrValue(parser);
         if (child.isValid()) {
             m_children.push_back(child);
-            skipCommas(from, to);
+            parser.skipCommas();
         } else {
-            ++from;
+            parser.advance();
         }
     }
 }
@@ -369,16 +409,14 @@ QString GdbMi::toString(bool multiline, int indent) const
 
 void GdbMi::fromString(const QString &ba)
 {
-    const QChar *from = ba.constBegin();
-    const QChar *to = ba.constEnd();
-    parseResultOrValue(from, to);
+    DebuggerOutputParser parser(ba);
+    parseResultOrValue(parser);
 }
 
 void GdbMi::fromStringMultiple(const QString &ba)
 {
-    const QChar *from = ba.constBegin();
-    const QChar *to = ba.constEnd();
-    parseTuple_helper(from, to);
+    DebuggerOutputParser parser(ba);
+    parseTuple_helper(parser);
 }
 
 const GdbMi &GdbMi::operator[](const char *name) const

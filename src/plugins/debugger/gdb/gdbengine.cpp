@@ -259,45 +259,27 @@ void GdbEngine::handleResponse(const QString &buff)
     if (buff.isEmpty() || buff == "(gdb) ")
         return;
 
-    const QChar *from = buff.constData();
-    const QChar *to = from + buff.size();
-    const QChar *inner;
+    DebuggerOutputParser parser(buff);
 
-    int token = -1;
-    // Token is a sequence of numbers.
-    for (inner = from; inner != to; ++inner)
-        if (*inner < '0' || *inner > '9')
-            break;
-    if (from != inner) {
-        token = QString(from, inner - from).toInt();
-        from = inner;
-    }
+    const int token = parser.readInt();
 
     // Next char decides kind of response.
-    const QChar c = *from++;
-    switch (c.unicode()) {
+    switch (parser.readChar().unicode()) {
         case '*':
         case '+':
         case '=': {
-            QString asyncClass;
-            for (; from != to; ++from) {
-                const QChar c = *from;
-                if (!isNameChar(c.unicode()))
-                    break;
-                asyncClass += *from;
-            }
-
+            const QString asyncClass = parser.readString(isNameChar);
             GdbMi result;
-            while (from != to) {
+            while (!parser.isAtEnd()) {
                 GdbMi data;
-                if (*from != ',') {
+                if (!parser.isCurrent(',')) {
                     // happens on archer where we get
                     // 23^running <NL> *running,thread-id="all" <NL> (gdb)
                     result.m_type = GdbMi::Tuple;
                     break;
                 }
-                ++from; // skip ','
-                data.parseResultOrValue(from, to);
+                parser.advance(); // skip ','
+                data.parseResultOrValue(parser);
                 if (data.isValid()) {
                     //qDebug() << "parsed result:" << data.toString();
                     result.addChild(data);
@@ -309,7 +291,7 @@ void GdbEngine::handleResponse(const QString &buff)
         }
 
         case '~': {
-            QString data = GdbMi::parseCString(from, to);
+            QString data = parser.readCString();
             if (data.startsWith("bridgemessage={")) {
                 // It's already logged.
                 break;
@@ -374,14 +356,14 @@ void GdbEngine::handleResponse(const QString &buff)
         }
 
         case '@': {
-            QString data = GdbMi::parseCString(from, to);
+            QString data = parser.readCString();
             QString msg = data.left(data.size() - 1);
             showMessage(msg, AppOutput);
             break;
         }
 
         case '&': {
-            QString data = GdbMi::parseCString(from, to);
+            QString data = parser.readCString();
             // On Windows, the contents seem to depend on the debugger
             // version and/or OS version used.
             if (data.startsWith("warning:"))
@@ -402,11 +384,8 @@ void GdbEngine::handleResponse(const QString &buff)
 
             response.token = token;
 
-            for (inner = from; inner != to; ++inner)
-                if (*inner < 'a' || *inner > 'z')
-                    break;
+            QString resultClass = parser.readString(isNameChar);
 
-            QString resultClass = QString::fromRawData(from, inner - from);
             if (resultClass == "done")
                 response.resultClass = ResultDone;
             else if (resultClass == "running")
@@ -420,11 +399,10 @@ void GdbEngine::handleResponse(const QString &buff)
             else
                 response.resultClass = ResultUnknown;
 
-            from = inner;
-            if (from != to) {
-                if (*from == ',') {
-                    ++from;
-                    response.data.parseTuple_helper(from, to);
+            if (!parser.isAtEnd()) {
+                if (parser.isCurrent(',')) {
+                    parser.advance();
+                    response.data.parseTuple_helper(parser);
                     response.data.m_type = GdbMi::Tuple;
                     response.data.m_name = "data";
                 } else {
@@ -446,7 +424,8 @@ void GdbEngine::handleResponse(const QString &buff)
             break;
         }
         default: {
-            qDebug() << "UNKNOWN RESPONSE TYPE '" << c << "'. REST: " << from;
+            qDebug() << "UNKNOWN RESPONSE TYPE '" << parser.current() << "'. BUFFER: "
+                     << parser.buffer();
             break;
         }
     }

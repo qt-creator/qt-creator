@@ -46,9 +46,8 @@ void tst_protocol::parseCString()
     QFETCH(QString, input);
     QFETCH(QString, expected);
 
-    const QChar *from = input.begin();
-    const QChar *to = input.end();
-    QString parsed = Debugger::Internal::GdbMi::parseCString(from, to);
+    Debugger::Internal::DebuggerOutputParser parser(input);
+    QString parsed = parser.readCString();
 
     QCOMPARE(parsed, expected);
 }
