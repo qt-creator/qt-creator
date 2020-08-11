@@ -109,7 +109,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     buildDirAspect->addToLayout(aspectWidgetBuilder);
     aspectWidgetBuilder.startNewRow();
     initialCMakeAspect->addToLayout(aspectWidgetBuilder);
-    mainLayout->addWidget(aspectWidget, row, 0, 1, 2);
+    mainLayout->addWidget(aspectWidget, row, 0, 1, -1);
     ++row;
 
     auto qmlDebugAspect = bc->aspect<QtSupport::QmlDebuggingAspect>();
@@ -118,7 +118,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     auto widget = new QWidget;
     LayoutBuilder builder(widget);
     qmlDebugAspect->addToLayout(builder);
-    mainLayout->addWidget(widget, row, 0, 1, 2);
+    mainLayout->addWidget(widget, row, 0, 1, -1);
 
     ++row;
     mainLayout->addItem(new QSpacerItem(20, 10), row, 0);
