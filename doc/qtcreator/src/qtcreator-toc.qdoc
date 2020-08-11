@@ -80,6 +80,7 @@
                 \li \l{Specifying Code Style Settings}
                 \li \l{Specifying Dependencies}
                 \li \l{Specifying Environment Settings}
+                \li \l{Using Custom Output Parsers}
                 \li \l{Sharing Project Settings}
             \endlist
             \li \l{Managing Sessions}

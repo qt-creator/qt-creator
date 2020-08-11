@@ -102,6 +102,8 @@
 
                 \li \l{Specifying Environment Settings}{Environment}
 
+                \li \l{Using Custom Output Parsers}{Custom Output Parsers}
+
                 \li \l{Parsing C++ Files with the Clang Code Model}
                     {Clang Code Model}
 

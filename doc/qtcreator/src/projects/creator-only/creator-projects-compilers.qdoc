@@ -211,38 +211,8 @@
             to the Qt mkspecs directory.
 
         \li In the \uicontrol {Error parser} field, select the error parser to use.
-            Select \uicontrol Custom, and then select \uicontrol {Customer Parser Settings}
-            to specify settings for a custom parser:
-
-            \image qtcreator-custom-parser.png
-
-            The custom error parser enables you to capture errors and warnings separately.
-            You can configure the error parser in the \uicontrol Error tab and the warning
-            parser in the \uicontrol Warning tab:
-
-            \list 1
-
-                \li In the \uicontrol {Error message capture pattern} field, specify
-                    a regular expression to define what is an error. The custom
-                    parser matches the compile output line by line against the
-                    regular expression and displays errors in the \uicontrol Issues
-                    output pane. Create regular expression groups that contain
-                    the file name, line number and error message.
-
-                \li In the \uicontrol {Capture Positions} field, map the regular
-                    expression groups to \uicontrol {File name}, \uicontrol {Line number},
-                    and \uicontrol Message.
-
-                \li In the \uicontrol {Capture Output Channels} field, specify whether
-                    messages from standard output, standard error, or both channels
-                    should be captured.
-
-                \li In the \uicontrol {Test} group, you can test how the message that
-                    you enter in the \uicontrol {Error message} field is matched when
-                    using the current settings.
-
-            \endlist
-
+            You can add custom output parsers to the list. For more information,
+            see \l{Using Custom Output Parsers}.
     \endlist
 
     \section1 Troubleshooting MinGW Compilation Errors
