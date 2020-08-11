@@ -45,6 +45,7 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 
 #include <qtsupport/qtkitinformation.h>
@@ -212,12 +213,12 @@ bool AndroidDeployQtStep::init()
     auto selectedAbis = buildSystem()->extraData(buildKey, Constants::ANDROID_ABIS).toStringList();
 
     if (!selectedAbis.contains(info.cpuAbi.first())) {
-        Core::MessageManager::write(
+        TaskHub::addTask(DeploymentTask(
+            Task::Warning,
             tr("Android: The main ABI of the deployment device (%1) is not selected! The app "
                "execution or debugging might not work properly. Add it from Projects > Build > "
                "Build Steps > qmake > ABIs.")
-                .arg(info.cpuAbi.first()),
-            Core::MessageManager::WithFocus);
+                .arg(info.cpuAbi.first())));
     }
 
     m_avdName = info.avdname;
