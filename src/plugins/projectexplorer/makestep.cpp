@@ -70,24 +70,31 @@ namespace Internal {
 class OverrideMakeflagsAspect final : public BaseBoolAspect
 {
 public:
-    OverrideMakeflagsAspect()
-    {
-        const QString text = tr("Override MAKEFLAGS");
-        setLabel(text, LabelPlacement::AtCheckBox);
+    OverrideMakeflagsAspect() {}
 
-        m_nonOverrideWarning = new QLabel;
-        m_nonOverrideWarning->setToolTip("<html><body><p>" +
-             tr("<code>MAKEFLAGS</code> specifies parallel jobs. Check \"%1\" to override.")
-             .arg(text) + "</p></body></html>");
-        m_nonOverrideWarning->setPixmap(Icons::WARNING.pixmap());
+    void setWarningVisible(bool on)
+    {
+        if (m_nonOverrideWarning)
+            m_nonOverrideWarning->setVisible(on);
     }
 
     void addToLayout(LayoutBuilder &builder) final
     {
+        if (!m_nonOverrideWarning) {
+            const QString text = tr("Override MAKEFLAGS");
+            setLabel(text, LabelPlacement::AtCheckBox);
+            m_nonOverrideWarning = new QLabel;
+            m_nonOverrideWarning->setToolTip("<html><body><p>" +
+                 tr("<code>MAKEFLAGS</code> specifies parallel jobs. Check \"%1\" to override.")
+                 .arg(text) + "</p></body></html>");
+            m_nonOverrideWarning->setPixmap(Icons::WARNING.pixmap());
+        }
+
         BaseBoolAspect::addToLayout(builder);
         builder.addItem(m_nonOverrideWarning.data());
     }
 
+private:
     QPointer<QLabel> m_nonOverrideWarning;
 };
 
@@ -461,7 +468,8 @@ BuildStepConfigWidget *MakeStep::createConfigWidget()
         return param.summaryInWorkdir(displayName());
     });
 
-    auto updateDetails = [this, widget] {
+    auto updateDetails = [this, widget = QPointer<Internal::MakeStepConfigWidget>(widget)] {
+        QTC_ASSERT(widget, return);
         const bool jobCountVisible = isJobCountSupported();
         m_userJobCountAspect->setVisible(jobCountVisible);
         m_overrideMakeflagsAspect->setVisible(jobCountVisible);
@@ -469,10 +477,8 @@ BuildStepConfigWidget *MakeStep::createConfigWidget()
         const bool jobCountEnabled = !userArgsContainsJobCount();
         m_userJobCountAspect->setEnabled(jobCountEnabled);
         m_overrideMakeflagsAspect->setEnabled(jobCountEnabled);
-
-        QTC_ASSERT(m_overrideMakeflagsAspect->m_nonOverrideWarning, return);
-        m_overrideMakeflagsAspect->m_nonOverrideWarning->setVisible(
-                makeflagsJobCountMismatch() && !jobCountOverridesMakeflags());
+        m_overrideMakeflagsAspect->setWarningVisible(makeflagsJobCountMismatch()
+                                                     && !jobCountOverridesMakeflags());
         widget->m_disableInSubDirsCheckBox->setChecked(!enabledForSubDirs());
 
         widget->recreateSummary();
@@ -480,10 +486,10 @@ BuildStepConfigWidget *MakeStep::createConfigWidget()
 
     updateDetails();
 
-    connect(m_makeCommandAspect, &BaseStringAspect::changed, this, updateDetails);
-    connect(m_userArgumentsAspect, &BaseStringAspect::changed, this, updateDetails);
-    connect(m_userJobCountAspect, &BaseIntegerAspect::changed, this, updateDetails);
-    connect(m_overrideMakeflagsAspect, &BaseBoolAspect::changed, this, updateDetails);
+    connect(m_makeCommandAspect, &BaseStringAspect::changed, widget, updateDetails);
+    connect(m_userArgumentsAspect, &BaseStringAspect::changed, widget, updateDetails);
+    connect(m_userJobCountAspect, &BaseIntegerAspect::changed, widget, updateDetails);
+    connect(m_overrideMakeflagsAspect, &BaseBoolAspect::changed, widget, updateDetails);
 
     connect(widget->m_targetsList, &QListWidget::itemChanged, this,
             [this, updateDetails](QListWidgetItem *item) {
@@ -492,13 +498,13 @@ BuildStepConfigWidget *MakeStep::createConfigWidget()
     });
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
-            this, updateDetails);
+            widget, updateDetails);
 
-    connect(target(), &Target::kitChanged, this, updateDetails);
+    connect(target(), &Target::kitChanged, widget, updateDetails);
 
-    connect(buildConfiguration(), &BuildConfiguration::environmentChanged, this, updateDetails);
-    connect(buildConfiguration(), &BuildConfiguration::buildDirectoryChanged, this, updateDetails);
-    connect(target(), &Target::parsingFinished, this, updateDetails);
+    connect(buildConfiguration(), &BuildConfiguration::environmentChanged, widget, updateDetails);
+    connect(buildConfiguration(), &BuildConfiguration::buildDirectoryChanged, widget, updateDetails);
+    connect(target(), &Target::parsingFinished, widget, updateDetails);
 
     return widget;
 }
