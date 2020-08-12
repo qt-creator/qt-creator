@@ -267,8 +267,9 @@ void Client::initialize()
     params.setInitializationOptions(m_initializationOptions);
     if (m_project) {
         params.setRootUri(DocumentUri::fromFilePath(m_project->projectDirectory()));
-        params.setWorkSpaceFolders(Utils::transform(SessionManager::projects(), [](Project *pro){
-            return WorkSpaceFolder(pro->projectDirectory().toString(), pro->displayName());
+        params.setWorkSpaceFolders(Utils::transform(SessionManager::projects(), [](Project *pro) {
+            return WorkSpaceFolder(DocumentUri::fromFilePath(pro->projectDirectory()),
+                                   pro->displayName());
         }));
     }
     initRequest.setParams(params);
@@ -840,7 +841,8 @@ void Client::projectOpened(ProjectExplorer::Project *project)
     if (!sendWorkspceFolderChanges())
         return;
     WorkspaceFoldersChangeEvent event;
-    event.setAdded({WorkSpaceFolder(project->projectDirectory().toString(), project->displayName())});
+    event.setAdded({WorkSpaceFolder(DocumentUri::fromFilePath(project->projectDirectory()),
+                                    project->displayName())});
     DidChangeWorkspaceFoldersParams params;
     params.setEvent(event);
     DidChangeWorkspaceFoldersNotification change(params);
@@ -860,8 +862,8 @@ void Client::projectClosed(ProjectExplorer::Project *project)
     if (!sendWorkspceFolderChanges())
         return;
     WorkspaceFoldersChangeEvent event;
-    event.setRemoved(
-        {WorkSpaceFolder(project->projectDirectory().toString(), project->displayName())});
+    event.setRemoved({WorkSpaceFolder(DocumentUri::fromFilePath(project->projectDirectory()),
+                                      project->displayName())});
     DidChangeWorkspaceFoldersParams params;
     params.setEvent(event);
     DidChangeWorkspaceFoldersNotification change(params);
@@ -1239,7 +1241,7 @@ void Client::handleMethod(const QString &method, MessageId id, const IContent *c
             result = nullptr;
         } else {
             result = Utils::transform(projects, [](ProjectExplorer::Project *project) {
-                return WorkSpaceFolder(project->projectDirectory().toString(),
+                return WorkSpaceFolder(DocumentUri::fromFilePath(project->projectDirectory()),
                                        project->displayName());
             });
         }
