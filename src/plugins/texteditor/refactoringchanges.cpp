@@ -124,7 +124,9 @@ bool RefactoringChanges::removeFile(const QString &fileName) const
 TextEditorWidget *RefactoringChanges::openEditor(const QString &fileName, bool activate, int line, int column)
 {
     EditorManager::OpenEditorFlags flags = EditorManager::IgnoreNavigationHistory;
-    if (!activate)
+    if (activate)
+        flags |= EditorManager::SwitchSplitIfAlreadyVisible;
+    else
         flags |= EditorManager::DoNotChangeCurrentEditor;
     if (line != -1) {
         // openEditorAt uses a 1-based line and a 0-based column!
