@@ -52,6 +52,7 @@ Editing
 * Fixed sorting in completion (QTCREATORBUG-6242)
 * Fixed that find usages was finding function arguments when searching functions (QTCREATORBUG-2176)
 * Fixed crash in lexer (QTCREATORBUG-19525)
+* Fixed handling of incomplete macro invocations (QTCREATORBUG-23881)
 
 ### Language Client
 
@@ -63,6 +64,7 @@ Editing
 ### QML
 
 * Added support for moving functions in outline (QTCREATORBUG-21993)
+* Added support for required list properties (QTBUG-85716)
 * Fixed issues with Qt 5.15 imports
 * Fixed updating of outline (QTCREATORBUG-21335)
 * Fixed resolution of easing curve (QTCREATORBUG-24142)
@@ -71,6 +73,10 @@ Editing
 
 * Added tool button for opening interactive Python, optionally importing current file
 * Fixed highlighting of parentheses
+
+### Generic Highlighter
+
+* Updated to KSyntaxHighlighter 5.73.0
 
 ### Diff Viewer
 
@@ -124,6 +130,11 @@ Debugging
 
 * Added option to reset all formats for watches to default
 * Added option to override sysroot setting when starting or attaching to external application
+* Fixed crash when removing all breakpoints of a file (QTCREATORBUG-24306)
+
+### CDB
+
+* Fixed that valid expressions sometimes were `<not accessible>` (QTCREATORBUG-24108)
 
 Analyzer
 --------
@@ -142,6 +153,7 @@ Version Control Systems
 
 * Added option to open `git-bash` (Windows, `Tools` > `Git` > `Git Bash`)
 * Added colors to log (QTCREATORBUG-19624)
+* Fixed that adding new files was also staging their content (QTCREATORBUG-23441)
 
 Test Integration
 ----------------
@@ -154,6 +166,7 @@ Code Pasting
 ------------
 
 * Added option for public or private pastes (QTCREATORBUG-23972)
+* Fixed fetching from DPaste
 
 Platforms
 ---------
@@ -169,7 +182,14 @@ Platforms
 * Added splash screen editor to manifest editor (QTCREATORBUG-24011, QTCREATORBUG-24013)
 * Fixed QML debugging and profiling (QTCREATORBUG-24155)
 * Fixed debugging on x86 and armv7 architectures (QTCREATORBUG-24191)
+* Fixed debugging on emulator (QTCREATORBUG-23291)
 * Fixed issue with long kit names (QTBUG-83875)
+* Fixed display of logcat (QTCREATORBUG-23177, QTCREATORBUG-23919)
+* Fixed detection of Android Studio's JDK on Windows
+
+### iOS
+
+* Fixed slow debugger startup on devices (QTCREATORBUG-21682)
 
 ### Bare Metal
 
@@ -181,12 +201,14 @@ Platforms
 
 Credits for these changes go to:
 --------------------------------
+Aaron Barany  
 Aleksei German  
 Alessandro Portale  
 Alexis Jeandet  
 Alexis Murzeau  
 Andre Hartmann  
 André Pönitz  
+Artur Shepilko  
 Assam Boudjelthia  
 Christian Kamm  
 Christian Kandeler  
@@ -195,7 +217,9 @@ Cristian Adam
 David Schulz  
 Denis Shienkov  
 Eike Ziller  
+Fawzi Mohamed  
 Federico Guerinoni  
+Friedemann Kleint  
 Henning Gruendl  
 Ivan Komissarov  
 Jaroslaw Kobus  
@@ -210,6 +234,7 @@ Leena Miettinen
 Mahmoud Badri  
 Marco Bubke  
 Michael Brüning  
+Michael Weghorn  
 Michael Winkelmann  
 Miikka Heikkinen  
 Mitch Curtis  
@@ -218,14 +243,18 @@ Oliver Wolff
 Or Kunst  
 Orgad Shaneh  
 Philip Van Hoof  
+Richard Weickelt  
 Robert Löhning  
 Tarja Sundqvist  
 Thiago Macieira  
 Thomas Hartmann  
 Tim Jenssen  
 Tobias Hunger  
+Ulf Hermann  
 Unseon Ryu  
+Venugopal Shivashankar  
 Viacheslav Tertychnyi  
+Vikas Pachdha  
 Ville Nummela  
 Ville Voutilainen  
 Volodymyr Zibarov  
