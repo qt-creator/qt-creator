@@ -79,7 +79,6 @@ public:
 
 private:
     void replaceSnippet(const Snippet &snippet, const QModelIndex &modelIndex);
-    static bool isValidTrigger(const QString &s);
 
     SnippetsCollection* m_collection;
     QString m_activeGroupId;
@@ -130,9 +129,13 @@ bool SnippetsTableModel::setData(const QModelIndex &modelIndex, const QVariant &
         Snippet snippet(m_collection->snippet(modelIndex.row(), m_activeGroupId));
         if (modelIndex.column() == 0) {
             const QString &s = value.toString();
-            if (!isValidTrigger(s)) {
-                QMessageBox::critical(Core::ICore::dialogParent(), tr("Error"),
-                                      tr("Not a valid trigger."));
+            if (!Snippet::isValidTrigger(s)) {
+                QMessageBox::critical(
+                    Core::ICore::dialogParent(),
+                    tr("Error"),
+                    tr("Not a valid trigger. A valid trigger can only contain letters, "
+                       "numbers, or underscores, where the first character is "
+                       "limited to letter or underscore."));
                 if (snippet.trigger().isEmpty())
                     removeSnippet(modelIndex);
                 return false;
@@ -249,16 +252,6 @@ void SnippetsTableModel::replaceSnippet(const Snippet &snippet, const QModelInde
         m_collection->replaceSnippet(row, snippet, hint);
         endMoveRows();
     }
-}
-
-bool SnippetsTableModel::isValidTrigger(const QString &s)
-{
-    if (s.isEmpty())
-        return false;
-    for (int i = 0; i < s.length(); ++i)
-        if (!s.at(i).isLetter() && s.at(i) != QLatin1Char('_') && (!s.at(i).isDigit() || i == 0))
-            return false;
-    return true;
 }
 
 // SnippetsSettingsPagePrivate

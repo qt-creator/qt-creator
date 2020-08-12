@@ -25,6 +25,7 @@
 
 #include "snippet.h"
 
+#include <utils/algorithm.h>
 #include <utils/templateengine.h>
 
 #include <QTextDocument>
@@ -103,6 +104,13 @@ void Snippet::setTrigger(const QString &trigger)
 const QString &Snippet::trigger() const
 {
     return m_trigger;
+}
+
+bool Snippet::isValidTrigger(const QString &trigger)
+{
+    if (trigger.isEmpty() || trigger.at(0).isNumber())
+        return false;
+    return Utils::allOf(trigger, [](const QChar &c) { return c.isLetterOrNumber() || c == '_'; });
 }
 
 void Snippet::setContent(const QString &content)

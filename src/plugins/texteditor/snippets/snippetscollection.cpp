@@ -362,9 +362,18 @@ QList<Snippet> SnippetsCollection::readXML(const QString &fileName, const QStrin
                         const QXmlStreamAttributes &atts = xml.attributes();
                         const QString &id = atts.value(kId).toString();
                         const QString &groupId = atts.value(kGroup).toString();
-                        if (isGroupKnown(groupId) && (snippetId.isEmpty() || snippetId == id)) {
+                        const QString &trigger = atts.value(kTrigger).toString();
+                        if (!Snippet::isValidTrigger(trigger)) {
+                            qWarning()
+                                << fileName << "ignore snippet for invalid trigger" << trigger
+                                << "A valid trigger can only contain letters, "
+                                   "numbers, or underscores, where the first character is "
+                                   "limited to letter or underscore.";
+
+                            xml.skipCurrentElement();
+                        } else if (isGroupKnown(groupId) && (snippetId.isEmpty() || snippetId == id)) {
                             Snippet snippet(groupId, id);
-                            snippet.setTrigger(atts.value(kTrigger).toString());
+                            snippet.setTrigger(trigger);
                             snippet.setComplement(QCoreApplication::translate(
                                                       "TextEditor::Internal::Snippets",
                                                       atts.value(kComplement).toString().toLatin1(),

@@ -57,6 +57,7 @@ public:
 
     void setTrigger(const QString &trigger);
     const QString &trigger() const;
+    static bool isValidTrigger(const QString &trigger);
 
     void setContent(const QString &content);
     const QString &content() const;
