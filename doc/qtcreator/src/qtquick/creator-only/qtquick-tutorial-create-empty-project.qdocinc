@@ -1,0 +1,84 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+//! [qtquick empty application]
+
+    \section1 Creating the Project
+
+    \list 1
+
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol {Application (Qt Quick)} >
+            \uicontrol {Qt Quick Application - Empty}.
+
+        \li Select \uicontrol Choose to open the
+            \uicontrol {Project Location} dialog.
+
+        \li In the \uicontrol Name field, enter a name for the application.
+
+        \li In the \uicontrol {Create in} field, enter the path for the project
+            files.
+
+        \li Select \uicontrol Next (or \uicontrol Continue on \macos) to open
+            the \uicontrol {Define Build System} dialog.
+
+        \li In the \uicontrol {Build system} field, select the build system to
+            use for building and running the project: \l qmake,
+            \l {Setting Up CMake}{CMake}, or \l {Setting Up Qbs}{Qbs}.
+
+        \li Select \uicontrol Next to open the
+            \uicontrol {Define Project Details} dialog.
+
+        \li Select \uicontrol Next to use the default settings and to open
+            the \uicontrol {Translation File} dialog.
+
+        \li Select \uicontrol Next to use the default settings and to open
+            the \uicontrol {Kit Selection} dialog.
+
+        \li Select \l{glossary-buildandrun-kit}{kits} for the platforms that
+            you want to build the application for. To build applications for
+            mobile devices, select kits for Android ARM and iPhone OS.
+
+            \note Kits are listed if they have been specified in \uicontrol
+            Tools > \uicontrol Options > \uicontrol Kits (on Windows and Linux)
+            or in \uicontrol {\QC} > \uicontrol Preferences >
+            \uicontrol Kits (on \macos).
+            For more information, see \l {Adding Kits}.
+
+        \li Select \uicontrol Next to open the \uicontrol {Project Management}
+            dialog.
+
+        \li Review the project settings, and select \uicontrol{Finish}
+            (or \uicontrol Done on \macos) to create the project.
+
+    \endlist
+
+    For more information about the settings that you skipped, see
+    \l{Creating Qt Quick Applications}.
+
+//! [qtquick empty application]
+*/
+Con
