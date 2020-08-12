@@ -147,8 +147,8 @@ bool InitializeParams::isValid(ErrorHierarchy *error) const
             && checkOptional<QString, std::nullptr_t>(error, rootUriKey)
             && check<ClientCapabilities>(error, capabilitiesKey)
             && checkOptional<int>(error, traceKey)
-            && (checkOptional<std::nullptr_t>(error, workSpaceFoldersKey)
-                || checkOptionalArray<WorkSpaceFolder>(error, workSpaceFoldersKey));
+            && (checkOptional<std::nullptr_t>(error, workspaceFoldersKey)
+                || checkOptionalArray<WorkSpaceFolder>(error, workspaceFoldersKey));
 }
 
 InitializeRequest::InitializeRequest(const InitializeParams &params)

@@ -212,7 +212,6 @@ constexpr char valueSetKey[] = "valueSet";
 constexpr char versionKey[] = "version";
 constexpr char willSaveKey[] = "willSave";
 constexpr char willSaveWaitUntilKey[] = "willSaveWaitUntil";
-constexpr char workSpaceFoldersKey[] = "workSpaceFolders";
 constexpr char workspaceEditKey[] = "workspaceEdit";
 constexpr char workspaceFoldersKey[] = "workspaceFolders";
 constexpr char workspaceKey[] = "workspace";
