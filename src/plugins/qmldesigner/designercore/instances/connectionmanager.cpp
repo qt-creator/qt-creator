@@ -37,6 +37,7 @@
 
 #include <QLocalServer>
 #include <QLocalSocket>
+#include <QTimer>
 #include <QUuid>
 
 namespace QmlDesigner {

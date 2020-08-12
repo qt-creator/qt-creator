@@ -52,7 +52,7 @@ extend_qtc_executable(qml2puppet
     inputeventcommand.cpp inputeventcommand.h
     view3dactioncommand.cpp view3dactioncommand.h
     valueschangedcommand.cpp
-    captureddatacommand.cpp captureddatacommand.h
+    captureddatacommand.h
 )
 
 extend_qtc_executable(qml2puppet

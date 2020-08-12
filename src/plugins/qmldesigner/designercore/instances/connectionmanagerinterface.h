@@ -26,6 +26,7 @@
 #include "qprocessuniqueptr.h"
 #include <qmldesignercorelib_global.h>
 
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QLocalSocket;

@@ -27,6 +27,7 @@
 
 #include <QLocalSocket>
 #include <QProcess>
+#include <QTimer>
 
 namespace QmlDesigner {
 

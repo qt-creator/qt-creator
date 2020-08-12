@@ -32,6 +32,7 @@
 #include <coreplugin/messagebox.h>
 
 #include <QLocalSocket>
+#include <QTimer>
 
 namespace QmlDesigner {
 

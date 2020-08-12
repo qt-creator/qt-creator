@@ -55,4 +55,5 @@ SOURCES += $$PWD/qt5nodeinstanceserver.cpp \
     $$PWD/positionernodeinstance.cpp \
     $$PWD/layoutnodeinstance.cpp \
     $$PWD/qt3dpresentationnodeinstance.cpp \
-    $$PWD/quick3dnodeinstance.cpp
+    $$PWD/quick3dnodeinstance.cpp \
+    $$PWD/quick3dtexturenodeinstance.cpp

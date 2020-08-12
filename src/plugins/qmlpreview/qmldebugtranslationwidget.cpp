@@ -288,7 +288,8 @@ void QmlDebugTranslationWidget::runTest()
     connect(runControl, &ProjectExplorer::RunControl::started, [this, runControl, previewPlugin]() {
         //Q_ASSERT(m_currentRunControl == nullptr); //TODO: who deletes the runcontrol
         m_currentRunControl = runControl;
-        m_runOutputWindow->setFormatter(runControl->outputFormatter());
+        m_runOutputWindow->setLineParsers(
+            ProjectExplorer::OutputFormatterFactory::createFormatters(runControl->target()));
         int timerCounter = 1;
         const auto testLanguageList = m_testLanguages;
 
@@ -414,11 +415,6 @@ void QmlDebugTranslationWidget::appendMessage(const QString &message, Utils::Out
         fileLine = qmlLineColumnMatch.captured(2).toInt();
     }
 
-    if (!m_runOutputWindow->formatter()) {
-        auto defaultFormatter = new Utils::OutputFormatter();
-        defaultFormatter->setParent(this);
-        m_runOutputWindow->setFormatter(defaultFormatter);
-    }
     m_runOutputWindow->appendMessage(message, format);
 
 

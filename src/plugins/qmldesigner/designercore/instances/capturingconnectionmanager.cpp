@@ -27,6 +27,10 @@
 
 #include <coreplugin/messagebox.h>
 
+#include <QCoreApplication>
+#include <QDebug>
+#include <QTimer>
+
 namespace QmlDesigner {
 
 void CapturingConnectionManager::setUp(NodeInstanceServerProxy *nodeInstanceServerProxy,

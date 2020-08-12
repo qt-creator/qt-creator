@@ -107,7 +107,6 @@ QtcTool {
             "commands/inputeventcommand.h",
             "commands/view3dactioncommand.cpp",
             "commands/view3dactioncommand.h",
-            "commands/captureddatacommand.cpp",
             "commands/captureddatacommand.h",
             "container/addimportcontainer.cpp",
             "container/addimportcontainer.h",

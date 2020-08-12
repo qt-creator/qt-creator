@@ -29,6 +29,7 @@
 #include "nodeinstanceview.h"
 
 #include <QLocalSocket>
+#include <QTimer>
 
 namespace QmlDesigner {
 
