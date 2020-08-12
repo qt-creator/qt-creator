@@ -267,7 +267,7 @@ static void insertPosition(QMap<int, int> *map, int position)
 
     bool gluedWithPrev = false;
     if (itNext != map->begin()) {
-        auto itPrev = itNext - 1;
+        auto itPrev = std::prev(itNext);
         const int keyStart = itPrev.key();
         const int keyEnd = itPrev.value();
         if (position >= keyStart && position <= keyEnd)
@@ -285,7 +285,7 @@ static void insertPosition(QMap<int, int> *map, int position)
         itNext = map->erase(itNext);
         if (gluedWithPrev) {
             // glue with prev and next
-            auto itPrev = itNext - 1;
+            auto itPrev = std::prev(itNext);
             *itPrev = keyEnd;
         } else {
             // glue with next

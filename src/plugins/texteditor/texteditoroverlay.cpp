@@ -486,16 +486,16 @@ void TextEditorOverlay::mapEquivalentSelections()
     m_equivalentSelections.clear();
     m_equivalentSelections.resize(m_selections.size());
 
-    QMap<QString, int> all;
+    QMultiMap<QString, int> all;
     for (int i = 0; i < m_selections.size(); ++i)
-        all.insertMulti(selectionText(i).toLower(), i);
+        all.insert(selectionText(i).toLower(), i);
 
     const QList<QString> &uniqueKeys = all.uniqueKeys();
     foreach (const QString &key, uniqueKeys) {
         QList<int> indexes;
         const auto cAll = all;
-        QMap<QString, int>::const_iterator lbit = cAll.lowerBound(key);
-        QMap<QString, int>::const_iterator ubit = cAll.upperBound(key);
+        QMultiMap<QString, int>::const_iterator lbit = cAll.lowerBound(key);
+        QMultiMap<QString, int>::const_iterator ubit = cAll.upperBound(key);
         while (lbit != ubit) {
             indexes.append(lbit.value());
             ++lbit;

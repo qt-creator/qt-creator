@@ -697,8 +697,13 @@ void FakeVimExCommandsPage::apply()
         }
         settings->endArray();
         globalCommandMapping.clear();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+        globalCommandMapping.insert(defaultMap);
+        globalCommandMapping.insert(newMapping);
+#else
         globalCommandMapping.unite(defaultMap);
         globalCommandMapping.unite(newMapping);
+#endif
     }
 }
 
@@ -950,8 +955,13 @@ void FakeVimUserCommandsPage::apply()
         }
         settings->endArray();
         userMap.clear();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+        userMap.insert(dd->m_defaultUserCommandMap);
+        userMap.insert(current);
+#else
         userMap.unite(dd->m_defaultUserCommandMap);
         userMap.unite(current);
+#endif
     }
 }
 

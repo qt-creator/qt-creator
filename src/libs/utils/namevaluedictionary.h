@@ -36,6 +36,11 @@ class QTCREATOR_UTILS_EXPORT DictKey
 public:
     DictKey(const QString &name, Qt::CaseSensitivity cs) : name(name), caseSensitivity(cs) {}
 
+    friend bool operator==(const DictKey &k1, const DictKey &k2)
+    {
+        return k1.name.compare(k2.name, k1.caseSensitivity) == 0;
+    }
+
     QString name;
     Qt::CaseSensitivity caseSensitivity;
 };

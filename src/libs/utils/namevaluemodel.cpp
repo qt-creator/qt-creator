@@ -106,8 +106,8 @@ NameValueModel::~NameValueModel() = default;
 
 QString NameValueModel::indexToVariable(const QModelIndex &index) const
 {
-    return d->m_resultNameValueDictionary.key(d->m_resultNameValueDictionary.constBegin()
-                                              + index.row());
+    const auto it = std::next(d->m_resultNameValueDictionary.constBegin(), index.row());
+    return d->m_resultNameValueDictionary.key(it);
 }
 
 void NameValueModel::setBaseNameValueDictionary(const NameValueDictionary &dictionary)
@@ -150,7 +150,8 @@ QVariant NameValueModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    const auto resultIterator = d->m_resultNameValueDictionary.constBegin() + index.row();
+    const auto resultIterator = std::next(d->m_resultNameValueDictionary.constBegin(), index.row());
+
     switch (role) {
     case Qt::DisplayRole:
     case Qt::EditRole:

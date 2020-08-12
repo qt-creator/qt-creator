@@ -587,7 +587,7 @@ int UnifiedDiffEditorWidget::blockNumberForFileIndex(int fileIndex) const
     if (fileIndex < 0 || fileIndex >= m_fileInfo.count())
         return -1;
 
-    return (m_fileInfo.constBegin() + fileIndex).key();
+    return std::next(m_fileInfo.constBegin(), fileIndex).key();
 }
 
 int UnifiedDiffEditorWidget::fileIndexForBlockNumber(int blockNumber) const
