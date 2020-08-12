@@ -95,8 +95,10 @@ void AssetExporterPlugin::onExport()
         return;
 
     FilePathModel model(startupProject);
-    QString exportDirName = startupProject->displayName() + "_export";
-    auto exportDir = startupProject->projectFilePath().parentDir().pathAppended(exportDirName);
+    auto exportDir = startupProject->projectFilePath().parentDir();
+    if (!exportDir.parentDir().isEmpty())
+        exportDir = exportDir.parentDir();
+    exportDir = exportDir.pathAppended(startupProject->displayName() + "_export");
     AssetExporter assetExporter(m_view, startupProject);
     AssetExportDialog assetExporterDialog(exportDir, assetExporter, model);
     assetExporterDialog.exec();

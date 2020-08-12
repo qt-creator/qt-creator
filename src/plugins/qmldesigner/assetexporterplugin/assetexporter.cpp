@@ -32,6 +32,8 @@
 #include "utils/qtcassert.h"
 #include "utils/runextensions.h"
 #include "variantproperty.h"
+#include "projectexplorer/session.h"
+#include "projectexplorer/project.h"
 
 #include <QCryptographicHash>
 #include <QDir>
@@ -239,7 +241,10 @@ void AssetExporter::writeMetadata() const
         return;
     }
 
-    Utils::FilePath metadataPath = m_exportPath.pathAppended(m_exportPath.fileName() + ".metadata");
+    auto const startupProject = ProjectExplorer::SessionManager::startupProject();
+    QTC_ASSERT(startupProject, return);
+    const QString projectName = startupProject->displayName();
+    Utils::FilePath metadataPath = m_exportPath.pathAppended(projectName + ".metadata");
     ExportNotification::addInfo(tr("Writing metadata to file %1.").
                                 arg(metadataPath.toUserOutput()));
     makeParentPath(metadataPath);
