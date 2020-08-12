@@ -49,6 +49,8 @@ public:
     static const char *TEST_OPTION;
     static const char *NOTEST_OPTION;
     static const char *PROFILE_OPTION;
+    static const char *NO_CRASHCHECK_OPTION;
+
 private:
     // return value indicates if the option was processed
     // it doesn't indicate success (--> m_hasError)
@@ -59,6 +61,7 @@ private:
     bool checkForAppOption();
     bool checkForPluginOption();
     bool checkForProfilingOption();
+    bool checkForNoCrashcheckOption();
     bool checkForUnknownOption();
     void forceDisableAllPluginsExceptTestedAndForceEnabled();
 

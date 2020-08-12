@@ -64,6 +64,7 @@
 #endif
 
 #include <functional>
+#include <memory>
 
 Q_LOGGING_CATEGORY(pluginLog, "qtc.extensionsystem", QtWarningMsg)
 
@@ -729,6 +730,12 @@ void PluginManager::formatOptions(QTextStream &str, int optionIndentation, int d
     formatOption(str, QLatin1String(OptionsParser::PROFILE_OPTION),
                  QString(), QLatin1String("Profile plugin loading"),
                  optionIndentation, descriptionIndentation);
+    formatOption(str,
+                 QLatin1String(OptionsParser::NO_CRASHCHECK_OPTION),
+                 QString(),
+                 QLatin1String("Disable startup check for previously crashed instance"),
+                 optionIndentation,
+                 descriptionIndentation);
 #ifdef WITH_TESTS
     formatOption(str, QString::fromLatin1(OptionsParser::TEST_OPTION)
                  + QLatin1String(" <plugin>[,testfunction[:testdata]]..."), QString(),
@@ -1409,6 +1416,8 @@ private:
 
 void PluginManagerPrivate::checkForProblematicPlugins()
 {
+    if (!enableCrashCheck)
+        return;
     const Utils::optional<QString> pluginName = LockFile::lockedPluginName(this);
     if (pluginName) {
         PluginSpec *spec = pluginByName(*pluginName);
@@ -1464,7 +1473,9 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
     if (!spec->isEffectivelyEnabled() && destState == PluginSpec::Loaded)
         return;
 
-    LockFile f(this, spec);
+    std::unique_ptr<LockFile> lockFile;
+    if (enableCrashCheck)
+        lockFile.reset(new LockFile(this, spec));
 
     switch (destState) {
     case PluginSpec::Running:

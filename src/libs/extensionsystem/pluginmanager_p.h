@@ -138,6 +138,7 @@ public:
     mutable QReadWriteLock m_lock;
 
     bool m_isInitializationDone = false;
+    bool enableCrashCheck = true;
 
 private:
     PluginManager *q;

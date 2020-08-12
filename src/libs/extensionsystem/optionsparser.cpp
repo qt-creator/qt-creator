@@ -42,6 +42,7 @@ const char *OptionsParser::LOAD_OPTION = "-load";
 const char *OptionsParser::TEST_OPTION = "-test";
 const char *OptionsParser::NOTEST_OPTION = "-notest";
 const char *OptionsParser::PROFILE_OPTION = "-profile";
+const char *OptionsParser::NO_CRASHCHECK_OPTION = "-no-crashcheck";
 
 OptionsParser::OptionsParser(const QStringList &args,
         const QMap<QString, bool> &appOptions,
@@ -78,6 +79,8 @@ bool OptionsParser::parse()
         if (checkForNoLoadOption())
             continue;
         if (checkForProfilingOption())
+            continue;
+        if (checkForNoCrashcheckOption())
             continue;
 #ifdef WITH_TESTS
         if (checkForTestOptions())
@@ -240,6 +243,14 @@ bool OptionsParser::checkForProfilingOption()
     if (m_currentArg != QLatin1String(PROFILE_OPTION))
         return false;
     m_pmPrivate->initProfiling();
+    return true;
+}
+
+bool OptionsParser::checkForNoCrashcheckOption()
+{
+    if (m_currentArg != QLatin1String(NO_CRASHCHECK_OPTION))
+        return false;
+    m_pmPrivate->enableCrashCheck = false;
     return true;
 }
 
