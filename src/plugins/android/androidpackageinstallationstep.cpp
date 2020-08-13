@@ -85,6 +85,7 @@ AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bs
     setSummaryUpdater([this] {
         return tr("<b>Make install:</b> Copy App Files to %1").arg(nativeAndroidBuildPath());
     });
+    setUseEnglishOutput();
 }
 
 bool AndroidPackageInstallationStep::init()
@@ -100,11 +101,7 @@ bool AndroidPackageInstallationStep::init()
     cmd.addArgs(outerQuoted + " install", CommandLine::Raw);
 
     ProcessParameters *pp = processParameters();
-    pp->setMacroExpander(macroExpander());
-    pp->setWorkingDirectory(buildDirectory());
-    Environment env = buildEnvironment();
-    Environment::setupEnglishOutput(&env);
-    pp->setEnvironment(env);
+    setupProcessParameters(pp);
     pp->setCommandLine(cmd);
 
     m_androidDirsToClean.clear();

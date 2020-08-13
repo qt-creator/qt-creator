@@ -86,18 +86,6 @@ const char KeystoreLocationKey[] = "KeystoreLocation";
 const char BuildTargetSdkKey[] = "BuildTargetSdk";
 const char VerboseOutputKey[] = "VerboseOutput";
 
-static void setupProcessParameters(ProcessParameters *pp,
-                                   BuildStep *step,
-                                   const QStringList &arguments,
-                                   const QString &command)
-{
-    pp->setMacroExpander(step->macroExpander());
-    pp->setWorkingDirectory(step->buildDirectory());
-    Utils::Environment env = step->buildEnvironment();
-    pp->setEnvironment(env);
-    pp->setCommandLine({command, arguments});
-}
-
 class PasswordInputDialog : public QDialog
 {
     Q_OBJECT
@@ -257,11 +245,13 @@ bool AndroidBuildApkStep::init()
     }
 
     ProjectExplorer::ProcessParameters *pp = processParameters();
-    Android::setupProcessParameters(pp, this, arguments, command);
+    setupProcessParameters(pp);
+    pp->setCommandLine({command, arguments});
 
     // Generate arguments with keystore password concealed
     ProjectExplorer::ProcessParameters pp2;
-    Android::setupProcessParameters(&pp2, this, argumentsPasswordConcealed, command);
+    setupProcessParameters(&pp2);
+    pp->setCommandLine({command, argumentsPasswordConcealed});
     m_command = pp2.effectiveCommand().toString();
     m_argumentsPasswordConcealed = pp2.prettyArguments();
 
