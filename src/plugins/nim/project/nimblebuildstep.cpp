@@ -104,6 +104,12 @@ NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList, Id id)
     m_arguments->setSettingsKey(Constants::C_NIMBLEBUILDSTEP_ARGUMENTS);
     m_arguments->setResetter([this] { return defaultArguments(); });
 
+    setCommandLineProvider([this] {
+        return CommandLine(QStandardPaths::findExecutable("nimble"),
+                            {"build", m_arguments->arguments(macroExpander())});
+    });
+    setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });
+
     QTC_ASSERT(buildConfiguration(), return);
     QObject::connect(buildConfiguration(), &BuildConfiguration::buildTypeChanged,
                      m_arguments, &ArgumentsAspect::resetArguments);
@@ -115,11 +121,8 @@ bool NimbleBuildStep::init()
 {
     m_arguments->setArguments(defaultArguments());
     ProcessParameters *params = processParameters();
-    params->setEnvironment(buildEnvironment());
-    params->setMacroExpander(macroExpander());
-    params->setWorkingDirectory(project()->projectDirectory());
-    params->setCommandLine({QStandardPaths::findExecutable("nimble"),
-                            {"build", m_arguments->arguments(macroExpander())}});
+    setupProcessParameters(params);
+
     return AbstractProcessStep::init();
 }
 
