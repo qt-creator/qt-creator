@@ -27,6 +27,7 @@
 
 #include "abstractproperty.h"
 #include "bindingproperty.h"
+#include "captureddatacommand.h"
 #include "changeauxiliarycommand.h"
 #include "changebindingscommand.h"
 #include "changefileurlcommand.h"
@@ -41,6 +42,7 @@
 #include "clearscenecommand.h"
 #include "completecomponentcommand.h"
 #include "componentcompletedcommand.h"
+#include "connectionmanagerinterface.h"
 #include "createinstancescommand.h"
 #include "createscenecommand.h"
 #include "debugoutputcommand.h"
@@ -124,11 +126,10 @@ namespace QmlDesigner {
 
     \sa ~NodeInstanceView, setRenderOffScreen()
 */
-NodeInstanceView::NodeInstanceView(QObject *parent, NodeInstanceServerInterface::RunModus runModus)
-        : AbstractView(parent),
-          m_baseStatePreviewImage(QSize(100, 100), QImage::Format_ARGB32),
-          m_runModus(runModus),
-          m_restartProcessTimerId(0)
+NodeInstanceView::NodeInstanceView(ConnectionManagerInterface &connectionManager)
+    : m_connectionManager(connectionManager)
+    , m_baseStatePreviewImage(QSize(100, 100), QImage::Format_ARGB32)
+    , m_restartProcessTimerId(0)
 {
     m_baseStatePreviewImage.fill(0xFFFFFF);
 }
@@ -140,7 +141,6 @@ NodeInstanceView::NodeInstanceView(QObject *parent, NodeInstanceServerInterface:
 NodeInstanceView::~NodeInstanceView()
 {
     removeAllInstanceNodeRelationships();
-    delete nodeInstanceServer();
     m_currentTarget = nullptr;
 }
 
@@ -191,14 +191,16 @@ bool static parentTakesOverRendering(const ModelNode &modelNode)
 void NodeInstanceView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
-    auto server = new NodeInstanceServerProxy(this, m_runModus, m_currentTarget);
-    m_nodeInstanceServer = server;
+    m_nodeInstanceServer = createNodeInstanceServerProxy();
     m_lastCrashTime.start();
-    connect(server, &NodeInstanceServerProxy::processCrashed, this, &NodeInstanceView::handleCrash);
+    connect(m_nodeInstanceServer.get(),
+            &NodeInstanceServerProxy::processCrashed,
+            this,
+            &NodeInstanceView::handleCrash);
 
     if (!isSkippedRootNode(rootModelNode())) {
-        nodeInstanceServer()->createScene(createCreateSceneCommand());
-        nodeInstanceServer()->changeSelection(createChangeSelectionCommand(model->selectedNodes(this)));
+        m_nodeInstanceServer->createScene(createCreateSceneCommand());
+        m_nodeInstanceServer->changeSelection(createChangeSelectionCommand(model->selectedNodes(this)));
     }
 
     ModelNode stateNode = currentStateNode();
@@ -206,15 +208,14 @@ void NodeInstanceView::modelAttached(Model *model)
         NodeInstance newStateInstance = instanceForModelNode(stateNode);
         activateState(newStateInstance);
     }
-
 }
 
 void NodeInstanceView::modelAboutToBeDetached(Model * model)
 {
     removeAllInstanceNodeRelationships();
-    if (nodeInstanceServer()) {
-        nodeInstanceServer()->clearScene(createClearSceneCommand());
-        delete nodeInstanceServer();
+    if (m_nodeInstanceServer) {
+        m_nodeInstanceServer->clearScene(createClearSceneCommand());
+        m_nodeInstanceServer.reset();
     }
     m_statePreviewImage.clear();
     m_baseStatePreviewImage = QImage();
@@ -274,15 +275,18 @@ void NodeInstanceView::restartProcess()
         killTimer(m_restartProcessTimerId);
 
     if (model()) {
-        delete nodeInstanceServer();
+        m_nodeInstanceServer.reset();
+        m_nodeInstanceServer = createNodeInstanceServerProxy();
 
-        auto server = new NodeInstanceServerProxy(this, m_runModus, m_currentTarget);
-        m_nodeInstanceServer = server;
-        connect(server, &NodeInstanceServerProxy::processCrashed, this, &NodeInstanceView::handleCrash);
+        connect(m_nodeInstanceServer.get(),
+                &NodeInstanceServerProxy::processCrashed,
+                this,
+                &NodeInstanceView::handleCrash);
 
         if (!isSkippedRootNode(rootModelNode())) {
-            nodeInstanceServer()->createScene(createCreateSceneCommand());
-            nodeInstanceServer()->changeSelection(createChangeSelectionCommand(model()->selectedNodes(this)));
+            m_nodeInstanceServer->createScene(createCreateSceneCommand());
+            m_nodeInstanceServer->changeSelection(
+                createChangeSelectionCommand(model()->selectedNodes(this)));
         }
 
         ModelNode stateNode = currentStateNode();
@@ -313,17 +317,19 @@ void NodeInstanceView::nodeCreated(const ModelNode &createdNode)
     propertyList.append(createdNode.variantProperty("y"));
     updatePosition(propertyList);
 
-    nodeInstanceServer()->createInstances(createCreateInstancesCommand({instance}));
-    nodeInstanceServer()->changePropertyValues(createChangeValueCommand(createdNode.variantProperties()));
-    nodeInstanceServer()->completeComponent(createComponentCompleteCommand({instance}));
+    m_nodeInstanceServer->createInstances(createCreateInstancesCommand({instance}));
+    m_nodeInstanceServer->changePropertyValues(
+        createChangeValueCommand(createdNode.variantProperties()));
+    m_nodeInstanceServer->completeComponent(createComponentCompleteCommand({instance}));
 }
 
 /*! Notifies the view that \a removedNode will be removed.
 */
 void NodeInstanceView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
-    nodeInstanceServer()->removeInstances(createRemoveInstancesCommand(removedNode));
-    nodeInstanceServer()->removeSharedMemory(createRemoveSharedMemoryCommand("Image", removedNode.internalId()));
+    m_nodeInstanceServer->removeInstances(createRemoveInstancesCommand(removedNode));
+    m_nodeInstanceServer->removeSharedMemory(
+        createRemoveSharedMemoryCommand("Image", removedNode.internalId()));
     removeInstanceAndSubInstances(removedNode);
 }
 
@@ -343,11 +349,10 @@ void NodeInstanceView::resetHorizontalAnchors(const ModelNode &modelNode)
         valueList.append(modelNode.variantProperty("width"));
 
     if (!valueList.isEmpty())
-        nodeInstanceServer()->changePropertyValues(createChangeValueCommand(valueList));
+        m_nodeInstanceServer->changePropertyValues(createChangeValueCommand(valueList));
 
     if (!bindingList.isEmpty())
-        nodeInstanceServer()->changePropertyBindings(createChangeBindingCommand(bindingList));
-
+        m_nodeInstanceServer->changePropertyBindings(createChangeBindingCommand(bindingList));
 }
 
 void NodeInstanceView::resetVerticalAnchors(const ModelNode &modelNode)
@@ -355,8 +360,8 @@ void NodeInstanceView::resetVerticalAnchors(const ModelNode &modelNode)
     QList<BindingProperty> bindingList;
     QList<VariantProperty> valueList;
 
-    if (modelNode.hasBindingProperty("yx"))
-        bindingList.append(modelNode.bindingProperty("yx"));
+    if (modelNode.hasBindingProperty("x"))
+        bindingList.append(modelNode.bindingProperty("x"));
     else if (modelNode.hasVariantProperty("y"))
         valueList.append(modelNode.variantProperty("y"));
 
@@ -366,10 +371,10 @@ void NodeInstanceView::resetVerticalAnchors(const ModelNode &modelNode)
         valueList.append(modelNode.variantProperty("height"));
 
     if (!valueList.isEmpty())
-        nodeInstanceServer()->changePropertyValues(createChangeValueCommand(valueList));
+        m_nodeInstanceServer->changePropertyValues(createChangeValueCommand(valueList));
 
     if (!bindingList.isEmpty())
-        nodeInstanceServer()->changePropertyBindings(createChangeBindingCommand(bindingList));
+        m_nodeInstanceServer->changePropertyBindings(createChangeBindingCommand(bindingList));
 }
 
 void NodeInstanceView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList)
@@ -388,10 +393,10 @@ void NodeInstanceView::propertiesAboutToBeRemoved(const QList<AbstractProperty>&
     RemoveInstancesCommand removeInstancesCommand = createRemoveInstancesCommand(nodeList);
 
     if (!removeInstancesCommand.instanceIds().isEmpty())
-        nodeInstanceServer()->removeInstances(removeInstancesCommand);
+        m_nodeInstanceServer->removeInstances(removeInstancesCommand);
 
-    nodeInstanceServer()->removeSharedMemory(createRemoveSharedMemoryCommand("Image", nodeList));
-    nodeInstanceServer()->removeProperties(createRemovePropertiesCommand(nonNodePropertyList));
+    m_nodeInstanceServer->removeSharedMemory(createRemoveSharedMemoryCommand("Image", nodeList));
+    m_nodeInstanceServer->removeProperties(createRemovePropertiesCommand(nonNodePropertyList));
 
     foreach (const AbstractProperty &property, propertyList) {
         const PropertyName &name = property.name();
@@ -445,7 +450,7 @@ void NodeInstanceView::nodeTypeChanged(const ModelNode &, const TypeName &, int,
 
 void NodeInstanceView::bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags /*propertyChange*/)
 {
-    nodeInstanceServer()->changePropertyBindings(createChangeBindingCommand(propertyList));
+    m_nodeInstanceServer->changePropertyBindings(createChangeBindingCommand(propertyList));
 }
 
 /*!
@@ -460,7 +465,7 @@ void NodeInstanceView::bindingPropertiesChanged(const QList<BindingProperty>& pr
 void NodeInstanceView::variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags /*propertyChange*/)
 {
     updatePosition(propertyList);
-    nodeInstanceServer()->changePropertyValues(createChangeValueCommand(propertyList));
+    m_nodeInstanceServer->changePropertyValues(createChangeValueCommand(propertyList));
 }
 /*!
   Notifies the view that the property parent of the model node \a node has
@@ -476,20 +481,21 @@ void NodeInstanceView::nodeReparented(const ModelNode &node, const NodeAbstractP
 {
     if (!isSkippedNode(node)) {
         updateChildren(newPropertyParent);
-        nodeInstanceServer()->reparentInstances(createReparentInstancesCommand(node, newPropertyParent, oldPropertyParent));
+        m_nodeInstanceServer->reparentInstances(
+            createReparentInstancesCommand(node, newPropertyParent, oldPropertyParent));
     }
 }
 
 void NodeInstanceView::fileUrlChanged(const QUrl &/*oldUrl*/, const QUrl &newUrl)
 {
-    nodeInstanceServer()->changeFileUrl(createChangeFileUrlCommand(newUrl));
+    m_nodeInstanceServer->changeFileUrl(createChangeFileUrlCommand(newUrl));
 }
 
 void NodeInstanceView::nodeIdChanged(const ModelNode& node, const QString& /*newId*/, const QString& /*oldId*/)
 {
     if (hasInstanceForModelNode(node)) {
         NodeInstance instance = instanceForModelNode(node);
-        nodeInstanceServer()->changeIds(createChangeIdsCommand({instance}));
+        m_nodeInstanceServer->changeIds(createChangeIdsCommand({instance}));
     }
 }
 
@@ -512,7 +518,7 @@ void NodeInstanceView::nodeOrderChanged(const NodeListProperty & listProperty,
         }
     }
 
-    nodeInstanceServer()->reparentInstances(ReparentInstancesCommand(containerList));
+    m_nodeInstanceServer->reparentInstances(ReparentInstancesCommand(containerList));
 }
 
 void NodeInstanceView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
@@ -531,30 +537,26 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
             if (value.isValid() || name == "invisible") {
                 PropertyValueContainer container(instance.instanceId(), name, value, TypeName());
                 ChangeAuxiliaryCommand changeAuxiliaryCommand({container});
-                nodeInstanceServer()->changeAuxiliaryValues(changeAuxiliaryCommand);
+                m_nodeInstanceServer->changeAuxiliaryValues(changeAuxiliaryCommand);
             } else {
                 if (node.hasVariantProperty(name)) {
                     PropertyValueContainer container(instance.instanceId(), name, node.variantProperty(name).value(), TypeName());
                     ChangeValuesCommand changeValueCommand({container});
-                    nodeInstanceServer()->changePropertyValues(changeValueCommand);
+                    m_nodeInstanceServer->changePropertyValues(changeValueCommand);
                 } else if (node.hasBindingProperty(name)) {
                     PropertyBindingContainer container(instance.instanceId(), name, node.bindingProperty(name).expression(), TypeName());
                     ChangeBindingsCommand changeValueCommand({container});
-                    nodeInstanceServer()->changePropertyBindings(changeValueCommand);
+                    m_nodeInstanceServer->changePropertyBindings(changeValueCommand);
                 }
             }
         }
     } else if (node.isRootNode() && name == "language@Internal") {
         const QString languageAsString = value.toString();
-        if (m_currentTarget) {
-            if (auto rc = m_currentTarget->activeRunConfiguration()) {
-                if (auto multiLanguageAspect = rc->aspect<QmlProjectManager::QmlMultiLanguageAspect>())
-                    multiLanguageAspect->setLastUsedLanguage(languageAsString);
-            }
-        }
-        nodeInstanceServer()->changeLanguage({languageAsString});
+        if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current(m_currentTarget))
+            multiLanguageAspect->setCurrentLocale(languageAsString);
+        m_nodeInstanceServer->changeLanguage({languageAsString});
     } else if (node.isRootNode() && name == "previewSize@Internal") {
-        nodeInstanceServer()->changePreviewImageSize(value.toSize());
+        m_nodeInstanceServer->changePreviewImageSize(value.toSize());
     }
 }
 
@@ -569,9 +571,11 @@ void NodeInstanceView::nodeSourceChanged(const ModelNode &node, const QString & 
      if (hasInstanceForModelNode(node)) {
          NodeInstance instance = instanceForModelNode(node);
          ChangeNodeSourceCommand changeNodeSourceCommand(instance.instanceId(), newNodeSource);
-         nodeInstanceServer()->changeNodeSource(changeNodeSourceCommand);
+         m_nodeInstanceServer->changeNodeSource(changeNodeSourceCommand);
      }
 }
+
+void NodeInstanceView::capturedData(const CapturedDataCommand &) {}
 
 void NodeInstanceView::currentStateChanged(const ModelNode &node)
 {
@@ -794,12 +798,6 @@ void NodeInstanceView::updatePosition(const QList<VariantProperty> &propertyList
         emitInstanceInformationsChange(informationChangeHash);
 }
 
-NodeInstanceServerInterface *NodeInstanceView::nodeInstanceServer() const
-{
-    return m_nodeInstanceServer.data();
-}
-
-
 NodeInstance NodeInstanceView::loadNode(const ModelNode &node)
 {
     NodeInstance instance(NodeInstance::create(node));
@@ -814,12 +812,12 @@ NodeInstance NodeInstanceView::loadNode(const ModelNode &node)
 
 void NodeInstanceView::activateState(const NodeInstance &instance)
 {
-    nodeInstanceServer()->changeState(ChangeStateCommand(instance.instanceId()));
+    m_nodeInstanceServer->changeState(ChangeStateCommand(instance.instanceId()));
 }
 
 void NodeInstanceView::activateBaseState()
 {
-    nodeInstanceServer()->changeState(ChangeStateCommand(-1));
+    m_nodeInstanceServer->changeState(ChangeStateCommand(-1));
 }
 
 void NodeInstanceView::removeRecursiveChildRelationship(const ModelNode &removedNode)
@@ -994,12 +992,8 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     }
 
     QString lastUsedLanguage;
-    if (m_currentTarget) {
-        if (auto rc = m_currentTarget->activeRunConfiguration()) {
-            if (auto multiLanguageAspect = rc->aspect<QmlProjectManager::QmlMultiLanguageAspect>())
-                lastUsedLanguage = multiLanguageAspect->lastUsedLanguage();
-        }
-    }
+    if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current(m_currentTarget))
+        lastUsedLanguage = multiLanguageAspect->currentLocale();
 
     return CreateSceneCommand(
                 instanceContainerList,
@@ -1256,7 +1250,8 @@ void NodeInstanceView::valuesChanged(const ValuesChangedCommand &command)
         }
     }
 
-    nodeInstanceServer()->removeSharedMemory(createRemoveSharedMemoryCommand(QStringLiteral("Values"), command.keyNumber()));
+    m_nodeInstanceServer->removeSharedMemory(
+        createRemoveSharedMemoryCommand(QStringLiteral("Values"), command.keyNumber()));
 
     if (!valuePropertyChangeList.isEmpty())
         emitInstancePropertyChange(valuePropertyChangeList);
@@ -1464,7 +1459,7 @@ void NodeInstanceView::sendToken(const QString &token, int number, const QVector
     foreach (const ModelNode &node, nodeVector)
         instanceIdVector.append(node.internalId());
 
-    nodeInstanceServer()->token(TokenCommand(token, number, instanceIdVector));
+    m_nodeInstanceServer->token(TokenCommand(token, number, instanceIdVector));
 }
 
 void NodeInstanceView::selectionChanged(const ChangeSelectionCommand &command)
@@ -1479,7 +1474,7 @@ void NodeInstanceView::selectionChanged(const ChangeSelectionCommand &command)
 void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command)
 {
     if (command.type() == PuppetToCreatorCommand::Edit3DToolState) {
-        if (!m_nodeInstanceServer.isNull()) {
+        if (m_nodeInstanceServer) {
             auto data = qvariant_cast<QVariantList>(command.data());
             if (data.size() == 3) {
                 QString qmlId = data[0].toString();
@@ -1496,25 +1491,30 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
     }
 }
 
+std::unique_ptr<NodeInstanceServerProxy> NodeInstanceView::createNodeInstanceServerProxy()
+{
+    return std::make_unique<NodeInstanceServerProxy>(this, m_currentTarget, m_connectionManager);
+}
+
 void NodeInstanceView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                             const QList<ModelNode> & /*lastSelectedNodeList*/)
 {
-    nodeInstanceServer()->changeSelection(createChangeSelectionCommand(selectedNodeList));
+    m_nodeInstanceServer->changeSelection(createChangeSelectionCommand(selectedNodeList));
 }
 
 void NodeInstanceView::sendInputEvent(QInputEvent *e) const
 {
-    nodeInstanceServer()->inputEvent(InputEventCommand(e));
+    m_nodeInstanceServer->inputEvent(InputEventCommand(e));
 }
 
 void NodeInstanceView::view3DAction(const View3DActionCommand &command)
 {
-    nodeInstanceServer()->view3DAction(command);
+    m_nodeInstanceServer->view3DAction(command);
 }
 
 void NodeInstanceView::edit3DViewResized(const QSize &size) const
 {
-    nodeInstanceServer()->update3DViewState(Update3dViewStateCommand(size));
+    m_nodeInstanceServer->update3DViewState(Update3dViewStateCommand(size));
 }
 
 void NodeInstanceView::timerEvent(QTimerEvent *event)

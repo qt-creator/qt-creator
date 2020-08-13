@@ -27,16 +27,17 @@
 #include <qmetatype.h>
 
 #include "addimportcontainer.h"
+#include "captureddatacommand.h"
 #include "changeauxiliarycommand.h"
 #include "changebindingscommand.h"
 #include "changefileurlcommand.h"
 #include "changeidscommand.h"
 #include "changelanguagecommand.h"
 #include "changenodesourcecommand.h"
+#include "changepreviewimagesizecommand.h"
 #include "changeselectioncommand.h"
 #include "changestatecommand.h"
 #include "changevaluescommand.h"
-#include "changepreviewimagesizecommand.h"
 #include "childrenchangedcommand.h"
 #include "clearscenecommand.h"
 #include "completecomponentcommand.h"
@@ -219,6 +220,9 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<ChangePreviewImageSizeCommand>("ChangePreviewImageSizeCommand");
     qRegisterMetaTypeStreamOperators<ChangePreviewImageSizeCommand>("ChangePreviewImageSizeCommand");
+
+    qRegisterMetaType<CapturedDataCommand>("CapturedDataCommand");
+    qRegisterMetaTypeStreamOperators<CapturedDataCommand>("CapturedDataCommand");
 }
 
 }

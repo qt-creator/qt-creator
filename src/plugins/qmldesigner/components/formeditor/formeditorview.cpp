@@ -633,6 +633,11 @@ void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyN
             editorItem->update();
         }
     }
+
+    if (name == "FrameColor@Internal") {
+        if (FormEditorItem *editorItem = scene()->itemForQmlItemNode(item))
+            editorItem->setFrameColor(data.value<QColor>());
+    }
 }
 
 void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeList)

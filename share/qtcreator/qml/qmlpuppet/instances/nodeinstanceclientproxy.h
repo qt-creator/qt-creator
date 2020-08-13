@@ -69,7 +69,7 @@ class NodeInstanceClientProxy : public QObject, public NodeInstanceClientInterfa
     Q_OBJECT
 
 public:
-    NodeInstanceClientProxy(QObject *parent = nullptr);
+    NodeInstanceClientProxy(QObject *parent);
 
     void informationChanged(const InformationChangedCommand &command) override;
     void valuesChanged(const ValuesChangedCommand &command) override;
@@ -83,6 +83,7 @@ public:
     void puppetAlive(const PuppetAliveCommand &command);
     void selectionChanged(const ChangeSelectionCommand &command) override;
     void handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command) override;
+    void capturedData(const CapturedDataCommand &capturedData) override;
 
     void flush() override;
     void synchronizeWithClientProcess() override;
@@ -94,7 +95,7 @@ protected:
     void writeCommand(const QVariant &command);
     void dispatchCommand(const QVariant &command);
     NodeInstanceServerInterface *nodeInstanceServer() const;
-    void setNodeInstanceServer(NodeInstanceServerInterface *nodeInstanceServer);
+    void setNodeInstanceServer(std::unique_ptr<NodeInstanceServerInterface> nodeInstanceServer);
 
     void createInstances(const CreateInstancesCommand &command);
     void changeFileUrl(const ChangeFileUrlCommand &command);
@@ -130,7 +131,7 @@ private:
     QTimer m_puppetAliveTimer;
     QIODevice *m_inputIoDevice;
     QIODevice *m_outputIoDevice;
-    NodeInstanceServerInterface *m_nodeInstanceServer;
+    std::unique_ptr<NodeInstanceServerInterface> m_nodeInstanceServer;
     quint32 m_writeCommandCounter;
     int m_synchronizeId;
 };

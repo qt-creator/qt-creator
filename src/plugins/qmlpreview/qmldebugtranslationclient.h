@@ -50,6 +50,7 @@ public:
     void changeLanguage(const QUrl &url, const QString &locale);
     void changeWarningColor(const QColor &warningColor);
     void changeElidedTextWarningString(const QString &warningString); //is QByteArray better here?
+    void changeElideWarning(bool elideWarning);
     void setDebugTranslationServiceLogFile(const QString &logFilePath);
     void enableElidedTextWarning();
     void disableElidedTextWarning();

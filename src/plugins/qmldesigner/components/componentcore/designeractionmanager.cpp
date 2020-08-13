@@ -363,32 +363,30 @@ public:
 
     bool isEnabled(const SelectionContext &) const override { return true; }
 
-    static ModelNode listModelNode(const ModelNode &listViewNode)
-    {
-        if (listViewNode.hasProperty("model")) {
-            if (listViewNode.hasBindingProperty("model"))
-                return listViewNode.bindingProperty("model").resolveToModelNode();
-            else if (listViewNode.hasNodeProperty("model"))
-                return listViewNode.nodeProperty("model").modelNode();
-        }
-
-        ModelNode newModel = listViewNode.view()->createModelNode("QtQml.Models.ListModel", 2, 15);
-        listViewNode.nodeProperty("mode").reparentHere(newModel);
-
-        return newModel;
-    }
-
     static void openDialog(const SelectionContext &selectionState)
     {
-        ListModelEditorModel model;
-
         ModelNode targetNode = selectionState.targetNode();
         if (!targetNode.isValid())
             targetNode = selectionState.currentSingleSelectedNode();
         if (!targetNode.isValid())
             return;
 
-        model.setListModel(listModelNode(targetNode));
+        AbstractView *view = targetNode.view();
+        NodeMetaInfo modelMetaInfo = view->model()->metaInfo("ListModel");
+        NodeMetaInfo elementMetaInfo = view->model()->metaInfo("ListElement");
+
+        ListModelEditorModel model{[&] {
+                                       return view->createModelNode(modelMetaInfo.typeName(),
+                                                                    modelMetaInfo.majorVersion(),
+                                                                    modelMetaInfo.minorVersion());
+                                   },
+                                   [&] {
+                                       return view->createModelNode(elementMetaInfo.typeName(),
+                                                                    elementMetaInfo.majorVersion(),
+                                                                    elementMetaInfo.minorVersion());
+                                   }};
+
+        model.setListView(targetNode);
 
         ListModelEditorDialog dialog{Core::ICore::mainWindow()};
         dialog.setModel(&model);

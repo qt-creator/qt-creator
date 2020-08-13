@@ -372,7 +372,7 @@ void QmlBuildSystem::generateProjectTree()
 
     auto newRoot = std::make_unique<QmlProjectNode>(project());
 
-    for (const QString &f : m_projectItem.data()->files()) {
+    for (const QString &f : m_projectItem->files()) {
         const Utils::FilePath fileName = Utils::FilePath::fromString(f);
         const FileType fileType = (fileName == projectFilePath())
                 ? FileType::Project : FileNode::fileTypeForFileName(fileName);

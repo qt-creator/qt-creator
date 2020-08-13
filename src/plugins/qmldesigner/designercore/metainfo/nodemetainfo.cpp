@@ -427,7 +427,7 @@ QVector<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const Co
     PropertyMemberProcessor processor(context);
     objectValue->processMembers(&processor);
 
-    foreach (const PropertyInfo &property, processor.properties()) {
+    for (const PropertyInfo &property : processor.properties()) {
         const PropertyName name = property.first;
         const QString nameAsString = QString::fromUtf8(name);
         if (!objectValue->isWritable(nameAsString) && objectValue->isPointer(nameAsString)) {
@@ -1500,6 +1500,11 @@ bool NodeMetaInfo::propertyIsPrivate(const PropertyName &propertyName) const
     return propertyName.startsWith("__");
 }
 
+bool NodeMetaInfo::propertyIsPointer(const PropertyName &propertyName) const
+{
+    return m_privateData->isPropertyPointer(propertyName);
+}
+
 QString NodeMetaInfo::propertyEnumScope(const PropertyName &propertyName) const
 {
     return m_privateData->propertyEnumScope(propertyName);
@@ -1658,6 +1663,12 @@ bool NodeMetaInfo::isGraphicalItem() const
             || isSubclassOf("QtQuick.Window.Window")
             || isSubclassOf("QtQuick.Dialogs.Dialog")
             || isSubclassOf("QtQuick.Controls.Popup");
+}
+
+bool NodeMetaInfo::isQmlItem() const
+{
+    return isSubclassOf("QtQuick.QtObject")
+            || isSubclassOf("QtQml.QtObject");
 }
 
 void NodeMetaInfo::clearCache()

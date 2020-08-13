@@ -45,14 +45,19 @@ const char DocumentNameTag[] = "name";
 // Layer data tags
 const char ArtboardListTag[] = "artboards";
 
+const char NameTag[] = "name";
+
 const char XPosTag[] = "x";
 const char YPosTag[] = "y";
 const char WidthTag[] = "width";
 const char HeightTag[] = "height";
 
-
+const char MetadataTag[] = "metadata";
+const char ChildrenTag[] = "children";
 const char QmlIdTag[] = "qmlId";
 const char ExportTypeTag[] = "exportType";
+const char ExportTypeComponent[] = "component";
+const char ExportTypeChild[] = "child";
 const char QmlPropertiesTag[] = "qmlProperties";
 const char ImportsTag[] = "extraImports";
 const char UuidTag[] = "uuid";

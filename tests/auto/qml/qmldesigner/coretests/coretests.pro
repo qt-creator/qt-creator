@@ -61,11 +61,13 @@ TEMPLATE = app
 SOURCES += \
     ../testview.cpp \
     testrewriterview.cpp \
-    tst_testcore.cpp
+    tst_testcore.cpp \
+    ../testconnectionmanager.cpp
 
 HEADERS += \
     ../testview.h \
     testrewriterview.h \
-    tst_testcore.h
+    tst_testcore.h \
+    ../testconnectionmanager.h
 
 RESOURCES += ../data/testfiles.qrc

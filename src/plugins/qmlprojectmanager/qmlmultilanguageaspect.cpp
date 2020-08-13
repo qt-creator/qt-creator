@@ -30,6 +30,7 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 static bool isMultilanguagePresent()
@@ -46,7 +47,8 @@ static bool isMultilanguagePresent()
 static Utils::FilePath getMultilanguageDatabaseFilePath(ProjectExplorer::Target *target)
 {
     if (target) {
-        auto filePath = target->project()->projectDirectory().pathAppended("/multilanguage-experimental-v1.db");
+        auto filePath = target->project()->projectDirectory().pathAppended(
+            "multilanguage-experimental-v2.db");
         if (filePath.exists())
             return filePath;
     }
@@ -81,28 +83,24 @@ QmlMultiLanguageAspect::QmlMultiLanguageAspect(ProjectExplorer::Target *target)
     setDefaultValue(!databaseFilePath().isEmpty());
     QVariantMap getDefaultValues;
     fromMap(getDefaultValues);
-
-    if (auto previewPlugin = getPreviewPlugin())
-        connect(previewPlugin, SIGNAL(localeChanged(QString)), this, SLOT(setLastUsedLanguage(QString)));
 }
 
 QmlMultiLanguageAspect::~QmlMultiLanguageAspect()
 {
 }
 
-void QmlMultiLanguageAspect::setLastUsedLanguage(const QString &language)
+void QmlMultiLanguageAspect::setCurrentLocale(const QString &locale)
 {
+    if (m_currentLocale == locale)
+        return;
+    m_currentLocale = locale;
     if (auto previewPlugin = getPreviewPlugin())
-        previewPlugin->setProperty("locale", language);
-    if (m_lastUsedLanguage != language) {
-        m_lastUsedLanguage = language;
-        emit changed();
-    }
+        previewPlugin->setProperty("locale", locale);
 }
 
-QString QmlMultiLanguageAspect::lastUsedLanguage() const
+QString QmlMultiLanguageAspect::currentLocale() const
 {
-    return m_lastUsedLanguage;
+    return m_currentLocale;
 }
 
 Utils::FilePath QmlMultiLanguageAspect::databaseFilePath() const
@@ -115,14 +113,37 @@ Utils::FilePath QmlMultiLanguageAspect::databaseFilePath() const
 void QmlMultiLanguageAspect::toMap(QVariantMap &map) const
 {
     BaseBoolAspect::toMap(map);
-    if (!m_lastUsedLanguage.isEmpty())
-        map.insert(Constants::LAST_USED_LANGUAGE, m_lastUsedLanguage);
+    if (!m_currentLocale.isEmpty())
+        map.insert(Constants::LAST_USED_LANGUAGE, m_currentLocale);
 }
 
 void QmlMultiLanguageAspect::fromMap(const QVariantMap &map)
 {
     BaseBoolAspect::fromMap(map);
-    setLastUsedLanguage(map.value(Constants::LAST_USED_LANGUAGE, "en").toString());
+    setCurrentLocale(map.value(Constants::LAST_USED_LANGUAGE, "en").toString());
+}
+
+QmlMultiLanguageAspect *QmlMultiLanguageAspect::current()
+{
+    if (auto project = ProjectExplorer::SessionManager::startupProject())
+        return current(project);
+    return {};
+}
+
+QmlMultiLanguageAspect *QmlMultiLanguageAspect::current(ProjectExplorer::Project *project)
+{
+    if (auto target = project->activeTarget())
+        return current(target);
+    return {};
+}
+
+QmlMultiLanguageAspect *QmlMultiLanguageAspect::current(ProjectExplorer::Target *target)
+{
+    if (auto runConfiguration = target->activeRunConfiguration()) {
+        if (auto multiLanguageAspect = runConfiguration->aspect<QmlProjectManager::QmlMultiLanguageAspect>())
+            return multiLanguageAspect;
+    }
+    return {};
 }
 
 } // namespace QmlProjectManager

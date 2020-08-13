@@ -103,7 +103,7 @@ static QAction *createAction(const Core::Id &id,
 TimelineToolBar::TimelineToolBar(QWidget *parent)
     : QToolBar(parent)
     , m_grp()
-    , m_dialog(new AnimationCurveDialog(Core::ICore::dialogParent()))
+    , m_dialog(new AnimationCurveDialog(this))
     , m_curveModel(new AnimationCurveEditorModel(0., 500.))
 {
     m_dialog->setModel(m_curveModel);

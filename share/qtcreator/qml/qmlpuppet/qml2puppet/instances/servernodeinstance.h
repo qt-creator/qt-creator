@@ -72,6 +72,7 @@ class ServerNodeInstance
     friend class Qt5InformationNodeInstanceServer;
     friend class Qt5NodeInstanceServer;
     friend class Qt5PreviewNodeInstanceServer;
+    friend class Qt5CaptureNodeInstanceServer;
     friend class Qt5TestNodeInstanceServer;
     friend class QHash<qint32, ServerNodeInstance>;
     friend uint qHash(const ServerNodeInstance &instance);
@@ -171,6 +172,8 @@ public:
     static bool isSubclassOf(QObject *object, const QByteArray &superTypeName);
 
     void setModifiedFlag(bool b);
+    void updateDirtyNodeRecursive();
+    bool holdsGraphical() const;
 
 private: // functions
     ServerNodeInstance(const QSharedPointer<Internal::ObjectNodeInstance> &abstractInstance);
@@ -197,7 +200,6 @@ private: // functions
     void setDeleteHeldInstance(bool deleteInstance);
     void reparent(const ServerNodeInstance &oldParentInstance, const PropertyName &oldParentProperty, const ServerNodeInstance &newParentInstance, const PropertyName &newParentProperty);
 
-
     void setId(const QString &id);
 
     static QSharedPointer<Internal::ObjectNodeInstance> createInstance(QObject *objectToBeWrapped);
@@ -205,10 +207,6 @@ private: // functions
     void paintUpdate();
 
     void setNodeSource(const QString &source);
-
-    bool holdsGraphical() const;
-
-    void updateDirtyNodeRecursive();
 
     QObject *internalObject() const; // should be not used outside of the nodeinstances!!!!
 

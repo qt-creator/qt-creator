@@ -170,6 +170,8 @@ public:
     void setExtraData(const QString &key, const QVariant &data);
     QVariant extraData(const QString &key) const;
 
+    QStringList availableQmlPreviewTranslations(QString *errorMessage);
+
 signals:
     void projectFileIsDirty(const Utils::FilePath &path);
 
