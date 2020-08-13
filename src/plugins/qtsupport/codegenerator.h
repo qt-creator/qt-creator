@@ -50,6 +50,11 @@ public:
 
     // Generic Qt:
     Q_INVOKABLE static QString qtIncludes(const QStringList &qt4, const QStringList &qt5);
+
+    // UI file integration
+    Q_INVOKABLE static bool uiAsPointer();
+    Q_INVOKABLE static bool uiAsMember();
+    Q_INVOKABLE static bool uiAsInheritance();
 };
 
 } // namespace QtSupport

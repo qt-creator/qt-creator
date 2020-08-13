@@ -197,4 +197,25 @@ QString CodeGenerator::qtIncludes(const QStringList &qt4, const QStringList &qt5
     return result;
 }
 
+bool CodeGenerator::uiAsPointer()
+{
+    CodeGenSettings settings;
+    settings.fromSettings(Core::ICore::settings());
+    return settings.embedding == CodeGenSettings::PointerAggregatedUiClass;
+}
+
+bool CodeGenerator::uiAsMember()
+{
+    CodeGenSettings settings;
+    settings.fromSettings(Core::ICore::settings());
+    return settings.embedding == CodeGenSettings::AggregatedUiClass;
+}
+
+bool CodeGenerator::uiAsInheritance()
+{
+    CodeGenSettings settings;
+    settings.fromSettings(Core::ICore::settings());
+    return settings.embedding == CodeGenSettings::InheritedUiClass;
+}
+
 } // namespace QtSupport
