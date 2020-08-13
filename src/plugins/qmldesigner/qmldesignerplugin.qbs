@@ -324,7 +324,7 @@ Project {
                 "instances/puppetdialog.ui",
                 "instances/connectionmanagerinterface.cpp",
                 "instances/connectionmanagerinterface.h",
-                "instances/baseconnectionmanager.cpp ",
+                "instances/baseconnectionmanager.cpp",
                 "instances/baseconnectionmanager.h",
                 "instances/connectionmanager.cpp",
                 "instances/connectionmanager.h",
