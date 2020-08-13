@@ -171,11 +171,7 @@ private:
     void updateDetails()
     {
         ProcessParameters param;
-        param.setMacroExpander(m_buildStep->macroExpander());
-        param.setWorkingDirectory(m_buildStep->buildDirectory());
-        param.setEnvironment(m_buildStep->buildEnvironment());
-        param.setCommandLine({m_buildStep->buildCommand(), m_buildStep->allArguments()});
-
+        m_buildStep->setupProcessParameters(&param);
         setSummaryText(param.summary(displayName()));
     }
 
@@ -190,6 +186,9 @@ IosBuildStep::IosBuildStep(BuildStepList *parent, Id id)
     : AbstractProcessStep(parent, id)
 {
     setDefaultDisplayName(tr("xcodebuild"));
+
+    setCommandLineProvider([this] { return CommandLine(buildCommand(), allArguments()); });
+    setUseEnglishOutput();
 
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
         m_clean = true;
@@ -211,11 +210,7 @@ bool IosBuildStep::init()
     }
 
     ProcessParameters *pp = processParameters();
-    pp->setMacroExpander(bc->macroExpander());
-    pp->setWorkingDirectory(bc->buildDirectory());
-    Utils::Environment env = bc->environment();
-    Utils::Environment::setupEnglishOutput(&env);
-    pp->setEnvironment(env);
+    setupProcessParameters(pp);
     pp->setCommandLine({buildCommand(), allArguments()});
 
     // If we are cleaning, then build can fail with an error code, but that doesn't mean

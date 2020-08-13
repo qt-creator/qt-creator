@@ -63,17 +63,14 @@ IosDsymBuildStep::IosDsymBuildStep(BuildStepList *parent, Id id) :
     AbstractProcessStep(parent, id),
     m_clean(parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
 {
+    setCommandLineProvider([this] { return CommandLine(command(), arguments()); });
+    setUseEnglishOutput();
 }
 
 bool IosDsymBuildStep::init()
 {
     ProcessParameters *pp = processParameters();
-    pp->setMacroExpander(macroExpander());
-    pp->setWorkingDirectory(buildDirectory());
-    Utils::Environment env = buildEnvironment();
-    Utils::Environment::setupEnglishOutput(&env);
-    pp->setEnvironment(env);
-    pp->setCommandLine({command(), arguments()});
+    setupProcessParameters(pp);
 
     // If we are cleaning, then build can fail with an error code, but that doesn't mean
     // we should stop the clean queue
@@ -257,11 +254,7 @@ IosDsymBuildStepConfigWidget::~IosDsymBuildStepConfigWidget()
 void IosDsymBuildStepConfigWidget::updateDetails()
 {
     ProcessParameters param;
-    param.setMacroExpander(m_buildStep->macroExpander());
-    param.setWorkingDirectory(m_buildStep->buildDirectory());
-    param.setEnvironment(m_buildStep->buildEnvironment());
-    param.setCommandLine({m_buildStep->command(), m_buildStep->arguments()});
-
+    m_buildStep->setupProcessParameters(&param);
     setSummaryText(param.summary(displayName()));
 }
 
