@@ -52,12 +52,8 @@
     set up the development environment for the device platform and configure a
     connection between \QC and the mobile device.
 
-    To develop for Android  devices, you must download and install the latest
-    Android NDK and SDK Tools, and then update or install the tools and packages
-    needed for development. In addition, you must install the Java SE
-    Development Kit (JDK). After you have installed all
-    these tools, you must specify the paths to them in \QC.
-    For detailed instructions, see \l{Qt for Android} and
+    To develop for Android devices, you must install \l{Qt for Android}
+    and set up the development environment, as instructed in
     \l{Connecting Android Devices}.
 
     To develop for iOS devices, you must install Xcode and use it to configure
@@ -65,33 +61,32 @@
     Program certificate that you receive from Apple. For more information, see
     \l{Connecting iOS Devices}.
 
-    \include creator-tutorial-create-qq-project.qdocinc qt quick application
+    \include qtquick-tutorial-create-empty-project.qdocinc qtquick empty application
 
     \section1 Creating the Accelbubble Main View
 
     The main view of the application displays an SVG bubble image that moves
     around the screen when you tilt the device.
 
-    To use \e {Bluebubble.svg} in your project,
-    copy it to the project directory (same subdirectory as the QML file).
-    The image appears in \uicontrol Assets. You can also use any other
+    We use \e {Bluebubble.svg} in this tutorial, but you can  use any other
     image or a QML type, instead.
 
     To create the UI in the Design mode:
 
     \list 1
 
-        \li In the \uicontrol Projects view, double-click the \e Page1Form.ui.qml
-            file to open it in the Design mode.
+        \li Open the \e main.qml in the Design mode.
 
         \li In the \uicontrol Navigator, select \uicontrol Label and press
             \key Delete to delete it.
 
         \li In \uicontrol Library > \uicontrol {QML Types}, select
-            \uicontrol Rectangle and drag and drop it to the \uicontrol Page in
-            the navigator.
+            \uicontrol Rectangle and drag and drop it to  \e Window
+            in \uicontrol Navigator.
 
-        \li Select the rectangle in the navigator to edit its properties:
+        \li Select the rectangle in \uicontrol Navigator to edit its properties:
+
+            \image qtquick-mobile-app-tutorial-main-view.png "Rectangle in different views"
 
             \list a
 
@@ -105,14 +100,19 @@
 
             \endlist
 
-        \li In \uicontrol Library > \uicontrol Assets, select Bluebubble.svg
-            and drag and drop it to \e mainWindow in the navigator.
+                \li Select \uicontrol Library > \uicontrol Assets >
+                    \uicontrol {Add New Assets} to locate Bluebubble.svg
+                    (or your own image) and add it to the project folder.
+                \li Drag and drop the image from \uicontrol Assets to
+                    \e mainWindow in \uicontrol Navigator.
 
         \li In the \uicontrol Properties view, \uicontrol Id field, enter
             \e bubble to be able to reference the image from other places.
 
+            \image qtquick-mobile-app-tutorial-image.png "Image file in different views"
+
         \li Select the \inlineimage export_unchecked.png
-            (\uicontrol Export) button in the navigator to export the
+            (\uicontrol Export) button in \uicontrol Navigator to export
             \e mainWindow and \e bubble as properties.
 
     \endlist
@@ -130,62 +130,80 @@
 
         \li In the \uicontrol {Component name} field, enter \e Bubble.
 
-        \li Deselect the \uicontrol x, \uicontrol y, and
-            \uicontrol {ui.qml file} check boxes.
+        \li Deselect the \uicontrol x and \uicontrol y check boxes,
+            because we want to use the accelerometer to determine
+            the location of the bubble on the screen.
 
         \li Select \uicontrol OK to create \e Bubble.qml.
 
     \endlist
 
-    \QC creates a reference to the Bubble type in \e Page1Form.ui.qml.
+    \QC creates a reference to the Bubble type in \e main.qml.
 
-    To check your code, you can compare your \e Page1Form.ui.qml and
+    To check your code, you can compare your \e main.qml and
     \e {Bubble.qml} with the corresponding example files.
 
-    The UI is now ready and you can switch to editing the \e Bubble.qml and
-    \e main.qml files in the \uicontrol {Text Editor}, as described in the
-    following section.
+    The UI is now ready and you can add the necessary properties for
+    making the bubble move.
 
     \section1 Moving the Bubble
 
-    In the \uicontrol {Text Editor}, edit \e Bubble.qml to add properties that we
-    will use to position the image:
+    We add custom properties to position the image in respect to the width
+    and height of the main window.
 
-    \quotefromfile accelbubble/Bubble.qml
-    \skipto Image
-    \printuntil }
+    \list 1
+        \li Open \e Bubble.qml in Design mode.
+        \li In \uicontrol {Connections View}, \uicontrol Properties tab,
+            select click the \inlineimage plus.png
+            button to add a custom property for the Bubble type.
+            \image qtquick-mobile-app-tutorial-custom-properties.png "Connection View Properties tab"
+        \li Double-click the value in the \uicontrol Property column, and enter
+            \e centerY as the name of the property.
+        \li Double-click the value in the \uicontrol {Property Type} column,
+            and select \e real as the type of the property. You will specify
+            the property value later in \uicontrol Properties.
+        \li Add two more properties of the same type with the names \e centerY
+            and \e bubbleCenter.
+        \li Open \e main.qml in Design mode.
+        \li Select \e bubble in \uicontrol Navigator to specify values for the
+            custom properties in \uicontrol Properties.
+        \li In the \uicontrol X field, select \inlineimage icons/action-icon.png
+            , and then select \uicontrol {Set Binding} to open
+            \uicontrol {Binding Editor}.
+            \image qtquick-mobile-app-tutorial-binding-editor1.png "Setting binding for X in Binding Editor"
+        \li Enter the following value to center the bubble horizontally in the
+            main window when the application starts:
+            \c{bubble.centerX - bubbleCenter}.
+        \li Select \uicontrol OK to close the binding editor and save the
+            binding.
+        \li In the \uicontrol X field, set the following binding to center the
+            bubble vertically: \c{bubble.centerY - bubbleCenter}.
+        \li In the \uicontrol centerY field, enter the following value to bind
+            the y coordinate of the bubble center to half the height of the main
+            window: \c {mainWindow.height /2}.
+            \image qtquick-mobile-app-tutorial-binding-editor.png "Setting binding for centerX"
+        \li In the \uicontrol centerX field, bind the x coordinate of
+            the bubble center to half the width of the main window:
+            \c {mainWindow.width /2}.
+        \li In the \uicontrol bubbleCenter field, bind the center of
+            the bubble to half of its width: \c {bubble.width /2}.
+    \endlist
 
-    In the \uicontrol {Text Editor}, edit \e main.qml to specify the application
-    title, as illustrated by the following code snippet:
-
-    \quotefromfile accelbubble/main.qml
-    \skipto ApplicationWindow
-    \printuntil title
-
-    Specify bubble properties to position the image:
-
-    \printuntil bubbleCenter
-
-    Then set the x and y position of the image based on the new properties:
-
-    \printuntil centerY
-    \skipto /^\}/
-    \printuntil }
-
-    Then add code to move the bubble based on Accelerometer sensor values:
+    We now want to add code to move the bubble based on Accelerometer sensor
+    values. This is not supported by \uicontrol {Form Editor}, so we will do
+    it in \uicontrol {Text Editor}:
 
     \list 1
         \li Add the following import statement to \e main.qml:
 
-            \code
-            import QtSensors 5.9
-            \endcode
+            \quotefromfile accelbubble/main.qml
+            \skipto QtSensors
+            \printline QtSensors
 
         \li Add the \l{Accelerometer} type with the necessary properties:
 
-            \quotefromfile accelbubble/main.qml
             \skipto Accelerometer
-            \printuntil true
+            \printuntil radians_to_degrees
             \skipto }
             \printuntil }
 
@@ -195,7 +213,7 @@
 
             \quotefromfile accelbubble/main.qml
             \skipto function
-            \printuntil Math.atan(x
+            \printuntil Math.atan2(x
             \printuntil }
 
         \li Add the following JavaScript code for \c onReadingChanged signal of
@@ -206,10 +224,11 @@
             \skipto onReadingChanged
             \printuntil }
 
-            We want to ensure that the position of the bubble is always within
-            the bounds of the screen. If the Accelerometer returns not a number
-            (NaN), the value is ignored and the bubble position is not updated.
-        \li Add SmoothedAnimation behavior on the \c x and \c y properties of
+            We want to ensure that the position of the bubble is always
+            within the bounds of the screen. If the Accelerometer returns
+            \e {not a number} (NaN), the value is ignored and the bubble
+            position is not updated.
+        \li Add \l SmoothedAnimation behavior on the \c x and \c y properties of
             the bubble to make its movement look smoother.
 
             \quotefromfile accelbubble/main.qml
@@ -255,20 +274,6 @@
 
     After adding the dependencies, select \uicontrol Build > \uicontrol {Run qmake} to apply
     the changes to the Makefile of the project.
-
-    \section1 Adding Assets
-
-    You need to add the Bluebubble.svg image file to the application assets
-    for deployment to mobile devices:
-
-    \list 1
-
-        \li In the \uicontrol Projects view, double-click the qml.qrc file to open it
-            in the assets editor.
-
-        \li Select \uicontrol Add to add Bluebubble.svg.
-
-    \endlist
 
     \section1 Running the Application
 
