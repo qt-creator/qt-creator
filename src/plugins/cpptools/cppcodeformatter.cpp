@@ -635,7 +635,6 @@ void CodeFormatter::updateStateUntil(const QTextBlock &endBlock)
             break;
         if (loadLexerState(it) == -1)
             break;
-
         previousState = blockData.m_endState;
     }
 
@@ -671,6 +670,16 @@ void CodeFormatter::updateLineStateChange(const QTextBlock &block)
         return;
 
     saveBlockData(&next, BlockData());
+}
+
+bool CodeFormatter::isInStringLiteral(const QTextBlock &block) const
+{
+    if (!block.previous().isValid())
+        return false;
+    BlockData blockData;
+    if (!loadBlockData(block.previous(), &blockData))
+        return false;
+    return !blockData.m_endState.isEmpty() && blockData.m_endState.top().type == string_open;
 }
 
 CodeFormatter::State CodeFormatter::state(int belowTop) const

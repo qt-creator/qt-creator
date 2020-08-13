@@ -99,6 +99,8 @@ void CppQtStyleIndenter::indentBlock(const QTextBlock &block,
     QtStyleCodeFormatter codeFormatter(tabSettings, codeStyleSettings());
 
     codeFormatter.updateStateUntil(block);
+    if (codeFormatter.isInStringLiteral(block))
+        return;
     int indent;
     int padding;
     codeFormatter.indentFor(block, &indent, &padding);
@@ -135,10 +137,12 @@ void CppQtStyleIndenter::indent(const QTextCursor &cursor,
         QTextCursor tc = cursor;
         tc.beginEditBlock();
         do {
-            int indent;
-            int padding;
-            codeFormatter.indentFor(block, &indent, &padding);
-            tabSettings.indentLine(block, indent + padding, padding);
+            if (!codeFormatter.isInStringLiteral(block)) {
+                int indent;
+                int padding;
+                codeFormatter.indentFor(block, &indent, &padding);
+                tabSettings.indentLine(block, indent + padding, padding);
+            }
             codeFormatter.updateLineStateChange(block);
             block = block.next();
         } while (block.isValid() && block != end);

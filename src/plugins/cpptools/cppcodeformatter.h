@@ -57,6 +57,7 @@ public:
     // calculates the state change introduced by changing a single line
     void updateLineStateChange(const QTextBlock &block);
 
+    bool isInStringLiteral(const QTextBlock &block) const;
     void indentFor(const QTextBlock &block, int *indent, int *padding);
     void indentForNewLineAfter(const QTextBlock &block, int *indent, int *padding);
 
