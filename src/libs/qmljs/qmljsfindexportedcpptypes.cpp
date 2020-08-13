@@ -198,12 +198,15 @@ protected:
         } else {
             return false;
         }
+
+        int argCount = 0;
+        for (const ExpressionListAST *list = ast->expression_list; list && list->value;
+             list = list->next) {
+            ++argCount;
+        }
+
         // must have at least four arguments
-        if (!ast->expression_list
-                || !ast->expression_list->value || !ast->expression_list->next
-                || !ast->expression_list->next->value || !ast->expression_list->next->next
-                || !ast->expression_list->next->next->value || !ast->expression_list->next->next->next
-                || !ast->expression_list->next->next->next->value)
+        if (argCount < 4)
             return false;
         switch (registrationFunction) {
         case InvalidRegistrationFunction:
@@ -215,15 +218,11 @@ protected:
         case QmlRegisterSingletonTypeCallback2:
         case QmlRegisterSingletonTypeUrl:
         case QmlRegisterUncreatableType:
-            if (!ast->expression_list->next->next->next->next
-                    || !ast->expression_list->next->next->next->next->value
-                    || ast->expression_list->next->next->next->next->next)
+            if (argCount != 5)
                 return false;
             break;
         case QmlRegisterUncreatableMetaObject:
-            if (!ast->expression_list->next->next->next->next->next
-                    || !ast->expression_list->next->next->next->next->next->value
-                    || ast->expression_list->next->next->next->next->next->next)
+            if (argCount != 6)
                 return false;
         }
         ExpressionAST *uriExp = nullptr;
