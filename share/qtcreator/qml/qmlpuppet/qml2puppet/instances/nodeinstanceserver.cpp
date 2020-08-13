@@ -179,6 +179,8 @@ NodeInstanceServer::NodeInstanceServer(NodeInstanceClientInterface *nodeInstance
     m_childrenChangeEventFilter(new Internal::ChildrenChangeEventFilter(this)),
     m_nodeInstanceClient(nodeInstanceClient)
 {
+    m_idInstances.reserve(1000);
+
     qmlRegisterType<DummyContextObject>("QmlDesigner", 1, 0, "DummyContextObject");
 
     connect(m_childrenChangeEventFilter.data(), &Internal::ChildrenChangeEventFilter::childrenChanged, this, &NodeInstanceServer::emitParentChanged);
@@ -226,8 +228,8 @@ ServerNodeInstance NodeInstanceServer::instanceForId(qint32 id) const
     if (id < 0)
         return ServerNodeInstance();
 
-    Q_ASSERT(m_idInstanceHash.contains(id));
-    return m_idInstanceHash.value(id);
+    Q_ASSERT(m_idInstances.size() > id);
+    return m_idInstances[id];
 }
 
 bool NodeInstanceServer::hasInstanceForId(qint32 id) const
@@ -235,7 +237,7 @@ bool NodeInstanceServer::hasInstanceForId(qint32 id) const
     if (id < 0)
         return false;
 
-    return m_idInstanceHash.contains(id) && m_idInstanceHash.value(id).isValid();
+    return m_idInstances.size() > id && m_idInstances[id].isValid();
 }
 
 ServerNodeInstance NodeInstanceServer::instanceForObject(QObject *object) const
@@ -790,7 +792,7 @@ void NodeInstanceServer::removeAllInstanceRelationships()
         instance.makeInvalid();
     }
 
-    m_idInstanceHash.clear();
+    m_idInstances.clear();
     m_objectInstanceHash.clear();
 }
 
@@ -1243,10 +1245,11 @@ void NodeInstanceServer::notifyPropertyChange(qint32 instanceid, const PropertyN
 void NodeInstanceServer::insertInstanceRelationship(const ServerNodeInstance &instance)
 {
     Q_ASSERT(instance.isValid());
-    Q_ASSERT(!m_idInstanceHash.contains(instance.instanceId()));
     Q_ASSERT(!m_objectInstanceHash.contains(instance.internalObject()));
     m_objectInstanceHash.insert(instance.internalObject(), instance);
-    m_idInstanceHash.insert(instance.instanceId(), instance);
+    if (instance.instanceId() >= m_idInstances.size())
+        m_idInstances.resize(instance.instanceId() + 1);
+    m_idInstances[instance.instanceId()] = instance;
 }
 
 void NodeInstanceServer::removeInstanceRelationsip(qint32 instanceId)
@@ -1255,7 +1258,7 @@ void NodeInstanceServer::removeInstanceRelationsip(qint32 instanceId)
         ServerNodeInstance instance = instanceForId(instanceId);
         if (instance.isValid())
             instance.setId(QString());
-        m_idInstanceHash.remove(instanceId);
+        m_idInstances[instanceId] = ServerNodeInstance{};
         m_objectInstanceHash.remove(instance.internalObject());
         instance.makeInvalid();
     }
@@ -1383,8 +1386,8 @@ void NodeInstanceServer::removeInstanceRelationsipForDeletedObject(QObject *obje
         ServerNodeInstance instance = instanceForObject(object);
         m_objectInstanceHash.remove(object);
 
-        if (m_idInstanceHash.contains(instance.instanceId()))
-            m_idInstanceHash.remove(instance.instanceId());
+        if (instance.instanceId() >= 0 && m_idInstances.size() > instance.instanceId())
+            m_idInstances[instance.instanceId()] = ServerNodeInstance{};
     }
 }
 

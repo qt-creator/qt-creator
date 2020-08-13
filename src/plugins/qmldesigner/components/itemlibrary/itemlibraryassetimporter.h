@@ -24,14 +24,16 @@
 ****************************************************************************/
 #pragma once
 
+#include "import.h"
+
+#include <qprocessuniqueptr.h>
+
 #include <QSet>
-#include <QtCore/qobject.h>
-#include <QtCore/qstringlist.h>
 #include <QtCore/qhash.h>
 #include <QtCore/qjsonobject.h>
+#include <QtCore/qobject.h>
 #include <QtCore/qprocess.h>
-
-#include "import.h"
+#include <QtCore/qstringlist.h>
 
 QT_BEGIN_NAMESPACE
 class QSSGAssetImportManager;
@@ -99,7 +101,7 @@ private:
     bool m_cancelled = false;
     QString m_importPath;
     QTemporaryDir *m_tempDir = nullptr;
-    QSet<QProcess *> m_qmlPuppetProcesses;
+    std::vector<QProcessUniquePointer> m_qmlPuppetProcesses;
     int m_qmlPuppetCount = 0;
 };
 } // QmlDesigner

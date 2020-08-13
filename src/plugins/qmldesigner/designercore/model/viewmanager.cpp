@@ -27,23 +27,24 @@
 
 #ifndef QMLDESIGNER_TEST
 
-#include <componentaction.h>
-#include <designmodewidget.h>
-#include <crumblebar.h>
 #include <abstractview.h>
-#include <rewriterview.h>
-#include <nodeinstanceview.h>
-#include <itemlibraryview.h>
-#include <navigatorview.h>
-#include <stateseditorview.h>
+#include <componentaction.h>
+#include <componentview.h>
+#include <crumblebar.h>
+#include <debugview.h>
+#include <designeractionmanagerview.h>
+#include <designmodewidget.h>
 #include <edit3dview.h>
 #include <formeditorview.h>
-#include <texteditorview.h>
-#include <propertyeditorview.h>
-#include <componentview.h>
-#include <debugview.h>
 #include <importmanagerview.h>
-#include <designeractionmanagerview.h>
+#include <interactiveconnectionmanager.h>
+#include <itemlibraryview.h>
+#include <navigatorview.h>
+#include <nodeinstanceview.h>
+#include <propertyeditorview.h>
+#include <rewriterview.h>
+#include <stateseditorview.h>
+#include <texteditorview.h>
 #include <qmldesignerplugin.h>
 
 #include <utils/algorithm.h>
@@ -59,10 +60,11 @@ static Q_LOGGING_CATEGORY(viewBenchmark, "qtc.viewmanager.attach", QtWarningMsg)
 class ViewManagerData
 {
 public:
+    InteractiveConnectionManager connectionManager;
     QmlModelState savedState;
     Internal::DebugView debugView;
     DesignerActionManagerView designerActionManagerView;
-    NodeInstanceView nodeInstanceView;
+    NodeInstanceView nodeInstanceView{connectionManager};
     ComponentView componentView;
     Edit3DView edit3DView;
     FormEditorView formEditorView;
@@ -81,7 +83,7 @@ static CrumbleBar *crumbleBar() {
 }
 
 ViewManager::ViewManager()
-    : d(new ViewManagerData)
+    : d(std::make_unique<ViewManagerData>())
 {
     d->formEditorView.setGotoErrorCallback([this](int line, int column) {
         d->textEditorView.gotoCursorPosition(line, column);
@@ -92,10 +94,9 @@ ViewManager::ViewManager()
 
 ViewManager::~ViewManager()
 {
-    foreach (const QPointer<AbstractView> &view, d->additionalViews)
+    for (const QPointer<AbstractView> &view : d->additionalViews)
         delete view.data();
 
-    delete d;
 }
 
 DesignDocument *ViewManager::currentDesignDocument() const

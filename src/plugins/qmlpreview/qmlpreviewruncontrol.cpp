@@ -27,7 +27,6 @@
 
 #include <qmlprojectmanager/qmlproject.h>
 #include <qmlprojectmanager/qmlmainfileaspect.h>
-#include <qmlprojectmanager/qmlmultilanguageaspect.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
@@ -50,8 +49,7 @@ QmlPreviewRunner::QmlPreviewRunner(ProjectExplorer::RunControl *runControl,
                                    QmlPreviewFileLoader fileLoader,
                                    QmlPreviewFileClassifier fileClassifier,
                                    QmlPreviewFpsHandler fpsHandler,
-                                   float initialZoom,
-                                   const QString &initialLocale)
+                                   float initialZoom)
     : RunWorker(runControl)
 {
     setId("QmlPreviewRunner");
@@ -68,12 +66,13 @@ QmlPreviewRunner::QmlPreviewRunner(ProjectExplorer::RunControl *runControl,
             &m_connectionManager, &Internal::QmlPreviewConnectionManager::zoom);
     connect(this, &QmlPreviewRunner::language,
             &m_connectionManager, &Internal::QmlPreviewConnectionManager::language);
+    connect(this, &QmlPreviewRunner::changeElideWarning,
+            &m_connectionManager, &Internal::QmlPreviewConnectionManager::changeElideWarning);
+
     connect(&m_connectionManager, &Internal::QmlPreviewConnectionManager::connectionOpened,
-            this, [this, initialZoom, initialLocale]() {
+            this, [this, initialZoom]() {
         if (initialZoom > 0)
             emit zoom(initialZoom);
-        if (!initialLocale.isEmpty())
-            emit language(initialLocale);
         emit ready();
     });
 
@@ -151,11 +150,6 @@ LocalQmlPreviewSupport::LocalQmlPreviewSupport(ProjectExplorer::RunControl *runC
                 commandLine.addArg(currentFile);
                 runnable.setCommandLine(commandLine);
             }
-        }
-
-        if (auto multiLanguageAspect = runControl->aspect<QmlProjectManager::QmlMultiLanguageAspect>()) {
-            if (!multiLanguageAspect->databaseFilePath().isEmpty())
-                runnable.environment.set("QT_MULTILANGUAGE_DATABASE", multiLanguageAspect->databaseFilePath().toString());
         }
 
         Utils::QtcProcess::addArg(&runnable.commandLineArguments,

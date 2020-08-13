@@ -35,6 +35,7 @@
 
 #include "nodeinstanceserverinterface.h"
 
+#include "captureddatacommand.h"
 #include "changeauxiliarycommand.h"
 #include "changebindingscommand.h"
 #include "changefileurlcommand.h"
@@ -84,12 +85,11 @@ constexpr void (QLocalSocket::*LocalSocketErrorFunction)(QLocalSocket::LocalSock
 #endif
 
 NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
-    : QObject(parent),
-      m_inputIoDevice(nullptr),
-      m_outputIoDevice(nullptr),
-      m_nodeInstanceServer(nullptr),
-      m_writeCommandCounter(0),
-      m_synchronizeId(-1)
+    : QObject(parent)
+    , m_inputIoDevice(nullptr)
+    , m_outputIoDevice(nullptr)
+    , m_writeCommandCounter(0)
+    , m_synchronizeId(-1)
 {
     connect(&m_puppetAliveTimer, &QTimer::timeout, this, &NodeInstanceClientProxy::sendPuppetAliveCommand);
     m_puppetAliveTimer.setInterval(2000);
@@ -174,7 +174,8 @@ bool compareCommands(const QVariant &command, const QVariant &controlCommand)
         else if (command.userType() == debugOutputCommandType)
             return command.value<DebugOutputCommand>() == controlCommand.value<DebugOutputCommand>();
         else if (command.userType() == changeSelectionCommandType)
-            return command.value<ChangeSelectionCommand>() == controlCommand.value<ChangeSelectionCommand>();
+            return command.value<ChangeSelectionCommand>()
+                   == controlCommand.value<ChangeSelectionCommand>();
     }
 
     return false;
@@ -263,6 +264,11 @@ void NodeInstanceClientProxy::selectionChanged(const ChangeSelectionCommand &com
 }
 
 void NodeInstanceClientProxy::handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceClientProxy::capturedData(const CapturedDataCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
 }
@@ -365,12 +371,13 @@ void NodeInstanceClientProxy::sendPuppetAliveCommand()
 
 NodeInstanceServerInterface *NodeInstanceClientProxy::nodeInstanceServer() const
 {
-    return m_nodeInstanceServer;
+    return m_nodeInstanceServer.get();
 }
 
-void NodeInstanceClientProxy::setNodeInstanceServer(NodeInstanceServerInterface *nodeInstanceServer)
+void NodeInstanceClientProxy::setNodeInstanceServer(
+    std::unique_ptr<NodeInstanceServerInterface> nodeInstanceServer)
 {
-    m_nodeInstanceServer = nodeInstanceServer;
+    m_nodeInstanceServer = std::move(nodeInstanceServer);
 }
 
 void NodeInstanceClientProxy::createInstances(const CreateInstancesCommand &command)

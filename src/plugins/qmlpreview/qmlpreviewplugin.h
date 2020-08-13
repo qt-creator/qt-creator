@@ -59,6 +59,7 @@ class QmlPreviewPlugin : public ExtensionSystem::IPlugin
                WRITE setFpsHandler NOTIFY fpsHandlerChanged)
     Q_PROPERTY(float zoomFactor READ zoomFactor WRITE setZoomFactor NOTIFY zoomFactorChanged)
     Q_PROPERTY(QString locale READ locale WRITE setLocale NOTIFY localeChanged)
+    Q_PROPERTY(bool elideWarning READ elideWarning WRITE changeElideWarning NOTIFY elideWarningChanged)
 
 public:
     ~QmlPreviewPlugin() override;
@@ -86,6 +87,9 @@ public:
     QString locale() const;
     void setLocale(const QString &locale);
 
+    bool elideWarning() const;
+    void changeElideWarning(bool elideWarning);
+
 signals:
     void checkDocument(const QString &name, const QByteArray &contents,
                        QmlJS::Dialect::Enum dialect);
@@ -100,6 +104,7 @@ signals:
 
     void zoomFactorChanged(float zoomFactor);
     void localeChanged(const QString &locale);
+    void elideWarningChanged(bool elideWarning);
 
 private:
     class QmlPreviewPluginPrivate *d = nullptr;

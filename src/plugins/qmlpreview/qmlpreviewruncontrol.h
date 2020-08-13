@@ -39,7 +39,7 @@ class QmlPreviewRunner : public ProjectExplorer::RunWorker
 public:
     QmlPreviewRunner(ProjectExplorer::RunControl *runControl, QmlPreviewFileLoader fileLoader,
                      QmlPreviewFileClassifier fileClassifier, QmlPreviewFpsHandler fpsHandler,
-                     float initialZoom, const QString &initialLocale);
+                     float initialZoom);
 
     void setServerUrl(const QUrl &serverUrl);
     QUrl serverUrl() const;
@@ -51,7 +51,7 @@ signals:
     void zoom(float zoomFactor);
     void rerun();
     void ready();
-
+    void changeElideWarning(bool elideWarning);
 private:
     void start() override;
     void stop() override;

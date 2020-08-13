@@ -26,11 +26,14 @@
 #include "qmlpreviewplugin.h"
 #include "qmlpreviewruncontrol.h"
 
+#include "qmldebugtranslationwidget.h"
+
 #ifdef WITH_TESTS
 #include "tests/qmlpreviewclient_test.h"
 #include "tests/qmlpreviewplugin_test.h"
 #endif
 
+#include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -52,6 +55,12 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljstools/qmljstoolsconstants.h>
+
+#include <qmlprojectmanager/qmlmultilanguageaspect.h>
+
+#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtversionmanager.h>
+#include <qtsupport/baseqtversion.h>
 
 #include <QAction>
 
@@ -142,6 +151,8 @@ public:
     float m_zoomFactor = -1.0;
     QmlPreview::QmlPreviewFpsHandler m_fpsHandler = nullptr;
     QString m_locale;
+    bool elideWarning = false;
+    QPointer<QmlDebugTranslationWidget> m_qmlDebugTranslationWidget;
 
     RunWorkerFactory localRunWorkerFactory{
         RunWorkerFactory::make<LocalQmlPreviewSupport>(),
@@ -153,7 +164,7 @@ public:
     RunWorkerFactory runWorkerFactory{
         [this](RunControl *runControl) {
             QmlPreviewRunner *runner = new QmlPreviewRunner(runControl, m_fileLoader, m_fileClassifer,
-                                                            m_fpsHandler, m_zoomFactor, m_locale);
+                                                            m_fpsHandler, m_zoomFactor);
             connect(q, &QmlPreviewPlugin::updatePreviews,
                     runner, &QmlPreviewRunner::loadFile);
             connect(q, &QmlPreviewPlugin::rerunPreviews,
@@ -164,6 +175,8 @@ public:
                     runner, &QmlPreviewRunner::zoom);
             connect(q, &QmlPreviewPlugin::localeChanged,
                     runner, &QmlPreviewRunner::language);
+            connect(q, &QmlPreviewPlugin::elideWarningChanged,
+                    runner, &QmlPreviewRunner::changeElideWarning);
 
             connect(runner, &RunWorker::started, this, [this, runControl] {
                 addPreview(runControl);
@@ -192,13 +205,60 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
     action->setEnabled(SessionManager::startupProject() != nullptr);
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged, action,
             &QAction::setEnabled);
-    connect(action, &QAction::triggered, this, []() {
+    connect(action, &QAction::triggered, this, [this]() {
+        if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current())
+            m_locale = multiLanguageAspect->currentLocale();
+
         ProjectExplorerPlugin::runStartupProject(Constants::QML_PREVIEW_RUN_MODE);
     });
-    menu->addAction(Core::ActionManager::registerAction(action, "QmlPreview.Internal"),
-                    Constants::G_BUILD_RUN);
+    menu->addAction(
+        Core::ActionManager::registerAction(action, "QmlPreview.RunPreview"),
+        Constants::G_BUILD_RUN);
 
-    Core::Context projectTreeContext(Constants::C_PROJECT_TREE);
+    action = new QAction(QmlPreviewPlugin::tr("Test translations"), this);
+    action->setToolTip(QLatin1String("Runs the preview with all available translations and collects all issues."));
+    action->setEnabled(SessionManager::startupProject() != nullptr);
+    connect(SessionManager::instance(), &SessionManager::startupProjectChanged, action,
+            &QAction::setEnabled);
+    connect(action, &QAction::triggered, this, [this]() {
+        if (SessionManager::startupProject()) {
+            // Deletion for this widget is taken care of in aboutToShutdown() and registerWindow()
+            m_qmlDebugTranslationWidget = new QmlDebugTranslationWidget();
+            Core::ICore::registerWindow(m_qmlDebugTranslationWidget, Core::Context("Core.DebugTranslation"));
+            m_qmlDebugTranslationWidget->show();
+        }
+    });
+    menu->addAction(
+        Core::ActionManager::registerAction(action, "QmlPreview.TestTranslations"),
+        Constants::G_BUILD_RUN);
+    auto updateTestTranslationAction = [action]() {
+        bool showTestTranslationAction = false;
+        bool enableTestTranslationAction = false;
+        QtSupport::BaseQtVersion *activeQt{};
+        if (auto project = SessionManager::startupProject()) {
+            if (auto target = project->activeTarget()) {
+                if (auto activeKit = target->kit())
+                    activeQt = QtSupport::QtKitAspect::qtVersion(activeKit);
+            }
+        }
+        for (auto qtVersion : QtSupport::QtVersionManager::versions()) {
+            if (qtVersion->features().contains("QtStudio")) {
+                showTestTranslationAction = true;
+                if (qtVersion == activeQt)
+                    enableTestTranslationAction = true;
+            }
+        }
+        action->setVisible(showTestTranslationAction);
+        action->setEnabled(enableTestTranslationAction);
+    };
+    connect(ProjectExplorer::SessionManager::instance(),
+            &ProjectExplorer::SessionManager::startupProjectChanged,
+            updateTestTranslationAction);
+
+    connect(QtSupport::QtVersionManager::instance(),
+            &QtSupport::QtVersionManager::qtVersionsChanged,
+            updateTestTranslationAction);
+
     menu = Core::ActionManager::actionContainer(Constants::M_FILECONTEXT);
     action = new QAction(QmlPreviewPlugin::tr("Preview File"), this);
     action->setEnabled(false);
@@ -207,9 +267,9 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
         action->setEnabled(!previews.isEmpty());
     });
     connect(action, &QAction::triggered, this, &QmlPreviewPluginPrivate::previewCurrentFile);
-    menu->addAction(Core::ActionManager::registerAction(action, "QmlPreview.Preview",
-                                                        projectTreeContext),
-                    Constants::G_FILE_OTHER);
+    menu->addAction(
+        Core::ActionManager::registerAction(action, "QmlPreview.PreviewFile",  Core::Context(Constants::C_PROJECT_TREE)),
+        Constants::G_FILE_OTHER);
     action->setVisible(false);
     connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged, action, [action]() {
         const Node *node = ProjectTree::currentNode();
@@ -247,6 +307,7 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlPreviewPlugin::aboutToShutdown()
 {
     d->m_parseThread.quit();
     d->m_parseThread.wait();
+    delete d->m_qmlDebugTranslationWidget;
     return SynchronousShutdown;
 }
 
@@ -333,11 +394,23 @@ QString QmlPreviewPlugin::locale() const
 
 void QmlPreviewPlugin::setLocale(const QString &locale)
 {
+    if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current())
+        multiLanguageAspect->setCurrentLocale(locale);
     if (d->m_locale == locale)
         return;
 
     d->m_locale = locale;
     emit localeChanged(d->m_locale);
+}
+
+bool QmlPreviewPlugin::elideWarning() const
+{
+    return d->elideWarning;
+}
+
+void QmlPreviewPlugin::changeElideWarning(bool elideWarning)
+{
+    d->elideWarning = elideWarning;
 }
 
 void QmlPreviewPlugin::setFileLoader(QmlPreviewFileLoader fileLoader)
@@ -412,6 +485,10 @@ void QmlPreviewPluginPrivate::setDirty()
 void QmlPreviewPluginPrivate::addPreview(ProjectExplorer::RunControl *preview)
 {
     m_runningPreviews.append(preview);
+    if (auto multiLanguageAspect = preview->aspect<QmlProjectManager::QmlMultiLanguageAspect>()) {
+        connect(multiLanguageAspect, &QmlProjectManager::QmlMultiLanguageAspect::changed,
+                preview, &ProjectExplorer::RunControl::initiateStop);
+    }
     emit q->runningPreviewsChanged(m_runningPreviews);
 }
 

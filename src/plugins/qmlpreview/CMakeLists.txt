@@ -9,6 +9,8 @@ add_qtc_plugin(QmlPreview
     qmlpreviewruncontrol.cpp qmlpreviewruncontrol.h
     qmldebugtranslationclient.cpp qmldebugtranslationclient.h
     qmlpreview_global.h
+    projectfileselectionswidget.cpp projectfileselectionswidget.h
+    qmldebugtranslationwidget.cpp qmldebugtranslationwidget.h
 )
 
 extend_qtc_plugin(QmlPreview

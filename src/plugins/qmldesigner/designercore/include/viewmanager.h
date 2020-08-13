@@ -122,7 +122,7 @@ private: // functions
     const QList<QPointer<AbstractView> > standardViews() const;
 
 private: // variables
-    ViewManagerData *d;
+    std::unique_ptr<ViewManagerData> d;
 };
 
 } // namespace QmlDesigner
