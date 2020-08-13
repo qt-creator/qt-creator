@@ -108,6 +108,9 @@ public:
     AbstractProcessStep *q;
     std::unique_ptr<Utils::QtcProcess> m_process;
     ProcessParameters m_param;
+    std::function<CommandLine()> m_commandLineProvider;
+    std::function<FilePath()> m_workingDirectoryProvider;
+    std::function<void(Environment &)> m_environmentModifier;
     bool m_ignoreReturnValue = false;
     bool m_lowPriority = false;
     std::unique_ptr<QTextDecoder> stdoutStream;
@@ -147,6 +150,26 @@ bool AbstractProcessStep::ignoreReturnValue() const
 void AbstractProcessStep::setIgnoreReturnValue(bool b)
 {
     d->m_ignoreReturnValue = b;
+}
+
+void AbstractProcessStep::setEnvironmentModifier(const std::function<void (Environment &)> &modifier)
+{
+    d->m_environmentModifier = modifier;
+}
+
+void AbstractProcessStep::setUseEnglishOutput()
+{
+    d->m_environmentModifier = [](Environment &env) { Environment::setupEnglishOutput(&env); };
+}
+
+void AbstractProcessStep::setCommandLineProvider(const std::function<CommandLine()> &provider)
+{
+    d->m_commandLineProvider = provider;
+}
+
+void AbstractProcessStep::setWorkingDirectoryProvider(const std::function<FilePath()> &provider)
+{
+    d->m_workingDirectoryProvider = provider;
 }
 
 /*!
@@ -240,6 +263,24 @@ void AbstractProcessStep::doCancel()
 ProcessParameters *AbstractProcessStep::processParameters()
 {
     return &d->m_param;
+}
+
+void AbstractProcessStep::setupProcessParameters(ProcessParameters *params)
+{
+    params->setMacroExpander(macroExpander());
+
+    Utils::Environment env = buildEnvironment();
+    if (d->m_environmentModifier)
+        d->m_environmentModifier(env);
+    params->setEnvironment(env);
+
+    if (d->m_workingDirectoryProvider)
+        params->setWorkingDirectory(d->m_workingDirectoryProvider());
+    else
+        params->setWorkingDirectory(buildDirectory());
+
+    if (d->m_commandLineProvider)
+        params->setCommandLine(d->m_commandLineProvider());
 }
 
 void AbstractProcessStep::Private::cleanUp(QProcess *process)

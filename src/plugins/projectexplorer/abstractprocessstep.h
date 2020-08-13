@@ -39,9 +39,15 @@ class PROJECTEXPLORER_EXPORT AbstractProcessStep : public BuildStep
 
 public:
     ProcessParameters *processParameters();
+    void setupProcessParameters(ProcessParameters *params);
 
     bool ignoreReturnValue() const;
     void setIgnoreReturnValue(bool b);
+
+    void setCommandLineProvider(const std::function<Utils::CommandLine()> &provider);
+    void setWorkingDirectoryProvider(const std::function<Utils::FilePath()> &provider);
+    void setEnvironmentModifier(const std::function<void(Utils::Environment &)> &modifier);
+    void setUseEnglishOutput();
 
     void emitFaultyConfigurationMessage();
 

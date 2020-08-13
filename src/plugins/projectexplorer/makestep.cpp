@@ -226,9 +226,7 @@ bool MakeStep::init()
     }
 
     ProcessParameters *pp = processParameters();
-    pp->setMacroExpander(macroExpander());
-    pp->setWorkingDirectory(buildDirectory());
-    pp->setEnvironment(buildEnvironment());
+    setupProcessParameters(pp);
     pp->setCommandLine(make);
     pp->resolveAll();
 
