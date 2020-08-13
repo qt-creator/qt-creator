@@ -372,8 +372,6 @@ void CodeAssistantPrivate::processProposalItem(AssistProposalItemInterface *prop
     TextDocumentManipulator manipulator(m_editorWidget);
     proposalItem->apply(manipulator, m_proposal->basePosition());
     destroyContext();
-    if (!proposalItem->isSnippet())
-        process();
     m_editorWidget->encourageApply();
     m_proposalItemProcessed = true;
 
