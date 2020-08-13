@@ -607,7 +607,9 @@ static void setKitCMakeOptions(ProjectExplorer::Kit *k, const McuTarget* mcuTarg
                                   (qulDir + "/lib/cmake/Qul/QulGenerators.cmake").toUtf8()));
     config.append(CMakeConfigItem("QUL_PLATFORM",
                                   mcuTarget->qulPlatform().toUtf8()));
-    if (mcuTarget->os() == McuTarget::OS::FreeRTOS)
+
+    if (mcuTarget->qulVersion() <= QVersionNumber{1,3} // OS variable was removed in Qul 1.4
+        && mcuTarget->os() == McuTarget::OS::FreeRTOS)
         config.append(CMakeConfigItem("OS", "FreeRTOS"));
     if (mcuTarget->colorDepth() >= 0)
         config.append(CMakeConfigItem("QUL_COLOR_DEPTH",
@@ -627,8 +629,12 @@ static void setKitQtVersionOptions(ProjectExplorer::Kit *k)
 
 QString McuSupportOptions::kitName(const McuTarget *mcuTarget)
 {
-    const QString os = QLatin1String(mcuTarget->os()
-                                     == McuTarget::OS::FreeRTOS ? " FreeRTOS" : "");
+    QString os;
+    if (mcuTarget->qulVersion() <= QVersionNumber{1,3} && mcuTarget->os() == McuTarget::OS::FreeRTOS) {
+        // Starting from Qul 1.4 each OS is a separate platform
+        os = QLatin1String(" FreeRTOS");
+    }
+
     const QString colorDepth = mcuTarget->colorDepth() > 0
             ? QString::fromLatin1(" %1bpp").arg(mcuTarget->colorDepth())
             : "";
@@ -637,8 +643,12 @@ QString McuSupportOptions::kitName(const McuTarget *mcuTarget)
             mcuTarget->toolChainPackage()->type() == McuToolChainPackage::TypeDesktop
             ? "Desktop"
             : mcuTarget->qulPlatform();
-    return QString::fromLatin1("Qt for MCUs %1 - %2%3%4")
-            .arg(mcuTarget->qulVersion().toString(), targetName, os, colorDepth);
+    return QString::fromLatin1("Qt for MCUs %1.%2 - %3%4%5")
+            .arg(QString::number(mcuTarget->qulVersion().majorVersion()),
+                 QString::number(mcuTarget->qulVersion().minorVersion()),
+                 targetName,
+                 os,
+                 colorDepth);
 }
 
 QList<ProjectExplorer::Kit *> McuSupportOptions::existingKits(const McuTarget *mcuTarget)

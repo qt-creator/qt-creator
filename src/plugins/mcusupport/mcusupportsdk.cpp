@@ -150,7 +150,6 @@ static McuPackage *createRGLPackage()
 
 static McuPackage *createStm32CubeProgrammerPackage()
 {
-
     QString defaultPath = QDir::homePath();
     if (Utils::HostOsInfo::isWindowsHost()) {
         const QString programPath =
@@ -204,14 +203,18 @@ static McuPackage *createMcuXpressoIdePackage()
 
 static McuPackage *createBoardSdkPackage(const QString &envVar)
 {
-    const QString envVarPrefix = envVar.chopped(strlen("_SDK_PATH"));
+    auto postfixPos = envVar.indexOf("_SDK_PATH");
+    if (postfixPos < 0) {
+        postfixPos = envVar.indexOf("_DIR");
+    }
+    const QString sdkName = postfixPos > 0 ? envVar.left(postfixPos) : envVar;
 
     const QString defaultPath =
             qEnvironmentVariableIsSet(envVar.toLatin1()) ?
                 qEnvironmentVariable(envVar.toLatin1()) : QDir::homePath();
 
     auto result = new McuPackage(
-                QString::fromLatin1("MCU SDK (%1)").arg(envVarPrefix),
+                QString::fromLatin1("MCU SDK (%1)").arg(sdkName),
                 defaultPath,
                 {},
                 envVar);
@@ -254,34 +257,42 @@ struct McuTargetDescription
     QString freeRTOSBoardSdkSubDir;
 };
 
-static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescription> &descriptions,
-                                                    QVector<McuPackage *> *packages)
+struct McuTargetFactory
 {
-    const QHash<QString, McuToolChainPackage *> tcPkgs = {
-        {{"armgcc"}, createArmGccPackage()},
-        {{"greenhills"}, createGhsToolchainPackage()},
-        {{"desktop"}, createDesktopToolChainPackage()},
-    };
+    McuTargetFactory(const QHash<QString, McuToolChainPackage *> &tcPkgs,
+                     const QHash<QString, McuPackage *> &vendorPkgs)
+        : tcPkgs(tcPkgs)
+        , vendorPkgs(vendorPkgs)
+    {}
 
-    const QHash<QString, McuPackage *> vendorPkgs = {
-        {{"ST"}, createStm32CubeProgrammerPackage()},
-        {{"NXP"}, createMcuXpressoIdePackage()},
-        {{"Renesas"}, createRGLPackage()}
-    };
-
-    QHash<QString, McuPackage *> boardSdkPkgs;
-    QHash<QString, McuPackage *> freeRTOSPkgs;
-    QVector<McuTarget *> mcuTargets;
-
-    for (const auto &desc : descriptions) {
-        McuToolChainPackage *tcPkg = tcPkgs.value(desc.toolchainId);
-        if (desc.toolchainId == "desktop") {
-            auto mcuTarget = new McuTarget(QVersionNumber::fromString(desc.qulVersion),
-                                           desc.platformVendor, desc.platform,
-                                           McuTarget::OS::Desktop, {}, tcPkg);
-            mcuTargets.append(mcuTarget);
-            continue;
+    QVector<McuTarget *> createTargets(const McuTargetDescription& description)
+    {
+        if (description.toolchainId == "desktop") {
+            return createDesktopTargets(description);
         }
+        auto qulVersion = QVersionNumber::fromString(description.qulVersion);
+        if (qulVersion <= QVersionNumber({1,3})) {
+            // There was a platform backends related refactoring in Qul 1.4
+            // This requires different processing of McuTargetDescriptions
+            return createMcuTargetsLegacy(description);
+        }
+        return createMcuTargets(description);
+    }
+
+    QVector<McuPackage *> getMcuPackages() const
+    {
+        QVector<McuPackage *> packages;
+        packages.append(boardSdkPkgs.values().toVector());
+        packages.append(freeRTOSPkgs.values().toVector());
+        return packages;
+    }
+
+protected:
+    // Implementation for Qul version <= 1.3
+    QVector<McuTarget *> createMcuTargetsLegacy(const McuTargetDescription& desc)
+    {
+        QVector<McuTarget *> mcuTargets;
+        auto tcPkg = tcPkgs.value(desc.toolchainId);
         for (auto os : {McuTarget::OS::BareMetal, McuTarget::OS::FreeRTOS}) {
             for (int colorDepth : desc.colorDepths) {
                 QVector<McuPackage*> required3rdPartyPkgs = {
@@ -319,13 +330,93 @@ static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescrip
                 mcuTargets.append(mcuTarget);
             }
         }
+        return mcuTargets;
+    }
+
+    QVector<McuTarget *> createMcuTargets(const McuTargetDescription& desc)
+    {
+        QVector<McuTarget *> mcuTargets;
+        auto tcPkg = tcPkgs.value(desc.toolchainId);
+        for (int colorDepth : desc.colorDepths) {
+            QVector<McuPackage*> required3rdPartyPkgs = {
+                vendorPkgs.value(desc.platformVendor), tcPkg
+            };
+            QString boardSdkDefaultPath;
+            if (!desc.boardSdkEnvVar.isEmpty()
+                        && desc.boardSdkEnvVar != "RGL_DIR") { // Already included in vendorPkgs
+                if (!boardSdkPkgs.contains(desc.boardSdkEnvVar)) {
+                    auto boardSdkPkg = createBoardSdkPackage(desc.boardSdkEnvVar);
+                    boardSdkPkgs.insert(desc.boardSdkEnvVar, boardSdkPkg);
+                }
+                auto boardSdkPkg = boardSdkPkgs.value(desc.boardSdkEnvVar);
+                boardSdkDefaultPath = boardSdkPkg->defaultPath();
+                required3rdPartyPkgs.append(boardSdkPkg);
+            }
+
+            auto os = McuTarget::OS::BareMetal;
+            if (!desc.freeRTOSEnvVar.isEmpty()) {
+                os = McuTarget::OS::FreeRTOS;
+                if (!freeRTOSPkgs.contains(desc.freeRTOSEnvVar)) {
+                    freeRTOSPkgs.insert(desc.freeRTOSEnvVar, createFreeRTOSSourcesPackage(
+                                            desc.freeRTOSEnvVar, boardSdkDefaultPath,
+                                            desc.freeRTOSBoardSdkSubDir));
+                }
+                required3rdPartyPkgs.append(freeRTOSPkgs.value(desc.freeRTOSEnvVar));
+            }
+
+            auto mcuTarget = new McuTarget(QVersionNumber::fromString(desc.qulVersion),
+                                            desc.platformVendor, desc.platform, os,
+                                            required3rdPartyPkgs, tcPkg);
+            mcuTarget->setColorDepth(colorDepth);
+            mcuTargets.append(mcuTarget);
+        }
+        return mcuTargets;
+    }
+
+    QVector<McuTarget *> createDesktopTargets(const McuTargetDescription& desc)
+    {
+        auto tcPkg = tcPkgs.value(desc.toolchainId);
+        auto desktopTarget = new McuTarget(QVersionNumber::fromString(desc.qulVersion),
+                                        desc.platformVendor, desc.platform,
+                                        McuTarget::OS::Desktop, {}, tcPkg);
+        return { desktopTarget };
+    }
+
+private:
+    const QHash<QString, McuToolChainPackage *> &tcPkgs;
+    const QHash<QString, McuPackage *> &vendorPkgs;
+
+    QHash<QString, McuPackage *> boardSdkPkgs;
+    QHash<QString, McuPackage *> freeRTOSPkgs;
+};
+
+static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescription> &descriptions,
+                                                    QVector<McuPackage *> *packages)
+{
+    const QHash<QString, McuToolChainPackage *> tcPkgs = {
+        {{"armgcc"}, createArmGccPackage()},
+        {{"greenhills"}, createGhsToolchainPackage()},
+        {{"desktop"}, createDesktopToolChainPackage()},
+    };
+
+    const QHash<QString, McuPackage *> vendorPkgs = {
+        {{"ST"}, createStm32CubeProgrammerPackage()},
+        {{"NXP"}, createMcuXpressoIdePackage()},
+        {{"Renesas"}, createRGLPackage()}
+    };
+
+    McuTargetFactory targetFactory(tcPkgs, vendorPkgs);
+    QVector<McuTarget *> mcuTargets;
+
+    for (const auto &desc : descriptions) {
+        auto newTargets = targetFactory.createTargets(desc);
+        mcuTargets.append(newTargets);
     }
 
     packages->append(Utils::transform<QVector<McuPackage *> >(
                          tcPkgs.values(), [&](McuToolChainPackage *tcPkg) { return tcPkg; }));
     packages->append(vendorPkgs.values().toVector());
-    packages->append(boardSdkPkgs.values().toVector());
-    packages->append(freeRTOSPkgs.values().toVector());
+    packages->append(targetFactory.getMcuPackages());
 
     return  mcuTargets;
 }
