@@ -59,13 +59,6 @@ public:
 
     bool init() final;
     void setupOutputFormatter(OutputFormatter *formatter) final;
-
-private:
-    CommandBuilderAspect *m_commandBuilder;
-    IntegerAspect *m_nice{nullptr};
-    BoolAspect *m_keepJobNum{nullptr};
-    BoolAspect *m_forceRemote{nullptr};
-    BoolAspect *m_alternate{nullptr};
 };
 
 IBConsoleBuildStep::IBConsoleBuildStep(BuildStepList *buildStepList, Id id)
@@ -75,39 +68,56 @@ IBConsoleBuildStep::IBConsoleBuildStep(BuildStepList *buildStepList, Id id)
 
     addAspect<TextDisplay>("<b>" + tr("Target and Configuration"));
 
-    m_commandBuilder = addAspect<CommandBuilderAspect>(this);
-    m_commandBuilder->setSettingsKey(Constants::IBCONSOLE_COMMANDBUILDER);
+    auto commandBuilder = addAspect<CommandBuilderAspect>(this);
+    commandBuilder->setSettingsKey(Constants::IBCONSOLE_COMMANDBUILDER);
 
     addAspect<TextDisplay>("<i>" + tr("Enter the appropriate arguments to your build command."));
     addAspect<TextDisplay>("<i>" + tr("Make sure the build command's "
                                       "multi-job parameter value is large enough (such as "
                                       "-j200 for the JOM or Make build tools)"));
 
-    m_keepJobNum = addAspect<BoolAspect>();
-    m_keepJobNum->setSettingsKey(Constants::IBCONSOLE_KEEPJOBNUM);
-    m_keepJobNum->setLabel(tr("Keep Original Jobs Num:"));
-    m_keepJobNum->setToolTip(tr("Setting this option to true, forces IncrediBuild to not override "
-                                "the -j command line switch. The default IncrediBuild behavior is "
-                                "to set a high value to the -j command line switch which controls "
-                                "the number of processes that the build tools executed by Qt will "
-                                "execute in parallel (the default IncrediBuild behavior will set "
-                                "this value to 200)."));
+    auto keepJobNum = addAspect<BoolAspect>();
+    keepJobNum->setSettingsKey(Constants::IBCONSOLE_KEEPJOBNUM);
+    keepJobNum->setLabel(tr("Keep Original Jobs Num:"));
+    keepJobNum->setToolTip(tr("Setting this option to true, forces IncrediBuild to not override "
+                              "the -j command line switch. The default IncrediBuild behavior is "
+                              "to set a high value to the -j command line switch which controls "
+                              "the number of processes that the build tools executed by Qt will "
+                              "execute in parallel (the default IncrediBuild behavior will set "
+                              "this value to 200)."));
 
     addAspect<TextDisplay>("<b>" + tr("IncrediBuild Distribution Control"));
 
-    m_nice = addAspect<IntegerAspect>();
-    m_nice->setSettingsKey(Constants::IBCONSOLE_NICE);
-    m_nice->setToolTip(tr("Specify nice value. Nice Value should be numeric and between -20 and 19"));
-    m_nice->setLabel(tr("Nice value:"));
-    m_nice->setRange(-20, 19);
+    auto nice = addAspect<IntegerAspect>();
+    nice->setSettingsKey(Constants::IBCONSOLE_NICE);
+    nice->setToolTip(tr("Specify nice value. Nice Value should be numeric and between -20 and 19"));
+    nice->setLabel(tr("Nice value:"));
+    nice->setRange(-20, 19);
 
-    m_forceRemote = addAspect<BoolAspect>();
-    m_forceRemote->setSettingsKey(Constants::IBCONSOLE_ALTERNATE);
-    m_forceRemote->setLabel(tr("Force remote:"));
+    auto forceRemote = addAspect<BoolAspect>();
+    forceRemote->setSettingsKey(Constants::IBCONSOLE_ALTERNATE);
+    forceRemote->setLabel(tr("Force remote:"));
 
-    m_alternate = addAspect<BoolAspect>();
-    m_alternate->setSettingsKey(Constants::IBCONSOLE_FORCEREMOTE);
-    m_alternate->setLabel(tr("Alternate tasks preference:"));
+    auto alternate = addAspect<BoolAspect>();
+    alternate->setSettingsKey(Constants::IBCONSOLE_FORCEREMOTE);
+    alternate->setLabel(tr("Alternate tasks preference:"));
+
+    setCommandLineProvider([=] {
+        QStringList args;
+
+        if (nice->value() != 0)
+            args.append(QString("--nice %0 ").arg(nice->value()));
+
+        if (alternate->value())
+            args.append("--alternate");
+
+        if (forceRemote->value())
+            args.append("--force-remote");
+
+        args.append(commandBuilder->fullCommandFlag(keepJobNum->value()));
+
+        return CommandLine("ib_console", args);
+    });
 }
 
 void IBConsoleBuildStep::setupOutputFormatter(OutputFormatter *formatter)
@@ -120,30 +130,8 @@ void IBConsoleBuildStep::setupOutputFormatter(OutputFormatter *formatter)
 
 bool IBConsoleBuildStep::init()
 {
-    QStringList args;
-
-    if (m_nice->value() != 0)
-        args.append(QString("--nice %0 ").arg(m_nice->value()));
-
-    if (m_alternate->value())
-        args.append("--alternate");
-
-    if (m_forceRemote->value())
-        args.append("--force-remote");
-
-    args.append(m_commandBuilder->fullCommandFlag(m_keepJobNum->value()));
-
-    CommandLine cmdLine("ib_console", args);
     ProcessParameters *procParams = processParameters();
-    procParams->setCommandLine(cmdLine);
-    procParams->setEnvironment(Environment::systemEnvironment());
-
-    BuildConfiguration *buildConfig = buildConfiguration();
-    if (buildConfig) {
-        procParams->setWorkingDirectory(buildConfig->buildDirectory());
-        procParams->setEnvironment(buildConfig->environment());
-        procParams->setMacroExpander(buildConfig->macroExpander());
-    }
+    setupProcessParameters(procParams);
 
     return AbstractProcessStep::init();
 }
