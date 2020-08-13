@@ -126,7 +126,7 @@ private:
     friend class CMakeProjectImporter;
 };
 
-class InitialCMakeArgumentsAspect final : public ProjectExplorer::BaseStringAspect
+class InitialCMakeArgumentsAspect final : public ProjectExplorer::StringAspect
 {
     Q_OBJECT
 

@@ -67,7 +67,7 @@ const char MAKEFLAGS[] = "MAKEFLAGS";
 namespace ProjectExplorer {
 namespace Internal {
 
-class OverrideMakeflagsAspect final : public BaseBoolAspect
+class OverrideMakeflagsAspect final : public BoolAspect
 {
 public:
     OverrideMakeflagsAspect() {}
@@ -90,7 +90,7 @@ public:
             m_nonOverrideWarning->setPixmap(Icons::WARNING.pixmap());
         }
 
-        BaseBoolAspect::addToLayout(builder);
+        BoolAspect::addToLayout(builder);
         builder.addItem(m_nonOverrideWarning.data());
     }
 
@@ -162,19 +162,19 @@ MakeStep::MakeStep(BuildStepList *parent, Utils::Id id)
     setDefaultDisplayName(defaultDisplayName());
     setLowPriority();
 
-    m_makeCommandAspect = addAspect<BaseStringAspect>();
+    m_makeCommandAspect = addAspect<StringAspect>();
     m_makeCommandAspect->setSettingsKey(id.withSuffix(MAKE_COMMAND_SUFFIX).toString());
-    m_makeCommandAspect->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
+    m_makeCommandAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
     m_makeCommandAspect->setExpectedKind(PathChooser::ExistingCommand);
     m_makeCommandAspect->setBaseFileName(FilePath::fromString(PathChooser::homePath()));
     m_makeCommandAspect->setHistoryCompleter("PE.MakeCommand.History");
 
-    m_userArgumentsAspect = addAspect<BaseStringAspect>();
+    m_userArgumentsAspect = addAspect<StringAspect>();
     m_userArgumentsAspect->setSettingsKey(id.withSuffix(MAKE_ARGUMENTS_SUFFIX).toString());
     m_userArgumentsAspect->setLabelText(tr("Make arguments:"));
-    m_userArgumentsAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    m_userArgumentsAspect->setDisplayStyle(StringAspect::LineEditDisplay);
 
-    m_userJobCountAspect = addAspect<BaseIntegerAspect>();
+    m_userJobCountAspect = addAspect<IntegerAspect>();
     m_userJobCountAspect->setSettingsKey(id.withSuffix(JOBCOUNT_SUFFIX).toString());
     m_userJobCountAspect->setLabel(tr("Parallel jobs:"));
     m_userJobCountAspect->setRange(1, 999);
@@ -184,10 +184,10 @@ MakeStep::MakeStep(BuildStepList *parent, Utils::Id id)
     m_overrideMakeflagsAspect = addAspect<Internal::OverrideMakeflagsAspect>();
     m_overrideMakeflagsAspect->setSettingsKey(id.withSuffix(OVERRIDE_MAKEFLAGS_SUFFIX).toString());
 
-    m_cleanAspect = addAspect<BaseBoolAspect>();
+    m_cleanAspect = addAspect<BoolAspect>();
     m_cleanAspect->setSettingsKey(id.withSuffix(CLEAN_SUFFIX).toString());
 
-    m_buildTargetsAspect = addAspect<BaseStringListAspect>();
+    m_buildTargetsAspect = addAspect<StringListAspect>();
     m_buildTargetsAspect->setSettingsKey(id.withSuffix(BUILD_TARGETS_SUFFIX).toString());
 
     const auto updateMakeLabel = [this] {
@@ -200,7 +200,7 @@ MakeStep::MakeStep(BuildStepList *parent, Utils::Id id)
 
     updateMakeLabel();
 
-    connect(m_makeCommandAspect, &BaseStringAspect::changed, this, updateMakeLabel);
+    connect(m_makeCommandAspect, &StringAspect::changed, this, updateMakeLabel);
 }
 
 void MakeStep::setBuildTarget(const QString &buildTarget)
@@ -486,10 +486,10 @@ BuildStepConfigWidget *MakeStep::createConfigWidget()
 
     updateDetails();
 
-    connect(m_makeCommandAspect, &BaseStringAspect::changed, widget, updateDetails);
-    connect(m_userArgumentsAspect, &BaseStringAspect::changed, widget, updateDetails);
-    connect(m_userJobCountAspect, &BaseIntegerAspect::changed, widget, updateDetails);
-    connect(m_overrideMakeflagsAspect, &BaseBoolAspect::changed, widget, updateDetails);
+    connect(m_makeCommandAspect, &StringAspect::changed, widget, updateDetails);
+    connect(m_userArgumentsAspect, &StringAspect::changed, widget, updateDetails);
+    connect(m_userJobCountAspect, &IntegerAspect::changed, widget, updateDetails);
+    connect(m_overrideMakeflagsAspect, &BoolAspect::changed, widget, updateDetails);
 
     connect(widget->m_targetsList, &QListWidget::itemChanged, this,
             [this, updateDetails](QListWidgetItem *item) {

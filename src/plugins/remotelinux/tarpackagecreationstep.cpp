@@ -75,14 +75,14 @@ TarPackageCreationStep::TarPackageCreationStep(BuildStepList *bsl, Utils::Id id)
 {
     setDefaultDisplayName(displayName());
 
-    m_ignoreMissingFilesAspect = addAspect<BaseBoolAspect>();
+    m_ignoreMissingFilesAspect = addAspect<BoolAspect>();
     m_ignoreMissingFilesAspect->setLabel(tr("Ignore missing files"),
-                                         BaseBoolAspect::LabelPlacement::AtCheckBox);
+                                         BoolAspect::LabelPlacement::AtCheckBox);
     m_ignoreMissingFilesAspect->setSettingsKey(IgnoreMissingFilesKey);
 
-    m_incrementalDeploymentAspect = addAspect<BaseBoolAspect>();
+    m_incrementalDeploymentAspect = addAspect<BoolAspect>();
     m_incrementalDeploymentAspect->setLabel(tr("Package modified files only"),
-                                            BaseBoolAspect::LabelPlacement::AtCheckBox);
+                                            BoolAspect::LabelPlacement::AtCheckBox);
     m_incrementalDeploymentAspect->setSettingsKey(IncrementalDeploymentKey);
 
     setSummaryUpdater([this] {

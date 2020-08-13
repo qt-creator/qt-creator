@@ -182,16 +182,16 @@ RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Utils::Id id)
 {
     auto service = createDeployService<Internal::RsyncDeployService>();
 
-    auto flags = addAspect<BaseStringAspect>();
-    flags->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    auto flags = addAspect<StringAspect>();
+    flags->setDisplayStyle(StringAspect::LineEditDisplay);
     flags->setSettingsKey("RemoteLinux.RsyncDeployStep.Flags");
     flags->setLabelText(tr("Flags:"));
     flags->setValue(defaultFlags());
 
-    auto ignoreMissingFiles = addAspect<BaseBoolAspect>();
+    auto ignoreMissingFiles = addAspect<BoolAspect>();
     ignoreMissingFiles->setSettingsKey("RemoteLinux.RsyncDeployStep.IgnoreMissingFiles");
     ignoreMissingFiles->setLabel(tr("Ignore missing files:"),
-                                 BaseBoolAspect::LabelPlacement::InExtraLabel);
+                                 BoolAspect::LabelPlacement::InExtraLabel);
     ignoreMissingFiles->setValue(false);
 
     setDefaultDisplayName(displayName());

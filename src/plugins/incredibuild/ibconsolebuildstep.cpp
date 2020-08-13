@@ -62,10 +62,10 @@ public:
 
 private:
     CommandBuilderAspect *m_commandBuilder;
-    BaseIntegerAspect *m_nice{nullptr};
-    BaseBoolAspect *m_keepJobNum{nullptr};
-    BaseBoolAspect *m_forceRemote{nullptr};
-    BaseBoolAspect *m_alternate{nullptr};
+    IntegerAspect *m_nice{nullptr};
+    BoolAspect *m_keepJobNum{nullptr};
+    BoolAspect *m_forceRemote{nullptr};
+    BoolAspect *m_alternate{nullptr};
 };
 
 IBConsoleBuildStep::IBConsoleBuildStep(BuildStepList *buildStepList, Id id)
@@ -83,7 +83,7 @@ IBConsoleBuildStep::IBConsoleBuildStep(BuildStepList *buildStepList, Id id)
                                       "multi-job parameter value is large enough (such as "
                                       "-j200 for the JOM or Make build tools)"));
 
-    m_keepJobNum = addAspect<BaseBoolAspect>();
+    m_keepJobNum = addAspect<BoolAspect>();
     m_keepJobNum->setSettingsKey(Constants::IBCONSOLE_KEEPJOBNUM);
     m_keepJobNum->setLabel(tr("Keep Original Jobs Num:"));
     m_keepJobNum->setToolTip(tr("Setting this option to true, forces IncrediBuild to not override "
@@ -95,17 +95,17 @@ IBConsoleBuildStep::IBConsoleBuildStep(BuildStepList *buildStepList, Id id)
 
     addAspect<TextDisplay>("<b>" + tr("IncrediBuild Distribution Control"));
 
-    m_nice = addAspect<BaseIntegerAspect>();
+    m_nice = addAspect<IntegerAspect>();
     m_nice->setSettingsKey(Constants::IBCONSOLE_NICE);
     m_nice->setToolTip(tr("Specify nice value. Nice Value should be numeric and between -20 and 19"));
     m_nice->setLabel(tr("Nice value:"));
     m_nice->setRange(-20, 19);
 
-    m_forceRemote = addAspect<BaseBoolAspect>();
+    m_forceRemote = addAspect<BoolAspect>();
     m_forceRemote->setSettingsKey(Constants::IBCONSOLE_ALTERNATE);
     m_forceRemote->setLabel(tr("Force remote:"));
 
-    m_alternate = addAspect<BaseBoolAspect>();
+    m_alternate = addAspect<BoolAspect>();
     m_alternate->setSettingsKey(Constants::IBCONSOLE_FORCEREMOTE);
     m_alternate->setLabel(tr("Alternate tasks preference:"));
 }

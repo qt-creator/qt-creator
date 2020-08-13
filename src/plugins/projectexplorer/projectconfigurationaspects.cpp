@@ -54,10 +54,10 @@ using namespace Utils;
 namespace ProjectExplorer {
 namespace Internal {
 
-class BaseBoolAspectPrivate
+class BoolAspectPrivate
 {
 public:
-    BaseBoolAspect::LabelPlacement m_labelPlacement = BaseBoolAspect::LabelPlacement::AtCheckBox;
+    BoolAspect::LabelPlacement m_labelPlacement = BoolAspect::LabelPlacement::AtCheckBox;
     bool m_value = false;
     bool m_defaultValue = false;
     bool m_enabled = true;
@@ -67,13 +67,13 @@ public:
     QPointer<QLabel> m_label; // Owned by configuration widget
 };
 
-class BaseSelectionAspectPrivate
+class SelectionAspectPrivate
 {
 public:
     int m_value = 0;
     int m_defaultValue = 0;
-    BaseSelectionAspect::DisplayStyle m_displayStyle
-            = BaseSelectionAspect::DisplayStyle::RadioButtons;
+    SelectionAspect::DisplayStyle m_displayStyle
+            = SelectionAspect::DisplayStyle::RadioButtons;
     struct Option { QString displayName; QString tooltip; };
     QVector<Option> m_options;
 
@@ -85,17 +85,17 @@ public:
     QString m_tooltip;
 };
 
-class BaseStringAspectPrivate
+class StringAspectPrivate
 {
 public:
-    BaseStringAspect::DisplayStyle m_displayStyle = BaseStringAspect::LabelDisplay;
-    BaseStringAspect::CheckBoxPlacement m_checkBoxPlacement
-        = BaseStringAspect::CheckBoxPlacement::Right;
-    BaseStringAspect::UncheckedSemantics m_uncheckedSemantics
-        = BaseStringAspect::UncheckedSemantics::Disabled;
+    StringAspect::DisplayStyle m_displayStyle = StringAspect::LabelDisplay;
+    StringAspect::CheckBoxPlacement m_checkBoxPlacement
+        = StringAspect::CheckBoxPlacement::Right;
+    StringAspect::UncheckedSemantics m_uncheckedSemantics
+        = StringAspect::UncheckedSemantics::Disabled;
     QString m_labelText;
     std::function<QString(const QString &)> m_displayFilter;
-    std::unique_ptr<BaseBoolAspect> m_checker;
+    std::unique_ptr<BoolAspect> m_checker;
 
     QString m_value;
     QString m_placeHolderText;
@@ -111,7 +111,7 @@ public:
     Utils::MacroExpanderProvider m_expanderProvider;
     QPixmap m_labelPixmap;
     Utils::FilePath m_baseFileName;
-    BaseStringAspect::ValueAcceptor m_valueAcceptor;
+    StringAspect::ValueAcceptor m_valueAcceptor;
     bool m_readOnly = false;
     bool m_showToolTipOnLabel = false;
     bool m_fileDialogOnly = false;
@@ -119,14 +119,14 @@ public:
     template<class Widget> void updateWidgetFromCheckStatus(Widget *w)
     {
         const bool enabled = !m_checker || m_checker->value();
-        if (m_uncheckedSemantics == BaseStringAspect::UncheckedSemantics::Disabled)
+        if (m_uncheckedSemantics == StringAspect::UncheckedSemantics::Disabled)
             w->setEnabled(enabled);
         else
             w->setReadOnly(!enabled);
     }
 };
 
-class BaseIntegerAspectPrivate
+class IntegerAspectPrivate
 {
 public:
     qint64 m_value = 0;
@@ -144,7 +144,7 @@ public:
     bool m_enabled = true;
 };
 
-class BaseStringListAspectPrivate
+class StringListAspectPrivate
 {
 public:
     QStringList m_value;
@@ -153,26 +153,26 @@ public:
 } // Internal
 
 /*!
-    \class ProjectExplorer::BaseStringAspect
+    \class ProjectExplorer::StringAspect
 */
 
-BaseStringAspect::BaseStringAspect()
-    : d(new Internal::BaseStringAspectPrivate)
+StringAspect::StringAspect()
+    : d(new Internal::StringAspectPrivate)
 {}
 
-BaseStringAspect::~BaseStringAspect() = default;
+StringAspect::~StringAspect() = default;
 
-void BaseStringAspect::setValueAcceptor(BaseStringAspect::ValueAcceptor &&acceptor)
+void StringAspect::setValueAcceptor(StringAspect::ValueAcceptor &&acceptor)
 {
     d->m_valueAcceptor = std::move(acceptor);
 }
 
-QString BaseStringAspect::value() const
+QString StringAspect::value() const
 {
     return d->m_value;
 }
 
-void BaseStringAspect::setValue(const QString &value)
+void StringAspect::setValue(const QString &value)
 {
     const bool isSame = value == d->m_value;
     if (isSame)
@@ -193,7 +193,7 @@ void BaseStringAspect::setValue(const QString &value)
     emit changed();
 }
 
-void BaseStringAspect::fromMap(const QVariantMap &map)
+void StringAspect::fromMap(const QVariantMap &map)
 {
     if (!settingsKey().isEmpty())
         d->m_value = map.value(settingsKey()).toString();
@@ -201,7 +201,7 @@ void BaseStringAspect::fromMap(const QVariantMap &map)
         d->m_checker->fromMap(map);
 }
 
-void BaseStringAspect::toMap(QVariantMap &map) const
+void StringAspect::toMap(QVariantMap &map) const
 {
     if (!settingsKey().isEmpty())
         map.insert(settingsKey(), d->m_value);
@@ -209,63 +209,63 @@ void BaseStringAspect::toMap(QVariantMap &map) const
         d->m_checker->toMap(map);
 }
 
-FilePath BaseStringAspect::filePath() const
+FilePath StringAspect::filePath() const
 {
     return FilePath::fromUserInput(d->m_value);
 }
 
-void BaseStringAspect::setFilePath(const FilePath &val)
+void StringAspect::setFilePath(const FilePath &val)
 {
     setValue(val.toUserOutput());
 }
 
-void BaseStringAspect::setLabelText(const QString &labelText)
+void StringAspect::setLabelText(const QString &labelText)
 {
     d->m_labelText = labelText;
     if (d->m_label)
         d->m_label->setText(labelText);
 }
 
-void BaseStringAspect::setLabelPixmap(const QPixmap &labelPixmap)
+void StringAspect::setLabelPixmap(const QPixmap &labelPixmap)
 {
     d->m_labelPixmap = labelPixmap;
     if (d->m_label)
         d->m_label->setPixmap(labelPixmap);
 }
 
-void BaseStringAspect::setShowToolTipOnLabel(bool show)
+void StringAspect::setShowToolTipOnLabel(bool show)
 {
     d->m_showToolTipOnLabel = show;
     update();
 }
 
-QString BaseStringAspect::labelText() const
+QString StringAspect::labelText() const
 {
     return d->m_labelText;
 }
 
-void BaseStringAspect::setDisplayFilter(const std::function<QString(const QString &)> &displayFilter)
+void StringAspect::setDisplayFilter(const std::function<QString(const QString &)> &displayFilter)
 {
     d->m_displayFilter = displayFilter;
 }
 
-bool BaseStringAspect::isChecked() const
+bool StringAspect::isChecked() const
 {
     return !d->m_checker || d->m_checker->value();
 }
 
-void BaseStringAspect::setChecked(bool checked)
+void StringAspect::setChecked(bool checked)
 {
     QTC_ASSERT(d->m_checker, return);
     d->m_checker->setValue(checked);
 }
 
-void BaseStringAspect::setDisplayStyle(DisplayStyle displayStyle)
+void StringAspect::setDisplayStyle(DisplayStyle displayStyle)
 {
     d->m_displayStyle = displayStyle;
 }
 
-void BaseStringAspect::setPlaceHolderText(const QString &placeHolderText)
+void StringAspect::setPlaceHolderText(const QString &placeHolderText)
 {
     d->m_placeHolderText = placeHolderText;
     if (d->m_lineEditDisplay)
@@ -274,7 +274,7 @@ void BaseStringAspect::setPlaceHolderText(const QString &placeHolderText)
         d->m_textEditDisplay->setPlaceholderText(placeHolderText);
 }
 
-void BaseStringAspect::setHistoryCompleter(const QString &historyCompleterKey)
+void StringAspect::setHistoryCompleter(const QString &historyCompleterKey)
 {
     d->m_historyCompleterKey = historyCompleterKey;
     if (d->m_lineEditDisplay)
@@ -283,35 +283,35 @@ void BaseStringAspect::setHistoryCompleter(const QString &historyCompleterKey)
         d->m_pathChooserDisplay->setHistoryCompleter(historyCompleterKey);
 }
 
-void BaseStringAspect::setExpectedKind(const PathChooser::Kind expectedKind)
+void StringAspect::setExpectedKind(const PathChooser::Kind expectedKind)
 {
     d->m_expectedKind = expectedKind;
     if (d->m_pathChooserDisplay)
         d->m_pathChooserDisplay->setExpectedKind(expectedKind);
 }
 
-void BaseStringAspect::setFileDialogOnly(bool requireFileDialog)
+void StringAspect::setFileDialogOnly(bool requireFileDialog)
 {
     d->m_fileDialogOnly = requireFileDialog;
     if (d->m_pathChooserDisplay)
         d->m_pathChooserDisplay->setFileDialogOnly(requireFileDialog);
 }
 
-void BaseStringAspect::setEnvironment(const Environment &env)
+void StringAspect::setEnvironment(const Environment &env)
 {
     d->m_environment = env;
     if (d->m_pathChooserDisplay)
         d->m_pathChooserDisplay->setEnvironment(env);
 }
 
-void BaseStringAspect::setBaseFileName(const FilePath &baseFileName)
+void StringAspect::setBaseFileName(const FilePath &baseFileName)
 {
     d->m_baseFileName = baseFileName;
     if (d->m_pathChooserDisplay)
         d->m_pathChooserDisplay->setBaseDirectory(baseFileName);
 }
 
-void BaseStringAspect::setToolTip(const QString &tooltip)
+void StringAspect::setToolTip(const QString &tooltip)
 {
     d->m_tooltip = tooltip;
     if (d->m_pathChooserDisplay)
@@ -322,7 +322,7 @@ void BaseStringAspect::setToolTip(const QString &tooltip)
         d->m_textEditDisplay->setToolTip(tooltip);
 }
 
-void BaseStringAspect::setReadOnly(bool readOnly)
+void StringAspect::setReadOnly(bool readOnly)
 {
     d->m_readOnly = readOnly;
     if (d->m_pathChooserDisplay)
@@ -333,12 +333,12 @@ void BaseStringAspect::setReadOnly(bool readOnly)
         d->m_textEditDisplay->setReadOnly(readOnly);
 }
 
-void BaseStringAspect::setMacroExpanderProvider(const MacroExpanderProvider &expanderProvider)
+void StringAspect::setMacroExpanderProvider(const MacroExpanderProvider &expanderProvider)
 {
     d->m_expanderProvider = expanderProvider;
 }
 
-void BaseStringAspect::validateInput()
+void StringAspect::validateInput()
 {
     if (d->m_pathChooserDisplay)
         d->m_pathChooserDisplay->triggerChanged();
@@ -346,12 +346,12 @@ void BaseStringAspect::validateInput()
         d->m_lineEditDisplay->validate();
 }
 
-void BaseStringAspect::setUncheckedSemantics(BaseStringAspect::UncheckedSemantics semantics)
+void StringAspect::setUncheckedSemantics(StringAspect::UncheckedSemantics semantics)
 {
     d->m_uncheckedSemantics = semantics;
 }
 
-void BaseStringAspect::addToLayout(LayoutBuilder &builder)
+void StringAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_label);
 
@@ -386,7 +386,7 @@ void BaseStringAspect::addToLayout(LayoutBuilder &builder)
         d->m_pathChooserDisplay->setReadOnly(d->m_readOnly);
         useMacroExpander(d->m_pathChooserDisplay->lineEdit());
         connect(d->m_pathChooserDisplay, &PathChooser::pathChanged,
-                this, &BaseStringAspect::setValue);
+                this, &StringAspect::setValue);
         builder.addItem(d->m_pathChooserDisplay.data());
         d->m_pathChooserDisplay->setFileDialogOnly(d->m_fileDialogOnly);
         break;
@@ -398,7 +398,7 @@ void BaseStringAspect::addToLayout(LayoutBuilder &builder)
         d->m_lineEditDisplay->setReadOnly(d->m_readOnly);
         useMacroExpander(d->m_lineEditDisplay);
         connect(d->m_lineEditDisplay, &FancyLineEdit::textEdited,
-                this, &BaseStringAspect::setValue);
+                this, &StringAspect::setValue);
         builder.addItem(d->m_lineEditDisplay.data());
         break;
     case TextEditDisplay:
@@ -430,7 +430,7 @@ void BaseStringAspect::addToLayout(LayoutBuilder &builder)
     update();
 }
 
-void BaseStringAspect::update()
+void StringAspect::update()
 {
     const QString displayedString = d->m_displayFilter ? d->m_displayFilter(d->m_value)
                                                        : d->m_value;
@@ -467,37 +467,37 @@ void BaseStringAspect::update()
     validateInput();
 }
 
-void BaseStringAspect::makeCheckable(CheckBoxPlacement checkBoxPlacement,
+void StringAspect::makeCheckable(CheckBoxPlacement checkBoxPlacement,
                                      const QString &checkerLabel, const QString &checkerKey)
 {
     QTC_ASSERT(!d->m_checker, return);
     d->m_checkBoxPlacement = checkBoxPlacement;
-    d->m_checker.reset(new BaseBoolAspect);
+    d->m_checker.reset(new BoolAspect);
     d->m_checker->setLabel(checkerLabel, checkBoxPlacement == CheckBoxPlacement::Top
-                           ? BaseBoolAspect::LabelPlacement::InExtraLabel
-                           : BaseBoolAspect::LabelPlacement::AtCheckBox);
+                           ? BoolAspect::LabelPlacement::InExtraLabel
+                           : BoolAspect::LabelPlacement::AtCheckBox);
     d->m_checker->setSettingsKey(checkerKey);
 
-    connect(d->m_checker.get(), &BaseBoolAspect::changed, this, &BaseStringAspect::update);
-    connect(d->m_checker.get(), &BaseBoolAspect::changed, this, &BaseStringAspect::changed);
-    connect(d->m_checker.get(), &BaseBoolAspect::changed, this, &BaseStringAspect::checkedChanged);
+    connect(d->m_checker.get(), &BoolAspect::changed, this, &StringAspect::update);
+    connect(d->m_checker.get(), &BoolAspect::changed, this, &StringAspect::changed);
+    connect(d->m_checker.get(), &BoolAspect::changed, this, &StringAspect::checkedChanged);
 
     update();
 }
 
 /*!
-    \class ProjectExplorer::BaseBoolAspect
+    \class ProjectExplorer::BoolAspect
 */
 
-BaseBoolAspect::BaseBoolAspect(const QString &settingsKey)
-    : d(new Internal::BaseBoolAspectPrivate)
+BoolAspect::BoolAspect(const QString &settingsKey)
+    : d(new Internal::BoolAspectPrivate)
 {
     setSettingsKey(settingsKey);
 }
 
-BaseBoolAspect::~BaseBoolAspect() = default;
+BoolAspect::~BoolAspect() = default;
 
-void BaseBoolAspect::addToLayout(LayoutBuilder &builder)
+void BoolAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_checkBox);
     d->m_checkBox = new QCheckBox();
@@ -519,51 +519,51 @@ void BaseBoolAspect::addToLayout(LayoutBuilder &builder)
     });
 }
 
-void BaseBoolAspect::fromMap(const QVariantMap &map)
+void BoolAspect::fromMap(const QVariantMap &map)
 {
     d->m_value = map.value(settingsKey(), d->m_defaultValue).toBool();
 }
 
-void BaseBoolAspect::toMap(QVariantMap &data) const
+void BoolAspect::toMap(QVariantMap &data) const
 {
     data.insert(settingsKey(), d->m_value);
 }
 
-bool BaseBoolAspect::defaultValue() const
+bool BoolAspect::defaultValue() const
 {
     return d->m_defaultValue;
 }
 
-void BaseBoolAspect::setDefaultValue(bool defaultValue)
+void BoolAspect::setDefaultValue(bool defaultValue)
 {
     d->m_defaultValue = defaultValue;
     d->m_value = defaultValue;
 }
 
-bool BaseBoolAspect::value() const
+bool BoolAspect::value() const
 {
     return d->m_value;
 }
 
-void BaseBoolAspect::setValue(bool value)
+void BoolAspect::setValue(bool value)
 {
     d->m_value = value;
     if (d->m_checkBox)
         d->m_checkBox->setChecked(d->m_value);
 }
 
-void BaseBoolAspect::setLabel(const QString &labelText, LabelPlacement labelPlacement)
+void BoolAspect::setLabel(const QString &labelText, LabelPlacement labelPlacement)
 {
     d->m_labelText = labelText;
     d->m_labelPlacement = labelPlacement;
 }
 
-void BaseBoolAspect::setToolTip(const QString &tooltip)
+void BoolAspect::setToolTip(const QString &tooltip)
 {
     d->m_tooltip = tooltip;
 }
 
-void BaseBoolAspect::setEnabled(bool enabled)
+void BoolAspect::setEnabled(bool enabled)
 {
     d->m_enabled = enabled;
     if (d->m_checkBox)
@@ -571,16 +571,16 @@ void BaseBoolAspect::setEnabled(bool enabled)
 }
 
 /*!
-    \class ProjectExplorer::BaseSelectionAspect
+    \class ProjectExplorer::SelectionAspect
 */
 
-BaseSelectionAspect::BaseSelectionAspect()
-    : d(new Internal::BaseSelectionAspectPrivate)
+SelectionAspect::SelectionAspect()
+    : d(new Internal::SelectionAspectPrivate)
 {}
 
-BaseSelectionAspect::~BaseSelectionAspect() = default;
+SelectionAspect::~SelectionAspect() = default;
 
-void BaseSelectionAspect::addToLayout(LayoutBuilder &builder)
+void SelectionAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(d->m_buttonGroup == nullptr);
     QTC_CHECK(!d->m_comboBox);
@@ -591,7 +591,7 @@ void BaseSelectionAspect::addToLayout(LayoutBuilder &builder)
         d->m_buttonGroup = new QButtonGroup;
         d->m_buttonGroup->setExclusive(true);
         for (int i = 0, n = d->m_options.size(); i < n; ++i) {
-            const Internal::BaseSelectionAspectPrivate::Option &option = d->m_options.at(i);
+            const Internal::SelectionAspectPrivate::Option &option = d->m_options.at(i);
             auto button = new QRadioButton(option.displayName);
             button->setChecked(i == d->m_value);
             button->setToolTip(option.tooltip);
@@ -619,17 +619,17 @@ void BaseSelectionAspect::addToLayout(LayoutBuilder &builder)
     }
 }
 
-void BaseSelectionAspect::fromMap(const QVariantMap &map)
+void SelectionAspect::fromMap(const QVariantMap &map)
 {
     d->m_value = map.value(settingsKey(), d->m_defaultValue).toInt();
 }
 
-void BaseSelectionAspect::toMap(QVariantMap &data) const
+void SelectionAspect::toMap(QVariantMap &data) const
 {
     data.insert(settingsKey(), d->m_value);
 }
 
-void BaseSelectionAspect::setVisibleDynamic(bool visible)
+void SelectionAspect::setVisibleDynamic(bool visible)
 {
     if (d->m_label)
         d->m_label->setVisible(visible);
@@ -639,32 +639,32 @@ void BaseSelectionAspect::setVisibleDynamic(bool visible)
         button->setVisible(visible);
 }
 
-int BaseSelectionAspect::defaultValue() const
+int SelectionAspect::defaultValue() const
 {
     return d->m_defaultValue;
 }
 
-void BaseSelectionAspect::setDefaultValue(int defaultValue)
+void SelectionAspect::setDefaultValue(int defaultValue)
 {
     d->m_defaultValue = defaultValue;
 }
 
-void BaseSelectionAspect::setDisplayStyle(BaseSelectionAspect::DisplayStyle style)
+void SelectionAspect::setDisplayStyle(SelectionAspect::DisplayStyle style)
 {
     d->m_displayStyle = style;
 }
 
-void BaseSelectionAspect::setToolTip(const QString &tooltip)
+void SelectionAspect::setToolTip(const QString &tooltip)
 {
     d->m_tooltip = tooltip;
 }
 
-int BaseSelectionAspect::value() const
+int SelectionAspect::value() const
 {
     return d->m_value;
 }
 
-void BaseSelectionAspect::setValue(int value)
+void SelectionAspect::setValue(int value)
 {
     d->m_value = value;
     if (d->m_buttonGroup && 0 <= value && value < d->m_buttons.size())
@@ -674,29 +674,29 @@ void BaseSelectionAspect::setValue(int value)
     }
 }
 
-QString BaseSelectionAspect::stringValue() const
+QString SelectionAspect::stringValue() const
 {
     return d->m_options.at(d->m_value).displayName;
 }
 
-void BaseSelectionAspect::addOption(const QString &displayName, const QString &toolTip)
+void SelectionAspect::addOption(const QString &displayName, const QString &toolTip)
 {
     d->m_options.append({displayName, toolTip});
 }
 
 /*!
-    \class ProjectExplorer::BaseIntegerAspect
+    \class ProjectExplorer::IntegerAspect
 */
 
-// BaseIntegerAspect
+// IntegerAspect
 
-BaseIntegerAspect::BaseIntegerAspect()
-    : d(new Internal::BaseIntegerAspectPrivate)
+IntegerAspect::IntegerAspect()
+    : d(new Internal::IntegerAspectPrivate)
 {}
 
-BaseIntegerAspect::~BaseIntegerAspect() = default;
+IntegerAspect::~IntegerAspect() = default;
 
-void BaseIntegerAspect::addToLayout(LayoutBuilder &builder)
+void IntegerAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_label);
     d->m_label = new QLabel(d->m_labelText);
@@ -722,12 +722,12 @@ void BaseIntegerAspect::addToLayout(LayoutBuilder &builder)
     });
 }
 
-void BaseIntegerAspect::fromMap(const QVariantMap &map)
+void IntegerAspect::fromMap(const QVariantMap &map)
 {
     d->m_value = map.value(settingsKey(), d->m_defaultValue).toLongLong();
 }
 
-void BaseIntegerAspect::toMap(QVariantMap &data) const
+void IntegerAspect::toMap(QVariantMap &data) const
 {
     if (d->m_value != d->m_defaultValue)
         data.insert(settingsKey(), d->m_value);
@@ -735,52 +735,52 @@ void BaseIntegerAspect::toMap(QVariantMap &data) const
         data.remove(settingsKey());
 }
 
-qint64 BaseIntegerAspect::value() const
+qint64 IntegerAspect::value() const
 {
     return d->m_value;
 }
 
-void BaseIntegerAspect::setValue(qint64 value)
+void IntegerAspect::setValue(qint64 value)
 {
     d->m_value = value;
     if (d->m_spinBox)
         d->m_spinBox->setValue(int(d->m_value / d->m_displayScaleFactor));
 }
 
-void BaseIntegerAspect::setRange(qint64 min, qint64 max)
+void IntegerAspect::setRange(qint64 min, qint64 max)
 {
     d->m_minimumValue = min;
     d->m_maximumValue = max;
 }
 
-void BaseIntegerAspect::setLabel(const QString &label)
+void IntegerAspect::setLabel(const QString &label)
 {
     d->m_labelText = label;
     if (d->m_label)
         d->m_label->setText(label);
 }
 
-void BaseIntegerAspect::setPrefix(const QString &prefix)
+void IntegerAspect::setPrefix(const QString &prefix)
 {
     d->m_prefix = prefix;
 }
 
-void BaseIntegerAspect::setSuffix(const QString &suffix)
+void IntegerAspect::setSuffix(const QString &suffix)
 {
     d->m_suffix = suffix;
 }
 
-void BaseIntegerAspect::setDisplayIntegerBase(int base)
+void IntegerAspect::setDisplayIntegerBase(int base)
 {
     d->m_displayIntegerBase = base;
 }
 
-void BaseIntegerAspect::setDisplayScaleFactor(qint64 factor)
+void IntegerAspect::setDisplayScaleFactor(qint64 factor)
 {
     d->m_displayScaleFactor = factor;
 }
 
-void BaseIntegerAspect::setEnabled(bool enabled)
+void IntegerAspect::setEnabled(bool enabled)
 {
     d->m_enabled = enabled;
     if (d->m_label)
@@ -789,12 +789,12 @@ void BaseIntegerAspect::setEnabled(bool enabled)
         d->m_spinBox->setEnabled(enabled);
 }
 
-void BaseIntegerAspect::setDefaultValue(qint64 defaultValue)
+void IntegerAspect::setDefaultValue(qint64 defaultValue)
 {
     d->m_defaultValue = defaultValue;
 }
 
-void BaseIntegerAspect::setToolTip(const QString &tooltip)
+void IntegerAspect::setToolTip(const QString &tooltip)
 {
     d->m_tooltip = tooltip;
 }
@@ -803,7 +803,7 @@ void BaseIntegerAspect::setToolTip(const QString &tooltip)
     \class ProjectExplorer::BaseTristateAspect
 */
 
-BaseTriStateAspect::BaseTriStateAspect()
+TriStateAspect::TriStateAspect()
 {
     setDisplayStyle(DisplayStyle::ComboBox);
     setDefaultValue(2);
@@ -812,12 +812,12 @@ BaseTriStateAspect::BaseTriStateAspect()
     addOption(tr("Leave at Default"));
 }
 
-TriState BaseTriStateAspect::setting() const
+TriState TriStateAspect::setting() const
 {
     return TriState::fromVariant(value());
 }
 
-void BaseTriStateAspect::setSetting(TriState setting)
+void TriStateAspect::setSetting(TriState setting)
 {
     setValue(setting.toVariant().toInt());
 }
@@ -835,37 +835,37 @@ TriState TriState::fromVariant(const QVariant &variant)
 
 
 /*!
-    \class ProjectExplorer::BaseStringListAspect
+    \class ProjectExplorer::StringListAspect
 */
 
-BaseStringListAspect::BaseStringListAspect()
-    : d(new Internal::BaseStringListAspectPrivate)
+StringListAspect::StringListAspect()
+    : d(new Internal::StringListAspectPrivate)
 {}
 
-BaseStringListAspect::~BaseStringListAspect() = default;
+StringListAspect::~StringListAspect() = default;
 
-void BaseStringListAspect::addToLayout(LayoutBuilder &builder)
+void StringListAspect::addToLayout(LayoutBuilder &builder)
 {
     Q_UNUSED(builder)
     // TODO - when needed.
 }
 
-void BaseStringListAspect::fromMap(const QVariantMap &map)
+void StringListAspect::fromMap(const QVariantMap &map)
 {
     d->m_value = map.value(settingsKey()).toStringList();
 }
 
-void BaseStringListAspect::toMap(QVariantMap &data) const
+void StringListAspect::toMap(QVariantMap &data) const
 {
     data.insert(settingsKey(), d->m_value);
 }
 
-QStringList BaseStringListAspect::value() const
+QStringList StringListAspect::value() const
 {
     return d->m_value;
 }
 
-void BaseStringListAspect::setValue(const QStringList &value)
+void StringListAspect::setValue(const QStringList &value)
 {
     d->m_value = value;
 }

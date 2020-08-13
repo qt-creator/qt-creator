@@ -114,15 +114,15 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Utils::Id id)
 
     addAspect<ArgumentsAspect>();
 
-    auto amStartArgsAspect = addAspect<BaseStringAspect>();
+    auto amStartArgsAspect = addAspect<StringAspect>();
     amStartArgsAspect->setId(Constants::ANDROID_AMSTARTARGS);
     amStartArgsAspect->setSettingsKey("Android.AmStartArgsKey");
     amStartArgsAspect->setLabelText(tr("Activity manager start options:"));
-    amStartArgsAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    amStartArgsAspect->setDisplayStyle(StringAspect::LineEditDisplay);
     amStartArgsAspect->setHistoryCompleter("Android.AmStartArgs.History");
 
-    auto warning = addAspect<BaseStringAspect>();
-    warning->setDisplayStyle(BaseStringAspect::LabelDisplay);
+    auto warning = addAspect<StringAspect>();
+    warning->setDisplayStyle(StringAspect::LabelDisplay);
     warning->setLabelPixmap(Icons::WARNING.pixmap());
     warning->setValue(tr("If the \"am start\" options conflict, the application might not start.\n"
                          "%1 uses: am start -n <package_name>/<Activity_name> [-D].")

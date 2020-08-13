@@ -407,9 +407,9 @@ ExecutableAspect::ExecutableAspect()
     setExecutablePathStyle(HostOsInfo::hostOs());
     m_executable.setPlaceHolderText(tr("<unknown>"));
     m_executable.setLabelText(tr("Executable:"));
-    m_executable.setDisplayStyle(BaseStringAspect::LabelDisplay);
+    m_executable.setDisplayStyle(StringAspect::LabelDisplay);
 
-    connect(&m_executable, &BaseStringAspect::changed,
+    connect(&m_executable, &StringAspect::changed,
             this, &ExecutableAspect::changed);
 }
 
@@ -447,7 +447,7 @@ void ExecutableAspect::setEnvironment(const Environment &env)
         m_alternativeExecutable->setEnvironment(env);
 }
 
-void ExecutableAspect::setDisplayStyle(BaseStringAspect::DisplayStyle style)
+void ExecutableAspect::setDisplayStyle(StringAspect::DisplayStyle style)
 {
     m_executable.setDisplayStyle(style);
 }
@@ -455,13 +455,13 @@ void ExecutableAspect::setDisplayStyle(BaseStringAspect::DisplayStyle style)
 void ExecutableAspect::makeOverridable(const QString &overridingKey, const QString &useOverridableKey)
 {
     QTC_ASSERT(!m_alternativeExecutable, return);
-    m_alternativeExecutable = new BaseStringAspect;
-    m_alternativeExecutable->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    m_alternativeExecutable = new StringAspect;
+    m_alternativeExecutable->setDisplayStyle(StringAspect::LineEditDisplay);
     m_alternativeExecutable->setLabelText(tr("Alternate executable on device:"));
     m_alternativeExecutable->setSettingsKey(overridingKey);
-    m_alternativeExecutable->makeCheckable(BaseStringAspect::CheckBoxPlacement::Right,
+    m_alternativeExecutable->makeCheckable(StringAspect::CheckBoxPlacement::Right,
                                            tr("Use this command instead"), useOverridableKey);
-    connect(m_alternativeExecutable, &BaseStringAspect::changed,
+    connect(m_alternativeExecutable, &StringAspect::changed,
             this, &ExecutableAspect::changed);
 }
 

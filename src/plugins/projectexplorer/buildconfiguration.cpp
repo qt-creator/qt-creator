@@ -193,7 +193,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     d->m_buildDirectoryAspect->setBaseFileName(target->project()->projectDirectory());
     d->m_buildDirectoryAspect->setEnvironment(environment());
     d->m_buildDirectoryAspect->setMacroExpanderProvider([this] { return macroExpander(); });
-    connect(d->m_buildDirectoryAspect, &BaseStringAspect::changed,
+    connect(d->m_buildDirectoryAspect, &StringAspect::changed,
             this, &BuildConfiguration::emitBuildDirectoryChanged);
     connect(this, &BuildConfiguration::environmentChanged, this, [this] {
         d->m_buildDirectoryAspect->setEnvironment(environment());

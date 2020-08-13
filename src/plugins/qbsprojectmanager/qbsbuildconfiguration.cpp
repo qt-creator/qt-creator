@@ -123,11 +123,11 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Core::Id id)
         emit qbsConfigurationChanged();
     });
 
-    m_configurationName = addAspect<BaseStringAspect>();
+    m_configurationName = addAspect<StringAspect>();
     m_configurationName->setLabelText(tr("Configuration name:"));
     m_configurationName->setSettingsKey("Qbs.configName");
-    m_configurationName->setDisplayStyle(BaseStringAspect::LineEditDisplay);
-    connect(m_configurationName, &BaseStringAspect::changed,
+    m_configurationName->setDisplayStyle(StringAspect::LineEditDisplay);
+    connect(m_configurationName, &StringAspect::changed,
             this, &BuildConfiguration::buildDirectoryChanged);
 
     const auto separateDebugInfoAspect = addAspect<SeparateDebugInfoAspect>();

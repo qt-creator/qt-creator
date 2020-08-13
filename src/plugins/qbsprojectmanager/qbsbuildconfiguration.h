@@ -100,7 +100,7 @@ private:
     QStringList m_changedFiles;
     QStringList m_activeFileTags;
     QStringList m_products;
-    ProjectExplorer::BaseStringAspect *m_configurationName = nullptr;
+    ProjectExplorer::StringAspect *m_configurationName = nullptr;
     QbsBuildSystem *m_buildSystem = nullptr;
 };
 

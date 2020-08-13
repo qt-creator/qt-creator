@@ -203,14 +203,14 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
             m_cppAspect->setValue(true);
     });
 
-    m_multiProcessAspect = new BaseBoolAspect;
+    m_multiProcessAspect = new BoolAspect;
     m_multiProcessAspect->setSettingsKey("RunConfiguration.UseMultiProcess");
     m_multiProcessAspect->setLabel(tr("Enable Debugging of Subprocesses"),
-                                   BaseBoolAspect::LabelPlacement::AtCheckBox);
+                                   BoolAspect::LabelPlacement::AtCheckBox);
 
-    m_overrideStartupAspect = new BaseStringAspect;
+    m_overrideStartupAspect = new StringAspect;
     m_overrideStartupAspect->setSettingsKey("RunConfiguration.OverrideDebuggerStartup");
-    m_overrideStartupAspect->setDisplayStyle(BaseStringAspect::TextEditDisplay);
+    m_overrideStartupAspect->setDisplayStyle(StringAspect::TextEditDisplay);
     m_overrideStartupAspect->setLabelText(tr("Additional startup commands:"));
 }
 

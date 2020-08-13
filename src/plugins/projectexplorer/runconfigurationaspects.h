@@ -132,7 +132,7 @@ private:
     std::function<QString()> m_resetter;
 };
 
-class PROJECTEXPLORER_EXPORT UseLibraryPathsAspect : public BaseBoolAspect
+class PROJECTEXPLORER_EXPORT UseLibraryPathsAspect : public BoolAspect
 {
     Q_OBJECT
 
@@ -140,7 +140,7 @@ public:
     UseLibraryPathsAspect();
 };
 
-class PROJECTEXPLORER_EXPORT UseDyldSuffixAspect : public BaseBoolAspect
+class PROJECTEXPLORER_EXPORT UseDyldSuffixAspect : public BoolAspect
 {
     Q_OBJECT
 
@@ -168,7 +168,7 @@ public:
     void setHistoryCompleter(const QString &historyCompleterKey);
     void setExpectedKind(const Utils::PathChooser::Kind expectedKind);
     void setEnvironment(const Utils::Environment &env);
-    void setDisplayStyle(BaseStringAspect::DisplayStyle style);
+    void setDisplayStyle(StringAspect::DisplayStyle style);
 
 protected:
     void fromMap(const QVariantMap &map) override;
@@ -177,11 +177,11 @@ protected:
 private:
     QString executableText() const;
 
-    BaseStringAspect m_executable;
-    BaseStringAspect *m_alternativeExecutable = nullptr;
+    StringAspect m_executable;
+    StringAspect *m_alternativeExecutable = nullptr;
 };
 
-class PROJECTEXPLORER_EXPORT SymbolFileAspect : public BaseStringAspect
+class PROJECTEXPLORER_EXPORT SymbolFileAspect : public StringAspect
 {
     Q_OBJECT
 

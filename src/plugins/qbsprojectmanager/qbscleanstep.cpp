@@ -54,16 +54,16 @@ QbsCleanStep::QbsCleanStep(BuildStepList *bsl, Core::Id id)
 {
     setDisplayName(tr("Qbs Clean"));
 
-    m_dryRunAspect = addAspect<BaseBoolAspect>();
+    m_dryRunAspect = addAspect<BoolAspect>();
     m_dryRunAspect->setSettingsKey("Qbs.DryRun");
-    m_dryRunAspect->setLabel(tr("Dry run:"), BaseBoolAspect::LabelPlacement::InExtraLabel);
+    m_dryRunAspect->setLabel(tr("Dry run:"), BoolAspect::LabelPlacement::InExtraLabel);
 
-    m_keepGoingAspect = addAspect<BaseBoolAspect>();
+    m_keepGoingAspect = addAspect<BoolAspect>();
     m_keepGoingAspect->setSettingsKey("Qbs.DryKeepGoing");
-    m_keepGoingAspect->setLabel(tr("Keep going:"), BaseBoolAspect::LabelPlacement::InExtraLabel);
+    m_keepGoingAspect->setLabel(tr("Keep going:"), BoolAspect::LabelPlacement::InExtraLabel);
 
-    auto effectiveCommandAspect = addAspect<BaseStringAspect>();
-    effectiveCommandAspect->setDisplayStyle(BaseStringAspect::TextEditDisplay);
+    auto effectiveCommandAspect = addAspect<StringAspect>();
+    effectiveCommandAspect->setDisplayStyle(StringAspect::TextEditDisplay);
     effectiveCommandAspect->setLabelText(tr("Equivalent command line:"));
 
     setSummaryUpdater([this, effectiveCommandAspect] {

@@ -289,7 +289,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     m_extraAppParams = runControl->runnable().commandLineArguments;
 
     if (auto aspect = runControl->aspect(Constants::ANDROID_AMSTARTARGS)) {
-        const QString startArgs = static_cast<BaseStringAspect *>(aspect)->value();
+        const QString startArgs = static_cast<StringAspect *>(aspect)->value();
         m_amStartExtraArgs = QtcProcess::splitArgs(startArgs, OsTypeOtherUnix);
     }
 

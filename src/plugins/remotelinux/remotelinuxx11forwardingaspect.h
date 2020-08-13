@@ -35,7 +35,7 @@ namespace Utils { class MacroExpander; }
 
 namespace RemoteLinux {
 
-class REMOTELINUX_EXPORT X11ForwardingAspect : public ProjectExplorer::BaseStringAspect
+class REMOTELINUX_EXPORT X11ForwardingAspect : public ProjectExplorer::StringAspect
 {
     Q_OBJECT
 

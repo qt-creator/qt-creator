@@ -60,8 +60,8 @@ private:
     void createTaskAndOutput(ProjectExplorer::Task::TaskType type,
                              const QString &message, const QString &file, int line);
 
-    ProjectExplorer::BaseBoolAspect *m_dryRunAspect = nullptr;
-    ProjectExplorer::BaseBoolAspect *m_keepGoingAspect = nullptr;
+    ProjectExplorer::BoolAspect *m_dryRunAspect = nullptr;
+    ProjectExplorer::BoolAspect *m_keepGoingAspect = nullptr;
 
     QStringList m_products;
     QbsSession *m_session = nullptr;

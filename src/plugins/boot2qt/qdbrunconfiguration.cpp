@@ -44,7 +44,7 @@ namespace Internal {
 
 // FullCommandLineAspect
 
-class FullCommandLineAspect : public BaseStringAspect
+class FullCommandLineAspect : public StringAspect
 {
     Q_DECLARE_TR_FUNCTIONS(Qdb::Internal::QdbRunConfiguration);
 

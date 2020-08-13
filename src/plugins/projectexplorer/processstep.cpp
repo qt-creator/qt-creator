@@ -57,9 +57,9 @@ public:
     void setupOutputFormatter(Utils::OutputFormatter *formatter);
     void setupProcessParameters(ProcessParameters *pp);
 
-    BaseStringAspect *m_command;
-    BaseStringAspect *m_arguments;
-    BaseStringAspect *m_workingDirectory;
+    StringAspect *m_command;
+    StringAspect *m_arguments;
+    StringAspect *m_workingDirectory;
 };
 
 ProcessStep::ProcessStep(BuildStepList *bsl, Utils::Id id)
@@ -68,22 +68,22 @@ ProcessStep::ProcessStep(BuildStepList *bsl, Utils::Id id)
     //: Default ProcessStep display name
     setDefaultDisplayName(tr("Custom Process Step"));
 
-    m_command = addAspect<BaseStringAspect>();
+    m_command = addAspect<StringAspect>();
     m_command->setSettingsKey(PROCESS_COMMAND_KEY);
-    m_command->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
+    m_command->setDisplayStyle(StringAspect::PathChooserDisplay);
     m_command->setLabelText(tr("Command:"));
     m_command->setExpectedKind(Utils::PathChooser::Command);
     m_command->setHistoryCompleter("PE.ProcessStepCommand.History");
 
-    m_arguments = addAspect<BaseStringAspect>();
+    m_arguments = addAspect<StringAspect>();
     m_arguments->setSettingsKey(PROCESS_ARGUMENTS_KEY);
-    m_arguments->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    m_arguments->setDisplayStyle(StringAspect::LineEditDisplay);
     m_arguments->setLabelText(tr("Arguments:"));
 
-    m_workingDirectory = addAspect<BaseStringAspect>();
+    m_workingDirectory = addAspect<StringAspect>();
     m_workingDirectory->setSettingsKey(PROCESS_WORKINGDIRECTORY_KEY);
     m_workingDirectory->setValue(Constants::DEFAULT_WORKING_DIR);
-    m_workingDirectory->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
+    m_workingDirectory->setDisplayStyle(StringAspect::PathChooserDisplay);
     m_workingDirectory->setLabelText(tr("Working directory:"));
     m_workingDirectory->setExpectedKind(Utils::PathChooser::Directory);
 

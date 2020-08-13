@@ -85,7 +85,7 @@ private:
     bool init() override;
     void doRun() override;
 
-    ProjectExplorer::BaseStringAspect *m_additionalArgumentsAspect = nullptr;
+    ProjectExplorer::StringAspect *m_additionalArgumentsAspect = nullptr;
     bool m_runConfigure = false;
 };
 
@@ -94,8 +94,8 @@ ConfigureStep::ConfigureStep(BuildStepList *bsl, Utils::Id id)
 {
     setDefaultDisplayName(tr("Configure"));
 
-    m_additionalArgumentsAspect = addAspect<BaseStringAspect>();
-    m_additionalArgumentsAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    m_additionalArgumentsAspect = addAspect<StringAspect>();
+    m_additionalArgumentsAspect->setDisplayStyle(StringAspect::LineEditDisplay);
     m_additionalArgumentsAspect->setSettingsKey(
                 "AutotoolsProjectManager.ConfigureStep.AdditionalArguments");
     m_additionalArgumentsAspect->setLabelText(tr("Arguments:"));

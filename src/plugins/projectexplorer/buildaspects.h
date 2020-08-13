@@ -32,7 +32,7 @@ namespace Utils { class FilePath; }
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT BuildDirectoryAspect : public BaseStringAspect
+class PROJECTEXPLORER_EXPORT BuildDirectoryAspect : public StringAspect
 {
     Q_OBJECT
 public:
@@ -55,7 +55,7 @@ private:
     Private * const d;
 };
 
-class PROJECTEXPLORER_EXPORT SeparateDebugInfoAspect : public BaseTriStateAspect
+class PROJECTEXPLORER_EXPORT SeparateDebugInfoAspect : public TriStateAspect
 {
     Q_OBJECT
 public:

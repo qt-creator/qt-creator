@@ -34,28 +34,24 @@
 
 #include <memory>
 
-QT_BEGIN_NAMESPACE
-class QCheckBox;
-QT_END_NAMESPACE
-
 namespace ProjectExplorer {
 
 namespace Internal {
-class BaseBoolAspectPrivate;
-class BaseIntegerAspectPrivate;
-class BaseSelectionAspectPrivate;
-class BaseStringAspectPrivate;
-class BaseStringListAspectPrivate;
+class BoolAspectPrivate;
+class IntegerAspectPrivate;
+class SelectionAspectPrivate;
+class StringAspectPrivate;
+class StringListAspectPrivate;
 class TextDisplayPrivate;
 } // Internal
 
-class PROJECTEXPLORER_EXPORT BaseBoolAspect : public ProjectConfigurationAspect
+class PROJECTEXPLORER_EXPORT BoolAspect : public ProjectConfigurationAspect
 {
     Q_OBJECT
 
 public:
-    explicit BaseBoolAspect(const QString &settingsKey = QString());
-    ~BaseBoolAspect() override;
+    explicit BoolAspect(const QString &settingsKey = QString());
+    ~BoolAspect() override;
 
     void addToLayout(LayoutBuilder &builder) override;
 
@@ -75,16 +71,16 @@ public:
     void toMap(QVariantMap &map) const override;
 
 private:
-    std::unique_ptr<Internal::BaseBoolAspectPrivate> d;
+    std::unique_ptr<Internal::BoolAspectPrivate> d;
 };
 
-class PROJECTEXPLORER_EXPORT BaseSelectionAspect : public ProjectConfigurationAspect
+class PROJECTEXPLORER_EXPORT SelectionAspect : public ProjectConfigurationAspect
 {
     Q_OBJECT
 
 public:
-    BaseSelectionAspect();
-    ~BaseSelectionAspect() override;
+    SelectionAspect();
+    ~SelectionAspect() override;
 
     void addToLayout(LayoutBuilder &builder) override;
 
@@ -110,20 +106,20 @@ protected:
     void setVisibleDynamic(bool visible) override;
 
 private:
-    std::unique_ptr<Internal::BaseSelectionAspectPrivate> d;
+    std::unique_ptr<Internal::SelectionAspectPrivate> d;
 };
 
-class PROJECTEXPLORER_EXPORT BaseStringAspect : public ProjectConfigurationAspect
+class PROJECTEXPLORER_EXPORT StringAspect : public ProjectConfigurationAspect
 {
     Q_OBJECT
 
 public:
-    BaseStringAspect();
-    ~BaseStringAspect() override;
+    StringAspect();
+    ~StringAspect() override;
 
     void addToLayout(LayoutBuilder &builder) override;
 
-    // Hook between UI and BaseStringAspect:
+    // Hook between UI and StringAspect:
     using ValueAcceptor = std::function<Utils::optional<QString>(const QString &, const QString &)>;
     void setValueAcceptor(ValueAcceptor &&acceptor);
     QString value() const;
@@ -175,16 +171,16 @@ signals:
 private:
     void update();
 
-    std::unique_ptr<Internal::BaseStringAspectPrivate> d;
+    std::unique_ptr<Internal::StringAspectPrivate> d;
 };
 
-class PROJECTEXPLORER_EXPORT BaseIntegerAspect : public ProjectConfigurationAspect
+class PROJECTEXPLORER_EXPORT IntegerAspect : public ProjectConfigurationAspect
 {
     Q_OBJECT
 
 public:
-    BaseIntegerAspect();
-    ~BaseIntegerAspect() override;
+    IntegerAspect();
+    ~IntegerAspect() override;
 
     void addToLayout(LayoutBuilder &builder) override;
 
@@ -205,7 +201,7 @@ public:
     void toMap(QVariantMap &map) const override;
 
 private:
-    std::unique_ptr<Internal::BaseIntegerAspectPrivate> d;
+    std::unique_ptr<Internal::IntegerAspectPrivate> d;
 };
 
 class PROJECTEXPLORER_EXPORT TriState
@@ -230,23 +226,23 @@ private:
     Value m_value = DefaultValue;
 };
 
-class PROJECTEXPLORER_EXPORT BaseTriStateAspect : public BaseSelectionAspect
+class PROJECTEXPLORER_EXPORT TriStateAspect : public SelectionAspect
 {
     Q_OBJECT
 public:
-    BaseTriStateAspect();
+    TriStateAspect();
 
     TriState setting() const;
     void setSetting(TriState setting);
 };
 
-class PROJECTEXPLORER_EXPORT BaseStringListAspect : public ProjectConfigurationAspect
+class PROJECTEXPLORER_EXPORT StringListAspect : public ProjectConfigurationAspect
 {
     Q_OBJECT
 
 public:
-    BaseStringListAspect();
-    ~BaseStringListAspect() override;
+    StringListAspect();
+    ~StringListAspect() override;
 
     void addToLayout(LayoutBuilder &builder) override;
 
@@ -257,7 +253,15 @@ public:
     void toMap(QVariantMap &map) const override;
 
 private:
-    std::unique_ptr<Internal::BaseStringListAspectPrivate> d;
+    std::unique_ptr<Internal::StringListAspectPrivate> d;
 };
+
+// FIXME: For migration. Remove after 4.15
+using BaseBoolAspect = BoolAspect;
+using BaseIntegerAspect = IntegerAspect;
+using BaseSelectionAspect = SelectionAspect;
+using BaseStringAspect = StringAspect;
+using BaseStringListAspect = StringListAspect;
+using BaseStringListAspect = StringListAspect;
 
 } // namespace ProjectExplorer

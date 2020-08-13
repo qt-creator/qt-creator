@@ -62,47 +62,47 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Utils::Id id) : MakeStep
     const auto makeAspect = addAspect<ExecutableAspect>();
     makeAspect->setId(MakeAspectId);
     makeAspect->setSettingsKey(MakeAspectId);
-    makeAspect->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
+    makeAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
     makeAspect->setLabelText(tr("Command:"));
     connect(makeAspect, &ExecutableAspect::changed,
             this, &MakeInstallStep::updateCommandFromAspect);
 
-    const auto installRootAspect = addAspect<BaseStringAspect>();
+    const auto installRootAspect = addAspect<StringAspect>();
     installRootAspect->setId(InstallRootAspectId);
     installRootAspect->setSettingsKey(InstallRootAspectId);
-    installRootAspect->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
+    installRootAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
     installRootAspect->setExpectedKind(PathChooser::Directory);
     installRootAspect->setLabelText(tr("Install root:"));
-    connect(installRootAspect, &BaseStringAspect::changed,
+    connect(installRootAspect, &StringAspect::changed,
             this, &MakeInstallStep::updateArgsFromAspect);
 
-    const auto cleanInstallRootAspect = addAspect<BaseBoolAspect>();
+    const auto cleanInstallRootAspect = addAspect<BoolAspect>();
     cleanInstallRootAspect->setId(CleanInstallRootAspectId);
     cleanInstallRootAspect->setSettingsKey(CleanInstallRootAspectId);
     cleanInstallRootAspect->setLabel(tr("Clean install root first:"),
-                                     BaseBoolAspect::LabelPlacement::InExtraLabel);
+                                     BoolAspect::LabelPlacement::InExtraLabel);
     cleanInstallRootAspect->setValue(false);
 
-    const auto commandLineAspect = addAspect<BaseStringAspect>();
+    const auto commandLineAspect = addAspect<StringAspect>();
     commandLineAspect->setId(FullCommandLineAspectId);
-    commandLineAspect->setDisplayStyle(BaseStringAspect::LabelDisplay);
+    commandLineAspect->setDisplayStyle(StringAspect::LabelDisplay);
     commandLineAspect->setLabelText(tr("Full command line:"));
 
-    const auto customCommandLineAspect = addAspect<BaseStringAspect>();
+    const auto customCommandLineAspect = addAspect<StringAspect>();
     customCommandLineAspect->setId(CustomCommandLineAspectId);
     customCommandLineAspect->setSettingsKey(CustomCommandLineAspectId);
-    customCommandLineAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    customCommandLineAspect->setDisplayStyle(StringAspect::LineEditDisplay);
     customCommandLineAspect->setLabelText(tr("Custom command line:"));
-    customCommandLineAspect->makeCheckable(BaseStringAspect::CheckBoxPlacement::Top,
+    customCommandLineAspect->makeCheckable(StringAspect::CheckBoxPlacement::Top,
                                            tr("Use custom command line instead:"),
                                            "RemoteLinux.MakeInstall.EnableCustomCommandLine");
-    connect(customCommandLineAspect, &BaseStringAspect::checkedChanged,
+    connect(customCommandLineAspect, &StringAspect::checkedChanged,
             this, &MakeInstallStep::updateCommandFromAspect);
-    connect(customCommandLineAspect, &BaseStringAspect::checkedChanged,
+    connect(customCommandLineAspect, &StringAspect::checkedChanged,
             this, &MakeInstallStep::updateArgsFromAspect);
-    connect(customCommandLineAspect, &BaseStringAspect::checkedChanged,
+    connect(customCommandLineAspect, &StringAspect::checkedChanged,
             this, &MakeInstallStep::updateFromCustomCommandLineAspect);
-    connect(customCommandLineAspect, &BaseStringAspect::changed,
+    connect(customCommandLineAspect, &StringAspect::changed,
             this, &MakeInstallStep::updateFromCustomCommandLineAspect);
 
     QTemporaryDir tmpDir;
@@ -208,12 +208,12 @@ void MakeInstallStep::stdError(const QString &line)
 
 FilePath MakeInstallStep::installRoot() const
 {
-    return static_cast<BaseStringAspect *>(aspect(InstallRootAspectId))->filePath();
+    return static_cast<StringAspect *>(aspect(InstallRootAspectId))->filePath();
 }
 
 bool MakeInstallStep::cleanInstallRoot() const
 {
-    return static_cast<BaseBoolAspect *>(aspect(CleanInstallRootAspectId))->value();
+    return static_cast<BoolAspect *>(aspect(CleanInstallRootAspectId))->value();
 }
 
 void MakeInstallStep::updateCommandFromAspect()
@@ -229,7 +229,7 @@ void MakeInstallStep::updateArgsFromAspect()
     if (customCommandLineAspect()->isChecked())
         return;
     setUserArguments(QtcProcess::joinArgs(target()->makeInstallCommand(
-        static_cast<BaseStringAspect *>(aspect(InstallRootAspectId))->filePath().toString())
+        static_cast<StringAspect *>(aspect(InstallRootAspectId))->filePath().toString())
                                           .arguments));
     updateFullCommandLine();
 }
@@ -237,7 +237,7 @@ void MakeInstallStep::updateArgsFromAspect()
 void MakeInstallStep::updateFullCommandLine()
 {
     // FIXME: Only executable?
-    static_cast<BaseStringAspect *>(aspect(FullCommandLineAspectId))->setValue(
+    static_cast<StringAspect *>(aspect(FullCommandLineAspectId))->setValue(
                 QDir::toNativeSeparators(
                     QtcProcess::quoteArg(makeExecutable().toString()))
                 + ' '  + userArguments());
@@ -245,7 +245,7 @@ void MakeInstallStep::updateFullCommandLine()
 
 void MakeInstallStep::updateFromCustomCommandLineAspect()
 {
-    const BaseStringAspect * const aspect = customCommandLineAspect();
+    const StringAspect * const aspect = customCommandLineAspect();
     if (!aspect->isChecked())
         return;
     const QStringList tokens = QtcProcess::splitArgs(aspect->value());
@@ -253,9 +253,9 @@ void MakeInstallStep::updateFromCustomCommandLineAspect()
     setUserArguments(QtcProcess::joinArgs(tokens.mid(1)));
 }
 
-BaseStringAspect *MakeInstallStep::customCommandLineAspect() const
+StringAspect *MakeInstallStep::customCommandLineAspect() const
 {
-    return static_cast<BaseStringAspect *>(aspect(CustomCommandLineAspectId));
+    return static_cast<StringAspect *>(aspect(CustomCommandLineAspectId));
 }
 
 bool MakeInstallStep::fromMap(const QVariantMap &map)

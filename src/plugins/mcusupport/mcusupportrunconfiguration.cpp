@@ -67,9 +67,9 @@ public:
     FlashAndRunConfiguration(Target *target, Utils::Id id)
         : RunConfiguration(target, id)
     {
-        auto flashAndRunParameters = addAspect<BaseStringAspect>();
+        auto flashAndRunParameters = addAspect<StringAspect>();
         flashAndRunParameters->setLabelText(tr("Flash and run CMake parameters:"));
-        flashAndRunParameters->setDisplayStyle(BaseStringAspect::TextEditDisplay);
+        flashAndRunParameters->setDisplayStyle(StringAspect::TextEditDisplay);
         flashAndRunParameters->setSettingsKey("FlashAndRunConfiguration.Parameters");
 
         setUpdater([target, flashAndRunParameters] {
@@ -92,7 +92,7 @@ public:
             const Target *target = runControl->target();
             const CommandLine cmd(
                         cmakeFilePath(target),
-                        runControl->runConfiguration()->aspect<BaseStringAspect>()->value(),
+                        runControl->runConfiguration()->aspect<StringAspect>()->value(),
                         CommandLine::Raw);
             Runnable r;
             r.workingDirectory =

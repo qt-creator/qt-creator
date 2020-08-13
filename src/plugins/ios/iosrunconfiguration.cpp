@@ -106,7 +106,7 @@ IosRunConfiguration::IosRunConfiguration(Target *target, Utils::Id id)
     : RunConfiguration(target, id)
 {
     auto executableAspect = addAspect<ExecutableAspect>();
-    executableAspect->setDisplayStyle(BaseStringAspect::LabelDisplay);
+    executableAspect->setDisplayStyle(StringAspect::LabelDisplay);
 
     addAspect<ArgumentsAspect>();
 

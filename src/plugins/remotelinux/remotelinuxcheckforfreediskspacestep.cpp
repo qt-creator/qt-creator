@@ -43,13 +43,13 @@ RemoteLinuxCheckForFreeDiskSpaceStep::RemoteLinuxCheckForFreeDiskSpaceStep
 
     auto service = createDeployService<RemoteLinuxCheckForFreeDiskSpaceService>();
 
-    auto pathToCheckAspect = addAspect<BaseStringAspect>();
+    auto pathToCheckAspect = addAspect<StringAspect>();
     pathToCheckAspect->setSettingsKey("RemoteLinux.CheckForFreeDiskSpaceStep.PathToCheck");
-    pathToCheckAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    pathToCheckAspect->setDisplayStyle(StringAspect::LineEditDisplay);
     pathToCheckAspect->setValue("/");
     pathToCheckAspect->setLabelText(tr("Remote path to check for free space:"));
 
-    auto requiredSpaceAspect = addAspect<BaseIntegerAspect>();
+    auto requiredSpaceAspect = addAspect<IntegerAspect>();
     requiredSpaceAspect->setSettingsKey("RemoteLinux.CheckForFreeDiskSpaceStep.RequiredSpace");
     requiredSpaceAspect->setLabel(tr("Required disk space:"));
     requiredSpaceAspect->setDisplayScaleFactor(1024*1024);

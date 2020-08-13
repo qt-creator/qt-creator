@@ -31,7 +31,7 @@
 
 namespace QtSupport {
 
-class QTSUPPORT_EXPORT QmlDebuggingAspect : public ProjectExplorer::BaseTriStateAspect
+class QTSUPPORT_EXPORT QmlDebuggingAspect : public ProjectExplorer::TriStateAspect
 {
     Q_OBJECT
 public:
@@ -44,7 +44,7 @@ private:
     const ProjectExplorer::Kit *m_kit = nullptr;
 };
 
-class QTSUPPORT_EXPORT QtQuickCompilerAspect : public ProjectExplorer::BaseTriStateAspect
+class QTSUPPORT_EXPORT QtQuickCompilerAspect : public ProjectExplorer::TriStateAspect
 {
     Q_OBJECT
 public:

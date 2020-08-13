@@ -77,7 +77,7 @@ QmlMultiLanguageAspect::QmlMultiLanguageAspect(ProjectExplorer::Target *target)
 {
     setVisible(isMultilanguagePresent());
     setSettingsKey(Constants::USE_MULTILANGUAGE_KEY);
-    setLabel(tr("Use MultiLanguage translation database."), BaseBoolAspect::LabelPlacement::AtCheckBox);
+    setLabel(tr("Use MultiLanguage translation database."), BoolAspect::LabelPlacement::AtCheckBox);
     setToolTip(tr("Enable loading application with special desktop SQLite translation database."));
 
     setDefaultValue(!databaseFilePath().isEmpty());
@@ -112,14 +112,14 @@ Utils::FilePath QmlMultiLanguageAspect::databaseFilePath() const
 
 void QmlMultiLanguageAspect::toMap(QVariantMap &map) const
 {
-    BaseBoolAspect::toMap(map);
+    BoolAspect::toMap(map);
     if (!m_currentLocale.isEmpty())
         map.insert(Constants::LAST_USED_LANGUAGE, m_currentLocale);
 }
 
 void QmlMultiLanguageAspect::fromMap(const QVariantMap &map)
 {
-    BaseBoolAspect::fromMap(map);
+    BoolAspect::fromMap(map);
     setCurrentLocale(map.value(Constants::LAST_USED_LANGUAGE, "en").toString());
 }
 

@@ -38,10 +38,10 @@ class MakeStepConfigWidget;
 class OverrideMakeflagsAspect;
 } // Internal
 
-class BaseBoolAspect;
-class BaseIntegerAspect;
-class BaseStringAspect;
-class BaseStringListAspect;
+class BoolAspect;
+class IntegerAspect;
+class StringAspect;
+class StringListAspect;
 
 class PROJECTEXPLORER_EXPORT MakeStep : public ProjectExplorer::AbstractProcessStep
 {
@@ -102,13 +102,13 @@ private:
     static int defaultJobCount();
     QStringList jobArguments() const;
 
-    BaseStringListAspect *m_buildTargetsAspect = nullptr;
+    StringListAspect *m_buildTargetsAspect = nullptr;
     QStringList m_availableTargets;
-    BaseStringAspect *m_makeCommandAspect = nullptr;
-    BaseStringAspect *m_userArgumentsAspect = nullptr;
-    BaseIntegerAspect *m_userJobCountAspect = nullptr;
+    StringAspect *m_makeCommandAspect = nullptr;
+    StringAspect *m_userArgumentsAspect = nullptr;
+    IntegerAspect *m_userJobCountAspect = nullptr;
     Internal::OverrideMakeflagsAspect *m_overrideMakeflagsAspect = nullptr;
-    BaseBoolAspect *m_cleanAspect = nullptr;
+    BoolAspect *m_cleanAspect = nullptr;
     bool m_disablingForSubDirsSupported = false;
     bool m_enabledForSubDirs = true;
 };

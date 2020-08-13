@@ -225,7 +225,7 @@ void InterpreterAspect::updateComboBox()
     updateCurrentInterpreter();
 }
 
-class MainScriptAspect : public BaseStringAspect
+class MainScriptAspect : public StringAspect
 {
     Q_OBJECT
 
@@ -249,16 +249,16 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Utils::Id id)
     aspect<InterpreterAspect>()->setDefaultInterpreter(
         interpreters.isEmpty() ? PythonSettings::defaultInterpreter() : interpreters.first());
 
-    auto bufferedAspect = addAspect<BaseBoolAspect>();
+    auto bufferedAspect = addAspect<BoolAspect>();
     bufferedAspect->setSettingsKey("PythonEditor.RunConfiguation.Buffered");
-    bufferedAspect->setLabel(tr("Buffered output"), BaseBoolAspect::LabelPlacement::AtCheckBox);
+    bufferedAspect->setLabel(tr("Buffered output"), BoolAspect::LabelPlacement::AtCheckBox);
     bufferedAspect->setToolTip(tr("Enabling improves output performance, "
                                   "but results in delayed output."));
 
     auto scriptAspect = addAspect<MainScriptAspect>();
     scriptAspect->setSettingsKey("PythonEditor.RunConfiguation.Script");
     scriptAspect->setLabelText(tr("Script:"));
-    scriptAspect->setDisplayStyle(BaseStringAspect::LabelDisplay);
+    scriptAspect->setDisplayStyle(StringAspect::LabelDisplay);
 
     addAspect<LocalEnvironmentAspect>(target);
 

@@ -54,7 +54,7 @@ QdbMakeDefaultAppStep::QdbMakeDefaultAppStep(BuildStepList *bsl, Utils::Id id)
 
     auto service = createDeployService<QdbMakeDefaultAppService>();
 
-    auto selection = addAspect<BaseSelectionAspect>();
+    auto selection = addAspect<SelectionAspect>();
     selection->setSettingsKey("QdbMakeDefaultDeployStep.MakeDefault");
     selection->addOption(tr("Set this application to start by default"));
     selection->addOption(tr("Reset default application"));

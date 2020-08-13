@@ -80,7 +80,7 @@ private:
     Utils::FilePath qmlScenePath() const;
     QString commandLineArguments() const;
 
-    BaseStringAspect *m_qmlViewerAspect = nullptr;
+    StringAspect *m_qmlViewerAspect = nullptr;
     QmlMainFileAspect *m_qmlMainFileAspect = nullptr;
     QmlMultiLanguageAspect *m_multiLanguageAspect = nullptr;
 };
@@ -88,10 +88,10 @@ private:
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
-    m_qmlViewerAspect = addAspect<BaseStringAspect>();
+    m_qmlViewerAspect = addAspect<StringAspect>();
     m_qmlViewerAspect->setLabelText(tr("QML Viewer:"));
     m_qmlViewerAspect->setPlaceHolderText(commandLine().executable().toString());
-    m_qmlViewerAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    m_qmlViewerAspect->setDisplayStyle(StringAspect::LineEditDisplay);
     m_qmlViewerAspect->setHistoryCompleter("QmlProjectManager.viewer.history");
 
     auto argumentAspect = addAspect<ArgumentsAspect>();

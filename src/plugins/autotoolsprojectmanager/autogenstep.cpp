@@ -66,7 +66,7 @@ private:
     bool init() override;
     void doRun() override;
 
-    BaseStringAspect *m_additionalArgumentsAspect = nullptr;
+    StringAspect *m_additionalArgumentsAspect = nullptr;
     bool m_runAutogen = false;
 };
 
@@ -74,11 +74,11 @@ AutogenStep::AutogenStep(BuildStepList *bsl, Utils::Id id) : AbstractProcessStep
 {
     setDefaultDisplayName(tr("Autogen"));
 
-    m_additionalArgumentsAspect = addAspect<BaseStringAspect>();
+    m_additionalArgumentsAspect = addAspect<StringAspect>();
     m_additionalArgumentsAspect->setSettingsKey(
                 "AutotoolsProjectManager.AutogenStep.AdditionalArguments");
     m_additionalArgumentsAspect->setLabelText(tr("Arguments:"));
-    m_additionalArgumentsAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    m_additionalArgumentsAspect->setDisplayStyle(StringAspect::LineEditDisplay);
     m_additionalArgumentsAspect->setHistoryCompleter("AutotoolsPM.History.AutogenStepArgs");
 
     connect(m_additionalArgumentsAspect, &ProjectConfigurationAspect::changed, this, [this] {

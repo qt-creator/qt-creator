@@ -64,9 +64,9 @@ NimCompilerCleanStep::NimCompilerCleanStep(BuildStepList *parentList, Utils::Id 
     setDefaultDisplayName(tr("Nim Clean Step"));
     setDisplayName(tr("Nim Clean Step"));
 
-    auto workingDirectory = addAspect<BaseStringAspect>();
+    auto workingDirectory = addAspect<StringAspect>();
     workingDirectory->setLabelText(tr("Working directory:"));
-    workingDirectory->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    workingDirectory->setDisplayStyle(StringAspect::LineEditDisplay);
 
     setSummaryUpdater([this, workingDirectory] {
         workingDirectory->setFilePath(buildDirectory());

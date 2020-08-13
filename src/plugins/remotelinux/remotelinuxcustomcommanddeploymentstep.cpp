@@ -38,10 +38,10 @@ RemoteLinuxCustomCommandDeploymentStep::RemoteLinuxCustomCommandDeploymentStep
 {
     auto service = createDeployService<RemoteLinuxCustomCommandDeployService>();
 
-    auto commandLine = addAspect<BaseStringAspect>();
+    auto commandLine = addAspect<StringAspect>();
     commandLine->setSettingsKey("RemoteLinuxCustomCommandDeploymentStep.CommandLine");
     commandLine->setLabelText(tr("Command line:"));
-    commandLine->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    commandLine->setDisplayStyle(StringAspect::LineEditDisplay);
     commandLine->setHistoryCompleter("RemoteLinuxCustomCommandDeploymentStep.History");
 
     setDefaultDisplayName(displayName());

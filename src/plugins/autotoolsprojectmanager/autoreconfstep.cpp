@@ -63,7 +63,7 @@ public:
     void doRun() override;
 
 private:
-    BaseStringAspect *m_additionalArgumentsAspect = nullptr;
+    StringAspect *m_additionalArgumentsAspect = nullptr;
     bool m_runAutoreconf = false;
 };
 
@@ -72,11 +72,11 @@ AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Utils::Id id)
 {
     setDefaultDisplayName(tr("Autoreconf"));
 
-    m_additionalArgumentsAspect = addAspect<BaseStringAspect>();
+    m_additionalArgumentsAspect = addAspect<StringAspect>();
     m_additionalArgumentsAspect->setSettingsKey("AutotoolsProjectManager.AutoreconfStep.AdditionalArguments");
     m_additionalArgumentsAspect->setLabelText(tr("Arguments:"));
     m_additionalArgumentsAspect->setValue("--force --install");
-    m_additionalArgumentsAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    m_additionalArgumentsAspect->setDisplayStyle(StringAspect::LineEditDisplay);
     m_additionalArgumentsAspect->setHistoryCompleter("AutotoolsPM.History.AutoreconfStepArgs");
 
     connect(m_additionalArgumentsAspect, &ProjectConfigurationAspect::changed, this, [this] {

@@ -67,7 +67,7 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Utils::Id id)
     auto libAspect = addAspect<QtLibPathAspect>();
     libAspect->setSettingsKey("Qt4ProjectManager.QnxRunConfiguration.QtLibPath");
     libAspect->setLabelText(tr("Path to Qt libraries on device"));
-    libAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    libAspect->setDisplayStyle(StringAspect::LineEditDisplay);
 
     setUpdater([this, target, exeAspect, symbolsAspect] {
         const BuildTargetInfo bti = buildTargetInfo();

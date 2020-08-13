@@ -81,25 +81,25 @@ public:
 
 private:
     CommandBuilderAspect *m_commandBuilder;
-    BaseBoolAspect *m_avoidLocal{nullptr};
-    BaseStringAspect *m_profileXml{nullptr};
-    BaseIntegerAspect *m_maxCpu{nullptr};
-    BaseSelectionAspect *m_maxWinVer{nullptr};
-    BaseSelectionAspect *m_minWinVer{nullptr};
-    BaseStringAspect *m_title{nullptr};
-    BaseStringAspect *m_monFile{nullptr};
-    BaseBoolAspect *m_suppressStdOut{nullptr};
-    BaseStringAspect *m_logFile{nullptr};
-    BaseBoolAspect *m_showCmd{nullptr};
-    BaseBoolAspect *m_showAgents{nullptr};
-    BaseBoolAspect *m_showTime{nullptr};
-    BaseBoolAspect *m_hideHeader{nullptr};
-    BaseSelectionAspect *m_logLevel{nullptr};
-    BaseStringAspect *m_setEnv{nullptr};
-    BaseBoolAspect *m_stopOnError{nullptr};
-    BaseStringAspect *m_additionalArguments{nullptr};
-    BaseBoolAspect *m_openMonitor{nullptr};
-    BaseBoolAspect *m_keepJobNum{nullptr};
+    BoolAspect *m_avoidLocal{nullptr};
+    StringAspect *m_profileXml{nullptr};
+    IntegerAspect *m_maxCpu{nullptr};
+    SelectionAspect *m_maxWinVer{nullptr};
+    SelectionAspect *m_minWinVer{nullptr};
+    StringAspect *m_title{nullptr};
+    StringAspect *m_monFile{nullptr};
+    BoolAspect *m_suppressStdOut{nullptr};
+    StringAspect *m_logFile{nullptr};
+    BoolAspect *m_showCmd{nullptr};
+    BoolAspect *m_showAgents{nullptr};
+    BoolAspect *m_showTime{nullptr};
+    BoolAspect *m_hideHeader{nullptr};
+    SelectionAspect *m_logLevel{nullptr};
+    StringAspect *m_setEnv{nullptr};
+    BoolAspect *m_stopOnError{nullptr};
+    StringAspect *m_additionalArguments{nullptr};
+    BoolAspect *m_openMonitor{nullptr};
+    BoolAspect *m_keepJobNum{nullptr};
 };
 
 BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id)
@@ -117,7 +117,7 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
                                       "parameter value is large enough "
                                       "(such as -j200 for the JOM or Make build tools)"));
 
-    m_keepJobNum = addAspect<BaseBoolAspect>();
+    m_keepJobNum = addAspect<BoolAspect>();
     m_keepJobNum->setSettingsKey(Constants::BUILDCONSOLE_KEEPJOBNUM);
     m_keepJobNum->setLabel(tr("Keep Original Jobs Num:"));
     m_keepJobNum->setToolTip(tr("Setting this option to true, forces IncrediBuild to not override "
@@ -129,10 +129,10 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
 
     addAspect<TextDisplay>("<b>" + tr("IncrediBuild Distribution Control"));
 
-    m_profileXml = addAspect<BaseStringAspect>();
+    m_profileXml = addAspect<StringAspect>();
     m_profileXml->setSettingsKey(Constants::BUILDCONSOLE_PROFILEXML);
     m_profileXml->setLabelText(tr("Profile.xml:"));
-    m_profileXml->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
+    m_profileXml->setDisplayStyle(StringAspect::PathChooserDisplay);
     m_profileXml->setExpectedKind(PathChooser::Kind::File);
     m_profileXml->setBaseFileName(FilePath::fromString(PathChooser::homePath()));
     m_profileXml->setHistoryCompleter("IncrediBuild.BuildConsole.ProfileXml.History");
@@ -145,7 +145,7 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
                                 "those packages. It is required to configure distributable "
                                 "processes in \"Dev Tools\" builds."));
 
-    m_avoidLocal = addAspect<BaseBoolAspect>();
+    m_avoidLocal = addAspect<BoolAspect>();
     m_avoidLocal->setSettingsKey(Constants::BUILDCONSOLE_AVOIDLOCAL);
     m_avoidLocal->setLabel(tr("Avoid Local:"));
     m_avoidLocal->setToolTip(tr("Overrides the Agent Settings dialog Avoid task execution on local "
@@ -154,7 +154,7 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
                                 "in scenarios where the initiating machine is bottlenecking the "
                                 "build with High CPU usage."));
 
-    m_maxCpu = addAspect<BaseIntegerAspect>();
+    m_maxCpu = addAspect<IntegerAspect>();
     m_maxCpu->setSettingsKey(Constants::BUILDCONSOLE_MAXCPU);
     m_maxCpu->setToolTip(tr("Determines the maximum number of CPU cores that can be used in a "
                             "build, regardless of the number of available Agents. "
@@ -163,19 +163,19 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
     m_maxCpu->setLabel(tr("Maximum CPUs to utilize in the build:"));
     m_maxCpu->setRange(0, 65536);
 
-    m_maxWinVer = addAspect<BaseSelectionAspect>();
+    m_maxWinVer = addAspect<SelectionAspect>();
     m_maxWinVer->setSettingsKey(Constants::BUILDCONSOLE_MAXWINVER);
     m_maxWinVer->setDisplayName(tr("Newest allowed helper machine OS:"));
-    m_maxWinVer->setDisplayStyle(BaseSelectionAspect::DisplayStyle::ComboBox);
+    m_maxWinVer->setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     m_maxWinVer->setToolTip(tr("Specifies the newest operating system installed on a helper "
                                "machine to be allowed to participate as helper in the build."));
     for (const QString &version : supportedWindowsVersions())
         m_maxWinVer->addOption(version);
 
-    m_minWinVer = addAspect<BaseSelectionAspect>();
+    m_minWinVer = addAspect<SelectionAspect>();
     m_minWinVer->setSettingsKey(Constants::BUILDCONSOLE_MINWINVER);
     m_minWinVer->setDisplayName(tr("Oldest allowed helper machine OS:"));
-    m_minWinVer->setDisplayStyle(BaseSelectionAspect::DisplayStyle::ComboBox);
+    m_minWinVer->setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     m_minWinVer->setToolTip(tr("Specifies the oldest operating system installed on a helper "
                                "machine to be allowed to participate as helper in the build."));
     for (const QString &version : supportedWindowsVersions())
@@ -183,18 +183,18 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
 
     addAspect<TextDisplay>("<b>" + tr("Output and Logging"));
 
-    m_title = addAspect<BaseStringAspect>();
+    m_title = addAspect<StringAspect>();
     m_title->setSettingsKey(Constants::BUILDCONSOLE_TITLE);
     m_title->setLabelText(tr("Build Title:"));
-    m_title->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    m_title->setDisplayStyle(StringAspect::LineEditDisplay);
     m_title->setToolTip(tr("Specifies a custom header line which will be displayed in the "
                            "beginning of the build output text. This title will also be used "
                            "for the Build History and Build Monitor displays."));
 
-    m_monFile = addAspect<BaseStringAspect>();
+    m_monFile = addAspect<StringAspect>();
     m_monFile->setSettingsKey(Constants::BUILDCONSOLE_MONFILE);
     m_monFile->setLabelText(tr("Save IncrediBuild monitor file:"));
-    m_monFile->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
+    m_monFile->setDisplayStyle(StringAspect::PathChooserDisplay);
     m_monFile->setExpectedKind(PathChooser::Kind::Any);
     m_monFile->setBaseFileName(FilePath::fromString(PathChooser::homePath()));
     m_monFile->setHistoryCompleter(QLatin1String("IncrediBuild.BuildConsole.MonFile.History"));
@@ -203,45 +203,45 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
                              "GUID for the file name. - A message containing the location of the "
                              "saved .ib_mon file is added to the end of the build output"));
 
-    m_suppressStdOut = addAspect<BaseBoolAspect>();
+    m_suppressStdOut = addAspect<BoolAspect>();
     m_suppressStdOut->setSettingsKey(Constants::BUILDCONSOLE_SUPPRESSSTDOUT);
     m_suppressStdOut->setLabel(tr("Suppress STDOUT:"));
     m_suppressStdOut->setToolTip(tr("Does not write anything to the standard output."));
 
-    m_logFile = addAspect<BaseStringAspect>();
+    m_logFile = addAspect<StringAspect>();
     m_logFile->setSettingsKey(Constants::BUILDCONSOLE_LOGFILE);
     m_logFile->setLabelText(tr("Output Log file:"));
-    m_logFile->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
+    m_logFile->setDisplayStyle(StringAspect::PathChooserDisplay);
     m_logFile->setExpectedKind(PathChooser::Kind::SaveFile);
     m_logFile->setBaseFileName(FilePath::fromString(PathChooser::homePath()));
     m_logFile->setHistoryCompleter(QLatin1String("IncrediBuild.BuildConsole.LogFile.History"));
     m_logFile->setToolTip(tr("Writes build output to a file."));
 
-    m_showCmd = addAspect<BaseBoolAspect>();
+    m_showCmd = addAspect<BoolAspect>();
     m_showCmd->setSettingsKey(Constants::BUILDCONSOLE_SHOWCMD);
     m_showCmd->setLabel(tr("Show Commands in output:"));
     m_showCmd->setToolTip(tr("Shows, for each file built, the command-line used by IncrediBuild "
                              "to build the file."));
 
-    m_showAgents = addAspect<BaseBoolAspect>();
+    m_showAgents = addAspect<BoolAspect>();
     m_showAgents->setSettingsKey(Constants::BUILDCONSOLE_SHOWAGENTS);
     m_showAgents->setLabel(tr("Show Agents in output:"));
     m_showAgents->setToolTip(tr("Shows the Agent used to build each file."));
 
-    m_showTime = addAspect<BaseBoolAspect>();
+    m_showTime = addAspect<BoolAspect>();
     m_showTime->setSettingsKey(Constants::BUILDCONSOLE_SHOWTIME);
     m_showTime->setLabel(tr("Show Time in output:"));
     m_showTime->setToolTip(tr("Shows the Start and Finish time for each file built."));
 
-    m_hideHeader = addAspect<BaseBoolAspect>();
+    m_hideHeader = addAspect<BoolAspect>();
     m_hideHeader->setSettingsKey(Constants::BUILDCONSOLE_HIDEHEADER);
     m_hideHeader->setLabel(tr("Hide IncrediBuild Header in output:"));
     m_hideHeader->setToolTip(tr("Suppresses the \"IncrediBuild\" header in the build output"));
 
-    m_logLevel = addAspect<BaseSelectionAspect>();
+    m_logLevel = addAspect<SelectionAspect>();
     m_logLevel->setSettingsKey(Constants::BUILDCONSOLE_LOGLEVEL);
     m_logLevel->setDisplayName(tr("Internal IncrediBuild logging level:"));
-    m_logLevel->setDisplayStyle(BaseSelectionAspect::DisplayStyle::ComboBox);
+    m_logLevel->setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     m_logLevel->addOption(QString());
     m_logLevel->addOption("Minimal");
     m_logLevel->addOption("Extended");
@@ -252,13 +252,13 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
 
     addAspect<TextDisplay>("<b>" + tr("Miscellaneous"));
 
-    m_setEnv = addAspect<BaseStringAspect>();
+    m_setEnv = addAspect<StringAspect>();
     m_setEnv->setSettingsKey(Constants::BUILDCONSOLE_SETENV);
     m_setEnv->setLabelText(tr("Set an Environment Variable:"));
-    m_setEnv->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    m_setEnv->setDisplayStyle(StringAspect::LineEditDisplay);
     m_setEnv->setToolTip(tr("Sets or overrides environment variables for the context of the build."));
 
-    m_stopOnError = addAspect<BaseBoolAspect>();
+    m_stopOnError = addAspect<BoolAspect>();
     m_stopOnError->setSettingsKey(Constants::BUILDCONSOLE_STOPONERROR);
     m_stopOnError->setLabel(tr("Stop On Errors:"));
     m_stopOnError->setToolTip(tr("When specified, the execution will stop as soon as an error "
@@ -266,16 +266,16 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
                                  "\"Visual Studio\" builds, but not the default for "
                                  "\"Make and Build tools\" or \"Dev Tools\" builds"));
 
-    m_additionalArguments = addAspect<BaseStringAspect>();
+    m_additionalArguments = addAspect<StringAspect>();
     m_additionalArguments->setSettingsKey(Constants::BUILDCONSOLE_ADDITIONALARGUMENTS);
     m_additionalArguments->setLabelText(tr("Additional Arguments:"));
-    m_additionalArguments->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    m_additionalArguments->setDisplayStyle(StringAspect::LineEditDisplay);
     m_additionalArguments->setToolTip(tr("Add additional buildconsole arguments manually. "
                                          "The value of this field will be concatenated to the "
                                          "final buildconsole command line"));
 
 
-    m_openMonitor = addAspect<BaseBoolAspect>();
+    m_openMonitor = addAspect<BoolAspect>();
     m_openMonitor->setSettingsKey(Constants::BUILDCONSOLE_OPENMONITOR);
     m_openMonitor->setLabel(tr("Open Monitor:"));
     m_openMonitor->setToolTip(tr("Opens an IncrediBuild Build Monitor that graphically displays "

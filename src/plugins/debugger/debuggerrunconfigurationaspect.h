@@ -59,8 +59,8 @@ public:
 private:
     Internal::DebuggerLanguageAspect *m_cppAspect;
     Internal::DebuggerLanguageAspect *m_qmlAspect;
-    ProjectExplorer::BaseBoolAspect *m_multiProcessAspect;
-    ProjectExplorer::BaseStringAspect *m_overrideStartupAspect;
+    ProjectExplorer::BoolAspect *m_multiProcessAspect;
+    ProjectExplorer::StringAspect *m_overrideStartupAspect;
     ProjectExplorer::Target *m_target;
 };
 

@@ -48,7 +48,7 @@ QmlDebuggingAspect::QmlDebuggingAspect()
 
 void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
 {
-    BaseSelectionAspect::addToLayout(builder);
+    SelectionAspect::addToLayout(builder);
     const auto warningLabel = new Utils::InfoLabel({}, Utils::InfoLabel::Warning);
     warningLabel->setElideMode(Qt::ElideNone);
     builder.startNewRow().addItems(QString(), warningLabel);
@@ -80,7 +80,7 @@ QtQuickCompilerAspect::QtQuickCompilerAspect()
 
 void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
 {
-    BaseSelectionAspect::addToLayout(builder);
+    SelectionAspect::addToLayout(builder);
     const auto warningLabel = new Utils::InfoLabel({}, Utils::InfoLabel::Warning);
     warningLabel->setElideMode(Qt::ElideNone);
     builder.startNewRow().addItems(QString(), warningLabel);
