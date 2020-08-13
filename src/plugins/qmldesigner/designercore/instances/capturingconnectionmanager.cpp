@@ -42,10 +42,13 @@ void CapturingConnectionManager::setUp(NodeInstanceServerProxy *nodeInstanceServ
     int indexOfCapturePuppetStream = QCoreApplication::arguments().indexOf(
         "-capture-puppet-stream");
     if (indexOfCapturePuppetStream > 0) {
-        m_captureFileForTest.setFileName(
-            QCoreApplication::arguments().at(indexOfCapturePuppetStream + 1));
+        const QString filePath = QCoreApplication::arguments().at(indexOfCapturePuppetStream + 1);
+        m_captureFileForTest.setFileName(filePath);
         bool isOpen = m_captureFileForTest.open(QIODevice::WriteOnly);
-        qDebug() << "file is open: " << isOpen;
+        if (isOpen)
+            qDebug() << "capture file is open:" << filePath;
+        else
+            qDebug() << "capture file could not be opened!";
     }
 }
 
@@ -60,6 +63,17 @@ void CapturingConnectionManager::processFinished(int exitCode, QProcess::ExitSta
     }
 
     InteractiveConnectionManager::processFinished(exitCode, exitStatus);
+}
+
+void CapturingConnectionManager::writeCommand(const QVariant &command)
+{
+    InteractiveConnectionManager::writeCommand(command);
+
+    if (m_captureFileForTest.isWritable()) {
+        qDebug() << "command name: " << QMetaType(command.userType()).name();
+        writeCommandToIODevice(command, &m_captureFileForTest, m_writeCommandCounter);
+        qDebug() << "\tcatpure file offset: " << m_captureFileForTest.pos();
+    }
 }
 
 } // namespace QmlDesigner
