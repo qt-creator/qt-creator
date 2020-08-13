@@ -73,10 +73,7 @@ void MesonBuildStepConfigWidget::updateDetails()
 {
     auto mesonBuildStep = static_cast<NinjaBuildStep *>(step());
     ProjectExplorer::ProcessParameters param;
-    param.setMacroExpander(mesonBuildStep->macroExpander());
-    param.setEnvironment(mesonBuildStep->buildEnvironment());
-    param.setWorkingDirectory(mesonBuildStep->buildDirectory());
-    param.setCommandLine(mesonBuildStep->command());
+    mesonBuildStep->setupProcessParameters(&param);
     setSummaryText(param.summary(displayName()));
 }
 

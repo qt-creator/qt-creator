@@ -38,6 +38,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
+using namespace Utils;
+
 namespace MesonProjectManager {
 namespace Internal {
 const char TARGETS_KEY[] = "MesonProjectManager.BuildStep.BuildTargets";
@@ -50,6 +52,10 @@ NinjaBuildStep::NinjaBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id
     if (m_targetName.isEmpty())
         setBuildTarget(defaultBuildTarget());
     setLowPriority();
+
+    setCommandLineProvider([this] { return command(); });
+    setUseEnglishOutput();
+
     connect(target(), &ProjectExplorer::Target::parsingFinished, this, &NinjaBuildStep::update);
     connect(Settings::instance(),
             &Settings::verboseNinjaChanged,
@@ -99,14 +105,8 @@ void NinjaBuildStep::update(bool parsingSuccessful)
 bool NinjaBuildStep::init()
 {
     // TODO check if the setup is ok
-    MesonBuildConfiguration *bc = static_cast<MesonBuildConfiguration *>(buildConfiguration());
     ProjectExplorer::ProcessParameters *pp = processParameters();
-    pp->setMacroExpander(bc->macroExpander());
-    Utils::Environment env = bc->environment();
-    Utils::Environment::setupEnglishOutput(&env);
-    pp->setEnvironment(env);
-    pp->setWorkingDirectory(bc->buildDirectory());
-    pp->setCommandLine(command());
+    setupProcessParameters(pp);
     pp->resolveAll();
 
     return AbstractProcessStep::init();
