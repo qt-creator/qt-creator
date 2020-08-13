@@ -81,7 +81,9 @@ QJsonObject TextNodeParser::json(Component &component) const
 
     textDetails.insert(IsMultilineTag, propertyValue("wrapMode").toString().compare("NoWrap") != 0);
 
-    jsonObject.insert(TextDetailsTag, textDetails);
+    QJsonObject metadata = jsonObject.value(MetadataTag).toObject();
+    metadata.insert(TextDetailsTag, textDetails);
+    jsonObject.insert(MetadataTag, metadata);
     return  jsonObject;
 }
 }

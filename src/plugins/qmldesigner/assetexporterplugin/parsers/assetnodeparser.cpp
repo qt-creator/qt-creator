@@ -58,7 +58,10 @@ QJsonObject AssetNodeParser::json(Component &component) const
     Utils::FilePath assetPath = component.exporter().exportAsset(objectNode(), uuid());
     QJsonObject assetData;
     assetData.insert(AssetPathTag, assetPath.toString());
-    jsonObject.insert(AssetDataTag, assetData);
+
+    QJsonObject metadata = jsonObject.value(MetadataTag).toObject();
+    metadata.insert(AssetDataTag, assetData);
+    jsonObject.insert(MetadataTag, metadata);
     return jsonObject;
 }
 }

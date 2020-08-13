@@ -84,7 +84,8 @@ void Qt5PreviewNodeInstanceServer::collectItemChangesAndSendChangeCommands()
             instance.deactivateState();
         }
 
-        nodeInstanceClient()->statePreviewImagesChanged(StatePreviewImageChangedCommand(imageContainerVector));
+        nodeInstanceClient()->statePreviewImagesChanged(
+            StatePreviewImageChangedCommand(imageContainerVector));
 
         slowDownRenderTimer();
         handleExtraRender();
@@ -105,7 +106,7 @@ QImage Qt5PreviewNodeInstanceServer::renderPreviewImage()
 
     QSize previewImageSize = boundingRect.size().toSize();
 
-    if (!m_previewSize.isNull())
+    if (m_previewSize.isValid() && !m_previewSize.isNull())
         previewImageSize.scale(m_previewSize, Qt::KeepAspectRatio);
 
     QImage previewImage = rootNodeInstance().renderPreviewImage(previewImageSize);
@@ -123,9 +124,6 @@ void Qt5PreviewNodeInstanceServer::changePreviewImageSize(
     const ChangePreviewImageSizeCommand &command)
 {
     m_previewSize = command.size;
-
-    if (!command.size.isValid())
-        m_previewSize = {160, 160};
 
     collectItemChangesAndSendChangeCommands();
 }

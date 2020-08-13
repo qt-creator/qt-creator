@@ -28,6 +28,17 @@
 
 #include "qmlitemnode.h"
 
+namespace  {
+static QString capitalize(const QString &str)
+{
+    if (str.isEmpty())
+        return {};
+    QString tmp = str;
+    tmp[0] = QChar(str[0]).toUpper().toLatin1();
+    return tmp;
+}
+}
+
 namespace QmlDesigner {
 using namespace Constants;
 ItemNodeParser::ItemNodeParser(const QByteArrayList &lineage,
@@ -47,10 +58,16 @@ QJsonObject QmlDesigner::ItemNodeParser::json(QmlDesigner::Component &component)
     Q_UNUSED(component);
     const QmlObjectNode &qmlObjectNode = objectNode();
     QJsonObject jsonObject;
-    jsonObject.insert(QmlIdTag, qmlObjectNode.id());
-    QmlItemNode itemNode = qmlObjectNode.toQmlItemNode();
+
+    const QString qmlId = qmlObjectNode.id();
+    QString name = m_node.simplifiedTypeName();
+    if (!qmlId.isEmpty())
+        name.append("_" + capitalize(qmlId));
+
+    jsonObject.insert(NameTag, name);
 
     // Position relative to parent
+    QmlItemNode itemNode = qmlObjectNode.toQmlItemNode();
     QPointF pos = itemNode.instancePosition();
     jsonObject.insert(XPosTag, pos.x());
     jsonObject.insert(YPosTag, pos.y());
@@ -60,10 +77,13 @@ QJsonObject QmlDesigner::ItemNodeParser::json(QmlDesigner::Component &component)
     jsonObject.insert(WidthTag, size.width());
     jsonObject.insert(HeightTag, size.height());
 
-    jsonObject.insert(UuidTag, uuid());
-    jsonObject.insert(ExportTypeTag, "child");
-    jsonObject.insert(TypeNameTag, QString::fromLatin1(m_node.type()));
+    QJsonObject metadata;
+    metadata.insert(QmlIdTag, qmlId);
+    metadata.insert(UuidTag, uuid());
+    metadata.insert(ExportTypeTag, ExportTypeChild);
+    metadata.insert(TypeNameTag, QString::fromLatin1(m_node.type()));
 
-    return  jsonObject;
+    jsonObject.insert(MetadataTag, metadata);
+    return jsonObject;
 }
 }

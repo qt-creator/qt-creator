@@ -27,6 +27,7 @@
 #include "listmodeleditormodel.h"
 
 #include <theme.h>
+#include <qmldesignericons.h>
 
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
@@ -71,6 +72,10 @@ ListModelEditorDialog::ListModelEditorDialog(QWidget *parent)
     m_addColumnAction = toolBar->addAction(getIcon(Theme::Icon::addColumnAfter), tr("Add Column"));
     m_removeColumnsAction = toolBar->addAction(getIcon(Theme::Icon::deleteColumn),
                                                tr("Remove Columns"));
+    m_moveDownAction = toolBar->addAction(Icons::ARROW_DOWN.icon(), tr("Move down (CTRL + Down)."));
+    m_moveDownAction->setShortcut(QKeySequence(Qt::Key_Down | Qt::CTRL));
+    m_moveUpAction = toolBar->addAction(Icons::ARROW_UP.icon(), tr("Move up (CTRL + Up)."));
+    m_moveDownAction->setShortcut(QKeySequence(Qt::Key_Up | Qt::CTRL));
 }
 
 ListModelEditorDialog::~ListModelEditorDialog() = default;
@@ -83,6 +88,8 @@ void ListModelEditorDialog::setModel(ListModelEditorModel *model)
     connect(m_addColumnAction, &QAction::triggered, this, &ListModelEditorDialog::openColumnDialog);
     connect(m_removeRowsAction, &QAction::triggered, this, &ListModelEditorDialog::removeRows);
     connect(m_removeColumnsAction, &QAction::triggered, this, &ListModelEditorDialog::removeColumns);
+    connect(m_moveDownAction, &QAction::triggered, this, &ListModelEditorDialog::moveRowsDown);
+    connect(m_moveUpAction, &QAction::triggered, this, &ListModelEditorDialog::moveRowsUp);
     connect(m_tableView->horizontalHeader(),
             &QHeaderView::sectionDoubleClicked,
             this,
@@ -114,40 +121,12 @@ void ListModelEditorDialog::openColumnDialog()
 
 void ListModelEditorDialog::removeRows()
 {
-    const QList<QModelIndex> indices = m_tableView->selectionModel()->selectedRows();
-    std::vector<int> rows;
-    rows.reserve(indices.size());
-
-    for (QModelIndex index : indices)
-        rows.push_back(index.row());
-
-    std::sort(rows.begin(), rows.end());
-
-    rows.erase(std::unique(rows.begin(), rows.end()), rows.end());
-
-    std::reverse(rows.begin(), rows.end());
-
-    for (int row : rows)
-        m_model->removeRow(row);
+    m_model->removeRows(m_tableView->selectionModel()->selectedRows());
 }
 
 void ListModelEditorDialog::removeColumns()
 {
-    const QList<QModelIndex> indices = m_tableView->selectionModel()->selectedColumns();
-    std::vector<int> columns;
-    columns.reserve(indices.size());
-
-    for (QModelIndex index : indices)
-        columns.push_back(index.column());
-
-    std::sort(columns.begin(), columns.end());
-
-    columns.erase(std::unique(columns.begin(), columns.end()), columns.end());
-
-    std::reverse(columns.begin(), columns.end());
-
-    for (int row : columns)
-        m_model->removeColumn(row);
+    m_model->removeColumns(m_tableView->selectionModel()->selectedColumns());
 }
 
 void ListModelEditorDialog::changeHeader(int column)
@@ -160,6 +139,18 @@ void ListModelEditorDialog::changeHeader(int column)
 
     if (ok && !newPropertyName.isEmpty())
         m_model->renameColumn(column, newPropertyName);
+}
+
+void ListModelEditorDialog::moveRowsDown()
+{
+    QItemSelection selection = m_model->moveRowsDown(m_tableView->selectionModel()->selectedRows());
+    m_tableView->selectionModel()->select(selection, QItemSelectionModel::Select);
+}
+
+void ListModelEditorDialog::moveRowsUp()
+{
+    QItemSelection selection = m_model->moveRowsUp(m_tableView->selectionModel()->selectedRows());
+    m_tableView->selectionModel()->select(selection, QItemSelectionModel::Select);
 }
 
 } // namespace QmlDesigner

@@ -62,6 +62,7 @@ class RemovePropertiesCommand;
 class CompleteComponentCommand;
 class InformationContainer;
 class TokenCommand;
+class ConnectionManagerInterface;
 
 class QMLDESIGNERCORE_EXPORT NodeInstanceView : public AbstractView, public NodeInstanceClientInterface
 {
@@ -72,7 +73,7 @@ class QMLDESIGNERCORE_EXPORT NodeInstanceView : public AbstractView, public Node
 public:
     using Pointer = QWeakPointer<NodeInstanceView>;
 
-    explicit NodeInstanceView(QObject *parent = nullptr, NodeInstanceServerInterface::RunModus runModus = NodeInstanceServerInterface::NormalModus);
+    explicit NodeInstanceView(ConnectionManagerInterface &connectionManager);
     ~NodeInstanceView() override;
 
     void modelAttached(Model *model) override;
@@ -94,7 +95,7 @@ public:
     void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data) override;
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
     void nodeSourceChanged(const ModelNode &modelNode, const QString &newNodeSource) override;
-
+    void capturedData(const CapturedDataCommand &capturedData) override;
     void currentStateChanged(const ModelNode &node) override;
 
     QList<NodeInstance> instances() const;
@@ -142,6 +143,7 @@ protected:
     void timerEvent(QTimerEvent *event) override;
 
 private: // functions
+    std::unique_ptr<NodeInstanceServerProxy> createNodeInstanceServerProxy();
     void activateState(const NodeInstance &instance);
     void activateBaseState();
 
@@ -161,9 +163,8 @@ private: // functions
     void setStateInstance(const NodeInstance &stateInstance);
     void clearStateInstance();
 
-    NodeInstanceServerInterface *nodeInstanceServer() const;
-    QMultiHash<ModelNode, InformationName> informationChanged(const QVector<InformationContainer> &containerVector);
-
+    QMultiHash<ModelNode, InformationName> informationChanged(
+        const QVector<InformationContainer> &containerVector);
 
     CreateSceneCommand createCreateSceneCommand();
     ClearSceneCommand createClearSceneCommand() const;
@@ -196,16 +197,15 @@ private: // functions
     // puppet to creator command handlers
     void handlePuppetKeyPress(int key, Qt::KeyboardModifiers modifiers);
 
+private:
     NodeInstance m_rootNodeInstance;
     NodeInstance m_activeStateInstance;
-
     QHash<ModelNode, NodeInstance> m_nodeInstanceHash;
     QHash<ModelNode, QImage> m_statePreviewImage;
-
-    QPointer<NodeInstanceServerProxy> m_nodeInstanceServer;
+    ConnectionManagerInterface &m_connectionManager;
+    std::unique_ptr<NodeInstanceServerProxy> m_nodeInstanceServer;
     QImage m_baseStatePreviewImage;
     QElapsedTimer m_lastCrashTime;
-    NodeInstanceServerInterface::RunModus m_runModus;
     ProjectExplorer::Target *m_currentTarget = nullptr;
     int m_restartProcessTimerId;
     RewriterTransaction m_puppetTransaction;

@@ -27,6 +27,7 @@
 
 #include <QCoreApplication>
 
+#include "qt5capturenodeinstanceserver.h"
 #include "qt5informationnodeinstanceserver.h"
 #include "qt5previewnodeinstanceserver.h"
 #include "qt5rendernodeinstanceserver.h"
@@ -37,7 +38,7 @@
 #if defined(Q_OS_UNIX)
 #include <unistd.h>
 #elif defined(Q_OS_WIN)
-#include <windows.h>
+#include <Windows.h>
 #endif
 
 namespace QmlDesigner {
@@ -57,18 +58,21 @@ Qt5NodeInstanceClientProxy::Qt5NodeInstanceClientProxy(QObject *parent) :
     DesignerSupport::activateDesignerWindowManager();
     if (QCoreApplication::arguments().at(1) == QLatin1String("--readcapturedstream")) {
         qputenv("DESIGNER_DONT_USE_SHARED_MEMORY", "1");
-        setNodeInstanceServer(new Qt5TestNodeInstanceServer(this));
+        setNodeInstanceServer(std::make_unique<Qt5TestNodeInstanceServer>(this));
         initializeCapturedStream(QCoreApplication::arguments().at(2));
         readDataStream();
         QCoreApplication::exit();
     } else if (QCoreApplication::arguments().at(2) == QLatin1String("previewmode")) {
-        setNodeInstanceServer(new Qt5PreviewNodeInstanceServer(this));
+        setNodeInstanceServer(std::make_unique<Qt5PreviewNodeInstanceServer>(this));
         initializeSocket();
     } else if (QCoreApplication::arguments().at(2) == QLatin1String("editormode")) {
-        setNodeInstanceServer(new Qt5InformationNodeInstanceServer(this));
+        setNodeInstanceServer(std::make_unique<Qt5InformationNodeInstanceServer>(this));
         initializeSocket();
     } else if (QCoreApplication::arguments().at(2) == QLatin1String("rendermode")) {
-        setNodeInstanceServer(new Qt5RenderNodeInstanceServer(this));
+        setNodeInstanceServer(std::make_unique<Qt5RenderNodeInstanceServer>(this));
+        initializeSocket();
+    } else if (QCoreApplication::arguments().at(2) == QLatin1String("capturemode")) {
+        setNodeInstanceServer(std::make_unique<Qt5CaptureNodeInstanceServer>(this));
         initializeSocket();
     }
 }

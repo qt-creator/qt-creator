@@ -26,6 +26,8 @@
 import QtQuick 2.1
 import HelperWidgets 2.0
 import QtQuick.Layouts 1.0
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 Section {
     anchors.left: parent.left
@@ -46,9 +48,29 @@ Section {
         Label {
             text: qsTr("Text")
         }
-        LineEdit {
-            backendValue: backendValues.text
-            Layout.fillWidth: true
+
+        RowLayout {
+            LineEdit {
+                backendValue: backendValues.text
+                Layout.fillWidth: true
+            }
+
+            StudioControls.AbstractButton {
+                id: richTextEditorButton
+                buttonIcon: StudioTheme.Constants.textAlignTop
+                onClicked: {
+                    richTextDialogLoader.show()
+                }
+            }
+
+            RichTextEditor{
+                onRejected: {
+                    hideWidget()
+                }
+                onAccepted: {
+                    hideWidget()
+                }
+            }
         }
 
         Label {
@@ -217,6 +239,41 @@ Section {
             model:  ["ProportionalHeight", "FixedHeight"]
             backendValue: backendValues.lineHeightMode
             Layout.fillWidth: true
+        }
+    }
+
+    Loader {
+        id: richTextDialogLoader
+
+        visible: false
+        active: visible
+
+        function show() {
+            richTextDialogLoader.visible = true
+        }
+
+        sourceComponent: Item {
+            id: richTextEditorParent
+
+            Component.onCompleted: {
+                richTextEditor.showWidget()
+                richTextEditor.richText = backendValues.text.value
+            }
+
+            RichTextEditor {
+                id: richTextEditor
+
+                onRejected: {
+                    hideWidget()
+                    richTextDialogLoader.visible = false
+                }
+                onAccepted: {
+                    backendValues.text.value = richTextEditor.richText
+                    backendValues.textFormat.setEnumeration("Text", "RichText")
+                    hideWidget()
+                    richTextDialogLoader.visible = false
+                }
+            }
         }
     }
 }

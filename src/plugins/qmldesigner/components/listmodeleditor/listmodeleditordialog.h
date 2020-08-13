@@ -59,6 +59,8 @@ private:
     void removeRows();
     void removeColumns();
     void changeHeader(int column);
+    void moveRowsDown();
+    void moveRowsUp();
 
 private:
     ListModelEditorModel *m_model{};
@@ -66,6 +68,8 @@ private:
     QAction *m_removeRowsAction{};
     QAction *m_addColumnAction{};
     QAction *m_removeColumnsAction{};
+    QAction *m_moveUpAction{};
+    QAction *m_moveDownAction{};
     QTableView *m_tableView{};
 };
 

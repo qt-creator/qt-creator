@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "qprocessuniqueptr.h"
+
 #include <QString>
 #include <QProcessEnvironment>
 
@@ -53,12 +55,13 @@ public:
 
     void createQml2PuppetExecutableIfMissing();
 
-    QProcess *createPuppetProcess(const QString &puppetMode,
-                                  const QString &socketToken,
-                                  QObject *handlerObject,
-                                  const char *outputSlot,
-                                  const char *finishSlot,
-                                  const QStringList &customOptions = {}) const;
+    QProcessUniquePointer createPuppetProcess(
+        const QString &puppetMode,
+        const QString &socketToken,
+        QObject *handlerObject,
+        std::function<void()> processOutputCallback,
+        std::function<void(int, QProcess::ExitStatus)> processFinishCallback,
+        const QStringList &customOptions = {}) const;
 
     void setQrcMappingString(const QString qrcMapping);
 
@@ -82,14 +85,14 @@ protected:
 
     bool checkPuppetIsReady(const QString &puppetPath) const;
     bool qtIsSupported() const;
-    QProcess *puppetProcess(const QString &puppetPath,
-                            const QString &workingDirectory,
-                            const QString &puppetMode,
-                            const QString &socketToken,
-                            QObject *handlerObject,
-                            const char *outputSlot,
-                            const char *finishSlot,
-                            const QStringList &customOptions) const;
+    QProcessUniquePointer puppetProcess(const QString &puppetPath,
+                                        const QString &workingDirectory,
+                                        const QString &puppetMode,
+                                        const QString &socketToken,
+                                        QObject *handlerObject,
+                                        std::function<void()> processOutputCallback,
+                                        std::function<void(int, QProcess::ExitStatus)> processFinishCallback,
+                                        const QStringList &customOptions) const;
 
     QProcessEnvironment processEnvironment() const;
 

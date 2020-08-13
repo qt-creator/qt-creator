@@ -40,18 +40,23 @@ public:
     explicit QmlMultiLanguageAspect(ProjectExplorer::Target *target);
     ~QmlMultiLanguageAspect() override;
 
-    QString lastUsedLanguage() const;
+    QString currentLocale() const;
+    void setCurrentLocale(const QString &locale);
     Utils::FilePath databaseFilePath() const;
     void toMap(QVariantMap &map) const final;
     void fromMap(const QVariantMap &map) final;
 
-public slots:
-    void setLastUsedLanguage(const QString &language);
+    static QmlMultiLanguageAspect *current();
+    static QmlMultiLanguageAspect *current(ProjectExplorer::Project *project);
+    static QmlMultiLanguageAspect *current(ProjectExplorer::Target *target);
+
+signals:
+    void currentLocaleChanged(const QString &locale);
 
 private:
     ProjectExplorer::Target *m_target = nullptr;
     mutable Utils::FilePath m_databaseFilePath;
-    QString m_lastUsedLanguage;
+    QString m_currentLocale;
 };
 
 } // namespace QmlProjectManager

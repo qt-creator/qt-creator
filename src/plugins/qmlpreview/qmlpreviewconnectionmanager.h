@@ -57,6 +57,7 @@ signals:
     void loadFile(const QString &filename, const QString &changedFile, const QByteArray &contents);
     void zoom(float zoomFactor);
     void language(const QString &locale);
+    void changeElideWarning(bool elideWarning);
     void rerun();
     void restart();
 
@@ -78,6 +79,7 @@ private:
     QmlPreviewFileLoader m_fileLoader = nullptr;
     QmlPreviewFileClassifier m_fileClassifier = nullptr;
     QmlPreviewFpsHandler m_fpsHandler = nullptr;
+    QString m_initLocale;
 };
 
 } // namespace Internal

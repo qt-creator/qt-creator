@@ -17,4 +17,5 @@ add_qtc_test(tst_qml_testcore
     ../testview.cpp ../testview.h
     testrewriterview.cpp testrewriterview.h
     tst_testcore.cpp tst_testcore.h
+    ../testconnectionmanager.cpp    ../testconnectionmanager.h
 )
