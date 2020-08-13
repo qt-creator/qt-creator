@@ -90,7 +90,7 @@
 <!ENTITY checkbox "\[[ x]\](?=\s)">
 ]>
 
-<language name="Markdown" version="11" kateversion="5.53" section="Markup" extensions="*.md;*.mmd;*.markdown" priority="15" author="Darrin Yeager, Claes Holmerson" license="GPL,BSD">
+<language name="Markdown" version="13" kateversion="5.53" section="Markup" extensions="*.md;*.mmd;*.markdown" priority="15" author="Darrin Yeager, Claes Holmerson" license="GPL,BSD">
   <highlighting>
     <contexts>
       <!-- Start of the Markdown document: find metadata or code block -->
@@ -320,11 +320,12 @@
         <RegExpr attribute="Fenced Code" context="#pop!matlab-code" String="&fcode;\s*matlab&end;" insensitive="true"/>
         <RegExpr attribute="Fenced Code" context="#pop!markdown-code" String="&fcode;\s*(?:markdown|m?md)&end;" insensitive="true"/>
         <RegExpr attribute="Fenced Code" context="#pop!mustache-code" String="&fcode;\s*(?:handlebars|hbs|mustache|mst|ractive|hogan|hulk)&end;" insensitive="true"/> <!-- Included in the HTML definition -->
-        <RegExpr attribute="Fenced Code" context="#pop!perl-code" String="&fcode;\s*(?:perl|p[lm]|pod|psgi|vcl|perl6|p[lm]?6|nqp)&end;" insensitive="true"/>
+        <RegExpr attribute="Fenced Code" context="#pop!perl-code" String="&fcode;\s*(?:perl|p[lm]|pod|psgi|vcl)&end;" insensitive="true"/>
         <RegExpr attribute="Fenced Code" context="#pop!php-code" String="&fcode;\s*(?:php[3457t]?|wml|phtml?|aw|ctp)&end;" insensitive="true"/>
         <RegExpr attribute="Fenced Code" context="#pop!python-code" String="&fcode;\s*(?:python[23]?|py[23w]?|[rc]py|sconstruct|gypi?)&end;" insensitive="true"/>
         <RegExpr attribute="Fenced Code" context="#pop!qml-code" String="&fcode;\s*qml(?:types)?&end;" insensitive="true"/>
         <RegExpr attribute="Fenced Code" context="#pop!r-code" String="&fcode;\s*(?:r|rprofile|rscript)&end;" insensitive="true"/>
+        <RegExpr attribute="Fenced Code" context="#pop!raku-code" String="&fcode;\s*(?:raku(?:mod|doc|test)?|perl6|p[lm]?6|pod6|nqp)&end;" insensitive="true"/>
         <RegExpr attribute="Fenced Code" context="#pop!rest-code" String="&fcode;\s*(?:rst|rest|restructuredtext)&end;" insensitive="true"/> <!-- Included in the CMake definition -->
         <RegExpr attribute="Fenced Code" context="#pop!ruby-code" String="&fcode;\s*(?:ruby|rbx?|rjs|rake|f?cgi|gemspec|irbrc|ru|prawn|Appraisals|(?:Rake|Cap|Chef|Gem|Guard|Hobo|Vagrant||Rant|Berks|Thor|Puppet)file|rxml|(?:xml|js)\.erb)&end;" insensitive="true"/>
         <RegExpr attribute="Fenced Code" context="#pop!rust-code" String="&fcode;\s*(?:rust|rs)&end;" insensitive="true"/>
@@ -431,6 +432,10 @@
       <context attribute="Normal Text" lineEndContext="#stay" name="r-code">
         <IncludeRules context="code"/>
         <IncludeRules context="##R Script" includeAttrib="true"/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="raku-code">
+        <IncludeRules context="code"/>
+        <IncludeRules context="base##Raku" includeAttrib="true"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="rest-code">
         <IncludeRules context="code"/>

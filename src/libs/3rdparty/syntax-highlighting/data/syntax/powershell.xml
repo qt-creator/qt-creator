@@ -1,7 +1,7 @@
 <!DOCTYPE language SYSTEM "language.dtd">
 <language
   name="PowerShell"
-  version="5"
+  version="6"
   kateversion="5.0"
   extensions="*.ps1;*.ps1m;*.ps1d"
   section="Scripts"
@@ -889,8 +889,8 @@
         <RegExpr attribute="Keyword" context="#stay" String="\b\$script(?=\s+(:))"/>
         <RegExpr attribute="Variable" context="#stay" String="\$+[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*" />
         <keyword attribute="Special Variable" context="#stay" String="special-variables"/>
-        <RegExpr attribute="Symbol" context="Member" String="[.]{1,1}" />
-        <AnyChar attribute="Symbol" context="#stay" String=":!%&amp;()+,-/.*&lt;=&gt;?[]|~^&#59;"/>
+        <DetectChar attribute="Symbol" context="Member" char="." />
+        <AnyChar attribute="Symbol" context="#stay" String=":!%&amp;()+,-/*&lt;=&gt;?[]|~^&#59;"/>
       </context>
       <context attribute="String Char" lineEndContext="#stay" name="StringEscape">
         <RegExpr attribute="String Char" String="`[`&quot;0abefnrtv]" context="#stay"/>

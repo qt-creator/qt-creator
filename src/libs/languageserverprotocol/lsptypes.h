@@ -442,12 +442,12 @@ class LANGUAGESERVERPROTOCOL_EXPORT WorkSpaceFolder : public JsonObject
 {
 public:
     WorkSpaceFolder() = default;
-    WorkSpaceFolder(const QString &uri, const QString &name);
+    WorkSpaceFolder(const DocumentUri &uri, const QString &name);
     using JsonObject::JsonObject;
 
     // The associated URI for this workspace folder.
-    QString uri() const { return typedValue<QString>(uriKey); }
-    void setUri(const QString &uri) { insert(uriKey, uri); }
+    DocumentUri uri() const { return DocumentUri::fromProtocol(typedValue<QString>(uriKey)); }
+    void setUri(const DocumentUri &uri) { insert(uriKey, uri); }
 
     // The name of the workspace folder. Defaults to the uri's basename.
     QString name() const { return typedValue<QString>(nameKey); }

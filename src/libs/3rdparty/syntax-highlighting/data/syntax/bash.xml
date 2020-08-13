@@ -7,8 +7,9 @@
         <!ENTITY eos      "(?=($|\s))">                 <!-- eol or space following -->
         <!ENTITY noword   "(?![\w$+-])">                <!-- no word, $, + or - following -->
         <!ENTITY pathpart "([\w_@.&#37;*?+-]|\\ )">     <!-- valid character in a file name -->
+        <!ENTITY charbeforecomment "[\s;]">             <!-- character before a comment # -->
 ]>
-<language name="Bash" version="9" kateversion="5.0" section="Scripts" extensions="*.sh;*.bash;*.ebuild;*.eclass;*.nix;.bashrc;.bash_profile;.bash_login;.profile;PKGBUILD;APKBUILD" mimetype="application/x-shellscript" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
+<language name="Bash" version="11" kateversion="5.0" section="Scripts" extensions="*.sh;*.bash;*.ebuild;*.eclass;*.nix;.bashrc;.bash_profile;.bash_login;.profile;PKGBUILD;APKBUILD" mimetype="application/x-shellscript" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
 
 <!-- (c) 2004 by Wilbert Berendsen (wilbert@kde.nl)
     Changes by Matthew Woehlke (mw_triad@users.sourceforge.net)
@@ -473,6 +474,9 @@
       <!-- FindMost tries to interpret anything except commands -->
       <context attribute="Normal Text" lineEndContext="#stay" name="FindMost">
         <IncludeRules context="FindComments" />
+        <IncludeRules context="FindMostWithoutComments" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="FindMostWithoutComments">
         <IncludeRules context="FindStrings" />
         <IncludeRules context="FindSubstitutions" />
         <IncludeRules context="FindOthers" />
@@ -482,7 +486,13 @@
       <!-- FindComments consumes shell comments till EOL -->
       <context attribute="Normal Text" lineEndContext="#pop" name="FindComments">
         <DetectChar attribute="Comment" context="Comment" char="#" firstNonSpace="true"/>
-        <RegExpr attribute="Normal Text" context="Comment" String="[\s;](?=#)" />
+        <RegExpr attribute="Comment" context="Comment" String="(?&lt;=&charbeforecomment;)#" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#pop" name="FindCommentsInCommand">
+        <DetectChar attribute="Comment" context="Comment" char="#" firstNonSpace="true"/>
+        <!-- NOTE: If a rule already matches a character of &charbeforecomment;
+             (for example, in an escaped character), the comment will not be highlighted. -->
+        <RegExpr attribute="Normal Text" context="Comment" String="&charbeforecomment;(?=#)" />
       </context>
       <context attribute="Comment" lineEndContext="#pop" name="Comment">
         <IncludeRules context="##Alerts" />
@@ -492,7 +502,7 @@
       <!-- FindCommentsParen consumes shell comments till EOL or a closing parenthese -->
       <context attribute="Normal Text" lineEndContext="#pop" name="FindCommentsParen">
         <DetectChar attribute="Comment" context="CommentParen" char="#" firstNonSpace="true"/>
-        <RegExpr attribute="Normal Text" context="CommentParen" String="[\s;](?=#)" />
+        <RegExpr attribute="Normal Text" context="CommentParen" String="&charbeforecomment;(?=#)" />
       </context>
       <context attribute="Comment" lineEndContext="#pop" name="CommentParen">
         <RegExpr attribute="Comment" context="#pop" String="[^)](?=\))" />
@@ -502,7 +512,7 @@
       <!-- FindCommentsBackq consumes shell comments till EOL or a backquote -->
       <context attribute="Normal Text" lineEndContext="#pop" name="FindCommentsBackq">
         <DetectChar attribute="Comment" context="CommentBackq" char="#" firstNonSpace="true"/>
-        <RegExpr attribute="Normal Text" context="CommentBackq" String="[\s;](?=#)" />
+        <RegExpr attribute="Normal Text" context="CommentBackq" String="&charbeforecomment;(?=#)" />
       </context>
       <context attribute="Comment" lineEndContext="#pop" name="CommentBackq">
         <RegExpr attribute="Comment" context="#pop" String="[^`](?=`)" />
@@ -553,7 +563,8 @@
         <!-- handle here document -->
         <Detect2Chars attribute="Redirection" context="HereDoc" char="&lt;" char1="&lt;" lookAhead="true" />
         <!-- handle process subst -->
-        <RegExpr attribute="Redirection" context="ProcessSubst" String="[&lt;&gt;]\(" />
+        <Detect2Chars attribute="Redirection" context="ProcessSubst" char="&lt;" char1="(" />
+        <Detect2Chars attribute="Redirection" context="ProcessSubst" char="&gt;" char1="(" />
         <!-- handle redirection -->
         <RegExpr attribute="Redirection" context="#stay" String="([0-9]*(&gt;{1,2}|&lt;)(&amp;[0-9]+-?)?|&amp;&gt;|&gt;&amp;|[0-9]*&lt;&gt;)" />
         <!-- handle &, &&, | and || -->
@@ -567,13 +578,27 @@
         <RegExpr attribute="OtherCommand" context="#stay" String="/&pathpart;*(?=([/);$`'&quot;]|$))" />
         <RegExpr attribute="OtherCommand" context="CommandArgs" String="/&pathpart;*(?=([\s);$`'&quot;]|$))" />
         <!-- This list is not complete. ie, ":" is missing but as it is in bash completition. -->
-        <RegExpr attribute="OtherCommand" context="CommandArgs" String="&pathpart;*" />
+        <RegExpr attribute="OtherCommand" context="CommandArgsNormal" String="&pathpart;*" />
       </context>
 
       <!-- CommandArgs matches the items after a command -->
       <context attribute="Normal Text" lineEndContext="#pop" name="CommandArgs">
-        <LineContinue />
+        <!-- In command arguments, do not allow comments after escaped characters.
+             This avoids highlighting comments within paths or other text. Ex: pathtext\ #no\ comment -->
+        <!-- FindComments -->
+        <RegExpr attribute="Control" context="#pop!Comment" String=";;?(?=#)" />
+        <IncludeRules context="FindCommentsInCommand" />
+        <IncludeRules context="FindMostWithoutComments" />
+        <IncludeRules context="DefaultCommandArgs" />
+      </context>
+      <!-- CommandArgs but with normal comments -->
+      <context attribute="Normal Text" lineEndContext="#pop" name="CommandArgsNormal">
         <IncludeRules context="FindMost" />
+        <IncludeRules context="DefaultCommandArgs" />
+      </context>
+
+      <context attribute="Normal Text" lineEndContext="#pop" name="DefaultCommandArgs">
+        <LineContinue />
         <RegExpr attribute="Keyword" context="#stay" String="\\$" />
         <!-- handle keywords -->
         <RegExpr attribute="Option" context="#stay" String="\.(?=\s)" />
@@ -582,10 +607,11 @@
         <!-- handle here document -->
         <Detect2Chars attribute="Redirection" context="HereDoc" char="&lt;" char1="&lt;" lookAhead="true" />
         <!-- handle process subst -->
-        <RegExpr attribute="Redirection" context="ProcessSubst" String="[&lt;&gt;]\(" />
+        <Detect2Chars attribute="Redirection" context="ProcessSubst" char="&lt;" char1="(" />
+        <Detect2Chars attribute="Redirection" context="ProcessSubst" char="&gt;" char1="(" />
         <!-- handle redirection -->
         <RegExpr attribute="Redirection" context="#stay" String="([0-9]*(&gt;{1,2}|&lt;)(&amp;[0-9]+-?)?|&amp;&gt;|&gt;&amp;|[0-9]*&lt;&gt;)" />
-        <!-- handle &, &&, | and || -->
+        <!-- handle &, &&, |, ||, ; and ;; -->
         <RegExpr attribute="Control" context="#pop" String="([|&amp;;])\1?" />
         <RegExpr attribute="Normal Text" context="#stay" String="[a-zA-Z_]+-[A-Za-z0-9_-]*" />
         <RegExpr attribute="Option" context="#stay" String="-?-[a-zA-Z_][A-Za-z0-9_-]*" />

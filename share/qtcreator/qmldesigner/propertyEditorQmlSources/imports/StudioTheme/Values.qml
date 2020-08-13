@@ -124,4 +124,9 @@ QtObject {
 
     // Taken out of Constants.js
     property string themeChangedStateText: Theme.color(Theme.DSchangedStateText)
+
+    // 3D
+    property string theme3DAxisXColor: Theme.color(Theme.DS3DAxisXColor)
+    property string theme3DAxisYColor: Theme.color(Theme.DS3DAxisYColor)
+    property string theme3DAxisZColor: Theme.color(Theme.DS3DAxisZColor)
 }

@@ -2629,15 +2629,16 @@ bool BreakpointManager::contextMenuEvent(const ItemViewEvent &ev)
               rowCount() > 0,
               &BreakpointManager::executeDeleteAllBreakpointsDialog);
 
-    // Delete by file: Find indices of breakpoints of the same file.
+    // Delete by file: Find breakpoints of the same file.
     GlobalBreakpoints breakpointsInFile;
     FilePath file;
     if (GlobalBreakpoint gbp = itemForIndexAtLevel<1>(ev.sourceModelIndex())) {
         file = gbp->markerFileName();
         if (!file.isEmpty()) {
-            for (int i = 0; i != rowCount(); ++i)
+            forItemsAtLevel<1>([file, &breakpointsInFile](const GlobalBreakpoint &gbp) {
                 if (gbp->markerFileName() == file)
                     breakpointsInFile.append(gbp);
+            });
         }
     }
     addAction(menu, tr("Delete Breakpoints of \"%1\"").arg(file.toUserOutput()),

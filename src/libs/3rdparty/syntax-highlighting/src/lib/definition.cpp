@@ -37,10 +37,10 @@
 #include "rule_p.h"
 #include "xml_p.h"
 
+#include <QCborMap>
 #include <QCoreApplication>
 #include <QFile>
 #include <QHash>
-#include <QJsonObject>
 #include <QStringList>
 #include <QVector>
 #include <QXmlStreamReader>
@@ -456,12 +456,12 @@ bool DefinitionData::loadMetaData(const QString &definitionFileName)
     return false;
 }
 
-bool DefinitionData::loadMetaData(const QString &file, const QJsonObject &obj)
+bool DefinitionData::loadMetaData(const QString &file, const QCborMap &obj)
 {
     name = obj.value(QLatin1String("name")).toString();
     section = obj.value(QLatin1String("section")).toString();
-    version = obj.value(QLatin1String("version")).toInt();
-    priority = obj.value(QLatin1String("priority")).toInt();
+    version = obj.value(QLatin1String("version")).toInteger();
+    priority = obj.value(QLatin1String("priority")).toInteger();
     style = obj.value(QLatin1String("style")).toString();
     author = obj.value(QLatin1String("author")).toString();
     license = obj.value(QLatin1String("license")).toString();

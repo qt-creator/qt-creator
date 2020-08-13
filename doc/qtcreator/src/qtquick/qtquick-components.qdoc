@@ -497,6 +497,8 @@
     {Dialog} type in the Qt Quick Dialogs module to wrap arbitrary content into
     a dialog window including a row of platform-tailored buttons.
 
+    \include qtquick-animation-types.qdocinc qtquick animation types
+
     \if defined(qtdesignstudio)
     \include qtdesignstudio-visual-effects.qdocinc qml visual effects
     \include qtdesignstudio-components.qdocinc creating studio components

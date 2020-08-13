@@ -22,7 +22,8 @@ set(syntax_highlighting_srcs
 ecm_qt_declare_logging_category(syntax_highlighting_srcs
     HEADER ksyntaxhighlighting_logging.h
     IDENTIFIER KSyntaxHighlighting::Log
-    CATEGORY_NAME org.kde.ksyntaxhighlighting
+    CATEGORY_NAME kf.syntaxhighlighting
+    OLD_CATEGORY_NAMES org.kde.ksyntaxhighlighting
     DESCRIPTION "Syntax Highlighting"
     EXPORT KSYNTAXHIGHLIGHTING
 )

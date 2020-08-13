@@ -106,10 +106,11 @@
                        \li \l{Setting Node Properties}
                        \li \l{Adding Models}
                        \li \l{Using Materials and Shaders}
-                        \li \l{Attaching Textures to Materials}
-                        \li \l{Using Lights}
-                        \li \l{Using Scene Camera}
-                        \li \l{Setting Scene Environment}
+                       \li \l{Attaching Textures to Materials}
+                       \li \l{Applying 3D Effects}
+                       \li \l{Using Lights}
+                       \li \l{Using Scene Camera}
+                       \li \l{Setting Scene Environment}
                     \endlist
                \endlist
         \li \l{Previewing}

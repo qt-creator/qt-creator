@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -34,18 +34,22 @@
 
     \title Connecting Android Devices
 
-    You can connect Android devices to the development PC to build, run, debug,
-    and analyze applications from \QC. Devices with Android
-    version 4.1 (API level 16) or later are supported.
+    You can connect Android devices to the development PC using USB cables
+    to build, run, debug, and analyze applications from \QC. Devices with
+    Android version 4.1 (API level 16) or later are supported.
 
-    If you have a tool chain for building applications for Android devices
-    installed on the development PC, you can add it to \QC. You can then add a
-    \l{glossary-buildandrun-kit}{kit}
-    with the tool chain, and the Qt version for Android for the device's architecture,
-    to build applications for and run them on Android devices. Starting from Qt 5.14.0,
-    Qt for Android package contains all the architectures (ABIs) installed as one.
-    You can also allow \QC to automatically create kits for installed Qt version
-    and tool chains.
+    To develop for Android, you must have a tool chain for building applications
+    for Android devices installed on the development PC. \QC can automatically
+    dowload and install the tool chain and create a suitable build and run
+    \l{glossary-buildandrun-kit}{kit} that contains the tool chain and the Qt
+    version for Android for the device's architecture.
+
+    Starting from Qt 5.14.0, the Qt for Android package contains all the
+    architectures (ABIs) installed as one.
+
+    \note You can build a 64-bit version of Qt for Android yourself. However,
+    for such a Qt version, the minimum required Android version on devices
+    is 5.0 (API level 21). For more information, see \l{Qt for Android}.
 
     The Android Debug Bridge (adb) command line tool is integrated to \QC to
     enable you to deploy applications to connected Android devices, to run
@@ -54,271 +58,139 @@
 
     \section1 Requirements
 
-    To use \QC to develop Qt applications for Android, you need the following:
+    To use \QC to develop Qt applications for Android, you need
+    \l{Qt for Android} 5.2, or later, and the tool chain that \QC
+    can automatically download, install, and configure for you.
+    For more information, see \l{Installing the Prerequisites}.
+
+    \section1 Specifying Android Device Settings
+
+    \QC offers to automatically install all the necessary packages and tools and
+    to set up your development environment by creating debuggers, tool chains,
+    and kits. You can use \QC to:
 
     \list
-        \li \l{AdoptOpenJDK} for all platforms. You can also use \l{OpenJDK}
-            on Linux.
-
-            \note Android SDK Tools versions <= 26.x have issues with JDK versions
-            later than 8. It is recommended to use the latest Command-line SDK Tools.
-
-        \li \l{http://www.gradle.org}{Gradle} for building application packages
-            (APK) and app bundles (AAB) for Android devices. Gradle is delivered
-            with Qt 5.9, and later, because Gradle scripts are not delivered
-            with  Android SDK tools since version 26.0.0.
-
-            \note Using Ant to build APKs is no longer supported.
-
-        \li \l{http://developer.android.com/sdk/index.html}{Android SDK Tools}
-
-            The following Android SDK packages and tools are required for
-            development:
-
-            \list
-                \li Platform tools
-                \li Build tools
-                \li At least one SDK platform
-                \li The \l{http://developer.android.com/tools/sdk/ndk/index.html}
-                    {Android NDK} from Google that provides the tool chain for
-                    building applications for Android devices. For a detailed
-                    list of Qt versions and their recommended NDK versions,
-                    see \l{https://doc-snapshots.qt.io/qt5-5.14/android-getting-started.html}
-                    {The Android NDK}.
-            \endlist
-
-            \li On Windows, you also need the Android Debug Bridge (ADB) driver
-                on the Windows platform to enable USB debugging. The default USB
-                driver on Windows does not allow debugging. For more information
-                about installing ADB, see \l {ADB windows driver}
-                {ADB driver installation}.
+        \li Download and extract the Android SDK Command-line Tools.
+        \li Install or update the essential packages such as NDKs,
+            build tools, and platform tools.
     \endlist
 
-    \section1 Setting Up the Development Environment
-
-    To build Android applications with Qt, install Qt for Android 5.2, or later.
-
-    \note You can build a 64-bit version of Qt for Android yourself. However,
-    for such a Qt version, the minimum required Android version on devices
-    is 5.0 (API level 21).
-
-    For more information, see \l{Qt for Android}.
-
-    Download and install the latest Android SDK, and then install
-    or update the NDKs, tools and packages needed for development.
-
-    Starting from \QC 4.12, \QC offers to automatically set up your Android
-    environment and install all the necessary packages and Tools, then
-    creating debuggers, tool chains, and kits. For more information,
-    see \l {Specifying Android Device Settings}.
-
-    Alternatively, use the Android SDK command line tools to install
-    the required packages. In that case, it is recommended to create an
-    empty folder and extract the downloaded archive into this folder.
-
-    \note The recommended Android SDK Tools version is 25.3.0, or later. The version
-    25.2.5, or earlier, can be used but it is not advised because it cannot be
-    fully integrated with \QC.
-
-    \list
-        \li Android SDK Tools version 25.3.0, or later
-
-            This allows using the
-            \l{https://developer.android.com/studio/command-line/sdkmanager.html}
-            {sdkmanager} command line tool for SDK package management and the
-            \l{https://developer.android.com/studio/command-line/avdmanager.html}
-            {avdmanager} tool for Android Virtual Device (AVD) management.
-
-            The sdkmanager will install downloaded packages next to the \c tools
-            folder that contains all command line tools. You must specify the path
-            to the folder where you extracted the files as Android SDK location
-            inside the Android settings.
-
-            To install those packages, use the following command:
-
-            \badcode
-            ./sdkmanager "platform-tools" "platforms;android-29" "build-tools;29.0.2" "ndk-bundle"
-            \endcode
-
-            For Qt 5.12.0 to 5.12.5 and Qt 5.13.0 to 5.13.1, the following
-            should be installed instead:
-
-            \badcode
-            ./sdkmanager "platform-tools" "platforms;android-29" "build-tools;28.0.2" "ndk;19.2.5345600"
-            \endcode
-
-            \target ADB windows driver
-            Under Windows, Google's USB drivers can be installed by running:
-
-            \badcode
-            sdkmanager.bat "extras;google;usb_driver"
-            \endcode
-
-            For more information about altenative methods of obtaining the USB
-            driver, see \l{http://developer.android.com/sdk/win-usb.html}.
-            After the package installation is complete, install the driver from
-            \c{<ANDROID_SDK_ROOT>/extras/google/usb_driver}. Try running a few basic
-            \l{http://developer.android.com/tools/help/adb.html}{adb} commands now
-            and check whether your Android device responds to them.
-
-        \li Android SDK Tools version 25.2.5, or earlier
-
-            If your Qt version is earlier than v5.9, use this SDK tools version.
-            The SDK tool used to install and update the other SDK tools and packages
-            depends on the Android SDK Tools version that you have installed:
-
-            Use the
-            \l{https://developer.android.com/studio/tools/help/android.html}
-            {android} tool that comes with the SDK Tools package. For example,
-            on  Ubuntu the following command starts the SDK update:
-
-            \code
-            ./android update sdk
-            \endcode
-
-    \endlist
-
-    \section2 Specifying Android Device Settings
-
-    To configure connections to Android devices and general Android settings:
+    To set up the development environment for Android:
 
     \list 1
-
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Devices >
             \uicontrol Android.
-
             \image qtcreator-options-android-main.png "Android options"
-
         \li In the \uicontrol {JDK location} field, set the path to the JDK.
+            \QC checks the JDK installation and reports errors.
 
-            By default, \QC tries to find any valid JDK/OpenJDK installation.
-            However, if none is found, you must set it manually. Click the
-            \inlineimage icons/download-icon.png
-            (\uicontrol Download) button to open the JDK download web page in the
-            default browser. \QC checks the JDK installation and reports errors.
+            By default, \QC tries to find a supported \l{AdoptOpenJDK} or
+            \l{OpenJDK} installation. If none is found, you must set the path
+            manually. If you don't have a supported JDK installed, select
+            \inlineimage online.png
+            to open the JDK download web page in the default browser.
 
-        \li In the \uicontrol {Android Settings} group, set the path to the
-            Android SDK Tools.
+            \note We recommended using a 64-bit JDK, because the 32-bit one
+            might cause issues with \c cmdline-tools, and some packages might
+            not be listed.
+        \li In the \uicontrol {Android SDK location} field, set the path to the
+            folder where you want the \l{Android SDK Command-line Tools} to be
+            installed.
+        \li Select \uicontrol {Set Up SDK} to automatically download and extract
+            the Android SDK Command-line Tools to the selected path.
 
-            Select \inlineimage reload_gray.png
-            button to automatically download and extract the Android SDK Tools
-            to the selected path. This will do the following:
-
-            \list 1
-                \li Download and extract the Android SDK Tools.
-                \li Install or update the essential packages such as NDKs,
-                    build tools, platform tools.
-            \endlist
-
-            The SDK Tools download URL, the essential packages list, and the
-            appropriate NDK for each Qt version are defined in a JSON
-            configuration file. The file is located under the user's \QC
-            resource folder:
-
-            \badcode
-            # Linux and macOS
-            ~/.config/QtProject/qtcreator/android/sdk_definitions.json
-
-            # Windows
-            C:\Users\Username\AppData\Local\QtProject\qtcreator\android\sdk_definitions.json
-            \endcode
-
-            For example, the SDK configuration file defines the NDK version 19.2.5345600
-            to be used for Qt 5.12.0 to 5.12.5 and Qt 5.13.0 to 5.13.1 versions:
-
-            \badcode
-            "specific_qt_versions": [
-                {
-                    "versions": ["5.12.[0-5]", "5.13.[0-1]"],
-                    "sdk_essential_packages": ["build-tools;28.0.2", "ndk;19.2.5345600"],
-                    "ndk_path": "ndk/19.2.5345600"
-                }
-            ]
-            \endcode
-
-            The latest version of the configuration file that is up-to-date
-            with the Android SDK and NDK changes is found
-            \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/plain/share/qtcreator/android/sdk_definitions.json}{here}.
-
-            The installed NDK versions are listed below the SDK path.
-            The items with a lock icon are versions installed from the SDK Manager,
-            and can only be modified from the SDK Manager tab. For more information,
-            see \l{Managing Android SDK Packages}. Custom NDK paths can be manually
-            added to the global list of NDKs via the \uicontrol Add button.
-            This creates custom tool chains and debuggers associated to
-            that NDK, which can be used to create custom kits defined by the user.
-
-            To manually download the SDK Tools, select \inlineimage icons/download-icon.png
-            to open the SDK or NDK download web page in the default browser.
-
-            The SDK Manager checks the Android NDK and SDK installations,
-            reports errors, and offers to install the necessary packages.
-
-            \image qtcreator-options-android-sdk-tools.png "Android NDK and SDK checks"
-
+            The SDK Manager checks whether the tool chain is installed.
+            If packages are missing or updates are needed, the SDK Manager
+            offers to add or remove those packages. Before taking action, it
+            prompts you to accept the changes it is about to make. In addition,
+            it prompts you to accept Google licenses, as necessary.
+        \li The installed NDK versions are listed below the SDK path.
+            The locked items were installed by the SDK Manager,
+            and can only be modified from the \uicontrol {SDK Manager} tab.
+            For more information, see \l{Managing Android NDK Packages}.
         \li In the \uicontrol {Android OpenSSL} group, set the path to the
             prebuilt OpenSSL libraries.
 
             For Qt applications that require OpenSSL support, \QC allows to
-            quickly add the \l{https://marketplace.qt.io/products/android-openssl-support}
-            {Android OpenSSL support} to your project. For more details, see
-            \l{Adding External Libraries}.
-
-            Select \inlineimage icons/download-icon.png
+            quickly add the \l {Android OpenSSL support} to your project.
+            For more information, see \l{Adding External Libraries}.
+        \li Select \inlineimage online.png
             to download the OpenSSL repository to the selected path. If the
-            automatic download fails, the download web page opens for manual download.
-
+            automatic download fails, the download web page opens for manual
+            download.
         \li Select the \uicontrol {Automatically create kits for Android tool chains}
             check box to allow \QC to create the kits for you. \QC displays a
             warning if it cannot find a suitable Qt version.
-
-        \li Select \uicontrol File > \uicontrol {New File or Project} >
-            \uicontrol {Application (Qt Quick)} >
-            \uicontrol {Qt Quick Application - Empty} > \uicontrol Choose, and
-            follow the instructions of the wizard to create a project. For more
-            information, see
-            \if defined(qtcreator)
-            \l{Creating Qt Quick Projects}.
-            \else
-            \l{Creating UI Prototype Projects}.
-            \endif
-
-        \li To specify settings for deploying applications to Android, select
-            \uicontrol Projects > \uicontrol Run for the \uicontrol Android kit, and then select
-            \uicontrol Details to view the \uicontrol {Deploy configurations}. For more
-            information about the options you have, see
-            \l{Deploying Applications to Android Devices}.
-
-        \li Enable debugging on your Android device.
-
-            Debugging is enabled in different ways on different Android devices.
-            Look for \uicontrol {USB Debugging} under \uicontrol {Developer Options}. On
-            some devices \uicontrol {Developer Options} is hidden and becomes visible
-            only when you tap the \uicontrol {Build number} field in \uicontrol Settings >
-            \uicontrol About several times. For more details, check
-            \l{https://developer.android.com/studio/debug/dev-options}{Configure on-device developer options}.
-
-        \li Connect the Android device to the development PC with a USB cable.
-            You might be asked to select a device in the
-            \l{Selecting Android Devices}{Select Android Devices} dialog.
     \endlist
+
+    \section2 Manual Setup
+
+    \note We recommend that you use the latest Android SDK Command-Line Tools.
+    Using Android SDK Tools version 25.2.5 or earlier is not supported, because
+    they cannot be fully integrated with \QC.
+
+    However, if the automatic setup does not meet your needs, you can download
+    and install Android SDK Command-line Tools, and then install or update the
+    NDKs, tools and packages needed for development. For more information, see
+    \l{Getting Started with Qt for Android}.
+
+    \section2 Viewing Android Tool Chain Settings
+
+    The Android SDK Command-Line Tools download URL, the essential
+    packages list, and the appropriate NDK for each Qt version are defined in a JSON
+    configuration file. The file is located under the user's \QC
+    resource folder:
+
+    \badcode
+    # Linux and macOS
+    ~/.config/QtProject/qtcreator/android/sdk_definitions.json
+
+    # Windows
+    C:\Users\Username\AppData\Local\QtProject\qtcreator\android\sdk_definitions.json
+    \endcode
+
+    For example, the SDK configuration file defines the NDK version 19.2.5345600
+    to be used for Qt 5.12.0 to 5.12.5 and Qt 5.13.0 to 5.13.1 versions:
+
+    \badcode
+    "specific_qt_versions": [
+        {
+            "versions": ["5.12.[0-5]", "5.13.[0-1]"],
+            "sdk_essential_packages": ["build-tools;28.0.2", "ndk;19.2.5345600"],
+            "ndk_path": "ndk/19.2.5345600"
+        }
+    ]
+    \endcode
+
+    You can view the latest version of the configuration file that is up-to-date
+    with the Android SDK and NDK changes, \l{sdk_definitions.json}, in Git.
+
+    \section2 Managing Android NDK Packages
+
+    To view the installed \l{Android NDK} versions, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol Devices > \uicontrol Android.
+
+    \image qtcreator-options-android-sdk-tools.png "Android NDK and SDK checks"
+
+    The locked versions were installed by the SDK Manager, and can only
+    be modified from the SDK Manager tab. For more information, see
+    \l{Managing Android SDK Packages}.
+
+    To manually download NDKs, select \inlineimage online.png
+    .
+
+    To add custom NDK paths manually to the global list of NDKs, select
+    \uicontrol Add. This creates custom tool chains and debuggers associated
+    to that NDK. However, you have to manually create a kit that uses the
+    custom NDK. For more information, see \l{Adding Kits}.
 
     \section2 Managing Android SDK Packages
 
     Since Android SDK Tools version 25.3.0, only a command-line tool,
-    \l{https://developer.android.com/studio/command-line/sdkmanager.html}
-    {sdkmanager}, is provided by Android for SDK package management. To make SDK
-    management easier, \QC provides an SDK Manager for installing, updating, and
-    removing SDK packages. You can still use sdkmanager for advanced SDK
-    management.
-
-    After you set the path to the Anroid SDK in \uicontrol Tools >
-    \uicontrol Options > \uicontrol Devices > \uicontrol Android, the
-    SDK Manager checks that all the necessary SDK packages have been installed.
-    If packages are missing or updates are needed, the SDK Manager offers to
-    add or remove those packages. Before taking action, it prompts
-    you to accept the changes it is about to make. In addition, it prompts you to
-    accept Google licenses, as necessary.
+    \l {sdkmanager}, is provided by Android for SDK package management.
+    To make SDK management easier, \QC provides an SDK Manager for
+    installing, updating, and removing SDK packages. You can still use
+    sdkmanager for advanced SDK management.
 
     To view the installed Android SDK packages, select \uicontrol Tools >
     \uicontrol Options > \uicontrol Devices > \uicontrol Android >
@@ -338,38 +210,39 @@
     \uicontrol {SDK Manager arguments} field. The available arguments are listed
     and described in \uicontrol {Available arguments}.
 
-    To manage packages installed from Android SDK Tools version 25.2.5, or
-    earlier, you can use the native Android SDK Manager. The \QC SDK Manager and
-    the native SDK Manager are mutually exclusive, because they are used for
-    different Android SDK Tools versions. If you have the native SDK Manager
-    installed, you can open it by selecting \uicontrol {Native SDK Manager}.
-
     \section1 Managing Android Virtual Devices (AVD)
 
     A list of AVDs is shown under \uicontrol Tools > \uicontrol Options >
     \uicontrol Devices > \uicontrol Android > \uicontrol {AVD Manager}. This
-    works only with a valid \uicontrol {SDK Tools} path being set. The value in
-    \uicontrol {System/data partition size} is used to set the emulator's system
-    partition size upon execution with \uicontrol {Start}.
+    works only if the \uicontrol {Android SDK location} is set correctly in
+    \uicontrol {Android Settings}.
+
+    The value in \uicontrol {System/data partition size} is used to set the
+    emulator's system partition size upon execution with \uicontrol {Start}.
 
     \image qtcreator-android-avd-manager.png "Android NDK and SDK checks"
 
-    \section1 Creating a New AVD
+    \section2 Creating a New AVD
 
-    To create new virtual devices, select \uicontrol Tools > \uicontrol Options >
-    \uicontrol Devices > \uicontrol Android > \uicontrol {AVD Manager} > \uicontrol {Add}.
+    To create new virtual devices:
 
-    In the \uicontrol {Create new AVD} dialog, you can create a new custom AVD
-    by setting the name, device type, skin, architecture, API level, and SD card
-    size. You need to have a valid \uicontrol {System Image} installed
-    before using this dialog, either from \QC's \uicontrol {SDK Manager} tab or
-    from Android Studio.
+    \list 1
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Devices >
+            \uicontrol Android.
+        \li In the \uicontrol {SDK Manager} tab, select \uicontrol Install for
+            an Android version, and then select \uicontrol Apply to install a
+            system image. Alternatively, you can install the system image from
+            Android Studio.
+        \li In the \uicontrol {AVD Manager} tab, select \uicontrol {Add} to
+            open the \uicontrol {Create New AVD} dialog.
+            \image qtcreator-android-create-avd.png "Android NDK and SDK checks"
+        \li Set the name, type, skin, architecture, API level, and SD card size
+            of the device.
+        \li Select \uicontrol OK to create the AVD.
+    \endlist
 
     For more advanced options for creating a new AVD, use the command-line tool
-    \l{https://developer.android.com/studio/command-line/avdmanager.html}{avdmanager},
-    or use Android Studio's native AVD Manager's UI.
-
-    \image qtcreator-android-create-avd.png "Android NDK and SDK checks"
+    \l{avdmanager}, or use Android Studio's native AVD Manager's UI.
 
     \section1 Selecting Android Devices
 
@@ -407,9 +280,6 @@
     \l{Creating a New AVD}. If you run an application without a device connected to the
     development PC and without an AVD specified, \QC asks you to add an AVD.
 
-    For Android SDK Tools 25.2.5, or earlier, select \uicontrol {Native AVD Manager}
-    to manage AVDs.
-
     \note The Android Emulator has a bug that prevents it from starting on some
     systems. If the Android Emulator does not start, you can try starting it
     manually by running the following commands:
@@ -419,10 +289,16 @@
     ./emulator -avd <AVD_NAME>
     \endcode
 
-    For more information, see \l{https://developer.android.com/studio/run/emulator-commandline}
-    {Start the emulator from the command line}.
+    For more information, see \l{Start the emulator from the command line}.
 
     \section1 Debugging on Android Devices
+
+    Debugging is enabled in different ways on different Android devices.
+    Look for \uicontrol {USB Debugging} under \uicontrol {Developer Options}. On
+    some devices \uicontrol {Developer Options} is hidden and becomes visible
+    only when you tap the \uicontrol {Build number} field in \uicontrol Settings
+    > \uicontrol About several times. For more information, see
+    \l {Configure on-device developer options}.
 
     Select a \l{glossary-build-config}{debug build configuration} to build
     the application for debugging.

@@ -1,0 +1,141 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+/*!
+//! [incredibuild build steps]
+
+    \section2 IncrediBuild Build Steps
+
+    To use IncrediBuild, select \uicontrol {Add Build Step} >
+    \uicontrol {IncrediBuild for Linux} or
+    \uicontrol {IncrediBuild for Windows}.
+
+    \image qtcreator-incredibuild-build-steps-general.png
+
+    IncrediBuild automatically detects the build step by iterating over the
+    build steps you already defined. The initial build step settings will
+    be part of your IncrediBuild build step, so your usual build tool will
+    still be used, but with the added benefit of IncrediBuild's build
+    acceleration and graphical Build Monitor.
+
+    In the \uicontrol {Target and configuration} group, specify the command
+    helper and arguments that will be used to construct the build command.
+
+    The build errors and warnings are parsed and displayed in the
+    \uicontrol Issues output pane.
+
+    Select the \uicontrol {Keep original jobs num} check box to stop
+    IncrediBuild from overriding the \c {-j} command line switch, which
+    controls the number of processes that the build tools executed by
+    \QC run in parallel. The default value set by IncrediBuild is 200.
+
+    The distribution control settings to specify depend on whether you are using
+    Linux or Windows.
+
+    \section3 Distribution Control Settings on Linux
+
+    \image qtcreator-incredibuild-build-steps-linux.png
+
+    You can specify the following options for Linux builds:
+
+    \list
+        \li \uicontrol {Nice value} is a numeric value between -20 and 19
+        \li \uicontrol {Force remote} forces \c allow_remote tasks to
+            remote Helpers.
+        \li \uicontrol {Alternate tasks preference}
+    \endlist
+
+    \section3 Distribution Control Settings on Windows
+
+    \image qtcreator-incredibuild-build-steps-windows.png
+
+    You can specify the following options for Windows builds:
+
+    \list
+        \li \uicontrol {Profile.xml} defines how Automatic Interception
+            Interface handles processes in a distributed job. It is not
+            necessary for Visual Studio or Make and Build tools builds, but can
+            be used to provide configuration options if those builds use
+            additional processes that are not included in those packages. It is
+            required to configure distributable processes in Dev Tools builds.
+        \li \uicontrol {Avoid local} frees up resources on the initiator
+            machine. This might be beneficial for distribution if the initiator
+            turns into a bottleneck for the build because of high CPU usage.
+        \li \uicontrol {Maximum CPUs to utilize in the build} specifies the
+            maximum amount of remote cores to use in the build. Overrides the
+            corresponding global setting.
+        \li \uicontrol {Newest allowed Helper machine OS} and
+            \uicontrol {Oldest allowed Helper machine OS} specify the newest and
+            oldest operating system installed on a Helper machine to be allowed
+            to participate as a Helper in the build.
+        \li \uicontrol {Build Title} specifies a custom header line which will
+            be displayed in the beginning of the build output text. This title
+            will also be used for the Build History and Build Monitor displays.
+        \li \uicontrol {Save IncrediBuild monitor file} writes a copy of the
+            build progress (\c{.ib_mon}) file to the specified location.
+            If only a folder name is given, IncrediBuild generates a GUID for
+            the file name. A message containing the location of the saved
+            \c{.ib_mon} file is added to the end of the build output.
+        \li \uicontrol {Suppress STDOUT} does not write anything to the standard
+             output.
+        \li \uicontrol {Output log file} writes build output to a file.
+        \li \uicontrol {Show commands in output} shows the command-line used by
+            IncrediBuild to build the file.
+        \li \uicontrol {Show agents in output} shows the Agent used to build
+            each file.
+        \li \uicontrol {Show time in output} shows the start and finish time for
+             each file built.
+        \li \uicontrol {Hide IncrediBuild Header in output} suppresses the
+            IncrediBuild header in the build output.
+        \li \uicontrol {Internal IncrediBuild logging level} overrides the
+            internal Incredibuild logging level for this build. Does not affect
+            output or any user accessible logging. Used mainly to troubleshoot
+            issues with the help of IncrediBuild support.
+        \li \uicontrol {Set an environment variable} sets or overrides
+            environment variables for the context of the build.
+        \li \uicontrol {Stop on errors} stops the execution as soon as an error
+            is encountered. This is the default behavior in Visual Studio
+            builds, but not for Make and Build tools or Dev Tools builds.
+        \li \uicontrol {Additional arguments} are concatenated to the final
+            buildconsole command line.
+        \li \uicontrol {Open Monitor} opens an IncrediBuild Build Monitor that
+            graphically displays the build's progress once the build starts.
+    \endlist
+
+//! [incredibuild build steps]
+
+//! [incredibuild clean steps]
+
+    \section2 IncrediBuild Clean Steps
+
+    When building with IncrediBuild, you can add arguments and targets for the
+    clean command in \uicontrol {Clean Steps}.
+
+    For more information about the settings, see \l{IncrediBuild Build Steps}.
+
+    The build errors and warnings are parsed and displayed in the
+    \uicontrol Issues output pane.
+
+//! [incredibuild clean steps]
+*/

@@ -1,13 +1,18 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(KF5_VERSION "5.59.0")
+set(KF5_VERSION "5.73.0")
 project(KSyntaxHighlighting VERSION ${KF5_VERSION})
 
-find_package(ECM 5.59.0 REQUIRED NO_MODULE)
-set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
+find_package(ECM 5.73.0 REQUIRED NO_MODULE)
+set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 if(POLICY CMP0063)
     cmake_policy(SET CMP0063 NEW)
 endif()
+
+include(KDEInstallDirs)
+include(KDEFrameworkCompilerSettings NO_POLICY_SCOPE)
+include(KDECMakeSettings)
+include(KDEClangFormat)
 
 include(FeatureSummary)
 include(GenerateExportHeader)
@@ -17,9 +22,6 @@ include(ECMGeneratePriFile)
 include(CMakePackageConfigHelpers)
 include(ECMPoQmTools)
 include(ECMQtDeclareLoggingCategory)
-include(KDEInstallDirs)
-include(KDEFrameworkCompilerSettings NO_POLICY_SCOPE)
-include(KDECMakeSettings)
 include(ECMMarkNonGuiExecutable)
 include(ECMAddQch)
 include(ECMOptionalAddSubdirectory)
@@ -34,7 +36,7 @@ ecm_setup_version(PROJECT
 #
 # Dependencies
 #
-set(REQUIRED_QT_VERSION 5.10.0)
+set(REQUIRED_QT_VERSION 5.12.0)
 find_package(Qt5 ${REQUIRED_QT_VERSION} NO_MODULE REQUIRED COMPONENTS Core Network Test)
 option(KSYNTAXHIGHLIGHTING_USE_GUI "Build components depending on Qt5Gui" ON)
 if(KSYNTAXHIGHLIGHTING_USE_GUI)
@@ -84,6 +86,7 @@ if (NO_STANDARD_PATHS)
     add_definitions(-DNO_STANDARD_PATHS)
 endif()
 add_definitions(-DQT_NO_FOREACH)
+add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x050d00)
 
 #
 # Actually build the stuff
@@ -135,6 +138,10 @@ endif()
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/ksyntaxhighlighting_version.h"
         DESTINATION "${KDE_INSTALL_INCLUDEDIR_KF5}"
         COMPONENT Devel)
-install(FILES org_kde_ksyntaxhighlighting.categories DESTINATION ${KDE_INSTALL_CONFDIR})
 
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)
+
+# add clang-format target for all our real source files
+file(GLOB ALL_CLANG_FORMAT_TEST_FILES autotests/*.cpp autotests/*.h)
+file(GLOB_RECURSE ALL_CLANG_FORMAT_SOURCE_FILES examples/*.cpp examples/*.h src/*.cpp src/*.h)
+kde_clang_format(${ALL_CLANG_FORMAT_TEST_FILES} ${ALL_CLANG_FORMAT_SOURCE_FILES})

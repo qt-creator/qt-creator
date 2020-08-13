@@ -273,8 +273,9 @@ def deploy_libclang(install_dir, llvm_install_dir, chrpath_bin):
         # support libraries (for clazy) -> clang libexec
         if not os.path.exists(clanglibs_targetdir):
             os.makedirs(clanglibs_targetdir)
-        for lib_pattern in ['ClazyPlugin.so', 'libclang-cpp.so*']:
-            for lib in glob(os.path.join(llvm_install_dir, 'lib', lib_pattern)):
+        # on RHEL ClazyPlugin is in lib64
+        for lib_pattern in ['lib64/ClazyPlugin.so', 'lib/ClazyPlugin.so', 'lib/libclang-cpp.so*']:
+            for lib in glob(os.path.join(llvm_install_dir, lib_pattern)):
                 deployinfo.append((lib, clanglibs_targetdir))
         resourcetarget = os.path.join(install_dir, 'libexec', 'qtcreator', 'clang', 'lib', 'clang')
 

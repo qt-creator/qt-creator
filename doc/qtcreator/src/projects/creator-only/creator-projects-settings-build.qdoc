@@ -146,7 +146,8 @@
     \section1 Build Steps
 
     In \uicontrol{Build Steps} you can change the settings for the build system
-    selected for building the project: qmake, CMake, Meson, or Qbs.
+    selected for building the project: qmake, CMake, Meson, or Qbs. You can use
+    Incredibuild to accelerate the build process when using qmake or CMake.
 
     \section2 qmake Build Steps
 
@@ -168,6 +169,7 @@
     \include creator-projects-cmake-building.qdocinc cmake build steps
     \include creator-projects-settings-build-qbs.qdocinc qbs build steps
     \include creator-projects-meson-building.qdocinc meson build steps
+    \include creator-projects-incredibuild-building.qdocinc incredibuild build steps
 
     \section2 Adding Custom Build Steps
 
@@ -214,4 +216,6 @@
     \include creator-projects-cmake-building.qdocinc cmake clean steps
     \include creator-projects-settings-build-qbs.qdocinc qbs clean steps
     \include creator-projects-meson-building.qdocinc meson clean steps
+    \include creator-projects-incredibuild-building.qdocinc incredibuild clean steps
+
 */

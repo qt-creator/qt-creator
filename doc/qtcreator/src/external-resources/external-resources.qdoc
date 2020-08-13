@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the documentation of the Qt Toolkit.
@@ -52,4 +52,44 @@
 /*!
     \externalpage http://openjdk.java.net
     \title OpenJDK
+*/
+/*!
+    \externalpage http://developer.android.com/sdk/index.html
+    \title Android SDK Command-line Tools
+*/
+/*!
+    \externalpage https://developer.android.com/studio/command-line/avdmanager.html
+    \title avdmanager
+*/
+/*!
+    \externalpage http://developer.android.com/tools/sdk/ndk/index.html
+    \title Android NDK
+*/
+/*!
+    \externalpage https://developer.android.com/studio/debug/dev-options
+    \title Configure on-device developer options
+*/
+/*!
+    \externalpage https://developer.android.com/studio/command-line/sdkmanager.html
+    \title sdkmanager
+*/
+/*!
+    \externalpage https://code.qt.io/cgit/qt-creator/qt-creator.git/plain/share/qtcreator/android/sdk_definitions.json
+    \title sdk_definitions.json
+*/
+/*!
+    \externalpage https://developer.android.com/studio/run/emulator-commandline
+    \title Start the emulator from the command line
+*/
+/*!
+    \externalpage https://marketplace.qt.io/products/android-openssl-support
+    \title Android OpenSSL support
+*/
+/*!
+    \externalpage http://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels
+    \title What is API Level?
+*/
+/*!
+    \externalpage http://developer.android.com/guide/components/fundamentals.html
+    \title Android Application Fundamentals
 */

@@ -633,6 +633,7 @@ extend_qtc_plugin(QmlDesigner
   SOURCES
     hyperlinkdialog.cpp hyperlinkdialog.h hyperlinkdialog.ui
     richtexteditor.cpp richtexteditor.h hyperlinkdialog.ui
+    richtexteditorproxy.cpp richtexteditorproxy.h
 )
 
 extend_qtc_plugin(QmlDesigner

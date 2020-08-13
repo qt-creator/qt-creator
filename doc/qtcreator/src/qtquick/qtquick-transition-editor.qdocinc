@@ -1,0 +1,73 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+//! [transition editor]
+
+    \section1 Animating Transitions Between States
+
+    To make movement between states smooth, you can use
+    \uicontrol {Transition Editor} to animate the changes between
+    states. First, you need to \l{Creating States}{add states} in
+    the \uicontrol States view and \l{Specifying Item Properties}
+    {edit some properties} that can be animated, such as colors or
+    numbers, in the \uicontrol Properties view. For example, you
+    can animate the changes in the position of an object.
+
+    In \uicontrol {Transition Editor}, you can set the start frame, end
+    frame, and duration for the transition of each property. You can also
+    set an easing curve for each transition.
+
+    Use the slider on the menu bar to the zooming level in the view.
+
+    To add transitions:
+
+    \list 1
+        \li Select \uicontrol View > \uicontrol Views >
+            \uicontrol {Transition Editor} to display the view.
+        \li Select the \inlineimage plus.png
+            (\uicontrol {Add Transition}) button to add a transition. This
+            works only if you have added at least one state and modified at
+            least one property in it.
+            \image qtquick-transition-editor-view.png "Transition Editor view"
+        \li Move the blue bar next to the component or property name to set
+            the start and end frame of the animation of the property. Pull its
+            left and right edges to set the duration of the animation.
+        \li To attach an easing curve to a transition, select
+            \inlineimage curve_editor.png
+            (\uicontrol {Easing Curve Editor (C)}) on the toolbar. For more
+            information, see \l{Editing Easing Curves}.
+        \li To modify transition settings, select the \inlineimage animation.png
+            (\uicontrol {Transition Settings (S)}) button on the toolbar.
+            \image qtquick-transition-editor-settings.png "Transition settings"
+    \endlist
+
+    \if defined(qtcreator)
+    For an example of animating transitions between states, see
+    \l {Creating a Qt Quick Application}.
+    \endif
+
+//! [transition editor]
+*/

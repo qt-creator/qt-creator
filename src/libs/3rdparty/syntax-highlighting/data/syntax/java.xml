@@ -4,7 +4,7 @@
 	<!ENTITY int "[0-9]([0-9_]*[0-9])?">
 	<!ENTITY hex "[0-9a-fA-F]([0-9a-fA-F_]*[0-9a-fA-F])?">
 ]>
-<language name="Java" version="5" kateversion="5.0" section="Sources" extensions="*.java" mimetype="text/x-java" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
+<language name="Java" version="6" kateversion="5.0" section="Sources" extensions="*.java" mimetype="text/x-java" license="LGPL" author="Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br)">
 	<highlighting>
 		<list name="java15">
 			<item>ACTIVE</item>
@@ -3786,9 +3786,9 @@
 				<RegExpr attribute="Keyword" context="Imports" String="\b(package|import)\b" />
 				<RegExpr attribute="Function" context="#stay" String="\b[_\w][_\w\d]*(?=[\s]*(/\*\s*\d+\s*\*/\s*)?[(])" />
 				<RegExpr attribute="Annotation" context="#stay" String="@[_\w][_\w\d]*" />
-				<RegExpr attribute="Symbol" context="Member" String="[.]{1,1}" />
+				<DetectChar attribute="Symbol" context="Member" char="." />
 				<DetectChar attribute="Symbol" context="InFunctionCall" char="("/>
-				<AnyChar attribute="Symbol" context="#stay" String=":!%&amp;+,-/.*&lt;=&gt;?[]|~^&#59;"/>
+				<AnyChar attribute="Symbol" context="#stay" String=":!%&amp;+,-/*&lt;=&gt;?[]|~^&#59;"/>
 			</context>
 			<context attribute="Normal Text" lineEndContext="#stay" name="InFunctionCall">
 				<IncludeRules context="Normal"/>
