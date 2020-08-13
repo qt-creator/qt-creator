@@ -180,9 +180,9 @@
       <description><![CDATA[Running Qt Quick apps on webOS.]]></description>
       <tags>qt quick,ui,webos,talk,2019</tags>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/videotutorialicon.png" difficulty="" projectPath="" name="Talk: How to build your first 'Qt for MCUs' application" isVideo="true" videoUrl="https://youtu.be/BkgjJfxYN20" videoLength="21:54">
+    <tutorial imageUrl=":qtsupport/images/icons/videotutorialicon.png" difficulty="" projectPath="" name="Online: How to build your first 'Qt for MCUs' application" isVideo="true" videoUrl="https://youtu.be/BkgjJfxYN20" videoLength="21:54">
       <description><![CDATA[Building your first application for the NXP IMXRT1050 device.]]></description>
-      <tags>qtformcus,mcus,qt,talk,NXP IMXRT1050-EVKB,2020</tags>
+      <tags>qtformcus,mcus,qt,video,NXP IMXRT1050-EVKB,2020</tags>
     </tutorial>
     </tutorials>
 </instructionals>

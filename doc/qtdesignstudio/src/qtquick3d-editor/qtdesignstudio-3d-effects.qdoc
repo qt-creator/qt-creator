@@ -1,0 +1,367 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Design Studio.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page studio-3d-effects.html
+    \previouspage studio-3d-texture.html
+    \nextpage studio-3d-lights.html
+
+    \title Applying 3D Effects
+
+    \QDS provides a set of Qt Quick 3D effects that inherit the types in the
+    \l {Qt Quick 3D Effects QML Types}{Qt Quick 3D Effects} module.
+
+    To apply a visual effect to a component, drag-and-drop an effect from
+    \uicontrol Library \uicontrol {Qt Quick 3D Effects} under the \uicontrol
+    {View 3D} object in \uicontrol Navigator. You can apply multiple effects to
+    one component. The effects you add to the project are listed in \uicontrol
+    Properties > \uicontrol {Scene Environment} > \uicontrol Effect and are
+    visible in \uicontrol {Form Editor}.
+
+    See the following table for available effects and example images.
+
+    \section1 Available Effects
+    \table
+    \header
+        \li 3D Effect
+        \li Example Image
+        \li Description
+    \row
+        \li Additive Color Gradient
+        \li \image effect-additive-color-gradient.png "Additive Color Gradient Effect"
+        \li A gradient with additive color effect that adds a vertical
+        gradient to the whole scene and then additively blends it with all other
+        components in a 3D view. Additive blending adds the pixel values of
+        the gradient and the 3D view, making the result lighter. White areas
+        do not change, and black areas are the same color as the gradient.
+
+        The \uicontrol {Top Color} and \uicontrol {Bottom Color} properties
+        specify the colors used for the gradient at the top and bottom parts of
+        the screen.
+
+    \row
+        \li Blur
+        \li \image effect-blur.png "The Blur effect"
+        \li A simple one-pass blur.
+
+        The \uicontrol Amount property specifies the strength of the blur.
+
+    \row
+        \li Brush Strokes
+        \li \image effect-brush-strokes.png "The Brush Strokes effect"
+        \li A brush strokes noise effect that simulates an artistic painting of
+        the image.
+
+        The \uicontrol {Noise Sample Texture} property specifies the brush noise
+        texture map as a \l Texture.
+
+        The \uicontrol Length property specifies how far to offset the image
+        with the brush.
+
+        The \uicontrol Size property specifies the scale of the brush. Smaller
+        values result in a finer brush.
+
+        The \uicontrol Angle property specifies the angle to rotate the brush
+        noise texture.
+
+    \row
+        \li Chromatic Aberration
+        \li \image effect-chromatic-aberration.png "The Chromatic Aberration effect"
+        \li A chromatic aberration effect.
+
+        In real life, chromatic aberration is an optical phenomenon causing
+        color fringes in high contrast areas. These color fringes are
+        caused by different colors refracting at different angles splitting
+        white light into a spectrum, which is referred to as dispersion.
+
+        The \uicontrol {Mask Texture} property specifies a grayscale texture to
+        control the position and the strength of the effect. The effect is
+        strongest in white areas and weakest in black areas.
+
+        The \uicontrol Amount property defines the amount of aberration.
+        A negative value inverses the effect.
+
+        Dispersion scales in relation to the distance from the value of
+        the \uicontrol {Focus Depth} property.
+
+    \row
+        \li Color Master
+        \li \image effect-color-master.png "The Color Master effect"
+        \li A color adjustment effect.
+
+        The \uicontrol {Red Strength}, \uicontrol {Green Strength} and
+        \uicontrol {Blue Strength} properties can be used to adjust each color
+        separately, and the \uicontrol Saturation property to adjust the
+        strength of the overall saturation of the scene.
+
+    \row
+        \li Depth Of Field HQ Blur
+        \li \image effect-depth-of-field-hq-blur.png "The Depth of Field HQ Blur effect"
+        \li A depth-based blur effect that performs a gradient blur on regions
+        of the image based on their deviation from a specified distance from the
+        camera.
+
+        The \uicontrol {Blur Amount} property defines the strength of blur when
+        out of focus.
+
+        The \uicontrol {Focus Distance} property specifies the distance from the
+        camera where the content is in perfect focus.
+
+        The \uicontrol {Focus Range} property specifies the distance around the
+        \uicontrol {Focus Distance} where items are fully in focus. The focus
+        then fades away to fully blurred by the same distance on both the near
+        and far sides.
+
+    \row
+        \li Desaturate
+        \li \image effect-desaturate.png "The Desaturate effect"
+        \li A desaturating effect that decreases the intensity of all colors in
+        the scene.
+
+        The \uicontrol Amount property defines the amount of desaturation.
+
+    \row
+        \li Distortion Ripple
+        \li \image effect-distortion-ripple.png "The Distortion Ripple effect"
+        \li A distortion effect that adds circular ripples, moving away
+        from the center of the effect.
+
+        The \uicontrol Radius specifies the spread between ripples.
+
+        The \uicontrol Width property specifies the width of a ripple, while
+        \uicontrol Height defines the amount of distortion.
+
+        The \uicontrol Phase property specifies the offset of each wave. Animate
+        this property to see the waves move.
+
+        The \uicontrol Center property defines the focus point of the
+        distortion.
+
+    \row
+        \li Distortion Sphere
+        \li \image effect-distortion-sphere.png "The Distortion Sphere effect"
+        \li A distortion effect that creates a 3D effect of wrapping the
+        scene around a spherical shape.
+
+        The \uicontrol Radius property specifies the area of distortion, while
+        \uicontrol Height defines the amount of distortion.
+
+        The \uicontrol Center property defines the focus point of the
+        distortion.
+
+    \row
+        \li Distortion Spiral
+        \li \image effect-distortion-spiral.png "The Distortion Spiral effect"
+        \li A distortion effect that creates a spiral-shaped distortion.
+
+        The \uicontrol Radius property defines the area of distortion, while
+        \uicontrol Strength defines the amount of distortion.
+
+        The \uicontrol Center property defines the focus point of the
+        distortion.
+
+    \row
+        \li Edge Detect
+        \li \image effect-edge-detect.png "The Edge Detect effect"
+        \li An edge highlighting effect that turns smooth, unchanging areas of
+        the scene darker, while areas of the scene with sharp color changes are
+        brightened to highlight the edges.
+
+        The \uicontrol Strength property defines the strength of the edge
+        highlighting.
+
+    \row
+        \li Emboss
+        \li \image effect-emboss.png "The Emboss effect"
+        \li An emboss effect that replaces each pixel either by a highlight or a
+        shadow, depending on the light/dark boundaries on the scene.
+        Low contrast areas are replaced by a gray background. The embossed
+        result represents the rate of color change at each location.
+
+        The \uicontrol Amount property defines the strength of the emboss
+        effect.
+
+    \row
+        \li Flip
+        \li \image effect-flip.png "The Flip effect"
+        \li An effect that flips the whole scene either horizontally,
+        vertically, or in both directions.
+
+        The \uicontrol {Horizontal} and \uicontrol {Vertical} properties define
+        the direction of the flip.
+
+    \row
+        \li Fxaa
+        \li \image effect-fxaa.png "The Fxaa effect"
+        \li A fast approximate anti-aliasing effect that removes some of the
+        artifacts from the image without impacting performance as heavily as
+        super-sampling would.
+
+    \row
+        \li Gaussian Blur
+        \li \image effect-gaussian-blur.png "The Gaussian Blur effect"
+        \li A two-pass gaussian blur effect that blurs all objects in the scene
+        evenly. To keep the effect performant, large blur amount produces a
+        mosaic result instead of smooth blurriness.
+
+        The \uicontrol Amount property defines the strength of the blur.
+
+    \row
+        \li HDR Bloom Tonemap
+        \li \image effect-HDR-bloom-tonemap.png "The HDR Bloom Tonemap effect"
+        \li A bloom with tonemapping effect that adjusts the gamma and exposure
+        of the high-dynamic range rendered content to achieve the image quality
+        you want. Also applies an adjustable bloom effect to very bright areas
+        (like the sun glinting off a car).
+
+        The \uicontrol Gamma property affects the non-linear curve of the
+        lighting. Higher values increase the exposure of mid tones, brightening
+        the image and decreasing the contrast.
+
+        The \uicontrol Exposure property functions as a linear multiplier on the
+        lighting, thus brightening or darkening the image overall.
+
+        The \uicontrol {Blur Falloff} property adjusts the amount of bloom.
+        Lower values result in stronger bloom effect, and higher values make the
+        effect more subtle.
+
+        The \uicontrol {Tonemapping Lerp} property defines the strength of the
+        overall bloom effect. There is usually no need to adjust this.
+
+        The bloom effect is applied to areas where the lighting is greater than
+        the \uicontrol {Bloom Threshold} value. A value of \c{1.0} corresponds
+        to white in the original render result. Lowering this value causes more
+        areas of the rendered scene to bloom.
+
+        The \uicontrol {Channel Threshold} defines the white point for the
+        image. There is usually no need to adjust this.
+
+    \row
+        \li Motion Blur
+        \li \image effect-motion-blur.png "The Motion Blur effect"
+        \li A motion blur effect that creates an apparent streaking for rapidly
+        moving objects in the scene.
+
+        \note Only has a visible effect if the background of the scene is set to
+        be transparent in the \uicontrol {Background Mode} field of the
+        \uicontrol {Scene Environment} component. Otherwise, the clear color of
+        the background hides the blur. For more information, see \l {Setting
+        Scene Environment}.
+
+        The \uicontrol {Fade Amount} property defines the fade speed of the
+        trail.
+
+        The \uicontrol Quality property can be adjusted to specify the quality
+        of the blur. Increasing quality will have impact on performance.
+
+    \row
+        \li Scatter
+        \li \image effect-scatter.png "The Scatter effect"
+        \li A noise effect that scatters the pixels in a scene to create
+        a blurry or smeared appearance. Without changing the color of each
+        individual pixel, the effect redistributes the pixels randomly but in
+        the same general area as their original positions.
+
+        The \uicontrol {Noise Sample Texture} functions as the scatter noise
+        texture map.
+
+        The \uicontrol Amount property defines how much to scatter, while
+        \uicontrol Direction sets the direction in which to scatter the pixels.
+        Set to \c 0 for both horizontal and vertical, \c 1 for horizontal, and
+        \c 2 for vertical.
+
+        The \uicontrol Randomize property specifies whether scattering changes
+        at each frame or not.
+
+    \row
+        \li S-Curve Tonemap
+        \li \image effect-scurve-tonemap.png "The S-Curve Tonemap effect"
+        \li A tonemapping effect that maps the colors in the scene to others to
+        approximate the appearance of high-dynamic-range result.
+
+        The \uicontrol {Shoulder Slope} property defines where highlights lose
+        contrast.
+
+        The \uicontrol {Shoulder Emphasis} property defines the amount of
+        emphasis of the shoulder.
+
+        The \uicontrol {Toe Slope} property defines where shadows lose contrast.
+
+        The \uicontrol {Toe Emphasis} property defines the amount of emphasis
+        of the toe.
+
+        The \uicontrol {Contrast Boost} property enhances or reduces the overall
+        contrast of the tonemap.
+
+        The \uicontrol {Saturation Level} defines the overall saturation level
+        of the tonemap.
+
+        The \uicontrol Gamma property defines the gamma value of the tonemap.
+
+        The \uicontrol {Use Exposure} property specifies whether the \uicontrol
+        {White Point} value or the \uicontrol Exposure value will be used for
+        luminance calculations.
+
+        The \uicontrol {White Point} property defines the value for the white
+        point.
+
+        The \uicontrol Exposure property defines the value for exposure.
+
+    \row
+        \li Tilt Shift
+        \li \image effect-tilt-shift.png "The Tilt Shift effect"
+        \li A tilt shift blur effect that simulates depth of field in a simple
+        and performant manner. Instead of blurring based on the depth buffer,
+        it blurs everything except for a horizontal or vertical stripe on the
+        layer.
+
+        The \uicontrol {Focus Position} property specifies the placement of the
+        focus bar in normalized coordinates.
+
+        The \uicontrol {Focus Width} property defines a normalized range for
+        Focus Position. Objects within this range will be in focus.
+
+        The \uicontrol {Blur Amount} property defines the amount of blur.
+        Amounts above 4 may cause artifacts.
+
+        The \uicontrol Vertical property changes the direction of the effect
+        from horizontal to vertical, while the \uicontrol Inverted property
+        inverts the blur area, causing the center of the object to become
+        blurred.
+
+    \row
+        \li Vignette
+        \li \image effect-vignette.png "The Vignette effect"
+        \li A vignette effect that reduces brightness towards the periphery of
+        an object.
+
+        The \uicontrol Strength property defines the strength of vignetting,
+        while \uicontrol Radius specifies its size.
+
+        The \uicontrol Color property defines the color used for the effect.
+    \endtable
+*/

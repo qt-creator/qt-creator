@@ -809,10 +809,7 @@ void tst_Preprocessor::unfinished_function_like_macro_call()
     QByteArray expected__("# 1 \"<stdin>\"\n"
                           "\n"
                           "\n"
-                          "# expansion begin 24,3 3:4 ~1 3:7\n"
-                          "1 + 2\n"
-                          "# expansion end\n"
-                          "# 4 \"<stdin>\"\n");
+                          "foo\n");
 
 //    DUMP_OUTPUT(preprocessed);
     QVERIFY(compare(preprocessed, expected__));
@@ -1437,26 +1434,28 @@ void tst_Preprocessor::comments_within_data()
             "void foo() {\n"
             "   FOO(10,\n"
             "       //comment\n"
-            "       12\n"
+            "       12)\n"
             "}\n"
         ) << _(
             "# 1 \"<stdin>\"\n"
             "\n"
             "\n"
             "void foo() {\n"
-            "# expansion begin 57,3 ~4 4:7 ~4 6:7 7:0 ~2\n"
-            "{ (void)10; (void)12}; }\n"
+            "# expansion begin 57,3 ~4 4:7 ~4 6:7 ~2\n"
+            "{ (void)10; (void)12; }\n"
             "# expansion end\n"
-            "# 8 \"<stdin>\"\n"
+            "# 7 \"<stdin>\"\n"
+            "}\n"
         ) << _(
             "# 1 \"<stdin>\"\n"
             "\n"
             "\n"
             "void foo() {\n"
-            "# expansion begin 57,3 ~4 4:7 ~5 6:7 7:0 ~2\n"
-            "{ (void)10; (void)/*comment*/ 12}; }\n"
+            "# expansion begin 57,3 ~4 4:7 ~5 6:7 ~2\n"
+            "{ (void)10; (void)/*comment*/ 12; }\n"
             "# expansion end\n"
-            "# 8 \"<stdin>\"\n"
+            "# 7 \"<stdin>\"\n"
+            "}\n"
     );
 
     QTest::newRow("case 6") << _(
@@ -1465,26 +1464,28 @@ void tst_Preprocessor::comments_within_data()
             "void foo() {\n"
             "   FOO(10,\n"
             "       //tricky*/comment\n"
-            "       12\n"
+            "       12)\n"
             "}\n"
         ) << _(
             "# 1 \"<stdin>\"\n"
             "\n"
             "\n"
             "void foo() {\n"
-            "# expansion begin 57,3 ~4 4:7 ~4 6:7 7:0 ~2\n"
-            "{ (void)10; (void)12}; }\n"
+            "# expansion begin 57,3 ~4 4:7 ~4 6:7 ~2\n"
+            "{ (void)10; (void)12; }\n"
             "# expansion end\n"
-            "# 8 \"<stdin>\"\n"
+            "# 7 \"<stdin>\"\n"
+            "}\n"
         ) << _(
             "# 1 \"<stdin>\"\n"
             "\n"
             "\n"
             "void foo() {\n"
-            "# expansion begin 57,3 ~4 4:7 ~5 6:7 7:0 ~2\n"
-            "{ (void)10; (void)/*tricky*|comment*/ 12}; }\n"
+            "# expansion begin 57,3 ~4 4:7 ~5 6:7 ~2\n"
+            "{ (void)10; (void)/*tricky*|comment*/ 12; }\n"
             "# expansion end\n"
-            "# 8 \"<stdin>\"\n"
+            "# 7 \"<stdin>\"\n"
+            "}\n"
     );
 
     QTest::newRow("case 7") << _(

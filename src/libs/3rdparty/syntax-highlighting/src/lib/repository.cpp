@@ -30,11 +30,11 @@
 #include "themedata_p.h"
 #include "wildcardmatcher_p.h"
 
+#include <QCborMap>
+#include <QCborValue>
 #include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
-#include <QJsonDocument>
-#include <QJsonObject>
 
 #ifndef NO_STANDARD_PATHS
 #include <QStandardPaths>
@@ -224,13 +224,13 @@ bool RepositoryPrivate::loadSyntaxFolderFromIndex(Repository *repo, const QStrin
     if (!indexFile.open(QFile::ReadOnly))
         return false;
 
-    const auto indexDoc(QJsonDocument::fromBinaryData(indexFile.readAll()));
-    const auto index = indexDoc.object();
+    const auto indexDoc(QCborValue::fromCbor(indexFile.readAll()));
+    const auto index = indexDoc.toMap();
     for (auto it = index.begin(); it != index.end(); ++it) {
-        if (!it.value().isObject())
+        if (!it.value().isMap())
             continue;
-        const auto fileName = QString(path + QLatin1Char('/') + it.key());
-        const auto defMap = it.value().toObject();
+        const auto fileName = QString(path + QLatin1Char('/') + it.key().toString());
+        const auto defMap = it.value().toMap();
         Definition def;
         auto defData = DefinitionData::get(def);
         defData->repo = repo;

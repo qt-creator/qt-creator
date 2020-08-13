@@ -102,7 +102,7 @@ void WorkspaceEdit::setChanges(const Changes &changes)
     insert(changesKey, changesObject);
 }
 
-WorkSpaceFolder::WorkSpaceFolder(const QString &uri, const QString &name)
+WorkSpaceFolder::WorkSpaceFolder(const DocumentUri &uri, const QString &name)
 {
     setUri(uri);
     setName(name);

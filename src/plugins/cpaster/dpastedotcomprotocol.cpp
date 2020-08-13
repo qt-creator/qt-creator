@@ -32,7 +32,7 @@
 
 namespace CodePaster {
 
-static QString baseUrl() { return QString("http://dpaste.com"); }
+static QString baseUrl() { return QString("https://dpaste.com"); }
 static QString apiUrl() { return baseUrl() + "/api/v2/"; }
 
 QString DPasteDotComProtocol::protocolName() { return QString("DPaste.Com"); }

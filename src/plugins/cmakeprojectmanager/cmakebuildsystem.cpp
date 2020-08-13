@@ -195,10 +195,7 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
     connect(&m_reader, &FileApiReader::errorOccurred, this, &CMakeBuildSystem::handleParsingFailed);
     connect(&m_reader, &FileApiReader::dirty, this, &CMakeBuildSystem::becameDirty);
 
-    connect(SessionManager::instance(),
-            &SessionManager::projectAdded,
-            this,
-            &CMakeBuildSystem::wireUpConnections);
+    wireUpConnections();
 }
 
 CMakeBuildSystem::~CMakeBuildSystem()
@@ -712,13 +709,8 @@ void CMakeBuildSystem::handleParsingFailed(const QString &msg)
     combineScanAndParse();
 }
 
-void CMakeBuildSystem::wireUpConnections(const Project *p)
+void CMakeBuildSystem::wireUpConnections()
 {
-    if (p != project())
-        return; // That's not us...
-
-    disconnect(SessionManager::instance(), nullptr, this, nullptr);
-
     // At this point the entire project will be fully configured, so let's connect everything and
     // trigger an initial parser run
 
@@ -737,6 +729,12 @@ void CMakeBuildSystem::wireUpConnections(const Project *p)
     connect(target(), &Target::activeBuildConfigurationChanged, this, [this]() {
         // Build configuration has changed:
         qCDebug(cmakeBuildSystemLog) << "Requesting parse due to active BC changed";
+        setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()),
+                                        CMakeBuildSystem::REPARSE_DEFAULT);
+    });
+    connect(project(), &Project::activeTargetChanged, this, [this]() {
+        // Build configuration has changed:
+        qCDebug(cmakeBuildSystemLog) << "Requesting parse due to active target changed";
         setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()),
                                         CMakeBuildSystem::REPARSE_DEFAULT);
     });

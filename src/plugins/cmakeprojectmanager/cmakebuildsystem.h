@@ -134,7 +134,7 @@ private:
     void handleParsingSucceeded();
     void handleParsingFailed(const QString &msg);
 
-    void wireUpConnections(const ProjectExplorer::Project *p);
+    void wireUpConnections();
 
     Utils::FilePath workDirectory(const BuildDirParameters &parameters);
     void stopParsingAndClearState();

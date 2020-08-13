@@ -57,7 +57,8 @@ depends +=    qtandroidextras\
               qtsensors \
               qttestlib \
               qtuitools \
-              qtxml
+              qtxml \
+              qtlocation
 
 include(../../config/macros.qdocconf)
 include(../../config/qt-cpp-ignore.qdocconf)

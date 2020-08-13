@@ -1,0 +1,102 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \previouspage creator-project-settings-environment.html
+    \page creator-custom-output-parsers.html
+    \nextpage creator-sharing-project-settings.html
+
+    \title Using Custom Output Parsers
+
+    Custom output parsers scan command line output for error
+    and warning patterns that you specify and create entries
+    for found patterns in the \uicontrol Issues output pane.
+
+    To view or add custom output parsers, select
+    \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Build & Run} > \uicontrol {Custom Output Parsers}.
+
+    \image qtcreator-custom-parser-list.png
+
+    To edit the settings of a custom output parser, select it in the list, and
+    then select \uicontrol Edit.
+
+    To remove the selected parser, select \uicontrol Remove.
+
+    You can activate custom output parsers in the
+    \uicontrol {Custom Output Parsers} section of
+    the \uicontrol Build and \uicontrol Run settings,
+    as well as in the \l{Adding Custom Compilers}
+    {custom compiler settings}.
+
+    \section1 Specifying Settings for Custom Output Parsers
+
+    \image qtcreator-custom-parser-options.png
+
+    A custom output parser enables you to capture errors and
+    warnings separately, according to the settings you specify
+    in the \uicontrol Error and \uicontrol Warning tab.
+
+    To create a custom output parser:
+
+    \list 1
+        \li Select \uicontrol Tools > \uicontrol Options >
+            \uicontrol {Build & Run} > \uicontrol {Custom Output Parsers}
+            > \uicontrol Add.
+        \li In the \uicontrol {Error message capture pattern} field, specify
+            a regular expression to define what is an error. The custom
+            parser matches the compile output line by line against the
+            regular expression and displays errors in the \uicontrol Issues
+            output pane. Create regular expression groups that contain
+            the file name, line number and error message.
+        \li In the \uicontrol {Capture Positions} field, map the regular
+            expression groups to \uicontrol {File name}, \uicontrol {Line number},
+            and \uicontrol Message.
+        \li In the \uicontrol {Capture Output Channels} field, specify whether
+            messages from standard output, standard error, or both channels
+            should be captured.
+        \li In the \uicontrol {Test} group, you can test how the message that
+            you enter in the \uicontrol {Error message} field is matched when
+            using the current settings.
+        \li Select \uicontrol OK to add the parser to the list of parsers
+            and return to the \uicontrol {Custom Output Parsers} tab.
+        \li Double-click the parser name to change it to something more
+            descriptive than the default value.
+    \endlist
+
+    \section1 Activating Custom Output Parsers
+
+    \image qtcreator-custom-parser.png
+
+    To activate a custom output parser in the \uicontrol Build or
+    \uicontrol Run settings of a project:
+
+    \list 1
+        \li In the \uicontrol {Custom Output Parsers} section, select
+            \uicontrol Details.
+        \li Select custom parsers to activate them for building or running
+            the project.
+    \endlist
+*/

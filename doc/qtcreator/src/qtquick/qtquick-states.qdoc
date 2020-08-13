@@ -249,53 +249,5 @@
     \include qtquick-states-scxml.qdocinc scxml state machines
     \endif
 
-    \section1 Animating Transitions Between States
-
-    To make movement between states smooth, you can animate transitions.
-    Animations are created by applying animation types to property values.
-    Animation types interpolate property values to create smooth transitions.
-    As well, state transitions may assign animations to state changes.
-
-    To create an animation, use an appropriate animation type for the type of
-    the property that is to be animated, and apply the animation depending on
-    the type of behavior that is required.
-
-    You can drag and drop the following QML types from \uicontrol Library
-    > \uicontrol {QML Types} > \uicontrol {Qt Quick - Animation} to
-    \uicontrol Navigator or \uicontrol {Form Editor}:
-
-    \list
-        \li \l [QML] {ColorAnimation}{Color Animation} is a specialized
-            property animation that defines an animation to be applied when a
-            color value changes.
-        \li \l [QML] {NumberAnimation}{Number Animation} is a specialized
-            property animation that defines an animation to be applied when a
-            numerical value changes.
-        \li \l [QML] {ParallelAnimation}{Parallel Animation} enables
-            animations to be run in parallel.
-        \li \l [QML] {PauseAnimation}{Pause Animation} is used in a
-            sequential animation to create a step where nothing happens, for
-            a specified duration.
-        \li \l [QML] {PropertyAction}{Property Action} immediately changes
-             a property value during an animation, without animating the
-             property change.
-        \li \l [QML] {PropertyAnimation}{Property Animation} animates
-             changes in the value of a property.
-        \li \l [QML] {ScriptAction}{Script Action} defines scripts to be
-            run during an animation.
-        \li \l [QML] {SequentialAnimation}{Sequential Animation} enables
-            animations to be run sequentially.
-    \endlist
-
-    For more information, see \l{Animation and Transitions in Qt Quick}.
-
-    \if defined(qtcreator)
-    For an example of assigning number animations to states, see
-    \l {Creating a Qt Quick Application}.
-    \endif
-
-
-    Alternatively, you can use the \uicontrol Timeline view to animate the
-    properties of UI components and to bind the animations to states. For more
-    information, see \l {Binding Animations to States}.
+    \include qtquick-transition-editor.qdocinc transition editor
 */
