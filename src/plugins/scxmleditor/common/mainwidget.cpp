@@ -513,6 +513,7 @@ void MainWidget::addStateView(BaseItem *item)
     });
     connect(view->view(), &GraphicsView::panningChanged, m_actionHandler->action(ActionPan), &QAction::setChecked);
     connect(view->view(), &GraphicsView::magnifierChanged, m_actionHandler->action(ActionMagnifier), &QAction::setChecked);
+    connect(m_magnifier, &Magnifier::visibilityChanged, m_actionHandler->action(ActionMagnifier), &QAction::setChecked);
     connect(view->scene(), &GraphicsScene::openStateView, this, &MainWidget::addStateView, Qt::QueuedConnection);
     connect(view->scene(), &GraphicsScene::selectedStateCountChanged, this, [this](int count) {
         bool currentView = sender() == m_views.last()->scene();

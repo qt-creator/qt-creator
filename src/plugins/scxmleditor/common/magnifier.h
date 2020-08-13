@@ -51,8 +51,11 @@ public:
     void setCurrentScene(PluginInterface::GraphicsScene *scene);
     void setTopLeft(const QPoint &topLeft);
 
+    bool eventFilter(QObject *obj, QEvent *event) override;
+
 signals:
     void clicked(double zoomLevel);
+    void visibilityChanged(bool hidden);
 
 protected:
     void resizeEvent(QResizeEvent *e) override;
