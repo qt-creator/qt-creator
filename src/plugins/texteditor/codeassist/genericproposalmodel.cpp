@@ -217,7 +217,8 @@ bool GenericProposalModel::isPerfectMatch(const QString &prefix) const
             if (proposalItem(i)->isKeyword())
                 return true;
 
-            hasFullMatch = true;
+            if (!proposalItem(i)->isSnippet())
+                hasFullMatch = true;
         }
     }
 
