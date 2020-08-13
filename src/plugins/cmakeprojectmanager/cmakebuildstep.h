@@ -96,7 +96,6 @@ private:
 
     QMetaObject::Connection m_runTrigger;
 
-    QString m_ninjaProgressString;
     QStringList m_buildTargets;
     QString m_cmakeArguments;
     QString m_toolArguments;

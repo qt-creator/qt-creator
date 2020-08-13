@@ -50,6 +50,7 @@
 #include <QRegularExpression>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -136,7 +137,6 @@ static bool isCurrentExecutableTarget(const QString &target)
 CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Utils::Id id) :
     AbstractProcessStep(bsl, id)
 {
-    m_ninjaProgressString = "[%f/%t "; // ninja: [33/100
     //: Default display name for the cmake make step.
     setDefaultDisplayName(tr("CMake Build"));
 
@@ -145,6 +145,13 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Utils::Id id) :
         setBuildTargets({defaultBuildTarget()});
 
     setLowPriority();
+
+    setEnvironmentModifier([](Environment &env) {
+        const QString ninjaProgressString = "[%f/%t "; // ninja: [33/100
+        Environment::setupEnglishOutput(&env);
+        if (!env.expandedValueForKey("NINJA_STATUS").startsWith(ninjaProgressString))
+            env.set("NINJA_STATUS", ninjaProgressString + "%o/sec] ");
+    });
 
     connect(target(), &Target::parsingFinished,
             this, &CMakeBuildStep::handleBuildTargetsChanges);
@@ -241,13 +248,7 @@ bool CMakeBuildStep::init()
     setIgnoreReturnValue(m_buildTargets == QStringList(CMakeBuildStep::cleanTarget()));
 
     ProcessParameters *pp = processParameters();
-    pp->setMacroExpander(bc->macroExpander());
-    Utils::Environment env = bc->environment();
-    Utils::Environment::setupEnglishOutput(&env);
-    if (!env.expandedValueForKey("NINJA_STATUS").startsWith(m_ninjaProgressString))
-        env.set("NINJA_STATUS", m_ninjaProgressString + "%o/sec] ");
-    pp->setEnvironment(env);
-    pp->setWorkingDirectory(bc->buildDirectory());
+    setupProcessParameters(pp);
     pp->setCommandLine(cmakeCommand(rc));
     pp->resolveAll();
 
@@ -568,9 +569,7 @@ void CMakeBuildStepConfigWidget::updateBuildTargets()
 void CMakeBuildStepConfigWidget::updateDetails()
 {
     ProcessParameters param;
-    param.setMacroExpander(m_buildStep->macroExpander());
-    param.setEnvironment(m_buildStep->buildEnvironment());
-    param.setWorkingDirectory(m_buildStep->buildDirectory());
+    m_buildStep->setupProcessParameters(&param);
     param.setCommandLine(m_buildStep->cmakeCommand(nullptr));
 
     setSummaryText(param.summary(displayName()));
