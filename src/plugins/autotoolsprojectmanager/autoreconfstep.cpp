@@ -83,15 +83,17 @@ AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Utils::Id id)
         m_runAutoreconf = true;
     });
 
+    setCommandLineProvider([this] {
+        return Utils::CommandLine(Utils::FilePath::fromString("autoreconf"),
+                                  m_additionalArgumentsAspect->value(),
+                                  Utils::CommandLine::Raw);
+    });
+
+    setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });
+
     setSummaryUpdater([this] {
         ProcessParameters param;
-        param.setMacroExpander(macroExpander());
-        param.setEnvironment(buildEnvironment());
-        param.setWorkingDirectory(project()->projectDirectory());
-        param.setCommandLine({Utils::FilePath::fromString("autoreconf"),
-                              m_additionalArgumentsAspect->value(),
-                              Utils::CommandLine::Raw});
-
+        setupProcessParameters(&param);
         return param.summary(displayName());
     });
 }
@@ -99,12 +101,7 @@ AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Utils::Id id)
 bool AutoreconfStep::init()
 {
     ProcessParameters *pp = processParameters();
-    pp->setMacroExpander(macroExpander());
-    pp->setEnvironment(buildEnvironment());
-    pp->setWorkingDirectory(project()->projectDirectory());
-    pp->setCommandLine({Utils::FilePath::fromString("autoreconf"),
-                        m_additionalArgumentsAspect->value(), Utils::CommandLine::Raw});
-
+    setupProcessParameters(pp);
     return AbstractProcessStep::init();
 }
 

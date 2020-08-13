@@ -85,15 +85,15 @@ AutogenStep::AutogenStep(BuildStepList *bsl, Utils::Id id) : AbstractProcessStep
         m_runAutogen = true;
     });
 
+    setCommandLineProvider([this] {
+        return CommandLine(FilePath::fromString("./autogen.sh"),
+                           m_additionalArgumentsAspect->value(),
+                           CommandLine::Raw);
+    });
+
     setSummaryUpdater([this] {
         ProcessParameters param;
-        param.setMacroExpander(macroExpander());
-        param.setEnvironment(buildEnvironment());
-        param.setWorkingDirectory(project()->projectDirectory());
-        param.setCommandLine({FilePath::fromString("./autogen.sh"),
-                              m_additionalArgumentsAspect->value(),
-                              CommandLine::Raw});
-
+        setupProcessParameters(&param);
         return param.summary(displayName());
     });
 }
@@ -101,13 +101,7 @@ AutogenStep::AutogenStep(BuildStepList *bsl, Utils::Id id) : AbstractProcessStep
 bool AutogenStep::init()
 {
     ProcessParameters *pp = processParameters();
-    pp->setMacroExpander(macroExpander());
-    pp->setEnvironment(buildEnvironment());
-    pp->setWorkingDirectory(project()->projectDirectory());
-    pp->setCommandLine({FilePath::fromString("./autogen.sh"),
-                        m_additionalArgumentsAspect->value(),
-                        CommandLine::Raw});
-
+    setupProcessParameters(pp);
     return AbstractProcessStep::init();
 }
 

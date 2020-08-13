@@ -105,16 +105,19 @@ ConfigureStep::ConfigureStep(BuildStepList *bsl, Utils::Id id)
         m_runConfigure = true;
     });
 
-    setSummaryUpdater([this] {
+    setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });
+
+    setCommandLineProvider([this] {
         BuildConfiguration *bc = buildConfiguration();
 
+        return CommandLine({FilePath::fromString(projectDirRelativeToBuildDir(bc) + "configure"),
+                            m_additionalArgumentsAspect->value(),
+                            CommandLine::Raw});
+    });
+
+    setSummaryUpdater([this] {
         ProcessParameters param;
-        param.setMacroExpander(macroExpander());
-        param.setEnvironment(buildEnvironment());
-        param.setWorkingDirectory(buildDirectory());
-        param.setCommandLine({FilePath::fromString(projectDirRelativeToBuildDir(bc) + "configure"),
-                              m_additionalArgumentsAspect->value(),
-                              CommandLine::Raw});
+        setupProcessParameters(&param);
 
         return param.summaryInWorkdir(displayName());
     });
@@ -122,15 +125,8 @@ ConfigureStep::ConfigureStep(BuildStepList *bsl, Utils::Id id)
 
 bool ConfigureStep::init()
 {
-    BuildConfiguration *bc = buildConfiguration();
-
     ProcessParameters *pp = processParameters();
-    pp->setMacroExpander(macroExpander());
-    pp->setEnvironment(buildEnvironment());
-    pp->setWorkingDirectory(buildDirectory());
-    pp->setCommandLine({FilePath::fromString(projectDirRelativeToBuildDir(bc) + "configure"),
-                        m_additionalArgumentsAspect->value(),
-                        CommandLine::Raw});
+    setupProcessParameters(pp);
 
     return AbstractProcessStep::init();
 }
