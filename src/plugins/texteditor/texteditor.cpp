@@ -96,6 +96,7 @@
 #include <QFutureWatcher>
 #include <QGridLayout>
 #include <QKeyEvent>
+#include <QLoggingCategory>
 #include <QMap>
 #include <QMenu>
 #include <QMessageBox>
@@ -1147,6 +1148,8 @@ static void printPage(int index, QPainter *painter, const QTextDocument *doc,
     painter->restore();
 }
 
+Q_LOGGING_CATEGORY(printLog, "qtc.editor.print", QtWarningMsg)
+
 void TextEditorWidgetPrivate::print(QPrinter *printer)
 {
     QTextDocument *doc = q->document();
@@ -1255,6 +1258,13 @@ void TextEditorWidgetPrivate::print(QPrinter *printer)
         toPage = tmp;
         ascending = false;
     }
+
+    qCDebug(printLog) << "Printing " << m_document->filePath() << ":\n"
+                      << "  number of copies:" << printer->numCopies() << '\n'
+                      << "  from page" << fromPage << "to" << toPage << '\n'
+                      << "  document page count:" << doc->pageCount() << '\n'
+                      << "  page rectangle:" << pageRect << '\n'
+                      << "  title box:" << titleBox << '\n';
 
     for (int i = 0; i < docCopies; ++i) {
 
