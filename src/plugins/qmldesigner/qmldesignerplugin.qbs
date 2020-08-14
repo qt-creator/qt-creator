@@ -780,6 +780,8 @@ Project {
                 "richtexteditor/richtexteditor.cpp",
                 "richtexteditor/richtexteditor.h",
                 "richtexteditor/richtexteditor.ui",
+                "richtexteditor/richtexteditorproxy.cpp",
+                "richtexteditor/richtexteditorproxy.h",
                 "sourcetool/sourcetool.cpp",
                 "sourcetool/sourcetool.h",
                 "texttool/textedititem.cpp",

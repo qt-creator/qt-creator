@@ -13,11 +13,11 @@
       <description><![CDATA[Developing Qt applications using C++ and the Qt Widgets module.]]></description>
       <tags>qt,qt creator,qt designer,widgets,c++,help</tags>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/qt-creator-transitions-example.html" projectPath="" name="Help: Creating a Qt Quick Application">
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/qtcreator-transitions-example.html" projectPath="" name="Help: Creating a Qt Quick Application">
       <description><![CDATA[Using basic QML elements and learning about basic concepts of Qt Quick.]]></description>
       <tags>qt creator,qt quick designer,qt quick,qml,states,transitions,help</tags>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/qt-creator-accelbubble-example.html" projectPath="" name="Help: Creating a Mobile Qt Application">
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/qtcreator-accelbubble-example.html" projectPath="" name="Help: Creating a Mobile Qt Application">
       <description><![CDATA[Developing Qt Quick applications for Android and iOS devices using Qt Quick Controls.]]></description>
       <tags>qt creator,qt quick designer,qml,android,ios,controls,help</tags>
     </tutorial>

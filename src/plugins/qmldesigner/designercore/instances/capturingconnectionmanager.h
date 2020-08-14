@@ -29,7 +29,7 @@
 
 namespace QmlDesigner {
 
-class CapturingConnectionManager : public InteractiveConnectionManager
+class QMLDESIGNERCORE_EXPORT CapturingConnectionManager : public InteractiveConnectionManager
 {
 public:
     void setUp(NodeInstanceServerProxy *nodeInstanceServerProxy,
@@ -37,6 +37,8 @@ public:
                ProjectExplorer::Target *target) override;
 
     void processFinished(int exitCode, QProcess::ExitStatus exitStatus) override;
+
+    void writeCommand(const QVariant &command) override;
 
 private:
     QFile m_captureFileForTest;

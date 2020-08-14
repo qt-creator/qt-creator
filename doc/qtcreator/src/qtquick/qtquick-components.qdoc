@@ -66,8 +66,8 @@
     the import statements automatically. You can remove import statements in
     \uicontrol {QML Imports}.
 
-    \uicontrol {Assets} displays the images and other files that you copy
-    to the project folder (to the same subfolder as the QML files).
+    \uicontrol {Assets} displays the images and other files that you import to
+    the project folder by selecting \uicontrol {Add New Assets}.
 
     \section1 Adding Components to Designs
 

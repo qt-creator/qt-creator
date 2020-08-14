@@ -96,6 +96,8 @@ NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
     m_puppetAliveTimer.start();
 }
 
+NodeInstanceClientProxy::~NodeInstanceClientProxy() = default;
+
 void NodeInstanceClientProxy::initializeSocket()
 {
     QLocalSocket *localSocket = new QLocalSocket(this);

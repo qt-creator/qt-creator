@@ -28,6 +28,7 @@
 #ifndef QMLDESIGNER_TEST
 
 #include <abstractview.h>
+#include <capturingconnectionmanager.h>
 #include <componentaction.h>
 #include <componentview.h>
 #include <crumblebar.h>
@@ -37,7 +38,6 @@
 #include <edit3dview.h>
 #include <formeditorview.h>
 #include <importmanagerview.h>
-#include <interactiveconnectionmanager.h>
 #include <itemlibraryview.h>
 #include <navigatorview.h>
 #include <nodeinstanceview.h>
@@ -61,10 +61,13 @@ class ViewManagerData
 {
 public:
     InteractiveConnectionManager connectionManager;
+    CapturingConnectionManager capturingConnectionManager;
     QmlModelState savedState;
     Internal::DebugView debugView;
     DesignerActionManagerView designerActionManagerView;
-    NodeInstanceView nodeInstanceView{connectionManager};
+    NodeInstanceView nodeInstanceView{
+        QCoreApplication::arguments().contains("-capture-puppet-stream") ? capturingConnectionManager
+                                                                         : connectionManager};
     ComponentView componentView;
     Edit3DView edit3DView;
     FormEditorView formEditorView;

@@ -70,6 +70,7 @@ class NodeInstanceClientProxy : public QObject, public NodeInstanceClientInterfa
 
 public:
     NodeInstanceClientProxy(QObject *parent);
+    ~NodeInstanceClientProxy() override;
 
     void informationChanged(const InformationChangedCommand &command) override;
     void valuesChanged(const ValuesChangedCommand &command) override;
