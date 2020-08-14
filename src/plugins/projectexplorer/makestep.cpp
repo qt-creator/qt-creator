@@ -67,37 +67,6 @@ const char MAKEFLAGS[] = "MAKEFLAGS";
 namespace ProjectExplorer {
 namespace Internal {
 
-class OverrideMakeflagsAspect final : public BoolAspect
-{
-public:
-    OverrideMakeflagsAspect() {}
-
-    void setWarningVisible(bool on)
-    {
-        if (m_nonOverrideWarning)
-            m_nonOverrideWarning->setVisible(on);
-    }
-
-    void addToLayout(LayoutBuilder &builder) final
-    {
-        if (!m_nonOverrideWarning) {
-            const QString text = tr("Override MAKEFLAGS");
-            setLabel(text, LabelPlacement::AtCheckBox);
-            m_nonOverrideWarning = new QLabel;
-            m_nonOverrideWarning->setToolTip("<html><body><p>" +
-                 tr("<code>MAKEFLAGS</code> specifies parallel jobs. Check \"%1\" to override.")
-                 .arg(text) + "</p></body></html>");
-            m_nonOverrideWarning->setPixmap(Icons::WARNING.pixmap());
-        }
-
-        BoolAspect::addToLayout(builder);
-        builder.addItem(m_nonOverrideWarning.data());
-    }
-
-private:
-    QPointer<QLabel> m_nonOverrideWarning;
-};
-
 class MakeStepConfigWidget : public BuildStepConfigWidget
 {
     Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::MakeStep)
@@ -123,10 +92,9 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     m_disableInSubDirsCheckBox->setToolTip(tr("Runs this step only for a top-level build."));
 
     LayoutBuilder builder(this);
-    makeStep->m_makeCommandAspect->addToLayout(builder.startNewRow());
-    makeStep->m_userArgumentsAspect->addToLayout(builder.startNewRow());
-    makeStep->m_userJobCountAspect->addToLayout(builder.startNewRow());
-    makeStep->m_overrideMakeflagsAspect->addToLayout(builder);
+    builder.addRow(makeStep->m_makeCommandAspect);
+    builder.addRow(makeStep->m_userArgumentsAspect);
+    builder.addRow(makeStep->m_jobCountContainer);
     builder.startNewRow().addItems(disableInSubDirsLabel, m_disableInSubDirsCheckBox);
     builder.startNewRow().addItems(m_targetsLabel, m_targetsList);
 
@@ -174,15 +142,25 @@ MakeStep::MakeStep(BuildStepList *parent, Utils::Id id)
     m_userArgumentsAspect->setLabelText(tr("Make arguments:"));
     m_userArgumentsAspect->setDisplayStyle(StringAspect::LineEditDisplay);
 
-    m_userJobCountAspect = addAspect<IntegerAspect>();
+    m_jobCountContainer = addAspect<AspectContainer>();
+
+    m_userJobCountAspect = m_jobCountContainer->addAspect<IntegerAspect>();
     m_userJobCountAspect->setSettingsKey(id.withSuffix(JOBCOUNT_SUFFIX).toString());
     m_userJobCountAspect->setLabel(tr("Parallel jobs:"));
     m_userJobCountAspect->setRange(1, 999);
     m_userJobCountAspect->setValue(defaultJobCount());
     m_userJobCountAspect->setDefaultValue(defaultJobCount());
 
-    m_overrideMakeflagsAspect = addAspect<Internal::OverrideMakeflagsAspect>();
+    const QString text = tr("Override MAKEFLAGS");
+    m_overrideMakeflagsAspect = m_jobCountContainer->addAspect<BoolAspect>();
     m_overrideMakeflagsAspect->setSettingsKey(id.withSuffix(OVERRIDE_MAKEFLAGS_SUFFIX).toString());
+    m_overrideMakeflagsAspect->setLabel(text, BoolAspect::LabelPlacement::AtCheckBox);
+
+    m_nonOverrideWarning = m_jobCountContainer->addAspect<TextDisplay>();
+    m_nonOverrideWarning->setToolTip("<html><body><p>" +
+         tr("<code>MAKEFLAGS</code> specifies parallel jobs. Check \"%1\" to override.")
+         .arg(text) + "</p></body></html>");
+    m_nonOverrideWarning->setIconType(InfoLabel::Warning);
 
     m_cleanAspect = addAspect<BoolAspect>();
     m_cleanAspect->setSettingsKey(id.withSuffix(CLEAN_SUFFIX).toString());
@@ -475,8 +453,8 @@ BuildStepConfigWidget *MakeStep::createConfigWidget()
         const bool jobCountEnabled = !userArgsContainsJobCount();
         m_userJobCountAspect->setEnabled(jobCountEnabled);
         m_overrideMakeflagsAspect->setEnabled(jobCountEnabled);
-        m_overrideMakeflagsAspect->setWarningVisible(makeflagsJobCountMismatch()
-                                                     && !jobCountOverridesMakeflags());
+        m_nonOverrideWarning->setVisible(makeflagsJobCountMismatch()
+                                         && !jobCountOverridesMakeflags());
         widget->m_disableInSubDirsCheckBox->setChecked(!enabledForSubDirs());
 
         widget->recreateSummary();
