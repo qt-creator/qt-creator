@@ -37,6 +37,7 @@
 namespace ProjectExplorer {
 
 namespace Internal {
+class AspectContainerPrivate;
 class BoolAspectPrivate;
 class IntegerAspectPrivate;
 class SelectionAspectPrivate;
@@ -254,6 +255,33 @@ public:
 
 private:
     std::unique_ptr<Internal::StringListAspectPrivate> d;
+};
+
+class PROJECTEXPLORER_EXPORT AspectContainer : public ProjectConfigurationAspect
+{
+    Q_OBJECT
+
+public:
+    AspectContainer();
+    ~AspectContainer() override;
+
+    template <class Aspect, typename ...Args>
+    Aspect *addAspect(Args && ...args)
+    {
+        auto aspect = new Aspect(args...);
+        addAspectHelper(aspect);
+        return aspect;
+    }
+
+    void addToLayout(LayoutBuilder &builder) override;
+
+    void fromMap(const QVariantMap &map) override;
+    void toMap(QVariantMap &map) const override;
+
+private:
+    void addAspectHelper(ProjectConfigurationAspect *aspect);
+
+    std::unique_ptr<Internal::AspectContainerPrivate> d;
 };
 
 // FIXME: For migration. Remove after 4.15

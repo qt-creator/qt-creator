@@ -150,6 +150,12 @@ public:
     QStringList m_value;
 };
 
+class AspectContainerPrivate
+{
+public:
+    QList<ProjectConfigurationAspect *> m_items;
+};
+
 } // Internal
 
 /*!
@@ -868,6 +874,41 @@ QStringList StringListAspect::value() const
 void StringListAspect::setValue(const QStringList &value)
 {
     d->m_value = value;
+}
+
+/*!
+    \class ProjectExplorer::AspectContainer
+*/
+
+AspectContainer::AspectContainer()
+    : d(new Internal::AspectContainerPrivate)
+{}
+
+AspectContainer::~AspectContainer() = default;
+
+void AspectContainer::addAspectHelper(ProjectConfigurationAspect *aspect)
+{
+    d->m_items.append(aspect);
+}
+
+void AspectContainer::addToLayout(LayoutBuilder &builder)
+{
+    for (ProjectConfigurationAspect *aspect : d->m_items) {
+        if (aspect->isVisible())
+            aspect->addToLayout(builder);
+    }
+}
+
+void AspectContainer::fromMap(const QVariantMap &map)
+{
+    for (ProjectConfigurationAspect *aspect : d->m_items)
+        aspect->fromMap(map);
+}
+
+void AspectContainer::toMap(QVariantMap &map) const
+{
+    for (ProjectConfigurationAspect *aspect : d->m_items)
+        aspect->toMap(map);
 }
 
 } // namespace ProjectExplorer
