@@ -446,12 +446,7 @@ litehtml::uint_ptr DocumentContainer::create_font(const litehtml::tchar_t *faceN
                                                   unsigned int decoration,
                                                   litehtml::font_metrics *fm)
 {
-#if (QT_VERSION < QT_VERSION_CHECK(5, 14, 0))
-    constexpr auto SkipEmptyParts = QString::SkipEmptyParts;
-#else
-    constexpr auto SkipEmptyParts = Qt::SkipEmptyParts;
-#endif
-    const QStringList splitNames = QString::fromUtf8(faceName).split(',', SkipEmptyParts);
+    const QStringList splitNames = QString::fromUtf8(faceName).split(',', Qt::SkipEmptyParts);
     QStringList familyNames;
     std::transform(splitNames.cbegin(),
                    splitNames.cend(),

@@ -391,7 +391,7 @@ void QmlDebugTranslationWidget::saveLogToFile()
 void QmlDebugTranslationWidget::appendMessage(const QString &message, Utils::OutputFormat format)
 {
     const auto newLine = QRegularExpression("[\r\n]");
-    const auto messages = message.split(newLine, QString::SkipEmptyParts);
+    const auto messages = message.split(newLine, Qt::SkipEmptyParts);
 
     if (messages.count() > 1) {
         for (auto m : messages)
