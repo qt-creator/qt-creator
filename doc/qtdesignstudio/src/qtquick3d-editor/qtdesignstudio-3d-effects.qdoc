@@ -232,7 +232,7 @@
 
     \row
         \li HDR Bloom Tonemap
-        \li \image effect-HDR-bloom-tonemap.png "The HDR Bloom Tonemap effect"
+        \li \image effect-hdr-bloom-tonemap.png "The HDR Bloom Tonemap effect"
         \li A bloom with tonemapping effect that adjusts the gamma and exposure
         of the high-dynamic range rendered content to achieve the image quality
         you want. Also applies an adjustable bloom effect to very bright areas
