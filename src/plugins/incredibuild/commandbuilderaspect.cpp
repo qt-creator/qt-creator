@@ -220,16 +220,5 @@ void CommandBuilderAspect::updateGui()
     d->makeArgumentsLineEdit->setText(d->m_activeCommandBuilder->arguments());
 }
 
-// TextDisplay
-
-void TextDisplay::addToLayout(LayoutBuilder &builder)
-{
-    if (!m_label) {
-        m_label = new QLabel(m_message);
-        m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    }
-    builder.addItem(m_label.data());
-}
-
 } // namespace Internal
 } // namespace IncrediBuild

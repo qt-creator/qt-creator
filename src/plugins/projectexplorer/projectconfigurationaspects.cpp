@@ -156,6 +156,15 @@ public:
     QList<ProjectConfigurationAspect *> m_items;
 };
 
+class TextDisplayPrivate
+{
+public:
+    QString m_message;
+    QString m_tooltip;
+    QPixmap m_pixmap;
+    QPointer<QLabel> m_label;
+};
+
 } // Internal
 
 /*!
@@ -874,6 +883,51 @@ QStringList StringListAspect::value() const
 void StringListAspect::setValue(const QStringList &value)
 {
     d->m_value = value;
+}
+
+/*!
+    \class ProjectExplorer::TextDisplay
+*/
+
+TextDisplay::TextDisplay(const QString &message)
+    : d(new Internal::TextDisplayPrivate)
+{
+    d->m_message = message;
+}
+
+TextDisplay::~TextDisplay() = default;
+
+void TextDisplay::addToLayout(LayoutBuilder &builder)
+{
+    if (!d->m_label) {
+        d->m_label = new QLabel(d->m_message);
+        d->m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        d->m_label->setVisible(isVisible());
+        d->m_label->setToolTip(d->m_tooltip);
+        d->m_label->setPixmap(d->m_pixmap);
+    }
+    builder.addItem(d->m_label.data());
+}
+
+void TextDisplay::setVisible(bool visible)
+{
+    ProjectConfigurationAspect::setVisible(visible);
+    if (d->m_label)
+        d->m_label->setVisible(visible);
+}
+
+void TextDisplay::setToolTip(const QString &tooltip)
+{
+    d->m_tooltip = tooltip;
+    if (d->m_label)
+        d->m_label->setToolTip(tooltip);
+}
+
+void TextDisplay::setPixmap(const QPixmap &pixmap)
+{
+    d->m_pixmap = pixmap;
+    if (d->m_label)
+        d->m_label->setPixmap(pixmap);
 }
 
 /*!

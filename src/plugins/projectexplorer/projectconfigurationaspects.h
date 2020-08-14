@@ -257,6 +257,24 @@ private:
     std::unique_ptr<Internal::StringListAspectPrivate> d;
 };
 
+class PROJECTEXPLORER_EXPORT TextDisplay : public ProjectConfigurationAspect
+{
+    Q_OBJECT
+
+public:
+    TextDisplay(const QString &message = {});
+    ~TextDisplay() override;
+
+    void addToLayout(LayoutBuilder &builder) override;
+
+    void setVisible(bool visible);
+    void setToolTip(const QString &tooltip);
+    void setPixmap(const QPixmap &pixmap);
+
+private:
+    std::unique_ptr<Internal::TextDisplayPrivate> d;
+};
+
 class PROJECTEXPLORER_EXPORT AspectContainer : public ProjectConfigurationAspect
 {
     Q_OBJECT
