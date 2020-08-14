@@ -70,7 +70,7 @@ void CapturingConnectionManager::writeCommand(const QVariant &command)
     InteractiveConnectionManager::writeCommand(command);
 
     if (m_captureFileForTest.isWritable()) {
-        qDebug() << "command name: " << QMetaType(command.userType()).name();
+        qDebug() << "command name: " << QMetaType::typeName(command.userType());
         writeCommandToIODevice(command, &m_captureFileForTest, m_writeCommandCounter);
         qDebug() << "\tcatpure file offset: " << m_captureFileForTest.pos();
     }
