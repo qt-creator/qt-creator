@@ -297,7 +297,7 @@ public:
 
     void saveGeometry()
     {
-        SessionManager::setValue("DebuggerSeparateWidgetGeometry", geometry());
+        SessionManager::setValue("DebuggerSeparateWidgetGeometry", QVariant(geometry()));
     }
 
     ~SeparatedView() override

@@ -4,6 +4,7 @@ SUBDIRS = \
     fileutils \
     ansiescapecodehandler \
     fuzzymatcher \
+    persistentsettings \
     settings \
     stringutils \
     templateengine \
