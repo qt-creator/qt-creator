@@ -51,11 +51,7 @@ def constructExpectedCode(original, codeLines, funcSuffix):
             generatedFunc += "\n    %s" % line
     if withBraces:
         generatedFunc += "\n        \n    }"
-    # QTCREATORBUG-12118: last line has 4 additional blanks
-    if JIRA.isBugStillOpen(12118):
-        generatedFunc += "    "
-    else:
-        test.warning("Remove unnecessary code - QTCREATORBUG-12118 is closed.")
+    generatedFunc += "    " # QTCREATORBUG-12118: last line has 4 additional blanks
     generatedFunc += "\n}"
     tmp.insert(insertHere + 1, generatedFunc)
     return "\n".join(tmp) + "\n"
