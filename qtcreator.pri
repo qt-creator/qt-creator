@@ -7,7 +7,9 @@ include($$PWD/qtcreator_ide_branding.pri)
 PRODUCT_BUNDLE_IDENTIFIER=$${PRODUCT_BUNDLE_ORGANIZATION}.$${IDE_ID}
 VERSION = $$QTCREATOR_VERSION
 
-CONFIG += c++17
+# include c++1z as an alias for c++17 for compatibility for older Qt versions
+# that we use for sdktool
+CONFIG += c++17 c++1z
 
 defineReplace(qtLibraryTargetName) {
    unset(LIBRARY_NAME)
