@@ -62,7 +62,7 @@ public:
     bool defaultValue() const;
     void setDefaultValue(bool defaultValue);
 
-    enum class LabelPlacement { AtCheckBox, InExtraLabel };
+    enum class LabelPlacement { AtCheckBox, AtCheckBoxWithoutDummyLabel, InExtraLabel };
     void setLabel(const QString &labelText,
                   LabelPlacement labelPlacement = LabelPlacement::InExtraLabel);
     void setToolTip(const QString &tooltip);

@@ -516,13 +516,19 @@ void BoolAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_checkBox);
     d->m_checkBox = new QCheckBox();
-    if (d->m_labelPlacement == LabelPlacement::AtCheckBox) {
+    switch (d->m_labelPlacement) {
+    case LabelPlacement::AtCheckBoxWithoutDummyLabel:
+        d->m_checkBox->setText(d->m_labelText);
+        break;
+    case LabelPlacement::AtCheckBox:
         d->m_checkBox->setText(d->m_labelText);
         builder.addItem(new QLabel);
-    } else {
+        break;
+    case LabelPlacement::InExtraLabel:
         d->m_label = new QLabel(d->m_labelText);
         d->m_label->setToolTip(d->m_tooltip);
         builder.addItem(d->m_label.data());
+        break;
     }
     d->m_checkBox->setChecked(d->m_value);
     d->m_checkBox->setToolTip(d->m_tooltip);

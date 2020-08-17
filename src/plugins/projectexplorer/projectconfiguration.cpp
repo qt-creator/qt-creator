@@ -95,6 +95,7 @@ void LayoutBuilder::flushPendingItems()
         // If there are more than two items, we cram the last ones in one hbox.
         if (m_pendingItems.size() > 2) {
             auto hbox = new QHBoxLayout;
+            hbox->setContentsMargins(0, 0, 0, 0);
             for (int i = 1; i < m_pendingItems.size(); ++i) {
                 if (QWidget *w = m_pendingItems.at(i).widget)
                     hbox->addWidget(w);
