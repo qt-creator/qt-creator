@@ -56,17 +56,19 @@ CapturedDataCommand::StateData collectStateData(ServerNodeInstance rootNodeInsta
     stateData.image = ImageContainer(stateInstanceId,
                                      QmlDesigner::renderPreviewImage(rootNodeInstance),
                                      stateInstanceId);
+    stateData.nodeId = stateInstanceId;
 
     for (const ServerNodeInstance &instance : nodeInstances) {
+        CapturedDataCommand::NodeData nodeData;
+
+        nodeData.nodeId = instance.instanceId();
+        nodeData.contentRect = instance.contentItemBoundingRect();
+        nodeData.sceneTransform = instance.sceneTransform();
         auto textProperty = instance.property("text");
-        if (!textProperty.isNull() && instance.holdsGraphical()) {
-            CapturedDataCommand::NodeData nodeData;
-            nodeData.nodeId = instance.instanceId();
-            nodeData.contentRect = instance.contentItemBoundingRect();
-            nodeData.sceneTransform = instance.sceneTransform();
-            nodeData.text = textProperty.toString();
-            stateData.nodeData.push_back(std::move(nodeData));
-        }
+        if (!textProperty.isNull() && instance.holdsGraphical())
+            nodeData.properties.emplace_back(QString{"text"}, textProperty.toString());
+
+        stateData.nodeData.push_back(std::move(nodeData));
     }
 
     return stateData;
