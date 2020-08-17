@@ -201,24 +201,52 @@ static McuPackage *createMcuXpressoIdePackage()
     return result;
 }
 
-static McuPackage *createBoardSdkPackage(const QString &envVar)
+struct McuTargetDescription
 {
-    auto postfixPos = envVar.indexOf("_SDK_PATH");
-    if (postfixPos < 0) {
-        postfixPos = envVar.indexOf("_DIR");
-    }
-    const QString sdkName = postfixPos > 0 ? envVar.left(postfixPos) : envVar;
+    QString qulVersion;
+    QString platform;
+    QString platformVendor;
+    QVector<int> colorDepths;
+    QString toolchainId;
+    QString boardSdkEnvVar;
+    QString boardSdkName;
+    QString boardSdkDefaultPath;
+    QString freeRTOSEnvVar;
+    QString freeRTOSBoardSdkSubDir;
+};
 
-    const QString defaultPath =
-            qEnvironmentVariableIsSet(envVar.toLatin1()) ?
-                qEnvironmentVariable(envVar.toLatin1()) : QDir::homePath();
+static McuPackage *createBoardSdkPackage(const McuTargetDescription& desc)
+{
+    const auto generateSdkName = [](const QString& envVar) {
+        auto postfixPos = envVar.indexOf("_SDK_PATH");
+        if (postfixPos < 0) {
+            postfixPos = envVar.indexOf("_DIR");
+        }
+        auto sdkName = postfixPos > 0 ? envVar.left(postfixPos) : envVar;
+        return QString::fromLatin1("MCU SDK (%1)").arg(sdkName);
+    };
+    const QString sdkName = desc.boardSdkName.isEmpty() ? generateSdkName(desc.boardSdkEnvVar) : desc.boardSdkName;
+
+    const QString defaultPath = [&] {
+        const auto envVar = desc.boardSdkEnvVar.toLatin1();
+        if (qEnvironmentVariableIsSet(envVar)) {
+            return qEnvironmentVariable(envVar);
+        }
+        if (!desc.boardSdkDefaultPath.isEmpty()) {
+            QString defaultPath = QDir::rootPath() + desc.boardSdkDefaultPath;
+            if (QFileInfo::exists(defaultPath)) {
+                return defaultPath;
+            }
+        }
+        return QDir::homePath();
+    }();
 
     auto result = new McuPackage(
-                QString::fromLatin1("MCU SDK (%1)").arg(sdkName),
+                sdkName,
                 defaultPath,
                 {},
-                envVar);
-    result->setEnvironmentVariableName(envVar);
+                desc.boardSdkEnvVar);
+    result->setEnvironmentVariableName(desc.boardSdkEnvVar);
     return result;
 }
 
@@ -244,18 +272,6 @@ static McuPackage *createFreeRTOSSourcesPackage(const QString &envVar, const QSt
     result->setEnvironmentVariableName(envVar);
     return result;
 }
-
-struct McuTargetDescription
-{
-    QString qulVersion;
-    QString platform;
-    QString platformVendor;
-    QVector<int> colorDepths;
-    QString toolchainId;
-    QString boardSdkEnvVar;
-    QString freeRTOSEnvVar;
-    QString freeRTOSBoardSdkSubDir;
-};
 
 struct McuTargetFactory
 {
@@ -295,14 +311,16 @@ protected:
         auto tcPkg = tcPkgs.value(desc.toolchainId);
         for (auto os : {McuTarget::OS::BareMetal, McuTarget::OS::FreeRTOS}) {
             for (int colorDepth : desc.colorDepths) {
-                QVector<McuPackage*> required3rdPartyPkgs = {
-                    vendorPkgs.value(desc.platformVendor), tcPkg
-                };
+                QVector<McuPackage*> required3rdPartyPkgs = { tcPkg };
+                if (vendorPkgs.contains(desc.platformVendor)) {
+                   required3rdPartyPkgs.push_back(vendorPkgs.value(desc.platformVendor));
+                }
                 QString boardSdkDefaultPath;
-                if (!desc.boardSdkEnvVar.isEmpty()
-                        && desc.boardSdkEnvVar != "RGL_DIR") { // Already included in vendorPkgs
+                if (!desc.boardSdkEnvVar.isEmpty()) {
                     if (!boardSdkPkgs.contains(desc.boardSdkEnvVar)) {
-                        auto boardSdkPkg = createBoardSdkPackage(desc.boardSdkEnvVar);
+                        auto boardSdkPkg = desc.boardSdkEnvVar != "RGL_DIR"
+                                            ? createBoardSdkPackage(desc)
+                                            : createRGLPackage();
                         boardSdkPkgs.insert(desc.boardSdkEnvVar, boardSdkPkg);
                     }
                     auto boardSdkPkg = boardSdkPkgs.value(desc.boardSdkEnvVar);
@@ -338,14 +356,14 @@ protected:
         QVector<McuTarget *> mcuTargets;
         auto tcPkg = tcPkgs.value(desc.toolchainId);
         for (int colorDepth : desc.colorDepths) {
-            QVector<McuPackage*> required3rdPartyPkgs = {
-                vendorPkgs.value(desc.platformVendor), tcPkg
-            };
+            QVector<McuPackage*> required3rdPartyPkgs = { tcPkg };
+            if (vendorPkgs.contains(desc.platformVendor)) {
+                required3rdPartyPkgs.push_back(vendorPkgs.value(desc.platformVendor));
+            }
             QString boardSdkDefaultPath;
-            if (!desc.boardSdkEnvVar.isEmpty()
-                        && desc.boardSdkEnvVar != "RGL_DIR") { // Already included in vendorPkgs
+            if (!desc.boardSdkEnvVar.isEmpty()) {
                 if (!boardSdkPkgs.contains(desc.boardSdkEnvVar)) {
-                    auto boardSdkPkg = createBoardSdkPackage(desc.boardSdkEnvVar);
+                    auto boardSdkPkg = createBoardSdkPackage(desc);
                     boardSdkPkgs.insert(desc.boardSdkEnvVar, boardSdkPkg);
                 }
                 auto boardSdkPkg = boardSdkPkgs.value(desc.boardSdkEnvVar);
@@ -402,7 +420,6 @@ static QVector<McuTarget *> targetsFromDescriptions(const QList<McuTargetDescrip
     const QHash<QString, McuPackage *> vendorPkgs = {
         {{"ST"}, createStm32CubeProgrammerPackage()},
         {{"NXP"}, createMcuXpressoIdePackage()},
-        {{"Renesas"}, createRGLPackage()}
     };
 
     McuTargetFactory targetFactory(tcPkgs, vendorPkgs);
@@ -448,6 +465,8 @@ static McuTargetDescription parseDescriptionJson(const QByteArray &data)
         colorDepthsVector,
         toolchain.value("id").toString(),
         boardSdk.value("envVar").toString(),
+        boardSdk.value("name").toString(),
+        boardSdk.value("defaultPath").toString(),
         freeRTOS.value("envVar").toString(),
         freeRTOS.value("boardSdkSubDir").toString()
     };
