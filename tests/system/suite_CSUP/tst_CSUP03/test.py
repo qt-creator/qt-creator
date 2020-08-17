@@ -51,7 +51,6 @@ def constructExpectedCode(original, codeLines, funcSuffix):
             generatedFunc += "\n    %s" % line
     if withBraces:
         generatedFunc += "\n        \n    }"
-    generatedFunc += "    " # QTCREATORBUG-12118: last line has 4 additional blanks
     generatedFunc += "\n}"
     tmp.insert(insertHere + 1, generatedFunc)
     return "\n".join(tmp) + "\n"
