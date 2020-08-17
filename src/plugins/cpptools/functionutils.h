@@ -44,11 +44,11 @@ class CPPTOOLS_EXPORT FunctionUtils
 public:
     static bool isVirtualFunction(const CPlusPlus::Function *function,
                                   const CPlusPlus::LookupContext &context,
-                                  const CPlusPlus::Function **firstVirtual = nullptr);
+                                  QList<const CPlusPlus::Function *> *firstVirtuals = nullptr);
 
     static bool isPureVirtualFunction(const CPlusPlus::Function *function,
                                       const CPlusPlus::LookupContext &context,
-                                      const CPlusPlus::Function **firstVirtual = nullptr);
+                                      QList<const CPlusPlus::Function *> *firstVirtuals = nullptr);
 
     static QList<CPlusPlus::Function *> overrides(CPlusPlus::Function *function,
                                                   CPlusPlus::Class *functionsClass,

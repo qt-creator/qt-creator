@@ -33,6 +33,11 @@
 #include <utils/qtcassert.h>
 
 #include <QList>
+#include <QPair>
+
+#include <limits>
+
+#include <cplusplus/TypePrettyPrinter.h>
 
 using namespace CPlusPlus;
 using namespace CppTools;
@@ -42,12 +47,12 @@ enum VirtualType { Virtual, PureVirtual };
 static bool isVirtualFunction_helper(const Function *function,
                                      const LookupContext &context,
                                      VirtualType virtualType,
-                                     const Function **firstVirtual)
+                                     QList<const Function *> *firstVirtuals)
 {
     enum { Unknown, False, True } res = Unknown;
 
-    if (firstVirtual)
-        *firstVirtual = nullptr;
+    if (firstVirtuals)
+        firstVirtuals->clear();
 
     if (!function)
         return false;
@@ -55,14 +60,51 @@ static bool isVirtualFunction_helper(const Function *function,
     if (virtualType == PureVirtual)
         res = function->isPureVirtual() ? True : False;
 
+    const Class * const klass = function->enclosingScope()
+            ? function->enclosingScope()->asClass() : nullptr;
+    if (!klass)
+        return false;
+
+    int hierarchyDepthOfFirstVirtuals = -1;
+    const auto updateFirstVirtualsList
+            = [&hierarchyDepthOfFirstVirtuals, &context, firstVirtuals, klass](Function *candidate) {
+        const Class * const candidateClass = candidate->enclosingScope()
+                ? candidate->enclosingScope()->asClass() : nullptr;
+        if (!candidateClass)
+            return;
+        QList<QPair<const Class *, int>> classes{{klass, 0}};
+        while (!classes.isEmpty()) {
+            const auto c = classes.takeFirst();
+            if (c.first == candidateClass) {
+                QTC_ASSERT(c.second != 0, return);
+                if (c.second >= hierarchyDepthOfFirstVirtuals) {
+                    if (c.second > hierarchyDepthOfFirstVirtuals) {
+                        firstVirtuals->clear();
+                        hierarchyDepthOfFirstVirtuals = c.second;
+                    }
+                    firstVirtuals->append(candidate);
+                }
+                return;
+            }
+            for (int i = 0; i < c.first->baseClassCount(); ++i) {
+                const ClassOrNamespace * const base = context.lookupType(
+                            c.first->baseClassAt(i)->name(), c.first->enclosingScope());
+                if (base && base->rootClass())
+                    classes.append({base->rootClass(), c.second + 1});
+            }
+        }
+    };
+
     if (function->isVirtual()) {
-        if (firstVirtual)
-            *firstVirtual = function;
+        if (firstVirtuals) {
+            hierarchyDepthOfFirstVirtuals = 0;
+            firstVirtuals->append(function);
+        }
         if (res == Unknown)
             res = True;
     }
 
-    if (!firstVirtual && res != Unknown)
+    if (!firstVirtuals && res != Unknown)
         return res == True;
 
     QList<LookupItem> results = context.lookup(function->name(), function->enclosingScope());
@@ -80,11 +122,11 @@ static bool isVirtualFunction_helper(const Function *function,
                     if (functionType->isFinal())
                         return res == True;
                     if (functionType->isVirtual()) {
-                        if (!firstVirtual)
+                        if (!firstVirtuals)
                             return true;
                         if (res == Unknown)
                             res = True;
-                        *firstVirtual = functionType;
+                        updateFirstVirtualsList(functionType);
                     }
                 }
             }
@@ -96,16 +138,16 @@ static bool isVirtualFunction_helper(const Function *function,
 
 bool FunctionUtils::isVirtualFunction(const Function *function,
                                       const LookupContext &context,
-                                      const Function **firstVirtual)
+                                      QList<const Function *> *firstVirtuals)
 {
-    return isVirtualFunction_helper(function, context, Virtual, firstVirtual);
+    return isVirtualFunction_helper(function, context, Virtual, firstVirtuals);
 }
 
 bool FunctionUtils::isPureVirtualFunction(const Function *function,
                                           const LookupContext &context,
-                                          const Function **firstVirtual)
+                                          QList<const Function *> *firstVirtuals)
 {
-    return isVirtualFunction_helper(function, context, PureVirtual, firstVirtual);
+    return isVirtualFunction_helper(function, context, PureVirtual, firstVirtuals);
 }
 
 QList<Function *> FunctionUtils::overrides(Function *function, Class *functionsClass,
@@ -191,7 +233,7 @@ void CppToolsPlugin::test_functionutils_virtualFunctions()
     QCOMPARE(document->diagnosticMessages().size(), 0);
     QVERIFY(document->translationUnit()->ast());
     QList<const Function *> allFunctions;
-    const Function *firstVirtual = nullptr;
+    QList<const Function *> firstVirtuals;
 
     // Iterate through Function symbols
     Snapshot snapshot;
@@ -206,9 +248,9 @@ void CppToolsPlugin::test_functionutils_virtualFunctions()
             Virtuality virtuality = virtualityList.takeFirst();
             QTC_ASSERT(!firstVirtualList.isEmpty(), return);
             int firstVirtualIndex = firstVirtualList.takeFirst();
-            bool isVirtual = FunctionUtils::isVirtualFunction(function, context, &firstVirtual);
+            bool isVirtual = FunctionUtils::isVirtualFunction(function, context, &firstVirtuals);
             bool isPureVirtual = FunctionUtils::isPureVirtualFunction(function, context,
-                                                                      &firstVirtual);
+                                                                      &firstVirtuals);
 
             // Test for regressions introduced by firstVirtual
             QCOMPARE(FunctionUtils::isVirtualFunction(function, context), isVirtual);
@@ -225,9 +267,9 @@ void CppToolsPlugin::test_functionutils_virtualFunctions()
                 QCOMPARE(virtuality, NotVirtual);
             }
             if (firstVirtualIndex == -1)
-                QVERIFY(!firstVirtual);
+                QVERIFY(firstVirtuals.isEmpty());
             else
-                QCOMPARE(firstVirtual, allFunctions.at(firstVirtualIndex));
+                QCOMPARE(firstVirtuals, {allFunctions.at(firstVirtualIndex)});
         }
     }
     QVERIFY(virtualityList.isEmpty());
