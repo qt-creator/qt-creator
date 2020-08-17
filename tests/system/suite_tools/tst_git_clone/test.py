@@ -80,6 +80,14 @@ def verifyFiles(targetDir):
         test.verify(os.path.exists(os.path.join(targetDir, cloneDir, file)),
                     "Verify the existence of %s" % file)
 
+
+def closeProposalPopup():
+    page = waitForObject(":JsonWizard_ProjectExplorer::JsonFieldPage")
+    checkbox = waitForObjectExists(":Recursive_QCheckBox")
+    mouseClick(page, page.width / 2, (page.height + checkbox.y + checkbox.height) / 2,
+               0, Qt.LeftButton)
+
+
 def main():
     startQC()
     if not startedWithoutPluginError():
@@ -90,6 +98,7 @@ def main():
         __createProjectOrFileSelectType__("  Import Project", "Git Clone")
         replaceEditorContent(waitForObject("{name='Repo' type='QLineEdit' visible='1'}"),
                              cloneUrl)
+        closeProposalPopup()
         targetDir = tempDir()
         replaceEditorContent(waitForObject(":Working Copy_Utils::BaseValidatingLineEdit"),
                              targetDir)
