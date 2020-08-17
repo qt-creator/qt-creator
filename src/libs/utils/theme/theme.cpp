@@ -242,9 +242,24 @@ void Theme::readSettings(QSettings &settings)
     }
 }
 
+// If you copy QPalette, default values stay at default, even if that default is different
+// within the context of different widgets. Create deep copy.
+static QPalette copyPalette(const QPalette &p)
+{
+    QPalette res;
+    for (int group = 0; group < QPalette::NColorGroups; ++group) {
+        for (int role = 0; role < QPalette::NColorRoles; ++role) {
+            res.setBrush(QPalette::ColorGroup(group),
+                         QPalette::ColorRole(role),
+                         p.brush(QPalette::ColorGroup(group), QPalette::ColorRole(role)));
+        }
+    }
+    return res;
+}
+
 QPalette Theme::initialPalette()
 {
-    static QPalette palette = QApplication::palette();
+    static QPalette palette = copyPalette(QApplication::palette());
     return palette;
 }
 
