@@ -83,10 +83,11 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/documentmanager.h>
-#include <qmlprojectmanager/qmlmultilanguageaspect.h>
 #endif
 
 #include <projectexplorer/target.h>
+
+#include <qmlprojectmanager/qmlmultilanguageaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -551,10 +552,8 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
         }
     } else if (node.isRootNode() && name == "language@Internal") {
         const QString languageAsString = value.toString();
-#ifndef QMLDESIGNER_TEST
         if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current(m_currentTarget))
             multiLanguageAspect->setCurrentLocale(languageAsString);
-#endif
         m_nodeInstanceServer->changeLanguage({languageAsString});
     } else if (node.isRootNode() && name == "previewSize@Internal") {
         m_nodeInstanceServer->changePreviewImageSize(value.toSize());
@@ -993,10 +992,8 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     }
 
     QString lastUsedLanguage;
-#ifndef QMLDESIGNER_TEST
     if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current(m_currentTarget))
         lastUsedLanguage = multiLanguageAspect->currentLocale();
-#endif
 
     return CreateSceneCommand(
                 instanceContainerList,

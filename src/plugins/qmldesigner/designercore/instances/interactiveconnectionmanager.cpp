@@ -27,9 +27,7 @@
 #include "nodeinstanceserverproxy.h"
 #include "nodeinstanceview.h"
 
-#ifndef QMLDESIGNER_TEST
 #include <qmldesignerplugin.h>
-#endif
 
 #include <coreplugin/messagebox.h>
 
@@ -51,7 +49,6 @@ void InteractiveConnectionManager::setUp(NodeInstanceServerProxy *nodeInstanceSe
 {
     ConnectionManager::setUp(nodeInstanceServerProxy, qrcMappingString, target);
 
-#ifndef QMLDESIGNER_TEST
     DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
     int timeOutTime = settings.value(DesignerSettingsKey::PUPPET_KILL_TIMEOUT).toInt();
     for (Connection &connection : m_connections)
@@ -68,7 +65,6 @@ void InteractiveConnectionManager::setUp(NodeInstanceServerProxy *nodeInstanceSe
             });
         }
     }
-#endif
 }
 
 void InteractiveConnectionManager::showCannotConnectToPuppetWarningAndSwitchToEditMode()
@@ -78,11 +74,9 @@ void InteractiveConnectionManager::showCannotConnectToPuppetWarningAndSwitchToEd
         tr("The executable of the QML emulation layer (QML Puppet) may not be responding. "
            "Switching to another kit might help."));
 
-#ifndef QMLDESIGNER_TEST
     QmlDesignerPlugin::instance()->switchToTextModeDeferred();
     nodeInstanceServerProxy()->nodeInstanceView()->emitDocumentMessage(
         tr("Cannot Connect to QML Emulation Layer (QML Puppet)"));
-#endif
 }
 
 void InteractiveConnectionManager::dispatchCommand(const QVariant &command, Connection &connection)
