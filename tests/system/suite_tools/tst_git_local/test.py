@@ -185,7 +185,7 @@ def main():
                          "Some important advice in the README")
     invokeMenuItem("File", "Save All")
     commitsInProject = list(commitMessages) # deep copy
-    commitOutsideProject = commit("Added README file", "Committed 2 files.", True) # QTCREATORBUG-11074
+    commitOutsideProject = commit("Added README file", "Committed 1 files.", True)
     commitMessages.insert(0, commitOutsideProject)
 
     invokeMenuItem('Tools', 'Git', 'Current File', 'Log of "%s"' % readmeName)
