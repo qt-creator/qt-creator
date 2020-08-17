@@ -94,7 +94,7 @@ void TestProjectSettings::load()
     const QVariant runAfterBuild = m_project->namedSettings(SK_RUN_AFTER_BUILD);
     m_runAfterBuild = runAfterBuild.isValid() ? RunAfterBuildMode(runAfterBuild.toInt())
                                               : RunAfterBuildMode::None;
-    m_checkStateCache.fromSettings(m_project->namedSettings(SK_CHECK_STATES).toHash());
+    m_checkStateCache.fromSettings(m_project->namedSettings(SK_CHECK_STATES).toMap());
 }
 
 void TestProjectSettings::save()
@@ -106,8 +106,7 @@ void TestProjectSettings::save()
         activeFrameworks.insert(it.key()->id().toString(), it.value());
     m_project->setNamedSettings(SK_ACTIVE_FRAMEWORKS, activeFrameworks);
     m_project->setNamedSettings(SK_RUN_AFTER_BUILD, int(m_runAfterBuild));
-    if (!m_checkStateCache.isEmpty())
-        m_project->setNamedSettings(SK_CHECK_STATES, m_checkStateCache.toSettings());
+    m_project->setNamedSettings(SK_CHECK_STATES, m_checkStateCache.toSettings());
 }
 
 } // namespace Internal

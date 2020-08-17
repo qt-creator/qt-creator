@@ -118,6 +118,8 @@ AutotestPlugin::AutotestPlugin()
     qRegisterMetaType<TestResult>();
     qRegisterMetaType<TestTreeItem *>();
     qRegisterMetaType<TestCodeLocationAndType>();
+    // warm up meta type system to be able to read Qt::CheckState with persistent settings
+    qRegisterMetaType<Qt::CheckState>();
 }
 
 AutotestPlugin::~AutotestPlugin()
