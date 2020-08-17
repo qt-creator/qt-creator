@@ -766,6 +766,7 @@ IEditor *FormEditorData::createEditor()
     m_fwm->closeAllPreviews();
     QDesignerFormWindowInterface *form = m_fwm->createFormWindow(nullptr);
     QTC_ASSERT(form, return nullptr);
+    form->setPalette(Theme::initialPalette());
     QObject::connect(form, &QDesignerFormWindowInterface::toolChanged, [this] (int i) { toolChanged(i); });
 
     auto widgetHost = new SharedTools::WidgetHost( /* parent */ nullptr, form);

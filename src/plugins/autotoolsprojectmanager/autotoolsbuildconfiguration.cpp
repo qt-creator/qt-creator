@@ -68,7 +68,7 @@ public:
         appendInitialBuildStep(Constants::MAKE_STEP_ID); // make
 
         // ### Build Steps Clean ###
-        appendInitialBuildStep(Constants::MAKE_STEP_ID);
+        appendInitialCleanStep(Constants::MAKE_STEP_ID); // make clean
     }
 };
 
