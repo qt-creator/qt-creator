@@ -30,6 +30,7 @@
 #include <model.h>
 #ifndef QMLDESIGNER_TEST
 #include <qmldesignerplugin.h>
+#include <qmlprojectmanager/qmlmultilanguageaspect.h>
 #endif
 
 #include <nodeinstanceview.h>
@@ -44,8 +45,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-
-#include <qmlprojectmanager/qmlmultilanguageaspect.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
@@ -521,10 +520,12 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
 
         customFileSelectors = m_target->additionalData("CustomFileSelectorsData").toStringList();
 
+#ifndef QMLDESIGNER_TEST
         if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current(m_target)) {
             if (!multiLanguageAspect->databaseFilePath().isEmpty())
                 environment.set("QT_MULTILANGUAGE_DATABASE", multiLanguageAspect->databaseFilePath().toString());
         }
+#endif
     }
 
     customFileSelectors.append("DesignMode");
