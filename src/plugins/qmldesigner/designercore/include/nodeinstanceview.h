@@ -41,6 +41,8 @@
 #include <QTime>
 #include <QtGui/qevent.h>
 
+#include <memory.h>
+
 namespace ProjectExplorer {
 class Target;
 }
