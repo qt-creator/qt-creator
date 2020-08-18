@@ -116,7 +116,7 @@ void Qt5TestNodeInstanceServer::changePropertyBindings(const ChangeBindingsComma
 
 void Qt5TestNodeInstanceServer::changeAuxiliaryValues(const ChangeAuxiliaryCommand &command)
 {
-    foreach (const PropertyValueContainer &container, command.auxiliaryChanges()) {
+    for (const PropertyValueContainer &container : command.auxiliaryChanges) {
         setInstanceAuxiliaryData(container);
     }
 

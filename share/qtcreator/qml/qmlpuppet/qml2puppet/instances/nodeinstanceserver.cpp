@@ -633,7 +633,7 @@ void NodeInstanceServer::changePropertyValues(const ChangeValuesCommand &command
 
 void NodeInstanceServer::changeAuxiliaryValues(const ChangeAuxiliaryCommand &command)
 {
-    foreach (const PropertyValueContainer &container, command.auxiliaryChanges()) {
+    for (const PropertyValueContainer &container : command.auxiliaryChanges) {
         setInstanceAuxiliaryData(container);
     }
 
