@@ -245,8 +245,10 @@ QList<void *> CMakeProjectImporter::examineDirectory(const Utils::FilePath &impo
         qCDebug(cmInputLog) << "Failed to read configuration from" << cacheFile << errorMessage;
         return { };
     }
-    const auto homeDir
-            = Utils::FilePath::fromUserInput(QString::fromUtf8(CMakeConfigItem::valueOf("CMAKE_HOME_DIRECTORY", config)));
+    const auto homeDir = Utils::FilePath::fromUserInput(
+                             QString::fromUtf8(
+                                 CMakeConfigItem::valueOf("CMAKE_HOME_DIRECTORY", config)))
+                             .canonicalPath();
     const Utils::FilePath canonicalProjectDirectory = projectDirectory().canonicalPath();
     if (homeDir != canonicalProjectDirectory) {
         qCDebug(cmInputLog) << "Wrong source directory:" << homeDir.toUserOutput()
