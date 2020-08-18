@@ -23,56 +23,44 @@
 **
 ****************************************************************************/
 
-#ifndef BINDINGEDITORDIALOG_H
-#define BINDINGEDITORDIALOG_H
+#ifndef CONNECTIONVISITOR_H
+#define CONNECTIONVISITOR_H
 
-#include <bindingeditor/abstracteditordialog.h>
-
-QT_BEGIN_NAMESPACE
-class QComboBox;
-QT_END_NAMESPACE
+#include <qmljs/qmljsdocument.h>
+#include <qmljs/parser/qmljsastvisitor_p.h>
+#include <qmljs/parser/qmljsast_p.h>
 
 namespace QmlDesigner {
 
-class BindingEditorDialog : public AbstractEditorDialog
+class ConnectionVisitor : public QmlJS::AST::Visitor
 {
-    Q_OBJECT
-
 public:
-    struct BindingOption
-    {
-        BindingOption() {}
-        BindingOption(const QString &value) { item = value; }
+    explicit ConnectionVisitor();
 
-        bool operator==(const QString &value) const { return value == item; }
-        bool operator==(const BindingOption &value) const { return value.item == item; }
+    bool visit(QmlJS::AST::StringLiteral *ast) override;
+    bool visit(QmlJS::AST::NumericLiteral *ast) override;
+    bool visit(QmlJS::AST::TrueLiteral *ast) override;
+    bool visit(QmlJS::AST::FalseLiteral *ast) override;
 
-        QString item;
-        QStringList properties;
-    };
+    bool visit(QmlJS::AST::BinaryExpression *ast) override;
+    bool visit(QmlJS::AST::CallExpression *ast) override;
 
-    BindingEditorDialog(QWidget *parent = nullptr);
-    ~BindingEditorDialog() override;
+    bool visit(QmlJS::AST::ArgumentList *ast) override;
+    bool visit(QmlJS::AST::FunctionExpression *ast) override; // unused
 
-    void adjustProperties() override;
+    bool visit(QmlJS::AST::FieldMemberExpression *ast) override;
+    bool visit(QmlJS::AST::IdentifierExpression *ast) override;
 
-    void setAllBindings(QList<BindingOption> bindings);
+    void throwRecursionDepthError() override;
 
-private:
-    void setupUIComponents();
-    void setupComboBoxes();
-
-public slots:
-    void itemIDChanged(int);
-    void propertyIDChanged(int);
+    const QList<QPair<QmlJS::AST::Node::Kind, QString>> &expression() const {
+        return m_expression;
+    }
 
 private:
-    QComboBox *m_comboBoxItem = nullptr;
-    QComboBox *m_comboBoxProperty = nullptr;
-
-    QList<BindingOption> m_bindings;
+    QList<QPair<QmlJS::AST::Node::Kind, QString>> m_expression;
 };
 
 }
 
-#endif //BINDINGEDITORDIALOG_H
+#endif //CONNECTIONVISITOR_H

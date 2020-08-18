@@ -26,7 +26,7 @@
 #ifndef ACTIONEDITOR_H
 #define ACTIONEDITOR_H
 
-#include <bindingeditor/bindingeditordialog.h>
+#include <bindingeditor/actioneditordialog.h>
 #include <qmldesignercorelib_global.h>
 #include <modelnode.h>
 
@@ -40,7 +40,7 @@ class ActionEditor : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString text READ bindingValue WRITE setBindingValue)
+    Q_PROPERTY(QString text READ connectionValue WRITE setConnectionValue)
 
 public:
     ActionEditor(QObject *parent = nullptr);
@@ -52,13 +52,17 @@ public:
     Q_INVOKABLE void showWidget(int x, int y);
     Q_INVOKABLE void hideWidget();
 
-    QString bindingValue() const;
-    void setBindingValue(const QString &text);
+    QString connectionValue() const;
+    void setConnectionValue(const QString &text);
 
     bool hasModelIndex() const;
     void resetModelIndex();
     QModelIndex modelIndex() const;
     void setModelIndex(const QModelIndex &index);
+
+    void setModelNode(const ModelNode &modelNode);
+
+    void prepareConnections();
 
     Q_INVOKABLE void updateWindowName();
 
@@ -67,14 +71,12 @@ signals:
     void rejected();
 
 private:
-    QVariant backendValue() const;
-    QVariant modelNodeBackend() const;
-    QVariant stateModelNode() const;
     void prepareDialog();
 
 private:
-    QPointer<BindingEditorDialog> m_dialog;
+    QPointer<ActionEditorDialog> m_dialog;
     QModelIndex m_index;
+    QmlDesigner::ModelNode m_modelNode;
 };
 
 }
