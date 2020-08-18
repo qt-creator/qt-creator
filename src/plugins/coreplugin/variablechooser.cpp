@@ -550,7 +550,9 @@ void VariableChooserPrivate::updatePositionAndShow(bool)
 
 void VariableChooserPrivate::updateFilter(const QString &filterText)
 {
-    m_sortModel->setFilterRegularExpression(QRegularExpression::wildcardToRegularExpression(filterText));
+    const QString pattern = QRegularExpression::escape(filterText);
+    m_sortModel->setFilterRegularExpression(
+                QRegularExpression(pattern, QRegularExpression::CaseInsensitiveOption));
     m_variableTree->expandAll();
 }
 
