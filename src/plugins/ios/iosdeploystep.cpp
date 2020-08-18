@@ -315,16 +315,11 @@ IosSimulator::ConstPtr IosDeployStep::iossimulator() const
 
 IosDeployStepFactory::IosDeployStepFactory()
 {
-    registerStep<IosDeployStep>(stepId());
+    registerStep<IosDeployStep>(Constants::IOS_DEPLOY_STEP_ID);
     setDisplayName(IosDeployStep::tr("Deploy to iOS device or emulator"));
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     setSupportedDeviceTypes({Constants::IOS_DEVICE_TYPE, Constants::IOS_SIMULATOR_TYPE});
     setRepeatable(false);
-}
-
-Utils::Id IosDeployStepFactory::stepId()
-{
-    return "Qt4ProjectManager.IosDeployStep";
 }
 
 } // namespace Internal

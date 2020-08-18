@@ -34,8 +34,6 @@ class IosDeployStepFactory final : public ProjectExplorer::BuildStepFactory
 {
 public:
     IosDeployStepFactory();
-
-    static Utils::Id stepId();
 };
 
 } // namespace Internal

@@ -63,7 +63,7 @@ public:
         addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
         addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
         setDefaultDisplayName(QCoreApplication::translate("Ios::Internal", "Deploy on iOS"));
-        addInitialStep(IosDeployStepFactory::stepId());
+        addInitialStep(Constants::IOS_DEPLOY_STEP_ID);
     }
 };
 

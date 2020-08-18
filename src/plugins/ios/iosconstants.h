@@ -43,6 +43,7 @@ const char IOS_DEVICE_ID[] = "iOS Device ";
 const char IOS_SIMULATOR_DEVICE_ID[] = "iOS Simulator Device ";
 const char IOS_PRESET_BUILD_STEP_ID[] = "Ios.IosPresetBuildStep";
 const char IOS_DSYM_BUILD_STEP_ID[] = "Ios.IosDsymBuildStep";
+const char IOS_DEPLOY_STEP_ID[] = "Qt4ProjectManager.IosDeployStep";
 
 const char IosTarget[] = "IosTarget"; // QString
 const char IosBuildDir[] = "IosBuildDir"; // QString
