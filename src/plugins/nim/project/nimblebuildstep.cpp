@@ -103,6 +103,7 @@ NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList, Id id)
     m_arguments = addAspect<ArgumentsAspect>();
     m_arguments->setSettingsKey(Constants::C_NIMBLEBUILDSTEP_ARGUMENTS);
     m_arguments->setResetter([this] { return defaultArguments(); });
+    m_arguments->setArguments(defaultArguments());
 
     setCommandLineProvider([this] {
         return CommandLine(QStandardPaths::findExecutable("nimble"),
@@ -119,7 +120,6 @@ NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList, Id id)
 
 bool NimbleBuildStep::init()
 {
-    m_arguments->setArguments(defaultArguments());
     ProcessParameters *params = processParameters();
     setupProcessParameters(params);
 
