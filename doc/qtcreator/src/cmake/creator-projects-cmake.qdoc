@@ -62,41 +62,53 @@
     \QC requires CMake's \l{https://cmake.org/cmake/help/latest/manual/cmake-file-api.7.html}
     {file-based API}.  Please make sure to use CMake version 3.14, or later.
 
-    To specify paths to CMake executables:
+    To view and specify settings for CMake:
 
     \list 1
 
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
-            \uicontrol CMake > \uicontrol Add.
+            \uicontrol CMake.
 
             \image qtcreator-cmakeexecutable.png
 
-        \li In the \uicontrol Name field, specify a name for the tool.
+        \li The \uicontrol Name field displays a name for the CMake
+            installation.
 
-        \li In the \uicontrol Path field, specify the path to the CMake
+        \li The \uicontrol Path field displays the path to the CMake
             executable.
 
-        \li In the \uicontrol {Help file} field, specify the path to the
+        \li The \uicontrol {Help file} field displays the path to the
             CMake help file (.qch) provided by and installed with CMake.
 
+        \li Deselect the \uicontrol {Autorun CMake} check box if you do not want
+            to automatically run CMake every time when you save changes to
+            \c {CMakeLists.txt} files.
+
         \li Select the \uicontrol {Auto-create build directories} check box to
-            automatically create build directories for CMake projects.
+            initially configure the project in a temporary directory. When you
+            build the project \QC starts from scratch and configures the
+            project again using the build directory.
 
         \li Select \uicontrol Apply to save your changes.
 
     \endlist
 
-    \note When the \uicontrol {Autorun CMake} check box is enabled, \QC
-    automatically runs CMake when you make changes to \c {CMakeLists.txt} files.
-    We recommend that you do not disable this check box, because that would
-    eventually make \QC and the project disagree on what the project information
-    is.
+    To add a path to a CMake executable that \QC does not detect automatically,
+    and to specify settings for it, select \uicontrol Add. To make changes to
+    automatically detected installations, select \uicontrol Clone.
+
+    \QC uses the \e {default CMake} if it does not have enough information
+    to choose the CMake to use. To set the selected CMake executable as the
+    default, select \uicontrol {Make Default}.
+
+    To remove the selected CMake executable from the list, select
+    \uicontrol Remove.
 
     Select the \uicontrol Kits tab to add the CMake tool to a build and run kit.
     The kit also specifies the CMake generator that is used for producing
-    project files for \QC and the configuration variables that are used:
+    project files for \QC and the initial configuration parameters:
 
-    \image qtcreator-kits.png
+    \image qtcreator-kits-cmake.png
 
     For more information, see \l {Adding Kits}.
 
@@ -134,14 +146,12 @@
     Through external libraries, \QC can support code completion and syntax
     highlighting as if they were part of the current project or the Qt library.
 
-    \QC detects the external libraries using the \c {FIND_PACKAGE()}
+    \QC detects the external libraries using the \c {find_package()}
     macro. Some libraries come with the CMake installation. You can find those
     in the \c {Modules} directory of your CMake installation.
-
-    \note If you provide your own libraries, you also need to provide your own
-    \c {FindXXX.cmake} file. For more information, see
-    \l{https://gitlab.kitware.com/cmake/community/wikis/FAQ#writing-findxxxcmake-files}
-    {Writing FindXXX.cmake files}.
+    For more information, see
+    \l{https://cmake.org/cmake/help/latest/manual/cmake-packages.7.html}
+    {cmake-packages(7)}.
 
     Syntax completion and highlighting work once your project successfully
     builds and links against the external library.

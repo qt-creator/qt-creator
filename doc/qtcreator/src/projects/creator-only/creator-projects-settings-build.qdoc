@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -42,15 +42,25 @@
     debug symbols that you need for debugging the application but that you
     can leave out from the release version. Generally, you use the debug
     configuration for testing and the release configuration for creating
-    the final installation file. A profile configuration is an optimized release
-    build that is delivered with separate debug information. It is best suited
-    for analyzing applications.
+    the final installation file.
+
+    If you selected CMake as the build system for the project, you can
+    use a \e {minimum size release} build configuration to create the
+    final  installation file. It is a release build that makes the size
+    of the binary package as small as possible, even if this makes the
+    application slower.
+
+    A profile build (which is called \e {release with debug information}
+    when using CMake) is an optimized release build that is delivered
+    with separate debug information. It is best suited for analyzing
+    applications.
 
     \section1 Managing Build Configurations
 
     You specify build settings in the \uicontrol Projects mode.
     To add a new build configuration, click \uicontrol Add and select the type of
-    configuration you would like to add. You can add as many build
+    configuration you would like to add. The options you have depend on the
+    build system that you selected for the project. You can add as many build
     configurations as you need. You can also select \uicontrol Clone to
     add a build configuration that is based on the currently selected one.
 
@@ -66,6 +76,21 @@
 
     The available build settings depend on the build system that you selected
     for the project.
+
+    \section2 Compiling QML
+
+    Since Qt 5.11, you can compile QML source code into the final binary. This
+    improves the startup time of the application and eliminates the need to
+    deploy QML files together with the application. For more information, see
+    \l{Ahead-of-Time Compilation}.
+
+    \QC project wizard templates create Qt Quick projects that can be compiled,
+    because they are set up to use the Qt Resource System. To compile Qt Quick
+    code, select \uicontrol Enable in the \uicontrol {Qt Quick Compiler}
+    field. To use default settings, select \uicontrol {Leave at Default}.
+
+    \note In earlier Qt versions, this was a commercial feature. For more
+    information, see \l{http://doc.qt.io/QtQuickCompiler/}{Qt Quick Compiler}.
 
     \section2 qmake Build Configuration
 
@@ -97,21 +122,6 @@
     > \uicontrol Options > \uicontrol {Build & Run} >
     \uicontrol {Default Build Properties}.
 
-    \section3 Compiling QML
-
-    Since Qt 5.11, you can compile QML source code into the final binary. This
-    improves the startup time of the application and eliminates the need to
-    deploy QML files together with the application. For more information, see
-    \l{Ahead-of-Time Compilation}.
-
-    \QC new project wizards create Qt Quick projects that can be compiled,
-    because they are set up to use the Qt Resource System. To compile Qt Quick
-    code, select \uicontrol Enable in the \uicontrol {Qt Quick Compiler}
-    field. To use default settings, select \uicontrol {Leave at Default}.
-
-    \note In earlier Qt versions, this was a commercial feature. For more
-    information, see \l{http://doc.qt.io/QtQuickCompiler/}{Qt Quick Compiler}.
-
     \include creator-projects-cmake-building.qdocinc cmake build configuration
     \include creator-projects-meson-building.qdocinc meson build configuration
 
@@ -130,9 +140,11 @@
     apply.
 
     You can specify command-line arguments in the arguments fields:
-    \uicontrol {Additional arguments}, \uicontrol {Command arguments},
-    \uicontrol {Make arguments}, \uicontrol Arguments, \uicontrol {Default Arguments},
-    or \uicontrol {Extra arguments}. You can create shell command lines
+    \uicontrol Arguments, \uicontrol {Additional arguments},
+    \uicontrol {CMake arguments}, \uicontrol {Command arguments},
+    \uicontrol {Default arguments}, \uicontrol {Extra arguments},
+    \uicontrol {Make arguments}, or \uicontrol {Tool arguments}.
+    You can create shell command lines
     that can contain redirection and other advanced constructs. However, some
     more complex use cases, such as piping test data into the application being
     tested or grouping commands, are not supported because the value of the
