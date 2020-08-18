@@ -397,6 +397,8 @@ void CdbEngine::setupEngine()
 
     debugger.addArgs({"-y", QChar('"') + stringListSetting(CdbSymbolPaths).join(';') + '"'});
 
+    debugger.addArgs(expand(stringSetting(CdbAdditionalArguments)), CommandLine::Raw);
+
     switch (sp.startMode) {
     case StartInternal:
     case StartExternal:
