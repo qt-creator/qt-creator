@@ -167,7 +167,9 @@ void BuildStepList::insertStep(int position, BuildStep *step)
 void BuildStepList::insertStep(int position, Utils::Id stepId)
 {
     for (BuildStepFactory *factory : BuildStepFactory::allBuildStepFactories()) {
-        if (BuildStep *step = factory->create(this, stepId)) {
+        if (factory->stepId() == stepId) {
+            BuildStep *step = factory->create(this);
+            QTC_ASSERT(step, break);
             insertStep(position, step);
             return;
         }

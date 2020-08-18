@@ -463,12 +463,9 @@ Utils::Id BuildStepFactory::stepId() const
     return m_info.id;
 }
 
-BuildStep *BuildStepFactory::create(BuildStepList *parent, Utils::Id id)
+BuildStep *BuildStepFactory::create(BuildStepList *parent)
 {
-    BuildStep *bs = nullptr;
-    if (id == m_info.id)
-        bs = m_info.creator(parent);
-    return bs;
+    return m_info.creator(parent);
 }
 
 BuildStep *BuildStepFactory::restore(BuildStepList *parent, const QVariantMap &map)

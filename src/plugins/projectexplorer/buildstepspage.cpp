@@ -253,37 +253,26 @@ void BuildStepListWidget::updateEnabledState()
 
 void BuildStepListWidget::updateAddBuildStepMenu()
 {
-    QMap<QString, QPair<Utils::Id, BuildStepFactory *> > map;
-    //Build up a list of possible steps and save map the display names to the (internal) name and factories.
-    for (BuildStepFactory *factory : BuildStepFactory::allBuildStepFactories()) {
-        if (factory->canHandle(m_buildStepList)) {
-            const BuildStepInfo &info = factory->stepInfo();
-            if (info.flags & BuildStepInfo::Uncreatable)
-                continue;
-            if ((info.flags & BuildStepInfo::UniqueStep) && m_buildStepList->contains(info.id))
-                continue;
-            map.insert(info.displayName, qMakePair(info.id, factory));
-        }
-    }
-
-    // Ask the user which one to add
     QMenu *menu = m_addButton->menu();
     menu->clear();
-    if (!map.isEmpty()) {
-        QMap<QString, QPair<Utils::Id, BuildStepFactory *> >::const_iterator it, end;
-        end = map.constEnd();
-        for (it = map.constBegin(); it != end; ++it) {
-            QAction *action = menu->addAction(it.key());
-            BuildStepFactory *factory = it.value().second;
-            Utils::Id id = it.value().first;
 
-            connect(action, &QAction::triggered, [id, factory, this]() {
-                BuildStep *newStep = factory->create(m_buildStepList, id);
-                QTC_ASSERT(newStep, return);
-                int pos = m_buildStepList->count();
-                m_buildStepList->insertStep(pos, newStep);
-            });
-        }
+    for (BuildStepFactory *factory : BuildStepFactory::allBuildStepFactories()) {
+        if (!factory->canHandle(m_buildStepList))
+            continue;
+
+        const BuildStepInfo &info = factory->stepInfo();
+        if (info.flags & BuildStepInfo::Uncreatable)
+            continue;
+
+        if ((info.flags & BuildStepInfo::UniqueStep) && m_buildStepList->contains(info.id))
+            continue;
+
+        QAction *action = menu->addAction(info.displayName);
+        connect(action, &QAction::triggered, this, [factory, this] {
+            BuildStep *newStep = factory->create(m_buildStepList);
+            QTC_ASSERT(newStep, return);
+            m_buildStepList->appendStep(newStep);
+        });
     }
 }
 

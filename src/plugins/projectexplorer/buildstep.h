@@ -186,7 +186,7 @@ public:
 
     BuildStepInfo stepInfo() const;
     Utils::Id stepId() const;
-    BuildStep *create(BuildStepList *parent, Utils::Id id);
+    BuildStep *create(BuildStepList *parent);
     BuildStep *restore(BuildStepList *parent, const QVariantMap &map);
 
     bool canHandle(BuildStepList *bsl) const;
