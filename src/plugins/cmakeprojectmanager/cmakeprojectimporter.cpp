@@ -38,6 +38,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QDir>
 #include <QLoggingCategory>
@@ -80,6 +81,22 @@ static QStringList scanDirectory(const QString &path, const QString &prefix)
             result.append(subPath);
     }
     return result;
+}
+
+QString baseCMakeToolDisplayName(CMakeProjectManager::CMakeTool &tool)
+{
+    CMakeProjectManager::CMakeTool::Version version = tool.version();
+    return QString("CMake %1.%2.%3").arg(version.major).arg(version.minor).arg(version.patch);
+}
+
+QString uniqueCMakeToolDisplayName(CMakeProjectManager::CMakeTool &tool)
+{
+    QString baseName = baseCMakeToolDisplayName(tool);
+
+    QStringList existingNames;
+    for (const CMakeProjectManager::CMakeTool *t : CMakeProjectManager::CMakeToolManager::cmakeTools())
+        existingNames << t->displayName();
+    return Utils::makeUniquelyNumbered(baseName, existingNames);
 }
 
 } // namespace
@@ -319,6 +336,7 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
         QTC_ASSERT(cmtd.cmakeTool, return);
         if (cmtd.isTemporary)
             addTemporaryData(CMakeKitAspect::id(), cmtd.cmakeTool->id().toSetting(), k);
+        CMakeKitAspect::setCMakeTool(k, cmtd.cmakeTool->id());
 
         CMakeGeneratorKitAspect::setGenerator(k, QString::fromUtf8(data->generator));
         CMakeGeneratorKitAspect::setExtraGenerator(k, QString::fromUtf8(data->extraGenerator));
@@ -364,8 +382,16 @@ CMakeProjectImporter::findOrCreateCMakeTool(const Utils::FilePath &cmakeToolPath
     result.cmakeTool = CMakeToolManager::findByCommand(cmakeToolPath);
     if (!result.cmakeTool) {
         qCDebug(cmInputLog) << "Creating temporary CMakeTool for" << cmakeToolPath.toUserOutput();
-        result.cmakeTool = new CMakeTool(CMakeTool::ManualDetection, CMakeTool::createId());
+
+        UpdateGuard guard(*this);
+
+        auto newTool = std::make_unique<CMakeTool>(CMakeTool::ManualDetection, CMakeTool::createId());
+        newTool->setFilePath(cmakeToolPath);
+        newTool->setDisplayName(uniqueCMakeToolDisplayName(*newTool));
+
+        result.cmakeTool = newTool.get();
         result.isTemporary = true;
+        CMakeToolManager::registerCMakeTool(std::move(newTool));
     }
     return result;
 }
