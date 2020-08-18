@@ -204,6 +204,8 @@
             applications.
         \li Select the \uicontrol {Break at "main"} check box to stop the
             debugger at the main function.
+        \li In the \uicontrol {Override SysRoot} field, specify the path to
+            the \c sysroot to use instead of the default \c sysroot.
         \li In the \uicontrol {Debug information} field, specify the location
             for storing debug information. You cannot use an empty path.
         \li In the \uicontrol Recent field, you can select a recent
@@ -295,6 +297,8 @@
             executable.
         \li In the \uicontrol {Override start script} field, specify a
             script file to run instead of the default start script.
+        \li In the \uicontrol {Override SysRoot} field, specify the path to
+            the \c sysroot to use instead of the default \c sysroot.
     \endlist
 
     Also in this mode, using a properly configured project containing the
@@ -378,6 +382,8 @@
             debugger at the main function.
         \li In the \uicontrol {Server start script} field, specify a
             script file to run when the server starts.
+        \li In the \uicontrol {Override SysRoot} field, specify the path to
+            the \c sysroot to use instead of the default \c sysroot.
         \li In the \uicontrol {Init commands} field, enter the commands
             to execute immediately after the connection to a target has
             been established.
