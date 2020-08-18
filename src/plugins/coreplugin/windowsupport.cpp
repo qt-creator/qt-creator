@@ -67,7 +67,16 @@ WindowSupport::WindowSupport(QWidget *window, const Context &context)
 
         m_zoomAction = new QAction(this);
         ActionManager::registerAction(m_zoomAction, Constants::ZOOM_WINDOW, context);
-        connect(m_zoomAction, &QAction::triggered, m_window, &QWidget::showMaximized);
+        connect(m_zoomAction, &QAction::triggered, m_window, [this] {
+            if (m_window->isMaximized()) {
+                // similar to QWidget::showMaximized
+                m_window->ensurePolished();
+                m_window->setWindowState(m_window->windowState() & ~Qt::WindowMaximized);
+                m_window->setVisible(true);
+            } else {
+                m_window->showMaximized();
+            }
+        });
 
         m_closeAction = new QAction(this);
         ActionManager::registerAction(m_closeAction, Constants::CLOSE_WINDOW, context);
