@@ -23,13 +23,14 @@
 **
 ****************************************************************************/
 
+#include "cppquickfix_test.h"
 #include "cppeditor.h"
-#include "cppeditorwidget.h"
 #include "cppeditorplugin.h"
 #include "cppeditortestcase.h"
+#include "cppeditorwidget.h"
 #include "cppquickfixassistant.h"
 #include "cppquickfixes.h"
-#include "cppquickfix_test.h"
+#include "cppquickfixsettings.h"
 
 #include <cpptools/cppcodestylepreferences.h>
 #include <cpptools/cppmodelmanager.h>
@@ -341,6 +342,15 @@ typedef QSharedPointer<CppQuickFixFactory> CppQuickFixFactoryPtr;
 namespace CppEditor {
 namespace Internal {
 
+class QuickFixSettings
+{
+    const CppQuickFixSettings original = *CppQuickFixSettings::instance();
+
+public:
+    CppQuickFixSettings *operator->() { return CppQuickFixSettings::instance(); }
+    ~QuickFixSettings() { *CppQuickFixSettings::instance() = original; }
+};
+
 void CppEditorPlugin::test_quickfix_data()
 {
     QTest::addColumn<CppQuickFixFactoryPtr>("factory");
@@ -596,405 +606,7 @@ void CppEditorPlugin::test_quickfix_data()
         ""
     );
 
-    // Checks:
-    // 1. If the name does not start with ("m_" or "_") and does not
-    //    end with "_", we are forced to prefix the getter with "get".
-    // 2. Setter: Use pass by value on integer/float and pointer types.
-    QTest::newRow("GenerateGetterSetter_basicGetterWithPrefix")
-        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    int @it;\n"
-        "};\n"
-        ) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    int it;\n"
-        "\n"
-        "public:\n"
-        "    int getIt() const;\n"
-        "    void setIt(int value);\n"
-        "};\n"
-        "\n"
-        "int Something::getIt() const\n"
-        "{\n"
-        "    return it;\n"
-        "}\n"
-        "\n"
-        "void Something::setIt(int value)\n"
-        "{\n"
-        "    it = value;\n"
-        "}\n"
-    );
-
-    // Checks: In addition to test_quickfix_GenerateGetterSetter_basicGetterWithPrefix
-    // generated definitions should fit in the namespace.
-    QTest::newRow("GenerateGetterSetter_basicGetterWithPrefixAndNamespace")
-        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
-        "namespace SomeNamespace {\n"
-        "class Something\n"
-        "{\n"
-        "    int @it;\n"
-        "};\n"
-        "}\n"
-        ) << _(
-        "namespace SomeNamespace {\n"
-        "class Something\n"
-        "{\n"
-        "    int it;\n"
-        "\n"
-        "public:\n"
-        "    int getIt() const;\n"
-        "    void setIt(int value);\n"
-        "};\n"
-        "\n"
-        "int Something::getIt() const\n"
-        "{\n"
-        "    return it;\n"
-        "}\n"
-        "\n"
-        "void Something::setIt(int value)\n"
-        "{\n"
-        "    it = value;\n"
-        "}\n"
-        "\n"
-        "}\n"
-    );
-
-    // Checks:
-    // 1. Getter: "get" prefix is not necessary.
-    // 2. Setter: Parameter name is base name.
-    QTest::newRow("GenerateGetterSetter_basicGetterWithoutPrefix")
-        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    int @m_it;\n"
-        "};\n"
-        ) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    int m_it;\n"
-        "\n"
-        "public:\n"
-        "    int it() const;\n"
-        "    void setIt(int it);\n"
-        "};\n"
-        "\n"
-        "int Something::it() const\n"
-        "{\n"
-        "    return m_it;\n"
-        "}\n"
-        "\n"
-        "void Something::setIt(int it)\n"
-        "{\n"
-        "    m_it = it;\n"
-        "}\n"
-    );
-
-    // Checks if getter uses 'get' prefix if member function with such a prefix is found
-    QTest::newRow("GenerateGetterSetter_getterWithGetPrefix")
-        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    int getFoo();\n"
-        "    int @m_it;\n"
-        "};\n"
-        ) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    int getFoo();\n"
-        "    int m_it;\n"
-        "\n"
-        "public:\n"
-        "    int getIt() const;\n"
-        "    void setIt(int it);\n"
-        "};\n"
-        "\n"
-        "int Something::getIt() const\n"
-        "{\n"
-        "    return m_it;\n"
-        "}\n"
-        "\n"
-        "void Something::setIt(int it)\n"
-        "{\n"
-        "    m_it = it;\n"
-        "}\n"
-    );
-
-    // Check: Setter: Use pass by reference for parameters which
-    // are not integer, float or pointers.
-    QTest::newRow("GenerateGetterSetter_customType")
-        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    MyType @it;\n"
-        "};\n"
-        ) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    MyType it;\n"
-        "\n"
-        "public:\n"
-        "    MyType getIt() const;\n"
-        "    void setIt(const MyType &value);\n"
-        "};\n"
-        "\n"
-        "MyType Something::getIt() const\n"
-        "{\n"
-        "    return it;\n"
-        "}\n"
-        "\n"
-        "void Something::setIt(const MyType &value)\n"
-        "{\n"
-        "    it = value;\n"
-        "}\n"
-    );
-
-    // Checks:
-    // 1. Setter: No setter is generated for const members.
-    // 2. Getter: Return a non-const type since it pass by value anyway.
-    QTest::newRow("GenerateGetterSetter_constMember")
-        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    const int @it;\n"
-        "};\n"
-        ) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    const int it;\n"
-        "\n"
-        "public:\n"
-        "    int getIt() const;\n"
-        "};\n"
-        "\n"
-        "int Something::getIt() const\n"
-        "{\n"
-        "    return it;\n"
-        "}\n"
-    );
-
-    // Checks: No special treatment for pointer to non const.
-    QTest::newRow("GenerateGetterSetter_pointerToNonConst")
-        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    int *it@;\n"
-        "};\n"
-        ) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    int *it;\n"
-        "\n"
-        "public:\n"
-        "    int *getIt() const;\n"
-        "    void setIt(int *value);\n"
-        "};\n"
-        "\n"
-        "int *Something::getIt() const\n"
-        "{\n"
-        "    return it;\n"
-        "}\n"
-        "\n"
-        "void Something::setIt(int *value)\n"
-        "{\n"
-        "    it = value;\n"
-        "}\n"
-    );
-
-    // Checks: No special treatment for pointer to const.
-    QTest::newRow("GenerateGetterSetter_pointerToConst")
-        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    const int *it@;\n"
-        "};\n"
-        ) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    const int *it;\n"
-        "\n"
-        "public:\n"
-        "    const int *getIt() const;\n"
-        "    void setIt(const int *value);\n"
-        "};\n"
-        "\n"
-        "const int *Something::getIt() const\n"
-        "{\n"
-        "    return it;\n"
-        "}\n"
-        "\n"
-        "void Something::setIt(const int *value)\n"
-        "{\n"
-        "    it = value;\n"
-        "}\n"
-    );
-
     // Checks: No special treatment for reference to non const.
-    QTest::newRow("GenerateGetterSetter_referenceToNonConst")
-        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    int &it@;\n"
-        "};\n"
-        ) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    int &it;\n"
-        "\n"
-        "public:\n"
-        "    int &getIt() const;\n"
-        "    void setIt(const int &value);\n"
-        "};\n"
-        "\n"
-        "int &Something::getIt() const\n"
-        "{\n"
-        "    return it;\n"
-        "}\n"
-        "\n"
-        "void Something::setIt(const int &value)\n"
-        "{\n"
-        "    it = value;\n"
-        "}\n"
-    );
-
-    // Checks: No special treatment for reference to const.
-    QTest::newRow("GenerateGetterSetter_referenceToConst")
-        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    const int &it@;\n"
-        "};\n"
-        ) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    const int &it;\n"
-        "\n"
-        "public:\n"
-        "    const int &getIt() const;\n"
-        "    void setIt(const int &value);\n"
-        "};\n"
-        "\n"
-        "const int &Something::getIt() const\n"
-        "{\n"
-        "    return it;\n"
-        "}\n"
-        "\n"
-        "void Something::setIt(const int &value)\n"
-        "{\n"
-        "    it = value;\n"
-        "}\n"
-    );
-
-    // Checks:
-    // 1. Setter: Setter is a static function.
-    // 2. Getter: Getter is a static, non const function.
-    QTest::newRow("GenerateGetterSetter_staticMember")
-        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    static int @m_member;\n"
-        "};\n"
-        ) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    static int m_member;\n"
-        "\n"
-        "public:\n"
-        "    static int member();\n"
-        "    static void setMember(int member);\n"
-        "};\n"
-        "\n"
-        "int Something::member()\n"
-        "{\n"
-        "    return m_member;\n"
-        "}\n"
-        "\n"
-        "void Something::setMember(int member)\n"
-        "{\n"
-        "    m_member = member;\n"
-        "}\n"
-    );
-
-    // Check: Check if it works on the second declarator
-    QTest::newRow("GenerateGetterSetter_secondDeclarator")
-        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    int *foo, @it;\n"
-        "};\n"
-        ) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    int *foo, it;\n"
-        "\n"
-        "public:\n"
-        "    int getIt() const;\n"
-        "    void setIt(int value);\n"
-        "};\n"
-        "\n"
-        "int Something::getIt() const\n"
-        "{\n"
-        "    return it;\n"
-        "}\n"
-        "\n"
-        "void Something::setIt(int value)\n"
-        "{\n"
-        "    it = value;\n"
-        "}\n"
-    );
-
-    // Check: Quick fix is offered for "int *@it;" ('@' denotes the text cursor position)
-    QTest::newRow("GenerateGetterSetter_triggeringRightAfterPointerSign")
-        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    int *@it;\n"
-        "};\n"
-        ) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    int *it;\n"
-        "\n"
-        "public:\n"
-        "    int *getIt() const;\n"
-        "    void setIt(int *value);\n"
-        "};\n"
-        "\n"
-        "int *Something::getIt() const\n"
-        "{\n"
-        "    return it;\n"
-        "}\n"
-        "\n"
-        "void Something::setIt(int *value)\n"
-        "{\n"
-        "    it = value;\n"
-        "}\n"
-    );
 
     // Check: Quick fix is not triggered on a member function.
     QTest::newRow("GenerateGetterSetter_notTriggeringOnMemberFunction")
@@ -1005,119 +617,6 @@ void CppEditorPlugin::test_quickfix_data()
     QTest::newRow("GenerateGetterSetter_notTriggeringOnMemberArray")
         << CppQuickFixFactoryPtr(new GenerateGetterSetter)
         << _("class Something { void @a[10]; };\n") << _();
-
-    // Check: Do not offer the quick fix if there is a getter and the variable is const
-    QTest::newRow("GenerateGetterSetter_notTriggeringWhenGetterAndConstVariable")
-        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
-        "class Foo\n"
-        "{\n"
-        "public:\n"
-        "    const int bar@;\n"
-        "    int getBar() const;\n"
-        "};\n"
-        ) << _();
-
-    // Check: Do not offer the quick fix if there is a getter and a setter
-    QTest::newRow("GenerateGetterSetter_notTriggeringWhenGetterAndConstVariable")
-        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
-        "class Foo\n"
-        "{\n"
-        "public:\n"
-        "    const int bar@;\n"
-        "    int getBar() const;\n"
-        "    void setBar(int value);\n"
-        "};\n"
-        ) << _();
-
-    // Checks if "m_" is recognized as "m" with the postfix "_" and not simply as "m_" prefix.
-    QTest::newRow("GenerateGetterSetter_recognizeMasVariableName")
-        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    int @m_;\n"
-        "};\n"
-        ) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    int m_;\n"
-        "\n"
-        "public:\n"
-        "    int m() const;\n"
-        "    void setM(int m);\n"
-        "};\n"
-        "\n"
-        "int Something::m() const\n"
-        "{\n"
-        "    return m_;\n"
-        "}\n"
-        "\n"
-        "void Something::setM(int m)\n"
-        "{\n"
-        "    m_ = m;\n"
-        "}\n"
-    );
-
-    // Checks if "m" followed by an upper character is recognized as a prefix
-    QTest::newRow("GenerateGetterSetter_recognizeMFollowedByCapital")
-        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    int @mFoo;\n"
-        "};\n"
-        ) << _(
-        "\n"
-        "class Something\n"
-        "{\n"
-        "    int mFoo;\n"
-        "\n"
-        "public:\n"
-        "    int foo() const;\n"
-        "    void setFoo(int foo);\n"
-        "};\n"
-        "\n"
-        "int Something::foo() const\n"
-        "{\n"
-        "    return mFoo;\n"
-        "}\n"
-        "\n"
-        "void Something::setFoo(int foo)\n"
-        "{\n"
-        "    mFoo = foo;\n"
-        "}\n"
-    );
-
-    // Checks if the declaration inside Q_PROPERTY macro is ignored and a getter created
-    QTest::newRow("GenerateGetterSetter_ignoreQPropertiesMacro")
-        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
-        "class Something\n"
-        "{\n"
-        "    Q_PROPERTY(int foo)\n"
-        "    int @m_foo;\n"
-        "};\n"
-        ) << _(
-        "class Something\n"
-        "{\n"
-        "    Q_PROPERTY(int foo)\n"
-        "    int m_foo;\n"
-        "\n"
-        "public:\n"
-        "    int foo() const;\n"
-        "    void setFoo(int foo);\n"
-        "};\n"
-        "\n"
-        "int Something::foo() const\n"
-        "{\n"
-        "    return m_foo;\n"
-        "}\n"
-        "\n"
-        "void Something::setFoo(int foo)\n"
-        "{\n"
-        "    m_foo = foo;\n"
-        "}\n"
-    );
 
     QTest::newRow("MoveDeclarationOutOfIf_ifOnly")
         << CppQuickFixFactoryPtr(new MoveDeclarationOutOfIf) << _(
@@ -1553,138 +1052,6 @@ void CppEditorPlugin::test_quickfix_data()
         << _("void foo() {fo@r (int i = 0; i < -3; ++i) {}}\n")
         << _();
 
-    QTest::newRow("InsertQtPropertyMembers")
-            << CppQuickFixFactoryPtr(new InsertQtPropertyMembers)
-            << _("struct XmarksTheSpot {\n"
-                 "    @Q_PROPERTY(int it READ getIt WRITE setIt RESET resetIt NOTIFY itChanged)\n"
-                 "};\n"
-                 )
-            << _("struct XmarksTheSpot {\n"
-                 "    Q_PROPERTY(int it READ getIt WRITE setIt RESET resetIt NOTIFY itChanged)\n"
-                 "\n"
-                 "public:\n"
-                 "    int getIt() const\n"
-                 "    {\n"
-                 "        return m_it;\n"
-                 "    }\n"
-                 "\n"
-                 "public slots:\n"
-                 "    void setIt(int it)\n"
-                 "    {\n"
-                 "        if (m_it == it)\n"
-                 "            return;\n"
-                 "\n"
-                 "        m_it = it;\n"
-                 "        emit itChanged(m_it);\n"
-                 "    }\n"
-                 "    void resetIt()\n"
-                 "    {\n"
-                 "        setIt({}); // TODO: Adapt to use your actual default value\n"
-                 "    }\n"
-                 "\n"
-                 "signals:\n"
-                 "    void itChanged(int it);\n"
-                 "\n"
-                 "private:\n"
-                 "    int m_it;\n"
-                 "};\n"
-                 );
-
-    QTest::newRow("InsertQtPropertyMembersResetWithoutSet")
-            << CppQuickFixFactoryPtr(new InsertQtPropertyMembers)
-            << _("struct XmarksTheSpot {\n"
-                 "    @Q_PROPERTY(int it READ getIt RESET resetIt NOTIFY itChanged)\n"
-                 "};\n"
-                 )
-            << _("struct XmarksTheSpot {\n"
-                 "    Q_PROPERTY(int it READ getIt RESET resetIt NOTIFY itChanged)\n"
-                 "\n"
-                 "public:\n"
-                 "    int getIt() const\n"
-                 "    {\n"
-                 "        return m_it;\n"
-                 "    }\n"
-                 "\n"
-                 "public slots:\n"
-                 "    void resetIt()\n"
-                 "    {\n"
-                 "        static const int defaultValue{}; // TODO: Adapt to use your actual default value\n"
-                 "        if (m_it == defaultValue)\n"
-                 "            return;\n"
-                 "\n"
-                 "        m_it = defaultValue;\n"
-                 "        emit itChanged(m_it);\n"
-                 "    }\n"
-                 "\n"
-                 "signals:\n"
-                 "    void itChanged(int it);\n"
-                 "\n"
-                 "private:\n"
-                 "    int m_it;\n"
-                 "};\n"
-                 );
-
-    QTest::newRow("InsertQtPropertyMembersResetWithoutSetAndNotify")
-            << CppQuickFixFactoryPtr(new InsertQtPropertyMembers)
-            << _("struct XmarksTheSpot {\n"
-                 "    @Q_PROPERTY(int it READ getIt RESET resetIt)\n"
-                 "};\n"
-                 )
-            << _("struct XmarksTheSpot {\n"
-                 "    Q_PROPERTY(int it READ getIt RESET resetIt)\n"
-                 "\n"
-                 "public:\n"
-                 "    int getIt() const\n"
-                 "    {\n"
-                 "        return m_it;\n"
-                 "    }\n"
-                 "\n"
-                 "public slots:\n"
-                 "    void resetIt()\n"
-                 "    {\n"
-                 "        static const int defaultValue{}; // TODO: Adapt to use your actual default value\n"
-                 "        m_it = defaultValue;\n"
-                 "    }\n"
-                 "\n"
-                 "private:\n"
-                 "    int m_it;\n"
-                 "};\n"
-                 );
-
-    QTest::newRow("InsertQtPropertyMembersPrivateBeforePublic")
-            << CppQuickFixFactoryPtr(new InsertQtPropertyMembers)
-            << _("class XmarksTheSpot {\n"
-                 "private:\n"
-                 "    @Q_PROPERTY(int it READ getIt WRITE setIt NOTIFY itChanged)\n"
-                 "public:\n"
-                 "    void find();\n"
-                 "};\n"
-                 )
-            << _("class XmarksTheSpot {\n"
-                 "private:\n"
-                 "    Q_PROPERTY(int it READ getIt WRITE setIt NOTIFY itChanged)\n"
-                 "    int m_it;\n"
-                 "\n"
-                 "public:\n"
-                 "    void find();\n"
-                 "    int getIt() const\n"
-                 "    {\n"
-                 "        return m_it;\n"
-                 "    }\n"
-                 "public slots:\n"
-                 "    void setIt(int it)\n"
-                 "    {\n"
-                 "        if (m_it == it)\n"
-                 "            return;\n"
-                 "\n"
-                 "        m_it = it;\n"
-                 "        emit itChanged(m_it);\n"
-                 "    }\n"
-                 "signals:\n"
-                 "    void itChanged(int it);\n"
-                 "};\n"
-                 );
-
     // Escape String Literal as UTF-8 (no-trigger)
     QTest::newRow("EscapeStringLiteral_notrigger")
             << CppQuickFixFactoryPtr(new EscapeStringLiteral)
@@ -2032,62 +1399,7 @@ void CppEditorPlugin::test_quickfix()
     QuickFixOperationTest(singleDocument(original, expected), factory.data());
 }
 
-/// Checks: In addition to test_quickfix_GenerateGetterSetter_basicGetterWithPrefix
-/// generated definitions should fit in the namespace.
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespaceToCpp()
-{
-    QList<QuickFixTestDocument::Ptr> testDocuments;
-    QByteArray original;
-    QByteArray expected;
-
-    // Header File
-    original =
-        "namespace SomeNamespace {\n"
-        "class Something\n"
-        "{\n"
-        "    int @it;\n"
-        "};\n"
-        "}\n";
-    expected =
-        "namespace SomeNamespace {\n"
-        "class Something\n"
-        "{\n"
-        "    int it;\n"
-        "\n"
-        "public:\n"
-        "    int getIt() const;\n"
-        "    void setIt(int value);\n"
-        "};\n"
-        "}\n";
-    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
-
-    // Source File
-    original =
-        "#include \"file.h\"\n"
-        "namespace SomeNamespace {\n"
-        "}\n";
-    expected =
-        "#include \"file.h\"\n"
-        "namespace SomeNamespace {\n"
-        "\n"
-        "int Something::getIt() const\n"
-        "{\n"
-        "    return it;\n"
-        "}\n"
-        "\n"
-        "void Something::setIt(int value)\n"
-        "{\n"
-        "    it = value;\n"
-        "}\n"
-        "\n"
-        "}\n";
-    testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
-
-    GenerateGetterSetter factory;
-    QuickFixOperationTest(testDocuments, &factory);
-}
-
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_createNamespaceInCpp_data()
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_namespaceHandlingCreate_data()
 {
     QTest::addColumn<QByteArrayList>("headers");
     QTest::addColumn<QByteArrayList>("sources");
@@ -2161,38 +1473,78 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_createNamespaceInCpp_da
             << QByteArrayList{originalHeader, expectedHeader}
             << QByteArrayList{originalSource, expectedSource};
 
-    originalSource =
-            "#include \"file.h\"\n"
-            "namespace N2 {} // decoy\n"
-            "namespace {\n"
-            "namespace N1 {\n"
-            "namespace {\n"
-            "}\n"
-            "}\n"
-            "}\n";
-    expectedSource =
-            "#include \"file.h\"\n"
-            "namespace N2 {} // decoy\n"
-            "namespace {\n"
-            "namespace N1 {\n\n"
-            "namespace N2 {\n"
-            "int Something::getIt() const\n"
-            "{\n"
-            "    return it;\n"
-            "}\n"
-            "\n"
-            "void Something::setIt(int value)\n"
-            "{\n"
-            "    it = value;\n"
-            "}\n\n"
-            "}\n\n"
-            "namespace {\n"
-            "}\n"
-            "}\n"
-            "}\n";
-    QTest::addRow("insert inner namespace (with decoy)")
-            << QByteArrayList{originalHeader, expectedHeader}
-            << QByteArrayList{originalSource, expectedSource};
+    originalSource = "#include \"file.h\"\n"
+                     "namespace N2 {} // decoy\n"
+                     "namespace {\n"
+                     "namespace N1 {\n"
+                     "namespace {\n"
+                     "}\n"
+                     "}\n"
+                     "}\n";
+    expectedSource = "#include \"file.h\"\n"
+                     "namespace N2 {} // decoy\n"
+                     "namespace {\n"
+                     "namespace N1 {\n"
+                     "namespace {\n"
+                     "}\n"
+                     "}\n"
+                     "}\n"
+                     "\n"
+                     "\n"
+                     "namespace N1 {\n"
+                     "namespace N2 {\n"
+                     "int Something::getIt() const\n"
+                     "{\n"
+                     "    return it;\n"
+                     "}\n"
+                     "\n"
+                     "void Something::setIt(int value)\n"
+                     "{\n"
+                     "    it = value;\n"
+                     "}\n"
+                     "\n"
+                     "}\n"
+                     "}\n";
+    QTest::addRow("insert inner namespace (with decoy and unnamed)")
+        << QByteArrayList{originalHeader, expectedHeader}
+        << QByteArrayList{originalSource, expectedSource};
+
+    const QByteArray unnamedOriginalHeader = "namespace {\n" + originalHeader + "}\n";
+    const QByteArray unnamedExpectedHeader = "namespace {\n" + expectedHeader + "}\n";
+
+    originalSource = "#include \"file.h\"\n"
+                     "namespace N2 {} // decoy\n"
+                     "namespace {\n"
+                     "namespace N1 {\n"
+                     "namespace {\n"
+                     "}\n"
+                     "}\n"
+                     "}\n";
+    expectedSource = "#include \"file.h\"\n"
+                     "namespace N2 {} // decoy\n"
+                     "namespace {\n"
+                     "namespace N1 {\n"
+                     "\n"
+                     "namespace N2 {\n"
+                     "int Something::getIt() const\n"
+                     "{\n"
+                     "    return it;\n"
+                     "}\n"
+                     "\n"
+                     "void Something::setIt(int value)\n"
+                     "{\n"
+                     "    it = value;\n"
+                     "}\n"
+                     "\n"
+                     "}\n"
+                     "\n"
+                     "namespace {\n"
+                     "}\n"
+                     "}\n"
+                     "}\n";
+    QTest::addRow("insert inner namespace in unnamed (with decoy)")
+        << QByteArrayList{unnamedOriginalHeader, unnamedExpectedHeader}
+        << QByteArrayList{originalSource, expectedSource};
 
     originalSource =
             "#include \"file.h\"\n"
@@ -2303,19 +1655,1185 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_createNamespaceInCpp_da
         << QByteArrayList{originalSource, expectedSource};
 }
 
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_createNamespaceInCpp()
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_namespaceHandlingCreate()
 {
     QFETCH(QByteArrayList, headers);
     QFETCH(QByteArrayList, sources);
 
-    QList<QuickFixTestDocument::Ptr> testDocuments({
-        QuickFixTestDocument::create("file.h", headers.at(0), headers.at(1)),
-        QuickFixTestDocument::create("file.cpp", sources.at(0), sources.at(1))});
+    QList<QuickFixTestDocument::Ptr> testDocuments(
+        {QuickFixTestDocument::create("file.h", headers.at(0), headers.at(1)),
+         QuickFixTestDocument::create("file.cpp", sources.at(0), sources.at(1))});
 
+    QuickFixSettings s;
+    s->cppFileNamespaceHandling = CppQuickFixSettings::MissingNamespaceHandling::CreateMissing;
+    s->setterParameterNameTemplate = "value";
+    s->getterNameTemplate = "get<Name>";
+    s->setterInCppFileFrom = 1;
+    s->getterInCppFileFrom = 1;
+    GenerateGetterSetter factory;
+    QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 2);
+}
+
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_namespaceHandlingAddUsing_data()
+{
+    QTest::addColumn<QByteArrayList>("headers");
+    QTest::addColumn<QByteArrayList>("sources");
+
+    QByteArray originalSource;
+    QByteArray expectedSource;
+
+    const QByteArray originalHeader = "namespace N1 {\n"
+                                      "namespace N2 {\n"
+                                      "class Something\n"
+                                      "{\n"
+                                      "    int @it;\n"
+                                      "};\n"
+                                      "}\n"
+                                      "}\n";
+    const QByteArray expectedHeader = "namespace N1 {\n"
+                                      "namespace N2 {\n"
+                                      "class Something\n"
+                                      "{\n"
+                                      "    int it;\n"
+                                      "\n"
+                                      "public:\n"
+                                      "    void setIt(int value);\n"
+                                      "};\n"
+                                      "}\n"
+                                      "}\n";
+
+    originalSource = "#include \"file.h\"\n";
+    expectedSource = "#include \"file.h\"\n\n"
+                     "using namespace N1::N2;\n"
+                     "void Something::setIt(int value)\n"
+                     "{\n"
+                     "    it = value;\n"
+                     "}\n";
+    QTest::addRow("add using namespaces") << QByteArrayList{originalHeader, expectedHeader}
+                                          << QByteArrayList{originalSource, expectedSource};
+
+    const QByteArray unnamedOriginalHeader = "namespace {\n" + originalHeader + "}\n";
+    const QByteArray unnamedExpectedHeader = "namespace {\n" + expectedHeader + "}\n";
+
+    originalSource = "#include \"file.h\"\n"
+                     "namespace N2 {} // decoy\n"
+                     "namespace {\n"
+                     "namespace N1 {\n"
+                     "namespace {\n"
+                     "}\n"
+                     "}\n"
+                     "}\n";
+    expectedSource = "#include \"file.h\"\n"
+                     "namespace N2 {} // decoy\n"
+                     "namespace {\n"
+                     "namespace N1 {\n"
+                     "using namespace N2;\n"
+                     "void Something::setIt(int value)\n"
+                     "{\n"
+                     "    it = value;\n"
+                     "}\n"
+                     "namespace {\n"
+                     "}\n"
+                     "}\n"
+                     "}\n";
+    QTest::addRow("insert using namespace into unnamed nested (with decoy)")
+        << QByteArrayList{unnamedOriginalHeader, unnamedExpectedHeader}
+        << QByteArrayList{originalSource, expectedSource};
+
+    originalSource = "#include \"file.h\"\n";
+    expectedSource = "#include \"file.h\"\n\n"
+                     "using namespace N1::N2;\n"
+                     "void Something::setIt(int value)\n"
+                     "{\n"
+                     "    it = value;\n"
+                     "}\n";
+    QTest::addRow("insert using namespace into unnamed")
+        << QByteArrayList{unnamedOriginalHeader, unnamedExpectedHeader}
+        << QByteArrayList{originalSource, expectedSource};
+
+    originalSource = "#include \"file.h\"\n"
+                     "namespace N2 {} // decoy\n"
+                     "namespace {\n"
+                     "namespace N1 {\n"
+                     "namespace {\n"
+                     "}\n"
+                     "}\n"
+                     "}\n";
+    expectedSource = "#include \"file.h\"\n"
+                     "namespace N2 {} // decoy\n"
+                     "namespace {\n"
+                     "namespace N1 {\n"
+                     "namespace {\n"
+                     "}\n"
+                     "}\n"
+                     "}\n"
+                     "\n"
+                     "using namespace N1::N2;\n"
+                     "void Something::setIt(int value)\n"
+                     "{\n"
+                     "    it = value;\n"
+                     "}\n";
+    QTest::addRow("insert using namespace (with decoy)")
+        << QByteArrayList{originalHeader, expectedHeader}
+        << QByteArrayList{originalSource, expectedSource};
+}
+
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_namespaceHandlingAddUsing()
+{
+    QFETCH(QByteArrayList, headers);
+    QFETCH(QByteArrayList, sources);
+
+    QList<QuickFixTestDocument::Ptr> testDocuments(
+        {QuickFixTestDocument::create("file.h", headers.at(0), headers.at(1)),
+         QuickFixTestDocument::create("file.cpp", sources.at(0), sources.at(1))});
+
+    QuickFixSettings s;
+    s->cppFileNamespaceHandling = CppQuickFixSettings::MissingNamespaceHandling::AddUsingDirective;
+    s->setterParameterNameTemplate = "value";
+    s->setterInCppFileFrom = 1;
+
+    if (std::strstr(QTest::currentDataTag(), "unnamed nested") != nullptr)
+        QSKIP("TODO"); // FIXME
     GenerateGetterSetter factory;
     QuickFixOperationTest(testDocuments, &factory);
 }
 
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_namespaceHandlingFullyQualify_data()
+{
+    QTest::addColumn<QByteArrayList>("headers");
+    QTest::addColumn<QByteArrayList>("sources");
+
+    QByteArray originalSource;
+    QByteArray expectedSource;
+
+    const QByteArray originalHeader = "namespace N1 {\n"
+                                      "namespace N2 {\n"
+                                      "class Something\n"
+                                      "{\n"
+                                      "    int @it;\n"
+                                      "};\n"
+                                      "}\n"
+                                      "}\n";
+    const QByteArray expectedHeader = "namespace N1 {\n"
+                                      "namespace N2 {\n"
+                                      "class Something\n"
+                                      "{\n"
+                                      "    int it;\n"
+                                      "\n"
+                                      "public:\n"
+                                      "    void setIt(int value);\n"
+                                      "};\n"
+                                      "}\n"
+                                      "}\n";
+
+    originalSource = "#include \"file.h\"\n";
+    expectedSource = "#include \"file.h\"\n\n"
+                     "void N1::N2::Something::setIt(int value)\n"
+                     "{\n"
+                     "    it = value;\n"
+                     "}\n";
+    QTest::addRow("fully qualify") << QByteArrayList{originalHeader, expectedHeader}
+                                   << QByteArrayList{originalSource, expectedSource};
+
+    originalSource = "#include \"file.h\"\n"
+                     "namespace N2 {} // decoy\n";
+    expectedSource = "#include \"file.h\"\n"
+                     "namespace N2 {} // decoy\n"
+                     "\n"
+                     "void N1::N2::Something::setIt(int value)\n"
+                     "{\n"
+                     "    it = value;\n"
+                     "}\n";
+    QTest::addRow("fully qualify (with decoy)") << QByteArrayList{originalHeader, expectedHeader}
+                                                << QByteArrayList{originalSource, expectedSource};
+
+    originalSource = "#include \"file.h\"\n"
+                     "namespace N2 {} // decoy\n"
+                     "namespace {\n"
+                     "namespace N1 {\n"
+                     "namespace {\n"
+                     "}\n"
+                     "}\n"
+                     "}\n";
+    expectedSource = "#include \"file.h\"\n"
+                     "namespace N2 {} // decoy\n"
+                     "namespace {\n"
+                     "namespace N1 {\n"
+                     "namespace {\n"
+                     "}\n"
+                     "}\n"
+                     "}\n"
+                     "\n"
+                     "void N1::N2::Something::setIt(int value)\n"
+                     "{\n"
+                     "    it = value;\n"
+                     "}\n";
+    QTest::addRow("qualify in inner namespace (with decoy)")
+        << QByteArrayList{originalHeader, expectedHeader}
+        << QByteArrayList{originalSource, expectedSource};
+
+    const QByteArray unnamedOriginalHeader = "namespace {\n" + originalHeader + "}\n";
+    const QByteArray unnamedExpectedHeader = "namespace {\n" + expectedHeader + "}\n";
+
+    originalSource = "#include \"file.h\"\n"
+                     "namespace N2 {} // decoy\n"
+                     "namespace {\n"
+                     "namespace N1 {\n"
+                     "namespace {\n"
+                     "}\n"
+                     "}\n"
+                     "}\n";
+    expectedSource = "#include \"file.h\"\n"
+                     "namespace N2 {} // decoy\n"
+                     "namespace {\n"
+                     "namespace N1 {\n"
+                     "void N2::Something::setIt(int value)\n"
+                     "{\n"
+                     "    it = value;\n"
+                     "}\n"
+                     "namespace {\n"
+                     "}\n"
+                     "}\n"
+                     "}\n";
+    QTest::addRow("qualify in inner namespace unnamed nested (with decoy)")
+        << QByteArrayList{unnamedOriginalHeader, unnamedExpectedHeader}
+        << QByteArrayList{originalSource, expectedSource};
+
+    originalSource = "#include \"file.h\"\n";
+    expectedSource = "#include \"file.h\"\n\n"
+                     "void N1::N2::Something::setIt(int value)\n"
+                     "{\n"
+                     "    it = value;\n"
+                     "}\n";
+    QTest::addRow("qualify in unnamed namespace")
+        << QByteArrayList{unnamedOriginalHeader, unnamedExpectedHeader}
+        << QByteArrayList{originalSource, expectedSource};
+}
+
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_namespaceHandlingFullyQualify()
+{
+    QFETCH(QByteArrayList, headers);
+    QFETCH(QByteArrayList, sources);
+
+    QList<QuickFixTestDocument::Ptr> testDocuments(
+        {QuickFixTestDocument::create("file.h", headers.at(0), headers.at(1)),
+         QuickFixTestDocument::create("file.cpp", sources.at(0), sources.at(1))});
+
+    QuickFixSettings s;
+    s->cppFileNamespaceHandling = CppQuickFixSettings::MissingNamespaceHandling::RewriteType;
+    s->setterParameterNameTemplate = "value";
+    s->setterInCppFileFrom = 1;
+
+    if (std::strstr(QTest::currentDataTag(), "unnamed nested") != nullptr)
+        QSKIP("TODO"); // FIXME
+    GenerateGetterSetter factory;
+    QuickFixOperationTest(testDocuments, &factory);
+}
+
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_customNames_data()
+{
+    QTest::addColumn<QByteArrayList>("headers");
+    QTest::addColumn<int>("operation");
+
+    QByteArray originalSource;
+    QByteArray expectedSource;
+
+    // Check if right names are created
+    originalSource = R"-(
+class Test {
+    int m_fooBar_test@;
+};
+)-";
+    expectedSource = R"-(
+class Test {
+    int m_fooBar_test;
+
+public:
+    int give_me_foo_bar_test() const
+    {
+        return m_fooBar_test;
+    }
+    void Seet_FooBar_test(int New_Foo_Bar_Test)
+    {
+        if (m_fooBar_test == New_Foo_Bar_Test)
+            return;
+        m_fooBar_test = New_Foo_Bar_Test;
+        emit newFooBarTestValue();
+    }
+    void set_fooBarTest_toDefault()
+    {
+        Seet_FooBar_test({}); // TODO: Adapt to use your actual default value
+    }
+
+signals:
+    void newFooBarTestValue();
+
+private:
+    Q_PROPERTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue)
+};
+)-";
+    QTest::addRow("create right names") << QByteArrayList{originalSource, expectedSource} << 4;
+
+    // Check if not triggered with custom names
+    originalSource = R"-(
+class Test {
+    int m_fooBar_test@;
+
+public:
+    int give_me_foo_bar_test() const
+    {
+        return m_fooBar_test;
+    }
+    void Seet_FooBar_test(int New_Foo_Bar_Test)
+    {
+        if (m_fooBar_test == New_Foo_Bar_Test)
+            return;
+        m_fooBar_test = New_Foo_Bar_Test;
+        emit newFooBarTestValue();
+    }
+    void set_fooBarTest_toDefault()
+    {
+        Seet_FooBar_test({}); // TODO: Adapt to use your actual default value
+    }
+
+signals:
+    void newFooBarTestValue();
+
+private:
+    Q_PROPERTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue)
+};
+)-";
+    expectedSource = "";
+    QTest::addRow("everything already exists") << QByteArrayList{originalSource, expectedSource} << 4;
+
+    // create from Q_PROPERTY with custom names
+    originalSource = R"-(
+class Test {
+    Q_PROPER@TY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue)
+
+public:
+    int give_me_foo_bar_test() const
+    {
+        return mem_fooBar_test;
+    }
+    void Seet_FooBar_test(int New_Foo_Bar_Test)
+    {
+        if (mem_fooBar_test == New_Foo_Bar_Test)
+            return;
+        mem_fooBar_test = New_Foo_Bar_Test;
+        emit newFooBarTestValue();
+    }
+    void set_fooBarTest_toDefault()
+    {
+        Seet_FooBar_test({}); // TODO: Adapt to use your actual default value
+    }
+
+signals:
+    void newFooBarTestValue();
+};
+)-";
+    expectedSource = R"-(
+class Test {
+    Q_PROPERTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue)
+
+public:
+    int give_me_foo_bar_test() const
+    {
+        return mem_fooBar_test;
+    }
+    void Seet_FooBar_test(int New_Foo_Bar_Test)
+    {
+        if (mem_fooBar_test == New_Foo_Bar_Test)
+            return;
+        mem_fooBar_test = New_Foo_Bar_Test;
+        emit newFooBarTestValue();
+    }
+    void set_fooBarTest_toDefault()
+    {
+        Seet_FooBar_test({}); // TODO: Adapt to use your actual default value
+    }
+
+signals:
+    void newFooBarTestValue();
+private:
+    int mem_fooBar_test;
+};
+)-";
+    QTest::addRow("create only member variable")
+        << QByteArrayList{originalSource, expectedSource} << 0;
+
+    // create from Q_PROPERTY with custom names
+    originalSource = R"-(
+class Test {
+    Q_PROPE@RTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue)
+    int mem_fooBar_test;
+public:
+};
+)-";
+    expectedSource = R"-(
+class Test {
+    Q_PROPERTY(int fooBar_test READ give_me_foo_bar_test WRITE Seet_FooBar_test RESET set_fooBarTest_toDefault NOTIFY newFooBarTestValue)
+    int mem_fooBar_test;
+public:
+    int give_me_foo_bar_test() const
+    {
+        return mem_fooBar_test;
+    }
+    void Seet_FooBar_test(int New_Foo_Bar_Test)
+    {
+        if (mem_fooBar_test == New_Foo_Bar_Test)
+            return;
+        mem_fooBar_test = New_Foo_Bar_Test;
+        emit newFooBarTestValue();
+    }
+    void set_fooBarTest_toDefault()
+    {
+        Seet_FooBar_test({}); // TODO: Adapt to use your actual default value
+    }
+signals:
+    void newFooBarTestValue();
+};
+)-";
+    QTest::addRow("create methods with given member variable")
+        << QByteArrayList{originalSource, expectedSource} << 0;
+}
+
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_customNames()
+{
+    QFETCH(QByteArrayList, headers);
+    QFETCH(int, operation);
+
+    QList<QuickFixTestDocument::Ptr> testDocuments(
+        {QuickFixTestDocument::create("file.h", headers.at(0), headers.at(1))});
+
+    QuickFixSettings s;
+    s->setterInCppFileFrom = 0;
+    s->getterInCppFileFrom = 0;
+    s->setterNameTemplate = "Seet_<Name>";
+    s->getterNameTemplate = "give_me_<snake>";
+    s->signalNameTemplate = "new<Camel>Value";
+    s->setterParameterNameTemplate = "New_<Snake>";
+    s->resetNameTemplate = "set_<camel>_toDefault";
+    s->memberVariableNameTemplate = "mem_<name>";
+    if (operation == 0) {
+        InsertQtPropertyMembers factory;
+        QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), operation);
+    } else {
+        GenerateGetterSetter factory;
+        QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), operation);
+    }
+}
+
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_valueTypes_data()
+{
+    QTest::addColumn<QByteArrayList>("headers");
+    QTest::addColumn<int>("operation");
+
+    QByteArray originalSource;
+    QByteArray expectedSource;
+
+    // int should be a value type
+    originalSource = R"-(
+class Test {
+    int i@;
+};
+)-";
+    expectedSource = R"-(
+class Test {
+    int i;
+
+public:
+    int getI() const
+    {
+        return i;
+    }
+};
+)-";
+    QTest::addRow("int") << QByteArrayList{originalSource, expectedSource} << 1;
+
+    // return type should be only int without const
+    originalSource = R"-(
+class Test {
+    const int i@;
+};
+)-";
+    expectedSource = R"-(
+class Test {
+    const int i;
+
+public:
+    int getI() const
+    {
+        return i;
+    }
+};
+)-";
+    QTest::addRow("const int") << QByteArrayList{originalSource, expectedSource} << 0;
+
+    // float should be a value type
+    originalSource = R"-(
+class Test {
+    float f@;
+};
+)-";
+    expectedSource = R"-(
+class Test {
+    float f;
+
+public:
+    float getF() const
+    {
+        return f;
+    }
+};
+)-";
+    QTest::addRow("float") << QByteArrayList{originalSource, expectedSource} << 1;
+
+    // pointer should be a value type
+    originalSource = R"-(
+class Test {
+    void* v@;
+};
+)-";
+    expectedSource = R"-(
+class Test {
+    void* v;
+
+public:
+    void *getV() const
+    {
+        return v;
+    }
+};
+)-";
+    QTest::addRow("pointer") << QByteArrayList{originalSource, expectedSource} << 1;
+
+    // reference should be a value type (setter is const ref)
+    originalSource = R"-(
+class Test {
+    int& r@;
+};
+)-";
+    expectedSource = R"-(
+class Test {
+    int& r;
+
+public:
+    int &getR() const
+    {
+        return r;
+    }
+    void setR(const int &newR)
+    {
+        r = newR;
+    }
+};
+)-";
+    QTest::addRow("reference to value type") << QByteArrayList{originalSource, expectedSource} << 2;
+
+    // reference should be a value type
+    originalSource = R"-(
+using bar = int;
+class Test {
+    bar i@;
+};
+)-";
+    expectedSource = R"-(
+using bar = int;
+class Test {
+    bar i;
+
+public:
+    bar getI() const
+    {
+        return i;
+    }
+};
+)-";
+    QTest::addRow("value type through using") << QByteArrayList{originalSource, expectedSource} << 1;
+
+    // enum should be a value type
+    originalSource = R"-(
+enum Foo{V1, V2};
+class Test {
+    Foo e@;
+};
+)-";
+    expectedSource = R"-(
+enum Foo{V1, V2};
+class Test {
+    Foo e;
+
+public:
+    Foo getE() const
+    {
+        return e;
+    }
+};
+)-";
+    QTest::addRow("enum") << QByteArrayList{originalSource, expectedSource} << 1;
+
+    // class should not be a value type
+    originalSource = R"-(
+class NoVal{};
+class Test {
+    NoVal n@;
+};
+)-";
+    expectedSource = R"-(
+class NoVal{};
+class Test {
+    NoVal n;
+
+public:
+    const NoVal &getN() const
+    {
+        return n;
+    }
+};
+)-";
+    QTest::addRow("class") << QByteArrayList{originalSource, expectedSource} << 1;
+
+    // custom classes can be a value type
+    originalSource = R"-(
+class Value{};
+class Test {
+    Value v@;
+};
+)-";
+    expectedSource = R"-(
+class Value{};
+class Test {
+    Value v;
+
+public:
+    Value getV() const
+    {
+        return v;
+    }
+};
+)-";
+    QTest::addRow("value class") << QByteArrayList{originalSource, expectedSource} << 1;
+
+    // custom classes (in namespace) can be a value type
+    originalSource = R"-(
+namespace N1{
+class Value{};
+}
+class Test {
+    N1::Value v@;
+};
+)-";
+    expectedSource = R"-(
+namespace N1{
+class Value{};
+}
+class Test {
+    N1::Value v;
+
+public:
+    N1::Value getV() const
+    {
+        return v;
+    }
+};
+)-";
+    QTest::addRow("value class in namespace") << QByteArrayList{originalSource, expectedSource} << 1;
+
+    // custom template class can be a value type
+    originalSource = R"-(
+template<typename T>
+class Value{};
+class Test {
+    Value<int> v@;
+};
+)-";
+    expectedSource = R"-(
+template<typename T>
+class Value{};
+class Test {
+    Value<int> v;
+
+public:
+    Value<int> getV() const
+    {
+        return v;
+    }
+};
+)-";
+    QTest::addRow("value template class") << QByteArrayList{originalSource, expectedSource} << 1;
+}
+
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_valueTypes()
+{
+    QFETCH(QByteArrayList, headers);
+    QFETCH(int, operation);
+
+    QList<QuickFixTestDocument::Ptr> testDocuments(
+        {QuickFixTestDocument::create("file.h", headers.at(0), headers.at(1))});
+
+    QuickFixSettings s;
+    s->setterInCppFileFrom = 0;
+    s->getterInCppFileFrom = 0;
+    s->getterNameTemplate = "get<Name>";
+    s->valueTypes << "Value";
+
+    GenerateGetterSetter factory;
+    QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), operation);
+}
+
+/// Checks: Use template for a custom type
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_customTemplate()
+{
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+    QByteArray original;
+    QByteArray expected;
+
+    const _ customTypeDecl = R"--(
+namespace N1 {
+    namespace N2 {
+        struct test{};
+    }
+    template<typename T>
+    struct custom {
+        void assign(const custom<T>&);
+        bool equals(const custom<T>&);
+        T* get();
+    };
+)--";
+    // Header File
+    original = customTypeDecl + R"--(
+class Foo
+{
+public:
+    custom<N2::test> bar@;
+};
+})--";
+    expected = customTypeDecl + R"--(
+class Foo
+{
+public:
+    custom<N2::test> bar@;
+    N2::test*getBar() const;
+    void setBar(const custom<N2::test> &newBar);
+signals:
+    void barChanged(N2::test*);
+private:
+    Q_PROPERTY(N2::test* bar READ getBar NOTIFY barChanged)
+};
+})--";
+    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
+
+    // Source File
+    original = "";
+    expected = R"-(
+using namespace N1;
+N2::test*Foo::getBar() const
+{
+    return bar.get();
+}
+
+void Foo::setBar(const custom<N2::test> &newBar)
+{
+    if (bar.equals(newBar))
+        return;
+    bar.assign(newBar);
+    emit barChanged(bar.get());
+}
+)-";
+
+    testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
+
+    QuickFixSettings s;
+    s->cppFileNamespaceHandling = CppQuickFixSettings::MissingNamespaceHandling::AddUsingDirective;
+    s->getterNameTemplate = "get<Name>";
+    s->getterInCppFileFrom = 1;
+    s->signalWithNewValue = true;
+    CppQuickFixSettings::CustomTemplate t;
+    t.types.append("custom");
+    t.equalComparison = "<cur>.equals(<new>)";
+    t.returnExpression = "<cur>.get()";
+    t.returnType = "<T>*";
+    t.assignment = "<cur>.assign(<new>)";
+    s->customTemplates.push_back(t);
+
+    GenerateGetterSetter factory;
+    QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 5);
+}
+
+/// Checks: if the setter parameter name is the same as the member variable name, this-> is needed
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_needThis()
+{
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+
+    // Header File
+    const QByteArray original = R"-(
+class Foo {
+    int bar@;
+public:
+};
+)-";
+    const QByteArray expected = R"-(
+class Foo {
+    int bar@;
+public:
+    void setBar(int bar)
+    {
+        this->bar = bar;
+    }
+};
+)-";
+    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
+
+    QuickFixSettings s;
+    s->setterParameterNameTemplate = "<name>";
+    s->setterInCppFileFrom = 0;
+
+    GenerateGetterSetter factory;
+    QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 0);
+}
+
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_offeredFixes_data()
+{
+    QTest::addColumn<QByteArray>("header");
+    QTest::addColumn<QStringList>("offered");
+
+    QByteArray header;
+    QStringList offered;
+    const QString setter = QStringLiteral("Generate Setter");
+    const QString getter = QStringLiteral("Generate Getter");
+    const QString getset = QStringLiteral("Generate Getter and Setter");
+    const QString constQandMissing = QStringLiteral(
+        "Generate Constant Q_PROPERTY and Missing Members");
+    const QString qAndResetAndMissing = QStringLiteral(
+        "Generate Q_PROPERTY and Missing Members with Reset Function");
+    const QString qAndMissing = QStringLiteral("Generate Q_PROPERTY and Missing Members");
+    const QStringList all{setter, getter, getset, constQandMissing, qAndResetAndMissing, qAndMissing};
+
+    header = R"-(
+class Foo {
+    static int bar@;
+};
+)-";
+    offered = QStringList{setter, getter, getset, constQandMissing};
+    QTest::addRow("static") << header << offered;
+
+    header = R"-(
+class Foo {
+    static const int bar@;
+};
+)-";
+    offered = QStringList{getter, constQandMissing};
+    QTest::addRow("const static") << header << offered;
+
+    header = R"-(
+class Foo {
+    const int bar@;
+};
+)-";
+    offered = QStringList{getter, constQandMissing};
+    QTest::addRow("const") << header << offered;
+
+    header = R"-(
+class Foo {
+    const int bar@;
+    int getBar() const;
+};
+)-";
+    offered = QStringList{constQandMissing};
+    QTest::addRow("const + getter") << header << offered;
+
+    header = R"-(
+class Foo {
+    const int bar@;
+    int getBar() const;
+    void setBar(int value);
+};
+)-";
+    offered = QStringList{};
+    QTest::addRow("const + getter + setter") << header << offered;
+
+    header = R"-(
+class Foo {
+    const int* bar@;
+};
+)-";
+    offered = all;
+    QTest::addRow("pointer to const") << header << offered;
+
+    header = R"-(
+class Foo {
+    int bar@;
+public:
+    int bar();
+};
+)-";
+    offered = QStringList{setter, constQandMissing, qAndResetAndMissing, qAndMissing};
+    QTest::addRow("existing getter") << header << offered;
+
+    header = R"-(
+class Foo {
+    int bar@;
+public:
+    set setBar(int);
+};
+)-";
+    offered = QStringList{getter};
+    QTest::addRow("existing setter") << header << offered;
+
+    header = R"-(
+class Foo {
+    int bar@;
+signals:
+    void barChanged(int);
+};
+)-";
+    offered = QStringList{setter, getter, getset, qAndResetAndMissing, qAndMissing};
+    QTest::addRow("existing signal (no const Q_PROPERTY)") << header << offered;
+
+    header = R"-(
+class Foo {
+    int m_bar@;
+    Q_PROPERTY(int bar)
+};
+)-";
+    offered = QStringList{}; // user should use "InsertQPropertyMembers", no duplicated code
+    QTest::addRow("existing Q_PROPERTY") << header << offered;
+}
+
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_offeredFixes()
+{
+    QFETCH(QByteArray, header);
+    QFETCH(QStringList, offered);
+
+    QList<QuickFixTestDocument::Ptr> testDocuments(
+        {QuickFixTestDocument::create("file.h", header, header)});
+
+    GenerateGetterSetter factory;
+    QuickFixOfferedOperationsTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), offered);
+}
+
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_generalTests_data()
+{
+    QTest::addColumn<int>("operation");
+    QTest::addColumn<QByteArray>("original");
+    QTest::addColumn<QByteArray>("expected");
+
+    QTest::newRow("GenerateGetterSetter_referenceToNonConst")
+        << 2
+        << _("\n"
+             "class Something\n"
+             "{\n"
+             "    int &it@;\n"
+             "};\n")
+        << _("\n"
+             "class Something\n"
+             "{\n"
+             "    int &it;\n"
+             "\n"
+             "public:\n"
+             "    int &getIt() const;\n"
+             "    void setIt(const int &it);\n"
+             "};\n"
+             "\n"
+             "int &Something::getIt() const\n"
+             "{\n"
+             "    return it;\n"
+             "}\n"
+             "\n"
+             "void Something::setIt(const int &it)\n"
+             "{\n"
+             "    this->it = it;\n"
+             "}\n");
+
+    // Checks: No special treatment for reference to const.
+    QTest::newRow("GenerateGetterSetter_referenceToConst")
+        << 2
+        << _("\n"
+             "class Something\n"
+             "{\n"
+             "    const int &it@;\n"
+             "};\n")
+        << _("\n"
+             "class Something\n"
+             "{\n"
+             "    const int &it;\n"
+             "\n"
+             "public:\n"
+             "    const int &getIt() const;\n"
+             "    void setIt(const int &it);\n"
+             "};\n"
+             "\n"
+             "const int &Something::getIt() const\n"
+             "{\n"
+             "    return it;\n"
+             "}\n"
+             "\n"
+             "void Something::setIt(const int &it)\n"
+             "{\n"
+             "    this->it = it;\n"
+             "}\n");
+
+    // Checks:
+    // 1. Setter: Setter is a static function.
+    // 2. Getter: Getter is a static, non const function.
+    QTest::newRow("GenerateGetterSetter_staticMember")
+        << 2
+        << _("\n"
+             "class Something\n"
+             "{\n"
+             "    static int @m_member;\n"
+             "};\n")
+        << _("\n"
+             "class Something\n"
+             "{\n"
+             "    static int m_member;\n"
+             "\n"
+             "public:\n"
+             "    static int member();\n"
+             "    static void setMember(int member);\n"
+             "};\n"
+             "\n"
+             "int Something::member()\n"
+             "{\n"
+             "    return m_member;\n"
+             "}\n"
+             "\n"
+             "void Something::setMember(int member)\n"
+             "{\n"
+             "    m_member = member;\n"
+             "}\n");
+
+    // Check: Check if it works on the second declarator
+    // clang-format off
+    QTest::newRow("GenerateGetterSetter_secondDeclarator") << 2
+        << _("\n"
+            "class Something\n"
+            "{\n"
+            "    int *foo, @it;\n"
+            "};\n")
+        << _("\n"
+            "class Something\n"
+            "{\n"
+            "    int *foo, it;\n"
+            "\n"
+            "public:\n"
+            "    int getIt() const;\n"
+            "    void setIt(int it);\n"
+            "};\n"
+            "\n"
+            "int Something::getIt() const\n"
+            "{\n"
+            "    return it;\n"
+            "}\n"
+            "\n"
+            "void Something::setIt(int it)\n"
+            "{\n"
+            "    this->it = it;\n"
+            "}\n");
+    // clang-format on
+
+    // Check: Quick fix is offered for "int *@it;" ('@' denotes the text cursor position)
+    QTest::newRow("GenerateGetterSetter_triggeringRightAfterPointerSign")
+        << 2
+        << _("\n"
+             "class Something\n"
+             "{\n"
+             "    int *@it;\n"
+             "};\n")
+        << _("\n"
+             "class Something\n"
+             "{\n"
+             "    int *it;\n"
+             "\n"
+             "public:\n"
+             "    int *getIt() const;\n"
+             "    void setIt(int *it);\n"
+             "};\n"
+             "\n"
+             "int *Something::getIt() const\n"
+             "{\n"
+             "    return it;\n"
+             "}\n"
+             "\n"
+             "void Something::setIt(int *it)\n"
+             "{\n"
+             "    this->it = it;\n"
+             "}\n");
+
+    // Checks if "m_" is recognized as "m" with the postfix "_" and not simply as "m_" prefix.
+    QTest::newRow("GenerateGetterSetter_recognizeMasVariableName")
+        << 2
+        << _("\n"
+             "class Something\n"
+             "{\n"
+             "    int @m_;\n"
+             "};\n")
+        << _("\n"
+             "class Something\n"
+             "{\n"
+             "    int m_;\n"
+             "\n"
+             "public:\n"
+             "    int m() const;\n"
+             "    void setM(int m);\n"
+             "};\n"
+             "\n"
+             "int Something::m() const\n"
+             "{\n"
+             "    return m_;\n"
+             "}\n"
+             "\n"
+             "void Something::setM(int m)\n"
+             "{\n"
+             "    m_ = m;\n"
+             "}\n");
+
+    // Checks if "m" followed by an upper character is recognized as a prefix
+    QTest::newRow("GenerateGetterSetter_recognizeMFollowedByCapital")
+        << 2
+        << _("\n"
+             "class Something\n"
+             "{\n"
+             "    int @mFoo;\n"
+             "};\n")
+        << _("\n"
+             "class Something\n"
+             "{\n"
+             "    int mFoo;\n"
+             "\n"
+             "public:\n"
+             "    int foo() const;\n"
+             "    void setFoo(int foo);\n"
+             "};\n"
+             "\n"
+             "int Something::foo() const\n"
+             "{\n"
+             "    return mFoo;\n"
+             "}\n"
+             "\n"
+             "void Something::setFoo(int foo)\n"
+             "{\n"
+             "    mFoo = foo;\n"
+             "}\n");
+}
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_generalTests()
+{
+    QFETCH(int, operation);
+    QFETCH(QByteArray, original);
+    QFETCH(QByteArray, expected);
+
+    QuickFixSettings s;
+    s->setterParameterNameTemplate = "<name>";
+    s->getterInCppFileFrom = 1;
+    s->setterInCppFileFrom = 1;
+
+    GenerateGetterSetter factory;
+    QuickFixOperationTest(singleDocument(original, expected),
+                          &factory,
+                          ProjectExplorer::HeaderPaths(),
+                          operation);
+}
 /// Checks: Only generate getter
 void CppEditorPlugin::test_quickfix_GenerateGetterSetter_onlyGetter()
 {
@@ -2349,6 +2867,9 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_onlyGetter()
         "}\n";
     testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
 
+    QuickFixSettings s;
+    s->getterInCppFileFrom = 1;
+    s->getterNameTemplate = "get<Name>";
     GenerateGetterSetter factory;
     QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 1);
 }
@@ -2386,33 +2907,64 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_onlySetter()
         "}\n";
     testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
 
+    QuickFixSettings s;
+    s->setterInCppFileFrom = 1;
+    s->setterParameterNameTemplate = "value";
+
     GenerateGetterSetter factory;
-    QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 2);
+    QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 0);
 }
 
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_onlySetterHeaderFile()
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_inlineInHeaderFile()
 {
     QList<QuickFixTestDocument::Ptr> testDocuments;
-    const QByteArray original =
-        "class Foo\n"
-        "{\n"
-        "public:\n"
-        "    int bar@;\n"
-        "};\n";
-    const QByteArray expected =
-        "class Foo\n"
-        "{\n"
-        "public:\n"
-        "    int bar@;\n"
-        "    void setBar(int value);\n"
-        "};\n\n"
-        "inline void Foo::setBar(int value)\n"
-        "{\n"
-        "    bar = value;\n"
-        "}\n";
+    const QByteArray original = R"-(
+class Foo {
+public:
+    int bar@;
+};
+)-";
+    const QByteArray expected = R"-(
+class Foo {
+public:
+    int bar;
+    int getBar() const;
+    void setBar(int value);
+    void resetBar();
+signals:
+    void barChanged();
+private:
+    Q_PROPERTY(int bar READ getBar WRITE setBar RESET resetBar NOTIFY barChanged)
+};
+
+inline int Foo::getBar() const
+{
+    return bar;
+}
+
+inline void Foo::setBar(int value)
+{
+    if (bar == value)
+        return;
+    bar = value;
+    emit barChanged();
+}
+
+inline void Foo::resetBar()
+{
+    setBar({}); // TODO: Adapt to use your actual default defaultValue
+}
+)-";
     testDocuments << QuickFixTestDocument::create("file.h", original, expected);
+
+    QuickFixSettings s;
+    s->setterOutsideClassFrom = 1;
+    s->getterOutsideClassFrom = 1;
+    s->setterParameterNameTemplate = "value";
+    s->getterNameTemplate = "get<Name>";
+
     GenerateGetterSetter factory;
-    QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 2);
+    QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 4);
 }
 
 void CppEditorPlugin::test_quickfix_GenerateGetterSetter_onlySetterHeaderFileWithIncludeGuard()
@@ -2443,8 +2995,13 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_onlySetterHeaderFileWit
             "#endif\n";
 
     testDocuments << QuickFixTestDocument::create("file.h", original, expected);
+
+    QuickFixSettings s;
+    s->setterOutsideClassFrom = 1;
+    s->setterParameterNameTemplate = "value";
+
     GenerateGetterSetter factory;
-    QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 2);
+    QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 0);
 }
 
 class CppCodeStyleSettingsChanger {
@@ -2486,130 +3043,12 @@ CppCodeStyleSettings CppCodeStyleSettingsChanger::currentSettings()
     return preferences->currentDelegate()->value().value<CppCodeStyleSettings>();
 }
 
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_onlyGetter_DontPreferGetterWithGet()
-{
-    CppCodeStyleSettings modifiedSettings = CppCodeStyleSettingsChanger::currentSettings();
-    modifiedSettings.preferGetterNameWithoutGetPrefix = false;
-    CppCodeStyleSettingsChanger changer(modifiedSettings);
-
-    QList<QuickFixTestDocument::Ptr> testDocuments;
-    QByteArray original;
-    QByteArray expected;
-
-    // Header File
-    original =
-        "class Foo\n"
-        "{\n"
-        "public:\n"
-        "    int m_bar@;\n"
-        "};\n";
-    expected =
-        "class Foo\n"
-        "{\n"
-        "public:\n"
-        "    int m_bar@;\n"
-        "    int getBar() const;\n"
-        "};\n";
-    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
-
-    // Source File
-    original.resize(0);
-    expected =
-        "\n"
-        "int Foo::getBar() const\n"
-        "{\n"
-        "    return m_bar;\n"
-        "}\n";
-    testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
-
-    GenerateGetterSetter factory;
-    QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 1);
-}
-
-/// Checks: Offer a "generate getter" quick fix if there is a setter
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_offerGetterWhenSetterPresent()
-{
-    QList<QuickFixTestDocument::Ptr> testDocuments;
-    QByteArray original;
-    QByteArray expected;
-
-    // Header File
-    original =
-        "class Foo\n"
-        "{\n"
-        "public:\n"
-        "    int bar@;\n"
-        "    void setBar(int value);\n"
-        "};\n";
-    expected =
-        "class Foo\n"
-        "{\n"
-        "public:\n"
-        "    int bar;\n"
-        "    void setBar(int value);\n"
-        "    int getBar() const;\n"
-        "};\n";
-    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
-
-    // Source File
-    original.resize(0);
-    expected =
-        "\n"
-        "int Foo::getBar() const\n"
-        "{\n"
-        "    return bar;\n"
-        "}\n";
-    testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
-
-    GenerateGetterSetter factory;
-    QuickFixOperationTest(testDocuments, &factory);
-}
-
-/// Checks: Offer a "generate setter" quick fix if there is a getter
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_offerSetterWhenGetterPresent()
-{
-    QList<QuickFixTestDocument::Ptr> testDocuments;
-    QByteArray original;
-    QByteArray expected;
-
-    // Header File
-    original =
-        "class Foo\n"
-        "{\n"
-        "public:\n"
-        "    int bar@;\n"
-        "    int getBar() const;\n"
-        "};\n";
-    expected =
-        "class Foo\n"
-        "{\n"
-        "public:\n"
-        "    int bar;\n"
-        "    int getBar() const;\n"
-        "    void setBar(int value);\n"
-        "};\n";
-    testDocuments << QuickFixTestDocument::create("file.h", original, expected);
-
-    // Source File
-    original.resize(0);
-    expected =
-        "\n"
-        "void Foo::setBar(int value)\n"
-        "{\n"
-        "    bar = value;\n"
-        "}\n";
-    testDocuments << QuickFixTestDocument::create("file.cpp", original, expected);
-
-    GenerateGetterSetter factory;
-    QuickFixOperationTest(testDocuments, &factory);
-}
-
 void CppEditorPlugin::test_quickfix_GenerateGettersSetters_data()
 {
     QTest::addColumn<QByteArray>("original");
     QTest::addColumn<QByteArray>("expected");
 
-    const QByteArray noCandidates = R"(
+    const QByteArray onlyReset = R"(
 class @Foo {
 public:
     int bar() const;
@@ -2617,7 +3056,23 @@ public:
 private:
     int m_bar;
 };)";
-    QTest::addRow("without candidates") << noCandidates << QByteArray();
+
+    const QByteArray onlyResetAfter = R"(
+class @Foo {
+public:
+    int bar() const;
+    void setBar(int bar);
+    void resetBar();
+
+private:
+    int m_bar;
+};
+inline void Foo::resetBar()
+{
+    setBar({}); // TODO: Adapt to use your actual default defaultValue
+}
+)";
+    QTest::addRow("only reset") << onlyReset << onlyResetAfter;
 
     const QByteArray withCandidates = R"(
 class @Foo {
@@ -2648,10 +3103,16 @@ public:
 
     int m_alreadyPublic;
 
-    void setBar2(int bar2);
-
-    QString getBar3() const;
+    void resetBar();
+    void setBar2(int value);
+    void resetBar2();
+    const QString &getBar3() const;
     void setBar3(const QString &value);
+    void resetBar3();
+
+signals:
+    void bar2Changed();
+    void bar3Changed();
 
 private:
     friend void distraction();
@@ -2661,20 +3122,43 @@ private:
     int m_bar;
     int bar2_;
     QString bar3;
+    Q_PROPERTY(int bar2 READ getBar2 WRITE setBar2 RESET resetBar2 NOTIFY bar2Changed)
+    Q_PROPERTY(QString bar3 READ getBar3 WRITE setBar3 RESET resetBar3 NOTIFY bar3Changed)
 };
-inline void Foo::setBar2(int bar2)
+inline void Foo::resetBar()
 {
-    bar2_ = bar2;
+    setBar({}); // TODO: Adapt to use your actual default defaultValue
 }
 
-inline QString Foo::getBar3() const
+inline void Foo::setBar2(int value)
+{
+    if (bar2_ == value)
+        return;
+    bar2_ = value;
+    emit bar2Changed();
+}
+
+inline void Foo::resetBar2()
+{
+    setBar2({}); // TODO: Adapt to use your actual default defaultValue
+}
+
+inline const QString &Foo::getBar3() const
 {
     return bar3;
 }
 
 inline void Foo::setBar3(const QString &value)
 {
+    if (bar3 == value)
+        return;
     bar3 = value;
+    emit bar3Changed();
+}
+
+inline void Foo::resetBar3()
+{
+    setBar3({}); // TODO: Adapt to use your actual default defaultValue
 }
 )";
     QTest::addRow("with candidates") << withCandidates << after;
@@ -2691,8 +3175,154 @@ void CppEditorPlugin::test_quickfix_GenerateGettersSetters()
     QFETCH(QByteArray, original);
     QFETCH(QByteArray, expected);
 
+    QuickFixSettings s;
+    s->getterNameTemplate = "get<Name>";
+    s->setterParameterNameTemplate = "value";
+    s->setterOutsideClassFrom = 1;
+    s->getterOutsideClassFrom = 1;
+
     TestFactory factory;
     QuickFixOperationTest({QuickFixTestDocument::create("file.h", original, expected)}, &factory);
+}
+
+void CppEditorPlugin::test_quickfix_InsertQtPropertyMembers_data()
+{
+    QTest::addColumn<QByteArray>("original");
+    QTest::addColumn<QByteArray>("expected");
+
+    QTest::newRow("InsertQtPropertyMembers")
+        << _("struct XmarksTheSpot {\n"
+             "    @Q_PROPERTY(int it READ getIt WRITE setIt RESET resetIt NOTIFY itChanged)\n"
+             "};\n")
+        << _("struct XmarksTheSpot {\n"
+             "    Q_PROPERTY(int it READ getIt WRITE setIt RESET resetIt NOTIFY itChanged)\n"
+             "\n"
+             "public:\n"
+             "    int getIt() const\n"
+             "    {\n"
+             "        return m_it;\n"
+             "    }\n"
+             "\n"
+             "public slots:\n"
+             "    void setIt(int it)\n"
+             "    {\n"
+             "        if (m_it == it)\n"
+             "            return;\n"
+             "        m_it = it;\n"
+             "        emit itChanged(m_it);\n"
+             "    }\n"
+             "    void resetIt()\n"
+             "    {\n"
+             "        setIt({}); // TODO: Adapt to use your actual default value\n"
+             "    }\n"
+             "\n"
+             "signals:\n"
+             "    void itChanged(int);\n"
+             "\n"
+             "private:\n"
+             "    int m_it;\n"
+             "};\n");
+
+    QTest::newRow("InsertQtPropertyMembersResetWithoutSet")
+        << _("struct XmarksTheSpot {\n"
+             "    @Q_PROPERTY(int it READ getIt RESET resetIt NOTIFY itChanged)\n"
+             "};\n")
+        << _("struct XmarksTheSpot {\n"
+             "    Q_PROPERTY(int it READ getIt RESET resetIt NOTIFY itChanged)\n"
+             "\n"
+             "public:\n"
+             "    int getIt() const\n"
+             "    {\n"
+             "        return m_it;\n"
+             "    }\n"
+             "\n"
+             "public slots:\n"
+             "    void resetIt()\n"
+             "    {\n"
+             "        static int defaultValue{}; // TODO: Adapt to use your actual default "
+             "value\n"
+             "        if (m_it == defaultValue)\n"
+             "            return;\n"
+             "        m_it = defaultValue;\n"
+             "        emit itChanged(m_it);\n"
+             "    }\n"
+             "\n"
+             "signals:\n"
+             "    void itChanged(int);\n"
+             "\n"
+             "private:\n"
+             "    int m_it;\n"
+             "};\n");
+
+    QTest::newRow("InsertQtPropertyMembersResetWithoutSetAndNotify")
+        << _("struct XmarksTheSpot {\n"
+             "    @Q_PROPERTY(int it READ getIt RESET resetIt)\n"
+             "};\n")
+        << _("struct XmarksTheSpot {\n"
+             "    Q_PROPERTY(int it READ getIt RESET resetIt)\n"
+             "\n"
+             "public:\n"
+             "    int getIt() const\n"
+             "    {\n"
+             "        return m_it;\n"
+             "    }\n"
+             "\n"
+             "public slots:\n"
+             "    void resetIt()\n"
+             "    {\n"
+             "        static int defaultValue{}; // TODO: Adapt to use your actual default "
+             "value\n"
+             "        m_it = defaultValue;\n"
+             "    }\n"
+             "\n"
+             "private:\n"
+             "    int m_it;\n"
+             "};\n");
+
+    QTest::newRow("InsertQtPropertyMembersPrivateBeforePublic")
+        << _("class XmarksTheSpot {\n"
+             "private:\n"
+             "    @Q_PROPERTY(int it READ getIt WRITE setIt NOTIFY itChanged)\n"
+             "public:\n"
+             "    void find();\n"
+             "};\n")
+        << _("class XmarksTheSpot {\n"
+             "private:\n"
+             "    Q_PROPERTY(int it READ getIt WRITE setIt NOTIFY itChanged)\n"
+             "    int m_it;\n"
+             "\n"
+             "public:\n"
+             "    void find();\n"
+             "    int getIt() const\n"
+             "    {\n"
+             "        return m_it;\n"
+             "    }\n"
+             "public slots:\n"
+             "    void setIt(int it)\n"
+             "    {\n"
+             "        if (m_it == it)\n"
+             "            return;\n"
+             "        m_it = it;\n"
+             "        emit itChanged(m_it);\n"
+             "    }\n"
+             "signals:\n"
+             "    void itChanged(int);\n"
+             "};\n");
+}
+
+void CppEditorPlugin::test_quickfix_InsertQtPropertyMembers()
+{
+    QFETCH(QByteArray, original);
+    QFETCH(QByteArray, expected);
+
+    QuickFixSettings s;
+    s->setterAsSlot = true;
+    s->setterInCppFileFrom = 0;
+    s->setterParameterNameTemplate = "<name>";
+    s->signalWithNewValue = true;
+
+    InsertQtPropertyMembers factory;
+    QuickFixOperationTest({QuickFixTestDocument::create("file.cpp", original, expected)}, &factory);
 }
 
 void CppEditorPlugin::test_quickfix_InsertMemberFromInitialization_data()

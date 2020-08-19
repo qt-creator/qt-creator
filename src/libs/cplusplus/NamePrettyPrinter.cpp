@@ -75,6 +75,8 @@ void NamePrettyPrinter::visit(const TemplateNameId *name)
         _name = QString::fromUtf8(id->chars(), id->size());
     else
         _name = QLatin1String("anonymous");
+    if (!_overview->showTemplateParameters)
+        return;
     _name += QLatin1Char('<');
     for (int index = 0; index < name->templateArgumentCount(); ++index) {
         if (index != 0)

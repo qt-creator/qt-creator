@@ -103,18 +103,31 @@ private slots:
     void test_quickfix_data();
     void test_quickfix();
 
-    void test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespaceToCpp();
-    void test_quickfix_GenerateGetterSetter_createNamespaceInCpp_data();
-    void test_quickfix_GenerateGetterSetter_createNamespaceInCpp();
+    void test_quickfix_GenerateGetterSetter_namespaceHandlingCreate_data();
+    void test_quickfix_GenerateGetterSetter_namespaceHandlingCreate();
+    void test_quickfix_GenerateGetterSetter_namespaceHandlingAddUsing_data();
+    void test_quickfix_GenerateGetterSetter_namespaceHandlingAddUsing();
+    void test_quickfix_GenerateGetterSetter_namespaceHandlingFullyQualify_data();
+    void test_quickfix_GenerateGetterSetter_namespaceHandlingFullyQualify();
+    void test_quickfix_GenerateGetterSetter_customNames_data();
+    void test_quickfix_GenerateGetterSetter_customNames();
+    void test_quickfix_GenerateGetterSetter_valueTypes_data();
+    void test_quickfix_GenerateGetterSetter_valueTypes();
+    void test_quickfix_GenerateGetterSetter_customTemplate();
+    void test_quickfix_GenerateGetterSetter_needThis();
+    void test_quickfix_GenerateGetterSetter_offeredFixes_data();
+    void test_quickfix_GenerateGetterSetter_offeredFixes();
+    void test_quickfix_GenerateGetterSetter_generalTests_data();
+    void test_quickfix_GenerateGetterSetter_generalTests();
     void test_quickfix_GenerateGetterSetter_onlyGetter();
-    void test_quickfix_GenerateGetterSetter_onlyGetter_DontPreferGetterWithGet();
     void test_quickfix_GenerateGetterSetter_onlySetter();
-    void test_quickfix_GenerateGetterSetter_onlySetterHeaderFile();
+    void test_quickfix_GenerateGetterSetter_inlineInHeaderFile();
     void test_quickfix_GenerateGetterSetter_onlySetterHeaderFileWithIncludeGuard();
-    void test_quickfix_GenerateGetterSetter_offerGetterWhenSetterPresent();
-    void test_quickfix_GenerateGetterSetter_offerSetterWhenGetterPresent();
     void test_quickfix_GenerateGettersSetters_data();
     void test_quickfix_GenerateGettersSetters();
+
+    void test_quickfix_InsertQtPropertyMembers_data();
+    void test_quickfix_InsertQtPropertyMembers();
 
     void test_quickfix_InsertMemberFromInitialization_data();
     void test_quickfix_InsertMemberFromInitialization();

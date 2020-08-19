@@ -53,5 +53,30 @@ const char CPP_SNIPPETS_GROUP_ID[] = "C++";
 const char EXTRA_PREPROCESSOR_DIRECTIVES[] = "CppEditor.ExtraPreprocessorDirectives-";
 const char PREFERRED_PARSE_CONTEXT[] = "CppEditor.PreferredParseContext-";
 
+const char QUICK_FIX_PROJECT_PANEL_ID[] = "CppEditor.QuickFix";
+const char QUICK_FIX_SETTINGS_ID[] = "CppEditor.QuickFix";
+const char QUICK_FIX_SETTINGS_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppTools", "Quick Fixes");
+const char QUICK_FIX_SETTING_GETTER_OUTSIDE_CLASS_FROM[] = "GettersOutsideClassFrom";
+const char QUICK_FIX_SETTING_GETTER_IN_CPP_FILE_FROM[] = "GettersInCppFileFrom";
+const char QUICK_FIX_SETTING_SETTER_OUTSIDE_CLASS_FROM[] = "SettersOutsideClassFrom";
+const char QUICK_FIX_SETTING_SETTER_IN_CPP_FILE_FROM[] = "SettersInCppFileFrom";
+const char QUICK_FIX_SETTING_GETTER_ATTRIBUTES[] = "GetterAttributes";
+const char QUICK_FIX_SETTING_GETTER_NAME_TEMPLATE[] = "GetterNameTemplate";
+const char QUICK_FIX_SETTING_SETTER_NAME_TEMPLATE[] = "SetterNameTemplate";
+const char QUICK_FIX_SETTING_SIGNAL_NAME_TEMPLATE[] = "SignalNameTemplate";
+const char QUICK_FIX_SETTING_RESET_NAME_TEMPLATE[] = "ResetNameTemplate";
+const char QUICK_FIX_SETTING_SIGNAL_WITH_NEW_VALUE[] = "SignalWithNewValue";
+const char QUICK_FIX_SETTING_SETTER_AS_SLOT[] = "SetterAsSlot";
+const char QUICK_FIX_SETTING_SETTER_PARAMETER_NAME[] = "SetterParameterName";
+const char QUICK_FIX_SETTING_CPP_FILE_NAMESPACE_HANDLING[] = "CppFileNamespaceHandling";
+const char QUICK_FIX_SETTING_MEMBER_VARIABEL_NAME_TEMPLATE[] = "MemberVariableNameTemplate";
+const char QUICK_FIX_SETTING_VALUE_TYPES[] = "ValueTypes";
+const char QUICK_FIX_SETTING_CUSTOM_TEMPLATES[] = "CustomTemplate";
+const char QUICK_FIX_SETTING_CUSTOM_TEMPLATE_TYPES[] = "Types";
+const char QUICK_FIX_SETTING_CUSTOM_TEMPLATE_COMPARISON[] = "Comparison";
+const char QUICK_FIX_SETTING_CUSTOM_TEMPLATE_RETURN_TYPE[] = "ReturnType";
+const char QUICK_FIX_SETTING_CUSTOM_TEMPLATE_RETURN_EXPRESSION[] = "ReturnExpression";
+const char QUICK_FIX_SETTING_CUSTOM_TEMPLATE_ASSIGNMENT[] = "Assignment";
+
 } // namespace Constants
 } // namespace CppEditor

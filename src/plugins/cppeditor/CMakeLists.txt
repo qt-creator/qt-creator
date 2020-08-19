@@ -25,10 +25,19 @@ add_qtc_plugin(CppEditor
     cppquickfix.cpp cppquickfix.h
     cppquickfixassistant.cpp cppquickfixassistant.h
     cppquickfixes.cpp cppquickfixes.h
+    cppquickfixprojectsettings.cpp cppquickfixprojectsettings.h
+    cppquickfixprojectsettingswidget.cpp cppquickfixprojectsettingswidget.h
+        cppquickfixprojectsettingswidget.ui
+    cppquickfixsettings.cpp cppquickfixsettings.h
+    cppquickfixsettingspage.cpp cppquickfixsettingspage.h
+    cppquickfixsettingswidget.cpp cppquickfixsettingswidget.h cppquickfixsettingswidget.ui
     cpptypehierarchy.cpp cpptypehierarchy.h
     cppuseselectionsupdater.cpp cppuseselectionsupdater.h
     resourcepreviewhoverhandler.cpp resourcepreviewhoverhandler.h
-  EXPLICIT_MOC cppeditor.h
+   EXPLICIT_MOC
+     cppeditor.h
+     cppquickfixsettingswidget.h
+     cppquickfixprojectsettingswidget.h
 )
 
 extend_qtc_plugin(CppEditor

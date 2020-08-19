@@ -24,6 +24,11 @@ HEADERS += \
     cppquickfix.h \
     cppquickfixassistant.h \
     cppquickfixes.h \
+    cppquickfixprojectsettings.h \
+    cppquickfixprojectsettingswidget.h \
+    cppquickfixsettings.h \
+    cppquickfixsettingspage.h \
+    cppquickfixsettingswidget.h \
     cpptypehierarchy.h \
     cppuseselectionsupdater.h \
     resourcepreviewhoverhandler.h
@@ -48,13 +53,20 @@ SOURCES += \
     cppquickfix.cpp \
     cppquickfixassistant.cpp \
     cppquickfixes.cpp \
+    cppquickfixprojectsettings.cpp \
+    cppquickfixprojectsettingswidget.cpp \
+    cppquickfixsettings.cpp \
+    cppquickfixsettingspage.cpp \
+    cppquickfixsettingswidget.cpp \
     cpptypehierarchy.cpp \
     cppuseselectionsupdater.cpp \
     resourcepreviewhoverhandler.cpp
 
 FORMS += \
     cpppreprocessordialog.ui \
-    cppcodemodelinspectordialog.ui
+    cppcodemodelinspectordialog.ui \
+    cppquickfixprojectsettingswidget.ui \
+    cppquickfixsettingswidget.ui
 
 RESOURCES += \
     cppeditor.qrc

@@ -25,16 +25,16 @@
 
 #include "cppquickfixes.h"
 
-#include "cppeditorwidget.h"
 #include "cppeditordocument.h"
+#include "cppeditorwidget.h"
 #include "cppfunctiondecldeflink.h"
-#include "cppquickfixassistant.h"
 #include "cppinsertvirtualmethods.h"
+#include "cppquickfixassistant.h"
+#include "cppquickfixprojectsettings.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
-#include <cpptools/cppvirtualfunctionassistprovider.h>
 #include <cpptools/baseeditordocumentprocessor.h>
 #include <cpptools/cppclassesfilter.h>
 #include <cpptools/cppcodestylesettings.h>
@@ -43,6 +43,7 @@
 #include <cpptools/cpptoolsbridge.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpptoolsreuse.h>
+#include <cpptools/cppvirtualfunctionassistprovider.h>
 #include <cpptools/includeutils.h>
 #include <cpptools/insertionpointlocator.h>
 #include <cpptools/symbolfinder.h>
@@ -81,8 +82,8 @@
 #include <QRegularExpression>
 #include <QSharedPointer>
 #include <QStack>
-#include <QTextCursor>
 #include <QTextCodec>
+#include <QTextCursor>
 #include <QVBoxLayout>
 
 #include <bitset>
@@ -169,7 +170,7 @@ private:
         if (id)
             name = QString::fromUtf8(id->chars(), id->size());
         if (name != m_remainingNamespaces.first())
-            return name.isEmpty();
+            return false;
 
         if (!ns->linkage_body) {
             m_done = true;
@@ -390,8 +391,11 @@ QStringList getNamespaceNames(const Namespace *firstNamespace)
         if (scope->name() && scope->name()->identifier()) {
             namespaces.prepend(QString::fromUtf8(scope->name()->identifier()->chars(),
                                                  scope->name()->identifier()->size()));
+        } else {
+            namespaces.prepend(""); // an unnamed namespace
         }
     }
+    namespaces.pop_front(); // the "global namespace" is one namespace, but not an unnamed
     return namespaces;
 }
 
@@ -494,13 +498,6 @@ inline bool isQtStringLiteral(const QByteArray &id)
 inline bool isQtStringTranslation(const QByteArray &id)
 {
     return id == "tr" || id == "trUtf8" || id == "translate" || id == "QT_TRANSLATE_NOOP";
-}
-
-inline bool isQtFuzzyComparable(const QString &typeName)
-{
-    return typeName == QLatin1String("double")
-        || typeName == QLatin1String("float")
-        || typeName == QLatin1String("qreal");
 }
 
 Class *isMemberFunction(const LookupContext &context, Function *function)
@@ -612,6 +609,17 @@ bool nameIncludesOperatorName(const Name *name)
 QString memberBaseName(const QString &name)
 {
     QString baseName = name;
+
+    CppQuickFixSettings *settings = CppQuickFixProjectsSettings::getQuickFixSettings(
+        ProjectExplorer::ProjectTree::currentProject());
+    const QString &nameTemplate = settings->memberVariableNameTemplate;
+    const QString prefix = nameTemplate.left(nameTemplate.indexOf('<'));
+    const QString postfix = nameTemplate.mid(nameTemplate.lastIndexOf('>') + 1);
+    if (name.startsWith(prefix) && name.endsWith(postfix)) {
+        const QString base = name.mid(prefix.length(), name.length() - postfix.length());
+        if (!base.isEmpty())
+            return base;
+    }
 
     // Remove leading and trailing "_"
     while (baseName.startsWith(QLatin1Char('_')))
@@ -3606,519 +3614,1069 @@ void InsertDefsFromDecls::match(const CppQuickFixInterface &interface, QuickFixO
 
 namespace {
 
-bool hasClassMemberWithGetPrefix(const Class *klass)
+Utils::optional<FullySpecifiedType> getFirstTemplateParameter(const Name *name)
 {
-    if (!klass)
-        return false;
+    if (const QualifiedNameId *qualifiedName = name->asQualifiedNameId())
+        return getFirstTemplateParameter(qualifiedName->name());
 
-    for (int i = 0; i < klass->memberCount(); ++i) {
-        const Symbol *symbol = klass->memberAt(i);
-        if (symbol->isFunction() || symbol->isDeclaration()) {
-            if (const Name *symbolName = symbol->name()) {
-                if (const Identifier *id = symbolName->identifier()) {
-                    if (!strncmp(id->chars(), "get", 3))
-                        return true;
-                }
-            }
-        }
+    if (const TemplateNameId *templateName = name->asTemplateNameId()) {
+        if (templateName->templateArgumentCount() > 0)
+            return templateName->templateArgumentAt(0).type();
     }
-    return false;
+    return {};
 }
 
-class GenerateGetterSetterOperation : public CppQuickFixOperation
+Utils::optional<FullySpecifiedType> getFirstTemplateParameter(Type *type)
+{
+    if (NamedType *namedType = type->asNamedType())
+        return getFirstTemplateParameter(namedType->name());
+
+    return {};
+}
+
+Utils::optional<FullySpecifiedType> getFirstTemplateParameter(FullySpecifiedType type)
+{
+    return getFirstTemplateParameter(type.type());
+}
+
+QString symbolAtDifferentLocation(const CppQuickFixInterface &interface,
+                                  Symbol *symbol,
+                                  CppRefactoringFilePtr &targetFile,
+                                  InsertionLocation targetLocation)
+{
+    QTC_ASSERT(symbol, return QString());
+    Scope *scopeAtInsertPos = targetFile->cppDocument()->scopeAt(targetLocation.line(),
+                                                                 targetLocation.column());
+
+    LookupContext cppContext(targetFile->cppDocument(), interface.snapshot());
+    ClassOrNamespace *cppCoN = cppContext.lookupType(scopeAtInsertPos);
+    if (!cppCoN)
+        cppCoN = cppContext.globalNamespace();
+    SubstitutionEnvironment env;
+    env.setContext(interface.context());
+    env.switchScope(symbol->enclosingScope());
+    UseMinimalNames q(cppCoN);
+    env.enter(&q);
+    Control *control = interface.context().bindings()->control().data();
+    Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
+    return oo.prettyName(LookupContext::minimalName(symbol, cppCoN, control));
+}
+
+FullySpecifiedType typeAtDifferentLocation(const CppQuickFixInterface &interface,
+                                           FullySpecifiedType type,
+                                           Scope *originalScope,
+                                           CppRefactoringFilePtr &targetFile,
+                                           InsertionLocation targetLocation)
+{
+    Scope *scopeAtInsertPos = targetFile->cppDocument()->scopeAt(targetLocation.line(),
+                                                                 targetLocation.column());
+
+    LookupContext cppContext(targetFile->cppDocument(), interface.snapshot());
+    ClassOrNamespace *cppCoN = cppContext.lookupType(scopeAtInsertPos);
+    if (!cppCoN)
+        cppCoN = cppContext.globalNamespace();
+    SubstitutionEnvironment env;
+    env.setContext(interface.context());
+    env.switchScope(originalScope);
+    UseMinimalNames q(cppCoN);
+    env.enter(&q);
+    Control *control = interface.context().bindings()->control().data();
+    return rewriteType(type, &env, control);
+}
+
+struct ExistingGetterSetterData
+{
+    Class *clazz = nullptr;
+    Declaration *declarationSymbol = nullptr;
+    QString getterName;
+    QString setterName;
+    QString resetName;
+    QString signalName;
+    QString qPropertyName;
+    QString memberVariableName;
+    Document::Ptr doc;
+
+    int computePossibleFlags() const;
+};
+
+class GetterSetterRefactoringHelper
 {
 public:
-    enum OperationType {
-        InvalidType,
-        GetterSetterType,
-        GetterType,
-        SetterType
+    GetterSetterRefactoringHelper(CppQuickFixOperation *operation, const QString &fileName, Class *clazz)
+        : m_operation(operation)
+        , m_changes(m_operation->snapshot())
+        , m_locator(m_changes)
+        , m_class(clazz)
+    {
+        m_headerFile = m_changes.file(fileName);
+        QString cppFileName = correspondingHeaderOrSource(fileName, &m_isHeaderHeaderFile);
+        if (!m_isHeaderHeaderFile || !QFile::exists(cppFileName)) {
+            // there is no "source" file
+            m_sourceFile = m_headerFile;
+        } else {
+            m_sourceFile = m_changes.file(cppFileName);
+        }
+    }
+
+    void performGeneration(ExistingGetterSetterData data, int generationFlags);
+
+    void applyChanges()
+    {
+        const auto classLayout = {
+            InsertionPointLocator::Public,
+            InsertionPointLocator::PublicSlot,
+            InsertionPointLocator::Signals,
+            InsertionPointLocator::Protected,
+            InsertionPointLocator::ProtectedSlot,
+            InsertionPointLocator::PrivateSlot,
+            InsertionPointLocator::Private,
+        };
+        for (auto spec : classLayout) {
+            const auto iter = m_headerFileCode.find(spec);
+            if (iter != m_headerFileCode.end())
+                insertAndIndent(m_headerFile, headerLocationFor(spec), *iter);
+        }
+        if (!m_sourceFileCode.isEmpty() && m_sourceFileInsertionPoint.isValid())
+            insertAndIndent(m_sourceFile, m_sourceFileInsertionPoint, m_sourceFileCode);
+
+        if (!m_headerFileChangeSet.isEmpty()) {
+            m_headerFile->setChangeSet(m_headerFileChangeSet);
+            m_headerFile->apply();
+        }
+        if (!m_sourceFileChangeSet.isEmpty()) {
+            m_sourceFile->setOpenEditor();
+            m_sourceFile->setChangeSet(m_sourceFileChangeSet);
+            m_sourceFile->apply();
+        }
+    }
+
+    bool hasSourceFile() { return m_headerFile != m_sourceFile; }
+
+protected:
+    void insertAndIndent(const RefactoringFilePtr &file,
+                         const InsertionLocation &loc,
+                         const QString &text)
+    {
+        int targetPosition1 = file->position(loc.line(), loc.column());
+        int targetPosition2 = qMax(0, file->position(loc.line(), 1) - 1);
+        ChangeSet &changeSet = file == m_headerFile ? m_headerFileChangeSet : m_sourceFileChangeSet;
+        changeSet.insert(targetPosition1, loc.prefix() + text + loc.suffix());
+        file->appendIndentRange(ChangeSet::Range(targetPosition2, targetPosition1));
+    }
+
+    FullySpecifiedType makeConstRef(FullySpecifiedType type)
+    {
+        type.setConst(true);
+        return m_operation->currentFile()->cppDocument()->control()->referenceType(type, false);
+    }
+
+    FullySpecifiedType addConstToReference(FullySpecifiedType type)
+    {
+        if (ReferenceType *ref = type.type()->asReferenceType()) {
+            FullySpecifiedType elemType = ref->elementType();
+            if (elemType.isConst())
+                return type;
+            elemType.setConst(true);
+            return m_operation->currentFile()->cppDocument()->control()->referenceType(elemType,
+                                                                                       false);
+        }
+        return type;
+    }
+
+    QString symbolAt(Symbol *symbol, CppRefactoringFilePtr &targetFile, InsertionLocation targetLocation)
+    {
+        return symbolAtDifferentLocation(*m_operation, symbol, targetFile, targetLocation);
+    }
+
+    FullySpecifiedType typeAt(FullySpecifiedType type,
+                              Scope *originalScope,
+                              CppRefactoringFilePtr &targetFile,
+                              InsertionLocation targetLocation)
+    {
+        return typeAtDifferentLocation(*m_operation, type, originalScope, targetFile, targetLocation);
+    }
+
+    void addHeaderCode(InsertionPointLocator::AccessSpec spec, QString code)
+    {
+        QString &existing = m_headerFileCode[spec];
+        existing += code;
+        if (!existing.endsWith('\n'))
+            existing += '\n';
+    }
+
+    InsertionLocation headerLocationFor(InsertionPointLocator::AccessSpec spec)
+    {
+        const auto insertionPoint = m_headerInsertionPoints.find(spec);
+        if (insertionPoint != m_headerInsertionPoints.end())
+            return *insertionPoint;
+        const InsertionLocation loc = m_locator.methodDeclarationInClass(m_headerFile->fileName(),
+                                                                         m_class,
+                                                                         spec);
+        m_headerInsertionPoints.insert(spec, loc);
+        return loc;
+    }
+
+    InsertionLocation sourceLocationFor(Declaration *declarationSymbol)
+    {
+        if (m_sourceFileInsertionPoint.isValid())
+            return m_sourceFileInsertionPoint;
+        m_sourceFileInsertionPoint = insertLocationForMethodDefinition(
+            declarationSymbol,
+            false,
+            m_settings->createMissingNamespacesinCppFile() ? NamespaceHandling::CreateMissing
+                                                           : NamespaceHandling::Ignore,
+            m_changes,
+            m_sourceFile->fileName());
+        if (m_settings->addUsingNamespaceinCppFile()) {
+            // check if we have to insert a using namespace ...
+            auto requiredNamespaces = getNamespaceNames(declarationSymbol->enclosingClass());
+            NSCheckerVisitor visitor(m_sourceFile.get(),
+                                     requiredNamespaces,
+                                     m_sourceFile->position(m_sourceFileInsertionPoint.line(),
+                                                            m_sourceFileInsertionPoint.column()));
+            visitor.accept(m_sourceFile->cppDocument()->translationUnit()->ast());
+            if (auto rns = visitor.remainingNamespaces(); !rns.empty()) {
+                QString ns = "using namespace ";
+                for (auto &n : rns) {
+                    if (!n.isEmpty()) { // we have to ignore unnamed namespaces
+                        ns += n;
+                        ns += "::";
+                    }
+                }
+                ns.resize(ns.size() - 2); // remove last '::'
+                ns += ";\n";
+                const auto &loc = m_sourceFileInsertionPoint;
+                m_sourceFileInsertionPoint = InsertionLocation(loc.fileName(),
+                                                               loc.prefix() + ns,
+                                                               loc.suffix(),
+                                                               loc.line(),
+                                                               loc.column());
+            }
+        }
+        return m_sourceFileInsertionPoint;
+    }
+
+    void addSourceFileCode(QString code)
+    {
+        while (!m_sourceFileCode.isEmpty() && !m_sourceFileCode.endsWith("\n\n"))
+            m_sourceFileCode += '\n';
+        m_sourceFileCode += code;
+    }
+
+private:
+    CppQuickFixOperation *m_operation;
+    CppRefactoringChanges m_changes;
+    CppRefactoringFilePtr m_headerFile;
+    CppRefactoringFilePtr m_sourceFile;
+    ChangeSet m_headerFileChangeSet;
+    ChangeSet m_sourceFileChangeSet;
+    InsertionPointLocator m_locator;
+    QMap<InsertionPointLocator::AccessSpec, InsertionLocation> m_headerInsertionPoints;
+    InsertionLocation m_sourceFileInsertionPoint;
+    CppQuickFixSettings *m_settings = CppQuickFixProjectsSettings::getQuickFixSettings(
+        ProjectExplorer::ProjectTree::currentProject());
+    QString m_sourceFileCode;
+    Class *m_class;
+    QMap<InsertionPointLocator::AccessSpec, QString> m_headerFileCode;
+    bool m_isHeaderHeaderFile; // the "header" (where the class is defined) can be a source file
+};
+
+class GenerateGetterSetterOp : public CppQuickFixOperation
+{
+public:
+    enum GenerateFlag {
+        GenerateGetter = 1 << 0,
+        GenerateSetter = 1 << 1,
+        GenerateSignal = 1 << 2,
+        GenerateMemberVariable = 1 << 3,
+        GenerateReset = 1 << 4,
+        GenerateProperty = 1 << 5,
+        GenerateConstantProperty = 1 << 6,
+        HaveExistingQProperty = 1 << 7,
     };
 
-    GenerateGetterSetterOperation(const CppQuickFixInterface &interface)
+    GenerateGetterSetterOp(const CppQuickFixInterface &interface,
+                           ExistingGetterSetterData data,
+                           int generateFlags,
+                           int priority,
+                           const QString &description)
         : CppQuickFixOperation(interface)
+        , m_generateFlags(generateFlags)
+        , m_data(data)
     {
-        const QList<AST *> &path = interface.path();
-        // We expect something like
-        // [0] TranslationUnitAST
-        // [1] NamespaceAST
-        // [2] LinkageBodyAST
-        // [3] SimpleDeclarationAST
-        // [4] ClassSpecifierAST
-        // [5] SimpleDeclarationAST
-        // [6] DeclaratorAST
-        // [7] DeclaratorIdAST
-        // [8] SimpleNameAST
+        setDescription(description);
+        setPriority(priority);
+    }
 
-        const int n = path.size();
-        if (n < 6)
-            return;
+    static void generateQuickFixes(QuickFixOperations &results,
+                                   const CppQuickFixInterface &interface,
+                                   const ExistingGetterSetterData &data,
+                                   const int possibleFlags)
+    {
+        // flags can have the value HaveExistingQProperty or a combination of all other values
+        // of the enum 'GenerateFlag'
+        int p = 0;
+        if (possibleFlags & HaveExistingQProperty) {
+            const auto desc = CppQuickFixFactory::tr("Generate Missing Q_PROPERTY Members");
+            results << new GenerateGetterSetterOp(interface, data, possibleFlags, ++p, desc);
+        } else {
+            if (possibleFlags & GenerateSetter) {
+                const auto desc = CppQuickFixFactory::tr("Generate Setter");
+                results << new GenerateGetterSetterOp(interface, data, GenerateSetter, ++p, desc);
+            }
+            if (possibleFlags & GenerateGetter) {
+                const auto desc = CppQuickFixFactory::tr("Generate Getter");
+                results << new GenerateGetterSetterOp(interface, data, GenerateGetter, ++p, desc);
+            }
+            if (possibleFlags & GenerateGetter && possibleFlags & GenerateSetter) {
+                const auto desc = CppQuickFixFactory::tr("Generate Getter and Setter");
+                const auto flags = GenerateGetter | GenerateSetter;
+                results << new GenerateGetterSetterOp(interface, data, flags, ++p, desc);
+            }
 
-        int i = 1;
-        m_variableName = path.at(n - i++)->asSimpleName();
-        m_declaratorId = path.at(n - i++)->asDeclaratorId();
-        // DeclaratorAST might be preceded by PointerAST, e.g. for the case
-        // "class C { char *@s; };", where '@' denotes the text cursor position.
-        if (!(m_declarator = path.at(n - i++)->asDeclarator())) {
-            --i;
-            if (path.at(n - i++)->asPointer()) {
-                if (n < 7)
-                    return;
-                m_declarator = path.at(n - i++)->asDeclarator();
+            if (possibleFlags & GenerateConstantProperty) {
+                const auto desc = CppQuickFixFactory::tr(
+                    "Generate Constant Q_PROPERTY and Missing Members");
+                const auto flags = possibleFlags & ~(GenerateSetter | GenerateSignal | GenerateReset);
+                results << new GenerateGetterSetterOp(interface, data, flags, ++p, desc);
+            }
+            if (possibleFlags & GenerateProperty) {
+                if (possibleFlags & GenerateReset) {
+                    const auto desc = CppQuickFixFactory::tr(
+                        "Generate Q_PROPERTY and Missing Members with Reset Function");
+                    const auto flags = possibleFlags & ~GenerateConstantProperty;
+                    results << new GenerateGetterSetterOp(interface, data, flags, ++p, desc);
+                }
+                const auto desc = CppQuickFixFactory::tr("Generate Q_PROPERTY and Missing Members");
+                const auto flags = possibleFlags & ~GenerateConstantProperty & ~GenerateReset;
+                results << new GenerateGetterSetterOp(interface, data, flags, ++p, desc);
             }
         }
-        m_variableDecl = path.at(n - i++)->asSimpleDeclaration();
-        m_classSpecifier = path.at(n - i++)->asClassSpecifier();
-        m_classDecl = path.at(n - i++)->asSimpleDeclaration();
-
-        if (!isValid())
-            return;
-
-        // Do not get triggered on member functions and arrays
-        if (m_declarator->postfix_declarator_list) {
-            m_offerQuickFix = false;
-            return;
-        }
-
-        // Construct getter and setter names
-        const Name *variableName = m_variableName->name;
-        if (!variableName) {
-            m_offerQuickFix = false;
-            return;
-        }
-        const Identifier *variableId = variableName->identifier();
-        if (!variableId) {
-            m_offerQuickFix = false;
-            return;
-        }
-        m_variableString = QString::fromUtf8(variableId->chars(), variableId->size());
-
-        determineGetterSetterNames();
-
-        // Check if the class has already a getter and/or a setter.
-        // This is only a simple check which should suffice not triggering the
-        // same quick fix again. Limitations:
-        //   1) It only checks in the current class, but not in base classes.
-        //   2) It compares only names instead of types/signatures.
-        //   3) Symbols in Qt property declarations are ignored.
-        bool hasGetter = false;
-        bool hasSetter = false;
-        if (Class *klass = m_classSpecifier->symbol) {
-            for (int i = 0; i < klass->memberCount(); ++i) {
-                Symbol *symbol = klass->memberAt(i);
-                if (symbol->isQtPropertyDeclaration())
-                    continue;
-                if (const Name *symbolName = symbol->name()) {
-                    if (const Identifier *id = symbolName->identifier()) {
-                        const QString memberName = QString::fromUtf8(id->chars(), id->size());
-                        if (memberName == m_getterName)
-                            hasGetter = true;
-                        if (memberName == m_setterName)
-                            hasSetter = true;
-                        if (hasGetter && hasSetter)
-                            break;
-                    }
-                }
-            } // for
-        }
-        if (hasGetter && hasSetter) {
-            m_offerQuickFix = false;
-            return;
-        }
-
-        // Find the right symbol in the simple declaration
-        const List<Symbol *> *symbols = m_variableDecl->symbols;
-        QTC_ASSERT(symbols, return);
-        for (; symbols; symbols = symbols->next) {
-            Symbol *s = symbols->value;
-            if (const Name *name = s->name()) {
-                if (const Identifier *id = name->identifier()) {
-                    const QString symbolName = QString::fromUtf8(id->chars(), id->size());
-                    if (symbolName == m_variableString) {
-                        m_symbol = s;
-                        break;
-                    }
-                }
-            }
-        }
-
-        QTC_ASSERT(m_symbol, return);
-        if (hasSetter) { // hasGetter is false in this case
-            m_type = GetterType;
-        } else { // no setter
-            if (hasGetter) {
-                if (m_symbol->type().isConst()) {
-                    m_offerQuickFix = false;
-                    return;
-                } else {
-                    m_type = SetterType;
-                }
-            } else {
-                m_type = (m_symbol->type().isConst()) ? GetterType : GetterSetterType;
-            }
-        }
-        updateDescriptionAndPriority();
-    }
-
-    // Clones "other" in order to prevent all the initial detection made in the ctor.
-    GenerateGetterSetterOperation(const CppQuickFixInterface &interface,
-                                  GenerateGetterSetterOperation *other, OperationType type)
-        : CppQuickFixOperation(interface)
-        , m_type(type)
-        , m_variableName(other->m_variableName)
-        , m_declaratorId(other->m_declaratorId)
-        , m_declarator(other->m_declarator)
-        , m_variableDecl(other->m_variableDecl)
-        , m_classSpecifier(other->m_classSpecifier)
-        , m_classDecl(other->m_classDecl)
-        , m_symbol(other->m_symbol)
-        , m_baseName(other->m_baseName)
-        , m_getterName(other->m_getterName)
-        , m_setterName(other->m_setterName)
-        , m_variableString(other->m_variableString)
-        , m_offerQuickFix(other->m_offerQuickFix)
-    {
-        QTC_ASSERT(isValid(), return);
-        updateDescriptionAndPriority();
-    }
-
-    void determineGetterSetterNames()
-    {
-        m_baseName = memberBaseName(m_variableString);
-        if (m_baseName.isEmpty())
-            m_baseName = QLatin1String("value");
-
-        // Getter Name
-        const Utils::optional<CppCodeStyleSettings> codeStyleSettings
-                = CppCodeStyleSettings::currentProjectCodeStyle();
-        const CppCodeStyleSettings settings
-                = codeStyleSettings.value_or(CppCodeStyleSettings::currentGlobalCodeStyle());
-        const bool hasValidBaseName = m_baseName != m_variableString;
-        const bool getPrefixIsAlreadyUsed = hasClassMemberWithGetPrefix(m_classSpecifier->symbol);
-        if (settings.preferGetterNameWithoutGetPrefix && hasValidBaseName && !getPrefixIsAlreadyUsed) {
-            m_getterName = m_baseName;
-        } else {
-            const QString baseNameWithCapital = m_baseName.left(1).toUpper() + m_baseName.mid(1);
-            m_getterName = QLatin1String("get") + baseNameWithCapital;
-        }
-
-        // Setter Name
-        const QString baseNameWithCapital = m_baseName.left(1).toUpper() + m_baseName.mid(1);
-        m_setterName = QLatin1String("set") + baseNameWithCapital;
-    }
-
-    void updateDescriptionAndPriority()
-    {
-        switch (m_type) {
-        case GetterSetterType:
-            setPriority(5);
-            setDescription(CppQuickFixFactory::tr("Create Getter and Setter Member Functions"));
-            break;
-        case GetterType:
-            setPriority(4);
-            setDescription(CppQuickFixFactory::tr("Create Getter Member Function"));
-            break;
-        case SetterType:
-            setPriority(3);
-            setDescription(CppQuickFixFactory::tr("Create Setter Member Function"));
-            break;
-        default:
-            break;
-        }
-    }
-
-    bool isValid() const
-    {
-        return m_variableName
-            && m_declaratorId
-            && m_declarator
-            && m_variableDecl
-            && m_classSpecifier
-            && m_classDecl
-            && m_offerQuickFix;
-    }
-
-    static void addGetterAndOrSetter(
-            const CppQuickFixInterface *quickFix,
-            Symbol *symbol,
-            const ClassSpecifierAST *classSpecifier,
-            const QString &rawName,
-            const QString &baseName,
-            const QString &getterName,
-            const QString &setterName,
-            OperationType op)
-    {
-        CppRefactoringChanges refactoring(quickFix->snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(quickFix->filePath().toString());
-
-        QTC_ASSERT(symbol, return);
-        FullySpecifiedType fullySpecifiedType = symbol->type();
-        Type *type = fullySpecifiedType.type();
-        QTC_ASSERT(type, return);
-        Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
-        oo.showFunctionSignatures = true;
-        oo.showReturnTypes = true;
-        oo.showArgumentNames = true;
-        const QString typeString = oo.prettyType(fullySpecifiedType);
-
-        const NameAST *classNameAST = classSpecifier->name;
-        QTC_ASSERT(classNameAST, return);
-        const Name *className = classNameAST->name;
-        QTC_ASSERT(className, return);
-        const Identifier *classId = className->identifier();
-        QTC_ASSERT(classId, return);
-        QString classString = QString::fromUtf8(classId->chars(), classId->size());
-
-        bool wasHeader = true;
-        QString declFileName = currentFile->fileName();
-        QString implFileName = correspondingHeaderOrSource(declFileName, &wasHeader);
-        const bool sameFile = !wasHeader || !QFile::exists(implFileName);
-        if (sameFile)
-            implFileName = declFileName;
-
-        InsertionPointLocator locator(refactoring);
-        InsertionLocation declLocation = locator.methodDeclarationInClass
-            (declFileName, classSpecifier->symbol->asClass(), InsertionPointLocator::Public);
-
-        const bool passByValue = type->isIntegerType() || type->isFloatType()
-                || type->isPointerType() || type->isEnumType();
-        const QString paramName = baseName != rawName ? baseName : QLatin1String("value");
-        QString paramString;
-        if (passByValue) {
-            paramString = oo.prettyType(fullySpecifiedType, paramName);
-        } else {
-            const ReferenceType *refType = type->asReferenceType();
-            FullySpecifiedType constParamType(refType ? refType->elementType()
-                                                      : fullySpecifiedType);
-            constParamType.setConst(true);
-            QScopedPointer<ReferenceType> referenceType(new ReferenceType(constParamType, false));
-            const FullySpecifiedType referenceToConstParamType(referenceType.data());
-            paramString = oo.prettyType(referenceToConstParamType, paramName);
-        }
-
-        const bool isStatic = symbol->storage() == Symbol::Static;
-
-        // Construct declaration strings
-        QString declaration = declLocation.prefix();
-        QString getterTypeString = typeString;
-        FullySpecifiedType getterType(fullySpecifiedType);
-        if (fullySpecifiedType.isConst()) {
-            getterType.setConst(false);
-            getterTypeString = oo.prettyType(getterType);
-        }
-
-        const QString declarationGetterTypeAndNameString = oo.prettyType(getterType, getterName);
-        const QString declarationGetter = QString::fromLatin1("%1%2()%3;\n")
-                                              .arg(isStatic ? QLatin1String("static ") : QString(),
-                                                   declarationGetterTypeAndNameString,
-                                                   isStatic ? QString() : QLatin1String(" const"));
-        const QString declarationSetter = QString::fromLatin1("%1void %2(%3);\n")
-                                              .arg(isStatic ? QLatin1String("static ") : QString(),
-                                                   setterName,
-                                                   paramString);
-
-        const auto generateGetter = [op] { return op == GetterSetterType || op == GetterType; };
-        const auto generateSetter = [op] { return op == GetterSetterType || op == SetterType; };
-
-        if (generateGetter())
-            declaration += declarationGetter;
-        if (generateSetter())
-            declaration += declarationSetter;
-        declaration += declLocation.suffix();
-
-        // Construct implementation strings
-        const QString implementationGetterTypeAndNameString = oo.prettyType(
-            getterType, QString::fromLatin1("%1::%2").arg(classString, getterName));
-        const QString inlineSpecifier = sameFile && wasHeader ? QString("inline") : QString();
-        const QString implementationGetter = QString::fromLatin1("%4 %1()%2\n"
-                                                                 "{\n"
-                                                                 "return %3;\n"
-                                                                 "}")
-                                                 .arg(implementationGetterTypeAndNameString,
-                                                      isStatic ? QString() : QLatin1String(" const"),
-                                                      rawName, inlineSpecifier);
-        const QString implementationSetter = QString::fromLatin1("%6 void %1::%2(%3)\n"
-                                                                 "{\n"
-                                                                 "%4 = %5;\n"
-                                                                 "}")
-                                                 .arg(classString,
-                                                      setterName,
-                                                      paramString,
-                                                      rawName,
-                                                      paramName,
-                                                      inlineSpecifier);
-
-        QString implementation;
-        if (generateGetter())
-            implementation += implementationGetter;
-        if (generateSetter() && !fullySpecifiedType.isConst()) {
-            if (!implementation.isEmpty())
-                implementation += QLatin1String("\n\n");
-            implementation += implementationSetter;
-        }
-
-        // Create and apply changes
-        ChangeSet currChanges;
-        int declInsertPos = currentFile->position(qMax(1, declLocation.line()),
-                                                  declLocation.column());
-        currChanges.insert(declInsertPos, declaration);
-
-        if (sameFile) {
-            InsertionLocation loc = insertLocationForMethodDefinition(
-                        symbol, false, NamespaceHandling::CreateMissing, refactoring,
-                        currentFile->fileName());
-            implementation = loc.prefix() + implementation + loc.suffix();
-            const int implInsertPos = currentFile->position(loc.line(), loc.column());
-            currChanges.insert(implInsertPos, implementation);
-            currentFile->appendIndentRange(
-                ChangeSet::Range(implInsertPos, implInsertPos + implementation.size()));
-        } else {
-            CppRefactoringChanges implRef(quickFix->snapshot());
-            CppRefactoringFilePtr implFile = implRef.file(implFileName);
-            ChangeSet implChanges;
-            InsertionLocation loc = insertLocationForMethodDefinition(
-                        symbol, false, NamespaceHandling::CreateMissing,
-                        implRef, implFileName);
-            implementation = loc.prefix() + implementation + loc.suffix();
-            const int implInsertPos = implFile->position(loc.line(), loc.column());
-            implChanges.insert(implInsertPos, implementation);
-            implFile->setChangeSet(implChanges);
-            implFile->appendIndentRange(
-                ChangeSet::Range(implInsertPos, implInsertPos + implementation.size()));
-            implFile->apply();
-        }
-        currentFile->setChangeSet(currChanges);
-        currentFile->appendIndentRange(
-            ChangeSet::Range(declInsertPos, declInsertPos + declaration.size()));
-        currentFile->apply();
     }
 
     void perform() override
     {
-        addGetterAndOrSetter(this, m_symbol, m_classSpecifier, m_variableString, m_baseName,
-                             m_getterName, m_setterName, m_type);
+        GetterSetterRefactoringHelper helper(this, currentFile()->fileName(), m_data.clazz);
+        helper.performGeneration(m_data, m_generateFlags);
+        helper.applyChanges();
     }
 
-    OperationType m_type = InvalidType;
-    SimpleNameAST *m_variableName = nullptr;
-    DeclaratorIdAST *m_declaratorId = nullptr;
-    DeclaratorAST *m_declarator = nullptr;
-    SimpleDeclarationAST *m_variableDecl = nullptr;
-    ClassSpecifierAST *m_classSpecifier = nullptr;
-    SimpleDeclarationAST *m_classDecl = nullptr;
-    Symbol *m_symbol = nullptr;
-
-    QString m_baseName;
-    QString m_getterName;
-    QString m_setterName;
-    QString m_variableString;
-    bool m_offerQuickFix = true;
+private:
+    int m_generateFlags;
+    ExistingGetterSetterData m_data;
 };
 
-} // anonymous namespace
-
-void GenerateGetterSetter::match(const CppQuickFixInterface &interface,
-                                 QuickFixOperations &result)
+int ExistingGetterSetterData::computePossibleFlags() const
 {
-    auto op = new GenerateGetterSetterOperation(interface);
-    if (op->m_type != GenerateGetterSetterOperation::InvalidType) {
-        result << op;
-        if (op->m_type == GenerateGetterSetterOperation::GetterSetterType) {
-            result << new GenerateGetterSetterOperation(
-                          interface, op, GenerateGetterSetterOperation::GetterType);
-            result << new GenerateGetterSetterOperation(
-                          interface, op, GenerateGetterSetterOperation::SetterType);
+    const bool isConst = declarationSymbol->type().isConst();
+    const bool isStatic = declarationSymbol->type().isStatic();
+    using Flag = GenerateGetterSetterOp::GenerateFlag;
+    int generateFlags = 0;
+    if (getterName.isEmpty())
+        generateFlags |= Flag::GenerateGetter;
+    if (!isConst) {
+        if (resetName.isEmpty())
+            generateFlags |= Flag::GenerateReset;
+        if (!isStatic && signalName.isEmpty() && setterName.isEmpty())
+            generateFlags |= Flag::GenerateSignal;
+        if (setterName.isEmpty())
+            generateFlags |= Flag::GenerateSetter;
+    }
+    if (!isStatic) {
+        const bool hasSignal = !signalName.isEmpty() || generateFlags & Flag::GenerateSignal;
+        if (!isConst && hasSignal)
+            generateFlags |= Flag::GenerateProperty;
+    }
+    if (setterName.isEmpty() && signalName.isEmpty())
+        generateFlags |= Flag::GenerateConstantProperty;
+    return generateFlags;
+}
+
+void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData data, int generateFlags)
+{
+    using Flag = GenerateGetterSetterOp::GenerateFlag;
+
+    if (generateFlags & Flag::GenerateGetter && data.getterName.isEmpty()) {
+        data.getterName = m_settings->getGetterName(data.qPropertyName);
+        if (data.getterName == data.memberVariableName) {
+            data.getterName = "get" + data.memberVariableName.left(1).toUpper()
+                              + data.memberVariableName.mid(1);
         }
-    } else {
-        delete op;
+    }
+    if (generateFlags & Flag::GenerateSetter && data.setterName.isEmpty())
+        data.setterName = m_settings->getSetterName(data.qPropertyName);
+    if (generateFlags & Flag::GenerateSignal && data.signalName.isEmpty())
+        data.signalName = m_settings->getSignalName(data.qPropertyName);
+    if (generateFlags & Flag::GenerateReset && data.resetName.isEmpty())
+        data.resetName = m_settings->getResetName(data.qPropertyName);
+
+    FullySpecifiedType memberVariableType = data.declarationSymbol->type();
+    memberVariableType.setConst(false);
+    const bool isMemberVariableStatic = memberVariableType.isStatic();
+    memberVariableType.setStatic(false);
+    Overview overview = CppCodeStyleSettings::currentProjectCodeStyleOverview();
+    overview.showTemplateParameters = false;
+    // TODO does not work with using. e.g. 'using foo = std::unique_ptr<int>'
+    // TODO must be fully qualified
+    auto getSetTemplate = m_settings->findGetterSetterTemplate(overview.prettyType(memberVariableType));
+    overview.showTemplateParameters = true;
+
+    // Ok... - If a type is a Named type we have to search recusive for the real type
+    const bool isValueType = [settings = m_settings,
+                              scope = data.declarationSymbol->enclosingScope(),
+                              document = m_headerFile->cppDocument(),
+                              &snapshot = m_changes.snapshot()](FullySpecifiedType type) {
+        // a type is a value type if it is one of the following
+        const auto isTypeValueType = [](const FullySpecifiedType &t) {
+            return t->isPointerType() || t->isEnumType() || t->isIntegerType() || t->isFloatType()
+                   || t->isReferenceType();
+        };
+        if (type->isNamedType()) {
+            // we need a recursive search and a lookup context
+            LookupContext context(document, snapshot);
+            auto isValueType = [settings, &context, &isTypeValueType](const Name *name,
+                                                                      Scope *scope,
+                                                                      auto &isValueType) mutable -> bool {
+                // maybe the type is a custom value type by name
+                if (const Identifier *id = name->identifier()) {
+                    if (settings->isValueType(QString::fromUtf8(id->chars(), id->size())))
+                        return true;
+                }
+                // search for the type declaration
+                QList<LookupItem> localLookup = context.lookup(name, scope);
+                for (auto &&i : localLookup) {
+                    if (isTypeValueType(i.type()))
+                        return true;
+                    if (i.type()->isNamedType()) { // check if we have to search recursively
+                        const Name *newName = i.type()->asNamedType()->name();
+                        Scope *newScope = i.declaration()->enclosingScope();
+                        if (newName == name && newScope == scope)
+                            continue; // we have found the start location of the search
+                        return isValueType(newName, newScope, isValueType);
+                    }
+                    return false;
+                }
+                return false;
+            };
+            // start recursion
+            return isValueType(type->asNamedType()->name(), scope, isValueType);
+        }
+        return isTypeValueType(type);
+    }(memberVariableType);
+    const FullySpecifiedType parameterType = isValueType ? memberVariableType
+                                                         : makeConstRef(memberVariableType);
+
+    QString baseName = memberBaseName(data.memberVariableName);
+    if (baseName.isEmpty())
+        baseName = data.memberVariableName;
+
+    const QString parameterName = m_settings->getSetterParameterName(baseName);
+    if (parameterName == data.memberVariableName)
+        data.memberVariableName = "this->" + data.memberVariableName;
+
+    getSetTemplate.replacePlaceholders(data.memberVariableName, parameterName);
+
+    using Pattern = CppQuickFixSettings::GetterSetterTemplate;
+    Utils::optional<FullySpecifiedType> returnTypeTemplateParameter;
+    if (getSetTemplate.returnTypeTemplate.has_value()) {
+        QString returnTypeTemplate = getSetTemplate.returnTypeTemplate.value();
+        if (returnTypeTemplate.contains(Pattern::TEMPLATE_PARAMETER_PATTERN)) {
+            returnTypeTemplateParameter = getFirstTemplateParameter(data.declarationSymbol->type());
+            if (!returnTypeTemplateParameter.has_value())
+                return; // Maybe report error to the user
+        }
+    }
+    const FullySpecifiedType returnTypeHeader = [&] {
+        if (!getSetTemplate.returnTypeTemplate.has_value())
+            return parameterType;
+        QString typeTemplate = getSetTemplate.returnTypeTemplate.value();
+        if (returnTypeTemplateParameter.has_value())
+            typeTemplate.replace(Pattern::TEMPLATE_PARAMETER_PATTERN,
+                                 overview.prettyType(returnTypeTemplateParameter.value()));
+        if (typeTemplate.contains(Pattern::TYPE_PATTERN))
+            typeTemplate.replace(Pattern::TYPE_PATTERN,
+                                 overview.prettyType(data.declarationSymbol->type()));
+        Control *control = m_operation->currentFile()->cppDocument()->control();
+        std::string utf8TypeName = typeTemplate.toUtf8().toStdString();
+        return FullySpecifiedType(control->namedType(control->identifier(utf8TypeName.c_str())));
+    }();
+
+    // getter declaration
+    if (generateFlags & Flag::GenerateGetter) {
+        // maybe we added 'this->' to memberVariableName because of a collision with parameterName
+        // but here the 'this->' is not needed
+        const QString returnExpression = QString{getSetTemplate.returnExpression}.replace("this->",
+                                                                                          "");
+        QString getterInClassDeclaration = overview.prettyType(returnTypeHeader, data.getterName)
+                                           + QLatin1String("()");
+        if (isMemberVariableStatic)
+            getterInClassDeclaration.prepend(QLatin1String("static "));
+        else
+            getterInClassDeclaration += QLatin1String(" const");
+        getterInClassDeclaration.prepend(m_settings->getterAttributes + QLatin1Char(' '));
+        auto getterLocation = m_settings->determineGetterLocation(1);
+        if (getterLocation == CppQuickFixSettings::FunctionLocation::InsideClass) {
+            getterInClassDeclaration += QLatin1String("\n{\nreturn ") + returnExpression
+                                        + QLatin1String(";\n}\n");
+        } else {
+            getterInClassDeclaration += QLatin1String(";\n");
+        }
+        addHeaderCode(InsertionPointLocator::Public, getterInClassDeclaration);
+        if (getterLocation == CppQuickFixSettings::FunctionLocation::CppFile && !hasSourceFile())
+            getterLocation = CppQuickFixSettings::FunctionLocation::OutsideClass;
+
+        if (getterLocation != CppQuickFixSettings::FunctionLocation::InsideClass) {
+            const auto getReturnTypeAt = [&](CppRefactoringFilePtr targetFile,
+                                             InsertionLocation targetLoc) {
+                if (getSetTemplate.returnTypeTemplate.has_value()) {
+                    QString returnType = getSetTemplate.returnTypeTemplate.value();
+                    if (returnTypeTemplateParameter.has_value()) {
+                        const QString templateTypeName = overview.prettyType(typeAt(
+                            returnTypeTemplateParameter.value(), data.clazz, targetFile, targetLoc));
+                        returnType.replace(Pattern::TEMPLATE_PARAMETER_PATTERN, templateTypeName);
+                    }
+                    if (returnType.contains(Pattern::TYPE_PATTERN)) {
+                        const QString declarationType = overview.prettyType(
+                            typeAt(memberVariableType, data.clazz, targetFile, targetLoc));
+                        returnType.replace(Pattern::TYPE_PATTERN, declarationType);
+                    }
+                    Control *control = m_operation->currentFile()->cppDocument()->control();
+                    std::string utf8String = returnType.toUtf8().toStdString();
+                    return FullySpecifiedType(
+                        control->namedType(control->identifier(utf8String.c_str())));
+                } else {
+                    FullySpecifiedType returnType = typeAt(memberVariableType,
+                                                           data.clazz,
+                                                           targetFile,
+                                                           targetLoc);
+                    if (!isValueType)
+                        return makeConstRef(returnType);
+                    return returnType;
+                }
+            };
+            const QString constSpec = isMemberVariableStatic ? QLatin1String("")
+                                                             : QLatin1String(" const");
+            if (getterLocation == CppQuickFixSettings::FunctionLocation::CppFile) {
+                InsertionLocation loc = sourceLocationFor(data.declarationSymbol);
+                FullySpecifiedType returnType;
+                QString clazz;
+                if (m_settings->rewriteTypesinCppFile()) {
+                    returnType = getReturnTypeAt(m_sourceFile, loc);
+                    clazz = symbolAt(data.clazz, m_sourceFile, loc);
+                } else {
+                    returnType = returnTypeHeader;
+                    const Identifier *identifier = data.clazz->name()->identifier();
+                    clazz = QString::fromUtf8(identifier->chars(), identifier->size());
+                }
+                const QString code = overview.prettyType(returnType, clazz + "::" + data.getterName)
+                                     + "()" + constSpec + "\n{\nreturn " + returnExpression + ";\n}";
+                addSourceFileCode(code);
+            } else if (getterLocation == CppQuickFixSettings::FunctionLocation::OutsideClass) {
+                InsertionLocation loc = insertLocationForMethodDefinition(data.declarationSymbol,
+                                                                          false,
+                                                                          NamespaceHandling::Ignore,
+                                                                          m_changes,
+                                                                          m_headerFile->fileName());
+                const FullySpecifiedType returnType = getReturnTypeAt(m_headerFile, loc);
+                const QString clazz = symbolAt(data.clazz, m_headerFile, loc);
+                QString code = overview.prettyType(returnType, clazz + "::" + data.getterName)
+                               + "()" + constSpec + "\n{\nreturn " + returnExpression + ";\n}";
+                if (m_isHeaderHeaderFile)
+                    code.prepend("inline ");
+                insertAndIndent(m_headerFile, loc, code);
+            }
+        }
+    }
+
+    // setter declaration
+    const InsertionPointLocator::AccessSpec setterAccessSpec = m_settings->setterAsSlot
+                                                                   ? InsertionPointLocator::PublicSlot
+                                                                   : InsertionPointLocator::Public;
+    const auto createSetterBodyWithSignal = [this, &getSetTemplate, &data] {
+        QString body;
+        QTextStream setter(&body);
+        setter << "if (" << getSetTemplate.equalComparison << ")\nreturn;\n";
+
+        setter << getSetTemplate.assignment << ";\n";
+        if (m_settings->signalWithNewValue)
+            setter << "emit " << data.signalName << "(" << getSetTemplate.returnExpression << ");\n";
+        else
+            setter << "emit " << data.signalName << "();\n";
+
+        return body;
+    };
+    if (generateFlags & Flag::GenerateSetter) {
+        QString headerDeclaration = "void " + data.setterName + '('
+                                    + overview.prettyType(addConstToReference(parameterType),
+                                                          parameterName)
+                                    + ")";
+        if (isMemberVariableStatic)
+            headerDeclaration.prepend("static ");
+        QString body = "\n{\n";
+        if (data.signalName.isEmpty())
+            body += getSetTemplate.assignment + ";\n";
+        else
+            body += createSetterBodyWithSignal();
+
+        body += "}";
+
+        auto setterLocation = m_settings->determineSetterLocation(body.count('\n') - 2);
+        if (setterLocation == CppQuickFixSettings::FunctionLocation::CppFile && !hasSourceFile())
+            setterLocation = CppQuickFixSettings::FunctionLocation::OutsideClass;
+
+        if (setterLocation == CppQuickFixSettings::FunctionLocation::InsideClass) {
+            headerDeclaration += body;
+        } else {
+            headerDeclaration += ";\n";
+            if (setterLocation == CppQuickFixSettings::FunctionLocation::CppFile) {
+                InsertionLocation loc = sourceLocationFor(data.declarationSymbol);
+                QString clazz;
+                FullySpecifiedType newParameterType = parameterType;
+                if (m_settings->rewriteTypesinCppFile()) {
+                    newParameterType = typeAt(memberVariableType, data.clazz, m_sourceFile, loc);
+                    if (!isValueType)
+                        newParameterType = makeConstRef(newParameterType);
+                    clazz = symbolAt(data.clazz, m_sourceFile, loc);
+                } else {
+                    const Identifier *identifier = data.clazz->name()->identifier();
+                    clazz = QString::fromUtf8(identifier->chars(), identifier->size());
+                }
+                newParameterType = addConstToReference(newParameterType);
+                const QString code = "void " + clazz + "::" + data.setterName + '('
+                                     + overview.prettyType(newParameterType, parameterName) + ')'
+                                     + body;
+                addSourceFileCode(code);
+            } else if (setterLocation == CppQuickFixSettings::FunctionLocation::OutsideClass) {
+                InsertionLocation loc = insertLocationForMethodDefinition(data.declarationSymbol,
+                                                                          false,
+                                                                          NamespaceHandling::Ignore,
+                                                                          m_changes,
+                                                                          m_headerFile->fileName());
+
+                FullySpecifiedType newParameterType = typeAt(data.declarationSymbol->type(),
+                                                             data.clazz,
+                                                             m_headerFile,
+                                                             loc);
+                if (!isValueType)
+                    newParameterType = makeConstRef(newParameterType);
+                newParameterType = addConstToReference(newParameterType);
+                QString clazz = symbolAt(data.clazz, m_headerFile, loc);
+
+                QString code = "void " + clazz + "::" + data.setterName + '('
+                               + overview.prettyType(newParameterType, parameterName) + ')' + body;
+                if (m_isHeaderHeaderFile)
+                    code.prepend("inline ");
+                insertAndIndent(m_headerFile, loc, code);
+            }
+        }
+        addHeaderCode(setterAccessSpec, headerDeclaration);
+    }
+
+    // reset declaration
+    if (generateFlags & Flag::GenerateReset) {
+        QString headerDeclaration = "void " + data.resetName + "()";
+        if (isMemberVariableStatic)
+            headerDeclaration.prepend("static ");
+        QString body = "\n{\n";
+        if (!data.setterName.isEmpty()) {
+            body += data.setterName + "({}); // TODO: Adapt to use your actual default value\n";
+        } else {
+            body += "static $TYPE defaultValue{}; "
+                    "// TODO: Adapt to use your actual default value\n";
+            if (data.signalName.isEmpty())
+                body += getSetTemplate.assignment + ";\n";
+            else
+                body += createSetterBodyWithSignal();
+        }
+        body += "}";
+
+        // the template use <parameterName> as new value name, but we want to use 'defaultValue'
+        body.replace(QRegularExpression("\\b" + parameterName + "\\b"), "defaultValue");
+        // body.count('\n') - 2 : do not count the 2 at start
+        auto resetLocation = m_settings->determineSetterLocation(body.count('\n') - 2);
+        if (resetLocation == CppQuickFixSettings::FunctionLocation::CppFile && !hasSourceFile())
+            resetLocation = CppQuickFixSettings::FunctionLocation::OutsideClass;
+
+        if (resetLocation == CppQuickFixSettings::FunctionLocation::InsideClass) {
+            headerDeclaration += body.replace("$TYPE", overview.prettyType(memberVariableType));
+        } else {
+            headerDeclaration += ";\n";
+            if (resetLocation == CppQuickFixSettings::FunctionLocation::CppFile) {
+                const InsertionLocation loc = sourceLocationFor(data.declarationSymbol);
+                QString clazz;
+                FullySpecifiedType type = memberVariableType;
+                if (m_settings->rewriteTypesinCppFile()) {
+                    type = typeAt(memberVariableType, data.clazz, m_sourceFile, loc);
+                    clazz = symbolAt(data.clazz, m_sourceFile, loc);
+                } else {
+                    const Identifier *identifier = data.clazz->name()->identifier();
+                    clazz = QString::fromUtf8(identifier->chars(), identifier->size());
+                }
+                const QString code = "void " + clazz + "::" + data.resetName + "()"
+                                     + body.replace("$TYPE", overview.prettyType(type));
+                addSourceFileCode(code);
+            } else if (resetLocation == CppQuickFixSettings::FunctionLocation::OutsideClass) {
+                const InsertionLocation loc = insertLocationForMethodDefinition(
+                    data.declarationSymbol,
+                    false,
+                    NamespaceHandling::Ignore,
+                    m_changes,
+                    m_headerFile->fileName());
+                const FullySpecifiedType type = typeAt(data.declarationSymbol->type(),
+                                                       data.clazz,
+                                                       m_headerFile,
+                                                       loc);
+                const QString clazz = symbolAt(data.clazz, m_headerFile, loc);
+                QString code = "void " + clazz + "::" + data.resetName + "()"
+                               + body.replace("$TYPE", overview.prettyType(type));
+                if (m_isHeaderHeaderFile)
+                    code.prepend("inline ");
+                insertAndIndent(m_headerFile, loc, code);
+            }
+        }
+        addHeaderCode(setterAccessSpec, headerDeclaration);
+    }
+
+    // signal declaration
+    if (generateFlags & Flag::GenerateSignal) {
+        const auto &paramType = overview.prettyType(returnTypeHeader);
+        const QString newValue = m_settings->signalWithNewValue ? paramType : QString();
+        const QString declaration = QString("void %1(%2);\n").arg(data.signalName, newValue);
+        addHeaderCode(InsertionPointLocator::Signals, declaration);
+    }
+
+    // member variable
+    if (generateFlags & Flag::GenerateMemberVariable) {
+        const QString storageDeclaration = overview.prettyType(memberVariableType,
+                                                               data.memberVariableName)
+                                           + QLatin1String(";\n");
+        addHeaderCode(InsertionPointLocator::Private, storageDeclaration);
+    }
+
+    // Q_PROPERTY
+    if (generateFlags & Flag::GenerateProperty || generateFlags & Flag::GenerateConstantProperty) {
+        // Use the returnTypeHeader as base because of custom types in getSetTemplates.
+        // Remove const reference from type.
+        FullySpecifiedType type = returnTypeHeader;
+        if (ReferenceType *ref = type.type()->asReferenceType())
+            type = ref->elementType();
+        type.setConst(false);
+
+        QString propertyDeclaration = QLatin1String("Q_PROPERTY(") + overview.prettyType(type)
+                                      + QLatin1Char(' ') + memberBaseName(data.memberVariableName);
+        bool needMember = false;
+        if (data.getterName.isEmpty())
+            needMember = true;
+        else
+            propertyDeclaration += QLatin1String(" READ ") + data.getterName;
+        if (generateFlags & Flag::GenerateConstantProperty) {
+            if (needMember)
+                propertyDeclaration += QLatin1String(" MEMBER ") + data.memberVariableName;
+            propertyDeclaration.append(QLatin1String(" CONSTANT"));
+        } else {
+            if (data.setterName.isEmpty()) {
+                needMember = true;
+            } else if (!getSetTemplate.returnTypeTemplate.has_value()) {
+                // if the return type of the getter and then Q_PROPERTY is different than
+                // the setter type, we should not add WRITE to the Q_PROPERTY
+                propertyDeclaration.append(QLatin1String(" WRITE ")).append(data.setterName);
+            }
+            if (needMember)
+                propertyDeclaration += QLatin1String(" MEMBER ") + data.memberVariableName;
+            if (!data.resetName.isEmpty())
+                propertyDeclaration += QLatin1String(" RESET ") + data.resetName;
+            propertyDeclaration.append(QLatin1String(" NOTIFY ")).append(data.signalName);
+        }
+
+        propertyDeclaration.append(QLatin1String(")\n"));
+        addHeaderCode(InsertionPointLocator::Private, propertyDeclaration);
     }
 }
 
-class MemberInfo {
-public:
-    MemberInfo(Symbol *m, const QString &r, const QString &b, bool g, bool s)
-        : member(m), rawName(r), baseName(b), hasGetter(g), hasSetter(s) {}
+QStringList toStringList(const QList<Symbol *> names)
+{
+    QStringList list;
+    list.reserve(names.size());
+    for (const auto symbol : names) {
+        const Identifier *const id = symbol->identifier();
+        list << QString::fromUtf8(id->chars(), id->size());
+    }
+    return list;
+}
 
-    Symbol *member = nullptr;
-    QString rawName;
-    QString baseName;
-    bool hasGetter = false;
-    bool hasSetter = false;
-    bool getterRequested = false;
-    bool setterRequested = false;
+void findExistingFunctions(ExistingGetterSetterData &existing, QStringList memberFunctionNames)
+{
+    const CppQuickFixSettings *settings = CppQuickFixProjectsSettings::getQuickFixSettings(
+        ProjectExplorer::ProjectTree::currentProject());
+    const QString lowerBaseName = memberBaseName(existing.memberVariableName).toLower();
+    const QStringList getterNames{lowerBaseName,
+                                  "get_" + lowerBaseName,
+                                  "get" + lowerBaseName,
+                                  "is_" + lowerBaseName,
+                                  "is" + lowerBaseName,
+                                  settings->getGetterName(lowerBaseName)};
+    const QStringList setterNames{"set_" + lowerBaseName,
+                                  "set" + lowerBaseName,
+                                  settings->getSetterName(lowerBaseName)};
+    const QStringList resetNames{"reset_" + lowerBaseName,
+                                 "reset" + lowerBaseName,
+                                 settings->getResetName(lowerBaseName)};
+    const QStringList signalNames{lowerBaseName + "_changed",
+                                  lowerBaseName + "changed",
+                                  settings->getSignalName(lowerBaseName)};
+    for (const auto &memberFunctionName : memberFunctionNames) {
+        const QString lowerName = memberFunctionName.toLower();
+        if (getterNames.contains(lowerName))
+            existing.getterName = memberFunctionName;
+        else if (setterNames.contains(lowerName))
+            existing.setterName = memberFunctionName;
+        else if (resetNames.contains(lowerName))
+            existing.resetName = memberFunctionName;
+        else if (signalNames.contains(lowerName))
+            existing.signalName = memberFunctionName;
+    }
+}
+
+QList<Symbol *> getMemberFunctions(const Class *clazz)
+{
+    QList<Symbol *> memberFunctions;
+    for (auto it = clazz->memberBegin(); it != clazz->memberEnd(); ++it) {
+        Symbol *const s = *it;
+        if (!s->identifier() || !s->type())
+            continue;
+        if ((s->isDeclaration() && s->type()->asFunctionType()) || s->asFunction())
+            memberFunctions << s;
+    }
+    return memberFunctions;
+}
+
+} // anonymous namespace
+
+void GenerateGetterSetter::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
+{
+    ExistingGetterSetterData existing;
+
+    const QList<AST *> &path = interface.path();
+    // We expect something like
+    // [0] TranslationUnitAST
+    // [1] NamespaceAST
+    // [2] LinkageBodyAST
+    // [3] SimpleDeclarationAST
+    // [4] ClassSpecifierAST
+    // [5] SimpleDeclarationAST
+    // [6] DeclaratorAST
+    // [7] DeclaratorIdAST
+    // [8] SimpleNameAST
+
+    const int n = path.size();
+    if (n < 6)
+        return;
+
+    int i = 1;
+    const auto variableNameAST = path.at(n - i++)->asSimpleName();
+    const auto declaratorId = path.at(n - i++)->asDeclaratorId();
+    // DeclaratorAST might be preceded by PointerAST, e.g. for the case
+    // "class C { char *@s; };", where '@' denotes the text cursor position.
+    auto declarator = path.at(n - i++)->asDeclarator();
+    if (!declarator) {
+        --i;
+        if (path.at(n - i++)->asPointer()) {
+            if (n < 7)
+                return;
+            declarator = path.at(n - i++)->asDeclarator();
+        }
+    }
+    const auto variableDecl = path.at(n - i++)->asSimpleDeclaration();
+    const auto classSpecifier = path.at(n - i++)->asClassSpecifier();
+    const auto classDecl = path.at(n - i++)->asSimpleDeclaration();
+
+    if (!(variableNameAST && declaratorId && variableDecl && classSpecifier && classDecl))
+        return;
+
+    // Do not get triggered on member functconstions and arrays
+    if (declarator->postfix_declarator_list) {
+        return;
+    }
+
+    // Construct getter and setter names
+    const Name *variableName = variableNameAST->name;
+    if (!variableName) {
+        return;
+    }
+    const Identifier *variableId = variableName->identifier();
+    if (!variableId) {
+        return;
+    }
+    existing.memberVariableName = QString::fromUtf8(variableId->chars(), variableId->size());
+
+    // Find the right symbol (for typeName) in the simple declaration
+    Symbol *symbol = nullptr;
+    const List<Symbol *> *symbols = variableDecl->symbols;
+    QTC_ASSERT(symbols, return );
+    for (; symbols; symbols = symbols->next) {
+        Symbol *s = symbols->value;
+        if (const Name *name = s->name()) {
+            if (const Identifier *id = name->identifier()) {
+                const QString symbolName = QString::fromUtf8(id->chars(), id->size());
+                if (symbolName == existing.memberVariableName) {
+                    symbol = s;
+                    break;
+                }
+            }
+        }
+    }
+    if (!symbol) {
+        // no type can be determined
+        return;
+    }
+    if (!symbol->isDeclaration()) {
+        return;
+    }
+    existing.declarationSymbol = symbol->asDeclaration();
+
+    existing.clazz = classSpecifier->symbol;
+    if (!existing.clazz)
+        return;
+
+    auto file = interface.currentFile();
+    // check if a Q_PROPERTY exist
+    const QString baseName = memberBaseName(existing.memberVariableName);
+    // eg: we have 'int m_test' and now 'Q_PROPERTY(int foo WRITE setTest MEMBER m_test NOTIFY tChanged)'
+    for (auto it = classSpecifier->member_specifier_list; it; it = it->next) {
+        if (it->value->asQtPropertyDeclaration()) {
+            auto propDecl = it->value->asQtPropertyDeclaration();
+            // iterator over 'READ ...', ...
+            auto p = propDecl->property_declaration_item_list;
+            // first check, if we have a MEMBER and the member is equal to the baseName
+            for (; p; p = p->next) {
+                const char *tokenString = file->tokenAt(p->value->item_name_token).spell();
+                if (!qstrcmp(tokenString, "MEMBER")) {
+                    if (baseName == file->textOf(p->value->expression))
+                        return;
+                }
+            }
+            // no MEMBER, but maybe the property name is the same
+            const QString propertyName = file->textOf(propDecl->property_name);
+            // we compare the baseName. e.g. 'test' instead of 'm_test'
+            if (propertyName == baseName)
+                return; // TODO Maybe offer quick fix "Add missing Q_PROPERTY Members"
+        }
+    }
+
+    findExistingFunctions(existing, toStringList(getMemberFunctions(existing.clazz)));
+    existing.qPropertyName = memberBaseName(existing.memberVariableName);
+
+    const int possibleFlags = existing.computePossibleFlags();
+    GenerateGetterSetterOp::generateQuickFixes(result, interface, existing, possibleFlags);
+}
+
+class MemberInfo
+{
+public:
+    MemberInfo(ExistingGetterSetterData data, int possibleFlags)
+        : data(data)
+        , possibleFlags(possibleFlags)
+    {}
+
+    ExistingGetterSetterData data;
+    int possibleFlags;
+    int requestedFlags = 0;
 };
 using GetterSetterCandidates = std::vector<MemberInfo>;
 
 class CandidateTreeItem : public Utils::TreeItem
 {
 public:
-    static const int NameColumn = 0;
-    static const int GetterColumn = 1;
-    static const int SetterColumn = 2;
+    enum Column {
+        NameColumn,
+        GetterColumn,
+        SetterColumn,
+        SignalColumn,
+        ResetColumn,
+        QPropertyColumn,
+        ConstantQPropertyColumn
+    };
+    using Flag = GenerateGetterSetterOp::GenerateFlag;
+    constexpr static Flag ColumnFlag[] = {
+        static_cast<Flag>(-1),
+        Flag::GenerateGetter,
+        Flag::GenerateSetter,
+        Flag::GenerateSignal,
+        Flag::GenerateReset,
+        Flag::GenerateProperty,
+        Flag::GenerateConstantProperty,
+    };
 
-    CandidateTreeItem(MemberInfo *candidate) : m_candidate(candidate) { }
+    CandidateTreeItem(MemberInfo *memberInfo)
+        : m_memberInfo(memberInfo)
+    {}
 
 private:
     QVariant data(int column, int role) const override
     {
-        switch (column) {
-        case NameColumn:
-            if (role == Qt::DisplayRole)
-                return m_candidate->rawName;
-            break;
-        case GetterColumn:
-            if (role == Qt::CheckStateRole)
-                return m_candidate->hasGetter || m_candidate->getterRequested
-                        ? Qt::Checked : Qt::Unchecked;
-            break;
-        case SetterColumn:
-            if (role == Qt::CheckStateRole)
-                return m_candidate->hasSetter || m_candidate->setterRequested ?
-                            Qt::Checked : Qt::Unchecked;
-            break;
+        if (role == Qt::DisplayRole && column == NameColumn)
+            return m_memberInfo->data.memberVariableName;
+        if (role == Qt::CheckStateRole && column > 0
+            && column <= static_cast<int>(std::size(ColumnFlag))) {
+            return m_memberInfo->requestedFlags & ColumnFlag[column] ? Qt::Checked : Qt::Unchecked;
         }
         return {};
     }
 
     bool setData(int column, const QVariant &data, int role) override
     {
-        switch (column) {
-        case GetterColumn:
-            if (role == Qt::CheckStateRole && !m_candidate->hasGetter) {
-                m_candidate->getterRequested = data.toInt() == Qt::Checked;
-                return true;
+        if (column < 1 || column > static_cast<int>(std::size(ColumnFlag)))
+            return false;
+        if (role != Qt::CheckStateRole)
+            return false;
+        if (!(m_memberInfo->possibleFlags & ColumnFlag[column]))
+            return false;
+        const bool nowChecked = data.toInt() == Qt::Checked;
+        if (nowChecked)
+            m_memberInfo->requestedFlags |= ColumnFlag[column];
+        else
+            m_memberInfo->requestedFlags &= ~ColumnFlag[column];
+
+        if (nowChecked) {
+            if (column == QPropertyColumn) {
+                m_memberInfo->requestedFlags |= Flag::GenerateGetter;
+                m_memberInfo->requestedFlags |= Flag::GenerateSetter;
+                m_memberInfo->requestedFlags |= Flag::GenerateSignal;
+                m_memberInfo->requestedFlags &= ~Flag::GenerateConstantProperty;
+            } else if (column == ConstantQPropertyColumn) {
+                m_memberInfo->requestedFlags |= Flag::GenerateGetter;
+                m_memberInfo->requestedFlags &= ~Flag::GenerateSetter;
+                m_memberInfo->requestedFlags &= ~Flag::GenerateSignal;
+                m_memberInfo->requestedFlags &= ~Flag::GenerateReset;
+                m_memberInfo->requestedFlags &= ~Flag::GenerateProperty;
+            } else if (column == SetterColumn || column == SignalColumn || column == ResetColumn) {
+                m_memberInfo->requestedFlags &= ~Flag::GenerateConstantProperty;
             }
-            break;
-        case SetterColumn:
-            if (role == Qt::CheckStateRole && !m_candidate->hasSetter) {
-                m_candidate->setterRequested = data.toInt() == Qt::Checked;
-                return true;
-            }
-            break;
-        default:
-            break;
+        } else {
+            if (column == SignalColumn)
+                m_memberInfo->requestedFlags &= ~Flag::GenerateProperty;
         }
-        return false;
+        for (int i = 0; i < 16; ++i) {
+            const bool allowed = m_memberInfo->possibleFlags & (1 << i);
+            if (!allowed)
+                m_memberInfo->requestedFlags &= ~(1 << i); // clear bit
+        }
+        update();
+        return true;
     }
 
     Qt::ItemFlags flags(int column) const override
     {
-        switch (column) {
-        case NameColumn:
+        if (column == NameColumn)
             return Qt::ItemIsEnabled;
-        case GetterColumn:
-            if (m_candidate->hasGetter)
-                return {};
+        if (column < 1 || column > static_cast<int>(std::size(ColumnFlag)))
+            return {};
+        if (m_memberInfo->possibleFlags & ColumnFlag[column])
             return Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
-        case SetterColumn:
-            if (m_candidate->hasSetter)
-                return {};
-            return Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
-        }
         return {};
     }
 
-    MemberInfo * const m_candidate;
+    MemberInfo *const m_memberInfo;
 };
 
 class GenerateGettersSettersDialog : public QDialog
@@ -4126,66 +4684,88 @@ class GenerateGettersSettersDialog : public QDialog
     Q_DECLARE_TR_FUNCTIONS(GenerateGettersSettersDialog)
 public:
     GenerateGettersSettersDialog(const GetterSetterCandidates &candidates)
-        : QDialog(), m_candidates(candidates)
+        : QDialog()
+        , m_candidates(candidates)
     {
+        using Flags = GenerateGetterSetterOp::GenerateFlag;
         setWindowTitle(tr("Getters and Setters"));
         const auto model = new Utils::TreeModel<Utils::TreeItem, CandidateTreeItem>(this);
-        model->setHeader(QStringList({tr("Member"), tr("Getter"), tr("Setter")}));
+        model->setHeader(QStringList({
+            tr("Member"),
+            tr("Getter"),
+            tr("Setter"),
+            tr("Signal"),
+            tr("Reset"),
+            tr("QProperty"),
+            tr("Constant QProperty"),
+        }));
         for (MemberInfo &candidate : m_candidates)
             model->rootItem()->appendChild(new CandidateTreeItem(&candidate));
         const auto view = new Utils::BaseTreeView(this);
         view->setModel(model);
+        int optimalWidth = 0;
+        for (int i = 0; i < model->columnCount(QModelIndex{}); ++i) {
+            view->resizeColumnToContents(i);
+            optimalWidth += view->columnWidth(i);
+        }
 
-        const auto buttonBox
-                = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        const auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
         connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
         connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
         const auto setCheckStateForAll = [model](int column, int checkState) {
-            for (int i = 0; i < model->rowCount(); ++i) {
-                model->setData(model->index(i, column), checkState,
-                               Qt::CheckStateRole);
-            }
+            for (int i = 0; i < model->rowCount(); ++i)
+                model->setData(model->index(i, column), checkState, Qt::CheckStateRole);
         };
         const auto preventPartiallyChecked = [](QCheckBox *checkbox) {
             if (checkbox->checkState() == Qt::PartiallyChecked)
                 checkbox->setCheckState(Qt::Checked);
         };
+        using Column = CandidateTreeItem::Column;
+        const auto createConnections = [=](QCheckBox *checkbox, Column column) {
+            connect(checkbox, &QCheckBox::stateChanged, [setCheckStateForAll, column](int state) {
+                if (state != Qt::PartiallyChecked)
+                    setCheckStateForAll(column, state);
+            });
+            connect(checkbox, &QCheckBox::clicked, this, [checkbox, preventPartiallyChecked] {
+                preventPartiallyChecked(checkbox);
+            });
+        };
+        std::array<QCheckBox *, 4> checkBoxes = {};
+        constexpr Column CheckBoxColumn[4] = {Column::GetterColumn,
+                                              Column::SetterColumn,
+                                              Column::SignalColumn,
+                                              Column::QPropertyColumn};
+        static_assert(std::size(CheckBoxColumn) == checkBoxes.size(),
+                      "Must contain the same number of elements");
+        for (std::size_t i = 0; i < checkBoxes.size(); ++i) {
+            if (Utils::anyOf(candidates, [i, CheckBoxColumn](const MemberInfo &mi) {
+                    return mi.possibleFlags & CandidateTreeItem::ColumnFlag[CheckBoxColumn[i]];
+                })) {
+                const Column column = CheckBoxColumn[i];
+                if (column == Column::GetterColumn)
+                    checkBoxes[i] = new QCheckBox(tr("Create getters for all members"));
+                else if (column == Column::SetterColumn)
+                    checkBoxes[i] = new QCheckBox(tr("Create setters for all members"));
+                else if (column == Column::SignalColumn)
+                    checkBoxes[i] = new QCheckBox(tr("Create signals for all members"));
+                else if (column == Column::QPropertyColumn)
+                    checkBoxes[i] = new QCheckBox(tr("Create Q_PROPERTY for all members"));
 
-        QCheckBox *allGettersCheckbox = nullptr;
-        if (Utils::anyOf(candidates, [](const MemberInfo &mi) { return !mi.hasGetter; })) {
-            allGettersCheckbox = new QCheckBox(tr("Create getters for all members"));
-            connect(allGettersCheckbox, &QCheckBox::stateChanged, [setCheckStateForAll](int state) {
-                if (state != Qt::PartiallyChecked)
-                    setCheckStateForAll(CandidateTreeItem::GetterColumn, state);
-            });
-            connect(allGettersCheckbox, &QCheckBox::clicked, this,
-                    [allGettersCheckbox, preventPartiallyChecked] {
-                preventPartiallyChecked(allGettersCheckbox);
-            });
+                createConnections(checkBoxes[i], column);
+            }
         }
-        QCheckBox *allSettersCheckbox = nullptr;
-        if (Utils::anyOf(candidates, [](const MemberInfo &mi) { return !mi.hasSetter; })) {
-            allSettersCheckbox = new QCheckBox(tr("Create setters for all members"));
-            connect(allSettersCheckbox, &QCheckBox::stateChanged, [setCheckStateForAll](int state) {
-                if (state != Qt::PartiallyChecked)
-                    setCheckStateForAll(CandidateTreeItem::SetterColumn, state);
-            });
-            connect(allSettersCheckbox, &QCheckBox::clicked, this,
-                    [allSettersCheckbox, preventPartiallyChecked] {
-                preventPartiallyChecked(allSettersCheckbox);
-            });
-        }
-        const auto hasGetterCount = Utils::count(m_candidates, [](const MemberInfo &mi) {
-            return mi.hasGetter; });
-        const auto hasSetterCount = Utils::count(m_candidates, [](const MemberInfo &mi) {
-            return mi.hasSetter; });
-        connect(model, &QAbstractItemModel::dataChanged, this,
-                [this, allGettersCheckbox, allSettersCheckbox, hasGetterCount, hasSetterCount] {
-            const int getterRequestedCount = Utils::count(m_candidates, [](const MemberInfo &mi) {
-                return mi.getterRequested; });
-            const int setterRequestedCount = Utils::count(m_candidates, [](const MemberInfo &mi) {
-                return mi.setterRequested; });
+        connect(model, &QAbstractItemModel::dataChanged, this, [this, checkBoxes, CheckBoxColumn] {
+            const auto countExisting = [this](Flags flag) {
+                return Utils::count(m_candidates, [flag](const MemberInfo &mi) {
+                    return !(mi.possibleFlags & flag);
+                });
+            };
+            const auto countRequested = [this](Flags flag) {
+                return Utils::count(m_candidates, [flag](const MemberInfo &mi) {
+                    return mi.requestedFlags & flag;
+                });
+            };
             const auto countToState = [this](int requestedCount, int alreadyExistsCount) {
                 if (requestedCount == 0)
                     return Qt::Unchecked;
@@ -4193,25 +4773,28 @@ public:
                     return Qt::Checked;
                 return Qt::PartiallyChecked;
             };
-            if (allGettersCheckbox) {
-                allGettersCheckbox->setCheckState(countToState(getterRequestedCount,
-                                                               hasGetterCount));
-            }
-            if (allSettersCheckbox) {
-                allSettersCheckbox->setCheckState(countToState(setterRequestedCount,
-                                                               hasSetterCount));
+            for (std::size_t i = 0; i < checkBoxes.size(); ++i) {
+                if (checkBoxes[i]) {
+                    const Flags flag = CandidateTreeItem::ColumnFlag[CheckBoxColumn[i]];
+                    checkBoxes[i]->setCheckState(
+                        countToState(countRequested(flag), countExisting(flag)));
+                }
             }
         });
 
         const auto mainLayout = new QVBoxLayout(this);
         mainLayout->addWidget(new QLabel(tr("Please select the getters and/or setters "
                                             "to be created.")));
-        if (allGettersCheckbox)
-            mainLayout->addWidget(allGettersCheckbox);
-        if (allSettersCheckbox)
-            mainLayout->addWidget(allSettersCheckbox);
+        for (auto checkBox : checkBoxes) {
+            if (checkBox)
+                mainLayout->addWidget(checkBox);
+        }
         mainLayout->addWidget(view);
         mainLayout->addWidget(buttonBox);
+        int left, right;
+        mainLayout->getContentsMargins(&left, nullptr, &right, nullptr);
+        optimalWidth += left + right;
+        resize(optimalWidth, mainLayout->sizeHint().height());
     }
 
     GetterSetterCandidates candidates() const { return m_candidates; }
@@ -4233,14 +4816,14 @@ public:
             return;
 
         // Determine if cursor is on a class
-        const SimpleNameAST * const nameAST = path.at(path.size() - 1)->asSimpleName();
+        const SimpleNameAST *const nameAST = path.at(path.size() - 1)->asSimpleName();
         if (!nameAST || !interface.isCursorOn(nameAST))
-           return;
+            return;
         m_classAST = path.at(path.size() - 2)->asClassSpecifier();
         if (!m_classAST)
             return;
 
-        const Class * const theClass = m_classAST->symbol;
+        Class *const theClass = m_classAST->symbol;
         if (!theClass)
             return;
 
@@ -4248,8 +4831,8 @@ public:
         QList<Symbol *> dataMembers;
         QList<Symbol *> memberFunctions;
         for (auto it = theClass->memberBegin(); it != theClass->memberEnd(); ++it) {
-            Symbol * const s = *it;
-            if (!s->identifier() || !s->type())
+            Symbol *const s = *it;
+            if (!s->identifier() || !s->type() || s->type().isTypedef())
                 continue;
             if ((s->isDeclaration() && s->type()->asFunctionType()) || s->asFunction())
                 memberFunctions << s;
@@ -4257,29 +4840,43 @@ public:
                 dataMembers << s;
         }
 
-        for (Symbol * const member : dataMembers) {
-            const QString rawName = QString::fromUtf8(member->identifier()->chars(),
-                                                      member->identifier()->size());
-            const QString semanticName = memberBaseName(rawName);
-            const QString capitalizedSemanticName = semanticName.at(0).toUpper()
-                    + semanticName.mid(1);
-            const QStringList getterNames{semanticName, "get_" + semanticName,
-                        "get" + capitalizedSemanticName, "is_" + semanticName,
-                        "is" + capitalizedSemanticName};
-            const QStringList setterNames{"set_" + semanticName,
-                        "set" + capitalizedSemanticName};
-            const bool hasGetter = Utils::anyOf(memberFunctions, [&getterNames](const Symbol *s) {
-                const Identifier * const id = s->identifier();
-                const auto funcName = QString::fromUtf8(id->chars(), id->size());
-                return getterNames.contains(funcName);
-            });
-            const bool hasSetter = Utils::anyOf(memberFunctions, [&setterNames](const Symbol *s) {
-                const Identifier * const id = s->identifier();
-                const auto funcName = QString::fromUtf8(id->chars(), id->size());
-                return setterNames.contains(funcName);
-            });
-            if (!hasGetter || !hasSetter)
-                m_candidates.emplace_back(member, rawName, semanticName, hasGetter, hasSetter);
+        auto file = interface.currentFile();
+        QStringList qPropertyNames; // name after MEMBER or name of the property
+        for (auto it = m_classAST->member_specifier_list; it; it = it->next) {
+            if (it->value->asQtPropertyDeclaration()) {
+                auto propDecl = it->value->asQtPropertyDeclaration();
+                // iterator over 'READ ...', ... and check if we have a MEMBER
+                for (auto p = propDecl->property_declaration_item_list; p; p = p->next) {
+                    const char *tokenString = file->tokenAt(p->value->item_name_token).spell();
+                    if (!qstrcmp(tokenString, "MEMBER"))
+                        qPropertyNames << file->textOf(p->value->expression);
+                }
+                // no MEMBER, but maybe the property name is the same
+                qPropertyNames << file->textOf(propDecl->property_name);
+            }
+        }
+        const QStringList memberFunctionsAsStrings = toStringList(memberFunctions);
+
+        for (Symbol *const member : dataMembers) {
+            ExistingGetterSetterData existing;
+            existing.memberVariableName = QString::fromUtf8(member->identifier()->chars(),
+                                                            member->identifier()->size());
+            existing.declarationSymbol = member->asDeclaration();
+            existing.clazz = theClass;
+
+            // check if a Q_PROPERTY exist
+            const QString baseName = memberBaseName(existing.memberVariableName);
+            if (qPropertyNames.contains(baseName)
+                || qPropertyNames.contains(existing.memberVariableName))
+                continue;
+
+            findExistingFunctions(existing, memberFunctionsAsStrings);
+            existing.qPropertyName = baseName;
+
+            int possibleFlags = existing.computePossibleFlags();
+            if (possibleFlags == 0)
+                continue;
+            m_candidates.emplace_back(existing, possibleFlags);
         }
     }
 
@@ -4301,41 +4898,18 @@ private:
                 return;
             m_candidates = dlg.candidates();
         }
-
-        for (const MemberInfo &mi : m_candidates) {
-            GenerateGetterSetterOperation::OperationType op
-                    = GenerateGetterSetterOperation::InvalidType;
-            if (mi.getterRequested) {
-                if (mi.setterRequested)
-                    op = GenerateGetterSetterOperation::GetterSetterType;
-                else
-                    op = GenerateGetterSetterOperation::GetterType;
-            } else if (mi.setterRequested) {
-                op = GenerateGetterSetterOperation::SetterType;
+        if (m_candidates.empty())
+            return;
+        GetterSetterRefactoringHelper helper(this,
+                                             currentFile()->fileName(),
+                                             m_candidates.front().data.clazz);
+        for (MemberInfo &mi : m_candidates) {
+            if (mi.requestedFlags != 0) {
+                helper.performGeneration(mi.data, mi.requestedFlags);
             }
-            if (op == GenerateGetterSetterOperation::InvalidType)
-                continue;
-
-            const Utils::optional<CppCodeStyleSettings> codeStyleSettings
-                    = CppCodeStyleSettings::currentProjectCodeStyle();
-            const CppCodeStyleSettings settings
-                    = codeStyleSettings.value_or(CppCodeStyleSettings::currentGlobalCodeStyle());
-            const QString capitalizedBaseName = mi.baseName.at(0).toUpper() + mi.baseName.mid(1);
-            const QString getterName = settings.preferGetterNameWithoutGetPrefix
-                    && mi.baseName != mi.rawName ? mi.baseName : "get" + capitalizedBaseName;
-            const QString setterName = "set" + capitalizedBaseName;
-            GenerateGetterSetterOperation::addGetterAndOrSetter(
-                        this,
-                        mi.member,
-                        m_classAST,
-                        mi.rawName,
-                        mi.baseName,
-                        getterName,
-                        setterName,
-                        op);
         }
+        helper.applyChanges();
     }
-
 
     GetterSetterCandidates m_candidates;
     const ClassSpecifierAST *m_classAST = nullptr;
@@ -4351,10 +4925,9 @@ void GenerateGettersSettersForClass::match(const CppQuickFixInterface &interface
     if (m_test) {
         GetterSetterCandidates candidates = op->candidates();
         for (MemberInfo &mi : candidates) {
-            if (!mi.hasGetter)
-                mi.getterRequested = true;
-            if (!mi.hasSetter)
-                mi.setterRequested = true;
+            mi.requestedFlags = mi.possibleFlags;
+            using Flag = GenerateGetterSetterOp::GenerateFlag;
+            mi.requestedFlags &= ~Flag::GenerateConstantProperty;
         }
         op->setGetterSetterData(candidates);
     }
@@ -5632,159 +6205,40 @@ void ConvertFromAndToPointer::match(const CppQuickFixInterface &interface,
 
 namespace {
 
-class InsertQtPropertyMembersOp: public CppQuickFixOperation
+void extractNames(const CppRefactoringFilePtr &file,
+                  QtPropertyDeclarationAST *qtPropertyDeclaration,
+                  ExistingGetterSetterData &data)
 {
-public:
-    enum GenerateFlag {
-        GenerateGetter = 1 << 0,
-        GenerateSetter = 1 << 1,
-        GenerateSignal = 1 << 2,
-        GenerateStorage = 1 << 3,
-        GenerateReset = 1 << 4
-    };
-
-    InsertQtPropertyMembersOp(const CppQuickFixInterface &interface,
-              int priority, QtPropertyDeclarationAST *declaration, Class *klass, int generateFlags,
-              const QString &getterName, const QString &setterName, const QString &resetName,
-              const QString &signalName, const QString &storageName)
-        : CppQuickFixOperation(interface, priority)
-        , m_declaration(declaration)
-        , m_class(klass)
-        , m_generateFlags(generateFlags)
-        , m_getterName(getterName)
-        , m_setterName(setterName)
-        , m_resetName(resetName)
-        , m_signalName(signalName)
-        , m_storageName(storageName)
-    {
-        setDescription(CppQuickFixFactory::tr("Generate Missing Q_PROPERTY Members"));
+    QtPropertyDeclarationItemListAST *it = qtPropertyDeclaration->property_declaration_item_list;
+    for (; it; it = it->next) {
+        const char *tokenString = file->tokenAt(it->value->item_name_token).spell();
+        if (!qstrcmp(tokenString, "READ")) {
+            data.getterName = file->textOf(it->value->expression);
+        } else if (!qstrcmp(tokenString, "WRITE")) {
+            data.setterName = file->textOf(it->value->expression);
+        } else if (!qstrcmp(tokenString, "RESET")) {
+            data.resetName = file->textOf(it->value->expression);
+        } else if (!qstrcmp(tokenString, "NOTIFY")) {
+            data.signalName = file->textOf(it->value->expression);
+        } else if (!qstrcmp(tokenString, "MEMBER")) {
+            data.memberVariableName = file->textOf(it->value->expression);
+        }
     }
-
-    void perform() override
-    {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr file = refactoring.file(filePath().toString());
-
-        InsertionPointLocator locator(refactoring);
-        ChangeSet declarations;
-
-        const QString typeName = file->textOf(m_declaration->type_id);
-        const QString propertyName = file->textOf(m_declaration->property_name);
-        QString baseName = memberBaseName(m_storageName);
-        if (baseName.isEmpty() || baseName == m_storageName)
-            baseName = QStringLiteral("arg");
-
-        // getter declaration
-        if (m_generateFlags & GenerateGetter) {
-            const QString getterDeclaration = typeName + QLatin1Char(' ') + m_getterName +
-                    QLatin1String("() const\n{\nreturn ") + m_storageName + QLatin1String(";\n}\n");
-            InsertionLocation getterLoc = locator.methodDeclarationInClass(file->fileName(), m_class, InsertionPointLocator::Public);
-            QTC_ASSERT(getterLoc.isValid(), return);
-            insertAndIndent(file, &declarations, getterLoc, getterDeclaration);
-        }
-
-        // setter declaration
-        InsertionLocation setterLoc;
-        if (m_generateFlags & GenerateSetter) {
-            QString setterDeclaration;
-            QTextStream setter(&setterDeclaration);
-            setter << "void " << m_setterName << '(' << typeName << ' ' << baseName << ")\n{\n";
-            if (m_signalName.isEmpty()) {
-                setter << m_storageName <<  " = " << baseName << ";\n}\n";
-            } else {
-                if (isQtFuzzyComparable(typeName)) {
-                    setter << "qWarning(\"Floating point comparison needs context sanity check\");\n";
-                    setter << "if (qFuzzyCompare(" << m_storageName << ", " << baseName << "))\nreturn;\n\n";
-                }
-                else
-                    setter << "if (" << m_storageName << " == " << baseName << ")\nreturn;\n\n";
-                setter << m_storageName << " = " << baseName << ";\nemit " << m_signalName
-                       << '(' << m_storageName << ");\n}\n";
-            }
-            setterLoc = locator.methodDeclarationInClass(file->fileName(), m_class, InsertionPointLocator::PublicSlot);
-            QTC_ASSERT(setterLoc.isValid(), return);
-            insertAndIndent(file, &declarations, setterLoc, setterDeclaration);
-        }
-
-        // reset declaration
-        if (m_generateFlags & GenerateReset) {
-            QString declaration;
-            QTextStream stream(&declaration);
-            stream << "void " << m_resetName << "()\n{\n";
-            if (m_generateFlags & GenerateSetter) {
-                stream << m_setterName << "({}); // TODO: Adapt to use your actual default value\n";
-            } else {
-                stream << "static const " << typeName << " defaultValue{}; "
-                          "// TODO: Adapt to use your actual default value\n";
-                if (!m_signalName.isEmpty())
-                    stream << "if (" << m_storageName << " == defaultValue)\nreturn;\n\n";
-                stream << m_storageName <<  " = defaultValue;\n";
-                if (!m_signalName.isEmpty())
-                    stream << "emit " << m_signalName << '(' << m_storageName << ");\n";
-            }
-            stream << "}\n";
-            const InsertionLocation loc = setterLoc.isValid()
-                    ? InsertionLocation(setterLoc.fileName(), {}, {}, setterLoc.line(), 1)
-                    : locator.methodDeclarationInClass(file->fileName(), m_class,
-                                                       InsertionPointLocator::PublicSlot);
-            QTC_ASSERT(loc.isValid(), return);
-            insertAndIndent(file, &declarations, loc, declaration);
-        }
-
-        // signal declaration
-        if (m_generateFlags & GenerateSignal) {
-            const QString declaration = QLatin1String("void ") + m_signalName + QLatin1Char('(')
-                                        + typeName + QLatin1Char(' ') + baseName
-                                        + QLatin1String(");\n");
-            InsertionLocation loc = locator.methodDeclarationInClass(file->fileName(), m_class, InsertionPointLocator::Signals);
-            QTC_ASSERT(loc.isValid(), return);
-            insertAndIndent(file, &declarations, loc, declaration);
-        }
-
-        // storage
-        if (m_generateFlags & GenerateStorage) {
-            const QString storageDeclaration = typeName  + QLatin1String(" m_")
-                                               + propertyName + QLatin1String(";\n");
-            InsertionLocation storageLoc = locator.methodDeclarationInClass(file->fileName(), m_class, InsertionPointLocator::Private);
-            QTC_ASSERT(storageLoc.isValid(), return);
-            insertAndIndent(file, &declarations, storageLoc, storageDeclaration);
-        }
-
-        file->setChangeSet(declarations);
-        file->apply();
-    }
-
-private:
-    void insertAndIndent(const RefactoringFilePtr &file, ChangeSet *changeSet,
-                         const InsertionLocation &loc, const QString &text)
-    {
-        int targetPosition1 = file->position(loc.line(), loc.column());
-        int targetPosition2 = qMax(0, file->position(loc.line(), 1) - 1);
-        changeSet->insert(targetPosition1, loc.prefix() + text + loc.suffix());
-        file->appendIndentRange(ChangeSet::Range(targetPosition2, targetPosition1));
-    }
-
-    QtPropertyDeclarationAST *m_declaration;
-    Class *m_class;
-    int m_generateFlags;
-    QString m_getterName;
-    QString m_setterName;
-    QString m_resetName;
-    QString m_signalName;
-    QString m_storageName;
-};
+}
 
 } // anonymous namespace
 
-void InsertQtPropertyMembers::match(const CppQuickFixInterface &interface,
-    QuickFixOperations &result)
+void InsertQtPropertyMembers::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
 {
-    const QList<AST *> &path = interface.path();
+    using Flag = GenerateGetterSetterOp::GenerateFlag;
+    ExistingGetterSetterData existing;
+    // check for Q_PROPERTY
 
+    const QList<AST *> &path = interface.path();
     if (path.isEmpty())
         return;
 
-    AST * const ast = path.last();
+    AST *const ast = path.last();
     QtPropertyDeclarationAST *qtPropertyDeclaration = ast->asQtPropertyDeclaration();
     if (!qtPropertyDeclaration || !qtPropertyDeclaration->type_id)
         return;
@@ -5797,63 +6251,114 @@ void InsertQtPropertyMembers::match(const CppQuickFixInterface &interface,
     }
     if (!klass)
         return;
+    existing.clazz = klass->symbol;
 
     CppRefactoringFilePtr file = interface.currentFile();
     const QString propertyName = file->textOf(qtPropertyDeclaration->property_name);
-    QString getterName;
-    QString setterName;
-    QString resetName;
-    QString signalName;
-    int generateFlags = 0;
-    QtPropertyDeclarationItemListAST *it = qtPropertyDeclaration->property_declaration_item_list;
-    for (; it; it = it->next) {
-        const char *tokenString = file->tokenAt(it->value->item_name_token).spell();
-        if (!qstrcmp(tokenString, "READ")) {
-            getterName = file->textOf(it->value->expression);
-            generateFlags |= InsertQtPropertyMembersOp::GenerateGetter;
-        } else if (!qstrcmp(tokenString, "WRITE")) {
-            setterName = file->textOf(it->value->expression);
-            generateFlags |= InsertQtPropertyMembersOp::GenerateSetter;
-        } else if (!qstrcmp(tokenString, "RESET")) {
-            resetName = file->textOf(it->value->expression);
-            generateFlags |= InsertQtPropertyMembersOp::GenerateReset;
-        } else if (!qstrcmp(tokenString, "NOTIFY")) {
-            signalName = file->textOf(it->value->expression);
-            generateFlags |= InsertQtPropertyMembersOp::GenerateSignal;
-        }
+    existing.qPropertyName = propertyName;
+    extractNames(file, qtPropertyDeclaration, existing);
+
+    Control *control = interface.currentFile()->cppDocument()->control();
+
+    existing.declarationSymbol = control->newDeclaration(ast->firstToken(),
+                                                         qtPropertyDeclaration->property_name->name);
+    existing.declarationSymbol->setVisibility(Symbol::Private);
+    existing.declarationSymbol->setEnclosingScope(existing.clazz);
+
+    {
+        // create a 'right' Type Object
+        // if we have Q_PROPERTY(int test ...) then we only get a NamedType for 'int', but we want
+        // a IntegerType. So create a new dummy file with a dummy declaration to get the right
+        // object
+        QByteArray type = file->textOf(qtPropertyDeclaration->type_id).toUtf8();
+        QByteArray newSource = file->document()
+                                   ->toPlainText()
+                                   .insert(file->startOf(qtPropertyDeclaration),
+                                           QString::fromUtf8(type + " __dummy;\n"))
+                                   .toUtf8();
+
+        Document::Ptr doc = interface.snapshot().preprocessedDocument(newSource, "___quickfix.h");
+        if (!doc->parse(Document::ParseTranlationUnit))
+            return;
+        doc->check();
+        class TypeFinder : public ASTVisitor
+        {
+        public:
+            FullySpecifiedType type;
+            TypeFinder(TranslationUnit *u)
+                : ASTVisitor(u)
+            {}
+            bool visit(SimpleDeclarationAST *ast) override
+            {
+                if (ast->symbols && !ast->symbols->next) {
+                    const Name *name = ast->symbols->value->name();
+                    if (name && name->asNameId() && name->asNameId()->identifier()) {
+                        const Identifier *id = name->asNameId()->identifier();
+                        if (QString::fromUtf8(id->chars(), id->size()) == "__dummy")
+                            type = ast->symbols->value->type();
+                    }
+                }
+                return true;
+            }
+        };
+        TypeFinder finder(doc->translationUnit());
+        finder.accept(doc->translationUnit()->ast());
+        if (finder.type.type()->isUndefinedType())
+            return;
+        existing.declarationSymbol->setType(finder.type);
+        existing.doc = doc; // to hold type
     }
-    const QString storageName = QLatin1String("m_") +  propertyName;
-    generateFlags |= InsertQtPropertyMembersOp::GenerateStorage;
-
-    Class *c = klass->symbol;
-
+    // check which methods are already there
+    const bool haveFixMemberVariableName = !existing.memberVariableName.isEmpty();
+    int generateFlags = Flag::GenerateMemberVariable;
+    if (!existing.resetName.isEmpty())
+        generateFlags |= Flag::GenerateReset;
+    if (!existing.setterName.isEmpty())
+        generateFlags |= Flag::GenerateSetter;
+    if (!existing.getterName.isEmpty())
+        generateFlags |= Flag::GenerateGetter;
+    if (!existing.signalName.isEmpty())
+        generateFlags |= Flag::GenerateSignal;
     Overview overview;
-    for (int i = 0; i < c->memberCount(); ++i) {
-        Symbol *member = c->memberAt(i);
+    for (int i = 0; i < existing.clazz->memberCount(); ++i) {
+        Symbol *member = existing.clazz->memberAt(i);
         FullySpecifiedType type = member->type();
         if (member->asFunction() || (type.isValid() && type->asFunctionType())) {
             const QString name = overview.prettyName(member->name());
-            if (name == getterName)
-                generateFlags &= ~InsertQtPropertyMembersOp::GenerateGetter;
-            else if (name == setterName)
-                generateFlags &= ~InsertQtPropertyMembersOp::GenerateSetter;
-            else if (name == resetName)
-                generateFlags &= ~InsertQtPropertyMembersOp::GenerateReset;
-            else if (name == signalName)
-                generateFlags &= ~InsertQtPropertyMembersOp::GenerateSignal;
+            if (name == existing.getterName)
+                generateFlags &= ~Flag::GenerateGetter;
+            else if (name == existing.setterName)
+                generateFlags &= ~Flag::GenerateSetter;
+            else if (name == existing.resetName)
+                generateFlags &= ~Flag::GenerateReset;
+            else if (name == existing.signalName)
+                generateFlags &= ~Flag::GenerateSignal;
         } else if (member->asDeclaration()) {
             const QString name = overview.prettyName(member->name());
-            if (name == storageName)
-                generateFlags &= ~InsertQtPropertyMembersOp::GenerateStorage;
+            if (haveFixMemberVariableName) {
+                if (name == existing.memberVariableName) {
+                    generateFlags &= ~Flag::GenerateMemberVariable;
+                }
+            } else {
+                const QString baseName = memberBaseName(name);
+                if (existing.qPropertyName == baseName) {
+                    existing.memberVariableName = name;
+                    generateFlags &= ~Flag::GenerateMemberVariable;
+                }
+            }
         }
     }
-
-    if (getterName.isEmpty() && setterName.isEmpty() && signalName.isEmpty())
+    if (generateFlags & Flag::GenerateMemberVariable) {
+        CppQuickFixSettings *settings = CppQuickFixProjectsSettings::getQuickFixSettings(
+            ProjectExplorer::ProjectTree::currentProject());
+        existing.memberVariableName = settings->getMemberVariableName(existing.qPropertyName);
+    }
+    if (generateFlags == 0) {
+        // everything is already there
         return;
-
-    result << new InsertQtPropertyMembersOp(interface, path.size() - 1, qtPropertyDeclaration, c,
-                                            generateFlags, getterName, setterName, resetName,
-                                            signalName, storageName);
+    }
+    generateFlags |= Flag::HaveExistingQProperty;
+    GenerateGetterSetterOp::generateQuickFixes(result, interface, existing, generateFlags);
 }
 
 namespace {

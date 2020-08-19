@@ -83,6 +83,8 @@ public:
     //            b
     bool alignAssignments = false;
 
+    // TODO only kept to allow conversion to the new setting getterNameTemplate in
+    // CppEditor/QuickFixSetting. Remove in 4.16
     bool preferGetterNameWithoutGetPrefix = true;
 
     void toSettings(const QString &category, QSettings *s) const;

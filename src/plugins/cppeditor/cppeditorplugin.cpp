@@ -29,13 +29,15 @@
 #include "cppcodemodelinspectordialog.h"
 #include "cppeditor.h"
 #include "cppeditorconstants.h"
-#include "cppeditorwidget.h"
 #include "cppeditordocument.h"
+#include "cppeditorwidget.h"
 #include "cpphighlighter.h"
 #include "cppincludehierarchy.h"
 #include "cppoutline.h"
 #include "cppquickfixassistant.h"
 #include "cppquickfixes.h"
+#include "cppquickfixprojectsettingswidget.h"
+#include "cppquickfixsettingspage.h"
 #include "cpptypehierarchy.h"
 #include "resourcepreviewhoverhandler.h"
 
@@ -56,10 +58,11 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <cpptools/cpphoverhandler.h>
 #include <cpptools/cpptoolsconstants.h>
-#include <texteditor/texteditoractionhandler.h>
-#include <texteditor/texteditorconstants.h>
+#include <projectexplorer/projectpanelfactory.h>
 #include <texteditor/colorpreviewhoverhandler.h>
 #include <texteditor/snippets/snippetprovider.h>
+#include <texteditor/texteditoractionhandler.h>
+#include <texteditor/texteditorconstants.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/mimetypes/mimedatabase.h>
@@ -124,6 +127,7 @@ public:
     QAction *m_openIncludeHierarchyAction = nullptr;
 
     CppQuickFixAssistProvider m_quickFixProvider;
+    CppQuickFixSettingsPage m_quickFixSettingsPage;
 
     QPointer<CppCodeModelInspectorDialog> m_cppCodeModelInspectorDialog;
 
@@ -163,6 +167,16 @@ CppQuickFixAssistProvider *CppEditorPlugin::quickFixProvider() const
 bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
+
+    auto panelFactory = new ProjectExplorer::ProjectPanelFactory;
+    panelFactory->setPriority(100);
+    panelFactory->setId(Constants::QUICK_FIX_PROJECT_PANEL_ID);
+    panelFactory->setDisplayName(
+        QCoreApplication::translate("CppTools", Constants::QUICK_FIX_SETTINGS_DISPLAY_NAME));
+    panelFactory->setCreateWidgetFunction([](ProjectExplorer::Project *project) {
+        return new CppQuickFixProjectSettingsWidget(project);
+    });
+    ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
 
     d = new CppEditorPluginPrivate;
 
