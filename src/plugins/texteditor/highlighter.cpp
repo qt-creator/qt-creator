@@ -186,20 +186,23 @@ void Highlighter::rememberDefinitionForDocument(const Highlighter::Definition &d
     const QString &path = document->filePath().toFileInfo().canonicalFilePath();
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(Constants::HIGHLIGHTER_SETTINGS_CATEGORY);
-    if (!mimeType.isEmpty()) {
+    const Definitions &fileNameDefinitions = definitionsForFileName(document->filePath());
+    if (fileNameDefinitions.contains(definition)) {
+        if (!fileExtension.isEmpty()) {
+            const QString id(kDefinitionForExtension);
+            QMap<QString, QVariant> map = settings->value(id).toMap();
+            map.insert(fileExtension, definition.name());
+            settings->setValue(id, map);
+        } else if (!path.isEmpty()) {
+            const QString id(kDefinitionForFilePath);
+            QMap<QString, QVariant> map = settings->value(id).toMap();
+            map.insert(document->filePath().toFileInfo().absoluteFilePath(), definition.name());
+            settings->setValue(id, map);
+        }
+    } else if (!mimeType.isEmpty()) {
         const QString id(kDefinitionForMimeType);
         QMap<QString, QVariant> map = settings->value(id).toMap();
         map.insert(mimeType, definition.name());
-        settings->setValue(id, map);
-    } else if (!fileExtension.isEmpty()) {
-        const QString id(kDefinitionForExtension);
-        QMap<QString, QVariant> map = settings->value(id).toMap();
-        map.insert(fileExtension, definition.name());
-        settings->setValue(id, map);
-    } else if (!path.isEmpty()) {
-        const QString id(kDefinitionForFilePath);
-        QMap<QString, QVariant> map = settings->value(id).toMap();
-        map.insert(document->filePath().toFileInfo().absoluteFilePath(), definition.name());
         settings->setValue(id, map);
     }
     settings->endGroup();
