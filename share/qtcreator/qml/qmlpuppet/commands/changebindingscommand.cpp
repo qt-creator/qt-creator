@@ -29,35 +29,9 @@
 
 namespace QmlDesigner {
 
-ChangeBindingsCommand::ChangeBindingsCommand() = default;
-
-ChangeBindingsCommand::ChangeBindingsCommand(const QVector<PropertyBindingContainer> &bindingChangeVector)
-    : m_bindingChangeVector (bindingChangeVector)
-{
-}
-
-QVector<PropertyBindingContainer> ChangeBindingsCommand::bindingChanges() const
-{
-    return m_bindingChangeVector;
-}
-
-QDataStream &operator<<(QDataStream &out, const ChangeBindingsCommand &command)
-{
-    out << command.bindingChanges();
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, ChangeBindingsCommand &command)
-{
-    in >> command.m_bindingChangeVector;
-
-    return in;
-}
-
 QDebug operator <<(QDebug debug, const ChangeBindingsCommand &command)
 {
-    return debug.nospace() << "PropertyValueContainer(bindingChanges: " << command.m_bindingChangeVector << ")";
+    return debug.nospace() << "PropertyValueContainer(bindingChanges: " << command.bindingChanges << ")";
 }
 
 } // namespace QmlDesigner

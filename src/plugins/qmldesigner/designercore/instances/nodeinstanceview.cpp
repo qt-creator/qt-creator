@@ -543,9 +543,8 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
                     ChangeValuesCommand changeValueCommand({container});
                     m_nodeInstanceServer->changePropertyValues(changeValueCommand);
                 } else if (node.hasBindingProperty(name)) {
-                    PropertyBindingContainer container(instance.instanceId(), name, node.bindingProperty(name).expression(), TypeName());
-                    ChangeBindingsCommand changeValueCommand({container});
-                    m_nodeInstanceServer->changePropertyBindings(changeValueCommand);
+                    PropertyBindingContainer container{instance.instanceId(), name, node.bindingProperty(name).expression(), TypeName()};
+                    m_nodeInstanceServer->changePropertyBindings({{container}});
                 }
             }
         }
@@ -1131,7 +1130,7 @@ ChangeBindingsCommand NodeInstanceView::createChangeBindingCommand(const QList<B
 {
     QVector<PropertyBindingContainer> containerList;
 
-    foreach (const BindingProperty &property, propertyList) {
+    for (const BindingProperty &property : propertyList) {
         ModelNode node = property.parentModelNode();
         if (node.isValid() && hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
@@ -1141,7 +1140,7 @@ ChangeBindingsCommand NodeInstanceView::createChangeBindingCommand(const QList<B
 
     }
 
-    return ChangeBindingsCommand(containerList);
+    return {containerList};
 }
 
 ChangeIdsCommand NodeInstanceView::createChangeIdsCommand(const QList<NodeInstance> &instanceList) const

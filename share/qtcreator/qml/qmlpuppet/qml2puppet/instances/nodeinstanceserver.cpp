@@ -643,7 +643,7 @@ void NodeInstanceServer::changeAuxiliaryValues(const ChangeAuxiliaryCommand &com
 void NodeInstanceServer::changePropertyBindings(const ChangeBindingsCommand &command)
 {
     bool hasDynamicProperties = false;
-    foreach (const PropertyBindingContainer &container, command.bindingChanges()) {
+    for (const PropertyBindingContainer &container : command.bindingChanges) {
         hasDynamicProperties |= container.isDynamic();
         setInstancePropertyBinding(container);
     }

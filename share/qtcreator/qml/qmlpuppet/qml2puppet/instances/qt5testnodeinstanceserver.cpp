@@ -103,7 +103,7 @@ void Qt5TestNodeInstanceServer::changePropertyValues(const ChangeValuesCommand &
 void Qt5TestNodeInstanceServer::changePropertyBindings(const ChangeBindingsCommand &command)
 {
     bool hasDynamicProperties = false;
-    foreach (const PropertyBindingContainer &container, command.bindingChanges()) {
+    for (const PropertyBindingContainer &container : command.bindingChanges) {
         hasDynamicProperties |= container.isDynamic();
         setInstancePropertyBinding(container);
     }
