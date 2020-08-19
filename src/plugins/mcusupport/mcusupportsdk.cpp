@@ -489,10 +489,14 @@ void targetsAndPackages(const Utils::FilePath &dir, QVector<McuPackage *> *packa
 
     // Workaround for missing JSON file for Desktop target:
     if (dir.pathAppended("/lib/QulQuickUltralite_QT_32bpp_Windows_Release.lib").exists()) {
-        const QString qulVersion = descriptions.empty() ?
+        McuTargetDescription desktopDescription;
+        desktopDescription.qulVersion = descriptions.empty() ?
                     McuSupportOptions::minimalQulVersion().toString()
                   : descriptions.first().qulVersion;
-        descriptions.prepend({qulVersion, {"Qt"}, {"Qt"}, {32}, {"desktop"}, {}, {}, {}});
+        desktopDescription.platform = desktopDescription.platformVendor = "Qt";
+        desktopDescription.colorDepths = {32};
+        desktopDescription.toolchainId = "desktop";
+        descriptions.prepend(desktopDescription);
     }
 
     mcuTargets->append(targetsFromDescriptions(descriptions, packages));
