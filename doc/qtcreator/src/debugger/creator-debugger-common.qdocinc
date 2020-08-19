@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -61,7 +61,7 @@
 
     Breakpoints come in two varieties: \c unclaimed and \c claimed.
     An unclaimed breakpoint represents a task to interrupt the debugged
-    program and passes the control to you later. I has two states:
+    program and passes the control to you later. It has two states:
     \c pending and \c implanted.
 
     Unclaimed breakpoints are stored as a part of a session and exist
@@ -144,6 +144,35 @@
             commands in the order in which they are specified.
 
     \endlist
+
+    \section2 Specifying Breakpoint Settings
+
+    You can specify settings for breakpoints in \uicontrol Tools >
+    \uicontrol Options > \uicontrol Debugger. For more information,
+    see \l{Specifying Debugger Settings}.
+
+    To use a full absolute path in breakpoints, select the
+    \uicontrol {Set breakpoints using a full absolute path} check box.
+
+    GDB and CDB enable setting breakpoints on source lines for which no code
+    was generated. In such situations, the breakpoint is shifted to the next
+    source code line for which the code was actually generated. To reflect
+    such temporary changes by moving the breakpoint markers in the source code
+    editor, select \uicontrol GDB > \uicontrol {Adjust breakpoint locations}
+    or \uicontrol CDB > \uicontrol {Correct breakpoint location}.
+
+    When using CDB as backend, you can specify that the debugger should break on
+    specific events, such as C++ exceptions, thread creation or exit, loading or
+    unloading \l{Viewing Modules}{application modules}, or particular output.
+    Select the appropriate check boxes in the \uicontrol CDB >
+    \uicontrol {Break on} group. To disable first-chance break on access
+    violation exceptions, select the \uicontrol {Ignore first chance access
+    violations} check box. The second occurrence of an access violation will
+    break into the debugger.
+
+    You can automatically add breakpoints on some functions to catch error
+    and warning messages. For more information, see \l{Specifying CDB Settings}
+    and \l{Specifying Extended GDB Settings}.
 
     For more information on breakpoints, see
     \l{http://sourceware.org/gdb/onlinedocs/gdb/Breakpoints.html#Breakpoints}

@@ -118,9 +118,14 @@
     The debugger then takes over and starts the program with suitable
     parameters.
 
+    When using GDB or CDB as debug backend, you can specify additional commands
+    to execute before and after the backend and debugged program are started or
+    attached in \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
+    \uicontrol GDB and \uicontrol CDB. For more information, see
+    \l{Specifying Debugger Settings}.
+
     \note Starting a C++ program in the debugger can take a long time, typically
     in the range of several seconds to minutes if complex features are used.
-
 
     \section1 Launching the Debugger in Different Modes
 
@@ -170,6 +175,13 @@
     because it accepts console input from the user, go to \uicontrol Projects >
     \uicontrol {Run Settings} and select the \uicontrol {Run in terminal} check
     box.
+
+    If a console application does not start up properly in the configured
+    console and the subsequent attach fails, you can diagnose the issue by
+    using CDB's native console. Select \uicontrol Tools > \uicontrol Options >
+    \uicontrol Debugger > \uicontrol CDB > \uicontrol {Use CDB console} to
+    override the console set in the Windows system environment variables.
+    Note that the native console does not prompt on application exit.
 
     To launch the debugger in Start Internal mode, click the
     \uicontrol {Start Debugging} button for the active project.
@@ -596,6 +608,23 @@
     It is also possible to continue executing the program until the current
     function completes or jump to an arbitrary position in the current function.
 
+   \section2 Customizing Debug Views
+
+    You can change the appearance and behavior of the debug views by specifying
+    settings in \uicontrol Options > \uicontrol Debugger. For example, you can:
+
+    \list
+        \li Use alternating row colors in debug views.
+        \li Adopt font size changes from the main editor.
+        \li Have tooltips displayed in the main editor while you are debugging.
+        \li Close temporary source and memory views and switch to the previously
+            used \QC mode when the debugger exits.
+        \li Bring \QC to the foreground when the debugged application is
+            interrupted.
+    \endlist
+
+    For more information, see \l{Specifying Debugger Settings}.
+
     \include creator-debugger-common.qdocinc debugger-breakpoints
     \include creator-debugger-common.qdocinc debugger-call-stack-trace
     \include creator-debugger-common.qdocinc debugger-locals
@@ -690,6 +719,12 @@
     \endlist
 
     By default, the \uicontrol Modules view is hidden.
+
+    When using CDB as debug backend, you can specify that the debugger should
+    break when application modules are loaded or unloaded. To enable breaking
+    for the specified modules, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol Debugger > \uicontrol CDB. For more information, see
+    \l{Specifying CDB Settings}.
 
     \section2 Viewing Source Files
 
@@ -991,11 +1026,14 @@
     not to generate the wire format directly, but to use the abstraction
     layer provided by the Python Dumper classes, specifically the \c{Dumper}
     class itself, and the \c{Dumper:Value} and \c{Dumper:Type} abstractions.
-
     These provide a complete framework to take care of the \c iname and \c addr
     fields, to handle children of simple types, references, pointers, enums, and
     known and unknown structs, as well as some convenience functions to handle
     common situations.
+
+    When using CDB as debugger backend, you can enable the Python dumper by
+    selecting \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
+    \uicontrol CDB > \uicontrol {Use Python dumper}.
 
     \section3 Dumper Class
 
