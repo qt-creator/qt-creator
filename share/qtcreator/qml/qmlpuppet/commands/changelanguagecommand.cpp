@@ -29,16 +29,6 @@
 
 namespace QmlDesigner {
 
-QDataStream &operator<<(QDataStream &out, const ChangeLanguageCommand &command)
-{
-    return out << command.language;
-}
-
-QDataStream &operator>>(QDataStream &in, ChangeLanguageCommand &command)
-{
-    return in >> command.language;
-}
-
 QDebug operator<<(QDebug debug, const ChangeLanguageCommand &command)
 {
     return debug.nospace() << "ChangeLanguageCommand(" << command.language << ")";

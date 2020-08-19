@@ -27,22 +27,24 @@
 
 #include <QMetaType>
 #include <QString>
+#include <QDataStream>
 
 namespace QmlDesigner {
 
 class ChangeLanguageCommand
 {
 public:
-    ChangeLanguageCommand() = default;
-    ChangeLanguageCommand(const QString &language)
-        : language(language)
-    {}
+    friend QDataStream &operator<<(QDataStream &out, const ChangeLanguageCommand &command)
+    {
+        return out << command.language;
+    }
+    friend QDataStream &operator>>(QDataStream &in, ChangeLanguageCommand &command)
+    {
+        return in >> command.language;
+    }
 
-    friend QDataStream &operator<<(QDataStream &out, const ChangeLanguageCommand &command);
-    friend QDataStream &operator>>(QDataStream &in, ChangeLanguageCommand &command);
     friend QDebug operator<<(QDebug debug, const ChangeLanguageCommand &command);
 
-public:
     QString language;
 };
 
