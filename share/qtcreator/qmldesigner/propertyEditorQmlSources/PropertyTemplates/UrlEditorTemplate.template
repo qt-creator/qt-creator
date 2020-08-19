@@ -2,7 +2,13 @@ Label {
     text: "%1"
     tooltip: "%1"
 }
-UrlChooser {
-    Layout.fillWidth: true
-    backendValue:  backendValues.%2
+
+SecondColumnLayout {
+    UrlChooser {
+        Layout.fillWidth: true
+        backendValue:  backendValues.%2
+    }
+
+    ExpandingSpacer {
+    }
 }
