@@ -47,7 +47,7 @@ GenericMakeStep::GenericMakeStep(BuildStepList *parent, Utils::Id id)
         setBuildTarget("all");
     } else if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
         setBuildTarget("clean");
-        setClean(true);
+        setIgnoreReturnValue(true);
     }
     setAvailableBuildTargets({"all", "clean"});
 }

@@ -56,7 +56,7 @@ QmakeMakeStep::QmakeMakeStep(BuildStepList *bsl, Utils::Id id)
     : MakeStep(bsl, id)
 {
     if (bsl->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
-        setClean(true);
+        setIgnoreReturnValue(true);
         setUserArguments("clean");
     }
     supportDisablingForSubdirs();
@@ -88,11 +88,6 @@ bool QmakeMakeStep::init()
     else
         workingDirectory = bc->buildDirectory();
     pp->setWorkingDirectory(workingDirectory);
-
-    // If we are cleaning, then make can fail with a error code, but that doesn't mean
-    // we should stop the clean queue
-    // That is mostly so that rebuild works on a already clean project
-    setIgnoreReturnValue(isClean());
 
     Utils::CommandLine makeCmd(makeExecutable);
 
@@ -176,6 +171,7 @@ bool QmakeMakeStep::init()
             qmakeStep->setForced(true);
     }
 
+    // Note: This skips the Makestep::init() level.
     return AbstractProcessStep::init();
 }
 

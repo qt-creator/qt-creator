@@ -143,8 +143,6 @@ bool AbstractProcessStep::ignoreReturnValue() const
 /*!
     If \a ignoreReturnValue is set to true, then the abstractprocess step will
     return success even if the return value indicates otherwise.
-
-    Should be called from init.
 */
 
 void AbstractProcessStep::setIgnoreReturnValue(bool b)

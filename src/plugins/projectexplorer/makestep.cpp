@@ -162,9 +162,6 @@ MakeStep::MakeStep(BuildStepList *parent, Utils::Id id)
          .arg(text) + "</p></body></html>");
     m_nonOverrideWarning->setIconType(InfoLabel::Warning);
 
-    m_cleanAspect = addAspect<BoolAspect>();
-    m_cleanAspect->setSettingsKey(id.withSuffix(CLEAN_SUFFIX).toString());
-
     m_buildTargetsAspect = addAspect<StringListAspect>();
     m_buildTargetsAspect->setSettingsKey(id.withSuffix(BUILD_TARGETS_SUFFIX).toString());
 
@@ -207,11 +204,6 @@ bool MakeStep::init()
     setupProcessParameters(pp);
     pp->setCommandLine(make);
 
-    // If we are cleaning, then make can fail with an error code, but that doesn't mean
-    // we should stop the clean queue
-    // That is mostly so that rebuild works on an already clean project
-    setIgnoreReturnValue(isClean());
-
     return AbstractProcessStep::init();
 }
 
@@ -221,16 +213,6 @@ void MakeStep::setupOutputFormatter(OutputFormatter *formatter)
     formatter->addLineParsers(target()->kit()->createOutputParsers());
     formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
     AbstractProcessStep::setupOutputFormatter(formatter);
-}
-
-void MakeStep::setClean(bool clean)
-{
-    m_cleanAspect->setValue(clean);
-}
-
-bool MakeStep::isClean() const
-{
-    return m_cleanAspect->value();
 }
 
 QString MakeStep::defaultDisplayName()

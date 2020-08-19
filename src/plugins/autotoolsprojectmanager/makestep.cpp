@@ -50,7 +50,7 @@ MakeStep::MakeStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id)
     setAvailableBuildTargets({"all", "clean"});
     if (bsl->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
         setBuildTarget("clean", true);
-        setClean(true);
+        setIgnoreReturnValue(true);
     } else {
         setBuildTarget("all", true);
     }

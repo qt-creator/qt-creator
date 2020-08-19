@@ -69,9 +69,6 @@ public:
     Utils::FilePath makeExecutable() const;
     Utils::CommandLine effectiveMakeCommand(MakeCommandType type) const;
 
-    void setClean(bool clean);
-    bool isClean() const;
-
     static QString defaultDisplayName();
 
     Utils::FilePath defaultMakeCommand() const;
