@@ -535,8 +535,8 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
         if (hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
             if (value.isValid() || name == "invisible") {
-                PropertyValueContainer container { instance.instanceId(), name, value, TypeName() };
-                m_nodeInstanceServer->changeAuxiliaryValues({ { container } });
+                PropertyValueContainer container{instance.instanceId(), name, value, TypeName()};
+                m_nodeInstanceServer->changeAuxiliaryValues({{container}});
             } else {
                 if (node.hasVariantProperty(name)) {
                     PropertyValueContainer container(instance.instanceId(), name, node.variantProperty(name).value(), TypeName());
