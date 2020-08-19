@@ -80,7 +80,7 @@ void Qt5TestNodeInstanceServer::createInstances(const CreateInstancesCommand &co
 
 void Qt5TestNodeInstanceServer::changeFileUrl(const ChangeFileUrlCommand &command)
 {
-    setupFileUrl(command.fileUrl());
+    setupFileUrl(command.fileUrl);
 
     refreshBindings();
     collectItemChangesAndSendChangeCommands();

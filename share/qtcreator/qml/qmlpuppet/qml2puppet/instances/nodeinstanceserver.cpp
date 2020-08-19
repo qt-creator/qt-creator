@@ -608,7 +608,7 @@ QList<ServerNodeInstance> NodeInstanceServer::setupInstances(const CreateSceneCo
 
 void NodeInstanceServer::changeFileUrl(const ChangeFileUrlCommand &command)
 {
-    m_fileUrl = command.fileUrl();
+    m_fileUrl = command.fileUrl;
 
     if (engine())
         engine()->setBaseUrl(m_fileUrl);

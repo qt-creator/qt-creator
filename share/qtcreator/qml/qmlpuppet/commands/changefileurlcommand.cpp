@@ -25,41 +25,14 @@
 
 #include "changefileurlcommand.h"
 
-#include <QDataStream>
 #include <QDebug>
 
 namespace QmlDesigner {
 
-ChangeFileUrlCommand::ChangeFileUrlCommand() = default;
-
-ChangeFileUrlCommand::ChangeFileUrlCommand(const QUrl &fileUrl)
-    : m_fileUrl(fileUrl)
-{
-}
-
-QUrl ChangeFileUrlCommand::fileUrl() const
-{
-    return m_fileUrl;
-}
-
-QDataStream &operator<<(QDataStream &out, const ChangeFileUrlCommand &command)
-{
-    out << command.fileUrl();
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, ChangeFileUrlCommand &command)
-{
-    in >> command.m_fileUrl;
-
-    return in;
-}
-
 QDebug operator <<(QDebug debug, const ChangeFileUrlCommand &command)
 {
     return debug.nospace() << "ChangeFileUrlCommand("
-                           << "fileUrl: " << command.fileUrl() << ")";
+                           << "fileUrl: " << command.fileUrl << ")";
 }
 
 } // namespace QmlDesigner

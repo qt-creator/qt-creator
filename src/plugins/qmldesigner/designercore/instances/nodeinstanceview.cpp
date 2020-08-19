@@ -1103,7 +1103,7 @@ ReparentInstancesCommand NodeInstanceView::createReparentInstancesCommand(const 
 
 ChangeFileUrlCommand NodeInstanceView::createChangeFileUrlCommand(const QUrl &fileUrl) const
 {
-    return ChangeFileUrlCommand(fileUrl);
+    return {fileUrl};
 }
 
 ChangeValuesCommand NodeInstanceView::createChangeValueCommand(const QList<VariantProperty>& propertyList) const
