@@ -1146,7 +1146,7 @@ ChangeBindingsCommand NodeInstanceView::createChangeBindingCommand(const QList<B
 ChangeIdsCommand NodeInstanceView::createChangeIdsCommand(const QList<NodeInstance> &instanceList) const
 {
     QVector<IdContainer> containerList;
-    foreach (const NodeInstance &instance, instanceList) {
+    for (const NodeInstance &instance : instanceList) {
         QString id = instance.modelNode().id();
         if (!id.isEmpty()) {
             IdContainer container(instance.instanceId(), id);
@@ -1154,7 +1154,7 @@ ChangeIdsCommand NodeInstanceView::createChangeIdsCommand(const QList<NodeInstan
         }
     }
 
-    return ChangeIdsCommand(containerList);
+    return {containerList};
 }
 
 

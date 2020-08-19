@@ -125,7 +125,7 @@ void Qt5TestNodeInstanceServer::changeAuxiliaryValues(const ChangeAuxiliaryComma
 
 void Qt5TestNodeInstanceServer::changeIds(const ChangeIdsCommand &command)
 {
-    foreach (const IdContainer &container, command.ids()) {
+    for (const IdContainer &container : command.ids) {
         if (hasInstanceForId(container.instanceId()))
             instanceForId(container.instanceId()).setId(container.id());
     }

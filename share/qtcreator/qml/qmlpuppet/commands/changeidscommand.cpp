@@ -29,35 +29,9 @@
 
 namespace QmlDesigner {
 
-ChangeIdsCommand::ChangeIdsCommand() = default;
-
-ChangeIdsCommand::ChangeIdsCommand(const QVector<IdContainer> &idVector)
-    : m_idVector(idVector)
-{
-}
-
-QVector<IdContainer> ChangeIdsCommand::ids() const
-{
-    return m_idVector;
-}
-
-QDataStream &operator<<(QDataStream &out, const ChangeIdsCommand &command)
-{
-    out << command.ids();
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, ChangeIdsCommand &command)
-{
-    in >> command.m_idVector;
-
-    return in;
-}
-
 QDebug operator <<(QDebug debug, const ChangeIdsCommand &command)
 {
-    return debug.nospace() << "ChangeIdsCommand(ids: " << command.m_idVector << ")";
+    return debug.nospace() << "ChangeIdsCommand(ids: " << command.ids << ")";
 }
 
 } // namespace QmlDesigner
