@@ -193,3 +193,13 @@ extend_qtc_plugin(Core
   SOURCES
     locator/javascriptfilter.cpp locator/javascriptfilter.h
 )
+
+if ((NOT WIN32) AND (NOT APPLE))
+  # install logo
+  foreach(size 16 24 32 48 64 128 256 512)
+    install(
+      FILES images/logo/${size}/QtProject-qtcreator.png
+      DESTINATION share/icons/hicolor/${size}x${size}/apps
+    )
+  endforeach()
+endif()
