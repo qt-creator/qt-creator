@@ -22,9 +22,10 @@ find_path(GOOGLE_TEST_INCLUDE_DIR
   PATH_SUFFIXES googletest/include
   HINTS
     "${GOOGLETEST_DIR}" ENV GOOGLETEST_DIR
-    "${CMAKE_SOURCE_DIR}/googletest"
-    "${CMAKE_SOURCE_DIR}/../googletest"
-    "${CMAKE_SOURCE_DIR}/../../googletest"
+    "${PROJECT_SOURCE_DIR}/googletest"
+    "${PROJECT_SOURCE_DIR}/../googletest"
+    "${PROJECT_SOURCE_DIR}/../../googletest"
+    "${PROJECT_SOURCE_DIR}/tests/unit/unittest/3rdparty/googletest"
 )
 
 find_path(GOOGLE_TEST_SRC_ALL
@@ -32,9 +33,10 @@ find_path(GOOGLE_TEST_SRC_ALL
   PATH_SUFFIXES googletest/src
   HINTS
     "${GOOGLETEST_DIR}" ENV GOOGLETEST_DIR
-    "${CMAKE_SOURCE_DIR}/googletest"
-    "${CMAKE_SOURCE_DIR}/../googletest"
-    "${CMAKE_SOURCE_DIR}/../../googletest"
+    "${PROJECT_SOURCE_DIR}/googletest"
+    "${PROJECT_SOURCE_DIR}/../googletest"
+    "${PROJECT_SOURCE_DIR}/../../googletest"
+    "${PROJECT_SOURCE_DIR}/tests/unit/unittest/3rdparty/googletest"
 )
 
 
@@ -43,9 +45,10 @@ find_path(GOOGLE_MOCK_INCLUDE_DIR
   PATH_SUFFIXES googlemock/include
   HINTS
     "${GOOGLETEST_DIR}" ENV GOOGLETEST_DIR
-    "${CMAKE_SOURCE_DIR}/googletest"
-    "${CMAKE_SOURCE_DIR}/../googletest"
-    "${CMAKE_SOURCE_DIR}/../../googletest"
+    "${PROJECT_SOURCE_DIR}/googletest"
+    "${PROJECT_SOURCE_DIR}/../googletest"
+    "${PROJECT_SOURCE_DIR}/../../googletest"
+    "${PROJECT_SOURCE_DIR}/tests/unit/unittest/3rdparty/googletest"
 )
 
 find_path(GOOGLE_MOCK_SRC_ALL
@@ -53,9 +56,10 @@ find_path(GOOGLE_MOCK_SRC_ALL
   PATH_SUFFIXES googlemock/src
   HINTS
     "${GOOGLETEST_DIR}" ENV GOOGLETEST_DIR
-    "${CMAKE_SOURCE_DIR}/googletest"
-    "${CMAKE_SOURCE_DIR}/../googletest"
-    "${CMAKE_SOURCE_DIR}/../../googletest"
+    "${PROJECT_SOURCE_DIR}/googletest"
+    "${PROJECT_SOURCE_DIR}/../googletest"
+    "${PROJECT_SOURCE_DIR}/../../googletest"
+    "${PROJECT_SOURCE_DIR}/tests/unit/unittest/3rdparty/googletest"
 )
 
 include(FindPackageHandleStandardArgs)

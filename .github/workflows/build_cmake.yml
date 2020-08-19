@@ -10,7 +10,6 @@ env:
   NINJA_VERSION: 1.10.0
   BUILD_TYPE: Release
   CCACHE_VERSION: 3.7.7
-  GOOGLETEST_VERSION: 1.10.0
 
 jobs:
   build:
@@ -51,6 +50,7 @@ jobs:
         git submodule set-url -- perfparser https://code.qt.io/qt-creator/perfparser.git
         git submodule update --init src/plugins/help/qlitehtml/litehtml
         git submodule update --init src/tools/perfparser
+        git submodule update --init tests/unit/unittest/3rdparty/googletest
 
     - name: Download Ninja and CMake
       id: cmake_and_ninja
@@ -330,16 +330,6 @@ jobs:
           endif()
         endif()
 
-    - name: Download Googletest
-      id: googletest
-      shell: cmake -P {0}
-      run: |
-        # Googletest should be a submodule
-        file(DOWNLOAD "https://github.com/google/googletest/archive/release-$ENV{GOOGLETEST_VERSION}.tar.gz" ./googletest.tar.gz SHOW_PROGRESS)
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xf googletest.tar.gz)
-        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/googletest-release-$ENV{GOOGLETEST_VERSION}" googletest_dir)
-        message("::set-output name=googletest_dir::${googletest_dir}")
-
     - name: Build
       shell: cmake -P {0}
       run: |
@@ -365,8 +355,6 @@ jobs:
           set(path_separator ";")
         endif()
         set(ENV{PATH} "${{ steps.cmake_and_ninja.outputs.cmake_dir }}${path_separator}$ENV{GITHUB_WORKSPACE}${path_separator}$ENV{PATH}")
-
-        set(ENV{GOOGLETEST_DIR} "${{ steps.googletest.outputs.googletest_dir }}")
 
         set(ENV{NINJA_STATUS} "[%f/%t %o/sec] ")
 
