@@ -269,7 +269,6 @@ public:
 
     void setVisible(bool visible);
     void setToolTip(const QString &tooltip);
-    void setPixmap(const QPixmap &pixmap);
 
 private:
     std::unique_ptr<Internal::TextDisplayPrivate> d;
