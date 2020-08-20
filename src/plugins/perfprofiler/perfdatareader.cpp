@@ -408,7 +408,7 @@ QString PerfDataReader::findPerfParser()
     QString filePath = QString::fromLocal8Bit(qgetenv("PERFPROFILER_PARSER_FILEPATH"));
     if (filePath.isEmpty()) {
         filePath = QString::fromLatin1("%1/perfparser%2").arg(Core::ICore::libexecPath(),
-                                                              QTC_HOST_EXE_SUFFIX);
+                                                              QString(QTC_HOST_EXE_SUFFIX));
     }
     return QDir::toNativeSeparators(QDir::cleanPath(filePath));
 }

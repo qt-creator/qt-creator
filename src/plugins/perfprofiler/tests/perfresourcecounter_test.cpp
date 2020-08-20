@@ -62,14 +62,14 @@ template<typename Counter>
 static void fill(Counter &counter, const typename Counter::Container &container, bool fragmented)
 {
     qint64 allocated = 0;
-    QHash<void *, int> allocations;
+    QMultiHash<void *, int> allocations;
     for (int i = 0; i < 100; ++i) {
         for (int j = 0; j < 100; ++j) {
             int amount = fragmented ? j : i;
             allocated += amount;
             counter.request(amount);
             void *alloc = malloc(amount);
-            allocations.insertMulti(alloc, amount);
+            allocations.insert(alloc, amount);
             counter.obtain(reinterpret_cast<quintptr>(alloc));
             QCOMPARE(counter.currentTotal(), allocated);
         }

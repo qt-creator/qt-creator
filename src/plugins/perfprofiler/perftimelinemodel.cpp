@@ -518,7 +518,7 @@ void PerfTimelineModel::finalize()
 
     m_locationOrder.resize(m_locationStats.size());
 
-    QMultiHash<int, LocationStats>::ConstIterator iter = m_locationStats.constBegin();
+    QHash<int, LocationStats>::ConstIterator iter = m_locationStats.constBegin();
     int i = 0;
     for (; iter != m_locationStats.constEnd(); ++iter)
         m_locationOrder[i++] = iter.key();
