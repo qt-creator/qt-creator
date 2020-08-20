@@ -161,7 +161,8 @@ class TextDisplayPrivate
 public:
     QString m_message;
     QString m_tooltip;
-    QPointer<QLabel> m_label;
+    Utils::InfoLabel::InfoType m_type;
+    QPointer<InfoLabel> m_label;
 };
 
 } // Internal
@@ -894,10 +895,11 @@ void StringListAspect::setValue(const QStringList &value)
     \class ProjectExplorer::TextDisplay
 */
 
-TextDisplay::TextDisplay(const QString &message)
+TextDisplay::TextDisplay(const QString &message, InfoLabel::InfoType type)
     : d(new Internal::TextDisplayPrivate)
 {
     d->m_message = message;
+    d->m_type = type;
 }
 
 TextDisplay::~TextDisplay() = default;
@@ -905,9 +907,11 @@ TextDisplay::~TextDisplay() = default;
 void TextDisplay::addToLayout(LayoutBuilder &builder)
 {
     if (!d->m_label) {
-        d->m_label = new QLabel(d->m_message);
+        d->m_label = new InfoLabel(d->m_message, d->m_type);
         d->m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
         d->m_label->setToolTip(d->m_tooltip);
+        d->m_label->setElideMode(Qt::ElideNone);
+        d->m_label->setWordWrap(true);
     }
     builder.addItem(d->m_label.data());
     d->m_label->setVisible(isVisible());
@@ -925,6 +929,13 @@ void TextDisplay::setToolTip(const QString &tooltip)
     d->m_tooltip = tooltip;
     if (d->m_label)
         d->m_label->setToolTip(tooltip);
+}
+
+void TextDisplay::setIconType(InfoLabel::InfoType t)
+{
+    d->m_type = t;
+    if (d->m_label)
+        d->m_label->setType(t);
 }
 
 /*!

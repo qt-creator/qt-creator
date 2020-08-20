@@ -29,6 +29,7 @@
 #include "environmentaspect.h"
 
 #include <utils/fileutils.h>
+#include <utils/infolabel.h>
 #include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
 
@@ -262,13 +263,15 @@ class PROJECTEXPLORER_EXPORT TextDisplay : public ProjectConfigurationAspect
     Q_OBJECT
 
 public:
-    TextDisplay(const QString &message = {});
+    TextDisplay(const QString &message = {},
+                Utils::InfoLabel::InfoType type = Utils::InfoLabel::None);
     ~TextDisplay() override;
 
     void addToLayout(LayoutBuilder &builder) override;
 
     void setVisible(bool visible);
     void setToolTip(const QString &tooltip);
+    void setIconType(Utils::InfoLabel::InfoType t);
 
 private:
     std::unique_ptr<Internal::TextDisplayPrivate> d;
