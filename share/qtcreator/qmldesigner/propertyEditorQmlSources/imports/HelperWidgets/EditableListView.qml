@@ -53,6 +53,8 @@ Rectangle {
 
     property string typeFilter: "QtQuick3D.Material"
 
+    property int activatedReason: ComboBox.ActivatedReason.Other
+
     color: "transparent"
     border.color: StudioTheme.Values.themeControlOutline
     border.width: StudioTheme.Values.border
@@ -89,11 +91,13 @@ Rectangle {
             }
 
             onCompressedActivated: {
+                editableListView.activatedReason = reason
+
                 if (itemFilterComboBox.empty && itemFilterComboBox.editText !== "") {
                     myRepeater.dirty = false
                     editableListView.add(itemFilterComboBox.editText)
                 } else {
-                    editableListView.replace(myIndex, itemFilterComboBox.editText)
+                    editableListView.replace(itemFilterComboBox.myIndex, itemFilterComboBox.editText)
                 }
             }
         }
@@ -156,6 +160,9 @@ Rectangle {
                     myColumn.currentIndex = lastIndex
                 else
                     myColumn.currentIndex = myRepeater.localModel.length - 1
+
+                if (editableListView.activatedReason === ComboBox.ActivatedReason.Other)
+                    myColumn.currentItem.forceActiveFocus()
             }
         }
 
