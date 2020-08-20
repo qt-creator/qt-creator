@@ -128,13 +128,14 @@ function(add_qtc_library name)
     EXTRA_TRANSLATIONS ${_arg_EXTRA_TRANSLATIONS}
   )
 
-  file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+  get_filename_component(public_build_interface_dir "${CMAKE_CURRENT_SOURCE_DIR}/.." ABSOLUTE)
+  file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/..")
   target_include_directories(${name}
     PRIVATE
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
     PUBLIC
-      "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>"
-      "$<INSTALL_INTERFACE:include/${include_dir_relative_path}/..>"
+      "$<BUILD_INTERFACE:${public_build_interface_dir}>"
+      "$<INSTALL_INTERFACE:include/${include_dir_relative_path}>"
   )
 
   set(skip_translation OFF)
@@ -378,15 +379,16 @@ function(add_qtc_plugin target_name)
     EXTRA_TRANSLATIONS ${_arg_EXTRA_TRANSLATIONS}
   )
 
-  file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+  get_filename_component(public_build_interface_dir "${CMAKE_CURRENT_SOURCE_DIR}/.." ABSOLUTE)
+  file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/..")
   target_include_directories(${target_name}
     PRIVATE
       "${CMAKE_CURRENT_BINARY_DIR}"
       "${CMAKE_BINARY_DIR}/src"
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
     PUBLIC
-      "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>"
-      "$<INSTALL_INTERFACE:include/${include_dir_relative_path}/..>"
+      "$<BUILD_INTERFACE:${public_build_interface_dir}>"
+      "$<INSTALL_INTERFACE:include/${include_dir_relative_path}>"
   )
 
   set(plugin_dir "${IDE_PLUGIN_PATH}")
