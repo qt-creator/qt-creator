@@ -573,6 +573,9 @@
     application, select \uicontrol Tools > \uicontrol Git
     > \uicontrol {Git Tools} > \uicontrol {Repository Browser}.
 
+    To start \c {git bash}, select \uicontrol Tools > \uicontrol Git >
+    \uicontrol {Git Tools} > \uicontrol {Git Bash}.
+
     To resolve merge conflicts, select \uicontrol Tools > \uicontrol Git >
     \uicontrol {Git Tools} > \uicontrol {Merge Tool}.
 */
