@@ -234,12 +234,12 @@ void FormEditorView::createFormEditorWidget()
     connect(m_formEditorWidget->resetAction(), &QAction::triggered, this, &FormEditorView::resetNodeInstanceView);
 }
 
-void FormEditorView::temporaryBlockView()
+void FormEditorView::temporaryBlockView(int duration)
 {
     m_formEditorWidget->graphicsView()->setUpdatesEnabled(false);
     static auto timer = new QTimer(qApp);
     timer->setSingleShot(true);
-    timer->start(1000);
+    timer->start(duration);
 
     connect(timer, &QTimer::timeout, this, [this]() {
         m_formEditorWidget->graphicsView()->setUpdatesEnabled(true);
@@ -494,6 +494,11 @@ void FormEditorView::customNotification(const AbstractView * /*view*/, const QSt
         m_formEditorWidget->zoomAction()->zoomIn();
     if (identifier == QLatin1String("zoom out"))
         m_formEditorWidget->zoomAction()->zoomOut();
+}
+
+void FormEditorView::currentStateChanged(const ModelNode & /*node*/)
+{
+    temporaryBlockView(100);
 }
 
 AbstractFormEditorTool *FormEditorView::currentTool() const
