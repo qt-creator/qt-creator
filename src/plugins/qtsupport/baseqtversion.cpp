@@ -1692,6 +1692,11 @@ Tasks BaseQtVersion::reportIssuesImpl(const QString &proFile, const QString &bui
     return results;
 }
 
+bool BaseQtVersion::supportsMultipleQtAbis() const
+{
+    return false;
+}
+
 Tasks BaseQtVersion::reportIssues(const QString &proFile, const QString &buildDir) const
 {
     Tasks results = reportIssuesImpl(proFile, buildDir);

@@ -235,6 +235,8 @@ public:
 
     QSet<Utils::Id> features() const;
 
+    virtual bool supportsMultipleQtAbis() const;
+
 protected:
     BaseQtVersion();
     BaseQtVersion(const BaseQtVersion &other) = delete;

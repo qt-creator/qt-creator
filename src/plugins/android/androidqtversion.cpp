@@ -84,6 +84,11 @@ QString AndroidQtVersion::invalidReason() const
     return tmp;
 }
 
+bool AndroidQtVersion::supportsMultipleQtAbis() const
+{
+    return qtVersion() >= QtSupport::QtVersionNumber{5, 14};
+}
+
 Abis AndroidQtVersion::detectQtAbis() const
 {
     auto androidAbi2Abi = [](const QString &androidAbi) {
@@ -165,7 +170,7 @@ int AndroidQtVersion::minimumNDK() const
 
 void AndroidQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
 {
-    if (qtVersion() >= QtSupport::QtVersionNumber{5, 14})
+    if (supportsMultipleQtAbis())
         m_androidAbis = evaluator->values("ALL_ANDROID_ABIS");
     else
         m_androidAbis = QStringList{evaluator->value("ANDROID_TARGET_ARCH")};

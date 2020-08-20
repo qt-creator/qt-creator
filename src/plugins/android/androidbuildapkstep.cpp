@@ -390,7 +390,7 @@ void AndroidBuildApkStep::doRun()
 
         QJsonObject deploySettings = Android::AndroidManager::deploymentSettings(target());
         QString applicationBinary;
-        if (version->qtVersion() < QtSupport::QtVersionNumber(5, 14, 0)) {
+        if (!version->supportsMultipleQtAbis()) {
             QTC_ASSERT(androidAbis.size() == 1, return false);
             applicationBinary = buildSystem()->buildTarget(buildKey).targetFilePath.toString();
             FilePath androidLibsDir = buildDirectory() / "android-build/libs" / androidAbis.first();

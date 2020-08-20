@@ -423,7 +423,7 @@ bool QmakeProFileNode::setData(Utils::Id role, const QVariant &value) const
     int flags = QmakeProjectManager::Internal::ProWriter::ReplaceValues;
     if (Target *target = m_buildSystem->target()) {
         QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
-        if (version && version->qtVersion() < QtSupport::QtVersionNumber(5, 14, 0)) {
+        if (version && !version->supportsMultipleQtAbis()) {
             const QString arch = pro->singleVariableValue(Variable::AndroidArch);
             scope = "contains(ANDROID_TARGET_ARCH," + arch + ')';
             flags |= QmakeProjectManager::Internal::ProWriter::MultiLine;

@@ -287,7 +287,7 @@ QJsonObject AndroidManager::deploymentSettings(const Target *target)
     settings["qt"] = qt->prefix().toString();
     settings["ndk"] = AndroidConfigurations::currentConfig().ndkLocation(qt).toString();
     settings["sdk"] = AndroidConfigurations::currentConfig().sdkLocation().toString();
-    if (qt->qtVersion() < QtSupport::QtVersionNumber(5, 14, 0)) {
+    if (!qt->supportsMultipleQtAbis()) {
         const QStringList abis = applicationAbis(target);
         QTC_ASSERT(abis.size() == 1, return {});
         settings["stdcpp-path"] = (AndroidConfigurations::currentConfig().toolchainPath(qt)
