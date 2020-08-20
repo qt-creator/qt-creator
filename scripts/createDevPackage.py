@@ -59,6 +59,8 @@ source_include_patterns = [
     # directories
     r"^(?!(share|tests)/.*$)(.*/)?$",                     # look into all directories except under share/ and tests/
     r"^share/(qtcreator/(qml/(qmlpuppet/(.*/)?)?)?)?$", # for shared headers for qt quick designer plugins
+    r"^share/qtcreator/qml/qmlpuppet/commands/.*\.(h|pri|cpp|c|txt|md)$", #used by extra plugins
+    r"^share/qtcreator/qml/qmlpuppet/container/.*\.(h|pri|cpp|c|txt|md)$", #used by extra plugins
     r"^src/plugins/help/qlitehtml/.*\.(h|pri|cpp|c|txt|md)$", # litehtml is used by extra plugins
     # files
     r"^HACKING$",
