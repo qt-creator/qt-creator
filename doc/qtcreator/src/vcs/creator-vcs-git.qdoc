@@ -577,5 +577,6 @@
     \uicontrol {Git Tools} > \uicontrol {Git Bash}.
 
     To resolve merge conflicts, select \uicontrol Tools > \uicontrol Git >
-    \uicontrol {Git Tools} > \uicontrol {Merge Tool}.
+    \uicontrol {Git Tools} > \uicontrol {Merge Tool}. This menu item is
+    visible only when you have merge conflicts to resolve.
 */
