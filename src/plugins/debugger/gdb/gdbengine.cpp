@@ -1630,7 +1630,7 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
     cleanFilePath.clear();
     const QString base = FilePath::fromString(fileName).fileName();
 
-    QMap<QString, QString>::const_iterator jt = m_baseNameToFullName.constFind(base);
+    QMultiMap<QString, QString>::const_iterator jt = m_baseNameToFullName.constFind(base);
     while (jt != m_baseNameToFullName.constEnd() && jt.key() == base) {
         // FIXME: Use some heuristics to find the "best" match.
         return jt.value();
