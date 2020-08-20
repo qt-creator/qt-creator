@@ -51,7 +51,7 @@ BuildDirectoryAspect::BuildDirectoryAspect() : d(new Private)
     setSettingsKey("ProjectExplorer.BuildConfiguration.BuildDirectory");
     setLabelText(tr("Build directory:"));
     setDisplayStyle(PathChooserDisplay);
-    setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    setExpectedKind(Utils::PathChooser::Directory);
 }
 
 BuildDirectoryAspect::~BuildDirectoryAspect()
