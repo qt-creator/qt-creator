@@ -116,7 +116,7 @@ QString DoxygenGenerator::generate(QTextCursor cursor,
     declCandidate.replace(attribute, "");
 
     declCandidate.replace("Q_INVOKABLE", "");
-
+    declCandidate.remove(QRegularExpression(R"(\s*(public|protected|private)\s*:\s*)"));
     declCandidate.replace(QChar::ParagraphSeparator, QLatin1Char('\n'));
 
     // Let's append a closing brace in the case we got content like 'class MyType {'

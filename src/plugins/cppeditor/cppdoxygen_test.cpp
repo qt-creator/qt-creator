@@ -295,6 +295,20 @@ void DoxygenTest::testBasic_data()
           " */\n"
           "API void f();\n"
     );
+
+    QTest::newRow("withAccessSpecifierBeforeFunction") << _(
+          "class C {\n"
+          "    /**|\n"
+          "    public: void f();\n"
+          "};\n"
+        ) << _(
+          "class C {\n"
+          "    /**\n"
+          "     * @brief f\n"
+          "     */\n"
+          "    public: void f();\n"
+          "};\n"
+    );
 }
 
 void DoxygenTest::testBasic()
