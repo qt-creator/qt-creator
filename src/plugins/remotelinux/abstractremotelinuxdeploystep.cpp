@@ -83,7 +83,13 @@ bool AbstractRemoteLinuxDeployStep::fromMap(const QVariantMap &map)
 
 QVariantMap AbstractRemoteLinuxDeployStep::toMap() const
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QVariantMap map = BuildStep::toMap();
+    map.insert(d->deployService->exportDeployTimes());
+    return map;
+#else
     return BuildStep::toMap().unite(d->deployService->exportDeployTimes());
+#endif
 }
 
 bool AbstractRemoteLinuxDeployStep::init()
