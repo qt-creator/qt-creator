@@ -283,7 +283,7 @@ void AutoTestUnitTests::testCodeParserBoostTest()
     QMap<QString, int> foundNamesAndSets = m_model->boostTestSuitesAndTests();
     QCOMPARE(expectedSuitesAndTests.size(), foundNamesAndSets.size());
     for (const QString &name : expectedSuitesAndTests.keys())
-        QCOMPARE(expectedSuitesAndTests.values(name), foundNamesAndSets.values(name));
+        QCOMPARE(expectedSuitesAndTests.value(name), foundNamesAndSets.value(name));
 
     // check also that no Qt related tests have been found
     QCOMPARE(m_model->autoTestsCount(), 0);
