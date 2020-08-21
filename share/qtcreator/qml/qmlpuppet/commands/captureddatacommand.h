@@ -29,11 +29,41 @@
 
 #include "imagecontainer.h"
 
+#include <utils/smallstringio.h>
+
 namespace QmlDesigner {
 
 class CapturedDataCommand
 {
 public:
+    struct Property
+    {
+        Property() = default;
+        Property(QString key, QVariant value)
+            : key(std::move(key))
+            , value(std::move(value))
+        {}
+
+        friend QDataStream &operator<<(QDataStream &out, const Property &property)
+        {
+            out << property.key;
+            out << property.value;
+
+            return out;
+        }
+
+        friend QDataStream &operator>>(QDataStream &in, Property &property)
+        {
+            in >> property.key;
+            in >> property.value;
+
+            return in;
+        }
+
+        QString key;
+        QVariant value;
+    };
+
     struct NodeData
     {
         friend QDataStream &operator<<(QDataStream &out, const NodeData &data)
@@ -41,7 +71,7 @@ public:
             out << data.nodeId;
             out << data.contentRect;
             out << data.sceneTransform;
-            out << data.text;
+            out << data.properties;
 
             return out;
         }
@@ -51,7 +81,7 @@ public:
             in >> data.nodeId;
             in >> data.contentRect;
             in >> data.sceneTransform;
-            in >> data.text;
+            in >> data.properties;
 
             return in;
         }
@@ -59,7 +89,7 @@ public:
         qint32 nodeId = -1;
         QRectF contentRect;
         QTransform sceneTransform;
-        QString text;
+        std::vector<Property> properties;
     };
 
     struct StateData
@@ -81,7 +111,8 @@ public:
         }
 
         ImageContainer image;
-        QVector<NodeData> nodeData;
+        std::vector<NodeData> nodeData;
+        qint32 nodeId = -1;
     };
 
     friend QDataStream &operator<<(QDataStream &out, const CapturedDataCommand &command)

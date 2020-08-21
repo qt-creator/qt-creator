@@ -10,6 +10,7 @@ include(../../qtcreatorplugin.pri)
 
 include(qmldesignerplugin.pri)
 include(designercore/designercore-lib.pri)
+include(designercore/instances/instances.pri)
 include(components/componentcore/componentcore.pri)
 include(components/integration/integration.pri)
 include(components/propertyeditor/propertyeditor.pri)

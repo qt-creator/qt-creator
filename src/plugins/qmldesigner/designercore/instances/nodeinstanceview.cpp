@@ -535,18 +535,16 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
         if (hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
             if (value.isValid() || name == "invisible") {
-                PropertyValueContainer container(instance.instanceId(), name, value, TypeName());
-                ChangeAuxiliaryCommand changeAuxiliaryCommand({container});
-                m_nodeInstanceServer->changeAuxiliaryValues(changeAuxiliaryCommand);
+                PropertyValueContainer container{instance.instanceId(), name, value, TypeName()};
+                m_nodeInstanceServer->changeAuxiliaryValues({{container}});
             } else {
                 if (node.hasVariantProperty(name)) {
                     PropertyValueContainer container(instance.instanceId(), name, node.variantProperty(name).value(), TypeName());
                     ChangeValuesCommand changeValueCommand({container});
                     m_nodeInstanceServer->changePropertyValues(changeValueCommand);
                 } else if (node.hasBindingProperty(name)) {
-                    PropertyBindingContainer container(instance.instanceId(), name, node.bindingProperty(name).expression(), TypeName());
-                    ChangeBindingsCommand changeValueCommand({container});
-                    m_nodeInstanceServer->changePropertyBindings(changeValueCommand);
+                    PropertyBindingContainer container{instance.instanceId(), name, node.bindingProperty(name).expression(), TypeName()};
+                    m_nodeInstanceServer->changePropertyBindings({{container}});
                 }
             }
         }
@@ -1105,7 +1103,7 @@ ReparentInstancesCommand NodeInstanceView::createReparentInstancesCommand(const 
 
 ChangeFileUrlCommand NodeInstanceView::createChangeFileUrlCommand(const QUrl &fileUrl) const
 {
-    return ChangeFileUrlCommand(fileUrl);
+    return {fileUrl};
 }
 
 ChangeValuesCommand NodeInstanceView::createChangeValueCommand(const QList<VariantProperty>& propertyList) const
@@ -1132,7 +1130,7 @@ ChangeBindingsCommand NodeInstanceView::createChangeBindingCommand(const QList<B
 {
     QVector<PropertyBindingContainer> containerList;
 
-    foreach (const BindingProperty &property, propertyList) {
+    for (const BindingProperty &property : propertyList) {
         ModelNode node = property.parentModelNode();
         if (node.isValid() && hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
@@ -1142,13 +1140,13 @@ ChangeBindingsCommand NodeInstanceView::createChangeBindingCommand(const QList<B
 
     }
 
-    return ChangeBindingsCommand(containerList);
+    return {containerList};
 }
 
 ChangeIdsCommand NodeInstanceView::createChangeIdsCommand(const QList<NodeInstance> &instanceList) const
 {
     QVector<IdContainer> containerList;
-    foreach (const NodeInstance &instance, instanceList) {
+    for (const NodeInstance &instance : instanceList) {
         QString id = instance.modelNode().id();
         if (!id.isEmpty()) {
             IdContainer container(instance.instanceId(), id);
@@ -1156,7 +1154,7 @@ ChangeIdsCommand NodeInstanceView::createChangeIdsCommand(const QList<NodeInstan
         }
     }
 
-    return ChangeIdsCommand(containerList);
+    return {containerList};
 }
 
 

@@ -1261,8 +1261,7 @@ void Qt5InformationNodeInstanceServer::changeIds(const ChangeIdsCommand &command
             updateActiveSceneToEditView3D();
     } else {
         qint32 sceneInstanceId = sceneInstance.instanceId();
-        const QVector<IdContainer> ids = command.ids();
-        for (const auto &id : ids) {
+        for (const auto &id : command.ids) {
             if (sceneInstanceId == id.instanceId()) {
                 QMetaObject::invokeMethod(m_editView3DRootItem, "handleActiveSceneIdChange",
                                           Qt::QueuedConnection,

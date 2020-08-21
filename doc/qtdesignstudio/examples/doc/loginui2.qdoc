@@ -56,9 +56,9 @@
     First, you will add a new rectangle to \uicontrol {Form Editor} and move
     all the current UI components to it to create a new page. Then, you will
     \l {Setting Anchors and Margins}{anchor} the static elements on the
-    page, that is the logo image (\e logo) and page title (\e pageTitle),
-    to the page. When you created the project using the new project wizard
-    in Part 1 of this example, the wizard anchored \e pageTitle to the
+    page, that is the logo image (\e logo) and page title (\e pageTitle), to the
+    page. When you created the project using the new project wizard template
+    in Part 1 of this example, the wizard template anchored \e pageTitle to the
     vertical and horizontal center of the page. Therefore, you will only
     need to replace the vertical anchor of \e pageTitle with a top anchor
     to align it with \e logo on the page.

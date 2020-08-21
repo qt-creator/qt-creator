@@ -12,6 +12,7 @@
     "options":
     [
         { "key": "MainQmlFile", "value": "%{ProjectName}.qml" },
+        { "key": "RootItemName", "value": "%{ProjectName}" },
         { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" }
     ],
 
@@ -50,16 +51,6 @@
                 {
                     "source": "project.qmlproject.tpl",
                     "target": "%{ProjectDirectory}/%{ProjectName}.qmlproject",
-                    "openInEditor": false
-                },
-                {
-                    "source": "BareMetal/main.cpp.tpl",
-                    "target": "%{ProjectDirectory}/BareMetal/main.cpp",
-                    "openInEditor": false
-                },
-                {
-                    "source": "FreeRTOS/main.cpp.tpl",
-                    "target": "%{ProjectDirectory}/FreeRTOS/main.cpp",
                     "openInEditor": false
                 },
                 {

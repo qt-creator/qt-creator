@@ -58,15 +58,15 @@ public:
     void clear() { m_cache.clear(); }
     bool isEmpty() const { return m_cache.isEmpty(); }
 
-    QVariantHash toSettings() const
+    QVariantMap toSettings() const
     {
-        QVariantHash result;
+        QVariantMap result;
         for (auto it = m_cache.cbegin(), end = m_cache.cend(); it != end; ++it)
             result.insert(it.key(), QVariant::fromValue(it.value().value));
         return result;
     }
 
-    void fromSettings(const QVariantHash &stored)
+    void fromSettings(const QVariantMap &stored)
     {
         m_cache.clear();
         for (auto it = stored.cbegin(), end = stored.cend(); it != end; ++it)

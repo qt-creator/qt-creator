@@ -1,10 +1,7 @@
 <RCC>
     <qresource prefix="/">
-        <file>Page1Form.ui.qml</file>
-        <file>Page2Form.ui.qml</file>
-        <file>qtquickcontrols2.conf</file>
-        <file>Bubble.qml</file>
-        <file>Bluebubble.svg</file>
         <file>main.qml</file>
+        <file>Bluebubble.svg</file>
+        <file>Bubble.qml</file>
     </qresource>
 </RCC>

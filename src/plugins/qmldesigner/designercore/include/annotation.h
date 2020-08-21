@@ -29,6 +29,7 @@
 #include <QDebug>
 #include <QDataStream>
 
+#include "qmldesignercorelib_global.h"
 #include "nodeinstanceglobal.h"
 
 namespace QmlDesigner {
@@ -38,7 +39,7 @@ static const PropertyName annotationProperty = {("annotation")};
 static const PropertyName globalAnnotationProperty = {("globalAnnotation")};
 static const PropertyName globalAnnotationStatus = {("globalAnnotationStatus")};
 
-class GlobalAnnotationStatus
+class QMLDESIGNERCORE_EXPORT GlobalAnnotationStatus
 {
 public:
     enum Status {
@@ -64,7 +65,7 @@ private:
     Status m_status;
 };
 
-class Comment
+class QMLDESIGNERCORE_EXPORT Comment
 {
 public:
     Comment();
@@ -109,7 +110,7 @@ private:
     qint64 m_timestamp;
 };
 
-class Annotation
+class QMLDESIGNERCORE_EXPORT Annotation
 {
 public:
     Annotation();

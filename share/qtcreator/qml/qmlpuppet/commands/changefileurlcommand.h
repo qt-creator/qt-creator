@@ -26,28 +26,30 @@
 #pragma once
 
 #include <qmetatype.h>
+#include <QDataStream>
 #include <QUrl>
 
 namespace QmlDesigner {
 
 class ChangeFileUrlCommand
 {
-    friend QDataStream &operator>>(QDataStream &in, ChangeFileUrlCommand &command);
 public:
-    ChangeFileUrlCommand();
-    explicit ChangeFileUrlCommand(const QUrl &fileUrl);
+    friend QDataStream &operator>>(QDataStream &in, ChangeFileUrlCommand &command)
+    {
+        in >> command.fileUrl;
+        return in;
+    }
 
-    QUrl fileUrl() const;
+    friend QDataStream &operator<<(QDataStream &out, const ChangeFileUrlCommand &command)
+    {
+        out << command.fileUrl;
+        return out;
+    }
 
-private:
-    QUrl m_fileUrl;
+    friend QDebug operator <<(QDebug debug, const ChangeFileUrlCommand &command);
+
+    QUrl fileUrl;
 };
-
-
-QDataStream &operator<<(QDataStream &out, const ChangeFileUrlCommand &command);
-QDataStream &operator>>(QDataStream &in, ChangeFileUrlCommand &command);
-
-QDebug operator <<(QDebug debug, const ChangeFileUrlCommand &command);
 
 } // namespace QmlDesigner
 

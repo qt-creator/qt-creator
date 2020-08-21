@@ -230,6 +230,101 @@
 
     We recommend using the LLDB version that is delivered with the latest Xcode.
 
+    \section1 Specifying Debugger Settings
+
+    To specify settings for managing debugger processes, select \uicontrol Tools
+     > \uicontrol Options > \uicontrol Debugger. In the \uicontrol General tab,
+     you can specify settings that are common to all debuggers.
+
+     \image qtcreator-debugger-general-options.png
+
+    \section2 Specifying GDB Settings
+
+    To specify settings for managing the GDB process, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol Debugger > \uicontrol GDB.
+
+    \image qtcreator-gdb-options.png "GDB options"
+
+    To specify a timeout for terminating non-responsive GDB processes, set the
+    number of seconds to wait in the \uicontrol {GDB timeout} field. The default
+    value of 20 seconds should be sufficient for most applications, but if
+    loading big libraries or listing source files takes much longer than
+    that on slow machines, you should increase the value.
+
+    To compress several steps into one step for less noisy debugging when
+    stepping into code, select the \uicontrol {Skip known frames when stepping}
+    check box. For example, the atomic reference counting code is skipped, and
+    a single \e {Step Into} for a signal emission ends up directly in the slot
+    connected to it.
+
+    To display a message box as soon as your application receives a signal, such
+    as SIGSEGV, during debugging, select the \uicontrol {Show a message box when
+    receiving a signal} check box.
+
+    GDB allows setting breakpoints on source lines for which no code was
+    generated. In such situations, the breakpoint is shifted to the next
+    source code line for which the code was actually generated. To reflect
+    such temporary changes by moving the breakpoint markers in the source
+    code editor, select the \uicontrol {Adjust breakpoint locations} check box.
+
+    To specify whether the dynamic or the static type of objects will be
+    displayed, select the \uicontrol {Use dynamic object type for display}
+    check box. Keep in mind that choosing the dynamic type might be slower.
+
+    To allow reading the user's default .gdbinit file on debugger startup,
+    select the \uicontrol {Load .gdbinit file on startup} check box.
+
+    To use the default GDB pretty printers installed in your system
+    or linked to the libraries your application uses, select the
+    \uicontrol {Load system GDB pretty printers} check box.
+
+    By default, GDB shows AT&T style disassembly. To switch to the Intel style,
+    select the \uicontrol {Use Intel style disassembly} check box.
+
+    To execute GDB commands after GDB has been started, but before the debugged
+    program is started or attached, and before the debugging helpers are
+    initialized, enter them in the \uicontrol {Additional Startup Commands}
+    field.
+
+    To execute GDB commands after GDB has successfully attached to remote
+    targets, enter them in the \uicontrol {Additional Attach Commands} field.
+    You can add commands to further set up the target here, such as
+    \c {monitor reset} or \c {load}.
+
+    To execute simple Python commands, prefix them with \c python. To execute
+    sequences of Python commands spanning multiple lines, prepend the block
+    with \c python  on a separate line, and append \c end on a separate line.
+    To execute arbitrary Python scripts, use
+    \c {python execfile('/path/to/script.py')}.
+
+    \section2 Specifying Extended GDB Settings
+
+    To specify extended settings for GBD, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol Debugger > \uicontrol {GDB Extended}.
+    The settings give access to advanced or experimental functions of GDB.
+    Enabling them may negatively impact your debugging experience, so use
+    them with care.
+
+    \image qtcreator-gdb-extended-options.png "GDB Extended options"
+
+    To use asynchronous mode to control the inferior, select the
+    respective check box.
+
+    To add common paths to locations of debug information, such as
+    \c {/usr/src/debug}, when starting GDB, select the
+    \uicontrol {Use common locations for debug information} check box.
+
+    To stop when \c qWarning, \c qFatal, or \c abort is called, select the
+    respective check box.
+
+    To enable stepping backwards, select the \uicontrol {Enable reverse
+    debugging} check box. This feature is very slow and unstable on the
+    GDB side. It exhibits unpredictable behavior when going backwards over
+    system calls and is very likely to destroy your debugging session.
+
+    To keep debugging all children after a fork, select the
+    \uicontrol {Debug all child processes} check box.
+
     \section1 Mapping Source Paths
 
     To enable the debugger to step into the code and display the source code

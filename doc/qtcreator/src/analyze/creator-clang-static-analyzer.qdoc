@@ -128,6 +128,9 @@
 
             \image qtcreator-clang-tools-options.png "Clang Tools options tab"
 
+        \li In the \uicontrol Clang-Tidy and \uicontrol Clazy-Standalone fields,
+            set the paths to the executables to use.
+
         \li To build the project before running the Clang tools, select the
             \uicontrol {Build the project before analysis} check box. The Clang
             tools do not require the project to be built before analysis, but
@@ -135,9 +138,9 @@
             generated during the build. For big projects, not building the
             project might save some time.
 
-        \li In the \uicontrol {Simultaneous processes} field, select the number
-            of processes to run simultaneously to make the analysis faster on
-            multi-core processors.
+        \li In the \uicontrol {Parallel jobs} field, select the number of jobs
+            to run in parallel to make the analysis faster on multi-core
+            processors.
 
         \li In the \uicontrol {Diagnostic Configuration} group, select
             \uicontrol Manage to create or edit a custom configuration.

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -29,35 +29,9 @@
 
 namespace QmlDesigner {
 
-ChangeAuxiliaryCommand::ChangeAuxiliaryCommand() = default;
-
-ChangeAuxiliaryCommand::ChangeAuxiliaryCommand(const QVector<PropertyValueContainer> &auxiliaryChangeVector)
-    : m_auxiliaryChangeVector (auxiliaryChangeVector)
-{
-}
-
-QVector<PropertyValueContainer> ChangeAuxiliaryCommand::auxiliaryChanges() const
-{
-    return m_auxiliaryChangeVector;
-}
-
-QDataStream &operator<<(QDataStream &out, const ChangeAuxiliaryCommand &command)
-{
-    out << command.auxiliaryChanges();
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, ChangeAuxiliaryCommand &command)
-{
-    in >> command.m_auxiliaryChangeVector;
-
-    return in;
-}
-
 QDebug operator <<(QDebug debug, const ChangeAuxiliaryCommand &command)
 {
-    return debug.nospace() << "ChangeAuxiliaryCommand(auxiliaryChanges: " << command.m_auxiliaryChangeVector << ")";
+    return debug.nospace() << "ChangeAuxiliaryCommand(auxiliaryChanges: " << command.auxiliaryChanges << ")";
 }
 
 } // namespace QmlDesigner

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <QDataStream>
+#include <QDebug>
 #include <QMetaType>
 #include <QVector>
 
@@ -34,23 +36,23 @@ namespace QmlDesigner {
 
 class ChangeAuxiliaryCommand
 {
-    friend QDataStream &operator>>(QDataStream &in, ChangeAuxiliaryCommand &command);
+public:
+    friend QDataStream &operator>>(QDataStream &in, ChangeAuxiliaryCommand &command)
+    {
+        in >> command.auxiliaryChanges;
+        return in;
+    }
+
+    friend QDataStream &operator<<(QDataStream &out, const ChangeAuxiliaryCommand &command)
+    {
+        out << command.auxiliaryChanges;
+        return out;
+    }
+
     friend QDebug operator <<(QDebug debug, const ChangeAuxiliaryCommand &command);
 
-public:
-    ChangeAuxiliaryCommand();
-    explicit ChangeAuxiliaryCommand(const QVector<PropertyValueContainer> &auxiliaryChangeVector);
-
-    QVector<PropertyValueContainer> auxiliaryChanges() const;
-
-private:
-    QVector<PropertyValueContainer> m_auxiliaryChangeVector;
+    QVector<PropertyValueContainer> auxiliaryChanges;
 };
-
-QDataStream &operator<<(QDataStream &out, const ChangeAuxiliaryCommand &command);
-QDataStream &operator>>(QDataStream &in, ChangeAuxiliaryCommand &command);
-
-QDebug operator <<(QDebug debug, const ChangeAuxiliaryCommand &command);
 
 } // namespace QmlDesigner
 

@@ -3,7 +3,12 @@ Label {
     tooltip: "%1"
 }
 
-CheckBox {
-    text: backendValues.%2.valueToString
-    backendValue: backendValues.%2
+SecondColumnLayout {
+    CheckBox {
+        text: backendValues.%2.valueToString
+        backendValue: backendValues.%2
+    }
+
+    ExpandingSpacer {
+    }
 }

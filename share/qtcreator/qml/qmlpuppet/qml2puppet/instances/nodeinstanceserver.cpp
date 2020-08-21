@@ -607,7 +607,7 @@ QList<ServerNodeInstance> NodeInstanceServer::setupInstances(const CreateSceneCo
 
 void NodeInstanceServer::changeFileUrl(const ChangeFileUrlCommand &command)
 {
-    m_fileUrl = command.fileUrl();
+    m_fileUrl = command.fileUrl;
 
     if (engine())
         engine()->setBaseUrl(m_fileUrl);
@@ -632,7 +632,7 @@ void NodeInstanceServer::changePropertyValues(const ChangeValuesCommand &command
 
 void NodeInstanceServer::changeAuxiliaryValues(const ChangeAuxiliaryCommand &command)
 {
-    foreach (const PropertyValueContainer &container, command.auxiliaryChanges()) {
+    for (const PropertyValueContainer &container : command.auxiliaryChanges) {
         setInstanceAuxiliaryData(container);
     }
 
@@ -642,7 +642,7 @@ void NodeInstanceServer::changeAuxiliaryValues(const ChangeAuxiliaryCommand &com
 void NodeInstanceServer::changePropertyBindings(const ChangeBindingsCommand &command)
 {
     bool hasDynamicProperties = false;
-    foreach (const PropertyBindingContainer &container, command.bindingChanges()) {
+    for (const PropertyBindingContainer &container : command.bindingChanges) {
         hasDynamicProperties |= container.isDynamic();
         setInstancePropertyBinding(container);
     }
@@ -655,7 +655,7 @@ void NodeInstanceServer::changePropertyBindings(const ChangeBindingsCommand &com
 
 void NodeInstanceServer::changeIds(const ChangeIdsCommand &command)
 {
-    foreach (const IdContainer &container, command.ids()) {
+    for (const IdContainer &container : command.ids) {
         if (hasInstanceForId(container.instanceId()))
             instanceForId(container.instanceId()).setId(container.id());
     }

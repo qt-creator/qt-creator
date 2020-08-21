@@ -27,7 +27,7 @@
 
 #include <QMetaType>
 #include <QVector>
-
+#include <QDataStream>
 
 #include "idcontainer.h"
 
@@ -35,23 +35,22 @@ namespace QmlDesigner {
 
 class ChangeIdsCommand
 {
-    friend QDataStream &operator>>(QDataStream &in, ChangeIdsCommand &command);
+public:
+    friend QDataStream &operator>>(QDataStream &in, ChangeIdsCommand &command)
+    {
+        in >> command.ids;
+        return in;
+    }
+
+    friend QDataStream &operator<<(QDataStream &out, const ChangeIdsCommand &command)
+    {
+        out << command.ids;
+        return out;
+    }
     friend QDebug operator <<(QDebug debug, const ChangeIdsCommand &command);
 
-public:
-    ChangeIdsCommand();
-    explicit ChangeIdsCommand(const QVector<IdContainer> &idVector);
-
-    QVector<IdContainer> ids() const;
-
-private:
-    QVector<IdContainer> m_idVector;
+    QVector<IdContainer> ids;
 };
-
-QDataStream &operator<<(QDataStream &out, const ChangeIdsCommand &command);
-QDataStream &operator>>(QDataStream &in, ChangeIdsCommand &command);
-
-QDebug operator <<(QDebug debug, const ChangeIdsCommand &command);
 
 } // namespace QmlDesigner
 

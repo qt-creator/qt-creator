@@ -277,7 +277,7 @@ bool DesignDocument::isQtForMCUsProject() const
     if (m_currentTarget)
         return m_currentTarget->additionalData("CustomQtForMCUs").toBool();
 
-    return true;
+    return false;
 }
 
 void DesignDocument::changeToInFileComponentModel(ComponentTextModifier *textModifer)

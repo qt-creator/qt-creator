@@ -34,23 +34,21 @@ namespace QmlDesigner {
 
 class ChangeBindingsCommand
 {
-    friend QDataStream &operator>>(QDataStream &in, ChangeBindingsCommand &command);
+public:
+    friend QDataStream &operator>>(QDataStream &in, ChangeBindingsCommand &command) {
+        in >> command.bindingChanges;
+        return in;
+    }
+
+    friend QDataStream &operator<<(QDataStream &out, const ChangeBindingsCommand &command) {
+        out << command.bindingChanges;
+        return out;
+    }
+
     friend QDebug operator <<(QDebug debug, const ChangeBindingsCommand &command);
 
-public:
-    ChangeBindingsCommand();
-    explicit ChangeBindingsCommand(const QVector<PropertyBindingContainer> &bindingChangeVector);
-
-    QVector<PropertyBindingContainer> bindingChanges() const;
-
-private:
-    QVector<PropertyBindingContainer> m_bindingChangeVector;
+    QVector<PropertyBindingContainer> bindingChanges;
 };
-
-QDataStream &operator<<(QDataStream &out, const ChangeBindingsCommand &command);
-QDataStream &operator>>(QDataStream &in, ChangeBindingsCommand &command);
-
-QDebug operator <<(QDebug debug, const ChangeBindingsCommand &command);
 
 } // namespace QmlDesigner
 

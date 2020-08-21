@@ -63,12 +63,16 @@ void Magnifier::showEvent(QShowEvent *e)
 {
     QWidget::showEvent(e);
     grabMouse();
+    qApp->installEventFilter(this);
+    emit visibilityChanged(true);
 }
 
 void Magnifier::hideEvent(QHideEvent *e)
 {
     QWidget::hideEvent(e);
     releaseMouse();
+    qApp->removeEventFilter(this);
+    emit visibilityChanged(false);
 }
 
 void Magnifier::mousePressEvent(QMouseEvent *e)
@@ -96,6 +100,20 @@ void Magnifier::wheelEvent(QWheelEvent *e)
 
     if (m_mainView)
         m_ui.m_graphicsView->centerOn(m_mainView->mapToScene(pos() - m_topLeft + rect().center()));
+}
+
+bool Magnifier::eventFilter(QObject * /*obj*/, QEvent *event)
+{
+    if (event->type() == QEvent::KeyRelease
+        && static_cast<QKeyEvent *>(event)->key() == Qt::Key_Alt) {
+        setVisible(false);
+    }
+    if (event->type() == QEvent::ApplicationStateChange
+        && QGuiApplication::applicationState() != Qt::ApplicationActive) {
+        setVisible(false);
+    }
+
+    return false;
 }
 
 void Magnifier::moveEvent(QMoveEvent *e)

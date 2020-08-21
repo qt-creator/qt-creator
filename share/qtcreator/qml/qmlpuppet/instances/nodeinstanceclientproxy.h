@@ -33,6 +33,8 @@
 #include <QFile>
 #include <QTimer>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class QLocalSocket;
 class QIODevice;

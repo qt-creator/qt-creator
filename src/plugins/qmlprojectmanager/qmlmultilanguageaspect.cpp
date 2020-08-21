@@ -139,6 +139,9 @@ QmlMultiLanguageAspect *QmlMultiLanguageAspect::current(ProjectExplorer::Project
 
 QmlMultiLanguageAspect *QmlMultiLanguageAspect::current(ProjectExplorer::Target *target)
 {
+    if (!target)
+        return {};
+
     if (auto runConfiguration = target->activeRunConfiguration()) {
         if (auto multiLanguageAspect = runConfiguration->aspect<QmlProjectManager::QmlMultiLanguageAspect>())
             return multiLanguageAspect;

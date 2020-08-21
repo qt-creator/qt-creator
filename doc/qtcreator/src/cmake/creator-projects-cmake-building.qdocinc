@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -34,32 +34,45 @@
 
     \section2 CMake Build Configuration
 
+    Configuring medium-sized to large CMake projects in \QC can be a
+    challenge due to the number of options that you need to pass to
+    CMake to configure the project correctly. \QC creates an initial
+    configuration for you based on the kit settings and displays it in
+    the \uicontrol {Initial CMake parameters} field.
+
     \image qtcreator-cmake-build-settings.png
 
-    Setting names with a common prefix (up to the first underscore character)
-    are grouped under the prefix. To view all settings, select the
-    \uicontrol Advanced check box.
+    In the \uicontrol Value column, you can view and edit the actual values
+    of the parameters that are passed to CMake. Parameter names are listed
+    in the \uicontrol Key column. Names with a common prefix (up to the first
+    underscore character) are grouped under the prefix. To view all parameters,
+     select the \uicontrol Advanced check box.
 
-    To add build settings, select \uicontrol Add, and then select the type of
-    the setting that you are adding: \uicontrol Boolean, \uicontrol String,
+    To add parameters, select \uicontrol Add, and then select the type of
+    the parameter that you are adding: \uicontrol Boolean, \uicontrol String,
     \uicontrol Directory, or \uicontrol File.
 
-    To change the type of the selected setting, select
+    To change the type of the selected parameter, select
     \uicontrol {Force to bool}, \uicontrol {Force to file},
     \uicontrol {Force to directory}, or \uicontrol {Force to string}.
 
-    To modify the value of a build setting, double-click it, or select it,
+    To modify the value of a parameter, double-click it, or select it,
     and then select \uicontrol Edit. To save the changes, select
     \uicontrol {Apply Configuration Changes}. Keep in mind that a
     configuration change might trigger a follow-up configuration change.
 
-    To remove a setting, select \uicontrol Unset.
+    To remove a parameter, select \uicontrol Unset.
 
     To reset the changes that you made, select \uicontrol Reset.
 
-    To reconfigure CMake, select \uicontrol Build >
-    \uicontrol {Clear CMake Configuration}, and then
-    select \uicontrol Build > \uicontrol {Rescan Project}.
+    The parameter values that you change are passed via \c -D<option>=<value>
+    to CMake, which stores the options in the CMakeCache.txt file. This means
+    that if you remove the build directory, all the custom parameters that are
+    not part of the initial CMake parameters are also removed.
+
+    To reconfigure a project after making changes to the initial parameters,
+    select \uicontrol Build > \uicontrol {Clear CMake Configuration}, which
+    removes the CMakeCache.txt file. This enables you to do a full rebuild.
 
 //! [cmake build configuration]
 
@@ -69,11 +82,12 @@
     \section2 CMake Build Steps
 
     \QC builds CMake projects by running \c {cmake . --build}, which then runs
-    whatever is needed based on how the project was configured: \c make,
-    \c mingw32-make, \c nmake, or \c ninja, for example.
+    the CMake generator specified in the project configuration: \c make,
+    \c mingw32-make, \c nmake, or \c ninja, for example. The CMake generator
+    produces project files for \QC.
 
-    You can add arguments and targets for the build command in
-    \uicontrol {Build Steps}.
+    You can add arguments to pass to CMake and the generator and targets for
+    the build command in \uicontrol {Build Steps}.
 
     \image qtcreator-cmake-build-steps.png
 
@@ -117,8 +131,8 @@
 
     \section2 CMake Clean Steps
 
-    When building with CMake, you can add arguments and targets for the clean
-    command in \uicontrol {Clean Steps}.
+    When building with CMake, you can add arguments to pass to CMake and the
+    generator and targets for the clean command in \uicontrol {Clean Steps}.
 
     \image qtcreator-cmake-clean-steps.png
 

@@ -91,7 +91,7 @@ def pasteFile(sourceFile, protocol):
     clickButton(waitForObject(":Send to Codepaster.Paste_QPushButton"))
     try:
         outputWindow = waitForObject(":Qt Creator_Core::OutputWindow")
-        waitFor("re.search('^https?://', str(outputWindow.plainText)) is not None", 20000)
+        waitFor("re.search('^https://', str(outputWindow.plainText)) is not None", 20000)
         output = filter(lambda x: len(x), str(outputWindow.plainText).splitlines())[-1]
     except:
         output = ""
@@ -174,6 +174,21 @@ def fetchSnippet(protocol, description, pasteId, skippedPasting):
     clickButton(waitForObject(":PasteSelectDialog.OK_QPushButton"))
     return pasteId
 
+def checkForMovedUrl():  # protocol may be redirected (HTTP status 30x) - check for permanent moves
+    try:
+        pattern = re.compile(r'HTTP redirect \((\d{3})\) to "(.+)"')
+        outputWindow = waitForObject(":Qt Creator_Core::OutputWindow", 2000)
+        match = [None]
+        def __patternMatches__(matchHack):
+            matchHack[0] = pattern.search(str(outputWindow.plainText))
+            return matchHack[0] is not None
+        waitFor("__patternMatches__(match)", 1000)
+        if match[0] is not None:
+            test.fail("URL has moved permanently.", match[0].group(0))
+    except:
+        t,v,tb = sys.exc_info()
+        test.log(str(t), str(v))
+
 def main():
     startQC()
     if not startedWithoutPluginError():
@@ -224,9 +239,13 @@ def main():
                 clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
                 continue
             test.compare(filenameCombo.currentText, "%s: %s" % (protocol, pasteId), "Verify title of editor")
-            if protocol == NAME_PBCOM and pastedText.endswith("\n"):
+            if protocol in (NAME_PBCOM, NAME_DPCOM) and pastedText.endswith("\n"):
                 pastedText = pastedText[:-1]
             test.compare(editor.plainText, pastedText, "Verify that pasted and fetched texts are the same")
+
+            if protocol == NAME_DPCOM:
+                checkForMovedUrl()
+
             invokeMenuItem("File", "Close All")
     invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(sourceFile)

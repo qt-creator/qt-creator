@@ -162,9 +162,9 @@
             \uicontrol Change to add settings to Qbs build profiles. For more
             information, see \l {Editing Qbs Profiles}.
 
-        \li In the \uicontrol {CMake Tool} field, select the CMake tool to use
-            for building the project. Select \uicontrol Manage to add installed
-            CMake tools to the list. For more information, see
+        \li In the \uicontrol {CMake Tool} field, select the CMake executable
+            to use for building the project. Select \uicontrol Manage to add
+            installed CMake executables to the list. For more information, see
             \l{Adding CMake Tools}.
 
         \li In the \uicontrol {CMake generator} field, select \uicontrol Change
@@ -175,7 +175,7 @@
             warning if you select a generator that is not supported.
 
         \li In the \uicontrol {CMake configuration} field, select
-            \uicontrol Change to edit the variables of the CMake configuration
+            \uicontrol Change to edit the parameters of the CMake configuration
             for the kit.
 
         \li In the \uicontrol {Meson tool} field, select the Meson tool to use

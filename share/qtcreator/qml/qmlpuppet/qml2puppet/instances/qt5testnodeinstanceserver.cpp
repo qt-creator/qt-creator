@@ -80,7 +80,7 @@ void Qt5TestNodeInstanceServer::createInstances(const CreateInstancesCommand &co
 
 void Qt5TestNodeInstanceServer::changeFileUrl(const ChangeFileUrlCommand &command)
 {
-    setupFileUrl(command.fileUrl());
+    setupFileUrl(command.fileUrl);
 
     refreshBindings();
     collectItemChangesAndSendChangeCommands();
@@ -103,7 +103,7 @@ void Qt5TestNodeInstanceServer::changePropertyValues(const ChangeValuesCommand &
 void Qt5TestNodeInstanceServer::changePropertyBindings(const ChangeBindingsCommand &command)
 {
     bool hasDynamicProperties = false;
-    foreach (const PropertyBindingContainer &container, command.bindingChanges()) {
+    for (const PropertyBindingContainer &container : command.bindingChanges) {
         hasDynamicProperties |= container.isDynamic();
         setInstancePropertyBinding(container);
     }
@@ -116,7 +116,7 @@ void Qt5TestNodeInstanceServer::changePropertyBindings(const ChangeBindingsComma
 
 void Qt5TestNodeInstanceServer::changeAuxiliaryValues(const ChangeAuxiliaryCommand &command)
 {
-    foreach (const PropertyValueContainer &container, command.auxiliaryChanges()) {
+    for (const PropertyValueContainer &container : command.auxiliaryChanges) {
         setInstanceAuxiliaryData(container);
     }
 
@@ -125,7 +125,7 @@ void Qt5TestNodeInstanceServer::changeAuxiliaryValues(const ChangeAuxiliaryComma
 
 void Qt5TestNodeInstanceServer::changeIds(const ChangeIdsCommand &command)
 {
-    foreach (const IdContainer &container, command.ids()) {
+    for (const IdContainer &container : command.ids) {
         if (hasInstanceForId(container.instanceId()))
             instanceForId(container.instanceId()).setId(container.id());
     }
