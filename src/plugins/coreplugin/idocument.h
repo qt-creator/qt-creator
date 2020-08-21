@@ -88,7 +88,6 @@ public:
     void setId(Utils::Id id);
     Utils::Id id() const;
 
-    // required to be re-implemented for documents of IEditors
     virtual OpenResult open(QString *errorString, const QString &fileName, const QString &realFileName);
 
     virtual bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false);
