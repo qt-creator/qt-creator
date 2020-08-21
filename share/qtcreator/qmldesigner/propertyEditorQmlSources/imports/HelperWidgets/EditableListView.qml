@@ -188,8 +188,7 @@ Rectangle {
                 onClicked: extFuncLogic.show()
             }
             StudioControls.AbstractButton {
-                buttonIcon: "+"
-                iconFont: StudioTheme.Constants.font
+                buttonIcon: StudioTheme.Constants.plus
                 enabled: !myRepeater.dirty && !(editableListView.backendValue.isInModel && !editableListView.backendValue.isIdList)
                 onClicked: {
                     var idx = myRepeater.localModel.push("") - 1
@@ -200,8 +199,7 @@ Rectangle {
                 }
             }
             StudioControls.AbstractButton {
-                buttonIcon: "-"
-                iconFont: StudioTheme.Constants.font
+                buttonIcon: StudioTheme.Constants.minus
                 enabled: myRepeater.model.length && !(editableListView.backendValue.isInModel && !editableListView.backendValue.isIdList)
                 onClicked: {
                     var lastItem = myColumn.currentIndex === myRepeater.localModel.length - 1
