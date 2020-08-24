@@ -34,7 +34,7 @@
 namespace ClangTools {
 namespace Internal {
 
-QPair<Utils::FilePath, QString> getClangResourceDirAndVersion(const Utils::FilePath &clangToolPath);
+QPair<Utils::FilePath, QString> getClangIncludeDirAndVersion(const Utils::FilePath &clangToolPath);
 
 class ClangTidyInfo
 {

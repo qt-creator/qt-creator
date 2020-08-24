@@ -491,11 +491,11 @@ static QString clangIncludePath(const QString &clangVersion)
     \internal
 */
 QString ICore::clangIncludeDirectory(const QString &clangVersion,
-                                     const QString &clangResourceDirectory)
+                                     const QString &clangFallbackIncludeDir)
 {
     QDir dir(libexecPath() + "/clang" + clangIncludePath(clangVersion));
     if (!dir.exists() || !QFileInfo(dir, "stdint.h").exists())
-        dir = QDir(clangResourceDirectory);
+        dir = QDir(clangFallbackIncludeDir);
     return QDir::toNativeSeparators(dir.canonicalPath());
 }
 

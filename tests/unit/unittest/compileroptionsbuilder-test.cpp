@@ -208,7 +208,7 @@ TEST_F(CompilerOptionsBuilder, HeaderPathOptionsOrder)
                             "-nostdinc++",
                             "-I", toNative("/tmp/path"),
                             "-I", toNative("/tmp/system_path"),
-                            "-isystem", toNative(CLANG_RESOURCE_DIR ""),
+                            "-isystem", toNative(CLANG_INCLUDE_DIR ""),
                             "-isystem", toNative("/tmp/builtin_path")));
 }
 
@@ -232,7 +232,7 @@ TEST_F(CompilerOptionsBuilder, HeaderPathOptionsOrderCl)
                             "-I", toNative("/tmp/path"),
                             "-I", toNative("/tmp/system_path"),
                             "/clang:-isystem",
-                            "/clang:" + toNative(CLANG_RESOURCE_DIR ""),
+                            "/clang:" + toNative(CLANG_INCLUDE_DIR ""),
                             "/clang:-isystem",
                             "/clang:" + toNative("/tmp/builtin_path")));
 }
@@ -254,7 +254,7 @@ TEST_F(CompilerOptionsBuilder, UseSystemHeader)
                             "-nostdinc++",
                             "-I", toNative("/tmp/path"),
                             "-isystem", toNative("/tmp/system_path"),
-                            "-isystem", toNative(CLANG_RESOURCE_DIR ""),
+                            "-isystem", toNative(CLANG_INCLUDE_DIR ""),
                             "-isystem", toNative("/tmp/builtin_path")));
 }
 
@@ -297,7 +297,7 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderMacOs)
                             "-isystem", toNative("/usr/include/c++/4.2.1"),
                             "-isystem", toNative("/usr/include/c++/4.2.1/backward"),
                             "-isystem", toNative("/usr/local/include"),
-                            "-isystem", toNative(CLANG_RESOURCE_DIR ""),
+                            "-isystem", toNative(CLANG_INCLUDE_DIR ""),
                             "-isystem", toNative("/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"),
                             "-isystem", toNative("/usr/include"),
                             "-isystem", toNative("/tmp/builtin_path")));
@@ -334,7 +334,7 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderLinux)
             "-isystem", toNative("/usr/include/c++/4.8/backward"),
             "-isystem", toNative("/usr/include/x86_64-linux-gnu/c++/4.8"),
             "-isystem", toNative("/usr/local/include"),
-            "-isystem", toNative(CLANG_RESOURCE_DIR ""),
+            "-isystem", toNative(CLANG_INCLUDE_DIR ""),
             "-isystem", toNative("/usr/lib/gcc/x86_64-linux-gnu/4.8/include"),
             "-isystem", toNative("/usr/include/x86_64-linux-gnu"),
             "-isystem", toNative("/usr/include")));
@@ -366,7 +366,7 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderNoVersion)
                     "-isystem", toNative("C:/mingw530/i686-w64-mingw32/include/c++"),
                     "-isystem", toNative("C:/mingw530/i686-w64-mingw32/include/c++/i686-w64-mingw32"),
                     "-isystem", toNative("C:/mingw530/i686-w64-mingw32/include/c++/backward"),
-                    "-isystem", toNative(CLANG_RESOURCE_DIR ""),
+                    "-isystem", toNative(CLANG_INCLUDE_DIR ""),
                     "-isystem", toNative("C:/mingw530/i686-w64-mingw32/include")));
 }
 
@@ -395,7 +395,7 @@ TEST_F(CompilerOptionsBuilder, ClangHeadersAndCppIncludesPathsOrderAndroidClang)
                             "-nostdinc++",
                             "-isystem", toNative("C:/Android/sdk/ndk-bundle/sources/cxx-stl/llvm-libc++/include"),
                             "-isystem", toNative("C:/Android/sdk/ndk-bundle/sources/cxx-stl/llvm-libc++abi/include"),
-                            "-isystem", toNative(CLANG_RESOURCE_DIR ""),
+                            "-isystem", toNative(CLANG_INCLUDE_DIR ""),
                             "-isystem", toNative("C:/Android/sdk/ndk-bundle/sysroot/usr/include/i686-linux-android"),
                             "-isystem", toNative("C:/Android/sdk/ndk-bundle/sources/android/support/include"),
                             "-isystem", toNative("C:/Android/sdk/ndk-bundle/sysroot/usr/include")));
@@ -657,7 +657,7 @@ TEST_F(CompilerOptionsBuilder, BuildAllOptions)
                             "-I", IsPartOfHeader(toNative("wrappedQtHeaders/QtCore").toStdString()),
                             "-I", toNative("/tmp/path"),
                             "-I", toNative("/tmp/system_path"),
-                            "-isystem", toNative(CLANG_RESOURCE_DIR ""),
+                            "-isystem", toNative(CLANG_INCLUDE_DIR ""),
                             "-isystem", toNative("/tmp/builtin_path")));
 }
 
@@ -695,7 +695,7 @@ TEST_F(CompilerOptionsBuilder, BuildAllOptionsCl)
                             "-I", toNative("/tmp/path"),
                             "-I", toNative("/tmp/system_path"),
                             "/clang:-isystem",
-                            "/clang:" + toNative(CLANG_RESOURCE_DIR ""),
+                            "/clang:" + toNative(CLANG_INCLUDE_DIR ""),
                             "/clang:-isystem",
                             "/clang:" + toNative("/tmp/builtin_path")));
 }

@@ -203,13 +203,13 @@ static QString queryVersion(const FilePath &clangToolPath)
     return {};
 }
 
-QPair<FilePath, QString> getClangResourceDirAndVersion(const FilePath &clangToolPath)
+QPair<FilePath, QString> getClangIncludeDirAndVersion(const FilePath &clangToolPath)
 {
     const FilePath dynamicResourceDir = queryResourceDir(clangToolPath);
     const QString dynamicVersion = queryVersion(clangToolPath);
     if (dynamicResourceDir.isEmpty() || dynamicVersion.isEmpty())
-        return qMakePair(FilePath::fromString(CLANG_RESOURCE_DIR), QString(CLANG_VERSION));
-    return qMakePair(dynamicResourceDir, dynamicVersion);
+        return qMakePair(FilePath::fromString(CLANG_INCLUDE_DIR), QString(CLANG_VERSION));
+    return qMakePair(dynamicResourceDir + "/include", dynamicVersion);
 }
 
 } // namespace Internal

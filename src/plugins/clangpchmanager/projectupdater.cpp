@@ -332,7 +332,7 @@ ProjectUpdater::SystemAndProjectIncludeSearchPaths ProjectUpdater::createInclude
     CppTools::HeaderPathFilter filter(projectPart,
                                       CppTools::UseTweakedHeaderPaths::Yes,
                                       CLANG_VERSION,
-                                      CLANG_RESOURCE_DIR,
+                                      CLANG_INCLUDE_DIR,
                                       projectDirectory(projectPart.project),
                                       buildDirectory(projectPart.project));
     filter.process();

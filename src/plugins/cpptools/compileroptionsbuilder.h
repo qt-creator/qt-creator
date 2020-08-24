@@ -45,14 +45,13 @@ CPPTOOLS_EXPORT QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, 
 class CPPTOOLS_EXPORT CompilerOptionsBuilder
 {
 public:
-    CompilerOptionsBuilder(
-        const ProjectPart &projectPart,
+    CompilerOptionsBuilder(const ProjectPart &projectPart,
         UseSystemHeader useSystemHeader = UseSystemHeader::No,
         UseTweakedHeaderPaths useTweakedHeaderPaths = UseTweakedHeaderPaths::No,
         UseLanguageDefines useLanguageDefines = UseLanguageDefines::No,
         UseBuildSystemWarnings useBuildSystemWarnings = UseBuildSystemWarnings::No,
         const QString &clangVersion = QString(),
-        const QString &clangResourceDirectory = QString());
+        const QString &clangIncludeDirectory = QString());
 
     QStringList build(ProjectFile::Kind fileKind, UsePrecompiledHeaders usePrecompiledHeaders);
     QStringList options() const { return m_options; }
@@ -112,7 +111,7 @@ private:
     const UseBuildSystemWarnings m_useBuildSystemWarnings;
 
     const QString m_clangVersion;
-    const QString m_clangResourceDirectory;
+    const QString m_clangIncludeDirectory;
 
     struct {
         QStringList flags;

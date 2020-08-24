@@ -35,12 +35,12 @@ public:
     HeaderPathFilter(const ProjectPart &projectPart,
                      UseTweakedHeaderPaths useTweakedHeaderPaths = UseTweakedHeaderPaths::Yes,
                      const QString &clangVersion = {},
-                     const QString &clangResourceDirectory = {},
+                     const QString &clangIncludeDirectory = {},
                      const QString &projectDirectory = {},
                      const QString &buildDirectory = {})
         : projectPart{projectPart}
         , clangVersion{clangVersion}
-        , clangResourceDirectory{clangResourceDirectory}
+        , clangFallbackIncludeDirectory{clangIncludeDirectory}
         , projectDirectory(ensurePathWithSlashEnding(projectDirectory))
         , buildDirectory(ensurePathWithSlashEnding(buildDirectory))
         , useTweakedHeaderPaths{useTweakedHeaderPaths}
@@ -67,7 +67,7 @@ public:
     ProjectExplorer::HeaderPaths userHeaderPaths;
     const ProjectPart &projectPart;
     const QString clangVersion;
-    const QString clangResourceDirectory;
+    const QString clangFallbackIncludeDirectory;
     const QString projectDirectory;
     const QString buildDirectory;
     const UseTweakedHeaderPaths useTweakedHeaderPaths;

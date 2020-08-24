@@ -5,7 +5,7 @@ add_qtc_library(ClangSupport
   PUBLIC_DEPENDS Utils Sqlite Qt5::Core Qt5::Network
   PUBLIC_DEFINES
     CLANG_VERSION="${CLANG_VERSION}"
-    CLANG_RESOURCE_DIR="${IDE_LIBEXEC_PATH}/clang/lib/clang/${CLANG_VERSION}/include"
+    CLANG_INCLUDE_DIR="${IDE_LIBEXEC_PATH}/clang/lib/clang/${CLANG_VERSION}/include"
     CLANG_BINDIR="${IDE_LIBEXEC_PATH}/clang/bin"
   DEFINES CLANGSUPPORT_BUILD_LIB
   PUBLIC_INCLUDES

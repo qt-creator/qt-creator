@@ -154,7 +154,7 @@ private:
      bool m_success = false;
 };
 
-static AnalyzeUnits toAnalyzeUnits(const FileInfos &fileInfos, const FilePath &clangResourceDir,
+static AnalyzeUnits toAnalyzeUnits(const FileInfos &fileInfos, const FilePath &clangIncludeDir,
                                    const QString &clangVersion)
 {
     AnalyzeUnits unitsToAnalyze;
@@ -166,7 +166,7 @@ static AnalyzeUnits toAnalyzeUnits(const FileInfos &fileInfos, const FilePath &c
                                               UseLanguageDefines::No,
                                               UseBuildSystemWarnings::No,
                                               clangVersion,
-                                              clangResourceDir.toString());
+                                              clangIncludeDir.toString());
         QStringList arguments = extraClangToolsPrependOptions();
         arguments.append(optionsBuilder.build(fileInfo.kind, usePrecompiledHeaders));
         arguments.append(extraClangToolsAppendOptions());
@@ -176,12 +176,12 @@ static AnalyzeUnits toAnalyzeUnits(const FileInfos &fileInfos, const FilePath &c
     return unitsToAnalyze;
 }
 
-AnalyzeUnits ClangToolRunWorker::unitsToAnalyze(const FilePath &clangResourceDir,
+AnalyzeUnits ClangToolRunWorker::unitsToAnalyze(const FilePath &clangIncludeDir,
                                                 const QString &clangVersion)
 {
     QTC_ASSERT(m_projectInfo.isValid(), return AnalyzeUnits());
 
-    return toAnalyzeUnits(m_fileInfos, clangResourceDir, clangVersion);
+    return toAnalyzeUnits(m_fileInfos, clangIncludeDir, clangVersion);
 }
 
 static QDebug operator<<(QDebug debug, const Utils::Environment &environment)
@@ -288,10 +288,10 @@ void ClangToolRunWorker::start()
                   Utils::NormalMessageFormat);
 
     // Collect files
-    const auto clangResourceDirAndVersion =
-            getClangResourceDirAndVersion(runControl()->runnable().executable);
-    const AnalyzeUnits unitsToProcess = unitsToAnalyze(clangResourceDirAndVersion.first,
-                                                       clangResourceDirAndVersion.second);
+    const auto clangIncludeDirAndVersion =
+            getClangIncludeDirAndVersion(runControl()->runnable().executable);
+    const AnalyzeUnits unitsToProcess = unitsToAnalyze(clangIncludeDirAndVersion.first,
+                                                       clangIncludeDirAndVersion.second);
     qCDebug(LOG) << "Files to process:" << unitsToProcess;
 
     m_queue.clear();

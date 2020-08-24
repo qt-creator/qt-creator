@@ -161,7 +161,7 @@ public:
     static QString clangTidyExecutable(const QString &clangBinDirectory);
     static QString clazyStandaloneExecutable(const QString &clangBinDirectory);
     static QString clangIncludeDirectory(const QString &clangVersion,
-                                         const QString &clangResourceDirectory);
+                                         const QString &clangFallbackIncludeDir);
     static QString buildCompatibilityString();
     static QStatusBar *statusBar();
 

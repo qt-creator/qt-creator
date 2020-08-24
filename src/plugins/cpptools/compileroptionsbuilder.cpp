@@ -105,14 +105,14 @@ CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart,
                                                UseLanguageDefines useLanguageDefines,
                                                UseBuildSystemWarnings useBuildSystemWarnings,
                                                const QString &clangVersion,
-                                               const QString &clangResourceDirectory)
+                                               const QString &clangIncludeDirectory)
     : m_projectPart(projectPart)
     , m_useSystemHeader(useSystemHeader)
     , m_useTweakedHeaderPaths(useTweakedHeaderPaths)
     , m_useLanguageDefines(useLanguageDefines)
     , m_useBuildSystemWarnings(useBuildSystemWarnings)
     , m_clangVersion(clangVersion)
-    , m_clangResourceDirectory(clangResourceDirectory)
+    , m_clangIncludeDirectory(clangIncludeDirectory)
 {
 }
 
@@ -332,7 +332,7 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
     HeaderPathFilter filter{m_projectPart,
                             m_useTweakedHeaderPaths,
                             m_clangVersion,
-                            m_clangResourceDirectory};
+                            m_clangIncludeDirectory};
 
     filter.process();
 

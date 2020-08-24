@@ -162,12 +162,12 @@ TEST_F(HeaderPathFilter, ClangHeadersPath)
     CppTools::HeaderPathFilter filter{projectPart,
                                       CppTools::UseTweakedHeaderPaths::Yes,
                                       "6.0",
-                                      CLANG_RESOURCE_DIR};
+                                      CLANG_INCLUDE_DIR};
 
     filter.process();
 
     ASSERT_THAT(filter.builtInHeaderPaths,
-                ElementsAre(HasBuiltIn(CLANG_RESOURCE_DIR), HasBuiltIn("/builtin_path")));
+                ElementsAre(HasBuiltIn(CLANG_INCLUDE_DIR), HasBuiltIn("/builtin_path")));
 }
 
 TEST_F(HeaderPathFilter, ClangHeadersPathWitoutClangVersion)
@@ -198,7 +198,7 @@ TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderMacOs)
     CppTools::HeaderPathFilter filter{projectPart,
                                       CppTools::UseTweakedHeaderPaths::Yes,
                                       "6.0",
-                                      CLANG_RESOURCE_DIR};
+                                      CLANG_INCLUDE_DIR};
 
     filter.process();
 
@@ -206,7 +206,7 @@ TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderMacOs)
                 ElementsAre(HasBuiltIn("/usr/include/c++/4.2.1"),
                             HasBuiltIn("/usr/include/c++/4.2.1/backward"),
                             HasBuiltIn("/usr/local/include"),
-                            HasBuiltIn(CLANG_RESOURCE_DIR),
+                            HasBuiltIn(CLANG_INCLUDE_DIR),
                             HasBuiltIn("/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"),
                             HasBuiltIn("/usr/include"),
                             HasBuiltIn("/builtin_path")));
@@ -229,7 +229,7 @@ TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderLinux)
     CppTools::HeaderPathFilter filter{projectPart,
                                       CppTools::UseTweakedHeaderPaths::Yes,
                                       "6.0",
-                                      CLANG_RESOURCE_DIR};
+                                      CLANG_INCLUDE_DIR};
 
     filter.process();
 
@@ -238,7 +238,7 @@ TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderLinux)
                             HasBuiltIn("/usr/include/c++/4.8/backward"),
                             HasBuiltIn("/usr/include/x86_64-linux-gnu/c++/4.8"),
                             HasBuiltIn("/usr/local/include"),
-                            HasBuiltIn(CLANG_RESOURCE_DIR),
+                            HasBuiltIn(CLANG_INCLUDE_DIR),
                             HasBuiltIn("/usr/lib/gcc/x86_64-linux-gnu/4.8/include"),
                             HasBuiltIn("/usr/include/x86_64-linux-gnu"),
                             HasBuiltIn("/usr/include"),
@@ -258,11 +258,11 @@ TEST_F(HeaderPathFilter, RemoveGccInternalPaths)
     CppTools::HeaderPathFilter filter{projectPart,
                                       CppTools::UseTweakedHeaderPaths::Yes,
                                       "6.0",
-                                      CLANG_RESOURCE_DIR};
+                                      CLANG_INCLUDE_DIR};
 
     filter.process();
 
-    ASSERT_THAT(filter.builtInHeaderPaths, ElementsAre(HasBuiltIn(CLANG_RESOURCE_DIR)));
+    ASSERT_THAT(filter.builtInHeaderPaths, ElementsAre(HasBuiltIn(CLANG_INCLUDE_DIR)));
 }
 
 // Some distributions ship the standard library headers in "<installdir>/include/c++" (MinGW)
@@ -280,12 +280,12 @@ TEST_F(HeaderPathFilter, RemoveGccInternalPathsExceptForStandardPaths)
     };
 
     auto expected = projectPart.headerPaths;
-    expected << builtIn(CLANG_RESOURCE_DIR);
+    expected << builtIn(CLANG_INCLUDE_DIR);
 
     CppTools::HeaderPathFilter filter{projectPart,
                                       CppTools::UseTweakedHeaderPaths::Yes,
                                       "6.0",
-                                      CLANG_RESOURCE_DIR};
+                                      CLANG_INCLUDE_DIR};
 
     filter.process();
 
@@ -304,7 +304,7 @@ TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderNoVersion)
     CppTools::HeaderPathFilter filter{projectPart,
                                       CppTools::UseTweakedHeaderPaths::Yes,
                                       "6.0",
-                                      CLANG_RESOURCE_DIR};
+                                      CLANG_INCLUDE_DIR};
 
     filter.process();
 
@@ -313,7 +313,7 @@ TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderNoVersion)
         ElementsAre(HasBuiltIn("C:/mingw/i686-w64-mingw32/include/c++"),
                     HasBuiltIn("C:/mingw/i686-w64-mingw32/include/c++/i686-w64-mingw32"),
                     HasBuiltIn("C:/mingw/i686-w64-mingw32/include/c++/backward"),
-                    HasBuiltIn(CLANG_RESOURCE_DIR),
+                    HasBuiltIn(CLANG_INCLUDE_DIR),
                     HasBuiltIn("C:/mingw/i686-w64-mingw32/include")));
 }
 
@@ -330,7 +330,7 @@ TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderAndroidClang)
     CppTools::HeaderPathFilter filter{projectPart,
                                       CppTools::UseTweakedHeaderPaths::Yes,
                                       "6.0",
-                                      CLANG_RESOURCE_DIR};
+                                      CLANG_INCLUDE_DIR};
 
     filter.process();
 
@@ -338,7 +338,7 @@ TEST_F(HeaderPathFilter, ClangHeadersAndCppIncludesPathsOrderAndroidClang)
         filter.builtInHeaderPaths,
         ElementsAre(HasBuiltIn("C:/Android/sdk/ndk-bundle/sources/cxx-stl/llvm-libc++/include"),
                     HasBuiltIn("C:/Android/sdk/ndk-bundle/sources/cxx-stl/llvm-libc++abi/include"),
-                    HasBuiltIn(CLANG_RESOURCE_DIR),
+                    HasBuiltIn(CLANG_INCLUDE_DIR),
                     HasBuiltIn("C:/Android/sdk/ndk-bundle/sysroot/usr/include/i686-linux-android"),
                     HasBuiltIn("C:/Android/sdk/ndk-bundle/sources/android/support/include"),
                     HasBuiltIn("C:/Android/sdk/ndk-bundle/sysroot/usr/include")));

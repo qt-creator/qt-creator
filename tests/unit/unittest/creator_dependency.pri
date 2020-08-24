@@ -26,7 +26,7 @@ include($$PWD/../../../src/plugins/clangcodemodel/clangcodemodelunittestfiles.pr
 !isEmpty(CLANGFORMAT_LIBS): include($$PWD/../../../src/plugins/clangformat/clangformat-source.pri)
 } else {
 DEFINES += CLANG_VERSION=\\\"6.0.0\\\"
-DEFINES += "\"CLANG_RESOURCE_DIR=\\\"/usr/include\\\"\""
+DEFINES += "\"CLANG_INCLUDE_DIR=\\\"/usr/include\\\"\""
 }
 
 INCLUDEPATH += \

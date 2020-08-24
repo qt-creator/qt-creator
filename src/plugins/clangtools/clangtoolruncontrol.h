@@ -93,7 +93,7 @@ private:
     QList<RunnerCreator> runnerCreators();
     template <class T> ClangToolRunner *createRunner();
 
-    AnalyzeUnits unitsToAnalyze(const Utils::FilePath &clangResourceDir,
+    AnalyzeUnits unitsToAnalyze(const Utils::FilePath &clangIncludeDir,
                                 const QString &clangVersion);
     void analyzeNextFile();
 
