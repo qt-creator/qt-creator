@@ -98,6 +98,7 @@ public:
         {
             out << data.image;
             out << data.nodeData;
+            out << data.nodeId;
 
             return out;
         }
@@ -106,6 +107,7 @@ public:
         {
             in >> data.image;
             in >> data.nodeData;
+            in >> data.nodeId;
 
             return in;
         }
