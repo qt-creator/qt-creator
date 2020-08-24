@@ -286,7 +286,9 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     qCDebug(androidRunWorkerLog) << "Environment variables for the app"
                                  << m_extraEnvVars.toStringList();
 
-    m_extraAppParams = runControl->runnable().commandLineArguments;
+    if (target->buildConfigurations().first()->buildType() != BuildConfiguration::BuildType::Release) {
+        m_extraAppParams = runControl->runnable().commandLineArguments;
+    }
 
     if (auto aspect = runControl->aspect(Constants::ANDROID_AMSTARTARGS)) {
         const QString startArgs = static_cast<StringAspect *>(aspect)->value();

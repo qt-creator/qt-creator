@@ -136,6 +136,9 @@ QVariant CMakeTargetNode::data(Utils::Id role) const
     if (role == Android::Constants::AndroidExtraLibs)
         return value("ANDROID_EXTRA_LIBS");
 
+    if (role == Android::Constants::ANDROID_APPLICATION_ARGUMENTS)
+        return value("QT_ANDROID_APPLICATION_ARGUMENTS");
+
     if (role == Android::Constants::AndroidArch)
         return value("ANDROID_ABI");
 

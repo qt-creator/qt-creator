@@ -65,6 +65,7 @@ const char ANDROID_ARCHITECTURE[] = "Android.Architecture";
 const char ANDROID_PACKAGE_SOURCE_DIR[] = "AndroidPackageSourceDir";
 const char ANDROID_EXTRA_LIBS[] = "AndroidExtraLibs";
 const char ANDROID_ABIS[] = "ANDROID_ABIS";
+const char ANDROID_APPLICATION_ARGUMENTS[] = "ANDROID_APPLICATION_ARGUMENTS";
 
 const char ANDROID_PACKAGENAME[] = "Android.PackageName";
 const char ANDROID_PACKAGE_INSTALLATION_STEP_ID[]

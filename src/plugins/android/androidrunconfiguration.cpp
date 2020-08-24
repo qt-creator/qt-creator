@@ -112,7 +112,16 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Utils::Id id)
     auto envAspect = addAspect<EnvironmentAspect>();
     envAspect->addSupportedBaseEnvironment(tr("Clean Environment"), {});
 
-    addAspect<ArgumentsAspect>();
+    auto extraAppArgsAspect = addAspect<ArgumentsAspect>();
+
+    connect(extraAppArgsAspect, &ArgumentsAspect::argumentsChanged, this, [target](const QString &arguments) {
+        if (target->buildConfigurations().first()->buildType() == BuildConfiguration::BuildType::Release) {
+            const QString buildKey = target->activeBuildKey();
+            target->buildSystem()->setExtraData(buildKey,
+                                                Android::Constants::ANDROID_APPLICATION_ARGUMENTS,
+                                                arguments);
+        }
+    });
 
     auto amStartArgsAspect = addAspect<StringAspect>();
     amStartArgsAspect->setId(Constants::ANDROID_AMSTARTARGS);

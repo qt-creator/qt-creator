@@ -101,6 +101,7 @@ enum class Variable {
     AndroidAbis,
     AndroidPackageSourceDir,
     AndroidExtraLibs,
+    AndroidApplicationArguments,
     AppmanPackageDir,
     AppmanManifest,
     IsoIcons,

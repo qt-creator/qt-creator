@@ -1589,6 +1589,7 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
         result->newVarValues[Variable::AndroidDeploySettingsFile] = exactReader->values(QLatin1String("ANDROID_DEPLOYMENT_SETTINGS_FILE"));
         result->newVarValues[Variable::AndroidPackageSourceDir] = exactReader->values(QLatin1String("ANDROID_PACKAGE_SOURCE_DIR"));
         result->newVarValues[Variable::AndroidAbis] = exactReader->values(QLatin1String("ANDROID_ABIS"));
+        result->newVarValues[Variable::AndroidApplicationArguments] = exactReader->values(QLatin1String("ANDROID_APPLICATION_ARGUMENTS"));
         result->newVarValues[Variable::AndroidExtraLibs] = exactReader->values(QLatin1String("ANDROID_EXTRA_LIBS"));
         result->newVarValues[Variable::AppmanPackageDir] = exactReader->values(QLatin1String("AM_PACKAGE_DIR"));
         result->newVarValues[Variable::AppmanManifest] = exactReader->values(QLatin1String("AM_MANIFEST"));
