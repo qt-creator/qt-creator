@@ -52,8 +52,10 @@
     following views, select \uicontrol View > \uicontrol Views:
 
     \list
-        \li \uicontrol {Form Editor} (1) provides a canvas for designing 2D UIs.
-            For more information, see \l {Editing 2D Content}.
+        \li \uicontrol {Form Editor} (1) provides a canvas for designing
+            2D UIs. For more information, see \l {Editing 2D Content}.
+            When you are editing 3D scenes, the \uicontrol {Form Editor} is
+            used as a canvas for the 3D scene projected by the camera.
 
         \li \uicontrol {3D Editor} provides an editor for files you created
             using 3D graphics applications and stored in one of the supported
@@ -88,11 +90,11 @@
 
         \li \uicontrol {Open Documents} shows currently open files.
 
-        \li \uicontrol {Projects} shows a list of projects open in the
+        \li \uicontrol {Projects} (6) shows a list of projects open in the
             current session. For more information, see
             \l{Viewing Project Files}.
 
-        \li \uicontrol {States} (6) displays the different states of the item.
+        \li \uicontrol {States} displays the different states of the item.
             QML states typically describe user interface configurations, such as
             the UI controls, their properties and behavior and the available
             actions. For more information, see \l{Adding States}.
