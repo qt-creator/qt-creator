@@ -235,6 +235,7 @@ bool handleDoxygenContinuation(QTextCursor &cursor,
                     newLine.append(QLatin1String(" * "));
                 else
                     newLine.append(QLatin1String("   "));
+                offset += 3;
             } else {
                 // If '*' is not within a comment, skip.
                 QTextCursor cursorOnFirstNonWhiteSpace(cursor);
@@ -249,8 +250,9 @@ bool handleDoxygenContinuation(QTextCursor &cursor,
                     ++offset;
                 const QChar ch = leadingAsterisks ? QLatin1Char('*') : QLatin1Char(' ');
                 newLine.append(QString(offset - start, ch));
-                newLine.append(QLatin1Char(' '));
             }
+            for (; offset < blockPos && currentLine.at(offset) == ' '; ++offset)
+                newLine.append(QLatin1Char(' '));
             cursor.insertText(newLine);
             return true;
         }

@@ -309,6 +309,34 @@ void DoxygenTest::testBasic_data()
           "    public: void f();\n"
           "};\n"
     );
+
+    QTest::newRow("continuation_after_text_in_first_line") << _(
+        "bool preventFolding;\n"
+        "/*! leading comment|\n"
+        " */\n"
+        "int a;\n"
+        ) << _(
+        "bool preventFolding;\n"
+        "/*! leading comment\n"
+        " *  \n"
+        " */\n"
+        "int a;\n"
+    );
+
+    QTest::newRow("continuation_after_extra_indent") << _(
+        "bool preventFolding;\n"
+        "/*! leading comment\n"
+        " *  cont|\n"
+        " */\n"
+        "int a;\n"
+        ) << _(
+        "bool preventFolding;\n"
+        "/*! leading comment\n"
+        " *  cont\n"
+        " *  \n"
+        " */\n"
+        "int a;\n"
+    );
 }
 
 void DoxygenTest::testBasic()
