@@ -10,6 +10,11 @@ Product {
         fileTags: ["hpp.in"]
     }
 
+    Group {
+        name: "other"
+        files: "app_version.h.cmakein"
+    }
+
     Depends { name: "qtc" }
 
     Rule {
