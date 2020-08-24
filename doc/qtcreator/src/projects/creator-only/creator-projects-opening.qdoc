@@ -70,7 +70,7 @@
     If you have built the project before, \QC can use the existing build
     configuration to make the exact same build as found in the directory
     available to \QC. To import a build, specify a directory in the
-    \uicontrol {Import Build from} section and select \uicontrol {Import}.
+    \uicontrol {Import Build From} section and select \uicontrol {Import}.
 
     You can edit the build configuration later. For more information, see
     \l{Editing Build Configurations}.
