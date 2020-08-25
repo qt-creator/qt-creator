@@ -36,16 +36,12 @@ namespace Nim {
 
 class NimbleTaskStep;
 
-namespace Ui { class NimbleTaskStepWidget; }
-
 class NimbleTaskStepWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
 
 public:
     explicit NimbleTaskStepWidget(NimbleTaskStep *buildStep);
-
-    ~NimbleTaskStepWidget();
 
 signals:
     void selectedTaskChanged(const QString &name);
@@ -59,7 +55,6 @@ private:
 
     void uncheckedAllDifferentFrom(QStandardItem *item);
 
-    Ui::NimbleTaskStepWidget *ui;
     QStandardItemModel m_tasks;
     bool m_selecting = false;
 };

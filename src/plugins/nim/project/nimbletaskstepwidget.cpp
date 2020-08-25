@@ -24,10 +24,13 @@
 ****************************************************************************/
 
 #include "nimbletaskstepwidget.h"
-#include "ui_nimbletaskstepwidget.h"
 
 #include "nimbleproject.h"
 #include "nimbletaskstep.h"
+
+#include <QFormLayout>
+#include <QLineEdit>
+#include <QListView>
 
 #include <utils/algorithm.h>
 
@@ -36,14 +39,25 @@ using namespace ProjectExplorer;
 
 NimbleTaskStepWidget::NimbleTaskStepWidget(NimbleTaskStep *bs)
     : BuildStepConfigWidget(bs)
-    , ui(new Ui::NimbleTaskStepWidget)
 {
-    ui->setupUi(this);
+    auto taskArgumentsLineEdit = new QLineEdit(this);
+
+    auto taskList = new QListView(this);
+    taskList->setFrameShape(QFrame::StyledPanel);
+    taskList->setSelectionMode(QAbstractItemView::NoSelection);
+    taskList->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+    auto formLayout = new QFormLayout(this);
+    formLayout->setSizeConstraint(QLayout::SetDefaultConstraint);
+    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+
+    formLayout->addRow(tr("Task arguments:"), taskArgumentsLineEdit);
+    formLayout->addRow(tr("Tasks:"), taskList);
 
     auto buildSystem = dynamic_cast<NimbleBuildSystem *>(bs->buildSystem());
     QTC_ASSERT(buildSystem, return);
 
-    ui->taskList->setModel(&m_tasks);
+    taskList->setModel(&m_tasks);
     QObject::connect(&m_tasks, &QAbstractItemModel::dataChanged, this, &NimbleTaskStepWidget::onDataChanged);
 
     updateTaskList();
@@ -54,11 +68,10 @@ NimbleTaskStepWidget::NimbleTaskStepWidget(NimbleTaskStep *bs)
     QObject::connect(bs, &NimbleTaskStep::taskNameChanged, this, &NimbleTaskStepWidget::recreateSummary);
     QObject::connect(this, &NimbleTaskStepWidget::selectedTaskChanged, bs, &NimbleTaskStep::setTaskName);
 
-    ui->taskArgumentsLineEdit->setText(bs->taskArgs());
-    QObject::connect(bs, &NimbleTaskStep::taskArgsChanged, ui->taskArgumentsLineEdit, &QLineEdit::setText);
+    taskArgumentsLineEdit->setText(bs->taskArgs());
+    QObject::connect(bs, &NimbleTaskStep::taskArgsChanged, taskArgumentsLineEdit, &QLineEdit::setText);
     QObject::connect(bs, &NimbleTaskStep::taskArgsChanged, this, &NimbleTaskStepWidget::recreateSummary);
-    QObject::connect(ui->taskArgumentsLineEdit, &QLineEdit::textChanged, bs ,&NimbleTaskStep::setTaskArgs);
-
+    QObject::connect(taskArgumentsLineEdit, &QLineEdit::textChanged, bs ,&NimbleTaskStep::setTaskArgs);
 
     setSummaryUpdater([this, bs] {
         return QString("<b>%1:</b> nimble %2 %3")
@@ -66,11 +79,6 @@ NimbleTaskStepWidget::NimbleTaskStepWidget(NimbleTaskStep *bs)
                 .arg(bs->taskName())
                 .arg(bs->taskArgs());
     });
-}
-
-NimbleTaskStepWidget::~NimbleTaskStepWidget()
-{
-    delete ui;
 }
 
 void NimbleTaskStepWidget::updateTaskList()

@@ -13,7 +13,7 @@ add_qtc_plugin(Nim
     project/nimbleproject.h project/nimbleproject.cpp
     project/nimblerunconfiguration.h project/nimblerunconfiguration.cpp
     project/nimbletaskstep.h project/nimbletaskstep.cpp
-    project/nimbletaskstepwidget.h project/nimbletaskstepwidget.cpp project/nimbletaskstepwidget.ui
+    project/nimbletaskstepwidget.h project/nimbletaskstepwidget.cpp
     project/nimblebuildsystem.h project/nimblebuildsystem.cpp
     project/nimblebuildconfiguration.h project/nimblebuildconfiguration.cpp
     project/nimbuildsystem.cpp project/nimbuildsystem.h

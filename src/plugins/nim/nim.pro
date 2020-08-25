@@ -85,7 +85,6 @@ SOURCES += \
     suggest/server.cpp
 
 FORMS += \
-    project/nimbletaskstepwidget.ui \
     project/nimcompilerbuildstepconfigwidget.ui \
     settings/nimcodestylepreferenceswidget.ui \
     settings/nimtoolssettingswidget.ui

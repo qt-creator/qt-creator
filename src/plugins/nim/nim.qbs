@@ -51,7 +51,7 @@ QtcPlugin {
             "nimbleproject.h", "nimbleproject.cpp",
             "nimblerunconfiguration.h", "nimblerunconfiguration.cpp",
             "nimbletaskstep.h", "nimbletaskstep.cpp",
-            "nimbletaskstepwidget.h", "nimbletaskstepwidget.cpp", "nimbletaskstepwidget.ui",
+            "nimbletaskstepwidget.h", "nimbletaskstepwidget.cpp",
             "nimblebuildsystem.h", "nimblebuildsystem.cpp",
             "nimblebuildconfiguration.h", "nimblebuildconfiguration.cpp",
         ]
