@@ -80,63 +80,6 @@ const QLatin1String InstallFailedUpdateIncompatible("INSTALL_FAILED_UPDATE_INCOM
 const QLatin1String InstallFailedPermissionModelDowngrade("INSTALL_FAILED_PERMISSION_MODEL_DOWNGRADE");
 const QLatin1String InstallFailedVersionDowngrade("INSTALL_FAILED_VERSION_DOWNGRADE");
 
-// AndroidDeployQtStepFactory
-
-AndroidDeployQtStepFactory::AndroidDeployQtStepFactory()
-{
-    registerStep<AndroidDeployQtStep>(AndroidDeployQtStep::stepId());
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
-    setSupportedDeviceType(Constants::ANDROID_DEVICE_TYPE);
-    setRepeatable(false);
-    setDisplayName(AndroidDeployQtStep::tr("Deploy to Android device or emulator"));
-}
-
-// AndroidDeployQtWidget
-
-class AndroidDeployQtWidget : public BuildStepConfigWidget
-{
-public:
-    AndroidDeployQtWidget(AndroidDeployQtStep *step)
-        : ProjectExplorer::BuildStepConfigWidget(step)
-    {
-        setDisplayName(QString("<b>%1</b>").arg(step->displayName()));
-        setSummaryText(displayName());
-
-        auto uninstallPreviousPackage = new QCheckBox(this);
-        uninstallPreviousPackage->setText(AndroidDeployQtStep::tr("Uninstall the existing app first"));
-        uninstallPreviousPackage->setChecked(step->uninstallPreviousPackage() > AndroidDeployQtStep::Keep);
-        uninstallPreviousPackage->setEnabled(step->uninstallPreviousPackage() != AndroidDeployQtStep::ForceUnintall);
-
-        connect(uninstallPreviousPackage, &QAbstractButton::toggled,
-                step, &AndroidDeployQtStep::setUninstallPreviousPackage);
-
-        auto resetDefaultDevices = new QPushButton(this);
-        resetDefaultDevices->setText(AndroidDeployQtStep::tr("Reset Default Deployment Devices"));
-
-        connect(resetDefaultDevices, &QAbstractButton::clicked, this, [step] {
-            AndroidConfigurations::clearDefaultDevices(step->project());
-        });
-
-        auto installCustomApkButton = new QPushButton(this);
-        installCustomApkButton->setText(AndroidDeployQtStep::tr("Install an APK File"));
-
-        connect(installCustomApkButton, &QAbstractButton::clicked, this, [this, step] {
-            const QString packagePath
-                = QFileDialog::getOpenFileName(this,
-                                               AndroidDeployQtStep::tr("Qt Android Installer"),
-                                               QDir::homePath(),
-                                               AndroidDeployQtStep::tr("Android package (*.apk)"));
-            if (!packagePath.isEmpty())
-                AndroidManager::installQASIPackage(step->target(), packagePath);
-        });
-
-        auto layout = new QVBoxLayout(this);
-        layout->addWidget(uninstallPreviousPackage);
-        layout->addWidget(resetDefaultDevices);
-        layout->addWidget(installCustomApkButton);
-    }
-};
-
 // AndroidDeployQtStep
 
 AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Utils::Id id)
@@ -152,14 +95,6 @@ AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Utils::Id id)
     connect(this, &AndroidDeployQtStep::askForUninstall,
             this, &AndroidDeployQtStep::slotAskForUninstall,
             Qt::BlockingQueuedConnection);
-
-    connect(this, &AndroidDeployQtStep::setSerialNumber,
-            this, &AndroidDeployQtStep::slotSetSerialNumber);
-}
-
-Utils::Id AndroidDeployQtStep::stepId()
-{
-    return "Qt4ProjectManager.AndroidDeployQtStep";
 }
 
 bool AndroidDeployQtStep::init()
@@ -435,12 +370,6 @@ void AndroidDeployQtStep::slotAskForUninstall(DeployErrorCode errorCode)
     m_askForUninstall = button == QMessageBox::Yes;
 }
 
-void AndroidDeployQtStep::slotSetSerialNumber(const QString &serialNumber)
-{
-    qCDebug(deployStepLog) << "Target device serial number change:" << serialNumber;
-    AndroidManager::setDeviceSerialNumber(target(), serialNumber);
-}
-
 bool AndroidDeployQtStep::runImpl()
 {
     if (!m_avdName.isEmpty()) {
@@ -449,7 +378,8 @@ bool AndroidDeployQtStep::runImpl()
         if (serialNumber.isEmpty())
             return false;
         m_serialNumber = serialNumber;
-        emit setSerialNumber(serialNumber);
+        qCDebug(deployStepLog) << "Target device serial number change:" << serialNumber;
+        AndroidManager::setDeviceSerialNumber(target(), serialNumber);
     }
 
     DeployErrorCode returnValue = runDeploy();
@@ -532,9 +462,47 @@ void AndroidDeployQtStep::runCommand(const CommandLine &command)
                        OutputFormat::ErrorMessage);
 }
 
-ProjectExplorer::BuildStepConfigWidget *AndroidDeployQtStep::createConfigWidget()
+BuildStepConfigWidget *AndroidDeployQtStep::createConfigWidget()
 {
-    return new AndroidDeployQtWidget(this);
+    auto widget = new BuildStepConfigWidget(this);
+
+    widget->setDisplayName(QString("<b>%1</b>").arg(displayName()));
+    widget->setSummaryText(displayName());
+
+    auto uninstallPreviousCheckBox = new QCheckBox(widget);
+    uninstallPreviousCheckBox->setText(tr("Uninstall the existing app first"));
+    uninstallPreviousCheckBox->setChecked(uninstallPreviousPackage() > Keep);
+    uninstallPreviousCheckBox->setEnabled(uninstallPreviousPackage() != ForceUninstall);
+
+    connect(uninstallPreviousCheckBox, &QAbstractButton::toggled,
+            this, &AndroidDeployQtStep::setUninstallPreviousPackage);
+
+    auto resetDefaultDevices = new QPushButton(widget);
+    resetDefaultDevices->setText(tr("Reset Default Deployment Devices"));
+
+    connect(resetDefaultDevices, &QAbstractButton::clicked, this, [this] {
+        AndroidConfigurations::clearDefaultDevices(project());
+    });
+
+    auto installCustomApkButton = new QPushButton(widget);
+    installCustomApkButton->setText(tr("Install an APK File"));
+
+    connect(installCustomApkButton, &QAbstractButton::clicked, this, [this, widget] {
+        const QString packagePath
+            = QFileDialog::getOpenFileName(widget,
+                                           tr("Qt Android Installer"),
+                                           QDir::homePath(),
+                                           tr("Android package (*.apk)"));
+        if (!packagePath.isEmpty())
+            AndroidManager::installQASIPackage(target(), packagePath);
+    });
+
+    auto layout = new QVBoxLayout(widget);
+    layout->addWidget(uninstallPreviousCheckBox);
+    layout->addWidget(resetDefaultDevices);
+    layout->addWidget(installCustomApkButton);
+
+    return widget;
 }
 
 void AndroidDeployQtStep::processReadyReadStdOutput(DeployErrorCode &errorCode)
@@ -605,8 +573,19 @@ AndroidDeployQtStep::UninstallType AndroidDeployQtStep::uninstallPreviousPackage
 {
     const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitAspect::qtVersion(target()->kit());
     if (qt && qt->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0))
-        return ForceUnintall;
+        return ForceUninstall;
     return m_uninstallPreviousPackage ? Uninstall : Keep;
+}
+
+// AndroidDeployQtStepFactory
+
+AndroidDeployQtStepFactory::AndroidDeployQtStepFactory()
+{
+    registerStep<AndroidDeployQtStep>(Constants::ANDROID_DEPLOY_QT_ID);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    setSupportedDeviceType(Constants::ANDROID_DEVICE_TYPE);
+    setRepeatable(false);
+    setDisplayName(AndroidDeployQtStep::tr("Deploy to Android device or emulator"));
 }
 
 } // Internal

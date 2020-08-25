@@ -62,12 +62,10 @@ public:
     enum UninstallType {
         Keep,
         Uninstall,
-        ForceUnintall
+        ForceUninstall
     };
 
     AndroidDeployQtStep(ProjectExplorer::BuildStepList *bc, Utils::Id id);
-
-    static Utils::Id stepId();
 
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
@@ -77,7 +75,6 @@ public:
 
 signals:
     void askForUninstall(DeployErrorCode errorCode);
-    void setSerialNumber(const QString &serialNumber);
 
 private:
     void runCommand(const Utils::CommandLine &command);
@@ -87,7 +84,6 @@ private:
     void gatherFilesToPull();
     DeployErrorCode runDeploy();
     void slotAskForUninstall(DeployErrorCode errorCode);
-    void slotSetSerialNumber(const QString &serialNumber);
 
     bool runImpl();
 
@@ -98,9 +94,6 @@ private:
     void processReadyReadStdError(DeployErrorCode &errorCode);
     void stdError(const QString &line);
     DeployErrorCode parseDeployErrors(QString &deployOutputLine) const;
-
-    void slotProcessFinished(int, QProcess::ExitStatus);
-    void processFinished(int exitCode, QProcess::ExitStatus status);
 
     friend void operator|=(DeployErrorCode &e1, const DeployErrorCode &e2) { e1 = static_cast<AndroidDeployQtStep::DeployErrorCode>((int)e1 | (int)e2); }
     friend DeployErrorCode operator|(const DeployErrorCode &e1, const DeployErrorCode &e2) { return static_cast<AndroidDeployQtStep::DeployErrorCode>((int)e1 | (int)e2); }

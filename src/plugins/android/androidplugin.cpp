@@ -78,7 +78,7 @@ public:
         addSupportedTargetDeviceType(Constants::ANDROID_DEVICE_TYPE);
         setDefaultDisplayName(QCoreApplication::translate("Android::Internal",
                                                           "Deploy to Android Device"));
-        addInitialStep(AndroidDeployQtStep::stepId());
+        addInitialStep(Constants::ANDROID_DEPLOY_QT_ID);
     }
 };
 
