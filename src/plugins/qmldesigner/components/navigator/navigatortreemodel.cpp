@@ -634,9 +634,8 @@ void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, i
 
         ModelNode newModelNode;
 
-        if (targetNode.isSubclassOf("QtQuick3D.Material")) {
-            // if dropping an image on a default material, create a texture instead of image
-            m_view->executeInTransaction("QmlItemNode::createQmlItemNode", [&] {
+        auto createTextureNode = [&](const NodeAbstractProperty &targetProp) -> bool {
+            if (targetProp.isValid()) {
                 // create a texture item lib
                 ItemLibraryEntry itemLibraryEntry;
                 itemLibraryEntry.setName("Texture");
@@ -649,14 +648,33 @@ void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, i
                 itemLibraryEntry.addProperty(prop, type, val);
 
                 // create a texture
-                newModelNode = QmlItemNode::createQmlObjectNode(m_view, itemLibraryEntry, {}, targetProperty, false);
+                newModelNode = QmlItemNode::createQmlObjectNode(m_view, itemLibraryEntry, {}, targetProp, false);
+                return newModelNode.isValid();
+            }
+            return false;
+        };
 
-                // Automatically set the texture to default property
-                // TODO: allow the user to choose which map property to set the texture for (QDS-2326)
-                if (targetNode.isSubclassOf("QtQuick3D.DefaultMaterial"))
-                    targetNode.bindingProperty("diffuseMap").setExpression(newModelNode.validId());
-                else if (targetNode.isSubclassOf("QtQuick3D.PrincipledMaterial"))
-                    targetNode.bindingProperty("baseColorMap").setExpression(newModelNode.validId());
+        if (targetNode.isSubclassOf("QtQuick3D.Material")) {
+            // if dropping an image on a default material, create a texture instead of image
+            m_view->executeInTransaction("NavigatorTreeModel::handleItemLibraryImageDrop", [&] {
+                if (createTextureNode(targetProperty)) {
+                    // Automatically set the texture to default property
+                    // TODO: allow the user to choose which map property to set the texture for (QDS-2326)
+                    if (targetNode.isSubclassOf("QtQuick3D.DefaultMaterial"))
+                        targetNode.bindingProperty("diffuseMap").setExpression(newModelNode.validId());
+                    else if (targetNode.isSubclassOf("QtQuick3D.PrincipledMaterial"))
+                        targetNode.bindingProperty("baseColorMap").setExpression(newModelNode.validId());
+                }
+            });
+        } else if (targetNode.isSubclassOf("QtQuick3D.TextureInput")) {
+            // If dropping an image on a TextureInput, create a texture on the same level as
+            // TextureInput, as the TextureInput doesn't support Texture children (QTBUG-86219)
+            m_view->executeInTransaction("NavigatorTreeModel::handleItemLibraryImageDrop", [&] {
+                NodeAbstractProperty parentProp = targetProperty.parentProperty();
+                if (createTextureNode(parentProp)) {
+                    // Automatically set the texture to texture property
+                    targetNode.bindingProperty("texture").setExpression(newModelNode.validId());
+                }
             });
         } else if (targetNode.isSubclassOf("QtQuick3D.Texture")) {
             // if dropping an image on a texture, set the texture source
