@@ -25,6 +25,7 @@
 
 #include "diagnosticmark.h"
 
+#include "clangtoolsconstants.h"
 #include "clangtoolsutils.h"
 
 #include <utils/utilsicons.h>
@@ -35,7 +36,7 @@ namespace Internal {
 DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic)
     : TextEditor::TextMark(Utils::FilePath::fromString(diagnostic.location.filePath),
                            diagnostic.location.line,
-                           Utils::Id("ClangTool.DiagnosticMark"))
+                           Utils::Id(Constants::DIAGNOSTIC_MARK_ID))
     , m_diagnostic(diagnostic)
 {
     if (diagnostic.type == "error" || diagnostic.type == "fatal")
@@ -65,6 +66,11 @@ void DiagnosticMark::disable()
 bool DiagnosticMark::enabled() const
 {
     return m_enabled;
+}
+
+Diagnostic DiagnosticMark::diagnostic() const
+{
+    return m_diagnostic;
 }
 
 } // namespace Internal

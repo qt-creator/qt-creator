@@ -31,6 +31,7 @@ SOURCES += \
     diagnosticconfigswidget.cpp \
     diagnosticmark.cpp \
     documentclangtoolrunner.cpp \
+    documentquickfixfactory.cpp \
     executableinfo.cpp \
     filterdialog.cpp \
     runsettingswidget.cpp \
@@ -59,6 +60,7 @@ HEADERS += \
     diagnosticconfigswidget.h \
     diagnosticmark.h \
     documentclangtoolrunner.h \
+    documentquickfixfactory.h \
     executableinfo.h \
     filterdialog.h \
     runsettingswidget.h \

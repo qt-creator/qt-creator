@@ -8,6 +8,7 @@ isEmpty(EXTERNAL_YAML_CPP_FOUND): QTC_LIB_DEPENDS += yaml-cpp
 
 QTC_PLUGIN_DEPENDS += \
     debugger \
+    cppeditor \
     cpptools
 QTC_PLUGIN_RECOMMENDS += \
     cppeditor

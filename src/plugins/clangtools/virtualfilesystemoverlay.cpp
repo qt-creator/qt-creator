@@ -26,6 +26,7 @@
 #include "virtualfilesystemoverlay.h"
 
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/editormanager/documentmodel.h>
 #include <texteditor/textdocument.h>
 
 #include <QJsonArray>
@@ -80,6 +81,9 @@ void VirtualFileSystemOverlay::update()
             qCDebug(LOG) << error;
     }
     m_saved = newSaved;
+    m_mapping.clear();
+    for (auto it = m_saved.constBegin(), end = m_saved.constEnd(); it != end; ++it)
+        m_mapping[it.value().path] = it.key()->filePath();
 
     auto toContent = [this](Core::IDocument *document) {
         QJsonObject content;
@@ -112,12 +116,17 @@ void VirtualFileSystemOverlay::update()
 
 Utils::FilePath VirtualFileSystemOverlay::overlayFilePath() { return m_overlayFilePath; }
 
-Utils::FilePath VirtualFileSystemOverlay::filePath(Core::IDocument *doc)
+Utils::FilePath VirtualFileSystemOverlay::autoSavedFilePath(Core::IDocument *doc)
 {
     auto it = m_saved.find(doc);
     if (it != m_saved.end())
         return it.value().path;
     return doc->filePath();
+}
+
+Utils::FilePath VirtualFileSystemOverlay::originalFilePath(const Utils::FilePath &file)
+{
+    return m_mapping.value(file, file);
 }
 
 } // namespace Internal

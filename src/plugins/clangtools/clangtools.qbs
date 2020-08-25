@@ -8,6 +8,7 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
     Depends { name: "CppTools" }
+    Depends { name: "CppEditor" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport"; condition: qtc.testsEnabled }
     Depends { name: "QtcSsh" }
@@ -70,6 +71,8 @@ QtcPlugin {
         "diagnosticmark.h",
         "documentclangtoolrunner.cpp",
         "documentclangtoolrunner.h",
+        "documentquickfixfactory.cpp",
+        "documentquickfixfactory.h",
         "executableinfo.cpp",
         "executableinfo.h",
         "filterdialog.cpp",

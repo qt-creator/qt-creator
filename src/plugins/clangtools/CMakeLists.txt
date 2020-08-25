@@ -7,7 +7,7 @@ find_package(yaml-cpp QUIET MODULE)
 add_qtc_plugin(ClangTools
   CONDITION TARGET yaml-cpp
   DEPENDS ClangSupport yaml-cpp
-  PLUGIN_DEPENDS Core Debugger CppTools ${TST_COMPONENT}
+  PLUGIN_DEPENDS Core Debugger CppTools CppEditor ${TST_COMPONENT}
   PLUGIN_RECOMMENDS CppEditor
   INCLUDES ${CLANG_INCLUDE_DIRS}
   SOURCES
@@ -33,6 +33,7 @@ add_qtc_plugin(ClangTools
     diagnosticconfigswidget.cpp diagnosticconfigswidget.h
     diagnosticmark.cpp diagnosticmark.h
     documentclangtoolrunner.cpp documentclangtoolrunner.h
+    documentquickfixfactory.cpp documentquickfixfactory.h
     executableinfo.cpp executableinfo.h
     filterdialog.cpp filterdialog.h filterdialog.ui
     runsettingswidget.cpp runsettingswidget.h runsettingswidget.ui

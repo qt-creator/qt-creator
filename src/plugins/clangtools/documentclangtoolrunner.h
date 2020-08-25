@@ -26,6 +26,7 @@
 #pragma once
 
 #include "clangfileinfo.h"
+#include "clangtoolsdiagnostic.h"
 
 #include <utils/fileutils.h>
 #include <utils/temporarydirectory.h>
@@ -35,6 +36,7 @@
 
 namespace Core { class IDocument; }
 namespace CppTools { class ClangDiagnosticConfig; }
+namespace TextEditor { class TextEditorWidget; }
 
 namespace ClangTools {
 
@@ -50,6 +52,9 @@ public:
     DocumentClangToolRunner(Core::IDocument *doc);
     ~DocumentClangToolRunner();
 
+    Utils::FilePath filePath() const;
+    Diagnostics diagnosticsAtLine(int lineNumber) const;
+
 private:
     void scheduleRun();
     void run();
@@ -61,6 +66,7 @@ private:
     void finalize();
 
     void cancel();
+
 
     const CppTools::ClangDiagnosticConfig getDiagnosticConfig(ProjectExplorer::Project *project);
     template<class T>
@@ -75,6 +81,7 @@ private:
     QList<DiagnosticMark *> m_marks;
     FileInfo m_fileInfo;
     QMetaObject::Connection m_projectSettingsUpdate;
+    QSet<TextEditor::TextEditorWidget *> m_editorsWithMarkers;
 };
 
 } // namespace Internal

@@ -26,8 +26,10 @@
 #include "documentclangtoolrunner.h"
 
 #include "clangfileinfo.h"
+#include "clangfixitsrefactoringchanges.h"
 #include "clangtidyclazyrunner.h"
 #include "clangtoolruncontrol.h"
+#include "clangtoolsconstants.h"
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolsutils.h"
 #include "diagnosticmark.h"
@@ -42,6 +44,7 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -85,10 +88,32 @@ DocumentClangToolRunner::~DocumentClangToolRunner()
     qDeleteAll(m_marks);
 }
 
+Utils::FilePath DocumentClangToolRunner::filePath() const
+{
+    return m_document->filePath();
+}
+
+Diagnostics DocumentClangToolRunner::diagnosticsAtLine(int lineNumber) const
+{
+    Diagnostics diagnostics;
+    if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(m_document)) {
+        for (auto mark : textDocument->marksAt(lineNumber)) {
+            if (mark->category() == Constants::DIAGNOSTIC_MARK_ID)
+                diagnostics << static_cast<DiagnosticMark *>(mark)->diagnostic();
+        }
+    }
+    return diagnostics;
+}
+
 void DocumentClangToolRunner::scheduleRun()
 {
     for (DiagnosticMark *mark : m_marks)
         mark->disable();
+    for (TextEditor::TextEditorWidget *editor : m_editorsWithMarkers) {
+        editor->setRefactorMarkers(
+            TextEditor::RefactorMarker::filterOutType(editor->refactorMarkers(),
+                                                      Constants::CLANG_TOOL_FIXIT_AVAILABLE_MARKER_ID));
+    }
     m_runTimer.start();
 }
 
@@ -233,19 +258,27 @@ void DocumentClangToolRunner::runNext()
     }
 }
 
+static void updateLocation(Debugger::DiagnosticLocation &location)
+{
+    location.filePath = vfso().originalFilePath(Utils::FilePath::fromString(location.filePath)).toString();
+}
+
 void DocumentClangToolRunner::onSuccess()
 {
     QString errorMessage;
-    Utils::FilePath mappedPath = vfso().filePath(m_document);
+    Utils::FilePath mappedPath = vfso().autoSavedFilePath(m_document);
     Diagnostics diagnostics = readExportedDiagnostics(
         Utils::FilePath::fromString(m_currentRunner->outputFilePath()),
         [&](const Utils::FilePath &path) { return path == mappedPath; },
         &errorMessage);
 
-    if (mappedPath != m_document->filePath()) {
-        const QString originalPath = m_document->filePath().toString();
-        for (Diagnostic &diag : diagnostics)
-            diag.location.filePath = originalPath;
+    for (Diagnostic &diag : diagnostics) {
+        updateLocation(diag.location);
+        for (ExplainingStep &explainingStep : diag.explainingSteps) {
+            updateLocation(explainingStep.location);
+            for (Debugger::DiagnosticLocation &rangeLocation : explainingStep.ranges)
+                updateLocation(rangeLocation);
+        }
     }
 
     // remove outdated marks of the current runner
@@ -255,11 +288,41 @@ void DocumentClangToolRunner::onSuccess()
     m_marks = newMarks;
     qDeleteAll(toDelete);
 
-    m_marks << Utils::transform(diagnostics, [this](const Diagnostic &diagnostic) {
+    auto doc = qobject_cast<TextEditor::TextDocument *>(m_document);
+
+    TextEditor::RefactorMarkers markers;
+
+    for (const Diagnostic &diagnostic : diagnostics) {
         auto mark = new DiagnosticMark(diagnostic);
         mark->source = m_currentRunner->name();
-        return mark;
-    });
+
+        if (doc && Utils::anyOf(diagnostic.explainingSteps, &ExplainingStep::isFixIt)) {
+            TextEditor::RefactorMarker marker;
+            marker.tooltip = diagnostic.description;
+            QTextCursor cursor(doc->document());
+            cursor.setPosition(Utils::Text::positionInText(doc->document(),
+                                                           diagnostic.location.line,
+                                                           diagnostic.location.column));
+            cursor.movePosition(QTextCursor::EndOfLine);
+            marker.cursor = cursor;
+            marker.type = Constants::CLANG_TOOL_FIXIT_AVAILABLE_MARKER_ID;
+            marker.callback = [marker](TextEditor::TextEditorWidget *editor) {
+                editor->setTextCursor(marker.cursor);
+                editor->invokeAssist(TextEditor::QuickFix);
+            };
+            markers << marker;
+        }
+
+        m_marks << mark;
+    }
+
+    for (auto editor : TextEditor::BaseTextEditor::textEditorsForDocument(doc)) {
+        if (TextEditor::TextEditorWidget *widget = editor->editorWidget()) {
+            widget->setRefactorMarkers(markers + widget->refactorMarkers());
+            m_editorsWithMarkers << widget;
+        }
+    }
+
     runNext();
 }
 

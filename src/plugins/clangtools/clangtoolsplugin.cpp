@@ -30,6 +30,7 @@
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolsprojectsettingswidget.h"
 #include "documentclangtoolrunner.h"
+#include "documentquickfixfactory.h"
 #include "settingswidget.h"
 
 #ifdef WITH_TESTS
@@ -83,9 +84,24 @@ ProjectPanelFactory *projectPanelFactory()
 class ClangToolsPluginPrivate
 {
 public:
+    ClangToolsPluginPrivate()
+        : quickFixFactory(
+            [this](const Utils::FilePath &filePath) { return runnerForFilePath(filePath); })
+    {}
+
+    DocumentClangToolRunner *runnerForFilePath(const Utils::FilePath &filePath)
+    {
+        for (DocumentClangToolRunner *runner : documentRunners) {
+            if (runner->filePath() == filePath)
+                return runner;
+        }
+        return nullptr;
+    }
+
     ClangTool clangTool;
     ClangToolsOptionsPage optionsPage;
     QMap<Core::IDocument *, DocumentClangToolRunner *> documentRunners;
+    DocumentQuickFixFactory quickFixFactory;
 };
 
 ClangToolsPlugin::~ClangToolsPlugin()

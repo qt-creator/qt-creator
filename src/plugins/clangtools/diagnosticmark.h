@@ -41,6 +41,8 @@ public:
     void disable();
     bool enabled() const;
 
+    Diagnostic diagnostic() const;
+
     QString source;
 
 private:

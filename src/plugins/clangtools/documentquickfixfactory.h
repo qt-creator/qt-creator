@@ -25,38 +25,24 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
-#include <utils/temporarydirectory.h>
-
-#include <QMap>
-
-namespace Core { class IDocument; }
+#include <cppeditor/cppquickfix.h>
 
 namespace ClangTools {
 namespace Internal {
 
-class VirtualFileSystemOverlay
+class DocumentClangToolRunner;
+
+class DocumentQuickFixFactory : public CppEditor::CppQuickFixFactory
 {
 public:
-    VirtualFileSystemOverlay(const QString &rootPattern);
+    using RunnerCollector = std::function<DocumentClangToolRunner *(const Utils::FilePath &)>;
 
-    void update();
-
-    Utils::FilePath overlayFilePath();
-    Utils::FilePath autoSavedFilePath(Core::IDocument *doc);
-    Utils::FilePath originalFilePath(const Utils::FilePath &file);
+    DocumentQuickFixFactory(RunnerCollector runnerCollector);
+    void match(const CppEditor::Internal::CppQuickFixInterface &interface,
+               QuickFixOperations &result) override;
 
 private:
-    Utils::TemporaryDirectory m_root;
-    Utils::FilePath m_overlayFilePath;
-    struct AutoSavedPath
-    {
-        int revision = -1;
-        Utils::FilePath path;
-    };
-
-    QMap<Core::IDocument *, AutoSavedPath> m_saved;
-    QMap<Utils::FilePath, Utils::FilePath> m_mapping;
+    RunnerCollector m_runnerCollector;
 };
 
 } // namespace Internal
