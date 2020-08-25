@@ -20,7 +20,6 @@ HEADERS += \
     project/nimbleproject.h \
     project/nimblerunconfiguration.h \
     project/nimbletaskstep.h \
-    project/nimbletaskstepwidget.h \
     tools/nimlexer.h \
     tools/sourcecodestream.h \
     project/nimbuildsystem.h \
@@ -59,7 +58,6 @@ SOURCES += \
     project/nimbletaskstep.cpp \
     project/nimbleproject.cpp \
     project/nimblerunconfiguration.cpp \
-    project/nimbletaskstepwidget.cpp \
     tools/nimlexer.cpp \
     project/nimbuildsystem.cpp \
     project/nimblebuildsystem.cpp \

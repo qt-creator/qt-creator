@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "nimblebuildstep.h"
-#include "nimbletaskstepwidget.h"
 #include "nimconstants.h"
 #include "nimbleproject.h"
 
