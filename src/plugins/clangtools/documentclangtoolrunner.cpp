@@ -186,7 +186,7 @@ void DocumentClangToolRunner::run()
                             return createRunner<ClangTidyRunner>(config, env);
                         };
                     }
-                    if (config.isClazyEnabled() && !m_document->isModified()) {
+                    if (config.isClazyEnabled()) {
                         m_runnerCreators << [this, env, config]() {
                             return createRunner<ClazyStandaloneRunner>(config, env);
                         };
@@ -218,7 +218,8 @@ void DocumentClangToolRunner::runNext()
         auto [clangIncludeDir, clangVersion] = getClangIncludeDirAndVersion(m_currentRunner.get());
         qCDebug(LOG) << Q_FUNC_INFO << m_currentRunner->executable() << clangIncludeDir
                      << clangVersion << m_fileInfo.file;
-        if (clangIncludeDir.isEmpty() || clangVersion.isEmpty()) {
+        if (clangIncludeDir.isEmpty() || clangVersion.isEmpty()
+            || (m_document->isModified() && !m_currentRunner->supportsVFSOverlay())) {
             runNext();
         } else {
             AnalyzeUnit unit(m_fileInfo, clangIncludeDir, clangVersion);

@@ -59,6 +59,8 @@ public:
     OutputFileFormat outputFileFormat() const { return m_outputFileFormat; }
     QString fileToAnalyze() const { return m_fileToAnalyze; }
     QString outputFilePath() const { return m_outputFilePath; }
+    QStringList mainToolArguments() const;
+    bool supportsVFSOverlay() const;
 
     // compilerOptions is expected to contain everything except:
     //   (1) file to analyze

@@ -72,21 +72,6 @@ static QStringList clazyChecksArguments(const ClangDiagnosticConfig diagnosticCo
     return {};
 }
 
-static QStringList mainToolArguments(const QString &mainFilePath, const QString &outputFilePath)
-{
-    return {
-        "-export-fixes=" + outputFilePath,
-        QDir::toNativeSeparators(mainFilePath),
-    };
-}
-
-static QString virtualFileSystemOverlay(const QString &overlayFilePath)
-{
-    if (overlayFilePath.isEmpty())
-        return {};
-    return "--vfsoverlay=" + overlayFilePath;
-}
-
 static QStringList clangArguments(const ClangDiagnosticConfig &diagnosticConfig,
                                   const QStringList &baseOptions)
 {
@@ -110,8 +95,7 @@ ClangTidyRunner::ClangTidyRunner(const ClangDiagnosticConfig &config, QObject *p
     setExecutable(clangTidyExecutable());
     setArgsCreator([this, config](const QStringList &baseOptions) {
         return QStringList() << tidyChecksArguments(config)
-                             << mainToolArguments(fileToAnalyze(), outputFilePath())
-                             << virtualFileSystemOverlay(m_overlayFilePath)
+                             << mainToolArguments()
                              << "--"
                              << clangArguments(config, baseOptions);
     });
@@ -124,11 +108,10 @@ ClazyStandaloneRunner::ClazyStandaloneRunner(const ClangDiagnosticConfig &config
     setOutputFileFormat(OutputFileFormat::Yaml);
     setExecutable(clazyStandaloneExecutable());
     setArgsCreator([this, config](const QStringList &baseOptions) {
-        return QStringList()
-            << clazyChecksArguments(config)
-            << mainToolArguments(fileToAnalyze(), outputFilePath())
-            << "--"
-            << clangArguments(config, baseOptions);
+        return QStringList() << clazyChecksArguments(config)
+                             << mainToolArguments()
+                             << "--"
+                             << clangArguments(config, baseOptions);
     });
 }
 

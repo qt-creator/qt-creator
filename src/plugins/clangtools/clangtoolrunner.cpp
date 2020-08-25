@@ -73,6 +73,29 @@ void ClangToolRunner::init(const QString &outputDirPath,
     connect(&m_process, &QProcess::readyRead, this, &ClangToolRunner::onProcessOutput);
 }
 
+QStringList ClangToolRunner::mainToolArguments() const
+{
+    QStringList result;
+    result << "-export-fixes=" + m_outputFilePath;
+    if (!m_overlayFilePath.isEmpty() && supportsVFSOverlay())
+        result << "--vfsoverlay=" + m_overlayFilePath;
+    result << QDir::toNativeSeparators(m_fileToAnalyze);
+    return result;
+}
+
+bool ClangToolRunner::supportsVFSOverlay() const
+{
+    static QMap<QString, bool> vfsCapabilities;
+    auto it = vfsCapabilities.find(m_executable);
+    if (it == vfsCapabilities.end()) {
+        Utils::SynchronousProcess p;
+        Utils::SynchronousProcessResponse response = p.runBlocking(
+            Utils::CommandLine(m_executable, {"--help"}));
+        it = vfsCapabilities.insert(m_executable, response.allOutput().contains("vfsoverlay"));
+    }
+    return it.value();
+}
+
 ClangToolRunner::~ClangToolRunner()
 {
     if (m_process.state() != QProcess::NotRunning) {
