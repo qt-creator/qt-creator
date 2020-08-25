@@ -325,6 +325,53 @@
     To keep debugging all children after a fork, select the
     \uicontrol {Debug all child processes} check box.
 
+    \section2 Specifying CDB Settings
+
+    To specify settings for managing the CDB process, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol Debugger > \uicontrol CDB.
+
+    \image qtcreator-cdb-options.png "CDB options"
+
+    You can specify additional arguments for starting CDB in the
+    \uicontrol {Additional arguments} field.
+
+    If a console application does not start up properly in the configured
+    console and the subsequent attach fails, you can diagnose the issue by
+    using CDB's native console. Select the \uicontrol {Use CDB console}
+    check box to override the console set in the Windows system
+    environment variables. Note that the native console does not
+    prompt on application exit.
+
+    To automatically add a breakpoint on the \c CrtCbgReport() function,
+    select the \uicontrol {Stop when CrtCbgReport() is called} check box.
+    This catches runtime error messages caused by \c assert(), for example.
+
+    In the \uicontrol {Break on} group, specify whether the debugger should
+    break on C++ exceptions, on thread creation or exit, on loading or
+    unloading the specified \l{Viewing Modules}{application modules}, or on
+    the specified output.
+
+    To disable first-chance break on access violation exceptions, select the
+    \uicontrol {Ignore first chance access violations} check box.
+    The second occurrence of an access violation will break into the debugger.
+
+    CDB enables setting breakpoints in comments or on source lines for which
+    no code was generated. In such situations, the breakpoint is shifted to
+    the next source code line for which the code was actually generated. To
+    reflect such temporary changes by moving the breakpoint markers in the
+    source code editor, select the \uicontrol {Correct breakpoint location}
+    check box. For more information, see \l{Setting Breakpoints}.
+
+    To use the abstraction layer provided by Python Dumper
+    classes to create a description of data items displayed
+    in the  \uicontrol Locals and \uicontrol Expressions
+    views, select the \uicontrol {Use Python dumper} check box.
+    For more information, see \l{Debugging Helper Implementation}.
+
+    To add information about first-chance and second-chance exceptions
+    to the \uicontrol Issues output pane, select the check boxes
+    in the \uicontrol {Add Exceptions to the Issues View} group.
+
     \section1 Mapping Source Paths
 
     To enable the debugger to step into the code and display the source code

@@ -62,7 +62,7 @@
     \section1 Saving Workspaces
 
     The changes you make to a workspace are saved when you exit \QC.
-    In \QMLD, you can select \uicontrol View > \uicontrol Workspaces >
+    Select \uicontrol View > \uicontrol Workspaces >
     \uicontrol Manage > \uicontrol {Restore last workspace on startup}
     to restore the current workspace the next time you start \QC.
 
@@ -75,10 +75,12 @@
 
     To switch between workspaces, select \uicontrol {Switch To}.
 
-    To create a new workspace:
+    To save a workspace after you've moved views around or opened and
+    closed them:
 
     \list 1
         \li Select \uicontrol New.
+            \image qtcreator-workspace-new.png "New Workspace Name dialog"
         \li In the \uicontrol {Enter the name of the workspace} field,
             enter a name for the workspace.
         \li Select \uicontrol Create to create a new empty workspace or
@@ -86,5 +88,10 @@
             switch to it.
     \endlist
 
-    To delete the selected workspace, select \uicontrol Delete.
+    To delete the selected workspace, select \uicontrol Delete in
+    \uicontrol {Workspace Manager}.
+
+    To export workspace settings into \e {.wrk} files select \uicontrol Export.
+    To import them to another computer, select \uicontrol Import, and then
+    locate the workspace settings file.
 */

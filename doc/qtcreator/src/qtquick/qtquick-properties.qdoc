@@ -32,25 +32,30 @@
 
     The \uicontrol Properties view displays all the properties of the selected
     item. The properties are grouped by type. The top part of the view displays
-    properties that are common to all QML types, such as position, size, and
-    visibility.
+    properties that are common to all QML types, such as type, id, position,
+    size, and visibility.
 
-    The bottom part of the view displays properties that are specific to each
-    QML type. For example, the following image displays the properties you can
-    set for \uicontrol Rectangle and \uicontrol Text items.
+    The bottom part of the view displays properties that have been defined for
+    the QML type. For example, the following image displays the predefined
+    properties you can set for \uicontrol Rectangle and \uicontrol Text items.
 
     \image qmldesigner-element-properties.png
 
-    To change the item type, double-click the \uicontrol Type field in the
-    \uicontrol Properties view, and enter the name of another QML type in the
-    field. If you have specified properties for the item that are not supported
-    for the new type, the type cannot be changed and an error message is
-    displayed. Select the \inlineimage icons/action-icon.png
+    When you create a component using a QML type, the component has all the
+    properties of the type you used. If you realize later that another
+    QML type with another set of predefined properties would be more suitable
+    for your purposes, you can change the component type by double-clicking the
+    \uicontrol Type field in the \uicontrol Properties view. Enter the name of
+    another QML type in the field.
+
+    If you have specified values for properties that are not supported by
+    the new type, \QC offers to remove them for you. If you'd rather do
+    this yourself, you can select the \inlineimage icons/action-icon.png
     (\uicontrol Actions) menu next to the property name, and then select
     \uicontrol Reset to remove the property values before trying again.
 
-    To modify the common properties of multiple items simultaneously, select
-    them in the \uicontrol Navigator or on the canvas:
+    To modify the values of common properties of multiple items simultaneously,
+    select the items in the \uicontrol Navigator or on the canvas:
 
     \list
         \li On Windows, press and hold \key Ctrl and \key Shift, and then click
@@ -70,6 +75,18 @@
 
     For more information on the properties available for an item, press
     \key {F1}.
+
+    \section1 Specifying Custom Properties
+
+    Each predefined QML type has a set of properties that you can extend by
+    defining additional properties for your own QML components. For more
+    information, see \l{Specifying Dynamic Properties}.
+
+    The properties you add for a QML type are displayed in the
+    \uicontrol Properties view when you select a component
+    of that type in \uicontrol Navigator or \uicontrol {Form Editor}.
+
+    \image qtquick-custom-properties.png "Custom properties in Properties view"
 
     \section1 Viewing Changes in Properties
 

@@ -28,8 +28,6 @@
 #include "cppmodelmanager.h"
 #include "headerpathfilter.h"
 
-#include <baremetal/baremetalconstants.h>
-
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/headerpath.h>
@@ -385,8 +383,11 @@ void CompilerOptionsBuilder::addProjectMacros()
 {
     static const int useMacros = qEnvironmentVariableIntValue("QTC_CLANG_USE_TOOLCHAIN_MACROS");
 
-    if (m_projectPart.toolchainType == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID || useMacros)
+    if (m_projectPart.toolchainType == ProjectExplorer::Constants::CUSTOM_TOOLCHAIN_TYPEID
+            || m_projectPart.toolchainType.name().contains("BareMetal")
+            || useMacros) {
         addMacros(m_projectPart.toolChainMacros);
+    }
 
     addMacros(m_projectPart.projectMacros);
 }

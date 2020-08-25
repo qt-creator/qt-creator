@@ -30,8 +30,8 @@
 
     \title Specifying Dynamic Properties
 
-    In addition to the properties predefined for QML types, you can specify
-    \e {dynamic properties} to add properties that would not otherwise
+    Each predefined QML type has a set of predefined properties that you can
+    specify values for. You can add custom properties that would not otherwise
     exist for a particular type. You bind the properties to dynamic expressions
     to define global properties for an object that can be read by other objects.
     For example, you can specify global properties for the root object that you
@@ -42,18 +42,19 @@
     and then use bindings to refer to the value of the margin property from
     other objects.
 
-    Similarly, you can add dynamic properties at component level.
+    Similarly, you can add custom properties for your own QML types that are
+    based on the predefined types.
 
-    You can specify dynamic properties for objects in the
-    \uicontrol Connections view.
+    You can add properties for objects in the \uicontrol Connections view,
+    \uicontrol Properties tab.
 
-    \image qmldesigner-dynamicprops.png
+    \image qmldesigner-dynamicprops.png "Custom properties in Connection View Custom Properties tab"
 
-    To specify dynamic properties for an object:
+    To add properties for an object:
 
     \list 1
-        \li In the \uicontrol {Connections} view, select the
-            \uicontrol {Properties} tab.
+        \li Select \uicontrol View > \uicontrol Views >
+            \uicontrol {Connections View} > \uicontrol {Properties}.
         \li Select the \inlineimage plus.png
             (\uicontrol Add) button to add a dynamic property for the currently
             selected item. The item ID is displayed in the \uicontrol Item
@@ -61,9 +62,67 @@
         \li Double-click the value in the \uicontrol Property column to give a
             name to the property.
         \li Double-click the value in the \uicontrol {Property Type} column to
-            specify the type of the property.
+            specify the \l{Supported Property Types}{type of the property}.
         \li Double-click the value in the \uicontrol {Property Value} column
-            to specify a dynamic expression as the value of the property.
+            to specify the value of the property.
     \endlist
 
+    The properties you add for a QML type are displayed in the
+    \uicontrol Properties view when you select a component of
+    that type in \uicontrol Navigator or \uicontrol {Form Editor}.
+
+    \image qtquick-custom-properties.png "Custom properties in Properties view"
+
+    For more information about setting property values in the
+    \uicontrol Properties view, see \l{Specifying Item Properties}.
+
+    For an example of using custom properties in an application, see
+    \l{Creating a Mobile Application}.
+
+    \section1 Supported Property Types
+
+    The following table describes the supported property types:
+
+    \table
+    \header
+        \li Type
+        \li Description
+    \row
+        \li alias
+        \li \l{Property Aliases}{Property alias} that holds a reference to
+            another property
+    \row
+        \li bool
+        \li Binary \c true or \c false value
+    \row
+        \li color
+        \li Color value that can be specified by using an SVG color name, such
+            as "red", "green", or "lightsteelblue", or a hexadecimal triplet or
+            quad in the form "#RRGGBB" and "#AARRGGBB", respectively. For
+            example, the color red corresponds to a triplet of "#FF0000" and
+            a slightly transparent blue to a quad of "#800000FF".
+            In addition, you can use the following Qt functions: \l{Qt::rgba()}
+            {Qt.rgba()}, \l{Qt::hsva()}{Qt.hsva()}, \l{Qt::hsla()}{Qt.hsla()},
+            \l{Qt::darker()}{Qt.darker()}, \l{Qt::lighter()}{Qt.lighter()}, and
+            \l{Qt::tint()}{Qt.tint()}.
+    \row
+        \li int
+        \li Whole integer number, such as 0, 10, or -20
+    \row
+        \li real
+        \li Number with a decimal point
+    \row
+        \li string
+        \li Free form text string
+    \row
+        \li url
+        \li Resource locator, such as a file name. It can be either  absolute,
+            (\c http://qt-project.org), or relative  (\c pics/logo.png). A
+            relative URL is resolved relative to the URL of the parent
+            component.
+    \row
+        \li variant
+        \li Generic property type. For example, variant properties can store
+            numbers, strings, objects, arrays, and functions.
+    \endtable
 */

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -36,25 +36,25 @@
 
     \title Sharing Project Settings
 
-    \QC stores user-specific project settings in a .pro.user file. You can
-    share these settings between several projects as a .pro.shared file. It
-    has the same XML structure as a .pro.user file, but only contains the
+    \QC stores user-specific project settings in a \e {.user} file. You can
+    share these settings between several projects as a \e {.shared} file. It
+    has the same XML structure as a \e {.user} file, but only contains the
     settings to share.
 
     \section1 Creating Shared Settings File
 
-    The easiest way to create a .pro.shared file is to copy settings from the
-    .pro.user file. Typically, you would share some of the values in the
+    The easiest way to create a \e {.shared} file is to copy settings from the
+    \e {.user} file. Typically, you would share some of the values in the
     \c ProjectExplorer.Project.EditorSettings section.
 
     \note You must always specify the
     \c ProjectExplorer.Project.Updater.FileVersion variable and use the same
-    value for it as in the .pro.user file.
+    value for it as in the \e {.user} file.
 
-    You can then deliver the .pro.shared file to other developers or copy it to
+    You can then deliver the \e {.shared} file to other developers or copy it to
     other development PCs.
 
-    The following is an example of a pro.shared file:
+    The following is an example of a \e {.shared} file:
 
     \code
     <?xml version="1.0" encoding="UTF-8"?>
@@ -78,16 +78,16 @@
 
     \section1 Updating Shared Settings
 
-    The first time \QC loads the project after you added pro.shared settings,
-    it overwrites the pro.user settings with them. If you open the project for
-    the first time and \QC has not created a .pro.user file, the settings in the
-    .pro.shared file take effect immediately.
+    The first time \QC loads the project after you add shared settings,
+    it overwrites the user settings with them. If you open the project for
+    the first time and \QC has not created a \e {.user} file, the settings
+    in the \e {.shared} file take effect immediately.
 
-    If you receive a .pro.shared file and do not want to use a particular
+    If you receive a \e {.shared} file and do not want to use a particular
     setting in it, you can change it. \QC marks it a \e sticky setting. The next
     time you open a project, the setting is not updated. \QC tracks sticky
-    settings in the .pro.user file and removes the mark if the values in the
-    pro.user and pro.shared files eventually become identical. This is to avoid
+    settings in the \e {.user} file and removes the mark if the values in the
+    user and shared files eventually become identical. This is to avoid
     a permanent sticky setting that was created just because you wanted to try
     something out.
 

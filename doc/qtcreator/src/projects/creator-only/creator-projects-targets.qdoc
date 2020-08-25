@@ -68,7 +68,7 @@
     Typically, only a subset of the kit settings is relevant for a particular
     setup. Therefore, \QC plugins register sets of relevant settings that you
     can view and modify in \uicontrol Tools > \uicontrol Options >
-    \uicontrol Kits >. For example, if you use CMake to build all your projects,
+    \uicontrol Kits. For example, if you use CMake to build all your projects,
     you can hide Qbs and qmake settings by default.
 
     To hide and show settings in the \uicontrol Kits tab for the

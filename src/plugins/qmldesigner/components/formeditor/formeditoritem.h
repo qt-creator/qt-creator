@@ -131,7 +131,7 @@ protected:
     QRectF m_boundingRect;
     QRectF m_paintedBoundingRect;
     QRectF m_selectionBoundingRect;
-    QColor m_frameColor{0xaa, 0xaa, 0xaa};
+    QColor m_frameColor;
 
 private: // functions
     void setup();

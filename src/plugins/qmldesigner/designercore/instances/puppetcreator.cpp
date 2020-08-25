@@ -495,9 +495,6 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     }
 
 #ifndef QMLDESIGNER_TEST
-    auto view = QmlDesignerPlugin::instance()->viewManager().nodeInstanceView();
-    view->emitCustomNotification("PuppetStatus", {}, {QVariant(m_qrcMapping)});
-
     // set env var if QtQuick3D import exists
     QmlDesigner::Import import = QmlDesigner::Import::createLibraryImport("QtQuick3D", "1.0");
     if (m_model->hasImport(import, true, true))

@@ -37,10 +37,9 @@
 
     \QC provides a cross-platform, complete integrated development environment
     (IDE) for application developers to create applications for multiple
-    desktop, \l {http://doc.qt.io/QtForDeviceCreation/index.html}{embedded},
-    and mobile device platforms, such as \l{Connecting Android Devices}{Android}
-    and \l{Connecting iOS Devices}{iOS}. It is available for Linux, \macos and
-    Windows
+    \l{Desktop Platforms}{desktop}, \l {Embedded Platforms}{embedded}, and
+    \l{Mobile Platforms}{mobile device} platforms, such as \l Android and
+    \l iOS. It is available for \l Linux, \l \macos and \l Windows
     operating systems. For more information, see \l{Supported Platforms}.
 
     In addition, you can use the experimental

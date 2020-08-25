@@ -216,7 +216,9 @@ static bool isIdToAvoid(const QString& id)
         "layer",
         "scale",
         "enabled",
-        "anchors"
+        "anchors",
+        "texture",
+        "shaderInfo"
     };
 
     return ids.contains(id);
