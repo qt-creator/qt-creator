@@ -53,6 +53,8 @@ Editing
 * Fixed that find usages was finding function arguments when searching functions (QTCREATORBUG-2176)
 * Fixed crash in lexer (QTCREATORBUG-19525)
 * Fixed handling of incomplete macro invocations (QTCREATORBUG-23881)
+* Fixed update of function signature tooltip (QTCREATORBUG-24449)
+* Fixed that built-in macros were ignored for custom toolchains (QTCREATORBUG-24367)
 
 ### Language Client
 
@@ -60,6 +62,7 @@ Editing
 * Added highlighting of code range for diagnostics
 * Added tooltips for diagnostics
 * Fixed various issues with completion, outline, files with spaces, and synchronization
+* Fixed handling of workspace folders (QTCREATORBUG-24452)
 
 ### QML
 
@@ -89,6 +92,10 @@ Editing
 ### QRC
 
 * Added option to sort file list
+
+### Widget Designer
+
+* Fixed that designed widgets were dark in dark theme (QTCREATORBUG-23981)
 
 Projects
 --------
@@ -222,6 +229,7 @@ Federico Guerinoni
 Friedemann Kleint  
 Henning Gruendl  
 Ivan Komissarov  
+Jacek Nijaki  
 Jaroslaw Kobus  
 Jochen Becher  
 Jochen Seemann  
@@ -229,8 +237,10 @@ Johanna Vanhatapio
 Joni Poikelin  
 Junker, Gregory  
 Knud Dollereder  
+Kwanghyo Park  
 Lars Knoll  
 Leena Miettinen  
+Lukasz Ornatek  
 Mahmoud Badri  
 Marco Bubke  
 Michael Brüning  
