@@ -25,12 +25,11 @@
 #pragma once
 #include "../ninjabuildstep.h"
 #include "projectexplorer/buildstep.h"
+
+#include <QLineEdit>
 #include <QListWidget>
 #include <QWidget>
 
-namespace Ui {
-class MesonBuildStepConfigWidget;
-}
 namespace MesonProjectManager {
 namespace Internal {
 class MesonBuildStepConfigWidget final : public ProjectExplorer::BuildStepConfigWidget
@@ -39,14 +38,13 @@ class MesonBuildStepConfigWidget final : public ProjectExplorer::BuildStepConfig
 
 public:
     explicit MesonBuildStepConfigWidget(NinjaBuildStep *step);
-    ~MesonBuildStepConfigWidget();
 
 private:
     void updateDetails();
     void updateTargetList();
     inline NinjaBuildStep *mesonBuildStep() { return static_cast<NinjaBuildStep *>(step()); }
-    Ui::MesonBuildStepConfigWidget *ui;
     QListWidget *m_buildTargetsList;
+    QLineEdit *m_toolArguments;
 };
 
 } // namespace Internal

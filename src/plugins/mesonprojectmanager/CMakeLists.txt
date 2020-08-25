@@ -65,7 +65,6 @@ add_qtc_plugin(MesonProjectManager
   project/mesonbuildconfiguration.cpp
   project/ninjabuildstep.h
   project/ninjabuildstep.cpp
-  project/buildoptions/mesonbuildstepconfigwidget.ui
   project/buildoptions/mesonbuildstepconfigwidget.h
   project/buildoptions/mesonbuildstepconfigwidget.cpp
   project/buildoptions/mesonbuildsettingswidget.ui

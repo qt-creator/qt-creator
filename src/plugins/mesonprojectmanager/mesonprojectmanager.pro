@@ -95,7 +95,6 @@ RESOURCES += resources.qrc
 
 FORMS += \
    project/buildoptions/mesonbuildsettingswidget.ui \
-   project/buildoptions/mesonbuildstepconfigwidget.ui \
    settings/general/generalsettingswidget.ui \
    settings/tools/toolitemsettings.ui \
    settings/tools/toolssettingswidget.ui

@@ -23,27 +23,37 @@
 **
 ****************************************************************************/
 #include "mesonbuildstepconfigwidget.h"
-#include "ui_mesonbuildstepconfigwidget.h"
-#include <coreplugin/find/itemviewfind.h>
 #include <mesonpluginconstants.h>
+#include <coreplugin/find/itemviewfind.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/processparameters.h>
-#include <QCheckBox>
+#include <QFormLayout>
 #include <QRadioButton>
+
 namespace MesonProjectManager {
 namespace Internal {
+
 MesonBuildStepConfigWidget::MesonBuildStepConfigWidget(NinjaBuildStep *step)
     : ProjectExplorer::BuildStepConfigWidget{step}
-    , ui(new Ui::MesonBuildStepConfigWidget)
     , m_buildTargetsList{new QListWidget}
 {
     setDisplayName(tr("Build", "MesonProjectManager::MesonBuildStepConfigWidget display name."));
-    ui->setupUi(this);
-    m_buildTargetsList->setFrameStyle(QFrame::NoFrame);
+
+    m_toolArguments = new QLineEdit(this);
+
     m_buildTargetsList->setMinimumHeight(200);
-    ui->frame->layout()->addWidget(
-        Core::ItemViewFind::createSearchableWrapper(m_buildTargetsList,
-                                                    Core::ItemViewFind::LightColored));
+    m_buildTargetsList->setFrameShape(QFrame::StyledPanel);
+    m_buildTargetsList->setFrameShadow(QFrame::Raised);
+
+    auto wrapper = Core::ItemViewFind::createSearchableWrapper(m_buildTargetsList,
+                                                               Core::ItemViewFind::LightColored);
+
+    auto formLayout = new QFormLayout(this);
+    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+    formLayout->setContentsMargins(0, 0, 0, 0);
+    formLayout->addRow(tr("Tool arguments:"), m_toolArguments);
+    formLayout->addRow(tr("Targets:"), wrapper);
+
     updateDetails();
     updateTargetList();
     connect(step, &NinjaBuildStep::commandChanged, this, &MesonBuildStepConfigWidget::updateDetails);
@@ -51,7 +61,7 @@ MesonBuildStepConfigWidget::MesonBuildStepConfigWidget(NinjaBuildStep *step)
             &NinjaBuildStep::targetListChanged,
             this,
             &MesonBuildStepConfigWidget::updateTargetList);
-    connect(ui->m_toolArguments, &QLineEdit::textEdited, this, [this](const QString &text) {
+    connect(m_toolArguments, &QLineEdit::textEdited, this, [this](const QString &text) {
         auto mesonBuildStep = static_cast<NinjaBuildStep *>(this->step());
         mesonBuildStep->setCommandArgs(text);
         updateDetails();
@@ -62,11 +72,6 @@ MesonBuildStepConfigWidget::MesonBuildStepConfigWidget(NinjaBuildStep *step)
             updateDetails();
         }
     });
-}
-
-MesonBuildStepConfigWidget::~MesonBuildStepConfigWidget()
-{
-    delete ui;
 }
 
 void MesonBuildStepConfigWidget::updateDetails()
