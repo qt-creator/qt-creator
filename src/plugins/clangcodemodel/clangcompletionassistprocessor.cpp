@@ -117,9 +117,8 @@ static bool isTheSameFunctionOverload(const CodeCompletion &completion,
             && lastItem->text() == name;
 }
 
-static QList<AssistProposalItemInterface *> toAssistProposalItems(
-        const CodeCompletions &completions,
-        const ClangCompletionAssistInterface *interface)
+QList<AssistProposalItemInterface *> ClangCompletionAssistProcessor::toAssistProposalItems(
+        const CodeCompletions &completions) const
 {
     // TODO: Handle Qt4's SIGNAL/SLOT
     //   Possibly check for m_completionOperator == T_SIGNAL
@@ -127,7 +126,23 @@ static QList<AssistProposalItemInterface *> toAssistProposalItems(
 
     QList<AssistProposalItemInterface *> items;
     items.reserve(completions.size());
+
+    // If there are signals among the candidates, we employ the built-in code model to find out
+    // whether the cursor was on the second argument of a (dis)connect() call.
+    // If so, we offer only signals, as nothing else makes sense in that context.
+    bool considerOnlySignals = false;
+    if (m_position != -1 && Utils::anyOf(completions, [](const CodeCompletion &c) {
+        return c.completionKind == CodeCompletion::SignalCompletionKind;
+    })) {
+        considerOnlySignals = CppTools::CppModelManager::instance()
+                ->positionRequiresSignal(m_interface->fileName(), m_content, m_position);
+    }
+
     for (const CodeCompletion &codeCompletion : completions) {
+        if (considerOnlySignals && codeCompletion.completionKind
+                != CodeCompletion::SignalCompletionKind) {
+            continue;
+        }
         if (codeCompletion.text.isEmpty())
             continue; // It's an OverloadCandidate which has text but no typedText.
 
@@ -146,7 +161,7 @@ static QList<AssistProposalItemInterface *> toAssistProposalItems(
         } else {
             auto *lastItem = static_cast<ClangAssistProposalItem *>(items.last());
             if (isTheSameFunctionOverload(codeCompletion, name, lastItem)) {
-                addFunctionOverloadAssistProposalItem(items, items.back(), interface,
+                addFunctionOverloadAssistProposalItem(items, items.back(), m_interface.data(),
                                                       codeCompletion, name);
             } else {
                 addAssistProposalItem(items, codeCompletion, name);
@@ -235,9 +250,9 @@ void ClangCompletionAssistProcessor::handleAvailableCompletions(const CodeComple
     // Completions are sorted the way that all items with fix-its come after all items without them
     // therefore it's enough to check only the first one.
     if (!completions.isEmpty() && !completions.front().requiredFixIts.isEmpty())
-        m_completions = toAssistProposalItems(applyCompletionFixIt(completions), m_interface.data());
+        m_completions = toAssistProposalItems(applyCompletionFixIt(completions));
     else
-        m_completions = toAssistProposalItems(completions, m_interface.data());
+        m_completions = toAssistProposalItems(completions);
 
     if (m_addSnippets && !m_completions.isEmpty())
         addSnippets();
@@ -681,6 +696,13 @@ bool ClangCompletionAssistProcessor::sendCompletionRequest(int position,
                                         functionNameStart.line,
                                         functionNameStart.column);
         setLastCompletionPosition(filePath, position);
+        if (m_sentRequestType == NormalCompletion) {
+            if (!customFileContent.isEmpty())
+                m_content = customFileContent;
+            else if (const CppTools::CppEditorDocumentHandle * const doc = cppDocument(filePath))
+                m_content = doc->contents();
+            m_position = position;
+        }
         return true;
     }
 

@@ -169,6 +169,9 @@ public:
                             SymbolFinder *symbolFinder,
                             bool inNextSplit) const final;
 
+    bool positionRequiresSignal(const QString &filePath, const QByteArray &content,
+                                int position) const;
+
     void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
                       const QString &replacement = QString());
     void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);

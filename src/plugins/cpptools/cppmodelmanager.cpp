@@ -56,6 +56,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
+#include <cplusplus/ASTPath.h>
+#include <cplusplus/TypeOfExpression.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -341,6 +343,114 @@ void CppModelManager::globalFollowSymbol(
     QTC_ASSERT(engine, return;);
     engine->globalFollowSymbol(data, std::move(processLinkCallback), snapshot, documentFromSemanticInfo,
                                symbolFinder, inNextSplit);
+}
+
+bool CppModelManager::positionRequiresSignal(const QString &filePath, const QByteArray &content,
+                                             int position) const
+{
+    if (content.isEmpty())
+        return false;
+
+    // Insert a dummy prefix if we don't have a real one. Otherwise the AST path will not contain
+    // anything after the CallAST.
+    QByteArray fixedContent = content;
+    if (position > 2 && content.mid(position - 2, 2) == "::")
+        fixedContent.insert(position, 'x');
+
+    const Snapshot snapshot = this->snapshot();
+    const Document::Ptr document = snapshot.preprocessedDocument(fixedContent, filePath);
+    document->check();
+    QTextDocument textDocument(QString::fromUtf8(fixedContent));
+    QTextCursor cursor(&textDocument);
+    cursor.setPosition(position);
+
+    // Are we at the second argument of a function call?
+    const QList<AST *> path = ASTPath(document)(cursor);
+    if (path.isEmpty() || !path.last()->asSimpleName())
+        return false;
+    const CallAST *callAst = nullptr;
+    for (auto it = path.crbegin(); it != path.crend(); ++it) {
+        if ((callAst = (*it)->asCall()))
+            break;
+    }
+    if (!callAst)
+        return false;
+    if (!callAst->expression_list || !callAst->expression_list->next)
+        return false;
+    const ExpressionAST * const secondArg = callAst->expression_list->next->value;
+    if (secondArg->firstToken() > path.last()->firstToken()
+            || secondArg->lastToken() < path.last()->lastToken()) {
+        return false;
+    }
+
+    // Is the function called "connect" or "disconnect"?
+    if (!callAst->base_expression)
+        return false;
+    Scope *scope = document->globalNamespace();
+    for (auto it = path.crbegin(); it != path.crend(); ++it) {
+        if (const CompoundStatementAST * const stmtAst = (*it)->asCompoundStatement()) {
+            scope = stmtAst->symbol;
+            break;
+        }
+    }
+    const NameAST *nameAst = nullptr;
+    const LookupContext context(document, snapshot);
+    if (const IdExpressionAST * const idAst = callAst->base_expression->asIdExpression()) {
+        nameAst = idAst->name;
+    } else if (const MemberAccessAST * const ast = callAst->base_expression->asMemberAccess()) {
+        nameAst = ast->member_name;
+        TypeOfExpression exprType;
+        exprType.setExpandTemplates(true);
+        exprType.init(document, snapshot);
+        const QList<LookupItem> typeMatches = exprType(ast->base_expression, document, scope);
+        if (typeMatches.isEmpty())
+            return false;
+        const std::function<const NamedType *(const FullySpecifiedType &)> getNamedType
+                = [&getNamedType](const FullySpecifiedType &type ) -> const NamedType * {
+            Type * const t = type.type();
+            if (const auto namedType = t->asNamedType())
+                return namedType;
+            if (const auto pointerType = t->asPointerType())
+                return getNamedType(pointerType->elementType());
+            if (const auto refType = t->asReferenceType())
+                return getNamedType(refType->elementType());
+            return nullptr;
+        };
+        const NamedType *namedType = getNamedType(typeMatches.first().type());
+        if (!namedType && typeMatches.first().declaration())
+            namedType = getNamedType(typeMatches.first().declaration()->type());
+        if (!namedType)
+            return false;
+        const ClassOrNamespace * const result = context.lookupType(namedType->name(), scope);
+        if (!result)
+            return false;
+        scope = result->rootClass();
+        if (!scope)
+            return false;
+    }
+    if (!nameAst || !nameAst->name)
+        return false;
+    const Identifier * const id = nameAst->name->identifier();
+    if (!id)
+        return false;
+    const QString funcName = QString::fromUtf8(id->chars(), id->size());
+    if (funcName != "connect" && funcName != "disconnect")
+        return false;
+
+    // Is the function a member function of QObject?
+    const QList<LookupItem> matches = context.lookup(nameAst->name, scope);
+    for (const LookupItem &match : matches) {
+        if (!match.scope())
+            continue;
+        const Class *klass = match.scope()->asClass();
+        if (!klass || !klass->name())
+            continue;
+        const Identifier * const classId = klass->name()->identifier();
+        if (classId && QString::fromUtf8(classId->chars(), classId->size()) == "QObject")
+            return true;
+    }
+
+    return false;
 }
 
 void CppModelManager::addRefactoringEngine(RefactoringEngineType type,

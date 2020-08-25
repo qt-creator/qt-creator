@@ -66,6 +66,8 @@ private:
     TextEditor::IAssistProposal *createFunctionHintProposal(
             const CodeCompletions &completions);
 
+    QList<TextEditor::AssistProposalItemInterface *> toAssistProposalItems(
+            const CodeCompletions &completions) const;
     bool completeInclude(const QTextCursor &cursor);
     bool completeInclude(int position);
     void completeIncludePath(const QString &realPath, const QStringList &suffixes);
@@ -96,6 +98,8 @@ private:
     unsigned m_completionOperator;
     enum CompletionRequestType { NormalCompletion, FunctionHintCompletion };
     CompletionRequestType m_sentRequestType = NormalCompletion;
+    int m_position = -1;
+    QByteArray m_content;
     bool m_requestSent = false;
     bool m_addSnippets = false; // For type == Type::NormalCompletion
     bool m_fallbackToNormalCompletion = true;

@@ -112,15 +112,7 @@ public:
         QTC_ASSERT(resource.isValid(), return);
         const QByteArray contents = QByteArray(reinterpret_cast<const char*>(resource.data()),
                                                resource.size());
-        cursorPosition = findCursorMarkerPosition(contents);
-        if (!contents.isEmpty()) {
-            if (!temporaryDir) {
-                m_temporaryDir.reset(new CppTools::Tests::TemporaryDir);
-                temporaryDir = m_temporaryDir.data();
-            }
-
-            filePath = temporaryDir->createFile(fileName, contents);
-        }
+        finish(fileName, contents, temporaryDir);
     }
 
     static TestDocument fromExistingFile(const QString &filePath)
@@ -129,6 +121,14 @@ public:
         QTC_ASSERT(!filePath.isEmpty(), return testDocument);
         testDocument.filePath = filePath;
         testDocument.cursorPosition = findCursorMarkerPosition(readFile(filePath));
+        return testDocument;
+    }
+
+    static TestDocument fromString(const QByteArray &fileName, const QByteArray &contents,
+                                   CppTools::Tests::TemporaryDir *tempDir = nullptr)
+    {
+        TestDocument testDocument;
+        testDocument.finish(fileName, contents, tempDir);
         return testDocument;
     }
 
@@ -147,6 +147,21 @@ public:
 
 private:
     TestDocument() = default;
+
+    void finish(const QByteArray &fileName, const QByteArray &contents,
+                CppTools::Tests::TemporaryDir *temporaryDir = nullptr)
+    {
+        cursorPosition = findCursorMarkerPosition(contents);
+        if (!contents.isEmpty()) {
+            if (!temporaryDir) {
+                m_temporaryDir.reset(new CppTools::Tests::TemporaryDir);
+                temporaryDir = m_temporaryDir.data();
+            }
+
+            filePath = temporaryDir->createFile(fileName, contents);
+        }
+    }
+
     QSharedPointer<CppTools::Tests::TemporaryDir> m_temporaryDir;
 };
 
@@ -313,12 +328,15 @@ class ProjectLessCompletionTest
 public:
     ProjectLessCompletionTest(const QByteArray &testFileName,
                               const QString &textToInsert = QString(),
-                              const QStringList &includePaths = QStringList())
+                              const QStringList &includePaths = QStringList(),
+                              const QByteArray &contents = {})
     {
         CppTools::Tests::TestCase garbageCollectionGlobalSnapshot;
         QVERIFY(garbageCollectionGlobalSnapshot.succeededSoFar());
 
-        const TestDocument testDocument(testFileName, globalTemporaryDir());
+        const auto testDocument = contents.isEmpty()
+                ? TestDocument(testFileName, globalTemporaryDir())
+                : TestDocument::fromString(testFileName, contents, globalTemporaryDir());
         QVERIFY(testDocument.isCreatedAndHasValidCursorPosition());
         OpenEditorAtCursorPosition openEditor(testDocument);
         QVERIFY(openEditor.succeeded());
@@ -710,6 +728,95 @@ void ClangCodeCompletionTest::testCompleteProjectDependingCodeInGeneratedUiFile(
     QVERIFY(hasItem(proposal, "statusBar"));
     QVERIFY(hasItem(proposal, "centralWidget"));
     QVERIFY(hasItem(proposal, "setupUi"));
+}
+
+static QByteArray makeSignalCompletionContents(const QByteArray &customContents)
+{
+    static const QByteArray definitions = R"(
+        class QObject {
+        public:
+            void aSignal() __attribute__((annotate("qt_signal")));
+            void anotherSignal() __attribute__((annotate("qt_signal")));
+            void notASignal();
+            static void connect();
+            static void disconnect();
+        };
+        class DerivedFromQObject : public QObject {
+        public:
+            void myOwnSignal() __attribute__((annotate("qt_signal")));
+            void alsoNotASignal();
+        };
+        class NotAQObject {
+        public:
+            void notASignal();
+            void alsoNotASignal();
+            static void connect();
+        };)";
+
+    return definitions + customContents + " /* COMPLETE HERE */";
+}
+
+void ClangCodeCompletionTest::testSignalCompletion_data()
+{
+    QTest::addColumn<QByteArray>("customContents");
+    QTest::addColumn<QByteArrayList>("hits");
+
+    QTest::addRow("positive: connect() on QObject class")
+            << QByteArray("int main() { QObject::connect(dummy, QObject::")
+            << QByteArrayList{"aSignal", "anotherSignal"};
+    QTest::addRow("positive: connect() on QObject object")
+            << QByteArray("int main() { QObject o; o.connect(dummy, QObject::")
+            << QByteArrayList{"aSignal", "anotherSignal"};
+    QTest::addRow("positive: connect() on QObject pointer")
+            << QByteArray("int main() { QObject *o; o->connect(dummy, QObject::")
+            << QByteArrayList{"aSignal", "anotherSignal"};
+    QTest::addRow("positive: connect() on QObject rvalue")
+            << QByteArray("int main() { QObject().connect(dummy, QObject::")
+            << QByteArrayList{"aSignal", "anotherSignal"};
+    QTest::addRow("positive: connect() on QObject pointer rvalue")
+            << QByteArray("int main() { (new QObject)->connect(dummy, QObject::")
+            << QByteArrayList{"aSignal", "anotherSignal"};
+    QTest::addRow("positive: disconnect() on QObject")
+            << QByteArray("int main() { QObject::disconnect(dummy, QObject::")
+            << QByteArrayList{"aSignal", "anotherSignal"};
+    QTest::addRow("positive: connect() in member function of derived class")
+            << QByteArray("void DerivedFromQObject::alsoNotASignal() { connect(this, DerivedFromQObject::")
+            << QByteArrayList{"aSignal", "anotherSignal", "myOwnSignal"};
+
+    const QByteArrayList allQObjectFunctions{"aSignal", "anotherSignal", "notASignal", "connect",
+                                             "disconnect", "QObject", "~QObject", "operator="};
+    QTest::addRow("negative: different function name")
+            << QByteArray("int main() { QObject::notASignal(dummy, QObject::")
+            << allQObjectFunctions;
+    QTest::addRow("negative: connect function from other class")
+            << QByteArray("int main() { NotAQObject::connect(dummy, QObject::")
+            << allQObjectFunctions;
+    QTest::addRow("negative: first argument")
+            << QByteArray("int main() { QObject::connect(QObject::")
+            << allQObjectFunctions;
+    QTest::addRow("negative: third argument")
+            << QByteArray("int main() { QObject::connect(dummy1, dummy2, QObject::")
+            << allQObjectFunctions;
+
+    QTest::addRow("negative: not a QObject")
+            << QByteArray("int main() { QObject::connect(dummy, NotAQObject::")
+            << QByteArrayList{"notASignal", "alsoNotASignal", "connect", "NotAQObject",
+                              "~NotAQObject", "operator="};
+}
+
+
+void ClangCodeCompletionTest::testSignalCompletion()
+{
+    QFETCH(QByteArray, customContents);
+    QFETCH(QByteArrayList, hits);
+
+    const QByteArray contents = makeSignalCompletionContents(customContents);
+    const ProjectLessCompletionTest t("signalcompletion.cpp", {}, {}, contents);
+
+    QVERIFY(t.proposal);
+    QCOMPARE(t.proposal->size(), hits.size());
+    for (const QByteArray &hit : qAsConst(hits))
+        QVERIFY(hasItem(t.proposal, hit));
 }
 
 } // namespace Tests
