@@ -41,7 +41,7 @@ class QbsCleanStep : public ProjectExplorer::BuildStep
     Q_OBJECT
 
 public:
-    QbsCleanStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
+    QbsCleanStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
     ~QbsCleanStep() override;
 
     QbsBuildStepData stepData() const;

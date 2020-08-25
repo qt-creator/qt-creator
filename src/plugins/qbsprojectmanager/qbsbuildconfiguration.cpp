@@ -75,7 +75,7 @@ static FilePath defaultBuildDirectory(const FilePath &projectFilePath, const Kit
 // QbsBuildConfiguration:
 // ---------------------------------------------------------------------------
 
-QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Core::Id id)
+QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Utils::Id id)
     : BuildConfiguration(target, id)
 {
     setConfigWidgetHasFrame(true);

@@ -40,7 +40,6 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>

@@ -283,7 +283,7 @@ void FormEditorWidget::changeBackgound(const QColor &color)
     }
 }
 
-void FormEditorWidget::registerActionAsCommand(QAction *action, Core::Id id, const QKeySequence &keysequence)
+void FormEditorWidget::registerActionAsCommand(QAction *action, Utils::Id id, const QKeySequence &keysequence)
 {
     Core::Context context(Constants::C_QMLFORMEDITOR);
 

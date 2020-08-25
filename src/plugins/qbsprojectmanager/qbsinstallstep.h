@@ -41,7 +41,7 @@ class QbsInstallStep : public ProjectExplorer::BuildStep
     Q_OBJECT
 
 public:
-    QbsInstallStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
+    QbsInstallStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
     ~QbsInstallStep() override;
 
     QString installRoot() const;

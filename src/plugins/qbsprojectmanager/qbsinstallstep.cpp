@@ -87,7 +87,7 @@ private:
 // QbsInstallStep:
 // --------------------------------------------------------------------
 
-QbsInstallStep::QbsInstallStep(BuildStepList *bsl, Core::Id id)
+QbsInstallStep::QbsInstallStep(BuildStepList *bsl, Utils::Id id)
     : BuildStep(bsl, id)
 {
     setDisplayName(tr("Qbs Install"));

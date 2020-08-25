@@ -164,9 +164,9 @@ void QbsProfilesSettingsWidget::refreshKitsList()
     m_ui.propertiesView->setModel(nullptr);
     m_model.reload();
     m_ui.profileValueLabel->clear();
-    Core::Id currentId;
+    Utils::Id currentId;
     if (m_ui.kitsComboBox->count() > 0)
-        currentId = Core::Id::fromSetting(m_ui.kitsComboBox->currentData());
+        currentId = Utils::Id::fromSetting(m_ui.kitsComboBox->currentData());
     m_ui.kitsComboBox->clear();
     int newCurrentIndex = -1;
     QList<Kit *> validKits = KitManager::kits();
@@ -192,7 +192,7 @@ void QbsProfilesSettingsWidget::displayCurrentProfile()
     m_ui.propertiesView->setModel(nullptr);
     if (m_ui.kitsComboBox->currentIndex() == -1)
         return;
-    const Core::Id kitId = Core::Id::fromSetting(m_ui.kitsComboBox->currentData());
+    const Utils::Id kitId = Utils::Id::fromSetting(m_ui.kitsComboBox->currentData());
     const Kit * const kit = KitManager::kit(kitId);
     QTC_ASSERT(kit, return);
     const QString profileName = QbsProfileManager::ensureProfileForKit(kit);
