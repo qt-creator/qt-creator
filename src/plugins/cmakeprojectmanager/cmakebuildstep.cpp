@@ -250,7 +250,6 @@ bool CMakeBuildStep::init()
     ProcessParameters *pp = processParameters();
     setupProcessParameters(pp);
     pp->setCommandLine(cmakeCommand(rc));
-    pp->resolveAll();
 
     return AbstractProcessStep::init();
 }

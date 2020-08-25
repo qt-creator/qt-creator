@@ -121,7 +121,6 @@ void ProcessStep::setupProcessParameters(ProcessParameters *pp)
     pp->setEnvironment(buildEnvironment());
     pp->setWorkingDirectory(FilePath::fromString(workingDirectory));
     pp->setCommandLine({m_command->filePath(), m_arguments->value(), CommandLine::Raw});
-    pp->resolveAll();
 }
 
 // ProcessStepFactory

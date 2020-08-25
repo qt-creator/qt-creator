@@ -63,7 +63,9 @@ void ProcessParameters::setCommandLine(const CommandLine &cmdLine)
     m_command = cmdLine;
     m_effectiveCommand.clear();
     m_effectiveArguments.clear();
-    resolveAll();
+
+    effectiveCommand();
+    effectiveArguments();
 }
 
 
@@ -77,6 +79,8 @@ void ProcessParameters::setWorkingDirectory(const FilePath &workingDirectory)
 {
     m_workingDirectory = workingDirectory;
     m_effectiveWorkingDirectory.clear();
+
+    effectiveWorkingDirectory();
 }
 
 /*!
@@ -199,13 +203,6 @@ QString ProcessParameters::summaryInWorkdir(const QString &displayName) const
                  Utils::QtcProcess::quoteArg(prettyCommand()),
                  prettyArguments(),
                  QDir::toNativeSeparators(effectiveWorkingDirectory().toString()));
-}
-
-void ProcessParameters::resolveAll()
-{
-    effectiveCommand();
-    effectiveArguments();
-    effectiveWorkingDirectory();
 }
 
 } // ProcessExplorer

@@ -206,7 +206,6 @@ bool MakeStep::init()
     ProcessParameters *pp = processParameters();
     setupProcessParameters(pp);
     pp->setCommandLine(make);
-    pp->resolveAll();
 
     // If we are cleaning, then make can fail with an error code, but that doesn't mean
     // we should stop the clean queue

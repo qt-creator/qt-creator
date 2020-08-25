@@ -162,7 +162,6 @@ bool QmakeMakeStep::init()
 
     pp->setEnvironment(makeEnvironment());
     pp->setCommandLine(makeCmd);
-    pp->resolveAll();
 
     auto rootNode = dynamic_cast<QmakeProFileNode *>(project()->rootProjectNode());
     QTC_ASSERT(rootNode, return false);

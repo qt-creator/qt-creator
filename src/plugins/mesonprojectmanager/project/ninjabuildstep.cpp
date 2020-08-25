@@ -107,7 +107,6 @@ bool NinjaBuildStep::init()
     // TODO check if the setup is ok
     ProjectExplorer::ProcessParameters *pp = processParameters();
     setupProcessParameters(pp);
-    pp->resolveAll();
 
     return AbstractProcessStep::init();
 }

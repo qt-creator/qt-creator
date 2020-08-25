@@ -69,7 +69,6 @@ public:
     QString summary(const QString &displayName) const;
     QString summaryInWorkdir(const QString &displayName) const;
 
-    void resolveAll();
 private:
     Utils::FilePath m_workingDirectory;
     Utils::CommandLine m_command;
