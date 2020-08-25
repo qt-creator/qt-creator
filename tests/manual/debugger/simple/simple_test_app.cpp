@@ -4176,7 +4176,7 @@ namespace qprocess {
         const int N = 14;
         QProcess proc[N];
         for (int i = 0; i != N; ++i) {
-            proc[i].start("sleep 10");
+            proc[i].start("sleep", {"10"});
             proc[i].waitForStarted();
         }
         BREAK_HERE;
@@ -5557,7 +5557,7 @@ namespace basic {
     void testFork()
     {
         QProcess proc;
-        proc.start("/bin/ls");
+        proc.start("/bin/ls", QStringList());
         proc.waitForFinished();
         QByteArray ba = proc.readAllStandardError();
         ba.append('x');
