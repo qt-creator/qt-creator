@@ -57,12 +57,6 @@ const char QBS_REMOVE_FIRST[] = "Qbs.RemoveFirst";
 const char QBS_DRY_RUN[] = "Qbs.DryRun";
 const char QBS_KEEP_GOING[] = "Qbs.DryKeepGoing";
 
-class QbsInstallStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
-{
-public:
-    QbsInstallStepConfigWidget(QbsInstallStep *step);
-};
-
 // --------------------------------------------------------------------
 // QbsInstallStep:
 // --------------------------------------------------------------------
@@ -118,11 +112,6 @@ void QbsInstallStep::doRun()
     connect(m_session, &QbsSession::errorOccurred, this, [this] {
         installDone(ErrorInfo(tr("Installing canceled: Qbs session failed.")));
     });
-}
-
-ProjectExplorer::BuildStepConfigWidget *QbsInstallStep::createConfigWidget()
-{
-    return new QbsInstallStepConfigWidget(this);
 }
 
 void QbsInstallStep::doCancel()
@@ -187,58 +176,54 @@ QbsBuildStepData QbsInstallStep::stepData() const
     return data;
 }
 
-// --------------------------------------------------------------------
-// QbsInstallStepConfigWidget:
-// --------------------------------------------------------------------
-
-QbsInstallStepConfigWidget::QbsInstallStepConfigWidget(QbsInstallStep *step) :
-    BuildStepConfigWidget(step)
+BuildStepConfigWidget *QbsInstallStep::createConfigWidget()
 {
-    setSummaryText(QbsInstallStep::tr("<b>Qbs:</b> %1").arg("install"));
+    auto widget = new BuildStepConfigWidget(this);
 
-    auto installRootValueLabel = new QLabel(step->installRoot());
+    widget->setSummaryText(tr("<b>Qbs:</b> %1").arg("install"));
 
-    auto commandLineKeyLabel = new QLabel(QbsInstallStep::tr("Equivalent command line:"));
+    auto installRootValueLabel = new QLabel(installRoot());
+
+    auto commandLineKeyLabel = new QLabel(tr("Equivalent command line:"));
     commandLineKeyLabel->setAlignment(Qt::AlignTop);
 
-    auto commandLineTextEdit = new QPlainTextEdit(this);
+    auto commandLineTextEdit = new QPlainTextEdit(widget);
     commandLineTextEdit->setReadOnly(true);
     commandLineTextEdit->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
-    commandLineTextEdit->setMinimumHeight(QFontMetrics(font()).height() * 8);
+    commandLineTextEdit->setMinimumHeight(QFontMetrics(widget->font()).height() * 8);
 
-    LayoutBuilder builder(this);
-    builder.addItems(new QLabel(QbsInstallStep::tr("Install root:")), installRootValueLabel);
+    LayoutBuilder builder(widget);
+    builder.addItems(new QLabel(tr("Install root:")), installRootValueLabel);
 
     builder.startNewRow();
-    builder.addItem(new QLabel(QbsInstallStep::tr("Flags:")));
-    step->m_dryRun->addToLayout(builder);
-    step->m_keepGoing->addToLayout(builder);
-    step->m_cleanInstallRoot->addToLayout(builder);
+    builder.addItem(new QLabel(tr("Flags:")));
+    m_dryRun->addToLayout(builder);
+    m_keepGoing->addToLayout(builder);
+    m_cleanInstallRoot->addToLayout(builder);
 
     builder.startNewRow();
     builder.addItems(commandLineKeyLabel, commandLineTextEdit);
 
-    const auto updateState = [this, step, commandLineTextEdit, installRootValueLabel] {
-        QString installRoot = step->installRoot();
-        installRootValueLabel->setText(installRoot);
-
-        QString command = step->buildConfig()->equivalentCommandLine(step->stepData());
-        commandLineTextEdit->setPlainText(command);
+    const auto updateState = [this, commandLineTextEdit, installRootValueLabel] {
+        installRootValueLabel->setText(installRoot());
+        commandLineTextEdit->setPlainText(buildConfig()->equivalentCommandLine(stepData()));
     };
 
-    connect(step->target(), &Target::parsingFinished, this, updateState);
-    connect(step, &ProjectConfiguration::displayNameChanged, this, updateState);
+    connect(target(), &Target::parsingFinished, this, updateState);
+    connect(this, &ProjectConfiguration::displayNameChanged, this, updateState);
 
-    connect(step->m_dryRun, &BoolAspect::changed, this, updateState);
-    connect(step->m_keepGoing, &BoolAspect::changed, this, updateState);
-    connect(step->m_cleanInstallRoot, &BoolAspect::changed, this, updateState);
+    connect(m_dryRun, &BoolAspect::changed, this, updateState);
+    connect(m_keepGoing, &BoolAspect::changed, this, updateState);
+    connect(m_cleanInstallRoot, &BoolAspect::changed, this, updateState);
 
-    const QbsBuildConfiguration * const bc = step->buildConfig();
+    const QbsBuildConfiguration * const bc = buildConfig();
     connect(bc, &QbsBuildConfiguration::qbsConfigurationChanged, this, updateState);
     if (bc->qbsStep())
         connect(bc->qbsStep(), &QbsBuildStep::qbsBuildOptionsChanged, this, updateState);
 
     updateState();
+
+    return widget;
 }
 
 // --------------------------------------------------------------------
