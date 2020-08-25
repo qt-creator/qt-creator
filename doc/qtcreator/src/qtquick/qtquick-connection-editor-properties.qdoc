@@ -67,6 +67,13 @@
             to specify the value of the property.
     \endlist
 
+    Right-click a property and select \uicontrol {Open Binding Editor} in
+    the context menu to bind the value of the property to that of another one
+    or to data accessible in the application in \uicontrol {Binding Editor}.
+    For more information, see \l{Setting Bindings}.
+
+    \image qmldesigner-binding-editor.png "Binding Editor"
+
     The properties you add for a QML type are displayed in the
     \uicontrol Properties view when you select a component of
     that type in \uicontrol Navigator or \uicontrol {Form Editor}.
