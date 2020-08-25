@@ -606,7 +606,7 @@ void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, i
 
         ModelNode newModelNode;
 
-        if (targetNode.isSubclassOf("QtQuick3D.DefaultMaterial")) {
+        if (targetNode.isSubclassOf("QtQuick3D.Material")) {
             // if dropping an image on a default material, create a texture instead of image
             m_view->executeInTransaction("QmlItemNode::createQmlItemNode", [&] {
                 // create a texture item lib
@@ -623,9 +623,12 @@ void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, i
                 // create a texture
                 newModelNode = QmlItemNode::createQmlObjectNode(m_view, itemLibraryEntry, {}, targetProperty, false);
 
-                // set the texture to parent material's diffuseMap property
-                // TODO: allow the user to choose which map property to set the texture for
-                targetNode.bindingProperty("diffuseMap").setExpression(newModelNode.validId());
+                // Automatically set the texture to default property
+                // TODO: allow the user to choose which map property to set the texture for (QDS-2326)
+                if (targetNode.isSubclassOf("QtQuick3D.DefaultMaterial"))
+                    targetNode.bindingProperty("diffuseMap").setExpression(newModelNode.validId());
+                else if (targetNode.isSubclassOf("QtQuick3D.PrincipledMaterial"))
+                    targetNode.bindingProperty("baseColorMap").setExpression(newModelNode.validId());
             });
         } else if (targetNode.isSubclassOf("QtQuick3D.Texture")) {
             // if dropping an image on a texture, set the texture source
