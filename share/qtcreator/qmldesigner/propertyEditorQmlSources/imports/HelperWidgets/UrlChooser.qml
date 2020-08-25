@@ -27,7 +27,9 @@ import QtQuick 2.1
 import HelperWidgets 2.0
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
+import QtQuickDesignerTheme 1.0
 import QtQuick.Layouts 1.0
+import QtQuick.Controls 2.5
 
 RowLayout {
     id: urlChooser
@@ -49,6 +51,58 @@ RowLayout {
 
     StudioControls.ComboBox {
         id: comboBox
+
+        // Note: highlightedIndex property isn't used because it has no setter and it doesn't reset
+        // when the combobox is closed by focusing on some other control.
+        property int hoverIndex: -1
+
+        ToolTip {
+            visible: comboBox.hovered
+            text: urlChooser.backendValue.valueToString
+            delay: 1000
+        }
+
+        delegate: ItemDelegate {
+            id: delegateItem
+            width: parent.width
+            height: 20
+            highlighted: comboBox.hoverIndex === index
+
+            indicator: Label { // selected item check mark
+                padding: 5
+                y: (parent.height - height) / 2
+                text: StudioTheme.Constants.tickIcon
+                font.pixelSize: 10
+                font.family: StudioTheme.Constants.iconFont.family
+                color: Theme.color(comboBox.hoverIndex === index ? Theme.PanelTextColorLight
+                                                                 : Theme.QmlDesigner_HighlightColor)
+                visible: comboBox.currentIndex === index
+            }
+
+            contentItem: Label {
+                leftPadding: 10
+                text: modelData
+                anchors.top: parent.top
+                color: Theme.color(Theme.PanelTextColorLight)
+                font.pixelSize: 13
+            }
+
+            background: Rectangle {
+                anchors.fill: parent
+                color: parent.highlighted ? Theme.color(Theme.QmlDesigner_HighlightColor) : "transparent"
+            }
+
+            ToolTip {
+                visible: delegateItem.hovered && comboBox.highlightedIndex === index
+                text: fileModel.fullPathModel[index]
+                delay: 1000
+            }
+
+            onHoveredChanged: {
+                if (hovered)
+                    comboBox.hoverIndex = index
+            }
+        }
 
         actionIndicator.icon.color: extFuncLogic.color
         actionIndicator.icon.text: extFuncLogic.glyph
@@ -78,7 +132,9 @@ RowLayout {
             if (urlChooser.backendValue.isBound)
                 return urlChooser.backendValue.expression
 
-            return urlChooser.backendValue.valueToString
+            var fullPath = urlChooser.backendValue.valueToString;
+            var fileName = fullPath.substr(fullPath.lastIndexOf('/') + 1);
+            return fileName;
         }
 
         onTextValueChanged: comboBox.setCurrentText(comboBox.textValue)
@@ -87,7 +143,7 @@ RowLayout {
 
         editable: true
 
-        model: fileModel.fileModel
+        model: fileModel.fileNameModel
 
         onModelChanged: {
             if (!comboBox.isComplete)
@@ -115,19 +171,17 @@ RowLayout {
 
         function handleActivate(index)
         {
-            var cText = comboBox.textAt(index)
-
-            if (index === -1)
-                cText = comboBox.editText
-
             if (urlChooser.backendValue === undefined)
                 return
 
             if (!comboBox.isComplete)
                 return
 
-            if (urlChooser.backendValue.value !== cText)
-                urlChooser.backendValue.value = cText
+            if (index === -1) // select first item if index is invalid
+                index = 0
+
+            if (urlChooser.backendValue.value !== fileModel.fullPathModel[index])
+                urlChooser.backendValue.value = fileModel.fullPathModel[index]
 
             comboBox.dirty = false
         }
@@ -145,13 +199,29 @@ RowLayout {
         }
     }
 
+    Connections {
+        target: comboBox
+        function onStateChanged(state)
+        {
+            // update currentIndex when the popup opens to override the default behavior in super classes
+            // that selects currentIndex based on values in the combo box.
+            if (comboBox.popup.opened) {
+                var index = fileModel.fullPathModel.indexOf(urlChooser.backendValue.value)
+                if (index !== -1) {
+                    comboBox.currentIndex = index
+                    comboBox.hoverIndex = index
+                }
+            }
+        }
+    }
+
     StudioControls.AbstractButton {
         buttonIcon: StudioTheme.Constants.addFile
         iconColor: urlChooser.textColor
         onClicked: {
             fileModel.openFileDialog()
-            if (fileModel.fileName !== "")
-                urlChooser.backendValue.value = fileModel.fileName
+            if (fileModel.path !== "")
+                urlChooser.backendValue.value = fileModel.path
         }
     }
 }

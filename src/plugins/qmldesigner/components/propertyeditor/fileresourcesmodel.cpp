@@ -42,8 +42,7 @@ FileResourcesModel::FileResourcesModel(QObject *parent) :
 
 void FileResourcesModel::setModelNodeBackend(const QVariant &modelNodeBackend)
 {
-
-    auto modelNodeBackendObject = modelNodeBackend.value<QObject*>();
+    auto modelNodeBackendObject = modelNodeBackend.value<QObject *>();
 
     const auto backendObjectCasted =
             qobject_cast<const QmlDesigner::QmlModelNodeProxy *>(modelNodeBackendObject);
@@ -64,6 +63,7 @@ void FileResourcesModel::setFileNameStr(const QString &fileName)
 {
     setFileName(QUrl(fileName));
 }
+
 void FileResourcesModel::setFileName(const QUrl &fileName)
 {
     if (fileName == m_fileName)
@@ -103,26 +103,25 @@ QString FileResourcesModel::filter() const
     return m_filter;
 }
 
-QStringList FileResourcesModel::fileModel() const
+QStringList FileResourcesModel::fullPathModel() const
 {
-    if (m_model.isEmpty())
-        return QStringList(QString());
+    return m_fullPathModel;
+}
 
-    return m_model;
+QStringList FileResourcesModel::fileNameModel() const
+{
+    return m_fileNameModel;
 }
 
 void FileResourcesModel::openFileDialog()
 {
-    QString modelPath;
-
-    modelPath = m_path.toLocalFile();
+    QString modelPath = m_path.toLocalFile();
 
     m_lastModelPath = modelPath;
 
     bool documentChanged = m_lastModelPath == modelPath;
 
-    //First we try the last path this browser widget was opened with
-    //if the document was not changed
+    //First we try the last path this browser widget was opened with if the document was not changed
     QString path = documentChanged ? QString() : m_currentPath;
 
 
@@ -154,7 +153,7 @@ void FileResourcesModel::openFileDialog()
 
 void FileResourcesModel::registerDeclarativeType()
 {
-    qmlRegisterType<FileResourcesModel>("HelperWidgets",2,0,"FileResourcesModel");
+    qmlRegisterType<FileResourcesModel>("HelperWidgets", 2, 0, "FileResourcesModel");
 }
 
 QVariant FileResourcesModel::modelNodeBackend() const
@@ -167,8 +166,7 @@ bool filterMetaIcons(const QString &fileName)
 
     QFileInfo info(fileName);
 
-    if (info.dir().path().split("/").contains("designer")) {
-
+    if (info.dir().path().split('/').contains("designer")) {
         QDir currentDir = info.dir();
 
         int i = 0;
@@ -192,7 +190,8 @@ bool filterMetaIcons(const QString &fileName)
 void FileResourcesModel::setupModel()
 {
     m_lock = true;
-    m_model.clear();
+    m_fullPathModel.clear();
+    m_fileNameModel.clear();
 
     m_dirPath = QFileInfo(m_path.toLocalFile()).dir();
 
@@ -201,11 +200,15 @@ void FileResourcesModel::setupModel()
     QDirIterator it(m_dirPath.absolutePath(), filterList, QDir::Files, QDirIterator::Subdirectories);
     while (it.hasNext()) {
         QString absolutePath = it.next();
-        if (filterMetaIcons(absolutePath))
-            m_model.append(m_dirPath.relativeFilePath(absolutePath));
+        if (filterMetaIcons(absolutePath)) {
+            QString filePath = m_dirPath.relativeFilePath(absolutePath);
+            m_fullPathModel.append(filePath);
+            m_fileNameModel.append(filePath.mid(filePath.lastIndexOf('/') + 1));
+        }
     }
 
     m_lock = false;
 
-    emit fileModelChanged();
+    emit fullPathModelChanged();
+    emit fileNameModelChanged();
 }
