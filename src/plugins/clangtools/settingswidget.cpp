@@ -49,24 +49,10 @@ static void setupPathChooser(Utils::PathChooser *const chooser,
                              const QString &historyCompleterId)
 {
     chooser->setPromptDialogTitle(promptDiaglogTitle);
-    chooser->lineEdit()->setPlaceholderText(placeHolderText);
+    chooser->setDefaultValue(placeHolderText);
     chooser->setPath(pathFromSettings);
     chooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     chooser->setHistoryCompleter(historyCompleterId);
-    chooser->setValidationFunction([chooser](Utils::FancyLineEdit *edit, QString *errorMessage) {
-        const QString currentFilePath = chooser->filePath().toString();
-        Utils::PathChooser pc;
-        Utils::PathChooser *helperPathChooser;
-        if (currentFilePath.isEmpty()) {
-            pc.setExpectedKind(chooser->expectedKind());
-            pc.setPath(edit->placeholderText());
-            helperPathChooser = &pc;
-        } else {
-            helperPathChooser = chooser;
-        }
-
-        return chooser->defaultValidationFunction()(helperPathChooser->lineEdit(), errorMessage);
-    });
 }
 
 SettingsWidget *SettingsWidget::instance()

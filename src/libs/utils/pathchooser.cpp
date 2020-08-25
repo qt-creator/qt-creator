@@ -189,6 +189,7 @@ public:
     QString m_dialogTitleOverride;
     QString m_dialogFilter;
     QString m_initialBrowsePathOverride;
+    QString m_defaultValue;
     FilePath m_baseDirectory;
     Environment m_environment;
     BinaryVersionToolTipEventFilter *m_binaryVersionToolTipEventFilter = nullptr;
@@ -521,6 +522,12 @@ void PathChooser::setAboutToShowContextMenuHandler(PathChooser::AboutToShowConte
     s_aboutToShowContextMenuHandler = handler;
 }
 
+void PathChooser::setDefaultValue(const QString &defaultValue)
+{
+    d->m_defaultValue = defaultValue;
+    d->m_lineEdit->setPlaceholderText(defaultValue);
+}
+
 FancyLineEdit::ValidationFunction PathChooser::defaultValidationFunction() const
 {
     return std::bind(&PathChooser::validatePath, this, std::placeholders::_1, std::placeholders::_2);
@@ -528,15 +535,19 @@ FancyLineEdit::ValidationFunction PathChooser::defaultValidationFunction() const
 
 bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
 {
-    const QString path = edit->text();
-    QString expandedPath = d->expandedPath(path);
+    QString path = edit->text();
 
     if (path.isEmpty()) {
-        if (errorMessage)
-            *errorMessage = tr("The path must not be empty.");
-        return false;
+        if (!d->m_defaultValue.isEmpty()) {
+            path = d->m_defaultValue;
+        } else {
+            if (errorMessage)
+                *errorMessage = tr("The path must not be empty.");
+            return false;
+        }
     }
 
+    const QString expandedPath = d->expandedPath(path);
     if (expandedPath.isEmpty()) {
         if (errorMessage)
             *errorMessage = tr("The path \"%1\" expanded to an empty string.").arg(QDir::toNativeSeparators(path));
