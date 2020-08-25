@@ -707,8 +707,7 @@ def qdumpHelper_std__string(d, value, charType, format):
     # We can't lookup the std::string::_Rep type without crashing LLDB,
     # so hard-code assumption on member position
     # struct { size_type _M_length, size_type _M_capacity, int _M_refcount; }
-    (size, alloc, refcount) = d.split("ppp", data - 3 * d.ptrSize())
-    refcount = refcount & 0xffffffff
+    (size, alloc, refcount) = d.split("ppi", data - 3 * d.ptrSize())
     d.check(refcount >= -1)  # Can be -1 according to docs.
     d.check(0 <= size and size <= alloc and alloc <= 100 * 1000 * 1000)
     d.putCharArrayHelper(data, size, charType, format)
