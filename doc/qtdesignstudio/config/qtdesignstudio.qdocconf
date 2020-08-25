@@ -112,6 +112,7 @@ qhp.qtdesignstudio.subprojects.manual.type = manual
 # Doxygen compatibility commands
 macro.see                       = "\\sa"
 macro.function                  = "\\fn"
+macro.QMLD                      = "Qt Design Studio"
 
 navigation.landingpage = "$IDE_DISPLAY_NAME Manual"
 buildversion = "$IDE_DISPLAY_NAME Manual $QTC_VERSION"

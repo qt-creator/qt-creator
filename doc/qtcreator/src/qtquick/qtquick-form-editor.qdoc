@@ -63,7 +63,7 @@
     button to anchor the item to the items that you snap to.
 
     Choose \uicontrol Tools > \uicontrol Options > \uicontrol {Qt Quick} >
-    \uicontrol {\QMLD} to specify settings for snapping. In the
+    \uicontrol {Qt Quick Designer} to specify settings for snapping. In the
     \uicontrol {Parent item padding} field, specify the
     distance in pixels between the parent item and the snapping lines. In the
     \uicontrol {Sibling item spacing} field, specify the distance in pixels between
@@ -99,14 +99,14 @@
     \image qmldesigner-preview-size.png "Canvas width and height"
 
     To set the initial size of the root item, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Qt Quick} > \uicontrol {\QMLD} and
+    \uicontrol Options > \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer} and
     specify the item width and height in the \uicontrol {Root Item Init Size}
     group.
 
     \section1 Specifying Canvas Size
 
     To change the canvas size, select \uicontrol Tools > \uicontrol Options >
-    \uicontrol {Qt Quick} > \uicontrol {\QMLD} and
+    \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer} and
     specify the canvas width and height in the \uicontrol Canvas group.
 
     \section1 Refreshing the Form Editor Contents
