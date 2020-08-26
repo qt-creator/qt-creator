@@ -12,7 +12,6 @@ add_qtc_plugin(Ios
     iosdevice.cpp iosdevice.h
     iosdsymbuildstep.cpp iosdsymbuildstep.h
     iosplugin.cpp iosplugin.h
-    iospresetbuildstep.ui
     iosprobe.cpp iosprobe.h
     iosqtversion.cpp iosqtversion.h
     iosrunconfiguration.cpp iosrunconfiguration.h

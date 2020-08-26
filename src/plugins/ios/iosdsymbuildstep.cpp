@@ -26,7 +26,6 @@
 #include "iosdsymbuildstep.h"
 
 #include "iosconstants.h"
-#include "ui_iospresetbuildstep.h"
 #include "iosconfigurations.h"
 #include "iosrunconfiguration.h"
 
@@ -46,6 +45,12 @@
 #include <utils/stringutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+
+#include <QGridLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPlainTextEdit>
+#include <QPushButton>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -178,21 +183,11 @@ bool IosDsymBuildStep::isDefault() const
     return arguments() == defaultArguments() && command() == defaultCommand();
 }
 
-void IosDsymBuildStep::doRun()
-{
-    AbstractProcessStep::doRun();
-}
-
 void IosDsymBuildStep::setupOutputFormatter(OutputFormatter *formatter)
 {
     formatter->setLineParsers(target()->kit()->createOutputParsers());
     formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
     AbstractProcessStep::setupOutputFormatter(formatter);
-}
-
-BuildStepConfigWidget *IosDsymBuildStep::createConfigWidget()
-{
-    return new IosDsymBuildStepConfigWidget(this);
 }
 
 void IosDsymBuildStep::setArguments(const QStringList &args)
@@ -215,73 +210,72 @@ QStringList IosDsymBuildStep::arguments() const
     return m_arguments;
 }
 
-//
-// IosDsymBuildStepConfigWidget
-//
 
-IosDsymBuildStepConfigWidget::IosDsymBuildStepConfigWidget(IosDsymBuildStep *buildStep)
-    : BuildStepConfigWidget(buildStep), m_buildStep(buildStep)
+BuildStepConfigWidget *IosDsymBuildStep::createConfigWidget()
 {
-    m_ui = new Ui::IosPresetBuildStep;
-    m_ui->setupUi(this);
+    auto widget = new BuildStepConfigWidget(this);
 
-    m_ui->commandLineEdit->setText(m_buildStep->command().toString());
-    m_ui->argumentsTextEdit->setPlainText(Utils::QtcProcess::joinArgs(
-                                                   m_buildStep->arguments()));
-    m_ui->resetDefaultsButton->setEnabled(!m_buildStep->isDefault());
+    auto commandLabel = new QLabel(tr("Command:"), widget);
+
+    auto commandLineEdit = new QLineEdit(widget);
+    commandLineEdit->setText(command().toString());
+
+    auto argumentsTextEdit = new QPlainTextEdit(widget);
+    argumentsTextEdit->setPlainText(Utils::QtcProcess::joinArgs(arguments()));
+
+    auto argumentsLabel = new QLabel(tr("Arguments:"), widget);
+
+    auto resetDefaultsButton = new QPushButton(tr("Reset to Default"), widget);
+    resetDefaultsButton->setLayoutDirection(Qt::RightToLeft);
+    resetDefaultsButton->setEnabled(!isDefault());
+
+    auto gridLayout = new QGridLayout(widget);
+    gridLayout->addWidget(commandLabel, 0, 0, 1, 1);
+    gridLayout->addWidget(commandLineEdit, 0, 2, 1, 1);
+    gridLayout->addWidget(argumentsLabel, 1, 0, 1, 1);
+    gridLayout->addWidget(argumentsTextEdit, 1, 2, 2, 1);
+    gridLayout->addWidget(resetDefaultsButton, 2, 3, 1, 1);
+
+    auto updateDetails = [this, widget] {
+        ProcessParameters param;
+        setupProcessParameters(&param);
+        widget->setSummaryText(param.summary(displayName()));
+    };
+
     updateDetails();
 
-    connect(m_ui->argumentsTextEdit, &QPlainTextEdit::textChanged,
-            this, &IosDsymBuildStepConfigWidget::argumentsChanged);
-    connect(m_ui->commandLineEdit, &QLineEdit::editingFinished,
-            this, &IosDsymBuildStepConfigWidget::commandChanged);
-    connect(m_ui->resetDefaultsButton, &QAbstractButton::clicked,
-            this, &IosDsymBuildStepConfigWidget::resetDefaults);
+    connect(argumentsTextEdit, &QPlainTextEdit::textChanged, this,
+            [this, argumentsTextEdit, resetDefaultsButton, updateDetails] {
+        setArguments(Utils::QtcProcess::splitArgs(argumentsTextEdit->toPlainText()));
+        resetDefaultsButton->setEnabled(!isDefault());
+        updateDetails();
+    });
+
+    connect(commandLineEdit, &QLineEdit::editingFinished, this,
+            [this, commandLineEdit, resetDefaultsButton, updateDetails] {
+        setCommand(FilePath::fromString(commandLineEdit->text()));
+        resetDefaultsButton->setEnabled(!isDefault());
+        updateDetails();
+    });
+
+    connect(resetDefaultsButton, &QAbstractButton::clicked, this,
+            [this, commandLineEdit, resetDefaultsButton, argumentsTextEdit, updateDetails] {
+        setCommand(defaultCommand());
+        setArguments(defaultArguments());
+        commandLineEdit->setText(command().toString());
+        argumentsTextEdit->setPlainText(Utils::QtcProcess::joinArgs(arguments()));
+        resetDefaultsButton->setEnabled(!isDefault());
+        updateDetails();
+    });
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
-            this, &IosDsymBuildStepConfigWidget::updateDetails);
-    connect(m_buildStep->target(), &Target::kitChanged,
-            this, &IosDsymBuildStepConfigWidget::updateDetails);
-    connect(m_buildStep->buildConfiguration(), &BuildConfiguration::enabledChanged,
-            this, &IosDsymBuildStepConfigWidget::updateDetails);
-}
+            this, updateDetails);
+    connect(target(), &Target::kitChanged,
+            this, updateDetails);
+    connect(buildConfiguration(), &BuildConfiguration::enabledChanged,
+            this, updateDetails);
 
-IosDsymBuildStepConfigWidget::~IosDsymBuildStepConfigWidget()
-{
-    delete m_ui;
-}
-
-void IosDsymBuildStepConfigWidget::updateDetails()
-{
-    ProcessParameters param;
-    m_buildStep->setupProcessParameters(&param);
-    setSummaryText(param.summary(displayName()));
-}
-
-void IosDsymBuildStepConfigWidget::commandChanged()
-{
-    m_buildStep->setCommand(FilePath::fromString(m_ui->commandLineEdit->text()));
-    m_ui->resetDefaultsButton->setEnabled(!m_buildStep->isDefault());
-    updateDetails();
-}
-
-void IosDsymBuildStepConfigWidget::argumentsChanged()
-{
-    m_buildStep->setArguments(Utils::QtcProcess::splitArgs(
-                                      m_ui->argumentsTextEdit->toPlainText()));
-    m_ui->resetDefaultsButton->setEnabled(!m_buildStep->isDefault());
-    updateDetails();
-}
-
-void IosDsymBuildStepConfigWidget::resetDefaults()
-{
-    m_buildStep->setCommand(m_buildStep->defaultCommand());
-    m_buildStep->setArguments(m_buildStep->defaultArguments());
-    m_ui->commandLineEdit->setText(m_buildStep->command().toString());
-    m_ui->argumentsTextEdit->setPlainText(Utils::QtcProcess::joinArgs(
-                                              m_buildStep->arguments()));
-    m_ui->resetDefaultsButton->setEnabled(!m_buildStep->isDefault());
-    updateDetails();
+    return widget;
 }
 
 //

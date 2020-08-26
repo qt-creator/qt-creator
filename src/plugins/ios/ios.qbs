@@ -33,7 +33,6 @@ QtcPlugin {
         "iosdsymbuildstep.h",
         "iosplugin.cpp",
         "iosplugin.h",
-        "iospresetbuildstep.ui",
         "iosprobe.cpp",
         "iosprobe.h",
         "iosqtversion.cpp",
