@@ -30,8 +30,12 @@
 
     \title Setting Up \QBPS
 
-    You can download \QBPS from the \l{https://marketplace.qt.io/}
-    {Qt Marketplace}. It is delivered as an Adobe extension (ZXP)
+    You can purchase a \QBPS license from the \l{https://marketplace.qt.io/}
+    {Qt Marketplace}, and then use the Qt online installer to have the \QBPS
+    installation package copied to the following path in your Qt installation
+    folder: \c {QtDesignStudio\photoshop_bridge}.
+
+    \QBPS is delivered as an Adobe extension (ZXP)
     package and requires Adobe Photoshop version 20.0.0, or later
     to be installed. The \QBPS installation process differs depending
     on whether you use ZXPInstaller and whether you are installing on
@@ -44,7 +48,8 @@
     \list 1
         \li Download and install \l{http://zxpinstaller.com/}{ZXPInstaller}.
         \li Start ZXPInstaller.
-        \li Drag and drop the \QBPS ZXP package to ZXPInstaller.
+        \li Drag and drop the \QBPS ZXP package from
+            \c {Qt\QtDesignStudio\photoshop_bridge} to ZXPInstaller.
         \li Follow the instructions of the installation program.
     \endlist
 
@@ -58,8 +63,9 @@
     To install \QBPS on Windows without using ZXPInstaller:
 
     \list 1
-        \li Copy the \QBPS ZXP package to the \c Documents directory in your
-            user directory.
+        \li Copy the \QBPS ZXP package from
+            \c {Qt\QtDesignStudio\photoshop_bridge} to the
+            \c Documents directory in your user directory.
         \li Open Windows PowerShell.
         \li Enter the following commands:
         \badcode
@@ -75,7 +81,9 @@
     To install \QBPS on \macos without using ZXPInstaller:
 
     \list 1
-        \li Copy the \QBPS ZXP package to your \c Documents directory.
+        \li Copy the \QBPS ZXP package from
+            \c {Qt/QtDesignStudio/photoshop_bridge}
+            to your \c Documents directory.
         \li Open Terminal.
         \li Enter the following commands:
         \badcode

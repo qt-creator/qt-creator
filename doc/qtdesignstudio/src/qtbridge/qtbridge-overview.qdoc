@@ -30,15 +30,17 @@
 
     \title Exporting Artwork from Design Tools
 
-    You need to use \QB to first export 2D assets from design tools and then use
-    \QB to \l{Importing Designs}{import} them into \QDS.
+    You need to use \QB to first export 2D assets from design tools and then to
+    \l{Importing Designs}{import} them into \QDS.
 
     When working with 3D assets, you can use the export functions provided by
     the 3D graphics tools to save the assets in widely-used 3D graphics formats,
     and then use \QB to import them into \QDS.
 
-    You can use the Qt online installer to install \QB if you have a license, or
-    download \QB from the \l{https://marketplace.qt.io/}{Qt Marketplace}.
+    You can use the Qt online installer to install \QB if you have a commercial
+    \QDS license. You can also purchase a \QB license separately from the
+    \l{https://marketplace.qt.io/}{Qt Marketplace} and then install \QB using
+    the Qt online installer.
 
     For best results when importing assets, follow
     the guidelines for creating and exporting them.
