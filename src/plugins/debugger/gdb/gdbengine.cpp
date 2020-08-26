@@ -3801,10 +3801,12 @@ void GdbEngine::setEnvironmentVariables()
         // imitate the weird windows gdb behavior of setting the case of the path environment
         // variable name to an all uppercase PATH
         const QString name = isWindowsPath(item.name) ? "PATH" : item.name;
-        if (item.operation == EnvironmentItem::Unset)
+        if (item.operation == EnvironmentItem::Unset
+                || item.operation == EnvironmentItem::SetDisabled) {
             runCommand({"unset environment " + name});
-        else
+        } else {
             runCommand({"-gdb-set environment " + name + '=' + item.value});
+        }
     }
 }
 
