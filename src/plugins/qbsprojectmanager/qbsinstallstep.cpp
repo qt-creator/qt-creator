@@ -109,16 +109,16 @@ QbsInstallStep::~QbsInstallStep()
 
 bool QbsInstallStep::init()
 {
-    QTC_ASSERT(!buildSystem()->isParsing() && !m_session, return false);
+    QTC_ASSERT(!target()->buildSystem()->isParsing() && !m_session, return false);
     return true;
 }
 
 void QbsInstallStep::doRun()
 {
-    m_session = static_cast<QbsBuildSystem *>(buildSystem())->session();
+    m_session = static_cast<QbsBuildSystem *>(target()->buildSystem())->session();
 
     QJsonObject request;
-    request.insert("type", "install");
+    request.insert("type", "install-project");
     request.insert("install-root", installRoot());
     request.insert("clean-install-root", m_cleanInstallRoot);
     request.insert("keep-going", m_keepGoing);
@@ -153,7 +153,7 @@ QString QbsInstallStep::installRoot() const
 
 const QbsBuildConfiguration *QbsInstallStep::buildConfig() const
 {
-    return static_cast<QbsBuildConfiguration *>(buildConfiguration());
+    return static_cast<QbsBuildConfiguration *>(target()->activeBuildConfiguration());
 }
 
 bool QbsInstallStep::fromMap(const QVariantMap &map)

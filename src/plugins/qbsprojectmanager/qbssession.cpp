@@ -267,7 +267,7 @@ QString QbsSession::errorString(QbsSession::Error error)
     case Error::QbsFailedToStart:
         return tr("The qbs process failed to start.");
     case Error::ProtocolError:
-        return tr("The qbs process sent invalid data.");
+        return tr("The qbs process sent unexpected data.");
     case Error::VersionMismatch:
         return tr("The qbs API level is not compatible with what Qt Creator expects.");
     }
@@ -534,6 +534,15 @@ void QbsSession::handlePacket(const QJsonObject &packet)
     } else if (type == "run-environment") {
         d->reply = packet;
         d->eventLoop.quit();
+    } else if (type == "protocol-error") {
+        const ErrorInfo errorInfo = ErrorInfo(packet.value("error").toObject());
+
+        // TODO: This loop occurs a lot. Factor it out.
+        for (const ErrorInfoItem &item : errorInfo.items) {
+            TaskHub::addTask(BuildSystemTask(Task::Error, item.description,
+                                             item.filePath, item.line));
+        }
+        setError(Error::ProtocolError);
     }
 }
 
