@@ -72,6 +72,9 @@ public:
 
     void fetchDisassembler(DisassemblerAgent *agent) final;
 
+    void changeMemory(MemoryAgent *agent, quint64 address, const QByteArray &data) final;
+    void fetchMemory(MemoryAgent *agent, quint64 address, quint64 length) final;
+
     void reloadRegisters() final;
     void reloadPeripheralRegisters() final;
 
@@ -98,6 +101,9 @@ private slots:
     void handleRunFailure(const QString &errorMessage);
     void handleExecutionFailure(const QString &errorMessage);
     void handleStoppingFailure(const QString &errorMessage);
+
+    void handleFetchMemory(MemoryAgent *agent, quint64 address, const QByteArray &data);
+    void handleChangeMemory(MemoryAgent *agent, quint64 address, const QByteArray &data);
 
 private:
     void doUpdateLocals(const UpdateParameters &params) final;
