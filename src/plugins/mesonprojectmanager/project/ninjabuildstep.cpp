@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "ninjabuildstep.h"
-#include "buildoptions/mesonbuildstepconfigwidget.h"
+
 #include "outputparsers/mesonoutputparser.h"
 #include "mesonbuildconfiguration.h"
 #include "mesonbuildsystem.h"
@@ -32,12 +32,20 @@
 #include <settings/general/settings.h>
 #include <settings/tools/kitaspect/ninjatoolkitaspect.h>
 
+#include <coreplugin/find/itemviewfind.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
+#include <QFormLayout>
+#include <QLineEdit>
+#include <QListWidget>
+#include <QRadioButton>
+
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace MesonProjectManager {
@@ -63,9 +71,72 @@ NinjaBuildStep::NinjaBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id
             &NinjaBuildStep::commandChanged);
 }
 
-ProjectExplorer::BuildStepConfigWidget *NinjaBuildStep::createConfigWidget()
+BuildStepConfigWidget *NinjaBuildStep::createConfigWidget()
 {
-    return new MesonBuildStepConfigWidget{this};
+    auto widget = new BuildStepConfigWidget{this};
+    widget->setDisplayName(tr("Build", "MesonProjectManager::MesonBuildStepConfigWidget display name."));
+
+    auto buildTargetsList = new QListWidget(widget);
+    buildTargetsList->setMinimumHeight(200);
+    buildTargetsList->setFrameShape(QFrame::StyledPanel);
+    buildTargetsList->setFrameShadow(QFrame::Raised);
+
+    auto toolArguments = new QLineEdit(widget);
+
+    auto wrapper = Core::ItemViewFind::createSearchableWrapper(buildTargetsList,
+                                                               Core::ItemViewFind::LightColored);
+
+    auto formLayout = new QFormLayout(widget);
+    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+    formLayout->setContentsMargins(0, 0, 0, 0);
+    formLayout->addRow(tr("Tool arguments:"), toolArguments);
+    formLayout->addRow(tr("Targets:"), wrapper);
+
+    auto updateDetails = [this, widget] {
+        ProcessParameters param;
+        setupProcessParameters(&param);
+        widget->setSummaryText(param.summary(displayName()));
+    };
+
+    auto updateTargetList = [this, buildTargetsList, updateDetails] {
+        buildTargetsList->clear();
+        for (const QString &target : projectTargets()) {
+            auto item = new QListWidgetItem(buildTargetsList);
+            auto button = new QRadioButton(target);
+            connect(button, &QRadioButton::toggled,
+                    this, [this, target, updateDetails](bool toggled) {
+                if (toggled) {
+                    setBuildTarget(target);
+                    updateDetails();
+                }
+            });
+            button->setChecked(targetName() == target);
+            buildTargetsList->setItemWidget(item, button);
+            item->setData(Qt::UserRole, target);
+        }
+    };
+
+    updateDetails();
+    updateTargetList();
+
+    connect(this, &NinjaBuildStep::commandChanged, this, updateDetails);
+
+    connect(this, &NinjaBuildStep::targetListChanged, this, updateTargetList);
+
+    connect(toolArguments, &QLineEdit::textEdited, this, [this, updateDetails](const QString &text) {
+        setCommandArgs(text);
+        updateDetails();
+    });
+
+    connect(buildTargetsList, &QListWidget::itemChanged,
+            this, [this, updateDetails](QListWidgetItem *item) {
+        if (item->checkState() == Qt::Checked) {
+            setBuildTarget(item->data(Qt::UserRole).toString());
+            updateDetails();
+        }
+    });
+
+    return widget;
 }
 
 // --verbose is only supported since

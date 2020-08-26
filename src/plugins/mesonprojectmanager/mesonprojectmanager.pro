@@ -24,7 +24,6 @@ HEADERS = \
       project/buildoptions/optionsmodel/arrayoptionlineedit.h \
       project/buildoptions/optionsmodel/buildoptionsmodel.h \
       project/buildoptions/mesonbuildsettingswidget.h \
-      project/buildoptions/mesonbuildstepconfigwidget.h \
       project/outputparsers/mesonoutputparser.h \
       project/outputparsers/ninjaparser.h \
       project/projecttree/mesonprojectnodes.h \
@@ -64,7 +63,6 @@ SOURCES = \
     project/buildoptions/optionsmodel/arrayoptionlineedit.cpp  \
     project/buildoptions/optionsmodel/buildoptionsmodel.cpp  \
     project/buildoptions/mesonbuildsettingswidget.cpp  \
-    project/buildoptions/mesonbuildstepconfigwidget.cpp  \
     project/outputparsers/mesonoutputparser.cpp  \
     project/outputparsers/ninjaparser.cpp  \
     project/projecttree/mesonprojectnodes.cpp  \
