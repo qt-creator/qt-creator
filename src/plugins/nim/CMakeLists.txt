@@ -18,7 +18,6 @@ add_qtc_plugin(Nim
     project/nimbuildsystem.cpp project/nimbuildsystem.h
     project/nimbuildconfiguration.cpp project/nimbuildconfiguration.h
     project/nimcompilerbuildstep.cpp project/nimcompilerbuildstep.h
-    project/nimcompilerbuildstepconfigwidget.cpp project/nimcompilerbuildstepconfigwidget.h project/nimcompilerbuildstepconfigwidget.ui
     project/nimcompilercleanstep.cpp project/nimcompilercleanstep.h
     project/nimproject.cpp project/nimproject.h
     project/nimprojectnode.cpp project/nimprojectnode.h

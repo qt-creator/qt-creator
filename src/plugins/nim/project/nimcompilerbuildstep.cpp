@@ -24,26 +24,61 @@
 ****************************************************************************/
 
 #include "nimcompilerbuildstep.h"
+
 #include "nimbuildconfiguration.h"
 #include "nimbuildsystem.h"
-#include "nimcompilerbuildstepconfigwidget.h"
 #include "nimconstants.h"
 #include "nimtoolchain.h"
 
+#include <projectexplorer/processparameters.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <utils/qtcassert.h>
 
+#include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
+
+#include <QApplication>
+#include <QComboBox>
 #include <QDir>
+#include <QFormLayout>
+#include <QLabel>
+#include <QLineEdit>
 #include <QRegularExpression>
+#include <QTextEdit>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Nim {
+
+class NimCompilerBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(Nim::NimCompilerBuildStep)
+
+public:
+    explicit NimCompilerBuildStepConfigWidget(NimCompilerBuildStep *buildStep);
+
+private:
+    void updateUi();
+    void updateCommandLineText();
+    void updateTargetComboBox();
+    void updateAdditionalArgumentsLineEdit();
+    void updateDefaultArgumentsComboBox();
+
+    void onAdditionalArgumentsTextEdited(const QString &text);
+    void onTargetChanged(int index);
+    void onDefaultArgumentsComboBoxIndexChanged(int index);
+
+    NimCompilerBuildStep *m_buildStep;
+    QTextEdit *m_commandTextEdit;
+    QComboBox *m_defaultArgumentsComboBox;
+    QComboBox *m_targetComboBox;
+    QLineEdit *m_additionalArgumentsLineEdit;
+};
+
+// NimParser
 
 class NimParser : public ProjectExplorer::OutputTaskParser
 {
@@ -106,6 +141,53 @@ void NimCompilerBuildStep::setupOutputFormatter(OutputFormatter *formatter)
     formatter->addLineParsers(target()->kit()->createOutputParsers());
     formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
     AbstractProcessStep::setupOutputFormatter(formatter);
+}
+
+NimCompilerBuildStepConfigWidget::NimCompilerBuildStepConfigWidget(NimCompilerBuildStep *buildStep)
+    : BuildStepConfigWidget(buildStep)
+    , m_buildStep(buildStep)
+{
+    setDisplayName(tr(Constants::C_NIMCOMPILERBUILDSTEPWIDGET_DISPLAY));
+    setSummaryText(tr(Constants::C_NIMCOMPILERBUILDSTEPWIDGET_SUMMARY));
+
+    m_targetComboBox = new QComboBox(this);
+
+    m_additionalArgumentsLineEdit = new QLineEdit(this);
+
+    m_commandTextEdit = new QTextEdit(this);
+    m_commandTextEdit->setEnabled(false);
+    m_commandTextEdit->setMinimumSize(QSize(0, 0));
+
+    m_defaultArgumentsComboBox = new QComboBox(this);
+    m_defaultArgumentsComboBox->addItem(tr("None"));
+    m_defaultArgumentsComboBox->addItem(tr("Debug"));
+    m_defaultArgumentsComboBox->addItem(tr("Release"));
+
+    auto formLayout = new QFormLayout(this);
+    formLayout->addRow(tr("Target:"), m_targetComboBox);
+    formLayout->addRow(tr("Default arguments:"), m_defaultArgumentsComboBox);
+    formLayout->addRow(tr("Extra arguments:"),  m_additionalArgumentsLineEdit);
+    formLayout->addRow(tr("Command:"), m_commandTextEdit);
+
+    // Connect the project signals
+    connect(m_buildStep->project(),
+            &Project::fileListChanged,
+            this,
+            &NimCompilerBuildStepConfigWidget::updateUi);
+
+    // Connect build step signals
+    connect(m_buildStep, &NimCompilerBuildStep::processParametersChanged,
+            this, &NimCompilerBuildStepConfigWidget::updateUi);
+
+    // Connect UI signals
+    connect(m_targetComboBox, QOverload<int>::of(&QComboBox::activated),
+            this, &NimCompilerBuildStepConfigWidget::onTargetChanged);
+    connect(m_additionalArgumentsLineEdit, &QLineEdit::textEdited,
+            this, &NimCompilerBuildStepConfigWidget::onAdditionalArgumentsTextEdited);
+    connect(m_defaultArgumentsComboBox, QOverload<int>::of(&QComboBox::activated),
+            this, &NimCompilerBuildStepConfigWidget::onDefaultArgumentsComboBoxIndexChanged);
+
+    updateUi();
 }
 
 BuildStepConfigWidget *NimCompilerBuildStep::createConfigWidget()
@@ -253,6 +335,73 @@ void NimCompilerBuildStep::updateTargetNimFile()
     });
     if (!nimFiles.isEmpty())
         setTargetNimFile(nimFiles.at(0));
+}
+
+void NimCompilerBuildStepConfigWidget::onTargetChanged(int index)
+{
+    Q_UNUSED(index)
+    auto data = m_targetComboBox->currentData();
+    FilePath path = FilePath::fromString(data.toString());
+    m_buildStep->setTargetNimFile(path);
+}
+
+void NimCompilerBuildStepConfigWidget::onDefaultArgumentsComboBoxIndexChanged(int index)
+{
+    auto options = static_cast<NimCompilerBuildStep::DefaultBuildOptions>(index);
+    m_buildStep->setDefaultCompilerOptions(options);
+}
+
+void NimCompilerBuildStepConfigWidget::updateUi()
+{
+    updateCommandLineText();
+    updateTargetComboBox();
+    updateAdditionalArgumentsLineEdit();
+    updateDefaultArgumentsComboBox();
+}
+
+void NimCompilerBuildStepConfigWidget::onAdditionalArgumentsTextEdited(const QString &text)
+{
+    m_buildStep->setUserCompilerOptions(text.split(QChar::Space));
+}
+
+void NimCompilerBuildStepConfigWidget::updateCommandLineText()
+{
+    ProcessParameters *parameters = m_buildStep->processParameters();
+
+    const CommandLine cmd = parameters->command();
+    const QStringList parts = QtcProcess::splitArgs(cmd.toUserOutput());
+
+    m_commandTextEdit->setText(parts.join(QChar::LineFeed));
+}
+
+void NimCompilerBuildStepConfigWidget::updateTargetComboBox()
+{
+    QTC_ASSERT(m_buildStep, return );
+
+    // Re enter the files
+    m_targetComboBox->clear();
+
+    const FilePaths nimFiles = m_buildStep->project()->files([](const Node *n) {
+        return Project::AllFiles(n) && n->path().endsWith(".nim");
+    });
+
+    for (const FilePath &file : nimFiles)
+        m_targetComboBox->addItem(file.fileName(), file.toString());
+
+    const int index = m_targetComboBox->findData(m_buildStep->targetNimFile().toString());
+    m_targetComboBox->setCurrentIndex(index);
+}
+
+void NimCompilerBuildStepConfigWidget::updateAdditionalArgumentsLineEdit()
+{
+    const QString text = m_buildStep->userCompilerOptions().join(QChar::Space);
+    m_additionalArgumentsLineEdit->setText(text);
+}
+
+void NimCompilerBuildStepConfigWidget::updateDefaultArgumentsComboBox()
+{
+    const int index = m_buildStep->defaultCompilerOptions();
+    m_defaultArgumentsComboBox->setCurrentIndex(index);
 }
 
 // NimCompilerBuildStepFactory

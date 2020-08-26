@@ -40,7 +40,6 @@ QtcPlugin {
             "nimbuildsystem.cpp", "nimbuildsystem.h",
             "nimbuildconfiguration.h", "nimbuildconfiguration.cpp",
             "nimcompilerbuildstep.h", "nimcompilerbuildstep.cpp",
-            "nimcompilerbuildstepconfigwidget.h", "nimcompilerbuildstepconfigwidget.cpp", "nimcompilerbuildstepconfigwidget.ui",
             "nimcompilercleanstep.h", "nimcompilercleanstep.cpp",
             "nimproject.h", "nimproject.cpp",
             "nimprojectnode.h", "nimprojectnode.cpp",

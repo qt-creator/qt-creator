@@ -28,7 +28,6 @@ HEADERS += \
     project/nimprojectnode.h \
     project/nimbuildconfiguration.h \
     project/nimcompilerbuildstep.h \
-    project/nimcompilerbuildstepconfigwidget.h \
     project/nimcompilercleanstep.h \
     project/nimrunconfiguration.h \
     editor/nimeditorfactory.h \
@@ -65,7 +64,6 @@ SOURCES += \
     project/nimprojectnode.cpp \
     project/nimbuildconfiguration.cpp \
     project/nimcompilerbuildstep.cpp \
-    project/nimcompilerbuildstepconfigwidget.cpp \
     project/nimcompilercleanstep.cpp \
     project/nimrunconfiguration.cpp \
     editor/nimeditorfactory.cpp \
@@ -83,6 +81,5 @@ SOURCES += \
     suggest/server.cpp
 
 FORMS += \
-    project/nimcompilerbuildstepconfigwidget.ui \
     settings/nimcodestylepreferenceswidget.ui \
     settings/nimtoolssettingswidget.ui
