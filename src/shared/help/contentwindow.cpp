@@ -107,7 +107,7 @@ bool ContentWindow::eventFilter(QObject *o, QEvent *e)
 
         if (index.isValid() && sm->isSelected(index)) {
             if ((button == Qt::LeftButton && (me->modifiers() & Qt::ControlModifier))
-                    || (button == Qt::MidButton)) {
+                    || (button == Qt::MiddleButton)) {
                 QHelpContentItem *itm = m_contentModel->contentItemAt(index);
                 if (itm)
                     emit linkActivated(itm->url(), true/*newPage*/);

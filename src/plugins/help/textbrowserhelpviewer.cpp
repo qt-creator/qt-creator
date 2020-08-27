@@ -443,7 +443,7 @@ void TextBrowserHelpWidget::mouseReleaseEvent(QMouseEvent *e)
     bool controlPressed = e->modifiers() & Qt::ControlModifier;
     const QString link = linkAt(e->pos());
     if (m_parent->isActionVisible(HelpViewer::Action::NewPage)
-            && (controlPressed || e->button() == Qt::MidButton) && !link.isEmpty()) {
+            && (controlPressed || e->button() == Qt::MiddleButton) && !link.isEmpty()) {
         emit m_parent->newPageRequested(QUrl(link));
         return;
     }

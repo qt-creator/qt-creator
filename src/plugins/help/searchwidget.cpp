@@ -216,7 +216,7 @@ bool SearchWidget::eventFilter(QObject *o, QEvent *e)
         if (!link.isEmpty() || link.isValid()) {
             bool controlPressed = me->modifiers() & Qt::ControlModifier;
             if ((me->button() == Qt::LeftButton && controlPressed)
-                || (me->button() == Qt::MidButton)) {
+                || (me->button() == Qt::MiddleButton)) {
                     emit linkActivated(link, currentSearchTerms(), true/*newPage*/);
             }
         }

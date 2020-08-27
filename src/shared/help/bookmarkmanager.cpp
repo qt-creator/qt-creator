@@ -513,7 +513,7 @@ bool BookmarkWidget::eventFilter(QObject *object, QEvent *e)
                 QMouseEvent *me = static_cast<QMouseEvent*>(e);
                 bool controlPressed = me->modifiers() & Qt::ControlModifier;
                 if (((me->button() == Qt::LeftButton) && controlPressed)
-                    || (me->button() == Qt::MidButton)) {
+                    || (me->button() == Qt::MiddleButton)) {
                         QString data = index.data(Qt::UserRole + 10).toString();
                         if (!data.isEmpty() && data != QLatin1String("Folder"))
                             emit createPage(QUrl(data), false);

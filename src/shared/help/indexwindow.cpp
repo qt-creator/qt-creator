@@ -178,7 +178,7 @@ bool IndexWindow::eventFilter(QObject *obj, QEvent *e)
         if (idx.isValid()) {
             Qt::MouseButtons button = mouseEvent->button();
             if (((button == Qt::LeftButton) && (mouseEvent->modifiers() & Qt::ControlModifier))
-                || (button == Qt::MidButton)) {
+                || (button == Qt::MiddleButton)) {
                 open(idx);
             }
         }
