@@ -530,10 +530,13 @@ void RichTextEditor::setupTableActions()
         cursorEditBlock(cursor, [&] () {
             //format table cells to look a bit better:
             QTextTableFormat tableFormat;
-            tableFormat.setBorderCollapse(true);
             tableFormat.setCellSpacing(2.0);
             tableFormat.setCellPadding(2.0);
             tableFormat.setBorder(1.0);
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+            tableFormat.setBorderCollapse(true);
+#endif
 
             cursor.insertTable(1, 1, tableFormat);
 
