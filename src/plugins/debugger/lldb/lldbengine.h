@@ -131,6 +131,7 @@ private:
     void runCommand(const DebuggerCommand &cmd) override;
     void debugLastCommand() override;
     void handleAttachedToCore();
+    void executeCommand(const QByteArray &command);
 
 private:
     DebuggerCommand m_lastDebuggableCommand;
