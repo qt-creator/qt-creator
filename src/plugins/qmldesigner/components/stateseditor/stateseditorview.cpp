@@ -30,8 +30,8 @@
 
 #include <QDebug>
 #include <QRegExp>
-#include <QScopeGuard>
 #include <cmath>
+#include <memory>
 
 #include <nodemetainfo.h>
 
@@ -279,8 +279,8 @@ void StatesEditorView::setWhenCondition(int internalNodeId, const QString &condi
         return;
 
     m_block = true;
-    auto guard = [this]() { m_block = false; };
-    QScopeGuard<decltype(guard)> lock(guard);
+    auto guard = [this](int* p) { m_block = false; delete p; };
+    std::unique_ptr<int, decltype(guard)> scopeGuard(new int, guard);
 
     if (hasModelNodeForInternalId(internalNodeId)) {
         QmlModelState state(modelNodeForInternalId(internalNodeId));
@@ -300,8 +300,8 @@ void StatesEditorView::resetWhenCondition(int internalNodeId)
         return;
 
     m_block = true;
-    auto guard = [this]() { m_block = false; };
-    QScopeGuard<decltype(guard)> lock(guard);
+    auto guard = [this](int* p) { m_block = false; delete p; };
+    std::unique_ptr<int, decltype(guard)> scopeGuard(new int, guard);
 
     if (hasModelNodeForInternalId(internalNodeId)) {
         QmlModelState state(modelNodeForInternalId(internalNodeId));
@@ -321,8 +321,8 @@ void StatesEditorView::setStateAsDefault(int internalNodeId)
         return;
 
     m_block = true;
-    auto guard = [this]() { m_block = false; };
-    QScopeGuard<decltype(guard)> lock(guard);
+    auto guard = [this](int* p) { m_block = false; delete p; };
+    std::unique_ptr<int, decltype(guard)> scopeGuard(new int, guard);
 
     if (hasModelNodeForInternalId(internalNodeId)) {
         QmlModelState state(modelNodeForInternalId(internalNodeId));
@@ -342,8 +342,8 @@ void StatesEditorView::resetDefaultState()
         return;
 
     m_block = true;
-    auto guard = [this]() { m_block = false; };
-    QScopeGuard<decltype(guard)> lock(guard);
+    auto guard = [this](int* p) { m_block = false; delete p; };
+    std::unique_ptr<int, decltype(guard)> scopeGuard(new int, guard);
 
     try {
         if (rootModelNode().hasProperty("state"))
@@ -365,8 +365,8 @@ void StatesEditorView::setAnnotation(int internalNodeId)
         return;
 
     m_block = true;
-    auto guard = [this]() { m_block = false; };
-    QScopeGuard<decltype(guard)> lock(guard);
+    auto guard = [this](int* p) { m_block = false; delete p; };
+    std::unique_ptr<int, decltype(guard)> scopeGuard(new int, guard);
 
     if (hasModelNodeForInternalId(internalNodeId)) {
         QmlModelState state(modelNodeForInternalId(internalNodeId));
@@ -395,8 +395,8 @@ void StatesEditorView::removeAnnotation(int internalNodeId)
         return;
 
     m_block = true;
-    auto guard = [this]() { m_block = false; };
-    QScopeGuard<decltype(guard)> lock(guard);
+    auto guard = [this](int* p) { m_block = false; delete p; };
+    std::unique_ptr<int, decltype(guard)> scopeGuard(new int, guard);
 
     if (hasModelNodeForInternalId(internalNodeId)) {
         QmlModelState state(modelNodeForInternalId(internalNodeId));
@@ -517,8 +517,8 @@ void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty> &pr
         return;
 
     m_block = true;
-    auto guard = [this]() { m_block = false; };
-    QScopeGuard<decltype(guard)> lock(guard);
+    auto guard = [this](int* p) { m_block = false; delete p; };
+    std::unique_ptr<int, decltype(guard)> scopeGuard(new int, guard);
 
     for (const VariantProperty &property : propertyList) {
         if (property.name() == "name" && QmlModelState::isValidQmlModelState(property.parentModelNode()))
