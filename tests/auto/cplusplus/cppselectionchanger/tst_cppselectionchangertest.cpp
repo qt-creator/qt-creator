@@ -208,7 +208,7 @@ void tst_CppSelectionChanger::initTestCase()
     // Read cpp file contents into QTextDocument and CppTools::Document::Ptr.
     QString fileName(SRCDIR "/testCppFile.cpp");
     QFile file(fileName);
-    file.open(QIODevice::ReadOnly);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
     QTextStream s(&file);
     cppFileString = s.readAll();
     file.close();
