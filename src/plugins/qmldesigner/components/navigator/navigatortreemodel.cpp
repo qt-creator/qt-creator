@@ -526,6 +526,7 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
     const QString targetPropertyName = hints.forceNonDefaultProperty();
 
     bool foundTarget = findTargetProperty(rowModelIndex, this, &targetProperty, &targetRowNumber, targetPropertyName.toUtf8());
+    bool moveNodesAfter = true;
 
     if (foundTarget) {
         if (!NodeHints::fromItemLibraryEntry(itemLibraryEntry).canBeDroppedInNavigator())
@@ -569,16 +570,43 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                     }
                     insertIntoList("effects", targetEnv);
                 } else if (newModelNode.isSubclassOf("QtQuick3D.Material")) {
-                    // Insert material dropped to a model node into the materials list of the model
-                    ModelNode targetModel;
-                    if (targetProperty.parentModelNode().isSubclassOf("QtQuick3D.Model"))
+                    if (targetProperty.parentModelNode().isSubclassOf("QtQuick3D.Model")) {
+                        // Insert material dropped to a model node into the materials list of the model
+                        ModelNode targetModel;
                         targetModel = targetProperty.parentModelNode();
-                    insertIntoList("materials", targetModel);
+                        insertIntoList("materials", targetModel);
+                    }
+                } else {
+                    const bool isShader = newModelNode.isSubclassOf("QtQuick3D.Shader");
+                    if (isShader || newModelNode.isSubclassOf("QtQuick3D.Command")) {
+                        if (targetProperty.parentModelNode().isSubclassOf("QtQuick3D.Pass")) {
+                            // Shaders and commands inserted into a Pass will be added to proper list.
+                            // They are also moved to the same level as the pass, as passes don't
+                            // allow child nodes (QTBUG-86219).
+                            ModelNode targetModel;
+                            targetModel = targetProperty.parentModelNode();
+                            if (isShader)
+                                insertIntoList("shaders", targetModel);
+                            else
+                                insertIntoList("commands", targetModel);
+                            NodeAbstractProperty parentProp = targetProperty.parentProperty();
+                            if (parentProp.isValid()) {
+                                targetProperty = parentProp;
+                                targetModel = targetProperty.parentModelNode();
+                                targetRowNumber = rowCount(indexForModelNode(targetModel));
+
+                                // Move node to new parent within the same transaction as we don't
+                                // want undo to place the node under invalid parent
+                                moveNodesAfter = false;
+                                moveNodesInteractive(targetProperty, {newQmlObjectNode}, targetRowNumber, false);
+                            }
+                        }
+                    }
                 }
             }
         });
 
-        if (newQmlObjectNode.isValid() && targetProperty.isNodeListProperty()) {
+        if (moveNodesAfter && newQmlObjectNode.isValid() && targetProperty.isNodeListProperty()) {
             QList<ModelNode> newModelNodeList;
             newModelNodeList.append(newQmlObjectNode);
 
@@ -646,11 +674,14 @@ void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, i
     }
 }
 
-void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProperty, const QList<ModelNode> &modelNodes, int targetIndex)
+void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProperty,
+                                              const QList<ModelNode> &modelNodes,
+                                              int targetIndex,
+                                              bool executeInTransaction)
 {
     QTC_ASSERT(m_view, return);
 
-    m_view->executeInTransaction("NavigatorTreeModel::moveNodesInteractive",[&parentProperty, modelNodes, targetIndex](){
+    auto doMoveNodesInteractive = [&parentProperty, modelNodes, targetIndex](){
         const TypeName propertyQmlType = parentProperty.parentModelNode().metaInfo().propertyTypeName(parentProperty.name());
         foreach (const ModelNode &modelNode, modelNodes) {
             if (modelNode.isValid()
@@ -668,7 +699,12 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
                 }
             }
         }
-    });
+    };
+
+    if (executeInTransaction)
+        m_view->executeInTransaction("NavigatorTreeModel::moveNodesInteractive", doMoveNodesInteractive);
+    else
+        doMoveNodesInteractive();
 }
 
 Qt::DropActions NavigatorTreeModel::supportedDropActions() const
