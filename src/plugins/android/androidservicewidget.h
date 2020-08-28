@@ -29,8 +29,10 @@
 #include <QString>
 #include <QWidget>
 
+QT_BEGIN_NAMESPACE
 class QPushButton;
 class QTableView;
+QT_END_NAMESPACE
 
 namespace Android {
 namespace Internal {
