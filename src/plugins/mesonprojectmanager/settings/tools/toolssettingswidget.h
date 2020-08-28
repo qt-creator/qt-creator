@@ -34,13 +34,11 @@
 #include <QTabWidget>
 #include <QWidget>
 
-
-namespace Ui {
-class ToolsSettingsWidget;
-}
-
 namespace MesonProjectManager {
 namespace Internal {
+
+namespace Ui { class ToolsSettingsWidget; }
+
 class ToolTreeItem;
 class ToolsSettingsWidget final : public Core::IOptionsPageWidget
 {

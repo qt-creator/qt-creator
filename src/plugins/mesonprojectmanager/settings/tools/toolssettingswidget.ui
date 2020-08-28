@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ToolsSettingsWidget</class>
- <widget class="QWidget" name="MesonToolConfigWidget">
+ <class>MesonProjectManager::Internal::ToolsSettingsWidget</class>
+ <widget class="QWidget" name="MesonProjectManager::Internal::ToolSettingsWidget">
   <property name="geometry">
    <rect>
     <x>0</x>

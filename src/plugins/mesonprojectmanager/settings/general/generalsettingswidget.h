@@ -30,12 +30,11 @@
 #include <QTabWidget>
 #include <QWidget>
 
-namespace Ui {
-class GeneralSettingsWidget;
-}
-
 namespace MesonProjectManager {
 namespace Internal {
+
+namespace Ui { class GeneralSettingsWidget; }
+
 class GeneralSettingsWidget final : public Core::IOptionsPageWidget
 {
     Q_DECLARE_TR_FUNCTIONS(MesonProjectManager::Internal::GeneralSettingsWidget)
