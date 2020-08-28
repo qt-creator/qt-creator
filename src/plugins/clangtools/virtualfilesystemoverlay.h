@@ -28,6 +28,8 @@
 #include <utils/fileutils.h>
 #include <utils/temporarydirectory.h>
 
+#include <QMap>
+
 namespace Core { class IDocument; }
 
 namespace ClangTools {
