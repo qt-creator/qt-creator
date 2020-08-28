@@ -51,6 +51,7 @@
 #include <QApplication>
 #include <QPointF>
 #include <QDir>
+#include <QFileInfo>
 
 #include <coreplugin/messagebox.h>
 
@@ -649,6 +650,10 @@ void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, i
 
                 // create a texture
                 newModelNode = QmlItemNode::createQmlObjectNode(m_view, itemLibraryEntry, {}, targetProp, false);
+
+                // Rename the node based on source image
+                QFileInfo fi(imagePath);
+                newModelNode.setIdWithoutRefactoring(m_view->generateNewId(fi.baseName(), "textureImage"));
                 return newModelNode.isValid();
             }
             return false;

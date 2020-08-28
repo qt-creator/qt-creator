@@ -106,7 +106,8 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
             newQmlItemNode = QmlItemNode(view->createModelNode("QtQuick.Image", metaInfo.majorVersion(), metaInfo.minorVersion(), propertyPairList));
             parentproperty.reparentHere(newQmlItemNode);
 
-            newQmlItemNode.setId(view->generateNewId(QLatin1String("image")));
+            QFileInfo fi(relativeImageName);
+            newQmlItemNode.setId(view->generateNewId(fi.baseName(), "image"));
 
             newQmlItemNode.modelNode().variantProperty("fillMode").setEnumeration("Image.PreserveAspectFit");
 

@@ -504,38 +504,34 @@ QString firstCharToLower(const QString &string)
     return resultString;
 }
 
-QString AbstractView::generateNewId(const QString &prefixName) const
+QString AbstractView::generateNewId(const QString &prefixName, const QString &fallbackPrefix) const
 {
-    QString fixedPrefix = firstCharToLower(prefixName);
-    fixedPrefix.remove(' ');
-
-    bool forceSuffix = false;
-
-    if (!ModelNode::isValidId(fixedPrefix))
-        forceSuffix = true;
+    // First try just the prefixName without number as postfix, then continue with 2 and further
+    // as postfix until id does not already exist.
+    // Properties of the root node are not allowed for ids, because they are available in the
+    // complete context without qualification.
 
     int counter = 0;
 
-    /* First try just the prefixName without number as postfix, then continue with 2 and further as postfix
-     * until id does not already exist.
-     * Properties of the root node are not allowed for ids, because they are available in the complete context
-     * without qualification.
-     * The id "item" is explicitly not allowed, because it is too likely to clash.
-    */
+    QString newBaseId = QString(QStringLiteral("%1")).arg(firstCharToLower(prefixName));
+    newBaseId.remove(QRegExp(QStringLiteral("[^a-zA-Z0-9_]")));
 
-    QString newId = QString(QStringLiteral("%1")).arg(firstCharToLower(prefixName));
-    if (forceSuffix)
-        QString(QStringLiteral("%1%2")).arg(firstCharToLower(prefixName)).arg(1);
+    if (newBaseId.isEmpty())
+        newBaseId = fallbackPrefix;
 
-    newId.remove(QRegExp(QStringLiteral("[^a-zA-Z0-9_]")));
+    QString newId = newBaseId;
 
-    while (!ModelNode::isValidId(newId) || hasId(newId) || rootModelNode().hasProperty(newId.toUtf8()) || newId == "item") {
-        counter += 1;
-        newId = QString(QStringLiteral("%1%2")).arg(firstCharToLower(prefixName)).arg(counter);
-        newId.remove(QRegExp(QStringLiteral("[^a-zA-Z0-9_]")));
+    while (!ModelNode::isValidId(newId) || hasId(newId) || rootModelNode().hasProperty(newId.toUtf8())) {
+        ++counter;
+        newId = QString(QStringLiteral("%1%2")).arg(firstCharToLower(newBaseId)).arg(counter);
     }
 
     return newId;
+}
+
+QString AbstractView::generateNewId(const QString &prefixName) const
+{
+    return generateNewId(prefixName, QStringLiteral("element"));
 }
 
 ModelNode AbstractView::modelNodeForInternalId(qint32 internalId) const
