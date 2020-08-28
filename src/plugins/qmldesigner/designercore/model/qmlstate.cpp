@@ -33,7 +33,6 @@
 #include "qmlchangeset.h"
 #include "qmlitemnode.h"
 #include "annotation.h"
-#include "annotationeditor/annotationeditor.h"
 
 #include <utils/qtcassert.h>
 
