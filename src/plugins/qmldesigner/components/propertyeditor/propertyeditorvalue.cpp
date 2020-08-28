@@ -260,19 +260,36 @@ bool PropertyEditorValue::isTranslated() const
     return false;
 }
 
+static bool itemOrImage(const QmlDesigner::NodeMetaInfo &metaInfo)
+{
+    if (!metaInfo.isValid())
+        return false;
+
+    if (metaInfo.isSubclassOf("QtQuick.Image") || metaInfo.isSubclassOf("QtQuick.Text"))
+        return true;
+
+    return false;
+}
+
 bool PropertyEditorValue::isAvailable() const
 {
-    const QList<QByteArray> mcuProperties = {"layer", "opacity", "rotation", "scale", "gradient",
-                                             "transformOrigin", "smooth", "antialiasing", "border"};
+    const QList<QByteArray> mcuProperties = {"layer", "opacity", "gradient", "smooth", "antialiasing"};
+
+    const QList<QByteArray> mcuTransformProperties = {"rotation", "scale", "transformOrigin"};
+
     const QList<QByteArray> list = name().split('.');
     const QByteArray pureName = list.first();
 
-    QmlDesigner::DesignDocument *designDocument =
-        QmlDesigner::QmlDesignerPlugin::instance()->documentManager().currentDesignDocument();
+    QmlDesigner::DesignDocument *designDocument = QmlDesigner::QmlDesignerPlugin::instance()
+                                                      ->documentManager()
+                                                      .currentDesignDocument();
 
-
-    if (designDocument && designDocument->isQtForMCUsProject())
-        return !mcuProperties.contains(pureName);
+    if (designDocument && designDocument->isQtForMCUsProject()) {
+        if (mcuProperties.contains(pureName))
+            return false;
+        if (mcuTransformProperties.contains(pureName) && !itemOrImage(m_modelNode.metaInfo()))
+            return false;
+    }
 
     return true;
 }
