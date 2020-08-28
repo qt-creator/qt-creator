@@ -218,11 +218,15 @@ void DocumentClangToolRunner::runNext()
         auto [clangIncludeDir, clangVersion] = getClangIncludeDirAndVersion(m_currentRunner.get());
         qCDebug(LOG) << Q_FUNC_INFO << m_currentRunner->executable() << clangIncludeDir
                      << clangVersion << m_fileInfo.file;
-        AnalyzeUnit unit(m_fileInfo, clangIncludeDir, clangVersion);
-        QTC_ASSERT(Utils::FilePath::fromString(unit.file).exists(), runNext(); return;);
-        m_currentRunner->setVFSOverlay(vfso().overlayFilePath().toString());
-        if (!m_currentRunner->run(unit.file, unit.arguments))
+        if (clangIncludeDir.isEmpty() || clangVersion.isEmpty()) {
             runNext();
+        } else {
+            AnalyzeUnit unit(m_fileInfo, clangIncludeDir, clangVersion);
+            QTC_ASSERT(Utils::FilePath::fromString(unit.file).exists(), runNext(); return;);
+            m_currentRunner->setVFSOverlay(vfso().overlayFilePath().toString());
+            if (!m_currentRunner->run(unit.file, unit.arguments))
+                runNext();
+        }
     } else {
         finalize();
     }
