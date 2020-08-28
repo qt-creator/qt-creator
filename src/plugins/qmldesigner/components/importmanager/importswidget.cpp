@@ -99,12 +99,16 @@ void ImportsWidget::setPossibleImports(QList<Import> possibleImports)
 
     QList<Import> filteredImports;
 
-    const QStringList mcuWhiteList = {"QtQuick", "QtQuick.Controls"};
+    const QStringList mcuWhiteList = {"QtQuick", "QtQuick.Controls", "QtQuick.Timeline"};
+    const QStringList mcuBlackList = {"FlowView"};
 
     if (isQtForMCUs) {
-        filteredImports = Utils::filtered(possibleImports, [mcuWhiteList](const Import &import) {
-            return mcuWhiteList.contains(import.url()) || !import.url().startsWith("Qt");
-        });
+        filteredImports = Utils::filtered(possibleImports,
+                                          [mcuWhiteList, mcuBlackList](const Import &import) {
+                                              return (mcuWhiteList.contains(import.url())
+                                                      || !import.url().startsWith("Qt"))
+                                                     && !mcuBlackList.contains(import.url());
+                                          });
     } else {
         filteredImports = possibleImports;
     }
