@@ -650,8 +650,9 @@ restart_search:
                 if (macro.name() == useMacro.name()) {
                     unsigned column;
                     const QString &lineSource = matchingLine(use.bytesBegin(), source, &column);
-                    usages.append(CPlusPlus::Usage(fileName, lineSource, use.beginLine(), column,
-                                        useMacro.nameToQString().size()));
+                    usages.append(CPlusPlus::Usage(fileName, lineSource,
+                                                   CPlusPlus::Usage::Type::Other, use.beginLine(),
+                                                   column, useMacro.nameToQString().size()));
                 }
             }
         }
