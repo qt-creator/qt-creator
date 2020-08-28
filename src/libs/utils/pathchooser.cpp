@@ -526,6 +526,7 @@ void PathChooser::setDefaultValue(const QString &defaultValue)
 {
     d->m_defaultValue = defaultValue;
     d->m_lineEdit->setPlaceholderText(defaultValue);
+    d->m_lineEdit->validate();
 }
 
 FancyLineEdit::ValidationFunction PathChooser::defaultValidationFunction() const
