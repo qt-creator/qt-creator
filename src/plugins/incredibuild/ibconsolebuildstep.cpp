@@ -106,7 +106,7 @@ IBConsoleBuildStep::IBConsoleBuildStep(BuildStepList *buildStepList, Id id)
         QStringList args;
 
         if (nice->value() != 0)
-            args.append(QString("--nice %0 ").arg(nice->value()));
+            args.append(QString("--nice %1 ").arg(nice->value()));
 
         if (alternate->value())
             args.append("--alternate");

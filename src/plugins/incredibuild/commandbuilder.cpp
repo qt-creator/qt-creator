@@ -48,10 +48,7 @@ void CommandBuilder::toMap(QVariantMap *map) const
 
 void CommandBuilder::setCommand(const QString &command)
 {
-    if (command == defaultCommand())
-        m_command.clear();
-    else
-        m_command = command;
+    m_command = command;
 }
 
 void CommandBuilder::setArguments(const QString &arguments)

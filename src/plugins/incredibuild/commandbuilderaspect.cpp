@@ -99,8 +99,8 @@ QString CommandBuilderAspect::fullCommandFlag(bool keepJobNum) const
     if (!keepJobNum)
         argsLine = d->m_activeCommandBuilder->setMultiProcessArg(argsLine);
 
-    QString fullCommand("\"%0\" %1");
-    fullCommand = fullCommand.arg(d->m_activeCommandBuilder->command(), argsLine);
+    QString fullCommand("\"%1\" %2");
+    fullCommand = fullCommand.arg(d->m_activeCommandBuilder->effectiveCommand(), argsLine);
 
     return fullCommand;
 }
@@ -212,8 +212,8 @@ void CommandBuilderAspect::updateGui()
     d->commandBuilder->setCurrentText(d->m_activeCommandBuilder->displayName());
 
     const QString defaultCommand = d->m_activeCommandBuilder->defaultCommand();
-    d->makePathChooser->lineEdit()->setPlaceholderText(defaultCommand);
     d->makePathChooser->setPath(d->m_activeCommandBuilder->command());
+    d->makePathChooser->setDefaultValue(defaultCommand);
 
     const QString defaultArgs = d->m_activeCommandBuilder->defaultArguments();
     d->makeArgumentsLineEdit->setPlaceholderText(defaultArgs);

@@ -280,7 +280,7 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
     setCommandLineProvider([=] {
         QStringList args;
 
-        QString cmd("/Command= %0");
+        QString cmd("/Command= %1");
         cmd = cmd.arg(commandBuilder->fullCommandFlag(keepJobNum->value()));
         args.append(cmd);
 

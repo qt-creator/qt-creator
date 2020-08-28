@@ -58,7 +58,7 @@ QString MakeCommandBuilder::defaultCommand() const
         if (target) {
             ToolChain *toolChain = ToolChainKitAspect::toolChain(target->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
             if (toolChain)
-                return toolChain->makeCommand(buildConfig->environment()).toString();
+                return toolChain->makeCommand(buildConfig->environment()).toUserOutput();
         }
     }
 
