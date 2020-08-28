@@ -70,9 +70,7 @@ protected:
     QString matchingLine(const Token &tk) const;
 
     void reportResult(unsigned tokenIndex, const Name *name, Scope *scope = nullptr);
-    void reportResult(unsigned tokenIndex, const Identifier *id, Scope *scope = nullptr);
     void reportResult(unsigned tokenIndex, const QList<LookupItem> &candidates);
-    void reportResult(unsigned tokenIndex);
 
     bool checkCandidates(const QList<LookupItem> &candidates) const;
     void checkExpression(unsigned startToken, unsigned endToken, Scope *scope = nullptr);

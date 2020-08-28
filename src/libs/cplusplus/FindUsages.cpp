@@ -111,48 +111,16 @@ void FindUsages::reportResult(unsigned tokenIndex, const Name *name, Scope *scop
     reportResult(tokenIndex, candidates);
 }
 
-void FindUsages::reportResult(unsigned tokenIndex, const Identifier *id, Scope *scope)
-{
-    reportResult(tokenIndex, static_cast<const Name *>(id), scope);
-}
-
 void FindUsages::reportResult(unsigned tokenIndex, const QList<LookupItem> &candidates)
 {
     if (_processed.contains(tokenIndex))
         return;
 
-    const bool isStrongResult = checkCandidates(candidates);
+    if (!checkCandidates(candidates))
+        return;
 
-    if (isStrongResult)
-        reportResult(tokenIndex);
-}
-
-QString FindUsages::matchingLine(const Token &tk) const
-{
-    const char *beg = _source.constData();
-    const char *cp = beg + tk.bytesBegin();
-    for (; cp != beg - 1; --cp) {
-        if (*cp == '\n')
-            break;
-    }
-
-    ++cp;
-
-    const char *lineEnd = cp + 1;
-    for (; *lineEnd; ++lineEnd) {
-        if (*lineEnd == '\n')
-            break;
-    }
-
-    return QString::fromUtf8(cp, lineEnd - cp);
-}
-
-void FindUsages::reportResult(unsigned tokenIndex)
-{
     const Token &tk = tokenAt(tokenIndex);
     if (tk.generated())
-        return;
-    else if (_processed.contains(tokenIndex))
         return;
 
     _processed.insert(tokenIndex);
@@ -173,6 +141,26 @@ void FindUsages::reportResult(unsigned tokenIndex)
     const Usage u(Utils::FilePath::fromString(_doc->fileName()), lineText, line, col, len);
     _usages.append(u);
     _references.append(tokenIndex);
+}
+
+QString FindUsages::matchingLine(const Token &tk) const
+{
+    const char *beg = _source.constData();
+    const char *cp = beg + tk.bytesBegin();
+    for (; cp != beg - 1; --cp) {
+        if (*cp == '\n')
+            break;
+    }
+
+    ++cp;
+
+    const char *lineEnd = cp + 1;
+    for (; *lineEnd; ++lineEnd) {
+        if (*lineEnd == '\n')
+            break;
+    }
+
+    return QString::fromUtf8(cp, lineEnd - cp);
 }
 
 bool FindUsages::isLocalScope(Scope *scope)
