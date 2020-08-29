@@ -35,6 +35,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacro.h>
 
+#include <utils/algorithm.h>
 #include <utils/cpplanguage_details.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -137,7 +138,7 @@ QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
     addTargetTriple();
     updateFileLanguage(fileKind);
     addLanguageVersionAndExtensions();
-    enableExceptions();
+    addMsvcExceptions();
 
     addPrecompiledHeaderOptions(usePrecompiledHeaders);
     addProjectConfigFileInclude();
@@ -271,6 +272,17 @@ void CompilerOptionsBuilder::addPicIfCompilerFlagsContainsIt()
 void CompilerOptionsBuilder::addCompilerFlags()
 {
     add(m_compilerFlags.flags);
+}
+
+void CompilerOptionsBuilder::addMsvcExceptions()
+{
+    if (!m_clStyle)
+        return;
+    if (Utils::anyOf(m_projectPart.toolChainMacros, [](const ProjectExplorer::Macro &macro) {
+        return macro.key == "_CPPUNWIND";
+    })) {
+        enableExceptions();
+    }
 }
 
 void CompilerOptionsBuilder::enableExceptions()

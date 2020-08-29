@@ -650,8 +650,6 @@ TEST_F(CompilerOptionsBuilder, BuildAllOptions)
                             "-x",
                             "c++",
                             "-std=c++17",
-                            "-fcxx-exceptions",
-                            "-fexceptions",
                             "-DprojectFoo=projectBar",
                             "-I", IsPartOfHeader("wrappedQtHeaders"),
                             "-I", IsPartOfHeader(toNative("wrappedQtHeaders/QtCore").toStdString()),
@@ -664,6 +662,44 @@ TEST_F(CompilerOptionsBuilder, BuildAllOptions)
 TEST_F(CompilerOptionsBuilder, BuildAllOptionsCl)
 {
     projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
+    CppTools::CompilerOptionsBuilder compilerOptionsBuilder(projectPart,
+                                                            CppTools::UseSystemHeader::No,
+                                                            CppTools::UseTweakedHeaderPaths::Yes,
+                                                            CppTools::UseLanguageDefines::No,
+                                                            CppTools::UseBuildSystemWarnings::No,
+                                                            "dummy_version",
+                                                            "");
+
+    compilerOptionsBuilder.build(ProjectFile::CXXSource, CppTools::UsePrecompiledHeaders::No);
+
+    ASSERT_THAT(compilerOptionsBuilder.options(),
+                ElementsAre("-nostdinc",
+                            "-nostdinc++",
+                            "--driver-mode=cl",
+                            "/Zs",
+                            "-m64",
+                            "--target=x86_64-apple-darwin10",
+                            "/TP",
+                            "/std:c++17",
+                            "-fms-compatibility-version=19.00",
+                            "-DprojectFoo=projectBar",
+                            "-D__FUNCSIG__=\"\"",
+                            "-D__FUNCTION__=\"\"",
+                            "-D__FUNCDNAME__=\"\"",
+                            "-I", IsPartOfHeader("wrappedQtHeaders"),
+                            "-I", IsPartOfHeader(toNative("wrappedQtHeaders/QtCore").toStdString()),
+                            "-I", toNative("/tmp/path"),
+                            "-I", toNative("/tmp/system_path"),
+                            "/clang:-isystem",
+                            "/clang:" + toNative(CLANG_RESOURCE_DIR ""),
+                            "/clang:-isystem",
+                            "/clang:" + toNative("/tmp/builtin_path")));
+}
+
+TEST_F(CompilerOptionsBuilder, BuildAllOptionsClWithExceptions)
+{
+    projectPart.toolchainType = ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
+    projectPart.toolChainMacros.append(ProjectExplorer::Macro{"_CPPUNWIND", "1"});
     CppTools::CompilerOptionsBuilder compilerOptionsBuilder(projectPart,
                                                             CppTools::UseSystemHeader::No,
                                                             CppTools::UseTweakedHeaderPaths::Yes,

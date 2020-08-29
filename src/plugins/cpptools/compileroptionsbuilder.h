@@ -69,6 +69,7 @@ public:
     void addExtraCodeModelFlags();
     void addPicIfCompilerFlagsContainsIt();
     void addCompilerFlags();
+    void addMsvcExceptions();
     void enableExceptions();
     void insertWrappedQtHeaders();
     void insertWrappedMingwHeaders();
