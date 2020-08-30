@@ -75,6 +75,13 @@ static QString packagePathFromSettings(const QString &settingsKey,
     return Utils::FilePath::fromFileInfo(path).toString();
 }
 
+static bool kitNeedsQtVersion()
+{
+    // Only on Windows, Qt is linked into the distributed qul Desktop libs. Also, the host tools
+    // are missing the Qt runtime libraries on non-Windows.
+    return !Utils::HostOsInfo::isWindowsHost();
+}
+
 McuPackage::McuPackage(const QString &label, const QString &defaultPath,
                        const QString &detectionPath, const QString &settingsKey)
     : m_label(label)
@@ -513,9 +520,10 @@ static void setKitProperties(const QString &kitName, ProjectExplorer::Kit *k,
     if (mcuTarget->toolChainPackage()->type() == McuToolChainPackage::TypeDesktop)
         k->setDeviceTypeForIcon(DEVICE_TYPE);
     QSet<Utils::Id> irrelevant = {
-        SysRootKitAspect::id(),
-        QtSupport::QtKitAspect::id()
+        SysRootKitAspect::id()
     };
+    if (!kitNeedsQtVersion())
+        irrelevant.insert(QtSupport::QtKitAspect::id());
     if (jomExecutablePath().exists()) // TODO: add id() getter to CMakeGeneratorKitAspect
         irrelevant.insert("CMake.GeneratorKitInformation");
     k->setIrrelevantAspects(irrelevant);
@@ -584,6 +592,10 @@ static void setKitEnvironment(ProjectExplorer::Kit *k, const McuTarget* mcuTarge
     pathAdditions.append(QDir::toNativeSeparators(Core::ICore::libexecPath() + "/clang/bin"));
     const QString path = QLatin1String(Utils::HostOsInfo().isWindowsHost() ? "Path" : "PATH");
     changes.append({path, pathAdditions.join(Utils::HostOsInfo::pathListSeparator())});
+
+    if (kitNeedsQtVersion())
+        changes.append({QLatin1String("LD_LIBRARY_PATH"), "%{Qt:QT_INSTALL_LIBS}"});
+
     EnvironmentKitAspect::setEnvironmentChanges(k, changes);
 }
 
@@ -619,12 +631,16 @@ static void setKitCMakeOptions(ProjectExplorer::Kit *k, const McuTarget* mcuTarg
         config.append(CMakeConfigItem("CMAKE_MAKE_PROGRAM", jom.toString().toLatin1()));
         CMakeGeneratorKitAspect::setGenerator(k, "NMake Makefiles JOM");
     }
+    if (kitNeedsQtVersion())
+        config.append(CMakeConfigItem("CMAKE_PREFIX_PATH", "%{Qt:QT_INSTALL_PREFIX}"));
     CMakeConfigurationKitAspect::setConfiguration(k, config);
 }
 
 static void setKitQtVersionOptions(ProjectExplorer::Kit *k)
 {
-    QtSupport::QtKitAspect::setQtVersion(k, nullptr);
+    if (!kitNeedsQtVersion())
+        QtSupport::QtKitAspect::setQtVersion(k, nullptr);
+    // else: auto-select a Qt version
 }
 
 QString McuSupportOptions::kitName(const McuTarget *mcuTarget)
