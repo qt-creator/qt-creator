@@ -588,9 +588,9 @@ static void setKitEnvironment(ProjectExplorer::Kit *k, const McuTarget* mcuTarge
         processPackage(package);
     processPackage(qtForMCUsSdkPackage);
 
-    pathAdditions.append("${Path}");
-    pathAdditions.append(QDir::toNativeSeparators(Core::ICore::libexecPath() + "/clang/bin"));
     const QString path = QLatin1String(Utils::HostOsInfo().isWindowsHost() ? "Path" : "PATH");
+    pathAdditions.append("${" + path + "}");
+    pathAdditions.append(QDir::toNativeSeparators(Core::ICore::libexecPath() + "/clang/bin"));
     changes.append({path, pathAdditions.join(Utils::HostOsInfo::pathListSeparator())});
 
     if (kitNeedsQtVersion())
