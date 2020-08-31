@@ -469,8 +469,8 @@ void VariableChooserPrivate::updateButtonGeometry()
     int margin = buttonMargin();
     int rightPadding = 0;
     if (const auto scrollArea = qobject_cast<const QAbstractScrollArea*>(current)) {
-        rightPadding = m_textEdit->verticalScrollBar()->isVisible() ?
-                    m_textEdit->verticalScrollBar()->width() : 0;
+        rightPadding = scrollArea->verticalScrollBar()->isVisible() ?
+                    scrollArea->verticalScrollBar()->width() : 0;
     }
     m_iconButton->setGeometry(current->rect().adjusted(
                                   current->width() - (margin + 4), 0,
