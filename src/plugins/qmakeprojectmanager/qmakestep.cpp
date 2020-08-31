@@ -55,7 +55,6 @@
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
-#include <QCheckBox>
 #include <QComboBox>
 #include <QDir>
 #include <QFormLayout>
@@ -65,17 +64,17 @@
 #include <QMessageBox>
 #include <QPlainTextEdit>
 
-using namespace QmakeProjectManager;
-using namespace QmakeProjectManager::Internal;
 using namespace QtSupport;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace {
+using namespace QmakeProjectManager::Internal;
+
+namespace QmakeProjectManager {
+
 const char QMAKE_ARGUMENTS_KEY[] = "QtProjectManager.QMakeBuildStep.QMakeArguments";
 const char QMAKE_FORCED_KEY[] = "QtProjectManager.QMakeBuildStep.QMakeForced";
 const char QMAKE_SELECTED_ABIS_KEY[] = "QtProjectManager.QMakeBuildStep.SelectedAbis";
-}
 
 QMakeStep::QMakeStep(BuildStepList *bsl, Utils::Id id)
     : AbstractProcessStep(bsl, id)
@@ -285,11 +284,6 @@ void QMakeStep::setForced(bool b)
     m_forced = b;
 }
 
-ProjectExplorer::BuildStepConfigWidget *QMakeStep::createConfigWidget()
-{
-    return new QMakeStepConfigWidget(this);
-}
-
 void QMakeStep::processStartupFailed()
 {
     m_needToRunQMake = true;
@@ -359,16 +353,6 @@ void QMakeStep::runNextCommand()
     }
 }
 
-QStringList QMakeStep::selectedAbis() const
-{
-    return m_selectedAbis;
-}
-
-void QMakeStep::setSelectedAbis(const QStringList &selectedAbis)
-{
-    m_selectedAbis = selectedAbis;
-}
-
 void QMakeStep::setUserArguments(const QString &arguments)
 {
     if (m_userArgs == arguments)
@@ -390,7 +374,6 @@ void QMakeStep::setExtraArguments(const QStringList &args)
 {
     if (m_extraArgs != args) {
         m_extraArgs = args;
-        emit extraArgumentsChanged();
         emit qmakeBuildConfiguration()->qmakeBuildConfigurationChanged();
         qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
     }
@@ -509,16 +492,13 @@ bool QMakeStep::fromMap(const QVariantMap &map)
     return BuildStep::fromMap(map);
 }
 
-////
-// QMakeStepConfigWidget
-////
-
-QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
-    : BuildStepConfigWidget(step), m_step(step)
+BuildStepConfigWidget *QMakeStep::createConfigWidget()
 {
-    auto label_0 = new QLabel(tr("qmake build configuration:"), this);
+    auto widget = new BuildStepConfigWidget(this);
 
-    auto buildConfigurationWidget = new QWidget(this);
+    auto label_0 = new QLabel(tr("qmake build configuration:"), widget);
+
+    auto buildConfigurationWidget = new QWidget(widget);
 
     buildConfigurationComboBox = new QComboBox(buildConfigurationWidget);
     buildConfigurationComboBox->addItem(tr("Debug"));
@@ -535,25 +515,25 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     horizontalLayout_0->addWidget(buildConfigurationComboBox);
     horizontalLayout_0->addItem(new QSpacerItem(71, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
-    auto qmakeArgsLabel = new QLabel(tr("Additional arguments:"), this);
+    auto qmakeArgsLabel = new QLabel(tr("Additional arguments:"), widget);
 
-    qmakeAdditonalArgumentsLineEdit = new QLineEdit(this);
+    qmakeAdditonalArgumentsLineEdit = new QLineEdit(widget);
 
-    auto label = new QLabel(tr("Effective qmake call:"), this);
+    auto label = new QLabel(tr("Effective qmake call:"), widget);
     label->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
 
-    qmakeArgumentsEdit = new QPlainTextEdit(this);
+    qmakeArgumentsEdit = new QPlainTextEdit(widget);
     qmakeArgumentsEdit->setEnabled(true);
     qmakeArgumentsEdit->setMaximumSize(QSize(16777215, 120));
     qmakeArgumentsEdit->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 
-    abisLabel = new QLabel(tr("ABIs:"), this);
+    abisLabel = new QLabel(tr("ABIs:"), widget);
     abisLabel->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
 
-    abisListWidget = new QListWidget(this);
-    qmakeAdditonalArgumentsLineEdit->setText(m_step->userArguments());
+    abisListWidget = new QListWidget(widget);
+    qmakeAdditonalArgumentsLineEdit->setText(m_userArgs);
 
-    auto formLayout = new QFormLayout(this);
+    auto formLayout = new QFormLayout(widget);
     formLayout->addRow(label_0, buildConfigurationWidget);
     formLayout->addRow(qmakeArgsLabel, qmakeAdditonalArgumentsLineEdit);
     formLayout->addRow(label, qmakeArgumentsEdit);
@@ -561,138 +541,143 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
 
     qmakeBuildConfigChanged();
 
-    updateSummaryLabel();
+    auto updateSummary = [this] {
+        BaseQtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
+        if (!qtVersion)
+            return tr("<b>qmake:</b> No Qt version set. Cannot run qmake.");
+        const QString program = qtVersion->qmakeCommand().fileName();
+        return tr("<b>qmake:</b> %1 %2").arg(program, project()->projectFilePath().fileName());
+    };
+    widget->setSummaryUpdater(updateSummary);
+
+    updateSummary();
+    updateAbiWidgets();
     updateEffectiveQMakeCall();
 
     connect(qmakeAdditonalArgumentsLineEdit, &QLineEdit::textEdited,
-            this, &QMakeStepConfigWidget::qmakeArgumentsLineEdited);
-    connect(buildConfigurationComboBox,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &QMakeStepConfigWidget::buildConfigurationSelected);
-    connect(step, &QMakeStep::userArgumentsChanged,
-            this, &QMakeStepConfigWidget::userArgumentsChanged);
-    connect(step->qmakeBuildConfiguration(), &QmakeBuildConfiguration::qmlDebuggingChanged,
+            this, &QMakeStep::qmakeArgumentsLineEdited);
+    connect(buildConfigurationComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, &QMakeStep::buildConfigurationSelected);
+    connect(qmakeBuildConfiguration(), &QmakeBuildConfiguration::qmlDebuggingChanged,
             this, [this] {
         linkQmlDebuggingLibraryChanged();
         askForRebuild(tr("QML Debugging"));
     });
-    connect(step->project(), &Project::projectLanguagesUpdated,
-            this, &QMakeStepConfigWidget::linkQmlDebuggingLibraryChanged);
-    connect(step->target(), &Target::parsingFinished,
-            this, &QMakeStepConfigWidget::updateEffectiveQMakeCall);
-    connect(step->qmakeBuildConfiguration(), &QmakeBuildConfiguration::useQtQuickCompilerChanged,
-            this, &QMakeStepConfigWidget::useQtQuickCompilerChanged);
-    connect(step->qmakeBuildConfiguration(), &QmakeBuildConfiguration::separateDebugInfoChanged,
-            this, &QMakeStepConfigWidget::separateDebugInfoChanged);
-    connect(step->qmakeBuildConfiguration(), &QmakeBuildConfiguration::qmakeBuildConfigurationChanged,
-            this, &QMakeStepConfigWidget::qmakeBuildConfigChanged);
-    connect(step->target(), &Target::kitChanged, this, &QMakeStepConfigWidget::qtVersionChanged);
+    connect(project(), &Project::projectLanguagesUpdated,
+            this, &QMakeStep::linkQmlDebuggingLibraryChanged);
+    connect(target(), &Target::parsingFinished,
+            this, &QMakeStep::updateEffectiveQMakeCall);
+    connect(qmakeBuildConfiguration(), &QmakeBuildConfiguration::useQtQuickCompilerChanged,
+            this, &QMakeStep::useQtQuickCompilerChanged);
+    connect(qmakeBuildConfiguration(), &QmakeBuildConfiguration::separateDebugInfoChanged,
+            this, &QMakeStep::separateDebugInfoChanged);
+    connect(qmakeBuildConfiguration(), &QmakeBuildConfiguration::qmakeBuildConfigurationChanged,
+            this, &QMakeStep::qmakeBuildConfigChanged);
+    connect(target(), &Target::kitChanged, this, &QMakeStep::qtVersionChanged);
+    connect(target(), &Target::kitChanged, this, updateSummary);
     connect(abisListWidget, &QListWidget::itemChanged, this, [this]{
         abisChanged();
-        if (QmakeBuildConfiguration *bc = m_step->qmakeBuildConfiguration())
+        if (QmakeBuildConfiguration *bc = qmakeBuildConfiguration())
             BuildManager::buildLists({bc->cleanSteps()});
     });
     auto chooser = new Core::VariableChooser(qmakeAdditonalArgumentsLineEdit);
-    chooser->addMacroExpanderProvider([step] { return step->macroExpander(); });
+    chooser->addMacroExpanderProvider([this] { return macroExpander(); });
     chooser->addSupportedWidget(qmakeAdditonalArgumentsLineEdit);
+
+    return widget;
 }
 
-QMakeStepConfigWidget::~QMakeStepConfigWidget()
+void QMakeStep::qtVersionChanged()
 {
-}
-
-void QMakeStepConfigWidget::qtVersionChanged()
-{
-    updateSummaryLabel();
+    updateAbiWidgets();
     updateEffectiveQMakeCall();
 }
 
-void QMakeStepConfigWidget::qmakeBuildConfigChanged()
+void QMakeStep::qmakeBuildConfigChanged()
 {
-    QmakeBuildConfiguration *bc = m_step->qmakeBuildConfiguration();
+    QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
     bool debug = bc->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild;
     m_ignoreChange = true;
     buildConfigurationComboBox->setCurrentIndex(debug? 0 : 1);
     m_ignoreChange = false;
-    updateSummaryLabel();
+    updateAbiWidgets();
     updateEffectiveQMakeCall();
 }
 
-void QMakeStepConfigWidget::userArgumentsChanged()
+void QMakeStep::userArgumentsChanged()
 {
     if (m_ignoreChange)
         return;
-    qmakeAdditonalArgumentsLineEdit->setText(m_step->userArguments());
-    updateSummaryLabel();
+    qmakeAdditonalArgumentsLineEdit->setText(m_userArgs);
+    updateAbiWidgets();
     updateEffectiveQMakeCall();
 }
 
-void QMakeStepConfigWidget::linkQmlDebuggingLibraryChanged()
+void QMakeStep::linkQmlDebuggingLibraryChanged()
 {
-    updateSummaryLabel();
+    updateAbiWidgets();
     updateEffectiveQMakeCall();
 }
 
-void QMakeStepConfigWidget::useQtQuickCompilerChanged()
+void QMakeStep::useQtQuickCompilerChanged()
 {
-    updateSummaryLabel();
+    updateAbiWidgets();
     updateEffectiveQMakeCall();
     askForRebuild(tr("Qt Quick Compiler"));
 }
 
-void QMakeStepConfigWidget::separateDebugInfoChanged()
+void QMakeStep::separateDebugInfoChanged()
 {
-    updateSummaryLabel();
+    updateAbiWidgets();
     updateEffectiveQMakeCall();
     askForRebuild(tr("Separate Debug Information"));
 }
 
-void QMakeStepConfigWidget::abisChanged()
+void QMakeStep::abisChanged()
 {
-    QStringList abis;
+    m_selectedAbis.clear();
     for (int i = 0; i < abisListWidget->count(); ++i) {
         auto item = abisListWidget->item(i);
         if (item->checkState() == Qt::CheckState::Checked)
-            abis << item->text();
+            m_selectedAbis << item->text();
     }
-    m_step->setSelectedAbis(abis);
 
     if (isAndroidKit()) {
         const QString prefix = "ANDROID_ABIS=";
-        QStringList args = m_step->extraArguments();
+        QStringList args = m_extraArgs;
         for (auto it = args.begin(); it != args.end(); ++it) {
             if (it->startsWith(prefix)) {
                 args.erase(it);
                 break;
             }
         }
-        if (!abis.isEmpty())
-            args << prefix + '"' + abis.join(' ') + '"';
-        m_step->setExtraArguments(args);
+        if (!m_selectedAbis.isEmpty())
+            args << prefix + '"' + m_selectedAbis.join(' ') + '"';
+        setExtraArguments(args);
 
-        const QString buildKey = m_step->target()->activeBuildKey();
-        m_step->buildSystem()->setExtraData(buildKey, Android::Constants::ANDROID_ABIS, m_step->selectedAbis());
+        const QString buildKey = target()->activeBuildKey();
+        buildSystem()->setExtraData(buildKey, Android::Constants::ANDROID_ABIS, m_selectedAbis);
     }
 
-    updateSummaryLabel();
+    updateAbiWidgets();
     updateEffectiveQMakeCall();
 }
 
-void QMakeStepConfigWidget::qmakeArgumentsLineEdited()
+void QMakeStep::qmakeArgumentsLineEdited()
 {
     m_ignoreChange = true;
-    m_step->setUserArguments(qmakeAdditonalArgumentsLineEdit->text());
+    setUserArguments(qmakeAdditonalArgumentsLineEdit->text());
     m_ignoreChange = false;
 
-    updateSummaryLabel();
+    updateAbiWidgets();
     updateEffectiveQMakeCall();
 }
 
-void QMakeStepConfigWidget::buildConfigurationSelected()
+void QMakeStep::buildConfigurationSelected()
 {
     if (m_ignoreChange)
         return;
-    QmakeBuildConfiguration *bc = m_step->qmakeBuildConfiguration();
+    QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
     BaseQtVersion::QmakeBuildConfigs buildConfiguration = bc->qmakeBuildConfiguration();
     if (buildConfigurationComboBox->currentIndex() == 0) { // debug
         buildConfiguration = buildConfiguration | BaseQtVersion::DebugBuild;
@@ -703,24 +688,24 @@ void QMakeStepConfigWidget::buildConfigurationSelected()
     bc->setQMakeBuildConfiguration(buildConfiguration);
     m_ignoreChange = false;
 
-    updateSummaryLabel();
+    updateAbiWidgets();
     updateEffectiveQMakeCall();
 }
 
-void QMakeStepConfigWidget::askForRebuild(const QString &title)
+void QMakeStep::askForRebuild(const QString &title)
 {
     auto *question = new QMessageBox(Core::ICore::dialogParent());
     question->setWindowTitle(title);
     question->setText(tr("The option will only take effect if the project is recompiled. Do you want to recompile now?"));
     question->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     question->setModal(true);
-    connect(question, &QDialog::finished, this, &QMakeStepConfigWidget::recompileMessageBoxFinished);
+    connect(question, &QDialog::finished, this, &QMakeStep::recompileMessageBoxFinished);
     question->show();
 }
 
-bool QMakeStepConfigWidget::isAndroidKit() const
+bool QMakeStep::isAndroidKit() const
 {
-    BaseQtVersion *qtVersion = QtKitAspect::qtVersion(m_step->target()->kit());
+    BaseQtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
     if (!qtVersion)
         return false;
 
@@ -730,13 +715,12 @@ bool QMakeStepConfigWidget::isAndroidKit() const
     });
 }
 
-void QMakeStepConfigWidget::updateSummaryLabel()
+void QMakeStep::updateAbiWidgets()
 {
-    BaseQtVersion *qtVersion = QtKitAspect::qtVersion(m_step->target()->kit());
-    if (!qtVersion) {
-        setSummaryText(tr("<b>qmake:</b> No Qt version set. Cannot run qmake."));
+    BaseQtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
+    if (!qtVersion)
         return;
-    }
+
     const Abis abis = qtVersion->qtAbis();
     const bool enableAbisSelect = abis.size() > 1;
     abisLabel->setVisible(enableAbisSelect);
@@ -744,7 +728,7 @@ void QMakeStepConfigWidget::updateSummaryLabel()
 
     if (enableAbisSelect && abisListWidget->count() != abis.size()) {
         abisListWidget->clear();
-        QStringList selectedAbis = m_step->selectedAbis();
+        QStringList selectedAbis = m_selectedAbis;
 
         if (selectedAbis.isEmpty() && isAndroidKit()) {
             // Prefer ARM for Android, prefer 32bit.
@@ -768,21 +752,17 @@ void QMakeStepConfigWidget::updateSummaryLabel()
         }
         abisChanged();
     }
-
-    const QString program = qtVersion->qmakeCommand().fileName();
-    setSummaryText(tr("<b>qmake:</b> %1 %2").arg(program,
-                                                 m_step->project()->projectFilePath().fileName()));
 }
 
-void QMakeStepConfigWidget::updateEffectiveQMakeCall()
+void QMakeStep::updateEffectiveQMakeCall()
 {
-    qmakeArgumentsEdit->setPlainText(m_step->effectiveQMakeCall());
+    qmakeArgumentsEdit->setPlainText(effectiveQMakeCall());
 }
 
-void QMakeStepConfigWidget::recompileMessageBoxFinished(int button)
+void QMakeStep::recompileMessageBoxFinished(int button)
 {
     if (button == QMessageBox::Yes) {
-        if (BuildConfiguration *bc = m_step->buildConfiguration())
+        if (BuildConfiguration *bc = buildConfiguration())
             BuildManager::buildLists({bc->cleanSteps(), bc->buildSteps()});
     }
 }
@@ -885,3 +865,5 @@ QStringList QMakeStepConfig::toArguments() const
 
     return arguments;
 }
+
+} // QmakeProjectManager

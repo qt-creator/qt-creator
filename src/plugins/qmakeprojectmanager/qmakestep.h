@@ -35,7 +35,6 @@
 #include <memory>
 
 QT_BEGIN_NAMESPACE
-class QCheckBox;
 class QComboBox;
 class QLabel;
 class QLineEdit;
@@ -156,13 +155,6 @@ public:
 
     QVariantMap toMap() const override;
 
-    QStringList selectedAbis() const;
-    void setSelectedAbis(const QStringList &selectedAbis);
-
-signals:
-    void userArgumentsChanged();
-    void extraArgumentsChanged();
-
 protected:
     bool fromMap(const QVariantMap &map) override;
     void processStartupFailed() override;
@@ -174,6 +166,26 @@ private:
 
     void startOneCommand(const Utils::CommandLine &command);
     void runNextCommand();
+
+    // slots for handling buildconfiguration/step signals
+    void qtVersionChanged();
+    void qmakeBuildConfigChanged();
+    void userArgumentsChanged();
+    void linkQmlDebuggingLibraryChanged();
+    void useQtQuickCompilerChanged();
+    void separateDebugInfoChanged();
+    void abisChanged();
+
+    // slots for dealing with user changes in our UI
+    void qmakeArgumentsLineEdited();
+    void buildConfigurationSelected();
+    void askForRebuild(const QString &title);
+
+    void recompileMessageBoxFinished(int button);
+
+    void updateAbiWidgets();
+    void updateEffectiveQMakeCall();
+    bool isAndroidKit() const;
 
     Utils::CommandLine m_qmakeCommand;
     Utils::CommandLine m_makeCommand;
@@ -194,38 +206,7 @@ private:
     bool m_scriptTemplate = false;
     QStringList m_selectedAbis;
     Utils::OutputFormatter *m_outputFormatter = nullptr;
-};
 
-
-class QMakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
-{
-    Q_OBJECT
-public:
-    QMakeStepConfigWidget(QMakeStep *step);
-    ~QMakeStepConfigWidget() override;
-
-private:
-    // slots for handling buildconfiguration/step signals
-    void qtVersionChanged();
-    void qmakeBuildConfigChanged();
-    void userArgumentsChanged();
-    void linkQmlDebuggingLibraryChanged();
-    void useQtQuickCompilerChanged();
-    void separateDebugInfoChanged();
-    void abisChanged();
-
-    // slots for dealing with user changes in our UI
-    void qmakeArgumentsLineEdited();
-    void buildConfigurationSelected();
-    void askForRebuild(const QString &title);
-
-    void recompileMessageBoxFinished(int button);
-
-    void updateSummaryLabel();
-    void updateEffectiveQMakeCall();
-    bool isAndroidKit() const;
-
-    QMakeStep *m_step = nullptr;
     bool m_ignoreChange = false;
 
     QLabel *abisLabel = nullptr;
