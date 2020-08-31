@@ -91,4 +91,46 @@ ListModel {
         thumbnail: "images/what_is_new_15.png"
         url: "https://www.youtube.com/watch?v=e-HAZrisi5o"
     }
+
+    ListElement {
+        displayName: "Qt Design Studio QuickTip: UI Navigation"
+        thumbnail: "images/Qt_QT_nav.png"
+        url: "https://youtu.be/RfEYO-5Mw6s"
+    }
+
+    ListElement {
+        displayName: "Qt Design Studio QuickTip: Text Element"
+        thumbnail: "images/Qt_QT_textElement.png"
+        url: "https://youtu.be/yOUdg1o2KJM"
+    }
+
+    ListElement {
+        displayName: "Qt Design Studio QuickTip: Animated Image"
+        thumbnail: "images/Qt_QT_animatedImage.png"
+        url: "https://youtu.be/DVWd_xMMgvg"
+    }
+
+    ListElement {
+        displayName: "Qt Design Studio QuickTip: Slider Control"
+        thumbnail: "images/Qt_QT_sliderControl.png"
+        url: "https://youtu.be/Ed8WS03C-Vk"
+    }
+
+    ListElement {
+        displayName: "Qt Design Studio QuickTip: Bindings"
+        thumbnail: "images/Qt_QT_bindings.png"
+        url: "https://youtu.be/UfvA04CIXv0"
+    }
+
+    ListElement {
+        displayName: "Sketch Bridge Tutorial - Part 1"
+        thumbnail: "images/sketchTutorial_1.png"
+        url: "https://www.qt.io/blog/qt-design-studio-sketch-bridge-tutorial-part-1"
+    }
+
+    ListElement {
+        displayName: "Sketch Bridge Tutorial - Part 2"
+        thumbnail: "images/sketchTutorial_2.png"
+        url: "https://www.qt.io/blog/qt-design-studio-sketch-bridge-tutorial-part-2"
+    }
 }
