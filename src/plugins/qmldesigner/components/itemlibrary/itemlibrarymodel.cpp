@@ -33,6 +33,9 @@
 #include <nodehints.h>
 #include <nodemetainfo.h>
 
+#include <designdocument.h>
+#include <qmldesignerplugin.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -197,11 +200,47 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
             forceVisiblity = isItem;
         }
 
+        DesignDocument *designDocument = QmlDesignerPlugin::instance()
+                                             ->documentManager()
+                                             .currentDesignDocument();
 
-        if (valid
-                && (isItem || forceVisiblity) //We can change if the navigator does support pure QObjects
-                && (entry.requiredImport().isEmpty()
-                    || model->hasImport(entryToImport(entry), true, true))) {
+        if (designDocument && designDocument->isQtForMCUsProject()) {
+            const QList<TypeName> blockTypes = {"QtQuick.AnimatedImage",
+                                                "QtQuick.BorderImage",
+                                                "QtQuick.FocusScope",
+                                                "QtQuick.TextInput",
+                                                "QtQuick.TextEdit",
+                                                "QtQuick.Flow",
+                                                "QtQuick.Grid",
+                                                "QtQuick.GridView",
+                                                "QtQuick.Controls.ButtonGroup",
+                                                "QtQuick.Controls",
+                                                "QtQuick.Controls.Container",
+                                                "QtQuick.Controls.DelayButton",
+                                                "QtQuick.Controls.ComboBox",
+                                                "QtQuick.Controls.Frame",
+                                                "QtQuick.Controls.GroupBox",
+                                                "QtQuick.Controls.ItemDelegate",
+                                                "QtQuick.Controls.SpinBox",
+                                                "QtQuick.Controls.RadioDelegate",
+                                                "QtQuick.Controls.RoundButton",
+                                                "QtQuick.Controls.ScrollView",
+                                                "QtQuick.Controls.RangeSlider",
+                                                "QtQuick.Controls.ToolBar",
+                                                "QtQuick.Controls.TooButton",
+                                                "QtQuick.Controls.TabBar",
+                                                "QtQuick.Controls.TabButton",
+                                                "QtQuick.Controls.SwitchDelegate",
+                                                "QtQuick.Controls.TextArea",
+                                                "QtQuick.Controls.TextField"};
+
+            if (blockTypes.contains(entry.typeName()))
+                valid = false;
+        }
+
+        if (valid && (isItem || forceVisiblity) //We can change if the navigator does support pure QObjects
+            && (entry.requiredImport().isEmpty()
+                || model->hasImport(entryToImport(entry), true, true))) {
             QString itemSectionName = entry.category();
             qCInfo(itemlibraryPopulate) << "Adding:" << entry.typeName() << "to:" << entry.category();
             ItemLibrarySection *sectionModel = sectionByName(itemSectionName);
