@@ -84,7 +84,12 @@ public:
 
     void documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings) override;
 
-    void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
+    void customNotification(const AbstractView *view,
+                            const QString &identifier,
+                            const QList<ModelNode> &nodeList,
+                            const QList<QVariant> &data) override;
+
+    void currentStateChanged(const ModelNode &node) override;
 
     // FormEditorView
     WidgetInfo widgetInfo() override;
@@ -134,7 +139,7 @@ private:
     void removeNodeFromScene(const QmlItemNode &qmlItemNode);
     void hideNodeFromScene(const QmlItemNode &qmlItemNode);
     void createFormEditorWidget();
-    void temporaryBlockView();
+    void temporaryBlockView(int duration = 1000);
     void resetNodeInstanceView();
 
     QPointer<FormEditorWidget> m_formEditorWidget;

@@ -38,6 +38,8 @@
 #include <QTextTable>
 #include <QScopeGuard>
 #include <QPointer>
+#include <QTextTableFormat>
+#include <QPainter>
 
 #include <utils/stylehelper.h>
 
@@ -83,6 +85,27 @@ static void cursorEditBlock(QTextCursor& cursor, std::function<void()> f) {
     cursor.beginEditBlock();
     f();
     cursor.endEditBlock();
+}
+
+static QPixmap drawColorBox(const QColor& color, const QSize& size, int borderWidth = 4)
+{
+    if (size.isEmpty()) {
+        return {};
+    }
+
+    QPixmap result(size);
+
+    const QColor borderColor = QApplication::palette("QWidget").color(QPalette::Normal,
+                                                                      QPalette::Button);
+
+    result.fill(color);
+    QPainter painter(&result);
+    QPen pen(borderColor);
+    pen.setWidth(borderWidth);
+    painter.setPen(pen);
+    painter.drawRect(QRect(QPoint(0,0), size));
+
+    return result;
 }
 
 RichTextEditor::RichTextEditor(QWidget *parent)
@@ -214,8 +237,7 @@ void RichTextEditor::fontChanged(const QFont &f)
 
 void RichTextEditor::colorChanged(const QColor &c)
 {
-    QPixmap colorBox(ui->tableBar->iconSize());
-    colorBox.fill(c);
+    QPixmap colorBox(drawColorBox(c, ui->tableBar->iconSize()));
     m_actionTextColor->setIcon(colorBox);
 }
 
@@ -436,8 +458,7 @@ void RichTextEditor::setupListActions()
 
 void RichTextEditor::setupFontActions()
 {
-    QPixmap colorBox(ui->tableBar->iconSize());
-    colorBox.fill(ui->textEdit->textColor());
+    QPixmap colorBox(drawColorBox(ui->textEdit->textColor(), ui->tableBar->iconSize()));
 
     m_actionTextColor = ui->toolBar->addAction(colorBox, tr("&Color..."), [this]() {
         QColor col = QColorDialog::getColor(ui->textEdit->textColor(), this);
@@ -507,7 +528,20 @@ void RichTextEditor::setupTableActions()
     m_actionCreateTable = ui->tableBar->addAction(createTableIcon, tr("Create Table"), [this]() {
         QTextCursor cursor = ui->textEdit->textCursor();
         cursorEditBlock(cursor, [&] () {
-            cursor.insertTable(1,1);
+            //format table cells to look a bit better:
+            QTextTableFormat tableFormat;
+            tableFormat.setCellSpacing(2.0);
+            tableFormat.setCellPadding(2.0);
+            tableFormat.setBorder(1.0);
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+            tableFormat.setBorderCollapse(true);
+#endif
+
+            cursor.insertTable(1, 1, tableFormat);
+
+            //move cursor into the first cell of the table:
+            ui->textEdit->setTextCursor(cursor);
         });
     });
     m_actionCreateTable->setCheckable(false);

@@ -268,15 +268,11 @@ ModelNode ConnectionModel::getTargetNodeForConnection(const ModelNode &connectio
     const QString bindExpression = bindingProperty.expression();
 
     if (bindingProperty.isValid()) {
-        if (bindExpression == QLatin1String("parent")) {
-            result = connection.parentProperty().parentModelNode();
-        } else if (bindExpression.contains(".")) {
+        if (bindExpression.contains(".")) {
             QStringList substr = bindExpression.split(".");
             const QString itemId = substr.constFirst();
             if (substr.size() > 1) {
-                const ModelNode aliasParent = (itemId == QLatin1String("parent")
-                                               ? connection.parentProperty().parentModelNode()
-                                               : connectionView()->modelNodeForId(itemId));
+                const ModelNode aliasParent = connectionView()->modelNodeForId(itemId);
                 substr.removeFirst(); //remove id, only alias pieces left
                 const QString aliasBody = substr.join(".");
                 if (aliasParent.isValid() && aliasParent.hasBindingProperty(aliasBody.toUtf8())) {
@@ -303,7 +299,7 @@ void ConnectionModel::addConnection()
         NodeMetaInfo nodeMetaInfo = connectionView()->model()->metaInfo("QtQuick.Connections");
 
         if (nodeMetaInfo.isValid()) {
-            connectionView()->executeInTransaction("ConnectionModel::addConnection", [=](){
+            connectionView()->executeInTransaction("ConnectionModel::addConnection", [=, &rootModelNode](){
                 ModelNode newNode = connectionView()->createModelNode("QtQuick.Connections",
                                                                       nodeMetaInfo.majorVersion(),
                                                                       nodeMetaInfo.minorVersion());
@@ -316,19 +312,14 @@ void ConnectionModel::addConnection()
                     else
                         rootModelNode.nodeAbstractProperty(rootModelNode.metaInfo().defaultPropertyName()).reparentHere(newNode);
 
-                    if (QmlItemNode(selectedNode).isFlowActionArea())
-                        source = selectedNode.validId() + ".trigger()";
-
-                    if (QmlVisualNode(selectedNode).isFlowTransition())
+                    if (QmlItemNode(selectedNode).isFlowActionArea() || QmlVisualNode(selectedNode).isFlowTransition())
                         source = selectedNode.validId() + ".trigger()";
 
                     if (!connectionView()->selectedModelNodes().constFirst().id().isEmpty())
-                    newNode.bindingProperty("target").setExpression(selectedNode.id());
-                    else
-                        newNode.bindingProperty("target").setExpression(QLatin1String("parent"));
+                        newNode.bindingProperty("target").setExpression(selectedNode.validId());
                 } else {
                     rootModelNode.nodeAbstractProperty(rootModelNode.metaInfo().defaultPropertyName()).reparentHere(newNode);
-                    newNode.bindingProperty("target").setExpression(QLatin1String("parent"));
+                    newNode.bindingProperty("target").setExpression(rootModelNode.validId());
                 }
 
                 newNode.signalHandlerProperty("onClicked").setSource(source);

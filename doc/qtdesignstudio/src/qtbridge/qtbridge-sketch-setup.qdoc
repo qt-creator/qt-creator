@@ -30,9 +30,11 @@
 
     \title Setting Up \QBSK
 
-    You can download \QBSK from the \l{https://marketplace.qt.io/}
-    {Qt Marketplace}. It is delivered as a Sketch plugin that you
-    can install to Sketch.
+    You can purchase a \QBSK license from the \l{https://marketplace.qt.io/}
+    {Qt Marketplace}, and then use the Qt online installer to have the \QBSK
+    installation package copied to the following path in your Qt installation
+    folder: \c {QtDesignStudio\sketch_bridge}. You can use the installation
+    package to install the \QBSK plugin to Sketch.
 
     \note Install the Sketch app before installing the plugin.
 

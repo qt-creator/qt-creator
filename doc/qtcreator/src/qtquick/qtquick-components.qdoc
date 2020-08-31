@@ -76,16 +76,28 @@
     \list 1
         \li Drag and drop components from \uicontrol Library (1) to
             \uicontrol Navigator (2) or \uicontrol {Form Editor} (3).
-        \li Select components in \uicontrol Navigator to edit their
-            properties in \uicontrol Properties.
+        \li Select components in \uicontrol Navigator to edit the
+            values of their properties in \uicontrol Properties.
             \image qmldesigner-properties-view.png "Properties view"
             For more information, see \l {Specifying Item Properties}.
-        \li Connect components to signals or create bindings between components
-            in the \uicontrol Connections view.
+        \li To change the appearance and behavior of your components in ways
+            that are not supported out of the box, you can define custom
+            properties for your components in the \uicontrol Connections view,
+            \uicontrol Properties tab.
+            \image qmldesigner-dynamicprops.png "Connections view Properties tab"
+            For more information, see \l{Specifying Dynamic Properties}.
+        \li To enable users to interact with components, connect the components
+            to signals in the \uicontrol Connections view. For example, you can
+            specify what happens when a component is clicked.
+            For more information, see \l{Connecting Objects to Signals}.
+            \image qmldesigner-connections.png "Connections view Connections tab"
+        \li To dynamically change the behavior of an object when another object
+            changes, create bindings between components in the
+            \uicontrol Connections view, \uicontrol Bindings tab.
+            For more information, see \l{Adding Bindings Between Properties}.
             \image qmldesigner-bindings.png "Connections view Bindings tab"
-            For more information, see \l{Adding Connections}.
-        \li Add states to apply sets of changes to the properties of one or
-            several components in the \uicontrol States view.
+        \li Add states to apply sets of changes to the property values of one
+            or several components in the \uicontrol States view.
             For more information, see \l{Adding States}.
         \li Animate component properties in the \uicontrol Timeline view.
             For more information, see \l{Creating Animations}.

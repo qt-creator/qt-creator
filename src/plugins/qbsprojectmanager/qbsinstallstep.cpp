@@ -61,7 +61,7 @@ const char QBS_KEEP_GOING[] = "Qbs.DryKeepGoing";
 // QbsInstallStep:
 // --------------------------------------------------------------------
 
-QbsInstallStep::QbsInstallStep(BuildStepList *bsl, Core::Id id)
+QbsInstallStep::QbsInstallStep(BuildStepList *bsl, Utils::Id id)
     : BuildStep(bsl, id)
 {
     setDisplayName(tr("Qbs Install"));
@@ -89,16 +89,16 @@ QbsInstallStep::~QbsInstallStep()
 
 bool QbsInstallStep::init()
 {
-    QTC_ASSERT(!buildSystem()->isParsing() && !m_session, return false);
+    QTC_ASSERT(!target()->buildSystem()->isParsing() && !m_session, return false);
     return true;
 }
 
 void QbsInstallStep::doRun()
 {
-    m_session = static_cast<QbsBuildSystem *>(buildSystem())->session();
+    m_session = static_cast<QbsBuildSystem *>(target()->buildSystem())->session();
 
     QJsonObject request;
-    request.insert("type", "install");
+    request.insert("type", "install-project");
     request.insert("install-root", installRoot());
     request.insert("clean-install-root", m_cleanInstallRoot->value());
     request.insert("keep-going", m_keepGoing->value());
@@ -128,7 +128,7 @@ QString QbsInstallStep::installRoot() const
 
 const QbsBuildConfiguration *QbsInstallStep::buildConfig() const
 {
-    return static_cast<QbsBuildConfiguration *>(buildConfiguration());
+    return static_cast<QbsBuildConfiguration *>(target()->activeBuildConfiguration());
 }
 
 void QbsInstallStep::installDone(const ErrorInfo &error)

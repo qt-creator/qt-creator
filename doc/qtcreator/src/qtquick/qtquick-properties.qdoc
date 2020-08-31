@@ -185,7 +185,7 @@
 
     If you use text IDs instead of plain text, change the default call to
     \c qsTrId(). Select \uicontrol Tools > \uicontrol Options >
-    \uicontrol {Qt Quick} > \uicontrol {\QMLD}, and then select the
+    \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer}, and then select the
     \uicontrol {qsTrId()} radio button in the \uicontrol Internationalization
     group. For more information about text ID based translations, see
     \l {Qt Linguist Manual: Text ID Based Translations}.

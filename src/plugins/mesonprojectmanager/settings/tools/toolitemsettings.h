@@ -29,13 +29,10 @@
 #include "utils/optional.h"
 #include <QWidget>
 
-namespace Ui {
-class ToolItemSettings;
-}
-
 namespace MesonProjectManager {
 namespace Internal {
 
+namespace Ui { class ToolItemSettings; }
 class ToolTreeItem;
 
 class ToolItemSettings : public QWidget

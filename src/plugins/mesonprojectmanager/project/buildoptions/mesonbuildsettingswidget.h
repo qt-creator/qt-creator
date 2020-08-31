@@ -32,12 +32,12 @@
 #include <QTimer>
 #include <QWidget>
 
-namespace Ui {
-class MesonBuildSettingsWidget;
-}
 
 namespace MesonProjectManager {
 namespace Internal {
+
+namespace Ui { class MesonBuildSettingsWidget; }
+
 class MesonBuildConfiguration;
 class MesonBuildSettingsWidget : public ProjectExplorer::NamedWidget
 {

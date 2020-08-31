@@ -97,7 +97,7 @@ private:
     void changeRootItemWidth(const QString &widthText);
     void changeRootItemHeight(const QString &heightText);
     void changeBackgound(const QColor &color);
-    void registerActionAsCommand(QAction *action, Core::Id id, const QKeySequence &keysequence);
+    void registerActionAsCommand(QAction *action, Utils::Id id, const QKeySequence &keysequence);
 
     QPointer<FormEditorView> m_formEditorView;
     QPointer<FormEditorGraphicsView> m_graphicsView;

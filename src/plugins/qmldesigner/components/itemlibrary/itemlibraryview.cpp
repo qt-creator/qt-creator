@@ -113,6 +113,8 @@ void ItemLibraryView::importsChanged(const QList<Import> &addedImports, const QL
 
             for (ModelNode node : slConnectors)
                 node.destroy();
+
+            resetPuppet();
         }
     }
 }

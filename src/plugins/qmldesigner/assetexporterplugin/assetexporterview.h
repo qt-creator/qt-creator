@@ -83,4 +83,6 @@ private:
 
 }
 
+QT_BEGIN_NAMESPACE
 QDebug operator<<(QDebug os, const QmlDesigner::AssetExporterView::LoadState &s);
+QT_END_NAMESPACE

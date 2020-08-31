@@ -31,6 +31,7 @@
 #include <QDebug>
 #include <QRegularExpression>
 #include <cmath>
+#include <memory>
 
 #include <nodemetainfo.h>
 
@@ -40,6 +41,7 @@
 
 #include <qmlitemnode.h>
 #include <qmlstate.h>
+#include <annotationeditor/annotationeditor.h>
 
 
 namespace QmlDesigner {
@@ -51,7 +53,8 @@ namespace QmlDesigner {
 StatesEditorView::StatesEditorView(QObject *parent) :
         AbstractView(parent),
         m_statesEditorModel(new StatesEditorModel(this)),
-        m_lastIndex(-1)
+        m_lastIndex(-1),
+        m_editor(nullptr)
 {
     Q_ASSERT(m_statesEditorModel);
     // base state
@@ -59,6 +62,8 @@ StatesEditorView::StatesEditorView(QObject *parent) :
 
 StatesEditorView::~StatesEditorView()
 {
+    if (m_editor)
+        delete m_editor;
     delete m_statesEditorWidget.data();
 }
 
@@ -274,6 +279,8 @@ void StatesEditorView::setWhenCondition(int internalNodeId, const QString &condi
         return;
 
     m_block = true;
+    auto guard = [this](int* p) { m_block = false; delete p; };
+    std::unique_ptr<int, decltype(guard)> scopeGuard(new int, guard);
 
     if (hasModelNodeForInternalId(internalNodeId)) {
         QmlModelState state(modelNodeForInternalId(internalNodeId));
@@ -285,8 +292,6 @@ void StatesEditorView::setWhenCondition(int internalNodeId, const QString &condi
             e.showException();
         }
     }
-
-    m_block = false;
 }
 
 void StatesEditorView::resetWhenCondition(int internalNodeId)
@@ -295,6 +300,8 @@ void StatesEditorView::resetWhenCondition(int internalNodeId)
         return;
 
     m_block = true;
+    auto guard = [this](int* p) { m_block = false; delete p; };
+    std::unique_ptr<int, decltype(guard)> scopeGuard(new int, guard);
 
     if (hasModelNodeForInternalId(internalNodeId)) {
         QmlModelState state(modelNodeForInternalId(internalNodeId));
@@ -306,8 +313,6 @@ void StatesEditorView::resetWhenCondition(int internalNodeId)
             e.showException();
         }
     }
-
-    m_block = false;
 }
 
 void StatesEditorView::setStateAsDefault(int internalNodeId)
@@ -316,6 +321,8 @@ void StatesEditorView::setStateAsDefault(int internalNodeId)
         return;
 
     m_block = true;
+    auto guard = [this](int* p) { m_block = false; delete p; };
+    std::unique_ptr<int, decltype(guard)> scopeGuard(new int, guard);
 
     if (hasModelNodeForInternalId(internalNodeId)) {
         QmlModelState state(modelNodeForInternalId(internalNodeId));
@@ -327,8 +334,6 @@ void StatesEditorView::setStateAsDefault(int internalNodeId)
             e.showException();
         }
     }
-
-    m_block = false;
 }
 
 void StatesEditorView::resetDefaultState()
@@ -337,6 +342,8 @@ void StatesEditorView::resetDefaultState()
         return;
 
     m_block = true;
+    auto guard = [this](int* p) { m_block = false; delete p; };
+    std::unique_ptr<int, decltype(guard)> scopeGuard(new int, guard);
 
     try {
         if (rootModelNode().hasProperty("state"))
@@ -345,13 +352,75 @@ void StatesEditorView::resetDefaultState()
     } catch (const RewritingException &e) {
         e.showException();
     }
-
-    m_block = false;
 }
 
 bool StatesEditorView::hasDefaultState() const
 {
     return rootModelNode().hasProperty("state");
+}
+
+void StatesEditorView::setAnnotation(int internalNodeId)
+{
+    if (m_block)
+        return;
+
+    m_block = true;
+    auto guard = [this](int* p) { m_block = false; delete p; };
+    std::unique_ptr<int, decltype(guard)> scopeGuard(new int, guard);
+
+    if (hasModelNodeForInternalId(internalNodeId)) {
+        QmlModelState state(modelNodeForInternalId(internalNodeId));
+        try {
+            if (state.isValid()) {
+                ModelNode modelNode = state.modelNode();
+
+                if (modelNode.isValid()) {
+                    if (!m_editor)
+                        m_editor = new AnnotationEditor(this);
+
+                    m_editor->setModelNode(modelNode);
+                    m_editor->showWidget();
+                }
+            }
+
+        } catch (const RewritingException &e) {
+            e.showException();
+        }
+    }
+}
+
+void StatesEditorView::removeAnnotation(int internalNodeId)
+{
+    if (m_block)
+        return;
+
+    m_block = true;
+    auto guard = [this](int* p) { m_block = false; delete p; };
+    std::unique_ptr<int, decltype(guard)> scopeGuard(new int, guard);
+
+    if (hasModelNodeForInternalId(internalNodeId)) {
+        QmlModelState state(modelNodeForInternalId(internalNodeId));
+        try {
+            if (state.isValid()) {
+                state.removeAnnotation();
+            }
+
+        } catch (const RewritingException &e) {
+            e.showException();
+        }
+    }
+}
+
+bool StatesEditorView::hasAnnotation(int internalNodeId) const
+{
+    if (hasModelNodeForInternalId(internalNodeId)) {
+        QmlModelState state(modelNodeForInternalId(internalNodeId));
+        if (state.isValid()) {
+            return state.hasAnnotation();
+        }
+    }
+
+    return false;
 }
 
 void StatesEditorView::modelAttached(Model *model)
@@ -444,7 +513,12 @@ void StatesEditorView::bindingPropertiesChanged(const QList<BindingProperty> &pr
 void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty> &propertyList,
                                                 AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
+    if (m_block)
+        return;
+
     m_block = true;
+    auto guard = [this](int* p) { m_block = false; delete p; };
+    std::unique_ptr<int, decltype(guard)> scopeGuard(new int, guard);
 
     for (const VariantProperty &property : propertyList) {
         if (property.name() == "name" && QmlModelState::isValidQmlModelState(property.parentModelNode()))
@@ -452,8 +526,6 @@ void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty> &pr
         else if (property.name() == "state" && property.parentModelNode().isRootNode())
             resetModel();
     }
-
-    m_block = false;
 }
 
 void StatesEditorView::currentStateChanged(const ModelNode &node)

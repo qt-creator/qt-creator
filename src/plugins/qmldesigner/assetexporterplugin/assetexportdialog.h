@@ -39,9 +39,6 @@ class QListView;
 class QPlainTextEdit;
 QT_END_NAMESPACE
 
-namespace Ui {
-class AssetExportDialog;
-}
 
 namespace Utils {
 class OutputFormatter;
@@ -52,6 +49,7 @@ class Task;
 }
 
 namespace QmlDesigner {
+namespace Ui { class AssetExportDialog; }
 class FilePathModel;
 
 class AssetExportDialog : public QDialog

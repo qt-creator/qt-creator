@@ -27,7 +27,8 @@
 
 #include "core_global.h"
 #include "helpitem.h"
-#include "id.h"
+
+#include <utils/id.h>
 
 #include <QList>
 #include <QObject>

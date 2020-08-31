@@ -325,7 +325,7 @@ void TransitionEditorWidget::init()
 
     m_graphicsScene->setWidth(m_graphicsView->viewport()->width());
 
-    m_toolbar->setScaleFactor(0);
+    m_toolbar->setScaleFactor(40);
 
     m_toolbar->setCurrentTransition(transition);
 
@@ -335,7 +335,7 @@ void TransitionEditorWidget::init()
 
     m_toolbar->setDuration(duration);
 
-    m_graphicsScene->setRulerScaling(0);
+    m_graphicsScene->setRulerScaling(40);
 }
 
 void TransitionEditorWidget::updateData(const ModelNode &transition)

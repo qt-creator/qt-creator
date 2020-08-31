@@ -225,7 +225,9 @@ bool WinRtPackageDeploymentStep::init()
         return false;
     }
     params->setCommandLine(windeployqt);
-    params->setEnvironment(buildEnvironment());
+    params->setEnvironment(target()->activeBuildConfiguration()
+                           ? target()->activeBuildConfiguration()->environment()
+                           : Environment::systemEnvironment());
 
     return AbstractProcessStep::init();
 }

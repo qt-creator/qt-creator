@@ -136,7 +136,7 @@ private:
 // QbsBuildStep:
 // --------------------------------------------------------------------
 
-QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Core::Id id) :
+QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Utils::Id id) :
     BuildStep(bsl, id)
 {
     setDisplayName(tr("Qbs Build"));

@@ -84,7 +84,7 @@ static int controlWidth(QToolBar *bar, QObject *control)
     return 0;
 }
 
-static QAction *createAction(const Core::Id &id,
+static QAction *createAction(const Utils::Id &id,
                       const QIcon &icon,
                       const QString &name,
                       const QKeySequence &shortcut)

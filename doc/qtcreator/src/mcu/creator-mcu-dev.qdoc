@@ -55,7 +55,6 @@
 
     \list
         \li Qt for MCU SDK (only available for Windows)
-        \li The Bare Metal plugin
         \li \l{https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm}
             {GNU ARM Embedded Toolchain}
     \endlist
@@ -74,25 +73,11 @@
     between \QC and MCUs. The following subsections guide you through the
     setup process.
 
-    \section2 MCU and Bare Metal Plugins
+    \section2 MCU Plugin
 
-    To be able to develop applications for MCUs, you need the MCU plugin at least.
-    This plugin is enabled automatically by the installer when you install the
-    Qt for MCUs SDK.
-
-    The Bare Metal plugin is optional unless you want to configure the
-    debug server provider settings explicitly. For more information
-    see \l{Connecting Bare Metal Devices}.
-
-    To explicitly disable or enable any of these plugins, follow these
-    instructions:
-    \list 1
-        \li Select \uicontrol Help > \uicontrol {About Plugins} >
-            \uicontrol {Device Support} > \uicontrol {Bare Metal} and
-            \uicontrol {MCU Support} to enable the Bare Metal and MCU
-            plugins.
-        \li Select \uicontrol {Restart Now} to restart \QC and load the plugins.
-    \endlist
+    To be able to develop applications for MCUs, you need the MCU plugin.
+    This plugin is enabled automatically by the Qt online installer when
+    you install the Qt for MCUs SDK.
 
     \section2 Specifying MCU Settings
 
@@ -115,11 +100,14 @@
                     \list
                         \li The \uicontrol {GNU ARM Embedded Toolchain} path.
                         \li The \uicontrol {STM32CubeProgrammer} install path.
+                        \li The \uicontrol {MCU SDK} for the chosen target.
                     \endlist
                  \li For NXP targets:
                     \list
                         \li The \uicontrol {GNU ARM Embedded Toolchain} path.
                         \li The \uicontrol {MCUXpresso IDE} install path.
+                        \li The \uicontrol {MCU SDK} for the chosen target.
+                        \li The \uicontrol {FreeRTOS Sources} for the chosen target.
                     \endlist
                  \li For Renesas targets:
                     \list

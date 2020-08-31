@@ -508,9 +508,13 @@ QString AbstractView::generateNewId(const QString &prefixName) const
 {
     QString fixedPrefix = firstCharToLower(prefixName);
     fixedPrefix.remove(' ');
+
+    bool forceSuffix = false;
+
     if (!ModelNode::isValidId(fixedPrefix))
-        return generateNewId("element");
-    int counter = 1;
+        forceSuffix = true;
+
+    int counter = 0;
 
     /* First try just the prefixName without number as postfix, then continue with 2 and further as postfix
      * until id does not already exist.
@@ -520,11 +524,14 @@ QString AbstractView::generateNewId(const QString &prefixName) const
     */
 
     QString newId = QString(QStringLiteral("%1")).arg(firstCharToLower(prefixName));
+    if (forceSuffix)
+        QString(QStringLiteral("%1%2")).arg(firstCharToLower(prefixName)).arg(1);
+
     newId.remove(QRegularExpression(QStringLiteral("[^a-zA-Z0-9_]")));
 
     while (!ModelNode::isValidId(newId) || hasId(newId) || rootModelNode().hasProperty(newId.toUtf8()) || newId == "item") {
         counter += 1;
-        newId = QString(QStringLiteral("%1%2")).arg(firstCharToLower(prefixName)).arg(counter - 1);
+        newId = QString(QStringLiteral("%1%2")).arg(firstCharToLower(prefixName)).arg(counter);
         newId.remove(QRegularExpression(QStringLiteral("[^a-zA-Z0-9_]")));
     }
 

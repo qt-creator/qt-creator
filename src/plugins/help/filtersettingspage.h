@@ -32,7 +32,9 @@
 #ifndef HELP_NEW_FILTER_ENGINE
 #include "ui_filtersettingspage.h"
 #else
+QT_BEGIN_NAMESPACE
 class QHelpFilterSettingsWidget;
+QT_END_NAMESPACE
 #endif
 
 namespace Help {

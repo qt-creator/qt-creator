@@ -71,8 +71,11 @@ QStringList ProFileEvaluator::values(const QString &variableName) const
     const ProStringList &values = d->values(ProKey(variableName));
     QStringList ret;
     ret.reserve(values.size());
-    foreach (const ProString &str, values)
-        ret << d->m_option->expandEnvVars(str.toQString());
+    for (const ProString &str : values) {
+        const QString expanded = d->m_option->expandEnvVars(str.toQString());
+        if (!expanded.isEmpty() || str.isEmpty())
+            ret << expanded;
+    }
     return ret;
 }
 

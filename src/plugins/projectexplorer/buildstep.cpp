@@ -265,9 +265,11 @@ QString BuildStep::fallbackWorkingDirectory() const
 
 void BuildStep::setupOutputFormatter(OutputFormatter *formatter)
 {
-    for (const Utils::Id id : buildConfiguration()->customParsers()) {
-        if (Internal::CustomParser * const parser = Internal::CustomParser::createFromId(id))
-            formatter->addLineParser(parser);
+    if (qobject_cast<BuildConfiguration *>(parent()->parent())) {
+        for (const Utils::Id id : buildConfiguration()->customParsers()) {
+            if (Internal::CustomParser * const parser = Internal::CustomParser::createFromId(id))
+                formatter->addLineParser(parser);
+        }
     }
     Utils::FileInProjectFinder fileFinder;
     fileFinder.setProjectDirectory(project()->projectDirectory());

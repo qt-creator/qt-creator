@@ -62,7 +62,7 @@ class QbsBuildConfiguration final : public ProjectExplorer::BuildConfiguration
     Q_OBJECT
 
     friend class ProjectExplorer::BuildConfigurationFactory;
-    QbsBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
+    QbsBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
     ~QbsBuildConfiguration() final;
 
 public:

@@ -246,9 +246,9 @@ void DesignModeWidget::setup()
     const QString undockUnicode = Theme::getIconUnicode(Theme::Icon::adsDetach);
 
     const QString fontName = "qtds_propertyIconFont.ttf";
+    const QIcon closeIcon = Utils::StyleHelper::getIconFromIconFont(fontName, closeUnicode, 28, 28, buttonColor);
     const QIcon menuIcon = Utils::StyleHelper::getIconFromIconFont(fontName, menuUnicode, 28, 28, buttonColor);
     const QIcon undockIcon = Utils::StyleHelper::getIconFromIconFont(fontName, undockUnicode, 28, 28, buttonColor);
-    const QIcon closeIcon = Utils::StyleHelper::getIconFromIconFont(fontName, closeUnicode, 28, 28, buttonColor);
 
     auto closeIconNormal = Utils::StyleHelper::IconFontHelper(closeUnicode,
                                                               tabColor,

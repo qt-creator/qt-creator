@@ -49,7 +49,7 @@ namespace Internal {
 // QbsCleanStep:
 // --------------------------------------------------------------------
 
-QbsCleanStep::QbsCleanStep(BuildStepList *bsl, Core::Id id)
+QbsCleanStep::QbsCleanStep(BuildStepList *bsl, Utils::Id id)
     : BuildStep(bsl, id)
 {
     setDisplayName(tr("Qbs Clean"));

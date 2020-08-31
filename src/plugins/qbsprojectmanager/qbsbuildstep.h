@@ -51,7 +51,7 @@ public:
         ExpandVariables
     };
 
-    QbsBuildStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
+    QbsBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
     ~QbsBuildStep() override;
 
     QVariantMap qbsConfiguration(VariableHandling variableHandling) const;

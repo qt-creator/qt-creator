@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -33,16 +33,29 @@ import StudioTheme 1.0 as StudioTheme
 FocusScope {
     id: root
 
-    height: (root.expanded ? 192 : 40) + StudioTheme.Values.scrollBarThickness
+    property int delegateTopAreaHeight: 30
+    property int delegateBottomAreaHeight: 200
+    property int delegateColumnSpacing: 2
+    property int delegateStateMargin: 16
+    property int delegatePreviewMargin: 16
+
+    height: (root.expanded ? (root.delegateTopAreaHeight + root.delegateBottomAreaHeight + root.delegateColumnSpacing)
+                           : root.delegateTopAreaHeight)
+            + StudioTheme.Values.scrollBarThickness
+            + 2 * (root.delegateStateMargin + StudioTheme.Values.border + root.padding)
+
     signal createNewState
     signal deleteState(int internalNodeId)
     signal duplicateCurrentState
 
-    property int stateImageSize: 180
+    property int stateImageSize: 200
     property int padding: 2
-    property int delegateWidth: root.stateImageSize + 44
-    property int delegateHeight: root.height - StudioTheme.Values.scrollBarThickness - root.padding * 2 + 1
-    property int innerSpacing: 0
+    property int delegateWidth: root.stateImageSize
+                                + 2 * (root.delegateStateMargin + root.delegatePreviewMargin)
+    property int delegateHeight: root.height
+                                 - StudioTheme.Values.scrollBarThickness
+                                 - 2 * (root.padding + StudioTheme.Values.border)
+    property int innerSpacing: 2
     property int currentStateInternalId: 0
 
     property bool expanded: true
@@ -59,7 +72,7 @@ FocusScope {
     Rectangle {
         id: background
         anchors.fill: parent
-        color: Theme.qmlDesignerBackgroundColorDarkAlternate()
+        color: Theme.color(Theme.QmlDesigner_BackgroundColorDarkAlternate)
     }
 
     MouseArea {
@@ -95,7 +108,7 @@ FocusScope {
     Item {
         id: addStateItem
 
-        property int buttonLeftSpacing: 8 * (root.expanded ?  1 : 2)
+        property int buttonLeftSpacing: 8 * (root.expanded ? 1 : 2)
 
         anchors.right: parent.right
         width: root.delegateHeight / 2 + buttonLeftSpacing
@@ -103,35 +116,33 @@ FocusScope {
 
         AbstractButton {
             id: addStateButton
-            visible: canAddNewStates
 
+            buttonIcon: root.expanded ? qsTr("Create New State") : StudioTheme.Constants.plus
+            iconFont: root.expanded ? StudioTheme.Constants.font : StudioTheme.Constants.iconFont
+            iconSize: root.expanded ? StudioTheme.Values.myFontSize : StudioTheme.Values.myIconFontSize
+            iconItalic: root.expanded ? true : false
             tooltip: qsTr("Add a new state.")
-
+            visible: canAddNewStates
             anchors.right: parent.right
             anchors.rightMargin: 8
             anchors.verticalCenter: parent.verticalCenter
             width: Math.max(parent.height / 2 - 8, 18)
-            height: width
+            height: root.expanded ? 80 : width
 
             onClicked: {
                 root.closeContextMenu()
                 root.createNewState()
             }
-
-            background: Rectangle {
-                property color buttonBaseColor: Qt.darker(Theme.qmlDesignerBackgroundColorDarkAlternate(), 1.1)
-                color: addStateButton.hovered ? Qt.lighter(buttonBaseColor, 1.2) : buttonBaseColor
-                border.color: Theme.qmlDesignerBorderColor()
-                border.width: 1
-                Image {
-                    source: "image://icons/plus"
-                    width: 16
-                    height: 16
-                    anchors.centerIn: parent
-                    smooth: false
-                }
-            }
         }
+    }
+
+    Rectangle {
+        color: Theme.color(Theme.DSsliderActiveTrackFocus)
+        x: root.padding
+        y: root.padding
+        width: Math.min((root.delegateWidth * flickable.count) + (2 * (flickable.count - 1)),
+                        flickable.width)
+        height: root.delegateHeight
     }
 
     ListView {
@@ -155,15 +166,21 @@ FocusScope {
             id: statesDelegate
             width: root.delegateWidth
             height: root.delegateHeight
-            isBaseState: 0 == internalNodeId
-            isCurrentState: root.currentStateInternalId == internalNodeId
-            baseColor: isCurrentState ? Theme.color(Theme.QmlDesigner_HighlightColor) : background.color
+            isBaseState: 0 === internalNodeId
+            isCurrentState: root.currentStateInternalId === internalNodeId
+            baseColor: isCurrentState ? Theme.color(Theme.DSinteraction) : background.color
             delegateStateName: stateName
             delegateStateImageSource: stateImageSource
             delegateStateImageSize: stateImageSize
             delegateHasWhenCondition: hasWhenCondition
             delegateWhenConditionString: whenConditionString
             onDelegateInteraction: root.closeContextMenu()
+
+            columnSpacing: root.delegateColumnSpacing
+            topAreaHeight: root.delegateTopAreaHeight
+            bottomAreaHeight: root.delegateBottomAreaHeight
+            stateMargin: root.delegateStateMargin
+            previewMargin: root.delegatePreviewMargin
         }
 
         property bool bothVisible: horizontal.scrollBarVisible && vertical.scrollBarVisible

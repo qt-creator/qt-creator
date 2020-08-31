@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import QtQuickDesignerTheme 1.0
 import HelperWidgets 2.0
 import StudioControls 1.0 as StudioControls
@@ -32,7 +33,8 @@ import StudioTheme 1.0 as StudioTheme
 Rectangle {
     id: myRoot
 
-    border.width: 1
+    color: baseColor
+
     property bool isBaseState
     property bool isCurrentState
     property color baseColor
@@ -41,22 +43,33 @@ Rectangle {
     property int delegateStateImageSize
     property bool delegateHasWhenCondition
     property string delegateWhenConditionString
+    property bool hasAnnotation: checkAnnotation()
+    property int topAreaHeight
+    property int bottomAreaHeight
+    property int stateMargin
+    property int previewMargin
+    property int columnSpacing
+
     readonly property bool isDefaultState: isDefault
 
-    signal delegateInteraction
+    property int closeButtonMargin: 6
+    property int textFieldMargin: 4
+    property int highlightBorderWidth: 2
 
-    color: baseColor
-    border.color: Theme.qmlDesignerBorderColor()
+    signal delegateInteraction
 
     function autoComplete(text, pos, explicitComplete, filter) {
         var stringList = statesEditorModel.autoComplete(text, pos, explicitComplete)
         return stringList
     }
 
+    function checkAnnotation() {
+        return statesEditorModel.hasAnnotation(internalNodeId)
+    }
+
     MouseArea {
         id: mouseArea
         anchors.fill: parent
-
         acceptedButtons: Qt.LeftButton
         onClicked: {
             focus = true
@@ -68,11 +81,15 @@ Rectangle {
 
     StudioControls.AbstractButton {
         id: removeStateButton
+
         buttonIcon: StudioTheme.Constants.closeCross
+
         anchors.right: parent.right
-        anchors.rightMargin: 4
-        anchors.verticalCenter: stateNameField.verticalCenter
-        visible: !isBaseState
+        anchors.rightMargin: myRoot.closeButtonMargin
+        anchors.top: parent.top
+        anchors.topMargin: myRoot.closeButtonMargin
+
+        visible: !isBaseState && isCurrentState
 
         onClicked: {
             myRoot.delegateInteraction()
@@ -120,108 +137,165 @@ Rectangle {
             }
         }
 
+        StudioControls.MenuItem {
+            enabled: !isBaseState
+            text: (hasAnnotation ? qsTr("Edit Annotation")
+                                 : qsTr("Add Annotation"))
+            onTriggered: {
+                statesEditorModel.setAnnotation(internalNodeId)
+                hasAnnotation = checkAnnotation()
+            }
+        }
+
+        StudioControls.MenuItem {
+            enabled: !isBaseState && hasAnnotation
+            text: qsTr("Remove Annotation")
+            onTriggered: {
+                statesEditorModel.removeAnnotation(internalNodeId)
+                hasAnnotation = checkAnnotation()
+            }
+        }
+
         onClosed: {
             stateNameField.actionIndicator.forceVisible = false
         }
 
         onOpened: {
+            hasAnnotation = checkAnnotation()
             myRoot.delegateInteraction()
         }
     }
 
 
-    StudioControls.TextField {
-        id: stateNameField
-
-        actionIndicator.onClicked: {
-            stateNameField.actionIndicator.forceVisible = true
-            contextMenu.popup()
-        }
-
-        onEditChanged: {
-            if (contextMenu.open && stateNameField.edit)
-                contextMenu.dismiss()
-        }
-
-        actionIndicator.icon.text: delegateHasWhenCondition
-                              ? StudioTheme.Constants.actionIconBinding : StudioTheme.Constants.actionIcon
-
-        translationIndicatorVisible: false
-        y: 4
-        anchors.left: parent.left
-        // use the spacing which the image to the delegate rectangle has
-        anchors.leftMargin: 4
-        anchors.right: removeStateButton.left
-        anchors.rightMargin: 2
-
-        readOnly: isBaseState
-
-        onActiveFocusChanged: {
-            if (activeFocus)
-                 root.currentStateInternalId = internalNodeId
-        }
-
-        Component.onCompleted: {
-            text = delegateStateName
-        }
-
-        property string oldValue
-
-        onEditingFinished: {
-            if (stateNameField.oldValue === stateNameField.text)
-                return
-
-            stateNameField.oldValue = stateNameField.text
-
-            if (stateNameField.text !== delegateStateName)
-                statesEditorModel.renameState(internalNodeId, stateNameField.text)
-        }
+    Rectangle {
+        anchors.margins: (isDefaultState || (isBaseState && !modelHasDefaultState)) ? -myRoot.highlightBorderWidth : 0
+        anchors.fill: column
+        color: Theme.color(Theme.DSsliderActiveTrackFocus)
+        border.color: StudioTheme.Values.themeStateDefaultHighlight
+        border.width: (isDefaultState || (isBaseState && !modelHasDefaultState)) ? myRoot.highlightBorderWidth : 0
     }
 
-    Item {
-        id: stateImageArea
-        anchors.topMargin: 2
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: stateNameField.bottom
 
-        height: delegateStateImageSize + 2
-        width: delegateStateImageSize + 2
+    Column {
+        id: column
 
-        visible: expanded
+        anchors.margins: myRoot.stateMargin
+        anchors.fill: parent
+        spacing: expanded ? myRoot.columnSpacing : 0
+
         Rectangle {
-            anchors.margins: -1
-            anchors.fill: stateImage
-            border.width: 1
-            border.color: Theme.qmlDesignerBackgroundColorDarker()
+
+            width: myRoot.width - 2 * myRoot.stateMargin
+            height: myRoot.topAreaHeight
+
+            color: Theme.color(Theme.DShoverHighlight)
+
+            StudioControls.TextField {
+                id: stateNameField
+
+                property string oldValue
+
+                width: StudioTheme.Values.height * 7
+
+                anchors.top: parent.top
+                anchors.topMargin: myRoot.textFieldMargin
+                anchors.left: parent.left
+                anchors.leftMargin: myRoot.textFieldMargin
+
+                translationIndicatorVisible: false
+                readOnly: isBaseState
+
+                actionIndicator.icon.text: delegateHasWhenCondition
+                                      ? StudioTheme.Constants.actionIconBinding
+                                      : StudioTheme.Constants.actionIcon
+
+
+                actionIndicator.onClicked: {
+                    stateNameField.actionIndicator.forceVisible = true
+                    contextMenu.popup()
+                }
+
+                onEditChanged: {
+                    if (contextMenu.open && stateNameField.edit)
+                        contextMenu.dismiss()
+                }
+
+                onActiveFocusChanged: {
+                    if (activeFocus)
+                         root.currentStateInternalId = internalNodeId
+                }
+
+                onEditingFinished: {
+                    if (stateNameField.oldValue === stateNameField.text)
+                        return
+
+                    stateNameField.oldValue = stateNameField.text
+
+                    if (stateNameField.text !== myRoot.delegateStateName)
+                        statesEditorModel.renameState(internalNodeId, stateNameField.text)
+                }
+
+                Component.onCompleted: {
+                    text = myRoot.delegateStateName
+                }
+            }
+
+            Text {
+                id: stateDefaultIndicator
+
+                anchors.right: parent.right
+                anchors.rightMargin: myRoot.previewMargin
+                anchors.verticalCenter: stateNameField.verticalCenter
+
+                color: Theme.color(Theme.DStextColor)
+                font.italic: true
+                font.pixelSize: StudioTheme.Values.myFontSize
+                font.family: StudioTheme.Constants.font
+
+                visible: (isDefaultState || (isBaseState && !modelHasDefaultState))
+
+                text: qsTr("Default")
+            }
         }
-        Image {
-            id: stateImage
-            anchors.centerIn: parent
-            source: delegateStateImageSource
-            sourceSize.width: delegateStateImageSize
-            sourceSize.height: delegateStateImageSize
+
+
+        Rectangle {
+            id: stateImageArea
+
+            width: myRoot.width - 2 * myRoot.stateMargin
+            height: myRoot.bottomAreaHeight
+
+            color: Theme.color(Theme.DShoverHighlight)
+
+            visible: expanded
+
+            Rectangle {
+                border.width: StudioTheme.Values.border
+                border.color: Theme.color(Theme.DSsliderActiveTrackFocus)
+                color: Theme.color(Theme.DSsliderInactiveTrack)
+
+                anchors.centerIn: parent
+
+                width: Math.round(stateImage.paintedWidth) + 2 * StudioTheme.Values.border
+                height: Math.round(stateImage.paintedHeight) + 2 * StudioTheme.Values.border
+            }
+            Image {
+                id: stateImage
+
+                anchors.margins: myRoot.previewMargin
+                anchors.centerIn: parent
+                anchors.fill: parent
+                source: delegateStateImageSource
+                sourceSize.width: delegateStateImageSize
+                sourceSize.height: delegateStateImageSize
+                fillMode: Image.PreserveAspectFit
+            }
         }
-    }
-
-    Text {
-        id: stateDefaultIndicator
-        anchors.left: parent.left
-        anchors.leftMargin: StudioTheme.Values.height
-        anchors.right: removeStateButton.left
-        anchors.rightMargin: 4
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 4
-
-        color: Theme.color(Theme.PanelTextColorLight)
-        font.italic: true
-        font.pixelSize: Theme.smallFontPixelSize()
-
-        visible: expanded && (isDefaultState || (isBaseState && !modelHasDefaultState))
-
-        text: ("* " + qsTr("Default"))
     }
 
     BindingEditor {
+        id: bindingEditor
+
         property string newWhenCondition
 
         property Timer timer: Timer {
@@ -231,8 +305,6 @@ Rectangle {
             repeat: false
             onTriggered: statesEditorModel.setWhenCondition(internalNodeId, bindingEditor.newWhenCondition)
         }
-
-        id: bindingEditor
 
         stateModelNodeProperty: statesEditorModel.stateModelNode()
 

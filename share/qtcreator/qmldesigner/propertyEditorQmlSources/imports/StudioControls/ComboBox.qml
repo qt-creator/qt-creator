@@ -46,7 +46,9 @@ T.ComboBox {
 
     property alias textInput: comboBoxInput
 
-    signal compressedActivated(int index)
+    signal compressedActivated(int index, int reason)
+
+    enum ActivatedReason { EditingFinished, Other }
 
     width: StudioTheme.Values.squareComponentWidth * 5
     height: StudioTheme.Values.height
@@ -81,7 +83,8 @@ T.ComboBox {
             if (myComboBox.dirty) {
                 myTimer.stop()
                 myComboBox.dirty = false
-                myComboBox.compressedActivated(myComboBox.find(myComboBox.editText))
+                myComboBox.compressedActivated(myComboBox.find(myComboBox.editText),
+                                               ComboBox.ActivatedReason.EditingFinished)
             }
         }
         onTextEdited: myComboBox.dirty = true
@@ -114,7 +117,8 @@ T.ComboBox {
         repeat: false
         running: false
         interval: 100
-        onTriggered: myComboBox.compressedActivated(myTimer.activatedIndex)
+        onTriggered: myComboBox.compressedActivated(myTimer.activatedIndex,
+                                                    ComboBox.ActivatedReason.Other)
     }
 
     onActivated: {

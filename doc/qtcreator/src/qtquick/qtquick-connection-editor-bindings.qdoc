@@ -65,4 +65,10 @@
         \li Double-click the value in the \uicontrol {Source Property} column
             to select the property to bind the target property to.
     \endlist
+
+    Right-click a binding and select \uicontrol {Open Binding Editor} in
+    the context menu to specify the binding as a JavaScript expression in
+    \uicontrol {Binding Editor}. For more information, see \l{Setting Bindings}.
+
+    \image qmldesigner-binding-editor.png "Binding Editor"
 */

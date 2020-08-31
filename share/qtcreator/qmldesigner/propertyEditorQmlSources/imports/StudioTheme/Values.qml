@@ -122,6 +122,8 @@ QtObject {
     property string themeTabDark: Theme.color(Theme.QmlDesigner_TabDark)
     property string themeTabLight: Theme.color(Theme.QmlDesigner_TabLight)
 
+    property string themeStateDefaultHighlight: "#ffe400"
+
     // Taken out of Constants.js
     property string themeChangedStateText: Theme.color(Theme.DSchangedStateText)
 
