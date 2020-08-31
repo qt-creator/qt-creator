@@ -25,15 +25,20 @@
 
 #include "nimbuildsystem.h"
 
+#include "nimconstants.h"
 #include "nimproject.h"
 #include "nimbleproject.h"
 #include "nimprojectnode.h"
 
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
+#include <projectexplorer/kitinformation.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+
+#include <QStandardPaths>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -189,6 +194,22 @@ void NimBuildSystem::triggerParsing()
 {
     m_guard = guardParsingRun();
     m_projectScanner.startScan();
+}
+
+FilePath NimBuildSystem::nimPathFromKit() const
+{
+    auto tc = ToolChainKitAspect::toolChain(kit(), Constants::C_NIMLANGUAGE_ID);
+    QTC_ASSERT(tc, return {});
+    const FilePath command = tc->compilerCommand();
+    return command.isEmpty() ? FilePath() : command.absolutePath();
+}
+
+QString NimBuildSystem::defaultNimble() const
+{
+    const QString nimbleFromPath = QStandardPaths::findExecutable("nimble");
+    const FilePath nimPath = nimPathFromKit();
+    const FilePath nimbleFromKit = nimPath.pathAppended(HostOsInfo::withExecutableSuffix("nimble"));
+    return nimbleFromKit.exists() ? nimbleFromKit.canonicalPath().toUserOutput() : nimbleFromPath;
 }
 
 void NimBuildSystem::loadSettings()

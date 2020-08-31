@@ -26,6 +26,8 @@
 #include "nimblebuildstep.h"
 #include "nimconstants.h"
 #include "nimbleproject.h"
+#include "nimbuildsystem.h"
+#include "nimtoolchain.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/ioutputparser.h>
@@ -105,10 +107,15 @@ NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList, Id id)
     m_arguments->setArguments(defaultArguments());
 
     setCommandLineProvider([this] {
-        return CommandLine(QStandardPaths::findExecutable("nimble"),
-                            {"build", m_arguments->arguments(macroExpander())});
+        auto bs = static_cast<NimBuildSystem *>(buildSystem());
+        return CommandLine(bs->defaultNimble(),
+                           {"build", m_arguments->arguments(macroExpander())});
     });
     setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });
+    setEnvironmentModifier([this](Environment &env) {
+        auto bs = static_cast<NimBuildSystem *>(buildSystem());
+        env.appendOrSetPath(bs->nimPathFromKit().toUserOutput());
+    });
 
     QTC_ASSERT(buildConfiguration(), return);
     QObject::connect(buildConfiguration(), &BuildConfiguration::buildTypeChanged,

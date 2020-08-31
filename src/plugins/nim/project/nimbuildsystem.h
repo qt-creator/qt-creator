@@ -86,6 +86,9 @@ public:
 
     void triggerParsing() override;
 
+    Utils::FilePath nimPathFromKit() const;
+    QString defaultNimble() const;
+
 protected:
     void loadSettings();
     void saveSettings();
