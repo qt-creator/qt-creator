@@ -41,40 +41,20 @@ public:
 
     NimCompilerBuildStep(ProjectExplorer::BuildStepList *parentList, Utils::Id id);
 
+    void setBuildType(ProjectExplorer::BuildConfiguration::BuildType buildType);
+    Utils::FilePath outFilePath() const;
+
+private:
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
-    QStringList userCompilerOptions() const;
-    void setUserCompilerOptions(const QStringList &options);
-
-    DefaultBuildOptions defaultCompilerOptions() const;
-    void setDefaultCompilerOptions(DefaultBuildOptions options);
-
-    Utils::FilePath targetNimFile() const;
-    void setTargetNimFile(const Utils::FilePath &targetNimFile);
-
-    Utils::FilePath outFilePath() const;
-
-signals:
-    void userCompilerOptionsChanged(const QStringList &options);
-    void defaultCompilerOptionsChanged(DefaultBuildOptions options);
-    void targetNimFileChanged(const Utils::FilePath &targetNimFile);
-    void processParametersChanged();
-    void outFilePathChanged(const Utils::FilePath &outFilePath);
-
-private:
-    void setOutFilePath(const Utils::FilePath &outFilePath);
-
-    void updateOutFilePath();
-    void updateProcessParameters();
-    void updateCommand();
-    void updateWorkingDirectory();
-    void updateEnvironment();
+    bool init() override;
 
     void updateTargetNimFile();
+    Utils::CommandLine commandLine();
 
     DefaultBuildOptions m_defaultOptions;
     QStringList m_userCompilerOptions;
