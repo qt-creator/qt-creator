@@ -354,6 +354,9 @@ bool PersistentSettingsReader::load(const FilePath &fileName)
     m_valueMap.clear();
 
     QFile file(fileName.toString());
+    if (file.size() == 0) // skip empty files
+        return false;
+
     if (!file.open(QIODevice::ReadOnly|QIODevice::Text))
         return false;
     ParseContext ctx;
