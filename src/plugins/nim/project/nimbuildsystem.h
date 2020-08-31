@@ -93,8 +93,6 @@ protected:
     void loadSettings();
     void saveSettings();
 
-    void collectProjectFiles();
-
     ParseGuard m_guard;
     NimProjectScanner m_projectScanner;
 };
