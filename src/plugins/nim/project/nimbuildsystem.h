@@ -30,7 +30,12 @@
 
 #include <utils/filesystemwatcher.h>
 
+namespace ProjectExplorer { class Kit; }
+
 namespace Nim {
+
+Utils::FilePath nimPathFromKit(ProjectExplorer::Kit *kit);
+Utils::FilePath nimblePathFromKit(ProjectExplorer::Kit *kit);
 
 class NimProjectScanner : public QObject
 {
@@ -85,9 +90,6 @@ public:
                     const QString &filePath, const QString &newFilePath) final;
 
     void triggerParsing() override;
-
-    Utils::FilePath nimPathFromKit() const;
-    QString defaultNimble() const;
 
 protected:
     void loadSettings();

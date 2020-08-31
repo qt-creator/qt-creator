@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "nimblebuildsystem.h"
+
+#include "nimbuildsystem.h"
 #include "nimbleproject.h"
 #include "nimproject.h"
 
@@ -46,7 +48,7 @@ static std::vector<NimbleTask> parseTasks(const QString &nimblePath, const QStri
 {
     QProcess process;
     process.setWorkingDirectory(workingDirectory);
-    process.start(QStandardPaths::findExecutable(nimblePath), {"tasks"});
+    process.start(nimblePath, {"tasks"});
     process.waitForFinished();
 
     std::vector<NimbleTask> result;
@@ -145,8 +147,9 @@ void NimbleBuildSystem::triggerParsing()
 void NimbleBuildSystem::updateProject()
 {
     const FilePath projectDir = projectDirectory();
+    const FilePath nimble = Nim::nimblePathFromKit(kit());
 
-    m_metadata = parseMetadata(QStandardPaths::findExecutable("nimble"), projectDir.toString());
+    m_metadata = parseMetadata(nimble.toString(), projectDir.toString());
     const FilePath binDir = projectDir.pathAppended(m_metadata.binDir);
     const FilePath srcDir = projectDir.pathAppended("src");
 
@@ -162,7 +165,7 @@ void NimbleBuildSystem::updateProject()
 
     setApplicationTargets(std::move(targets));
 
-    std::vector<NimbleTask> tasks = parseTasks(QStandardPaths::findExecutable("nimble"), projectDir.toString());
+    std::vector<NimbleTask> tasks = parseTasks(nimble.toString(), projectDir.toString());
     if (tasks != m_tasks) {
         m_tasks = std::move(tasks);
         emit tasksChanged();

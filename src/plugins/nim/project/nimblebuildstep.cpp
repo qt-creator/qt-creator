@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "nimblebuildstep.h"
+
 #include "nimconstants.h"
 #include "nimbleproject.h"
 #include "nimbuildsystem.h"
@@ -34,6 +35,7 @@
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/target.h>
 
 #include <QRegularExpression>
 #include <QStandardPaths>
@@ -107,14 +109,12 @@ NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList, Id id)
     m_arguments->setArguments(defaultArguments());
 
     setCommandLineProvider([this] {
-        auto bs = static_cast<NimBuildSystem *>(buildSystem());
-        return CommandLine(bs->defaultNimble(),
+        return CommandLine(Nim::nimblePathFromKit(target()->kit()),
                            {"build", m_arguments->arguments(macroExpander())});
     });
     setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });
     setEnvironmentModifier([this](Environment &env) {
-        auto bs = static_cast<NimBuildSystem *>(buildSystem());
-        env.appendOrSetPath(bs->nimPathFromKit().toUserOutput());
+        env.appendOrSetPath(Nim::nimPathFromKit(target()->kit()).toUserOutput());
     });
 
     QTC_ASSERT(buildConfiguration(), return);

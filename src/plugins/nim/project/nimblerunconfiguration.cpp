@@ -25,12 +25,10 @@
 
 #include "nimblerunconfiguration.h"
 
-#include "nimbuildsystem.h"
+#include "nimblebuildsystem.h"
 #include "nimconstants.h"
 #include "nimbleproject.h"
 
-#include <projectexplorer/buildstep.h>
-#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
@@ -91,14 +89,7 @@ public:
     NimbleTestConfiguration(ProjectExplorer::Target *target, Utils::Id id)
         : RunConfiguration(target, id)
     {
-        QString nimble;
-        auto bc = this->target()->activeBuildConfiguration();
-        auto nimbleBuildStep = bc->buildSteps()->firstStepWithId(Constants::C_NIMBLEBUILDSTEP_ID);
-        if (nimbleBuildStep && nimbleBuildStep->buildSystem()) {
-            nimble = static_cast<NimBuildSystem *>(nimbleBuildStep->buildSystem())->defaultNimble();
-        }
-
-        addAspect<ExecutableAspect>()->setExecutable(Utils::FilePath::fromString(nimble));
+        addAspect<ExecutableAspect>()->setExecutable(Nim::nimblePathFromKit(target->kit()));
         addAspect<ArgumentsAspect>()->setArguments("test");
         addAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(project()->projectDirectory());
         addAspect<TerminalAspect>();

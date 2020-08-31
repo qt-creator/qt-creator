@@ -196,20 +196,21 @@ void NimBuildSystem::triggerParsing()
     m_projectScanner.startScan();
 }
 
-FilePath NimBuildSystem::nimPathFromKit() const
+FilePath nimPathFromKit(Kit *kit)
 {
-    auto tc = ToolChainKitAspect::toolChain(kit(), Constants::C_NIMLANGUAGE_ID);
+    auto tc = ToolChainKitAspect::toolChain(kit, Constants::C_NIMLANGUAGE_ID);
     QTC_ASSERT(tc, return {});
     const FilePath command = tc->compilerCommand();
     return command.isEmpty() ? FilePath() : command.absolutePath();
 }
 
-QString NimBuildSystem::defaultNimble() const
+FilePath nimblePathFromKit(Kit *kit)
 {
+    // There's no extra setting for "nimble", derive it from the "nim" path.
     const QString nimbleFromPath = QStandardPaths::findExecutable("nimble");
-    const FilePath nimPath = nimPathFromKit();
+    const FilePath nimPath = nimPathFromKit(kit);
     const FilePath nimbleFromKit = nimPath.pathAppended(HostOsInfo::withExecutableSuffix("nimble"));
-    return nimbleFromKit.exists() ? nimbleFromKit.canonicalPath().toUserOutput() : nimbleFromPath;
+    return nimbleFromKit.exists() ? nimbleFromKit.canonicalPath() : FilePath::fromString(nimbleFromPath);
 }
 
 void NimBuildSystem::loadSettings()
