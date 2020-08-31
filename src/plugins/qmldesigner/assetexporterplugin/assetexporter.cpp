@@ -26,6 +26,8 @@
 #include "componentexporter.h"
 #include "exportnotification.h"
 
+#include "designdocument.h"
+#include "qmldesignerplugin.h"
 #include "rewriterview.h"
 #include "qmlitemnode.h"
 #include "qmlobjectnode.h"
@@ -163,7 +165,6 @@ void AssetExporter::exportComponent(const ModelNode &rootNode)
     Component exporter(*this, rootNode);
     exporter.exportComponent();
     m_components.append(exporter.json());
-    notifyProgress((m_totalFileCount - m_exportFiles.count()) * 0.8 / m_totalFileCount);
 }
 
 void AssetExporter::notifyLoadError(AssetExporterView::LoadState state)
@@ -192,12 +193,22 @@ void AssetExporter::onQmlFileLoaded()
 {
     QTC_ASSERT(m_view && m_view->model(), qCDebug(loggerError) << "Null model"; return);
     qCDebug(loggerInfo) << "Qml file load done" << m_view->model()->fileUrl();
-    exportComponent(m_view->rootModelNode());
-    QString error;
-    if (!m_view->saveQmlFile(&error)) {
-        ExportNotification::addError(tr("Error saving QML file. %1")
-                                     .arg(error.isEmpty()? tr("Unknown") : error));
+
+    QmlDesigner::DesignDocument *designDocument = QmlDesigner::QmlDesignerPlugin::instance()
+                                                          ->documentManager()
+                                                          .currentDesignDocument();
+    if (designDocument->hasQmlParseErrors()) {
+        ExportNotification::addError(tr("Cannot export QML. Document \"%1\" have parsing errors.")
+                                     .arg(designDocument->displayName()));
+    } else {
+        exportComponent(m_view->rootModelNode());
+        QString error;
+        if (!m_view->saveQmlFile(&error)) {
+            ExportNotification::addError(tr("Error saving QML file. %1")
+                                         .arg(error.isEmpty()? tr("Unknown") : error));
+        }
     }
+    notifyProgress((m_totalFileCount - m_exportFiles.count()) * 0.8 / m_totalFileCount);
     triggerLoadNextFile();
 }
 
