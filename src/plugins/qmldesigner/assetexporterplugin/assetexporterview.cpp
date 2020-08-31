@@ -154,8 +154,10 @@ void AssetExporterView::handleTimerTimeout()
 
 }
 
+QT_BEGIN_NAMESPACE
 QDebug operator<<(QDebug os, const QmlDesigner::AssetExporterView::LoadState &s)
 {
     os << static_cast<std::underlying_type<QmlDesigner::AssetExporterView::LoadState>::type>(s);
     return os;
 }
+QT_END_NAMESPACE
