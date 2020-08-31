@@ -28,11 +28,11 @@
 #include <QListWidget>
 #include <QWidget>
 
-namespace Ui {
-class MesonBuildStepConfigWidget;
-}
 namespace MesonProjectManager {
 namespace Internal {
+
+namespace Ui { class MesonBuildStepConfigWidget; }
+
 class MesonBuildStepConfigWidget final : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_DECLARE_TR_FUNCTIONS(MesonProjectManager::Internal::MesonBuildStepConfigWidget)
