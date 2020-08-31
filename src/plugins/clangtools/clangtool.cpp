@@ -200,8 +200,6 @@ public:
     class RefactoringFileInfo
     {
     public:
-        bool isValid() const { return file.isValid(); }
-
         FixitsRefactoringFile file;
         QVector<DiagnosticItem *> diagnosticItems;
         bool hasScheduledFixits = false;
@@ -215,8 +213,6 @@ public:
 
             // Get or create refactoring file
             RefactoringFileInfo &fileInfo = m_refactoringFileInfos[filePath];
-            if (!fileInfo.isValid())
-                fileInfo.file = FixitsRefactoringFile(filePath);
 
             // Append item
             fileInfo.diagnosticItems += diagnosticItem;

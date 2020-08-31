@@ -75,12 +75,8 @@ static QDebug operator<<(QDebug debug, const ReplacementOperation &op)
 
 bool FixitsRefactoringFile::apply()
 {
-    qCDebug(fixitsLog) << "Applying fixits for" << m_filePath;
-
     if (m_replacementOperations.isEmpty())
         return false; // Error nothing to apply TODO: Is this correct to return?
-
-    QTC_ASSERT(!m_filePath.isEmpty(), return false);
 
     ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(
         CppTools::Constants::CPP_SETTINGS_ID);

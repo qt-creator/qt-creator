@@ -54,10 +54,8 @@ class FixitsRefactoringFile
 {
 public:
     FixitsRefactoringFile() = default;
-    FixitsRefactoringFile(const QString &filePath) : m_filePath(filePath) {}
     ~FixitsRefactoringFile() { qDeleteAll(m_documents); }
 
-    bool isValid() const { return !m_filePath.isEmpty(); }
     int position(const QString &filePath, unsigned line, unsigned column) const;
 
     void setReplacements(const ReplacementOperations &ops) { m_replacementOperations = ops; }
@@ -78,7 +76,6 @@ private:
                          const Utils::Text::Replacements &replacements,
                          int startIndex) const;
 
-    QString m_filePath;
     mutable Utils::TextFileFormat m_textFileFormat;
     mutable QHash<QString, QTextDocument *> m_documents;
     ReplacementOperations m_replacementOperations; // Not owned.
