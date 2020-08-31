@@ -153,12 +153,13 @@ Section {
             italic: fontSection.italicStyle
             underline: fontSection.underlineStyle
             strikeout: fontSection.strikeoutStyle
-            enabled: !styleComboBox.styleSet
+            enabled: !styleNameComboBox.styleSet
         }
 
         Label {
             text: qsTr("Font capitalization")
             toolTip: qsTr("Sets the capitalization for the text.")
+            disabledState: !getBackendValue("capitalization").isAvailable
         }
 
         ComboBox {
@@ -166,6 +167,7 @@ Section {
             backendValue: getBackendValue("capitalization")
             model:  ["MixedCase", "AllUppercase", "AllLowercase", "SmallCaps", "Capitalize"]
             scope: "Font"
+            enabled: backendValue.isAvailable
         }
 
         Label {
@@ -178,38 +180,45 @@ Section {
             backendValue: getBackendValue("weight")
             model:  ["Normal", "Light", "ExtraLight", "Thin", "Medium", "DemiBold", "Bold", "ExtraBold", "Black"]
             scope: "Font"
-            enabled: !styleComboBox.styleSet
+            enabled: !styleNameComboBox.styleSet
         }
 
         Label {
             text: qsTr("Style name")
             toolTip: qsTr("Sets the font's style.")
+            disabledState: !styleNameComboBox.enabled
         }
 
         ComboBox {
-            id: styleComboBox
+            id: styleNameComboBox
             property bool styleSet: backendValue.isInModel
             Layout.fillWidth: true
             backendValue: getBackendValue("styleName")
             model: styleNamesForFamily(fontComboBox.familyName)
             valueType: ComboBox.String
+            enabled: backendValue.isAvailable
         }
 
         Label {
             visible: showStyle
             text: qsTr("Style")
+            disabledState: !styleComboBox.enabled
         }
 
         ComboBox {
+            id: styleComboBox
             visible: showStyle
             Layout.fillWidth: true
             backendValue: (backendValues.style === undefined) ? dummyBackendValue : backendValues.style
             model:  ["Normal", "Outline", "Raised", "Sunken"]
             scope: "Text"
+            enabled: backendValue.isAvailable
         }
 
         Label {
             text: qsTr("Spacing")
+            disabledState: (!getBackendValue("wordSpacing").isAvailable &&
+                            !getBackendValue("letterSpacing").isAvailable)
         }
 
         SecondColumnLayout {
@@ -222,17 +231,18 @@ Section {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 60
                 stepSize: 0.1
+                enabled: backendValue.isAvailable
             }
             Label {
                 text: qsTr("Word")
                 tooltip: qsTr("Sets the word spacing for the font.")
                 width: 42
+                disabledState: !getBackendValue("wordSpacing").isAvailable
             }
             Item {
                 width: 4
                 height: 4
             }
-
 
             SpinBox {
                 maximumValue: 500
@@ -242,17 +252,21 @@ Section {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 60
                 stepSize: 0.1
+                enabled: backendValue.isAvailable
             }
             Label {
                 text: qsTr("Letter")
                 tooltip: qsTr("Sets the letter spacing for the font.")
                 width: 42
+                disabledState: !getBackendValue("letterSpacing").isAvailable
             }
         }
 
         Label {
             visible:  minorQtQuickVersion > 9
             text: qsTr("Performance")
+            disabledState: (!getBackendValue("kerning").isAvailable &&
+                            !getBackendValue("preferShaping").isAvailable)
         }
 
         SecondColumnLayout {
@@ -264,6 +278,7 @@ Section {
                 backendValue: getBackendValue("kerning")
                 tooltip: qsTr("Enables or disables the kerning OpenType feature when shaping the text. Disabling this may " +
                               "improve performance when creating or changing the text, at the expense of some cosmetic features. The default value is true.")
+                enabled: backendValue.isAvailable
             }
 
             CheckBox {
@@ -273,12 +288,14 @@ Section {
                 tooltip: qsTr("Sometimes, a font will apply complex rules to a set of characters in order to display them correctly.\n" +
                               "In some writing systems, such as Brahmic scripts, this is required in order for the text to be legible, whereas in " +
                               "Latin script,\n it is merely a cosmetic feature. Setting the preferShaping property to false will disable all such features\nwhen they are not required, which will improve performance in most cases.")
+                enabled: backendValue.isAvailable
             }
         }
 
         Label {
             text: qsTr("Hinting preference")
             toolTip: qsTr("Sets the preferred hinting on the text.")
+            disabledState: !getBackendValue("hintingPreference").isAvailable
         }
 
         ComboBox {
@@ -286,6 +303,7 @@ Section {
             backendValue: getBackendValue("hintingPreference")
             model: ["PreferDefaultHinting", "PreferNoHinting", "PreferVerticalHinting", "PreferFullHinting"]
             scope: "Font"
+            enabled: backendValue.isAvailable
         }
     }
 }

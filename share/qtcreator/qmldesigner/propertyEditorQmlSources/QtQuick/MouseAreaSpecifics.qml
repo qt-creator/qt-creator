@@ -40,6 +40,7 @@ Column {
             Label {
                 text: qsTr("Enabled")
                 tooltip: qsTr("This property holds whether the item accepts mouse events.")
+                disabledState: !backendValues.enabled.isAvailable
             }
 
             SecondColumnLayout {
@@ -47,6 +48,7 @@ Column {
                     Layout.fillWidth: true
                     backendValue: backendValues.enabled
                     text: backendValues.enabled.valueToString
+                    enabled: backendValue.isAvailable
                 }
 
                 ExpandingSpacer {
@@ -56,6 +58,7 @@ Column {
             Label {
                 text: qsTr("Hover enabled")
                 tooltip: qsTr("This property holds whether hover events are handled.")
+                disabledState: !backendValues.hoverEnabled.isAvailable
             }
 
             SecondColumnLayout {
@@ -63,6 +66,7 @@ Column {
                     Layout.fillWidth: true
                     backendValue: backendValues.hoverEnabled
                     text: backendValues.hoverEnabled.valueToString
+                    enabled: backendValue.isAvailable
                 }
 
                 ExpandingSpacer {
@@ -72,6 +76,7 @@ Column {
             Label {
                 text: qsTr("Accepted buttons")
                 tooltip: qsTr("This property holds the mouse buttons that the mouse area reacts to.")
+                disabledState: !backendValues.acceptedButtons.isAvailable
             }
 
             SecondColumnLayout {
@@ -80,6 +85,7 @@ Column {
                     model: ["LeftButton", "RightButton", "MiddleButton", "BackButton", "ForwardButton", "AllButtons"]
                     Layout.fillWidth: true
                     scope: "Qt"
+                    enabled: backendValue.isAvailable
                 }
                 ExpandingSpacer {
                 }
@@ -104,6 +110,7 @@ Column {
             Label {
                 text: qsTr("Scroll gesture enabled")
                 tooltip: qsTr("This property controls whether this MouseArea responds to scroll gestures from non-mouse devices.")
+                disabledState: !backendValues.scrollGestureEnabled.isAvailable
             }
 
             SecondColumnLayout {
@@ -111,6 +118,7 @@ Column {
                     Layout.fillWidth: true
                     backendValue: backendValues.scrollGestureEnabled
                     text: backendValues.scrollGestureEnabled.valueToString
+                    enabled: backendValue.isAvailable
                 }
 
                 ExpandingSpacer {
@@ -120,6 +128,7 @@ Column {
             Label {
                 text: qsTr("Cursor shape")
                 tooltip: qsTr("This property holds the cursor shape for this mouse area.")
+                disabledState: !backendValues.cursorShape.isAvailable
             }
 
             SecondColumnLayout {
@@ -133,6 +142,7 @@ Column {
                             "DragMoveCursor", "DragLinkCursor"]
                     Layout.fillWidth: true
                     scope: "Qt"
+                    enabled: backendValue.isAvailable
                 }
                 ExpandingSpacer {
                 }
@@ -141,6 +151,7 @@ Column {
             Label {
                 text: qsTr("Prevent stealing")
                 tooltip: qsTr("This property controls whether the mouse events may be stolen from this MouseArea.")
+                disabledState: !backendValues.preventStealing.isAvailable
             }
 
             SecondColumnLayout {
@@ -148,6 +159,7 @@ Column {
                     Layout.fillWidth: true
                     backendValue: backendValues.preventStealing
                     text: backendValues.preventStealing.valueToString
+                    enabled: backendValue.isAvailable
                 }
 
                 ExpandingSpacer {
@@ -157,6 +169,7 @@ Column {
             Label {
                 text: qsTr("Propagate composed events")
                 tooltip: qsTr("This property controls whether composed mouse events will automatically propagate to other MouseAreas.")
+                disabledState: !backendValues.propagateComposedEvents.isAvailable
             }
 
             SecondColumnLayout {
@@ -164,6 +177,7 @@ Column {
                     Layout.fillWidth: true
                     backendValue: backendValues.propagateComposedEvents
                     text: backendValues.propagateComposedEvents.valueToString
+                    enabled: backendValue.isAvailable
                 }
 
                 ExpandingSpacer {
@@ -176,6 +190,7 @@ Column {
         anchors.left: parent.left
         anchors.right: parent.right
         caption: qsTr("Drag")
+        visible: backendValues.drag_target.isAvailable
 
         SectionLayout {
             Label {

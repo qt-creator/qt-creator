@@ -42,6 +42,7 @@ Section {
 
         Label {
             text: qsTr("Flick direction")
+            disabledState: !backendValues.flickableDirection.isAvailable
         }
 
         SecondColumnLayout {
@@ -50,6 +51,7 @@ Section {
                 model: ["AutoFlickDirection", "AutoFlickIfNeeded", "HorizontalFlick", "VerticalFlick", "HorizontalAndVerticalFlick"]
                 Layout.fillWidth: true
                 scope: "Flickable"
+                enabled: backendValue.isAvailable
             }
             ExpandingSpacer {
             }
@@ -58,6 +60,7 @@ Section {
         Label {
             text: qsTr("Behavior")
             tooltip: qsTr("Determines whether the surface may be dragged beyond the Flickable's boundaries, or overshoot the Flickable's boundaries when flicked.")
+            disabledState: !backendValues.boundsBehavior.isAvailable
         }
 
         SecondColumnLayout {
@@ -66,6 +69,7 @@ Section {
                 model: ["StopAtBounds", "DragOverBounds", "OvershootBounds", "DragAndOvershootBounds"]
                 Layout.fillWidth: true
                 scope: "Flickable"
+                enabled: backendValue.isAvailable
             }
             ExpandingSpacer {
             }
@@ -75,6 +79,7 @@ Section {
         Label {
             text: qsTr("Movement")
             tooltip: qsTr("Determines whether the Flickable will give a feeling that the edges of the view are soft, rather than a hard physical boundary.")
+            disabledState: !backendValues.boundsMovement.isAvailable
         }
 
         SecondColumnLayout {
@@ -83,6 +88,7 @@ Section {
                 model: ["FollowBoundsBehavior", "StopAtBounds"]
                 Layout.fillWidth: true
                 scope: "Flickable"
+                enabled: backendValue.isAvailable
             }
             ExpandingSpacer {
             }
@@ -122,6 +128,7 @@ Section {
         Label {
             text: qsTr("Deceleration")
             tooltip: qsTr("Flick deceleration")
+            disabledState: !backendValues.flickDeceleration.isAvailable
         }
 
         SecondColumnLayout {
@@ -130,6 +137,7 @@ Section {
                 minimumValue: 0
                 maximumValue: 8000
                 decimals: 0
+                enabled: backendValue.isAvailable
             }
             ExpandingSpacer {
             }
@@ -138,6 +146,7 @@ Section {
         Label {
             text: qsTr("Press delay")
             tooltip: qsTr("Holds the time to delay (ms) delivering a press to children of the Flickable.")
+            disabledState: !backendValues.pressDelay.isAvailable
         }
 
         SecondColumnLayout {
@@ -146,6 +155,7 @@ Section {
                 minimumValue: 0
                 maximumValue: 2000
                 decimals: 0
+                enabled: backendValue.isAvailable
             }
             ExpandingSpacer {
             }
@@ -154,6 +164,7 @@ Section {
         Label {
             text: qsTr("Pixel aligned")
             tooltip: qsTr("Sets the alignment of contentX and contentY to pixels (true) or subpixels (false).")
+            disabledState: !backendValues.pixelAligned.isAvailable
         }
 
         SecondColumnLayout {
@@ -161,6 +172,7 @@ Section {
                 Layout.fillWidth: true
                 backendValue: backendValues.pixelAligned
                 text: backendValues.pixelAligned.valueToString
+                enabled: backendValue.isAvailable
             }
             ExpandingSpacer {
             }
@@ -171,6 +183,7 @@ Section {
             tooltip: qsTr("If set to true, then when the mouse or touchpoint moves far enough to begin dragging\n"
                           + "the content, the content will jump, such that the content pixel which was under the\n"
                           + "cursor or touchpoint when pressed remains under that point.")
+            disabledState: !backendValues.synchronousDrag.isAvailable
         }
 
         SecondColumnLayout {
@@ -178,6 +191,7 @@ Section {
                 Layout.fillWidth: true
                 backendValue: backendValues.synchronousDrag
                 text: backendValues.synchronousDrag.valueToString
+                enabled: backendValue.isAvailable
             }
             ExpandingSpacer {
             }
@@ -265,12 +279,15 @@ Section {
 
         Label {
             text: qsTr("Origin")
+            disabledState: (!backendValues.originX.isAvailable
+                            && !backendValues.originY.isAvailable)
         }
 
         SecondColumnLayout {
             Label {
                 text: "X"
                 width: root.labelWidth
+                disabledState: !backendValues.originX.isAvailable
             }
 
             SpinBox {
@@ -279,6 +296,7 @@ Section {
                 maximumValue: 8000
                 implicitWidth: root.spinBoxWidth
                 Layout.fillWidth: true
+                enabled: backendValue.isAvailable
             }
 
             Item {
@@ -289,6 +307,7 @@ Section {
             Label {
                 text: "Y"
                 width: root.labelWidth
+                disabledState: !backendValues.originY.isAvailable
             }
 
             SpinBox {
@@ -297,6 +316,7 @@ Section {
                 maximumValue: 8000
                 implicitWidth: root.spinBoxWidth
                 Layout.fillWidth: true
+                enabled: backendValue.isAvailable
             }
             ExpandingSpacer {
             }
@@ -304,6 +324,10 @@ Section {
 
         Label {
             text: qsTr("Margins")
+            disabledState: (!backendValues.topMargin.isAvailable
+                            && !backendValues.bottomMargin.isAvailable
+                            && !backendValues.leftMargin.isAvailable
+                            && !backendValues.rightMargin.isAvailable)
         }
 
         SecondColumnLayout {
@@ -312,6 +336,7 @@ Section {
             Label {
                 text: "Top"
                 width: root.labelWidth
+                disabledState: !backendValues.topMargin.isAvailable
             }
 
             SpinBox {
@@ -321,6 +346,7 @@ Section {
                 decimals: 0
                 implicitWidth: root.spinBoxWidth
                 Layout.fillWidth: true
+                enabled: backendValue.isAvailable
             }
 
             Item {
@@ -331,6 +357,7 @@ Section {
             Label {
                 text: "Bottom"
                 width: root.labelWidth
+                disabledState: !backendValues.bottomMargin.isAvailable
             }
 
             SpinBox {
@@ -340,6 +367,7 @@ Section {
                 decimals: 0
                 implicitWidth: root.spinBoxWidth
                 Layout.fillWidth: true
+                enabled: backendValue.isAvailable
             }
             ExpandingSpacer {
             }
@@ -355,6 +383,7 @@ Section {
             Label {
                 text: "Left"
                 width: root.labelWidth
+                disabledState: !backendValues.leftMargin.isAvailable
             }
 
             SpinBox {
@@ -364,6 +393,7 @@ Section {
                 decimals: 0
                 implicitWidth: root.spinBoxWidth
                 Layout.fillWidth: true
+                enabled: backendValue.isAvailable
             }
 
             Item {
@@ -374,6 +404,7 @@ Section {
             Label {
                 text: "Right"
                 width: root.labelWidth
+                disabledState: !backendValues.rightMargin.isAvailable
             }
 
             SpinBox {
@@ -383,6 +414,7 @@ Section {
                 decimals: 0
                 implicitWidth: root.spinBoxWidth
                 Layout.fillWidth: true
+                enabled: backendValue.isAvailable
             }
             ExpandingSpacer {
             }

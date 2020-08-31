@@ -271,21 +271,58 @@ static bool itemOrImage(const QmlDesigner::NodeMetaInfo &metaInfo)
     return false;
 }
 
+static QList<QByteArray> prepareNonMcuProperties()
+{
+    QList<QByteArray> result;
+
+    const QList<QByteArray> itemProperties = {"layer", "opacity", "gradient", "smooth", "antialiasing",
+                                              "border", "baselineOffset", "focus", "activeFocusOnTab"};
+    const QList<QByteArray> mouseAreaProperties = {"propagateComposedEvents", "preventStealing", "cursorShape",
+                                                   "scrollGestureEnabled", "drag", "acceptedButtons", "hoverEnabled"};
+    const QList<QByteArray> flickableProperties = {"boundsBehavior", "boundsMovement",
+                                                   "flickDeceleration", "flickableDirection",
+                                                   "leftMargin", "rightMargin", "bottomMargin", "topMargin",
+                                                   "originX", "originY",
+                                                   "pixelAligned", "pressDelay", "synchronousDrag"};
+    const QList<QByteArray> imageProperties = {"mirror", "mipmap",  "cache", "autoTransform", "asynchronous",
+                                              "sourceSize", "smooth"};
+    const QList<QByteArray> textProperties = {"elide", "lineHeight", "lineHeightMode", "wrapMode", "style",
+                                              "styleColor", "minimumPointSize", "minimumPixelSize", "styleColor",
+                                              "fontSizeMode", "renderType", "textFormat", "maximumLineCount"};
+
+    result.append(itemProperties);
+    result.append(mouseAreaProperties);
+    result.append(flickableProperties);
+    result.append(imageProperties);
+    result.append(textProperties);
+
+    return result;
+}
+
 bool PropertyEditorValue::isAvailable() const
 {
-    const QList<QByteArray> mcuProperties = {"layer", "opacity", "gradient", "smooth", "antialiasing"};
+    const QList<QByteArray> nonMcuProperties = prepareNonMcuProperties();
+
+    const QByteArray fontPrefix = {"font"};
+    const QList<QByteArray> nonMcuFontProperties = {"wordSpacing", "letterSpacing", "hintingPreference",
+                                                    "kerning", "preferShaping",  "capitalization",
+                                                    "strikeout", "underline", "styleName"};
 
     const QList<QByteArray> mcuTransformProperties = {"rotation", "scale", "transformOrigin"};
 
     const QList<QByteArray> list = name().split('.');
-    const QByteArray pureName = list.first();
+    const QByteArray pureName = list.constFirst();
 
     QmlDesigner::DesignDocument *designDocument = QmlDesigner::QmlDesignerPlugin::instance()
                                                       ->documentManager()
                                                       .currentDesignDocument();
 
     if (designDocument && designDocument->isQtForMCUsProject()) {
-        if (mcuProperties.contains(pureName))
+        if (pureName == fontPrefix) {
+            if (nonMcuFontProperties.contains(list.constLast()))
+                return false;
+        }
+        if (nonMcuProperties.contains(pureName))
             return false;
         if (mcuTransformProperties.contains(pureName) && !itemOrImage(m_modelNode.metaInfo()))
             return false;
