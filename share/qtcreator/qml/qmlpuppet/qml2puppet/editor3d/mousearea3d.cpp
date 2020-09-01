@@ -58,10 +58,7 @@ public:
         return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
     }
 
-    QVector3D toVec3() const
-    {
-        return QVector3D(float(x), float(y), float(z));
-    }
+    QVector3D toVec3() const { return {float(x), float(y), float(z)}; }
 
     DoubleVec3D normalized() const
     {
@@ -81,6 +78,8 @@ public:
         double len = x * x + y * y + z * z;
         return std::sqrt(len);
     }
+
+    DoubleVec3D operator-() { return {-x, -y, -z}; }
 
     double x = 0.;
     double y = 0.;
@@ -117,6 +116,268 @@ DoubleVec3D operator/(const DoubleVec3D &v, double div)
 DoubleVec3D operator/(const DoubleVec3D &v1, const DoubleVec3D &v2)
 {
     return DoubleVec3D(v1.x / v2.x, v1.y / v2.y, v1.z / v2.z);
+}
+
+// Limited functionality double precision matrix4x4 for cases where float calculations
+// can suffer from rounding errors
+class DoubleMat44 {
+public:
+    DoubleMat44()
+    {
+        // Default is identity matrix
+        m[0][0] = 1.;
+        m[0][1] = 0.;
+        m[0][2] = 0.;
+        m[0][3] = 0.;
+        m[1][0] = 0.;
+        m[1][1] = 1.;
+        m[1][2] = 0.;
+        m[1][3] = 0.;
+        m[2][0] = 0.;
+        m[2][1] = 0.;
+        m[2][2] = 1.;
+        m[2][3] = 0.;
+        m[3][0] = 0.;
+        m[3][1] = 0.;
+        m[3][2] = 0.;
+        m[3][3] = 1.;
+    }
+
+    DoubleMat44(const QMatrix4x4 &mat)
+    {
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j)
+                m[i][j] = double(mat(j, i));
+        }
+    }
+
+    QMatrix4x4 toQMatrix4x4()
+    {
+        return QMatrix4x4(float(m[0][0]), float(m[1][0]), float(m[2][0]), float(m[3][0]),
+                float(m[0][1]), float(m[1][1]), float(m[2][1]), float(m[3][1]),
+                float(m[0][2]), float(m[1][2]), float(m[2][2]), float(m[3][2]),
+                float(m[0][3]), float(m[1][3]), float(m[2][3]), float(m[3][3]));
+    }
+
+    static inline double matrixDet2(const double m[4][4], int col0, int col1, int row0,  int row1)
+    {
+        return m[col0][row0] * m[col1][row1] - m[col0][row1] * m[col1][row0];
+    }
+
+    static inline double matrixDet3(const double m[4][4], int col0, int col1, int col2,
+                                    int row0, int row1, int row2)
+    {
+        return m[col0][row0] * matrixDet2(m, col1, col2, row1, row2)
+                - m[col1][row0] * matrixDet2(m, col0, col2, row1, row2)
+                + m[col2][row0] * matrixDet2(m, col0, col1, row1, row2);
+    }
+
+    DoubleMat44 inverted()
+    {
+        DoubleMat44 inv;
+
+        double det = matrixDet3(m, 0, 1, 2, 0, 1, 2);
+        if (det != 0.) {
+            det = 1. / det;
+
+            inv.m[0][0] =  matrixDet2(m, 1, 2, 1, 2) * det;
+            inv.m[0][1] = -matrixDet2(m, 0, 2, 1, 2) * det;
+            inv.m[0][2] =  matrixDet2(m, 0, 1, 1, 2) * det;
+            inv.m[0][3] = 0;
+            inv.m[1][0] = -matrixDet2(m, 1, 2, 0, 2) * det;
+            inv.m[1][1] =  matrixDet2(m, 0, 2, 0, 2) * det;
+            inv.m[1][2] = -matrixDet2(m, 0, 1, 0, 2) * det;
+            inv.m[1][3] = 0;
+            inv.m[2][0] =  matrixDet2(m, 1, 2, 0, 1) * det;
+            inv.m[2][1] = -matrixDet2(m, 0, 2, 0, 1) * det;
+            inv.m[2][2] =  matrixDet2(m, 0, 1, 0, 1) * det;
+            inv.m[2][3] = 0;
+            inv.m[3][0] = -inv.m[0][0] * m[3][0] - inv.m[1][0] * m[3][1] - inv.m[2][0] * m[3][2];
+            inv.m[3][1] = -inv.m[0][1] * m[3][0] - inv.m[1][1] * m[3][1] - inv.m[2][1] * m[3][2];
+            inv.m[3][2] = -inv.m[0][2] * m[3][0] - inv.m[1][2] * m[3][1] - inv.m[2][2] * m[3][2];
+            inv.m[3][3] = 1;
+        }
+        return inv;
+    }
+
+    DoubleVec3D transform(const DoubleVec3D &v)
+    {
+        DoubleVec3D ret;
+
+        auto multCol = [&](int c, double d) {
+            ret.x += m[c][0] * d;
+            ret.y += m[c][1] * d;
+            ret.z += m[c][2] * d;
+        };
+
+        multCol(0, v.x);
+        multCol(1, v.y);
+        multCol(2, v.z);
+        multCol(3, 1.);
+
+        return ret;
+    }
+
+    static DoubleMat44 matrixMultiD(const QMatrix4x4& m1, const QMatrix4x4& m2)
+    {
+        DoubleMat44 m1d(m1);
+        DoubleMat44 m2d(m2);
+
+        return matrixMultiD(m1d, m2d);
+    }
+
+    static DoubleMat44 matrixMultiD(const DoubleMat44& m1, const DoubleMat44& m2)
+    {
+        DoubleMat44 m;
+
+        m.m[0][0] = m1.m[0][0] * m2.m[0][0]
+                  + m1.m[1][0] * m2.m[0][1]
+                  + m1.m[2][0] * m2.m[0][2]
+                  + m1.m[3][0] * m2.m[0][3];
+        m.m[0][1] = m1.m[0][1] * m2.m[0][0]
+                  + m1.m[1][1] * m2.m[0][1]
+                  + m1.m[2][1] * m2.m[0][2]
+                  + m1.m[3][1] * m2.m[0][3];
+        m.m[0][2] = m1.m[0][2] * m2.m[0][0]
+                  + m1.m[1][2] * m2.m[0][1]
+                  + m1.m[2][2] * m2.m[0][2]
+                  + m1.m[3][2] * m2.m[0][3];
+        m.m[0][3] = m1.m[0][3] * m2.m[0][0]
+                  + m1.m[1][3] * m2.m[0][1]
+                  + m1.m[2][3] * m2.m[0][2]
+                  + m1.m[3][3] * m2.m[0][3];
+
+        m.m[1][0] = m1.m[0][0] * m2.m[1][0]
+                  + m1.m[1][0] * m2.m[1][1]
+                  + m1.m[2][0] * m2.m[1][2]
+                  + m1.m[3][0] * m2.m[1][3];
+        m.m[1][1] = m1.m[0][1] * m2.m[1][0]
+                  + m1.m[1][1] * m2.m[1][1]
+                  + m1.m[2][1] * m2.m[1][2]
+                  + m1.m[3][1] * m2.m[1][3];
+        m.m[1][2] = m1.m[0][2] * m2.m[1][0]
+                  + m1.m[1][2] * m2.m[1][1]
+                  + m1.m[2][2] * m2.m[1][2]
+                  + m1.m[3][2] * m2.m[1][3];
+        m.m[1][3] = m1.m[0][3] * m2.m[1][0]
+                  + m1.m[1][3] * m2.m[1][1]
+                  + m1.m[2][3] * m2.m[1][2]
+                  + m1.m[3][3] * m2.m[1][3];
+
+        m.m[2][0] = m1.m[0][0] * m2.m[2][0]
+                  + m1.m[1][0] * m2.m[2][1]
+                  + m1.m[2][0] * m2.m[2][2]
+                  + m1.m[3][0] * m2.m[2][3];
+        m.m[2][1] = m1.m[0][1] * m2.m[2][0]
+                  + m1.m[1][1] * m2.m[2][1]
+                  + m1.m[2][1] * m2.m[2][2]
+                  + m1.m[3][1] * m2.m[2][3];
+        m.m[2][2] = m1.m[0][2] * m2.m[2][0]
+                  + m1.m[1][2] * m2.m[2][1]
+                  + m1.m[2][2] * m2.m[2][2]
+                  + m1.m[3][2] * m2.m[2][3];
+        m.m[2][3] = m1.m[0][3] * m2.m[2][0]
+                  + m1.m[1][3] * m2.m[2][1]
+                  + m1.m[2][3] * m2.m[2][2]
+                  + m1.m[3][3] * m2.m[2][3];
+
+        m.m[3][0] = m1.m[0][0] * m2.m[3][0]
+                  + m1.m[1][0] * m2.m[3][1]
+                  + m1.m[2][0] * m2.m[3][2]
+                  + m1.m[3][0] * m2.m[3][3];
+        m.m[3][1] = m1.m[0][1] * m2.m[3][0]
+                  + m1.m[1][1] * m2.m[3][1]
+                  + m1.m[2][1] * m2.m[3][2]
+                  + m1.m[3][1] * m2.m[3][3];
+        m.m[3][2] = m1.m[0][2] * m2.m[3][0]
+                  + m1.m[1][2] * m2.m[3][1]
+                  + m1.m[2][2] * m2.m[3][2]
+                  + m1.m[3][2] * m2.m[3][3];
+        m.m[3][3] = m1.m[0][3] * m2.m[3][0]
+                  + m1.m[1][3] * m2.m[3][1]
+                  + m1.m[2][3] * m2.m[3][2]
+                  + m1.m[3][3] * m2.m[3][3];
+
+        return m;
+    }
+
+    static DoubleMat44 rotationMatrix(const QQuaternion &rot)
+    {
+        DoubleMat44 rotMat;
+        double xp = double(rot.x());
+        double yp = double(rot.y());
+        double zp = double(rot.z());
+        double wp = double(rot.scalar());
+
+        const double f2x = xp + xp;
+        const double f2y = yp + yp;
+        const double f2z = zp + zp;
+        const double f2xw = f2x * wp;
+        const double f2yw = f2y * wp;
+        const double f2zw = f2z * wp;
+        const double f2xx = f2x * xp;
+        const double f2xy = f2x * yp;
+        const double f2xz = f2x * zp;
+        const double f2yy = f2y * yp;
+        const double f2yz = f2y * zp;
+        const double f2zz = f2z * zp;
+
+        rotMat.m[0][0] = 1. - (f2yy + f2zz);
+        rotMat.m[1][0] =       f2xy - f2zw;
+        rotMat.m[2][0] =       f2xz + f2yw;
+        rotMat.m[0][1] =       f2xy + f2zw;
+        rotMat.m[1][1] = 1. - (f2xx + f2zz);
+        rotMat.m[2][1] =       f2yz - f2xw;
+        rotMat.m[0][2] =       f2xz - f2yw;
+        rotMat.m[1][2] =       f2yz + f2xw;
+        rotMat.m[2][2] = 1. - (f2xx + f2yy);
+
+        return rotMat;
+    }
+
+    double m[4][4];
+};
+
+static DoubleMat44 calcLocalTransform(const QQuick3DNode *node)
+{
+    DoubleVec3D pivotD(-node->pivot());
+    const DoubleVec3D scaleD(node->scale());
+    const DoubleVec3D posD(node->position());
+    pivotD = pivotD * scaleD;
+    DoubleMat44 localTransform;
+
+    localTransform.m[0][0] = scaleD.x;
+    localTransform.m[1][1] = scaleD.y;
+    localTransform.m[2][2] = scaleD.z;
+
+    localTransform.m[3][0] = pivotD.x;
+    localTransform.m[3][1] = pivotD.y;
+    localTransform.m[3][2] = pivotD.z;
+
+    DoubleMat44 rotMat = DoubleMat44::rotationMatrix(node->rotation());
+    localTransform = DoubleMat44::matrixMultiD(rotMat, localTransform);
+
+    localTransform.m[3][0] += posD.x;
+    localTransform.m[3][1] += posD.y;
+    localTransform.m[3][2] += posD.z;
+
+    return localTransform;
+}
+
+static DoubleMat44 calcGlobalTransform(const QQuick3DNode *node)
+{
+    DoubleMat44 localTrans = calcLocalTransform(node);
+    QQuick3DNode *parent = node->parentNode();
+    if (parent) {
+        DoubleMat44 globalTrans = calcGlobalTransform(parent);
+        return DoubleMat44::matrixMultiD(globalTrans, localTrans);
+    }
+    return localTrans;
+}
+
+static DoubleVec3D getNormalD(const DoubleMat44 &m)
+{
+    return DoubleVec3D(m.m[2][0], m.m[2][1], m.m[2][2]).normalized();
 }
 
 MouseArea3D *MouseArea3D::s_mouseGrab = nullptr;
@@ -333,6 +594,36 @@ void MouseArea3D::componentComplete()
     m_view3D->installEventFilter(this);
 }
 
+static DoubleVec3D rayIntersectsPlaneD(const DoubleVec3D &rayPos0,
+                                       const DoubleVec3D &rayPos1,
+                                       const DoubleVec3D &planePos,
+                                       const DoubleVec3D &planeNormal)
+{
+    const DoubleVec3D rayDirection = rayPos1 - rayPos0;
+    const DoubleVec3D rayPos0RelativeToPlane = rayPos0 - planePos;
+
+    const double dotPlaneRayDirection = DoubleVec3D::dotProduct(planeNormal, rayDirection);
+    const double dotPlaneRayPos0 = -DoubleVec3D::dotProduct(planeNormal, rayPos0RelativeToPlane);
+
+    if (qFuzzyIsNull(dotPlaneRayDirection)) {
+        // The ray is is parallel to the plane. Note that if dotPlaneRayPos0 == 0, it
+        // additionally means that the line lies in plane as well. In any case, we
+        // signal that we cannot find a single intersection point.
+        return DoubleVec3D(0., 0., -1.);
+    }
+
+    // Since we work with a ray (that has a start), distanceFromRayPos0ToPlane
+    // must be above 0. If it was a line segment (with an end), it also need to be less than 1.
+    // (Note: a third option would be a "line", which is different from a ray or segment in that
+    // it has neither a start, nor an end). Then we wouldn't need to check the distance at all.
+    // But that would also mean that the line could intersect the plane behind the camera, if
+    // the line were directed away from the plane when looking forward.
+    const double distanceFromRayPos0ToPlane = dotPlaneRayPos0 / dotPlaneRayDirection;
+    if (distanceFromRayPos0ToPlane <= 0.)
+        return DoubleVec3D(0., 0., -1.);
+    return (rayPos0 + distanceFromRayPos0ToPlane * rayDirection);
+}
+
 QVector3D MouseArea3D::rayIntersectsPlane(const QVector3D &rayPos0,
                                           const QVector3D &rayPos1,
                                           const QVector3D &planePos,
@@ -342,29 +633,8 @@ QVector3D MouseArea3D::rayIntersectsPlane(const QVector3D &rayPos0,
     const DoubleVec3D rayPos1D(rayPos1);
     const DoubleVec3D planePosD(planePos);
     const DoubleVec3D planeNormalD(planeNormal);
-    const DoubleVec3D rayDirectionD = rayPos1D - rayPos0D;
-    const DoubleVec3D rayPos0RelativeToPlaneD = rayPos0D - planePosD;
 
-    const double dotPlaneRayDirection = DoubleVec3D::dotProduct(planeNormalD, rayDirectionD);
-    const double dotPlaneRayPos0 = -DoubleVec3D::dotProduct(planeNormalD, rayPos0RelativeToPlaneD);
-
-    if (qFuzzyIsNull(dotPlaneRayDirection)) {
-        // The ray is is parallel to the plane. Note that if dotLinePos0 == 0, it
-        // additionally means that the line lies in plane as well. In any case, we
-        // signal that we cannot find a single intersection point.
-        return QVector3D(0.f, 0.f, -1.f);
-    }
-
-    // Since we work with a ray (that has a start), distanceFromLinePos0ToPlane
-    // must be above 0. If it was a line segment (with an end), it also need to be less than 1.
-    // (Note: a third option would be a "line", which is different from a ray or segment in that
-    // it has neither a start, nor an end). Then we wouldn't need to check the distance at all.
-    // But that would also mean that the line could intersect the plane behind the camera, if
-    // the line were directed away from the plane when looking forward.
-    const double distanceFromRayPos0ToPlane = dotPlaneRayPos0 / dotPlaneRayDirection;
-    if (distanceFromRayPos0ToPlane <= 0.)
-        return QVector3D(0.f, 0.f, -1.f);
-    return (rayPos0D + distanceFromRayPos0ToPlane * rayDirectionD).toVec3();
+    return rayIntersectsPlaneD(rayPos0D, rayPos1D, planePosD, planeNormalD).toVec3();
 }
 
 // Get a new scale based on a relative scene distance along a drag axes.
@@ -544,18 +814,28 @@ QVector3D MouseArea3D::getMousePosInPlane(const MouseArea3D *helper,
     if (!helper)
         helper = this;
 
-    const QVector3D mousePos1(float(mousePosInView.x()), float(mousePosInView.y()), 0);
-    const QVector3D rayPos0 = m_view3D->mapTo3DScene(mousePos1);
-    const QVector3D mousePos2(float(mousePosInView.x()), float(mousePosInView.y()),
-                              rayPos0.length());
-    const QVector3D rayPos1 = m_view3D->mapTo3DScene(mousePos2);
-    const QVector3D globalPlanePosition = helper->mapPositionToScene(QVector3D(0, 0, 0));
-    const QVector3D intersectGlobalPos = rayIntersectsPlane(rayPos0, rayPos1,
-                                                            globalPlanePosition, helper->forward());
-    if (qFuzzyCompare(intersectGlobalPos.z(), -1))
-        return intersectGlobalPos;
+    const DoubleVec3D mousePos1(float(mousePosInView.x()), float(mousePosInView.y()), 0);
+    const DoubleVec3D rayPos0 = m_view3D->mapTo3DScene(mousePos1.toVec3());
+    DoubleVec3D rayPos1;
+    if (qobject_cast<QQuick3DOrthographicCamera *>(m_view3D->camera())) {
+        rayPos1 = rayPos0 - rayPos0.length() * DoubleVec3D(m_view3D->camera()->cameraNode()->getDirection());
+    } else {
+        DoubleVec3D dir;
+        DoubleVec3D camPos = m_view3D->camera()->scenePosition();
+        dir = (rayPos0 - camPos).normalized();
+        rayPos1 = rayPos0 + rayPos0.length() * dir;
+    }
 
-    return helper->mapPositionFromScene(intersectGlobalPos);
+    const DoubleVec3D globalPlanePosition = helper->mapPositionToScene(QVector3D(0, 0, 0));
+    DoubleMat44 sceneTrans = calcGlobalTransform(helper);
+    const DoubleVec3D intersectGlobalPos = rayIntersectsPlaneD(rayPos0, rayPos1,
+                                                               globalPlanePosition,
+                                                               -getNormalD(sceneTrans));
+
+    if (qFuzzyCompare(intersectGlobalPos.z, -1.))
+        return intersectGlobalPos.toVec3();
+
+    return sceneTrans.inverted().transform(intersectGlobalPos).toVec3();
 }
 
 bool MouseArea3D::eventFilter(QObject *, QEvent *event)
