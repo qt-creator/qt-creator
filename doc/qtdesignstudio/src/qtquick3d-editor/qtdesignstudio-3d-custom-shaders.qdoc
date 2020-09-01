@@ -1,0 +1,190 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Design Studio.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page studio-3d-custom-shaders.html
+    \previouspage studio-3d-effects.html
+    \nextpage studio-3d-lights.html
+
+    \title Using Custom Shaders
+
+    You can use the Qt Quick 3D shader utilities and commands to create your own
+    effects and materials.
+
+    For more information on using the shaders, see
+    \l {Creating Custom Effects and Materials}.
+
+    See the following tables for available shader utilities and commands.
+
+    \section1 Available Custom Shader Utilities
+    \table
+    \header
+        \li Custom Shader
+        \li Description
+
+    \row
+        \li \l Buffer
+        \li A buffer to be used for a pass of a Custom Material or an Effect.
+
+            Specify attributes for the buffer by defining the \uicontrol Name
+            and \uicontrol Format and \uicontrol {Allocation Flags} properties.
+
+            The \uicontrol Filter property specifies the filter operation when a
+            render pass is reading the buffer that differs in size in comparison
+            to the current output buffer.
+
+            The \uicontrol {Coordinate Operation} property specifies the texture
+            coordinate operation for coordinates outside [0, 1] range.
+
+            You can also specify the \uicontrol {Size Multiplier} of the buffer.
+            Value of 1.0 creates buffer with the same size while 0.5 creates
+            buffer with width and height halved.
+
+    \row
+        \li \l {CustomMaterial} {Custom Material}
+        \li The base component for creating custom materials used to shade
+            models.
+
+            Specify the attributes of the \uicontrol {Custom Material} by
+            defining the \uicontrol Transparency, \uicontrol Refraction and
+            \uicontrol {Always Dirty} properties. The \uicontrol Passes property
+            contains a list of render passes implemented by the material.
+            The \uicontrol {Shader Info} specifies the shader info of the
+            material. For more information, see \l {Creating Custom Effects and
+            Materials}.
+
+    \row
+        \li \l Effect
+        \li A base component for creating post-processing effects.
+
+            The \uicontrol Passes property contains a list of render passes
+            implemented by the effect. For more information, see
+            \l {Creating Custom Effects and Materials}.
+
+    \row
+        \li \l Pass
+        \li A render pass in a Custom Material or an Effect.
+
+            The \uicontrol Commands property specifies the list of render
+            commands of the pass. You can further define a render pass by using
+            the \uicontrol Buffer and \uicontrol Shaders properties.
+
+    \row
+        \li \l Shader
+        \li A container component for defining shader code used by Custom
+            Materials and Effects.
+
+            Define the \uicontrol Shader attributes by specifying the
+            \uicontrol Source and \uicontrol Stage properties.
+
+    \row
+        \li \l {ShaderInfo} {Shader Info}
+        \li Basic information about custom shader code for Custom Materials.
+
+            The \uicontrol Version property specifies the shader code version,
+            while the \uicontrol Type property defines the shader code type.
+            The \uicontrol Key property specifies the options used by the shader
+            using the combination of shader key values, such as diffuse or
+            specular lighting, refraction, transparency, displacement,
+            transmissiveness, glossiness, and alpha cutout.
+
+    \row
+        \li \l {TextureInput} {Texture Input}
+        \li A texture channel for a Custom Material or an Effect.
+
+        The \uicontrol Texture property specifies the texture to input, while
+        the \uicontrol Enabled determines whether the texture is enabled.
+
+    \endtable
+
+
+    \section1 Available Custom Shader Commands
+    \table
+    \header
+        \li Command
+        \li Description
+
+    \row
+        \li \l Blending
+        \li A pass command that specifies the source blending function.
+
+            Use the \uicontrol Source and \uicontrol Destination to further
+            define the function.
+
+    \row
+        \li \l {BufferBlit} {Buffer Blit}
+        \li A copy operation between two buffers in a pass of a Custom Material
+            or an Effect.
+
+            Define the source and the destination buffer of the copy-operation
+            by using the \uicontrol Source and \uicontrol Destination
+            properties.
+
+    \row
+        \li \l {BufferInput} {Buffer Input}
+        \li An input buffer to be used for a pass of a Custom Material or an
+            Effect.
+
+            The \uicontrol Buffer property specifies the buffer used for the
+            parameter. The \uicontrol Parameter specifies the name of the input
+            parameter in the shader.
+
+    \row
+        \li \l {CullMode} {Cull Mode}
+        \li A culling mode for a render pass.
+
+            The \uicontrol Mode specifies the culling mode in a pass when the
+            \uicontrol {State} property of the \uicontrol {Render State} is
+            set to \uicontrol CullFace.
+
+    \row
+        \li \l {DepthInput} {Depth Input}
+        \li An output texture for the depth buffer.
+
+            The \uicontrol Parameter property specifies the name of the texture
+            the depth buffer will bind to.
+
+    \row
+        \li \l {RenderState} {Render State}
+        \li The render state to be enabled or disabled in a pass of a Custom
+            Material or an Effect.
+
+            The \uicontrol State property specifies the render state to
+            enable or disable in a pass.
+
+    \row
+        \li \l {SetUniformValue} {Set Uniform Value}
+        \li A value to be set during a single pass.
+
+            The \uicontrol Target property specifies the name of the uniform
+            that will have its value changed during the pass, while the
+            \uicontrol Value specifies the value that will be set on the target
+            uniform.
+    \endtable
+
+
+*/

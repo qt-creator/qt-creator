@@ -58,11 +58,21 @@
             You can use a Texture component to specify an image and how it is
             mapped to meshes in a 3D scene. Texture components can use image
             data either from a file or a Qt Quick QML type.
+        \li \l {Using 3D Materials}
+
+            You can apply a set of predefined 3D materials on your models.
+
         \li \l {Applying 3D Effects}
 
             You can use 3D effect components to generate post-processing
             effects.
-        \li \l{Using Lights}
+
+        \li \l {Using Custom Shaders}
+
+            You can use 3D shader utilities to construct your own effects and
+            materials.
+
+        \li \l {Using Lights}
 
             You can use several light types as the source of lighting in a
             scene and set their properties.

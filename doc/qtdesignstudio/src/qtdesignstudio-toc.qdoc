@@ -108,6 +108,7 @@
                        \li \l{Using Materials and Shaders}
                        \li \l{Attaching Textures to Materials}
                        \li \l{Applying 3D Effects}
+                       \li \l{Using Custom Shaders}
                        \li \l{Using Lights}
                        \li \l{Using Scene Camera}
                        \li \l{Setting Scene Environment}
