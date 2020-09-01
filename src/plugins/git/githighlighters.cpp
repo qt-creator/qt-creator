@@ -103,6 +103,11 @@ static TextEditor::TextStyle styleForFormat(int format)
     case Format_Squash: return C_ENUMERATION;
     case Format_Fixup: return C_NUMBER;
     case Format_Exec: return C_LABEL;
+    case Format_Break: return C_PREPROCESSOR;
+    case Format_Drop: return C_REMOVED_LINE;
+    case Format_Label: return C_LABEL;
+    case Format_Reset: return C_LABEL;
+    case Format_Merge: return C_LABEL;
     case Format_Count:
         QTC_CHECK(false); // should never get here
         return C_TEXT;
@@ -124,6 +129,11 @@ GitRebaseHighlighter::GitRebaseHighlighter(QTextDocument *parent) :
     m_actions << RebaseAction("^(s|squash)\\b", Format_Squash);
     m_actions << RebaseAction("^(f|fixup)\\b", Format_Fixup);
     m_actions << RebaseAction("^(x|exec)\\b", Format_Exec);
+    m_actions << RebaseAction("^(b|break)\\b", Format_Break);
+    m_actions << RebaseAction("^(d|drop)\\b", Format_Drop);
+    m_actions << RebaseAction("^(l|label)\\b", Format_Label);
+    m_actions << RebaseAction("^(t|reset)\\b", Format_Reset);
+    m_actions << RebaseAction("^(m|merge)\\b", Format_Merge);
 }
 
 void GitRebaseHighlighter::highlightBlock(const QString &text)
