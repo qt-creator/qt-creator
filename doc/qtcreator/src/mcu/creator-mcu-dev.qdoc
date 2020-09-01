@@ -101,6 +101,7 @@
                         \li The \uicontrol {GNU ARM Embedded Toolchain} path.
                         \li The \uicontrol {STM32CubeProgrammer} install path.
                         \li The \uicontrol {MCU SDK} for the chosen target.
+                        \li The \uicontrol {FreeRTOS Sources} for the chosen target.
                     \endlist
                  \li For NXP targets:
                     \list
