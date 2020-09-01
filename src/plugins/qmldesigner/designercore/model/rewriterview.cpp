@@ -547,7 +547,6 @@ QString RewriterView::auxiliaryDataAsQML() const
     for (const auto &node : allModelNodes()) {
         QHash<PropertyName, QVariant> data = node.auxiliaryData();
         if (!data.isEmpty()) {
-            hasAuxData = true;
             if (columnCount > 80) {
                 str += "\n";
                 columnCount = 0;
@@ -566,7 +565,6 @@ QString RewriterView::auxiliaryDataAsQML() const
             keys.sort();
 
             for (const QString &key : keys) {
-
                 if (key.endsWith("@NodeInstance"))
                     continue;
 
@@ -578,7 +576,7 @@ QString RewriterView::auxiliaryDataAsQML() const
 
                 if (!safeName.exactMatch(key))
                     continue;
-
+                hasAuxData = true;
                 const QVariant value = data.value(key.toUtf8());
                 QString strValue = value.toString();
 
