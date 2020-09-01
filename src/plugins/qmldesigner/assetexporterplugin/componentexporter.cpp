@@ -113,6 +113,11 @@ ModelNodeParser *Component::createNodeParser(const ModelNode &node) const
 QJsonObject Component::nodeToJson(const ModelNode &node)
 {
     QJsonObject jsonObject;
+
+    // Don't export States, Connection, Timeline etc nodes.
+    if (!node.isSubclassOf("QtQuick.Item"))
+        return {};
+
     std::unique_ptr<ModelNodeParser> parser(createNodeParser(node));
     if (parser) {
         if (parser->uuid().isEmpty()) {
@@ -128,8 +133,11 @@ QJsonObject Component::nodeToJson(const ModelNode &node)
     }
 
     QJsonArray children;
-    for (const ModelNode &childnode : node.directSubModelNodes())
-        children.append(nodeToJson(childnode));
+    for (const ModelNode &childnode : node.directSubModelNodes()) {
+        const QJsonObject childJson = nodeToJson(childnode);
+        if (!childJson.isEmpty())
+            children.append(childJson);
+    }
 
     if (!children.isEmpty())
         jsonObject.insert(ChildrenTag, children);
