@@ -36,6 +36,7 @@
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 
 #include <qtsupport/baseqtversion.h>
@@ -139,6 +140,7 @@ void AndroidPackageInstallationStep::doRun()
             emit addOutput(tr("Removing directory %1").arg(dir), OutputFormat::NormalMessage);
             if (!FileUtils::removeRecursively(androidDir, &error)) {
                 emit addOutput(error, OutputFormat::Stderr);
+                TaskHub::addTask(BuildSystemTask(Task::Error, error));
                 emit finished(false);
                 return;
             }

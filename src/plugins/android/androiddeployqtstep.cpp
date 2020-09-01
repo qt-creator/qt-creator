@@ -111,7 +111,9 @@ bool AndroidDeployQtStep::init()
 
     m_androidABIs = AndroidManager::applicationAbis(target());
     if (m_androidABIs.isEmpty()) {
-        emit addOutput(tr("No Android arch set by the .pro file."), OutputFormat::Stderr);
+        const QString error = tr("No Android arch set by the .pro file.");
+        emit addOutput(error, OutputFormat::Stderr);
+        TaskHub::addTask(DeploymentTask(Task::Error, error));
         return false;
     }
 
@@ -187,12 +189,16 @@ bool AndroidDeployQtStep::init()
         } else {
             QString jsonFile = node->data(Constants::AndroidDeploySettingsFile).toString();
             if (jsonFile.isEmpty()) {
-                emit addOutput(tr("Cannot find the androiddeploy Json file."), OutputFormat::Stderr);
+                const QString error = tr("Cannot find the androiddeploy Json file.");
+                emit addOutput(error, OutputFormat::Stderr);
+                TaskHub::addTask(DeploymentTask(Task::Error, error));
                 return false;
             }
             m_command = version->hostBinPath();
             if (m_command.isEmpty()) {
-                emit addOutput(tr("Cannot find the androiddeployqt tool."), OutputFormat::Stderr);
+                const QString error = tr("Cannot find the androiddeployqt tool.");
+                emit addOutput(error, OutputFormat::Stderr);
+                TaskHub::addTask(DeploymentTask(Task::Error, error));
                 return false;
             }
             m_command = m_command.pathAppended(HostOsInfo::withExecutableSuffix("androiddeployqt"));
@@ -252,7 +258,9 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
         if (m_uninstallPreviousPackageRun) {
             packageName = AndroidManager::packageName(m_manifestName);
             if (packageName.isEmpty()) {
-                emit addOutput(tr("Cannot find the package name."), OutputFormat::Stderr);
+                const QString error = tr("Cannot find the package name.");
+                emit addOutput(error, OutputFormat::Stderr);
+                TaskHub::addTask(DeploymentTask(Task::Error, error));
                 return Failure;
             }
             qCDebug(deployStepLog) << "Uninstalling previous package";
@@ -316,12 +324,14 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
         emit addOutput(tr("The process \"%1\" exited normally.").arg(m_command.toUserOutput()),
                        BuildStep::OutputFormat::NormalMessage);
     } else if (exitStatus == QProcess::NormalExit) {
-        emit addOutput(tr("The process \"%1\" exited with code %2.")
-                       .arg(m_command.toUserOutput(), QString::number(exitCode)),
-                       BuildStep::OutputFormat::ErrorMessage);
+        const QString error = tr("The process \"%1\" exited with code %2.")
+                                  .arg(m_command.toUserOutput(), QString::number(exitCode));
+        emit addOutput(error, BuildStep::OutputFormat::ErrorMessage);
+        TaskHub::addTask(DeploymentTask(Task::Error, error));
     } else {
-        emit addOutput(tr("The process \"%1\" crashed.").arg(m_command.toUserOutput()),
-                       BuildStep::OutputFormat::ErrorMessage);
+        const QString error = tr("The process \"%1\" crashed.").arg(m_command.toUserOutput());
+        emit addOutput(error, BuildStep::OutputFormat::ErrorMessage);
+        TaskHub::addTask(DeploymentTask(Task::Error, error));
     }
 
     if (deployError != NoError) {
@@ -404,9 +414,11 @@ bool AndroidDeployQtStep::runImpl()
                    AndroidDeviceInfo::adbSelector(m_serialNumber)
                    << "pull" << itr.key() << itr.value()});
         if (!QFileInfo::exists(itr.value())) {
-            emit addOutput(tr("Package deploy: Failed to pull \"%1\" to \"%2\".")
-                           .arg(itr.key())
-                           .arg(itr.value()), OutputFormat::ErrorMessage);
+            const QString error = tr("Package deploy: Failed to pull \"%1\" to \"%2\".")
+                                      .arg(itr.key())
+                                      .arg(itr.value());
+            emit addOutput(error, OutputFormat::ErrorMessage);
+            TaskHub::addTask(DeploymentTask(Task::Error, error));
         }
     }
 
@@ -457,9 +469,11 @@ void AndroidDeployQtStep::runCommand(const CommandLine &command)
     emit addOutput(tr("Package deploy: Running command \"%1\".").arg(command.toUserOutput()),
                    OutputFormat::NormalMessage);
     SynchronousProcessResponse response = buildProc.run(command);
-    if (response.result != SynchronousProcessResponse::Finished || response.exitCode != 0)
-        emit addOutput(response.exitMessage(command.executable().toString(), 2 * 60),
-                       OutputFormat::ErrorMessage);
+    if (response.result != SynchronousProcessResponse::Finished || response.exitCode != 0) {
+        const QString error = response.exitMessage(command.executable().toString(), 2 * 60);
+        emit addOutput(error, OutputFormat::ErrorMessage);
+        TaskHub::addTask(DeploymentTask(Task::Error, error));
+    }
 }
 
 BuildStepConfigWidget *AndroidDeployQtStep::createConfigWidget()
@@ -533,6 +547,13 @@ void AndroidDeployQtStep::processReadyReadStdError(DeployErrorCode &errorCode)
 void AndroidDeployQtStep::stdError(const QString &line)
 {
     emit addOutput(line, BuildStep::OutputFormat::Stderr, BuildStep::DontAppendNewline);
+    if (line == "\n")
+        return;
+
+    if (line.startsWith("warning", Qt::CaseInsensitive) || line.startsWith("note", Qt::CaseInsensitive))
+        TaskHub::addTask(DeploymentTask(Task::Warning, line));
+    else
+        TaskHub::addTask(DeploymentTask(Task::Error, line));
 }
 
 AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::parseDeployErrors(QString &deployOutputLine) const

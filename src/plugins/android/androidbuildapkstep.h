@@ -74,6 +74,8 @@ public:
     QString buildTargetSdk() const;
     void setBuildTargetSdk(const QString &sdk);
 
+    void stdError(const QString &output) override;
+
     QVariant data(Utils::Id id) const override;
 private:
     void showInGraphicalShell();

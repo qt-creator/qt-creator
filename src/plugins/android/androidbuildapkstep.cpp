@@ -46,6 +46,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
 
 #include <qtsupport/qtkitinformation.h>
 
@@ -133,9 +134,11 @@ bool AndroidBuildApkStep::init()
             return false;
         }
 
-        if (buildType() != BuildConfiguration::Release)
-            emit addOutput(tr("Warning: Signing a debug or profile package."),
-                           OutputFormat::ErrorMessage);
+        if (buildType() != BuildConfiguration::Release) {
+            const QString error = tr("Warning: Signing a debug or profile package.");
+            emit addOutput(error, OutputFormat::ErrorMessage);
+            TaskHub::addTask(BuildSystemTask(Task::Warning, error));
+        }
     }
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
@@ -146,23 +149,33 @@ bool AndroidBuildApkStep::init()
     if (sdkToolsVersion >= gradleScriptRevokedSdkVersion
         || AndroidConfigurations::currentConfig().isCmdlineSdkToolsInstalled()) {
         if (!version->sourcePath().pathAppended("src/3rdparty/gradle").exists()) {
-            emit addOutput(tr("The installed SDK tools version (%1) does not include Gradle "
-                              "scripts. The minimum Qt version required for Gradle build to work "
-                              "is %2").arg(sdkToolsVersion.toString()).arg("5.9.0/5.6.3"),
-                           OutputFormat::Stderr);
+            const QString error
+                = tr("The installed SDK tools version (%1) does not include Gradle "
+                     "scripts. The minimum Qt version required for Gradle build to work "
+                     "is %2")
+                      .arg(sdkToolsVersion.toString())
+                      .arg("5.9.0/5.6.3");
+            emit addOutput(error, OutputFormat::Stderr);
+            TaskHub::addTask(BuildSystemTask(Task::Error, error));
             return false;
         }
     } else if (version->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0)) {
-        emit addOutput(tr("The minimum Qt version required for Gradle build to work is %1. "
-                          "It is recommended to install the latest Qt version.")
-                       .arg("5.4.0"), OutputFormat::Stderr);
+        const QString error = tr("The minimum Qt version required for Gradle build to work is %1. "
+                                 "It is recommended to install the latest Qt version.")
+                                  .arg("5.4.0");
+        emit addOutput(error, OutputFormat::Stderr);
+        TaskHub::addTask(BuildSystemTask(Task::Error, error));
         return false;
     }
 
     const int minSDKForKit = AndroidManager::minimumSDK(kit());
     if (AndroidManager::minimumSDK(target()) < minSDKForKit) {
-        emit addOutput(tr("The API level set for the APK is less than the minimum required by the kit."
-                          "\nThe minimum API level required by the kit is %1.").arg(minSDKForKit), OutputFormat::Stderr);
+        const QString error
+            = tr("The API level set for the APK is less than the minimum required by the kit."
+                 "\nThe minimum API level required by the kit is %1.")
+                  .arg(minSDKForKit);
+        emit addOutput(error, OutputFormat::Stderr);
+        TaskHub::addTask(BuildSystemTask(Task::Error, error));
         return false;
     }
 
@@ -203,8 +216,9 @@ bool AndroidBuildApkStep::init()
     m_skipBuilding = false;
 
     if (m_buildTargetSdk.isEmpty()) {
-        emit addOutput(tr("Android build SDK not defined. Check Android settings."),
-                       OutputFormat::Stderr);
+        const QString error = tr("Android build SDK not defined. Check Android settings.");
+        emit addOutput(error, OutputFormat::Stderr);
+        TaskHub::addTask(BuildSystemTask(Task::Error, error));
         return false;
     }
 
@@ -295,8 +309,10 @@ void AndroidBuildApkStep::processFinished(int exitCode, QProcess::ExitStatus sta
 bool AndroidBuildApkStep::verifyKeystorePassword()
 {
     if (!m_keystorePath.exists()) {
-        emit addOutput(tr("Cannot sign the package. Invalid keystore path (%1).")
-                           .arg(m_keystorePath.toString()), OutputFormat::ErrorMessage);
+        const QString error = tr("Cannot sign the package. Invalid keystore path (%1).")
+                                  .arg(m_keystorePath.toString());
+        emit addOutput(error, OutputFormat::ErrorMessage);
+        TaskHub::addTask(DeploymentTask(Task::Error, error));
         return false;
     }
 
@@ -315,8 +331,10 @@ bool AndroidBuildApkStep::verifyCertificatePassword()
 {
     if (!AndroidManager::checkCertificateExists(m_keystorePath.toString(), m_keystorePasswd,
                                                  m_certificateAlias)) {
-        emit addOutput(tr("Cannot sign the package. Certificate alias %1 does not exist.")
-                           .arg(m_certificateAlias), OutputFormat::ErrorMessage);
+        const QString error = tr("Cannot sign the package. Certificate alias %1 does not exist.")
+                                  .arg(m_certificateAlias);
+        emit addOutput(error, OutputFormat::ErrorMessage);
+        TaskHub::addTask(BuildSystemTask(Task::Error, error));
         return false;
     }
 
@@ -359,7 +377,9 @@ static bool copyFileIfNewer(const QString &sourceFileName,
 void AndroidBuildApkStep::doRun()
 {
     if (m_skipBuilding) {
-        emit addOutput(tr("Android deploy settings file not found, not building an APK."), BuildStep::OutputFormat::ErrorMessage);
+        const QString error = tr("Android deploy settings file not found, not building an APK.");
+        emit addOutput(error, BuildStep::OutputFormat::ErrorMessage);
+        TaskHub::addTask(BuildSystemTask(Task::Error, error));
         emit finished(true);
         return;
     }
@@ -449,7 +469,9 @@ void AndroidBuildApkStep::doRun()
     };
 
     if (!setup()) {
-        emit addOutput(tr("Cannot set up Android, not building an APK."), BuildStep::OutputFormat::ErrorMessage);
+        const QString error = tr("Cannot set up Android, not building an APK.");
+        emit addOutput(error, BuildStep::OutputFormat::ErrorMessage);
+        TaskHub::addTask(BuildSystemTask(Task::Error, error));
         emit finished(false);
         return;
     }
@@ -500,6 +522,18 @@ QString AndroidBuildApkStep::buildTargetSdk() const
 void AndroidBuildApkStep::setBuildTargetSdk(const QString &sdk)
 {
     m_buildTargetSdk = sdk;
+}
+
+void AndroidBuildApkStep::stdError(const QString &output)
+{
+    AbstractProcessStep::stdError(output);
+    if (output == "\n")
+        return;
+
+    if (output.startsWith("warning", Qt::CaseInsensitive) || output.startsWith("note", Qt::CaseInsensitive))
+        TaskHub::addTask(BuildSystemTask(Task::Warning, output));
+    else
+        TaskHub::addTask(BuildSystemTask(Task::Error, output));
 }
 
 QVariant AndroidBuildApkStep::data(Utils::Id id) const
