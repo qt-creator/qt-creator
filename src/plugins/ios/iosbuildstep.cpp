@@ -66,7 +66,7 @@ class IosBuildStep final : public AbstractProcessStep
     Q_DECLARE_TR_FUNCTIONS(Ios::Internal::IosBuildStep)
 
 public:
-    IosBuildStep(BuildStepList *parent, Utils::Id id);
+    IosBuildStep(BuildStepList *stepList, Utils::Id id);
 
 private:
     BuildStepConfigWidget *createConfigWidget() final;
@@ -86,7 +86,6 @@ private:
     QStringList m_baseBuildArguments;
     QStringList m_extraArguments;
     bool m_useDefaultArguments = true;
-    bool m_clean = false;
 };
 
 BuildStepConfigWidget *IosBuildStep::createConfigWidget()
@@ -151,16 +150,19 @@ BuildStepConfigWidget *IosBuildStep::createConfigWidget()
     return widget;
 }
 
-IosBuildStep::IosBuildStep(BuildStepList *parent, Id id)
-    : AbstractProcessStep(parent, id)
+IosBuildStep::IosBuildStep(BuildStepList *stepList, Id id)
+    : AbstractProcessStep(stepList, id)
 {
     setDefaultDisplayName(tr("xcodebuild"));
 
     setCommandLineProvider([this] { return CommandLine(buildCommand(), allArguments()); });
     setUseEnglishOutput();
 
-    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
-        m_clean = true;
+    if (stepList->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
+        // If we are cleaning, then build can fail with an error code,
+        // but that doesn't mean we should stop the clean queue
+        // That is mostly so that rebuild works on an already clean project
+        setIgnoreReturnValue(true);
         setExtraArguments(QStringList("clean"));
     }
 }
@@ -182,11 +184,6 @@ bool IosBuildStep::init()
     setupProcessParameters(pp);
     pp->setCommandLine({buildCommand(), allArguments()});
 
-    // If we are cleaning, then build can fail with an error code, but that doesn't mean
-    // we should stop the clean queue
-    // That is mostly so that rebuild works on an already clean project
-    setIgnoreReturnValue(m_clean);
-
     return AbstractProcessStep::init();
 }
 
@@ -204,7 +201,10 @@ QVariantMap IosBuildStep::toMap() const
 
     map.insert(BUILD_ARGUMENTS_KEY, m_baseBuildArguments);
     map.insert(BUILD_USE_DEFAULT_ARGS_KEY, m_useDefaultArguments);
-    map.insert(CLEAN_KEY, m_clean);
+
+    // Not used anymore since 4.14. But make sure older versions of Creator can read this.
+    map.insert(CLEAN_KEY, stepList()->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+
     return map;
 }
 
@@ -213,7 +213,6 @@ bool IosBuildStep::fromMap(const QVariantMap &map)
     QVariant bArgs = map.value(BUILD_ARGUMENTS_KEY);
     m_baseBuildArguments = bArgs.toStringList();
     m_useDefaultArguments = map.value(BUILD_USE_DEFAULT_ARGS_KEY).toBool();
-    m_clean = map.value(CLEAN_KEY).toBool();
 
     return BuildStep::fromMap(map);
 }
