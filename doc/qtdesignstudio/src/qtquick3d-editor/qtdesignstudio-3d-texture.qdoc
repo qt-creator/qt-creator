@@ -28,7 +28,7 @@
 /*!
     \page studio-3d-texture.html
     \previouspage studio-3d-materials.html
-    \nextpage studio-3d-effects.html
+    \nextpage studio-3d-materials-types.html
 
     \title Attaching Textures to Materials
 
@@ -112,9 +112,12 @@
 
     \section1 Applying Textures to Materials
 
-    You drag and drop an image from \uicontrol Library > \uicontrol Assets
-    on a material to create and set the texture automatically, or you can use
-    a Texture component.
+    Drag and drop an image from \uicontrol Library > \uicontrol Assets
+    on a material to create and set the texture automatically, or use
+    a Texture component. For a default material the created \uicontrol Texture
+    is assigned to the \uicontrol {Diffuse Map} property and for a principled
+    material to the \uicontrol {Base Color Map}. For a custom material, you
+    must assign the texture to a map.
 
     To use Texture components to apply textures to materials:
 
