@@ -26,25 +26,20 @@
 #include "iosbuildstep.h"
 #include "iosconstants.h"
 
-#include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/project.h>
+#include <projectexplorer/abstractprocessstep.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/processparameters.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-#include <projectexplorer/gcctoolchain.h>
-#include <projectexplorer/abstractprocessstep.h>
-
-#include <qtsupport/qtkitinformation.h>
-#include <qtsupport/qtparser.h>
 
 #include <utils/fileutils.h>
-#include <utils/stringutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -73,6 +68,7 @@ class IosBuildStep final : public AbstractProcessStep
 public:
     IosBuildStep(BuildStepList *parent, Utils::Id id);
 
+private:
     BuildStepConfigWidget *createConfigWidget() final;
     void setBaseArguments(const QStringList &args);
     void setExtraArguments(const QStringList &extraArgs);
@@ -93,94 +89,67 @@ public:
     bool m_clean = false;
 };
 
-//
-// IosBuildStepConfigWidget
-//
-
-class IosBuildStepConfigWidget final : public BuildStepConfigWidget
+BuildStepConfigWidget *IosBuildStep::createConfigWidget()
 {
-public:
-    IosBuildStepConfigWidget(IosBuildStep *buildStep)
-        : BuildStepConfigWidget(buildStep), m_buildStep(buildStep)
-    {
-        auto buildArgumentsLabel = new QLabel(this);
-        buildArgumentsLabel->setText(IosBuildStep::tr("Base arguments:"));
+    auto widget = new BuildStepConfigWidget(this);
 
-        m_buildArgumentsTextEdit = new QPlainTextEdit(this);
-        m_buildArgumentsTextEdit->setPlainText(QtcProcess::joinArgs(m_buildStep->baseArguments()));
+    auto buildArgumentsLabel = new QLabel(tr("Base arguments:"), widget);
 
-        m_resetDefaultsButton = new QPushButton(this);
-        m_resetDefaultsButton->setLayoutDirection(Qt::RightToLeft);
-        m_resetDefaultsButton->setText(IosBuildStep::tr("Reset Defaults"));
-        m_resetDefaultsButton->setEnabled(!m_buildStep->m_useDefaultArguments);
+    auto buildArgumentsTextEdit = new QPlainTextEdit(widget);
+    buildArgumentsTextEdit->setPlainText(QtcProcess::joinArgs(baseArguments()));
 
-        auto extraArgumentsLabel = new QLabel(this);
+    auto resetDefaultsButton = new QPushButton(widget);
+    resetDefaultsButton->setLayoutDirection(Qt::RightToLeft);
+    resetDefaultsButton->setText(tr("Reset Defaults"));
+    resetDefaultsButton->setEnabled(!m_useDefaultArguments);
 
-        m_extraArgumentsLineEdit = new QLineEdit(this);
-        m_extraArgumentsLineEdit->setText(QtcProcess::joinArgs(m_buildStep->m_extraArguments));
+    auto extraArgumentsLabel = new QLabel(tr("Extra arguments:"), widget);
 
-        auto gridLayout = new QGridLayout(this);
-        gridLayout->addWidget(buildArgumentsLabel, 0, 0, 1, 1);
-        gridLayout->addWidget(m_buildArgumentsTextEdit, 0, 1, 2, 1);
-        gridLayout->addWidget(m_resetDefaultsButton, 1, 2, 1, 1);
-        gridLayout->addWidget(extraArgumentsLabel, 2, 0, 1, 1);
-        gridLayout->addWidget(m_extraArgumentsLineEdit, 2, 1, 1, 1);
+    auto extraArgumentsLineEdit = new QLineEdit(widget);
+    extraArgumentsLineEdit->setText(QtcProcess::joinArgs(m_extraArguments));
 
-        extraArgumentsLabel->setText(IosBuildStep::tr("Extra arguments:"));
+    auto gridLayout = new QGridLayout(widget);
+    gridLayout->addWidget(buildArgumentsLabel, 0, 0, 1, 1);
+    gridLayout->addWidget(buildArgumentsTextEdit, 0, 1, 2, 1);
+    gridLayout->addWidget(resetDefaultsButton, 1, 2, 1, 1);
+    gridLayout->addWidget(extraArgumentsLabel, 2, 0, 1, 1);
+    gridLayout->addWidget(extraArgumentsLineEdit, 2, 1, 1, 1);
 
-        setDisplayName(IosBuildStep::tr("iOS build", "iOS BuildStep display name."));
+    setDisplayName(tr("iOS build", "iOS BuildStep display name."));
 
-        updateDetails();
-
-        connect(m_buildArgumentsTextEdit, &QPlainTextEdit::textChanged,
-                this, &IosBuildStepConfigWidget::buildArgumentsChanged);
-        connect(m_resetDefaultsButton, &QAbstractButton::clicked,
-                this, &IosBuildStepConfigWidget::resetDefaultArguments);
-        connect(m_extraArgumentsLineEdit, &QLineEdit::editingFinished,
-                this, &IosBuildStepConfigWidget::extraArgumentsChanged);
-
-        connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
-                this, &IosBuildStepConfigWidget::updateDetails);
-        connect(m_buildStep->target(), &Target::kitChanged,
-                this, &IosBuildStepConfigWidget::updateDetails);
-
-        connect(m_buildStep->buildConfiguration(), &BuildConfiguration::environmentChanged,
-                this, &IosBuildStepConfigWidget::updateDetails);
-    }
-
-private:
-    void buildArgumentsChanged()
-    {
-        m_buildStep->setBaseArguments(QtcProcess::splitArgs(m_buildArgumentsTextEdit->toPlainText()));
-        m_resetDefaultsButton->setEnabled(!m_buildStep->m_useDefaultArguments);
-        updateDetails();
-    }
-
-    void resetDefaultArguments()
-    {
-        m_buildStep->setBaseArguments(m_buildStep->defaultArguments());
-        m_buildArgumentsTextEdit->setPlainText(QtcProcess::joinArgs(m_buildStep->baseArguments()));
-        m_resetDefaultsButton->setEnabled(!m_buildStep->m_useDefaultArguments);
-    }
-
-    void extraArgumentsChanged()
-    {
-        m_buildStep->setExtraArguments(QtcProcess::splitArgs(m_extraArgumentsLineEdit->text()));
-    }
-
-    void updateDetails()
-    {
+    auto updateDetails = [this, widget] {
         ProcessParameters param;
-        m_buildStep->setupProcessParameters(&param);
-        setSummaryText(param.summary(displayName()));
-    }
+        setupProcessParameters(&param);
+        widget->setSummaryText(param.summary(displayName()));
+    };
 
-    IosBuildStep *m_buildStep;
+    updateDetails();
 
-    QPlainTextEdit *m_buildArgumentsTextEdit;
-    QPushButton *m_resetDefaultsButton;
-    QLineEdit *m_extraArgumentsLineEdit;
-};
+    connect(buildArgumentsTextEdit, &QPlainTextEdit::textChanged, this, [=] {
+        setBaseArguments(QtcProcess::splitArgs(buildArgumentsTextEdit->toPlainText()));
+        resetDefaultsButton->setEnabled(!m_useDefaultArguments);
+        updateDetails();
+    });
+
+    connect(resetDefaultsButton, &QAbstractButton::clicked, this, [=] {
+        setBaseArguments(defaultArguments());
+        buildArgumentsTextEdit->setPlainText(QtcProcess::joinArgs(baseArguments()));
+        resetDefaultsButton->setEnabled(!m_useDefaultArguments);
+    });
+
+    connect(extraArgumentsLineEdit, &QLineEdit::editingFinished, [=] {
+        setExtraArguments(QtcProcess::splitArgs(extraArgumentsLineEdit->text()));
+    });
+
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
+            this, updateDetails);
+    connect(target(), &Target::kitChanged,
+            this, updateDetails);
+    connect(buildConfiguration(), &BuildConfiguration::environmentChanged,
+            this, updateDetails);
+
+    return widget;
+}
 
 IosBuildStep::IosBuildStep(BuildStepList *parent, Id id)
     : AbstractProcessStep(parent, id)
@@ -291,11 +260,6 @@ FilePath IosBuildStep::buildCommand() const
 void IosBuildStep::doRun()
 {
     AbstractProcessStep::doRun();
-}
-
-BuildStepConfigWidget *IosBuildStep::createConfigWidget()
-{
-    return new IosBuildStepConfigWidget(this);
 }
 
 void IosBuildStep::setBaseArguments(const QStringList &args)
