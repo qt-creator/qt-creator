@@ -99,17 +99,31 @@ public:
         listViewNode = mockView.createModelNode("QtQuick.ListView", 2, 15);
         listModelNode = mockView.createModelNode("QtQml.Models.ListModel", 2, 15);
         mockView.rootModelNode().defaultNodeListProperty().reparentHere(listModelNode);
-        element1 = createElement({{"name", "foo"}, {"value", 1}, {"value2", 42}});
-        element2 = createElement({{"value", 4}, {"name", "bar"}, {"image", "pic.png"}});
-        element3 = createElement({{"image", "pic.png"}, {"name", "poo"}, {"value", 111}});
+        element1 = createElement({{"name", "foo"}, {"value", 1}, {"value2", 42}},
+                                 mockView,
+                                 listModelNode);
+        element2 = createElement({{"value", 4}, {"name", "bar"}, {"image", "pic.png"}},
+                                 mockView,
+                                 listModelNode);
+        element3 = createElement({{"image", "pic.png"}, {"name", "poo"}, {"value", 111}},
+                                 mockView,
+                                 listModelNode);
+
+        componentModel->attachView(&mockComponentView);
+
+        componentElement = createElement({{"name", "com"}, {"value", 11}, {"value2", 55}},
+                                         mockComponentView,
+                                         mockComponentView.rootModelNode());
+
+        ON_CALL(mockGoIntoComponent, Call(_)).WillByDefault([](ModelNode node) { return node; });
     }
 
     using Entry = std::pair<QmlDesigner::PropertyName, QVariant>;
 
-    ModelNode createElement(std::initializer_list<Entry> entries)
+    ModelNode createElement(std::initializer_list<Entry> entries, AbstractView &view, ModelNode listModel)
     {
-        auto element = mockView.createModelNode("QtQml.Models/ListElement", 2, 15);
-        listModelNode.defaultNodeListProperty().reparentHere(element);
+        auto element = view.createModelNode("QtQml.Models/ListElement", 2, 15);
+        listModel.defaultNodeListProperty().reparentHere(element);
 
         for (const auto &entry : entries) {
             element.variantProperty(entry.first).setValue(entry.second);
@@ -184,17 +198,23 @@ public:
     }
 
 protected:
+    MockFunction<ModelNode(const ModelNode &)> mockGoIntoComponent;
     std::unique_ptr<QmlDesigner::Model> designerModel{QmlDesigner::Model::create("QtQuick.Item", 1, 1)};
     NiceMock<MockListModelEditorView> mockView;
     QmlDesigner::ListModelEditorModel model{
         [&] { return mockView.createModelNode("QtQml.Models.ListModel", 2, 15); },
-        [&] { return mockView.createModelNode("QtQml.Models.ListElement", 2, 15); }};
+        [&] { return mockView.createModelNode("QtQml.Models.ListElement", 2, 15); },
+        mockGoIntoComponent.AsStdFunction()};
     ModelNode listViewNode;
     ModelNode listModelNode;
     ModelNode emptyListModelNode;
     ModelNode element1;
     ModelNode element2;
     ModelNode element3;
+    std::unique_ptr<QmlDesigner::Model> componentModel{
+        QmlDesigner::Model::create("QtQml.Models.ListModel", 1, 1)};
+    NiceMock<MockListModelEditorView> mockComponentView;
+    ModelNode componentElement;
 };
 
 TEST_F(ListModelEditor, CreatePropertyNameSet)
@@ -1374,6 +1394,29 @@ TEST_F(ListModelEditor, AddFalseAsStringProperties)
                             UnorderedElementsAre(IsVariantProperty("image", "pic.png"),
                                                  IsVariantProperty("name", "poo"),
                                                  IsVariantProperty("value", 111))));
+}
+
+TEST_F(ListModelEditor, GoIntoComponentForBinding)
+{
+    EXPECT_CALL(mockGoIntoComponent, Call(Eq(listModelNode)))
+        .WillRepeatedly(Return(mockComponentView.rootModelNode()));
+    listModelNode.setIdWithoutRefactoring("listModel");
+    listViewNode.bindingProperty("model").setExpression("listModel");
+
+    model.setListView(listViewNode);
+
+    ASSERT_THAT(displayValues(), ElementsAre(ElementsAre("com", 11, 55)));
+}
+
+TEST_F(ListModelEditor, GoIntoComponentForModelNode)
+{
+    EXPECT_CALL(mockGoIntoComponent, Call(Eq(listModelNode)))
+        .WillRepeatedly(Return(mockComponentView.rootModelNode()));
+    listViewNode.nodeProperty("model").reparentHere(listModelNode);
+
+    model.setListView(listViewNode);
+
+    ASSERT_THAT(displayValues(), ElementsAre(ElementsAre("com", 11, 55)));
 }
 
 } // namespace

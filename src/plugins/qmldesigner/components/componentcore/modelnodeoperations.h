@@ -30,7 +30,7 @@
 namespace QmlDesigner {
 namespace ModelNodeOperations {
 
-void goIntoComponent(const ModelNode &modelNode);
+bool goIntoComponent(const ModelNode &modelNode);
 
 void select(const SelectionContext &selectionState);
 void deSelect(const SelectionContext &selectionState);

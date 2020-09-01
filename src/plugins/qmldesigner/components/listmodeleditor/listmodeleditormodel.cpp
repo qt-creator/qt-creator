@@ -199,13 +199,15 @@ void renameProperties(const QStandardItemModel *model,
 }
 
 ModelNode listModelNode(const ModelNode &listViewNode,
-                        const std::function<ModelNode()> &createModelCallback)
+                        const std::function<ModelNode()> &createModelCallback,
+                        const std::function<ModelNode(const ModelNode &)> &goIntoComponentCallback)
 {
     if (listViewNode.hasProperty("model")) {
-        if (listViewNode.hasBindingProperty("model"))
-            return listViewNode.bindingProperty("model").resolveToModelNode();
-        else if (listViewNode.hasNodeProperty("model"))
-            return listViewNode.nodeProperty("model").modelNode();
+        if (listViewNode.hasBindingProperty("model")) {
+            return goIntoComponentCallback(listViewNode.bindingProperty("model").resolveToModelNode());
+        } else if (listViewNode.hasNodeProperty("model")) {
+            return goIntoComponentCallback(listViewNode.nodeProperty("model").modelNode());
+        }
     }
 
     ModelNode newModel = createModelCallback();
@@ -251,7 +253,7 @@ void ListModelEditorModel::setListModel(ModelNode node)
 
 void ListModelEditorModel::setListView(ModelNode listView)
 {
-    setListModel(listModelNode(listView, m_createModelCallback));
+    setListModel(listModelNode(listView, m_createModelCallback, m_goIntoComponentCallback));
 }
 
 void ListModelEditorModel::addRow()

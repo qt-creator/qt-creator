@@ -51,7 +51,7 @@ public:
 
     void removeEditors(const QList<Core::IEditor *> &editors);
 
-    static void goIntoComponent(const ModelNode &modelNode);
+    static bool goIntoComponent(const ModelNode &modelNode);
 
     static bool createFile(const QString &filePath, const QString &contents);
     static void addFileToVersionControl(const QString &directoryPath, const QString &newFilePath);
