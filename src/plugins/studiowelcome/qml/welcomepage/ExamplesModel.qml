@@ -35,7 +35,7 @@ ListModel {
 
     ListElement {
         projectName: "CoffeeMachine"
-        qmlFileName: "ApplicationFlowForm.ui.qml"
+        qmlFileName: "CoffeeMachine.qml"
         thumbnail: "images/coffeemachinedemo_thumbnail.png"
         displayName: "Coffee Machine"
     }
