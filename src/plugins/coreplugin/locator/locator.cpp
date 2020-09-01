@@ -81,9 +81,7 @@ public:
     LocatorManager m_locatorManager;
     LocatorSettingsPage m_locatorSettingsPage;
 
-#ifdef WITH_JAVASCRIPTFILTER
     JavaScriptFilter m_javaScriptFilter;
-#endif
     OpenDocumentsFilter m_openDocumentsFilter;
     FileSystemFilter m_fileSystemFilter;
     ExecuteFilter m_executeFilter;

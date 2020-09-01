@@ -16,7 +16,8 @@ HEADERS += \
     $$PWD/locatorsearchutils.h \
     $$PWD/locatorsettingspage.h \
     $$PWD/urllocatorfilter.h \
-    $$PWD/externaltoolsfilter.h
+    $$PWD/externaltoolsfilter.h \
+    $$PWD/javascriptfilter.h
 
 SOURCES += \
     $$PWD/locator.cpp \
@@ -33,22 +34,11 @@ SOURCES += \
     $$PWD/locatorsearchutils.cpp \
     $$PWD/locatorsettingspage.cpp \
     $$PWD/urllocatorfilter.cpp \
-    $$PWD/externaltoolsfilter.cpp
+    $$PWD/externaltoolsfilter.cpp \
+    $$PWD/javascriptfilter.cpp
 
 FORMS += \
-    $$PWD/urllocatorfilter.ui
-
-minQtVersion(5, 14, 0) {
-    DEFINES += WITH_JAVASCRIPTFILTER
-
-    HEADERS += \
-        $$PWD/javascriptfilter.h
-
-    SOURCES += \
-        $$PWD/javascriptfilter.cpp
-}
-
-FORMS += \
+    $$PWD/urllocatorfilter.ui \
     $$PWD/filesystemfilter.ui \
     $$PWD/directoryfilter.ui \
     $$PWD/locatorsettingspage.ui

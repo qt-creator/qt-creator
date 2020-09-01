@@ -102,6 +102,7 @@ add_qtc_plugin(Core
     locator/externaltoolsfilter.cpp locator/externaltoolsfilter.h
     locator/filesystemfilter.cpp locator/filesystemfilter.h locator/filesystemfilter.ui
     locator/ilocatorfilter.cpp locator/ilocatorfilter.h
+    locator/javascriptfilter.cpp locator/javascriptfilter.h
     locator/locator.cpp locator/locator.h
     locator/locatorconstants.h
     locator/locatorfiltersfilter.cpp locator/locatorfiltersfilter.h
@@ -182,14 +183,6 @@ extend_qtc_plugin(Core
 extend_qtc_plugin(Core
   CONDITION (NOT WIN32) AND (NOT APPLE)
   SOURCES progressmanager/progressmanager_x11.cpp
-)
-
-extend_qtc_plugin(Core
-  CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 5.14.0
-  FEATURE_INFO "Script Locator filter"
-  DEFINES WITH_JAVASCRIPTFILTER
-  SOURCES
-    locator/javascriptfilter.cpp locator/javascriptfilter.h
 )
 
 if ((NOT WIN32) AND (NOT APPLE))

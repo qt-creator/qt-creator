@@ -23,11 +23,6 @@ Project {
 
         Depends { name: "app_version_header" }
 
-        Properties {
-            condition: Utilities.versionCompare(Qt.qml.version, "5.14.0") >= 0
-            cpp.defines: base.concat("WITH_JAVASCRIPTFILTER")
-        }
-
         cpp.dynamicLibraries: {
             if (qbs.targetOS.contains("windows"))
                 return ["ole32", "user32"]
@@ -351,6 +346,8 @@ Project {
                 "filesystemfilter.ui",
                 "ilocatorfilter.cpp",
                 "ilocatorfilter.h",
+                "javascriptfilter.cpp",
+                "javascriptfilter.h",
                 "locatorconstants.h",
                 "locatorfiltersfilter.cpp",
                 "locatorfiltersfilter.h",
@@ -370,16 +367,6 @@ Project {
                 "urllocatorfilter.cpp",
                 "urllocatorfilter.h",
                 "urllocatorfilter.ui"
-            ]
-        }
-
-        Group {
-            name: "Locator Javascript Filter"
-            condition: Utilities.versionCompare(Qt.qml.version, "5.14.0") >= 0
-            prefix: "locator/"
-            files: [
-                "javascriptfilter.cpp",
-                "javascriptfilter.h",
             ]
         }
 
