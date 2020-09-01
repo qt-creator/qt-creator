@@ -26,6 +26,7 @@
 #pragma once
 
 #include <QMetaType>
+#include <QVariant>
 
 #include "imagecontainer.h"
 
