@@ -77,7 +77,7 @@ Column {
                 Label {
                     text: "W"
                     width: 12
-                    disabledState: !backendValues.sourceSize_width.isAvailable
+                    disabledStateSoft: !backendValues.sourceSize_width.isAvailable
                 }
 
                 SpinBox {
@@ -96,7 +96,7 @@ Column {
                 Label {
                     text: "H"
                     width: 12
-                    disabledState: !backendValues.sourceSize_height.isAvailable
+                    disabledStateSoft: !backendValues.sourceSize_height.isAvailable
                 }
 
                 SpinBox {

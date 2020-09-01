@@ -203,7 +203,7 @@ Section {
                 text: qsTr("Pixel")
                 tooltip: qsTr("Specifies the minimum font pixel size of scaled text.")
                 width: 42
-                disabledState: !backendValues.minimumPixelSize.isAvailable
+                disabledStateSoft: !backendValues.minimumPixelSize.isAvailable
             }
 
             Item {
@@ -224,7 +224,7 @@ Section {
                 text: qsTr("Point")
                 tooltip: qsTr("Specifies the minimum font point size of scaled text.")
                 width: 42
-                disabledState: !backendValues.minimumPointSize.isAvailable
+                disabledStateSoft: !backendValues.minimumPointSize.isAvailable
             }
         }
 

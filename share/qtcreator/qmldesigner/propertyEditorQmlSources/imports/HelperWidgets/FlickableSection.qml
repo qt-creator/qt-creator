@@ -287,7 +287,7 @@ Section {
             Label {
                 text: "X"
                 width: root.labelWidth
-                disabledState: !backendValues.originX.isAvailable
+                disabledStateSoft: !backendValues.originX.isAvailable
             }
 
             SpinBox {
@@ -307,7 +307,7 @@ Section {
             Label {
                 text: "Y"
                 width: root.labelWidth
-                disabledState: !backendValues.originY.isAvailable
+                disabledStateSoft: !backendValues.originY.isAvailable
             }
 
             SpinBox {
@@ -336,7 +336,7 @@ Section {
             Label {
                 text: "Top"
                 width: root.labelWidth
-                disabledState: !backendValues.topMargin.isAvailable
+                disabledStateSoft: !backendValues.topMargin.isAvailable
             }
 
             SpinBox {
@@ -357,7 +357,7 @@ Section {
             Label {
                 text: "Bottom"
                 width: root.labelWidth
-                disabledState: !backendValues.bottomMargin.isAvailable
+                disabledStateSoft: !backendValues.bottomMargin.isAvailable
             }
 
             SpinBox {
@@ -383,7 +383,7 @@ Section {
             Label {
                 text: "Left"
                 width: root.labelWidth
-                disabledState: !backendValues.leftMargin.isAvailable
+                disabledStateSoft: !backendValues.leftMargin.isAvailable
             }
 
             SpinBox {
@@ -404,7 +404,7 @@ Section {
             Label {
                 text: "Right"
                 width: root.labelWidth
-                disabledState: !backendValues.rightMargin.isAvailable
+                disabledStateSoft: !backendValues.rightMargin.isAvailable
             }
 
             SpinBox {

@@ -237,7 +237,7 @@ Section {
                 text: qsTr("Word")
                 tooltip: qsTr("Sets the word spacing for the font.")
                 width: 42
-                disabledState: !getBackendValue("wordSpacing").isAvailable
+                disabledStateSoft: !getBackendValue("wordSpacing").isAvailable
             }
             Item {
                 width: 4
@@ -258,7 +258,7 @@ Section {
                 text: qsTr("Letter")
                 tooltip: qsTr("Sets the letter spacing for the font.")
                 width: 42
-                disabledState: !getBackendValue("letterSpacing").isAvailable
+                disabledStateSoft: !getBackendValue("letterSpacing").isAvailable
             }
         }
 
