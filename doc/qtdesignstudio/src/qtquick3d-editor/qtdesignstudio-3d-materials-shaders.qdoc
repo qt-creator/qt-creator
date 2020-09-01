@@ -3,7 +3,7 @@
 ** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of Qt Desing Studio.
+** This file is part of Qt Design Studio.
 **
 ** $QT_BEGIN_LICENSE:FDL$
 ** Commercial License Usage
@@ -48,7 +48,7 @@
     \list
         \li Default material
         \li Principled material
-        \li Custom material
+        \li \l{Creating Custom Effects and Materials}{Custom material}
         \li Texture
     \endlist
 
@@ -56,8 +56,7 @@
     material to define how the mesh is shaded. The DefaultMaterial component
     is the easiest way to define such a material. The PrincipledMaterial
     component specifies the minimum amount of properties. The CustomMaterial
-    component enables you to access the Qt Quick 3D material library and
-    to implement your own materials.
+    component enables you to construct your own materials.
 
     You can use the \l Texture component to apply textures to materials. It
     defines an image and how the image is mapped to meshes in a 3D scene. For
@@ -218,30 +217,6 @@
     winding, the projected polygon is rotated to face away from the camera and
     is not rendered. Culling makes rendering objects quicker and more efficient
     by reducing the number of polygons to draw.
-
-    \section1 Creating Custom Materials
-
-    The material uses a Shader component to specify shader source and shader
-    stage. These are used with the \uicontrol passes property to create the
-    resulting material. The passes can contain multiple rendering passes and
-    also other commands.
-
-    Normally, only the fragment shader needs to be specified as a value for
-    the \uicontrol passes property. The material library generates the vertex
-    shader for the material. The material can also create buffers to store
-    intermediate rendering results.
-
-    The \uicontrol shaderInfo property specifies settings for the shader.
-
-    To specify that the material state is always dirty, which indicates that
-    the material needs to be refreshed every time it is used, select the
-    \uicontrol alwaysDirty check box.
-
-    To specify that the material has refraction, select the
-    \uicontrol hasRefraction check box.
-
-    To specify that the material has transparency, select the
-    \uicontrol hasTransparency check box.
 
     \section1 Applying Materials to Models
 

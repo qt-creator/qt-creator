@@ -72,7 +72,13 @@
             You can use 3D shader utilities to construct your own effects and
             materials.
 
-        \li \l {Using Lights}
+        \li \l{Creating Custom Effects and Materials}
+
+            If the ready-made 3D effects and materials don't meet your needs,
+            you can use 3D shader utilities to construct your own effects and
+            materials.
+
+        \li \l{Using Lights}
 
             You can use several light types as the source of lighting in a
             scene and set their properties.
