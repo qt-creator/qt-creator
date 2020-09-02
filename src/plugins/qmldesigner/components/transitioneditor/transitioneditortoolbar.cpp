@@ -125,11 +125,6 @@ QString TransitionEditorToolBar::currentTransitionId() const
     return m_transitionComboBox->currentText();
 }
 
-void TransitionEditorToolBar::setBlockReflection(bool block)
-{
-    m_blockReflection = block;
-}
-
 void TransitionEditorToolBar::updateComboBox(const ModelNode &root)
 {
     if (root.isValid() && root.hasProperty("transitions")) {
@@ -142,9 +137,6 @@ void TransitionEditorToolBar::updateComboBox(const ModelNode &root)
 
 void TransitionEditorToolBar::setCurrentTransition(const ModelNode &transition)
 {
-    if (m_blockReflection)
-        return;
-
     if (transition.isValid()) {
         m_transitionComboBox->clear();
         const ModelNode root = transition.view()->rootModelNode();

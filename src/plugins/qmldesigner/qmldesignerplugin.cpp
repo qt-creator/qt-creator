@@ -38,6 +38,7 @@
 #include <sourcetool/sourcetool.h>
 #include <colortool/colortool.h>
 #include <annotationeditor/annotationtool.h>
+#include <curveeditor/curveeditorview.h>
 #include <formeditor/transitiontool.h>
 #include <texttool/texttool.h>
 #include <timelineeditor/timelineview.h>
@@ -238,6 +239,9 @@ bool QmlDesignerPlugin::delayedInitialize()
         auto timelineView = new QmlDesigner::TimelineView;
         d->viewManager.registerViewTakingOwnership(timelineView);
         timelineView->registerActions();
+
+        auto curveEditorView = new QmlDesigner::CurveEditorView;
+        d->viewManager.registerViewTakingOwnership(curveEditorView);
     }
 
     auto transitionEditorView = new QmlDesigner::TransitionEditorView;

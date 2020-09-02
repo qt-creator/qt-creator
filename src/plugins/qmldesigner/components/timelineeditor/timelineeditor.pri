@@ -36,9 +36,7 @@ SOURCES += \
     easingcurve.cpp \
     timelinesettingsmodel.cpp \
     timelinetooldelegate.cpp \
-    timelinecontrols.cpp \
-    animationcurveeditormodel.cpp \
-    animationcurvedialog.cpp
+    timelinecontrols.cpp
 
 HEADERS += \
     timelineview.h \

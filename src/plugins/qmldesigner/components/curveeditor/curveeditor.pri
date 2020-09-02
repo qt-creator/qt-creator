@@ -4,6 +4,7 @@ HEADERS += \
     $$PWD/animationcurve.h \
     $$PWD/curveeditor.h \
     $$PWD/curveeditormodel.h \
+    $$PWD/curveeditorview.h \
     $$PWD/curvesegment.h \
     $$PWD/detail/colorcontrol.h \
     $$PWD/detail/curveeditorstyledialog.h \
@@ -28,6 +29,7 @@ SOURCES += \
     $$PWD/curvesegment.cpp \
     $$PWD/curveeditor.cpp \
     $$PWD/curveeditormodel.cpp \
+    $$PWD/curveeditorview.cpp \
     $$PWD/detail/colorcontrol.cpp \
     $$PWD/detail/curveeditorstyledialog.cpp \
     $$PWD/detail/curveitem.cpp \

@@ -103,36 +103,7 @@ static QAction *createAction(const Utils::Id &id,
 TimelineToolBar::TimelineToolBar(QWidget *parent)
     : QToolBar(parent)
     , m_grp()
-    , m_dialog(new AnimationCurveDialog(this))
-    , m_curveModel(new AnimationCurveEditorModel(0., 500.))
 {
-    m_dialog->setModel(m_curveModel);
-    connect(m_curveModel,
-            &AnimationCurveEditorModel::currentFrameChanged,
-            this,
-            &TimelineToolBar::currentFrameChanged);
-
-    auto setStartFrameValue = [this](int val) {
-        if (m_firstFrame) {
-            m_firstFrame->setText(QString::number(val, 'f', 0));
-            emit startFrameChanged(val);
-        }
-    };
-    connect(m_curveModel, &AnimationCurveEditorModel::startFrameChanged, setStartFrameValue);
-
-    auto setEndFrameValue = [this](int val) {
-        if (m_lastFrame) {
-            m_lastFrame->setText(QString::number(val, 'f', 0));
-            emit endFrameChanged(val);
-        }
-    };
-    connect(m_curveModel, &AnimationCurveEditorModel::endFrameChanged, setEndFrameValue);
-
-    connect(m_curveModel,
-            &AnimationCurveEditorModel::curveChanged,
-            this,
-            &TimelineToolBar::curveChanged);
-
     setContentsMargins(0, 0, 0, 0);
     createLeftControls();
     createCenterControls();
@@ -143,8 +114,6 @@ void TimelineToolBar::reset()
 {
     if (recording())
         m_recording->setChecked(false);
-
-    m_curveModel->reset({});
 }
 
 bool TimelineToolBar::recording() const
@@ -189,7 +158,6 @@ void TimelineToolBar::setCurrentTimeline(const QmlTimeline &timeline)
         setStartFrame(timeline.startKeyframe());
         setEndFrame(timeline.endKeyframe());
         m_timelineLabel->setText(timeline.modelNode().id());
-        m_curveModel->setTimeline(timeline);
     } else {
         m_timelineLabel->setText("");
     }
@@ -197,8 +165,6 @@ void TimelineToolBar::setCurrentTimeline(const QmlTimeline &timeline)
 
 void TimelineToolBar::setStartFrame(qreal frame)
 {
-    m_curveModel->setMinimumTime(frame, true);
-
     auto text = QString::number(frame, 'f', 0);
     m_firstFrame->setText(text);
     setupCurrentFrameValidator();
@@ -206,16 +172,12 @@ void TimelineToolBar::setStartFrame(qreal frame)
 
 void TimelineToolBar::setCurrentFrame(qreal frame)
 {
-    m_curveModel->setCurrentFrame(std::round(frame));
-
     auto text = QString::number(frame, 'f', 0);
     m_currentFrame->setText(text);
 }
 
 void TimelineToolBar::setEndFrame(qreal frame)
 {
-    m_curveModel->setMaximumTime(frame, true);
-
     auto text = QString::number(frame, 'f', 0);
     m_lastFrame->setText(text);
     setupCurrentFrameValidator();
@@ -238,19 +200,6 @@ void TimelineToolBar::removeTimeline(const QmlTimeline &timeline)
 {
     if (timeline.modelNode().id() == m_timelineLabel->text())
         setCurrentTimeline(QmlTimeline());
-}
-
-void TimelineToolBar::openAnimationCurveEditor()
-{
-    QmlTimeline timeline;
-    if (auto *tlw = qobject_cast<TimelineWidget *>(parent())) {
-        if (auto *tlv = tlw->timelineView())
-            timeline = tlv->timelineForState(tlv->currentState());
-    }
-
-    m_dialog->refresh();
-    m_curveModel->setTimeline(timeline);
-    m_dialog->show();
 }
 
 void TimelineToolBar::createLeftControls()
@@ -281,17 +230,6 @@ void TimelineToolBar::createLeftControls()
 
     connect(settingsAction, &QAction::triggered, this, &TimelineToolBar::settingDialogClicked);
     addActionToGroup(settingsAction);
-
-    auto *curveEditorAction = createAction(TimelineConstants::C_CURVE_EDITOR,
-                                           TimelineIcons::CURVE_EDITORDIALOG.icon(),
-                                           tr("Animation Curve Editor"),
-                                           QKeySequence(Qt::Key_C));
-
-    connect(curveEditorAction,
-            &QAction::triggered,
-            this,
-            &TimelineToolBar::openAnimationCurveEditor);
-    addActionToGroup(curveEditorAction);
 
     addWidgetToGroup(createSpacer());
 

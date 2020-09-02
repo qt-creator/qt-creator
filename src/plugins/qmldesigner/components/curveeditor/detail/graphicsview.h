@@ -47,7 +47,7 @@ class GraphicsView : public QGraphicsView
     friend class Playhead;
 
 signals:
-    void notifyFrameChanged(int frame);
+    void currentFrameChanged(int frame, bool notify);
 
 public:
     GraphicsView(CurveEditorModel *model, QWidget *parent = nullptr);
@@ -57,6 +57,8 @@ public:
     CurveEditorModel *model() const;
 
     CurveEditorStyle editorStyle() const;
+
+    bool dragging() const;
 
     int mapTimeToX(double time) const;
 
@@ -153,6 +155,8 @@ private:
     QRectF rangeMaxHandle(const QRectF &rect);
 
 private:
+    bool m_dragging;
+
     double m_zoomX;
 
     double m_zoomY;

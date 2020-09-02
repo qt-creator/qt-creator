@@ -649,8 +649,6 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/timelineeditor
   SOURCES
-    animationcurvedialog.cpp animationcurvedialog.h
-    animationcurveeditormodel.cpp animationcurveeditormodel.h
     canvas.cpp canvas.h
     canvasstyledialog.cpp canvasstyledialog.h
     easingcurve.cpp easingcurve.h
@@ -707,6 +705,7 @@ extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/curveeditor
   SOURCES
     curveeditor.qrc
+    curveeditorview.cpp curveeditorview.h
     animationcurve.cpp animationcurve.h
     curveeditor.cpp curveeditor.h
     curveeditormodel.cpp curveeditormodel.h

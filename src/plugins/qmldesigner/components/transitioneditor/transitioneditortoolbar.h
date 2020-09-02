@@ -25,9 +25,7 @@
 
 #pragma once
 
-#include "animationcurvedialog.h"
-#include "animationcurveeditormodel.h"
-
+#include <modelnode.h>
 #include <QToolBar>
 
 QT_FORWARD_DECLARE_CLASS(QComboBox)
@@ -85,8 +83,6 @@ private:
     QComboBox *m_transitionComboBox = nullptr;
     QSlider *m_scale = nullptr;
     QLineEdit *m_duration = nullptr;
-
-    bool m_blockReflection = false;
 };
 
 } // namespace QmlDesigner

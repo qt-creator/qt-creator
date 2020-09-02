@@ -41,6 +41,8 @@ class CurveEditor : public QWidget
 public:
     CurveEditor(CurveEditorModel *model, QWidget *parent = nullptr);
 
+    bool dragging() const;
+
     void zoomX(double zoom);
 
     void zoomY(double zoom);

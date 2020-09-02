@@ -27,6 +27,8 @@
 
 #include "detail/treemodel.h"
 
+#include <qmltimelinekeyframegroup.h>
+
 #include <vector>
 
 QT_BEGIN_NAMESPACE
@@ -46,41 +48,46 @@ class CurveEditorModel : public TreeModel
     Q_OBJECT
 
 signals:
-    void currentFrameChanged(int frame);
+    void commitCurrentFrame(int frame);
 
-    void startFrameChanged(int frame);
+    void commitStartFrame(int frame);
 
-    void endFrameChanged(int frame);
-
-    void updateStartFrame(int frame);
-
-    void updateEndFrame(int frame);
+    void commitEndFrame(int frame);
 
     void curveChanged(PropertyTreeItem *item);
-
-public:
-    virtual double minimumTime() const = 0;
-
-    virtual double maximumTime() const = 0;
-
-    virtual CurveEditorStyle style() const = 0;
 
 public:
     CurveEditorModel(double minTime, double maxTime, QObject *parent = nullptr);
 
     ~CurveEditorModel() override;
 
+    double minimumTime() const;
+
+    double maximumTime() const;
+
+    DesignTools::CurveEditorStyle style() const;
+
+public:
+    void setTimeline(const QmlDesigner::QmlTimeline &timeline);
+
     void setCurrentFrame(int frame);
 
-    void setMinimumTime(double time, bool internal);
+    void setMinimumTime(double time);
 
-    void setMaximumTime(double time, bool internal);
+    void setMaximumTime(double time);
 
     void setCurve(unsigned int id, const AnimationCurve &curve);
 
     void reset(const std::vector<TreeItem *> &items);
 
-protected:
+private:
+    DesignTools::TreeItem *createTopLevelItem(const QmlDesigner::QmlTimeline &timeline,
+                                              const QmlDesigner::ModelNode &node);
+
+    DesignTools::AnimationCurve createAnimationCurve(const QmlDesigner::QmlTimelineKeyframeGroup &group);
+
+    DesignTools::AnimationCurve createDoubleCurve(const QmlDesigner::QmlTimelineKeyframeGroup &group);
+
     double m_minTime = 0.;
 
     double m_maxTime = 0.;

@@ -258,8 +258,6 @@ void TimelineWidget::connectToolbar()
 
     connect(graphicsScene(), &TimelineGraphicsScene::scroll, this, &TimelineWidget::scroll);
 
-    connect(m_toolbar, &TimelineToolBar::curveChanged, this, &TimelineWidget::updateAnimationCurve);
-
     auto setRulerScaling = [this](int val) { m_graphicsScene->setRulerScaling(val); };
     connect(m_toolbar, &TimelineToolBar::scaleFactorChanged, setRulerScaling);
 
@@ -369,66 +367,6 @@ void attachEasingCurve(double frame,
     if (frameNode.isValid()) {
         auto expression = EasingCurve(curve).toString();
         frameNode.bindingProperty("easing.bezierCurve").setExpression(expression);
-    }
-}
-
-void TimelineWidget::updateAnimationCurve(DesignTools::PropertyTreeItem *item)
-{
-    QmlTimeline currentTimeline = graphicsScene()->currentTimeline();
-    QmlTimelineKeyframeGroup group = timelineKeyframeGroup(currentTimeline, item);
-
-    if (group.isValid()) {
-        ModelNode groupNode = group.modelNode();
-
-        if (groupNode.isValid()) {
-            if (item->locked())
-                groupNode.setAuxiliaryData("locked", true);
-            else
-                groupNode.removeAuxiliaryData("locked");
-
-            if (item->pinned())
-                groupNode.setAuxiliaryData("pinned", true);
-            else
-                groupNode.removeAuxiliaryData("pinned");
-
-            if (item->hasUnified())
-                groupNode.setAuxiliaryData("unified", item->unifyString());
-            else
-                groupNode.removeAuxiliaryData("unified");
-        }
-
-        auto replaceKeyframes = [&group, item, this]() {
-            m_toolbar->setBlockReflection(true);
-            for (auto frame : group.keyframes())
-                frame.destroy();
-
-            DesignTools::Keyframe previous;
-            for (auto &&frame : item->curve().keyframes()) {
-                QPointF pos = frame.position();
-                group.setValue(QVariant(pos.y()), pos.x());
-
-                if (previous.isValid()) {
-                    if (frame.interpolation() == DesignTools::Keyframe::Interpolation::Bezier) {
-                        DesignTools::CurveSegment segment(previous, frame);
-                        if (segment.isValid())
-                            attachEasingCurve(pos.x(), segment.easingCurve(), group);
-                    } else if (frame.interpolation()
-                               == DesignTools::Keyframe::Interpolation::Easing) {
-                        QVariant data = frame.data();
-                        if (data.type() == static_cast<int>(QMetaType::QEasingCurve))
-                            attachEasingCurve(pos.x(), data.value<QEasingCurve>(), group);
-                    } else if (frame.interpolation() == DesignTools::Keyframe::Interpolation::Step) {
-                        // Warning: Keyframe::Interpolation::Step not yet implemented
-                    }
-                }
-
-                previous = frame;
-            }
-            m_toolbar->setBlockReflection(false);
-        };
-
-        timelineView()->executeInTransaction("TimelineWidget::handleKeyframeReplacement",
-                                             replaceKeyframes);
     }
 }
 

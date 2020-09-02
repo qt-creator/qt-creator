@@ -43,6 +43,7 @@ namespace DesignTools {
 
 GraphicsView::GraphicsView(CurveEditorModel *model, QWidget *parent)
     : QGraphicsView(parent)
+    , m_dragging(false)
     , m_zoomX(0.0)
     , m_zoomY(0.0)
     , m_transform()
@@ -96,6 +97,11 @@ CurveEditorModel *GraphicsView::model() const
 CurveEditorStyle GraphicsView::editorStyle() const
 {
     return m_style;
+}
+
+bool GraphicsView::dragging() const
+{
+    return m_dragging;
 }
 
 double GraphicsView::minimumTime() const
@@ -152,9 +158,8 @@ QRectF GraphicsView::timeScaleRect() const
 QRectF GraphicsView::valueScaleRect() const
 {
     QRect vp(viewport()->rect());
-    QPoint tl = vp.topLeft() + QPoint(0, m_style.timeAxisHeight);
     QPoint br = vp.bottomLeft() + QPoint(m_style.valueAxisWidth, 0);
-    return mapToScene(QRect(tl, br)).boundingRect();
+    return mapToScene(QRect(vp.topLeft(), br)).boundingRect();
 }
 
 QRectF GraphicsView::defaultRasterRect() const
@@ -204,11 +209,11 @@ void GraphicsView::setZoomY(double zoom, const QPoint &pivot)
 void GraphicsView::setCurrentFrame(int frame, bool notify)
 {
     int clampedFrame = clamp(frame, m_model->minimumTime(), m_model->maximumTime());
+
     m_playhead.moveToFrame(clampedFrame, this);
     viewport()->update();
 
-    if (notify)
-        notifyFrameChanged(frame);
+    currentFrameChanged(clampedFrame, notify);
 }
 
 void GraphicsView::scrollContent(double x, double y)
@@ -276,8 +281,10 @@ void GraphicsView::keyPressEvent(QKeyEvent *event)
 
 void GraphicsView::mousePressEvent(QMouseEvent *event)
 {
-    if (m_playhead.mousePress(globalToScene(event->globalPos())))
+    if (m_playhead.mousePress(globalToScene(event->globalPos()))) {
+        m_dragging = true;
         return;
+    }
 
     Shortcut shortcut(event);
     if (shortcut == m_style.shortcuts.insertKeyframe) {
@@ -288,6 +295,7 @@ void GraphicsView::mousePressEvent(QMouseEvent *event)
     if (shortcut == Shortcut(Qt::LeftButton)) {
         QPointF pos = mapToScene(event->pos());
         if (timeScaleRect().contains(pos)) {
+            m_dragging = true;
             setCurrentFrame(std::round(mapXtoTime(pos.x())));
             m_playhead.setMoving(true);
             event->accept();
@@ -317,6 +325,7 @@ void GraphicsView::mouseReleaseEvent(QMouseEvent *event)
     m_playhead.mouseRelease(this);
     m_selector.mouseRelease(event, m_scene);
     this->viewport()->update();
+    m_dragging = false;
 }
 
 void GraphicsView::wheelEvent(QWheelEvent *event)
@@ -364,14 +373,13 @@ void GraphicsView::drawForeground(QPainter *painter, const QRectF &rect)
     if (abscissa.isValid())
         drawTimeScale(painter, abscissa);
 
-    painter->fillRect(QRectF(rect.topLeft(), abscissa.bottomLeft()),
-                      m_style.backgroundAlternateBrush);
+    painter->fillRect(QRectF(rect.topLeft(), abscissa.bottomLeft()), m_style.backgroundAlternateBrush);
+
+    m_playhead.paint(painter, this);
 
     auto ordinate = valueScaleRect();
     if (ordinate.isValid())
         drawValueScale(painter, ordinate);
-
-    m_playhead.paint(painter, this);
 
     m_selector.paint(painter);
 }
@@ -463,11 +471,7 @@ void GraphicsView::applyZoom(double x, double y, const QPoint &pivot)
 
 void GraphicsView::drawGrid(QPainter *painter, const QRectF &rect)
 {
-    QRectF gridRect = rect.adjusted(
-        m_style.valueAxisWidth + m_style.canvasMargin,
-        m_style.timeAxisHeight + m_style.canvasMargin,
-        -m_style.canvasMargin,
-        -m_style.canvasMargin);
+    QRectF gridRect = scene()->sceneRect();
 
     if (!gridRect.isValid())
         return;
@@ -576,8 +580,6 @@ void GraphicsView::drawTimeScale(QPainter *painter, const QRectF &rect)
     double timeIncrement = timeLabelInterval(painter, maximumTime());
     for (double i = minimumTime(); i <= maximumTime(); i += timeIncrement)
         paintLabeledTick(i);
-
-    drawRangeBar(painter, rect);
 
     painter->restore();
 }

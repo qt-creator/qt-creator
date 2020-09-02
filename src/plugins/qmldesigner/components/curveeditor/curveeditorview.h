@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2020 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of Qt Creator.
+** This file is part of the Qt Design Tooling
 **
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
@@ -25,69 +25,67 @@
 
 #pragma once
 
+#include "curveeditor.h"
+#include "curveeditormodel.h"
 #include <abstractview.h>
-
-#include <QPointer>
 
 namespace QmlDesigner {
 
-class TransitionEditorWidget;
+class TimelineWidget;
 
-class TransitionEditorView : public AbstractView
+class CurveEditorView : public AbstractView
 {
     Q_OBJECT
 
 public:
-    explicit TransitionEditorView(QObject *parent = nullptr);
-    ~TransitionEditorView() override;
-    //Abstract View
+    explicit CurveEditorView(QObject *parent = nullptr);
+    ~CurveEditorView() override;
+
+public:
+    bool hasWidget() const override;
+
     WidgetInfo widgetInfo() override;
+
     void modelAttached(Model *model) override;
+
     void modelAboutToBeDetached(Model *model) override;
-    void nodeCreated(const ModelNode &createdNode) override;
-    void nodeAboutToBeRemoved(const ModelNode &removedNode) override;
+
     void nodeRemoved(const ModelNode &removedNode,
                      const NodeAbstractProperty &parentProperty,
                      PropertyChangeFlags propertyChange) override;
+
     void nodeReparented(const ModelNode &node,
                         const NodeAbstractProperty &newPropertyParent,
                         const NodeAbstractProperty &oldPropertyParent,
                         PropertyChangeFlags propertyChange) override;
+
     void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName>> &propertyList) override;
+
     void variantPropertiesChanged(const QList<VariantProperty> &propertyList,
                                   PropertyChangeFlags propertyChange) override;
+
     void bindingPropertiesChanged(const QList<BindingProperty> &propertyList,
                                   PropertyChangeFlags propertyChange) override;
-    void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
-                              const QList<ModelNode> &lastSelectedNodeList) override;
 
-    void propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList) override;
     void propertiesRemoved(const QList<AbstractProperty> &propertyList) override;
 
-    bool hasWidget() const override;
+private:
+    QmlTimeline activeTimeline() const;
 
-    void nodeIdChanged(const ModelNode &node, const QString &, const QString &) override;
+    void updateKeyframes();
+    void updateCurrentFrame(const ModelNode &node);
+    void updateStartFrame(const ModelNode &node);
+    void updateEndFrame(const ModelNode &node);
 
-    void currentStateChanged(const ModelNode &node) override;
-
-    TransitionEditorWidget *widget() const;
-
-    void insertKeyframe(const ModelNode &target, const PropertyName &propertyName);
-
-    void registerActions();
-
-    ModelNode addNewTransition();
-
-    void openSettingsDialog();
-
-    const QList<ModelNode> allTransitions() const;
-
-    void asyncUpdate(const ModelNode &transition);
+    void commitKeyframes(DesignTools::PropertyTreeItem *item);
+    void commitCurrentFrame(int frame);
+    void commitStartFrame(int frame);
+    void commitEndFrame(int frame);
 
 private:
-    TransitionEditorWidget *createWidget();
-
-    TransitionEditorWidget *m_transitionEditorWidget = nullptr;
+    bool m_block;
+    DesignTools::CurveEditorModel *m_model;
+    DesignTools::CurveEditor *m_editor;
 };
 
 } // namespace QmlDesigner
