@@ -292,7 +292,7 @@ TextEditor::QuickFixOperations ClangEditorDocumentProcessor::extraRefactoringOpe
 {
     ClangFixItOperationsExtractor extractor(m_diagnosticManager.diagnosticsWithFixIts());
 
-    return extractor.extract(assistInterface.fileName(), currentLine(assistInterface));
+    return extractor.extract(assistInterface.filePath().toString(), currentLine(assistInterface));
 }
 
 void ClangEditorDocumentProcessor::editorDocumentTimerRestarted()

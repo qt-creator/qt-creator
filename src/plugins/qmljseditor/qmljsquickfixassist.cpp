@@ -49,7 +49,7 @@ using namespace Internal;
 QmlJSQuickFixAssistInterface::QmlJSQuickFixAssistInterface(QmlJSEditorWidget *editor,
                                                            AssistReason reason)
     : AssistInterface(editor->document(), editor->position(),
-                      editor->textDocument()->filePath().toString(), reason)
+                      editor->textDocument()->filePath(), reason)
     , m_semanticInfo(editor->qmlJsEditorDocument()->semanticInfo())
     , m_currentFile(QmlJSRefactoringChanges::file(editor, m_semanticInfo.document))
 {}

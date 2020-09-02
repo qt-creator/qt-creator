@@ -424,17 +424,18 @@ IAssistProcessor *InternalCompletionAssistProvider::createProcessor() const
     return new InternalCppCompletionAssistProcessor;
 }
 
-AssistInterface *InternalCompletionAssistProvider::createAssistInterface(const QString &filePath,
-        const TextEditorWidget *textEditorWidget,
-        const LanguageFeatures &languageFeatures,
-        int position,
-        AssistReason reason) const
+AssistInterface *InternalCompletionAssistProvider::createAssistInterface(
+    const Utils::FilePath &filePath,
+    const TextEditorWidget *textEditorWidget,
+    const LanguageFeatures &languageFeatures,
+    int position,
+    AssistReason reason) const
 {
     QTC_ASSERT(textEditorWidget, return nullptr);
 
     return new CppCompletionAssistInterface(filePath,
                                             textEditorWidget,
-                                            BuiltinEditorDocumentParser::get(filePath),
+                                            BuiltinEditorDocumentParser::get(filePath.toString()),
                                             languageFeatures,
                                             position,
                                             reason,
@@ -1092,7 +1093,7 @@ int InternalCppCompletionAssistProcessor::startCompletionHelper()
 
     int line = 0, column = 0;
     Utils::Text::convertPosition(m_interface->textDocument(), startOfExpression, &line, &column);
-    const QString fileName = m_interface->fileName();
+    const QString fileName = m_interface->filePath().toString();
     return startCompletionInternal(fileName, line, column - 1, expression, endOfExpression);
 }
 
@@ -1117,7 +1118,7 @@ bool InternalCppCompletionAssistProcessor::tryObjCCompletion()
     const int startPos = tokens[start].bytesBegin() + tokens.startPosition();
     const QString expr = m_interface->textAt(startPos, m_interface->position() - startPos);
 
-    Document::Ptr thisDocument = m_interface->snapshot().document(m_interface->fileName());
+    Document::Ptr thisDocument = m_interface->snapshot().document(m_interface->filePath());
     if (!thisDocument)
         return false;
 
@@ -1260,7 +1261,7 @@ bool InternalCppCompletionAssistProcessor::completeInclude(const QTextCursor &cu
 
     // Make completion for all relevant includes
     ProjectExplorer::HeaderPaths headerPaths = m_interface->headerPaths();
-    const ProjectExplorer::HeaderPath currentFilePath(QFileInfo(m_interface->fileName()).path(),
+    const ProjectExplorer::HeaderPath currentFilePath(m_interface->filePath().toFileInfo().path(),
                                                       ProjectExplorer::HeaderPathType::User);
     if (!headerPaths.contains(currentFilePath))
         headerPaths.append(currentFilePath);
@@ -1312,7 +1313,7 @@ bool InternalCppCompletionAssistProcessor::objcKeywordsWanted() const
     if (!m_interface->languageFeatures().objCEnabled)
         return false;
 
-    const QString fileName = m_interface->fileName();
+    const QString fileName = m_interface->filePath().toString();
 
     const Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
     return mt.matchesName(QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE))

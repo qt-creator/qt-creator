@@ -135,7 +135,7 @@ QList<AssistProposalItemInterface *> ClangCompletionAssistProcessor::toAssistPro
         return c.completionKind == CodeCompletion::SignalCompletionKind;
     })) {
         considerOnlySignals = CppTools::CppModelManager::instance()
-                ->positionRequiresSignal(m_interface->fileName(), m_content, m_position);
+                ->positionRequiresSignal(m_interface->filePath().toString(), m_content, m_position);
     }
 
     for (const CodeCompletion &codeCompletion : completions) {
@@ -492,8 +492,8 @@ bool ClangCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
 
     // Make completion for all relevant includes
     ProjectExplorer::HeaderPaths headerPaths = m_interface->headerPaths();
-    const ProjectExplorer::HeaderPath currentFilePath(QFileInfo(m_interface->fileName()).path(),
-                                                          ProjectExplorer::HeaderPathType::User);
+    const ProjectExplorer::HeaderPath currentFilePath(m_interface->filePath().toFileInfo().path(),
+                                                      ProjectExplorer::HeaderPathType::User);
     if (!headerPaths.contains(currentFilePath))
         headerPaths.append(currentFilePath);
 
@@ -608,7 +608,7 @@ void ClangCompletionAssistProcessor::sendFileContent(const QByteArray &customFil
     const UnsavedFileContentInfo info = unsavedFileContent(customFileContent);
 
     BackendCommunicator &communicator = m_interface->communicator();
-    communicator.documentsChanged({{m_interface->fileName(),
+    communicator.documentsChanged({{m_interface->filePath().toString(),
                                     Utf8String::fromByteArray(info.unsavedContent),
                                     info.isDocumentModified,
                                     uint(m_interface->textDocument()->revision())}});
@@ -677,7 +677,7 @@ bool ClangCompletionAssistProcessor::sendCompletionRequest(int position,
                                                            const QByteArray &customFileContent,
                                                            int functionNameStartPosition)
 {
-    const QString filePath = m_interface->fileName();
+    const QString filePath = m_interface->filePath().toString();
 
     auto &communicator = m_interface->communicator();
 

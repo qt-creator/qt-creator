@@ -145,7 +145,7 @@ QStringList BaseTextEditModifier::autoComplete(QTextDocument *textDocument, int 
                 = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(bte->textDocument()))
             return QmlJSEditor::qmlJSAutoComplete(textDocument,
                                                   position,
-                                                  document->filePath().toString(),
+                                                  document->filePath(),
                                                   explicitComplete ? TextEditor::ExplicitlyInvoked : TextEditor::ActivationCharacter,
                                                   document->semanticInfo());
     return QStringList();

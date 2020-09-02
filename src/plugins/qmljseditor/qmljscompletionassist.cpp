@@ -328,7 +328,7 @@ bool isLiteral(AST::Node *ast)
 
 QStringList qmlJSAutoComplete(QTextDocument *textDocument,
                               int position,
-                              const QString &fileName,
+                              const Utils::FilePath &fileName,
                               TextEditor::AssistReason reason,
                               const SemanticInfo &info)
 {
@@ -552,8 +552,6 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
     if (assistInterface->reason() == IdleEditor && !acceptsIdleEditor())
         return nullptr;
 
-    const QString &fileName = m_interface->fileName();
-
     m_startPosition = assistInterface->position();
     while (isIdentifierChar(m_interface->textDocument()->characterAt(m_startPosition - 1), false, false))
         --m_startPosition;
@@ -567,10 +565,9 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
         return nullptr;
 
     const Document::Ptr document = semanticInfo.document;
-    const QFileInfo currentFileInfo(fileName);
 
     bool isQmlFile = false;
-    if (currentFileInfo.suffix() == QLatin1String("qml"))
+    if (m_interface->filePath().endsWith(".qml"))
         isQmlFile = true;
 
     const QList<AST::Node *> path = semanticInfo.rangePath(m_interface->position());
@@ -983,7 +980,7 @@ bool QmlJSCompletionAssistProcessor::completeUrl(const QString &relativeBasePath
 // ------------------------------
 QmlJSCompletionAssistInterface::QmlJSCompletionAssistInterface(QTextDocument *textDocument,
                                                                int position,
-                                                               const QString &fileName,
+                                                               const Utils::FilePath &fileName,
                                                                AssistReason reason,
                                                                const SemanticInfo &info)
     : AssistInterface(textDocument, position, fileName, reason)

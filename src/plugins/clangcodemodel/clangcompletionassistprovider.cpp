@@ -60,13 +60,14 @@ TextEditor::IAssistProcessor *ClangCompletionAssistProvider::createProcessor() c
 }
 
 TextEditor::AssistInterface *ClangCompletionAssistProvider::createAssistInterface(
-        const QString &filePath,
-        const TextEditor::TextEditorWidget *textEditorWidget,
-        const CPlusPlus::LanguageFeatures &/*languageFeatures*/,
-        int position,
-        TextEditor::AssistReason reason) const
+    const Utils::FilePath &filePath,
+    const TextEditor::TextEditorWidget *textEditorWidget,
+    const CPlusPlus::LanguageFeatures & /*languageFeatures*/,
+    int position,
+    TextEditor::AssistReason reason) const
 {
-    const CppTools::ProjectPart::Ptr projectPart = projectPartForFileBasedOnProcessor(filePath);
+    const CppTools::ProjectPart::Ptr projectPart = projectPartForFileBasedOnProcessor(
+        filePath.toString());
     if (projectPart) {
         return new ClangCompletionAssistInterface(m_communicator,
                                                   m_type,

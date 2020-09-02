@@ -179,7 +179,7 @@ public:
     HoverHandler *hoverHandler();
     void rehighlight();
 
-    bool documentUpdatePostponed(const QString &fileName) const;
+    bool documentUpdatePostponed(const Utils::FilePath &fileName) const;
 
 signals:
     void initialized(LanguageServerProtocol::ServerCapabilities capabilities);

@@ -46,11 +46,11 @@ public:
 
     TextEditor::IAssistProcessor *createProcessor() const override;
     TextEditor::AssistInterface *createAssistInterface(
-            const QString &filePath,
-            const TextEditor::TextEditorWidget *textEditorWidget,
-            const CPlusPlus::LanguageFeatures &languageFeatures,
-            int position,
-            TextEditor::AssistReason reason) const override;
+        const Utils::FilePath &filePath,
+        const TextEditor::TextEditorWidget *textEditorWidget,
+        const CPlusPlus::LanguageFeatures &languageFeatures,
+        int position,
+        TextEditor::AssistReason reason) const override;
 
 private:
     BackendCommunicator &m_communicator;

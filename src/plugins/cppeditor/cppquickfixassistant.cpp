@@ -87,7 +87,7 @@ IAssistProcessor *CppQuickFixAssistProvider::createProcessor() const
 CppQuickFixInterface::CppQuickFixInterface(CppEditorWidget *editor,
                                                        AssistReason reason)
     : AssistInterface(editor->document(), editor->position(),
-                      editor->textDocument()->filePath().toString(), reason)
+                      editor->textDocument()->filePath(), reason)
     , m_editor(editor)
     , m_semanticInfo(editor->semanticInfo())
     , m_snapshot(CppModelManager::instance()->snapshot())

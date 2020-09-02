@@ -112,7 +112,7 @@ IAssistProposal *LanguageClientQuickFixAssistProcessor::perform(const AssistInte
         cursor.select(QTextCursor::LineUnderCursor);
     Range range(cursor);
     params.setRange(range);
-    auto uri = DocumentUri::fromFilePath(Utils::FilePath::fromString(interface->fileName()));
+    auto uri = DocumentUri::fromFilePath(interface->filePath());
     params.setTextDocument(TextDocumentIdentifier(uri));
     CodeActionParams::CodeActionContext context;
     context.setDiagnostics(m_client->diagnosticsAt(uri, range));

@@ -42,7 +42,7 @@ public:
                                    CompletionType type,
                                    const TextEditor::TextEditorWidget *textEditorWidget,
                                    int position,
-                                   const QString &fileName,
+                                   const Utils::FilePath &fileName,
                                    TextEditor::AssistReason reason,
                                    const ProjectExplorer::HeaderPaths &headerPaths,
                                    const CPlusPlus::LanguageFeatures &features);

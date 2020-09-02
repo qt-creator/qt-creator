@@ -107,7 +107,7 @@ class QMLJSEDITOR_EXPORT QmlJSCompletionAssistInterface : public TextEditor::Ass
 public:
     QmlJSCompletionAssistInterface(QTextDocument *textDocument,
                                    int position,
-                                   const QString &fileName,
+                                   const Utils::FilePath &fileName,
                                    TextEditor::AssistReason reason,
                                    const QmlJSTools::SemanticInfo &info);
     const QmlJSTools::SemanticInfo &semanticInfo() const;
@@ -135,7 +135,7 @@ public:
 
 QStringList QMLJSEDITOR_EXPORT qmlJSAutoComplete(QTextDocument *textDocument,
                                                  int position,
-                                                 const QString &fileName,
+                                                 const Utils::FilePath &fileName,
                                                  TextEditor::AssistReason reason,
                                                  const QmlJSTools::SemanticInfo &info);
 

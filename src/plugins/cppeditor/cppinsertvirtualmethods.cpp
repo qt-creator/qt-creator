@@ -706,7 +706,7 @@ public:
             return;
 
         bool isHeaderFile = false;
-        m_cppFileName = correspondingHeaderOrSource(interface.fileName(), &isHeaderFile);
+        m_cppFileName = correspondingHeaderOrSource(interface.filePath().toString(), &isHeaderFile);
         m_factory->setHasImplementationFile(isHeaderFile && !m_cppFileName.isEmpty());
 
         m_valid = true;

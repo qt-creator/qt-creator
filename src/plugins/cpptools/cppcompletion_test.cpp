@@ -105,7 +105,7 @@ public:
         LanguageFeatures languageFeatures = LanguageFeatures::defaultFeatures();
         languageFeatures.objCEnabled = false;
         CppCompletionAssistInterface *ai
-            = new CppCompletionAssistInterface(m_editorWidget->textDocument()->filePath().toString(),
+            = new CppCompletionAssistInterface(m_editorWidget->textDocument()->filePath(),
                                                m_textDocument, m_position,
                                                ExplicitlyInvoked, m_snapshot,
                                                ProjectExplorer::HeaderPaths(),

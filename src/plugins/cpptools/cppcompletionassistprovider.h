@@ -41,6 +41,8 @@ class TextEditorWidget;
 class AssistInterface;
 }
 
+namespace Utils { class FilePath; }
+
 namespace CppTools {
 
 class CPPTOOLS_EXPORT CppCompletionAssistProvider : public TextEditor::CompletionAssistProvider
@@ -54,11 +56,11 @@ public:
     bool isContinuationChar(const QChar &c) const override;
 
     virtual TextEditor::AssistInterface *createAssistInterface(
-            const QString &filePath,
-            const TextEditor::TextEditorWidget *textEditorWidget,
-            const CPlusPlus::LanguageFeatures &languageFeatures,
-            int position,
-            TextEditor::AssistReason reason) const = 0;
+        const Utils::FilePath &filePath,
+        const TextEditor::TextEditorWidget *textEditorWidget,
+        const CPlusPlus::LanguageFeatures &languageFeatures,
+        int position,
+        TextEditor::AssistReason reason) const = 0;
 
     static int activationSequenceChar(const QChar &ch, const QChar &ch2,
                                       const QChar &ch3, unsigned *kind,

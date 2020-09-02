@@ -346,7 +346,7 @@ static TextEditor::AssistInterface createAssistInterface(TextEditor::TextEditorW
 {
     return TextEditor::AssistInterface(widget->document(),
                                        lineToPosition(widget->document(), lineNumber),
-                                       widget->textDocument()->filePath().toString(),
+                                       widget->textDocument()->filePath(),
                                        TextEditor::IdleEditor);
 }
 

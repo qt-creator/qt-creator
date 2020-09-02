@@ -298,7 +298,7 @@ void pathComplete(const AssistInterface *interface, QList<AssistProposalItemInte
     if (!items)
         return;
 
-    if (interface->fileName().isEmpty())
+    if (interface->filePath().isEmpty())
         return;
 
     // For pragmatic reasons, we don't support spaces in file names here.
@@ -319,7 +319,7 @@ void pathComplete(const AssistInterface *interface, QList<AssistProposalItemInte
         return;
 
     const QString word = interface->textAt(startPos, interface->position() - startPos);
-    QDir baseDir = QFileInfo(interface->fileName()).absoluteDir();
+    QDir baseDir = interface->filePath().toFileInfo().absoluteDir();
     const int lastSlashPos = word.lastIndexOf(QLatin1Char('/'));
 
     QString prefix = word;

@@ -323,13 +323,12 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistIn
             ++delta;
         if (delta < TextEditorSettings::completionSettings().m_characterThreshold)
             return nullptr;
-        if (m_client->documentUpdatePostponed(interface->fileName())) {
+        if (m_client->documentUpdatePostponed(interface->filePath())) {
             m_postponedUpdateConnection
                 = QObject::connect(m_client,
                                    &Client::documentUpdated,
                                    [this, interface](TextEditor::TextDocument *document) {
-                                       if (document->filePath()
-                                           == Utils::FilePath::fromString(interface->fileName()))
+                                       if (document->filePath() == interface->filePath())
                                            perform(interface);
                                    });
             return nullptr;
@@ -355,8 +354,7 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistIn
     --column; // column is 0 based in the protocol
     params.setPosition({line, column});
     params.setContext(context);
-    params.setTextDocument(TextDocumentIdentifier(
-        DocumentUri::fromFilePath(Utils::FilePath::fromString(interface->fileName()))));
+    params.setTextDocument(TextDocumentIdentifier(DocumentUri::fromFilePath(interface->filePath())));
     CompletionRequest completionRequest(params);
     completionRequest.setResponseCallback([this](auto response) {
         this->handleCompletionResponse(response);

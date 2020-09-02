@@ -158,8 +158,7 @@ private:
 
     static Suggest::NimSuggest *nimSuggestInstance(const AssistInterface *interface)
     {
-        auto filename = Utils::FilePath::fromString(interface->fileName());
-        return Nim::Suggest::NimSuggestCache::instance().get(filename);
+        return Nim::Suggest::NimSuggestCache::instance().get(interface->filePath());
     }
 
     static std::shared_ptr<Suggest::NimSuggestClientRequest> sendRequest(const AssistInterface *interface,
@@ -170,8 +169,7 @@ private:
         int line = 0, column = 0;
         Utils::Text::convertPosition(interface->textDocument(), pos, &line, &column);
         QTC_ASSERT(column >= 1, return nullptr);
-        auto filename = Utils::FilePath::fromString(interface->fileName());
-        return suggest->sug(filename.toString(), line, column - 1, dirtyFile);
+        return suggest->sug(interface->filePath().toString(), line, column - 1, dirtyFile);
     }
 
     static std::unique_ptr<QTemporaryFile> writeDirtyFile(const TextEditor::AssistInterface *interface)

@@ -32,6 +32,8 @@
 #include <QString>
 #include <QVector>
 
+#include <utils/fileutils.h>
+
 QT_BEGIN_NAMESPACE
 class QTextDocument;
 QT_END_NAMESPACE
@@ -43,14 +45,14 @@ class TEXTEDITOR_EXPORT AssistInterface
 public:
     AssistInterface(QTextDocument *textDocument,
                     int position,
-                    const QString &fileName,
+                    const Utils::FilePath &filePath,
                     AssistReason reason);
     virtual ~AssistInterface();
 
     virtual int position() const { return m_position; }
     virtual QChar characterAt(int position) const;
     virtual QString textAt(int position, int length) const;
-    virtual QString fileName() const { return m_fileName; }
+    virtual Utils::FilePath filePath() const { return m_filePath; }
     virtual QTextDocument *textDocument() const { return m_textDocument; }
     virtual void prepareForAsyncUse();
     virtual void recreateTextDocument();
@@ -60,7 +62,7 @@ private:
     QTextDocument *m_textDocument;
     bool m_isAsync;
     int m_position;
-    QString m_fileName;
+    Utils::FilePath m_filePath;
     AssistReason m_reason;
     QString m_text;
     QVector<int> m_userStates;

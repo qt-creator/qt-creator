@@ -1019,7 +1019,7 @@ AssistInterface *QmlJSEditorWidget::createAssistInterface(
     if (assistKind == Completion) {
         return new QmlJSCompletionAssistInterface(document(),
                                                   position(),
-                                                  textDocument()->filePath().toString(),
+                                                  textDocument()->filePath(),
                                                   reason,
                                                   m_qmlJsEditorDocument->semanticInfo());
     } else if (assistKind == QuickFix) {

@@ -1308,10 +1308,10 @@ void Client::rehighlight()
     }
 }
 
-bool Client::documentUpdatePostponed(const QString &fileName) const
+bool Client::documentUpdatePostponed(const Utils::FilePath &fileName) const
 {
     return Utils::contains(m_documentsToUpdate.keys(), [fileName](const TextEditor::TextDocument *doc) {
-        return doc->filePath() == Utils::FilePath::fromString(fileName);
+        return doc->filePath() == fileName;
     });
 }
 

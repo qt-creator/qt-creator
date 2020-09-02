@@ -85,11 +85,11 @@ public:
     TextEditor::IAssistProcessor *createProcessor() const override;
 
     TextEditor::AssistInterface *createAssistInterface(
-            const QString &filePath,
-            const TextEditor::TextEditorWidget *textEditorWidget,
-            const CPlusPlus::LanguageFeatures &languageFeatures,
-            int position,
-            TextEditor::AssistReason reason) const override;
+        const Utils::FilePath &filePath,
+        const TextEditor::TextEditorWidget *textEditorWidget,
+        const CPlusPlus::LanguageFeatures &languageFeatures,
+        int position,
+        TextEditor::AssistReason reason) const override;
 };
 
 class InternalCppCompletionAssistProcessor : public CppCompletionAssistProcessor
@@ -165,7 +165,7 @@ private:
 class CppCompletionAssistInterface : public TextEditor::AssistInterface
 {
 public:
-    CppCompletionAssistInterface(const QString &filePath,
+    CppCompletionAssistInterface(const Utils::FilePath &filePath,
                                  const TextEditor::TextEditorWidget *textEditorWidget,
                                  BuiltinEditorDocumentParser::Ptr parser,
                                  const CPlusPlus::LanguageFeatures &languageFeatures,
@@ -179,7 +179,7 @@ public:
         , m_languageFeatures(languageFeatures)
     {}
 
-    CppCompletionAssistInterface(const QString &filePath,
+    CppCompletionAssistInterface(const Utils::FilePath &filePath,
                                  QTextDocument *textDocument,
                                  int position,
                                  TextEditor::AssistReason reason,

@@ -103,12 +103,12 @@ namespace TextEditor {
 
 AssistInterface::AssistInterface(QTextDocument *textDocument,
                                                int position,
-                                               const QString &fileName,
+                                               const Utils::FilePath &filePath,
                                                AssistReason reason)
     : m_textDocument(textDocument)
     , m_isAsync(false)
     , m_position(position)
-    , m_fileName(fileName)
+    , m_filePath(filePath)
     , m_reason(reason)
 {}
 
