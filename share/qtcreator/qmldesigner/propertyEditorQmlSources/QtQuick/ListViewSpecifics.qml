@@ -46,6 +46,7 @@ Column {
             Label {
                 text: qsTr("Cache")
                 tooltip: qsTr("Cache buffer")
+                disabledState: !backendValues.cacheBuffer.isAvailable
             }
 
             SectionLayout {
@@ -54,6 +55,7 @@ Column {
                     minimumValue: 0
                     maximumValue: 1000
                     decimals: 0
+                    enabled: backendValue.isAvailable
                 }
 
                 ExpandingSpacer {
@@ -63,6 +65,7 @@ Column {
             Label {
                 text: qsTr("Navigation wraps")
                 tooltip: qsTr("Determines whether the grid wraps key navigation.")
+                disabledState: !backendValues.keyNavigationWraps.isAvailable
             }
 
             SectionLayout {
@@ -70,6 +73,7 @@ Column {
                     Layout.fillWidth: true
                     backendValue: backendValues.keyNavigationWraps
                     text: backendValues.keyNavigationWraps.valueToString
+                    enabled: backendValue.isAvailable
                 }
                 ExpandingSpacer {
                 }
@@ -93,6 +97,7 @@ Column {
 
             Label {
                 text: qsTr("Layout Direction")
+                disabledState: !backendValues.layoutDirection.isAvailable
             }
 
             SecondColumnLayout {
@@ -101,6 +106,7 @@ Column {
                     model: ["LeftToRight", "RightToLeft"]
                     backendValue: backendValues.layoutDirection
                     Layout.fillWidth: true
+                    enabled: backendValue.isAvailable
                 }
                 ExpandingSpacer {
                 }
@@ -109,6 +115,7 @@ Column {
             Label {
                 text: qsTr("Snap mode")
                 tooltip: qsTr("Determines how the view scrolling will settle following a drag or flick.")
+                disabledState: !backendValues.snapMode.isAvailable
             }
 
             SecondColumnLayout {
@@ -117,6 +124,7 @@ Column {
                     model: ["NoSnap", "SnapToItem", "SnapOneItem"]
                     backendValue: backendValues.snapMode
                     Layout.fillWidth: true
+                    enabled: backendValue.isAvailable
                 }
                 ExpandingSpacer {
                 }
@@ -151,6 +159,7 @@ Column {
             Label {
                 text: qsTr("Range")
                 tooltip: qsTr("Highlight range")
+                disabledState: !backendValues.highlightRangeMode.isAvailable
             }
 
             SecondColumnLayout {
@@ -159,6 +168,7 @@ Column {
                     model: ["NoHighlightRange", "ApplyRange", "StrictlyEnforceRange"]
                     backendValue: backendValues.highlightRangeMode
                     Layout.fillWidth: true
+                    enabled: backendValue.isAvailable
                 }
                 ExpandingSpacer {
                 }
@@ -168,6 +178,7 @@ Column {
             Label {
                 text: qsTr("Move duration")
                 tooltip: qsTr("Move animation duration of the highlight delegate.")
+                disabledState: !backendValues.highlightMoveDuration.isAvailable
             }
 
             SectionLayout {
@@ -176,6 +187,7 @@ Column {
                     minimumValue: -1
                     maximumValue: 1000
                     decimals: 0
+                    enabled: backendValue.isAvailable
                 }
                 ExpandingSpacer {
                 }
@@ -184,6 +196,7 @@ Column {
             Label {
                 text: qsTr("Move velocity")
                 tooltip: qsTr("Move animation velocity of the highlight delegate.")
+                disabledState: !backendValues.highlightMoveVelocity.isAvailable
             }
 
             SectionLayout {
@@ -192,6 +205,7 @@ Column {
                     minimumValue: -1
                     maximumValue: 1000
                     decimals: 0
+                    enabled: backendValue.isAvailable
                 }
                 ExpandingSpacer {
                 }
@@ -200,6 +214,7 @@ Column {
             Label {
                 text: qsTr("Resize duration")
                 tooltip: qsTr("Resize animation duration of the highlight delegate.")
+                disabledState: !backendValues.highlightResizeDuration.isAvailable
             }
 
             SectionLayout {
@@ -208,6 +223,7 @@ Column {
                     minimumValue: -1
                     maximumValue: 1000
                     decimals: 0
+                    enabled: backendValue.isAvailable
                 }
                 ExpandingSpacer {
                 }
@@ -216,6 +232,7 @@ Column {
             Label {
                 text: qsTr("Resize velocity")
                 tooltip: qsTr("Resize animation velocity of the highlight delegate.")
+                disabledState: !backendValues.highlightResizeVelocity.isAvailable
             }
 
             SectionLayout {
@@ -224,6 +241,7 @@ Column {
                     minimumValue: -1
                     maximumValue: 1000
                     decimals: 0
+                    enabled: backendValue.isAvailable
                 }
                 ExpandingSpacer {
                 }
@@ -232,6 +250,7 @@ Column {
             Label {
                 text: qsTr("Preferred begin")
                 tooltip: qsTr("Preferred highlight begin - must be smaller than Preferred end.")
+                disabledState: !backendValues.preferredHighlightBegin.isAvailable
             }
 
             SectionLayout {
@@ -240,6 +259,7 @@ Column {
                     minimumValue: 0
                     maximumValue: 1000
                     decimals: 0
+                    enabled: backendValue.isAvailable
                 }
                 ExpandingSpacer {
                 }
@@ -248,6 +268,7 @@ Column {
             Label {
                 text: qsTr("Preferred end")
                 tooltip: qsTr("Preferred highlight end - must be larger than Preferred begin.")
+                disabledState: !backendValues.preferredHighlightEnd.isAvailable
             }
 
             SectionLayout {
@@ -256,6 +277,7 @@ Column {
                     minimumValue: 0
                     maximumValue: 1000
                     decimals: 0
+                    enabled: backendValue.isAvailable
                 }
                 ExpandingSpacer {
                 }
@@ -264,6 +286,7 @@ Column {
             Label {
                 text: qsTr("Follows current")
                 tooltip: qsTr("Determines whether the highlight is managed by the view.")
+                disabledState: !backendValues.highlightFollowsCurrentItem.isAvailable
             }
 
             SectionLayout {
@@ -271,6 +294,7 @@ Column {
                     Layout.fillWidth: true
                     backendValue: backendValues.highlightFollowsCurrentItem
                     text: backendValues.highlightFollowsCurrentItem.valueToString
+                    enabled: backendValue.isAvailable
                 }
                 ExpandingSpacer {
                 }

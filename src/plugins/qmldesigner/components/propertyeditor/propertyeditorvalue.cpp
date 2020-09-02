@@ -289,12 +289,22 @@ static QList<QByteArray> prepareNonMcuProperties()
     const QList<QByteArray> textProperties = {"elide", "lineHeight", "lineHeightMode", "wrapMode", "style",
                                               "styleColor", "minimumPointSize", "minimumPixelSize", "styleColor",
                                               "fontSizeMode", "renderType", "textFormat", "maximumLineCount"};
+    const QList<QByteArray> paddingProperties = {"bottomPadding", "topPadding", "leftPadding", "rightPadding"};
+    const QList<QByteArray> columnRowProperties = {"layoutDirection"};
+    const QList<QByteArray> listViewProperties = {"cacheBuffer", "highlightRangeMode", "highlightMoveDuration",
+                                                  "highlightResizeDuration", "preferredHighlightBegin", "layoutDirection",
+                                                  "preferredHighlightEnd", "highlightFollowsCurrentItem", "keyNavigationWraps",
+                                                  "snapMode", "highlightMoveVelocity", "highlightResizeVelocity"};
 
     result.append(itemProperties);
     result.append(mouseAreaProperties);
     result.append(flickableProperties);
     result.append(imageProperties);
     result.append(textProperties);
+    result.append(paddingProperties);
+    result.append(columnRowProperties);
+    result.append(listViewProperties);
+
 
     return result;
 }
