@@ -179,7 +179,7 @@ class TEXTEDITOR_EXPORT TextEditorWidget : public QPlainTextEdit
     Q_PROPERTY(int verticalBlockSelectionLastColumn READ verticalBlockSelectionLastColumn)
 
 public:
-    TextEditorWidget(QWidget *parent = nullptr);
+    explicit TextEditorWidget(QWidget *parent = nullptr);
     ~TextEditorWidget() override;
 
     void setTextDocument(const QSharedPointer<TextDocument> &doc);
