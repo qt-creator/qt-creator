@@ -25,22 +25,27 @@
 
 #pragma once
 
-#include <QQuickWidget>
+#include <QQuickView>
 
 
 namespace QmlDesigner {
 
-class Quick2PropertyEditorView : public QQuickWidget
+class Quick2PropertyEditorView : public QQuickView
 {
     Q_OBJECT
 
 public:
     explicit Quick2PropertyEditorView(QWidget *parent = nullptr);
 
+    QWidget *widget();
+
     static void registerQmlTypes();
 
 protected:
     bool event(QEvent *e) override;
+
+private:
+    QWidget *m_widget;
 };
 
 } //QmlDesigner
