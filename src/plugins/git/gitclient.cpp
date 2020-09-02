@@ -1225,7 +1225,7 @@ void GitClient::archive(const QString &workingDirectory, QString commit)
     QString archiveName = QFileDialog::getSaveFileName(
                 ICore::dialogParent(),
                 tr("Generate %1 archive").arg(repoName),
-                repoDirectory + QString("/%1-%2").arg(repoName).arg(commit.left(8)),
+                repoDirectory + QString("/../%1-%2").arg(repoName).arg(commit.left(8)),
                 filters.keys().join(";;"),
                 &selectedFilter);
     if (archiveName.isEmpty())
@@ -1233,7 +1233,7 @@ void GitClient::archive(const QString &workingDirectory, QString commit)
     QString extension = filters.value(selectedFilter);
     QFileInfo archive(archiveName);
     if (archive.completeSuffix() != extension) {
-        archive = QFileInfo(archive.absoluteDir().absoluteFilePath(archive.baseName() + extension));
+        archive = QFileInfo(archive.filePath() + extension);
     }
 
     if (archive.exists()) {
