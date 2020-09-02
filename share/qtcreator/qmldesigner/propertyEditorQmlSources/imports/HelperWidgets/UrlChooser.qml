@@ -34,7 +34,7 @@ RowLayout {
 
     property variant backendValue
     property color textColor: colorLogic.highlight ? colorLogic.textColor : "white"
-    property string filter: "*.png *.gif *.jpg *.bmp *.jpeg *.svg *.pbm *.pgm *.ppm *.xbm *.xpm"
+    property string filter: "*.png *.gif *.jpg *.bmp *.jpeg *.svg *.pbm *.pgm *.ppm *.xbm *.xpm *.hdr"
 
     FileResourcesModel {
         id: fileModel
