@@ -722,8 +722,7 @@ bool QmakePriFile::addDependencies(const QStringList &dependencies)
 
 bool QmakePriFile::saveModifiedEditors()
 {
-    Core::IDocument *document
-            = Core::DocumentModel::documentForFilePath(filePath().toString());
+    Core::IDocument *document = Core::DocumentModel::documentForFilePath(filePath());
     if (!document || !document->isModified())
         return true;
 
@@ -976,7 +975,7 @@ void QmakePriFile::save(const QStringList &lines)
     // We manually tell each editor to reload it's file.
     // (The .pro files are notified by the file system watcher.)
     QStringList errorStrings;
-    Core::IDocument *document = Core::DocumentModel::documentForFilePath(filePath().toString());
+    Core::IDocument *document = Core::DocumentModel::documentForFilePath(filePath());
     if (document) {
         QString errorString;
         if (!document->reload(&errorString, Core::IDocument::FlagReload, Core::IDocument::TypeContents))

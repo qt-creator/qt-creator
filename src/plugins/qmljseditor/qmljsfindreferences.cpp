@@ -1043,7 +1043,7 @@ void FindReferences::onReplaceButtonClicked(const QString &text, const QList<Sea
     QStringList changedOnDisk;
     QStringList changedUnsavedEditors;
     foreach (const QString &fileName, fileNames) {
-        if (DocumentModel::documentForFilePath(fileName))
+        if (DocumentModel::documentForFilePath(Utils::FilePath::fromString(fileName)))
             changedOnDisk += fileName;
         else
             changedUnsavedEditors += fileName;

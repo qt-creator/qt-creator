@@ -246,7 +246,7 @@ QString StateListener::windowTitleVcsTopic(const QString &filePath)
 
 static inline QString displayNameOfEditor(const QString &fileName)
 {
-    IDocument *document = DocumentModel::documentForFilePath(fileName);
+    IDocument *document = DocumentModel::documentForFilePath(FilePath::fromString(fileName));
     if (document)
         return document->displayName();
     return QString();

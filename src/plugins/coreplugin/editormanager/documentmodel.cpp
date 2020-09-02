@@ -633,15 +633,15 @@ QList<IDocument *> DocumentModel::openedDocuments()
     return d->m_editors.keys();
 }
 
-IDocument *DocumentModel::documentForFilePath(const QString &filePath)
+IDocument *DocumentModel::documentForFilePath(const Utils::FilePath &filePath)
 {
-    const Utils::optional<int> index = d->indexOfFilePath(Utils::FilePath::fromString(filePath));
+    const Utils::optional<int> index = d->indexOfFilePath(filePath);
     if (!index)
         return nullptr;
     return d->m_entries.at(*index)->document;
 }
 
-QList<IEditor *> DocumentModel::editorsForFilePath(const QString &filePath)
+QList<IEditor *> DocumentModel::editorsForFilePath(const Utils::FilePath &filePath)
 {
     IDocument *document = documentForFilePath(filePath);
     if (document)

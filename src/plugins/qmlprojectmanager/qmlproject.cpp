@@ -474,8 +474,8 @@ bool QmlBuildSystem::renameFile(Node * context, const QString &filePath, const Q
             setMainFile(newFilePath);
 
             // make sure to change it also in the qmlproject file
-            const QString qmlProjectFilePath = project()->projectFilePath().toString();
-            Core::FileChangeBlocker fileChangeBlocker(qmlProjectFilePath);
+            const Utils::FilePath qmlProjectFilePath = project()->projectFilePath();
+            Core::FileChangeBlocker fileChangeBlocker(qmlProjectFilePath.toString());
             const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForFilePath(qmlProjectFilePath);
             TextEditor::TextDocument *document = nullptr;
             if (!editors.isEmpty()) {
@@ -489,7 +489,7 @@ bool QmlBuildSystem::renameFile(Node * context, const QString &filePath, const Q
             QString error;
             Utils::TextFileFormat textFileFormat;
             const QTextCodec *codec = QTextCodec::codecForName("UTF-8"); // qml files are defined to be utf-8
-            if (Utils::TextFileFormat::readFile(qmlProjectFilePath, codec, &fileContent, &textFileFormat, &error)
+            if (Utils::TextFileFormat::readFile(qmlProjectFilePath.toString(), codec, &fileContent, &textFileFormat, &error)
                     != Utils::TextFileFormat::ReadSuccess) {
                 qWarning() << "Failed to read file" << qmlProjectFilePath << ":" << error;
             }
@@ -502,7 +502,7 @@ bool QmlBuildSystem::renameFile(Node * context, const QString &filePath, const Q
 
             fileContent.replace(match.capturedStart(1), match.capturedLength(1), QFileInfo(newFilePath).fileName());
 
-            if (!textFileFormat.writeFile(qmlProjectFilePath, fileContent, &error))
+            if (!textFileFormat.writeFile(qmlProjectFilePath.toString(), fileContent, &error))
                 qWarning() << "Failed to write file" << qmlProjectFilePath << ":" << error;
 
             refresh(Everything);

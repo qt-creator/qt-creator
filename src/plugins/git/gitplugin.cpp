@@ -1588,7 +1588,8 @@ void GitPluginPrivate::updateSubmodules()
 // If the file is modified in an editor, make sure it is saved.
 static bool ensureFileSaved(const QString &fileName)
 {
-    return DocumentManager::saveModifiedDocument(DocumentModel::documentForFilePath(fileName));
+    return DocumentManager::saveModifiedDocument(
+        DocumentModel::documentForFilePath(FilePath::fromString(fileName)));
 }
 
 void GitPluginPrivate::applyCurrentFilePatch()

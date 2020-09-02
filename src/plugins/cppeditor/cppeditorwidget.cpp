@@ -388,7 +388,7 @@ static void onReplaceUsagesClicked(const QString &text,
 
 static QTextDocument *getOpenDocument(const QString &path)
 {
-    const IDocument *document = DocumentModel::documentForFilePath(path);
+    const IDocument *document = DocumentModel::documentForFilePath(FilePath::fromString(path));
     if (document)
         return qobject_cast<const TextDocument *>(document)->document();
 
@@ -1104,7 +1104,7 @@ void CppEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefL
     abortDeclDefLink();
     d->m_declDefLink = link;
     IDocument *targetDocument = DocumentModel::documentForFilePath(
-        d->m_declDefLink->targetFile->fileName());
+        FilePath::fromString(d->m_declDefLink->targetFile->fileName()));
     if (textDocument() != targetDocument) {
         if (auto textDocument = qobject_cast<BaseTextDocument *>(targetDocument))
             connect(textDocument,
@@ -1137,7 +1137,7 @@ void CppEditorWidget::abortDeclDefLink()
         return;
 
     IDocument *targetDocument = DocumentModel::documentForFilePath(
-        d->m_declDefLink->targetFile->fileName());
+        FilePath::fromString(d->m_declDefLink->targetFile->fileName()));
     if (textDocument() != targetDocument) {
         if (auto textDocument = qobject_cast<BaseTextDocument *>(targetDocument))
             disconnect(textDocument,

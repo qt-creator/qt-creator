@@ -104,8 +104,6 @@
 #include <QTest>
 #endif
 
-using namespace Utils;
-
 enum { debugEditorManager=0 };
 
 static const char kCurrentDocumentPrefix[] = "CurrentDocument";
@@ -654,7 +652,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
     if (newEditor)
         *newEditor = false;
 
-    const QList<IEditor *> editors = DocumentModel::editorsForFilePath(fn);
+    const QList<IEditor *> editors = DocumentModel::editorsForFilePath(FilePath::fromString(fn));
     if (!editors.isEmpty()) {
         IEditor *editor = editors.first();
         if (flags & EditorManager::SwitchSplitIfAlreadyVisible) {
@@ -812,8 +810,8 @@ IEditor *EditorManagerPrivate::openEditorWith(const QString &fileName, Utils::Id
     // close any open editors that have this file open
     // remember the views to open new editors in there
     QList<EditorView *> views;
-    QList<IEditor *> editorsOpenForFile
-            = DocumentModel::editorsForFilePath(fileName);
+    QList<IEditor *> editorsOpenForFile = DocumentModel::editorsForFilePath(
+        FilePath::fromString(fileName));
     foreach (IEditor *openEditor, editorsOpenForFile) {
         EditorView *view = EditorManagerPrivate::viewForEditor(openEditor);
         if (view && view->currentEditor() == openEditor) // visible
@@ -2295,13 +2293,12 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
     if (!document)
         return false;
 
-    const QString &absoluteFilePath =
-        DocumentManager::getSaveAsFileName(document);
+    const auto &absoluteFilePath = FilePath::fromString(DocumentManager::getSaveAsFileName(document));
 
     if (absoluteFilePath.isEmpty())
         return false;
 
-    if (absoluteFilePath != document->filePath().toString()) {
+    if (absoluteFilePath != document->filePath()) {
         // close existing editors for the new file name
         IDocument *otherDocument = DocumentModel::documentForFilePath(absoluteFilePath);
         if (otherDocument)
@@ -2309,7 +2306,7 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
     }
 
     emit m_instance->aboutToSave(document);
-    const bool success = DocumentManager::saveDocument(document, absoluteFilePath);
+    const bool success = DocumentManager::saveDocument(document, absoluteFilePath.toString());
     document->checkPermissions();
 
     // TODO: There is an issue to be treated here. The new file might be of a different mime

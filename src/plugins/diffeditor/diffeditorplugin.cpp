@@ -199,7 +199,7 @@ QList<ReloadInput> DiffCurrentFileController::reloadInputList() const
     QList<ReloadInput> result;
 
     auto textDocument = qobject_cast<TextEditor::TextDocument *>(
-                DocumentModel::documentForFilePath(m_fileName));
+        DocumentModel::documentForFilePath(Utils::FilePath::fromString(m_fileName)));
 
     if (textDocument && textDocument->isModified()) {
         QString errorString;
@@ -313,7 +313,7 @@ QList<ReloadInput> DiffModifiedFilesController::reloadInputList() const
 
     for (const QString &fileName : m_fileNames) {
         auto textDocument = qobject_cast<TextEditor::TextDocument *>(
-                    DocumentModel::documentForFilePath(fileName));
+            DocumentModel::documentForFilePath(Utils::FilePath::fromString(fileName)));
 
         if (textDocument && textDocument->isModified()) {
             QString errorString;

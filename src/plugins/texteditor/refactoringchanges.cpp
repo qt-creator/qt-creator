@@ -164,7 +164,7 @@ RefactoringFile::RefactoringFile(const QString &fileName, const QSharedPointer<R
     : m_fileName(fileName)
     , m_data(data)
 {
-    QList<IEditor *> editors = DocumentModel::editorsForFilePath(fileName);
+    QList<IEditor *> editors = DocumentModel::editorsForFilePath(Utils::FilePath::fromString(fileName));
     if (!editors.isEmpty()) {
         auto editorWidget = TextEditorWidget::fromEditor(editors.first());
         if (editorWidget && !editorWidget->isReadOnly())

@@ -351,7 +351,7 @@ TextDocument *TextDocument::currentTextDocument()
 
 TextDocument *TextDocument::textDocumentForFilePath(const Utils::FilePath &filePath)
 {
-    return qobject_cast<TextDocument *>(DocumentModel::documentForFilePath(filePath.toString()));
+    return qobject_cast<TextDocument *>(DocumentModel::documentForFilePath(filePath));
 }
 
 QString TextDocument::plainText() const

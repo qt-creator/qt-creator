@@ -84,8 +84,8 @@ public:
     static Entry *entryForFilePath(const Utils::FilePath &filePath);
     static QList<IDocument *> openedDocuments();
 
-    static IDocument *documentForFilePath(const QString &filePath);
-    static QList<IEditor *> editorsForFilePath(const QString &filePath);
+    static IDocument *documentForFilePath(const Utils::FilePath &filePath);
+    static QList<IEditor *> editorsForFilePath(const Utils::FilePath &filePath);
     static QList<IEditor *> editorsForDocument(IDocument *document);
     static QList<IEditor *> editorsForDocuments(const QList<IDocument *> &entries);
     static QList<IEditor *> editorsForOpenedDocuments();
