@@ -32,7 +32,7 @@ namespace ClangRefactoring {
 BaseClangQueryTextEditorWidget::BaseClangQueryTextEditorWidget(QWidget *parent)
     : TextEditor::TextEditorWidget(parent)
 {
-    setupFallBackEditor(Core::Id());
+    setupFallBackEditor(Utils::Id());
     setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     setHighlightCurrentLine(false);
     setLineNumbersVisible(false);
