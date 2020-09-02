@@ -173,7 +173,7 @@ Column {
             SectionLayout {
                 SpinBox {
                     backendValue: backendValues.highlightMoveDuration
-                    minimumValue: 0
+                    minimumValue: -1
                     maximumValue: 1000
                     decimals: 0
                 }
@@ -182,14 +182,14 @@ Column {
             }
 
             Label {
-                text: qsTr("Move speed")
-                tooltip: qsTr("Move animation speed of the highlight delegate.")
+                text: qsTr("Move velocity")
+                tooltip: qsTr("Move animation velocity of the highlight delegate.")
             }
 
             SectionLayout {
                 SpinBox {
-                    backendValue: backendValues.highlightMoveSpeed
-                    minimumValue: 0
+                    backendValue: backendValues.highlightMoveVelocity
+                    minimumValue: -1
                     maximumValue: 1000
                     decimals: 0
                 }
@@ -205,7 +205,23 @@ Column {
             SectionLayout {
                 SpinBox {
                     backendValue: backendValues.highlightResizeDuration
-                    minimumValue: 0
+                    minimumValue: -1
+                    maximumValue: 1000
+                    decimals: 0
+                }
+                ExpandingSpacer {
+                }
+            }
+
+            Label {
+                text: qsTr("Resize velocity")
+                tooltip: qsTr("Resize animation velocity of the highlight delegate.")
+            }
+
+            SectionLayout {
+                SpinBox {
+                    backendValue: backendValues.highlightResizeVelocity
+                    minimumValue: -1
                     maximumValue: 1000
                     decimals: 0
                 }
