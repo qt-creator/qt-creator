@@ -43,12 +43,11 @@ find_package(Qt5
     QuickWidgets Sql Widgets Xml ${QT_TEST_COMPONENT}
   REQUIRED
 )
-
 find_package(Qt5 COMPONENTS LinguistTools)
+find_package(Qt5 COMPONENTS Designer DesignerComponents Help SerialPort Svg QUIET)
 
 find_package(Threads)
-
-find_package(Qt5 COMPONENTS Designer DesignerComponents Help SerialPort Svg QUIET)
+find_package(Clang QUIET)
 
 function (set_if_target var target)
    if (TARGET "${target}")
@@ -74,15 +73,6 @@ else()
   target_compile_definitions(OptionalSvg INTERFACE QT_NO_SVG)
 endif()
 install(TARGETS OptionalSvg EXPORT QtCreator)
-
-find_package(Clang COMPONENTS libclang QUIET)
-# silence a lot of warnings from building against llvm
-# this would better fit inside a central libclang detection/include cmake file, but since we do not
-# have one put it temporary here
-if(MSVC AND TARGET libclang)
-    target_compile_options(libclang INTERFACE /wd4100 /wd4141 /wd4146 /wd4244 /wd4267 /wd4291)
-endif()
-find_package(LLVM QUIET)
 
 if (APPLE)
   find_library(FWCoreFoundation CoreFoundation)
