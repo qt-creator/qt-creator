@@ -65,66 +65,8 @@ const char JOBCOUNT_SUFFIX[] = ".JobCount";
 const char MAKEFLAGS[] = "MAKEFLAGS";
 
 namespace ProjectExplorer {
-namespace Internal {
 
-class MakeStepConfigWidget : public BuildStepConfigWidget
-{
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::MakeStep)
-
-public:
-    explicit MakeStepConfigWidget(MakeStep *makeStep);
-
-    QLabel *m_targetsLabel;
-    QListWidget *m_targetsList;
-    QCheckBox *m_disableInSubDirsCheckBox;
-};
-
-MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
-    : BuildStepConfigWidget(makeStep)
-{
-    m_targetsLabel = new QLabel(this);
-    m_targetsLabel->setText(tr("Targets:"));
-
-    m_targetsList = new QListWidget(this);
-
-    auto disableInSubDirsLabel = new QLabel(tr("Disable in subdirectories:"), this);
-    m_disableInSubDirsCheckBox = new QCheckBox(this);
-    m_disableInSubDirsCheckBox->setToolTip(tr("Runs this step only for a top-level build."));
-
-    LayoutBuilder builder(this);
-    builder.addRow(makeStep->m_makeCommandAspect);
-    builder.addRow(makeStep->m_userArgumentsAspect);
-    builder.addRow(makeStep->m_jobCountContainer);
-    builder.startNewRow().addItems(disableInSubDirsLabel, m_disableInSubDirsCheckBox);
-    builder.startNewRow().addItems(m_targetsLabel, m_targetsList);
-
-    if (!makeStep->disablingForSubdirsSupported()) {
-        disableInSubDirsLabel->hide();
-        m_disableInSubDirsCheckBox->hide();
-    } else {
-        connect(m_disableInSubDirsCheckBox, &QCheckBox::toggled, this, [this, makeStep] {
-            makeStep->setEnabledForSubDirs(!m_disableInSubDirsCheckBox->isChecked());
-        });
-    }
-
-    const auto availableTargets = makeStep->availableTargets();
-    for (const QString &target : availableTargets) {
-        auto item = new QListWidgetItem(target, m_targetsList);
-        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-        item->setCheckState(makeStep->buildsTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
-    }
-    if (availableTargets.isEmpty()) {
-        m_targetsLabel->hide();
-        m_targetsList->hide();
-    }
-
-    Core::VariableChooser::addSupportForChildWidgets(this, makeStep->macroExpander());
-}
-
-} // Internal
-
-
-MakeStep::MakeStep(BuildStepList *parent, Utils::Id id)
+MakeStep::MakeStep(BuildStepList *parent, Id id)
     : AbstractProcessStep(parent, id)
 {
     setDefaultDisplayName(defaultDisplayName());
@@ -401,7 +343,45 @@ CommandLine MakeStep::effectiveMakeCommand(MakeCommandType type) const
 
 BuildStepConfigWidget *MakeStep::createConfigWidget()
 {
-    auto widget = new Internal::MakeStepConfigWidget(this);
+    auto widget = new BuildStepConfigWidget(this);
+
+    auto targetsLabel = new QLabel(widget);
+    targetsLabel->setText(tr("Targets:"));
+
+    auto targetsList = new QListWidget(widget);
+
+    auto disableInSubDirsLabel = new QLabel(tr("Disable in subdirectories:"), widget);
+    auto disableInSubDirsCheckBox = new QCheckBox(widget);
+    disableInSubDirsCheckBox->setToolTip(tr("Runs this step only for a top-level build."));
+
+    LayoutBuilder builder(widget);
+    builder.addRow(m_makeCommandAspect);
+    builder.addRow(m_userArgumentsAspect);
+    builder.addRow(m_jobCountContainer);
+    builder.startNewRow().addItems(disableInSubDirsLabel, disableInSubDirsCheckBox);
+    builder.startNewRow().addItems(targetsLabel, targetsList);
+
+    if (!m_disablingForSubDirsSupported) {
+        disableInSubDirsLabel->hide();
+        disableInSubDirsCheckBox->hide();
+    } else {
+        connect(disableInSubDirsCheckBox, &QCheckBox::toggled, this, [this](bool checked) {
+            m_enabledForSubDirs = checked;
+        });
+    }
+
+    for (const QString &target : qAsConst(m_availableTargets)) {
+        auto item = new QListWidgetItem(target, targetsList);
+        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+        item->setCheckState(buildsTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
+    }
+    if (m_availableTargets.isEmpty()) {
+        targetsLabel->hide();
+        targetsList->hide();
+    }
+
+    Core::VariableChooser::addSupportForChildWidgets(widget, macroExpander());
+
 
     widget->setSummaryUpdater([this] {
         const CommandLine make = effectiveMakeCommand(MakeStep::Display);
@@ -425,7 +405,7 @@ BuildStepConfigWidget *MakeStep::createConfigWidget()
         return param.summaryInWorkdir(displayName());
     });
 
-    auto updateDetails = [this, widget = QPointer<Internal::MakeStepConfigWidget>(widget)] {
+    auto updateDetails = [this, disableInSubDirsCheckBox, widget = QPointer<BuildStepConfigWidget>(widget)] {
         QTC_ASSERT(widget, return);
         const bool jobCountVisible = isJobCountSupported();
         m_userJobCountAspect->setVisible(jobCountVisible);
@@ -436,7 +416,7 @@ BuildStepConfigWidget *MakeStep::createConfigWidget()
         m_overrideMakeflagsAspect->setEnabled(jobCountEnabled);
         m_nonOverrideWarning->setVisible(makeflagsJobCountMismatch()
                                          && !jobCountOverridesMakeflags());
-        widget->m_disableInSubDirsCheckBox->setChecked(!enabledForSubDirs());
+        disableInSubDirsCheckBox->setChecked(!m_enabledForSubDirs);
 
         widget->recreateSummary();
     };
@@ -448,7 +428,7 @@ BuildStepConfigWidget *MakeStep::createConfigWidget()
     connect(m_userJobCountAspect, &IntegerAspect::changed, widget, updateDetails);
     connect(m_overrideMakeflagsAspect, &BoolAspect::changed, widget, updateDetails);
 
-    connect(widget->m_targetsList, &QListWidget::itemChanged, this,
+    connect(targetsList, &QListWidget::itemChanged, this,
             [this, updateDetails](QListWidgetItem *item) {
         setBuildTarget(item->text(), item->checkState() & Qt::Checked);
         updateDetails();

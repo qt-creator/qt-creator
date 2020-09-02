@@ -84,7 +84,6 @@ public:
 
     bool disablingForSubdirsSupported() const { return m_disablingForSubDirsSupported; }
     bool enabledForSubDirs() const { return m_enabledForSubDirs; }
-    void setEnabledForSubDirs(bool enabled) { m_enabledForSubDirs = enabled; }
 
     Utils::Environment makeEnvironment() const;
 
