@@ -57,7 +57,6 @@ private:
     DefaultBuildOptions m_defaultOptions;
     QStringList m_userCompilerOptions;
     Utils::FilePath m_targetNimFile;
-    Utils::FilePath m_outFilePath;
 };
 
 class NimCompilerBuildStepFactory : public ProjectExplorer::BuildStepFactory
