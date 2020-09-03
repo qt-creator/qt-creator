@@ -42,7 +42,6 @@ QtcPlugin {
             "nimcompilerbuildstep.h", "nimcompilerbuildstep.cpp",
             "nimcompilercleanstep.h", "nimcompilercleanstep.cpp",
             "nimproject.h", "nimproject.cpp",
-            "nimprojectnode.h", "nimprojectnode.cpp",
             "nimrunconfiguration.h", "nimrunconfiguration.cpp",
             "nimtoolchain.h", "nimtoolchain.cpp",
             "nimtoolchainfactory.h", "nimtoolchainfactory.cpp",

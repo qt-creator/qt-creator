@@ -28,7 +28,6 @@
 #include "nimconstants.h"
 #include "nimproject.h"
 #include "nimbleproject.h"
-#include "nimprojectnode.h"
 
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
