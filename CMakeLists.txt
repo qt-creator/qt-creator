@@ -7,6 +7,7 @@ include(FeatureSummary)
 include(QtCreatorIDEBranding)
 include(QtCreatorTranslations)
 include(QtCreatorDocumentation)
+include(QtCreatorAPI)
 
 set(IDE_REVISION FALSE CACHE BOOL "Marks the presence of IDE revision string.")
 set(IDE_REVISION_STR "" CACHE STRING "The IDE revision string.")
@@ -39,6 +40,7 @@ if (WITH_TESTS)
 endif()
 
 find_package(Qt5
+  ${IDE_QT_VERSION_MIN}
   COMPONENTS Concurrent Core Gui Network PrintSupport Qml Quick
     QuickWidgets Sql Widgets Xml ${QT_TEST_COMPONENT}
   REQUIRED
@@ -84,8 +86,6 @@ if (APPLE)
   find_library(FWSystemConfiguration SystemConfiguration)
   find_library(FWWebKit WebKit)
 endif()
-
-include(QtCreatorAPI)
 
 if (WITH_TESTS)
   enable_testing()

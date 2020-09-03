@@ -22,9 +22,9 @@ if (Qt5_FIND_COMPONENTS)
   endif()
 endif()
 
-find_package(Qt6 CONFIG COMPONENTS Core QUIET)
+find_package(Qt6 ${Qt5_FIND_VERSION} CONFIG COMPONENTS Core QUIET)
 if (NOT Qt6_FOUND)
-  find_package(Qt5 CONFIG ${__arguments} ${Qt5_FIND_COMPONENTS})
+  find_package(Qt5 ${Qt5_FIND_VERSION} CONFIG ${__arguments} ${Qt5_FIND_COMPONENTS})
 
   # Remove Qt6 from the not found packages in Qt5 mode
   get_property(not_found_packages GLOBAL PROPERTY "PACKAGES_NOT_FOUND")
