@@ -6,6 +6,7 @@ HEADERS += $$PWD/synchronizecommand.h \ \
     $$PWD/changelanguagecommand.h \
     $$PWD//debugoutputcommand.h \
     $$PWD/endpuppetcommand.h \
+    $$PWD/scenecreatedcommand.h \
     $$PWD/tokencommand.h \
     $$PWD/componentcompletedcommand.h \
     $$PWD/completecomponentcommand.h \

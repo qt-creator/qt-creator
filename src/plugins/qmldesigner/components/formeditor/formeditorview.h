@@ -128,6 +128,7 @@ public:
     void setGotoErrorCallback(std::function<void(int, int)> gotoErrorCallback);
 
     void exportAsImage();
+    QPicture renderToPicture() const;
 
 protected:
     void reset();

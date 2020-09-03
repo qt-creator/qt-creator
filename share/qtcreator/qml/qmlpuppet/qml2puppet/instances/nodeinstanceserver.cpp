@@ -261,7 +261,7 @@ void NodeInstanceServer::setRenderTimerInterval(int timerInterval)
 
 void NodeInstanceServer::setSlowRenderTimerInterval(int timerInterval)
 {
-    m_slowRenderTimerInterval = timerInterval;
+    m_timerModeInterval = timerInterval;
 }
 
 void NodeInstanceServer::setTimerId(int timerId)
@@ -281,29 +281,31 @@ int NodeInstanceServer::renderTimerInterval() const
 
 void NodeInstanceServer::startRenderTimer()
 {
-    if (m_slowRenderTimer)
+    if (m_timerMode == TimerMode::SlowTimer)
         stopRenderTimer();
+
+    if (m_timerMode == TimerMode::DisableTimer)
+        return;
 
     if (m_timer == 0)
         m_timer = startTimer(m_renderTimerInterval);
 
-    m_slowRenderTimer = false;
+    m_timerMode = TimerMode::NormalTimer;
 }
 
 void NodeInstanceServer::slowDownRenderTimer()
 {
-    if (!m_slowRenderTimer)
-        stopRenderTimer();
-
     if (m_timer != 0) {
         killTimer(m_timer);
         m_timer = 0;
     }
 
-    if (m_timer == 0)
-        m_timer = startTimer(m_slowRenderTimerInterval);
+    if (m_timerMode == TimerMode::DisableTimer)
+        return;
 
-    m_slowRenderTimer = true;
+    m_timer = startTimer(m_timerModeInterval);
+
+    m_timerMode = TimerMode::SlowTimer;
 }
 
 void NodeInstanceServer::stopRenderTimer()
@@ -1447,6 +1449,11 @@ void NodeInstanceServer::handleExtraRender()
         if (m_extraRenderCurrentPass > 0)
             startRenderTimer();
     }
+}
+
+void NodeInstanceServer::disableTimer()
+{
+    m_timerMode = TimerMode::DisableTimer;
 }
 
 } // namespace QmlDesigner

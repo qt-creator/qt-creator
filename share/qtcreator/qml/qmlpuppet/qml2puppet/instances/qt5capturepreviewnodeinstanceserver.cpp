@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "qt5capturenodeinstanceserver.h"
+#include "qt5capturepreviewnodeinstanceserver.h"
 #include "servernodeinstance.h"
 
 #include <captureddatacommand.h>
@@ -75,7 +75,7 @@ CapturedDataCommand::StateData collectStateData(ServerNodeInstance rootNodeInsta
 }
 } // namespace
 
-void Qt5CaptureNodeInstanceServer::collectItemChangesAndSendChangeCommands()
+void Qt5CapturePreviewNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 {
     static bool inFunction = false;
 

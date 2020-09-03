@@ -135,6 +135,7 @@ Project {
                 "commands/changevaluescommand.cpp",
                 "commands/changevaluescommand.h",
                 "commands/captureddatacommand.h",
+                "commands/scenecreatedcommand.h",
                 "commands/childrenchangedcommand.cpp",
                 "commands/childrenchangedcommand.h",
                 "commands/clearscenecommand.cpp",

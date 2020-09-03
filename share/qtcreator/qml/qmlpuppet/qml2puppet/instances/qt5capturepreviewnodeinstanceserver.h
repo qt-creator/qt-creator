@@ -29,10 +29,10 @@
 
 namespace QmlDesigner {
 
-class Qt5CaptureNodeInstanceServer : public Qt5PreviewNodeInstanceServer
+class Qt5CapturePreviewNodeInstanceServer : public Qt5PreviewNodeInstanceServer
 {
 public:
-    explicit Qt5CaptureNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient)
+    explicit Qt5CapturePreviewNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient)
         : Qt5PreviewNodeInstanceServer(nodeInstanceClient)
     {}
 

@@ -83,6 +83,7 @@ public:
     void showWarningMessageBox(const QList<DocumentMessage> &warnings);
 
     void exportAsImage(const QRectF &boundingRect);
+    QPicture renderToPicture() const;
 
     FormEditorGraphicsView *graphicsView() const;
 
