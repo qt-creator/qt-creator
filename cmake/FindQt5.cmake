@@ -51,6 +51,7 @@ foreach(comp IN LISTS Qt5_FIND_COMPONENTS)
 endforeach()
 
 set(Qt5_FOUND ${Qt6_FOUND})
+set(Qt5_VERSION ${Qt6_VERSION})
 
 foreach(tool qmake lrelease moc)
   if (TARGET Qt6::${tool} AND NOT TARGET Qt5::${tool})
