@@ -1187,6 +1187,10 @@ class DumperBase():
             nsStrippedType = self.stripNamespaceFromType(typeName)\
                 .replace('::', '__')
 
+            # Strip leading 'struct' for C structs
+            if nsStrippedType.startswith('struct '):
+                nsStrippedType = nsStrippedType[7:]
+
             #DumperBase.warn('STRIPPED: %s' % nsStrippedType)
             # The following block is only needed for D.
             if nsStrippedType.startswith('_A'):
