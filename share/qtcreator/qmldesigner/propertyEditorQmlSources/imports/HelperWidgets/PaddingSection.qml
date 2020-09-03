@@ -36,12 +36,14 @@ Section {
     SectionLayout {
         Label {
             text: qsTr("Vertical")
+            disabledState: (!backendValues.topPadding.isAvailable && !backendValues.bottomPadding.isAvailable)
         }
         SecondColumnLayout {
             Label {
                 text: qsTr("Top")
                 tooltip: qsTr("Padding between the content and the top edge of the item.")
                 width: 42
+                disabledStateSoft: !backendValues.topPadding.isAvailable
             }
             SpinBox {
                 maximumValue: 10000
@@ -50,6 +52,7 @@ Section {
                 decimals: 0
                 backendValue: backendValues.topPadding
                 Layout.fillWidth: true
+                enabled: backendValue.isAvailable
             }
             Item {
                 width: 4
@@ -60,6 +63,7 @@ Section {
                 text: qsTr("Bottom")
                 tooltip: qsTr("Padding between the content and the bottom edge of the item.")
                 width: 42
+                disabledStateSoft: !backendValues.bottomPadding.isAvailable
             }
             SpinBox {
                 maximumValue: 10000
@@ -68,17 +72,20 @@ Section {
                 decimals: 0
                 backendValue: backendValues.bottomPadding
                 Layout.fillWidth: true
+                enabled: backendValue.isAvailable
             }
         }
 
         Label {
             text: qsTr("Horizontal")
+            disabledState: (!backendValues.leftPadding.isAvailable && !backendValues.rightPadding.isAvailable)
         }
         SecondColumnLayout {
             Label {
                 text: qsTr("Left")
                 tooltip: qsTr("Padding between the content and the left edge of the item.")
                 width: 42
+                disabledStateSoft: !backendValues.leftPadding.isAvailable
             }
             SpinBox {
                 maximumValue: 10000
@@ -87,6 +94,7 @@ Section {
                 decimals: 0
                 backendValue: backendValues.leftPadding
                 Layout.fillWidth: true
+                enabled: backendValue.isAvailable
             }
             Item {
                 width: 4
@@ -97,6 +105,7 @@ Section {
                 text: qsTr("Right")
                 tooltip: qsTr("Padding between the content and the right edge of the item.")
                 width: 42
+                disabledStateSoft: !backendValues.rightPadding.isAvailable
             }
             SpinBox {
                 maximumValue: 10000
@@ -105,12 +114,14 @@ Section {
                 decimals: 0
                 backendValue: backendValues.rightPadding
                 Layout.fillWidth: true
+                enabled: backendValue.isAvailable
             }
         }
 
         Label {
             text: qsTr("Padding")
             tooltip: qsTr("Padding between the content and the edges of the items.")
+            disabledState: !backendValues.padding.isAvailable
         }
         SecondColumnLayout {
             SpinBox {
@@ -120,6 +131,7 @@ Section {
                 decimals: 0
                 backendValue: backendValues.padding
                 Layout.fillWidth: true
+                enabled: backendValue.isAvailable
             }
         }
     }

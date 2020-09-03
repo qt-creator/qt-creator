@@ -39,6 +39,7 @@ Column {
         SectionLayout {
             Label {
                 text: qsTr("Layout direction")
+                disabledState: !backendValues.layoutDirection.isAvailable
             }
 
             SecondColumnLayout {
@@ -47,6 +48,7 @@ Column {
                     backendValue: backendValues.layoutDirection
                     Layout.fillWidth: true
                     scope: "Qt"
+                    enabled: backendValue.isAvailable
                 }
             }
 

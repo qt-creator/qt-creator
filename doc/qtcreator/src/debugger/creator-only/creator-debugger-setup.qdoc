@@ -100,7 +100,7 @@
             \li GCC, Clang
             \li LLDB, FSF GDB (experimental)
         \row
-            \li Windows/MinGW
+            \li Windows/\MinGW
             \li GCC
             \li GDB
         \row
@@ -173,7 +173,7 @@
     \section2 GDB
 
     On Windows, use the Python-enabled GDB version that is bundled
-    with the Qt package or comes with recent versions of MinGW. On
+    with the Qt package or comes with recent versions of \MinGW. On
     most Linux distributions, the GDB builds shipped with the system
     are sufficient.
 

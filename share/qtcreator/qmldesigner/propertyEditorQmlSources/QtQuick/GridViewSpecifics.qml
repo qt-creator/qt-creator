@@ -198,22 +198,6 @@ Column {
             }
 
             Label {
-                text: qsTr("Move speed")
-                tooltip: qsTr("Move animation speed of the highlight delegate.")
-            }
-
-            SectionLayout {
-                SpinBox {
-                    backendValue: backendValues.highlightMoveSpeed
-                    minimumValue: 0
-                    maximumValue: 1000
-                    decimals: 0
-                }
-                ExpandingSpacer {
-                }
-            }
-
-            Label {
                 text: qsTr("Preferred begin")
                 tooltip: qsTr("Preferred highlight begin - must be smaller than Preferred end.")
             }

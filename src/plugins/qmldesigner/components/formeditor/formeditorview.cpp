@@ -702,6 +702,8 @@ void FormEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, Inf
         }
     }
 
+    scene()->update();
+
     m_currentTool->formEditorItemsChanged(changedItems);
 }
 

@@ -46,7 +46,7 @@
     For more information about where the files are located on each supported
     platform, see \l {Location of Settings Files}.
 
-    \b {\QC comes with MinGW, should I use this version with Qt?}
+    \b {\QC comes with \MinGW, should I use this version with Qt?}
 
     Use the version that was built against the Qt version.
 

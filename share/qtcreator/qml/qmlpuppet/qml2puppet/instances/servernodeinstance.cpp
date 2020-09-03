@@ -231,9 +231,12 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
     } else if (!instanceContainer.componentPath().isEmpty()) {
         object = Internal::ObjectNodeInstance::createComponent(instanceContainer.componentPath(), nodeInstanceServer->context());
         if (object == nullptr) {
-            const QString errors = getErrorString(nodeInstanceServer->engine(), instanceContainer.componentPath());
-            const QString message = QString("Component with path %1 could not be created.\n\n").arg(instanceContainer.componentPath());
-            nodeInstanceServer->sendDebugOutput(DebugOutputCommand::ErrorType, message + errors, instanceContainer.instanceId());
+            object = Internal::ObjectNodeInstance::createPrimitive(QString::fromUtf8(instanceContainer.type()), instanceContainer.majorNumber(), instanceContainer.minorNumber(), nodeInstanceServer->context());
+            if (object == nullptr) {
+                const QString errors = getErrorString(nodeInstanceServer->engine(), instanceContainer.componentPath());
+                const QString message = QString("Component with path %1 could not be created.\n\n").arg(instanceContainer.componentPath());
+                nodeInstanceServer->sendDebugOutput(DebugOutputCommand::ErrorType, message + errors, instanceContainer.instanceId());
+            }
         }
     } else {
         object = Internal::ObjectNodeInstance::createPrimitive(QString::fromUtf8(instanceContainer.type()), instanceContainer.majorNumber(), instanceContainer.minorNumber(), nodeInstanceServer->context());

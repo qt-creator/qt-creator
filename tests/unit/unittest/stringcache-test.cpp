@@ -65,6 +65,12 @@ class StringCache : public testing::Test
 protected:
     void SetUp()
     {
+        mockStorageFetchDirectyId = [&](Utils::SmallStringView string) {
+            return mockStorage.fetchDirectoryId(string);
+        };
+        mockStorageFetchDirectyPath = [&](int id) {
+            return mockStorage.fetchDirectoryPath(id);
+        };
         std::sort(filePaths.begin(), filePaths.end(), [](auto &f, auto &l) {
             return compare(f, l) < 0;
         });
@@ -82,12 +88,8 @@ protected:
 protected:
     NiceMock<MockSqliteDatabase> mockDatabase;
     NiceMock<MockFilePathStorage> mockStorage{mockDatabase};
-    StorageIdFunction mockStorageFetchDirectyId = [&](Utils::SmallStringView string) {
-        return mockStorage.fetchDirectoryId(string);
-    };
-    StorageStringFunction mockStorageFetchDirectyPath = [&](int id) {
-        return mockStorage.fetchDirectoryPath(id);
-    };
+    StorageIdFunction mockStorageFetchDirectyId;
+    StorageStringFunction mockStorageFetchDirectyPath;
     Cache cache;
     typename Cache::MutexType &mockMutex = cache.mutex();
     Utils::PathString filePath1{"/file/pathOne"};

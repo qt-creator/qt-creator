@@ -1425,9 +1425,9 @@ Module {
         Property { name: "highlight"; type: "QDeclarativeComponent"; isPointer: true }
         Property { name: "highlightItem"; type: "QDeclarativeItem"; isReadonly: true; isPointer: true }
         Property { name: "highlightFollowsCurrentItem"; type: "bool" }
-        Property { name: "highlightMoveSpeed"; type: "qreal" }
+        Property { name: "highlightMoveVelocity"; type: "qreal" }
         Property { name: "highlightMoveDuration"; type: "int" }
-        Property { name: "highlightResizeSpeed"; type: "qreal" }
+        Property { name: "highlightResizeVelocity"; type: "qreal" }
         Property { name: "highlightResizeDuration"; type: "int" }
         Property { name: "preferredHighlightBegin"; type: "qreal" }
         Property { name: "preferredHighlightEnd"; type: "qreal" }
@@ -1448,9 +1448,9 @@ Module {
         Signal { name: "layoutDirectionChanged"; revision: 1 }
         Signal { name: "currentIndexChanged" }
         Signal { name: "currentSectionChanged" }
-        Signal { name: "highlightMoveSpeedChanged" }
+        Signal { name: "highlightMoveVelocityChanged" }
         Signal { name: "highlightMoveDurationChanged" }
-        Signal { name: "highlightResizeSpeedChanged" }
+        Signal { name: "highlightResizeVelocityChanged" }
         Signal { name: "highlightResizeDurationChanged" }
         Signal { name: "highlightChanged" }
         Signal { name: "highlightItemChanged" }

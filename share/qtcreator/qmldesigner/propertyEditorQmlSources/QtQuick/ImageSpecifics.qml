@@ -70,12 +70,14 @@ Column {
 
             Label {
                 text: qsTr("Source size")
+                disabledState: !backendValues.sourceSize.isAvailable
             }
 
             SecondColumnLayout {
                 Label {
                     text: "W"
                     width: 12
+                    disabledStateSoft: !backendValues.sourceSize_width.isAvailable
                 }
 
                 SpinBox {
@@ -83,6 +85,7 @@ Column {
                     minimumValue: 0
                     maximumValue: 8192
                     decimals: 0
+                    enabled: backendValue.isAvailable
                 }
 
                 Item {
@@ -93,6 +96,7 @@ Column {
                 Label {
                     text: "H"
                     width: 12
+                    disabledStateSoft: !backendValues.sourceSize_height.isAvailable
                 }
 
                 SpinBox {
@@ -100,6 +104,7 @@ Column {
                     minimumValue: 0
                     maximumValue: 8192
                     decimals: 0
+                    enabled: backendValue.isAvailable
                 }
 
                 ExpandingSpacer {

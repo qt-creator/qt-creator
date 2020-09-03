@@ -56,6 +56,7 @@ Column {
         anchors.left: parent.left
         anchors.right: parent.right
         caption: qsTr("Style Color")
+        visible: backendValues.styleColor.isAvailable
 
         ColorEditor {
             caption: qsTr("Style Color")

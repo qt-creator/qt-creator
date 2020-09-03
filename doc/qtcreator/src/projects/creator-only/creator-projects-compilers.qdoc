@@ -57,9 +57,9 @@
         \li GNU Compiler Collection (GCC) is a compiler for Linux and
             \macos.
 
-        \li MinGW (Minimalist GNU for Windows) is a native software port of GCC
+        \li \MinGW (Minimalist GNU for Windows) is a native software port of GCC
             and GNU Binutils for use in the development of native Microsoft
-            Windows applications on Windows. MinGW is
+            Windows applications on Windows. \MinGW is
             distributed together with \QC and Qt installers for Windows.
 
         \li ICC (Intel C++ Compiler) is a group of C and C++ compilers.
@@ -114,7 +114,7 @@
 
     \section1 Specifying Compiler Settings
 
-    To build an application using GCC, MinGW, Clang, or QCC, specify the path
+    To build an application using GCC, \MinGW, Clang, or QCC, specify the path
     to the directory where the compiler is located and select
     the application binary interface (ABI) version from the list of available
     versions. You can also create a custom ABI definition.
@@ -215,7 +215,7 @@
             see \l{Using Custom Output Parsers}.
     \endlist
 
-    \section1 Troubleshooting MinGW Compilation Errors
+    \section1 Troubleshooting \MinGW Compilation Errors
 
     If error messages displayed in the \uicontrol {Compile Output} pane contain
     paths where slashes are missing (for example, \c {C:QtSDK}),
@@ -228,7 +228,7 @@
     \endcode
 
     If these commands show paths, they have been added to the global PATH
-    variable during the installation of a tool chain based on Cygwin or MinGW,
+    variable during the installation of a tool chain based on Cygwin or \MinGW,
     even though this is against Windows conventions.
 
     To keep working with the third-party tool chain, create a new shell link
