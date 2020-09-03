@@ -158,19 +158,27 @@ QString FileUtils::msgTerminalWithAction()
 
 void FileUtils::removeFile(const QString &filePath, bool deleteFromFS)
 {
+    removeFiles({FilePath::fromString(filePath)}, deleteFromFS);
+}
+
+void FileUtils::removeFiles(const FilePaths &filePaths, bool deleteFromFS)
+{
     // remove from version control
-    VcsManager::promptToDelete(filePath);
+    VcsManager::promptToDelete(filePaths);
+
+    if (!deleteFromFS)
+        return;
 
     // remove from file system
-    if (deleteFromFS) {
-        QFile file(filePath);
-
-        if (file.exists()) {
-            // could have been deleted by vc
-            if (!file.remove())
-                QMessageBox::warning(ICore::dialogParent(),
-                    QApplication::translate("Core::Internal", "Deleting File Failed"),
-                    QApplication::translate("Core::Internal", "Could not delete file %1.").arg(filePath));
+    for (const FilePath &fp : filePaths) {
+        QFile file(fp.toString());
+        if (!file.exists()) // could have been deleted by vc
+            continue;
+        if (!file.remove()) {
+            MessageManager::write(QCoreApplication::translate(
+                                      "Core::Internal",
+                                      "Failed to remove file \"%1\")1.").
+                                  arg(fp.toUserOutput()), MessageManager::ModeSwitch);
         }
     }
 }

@@ -335,26 +335,60 @@ QStringList VcsManager::repositories(const IVersionControl *vc)
     return result;
 }
 
-bool VcsManager::promptToDelete(const QString &fileName)
+bool VcsManager::promptToDelete(IVersionControl *versionControl, const QString &fileName)
 {
-    if (IVersionControl *vc = findVersionControlForDirectory(QFileInfo(fileName).absolutePath()))
-        return promptToDelete(vc, fileName);
-    return true;
+    return promptToDelete(versionControl, {Utils::FilePath::fromString(fileName)}).isEmpty();
 }
 
-bool VcsManager::promptToDelete(IVersionControl *vc, const QString &fileName)
+FilePaths VcsManager::promptToDelete(const FilePaths &filePaths)
 {
-    QTC_ASSERT(vc, return true);
+    // Categorize files by their parent directory, so we won't call
+    // findVersionControlForDirectory() more often than necessary.
+    QMap<FilePath, FilePaths> filesByParentDir;
+    for (const FilePath &fp : filePaths) {
+        filesByParentDir[FilePath::fromString(QDir::cleanPath(fp.toFileInfo().absolutePath()))]
+                .append(fp);
+    }
+
+    // Categorize by version control system.
+    QMap<IVersionControl *, FilePaths> filesByVersionControl;
+    for (auto it = filesByParentDir.cbegin(); it != filesByParentDir.cend(); ++it) {
+        IVersionControl * const vc = findVersionControlForDirectory(it.key().toString());
+        if (vc)
+            filesByVersionControl[vc] << it.value();
+    }
+
+    // Remove the files.
+    FilePaths failedFiles;
+    for (auto it = filesByVersionControl.cbegin(); it != filesByVersionControl.cend(); ++it)
+        failedFiles << promptToDelete(it.key(), it.value());
+
+    return failedFiles;
+}
+
+FilePaths VcsManager::promptToDelete(IVersionControl *vc, const FilePaths &filePaths)
+{
+    QTC_ASSERT(vc, return {});
     if (!vc->supportsOperation(IVersionControl::DeleteOperation))
-        return true;
+        return {};
+
+    const QString fileListForUi = "<ul><li>" + transform(filePaths, [](const FilePath &fp) {
+        return fp.toUserOutput();
+    }).join("</li><li>") + "</li></ul>";
     const QString title = tr("Version Control");
-    const QString msg = tr("Would you like to remove\n\t%1\nfrom the version control system (%2)?\n"
-                           "Note: This might remove the local file.").arg(fileName, vc->displayName());
+    const QString msg = tr("Would you like to remove the following files from from the version control system (%2)?"
+                           "%1Note: This might remove the local file.").arg(fileListForUi, vc->displayName());
     const QMessageBox::StandardButton button =
         QMessageBox::question(ICore::dialogParent(), title, msg, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
     if (button != QMessageBox::Yes)
-        return true;
-    return vc->vcsDelete(fileName);
+        return {};
+
+    FilePaths failedFiles;
+    for (const FilePath &fp : filePaths) {
+        if (!vc->vcsDelete(fp.toString()))
+            failedFiles << fp;
+    }
+    return failedFiles;
 }
 
 QString VcsManager::msgAddToVcsTitle()

@@ -27,6 +27,8 @@
 
 #include "core_global.h"
 
+#include <utils/fileutils.h>
+
 QT_BEGIN_NAMESPACE
 class QWidget;
 QT_END_NAMESPACE
@@ -50,6 +52,7 @@ struct CORE_EXPORT FileUtils
     static QString msgTerminalWithAction();
     // File operations aware of version control and file system case-insensitiveness
     static void removeFile(const QString &filePath, bool deleteFromFS);
+    static void removeFiles(const Utils::FilePaths &filePaths, bool deleteFromFS);
     static bool renameFile(const QString &from, const QString &to,
                            HandleIncludeGuards handleGuards = HandleIncludeGuards::No);
     // This method is used to refactor the include guards in the renamed headers

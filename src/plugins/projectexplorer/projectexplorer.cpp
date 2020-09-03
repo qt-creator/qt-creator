@@ -161,6 +161,8 @@
 #include <QTimer>
 
 #include <functional>
+#include <memory>
+#include <vector>
 
 /*!
     \namespace ProjectExplorer
@@ -3640,7 +3642,7 @@ void ProjectExplorerPluginPrivate::removeFile()
             filesToRemove << siblings;
     }
 
-    for (const NodeAndPath &file : filesToRemove) {
+    for (const NodeAndPath &file : qAsConst(filesToRemove)) {
         // Nodes can become invalid if the project was re-parsed while the dialog was open
         if (!ProjectTree::hasNode(file.first)) {
             QMessageBox::warning(ICore::dialogParent(), tr("Removing File Failed"),
@@ -3665,12 +3667,17 @@ void ProjectExplorerPluginPrivate::removeFile()
                     tr("Could not remove file \"%1\" from project \"%2\".")
                         .arg(currentFilePath.toUserOutput(), folderNode->managingProject()->displayName()),
                     folderNode->managingProject()->filePath()));
-            if (!deleteFile)
-                continue;
         }
-        FileChangeBlocker changeGuard(currentFilePath.toString());
-        Core::FileUtils::removeFile(currentFilePath.toString(), deleteFile);
     }
+
+    std::vector<std::unique_ptr<FileChangeBlocker>> changeGuards;
+    FilePaths pathList;
+    for (const NodeAndPath &file : qAsConst(filesToRemove)) {
+        pathList << file.second;
+        changeGuards.emplace_back(std::make_unique<FileChangeBlocker>(file.second.toString()));
+    }
+
+    Core::FileUtils::removeFiles(pathList, deleteFile);
 }
 
 void ProjectExplorerPluginPrivate::duplicateFile()
