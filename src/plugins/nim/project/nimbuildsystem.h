@@ -44,7 +44,6 @@ class NimProjectScanner : public QObject
 public:
     explicit NimProjectScanner(ProjectExplorer::Project *project);
 
-    void setFilter(const ProjectExplorer::TreeScanner::FileFilter &filter);
     void startScan();
     void watchProjectFilePath();
 
