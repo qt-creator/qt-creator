@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <nim/project/nimbuildsystem.h>
+#include "nimbuildsystem.h"
 
 namespace Nim {
 
