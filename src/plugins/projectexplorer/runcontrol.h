@@ -46,6 +46,7 @@
 namespace Utils {
 class MacroExpander;
 class OutputLineParser;
+class OutputFormatter;
 } // Utils
 
 namespace ProjectExplorer {
@@ -238,7 +239,7 @@ public:
     Utils::FilePath targetFilePath() const;
     Utils::FilePath projectFilePath() const;
 
-    QList<Utils::OutputLineParser *> createOutputParsers() const;
+    void setupFormatter(Utils::OutputFormatter *formatter) const;
     Utils::Id runMode() const;
 
     const Runnable &runnable() const;
