@@ -112,7 +112,7 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     if (sceneState.contains(sceneKey)) {
         qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
         edit3DWidget()->canvas()->updateActiveScene(newActiveScene);
-        rootModelNode().setAuxiliaryData("active3dScene", newActiveScene);
+        rootModelNode().setAuxiliaryData("active3dScene@Internal", newActiveScene);
     }
 
     if (sceneState.contains(selectKey))

@@ -56,10 +56,19 @@ from dumper import DumperBase, SubItem, Children, TopLevelItem
 #######################################################################
 
 qqWatchpointOffset = 10000
+_c_str_trans = None
 
+if sys.version_info[0] >= 3:
+    _c_str_trans = str.maketrans({"\n": "\\n", '"':'\\"', "\\":"\\\\"})
+
+def toCString(s):
+    if _c_str_trans is not None:
+        return str(s).translate(_c_str_trans)
+    else:
+        return str(s).replace('\\', '\\\\').replace('\n', '\\n').replace('"', '\\"')
 
 def fileNameAsString(file):
-    return str(file) if file.IsValid() else ''
+    return toCString(file) if file.IsValid() else ''
 
 
 def check(exp):
@@ -755,9 +764,9 @@ class Dumper(DumperBase):
         self.debugger.GetCommandInterpreter().HandleCommand(command, result)
         success = result.Succeeded()
         if success:
-            self.report('output="%s"' % result.GetOutput())
+            self.report('output="%s"' % toCString(result.GetOutput()))
         else:
-            self.report('error="%s"' % result.GetError())
+            self.report('error="%s"' % toCString(result.GetError()))
 
     def canonicalTypeName(self, name):
         return re.sub('\\bconst\\b', '', name).replace(' ', '')
@@ -921,7 +930,7 @@ class Dumper(DumperBase):
 
         state = 1 if self.target.IsValid() else 0
         self.reportResult('success="%s",msg="%s",exe="%s"'
-                          % (state, error, self.executable_), args)
+                          % (state, toCString(error), toCString(self.executable_)), args)
 
     def runEngine(self, args):
         """ Set up SBProcess instance """
@@ -1033,16 +1042,16 @@ class Dumper(DumperBase):
     def describeError(self, error):
         desc = lldb.SBStream()
         error.GetDescription(desc)
-        result = 'success="%s",' % int(error.Success())
+        result = 'success="%d",' % int(error.Success())
         result += 'error={type="%s"' % error.GetType()
         if error.GetType():
             result += ',status="%s"' % error.GetCString()
         result += ',code="%s"' % error.GetError()
-        result += ',desc="%s"}' % desc.GetData()
+        result += ',desc="%s"}' % toCString(desc.GetData())
         return result
 
     def describeStatus(self, status):
-        return 'status="%s",' % status
+        return 'status="%s",' % toCString(status)
 
     def describeLocation(self, frame):
         if int(frame.pc) == 0xffffffffffffffff:
@@ -1085,10 +1094,10 @@ class Dumper(DumperBase):
             reason = thread.GetStopReason()
             result += '{id="%d"' % thread.GetThreadID()
             result += ',index="%s"' % i
-            result += ',details="%s"' % thread.GetQueueName()
+            result += ',details="%s"' % toCString(thread.GetQueueName())
             result += ',stop-reason="%s"' % self.stopReason(thread.GetStopReason())
             result += ',state="%s"' % state
-            result += ',name="%s"' % thread.GetName()
+            result += ',name="%s"' % toCString(thread.GetName())
             result += ',frame={'
             frame = thread.GetFrameAtIndex(0)
             result += 'pc="0x%x"' % frame.pc
@@ -1126,7 +1135,7 @@ class Dumper(DumperBase):
         limit = args.get('stacklimit', -1)
         (n, isLimited) = (limit, True) if limit > 0 else (thread.GetNumFrames(), False)
         self.currentCallContext = None
-        result = 'stack={current-thread="%s"' % thread.GetThreadID()
+        result = 'stack={current-thread="%d"' % thread.GetThreadID()
         result += ',frames=['
         for i in range(n):
             frame = thread.GetFrameAtIndex(i)
@@ -1148,7 +1157,7 @@ class Dumper(DumperBase):
                 interpreterStack = self.extractInterpreterStack()
                 for interpreterFrame in interpreterStack.get('frames', []):
                     function = interpreterFrame.get('function', '')
-                    fileName = interpreterFrame.get('file', '')
+                    fileName = toCString(interpreterFrame.get('file', ''))
                     language = interpreterFrame.get('language', '')
                     lineNumber = interpreterFrame.get('line', 0)
                     context = interpreterFrame.get('context', 0)
@@ -1162,7 +1171,7 @@ class Dumper(DumperBase):
             result += ',address="0x%x"' % addr
             result += ',function="%s"' % functionName
             result += ',line="%d"' % lineNumber
-            result += ',module="%s"' % module
+            result += ',module="%s"' % toCString(module)
             result += ',file="%s"},' % fileName
         result += ']'
         result += ',hasmore="%d"' % isLimited
@@ -1202,7 +1211,7 @@ class Dumper(DumperBase):
         return self.target.FindFirstGlobalVariable(symbolName)
 
     def warn(self, msg):
-        self.put('{name="%s",value="",type="",numchild="0"},' % msg)
+        self.put('{name="%s",value="",type="",numchild="0"},' % toCString(msg))
 
     def fetchVariables(self, args):
         (ok, res) = self.tryFetchInterpreterVariables(args)
@@ -1314,15 +1323,15 @@ class Dumper(DumperBase):
         interp.HandleCommand("register write %s %s" % (name, value), result)
         success = result.Succeeded()
         if success:
-            self.reportResult('output="%s"' % result.GetOutput(), args)
+            self.reportResult('output="%s"' % toCString(result.GetOutput()), args)
             return
         # Try again with  register write xmm0 "{0x00 ... 0x02}" syntax:
         vec = ' '.join(["0x" + value[i:i + 2] for i in range(2, len(value), 2)])
         success = interp.HandleCommand('register write %s "{%s}"' % (name, vec), result)
         if success:
-            self.reportResult('output="%s"' % result.GetOutput(), args)
+            self.reportResult('output="%s"' % toCString(result.GetOutput()), args)
         else:
-            self.reportResult('error="%s"' % result.GetError(), args)
+            self.reportResult('error="%s"' % toCString(result.GetError()), args)
 
     def report(self, stuff):
         with self.outputLock:
@@ -1386,14 +1395,16 @@ class Dumper(DumperBase):
         skipEventReporting = eventType in (
             lldb.SBProcess.eBroadcastBitSTDOUT, lldb.SBProcess.eBroadcastBitSTDERR)
         self.report('event={type="%s",data="%s",msg="%s",flavor="%s",state="%s",bp="%s"}'
-                    % (eventType, out.GetData(), msg, flavor, self.stateName(state), bp))
+                    % (eventType, toCString(out.GetData()),
+                       toCString(msg), flavor, self.stateName(state), bp))
 
         if state == lldb.eStateExited:
             self.eventState = state
             if not self.isShuttingDown_:
                 self.reportState("inferiorexited")
-            self.report('exited={status="%s",desc="%s"}'
-                        % (self.process.GetExitStatus(), self.process.GetExitDescription()))
+            self.report('exited={status="%d",desc="%s"}'
+                        % (self.process.GetExitStatus(),
+                           toCString(self.process.GetExitDescription())))
         elif state != self.eventState and not skipEventReporting:
             self.eventState = state
             if state == lldb.eStateStopped:
@@ -1457,17 +1468,17 @@ class Dumper(DumperBase):
             result = 'lldbid="%s"' % (qqWatchpointOffset + bp.GetID())
         else:
             result = 'lldbid="%s"' % bp.GetID()
-        result += ',valid="%s"' % (1 if bp.IsValid() else 0)
-        result += ',hitcount="%s"' % bp.GetHitCount()
+        result += ',valid="%d"' % (1 if bp.IsValid() else 0)
+        result += ',hitcount="%d"' % bp.GetHitCount()
         if bp.IsValid():
             if isinstance(bp, lldb.SBBreakpoint):
-                result += ',threadid="%s"' % bp.GetThreadID()
-                result += ',oneshot="%s"' % (1 if bp.IsOneShot() else 0)
+                result += ',threadid="%d"' % bp.GetThreadID()
+                result += ',oneshot="%d"' % (1 if bp.IsOneShot() else 0)
         cond = bp.GetCondition()
         result += ',condition="%s"' % self.hexencode("" if cond is None else cond)
-        result += ',enabled="%s"' % (1 if bp.IsEnabled() else 0)
-        result += ',valid="%s"' % (1 if bp.IsValid() else 0)
-        result += ',ignorecount="%s"' % bp.GetIgnoreCount()
+        result += ',enabled="%d"' % (1 if bp.IsEnabled() else 0)
+        result += ',valid="%d"' % (1 if bp.IsValid() else 0)
+        result += ',ignorecount="%d"' % bp.GetIgnoreCount()
         if bp.IsValid() and isinstance(bp, lldb.SBBreakpoint):
             result += ',locations=['
             lineEntry = None
@@ -1475,19 +1486,19 @@ class Dumper(DumperBase):
                 loc = bp.GetLocationAtIndex(i)
                 addr = loc.GetAddress()
                 lineEntry = addr.GetLineEntry()
-                result += '{locid="%s"' % loc.GetID()
+                result += '{locid="%d"' % loc.GetID()
                 result += ',function="%s"' % addr.GetFunction().GetName()
-                result += ',enabled="%s"' % (1 if loc.IsEnabled() else 0)
-                result += ',resolved="%s"' % (1 if loc.IsResolved() else 0)
-                result += ',valid="%s"' % (1 if loc.IsValid() else 0)
-                result += ',ignorecount="%s"' % loc.GetIgnoreCount()
-                result += ',file="%s"' % lineEntry.GetFileSpec()
-                result += ',line="%s"' % lineEntry.GetLine()
+                result += ',enabled="%d"' % (1 if loc.IsEnabled() else 0)
+                result += ',resolved="%d"' % (1 if loc.IsResolved() else 0)
+                result += ',valid="%d"' % (1 if loc.IsValid() else 0)
+                result += ',ignorecount="%d"' % loc.GetIgnoreCount()
+                result += ',file="%s"' % toCString(lineEntry.GetFileSpec())
+                result += ',line="%d"' % lineEntry.GetLine()
                 result += ',addr="%s"},' % addr.GetFileAddress()
             result += ']'
             if lineEntry is not None:
-                result += ',file="%s"' % lineEntry.GetFileSpec()
-                result += ',line="%s"' % lineEntry.GetLine()
+                result += ',file="%s"' % toCString(lineEntry.GetFileSpec())
+                result += ',line="%d"' % lineEntry.GetLine()
         return result
 
     def createBreakpointAtMain(self):
@@ -1590,7 +1601,7 @@ class Dumper(DumperBase):
                 loc.SetEnabled(bool(args['enabled']))
                 enabled = loc.IsEnabled()
                 res = True
-        self.reportResult('success="%s",enabled="%s",locid="%s"'
+        self.reportResult('success="%d",enabled="%d",locid="%d"'
                           % (int(res), int(enabled), locId), args)
 
     def removeBreakpoint(self, args):
@@ -1598,21 +1609,21 @@ class Dumper(DumperBase):
         if lldbId > qqWatchpointOffset:
             res = self.target.DeleteWatchpoint(lldbId - qqWatchpointOffset)
         res = self.target.BreakpointDelete(lldbId)
-        self.reportResult('success="%s"' % int(res), args)
+        self.reportResult('success="%d"' % int(res), args)
 
     def fetchModules(self, args):
         result = 'modules=['
         for i in range(self.target.GetNumModules()):
             module = self.target.GetModuleAtIndex(i)
-            result += '{file="%s"' % module.file.fullpath
-            result += ',name="%s"' % module.file.basename
-            result += ',addrsize="%s"' % module.addr_size
+            result += '{file="%s"' % toCString(module.file.fullpath)
+            result += ',name="%s"' % toCString(module.file.basename)
+            result += ',addrsize="%d"' % module.addr_size
             result += ',triple="%s"' % module.triple
             #result += ',sections={'
             #for section in module.sections:
             #    result += '[name="%s"' % section.name
             #    result += ',addr="%s"' % section.addr
-            #    result += ',size="%s"],' % section.size
+            #    result += ',size="%d"],' % section.size
             #result += '}'
             result += '},'
         result += ']'
@@ -1636,7 +1647,7 @@ class Dumper(DumperBase):
             result += ',name="%s"' % symbol.GetName()
             result += ',address="0x%x"' % startAddress
             result += ',demangled="%s"' % symbol.GetMangledName()
-            result += ',size="%s"' % (endAddress - startAddress)
+            result += ',size="%d"' % (endAddress - startAddress)
             result += '},'
         result += ']}'
         self.reportResult(result, args)
@@ -1726,7 +1737,8 @@ class Dumper(DumperBase):
         result = lldb.SBCommandReturnObject()
         self.debugger.GetCommandInterpreter().HandleCommand('break list', result)
         self.report('success="%d",output="%s",error="%s"'
-                    % (result.Succeeded(), result.GetOutput(), result.GetError()))
+                    % (result.Succeeded(), toCString(result.GetOutput()),
+                       toCString(result.GetError())))
 
     def activateFrame(self, args):
         self.reportToken(args)
@@ -1751,8 +1763,8 @@ class Dumper(DumperBase):
         command = args['command']
         self.debugger.GetCommandInterpreter().HandleCommand(command, result)
         success = result.Succeeded()
-        output = result.GetOutput()
-        error = str(result.GetError())
+        output = toCString(result.GetOutput())
+        error = toCString(str(result.GetError()))
         self.report('success="%d",output="%s",error="%s"' % (success, output, error))
 
     def executeRoundtrip(self, args):
@@ -1808,8 +1820,8 @@ class Dumper(DumperBase):
                             # with non-existent directories appear.
                             self.warn('FILE: %s  ERROR: %s' % (fileName, error))
                             source = ''
-                    result += '{line="%s"' % lineNumber
-                    result += ',file="%s"' % fileName
+                    result += '{line="%d"' % lineNumber
+                    result += ',file="%s"' % toCString(fileName)
                     if 0 < lineNumber and lineNumber <= len(source):
                         result += ',hexdata="%s"' % self.hexencode(source[lineNumber - 1])
                     result += ',hunk="%s"}' % hunk

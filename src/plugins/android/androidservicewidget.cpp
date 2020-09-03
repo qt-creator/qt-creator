@@ -42,8 +42,7 @@ bool AndroidServiceData::isValid() const
 {
     return !m_className.isEmpty()
             && (!m_isRunInExternalProcess || !m_externalProcessName.isEmpty())
-            && (!m_isRunInExternalLibrary || !m_externalLibName.isEmpty())
-            && (m_isRunInExternalLibrary || !m_serviceArguments.isEmpty());
+            && (!m_isRunInExternalLibrary || !m_externalLibName.isEmpty());
 }
 
 void AndroidServiceData::setClassName(const QString &className)
@@ -264,8 +263,6 @@ QVariant AndroidServiceWidget::AndroidServiceModel::data(const QModelIndex &inde
             return tr("The process name must be set for a service run in an external process");
         else if (index.column() == 4 && m_services[index.row()].isRunInExternalLibrary())
             return tr("The library name must be set for a service run in an external library");
-        else if (index.column() == 5 && !m_services[index.row()].isRunInExternalLibrary())
-            return tr("The service arguments must be set for a service not run in an external library");
     } else if (role == Qt::EditRole) {
         if (index.column() == 0)
             return m_services[index.row()].className();
@@ -286,10 +283,6 @@ QVariant AndroidServiceWidget::AndroidServiceModel::data(const QModelIndex &inde
         } else if (index.column() == 4) {
             if (m_services[index.row()].isRunInExternalLibrary()
                     && m_services[index.row()].externalLibraryName().isEmpty())
-                return Utils::Icons::WARNING.icon();
-        } else if (index.column() == 5) {
-            if (!m_services[index.row()].isRunInExternalLibrary()
-                    && m_services[index.row()].serviceArguments().isEmpty())
                 return Utils::Icons::WARNING.icon();
         }
     }

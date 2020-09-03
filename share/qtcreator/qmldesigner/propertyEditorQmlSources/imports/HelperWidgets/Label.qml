@@ -37,7 +37,9 @@ Label {
     property alias toolTip: toolTipArea.tooltip
 
     width: Math.max(Math.min(240, parent.width - 280), 50)
-    color: label.disabledState ? StudioTheme.Values.themeDisabledTextColor : StudioTheme.Values.themeTextColor
+    color: ((label.disabledState || label.disabledStateSoft)
+            ? StudioTheme.Values.themeDisabledTextColor
+            : StudioTheme.Values.themeTextColor)
 
     elide: Text.ElideRight
 
@@ -50,7 +52,9 @@ Label {
     leftPadding: label.disabledState ? 10 : 0
     rightPadding: label.disabledState ? 10 : 0
 
+    //Label can be disabled fully (with [] and padding), or in a soft way: only with tooltip and color change.
     property bool disabledState: false
+    property bool disabledStateSoft: false
 
     Text {
         text: "["
@@ -68,6 +72,8 @@ Label {
     ToolTipArea {
         id: toolTipArea
         anchors.fill: parent
-        tooltip:  label.disabledState ? qsTr("This property is not available in this configuration.") : label.text
+        tooltip: ((label.disabledState || label.disabledStateSoft)
+                  ? qsTr("This property is not available in this configuration.")
+                  : label.text)
     }
 }

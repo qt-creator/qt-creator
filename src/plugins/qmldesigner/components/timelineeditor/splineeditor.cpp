@@ -207,20 +207,20 @@ void SplineEditor::contextMenuEvent(QContextMenuEvent *e)
 {
     m_curve.clearActive();
 
-    QMenu menu;
+    auto *menu = new QMenu(this);
 
     EasingCurve mappedCurve = m_canvas.mapTo(m_curve);
     int index = mappedCurve.hit(e->pos(), 10);
 
     if (index > 0 && !m_curve.isHandle(index)) {
-        QAction *deleteAction = menu.addAction(tr("Delete Point"));
+        QAction *deleteAction = menu->addAction(tr("Delete Point"));
         connect(deleteAction, &QAction::triggered, [this, index]() {
             m_curve.deletePoint(index);
             update();
             emit easingCurveChanged(m_curve);
         });
 
-        QAction *smoothAction = menu.addAction(tr("Smooth Point"));
+        QAction *smoothAction = menu->addAction(tr("Smooth Point"));
         smoothAction->setCheckable(true);
         smoothAction->setChecked(m_curve.isSmooth(index));
         connect(smoothAction, &QAction::triggered, [this, index]() {
@@ -229,7 +229,7 @@ void SplineEditor::contextMenuEvent(QContextMenuEvent *e)
             emit easingCurveChanged(m_curve);
         });
 
-        QAction *cornerAction = menu.addAction(tr("Corner Point"));
+        QAction *cornerAction = menu->addAction(tr("Corner Point"));
         connect(cornerAction, &QAction::triggered, [this, index]() {
             m_curve.breakTangent(index);
             update();
@@ -237,7 +237,7 @@ void SplineEditor::contextMenuEvent(QContextMenuEvent *e)
         });
 
     } else {
-        QAction *addAction = menu.addAction(tr("Add Point"));
+        QAction *addAction = menu->addAction(tr("Add Point"));
         connect(addAction, &QAction::triggered, [&]() {
             m_curve.addPoint(m_canvas.mapFrom(e->pos()));
             m_curve.makeSmooth(m_curve.active());
@@ -246,13 +246,13 @@ void SplineEditor::contextMenuEvent(QContextMenuEvent *e)
         });
     }
 
-    QAction *zoomAction = menu.addAction(tr("Reset Zoom"));
+    QAction *zoomAction = menu->addAction(tr("Reset Zoom"));
     connect(zoomAction, &QAction::triggered, [&]() {
         m_canvas.setScale(1.0);
         update();
     });
 
-    menu.exec(e->globalPos());
+    menu->exec(e->globalPos());
     e->accept();
 }
 

@@ -28,7 +28,7 @@
 /*!
     \page studio-3d-effects.html
     \previouspage studio-3d-texture.html
-    \nextpage studio-3d-lights.html
+    \nextpage studio-3d-custom-shaders.html
 
     \title Applying 3D Effects
 
@@ -43,6 +43,9 @@
     visible in \uicontrol {Form Editor}.
 
     See the following table for available effects and example images.
+
+    For more information about creating your own effects, see
+    \l {Creating Custom Effects and Materials}.
 
     \section1 Available Effects
     \table

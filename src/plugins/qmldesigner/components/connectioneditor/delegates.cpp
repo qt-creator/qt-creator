@@ -298,7 +298,7 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
 
         auto addMetaInfoProperties = [&](const NodeMetaInfo& itemMetaInfo, QString itemName){
             if (itemMetaInfo.isValid()) {
-                for (const PropertyName &propertyName : itemMetaInfo.directPropertyNames()) {
+                for (const PropertyName &propertyName : itemMetaInfo.propertyNames()) {
                     TypeName propertyType = itemMetaInfo.propertyTypeName(propertyName);
                     if (!propertyType.isEmpty()) {
                         //first letter is a reliable item indicator

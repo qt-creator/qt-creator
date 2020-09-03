@@ -26,12 +26,46 @@
 #pragma once
 
 #include <QMetaType>
+#include <QVariant>
 
 #include "imagecontainer.h"
 
-#include <utils/smallstringio.h>
+#include <vector>
 
 namespace QmlDesigner {
+
+template<typename Type>
+QDataStream &operator<<(QDataStream &out, const std::vector<Type> &vector)
+{
+    out << quint64(vector.size());
+
+    for (auto &&entry : vector)
+        out << entry;
+
+    return out;
+}
+
+template<typename Type>
+QDataStream &operator>>(QDataStream &in, std::vector<Type> &vector)
+{
+    vector.clear();
+
+    quint64 size;
+
+    in >> size;
+
+    vector.reserve(size);
+
+    for (quint64 i = 0; i < size; ++i) {
+        Type entry;
+
+        in >> entry;
+
+        vector.push_back(std::move(entry));
+    }
+
+    return in;
+}
 
 class CapturedDataCommand
 {

@@ -30,6 +30,7 @@
 
 #include "model.h"
 #include "nodeabstractproperty.h"
+#include "nodemetainfo.h"
 #include "rewriterview.h"
 
 #include "utils/qtcassert.h"
@@ -41,13 +42,16 @@
 namespace {
 Q_LOGGING_CATEGORY(loggerInfo, "qtc.designer.assetExportPlugin.modelExporter", QtInfoMsg)
 
-static void populateLineage(const QmlDesigner::ModelNode &node, QByteArrayList &lineage)
+static QByteArrayList populateLineage(const QmlDesigner::ModelNode &node)
 {
+    QByteArrayList lineage;
     if (!node.isValid() || node.type().isEmpty())
-        return;
-    lineage.append(node.type());
-    if (node.hasParentProperty())
-        populateLineage(node.parentProperty().parentModelNode(), lineage);
+        return {};
+
+    for (auto &info : node.metaInfo().superClasses())
+        lineage.append(info.typeName());
+
+    return lineage;
 }
 
 }
@@ -86,8 +90,7 @@ void Component::exportComponent()
 
 ModelNodeParser *Component::createNodeParser(const ModelNode &node) const
 {
-    QByteArrayList lineage;
-    populateLineage(node, lineage);
+    QByteArrayList lineage = populateLineage(node);
     std::unique_ptr<ModelNodeParser> reader;
     for (auto &parserCreator: m_readers) {
         std::unique_ptr<ModelNodeParser> r(parserCreator->instance(lineage, node));
@@ -110,6 +113,11 @@ ModelNodeParser *Component::createNodeParser(const ModelNode &node) const
 QJsonObject Component::nodeToJson(const ModelNode &node)
 {
     QJsonObject jsonObject;
+
+    // Don't export States, Connection, Timeline etc nodes.
+    if (!node.isSubclassOf("QtQuick.Item"))
+        return {};
+
     std::unique_ptr<ModelNodeParser> parser(createNodeParser(node));
     if (parser) {
         if (parser->uuid().isEmpty()) {
@@ -120,13 +128,16 @@ QJsonObject Component::nodeToJson(const ModelNode &node)
         }
         jsonObject = parser->json(*this);
     } else {
-        ExportNotification::addError(tr("Error exporting component %1. Parser unavailable.")
-                                     .arg(node.id()));
+        ExportNotification::addError(tr("Error exporting node %1. Cannot parse type %2.")
+                                     .arg(node.id()).arg(QString::fromUtf8(node.type())));
     }
 
     QJsonArray children;
-    for (const ModelNode &childnode : node.directSubModelNodes())
-        children.append(nodeToJson(childnode));
+    for (const ModelNode &childnode : node.directSubModelNodes()) {
+        const QJsonObject childJson = nodeToJson(childnode);
+        if (!childJson.isEmpty())
+            children.append(childJson);
+    }
 
     if (!children.isEmpty())
         jsonObject.insert(ChildrenTag, children);

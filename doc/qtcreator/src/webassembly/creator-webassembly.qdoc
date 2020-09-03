@@ -52,7 +52,7 @@
 
     \list
         \li Qt for WebAssembly 5.13.1, or later
-        \li On Windows: \l{http://wiki.qt.io/MinGW}{MinGW} 7.3.0, or later
+        \li On Windows: \l{http://wiki.qt.io/MinGW}{\MinGW} 7.3.0, or later
         \li \l{https://emscripten.org/docs/introducing_emscripten/index.html}
             {emscripten} tool chain for compiling to WebAssembly
         \li \c sed stream editor

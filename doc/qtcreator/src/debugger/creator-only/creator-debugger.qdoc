@@ -136,7 +136,7 @@
     In general, \key F5 and the \uicontrol {Start Debugging of Startup Project}
     button are set up in a
     way to start the operating mode that is commonly used in a given context. So
-    if the current project is set up as a C++ application using the MinGW
+    if the current project is set up as a C++ application using the \MinGW
     toolchain targeting desktop Windows, the GDB engine will be started in Start
     Internal mode. If the current project is a QML application using C++
     plugins, a "mixed" QML/C++ engine will be started, with the C++ parts being

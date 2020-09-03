@@ -351,6 +351,8 @@ void ItemLibraryWidget::reloadQmlSource()
 void ItemLibraryWidget::setupImportTagWidget()
 {
     QTC_ASSERT(m_model, return);
+    const DesignDocument *designDocument = QmlDesignerPlugin::instance()->currentDesignDocument();
+    const bool isQtForMCUs = designDocument && designDocument->isQtForMCUsProject();
 
     const QStringList imports = m_model->metaInfo().itemLibraryInfo()->showTagsForImports();
 
@@ -373,11 +375,13 @@ void ItemLibraryWidget::setupImportTagWidget()
         return button;
     };
 
-    for (const QString &importPath : imports) {
-        const Import import = Import::createLibraryImport(importPath);
-        if (!m_model->hasImport(import, true, true)
+    if (!isQtForMCUs) {
+        for (const QString &importPath : imports) {
+            const Import import = Import::createLibraryImport(importPath);
+            if (!m_model->hasImport(import, true, true)
                 && m_model->isImportPossible(import, true, true))
-            flowLayout->addWidget(createButton(importPath));
+                flowLayout->addWidget(createButton(importPath));
+        }
     }
 }
 

@@ -1297,6 +1297,9 @@ void DesignerActionManager::createDefaultAddResourceHandler()
     registerAddResourceHandler(AddResourceHandler(ComponentCoreConstants::addImagesDisplayString,
                                                   "*.svg",
                                                   ModelNodeOperations::addImageToProject));
+    registerAddResourceHandler(AddResourceHandler(ComponentCoreConstants::addImagesDisplayString,
+                                                  "*.hdr",
+                                                  ModelNodeOperations::addImageToProject));
 
     registerAddResourceHandler(AddResourceHandler(ComponentCoreConstants::addFontsDisplayString,
                                                   "*.ttf",

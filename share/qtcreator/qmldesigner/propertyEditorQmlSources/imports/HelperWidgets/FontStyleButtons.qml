@@ -37,6 +37,7 @@ ButtonRow {
     BoolButtonRowButton {
         buttonIcon: StudioTheme.Constants.fontStyleBold
         backendValue: bold
+        enabled: backendValue.isAvailable
     }
     Item {
         width: 4
@@ -45,6 +46,7 @@ ButtonRow {
     BoolButtonRowButton {
         buttonIcon: StudioTheme.Constants.fontStyleItalic
         backendValue: italic
+        enabled: backendValue.isAvailable
     }
     Item {
         width: 4
@@ -53,6 +55,7 @@ ButtonRow {
     BoolButtonRowButton {
         buttonIcon: StudioTheme.Constants.fontStyleUnderline
         backendValue: underline
+        enabled: backendValue.isAvailable
     }
     Item {
         width: 4
@@ -61,5 +64,6 @@ ButtonRow {
     BoolButtonRowButton {
         buttonIcon: StudioTheme.Constants.fontStyleStrikethrough
         backendValue: strikeout
+        enabled: backendValue.isAvailable
     }
 }
