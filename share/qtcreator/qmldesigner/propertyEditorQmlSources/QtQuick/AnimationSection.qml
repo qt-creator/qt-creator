@@ -51,11 +51,13 @@ Section {
         Label {
             text: qsTr("Paused")
             tooltip: qsTr("Sets whether the animation is currently paused.")
+            disabledState: !backendValues.paused.isAvailable
         }
 
         CheckBox {
             text: backendValues.paused.valueToString
             backendValue: backendValues.paused
+            enabled: backendValue.isAvailable
         }
         Label {
             text: qsTr("Loops")
