@@ -111,11 +111,10 @@ TestTerminator::TestTerminator(OutputParserTester *t) :
 
 Utils::OutputLineParser::Result TestTerminator::handleLine(const QString &line, Utils::OutputFormat type)
 {
-    QTC_CHECK(line.endsWith('\n'));
     if (type == Utils::StdOutFormat)
-        m_tester->m_receivedStdOutChildLine.append(line);
+        m_tester->m_receivedStdOutChildLine.append(line + '\n');
     else
-        m_tester->m_receivedStdErrChildLine.append(line);
+        m_tester->m_receivedStdErrChildLine.append(line + '\n');
     return Status::Done;
 }
 
