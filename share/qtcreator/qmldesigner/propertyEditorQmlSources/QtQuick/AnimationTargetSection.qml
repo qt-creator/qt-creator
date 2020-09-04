@@ -56,6 +56,7 @@ Section {
         LineEdit {
             backendValue: backendValues.property
             Layout.fillWidth: true
+            showTranslateCheckBox: false
         }
         Label {
             text: qsTr("Properties")
@@ -64,6 +65,7 @@ Section {
         LineEdit {
             backendValue: backendValues.properties
             Layout.fillWidth: true
+            showTranslateCheckBox: false
         }
 
     }

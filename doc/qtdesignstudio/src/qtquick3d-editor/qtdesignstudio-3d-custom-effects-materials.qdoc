@@ -32,16 +32,27 @@
 
     \title Creating Custom Effects and Materials
 
+    The \l{Applying 3D Effects}{Qt Quick 3D Effects} and \l{Using 3D Materials}
+    {Qt Quick 3D Materials} modules contain a set of ready-made effects and
+    materials that you can apply to 3D models. If the ready-made effects and
+    materials don't meet your needs, you can create custom effects and
+    materials. Each effect or material must have a fragment shader that
+    implements all the functions needed to calculate the shaded color. The
+    material system also offers ready-made functions to help you implement
+    the material.
+
+    The material system supports dielectric, metallic, and transparent
+    materials, point lights, area lights, ambient occlusion, shadowing,
+    two-sided polygons, index-of-refraction, and fragment cutoff (masking).
+    For more information, see \l {Qt Quick 3D Custom Material Reference}.
+
     You can use the QML types in the \uicontrol {Qt Quick 3D Custom Shader Utils}
     tab of \uicontrol Library to create custom effects and materials. To make
     the \uicontrol Effect and \uicontrol {Custom Material} types appear in the
     tab, you must select \uicontrol {Add Import} in the \uicontrol {QML Imports}
     tab, and then select \uicontrol QtQuick3D.Effects and
-    \uicontrol QtQuick3D.Materials to import the QML types in the
-    \l{Qt Quick 3D Effects QML Types}{Qt Quick 3D Effects} and
-    \l{Qt Quick 3D Materials QML Types}{Qt Quick 3D Materials} modules to your
-    project. These modules contain a set of ready-made effects and materials
-    that you can apply to 3D models.
+    \uicontrol QtQuick3D.Materials to import the QML types in those modules to
+    your project.
 
     For more information about the shader utilities and commands and their
     properties, see \l {Using Custom Shaders}.
@@ -50,7 +61,10 @@
 
     \note You must create the actual shader source files with some other tool
     and copy them to your project folder. You can then specify the source file
-    names in the custom effect or material properties.
+    names in the custom effect or material properties. To use custom \e uniforms
+    in the shader files, you must specify them as QML properties for the custom
+    effect or material component. \QDS automatically generates the uniforms for
+    the shaders based on the property values.
 
     \section1 Creating Custom Effects
 
@@ -160,4 +174,42 @@
             \uicontrol Properties.
             \image studio-qtquick-3d-shader-properties.png "Shader properties"
     \endlist
+
+    \section1 Creating Shader Files
+
+    The requirements set for shaders that you can use in custom effects and
+    materials are described in \l {Qt Quick 3D Custom Material Reference}.
+
+    If you use custom uniforms in the shader files, you must specify them
+    as QML properties for the custom effect or material component. \QDS
+    automatically generates the uniforms based on the property values.
+
+    For example, the following code snippet shows fragment shader code that
+    uses two uniforms: \c uTextureInUse and \c uInputTexture.
+
+    \code
+    out vec4 fragColor;
+
+    in vec3 pos;
+    in vec3 texCoord0;
+
+    void main() {
+
+        vec4 textCol;
+        if (uTextureInUse)
+            textCol = texture( uInputTexture, texCoord0.xy );
+
+        fragColor = vec4(pos.x * 0.02 * textCol.x, pos.y * 0.02 * textCol.y, pos.z * 0.02, 1.0);
+    }
+    \endcode
+
+    To use the above fragment shader in a custom effect or material component,
+    you must remove the uniforms from the shader code and define them as
+    properties for the component in \uicontrol {Connection View} >
+    \uicontrol Properties.
+
+    \image studio-custom-material-uniform-properties.png "Uniforms as properties in Connection View Properties tab"
+
+    For more information about adding properties, see
+    \l{Specifying Dynamic Properties}.
 */

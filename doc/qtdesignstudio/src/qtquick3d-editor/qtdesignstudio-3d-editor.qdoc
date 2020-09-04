@@ -30,8 +30,8 @@
 
     \title Working in 3D Editor
 
-    When editing a 3D scene, you view the scene in \uicontrol {3D Editor} by
-    using the \uicontrol {3D Editor} camera. You can switch between
+    When editing a 3D scene, you view the scene in the \uicontrol {3D Editor}
+    view. You can change the projection of the view by switching between
     \e {perspective camera} and \e {orthographic camera} modes. When using the
     perspective camera mode, objects that are far from the camera appear smaller
     than those nearby. In the orthographic camera mode, all objects appear at
@@ -61,7 +61,8 @@
     Additional helpful features when editing 3D scenes are the \e {edit light},
     which is a quick way to light the scene, and the grid that helps you to
     navigate in 3D space. Select the \inlineimage grid_on.png
-    (\uicontrol {Toggle Grid Visibility}) to show or hide the grid.
+    (\uicontrol {Toggle Grid Visibility}) or press \key G to show or hide the
+    grid.
 
     \image studio-3d-editor.png "3D Editor"
 
@@ -78,10 +79,10 @@
     camera:
 
     \list
-        \li To pan, press \key Alt and use the middle mouse button to click
-            anywhere in the rendered view to slide the view around.
-        \li To orbit, press \key Alt and click anywhere in the rendered view to
-            rotate the view.
+        \li To pan, press \key Alt and use the middle mouse button to click and
+            drag anywhere in the rendered view to slide the view around.
+        \li To orbit, press \key Alt and click and drag anywhere in the rendered
+            view to rotate the view.
         \li To zoom, use the mouse wheel or press \key Alt and right-click
             anywhere in the rendered view to zoom the view in or out as you drag
             up or down.
@@ -91,11 +92,12 @@
     select \inlineimage fit_selected.png
     (\uicontrol {Fit Selected}) or press \key F.
 
-    The world axis helper (1) shows the direction of the world axes in respect
-    to the 3D Editor camera. To point the camera at the currently selected
-    component in the direction of an axis, click the axis. If no component
-    is selected, the camera is pointed at the world origin. This does not
-    affect the camera zoom level.
+    The world axis helper (1) shows the direction of the world axes in view.
+    To point the camera at the currently selected component in the direction of
+    an axis, click the axis. Clicking the dot at the end of the axis will point
+    the camera at the opposite direction of the axis. If no component is
+    selected, the camera is pointed at the world origin. This does not affect
+    the camera zoom level.
 
     \image studio-3d-editor-axis-helper.png "Axis helper in 3D Editor"
 
@@ -128,8 +130,8 @@
 
     \section1 Using Edit Light
 
-    The edit light is an extra point light that follows the edit camera.
-    To switch the edit light on and off, select \inlineimage edit_light_on.png
+    The edit light is an extra point light that can be used to illuminate the
+    scene. To toggle the edit light on and off, select \inlineimage edit_light_on.png
     or \inlineimage edit_light_off.png
     (\uicontrol {Toggle Edit Light})
     or press \key U.
@@ -160,7 +162,7 @@
 
     You can move items in relation to their coordinate system, along the x, y,
     or z axis or on the top, bottom, left, and right clip planes of the
-    \uicontrol {3D Editor} camera.
+    \uicontrol {3D Editor} view.
 
     To move items, select \inlineimage move_on.png
     or press \key W:
@@ -170,8 +172,8 @@
             drag the item along the axis.
         \li To move items on a plane, click the plane handle and drag the item
             on the plane.
-        \li To move an item freely in the editor, click the gray handle at the
-            center of the item.
+        \li To move an item freely in 3D editor, click and drag the gray handle
+            at the center of the move gizmo.
      \endlist
 
     \section1 Rotating Items
@@ -182,9 +184,10 @@
     or press \key E:
 
     \list
-        \li To rotate an item around its rotation gizmo, click the axis and
+        \li To rotate an item around its rotation gizmo, click the axis ring and
             drag in the direction you want to rotate the item in.
-        \li To freely rotate the item, select the gray circle.
+        \li To freely rotate the item, click and drag the inner center circle of
+            the gizmo.
     \endlist
 
     \section1 Scaling Items
@@ -203,7 +206,7 @@
             attached to the axis.
         \li To adjust the scale across a plane, click the plane handle and drag
             the item on the plane.
-        \li To uniformly scale an item across all axes, click and drag the
+        \li To uniformly scale an item across all axes, click and drag the gray
             handle at the center of the item.
     \endlist
 */

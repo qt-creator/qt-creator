@@ -26,11 +26,11 @@
 /*!
     \page quick-converting-ui-projects.html
     \if defined(qtdesignstudio)
-    \previouspage studio-importing-designs.html
+    \previouspage studio-importing-3d.html
     \nextpage quick-uis.html
     \else
     \previouspage creator-qml-modules-with-plugins.html
-    \nextpage creator-using-qt-designer.html
+    \nextpage creator-exporting-qml.html
     \endif
 
     \title Converting UI Projects to Applications

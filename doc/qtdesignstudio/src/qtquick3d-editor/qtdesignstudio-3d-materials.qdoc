@@ -1,0 +1,399 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Design Studio.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page studio-3d-materials-types.html
+    \previouspage studio-3d-texture.html
+    \nextpage studio-3d-effects.html
+
+    \title Using 3D Materials
+
+    \QDS provides a set of pregenerated Qt Quick 3D materials that can be used
+    to create good-looking models quickly and easily.
+
+    To apply a 3D material to a component, drag-and-drop a material from the
+    \uicontrol {Qt Quick 3D Materials} tab of \uicontrol Library to a model
+    component in \uicontrol Navigator. The materials you add to the model are
+    listed in the model component's \uicontrol Properties view.
+
+    Each material has its own set of properties that can be used to further
+    define the appearance of the material. For each material the \uicontrol
+    {Environment Map} property specifies whether or not
+    \l{Selecting the Mapping Method}{environment mapping} is used for
+    specular reflection. Use the \uicontrol Texture property to select
+    a texture for the environment map. The \uicontrol {Shadow Map} property
+    determine whether or not shadow mapping is used for generating realistic
+    shadows. You can also select a \uicontrol Texture for shadow mapping.
+
+    \section1 Metal Materials
+
+    The following describes properties of the metal-based materials, which
+    include \uicontrol Aluminum, \uicontrol {Aluminum Anod Emis}, \uicontrol
+    {Aluminum Anodized}, \uicontrol {Aluminum Brushed}, \uicontrol
+    {Aluminum Emissive}, \uicontrol Copper, and \uicontrol
+    {Steel Milled Concentric}.
+
+    \section2 Color
+
+    Set the surface tint of the material by specifying the
+    \uicontrol {Metal Color} and \uicontrol {Base Color} properties. Use
+    the \uicontrol {Emission Color} property to set the color of the glow for
+    emissive materials. You can either use the color picker or specify an
+    RBG value.
+
+    \section2 Reflection
+
+    Use the properties under the \uicontrol Reflection tab to specify the
+    reflective qualities of the material. For more information on the various
+    material properties related to reflection, see \l {Using Highlights and
+    Reflections}.
+
+    \list
+        \target tiling_metal
+        \li Use the \uicontrol {Map Offset} and \uicontrol {Map Scale}
+            properties to define offset and scale for the reflection map. You
+            can also define a texture for the reflection map by using the
+            \uicontrol Texture property, and set a the tiling repeat for it
+            by using the \uicontrol Tiling property.
+        \li To further define the reflective qualities of the material,
+            you can also set the \uicontrol Stretch and \uicontrol Texture
+            properties of \uicontrol Reflection, or define a numerical
+            value for \uicontrol Reflectivity.
+        \li Set the \uicontrol {Fresnel Power} property to decrease head-on
+            reflections (looking directly at the surface) while maintaining
+            reflections seen at grazing angles.
+        \endlist
+
+    \section2 Roughness
+    Use the \uicontrol Roughness properties to determine how light behaves when
+    it comes in contact with material. With zero roughness, light bounces off a
+    material, which makes it appear glossy. Increased roughness causes the light
+    reflected off the material to scatter, which results in a matte appearance.
+
+    \list
+        \li The \uicontrol {Map Offset} \uicontrol {Map Scale} and \uicontrol
+            Texture specify the quality of roughness applied to the material.
+        \li Use the numerical \uicontrol Roughness property to define how
+            glossy or matte the material appears.
+    \endlist
+
+    \target emission_metal
+    \section2 Emission
+    Use the properties under the \uicontrol Emission tab to specify the
+    emissive qualities of the material. For more information on properties
+    related to emission, see \l {Self-Illuminating Materials}.
+    \list
+        \li The \uicontrol Intensity property determines the quantity of light
+            the surface of material emits.
+        \li The \uicontrol {Map Texture} property defines a texture for
+            emissive map, while the \uicontrol {Mask Texture} defines a
+            texture for emissive mask. Use the \uicontrol {Mask Offset}
+            to set the mask offset for the emissive map.
+    \endlist
+
+    \target bump_metal
+    \section2 Bump
+    Specify the properties under the \uicontrol Bump tab to simulate fine
+    geometry displacement across the surface of the material. Use the
+    \uicontrol Amount property to set the quantity of displacement, and
+    the \uicontrol Texture property to define a texture for the bump map.
+    For more information, see \l {Simulating Geometry Displacement}.
+
+    \section2 Properties of the Steel Milled Concentric Material
+
+    Another metal, the \uicontrol {Steel Milled Concentric} Material has
+    certain properties that the other materials do not possess:
+
+    \list
+        \li The \uicontrol Anisotropy property stretches the highlight,
+            which simulates minuscule scratches. You can also use a
+            \uicontrol Texture property to define a texture for the anisotropy
+            map.
+        \li The \uicontrol {Index of Refraction} defines how much a ray of
+            transmitted light is bent when it reaches the surface of the
+            material.
+    \endlist
+
+    Under the \uicontrol Textures tab:
+
+    \list
+        \li The \uicontrol Tiling property to set the tiling repeat of the
+            texture maps.
+        \li Use the \uicontrol Diffuse property to set a texture for the
+            diffuse map, and the \uicontrol Anisotropy property to set a
+            texture for the anisotropy map.
+    \endlist
+
+    \section1 Glass Materials
+
+    The following describes properties related to glass-based materials, which
+    include \uicontrol Glass, \uicontrol {Frosted Glass}, \uicontrol
+    {Frosted Glass Single Pass}, and \uicontrol {Glass Refractive}.
+
+    \section2 Color
+
+    Set the surface tint of the material by specifying the
+    \uicontrol {Glass Color} property. You can also specify the \uicontrol
+    {Band Light Color} for the \uicontrol {Frosted Glass} material.
+
+    Use the \uicontrol {Glass Color} and \uicontrol {Band Light Color}
+    properties to set the color properties for glass-based materials.
+
+    \target general_glass
+    \section2 General
+
+    \list
+        \li Set the \uicontrol {Fresnel Power} property to decrease head-on
+            reflections (looking directly at the surface) while maintaining
+            reflections seen at grazing angles.
+        \li Use the \uicontrol Roughness property to determine how light
+            behaves when it comes in contact with material. With zero roughness,
+            light bounces off a material, which makes it appear glossy.
+            Increased roughness causes the light reflected off the material to
+            scatter, which results in a matte appearance.
+        \li The \uicontrol Reflectivity property specifies how much light is
+            reflected from the material.
+        \li The \uicontrol {Index of Refraction} defines reflectivity by
+            determinining how much a ray of transmitted light is bent when it
+            reaches the surface of the material.
+        \li The \uicontrol {Refract Depth} property sets the refraction depth
+            for the material.
+        \li Use the \uicontrol {Minimum Opacity} property to determine the
+            minimum level of opaqueness for the material.
+        \li The \uicontrol {Blur size} property sets the amount of blurring
+            behind the glass.
+    \endlist
+
+    \section2 Bump
+
+    For frosted glass materials, specify the properties under the
+    \uicontrol Bump tab to simulate fine geometry displacement across the
+    surface of the material:
+
+    \list
+        \li Use the \uicontrol Scale and \uicontrol Bands properties to define
+            the scale and number of the Bump Bands.
+        \li The \uicontrol Strength property sets the glass bump map strength.
+        \li Use the \uicontrol Internal property to specify whether the bump map
+            should only be used for internal lighting.
+        \li The \uicontrol Texture property to define a texture for the bump
+            map.
+        \li The \uicontrol Coordinates property sets the bump coordinates of the
+            refraction.
+    \endlist
+
+    For more information, see \l {Simulating Geometry Displacement}.
+
+    \target rgm_glass
+    \section2 Random Gradient Mapping
+
+    For frosted glass materials, you can also specify \uicontrol
+    {Random Gradient Maps} by using properties \uicontrol 1D, \uicontrol 2D,
+    \uicontrol 3D and \uicontrol 4D. Each of the properties defines a texture
+    map used to create the random bumpiness of the material.
+
+    \section2 Band Light
+
+    The outlook of the \uicontrol {Frosted Glass} material can be further
+    defined by specifying the \uicontrol {Band Light} properties:
+    \list
+        \li The \uicontrol Fallof property sets the light intensity falloff
+            rate.
+        \li The \uicontrol Angle property sets the angle of the light source to
+            which the band is perpendicular.
+        \li You can also set the \uicontrol Brightness of the band light.
+        \li Use the \uicontrol Position property to set the coordinates for
+            the band light in the UV space.
+    \endlist
+
+    \section2 Noise
+
+    For the \uicontrol {Frosted Glass Single Pass} material you can specify
+    the noise quality by defining the noise \uicontrol Scale property and
+    setting the noise \uicontrol Coordinates.
+
+    \section1 Plastic
+
+    The following describes properties for the available plastic materials,
+    which include \uicontrol {Plastic Structured} and \uicontrol {Plastic
+    Struct Emissive}.
+
+    \section2 Color
+
+    Use the \uicontrol {Diffuse Color} to set the color that the material
+    reflects when illuminated by direct light.
+
+    The \uicontrol {Emission Color} defines the color of emission for
+    the \uicontrol {Plastic Struct Emissive} material.
+
+    \section2 General
+
+    Plastic materials share some of the properties with glass materials. For
+    descriptions of \uicontrol Roughness and \uicontrol {Index of Refraction}
+    properties, see \l{general_glass} {general properties for glass materials}.
+    \list
+        \li The \uicontrol {Texture scaling} property determines how fast a
+            material is repeated on a surface.
+        \li The \uicontrol {Bump Factor} property sets the strength of bumpiness
+            for glass materials.
+    \endlist
+
+    \section2 Random Gradient Mapping
+
+    See \l {rgm_glass}{Random Gradient Mapping for Glass Materials}.
+
+    \section2 Emission
+
+    The properties of emission for glass materials are similar to those of
+    metal materials. For decription of emission properties, see
+    \l{emission_metal} {emission properties for metal materials}.
+
+    \section1 Paper Materials
+
+    The following describes properties for the available paper materials,
+    which include \uicontrol {Paper Artistic} and \uicontrol {Paper Office}.
+
+    \section2 Color
+
+    Set the surface tint for the \uicontrol {Paper Office} material by
+    specifying the \uicontrol {Paper Color} property.
+
+    \section2 Transmission
+
+    Specify the \uicontrol Transmission settings to define the outlook of light
+    passing through the material. The \uicontrol {Transmission Weight}
+    property specifies how much light scatters through the surface of the
+    material, while the \uicontrol {Reflection Weight} sets the luminance of
+    highlights and reflections.
+
+    \section2 General
+    \list
+        \li The \uicontrol {Translucency Falloff} sets the point of decline for
+            translucency of the material.
+        \li The \uicontrol Opacity property sets the material's level of
+            opaqueness.
+        \li For the description of \uicontrol {Texture Tiling} properties, see
+            \l {tiling_metal} {tiling for metal materials}.
+        \endlist
+
+    \section2 Diffuse Map
+
+    Use the \uicontrol {Light Wrap} property to set the diffuse light bend of
+    the material. The \uicontrol Texture property defines a texture for the
+    diffuse map.
+
+    \section2 Bump
+
+    For the description of \uicontrol Bump properties, see \l {bump_metal}
+    {properties for metal materials}.
+
+    \section1 Available Materials
+
+    See the following table for available materials.
+
+    \table
+    \header
+        \li Material
+        \li Example Image
+        \li Description
+
+    \row
+        \li Aluminum
+        \li \image material-aluminum.png "The Aluminum material"
+        \li A material with the appearance of aluminum.
+
+    \row
+        \li Aluminum Anod Emis
+        \li \image material-aluminum-anodized-emissive.png "The Aluminum Anodized Emissive material"
+        \li Anodized aluminum with emissive properties.
+
+    \row
+        \li Aluminum Anodized
+        \li \image material-aluminum-anodized.png "The Anodized Aluminum material"
+        \li Anodized aluminum.
+
+    \row
+        \li Aluminum Brushed
+        \li \image material-aluminum-brushed.png "The Brushed Aluminum material"
+        \li Brushed aluminum.
+
+    \row
+        \li Aluminum Emissive
+        \li \image material-aluminum-emissive.png "The Aluminum Emissive material"
+        \li Aluminum with emissive properties.
+
+    \row
+        \li Copper
+        \li \image  material-copper.png "The Copper material"
+        \li A material with the appearance of copper.
+
+    \row
+        \li Glass
+        \li \image material-glass.png "The Glass material"
+        \li A material with the appearance of glass.
+
+    \row
+        \li Frosted glass
+        \li \image material-frosted-glass.png "The Frosted Glass material"
+        \li Frosted glass.
+
+    \row
+        \li Frosted Glass Single Pass
+        \li \image material-frosted-glass-single-pass.png "The Frosted Glass Single Pass material"
+        \li A single-pass frosted glass.
+
+    \row
+        \li Glass Refractive
+        \li \image material-refractive-glass.png "The Glass Refractive material"
+        \li Refractive glass.
+
+    \row
+        \li Paper Artistic
+        \li \image material-artistic-paper.png "The Paper Artistic material"
+        \li A paper material with an artistic finishing.
+
+    \row
+        \li Paper Office
+        \li \image material-office-paper.png "The Paper Office material"
+        \li A paper material with an office-style finishing.
+
+    \row
+        \li Plastic Struct Emissive
+        \li \image material-red-plastic-structured-emissive.png The Plastic Structured Emissive material"
+        \li A red structured plastic material with emissive properties.
+
+    \row
+        \li Plastic Structured
+        \li \image material-red-plastic-structured.png "The Plastic Structured material"
+        \li A red structured plastic material.
+
+    \row
+        \li Steel Milled Concentric
+        \li \image material-steel-milled-concentric.png "The Steel Milled Concentric material"
+        \li A milled concentric steel material.
+    \endtable
+*/

@@ -25,6 +25,7 @@
 
 #include "navigatortreemodel.h"
 #include "navigatorview.h"
+#include "choosetexturepropertydialog.h"
 #include "qmldesignerplugin.h"
 
 #include <bindingproperty.h>
@@ -51,6 +52,7 @@
 #include <QApplication>
 #include <QPointF>
 #include <QDir>
+#include <QFileInfo>
 
 #include <coreplugin/messagebox.h>
 
@@ -649,6 +651,10 @@ void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, i
 
                 // create a texture
                 newModelNode = QmlItemNode::createQmlObjectNode(m_view, itemLibraryEntry, {}, targetProp, false);
+
+                // Rename the node based on source image
+                QFileInfo fi(imagePath);
+                newModelNode.setIdWithoutRefactoring(m_view->generateNewId(fi.baseName(), "textureImage"));
                 return newModelNode.isValid();
             }
             return false;
@@ -656,16 +662,21 @@ void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, i
 
         if (targetNode.isSubclassOf("QtQuick3D.Material")) {
             // if dropping an image on a default material, create a texture instead of image
-            m_view->executeInTransaction("NavigatorTreeModel::handleItemLibraryImageDrop", [&] {
-                if (createTextureNode(targetProperty)) {
-                    // Automatically set the texture to default property
-                    // TODO: allow the user to choose which map property to set the texture for (QDS-2326)
-                    if (targetNode.isSubclassOf("QtQuick3D.DefaultMaterial"))
-                        targetNode.bindingProperty("diffuseMap").setExpression(newModelNode.validId());
-                    else if (targetNode.isSubclassOf("QtQuick3D.PrincipledMaterial"))
-                        targetNode.bindingProperty("baseColorMap").setExpression(newModelNode.validId());
-                }
-            });
+            ChooseTexturePropertyDialog *dialog = nullptr;
+            if (targetNode.isSubclassOf("QtQuick3D.DefaultMaterial") || targetNode.isSubclassOf("QtQuick3D.PrincipledMaterial")) {
+                // Show texture property selection dialog
+                dialog = new ChooseTexturePropertyDialog(targetNode, Core::ICore::dialogParent());
+                dialog->exec();
+            }
+            if (!dialog || dialog->result() == QDialog::Accepted) {
+                m_view->executeInTransaction("NavigatorTreeModel::handleItemLibraryImageDrop", [&] {
+                    if (createTextureNode(targetProperty) && dialog) {
+                        // Automatically set the texture to selected property
+                        targetNode.bindingProperty(dialog->selectedProperty()).setExpression(newModelNode.validId());
+                    }
+                });
+            }
+            delete dialog;
         } else if (targetNode.isSubclassOf("QtQuick3D.TextureInput")) {
             // If dropping an image on a TextureInput, create a texture on the same level as
             // TextureInput, as the TextureInput doesn't support Texture children (QTBUG-86219)

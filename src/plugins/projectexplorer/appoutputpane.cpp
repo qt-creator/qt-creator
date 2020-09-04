@@ -154,8 +154,10 @@ void TabWidget::slotContextMenuRequested(const QPoint &pos)
 AppOutputPane::RunControlTab::RunControlTab(RunControl *runControl, Core::OutputWindow *w) :
     runControl(runControl), window(w)
 {
-    if (runControl && w)
-        w->setLineParsers(runControl->createOutputParsers());
+    if (runControl && w) {
+        w->reset();
+        runControl->setupFormatter(w->outputFormatter());
+    }
 }
 
 AppOutputPane::AppOutputPane() :
@@ -405,7 +407,8 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
         if (tab.runControl)
             tab.runControl->initiateFinish();
         tab.runControl = rc;
-        tab.window->setLineParsers(rc->createOutputParsers());
+        tab.window->reset();
+        rc->setupFormatter(tab.window->outputFormatter());
 
         handleOldOutput(tab.window);
 

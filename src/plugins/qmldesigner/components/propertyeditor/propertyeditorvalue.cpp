@@ -276,6 +276,7 @@ static QList<QByteArray> prepareNonMcuProperties()
 {
     QList<QByteArray> result;
 
+    //Builtins:
     const QList<QByteArray> itemProperties = {"layer", "opacity", "gradient", "smooth", "antialiasing",
                                               "border", "baselineOffset", "focus", "activeFocusOnTab"};
     const QList<QByteArray> mouseAreaProperties = {"propagateComposedEvents", "preventStealing", "cursorShape",
@@ -296,6 +297,19 @@ static QList<QByteArray> prepareNonMcuProperties()
                                                   "highlightResizeDuration", "preferredHighlightBegin", "layoutDirection",
                                                   "preferredHighlightEnd", "highlightFollowsCurrentItem", "keyNavigationWraps",
                                                   "snapMode", "highlightMoveVelocity", "highlightResizeVelocity"};
+    //Animations:
+    const QList<QByteArray> animationProperties = {"paused"};
+
+    //QtQuick.Controls:
+    const QList<QByteArray> controlProperties = {"focusPolicy", "hoverEnabled", "wheelEnabled"};
+    const QList<QByteArray> abstractButtonProperties = {"display", "autoExclusive"};
+    const QList<QByteArray> buttonProperties = {"flat", "highlighted"};
+    const QList<QByteArray> dialProperties = {}; //nothing in propeditor
+    const QList<QByteArray> progressBarProperties = {"indeterminate"};
+    const QList<QByteArray> radioButton = {}; //nothing in propeditor
+    const QList<QByteArray> sliderProperties = {"live", "snapMode", "touchDragThreshold"};
+    const QList<QByteArray> swipeViewProperties = {}; //nothing in propeditor
+    const QList<QByteArray> switchProperties = {}; //nothing in propeditor
 
     result.append(itemProperties);
     result.append(mouseAreaProperties);
@@ -305,13 +319,25 @@ static QList<QByteArray> prepareNonMcuProperties()
     result.append(paddingProperties);
     result.append(columnRowProperties);
     result.append(listViewProperties);
-
+    result.append(animationProperties);
+    result.append(controlProperties);
+    result.append(abstractButtonProperties);
+    result.append(buttonProperties);
+    result.append(dialProperties);
+    result.append(progressBarProperties);
+    result.append(radioButton);
+    result.append(sliderProperties);
+    result.append(swipeViewProperties);
+    result.append(switchProperties);
 
     return result;
 }
 
 bool PropertyEditorValue::isAvailable() const
 {
+    if (!m_modelNode.isValid())
+        return true;
+
     const QList<QByteArray> nonMcuProperties = prepareNonMcuProperties();
 
     const QByteArray fontPrefix = {"font"};

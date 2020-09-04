@@ -1,0 +1,71 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page creator-exporting-qml.html
+    \previouspage quick-converting-ui-projects.html
+    \nextpage creator-using-qt-designer.html
+
+    \title Exporting QML
+
+    \l{Qt Quick UI Forms}{UI forms} (ui.qml files) can be exported to
+    JSON metadata format and PNG assets.
+
+    To export the \l{Qt Quick UI Forms}{UI forms} (ui.qml files) from the
+    current project, select \uicontrol Build > \uicontrol {Export QML}.
+
+    The primary use of exported metadata and assets is to generate native file
+    formats in content creation tools, such as Adobe Photoshop, using \QB. \QBPS
+    can generate PSD files by importing the metadata and assets.
+
+    QML is exported as follows:
+
+    \list
+        \li QML types inherited from \l [QML]{Item}{Item} are exported, other
+            types are ignored.
+        \li \l [QML]{Text}{Text} components are exported as metadata only
+            and no assets are generated.
+        \li \l [QML]{Rectangle}{Rectangle} and \l [QML]{Image}{Image} types
+            generate assets as PNG files.
+    \endlist
+
+    \section1 Configuring QML Export
+
+    You can configure the export in the \uicontrol {Export QML} dialog, which
+    lists the \l{Qt Quick UI Forms}{UI forms} (ui.qml files) of the current
+    project.
+
+    \image qtquick-qml-export-dialog.png "QML Export Dialog"
+
+    \list 1
+        \li In the \uicontrol {Export path} field, specify the path where
+            the metadata file and assets are exported.
+        \li Deselect the \uicontrol {Export assets} check box to disable
+            exporting assets and only generate the metadata file.
+        \li In the file list, select the \l{Qt Quick UI Forms}{UI forms}
+            to be exported.
+        \li Select \uicontrol {Export} export to start the export process.
+    \endlist
+*/

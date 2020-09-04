@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,20 +23,32 @@
 **
 ****************************************************************************/
 
-#include "baseclangquerytexteditorwidget.h"
+#pragma once
 
-#include <texteditor/texteditorconstants.h>
+#include <modelnode.h>
+#include <nodeinstanceglobal.h>
 
-namespace ClangRefactoring {
+#include <QtWidgets/qdialog.h>
 
-BaseClangQueryTextEditorWidget::BaseClangQueryTextEditorWidget(QWidget *parent)
-    : TextEditor::TextEditorWidget(parent)
-{
-    setupFallBackEditor(Utils::Id());
-    setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
-    setHighlightCurrentLine(false);
-    setLineNumbersVisible(false);
-    setParenthesesMatchingEnabled(true);
+namespace QmlDesigner {
+namespace Ui {
+class ChooseTexturePropertyDialog;
 }
 
-} // namespace ClangRefactoring
+class ChooseTexturePropertyDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit ChooseTexturePropertyDialog(const ModelNode &node, QWidget *parent = 0);
+    ~ChooseTexturePropertyDialog();
+
+    TypeName selectedProperty() const;
+
+private:
+    void fillList(const ModelNode &node);
+
+    Ui::ChooseTexturePropertyDialog *m_ui;
+    TypeName m_selectedProperty;
+};
+}

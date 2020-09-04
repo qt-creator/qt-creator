@@ -41,6 +41,7 @@
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/detailswidget.h>
+#include <utils/fileinprojectfinder.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -824,7 +825,7 @@ void RunControlPrivate::showError(const QString &msg)
         q->appendMessage(msg + '\n', ErrorMessageFormat);
 }
 
-QList<Utils::OutputLineParser *> RunControl::createOutputParsers() const
+void RunControl::setupFormatter(OutputFormatter *formatter) const
 {
     QList<Utils::OutputLineParser *> parsers = OutputFormatterFactory::createFormatters(target());
     if (const auto customParsersAspect
@@ -834,7 +835,11 @@ QList<Utils::OutputLineParser *> RunControl::createOutputParsers() const
                 parsers << parser;
         }
     }
-    return parsers;
+    formatter->setLineParsers(parsers);
+    Utils::FileInProjectFinder fileFinder;
+    fileFinder.setProjectDirectory(project()->projectDirectory());
+    fileFinder.setProjectFiles(project()->files(Project::AllFiles));
+    formatter->setFileFinder(fileFinder);
 }
 
 Utils::Id RunControl::runMode() const
