@@ -566,7 +566,7 @@ BuildStepConfigWidget *QMakeStep::createConfigWidget()
     connect(project(), &Project::projectLanguagesUpdated,
             this, &QMakeStep::linkQmlDebuggingLibraryChanged);
     connect(target(), &Target::parsingFinished,
-            this, &QMakeStep::updateEffectiveQMakeCall);
+            qmakeArgumentsEdit, [this]() { updateEffectiveQMakeCall(); });
     connect(qmakeBuildConfiguration(), &QmakeBuildConfiguration::useQtQuickCompilerChanged,
             this, &QMakeStep::useQtQuickCompilerChanged);
     connect(qmakeBuildConfiguration(), &QmakeBuildConfiguration::separateDebugInfoChanged,
