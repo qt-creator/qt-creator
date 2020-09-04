@@ -207,8 +207,6 @@ void DesignDocument::updateFileName(const Utils::FilePath & /*oldFileName*/, con
     if (m_inFileComponentModel)
         m_inFileComponentModel->setFileUrl(QUrl::fromLocalFile(newFileName.toString()));
 
-    viewManager().setItemLibraryViewResourcePath(newFileName.toFileInfo().absolutePath());
-
     emit displayNameChanged(displayName());
 }
 

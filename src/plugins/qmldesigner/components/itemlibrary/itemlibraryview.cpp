@@ -32,6 +32,7 @@
 #include <bindingproperty.h>
 #include <nodelistproperty.h>
 #include <utils/algorithm.h>
+#include <qmldesignerplugin.h>
 #include "metainfo.h"
 
 namespace QmlDesigner {
@@ -75,6 +76,7 @@ void ItemLibraryView::modelAttached(Model *model)
     model->attachView(m_importManagerView);
     m_hasErrors = !rewriterView()->errors().isEmpty();
     m_widget->setFlowMode(QmlItemNode(rootModelNode()).isFlowView());
+    setResourcePath(QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName().toFileInfo().absolutePath());
 }
 
 void ItemLibraryView::modelAboutToBeDetached(Model *model)

@@ -224,7 +224,6 @@ void ViewManager::detachViewsExceptRewriterAndComponetView()
 
 void ViewManager::attachItemLibraryView()
 {
-    setItemLibraryViewResourcePath(currentDesignDocument()->fileName().toFileInfo().absolutePath());
     currentModel()->attachView(&d->itemLibraryView);
 }
 
