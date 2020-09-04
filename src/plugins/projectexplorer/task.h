@@ -74,6 +74,7 @@ public:
     void clear();
     void setFile(const Utils::FilePath &file);
     QString description() const;
+    QIcon icon() const;
 
     unsigned int taskId = 0;
     TaskType type = Unknown;
@@ -85,7 +86,6 @@ public:
     int line = -1;
     int movedLine = -1; // contains a line number if the line was moved in the editor
     Utils::Id category;
-    QIcon icon;
 
     // Having a container of QTextLayout::FormatRange in Task isn't that great
     // It would be cleaner to split up the text into
@@ -101,6 +101,7 @@ private:
     void setMark(TextEditor::TextMark *mark);
 
     QSharedPointer<TextEditor::TextMark> m_mark;
+    mutable QIcon m_icon;
     static unsigned int s_nextId;
 
     friend class TaskHub;
