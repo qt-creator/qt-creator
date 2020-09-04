@@ -334,6 +334,9 @@ static QList<QByteArray> prepareNonMcuProperties()
 
 bool PropertyEditorValue::isAvailable() const
 {
+    if (!m_modelNode.isValid())
+        return true;
+
     const QList<QByteArray> nonMcuProperties = prepareNonMcuProperties();
 
     const QByteArray fontPrefix = {"font"};
