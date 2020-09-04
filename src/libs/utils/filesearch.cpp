@@ -23,10 +23,12 @@
 **
 ****************************************************************************/
 
-#include "algorithm.h"
 #include "filesearch.h"
+
+#include "algorithm.h"
 #include "fileutils.h"
 #include "mapreduce.h"
+#include "qtcassert.h"
 
 #include <QCoreApplication>
 #include <QMutex>
@@ -63,19 +65,20 @@ QString clippedText(const QString &text, int maxLength)
 }
 
 // returns success
-bool openStream(const QString &filePath, QTextCodec *encoding, QTextStream *stream, QFile *file,
-                QString *tempString,
-                const QMap<QString, QString> &fileToContentsMap)
+bool getFileContent(const QString &filePath,
+                    QTextCodec *encoding,
+                    QString *tempString,
+                    const QMap<QString, QString> &fileToContentsMap)
 {
     if (fileToContentsMap.contains(filePath)) {
         *tempString = fileToContentsMap.value(filePath);
-        stream->setString(tempString);
     } else {
-        file->setFileName(filePath);
-        if (!file->open(QIODevice::ReadOnly))
+        QFile file(filePath);
+        if (!file.open(QIODevice::ReadOnly))
             return false;
-        stream->setDevice(file);
-        stream->setCodec(encoding);
+        const QByteArray content = file.readAll();
+        *tempString = QTC_GUARD(encoding) ? encoding->toUnicode(content)
+                                          : QTextCodec::codecForLocale()->toUnicode(content);
     }
     return true;
 }
@@ -139,13 +142,12 @@ void FileSearch::operator()(QFutureInterface<FileSearchResultList> &futureInterf
     futureInterface.setProgressRange(0, 1);
     futureInterface.setProgressValue(0);
     FileSearchResultList results;
-    QFile file;
-    QTextStream stream;
     QString tempString;
-    if (!openStream(item.filePath, item.encoding, &stream, &file, &tempString, fileToContentsMap)) {
+    if (!getFileContent(item.filePath, item.encoding, &tempString, fileToContentsMap)) {
         futureInterface.cancel(); // failure
         return;
     }
+    QTextStream stream(&tempString);
     int lineNr = 0;
 
     while (!stream.atEnd()) {
@@ -215,8 +217,6 @@ void FileSearch::operator()(QFutureInterface<FileSearchResultList> &futureInterf
         if (futureInterface.isCanceled())
             break;
     }
-    if (file.isOpen())
-        file.close();
     if (!futureInterface.isCanceled()) {
         futureInterface.reportResult(results);
         futureInterface.setProgressValue(1);
@@ -259,13 +259,12 @@ void FileSearchRegExp::operator()(QFutureInterface<FileSearchResultList> &future
     futureInterface.setProgressRange(0, 1);
     futureInterface.setProgressValue(0);
     FileSearchResultList results;
-    QFile file;
-    QTextStream stream;
     QString tempString;
-    if (!openStream(item.filePath, item.encoding, &stream, &file, &tempString, fileToContentsMap)) {
+    if (!getFileContent(item.filePath, item.encoding, &tempString, fileToContentsMap)) {
         futureInterface.cancel(); // failure
         return;
     }
+    QTextStream stream(&tempString);
     int lineNr = 0;
 
     QString line;
@@ -292,8 +291,6 @@ void FileSearchRegExp::operator()(QFutureInterface<FileSearchResultList> &future
         if (futureInterface.isCanceled())
             break;
     }
-    if (file.isOpen())
-        file.close();
     if (!futureInterface.isCanceled()) {
         futureInterface.reportResult(results);
         futureInterface.setProgressValue(1);
