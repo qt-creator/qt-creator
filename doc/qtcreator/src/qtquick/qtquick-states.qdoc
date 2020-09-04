@@ -68,9 +68,9 @@
 
     \image qmldesigner-transitions.png "States view"
 
-    To add states, click the \inlineimage plus.png
-    button. Click the new state to switch to it in \uicontrol {Form Editor},
-    and then modify the properties of components in \uicontrol Properties.
+    To add states, select \uicontrol {Create New State}. Click the new state to
+    switch to it in \uicontrol {Form Editor}, and then modify the properties of
+    components in \uicontrol Properties.
 
     For example, to change the appearance of a button, you can hide the button
     image and show another image in its place. Or, to add movement to the view,

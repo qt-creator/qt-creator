@@ -114,8 +114,7 @@
     components in the \uicontrol {Form Editor}:
 
     \list 1
-        \li In the \uicontrol States view, select the \inlineimage plus.png
-            button.
+        \li In the \uicontrol States view, select \uicontrol {Create New State}.
             \image loginui3-login-state.png "States view"
         \li Enter \e loginState as the state name.
         \li Select \e verifyPasswordField in the \uicontrol Navigator,
