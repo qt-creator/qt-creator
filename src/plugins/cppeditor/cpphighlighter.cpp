@@ -396,6 +396,8 @@ bool CppHighlighter::highlightRawStringLiteral(const QStringView &_text, const T
     if (text.at(tk.utf16charsEnd() - 1) != '"')
         return false;
     const int endDelimiterOffset = tk.utf16charsEnd() - 1 - delimiter.length();
+    if (endDelimiterOffset <= delimiterOffset)
+        return false;
     if (text.mid(endDelimiterOffset, delimiter.length()) != delimiter)
         return false;
     if (text.at(endDelimiterOffset - 1) != ')')

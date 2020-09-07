@@ -257,10 +257,10 @@
     in \uicontrol Timeline:
 
     \list 1
-        \li In \uicontrol States, select the \inlineimage plus.png
-            button twice to add two states called \e loginState and
-            \e registerState. You don't need to make any property changes this
-            time, because you'll bind the states to property animations.
+        \li In \uicontrol States, select \uicontrol {Create New State} twice to
+            add two states called \e loginState and \e registerState. You don't
+            need to make any property changes this time, because you'll bind the
+            states to property animations.
         \li In \uicontrol Timeline, select the \inlineimage animation.png
             (\uicontrol {Timeline Settings (S)}) button on the toolbar (or press
             \key S to open the \uicontrol {Timeline Settings} dialog.

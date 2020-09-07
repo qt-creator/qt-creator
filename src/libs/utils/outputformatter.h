@@ -83,8 +83,8 @@ public:
     void setDemoteErrorsToWarnings(bool demote);
     bool demoteErrorsToWarnings() const;
 
-    // line contains at most one line feed character, and if it does occur, it's the last character.
-    // Either way, the input is to be considered "complete" for parsing purposes.
+    // Represents a single line, without a trailing line feed character.
+    // The input is to be considered "complete" for parsing purposes.
     virtual Result handleLine(const QString &line, OutputFormat format) = 0;
 
     virtual bool handleLink(const QString &href) { Q_UNUSED(href); return false; }
@@ -183,6 +183,7 @@ private:
     void append(const QString &text, const QTextCharFormat &format);
     void initFormats();
     void flushIncompleteLine();
+    void flushTrailingNewline();
     void dumpIncompleteLine(const QString &line, OutputFormat format);
     void clearLastLine();
     QList<FormattedText> parseAnsi(const QString &text, const QTextCharFormat &format);

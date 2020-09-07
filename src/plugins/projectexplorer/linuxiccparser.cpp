@@ -57,7 +57,7 @@ LinuxIccParser::LinuxIccParser() :
 
     // ".pch/Qt5Core.pchi.cpp": creating precompiled header file ".pch/Qt5Core.pchi"
     // "animation/qabstractanimation.cpp": using precompiled header file ".pch/Qt5Core.pchi"
-    m_pchInfoLine.setPattern(QLatin1String("^\".*?\": (creating|using) precompiled header file \".*?\"\n$"));
+    m_pchInfoLine.setPattern(QLatin1String("^\".*?\": (creating|using) precompiled header file \".*?\"$"));
     QTC_CHECK(m_pchInfoLine.isValid());
 }
 

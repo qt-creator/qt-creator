@@ -42,6 +42,11 @@ enum Format {
     Format_Squash,
     Format_Fixup,
     Format_Exec,
+    Format_Break,
+    Format_Drop,
+    Format_Label,
+    Format_Reset,
+    Format_Merge,
     Format_Count
 };
 

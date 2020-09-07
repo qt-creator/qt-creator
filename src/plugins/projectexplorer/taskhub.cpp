@@ -78,8 +78,8 @@ public:
         } else {
             setToolTip(task.description());
         }
-        setIcon(task.icon);
-        setVisible(!task.icon.isNull());
+        setIcon(task.icon());
+        setVisible(!task.icon().isNull());
     }
 
     bool isClickable() const override;

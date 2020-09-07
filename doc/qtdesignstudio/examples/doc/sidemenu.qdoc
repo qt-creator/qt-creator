@@ -142,8 +142,8 @@
     another animation is run that closes the side menu. When the animation
     finishes, the side menu returns to the \e closed state.
 
-    We select the \inlineimage plus.png
-    (\uicontrol Add) button in the \uicontrol States view to add the states:
+    We select \uicontrol {Create New State} in the \uicontrol States view to add
+    the states:
 
     \image sidemenu-states.png "Side menu states"
 

@@ -101,7 +101,7 @@
 
     We create the states for displaying the Trip, Standard, and Navigation
     screens by moving from viewport to viewport in \e Screen01.ui.qml and
-    clicking \inlineimage plus.png "Add button" in the \uicontrol States view
+    selecting \uicontrol {Create New State} in the \uicontrol States view
     when the appropriate screen is displayed in the viewport.
 
     We then create states for animations that are run when moving between the
