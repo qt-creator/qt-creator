@@ -135,10 +135,10 @@ Utils::CrumblePath *CrumbleBar::crumblePath()
 
 void CrumbleBar::showSaveDialog()
 {
-    if (DesignerSettings::getValue(DesignerSettingsKey::ALWAYS_SAVE_IN_CRUMBLEBAR).toBool()) {
+    bool alwaysSave = DesignerSettings::getValue(DesignerSettingsKey::ALWAYS_SAVE_IN_CRUMBLEBAR).toBool();
+    if (alwaysSave) {
         Core::DocumentManager::saveModifiedDocumentSilently(currentDesignDocument()->editor()->document());
     } else {
-        bool alwaysSave;
         bool canceled;
 
         Core::DocumentManager::saveModifiedDocument(currentDesignDocument()->editor()->document(),
