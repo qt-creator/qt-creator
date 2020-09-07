@@ -35,6 +35,8 @@
 
 #include <QTimer>
 
+#include <set>
+
 using namespace ProjectExplorer;
 
 namespace CppTools {
@@ -94,7 +96,15 @@ static ProjectPart::Ptr projectPartFromRawProjectPart(
     part->projectMacros = rawProjectPart.projectMacros;
     if (!part->projectConfigFile.isEmpty())
         part->projectMacros += Macro::toMacros(ProjectPart::readProjectConfigFile(part));
-    part->headerPaths = rawProjectPart.headerPaths;
+
+    // Prevent duplicate include paths.
+    std::set<QString> seenPaths;
+    for (const HeaderPath &p : qAsConst(rawProjectPart.headerPaths)) {
+        const QString cleanPath = QDir::cleanPath(p.path);
+        if (seenPaths.insert(cleanPath).second)
+            part->headerPaths << HeaderPath(cleanPath, p.type);
+    }
+
     part->precompiledHeaders = rawProjectPart.precompiledHeaders;
     part->selectedForBuilding = rawProjectPart.selectedForBuilding;
 
