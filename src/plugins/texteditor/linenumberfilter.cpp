@@ -62,7 +62,7 @@ void LineNumberFilter::prepareSearch(const QString &entry)
 QList<LocatorFilterEntry> LineNumberFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &, const QString &entry)
 {
     QList<LocatorFilterEntry> value;
-    const QVector<QStringRef> lineAndColumn = entry.splitRef(':');
+    const QStringList lineAndColumn = entry.split(':');
     int sectionCount = lineAndColumn.size();
     int line = 0;
     int column = 0;

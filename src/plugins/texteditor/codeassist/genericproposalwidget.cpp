@@ -95,7 +95,7 @@ QVariant ModelAdapter::data(const QModelIndex &index, int role) const
         const int lineBreakPos = text.indexOf('\n');
         if (lineBreakPos < 0)
             return text;
-        return QString(text.leftRef(lineBreakPos) + QLatin1String(" (...)"));
+        return QString(text.left(lineBreakPos) + QLatin1String(" (...)"));
     } else if (role == Qt::DecorationRole) {
         return m_completionModel->icon(index.row());
     } else if (role == Qt::WhatsThisRole) {
@@ -232,10 +232,9 @@ QSize GenericProposalListView::calculateSize() const
     const int visibleItems = qMin(model()->rowCount(), maxVisibleItems);
     const int firstVisibleRow = verticalScrollBar()->value();
 
-    const QStyleOptionViewItem &option = viewOptions();
     QSize shint;
     for (int i = 0; i < visibleItems; ++i) {
-        QSize tmp = itemDelegate()->sizeHint(option, model()->index(i + firstVisibleRow, 0));
+        QSize tmp = sizeHintForIndex(model()->index(i + firstVisibleRow, 0));
         if (shint.width() < tmp.width())
             shint = tmp;
     }

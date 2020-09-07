@@ -400,8 +400,8 @@ void CodeAssistantPrivate::handlePrefixExpansion(const QString &newPrefix)
     if (!textAfterCursor.startsWith(newPrefix)) {
         if (newPrefix.indexOf(textAfterCursor, currentPosition - m_proposal->basePosition()) >= 0)
             currentPosition = cursor.position();
-        const QStringRef prefixAddition =
-                newPrefix.midRef(currentPosition - m_proposal->basePosition());
+        const QStringView prefixAddition = QStringView(newPrefix).mid(currentPosition
+                                                                      - m_proposal->basePosition());
         // If remaining string starts with the prefix addition
         if (textAfterCursor.startsWith(prefixAddition))
             currentPosition += prefixAddition.size();
