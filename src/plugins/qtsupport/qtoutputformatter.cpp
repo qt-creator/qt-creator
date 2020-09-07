@@ -511,6 +511,7 @@ void QtSupportPlugin::testQtOutputFormatter_appendMixedAssertAndAnsi()
                 "Blue\n";
 
     formatter.appendMessage(inputText, StdOutFormat);
+    formatter.flush();
 
     QCOMPARE(edit.toPlainText(), outputText);
 

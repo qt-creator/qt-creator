@@ -214,8 +214,8 @@
     \c y properties of \e icon to those of the rectangles.
 
     \list 1
-        \li In the \uicontrol States view, click the \inlineimage plus.png
-            button three times to create \e State1, \e State2, and \e State3.
+        \li In the \uicontrol States view, select \uicontrol {Create New State}
+            three times to create \e State1, \e State2, and \e State3.
         \li Select \e State1 in \uicontrol States.
         \li Select \inlineimage icons/action-icon.png
             to open the \uicontrol Actions menu, and then select

@@ -67,7 +67,7 @@ Task::Task(TaskType type_, const QString &description,
            const QIcon &icon, Options options) :
     taskId(s_nextId), type(type_), options(options), summary(description),
     line(line_), movedLine(line_), category(category_),
-    icon(icon.isNull() ? taskTypeIcon(type_) : icon)
+    m_icon(icon)
 {
     ++s_nextId;
     setFile(file_);
@@ -108,7 +108,7 @@ void Task::clear()
     line = -1;
     movedLine = -1;
     category = Utils::Id();
-    icon = QIcon();
+    m_icon = QIcon();
     formats.clear();
     m_mark.clear();
 }
@@ -131,6 +131,13 @@ QString Task::description() const
     if (!details.isEmpty())
         desc.append('\n').append(details.join('\n'));
     return desc;
+}
+
+QIcon Task::icon() const
+{
+    if (m_icon.isNull())
+        m_icon = taskTypeIcon(type);
+    return m_icon;
 }
 
 //

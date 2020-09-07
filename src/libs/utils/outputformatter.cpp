@@ -216,6 +216,7 @@ public:
     PostPrintAction postPrintAction;
     bool boldFontEnabled = true;
     bool prependCarriageReturn = false;
+    bool prependLineFeed = false;
 };
 
 OutputFormatter::OutputFormatter() : d(new Private) { }
@@ -436,6 +437,7 @@ void OutputFormatter::append(const QString &text, const QTextCharFormat &format)
         d->cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
         startPos = crPos + 1;
     }
+    flushTrailingNewline();
     if (startPos < text.count())
         d->cursor.insertText(text.mid(startPos), format);
 }
@@ -493,6 +495,14 @@ void OutputFormatter::flushIncompleteLine()
     clearLastLine();
     doAppendMessage(d->incompleteLine.first, d->incompleteLine.second);
     d->incompleteLine.first.clear();
+}
+
+void Utils::OutputFormatter::flushTrailingNewline()
+{
+    if (d->prependLineFeed) {
+        d->cursor.insertText("\n");
+        d->prependLineFeed = false;
+    }
 }
 
 void OutputFormatter::dumpIncompleteLine(const QString &line, OutputFormat format)
@@ -560,6 +570,7 @@ void OutputFormatter::flush()
 {
     if (!d->incompleteLine.first.isEmpty())
         flushIncompleteLine();
+    flushTrailingNewline();
     d->escapeCodeHandler.endFormatScope();
     for (OutputLineParser * const p : qAsConst(d->lineParsers))
         p->flush();
@@ -641,7 +652,8 @@ void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
             dumpIncompleteLine(out.mid(startPos), format);
             break;
         }
-        doAppendMessage(out.mid(startPos, eolPos - startPos + 1), format);
+        doAppendMessage(out.mid(startPos, eolPos - startPos), format);
+        d->prependLineFeed = true;
         startPos = eolPos + 1;
     }
 }

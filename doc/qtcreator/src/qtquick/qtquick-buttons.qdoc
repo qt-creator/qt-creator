@@ -229,7 +229,7 @@
     \section1 Using States to Change Component Property Values
 
     \list 1
-        \li In the \uicontrol States view, select \inlineimage plus.png
+        \li In the \uicontrol States view, select \uicontrol {Create New State}
             twice to create two new states.
             \image qmldesigner-borderimage-states.png "Active and inactive states"
         \li Select \uicontrol State1.
