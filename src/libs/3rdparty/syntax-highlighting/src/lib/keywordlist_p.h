@@ -68,13 +68,10 @@ public:
     }
 
     /** Checks if @p str is a keyword in this list. */
-    bool contains(const QStringRef &str) const
-    {
-        return contains(str, m_caseSensitive);
-    }
+    bool contains(const QStringView &str) const { return contains(str, m_caseSensitive); }
 
     /** Checks if @p str is a keyword in this list, overriding the global case-sensitivity setting. */
-    bool contains(const QStringRef &str, Qt::CaseSensitivity caseSensitive) const;
+    bool contains(const QStringView &str, Qt::CaseSensitivity caseSensitive) const;
 
     void load(QXmlStreamReader &reader);
     void setCaseSensitivity(Qt::CaseSensitivity caseSensitive);
@@ -105,12 +102,12 @@ private:
     /**
      * case-sensitive sorted string references to m_keywords for lookup
      */
-    std::vector<QStringRef> m_keywordsSortedCaseSensitive;
+    std::vector<QStringView> m_keywordsSortedCaseSensitive;
 
     /**
      * case-insensitive sorted string references to m_keywords for lookup
      */
-    std::vector<QStringRef> m_keywordsSortedCaseInsensitive;
+    std::vector<QStringView> m_keywordsSortedCaseInsensitive;
 };
 }
 

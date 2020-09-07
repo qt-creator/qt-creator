@@ -100,7 +100,7 @@ public:
 
     virtual MatchResult doMatch(const QString &text, int offset, const QStringList &captures) const = 0;
 
-    static Rule::Ptr create(const QStringRef &name);
+    static Rule::Ptr create(const QStringView &name);
 
 protected:
     virtual bool doLoad(QXmlStreamReader &reader);
@@ -121,7 +121,7 @@ private:
     bool m_lookAhead = false;
 
     // cache for DefinitionData::wordDelimiters, is accessed VERY often
-    QStringRef m_wordDelimiter;
+    QStringView m_wordDelimiter;
 
 protected:
     bool m_dynamic = false;

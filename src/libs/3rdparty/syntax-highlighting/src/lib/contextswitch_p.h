@@ -42,7 +42,7 @@ public:
     int popCount() const;
     Context *context() const;
 
-    void parse(const QStringRef &contextInstr);
+    void parse(const QStringView &contextInstr);
     void resolve(const Definition &def);
 
 private:

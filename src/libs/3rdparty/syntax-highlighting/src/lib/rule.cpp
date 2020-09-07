@@ -134,7 +134,7 @@ void Rule::resolveContext()
     m_context.resolve(m_def.definition());
 
     // cache for DefinitionData::wordDelimiters, is accessed VERY often
-    m_wordDelimiter = &DefinitionData::get(m_def.definition())->wordDelimiters;
+    m_wordDelimiter = DefinitionData::get(m_def.definition())->wordDelimiters;
 }
 
 void Rule::resolveAttributeFormat(Context *lookupContext)
@@ -156,7 +156,7 @@ bool Rule::doLoad(QXmlStreamReader &reader)
     return true;
 }
 
-Rule::Ptr Rule::create(const QStringRef &name)
+Rule::Ptr Rule::create(const QStringView &name)
 {
     Rule *rule = nullptr;
     if (name == QLatin1String("AnyChar"))
@@ -418,7 +418,7 @@ bool IncludeRules::includeAttribute() const
 
 bool IncludeRules::doLoad(QXmlStreamReader &reader)
 {
-    const auto s = reader.attributes().value(QLatin1String("context"));
+    const auto s = reader.attributes().value(QLatin1String("context")).toString();
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
     const auto split = s.split(QLatin1String("##"), QString::KeepEmptyParts);
 #else
@@ -426,9 +426,9 @@ bool IncludeRules::doLoad(QXmlStreamReader &reader)
 #endif
     if (split.isEmpty())
         return false;
-    m_contextName = split.at(0).toString();
+    m_contextName = split.at(0);
     if (split.size() > 1)
-        m_defName = split.at(1).toString();
+        m_defName = split.at(1);
     m_includeAttribute = Xml::attrToBool(reader.attributes().value(QLatin1String("includeAttrib")));
 
     return !m_contextName.isEmpty() || !m_defName.isEmpty();
@@ -486,10 +486,11 @@ MatchResult KeywordListRule::doMatch(const QString &text, int offset, const QStr
         return offset;
 
     if (m_hasCaseSensitivityOverride) {
-        if (m_keywordList->contains(text.midRef(offset, newOffset - offset), m_caseSensitivityOverride))
+        if (m_keywordList->contains(QStringView(text).mid(offset, newOffset - offset),
+                                    m_caseSensitivityOverride))
             return newOffset;
     } else {
-        if (m_keywordList->contains(text.midRef(offset, newOffset - offset)))
+        if (m_keywordList->contains(QStringView(text).mid(offset, newOffset - offset)))
             return newOffset;
     }
 
@@ -613,7 +614,7 @@ MatchResult StringDetect::doMatch(const QString &text, int offset, const QString
      */
     const auto &pattern = m_dynamic ? replaceCaptures(m_string, captures, false) : m_string;
 
-    if (text.midRef(offset, pattern.size()).compare(pattern, m_caseSensitivity) == 0)
+    if (QStringView(text).mid(offset, pattern.size()).compare(pattern, m_caseSensitivity) == 0)
         return offset + pattern.size();
     return offset;
 }
@@ -637,7 +638,7 @@ MatchResult WordDetect::doMatch(const QString &text, int offset, const QStringLi
     if (offset > 0 && !isWordDelimiter(text.at(offset - 1)) && !isWordDelimiter(text.at(offset)))
         return offset;
 
-    if (text.midRef(offset, m_word.size()).compare(m_word, m_caseSensitivity) != 0)
+    if (QStringView(text).mid(offset, m_word.size()).compare(m_word, m_caseSensitivity) != 0)
         return offset;
 
     if (text.size() == offset + m_word.size() || isWordDelimiter(text.at(offset + m_word.size())) || isWordDelimiter(text.at(offset + m_word.size() - 1)))
