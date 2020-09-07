@@ -24,7 +24,13 @@ endif()
 
 find_package(Qt6 ${Qt5_FIND_VERSION} CONFIG COMPONENTS Core QUIET)
 if (NOT Qt6_FOUND)
+  # remove Core5Compat from components to find in Qt5, but add a dummy target,
+  # which unfortunately cannot start with "Qt6::"
+  list(REMOVE_ITEM Qt5_FIND_COMPONENTS Core5Compat)
   find_package(Qt5 ${Qt5_FIND_VERSION} CONFIG ${__arguments} ${Qt5_FIND_COMPONENTS})
+  if (NOT TARGET Qt6Core5Compat)
+    add_library(Qt6Core5Compat INTERFACE)
+  endif()
 
   # Remove Qt6 from the not found packages in Qt5 mode
   get_property(not_found_packages GLOBAL PROPERTY "PACKAGES_NOT_FOUND")
@@ -49,6 +55,11 @@ foreach(comp IN LISTS Qt5_FIND_COMPONENTS)
     endif()
   endif()
 endforeach()
+
+# alias Qt6::Core5Compat to Qt6Core5Compat to make consistent with Qt5 path
+if (TARGET Qt6::Core5Compat AND NOT TARGET Qt6CoreCompat)
+  add_library(Qt6Core5Compat ALIAS Qt6::Core5Compat)
+endif()
 
 set(Qt5_FOUND ${Qt6_FOUND})
 set(Qt5_VERSION ${Qt6_VERSION})

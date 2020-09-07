@@ -42,10 +42,13 @@ endif()
 find_package(Qt5
   ${IDE_QT_VERSION_MIN}
   COMPONENTS Concurrent Core Gui Network PrintSupport Qml Quick
-    QuickWidgets Sql Widgets Xml ${QT_TEST_COMPONENT}
+    QuickWidgets Sql Widgets Xml Core5Compat ${QT_TEST_COMPONENT}
   REQUIRED
 )
-find_package(Qt5 COMPONENTS LinguistTools)
+if (Qt5_VERSION VERSION_LESS 6.0.0)
+  install(TARGETS Qt6Core5Compat EXPORT QtCreator)
+endif()
+find_package(Qt5 COMPONENTS LinguistTools QUIET)
 find_package(Qt5 COMPONENTS Designer DesignerComponents Help SerialPort Svg QUIET)
 
 find_package(Threads)
