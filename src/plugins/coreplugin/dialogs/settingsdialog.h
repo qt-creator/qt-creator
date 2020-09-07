@@ -27,6 +27,10 @@
 
 #include <utils/id.h>
 
+QT_BEGIN_NAMESPACE
+class QWidget;
+QT_END_NAMESPACE
+
 namespace Core {
 namespace Internal {
 

@@ -49,6 +49,7 @@
 #include <QMenu>
 #include <QMimeData>
 #include <QPlainTextEdit>
+#include <QRandomGenerator>
 #include <QTextStream>
 
 using namespace Utils;
@@ -644,7 +645,7 @@ static QString getUserFilePath(const QString &proposalFileName)
         if (++count > 15)
             return QString();
         // add random number
-        const int number = qrand() % 1000;
+        const int number = QRandomGenerator().generate() % 1000;
         tryPath = newFilePath + QString::number(number) + suffix;
     }
     return tryPath;

@@ -279,8 +279,7 @@ void CompletionList::setModel(QAbstractItemModel *newModel)
 {
     const auto updateSize = [this] {
         if (model() && model()->rowCount() > 0) {
-            const QStyleOptionViewItem &option = viewOptions();
-            const QSize shint = itemDelegate()->sizeHint(option, model()->index(0, 0));
+            const QSize shint = sizeHintForIndex(model()->index(0, 0));
             setFixedHeight(shint.height() * 17 + frameWidth() * 2);
             disconnect(m_updateSizeConnection);
         }

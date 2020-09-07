@@ -32,11 +32,7 @@
 namespace Core {
 namespace Internal {
 
-enum JavaScriptAction
-{
-    ResetEngine = QVariant::UserType + 1,
-    AbortEngine
-};
+enum class EngineAction { Reset, Abort };
 
 JavaScriptFilter::JavaScriptFilter()
 {
@@ -75,12 +71,12 @@ QList<LocatorFilterEntry> JavaScriptFilter::matchesFor(
 
     QList<LocatorFilterEntry> entries;
     if (entry.trimmed().isEmpty()) {
-        entries.append({this, tr("Reset Engine"), QVariant(ResetEngine, nullptr)});
+        entries.append({this, tr("Reset Engine"), QVariant::fromValue(EngineAction::Reset)});
     } else {
         const QString result = m_engine->evaluate(entry).toString();
         if (m_aborted) {
             const QString message = entry + " = " + tr("Engine aborted after timeout.");
-            entries.append({this, message, QVariant(AbortEngine, nullptr)});
+            entries.append({this, message, QVariant::fromValue(EngineAction::Abort)});
         } else {
             const QString expression = entry + " = " + result;
             entries.append({this, expression, QVariant()});
@@ -102,7 +98,8 @@ void JavaScriptFilter::accept(Core::LocatorFilterEntry selection, QString *newTe
     if (selection.internalData.isNull())
         return;
 
-    if (selection.internalData.userType() == ResetEngine) {
+    if (selection.internalData.canConvert<EngineAction>()
+        && selection.internalData.value<EngineAction>() == EngineAction::Reset) {
         m_engine.reset();
         return;
     }
@@ -148,3 +145,5 @@ void JavaScriptFilter::setupEngine()
 
 } // namespace Internal
 } // namespace Core
+
+Q_DECLARE_METATYPE(Core::Internal::EngineAction)
