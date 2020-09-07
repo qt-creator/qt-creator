@@ -43,4 +43,21 @@ using QHashValueType = uint;
 using QHashValueType = size_t;
 #endif
 
+// StringView - either QStringRef or QStringView
+// Can be used where it is not possible to completely switch to QStringView
+// For example where QString::splitRef / QStringView::split is essential.
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+using StringView = QStringRef;
+#else
+using StringView = QStringView;
+#endif
+inline StringView make_stringview(const QString &s)
+{
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    return QStringRef(&s);
+#else
+    return QStringView(s);
+#endif
+}
+
 } // namespace Utils

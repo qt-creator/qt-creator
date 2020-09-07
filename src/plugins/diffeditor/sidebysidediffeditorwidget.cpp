@@ -45,6 +45,7 @@
 #include <coreplugin/find/highlightscrollbarcontroller.h>
 #include <coreplugin/minisplitter.h>
 
+#include <utils/porting.h>
 #include <utils/tooltip/tooltip.h>
 
 using namespace Core;
@@ -293,7 +294,7 @@ QString SideDiffEditorWidget::plainTextFromSelection(const QTextCursor &cursor) 
                 if (textInserted)
                     text += '\n';
                 if (block == endBlock)
-                    text += block.text().leftRef(endPosition - block.position());
+                    text += make_stringview(block.text()).left(endPosition - block.position());
                 else
                     text += block.text();
             }
