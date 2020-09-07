@@ -160,15 +160,21 @@
             for its properties in \uicontrol Properties.
             \image studio-qtquick-3d-pass.png "Pass properties"
         \li To execute commands during the pass, drag and drop the following
-            command types from \uicontrol Library to the custom material in
+            command types from \uicontrol Library to the pass component in
             \uicontrol Navigator: \uicontrol Blending, \uicontrol {Buffer Blit},
             \uicontrol {Buffer Input}, \uicontrol {Cull Mode},
             \uicontrol {Depth Input}, \uicontrol {Render State}, and
-            \uicontrol {Set Uniform Value}. Then select the commands in the
-            \uicontrol Commands field.
+            \uicontrol {Set Uniform Value}. The command components are created
+            at the same level as the pass component and automatically added to
+            the \uicontrol Commands field.
         \li To allocate a buffer for the pass, drag and drop a \uicontrol Buffer
             type to the custom material. Then select the buffer in the
             \uicontrol Buffer field.
+        \li To add a shader to the pass, drag and drop the \uicontrol Shader
+            type from the \uicontrol Library to the pass component in \uicontrol
+            Navigator. The shader components are created at the same
+            level as the pass component and automatically added to the
+            \uicontrol Shaders field.
         \li Select the shader components in \uicontrol Navigator to set the
             paths to the shader files in the \uicontrol Source field in
             \uicontrol Properties.
