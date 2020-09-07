@@ -91,7 +91,7 @@ private:
         ParseError
     };
 
-    static ParseState nextState(ParseState currentState, const QStringRef &startElement);
+    static ParseState nextState(ParseState currentState, const QStringView &startElement);
 };
 
 

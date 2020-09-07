@@ -192,10 +192,10 @@ bool FileInProjectFinder::findFileOrDirectory(const QString &originalPath, FileH
         return false;
     }
 
-    const auto segments = originalPath.splitRef('/', Qt::SkipEmptyParts);
+    const auto segments = originalPath.split('/', Qt::SkipEmptyParts);
     const PathMappingNode *node = &m_pathMapRoot;
     for (const auto &segment : segments) {
-        auto it = node->children.find(segment.toString());
+        auto it = node->children.find(segment);
         if (it == node->children.end()) {
             node = nullptr;
             break;

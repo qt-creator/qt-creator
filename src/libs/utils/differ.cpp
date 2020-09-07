@@ -78,7 +78,7 @@ static int commonOverlap(const QString &text1, const QString &text2)
     const int text2Count = text2.count();
     const int maxCount = qMin(text1Count, text2Count);
     while (i < maxCount) {
-        if (text1.midRef(text1Count - maxCount + i) == text2.leftRef(maxCount - i))
+        if (QStringView(text1).mid(text1Count - maxCount + i) == QStringView(text2).left(maxCount - i))
             return maxCount - i;
         i++;
     }
@@ -298,7 +298,7 @@ QList<Diff> Differ::moveWhitespaceIntoEqualities(const QList<Diff> &input)
                     }
                     if (j > 0) {
                         // diff starts with j whitespaces, move them to the previous diff
-                        previousDiff.text.append(diff.text.leftRef(j));
+                        previousDiff.text.append(diff.text.left(j));
                         diff.text = diff.text.mid(j);
                     }
                 }

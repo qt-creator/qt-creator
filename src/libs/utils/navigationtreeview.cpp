@@ -67,8 +67,15 @@ void NavigationTreeView::scrollTo(const QModelIndex &index, QAbstractItemView::S
     QRect itemRect = visualRect(index);
 
     QAbstractItemDelegate *delegate = itemDelegate(index);
-    if (delegate)
-        itemRect.setWidth(delegate->sizeHint(viewOptions(), index).width());
+    if (delegate) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        const QStyleOptionViewItem option = viewOptions();
+#else
+        QStyleOptionViewItem option;
+        initViewItemOption(&option);
+#endif
+        itemRect.setWidth(delegate->sizeHint(option, index).width());
+    }
 
     if (itemRect.x() - indentation() < 0) {
         // scroll so left edge minus one indent of item is visible

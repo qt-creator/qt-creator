@@ -1,6 +1,8 @@
 add_qtc_library(Utils
   DEPENDS Qt5::Xml
-  PUBLIC_DEPENDS Qt5::Concurrent Qt5::Core Qt5::Network Qt5::Qml Qt5::Gui Qt5::Widgets
+  PUBLIC_DEPENDS
+    Qt5::Concurrent Qt5::Core Qt5::Network Qt5::Qml Qt5::Gui Qt5::Widgets
+    Qt6Core5Compat
   DEFINES
     "QTC_REL_TOOLS_PATH=\"${RELATIVE_LIBEXEC_PATH}\""
   SOURCES
