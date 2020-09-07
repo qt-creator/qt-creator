@@ -825,14 +825,14 @@ QString DocumentManager::getSaveFileName(const QString &title, const QString &pa
                     const QRegularExpressionMatch match = matchIt.next();
                     QString caption = match.captured(1);
                     caption.remove(QLatin1Char('*'));
-                    const QVector<QStringRef> suffixes = caption.splitRef(QLatin1Char(' '));
-                    for (const QStringRef &suffix : suffixes)
+                    const QStringList suffixes = caption.split(QLatin1Char(' '));
+                    for (const QString &suffix : suffixes)
                         if (fileName.endsWith(suffix)) {
                             suffixOk = true;
                             break;
                         }
                     if (!suffixOk && !suffixes.isEmpty())
-                        fileName.append(suffixes.at(0).toString());
+                        fileName.append(suffixes.at(0));
                 }
             }
             if (QFile::exists(fileName)) {

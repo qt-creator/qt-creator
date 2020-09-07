@@ -101,7 +101,7 @@ QMap<QString, QList<QKeySequence>> CommandsFile::importCommands() const
     while (!r.atEnd()) {
         switch (r.readNext()) {
         case QXmlStreamReader::StartElement: {
-            const QStringRef name = r.name();
+            const auto name = r.name();
             if (name == ctx.shortCutElement) {
                 currentId = r.attributes().value(ctx.idAttribute).toString();
                 if (!result.contains(currentId))

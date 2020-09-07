@@ -351,7 +351,7 @@ static void localizedText(const QStringList &locales, QXmlStreamReader *reader, 
 
 static bool parseOutputAttribute(const QString &attribute, QXmlStreamReader *reader, ExternalTool::OutputHandling *value)
 {
-    const QStringRef output = reader->attributes().value(attribute);
+    const auto output = reader->attributes().value(attribute);
     if (output == kOutputShowInPane) {
         *value = ExternalTool::ShowInPane;
     } else if (output == kOutputReplaceSelection) {
@@ -405,7 +405,7 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
                     break;
             }
             if (reader.attributes().hasAttribute(kModifiesDocument)) {
-                const QStringRef value = reader.attributes().value(kModifiesDocument);
+                const auto value = reader.attributes().value(kModifiesDocument);
                 if (value == kYes || value == kTrue) {
                     tool->m_modifiesCurrentDocument = true;
                 } else if (value == kNo || value == kFalse) {
