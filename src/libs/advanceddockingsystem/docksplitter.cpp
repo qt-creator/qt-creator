@@ -39,6 +39,7 @@
 
 #include <QChildEvent>
 #include <QLoggingCategory>
+#include <QVariant>
 
 static Q_LOGGING_CATEGORY(adsLog, "qtc.qmldesigner.advanceddockingsystem", QtWarningMsg)
 
