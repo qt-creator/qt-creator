@@ -224,12 +224,14 @@ void DebuggerItem::reinitializeFromFile()
         m_abis = Abi::abisOfBinary(m_command);
 
         // Version
-        if (output.startsWith(("lldb version "))) { // Linux typically.
+        // Self-build binaries also emit clang and llvm revision.
+        const QString line = output.split('\n')[0];
+        if (line.startsWith(("lldb version "))) { // Linux typically.
             int pos1 = int(strlen("lldb version "));
-            int pos2 = output.indexOf(' ', pos1);
-            m_version = output.mid(pos1, pos2 - pos1);
-        } else if (output.startsWith("lldb-") || output.startsWith("LLDB-")) { // Mac typically.
-            m_version = output.mid(5);
+            int pos2 = line.indexOf(' ', pos1);
+            m_version = line.mid(pos1, pos2 - pos1);
+        } else if (line.startsWith("lldb-") || line.startsWith("LLDB-")) { // Mac typically.
+            m_version = line.mid(5);
         }
         return;
     }
