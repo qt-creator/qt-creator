@@ -109,12 +109,12 @@ NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList, Id id)
     m_arguments->setArguments(defaultArguments());
 
     setCommandLineProvider([this] {
-        return CommandLine(Nim::nimblePathFromKit(target()->kit()),
+        return CommandLine(Nim::nimblePathFromKit(kit()),
                            {"build", m_arguments->arguments(macroExpander())});
     });
     setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });
     setEnvironmentModifier([this](Environment &env) {
-        env.appendOrSetPath(Nim::nimPathFromKit(target()->kit()).toUserOutput());
+        env.appendOrSetPath(Nim::nimPathFromKit(kit()).toUserOutput());
     });
 
     QTC_ASSERT(buildConfiguration(), return);

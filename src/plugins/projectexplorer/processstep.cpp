@@ -107,7 +107,7 @@ bool ProcessStep::init()
 
 void ProcessStep::setupOutputFormatter(OutputFormatter *formatter)
 {
-    formatter->addLineParsers(target()->kit()->createOutputParsers());
+    formatter->addLineParsers(kit()->createOutputParsers());
     AbstractProcessStep::setupOutputFormatter(formatter);
 }
 

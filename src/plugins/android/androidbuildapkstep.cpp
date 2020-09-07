@@ -138,7 +138,7 @@ bool AndroidBuildApkStep::init()
                            OutputFormat::ErrorMessage);
     }
 
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target()->kit());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
     if (!version)
         return false;
 
@@ -159,7 +159,7 @@ bool AndroidBuildApkStep::init()
         return false;
     }
 
-    int minSDKForKit = AndroidManager::minimumSDK(target()->kit());
+    const int minSDKForKit = AndroidManager::minimumSDK(kit());
     if (AndroidManager::minimumSDK(target()) < minSDKForKit) {
         emit addOutput(tr("The API level set for the APK is less than the minimum required by the kit."
                           "\nThe minimum API level required by the kit is %1.").arg(minSDKForKit), OutputFormat::Stderr);
@@ -384,7 +384,7 @@ void AndroidBuildApkStep::doRun()
             return inputExists; // qmake does this job for us
 
 
-        QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target()->kit());
+        QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
         if (!version)
             return false;
 
@@ -505,13 +505,13 @@ void AndroidBuildApkStep::setBuildTargetSdk(const QString &sdk)
 QVariant AndroidBuildApkStep::data(Utils::Id id) const
 {
     if (id == Constants::AndroidNdkPlatform) {
-        if (auto qtVersion = QtKitAspect::qtVersion(target()->kit()))
+        if (auto qtVersion = QtKitAspect::qtVersion(kit()))
             return AndroidConfigurations::currentConfig()
                 .bestNdkPlatformMatch(AndroidManager::minimumSDK(target()), qtVersion).mid(8);
         return {};
     }
     if (id == Constants::NdkLocation) {
-        if (auto qtVersion = QtKitAspect::qtVersion(target()->kit()))
+        if (auto qtVersion = QtKitAspect::qtVersion(kit()))
             return QVariant::fromValue(AndroidConfigurations::currentConfig().ndkLocation(qtVersion));
         return {};
     }

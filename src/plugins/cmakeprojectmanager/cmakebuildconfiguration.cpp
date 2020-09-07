@@ -228,8 +228,7 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
         }
     }();
     if (initialCMakeArguments().isEmpty()) {
-        QStringList initialArgs = defaultInitialCMakeArguments(target()->kit(),
-                                                               buildTypeName)
+        QStringList initialArgs = defaultInitialCMakeArguments(kit(), buildTypeName)
                                   + Utils::transform(conf, [this](const CMakeConfigItem &i) {
                                         return i.toArgument(macroExpander());
                                     });

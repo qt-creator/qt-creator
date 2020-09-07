@@ -157,7 +157,7 @@ QString QmlProjectRunConfiguration::disabledReason() const
         return tr("No script file to execute.");
 
     const FilePath viewer = qmlScenePath();
-    if (DeviceTypeKitAspect::deviceTypeId(target()->kit())
+    if (DeviceTypeKitAspect::deviceTypeId(kit())
             == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
             && !viewer.exists()) {
         return tr("No qmlscene found.");
@@ -198,7 +198,7 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
 {
     // arguments in .user file
     QString args = aspect<ArgumentsAspect>()->arguments(macroExpander());
-    const IDevice::ConstPtr device = DeviceKitAspect::device(target()->kit());
+    const IDevice::ConstPtr device = DeviceKitAspect::device(kit());
     const OsType osType = device ? device->osType() : HostOsInfo::hostOs();
 
     // arguments from .qmlproject file

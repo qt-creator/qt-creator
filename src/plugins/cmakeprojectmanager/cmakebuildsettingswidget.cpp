@@ -414,7 +414,7 @@ void CMakeBuildSettingsWidget::updateAdvancedCheckBox()
 
 void CMakeBuildSettingsWidget::updateFromKit()
 {
-    const ProjectExplorer::Kit *k = m_buildConfiguration->target()->kit();
+    const ProjectExplorer::Kit *k = m_buildConfiguration->kit();
     const CMakeConfig config = CMakeConfigurationKitAspect::configuration(k);
 
     QHash<QString, QString> configHash;

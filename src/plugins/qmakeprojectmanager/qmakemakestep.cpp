@@ -178,13 +178,13 @@ bool QmakeMakeStep::init()
 void QmakeMakeStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
 {
     formatter->addLineParser(new ProjectExplorer::GnuMakeParser());
-    ToolChain *tc = ToolChainKitAspect::cxxToolChain(target()->kit());
+    ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit());
     OutputTaskParser *xcodeBuildParser = nullptr;
     if (tc && tc->targetAbi().os() == Abi::DarwinOS) {
         xcodeBuildParser = new XcodebuildParser;
         formatter->addLineParser(xcodeBuildParser);
     }
-    QList<Utils::OutputLineParser *> additionalParsers = target()->kit()->createOutputParsers();
+    QList<Utils::OutputLineParser *> additionalParsers = kit()->createOutputParsers();
 
     // make may cause qmake to be run, add last to make sure it has a low priority.
     additionalParsers << new QMakeParser;

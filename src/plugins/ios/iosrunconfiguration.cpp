@@ -131,7 +131,7 @@ void IosDeviceTypeAspect::deviceChanges()
 
 void IosDeviceTypeAspect::updateDeviceType()
 {
-    if (DeviceTypeKitAspect::deviceTypeId(m_runConfiguration->target()->kit())
+    if (DeviceTypeKitAspect::deviceTypeId(m_runConfiguration->kit())
             == Constants::IOS_DEVICE_TYPE)
         m_deviceType = IosDeviceType(IosDeviceType::IosDevice);
     else if (m_deviceType.type == IosDeviceType::IosDevice)
@@ -140,11 +140,11 @@ void IosDeviceTypeAspect::updateDeviceType()
 
 bool IosRunConfiguration::isEnabled() const
 {
-    Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(target()->kit());
+    Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(kit());
     if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE)
         return false;
 
-    IDevice::ConstPtr dev = DeviceKitAspect::device(target()->kit());
+    IDevice::ConstPtr dev = DeviceKitAspect::device(kit());
     if (dev.isNull() || dev->deviceState() != IDevice::DeviceReadyToUse)
         return false;
 
@@ -153,8 +153,7 @@ bool IosRunConfiguration::isEnabled() const
 
 QString IosRunConfiguration::applicationName() const
 {
-    Project *project = target()->project();
-    if (ProjectNode *node = project->findNodeForBuildKey(buildKey()))
+    if (ProjectNode *node = project()->findNodeForBuildKey(buildKey()))
         return node->data(Constants::IosTarget).toString();
 
     return QString();
@@ -162,7 +161,7 @@ QString IosRunConfiguration::applicationName() const
 
 FilePath IosRunConfiguration::bundleDirectory() const
 {
-    Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(target()->kit());
+    Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(kit());
     bool isDevice = (devType == Constants::IOS_DEVICE_TYPE);
     if (!isDevice && devType != Constants::IOS_SIMULATOR_TYPE) {
         qCWarning(iosLog) << "unexpected device type in bundleDirForTarget: " << devType.toString();
@@ -220,10 +219,10 @@ void IosDeviceTypeAspect::toMap(QVariantMap &map) const
 
 QString IosRunConfiguration::disabledReason() const
 {
-    Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(target()->kit());
+    Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(kit());
     if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE)
         return tr("Kit has incorrect device type for running on iOS devices.");
-    IDevice::ConstPtr dev = DeviceKitAspect::device(target()->kit());
+    IDevice::ConstPtr dev = DeviceKitAspect::device(kit());
     QString validDevName;
     bool hasConncetedDev = false;
     if (devType == Constants::IOS_DEVICE_TYPE) {

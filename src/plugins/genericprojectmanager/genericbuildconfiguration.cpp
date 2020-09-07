@@ -91,8 +91,8 @@ GenericBuildConfigurationFactory::GenericBuildConfigurationFactory()
 
 void GenericBuildConfiguration::addToEnvironment(Utils::Environment &env) const
 {
-    prependCompilerPathToEnvironment(target()->kit(), env);
-    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(target()->kit());
+    prependCompilerPathToEnvironment(kit(), env);
+    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(kit());
     if (qt)
         env.prependOrSetPath(qt->hostBinPath().toString());
 }

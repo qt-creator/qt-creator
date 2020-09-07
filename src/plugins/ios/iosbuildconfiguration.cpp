@@ -98,7 +98,7 @@ private:
 IosBuildSettingsWidget::IosBuildSettingsWidget(IosBuildConfiguration *bc)
     : NamedWidget(IosBuildConfiguration::tr("iOS Settings")),
       m_bc(bc),
-      m_isDevice(DeviceTypeKitAspect::deviceTypeId(bc->target()->kit())
+      m_isDevice(DeviceTypeKitAspect::deviceTypeId(bc->kit())
                  == Constants::IOS_DEVICE_TYPE)
 {
     auto detailsWidget = new Utils::DetailsWidget(this);
@@ -423,7 +423,7 @@ void IosBuildConfiguration::updateQmakeCommand()
         if (signingIdentifier.isEmpty() )
             extraArgs << forceOverrideArg;
 
-        Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(target()->kit());
+        Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(kit());
         if (devType == Constants::IOS_DEVICE_TYPE && !signingIdentifier.isEmpty()) {
             if (m_autoManagedSigning->value()) {
                 extraArgs << qmakeIosTeamSettings + signingIdentifier;

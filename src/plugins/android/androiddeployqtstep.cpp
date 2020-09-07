@@ -86,7 +86,7 @@ AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Utils::Id id)
     : BuildStep(parent, id)
 {
     setImmutable(true);
-    const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitAspect::qtVersion(target()->kit());
+    const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit());
     m_uninstallPreviousPackage = qt && qt->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0);
 
     //: AndroidDeployQtStep default display name
@@ -99,11 +99,11 @@ AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Utils::Id id)
 
 bool AndroidDeployQtStep::init()
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target()->kit());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
     if (!version) {
         qCDebug(deployStepLog,
                 "The Qt version for kit %s is not valid.",
-                qPrintable(target()->kit()->displayName()));
+                qPrintable(kit()->displayName()));
         return false;
     }
 
@@ -571,7 +571,7 @@ void AndroidDeployQtStep::setUninstallPreviousPackage(bool uninstall)
 
 AndroidDeployQtStep::UninstallType AndroidDeployQtStep::uninstallPreviousPackage()
 {
-    const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitAspect::qtVersion(target()->kit());
+    const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit());
     if (qt && qt->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0))
         return ForceUninstall;
     return m_uninstallPreviousPackage ? Uninstall : Keep;

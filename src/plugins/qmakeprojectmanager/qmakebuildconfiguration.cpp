@@ -219,13 +219,13 @@ bool QmakeBuildConfiguration::fromMap(const QVariantMap &map)
 
     m_qmakeBuildConfiguration = BaseQtVersion::QmakeBuildConfigs(map.value(QLatin1String(BUILD_CONFIGURATION_KEY)).toInt());
 
-    m_lastKitState = LastKitState(target()->kit());
+    m_lastKitState = LastKitState(kit());
     return true;
 }
 
 void QmakeBuildConfiguration::kitChanged()
 {
-    LastKitState newState = LastKitState(target()->kit());
+    LastKitState newState = LastKitState(kit());
     if (newState != m_lastKitState) {
         // This only checks if the ids have changed!
         // For that reason the QmakeBuildConfiguration is also connected
@@ -237,8 +237,8 @@ void QmakeBuildConfiguration::kitChanged()
 
 void QmakeBuildConfiguration::updateProblemLabel()
 {
-    ProjectExplorer::Kit * const k = target()->kit();
-    const QString proFileName = target()->project()->projectFilePath().toString();
+    ProjectExplorer::Kit * const k = kit();
+    const QString proFileName = project()->projectFilePath().toString();
 
     // Check for Qt version:
     QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
@@ -442,7 +442,7 @@ void QmakeBuildConfiguration::forceQtQuickCompiler(bool enable)
 QStringList QmakeBuildConfiguration::configCommandLineArguments() const
 {
     QStringList result;
-    BaseQtVersion *version = QtKitAspect::qtVersion(target()->kit());
+    BaseQtVersion *version = QtKitAspect::qtVersion(kit());
     BaseQtVersion::QmakeBuildConfigs defaultBuildConfiguration =
             version ? version->defaultBuildConfig() : BaseQtVersion::QmakeBuildConfigs(BaseQtVersion::DebugBuild | BaseQtVersion::BuildAll);
     BaseQtVersion::QmakeBuildConfigs userBuildConfiguration = m_qmakeBuildConfiguration;
@@ -508,7 +508,7 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
         return MakefileMissing;
     }
 
-    BaseQtVersion *version = QtKitAspect::qtVersion(target()->kit());
+    BaseQtVersion *version = QtKitAspect::qtVersion(kit());
     if (!version) {
         qCDebug(logs) << "**No qt version in kit";
         return MakefileForWrongProject;
@@ -806,7 +806,7 @@ BuildConfiguration::BuildType QmakeBuildConfiguration::buildType() const
 
 void QmakeBuildConfiguration::addToEnvironment(Environment &env) const
 {
-    setupBuildEnvironment(target()->kit(), env);
+    setupBuildEnvironment(kit(), env);
 }
 
 void QmakeBuildConfiguration::setupBuildEnvironment(Kit *k, Environment &env)
@@ -853,7 +853,7 @@ bool QmakeBuildConfiguration::regenerateBuildFiles(Node *node)
     BuildManager::appendStep(qs, BuildManager::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
 
     QmakeProFileNode *proFile = nullptr;
-    if (node && node != target()->project()->rootProjectNode())
+    if (node && node != project()->rootProjectNode())
         proFile = dynamic_cast<QmakeProFileNode *>(node);
 
     setSubNodeBuild(proFile);

@@ -185,7 +185,7 @@ bool IosDsymBuildStep::isDefault() const
 
 void IosDsymBuildStep::setupOutputFormatter(OutputFormatter *formatter)
 {
-    formatter->setLineParsers(target()->kit()->createOutputParsers());
+    formatter->setLineParsers(kit()->createOutputParsers());
     formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
     AbstractProcessStep::setupOutputFormatter(formatter);
 }

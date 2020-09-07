@@ -104,7 +104,7 @@ NimCompilerBuildStep::NimCompilerBuildStep(BuildStepList *parentList, Utils::Id 
 void NimCompilerBuildStep::setupOutputFormatter(OutputFormatter *formatter)
 {
     formatter->addLineParser(new NimParser);
-    formatter->addLineParsers(target()->kit()->createOutputParsers());
+    formatter->addLineParsers(kit()->createOutputParsers());
     formatter->addSearchDir(buildDirectory());
     AbstractProcessStep::setupOutputFormatter(formatter);
 }
@@ -234,8 +234,7 @@ CommandLine NimCompilerBuildStep::commandLine()
     auto bc = qobject_cast<NimBuildConfiguration *>(buildConfiguration());
     QTC_ASSERT(bc, return {});
 
-    Kit *kit = target()->kit();
-    auto tc = ToolChainKitAspect::toolChain(kit, Constants::C_NIMLANGUAGE_ID);
+    auto tc = ToolChainKitAspect::toolChain(kit(), Constants::C_NIMLANGUAGE_ID);
     QTC_ASSERT(tc, return {});
 
     CommandLine cmd{tc->compilerCommand()};

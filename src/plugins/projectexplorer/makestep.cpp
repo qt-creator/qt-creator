@@ -210,7 +210,7 @@ bool MakeStep::init()
 void MakeStep::setupOutputFormatter(OutputFormatter *formatter)
 {
     formatter->addLineParser(new GnuMakeParser());
-    formatter->addLineParsers(target()->kit()->createOutputParsers());
+    formatter->addLineParsers(kit()->createOutputParsers());
     formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
     AbstractProcessStep::setupOutputFormatter(formatter);
 }
@@ -244,7 +244,7 @@ FilePath MakeStep::defaultMakeCommand() const
     if (!bc)
         return {};
     const Utils::Environment env = makeEnvironment();
-    for (const ToolChain *tc : preferredToolChains(target()->kit())) {
+    for (const ToolChain *tc : preferredToolChains(kit())) {
         FilePath make = tc->makeCommand(env);
         if (!make.isEmpty())
             return make;
@@ -264,7 +264,7 @@ Task MakeStep::makeCommandMissingTask()
 
 bool MakeStep::isJobCountSupported() const
 {
-    const QList<ToolChain *> tcs = preferredToolChains(target()->kit());
+    const QList<ToolChain *> tcs = preferredToolChains(kit());
     const ToolChain *tc = tcs.isEmpty() ? nullptr : tcs.constFirst();
     return tc && tc->isJobCountSupported();
 }

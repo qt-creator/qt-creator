@@ -123,7 +123,7 @@ IBConsoleBuildStep::IBConsoleBuildStep(BuildStepList *buildStepList, Id id)
 void IBConsoleBuildStep::setupOutputFormatter(OutputFormatter *formatter)
 {
     formatter->addLineParser(new GnuMakeParser());
-    formatter->addLineParsers(target()->kit()->createOutputParsers());
+    formatter->addLineParsers(kit()->createOutputParsers());
     formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
     AbstractProcessStep::setupOutputFormatter(formatter);
 }

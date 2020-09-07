@@ -90,7 +90,7 @@ AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bs
 
 bool AndroidPackageInstallationStep::init()
 {
-    ToolChain *tc = ToolChainKitAspect::cxxToolChain(target()->kit());
+    ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit());
     QTC_ASSERT(tc, return false);
 
     QString dirPath = nativeAndroidBuildPath();
@@ -125,7 +125,7 @@ QString AndroidPackageInstallationStep::nativeAndroidBuildPath() const
 void AndroidPackageInstallationStep::setupOutputFormatter(OutputFormatter *formatter)
 {
     formatter->addLineParser(new GnuMakeParser);
-    formatter->addLineParsers(target()->kit()->createOutputParsers());
+    formatter->addLineParsers(kit()->createOutputParsers());
     formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
     AbstractProcessStep::setupOutputFormatter(formatter);
 }
@@ -149,7 +149,7 @@ void AndroidPackageInstallationStep::doRun()
     // NOTE: This is a workaround for QTCREATORBUG-24155
     // Needed for Qt 5.15.0 and Qt 5.14.x versions
     if (buildType() == BuildConfiguration::BuildType::Debug) {
-        QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target()->kit());
+        QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
         if (version && version->qtVersion() >= QtSupport::QtVersionNumber{5, 14}
             && version->qtVersion() <= QtSupport::QtVersionNumber{5, 15, 0}) {
             const QString assetsDebugDir = nativeAndroidBuildPath().append(

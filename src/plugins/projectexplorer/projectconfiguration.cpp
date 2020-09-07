@@ -206,6 +206,11 @@ Project *ProjectConfiguration::project() const
     return m_target->project();
 }
 
+Kit *ProjectConfiguration::kit() const
+{
+    return m_target->kit();
+}
+
 Utils::Id ProjectConfiguration::id() const
 {
     return m_id;

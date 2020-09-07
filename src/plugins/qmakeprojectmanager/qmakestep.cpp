@@ -155,7 +155,7 @@ QMakeStepConfig QMakeStep::deducedArguments() const
         }
     }
 
-    BaseQtVersion *version = QtKitAspect::qtVersion(target()->kit());
+    BaseQtVersion *version = QtKitAspect::qtVersion(kit);
 
     config.archConfig = QMakeStepConfig::targetArchFor(targetAbi, version);
     config.osType = QMakeStepConfig::osTypeFor(targetAbi, version);
@@ -170,7 +170,7 @@ bool QMakeStep::init()
 {
     m_wasSuccess = true;
     QmakeBuildConfiguration *qmakeBc = qmakeBuildConfiguration();
-    const BaseQtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
+    const BaseQtVersion *qtVersion = QtKitAspect::qtVersion(kit());
 
     if (!qtVersion) {
         emit addOutput(tr("No Qt version configured."), BuildStep::OutputFormat::ErrorMessage);
@@ -409,7 +409,7 @@ QString QMakeStep::makeArguments(const QString &makefile) const
 
 QString QMakeStep::effectiveQMakeCall() const
 {
-    BaseQtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
+    BaseQtVersion *qtVersion = QtKitAspect::qtVersion(kit());
     QString qmake = qtVersion ? qtVersion->qmakeCommand().toUserOutput() : QString();
     if (qmake.isEmpty())
         qmake = tr("<no Qt version>");
@@ -432,7 +432,7 @@ QStringList QMakeStep::parserArguments()
 {
     // NOTE: extra parser args placed before the other args intentionally
     QStringList result = m_extraParserArgs;
-    BaseQtVersion *qt = QtKitAspect::qtVersion(target()->kit());
+    BaseQtVersion *qt = QtKitAspect::qtVersion(kit());
     QTC_ASSERT(qt, return QStringList());
     for (QtcProcess::ConstArgIterator ait(allArguments(qt, ArgumentFlag::Expand)); ait.next(); ) {
         if (ait.isSimple())

@@ -98,7 +98,7 @@ IosRunner::IosRunner(RunControl *runControl)
     stopRunningRunControl(runControl);
     auto runConfig = qobject_cast<IosRunConfiguration *>(runControl->runConfiguration());
     m_bundleDir = runConfig->bundleDirectory().toString();
-    m_device = DeviceKitAspect::device(runControl->target()->kit());
+    m_device = DeviceKitAspect::device(runControl->kit());
     m_deviceType = runConfig->deviceType();
 }
 

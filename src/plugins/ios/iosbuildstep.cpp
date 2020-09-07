@@ -171,7 +171,7 @@ bool IosBuildStep::init()
 {
     BuildConfiguration *bc = buildConfiguration();
 
-    ToolChain *tc = ToolChainKitAspect::cxxToolChain(target()->kit());
+    ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit());
     if (!tc)
         emit addTask(Task::compilerMissingTask());
 
@@ -190,7 +190,7 @@ bool IosBuildStep::init()
 void IosBuildStep::setupOutputFormatter(OutputFormatter *formatter)
 {
     formatter->addLineParser(new GnuMakeParser);
-    formatter->addLineParsers(target()->kit()->createOutputParsers());
+    formatter->addLineParsers(kit()->createOutputParsers());
     formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
     AbstractProcessStep::setupOutputFormatter(formatter);
 }

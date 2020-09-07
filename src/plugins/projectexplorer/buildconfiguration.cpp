@@ -447,7 +447,7 @@ Environment BuildConfiguration::baseEnvironment() const
     if (useSystemEnvironment())
         result = Environment::systemEnvironment();
     addToEnvironment(result);
-    target()->kit()->addToEnvironment(result);
+    kit()->addToEnvironment(result);
     result.modify(project()->additionalEnvironment());
     return result;
 }

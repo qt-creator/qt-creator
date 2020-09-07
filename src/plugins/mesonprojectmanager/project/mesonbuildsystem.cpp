@@ -59,7 +59,7 @@ static Q_LOGGING_CATEGORY(mesonBuildSystemLog, "qtc.meson.buildsystem", QtDebugM
 
 MesonBuildSystem::MesonBuildSystem(MesonBuildConfiguration *bc)
     : ProjectExplorer::BuildSystem{bc}
-    , m_parser{MesonToolKitAspect::mesonToolId(bc->target()->kit()), bc->environment(), project()}
+    , m_parser{MesonToolKitAspect::mesonToolId(bc->kit()), bc->environment(), project()}
 {
     init();
 }
@@ -105,7 +105,7 @@ void MesonBuildSystem::parsingCompleted(bool success)
 
 ProjectExplorer::Kit *MesonBuildSystem::MesonBuildSystem::kit()
 {
-    return buildConfiguration()->target()->kit();
+    return buildConfiguration()->kit();
 }
 
 QStringList MesonBuildSystem::configArgs(bool isSetup)

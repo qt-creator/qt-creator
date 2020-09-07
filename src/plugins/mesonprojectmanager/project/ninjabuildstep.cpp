@@ -145,7 +145,7 @@ BuildStepConfigWidget *NinjaBuildStep::createConfigWidget()
 Utils::CommandLine NinjaBuildStep::command()
 {
     Utils::CommandLine cmd = [this] {
-        auto tool = NinjaToolKitAspect::ninjaTool(target()->kit());
+        auto tool = NinjaToolKitAspect::ninjaTool(kit());
         if (tool)
             return Utils::CommandLine{tool->exe()};
         return Utils::CommandLine{};
@@ -207,7 +207,7 @@ void NinjaBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
     m_ninjaParser = new NinjaParser;
     m_ninjaParser->setSourceDirectory(project()->projectDirectory());
     formatter->addLineParser(m_ninjaParser);
-    auto additionalParsers = target()->kit()->createOutputParsers();
+    auto additionalParsers = kit()->createOutputParsers();
     std::for_each(std::cbegin(additionalParsers),
                   std::cend(additionalParsers),
                   [this](const auto parser) { parser->setRedirectionDetector(m_ninjaParser); });

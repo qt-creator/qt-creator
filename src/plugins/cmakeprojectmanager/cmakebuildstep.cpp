@@ -209,7 +209,7 @@ bool CMakeBuildStep::init()
         canInit = false;
     }
 
-    CMakeTool *tool = CMakeKitAspect::cmakeTool(target()->kit());
+    CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
     if (!tool || !tool->isValid()) {
         emit addTask(BuildSystemTask(Task::Error,
                           tr("A CMake tool must be set up for building. "
@@ -264,8 +264,7 @@ void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
     formatter->addLineParser(progressParser);
     cmakeParser->setSourceDirectory(project()->projectDirectory().toString());
     formatter->addLineParsers({cmakeParser, new GnuMakeParser});
-    const QList<Utils::OutputLineParser *> additionalParsers
-            = target()->kit()->createOutputParsers();
+    const QList<Utils::OutputLineParser *> additionalParsers = kit()->createOutputParsers();
     for (Utils::OutputLineParser * const p : additionalParsers)
         p->setRedirectionDetector(progressParser);
     formatter->addLineParsers(additionalParsers);
@@ -371,7 +370,7 @@ void CMakeBuildStep::setToolArguments(const QString &list)
 
 Utils::CommandLine CMakeBuildStep::cmakeCommand(RunConfiguration *rc) const
 {
-    CMakeTool *tool = CMakeKitAspect::cmakeTool(target()->kit());
+    CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
 
     Utils::CommandLine cmd(tool ? tool->cmakeExecutable() : Utils::FilePath(), {});
     cmd.addArgs({"--build", "."});

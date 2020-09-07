@@ -226,7 +226,7 @@ void QmlBuildSystem::setMainFile(const QString &mainFilePath)
 
 Utils::FilePath QmlBuildSystem::targetDirectory() const
 {
-    if (DeviceTypeKitAspect::deviceTypeId(target()->kit())
+    if (DeviceTypeKitAspect::deviceTypeId(kit())
             == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
         return canonicalProjectDir();
 
@@ -389,7 +389,7 @@ void QmlBuildSystem::updateDeploymentData()
     if (!m_projectItem)
         return;
 
-    if (DeviceTypeKitAspect::deviceTypeId(target()->kit())
+    if (DeviceTypeKitAspect::deviceTypeId(kit())
             == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         return;
     }

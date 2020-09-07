@@ -757,7 +757,7 @@ void CMakeBuildSystem::wireUpConnections()
 
     connect(project(), &Project::projectFileIsDirty, this, [this]() {
         if (cmakeBuildConfiguration()->isActive() && !isParsing()) {
-            const auto cmake = CMakeKitAspect::cmakeTool(cmakeBuildConfiguration()->target()->kit());
+            const auto cmake = CMakeKitAspect::cmakeTool(cmakeBuildConfiguration()->kit());
             if (cmake && cmake->isAutoRun()) {
                 qCDebug(cmakeBuildSystemLog) << "Requesting parse due to dirty project file";
                 setParametersAndRequestParse(BuildDirParameters(cmakeBuildConfiguration()),

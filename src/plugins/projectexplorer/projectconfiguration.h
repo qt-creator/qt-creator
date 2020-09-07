@@ -38,6 +38,7 @@
 
 namespace ProjectExplorer {
 
+class Kit;
 class Project;
 class ProjectConfigurationAspect;
 class ProjectConfigurationAspects;
@@ -193,6 +194,7 @@ public:
 
     Target *target() const;
     Project *project() const;
+    Kit *kit() const;
 
     static QString settingsIdKey();
 

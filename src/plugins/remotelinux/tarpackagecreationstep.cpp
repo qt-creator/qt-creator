@@ -346,7 +346,7 @@ bool TarPackageCreationStep::runImpl()
     if (m_incrementalDeploymentAspect->value()) {
         m_files.clear();
         for (const DeployableFile &file : files)
-            addNeededDeploymentFiles(file, target()->kit());
+            addNeededDeploymentFiles(file, kit());
     } else {
         m_files = files;
     }

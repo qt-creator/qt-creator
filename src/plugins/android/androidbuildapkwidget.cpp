@@ -234,7 +234,7 @@ QWidget *AndroidBuildApkWidget::createAdvancedGroup()
     verboseOutputCheckBox->setChecked(m_step->verboseOutput());
 
     auto vbox = new QVBoxLayout(group);
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(step()->target()->kit());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(step()->kit());
     if (version && version->supportsMultipleQtAbis()) {
         auto buildAAB = new QCheckBox(tr("Build .aab (Android App Bundle)"), group);
         buildAAB->setChecked(m_step->buildAAB());
