@@ -188,7 +188,7 @@ static Selection::Element selectionDetails(const litehtml::element::ptr &element
             return {element, i, previous};
         previous = width;
     }
-    return {element, text.size(), previous};
+    return {element, int(text.size()), previous};
 }
 
 static Selection::Element deepest_child_at_point(const litehtml::document::ptr &document,
@@ -236,14 +236,19 @@ static Selection::Element deepest_child_at_point(const litehtml::document::ptr &
 }
 
 // CSS: 400 == normal, 700 == bold.
-// Qt: 50 == normal, 75 == bold
-static int cssWeightToQtWeight(int cssWeight)
+// Qt5: 50 == normal, 75 == bold
+// Qt6: == CSS
+static QFont::Weight cssWeightToQtWeight(int cssWeight)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return QFont::Weight(cssWeight);
+#else
     if (cssWeight <= 400)
-        return cssWeight * 50 / 400;
+        return QFont::Weight(cssWeight * 50 / 400);
     if (cssWeight >= 700)
-        return 75 + (cssWeight - 700) * 25 / 300;
-    return 50 + (cssWeight - 400) * 25 / 300;
+        return QFont::Weight(75 + (cssWeight - 700) * 25 / 300);
+    return QFont::Weight(50 + (cssWeight - 400) * 25 / 300);
+#endif
 }
 
 static QFont::Style toQFontStyle(litehtml::font_style style)
@@ -1194,7 +1199,7 @@ void DocumentContainer::findText(const QString &text,
         m_selection = {};
         m_selection.startElem = fillXPos({startEntry.second, foundIndex - startEntry.first, -1});
         m_selection.endElem = fillXPos(
-            {endEntry.second, foundIndex + text.size() - endEntry.first, -1});
+            {endEntry.second, int(foundIndex + text.size() - endEntry.first), -1});
         m_selection.update();
         if (newSelection)
             *newSelection = m_selection.selection;
