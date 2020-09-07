@@ -156,7 +156,6 @@ public:
 
     static Utils::FilePath defaultSdkPath();
     Utils::FilePath adbToolPath() const;
-    Utils::FilePath androidToolPath() const;
     Utils::FilePath emulatorToolPath() const;
     Utils::FilePath sdkManagerToolPath() const;
     Utils::FilePath avdManagerToolPath() const;
@@ -164,12 +163,10 @@ public:
 
     Utils::FilePath toolchainPath(const QtSupport::BaseQtVersion *qtVersion) const;
     Utils::FilePath toolchainPathFromNdk(const Utils::FilePath &ndkLocation) const;
-    Utils::FilePath clangPath(const QtSupport::BaseQtVersion *qtVersion) const;
     Utils::FilePath clangPathFromNdk(const Utils::FilePath &ndkLocation) const;
 
     Utils::FilePath gdbPath(const ProjectExplorer::Abi &abi, const QtSupport::BaseQtVersion *qtVersion) const;
     Utils::FilePath gdbPathFromNdk(const ProjectExplorer::Abi &abi, const Utils::FilePath &ndkLocation) const;
-    Utils::FilePath makePath(const QtSupport::BaseQtVersion *qtVersion) const;
     Utils::FilePath makePathFromNdk(const Utils::FilePath &ndkLocation) const;
 
     Utils::FilePath keytoolPath() const;
@@ -212,8 +209,6 @@ private:
     static int getSDKVersion(const Utils::FilePath &adbToolPath, const QString &device);
     QStringList getAbis(const QString &device) const;
     static QStringList getAbis(const Utils::FilePath &adbToolPath, const QString &device);
-    static bool isBootToQt(const Utils::FilePath &adbToolPath, const QString &device);
-    bool isBootToQt(const QString &device) const;
     static QString getAvdName(const QString &serialnumber);
 
     void parseDependenciesJson();

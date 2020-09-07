@@ -428,19 +428,6 @@ FilePath AndroidConfig::adbToolPath() const
     return m_sdkLocation / "platform-tools/adb" QTC_HOST_EXE_SUFFIX;
 }
 
-FilePath AndroidConfig::androidToolPath() const
-{
-    if (HostOsInfo::isWindowsHost()) {
-        // I want to switch from using android.bat to using an executable. All it really does is call
-        // Java and I've made some progress on it. So if android.exe exists, return that instead.
-        const FilePath path = m_sdkLocation / "tools/android" QTC_HOST_EXE_SUFFIX;
-        if (path.exists())
-            return path;
-        return m_sdkLocation / "tools/android" ANDROID_BAT_SUFFIX;
-    }
-    return m_sdkLocation / "tools/android";
-}
-
 FilePath AndroidConfig::emulatorToolPath() const
 {
     QString relativePath = "emulator/emulator";
@@ -533,11 +520,6 @@ FilePath AndroidConfig::clangPathFromNdk(const Utils::FilePath &ndkLocation) con
     return path / HostOsInfo::withExecutableSuffix("bin/clang");
 }
 
-FilePath AndroidConfig::clangPath(const BaseQtVersion *qtVersion) const
-{
-    return clangPathFromNdk(ndkLocation(qtVersion));
-}
-
 FilePath AndroidConfig::gdbPath(const ProjectExplorer::Abi &abi, const BaseQtVersion *qtVersion) const
 {
     return gdbPathFromNdk(abi, ndkLocation(qtVersion));
@@ -556,11 +538,6 @@ FilePath AndroidConfig::gdbPathFromNdk(const Abi &abi, const FilePath &ndkLocati
                                                         toolchainHostFromNdk(ndkLocation),
                                                         toolsPrefix(abi),
                                                         QString(QTC_HOST_EXE_SUFFIX)));
-}
-
-FilePath AndroidConfig::makePath(const BaseQtVersion *qtVersion) const
-{
-    return makePathFromNdk(ndkLocation(qtVersion));
 }
 
 FilePath AndroidConfig::makePathFromNdk(const FilePath &ndkLocation) const
@@ -615,8 +592,6 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(const FilePath &adbTo
     foreach (const QString &device, adbDevs) {
         const QString serialNo = device.left(device.indexOf('\t')).trimmed();
         const QString deviceType = device.mid(device.indexOf('\t')).trimmed();
-        if (isBootToQt(adbToolPath, serialNo))
-            continue;
         AndroidDeviceInfo dev;
         dev.serialNumber = serialNo;
         dev.type = serialNo.startsWith(QLatin1String("emulator")) ? AndroidDeviceInfo::Emulator : AndroidDeviceInfo::Hardware;
@@ -655,26 +630,6 @@ bool AndroidConfig::isConnected(const QString &serialNumber) const
     }
     return false;
 }
-
-bool AndroidConfig::isBootToQt(const QString &device) const
-{
-    return isBootToQt(adbToolPath(), device);
-}
-
-bool AndroidConfig::isBootToQt(const FilePath &adbToolPath, const QString &device)
-{
-    // workaround for '????????????' serial numbers
-    CommandLine cmd(adbToolPath, AndroidDeviceInfo::adbSelector(device));
-    cmd.addArg("shell");
-    cmd.addArg("ls -l /system/bin/appcontroller || ls -l /usr/bin/appcontroller && echo Boot2Qt");
-
-    SynchronousProcess adbProc;
-    adbProc.setTimeoutS(10);
-    SynchronousProcessResponse response = adbProc.runBlocking(cmd);
-    return response.result == SynchronousProcessResponse::Finished
-            && response.allOutput().contains(QLatin1String("Boot2Qt"));
-}
-
 
 QString AndroidConfig::getDeviceProperty(const FilePath &adbToolPath, const QString &device, const QString &property)
 {
