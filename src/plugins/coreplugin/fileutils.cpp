@@ -327,11 +327,10 @@ bool FileUtils::updateHeaderFileGuardAfterRename(const QString &headerPath,
                     headerFileTextFormat.lineTerminationMode
                     == Utils::TextFileFormat::LFLineTerminator
                     ? QStringLiteral("\n") : QStringLiteral("\r\n");
-            QTextStream outStream(&tmpHeader);
-            if (headerFileTextFormat.codec == nullptr)
-                outStream.setCodec("UTF-8");
-            else
-                outStream.setCodec(headerFileTextFormat.codec->name());
+            // write into temporary string,
+            // after that write with codec into file (QTextStream::setCodec is gone in Qt 6)
+            QString outString;
+            QTextStream outStream(&outString);
             int lineCounter = 0;
             while (!inStream.atEnd()) {
                 inStream.readLineInto(&line);
@@ -347,6 +346,10 @@ bool FileUtils::updateHeaderFileGuardAfterRename(const QString &headerPath,
                 }
                 lineCounter++;
             }
+            const QTextCodec *textCodec = (headerFileTextFormat.codec == nullptr)
+                                              ? QTextCodec::codecForName("UTF-8")
+                                              : headerFileTextFormat.codec;
+            tmpHeader.write(textCodec->fromUnicode(outString));
             tmpHeader.close();
         } else {
             // if opening the temp file failed report error
