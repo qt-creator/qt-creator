@@ -121,6 +121,8 @@ class Dumper(DumperBase):
 
         self.process = None
         self.target = None
+        self.fakeAddress_ = None
+        self.fakeLAddress_ = None
         self.eventState = lldb.eStateInvalid
 
         self.executable_ = None
@@ -258,10 +260,15 @@ class Dumper(DumperBase):
         return align
 
     def listMembers(self, value, nativeType):
-        #DumperBase.warn("ADDR: 0x%x" % self.fakeAddress)
-        fakeAddress = self.fakeAddress if value.laddress is None else value.laddress
-        sbaddr = lldb.SBAddress(fakeAddress, self.target)
-        fakeValue = self.target.CreateValueFromAddress('x', sbaddr, nativeType)
+        #DumperBase.warn("ADDR: 0x%x" % self.fakeAddress_)
+        if value.laddress:
+            fakeAddress = lldb.SBAddress(value.laddress, self.target)
+            fakeLAddress = value.laddress
+        else:
+            fakeAddress = self.fakeAddress_
+            fakeLAddress = self.fakeLAddress_
+
+        fakeValue = self.target.CreateValueFromAddress('x', fakeAddress, nativeType)
         fakeValue.SetPreferSyntheticValue(False)
 
         baseNames = {}
@@ -304,7 +311,7 @@ class Dumper(DumperBase):
                 fieldName = '#%s' % anonNumber
                 fakeMember = fakeValue.GetChildAtIndex(i)
                 fakeMemberAddress = fakeMember.GetLoadAddress()
-                offset = fakeMemberAddress - fakeAddress
+                offset = fakeMemberAddress - fakeLAddress
                 yield self.Field(self, name=fieldName, type=self.fromNativeType(nativeFieldType),
                                  bitsize=fieldBitsize, bitpos=8 * offset)
 
@@ -1228,10 +1235,6 @@ class Dumper(DumperBase):
         if not self.partialVariable:
             self.resetPerStepCaches()
 
-        anyModule = self.target.GetModuleAtIndex(0)
-        anySymbol = anyModule.GetSymbolAtIndex(0)
-        self.fakeAddress = int(anySymbol.GetStartAddress())
-
         frame = self.currentFrame()
         if frame is None:
             self.reportResult('error="No frame"', args)
@@ -1968,6 +1971,8 @@ class Tester(Dumper):
                         if line != 0:
                             self.report = savedReport
                             self.process.SetSelectedThread(stoppedThread)
+                            self.fakeAddress_ = frame.GetPC()
+                            self.fakeLAddress_ = frame.GetPCAddress()
                             self.fetchVariables(args)
                             #self.describeLocation(frame)
                             self.report('@NS@%s@' % self.qtNamespace())

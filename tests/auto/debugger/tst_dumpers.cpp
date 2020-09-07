@@ -1215,6 +1215,7 @@ void tst_Dumpers::initTestCase()
         m_debuggerVersion = ba.toInt();
         if (!m_debuggerVersion) {
             if (output.startsWith("lldb version")) {
+                output = output.split('\n')[0]; // drop clang/llvm version
                 int pos1 = output.indexOf('.', 13);
                 int major = output.mid(13, pos1++ - 13).toInt();
                 int pos2 = output.indexOf(' ', pos1);
