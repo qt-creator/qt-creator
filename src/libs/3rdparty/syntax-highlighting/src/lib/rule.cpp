@@ -418,17 +418,17 @@ bool IncludeRules::includeAttribute() const
 
 bool IncludeRules::doLoad(QXmlStreamReader &reader)
 {
-    const auto s = reader.attributes().value(QLatin1String("context")).toString();
+    const auto s = reader.attributes().value(QLatin1String("context"));
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
     const auto split = s.split(QLatin1String("##"), QString::KeepEmptyParts);
 #else
-    const auto split = s.split(QLatin1String("##"), Qt::KeepEmptyParts);
+    const auto split = s.split(QString::fromLatin1("##"), Qt::KeepEmptyParts);
 #endif
     if (split.isEmpty())
         return false;
-    m_contextName = split.at(0);
+    m_contextName = split.at(0).toString();
     if (split.size() > 1)
-        m_defName = split.at(1);
+        m_defName = split.at(1).toString();
     m_includeAttribute = Xml::attrToBool(reader.attributes().value(QLatin1String("includeAttrib")));
 
     return !m_contextName.isEmpty() || !m_defName.isEmpty();
@@ -614,7 +614,8 @@ MatchResult StringDetect::doMatch(const QString &text, int offset, const QString
      */
     const auto &pattern = m_dynamic ? replaceCaptures(m_string, captures, false) : m_string;
 
-    if (QStringView(text).mid(offset, pattern.size()).compare(pattern, m_caseSensitivity) == 0)
+    if (offset + pattern.size() <= text.size()
+        && QStringView(text).mid(offset, pattern.size()).compare(pattern, m_caseSensitivity) == 0)
         return offset + pattern.size();
     return offset;
 }
