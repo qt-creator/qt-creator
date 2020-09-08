@@ -31,7 +31,10 @@
 
 namespace Utils { class CommandLine; }
 
-namespace ProjectExplorer { class RunConfiguration; }
+namespace ProjectExplorer {
+class RunConfiguration;
+class StringAspect;
+} // ProjectExplorer
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -52,11 +55,6 @@ public:
     QStringList buildTargets() const;
     bool buildsBuildTarget(const QString &target) const;
     void setBuildTargets(const QStringList &target);
-
-    QString cmakeArguments() const;
-    void setCMakeArguments(const QString &list);
-    QString toolArguments() const;
-    void setToolArguments(const QString &list);
 
     Utils::CommandLine cmakeCommand(ProjectExplorer::RunConfiguration *rc) const;
 
@@ -96,9 +94,10 @@ private:
 
     QMetaObject::Connection m_runTrigger;
 
+    friend class CMakeBuildStepConfigWidget;
     QStringList m_buildTargets;
-    QString m_cmakeArguments;
-    QString m_toolArguments;
+    ProjectExplorer::StringAspect *m_cmakeArguments = nullptr;
+    ProjectExplorer::StringAspect *m_toolArguments = nullptr;
     bool m_waiting = false;
 };
 
