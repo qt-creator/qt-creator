@@ -30,6 +30,7 @@
 #include "navigatorview.h"
 #include "navigatortreemodel.h"
 #include "qproxystyle.h"
+#include "previewtooltip.h"
 
 #include <metainfo.h>
 
@@ -42,7 +43,9 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QStyleFactory>
-
+#include <QEvent>
+#include <QImage>
+#include <QApplication>
 
 namespace QmlDesigner {
 
@@ -172,6 +175,37 @@ void NavigatorTreeView::drawSelectionBackground(QPainter *painter, const QStyleO
     painter->save();
     painter->fillRect(option.rect, option.palette.color(QPalette::Highlight));
     painter->restore();
+}
+
+bool NavigatorTreeView::viewportEvent(QEvent *event)
+{
+    if (event->type() == QEvent::ToolTip) {
+        auto navModel = qobject_cast<NavigatorTreeModel *>(model());
+        if (navModel) {
+            QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+            QModelIndex index = indexAt(helpEvent->pos());
+            QVariantMap imgMap = navModel->data(index, ToolTipImageRole).toMap();
+
+            if (!imgMap.isEmpty()) {
+                if (!m_previewToolTip)
+                    m_previewToolTip = new PreviewToolTip(QApplication::activeWindow());
+                m_previewToolTip->setId(imgMap["id"].toString());
+                m_previewToolTip->setType(imgMap["type"].toString());
+                m_previewToolTip->setInfo(imgMap["info"].toString());
+                m_previewToolTip->setImage(imgMap["image"].value<QImage>());
+                m_previewToolTip->move(helpEvent->pos());
+                if (!m_previewToolTip->isVisible())
+                    m_previewToolTip->show();
+            } else if (m_previewToolTip) {
+                m_previewToolTip->hide();
+            }
+        }
+    } else if (event->type() == QEvent::Leave) {
+        if (m_previewToolTip)
+            m_previewToolTip->hide();
+    }
+
+    return QTreeView::viewportEvent(event);
 }
 
 

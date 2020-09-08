@@ -6,7 +6,8 @@ SOURCES += navigatorview.cpp \
     nameitemdelegate.cpp \
     iconcheckboxitemdelegate.cpp \
     navigatortreeview.cpp \
-    choosetexturepropertydialog.cpp
+    choosetexturepropertydialog.cpp \
+    previewtooltip.cpp
 
 HEADERS += navigatorview.h \
     navigatortreemodel.h \
@@ -15,8 +16,10 @@ HEADERS += navigatorview.h \
     iconcheckboxitemdelegate.h \
     navigatortreeview.h \
     navigatormodelinterface.h \
-    choosetexturepropertydialog.h
+    choosetexturepropertydialog.h \
+    previewtooltip.h
 
 RESOURCES += navigator.qrc
 
-FORMS += choosetexturepropertydialog.ui
+FORMS += choosetexturepropertydialog.ui \
+    previewtooltip.ui

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,24 +23,48 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "previewtooltip.h"
+#include "ui_previewtooltip.h"
 
-#include <QTreeView>
+#include <utils/theme/theme.h>
+
+#include <QtGui/qpixmap.h>
 
 namespace QmlDesigner {
 
-class PreviewToolTip;
-
-class NavigatorTreeView : public QTreeView
+PreviewToolTip::PreviewToolTip(QWidget *parent)
+    : QWidget(parent)
+    , m_ui(new Ui::PreviewToolTip)
 {
-    Q_OBJECT
+    setAttribute(Qt::WA_TransparentForMouseEvents);
+    setWindowFlags(Qt::Widget);
+    m_ui->setupUi(this);
+    setStyleSheet(QString("QWidget { background-color: %1 }").arg(Utils::creatorTheme()->color(Utils::Theme::BackgroundColorNormal).name()));
+}
 
-public:
-    NavigatorTreeView(QWidget *parent = nullptr);
-    static void drawSelectionBackground(QPainter *painter, const QStyleOption &option);
-    bool viewportEvent(QEvent *event) override;
+PreviewToolTip::~PreviewToolTip()
+{
+    delete m_ui;
+}
 
-private:
-    PreviewToolTip *m_previewToolTip = nullptr;
-};
+void PreviewToolTip::setId(const QString &id)
+{
+    m_ui->idLabel->setText(id);
+}
+
+void PreviewToolTip::setType(const QString &type)
+{
+    m_ui->typeLabel->setText(type);
+}
+
+void PreviewToolTip::setInfo(const QString &info)
+{
+    m_ui->infoLabel->setText(info);
+}
+
+void PreviewToolTip::setImage(const QImage &image)
+{
+    m_ui->imageLabel->setPixmap(QPixmap::fromImage(image));
+}
+
 }

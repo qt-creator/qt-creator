@@ -336,6 +336,8 @@ extend_qtc_plugin(QmlDesigner
     navigatorwidget.cpp navigatorwidget.h
     choosetexturepropertydialog.cpp choosetexturepropertydialog.h
     choosetexturepropertydialog.ui
+    previewtooltip.cpp previewtooltip.h
+    previewtooltip.ui
 )
 
 extend_qtc_plugin(QmlDesigner

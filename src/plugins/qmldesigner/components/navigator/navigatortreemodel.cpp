@@ -53,6 +53,7 @@
 #include <QPointF>
 #include <QDir>
 #include <QFileInfo>
+#include <QDateTime>
 
 #include <coreplugin/messagebox.h>
 
@@ -200,6 +201,13 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
     if (role == ItemIsVisibleRole) //independent of column
         return m_view->isNodeInvisible(modelNode) ? Qt::Unchecked : Qt::Checked;
 
+    auto hasImageToolTip = [modelNode]() -> bool {
+            if (modelNode.isValid() && modelNode.metaInfo().isValid())
+                return modelNode.type() == "QtQuick.Image" || modelNode.type() == "QtQuick3D.Texture";
+            else
+                return false;
+    };
+
     if (index.column() == 0) {
         if (role == Qt::DisplayRole) {
             return modelNode.displayName();
@@ -212,17 +220,81 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
         } else if (role == Qt::ToolTipRole) {
             if (currentQmlObjectNode.hasError()) {
                 QString errorString = currentQmlObjectNode.error();
-                if (DesignerSettings::getValue(DesignerSettingsKey::STANDALONE_MODE).toBool() &&
-                        currentQmlObjectNode.isRootNode())
+                if (DesignerSettings::getValue(DesignerSettingsKey::STANDALONE_MODE).toBool()
+                        && currentQmlObjectNode.isRootNode()) {
                     errorString.append(QString("\n%1").arg(tr("Changing the setting \"%1\" might solve the issue.").arg(
                                                                tr("Use QML emulation layer that is built with the selected Qt"))));
-
+                }
                 return errorString;
             }
-            if (modelNode.metaInfo().isValid())
-                return modelNode.type();
-            else
+
+            if (modelNode.metaInfo().isValid()) {
+                if (hasImageToolTip())
+                    return {}; // Images have special tooltip popup, so suppress regular one
+                else
+                    return modelNode.type();
+            } else {
                 return msgUnknownItem(QString::fromUtf8(modelNode.type()));
+            }
+        } else if (role == ToolTipImageRole) {
+            if (currentQmlObjectNode.hasError()) // Error already shown on regular tooltip
+                return {};
+
+            if (hasImageToolTip()) {
+                VariantProperty prop = modelNode.variantProperty("source");
+                QString imageSource = prop.value().toString();
+                QFileInfo fi(imageSource);
+                if (fi.isRelative())
+                    imageSource = QmlDesignerPlugin::instance()->documentManager().currentFilePath().toFileInfo().dir().absoluteFilePath(imageSource);
+                fi = QFileInfo(imageSource);
+                QDateTime modified = fi.lastModified();
+
+                struct ImageData {
+                    QDateTime time;
+                    QImage image;
+                    QString type;
+                    QString id;
+                    QString info;
+                };
+
+                static QHash<QString, ImageData> toolTipImageMap;
+
+                ImageData imageData;
+                bool reload = true;
+                if (toolTipImageMap.contains(imageSource)) {
+                    imageData = toolTipImageMap[imageSource];
+                    if (modified == imageData.time)
+                        reload = false;
+                }
+
+                if (reload) {
+                    QImage originalImage;
+                    originalImage.load(imageSource);
+                    if (!originalImage.isNull()) {
+                        imageData.image = originalImage.scaled(150, 150, Qt::KeepAspectRatio);
+                        double imgSize = double(fi.size());
+                        imageData.type = QStringLiteral("%1 (%2)").arg(QString::fromLatin1(modelNode.type())).arg(fi.suffix());
+                        imageData.id = modelNode.id();
+                        static QStringList units({tr("B"), tr("KB"), tr("MB"), tr("GB")});
+                        int unitIndex = 0;
+                        while (imgSize > 1024. && unitIndex < units.size() - 1) {
+                            ++unitIndex;
+                            imgSize /= 1024.;
+                        }
+                        imageData.info = QStringLiteral("%1 x %2  (%3%4)").arg(originalImage.width()).arg(originalImage.height())
+                                .arg(QString::number(imgSize, 'g', 3)).arg(units[unitIndex]);
+                        toolTipImageMap.insert(imageSource, imageData);
+                    }
+                }
+                if (!imageData.image.isNull()) {
+                    QVariantMap map;
+                    map.insert("type", imageData.type);
+                    map.insert("image", QVariant::fromValue<QImage>(imageData.image));
+                    map.insert("id", imageData.id);
+                    map.insert("info", imageData.info);
+                    return map;
+                }
+            }
         } else if (role == ModelNodeRole) {
             return QVariant::fromValue<ModelNode>(modelNode);
         }

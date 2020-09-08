@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,22 +25,28 @@
 
 #pragma once
 
-#include <QTreeView>
+#include <QtWidgets/qwidget.h>
+#include <QtGui/qimage.h>
 
 namespace QmlDesigner {
-
+namespace Ui {
 class PreviewToolTip;
+}
 
-class NavigatorTreeView : public QTreeView
+class PreviewToolTip : public QWidget
 {
     Q_OBJECT
 
 public:
-    NavigatorTreeView(QWidget *parent = nullptr);
-    static void drawSelectionBackground(QPainter *painter, const QStyleOption &option);
-    bool viewportEvent(QEvent *event) override;
+    explicit PreviewToolTip(QWidget *parent = nullptr);
+    ~PreviewToolTip();
+
+    void setId(const QString &id);
+    void setType(const QString &type);
+    void setInfo(const QString &info);
+    void setImage(const QImage &image);
 
 private:
-    PreviewToolTip *m_previewToolTip = nullptr;
+    Ui::PreviewToolTip *m_ui;
 };
 }
