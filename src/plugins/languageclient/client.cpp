@@ -1122,16 +1122,13 @@ void Client::resetAssistProviders(TextEditor::TextDocument *document)
 {
     const AssistProviders providers = m_resetAssistProvider.take(document);
 
-    if (document->completionAssistProvider() == m_clientProviders.completionAssistProvider &&
-            providers.completionAssistProvider)
+    if (document->completionAssistProvider() == m_clientProviders.completionAssistProvider)
         document->setCompletionAssistProvider(providers.completionAssistProvider);
 
-    if (document->functionHintAssistProvider() == m_clientProviders.functionHintProvider &&
-            providers.functionHintProvider)
+    if (document->functionHintAssistProvider() == m_clientProviders.functionHintProvider)
         document->setFunctionHintAssistProvider(providers.functionHintProvider);
 
-    if (document->quickFixAssistProvider() == m_clientProviders.quickFixAssistProvider &&
-            providers.quickFixAssistProvider)
+    if (document->quickFixAssistProvider() == m_clientProviders.quickFixAssistProvider)
         document->setQuickFixAssistProvider(providers.quickFixAssistProvider);
 }
 
