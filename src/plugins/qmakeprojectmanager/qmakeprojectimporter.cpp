@@ -126,7 +126,7 @@ QList<void *> QmakeProjectImporter::examineDirectory(const FilePath &importPath)
         qCDebug(logs) << "  Parsing makefile" << file;
         // find interesting makefiles
         QString makefile = importPath.toString() + QLatin1Char('/') + file;
-        MakeFileParse parse(makefile);
+        MakeFileParse parse(makefile, MakeFileParse::Mode::FilterKnownConfigValues);
         if (parse.makeFileState() != MakeFileParse::Okay) {
             qCDebug(logs) << "  Parsing the makefile failed" << makefile;
             continue;

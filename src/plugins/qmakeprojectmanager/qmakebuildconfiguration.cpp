@@ -490,7 +490,7 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
     qCDebug(logs) << "QMakeBuildConfiguration::compareToImport";
 
     QMakeStep *qs = qmakeStep();
-    MakeFileParse parse(makefile);
+    MakeFileParse parse(makefile, MakeFileParse::Mode::DoNotFilterKnownConfigValues);
 
     if (parse.makeFileState() == MakeFileParse::MakefileMissing) {
         qCDebug(logs) << "**Makefile missing";
@@ -546,10 +546,12 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
     // and compare that on its own
     QString workingDirectory = QFileInfo(makefile).absolutePath();
     QStringList actualArgs;
-    QString userArgs = macroExpander()->expandProcessArgs(qs->userArguments());
-    // This copies the settings from userArgs to actualArgs (minus some we
+    QString allArgs = macroExpander()->expandProcessArgs(qs->allArguments(
+        QtKitAspect::qtVersion(target()->kit()), QMakeStep::ArgumentFlag::Expand));
+    // This copies the settings from allArgs to actualArgs (minus some we
     // are not interested in), splitting them up into individual strings:
-    extractSpecFromArguments(&userArgs, workingDirectory, version, &actualArgs);
+    extractSpecFromArguments(&allArgs, workingDirectory, version, &actualArgs);
+    actualArgs.removeFirst(); // Project file.
     const QString actualSpec = qs->mkspec();
 
     QString qmakeArgs = parse.unparsedArguments();

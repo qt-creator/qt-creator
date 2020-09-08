@@ -42,7 +42,8 @@ struct QMakeAssignment
 class MakeFileParse
 {
 public:
-    MakeFileParse(const QString &makefile);
+    enum class Mode { FilterKnownConfigValues, DoNotFilterKnownConfigValues };
+    MakeFileParse(const QString &makefile, Mode mode);
 
     enum MakefileState { MakefileMissing, CouldNotParse, Okay };
 
@@ -63,7 +64,7 @@ public:
 private:
     void parseArgs(const QString &args, const QString &project,
                    QList<QMakeAssignment> *assignments, QList<QMakeAssignment> *afterAssignments);
-    void parseAssignments(QList<QMakeAssignment> *assignments);
+    QList<QMakeAssignment> parseAssignments(const QList<QMakeAssignment> &assignments);
 
     class QmakeBuildConfig
     {
@@ -74,6 +75,7 @@ private:
         bool explicitNoBuildAll = false;
     };
 
+    const Mode m_mode;
     MakefileState m_state;
     Utils::FilePath m_qmakePath;
     QString m_srcProFile;
