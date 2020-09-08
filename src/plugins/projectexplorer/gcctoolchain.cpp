@@ -1424,6 +1424,17 @@ void ClangToolChain::syncAutodetectedWithParentToolchains()
     QObject::disconnect(m_thisToolchainRemovedConnection);
     QObject::disconnect(m_mingwToolchainAddedConnection);
 
+    if (!ToolChainManager::isLoaded()) {
+        QObject::connect(ToolChainManager::instance(), &ToolChainManager::toolChainsLoaded,
+                         [this, id = id()] {
+            if (ToolChain * const tc = ToolChainManager::findToolChain(id)) {
+                if (tc->typeId() == Constants::CLANG_TOOLCHAIN_TYPEID)
+                    static_cast<ClangToolChain *>(tc)->syncAutodetectedWithParentToolchains();
+            }
+        });
+        return;
+    }
+
     if (!mingwToolChainFromId(m_parentToolChainId)) {
         const QList<ToolChain *> mingwTCs = mingwToolChains();
         m_parentToolChainId = mingwTCs.isEmpty() ? QByteArray() : mingwTCs.front()->id();
