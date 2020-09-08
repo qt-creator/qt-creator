@@ -58,7 +58,7 @@
     When you use \QBPS to export your designs, you will determine how you want
     each group or layer exported: as a \e component or \e child. A component
     will be imported as a single QML file that can contain other assets. A child
-    will be imported as a single PNG file that you can use within QML files.
+    will be imported as a single image file that you can use within QML files.
 
     If you plan to use pieces of your artwork as separate images in the UI,
     group them on an artboard as separate layers. You can then export the group
@@ -107,6 +107,8 @@
         \li Second level group layers are merged to their parent.
         \li Asset layers are exported as merged.
         \li Text layers are always exported as child items.
+        \li Images are exported in JPG, PNG, or SVG format, depending on your
+            selection.
     \endlist
 
     \QBPS automatically proposes identifiers (QML ids) for all groups and layers.
