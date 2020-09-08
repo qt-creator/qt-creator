@@ -107,8 +107,7 @@
     that is not UTF-8 encoded: \uicontrol {Error: Could not decode "filename" with
     "UTF-8"-encoding. Editing not possible.}
 
-    To resolve the issue, use a file conversion tool such as
-    \l{http://recode.progiciels-bpi.ca/index.html}{Recode} to convert the file
+    To resolve the issue, use a file conversion tool to convert the file
     encoding to UTF-8 when developing Qt 5 applications. Otherwise, conversion
     of string constants to QStrings might not work as expected.
 
