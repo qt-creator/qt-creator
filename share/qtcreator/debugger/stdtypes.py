@@ -1049,7 +1049,7 @@ def qdumpHelper__std__vector(d, value, isLibCpp):
     if isBool:
         if isLibCpp:
             start = value["__begin_"].pointer()
-            size = value["__size_"]
+            size = value["__size_"].integer()
             alloc = size
         else:
             start = value["_M_start"]["_M_p"].pointer()
