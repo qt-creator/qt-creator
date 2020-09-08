@@ -323,6 +323,8 @@ CppApplication {
             "diagnosticcontainer-matcher.h",
             "diagnosticset-test.cpp",
             "fixit-test.cpp",
+            "gtest-clang-printing.cpp",
+            "gtest-clang-printing.h",
             "highlightingresultreporter-test.cpp",
             "readexporteddiagnostics-test.cpp",
             "senddocumenttracker-test.cpp",
@@ -330,6 +332,7 @@ CppApplication {
             "sourcelocation-test.cpp",
             "sourcerange-test.cpp",
             "token-test.cpp",
+            "tokenprocessor-test.cpp",
             "translationunitupdater-test.cpp",
             "unsavedfile-test.cpp",
             "unsavedfiles-test.cpp",
@@ -347,8 +350,6 @@ CppApplication {
             "clangquerygatherer-test.cpp",
             "clangqueryprojectfindfilter-test.cpp",
             "clangreferencescollector-test.cpp",
-            "gtest-clang-printing.cpp",
-            "gtest-clang-printing.h",
             "gtest-llvm-printing.cpp",
             "mockrefactoringclient.h",
             "mockrefactoringserver.h",
@@ -363,7 +364,6 @@ CppApplication {
             "symbolscollector-test.cpp",
             "testclangtool.cpp",
             "testclangtool.h",
-            "tokenprocessor-test.cpp",
             "usedmacrocollector-test.cpp",
         ]
     }

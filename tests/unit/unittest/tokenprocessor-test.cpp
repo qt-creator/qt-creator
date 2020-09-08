@@ -1722,6 +1722,13 @@ TEST_F(TokenProcessor, StaticPrivateMember)
     ASSERT_THAT(container.extraInfo.accessSpecifier, ClangBackEnd::AccessSpecifier::Private);
 }
 
+TEST_F(TokenProcessor, TemplateAlias)
+{
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(701, 8));
+
+    ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type, HighlightingType::TypeAlias));
+}
+
 Data *TokenProcessor::d;
 
 void TokenProcessor::SetUpTestCase()
