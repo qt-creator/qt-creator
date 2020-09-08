@@ -68,6 +68,7 @@ public:
     QList<ToolChain *> m_toolChains; // prioritized List
     QVector<LanguageDisplayPair> m_languages;
     ToolchainDetectionSettings m_detectionSettings;
+    bool m_loaded = false;
 };
 
 ToolChainManagerPrivate::~ToolChainManagerPrivate()
@@ -127,6 +128,7 @@ void ToolChainManager::restoreToolChains()
     for (ToolChain *tc : d->m_accessor->restoreToolChains(Core::ICore::dialogParent()))
         registerToolChain(tc);
 
+    d->m_loaded = true;
     emit m_instance->toolChainsLoaded();
 }
 
@@ -187,7 +189,7 @@ ToolChain *ToolChainManager::findToolChain(const QByteArray &id)
 
 bool ToolChainManager::isLoaded()
 {
-    return bool(d->m_accessor);
+    return d->m_loaded;
 }
 
 void ToolChainManager::notifyAboutUpdate(ToolChain *tc)
