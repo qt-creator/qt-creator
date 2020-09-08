@@ -39,18 +39,12 @@ class StringAspect;
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeBuildConfiguration;
-class CMakeBuildStepFactory;
-
 class CMakeBuildStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
-    friend class CMakeBuildStepFactory;
 
 public:
     CMakeBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
-
-    CMakeBuildConfiguration *cmakeBuildConfiguration() const;
 
     QStringList buildTargets() const;
     bool buildsBuildTarget(const QString &target) const;
@@ -78,8 +72,6 @@ protected:
     bool fromMap(const QVariantMap &map) override;
 
 private:
-    void ctor(ProjectExplorer::BuildStepList *bsl);
-
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     void doRun() override;

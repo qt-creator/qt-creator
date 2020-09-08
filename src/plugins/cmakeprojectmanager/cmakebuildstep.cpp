@@ -161,11 +161,6 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Utils::Id id) :
             this, &CMakeBuildStep::handleBuildTargetsChanges);
 }
 
-CMakeBuildConfiguration *CMakeBuildStep::cmakeBuildConfiguration() const
-{
-    return static_cast<CMakeBuildConfiguration *>(buildConfiguration());
-}
-
 void CMakeBuildStep::handleBuildTargetsChanges(bool success)
 {
     if (!success)
@@ -201,7 +196,7 @@ bool CMakeBuildStep::fromMap(const QVariantMap &map)
 bool CMakeBuildStep::init()
 {
     bool canInit = true;
-    CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
+    BuildConfiguration *bc = buildConfiguration();
     QTC_ASSERT(bc, return false);
     if (!bc->isEnabled()) {
         emit addTask(BuildSystemTask(Task::Error,
