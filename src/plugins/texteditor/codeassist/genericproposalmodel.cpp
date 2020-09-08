@@ -176,7 +176,7 @@ static bool textStartsWith(CaseSensitivity cs, const QString &text, const QStrin
         return text.startsWith(prefix, Qt::CaseSensitive);
     case TextEditor::FirstLetterCaseSensitive:
         return prefix.at(0) == text.at(0)
-               && QStringView(prefix).mid(1).startsWith(QStringView(text).mid(1), Qt::CaseInsensitive);
+               && QStringView(text).mid(1).startsWith(QStringView(prefix).mid(1), Qt::CaseInsensitive);
     }
 
     return false;
