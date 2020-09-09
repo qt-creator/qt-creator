@@ -315,7 +315,7 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistIn
     m_pos = interface->position();
     if (interface->reason() == IdleEditor) {
         // Trigger an automatic completion request only when we are on a word with more than 2 "identifier" character
-        const QRegularExpression regexp("[_a-zA-Z0-9]+");
+        const QRegularExpression regexp("^[_a-zA-Z0-9]+$");
         auto hasMatch = [&regexp](const QString &txt) { return regexp.match(txt).hasMatch(); };
         int delta = 0;
         while (m_pos - delta > 0 && hasMatch(interface->textAt(m_pos - delta - 1, delta + 1)))
