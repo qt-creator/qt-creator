@@ -16,6 +16,8 @@ QtcPlugin {
     files: [
         "client.cpp",
         "client.h",
+        "diagnosticmanager.cpp",
+        "diagnosticmanager.h",
         "documentsymbolcache.cpp",
         "documentsymbolcache.h",
         "dynamiccapabilities.cpp",

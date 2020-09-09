@@ -4,6 +4,7 @@ DEFINES += LANGUAGECLIENT_LIBRARY
 
 HEADERS += \
     client.h \
+    diagnosticmanager.h \
     documentsymbolcache.h \
     dynamiccapabilities.h \
     languageclient_global.h \
@@ -26,6 +27,7 @@ HEADERS += \
 
 SOURCES += \
     client.cpp \
+    diagnosticmanager.cpp \
     documentsymbolcache.cpp \
     dynamiccapabilities.cpp \
     languageclientcompletionassist.cpp \

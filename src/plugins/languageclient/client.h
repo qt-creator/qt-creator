@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "diagnosticmanager.h"
 #include "documentsymbolcache.h"
 #include "dynamiccapabilities.h"
 #include "languageclient_global.h"
@@ -64,13 +65,11 @@ namespace TextEditor
 class IAssistProcessor;
 class TextDocument;
 class TextEditorWidget;
-class TextMark;
 }
 
 namespace LanguageClient {
 
 class BaseClientInterface;
-class TextMark;
 
 class LANGUAGECLIENT_EXPORT Client : public QObject
 {
@@ -169,9 +168,6 @@ public:
              Core::MessageManager::PrintToOutputPaneFlag flag = Core::MessageManager::NoModeSwitch)
     { log(responseError.toString(), flag); }
 
-    void showDiagnostics(Core::IDocument *doc);
-    void hideDiagnostics(TextEditor::TextDocument *doc);
-
     const LanguageServerProtocol::ServerCapabilities &capabilities() const;
     const DynamicCapabilities &dynamicCapabilities() const;
     const BaseClientInterface *clientInterface() const;
@@ -208,7 +204,6 @@ private:
     void showMessageBox(const LanguageServerProtocol::ShowMessageRequestParams &message,
                         const LanguageServerProtocol::MessageId &id);
 
-    void showDiagnostics(const LanguageServerProtocol::DocumentUri &uri);
     void removeDiagnostics(const LanguageServerProtocol::DocumentUri &uri);
     void resetAssistProviders(TextEditor::TextDocument *document);
     void sendPostponedDocumentUpdates();
@@ -243,7 +238,7 @@ private:
     QHash<LanguageServerProtocol::DocumentUri, LanguageServerProtocol::MessageId> m_highlightRequests;
     int m_restartsLeft = 5;
     QScopedPointer<BaseClientInterface> m_clientInterface;
-    QMap<LanguageServerProtocol::DocumentUri, QList<LanguageServerProtocol::Diagnostic>> m_diagnostics;
+    DiagnosticManager m_diagnosticManager;
     DocumentSymbolCache m_documentSymbolCache;
     HoverHandler m_hoverHandler;
     QHash<LanguageServerProtocol::DocumentUri, TextEditor::HighlightingResults> m_highlights;

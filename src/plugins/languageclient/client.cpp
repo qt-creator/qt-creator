@@ -30,6 +30,7 @@
 #include "languageclientutils.h"
 #include "semantichighlightsupport.h"
 
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/messagemanager.h>
@@ -48,11 +49,9 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
-#include <texteditor/textmark.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
-#include <utils/utilsicons.h>
 
 #include <QDebug>
 #include <QLoggingCategory>
@@ -71,34 +70,10 @@ namespace LanguageClient {
 
 static Q_LOGGING_CATEGORY(LOGLSPCLIENT, "qtc.languageclient.client", QtWarningMsg);
 
-class TextMark : public TextEditor::TextMark
-{
-public:
-    TextMark(const Utils::FilePath &fileName, const Diagnostic &diag, const Utils::Id &clientId)
-        : TextEditor::TextMark(fileName, diag.range().start().line() + 1, clientId)
-        , m_diagnostic(diag)
-    {
-        using namespace Utils;
-        setLineAnnotation(diag.message());
-        setToolTip(diag.message());
-        const bool isError
-            = diag.severity().value_or(DiagnosticSeverity::Hint) == DiagnosticSeverity::Error;
-        setColor(isError ? Theme::CodeModel_Error_TextMarkColor
-                         : Theme::CodeModel_Warning_TextMarkColor);
-
-        setIcon(isError ? Icons::CODEMODEL_ERROR.icon()
-                        : Icons::CODEMODEL_WARNING.icon());
-    }
-
-    const Diagnostic &diagnostic() const { return m_diagnostic; }
-
-private:
-    const Diagnostic m_diagnostic;
-};
-
 Client::Client(BaseClientInterface *clientInterface)
     : m_id(Utils::Id::fromString(QUuid::createUuid().toString()))
     , m_clientInterface(clientInterface)
+    , m_diagnosticManager(m_id)
     , m_documentSymbolCache(this)
     , m_hoverHandler(this)
     , m_symbolSupport(this)
@@ -145,8 +120,6 @@ Client::~Client()
             widget->removeHoverHandler(&m_hoverHandler);
         }
     }
-    for (const DocumentUri &uri : m_diagnostics.keys())
-        removeDiagnostics(uri);
     for (const DocumentUri &uri : m_highlights.keys()) {
         if (TextDocument *doc = TextDocument::textDocumentForFilePath(uri.toFilePath())) {
             if (TextEditor::SyntaxHighlighter *highlighter = doc->syntaxHighlighter())
@@ -387,7 +360,7 @@ void Client::closeDocument(TextEditor::TextDocument *document)
 void Client::activateDocument(TextEditor::TextDocument *document)
 {
     auto uri = DocumentUri::fromFilePath(document->filePath());
-    showDiagnostics(uri);
+    m_diagnosticManager.showDiagnostics(uri);
     SemanticHighligtingSupport::applyHighlight(document, m_highlights.value(uri), capabilities());
     // only replace the assist provider if the language server support it
     if (m_serverCapabilities.completionProvider()) {
@@ -417,7 +390,7 @@ void Client::activateDocument(TextEditor::TextDocument *document)
 
 void Client::deactivateDocument(TextEditor::TextDocument *document)
 {
-    hideDiagnostics(document);
+    m_diagnosticManager.hideDiagnostics(document);
     resetAssistProviders(document);
     document->setFormatter(nullptr);
     if (m_serverCapabilities.semanticHighlighting().has_value()) {
@@ -924,12 +897,7 @@ bool Client::needsRestart(const BaseSettings *settings) const
 
 QList<Diagnostic> Client::diagnosticsAt(const DocumentUri &uri, const Range &range) const
 {
-    QList<Diagnostic> diagnostics;
-    for (const Diagnostic &diagnostic : m_diagnostics[uri]) {
-        if (diagnostic.range().overlaps(range))
-            diagnostics << diagnostic;
-    }
-    return diagnostics;
+    return m_diagnosticManager.diagnosticsAt(uri, range);
 }
 
 bool Client::start()
@@ -948,8 +916,7 @@ bool Client::reset()
     updateEditorToolBar(m_openedDocument.keys());
     m_serverCapabilities = ServerCapabilities();
     m_dynamicCapabilities.reset();
-    for (const DocumentUri &uri : m_diagnostics.keys())
-        removeDiagnostics(uri);
+    m_diagnosticManager.clearDiagnostics();
     for (TextEditor::TextDocument *document : m_openedDocument.keys())
         document->disconnect(this);
     for (TextEditor::TextDocument *document : m_resetAssistProvider.keys())
@@ -988,18 +955,6 @@ void Client::handleMessage(const BaseMessage &message)
 void Client::log(const QString &message, Core::MessageManager::PrintToOutputPaneFlag flag)
 {
     Core::MessageManager::write(QString("LanguageClient %1: %2").arg(name(), message), flag);
-}
-
-void Client::showDiagnostics(Core::IDocument *doc)
-{
-    showDiagnostics(DocumentUri::fromFilePath(doc->filePath()));
-}
-
-void Client::hideDiagnostics(TextEditor::TextDocument *doc)
-{
-    if (!doc)
-        return;
-    qDeleteAll(Utils::filtered(doc->marks(), Utils::equal(&TextEditor::TextMark::category, id())));
 }
 
 const ServerCapabilities &Client::capabilities() const
@@ -1058,61 +1013,6 @@ void Client::showMessageBox(const ShowMessageRequestParams &message, const Messa
         sendContent(response);
     });
     box->show();
-}
-
-static void addDiagnosticsSelections(const Diagnostic &diagnostic,
-                              QTextDocument *textDocument,
-                              QList<QTextEdit::ExtraSelection> &extraSelections)
-{
-    QTextCursor cursor(textDocument);
-    cursor.setPosition(::Utils::Text::positionInText(textDocument,
-                                                     diagnostic.range().start().line() + 1,
-                                                     diagnostic.range().start().character() + 1));
-    cursor.setPosition(::Utils::Text::positionInText(textDocument,
-                                                     diagnostic.range().end().line() + 1,
-                                                     diagnostic.range().end().character() + 1),
-                       QTextCursor::KeepAnchor);
-
-    QTextCharFormat format;
-    const TextEditor::FontSettings& fontSettings = TextEditor::TextEditorSettings::instance()->fontSettings();
-    DiagnosticSeverity severity = diagnostic.severity().value_or(DiagnosticSeverity::Warning);
-
-    if (severity == DiagnosticSeverity::Error) {
-        format = fontSettings.toTextCharFormat(TextEditor::C_ERROR);
-    } else {
-        format = fontSettings.toTextCharFormat(TextEditor::C_WARNING);
-    }
-
-    extraSelections.push_back(std::move(QTextEdit::ExtraSelection{cursor, format}));
-}
-
-void Client::showDiagnostics(const DocumentUri &uri)
-{
-    const FilePath &filePath = uri.toFilePath();
-    if (TextEditor::TextDocument *doc = TextEditor::TextDocument::textDocumentForFilePath(
-            filePath)) {
-        QList<QTextEdit::ExtraSelection> extraSelections;
-
-        for (const Diagnostic &diagnostic : m_diagnostics.value(uri)) {
-            doc->addMark(new TextMark(filePath, diagnostic, id()));
-            addDiagnosticsSelections(diagnostic, doc->document(), extraSelections);
-        }
-
-        for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(doc)) {
-            if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor)) {
-                TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
-
-                widget->setExtraSelections(TextEditor::TextEditorWidget::CodeWarningsSelection,
-                                           extraSelections);
-            }
-        }
-    }
-}
-
-void Client::removeDiagnostics(const DocumentUri &uri)
-{
-    hideDiagnostics(TextEditor::TextDocument::textDocumentForFilePath(uri.toFilePath()));
-    m_diagnostics.remove(uri);
 }
 
 void Client::resetAssistProviders(TextEditor::TextDocument *document)
@@ -1269,11 +1169,10 @@ void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
 {
     const DocumentUri &uri = params.uri();
 
-    removeDiagnostics(uri);
     const QList<Diagnostic> &diagnostics = params.diagnostics();
-    m_diagnostics[uri] = diagnostics;
+    m_diagnosticManager.setDiagnostics(uri, params.diagnostics());
     if (LanguageClientManager::clientForUri(uri) == this) {
-        showDiagnostics(uri);
+        m_diagnosticManager.showDiagnostics(uri);
         requestCodeActions(uri, diagnostics);
     }
 }
