@@ -117,6 +117,12 @@ NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList, Id id)
         env.appendOrSetPath(Nim::nimPathFromKit(kit()).toUserOutput());
     });
 
+    setSummaryUpdater([this] {
+        ProcessParameters param;
+        setupProcessParameters(&param);
+        return param.summary(displayName());
+    });
+
     QTC_ASSERT(buildConfiguration(), return);
     QObject::connect(buildConfiguration(), &BuildConfiguration::buildTypeChanged,
                      m_arguments, &ArgumentsAspect::resetArguments);
