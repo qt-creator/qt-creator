@@ -130,6 +130,10 @@ NimbleBuildSystem::NimbleBuildSystem(Target *target)
             requestDelayedParse();
     });
 
+    connect(target->project(), &ProjectExplorer::Project::settingsLoaded,
+            this, &NimbleBuildSystem::loadSettings);
+    connect(target->project(), &ProjectExplorer::Project::aboutToSaveSettings,
+            this, &NimbleBuildSystem::saveSettings);
     requestDelayedParse();
 }
 
@@ -190,6 +194,7 @@ NimbleMetadata NimbleBuildSystem::metadata() const
 
 void NimbleBuildSystem::saveSettings()
 {
+    // only handles nimble specific settings - NimProjectScanner handles general settings
     QStringList result;
     for (const NimbleTask &task : m_tasks) {
         result.push_back(task.name);
@@ -201,17 +206,15 @@ void NimbleBuildSystem::saveSettings()
 
 void NimbleBuildSystem::loadSettings()
 {
+    // only handles nimble specific settings - NimProjectScanner handles general settings
     QStringList list = project()->namedSettings(C_NIMBLEPROJECT_TASKS).toStringList();
 
     m_tasks.clear();
     if (list.size() % 2 != 0)
         return;
 
-    std::vector<NimbleTask> result;
     for (int i = 0; i < list.size(); i += 2)
-        result.push_back({list[i], list[i + 1]});
-
-    requestParse();
+        m_tasks.push_back({list[i], list[i + 1]});
 }
 
 bool NimbleBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const

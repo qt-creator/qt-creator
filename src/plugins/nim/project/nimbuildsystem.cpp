@@ -213,22 +213,6 @@ FilePath nimblePathFromKit(Kit *kit)
     return nimbleFromKit.exists() ? nimbleFromKit.canonicalPath() : FilePath::fromString(nimbleFromPath);
 }
 
-void NimBuildSystem::loadSettings()
-{
-    QVariantMap settings = project()->namedSettings(SETTINGS_KEY).toMap();
-    if (settings.contains(EXCLUDED_FILES_KEY))
-        m_projectScanner.setExcludedFiles(settings.value(EXCLUDED_FILES_KEY, m_projectScanner.excludedFiles()).toStringList());
-
-    requestParse();
-}
-
-void NimBuildSystem::saveSettings()
-{
-    QVariantMap settings;
-    settings.insert(EXCLUDED_FILES_KEY, m_projectScanner.excludedFiles());
-    project()->setNamedSettings(SETTINGS_KEY, settings);
-}
-
 bool NimBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const
 {
     if (node->asFileNode()) {

@@ -92,9 +92,6 @@ public:
     void triggerParsing() override;
 
 protected:
-    void loadSettings();
-    void saveSettings();
-
     ParseGuard m_guard;
     NimProjectScanner m_projectScanner;
 };
