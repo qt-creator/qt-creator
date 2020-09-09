@@ -4,6 +4,15 @@ url         = https://doc.qt.io/qtdesignstudio
 
 moduleheader =
 
+#Words to ignore for auto-linking
+ignorewords += \
+    macOS \
+    WebChannel \
+    WebSocket \
+    WebSockets \
+    OpenGL \
+    MinGW
+
 headerdirs =
 sourcedirs = ../src \
              ../examples/doc \

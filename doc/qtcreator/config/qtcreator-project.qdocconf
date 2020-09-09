@@ -2,6 +2,15 @@ project     = qtcreator
 description = "$IDE_DISPLAY_NAME Manual"
 url         = http://doc.qt.io/$IDE_ID
 
+#Words to ignore for auto-linking
+ignorewords += \
+    macOS \
+    WebChannel \
+    WebSocket \
+    WebSockets \
+    OpenGL \
+    MinGW
+
 headerdirs =
 sourcedirs = ../src \
              ../../qtdesignstudio/src/qtquick3d-editor
