@@ -128,6 +128,11 @@ TextInput {
         }
     }
 
+    // Ensure that we get Up and Down key press events first
+    Keys.onShortcutOverride: {
+        event.accepted = (event.key === Qt.Key_Up || event.key === Qt.Key_Down)
+    }
+
     TapHandler {
         id: tapHandler
         acceptedDevices: PointerDevice.Mouse
