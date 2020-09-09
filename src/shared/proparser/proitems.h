@@ -180,7 +180,6 @@ private:
     int m_offset, m_length;
     int m_file;
     mutable uint m_hash;
-    QChar *prepareExtend(int extraLen, int thisTarget, int extraTarget);
     uint updatedHash() const;
     friend uint qHash(const ProString &str);
     friend QString operator+(const ProString &one, const ProString &two);
