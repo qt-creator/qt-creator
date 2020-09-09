@@ -26,7 +26,7 @@
 /*!
     \page quick-uis.html
     \if defined(qtdesignstudio)
-    \previouspage quick-converting-ui-projects.html
+    \previouspage creator-exporting-qml.html
     \nextpage studio-app-flows.html
     \else
     \previouspage creator-using-qt-quick-designer.html
