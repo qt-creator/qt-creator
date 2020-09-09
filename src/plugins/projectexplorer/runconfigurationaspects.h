@@ -113,9 +113,6 @@ public:
     void setResetter(const std::function<QString()> &resetter);
     void resetArguments();
 
-signals:
-    void argumentsChanged(const QString &arguments);
-
 private:
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;

@@ -281,7 +281,7 @@ void ArgumentsAspect::setArguments(const QString &arguments)
 {
     if (arguments != m_arguments) {
         m_arguments = arguments;
-        emit argumentsChanged(arguments);
+        emit changed();
     }
     if (m_chooser && m_chooser->text() != arguments)
         m_chooser->setText(arguments);

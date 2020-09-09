@@ -120,7 +120,7 @@ NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList, Id id)
     QTC_ASSERT(buildConfiguration(), return);
     QObject::connect(buildConfiguration(), &BuildConfiguration::buildTypeChanged,
                      m_arguments, &ArgumentsAspect::resetArguments);
-    QObject::connect(m_arguments, &ArgumentsAspect::argumentsChanged,
+    QObject::connect(m_arguments, &ArgumentsAspect::changed,
                      this, &NimbleBuildStep::onArgumentsChanged);
 }
 

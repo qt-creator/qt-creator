@@ -63,7 +63,7 @@ public:
                      + ' ' + usedExecutable + ' ' + args);
         };
 
-        connect(argumentsAspect, &ArgumentsAspect::argumentsChanged, this, updateCommandLine);
+        connect(argumentsAspect, &ArgumentsAspect::changed, this, updateCommandLine);
         connect(exeAspect, &ExecutableAspect::changed, this, updateCommandLine);
         updateCommandLine();
     }
