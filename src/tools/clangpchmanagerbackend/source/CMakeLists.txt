@@ -1,10 +1,13 @@
 add_qtc_library(clangpchmanagerbackend_lib STATIC
-  DEPENDS clangrefactoringbackend_lib ClangSupport
-  PUBLIC_DEPENDS libclang
-  PUBLIC_DEFINES CLANGSUPPORT_BUILD_LIB
+  DEPENDS clangrefactoringbackend_lib
+  PUBLIC_DEPENDS libclang Qt5::Widgets # FIXME: change the way to get the gui pch to linkto
+  DEFINES
+    $<TARGET_PROPERTY:Utils,INTERFACE_COMPILE_DEFINITIONS>
+  INCLUDES
+    $<TARGET_PROPERTY:ClangSupport,INTERFACE_INCLUDE_DIRECTORIES>
+    $<TARGET_PROPERTY:Utils,INTERFACE_INCLUDE_DIRECTORIES>
   PUBLIC_INCLUDES
     ../../clangrefactoringbackend/source
-    ${CLANG_INCLUDE_DIRS}
   SOURCES
     builddependenciesprovider.cpp builddependenciesprovider.h
     builddependenciesproviderinterface.h

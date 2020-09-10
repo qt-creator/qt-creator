@@ -20,8 +20,6 @@ add_qtc_test(unittest GTEST
     Qt5::Core Qt5::Network Qt5::Widgets
     Qt5::Xml Qt5::Concurrent Qt5::Qml Qt5::Gui
     Googletest
-    clangrefactoringbackend_lib clangbackend_lib clangpchmanagerbackend_lib
-    CPlusPlus Utils QmlDesigner
   DEFINES
     QT_NO_CAST_TO_ASCII
     QT_RESTRICTED_CAST_FROM_ASCII
@@ -178,12 +176,33 @@ add_qtc_test(unittest GTEST
     sqlitevalue-test.cpp
 )
 
-extend_qtc_test(unittest
-  DEFINES
-    $<TARGET_PROPERTY:Sqlite,INTERFACE_COMPILE_DEFINITIONS>
-  SOURCES
-    ../../../src/libs/3rdparty/sqlite/sqlite3.c
-)
+function(extend_qtc_test_with_target_sources target)
+  cmake_parse_arguments(_arg "" "" "DEFINES;INCLUDES" ${ARGN})
+
+  get_target_property(${target}Sources ${target} SOURCES)
+  get_target_property(${target}SourcesDir ${target} SOURCES_DIR)
+  extend_qtc_test(unittest
+    SOURCES_PREFIX "${${target}SourcesDir}"
+    SOURCES ${${target}Sources}
+    DEFINES
+      $<TARGET_PROPERTY:${target},INTERFACE_COMPILE_DEFINITIONS>
+      ${_arg_DEFINES}
+    INCLUDES
+      $<TARGET_PROPERTY:${target},INTERFACE_INCLUDE_DIRECTORIES>
+      ${_arg_INCLUDES}
+  )
+endfunction()
+
+foreach(clang_tools_library clangrefactoringbackend_lib clangbackend_lib clangpchmanagerbackend_lib)
+  extend_qtc_test_with_target_sources(${clang_tools_library}
+    DEFINES
+      CLANGSUPPORT_BUILD_LIB
+    INCLUDES
+      $<TARGET_PROPERTY:ClangSupport,INTERFACE_INCLUDE_DIRECTORIES>
+   )
+endforeach()
+
+extend_qtc_test_with_target_sources(Sqlite)
 
 # Do not work on the source directory data
 add_custom_command(TARGET unittest POST_BUILD
@@ -310,17 +329,76 @@ target_include_directories(unittest
     BEFORE ../../../src/plugins
 )
 
-get_target_property(ClangSupportSources ClangSupport SOURCES)
-get_target_property(ClangSupportSourcesDir ClangSupport SOURCES_DIR)
+set(QmlDesignerDir ../../../src/plugins/qmldesigner)
 extend_qtc_test(unittest
-  SOURCES_PREFIX "${ClangSupportSourcesDir}"
-  SOURCES ${ClangSupportSources}
-  DEFINES
-    $<TARGET_PROPERTY:ClangSupport,INTERFACE_COMPILE_DEFINITIONS>
-    CLANGSUPPORT_BUILD_LIB
   INCLUDES
-    $<TARGET_PROPERTY:ClangSupport,INTERFACE_INCLUDE_DIRECTORIES>
+    "${QmlDesignerDir}"
+    "${QmlDesignerDir}/designercore"
+    "${QmlDesignerDir}/designercore/include"
+    "${QmlDesignerDir}/../../../share/qtcreator/qml/qmlpuppet/interfaces"
+    "${QmlDesignerDir}/../../../share/qtcreator/qml/qmlpuppet/types"
+  DEFINES
+    QMLDESIGNER_TEST DESIGNER_STATIC_CORE_LIBRARY
+  SOURCES_PREFIX
+    "${QmlDesignerDir}"
+  SOURCES
+    components/listmodeleditor/listmodeleditormodel.cpp components/listmodeleditor/listmodeleditormodel.h
 )
+extend_qtc_test(unittest
+  SOURCES_PREFIX "${QmlDesignerDir}/designercore"
+  SOURCES
+    exceptions/exception.cpp
+    exceptions/invalidargumentexception.cpp
+    exceptions/invalididexception.cpp
+    exceptions/invalidmetainfoexception.cpp
+    exceptions/invalidmodelnodeexception.cpp
+    exceptions/invalidmodelstateexception.cpp
+    exceptions/invalidpropertyexception.cpp
+    exceptions/invalidqmlsourceexception.cpp
+    exceptions/invalidreparentingexception.cpp
+    exceptions/invalidslideindexexception.cpp
+    exceptions/notimplementedexception.cpp
+    exceptions/removebasestateexception.cpp
+    exceptions/rewritingexception.cpp
+
+    model/abstractproperty.cpp include/abstractproperty.h
+    model/abstractview.cpp include/abstractview.h
+    model/annotation.cpp
+    model/bindingproperty.cpp include/bindingproperty.h
+    model/import.cpp include/import.h
+    model/internalproperty.cpp model/internalproperty.h
+    model/internalbindingproperty.cpp model/internalbindingproperty.h
+    model/internalnodeabstractproperty.cpp model/internalnodeabstractproperty.h
+    model/internalnodelistproperty.cpp model/internalnodelistproperty.h
+    model/internalnodeproperty.cpp model/internalnodeproperty.h
+    model/internalsignalhandlerproperty.cpp model/internalsignalhandlerproperty.h
+    model/internalnode.cpp model/internalnode_p.h
+    model/internalvariantproperty.cpp model/internalvariantproperty.h
+    model/model.cpp include/model.h model/model_p.h
+    model/modelnode.cpp include/modelnode.h
+    model/nodeabstractproperty.cpp include/nodeabstractproperty.h
+    model/nodelistproperty.cpp include/nodelistproperty.h
+    model/nodeproperty.cpp include/nodeproperty.h
+    model/signalhandlerproperty.cpp include/signalhandlerproperty.h
+    model/variantproperty.cpp include/variantproperty.h
+    rewritertransaction.cpp rewritertransaction.h
+
+    include/qmldesignercorelib_global.h
+
+  EXPLICIT_MOC
+    "../mockup/qmldesigner/designercore/include/nodeinstanceview.h"
+    "../mockup/qmldesigner/designercore/include/rewriterview.h"
+    "${QmlDesignerDir}/designercore/include/model.h"
+)
+
+extend_qtc_test_with_target_sources(Utils DEFINES QTCREATOR_UTILS_STATIC_LIB "QTC_REL_TOOLS_PATH=\"${RELATIVE_LIBEXEC_PATH}\"")
+extend_qtc_test(unittest
+  CONDITION APPLE
+  DEPENDS ${FWFoundation} ${FWAppKit}
+)
+extend_qtc_test_with_target_sources(CPlusPlus DEFINES CPLUSPLUS_BUILD_STATIC_LIB)
+extend_qtc_test_with_target_sources(3rd_cplusplus DEFINES CPLUSPLUS_BUILD_LIB)
+extend_qtc_test_with_target_sources(ClangSupport DEFINES CLANGSUPPORT_BUILD_LIB)
 
 get_target_property(ClangCodeModelSourcesDir ClangCodeModel SOURCES_DIR)
 extend_qtc_test(unittest

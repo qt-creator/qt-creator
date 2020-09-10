@@ -177,7 +177,6 @@ add_qtc_library(Utils
 
 extend_qtc_library(Utils CONDITION WIN32
   SOURCES
-    process_ctrlc_stub.cpp
     touchbar/touchbar.cpp
   DEPENDS
     user32 iphlpapi ws2_32 shell32

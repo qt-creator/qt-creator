@@ -2,11 +2,12 @@ add_qtc_library(clangrefactoringbackend_lib STATIC
   PUBLIC_DEPENDS
     Threads::Threads
     ${CLANG_TOOLING_LIBS}
-    ClangSupport
-  PUBLIC_DEFINES CLANGSUPPORT_BUILD_LIB
+    Qt5::Widgets # FIXME: change the way to get the gui pch to linkto
+  INCLUDES
+    $<TARGET_PROPERTY:ClangSupport,INTERFACE_INCLUDE_DIRECTORIES>
   PUBLIC_INCLUDES
     ${CLANG_INCLUDE_DIRS}
-    "../../clangpchmanagerbackend/source"
+    ../../clangpchmanagerbackend/source
     "${CMAKE_CURRENT_LIST_DIR}"
   SOURCES
     clangquery.cpp clangquery.h
