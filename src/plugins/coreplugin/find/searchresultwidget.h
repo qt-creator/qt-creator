@@ -40,10 +40,9 @@ class QCheckBox;
 QT_END_NAMESPACE
 
 namespace Core {
-namespace Internal {
 
+namespace Internal {
 class SearchResultTreeView;
-class SearchResultColor;
 
 class SearchResultWidget : public QWidget
 {
@@ -59,7 +58,8 @@ public:
     void addResult(const QString &fileName,
                    const QString &lineText,
                    Search::TextRange mainRange,
-                   const QVariant &userData = QVariant());
+                   const QVariant &userData = QVariant(),
+                   SearchResultColor::Style style = SearchResultColor::Style::Default);
     void addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode);
 
     int count() const;
@@ -76,7 +76,7 @@ public:
 
     void notifyVisibilityChanged(bool visible);
 
-    void setTextEditorFont(const QFont &font, const SearchResultColor &color);
+    void setTextEditorFont(const QFont &font, const SearchResultColors &colors);
     void setTabWidth(int tabWidth);
 
     void setAutoExpandResults(bool expand);

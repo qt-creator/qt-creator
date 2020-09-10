@@ -25,7 +25,6 @@
 
 #include "searchresultwindow.h"
 #include "searchresultwidget.h"
-#include "searchresultcolor.h"
 #include "textfindconstants.h"
 
 #include <coreplugin/icore.h>
@@ -126,7 +125,7 @@ namespace Internal {
         QList<SearchResult *> m_searchResults;
         int m_currentIndex;
         QFont m_font;
-        SearchResultColor m_color;
+        SearchResultColors m_colors;
         int m_tabWidth;
 
     };
@@ -503,7 +502,7 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
             d, &SearchResultWindowPrivate::moveWidgetToTop);
     connect(widget, &SearchResultWidget::requestPopup,
             d, &SearchResultWindowPrivate::popupRequested);
-    widget->setTextEditorFont(d->m_font, d->m_color);
+    widget->setTextEditorFont(d->m_font, d->m_colors);
     widget->setTabWidth(d->m_tabWidth);
     widget->setSupportPreserveCase(preserveCaseMode == PreserveCaseEnabled);
     bool supportsReplace = searchOrSearchAndReplace != SearchOnly;
@@ -574,25 +573,12 @@ void SearchResultWindow::setFocus()
 /*!
     \internal
 */
-void SearchResultWindow::setTextEditorFont(const QFont &font,
-                                           const QColor &textForegroundColor,
-                                           const QColor &textBackgroundColor,
-                                           const QColor &highlightForegroundColor,
-                                           const QColor &highlightBackgroundColor)
+void SearchResultWindow::setTextEditorFont(const QFont &font, const SearchResultColors &colors)
 {
     d->m_font = font;
-    Internal::SearchResultColor color;
-    color.textBackground = textBackgroundColor;
-    color.textForeground = textForegroundColor;
-    color.highlightBackground = highlightBackgroundColor.isValid()
-            ? highlightBackgroundColor
-            : textBackgroundColor;
-    color.highlightForeground = highlightForegroundColor.isValid()
-            ? highlightForegroundColor
-            : textForegroundColor;
-    d->m_color = color;
+    d->m_colors = colors;
     foreach (Internal::SearchResultWidget *widget, d->m_searchResultWidgets)
-        widget->setTextEditorFont(font, color);
+        widget->setTextEditorFont(font, colors);
 }
 
 /*!
@@ -796,7 +782,8 @@ void SearchResult::setAdditionalReplaceWidget(QWidget *widget)
     \sa addResults()
 */
 void SearchResult::addResult(const QString &fileName, int lineNumber, const QString &lineText,
-                             int searchTermStart, int searchTermLength, const QVariant &userData)
+                             int searchTermStart, int searchTermLength, const QVariant &userData,
+                             SearchResultColor::Style style)
 {
     Search::TextRange mainRange;
     mainRange.begin.line = lineNumber;
@@ -804,7 +791,7 @@ void SearchResult::addResult(const QString &fileName, int lineNumber, const QStr
     mainRange.end.line = mainRange.begin.line;
     mainRange.end.column = mainRange.begin.column + searchTermLength;
 
-    m_widget->addResult(fileName, lineText, mainRange, userData);
+    m_widget->addResult(fileName, lineText, mainRange, userData, style);
 }
 
 /*!
@@ -822,9 +809,10 @@ void SearchResult::addResult(const QString &fileName, int lineNumber, const QStr
 void SearchResult::addResult(const QString &fileName,
                              const QString &lineText,
                              Search::TextRange mainRange,
-                             const QVariant &userData)
+                             const QVariant &userData,
+                             SearchResultColor::Style style)
 {
-    m_widget->addResult(fileName, lineText, mainRange, userData);
+    m_widget->addResult(fileName, lineText, mainRange, userData, style);
     emit countChanged(m_widget->count());
 }
 

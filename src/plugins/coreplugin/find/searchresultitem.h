@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "searchresultcolor.h"
+
 #include <utils/hostosinfo.h>
 
 #include <QIcon>
@@ -94,6 +96,7 @@ public:
     QVariant userData; // user data for identification of the item
     Search::TextRange mainRange;
     bool useTextEditorFont = false;
+    SearchResultColor::Style style = SearchResultColor::Style::Default;
 };
 
 } // namespace Core

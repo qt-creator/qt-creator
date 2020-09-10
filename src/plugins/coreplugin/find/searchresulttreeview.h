@@ -30,10 +30,11 @@
 #include <utils/itemviews.h>
 
 namespace Core {
+class SearchResultColor;
+
 namespace Internal {
 
 class SearchResultTreeModel;
-class SearchResultColor;
 
 class SearchResultTreeView : public Utils::TreeView
 {
@@ -43,7 +44,7 @@ public:
     explicit SearchResultTreeView(QWidget *parent = nullptr);
 
     void setAutoExpandResults(bool expand);
-    void setTextEditorFont(const QFont &font, const SearchResultColor &color);
+    void setTextEditorFont(const QFont &font, const SearchResultColors &colors);
     void setTabWidth(int tabWidth);
 
     SearchResultTreeModel *model() const;

@@ -33,6 +33,8 @@
   <style name="AutoComplete" foreground="#a0a0ff" background="#333333"/>
   <style name="Preprocessor" foreground="#5555ff"/>
   <style name="SearchResult" background="#555500"/>
+  <style name="SearchResultAlt1" background="#363636"/>
+  <style name="SearchResultAlt2" foreground="#ffaaaa" background="#553636"/>
   <style name="SearchScope" background="#222200"/>
   <style name="Selection" foreground="#000000" background="#aaaaaa"/>
   <style name="Static" foreground="#55ff55" italic="true"/>

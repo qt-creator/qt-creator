@@ -69,11 +69,11 @@ void SearchResultTreeModel::setShowReplaceUI(bool show)
     }
 }
 
-void SearchResultTreeModel::setTextEditorFont(const QFont &font, const SearchResultColor &color)
+void SearchResultTreeModel::setTextEditorFont(const QFont &font, const SearchResultColors &colors)
 {
     emit layoutAboutToBeChanged();
     m_textEditorFont = font;
-    m_color = color;
+    m_colors = colors;
     emit layoutChanged();
 }
 
@@ -248,10 +248,10 @@ QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) 
             result = QVariant();
         break;
     case Qt::ForegroundRole:
-        result = m_color.textForeground;
+        result = m_colors.value(row->item.style).textForeground;
         break;
     case Qt::BackgroundRole:
-        result = m_color.textBackground;
+        result = m_colors.value(row->item.style).textBackground;
         break;
     case ItemDataRoles::ResultLineRole:
     case Qt::DisplayRole:
@@ -267,10 +267,10 @@ QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) 
         result = row->item.icon;
         break;
     case ItemDataRoles::ResultHighlightBackgroundColor:
-        result = m_color.highlightBackground;
+        result = m_colors.value(row->item.style).highlightBackground;
         break;
     case ItemDataRoles::ResultHighlightForegroundColor:
-        result = m_color.highlightForeground;
+        result = m_colors.value(row->item.style).highlightForeground;
         break;
     case ItemDataRoles::ResultBeginColumnNumberRole:
         result = row->item.mainRange.begin.column;

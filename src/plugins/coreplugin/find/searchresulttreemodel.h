@@ -45,7 +45,7 @@ public:
     ~SearchResultTreeModel() override;
 
     void setShowReplaceUI(bool show);
-    void setTextEditorFont(const QFont &font, const SearchResultColor &color);
+    void setTextEditorFont(const QFont &font, const SearchResultColors &colors);
 
     Qt::ItemFlags flags(const QModelIndex &index) const override;
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
@@ -80,7 +80,7 @@ private:
 
     SearchResultTreeItem *m_rootItem;
     SearchResultTreeItem *m_currentParent;
-    SearchResultColor m_color;
+    SearchResultColors m_colors;
     QModelIndex m_currentIndex;
     QStringList m_currentPath; // the path that belongs to the current parent
     QFont m_textEditorFont;

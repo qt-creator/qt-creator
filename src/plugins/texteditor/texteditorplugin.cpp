@@ -250,11 +250,20 @@ ExtensionSystem::IPlugin::ShutdownFlag TextEditorPlugin::aboutToShutdown()
 void TextEditorPluginPrivate::updateSearchResultsFont(const FontSettings &settings)
 {
     if (auto window = SearchResultWindow::instance()) {
+        const Format textFormat = settings.formatFor(C_TEXT);
+        const Format defaultResultFormat = settings.formatFor(C_SEARCH_RESULT);
+        const Format alt1ResultFormat = settings.formatFor(C_SEARCH_RESULT_ALT1);
+        const Format alt2ResultFormat = settings.formatFor(C_SEARCH_RESULT_ALT2);
         window->setTextEditorFont(QFont(settings.family(), settings.fontSize() * settings.fontZoom() / 100),
-                                  settings.formatFor(C_TEXT).foreground(),
-                                  settings.formatFor(C_TEXT).background(),
-                                  settings.formatFor(C_SEARCH_RESULT).foreground(),
-                                  settings.formatFor(C_SEARCH_RESULT).background());
+            {std::make_pair(SearchResultColor::Style::Default,
+             SearchResultColor(textFormat.background(), textFormat.foreground(),
+             defaultResultFormat.background(), defaultResultFormat.foreground())),
+             std::make_pair(SearchResultColor::Style::Alt1,
+                          SearchResultColor(textFormat.background(), textFormat.foreground(),
+                          alt1ResultFormat.background(), alt1ResultFormat.foreground())),
+             std::make_pair(SearchResultColor::Style::Alt2,
+                          SearchResultColor(textFormat.background(), textFormat.foreground(),
+                          alt2ResultFormat.background(), alt2ResultFormat.foreground()))});
     }
 }
 

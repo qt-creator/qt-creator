@@ -246,7 +246,8 @@ void SearchResultWidget::setAdditionalReplaceWidget(QWidget *widget)
 void SearchResultWidget::addResult(const QString &fileName,
                                    const QString &rowText,
                                    Search::TextRange mainRange,
-                                   const QVariant &userData)
+                                   const QVariant &userData,
+                                   SearchResultColor::Style style)
 {
     SearchResultItem item;
     item.path = QStringList({QDir::toNativeSeparators(fileName)});
@@ -254,6 +255,7 @@ void SearchResultWidget::addResult(const QString &fileName,
     item.text = rowText;
     item.useTextEditorFont = true;
     item.userData = userData;
+    item.style = style;
     addResults(QList<SearchResultItem>() << item, SearchResult::AddOrdered);
 }
 
@@ -367,9 +369,9 @@ void SearchResultWidget::notifyVisibilityChanged(bool visible)
     emit visibilityChanged(visible);
 }
 
-void SearchResultWidget::setTextEditorFont(const QFont &font, const SearchResultColor &color)
+void SearchResultWidget::setTextEditorFont(const QFont &font, const SearchResultColors &colors)
 {
-    m_searchResultTreeView->setTextEditorFont(font, color);
+    m_searchResultTreeView->setTextEditorFont(font, colors);
 }
 
 void SearchResultWidget::setTabWidth(int tabWidth)

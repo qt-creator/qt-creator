@@ -25,18 +25,41 @@
 
 #pragma once
 
+#include "../core_global.h"
+
 #include <QColor>
+#include <QHash>
 
 namespace Core {
-namespace Internal {
 
-class SearchResultColor{
+class CORE_EXPORT SearchResultColor {
 public:
+    enum class Style { Default, Alt1, Alt2 };
+
+    SearchResultColor() = default;
+    SearchResultColor(const QColor &textBg, const QColor &textFg,
+                      const QColor &highlightBg, const QColor &highlightFg)
+        : textBackground(textBg), textForeground(textFg),
+          highlightBackground(highlightBg), highlightForeground(highlightFg)
+    {
+        if (!highlightBackground.isValid())
+            highlightBackground = textBackground;
+        if (!highlightForeground.isValid())
+            highlightForeground = textForeground;
+    }
+
     QColor textBackground;
     QColor textForeground;
     QColor highlightBackground;
     QColor highlightForeground;
 };
 
-} // namespace Internal
+
+inline uint qHash(SearchResultColor::Style style)
+{
+    return QT_PREPEND_NAMESPACE(qHash(int(style)));
+}
+
+using SearchResultColors = QHash<SearchResultColor::Style, SearchResultColor>;
+
 } // namespace Core

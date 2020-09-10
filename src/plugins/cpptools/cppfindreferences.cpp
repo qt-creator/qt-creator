@@ -551,13 +551,23 @@ static void displayResults(SearchResult *search, QFutureWatcher<CPlusPlus::Usage
 {
     CppFindReferencesParameters parameters = search->userData().value<CppFindReferencesParameters>();
 
+    static const auto colorStyleForUsageType = [](CPlusPlus::Usage::Type type) {
+        switch (type) {
+        case CPlusPlus::Usage::Type::Read:
+            return SearchResultColor::Style::Alt1;
+        case CPlusPlus::Usage::Type::Write:
+        case CPlusPlus::Usage::Type::WritableRef:
+            return SearchResultColor::Style::Alt2;
+        case CPlusPlus::Usage::Type::Declaration:
+        case CPlusPlus::Usage::Type::Other:
+            return SearchResultColor::Style::Default;
+        }
+        return SearchResultColor::Style::Default; // For dumb compilers.
+    };
     for (int index = first; index != last; ++index) {
-        CPlusPlus::Usage result = watcher->future().resultAt(index);
-        search->addResult(result.path.toString(),
-                          result.line,
-                          result.lineText,
-                          result.col,
-                          result.len);
+        const CPlusPlus::Usage result = watcher->future().resultAt(index);
+        search->addResult(result.path.toString(), result.line, result.lineText,
+                          result.col, result.len, {}, colorStyleForUsageType(result.type));
 
         if (parameters.prettySymbolName.isEmpty())
             continue;

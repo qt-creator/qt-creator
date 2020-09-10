@@ -11,6 +11,8 @@
   <style name="Selection" foreground="#eee8d5" background="#93a1a1"/>
   <style name="LineNumber" foreground="#93a1a1" background="#eee8d5"/>
   <style name="SearchResult" background="#eee8d5"/>
+  <style name="SearchResultAlt1" background="#93a1a1"/>
+  <style name="SearchResultAlt2" background="#e0dbcb"/>
   <style name="SearchScope" background="#073642"/>
   <style name="Parentheses" foreground="#dc322f" background="#93a1a1" bold="true"/>
   <style name="ParenthesesMismatch" foreground="#ffff00" background="#ff00ff" bold="true"/>

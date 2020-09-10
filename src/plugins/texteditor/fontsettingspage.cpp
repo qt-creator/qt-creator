@@ -340,9 +340,9 @@ QColor FormatDescription::defaultBackground(TextStyle id)
         return col;
     } else if (id == C_SELECTION) {
         return Utils::Theme::initialPalette().color(QPalette::Highlight);
-    } else if (id == C_OCCURRENCES) {
+    } else if (id == C_OCCURRENCES || id == C_SEARCH_RESULT_ALT1) {
         return QColor(180, 180, 180);
-    } else if (id == C_OCCURRENCES_RENAME) {
+    } else if (id == C_OCCURRENCES_RENAME || id == C_SEARCH_RESULT_ALT2) {
         return QColor(255, 100, 100);
     } else if (id == C_DISABLED_CODE) {
         return QColor(239, 239, 239);

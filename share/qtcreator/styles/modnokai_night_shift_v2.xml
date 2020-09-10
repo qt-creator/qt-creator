@@ -14,6 +14,8 @@
   <style name="Selection" background="#11404c"/>
   <style name="LineNumber" foreground="#888888" background="#272822"/>
   <style name="SearchResult" background="#555500"/>
+  <style name="SearchResultAlt1" background="#aa0000"/>
+  <style name="SearchResultAlt2" foreground="#ffaaaa" background="#553636"/>
   <style name="SearchScope" background="#222200"/>
   <style name="Parentheses" foreground="#ffffff" background="#11404c"/>
   <style name="CurrentLine" background="#373737"/>

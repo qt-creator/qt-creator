@@ -39,6 +39,8 @@ const char *nameForStyle(TextStyle style)
     case C_SELECTION:           return "Selection";
     case C_LINE_NUMBER:         return "LineNumber";
     case C_SEARCH_RESULT:       return "SearchResult";
+    case C_SEARCH_RESULT_ALT1:  return "SearchResultAlt1";
+    case C_SEARCH_RESULT_ALT2:  return "SearchResultAlt2";
     case C_SEARCH_SCOPE:        return "SearchScope";
     case C_PARENTHESES:         return "Parentheses";
     case C_PARENTHESES_MISMATCH:return "ParenthesesMismatch";

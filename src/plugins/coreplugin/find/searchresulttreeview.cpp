@@ -57,12 +57,12 @@ void SearchResultTreeView::setAutoExpandResults(bool expand)
     m_autoExpandResults = expand;
 }
 
-void SearchResultTreeView::setTextEditorFont(const QFont &font, const SearchResultColor &color)
+void SearchResultTreeView::setTextEditorFont(const QFont &font, const SearchResultColors &colors)
 {
-    m_model->setTextEditorFont(font, color);
+    m_model->setTextEditorFont(font, colors);
 
     QPalette p;
-    p.setColor(QPalette::Base, color.textBackground);
+    p.setColor(QPalette::Base, colors.value(SearchResultColor::Style::Default).textBackground);
     setPalette(p);
 }
 
