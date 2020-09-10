@@ -45,10 +45,9 @@
             \l {Module Definition qmldir Files}.
     \endlist
 
-    Here, you will need to write some C++ code. Namely, the Qt Quick file will
-    contain a QObject-derived class that is registered with the QML type system
-    as a \e singleton type. This enables the use of global property values in
-    the UI.
+    Here, you will create a QML type based on the QObject class that will
+    be registered as a singleton type. This enables the use of global
+    property values in the UI.
 
     You can find a video tutorial about creating JavaScript for generating mock
     data for a UI
@@ -58,14 +57,17 @@
     To create the necessary files:
 
     \list 1
-        \li In the File Explorer, create a folder for the JavaScript files
-            (for example, \e backend) and another one for the mock data
-            (for example, \e Data) in your project folder.
-            \note Make sure to capitalize the data folder name, because you
+        \li In the File Explorer, create a new folder for the mock data
+            inside the \e imports folder in your project folder (for example, \e Data).
+            \note Make sure to capitalize the \e Data folder name, because you
             will need to import it as a QML type later, and QML type names must
             be capitalized.
-        \li In \QDS, open the project file (.qmlproject) to add the backend
-            folder to the list of plugin directories passed to the QML runtime:
+            \note If you place this folder somewhere else in the project, you will
+            need to add the path to the list of imports. To do this, in \QDS, open
+            the project file (.qmlproject) to add the path to the list of plugin
+            directories passed to the QML runtime. For example, if you placed the
+            \e Data folder inside another folder called \e backend in the root of
+            your project, you would add the following:
             \code
             importPaths: [ "imports", "backend" ]
             \endcode
@@ -83,7 +85,7 @@
             \uicontrol {JavaScript File} > \uicontrol Choose to create a
             JavaScript file that generates mock data for the UI.
         \li Follow the instructions of the wizard to create the JavaScript file
-            in the data folder. In these instructions, the file is called
+            in the Data folder. In these instructions, the file is called
             \e {simulation.js}.
         \li Delete the template text in JavaScript file and save the file.
         \li In a text editor such as Notepad, create a module definition file
@@ -102,29 +104,22 @@
         \li Add the following import statement to import the \e {simulation.js}
             file to use the functionality that it provides:
             \code
-            #import simulation.js as JS
+            import "simulation.js" as JS
             \endcode
-        \li Add the following code to create a QObject-derived class that will
-            list the global properties you want to simulate and their default
-            values:
+        \li Replace the default Item declaration with the following code to
+            create a QObject-derived class that will list the global
+            properties you want to simulate and their default values:
             \code
-            QObject {
+            QtObject {
                 id: values
 
                 // property values to simulate
-                property int name1: default1
-                property string name2: default2
-                property real name3: default3
+                property int name1: 5
+                property string name2: "foo"
+                property real name3: 2.5
 
             }
             \endcode
-            \note You must export the properties as aliases by selecting
-            \uicontrol {Export Property as Alias} in the
-            \inlineimage icons/action-icon.png
-            (\uicontrol Actions) menu of the property in the
-            \uicontrol Properties view. Exported properties are listed in
-            \uicontrol Connections > \uicontrol Properties, where you can
-            change their names.
         \li Add the following code to use a \l Timer type to specify a range of
             values for the property:
             \code
@@ -133,19 +128,28 @@
                 repeat: true
                 onTriggered: JS.name1Timer()
                 interval: 10
+            }
             \endcode
-            \note You must add the JavaScript method to the JavaScript file.
-        \li Open the main UI file of the project and add the following code to
-            import the data folder as a QML module:
+            This will execute the function defined for \c onTriggered every 10 ms.
+            Within your javascript functions you can perform the necessary
+            actions to simulate the behavior you need. Review
+            \l {Importing JavaScript Resources in QML} for more details.
+            \note You must add the JavaScript method \c name1Timer()
+            to the JavaScript file. You have the option of adding this JavaScript
+            code directly within the \c onTriggered handler as well.
+        \li Open the .ui.qml file of the Component that will use the simulated data
+            and add the following code to the top of the file in order to import
+            the Data folder as a QML module:
             \code
-            #import Data 1.0 as Data
+            import Data 1.0
             \endcode
-        \li Select \uicontrol {Set Binding} in the \uicontrol Settings menu of the
-            property to bind the property value to the value defined in the
-            values file. For example, you would set the following expression for
-            \e name1:
+        \li Returning to the \uicontrol {Form Editor}, locate the property that
+            should be bound to the simulated values. Select \inlineimage icons/action-icon.png
+            and \uicontrol {Set Binding} for the property and enter the
+            simulated Value property. For example, you would set the following
+            expression to bind to the example \c name1 property:
             \code
-            Data.Values.name1
+            Values.name1
             \endcode
     \endlist
 */
