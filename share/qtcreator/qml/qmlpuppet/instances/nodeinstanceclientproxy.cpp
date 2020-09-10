@@ -77,7 +77,7 @@
 
 namespace QmlDesigner {
 
-constexpr void (QLocalSocket::*LocalSocketErrorFunction)(QLocalSocket::LocalSocketError)
+void (QLocalSocket::*LocalSocketErrorFunction)(QLocalSocket::LocalSocketError)
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
     = &QLocalSocket::error;
 #else

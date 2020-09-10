@@ -392,7 +392,7 @@ void QmlDebugConnection::newConnection()
     connect(socket, &QLocalSocket::disconnected, this, &QmlDebugConnection::socketDisconnected,
             Qt::QueuedConnection);
 
-    constexpr void (QLocalSocket::*LocalSocketErrorFunction)(QLocalSocket::LocalSocketError)
+    void (QLocalSocket::*LocalSocketErrorFunction)(QLocalSocket::LocalSocketError)
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
                 = &QLocalSocket::error;
 #else
