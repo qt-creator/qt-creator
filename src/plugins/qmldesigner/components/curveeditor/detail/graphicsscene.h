@@ -57,6 +57,8 @@ public:
 
     bool hasSelectedKeyframe() const;
 
+    bool hasEditableSegment(double time) const;
+
     double minimumTime() const;
 
     double maximumTime() const;

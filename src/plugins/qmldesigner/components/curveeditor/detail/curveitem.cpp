@@ -173,6 +173,11 @@ bool CurveItem::hasSelectedKeyframe() const
     return false;
 }
 
+bool CurveItem::hasEditableSegment(double time) const
+{
+    return curve().segment(time).interpolation() != Keyframe::Interpolation::Easing;
+}
+
 unsigned int CurveItem::id() const
 {
     return m_id;

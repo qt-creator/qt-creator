@@ -350,12 +350,15 @@ void GraphicsView::contextMenuEvent(QContextMenuEvent *event)
         connect(openEditorAction, &QAction::triggered, openStyleEditor);
     }
 
+    QPointF rasterPos = globalToRaster(event->globalPos());
+
     menu.addSeparator();
-    auto insertKeyframes = [this, event]() {
-        m_scene->insertKeyframe(globalToRaster(event->globalPos()).x(), true);
-    };
+    auto insertKeyframes = [this, rasterPos]() { m_scene->insertKeyframe(rasterPos.x(), true); };
     QAction *insertKeyframeAction = menu.addAction(tr("Insert Keyframe"));
     connect(insertKeyframeAction, &QAction::triggered, insertKeyframes);
+
+    if (!m_scene->hasEditableSegment(rasterPos.x()))
+        insertKeyframeAction->setEnabled(false);
 
     auto deleteKeyframes = [this] { m_scene->deleteSelectedKeyframes(); };
     QAction *deleteKeyframeAction = menu.addAction(tr("Delete Selected Keyframes"));

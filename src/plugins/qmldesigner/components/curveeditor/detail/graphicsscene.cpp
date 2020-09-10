@@ -85,6 +85,15 @@ bool GraphicsScene::hasSelectedKeyframe() const
     return false;
 }
 
+bool GraphicsScene::hasEditableSegment(double time) const
+{
+    for (auto *curve : m_curves) {
+        if (curve->hasEditableSegment(time))
+            return true;
+    }
+    return false;
+}
+
 double GraphicsScene::minimumTime() const
 {
     return limits().left();

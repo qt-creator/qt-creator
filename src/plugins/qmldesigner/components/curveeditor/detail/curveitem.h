@@ -79,6 +79,8 @@ public:
 
     bool hasSelectedKeyframe() const;
 
+    bool hasEditableSegment(double time) const;
+
     unsigned int id() const;
 
     ValueType valueType() const;
