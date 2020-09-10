@@ -63,41 +63,6 @@ using namespace QmakeProjectManager::Internal;
 using namespace QMakeInternal;
 using namespace Utils;
 
-namespace {
-
-class QmakePriFileDocument : public Core::IDocument
-{
-public:
-    QmakePriFileDocument(QmakePriFile *qmakePriFile, const Utils::FilePath &filePath) :
-        IDocument(nullptr), m_priFile(qmakePriFile)
-    {
-        setId("Qmake.PriFile");
-        setMimeType(QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE));
-        setFilePath(filePath);
-    }
-
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override
-    {
-        Q_UNUSED(state)
-        Q_UNUSED(type)
-        return BehaviorSilent;
-    }
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override
-    {
-        Q_UNUSED(errorString)
-        Q_UNUSED(flag)
-        if (type == TypePermissions)
-            return true;
-        m_priFile->scheduleUpdate();
-        return true;
-    }
-
-private:
-    QmakePriFile *m_priFile;
-};
-
-} // namespace
-
 namespace QmakeProjectManager {
 
 static Q_LOGGING_CATEGORY(qmakeParse, "qtc.qmake.parsing", QtWarningMsg);

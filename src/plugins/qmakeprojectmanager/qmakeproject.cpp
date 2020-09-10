@@ -33,6 +33,7 @@
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakestep.h"
 
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -97,6 +98,38 @@ static Q_LOGGING_CATEGORY(qmakeBuildSystemLog, "qtc.qmake.buildsystem", QtWarnin
             << ", " << __FUNCTION__                                  \
             << msg;                                                  \
     }
+
+class QmakePriFileDocument : public Core::IDocument
+{
+public:
+    QmakePriFileDocument(QmakePriFile *qmakePriFile, const Utils::FilePath &filePath) :
+        IDocument(nullptr), m_priFile(qmakePriFile)
+    {
+        setId("Qmake.PriFile");
+        setMimeType(QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE));
+        setFilePath(filePath);
+        Core::DocumentManager::addDocument(this);
+    }
+
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override
+    {
+        Q_UNUSED(state)
+        Q_UNUSED(type)
+        return BehaviorSilent;
+    }
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override
+    {
+        Q_UNUSED(errorString)
+        Q_UNUSED(flag)
+        if (type == TypePermissions)
+            return true;
+        m_priFile->scheduleUpdate();
+        return true;
+    }
+
+private:
+    QmakePriFile *m_priFile;
+};
 
 /// Watches folders for QmakePriFile nodes
 /// use one file system watcher to watch all folders
@@ -270,8 +303,17 @@ void QmakeBuildSystem::updateDocuments()
     QSet<FilePath> projectDocuments;
     project()->rootProjectNode()->forEachProjectNode([&projectDocuments](const ProjectNode *n) {
         projectDocuments.insert(n->filePath());
+
     });
-    project()->setExtraProjectFiles(projectDocuments);
+    project()->setExtraProjectFiles(projectDocuments, [p = project()](const FilePath &fp)
+            -> std::unique_ptr<Core::IDocument> {
+        const Node * const n = p->nodeForFilePath(fp, [](const Node *n) {
+            return dynamic_cast<const QmakePriFileNode *>(n); });
+        QTC_ASSERT(n, return std::make_unique<Core::IDocument>());
+        QmakePriFile * const priFile = static_cast<const QmakePriFileNode *>(n)->priFile();
+        QTC_ASSERT(priFile, return std::make_unique<Core::IDocument>());
+        return std::make_unique<QmakePriFileDocument>(priFile, fp);
+    });
 }
 
 void QmakeBuildSystem::updateCppCodeModel()
