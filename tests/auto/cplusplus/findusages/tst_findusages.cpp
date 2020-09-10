@@ -2028,6 +2028,7 @@ struct S {
     static const void *p2;
     struct Nested {
         int constFunc() const;
+        void constFunc(int) const;
         void nonConstFunc();
     } n;
     Nested constFunc() const;
@@ -2077,6 +2078,7 @@ int main()
     (&s)->nonConstFunc();
     s.n.constFunc();
     s.n.nonConstFunc();
+    s.n.constFunc(s.value);
 }
 )";
 
@@ -2102,7 +2104,7 @@ int main()
     // Access to struct member
     FindUsages find(src, doc, snapshot);
     find(sv);
-    QCOMPARE(find.usages().size(), 16);
+    QCOMPARE(find.usages().size(), 17);
     QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
     QCOMPARE(find.usages().at(1).type, Usage::Type::WritableRef);
     QCOMPARE(find.usages().at(2).type, Usage::Type::WritableRef);
@@ -2119,6 +2121,7 @@ int main()
     QCOMPARE(find.usages().at(13).type, Usage::Type::WritableRef);
     QCOMPARE(find.usages().at(14).type, Usage::Type::Read);
     QCOMPARE(find.usages().at(15).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(16).type, Usage::Type::Read);
 
     Function * const main = doc->globalSymbolAt(6)->asFunction();
     QVERIFY(main);
@@ -2149,7 +2152,7 @@ int main()
     QVERIFY(varS);
     QCOMPARE(varS->name()->identifier()->chars(), "s");
     find(varS);
-    QCOMPARE(find.usages().size(), 28);
+    QCOMPARE(find.usages().size(), 30);
     QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
     QCOMPARE(find.usages().at(1).type, Usage::Type::WritableRef);
     QCOMPARE(find.usages().at(2).type, Usage::Type::WritableRef);
@@ -2185,6 +2188,8 @@ int main()
     QCOMPARE(find.usages().at(25).type, Usage::Type::WritableRef);
     QCOMPARE(find.usages().at(26).type, Usage::Type::Read);
     QCOMPARE(find.usages().at(27).type, Usage::Type::WritableRef);
+    QCOMPARE(find.usages().at(28).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(29).type, Usage::Type::Read);
 
     // Usages of struct type
     find(structS);

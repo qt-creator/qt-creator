@@ -206,8 +206,8 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
         return usageType;
     };
 
-    const auto getTypeOfExpr = [&](ExpressionAST *expr, auto scopeSearchPos)
-            -> Utils::optional<LookupItem> {
+    const auto getTypesOfExpr = [&](ExpressionAST *expr, auto scopeSearchPos)
+            -> const QList<LookupItem> {
         if (!expr)
             return {};
         Scope *scope = nullptr;
@@ -221,7 +221,12 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
         }
         if (!scope)
             scope = _doc->globalNamespace();
-        const QList<LookupItem> items = typeofExpression(expr, _doc, scope);
+        return typeofExpression(expr, _doc, scope);
+    };
+
+    const auto getTypeOfExpr = [&](ExpressionAST *expr, auto scopeSearchPos)
+            -> Utils::optional<LookupItem> {
+        const QList<LookupItem> items = getTypesOfExpr(expr, scopeSearchPos);
         if (items.isEmpty())
             return {};
         return Utils::optional<LookupItem>(items.first());
@@ -297,14 +302,26 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
         }
         if (!match)
             return Usage::Type::Other;
-        const Utils::optional<LookupItem> item = getTypeOfExpr(call->base_expression, callIt + 1);
-        if (!item)
-            return Usage::Type::Other;
-        Function * const func = item->type()->asFunctionType();
-        if (!func || func->argumentCount() <= argPos)
-            return Usage::Type::Other;
-        return getUsageTypeFromLhsAndRhs(func->argumentAt(argPos)->type(),
-                                         (*(callIt - 1))->asExpression(), callIt);
+
+        // If we find more than one overload with a matching number of arguments,
+        // and they have conflicting usage types, then we give up and report Type::Other.
+        // We could do better by trying to match the types manually and finding out
+        // which overload is the right one, but that would be an inordinate amount
+        // of effort and we'd still have no guarantee that the result is correct.
+        Usage::Type currentType = Usage::Type::Other;
+        for (const LookupItem &item : getTypesOfExpr(call->base_expression, callIt + 1)) {
+            Function * const func = item.type()->asFunctionType();
+            if (!func || func->argumentCount() <= argPos)
+                continue;
+            const Usage::Type newType = getUsageTypeFromLhsAndRhs(
+                        func->argumentAt(argPos)->type(), (*(callIt - 1))->asExpression(), callIt);
+            if (newType != Usage::Type::Other && newType != currentType) {
+                if (currentType != Usage::Type::Other)
+                    return Usage::Type::Other;
+                currentType = newType;
+            }
+        }
+        return currentType;
     };
 
     if (astPath.size() < 2 || !astPath.last()->asSimpleName())
