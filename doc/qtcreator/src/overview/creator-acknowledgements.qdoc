@@ -84,7 +84,7 @@
             as well as a ready-to-use QSyntaxHighlighter sub-class.
 
             Distributed under the:
-            \code
+            \badcode
             MIT License
 
             Permission is hereby granted, free of charge, to any person obtaining
@@ -213,7 +213,7 @@
         \l{https://spdx.org/licenses/BSD-3-Clause.html}
         {BSD 3-clause "New" or "Revised" License}
 
-        \code
+        \badcode
         Copyright (C) 2002-2013 The ANGLE Project Authors.
         All rights reserved.
 
@@ -261,7 +261,7 @@
 
         BSD 2-clause "Simplified" License.
 
-        \code
+        \badcode
         Copyright (C) 2012 Apple Inc. All rights reserved.
 
         Redistribution and use in source and binary forms, with or without
@@ -294,7 +294,7 @@
         The sources can be found in
         \c qtbase/src/3rdparty/angle/src/third_party/murmurhash.
 
-        \code
+        \badcode
         MurmurHash3 was written by Austin Appleby, and is placed in the public
         domain. The author hereby disclaims copyright to this source code.
         \endcode
@@ -311,7 +311,7 @@
 
         BSD 2-clause "Simplified" License.
 
-        \code
+        \badcode
         Copyright (C) 2009 Apple Inc. All Rights Reserved.
 
         Redistribution and use in source and binary forms, with or without
@@ -346,7 +346,7 @@
 
         BSD 3-clause "New" or "Revised" License.
 
-        \code
+        \badcode
         Copyright 2013 The Chromium Authors. All rights reserved.
 
         Redistribution and use in source and binary forms, with or without
@@ -401,7 +401,7 @@
         the OpenSSL License and the original SSLeay license apply to the toolkit.
         See below for the actual license texts.
 
-        \code
+        \badcode
         OpenSSL License
         ====================================================================
 
@@ -527,7 +527,7 @@
 
         \l{https://spdx.org/licenses/MIT.html}{MIT License}:
 
-        \code
+        \badcode
         Copyright (C) 1999-2007  Brian Paul   All Rights Reserved.
 
         Permission is hereby granted, free of charge, to any person obtaining a
@@ -561,7 +561,7 @@
 
         Copyright (C) 2013-2019 Niels Lohmann
 
-        \code
+        \badcode
         Permission is hereby granted, free of charge, to any person obtaining a
         copy of this software and associated documentation files (the "Software"), to
         deal in the Software without restriction, including without limitation the
@@ -588,6 +588,81 @@
         The class contains a slightly modified version of the Grisu2 algorithm
         from Florian Loitsch which is licensed under the MIT License (see above).
         Copyright (C) 2009 Florian Loitsch
+
+        \li \b litehtml
+
+        The litehtml HTML/CSS rendering engine is used as a help viewer backend
+        to display help files.
+
+        The sources can be found in:
+        \list
+            \li \c QtCreator/src/plugins/help/qlitehtml
+            \li \l https://github.com/litehtml
+        \endlist
+
+        Copyright (c) 2013, Yuri Kobets (tordex)
+
+        \badcode
+        Redistribution and use in source and binary forms, with or without
+        modification, are permitted provided that the following conditions are met:
+         * Redistributions of source code must retain the above copyright
+         notice, this list of conditions and the following disclaimer.
+         * Redistributions in binary form must reproduce the above copyright
+         notice, this list of conditions and the following disclaimer in the
+         documentation and/or other materials provided with the distribution.
+         * Neither the name of the <organization> nor the
+         names of its contributors may be used to endorse or promote products
+         derived from this software without specific prior written permission.
+
+        THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+        ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+        WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+        DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+        DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+        (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+        LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+        ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+        (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+        SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+        \endcode
+
+        \li \b gumbo
+
+        The litehtml HTML/CSS rendering engine uses the gumbo parser.
+
+        Copyright 2010, 2011 Google
+
+        \badcode
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+             http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+        \endcode
+
+        \li \b {gumbo/utf8.c}
+
+        The litehtml HTML/CSS rendering engine uses gumbo/utf8.c parser.
+
+        Copyright (c) 2008-2009 Bjoern Hoehrmann <bjoern@hoehrmann.de>
+
+        \badcode
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do  so, subject to the following conditions:
+
+        The above copyright notice and this permission notice shall be included in
+        all copies or substantial portions of the Software.
+        \endcode
 
      \endlist
 */
