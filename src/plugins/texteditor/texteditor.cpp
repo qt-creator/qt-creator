@@ -468,7 +468,6 @@ struct PaintEventBlockData
 {
     QRectF boundingRect;
     QVector<QTextLayout::FormatRange> selections;
-    QVector<QTextLayout::FormatRange> prioritySelections;
     QRectF blockSelectionCursorRect;
     QTextLayout *layout = nullptr;
     int position = 0;
@@ -4704,6 +4703,7 @@ void TextEditorWidgetPrivate::setupBlockLayout(const PaintEventData &data,
 void TextEditorWidgetPrivate::setupSelections(const PaintEventData &data,
                                               PaintEventBlockData &blockData) const
 {
+    QVector<QTextLayout::FormatRange> prioritySelections;
     for (int i = 0; i < data.context.selections.size(); ++i) {
         const QAbstractTextDocumentLayout::Selection &range = data.context.selections.at(i);
         const int selStart = range.cursor.selectionStart() - blockData.position;
@@ -4720,18 +4720,25 @@ void TextEditorWidgetPrivate::setupSelections(const PaintEventData &data,
                 o.start = ts.positionAtColumn(text, m_blockSelection.firstVisualColumn());
                 o.length = ts.positionAtColumn(text, m_blockSelection.lastVisualColumn()) - o.start;
             }
+            if (data.textCursor.hasSelection() && data.textCursor == range.cursor) {
+                const QTextCharFormat selectionFormat = data.fontSettings.toTextCharFormat(C_SELECTION);
+                if (selectionFormat.background().style() != Qt::NoBrush)
+                    o.format.setBackground(selectionFormat.background());
+                if (selectionFormat.foreground().style() != Qt::NoBrush)
+                    o.format.setForeground(selectionFormat.foreground());
+            }
             if ((data.textCursor.hasSelection() && i == data.context.selections.size() - 1)
                 || (o.format.foreground().style() == Qt::NoBrush
                 && o.format.underlineStyle() != QTextCharFormat::NoUnderline
                 && o.format.background() == Qt::NoBrush)) {
                 if (q->selectionVisible(data.block.blockNumber()))
-                    blockData.prioritySelections.append(o);
+                    prioritySelections.append(o);
             } else {
                 blockData.selections.append(o);
             }
         }
     }
-    blockData.selections += blockData.prioritySelections;
+    blockData.selections.append(prioritySelections);
 }
 
 void TextEditorWidgetPrivate::setupCursorPosition(PaintEventData &data,
