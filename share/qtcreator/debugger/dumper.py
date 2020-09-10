@@ -26,6 +26,7 @@
 import os
 import codecs
 import collections
+import glob
 import struct
 import sys
 import base64
@@ -207,13 +208,8 @@ class DumperBase():
         self.childrenSuffix = '],'
 
         self.dumpermodules = [
-            'qttypes',
-            'stdtypes',
-            'misctypes',
-            'boosttypes',
-            'opencvtypes',
-            'creatortypes',
-            'personaltypes',
+            os.path.splitext(os.path.basename(p))[0] for p in
+            glob.glob(os.path.join(os.path.dirname(__file__), '*types.py'))
         ]
 
         # These values are never used, but the variables need to have
