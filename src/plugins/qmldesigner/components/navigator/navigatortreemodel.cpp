@@ -40,6 +40,7 @@
 #include <invalididexception.h>
 #include <rewritingexception.h>
 #include <qmlitemnode.h>
+#include <designeractionmanager.h>
 
 #include <coreplugin/icore.h>
 
@@ -53,7 +54,6 @@
 #include <QPointF>
 #include <QDir>
 #include <QFileInfo>
-#include <QDateTime>
 
 #include <coreplugin/messagebox.h>
 
@@ -181,6 +181,7 @@ static void reparentModelNodeToNodeProperty(NodeAbstractProperty &parentProperty
 
 NavigatorTreeModel::NavigatorTreeModel(QObject *parent) : QAbstractItemModel(parent)
 {
+    m_actionManager = &QmlDesignerPlugin::instance()->viewManager().designerActionManager();
 }
 
 NavigatorTreeModel::~NavigatorTreeModel() = default;
@@ -200,13 +201,6 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
 
     if (role == ItemIsVisibleRole) //independent of column
         return m_view->isNodeInvisible(modelNode) ? Qt::Unchecked : Qt::Checked;
-
-    auto hasImageToolTip = [modelNode]() -> bool {
-            if (modelNode.isValid() && modelNode.metaInfo().isValid())
-                return modelNode.type() == "QtQuick.Image" || modelNode.type() == "QtQuick3D.Texture";
-            else
-                return false;
-    };
 
     if (index.column() == 0) {
         if (role == Qt::DisplayRole) {
@@ -229,7 +223,7 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
             }
 
             if (modelNode.metaInfo().isValid()) {
-                if (hasImageToolTip())
+                if (m_actionManager->hasModelNodePreviewHandler(modelNode))
                     return {}; // Images have special tooltip popup, so suppress regular one
                 else
                     return modelNode.type();
@@ -239,62 +233,9 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
         } else if (role == ToolTipImageRole) {
             if (currentQmlObjectNode.hasError()) // Error already shown on regular tooltip
                 return {};
-
-            if (hasImageToolTip()) {
-                VariantProperty prop = modelNode.variantProperty("source");
-                QString imageSource = prop.value().toString();
-                QFileInfo fi(imageSource);
-                if (fi.isRelative())
-                    imageSource = QmlDesignerPlugin::instance()->documentManager().currentFilePath().toFileInfo().dir().absoluteFilePath(imageSource);
-                fi = QFileInfo(imageSource);
-                QDateTime modified = fi.lastModified();
-
-                struct ImageData {
-                    QDateTime time;
-                    QImage image;
-                    QString type;
-                    QString id;
-                    QString info;
-                };
-
-                static QHash<QString, ImageData> toolTipImageMap;
-
-                ImageData imageData;
-                bool reload = true;
-                if (toolTipImageMap.contains(imageSource)) {
-                    imageData = toolTipImageMap[imageSource];
-                    if (modified == imageData.time)
-                        reload = false;
-                }
-
-                if (reload) {
-                    QImage originalImage;
-                    originalImage.load(imageSource);
-                    if (!originalImage.isNull()) {
-                        imageData.image = originalImage.scaled(150, 150, Qt::KeepAspectRatio);
-                        double imgSize = double(fi.size());
-                        imageData.type = QStringLiteral("%1 (%2)").arg(QString::fromLatin1(modelNode.type())).arg(fi.suffix());
-                        imageData.id = modelNode.id();
-                        static QStringList units({tr("B"), tr("KB"), tr("MB"), tr("GB")});
-                        int unitIndex = 0;
-                        while (imgSize > 1024. && unitIndex < units.size() - 1) {
-                            ++unitIndex;
-                            imgSize /= 1024.;
-                        }
-                        imageData.info = QStringLiteral("%1 x %2  (%3%4)").arg(originalImage.width()).arg(originalImage.height())
-                                .arg(QString::number(imgSize, 'g', 3)).arg(units[unitIndex]);
-                        toolTipImageMap.insert(imageSource, imageData);
-                    }
-                }
-                if (!imageData.image.isNull()) {
-                    QVariantMap map;
-                    map.insert("type", imageData.type);
-                    map.insert("image", QVariant::fromValue<QImage>(imageData.image));
-                    map.insert("id", imageData.id);
-                    map.insert("info", imageData.info);
-                    return map;
-                }
-            }
+            auto op = m_actionManager->modelNodePreviewOperation(modelNode);
+            if (op)
+                return op(modelNode);
         } else if (role == ModelNodeRole) {
             return QVariant::fromValue<ModelNode>(modelNode);
         }
@@ -896,6 +837,11 @@ void NavigatorTreeModel::resetModel()
     beginResetModel();
     m_nodeIndexHash.clear();
     endResetModel();
+}
+
+void NavigatorTreeModel::updateToolTipImage(const ModelNode &node, const QImage &image)
+{
+    emit toolTipImageUpdated(node.id(), image);
 }
 
 } // QmlDesigner

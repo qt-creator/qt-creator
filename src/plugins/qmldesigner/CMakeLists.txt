@@ -166,6 +166,7 @@ extend_qtc_plugin(QmlDesigner
     puppettocreatorcommand.cpp puppettocreatorcommand.h
     inputeventcommand.cpp inputeventcommand.h
     view3dactioncommand.cpp view3dactioncommand.h
+    requestmodelnodepreviewimagecommand.cpp requestmodelnodepreviewimagecommand.h
 )
 
 extend_qtc_plugin(QmlDesigner

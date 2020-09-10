@@ -67,6 +67,7 @@
 #include "update3dviewstatecommand.h"
 #include "valueschangedcommand.h"
 #include "view3dactioncommand.h"
+#include "requestmodelnodepreviewimagecommand.h"
 
 #include <enumeration.h>
 
@@ -212,6 +213,9 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<View3DActionCommand>("View3DActionCommand");
     qRegisterMetaTypeStreamOperators<View3DActionCommand>("View3DActionCommand");
+
+    qRegisterMetaType<RequestModelNodePreviewImageCommand>("RequestModelNodePreviewImageCommand");
+    qRegisterMetaTypeStreamOperators<RequestModelNodePreviewImageCommand>("RequestModelNodePreviewImageCommand");
 
     qRegisterMetaType<QPair<int, int>>("QPairIntInt");
     qRegisterMetaTypeStreamOperators<QPair<int, int>>("QPairIntInt");

@@ -382,6 +382,10 @@ void AbstractView::updateActiveScene3D(const QVariantMap & /*sceneState*/)
 {
 }
 
+void AbstractView::modelNodePreviewImageChanged(const ModelNode & /*node*/, const QImage & /*image*/)
+{
+}
+
 QList<ModelNode> AbstractView::toModelNodeList(const QList<Internal::InternalNode::Pointer> &nodeList) const
 {
     return QmlDesigner::toModelNodeList(nodeList, const_cast<AbstractView*>(this));
@@ -764,6 +768,12 @@ void AbstractView::emitUpdateActiveScene3D(const QVariantMap &sceneState)
 {
     if (model())
         model()->d->notifyUpdateActiveScene3D(sceneState);
+}
+
+void AbstractView::emitModelNodelPreviewImageChanged(const ModelNode &node, const QImage &image)
+{
+    if (model())
+        model()->d->notifyModelNodePreviewImageChanged(node, image);
 }
 
 void AbstractView::emitRewriterEndTransaction()

@@ -69,6 +69,7 @@
 #include <changeselectioncommand.h>
 #include <inputeventcommand.h>
 #include <view3dactioncommand.h>
+#include <requestmodelnodepreviewimagecommand.h>
 #include <changelanguagecommand.h>
 
 #include <QDebug>
@@ -1413,6 +1414,11 @@ void NodeInstanceServer::inputEvent(const InputEventCommand &command)
 }
 
 void NodeInstanceServer::view3DAction(const View3DActionCommand &command)
+{
+    Q_UNUSED(command)
+}
+
+void NodeInstanceServer::requestModelNodePreviewImage(const RequestModelNodePreviewImageCommand &command)
 {
     Q_UNUSED(command)
 }

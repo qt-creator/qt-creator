@@ -23,32 +23,43 @@
 **
 ****************************************************************************/
 
-#pragma once
+import QtQuick3D 1.15
+import QtQuick3D.Effects 1.15
 
-#include <QtWidgets/qwidget.h>
-#include <QtGui/qimage.h>
+View3D {
+    id: root
+    anchors.fill: parent
+    environment: sceneEnv
 
-namespace QmlDesigner {
-namespace Ui {
-class PreviewToolTip;
-}
+    property Effect previewEffect
 
-class PreviewToolTip : public QWidget
-{
-    Q_OBJECT
+    SceneEnvironment {
+        id: sceneEnv
+        antialiasingMode: SceneEnvironment.MSAA
+        antialiasingQuality: SceneEnvironment.High
+        effects: previewEffect
+    }
 
-public:
-    explicit PreviewToolTip(QWidget *parent = nullptr);
-    ~PreviewToolTip();
+    Node {
+        DirectionalLight {
+            eulerRotation.x: -30
+            eulerRotation.y: -30
+        }
 
-    void setId(const QString &id);
-    void setType(const QString &type);
-    void setInfo(const QString &info);
-    void setImage(const QImage &image);
+        PerspectiveCamera {
+            z: 120
+            clipFar: 1000
+            clipNear: 1
+        }
 
-    QString id() const;
-
-private:
-    Ui::PreviewToolTip *m_ui;
-};
+        Model {
+            id: model
+            source: "#Sphere"
+            materials: [
+                DefaultMaterial {
+                    diffuseColor: "green"
+                }
+            ]
+        }
+    }
 }

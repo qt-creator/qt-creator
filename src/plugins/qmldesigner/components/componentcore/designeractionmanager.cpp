@@ -194,6 +194,54 @@ void DesignerActionManager::registerAddResourceHandler(const AddResourceHandler 
     m_addResourceHandler.append(handler);
 }
 
+QHash<TypeName, ModelNodePreviewImageHandler> DesignerActionManager::modelNodePreviewHandlers() const
+{
+    return m_modelNodePreviewImageHandlers;
+}
+
+void DesignerActionManager::registerModelNodePreviewHandler(const ModelNodePreviewImageHandler &handler)
+{
+    m_modelNodePreviewImageHandlers.insert(handler.type, handler);
+
+    // Registering a new handler potentially invalidates no-handler set
+    m_noModelNodePreviewImageHandlers.clear();
+}
+
+bool DesignerActionManager::hasModelNodePreviewHandler(const ModelNode &node) const
+{
+    if (m_modelNodePreviewImageHandlers.contains(node.type()))
+        return true;
+
+    if (m_noModelNodePreviewImageHandlers.contains(node.type()))
+        return false;
+
+    // Node may be a subclass of a registered type
+    for (const auto &handler : qAsConst(m_modelNodePreviewImageHandlers)) {
+        if (node.isSubclassOf(handler.type)) {
+            ModelNodePreviewImageHandler subClassHandler = handler;
+            return true;
+        }
+    }
+
+    m_noModelNodePreviewImageHandlers.insert(node.type());
+    return false;
+}
+
+ModelNodePreviewImageOperation DesignerActionManager::modelNodePreviewOperation(const ModelNode &node) const
+{
+    ModelNodePreviewImageOperation op = nullptr;
+    if (!m_noModelNodePreviewImageHandlers.contains(node.type())) {
+        int prio = -1;
+        for (const auto &handler : qAsConst(m_modelNodePreviewImageHandlers)) {
+            if (node.isSubclassOf(handler.type) && handler.priority > prio)
+                op = handler.operation;
+        }
+        if (!op)
+            m_noModelNodePreviewImageHandlers.insert(node.type());
+    }
+    return op;
+}
+
 class VisiblityModelNodeAction : public ModelNodeContextMenuAction
 {
 public:
@@ -1307,6 +1355,24 @@ void DesignerActionManager::createDefaultAddResourceHandler()
     registerAddResourceHandler(AddResourceHandler(ComponentCoreConstants::addFontsDisplayString,
                                                   "*.otf",
                                                   ModelNodeOperations::addFontToProject));
+}
+
+void DesignerActionManager::createDefaultModelNodePreviewImageHandlers()
+{
+    registerModelNodePreviewHandler(
+                ModelNodePreviewImageHandler("QtQuick.Image",
+                                             ModelNodeOperations::previewImageDataForImageNode));
+    registerModelNodePreviewHandler(
+                ModelNodePreviewImageHandler("QtQuick3D.Texture",
+                                             ModelNodeOperations::previewImageDataForImageNode));
+    registerModelNodePreviewHandler(
+                ModelNodePreviewImageHandler("QtQuick3D.Material",
+                                             ModelNodeOperations::previewImageDataFor3DNode));
+
+    // TODO - Disabled until QTBUG-86616 is fixed
+//    registerModelNodePreviewHandler(
+//                ModelNodePreviewImageHandler("QtQuick3D.Effect",
+//                                             ModelNodeOperations::previewImageDataFor3DNode));
 }
 
 void DesignerActionManager::addDesignerAction(ActionInterface *newAction)

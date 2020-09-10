@@ -152,6 +152,7 @@ public:
     void changeSelection(const ChangeSelectionCommand &command) override;
     void inputEvent(const InputEventCommand &command) override;
     void view3DAction(const View3DActionCommand &command) override;
+    void requestModelNodePreviewImage(const RequestModelNodePreviewImageCommand &command) override;
     void changeLanguage(const ChangeLanguageCommand &command) override;
     void changePreviewImageSize(const ChangePreviewImageSizeCommand &command) override;
 

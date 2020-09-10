@@ -25,30 +25,36 @@
 
 #pragma once
 
-#include <QtWidgets/qwidget.h>
-#include <QtGui/qimage.h>
+#include <QtCore/qmetatype.h>
+#include <QtCore/qdatastream.h>
+#include <QtGui/qevent.h>
+
+#include "instancecontainer.h"
 
 namespace QmlDesigner {
-namespace Ui {
-class PreviewToolTip;
-}
 
-class PreviewToolTip : public QWidget
+class RequestModelNodePreviewImageCommand
 {
-    Q_OBJECT
+    friend QDataStream &operator>>(QDataStream &in, RequestModelNodePreviewImageCommand &command);
+    friend QDebug operator <<(QDebug debug, const RequestModelNodePreviewImageCommand &command);
 
 public:
-    explicit PreviewToolTip(QWidget *parent = nullptr);
-    ~PreviewToolTip();
+    RequestModelNodePreviewImageCommand();
+    explicit RequestModelNodePreviewImageCommand(qint32 id, const QSize &size);
 
-    void setId(const QString &id);
-    void setType(const QString &type);
-    void setInfo(const QString &info);
-    void setImage(const QImage &image);
-
-    QString id() const;
+    qint32 instanceId() const;
+    QSize size() const;
 
 private:
-    Ui::PreviewToolTip *m_ui;
+    qint32 m_instanceId;
+    QSize m_size;
 };
-}
+
+QDataStream &operator<<(QDataStream &out, const RequestModelNodePreviewImageCommand &command);
+QDataStream &operator>>(QDataStream &in, RequestModelNodePreviewImageCommand &command);
+
+QDebug operator <<(QDebug debug, const RequestModelNodePreviewImageCommand &command);
+
+} // namespace QmlDesigner
+
+Q_DECLARE_METATYPE(QmlDesigner::RequestModelNodePreviewImageCommand)

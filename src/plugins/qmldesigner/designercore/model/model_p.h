@@ -160,6 +160,7 @@ public:
 
     void notifyRenderImage3DChanged(const QImage &image);
     void notifyUpdateActiveScene3D(const QVariantMap &sceneState);
+    void notifyModelNodePreviewImageChanged(const ModelNode &node, const QImage &image);
 
     void setDocumentMessages(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings);
 

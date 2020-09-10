@@ -168,6 +168,12 @@ NavigatorTreeView::NavigatorTreeView(QWidget *parent)
     setMinimumWidth(240);
     setRootIsDecorated(false);
     setIndentation(indentation() * 0.5);
+
+    m_toolTipHideTimer.setSingleShot(true);
+    connect(&m_toolTipHideTimer, &QTimer::timeout, [this]() {
+        if (m_previewToolTip && m_previewToolTip->isVisible())
+            m_previewToolTip->hide();
+    });
 }
 
 void NavigatorTreeView::drawSelectionBackground(QPainter *painter, const QStyleOption &option)
@@ -187,22 +193,30 @@ bool NavigatorTreeView::viewportEvent(QEvent *event)
             QVariantMap imgMap = navModel->data(index, ToolTipImageRole).toMap();
 
             if (!imgMap.isEmpty()) {
-                if (!m_previewToolTip)
+                m_toolTipHideTimer.stop();
+                if (!m_previewToolTip) {
                     m_previewToolTip = new PreviewToolTip(QApplication::activeWindow());
+                    connect(navModel, &NavigatorTreeModel::toolTipImageUpdated,
+                            [this](const QString &id, const QImage &image) {
+                        if (m_previewToolTip && m_previewToolTip->id() == id)
+                            m_previewToolTip->setImage(image);
+                    });
+                }
                 m_previewToolTip->setId(imgMap["id"].toString());
                 m_previewToolTip->setType(imgMap["type"].toString());
                 m_previewToolTip->setInfo(imgMap["info"].toString());
                 m_previewToolTip->setImage(imgMap["image"].value<QImage>());
-                m_previewToolTip->move(helpEvent->pos());
+                m_previewToolTip->move(m_previewToolTip->parentWidget()->mapFromGlobal(helpEvent->globalPos())
+                                       + QPoint(15, 15));
                 if (!m_previewToolTip->isVisible())
                     m_previewToolTip->show();
             } else if (m_previewToolTip) {
-                m_previewToolTip->hide();
+                m_toolTipHideTimer.start(0);
             }
         }
     } else if (event->type() == QEvent::Leave) {
         if (m_previewToolTip)
-            m_previewToolTip->hide();
+            m_toolTipHideTimer.start(500);
     }
 
     return QTreeView::viewportEvent(event);

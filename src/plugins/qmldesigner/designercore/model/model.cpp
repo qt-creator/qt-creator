@@ -26,6 +26,7 @@
 #include "model.h"
 #include "model_p.h"
 #include <modelnode.h>
+#include <modelnodeoperations.h>
 #include "internalnode_p.h"
 #include "invalidpropertyexception.h"
 #include "invalidargumentexception.h"
@@ -697,6 +698,16 @@ void ModelPrivate::notifyUpdateActiveScene3D(const QVariantMap &sceneState)
     for (const QPointer<AbstractView> &view : qAsConst(m_viewList)) {
         Q_ASSERT(view != nullptr);
         view->updateActiveScene3D(sceneState);
+    }
+}
+
+void ModelPrivate::notifyModelNodePreviewImageChanged(const ModelNode &node, const QImage &image)
+{
+    ModelNodeOperations::updatePreviewImageForNode(node, image);
+
+    for (const QPointer<AbstractView> &view : qAsConst(m_viewList)) {
+        Q_ASSERT(view != nullptr);
+        view->modelNodePreviewImageChanged(node, image);
     }
 }
 

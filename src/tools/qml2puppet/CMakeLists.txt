@@ -51,6 +51,7 @@ extend_qtc_executable(qml2puppet
     puppettocreatorcommand.cpp puppettocreatorcommand.h
     inputeventcommand.cpp inputeventcommand.h
     view3dactioncommand.cpp view3dactioncommand.h
+    requestmodelnodepreviewimagecommand.cpp requestmodelnodepreviewimagecommand.h
     valueschangedcommand.cpp
     captureddatacommand.h
     scenecreatedcommand.h

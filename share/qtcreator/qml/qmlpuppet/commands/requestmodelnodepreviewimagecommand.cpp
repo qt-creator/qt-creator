@@ -23,32 +23,51 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "requestmodelnodepreviewimagecommand.h"
 
-#include <QtWidgets/qwidget.h>
-#include <QtGui/qimage.h>
+#include <QDataStream>
+#include <QDebug>
 
 namespace QmlDesigner {
-namespace Ui {
-class PreviewToolTip;
-}
 
-class PreviewToolTip : public QWidget
+RequestModelNodePreviewImageCommand::RequestModelNodePreviewImageCommand() = default;
+
+RequestModelNodePreviewImageCommand::RequestModelNodePreviewImageCommand(qint32 id, const QSize &size)
+    : m_instanceId(id)
+    , m_size(size)
 {
-    Q_OBJECT
-
-public:
-    explicit PreviewToolTip(QWidget *parent = nullptr);
-    ~PreviewToolTip();
-
-    void setId(const QString &id);
-    void setType(const QString &type);
-    void setInfo(const QString &info);
-    void setImage(const QImage &image);
-
-    QString id() const;
-
-private:
-    Ui::PreviewToolTip *m_ui;
-};
 }
+
+qint32 RequestModelNodePreviewImageCommand::instanceId() const
+{
+    return m_instanceId;
+}
+
+QSize QmlDesigner::RequestModelNodePreviewImageCommand::size() const
+{
+    return m_size;
+}
+
+QDataStream &operator<<(QDataStream &out, const RequestModelNodePreviewImageCommand &command)
+{
+    out << int(command.instanceId());
+    out << command.size();
+
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, RequestModelNodePreviewImageCommand &command)
+{
+    in >> command.m_instanceId;
+    in >> command.m_size;
+    return in;
+}
+
+QDebug operator <<(QDebug debug, const RequestModelNodePreviewImageCommand &command)
+{
+    return debug.nospace() << "RequestModelNodePreviewImageCommand("
+                           << "instanceId: " << command.instanceId() << ", "
+                           << "size: " << command.size() << ")";
+}
+
+} // namespace QmlDesigner

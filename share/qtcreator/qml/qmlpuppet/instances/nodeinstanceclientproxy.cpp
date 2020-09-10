@@ -75,6 +75,7 @@
 #include "update3dviewstatecommand.h"
 #include "valueschangedcommand.h"
 #include "view3dactioncommand.h"
+#include "requestmodelnodepreviewimagecommand.h"
 
 namespace QmlDesigner {
 
@@ -339,6 +340,11 @@ void NodeInstanceClientProxy::view3DAction(const View3DActionCommand &command)
     nodeInstanceServer()->view3DAction(command);
 }
 
+void NodeInstanceClientProxy::requestModelNodePreviewImage(const RequestModelNodePreviewImageCommand &command)
+{
+    nodeInstanceServer()->requestModelNodePreviewImage(command);
+}
+
 void NodeInstanceClientProxy::changeLanguage(const ChangeLanguageCommand &command)
 {
     nodeInstanceServer()->changeLanguage(command);
@@ -516,6 +522,7 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     static const int changeSelectionCommandType = QMetaType::type("ChangeSelectionCommand");
     static const int inputEventCommandType = QMetaType::type("InputEventCommand");
     static const int view3DActionCommandType = QMetaType::type("View3DActionCommand");
+    static const int requestModelNodePreviewImageCommandType = QMetaType::type("RequestModelNodePreviewImageCommand");
     static const int changeLanguageCommand = QMetaType::type("ChangeLanguageCommand");
     static const int changePreviewImageSizeCommand = QMetaType::type(
         "ChangePreviewImageSizeCommand");
@@ -562,6 +569,8 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
         redirectToken(command.value<EndPuppetCommand>());
     else if (commandType == view3DActionCommandType)
         view3DAction(command.value<View3DActionCommand>());
+    else if (commandType == requestModelNodePreviewImageCommandType)
+        requestModelNodePreviewImage(command.value<RequestModelNodePreviewImageCommand>());
     else if (commandType == synchronizeCommandType) {
         SynchronizeCommand synchronizeCommand = command.value<SynchronizeCommand>();
         m_synchronizeId = synchronizeCommand.synchronizeId();

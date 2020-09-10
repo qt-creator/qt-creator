@@ -116,6 +116,8 @@ QtcTool {
             "commands/inputeventcommand.h",
             "commands/view3dactioncommand.cpp",
             "commands/view3dactioncommand.h",
+            "commands/requestmodelnodepreviewimagecommand.cpp",
+            "commands/requestmodelnodepreviewimagecommand.h",
             "commands/captureddatacommand.h",
             "commands/scenecreatedcommand.h",
             "container/addimportcontainer.cpp",

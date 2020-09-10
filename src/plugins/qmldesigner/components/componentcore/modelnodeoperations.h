@@ -27,6 +27,8 @@
 
 #include "selectioncontext.h"
 
+QT_FORWARD_DECLARE_CLASS(QImage)
+
 namespace QmlDesigner {
 namespace ModelNodeOperations {
 
@@ -83,6 +85,11 @@ void addToGroupItem(const SelectionContext &selectionContext);
 void selectFlowEffect(const SelectionContext &selectionContext);
 void mergeWithTemplate(const SelectionContext &selectionContext);
 void removeGroup(const SelectionContext &selectionContext);
+
+// ModelNodePreviewImageOperations
+QVariant previewImageDataFor3DNode(const ModelNode &modelNode);
+QVariant previewImageDataForImageNode(const ModelNode &modelNode);
+void updatePreviewImageForNode(const ModelNode &modelNode, const QImage &image);
 
 } // namespace ModelNodeOperationso
 } //QmlDesigner

@@ -186,6 +186,7 @@ public:
     void emitInstanceToken(const QString &token, int number, const QVector<ModelNode> &nodeVector);
     void emitRenderImage3DChanged(const QImage &image);
     void emitUpdateActiveScene3D(const QVariantMap &sceneState);
+    void emitModelNodelPreviewImageChanged(const ModelNode &node, const QImage &image);
 
     void sendTokenToInstances(const QString &token, int number, const QVector<ModelNode> &nodeVector);
 
@@ -245,6 +246,7 @@ public:
 
     virtual void renderImage3DChanged(const QImage &image);
     virtual void updateActiveScene3D(const QVariantMap &sceneState);
+    virtual void modelNodePreviewImageChanged(const ModelNode &node, const QImage &image);
 
     void changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion);
 

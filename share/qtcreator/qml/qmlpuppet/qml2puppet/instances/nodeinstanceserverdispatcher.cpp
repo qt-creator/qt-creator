@@ -158,6 +158,12 @@ void NodeInstanceServerDispatcher::view3DAction(const View3DActionCommand &comma
         server->view3DAction(command);
 }
 
+void NodeInstanceServerDispatcher::requestModelNodePreviewImage(const RequestModelNodePreviewImageCommand &command)
+{
+    for (std::unique_ptr<NodeInstanceServer> &server : m_servers)
+        server->requestModelNodePreviewImage(command);
+}
+
 void NodeInstanceServerDispatcher::changeLanguage(const ChangeLanguageCommand &command)
 {
     for (std::unique_ptr<NodeInstanceServer> &server : m_servers)

@@ -40,6 +40,7 @@
 #include <variantproperty.h>
 #include <qmlitemnode.h>
 #include <rewritingexception.h>
+#include <nodeinstanceview.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -227,6 +228,11 @@ void NavigatorView::enableWidget()
 {
     if (m_widget)
         m_widget->enableNavigator();
+}
+
+void NavigatorView::modelNodePreviewImageChanged(const ModelNode &node, const QImage &image)
+{
+    m_treeModel->updateToolTipImage(node, image);
 }
 
 ModelNode NavigatorView::modelNodeForIndex(const QModelIndex &modelIndex) const

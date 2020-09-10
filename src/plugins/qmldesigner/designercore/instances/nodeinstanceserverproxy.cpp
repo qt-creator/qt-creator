@@ -60,6 +60,7 @@
 #include <update3dviewstatecommand.h>
 #include <valueschangedcommand.h>
 #include <view3dactioncommand.h>
+#include <requestmodelnodepreviewimagecommand.h>
 
 #include <import.h>
 #include <nodeinstanceview.h>
@@ -289,6 +290,11 @@ void NodeInstanceServerProxy::inputEvent(const InputEventCommand &command)
 }
 
 void NodeInstanceServerProxy::view3DAction(const View3DActionCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceServerProxy::requestModelNodePreviewImage(const RequestModelNodePreviewImageCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
 }

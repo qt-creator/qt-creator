@@ -38,6 +38,7 @@ class QTreeView;
 class QItemSelection;
 class QModelIndex;
 class QAbstractItemModel;
+class QImage;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -94,6 +95,8 @@ public:
 
     void disableWidget() override;
     void enableWidget() override;
+
+    void modelNodePreviewImageChanged(const ModelNode &node, const QImage &image) override;
 
 private:
     ModelNode modelNodeForIndex(const QModelIndex &modelIndex) const;

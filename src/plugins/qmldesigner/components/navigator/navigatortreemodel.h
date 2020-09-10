@@ -32,12 +32,14 @@
 
 #include <QAbstractItemModel>
 #include <QPointer>
+#include <QDateTime>
 
 namespace QmlDesigner {
 
 class Model;
 class NavigatorView;
 class ModelNode;
+class DesignerActionManager;
 
 class NavigatorTreeModel : public QAbstractItemModel, public NavigatorModelInterface
 {
@@ -91,6 +93,11 @@ public:
     void setFilter(bool showOnlyVisibleItems) override;
     void resetModel() override;
 
+    void updateToolTipImage(const ModelNode &node, const QImage &image);
+
+signals:
+    void toolTipImageUpdated(const QString &id, const QImage &image) const;
+
 private:
     void moveNodesInteractive(NodeAbstractProperty &parentProperty, const QList<ModelNode> &modelNodes,
                               int targetIndex, bool executeInTransaction = true);
@@ -102,6 +109,7 @@ private:
     QPointer<NavigatorView> m_view;
     mutable QHash<ModelNode, QModelIndex> m_nodeIndexHash;
     bool m_showOnlyVisibleItems = true;
+    DesignerActionManager *m_actionManager = nullptr;
 };
 
 } // namespace QmlDesigner

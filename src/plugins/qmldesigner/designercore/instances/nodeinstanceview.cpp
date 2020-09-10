@@ -71,6 +71,7 @@
 #include "valueschangedcommand.h"
 #include "variantproperty.h"
 #include "view3dactioncommand.h"
+#include "requestmodelnodepreviewimagecommand.h"
 
 #include <designersettings.h>
 #include <metainfo.h>
@@ -1487,6 +1488,16 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
     } else if (command.type() == PuppetToCreatorCommand::ActiveSceneChanged) {
         const auto sceneState = qvariant_cast<QVariantMap>(command.data());
         emitUpdateActiveScene3D(sceneState);
+    } else if (command.type() == PuppetToCreatorCommand::RenderModelNodePreviewImage) {
+        ImageContainer container = qvariant_cast<ImageContainer>(command.data());
+        QImage image = container.image();
+        if (hasModelNodeForInternalId(container.instanceId()) && !image.isNull()) {
+            auto node = modelNodeForInternalId(container.instanceId());
+            if (node.isValid()) {
+                image.setDevicePixelRatio(2.);
+                emitModelNodelPreviewImageChanged(node, image);
+            }
+        }
     }
 }
 
@@ -1509,6 +1520,20 @@ void NodeInstanceView::sendInputEvent(QInputEvent *e) const
 void NodeInstanceView::view3DAction(const View3DActionCommand &command)
 {
     m_nodeInstanceServer->view3DAction(command);
+}
+
+void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node)
+{
+    if (node.isValid()) {
+        auto instance = instanceForModelNode(node);
+        if (instance.isValid()) {
+            m_nodeInstanceServer->requestModelNodePreviewImage(
+                        RequestModelNodePreviewImageCommand(
+                            instance.instanceId(),
+                            QSize(Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS,
+                                  Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS)));
+        }
+    }
 }
 
 void NodeInstanceView::edit3DViewResized(const QSize &size) const

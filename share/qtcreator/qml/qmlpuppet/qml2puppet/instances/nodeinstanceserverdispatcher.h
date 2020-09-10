@@ -58,6 +58,7 @@ public:
     void changeSelection(const ChangeSelectionCommand &command);
     void inputEvent(const InputEventCommand &command);
     void view3DAction(const View3DActionCommand &command);
+    void requestModelNodePreviewImage(const RequestModelNodePreviewImageCommand &command);
     void changeLanguage(const ChangeLanguageCommand &command);
     void changePreviewImageSize(const ChangePreviewImageSizeCommand &command);
 

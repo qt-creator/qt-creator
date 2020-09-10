@@ -75,6 +75,8 @@ const char QT_QUICK_3D_MODULE_NAME[] = "QtQuick3D";
 // Menus
 const char M_WINDOW_WORKSPACES[] = "QmlDesigner.Menu.Window.Workspaces";
 
+const int MODELNODE_PREVIEW_IMAGE_DIMENSIONS = 150;
+
 namespace Internal {
     enum { debug = 0 };
 }

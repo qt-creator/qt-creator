@@ -138,6 +138,7 @@ public:
 
     void sendInputEvent(QInputEvent *e) const;
     void view3DAction(const View3DActionCommand &command);
+    void requestModelNodePreviewImage(const ModelNode &node);
     void edit3DViewResized(const QSize &size) const;
 
     void handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command) override;

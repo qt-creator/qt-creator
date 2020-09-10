@@ -53,6 +53,7 @@ class RemoveSharedMemoryCommand;
 class ChangeSelectionCommand;
 class InputEventCommand;
 class View3DActionCommand;
+class RequestModelNodePreviewImageCommand;
 class ChangeLanguageCommand;
 class ChangePreviewImageSizeCommand;
 
@@ -82,6 +83,7 @@ public:
     virtual void changeSelection(const ChangeSelectionCommand &command) = 0;
     virtual void inputEvent(const InputEventCommand &command) = 0;
     virtual void view3DAction(const View3DActionCommand &command) = 0;
+    virtual void requestModelNodePreviewImage(const RequestModelNodePreviewImageCommand &command) = 0;
     virtual void changeLanguage(const ChangeLanguageCommand &command) = 0;
     virtual void changePreviewImageSize(const ChangePreviewImageSizeCommand &command) = 0;
 

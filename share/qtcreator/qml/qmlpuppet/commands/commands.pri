@@ -34,7 +34,8 @@ HEADERS += $$PWD/synchronizecommand.h \ \
     $$PWD/update3dviewstatecommand.h \
     $$PWD/puppettocreatorcommand.h \
     $$PWD/inputeventcommand.h \
-    $$PWD/view3dactioncommand.h
+    $$PWD/view3dactioncommand.h \
+    $$PWD/requestmodelnodepreviewimagecommand.h
 
 SOURCES += $$PWD/synchronizecommand.cpp \
     $$PWD/changepreviewimagesizecommand.cpp \
@@ -68,4 +69,5 @@ SOURCES += $$PWD/synchronizecommand.cpp \
     $$PWD/update3dviewstatecommand.cpp \
     $$PWD/puppettocreatorcommand.cpp \
     $$PWD/inputeventcommand.cpp \
-    $$PWD/view3dactioncommand.cpp
+    $$PWD/view3dactioncommand.cpp \
+    $$PWD/requestmodelnodepreviewimagecommand.cpp

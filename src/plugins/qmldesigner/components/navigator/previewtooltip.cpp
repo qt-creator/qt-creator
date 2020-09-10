@@ -67,4 +67,9 @@ void PreviewToolTip::setImage(const QImage &image)
     m_ui->imageLabel->setPixmap(QPixmap::fromImage(image));
 }
 
+QString PreviewToolTip::id() const
+{
+    return m_ui->idLabel->text();
+}
+
 }
