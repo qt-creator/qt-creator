@@ -89,7 +89,7 @@ public:
     enum SubGrammar { FullGrammar, TestGrammar, ValueGrammar };
     // fileName is expected to be absolute and cleanPath()ed.
     ProFile *parsedProFile(const QString &fileName, ParseFlags flags = ParseDefault);
-    ProFile *parsedProBlock(const QStringRef &contents, int id, const QString &name, int line = 0,
+    ProFile *parsedProBlock(Utils::StringView contents, int id, const QString &name, int line = 0,
                             SubGrammar grammar = FullGrammar);
 
     void discardFileFromCache(int id);
@@ -131,7 +131,7 @@ private:
     };
 
     bool readFile(int id, QMakeParser::ParseFlags flags, QString *contents);
-    void read(ProFile *pro, const QStringRef &content, int line, SubGrammar grammar);
+    void read(ProFile *pro, Utils::StringView content, int line, SubGrammar grammar);
 
     ALWAYS_INLINE void putTok(ushort *&tokPtr, ushort tok);
     ALWAYS_INLINE void putBlockLen(ushort *&tokPtr, uint len);
@@ -142,7 +142,7 @@ private:
     ALWAYS_INLINE bool resolveVariable(ushort *xprPtr, int tlen, int needSep, ushort **ptr,
                                        ushort **buf, QString *xprBuff,
                                        ushort **tokPtr, QString *tokBuff,
-                                       const ushort *cur, const QStringRef &in);
+                                       const ushort *cur, Utils::StringView in);
     void finalizeCond(ushort *&tokPtr, ushort *uc, ushort *ptr, int wordCount);
     void finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int argc);
     void warnOperator(const char *msg);

@@ -269,7 +269,7 @@ void QMakeEvaluator::skipHashStr(const ushort *&tokPtr)
 
 // FIXME: this should not build new strings for direct sections.
 // Note that the E_SPRINTF and E_LIST implementations rely on the deep copy.
-ProStringList QMakeEvaluator::split_value_list(const QStringRef &vals, int source)
+ProStringList QMakeEvaluator::split_value_list(Utils::StringView vals, int source)
 {
     QString build;
     ProStringList ret;
@@ -648,7 +648,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
                         evalError(fL1S("Conditional must expand to exactly one word."));
                     okey = false;
                 } else {
-                    okey = isActiveConfig(curr.at(0).toQStringRef(), true);
+                    okey = isActiveConfig(curr.at(0).toStringView(), true);
                     traceMsg("condition %s is %s", dbgStr(curr.at(0)), dbgBool(okey));
                     okey ^= invert;
                 }
@@ -775,7 +775,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProLoop(
             }
             infinite = true;
         } else {
-            const QStringRef &itl = it_list.toQStringRef();
+            auto itl = it_list.toStringView();
             int dotdot = itl.indexOf(statics.strDotDot);
             if (dotdot != -1) {
                 bool ok;
@@ -872,7 +872,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProVariable(
         ProStringList varVal;
         if (expandVariableReferences(tokPtr, sizeHint, &varVal, true) == ReturnError)
             return ReturnError;
-        const QStringRef &val = varVal.at(0).toQStringRef();
+        auto val = varVal.at(0).toStringView();
         if (val.length() < 4 || val.at(0) != QLatin1Char('s')) {
             evalError(fL1S("The ~= operator can handle only the s/// function."));
             return ReturnTrue;
@@ -1310,7 +1310,7 @@ void QMakeEvaluator::setupProject()
 void QMakeEvaluator::evaluateCommand(const QString &cmds, const QString &where)
 {
     if (!cmds.isEmpty()) {
-        ProFile *pro = m_parser->parsedProBlock(QStringRef(&cmds), 0, where, -1);
+        ProFile *pro = m_parser->parsedProBlock(Utils::make_stringview(cmds), 0, where, -1);
         if (pro->isOk()) {
             m_locationStack.push(m_current);
             visitProBlock(pro, pro->tokPtr());
@@ -1583,7 +1583,7 @@ ProString QMakeEvaluator::propertyValue(const ProKey &name) const
         return ProString(m_mkspecPaths.join(m_option->dirlist_sep));
     ProString ret = m_option->propertyValue(name);
 //    if (ret.isNull())
-//        evalError(fL1S("Querying unknown property %1").arg(name.toQString(m_mtmp)));
+//        evalError(fL1S("Querying unknown property %1").arg(name.toStringView()));
     return ret;
 }
 
@@ -1618,7 +1618,7 @@ QString QMakeEvaluator::currentDirectory() const
     return QString();
 }
 
-bool QMakeEvaluator::isActiveConfig(const QStringRef &config, bool regex)
+bool QMakeEvaluator::isActiveConfig(Utils::StringView config, bool regex)
 {
     // magic types for easy flipping
     if (config == statics.strtrue)
@@ -1781,7 +1781,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
     }
 
     skipExpression(tokPtr);
-    evalError(fL1S("'%1' is not a recognized test function.").arg(func.toQString(m_tmp1)));
+    evalError(fL1S("'%1' is not a recognized test function.").arg(func.toStringView()));
     return ReturnFalse;
 }
 
@@ -1807,12 +1807,12 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateExpandFunction(
     }
 
     skipExpression(tokPtr);
-    evalError(fL1S("'%1' is not a recognized replace function.").arg(func.toQString(m_tmp1)));
+    evalError(fL1S("'%1' is not a recognized replace function.").arg(func.toStringView()));
     return ReturnFalse;
 }
 
 QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditional(
-        const QStringRef &cond, const QString &where, int line)
+    Utils::StringView cond, const QString &where, int line)
 {
     VisitReturn ret = ReturnFalse;
     ProFile *pro = m_parser->parsedProBlock(cond, 0, where, line, QMakeParser::TestGrammar);
@@ -1830,7 +1830,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::checkRequirements(const ProStringLis
 {
     ProStringList &failed = valuesRef(ProKey("QMAKE_FAILED_REQUIREMENTS"));
     for (const ProString &dep : deps) {
-        VisitReturn vr = evaluateConditional(dep.toQStringRef(), m_current.pro->fileName(), m_current.line);
+        VisitReturn vr = evaluateConditional(dep.toStringView(), m_current.pro->fileName(), m_current.line);
         if (vr == ReturnError)
             return ReturnError;
         if (vr != ReturnTrue)
@@ -1996,7 +1996,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFeatureFile(
             int start_root = 0;
             const QStringList &paths = m_featureRoots->paths;
             if (!currFn.isEmpty()) {
-                QStringRef currPath = IoUtils::pathName(currFn);
+                auto currPath = IoUtils::pathName(currFn);
                 for (int root = 0; root < paths.size(); ++root)
                     if (currPath == paths.at(root)) {
                         start_root = root + 1;
