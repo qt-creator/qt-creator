@@ -429,6 +429,7 @@ void OutputFormatter::append(const QString &text, const QTextCharFormat &format)
 {
     if (!plainTextEdit())
         return;
+    flushTrailingNewline();
     int startPos = 0;
     int crPos = -1;
     while ((crPos = text.indexOf('\r', startPos)) >= 0)  {
@@ -437,7 +438,6 @@ void OutputFormatter::append(const QString &text, const QTextCharFormat &format)
         d->cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
         startPos = crPos + 1;
     }
-    flushTrailingNewline();
     if (startPos < text.count())
         d->cursor.insertText(text.mid(startPos), format);
 }
