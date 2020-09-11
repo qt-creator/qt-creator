@@ -26,19 +26,20 @@
 #include "reaper.h"
 #include "reaper_p.h"
 
-#include <utils/qtcprocess.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
+#include <QProcess>
 #include <QThread>
+#include <QTimer>
 
 namespace Core {
 namespace Internal {
 
-static ReaperPrivate *d = nullptr;
+static ProcessReapers *d = nullptr;
 
-namespace {
-void killProcess(QProcess *process)
+static void killProcess(QProcess *process)
 {
     if (auto qtcProcess = qobject_cast<Utils::QtcProcess*>(process))
         qtcProcess->kill();
@@ -46,14 +47,30 @@ void killProcess(QProcess *process)
         process->kill();
 }
 
-void terminateProcess(QProcess *process)
+static void terminateProcess(QProcess *process)
 {
     if (auto qtcProcess = qobject_cast<Utils::QtcProcess*>(process))
         qtcProcess->terminate();
     else
         process->terminate();
 }
-} // namespace
+
+class ProcessReaper final : public QObject
+{
+public:
+    ProcessReaper(QProcess *p, int timeoutMs);
+    ~ProcessReaper() final;
+
+    int timeoutMs() const;
+    bool isFinished() const;
+    void nextIteration();
+
+private:
+    mutable QTimer m_iterationTimer;
+    QProcess *m_process;
+    int m_emergencyCounter = 0;
+    QProcess::ProcessState m_lastState = QProcess::NotRunning;
+};
 
 ProcessReaper::ProcessReaper(QProcess *p, int timeoutMs) : m_process(p)
 {
@@ -64,7 +81,6 @@ ProcessReaper::ProcessReaper(QProcess *p, int timeoutMs) : m_process(p)
     connect(&m_iterationTimer, &QTimer::timeout, this, &ProcessReaper::nextIteration);
 
     QTimer::singleShot(0, this, &ProcessReaper::nextIteration);
-    m_futureInterface.reportStarted();
 }
 
 ProcessReaper::~ProcessReaper()
@@ -92,7 +108,6 @@ void ProcessReaper::nextIteration()
     if (state == QProcess::NotRunning || m_emergencyCounter > 5) {
         delete m_process;
         m_process = nullptr;
-        m_futureInterface.reportFinished();
         return;
     }
 
@@ -112,12 +127,12 @@ void ProcessReaper::nextIteration()
     ++m_emergencyCounter;
 }
 
-ReaperPrivate::ReaperPrivate()
+ProcessReapers::ProcessReapers()
 {
     d = this;
 }
 
-ReaperPrivate::~ReaperPrivate()
+ProcessReapers::~ProcessReapers()
 {
     while (!m_reapers.isEmpty()) {
         int alreadyWaited = 0;

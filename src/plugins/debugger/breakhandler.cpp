@@ -59,16 +59,17 @@
 #endif
 
 #include <QApplication>
-#include <QTimerEvent>
-#include <QDir>
+#include <QCheckBox>
+#include <QComboBox>
 #include <QDebug>
+#include <QDir>
+#include <QFormLayout>
+#include <QGroupBox>
+#include <QMenu>
 #include <QSpinBox>
 #include <QStyledItemDelegate>
-#include <QComboBox>
-#include <QGroupBox>
-#include <QCheckBox>
-#include <QFormLayout>
-#include <QMenu>
+#include <QTimer>
+#include <QTimerEvent>
 
 using namespace Core;
 using namespace ProjectExplorer;

@@ -25,46 +25,24 @@
 
 #pragma once
 
-#include <QObject>
-#include <QFutureInterface>
-#include <QProcess>
-#include <QTimer>
+#include <QList>
 
 namespace Core {
 namespace Internal {
 
 class CorePlugin;
+class ProcessReaper;
 
-class ProcessReaper : public QObject
+class ProcessReapers final
 {
-    Q_OBJECT
-
-public:
-    ProcessReaper(QProcess *p, int timeoutMs);
-    ~ProcessReaper() override;
-
-    int timeoutMs() const;
-    bool isFinished() const;
-    void nextIteration();
-
 private:
-    mutable QTimer m_iterationTimer;
-    QFutureInterface<void> m_futureInterface;
-    QProcess *m_process;
-    int m_emergencyCounter = 0;
-    QProcess::ProcessState m_lastState = QProcess::NotRunning;
-};
-
-class ReaperPrivate {
-public:
-    ~ReaperPrivate();
+    ~ProcessReapers();
+    ProcessReapers();
 
     QList<ProcessReaper *> m_reapers;
 
-private:
-    ReaperPrivate();
-
     friend class CorePlugin;
+    friend class ProcessReaper;
 };
 
 } // namespace Internal
