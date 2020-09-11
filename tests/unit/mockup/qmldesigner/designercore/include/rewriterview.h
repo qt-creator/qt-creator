@@ -111,7 +111,7 @@ public:
     void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data) override
     {}
 
-    Internal::ModelNodePositionStorage *positionStorage() const {}
+    Internal::ModelNodePositionStorage *positionStorage() const { return nullptr; }
 
     QList<DocumentMessage> warnings() const { return {}; }
     QList<DocumentMessage> errors() const { return {}; }
