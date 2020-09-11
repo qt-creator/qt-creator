@@ -115,12 +115,12 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Utils::Id id)
     auto extraAppArgsAspect = addAspect<ArgumentsAspect>();
 
     connect(extraAppArgsAspect, &ProjectConfigurationAspect::changed,
-            this, [target](const QString &arguments) {
+            this, [target, extraAppArgsAspect]() {
         if (target->buildConfigurations().first()->buildType() == BuildConfiguration::BuildType::Release) {
             const QString buildKey = target->activeBuildKey();
             target->buildSystem()->setExtraData(buildKey,
                                                 Android::Constants::ANDROID_APPLICATION_ARGUMENTS,
-                                                arguments);
+                                                extraAppArgsAspect->arguments(target->macroExpander()));
         }
     });
 
