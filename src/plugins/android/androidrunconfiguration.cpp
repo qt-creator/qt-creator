@@ -114,7 +114,8 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Utils::Id id)
 
     auto extraAppArgsAspect = addAspect<ArgumentsAspect>();
 
-    connect(extraAppArgsAspect, &ArgumentsAspect::argumentsChanged, this, [target](const QString &arguments) {
+    connect(extraAppArgsAspect, &ProjectConfigurationAspect::changed,
+            this, [target](const QString &arguments) {
         if (target->buildConfigurations().first()->buildType() == BuildConfiguration::BuildType::Release) {
             const QString buildKey = target->activeBuildKey();
             target->buildSystem()->setExtraData(buildKey,
