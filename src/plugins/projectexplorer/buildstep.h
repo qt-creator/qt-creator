@@ -230,7 +230,6 @@ public:
 
     QString summaryText() const;
     QString displayName() const;
-    BuildStep *step() const { return m_step; }
 
     void setDisplayName(const QString &displayName);
     void setSummaryText(const QString &summaryText);
@@ -242,7 +241,6 @@ signals:
     void updateSummary();
 
 private:
-    BuildStep *m_step = nullptr;
     QString m_displayName;
     QString m_summaryText;
     std::function<QString()> m_summaryUpdater;

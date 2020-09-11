@@ -116,6 +116,7 @@ private:
         QString effectiveValue;
     };
 
+    QbsBuildStep *m_qbsStep;
     QList<Property> m_propertyCache;
     bool m_ignoreChange = false;
 
@@ -542,6 +543,7 @@ void QbsBuildStep::dropSession()
 
 QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     BuildStepConfigWidget(step),
+    m_qbsStep(step),
     m_ignoreChange(false)
 {
     connect(step, &ProjectConfiguration::displayNameChanged,
@@ -685,7 +687,7 @@ void QbsBuildStepConfigWidget::updateState()
     const QString buildVariant = qbsStep()->buildVariant();
     const int idx = (buildVariant == Constants::QBS_VARIANT_DEBUG) ? 0 : 1;
     buildVariantComboBox->setCurrentIndex(idx);
-    const auto qbsBuildConfig = static_cast<QbsBuildConfiguration *>(step()->buildConfiguration());
+    const auto qbsBuildConfig = static_cast<QbsBuildConfiguration *>(qbsStep()->buildConfiguration());
 
     QString command = qbsBuildConfig->equivalentCommandLine(qbsStep()->stepData());
 
@@ -846,7 +848,7 @@ void QbsBuildStepConfigWidget::applyCachedProperties()
 
 QbsBuildStep *QbsBuildStepConfigWidget::qbsStep() const
 {
-    return static_cast<QbsBuildStep *>(step());
+    return m_qbsStep;
 }
 
 bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QString *errorMessage)
@@ -861,7 +863,7 @@ bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QS
     }
 
     QList<Property> properties;
-    const MacroExpander * const expander = step()->macroExpander();
+    const MacroExpander * const expander = qbsStep()->macroExpander();
     foreach (const QString &rawArg, argList) {
         int pos = rawArg.indexOf(':');
         if (pos > 0) {

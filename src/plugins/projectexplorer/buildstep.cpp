@@ -488,11 +488,10 @@ BuildStep *BuildStepFactory::restore(BuildStepList *parent, const QVariantMap &m
 // BuildStepConfigWidget
 
 BuildStepConfigWidget::BuildStepConfigWidget(BuildStep *step)
-    : m_step(step)
 {
     m_displayName = step->displayName();
     m_summaryText = "<b>" + m_displayName + "</b>";
-    connect(m_step, &ProjectConfiguration::displayNameChanged,
+    connect(step, &ProjectConfiguration::displayNameChanged,
             this, &BuildStepConfigWidget::updateSummary);
     for (auto aspect : step->aspects()) {
         connect(aspect, &BaseAspect::changed,
