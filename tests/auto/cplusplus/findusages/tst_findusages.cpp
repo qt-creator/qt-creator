@@ -2023,7 +2023,9 @@ void tst_FindUsages::writableRefs()
 {
     const QByteArray src = R"(
 struct S {
+    S() : value2(value) {}
     static int value;
+    int value2;
     static void *p;
     static const void *p2;
     struct Nested {
@@ -2095,33 +2097,44 @@ int main()
     Class * const structS = doc->globalSymbolAt(0)->asClass();
     QVERIFY(structS);
     QCOMPARE(structS->name()->identifier()->chars(), "S");
-    QCOMPARE(structS->memberCount(), 7);
+    QCOMPARE(structS->memberCount(), 9);
 
-    Declaration * const sv = structS->memberAt(0)->asDeclaration();
+    Declaration * const sv = structS->memberAt(1)->asDeclaration();
     QVERIFY(sv);
     QCOMPARE(sv->name()->identifier()->chars(), "value");
 
     // Access to struct member
     FindUsages find(src, doc, snapshot);
     find(sv);
-    QCOMPARE(find.usages().size(), 17);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(find.usages().at(1).type, Usage::Type::WritableRef);
+    QCOMPARE(find.usages().size(), 18);
+    QCOMPARE(find.usages().at(0).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(1).type, Usage::Type::Declaration);
     QCOMPARE(find.usages().at(2).type, Usage::Type::WritableRef);
     QCOMPARE(find.usages().at(3).type, Usage::Type::WritableRef);
     QCOMPARE(find.usages().at(4).type, Usage::Type::WritableRef);
     QCOMPARE(find.usages().at(5).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(6).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(6).type, Usage::Type::WritableRef);
     QCOMPARE(find.usages().at(7).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(8).type, Usage::Type::WritableRef);
+    QCOMPARE(find.usages().at(8).type, Usage::Type::Read);
     QCOMPARE(find.usages().at(9).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(10).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(11).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(12).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(13).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(14).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(10).type, Usage::Type::WritableRef);
+    QCOMPARE(find.usages().at(11).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(12).type, Usage::Type::WritableRef);
+    QCOMPARE(find.usages().at(13).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(14).type, Usage::Type::WritableRef);
     QCOMPARE(find.usages().at(15).type, Usage::Type::Read);
     QCOMPARE(find.usages().at(16).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(17).type, Usage::Type::Read);
+
+    Declaration * const sv2 = structS->memberAt(2)->asDeclaration();
+    QVERIFY(sv2);
+    QCOMPARE(sv2->name()->identifier()->chars(), "value2");
+
+    // Member initialization in constructor
+    find(sv2);
+    QCOMPARE(find.usages().size(), 2);
+    QCOMPARE(find.usages().at(0).type, Usage::Type::Write);
+    QCOMPARE(find.usages().at(1).type, Usage::Type::Declaration);
 
     Function * const main = doc->globalSymbolAt(6)->asFunction();
     QVERIFY(main);
@@ -2193,11 +2206,12 @@ int main()
 
     // Usages of struct type
     find(structS);
-    QCOMPARE(find.usages().size(), 4);
+    QCOMPARE(find.usages().size(), 5);
     QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
     QCOMPARE(find.usages().at(1).type, Usage::Type::Other);
     QCOMPARE(find.usages().at(2).type, Usage::Type::Other);
     QCOMPARE(find.usages().at(3).type, Usage::Type::Other);
+    QCOMPARE(find.usages().at(4).type, Usage::Type::Other);
 }
 
 QTEST_APPLESS_MAIN(tst_FindUsages)

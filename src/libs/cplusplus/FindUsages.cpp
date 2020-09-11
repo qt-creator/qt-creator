@@ -341,6 +341,11 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
                 return Usage::Type::Declaration;
             continue;
         }
+        if (const auto memInitAst = (*it)->asMemInitializer()) {
+            if (memInitAst->name == *(it - 1))
+                return Usage::Type::Write;
+            return Usage::Type::Read;
+        }
         if ((*it)->asCall())
             return checkPotentialWrite(getUsageTypeForCall(it), it + 1);
         if (const auto binExpr = (*it)->asBinaryExpression()) {
