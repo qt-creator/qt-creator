@@ -215,7 +215,8 @@ QList<TestConfiguration *> BoostTestTreeItem::getAllTestConfigurations() const
     return result;
 }
 
-QList<TestConfiguration *> BoostTestTreeItem::getSelectedTestConfigurations() const
+QList<TestConfiguration *> BoostTestTreeItem::getTestConfigurations(
+        std::function<bool(BoostTestTreeItem *)> predicate) const
 {
     QList<TestConfiguration *> result;
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
@@ -228,13 +229,13 @@ QList<TestConfiguration *> BoostTestTreeItem::getSelectedTestConfigurations() co
     };
 
     QHash<QString, BoostTestCases> testCasesForProjectFile;
-    forAllChildren([&testCasesForProjectFile](TreeItem *it){
+    forAllChildren([&testCasesForProjectFile, &predicate](TreeItem *it){
         auto item = static_cast<BoostTestTreeItem *>(it);
         if (item->type() != TestCase)
             return;
         if (!item->enabled()) // ignore child tests known to be disabled when using run selected
             return;
-        if (item->checked() == Qt::Checked) {
+        if (predicate(item)) {
             QString tcName = item->name();
             if (item->state().testFlag(BoostTestTreeItem::Templated))
                 tcName.append("<*");
@@ -259,6 +260,20 @@ QList<TestConfiguration *> BoostTestTreeItem::getSelectedTestConfigurations() co
         }
     }
     return result;
+}
+
+QList<TestConfiguration *> BoostTestTreeItem::getSelectedTestConfigurations() const
+{
+    return getTestConfigurations([](BoostTestTreeItem *it) {
+        return it->checked() == Qt::Checked;
+    });
+}
+
+QList<TestConfiguration *> BoostTestTreeItem::getFailedTestConfigurations() const
+{
+    return getTestConfigurations([](BoostTestTreeItem *it) {
+        return it->data(0, FailedRole).toBool();
+    });
 }
 
 TestConfiguration *BoostTestTreeItem::testConfiguration() const

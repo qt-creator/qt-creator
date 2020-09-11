@@ -221,6 +221,25 @@ static void collectTestInfo(const TestTreeItem *item,
     }
 }
 
+static void collectFailedTestInfo(const CatchTreeItem *item,
+                                  QHash<QString, CatchTestCases> &testCasesForProfile)
+{
+    QTC_ASSERT(item, return);
+    QTC_ASSERT(item->type() == TestTreeItem::Root, return);
+
+    item->forAllChildren([&testCasesForProfile](TestTreeItem *it) {
+        QTC_ASSERT(it, return);
+        CatchTreeItem *parent = static_cast<CatchTreeItem *>(it->parentItem());
+        QTC_ASSERT(parent, return);
+        if (it->type() == TestTreeItem::TestCase && it->data(0, FailedRole).toBool()) {
+            CatchTreeItem *current = static_cast<CatchTreeItem *>(it);
+            testCasesForProfile[it->proFile()].names.append(current->testCasesString());
+            testCasesForProfile[it->proFile()].internalTargets.unite(
+                        it->internalTargets());
+        }
+    });
+}
+
 QList<TestConfiguration *> CatchTreeItem::getAllTestConfigurations() const
 {
     return getTestConfigurations(true);
@@ -229,6 +248,30 @@ QList<TestConfiguration *> CatchTreeItem::getAllTestConfigurations() const
 QList<TestConfiguration *> CatchTreeItem::getSelectedTestConfigurations() const
 {
     return getTestConfigurations(false);
+}
+
+QList<TestConfiguration *> CatchTreeItem::getFailedTestConfigurations() const
+{
+    QList<TestConfiguration *> result;
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    if (!project || type() != Root)
+        return result;
+
+    QHash<QString, CatchTestCases> testCasesForProFile;
+    collectFailedTestInfo(this, testCasesForProFile);
+
+    for (auto it = testCasesForProFile.begin(), end = testCasesForProFile.end(); it != end; ++it) {
+        for (const QString &target : qAsConst(it.value().internalTargets)) {
+            CatchConfiguration *tc = new CatchConfiguration(framework());
+            tc->setTestCases(it.value().names);
+            tc->setProjectFile(it.key());
+            tc->setProject(project);
+            tc->setInternalTarget(target);
+            result << tc;
+        }
+    }
+
+    return result;
 }
 
 QList<TestConfiguration *> CatchTreeItem::getTestConfigurationsForFile(const Utils::FilePath &fileName) const

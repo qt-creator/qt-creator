@@ -195,6 +195,45 @@ static void testConfigurationFromCheckState(const TestTreeItem *item,
     }
 }
 
+static void testConfigurationsForFailed(const TestTreeItem *item,
+                                        QHash<QString, QuickTestConfiguration *> &foundProfiles)
+{
+    QTC_ASSERT(item, return);
+    if (item->type() == TestTreeItem::GroupNode) {
+        for (int row = 0, count = item->childCount(); row < count; ++row)
+            testConfigurationsForFailed(item->childAt(row), foundProfiles);
+        return;
+    }
+    QTC_ASSERT(item->type() == TestTreeItem::TestCase, return);
+
+    const QString testName = item->name();
+    if (testName.isEmpty()) // skip unnamed quick tests as we cannot address them
+        return;
+
+    QStringList testFunctions;
+    item->forFirstLevelChildren([&testFunctions, &testName](TestTreeItem *child) {
+        if (child->data(0, FailedRole).toBool())
+            testFunctions << testName + "::" + child->name();
+    });
+    if (testFunctions.isEmpty())
+        return;
+
+    QuickTestConfiguration *tc = nullptr;
+    if (foundProfiles.contains(item->proFile())) {
+        tc = foundProfiles[item->proFile()];
+        QStringList oldFunctions(tc->testCases());
+        oldFunctions << testFunctions;
+        tc->setTestCases(oldFunctions);
+    } else {
+        tc = new QuickTestConfiguration(item->framework());
+        tc->setTestCases(testFunctions);
+        tc->setProjectFile(item->proFile());
+        tc->setProject(ProjectExplorer::SessionManager::startupProject());
+        tc->setInternalTargets(item->internalTargets());
+        foundProfiles.insert(item->proFile(), tc);
+    }
+}
+
 TestConfiguration *QuickTestTreeItem::debugConfiguration() const
 {
     QuickTestConfiguration *config = static_cast<QuickTestConfiguration *>(testConfiguration());
@@ -277,6 +316,28 @@ QList<TestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() co
             delete config;
     }
 
+    return result;
+}
+
+QList<TestConfiguration *> QuickTestTreeItem::getFailedTestConfigurations() const
+{
+    QList<TestConfiguration *> result;
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    if (!project || type() != Root)
+        return result;
+
+    QHash<QString, QuickTestConfiguration *> foundProFiles;
+    forFirstLevelChildren([&foundProFiles](TestTreeItem *child) {
+        testConfigurationsForFailed(child, foundProFiles);
+    });
+
+    for (auto it = foundProFiles.begin(), end = foundProFiles.end(); it != end; ++it) {
+        QuickTestConfiguration *config = it.value();
+        if (!config->unnamedOnly())
+            result << config;
+        else
+            delete config;
+    }
     return result;
 }
 

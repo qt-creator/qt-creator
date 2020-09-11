@@ -71,6 +71,7 @@ public:
 
     QList<TestConfiguration *> getAllTestConfigurations() const override;
     QList<TestConfiguration *> getSelectedTestConfigurations() const override;
+    QList<TestConfiguration *> getFailedTestConfigurations() const override;
     bool canProvideTestConfiguration() const override { return type() != Root; }
     bool canProvideDebugConfiguration() const override { return canProvideTestConfiguration(); }
     TestConfiguration *testConfiguration() const override;
@@ -83,6 +84,8 @@ private:
                                               BoostTestTreeItem::TestStates state,
                                               const QString &proFile) const;
     QString prependWithParentsSuitePaths(const QString &testName) const;
+    QList<TestConfiguration *> getTestConfigurations(
+            std::function<bool(BoostTestTreeItem *)> predicate) const;
     bool modifyTestContent(const BoostTestParseResult *result);
     TestStates m_state = Enabled;
     QString m_fullName;

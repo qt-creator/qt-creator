@@ -29,6 +29,8 @@
 #include "testresultdelegate.h"
 #include "testrunner.h"
 #include "testsettings.h"
+#include "testtreeitem.h"
+#include "testtreemodel.h"
 
 #include <projectexplorer/projectexplorericons.h>
 #include <utils/qtcassert.h>
@@ -242,6 +244,16 @@ void TestResultModel::updateParent(const TestResultItem *item)
     updateParent(parentItem);
 }
 
+static bool isFailed(ResultType type)
+{
+    switch (type) {
+    case ResultType::Fail: case ResultType::UnexpectedPass: case ResultType::MessageFatal:
+        return true;
+    default:
+        return false;
+    }
+}
+
 void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoExpand)
 {
     const int lastRow = rootItem()->childCount() - 1;
@@ -306,6 +318,13 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
         }
         // there is no MessageCurrentTest at the last row, but we have a toplevel item - just add it
         rootItem()->appendChild(newItem);
+    }
+
+    if (isFailed(testResult->result())) {
+        if (const TestTreeItem *it = testResult->findTestTreeItem()) {
+            TestTreeModel *model = TestTreeModel::instance();
+            model->setData(model->indexForItem(it), true, FailedRole);
+        }
     }
 }
 

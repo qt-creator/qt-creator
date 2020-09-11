@@ -335,6 +335,7 @@ void TestRunner::prepareToRunTests(TestRunMode mode)
 
     // clear old log and output pane
     TestResultsPane::instance()->clearContents();
+    TestTreeModel::instance()->clearFailedMarks();
 
     if (m_selectedTests.empty()) {
         reportResult(ResultType::MessageWarn, tr("No tests selected. Canceling test run."));

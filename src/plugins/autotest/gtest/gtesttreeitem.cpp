@@ -248,6 +248,25 @@ static void collectTestInfo(const GTestTreeItem *item,
     }
 }
 
+static void collectFailedTestInfo(const GTestTreeItem *item,
+                                  QHash<QString, GTestCases> &testCasesForProfile)
+{
+    QTC_ASSERT(item, return);
+    QTC_ASSERT(item->type() == TestTreeItem::Root, return);
+
+    item->forAllChildren([&testCasesForProfile](TestTreeItem *it) {
+        QTC_ASSERT(it, return);
+        GTestTreeItem *parent = static_cast<GTestTreeItem *>(it->parentItem());
+        QTC_ASSERT(parent, return);
+        if (it->type() == TestTreeItem::TestCase && it->data(0, FailedRole).toBool()) {
+            testCasesForProfile[it->proFile()].filters.append(
+                        gtestFilter(parent->state()).arg(parent->name()).arg(it->name()));
+            testCasesForProfile[it->proFile()].internalTargets.unite(
+                        it->internalTargets());
+        }
+    });
+}
+
 QList<TestConfiguration *> GTestTreeItem::getTestConfigurations(bool ignoreCheckState) const
 {
     QList<TestConfiguration *> result;
@@ -285,6 +304,31 @@ QList<TestConfiguration *> GTestTreeItem::getAllTestConfigurations() const
 QList<TestConfiguration *> GTestTreeItem::getSelectedTestConfigurations() const
 {
     return getTestConfigurations(false);
+}
+
+QList<TestConfiguration *> GTestTreeItem::getFailedTestConfigurations() const
+{
+    QList<TestConfiguration *> result;
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    if (!project || type() != Root)
+        return result;
+
+    QHash<QString, GTestCases> testCasesForProFile;
+    collectFailedTestInfo(this, testCasesForProFile);
+
+    for (auto it = testCasesForProFile.begin(), end = testCasesForProFile.end(); it != end; ++it) {
+        for (const QString &target : qAsConst(it.value().internalTargets)) {
+            GTestConfiguration *tc = new GTestConfiguration(framework());
+            tc->setTestCases(it.value().filters);
+            tc->setTestCaseCount(tc->testCaseCount() + it.value().testSetCount);
+            tc->setProjectFile(it.key());
+            tc->setProject(project);
+            tc->setInternalTarget(target);
+            result << tc;
+        }
+    }
+
+    return result;
 }
 
 QList<TestConfiguration *> GTestTreeItem::getTestConfigurationsForFile(const Utils::FilePath &fileName) const

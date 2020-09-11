@@ -190,6 +190,37 @@ static void fillTestConfigurationsFromCheckState(const TestTreeItem *item,
     }
 }
 
+static void collectFailedTestInfo(TestTreeItem *item, QList<TestConfiguration *> &testConfigs)
+{
+    QTC_ASSERT(item, return);
+    if (item->type() == TestTreeItem::GroupNode) {
+        for (int row = 0, count = item->childCount(); row < count; ++row)
+            collectFailedTestInfo(item->childAt(row), testConfigs);
+        return;
+    }
+    QTC_ASSERT(item->type() == TestTreeItem::TestCase, return);
+    QStringList testCases;
+    item->forFirstLevelChildren([&testCases](TestTreeItem *func) {
+        if (func->data(0, FailedRole).toBool()) {
+            testCases << func->name();
+        } else {
+            func->forFirstLevelChildren([&testCases, func](TestTreeItem *dataTag) {
+                if (dataTag->data(0, FailedRole).toBool())
+                    testCases << func->name() + ':' + dataTag->name();
+            });
+        }
+    });
+    if (testCases.isEmpty())
+        return;
+
+    QtTestConfiguration *testConfig = new QtTestConfiguration(item->framework());
+    testConfig->setTestCases(testCases);
+    testConfig->setProjectFile(item->proFile());
+    testConfig->setProject(ProjectExplorer::SessionManager::startupProject());
+    testConfig->setInternalTargets(item->internalTargets());
+    testConfigs << testConfig;
+}
+
 TestConfiguration *QtTestTreeItem::debugConfiguration() const
 {
     QtTestConfiguration *config = static_cast<QtTestConfiguration *>(testConfiguration());
@@ -232,6 +263,16 @@ QList<TestConfiguration *> QtTestTreeItem::getSelectedTestConfigurations() const
     for (int row = 0, count = childCount(); row < count; ++row)
         fillTestConfigurationsFromCheckState(childAt(row), result);
 
+    return result;
+}
+
+QList<TestConfiguration *> QtTestTreeItem::getFailedTestConfigurations() const
+{
+    QList<TestConfiguration *> result;
+    QTC_ASSERT(type() == TestTreeItem::Root, return result);
+    forFirstLevelChildren([&result](TestTreeItem *child) {
+        collectFailedTestInfo(child, result);
+    });
     return result;
 }
 

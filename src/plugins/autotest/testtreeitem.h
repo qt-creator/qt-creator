@@ -37,7 +37,8 @@ namespace {
         LinkRole = Qt::UserRole + 2, // can be removed if AnnotationRole comes back
         ItalicRole, // used only inside the delegate
         TypeRole,
-        EnabledRole
+        EnabledRole,
+        FailedRole  // marker for having failed in last run
     };
 }
 
@@ -119,6 +120,7 @@ public:
     TestConfiguration *asConfiguration(TestRunMode mode) const;
     virtual QList<TestConfiguration *> getAllTestConfigurations() const;
     virtual QList<TestConfiguration *> getSelectedTestConfigurations() const;
+    virtual QList<TestConfiguration *> getFailedTestConfigurations() const;
     virtual QList<TestConfiguration *> getTestConfigurationsForFile(const Utils::FilePath &fileName) const;
     virtual bool lessThan(const TestTreeItem *other, SortMode mode) const;
     virtual TestTreeItem *find(const TestParseResult *result) = 0;
@@ -156,6 +158,7 @@ private:
     QString m_name;
     QString m_filePath;
     Qt::CheckState m_checked;
+    bool m_failed = false;
     Type m_type;
     int m_line = 0;
     int m_column = 0;

@@ -63,12 +63,15 @@ public:
     bool hasTests() const;
     QList<TestConfiguration *> getAllTestCases() const;
     QList<TestConfiguration *> getSelectedTests() const;
+    QList<TestConfiguration *> getFailedTests() const;
     QList<TestConfiguration *> getTestsForFile(const Utils::FilePath &fileName) const;
     QList<TestTreeItem *> testItemsByName(const QString &testName);
     void synchronizeTestFrameworks();
     void rebuild(const QList<Utils::Id> &frameworkIds);
 
     void updateCheckStateCache();
+    bool hasFailedTests() const;
+    void clearFailedMarks();
 #ifdef WITH_TESTS
     int autoTestsCount() const;
     int namedQuickTestsCount() const;

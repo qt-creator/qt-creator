@@ -170,6 +170,14 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
     return result;
 }
 
+QList<TestConfiguration *> TestTreeModel::getFailedTests() const
+{
+    QList<TestConfiguration *> result;
+    for (Utils::TreeItem *frameworkRoot : *rootItem())
+        result.append(static_cast<TestTreeItem *>(frameworkRoot)->getFailedTestConfigurations());
+    return result;
+}
+
 QList<TestConfiguration *> TestTreeModel::getTestsForFile(const Utils::FilePath &fileName) const
 {
     QList<TestConfiguration *> result;
@@ -301,6 +309,23 @@ void TestTreeModel::updateCheckStateCache()
         rootNode->forAllChildren([this](Utils::TreeItem *child) {
             auto childItem = static_cast<TestTreeItem *>(child);
             m_checkStateCache->insert(childItem, childItem->checked());
+        });
+    }
+}
+
+bool TestTreeModel::hasFailedTests() const
+{
+    auto failedItem = rootItem()->findAnyChild([](Utils::TreeItem *it) {
+        return it->data(0, FailedRole).toBool();
+    });
+    return failedItem != nullptr;
+}
+
+void TestTreeModel::clearFailedMarks()
+{
+    for (Utils::TreeItem *rootNode : *rootItem()) {
+        rootNode->forAllChildren([](Utils::TreeItem *child) {
+            child->setData(0, false, FailedRole);
         });
     }
 }
