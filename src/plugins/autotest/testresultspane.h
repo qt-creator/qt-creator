@@ -98,7 +98,6 @@ public:
     void addTestResult(const TestResultPtr &result);
     void addOutputLine(const QByteArray &outputLine, OutputChannel channel);
     void showTestResult(const QModelIndex &index);
-
 private:
     explicit TestResultsPane(QObject *parent = nullptr);
 
@@ -136,6 +135,7 @@ private:
     QToolButton *m_expandCollapse;
     QToolButton *m_runAll;
     QToolButton *m_runSelected;
+    QToolButton *m_runFailed;
     QToolButton *m_runFile;
     QToolButton *m_stopTestRun;
     QToolButton *m_filterButton;

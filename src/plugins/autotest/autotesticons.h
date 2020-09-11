@@ -36,6 +36,8 @@ const Utils::Icon SORT_NATURALLY({
 const Utils::Icon RUN_SELECTED_OVERLAY({
         {":/utils/images/runselected_boxes.png", Utils::Theme::BackgroundColorDark},
         {":/utils/images/runselected_tickmarks.png", Utils::Theme::IconsBaseColor}});
+const Utils::Icon RUN_FAILED_OVERLAY({
+        {":utils/images/iconoverlay_reset.png", Utils::Theme::OutputPanes_TestXPassTextColor}});
 const Utils::Icon RUN_FILE_OVERLAY({
         {":/utils/images/run_file.png", Utils::Theme::IconsBaseColor}});
 const Utils::Icon RESULT_PASS({

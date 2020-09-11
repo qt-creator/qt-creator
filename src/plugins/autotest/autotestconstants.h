@@ -33,6 +33,7 @@ namespace Constants {
 const char ACTION_SCAN_ID[]             = "AutoTest.ScanAction";
 const char ACTION_RUN_ALL_ID[]          = "AutoTest.RunAll";
 const char ACTION_RUN_SELECTED_ID[]     = "AutoTest.RunSelected";
+const char ACTION_RUN_FAILED_ID[]       = "AutoTest.RunFailed";
 const char ACTION_RUN_FILE_ID[]         = "AutoTest.RunFile";
 const char ACTION_RUN_UCURSOR[]         = "AutoTest.RunUnderCursor";
 const char ACTION_RUN_DBG_UCURSOR[]     = "AutoTest.RunDebugUnderCursor";

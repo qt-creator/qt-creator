@@ -97,6 +97,7 @@ public:
     void initializeMenuEntries();
     void onRunAllTriggered();
     void onRunSelectedTriggered();
+    void onRunFailedTriggered();
     void onRunFileTriggered();
     void onRunUnderCursorTriggered(TestRunMode mode);
 
@@ -222,7 +223,20 @@ void AutotestPluginPrivate::initializeMenuEntries()
     action->setEnabled(false);
     menu->addAction(command);
 
-    action = new QAction(tr("Run Tests for Current &File"), this);
+    action = new QAction(tr("Run &Failed Tests"),  this);
+    Utils::Icon runFailedIcon = Utils::Icons::RUN_SMALL_TOOLBAR;
+    for (const Utils::IconMaskAndColor &maskAndColor: Icons::RUN_FAILED_OVERLAY)
+        runFailedIcon.append(maskAndColor);
+    action->setIcon(runFailedIcon.icon());
+    action->setToolTip(tr("Run Failed Tests"));
+    command = ActionManager::registerAction(action, Constants::ACTION_RUN_FAILED_ID);
+    command->setDefaultKeySequence(
+                useMacShortcuts ? tr("Ctrl+Meta+T, Ctrl+Meta+F") : tr("Alt+Shift+T,Alt+F"));
+    connect(action, &QAction::triggered, this, &AutotestPluginPrivate::onRunFailedTriggered);
+    action->setEnabled(false);
+    menu->addAction(command);
+
+    action = new QAction(tr("Run Tests for &Current File"), this);
     Utils::Icon runFileIcon = Utils::Icons::RUN_SMALL_TOOLBAR;
     for (const Utils::IconMaskAndColor &maskAndColor : Icons::RUN_FILE_OVERLAY)
         runFileIcon.append(maskAndColor);
@@ -230,7 +244,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
     action->setToolTip(tr("Run Tests for Current File"));
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_FILE_ID);
     command->setDefaultKeySequence(
-        QKeySequence(useMacShortcuts ? tr("Ctrl+Meta+T, Ctrl+Meta+F") : tr("Alt+Shift+T,Alt+F")));
+        QKeySequence(useMacShortcuts ? tr("Ctrl+Meta+T, Ctrl+Meta+C") : tr("Alt+Shift+T,Alt+C")));
     connect(action, &QAction::triggered, this, &AutotestPluginPrivate::onRunFileTriggered);
     action->setEnabled(false);
     menu->addAction(command);
@@ -311,6 +325,15 @@ void AutotestPluginPrivate::onRunSelectedTriggered()
     m_testRunner.prepareToRunTests(TestRunMode::Run);
 }
 
+void AutotestPluginPrivate::onRunFailedTriggered()
+{
+    const QList<TestConfiguration *> failed = m_testTreeModel.getFailedTests();
+    if (failed.isEmpty()) // the framework might not be able to provide them
+        return;
+    m_testRunner.setSelectedTests(failed);
+    m_testRunner.prepareToRunTests(TestRunMode::Run);
+}
+
 void AutotestPluginPrivate::onRunFileTriggered()
 {
     const IDocument *document = EditorManager::currentDocument();
@@ -384,9 +407,11 @@ void AutotestPlugin::updateMenuItemsEnabledState()
             && project && !project->needsConfiguration()
             && target && target->activeRunConfiguration()
             && !ProjectExplorer::BuildManager::isBuilding();
+    const bool canRunFailed = canRun && dd->m_testTreeModel.hasFailedTests();
 
     ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action()->setEnabled(canRun);
     ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action()->setEnabled(canRun);
+    ActionManager::command(Constants::ACTION_RUN_FAILED_ID)->action()->setEnabled(canRunFailed);
     ActionManager::command(Constants::ACTION_RUN_FILE_ID)->action()->setEnabled(canRun);
     ActionManager::command(Constants::ACTION_SCAN_ID)->action()->setEnabled(canScan);
 
