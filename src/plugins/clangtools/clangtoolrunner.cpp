@@ -58,19 +58,38 @@ static QString finishedWithBadExitCode(const QString &name, int exitCode)
     return ClangToolRunner::tr("%1 finished with exit code: %2.").arg(name).arg(exitCode);
 }
 
+ClangToolRunner::ClangToolRunner(QObject *parent)
+    : QObject(parent), m_process(new QProcess)
+{}
+
+ClangToolRunner::~ClangToolRunner()
+{
+    if (m_process->state() != QProcess::NotRunning) {
+        // asking politly to terminate costs ~300 ms on windows so skip the courtasy and direct kill the process
+        if (Utils::HostOsInfo::isWindowsHost()) {
+            m_process->kill();
+            m_process->waitForFinished(100);
+        } else {
+            Utils::SynchronousProcess::stopProcess(*m_process);
+        }
+    }
+
+    m_process->deleteLater();
+}
+
 void ClangToolRunner::init(const QString &outputDirPath,
                            const Utils::Environment &environment)
 {
     m_outputDirPath = outputDirPath;
     QTC_CHECK(!m_outputDirPath.isEmpty());
 
-    m_process.setProcessChannelMode(QProcess::MergedChannels);
-    m_process.setProcessEnvironment(environment.toProcessEnvironment());
-    m_process.setWorkingDirectory(m_outputDirPath); // Current clang-cl puts log file into working dir.
-    connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+    m_process->setProcessChannelMode(QProcess::MergedChannels);
+    m_process->setProcessEnvironment(environment.toProcessEnvironment());
+    m_process->setWorkingDirectory(m_outputDirPath); // Current clang-cl puts log file into working dir.
+    connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &ClangToolRunner::onProcessFinished);
-    connect(&m_process, &QProcess::errorOccurred, this, &ClangToolRunner::onProcessError);
-    connect(&m_process, &QProcess::readyRead, this, &ClangToolRunner::onProcessOutput);
+    connect(m_process, &QProcess::errorOccurred, this, &ClangToolRunner::onProcessError);
+    connect(m_process, &QProcess::readyRead, this, &ClangToolRunner::onProcessOutput);
 }
 
 QStringList ClangToolRunner::mainToolArguments() const
@@ -94,19 +113,6 @@ bool ClangToolRunner::supportsVFSOverlay() const
         it = vfsCapabilities.insert(m_executable, response.allOutput().contains("vfsoverlay"));
     }
     return it.value();
-}
-
-ClangToolRunner::~ClangToolRunner()
-{
-    if (m_process.state() != QProcess::NotRunning) {
-        // asking politly to terminate costs ~300 ms on windows so skip the courtasy and direct kill the process
-        if (Utils::HostOsInfo::isWindowsHost()) {
-            m_process.kill();
-            m_process.waitForFinished(100);
-        } else {
-            Utils::SynchronousProcess::stopProcess(m_process);
-        }
-    }
 }
 
 static QString createOutputFilePath(const QString &dirPath, const QString &fileToAnalyze)
@@ -140,7 +146,7 @@ bool ClangToolRunner::run(const QString &fileToAnalyze, const QStringList &compi
     m_commandLine = Utils::QtcProcess::joinArgs(QStringList(m_executable) + arguments);
 
     qCDebug(LOG).noquote() << "Starting" << m_commandLine;
-    m_process.start(m_executable, arguments);
+    m_process->start(m_executable, arguments);
     return true;
 }
 
@@ -170,7 +176,7 @@ void ClangToolRunner::onProcessError(QProcess::ProcessError error)
 
 void ClangToolRunner::onProcessOutput()
 {
-    m_processOutput.append(m_process.readAll());
+    m_processOutput.append(m_process->readAll());
 }
 
 QString ClangToolRunner::commandlineAndOutput() const
@@ -179,7 +185,7 @@ QString ClangToolRunner::commandlineAndOutput() const
               "Process Error: %2\n"
               "Output:\n%3")
         .arg(m_commandLine,
-             QString::number(m_process.error()),
+             QString::number(m_process->error()),
              Utils::SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(m_processOutput)));
 }
 

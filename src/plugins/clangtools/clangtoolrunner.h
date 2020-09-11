@@ -44,7 +44,7 @@ class ClangToolRunner : public QObject
     Q_OBJECT
 
 public:
-    ClangToolRunner(QObject *parent = nullptr) : QObject(parent) {}
+    ClangToolRunner(QObject *parent = nullptr);
     ~ClangToolRunner() override;
 
     void init(const QString &outputDirPath, const Utils::Environment &environment);
@@ -83,7 +83,7 @@ private:
 
 private:
     QString m_outputDirPath;
-    QProcess m_process;
+    QProcess *m_process = nullptr;
     QByteArray m_processOutput;
 
     QString m_name;
