@@ -3,11 +3,11 @@ name: CMake Build Matrix
 on: [push, pull_request]
 
 env:
-  QT_VERSION: 5.15.0
+  QT_VERSION: 5.15.1
   CLANG_VERSION: 100
   ELFUTILS_VERSION: 0.175
-  CMAKE_VERSION: 3.17.0
-  NINJA_VERSION: 1.10.0
+  CMAKE_VERSION: 3.18.2
+  NINJA_VERSION: 1.10.1
   BUILD_TYPE: Release
   CCACHE_VERSION: 3.7.7
 
@@ -364,9 +364,9 @@ jobs:
         set(ENV{CCACHE_SLOPPINESS} "pch_defines,time_macros")
         set(ENV{CCACHE_COMPRESS} "true")
         set(ENV{CCACHE_COMPRESSLEVEL} "6")
-        set(ENV{CCACHE_MAXSIZE} "400M")
+        set(ENV{CCACHE_MAXSIZE} "800M")
         if ("${{ matrix.config.cxx }}" STREQUAL "cl")
-          set(ENV{CCACHE_MAXSIZE} "600M")
+          set(ENV{CCACHE_MAXSIZE} "1200M")
         endif()
 
         execute_process(COMMAND ccache -p)
