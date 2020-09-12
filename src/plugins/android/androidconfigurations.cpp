@@ -115,7 +115,6 @@ namespace {
     const QLatin1String SDKManagerToolArgsKey("SDKManagerToolArgs");
     const QLatin1String OpenJDKLocationKey("OpenJDKLocation");
     const QLatin1String OpenSslPriLocationKey("OpenSSLPriLocation");
-    const QLatin1String KeystoreLocationKey("KeystoreLocation");
     const QLatin1String AutomaticKitCreationKey("AutomatiKitCreation");
     const QLatin1String PartitionSizeKey("PartitionSize");
 
@@ -231,7 +230,6 @@ void AndroidConfig::load(const QSettings &settings)
     m_sdkManagerToolArgs = settings.value(SDKManagerToolArgsKey).toStringList();
     m_openJDKLocation = FilePath::fromString(settings.value(OpenJDKLocationKey).toString());
     m_openSslLocation = FilePath::fromString(settings.value(OpenSslPriLocationKey).toString());
-    m_keystoreLocation = FilePath::fromString(settings.value(KeystoreLocationKey).toString());
     m_automaticKitCreation = settings.value(AutomaticKitCreationKey, true).toBool();
     m_sdkFullyConfigured = settings.value(SdkFullyConfiguredKey, false).toBool();
 
@@ -263,7 +261,6 @@ void AndroidConfig::save(QSettings &settings) const
     settings.setValue(CustomNdkLocationsKey, m_customNdkList);
     settings.setValue(SDKManagerToolArgsKey, m_sdkManagerToolArgs);
     settings.setValue(OpenJDKLocationKey, m_openJDKLocation.toString());
-    settings.setValue(KeystoreLocationKey, m_keystoreLocation.toString());
     settings.setValue(OpenSslPriLocationKey, m_openSslLocation.toString());
     settings.setValue(PartitionSizeKey, m_partitionSize);
     settings.setValue(AutomaticKitCreationKey, m_automaticKitCreation);
@@ -470,15 +467,6 @@ FilePath AndroidConfig::avdManagerToolPath() const
     return FilePath();
 }
 
-FilePath AndroidConfig::aaptToolPath() const
-{
-    const FilePath aaptToolPath = m_sdkLocation / "build-tools";
-    QString toolPath = QString("%1/aapt").arg(buildToolsVersion().toString());
-    if (HostOsInfo::isWindowsHost())
-        toolPath += QTC_HOST_EXE_SUFFIX;
-    return aaptToolPath / toolPath;
-}
-
 FilePath AndroidConfig::toolchainPathFromNdk(const Utils::FilePath &ndkLocation) const
 {
     const FilePath toolchainPath = ndkLocation / "toolchains/llvm/prebuilt/";
@@ -646,11 +634,6 @@ QString AndroidConfig::getDeviceProperty(const FilePath &adbToolPath, const QStr
     return response.allOutput();
 }
 
-int AndroidConfig::getSDKVersion(const QString &device) const
-{
-    return getSDKVersion(adbToolPath(), device);
-}
-
 int AndroidConfig::getSDKVersion(const FilePath &adbToolPath, const QString &device)
 {
     QString tmp = getDeviceProperty(adbToolPath, device, "ro.build.version.sdk");
@@ -731,11 +714,6 @@ QString AndroidConfig::getProductModel(const QString &device) const
     if (!device.startsWith(QLatin1String("????")))
         m_serialNumberToDeviceName.insert(device, model);
     return model;
-}
-
-QStringList AndroidConfig::getAbis(const QString &device) const
-{
-    return getAbis(adbToolPath(), device);
 }
 
 QStringList AndroidConfig::getAbis(const FilePath &adbToolPath, const QString &device)
@@ -849,11 +827,6 @@ void AndroidConfig::setSdkManagerToolArgs(const QStringList &args)
 FilePath AndroidConfig::ndkLocation(const BaseQtVersion *qtVersion) const
 {
     return sdkLocation().pathAppended(ndkPathFromQtVersion(*qtVersion));
-}
-
-FilePath AndroidConfig::defaultNdkLocation() const
-{
-    return sdkLocation().pathAppended(m_defaultSdkDepends.ndkPath);
 }
 
 QVersionNumber AndroidConfig::ndkVersion(const BaseQtVersion *qtVersion) const
@@ -980,16 +953,6 @@ FilePath AndroidConfig::openJDKLocation() const
 void AndroidConfig::setOpenJDKLocation(const FilePath &openJDKLocation)
 {
     m_openJDKLocation = openJDKLocation;
-}
-
-FilePath AndroidConfig::keystoreLocation() const
-{
-    return m_keystoreLocation;
-}
-
-void AndroidConfig::setKeystoreLocation(const FilePath &keystoreLocation)
-{
-    m_keystoreLocation = keystoreLocation;
 }
 
 QString AndroidConfig::toolchainHost(const BaseQtVersion *qtVersion) const

@@ -80,7 +80,6 @@ public:
                             QWidget *parent = nullptr);
     ~AndroidSdkManagerWidget() override;
 
-    void setSdkManagerControlsEnabled(bool enable);
     void installEssentials();
 
 signals:

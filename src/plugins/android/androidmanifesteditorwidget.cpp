@@ -1580,35 +1580,6 @@ QModelIndex PermissionsModel::addPermission(const QString &permission)
     return index(idx);
 }
 
-bool PermissionsModel::updatePermission(const QModelIndex &index, const QString &permission)
-{
-    if (!index.isValid())
-        return false;
-    if (m_permissions[index.row()] == permission)
-        return false;
-
-    auto it = std::lower_bound(m_permissions.constBegin(), m_permissions.constEnd(), permission);
-    const int newIndex = it - m_permissions.constBegin();
-    if (newIndex == index.row() || newIndex == index.row() + 1) {
-        m_permissions[index.row()] = permission;
-        emit dataChanged(index, index);
-        return true;
-    }
-
-    beginMoveRows(QModelIndex(), index.row(), index.row(), QModelIndex(), newIndex);
-
-    if (newIndex > index.row()) {
-        m_permissions.insert(newIndex, permission);
-        m_permissions.removeAt(index.row());
-    } else {
-        m_permissions.removeAt(index.row());
-        m_permissions.insert(newIndex, permission);
-    }
-    endMoveRows();
-
-    return true;
-}
-
 void PermissionsModel::removePermission(int index)
 {
     if (index >= m_permissions.size())

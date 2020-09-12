@@ -68,7 +68,6 @@ public:
     void setPermissions(const QStringList &permissions);
     const QStringList &permissions();
     QModelIndex addPermission(const QString &permission);
-    bool updatePermission(const QModelIndex &index, const QString &permission);
     void removePermission(int index);
     QVariant data(const QModelIndex &index, int role) const override;
 

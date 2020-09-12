@@ -125,7 +125,6 @@ public:
     void setSdkManagerToolArgs(const QStringList &args);
 
     Utils::FilePath ndkLocation(const QtSupport::BaseQtVersion *qtVersion) const;
-    Utils::FilePath defaultNdkLocation() const;
     QVersionNumber ndkVersion(const QtSupport::BaseQtVersion *qtVersion) const;
     QVersionNumber ndkVersion(const Utils::FilePath &ndkPath) const;
 
@@ -143,7 +142,6 @@ public:
     void setOpenJDKLocation(const Utils::FilePath &openJDKLocation);
 
     Utils::FilePath keystoreLocation() const;
-    void setKeystoreLocation(const Utils::FilePath &keystoreLocation);
 
     QString toolchainHost(const QtSupport::BaseQtVersion *qtVersion) const;
     QString toolchainHostFromNdk(const Utils::FilePath &ndkPath) const;
@@ -159,7 +157,6 @@ public:
     Utils::FilePath emulatorToolPath() const;
     Utils::FilePath sdkManagerToolPath() const;
     Utils::FilePath avdManagerToolPath() const;
-    Utils::FilePath aaptToolPath() const;
 
     Utils::FilePath toolchainPath(const QtSupport::BaseQtVersion *qtVersion) const;
     Utils::FilePath toolchainPathFromNdk(const Utils::FilePath &ndkLocation) const;
@@ -205,9 +202,7 @@ private:
                                      const QString &device, const QString &property);
 
     Utils::FilePath openJDKBinPath() const;
-    int getSDKVersion(const QString &device) const;
     static int getSDKVersion(const Utils::FilePath &adbToolPath, const QString &device);
-    QStringList getAbis(const QString &device) const;
     static QStringList getAbis(const Utils::FilePath &adbToolPath, const QString &device);
     static QString getAvdName(const QString &serialnumber);
 

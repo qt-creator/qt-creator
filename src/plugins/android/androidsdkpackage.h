@@ -207,12 +207,6 @@ public:
     // AndroidSdkPackage Overrides
     bool isValid() const override;
     PackageType type() const override;
-
-    bool isNdkBundle() const;
-    void setAsNdkBundle(const bool isBundle);
-
-private:
-    bool m_isBundle = false;
 };
 using NdkList = QList<Ndk *>;
 

@@ -154,15 +154,6 @@ AndroidSdkManagerWidget::~AndroidSdkManagerWidget()
     delete m_ui;
 }
 
-void AndroidSdkManagerWidget::setSdkManagerControlsEnabled(bool enable)
-{
-    m_ui->packagesTypeGroup->setEnabled(enable);
-    m_ui->expandCheck->setVisible(enable);
-    m_ui->packagesView->setEnabled(enable);
-    m_ui->updateInstalledButton->setEnabled(enable);
-    m_ui->optionsButton->setEnabled(enable);
-}
-
 void AndroidSdkManagerWidget::installEssentials()
 {
     m_sdkModel->selectMissingEssentials();

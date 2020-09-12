@@ -309,16 +309,6 @@ AndroidSdkPackage::PackageType Ndk::type() const
     return AndroidSdkPackage::NDKPackage;
 }
 
-bool Ndk::isNdkBundle() const
-{
-    return m_isBundle;
-}
-
-void Ndk::setAsNdkBundle(const bool isBundle)
-{
-    m_isBundle = isBundle;
-}
-
 GenericSdkPackage::GenericSdkPackage(QVersionNumber revision, QString sdkStylePathStr, QObject  *parent) :
     AndroidSdkPackage(revision, sdkStylePathStr, parent)
 {

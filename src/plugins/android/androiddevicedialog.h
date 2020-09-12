@@ -63,7 +63,6 @@ public:
 private:
     void refreshDeviceList();
     void createAvd();
-    void clickedOnView(const QModelIndex &idx);
     void showHelp();
     void avdAdded();
     void devicesRefreshed();

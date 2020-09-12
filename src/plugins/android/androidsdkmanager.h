@@ -67,7 +67,6 @@ public:
 
     SdkPlatformList installedSdkPlatforms();
     const AndroidSdkPackageList &allSdkPackages();
-    AndroidSdkPackageList availableSdkPackages();
     AndroidSdkPackageList installedSdkPackages();
     SystemImageList installedSystemImages();
     NdkList installedNdkPackages();

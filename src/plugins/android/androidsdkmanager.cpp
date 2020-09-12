@@ -352,11 +352,6 @@ const AndroidSdkPackageList &AndroidSdkManager::allSdkPackages()
     return m_d->allPackages();
 }
 
-AndroidSdkPackageList AndroidSdkManager::availableSdkPackages()
-{
-    return m_d->filteredPackages(AndroidSdkPackage::Available, AndroidSdkPackage::AnyValidType);
-}
-
 AndroidSdkPackageList AndroidSdkManager::installedSdkPackages()
 {
     return m_d->filteredPackages(AndroidSdkPackage::Installed, AndroidSdkPackage::AnyValidType);
@@ -820,8 +815,6 @@ Ndk *SdkManagerOutputParser::parseNdkPackage(const QStringList &data) const
         ndk->setDescriptionText(packageData.description);
         ndk->setDisplayText(packageData.description);
         ndk->setInstalledLocation(packageData.installedLocation);
-        if (packageData.description == "NDK")
-            ndk->setAsNdkBundle(true);
     } else {
         qCDebug(sdkManagerLog) << "NDK: Parsing failed. Minimum required data unavailable:"
                                << data;

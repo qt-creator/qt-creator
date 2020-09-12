@@ -608,20 +608,6 @@ void AndroidDeviceDialog::enableOkayButton()
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(enable);
 }
 
-// Does not work.
-void AndroidDeviceDialog::clickedOnView(const QModelIndex &idx)
-{
-    if (idx.isValid()) {
-        auto node = static_cast<AndroidDeviceModelNode *>(idx.internalPointer());
-        if (!node->displayName().isEmpty()) {
-            if (m_ui->deviceView->isExpanded(idx))
-                m_ui->deviceView->collapse(idx);
-            else
-                m_ui->deviceView->expand(idx);
-        }
-    }
-}
-
 void AndroidDeviceDialog::showHelp()
 {
     QPoint pos = m_ui->missingLabel->pos();
