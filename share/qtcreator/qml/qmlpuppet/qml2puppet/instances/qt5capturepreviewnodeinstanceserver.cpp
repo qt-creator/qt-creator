@@ -66,7 +66,10 @@ CapturedDataCommand::StateData collectStateData(ServerNodeInstance rootNodeInsta
         nodeData.sceneTransform = instance.sceneTransform();
         auto textProperty = instance.property("text");
         if (!textProperty.isNull() && instance.holdsGraphical())
-            nodeData.properties.emplace_back(QString{"text"}, textProperty.toString());
+            nodeData.properties.emplace_back(QString{"text"}, textProperty);
+        auto colorProperty = instance.property("color");
+        if (!colorProperty.isNull())
+            nodeData.properties.emplace_back(QString{"color"}, colorProperty);
 
         stateData.nodeData.push_back(std::move(nodeData));
     }
