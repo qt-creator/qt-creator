@@ -253,6 +253,7 @@ void SplineEditor::contextMenuEvent(QContextMenuEvent *e)
     });
 
     menu->exec(e->globalPos());
+    menu->deleteLater();
     e->accept();
 }
 

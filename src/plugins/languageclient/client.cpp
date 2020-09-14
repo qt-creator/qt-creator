@@ -1119,16 +1119,13 @@ void Client::resetAssistProviders(TextEditor::TextDocument *document)
 {
     const AssistProviders providers = m_resetAssistProvider.take(document);
 
-    if (document->completionAssistProvider() == m_clientProviders.completionAssistProvider &&
-            providers.completionAssistProvider)
+    if (document->completionAssistProvider() == m_clientProviders.completionAssistProvider)
         document->setCompletionAssistProvider(providers.completionAssistProvider);
 
-    if (document->functionHintAssistProvider() == m_clientProviders.functionHintProvider &&
-            providers.functionHintProvider)
+    if (document->functionHintAssistProvider() == m_clientProviders.functionHintProvider)
         document->setFunctionHintAssistProvider(providers.functionHintProvider);
 
-    if (document->quickFixAssistProvider() == m_clientProviders.quickFixAssistProvider &&
-            providers.quickFixAssistProvider)
+    if (document->quickFixAssistProvider() == m_clientProviders.quickFixAssistProvider)
         document->setQuickFixAssistProvider(providers.quickFixAssistProvider);
 }
 
@@ -1139,6 +1136,15 @@ void Client::sendPostponedDocumentUpdates()
         return;
     TextEditor::TextEditorWidget *currentWidget
         = TextEditor::TextEditorWidget::currentTextEditorWidget();
+
+    struct DocumentUpdate
+    {
+        TextEditor::TextDocument *document;
+        DidChangeTextDocumentNotification notification;
+    };
+
+    QList<DocumentUpdate> updates;
+
     const QList<TextEditor::TextDocument *> documents = m_documentsToUpdate.keys();
     for (auto document : documents) {
         const auto uri = DocumentUri::fromFilePath(document->filePath());
@@ -1148,10 +1154,15 @@ void Client::sendPostponedDocumentUpdates()
         DidChangeTextDocumentParams params;
         params.setTextDocument(docId);
         params.setContentChanges(m_documentsToUpdate.take(document));
-        sendContent(DidChangeTextDocumentNotification(params));
-        emit documentUpdated(document);
 
-        if (currentWidget && currentWidget->textDocument() == document)
+        updates.append({document, DidChangeTextDocumentNotification(params)});
+    }
+
+    for (const DocumentUpdate &update : qAsConst(updates)) {
+        sendContent(update.notification);
+        emit documentUpdated(update.document);
+
+        if (currentWidget && currentWidget->textDocument() == update.document)
             cursorPositionChanged(currentWidget);
     }
 }

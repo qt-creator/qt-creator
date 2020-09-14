@@ -107,10 +107,10 @@
             SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             \endcode
 
-            The source code of  KSyntaxHighlighting can be found
+            The source code of KSyntaxHighlighting can be found
             here:
             \list
-            \li \l{https://cgit.kde.org/syntax-highlighting.git}
+            \li \l{https://invent.kde.org/frameworks/syntax-highlighting}
             \li QtCreator/src/libs/3rdparty/syntax-highlighting
             \li \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/src/libs/3rdparty/syntax-highlighting}
             \endlist
@@ -132,9 +132,9 @@
         \li \b{LLVM/Clang}
 
             \list
-            \li \l{http://llvm.org/svn/llvm-project/llvm}
-            \li \l{http://llvm.org/svn/llvm-project/cfe/trunk}
-            \li \l{http://llvm.org/svn/llvm-project/clang-tools-extra/trunk}
+            \li \l{https://llvm.org/svn/llvm-project/llvm}
+            \li \l{https://llvm.org/svn/llvm-project/cfe/trunk}
+            \li \l{https://llvm.org/svn/llvm-project/clang-tools-extra/trunk}
             \endlist
 
             Copyright (C) 2003-2019 LLVM Team

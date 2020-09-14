@@ -113,11 +113,11 @@
     \section1 Applying Textures to Materials
 
     Drag and drop an image from \uicontrol Library > \uicontrol Assets
-    on a material to create and set the texture automatically, or use
-    a Texture component. For a default material the created \uicontrol Texture
-    is assigned to the \uicontrol {Diffuse Map} property and for a principled
-    material to the \uicontrol {Base Color Map}. For a custom material, you
-    must assign the texture to a map.
+    on a material to create a texture component. Dragging an image
+    to a default or principled material opens a
+    \uicontrol {Select Texture Property} dialog. You can select the
+    property to attach the texture to in the \uicontrol {Set texture to property}
+    field. For a custom material, you must assign the texture to a map.
 
     To use Texture components to apply textures to materials:
 

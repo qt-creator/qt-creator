@@ -68,6 +68,7 @@
 #include "removepropertiescommand.h"
 #include "removesharedmemorycommand.h"
 #include "reparentinstancescommand.h"
+#include "scenecreatedcommand.h"
 #include "statepreviewimagechangedcommand.h"
 #include "synchronizecommand.h"
 #include "tokencommand.h"
@@ -271,6 +272,11 @@ void NodeInstanceClientProxy::handlePuppetToCreatorCommand(const PuppetToCreator
 }
 
 void NodeInstanceClientProxy::capturedData(const CapturedDataCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceClientProxy::sceneCreated(const SceneCreatedCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
 }

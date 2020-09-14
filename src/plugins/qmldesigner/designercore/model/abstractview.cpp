@@ -516,8 +516,13 @@ QString AbstractView::generateNewId(const QString &prefixName, const QString &fa
     QString newBaseId = QString(QStringLiteral("%1")).arg(firstCharToLower(prefixName));
     newBaseId.remove(QRegularExpression(QStringLiteral("[^a-zA-Z0-9_]")));
 
-    if (newBaseId.isEmpty())
+    if (!newBaseId.isEmpty()) {
+        QChar firstChar = newBaseId.at(0);
+        if (firstChar.isDigit())
+            newBaseId.prepend('_');
+    } else {
         newBaseId = fallbackPrefix;
+    }
 
     QString newId = newBaseId;
 

@@ -622,8 +622,11 @@ bool TextDocument::save(QString *errorString, const QString &saveFileName, bool 
         cursor.beginEditBlock();
         cursor.movePosition(QTextCursor::Start);
 
-        if (d->m_storageSettings.m_cleanWhitespace)
-          cleanWhitespace(cursor, d->m_storageSettings);
+        if (d->m_storageSettings.m_cleanWhitespace) {
+            cleanWhitespace(cursor,
+                            d->m_storageSettings.m_inEntireDocument,
+                            d->m_storageSettings.m_cleanIndentation);
+        }
         if (d->m_storageSettings.m_addFinalNewLine)
           ensureFinalNewLine(cursor);
         cursor.endEditBlock();
@@ -885,7 +888,7 @@ void TextDocument::cleanWhitespace(const QTextCursor &cursor)
     copyCursor.setVisualNavigation(false);
     copyCursor.beginEditBlock();
 
-    cleanWhitespace(copyCursor, d->m_storageSettings);
+    cleanWhitespace(copyCursor, true, true);
 
     if (!hasSelection)
         ensureFinalNewLine(copyCursor);
@@ -893,11 +896,9 @@ void TextDocument::cleanWhitespace(const QTextCursor &cursor)
     copyCursor.endEditBlock();
 }
 
-void TextDocument::cleanWhitespace(QTextCursor &cursor, const StorageSettings &storageSettings)
+void TextDocument::cleanWhitespace(QTextCursor &cursor, bool inEntireDocument,
+                                   bool cleanIndentation)
 {
-    if (!d->m_storageSettings.m_cleanWhitespace)
-        return;
-
     const QString fileName(filePath().fileName());
 
     auto documentLayout = qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
@@ -910,8 +911,9 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, const StorageSettings &s
 
     QVector<QTextBlock> blocks;
     while (block.isValid() && block != end) {
-        if (storageSettings.m_inEntireDocument || block.revision() != documentLayout->lastSaveRevision)
+        if (inEntireDocument || block.revision() != documentLayout->lastSaveRevision) {
             blocks.append(block);
+        }
         block = block.next();
     }
     if (blocks.isEmpty())
@@ -924,11 +926,11 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, const StorageSettings &s
     foreach (block, blocks) {
         QString blockText = block.text();
 
-        if (storageSettings.removeTrailingWhitespace(fileName))
+        if (d->m_storageSettings.removeTrailingWhitespace(fileName))
             currentTabSettings.removeTrailingWhitespace(cursor, block);
 
         const int indent = indentations[block.blockNumber()];
-        if (storageSettings.m_cleanIndentation && !currentTabSettings.isIndentationClean(block, indent)) {
+        if (cleanIndentation && !currentTabSettings.isIndentationClean(block, indent)) {
             cursor.setPosition(block.position());
             int firstNonSpace = currentTabSettings.firstNonSpace(blockText);
             if (firstNonSpace == blockText.length()) {

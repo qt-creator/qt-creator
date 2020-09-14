@@ -356,7 +356,7 @@ Link attemptDeclDef(const QTextCursor &cursor, Snapshot snapshot,
             funcDecl = decl->postfix_declarator_list->value->asFunctionDeclarator();
         if (funcDecl)
             target = symbolFinder->findMatchingDefinition(funcDecl->symbol, snapshot);
-        else
+        else if (simpleDecl->symbols)
             target = symbolFinder->findMatchingVarDefinition(simpleDecl->symbols->value, snapshot);
     }
 

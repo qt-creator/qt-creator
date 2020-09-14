@@ -1248,13 +1248,84 @@ extern "C" HRESULT CALLBACK qmlstack(CIDebugClient *client, PCSTR argsIn)
         }
         // call function to get stack trace. Call with exceptions handled right from
         // the start assuming this is invoked for crashed applications.
-        std::ostringstream callStr;
-        const QtInfo &qtInfo = QtInfo::get(SymbolGroupValueContext(exc.dataSpaces(), exc.symbols()));
-        callStr << qtInfo.prependQtModule("qt_v4StackTraceForEngine(", QtInfo::Qml) << std::showbase << std::hex
-                << jsExecutionEngine << std::dec << std::noshowbase << ')';
+        // multiple function calls are needed, depending on the used Qt version
+        // We always start from the latest Qt version
+        std::ostringstream stringBuilder;
         std::wstring wOutput;
-        if (!ExtensionContext::instance().call(callStr.str(), ExtensionContext::CallWithExceptionsHandled, &wOutput, &errorMessage))
+        const QtInfo &qtInfo = QtInfo::get(SymbolGroupValueContext(exc.dataSpaces(), exc.symbols()));
+        do {
+            stringBuilder << qtInfo.prependQtModule("qt_v4StackTraceForEngine(", QtInfo::Qml) << std::showbase << std::hex
+                    << jsExecutionEngine << std::dec << std::noshowbase << ')';
+            if (ExtensionContext::instance().call(stringBuilder.str(), ExtensionContext::CallWithExceptionsHandled, &wOutput, &errorMessage))
+                break;
+
+            // < Qt 5.15
+            // We need to retrieve the current Context first
+            std::string currentContextStr;
+
+            // First try calling the currentContext() function
+            std::wstring callResult;
+
+            stringBuilder.str("");
+            stringBuilder << qtInfo.prependQtModule("QV4::ExecutionEngine::currentContext(", QtInfo::Qml) << std::showbase << std::hex
+                          << jsExecutionEngine << std::dec << std::noshowbase << ")";
+            if (ExtensionContext::instance().call(stringBuilder.str(), ExtensionContext::CallWithExceptionsHandled, &callResult, &errorMessage)) {
+                const std::string::size_type sPos = callResult.find(L"struct QV4::ExecutionContext * ") + 31 /*size of pattern*/;
+                const std::string::size_type sEndPos = callResult.find(L'+');
+
+                if (sPos == std::string::npos || sEndPos == std::string::npos || sEndPos < sPos) {
+                    errorMessage = "Couldn't parse address from debugger output";
+                    break;
+                }
+                currentContextStr = wStringToString(callResult.substr(sPos, sEndPos - sPos));
+            } else {
+                // < Qt 5.11 ????
+                // currentContext is a member, not a function
+
+                stringBuilder.str("");
+                stringBuilder << "((QV4::ExecutionEngine*)" << std::showbase << std::hex
+                              << jsExecutionEngine << std::dec << std::noshowbase << ")->currentContext";
+
+                CIDebugControl *control = ExtensionCommandContext::instance()->control();
+                ULONG oldExpressionSyntax;
+                control->GetExpressionSyntax(&oldExpressionSyntax);
+                control->SetExpressionSyntax(DEBUG_EXPR_CPLUSPLUS);
+
+                IDebugSymbolGroup2 *symbolGroup = nullptr;
+                CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+                if (FAILED(symbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_ALL, NULL,
+                                                         &symbolGroup)))
+                    break;
+
+                ULONG index = DEBUG_ANY_ID;
+                HRESULT hr = symbolGroup->AddSymbol(stringBuilder.str().c_str(), &index);
+                control->SetExpressionSyntax(oldExpressionSyntax);
+                if (SUCCEEDED(hr)) {
+                    ULONG64 address = 0;
+                    HRESULT hr = symbolGroup->GetSymbolOffset(index, &address);
+                    if (SUCCEEDED(hr)) {
+                        ExtensionCommandContext::instance()->dataSpaces()->ReadPointersVirtual(1, address, &address);
+                        stringBuilder.str("");
+                        stringBuilder << std::showbase << std::hex << address;
+                        currentContextStr = stringBuilder.str();
+                    }
+                }
+            }
+
+            if (currentContextStr.empty()) {
+                errorMessage = "Failed to retrieve currenContext from QML engine";
+                break;
+            }
+
+            stringBuilder.str("");
+            stringBuilder << qtInfo.prependQtModule("qt_v4StackTrace(", QtInfo::Qml) << currentContextStr << ')';
+            if (ExtensionContext::instance().call(stringBuilder.str(), ExtensionContext::CallWithExceptionsHandled, &wOutput, &errorMessage))
+                break;
+        } while (false);
+
+        if (wOutput.empty())
             break;
+
         // extract GDBMI info from call
         const std::string::size_type sPos = wOutput.find(L"stack=[");
         const std::string::size_type sEndPos = wOutput.rfind(L']');

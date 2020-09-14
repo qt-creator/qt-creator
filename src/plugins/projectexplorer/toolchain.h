@@ -99,7 +99,7 @@ public:
     QString displayName() const;
     void setDisplayName(const QString &name);
 
-    inline bool isAutoDetected() const { return detection() != ManualDetection; }
+    bool isAutoDetected() const;
     Detection detection() const;
 
     QByteArray id() const;

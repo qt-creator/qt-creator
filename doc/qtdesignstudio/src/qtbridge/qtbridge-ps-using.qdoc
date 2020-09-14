@@ -58,7 +58,7 @@
     When you use \QBPS to export your designs, you will determine how you want
     each group or layer exported: as a \e component or \e child. A component
     will be imported as a single QML file that can contain other assets. A child
-    will be imported as a single PNG file that you can use within QML files.
+    will be imported as a single image file that you can use within QML files.
 
     If you plan to use pieces of your artwork as separate images in the UI,
     group them on an artboard as separate layers. You can then export the group
@@ -107,6 +107,8 @@
         \li Second level group layers are merged to their parent.
         \li Asset layers are exported as merged.
         \li Text layers are always exported as child items.
+        \li Images are exported in JPG, PNG, or SVG format, depending on your
+            selection.
     \endlist
 
     \QBPS automatically proposes identifiers (QML ids) for all groups and layers.
@@ -251,4 +253,44 @@
         \li \l{https://www.youtube.com/watch?v=ZzbucmQPU44}
             {From Photoshop to Prototype with Qt Design Studio}
     \endlist
+
+    \section1 Importing Metadata & Assets
+
+    \QBPS can import metadata generated from other tools and generate a Photoshop document. A
+    conventional workflow would be to generate metadata and assets by \l {Exporting QML} {exporting}
+    a QML project from \QDS and use \QBPS to generate a Photoshop document.
+
+    Imported text and the assets are organized into Artboards, layers, and groups.
+
+    Select the \uicontrol Import button to launch the \uicontrol Import panel. Alternatively, \QB
+    import can be launched from \uicontrol Window > \uicontrol Extensions.
+
+    \image qt-bridge-import.png
+
+    Create a new PSD document and launch the \uicontrol Import dialog. Open the metadata file to
+    import and select \uicontrol Import.
+
+    \note The import process removes all the existing layers in the selected PSD document.
+
+    \image qt-bridge-import-warning.png
+
+    The following guidelines are followed to generate the Photoshop document:
+    \list
+        \li An Artboard is created for each QML component exported and defined in the metadata file.
+        \li An image layer is created for an item with an asset.
+        \li A solid fill layer is created for an item without an asset.
+        \li A paragraph text layer is created for Text items.
+    \endlist
+
+    All QML metadata specified in the metadata file is assigned to the generated layers.
+
+    An important concept of \e {Virtual parent} is applied to translate the QML DOM to Photoshop
+    DOM. A QML \l Item can have children but a layer in a Photoshop document cannot have child
+    layers. To mitigate this variance, a Group layer is created and child items are added to this
+    Group layer. The Group layer acts as a virtual parent and the correct parent is assigned when
+    the Photoshop document is exported and re-imported in \QDS.
+
+    \note The parent-child relationship may be lost if the virtual parent Group layer is moved or
+    deleted.
+
 */

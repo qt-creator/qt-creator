@@ -30,15 +30,13 @@
 
     \title Importing 2D Assets
 
-    You can download \QB from the \l{https://marketplace.qt.io/}{Qt Marketplace}.
-
     \image studio-imported-assets.png "Artwork imported into Qt Design Studio"
 
     \QB enables you to export assets and then import them to a \QDS project
     as image and QML files for editing in the \uicontrol {Form Editor}. If you
     make changes to your design in the design tool, you can merge the changes
     into existing QML files without overwriting the changes you have made in
-    \QDS.
+    \QDS. For more information, see \l {Exporting Artwork from Design Tools}.
 
     \note Attempting to import assets exported on another system might fail.
 
@@ -86,11 +84,13 @@
     The imported assets are displayed in the \uicontrol Assets tab in the
     \uicontrol Library as PNG images. The components that you specified in
     the design tool are displayed in the \uicontrol {My QML Components} tab,
-    as well as in the \uicontrol Projects view as separate QML files.
+    as well as in the \uicontrol Projects view as separate QML files. To
+    start using them, drag and drop them from \uicontrol Library to
+    \uicontrol {Form Editor} or \uicontrol Navigator.
 
     \note The layer that was the bottom layer in the design tool becames the top
-    layer in the \uicontrol Navigator to reflect the QML code model. You
-    can view the QML code in the \uicontrol {Text Editor}.
+    layer in \uicontrol Navigator to reflect the QML code model. You
+    can view the QML code in \uicontrol {Text Editor}.
 
     If asset importer conflicts, warnings, and errors are displayed in the
     \uicontrol {Asset Import} dialog while importing, fix the issues in
@@ -98,13 +98,17 @@
 
     \section1 \QB Videos
 
-    For more information about importing assets from Adobe Photoshop, watch a
-    video tutorial and webinar about using \QB:
+    For more information, see the \QB tutorials that are also accessible from
+    the \uicontrol Tutorials tab of the Welcome mode:
 
     \list
         \li \l{https://resources.qt.io/development-topic-ui-design/qtdesignstudio-clustertutorial-partone}
-            {Building an Instrument Cluster for Your Car HMI, Part 1}
+            {Building an Instrument Cluster for Your Car HMI, Part 1} (\QBPS)
         \li \l{https://www.youtube.com/watch?v=ZzbucmQPU44}
             {From Photoshop to Prototype with Qt Design Studio}
+        \li \l{https://www.qt.io/blog/qt-design-studio-sketch-bridge-tutorial-part-1}
+            {Sketch Bridge Tutorial Part 1}
+        \li \l{https://www.qt.io/blog/qt-design-studio-sketch-bridge-tutorial-part-2}
+            {Sketch Bridge Tutorial Part 2}
     \endlist
 */

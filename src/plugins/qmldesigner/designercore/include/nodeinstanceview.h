@@ -99,6 +99,7 @@ public:
     void nodeSourceChanged(const ModelNode &modelNode, const QString &newNodeSource) override;
     void capturedData(const CapturedDataCommand &capturedData) override;
     void currentStateChanged(const ModelNode &node) override;
+    void sceneCreated(const SceneCreatedCommand &command) override;
 
     QList<NodeInstance> instances() const;
     NodeInstance instanceForModelNode(const ModelNode &node) const ;

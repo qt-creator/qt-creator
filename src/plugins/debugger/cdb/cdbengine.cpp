@@ -41,6 +41,7 @@
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/disassembleragent.h>
 #include <debugger/disassemblerlines.h>
+#include <debugger/enginemanager.h>
 #include <debugger/memoryagent.h>
 #include <debugger/moduleshandler.h>
 #include <debugger/registerhandler.h>
@@ -732,7 +733,8 @@ bool CdbEngine::hasCapability(unsigned cap) const
                   | CreateFullBacktraceCapability
                   | OperateByInstructionCapability
                   | RunToLineCapability
-                  | MemoryAddressCapability);
+                  | MemoryAddressCapability
+                  | AdditionalQmlStackCapability);
 }
 
 void CdbEngine::executeStepIn(bool byInstruction)
@@ -2630,6 +2632,8 @@ static StackFrames parseFrames(const GdbMi &gdbmi, bool *incomplete = nullptr)
                 frame.language = QmlLanguage;
         }
         frame.function = frameMi["function"].data();
+        if (frame.function.isEmpty())
+            frame.function = frameMi["func"].data(); // GDB's *stopped messages
         frame.module = frameMi["from"].data();
         frame.context = frameMi["context"].data();
         frame.address = frameMi["address"].data().toULongLong(nullptr, 16);
@@ -2687,6 +2691,14 @@ unsigned CdbEngine::parseStackTrace(const GdbMi &data, bool sourceStepInto)
 
 void CdbEngine::loadAdditionalQmlStack()
 {
+    // Creating a qml stack while the QmlEngine is stopped results in a frozen inferior.
+    const auto engineList = EngineManager::engines();
+    for (DebuggerEngine *engine : engineList) {
+        if (engine->objectName() == "QmlEngine" && engine->state() == Debugger::InferiorStopOk) {
+            showMessage("Can't create a QML stack trace while the QML Debugger is in the Stopped state", StatusBar);
+            return;
+        }
+    }
     runCommand({"qmlstack", ExtensionCommand, CB(handleAdditionalQmlStack)});
 }
 

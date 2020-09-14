@@ -26,7 +26,11 @@
 /*!
     \page creator-exporting-qml.html
     \previouspage quick-converting-ui-projects.html
+    \if defined(qtdesignstudio)
+    \nextpage quick-uis.html
+    \else
     \nextpage creator-using-qt-designer.html
+    \endif
 
     \title Exporting QML
 

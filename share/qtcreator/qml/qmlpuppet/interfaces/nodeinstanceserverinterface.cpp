@@ -60,6 +60,7 @@
 #include "removepropertiescommand.h"
 #include "removesharedmemorycommand.h"
 #include "reparentinstancescommand.h"
+#include "scenecreatedcommand.h"
 #include "statepreviewimagechangedcommand.h"
 #include "synchronizecommand.h"
 #include "tokencommand.h"
@@ -223,6 +224,9 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<CapturedDataCommand>("CapturedDataCommand");
     qRegisterMetaTypeStreamOperators<CapturedDataCommand>("CapturedDataCommand");
+
+    qRegisterMetaType<SceneCreatedCommand>("SceneCreatedCommand");
+    qRegisterMetaTypeStreamOperators<SceneCreatedCommand>("SceneCreatedCommand");
 }
 
 }
