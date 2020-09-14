@@ -2,7 +2,8 @@
 # in case MS VS compilers are used.
 
 CDB_PATH=""
-msvc {
+CDB_NO_AUTODETECT = $$(CDB_NO_AUTODETECT) #use the debugger header and lib defined in INCLUDE and LIB env var
+isEmpty(CDB_NO_AUTODETECT): msvc {
     CDB_PATH="$$(CDB_PATH)"
     isEmpty(CDB_PATH):CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows/sdk"
     !exists($$CDB_PATH):CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows (x86)/sdk"
