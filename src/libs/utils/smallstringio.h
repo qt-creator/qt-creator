@@ -65,8 +65,8 @@ QDataStream &operator>>(QDataStream &in, BasicSmallString<Size> &string)
     return in;
 }
 
-template <typename String>
-QDebug &operator<<(QDebug &debug, const String &string)
+template <uint Size>
+QDebug &operator<<(QDebug &debug, const BasicSmallString<Size> &string)
 {
     using QT_PREPEND_NAMESPACE(operator<<);
 
@@ -81,6 +81,16 @@ std::ostream &operator<<(std::ostream &out, const BasicSmallString<Size> &string
     out.write(string.data(), std::streamsize(string.size()));
 
     return out;
+}
+
+inline
+QDebug &operator<<(QDebug &debug, SmallStringView string)
+{
+    using QT_PREPEND_NAMESPACE(operator<<);
+
+    debug.nospace().quote() << QByteArray::fromRawData(string.data(), int(string.size()));
+
+    return debug;
 }
 
 inline
