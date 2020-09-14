@@ -170,7 +170,7 @@ protected:
 private:
     OpenResult openImpl(QString *errorString, const QString &fileName, const QString &realFileName,
                         bool reload);
-    void cleanWhitespace(QTextCursor &cursor, const StorageSettings &storageSettings);
+    void cleanWhitespace(QTextCursor &cursor, bool inEntireDocument, bool cleanIndentation);
     void ensureFinalNewLine(QTextCursor &cursor);
     void modificationChanged(bool modified);
     void updateLayout() const;

@@ -348,18 +348,19 @@ void PresetList::contextMenuEvent(QContextMenuEvent *event)
     if (m_scope == QSettings::SystemScope)
         return;
 
-    QMenu menu;
+    auto *menu = new QMenu(this);
 
-    QAction *addAction = menu.addAction(tr("Add Preset"));
+    QAction *addAction = menu->addAction(tr("Add Preset"));
 
     connect(addAction, &QAction::triggered, [&]() { createItem(); });
 
     if (selectionModel()->hasSelection()) {
-        QAction *removeAction = menu.addAction(tr("Delete Selected Preset"));
+        QAction *removeAction = menu->addAction(tr("Delete Selected Preset"));
         connect(removeAction, &QAction::triggered, [&]() { removeSelectedItem(); });
     }
 
-    menu.exec(event->globalPos());
+    menu->exec(event->globalPos());
+    menu->deleteLater();
 }
 
 void PresetList::dataChanged(const QModelIndex &topLeft,

@@ -1303,6 +1303,7 @@ class Dumper(DumperBase):
         gdb.execute('continue')
 
     def fetchStack(self, args):
+
         def fromNativePath(string):
             return string.replace('\\', '/')
 
@@ -1319,7 +1320,11 @@ class Dumper(DumperBase):
             frame = gdb.newest_frame()
             ns = self.qtNamespace()
             needle = self.qtNamespace() + 'QV4::ExecutionEngine'
-            pat = '%sqt_v4StackTraceForEngine((void*)0x%x)'
+            pats = [
+                    '{0}qt_v4StackTraceForEngine((void*)0x{1:x})',
+                    '{0}qt_v4StackTrace((({0}QV4::ExecutionEngine *)0x{1:x})->currentContext())',
+                    '{0}qt_v4StackTrace((({0}QV4::ExecutionEngine *)0x{1:x})->currentContext)',
+                   ]
             done = False
             while i < limit and frame and not done:
                 block = None
@@ -1336,8 +1341,19 @@ class Dumper(DumperBase):
                                 dereftype = typeobj.target().unqualified()
                                 if dereftype.name == needle:
                                     addr = toInteger(value)
-                                    expr = pat % (ns, addr)
-                                    res = str(gdb.parse_and_eval(expr))
+                                    res = None
+                                    for pat in pats:
+                                        try:
+                                            expr = pat.format(ns, addr)
+                                            res = str(gdb.parse_and_eval(expr))
+                                            break
+                                        except:
+                                            continue
+
+                                    if res is None:
+                                        done = True
+                                        break
+
                                     pos = res.find('"stack=[')
                                     if pos != -1:
                                         res = res[pos + 8:-2]

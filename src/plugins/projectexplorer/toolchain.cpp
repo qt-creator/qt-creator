@@ -155,6 +155,11 @@ void ToolChain::setDisplayName(const QString &name)
     toolChainUpdated();
 }
 
+bool ToolChain::isAutoDetected() const
+{
+    return detection() == AutoDetection || detection() == AutoDetectionFromSdk;
+}
+
 ToolChain::Detection ToolChain::detection() const
 {
     return d->m_detection;

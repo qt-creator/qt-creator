@@ -114,6 +114,8 @@ namespace Internal {
     class ChildrenChangeEventFilter;
 }
 
+enum class TimerMode { DisableTimer, NormalTimer, SlowTimer };
+
 class NodeInstanceServer : public NodeInstanceServerInterface
 {
     Q_OBJECT
@@ -127,7 +129,6 @@ public:
         PropertyName propertyName;
         QVariant propertyValue;
     };
-
 
     explicit NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
 
@@ -171,7 +172,9 @@ public:
     QFileSystemWatcher *dummydataFileSystemWatcher();
     Internal::ChildrenChangeEventFilter *childrenChangeEventFilter() const;
     void addFilePropertyToFileSystemWatcher(QObject *object, const PropertyName &propertyName, const QString &path);
-    void removeFilePropertyFromFileSystemWatcher(QObject *object, const PropertyName &propertyName, const QString &path);
+    void removeFilePropertyFromFileSystemWatcher(QObject *object,
+                                                 const PropertyName &propertyName,
+                                                 const QString &path);
 
     QUrl fileUrl() const;
 
@@ -190,13 +193,19 @@ public:
     virtual QQuickView *quickView() const = 0;
 
     void sendDebugOutput(DebugOutputCommand::Type type, const QString &message, qint32 instanceId = 0);
-    void sendDebugOutput(DebugOutputCommand::Type type, const QString &message, const QVector<qint32> &instanceIds);
+    void sendDebugOutput(DebugOutputCommand::Type type,
+                         const QString &message,
+                         const QVector<qint32> &instanceIds);
 
     void removeInstanceRelationsipForDeletedObject(QObject *object);
 
     void incrementNeedsExtraRender();
     void decrementNeedsExtraRender();
     void handleExtraRender();
+
+    void disableTimer();
+
+    virtual void collectItemChangesAndSendChangeCommands() = 0;
 
 public slots:
     void refreshLocalFileProperty(const QString &path);
@@ -221,7 +230,6 @@ protected:
 
     void timerEvent(QTimerEvent *) override;
 
-    virtual void collectItemChangesAndSendChangeCommands() = 0;
 
     ValuesChangedCommand createValuesChangedCommand(const QList<ServerNodeInstance> &instanceList) const;
     ValuesChangedCommand createValuesChangedCommand(const QVector<InstancePropertyPair> &propertyList) const;
@@ -290,8 +298,8 @@ private:
     NodeInstanceClientInterface *m_nodeInstanceClient;
     int m_timer = 0;
     int m_renderTimerInterval = 16;
-    bool m_slowRenderTimer = false;
-    int m_slowRenderTimerInterval = 200;
+    TimerMode m_timerMode = TimerMode::NormalTimer;
+    int m_timerModeInterval = 200;
     QVector<InstancePropertyPair> m_changedPropertyList;
     QByteArray m_importCode;
     QPointer<QObject> m_dummyContextObject;

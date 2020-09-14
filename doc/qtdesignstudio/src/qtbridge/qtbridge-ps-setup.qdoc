@@ -111,9 +111,10 @@
             \image qt-bridge-settings.png
         \li In the \uicontrol Password field, enter the password you entered in
             Adobe Photoshop and select \uicontrol {Connect}.
-        \li In the \uicontrol {Export Path} group, select the browse button
-            (\uicontrol {...}) to specify the location where \QBPS copies the
-            exported files.
+        \li In the \uicontrol {Export Path} group, select the folder button
+            to specify the location where \QBPS copies the exported files.
+        \li In the \uicontrol {Asset format & scale} group, select the default
+            asset format (JPG, PNG, or SVG) and DPI to use for each layer.
     \endlist
 
     Once the connection is successfully created, \QBPS is ready to use.

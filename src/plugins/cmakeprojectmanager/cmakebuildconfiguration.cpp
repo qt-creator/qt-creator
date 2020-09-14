@@ -172,7 +172,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Utils::Id id)
                     QString::fromLatin1("-DANDROID_SDK:PATH=%1").arg(sdkLocation.toString()));
             }
 
-            initialArgs.append(QString::fromLatin1("-DANDROID_STL:STRING=cxx_shared"));
+            initialArgs.append(QString::fromLatin1("-DANDROID_STL:STRING=c++_shared"));
 
             initialArgs.append(
                 QString::fromLatin1("-DCMAKE_FIND_ROOT_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}"));

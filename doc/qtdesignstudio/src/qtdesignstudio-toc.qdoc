@@ -68,6 +68,7 @@
                         \li \l{Importing 3D Assets}
                     \endlist
                 \li \l{Converting UI Projects to Applications}
+                \li \l{Exporting QML}
             \endlist
         \li \l{Creating UIs}
             \list

@@ -72,7 +72,7 @@ class ServerNodeInstance
     friend class Qt5InformationNodeInstanceServer;
     friend class Qt5NodeInstanceServer;
     friend class Qt5PreviewNodeInstanceServer;
-    friend class Qt5CaptureNodeInstanceServer;
+    friend class Qt5CapturePreviewNodeInstanceServer;
     friend class Qt5TestNodeInstanceServer;
     friend class QHash<qint32, ServerNodeInstance>;
     friend uint qHash(const ServerNodeInstance &instance);

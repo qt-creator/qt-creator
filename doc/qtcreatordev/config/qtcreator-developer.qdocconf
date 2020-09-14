@@ -3,6 +3,15 @@ description = "Extending Qt Creator Manual"
 
 language                = Cpp
 
+#Words to ignore for auto-linking
+ignorewords += \
+    macOS \
+    WebChannel \
+    WebSocket \
+    WebSockets \
+    OpenGL \
+    MinGW
+
 headerdirs              = . \
                           ../src \
                           ../../../src/libs/aggregation \

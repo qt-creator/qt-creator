@@ -836,10 +836,12 @@ void RunControl::setupFormatter(OutputFormatter *formatter) const
         }
     }
     formatter->setLineParsers(parsers);
-    Utils::FileInProjectFinder fileFinder;
-    fileFinder.setProjectDirectory(project()->projectDirectory());
-    fileFinder.setProjectFiles(project()->files(Project::AllFiles));
-    formatter->setFileFinder(fileFinder);
+    if (project()) {
+        Utils::FileInProjectFinder fileFinder;
+        fileFinder.setProjectDirectory(project()->projectDirectory());
+        fileFinder.setProjectFiles(project()->files(Project::AllFiles));
+        formatter->setFileFinder(fileFinder);
+    }
 }
 
 Utils::Id RunControl::runMode() const

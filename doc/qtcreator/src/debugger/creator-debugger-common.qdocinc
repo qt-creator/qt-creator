@@ -145,6 +145,7 @@
 
     \endlist
 
+    \if defined(qtcreator)
     \section2 Specifying Breakpoint Settings
 
     You can specify settings for breakpoints in \uicontrol Tools >
@@ -177,6 +178,7 @@
     For more information on breakpoints, see
     \l{http://sourceware.org/gdb/onlinedocs/gdb/Breakpoints.html#Breakpoints}
     {Breakpoints, Watchpoints, and Catchpoints} in GDB documentation.
+    \endif
 
     \section2 Moving Breakpoints
 

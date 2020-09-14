@@ -1731,8 +1731,11 @@ void ClangToolChainConfigWidget::updateParentToolChainComboBox()
         return;
 
     for (const ToolChain *mingwTC : mingwToolChains()) {
-        if (parentId != mingwTC->id())
-            m_parentToolchainCombo->addItem(mingwTC->displayName(), mingwTC->id());
+        if (mingwTC->id() == parentId)
+            continue;
+        if (mingwTC->language() != tc->language())
+            continue;
+        m_parentToolchainCombo->addItem(mingwTC->displayName(), mingwTC->id());
     }
 }
 

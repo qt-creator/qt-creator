@@ -64,6 +64,7 @@
 #include "removepropertiescommand.h"
 #include "removesharedmemorycommand.h"
 #include "reparentinstancescommand.h"
+#include "scenecreatedcommand.h"
 #include "statepreviewimagechangedcommand.h"
 #include "tokencommand.h"
 #include "update3dviewstatecommand.h"
@@ -585,9 +586,9 @@ void NodeInstanceView::currentStateChanged(const ModelNode &node)
         nodeInstanceView()->activateBaseState();
 }
 
+void NodeInstanceView::sceneCreated(const SceneCreatedCommand &) {}
 
 //\}
-
 
 void NodeInstanceView::removeAllInstanceNodeRelationships()
 {

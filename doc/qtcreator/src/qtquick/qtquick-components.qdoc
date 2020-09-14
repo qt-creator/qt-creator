@@ -504,10 +504,9 @@
             can be selected.
     \endlist
 
-    You can also use the
-    \l {https://doc-snapshots.qt.io/qt5-5.13/qml-qtquick-dialogs-dialog.html}
-    {Dialog} type in the Qt Quick Dialogs module to wrap arbitrary content into
-    a dialog window including a row of platform-tailored buttons.
+    You can also use the \l Dialog type in the Qt Quick Dialogs module to wrap
+    arbitrary content into a dialog window including a row of platform-tailored
+    buttons.
 
     \include qtquick-animation-types.qdocinc qtquick animation types
 

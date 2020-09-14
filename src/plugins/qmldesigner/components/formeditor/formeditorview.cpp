@@ -50,11 +50,12 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <memory>
 #include <QDebug>
 #include <QPair>
+#include <QPicture>
 #include <QString>
 #include <QTimer>
-#include <memory>
 
 namespace QmlDesigner {
 
@@ -768,6 +769,11 @@ void FormEditorView::setGotoErrorCallback(std::function<void (int, int)> gotoErr
 void FormEditorView::exportAsImage()
 {
     m_formEditorWidget->exportAsImage(m_scene->rootFormEditorItem()->boundingRect());
+}
+
+QPicture FormEditorView::renderToPicture() const
+{
+    return m_formEditorWidget->renderToPicture();
 }
 
 QmlItemNode findRecursiveQmlItemNode(const QmlObjectNode &firstQmlObjectNode)

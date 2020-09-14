@@ -53,6 +53,7 @@
 #include <QActionGroup>
 #include <QFileDialog>
 #include <QPainter>
+#include <QPicture>
 #include <QVBoxLayout>
 #include <QWheelEvent>
 
@@ -487,6 +488,19 @@ void FormEditorWidget::exportAsImage(const QRectF &boundingRect)
     }
 }
 
+QPicture FormEditorWidget::renderToPicture() const
+{
+    QPicture picture;
+    QPainter painter{&picture};
+
+    const QTransform viewportTransform = m_graphicsView->viewportTransform();
+    const QRectF boundingRect = rootItemRect();
+
+    m_graphicsView->render(&painter, boundingRect, viewportTransform.mapRect(boundingRect.toRect()));
+
+    return picture;
+}
+
 FormEditorGraphicsView *FormEditorWidget::graphicsView() const
 {
     return m_graphicsView;
@@ -504,7 +518,4 @@ DocumentWarningWidget *FormEditorWidget::errorWidget()
     return m_documentErrorWidget;
 }
 
-
-}
-
-
+} // namespace QmlDesigner

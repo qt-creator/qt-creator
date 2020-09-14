@@ -53,6 +53,7 @@ extend_qtc_executable(qml2puppet
     view3dactioncommand.cpp view3dactioncommand.h
     valueschangedcommand.cpp
     captureddatacommand.h
+    scenecreatedcommand.h
 )
 
 extend_qtc_executable(qml2puppet
@@ -156,7 +157,9 @@ extend_qtc_executable(qml2puppet
     quick3dtexturenodeinstance.cpp quick3dtexturenodeinstance.h
     quickitemnodeinstance.cpp quickitemnodeinstance.h
     servernodeinstance.cpp servernodeinstance.h
-    qt5capturenodeinstanceserver.cpp qt5capturenodeinstanceserver.h
+    qt5capturepreviewnodeinstanceserver.cpp qt5capturepreviewnodeinstanceserver.h
+    nodeinstanceserverdispatcher.cpp nodeinstanceserverdispatcher.h
+    capturenodeinstanceserverdispatcher.cpp capturenodeinstanceserverdispatcher.h
 )
 
 extend_qtc_executable(qml2puppet

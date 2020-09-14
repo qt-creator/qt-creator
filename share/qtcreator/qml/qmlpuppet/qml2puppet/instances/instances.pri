@@ -6,7 +6,10 @@ versionAtLeast(QT_VERSION, 5.15.0):qtHaveModule(quick3d) {
 }
 
 HEADERS += $$PWD/qt5nodeinstanceserver.h \
-    $$PWD/qt5capturenodeinstanceserver.h \
+    $$PWD/capturenodeinstanceserverdispatcher.h \
+    $$PWD/capturescenecreatedcommand.h \
+    $$PWD/nodeinstanceserverdispatcher.h \
+    $$PWD/qt5capturepreviewnodeinstanceserver.h \
     $$PWD/qt5testnodeinstanceserver.h \
     $$PWD/qt5informationnodeinstanceserver.h \
     $$PWD/qt5rendernodeinstanceserver.h \
@@ -33,7 +36,9 @@ HEADERS += $$PWD/qt5nodeinstanceserver.h \
     $$PWD/quick3dtexturenodeinstance.h
 
 SOURCES += $$PWD/qt5nodeinstanceserver.cpp \
-    $$PWD/qt5capturenodeinstanceserver.cpp \
+    $$PWD/capturenodeinstanceserverdispatcher.cpp \
+    $$PWD/nodeinstanceserverdispatcher.cpp \
+    $$PWD/qt5capturepreviewnodeinstanceserver.cpp \
     $$PWD/qt5testnodeinstanceserver.cpp \
     $$PWD/qt5informationnodeinstanceserver.cpp \
     $$PWD/qt5rendernodeinstanceserver.cpp \

@@ -87,6 +87,7 @@ public:
     void selectionChanged(const ChangeSelectionCommand &command) override;
     void handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command) override;
     void capturedData(const CapturedDataCommand &capturedData) override;
+    void sceneCreated(const SceneCreatedCommand &command) override;
 
     void flush() override;
     void synchronizeWithClientProcess() override;

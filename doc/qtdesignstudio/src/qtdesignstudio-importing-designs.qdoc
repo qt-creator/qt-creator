@@ -34,8 +34,6 @@
     exporting the 2D assets from design tools, whereas you can directly import
     3D assets saved in widely-used 3D graphics formats.
 
-    You can download \QB from the \l{https://marketplace.qt.io/}{Qt Marketplace}.
-
     \list
         \li \l{Importing 2D Assets}
 

@@ -27,7 +27,8 @@
 
 #include <QCoreApplication>
 
-#include "qt5capturenodeinstanceserver.h"
+#include "capturenodeinstanceserverdispatcher.h"
+#include "qt5capturepreviewnodeinstanceserver.h"
 #include "qt5informationnodeinstanceserver.h"
 #include "qt5previewnodeinstanceserver.h"
 #include "qt5rendernodeinstanceserver.h"
@@ -62,6 +63,10 @@ Qt5NodeInstanceClientProxy::Qt5NodeInstanceClientProxy(QObject *parent) :
         initializeCapturedStream(QCoreApplication::arguments().at(2));
         readDataStream();
         QCoreApplication::exit();
+    } else if (QCoreApplication::arguments().at(2).contains(',')) {
+        const QStringList serverNames = QCoreApplication::arguments().at(2).split(',');
+        setNodeInstanceServer(std::make_unique<CaptureNodeInstanceServerDispatcher>(serverNames, this));
+        initializeSocket();
     } else if (QCoreApplication::arguments().at(2) == QLatin1String("previewmode")) {
         setNodeInstanceServer(std::make_unique<Qt5PreviewNodeInstanceServer>(this));
         initializeSocket();
@@ -72,7 +77,7 @@ Qt5NodeInstanceClientProxy::Qt5NodeInstanceClientProxy(QObject *parent) :
         setNodeInstanceServer(std::make_unique<Qt5RenderNodeInstanceServer>(this));
         initializeSocket();
     } else if (QCoreApplication::arguments().at(2) == QLatin1String("capturemode")) {
-        setNodeInstanceServer(std::make_unique<Qt5CaptureNodeInstanceServer>(this));
+        setNodeInstanceServer(std::make_unique<Qt5CapturePreviewNodeInstanceServer>(this));
         initializeSocket();
     }
 }
