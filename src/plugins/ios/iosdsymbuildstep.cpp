@@ -228,10 +228,10 @@ BuildStepConfigWidget *IosDsymBuildStep::createConfigWidget()
     gridLayout->addWidget(argumentsTextEdit, 1, 2, 2, 1);
     gridLayout->addWidget(resetDefaultsButton, 2, 3, 1, 1);
 
-    auto updateDetails = [this, widget] {
+    auto updateDetails = [this] {
         ProcessParameters param;
         setupProcessParameters(&param);
-        widget->setSummaryText(param.summary(displayName()));
+        setSummaryText(param.summary(displayName()));
     };
 
     updateDetails();

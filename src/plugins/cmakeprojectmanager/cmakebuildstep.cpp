@@ -436,14 +436,14 @@ BuildStepConfigWidget *CMakeBuildStep::createConfigWidget()
 {
     auto widget = new BuildStepConfigWidget(this);
 
-    auto updateDetails = [this, widget] {
+    auto updateDetails = [this] {
         ProcessParameters param;
         setupProcessParameters(&param);
         param.setCommandLine(cmakeCommand());
-        widget->setSummaryText(param.summary(displayName()));
+        setSummaryText(param.summary(displayName()));
     };
 
-    widget->setDisplayName(tr("Build", "ConfigWidget display name."));
+    setDisplayName(tr("Build", "ConfigWidget display name."));
 
     LayoutBuilder builder(widget);
     builder.addRow(m_cmakeArguments);

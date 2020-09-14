@@ -547,7 +547,7 @@ BuildStepConfigWidget *QMakeStep::createConfigWidget()
         const QString program = qtVersion->qmakeCommand().fileName();
         return tr("<b>qmake:</b> %1 %2").arg(program, project()->projectFilePath().fileName());
     };
-    widget->setSummaryUpdater(updateSummary);
+    setSummaryUpdater(updateSummary);
 
     updateSummary();
     updateAbiWidgets();

@@ -159,9 +159,6 @@ private:
 AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     : BuildStepConfigWidget(step), m_step(step)
 {
-    setDisplayName("<b>" + tr("Build Android APK") + "</b>");
-    setSummaryText(displayName());
-
     auto vbox = new QVBoxLayout(this);
     vbox->addWidget(createSignPackageGroup());
     vbox->addWidget(createApplicationGroup());
@@ -493,6 +490,8 @@ AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent, Utils::Id id)
                                          sdkManager()->latestAndroidSdkPlatform()))
 {
     setImmutable(true);
+    setDisplayName("<b>" + tr("Build Android APK") + "</b>");
+    setSummaryText(displayName());
 }
 
 bool AndroidBuildApkStep::init()

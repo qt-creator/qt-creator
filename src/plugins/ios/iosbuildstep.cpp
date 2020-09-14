@@ -116,10 +116,10 @@ BuildStepConfigWidget *IosBuildStep::createConfigWidget()
 
     setDisplayName(tr("iOS build", "iOS BuildStep display name."));
 
-    auto updateDetails = [this, widget] {
+    auto updateDetails = [this] {
         ProcessParameters param;
         setupProcessParameters(&param);
-        widget->setSummaryText(param.summary(displayName()));
+        setSummaryText(param.summary(displayName()));
     };
 
     updateDetails();

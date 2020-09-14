@@ -73,7 +73,7 @@ NinjaBuildStep::NinjaBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id
 BuildStepConfigWidget *NinjaBuildStep::createConfigWidget()
 {
     auto widget = new BuildStepConfigWidget{this};
-    widget->setDisplayName(tr("Build", "MesonProjectManager::MesonBuildStepConfigWidget display name."));
+    setDisplayName(tr("Build", "MesonProjectManager::MesonBuildStepConfigWidget display name."));
 
     auto buildTargetsList = new QListWidget(widget);
     buildTargetsList->setMinimumHeight(200);
@@ -91,10 +91,10 @@ BuildStepConfigWidget *NinjaBuildStep::createConfigWidget()
     formLayout->addRow(tr("Tool arguments:"), toolArguments);
     formLayout->addRow(tr("Targets:"), wrapper);
 
-    auto updateDetails = [this, widget] {
+    auto updateDetails = [this] {
         ProcessParameters param;
         setupProcessParameters(&param);
-        widget->setSummaryText(param.summary(displayName()));
+        setSummaryText(param.summary(displayName()));
     };
 
     auto updateTargetList = [this, buildTargetsList, updateDetails] {

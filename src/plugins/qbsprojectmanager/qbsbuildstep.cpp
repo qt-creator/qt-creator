@@ -141,6 +141,8 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Utils::Id id) :
     BuildStep(bsl, id)
 {
     setDisplayName(tr("Qbs Build"));
+    setSummaryText(tr("<b>Qbs:</b> %1").arg("build"));
+
     setQbsConfiguration(QVariantMap());
 
     auto qbsBuildConfig = qobject_cast<QbsBuildConfiguration *>(buildConfiguration());
@@ -667,7 +669,6 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     connect(forceProbesCheckBox, &QCheckBox::toggled, this,
             &QbsBuildStepConfigWidget::changeForceProbes);
     updateState();
-    setSummaryText(tr("<b>Qbs:</b> %1").arg("build"));
 }
 
 void QbsBuildStepConfigWidget::updateState()

@@ -134,6 +134,10 @@ BuildStep::BuildStep(BuildStepList *bsl, Utils::Id id) :
     ProjectConfiguration(bsl, id)
 {
     QTC_CHECK(bsl->target() && bsl->target() == this->target());
+    connect(this, &ProjectConfiguration::displayNameChanged,
+            this, &BuildStep::updateSummary);
+//    m_displayName = step->displayName();
+//    m_summaryText = "<b>" + m_displayName + "</b>";
 }
 
 BuildStep::~BuildStep()
@@ -162,13 +166,12 @@ BuildStepConfigWidget *BuildStep::createConfigWidget()
         for (BaseAspect *aspect : qAsConst(m_aspects)) {
             if (aspect->isVisible())
                 aspect->addToLayout(builder.finishRow());
+            connect(aspect, &BaseAspect::changed, this, &BuildStep::recreateSummary);
         }
     }
 
     connect(buildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
-            widget, &BuildStepConfigWidget::recreateSummary);
-
-    widget->setSummaryUpdater(m_summaryUpdater);
+            this, &BuildStep::recreateSummary);
 
     if (m_addMacroExpander)
         VariableChooser::addSupportForChildWidgets(widget, macroExpander());
@@ -340,11 +343,6 @@ void BuildStep::addMacroExpander()
     m_addMacroExpander = true;
 }
 
-void BuildStep::setSummaryUpdater(const std::function<QString ()> &summaryUpdater)
-{
-    m_summaryUpdater = summaryUpdater;
-}
-
 void BuildStep::setEnabled(bool b)
 {
     if (m_enabled == b)
@@ -485,36 +483,19 @@ BuildStep *BuildStepFactory::restore(BuildStepList *parent, const QVariantMap &m
     return bs;
 }
 
-// BuildStepConfigWidget
-
-BuildStepConfigWidget::BuildStepConfigWidget(BuildStep *step)
+BuildStepConfigWidget::BuildStepConfigWidget(BuildStep *)
 {
-    m_displayName = step->displayName();
-    m_summaryText = "<b>" + m_displayName + "</b>";
-    connect(step, &ProjectConfiguration::displayNameChanged,
-            this, &BuildStepConfigWidget::updateSummary);
-    for (auto aspect : step->aspects()) {
-        connect(aspect, &BaseAspect::changed,
-                this, &BuildStepConfigWidget::recreateSummary);
-    }
 }
 
-QString BuildStepConfigWidget::summaryText() const
+QString BuildStep::summaryText() const
 {
+    if (m_summaryText.isEmpty())
+        return QString("<b>%1</b>").arg(displayName());
+
     return m_summaryText;
 }
 
-QString BuildStepConfigWidget::displayName() const
-{
-    return m_displayName;
-}
-
-void BuildStepConfigWidget::setDisplayName(const QString &displayName)
-{
-    m_displayName = displayName;
-}
-
-void BuildStepConfigWidget::setSummaryText(const QString &summaryText)
+void BuildStep::setSummaryText(const QString &summaryText)
 {
     if (summaryText != m_summaryText) {
         m_summaryText = summaryText;
@@ -522,13 +503,13 @@ void BuildStepConfigWidget::setSummaryText(const QString &summaryText)
     }
 }
 
-void BuildStepConfigWidget::setSummaryUpdater(const std::function<QString()> &summaryUpdater)
+void BuildStep::setSummaryUpdater(const std::function<QString()> &summaryUpdater)
 {
     m_summaryUpdater = summaryUpdater;
     recreateSummary();
 }
 
-void BuildStepConfigWidget::recreateSummary()
+void BuildStep::recreateSummary()
 {
     if (m_summaryUpdater)
         setSummaryText(m_summaryUpdater());

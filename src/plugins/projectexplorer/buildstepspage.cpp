@@ -181,7 +181,7 @@ BuildStepsWidgetData::BuildStepsWidgetData(BuildStep *s) :
 
     detailsWidget->setToolWidget(toolWidget);
     detailsWidget->setContentsMargins(0, 0, 0, 1);
-    detailsWidget->setSummaryText(widget->summaryText());
+    detailsWidget->setSummaryText(s->summaryText());
 }
 
 BuildStepsWidgetData::~BuildStepsWidgetData()
@@ -226,11 +226,11 @@ BuildStepListWidget::~BuildStepListWidget()
 
 void BuildStepListWidget::updateSummary()
 {
-    auto widget = qobject_cast<BuildStepConfigWidget *>(sender());
-    if (widget) {
+    auto step = qobject_cast<BuildStep *>(sender());
+    if (step) {
         foreach (const BuildStepsWidgetData *s, m_buildStepsData) {
-            if (s->widget == widget) {
-                s->detailsWidget->setSummaryText(widget->summaryText());
+            if (s->step == step) {
+                s->detailsWidget->setSummaryText(step->summaryText());
                 break;
             }
         }
@@ -285,7 +285,7 @@ void BuildStepListWidget::addBuildStep(int pos)
 
     m_vbox->insertWidget(pos, s->detailsWidget);
 
-    connect(s->widget, &BuildStepConfigWidget::updateSummary,
+    connect(s->step, &BuildStep::updateSummary,
             this, &BuildStepListWidget::updateSummary);
 
     connect(s->step, &BuildStep::enabledChanged,

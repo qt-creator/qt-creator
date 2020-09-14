@@ -111,8 +111,8 @@ BuildStepConfigWidget *NimCompilerBuildStep::createConfigWidget()
 {
     auto widget = new BuildStepConfigWidget(this);
 
-    widget->setDisplayName(tr("Nim build step"));
-    widget->setSummaryText(tr("Nim build step"));
+    setDisplayName(tr("Nim build step"));
+    setSummaryText(tr("Nim build step"));
 
     auto targetComboBox = new QComboBox(widget);
 

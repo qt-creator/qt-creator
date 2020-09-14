@@ -383,7 +383,7 @@ BuildStepConfigWidget *MakeStep::createConfigWidget()
 
     VariableChooser::addSupportForChildWidgets(widget, macroExpander());
 
-    widget->setSummaryUpdater([this] {
+    setSummaryUpdater([this] {
         const CommandLine make = effectiveMakeCommand(MakeStep::Display);
         if (make.executable().isEmpty())
             return tr("<b>Make:</b> %1").arg(MakeStep::msgNoMakeCommand());
@@ -405,8 +405,7 @@ BuildStepConfigWidget *MakeStep::createConfigWidget()
         return param.summaryInWorkdir(displayName());
     });
 
-    auto updateDetails = [this, disableInSubDirsCheckBox, widget = QPointer<BuildStepConfigWidget>(widget)] {
-        QTC_ASSERT(widget, return);
+    auto updateDetails = [this, disableInSubDirsCheckBox] {
         const bool jobCountVisible = isJobCountSupported();
         m_userJobCountAspect->setVisible(jobCountVisible);
         m_overrideMakeflagsAspect->setVisible(jobCountVisible);
@@ -418,7 +417,7 @@ BuildStepConfigWidget *MakeStep::createConfigWidget()
                                          && !jobCountOverridesMakeflags());
         disableInSubDirsCheckBox->setChecked(!m_enabledForSubDirs);
 
-        widget->recreateSummary();
+        recreateSummary();
     };
 
     updateDetails();

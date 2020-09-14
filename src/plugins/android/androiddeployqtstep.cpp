@@ -477,8 +477,8 @@ BuildStepConfigWidget *AndroidDeployQtStep::createConfigWidget()
 {
     auto widget = new BuildStepConfigWidget(this);
 
-    widget->setDisplayName(QString("<b>%1</b>").arg(displayName()));
-    widget->setSummaryText(displayName());
+    setDisplayName(QString("<b>%1</b>").arg(displayName()));
+    setSummaryText(displayName());
 
     auto uninstallPreviousCheckBox = new QCheckBox(widget);
     uninstallPreviousCheckBox->setText(tr("Uninstall the existing app first"));

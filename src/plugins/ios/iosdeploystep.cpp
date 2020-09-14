@@ -235,11 +235,11 @@ BuildStepConfigWidget *IosDeployStep::createConfigWidget()
     auto widget = new BuildStepConfigWidget(this);
 
     widget->setObjectName("IosDeployStepWidget");
-    widget->setDisplayName(QString("<b>%1</b>").arg(displayName()));
-    widget->setSummaryText(widget->displayName());
+    setDisplayName(QString("<b>%1</b>").arg(displayName()));
+    setSummaryText(displayName());
 
     connect(this, &ProjectConfiguration::displayNameChanged,
-            widget, &BuildStepConfigWidget::updateSummary);
+            this, &BuildStep::updateSummary);
 
     return widget;
 }

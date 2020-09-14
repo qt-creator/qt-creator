@@ -119,7 +119,14 @@ public:
 
     void addMacroExpander();
 
+    QString summaryText() const;
+    void setSummaryText(const QString &summaryText);
+
+    void recreateSummary();
+
 signals:
+    void updateSummary();
+
     /// Adds a \p task to the Issues pane.
     /// Do note that for linking compile output with tasks, you should first emit the output
     /// and then emit the task. \p linkedOutput lines will be linked. And the last \p skipLines will
@@ -155,6 +162,8 @@ private:
     bool m_addMacroExpander = false;
     Utils::optional<bool> m_wasExpanded;
     std::function<QString()> m_summaryUpdater;
+
+    QString m_summaryText;
 };
 
 class PROJECTEXPLORER_EXPORT BuildStepInfo
@@ -227,23 +236,6 @@ class PROJECTEXPLORER_EXPORT BuildStepConfigWidget : public QWidget
     Q_OBJECT
 public:
     explicit BuildStepConfigWidget(BuildStep *step);
-
-    QString summaryText() const;
-    QString displayName() const;
-
-    void setDisplayName(const QString &displayName);
-    void setSummaryText(const QString &summaryText);
-
-    void setSummaryUpdater(const std::function<QString()> &summaryUpdater);
-    void recreateSummary();
-
-signals:
-    void updateSummary();
-
-private:
-    QString m_displayName;
-    QString m_summaryText;
-    std::function<QString()> m_summaryUpdater;
 };
 
 } // namespace ProjectExplorer

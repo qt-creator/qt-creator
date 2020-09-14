@@ -67,6 +67,7 @@ QbsInstallStep::QbsInstallStep(BuildStepList *bsl, Utils::Id id)
     : BuildStep(bsl, id)
 {
     setDisplayName(tr("Qbs Install"));
+    setSummaryText(tr("<b>Qbs:</b> %1").arg("install"));
 
     const auto labelPlacement = BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel;
     m_dryRun = addAspect<BoolAspect>();
@@ -181,8 +182,6 @@ QbsBuildStepData QbsInstallStep::stepData() const
 BuildStepConfigWidget *QbsInstallStep::createConfigWidget()
 {
     auto widget = new BuildStepConfigWidget(this);
-
-    widget->setSummaryText(tr("<b>Qbs:</b> %1").arg("install"));
 
     auto installRootValueLabel = new QLabel(installRoot());
 
