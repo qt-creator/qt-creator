@@ -3,10 +3,12 @@ cmake_minimum_required(VERSION 3.5)
 project(%{TestCaseName} LANGUAGES CXX)
 
 @if "%{TestFrameWork}" == "QtTest"
-
-find_package(Qt5Test REQUIRED)
 @if "%{RequireGUI}" == "true"
-find_package(Qt5Gui REQUIRED)
+find_package(QT NAMES Qt5 Qt6 COMPONENTS Gui Test REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Test REQUIRED)
+@else
+find_package(QT NAMES Qt5 Qt6 COMPONENTS Test REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Test REQUIRED)
 @endif
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -23,14 +25,15 @@ add_executable(%{TestCaseName} %{TestCaseFileWithCppSuffix})
 add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
 
 @if "%{RequireGUI}" == "true"
-target_link_libraries(%{TestCaseName} PRIVATE Qt5::Gui Qt5::Test)
+target_link_libraries(%{TestCaseName} PRIVATE Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Test)
 @else
-target_link_libraries(%{TestCaseName} PRIVATE Qt5::Test)
+target_link_libraries(%{TestCaseName} PRIVATE Qt${QT_VERSION_MAJOR}::Test)
 @endif
 
 @endif
 @if "%{TestFrameWork}" == "QtQuickTest"
-find_package(Qt5QuickTest REQUIRED)
+find_package(QT NAMES Qt5 Qt6 COMPONENTS QuickTest REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS QuickTest REQUIRED)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -48,7 +51,7 @@ add_definitions(-DQUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 add_executable(%{TestCaseName} %{MainCppName})
 add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
 
-target_link_libraries(%{TestCaseName} PRIVATE Qt5::QuickTest)
+target_link_libraries(%{TestCaseName} PRIVATE Qt${QT_VERSION_MAJOR}::QuickTest)
 
 @endif
 @if  "%{TestFrameWork}" == "GTest"
@@ -120,13 +123,14 @@ endif ()
 SET(CMAKE_CXX_STANDARD 11)
 
 @if "%{Catch2NeedsQt}" == "true"
-find_package(Qt5Gui REQUIRED)
+find_package(QT NAMES Qt5 Qt6 COMPONENTS Gui REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui REQUIRED)
 @endif
 
 add_executable(${PROJECT_NAME} %{TestCaseFileWithCppSuffix} main.cpp)
 
 @if "%{Catch2NeedsQt}" == "true"
-target_link_libraries(%{TestCaseName} PRIVATE Qt5::Gui)
+target_link_libraries(%{TestCaseName} PRIVATE Qt${QT_VERSION_MAJOR}::Gui)
 @endif
 
 if (DEFINED ENV{CATCH_INCLUDE_DIR})
