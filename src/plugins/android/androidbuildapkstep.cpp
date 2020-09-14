@@ -499,6 +499,9 @@ AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent, Utils::Id id)
 
 bool AndroidBuildApkStep::init()
 {
+    if (!AbstractProcessStep::init())
+        return false;
+
     if (m_signPackage) {
         qCDebug(buildapkstepLog) << "Signing enabled";
         // check keystore and certificate passwords
@@ -566,9 +569,6 @@ bool AndroidBuildApkStep::init()
 
     qCDebug(buildapkstepLog) << "APK or AAB path:" << m_packagePath;
 
-    if (!AbstractProcessStep::init())
-        return false;
-
     QString command = version->hostBinPath().toString();
     if (!command.endsWith('/'))
         command += '/';
@@ -631,9 +631,7 @@ bool AndroidBuildApkStep::init()
             arguments << "--no-gdbserver";
     }
 
-    ProjectExplorer::ProcessParameters *pp = processParameters();
-    setupProcessParameters(pp);
-    pp->setCommandLine({command, arguments});
+    processParameters()->setCommandLine({command, arguments});
 
     // Generate arguments with keystore password concealed
     ProjectExplorer::ProcessParameters pp2;

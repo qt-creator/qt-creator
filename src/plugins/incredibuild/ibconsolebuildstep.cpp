@@ -57,7 +57,6 @@ class IBConsoleBuildStep final : public AbstractProcessStep
 public:
     IBConsoleBuildStep(BuildStepList *buildStepList, Id id);
 
-    bool init() final;
     void setupOutputFormatter(OutputFormatter *formatter) final;
 };
 
@@ -127,15 +126,6 @@ void IBConsoleBuildStep::setupOutputFormatter(OutputFormatter *formatter)
     formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
     AbstractProcessStep::setupOutputFormatter(formatter);
 }
-
-bool IBConsoleBuildStep::init()
-{
-    ProcessParameters *procParams = processParameters();
-    setupProcessParameters(procParams);
-
-    return AbstractProcessStep::init();
-}
-
 
 // IBConsoleStepFactory
 

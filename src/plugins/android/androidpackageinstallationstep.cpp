@@ -91,6 +91,9 @@ AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bs
 
 bool AndroidPackageInstallationStep::init()
 {
+    if (!AbstractProcessStep::init())
+        return false;
+
     ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit());
     QTC_ASSERT(tc, return false);
 
@@ -101,16 +104,14 @@ bool AndroidPackageInstallationStep::init()
     CommandLine cmd{tc->makeCommand(buildEnvironment())};
     cmd.addArgs(outerQuoted + " install", CommandLine::Raw);
 
-    ProcessParameters *pp = processParameters();
-    setupProcessParameters(pp);
-    pp->setCommandLine(cmd);
+    processParameters()->setCommandLine(cmd);
 
     m_androidDirsToClean.clear();
     // don't remove gradle's cache, it takes ages to rebuild it.
     m_androidDirsToClean << dirPath + "/assets";
     m_androidDirsToClean << dirPath + "/libs";
 
-    return AbstractProcessStep::init();
+    return true;
 }
 
 QString AndroidPackageInstallationStep::nativeAndroidBuildPath() const

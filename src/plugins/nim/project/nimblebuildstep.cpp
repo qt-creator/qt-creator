@@ -87,7 +87,6 @@ class NimbleBuildStep : public AbstractProcessStep
 public:
     NimbleBuildStep(BuildStepList *parentList, Id id);
 
-    bool init() final;
     void setupOutputFormatter(OutputFormatter *formatter) final;
 
 private:
@@ -128,14 +127,6 @@ NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList, Id id)
                      m_arguments, &ArgumentsAspect::resetArguments);
     QObject::connect(m_arguments, &ArgumentsAspect::changed,
                      this, &NimbleBuildStep::onArgumentsChanged);
-}
-
-bool NimbleBuildStep::init()
-{
-    ProcessParameters *params = processParameters();
-    setupProcessParameters(params);
-
-    return AbstractProcessStep::init();
 }
 
 void NimbleBuildStep::setupOutputFormatter(OutputFormatter *formatter)

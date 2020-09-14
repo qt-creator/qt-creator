@@ -187,6 +187,8 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Utils::Id id) :
 
     setLowPriority();
 
+    setCommandLineProvider([this] { return cmakeCommand(); });
+
     setEnvironmentModifier([](Environment &env) {
         const QString ninjaProgressString = "[%f/%t "; // ninja: [33/100
         Environment::setupEnglishOutput(&env);
@@ -219,6 +221,9 @@ bool CMakeBuildStep::fromMap(const QVariantMap &map)
 
 bool CMakeBuildStep::init()
 {
+    if (!AbstractProcessStep::init())
+        return false;
+
     BuildConfiguration *bc = buildConfiguration();
     QTC_ASSERT(bc, return false);
 
@@ -265,11 +270,7 @@ bool CMakeBuildStep::init()
 
     setIgnoreReturnValue(m_buildTargets == QStringList(CMakeBuildStep::cleanTarget()));
 
-    ProcessParameters *pp = processParameters();
-    setupProcessParameters(pp);
-    pp->setCommandLine(cmakeCommand());
-
-    return AbstractProcessStep::init();
+    return true;
 }
 
 void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)

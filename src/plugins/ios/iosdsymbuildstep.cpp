@@ -70,19 +70,11 @@ IosDsymBuildStep::IosDsymBuildStep(BuildStepList *parent, Id id) :
 {
     setCommandLineProvider([this] { return CommandLine(command(), arguments()); });
     setUseEnglishOutput();
-}
-
-bool IosDsymBuildStep::init()
-{
-    ProcessParameters *pp = processParameters();
-    setupProcessParameters(pp);
 
     // If we are cleaning, then build can fail with an error code, but that doesn't mean
     // we should stop the clean queue
     // That is mostly so that rebuild works on an already clean project
     setIgnoreReturnValue(m_clean);
-
-    return AbstractProcessStep::init();
 }
 
 QVariantMap IosDsymBuildStep::toMap() const

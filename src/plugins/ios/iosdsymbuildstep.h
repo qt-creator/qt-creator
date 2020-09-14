@@ -49,7 +49,6 @@ public:
     bool isDefault() const;
 
 private:
-    bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &map) override;

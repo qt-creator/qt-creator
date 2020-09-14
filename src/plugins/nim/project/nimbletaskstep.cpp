@@ -59,7 +59,6 @@ public:
     NimbleTaskStep(BuildStepList *parentList, Id id);
 
 private:
-    bool init() final;
     BuildStepConfigWidget *createConfigWidget() final;
 
     void setTaskName(const QString &name);
@@ -98,16 +97,6 @@ NimbleTaskStep::NimbleTaskStep(BuildStepList *parentList, Id id)
     m_taskArgs->setSettingsKey(Constants::C_NIMBLETASKSTEP_TASKARGS);
     m_taskArgs->setDisplayStyle(StringAspect::LineEditDisplay);
     m_taskArgs->setLabelText(tr("Task arguments:"));
-}
-
-bool NimbleTaskStep::init()
-{
-    if (!AbstractProcessStep::init())
-        return false;
-
-    setupProcessParameters(processParameters());
-
-    return validate();
 }
 
 BuildStepConfigWidget *NimbleTaskStep::createConfigWidget()

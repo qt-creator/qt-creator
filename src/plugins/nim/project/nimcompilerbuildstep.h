@@ -51,8 +51,6 @@ private:
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
-    bool init() override;
-
     void updateTargetNimFile();
     Utils::CommandLine commandLine();
 

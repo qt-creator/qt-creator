@@ -95,7 +95,6 @@ class BuildConsoleBuildStep : public AbstractProcessStep
 public:
     BuildConsoleBuildStep(BuildStepList *buildStepList, Id id);
 
-    bool init() final;
     void setupOutputFormatter(OutputFormatter *formatter) final;
 };
 
@@ -339,14 +338,6 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
 
         return CommandLine("BuildConsole.exe", args);
     });
-}
-
-bool BuildConsoleBuildStep::init()
-{
-    ProcessParameters *procParams = processParameters();
-    setupProcessParameters(procParams);
-
-    return AbstractProcessStep::init();
 }
 
 void BuildConsoleBuildStep::setupOutputFormatter(OutputFormatter *formatter)

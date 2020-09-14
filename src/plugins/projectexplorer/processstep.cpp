@@ -53,7 +53,6 @@ class ProcessStep final : public AbstractProcessStep
 public:
     ProcessStep(BuildStepList *bsl, Utils::Id id);
 
-    bool init() final;
     void setupOutputFormatter(Utils::OutputFormatter *formatter);
     void setupProcessParameters(ProcessParameters *pp);
 
@@ -97,12 +96,6 @@ ProcessStep::ProcessStep(BuildStepList *bsl, Utils::Id id)
     });
 
     addMacroExpander();
-}
-
-bool ProcessStep::init()
-{
-    setupProcessParameters(processParameters());
-    return AbstractProcessStep::init();
 }
 
 void ProcessStep::setupOutputFormatter(OutputFormatter *formatter)

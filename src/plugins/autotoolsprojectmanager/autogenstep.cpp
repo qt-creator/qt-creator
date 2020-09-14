@@ -63,7 +63,6 @@ public:
     AutogenStep(BuildStepList *bsl, Utils::Id id);
 
 private:
-    bool init() override;
     void doRun() override;
 
     StringAspect *m_additionalArgumentsAspect = nullptr;
@@ -96,13 +95,6 @@ AutogenStep::AutogenStep(BuildStepList *bsl, Utils::Id id) : AbstractProcessStep
         setupProcessParameters(&param);
         return param.summary(displayName());
     });
-}
-
-bool AutogenStep::init()
-{
-    ProcessParameters *pp = processParameters();
-    setupProcessParameters(pp);
-    return AbstractProcessStep::init();
 }
 
 void AutogenStep::doRun()

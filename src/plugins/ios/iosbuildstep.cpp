@@ -169,6 +169,9 @@ IosBuildStep::IosBuildStep(BuildStepList *stepList, Id id)
 
 bool IosBuildStep::init()
 {
+    if (!AbstractProcessStep::init())
+        return false;
+
     BuildConfiguration *bc = buildConfiguration();
 
     ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit());
@@ -180,11 +183,7 @@ bool IosBuildStep::init()
         return false;
     }
 
-    ProcessParameters *pp = processParameters();
-    setupProcessParameters(pp);
-    pp->setCommandLine({buildCommand(), allArguments()});
-
-    return AbstractProcessStep::init();
+    return true;
 }
 
 void IosBuildStep::setupOutputFormatter(OutputFormatter *formatter)

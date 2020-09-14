@@ -168,6 +168,9 @@ QMakeStepConfig QMakeStep::deducedArguments() const
 
 bool QMakeStep::init()
 {
+    if (!AbstractProcessStep::init())
+        return false;
+
     m_wasSuccess = true;
     QmakeBuildConfiguration *qmakeBc = qmakeBuildConfiguration();
     const BaseQtVersion *qtVersion = QtKitAspect::qtVersion(kit());
@@ -221,10 +224,7 @@ bool QMakeStep::init()
     }
     m_forced = false;
 
-    ProcessParameters *pp = processParameters();
-    pp->setMacroExpander(qmakeBc->macroExpander());
-    pp->setWorkingDirectory(workingDirectory);
-    pp->setEnvironment(qmakeBc->environment());
+    processParameters()->setWorkingDirectory(workingDirectory);
 
     QmakeProFileNode *node = static_cast<QmakeProFileNode *>(qmakeBc->project()->rootProjectNode());
     if (qmakeBc->subNodeBuild())
@@ -250,7 +250,7 @@ bool QMakeStep::init()
 
     m_scriptTemplate = node->projectType() == ProjectType::ScriptTemplate;
 
-    return AbstractProcessStep::init();
+    return true;
 }
 
 void QMakeStep::setupOutputFormatter(OutputFormatter *formatter)

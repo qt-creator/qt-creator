@@ -72,6 +72,8 @@ MakeStep::MakeStep(BuildStepList *parent, Id id)
     setDefaultDisplayName(defaultDisplayName());
     setLowPriority();
 
+    setCommandLineProvider([this] { return effectiveMakeCommand(Execution); });
+
     m_makeCommandAspect = addAspect<StringAspect>();
     m_makeCommandAspect->setSettingsKey(id.withSuffix(MAKE_COMMAND_SUFFIX).toString());
     m_makeCommandAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
@@ -133,6 +135,9 @@ void MakeStep::setAvailableBuildTargets(const QStringList &buildTargets)
 
 bool MakeStep::init()
 {
+    if (!AbstractProcessStep::init())
+        return false;
+
     const CommandLine make = effectiveMakeCommand(Execution);
     if (make.executable().isEmpty())
         emit addTask(makeCommandMissingTask());
@@ -142,11 +147,7 @@ bool MakeStep::init()
         return false;
     }
 
-    ProcessParameters *pp = processParameters();
-    setupProcessParameters(pp);
-    pp->setCommandLine(make);
-
-    return AbstractProcessStep::init();
+    return true;
 }
 
 void MakeStep::setupOutputFormatter(OutputFormatter *formatter)

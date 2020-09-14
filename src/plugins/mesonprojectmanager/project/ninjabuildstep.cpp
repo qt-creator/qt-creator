@@ -173,15 +173,6 @@ void NinjaBuildStep::update(bool parsingSuccessful)
     }
 }
 
-bool NinjaBuildStep::init()
-{
-    // TODO check if the setup is ok
-    ProjectExplorer::ProcessParameters *pp = processParameters();
-    setupProcessParameters(pp);
-
-    return AbstractProcessStep::init();
-}
-
 QString NinjaBuildStep::defaultBuildTarget() const
 {
     const ProjectExplorer::BuildStepList *const bsl = stepList();

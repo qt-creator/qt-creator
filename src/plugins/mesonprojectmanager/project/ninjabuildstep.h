@@ -37,6 +37,7 @@ class NinjaBuildStep final : public ProjectExplorer::AbstractProcessStep
     Q_OBJECT
 public:
     NinjaBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
+
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() final;
     Utils::CommandLine command();
     QStringList projectTargets();
@@ -50,10 +51,10 @@ public:
 
 private:
     void update(bool parsingSuccessful);
-    bool init() override;
     void doRun() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     QString defaultBuildTarget() const;
+
     QString m_commandArgs;
     QString m_targetName;
     NinjaParser *m_ninjaParser = nullptr;

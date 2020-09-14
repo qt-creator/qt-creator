@@ -59,7 +59,6 @@ class AutoreconfStep : public AbstractProcessStep
 public:
     AutoreconfStep(BuildStepList *bsl, Utils::Id id);
 
-    bool init() override;
     void doRun() override;
 
 private:
@@ -96,13 +95,6 @@ AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Utils::Id id)
         setupProcessParameters(&param);
         return param.summary(displayName());
     });
-}
-
-bool AutoreconfStep::init()
-{
-    ProcessParameters *pp = processParameters();
-    setupProcessParameters(pp);
-    return AbstractProcessStep::init();
 }
 
 void AutoreconfStep::doRun()

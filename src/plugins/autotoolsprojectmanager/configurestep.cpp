@@ -82,7 +82,6 @@ public:
     void setAdditionalArguments(const QString &list);
 
 private:
-    bool init() override;
     void doRun() override;
 
     ProjectExplorer::StringAspect *m_additionalArgumentsAspect = nullptr;
@@ -121,14 +120,6 @@ ConfigureStep::ConfigureStep(BuildStepList *bsl, Utils::Id id)
 
         return param.summaryInWorkdir(displayName());
     });
-}
-
-bool ConfigureStep::init()
-{
-    ProcessParameters *pp = processParameters();
-    setupProcessParameters(pp);
-
-    return AbstractProcessStep::init();
 }
 
 void ConfigureStep::doRun()

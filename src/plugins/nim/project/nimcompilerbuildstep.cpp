@@ -202,16 +202,6 @@ QVariantMap NimCompilerBuildStep::toMap() const
     return result;
 }
 
-bool NimCompilerBuildStep::init()
-{
-    if (!AbstractProcessStep::init())
-        return false;
-
-    setupProcessParameters(processParameters());
-
-    return true;
-}
-
 void NimCompilerBuildStep::setBuildType(BuildConfiguration::BuildType buildType)
 {
     switch (buildType) {

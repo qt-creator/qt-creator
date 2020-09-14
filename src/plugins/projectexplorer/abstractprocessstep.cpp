@@ -177,7 +177,12 @@ void AbstractProcessStep::setWorkingDirectoryProvider(const std::function<FilePa
 
 bool AbstractProcessStep::init()
 {
-    return !d->m_process;
+    if (d->m_process)
+        return false;
+
+    setupProcessParameters(processParameters());
+
+    return true;
 }
 
 void AbstractProcessStep::setupOutputFormatter(OutputFormatter *formatter)

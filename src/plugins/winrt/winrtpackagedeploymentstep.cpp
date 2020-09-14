@@ -182,6 +182,9 @@ WinRtPackageDeploymentStep::WinRtPackageDeploymentStep(BuildStepList *bsl, Utils
 
 bool WinRtPackageDeploymentStep::init()
 {
+    if (!AbstractProcessStep::init())
+        return false;
+
     RunConfiguration *rc = target()->activeRunConfiguration();
     QTC_ASSERT(rc, return false);
 
@@ -229,7 +232,7 @@ bool WinRtPackageDeploymentStep::init()
                            ? target()->activeBuildConfiguration()->environment()
                            : Environment::systemEnvironment());
 
-    return AbstractProcessStep::init();
+    return true;
 }
 
 void WinRtPackageDeploymentStep::doRun()

@@ -64,6 +64,10 @@ QmakeMakeStep::QmakeMakeStep(BuildStepList *bsl, Utils::Id id)
 
 bool QmakeMakeStep::init()
 {
+    // Note: This skips the Makestep::init() level.
+    if (!AbstractProcessStep::init())
+        return false;
+
     const auto bc = static_cast<QmakeBuildConfiguration *>(buildConfiguration());
 
     const Utils::CommandLine unmodifiedMake = effectiveMakeCommand(Execution);
@@ -171,8 +175,7 @@ bool QmakeMakeStep::init()
             qmakeStep->setForced(true);
     }
 
-    // Note: This skips the Makestep::init() level.
-    return AbstractProcessStep::init();
+    return true;
 }
 
 void QmakeMakeStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
