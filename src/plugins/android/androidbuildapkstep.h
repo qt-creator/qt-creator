@@ -37,8 +37,9 @@ class QAbstractItemModel;
 QT_END_NAMESPACE
 
 namespace Android {
+namespace Internal {
 
-class ANDROID_EXPORT AndroidBuildApkStep : public ProjectExplorer::AbstractProcessStep
+class AndroidBuildApkStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
 
@@ -109,8 +110,6 @@ private:
     bool m_skipBuilding = false;
     QString m_inputFile;
 };
-
-namespace Internal {
 
 class AndroidBuildApkStepFactory : public ProjectExplorer::BuildStepFactory
 {

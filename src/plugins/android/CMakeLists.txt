@@ -8,7 +8,6 @@ add_qtc_plugin(Android
     android_global.h
     androidavdmanager.cpp androidavdmanager.h
     androidbuildapkstep.cpp androidbuildapkstep.h
-    androidbuildapkwidget.cpp androidbuildapkwidget.h
     androidconfigurations.cpp androidconfigurations.h
     androidconstants.h
     androidcreatekeystorecertificate.cpp androidcreatekeystorecertificate.h androidcreatekeystorecertificate.ui

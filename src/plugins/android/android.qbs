@@ -34,8 +34,6 @@ Project {
             "androidcreatekeystorecertificate.ui",
             "androidbuildapkstep.cpp",
             "androidbuildapkstep.h",
-            "androidbuildapkwidget.cpp",
-            "androidbuildapkwidget.h",
             "androiddeployqtstep.cpp",
             "androiddeployqtstep.h",
             "androiddebugsupport.cpp",
