@@ -59,7 +59,11 @@ def parseCommandLine():
         sys.exit(1)
     onlyRemovable = options.onlyRemovable
     deleteObjects = options.delete
-    sharedFolders = map(os.path.abspath, options.sharedFolders.split(','))
+    if len(options.sharedFolders) == 0:
+        sharedFolders = ()
+    else:
+        sharedFolders = map(os.path.abspath, options.sharedFolders.split(','))
+
 
 def collectObjects():
     global objMap
