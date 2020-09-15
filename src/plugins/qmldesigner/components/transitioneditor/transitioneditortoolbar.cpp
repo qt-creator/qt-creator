@@ -26,7 +26,7 @@
 #include "transitioneditortoolbar.h"
 #include "transitioneditorgraphicsscene.h"
 
-#include "timelineconstants.h"
+#include "transitioneditorconstants.h"
 
 #include "timelineicons.h"
 
@@ -92,7 +92,7 @@ static QAction *createAction(const Utils::Id &id,
 {
     QString text = QString("%1 (%2)").arg(name).arg(shortcut.toString());
 
-    Core::Context context(TimelineConstants::C_QMLTIMELINE);
+    Core::Context context(TransitionEditorConstants::C_QMLTRANSITIONS);
 
     auto *action = new QAction(icon, text);
     auto *command = Core::ActionManager::registerAction(action, id, context);
@@ -188,7 +188,7 @@ void TransitionEditorToolBar::createLeftControls()
 
     addSpacingToGroup(5);
 
-    auto *settingsAction = createAction(TimelineConstants::C_SETTINGS,
+    auto *settingsAction = createAction(TransitionEditorConstants::C_SETTINGS,
                                         TimelineIcons::ANIMATION.icon(),
                                         tr("Transition Settings"),
                                         QKeySequence(Qt::Key_S));
@@ -229,7 +229,7 @@ void TransitionEditorToolBar::createCenterControls()
 {
     addSpacing(10);
 
-    auto *curvePicker = createAction(TimelineConstants::C_CURVE_PICKER,
+    auto *curvePicker = createAction(TransitionEditorConstants::C_CURVE_PICKER,
                                      TimelineIcons::CURVE_EDITOR.icon(),
                                      tr("Easing Curve Editor"),
                                      QKeySequence(Qt::Key_C));
@@ -259,7 +259,7 @@ void TransitionEditorToolBar::createRightControls()
     addSeparator();
     addSpacing(10);
 
-    auto *zoomOut = createAction(TimelineConstants::C_ZOOM_OUT,
+    auto *zoomOut = createAction(TransitionEditorConstants::C_ZOOM_OUT,
                                  TimelineIcons::ZOOM_SMALL.icon(),
                                  tr("Zoom Out"),
                                  QKeySequence(QKeySequence::ZoomOut));
@@ -284,7 +284,7 @@ void TransitionEditorToolBar::createRightControls()
 
     addSpacing(10);
 
-    auto *zoomIn = createAction(TimelineConstants::C_ZOOM_IN,
+    auto *zoomIn = createAction(TransitionEditorConstants::C_ZOOM_IN,
                                 TimelineIcons::ZOOM_BIG.icon(),
                                 tr("Zoom In"),
                                 QKeySequence(QKeySequence::ZoomIn));
@@ -326,7 +326,7 @@ void TransitionEditorToolBar::resizeEvent(QResizeEvent *event)
     }
 
     if (spacer) {
-        int spacerWidth = TimelineConstants::sectionWidth - width - 12;
+        int spacerWidth = TransitionEditorConstants::sectionWidth - width - 12;
         spacer->setFixedWidth(spacerWidth > 0 ? spacerWidth : 0);
     }
 }
