@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "textmark.h"
+
+#include "fontsettings.h"
 #include "textdocument.h"
 #include "texteditor.h"
 #include "texteditorplugin.h"
@@ -139,8 +141,10 @@ void TextMark::paintAnnotation(QPainter &painter, QRectF *annotationRect,
     const QColor &markColor = m_color.has_value()
                                   ? Utils::creatorTheme()->color(m_color.value()).toHsl()
                                   : painter.pen().color();
+
+    const FontSettings &fontSettings = m_baseTextDocument->fontSettings();
     const AnnotationColors &colors = AnnotationColors::getAnnotationColors(
-                markColor, painter.background().color());
+                markColor, fontSettings.toTextCharFormat(C_TEXT).background().color());
 
     painter.save();
     QLinearGradient grad(rects.fadeInRect.topLeft() - contentOffset,
