@@ -1,5 +1,6 @@
 VPATH += ../../../src/shared/proparser
 INCLUDEPATH += ../../../src/shared/proparser
+INCLUDEPATH += ../../../src/libs
 DEPENDPATH += ../../../src/shared/proparser
 
 TEMPLATE        = app
@@ -37,7 +38,8 @@ HEADERS += \
     proitems.h \
     qmakevfs.h \
     ioutils.h \
-    registry_p.h
+    registry_p.h \
+    utils/porting.h
 
 RESOURCES += proparser.qrc
 DEFINES += QMAKE_BUILTIN_PRFS

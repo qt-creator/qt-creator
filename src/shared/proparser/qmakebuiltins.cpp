@@ -1112,7 +1112,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
                     evalError(fL1S("Unexpected EOF."));
                     return ReturnError;
                 }
-                ret = split_value_list(QStringView(line));
+                ret = split_value_list(Utils::make_stringview(line));
             }
         }
         break; }
