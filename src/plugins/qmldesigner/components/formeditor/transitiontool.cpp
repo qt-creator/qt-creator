@@ -73,17 +73,17 @@ static bool isTransitionTarget(const QmlItemNode &node)
 class TransitionToolAction : public AbstractAction
 {
 public:
-    TransitionToolAction(const QString &name) : AbstractAction(name) {}
+    TransitionToolAction(const QByteArray &menuId, const QString &name)
+        : AbstractAction(name)
+        , m_menuId(menuId)
+    {}
 
     QByteArray category() const override
     {
         return QByteArray();
     }
 
-    QByteArray menuId() const override
-    {
-        return "TransitionTool";
-    }
+    QByteArray menuId() const override { return m_menuId; }
 
     int priority() const override
     {
@@ -111,12 +111,17 @@ protected:
     {
         return isVisible(selectionContext);
     }
+
+private:
+    QByteArray m_menuId;
 };
 
 class TransitionCustomAction : public TransitionToolAction
 {
 public:
-    TransitionCustomAction(const QString &name) : TransitionToolAction(name) {}
+    TransitionCustomAction(const QByteArray &menuId, const QString &name)
+        : TransitionToolAction(menuId, name)
+    {}
 
     QByteArray category() const override
     {
@@ -154,14 +159,15 @@ void static setToBoundingRect(QGraphicsRectItem *rect, FormEditorItem *item)
 TransitionTool::TransitionTool()
     : QObject(), AbstractCustomTool()
 {
-
-    TransitionToolAction *transitionToolAction = new TransitionToolAction(tr("Add Transition"));
+    TransitionToolAction *transitionToolAction = new TransitionToolAction("AddTransition",
+                                                                          tr("Add Transition"));
     QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(transitionToolAction);
 
     connect(transitionToolAction->action(), &QAction::triggered,
             this, &TransitionTool::activateTool);
 
-    TransitionCustomAction *removeAction = new TransitionCustomAction(tr("Remove Transitions"));
+    TransitionCustomAction *removeAction = new TransitionCustomAction("RemoveTransition",
+                                                                      tr("Remove Transitions"));
     QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(removeAction);
 
     connect(removeAction->action(), &QAction::triggered,
@@ -176,7 +182,8 @@ TransitionTool::TransitionTool()
         });
     });
 
-    TransitionCustomAction *removeAllTransitionsAction = new TransitionCustomAction(tr("Remove All Transitions"));
+    TransitionCustomAction *removeAllTransitionsAction = new TransitionCustomAction(
+        "RemoveAllTransitions", tr("Remove All Transitions"));
     QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(removeAllTransitionsAction);
 
     connect(removeAllTransitionsAction->action(), &QAction::triggered,
@@ -197,7 +204,8 @@ TransitionTool::TransitionTool()
         });
     });
 
-    TransitionCustomAction *removeDanglingTransitionAction = new TransitionCustomAction(tr("Remove Dangling Transitions"));
+    TransitionCustomAction *removeDanglingTransitionAction = new TransitionCustomAction(
+        "RemoveDanglindTransitions", tr("Remove Dangling Transitions"));
     QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(removeDanglingTransitionAction);
 
     connect(removeDanglingTransitionAction->action(), &QAction::triggered,
