@@ -638,7 +638,7 @@ bool AndroidBuildApkStep::init()
     // Generate arguments with keystore password concealed
     ProjectExplorer::ProcessParameters pp2;
     setupProcessParameters(&pp2);
-    pp->setCommandLine({command, argumentsPasswordConcealed});
+    pp2.setCommandLine({command, argumentsPasswordConcealed});
     m_command = pp2.effectiveCommand().toString();
     m_argumentsPasswordConcealed = pp2.prettyArguments();
 
