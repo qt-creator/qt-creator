@@ -2,7 +2,6 @@
 TEMPLATE = lib
 
 include(../../../qtcreator.pri)
-include(cdb_detect.pri)
 
 isEmpty(QTC_KEEP_CDBEXT_DEFAULT_CONFIG): CONFIG += release
 
@@ -30,42 +29,13 @@ DEF_FILE=$$PWD/qtcreatorcdbext.def
 
 ENV_TARGET_ARCH=$$(VSCMD_ARG_TGT_ARCH)
 isEmpty(ENV_TARGET_ARCH):ENV_TARGET_ARCH = $$(Platform)
-ENV_LIBPATH=$$(LIBPATH)
 
 contains(ENV_TARGET_ARCH, .*64$) {
     DIRNAME=$${BASENAME}64
     CDB_PLATFORM=amd64
-
-    !isEmpty(CDB_PATH) {
-        exists($$CDB_PATH/lib/amd64) {
-            LIBS+= -L$$CDB_PATH/lib/amd64
-        } else {
-            LIBS+= -L$$CDB_PATH/lib/x64
-        }
-    }
-} else:isEmpty(ENV_TARGET_ARCH):contains(ENV_LIBPATH, ^.*amd64.*$) {
-    DIRNAME=$${BASENAME}64
-    CDB_PLATFORM=amd64
-
-
-    !isEmpty(CDB_PATH) {
-        exists($$CDB_PATH/lib/amd64) {
-            LIBS+= -L$$CDB_PATH/lib/amd64
-        } else {
-            LIBS+= -L$$CDB_PATH/lib/x64
-        }
-    }
 } else {
     DIRNAME=$${BASENAME}32
     CDB_PLATFORM=i386
-
-    !isEmpty(CDB_PATH) {
-        exists($$CDB_PATH/lib/i386}) {
-            LIBS+= -L$$CDB_PATH/lib/i386
-        } else {
-            LIBS+= -L$$CDB_PATH/lib/x86
-        }
-    }
 }
 
 LIBS+=-ldbgeng -luser32
@@ -73,9 +43,7 @@ LIBS+=-ldbgeng -luser32
 DESTDIR=$$IDE_BUILD_TREE/lib/$${DIRNAME}
 TARGET = $$BASENAME
 
-message("Compiling Qt Creator CDB extension $$TARGET $$DESTDIR for $$CDB_PLATFORM using $$CDB_PATH")
-
-!isEmpty(CDB_PATH): INCLUDEPATH += $$CDB_PATH/inc
+message("Compiling Qt Creator CDB extension $$TARGET $$DESTDIR for $$CDB_PLATFORM")
 
 CONFIG -= qt
 QT -= gui
