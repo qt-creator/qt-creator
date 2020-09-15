@@ -60,8 +60,7 @@
 
                 \li Select \uicontrol {Force probes} to force re-execution of
                     the configure scripts of
-                    \l{https://doc.qt.io/qbs/probe-item.html}{Probes}.
-                            \li In the \uicontrol Flags field:
+                    \l{https://doc.qt.io/qbs/qbsprobes-qmlmodule.html}{Probes}.
 
             \endlist
 

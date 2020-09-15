@@ -94,7 +94,7 @@
             compilers from the various KEIL development environments.
             \note Currently supported architectures are \c 8051 and \c ARM.
 
-        \li \l{https://sdcc.sourceforge.net}{SDCC} is a retargetable, optimizing
+        \li \l{http://sdcc.sourceforge.net}{SDCC} is a retargetable, optimizing
             C bare-metal compiler for various architectures.
             \note Currently supported architectures are \c 8051 and \c STM8.
 

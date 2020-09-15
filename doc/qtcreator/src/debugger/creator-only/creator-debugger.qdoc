@@ -935,7 +935,7 @@
         \li \c value of type \c Value, wrapping either a
             \l{https://sourceware.org/gdb/onlinedocs/gdb/Values-From-Inferior.html}
             {gdb.Value} or an
-            \l{http://lldb.llvm.org/cpp_reference/html/classlldb_1_1SBValue.html}
+            \l{https://lldb.llvm.org/cpp_reference/classlldb_1_1SBValue.html}
             {lldb.SBValue}.
 
     \endlist
@@ -1440,9 +1440,9 @@
             \uicontrol {Debugger Log} view. Browse the contents of the pane on
             the right hand side to find out what went wrong. Always attach the
             contents of the pane to debugger-related questions to the \QC
-            mailing list (qt-creator@trolltech.com) or paste them to
-            \l{http://creator.pastebin.com}{creator.pastebin.com} before asking
-            questions in the IRC (on the #qt-creator channel at FreeNode).
+            mailing list (qt-creator@qt-project.org) or paste them to a
+            \l{Pasting and Fetching Code Snippets}{code pasting service} before
+            asking questions in the IRC (on the #qt-creator channel at FreeNode).
 
     \endlist
 
