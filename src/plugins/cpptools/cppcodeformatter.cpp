@@ -528,7 +528,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
                 }
             }
 
-            QStringRef tokenText = currentTokenText();
+            QStringView tokenText = currentTokenText();
             if (tokenText == QLatin1String("ifdef")
                     || tokenText == QLatin1String("if")
                     || tokenText == QLatin1String("ifndef")) {
@@ -854,7 +854,7 @@ bool CodeFormatter::tryDeclaration()
         return true;
     case T_IDENTIFIER:
         if (m_tokenIndex == 0) {
-            const QStringRef tokenText = currentTokenText();
+            const QStringView tokenText = currentTokenText();
             if (tokenText.startsWith(QLatin1String("Q_"))
                     || tokenText.startsWith(QLatin1String("QT_"))
                     || tokenText.startsWith(QLatin1String("QML_"))
@@ -1009,9 +1009,11 @@ int CodeFormatter::column(int index) const
     return col;
 }
 
-QStringRef CodeFormatter::currentTokenText() const
+QStringView CodeFormatter::currentTokenText() const
 {
-    return m_currentLine.midRef(m_currentToken.utf16charsBegin(), m_currentToken.utf16chars());
+    if (m_currentToken.utf16charsEnd() > m_currentLine.size())
+        return QStringView(m_currentLine).mid(m_currentToken.utf16charsBegin());
+    return QStringView(m_currentLine).mid(m_currentToken.utf16charsBegin(), m_currentToken.utf16chars());
 }
 
 void CodeFormatter::turnInto(int newState)

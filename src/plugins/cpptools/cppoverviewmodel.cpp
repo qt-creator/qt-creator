@@ -132,7 +132,7 @@ QVariant SymbolItem::data(int /*column*/, int role) const
 
 bool OverviewModel::hasDocument() const
 {
-    return _cppDocument;
+    return !_cppDocument.isNull();
 }
 
 int OverviewModel::globalSymbolCount() const

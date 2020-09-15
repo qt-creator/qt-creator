@@ -880,9 +880,12 @@ bool InternalCppCompletionAssistProcessor::accepts() const
                                && tokens.at(1).kind() == T_IDENTIFIER) {
                         const QString &line = tc.block().text();
                         const Token &idToken = tokens.at(1);
-                        const QStringRef &identifier =
-                                line.midRef(idToken.utf16charsBegin(),
-                                            idToken.utf16charsEnd() - idToken.utf16charsBegin());
+                        const QStringView &identifier = idToken.utf16charsEnd() > line.size()
+                                                            ? QStringView(line).mid(
+                                                                idToken.utf16charsBegin())
+                                                            : QStringView(line)
+                                                                  .mid(idToken.utf16charsBegin(),
+                                                                       idToken.utf16chars());
                         if (identifier == QLatin1String("include")
                                 || identifier == QLatin1String("include_next")
                                 || (m_interface->languageFeatures().objCEnabled && identifier == QLatin1String("import"))) {

@@ -87,7 +87,9 @@ Tokens SimpleLexer::operator()(const QString &text, int state)
             break;
         }
 
-        QStringRef spell = text.midRef(tk.bytesBegin(), tk.bytes());
+        const QStringView spell = tk.bytesBegin() + tk.bytes() > text.size()
+                                      ? QStringView(text).mid(tk.bytesBegin())
+                                      : QStringView(text).mid(tk.bytesBegin(), tk.bytes());
         lex.setScanAngleStringLiteralTokens(false);
 
         if (tk.newline() && tk.is(T_POUND))

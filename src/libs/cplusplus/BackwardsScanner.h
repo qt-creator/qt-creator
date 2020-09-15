@@ -27,6 +27,7 @@
 
 #include "SimpleLexer.h"
 
+#include <QStringView>
 #include <QTextBlock>
 
 QT_FORWARD_DECLARE_CLASS(QTextCursor)
@@ -52,7 +53,7 @@ public:
     QString mid(int index) const;
 
     QString text(int index) const;
-    QStringRef textRef(int index) const;
+    QStringView textRef(int index) const;
     // 1-based
     Token LA(int index) const;
 

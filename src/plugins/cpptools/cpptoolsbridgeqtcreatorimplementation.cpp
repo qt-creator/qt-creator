@@ -55,7 +55,7 @@ CppTools::ProjectPart::Ptr projectPartForFile(const QString &filePath)
 bool isProjectPartValid(const CppTools::ProjectPart::Ptr projectPart)
 {
     if (projectPart)
-        return CppTools::CppModelManager::instance()->projectPartForId(projectPart->id());
+        return !CppTools::CppModelManager::instance()->projectPartForId(projectPart->id()).isNull();
 
     return false;
 }

@@ -113,10 +113,12 @@ QString BackwardsScanner::text(int index) const
     return _text.mid(firstToken.utf16charsBegin(), firstToken.utf16chars());
 }
 
-QStringRef BackwardsScanner::textRef(int index) const
+QStringView BackwardsScanner::textRef(int index) const
 {
     const Token &firstToken = _tokens.at(index + _offset);
-    return _text.midRef(firstToken.utf16charsBegin(), firstToken.utf16chars());
+    if (firstToken.utf16charsEnd() > _text.size())
+        return QStringView(_text).mid(firstToken.utf16charsBegin());
+    return QStringView(_text).mid(firstToken.utf16charsBegin(), firstToken.utf16chars());
 }
 
 int BackwardsScanner::size() const

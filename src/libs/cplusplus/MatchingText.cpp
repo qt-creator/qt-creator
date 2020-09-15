@@ -54,7 +54,7 @@ static bool shouldOverrideChar(QChar ch)
 
 static bool isCompleteStringLiteral(const BackwardsScanner &tk, int index)
 {
-    const QStringRef text = tk.textRef(index);
+    const QStringView text = tk.textRef(index);
 
     if (text.length() < 2)
         return false;
