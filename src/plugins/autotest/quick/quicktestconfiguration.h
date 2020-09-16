@@ -38,11 +38,6 @@ public:
                                    QProcess *app) const override;
     QStringList argumentsForTestRunner(QStringList *omitted = nullptr) const override;
     Utils::Environment filteredEnvironment(const Utils::Environment &original) const override;
-    void setUnnamedOnly(bool unnamedOnly);
-    bool unnamedOnly() const { return m_unnamedOnly; }
-
-private:
-    bool m_unnamedOnly = false;
 };
 
 } // namespace Internal

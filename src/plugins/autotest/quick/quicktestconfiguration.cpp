@@ -87,10 +87,5 @@ Utils::Environment QuickTestConfiguration::filteredEnvironment(const Utils::Envi
     return QTestUtils::prepareBasicEnvironment(original);
 }
 
-void QuickTestConfiguration::setUnnamedOnly(bool unnamedOnly)
-{
-    m_unnamedOnly = unnamedOnly;
-}
-
 } // namespace Internal
 } // namespace Autotest
