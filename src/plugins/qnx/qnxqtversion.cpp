@@ -38,11 +38,16 @@
 #include <QDir>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Qnx {
 namespace Internal {
 
-static char SDP_PATH_KEY[] = "SDKPath";
+const char SDP_PATH_KEY[] = "SDKPath";
+
+const char QNX_TARGET_KEY[] = "QNX_TARGET";
+const char QNX_HOST_KEY[]   = "QNX_HOST";
+const char QNX_QNX_FEATURE[] = "QtSupport.Wizards.FeatureQNX";
 
 QnxQtVersion::QnxQtVersion() = default;
 
@@ -53,16 +58,16 @@ QString QnxQtVersion::description() const
             .arg(QnxUtils::cpuDirShortDescription(cpuDir()));
 }
 
-QSet<Utils::Id> QnxQtVersion::availableFeatures() const
+QSet<Id> QnxQtVersion::availableFeatures() const
 {
-    QSet<Utils::Id> features = QtSupport::BaseQtVersion::availableFeatures();
-    features.insert(Constants::QNX_QNX_FEATURE);
+    QSet<Id> features = QtSupport::BaseQtVersion::availableFeatures();
+    features.insert(QNX_QNX_FEATURE);
     features.remove(QtSupport::Constants::FEATURE_QT_CONSOLE);
     features.remove(QtSupport::Constants::FEATURE_QT_WEBKIT);
     return features;
 }
 
-QSet<Utils::Id> QnxQtVersion::targetDeviceTypes() const
+QSet<Id> QnxQtVersion::targetDeviceTypes() const
 {
     return {Constants::QNX_QNX_OS_TYPE};
 }
@@ -72,25 +77,25 @@ QString QnxQtVersion::qnxHost() const
     if (!m_environmentUpToDate)
         updateEnvironment();
 
-    foreach (const Utils::EnvironmentItem &item, m_qnxEnv) {
-        if (item.name == QLatin1String(Constants::QNX_HOST_KEY))
+    for (const EnvironmentItem &item : m_qnxEnv) {
+        if (item.name == QLatin1String(QNX_HOST_KEY))
             return item.value;
     }
 
     return QString();
 }
 
-Utils::FilePath QnxQtVersion::qnxTarget() const
+FilePath QnxQtVersion::qnxTarget() const
 {
     if (!m_environmentUpToDate)
         updateEnvironment();
 
-    foreach (const Utils::EnvironmentItem &item, m_qnxEnv) {
-        if (item.name == QLatin1String(Constants::QNX_TARGET_KEY))
-            return Utils::FilePath::fromUserInput(item.value);
+    for (EnvironmentItem &item : m_qnxEnv) {
+        if (item.name == QNX_TARGET_KEY)
+            return FilePath::fromUserInput(item.value);
     }
 
-    return Utils::FilePath();
+    return FilePath();
 }
 
 QString QnxQtVersion::cpuDir() const
@@ -114,13 +119,13 @@ void QnxQtVersion::fromMap(const QVariantMap &map)
     setSdpPath(QDir::fromNativeSeparators(map.value(QLatin1String(SDP_PATH_KEY)).toString()));
 }
 
-ProjectExplorer::Abis QnxQtVersion::detectQtAbis() const
+Abis QnxQtVersion::detectQtAbis() const
 {
     ensureMkSpecParsed();
     return QnxUtils::convertAbis(BaseQtVersion::detectQtAbis());
 }
 
-void QnxQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const
+void QnxQtVersion::addToEnvironment(const Kit *k, Environment &env) const
 {
     QtSupport::BaseQtVersion::addToEnvironment(k, env);
     updateEnvironment();
@@ -129,12 +134,12 @@ void QnxQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Enviro
     env.prependOrSetLibrarySearchPath(libraryPath().toString());
 }
 
-Utils::Environment QnxQtVersion::qmakeRunEnvironment() const
+Environment QnxQtVersion::qmakeRunEnvironment() const
 {
     if (!sdpPath().isEmpty())
         updateEnvironment();
 
-    Utils::Environment env = Utils::Environment::systemEnvironment();
+    Environment env = Environment::systemEnvironment();
     env.modify(m_qnxEnv);
 
     return env;
@@ -180,7 +185,7 @@ void QnxQtVersion::updateEnvironment() const
     }
 }
 
-Utils::EnvironmentItems QnxQtVersion::environment() const
+EnvironmentItems QnxQtVersion::environment() const
 {
     return QnxUtils::qnxEnvironment(sdpPath());
 }

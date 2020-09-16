@@ -29,6 +29,8 @@
 #include <coreplugin/icore.h>
 #include <utils/persistentsettings.h>
 
+using namespace Utils;
+
 namespace Qnx {
 namespace Internal {
 
@@ -36,10 +38,9 @@ const QLatin1String QNXConfigDataKey("QNXConfiguration.");
 const QLatin1String QNXConfigCountKey("QNXConfiguration.Count");
 const QLatin1String QNXConfigsFileVersionKey("Version");
 
-static Utils::FilePath qnxConfigSettingsFileName()
+static FilePath qnxConfigSettingsFileName()
 {
-    return Utils::FilePath::fromString(Core::ICore::userResourcePath() + QLatin1String("/qnx/")
-                                + QLatin1String(Constants::QNX_CONFIGS_FILENAME));
+    return FilePath::fromString(Core::ICore::userResourcePath() + "/qnx/qnxconfigurations.xml");
 }
 
 static QnxConfigurationManager *m_instance = nullptr;
@@ -47,8 +48,7 @@ static QnxConfigurationManager *m_instance = nullptr;
 QnxConfigurationManager::QnxConfigurationManager()
 {
     m_instance = this;
-    m_writer = new Utils::PersistentSettingsWriter(qnxConfigSettingsFileName(),
-                                                   QLatin1String("QnxConfigurations"));
+    m_writer = new PersistentSettingsWriter(qnxConfigSettingsFileName(), "QnxConfigurations");
     restoreConfigurations();
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, &QnxConfigurationManager::saveConfigs);
@@ -84,7 +84,7 @@ bool QnxConfigurationManager::addConfiguration(QnxConfiguration *config)
     if (!config || !config->isValid())
         return false;
 
-    foreach (QnxConfiguration *c, m_configurations) {
+    for (QnxConfiguration *c : qAsConst(m_configurations)) {
         if (c->envFile() == config->envFile())
             return false;
     }
@@ -94,9 +94,9 @@ bool QnxConfigurationManager::addConfiguration(QnxConfiguration *config)
     return true;
 }
 
-QnxConfiguration *QnxConfigurationManager::configurationFromEnvFile(const Utils::FilePath &envFile) const
+QnxConfiguration *QnxConfigurationManager::configurationFromEnvFile(const FilePath &envFile) const
 {
-    foreach (QnxConfiguration *c, m_configurations) {
+    for (QnxConfiguration *c : m_configurations) {
         if (c->envFile() == envFile)
             return c;
     }
@@ -110,7 +110,7 @@ void QnxConfigurationManager::saveConfigs()
     QVariantMap data;
     data.insert(QLatin1String(QNXConfigsFileVersionKey), 1);
     int count = 0;
-    foreach (QnxConfiguration *config, m_configurations) {
+    for (QnxConfiguration *config : qAsConst(m_configurations)) {
         QVariantMap tmp = config->toMap();
         if (tmp.isEmpty())
             continue;
@@ -126,7 +126,7 @@ void QnxConfigurationManager::saveConfigs()
 
 void QnxConfigurationManager::restoreConfigurations()
 {
-    Utils::PersistentSettingsReader reader;
+    PersistentSettingsReader reader;
     if (!reader.load(qnxConfigSettingsFileName()))
         return;
 
@@ -143,5 +143,5 @@ void QnxConfigurationManager::restoreConfigurations()
     }
 }
 
-}
-}
+} // Internal
+} // Qnx

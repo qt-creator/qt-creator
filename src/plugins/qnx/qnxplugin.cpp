@@ -170,14 +170,16 @@ void QnxPlugin::extensionsInitialized()
     connect(&dd->m_attachToQnxApplication, &QAction::triggered,
             this, [] { QnxAttachDebugSupport::showProcessesDialog(); });
 
+    const char QNX_DEBUGGING_GROUP[] = "Debugger.Group.Qnx";
+
     Core::ActionContainer *mstart = Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
-    mstart->appendGroup(Constants::QNX_DEBUGGING_GROUP);
-    mstart->addSeparator(Core::Context(Core::Constants::C_GLOBAL), Constants::QNX_DEBUGGING_GROUP,
+    mstart->appendGroup(QNX_DEBUGGING_GROUP);
+    mstart->addSeparator(Core::Context(Core::Constants::C_GLOBAL), QNX_DEBUGGING_GROUP,
                          &dd->m_debugSeparator);
 
     Core::Command *cmd = Core::ActionManager::registerAction
             (&dd->m_attachToQnxApplication, "Debugger.AttachToQnxApplication");
-    mstart->addAction(cmd, Constants::QNX_DEBUGGING_GROUP);
+    mstart->addAction(cmd, QNX_DEBUGGING_GROUP);
 
     connect(KitManager::instance(), &KitManager::kitsChanged,
             this, [] { dd->updateDebuggerActions(); });

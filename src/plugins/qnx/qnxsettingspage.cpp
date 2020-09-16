@@ -246,7 +246,7 @@ void QnxSettingsWidget::apply()
 
 QnxSettingsPage::QnxSettingsPage()
 {
-    setId(Constants::QNX_SETTINGS_ID);
+    setId("DD.Qnx Configuration");
     setDisplayName(QnxSettingsWidget::tr("QNX"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new QnxSettingsWidget; });

@@ -30,9 +30,6 @@
 namespace Qnx {
 namespace Constants {
 
-const char QNX_TARGET_KEY[] = "QNX_TARGET";
-const char QNX_HOST_KEY[]   = "QNX_HOST";
-
 const char QNX_QNX_QT[] = "Qt4ProjectManager.QtVersion.QNX.QNX";
 
 const char QNX_QNX_FEATURE[] = "QtSupport.Wizards.FeatureQNX";
@@ -41,16 +38,7 @@ const char QNX_QNX_DEPLOYCONFIGURATION_ID[] = "Qt4ProjectManager.QNX.QNXDeployCo
 
 const char QNX_QNX_OS_TYPE[] = "QnxOsType"; // Also used for device type.
 
-const char QNX_DEBUG_EXECUTABLE[] = "pdebug";
-
 const char QNX_TOOLCHAIN_ID[] = "Qnx.QccToolChain";
-
-// QNX settings constants
-const char QNX_SETTINGS_ID[] = "DD.Qnx Configuration";
-
-const char QNX_CONFIGS_FILENAME[] = "qnxconfigurations.xml";
-
-const char QNX_DEBUGGING_GROUP[] = "Debugger.Group.Qnx";
 
 } // namespace Constants
 } // namespace Qnx

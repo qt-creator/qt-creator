@@ -26,7 +26,6 @@
 #pragma once
 
 #include "qnxconstants.h"
-#include "qnxqtversion.h"
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtversionfactory.h>
