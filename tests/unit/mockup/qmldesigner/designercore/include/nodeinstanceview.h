@@ -85,6 +85,8 @@ public:
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override
     {}
 
+    void requestModelNodePreviewImage(const ModelNode &node) {}
+
     void sendToken(const QString &token, int number, const QVector<ModelNode> &nodeVector) {}
 };
 
