@@ -73,6 +73,7 @@ HEADERS += \
     $$UTILS/qtcassert.h \
     $$UTILS/qtcprocess.h \
     $$UTILS/savefile.h \
+    $$UTILS/porting.h
 
 macos {
     OBJECTIVE_SOURCES += \
