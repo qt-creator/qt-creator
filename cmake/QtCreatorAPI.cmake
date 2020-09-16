@@ -681,6 +681,8 @@ function(add_qtc_test name)
   )
 
   set_target_properties(${name} PROPERTIES
+    CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN ON
     BUILD_RPATH "${_RPATH_BASE}/${_RPATH}"
     INSTALL_RPATH "${_RPATH_BASE}/${_RPATH}"
   )
