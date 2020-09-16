@@ -104,21 +104,17 @@ QmlDebugTranslationWidget::QmlDebugTranslationWidget(QWidget *parent)
 
     const QString projectSettingsKey = "QmlPreview.DisabledDebugTranslationFiles";
     const ProjectExplorer::FileType filterFileType = ProjectExplorer::FileType::QML;
-    auto checkableProjectFileView = new ProjectFileSelectionsWidget(projectSettingsKey, filterFileType);
-    checkableProjectFileView->setVisible(false);
-    connect(checkableProjectFileView, &ProjectFileSelectionsWidget::selectionChanged, this, &QmlDebugTranslationWidget::setFiles);
+    m_checkableProjectFileView = new ProjectFileSelectionsWidget(projectSettingsKey, filterFileType);
+    m_checkableProjectFileView->setVisible(false);
+    connect(m_checkableProjectFileView, &ProjectFileSelectionsWidget::selectionChanged, this, &QmlDebugTranslationWidget::setFiles);
     m_multipleFileButton = new QRadioButton(tr("multiple files"));
-    // TODO: fix multiple files issues, because it have some issues disable it for now
-    m_multipleFileButton->setDisabled(true);
     buttonGroup->addButton(m_multipleFileButton);
-    connect(m_multipleFileButton, &QAbstractButton::toggled, [checkableProjectFileView, this](bool checked) {
-        checkableProjectFileView->setVisible(checked);
-        setFiles(checkableProjectFileView->checkedFiles());
-    });
+    connect(m_multipleFileButton, &QAbstractButton::toggled, m_checkableProjectFileView, &QWidget::setVisible);
+    connect(m_multipleFileButton, &QAbstractButton::toggled, this, &QmlDebugTranslationWidget::updateFiles);
 
     mainLayout->addWidget(m_singleFileButton);
     mainLayout->addWidget(m_multipleFileButton);
-    mainLayout->addWidget(checkableProjectFileView);
+    mainLayout->addWidget(m_checkableProjectFileView);
 
     // language checkboxes are add in updateAvailableTranslations method
     m_selectLanguageLayout = new QHBoxLayout;
@@ -226,7 +222,7 @@ void QmlDebugTranslationWidget::updateCurrentEditor(const Core::IEditor *editor)
     else
         m_currentFilePath.clear();
     m_singleFileButton->setText(singleFileButtonText(m_currentFilePath.toString()));
-
+    updateFiles();
 }
 
 void QmlDebugTranslationWidget::updateStartupProjectTranslations()
@@ -253,6 +249,7 @@ void QmlDebugTranslationWidget::updateCurrentTranslations(ProjectExplorer::Proje
                 tr("Current language is \'<b>%1</b>\' can be changed in the 'Translation' tab.")
                     .arg(multiLanguageAspect->currentLocale())));
             m_testLanguages.clear();
+            m_testLanguages.append(multiLanguageAspect->currentLocale());
         } else {
             m_selectLanguageLayout->addWidget(new QLabel(tr("Select which language should be tested:")));
             QString errorMessage;
@@ -270,6 +267,14 @@ void QmlDebugTranslationWidget::updateCurrentTranslations(ProjectExplorer::Proje
             m_selectLanguageLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
         }
     }
+}
+
+void QmlDebugTranslationWidget::updateFiles()
+{
+    if (m_multipleFileButton->isChecked())
+        setFiles(m_checkableProjectFileView->checkedFiles());
+    else
+        setFiles({m_currentFilePath});
 }
 
 void QmlDebugTranslationWidget::setFiles(const Utils::FilePaths &filePathes)
@@ -305,14 +310,9 @@ void QmlDebugTranslationWidget::runTest()
                 });
             }
         };
-        if (m_multipleFileButton->isChecked()) {
-            for (auto filePath : m_selectedFilePaths) {
-                testLanguages(timerCounter++, filePath.toString());
-            }
-        } else {
-            testLanguages(timerCounter, QString());
+        for (auto filePath : m_selectedFilePaths) {
+            testLanguages(timerCounter++, filePath.toString());
         }
-
     });
     connect(runControl, &ProjectExplorer::RunControl::stopped, [this]() {
         m_runTestButton->setChecked(false);

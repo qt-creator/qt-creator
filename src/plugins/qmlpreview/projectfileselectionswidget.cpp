@@ -125,8 +125,11 @@ ProjectFileSelectionsWidget::ProjectFileSelectionsWidget(const QString &projectS
                 const auto settingsDisabledFiles = project->namedSettings(m_projectSettingsKey).toStringList();
 
                 if (auto rootProjectNode = project->rootProjectNode()) {
-                    rootProjectNode->forEachNode([this, settingsDisabledFiles, model](ProjectExplorer::FileNode *fileNode) {
-                        if (fileNode->fileType() == m_fileType) {
+                    auto rootPath = rootProjectNode->filePath();
+
+                    rootProjectNode->forEachNode([this, settingsDisabledFiles, model, rootPath](ProjectExplorer::FileNode *fileNode) {
+                        if (fileNode->fileType() == m_fileType
+                            && !fileNode->filePath().relativeChildPath(rootPath).startsWith("imports/")) {
                             bool isDisabled = settingsDisabledFiles.contains(fileNode->filePath().toString());
                             model->rootItem()->appendChild(new ProjectFileItem(fileNode->filePath(), isDisabled));
                         }
