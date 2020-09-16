@@ -27,6 +27,7 @@
 #include "mocksqlitestatement.h"
 #include "sqliteteststatement.h"
 
+#include <sqliteblob.h>
 #include <sqlitedatabase.h>
 #include <sqlitereadstatement.h>
 #include <sqlitereadwritestatement.h>
@@ -37,14 +38,6 @@
 #include <QDir>
 
 #include <vector>
-
-namespace Sqlite {
-bool operator==(Utils::span<const byte> first, Utils::span<const byte> second)
-{
-    return first.size() == second.size()
-           && std::memcmp(first.data(), second.data(), first.size()) == 0;
-}
-} // namespace Sqlite
 
 namespace {
 
@@ -270,7 +263,7 @@ TEST_F(SqliteStatement, BindBlob)
     SqliteTestStatement statement("WITH T(blob) AS (VALUES (?)) SELECT blob FROM T", database);
     const unsigned char chars[] = "aaafdfdlll";
     auto bytePointer = reinterpret_cast<const Sqlite::byte *>(chars);
-    Utils::span<const Sqlite::byte> bytes{bytePointer, sizeof(chars) - 1};
+    Sqlite::BlobView bytes{bytePointer, sizeof(chars) - 1};
 
     statement.bind(1, bytes);
     statement.next();
@@ -281,7 +274,7 @@ TEST_F(SqliteStatement, BindBlob)
 TEST_F(SqliteStatement, BindEmptyBlob)
 {
     SqliteTestStatement statement("WITH T(blob) AS (VALUES (?)) SELECT blob FROM T", database);
-    Utils::span<const Sqlite::byte> bytes;
+    Sqlite::BlobView bytes;
 
     statement.bind(1, bytes);
     statement.next();
@@ -341,7 +334,7 @@ TEST_F(SqliteStatement, BindIndexIsToLargeIsThrowingBindingIndexIsOutOfBoundValu
 TEST_F(SqliteStatement, BindIndexIsToLargeIsThrowingBindingIndexIsOutOfBoundBlob)
 {
     SqliteTestStatement statement("WITH T(blob) AS (VALUES (?)) SELECT blob FROM T", database);
-    Utils::span<const Sqlite::byte> bytes;
+    Sqlite::BlobView bytes;
 
     ASSERT_THROW(statement.bind(2, bytes), Sqlite::BindingIndexIsOutOfRange);
 }
@@ -408,22 +401,12 @@ TEST_F(SqliteStatement, WriteEmptyBlobs)
 {
     SqliteTestStatement statement("WITH T(blob) AS (VALUES (?)) SELECT blob FROM T", database);
 
-    Utils::span<const Sqlite::byte> bytes;
+    Sqlite::BlobView bytes;
 
     statement.write(bytes);
 
     ASSERT_THAT(statement.fetchBlobValue(0), IsEmpty());
 }
-
-class Blob
-{
-public:
-    Blob(Utils::span<const Sqlite::byte> bytes)
-        : bytes(bytes.begin(), bytes.end())
-    {}
-
-    std::vector<Sqlite::byte> bytes;
-};
 
 TEST_F(SqliteStatement, WriteBlobs)
 {
@@ -431,11 +414,12 @@ TEST_F(SqliteStatement, WriteBlobs)
     SqliteTestStatement readStatement("SELECT value FROM test WHERE name = 'blob'", database);
     const unsigned char chars[] = "aaafdfdlll";
     auto bytePointer = reinterpret_cast<const Sqlite::byte *>(chars);
-    Utils::span<const Sqlite::byte> bytes{bytePointer, sizeof(chars) - 1};
+    Sqlite::BlobView bytes{bytePointer, sizeof(chars) - 1};
 
     statement.write(bytes);
 
-    ASSERT_THAT(readStatement.template value<Blob>(), Optional(Field(&Blob::bytes, Eq(bytes))));
+    ASSERT_THAT(readStatement.template value<Sqlite::Blob>(),
+                Optional(Field(&Sqlite::Blob::bytes, Eq(bytes))));
 }
 
 TEST_F(SqliteStatement, CannotWriteToClosedDatabase)
@@ -624,38 +608,38 @@ TEST_F(SqliteStatement, GetBlobValues)
     ReadStatement statement("SELECT value FROM test WHERE name='blob'", database);
     const int value = 0xDDCCBBAA;
     auto bytePointer = reinterpret_cast<const Sqlite::byte *>(&value);
-    Utils::span<const Sqlite::byte> bytes{bytePointer, 4};
+    Sqlite::BlobView bytes{bytePointer, 4};
 
-    auto values = statement.values<Blob>(1);
+    auto values = statement.values<Sqlite::Blob>(1);
 
-    ASSERT_THAT(values, ElementsAre(Field(&Blob::bytes, Eq(bytes))));
+    ASSERT_THAT(values, ElementsAre(Field(&Sqlite::Blob::bytes, Eq(bytes))));
 }
 
 TEST_F(SqliteStatement, GetEmptyBlobValueForInteger)
 {
     ReadStatement statement("SELECT value FROM test WHERE name='poo'", database);
 
-    auto value = statement.value<Blob>();
+    auto value = statement.value<Sqlite::Blob>();
 
-    ASSERT_THAT(value, Optional(Field(&Blob::bytes, IsEmpty())));
+    ASSERT_THAT(value, Optional(Field(&Sqlite::Blob::bytes, IsEmpty())));
 }
 
 TEST_F(SqliteStatement, GetEmptyBlobValueForFloat)
 {
     ReadStatement statement("SELECT number FROM test WHERE name='foo'", database);
 
-    auto value = statement.value<Blob>();
+    auto value = statement.value<Sqlite::Blob>();
 
-    ASSERT_THAT(value, Optional(Field(&Blob::bytes, IsEmpty())));
+    ASSERT_THAT(value, Optional(Field(&Sqlite::Blob::bytes, IsEmpty())));
 }
 
 TEST_F(SqliteStatement, GetEmptyBlobValueForText)
 {
     ReadStatement statement("SELECT number FROM test WHERE name='bar'", database);
 
-    auto value = statement.value<Blob>();
+    auto value = statement.value<Sqlite::Blob>();
 
-    ASSERT_THAT(value, Optional(Field(&Blob::bytes, IsEmpty())));
+    ASSERT_THAT(value, Optional(Field(&Sqlite::Blob::bytes, IsEmpty())));
 }
 
 TEST_F(SqliteStatement, GetOptionalSingleValueAndMultipleQueryValue)

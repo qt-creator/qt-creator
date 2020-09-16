@@ -29,6 +29,8 @@
 
 #include <QProcess>
 
+#include <mutex>
+
 QT_BEGIN_NAMESPACE
 class QLocalSocket;
 QT_END_NAMESPACE
@@ -40,7 +42,6 @@ class Target;
 namespace QmlDesigner {
 
 class AbstractView;
-class NodeInstanceServerProxy;
 
 class QMLDESIGNERCORE_EXPORT BaseConnectionManager : public QObject, public ConnectionManagerInterface
 {
@@ -49,10 +50,13 @@ class QMLDESIGNERCORE_EXPORT BaseConnectionManager : public QObject, public Conn
 public:
     BaseConnectionManager() = default;
 
-    void setUp(NodeInstanceServerProxy *nodeInstanceServerProxy,
+    void setUp(NodeInstanceServerInterface *nodeInstanceServer,
                const QString &qrcMappingString,
-               ProjectExplorer::Target *target) override;
+               ProjectExplorer::Target *target,
+               AbstractView *view) override;
     void shutDown() override;
+
+    void setCrashCallback(std::function<void()> callback) override;
 
     bool isActive() const;
 
@@ -61,15 +65,19 @@ protected:
     virtual void showCannotConnectToPuppetWarningAndSwitchToEditMode();
     using ConnectionManagerInterface::processFinished;
     void processFinished();
-    void writeCommandToIODevice(const QVariant &command,
-                                QIODevice *ioDevice,
-                                unsigned int commandCounter);
+    static void writeCommandToIODevice(const QVariant &command,
+                                       QIODevice *ioDevice,
+                                       unsigned int commandCounter);
     void readDataStream(Connection &connection);
 
-    NodeInstanceServerProxy *nodeInstanceServerProxy() const { return m_nodeInstanceServerProxy; }
+    NodeInstanceServerInterface *nodeInstanceServer() const { return m_nodeInstanceServer; }
+
+    void callCrashCallback();
 
 private:
-    NodeInstanceServerProxy *m_nodeInstanceServerProxy{};
+    std::mutex m_callbackMutex;
+    std::function<void()> m_crashCallback;
+    NodeInstanceServerInterface *m_nodeInstanceServer{};
     bool m_isActive = false;
 };
 

@@ -174,6 +174,7 @@ extend_qtc_executable(qml2puppet
     qt5capturepreviewnodeinstanceserver.cpp qt5capturepreviewnodeinstanceserver.h
     nodeinstanceserverdispatcher.cpp nodeinstanceserverdispatcher.h
     capturenodeinstanceserverdispatcher.cpp capturenodeinstanceserverdispatcher.h
+    qt5captureimagenodeinstanceserver.cpp qt5captureimagenodeinstanceserver.h
 )
 
 extend_qtc_executable(qml2puppet

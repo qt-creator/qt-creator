@@ -42,6 +42,7 @@ class ItemLibraryItem: public QObject {
     Q_PROPERTY(QString itemName READ itemName FINAL)
     Q_PROPERTY(QString itemLibraryIconPath READ itemLibraryIconPath FINAL)
     Q_PROPERTY(bool itemVisible READ isVisible NOTIFY visibilityChanged FINAL)
+    Q_PROPERTY(QString componentPath READ componentPath FINAL)
 
 public:
     ItemLibraryItem(QObject *parent);
@@ -50,6 +51,7 @@ public:
     QString itemName() const;
     QString typeName() const;
     QString itemLibraryIconPath() const;
+    QString componentPath() const;
 
     bool setVisible(bool isVisible);
     bool isVisible() const;

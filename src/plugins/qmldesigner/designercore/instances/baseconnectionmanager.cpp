@@ -33,11 +33,12 @@
 
 namespace QmlDesigner {
 
-void BaseConnectionManager::setUp(NodeInstanceServerProxy *nodeInstanceServerProxy,
+void BaseConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServer,
                                   const QString &,
-                                  ProjectExplorer::Target *)
+                                  ProjectExplorer::Target *,
+                                  AbstractView *view)
 {
-    m_nodeInstanceServerProxy = nodeInstanceServerProxy;
+    m_nodeInstanceServer = nodeInstanceServer;
     m_isActive = true;
 }
 
@@ -47,7 +48,14 @@ void BaseConnectionManager::shutDown()
 
     writeCommand(QVariant::fromValue(EndPuppetCommand()));
 
-    m_nodeInstanceServerProxy = nullptr;
+    m_nodeInstanceServer = nullptr;
+}
+
+void BaseConnectionManager::setCrashCallback(std::function<void()> callback)
+{
+    std::lock_guard<std::mutex> lock{m_callbackMutex};
+
+    m_crashCallback = std::move(callback);
 }
 
 bool BaseConnectionManager::isActive() const
@@ -85,7 +93,7 @@ void BaseConnectionManager::dispatchCommand(const QVariant &command, Connection 
     if (!isActive())
         return;
 
-    m_nodeInstanceServerProxy->dispatchCommand(command);
+    m_nodeInstanceServer->dispatchCommand(command);
 }
 
 void BaseConnectionManager::readDataStream(Connection &connection)
@@ -122,6 +130,13 @@ void BaseConnectionManager::readDataStream(Connection &connection)
 
     for (const QVariant &command : commandList)
         dispatchCommand(command, connection);
+}
+
+void BaseConnectionManager::callCrashCallback()
+{
+    std::lock_guard<std::mutex> lock{m_callbackMutex};
+
+    m_crashCallback();
 }
 } // namespace QmlDesigner
 

@@ -191,12 +191,12 @@ void BaseStatement::bind(int index, Utils::SmallStringView text)
         checkForBindingError(resultCode);
 }
 
-void BaseStatement::bind(int index, Utils::span<const byte> bytes)
+void BaseStatement::bind(int index, BlobView blobView)
 {
     int resultCode = sqlite3_bind_blob64(m_compiledStatement.get(),
                                          index,
-                                         bytes.data(),
-                                         static_cast<long long>(bytes.size()),
+                                         blobView.data(),
+                                         blobView.size(),
                                          SQLITE_STATIC);
     if (resultCode != SQLITE_OK)
         checkForBindingError(resultCode);
@@ -498,7 +498,7 @@ StringType textForColumn(sqlite3_stmt *sqlStatment, int column)
     return StringType(text, size);
 }
 
-Utils::span<const byte> blobForColumn(sqlite3_stmt *sqlStatment, int column)
+BlobView blobForColumn(sqlite3_stmt *sqlStatment, int column)
 {
     const byte *blob = reinterpret_cast<const byte *>(sqlite3_column_blob(sqlStatment, column));
     std::size_t size = std::size_t(sqlite3_column_bytes(sqlStatment, column));
@@ -506,7 +506,7 @@ Utils::span<const byte> blobForColumn(sqlite3_stmt *sqlStatment, int column)
     return {blob, size};
 }
 
-Utils::span<const byte> convertToBlobForColumn(sqlite3_stmt *sqlStatment, int column)
+BlobView convertToBlobForColumn(sqlite3_stmt *sqlStatment, int column)
 {
     int dataType = sqlite3_column_type(sqlStatment, column);
     if (dataType == SQLITE_BLOB)
@@ -571,7 +571,7 @@ double BaseStatement::fetchDoubleValue(int column) const
     return sqlite3_column_double(m_compiledStatement.get(), column);
 }
 
-Utils::span<const byte> BaseStatement::fetchBlobValue(int column) const
+BlobView BaseStatement::fetchBlobValue(int column) const
 {
     return convertToBlobForColumn(m_compiledStatement.get(), column);
 }

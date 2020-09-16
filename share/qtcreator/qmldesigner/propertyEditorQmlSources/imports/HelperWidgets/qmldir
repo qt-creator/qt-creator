@@ -47,3 +47,4 @@ ExpressionTextField 2.0 ExpressionTextField.qml
 MarginSection 2.0 MarginSection.qml
 HorizontalScrollBar 2.0 HorizontalScrollBar.qml
 VerticalScrollBar 2.0 VerticalScrollBar.qml
+ImagePreviewTooltipArea 2.0 ImagePreviewTooltipArea.qml

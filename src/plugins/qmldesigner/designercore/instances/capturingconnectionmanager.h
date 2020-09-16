@@ -32,9 +32,10 @@ namespace QmlDesigner {
 class QMLDESIGNERCORE_EXPORT CapturingConnectionManager : public InteractiveConnectionManager
 {
 public:
-    void setUp(NodeInstanceServerProxy *nodeInstanceServerProxy,
+    void setUp(NodeInstanceServerInterface *nodeInstanceServer,
                const QString &qrcMappingString,
-               ProjectExplorer::Target *target) override;
+               ProjectExplorer::Target *target,
+               AbstractView *view) override;
 
     void processFinished(int exitCode, QProcess::ExitStatus exitStatus) override;
 

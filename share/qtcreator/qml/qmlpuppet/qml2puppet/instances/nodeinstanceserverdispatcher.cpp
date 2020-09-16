@@ -25,6 +25,7 @@
 
 #include "nodeinstanceserverdispatcher.h"
 
+#include "qt5captureimagenodeinstanceserver.h"
 #include "qt5capturepreviewnodeinstanceserver.h"
 #include "qt5informationnodeinstanceserver.h"
 #include "qt5rendernodeinstanceserver.h"
@@ -183,6 +184,8 @@ std::unique_ptr<NodeInstanceServer> createNodeInstanceServer(
 {
     if (serverName == "capturemode")
         return std::make_unique<Qt5CapturePreviewNodeInstanceServer>(nodeInstanceClient);
+    else if (serverName == "captureiconmode")
+        return std::make_unique<Qt5CaptureImageNodeInstanceServer>(nodeInstanceClient);
     else if (serverName == "rendermode")
         return std::make_unique<Qt5RenderNodeInstanceServer>(nodeInstanceClient);
     else if (serverName == "editormode")

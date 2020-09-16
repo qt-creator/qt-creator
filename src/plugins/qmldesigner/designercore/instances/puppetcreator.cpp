@@ -181,7 +181,6 @@ PuppetCreator::PuppetCreator(ProjectExplorer::Target *target, const Model *model
 QProcessUniquePointer PuppetCreator::createPuppetProcess(
     const QString &puppetMode,
     const QString &socketToken,
-    QObject *handlerObject,
     std::function<void()> processOutputCallback,
     std::function<void(int, QProcess::ExitStatus)> processFinishCallback,
     const QStringList &customOptions) const
@@ -190,7 +189,6 @@ QProcessUniquePointer PuppetCreator::createPuppetProcess(
                          qmlPuppetDirectory(m_availablePuppetType),
                          puppetMode,
                          socketToken,
-                         handlerObject,
                          processOutputCallback,
                          processFinishCallback,
                          customOptions);
@@ -201,7 +199,6 @@ QProcessUniquePointer PuppetCreator::puppetProcess(
     const QString &workingDirectory,
     const QString &puppetMode,
     const QString &socketToken,
-    QObject *handlerObject,
     std::function<void()> processOutputCallback,
     std::function<void(int, QProcess::ExitStatus)> processFinishCallback,
     const QStringList &customOptions) const
@@ -216,7 +213,6 @@ QProcessUniquePointer PuppetCreator::puppetProcess(
                      &QProcess::kill);
     QObject::connect(puppetProcess.get(),
                      static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
-                     handlerObject,
                      processFinishCallback);
 
 #ifndef QMLDESIGNER_TEST
@@ -227,7 +223,7 @@ QProcessUniquePointer PuppetCreator::puppetProcess(
 #endif
     if (forwardOutput == puppetMode || forwardOutput == "all") {
         puppetProcess->setProcessChannelMode(QProcess::MergedChannels);
-        QObject::connect(puppetProcess.get(), &QProcess::readyRead, handlerObject, processOutputCallback);
+        QObject::connect(puppetProcess.get(), &QProcess::readyRead, processOutputCallback);
     }
     puppetProcess->setWorkingDirectory(workingDirectory);
 

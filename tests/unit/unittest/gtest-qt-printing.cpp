@@ -85,6 +85,11 @@ std::ostream &operator<<(std::ostream &out, const QTextCharFormat &format)
     return out;
 }
 
+std::ostream &operator<<(std::ostream &out, const QImage &image)
+{
+    return out << "(" << image.width() << ", " << image.height() << ", " << image.format() << ")";
+}
+
 void PrintTo(const QString &text, std::ostream *os)
 {
     *os << text;

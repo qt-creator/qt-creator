@@ -38,7 +38,8 @@ class Target;
 
 namespace QmlDesigner {
 
-class NodeInstanceServerProxy;
+class NodeInstanceServerInterface;
+class AbstractView;
 
 class QMLDESIGNERCORE_EXPORT ConnectionManagerInterface
 {
@@ -65,11 +66,14 @@ public:
 
     virtual ~ConnectionManagerInterface();
 
-    virtual void setUp(NodeInstanceServerProxy *nodeInstanceServerProxy,
+    virtual void setUp(NodeInstanceServerInterface *nodeInstanceServer,
                        const QString &qrcMappingString,
-                       ProjectExplorer::Target *target)
+                       ProjectExplorer::Target *target,
+                       AbstractView *view)
         = 0;
     virtual void shutDown() = 0;
+
+    virtual void setCrashCallback(std::function<void()> callback) = 0;
 
     virtual void writeCommand(const QVariant &command) = 0;
 

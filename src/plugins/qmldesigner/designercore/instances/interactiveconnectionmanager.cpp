@@ -38,20 +38,21 @@ namespace QmlDesigner {
 
 InteractiveConnectionManager::InteractiveConnectionManager()
 {
-    m_connections.emplace_back("Editor", "editormode");
-    m_connections.emplace_back("Render", "rendermode");
-    m_connections.emplace_back("Preview", "previewmode");
+    connections().emplace_back("Editor", "editormode");
+    connections().emplace_back("Render", "rendermode");
+    connections().emplace_back("Preview", "previewmode");
 }
 
-void InteractiveConnectionManager::setUp(NodeInstanceServerProxy *nodeInstanceServerProxy,
+void InteractiveConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServer,
                                          const QString &qrcMappingString,
-                                         ProjectExplorer::Target *target)
+                                         ProjectExplorer::Target *target,
+                                         AbstractView *view)
 {
-    ConnectionManager::setUp(nodeInstanceServerProxy, qrcMappingString, target);
+    ConnectionManager::setUp(nodeInstanceServer, qrcMappingString, target, view);
 
     DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
     int timeOutTime = settings.value(DesignerSettingsKey::PUPPET_KILL_TIMEOUT).toInt();
-    for (Connection &connection : m_connections)
+    for (Connection &connection : connections())
         connection.timer->setInterval(timeOutTime);
 
     if (QmlDesignerPlugin::instance()
@@ -59,12 +60,18 @@ void InteractiveConnectionManager::setUp(NodeInstanceServerProxy *nodeInstanceSe
             .value(DesignerSettingsKey::DEBUG_PUPPET)
             .toString()
             .isEmpty()) {
-        for (Connection &connection : m_connections) {
+        for (Connection &connection : connections()) {
             QObject::connect(connection.timer.get(), &QTimer::timeout, [&]() {
                 puppetTimeout(connection);
             });
         }
     }
+}
+
+void InteractiveConnectionManager::shutDown()
+{
+    m_view = {};
+    ConnectionManager::shutDown();
 }
 
 void InteractiveConnectionManager::showCannotConnectToPuppetWarningAndSwitchToEditMode()
@@ -75,8 +82,8 @@ void InteractiveConnectionManager::showCannotConnectToPuppetWarningAndSwitchToEd
            "Switching to another kit might help."));
 
     QmlDesignerPlugin::instance()->switchToTextModeDeferred();
-    nodeInstanceServerProxy()->nodeInstanceView()->emitDocumentMessage(
-        tr("Cannot Connect to QML Emulation Layer (QML Puppet)"));
+    if (m_view)
+        m_view->emitDocumentMessage(tr("Cannot Connect to QML Emulation Layer (QML Puppet)"));
 }
 
 void InteractiveConnectionManager::dispatchCommand(const QVariant &command, Connection &connection)

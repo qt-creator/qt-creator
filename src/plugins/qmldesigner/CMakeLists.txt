@@ -6,7 +6,7 @@ endif()
 add_qtc_plugin(QmlDesigner
   DEPENDS
     QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
-    Qt5::QuickWidgets Qt5::CorePrivate
+    Qt5::QuickWidgets Qt5::CorePrivate Sqlite
   DEFINES
     DESIGNER_CORE_LIBRARY
     IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
@@ -317,6 +317,7 @@ extend_qtc_plugin(QmlDesigner
     itemlibraryassetimportdialog.cpp itemlibraryassetimportdialog.h
     itemlibraryassetimportdialog.ui
     itemlibraryassetimporter.cpp itemlibraryassetimporter.h
+    itemlibraryiconimageprovider.cpp itemlibraryiconimageprovider.h
 )
 
 find_package(Qt5 COMPONENTS Quick3DAssetImport QUIET)
@@ -502,6 +503,7 @@ extend_qtc_plugin(QmlDesigner
     include/textmodifier.h
     include/variantproperty.h
     include/viewmanager.h
+    include/imagecache.h
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -586,6 +588,21 @@ extend_qtc_plugin(QmlDesigner
     pluginmanager/widgetpluginmanager.cpp pluginmanager/widgetpluginmanager.h
     pluginmanager/widgetpluginpath.cpp pluginmanager/widgetpluginpath.h
     rewritertransaction.cpp rewritertransaction.h
+
+    imagecache/imagecachecollector.h
+    imagecache/imagecachecollector.cpp
+    imagecache/imagecache.cpp
+    imagecache/imagecachecollectorinterface.h
+    imagecache/imagecacheconnectionmanager.cpp
+    imagecache/imagecacheconnectionmanager.h
+    imagecache/imagecachegenerator.cpp
+    imagecache/imagecachegenerator.h
+    imagecache/imagecachestorage.h
+    imagecache/imagecachegeneratorinterface.h
+    imagecache/imagecachestorageinterface.h
+    imagecache/timestampproviderinterface.h
+    imagecache/timestampprovider.h
+    imagecache/timestampprovider.cpp
 )
 
 extend_qtc_plugin(QmlDesigner

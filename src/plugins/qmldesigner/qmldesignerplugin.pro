@@ -35,6 +35,7 @@ include(components/annotationeditor/annotationeditor.pri)
 include(components/richtexteditor/richtexteditor.pri)
 include(components/transitioneditor/transitioneditor.pri)
 include(components/listmodeleditor/listmodeleditor.pri)
+include(components/previewtooltip/previewtooltipbackend.pri)
 
 BUILD_PUPPET_IN_CREATOR_BINPATH = $$(BUILD_PUPPET_IN_CREATOR_BINPATH)
 !isEmpty(BUILD_PUPPET_IN_CREATOR_BINPATH) {

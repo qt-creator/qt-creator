@@ -58,7 +58,6 @@ public:
     QProcessUniquePointer createPuppetProcess(
         const QString &puppetMode,
         const QString &socketToken,
-        QObject *handlerObject,
         std::function<void()> processOutputCallback,
         std::function<void(int, QProcess::ExitStatus)> processFinishCallback,
         const QStringList &customOptions = {}) const;
@@ -89,7 +88,6 @@ protected:
                                         const QString &workingDirectory,
                                         const QString &puppetMode,
                                         const QString &socketToken,
-                                        QObject *handlerObject,
                                         std::function<void()> processOutputCallback,
                                         std::function<void(int, QProcess::ExitStatus)> processFinishCallback,
                                         const QStringList &customOptions) const;

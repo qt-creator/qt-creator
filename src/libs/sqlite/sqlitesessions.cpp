@@ -103,7 +103,7 @@ void Sessions::commit()
     if (session && !sqlite3session_isempty(session.get())) {
         SessionChangeSet changeSet{*this};
 
-        insertSession.write(changeSet.asSpan());
+        insertSession.write(changeSet.asBlobView());
     }
 
     session.reset();

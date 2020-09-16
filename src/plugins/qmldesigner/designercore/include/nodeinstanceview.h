@@ -146,6 +146,11 @@ public:
     QVariant previewImageDataForGenericNode(const ModelNode &modelNode, const ModelNode &renderNode);
     QVariant previewImageDataForImageNode(const ModelNode &modelNode);
 
+    void setCrashCallback(std::function<void()> crashCallback)
+    {
+        m_crashCallback = std::move(crashCallback);
+    }
+
 protected:
     void timerEvent(QTimerEvent *event) override;
 
@@ -231,6 +236,7 @@ private:
 
     // key: fileUrl value: (key: instance qml id, value: related tool states)
     QHash<QUrl, QHash<QString, QVariantMap>> m_edit3DToolStates;
+    std::function<void()> m_crashCallback{[this] { handleCrash(); }};
 };
 
 } // namespace ProxyNodeInstanceView

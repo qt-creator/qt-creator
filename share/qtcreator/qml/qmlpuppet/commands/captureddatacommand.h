@@ -151,8 +151,19 @@ public:
         qint32 nodeId = -1;
     };
 
+    CapturedDataCommand() = default;
+
+    CapturedDataCommand(QVector<StateData> &&stateData)
+        : stateData{std::move(stateData)}
+    {}
+
+    CapturedDataCommand(QImage &&image)
+        : image{std::move(image)}
+    {}
+
     friend QDataStream &operator<<(QDataStream &out, const CapturedDataCommand &command)
     {
+        out << command.image;
         out << command.stateData;
 
         return out;
@@ -160,12 +171,14 @@ public:
 
     friend QDataStream &operator>>(QDataStream &in, CapturedDataCommand &command)
     {
+        in >> command.image;
         in >> command.stateData;
 
         return in;
     }
 
 public:
+    QImage image;
     QVector<StateData> stateData;
 };
 

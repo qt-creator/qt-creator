@@ -14,10 +14,8 @@ defineTest(setGoogleTestDirectories) {
 }
 
 isEmpty(GOOGLETEST_DIR) {
-    exists($$PWD/../../../../googletest) {
-        setGoogleTestDirectories($$PWD/../../../../googletest)
-    } else: exists($$PWD/../../../../../googletest) {
-        setGoogleTestDirectories($$PWD/../../../../../googletest)
+    exists($$PWD/3rdparty/googletest) {
+        setGoogleTestDirectories($$PWD/3rdparty/googletest)
     } else: linux {
         GTEST_INCLUDE_DIR = /usr/include/gtest
         GMOCK_INCLUDE_DIR = /usr/include/gmock

@@ -84,6 +84,7 @@ public:
     void requestModelNodePreviewImage(const RequestModelNodePreviewImageCommand &command) override;
     void changeLanguage(const ChangeLanguageCommand &command) override;
     void changePreviewImageSize(const ChangePreviewImageSizeCommand &command) override;
+    void dispatchCommand(const QVariant &command) override;
 
     NodeInstanceView *nodeInstanceView() const { return m_nodeInstanceView; }
 
@@ -91,11 +92,7 @@ public:
 
 protected:
     void writeCommand(const QVariant &command);
-    void dispatchCommand(const QVariant &command);
     NodeInstanceClientInterface *nodeInstanceClient() const;
-
-signals:
-    void processCrashed();
 
 private:
     NodeInstanceView *m_nodeInstanceView{};

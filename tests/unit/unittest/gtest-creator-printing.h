@@ -356,6 +356,13 @@ class VariantProperty;
 
 std::ostream &operator<<(std::ostream &out, const ModelNode &node);
 std::ostream &operator<<(std::ostream &out, const VariantProperty &property);
+
+namespace Internal {
+class ImageCacheStorageEntry;
+
+std::ostream &operator<<(std::ostream &out, const ImageCacheStorageEntry &entry);
+
+} // namespace Internal
 } // namespace QmlDesigner
 
 void setFilePathCache(ClangBackEnd::FilePathCaching *filePathCache);

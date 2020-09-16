@@ -7,6 +7,7 @@ qtHaveModule(quick3dassetimport) {
 
 # Input
 HEADERS += itemlibraryview.h \
+           $$PWD/itemlibraryiconimageprovider.h \
            itemlibrarywidget.h \
            itemlibrarymodel.h \
            itemlibraryresourceview.h \
@@ -19,6 +20,7 @@ HEADERS += itemlibraryview.h \
            customfilesystemmodel.h
 
 SOURCES += itemlibraryview.cpp \
+           $$PWD/itemlibraryiconimageprovider.cpp \
            itemlibrarywidget.cpp \
            itemlibrarymodel.cpp \
            itemlibraryresourceview.cpp \

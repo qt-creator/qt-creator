@@ -47,8 +47,18 @@ QString ItemLibraryItem::typeName() const
 
 QString ItemLibraryItem::itemLibraryIconPath() const
 {
-    //Prepend image provider prefix
-    return QStringLiteral("image://qmldesigner_itemlibrary/") + m_itemLibraryEntry.libraryEntryIconPath();
+    if (m_itemLibraryEntry.customComponentSource().isEmpty()) {
+        return QStringLiteral("image://qmldesigner_itemlibrary/")
+               + m_itemLibraryEntry.libraryEntryIconPath();
+    } else {
+        return QStringLiteral("image://itemlibrary_preview/")
+               + m_itemLibraryEntry.customComponentSource();
+    }
+}
+
+QString ItemLibraryItem::componentPath() const
+{
+    return m_itemLibraryEntry.customComponentSource();
 }
 
 bool ItemLibraryItem::setVisible(bool isVisible)

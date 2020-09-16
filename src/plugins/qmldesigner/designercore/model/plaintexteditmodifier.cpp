@@ -35,18 +35,16 @@
 using namespace Utils;
 using namespace QmlDesigner;
 
-PlainTextEditModifier::PlainTextEditModifier(QPlainTextEdit *textEdit):
-        m_changeSet(nullptr),
-        m_textEdit(textEdit),
-        m_changeSignalsEnabled(true),
-        m_pendingChangeSignal(false),
-        m_ongoingTextChange(false)
+PlainTextEditModifier::PlainTextEditModifier(QPlainTextEdit *textEdit)
+    : PlainTextEditModifier(textEdit->document(), textEdit->textCursor())
 {
-    Q_ASSERT(textEdit);
-
-    connect(m_textEdit, &QPlainTextEdit::textChanged,
-            this, &PlainTextEditModifier::textEditChanged);
+    connect(textEdit, &QPlainTextEdit::textChanged, this, &PlainTextEditModifier::textEditChanged);
 }
+
+PlainTextEditModifier::PlainTextEditModifier(QTextDocument *document, const QTextCursor &textCursor)
+    : m_textDocument{document}
+    , m_textCursor{textCursor}
+{}
 
 PlainTextEditModifier::~PlainTextEditModifier() = default;
 
@@ -158,17 +156,17 @@ void PlainTextEditModifier::runRewriting(ChangeSet *changeSet)
 
 QTextDocument *PlainTextEditModifier::textDocument() const
 {
-    return m_textEdit->document();
+    return m_textDocument;
 }
 
 QString PlainTextEditModifier::text() const
 {
-    return m_textEdit->toPlainText();
+    return m_textDocument->toPlainText();
 }
 
 QTextCursor PlainTextEditModifier::textCursor() const
 {
-    return m_textEdit->textCursor();
+    return m_textCursor;
 }
 
 void PlainTextEditModifier::deactivateChangeSignals()

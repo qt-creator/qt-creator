@@ -502,7 +502,6 @@ bool ItemLibraryAssetImporter::generateComponentIcon(int size, const QString &ic
         QProcessUniquePointer process = puppetCreator.createPuppetProcess(
             "custom",
             {},
-            this,
             std::function<void()>(),
             [&](int exitCode, QProcess::ExitStatus exitStatus) {
                 processFinished(exitCode, exitStatus);

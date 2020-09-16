@@ -37,6 +37,8 @@
 #include <QQmlPropertyMap>
 #include <QTimer>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class QStackedWidget;
 class QShortcut;
@@ -52,6 +54,9 @@ class CustomFileSystemModel;
 
 class ItemLibraryModel;
 class ItemLibraryResourceView;
+class PreviewTooltipBackend;
+class ImageCache;
+class ImageCacheCollector;
 
 class ItemLibraryWidget : public QFrame
 {
@@ -63,7 +68,8 @@ class ItemLibraryWidget : public QFrame
     };
 
 public:
-    ItemLibraryWidget(QWidget *parent = nullptr);
+    ItemLibraryWidget(ImageCache &imageCache);
+    ~ItemLibraryWidget();
 
     void setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo);
     QList<QToolButton *> createToolBarWidgets();
@@ -115,9 +121,10 @@ private:
     QScopedPointer<ItemLibraryResourceView> m_resourcesView;
     QScopedPointer<QWidget> m_importTagsWidget;
     QScopedPointer<QWidget> m_addResourcesWidget;
+    std::unique_ptr<PreviewTooltipBackend> m_previewTooltipBackend;
 
     QShortcut *m_qmlSourceUpdateShortcut;
-
+    ImageCache &m_imageCache;
     QPointer<Model> m_model;
     FilterChangeFlag m_filterFlag;
     ItemLibraryEntry m_currentitemLibraryEntry;

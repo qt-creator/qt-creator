@@ -86,6 +86,7 @@ public:
     virtual void requestModelNodePreviewImage(const RequestModelNodePreviewImageCommand &command) = 0;
     virtual void changeLanguage(const ChangeLanguageCommand &command) = 0;
     virtual void changePreviewImageSize(const ChangePreviewImageSizeCommand &command) = 0;
+    virtual void dispatchCommand(const QVariant &) {}
 
     virtual void benchmark(const QString &) {}
 

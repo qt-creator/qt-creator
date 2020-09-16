@@ -566,13 +566,16 @@ QRectF QuickItemNodeInstance::boundingRectWithStepChilds(QQuickItem *parentItem)
 
     boundingRect = boundingRect.united(QRectF(QPointF(0, 0), size()));
 
-    foreach (QQuickItem *childItem, parentItem->childItems()) {
+    for (QQuickItem *childItem : parentItem->childItems()) {
         if (!nodeInstanceServer()->hasInstanceForObject(childItem)) {
             QRectF transformedRect = childItem->mapRectToItem(parentItem, boundingRectWithStepChilds(childItem));
             if (isRectangleSane(transformedRect))
                 boundingRect = boundingRect.united(transformedRect);
         }
     }
+
+    if (boundingRect.isEmpty())
+        QRectF{0, 0, 640, 480};
 
     return boundingRect;
 }

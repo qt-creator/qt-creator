@@ -28,6 +28,10 @@
 #include "qmldesignercorelib_global.h"
 #include "abstractview.h"
 
+namespace ProjectExplorer {
+class Target;
+}
+
 namespace QmlDesigner {
 
 class NodeInstanceView : public AbstractView
@@ -88,6 +92,8 @@ public:
     void requestModelNodePreviewImage(const ModelNode &node) {}
 
     void sendToken(const QString &token, int number, const QVector<ModelNode> &nodeVector) {}
+    void setTarget(ProjectExplorer::Target *newTarget) {}
+    void setCrashCallback(std::function<void()>) {}
 };
 
 } // namespace QmlDesigner

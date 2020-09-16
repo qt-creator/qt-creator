@@ -174,6 +174,19 @@ add_qtc_test(unittest GTEST
     sqlstatementbuilder-test.cpp
     createtablesqlstatementbuilder-test.cpp
     sqlitevalue-test.cpp
+    imagecache-test.cpp
+    imagecachegenerator-test.cpp
+    imagecachestorage-test.cpp
+    sqlitedatabasemock.h
+    sqlitereadstatementmock.cpp sqlitereadstatementmock.h
+    sqlitestatementmock.h
+    sqlitetransactionbackendmock.h
+    sqlitewritestatementmock.cpp sqlitewritestatementmock.h
+    notification.h
+    mocktimestampprovider.h
+    imagecachecollectormock.h
+    mockimagecachegenerator.h
+    mockimagecachestorage.h
 )
 
 function(extend_qtc_test_with_target_sources target)
@@ -335,6 +348,7 @@ extend_qtc_test(unittest
     "${QmlDesignerDir}"
     "${QmlDesignerDir}/designercore"
     "${QmlDesignerDir}/designercore/include"
+    "${QmlDesignerDir}/designercore/imagecache"
     "${QmlDesignerDir}/../../../share/qtcreator/qml/qmlpuppet/interfaces"
     "${QmlDesignerDir}/../../../share/qtcreator/qml/qmlpuppet/types"
   DEFINES
@@ -382,6 +396,13 @@ extend_qtc_test(unittest
     model/signalhandlerproperty.cpp include/signalhandlerproperty.h
     model/variantproperty.cpp include/variantproperty.h
     rewritertransaction.cpp rewritertransaction.h
+    imagecache/imagecache.cpp include/imagecache.h
+    imagecache/imagecachecollectorinterface.h
+    imagecache/imagecachegenerator.cpp imagecache/imagecachegenerator.h
+    imagecache/imagecachegeneratorinterface.h
+    imagecache/imagecachestorage.h
+    imagecache/imagecachestorageinterface.h
+    imagecache/timestampproviderinterface.h
 
     include/qmldesignercorelib_global.h
 

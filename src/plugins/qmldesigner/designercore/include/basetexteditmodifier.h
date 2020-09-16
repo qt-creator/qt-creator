@@ -49,6 +49,9 @@ public:
     bool renameId(const QString &oldId, const QString &newId) override;
     bool moveToComponent(int nodeOffset) override;
     QStringList autoComplete(QTextDocument *textDocument, int position, bool explicitComplete) override;
+
+private:
+    TextEditor::TextEditorWidget *m_textEdit;
 };
 
 } // namespace QmlDesigner
