@@ -46,8 +46,6 @@
 #include <nodelistproperty.h>
 #include <nodeproperty.h>
 #include <signalhandlerproperty.h>
-#include <qmldesignerconstants.h>
-#include <nodeinstanceview.h>
 
 #include <componentcore_constants.h>
 #include <stylesheetmerger.h>
@@ -80,7 +78,6 @@
 #include <QFileDialog>
 #include <QPushButton>
 #include <QGridLayout>
-#include <QImage>
 
 #include <algorithm>
 #include <functional>
@@ -1518,111 +1515,21 @@ void removeGroup(const SelectionContext &selectionContext)
                 }
             }
             groupItem.destroy();
-        });
+    });
 }
 
-struct ImageData {
-    QDateTime time;
-    QImage image;
-    QString type;
-    QString id;
-    QString info;
-};
-static QHash<QString, QHash<QString, ImageData>> imageDataMap;
-
-static QVariant imageDataToVariant(const ImageData &imageData)
+QVariant previewImageDataFor3DNode(const ModelNode &modelNode)
 {
-    if (!imageData.image.isNull()) {
-        QVariantMap map;
-        map.insert("type", imageData.type);
-        map.insert("image", QVariant::fromValue<QImage>(imageData.image));
-        map.insert("id", imageData.id);
-        map.insert("info", imageData.info);
-        return map;
-    }
+    if (modelNode.isValid())
+        return modelNode.model()->previewImageDataFor3DNode(modelNode);
     return {};
 }
 
 QVariant previewImageDataForImageNode(const ModelNode &modelNode)
 {
-    // Images on file system can be cached globally as they are found by absolute paths
-    QHash<QString, ImageData> &localDataMap = imageDataMap[{}];
-
-    VariantProperty prop = modelNode.variantProperty("source");
-    QString imageSource = prop.value().toString();
-    QFileInfo imageFi(imageSource);
-    if (imageFi.isRelative())
-        imageSource = QmlDesignerPlugin::instance()->documentManager().currentFilePath().toFileInfo().dir().absoluteFilePath(imageSource);
-    imageFi = QFileInfo(imageSource);
-    QDateTime modified = imageFi.lastModified();
-
-    ImageData imageData;
-    bool reload = true;
-    if (localDataMap.contains(imageSource)) {
-        imageData = localDataMap[imageSource];
-        if (modified == imageData.time)
-            reload = false;
-    }
-
-    if (reload) {
-        QImage originalImage;
-        originalImage.load(imageSource);
-        if (!originalImage.isNull()) {
-            imageData.image = originalImage.scaled(Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
-                                                   Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
-                                                   Qt::KeepAspectRatio);
-            imageData.image.setDevicePixelRatio(2.);
-
-            double imgSize = double(imageFi.size());
-            imageData.type = QStringLiteral("%1 (%2)").arg(QString::fromLatin1(modelNode.type())).arg(imageFi.suffix());
-            imageData.id = modelNode.id();
-            static QStringList units({QObject::tr("B"), QObject::tr("KB"), QObject::tr("MB"), QObject::tr("GB")});
-            int unitIndex = 0;
-            while (imgSize > 1024. && unitIndex < units.size() - 1) {
-                ++unitIndex;
-                imgSize /= 1024.;
-            }
-            imageData.info = QStringLiteral("%1 x %2  (%3%4)").arg(originalImage.width()).arg(originalImage.height())
-                    .arg(QString::number(imgSize, 'g', 3)).arg(units[unitIndex]);
-            localDataMap.insert(imageSource, imageData);
-        }
-    }
-
-    return imageDataToVariant(imageData);
-}
-
-QVariant previewImageDataFor3DNode(const ModelNode &modelNode)
-{
-    QFileInfo docFi = QmlDesignerPlugin::instance()->documentManager().currentFilePath().toFileInfo();
-    QHash<QString, ImageData> &localDataMap = imageDataMap[docFi.absoluteFilePath()];
-    ImageData imageData;
-    static const QImage placeHolder(":/navigator/icon/tooltip_placeholder.png");
-
-    // We need puppet to generate the image, which needs to be asynchronous.
-    // Until the image is ready, we show a placeholder
-    const QString id = modelNode.id();
-    if (localDataMap.contains(id)) {
-        imageData = localDataMap[id];
-    } else {
-        imageData.type = QString::fromLatin1(modelNode.type());
-        imageData.id = id;
-        imageData.image = placeHolder;
-        localDataMap.insert(id, imageData);
-    }
-    modelNode.model()->nodeInstanceView()->requestModelNodePreviewImage(modelNode);
-
-    return imageDataToVariant(imageData);
-}
-
-void updatePreviewImageForNode(const ModelNode &modelNode, const QImage &image)
-{
-    QFileInfo docFi = QmlDesignerPlugin::instance()->documentManager().currentFilePath().toFileInfo();
-    QString docPath = docFi.absoluteFilePath();
-    if (imageDataMap.contains(docPath)) {
-        QHash<QString, ImageData> &localDataMap = imageDataMap[docPath];
-        if (localDataMap.contains(modelNode.id()))
-            localDataMap[modelNode.id()].image = image;
-    }
+    if (modelNode.isValid())
+        return modelNode.model()->previewImageDataForImageNode(modelNode);
+    return {};
 }
 
 } // namespace ModelNodeOperations
