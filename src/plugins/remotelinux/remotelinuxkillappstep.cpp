@@ -25,6 +25,7 @@
 
 #include "remotelinuxkillappstep.h"
 
+#include "remotelinux_constants.h"
 #include "remotelinuxkillappservice.h"
 
 #include <projectexplorer/runcontrol.h>
@@ -55,7 +56,7 @@ RemoteLinuxKillAppStep::RemoteLinuxKillAppStep(BuildStepList *bsl, Utils::Id id)
 
 Utils::Id RemoteLinuxKillAppStep::stepId()
 {
-    return "RemoteLinux.KillAppStep";
+    return Constants::KillAppStepId;
 }
 
 QString RemoteLinuxKillAppStep::displayName()

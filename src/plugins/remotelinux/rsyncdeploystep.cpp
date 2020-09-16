@@ -26,6 +26,7 @@
 #include "rsyncdeploystep.h"
 
 #include "abstractremotelinuxdeployservice.h"
+#include "remotelinux_constants.h"
 
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/runconfigurationaspects.h>
@@ -211,7 +212,7 @@ RsyncDeployStep::~RsyncDeployStep() = default;
 
 Utils::Id RsyncDeployStep::stepId()
 {
-    return "RemoteLinux.RsyncDeployStep";
+    return Constants::RsyncDeployStepId;
 }
 
 QString RsyncDeployStep::displayName()

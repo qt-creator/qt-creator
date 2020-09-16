@@ -25,6 +25,8 @@
 
 #include "tarpackagecreationstep.h"
 
+#include "remotelinux_constants.h"
+
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/project.h>
@@ -386,7 +388,7 @@ QVariantMap TarPackageCreationStep::toMap() const
 
 Utils::Id TarPackageCreationStep::stepId()
 {
-    return "MaemoTarPackageCreationStep";
+    return Constants::TarPackageCreationStepId;
 }
 
 QString TarPackageCreationStep::displayName()

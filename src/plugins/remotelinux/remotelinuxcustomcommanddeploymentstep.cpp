@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "remotelinuxcustomcommanddeploymentstep.h"
+
+#include "remotelinux_constants.h"
 #include "remotelinuxcustomcommanddeployservice.h"
 
 #include <projectexplorer/runconfigurationaspects.h>
@@ -58,7 +60,7 @@ RemoteLinuxCustomCommandDeploymentStep::~RemoteLinuxCustomCommandDeploymentStep(
 
 Utils::Id RemoteLinuxCustomCommandDeploymentStep::stepId()
 {
-    return "RemoteLinux.GenericRemoteLinuxCustomCommandDeploymentStep";
+    return Constants::CustomCommandDeployStepId;
 }
 
 QString RemoteLinuxCustomCommandDeploymentStep::displayName()

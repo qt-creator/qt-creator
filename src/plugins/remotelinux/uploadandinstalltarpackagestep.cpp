@@ -25,6 +25,7 @@
 
 #include "uploadandinstalltarpackagestep.h"
 
+#include "remotelinux_constants.h"
 #include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxpackageinstaller.h"
 #include "tarpackagecreationstep.h"
@@ -87,7 +88,7 @@ UploadAndInstallTarPackageStep::UploadAndInstallTarPackageStep(BuildStepList *bs
 
 Utils::Id UploadAndInstallTarPackageStep::stepId()
 {
-    return "MaemoUploadAndInstallTarPackageStep";
+    return Constants::UploadAndInstallTarPackageStepId;
 }
 
 QString UploadAndInstallTarPackageStep::displayName()
