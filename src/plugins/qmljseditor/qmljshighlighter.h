@@ -56,8 +56,8 @@ protected:
     void onOpeningParenthesis(QChar parenthesis, int pos, bool atStart);
     void onClosingParenthesis(QChar parenthesis, int pos, bool atEnd);
 
-    bool maybeQmlKeyword(const QStringRef &text) const;
-    bool maybeQmlBuiltinType(const QStringRef &text) const;
+    bool maybeQmlKeyword(const QStringView &text) const;
+    bool maybeQmlBuiltinType(const QStringView &text) const;
 
 private:
     bool m_qmlEnabled;

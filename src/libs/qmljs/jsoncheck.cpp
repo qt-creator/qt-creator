@@ -269,7 +269,7 @@ bool JsonCheck::visit(StringLiteral *ast)
 
     analysis()->boostRanking();
 
-    const QStringRef literal = ast->value;
+    const QStringView literal = ast->value;
 
     const QString &pattern = m_schema->pattern();
     if (!pattern.isEmpty()) {

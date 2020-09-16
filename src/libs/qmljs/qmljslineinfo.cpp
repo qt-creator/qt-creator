@@ -64,6 +64,8 @@
 #include <qmljs/qmljslineinfo.h>
 #include <qmljs/qmljsscanner.h>
 
+#include <utils/porting.h>
+
 using namespace QmlJS;
 
 /*
@@ -128,7 +130,7 @@ QString LineInfo::trimmedCodeLine(const QString &t)
     QString trimmed;
     int previousTokenEnd = 0;
     foreach (const Token &token, yyLinizerState.tokens) {
-        trimmed.append(t.midRef(previousTokenEnd, token.begin() - previousTokenEnd));
+        trimmed.append(t.mid(previousTokenEnd, token.begin() - previousTokenEnd));
 
         if (token.is(Token::String)) {
             for (int i = 0; i < token.length; ++i)
@@ -139,7 +141,7 @@ QString LineInfo::trimmedCodeLine(const QString &t)
                 trimmed.append(QLatin1Char(' '));
 
         } else {
-            trimmed.append(tokenText(token));
+            trimmed.append(tokenText(token).toString());
         }
 
         previousTokenEnd = token.end();
@@ -191,7 +193,7 @@ QString LineInfo::trimmedCodeLine(const QString &t)
             // "a = Somevar\n{" in a JS context
             // What's done here does not cover all cases, but goes as far as possible
             // with the limited information that's available.
-            const QStringRef text = tokenText(last);
+            const QStringView text = tokenText(last);
             if (yyLinizerState.leftBraceFollows && !text.isEmpty() && text.at(0).isUpper()) {
                 int i = index;
 
@@ -277,9 +279,9 @@ Token LineInfo::lastToken() const
     return Token();
 }
 
-QStringRef LineInfo::tokenText(const Token &token) const
+QStringView LineInfo::tokenText(const Token &token) const
 {
-    return yyLinizerState.line.midRef(token.offset, token.length);
+    return Utils::midView(yyLinizerState.line, token.offset, token.length);
 }
 
 /*
@@ -457,7 +459,7 @@ bool LineInfo::matchBracelessControlStatement()
                     const Token &tk = yyLinizerState.tokens.at(tokenIndex - 1);
 
                     if (tk.is(Token::Keyword)) {
-                        const QStringRef text = tokenText(tk);
+                        const QStringView text = tokenText(tk);
 
                         /*
                             We have

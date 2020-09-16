@@ -284,7 +284,7 @@ private:
     void saveCurrentState(const QTextBlock &block);
     void restoreCurrentState(const QTextBlock &block);
 
-    QStringRef currentTokenText() const;
+    QStringView currentTokenText() const;
 
     int tokenizeBlock(const QTextBlock &block);
 

@@ -1203,7 +1203,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
             if (property->type == AST::UiPublicMember::Signal)
                 continue; // QML designer doesn't support this yet.
 
-            const QStringRef astName = property->name;
+            const QStringView astName = property->name;
             QString astValue;
             if (property->statement)
                 astValue = textAt(context->doc(),

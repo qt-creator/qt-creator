@@ -235,7 +235,7 @@ protected:
         m_scopeBuilder.pop();
     }
 
-    void processName(const QStringRef &name, SourceLocation location)
+    void processName(const QStringView &name, SourceLocation location)
     {
         if (name.isEmpty())
             return;

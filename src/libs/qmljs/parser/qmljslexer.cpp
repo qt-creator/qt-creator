@@ -124,8 +124,8 @@ void Lexer::setCode(const QString &code, int lineno, bool qmlMode)
     _tokenText.clear();
     _tokenText.reserve(1024);
     _errorMessage.clear();
-    _tokenSpell = QStringRef();
-    _rawString = QStringRef();
+    _tokenSpell = QStringView();
+    _rawString = QStringView();
 
     _codePtr = code.unicode();
     _endPtr = _codePtr + code.length();
@@ -248,70 +248,70 @@ int Lexer::lex()
     const int previousTokenKind = _tokenKind;
 
   again:
-    _tokenSpell = QStringRef();
-    _rawString = QStringRef();
-    _tokenKind = scanToken();
-    _tokenLength = _codePtr - _tokenStartPtr - 1;
+      _tokenSpell = QStringView();
+      _rawString = QStringView();
+      _tokenKind = scanToken();
+      _tokenLength = _codePtr - _tokenStartPtr - 1;
 
-    _delimited = false;
-    _restrictedKeyword = false;
-    _followsClosingBrace = (previousTokenKind == T_RBRACE);
+      _delimited = false;
+      _restrictedKeyword = false;
+      _followsClosingBrace = (previousTokenKind == T_RBRACE);
 
-    // update the flags
-    switch (_tokenKind) {
-    case T_LBRACE:
-        if (_bracesCount > 0)
-            ++_bracesCount;
-        Q_FALLTHROUGH();
-    case T_SEMICOLON:
-        _importState = ImportState::NoQmlImport;
-        Q_FALLTHROUGH();
-    case T_QUESTION:
-    case T_COLON:
-    case T_TILDE:
-        _delimited = true;
-        break;
-    case T_AUTOMATIC_SEMICOLON:
-    case T_AS:
-        _importState = ImportState::NoQmlImport;
-        Q_FALLTHROUGH();
-    default:
-        if (isBinop(_tokenKind))
-            _delimited = true;
-        break;
+      // update the flags
+      switch (_tokenKind) {
+      case T_LBRACE:
+          if (_bracesCount > 0)
+              ++_bracesCount;
+          Q_FALLTHROUGH();
+      case T_SEMICOLON:
+          _importState = ImportState::NoQmlImport;
+          Q_FALLTHROUGH();
+      case T_QUESTION:
+      case T_COLON:
+      case T_TILDE:
+          _delimited = true;
+          break;
+      case T_AUTOMATIC_SEMICOLON:
+      case T_AS:
+          _importState = ImportState::NoQmlImport;
+          Q_FALLTHROUGH();
+      default:
+          if (isBinop(_tokenKind))
+              _delimited = true;
+          break;
 
-    case T_IMPORT:
-        if (qmlMode() || (_handlingDirectives && previousTokenKind == T_DOT))
-            _importState = ImportState::SawImport;
-        if (isBinop(_tokenKind))
-            _delimited = true;
-        break;
+      case T_IMPORT:
+          if (qmlMode() || (_handlingDirectives && previousTokenKind == T_DOT))
+              _importState = ImportState::SawImport;
+          if (isBinop(_tokenKind))
+              _delimited = true;
+          break;
 
-    case T_IF:
-    case T_FOR:
-    case T_WHILE:
-    case T_WITH:
-        _parenthesesState = CountParentheses;
-        _parenthesesCount = 0;
-        break;
+      case T_IF:
+      case T_FOR:
+      case T_WHILE:
+      case T_WITH:
+          _parenthesesState = CountParentheses;
+          _parenthesesCount = 0;
+          break;
 
-    case T_ELSE:
-    case T_DO:
-        _parenthesesState = BalancedParentheses;
-        break;
+      case T_ELSE:
+      case T_DO:
+          _parenthesesState = BalancedParentheses;
+          break;
 
-    case T_CONTINUE:
-    case T_BREAK:
-    case T_RETURN:
-    case T_YIELD:
-    case T_THROW:
-        _restrictedKeyword = true;
-        break;
-    case T_RBRACE:
-        if (_bracesCount > 0)
-            --_bracesCount;
-        if (_bracesCount == 0)
-            goto again;
+      case T_CONTINUE:
+      case T_BREAK:
+      case T_RETURN:
+      case T_YIELD:
+      case T_THROW:
+          _restrictedKeyword = true;
+          break;
+      case T_RBRACE:
+          if (_bracesCount > 0)
+              --_bracesCount;
+          if (_bracesCount == 0)
+              goto again;
     } // switch
 
     // update the parentheses state

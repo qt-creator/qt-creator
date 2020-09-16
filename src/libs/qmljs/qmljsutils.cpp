@@ -83,7 +83,7 @@ QColor QmlJS::toQColor(const QString &qmlColorString)
     QColor color;
     if (qmlColorString.size() == 9 && qmlColorString.at(0) == QLatin1Char('#')) {
         bool ok;
-        const int alpha = qmlColorString.midRef(1, 2).toInt(&ok, 16);
+        const int alpha = qmlColorString.mid(1, 2).toInt(&ok, 16);
         if (ok) {
             const QString name = qmlColorString.at(0) + qmlColorString.right(6);
             if (QColor::isValidColor(name)) {
@@ -106,7 +106,7 @@ QString QmlJS::toString(UiQualifiedId *qualifiedId, QChar delimiter)
         if (iter != qualifiedId)
             result += delimiter;
 
-        result += iter->name;
+        result += iter->name.toString();
     }
 
     return result;

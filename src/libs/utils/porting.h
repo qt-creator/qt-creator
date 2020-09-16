@@ -51,12 +51,27 @@ using StringView = QStringRef;
 #else
 using StringView = QStringView;
 #endif
+
 inline StringView make_stringview(const QString &s)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     return QStringRef(&s);
 #else
     return QStringView(s);
+#endif
+}
+
+// QStringView::mid in Qt5 does not do bounds checking, in Qt6 it does
+inline QStringView midView(const QString &s, int offset, int length)
+{
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    if (offset > s.size())
+        return {};
+    if (offset + length > s.size())
+        return QStringView(s).mid(offset);
+    return QStringView(s).mid(offset, length);
+#else
+    return QStringView(s).mid(offset, length);
 #endif
 }
 

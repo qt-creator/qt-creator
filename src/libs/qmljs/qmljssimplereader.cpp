@@ -33,6 +33,7 @@
 
 #include <QFile>
 #include <QLoggingCategory>
+#include <QVariant>
 
 static Q_LOGGING_CATEGORY(simpleReaderLog, "qtc.qmljs.simpleReader", QtWarningMsg)
 

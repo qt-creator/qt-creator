@@ -29,7 +29,7 @@
 
 QT_QML_BEGIN_NAMESPACE
 
-static int parseInt(const QStringRef &str, bool *ok)
+static int parseInt(const QStringView &str, bool *ok)
 {
     int pos = 0;
     int number = 0;
@@ -51,9 +51,10 @@ static bool parseVersion(const QString &str, int *major, int *minor)
     const int dotIndex = str.indexOf(QLatin1Char('.'));
     if (dotIndex != -1 && str.indexOf(QLatin1Char('.'), dotIndex + 1) == -1) {
         bool ok = false;
-        *major = parseInt(QStringRef(&str, 0, dotIndex), &ok);
+        *major = parseInt(QStringView(str.constData(), dotIndex), &ok);
         if (ok)
-            *minor = parseInt(QStringRef(&str, dotIndex + 1, str.length() - dotIndex - 1), &ok);
+            *minor = parseInt(QStringView(str.constData() + dotIndex + 1, str.length() - dotIndex - 1),
+                              &ok);
         return ok;
     }
     return false;

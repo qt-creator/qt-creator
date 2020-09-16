@@ -105,10 +105,15 @@ public:
 
     MemoryPool *pool();
 
-    inline QStringRef midRef(int position, int size) { return _code.midRef(position, size); }
+    inline QStringView midRef(int position, int size)
+    {
+        if (position + size > _code.size())
+            return QStringView(_code).mid(position);
+        return QStringView(_code).mid(position, size);
+    }
 
-    QStringRef newStringRef(const QString &s);
-    QStringRef newStringRef(const QChar *chars, int size);
+    QStringView newStringRef(const QString &s);
+    QStringView newStringRef(const QChar *chars, int size);
 };
 
 double integerFromString(const char *buf, int size, int radix);

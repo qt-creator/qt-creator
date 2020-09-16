@@ -74,7 +74,7 @@ static bool isDerivedFromTestCase(QmlJS::AST::UiQualifiedId *id, const QmlJS::Do
         if (auto prototype = val->prototype()) {
             if (auto qmlPrototypeRef = prototype->asQmlPrototypeReference()) {
                 if (auto qmlTypeName = qmlPrototypeRef->qmlTypeName()) {
-                    if (qmlTypeName->name == "TestCase") {
+                    if (qmlTypeName->name == QLatin1String("TestCase")) {
                         if (auto astObjVal = val->asAstObjectValue())
                             return documentImportsQtTest(astObjVal->document());
                     }
@@ -87,9 +87,9 @@ static bool isDerivedFromTestCase(QmlJS::AST::UiQualifiedId *id, const QmlJS::Do
 
 bool TestQmlVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
-    const QStringRef name = ast->qualifiedTypeNameId->name;
+    const QStringView name = ast->qualifiedTypeNameId->name;
     m_objectIsTestStack.push(false);
-    if (name != "TestCase") {
+    if (name != QLatin1String("TestCase")) {
         if (!isDerivedFromTestCase(ast->qualifiedTypeNameId, m_currentDoc, m_snapshot))
             return true;
     } else if (!documentImportsQtTest(m_currentDoc.data())) {
@@ -122,7 +122,7 @@ bool TestQmlVisitor::visit(QmlJS::AST::ExpressionStatement *ast)
 bool TestQmlVisitor::visit(QmlJS::AST::UiScriptBinding *ast)
 {
     if (m_objectIsTestStack.top())
-        m_expectTestCaseName = ast->qualifiedId->name == "name";
+        m_expectTestCaseName = ast->qualifiedId->name == QLatin1String("name");
     return m_expectTestCaseName;
 }
 
@@ -137,24 +137,22 @@ bool TestQmlVisitor::visit(QmlJS::AST::FunctionDeclaration *ast)
     if (m_caseParseStack.isEmpty())
         return false;
 
-    const QStringRef name = ast->name;
-    if (name.startsWith("test_")
-            || name.startsWith("benchmark_")
-            || name.endsWith("_data")
-            || specialFunctions.contains(name.toString())) {
+    const QString name = ast->name.toString();
+    if (name.startsWith("test_") || name.startsWith("benchmark_") || name.endsWith("_data")
+        || specialFunctions.contains(name)) {
         const auto sourceLocation = ast->firstSourceLocation();
         TestCodeLocationAndType locationAndType;
         locationAndType.m_name = m_currentDoc->fileName();
         locationAndType.m_line = sourceLocation.startLine;
         locationAndType.m_column = sourceLocation.startColumn - 1;
-        if (specialFunctions.contains(name.toString()))
+        if (specialFunctions.contains(name))
             locationAndType.m_type = TestTreeItem::TestSpecialFunction;
         else if (name.endsWith("_data"))
             locationAndType.m_type = TestTreeItem::TestDataFunction;
         else
             locationAndType.m_type = TestTreeItem::TestFunction;
 
-        const QString nameStr = name.toString();
+        const QString nameStr = name;
         // identical test functions inside the same file are not working - will fail at runtime
         if (!Utils::anyOf(m_caseParseStack.top().m_functions,
                           [nameStr, locationAndType](const QuickTestFunctionSpec func) {

@@ -403,10 +403,10 @@ protected:
     inline Value &sym(int index)
     { return sym_stack [tos + index - 1]; }
 
-    inline QStringRef &stringRef(int index)
+    inline QStringView &stringRef(int index)
     { return string_stack [tos + index - 1]; }
 
-    inline QStringRef &rawStringRef(int index)
+    inline QStringView &rawStringRef(int index)
     { return rawString_stack [tos + index - 1]; }
 
     inline SourceLocation &loc(int index)
@@ -444,8 +444,8 @@ protected:
     Value *sym_stack = nullptr;
     int *state_stack = nullptr;
     SourceLocation *location_stack = nullptr;
-    QVector<QStringRef> string_stack;
-    QVector<QStringRef> rawString_stack;
+    QVector<QStringView> string_stack;
+    QVector<QStringView> rawString_stack;
 
     AST::Node *program = nullptr;
 
@@ -456,14 +456,14 @@ protected:
        int token;
        double dval;
        SourceLocation loc;
-       QStringRef spell;
-       QStringRef raw;
+       QStringView spell;
+       QStringView raw;
     };
 
     int yytoken = -1;
     double yylval = 0.;
-    QStringRef yytokenspell;
-    QStringRef yytokenraw;
+    QStringView yytokenspell;
+    QStringView yytokenraw;
     SourceLocation yylloc;
     SourceLocation yyprevlloc;
 
@@ -555,7 +555,7 @@ static inline SourceLocation location(Lexer *lexer)
 
 AST::UiQualifiedId *Parser::reparseAsQualifiedId(AST::ExpressionNode *expr)
 {
-    QVarLengthArray<QStringRef, 4> nameIds;
+    QVarLengthArray<QStringView, 4> nameIds;
     QVarLengthArray<SourceLocation, 4> locations;
 
     AST::ExpressionNode *it = expr;
@@ -3624,7 +3624,7 @@ ContinueStatement: T_CONTINUE IdentifierReference Semicolon;
 BreakStatement: T_BREAK Semicolon;
 /.
     case $rule_number: {
-        AST::BreakStatement *node = new (pool) AST::BreakStatement(QStringRef());
+        AST::BreakStatement *node = new (pool) AST::BreakStatement(QStringView());
         node->breakToken = loc(1);
         node->semicolonToken = loc(2);
         sym(1).Node = node;
@@ -3898,7 +3898,7 @@ FunctionDeclaration_Default: Function T_LPAREN FormalParameters T_RPAREN TypeAnn
     case $rule_number: {
         if (!ensureNoFunctionTypeAnnotations(sym(5).TypeAnnotation, sym(3).FormalParameterList))
             return false;
-        AST::FunctionDeclaration *node = new (pool) AST::FunctionDeclaration(QStringRef(), sym(3).FormalParameterList, sym(7).StatementList,
+        AST::FunctionDeclaration *node = new (pool) AST::FunctionDeclaration(QStringView(), sym(3).FormalParameterList, sym(7).StatementList,
                                                                              /*type annotation*/nullptr);
         node->functionToken = loc(1);
         node->lparenToken = loc(2);
@@ -3932,7 +3932,7 @@ FunctionExpression: T_FUNCTION T_LPAREN FormalParameters T_RPAREN TypeAnnotation
     case $rule_number: {
         if (!ensureNoFunctionTypeAnnotations(sym(5).TypeAnnotation, sym(3).FormalParameterList))
             return false;
-        AST::FunctionExpression *node = new (pool) AST::FunctionExpression(QStringRef(), sym(3).FormalParameterList, sym(7).StatementList,
+        AST::FunctionExpression *node = new (pool) AST::FunctionExpression(QStringView(), sym(3).FormalParameterList, sym(7).StatementList,
                                                                            /*type annotation*/nullptr);
         node->functionToken = loc(1);
         node->lparenToken = loc(2);
@@ -4022,7 +4022,7 @@ ArrowFunction_In: ArrowParameters T_ARROW ConciseBodyLookahead AssignmentExpress
         ret->returnToken = sym(4).Node->firstSourceLocation();
         ret->semicolonToken = sym(4).Node->lastSourceLocation();
         AST::StatementList *statements = (new (pool) AST::StatementList(ret))->finish();
-        AST::FunctionExpression *f = new (pool) AST::FunctionExpression(QStringRef(), sym(1).FormalParameterList, statements);
+        AST::FunctionExpression *f = new (pool) AST::FunctionExpression(QStringView(), sym(1).FormalParameterList, statements);
         f->isArrowFunction = true;
         f->functionToken = sym(1).Node ? sym(1).Node->firstSourceLocation() : loc(1);
         f->lbraceToken = sym(4).Node->firstSourceLocation();
@@ -4036,7 +4036,7 @@ ArrowFunction: ArrowParameters T_ARROW ConciseBodyLookahead T_FORCE_BLOCK Functi
 ArrowFunction_In: ArrowParameters T_ARROW ConciseBodyLookahead T_FORCE_BLOCK FunctionLBrace FunctionBody FunctionRBrace;
 /.
     case $rule_number: {
-        AST::FunctionExpression *f = new (pool) AST::FunctionExpression(QStringRef(), sym(1).FormalParameterList, sym(6).StatementList);
+        AST::FunctionExpression *f = new (pool) AST::FunctionExpression(QStringView(), sym(1).FormalParameterList, sym(6).StatementList);
         f->isArrowFunction = true;
         f->functionToken = sym(1).Node ? sym(1).Node->firstSourceLocation() : loc(1);
         f->lbraceToken = loc(6);
@@ -4197,7 +4197,7 @@ GeneratorDeclaration_Default: GeneratorDeclaration;
 GeneratorDeclaration_Default: FunctionStar GeneratorLParen FormalParameters T_RPAREN FunctionLBrace GeneratorBody GeneratorRBrace;
 /.
     case $rule_number: {
-        AST::FunctionDeclaration *node = new (pool) AST::FunctionDeclaration(QStringRef(), sym(3).FormalParameterList, sym(6).StatementList);
+        AST::FunctionDeclaration *node = new (pool) AST::FunctionDeclaration(QStringView(), sym(3).FormalParameterList, sym(6).StatementList);
         node->functionToken = loc(1);
         node->lparenToken = loc(2);
         node->rparenToken = loc(4);
@@ -4227,7 +4227,7 @@ GeneratorExpression: T_FUNCTION_STAR BindingIdentifier GeneratorLParen FormalPar
 GeneratorExpression: T_FUNCTION_STAR GeneratorLParen FormalParameters T_RPAREN FunctionLBrace GeneratorBody GeneratorRBrace;
 /.
     case $rule_number: {
-        AST::FunctionExpression *node = new (pool) AST::FunctionExpression(QStringRef(), sym(3).FormalParameterList, sym(6).StatementList);
+        AST::FunctionExpression *node = new (pool) AST::FunctionExpression(QStringView(), sym(3).FormalParameterList, sym(6).StatementList);
         node->functionToken = loc(1);
         node->lparenToken = loc(2);
         node->rparenToken = loc(4);
@@ -4302,7 +4302,7 @@ ClassExpression: T_CLASS BindingIdentifier ClassHeritageOpt ClassLBrace ClassBod
 ClassDeclaration_Default: T_CLASS ClassHeritageOpt ClassLBrace ClassBodyOpt ClassRBrace;
 /.
     case $rule_number: {
-        AST::ClassDeclaration *node = new (pool) AST::ClassDeclaration(QStringRef(), sym(2).Expression, sym(4).ClassElementList);
+        AST::ClassDeclaration *node = new (pool) AST::ClassDeclaration(QStringView(), sym(2).Expression, sym(4).ClassElementList);
         node->classToken = loc(1);
         node->lbraceToken = loc(3);
         node->rbraceToken = loc(5);
@@ -4313,7 +4313,7 @@ ClassDeclaration_Default: T_CLASS ClassHeritageOpt ClassLBrace ClassBodyOpt Clas
 ClassExpression: T_CLASS ClassHeritageOpt ClassLBrace ClassBodyOpt ClassRBrace;
 /.
     case $rule_number: {
-        AST::ClassExpression *node = new (pool) AST::ClassExpression(QStringRef(), sym(2).Expression, sym(4).ClassElementList);
+        AST::ClassExpression *node = new (pool) AST::ClassExpression(QStringView(), sym(2).Expression, sym(4).ClassElementList);
         node->classToken = loc(1);
         node->lbraceToken = loc(3);
         node->rbraceToken = loc(5);

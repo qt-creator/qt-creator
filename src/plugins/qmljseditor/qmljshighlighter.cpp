@@ -27,6 +27,7 @@
 
 #include <QSet>
 
+#include <utils/porting.h>
 #include <utils/qtcassert.h>
 
 using namespace QmlJS;
@@ -75,7 +76,8 @@ void QmlJSHighlighter::highlightBlock(const QString &text)
                 break;
 
             case Token::Comment:
-                if (m_inMultilineComment && text.midRef(token.end() - 2, 2) == QLatin1String("*/")) {
+                if (m_inMultilineComment
+                    && Utils::midView(text, token.end() - 2, 2) == QLatin1String("*/")) {
                     onClosingParenthesis(QLatin1Char('-'), token.end() - 1, index == tokens.size()-1);
                     m_inMultilineComment = false;
                 } else if (!m_inMultilineComment
@@ -119,7 +121,7 @@ void QmlJSHighlighter::highlightBlock(const QString &text)
                 if (!m_qmlEnabled)
                     break;
 
-                const QStringRef spell = text.midRef(token.offset, token.length);
+                const QStringView spell = Utils::midView(text, token.offset, token.length);
 
                 if (maybeQmlKeyword(spell)) {
                     // check the previous token
@@ -129,25 +131,25 @@ void QmlJSHighlighter::highlightBlock(const QString &text)
                             break;
                         }
                     }
-                    if (text.midRef(token.offset, token.length) == QLatin1String("enum")) {
+                    if (Utils::midView(text, token.offset, token.length) == QLatin1String("enum")) {
                         setFormat(token.offset, token.length, formatForCategory(C_KEYWORD));
                         break;
                     }
                 } else if (index > 0 && maybeQmlBuiltinType(spell)) {
                     const Token &previousToken = tokens.at(index - 1);
                     if (previousToken.is(Token::Identifier)
-                            && text.at(previousToken.offset) == QLatin1Char('p')
-                            && text.midRef(previousToken.offset, previousToken.length)
-                            == QLatin1String("property")) {
+                        && text.at(previousToken.offset) == QLatin1Char('p')
+                        && Utils::midView(text, previousToken.offset, previousToken.length)
+                               == QLatin1String("property")) {
                         setFormat(token.offset, token.length, formatForCategory(C_KEYWORD));
                         break;
                     }
                 } else if (index == 1) {
                     const Token &previousToken = tokens.at(0);
                     if (previousToken.is(Token::Identifier)
-                            && text.at(previousToken.offset) == QLatin1Char('e')
-                            && text.midRef(previousToken.offset, previousToken.length)
-                            == QLatin1String("enum")) {
+                        && text.at(previousToken.offset) == QLatin1Char('e')
+                        && Utils::midView(text, previousToken.offset, previousToken.length)
+                               == QLatin1String("enum")) {
                         setFormat(token.offset, token.length, formatForCategory(C_ENUMERATION));
                         break;
                     }
@@ -200,7 +202,7 @@ void QmlJSHighlighter::highlightBlock(const QString &text)
     onBlockEnd(m_scanner.state());
 }
 
-bool QmlJSHighlighter::maybeQmlKeyword(const QStringRef &text) const
+bool QmlJSHighlighter::maybeQmlKeyword(const QStringView &text) const
 {
     if (text.isEmpty())
         return false;
@@ -226,7 +228,7 @@ bool QmlJSHighlighter::maybeQmlKeyword(const QStringRef &text) const
         return false;
 }
 
-bool QmlJSHighlighter::maybeQmlBuiltinType(const QStringRef &text) const
+bool QmlJSHighlighter::maybeQmlBuiltinType(const QStringView &text) const
 {
     if (text.isEmpty())
         return false;

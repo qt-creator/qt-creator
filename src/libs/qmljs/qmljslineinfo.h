@@ -69,7 +69,7 @@ protected:
     bool matchBracelessControlStatement();
 
     Token lastToken() const;
-    QStringRef tokenText(const Token &token) const;
+    QStringView tokenText(const Token &token) const;
 
 protected:
     struct LinizerState

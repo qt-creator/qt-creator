@@ -25,6 +25,8 @@
 
 #include "qmljscodeformatter.h"
 
+#include <utils/porting.h>
+
 #include <QLoggingCategory>
 #include <QMetaEnum>
 #include <QTextBlock>
@@ -205,11 +207,14 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             turnInto(property_maybe_initializer);
             break;
 
-        case property_list_open:
-            if (m_currentLine.midRef(m_currentToken.begin(), m_currentToken.length) == QLatin1String(">"))
+        case property_list_open: {
+            const QStringView tok = Utils::midView(m_currentLine,
+                                                   m_currentToken.begin(),
+                                                   m_currentToken.length);
+            if (tok == QLatin1String(">"))
                 turnInto(property_name);
             break;
-
+        }
         case property_maybe_initializer:
             switch (kind) {
             case Colon:         turnInto(binding_assignment); break;
@@ -846,9 +851,9 @@ int CodeFormatter::column(int index) const
     return col;
 }
 
-QStringRef CodeFormatter::currentTokenText() const
+QStringView CodeFormatter::currentTokenText() const
 {
-    return m_currentLine.midRef(m_currentToken.begin(), m_currentToken.length);
+    return Utils::midView(m_currentLine, m_currentToken.begin(), m_currentToken.length);
 }
 
 void CodeFormatter::turnInto(int newState)
@@ -922,7 +927,7 @@ int CodeFormatter::tokenizeBlock(const QTextBlock &block)
 CodeFormatter::TokenKind CodeFormatter::extendedTokenKind(const QmlJS::Token &token) const
 {
     const int kind = token.kind;
-    QStringRef text = m_currentLine.midRef(token.begin(), token.length);
+    const QStringView text = Utils::midView(m_currentLine, token.begin(), token.length);
 
     if (kind == Identifier) {
         if (text == QLatin1String("as"))

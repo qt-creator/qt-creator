@@ -102,7 +102,7 @@ static inline SourceLocation location(Lexer *lexer)
 
 AST::UiQualifiedId *Parser::reparseAsQualifiedId(AST::ExpressionNode *expr)
 {
-    QVarLengthArray<QStringRef, 4> nameIds;
+    QVarLengthArray<QStringView, 4> nameIds;
     QVarLengthArray<SourceLocation, 4> locations;
 
     AST::ExpressionNode *it = expr;
@@ -2655,7 +2655,7 @@ case 241: {
 #line 3625 "qmljs.g"
 
     case 483: {
-        AST::BreakStatement *node = new (pool) AST::BreakStatement(QStringRef());
+        AST::BreakStatement *node = new (pool) AST::BreakStatement(QStringView());
         node->breakToken = loc(1);
         node->semicolonToken = loc(2);
         sym(1).Node = node;
@@ -2893,8 +2893,11 @@ case 241: {
     case 512: {
         if (!ensureNoFunctionTypeAnnotations(sym(5).TypeAnnotation, sym(3).FormalParameterList))
             return false;
-        AST::FunctionDeclaration *node = new (pool) AST::FunctionDeclaration(QStringRef(), sym(3).FormalParameterList, sym(7).StatementList,
-                                                                             /*type annotation*/nullptr);
+        AST::FunctionDeclaration *node = new (pool)
+            AST::FunctionDeclaration(QStringView(),
+                                     sym(3).FormalParameterList,
+                                     sym(7).StatementList,
+                                     /*type annotation*/ nullptr);
         node->functionToken = loc(1);
         node->lparenToken = loc(2);
         node->rparenToken = loc(4);
@@ -2925,8 +2928,11 @@ case 241: {
     case 514: {
         if (!ensureNoFunctionTypeAnnotations(sym(5).TypeAnnotation, sym(3).FormalParameterList))
             return false;
-        AST::FunctionExpression *node = new (pool) AST::FunctionExpression(QStringRef(), sym(3).FormalParameterList, sym(7).StatementList,
-                                                                           /*type annotation*/nullptr);
+        AST::FunctionExpression *node = new (pool)
+            AST::FunctionExpression(QStringView(),
+                                    sym(3).FormalParameterList,
+                                    sym(7).StatementList,
+                                    /*type annotation*/ nullptr);
         node->functionToken = loc(1);
         node->lparenToken = loc(2);
         node->rparenToken = loc(4);
@@ -2998,7 +3004,8 @@ case 241: {
         ret->returnToken = sym(4).Node->firstSourceLocation();
         ret->semicolonToken = sym(4).Node->lastSourceLocation();
         AST::StatementList *statements = (new (pool) AST::StatementList(ret))->finish();
-        AST::FunctionExpression *f = new (pool) AST::FunctionExpression(QStringRef(), sym(1).FormalParameterList, statements);
+        AST::FunctionExpression *f = new (pool)
+            AST::FunctionExpression(QStringView(), sym(1).FormalParameterList, statements);
         f->isArrowFunction = true;
         f->functionToken = sym(1).Node ? sym(1).Node->firstSourceLocation() : loc(1);
         f->lbraceToken = sym(4).Node->firstSourceLocation();
@@ -3011,7 +3018,8 @@ case 241: {
 #line 4037 "qmljs.g"
 
     case 530: {
-        AST::FunctionExpression *f = new (pool) AST::FunctionExpression(QStringRef(), sym(1).FormalParameterList, sym(6).StatementList);
+        AST::FunctionExpression *f = new (pool)
+            AST::FunctionExpression(QStringView(), sym(1).FormalParameterList, sym(6).StatementList);
         f->isArrowFunction = true;
         f->functionToken = sym(1).Node ? sym(1).Node->firstSourceLocation() : loc(1);
         f->lbraceToken = loc(6);
@@ -3150,7 +3158,8 @@ case 241: {
 #line 4198 "qmljs.g"
 
     case 544: {
-        AST::FunctionDeclaration *node = new (pool) AST::FunctionDeclaration(QStringRef(), sym(3).FormalParameterList, sym(6).StatementList);
+        AST::FunctionDeclaration *node = new (pool)
+            AST::FunctionDeclaration(QStringView(), sym(3).FormalParameterList, sym(6).StatementList);
         node->functionToken = loc(1);
         node->lparenToken = loc(2);
         node->rparenToken = loc(4);
@@ -3178,7 +3187,8 @@ case 241: {
 #line 4228 "qmljs.g"
 
     case 546: {
-        AST::FunctionExpression *node = new (pool) AST::FunctionExpression(QStringRef(), sym(3).FormalParameterList, sym(6).StatementList);
+        AST::FunctionExpression *node = new (pool)
+            AST::FunctionExpression(QStringView(), sym(3).FormalParameterList, sym(6).StatementList);
         node->functionToken = loc(1);
         node->lparenToken = loc(2);
         node->rparenToken = loc(4);
@@ -3244,7 +3254,8 @@ case 241: {
 #line 4303 "qmljs.g"
 
     case 556: {
-        AST::ClassDeclaration *node = new (pool) AST::ClassDeclaration(QStringRef(), sym(2).Expression, sym(4).ClassElementList);
+        AST::ClassDeclaration *node = new (pool)
+            AST::ClassDeclaration(QStringView(), sym(2).Expression, sym(4).ClassElementList);
         node->classToken = loc(1);
         node->lbraceToken = loc(3);
         node->rbraceToken = loc(5);
@@ -3254,7 +3265,8 @@ case 241: {
 #line 4314 "qmljs.g"
 
     case 557: {
-        AST::ClassExpression *node = new (pool) AST::ClassExpression(QStringRef(), sym(2).Expression, sym(4).ClassElementList);
+        AST::ClassExpression *node = new (pool)
+            AST::ClassExpression(QStringView(), sym(2).Expression, sym(4).ClassElementList);
         node->classToken = loc(1);
         node->lbraceToken = loc(3);
         node->rbraceToken = loc(5);

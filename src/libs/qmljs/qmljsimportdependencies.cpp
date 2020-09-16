@@ -313,7 +313,7 @@ ImportMatchStrength ImportKey::matchImport(const ImportKey &o, const ViewerConte
         }
         if (!p1.startsWith(QLatin1Char('+')))
             return QList<int>();
-        QStringRef selectorAtt(&p1, 1, p1.size()-1);
+        const QStringView selectorAtt(p1.constData() + 1, p1.size() - 1);
         while (iSelector < nSelectors) {
             if (selectorAtt == vContext.selectors.at(iSelector))
                 break;

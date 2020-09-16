@@ -831,10 +831,10 @@ void Check::endVisit(UiObjectInitializer *)
     m_propertyStack.pop();
     m_typeStack.pop();
     UiObjectDefinition *objectDefinition = cast<UiObjectDefinition *>(parent());
-    if (objectDefinition && objectDefinition->qualifiedTypeNameId->name == "Component")
+    if (objectDefinition && objectDefinition->qualifiedTypeNameId->name == QLatin1String("Component"))
         m_idStack.pop();
     UiObjectBinding *objectBinding = cast<UiObjectBinding *>(parent());
-    if (objectBinding && objectBinding->qualifiedTypeNameId->name == "Component")
+    if (objectBinding && objectBinding->qualifiedTypeNameId->name == QLatin1String("Component"))
         m_idStack.pop();
 }
 
@@ -1028,7 +1028,7 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
 bool Check::visit(UiScriptBinding *ast)
 {
     // special case for id property
-    if (ast->qualifiedId->name == "id" && !ast->qualifiedId->next) {
+    if (ast->qualifiedId->name == QLatin1String("id") && !ast->qualifiedId->next) {
         if (! ast->statement)
             return false;
 
@@ -1125,20 +1125,20 @@ bool Check::visit(UiPublicMember *ast)
 {
     if (ast->type == UiPublicMember::Property) {
         if (ast->defaultToken.isValid() || ast->readonlyToken.isValid()) {
-            const QStringRef typeName = ast->memberType->name;
+            const QStringView typeName = ast->memberType->name;
             if (!typeName.isEmpty() && typeName.at(0).isLower()) {
                 const QString typeNameS = typeName.toString();
                 if (!isValidBuiltinPropertyType(typeNameS))
                     addMessage(ErrInvalidPropertyType, ast->typeToken, typeNameS);
             }
 
-            const QStringRef name = ast->name;
+            const QStringView name = ast->name;
 
-            if (name == "data")
+            if (name == QLatin1String("data"))
                 addMessage(ErrInvalidPropertyName, ast->identifierToken, name.toString());
 
             // warn about dubious use of var/variant
-            if (typeName == "variant" || typeName == "var") {
+            if (typeName == QLatin1String("variant") || typeName == QLatin1String("var")) {
                 Evaluate evaluator(&_scopeChain);
                 const Value *init = evaluator(ast->statement);
                 QString preferredType;
@@ -1666,16 +1666,16 @@ bool Check::visit(NewMemberExpression *ast)
 
     // check for Number, Boolean, etc constructor usage
     if (IdentifierExpression *idExp = cast<IdentifierExpression *>(ast->base)) {
-        const QStringRef name = idExp->name;
-        if (name == "Number") {
+        const QStringView name = idExp->name;
+        if (name == QLatin1String("Number")) {
             addMessage(WarnNumberConstructor, idExp->identifierToken);
-        } else if (name == "Boolean") {
+        } else if (name == QLatin1String("Boolean")) {
             addMessage(WarnBooleanConstructor, idExp->identifierToken);
-        } else if (name == "String") {
+        } else if (name == QLatin1String("String")) {
             addMessage(WarnStringConstructor, idExp->identifierToken);
-        } else if (name == "Object") {
+        } else if (name == QLatin1String("Object")) {
             addMessage(WarnObjectConstructor, idExp->identifierToken);
-        } else if (name == "Array") {
+        } else if (name == QLatin1String("Array")) {
             bool ok = false;
             if (ast->arguments && ast->arguments->expression && !ast->arguments->next) {
                 Evaluate evaluate(&_scopeChain);
@@ -1685,7 +1685,7 @@ bool Check::visit(NewMemberExpression *ast)
             }
             if (!ok)
                 addMessage(WarnArrayConstructor, idExp->identifierToken);
-        } else if (name == "Function") {
+        } else if (name == QLatin1String("Function")) {
             addMessage(WarnFunctionConstructor, idExp->identifierToken);
         }
     }

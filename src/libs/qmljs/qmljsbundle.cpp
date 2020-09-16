@@ -152,15 +152,13 @@ void QmlBundle::printEscaped(QTextStream &s, const QString &str)
             iEnd = str.constEnd();
     while (i != iEnd) {
         if ((*i) != QLatin1Char('"')) {
-            s << QStringRef(&str, static_cast<int>(iLast - str.constBegin())
-                            , static_cast<int>(i - iLast) ).toString()
+            s << str.mid(static_cast<int>(iLast - str.constBegin()), static_cast<int>(i - iLast))
               << QLatin1Char('\\');
             iLast = i;
         }
         ++i;
     }
-    s << QStringRef(&str, static_cast<int>(iLast - str.constBegin())
-                    , static_cast<int>(i - iLast) ).toString();
+    s << str.mid(static_cast<int>(iLast - str.constBegin()), static_cast<int>(i - iLast));
 }
 
 void QmlBundle::writeTrie(QTextStream &stream, const Trie &t, const QString &indent) {

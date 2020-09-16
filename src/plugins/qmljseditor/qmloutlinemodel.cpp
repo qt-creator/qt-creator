@@ -599,7 +599,7 @@ void QmlOutlineModel::leavePublicMember()
     leaveNode();
 }
 
-static QString functionDisplayName(QStringRef name, AST::FormalParameterList *formals)
+static QString functionDisplayName(QStringView name, AST::FormalParameterList *formals)
 {
     QString display;
 
@@ -1002,7 +1002,7 @@ QString QmlOutlineModel::asString(AST::UiQualifiedId *id)
     QString text;
     for (; id; id = id->next) {
         if (!id->name.isEmpty())
-            text += id->name;
+            text += id->name.toString();
         else
             text += QLatin1Char('?');
 

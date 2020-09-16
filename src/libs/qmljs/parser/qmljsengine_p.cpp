@@ -26,9 +26,11 @@
 #include "qmljsengine_p.h"
 #include "qmljsglobal_p.h"
 
-#include <QtCore/qnumeric.h>
-#include <QtCore/qhash.h>
+#include <utils/porting.h>
+
 #include <QtCore/qdebug.h>
+#include <QtCore/qhash.h>
+#include <QtCore/qnumeric.h>
 
 QT_QML_BEGIN_NAMESPACE
 
@@ -129,14 +131,14 @@ void Engine::setDirectives(Directives *directives)
 MemoryPool *Engine::pool()
 { return &_pool; }
 
-QStringRef Engine::newStringRef(const QString &text)
+QStringView Engine::newStringRef(const QString &text)
 {
     const int pos = _extraCode.length();
     _extraCode += text;
-    return _extraCode.midRef(pos, text.length());
+    return Utils::midView(_extraCode, pos, text.length());
 }
 
-QStringRef Engine::newStringRef(const QChar *chars, int size)
+QStringView Engine::newStringRef(const QChar *chars, int size)
 { return newStringRef(QString(chars, size)); }
 
 } // end of namespace QmlJS

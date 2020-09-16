@@ -89,7 +89,7 @@ protected:
         QString text;
         for (; id; id = id->next) {
             if (!id->name.isEmpty())
-                text += id->name;
+                text += id->name.toString();
             else
                 text += QLatin1Char('?');
 
@@ -174,7 +174,7 @@ protected:
         QString text;
         for (; id; id = id->next) {
             if (!id->name.isEmpty())
-                text += id->name;
+                text += id->name.toString();
             else
                 text += QLatin1Char('?');
 
@@ -294,12 +294,12 @@ protected:
         init(&decl, ast);
 
         decl.text.fill(QLatin1Char(' '), _depth);
-        decl.text += ast->name;
+        decl.text += ast->name.toString();
 
         decl.text += QLatin1Char('(');
         for (FormalParameterList *it = ast->formals; it; it = it->next) {
             if (!it->element->bindingIdentifier.isEmpty())
-                decl.text += it->element->bindingIdentifier;
+                decl.text += it->element->bindingIdentifier.toString();
 
             if (it->next)
                 decl.text += QLatin1String(", ");
@@ -319,7 +319,7 @@ protected:
 
         Declaration decl;
         decl.text.fill(QLatin1Char(' '), _depth);
-        decl.text += ast->bindingIdentifier;
+        decl.text += ast->bindingIdentifier.toString();
 
         const SourceLocation first = ast->identifierToken;
         decl.startLine = first.startLine;
@@ -342,12 +342,12 @@ protected:
             init(&decl, ast);
 
             decl.text.fill(QLatin1Char(' '), _depth);
-            decl.text += field->name;
+            decl.text += field->name.toString();
 
             decl.text += QLatin1Char('(');
             for (FormalParameterList *it = funcExpr->formals; it; it = it->next) {
                 if (!it->element->bindingIdentifier.isEmpty())
-                    decl.text += it->element->bindingIdentifier;
+                    decl.text += it->element->bindingIdentifier.toString();
 
                 if (it->next)
                     decl.text += QLatin1String(", ");

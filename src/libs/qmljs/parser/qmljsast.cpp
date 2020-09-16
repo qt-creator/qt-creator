@@ -27,6 +27,8 @@
 
 #include "qmljsastvisitor_p.h"
 
+#include <QLocale>
+
 QT_QML_BEGIN_NAMESPACE
 
 namespace QmlJS { namespace AST {
@@ -1529,7 +1531,7 @@ QString Type::toString() const
 void Type::toString(QString *out) const
 {
     for (QmlJS::AST::UiQualifiedId *it = typeId; it; it = it->next) {
-        out->append(it->name);
+        out->append(it->name.toString());
 
         if (it->next)
             out->append(QLatin1Char('.'));

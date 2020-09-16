@@ -27,6 +27,8 @@
 
 #include <qmljs/qmljsscanner.h>
 
+#include <utils/porting.h>
+
 #include <QChar>
 #include <QLatin1Char>
 #include <QTextDocument>
@@ -119,7 +121,7 @@ static bool shouldInsertNewline(const QTextCursor &tc)
     return false;
 }
 
-static bool isCompleteStringLiteral(const QStringRef &text)
+static bool isCompleteStringLiteral(const QStringView &text)
 {
     if (text.length() < 2)
         return false;
@@ -173,7 +175,7 @@ bool AutoCompleter::contextAllowsAutoBrackets(const QTextCursor &cursor,
 
     case Token::String: {
         const QString blockText = cursor.block().text();
-        const QStringRef tokenText = blockText.midRef(token.offset, token.length);
+        const QStringView tokenText = Utils::midView(blockText, token.offset, token.length);
         QChar quote = tokenText.at(0);
         // if a string literal doesn't start with a quote, it must be multiline
         if (quote != QLatin1Char('"') && quote != QLatin1Char('\'')) {
@@ -217,7 +219,7 @@ bool AutoCompleter::contextAllowsAutoQuotes(const QTextCursor &cursor,
 
     case Token::String: {
         const QString blockText = cursor.block().text();
-        const QStringRef tokenText = blockText.midRef(token.offset, token.length);
+        const QStringView tokenText = Utils::midView(blockText, token.offset, token.length);
         QChar quote = tokenText.at(0);
         // if a string literal doesn't start with a quote, it must be multiline
         if (quote != QLatin1Char('"') && quote != QLatin1Char('\'')) {
