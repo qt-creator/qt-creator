@@ -26,7 +26,7 @@
 #include "boosttestresult.h"
 #include "boosttestconstants.h"
 #include "boosttesttreeitem.h"
-#include "..\testframeworkmanager.h"
+#include "../testframeworkmanager.h"
 
 #include <utils/id.h>
 
