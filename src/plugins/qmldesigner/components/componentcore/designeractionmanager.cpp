@@ -347,7 +347,7 @@ public:
 class DocumentError : public std::exception
 {
 public:
-    const char *what() const override { return "Current document contains errors."; }
+    const char *what() const noexcept override { return "Current document contains errors."; }
 };
 
 class EditListModelAction final : public ModelNodeContextMenuAction
