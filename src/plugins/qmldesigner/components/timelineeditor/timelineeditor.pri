@@ -69,9 +69,7 @@ HEADERS += \
     canvasstyledialog.h \
     easingcurve.h \
     timelinesettingsmodel.h \
-    timelinecontrols.h \
-    animationcurveeditormodel.h \
-    animationcurvedialog.h
+    timelinecontrols.h
 
 RESOURCES += \
     timeline.qrc
