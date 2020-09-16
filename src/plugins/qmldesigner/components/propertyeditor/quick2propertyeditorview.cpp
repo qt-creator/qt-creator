@@ -45,16 +45,10 @@
 namespace QmlDesigner {
 
 Quick2PropertyEditorView::Quick2PropertyEditorView(QWidget *parent) :
-    QQuickView()
+    QQuickWidget(parent)
 {
-    setResizeMode(QQuickView::SizeRootObjectToView);
+    setResizeMode(QQuickWidget::SizeRootObjectToView);
     Theme::setupTheme(engine());
-    m_widget = QWidget::createWindowContainer(this, parent);
-}
-
-QWidget *Quick2PropertyEditorView::widget()
-{
-    return m_widget;
 }
 
 void Quick2PropertyEditorView::registerQmlTypes()
@@ -104,7 +98,7 @@ bool Quick2PropertyEditorView::event(QEvent *e)
             }
     }
 
-    return QQuickView::event(e);
+    return QQuickWidget::event(e);
 }
 
 } //QmlDesigner

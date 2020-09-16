@@ -361,7 +361,7 @@ PropertyEditorContextObject* PropertyEditorQmlBackend::contextObject() {
 }
 
 QWidget *PropertyEditorQmlBackend::widget() {
-    return m_view->widget();
+    return m_view;
 }
 
 void PropertyEditorQmlBackend::setSource(const QUrl& url) {
