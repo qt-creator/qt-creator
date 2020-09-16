@@ -29,9 +29,8 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
+#include <QRegularExpression>
 #include <QStringList>
-#include <QXmlStreamReader>
-#include <QXmlStreamAttributes>
 #include <QByteArray>
 
 #include <QNetworkReply>
@@ -218,38 +217,77 @@ enum ParseState
     WithinTableElement, WithinTableElementAnchor, ParseError
 };
 
-QDebug operator<<(QDebug d, const QXmlStreamAttributes &al)
+static QString replaceEntities(const QString &original)
 {
-    QDebug nospace = d.nospace();
-    foreach (const QXmlStreamAttribute &a, al)
-        nospace << a.name().toString() << '=' << a.value().toString() << ' ';
-    return d;
+    QString result(original);
+    static const QRegularExpression regex("&#((x[[:xdigit:]]+)|(\\d+));");
+
+    QRegularExpressionMatchIterator it = regex.globalMatch(original);
+    while (it.hasNext()) {
+        const QRegularExpressionMatch match = it.next();
+        const QString value = match.captured(1);
+        if (value.startsWith('x'))
+            result.replace(match.captured(0), QChar(value.midRef(1).toInt(nullptr, 16)));
+        else
+            result.replace(match.captured(0), QChar(value.toInt(nullptr, 10)));
+    }
+
+    return result;
 }
 
-static inline ParseState nextOpeningState(ParseState current, const QXmlStreamReader &reader)
+namespace {
+struct Attribute {
+    QString name;
+    QString value;
+};
+}
+
+static QList<Attribute> toAttributes(const QStringView &attributes)
 {
-    const auto element = reader.name();
+    QList<Attribute> result;
+    const QRegularExpression att("\\s+([a-zA-Z]+)\\s*=\\s*('.*?'|\".*?\")");
+    QRegularExpressionMatchIterator it = att.globalMatch(attributes.toString());
+    while (it.hasNext()) {
+        const QRegularExpressionMatch match = it.next();
+        QString val = match.captured(2); // including quotes
+        if (val.size() > 2)
+            val = val.mid(1, val.size() - 2);
+        else
+            val= QString();
+
+        result.append(Attribute{match.captured(1), val});
+    }
+    return result;
+}
+
+static inline ParseState nextOpeningState(ParseState current, const QStringView &tagView,
+                                          const QStringView &attributesView)
+{
     switch (current) {
     case OutSideTable:
         // Trigger on main table only.
-        if (element == QLatin1String("table")
-           && reader.attributes().value(QLatin1String("class")) == QLatin1String("maintable"))
-            return WithinTable;
+        if (tagView == QLatin1String("table")) {
+            const QList<Attribute> attributes = toAttributes(attributesView);
+            for (const Attribute &att : attributes) {
+                if (att.name == "class" && att.value == "maintable")
+                    return WithinTable;
+            }
+        }
         return OutSideTable;
     case WithinTable:
-        if (element == QLatin1String("tr"))
+        if (tagView == QLatin1String("tr"))
             return WithinTableRow;
         break;
     case WithinTableRow:
-        if (element == QLatin1String("td"))
+        if (tagView == QLatin1String("td"))
             return WithinTableElement;
-        if (element == QLatin1String("th"))
+        if (tagView == QLatin1String("th"))
             return WithinTableHeaderElement;
         break;
     case WithinTableElement:
-        if (element == QLatin1String("img"))
+        if (tagView == QLatin1String("img"))
             return WithinTableElement;
-        if (element == QLatin1String("a"))
+        if (tagView == QLatin1String("a"))
             return WithinTableElementAnchor;
         break;
     case WithinTableHeaderElement:
@@ -257,10 +295,12 @@ static inline ParseState nextOpeningState(ParseState current, const QXmlStreamRe
     case ParseError:
         break;
     }
+    if (tagView == QString("div") || tagView == QString("span") || tagView == QString("tbody"))
+        return current;  // silently ignore
     return ParseError;
 }
 
-static inline ParseState nextClosingState(ParseState current, const Utils::StringView &element)
+static inline ParseState nextClosingState(ParseState current, const QStringView &element)
 {
     switch (current) {
     case OutSideTable:
@@ -278,6 +318,8 @@ static inline ParseState nextClosingState(ParseState current, const Utils::Strin
             return WithinTableRow;
         if (element == QLatin1String("img"))
             return WithinTableElement;
+        if (element == QString("tr")) // html file may have wrong XML syntax, but browsers ignore
+            return WithinTable;
         break;
     case WithinTableHeaderElement:
         if (element == QLatin1String("th"))
@@ -287,9 +329,11 @@ static inline ParseState nextClosingState(ParseState current, const Utils::Strin
         if (element == QLatin1String("a"))
             return WithinTableElement;
         break;
-   case ParseError:
+    case ParseError:
         break;
    }
+   if (element == QString("div") || element == QString("span") || element == QString("tbody"))
+       return current; // silently ignore
    return ParseError;
 }
 
@@ -307,20 +351,36 @@ static inline QStringList parseLists(QIODevice *io, QString *errorMessage)
         return rc;
     }
     data.remove(0, tablePos);
-    QXmlStreamReader reader(data);
+
     ParseState state = OutSideTable;
     int tableRow = 0;
     int tableColumn = 0;
 
-    const QString hrefAttribute = QLatin1String("href");
     QString link;
     QString title;
     QString age;
 
-    while (!reader.atEnd()) {
-        switch (reader.readNext()) {
-        case QXmlStreamReader::StartElement:
-            state = nextOpeningState(state, reader);
+
+    QString dataStr = QString::fromUtf8(data);
+    // remove comments if any
+    const QRegularExpression comment("<!--.*--!>", QRegularExpression::MultilineOption);
+    for ( ;; ) {
+        const QRegularExpressionMatch match = comment.match(dataStr);
+        if (!match.hasMatch())
+            break;
+        dataStr.remove(match.capturedStart(), match.capturedLength());
+    }
+
+    const QRegularExpression tag("<(/?)\\s*([a-zA-Z][a-zA-Z0-9]*)(.*?)(/?)\\s*>",
+                                 QRegularExpression::MultilineOption);
+    const QRegularExpression wsOnly("^\\s+$", QRegularExpression::MultilineOption);
+    QRegularExpressionMatchIterator it = tag.globalMatch(dataStr);
+    while (it.hasNext()) {
+        const QRegularExpressionMatch match = it.next();
+
+        bool startElement = match.captured(4).length() == 0 && match.captured(1).length() == 0;
+        if (startElement) {
+            state = nextOpeningState(state, match.capturedView(2), match.capturedView(3));
             switch (state) {
             case WithinTableRow:
                 tableColumn = 0;
@@ -330,19 +390,24 @@ static inline QStringList parseLists(QIODevice *io, QString *errorMessage)
             case WithinTableHeaderElement:
             case WithinTableElement:
                 break;
-            case WithinTableElementAnchor: // 'href="/svb5K8wS"'
+            case WithinTableElementAnchor:
                 if (tableColumn == 0) {
-                    link = reader.attributes().value(hrefAttribute).toString();
-                    if (link.startsWith(QLatin1Char('/')))
-                        link.remove(0, 1);
+                    const QList<Attribute> attributes = toAttributes(match.capturedView(3));
+                    for (const Attribute &att : attributes) {
+                        if (att.name == "href") {
+                            link = att.value;
+                            if (link.startsWith('/'))
+                                link.remove(0, 1);
+                            break;
+                        }
+                    }
                 }
                 break;
             case ParseError:
                 return rc;
-            } // switch startelement state
-            break;
-        case QXmlStreamReader::EndElement:
-            state = nextClosingState(state, reader.name());
+            }
+        } else { // not a start element
+            state = nextClosingState(state, match.capturedView(2));
             switch (state) {
             case OutSideTable:
                 if (tableRow) // Seen the table, bye.
@@ -375,28 +440,33 @@ static inline QStringList parseLists(QIODevice *io, QString *errorMessage)
                 break;
             case ParseError:
                 return rc;
-            } // switch endelement state
-            break;
-        case QXmlStreamReader::Characters:
-            switch (state) {
-            case WithinTableElement:
-                if (tableColumn == 1)
-                    age = reader.text().toString();
-                break;
-            case WithinTableElementAnchor:
-                if (tableColumn == 0)
-                    title = reader.text().toString();
-                break;
-            default:
-                break;
-            } // switch characters read state
-            break;
-       default:
-            break;
-        } // switch reader state
+            }
+        }
+        // check and handle pure text
+        if (match.capturedEnd() + 1 < dataStr.size() - 1) {
+            int nextStartTag = dataStr.indexOf(tag, match.capturedEnd() + 1);
+            if (nextStartTag != -1) {
+                const QString text = replaceEntities(
+                            dataStr.mid(match.capturedEnd(), nextStartTag - match.capturedEnd()));
+                if (!wsOnly.match(text).hasMatch()) {
+                    switch (state) {
+                    case WithinTableElement:
+                        if (tableColumn == 1)
+                            age = text;
+                        break;
+                    case WithinTableElementAnchor:
+                        if (tableColumn == 0)
+                            title = text;
+                        break;
+                    default:
+                        break;
+                    } // switch characters read state
+
+                }
+            }
+        }
     }
-    if (reader.hasError())
-        *errorMessage = QString::fromLatin1("Error at line %1:%2").arg(reader.lineNumber()).arg(reader.errorString());
+
     return rc;
 }
 
@@ -407,6 +477,12 @@ void PasteBinDotComProtocol::listFinished()
         if (debug)
             qDebug() << "listFinished: error" << m_listReply->errorString();
     } else {
+        if (m_listReply->hasRawHeader("Content-Type")) {
+            // if the content type changes to xhtml we should switch back to QXmlStreamReader
+            const QByteArray contentType = m_listReply->rawHeader("Content-Type");
+            if (!contentType.startsWith("text/html"))
+                qWarning() << "Content type has changed to" << contentType;
+        }
         QString errorMessage;
         const QStringList list = parseLists(m_listReply, &errorMessage);
         if (list.isEmpty())
