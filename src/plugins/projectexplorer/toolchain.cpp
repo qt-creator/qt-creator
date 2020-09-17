@@ -42,7 +42,6 @@
 static const char ID_KEY[] = "ProjectExplorer.ToolChain.Id";
 static const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ToolChain.DisplayName";
 static const char AUTODETECT_KEY[] = "ProjectExplorer.ToolChain.Autodetect";
-static const char LANGUAGE_KEY_V1[] = "ProjectExplorer.ToolChain.Language"; // For QtCreator <= 4.2
 static const char LANGUAGE_KEY_V2[] = "ProjectExplorer.ToolChain.LanguageV2"; // For QtCreator > 4.2
 
 namespace ProjectExplorer {
@@ -81,41 +80,8 @@ public:
     ToolChain::HeaderPathsCache m_headerPathsCache;
 };
 
+} // Internal
 
-// Deprecated used from QtCreator <= 4.2
-
-Utils::Id fromLanguageV1(int language)
-{
-    switch (language)
-    {
-    case Deprecated::Toolchain::C :
-        return Utils::Id(Constants::C_LANGUAGE_ID);
-    case Deprecated::Toolchain::Cxx:
-        return Utils::Id(Constants::CXX_LANGUAGE_ID);
-    case Deprecated::Toolchain::None:
-    default:
-        return Utils::Id();
-    }
-}
-
-} // namespace Internal
-
-namespace Deprecated {
-namespace Toolchain {
-QString languageId(Language l)
-{
-    switch (l) {
-    case Language::None:
-        return QStringLiteral("None");
-    case Language::C:
-        return QStringLiteral("C");
-    case Language::Cxx:
-        return QStringLiteral("Cxx");
-    };
-    return QString();
-}
-} // namespace Toolchain
-} // namespace Deprecated
 
 /*!
     \class ProjectExplorer::ToolChain
@@ -239,15 +205,6 @@ QVariantMap ToolChain::toMap() const
     result.insert(QLatin1String(ID_KEY), idToSave);
     result.insert(QLatin1String(DISPLAY_NAME_KEY), displayName());
     result.insert(QLatin1String(AUTODETECT_KEY), isAutoDetected());
-    // <Compatibility with QtC 4.2>
-    int oldLanguageId = -1;
-    if (language() == ProjectExplorer::Constants::C_LANGUAGE_ID)
-        oldLanguageId = 1;
-    else if (language() == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
-        oldLanguageId = 2;
-    if (oldLanguageId >= 0)
-        result.insert(LANGUAGE_KEY_V1, oldLanguageId);
-    // </Compatibility>
     result.insert(QLatin1String(LANGUAGE_KEY_V2), language().toSetting());
     return result;
 }
@@ -311,8 +268,6 @@ bool ToolChain::fromMap(const QVariantMap &data)
             d->m_language = Utils::Id::fromString(langId.mid(pos + 1));
         else
             d->m_language = Utils::Id::fromString(langId);
-    } else if (data.contains(LANGUAGE_KEY_V1)) { // Import from old settings
-        d->m_language = Internal::fromLanguageV1(data.value(QLatin1String(LANGUAGE_KEY_V1)).toInt());
     }
 
     if (!d->m_language.isValid())

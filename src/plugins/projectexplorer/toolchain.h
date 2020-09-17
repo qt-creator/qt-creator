@@ -51,18 +51,6 @@ namespace ProjectExplorer {
 
 namespace Internal { class ToolChainPrivate; }
 
-namespace Deprecated {
-// Deprecated in 4.3:
-namespace Toolchain {
-enum Language {
-    None = 0,
-    C,
-    Cxx
-};
-QString languageId(Language l);
-} // namespace Toolchain
-} // namespace Deprecated
-
 class Abi;
 class ToolChainConfigWidget;
 class ToolChainFactory;
