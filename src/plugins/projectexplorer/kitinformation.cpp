@@ -221,7 +221,7 @@ public:
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setColumnStretch(1, 2);
 
-        QList<Utils::Id> languageList = Utils::toList(ToolChainManager::allLanguages());
+        QList<Utils::Id> languageList = ToolChainManager::allLanguages();
         Utils::sort(languageList, [](Utils::Id l1, Utils::Id l2) {
             return ToolChainManager::displayNameOfLanguageId(l1)
                     < ToolChainManager::displayNameOfLanguageId(l2);

@@ -227,9 +227,9 @@ void ToolChainManager::deregisterToolChain(ToolChain *tc)
     delete tc;
 }
 
-QSet<Utils::Id> ToolChainManager::allLanguages()
+QList<Id> ToolChainManager::allLanguages()
 {
-    return Utils::transform<QSet>(d->m_languages, &LanguageDisplayPair::id);
+    return Utils::transform<QList>(d->m_languages, &LanguageDisplayPair::id);
 }
 
 bool ToolChainManager::registerLanguage(const Utils::Id &language, const QString &displayName)

@@ -514,7 +514,7 @@ ToolChain *ToolChainFactory::createToolChain(Utils::Id toolChainType)
     return nullptr;
 }
 
-QSet<Utils::Id> ToolChainFactory::supportedLanguages() const
+QList<Utils::Id> ToolChainFactory::supportedLanguages() const
 {
     return m_supportsAllLanguages ? ToolChainManager::allLanguages() : m_supportedLanguages;
 }
@@ -529,7 +529,7 @@ void ToolChainFactory::setSupportedToolChainType(const Utils::Id &supportedToolC
     m_supportedToolChainType = supportedToolChain;
 }
 
-void ToolChainFactory::setSupportedLanguages(const QSet<Utils::Id> &supportedLanguages)
+void ToolChainFactory::setSupportedLanguages(const QList<Utils::Id> &supportedLanguages)
 {
     m_supportedLanguages = supportedLanguages;
 }

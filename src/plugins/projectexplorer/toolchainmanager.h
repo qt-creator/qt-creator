@@ -71,7 +71,7 @@ public:
     static bool registerToolChain(ToolChain *tc);
     static void deregisterToolChain(ToolChain *tc);
 
-    static QSet<Utils::Id> allLanguages();
+    static QList<Utils::Id> allLanguages();
     static bool registerLanguage(const Utils::Id &language, const QString &displayName);
     static QString displayNameOfLanguageId(const Utils::Id &id);
     static bool isLanguageSupported(const Utils::Id &id);

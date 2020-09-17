@@ -39,7 +39,6 @@
 #include <utils/id.h>
 
 #include <QObject>
-#include <QSet>
 #include <QStringList>
 #include <QVariantMap>
 
@@ -221,14 +220,14 @@ public:
 
     static ToolChain *createToolChain(Utils::Id toolChainType);
 
-    QSet<Utils::Id> supportedLanguages() const;
+    QList<Utils::Id> supportedLanguages() const;
 
     void setUserCreatable(bool userCreatable);
 
 protected:
     void setDisplayName(const QString &name) { m_displayName = name; }
     void setSupportedToolChainType(const Utils::Id &supportedToolChainType);
-    void setSupportedLanguages(const QSet<Utils::Id> &supportedLanguages);
+    void setSupportedLanguages(const QList<Utils::Id> &supportedLanguages);
     void setSupportsAllLanguages(bool supportsAllLanguages);
     void setToolchainConstructor(const std::function<ToolChain *()> &constructor);
 
@@ -248,7 +247,7 @@ protected:
 private:
     QString m_displayName;
     Utils::Id m_supportedToolChainType;
-    QSet<Utils::Id> m_supportedLanguages;
+    QList<Utils::Id> m_supportedLanguages;
     bool m_supportsAllLanguages = false;
     bool m_userCreatable = false;
     std::function<ToolChain *()> m_toolchainConstructor;
