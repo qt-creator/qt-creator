@@ -206,8 +206,6 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLine)
 
     static QRegularExpression finish("^\\*{3} (\\d+) failure(s are| is) detected in the "
                                      "test module \"(.*)\"$");
-    static QRegularExpression errDetect("^\\*{3} Errors where detected in the "
-                                        "test module \"(.*}\"; see standard output for details");
     QString noErrors("*** No errors detected");
 
     const QString line = removeCommandlineColors(QString::fromUtf8(outputLine));
@@ -340,8 +338,7 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLine)
         BoostTestResult *result = new BoostTestResult(id(), m_projectFile, QString());
         int failed = match.captured(1).toInt();
         QString txt = tr("%1 failures detected in %2.").arg(failed).arg(match.captured(3));
-        int passed = (m_testCaseCount != -1)
-                ? m_testCaseCount - failed - m_summary[ResultType::Skip] : -1;
+        int passed = (m_testCaseCount != -1) ? m_testCaseCount - failed : -1;
         if (m_testCaseCount != -1)
             txt.append(' ').append(tr("%1 tests passed.").arg(passed));
         result->setDescription(txt);

@@ -204,11 +204,11 @@ void DoxygenTest::testBasic_data()
 
     QTest::newRow("cpp_styleA_indented_preserve_mixed_indention_continuation") << _(
          "\t bool preventFolding;\n"
-         "\t /// \brief a|\n"
+         "\t /// \\brief a|\n"
          "\t int a;\n"
         ) << _(
          "\t bool preventFolding;\n"
-         "\t /// \brief a\n"
+         "\t /// \\brief a\n"
          "\t /// \n"
          "\t int a;\n"
     );

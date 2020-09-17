@@ -317,6 +317,7 @@ void TokenInfo::typeKind(const Cursor &cursor)
             m_types.mixinHighlightingTypes.push_back(HighlightingType::Namespace);
             return;
         case CXCursor_TypeAliasDecl:
+        case CXCursor_TypeAliasTemplateDecl:
             m_types.mixinHighlightingTypes.push_back(HighlightingType::TypeAlias);
             return;
         case CXCursor_TypedefDecl:

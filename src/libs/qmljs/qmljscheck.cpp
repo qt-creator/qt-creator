@@ -1838,7 +1838,10 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
 
     const bool isListElementScope = (!m_typeStack.isEmpty() && m_typeStack.last() == "ListElement");
 
-    if (!value && !isListElementScope) {
+    if (isListElementScope)
+        return nullptr;
+
+    if (!value) {
         addMessage(ErrInvalidPropertyName, id->identifierToken, propertyName);
         return nullptr;
     }

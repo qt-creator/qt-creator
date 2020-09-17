@@ -1088,10 +1088,12 @@ void DebuggerEngine::gotoLocation(const Location &loc)
     const QString file = loc.fileName().toString();
     const int line = loc.lineNumber();
     bool newEditor = false;
-    IEditor *editor = EditorManager::openEditor(
-                file, Id(),
-                EditorManager::IgnoreNavigationHistory | EditorManager::DoNotSwitchToDesignMode,
-                &newEditor);
+    IEditor *editor = EditorManager::openEditor(file,
+                                                Id(),
+                                                EditorManager::IgnoreNavigationHistory
+                                                    | EditorManager::DoNotSwitchToDesignMode
+                                                    | EditorManager::SwitchSplitIfAlreadyVisible,
+                                                &newEditor);
     QTC_ASSERT(editor, return); // Unreadable file?
 
     editor->gotoLine(line, 0, !boolSetting(StationaryEditorWhileStepping));

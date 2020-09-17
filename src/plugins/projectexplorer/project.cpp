@@ -64,7 +64,6 @@
 #include <QFileDialog>
 
 #include <limits>
-#include <memory>
 
 /*!
     \class ProjectExplorer::Project
@@ -357,7 +356,8 @@ void Project::setNeedsInitialExpansion(bool needsExpansion)
     d->m_needsInitialExpansion = needsExpansion;
 }
 
-void Project::setExtraProjectFiles(const QSet<Utils::FilePath> &projectDocumentPaths)
+void Project::setExtraProjectFiles(const QSet<Utils::FilePath> &projectDocumentPaths,
+                                   const DocGenerator docGenerator)
 {
     QSet<Utils::FilePath> uniqueNewFiles = projectDocumentPaths;
     uniqueNewFiles.remove(projectFilePath()); // Make sure to never add the main project file!
@@ -372,8 +372,14 @@ void Project::setExtraProjectFiles(const QSet<Utils::FilePath> &projectDocumentP
         return toRemove.contains(d->filePath());
     });
     for (const Utils::FilePath &p : toAdd) {
-        d->m_extraProjectDocuments.emplace_back(
-            std::make_unique<ProjectDocument>(d->m_document->mimeType(), p, this));
+        if (docGenerator) {
+            std::unique_ptr<Core::IDocument> doc = docGenerator(p);
+            QTC_ASSERT(doc, continue);
+            d->m_extraProjectDocuments.push_back(std::move(doc));
+        } else {
+            d->m_extraProjectDocuments.emplace_back(std::make_unique<ProjectDocument>(
+                                                        d->m_document->mimeType(), p, this));
+        }
     }
 }
 
@@ -800,6 +806,19 @@ bool Project::isKnownFile(const Utils::FilePath &filename) const
     const FileNode element(filename, FileType::Unknown);
     return std::binary_search(std::begin(d->m_sortedNodeList), std::end(d->m_sortedNodeList),
                               &element, nodeLessThan);
+}
+
+const Node *Project::nodeForFilePath(const Utils::FilePath &filePath,
+                                     const Project::NodeMatcher &extraMatcher)
+{
+    const FileNode dummy(filePath, FileType::Unknown);
+    const auto range = std::equal_range(d->m_sortedNodeList.cbegin(), d->m_sortedNodeList.cend(),
+            &dummy, &nodeLessThan);
+    for (auto it = range.first; it != range.second; ++it) {
+        if ((*it)->filePath() == filePath && (!extraMatcher || extraMatcher(*it)))
+            return *it;
+    }
+    return nullptr;
 }
 
 void Project::setProjectLanguages(Core::Context language)

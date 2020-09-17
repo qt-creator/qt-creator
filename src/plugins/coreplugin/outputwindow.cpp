@@ -590,7 +590,7 @@ class TestFormatterA : public OutputLineParser
 private:
     Result handleLine(const QString &text, OutputFormat) override
     {
-        static const QString replacement = "handled by A\n";
+        static const QString replacement = "handled by A";
         if (m_handling) {
             if (text.startsWith("A")) {
                 m_handling = false;
@@ -615,7 +615,7 @@ private:
     Result handleLine(const QString &text, OutputFormat) override
     {
         if (text.startsWith("B"))
-            return {Status::Done, {}, QString("handled by B\n")};
+            return {Status::Done, {}, QString("handled by B")};
         return Status::NotHandled;
     }
 };
@@ -656,6 +656,7 @@ void Internal::CorePlugin::testOutputFormatter()
         formatter.setLineParsers({new TestFormatterB, new TestFormatterA});
         formatter.appendMessage(input.left(i), StdOutFormat);
         formatter.appendMessage(input.mid(i), StdOutFormat);
+        formatter.flush();
         QCOMPARE(textEdit.toPlainText(), output);
     }
 }

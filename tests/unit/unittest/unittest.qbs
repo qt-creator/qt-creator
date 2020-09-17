@@ -324,6 +324,8 @@ QtcProduct {
             "diagnosticcontainer-matcher.h",
             "diagnosticset-test.cpp",
             "fixit-test.cpp",
+            "gtest-clang-printing.cpp",
+            "gtest-clang-printing.h",
             "highlightingresultreporter-test.cpp",
             "readexporteddiagnostics-test.cpp",
             "senddocumenttracker-test.cpp",
@@ -331,6 +333,7 @@ QtcProduct {
             "sourcelocation-test.cpp",
             "sourcerange-test.cpp",
             "token-test.cpp",
+            "tokenprocessor-test.cpp",
             "translationunitupdater-test.cpp",
             "unsavedfile-test.cpp",
             "unsavedfiles-test.cpp",
@@ -348,8 +351,6 @@ QtcProduct {
             "clangquerygatherer-test.cpp",
             "clangqueryprojectfindfilter-test.cpp",
             "clangreferencescollector-test.cpp",
-            "gtest-clang-printing.cpp",
-            "gtest-clang-printing.h",
             "gtest-llvm-printing.cpp",
             "mockrefactoringclient.h",
             "mockrefactoringserver.h",
@@ -364,7 +365,6 @@ QtcProduct {
             "symbolscollector-test.cpp",
             "testclangtool.cpp",
             "testclangtool.h",
-            "tokenprocessor-test.cpp",
             "usedmacrocollector-test.cpp",
         ]
     }

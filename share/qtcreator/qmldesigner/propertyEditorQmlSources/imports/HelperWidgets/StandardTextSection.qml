@@ -57,7 +57,7 @@ Section {
 
             StudioControls.AbstractButton {
                 id: richTextEditorButton
-                buttonIcon: StudioTheme.Constants.textAlignTop
+                buttonIcon: StudioTheme.Constants.edit
                 onClicked: {
                     richTextDialogLoader.show()
                 }

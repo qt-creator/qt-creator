@@ -127,9 +127,9 @@ static void setUpperLeftPostionToNode(const ModelNode &layoutNode, const QList<M
 
 namespace ModelNodeOperations {
 
-void goIntoComponent(const ModelNode &modelNode)
+bool goIntoComponent(const ModelNode &modelNode)
 {
-    DocumentManager::goIntoComponent(modelNode);
+    return DocumentManager::goIntoComponent(modelNode);
 }
 
 void select(const SelectionContext &selectionState)

@@ -281,6 +281,7 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Utils::Id id)
         const QString script = bti.targetFilePath.toUserOutput();
         setDefaultDisplayName(tr("Run %1").arg(script));
         scriptAspect->setValue(script);
+        aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.targetFilePath.parentDir());
     });
 
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
@@ -298,9 +299,6 @@ void PythonRunConfiguration::updateLanguageServer()
                 PyLSConfigureAssistant::instance()->openDocumentWithPython(python, document);
         }
     }
-
-    aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(
-        Utils::FilePath::fromString(mainScript()).parentDir());
 }
 
 bool PythonRunConfiguration::supportsDebugger() const

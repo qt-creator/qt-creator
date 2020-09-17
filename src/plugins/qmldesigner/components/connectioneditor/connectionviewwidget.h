@@ -107,7 +107,7 @@ private:
 
 private:
     Ui::ConnectionViewWidget *ui;
-    QmlDesigner::ActionEditor *m_connectonEditor; //editor for connections in connection view
+    QmlDesigner::ActionEditor *m_connectionEditor; //editor for connections in connection view
     QmlDesigner::BindingEditor *m_bindingEditor; //editor for properties in binding view
     QmlDesigner::BindingEditor *m_dynamicEditor; //editor for properties in dynamic view
 

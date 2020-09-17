@@ -60,7 +60,7 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::ConnectionViewWidget)
 {
-    m_connectonEditor = new QmlDesigner::ActionEditor(this);
+    m_connectionEditor = new QmlDesigner::ActionEditor(this);
     m_bindingEditor = new QmlDesigner::BindingEditor(this);
     m_dynamicEditor = new QmlDesigner::BindingEditor(this);
 
@@ -111,7 +111,7 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
 
 ConnectionViewWidget::~ConnectionViewWidget()
 {
-    delete m_connectonEditor;
+    delete m_connectionEditor;
     delete m_bindingEditor;
     delete m_dynamicEditor;
     delete ui;
@@ -161,10 +161,14 @@ void ConnectionViewWidget::contextMenuEvent(QContextMenuEvent *event)
 
             menu.addAction(tr("Open Connection Editor"), [&]() {
                 if (index.isValid()) {
-                    m_connectonEditor->showWidget();
-                    m_connectonEditor->setBindingValue(index.data().toString());
-                    m_connectonEditor->setModelIndex(index);
-                    m_connectonEditor->updateWindowName();
+                    auto *connectionModel = qobject_cast<ConnectionModel *>(targetView->model());
+                    ModelNode node = connectionModel->connectionView()->rootModelNode();
+                    m_connectionEditor->showWidget();
+                    m_connectionEditor->setConnectionValue(index.data().toString());
+                    m_connectionEditor->setModelIndex(index);
+                    m_connectionEditor->setModelNode(node);
+                    m_connectionEditor->prepareConnections();
+                    m_connectionEditor->updateWindowName();
                 }
             });
 
@@ -455,29 +459,29 @@ void ConnectionViewWidget::addButtonClicked()
 
 void ConnectionViewWidget::editorForConnection()
 {
-    QObject::connect(m_connectonEditor, &QmlDesigner::ActionEditor::accepted,
+    QObject::connect(m_connectionEditor, &QmlDesigner::ActionEditor::accepted,
                      [&]() {
-        if (m_connectonEditor->hasModelIndex()) {
+        if (m_connectionEditor->hasModelIndex()) {
             ConnectionModel *connectionModel = qobject_cast<ConnectionModel *>(ui->connectionView->model());
             if (connectionModel->connectionView()->isWidgetEnabled()
-                && (connectionModel->rowCount() > m_connectonEditor->modelIndex().row())) {
+                && (connectionModel->rowCount() > m_connectionEditor->modelIndex().row())) {
                 connectionModel->connectionView()
                     ->executeInTransaction("ConnectionView::setSignal", [this, connectionModel]() {
                         SignalHandlerProperty signalHandler
                             = connectionModel->signalHandlerPropertyForRow(
-                                m_connectonEditor->modelIndex().row());
-                        signalHandler.setSource(m_connectonEditor->bindingValue());
+                                m_connectionEditor->modelIndex().row());
+                        signalHandler.setSource(m_connectionEditor->connectionValue());
                     });
             }
-            m_connectonEditor->resetModelIndex();
+            m_connectionEditor->resetModelIndex();
         }
 
-        m_connectonEditor->hideWidget();
+        m_connectionEditor->hideWidget();
     });
-    QObject::connect(m_connectonEditor, &QmlDesigner::ActionEditor::rejected,
+    QObject::connect(m_connectionEditor, &QmlDesigner::ActionEditor::rejected,
                      [&]() {
-        m_connectonEditor->resetModelIndex();
-        m_connectonEditor->hideWidget();
+        m_connectionEditor->resetModelIndex();
+        m_connectionEditor->hideWidget();
     });
 }
 

@@ -39,9 +39,11 @@ class ListModelEditorModel : public QStandardItemModel
 
 public:
     ListModelEditorModel(std::function<ModelNode()> createModelCallback,
-                         std::function<ModelNode()> createElementCallback)
+                         std::function<ModelNode()> createElementCallback,
+                         std::function<ModelNode(const ModelNode &)> goIntoComponentCallback)
         : m_createModelCallback(std::move(createModelCallback))
         , m_createElementCallback(std::move(createElementCallback))
+        , m_goIntoComponentCallback(std::move(goIntoComponentCallback))
     {}
 
     void setListModel(ModelNode node);
@@ -76,6 +78,7 @@ private:
     QList<QmlDesigner::PropertyName> m_propertyNames;
     std::function<ModelNode()> m_createModelCallback;
     std::function<ModelNode()> m_createElementCallback;
+    std::function<ModelNode(const ModelNode &)> m_goIntoComponentCallback;
 };
 
 } // namespace QmlDesigner

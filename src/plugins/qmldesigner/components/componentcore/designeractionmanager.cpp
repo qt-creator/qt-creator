@@ -26,14 +26,15 @@
 #include "designeractionmanager.h"
 
 #include "changestyleaction.h"
-#include "modelnodecontextmenu_helper.h"
-#include <bindingproperty.h>
-#include <nodeproperty.h>
-#include <nodelistproperty.h>
-#include <nodehints.h>
-#include <nodemetainfo.h>
 #include "designeractionmanagerview.h"
+#include "modelnodecontextmenu_helper.h"
 #include "qmldesignerconstants.h"
+#include "rewritingexception.h"
+#include <bindingproperty.h>
+#include <nodehints.h>
+#include <nodelistproperty.h>
+#include <nodemetainfo.h>
+#include <nodeproperty.h>
 
 #include <formeditortoolbutton.h>
 
@@ -44,14 +45,18 @@
 #include <listmodeleditor/listmodeleditordialog.h>
 #include <listmodeleditor/listmodeleditormodel.h>
 
-#include <QHBoxLayout>
-#include <QGraphicsLinearLayout>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
+
+#include <QGraphicsLinearLayout>
+#include <QHBoxLayout>
+#include <QMessageBox>
+
+#include <exception>
 
 namespace QmlDesigner {
 
@@ -387,6 +392,12 @@ public:
     }
 };
 
+class DocumentError : public std::exception
+{
+public:
+    const char *what() const noexcept override { return "Current document contains errors."; }
+};
+
 class EditListModelAction final : public ModelNodeContextMenuAction
 {
 public:
@@ -432,6 +443,24 @@ public:
                                        return view->createModelNode(elementMetaInfo.typeName(),
                                                                     elementMetaInfo.majorVersion(),
                                                                     elementMetaInfo.minorVersion());
+                                   },
+                                   [&](const ModelNode &node) {
+                                       bool isNowInComponent = ModelNodeOperations::goIntoComponent(
+                                           node);
+
+                                       Model *currentModel = QmlDesignerPlugin::instance()
+                                                                 ->currentDesignDocument()
+                                                                 ->currentModel();
+
+                                       if (currentModel->rewriterView()
+                                           && currentModel->rewriterView()->inErrorState()) {
+                                           throw DocumentError{};
+                                       }
+
+                                       if (isNowInComponent)
+                                           return view->rootModelNode();
+
+                                       return node;
                                    }};
 
         model.setListView(targetNode);
@@ -439,7 +468,22 @@ public:
         ListModelEditorDialog dialog{Core::ICore::mainWindow()};
         dialog.setModel(&model);
 
-        dialog.exec();
+        try {
+            dialog.exec();
+        } catch (const DocumentError &) {
+            QMessageBox::warning(
+                Core::ICore::mainWindow(),
+                QCoreApplication::translate("DesignerActionManager", "Document has errors"),
+                QCoreApplication::translate("DesignerActionManager",
+                                            "The document which contains the list model "
+                                            "contains errors. So we cannot edit it."));
+        } catch (const RewritingException &) {
+            QMessageBox::warning(
+                Core::ICore::mainWindow(),
+                QCoreApplication::translate("DesignerActionManager", "Document cannot be written"),
+                QCoreApplication::translate("DesignerActionManager",
+                                            "An error occurred during a write attemp."));
+        }
     }
 };
 

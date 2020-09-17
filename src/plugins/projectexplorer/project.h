@@ -39,6 +39,7 @@
 #include <QFileSystemModel>
 
 #include <functional>
+#include <memory>
 
 namespace Core { class Context; }
 namespace Utils {
@@ -123,6 +124,8 @@ public:
 
     Utils::FilePaths files(const NodeMatcher &matcher) const;
     bool isKnownFile(const Utils::FilePath &filename) const;
+    const Node *nodeForFilePath(const Utils::FilePath &filePath,
+                                const NodeMatcher &extraMatcher = {});
 
     virtual QVariantMap toMap() const;
 
@@ -159,9 +162,11 @@ public:
 
     void setRootProjectNode(std::unique_ptr<ProjectNode> &&root);
 
-    // Set project files that will be watched and trigger the same callback
+    // Set project files that will be watched and by default trigger the same callback
     // as the main project file.
-    void setExtraProjectFiles(const QSet<Utils::FilePath> &projectDocumentPaths);
+    using DocGenerator = std::function<std::unique_ptr<Core::IDocument>(const Utils::FilePath &)>;
+    void setExtraProjectFiles(const QSet<Utils::FilePath> &projectDocumentPaths,
+                              const DocGenerator docGenerator = {});
 
     void setDisplayName(const QString &name);
     void setProjectLanguage(Utils::Id id, bool enabled);

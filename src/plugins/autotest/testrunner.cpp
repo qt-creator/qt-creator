@@ -268,7 +268,7 @@ void TestRunner::cancelCurrent(TestRunner::CancelReason reason)
 
 void TestRunner::onProcessFinished()
 {
-    if (m_executingTests && QTC_GUARD(m_currentConfig)) {
+    if (m_executingTests && m_currentConfig) {
         QTC_CHECK(m_fakeFutureInterface);
         m_fakeFutureInterface->setProgressValue(m_fakeFutureInterface->progressValue()
                                                 + m_currentConfig->testCaseCount());
@@ -286,13 +286,15 @@ void TestRunner::onProcessFinished()
             }
         }
     }
-    const int disabled = m_currentOutputReader->disabledTests();
-    if (disabled > 0)
-        emit hadDisabledTests(disabled);
-    if (m_currentOutputReader->hasSummary())
-        emit reportSummary(m_currentOutputReader->id(), m_currentOutputReader->summary());
+    if (m_currentOutputReader) {
+        const int disabled = m_currentOutputReader->disabledTests();
+        if (disabled > 0)
+            emit hadDisabledTests(disabled);
+        if (m_currentOutputReader->hasSummary())
+            emit reportSummary(m_currentOutputReader->id(), m_currentOutputReader->summary());
 
-    m_currentOutputReader->resetCommandlineColor();
+        m_currentOutputReader->resetCommandlineColor();
+    }
     resetInternalPointers();
 
     if (!m_fakeFutureInterface) {

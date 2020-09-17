@@ -271,7 +271,7 @@ void DocumentManager::removeEditors(const QList<Core::IEditor *> &editors)
         delete m_designDocumentHash.take(editor).data();
 }
 
-void DocumentManager::goIntoComponent(const ModelNode &modelNode)
+bool DocumentManager::goIntoComponent(const ModelNode &modelNode)
 {
     if (modelNode.isValid() && modelNode.isComponent() && designDocument()) {
         QmlDesignerPlugin::instance()->viewManager().setComponentNode(modelNode);
@@ -286,9 +286,14 @@ void DocumentManager::goIntoComponent(const ModelNode &modelNode)
             openComponentSourcePropertyOfLoader(modelNode);
         else
             openInlineComponent(modelNode);
+
         ModelNode rootModelNode = designDocument()->rewriterView()->rootModelNode();
         applyProperties(rootModelNode, oldProperties);
+
+        return true;
     }
+
+    return false;
 }
 
 bool DocumentManager::createFile(const QString &filePath, const QString &contents)

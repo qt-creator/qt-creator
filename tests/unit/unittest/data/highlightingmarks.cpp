@@ -695,3 +695,7 @@ protected:
 private:
     static int privateValue;
 };
+
+template <int i, int j> struct S { };
+template <int i> using spec = S<i, 1>;
+spec<2> s;

@@ -2,30 +2,7 @@ if (NOT WIN32 OR NOT MSVC)
   return()
 endif()
 
-find_path(WDbgExtsPath wdbgexts.h
-  HINTS
-    "$ENV{CDB_PATH}"
-    "$ENV{ProgramFiles}/Debugging Tools For Windows/sdk"
-    "$ENV{ProgramFiles}/Debugging Tools For Windows (x86)/sdk"
-    "$ENV{ProgramFiles}/Debugging Tools For Windows (x64)/sdk"
-    "$ENV{ProgramFiles}/Debugging Tools For Windows 64-bit/sdk"
-    "$ENV{ProgramW6432}/Debugging Tools For Windows (x86)/sdk"
-    "$ENV{ProgramW6432}/Debugging Tools For Windows (x64)/sdk"
-    "$ENV{ProgramW6432}/Debugging Tools For Windows 64-bit/sdk"
-    "$ENV{ProgramFiles}/Windows Kits/8.0/Debuggers"
-    "$ENV{ProgramFiles}/Windows Kits/8.1/Debuggers"
-    "$ENV{ProgramFiles}/Windows Kits/10/Debuggers"
-    "$ENV{ProgramFiles\(x86\)}/Windows Kits/8.0/Debuggers/inc"
-    "$ENV{ProgramFiles\(x86\)}/Windows Kits/8.1/Debuggers/inc"
-    "$ENV{ProgramFiles\(x86\)}/Windows Kits/10/Debuggers/inc"
-)
-
-if (NOT WDbgExtsPath)
-  message(WARNING "wdbgexts.h not found. Removing qtcreatorcdbext from build.")
-  return()
-endif()
-
-find_library(DbgEngLib dbgeng HINTS ${WDbgExtsPath})
+find_library(DbgEngLib dbgeng)
 
 set(ArchSuffix 32)
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)

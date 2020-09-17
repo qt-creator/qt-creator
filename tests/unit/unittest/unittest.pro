@@ -173,12 +173,14 @@ SOURCES += \
     diagnosticset-test.cpp \
     diagnostic-test.cpp \
     fixit-test.cpp \
+    gtest-clang-printing.cpp \
     highlightingresultreporter-test.cpp \
     senddocumenttracker-test.cpp \
     skippedsourceranges-test.cpp \
     sourcelocation-test.cpp \
     sourcerange-test.cpp \
     token-test.cpp \
+    tokenprocessor-test.cpp \
     translationunitupdater-test.cpp \
     unsavedfiles-test.cpp \
     unsavedfile-test.cpp \
@@ -200,7 +202,6 @@ SOURCES += \
     clangqueryprojectfindfilter-test.cpp \
     clangquery-test.cpp \
     clangreferencescollector-test.cpp \
-    gtest-clang-printing.cpp \
     pchcreator-test.cpp \
     refactoringclientserverinprocess-test.cpp \
     refactoringclient-test.cpp \
@@ -211,8 +212,7 @@ SOURCES += \
     symbolscollector-test.cpp \
     testclangtool.cpp \
     usedmacrocollector-test.cpp \
-    builddependencycollector-test.cpp \
-    tokenprocessor-test.cpp
+    builddependencycollector-test.cpp
 
 !isEmpty(QTC_UNITTEST_BUILD_CPP_PARSER):SOURCES += refactoringengine-test.cpp
 
@@ -310,14 +310,14 @@ HEADERS += \
     clangasyncjob-base.h \
     clangcompareoperators.h \
     diagnosticcontainer-matcher.h \
+    gtest-clang-printing.h
 }
 
 !isEmpty(LIBTOOLING_LIBS) {
 HEADERS += \
-    gtest-clang-printing.h \
     mockrefactoringclient.h \
     mockrefactoringserver.h \
-    testclangtool.h \
+    testclangtool.h
 }
 
 OTHER_FILES += $$files(data/*) $$files(data/include/*)
