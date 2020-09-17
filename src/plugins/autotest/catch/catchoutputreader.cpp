@@ -27,6 +27,7 @@
 
 #include "../testtreeitem.h"
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -172,10 +173,12 @@ TestResultPtr CatchOutputReader::createDefaultResult() const
         result = new CatchResult(id(), m_testCaseInfo.first().name);
         result->setDescription(m_testCaseInfo.last().name);
         result->setLine(m_testCaseInfo.last().line);
-        const QString &relativePathFromBuildDir = m_testCaseInfo.last().filename;
-        if (!relativePathFromBuildDir.isEmpty()) {
-            const QFileInfo fileInfo(m_buildDir + '/' + relativePathFromBuildDir);
-            result->setFileName(fileInfo.canonicalFilePath());
+        const QFileInfo fileInfo(m_testCaseInfo.last().filename);
+        const Utils::FilePath filePath = Utils::FilePath::fromFileInfo(fileInfo);
+        if (!filePath.isEmpty()) {
+            result->setFileName(fileInfo.isAbsolute()
+                                ? filePath.toString()
+                                : QFileInfo(m_buildDir + '/' + filePath.toString()).canonicalFilePath());
         }
     } else {
         result = new CatchResult(id(), QString());
