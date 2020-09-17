@@ -25,31 +25,24 @@
 
 #pragma once
 
-#include "incredibuild_global.h"
-#include "buildconsolebuildstep.h"
-#include "ibconsolebuildstep.h"
-
 #include <extensionsystem/iplugin.h>
 
 namespace IncrediBuild {
 namespace Internal {
 
-class IncrediBuildPlugin : public ExtensionSystem::IPlugin
+class IncrediBuildPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "IncrediBuild.json")
 
 public:
-    IncrediBuildPlugin() {}
-    ~IncrediBuildPlugin();
+    IncrediBuildPlugin() = default;
+    ~IncrediBuildPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+    bool initialize(const QStringList &arguments, QString *errorString) final;
 
 private:
-    BuildConsoleStepFactory *m_buildConsoleStepFactory{};
-    IBConsoleStepFactory *m_iBConsoleStepFactory{};
+    class IncrediBuildPluginPrivate *d = nullptr;
 };
 
 } // namespace Internal

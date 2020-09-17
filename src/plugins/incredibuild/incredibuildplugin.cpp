@@ -25,50 +25,32 @@
 
 #include "incredibuildplugin.h"
 
-#include "incredibuildconstants.h"
+#include "buildconsolebuildstep.h"
+#include "ibconsolebuildstep.h"
 
 namespace IncrediBuild {
 namespace Internal {
 
+class IncrediBuildPluginPrivate
+{
+public:
+    BuildConsoleStepFactory buildConsoleStepFactory;
+    IBConsoleStepFactory iBConsoleStepFactory;
+};
+
 IncrediBuildPlugin::~IncrediBuildPlugin()
 {
-    // Unregister objects from the plugin manager's object pool
-    // Delete members
-    delete m_iBConsoleStepFactory;
-    delete m_buildConsoleStepFactory;
+    delete d;
 }
 
 bool IncrediBuildPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
-    // Register objects in the plugin manager's object pool
-    // Load settings
-    // Add actions to menus
-    // Connect to other plugins' signals
-    // In the initialize function, a plugin can be sure that the plugins it
-    // depends on have initialized their members.
-
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    m_buildConsoleStepFactory = new BuildConsoleStepFactory();
-    m_iBConsoleStepFactory = new IBConsoleStepFactory();
+    d = new IncrediBuildPluginPrivate;
 
     return true;
-}
-
-void IncrediBuildPlugin::extensionsInitialized()
-{
-    // Retrieve objects from the plugin manager's object pool
-    // In the extensionsInitialized function, a plugin can be sure that all
-    // plugins that depend on it are completely initialized.
-}
-
-ExtensionSystem::IPlugin::ShutdownFlag IncrediBuildPlugin::aboutToShutdown()
-{
-    // Save settings
-    // Disconnect from signals that are not needed during shutdown
-    // Hide UI (if you add UI that is not in the main window directly)
-    return SynchronousShutdown;
 }
 
 } // namespace Internal
