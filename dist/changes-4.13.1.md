@@ -19,6 +19,7 @@ Editing
 ### C++
 
 * Fixed crash with adjacent raw string literals (QTCREATORBUG-24577)
+* Fixed highlighting of template aliases (QTCREATORBUG-24552)
 
 ### QML
 
@@ -37,6 +38,8 @@ Projects
 ### qmake
 
 * Fixed handling of unset environment variables (QTCREATORBUG-21729)
+* Fixed that changes to sub-projects triggered full re-parse
+  (QTCREATORBUG-24572)
 
 ### CMake
 
@@ -80,6 +83,7 @@ Platforms
 ### macOS
 
 * Fixed Clazy (QTCREATORBUG-24567)
+* Fixed debugger locals view for newest LLDB (QTCREATORBUG-24596)
 
 Credits for these changes go to:
 --------------------------------
