@@ -437,7 +437,8 @@ void McuSupportOptions::registerQchFiles()
         docsDir + "/quickultralite.qch",
         docsDir + "/quickultralitecmake.qch"
     };
-    Core::HelpManager::registerDocumentation(Utils::filtered(qchFiles, &QFileInfo::exists));
+    Core::HelpManager::registerDocumentation(
+                Utils::filtered(qchFiles, [](const QString &f) { return QFileInfo::exists(f); } ));
 }
 
 void McuSupportOptions::registerExamples()
