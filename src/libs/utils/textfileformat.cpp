@@ -289,6 +289,8 @@ TextFileFormat::ReadResult TextFileFormat::readFileUTF8(const QString &fileName,
     if (format.codec->name() == "UTF-8" || !format.decode(data, &target)) {
         if (format.hasUtf8Bom)
             data.remove(0, 3);
+        if (format.lineTerminationMode == TextFileFormat::CRLFLineTerminator)
+            data.replace("\r\n", "\n");
         *plainText = data;
         return TextFileFormat::ReadSuccess;
     }
