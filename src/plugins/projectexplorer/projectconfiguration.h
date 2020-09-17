@@ -36,6 +36,11 @@
 #include <QVariantMap>
 #include <QWidget>
 
+QT_BEGIN_NAMESPACE
+class QFormLayout;
+class QGridLayout;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer {
 
 class Kit;
@@ -47,14 +52,18 @@ class Target;
 class PROJECTEXPLORER_EXPORT LayoutBuilder
 {
 public:
-    explicit LayoutBuilder(QWidget *parent);
+    enum LayoutType { GridLayout, FormLayout };
+    explicit LayoutBuilder(QWidget *parent, LayoutType layoutType = FormLayout);
+    explicit LayoutBuilder(QLayout *layout); // Adds to existing layout.
+
     ~LayoutBuilder();
 
     class LayoutItem
     {
     public:
-        LayoutItem(QLayout *layout) : layout(layout) {}
-        LayoutItem(QWidget *widget) : widget(widget) {}
+        LayoutItem(QLayout *layout, int span = 1) : layout(layout), span(span) {}
+        LayoutItem(QWidget *widget, int span = 1, Qt::Alignment align = {})
+            : widget(widget), span(span), align(align) {}
         LayoutItem(ProjectConfigurationAspect *aspect) : aspect(aspect) {}
         LayoutItem(const QString &text) : text(text) {}
 
@@ -62,6 +71,8 @@ public:
         QWidget *widget = nullptr;
         ProjectConfigurationAspect *aspect = nullptr;
         QString text;
+        int span = 1;
+        Qt::Alignment align;
     };
 
     template<typename ...Items>
@@ -77,10 +88,13 @@ public:
     QLayout *layout() const;
 
 private:
-    void flushPendingItems();
+    void flushPendingFormItems();
 
-    QLayout *m_layout = nullptr;
-    QList<LayoutItem> m_pendingItems;
+    QFormLayout *m_formLayout = nullptr;
+    QGridLayout *m_gridLayout = nullptr;
+    QList<LayoutItem> m_pendingFormItems;
+    int m_currentGridRow = 0;
+    int m_currentGridColumn = 0;
 };
 
 class PROJECTEXPLORER_EXPORT ProjectConfigurationAspect : public QObject
