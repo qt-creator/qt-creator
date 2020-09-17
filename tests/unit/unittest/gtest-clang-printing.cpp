@@ -27,6 +27,7 @@
 #include "gtest-std-printing.h"
 
 #ifdef CLANG_UNIT_TESTS
+#include <clang/Basic/FileManager.h>
 #include <clang/Basic/SourceLocation.h>
 #include <clang/Basic/SourceManager.h>
 
