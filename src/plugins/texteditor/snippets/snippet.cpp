@@ -26,6 +26,7 @@
 #include "snippet.h"
 
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 #include <utils/templateengine.h>
 
 #include <QTextDocument>
@@ -153,37 +154,64 @@ bool Snippet::isModified() const
     return m_isModified;
 }
 
+struct SnippetReplacement
+{
+    QString text;
+    int posDelta = 0;
+};
+
+static SnippetReplacement replacementAt(int pos, Snippet::ParsedSnippet &parsedSnippet)
+{
+    static const char kOpenBold[] = "<b>";
+    static const char kCloseBold[] = "</b>";
+
+    auto mangledText = [](const QString &text, const Snippet::ParsedSnippet::Range &range) {
+        if (range.length == 0)
+            return QString("...");
+        if (NameMangler *mangler = range.mangler)
+            return mangler->mangle(text.mid(range.start, range.length));
+        return text.mid(range.start, range.length);
+    };
+
+    if (!parsedSnippet.ranges.isEmpty() && parsedSnippet.ranges.first().start == pos) {
+        Snippet::ParsedSnippet::Range range = parsedSnippet.ranges.takeFirst();
+        return {kOpenBold + mangledText(parsedSnippet.text, range) + kCloseBold, range.length};
+    }
+    return {};
+}
+
 QString Snippet::generateTip() const
 {
-    static const QLatin1Char kNewLine('\n');
-    static const QLatin1Char kSpace(' ');
-    static const QLatin1String kBr("<br>");
-    static const QLatin1String kNbsp("&nbsp;");
-    static const QLatin1String kNoBr("<nobr>");
-    static const QLatin1String kOpenBold("<b>");
-    static const QLatin1String kCloseBold("</b>");
-    static const QLatin1String kEllipsis("...");
+    static const QHash<QChar, QString> replacements = {{'\n', "<br>"},
+                                                       {' ', "&nbsp;"},
+                                                       {'"', "&quot;"},
+                                                       {'&', "&amp;"},
+                                                       {'<', "&lt;"},
+                                                       {'>', "&gt;"}};
 
-    QString escapedContent(m_content.toHtmlEscaped());
-    escapedContent.replace(kNewLine, kBr);
-    escapedContent.replace(kSpace, kNbsp);
+    ParsedSnippet parsedSnippet = Snippet::parse(m_content);
 
-    QString tip(kNoBr);
-    int count = 0;
-    for (int i = 0; i < escapedContent.count(); ++i) {
-        if (escapedContent.at(i) != kVariableDelimiter) {
-            tip += escapedContent.at(i);
-            continue;
-        }
-        if (++count % 2) {
-            tip += kOpenBold;
+    QString tip("<nobr>");
+    int pos = 0;
+    for (int end = parsedSnippet.text.count(); pos < end;) {
+        const SnippetReplacement &replacement = replacementAt(pos, parsedSnippet);
+        if (!replacement.text.isEmpty()) {
+            tip += replacement.text;
+            pos += replacement.posDelta;
         } else {
-            if (escapedContent.at(i-1) == kVariableDelimiter)
-                tip += kEllipsis;
-            tip += kCloseBold;
+            const QChar &currentChar = parsedSnippet.text.at(pos);
+            tip += replacements.value(currentChar, currentChar);
+            ++pos;
         }
     }
+    SnippetReplacement replacement = replacementAt(pos, parsedSnippet);
+    while (!replacement.text.isEmpty()) {
+        tip += replacement.text;
+        pos += replacement.posDelta;
+        replacement = replacementAt(pos, parsedSnippet);
+    }
 
+    QTC_CHECK(parsedSnippet.ranges.isEmpty());
     return tip;
 }
 
