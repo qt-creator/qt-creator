@@ -79,7 +79,7 @@ public:
     ClangString mangling() const;
     ClangString spelling() const;
     ClangString briefComment() const;
-    ClangString rawComment() const;
+    Utf8String rawComment() const;
     int argumentCount() const;
 
     Type type() const;

@@ -246,9 +246,11 @@ ClangString Cursor::briefComment() const
     return ClangString(clang_Cursor_getBriefCommentText(m_cxCursor));
 }
 
-ClangString Cursor::rawComment() const
+Utf8String Cursor::rawComment() const
 {
-    return ClangString(clang_Cursor_getRawCommentText(m_cxCursor));
+    Utf8String comment = ClangString(clang_Cursor_getRawCommentText(m_cxCursor));
+    comment.replace(Utf8String("\r\n"), Utf8String("\n"));
+    return comment;
 }
 
 int Cursor::argumentCount() const
