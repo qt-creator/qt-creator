@@ -127,14 +127,24 @@ QList<QToolButton *> NavigatorWidget::createToolBarWidgets()
     filter->setPopupMode(QToolButton::InstantPopup);
     filter->setProperty("noArrow", true);
     auto filterMenu = new QMenu(filter);
-    auto objectAction = new QAction(tr("Show only visible items."), nullptr);
-    objectAction->setCheckable(true);
+    auto filterAction = new QAction(tr("Show only visible items."), nullptr);
+    filterAction->setCheckable(true);
 
     bool filterFlag = DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS).toBool();
-    objectAction->setChecked(filterFlag);
+    filterAction->setChecked(filterFlag);
 
-    connect(objectAction, &QAction::toggled, this, &NavigatorWidget::filterToggled);
-    filterMenu->addAction(objectAction);
+    connect(filterAction, &QAction::toggled, this, &NavigatorWidget::filterToggled);
+    filterMenu->addAction(filterAction);
+
+    auto reverseAction = new QAction(tr("Reverse item order."), nullptr);
+    reverseAction->setCheckable(true);
+
+    bool reverseFlag = DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
+    reverseAction->setChecked(reverseFlag);
+
+    connect(reverseAction, &QAction::toggled, this, &NavigatorWidget::reverseOrderToggled);
+    filterMenu->addAction(reverseAction);
+
     filter->setMenu(filterMenu);
     buttons.append(filter);
 

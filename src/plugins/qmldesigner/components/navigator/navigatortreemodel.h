@@ -91,6 +91,7 @@ public:
     void notifyModelNodesMoved(const QList<ModelNode> &modelNodes) override;
     void notifyIconsChanged() override;
     void setFilter(bool showOnlyVisibleItems) override;
+    void setOrder(bool reverseItemOrder) override;
     void resetModel() override;
 
     void updateToolTipImage(const ModelNode &node, const QImage &image);
@@ -109,6 +110,7 @@ private:
     QPointer<NavigatorView> m_view;
     mutable QHash<ModelNode, QModelIndex> m_nodeIndexHash;
     bool m_showOnlyVisibleItems = true;
+    bool m_reverseItemOrder = false;
     DesignerActionManager *m_actionManager = nullptr;
 };
 

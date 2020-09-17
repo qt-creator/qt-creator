@@ -111,6 +111,7 @@ private:
     void upButtonClicked();
     void downButtonClicked();
     void filterToggled(bool);
+    void reverseOrderToggled(bool);
 
 protected: //functions
     QTreeView *treeWidget() const;

@@ -61,6 +61,7 @@ signals:
     void upButtonClicked();
     void downButtonClicked();
     void filterToggled(bool);
+    void reverseOrderToggled(bool);
 
 private: // functions
     NavigatorView *navigatorView() const;

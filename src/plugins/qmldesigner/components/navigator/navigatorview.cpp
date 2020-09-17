@@ -69,6 +69,36 @@ static inline void setScenePos(const QmlDesigner::ModelNode &modelNode,const QPo
     }
 }
 
+static inline void moveNodesUp(const QList<QmlDesigner::ModelNode> &nodes)
+{
+    for (const auto &node : nodes) {
+        if (!node.isRootNode() && node.parentProperty().isNodeListProperty()) {
+            int oldIndex = node.parentProperty().indexOf(node);
+            int index = oldIndex;
+            index--;
+            if (index < 0)
+                index = node.parentProperty().count() - 1; //wrap around
+            if (oldIndex != index)
+                node.parentProperty().toNodeListProperty().slide(oldIndex, index);
+        }
+    }
+}
+
+static inline void moveNodesDown(const QList<QmlDesigner::ModelNode> &nodes)
+{
+    for (const auto &node : nodes) {
+        if (!node.isRootNode() && node.parentProperty().isNodeListProperty()) {
+            int oldIndex = node.parentProperty().indexOf(node);
+            int index = oldIndex;
+            index++;
+            if (index >= node.parentProperty().count())
+                index = 0; //wrap around
+            if (oldIndex != index)
+                node.parentProperty().toNodeListProperty().slide(oldIndex, index);
+        }
+    }
+}
+
 namespace QmlDesigner {
 
 NavigatorView::NavigatorView(QObject* parent) :
@@ -118,6 +148,9 @@ void NavigatorView::modelAttached(Model *model)
     QTimer::singleShot(0, this, [this, treeView]() {
         m_currentModelInterface->setFilter(
                     DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS).toBool());
+
+        m_currentModelInterface->setOrder(
+                    DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool());
 
         // Expand everything to begin with to ensure model node to index cache is populated
         treeView->expandAll();
@@ -307,7 +340,7 @@ void NavigatorView::auxiliaryDataChanged(const ModelNode &modelNode,
 
 void NavigatorView::instanceErrorChanged(const QVector<ModelNode> &errorNodeList)
 {
-    foreach (const ModelNode &modelNode, errorNodeList)
+    for (const ModelNode &modelNode : errorNodeList)
         m_currentModelInterface->notifyDataChanged(modelNode);
 }
 
@@ -348,7 +381,7 @@ void NavigatorView::leftButtonClicked()
 
     bool blocked = blockSelectionChangedSignal(true);
 
-    foreach (const ModelNode &node, selectedModelNodes()) {
+    for (const ModelNode &node : selectedModelNodes()) {
         if (!node.isRootNode() && !node.parentProperty().parentModelNode().isRootNode()) {
             if (QmlItemNode::isValidQmlItemNode(node)) {
                 QPointF scenePos = QmlItemNode(node).instanceScenePosition();
@@ -371,11 +404,23 @@ void NavigatorView::rightButtonClicked()
         return; //Semantics are unclear for multi selection.
 
     bool blocked = blockSelectionChangedSignal(true);
-    foreach (const ModelNode &node, selectedModelNodes()) {
+    bool reverse = DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
+
+    for (const ModelNode &node : selectedModelNodes()) {
         if (!node.isRootNode() && node.parentProperty().isNodeListProperty() && node.parentProperty().count() > 1) {
             int index = node.parentProperty().indexOf(node);
-            index--;
-            if (index >= 0) { //for the first node the semantics are not clear enough. Wrapping would be irritating.
+
+            bool indexOk = false;
+
+            if (reverse) {
+                index++;
+                indexOk = (index < node.parentProperty().count());
+            } else {
+                index--;
+                indexOk = (index >= 0);
+            }
+
+            if (indexOk) { //for the first node the semantics are not clear enough. Wrapping would be irritating.
                 ModelNode newParent = node.parentProperty().toNodeListProperty().at(index);
 
                 if (QmlItemNode::isValidQmlItemNode(node)
@@ -399,17 +444,13 @@ void NavigatorView::rightButtonClicked()
 void NavigatorView::upButtonClicked()
 {
     bool blocked = blockSelectionChangedSignal(true);
-    foreach (const ModelNode &node, selectedModelNodes()) {
-        if (!node.isRootNode() && node.parentProperty().isNodeListProperty()) {
-            int oldIndex = node.parentProperty().indexOf(node);
-            int index = oldIndex;
-            index--;
-            if (index < 0)
-                index = node.parentProperty().count() - 1; //wrap around
-            if (oldIndex != index)
-                node.parentProperty().toNodeListProperty().slide(oldIndex, index);
-        }
-    }
+    bool reverse = DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
+
+    if (reverse)
+        moveNodesDown(selectedModelNodes());
+    else
+        moveNodesUp(selectedModelNodes());
+
     updateItemSelection();
     blockSelectionChangedSignal(blocked);
 }
@@ -417,17 +458,13 @@ void NavigatorView::upButtonClicked()
 void NavigatorView::downButtonClicked()
 {
     bool blocked = blockSelectionChangedSignal(true);
-    foreach (const ModelNode &node, selectedModelNodes()) {
-        if (!node.isRootNode() && node.parentProperty().isNodeListProperty()) {
-            int oldIndex = node.parentProperty().indexOf(node);
-            int index = oldIndex;
-            index++;
-            if (index >= node.parentProperty().count())
-                index = 0; //wrap around
-            if (oldIndex != index)
-                node.parentProperty().toNodeListProperty().slide(oldIndex, index);
-        }
-    }
+    bool reverse = DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
+
+    if (reverse)
+        moveNodesUp(selectedModelNodes());
+    else
+        moveNodesDown(selectedModelNodes());
+
     updateItemSelection();
     blockSelectionChangedSignal(blocked);
 }
@@ -437,6 +474,13 @@ void NavigatorView::filterToggled(bool flag)
     m_currentModelInterface->setFilter(flag);
     treeWidget()->expandAll();
     DesignerSettings::setValue(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS, flag);
+}
+
+void NavigatorView::reverseOrderToggled(bool flag)
+{
+    m_currentModelInterface->setOrder(flag);
+    treeWidget()->expandAll();
+    DesignerSettings::setValue(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER, flag);
 }
 
 void NavigatorView::changeSelection(const QItemSelection & /*newSelection*/, const QItemSelection &/*deselected*/)
@@ -470,7 +514,7 @@ void NavigatorView::updateItemSelection()
         return;
 
     QItemSelection itemSelection;
-    foreach (const ModelNode &node, selectedModelNodes()) {
+    for (const ModelNode &node : selectedModelNodes()) {
         const QModelIndex index = indexForModelNode(node);
 
         if (index.isValid()) {
@@ -500,7 +544,7 @@ void NavigatorView::updateItemSelection()
         treeWidget()->scrollTo(indexForModelNode(selectedModelNodes().constFirst()));
 
     // make sure selected nodes are visible
-    foreach (const QModelIndex &selectedIndex, itemSelection.indexes()) {
+    for (const QModelIndex &selectedIndex : itemSelection.indexes()) {
         if (selectedIndex.column() == 0)
             expandAncestors(selectedIndex);
     }
@@ -566,6 +610,7 @@ void NavigatorView::setupWidget()
     connect(m_widget.data(), &NavigatorWidget::downButtonClicked, this, &NavigatorView::downButtonClicked);
     connect(m_widget.data(), &NavigatorWidget::upButtonClicked, this, &NavigatorView::upButtonClicked);
     connect(m_widget.data(), &NavigatorWidget::filterToggled, this, &NavigatorView::filterToggled);
+    connect(m_widget.data(), &NavigatorWidget::reverseOrderToggled, this, &NavigatorView::reverseOrderToggled);
 
 #ifndef QMLDESIGNER_TEST
     auto idDelegate = new NameItemDelegate(this);

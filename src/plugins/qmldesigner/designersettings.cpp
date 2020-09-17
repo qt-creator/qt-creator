@@ -74,6 +74,7 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::IGNORE_DEVICE_PIXEL_RATIO, false);
     restoreValue(settings, DesignerSettingsKey::STATESEDITOR_EXPANDED, true);
     restoreValue(settings, DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS, true);
+    restoreValue(settings, DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER, false);
     restoreValue(settings, DesignerSettingsKey::STANDALONE_MODE, false);
     restoreValue(settings, DesignerSettingsKey::ENABLE_TIMELINEVIEW,
 #if (QT_VERSION < QT_VERSION_CHECK(5, 14, 0))

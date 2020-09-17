@@ -274,7 +274,7 @@ void static appendForcedNodes(const NodeListProperty &property, QList<ModelNode>
     }
 }
 
-QList<ModelNode> filteredList(const NodeListProperty &property, bool filter)
+QList<ModelNode> filteredList(const NodeListProperty &property, bool filter, bool reverseOrder)
 {
     QList<ModelNode> list;
 
@@ -287,6 +287,9 @@ QList<ModelNode> filteredList(const NodeListProperty &property, bool filter)
     }
 
     appendForcedNodes(property, list);
+
+    if (reverseOrder)
+        std::reverse(list.begin(), list.end());
 
     return list;
 }
@@ -307,7 +310,9 @@ QModelIndex NavigatorTreeModel::index(int row, int column,
 
     ModelNode modelNode;
     if (parentModelNode.defaultNodeListProperty().isValid())
-        modelNode = filteredList(parentModelNode.defaultNodeListProperty(), m_showOnlyVisibleItems).at(row);
+        modelNode = filteredList(parentModelNode.defaultNodeListProperty(),
+                                 m_showOnlyVisibleItems,
+                                 m_reverseItemOrder).at(row);
 
     if (!modelNode.isValid())
         return QModelIndex();
@@ -338,7 +343,9 @@ QModelIndex NavigatorTreeModel::parent(const QModelIndex &index) const
     int row = 0;
 
     if (!parentModelNode.isRootNode() && parentModelNode.parentProperty().isNodeListProperty())
-        row = filteredList(parentModelNode.parentProperty().toNodeListProperty(), m_showOnlyVisibleItems).indexOf(parentModelNode);
+        row = filteredList(parentModelNode.parentProperty().toNodeListProperty(),
+                           m_showOnlyVisibleItems,
+                           m_reverseItemOrder).indexOf(parentModelNode);
 
     return createIndexFromModelNode(row, 0, parentModelNode);
 }
@@ -358,7 +365,9 @@ int NavigatorTreeModel::rowCount(const QModelIndex &parent) const
     int rows = 0;
 
     if (modelNode.defaultNodeListProperty().isValid())
-        rows = filteredList(modelNode.defaultNodeListProperty(), m_showOnlyVisibleItems).count();
+        rows = filteredList(modelNode.defaultNodeListProperty(),
+                            m_showOnlyVisibleItems,
+                            m_reverseItemOrder).count();
 
     return rows;
 }
@@ -449,6 +458,9 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
 {
     if (action == Qt::IgnoreAction)
         return true;
+
+    if (m_reverseItemOrder)
+        rowNumber = rowCount(dropModelIndex) - rowNumber;
 
     if (dropModelIndex.model() == this) {
         if (mimeData->hasFormat("application/vnd.bauhaus.itemlibraryinfo")) {
@@ -829,6 +841,12 @@ void NavigatorTreeModel::notifyIconsChanged()
 void NavigatorTreeModel::setFilter(bool showOnlyVisibleItems)
 {
     m_showOnlyVisibleItems = showOnlyVisibleItems;
+    resetModel();
+}
+
+void NavigatorTreeModel::setOrder(bool reverseItemOrder)
+{
+    m_reverseItemOrder = reverseItemOrder;
     resetModel();
 }
 
