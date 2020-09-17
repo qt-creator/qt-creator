@@ -132,7 +132,7 @@ void StatesEditorWidget::toggleStatesViewExpanded()
 
 void StatesEditorWidget::showEvent(QShowEvent *event)
 {
-    Q_UNUSED(event)
+    QQuickWidget::showEvent(event);
     update();
 }
 
