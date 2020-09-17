@@ -105,7 +105,7 @@ static void closeBufferAndWriteIfChanged(QBuffer& textBuffer, const QString& fil
     currentTextBuffer.open(QIODevice::WriteOnly | QIODevice::Text);
     QTextStream currentTextBufferWriter(&currentTextBuffer);
     while (!fileReader.atEnd()) {
-        currentTextBufferWriter << fileReader.readLine() << endl;
+        currentTextBufferWriter << fileReader.readLine() << Qt::endl;
     }
     file.close();
     currentTextBuffer.close();
@@ -251,12 +251,13 @@ public:
         QTextStream output(&buffer);
         out = &output;
 
-        *out << copyrightHeader << generatedHeader <<
-            "\n"
-            "#include \"AST.h\"\n"
-            "#include \"ASTVisitor.h\"\n"
-            "\n"
-            "using namespace CPlusPlus;\n" << endl;
+        *out << copyrightHeader << generatedHeader
+             << "\n"
+                "#include \"AST.h\"\n"
+                "#include \"ASTVisitor.h\"\n"
+                "\n"
+                "using namespace CPlusPlus;\n"
+             << Qt::endl;
 
         accept(ast);
 
@@ -280,7 +281,7 @@ protected:
 
     void visitMembers(Class *klass)
     {
-        // *out << "        // visit " << className.constData() << endl;
+        // *out << "        // visit " << className.constData() << Qt::endl;
         for (int i = 0; i < klass->memberCount(); ++i) {
             Symbol *member = klass->memberAt(i);
             if (! member->name())
@@ -301,7 +302,8 @@ protected:
                     QByteArray typeName = namedTy->name()->identifier()->chars();
 
                     if (typeName.endsWith("AST") && memberName != "next")
-                        *out << "        accept(" << memberName.constData() << ", visitor);" << endl;
+                        *out << "        accept(" << memberName.constData() << ", visitor);"
+                             << Qt::endl;
                 }
             }
         }
@@ -350,18 +352,16 @@ protected:
 
         classMap.insert(className, ast);
 
-        *out
-                << "void " << className.constData() << "::accept0(ASTVisitor *visitor)" << endl
-                << "{" << endl
-                << "    if (visitor->visit(this)) {" << endl;
+        *out << "void " << className.constData() << "::accept0(ASTVisitor *visitor)" << Qt::endl
+             << "{" << Qt::endl
+             << "    if (visitor->visit(this)) {" << Qt::endl;
 
         visitMembers(klass);
 
-        *out
-                << "    }" << endl
-                << "    visitor->endVisit(this);" << endl
-                << "}" << endl
-                << endl;
+        *out << "    }" << Qt::endl
+             << "    visitor->endVisit(this);" << Qt::endl
+             << "}" << Qt::endl
+             << Qt::endl;
 
         return true;
     }
@@ -385,12 +385,13 @@ public:
         buffer.open(openFlags);
         QTextStream output(&buffer);
         out = &output;
-        *out << copyrightHeader << generatedHeader <<
-            "\n"
-            "#include \"AST.h\"\n"
-            "#include \"ASTMatcher.h\"\n"
-            "\n"
-            "using namespace CPlusPlus;\n" << endl;
+        *out << copyrightHeader << generatedHeader
+             << "\n"
+                "#include \"AST.h\"\n"
+                "#include \"ASTMatcher.h\"\n"
+                "\n"
+                "using namespace CPlusPlus;\n"
+             << Qt::endl;
 
         accept(ast);
 
@@ -417,11 +418,12 @@ protected:
         Overview oo;
         const QString className = oo(klass->name());
 
-        *out << "    if (" << className << " *_other = pattern->as" << className.left(className.length() - 3) << "())" << endl;
+        *out << "    if (" << className << " *_other = pattern->as"
+             << className.left(className.length() - 3) << "())" << Qt::endl;
 
-        *out << "        return matcher->match(this, _other);" << endl;
+        *out << "        return matcher->match(this, _other);" << Qt::endl;
 
-        *out << endl;
+        *out << Qt::endl;
     }
 
     bool checkMethod(Symbol *accept0Method) const
@@ -460,16 +462,13 @@ protected:
 
         classMap.insert(className, ast);
 
-        *out
-                << "bool " << className.constData() << "::match0(AST *pattern, ASTMatcher *matcher)" << endl
-                << "{" << endl;
+        *out << "bool " << className.constData() << "::match0(AST *pattern, ASTMatcher *matcher)"
+             << Qt::endl
+             << "{" << Qt::endl;
 
         visitMembers(klass);
 
-        *out
-                << "    return false;" << endl
-                << "}" << endl
-                << endl;
+        *out << "    return false;" << Qt::endl << "}" << Qt::endl << Qt::endl;
 
         return true;
     }
@@ -495,19 +494,18 @@ public:
         QTextStream output(&buffer);
         out = &output;
 
-        *out << copyrightHeader << endl
-                << generatedHeader
-                << "#include \"AST.h\"" << endl
-                << "#include \"ASTMatcher.h\"" << endl
-                << endl
-                << "using namespace CPlusPlus;" << endl
-                << endl
-                << "ASTMatcher::ASTMatcher()" << endl
-                << "{ }" << endl
-                << endl
-                << "ASTMatcher::~ASTMatcher()" << endl
-                << "{ }" << endl
-                << endl;
+        *out << copyrightHeader << Qt::endl
+             << generatedHeader << "#include \"AST.h\"" << Qt::endl
+             << "#include \"ASTMatcher.h\"" << Qt::endl
+             << Qt::endl
+             << "using namespace CPlusPlus;" << Qt::endl
+             << Qt::endl
+             << "ASTMatcher::ASTMatcher()" << Qt::endl
+             << "{ }" << Qt::endl
+             << Qt::endl
+             << "ASTMatcher::~ASTMatcher()" << Qt::endl
+             << "{ }" << Qt::endl
+             << Qt::endl;
 
         accept(ast);
 
@@ -543,10 +541,8 @@ protected:
 
             const QByteArray memberName = QByteArray::fromRawData(id->chars(), id->size());
             if (member->type()->isIntegerType() && memberName.endsWith("_token")) {
-
-                *out
-                        << "    pattern->" << memberName << " = node->" << memberName << ";" << endl
-                        << endl;
+                *out << "    pattern->" << memberName << " = node->" << memberName << ";" << Qt::endl
+                     << Qt::endl;
 
             } else if (PointerType *ptrTy = member->type()->asPointerType()) {
 
@@ -554,12 +550,13 @@ protected:
                     QByteArray typeName = namedTy->name()->identifier()->chars();
 
                     if (typeName.endsWith("AST")) {
-                        *out
-                                << "    if (! pattern->" << memberName << ")" << endl
-                                << "        pattern->" << memberName << " = node->" << memberName << ";" << endl
-                                << "    else if (! AST::match(node->" << memberName << ", pattern->" << memberName << ", this))" << endl
-                                << "        return false;" << endl
-                                << endl;
+                        *out << "    if (! pattern->" << memberName << ")" << Qt::endl
+                             << "        pattern->" << memberName << " = node->" << memberName
+                             << ";" << Qt::endl
+                             << "    else if (! AST::match(node->" << memberName << ", pattern->"
+                             << memberName << ", this))" << Qt::endl
+                             << "        return false;" << Qt::endl
+                             << Qt::endl;
                     }
                 }
             }
@@ -609,19 +606,16 @@ protected:
 
         classMap.insert(className, ast);
 
-        *out
-                << "bool ASTMatcher::match(" << className.constData() << " *node, " << className.constData() << " *pattern)" << endl
-                << "{" << endl
-                << "    (void) node;" << endl
-                << "    (void) pattern;" << endl
-                << endl;
+        *out << "bool ASTMatcher::match(" << className.constData() << " *node, "
+             << className.constData() << " *pattern)" << Qt::endl
+             << "{" << Qt::endl
+             << "    (void) node;" << Qt::endl
+             << "    (void) pattern;" << Qt::endl
+             << Qt::endl;
 
         visitMembers(klass);
 
-        *out
-                << "    return true;" << endl
-                << "}" << endl
-                << endl;
+        *out << "    return true;" << Qt::endl << "}" << Qt::endl << Qt::endl;
 
         return true;
     }
@@ -646,13 +640,11 @@ public:
         QTextStream output(&buffer);
         out = &output;
 
-        *out << copyrightHeader
-                << generatedHeader
-                << "#include \"AST.h\"" << endl
-                << "#include \"MemoryPool.h\"" << endl
-                << endl
-                << "using namespace CPlusPlus;" << endl
-                << endl;
+        *out << copyrightHeader << generatedHeader << "#include \"AST.h\"" << Qt::endl
+             << "#include \"MemoryPool.h\"" << Qt::endl
+             << Qt::endl
+             << "using namespace CPlusPlus;" << Qt::endl
+             << Qt::endl;
 
         accept(ast);
 
@@ -688,18 +680,22 @@ protected:
 
             const QByteArray memberName = QByteArray::fromRawData(id->chars(), id->size());
             if (member->type()->isIntegerType() && memberName.endsWith("_token")) {
-                *out << "    ast->" << memberName << " = " << memberName << ";" << endl;
+                *out << "    ast->" << memberName << " = " << memberName << ";" << Qt::endl;
             } else if (PointerType *ptrTy = member->type()->asPointerType()) {
                 if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
                     QByteArray typeName = namedTy->name()->identifier()->chars();
 
                     if (typeName.endsWith("ListAST")) {
-                        *out << "    for (" << typeName << " *iter = " << memberName << ", **ast_iter = &ast->" << memberName << ";" << endl
-                             << "         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)" << endl
-                             << "        *ast_iter = new (pool) " << typeName << "((iter->value) ? iter->value->clone(pool) : nullptr);" << endl;
+                        *out << "    for (" << typeName << " *iter = " << memberName
+                             << ", **ast_iter = &ast->" << memberName << ";" << Qt::endl
+                             << "         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)"
+                             << Qt::endl
+                             << "        *ast_iter = new (pool) " << typeName
+                             << "((iter->value) ? iter->value->clone(pool) : nullptr);" << Qt::endl;
                     } else if (typeName.endsWith("AST")) {
-                        *out << "    if (" << memberName << ")" << endl
-                             << "        ast->" << memberName << " = " << memberName << "->clone(pool);" << endl;
+                        *out << "    if (" << memberName << ")" << Qt::endl
+                             << "        ast->" << memberName << " = " << memberName
+                             << "->clone(pool);" << Qt::endl;
                     }
                 }
             }
@@ -751,14 +747,15 @@ protected:
 
         classMap.insert(className, ast);
 
-        *out << className.constData() << " *" << className.constData() << "::" << "clone(MemoryPool *pool) const" << endl
-             << "{" << endl
-             << "    " << className.constData() << " *ast = new (pool) " << className.constData() << ";" << endl;
+        *out << className.constData() << " *" << className.constData() << "::"
+             << "clone(MemoryPool *pool) const" << Qt::endl
+             << "{" << Qt::endl
+             << "    " << className.constData() << " *ast = new (pool) " << className.constData()
+             << ";" << Qt::endl;
 
         visitMembers(klass);
 
-        *out << "    return ast;" << endl
-             << "}" << endl << endl;
+        *out << "    return ast;" << Qt::endl << "}" << Qt::endl << Qt::endl;
 
         return false;
     }
@@ -779,10 +776,7 @@ public:
         buffer.open(openFlags);
 
         GenerateDumpers d(&buffer, unit);
-        d.out << copyrightHeader
-                << generatedHeader
-                << endl;
-
+        d.out << copyrightHeader << generatedHeader << Qt::endl;
 
         d.accept(unit->ast());
 
@@ -818,17 +812,18 @@ protected:
 
             const QByteArray memberName = QByteArray::fromRawData(id->chars(), id->size());
             if (member->type()->isIntegerType() && memberName.endsWith("_token")) {
-                out << "    if (ast->" << memberName << ")" << endl;
-                out << "        terminal(ast->" << memberName << ", ast);" << endl;
+                out << "    if (ast->" << memberName << ")" << Qt::endl;
+                out << "        terminal(ast->" << memberName << ", ast);" << Qt::endl;
             } else if (PointerType *ptrTy = member->type()->asPointerType()) {
                 if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
                     QByteArray typeName = namedTy->name()->identifier()->chars();
 
                     if (typeName.endsWith("ListAST")) {
-                        out << "    for (" << typeName << " *iter = ast->" << memberName << "; iter; iter = iter->next)" << endl
-                            << "        nonterminal(iter->value);" << endl;
+                        out << "    for (" << typeName << " *iter = ast->" << memberName
+                            << "; iter; iter = iter->next)" << Qt::endl
+                            << "        nonterminal(iter->value);" << Qt::endl;
                     } else if (typeName.endsWith("AST")) {
-                        out << "    nonterminal(ast->" << memberName << ");" << endl;
+                        out << "    nonterminal(ast->" << memberName << ");" << Qt::endl;
                     }
                 }
             }
@@ -880,13 +875,12 @@ protected:
 
         classMap.insert(className, ast);
 
-        out << "virtual bool visit(" << className.constData() << " *ast)" << endl
-            << "{" << endl;
+        out << "virtual bool visit(" << className.constData() << " *ast)" << Qt::endl
+            << "{" << Qt::endl;
 
         visitMembers(klass);
 
-        out << "    return false;" << endl
-            << "}" << endl << endl;
+        out << "    return false;" << Qt::endl << "}" << Qt::endl << Qt::endl;
 
         return false;
     }
@@ -980,43 +974,42 @@ struct GenInfo
 
 void generateFirstToken(QTextStream &os, const QString &className, const QStringList &fields)
 {
-    os << "int " << className << "::firstToken() const" << endl << "{" << endl;
+    os << "int " << className << "::firstToken() const" << Qt::endl << "{" << Qt::endl;
 
     for (const QString &field : fields) {
-        os << "    if (" << field << ")" << endl;
+        os << "    if (" << field << ")" << Qt::endl;
 
         if (field.endsWith(QLatin1String("_token"))) {
-            os << "        return " << field << ";" << endl;
+            os << "        return " << field << ";" << Qt::endl;
         } else {
-            os << "        if (int candidate = " << field << "->firstToken())" << endl;
-            os << "            return candidate;" << endl;
+            os << "        if (int candidate = " << field << "->firstToken())" << Qt::endl;
+            os << "            return candidate;" << Qt::endl;
         }
     }
 
-    os << "    return 0;" << endl;
-    os << "}" << endl << endl;
+    os << "    return 0;" << Qt::endl;
+    os << "}" << Qt::endl << Qt::endl;
 }
 
 void generateLastToken(QTextStream &os, const QString &className, const QStringList &fields)
 {
-    os << "int "<< className << "::lastToken() const" << endl
-            << "{" << endl;
+    os << "int " << className << "::lastToken() const" << Qt::endl << "{" << Qt::endl;
 
     for (int i = fields.size() - 1; i >= 0; --i) {
         const QString field = fields.at(i);
 
-        os << "    if (" << field << ")" << endl;
+        os << "    if (" << field << ")" << Qt::endl;
 
         if (field.endsWith(QLatin1String("_token"))) {
-            os << "        return " << field << " + 1;" << endl;
+            os << "        return " << field << " + 1;" << Qt::endl;
         } else {
-            os << "        if (int candidate = " << field << "->lastToken())" << endl;
-            os << "            return candidate;" << endl;
+            os << "        if (int candidate = " << field << "->lastToken())" << Qt::endl;
+            os << "            return candidate;" << Qt::endl;
         }
     }
 
-    os << "    return 1;" << endl;
-    os << "}" << endl << endl;
+    os << "    return 1;" << Qt::endl;
+    os << "}" << Qt::endl << Qt::endl;
 }
 
 void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
@@ -1173,18 +1166,18 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
     for (StringClassSpecifierASTMapConstIt it = classesNeedingFirstToken.constBegin(); it != cfend; ++it) {
         const QString &className = it.key();
         const QStringList fields = collectFieldNames(it.value(), true);
-        os << "/** \\generated */" << endl;
+        os << "/** \\generated */" << Qt::endl;
         generateFirstToken(os, className, fields);
         if (ClassSpecifierAST *classAST = classesNeedingLastToken.value(className, nullptr)) {
             const QStringList fields = collectFieldNames(classAST, true);
-            os << "/** \\generated */" << endl;
+            os << "/** \\generated */" << Qt::endl;
             generateLastToken(os, className, fields);
             classesNeedingLastToken.remove(className);
         }
     }
     const StringClassSpecifierASTMapConstIt clend = classesNeedingLastToken.constEnd();
     for (StringClassSpecifierASTMapConstIt it = classesNeedingLastToken.constBegin(); it != clend; ++it) {
-        os << "/** \\generated */" << endl;
+        os << "/** \\generated */" << Qt::endl;
         generateLastToken(os, it.key(), collectFieldNames(it.value(), true));
     }
     tc.setPosition(documentEnd);
@@ -1493,26 +1486,23 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
     buffer.open(openFlags);
     QTextStream out(&buffer);
 
-    out
-            << copyrightHeader
-            << generatedHeader
-            << "#pragma once" << endl
-            << endl
-            << "#include \"CPlusPlusForwardDeclarations.h\"" << endl
-            << "#include \"AST.h\"" << endl
-            << "#include \"MemoryPool.h\"" << endl
-            << endl
-            << "namespace CPlusPlus {" << endl
-            << endl
-            << "class CPLUSPLUS_EXPORT ASTPatternBuilder" << endl
-            << "{" << endl
-            << "    MemoryPool pool;" << endl
-            << endl
-            << "public:" << endl
-            << "    ASTPatternBuilder() {}" << endl
-            << endl
-            << "    void reset() { pool.reset(); }" << endl
-            << endl;
+    out << copyrightHeader << generatedHeader << "#pragma once" << Qt::endl
+        << Qt::endl
+        << "#include \"CPlusPlusForwardDeclarations.h\"" << Qt::endl
+        << "#include \"AST.h\"" << Qt::endl
+        << "#include \"MemoryPool.h\"" << Qt::endl
+        << Qt::endl
+        << "namespace CPlusPlus {" << Qt::endl
+        << Qt::endl
+        << "class CPLUSPLUS_EXPORT ASTPatternBuilder" << Qt::endl
+        << "{" << Qt::endl
+        << "    MemoryPool pool;" << Qt::endl
+        << Qt::endl
+        << "public:" << Qt::endl
+        << "    ASTPatternBuilder() {}" << Qt::endl
+        << Qt::endl
+        << "    void reset() { pool.reset(); }" << Qt::endl
+        << Qt::endl;
 
     Control *control = AST_h_document->control();
     QSet<QString> classesSet;
@@ -1568,19 +1558,14 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
             }
         }
 
-        out
-                << ")" << endl
-                << "    {" << endl
-                << "        " << className << " *ast = new (&pool) " << className << ';' << endl;
-
+        out << ")" << Qt::endl
+            << "    {" << Qt::endl
+            << "        " << className << " *ast = new (&pool) " << className << ';' << Qt::endl;
 
         for (const StringPair &p : qAsConst(args))
-            out << "        ast->" << p.second << " = " << p.second << ';' << endl;
+            out << "        ast->" << p.second << " = " << p.second << ';' << Qt::endl;
 
-        out
-                << "        return ast;" << endl
-                << "    }" << endl
-                << endl;
+        out << "        return ast;" << Qt::endl << "    }" << Qt::endl << Qt::endl;
     }
 
     QStringList classesList = Utils::toList(classesSet);
@@ -1588,22 +1573,18 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
     for (const QString &className : qAsConst(classesList)) {
         const QString methodName = className.left(className.length() - 3);
         const QString elementName = className.left(className.length() - 7) + QLatin1String("AST");
-        out
-                << "    " << className << " *" << methodName << "("
-                << elementName << " *value, " << className << " *next = nullptr)" << endl
-                << "    {" << endl
-                << "        " << className << " *list = new (&pool) " << className << ";" << endl
-                << "        list->next = next;" << endl
-                << "        list->value = value;" << endl
-                << "        return list;" << endl
-                << "    }" << endl
-                << endl;
+        out << "    " << className << " *" << methodName << "(" << elementName << " *value, "
+            << className << " *next = nullptr)" << Qt::endl
+            << "    {" << Qt::endl
+            << "        " << className << " *list = new (&pool) " << className << ";" << Qt::endl
+            << "        list->next = next;" << Qt::endl
+            << "        list->value = value;" << Qt::endl
+            << "        return list;" << Qt::endl
+            << "    }" << Qt::endl
+            << Qt::endl;
     }
 
-    out
-            << "};" << endl
-            << endl
-            << "} // end of namespace CPlusPlus" << endl;
+    out << "};" << Qt::endl << Qt::endl << "} // end of namespace CPlusPlus" << Qt::endl;
 
     closeBufferAndWriteIfChanged(buffer, fileInfo.absoluteFilePath());
 }
