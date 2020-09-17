@@ -56,8 +56,9 @@
 #include <QUrl>
 #include <QDebug>
 
-#include <QPlainTextEdit>
 #include <QApplication>
+#include <QPlainTextEdit>
+#include <QRandomGenerator>
 
 using namespace ProjectExplorer;
 
@@ -420,8 +421,10 @@ static void scatterItem(const ModelNode &pastedNode, const ModelNode &targetNode
         double y = pastedNode.variantProperty("y").value().toDouble();
         double targetWidth = 20;
         double targetHeight = 20;
-        x = x + double(qrand()) / RAND_MAX * targetWidth - targetWidth / 2;
-        y = y + double(qrand()) / RAND_MAX * targetHeight - targetHeight / 2;
+        x = x + double(QRandomGenerator::global()->generate()) / RAND_MAX * targetWidth
+            - targetWidth / 2;
+        y = y + double(QRandomGenerator::global()->generate()) / RAND_MAX * targetHeight
+            - targetHeight / 2;
         pastedNode.variantProperty("x").setValue(int(x));
         pastedNode.variantProperty("y").setValue(int(y));
     } else {
@@ -489,7 +492,7 @@ void DesignDocument::paste()
         rewriterView()->executeInTransaction("DesignDocument::paste1", [&view, selectedNodes, targetNode](){
             QList<ModelNode> pastedNodeList;
 
-            int offset = double(qrand()) / RAND_MAX * 20 - 10;
+            int offset = double(QRandomGenerator::global()->generate()) / RAND_MAX * 20 - 10;
 
             foreach (const ModelNode &node, selectedNodes) {
                 PropertyName defaultProperty(targetNode.metaInfo().defaultPropertyName());

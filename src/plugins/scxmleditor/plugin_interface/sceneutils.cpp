@@ -37,8 +37,9 @@
 #include "stateitem.h"
 #include "transitionitem.h"
 
-#include <QGuiApplication>
 #include <QGraphicsScene>
+#include <QGuiApplication>
+#include <QRandomGenerator>
 #include <QtMath>
 
 namespace ScxmlEditor {
@@ -236,7 +237,7 @@ void layout(const QList<QGraphicsItem*> &items)
     if (finalItem && finalItem->inputTransitionCount() > 0)
         lastItem = finalItem->inputTransitions().constFirst()->connectedItem(finalItem);
 
-    int startAngle = qrand() % 2 == 0 ? 180 : 90;
+    int startAngle = QRandomGenerator::global()->generate() % 2 == 0 ? 180 : 90;
     int startDistance = 40 + childItems.count() * 10;
     if (!childItems.isEmpty()) {
         // Init position of the items

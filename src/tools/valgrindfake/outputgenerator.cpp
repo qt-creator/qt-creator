@@ -27,12 +27,12 @@
 #include "outputgenerator.h"
 
 #include <QAbstractSocket>
-#include <QIODevice>
-#include <QTextStream>
 #include <QCoreApplication>
-#include <QStringList>
 #include <QDebug>
-
+#include <QIODevice>
+#include <QRandomGenerator>
+#include <QStringList>
+#include <QTextStream>
 
 // Yes, this is ugly. But please don't introduce a libUtils dependency
 // just to get rid of a single function.
@@ -123,14 +123,14 @@ void OutputGenerator::produceRuntimeError()
 
 void OutputGenerator::writeOutput()
 {
-    m_timer.setInterval(qrand() % 1000);
+    m_timer.setInterval(QRandomGenerator::global()->generate() % 1000);
 
     int lines = 0;
     while (!m_input->atEnd()) {
         qint64 lastPos = m_input->pos();
         QByteArray line = m_input->readLine();
         if (lines > 0 && !m_finished && line.contains("<error>")) {
-            if ((m_crash || m_garbage || m_wait) && qrand() % 10 == 1) {
+            if ((m_crash || m_garbage || m_wait) && QRandomGenerator::global()->generate() % 10 == 1) {
                 produceRuntimeError();
                 m_timer.start();
                 return;

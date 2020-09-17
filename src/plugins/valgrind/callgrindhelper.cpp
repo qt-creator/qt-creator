@@ -29,6 +29,7 @@
 
 #include <QColor>
 #include <QMap>
+#include <QRandomGenerator>
 #include <QString>
 
 namespace Valgrind {
@@ -42,9 +43,10 @@ QColor CallgrindHelper::colorForString(const QString &text)
         return colorCache.value(text);
 
     // Minimum lightness of 100 to be readable with black text.
-    const QColor color = QColor::fromHsl(((qreal)qrand() / RAND_MAX * 359),
-                                         ((qreal)qrand() / RAND_MAX * 255),
-                                         ((qreal)qrand() / RAND_MAX * 127) + 128);
+    const QColor color = QColor::fromHsl(
+        ((qreal) QRandomGenerator::global()->generate() / RAND_MAX * 359),
+        ((qreal) QRandomGenerator::global()->generate() / RAND_MAX * 255),
+        ((qreal) QRandomGenerator::global()->generate() / RAND_MAX * 127) + 128);
     colorCache[text] = color;
     return color;
 }
