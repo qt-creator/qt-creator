@@ -360,8 +360,8 @@ BuildStepConfigWidget *MakeStep::createConfigWidget()
     builder.addRow(m_makeCommandAspect);
     builder.addRow(m_userArgumentsAspect);
     builder.addRow(m_jobCountContainer);
-    builder.startNewRow().addItems(disableInSubDirsLabel, disableInSubDirsCheckBox);
-    builder.startNewRow().addItems(targetsLabel, targetsList);
+    builder.addRow({disableInSubDirsLabel, disableInSubDirsCheckBox});
+    builder.addRow({targetsLabel, targetsList});
 
     if (!m_disablingForSubDirsSupported) {
         disableInSubDirsLabel->hide();

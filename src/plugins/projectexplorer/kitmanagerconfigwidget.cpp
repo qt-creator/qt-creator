@@ -78,7 +78,7 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
 
     LayoutBuilder builder(this, LayoutBuilder::GridLayout);
     QLabel *label = createLabel(tr("Name:"), tr("Kit name and icon."));
-    builder.startNewRow().addItems({label, 1, alignment}, m_nameEdit, m_iconButton);
+    builder.addRow({{label, 1, alignment}, m_nameEdit, m_iconButton});
 
     QString toolTip =
         tr("<html><head/><body><p>The name of the kit suitable for generating "
@@ -91,7 +91,7 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     m_fileSystemFriendlyNameLineEdit->setValidator(new QRegularExpressionValidator(fileSystemFriendlyNameRegexp, m_fileSystemFriendlyNameLineEdit));
 
     label = createLabel(tr("File system name:"), toolTip);
-    builder.startNewRow().addItems({label, 1, alignment}, m_fileSystemFriendlyNameLineEdit);
+    builder.addRow({{label, 1, alignment}, m_fileSystemFriendlyNameLineEdit});
     connect(m_fileSystemFriendlyNameLineEdit, &QLineEdit::textChanged,
             this, &KitManagerConfigWidget::setFileSystemFriendlyName);
 
@@ -244,7 +244,7 @@ void KitManagerConfigWidget::addAspectToWorkingCopy(KitAspect *aspect)
 
     QLabel *label = createLabel(name, toolTip);
     LayoutBuilder builder(layout());
-    builder.startNewRow().addItems({label, 1, alignment}, widget->mainWidget(), widget->buttonWidget());
+    builder.addRow({{label, 1, alignment}, widget->mainWidget(), widget->buttonWidget()});
     m_widgets.append(widget);
     m_labels.append(label);
 }

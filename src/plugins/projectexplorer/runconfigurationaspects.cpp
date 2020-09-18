@@ -69,7 +69,7 @@ void TerminalAspect::addToLayout(LayoutBuilder &builder)
     QTC_CHECK(!m_checkBox);
     m_checkBox = new QCheckBox(tr("Run in terminal"));
     m_checkBox->setChecked(m_useTerminal);
-    builder.addItems(QString(), m_checkBox.data());
+    builder.addItems({{}, m_checkBox.data()});
     connect(m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
         m_userSet = true;
         m_useTerminal = m_checkBox->isChecked();
@@ -169,7 +169,7 @@ void WorkingDirectoryAspect::addToLayout(LayoutBuilder &builder)
         m_chooser->setEnvironment(m_envAspect->environment());
     }
 
-    builder.addItems(tr("Working directory:"), m_chooser.data(), m_resetButton.data());
+    builder.addItems({tr("Working directory:"), m_chooser.data(), m_resetButton.data()});
 }
 
 void WorkingDirectoryAspect::acquaintSiblings(const BaseAspects &siblings)
@@ -478,7 +478,7 @@ void ExecutableAspect::addToLayout(LayoutBuilder &builder)
 {
     m_executable.addToLayout(builder);
     if (m_alternativeExecutable)
-        m_alternativeExecutable->addToLayout(builder.startNewRow());
+        m_alternativeExecutable->addToLayout(builder.finishRow());
 }
 
 void ExecutableAspect::setLabelText(const QString &labelText)

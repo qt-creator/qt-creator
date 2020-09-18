@@ -195,16 +195,13 @@ BuildStepConfigWidget *QbsInstallStep::createConfigWidget()
     commandLineTextEdit->setMinimumHeight(QFontMetrics(widget->font()).height() * 8);
 
     LayoutBuilder builder(widget);
-    builder.addItems(new QLabel(tr("Install root:")), installRootValueLabel);
-
-    builder.startNewRow();
-    builder.addItem(new QLabel(tr("Flags:")));
+    builder.addRow({tr("Install root:"), installRootValueLabel});
+    builder.addRow(tr("Flags:"));
     m_dryRun->addToLayout(builder);
     m_keepGoing->addToLayout(builder);
     m_cleanInstallRoot->addToLayout(builder);
 
-    builder.startNewRow();
-    builder.addItems(commandLineKeyLabel, commandLineTextEdit);
+    builder.addRow({commandLineKeyLabel, commandLineTextEdit});
 
     const auto updateState = [this, commandLineTextEdit, installRootValueLabel] {
         installRootValueLabel->setText(installRoot());

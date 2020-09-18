@@ -112,7 +112,7 @@ BuildStepConfigWidget *NimbleTaskStep::createConfigWidget()
 
     LayoutBuilder builder(widget);
     builder.addRow(m_taskArgs);
-    builder.startNewRow().addItems(tr("Tasks:"), taskList);
+    builder.addRow({tr("Tasks:"), taskList});
 
     auto buildSystem = dynamic_cast<NimbleBuildSystem *>(this->buildSystem());
     QTC_ASSERT(buildSystem, return widget);

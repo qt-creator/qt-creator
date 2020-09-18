@@ -414,7 +414,7 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
 
     if (d->m_checker && d->m_checkBoxPlacement == CheckBoxPlacement::Top) {
         d->m_checker->addToLayout(builder);
-        builder.startNewRow();
+        builder.finishRow();
     }
 
     d->m_label = new QLabel;
@@ -660,7 +660,7 @@ void SelectionAspect::addToLayout(LayoutBuilder &builder)
             auto button = new QRadioButton(option.displayName);
             button->setChecked(i == d->m_value);
             button->setToolTip(option.tooltip);
-            builder.addItems(QString(), button);
+            builder.addItems({{}, button});
             d->m_buttons.append(button);
             d->m_buttonGroup->addButton(button);
             connect(button, &QAbstractButton::clicked, this, [this, i] {
@@ -679,7 +679,7 @@ void SelectionAspect::addToLayout(LayoutBuilder &builder)
         connect(d->m_comboBox.data(), QOverload<int>::of(&QComboBox::activated), this,
                 [this](int index) { d->m_value = index; emit changed(); });
         d->m_comboBox->setCurrentIndex(d->m_value);
-        builder.addItems(d->m_label.data(), d->m_comboBox.data());
+        builder.addItems({d->m_label.data(), d->m_comboBox.data()});
         break;
     }
 }
@@ -779,7 +779,7 @@ void IntegerAspect::addToLayout(LayoutBuilder &builder)
         d->m_spinBox->setRange(int(d->m_minimumValue.toLongLong() / d->m_displayScaleFactor),
                                int(d->m_maximumValue.toLongLong() / d->m_displayScaleFactor));
 
-    builder.addItems(d->m_label.data(), d->m_spinBox.data());
+    builder.addItems({d->m_label.data(), d->m_spinBox.data()});
     connect(d->m_spinBox.data(), QOverload<int>::of(&QSpinBox::valueChanged),
             this, [this](int value) {
         d->m_value = value * d->m_displayScaleFactor;

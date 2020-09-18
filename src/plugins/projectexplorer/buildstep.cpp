@@ -161,7 +161,7 @@ BuildStepConfigWidget *BuildStep::createConfigWidget()
         LayoutBuilder builder(widget);
         for (BaseAspect *aspect : qAsConst(m_aspects)) {
             if (aspect->isVisible())
-                aspect->addToLayout(builder.startNewRow());
+                aspect->addToLayout(builder.finishRow());
         }
     }
 

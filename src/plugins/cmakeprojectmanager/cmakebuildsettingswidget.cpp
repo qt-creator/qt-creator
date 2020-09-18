@@ -109,7 +109,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     auto aspectWidget = new QWidget;
     LayoutBuilder aspectWidgetBuilder(aspectWidget);
     buildDirAspect->addToLayout(aspectWidgetBuilder);
-    aspectWidgetBuilder.startNewRow();
+    aspectWidgetBuilder.finishRow();
     initialCMakeAspect->addToLayout(aspectWidgetBuilder);
     mainLayout->addWidget(aspectWidget, row, 0, 1, -1);
     ++row;

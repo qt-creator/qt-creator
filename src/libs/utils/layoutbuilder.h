@@ -53,6 +53,7 @@ public:
     class LayoutItem
     {
     public:
+        LayoutItem() {} // For empty cells.
         LayoutItem(QLayout *layout, int span = 1) : layout(layout), span(span) {}
         LayoutItem(QWidget *widget, int span = 1, Qt::Alignment align = {})
             : widget(widget), span(span), align(align) {}
@@ -67,15 +68,12 @@ public:
         Qt::Alignment align;
     };
 
-    template<typename ...Items>
-    LayoutBuilder &addItems(LayoutItem first, Items... rest) {
-        return addItem(first).addItems(rest...);
-    }
-    LayoutBuilder &addItems() { return *this; }
-    LayoutBuilder &addItem(LayoutItem item);
+    LayoutBuilder &addItem(const LayoutItem &item);
+    LayoutBuilder &addItems(const QList<LayoutItem> &items);
 
-    LayoutBuilder &startNewRow();
+    LayoutBuilder &finishRow();
     LayoutBuilder &addRow(const LayoutItem &item);
+    LayoutBuilder &addRow(const QList<LayoutItem> &items);
 
     QLayout *layout() const;
 

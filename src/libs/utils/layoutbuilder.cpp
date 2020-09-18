@@ -64,7 +64,7 @@ LayoutBuilder::~LayoutBuilder()
         flushPendingFormItems();
 }
 
-LayoutBuilder &LayoutBuilder::startNewRow()
+LayoutBuilder &LayoutBuilder::finishRow()
 {
     if (m_formLayout)
         flushPendingFormItems();
@@ -79,9 +79,12 @@ LayoutBuilder &LayoutBuilder::startNewRow()
 
 LayoutBuilder &LayoutBuilder::addRow(const LayoutItem &item)
 {
-    startNewRow();
-    addItem(item);
-    return *this;
+    return finishRow().addItem(item);
+}
+
+LayoutBuilder &LayoutBuilder::addRow(const QList<LayoutBuilder::LayoutItem> &items)
+{
+    return finishRow().addItems(items);
 }
 
 void LayoutBuilder::flushPendingFormItems()
@@ -139,7 +142,7 @@ QLayout *LayoutBuilder::layout() const
     return m_gridLayout;
 }
 
-LayoutBuilder &LayoutBuilder::addItem(LayoutItem item)
+LayoutBuilder &LayoutBuilder::addItem(const LayoutItem &item)
 {
     if (item.widget && !item.widget->parent())
         item.widget->setParent(layout()->parentWidget());
@@ -155,6 +158,13 @@ LayoutBuilder &LayoutBuilder::addItem(LayoutItem item)
             m_pendingFormItems.append(item);
         }
     }
+    return *this;
+}
+
+LayoutBuilder &LayoutBuilder::addItems(const QList<LayoutBuilder::LayoutItem> &items)
+{
+    for (const LayoutItem &item : items)
+        addItem(item);
     return *this;
 }
 

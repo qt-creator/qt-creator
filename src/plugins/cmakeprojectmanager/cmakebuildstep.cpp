@@ -458,7 +458,7 @@ BuildStepConfigWidget *CMakeBuildStep::createConfigWidget()
     auto frame = ItemViewFind::createSearchableWrapper(buildTargetsView,
                                                        ItemViewFind::LightColored);
 
-    builder.startNewRow().addItems(tr("Targets:"), frame);
+    builder.addRow({new QLabel(tr("Targets:")), frame});
 
     updateDetails();
 

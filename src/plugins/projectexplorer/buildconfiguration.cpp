@@ -309,7 +309,7 @@ NamedWidget *BuildConfiguration::createConfigWidget()
     LayoutBuilder builder(widget);
     for (BaseAspect *aspect : aspects()) {
         if (aspect->isVisible())
-            aspect->addToLayout(builder.startNewRow());
+            aspect->addToLayout(builder.finishRow());
     }
 
     return named;

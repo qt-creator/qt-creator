@@ -84,7 +84,7 @@ void QmlMainFileAspect::addToLayout(Utils::LayoutBuilder &builder)
     connect(m_fileListCombo, QOverload<int>::of(&QComboBox::activated),
             this, &QmlMainFileAspect::setMainScript);
 
-    builder.addItems(tr("Main QML file:"), m_fileListCombo.data());
+    builder.addItems({tr("Main QML file:"), m_fileListCombo.data()});
 }
 
 void QmlMainFileAspect::toMap(QVariantMap &map) const

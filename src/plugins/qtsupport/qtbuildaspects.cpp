@@ -54,7 +54,7 @@ void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
     SelectionAspect::addToLayout(builder);
     const auto warningLabel = new Utils::InfoLabel({}, Utils::InfoLabel::Warning);
     warningLabel->setElideMode(Qt::ElideNone);
-    builder.startNewRow().addItems(QString(), warningLabel);
+    builder.addRow({{}, warningLabel});
     const auto changeHandler = [this, warningLabel] {
         QString warningText;
         const bool supported = m_kit && BaseQtVersion::isQmlDebuggingSupported(m_kit, &warningText);
@@ -86,7 +86,7 @@ void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
     SelectionAspect::addToLayout(builder);
     const auto warningLabel = new Utils::InfoLabel({}, Utils::InfoLabel::Warning);
     warningLabel->setElideMode(Qt::ElideNone);
-    builder.startNewRow().addItems(QString(), warningLabel);
+    builder.addRow({{}, warningLabel});
     const auto changeHandler = [this, warningLabel] {
         QString warningText;
         const bool supported = m_kit

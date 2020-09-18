@@ -319,7 +319,7 @@ void IosDeviceTypeAspect::addToLayout(LayoutBuilder &builder)
 
     m_deviceTypeLabel = new QLabel(IosRunConfiguration::tr("Device type:"));
 
-    builder.addItems(m_deviceTypeLabel, m_deviceTypeComboBox);
+    builder.addItems({m_deviceTypeLabel, m_deviceTypeComboBox});
 
     updateValues();
 

@@ -175,9 +175,9 @@ void CommandBuilderAspect::addToLayout(LayoutBuilder &builder)
     if (!d->m_loadedFromMap)
         d->tryToMigrate();
 
-    builder.startNewRow().addItems(d->label.data(), d->commandBuilder.data());
-    builder.startNewRow().addItems(tr("Make command:"), d->makePathChooser.data());
-    builder.startNewRow().addItems(tr("Make arguments:"), d->makeArgumentsLineEdit.data());
+    builder.addRow({d->label.data(), d->commandBuilder.data()});
+    builder.addRow({tr("Make command:"), d->makePathChooser.data()});
+    builder.addRow({tr("Make arguments:"), d->makeArgumentsLineEdit.data()});
 
     updateGui();
 }
