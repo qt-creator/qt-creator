@@ -38,6 +38,8 @@
 #include <coreplugin/icore.h>
 #include <toolbox.h>
 #include <utils/utilsicons.h>
+
+#include <QActionGroup>
 #include <QVBoxLayout>
 
 namespace QmlDesigner {

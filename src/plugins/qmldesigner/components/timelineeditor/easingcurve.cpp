@@ -67,8 +67,10 @@ void EasingCurve::registerStreamOperators()
 {
     qRegisterMetaType<QmlDesigner::EasingCurve>("QmlDesigner::EasingCurve");
     qRegisterMetaType<QmlDesigner::NamedEasingCurve>("QmlDesigner::NamedEasingCurve");
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     qRegisterMetaTypeStreamOperators<QmlDesigner::EasingCurve>("QmlDesigner::EasingCurve");
     qRegisterMetaTypeStreamOperators<QmlDesigner::NamedEasingCurve>("QmlDesigner::NamedEasingCurve");
+#endif
 }
 
 int EasingCurve::count() const
@@ -149,8 +151,7 @@ QString EasingCurve::toString() const
 bool EasingCurve::fromString(const QString &code)
 {
     if (code.startsWith(QLatin1Char('[')) && code.endsWith(QLatin1Char(']'))) {
-        const QStringRef cleanCode(&code, 1, code.size() - 2);
-        const auto stringList = cleanCode.split(QLatin1Char(','), Qt::SkipEmptyParts);
+        const auto stringList = code.mid(1, code.size() - 2).split(QLatin1Char(','), Qt::SkipEmptyParts);
 
         if (stringList.count() >= 6 && (stringList.count() % 6 == 0)) {
             bool checkX, checkY;

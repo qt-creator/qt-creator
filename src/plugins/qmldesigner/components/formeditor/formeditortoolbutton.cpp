@@ -32,6 +32,7 @@
 #include <utils/stylehelper.h>
 
 #include <QAction>
+#include <QCursor>
 
 namespace QmlDesigner {
 

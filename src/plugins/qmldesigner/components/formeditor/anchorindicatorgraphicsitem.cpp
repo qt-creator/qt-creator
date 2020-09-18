@@ -82,7 +82,7 @@ void AnchorIndicatorGraphicsItem::paint(QPainter *painter, const QStyleOptionGra
 
     qreal zoomFactor = 1;
     if (QGraphicsView* view = scene()->views().at(0))
-        zoomFactor = view->matrix().m11();
+        zoomFactor = view->transform().m11();
     qreal bumpSize = 8 / zoomFactor;
     QRectF bumpRectangle(0., 0., bumpSize, bumpSize);
 

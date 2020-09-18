@@ -28,8 +28,8 @@
 
 #include <abstractaction.h>
 
-#include <QtWidgets/qaction.h>
-#include <QtGui/qicon.h>
+#include <QAction>
+#include <QIcon>
 
 namespace QmlDesigner {
 

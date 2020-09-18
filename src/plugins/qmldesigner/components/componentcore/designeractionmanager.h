@@ -124,7 +124,7 @@ public:
     QList<AddResourceHandler> addResourceHandler() const;
     void registerAddResourceHandler(const AddResourceHandler &handler);
 
-    QHash<TypeName, ModelNodePreviewImageHandler> modelNodePreviewHandlers() const;
+    QMultiHash<TypeName, ModelNodePreviewImageHandler> modelNodePreviewHandlers() const;
     void registerModelNodePreviewHandler(const ModelNodePreviewImageHandler &handler);
     bool hasModelNodePreviewHandler(const ModelNode &node) const;
     ModelNodePreviewImageOperation modelNodePreviewOperation(const ModelNode &node) const;

@@ -29,17 +29,18 @@
 
 #include <functional>
 
-#include <QToolButton>
 #include <QAction>
+#include <QActionGroup>
+#include <QColorDialog>
+#include <QPainter>
+#include <QPointer>
+#include <QScopeGuard>
 #include <QStyle>
 #include <QStyleFactory>
-#include <QColorDialog>
-#include <QWidgetAction>
 #include <QTextTable>
-#include <QScopeGuard>
-#include <QPointer>
 #include <QTextTableFormat>
-#include <QPainter>
+#include <QToolButton>
+#include <QWidgetAction>
 
 #include <utils/stylehelper.h>
 
@@ -368,7 +369,8 @@ void RichTextEditor::setupHyperlinkActions()
         QTextCharFormat linkFormat = cursor.charFormat();
         if (linkFormat.isAnchor()) {
             m_linkDialog->setLink(linkFormat.anchorHref());
-            m_linkDialog->setAnchor(linkFormat.anchorName());
+            m_linkDialog->setAnchor(
+                linkFormat.anchorNames().isEmpty() ? QString() : linkFormat.anchorNames().first());
         }
         else {
             m_linkDialog->setLink("http://");
@@ -475,7 +477,7 @@ void RichTextEditor::setupFontActions()
         if (!w) return;
 
         w->setCurrentIndex(w->findText(ui->textEdit->currentCharFormat().font().family()));
-        connect(w, QOverload<const QString &>::of(&QComboBox::activated), [this](const QString &f) {
+        connect(w, &QComboBox::textActivated, [this](const QString &f) {
             QTextCharFormat fmt;
             fmt.setFontFamily(f);
             mergeFormatOnWordOrSelection(fmt);
@@ -495,7 +497,7 @@ void RichTextEditor::setupFontActions()
         foreach (int size, standardSizes)
             w->addItem(QString::number(size));
         w->setCurrentText(QString::number(ui->textEdit->currentCharFormat().font().pointSize()));
-        connect(w, QOverload<const QString &>::of(&QComboBox::activated), [this](const QString &p) {
+        connect(w, &QComboBox::textActivated, [this](const QString &p) {
             qreal pointSize = p.toDouble();
             if (pointSize > 0.0) {
                 QTextCharFormat fmt;

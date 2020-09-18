@@ -503,7 +503,7 @@ void SubComponentManager::update(const QUrl &filePath, const QList<Import> &impo
         }
 
         if (!newDir.filePath().isEmpty())
-            m_dirToQualifier.insertMulti(newDir.canonicalFilePath(), QString());
+            m_dirToQualifier.insert(newDir.canonicalFilePath(), QString());
     }
 
     //

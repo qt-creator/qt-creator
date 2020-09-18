@@ -50,7 +50,7 @@
 static Q_LOGGING_CATEGORY(itemlibraryPopulate, "qtc.itemlibrary.populate", QtWarningMsg)
 
 static bool inline registerItemLibrarySortedModel() {
-    qmlRegisterType<QmlDesigner::ItemLibrarySectionModel>();
+    qmlRegisterAnonymousType<QmlDesigner::ItemLibrarySectionModel>("ItemLibrarySectionModel", 1);
     return true;
 }
 
@@ -296,8 +296,8 @@ void ItemLibraryModel::clearSections()
 
 void ItemLibraryModel::registerQmlTypes()
 {
-    qmlRegisterType<QmlDesigner::ItemLibrarySectionModel>();
-    qmlRegisterType<QmlDesigner::ItemLibraryModel>();
+    qmlRegisterAnonymousType<QmlDesigner::ItemLibrarySectionModel>("ItemLibrarySectionModel", 1);
+    qmlRegisterAnonymousType<QmlDesigner::ItemLibraryModel>("ItemLibraryModel", 1);
 }
 
 ItemLibrarySection *ItemLibraryModel::sectionByName(const QString &sectionName)

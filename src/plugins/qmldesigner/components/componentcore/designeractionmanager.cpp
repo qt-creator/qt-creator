@@ -199,7 +199,7 @@ void DesignerActionManager::registerAddResourceHandler(const AddResourceHandler 
     m_addResourceHandler.append(handler);
 }
 
-QHash<TypeName, ModelNodePreviewImageHandler> DesignerActionManager::modelNodePreviewHandlers() const
+QMultiHash<TypeName, ModelNodePreviewImageHandler> DesignerActionManager::modelNodePreviewHandlers() const
 {
     return m_modelNodePreviewImageHandlers;
 }

@@ -62,12 +62,13 @@
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
+#include <QActionGroup>
+#include <QBoxLayout>
+#include <QComboBox>
+#include <QDir>
+#include <QLayout>
 #include <QSettings>
 #include <QToolBar>
-#include <QLayout>
-#include <QBoxLayout>
-#include <QDir>
-#include <QComboBox>
 
 #include <advanceddockingsystem/dockareawidget.h>
 #include <advanceddockingsystem/docksplitter.h>

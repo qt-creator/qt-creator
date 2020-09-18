@@ -30,6 +30,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QTimer>
+#include <QVariant>
 
 namespace QmlDesigner {
 

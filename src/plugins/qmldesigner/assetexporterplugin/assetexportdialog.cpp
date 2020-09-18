@@ -91,7 +91,7 @@ AssetExportDialog::AssetExportDialog(const Utils::FilePath &exportPath,
     m_ui->advancedOptions->setSummaryText(tr("Advanced Options"));
     m_ui->advancedOptions->setWidget(optionsWidget);
     auto optionsLayout = new QHBoxLayout(optionsWidget);
-    optionsLayout->setMargin(8);
+    optionsLayout->setContentsMargins(8, 8, 8, 8);
     m_exportAssetsCheck = new QCheckBox(tr("Export assets"), this);
     m_exportAssetsCheck->setChecked(true);
     optionsLayout->addWidget(m_exportAssetsCheck);
