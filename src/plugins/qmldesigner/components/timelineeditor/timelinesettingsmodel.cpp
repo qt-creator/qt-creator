@@ -95,6 +95,13 @@ TimelineEditorDelegate::TimelineEditorDelegate(QWidget *parent)
     setItemEditorFactory(factory);
 }
 
+QSpinBox *createSpinBox(QWidget *parent)
+{
+    auto spinBox = new QSpinBox(parent);
+    spinBox->setRange(-10000, 10000);
+    return spinBox;
+}
+
 QWidget *TimelineEditorDelegate::createEditor(QWidget *parent,
                                               const QStyleOptionViewItem &option,
                                               const QModelIndex &index) const
@@ -102,7 +109,7 @@ QWidget *TimelineEditorDelegate::createEditor(QWidget *parent,
     QWidget *widget = nullptr;
 
     if (index.column() ==  TimelineSettingsModel::FixedFrameRow)
-        widget = new QSpinBox(parent);
+        widget = createSpinBox(parent);
     else
         widget = QStyledItemDelegate::createEditor(parent, option, index);
 
