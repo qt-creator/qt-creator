@@ -49,7 +49,7 @@ static QString decode(const QString& original)
         const QRegularExpressionMatch match = it.next();
         const QString value = match.captured(1);
         if (value.startsWith('x'))
-            result.replace(match.captured(0), QChar(value.midRef(1).toInt(nullptr, 16)));
+            result.replace(match.captured(0), QChar(value.mid(1).toInt(nullptr, 16)));
         else
             result.replace(match.captured(0), QChar(value.toInt(nullptr, 10)));
     }
@@ -267,7 +267,7 @@ void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
         }
         case QXmlStreamReader::Characters: {
             m_expectTag = false;
-            QStringRef text = m_xmlReader.text().trimmed();
+            const QStringView text = m_xmlReader.text().trimmed();
             if (text.isEmpty())
                 break;
 
@@ -278,7 +278,7 @@ void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
             case Description:
                 if (!m_description.isEmpty())
                     m_description.append('\n');
-                m_description.append(text);
+                m_description.append(text.toString());
                 break;
             case QtVersion:
                 m_description = trQtVersion(text.toString());
@@ -299,7 +299,7 @@ void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
         case QXmlStreamReader::EndElement: {
             m_expectTag = true;
             m_cdataMode = None;
-            const QStringRef currentTag = m_xmlReader.name();
+            const QStringView currentTag = m_xmlReader.name();
             if (currentTag == QStringLiteral("TestFunction")) {
                 sendFinishMessage(true);
                 m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
@@ -434,7 +434,7 @@ void QtTestOutputReader::processResultOutput(const QString &result, const QStrin
     if (!description.isEmpty()) {
         if (!m_description.isEmpty())
             m_description.append('\n');
-        m_description.append(description.midRef(1)); // cut the first whitespace
+        m_description.append(description.mid(1)); // cut the first whitespace
     }
     m_formerTestCase = m_testCase;
 }

@@ -25,6 +25,7 @@
 
 #include "pastebindotcomprotocol.h"
 
+#include <utils/porting.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -149,7 +150,7 @@ void PasteBinDotComProtocol::fetch(const QString &id)
     QString link = QLatin1String(PASTEBIN_BASE) + QLatin1String(PASTEBIN_RAW);
 
     if (id.startsWith(QLatin1String("http://")))
-        link.append(id.midRef(id.lastIndexOf(QLatin1Char('/')) + 1));
+        link.append(id.mid(id.lastIndexOf(QLatin1Char('/')) + 1));
     else
         link.append(id);
 
@@ -227,7 +228,7 @@ QDebug operator<<(QDebug d, const QXmlStreamAttributes &al)
 
 static inline ParseState nextOpeningState(ParseState current, const QXmlStreamReader &reader)
 {
-    const QStringRef &element = reader.name();
+    const auto element = reader.name();
     switch (current) {
     case OutSideTable:
         // Trigger on main table only.
@@ -259,7 +260,7 @@ static inline ParseState nextOpeningState(ParseState current, const QXmlStreamRe
     return ParseError;
 }
 
-static inline ParseState nextClosingState(ParseState current, const QStringRef &element)
+static inline ParseState nextClosingState(ParseState current, const Utils::StringView &element)
 {
     switch (current) {
     case OutSideTable:

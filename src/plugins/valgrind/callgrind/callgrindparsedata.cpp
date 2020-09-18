@@ -182,9 +182,9 @@ QString ParseData::prettyStringForEvent(const QString &event)
         type = ParseData::Private::tr("Instruction");
     else if (event.at(0) == 'D')
         type = ParseData::Private::tr("Cache");
-    else if (event.leftRef(2) == "Bc")
+    else if (event.left(2) == "Bc")
         type = ParseData::Private::tr("Conditional branches");
-    else if (event.leftRef(2) == "Bi")
+    else if (event.left(2) == "Bi")
         type = ParseData::Private::tr("Indirect branches");
 
     QStringList prettyString;

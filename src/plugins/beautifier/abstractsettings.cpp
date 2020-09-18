@@ -333,13 +333,13 @@ void AbstractSettings::readDocumentation()
     QStringList keys;
     while (!(xml.atEnd() || xml.hasError())) {
         if (xml.readNext() == QXmlStreamReader::StartElement) {
-            const QStringRef &name = xml.name();
-            if (name == Constants::DOCUMENTATION_XMLENTRY) {
+            const QStringView &name = xml.name();
+            if (name == QLatin1String(Constants::DOCUMENTATION_XMLENTRY)) {
                 keys.clear();
-            } else if (name == Constants::DOCUMENTATION_XMLKEY) {
+            } else if (name == QLatin1String(Constants::DOCUMENTATION_XMLKEY)) {
                 if (xml.readNext() == QXmlStreamReader::Characters)
                     keys << xml.text().toString();
-            } else if (name == Constants::DOCUMENTATION_XMLDOC) {
+            } else if (name == QLatin1String(Constants::DOCUMENTATION_XMLDOC)) {
                 if (xml.readNext() == QXmlStreamReader::Characters) {
                     m_docu << xml.text().toString();
                     const int index = m_docu.size() - 1;

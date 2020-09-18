@@ -303,7 +303,7 @@ XWhat Parser::Private::parseXWhat()
         blockingReadNext();
         if (reader.isEndElement())
             break;
-        const QStringRef name = reader.name();
+        const auto name = reader.name();
         if (name == "text")
             what.text = blockingReadElementText();
         else if (name == "leakedbytes")
@@ -325,7 +325,7 @@ XauxWhat Parser::Private::parseXauxWhat()
         blockingReadNext();
         if (reader.isEndElement())
             break;
-        const QStringRef name = reader.name();
+        const auto name = reader.name();
         if (name == "text")
             what.text = blockingReadElementText();
         else if (name == "file")
@@ -433,7 +433,7 @@ void Parser::Private::parseError()
             break;
         if (reader.isStartElement())
             lastAuxWhat++;
-        const QStringRef name = reader.name();
+        const auto name = reader.name();
         if (name == "unique") {
             e.setUnique(parseHex(blockingReadElementText(), "unique"));
         } else if (name == "tid") {
@@ -504,7 +504,7 @@ Frame Parser::Private::parseFrame()
         if (reader.isEndElement())
             break;
         if (reader.isStartElement()) {
-            const QStringRef name = reader.name();
+            const auto name = reader.name();
             if (name == "ip")
                 frame.setInstructionPointer(parseHex(blockingReadElementText(), "error/frame/ip"));
             else if (name == "obj")
@@ -534,7 +534,7 @@ void Parser::Private::parseAnnounceThread()
         if (reader.isEndElement())
             break;
         if (reader.isStartElement()) {
-            const QStringRef name = reader.name();
+            const auto name = reader.name();
             if (name == "hthreadid")
                 at.setHelgrindThreadId(parseInt64(blockingReadElementText(), "announcethread/hthreadid"));
             else if (name == "stack")
@@ -562,7 +562,7 @@ void Parser::Private::parseErrorCounts()
                     if (reader.isEndElement())
                         break;
                     if (reader.isStartElement()) {
-                        const QStringRef name = reader.name();
+                        const auto name = reader.name();
                         if (name == "unique")
                             unique = parseHex(blockingReadElementText(), "errorcounts/pair/unique");
                         else if (name == "count")
@@ -595,7 +595,7 @@ void Parser::Private::parseSuppressionCounts()
                     if (reader.isEndElement())
                         break;
                     if (reader.isStartElement()) {
-                        const QStringRef name = reader.name();
+                        const auto name = reader.name();
                         if (name == "name")
                             pairName = blockingReadElementText();
                         else if (name == "count")
@@ -621,7 +621,7 @@ void Parser::Private::parseStatus()
         if (reader.isEndElement())
             break;
         if (reader.isStartElement()) {
-            const QStringRef name = reader.name();
+            const auto name = reader.name();
             if (name == "state")
                 s.setState(parseState(blockingReadElementText()));
             else if (name == "time")
@@ -659,7 +659,7 @@ SuppressionFrame Parser::Private::parseSuppressionFrame()
         if (reader.isEndElement())
             break;
         if (reader.isStartElement()) {
-            const QStringRef name = reader.name();
+            const auto name = reader.name();
             if (name == "obj")
                 frame.setObject(blockingReadElementText());
             else if (name == "fun")
@@ -681,7 +681,7 @@ Suppression Parser::Private::parseSuppression()
         if (reader.isEndElement())
             break;
         if (reader.isStartElement()) {
-            const QStringRef name = reader.name();
+            const auto name = reader.name();
             if (name == "sname")
                 supp.setName(blockingReadElementText());
             else if (name == "skind")
@@ -707,7 +707,7 @@ void Parser::Private::parse(QIODevice *device)
     try {
         while (notAtEnd()) {
             blockingReadNext();
-            QStringRef name = reader.name();
+            const auto name = reader.name();
             if (name == "error")
                 parseError();
             else if (name == "announcethread")

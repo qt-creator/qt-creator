@@ -27,8 +27,11 @@
 #include "glsleditor.h"
 #include <glsl/glsllexer.h>
 #include <glsl/glslparser.h>
+
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/textdocument.h>
+
+#include <utils/porting.h>
 
 #include <QDebug>
 
@@ -151,7 +154,8 @@ void GlslHighlighter::highlightBlock(const QString &text)
             highlightLine(text, tk.begin(), tk.length, formatForCategory(C_PREPROCESSOR));
             highlightAsPreprocessor = true;
 
-        } else if (highlightCurrentWordAsPreprocessor && isPPKeyword(text.midRef(tk.begin(), tk.length))) {
+        } else if (highlightCurrentWordAsPreprocessor
+                   && isPPKeyword(Utils::midView(text, tk.begin(), tk.length))) {
             setFormat(tk.begin(), tk.length, formatForCategory(C_PREPROCESSOR));
 
         } else if (tk.is(GLSL::Parser::T_NUMBER)) {
@@ -256,7 +260,7 @@ void GlslHighlighter::highlightLine(const QString &text, int position, int lengt
     }
 }
 
-bool GlslHighlighter::isPPKeyword(const QStringRef &text) const
+bool GlslHighlighter::isPPKeyword(const QStringView &text) const
 {
     switch (text.length())
     {

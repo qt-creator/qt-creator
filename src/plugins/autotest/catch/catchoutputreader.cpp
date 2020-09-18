@@ -133,14 +133,14 @@ void CatchOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
             break;
         }
         case QXmlStreamReader::Characters: {
-            const QStringRef text = m_xmlReader.text();
+            const auto text = m_xmlReader.text();
             if (m_currentTagName == CatchXml::ExpandedElement) {
                 m_currentExpression.append(text);
             }
             break;
         }
         case QXmlStreamReader::EndElement: {
-            const QStringRef currentTag = m_xmlReader.name();
+            const auto currentTag = m_xmlReader.name();
 
             if (currentTag == CatchXml::SectionElement) {
                 sendResult(ResultType::TestEnd);

@@ -101,7 +101,7 @@ static bool parse(const QString &fileName,
     QXmlStreamReader reader(&file);
     while (!reader.atEnd()) {
         if (reader.readNext() == QXmlStreamReader::StartElement) {
-            const QStringRef elementName = reader.name();
+            const auto elementName = reader.name();
             // Check start element
             if (elementCount == 0 && elementName != QLatin1String(pasterElementC)) {
                 *errorMessage = FileShareProtocol::tr("%1 does not appear to be a paster file.").arg(fileName);

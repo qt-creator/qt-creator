@@ -109,13 +109,13 @@ bool NimIndenter::startsBlock(const QString &line, int state) const
 
     // electric characters start a new block, and are operators
     if (previous.type == NimLexer::TokenType::Operator) {
-        QStringRef ref = line.midRef(previous.begin, previous.length);
+        QStringView ref = QStringView(line).mid(previous.begin, previous.length);
         return ref.isEmpty() ? false : electricCharacters().contains(ref.at(0));
     }
 
     // some keywords starts a new block
     if (previous.type == NimLexer::TokenType::Keyword) {
-        QStringRef ref = line.midRef(previous.begin, previous.length);
+        QStringView ref = QStringView(line).mid(previous.begin, previous.length);
         return ref == QLatin1String("type")
                || ref == QLatin1String("var")
                || ref == QLatin1String("let")
@@ -140,7 +140,7 @@ bool NimIndenter::endsBlock(const QString &line, int state) const
 
     // Some keywords end a block
     if (previous.type == NimLexer::TokenType::Keyword) {
-        QStringRef ref = line.midRef(previous.begin, previous.length);
+        QStringView ref = QStringView(line).mid(previous.begin, previous.length);
         return ref == QLatin1String("return")
                || ref == QLatin1String("break")
                || ref == QLatin1String("continue");

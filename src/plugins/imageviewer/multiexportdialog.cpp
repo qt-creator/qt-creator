@@ -54,7 +54,7 @@ static const int standardIconSizesValues[] = {16, 24, 32, 48, 64, 128, 256};
 
 // Helpers to convert a size specifications from QString to QSize
 // and vv. The format is '2x4' or '4' as shortcut for '4x4'.
-static QSize sizeFromString(const QStringRef &r)
+static QSize sizeFromString(const QString &r)
 {
     if (r.isEmpty())
         return {};
@@ -104,9 +104,9 @@ static QVector<QSize> stringToSizes(const QString &s)
 {
     QVector<QSize> result;
     const QString trimmed = s.trimmed();
-    const QVector<QStringRef> &sizes = trimmed.splitRef(',', Qt::SkipEmptyParts);
+    const QStringList &sizes = trimmed.split(',', Qt::SkipEmptyParts);
     result.reserve(sizes.size());
-    for (const QStringRef &sizeSpec : sizes) {
+    for (const QString &sizeSpec : sizes) {
         const QSize size = sizeFromString(sizeSpec);
         if (!size.isValid() || size.isEmpty())
             return {};
