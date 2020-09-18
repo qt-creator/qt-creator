@@ -1,0 +1,17 @@
+---
+MainSourceFile:  'FILE_PATH'
+Diagnostics:
+  - DiagnosticName:  clazy-qgetenv
+    Message:         'qgetenv().isEmpty() allocates. Use qEnvironmentVariableIsEmpty() instead'
+    FileOffset:      156
+    FilePath:        'FILE_PATH'
+    Replacements:
+      - FilePath:        'FILE_PATH'
+        Offset:          156
+        Length:          7
+        ReplacementText: qEnvironmentVariableIsEmpty
+      - FilePath:        'FILE_PATH'
+        Offset:          169
+        Length:          11
+        ReplacementText: ')'
+...

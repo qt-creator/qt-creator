@@ -1,0 +1,14 @@
+---
+MainSourceFile:  'FILE_PATH'
+Diagnostics:
+  - DiagnosticName:  modernize-use-nullptr
+    DiagnosticMessage:
+      Message:         use nullptr
+      FilePath:        'FILE_PATH'
+      FileOffset:      151
+      Replacements:
+        - FilePath:        'FILE_PATH'
+          Offset:          151
+          Length:          1
+          ReplacementText: nullptr
+...
