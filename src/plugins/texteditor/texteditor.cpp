@@ -4724,8 +4724,7 @@ void TextEditorWidgetPrivate::setupSelections(const PaintEventData &data,
                 const QTextCharFormat selectionFormat = data.fontSettings.toTextCharFormat(C_SELECTION);
                 if (selectionFormat.background().style() != Qt::NoBrush)
                     o.format.setBackground(selectionFormat.background());
-                if (selectionFormat.foreground().style() != Qt::NoBrush)
-                    o.format.setForeground(selectionFormat.foreground());
+                o.format.setForeground(selectionFormat.foreground());
             }
             if ((data.textCursor.hasSelection() && i == data.context.selections.size() - 1)
                 || (o.format.foreground().style() == Qt::NoBrush
