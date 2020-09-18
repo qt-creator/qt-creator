@@ -3,9 +3,9 @@
 # TODO: Make Qt5::Gui optional -- if really needed that is.
 
 add_qtc_library(CPlusPlus
-  DEPENDS Utils
+  DEPENDS Utils Qt5::Concurrent
   DEFINES CPLUSPLUS_BUILD_LIB
-  PUBLIC_DEPENDS 3rd_cplusplus Qt5::Concurrent Qt5::Gui
+  PUBLIC_DEPENDS 3rd_cplusplus Qt5::Gui
   PUBLIC_INCLUDES src/libs/3rdparty
   SOURCES
     ASTParent.cpp ASTParent.h
