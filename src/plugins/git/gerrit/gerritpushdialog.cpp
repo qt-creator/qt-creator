@@ -117,7 +117,7 @@ void GerritPushDialog::initRemoteBranches()
             continue;
         const QString ref = entries.at(0).mid(remotesPrefix.size());
         int refBranchIndex = ref.indexOf('/');
-        qint64 timeT = entries.at(1).leftRef(entries.at(1).indexOf(' ')).toLongLong();
+        qint64 timeT = entries.at(1).left(entries.at(1).indexOf(' ')).toLongLong();
         BranchDate bd(ref.mid(refBranchIndex + 1), QDateTime::fromSecsSinceEpoch(timeT).date());
         m_remoteBranches.insertMulti(ref.left(refBranchIndex), bd);
     }

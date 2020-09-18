@@ -186,8 +186,8 @@ static QString sanitizeBlameOutput(const QString &b)
     forever {
         QTC_CHECK(prevPos < pos);
         int afterParen = prevPos + parenPos;
-        result.append(b.midRef(prevPos, stripPos));
-        result.append(b.midRef(afterParen, pos - afterParen));
+        result.append(b.mid(prevPos, stripPos));
+        result.append(b.mid(afterParen, pos - afterParen));
         prevPos = pos;
         QTC_CHECK(prevPos != 0);
         if (pos == b.size())

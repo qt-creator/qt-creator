@@ -1304,7 +1304,7 @@ void ClearCasePluginPrivate::diffActivity()
             // pre-first version. only for the first occurrence
             if (filever[file].first.isEmpty()) {
                 int verpos = shortver.lastIndexOf(QRegularExpression("[^0-9]")) + 1;
-                int vernum = shortver.midRef(verpos).toInt();
+                int vernum = shortver.mid(verpos).toInt();
                 if (vernum)
                     --vernum;
                 shortver.replace(verpos, shortver.length() - verpos, QString::number(vernum));

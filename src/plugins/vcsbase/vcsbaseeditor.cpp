@@ -31,19 +31,20 @@
 #include "vcsbaseeditorconfig.h"
 #include "vcscommand.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/vcsmanager.h>
-#include <coreplugin/patchtool.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/patchtool.h>
+#include <coreplugin/vcsmanager.h>
 #include <cpaster/codepasterservice.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/editorconfiguration.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
+#include <utils/porting.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
 
@@ -1564,8 +1565,8 @@ void VcsBaseEditorWidget::addChangeActions(QMenu *, const QString &)
 QSet<QString> VcsBaseEditorWidget::annotationChanges() const
 {
     QSet<QString> changes;
-    QString text = toPlainText();
-    QStringRef txt(&text);
+    const QString text = toPlainText();
+    StringView txt = make_stringview(text);
     if (txt.isEmpty())
         return changes;
     if (!d->m_annotationSeparatorPattern.pattern().isEmpty()) {

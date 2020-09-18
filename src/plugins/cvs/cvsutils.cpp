@@ -222,7 +222,7 @@ QString previousRevision(const QString &rev)
     const int dotPos = rev.lastIndexOf(QLatin1Char('.'));
     if (dotPos == -1)
         return rev;
-    const int minor = rev.midRef(dotPos + 1).toInt();
+    const int minor = rev.mid(dotPos + 1).toInt();
     return rev.left(dotPos + 1) + QString::number(minor - 1);
 }
 

@@ -784,7 +784,7 @@ void BranchModel::Private::parseOutputLine(const QString &line, bool force)
     if (strDateTime.isEmpty())
         strDateTime = lineParts.at(4);
     if (!strDateTime.isEmpty()) {
-        const qint64 timeT = strDateTime.leftRef(strDateTime.indexOf(' ')).toLongLong();
+        const qint64 timeT = strDateTime.left(strDateTime.indexOf(' ')).toLongLong();
         dateTime = QDateTime::fromSecsSinceEpoch(timeT);
     }
 

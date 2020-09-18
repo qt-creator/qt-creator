@@ -108,7 +108,7 @@ public:
             filePath.remove(0, m_ref.length());
         single.fileName = m_directory + '/' + filePath;
         const int textSeparator = line.indexOf(QChar::Null, lineSeparator + 1);
-        single.lineNumber = line.midRef(lineSeparator + 1, textSeparator - lineSeparator - 1).toInt();
+        single.lineNumber = line.mid(lineSeparator + 1, textSeparator - lineSeparator - 1).toInt();
         QString text = line.mid(textSeparator + 1);
         QRegularExpression regexp;
         QVector<Match> matches;
@@ -128,11 +128,11 @@ public:
             QTC_ASSERT(matchEnd != -1, break);
             const int matchLength = matchEnd - matchTextStart;
             Match match(matchStart, matchLength);
-            const QStringRef matchText = text.midRef(matchTextStart, matchLength);
+            const QString matchText = text.mid(matchTextStart, matchLength);
             if (m_parameters.flags & FindRegularExpression)
                 match.regexpCapturedTexts = regexp.match(matchText).capturedTexts();
             matches.append(match);
-            text = text.leftRef(matchStart) + matchText + text.midRef(matchEnd + resetColor.size());
+            text = text.left(matchStart) + matchText + text.mid(matchEnd + resetColor.size());
         }
         single.matchingLine = text;
 
