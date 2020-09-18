@@ -959,7 +959,7 @@ int extractVersion(const QString &string)
     int index = string.indexOf(QLatin1Char(':'));
     if (index == -1)
         return 0;
-    return string.midRef(4, index - 4).toInt();
+    return string.mid(4, index - 4).toInt();
 }
 
 void AndroidManifestEditorWidget::syncToEditor()

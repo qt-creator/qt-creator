@@ -25,6 +25,8 @@
 
 #include "expanddata.h"
 
+#include <QVariant>
+
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 

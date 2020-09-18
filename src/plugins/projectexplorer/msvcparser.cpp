@@ -51,7 +51,7 @@ static QPair<FilePath, int> parseFileName(const QString &input)
             if (endPos < 0)
                 endPos = fileName.size() - 1;
             bool ok = false;
-            const int n = fileName.midRef(pos + 1, endPos - pos - 1).toInt(&ok);
+            const int n = fileName.mid(pos + 1, endPos - pos - 1).toInt(&ok);
             if (ok) {
                 fileName = fileName.left(pos);
                 linenumber = n;

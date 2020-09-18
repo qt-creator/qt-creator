@@ -168,11 +168,11 @@ public:
     static QString toString(const BinaryFormat &bf);
     static QString toString(int w);
 
-    static Architecture architectureFromString(const QStringRef &a);
-    static OS osFromString(const QStringRef &o);
-    static OSFlavor osFlavorFromString(const QStringRef &of, const OS os);
-    static BinaryFormat binaryFormatFromString(const QStringRef &bf);
-    static unsigned char wordWidthFromString(const QStringRef &w);
+    static Architecture architectureFromString(const QString &a);
+    static OS osFromString(const QString &o);
+    static OSFlavor osFlavorFromString(const QString &of, const OS os);
+    static BinaryFormat binaryFormatFromString(const QString &bf);
+    static unsigned char wordWidthFromString(const QString &w);
 
     static OSFlavor registerOsFlavor(const std::vector<OS> &oses, const QString &flavorName);
     static QList<OSFlavor> flavorsForOs(const OS &o);

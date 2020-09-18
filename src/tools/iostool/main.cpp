@@ -521,7 +521,6 @@ IosTool::IosTool(QObject *parent):
 {
     outFile.open(stdout, QIODevice::WriteOnly, QFileDevice::DontCloseHandle);
     out.setAutoFormatting(true);
-    out.setCodec("UTF-8");
 }
 
 IosTool::~IosTool()

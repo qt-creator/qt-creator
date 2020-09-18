@@ -630,8 +630,8 @@ static QString extractVersion(const QString &toolsFile, const QString &section)
         switch (state) {
         case Enter:
             if (hasSection) {
-                const auto content = line.midRef(firstBracket + 1,
-                                                 lastBracket - firstBracket - 1);
+                const auto content = QStringView(line).mid(firstBracket + 1,
+                                                           lastBracket - firstBracket - 1);
                 if (content == section)
                     state = Lookup;
             }

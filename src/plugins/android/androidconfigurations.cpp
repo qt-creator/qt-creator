@@ -367,7 +367,7 @@ QVector<int> AndroidConfig::availableNdkPlatforms(const BaseQtVersion *qtVersion
     while (it.hasNext()) {
         const QString &fileName = it.next();
         availableNdkPlatforms.push_back(
-            fileName.midRef(fileName.lastIndexOf(QLatin1Char('-')) + 1).toInt());
+            fileName.mid(fileName.lastIndexOf(QLatin1Char('-')) + 1).toInt());
     }
     Utils::sort(availableNdkPlatforms, std::greater<>());
 
@@ -648,7 +648,7 @@ QString AndroidConfig::getAvdName(const QString &serialnumber)
     if (index == -1)
         return QString();
     bool ok;
-    int port = serialnumber.midRef(index + 1).toInt(&ok);
+    int port = serialnumber.mid(index + 1).toInt(&ok);
     if (!ok)
         return QString();
 

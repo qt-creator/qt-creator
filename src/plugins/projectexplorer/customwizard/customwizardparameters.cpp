@@ -247,7 +247,7 @@ static inline bool assignLanguageElementText(QXmlStreamReader &reader,
                                              const QString &desiredLanguage,
                                              QString *target)
 {
-    const QStringRef elementLanguage = reader.attributes().value(QLatin1String(langAttributeC));
+    const auto elementLanguage = reader.attributes().value(QLatin1String(langAttributeC));
     if (elementLanguage.isEmpty()) {
         // Try to find a translation for our built-in Wizards
         *target = QCoreApplication::translate("ProjectExplorer::CustomWizard", reader.readElementText().toLatin1().constData());
@@ -268,7 +268,7 @@ static bool parseCustomProjectElement(QXmlStreamReader &reader,
                                       const QString &language,
                                       CustomWizardParameters *p)
 {
-    const QStringRef elementName = reader.name();
+    const auto elementName = reader.name();
     if (elementName == QLatin1String(iconElementC)) {
         const QString path = reader.readElementText();
         const QIcon icon = wizardIcon(configFileFullPath, path);
@@ -308,7 +308,7 @@ static inline QMap<QString, QString> attributesToStringMap(const QXmlStreamAttri
 }
 
 // Switch parser state depending on opening element name.
-static ParseState nextOpeningState(ParseState in, const QStringRef &name)
+static ParseState nextOpeningState(ParseState in, const QStringView &name)
 {
     switch (in) {
     case ParseBeginning:
@@ -375,7 +375,7 @@ static ParseState nextOpeningState(ParseState in, const QStringRef &name)
 }
 
 // Switch parser state depending on closing element name.
-static ParseState nextClosingState(ParseState in, const QStringRef &name)
+static ParseState nextClosingState(ParseState in, const QStringView &name)
 {
     switch (in) {
     case ParseBeginning:
@@ -443,7 +443,7 @@ static ParseState nextClosingState(ParseState in, const QStringRef &name)
 // Parse kind attribute
 static inline IWizardFactory::WizardKind kindAttribute(const QXmlStreamReader &r)
 {
-    const QStringRef value = r.attributes().value(QLatin1String(kindAttributeC));
+    const auto value = r.attributes().value(QLatin1String(kindAttributeC));
     if (value == QLatin1String("file") || value == QLatin1String("class"))
         return IWizardFactory::FileWizard;
     return IWizardFactory::ProjectWizard;
@@ -462,7 +462,7 @@ static inline QSet<Id> readRequiredFeatures(const QXmlStreamReader &reader)
 static inline IWizardFactory::WizardFlags wizardFlags(const QXmlStreamReader &reader)
 {
     IWizardFactory::WizardFlags flags;
-    const QStringRef value = reader.attributes().value(QLatin1String(platformIndependentC));
+    const auto value = reader.attributes().value(QLatin1String(platformIndependentC));
 
     if (!value.isEmpty() && value == QLatin1String("true"))
         flags |= IWizardFactory::PlatformIndependent;
@@ -481,7 +481,7 @@ static inline QString msgError(const QXmlStreamReader &reader,
 static inline bool booleanAttributeValue(const QXmlStreamReader &r, const char *nameC,
                                          bool defaultValue)
 {
-    const QStringRef attributeValue = r.attributes().value(QLatin1String(nameC));
+    const auto attributeValue = r.attributes().value(QLatin1String(nameC));
     if (attributeValue.isEmpty())
         return defaultValue;
     return attributeValue == QLatin1String("true");
@@ -489,7 +489,7 @@ static inline bool booleanAttributeValue(const QXmlStreamReader &r, const char *
 
 static inline int integerAttributeValue(const QXmlStreamReader &r, const char *name, int defaultValue)
 {
-    const QStringRef sValue = r.attributes().value(QLatin1String(name));
+    const auto sValue = r.attributes().value(QLatin1String(name));
     if (sValue.isEmpty())
         return defaultValue;
     bool ok;

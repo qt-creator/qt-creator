@@ -84,7 +84,7 @@ void CMakeTargetLocatorFilter::prepareSearch(const QString &entry)
 
                 Core::LocatorFilterEntry filterEntry(this, target.title, extraData);
                 filterEntry.extraInfo = path.shortNativePath();
-                filterEntry.highlightInfo = {index, entry.length()};
+                filterEntry.highlightInfo = {index, int(entry.length())};
                 filterEntry.fileName = path.toString();
 
                 m_result.append(filterEntry);

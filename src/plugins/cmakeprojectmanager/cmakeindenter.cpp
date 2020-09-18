@@ -85,7 +85,7 @@ static bool lineIsEmpty(const QString &line)
 
 static int paranthesesLevel(const QString &line)
 {
-    const QStringRef beforeComment = line.midRef(0, line.indexOf(QLatin1Char('#')));
+    const QString beforeComment = line.mid(0, line.indexOf(QLatin1Char('#')));
     const int opening = beforeComment.count(QLatin1Char('('));
     const int closing = beforeComment.count(QLatin1Char(')'));
     if (opening == closing)

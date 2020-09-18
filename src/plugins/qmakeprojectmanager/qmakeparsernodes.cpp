@@ -782,7 +782,10 @@ QPair<ProFile *, QStringList> QmakePriFile::readProFile()
         QMakeVfs vfs;
         QtSupport::ProMessageHandler handler;
         QMakeParser parser(nullptr, &vfs, &handler);
-        includeFile = parser.parsedProBlock(QStringRef(&contents), 0, filePath().toString(), 1);
+        includeFile = parser.parsedProBlock(Utils::make_stringview(contents),
+                                            0,
+                                            filePath().toString(),
+                                            1);
     }
     return qMakePair(includeFile, lines);
 }
@@ -828,13 +831,11 @@ bool QmakePriFile::renameFile(const QString &oldName, const QString &newName, Ch
 
         // Reparse necessary due to changed contents.
         QMakeParser parser(nullptr, nullptr, nullptr);
-        ProFile * const proFile = parser.parsedProBlock(
-                    QStringRef(&currentContents),
-                    0,
-                    filePath().toString(),
-                    1,
-                    QMakeParser::FullGrammar
-                    );
+        ProFile *const proFile = parser.parsedProBlock(Utils::make_stringview(currentContents),
+                                                       0,
+                                                       filePath().toString(),
+                                                       1,
+                                                       QMakeParser::FullGrammar);
         QTC_ASSERT(proFile, return); // The file should still be valid after what we did.
 
         ProWriter::addFiles(proFile, &currentLines, {newName}, loc.first, continuationIndent());

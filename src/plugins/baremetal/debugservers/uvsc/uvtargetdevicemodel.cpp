@@ -248,7 +248,7 @@ void DeviceSelectionModel::parsePackage(const QString &packageFile)
         return;
     QXmlStreamReader in(&f);
     while (in.readNextStartElement()) {
-        const QStringRef elementName = in.name();
+        const auto elementName = in.name();
         if (elementName == "package")
             parsePackage(in, packageFile);
         else
@@ -264,7 +264,7 @@ void DeviceSelectionModel::parsePackage(QXmlStreamReader &in, const QString &pac
     child->fullPath = packageFile;
     child->version = extractPackVersion(packageFile);
     while (in.readNextStartElement()) {
-        const QStringRef elementName = in.name();
+        const auto elementName = in.name();
         if (elementName == "name") {
             fillElementProperty(in, child->name);
         } else if (elementName == "description") {
@@ -275,7 +275,7 @@ void DeviceSelectionModel::parsePackage(QXmlStreamReader &in, const QString &pac
             fillElementProperty(in, child->url);
         } else if (elementName == "devices") {
             while (in.readNextStartElement()) {
-                const QStringRef elementName = in.name();
+                const auto elementName = in.name();
                 if (elementName == "family")
                     parseFamily(in, child);
                 else
@@ -296,7 +296,7 @@ void DeviceSelectionModel::parseFamily(QXmlStreamReader &in, DeviceSelectionItem
     child->name = attrs.value("Dfamily").toString();
     fillVendor(attrs.value("Dvendor").toString(), child->vendorName, child->vendorId);
     while (in.readNextStartElement()) {
-        const QStringRef elementName = in.name();
+        const auto elementName = in.name();
         if (elementName == "processor") {
             fillCpu(in, child->cpu);
         } else if (elementName == "algorithm") {
@@ -323,7 +323,7 @@ void DeviceSelectionModel::parseSubFamily(QXmlStreamReader &in, DeviceSelectionI
     const QXmlStreamAttributes attrs = in.attributes();
     child->name = attrs.value("DsubFamily").toString();
     while (in.readNextStartElement()) {
-        const QStringRef elementName = in.name();
+        const auto elementName = in.name();
         if (elementName == "processor") {
             fillCpu(in, child->cpu);
         } else if (elementName == "debug") {
@@ -344,7 +344,7 @@ void DeviceSelectionModel::parseDevice(QXmlStreamReader &in, DeviceSelectionItem
     const QXmlStreamAttributes attrs = in.attributes();
     child->name = attrs.value("Dname").toString();
     while (in.readNextStartElement()) {
-        const QStringRef elementName = in.name();
+        const auto elementName = in.name();
         if (elementName == "processor") {
             fillCpu(in, child->cpu);
         } else if (elementName == "debug") {
@@ -371,7 +371,7 @@ void DeviceSelectionModel::parseDeviceVariant(QXmlStreamReader &in, DeviceSelect
     const QXmlStreamAttributes attrs = in.attributes();
     child->name = attrs.value("Dvariant").toString();
     while (in.readNextStartElement()) {
-        const QStringRef elementName = in.name();
+        const auto elementName = in.name();
         if (elementName == "processor") {
             fillCpu(in, child->cpu);
         } else if (elementName == "memory") {

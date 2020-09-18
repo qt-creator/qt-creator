@@ -455,7 +455,7 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
     if (machine.isEmpty())
         return Abi();
 
-    const QVector<QStringRef> parts = machine.splitRef(QRegularExpression("[ /-]"));
+    const QStringList parts = machine.split(QRegularExpression("[ /-]"));
 
     Architecture arch = UnknownArchitecture;
     OS os = UnknownOS;
@@ -464,7 +464,7 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
     unsigned char width = 0;
     int unknownCount = 0;
 
-    for (const QStringRef &p : parts) {
+    for (const QString &p : parts) {
         if (p == "unknown" || p == "pc"
                 || p == "gnu" || p == "uclibc"
                 || p == "86_64" || p == "redhat"
@@ -881,7 +881,7 @@ QString Abi::toString(int w)
 Abi Abi::fromString(const QString &abiString)
 {
     Abi::Architecture architecture = UnknownArchitecture;
-    const QVector<QStringRef> abiParts = abiString.splitRef('-');
+    const QStringList abiParts = abiString.split('-');
     if (!abiParts.isEmpty()) {
         architecture = architectureFromString(abiParts.at(0));
         if (abiParts.at(0) != toString(architecture))
@@ -919,7 +919,7 @@ Abi Abi::fromString(const QString &abiString)
     return Abi(architecture, os, flavor, format, wordWidth);
 }
 
-Abi::Architecture Abi::architectureFromString(const QStringRef &a)
+Abi::Architecture Abi::architectureFromString(const QString &a)
 {
     if (a == "unknown")
         return UnknownArchitecture;
@@ -983,7 +983,7 @@ Abi::Architecture Abi::architectureFromString(const QStringRef &a)
     return UnknownArchitecture;
 }
 
-Abi::OS Abi::osFromString(const QStringRef &o)
+Abi::OS Abi::osFromString(const QString &o)
 {
     if (o == "unknown")
         return UnknownOS;
@@ -1006,7 +1006,7 @@ Abi::OS Abi::osFromString(const QStringRef &o)
     return UnknownOS;
 }
 
-Abi::OSFlavor Abi::osFlavorFromString(const QStringRef &of, const OS os)
+Abi::OSFlavor Abi::osFlavorFromString(const QString &of, const OS os)
 {
     const int index = indexOfFlavor(of.toUtf8());
     const auto flavor = OSFlavor(index);
@@ -1015,7 +1015,7 @@ Abi::OSFlavor Abi::osFlavorFromString(const QStringRef &of, const OS os)
     return UnknownFlavor;
 }
 
-Abi::BinaryFormat Abi::binaryFormatFromString(const QStringRef &bf)
+Abi::BinaryFormat Abi::binaryFormatFromString(const QString &bf)
 {
     if (bf == "unknown")
         return UnknownFormat;
@@ -1036,13 +1036,13 @@ Abi::BinaryFormat Abi::binaryFormatFromString(const QStringRef &bf)
     return UnknownFormat;
 }
 
-unsigned char Abi::wordWidthFromString(const QStringRef &w)
+unsigned char Abi::wordWidthFromString(const QString &w)
 {
     if (!w.endsWith("bit"))
         return 0;
 
     bool ok = false;
-    const QStringRef number = w.string()->midRef(w.position(), w.count() - 3);
+    const QString number = w.left(w.size() - 3);
     const int bitCount = number.toInt(&ok);
     if (!ok)
         return 0;
@@ -1187,7 +1187,7 @@ Abis Abi::abisOfBinary(const Utils::FilePath &path)
             const QString fileName = QString::fromLocal8Bit(data.mid(0, 16));
             quint64 fileNameOffset = 0;
             if (fileName.startsWith("#1/"))
-                fileNameOffset = fileName.midRef(3).toInt();
+                fileNameOffset = fileName.mid(3).toInt();
             const QString fileLength = QString::fromLatin1(data.mid(48, 10));
 
             int toSkip = 60 + fileNameOffset;
@@ -1237,19 +1237,19 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiRoundTrips()
 {
     for (int i = 0; i <= Abi::UnknownArchitecture; ++i) {
         const QString string = Abi::toString(static_cast<Abi::Architecture>(i));
-        const Abi::Architecture arch = Abi::architectureFromString(QStringRef(&string));
+        const Abi::Architecture arch = Abi::architectureFromString(string);
         QCOMPARE(static_cast<Abi::Architecture>(i), arch);
     }
     for (int i = 0; i <= Abi::UnknownOS; ++i) {
         const QString string = Abi::toString(static_cast<Abi::OS>(i));
-        const Abi::OS os = Abi::osFromString(QStringRef(&string));
+        const Abi::OS os = Abi::osFromString(string);
         QCOMPARE(static_cast<Abi::OS>(i), os);
     }
     for (const Abi::OSFlavor flavorIt : Abi::allOsFlavors()) {
         const QString string = Abi::toString(flavorIt);
         for (int os = 0; os <= Abi::UnknownOS; ++os) {
             const auto osEnum = static_cast<Abi::OS>(os);
-            const Abi::OSFlavor flavor = Abi::osFlavorFromString(QStringRef(&string), osEnum);
+            const Abi::OSFlavor flavor = Abi::osFlavorFromString(string, osEnum);
             if (isGenericFlavor(flavorIt) && flavor != Abi::UnknownFlavor)
                 QVERIFY(isGenericFlavor(flavor));
             else if (flavor == Abi::UnknownFlavor && flavorIt != Abi::UnknownFlavor)
@@ -1260,12 +1260,12 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiRoundTrips()
     }
     for (int i = 0; i <= Abi::UnknownFormat; ++i) {
         QString string = Abi::toString(static_cast<Abi::BinaryFormat>(i));
-        Abi::BinaryFormat format = Abi::binaryFormatFromString(QStringRef(&string));
+        Abi::BinaryFormat format = Abi::binaryFormatFromString(string);
         QCOMPARE(static_cast<Abi::BinaryFormat>(i), format);
     }
     for (unsigned char i : {0, 8, 16, 32, 64}) {
         QString string = Abi::toString(i);
-        unsigned char wordwidth = Abi::wordWidthFromString(QStringRef(&string));
+        unsigned char wordwidth = Abi::wordWidthFromString(string);
         QCOMPARE(i, wordwidth);
     }
 }

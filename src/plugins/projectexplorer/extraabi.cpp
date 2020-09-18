@@ -86,7 +86,7 @@ void ExtraAbi::load()
         const QStringList osNames = it.value().toStringList();
         std::vector<Abi::OS> oses;
         for (const QString &osName : osNames) {
-            Abi::OS os = Abi::osFromString(&osName);
+            Abi::OS os = Abi::osFromString(osName);
             if (Abi::toString(os) != osName)
                 qWarning() << "Invalid OS found when registering extra abi flavor" << it.key();
             else

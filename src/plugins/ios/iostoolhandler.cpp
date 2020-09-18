@@ -437,7 +437,7 @@ void IosDeviceToolHandlerPrivate::processXml()
             // until the corresponding EndElement. Attributes are reported in attributes(),
             // namespace declarations in namespaceDeclarations().
         {
-            QStringRef elName = outputParser.name();
+            const auto elName = outputParser.name();
             if (elName == QLatin1String("msg")) {
                 stack.append(ParserState(ParserState::Msg));
             } else if (elName == QLatin1String("exit")) {
@@ -472,7 +472,7 @@ void IosDeviceToolHandlerPrivate::processXml()
             } else if (elName == QLatin1String("app_started")) {
                 stack.append(ParserState(ParserState::AppStarted));
                 QXmlStreamAttributes attributes = outputParser.attributes();
-                QStringRef statusStr = attributes.value(QLatin1String("status"));
+                const auto statusStr = attributes.value(QLatin1String("status"));
                 Ios::IosToolHandler::OpStatus status = Ios::IosToolHandler::Unknown;
                 if (statusStr.compare(QLatin1String("success"), Qt::CaseInsensitive) == 0)
                     status = Ios::IosToolHandler::Success;
@@ -482,7 +482,7 @@ void IosDeviceToolHandlerPrivate::processXml()
             } else if (elName == QLatin1String("app_transfer")) {
                 stack.append(ParserState(ParserState::AppTransfer));
                 QXmlStreamAttributes attributes = outputParser.attributes();
-                QStringRef statusStr = attributes.value(QLatin1String("status"));
+                const auto statusStr = attributes.value(QLatin1String("status"));
                 Ios::IosToolHandler::OpStatus status = Ios::IosToolHandler::Unknown;
                 if (statusStr.compare(QLatin1String("success"), Qt::CaseInsensitive) == 0)
                     status = Ios::IosToolHandler::Success;
