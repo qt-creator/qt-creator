@@ -65,7 +65,7 @@ isEmpty(KSYNTAXHIGHLIGHTING_LIB_DIR) {
 
 win32:SUBDIRS += utils/process_ctrlc_stub.pro
 
-win32: isEmpty(QTC_SKIP_CDBEXT) {
+msvc: isEmpty(QTC_SKIP_CDBEXT) {
     SUBDIRS += qtcreatorcdbext
 }
 
