@@ -172,7 +172,7 @@ bool ClangEditorDocumentProcessor::isParserRunning() const
 
 bool ClangEditorDocumentProcessor::hasProjectPart() const
 {
-    return m_projectPart;
+    return !m_projectPart.isNull();
 }
 
 CppTools::ProjectPart::Ptr ClangEditorDocumentProcessor::projectPart() const

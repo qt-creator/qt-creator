@@ -55,8 +55,9 @@
 #include <utils/algorithm.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/optional.h>
-#include <utils/textutils.h>
+#include <utils/porting.h>
 #include <utils/qtcassert.h>
+#include <utils/textutils.h>
 
 #include <QDirIterator>
 #include <QTextDocument>
@@ -450,9 +451,9 @@ bool ClangCompletionAssistProcessor::accepts() const
                                && tokens.at(1).kind() == T_IDENTIFIER) {
                         const QString &line = tc.block().text();
                         const Token &idToken = tokens.at(1);
-                        const QStringRef &identifier =
-                                line.midRef(idToken.bytesBegin(),
-                                            idToken.bytesEnd() - idToken.bytesBegin());
+                        const QStringView &identifier = Utils::midView(line,
+                                                                       idToken.utf16charsBegin(),
+                                                                       idToken.utf16chars());
                         if (identifier == QLatin1String("include")
                                 || identifier == QLatin1String("include_next")
                                 || (m_interface->objcEnabled() && identifier == QLatin1String("import"))) {

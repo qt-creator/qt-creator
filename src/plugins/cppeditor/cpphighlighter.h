@@ -46,13 +46,13 @@ public:
     void highlightBlock(const QString &text) override;
 
 private:
-    void highlightWord(QStringRef word, int position, int length);
+    void highlightWord(QStringView word, int position, int length);
     bool highlightRawStringLiteral(const QStringView &text, const CPlusPlus::Token &tk);
 
     void highlightDoxygenComment(const QString &text, int position,
                                  int length);
 
-    bool isPPKeyword(const QStringRef &text) const;
+    bool isPPKeyword(const QStringView &text) const;
 
 private:
     CPlusPlus::LanguageFeatures m_languageFeatures = CPlusPlus::LanguageFeatures::defaultFeatures();

@@ -1807,7 +1807,7 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
     ulong value = 0;
     const QString x = QString::fromUtf8(spell).left(numberLength);
     if (x.startsWith("0b", Qt::CaseInsensitive))
-        value = x.midRef(2).toULong(&valid, 2);
+        value = x.mid(2).toULong(&valid, 2);
     else
         value = x.toULong(&valid, 0);
 

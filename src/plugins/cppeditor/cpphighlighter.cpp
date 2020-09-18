@@ -33,6 +33,8 @@
 #include <cplusplus/SimpleLexer.h>
 #include <cplusplus/Lexer.h>
 
+#include <utils/porting.h>
+
 #include <QTextDocument>
 
 using namespace CppEditor;
@@ -150,11 +152,10 @@ void CppHighlighter::highlightBlock(const QString &text)
             setFormatWithSpaces(text, tk.utf16charsBegin(), tk.utf16chars(),
                           formatForCategory(C_PREPROCESSOR));
             expectPreprocessorKeyword = true;
-        } else if (highlightCurrentWordAsPreprocessor
-                   && (tk.isKeyword() || tk.is(T_IDENTIFIER))
-                   && isPPKeyword(text.midRef(tk.utf16charsBegin(), tk.utf16chars()))) {
+        } else if (highlightCurrentWordAsPreprocessor && (tk.isKeyword() || tk.is(T_IDENTIFIER))
+                   && isPPKeyword(Utils::midView(text, tk.utf16charsBegin(), tk.utf16chars()))) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_PREPROCESSOR));
-            const QStringRef ppKeyword = text.midRef(tk.utf16charsBegin(), tk.utf16chars());
+            const QStringView ppKeyword = Utils::midView(text, tk.utf16charsBegin(), tk.utf16chars());
             if (ppKeyword == QLatin1String("error")
                     || ppKeyword == QLatin1String("warning")
                     || ppKeyword == QLatin1String("pragma")) {
@@ -198,7 +199,8 @@ void CppHighlighter::highlightBlock(const QString &text)
 
         } else if (tk.isKeyword()
                    || (m_languageFeatures.qtKeywordsEnabled
-                       && CppTools::isQtKeyword(QStringView{text}.mid(tk.utf16charsBegin(), tk.utf16chars())))
+                       && CppTools::isQtKeyword(
+                           QStringView{text}.mid(tk.utf16charsBegin(), tk.utf16chars())))
                    || (m_languageFeatures.objCEnabled && tk.isObjCAtKeyword())) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_KEYWORD));
         } else if (tk.isPrimitiveType()) {
@@ -211,7 +213,8 @@ void CppHighlighter::highlightBlock(const QString &text)
         } else if (i == 0 && tokens.size() > 1 && tk.is(T_IDENTIFIER) && tokens.at(1).is(T_COLON)) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_LABEL));
         } else if (tk.is(T_IDENTIFIER)) {
-            highlightWord(text.midRef(tk.utf16charsBegin(), tk.utf16chars()), tk.utf16charsBegin(),
+            highlightWord(Utils::midView(text, tk.utf16charsBegin(), tk.utf16chars()),
+                          tk.utf16charsBegin(),
                           tk.utf16chars());
         }
     }
@@ -274,7 +277,7 @@ void CppHighlighter::setLanguageFeatures(const LanguageFeatures &languageFeature
     }
 }
 
-bool CppHighlighter::isPPKeyword(const QStringRef &text) const
+bool CppHighlighter::isPPKeyword(const QStringView &text) const
 {
     switch (text.length())
     {
@@ -348,7 +351,7 @@ bool CppHighlighter::isPPKeyword(const QStringRef &text) const
     return false;
 }
 
-void CppHighlighter::highlightWord(QStringRef word, int position, int length)
+void CppHighlighter::highlightWord(QStringView word, int position, int length)
 {
     // try to highlight Qt 'identifiers' like QObject and Q_PROPERTY
 

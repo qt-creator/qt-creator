@@ -30,6 +30,7 @@
 #include <QByteArray>
 #include <QDataStream>
 #include <QDebug>
+#include <QIODevice>
 
 namespace ClangBackEnd {
 

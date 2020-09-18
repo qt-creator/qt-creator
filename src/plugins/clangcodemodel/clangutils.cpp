@@ -129,7 +129,7 @@ ProjectPart::Ptr projectPartForFileBasedOnProcessor(const QString &filePath)
 bool isProjectPartLoaded(const ProjectPart::Ptr projectPart)
 {
     if (projectPart)
-        return CppModelManager::instance()->projectPartForId(projectPart->id());
+        return !CppModelManager::instance()->projectPartForId(projectPart->id()).isNull();
     return false;
 }
 

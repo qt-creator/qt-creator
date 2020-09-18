@@ -50,7 +50,7 @@ QByteArray LinePrefixer::prefix(const QByteArray &text)
         m_previousIsEndingWithNewLine = false;
     }
 
-    output.replace("\n", "\n" + m_prefix);
+    output.replace("\n", QByteArray("\n" + m_prefix));
     if (m_previousIsEndingWithNewLine)
         output.append('\n');
 
