@@ -27,24 +27,26 @@
 
 #include "qtsupport_global.h"
 
-#include <projectexplorer/projectconfigurationaspects.h>
+#include <utils/aspects.h>
+
+namespace ProjectExplorer { class Kit; }
 
 namespace QtSupport {
 
-class QTSUPPORT_EXPORT QmlDebuggingAspect : public ProjectExplorer::TriStateAspect
+class QTSUPPORT_EXPORT QmlDebuggingAspect : public Utils::TriStateAspect
 {
     Q_OBJECT
 public:
     QmlDebuggingAspect();
 
     void setKit(const ProjectExplorer::Kit *kit) { m_kit = kit; }
-    void addToLayout(ProjectExplorer::LayoutBuilder &builder) override;
+    void addToLayout(Utils::LayoutBuilder &builder) override;
 
 private:
     const ProjectExplorer::Kit *m_kit = nullptr;
 };
 
-class QTSUPPORT_EXPORT QtQuickCompilerAspect : public ProjectExplorer::TriStateAspect
+class QTSUPPORT_EXPORT QtQuickCompilerAspect : public Utils::TriStateAspect
 {
     Q_OBJECT
 public:
@@ -53,8 +55,8 @@ public:
     void setKit(const ProjectExplorer::Kit *kit) { m_kit = kit; }
 
 private:
-    void addToLayout(ProjectExplorer::LayoutBuilder &builder) override;
-    void acquaintSiblings(const ProjectExplorer::ProjectConfigurationAspects &siblings) override;
+    void addToLayout(Utils::LayoutBuilder &builder) override;
+    void acquaintSiblings(const Utils::BaseAspects &siblings) override;
 
     const ProjectExplorer::Kit *m_kit = nullptr;
     const QmlDebuggingAspect *m_qmlDebuggingAspect = nullptr;

@@ -33,6 +33,7 @@
 #include <remotelinux/abstractremotelinuxdeploystep.h>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Qdb {
 namespace Internal {

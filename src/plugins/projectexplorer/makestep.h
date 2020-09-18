@@ -27,6 +27,7 @@
 
 #include "abstractprocessstep.h"
 
+#include <utils/aspects.h>
 #include <utils/fileutils.h>
 
 namespace Utils { class Environment; }
@@ -34,13 +35,6 @@ namespace Utils { class Environment; }
 namespace ProjectExplorer {
 
 namespace Internal { class MakeStepConfigWidget; }
-
-class AspectContainer;
-class BoolAspect;
-class IntegerAspect;
-class StringAspect;
-class StringListAspect;
-class TextDisplay;
 
 class PROJECTEXPLORER_EXPORT MakeStep : public ProjectExplorer::AbstractProcessStep
 {
@@ -97,15 +91,15 @@ private:
     static int defaultJobCount();
     QStringList jobArguments() const;
 
-    StringListAspect *m_buildTargetsAspect = nullptr;
+    Utils::StringListAspect *m_buildTargetsAspect = nullptr;
     QStringList m_availableTargets;
-    StringAspect *m_makeCommandAspect = nullptr;
-    StringAspect *m_userArgumentsAspect = nullptr;
-    AspectContainer *m_jobCountContainer = nullptr;
-    IntegerAspect *m_userJobCountAspect = nullptr;
-    BoolAspect *m_overrideMakeflagsAspect = nullptr;
-    TextDisplay *m_nonOverrideWarning = nullptr;
-    BoolAspect *m_cleanAspect = nullptr;
+    Utils::StringAspect *m_makeCommandAspect = nullptr;
+    Utils::StringAspect *m_userArgumentsAspect = nullptr;
+    Utils::AspectContainer *m_jobCountContainer = nullptr;
+    Utils::IntegerAspect *m_userJobCountAspect = nullptr;
+    Utils::BoolAspect *m_overrideMakeflagsAspect = nullptr;
+    Utils::TextDisplay *m_nonOverrideWarning = nullptr;
+    Utils::BoolAspect *m_cleanAspect = nullptr;
     bool m_disablingForSubDirsSupported = false;
     bool m_enabledForSubDirs = true;
 };

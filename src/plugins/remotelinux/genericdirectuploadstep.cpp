@@ -33,6 +33,7 @@
 #include <projectexplorer/runconfigurationaspects.h>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace RemoteLinux {
 

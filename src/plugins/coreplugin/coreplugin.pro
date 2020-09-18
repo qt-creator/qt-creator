@@ -86,7 +86,6 @@ SOURCES += corejsextensions.cpp \
     externaltool.cpp \
     dialogs/externaltoolconfig.cpp \
     dialogs/filepropertiesdialog.cpp \
-    variablechooser.cpp \
     mimetypemagicdialog.cpp \
     mimetypesettings.cpp \
     dialogs/promptoverwritedialog.cpp \
@@ -201,7 +200,6 @@ HEADERS += corejsextensions.h \
     externaltool.h \
     dialogs/externaltoolconfig.h \
     dialogs/filepropertiesdialog.h \
-    variablechooser.h \
     mimetypemagicdialog.h \
     mimetypesettings.h \
     dialogs/promptoverwritedialog.h \

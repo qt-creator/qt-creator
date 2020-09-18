@@ -36,6 +36,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;

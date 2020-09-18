@@ -25,18 +25,18 @@
 
 #pragma once
 
-#include "core_global.h"
+#include "utils_global.h"
+#include "macroexpander.h"
 
 #include <QWidget>
 
-#include <utils/macroexpander.h>
 #include <functional>
 
-namespace Core {
+namespace Utils {
 
 namespace Internal { class VariableChooserPrivate; }
 
-class CORE_EXPORT VariableChooser : public QWidget
+class QTCREATOR_UTILS_EXPORT VariableChooser : public QWidget
 {
     Q_OBJECT
 
@@ -57,4 +57,4 @@ private:
     Internal::VariableChooserPrivate *d;
 };
 
-} // namespace Core
+} // namespace Utils

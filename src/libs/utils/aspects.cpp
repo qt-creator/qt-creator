@@ -23,35 +23,77 @@
 **
 ****************************************************************************/
 
-#include "projectconfigurationaspects.h"
+#include "aspects.h"
 
-#include "environmentaspect.h"
-#include "project.h"
-#include "projectexplorer.h"
-#include "projectexplorersettings.h"
-#include "runconfiguration.h"
-#include "target.h"
+#include "algorithm.h"
+#include "fancylineedit.h"
+#include "layoutbuilder.h"
+#include "pathchooser.h"
+#include "qtcassert.h"
+#include "qtcprocess.h"
+#include "utilsicons.h"
+#include "variablechooser.h"
 
-#include <coreplugin/variablechooser.h>
-#include <utils/utilsicons.h>
-#include <utils/fancylineedit.h>
-#include <utils/pathchooser.h>
-#include <utils/qtcprocess.h>
-
+#include <QButtonGroup>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include <QFormLayout>
-#include <QSpinBox>
-#include <QToolButton>
-#include <QTextEdit>
+#include <QPointer>
 #include <QRadioButton>
-#include <QButtonGroup>
+#include <QSpinBox>
+#include <QTextEdit>
+#include <QToolButton>
 
-using namespace Utils;
+namespace Utils {
 
-namespace ProjectExplorer {
+// BaseAspect
+
+BaseAspect::BaseAspect() = default;
+
+BaseAspect::~BaseAspect() = default;
+
+void BaseAspect::setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator)
+{
+    m_configWidgetCreator = configWidgetCreator;
+}
+
+QWidget *BaseAspect::createConfigWidget() const
+{
+    return m_configWidgetCreator ? m_configWidgetCreator() : nullptr;
+}
+
+void BaseAspect::addToLayout(LayoutBuilder &)
+{
+}
+
+// BaseAspects
+
+BaseAspects::BaseAspects() = default;
+
+BaseAspects::~BaseAspects()
+{
+    qDeleteAll(base());
+}
+
+BaseAspect *BaseAspects::aspect(Utils::Id id) const
+{
+    return Utils::findOrDefault(base(), Utils::equal(&BaseAspect::id, id));
+}
+
+void BaseAspects::fromMap(const QVariantMap &map) const
+{
+    for (BaseAspect *aspect : *this)
+        aspect->fromMap(map);
+}
+
+void BaseAspects::toMap(QVariantMap &map) const
+{
+    for (BaseAspect *aspect : *this)
+        aspect->toMap(map);
+}
+
 namespace Internal {
 
 class BoolAspectPrivate
@@ -108,9 +150,9 @@ public:
     QPointer<FancyLineEdit> m_lineEditDisplay;
     QPointer<PathChooser> m_pathChooserDisplay;
     QPointer<QTextEdit> m_textEditDisplay;
-    Utils::MacroExpanderProvider m_expanderProvider;
+    MacroExpanderProvider m_expanderProvider;
     QPixmap m_labelPixmap;
-    Utils::FilePath m_baseFileName;
+    FilePath m_baseFileName;
     StringAspect::ValueAcceptor m_valueAcceptor;
     bool m_readOnly = false;
     bool m_showToolTipOnLabel = false;
@@ -153,7 +195,7 @@ public:
 class AspectContainerPrivate
 {
 public:
-    QList<ProjectConfigurationAspect *> m_items;
+    QList<BaseAspect *> m_items;
 };
 
 class TextDisplayPrivate
@@ -168,7 +210,7 @@ public:
 } // Internal
 
 /*!
-    \class ProjectExplorer::StringAspect
+    \class Utils::StringAspect
 */
 
 StringAspect::StringAspect()
@@ -382,17 +424,19 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         d->m_label->setPixmap(d->m_labelPixmap);
     builder.addItem(d->m_label.data());
 
+    QWidget *parentWidget = builder.layout()->parentWidget();
+
     const auto useMacroExpander = [this, &builder](QWidget *w) {
         if (!d->m_expanderProvider)
             return;
-        const auto chooser = new Core::VariableChooser(builder.layout()->parentWidget());
+        const auto chooser = new VariableChooser(builder.layout()->parentWidget());
         chooser->addSupportedWidget(w);
         chooser->addMacroExpanderProvider(d->m_expanderProvider);
     };
 
     switch (d->m_displayStyle) {
     case PathChooserDisplay:
-        d->m_pathChooserDisplay = new PathChooser;
+        d->m_pathChooserDisplay = new PathChooser(parentWidget);
         d->m_pathChooserDisplay->setExpectedKind(d->m_expectedKind);
         if (!d->m_historyCompleterKey.isEmpty())
             d->m_pathChooserDisplay->setHistoryCompleter(d->m_historyCompleterKey);
@@ -501,7 +545,7 @@ void StringAspect::makeCheckable(CheckBoxPlacement checkBoxPlacement,
 }
 
 /*!
-    \class ProjectExplorer::BoolAspect
+    \class Utils::BoolAspect
 */
 
 BoolAspect::BoolAspect(const QString &settingsKey)
@@ -592,7 +636,7 @@ void BoolAspect::setEnabled(bool enabled)
 }
 
 /*!
-    \class ProjectExplorer::SelectionAspect
+    \class Utils::SelectionAspect
 */
 
 SelectionAspect::SelectionAspect()
@@ -706,7 +750,7 @@ void SelectionAspect::addOption(const QString &displayName, const QString &toolT
 }
 
 /*!
-    \class ProjectExplorer::IntegerAspect
+    \class Utils::IntegerAspect
 */
 
 // IntegerAspect
@@ -821,7 +865,7 @@ void IntegerAspect::setToolTip(const QString &tooltip)
 }
 
 /*!
-    \class ProjectExplorer::BaseTristateAspect
+    \class Utils::BaseTristateAspect
 */
 
 TriStateAspect::TriStateAspect()
@@ -856,7 +900,7 @@ TriState TriState::fromVariant(const QVariant &variant)
 
 
 /*!
-    \class ProjectExplorer::StringListAspect
+    \class Utils::StringListAspect
 */
 
 StringListAspect::StringListAspect()
@@ -892,7 +936,7 @@ void StringListAspect::setValue(const QStringList &value)
 }
 
 /*!
-    \class ProjectExplorer::TextDisplay
+    \class Utils::TextDisplay
 */
 
 TextDisplay::TextDisplay(const QString &message, InfoLabel::InfoType type)
@@ -919,7 +963,7 @@ void TextDisplay::addToLayout(LayoutBuilder &builder)
 
 void TextDisplay::setVisible(bool visible)
 {
-    ProjectConfigurationAspect::setVisible(visible);
+    BaseAspect::setVisible(visible);
     if (d->m_label)
         d->m_label->setVisible(visible);
 }
@@ -939,7 +983,7 @@ void TextDisplay::setIconType(InfoLabel::InfoType t)
 }
 
 /*!
-    \class ProjectExplorer::AspectContainer
+    \class Utils::AspectContainer
 */
 
 AspectContainer::AspectContainer()
@@ -948,14 +992,14 @@ AspectContainer::AspectContainer()
 
 AspectContainer::~AspectContainer() = default;
 
-void AspectContainer::addAspectHelper(ProjectConfigurationAspect *aspect)
+void AspectContainer::addAspectHelper(BaseAspect *aspect)
 {
     d->m_items.append(aspect);
 }
 
 void AspectContainer::addToLayout(LayoutBuilder &builder)
 {
-    for (ProjectConfigurationAspect *aspect : d->m_items) {
+    for (BaseAspect *aspect : d->m_items) {
         if (aspect->isVisible())
             aspect->addToLayout(builder);
     }
@@ -963,14 +1007,14 @@ void AspectContainer::addToLayout(LayoutBuilder &builder)
 
 void AspectContainer::fromMap(const QVariantMap &map)
 {
-    for (ProjectConfigurationAspect *aspect : d->m_items)
+    for (BaseAspect *aspect : d->m_items)
         aspect->fromMap(map);
 }
 
 void AspectContainer::toMap(QVariantMap &map) const
 {
-    for (ProjectConfigurationAspect *aspect : d->m_items)
+    for (BaseAspect *aspect : d->m_items)
         aspect->toMap(map);
 }
 
-} // namespace ProjectExplorer
+} // namespace Utils

@@ -28,11 +28,10 @@
 #include <baremetal/baremetalconstants.h>
 #include <baremetal/debugserverprovidermanager.h>
 
-#include <coreplugin/variablechooser.h>
-
 #include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/variablechooser.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -297,7 +296,7 @@ EBlinkGdbServerProviderConfigWidget::EBlinkGdbServerProviderConfigWidget(
     addErrorLabel();
     setFromProvider();
 
-    const auto chooser = new Core::VariableChooser(this);
+    const auto chooser = new VariableChooser(this);
     chooser->addSupportedWidget(m_initCommandsTextEdit);
     chooser->addSupportedWidget(m_resetCommandsTextEdit);
 

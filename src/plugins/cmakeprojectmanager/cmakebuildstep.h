@@ -28,9 +28,10 @@
 #include <projectexplorer/abstractprocessstep.h>
 #include <utils/treemodel.h>
 
-namespace Utils { class CommandLine; }
-
-namespace ProjectExplorer { class StringAspect; }
+namespace Utils {
+class CommandLine;
+class StringAspect;
+} // Utils
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -103,8 +104,8 @@ private:
 
     friend class CMakeBuildStepConfigWidget;
     QStringList m_buildTargets; // Convention: Empty string member signifies "Current executable"
-    ProjectExplorer::StringAspect *m_cmakeArguments = nullptr;
-    ProjectExplorer::StringAspect *m_toolArguments = nullptr;
+    Utils::StringAspect *m_cmakeArguments = nullptr;
+    Utils::StringAspect *m_toolArguments = nullptr;
     bool m_waiting = false;
 
     Utils::TreeModel<Utils::TreeItem, CMakeTargetItem> m_buildTargetModel;

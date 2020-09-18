@@ -26,14 +26,13 @@
 #include "debuggersourcepathmappingwidget.h"
 #include "debuggerengine.h"
 
-#include <coreplugin/variablechooser.h>
-
 #include <utils/buildablehelperlibrary.h>
 #include <utils/fancylineedit.h>
+#include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
-#include <utils/hostosinfo.h>
+#include <utils/variablechooser.h>
 
 #include <QStandardItemModel>
 #include <QTreeView>
@@ -276,7 +275,7 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent
     editLayout->addRow(editTargetLabel, m_targetChooser);
     editLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
-    auto chooser = new Core::VariableChooser(this);
+    auto chooser = new VariableChooser(this);
     chooser->addSupportedWidget(m_targetChooser->lineEdit());
 
     // Main layout

@@ -34,6 +34,7 @@
 #include <projectexplorer/project.h>
 
 #include <utils/environment.h>
+#include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 
 #include <QComboBox>

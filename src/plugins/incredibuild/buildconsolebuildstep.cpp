@@ -33,9 +33,10 @@
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/processparameters.h>
-#include <projectexplorer/projectconfigurationaspects.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
+#include <utils/aspects.h>
 #include <utils/environment.h>
 
 using namespace ProjectExplorer;

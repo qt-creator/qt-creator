@@ -38,6 +38,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
 #include <QJsonObject>
@@ -45,6 +46,7 @@
 #include <QPlainTextEdit>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace QbsProjectManager {
 namespace Internal {

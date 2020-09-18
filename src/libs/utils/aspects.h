@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,17 +25,19 @@
 
 #pragma once
 
-#include "projectconfiguration.h"
-#include "environmentaspect.h"
-
-#include <utils/fileutils.h>
-#include <utils/infolabel.h>
-#include <utils/macroexpander.h>
-#include <utils/pathchooser.h>
+#include "fileutils.h"
+#include "id.h"
+#include "infolabel.h"
+#include "macroexpander.h"
+#include "optional.h"
+#include "pathchooser.h"
 
 #include <memory>
 
-namespace ProjectExplorer {
+namespace Utils {
+
+class BaseAspects;
+class LayoutBuilder;
 
 namespace Internal {
 class AspectContainerPrivate;
@@ -47,7 +49,91 @@ class StringListAspectPrivate;
 class TextDisplayPrivate;
 } // Internal
 
-class PROJECTEXPLORER_EXPORT BoolAspect : public ProjectConfigurationAspect
+class QTCREATOR_UTILS_EXPORT BaseAspect : public QObject
+{
+    Q_OBJECT
+
+public:
+    BaseAspect();
+    ~BaseAspect() override;
+
+    void setId(Utils::Id id) { m_id = id; }
+    void setDisplayName(const QString &displayName) { m_displayName = displayName; }
+    void setSettingsKey(const QString &settingsKey) { m_settingsKey = settingsKey; }
+
+    Utils::Id id() const { return m_id; }
+    QString displayName() const { return m_displayName; }
+    QString settingsKey() const { return  m_settingsKey; }
+
+    bool isVisible() const { return m_visible; }
+    void setVisible(bool visible) { m_visible = visible; }
+
+    using ConfigWidgetCreator = std::function<QWidget *()>;
+    void setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator);
+    QWidget *createConfigWidget() const;
+
+    virtual void fromMap(const QVariantMap &) {}
+    virtual void toMap(QVariantMap &) const {}
+    virtual void acquaintSiblings(const BaseAspects &) {}
+
+    virtual void addToLayout(LayoutBuilder &builder);
+
+signals:
+    void changed();
+
+protected:
+    virtual void setVisibleDynamic(bool visible) { Q_UNUSED(visible) } // TODO: Better name? Merge with setVisible() somehow?
+
+    Utils::Id m_id;
+    QString m_displayName;
+    QString m_settingsKey; // Name of data in settings.
+    bool m_visible = true;
+    ConfigWidgetCreator m_configWidgetCreator;
+};
+
+class QTCREATOR_UTILS_EXPORT BaseAspects
+        : private QList<BaseAspect *>
+{
+    using Base = QList<BaseAspect *>;
+
+    BaseAspects(const BaseAspects &) = delete;
+    BaseAspects &operator=(const BaseAspects &) = delete;
+
+public:
+    BaseAspects();
+    ~BaseAspects();
+
+    template <class Aspect, typename ...Args>
+    Aspect *addAspect(Args && ...args)
+    {
+        auto aspect = new Aspect(args...);
+        append(aspect);
+        return aspect;
+    }
+
+    BaseAspect *aspect(Utils::Id id) const;
+
+    template <typename T> T *aspect() const
+    {
+        for (BaseAspect *aspect : *this)
+            if (T *result = qobject_cast<T *>(aspect))
+                return result;
+        return nullptr;
+    }
+
+    void fromMap(const QVariantMap &map) const;
+    void toMap(QVariantMap &map) const;
+
+    using Base::append;
+    using Base::begin;
+    using Base::end;
+
+private:
+    Base &base() { return *this; }
+    const Base &base() const { return *this; }
+};
+
+class QTCREATOR_UTILS_EXPORT BoolAspect : public BaseAspect
 {
     Q_OBJECT
 
@@ -76,7 +162,7 @@ private:
     std::unique_ptr<Internal::BoolAspectPrivate> d;
 };
 
-class PROJECTEXPLORER_EXPORT SelectionAspect : public ProjectConfigurationAspect
+class QTCREATOR_UTILS_EXPORT SelectionAspect : public BaseAspect
 {
     Q_OBJECT
 
@@ -111,7 +197,7 @@ private:
     std::unique_ptr<Internal::SelectionAspectPrivate> d;
 };
 
-class PROJECTEXPLORER_EXPORT StringAspect : public ProjectConfigurationAspect
+class QTCREATOR_UTILS_EXPORT StringAspect : public BaseAspect
 {
     Q_OBJECT
 
@@ -176,7 +262,7 @@ private:
     std::unique_ptr<Internal::StringAspectPrivate> d;
 };
 
-class PROJECTEXPLORER_EXPORT IntegerAspect : public ProjectConfigurationAspect
+class QTCREATOR_UTILS_EXPORT IntegerAspect : public BaseAspect
 {
     Q_OBJECT
 
@@ -206,7 +292,7 @@ private:
     std::unique_ptr<Internal::IntegerAspectPrivate> d;
 };
 
-class PROJECTEXPLORER_EXPORT TriState
+class QTCREATOR_UTILS_EXPORT TriState
 {
     enum Value { EnabledValue, DisabledValue, DefaultValue };
     explicit TriState(Value v) : m_value(v) {}
@@ -228,7 +314,7 @@ private:
     Value m_value = DefaultValue;
 };
 
-class PROJECTEXPLORER_EXPORT TriStateAspect : public SelectionAspect
+class QTCREATOR_UTILS_EXPORT TriStateAspect : public SelectionAspect
 {
     Q_OBJECT
 public:
@@ -238,7 +324,7 @@ public:
     void setSetting(TriState setting);
 };
 
-class PROJECTEXPLORER_EXPORT StringListAspect : public ProjectConfigurationAspect
+class QTCREATOR_UTILS_EXPORT StringListAspect : public BaseAspect
 {
     Q_OBJECT
 
@@ -258,7 +344,7 @@ private:
     std::unique_ptr<Internal::StringListAspectPrivate> d;
 };
 
-class PROJECTEXPLORER_EXPORT TextDisplay : public ProjectConfigurationAspect
+class QTCREATOR_UTILS_EXPORT TextDisplay : public BaseAspect
 {
     Q_OBJECT
 
@@ -277,7 +363,7 @@ private:
     std::unique_ptr<Internal::TextDisplayPrivate> d;
 };
 
-class PROJECTEXPLORER_EXPORT AspectContainer : public ProjectConfigurationAspect
+class QTCREATOR_UTILS_EXPORT AspectContainer : public BaseAspect
 {
     Q_OBJECT
 
@@ -299,17 +385,9 @@ public:
     void toMap(QVariantMap &map) const override;
 
 private:
-    void addAspectHelper(ProjectConfigurationAspect *aspect);
+    void addAspectHelper(BaseAspect *aspect);
 
     std::unique_ptr<Internal::AspectContainerPrivate> d;
 };
 
-// FIXME: For migration. Remove after 4.15
-using BaseBoolAspect = BoolAspect;
-using BaseIntegerAspect = IntegerAspect;
-using BaseSelectionAspect = SelectionAspect;
-using BaseStringAspect = StringAspect;
-using BaseStringListAspect = StringListAspect;
-using BaseStringListAspect = StringListAspect;
-
-} // namespace ProjectExplorer
+} // namespace Utils

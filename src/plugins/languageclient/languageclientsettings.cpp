@@ -33,7 +33,6 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/variablechooser.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
@@ -45,6 +44,7 @@
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/jsontreeitem.h>
 #include <utils/stringutils.h>
+#include <utils/variablechooser.h>
 
 #include <QBoxLayout>
 #include <QComboBox>
@@ -728,7 +728,7 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
 
     mainLayout->addWidget(new QLabel(tr("Name:")), row, 0);
     mainLayout->addWidget(m_name, row, 1);
-    auto chooser = new Core::VariableChooser(this);
+    auto chooser = new Utils::VariableChooser(this);
     chooser->addSupportedWidget(m_name);
 
     mainLayout->addWidget(new QLabel(tr("Language:")), ++row, 0);
@@ -935,7 +935,7 @@ StdIOSettingsWidget::StdIOSettingsWidget(const StdIOSettings *settings, QWidget 
     m_executable->setPath(QDir::toNativeSeparators(settings->m_executable));
     mainLayout->addWidget(m_arguments, baseRows + 1, 1);
 
-    auto chooser = new Core::VariableChooser(this);
+    auto chooser = new Utils::VariableChooser(this);
     chooser->addSupportedWidget(m_arguments);
 }
 

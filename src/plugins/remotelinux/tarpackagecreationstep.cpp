@@ -43,6 +43,7 @@
 #include <cstring>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace RemoteLinux {
 namespace {

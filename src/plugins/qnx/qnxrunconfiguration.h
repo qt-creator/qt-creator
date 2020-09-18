@@ -31,7 +31,7 @@
 namespace Qnx {
 namespace Internal {
 
-class QtLibPathAspect : public ProjectExplorer::StringAspect
+class QtLibPathAspect : public Utils::StringAspect
 {
     Q_OBJECT
 

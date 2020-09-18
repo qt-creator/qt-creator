@@ -28,8 +28,9 @@
 
 #include "../nimconstants.h"
 
-#include <projectexplorer/projectconfigurationaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
+
+#include <utils/aspects.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>

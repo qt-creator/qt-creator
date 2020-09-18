@@ -28,13 +28,15 @@
 #include "buildpropertiessettings.h"
 #include "projectexplorer.h"
 
-#include <coreplugin/variablechooser.h>
+#include <utils/variablechooser.h>
 
 #include <QComboBox>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
+
+using namespace Utils;
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -71,7 +73,7 @@ public:
             resetButton->setEnabled(m_buildDirTemplateLineEdit.text()
                                     != ProjectExplorerPlugin::defaultBuildDirectoryTemplate());
         });
-        const auto chooser = new Core::VariableChooser(this);
+        const auto chooser = new VariableChooser(this);
         chooser->addSupportedWidget(&m_buildDirTemplateLineEdit);
         m_buildDirTemplateLineEdit.setText(settings.buildDirectoryTemplate);
         buildDirLayout->addWidget(&m_buildDirTemplateLineEdit);

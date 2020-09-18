@@ -146,7 +146,6 @@ add_qtc_plugin(Core
     systemsettings.cpp systemsettings.h systemsettings.ui
     textdocument.cpp textdocument.h
     themechooser.cpp themechooser.h
-    variablechooser.cpp variablechooser.h
     vcsmanager.cpp vcsmanager.h
     versiondialog.cpp versiondialog.h
     welcomepagehelper.cpp welcomepagehelper.h

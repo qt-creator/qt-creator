@@ -39,7 +39,6 @@
 #include <coreplugin/dialogs/restartdialog.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/variablechooser.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
@@ -55,6 +54,7 @@
 #include <utils/runextensions.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
+#include <utils/variablechooser.h>
 
 #include <QDesktopServices>
 #include <QDir>
@@ -326,7 +326,7 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     connect(ProjectExplorer::ToolChainManager::instance(), &ToolChainManager::toolChainsChanged,
             this, &QtOptionsPageWidget::toolChainsUpdated);
 
-    auto chooser = new Core::VariableChooser(this);
+    auto chooser = new VariableChooser(this);
     chooser->addSupportedWidget(m_versionUi.nameEdit, "Qt:Name");
     chooser->addMacroExpanderProvider([this] {
         BaseQtVersion *version = currentVersion();

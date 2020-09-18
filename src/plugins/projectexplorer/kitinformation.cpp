@@ -36,7 +36,6 @@
 #include "toolchainmanager.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/variablechooser.h>
 #include <ssh/sshconnection.h>
 #include <utils/algorithm.h>
 #include <utils/elidinglabel.h>
@@ -45,6 +44,7 @@
 #include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/variablechooser.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -1162,7 +1162,7 @@ private:
     {
         Utils::MacroExpander *expander = m_kit->macroExpander();
         Utils::EnvironmentDialog::Polisher polisher = [expander](QWidget *w) {
-            Core::VariableChooser::addSupportForChildWidgets(w, expander);
+            Utils::VariableChooser::addSupportForChildWidgets(w, expander);
         };
         auto changes = Utils::EnvironmentDialog::getEnvironmentItems(m_summaryLabel,
                                                                      currentEnvironment(),

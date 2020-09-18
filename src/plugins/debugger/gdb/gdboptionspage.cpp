@@ -31,11 +31,11 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/variablechooser.h>
 
 #include <utils/fancylineedit.h>
 #include <utils/pathchooser.h>
 #include <utils/savedaction.h>
+#include <utils/variablechooser.h>
 
 #include <QCheckBox>
 #include <QCoreApplication>

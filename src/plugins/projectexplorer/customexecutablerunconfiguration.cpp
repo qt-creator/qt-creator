@@ -35,11 +35,11 @@
 #include "target.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/variablechooser.h>
 
 #include <utils/detailswidget.h>
 #include <utils/pathchooser.h>
 #include <utils/stringutils.h>
+#include <utils/variablechooser.h>
 
 #include <QDialog>
 #include <QDialogButtonBox>

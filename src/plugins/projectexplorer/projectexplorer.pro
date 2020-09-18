@@ -163,7 +163,6 @@ HEADERS += projectexplorer.h \
     projectmacro.h \
     makestep.h \
     parseissuesdialog.h \
-    projectconfigurationaspects.h \
     treescanner.h \
     rawprojectpart.h \
     simpleprojectwizard.h
@@ -310,7 +309,6 @@ SOURCES += projectexplorer.cpp \
     projectmacro.cpp \
     makestep.cpp \
     parseissuesdialog.cpp \
-    projectconfigurationaspects.cpp \
     treescanner.cpp \
     rawprojectpart.cpp \
     simpleprojectwizard.cpp

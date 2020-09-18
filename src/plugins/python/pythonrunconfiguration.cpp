@@ -37,14 +37,15 @@
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/localenvironmentaspect.h>
-#include <projectexplorer/projectconfigurationaspects.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
 #include <texteditor/textdocument.h>
 
+#include <utils/aspects.h>
 #include <utils/fileutils.h>
+#include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
 #include <utils/theme/theme.h>
 
@@ -133,7 +134,7 @@ private:
 
 ////////////////////////////////////////////////////////////////
 
-class InterpreterAspect : public ProjectConfigurationAspect
+class InterpreterAspect : public BaseAspect
 {
     Q_OBJECT
 

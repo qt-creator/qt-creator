@@ -42,6 +42,7 @@
 #include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
+#include <utils/layoutbuilder.h>
 
 #include <QBoxLayout>
 #include <QListWidget>

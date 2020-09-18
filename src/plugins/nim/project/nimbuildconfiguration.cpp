@@ -38,7 +38,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/projectconfigurationaspects.h>
+
+#include <utils/aspects.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 

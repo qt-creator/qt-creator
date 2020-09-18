@@ -33,7 +33,6 @@
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/processparameters.h>
-#include <projectexplorer/projectconfigurationaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfiguration.h>
@@ -41,9 +40,11 @@
 
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/aspects.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/fancylineedit.h>
+#include <utils/layoutbuilder.h>
 
 #include <QLabel>
 #include <QLayout>
@@ -59,7 +60,7 @@ namespace Internal {
 const char ARGUMENTS_KEY[] = "WinRt.BuildStep.Deploy.Arguments";
 const char DEFAULTARGUMENTS_KEY[] = "WinRt.BuildStep.Deploy.DefaultArguments";
 
-class WinRtArgumentsAspect final : public ProjectConfigurationAspect
+class WinRtArgumentsAspect final : public BaseAspect
 {
     Q_DECLARE_TR_FUNCTIONS(WinRt::Internal::WinRtArgumentsAspect)
 

@@ -28,11 +28,13 @@
 #include "qbsbuildconfiguration.h"
 
 #include <projectexplorer/buildstep.h>
-#include <projectexplorer/projectconfigurationaspects.h>
 #include <projectexplorer/task.h>
+
+#include <utils/aspects.h>
 
 namespace QbsProjectManager {
 namespace Internal {
+
 class ErrorInfo;
 class QbsSession;
 
@@ -60,8 +62,8 @@ private:
     void createTaskAndOutput(ProjectExplorer::Task::TaskType type,
                              const QString &message, const QString &file, int line);
 
-    ProjectExplorer::BoolAspect *m_dryRunAspect = nullptr;
-    ProjectExplorer::BoolAspect *m_keepGoingAspect = nullptr;
+    Utils::BoolAspect *m_dryRunAspect = nullptr;
+    Utils::BoolAspect *m_keepGoingAspect = nullptr;
 
     QStringList m_products;
     QbsSession *m_session = nullptr;

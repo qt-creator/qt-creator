@@ -26,7 +26,8 @@
 #pragma once
 
 #include <projectexplorer/buildstep.h>
-#include <projectexplorer/projectconfigurationaspects.h>
+
+#include <utils/aspects.h>
 
 #include <QLabel>
 #include <QPointer>
@@ -34,7 +35,7 @@
 namespace IncrediBuild {
 namespace Internal {
 
-class CommandBuilderAspect final : public ProjectExplorer::ProjectConfigurationAspect
+class CommandBuilderAspect final : public Utils::BaseAspect
 {
 public:
     explicit CommandBuilderAspect(ProjectExplorer::BuildStep *step);
@@ -43,7 +44,7 @@ public:
     QString fullCommandFlag(bool keepJobNum) const;
 
 private:
-    void addToLayout(ProjectExplorer::LayoutBuilder &builder) final;
+    void addToLayout(Utils::LayoutBuilder &builder) final;
     void fromMap(const QVariantMap &map) final;
     void toMap(QVariantMap &map) const final;
 

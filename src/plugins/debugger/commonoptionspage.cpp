@@ -31,7 +31,6 @@
 #include "debuggersourcepathmappingwidget.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/variablechooser.h>
 
 #include <app/app_version.h>
 
@@ -39,6 +38,7 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
+#include <utils/variablechooser.h>
 
 #include <QCheckBox>
 #include <QCoreApplication>

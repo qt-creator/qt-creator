@@ -27,6 +27,7 @@
 
 #include "projectexplorer_export.h"
 
+#include <utils/aspects.h>
 #include <utils/displayname.h>
 #include <utils/id.h>
 
@@ -36,149 +37,11 @@
 #include <QVariantMap>
 #include <QWidget>
 
-QT_BEGIN_NAMESPACE
-class QFormLayout;
-class QGridLayout;
-QT_END_NAMESPACE
-
 namespace ProjectExplorer {
 
 class Kit;
 class Project;
-class ProjectConfigurationAspect;
-class ProjectConfigurationAspects;
 class Target;
-
-class PROJECTEXPLORER_EXPORT LayoutBuilder
-{
-public:
-    enum LayoutType { GridLayout, FormLayout };
-    explicit LayoutBuilder(QWidget *parent, LayoutType layoutType = FormLayout);
-    explicit LayoutBuilder(QLayout *layout); // Adds to existing layout.
-
-    ~LayoutBuilder();
-
-    class LayoutItem
-    {
-    public:
-        LayoutItem(QLayout *layout, int span = 1) : layout(layout), span(span) {}
-        LayoutItem(QWidget *widget, int span = 1, Qt::Alignment align = {})
-            : widget(widget), span(span), align(align) {}
-        LayoutItem(ProjectConfigurationAspect *aspect) : aspect(aspect) {}
-        LayoutItem(const QString &text) : text(text) {}
-
-        QLayout *layout = nullptr;
-        QWidget *widget = nullptr;
-        ProjectConfigurationAspect *aspect = nullptr;
-        QString text;
-        int span = 1;
-        Qt::Alignment align;
-    };
-
-    template<typename ...Items>
-    LayoutBuilder &addItems(LayoutItem first, Items... rest) {
-        return addItem(first).addItems(rest...);
-    }
-    LayoutBuilder &addItems() { return *this; }
-    LayoutBuilder &addItem(LayoutItem item);
-
-    LayoutBuilder &startNewRow();
-    LayoutBuilder &addRow(const LayoutItem &item);
-
-    QLayout *layout() const;
-
-private:
-    void flushPendingFormItems();
-
-    QFormLayout *m_formLayout = nullptr;
-    QGridLayout *m_gridLayout = nullptr;
-    QList<LayoutItem> m_pendingFormItems;
-    int m_currentGridRow = 0;
-    int m_currentGridColumn = 0;
-};
-
-class PROJECTEXPLORER_EXPORT ProjectConfigurationAspect : public QObject
-{
-    Q_OBJECT
-
-public:
-    ProjectConfigurationAspect();
-    ~ProjectConfigurationAspect() override;
-
-    void setId(Utils::Id id) { m_id = id; }
-    void setDisplayName(const QString &displayName) { m_displayName = displayName; }
-    void setSettingsKey(const QString &settingsKey) { m_settingsKey = settingsKey; }
-
-    Utils::Id id() const { return m_id; }
-    QString displayName() const { return m_displayName; }
-    QString settingsKey() const { return  m_settingsKey; }
-
-    bool isVisible() const { return m_visible; }
-    void setVisible(bool visible) { m_visible = visible; }
-
-    using ConfigWidgetCreator = std::function<QWidget *()>;
-    void setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator);
-    QWidget *createConfigWidget() const;
-
-    virtual void fromMap(const QVariantMap &) {}
-    virtual void toMap(QVariantMap &) const {}
-    virtual void acquaintSiblings(const ProjectConfigurationAspects &) {}
-
-    virtual void addToLayout(LayoutBuilder &builder);
-
-signals:
-    void changed();
-
-protected:
-    virtual void setVisibleDynamic(bool visible) { Q_UNUSED(visible) } // TODO: Better name? Merge with setVisible() somehow?
-
-    Utils::Id m_id;
-    QString m_displayName;
-    QString m_settingsKey; // Name of data in settings.
-    bool m_visible = true;
-    ConfigWidgetCreator m_configWidgetCreator;
-};
-
-class PROJECTEXPLORER_EXPORT ProjectConfigurationAspects
-        : private QList<ProjectConfigurationAspect *>
-{
-    using Base = QList<ProjectConfigurationAspect *>;
-
-public:
-    ProjectConfigurationAspects();
-    ProjectConfigurationAspects(const ProjectConfigurationAspects &) = delete;
-    ProjectConfigurationAspects &operator=(const ProjectConfigurationAspects &) = delete;
-    ~ProjectConfigurationAspects();
-
-    template <class Aspect, typename ...Args>
-    Aspect *addAspect(Args && ...args)
-    {
-        auto aspect = new Aspect(args...);
-        append(aspect);
-        return aspect;
-    }
-
-    ProjectConfigurationAspect *aspect(Utils::Id id) const;
-
-    template <typename T> T *aspect() const
-    {
-        for (ProjectConfigurationAspect *aspect : *this)
-            if (T *result = qobject_cast<T *>(aspect))
-                return result;
-        return nullptr;
-    }
-
-    void fromMap(const QVariantMap &map) const;
-    void toMap(QVariantMap &map) const;
-
-    using Base::append;
-    using Base::begin;
-    using Base::end;
-
-private:
-    Base &base() { return *this; }
-    const Base &base() const { return *this; }
-};
 
 class PROJECTEXPLORER_EXPORT ProjectConfiguration : public QObject
 {
@@ -218,9 +81,9 @@ public:
         return m_aspects.addAspect<Aspect>(std::forward<Args>(args)...);
     }
 
-    const ProjectConfigurationAspects &aspects() const { return m_aspects; }
+    const Utils::BaseAspects &aspects() const { return m_aspects; }
 
-    ProjectConfigurationAspect *aspect(Utils::Id id) const;
+    Utils::BaseAspect *aspect(Utils::Id id) const;
     template <typename T> T *aspect() const { return m_aspects.aspect<T>(); }
 
     void acquaintAspects();
@@ -230,7 +93,7 @@ signals:
     void toolTipChanged();
 
 protected:
-    ProjectConfigurationAspects m_aspects;
+    Utils::BaseAspects m_aspects;
 
 private:
     QPointer<Target> m_target;

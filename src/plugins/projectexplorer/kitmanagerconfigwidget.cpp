@@ -33,14 +33,14 @@
 #include "projectexplorerconstants.h"
 #include "task.h"
 
-#include <coreplugin/variablechooser.h>
-
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
+#include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
+#include <utils/variablechooser.h>
 
 #include <QAction>
 #include <QRegularExpression>
@@ -58,6 +58,8 @@
 #include <QStyle>
 
 static const char WORKING_COPY_KIT_ID[] = "modified kit";
+
+using namespace Utils;
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -116,7 +118,7 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     connect(km, &KitManager::kitUpdated,
             this, &KitManagerConfigWidget::kitWasUpdated);
 
-    auto chooser = new Core::VariableChooser(this);
+    auto chooser = new VariableChooser(this);
     chooser->addSupportedWidget(m_nameEdit);
     chooser->addMacroExpanderProvider([this]() { return m_modifiedKit->macroExpander(); });
 

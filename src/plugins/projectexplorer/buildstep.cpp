@@ -35,13 +35,13 @@
 #include "projectexplorerconstants.h"
 #include "target.h"
 
-#include <coreplugin/variablechooser.h>
-
 #include <utils/algorithm.h>
 #include <utils/fileinprojectfinder.h>
+#include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
+#include <utils/variablechooser.h>
 
 #include <QFormLayout>
 #include <QFutureWatcher>
@@ -159,7 +159,7 @@ BuildStepConfigWidget *BuildStep::createConfigWidget()
 
     {
         LayoutBuilder builder(widget);
-        for (ProjectConfigurationAspect *aspect : m_aspects) {
+        for (BaseAspect *aspect : qAsConst(m_aspects)) {
             if (aspect->isVisible())
                 aspect->addToLayout(builder.startNewRow());
         }
@@ -171,7 +171,7 @@ BuildStepConfigWidget *BuildStep::createConfigWidget()
     widget->setSummaryUpdater(m_summaryUpdater);
 
     if (m_addMacroExpander)
-        Core::VariableChooser::addSupportForChildWidgets(widget, macroExpander());
+        VariableChooser::addSupportForChildWidgets(widget, macroExpander());
 
     return widget;
 }
@@ -493,7 +493,7 @@ BuildStepConfigWidget::BuildStepConfigWidget(BuildStep *step)
     connect(m_step, &ProjectConfiguration::displayNameChanged,
             this, &BuildStepConfigWidget::updateSummary);
     for (auto aspect : step->aspects()) {
-        connect(aspect, &ProjectConfigurationAspect::changed,
+        connect(aspect, &BaseAspect::changed,
                 this, &BuildStepConfigWidget::recreateSummary);
     }
 }

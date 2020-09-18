@@ -37,179 +37,6 @@ using namespace ProjectExplorer;
 const char CONFIGURATION_ID_KEY[] = "ProjectExplorer.ProjectConfiguration.Id";
 const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayName";
 
-// ProjectConfigurationAspect
-
-ProjectConfigurationAspect::ProjectConfigurationAspect() = default;
-
-ProjectConfigurationAspect::~ProjectConfigurationAspect() = default;
-
-void ProjectConfigurationAspect::setConfigWidgetCreator
-    (const ConfigWidgetCreator &configWidgetCreator)
-{
-    m_configWidgetCreator = configWidgetCreator;
-}
-
-QWidget *ProjectConfigurationAspect::createConfigWidget() const
-{
-    return m_configWidgetCreator ? m_configWidgetCreator() : nullptr;
-}
-
-void ProjectConfigurationAspect::addToLayout(LayoutBuilder &)
-{
-}
-
-// LayoutBuilder
-
-LayoutBuilder::LayoutBuilder(QWidget *parent, LayoutType layoutType)
-{
-    if (layoutType == FormLayout) {
-        m_formLayout = new QFormLayout(parent);
-        m_formLayout->setContentsMargins(0, 0, 0, 0);
-        m_formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    } else {
-        m_gridLayout = new QGridLayout(parent);
-        m_gridLayout->setContentsMargins(0, 0, 0, 0);
-    }
-}
-
-LayoutBuilder::LayoutBuilder(QLayout *layout)
-{
-    if (auto fl = qobject_cast<QFormLayout *>(layout)) {
-        m_formLayout = fl;
-    } else if (auto grid = qobject_cast<QGridLayout *>(layout)) {
-        m_gridLayout = grid;
-        m_currentGridRow = grid->rowCount();
-        m_currentGridColumn = 0;
-    }
-}
-
-LayoutBuilder::~LayoutBuilder()
-{
-    flushPendingFormItems();
-}
-
-LayoutBuilder &LayoutBuilder::startNewRow()
-{
-    if (m_formLayout)
-        flushPendingFormItems();
-    if (m_gridLayout) {
-        if (m_currentGridColumn != 0) {
-            ++m_currentGridRow;
-            m_currentGridColumn = 0;
-        }
-    }
-    return *this;
-}
-
-LayoutBuilder &LayoutBuilder::addRow(const LayoutItem &item)
-{
-    startNewRow();
-    addItem(item);
-    return *this;
-}
-
-void LayoutBuilder::flushPendingFormItems()
-{
-    QTC_ASSERT(m_formLayout, return);
-
-    if (m_pendingFormItems.isEmpty())
-        return;
-
-    // If there are more than two items, we cram the last ones in one hbox.
-    if (m_pendingFormItems.size() > 2) {
-        auto hbox = new QHBoxLayout;
-        hbox->setContentsMargins(0, 0, 0, 0);
-        for (int i = 1; i < m_pendingFormItems.size(); ++i) {
-            if (QWidget *w = m_pendingFormItems.at(i).widget)
-                hbox->addWidget(w);
-            else if (QLayout *l = m_pendingFormItems.at(i).layout)
-                hbox->addItem(l);
-            else
-                QTC_CHECK(false);
-        }
-        while (m_pendingFormItems.size() >= 2)
-            m_pendingFormItems.takeLast();
-        m_pendingFormItems.append(LayoutItem(hbox));
-    }
-
-    if (m_pendingFormItems.size() == 1) { // One one item given, so this spans both columns.
-        if (auto layout = m_pendingFormItems.at(0).layout)
-            m_formLayout->addRow(layout);
-        else if (auto widget = m_pendingFormItems.at(0).widget)
-            m_formLayout->addRow(widget);
-    } else if (m_pendingFormItems.size() == 2) { // Normal case, both columns used.
-        if (auto label = m_pendingFormItems.at(0).widget) {
-            if (auto layout = m_pendingFormItems.at(1).layout)
-                m_formLayout->addRow(label, layout);
-            else if (auto widget = m_pendingFormItems.at(1).widget)
-                m_formLayout->addRow(label, widget);
-        } else  {
-            if (auto layout = m_pendingFormItems.at(1).layout)
-                m_formLayout->addRow(m_pendingFormItems.at(0).text, layout);
-            else if (auto widget = m_pendingFormItems.at(1).widget)
-                m_formLayout->addRow(m_pendingFormItems.at(0).text, widget);
-        }
-    } else {
-        QTC_CHECK(false);
-    }
-
-    m_pendingFormItems.clear();
-}
-
-QLayout *LayoutBuilder::layout() const
-{
-    if (m_formLayout)
-        return m_formLayout;
-    return m_gridLayout;
-}
-
-LayoutBuilder &LayoutBuilder::addItem(LayoutItem item)
-{
-    if (item.widget && !item.widget->parent())
-        item.widget->setParent(layout()->parentWidget());
-
-    if (item.aspect) {
-        item.aspect->addToLayout(*this);
-    } else {
-        if (m_gridLayout) {
-            if (auto widget = item.widget)
-                m_gridLayout->addWidget(widget, m_currentGridRow, m_currentGridColumn, 1, item.span, item.align);
-            m_currentGridColumn += item.span;
-        } else {
-            m_pendingFormItems.append(item);
-        }
-    }
-    return *this;
-}
-
-
-// ProjectConfigurationAspects
-
-ProjectConfigurationAspects::ProjectConfigurationAspects() = default;
-
-ProjectConfigurationAspects::~ProjectConfigurationAspects()
-{
-    qDeleteAll(base());
-}
-
-ProjectConfigurationAspect *ProjectConfigurationAspects::aspect(Utils::Id id) const
-{
-    return Utils::findOrDefault(base(), Utils::equal(&ProjectConfigurationAspect::id, id));
-}
-
-void ProjectConfigurationAspects::fromMap(const QVariantMap &map) const
-{
-    for (ProjectConfigurationAspect *aspect : *this)
-        aspect->fromMap(map);
-}
-
-void ProjectConfigurationAspects::toMap(QVariantMap &map) const
-{
-    for (ProjectConfigurationAspect *aspect : *this)
-        aspect->toMap(map);
-}
-
-
 // ProjectConfiguration
 
 ProjectConfiguration::ProjectConfiguration(QObject *parent, Utils::Id id)
@@ -302,14 +129,14 @@ bool ProjectConfiguration::fromMap(const QVariantMap &map)
     return true;
 }
 
-ProjectConfigurationAspect *ProjectConfiguration::aspect(Utils::Id id) const
+Utils::BaseAspect *ProjectConfiguration::aspect(Utils::Id id) const
 {
     return m_aspects.aspect(id);
 }
 
 void ProjectConfiguration::acquaintAspects()
 {
-    for (ProjectConfigurationAspect *aspect : m_aspects)
+    for (Utils::BaseAspect *aspect : m_aspects)
         aspect->acquaintSiblings(m_aspects);
 }
 

@@ -27,11 +27,12 @@
 
 #include "remotelinuxcheckforfreediskspaceservice.h"
 
-#include <projectexplorer/projectconfigurationaspects.h>
+#include <utils/aspects.h>
 
 #include <limits>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace RemoteLinux {
 

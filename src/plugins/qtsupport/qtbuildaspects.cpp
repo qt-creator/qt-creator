@@ -30,12 +30,15 @@
 #include <projectexplorer/buildpropertiessettings.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/kitmanager.h>
+
 #include <utils/infolabel.h>
+#include <utils/layoutbuilder.h>
 
 #include <QCheckBox>
 #include <QLayout>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace QtSupport {
 
@@ -109,7 +112,7 @@ void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
     changeHandler();
 }
 
-void QtQuickCompilerAspect::acquaintSiblings(const ProjectConfigurationAspects &siblings)
+void QtQuickCompilerAspect::acquaintSiblings(const BaseAspects &siblings)
 {
     m_qmlDebuggingAspect = siblings.aspect<QmlDebuggingAspect>();
 }

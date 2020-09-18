@@ -32,7 +32,6 @@
 #include "cmaketoolmanager.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/variablechooser.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorersettings.h>
@@ -49,6 +48,7 @@
 #include <utils/environment.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
+#include <utils/variablechooser.h>
 
 #include <QComboBox>
 #include <QDialog>
@@ -877,7 +877,7 @@ private:
                                 "You may provide a type hint by adding \":TYPE\" before the \"=\"."));
         m_editor->setMinimumSize(800, 200);
 
-        auto chooser = new Core::VariableChooser(m_dialog);
+        auto chooser = new Utils::VariableChooser(m_dialog);
         chooser->addSupportedWidget(m_editor);
         chooser->addMacroExpanderProvider([this]() { return kit()->macroExpander(); });
 

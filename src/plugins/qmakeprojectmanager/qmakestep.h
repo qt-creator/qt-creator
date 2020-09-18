@@ -28,8 +28,8 @@
 #include "qmakeprojectmanager_global.h"
 
 #include <projectexplorer/abstractprocessstep.h>
-#include <projectexplorer/projectconfigurationaspects.h>
 
+#include <utils/aspects.h>
 #include <utils/fileutils.h>
 
 #include <memory>
@@ -83,9 +83,9 @@ public:
     QString targetTriple;
     TargetArchConfig archConfig = NoArch;
     OsType osType = NoOsType;
-    ProjectExplorer::TriState separateDebugInfo;
-    ProjectExplorer::TriState linkQmlDebuggingQQ2;
-    ProjectExplorer::TriState useQtQuickCompiler;
+    Utils::TriState separateDebugInfo;
+    Utils::TriState linkQmlDebuggingQQ2;
+    Utils::TriState useQtQuickCompiler;
 };
 
 
@@ -103,9 +103,9 @@ inline bool operator !=(const QMakeStepConfig &a, const QMakeStepConfig &b) {
 inline QDebug operator<<(QDebug dbg, const QMakeStepConfig &c)
 {
    dbg << c.archConfig << c.osType
-       << (c.linkQmlDebuggingQQ2 == ProjectExplorer::TriState::Enabled)
-       << (c.useQtQuickCompiler == ProjectExplorer::TriState::Enabled)
-       << (c.separateDebugInfo == ProjectExplorer::TriState::Enabled);
+       << (c.linkQmlDebuggingQQ2 == Utils::TriState::Enabled)
+       << (c.useQtQuickCompiler == Utils::TriState::Enabled)
+       << (c.separateDebugInfo == Utils::TriState::Enabled);
    return dbg;
 }
 

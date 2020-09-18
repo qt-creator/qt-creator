@@ -29,11 +29,11 @@
 #include "buildconfiguration.h"
 #include "kit.h"
 #include "processparameters.h"
-#include "projectconfigurationaspects.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorer_export.h"
 #include "target.h"
 
+#include <utils/aspects.h>
 #include <utils/fileutils.h>
 #include <utils/outputformatter.h>
 

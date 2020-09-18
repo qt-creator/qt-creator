@@ -36,12 +36,12 @@
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/variablechooser.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/externaltool.h>
 #include <coreplugin/externaltoolmanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/variablechooser.h>
 
 #include <QDialogButtonBox>
 #include <QDir>

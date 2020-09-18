@@ -14,6 +14,7 @@ add_qtc_library(Utils
     ansiescapecodehandler.cpp ansiescapecodehandler.h
     appmainwindow.cpp appmainwindow.h
     archive.cpp archive.h
+    aspects.cpp aspects.h
     basetreeview.cpp basetreeview.h
     benchmarker.cpp benchmarker.h
     buildablehelperlibrary.cpp buildablehelperlibrary.h
@@ -73,6 +74,7 @@ add_qtc_library(Utils
     itemviews.cpp itemviews.h
     json.cpp json.h
     jsontreeitem.cpp jsontreeitem.h
+    layoutbuilder.cpp layoutbuilder.h
     linecolumn.h
     link.h
     listmodel.h
@@ -169,6 +171,7 @@ add_qtc_library(Utils
     utils.qrc
     utils_global.h
     utilsicons.cpp utilsicons.h
+    variablechooser.cpp variablechooser.h
     variant.h
     winutils.cpp winutils.h
     wizard.cpp wizard.h

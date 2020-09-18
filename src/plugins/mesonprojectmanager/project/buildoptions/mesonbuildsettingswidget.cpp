@@ -27,14 +27,18 @@
 #include <projectexplorer/projectconfiguration.h>
 #include <utils/detailswidget.h>
 #include <utils/headerviewstretcher.h>
+#include <utils/layoutbuilder.h>
 
 #include "../mesonbuildconfiguration.h"
 #include "../mesonbuildsystem.h"
 #include "mesonbuildsettingswidget.h"
 #include "ui_mesonbuildsettingswidget.h"
 
+using namespace Utils;
+
 namespace MesonProjectManager {
 namespace Internal {
+
 MesonBuildSettingsWidget::MesonBuildSettingsWidget(MesonBuildConfiguration *buildCfg)
     : ProjectExplorer::NamedWidget{tr("Meson")}
     , ui{new Ui::MesonBuildSettingsWidget}
@@ -43,7 +47,7 @@ MesonBuildSettingsWidget::MesonBuildSettingsWidget(MesonBuildConfiguration *buil
     ui->setupUi(this);
     ui->container->setState(Utils::DetailsWidget::NoSummary);
     ui->container->setWidget(ui->details);
-    ProjectExplorer::LayoutBuilder buildDirWBuilder{ui->buildDirWidget};
+    LayoutBuilder buildDirWBuilder{ui->buildDirWidget};
     auto buildDirAspect = buildCfg->buildDirectoryAspect();
     buildDirAspect->addToLayout(buildDirWBuilder);
 

@@ -25,7 +25,9 @@
 
 #pragma once
 
-#include "projectconfigurationaspects.h"
+#include "projectexplorer_export.h"
+
+#include <utils/aspects.h>
 
 namespace ProjectExplorer {
 
@@ -33,9 +35,9 @@ class PROJECTEXPLORER_EXPORT BuildPropertiesSettings
 {
 public:
     QString buildDirectoryTemplate;
-    TriState separateDebugInfo;
-    TriState qmlDebugging;
-    TriState qtQuickCompiler;
+    Utils::TriState separateDebugInfo;
+    Utils::TriState qmlDebugging;
+    Utils::TriState qtQuickCompiler;
     bool showQtSettings = false;
 };
 

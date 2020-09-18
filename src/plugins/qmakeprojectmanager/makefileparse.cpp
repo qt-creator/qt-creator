@@ -36,14 +36,14 @@
 #include <QTextStream>
 #include <QLoggingCategory>
 
-using namespace QmakeProjectManager;
-using namespace Internal;
 using namespace ProjectExplorer;
+using namespace Utils;;
 
-using Utils::FilePath;
-using Utils::QtcProcess;
 using QtSupport::QtVersionManager;
 using QtSupport::BaseQtVersion;
+
+namespace QmakeProjectManager {
+namespace Internal {
 
 static QString findQMakeLine(const QString &makefile, const QString &key)
 {
@@ -396,6 +396,8 @@ void MakeFileParse::parseCommandLine(const QString &command, const QString &proj
     }
 }
 
+} // Internal
+} // QmakeProjectManager
 
 // Unit tests:
 

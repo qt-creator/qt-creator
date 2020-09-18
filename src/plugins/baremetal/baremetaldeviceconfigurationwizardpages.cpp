@@ -29,7 +29,7 @@
 
 #include "debugserverproviderchooser.h"
 
-#include <coreplugin/variablechooser.h>
+#include <utils/variablechooser.h>
 #include <projectexplorer/devicesupport/idevice.h>
 
 #include <QFormLayout>

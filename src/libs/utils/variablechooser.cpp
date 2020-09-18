@@ -24,14 +24,13 @@
 ****************************************************************************/
 
 #include "variablechooser.h"
-#include "coreconstants.h"
 
-#include <utils/fancylineedit.h>
-#include <utils/headerviewstretcher.h> // IconButton
-#include <utils/macroexpander.h>
-#include <utils/treemodel.h>
-#include <utils/qtcassert.h>
-#include <utils/utilsicons.h>
+#include "fancylineedit.h"
+#include "headerviewstretcher.h" // IconButton
+#include "macroexpander.h"
+#include "treemodel.h"
+#include "qtcassert.h"
+#include "utilsicons.h"
 
 #include <QApplication>
 #include <QAbstractItemModel>
@@ -50,9 +49,7 @@
 #include <QVBoxLayout>
 #include <QVector>
 
-using namespace Utils;
-
-namespace Core {
+namespace Utils {
 namespace Internal {
 
 enum {
@@ -339,7 +336,7 @@ void VariableGroupItem::populateGroup(MacroExpander *expander)
 using namespace Internal;
 
 /*!
-    \class Core::VariableChooser
+    \class Utils::VariableChooser
     \inheaderfile coreplugin/variablechooser.h
     \inmodule QtCreator
 
@@ -366,10 +363,10 @@ using namespace Internal;
     Example:
     \code
     QWidget *myOptionsContainerWidget = new QWidget;
-    new Core::VariableChooser(myOptionsContainerWidget)
+    new Utils::VariableChooser(myOptionsContainerWidget)
     QLineEdit *myLineEditOption = new QLineEdit(myOptionsContainerWidget);
     myOptionsContainerWidget->layout()->addWidget(myLineEditOption);
-    Core::VariableChooser::addVariableSupport(myLineEditOption);
+    Utils::VariableChooser::addVariableSupport(myLineEditOption);
     \endcode
 */
 

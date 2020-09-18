@@ -26,15 +26,17 @@
 #include "mcusupportrunconfiguration.h"
 #include "mcusupportconstants.h"
 
-#include <projectexplorer/projectconfigurationaspects.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
+
 #include <cmakeprojectmanager/cmakekitinformation.h>
 #include <cmakeprojectmanager/cmaketool.h>
+
+#include <utils/aspects.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;

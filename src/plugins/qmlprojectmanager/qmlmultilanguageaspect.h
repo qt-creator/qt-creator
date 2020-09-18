@@ -33,7 +33,7 @@
 
 namespace QmlProjectManager {
 
-class QMLPROJECTMANAGER_EXPORT QmlMultiLanguageAspect : public ProjectExplorer::BoolAspect
+class QMLPROJECTMANAGER_EXPORT QmlMultiLanguageAspect : public Utils::BoolAspect
 {
     Q_OBJECT
 public:

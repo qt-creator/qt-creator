@@ -45,10 +45,10 @@
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
+#include <utils/variablechooser.h>
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/variablechooser.h>
 
 #include <QDir>
 #include <QFormLayout>
@@ -909,7 +909,7 @@ const MacroExpander *RunControl::macroExpander() const
     return d->macroExpander;
 }
 
-ProjectConfigurationAspect *RunControl::aspect(Utils::Id id) const
+BaseAspect *RunControl::aspect(Utils::Id id) const
 {
     return d->runConfiguration ? d->runConfiguration->aspect(id) : nullptr;
 }

@@ -32,6 +32,7 @@
 #include "projectexplorerconstants.h"
 #include "task.h"
 
+#include <utils/aspects.h>
 #include <utils/environment.h>
 #include <utils/macroexpander.h>
 #include <utils/port.h>
@@ -90,7 +91,7 @@ protected:
  *
  */
 
-class PROJECTEXPLORER_EXPORT GlobalOrProjectAspect : public ProjectConfigurationAspect
+class PROJECTEXPLORER_EXPORT GlobalOrProjectAspect : public Utils::BaseAspect
 {
     Q_OBJECT
 
@@ -157,7 +158,7 @@ public:
         return nullptr;
     }
 
-    using AspectFactory = std::function<ProjectConfigurationAspect *(Target *)>;
+    using AspectFactory = std::function<Utils::BaseAspect *(Target *)>;
     template <class T> static void registerAspect()
     {
         addAspectFactory([](Target *target) { return new T(target); });

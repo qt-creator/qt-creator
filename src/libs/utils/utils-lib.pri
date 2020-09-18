@@ -138,7 +138,10 @@ SOURCES += \
     $$PWD/overlaywidget.cpp \
     $$PWD/archive.cpp \
     $$PWD/id.cpp \
-    $$PWD/infobar.cpp
+    $$PWD/infobar.cpp \
+    $$PWD/aspects.cpp \
+    $$PWD/layoutbuilder.cpp \
+    $$PWD/variablechooser.cpp
 
 HEADERS += \
     $$PWD/environmentfwd.h \
@@ -292,7 +295,10 @@ HEADERS += \
     $$PWD/archive.h \
     $$PWD/id.h \
     $$PWD/infobar.h \
-    $$PWD/porting.h
+    $$PWD/porting.h \
+    $$PWD/aspects.h \
+    $$PWD/layoutbuilder.h \
+    $$PWD/variablechooser.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

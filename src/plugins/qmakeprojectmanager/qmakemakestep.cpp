@@ -33,7 +33,6 @@
 #include "qmakesettings.h"
 #include "qmakestep.h"
 
-#include <coreplugin/variablechooser.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildsteplist.h>
@@ -43,7 +42,9 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/xcodebuildparser.h>
+
 #include <utils/qtcprocess.h>
+#include <utils/variablechooser.h>
 
 #include <QDir>
 #include <QFileInfo>

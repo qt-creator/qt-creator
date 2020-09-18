@@ -34,7 +34,7 @@
 
 namespace Android {
 
-class BaseStringListAspect : public ProjectExplorer::ProjectConfigurationAspect
+class BaseStringListAspect : public Utils::BaseAspect
 {
     Q_OBJECT
 
@@ -43,7 +43,7 @@ public:
                                   Utils::Id id = Utils::Id());
     ~BaseStringListAspect() override;
 
-    void addToLayout(ProjectExplorer::LayoutBuilder &builder) override;
+    void addToLayout(Utils::LayoutBuilder &builder) override;
 
     QStringList value() const;
     void setValue(const QStringList &val);

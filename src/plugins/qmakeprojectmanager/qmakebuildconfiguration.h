@@ -27,9 +27,10 @@
 
 #include "qmakeprojectmanager_global.h"
 
-#include <projectexplorer/projectconfigurationaspects.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
+
+#include <utils/aspects.h>
 
 namespace ProjectExplorer { class FileNode; }
 
@@ -96,13 +97,13 @@ public:
     static bool isBuildDirAtSafeLocation(const QString &sourceDir, const QString &buildDir);
     bool isBuildDirAtSafeLocation() const;
 
-    ProjectExplorer::TriState separateDebugInfo() const;
+    Utils::TriState separateDebugInfo() const;
     void forceSeparateDebugInfo(bool sepDebugInfo);
 
-    ProjectExplorer::TriState qmlDebugging() const;
+    Utils::TriState qmlDebugging() const;
     void forceQmlDebugging(bool enable);
 
-    ProjectExplorer::TriState useQtQuickCompiler() const;
+    Utils::TriState useQtQuickCompiler() const;
     void forceQtQuickCompiler(bool enable);
 
 signals:

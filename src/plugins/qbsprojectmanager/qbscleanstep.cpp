@@ -41,6 +41,7 @@
 #include <QJsonObject>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace QbsProjectManager {
 namespace Internal {

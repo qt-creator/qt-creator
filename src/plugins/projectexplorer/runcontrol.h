@@ -224,7 +224,7 @@ public:
     Project *project() const;
     Kit *kit() const;
     const Utils::MacroExpander *macroExpander() const;
-    ProjectConfigurationAspect *aspect(Utils::Id id) const;
+    Utils::BaseAspect *aspect(Utils::Id id) const;
     template <typename T> T *aspect() const {
         return runConfiguration() ? runConfiguration()->aspect<T>() : nullptr;
     }

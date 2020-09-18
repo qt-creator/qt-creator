@@ -43,6 +43,7 @@
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/layoutbuilder.h>
 
 #include <QAction>
 #include <QApplication>
@@ -77,14 +78,14 @@ static IosDeviceType toIosDeviceType(const SimulatorInfo &device)
     return iosDeviceType;
 }
 
-class IosDeviceTypeAspect : public ProjectConfigurationAspect
+class IosDeviceTypeAspect : public BaseAspect
 {
 public:
     IosDeviceTypeAspect(IosRunConfiguration *runConfiguration);
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
-    void addToLayout(ProjectExplorer::LayoutBuilder &builder) override;
+    void addToLayout(LayoutBuilder &builder) override;
 
     IosDeviceType deviceType() const;
     void setDeviceType(const IosDeviceType &deviceType);

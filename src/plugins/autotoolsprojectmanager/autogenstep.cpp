@@ -32,9 +32,11 @@
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/processparameters.h>
-#include <projectexplorer/projectconfigurationaspects.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+
+#include <utils/aspects.h>
 
 #include <QDateTime>
 
@@ -80,7 +82,7 @@ AutogenStep::AutogenStep(BuildStepList *bsl, Utils::Id id) : AbstractProcessStep
     m_additionalArgumentsAspect->setDisplayStyle(StringAspect::LineEditDisplay);
     m_additionalArgumentsAspect->setHistoryCompleter("AutotoolsPM.History.AutogenStepArgs");
 
-    connect(m_additionalArgumentsAspect, &ProjectConfigurationAspect::changed, this, [this] {
+    connect(m_additionalArgumentsAspect, &BaseAspect::changed, this, [this] {
         m_runAutogen = true;
     });
 

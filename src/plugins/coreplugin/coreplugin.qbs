@@ -175,8 +175,6 @@ Project {
                 "textdocument.h",
                 "themechooser.cpp",
                 "themechooser.h",
-                "variablechooser.cpp",
-                "variablechooser.h",
                 "vcsmanager.cpp",
                 "vcsmanager.h",
                 "versiondialog.cpp",

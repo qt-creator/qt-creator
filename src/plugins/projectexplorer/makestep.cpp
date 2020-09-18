@@ -34,15 +34,16 @@
 #include "projectexplorerconstants.h"
 #include "target.h"
 #include "toolchain.h"
-#include "projectconfigurationaspects.h"
 
-#include <coreplugin/variablechooser.h>
+#include <utils/aspects.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/layoutbuilder.h>
 #include <utils/optional.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
+#include <utils/variablechooser.h>
 
 #include <QCheckBox>
 #include <QFormLayout>
@@ -381,8 +382,7 @@ BuildStepConfigWidget *MakeStep::createConfigWidget()
         targetsList->hide();
     }
 
-    Core::VariableChooser::addSupportForChildWidgets(widget, macroExpander());
-
+    VariableChooser::addSupportForChildWidgets(widget, macroExpander());
 
     widget->setSummaryUpdater([this] {
         const CommandLine make = effectiveMakeCommand(MakeStep::Display);

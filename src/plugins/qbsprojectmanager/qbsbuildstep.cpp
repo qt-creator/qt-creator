@@ -32,7 +32,6 @@
 #include "qbssettings.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/variablechooser.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -43,6 +42,7 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/variablechooser.h>
 
 #include <QBoxLayout>
 #include <QCheckBox>
@@ -637,7 +637,7 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     cleanInstallRootCheckBox->setText(tr("Clean install root"));
     defaultInstallDirCheckBox->setText(tr("Use default location"));
 
-    auto chooser = new Core::VariableChooser(this);
+    auto chooser = new VariableChooser(this);
     chooser->addSupportedWidget(propertyEdit);
     chooser->addSupportedWidget(installDirChooser->lineEdit());
     chooser->addMacroExpanderProvider([step] { return step->macroExpander(); });

@@ -34,6 +34,7 @@
 
 #include <utils/detailsbutton.h>
 #include <utils/fancylineedit.h>
+#include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
@@ -171,7 +172,7 @@ void WorkingDirectoryAspect::addToLayout(LayoutBuilder &builder)
     builder.addItems(tr("Working directory:"), m_chooser.data(), m_resetButton.data());
 }
 
-void WorkingDirectoryAspect::acquaintSiblings(const ProjectConfigurationAspects &siblings)
+void WorkingDirectoryAspect::acquaintSiblings(const BaseAspects &siblings)
 {
     m_envAspect = siblings.aspect<EnvironmentAspect>();
 }
@@ -498,7 +499,7 @@ void ExecutableAspect::setExecutable(const FilePath &executable)
 
 void ExecutableAspect::setSettingsKey(const QString &key)
 {
-    ProjectConfigurationAspect::setSettingsKey(key);
+    BaseAspect::setSettingsKey(key);
     m_executable.setSettingsKey(key);
 }
 

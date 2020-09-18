@@ -32,9 +32,11 @@
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/processparameters.h>
-#include <projectexplorer/projectconfigurationaspects.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+
+#include <utils/aspects.h>
 
 #include <QDateTime>
 #include <QDir>
@@ -84,7 +86,7 @@ public:
 private:
     void doRun() override;
 
-    ProjectExplorer::StringAspect *m_additionalArgumentsAspect = nullptr;
+    StringAspect *m_additionalArgumentsAspect = nullptr;
     bool m_runConfigure = false;
 };
 
@@ -100,7 +102,7 @@ ConfigureStep::ConfigureStep(BuildStepList *bsl, Utils::Id id)
     m_additionalArgumentsAspect->setLabelText(tr("Arguments:"));
     m_additionalArgumentsAspect->setHistoryCompleter("AutotoolsPM.History.ConfigureArgs");
 
-    connect(m_additionalArgumentsAspect, &ProjectConfigurationAspect::changed, this, [this] {
+    connect(m_additionalArgumentsAspect, &BaseAspect::changed, this, [this] {
         m_runConfigure = true;
     });
 

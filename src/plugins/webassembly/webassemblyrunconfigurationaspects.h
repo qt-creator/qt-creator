@@ -32,14 +32,14 @@ QT_FORWARD_DECLARE_CLASS(QComboBox)
 namespace WebAssembly {
 namespace Internal {
 
-class WebBrowserSelectionAspect : public ProjectExplorer::ProjectConfigurationAspect
+class WebBrowserSelectionAspect : public Utils::BaseAspect
 {
     Q_OBJECT
 
 public:
     WebBrowserSelectionAspect(ProjectExplorer::Target *target);
 
-    void addToLayout(ProjectExplorer::LayoutBuilder &builder) override;
+    void addToLayout(Utils::LayoutBuilder &builder) override;
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;

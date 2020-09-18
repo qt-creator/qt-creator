@@ -47,6 +47,7 @@
 
 using namespace QmakeProjectManager;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Ios {
 namespace Internal {

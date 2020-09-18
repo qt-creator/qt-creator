@@ -29,8 +29,11 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
+#include <utils/layoutbuilder.h>
+
 #include <QComboBox>
-#include <QFormLayout>
+
+using namespace Utils;
 
 namespace WebAssembly {
 namespace Internal {
@@ -77,7 +80,7 @@ WebBrowserSelectionAspect::WebBrowserSelectionAspect(ProjectExplorer::Target *ta
     setSettingsKey("RunConfiguration.WebBrowser");
 }
 
-void WebBrowserSelectionAspect::addToLayout(ProjectExplorer::LayoutBuilder &builder)
+void WebBrowserSelectionAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!m_webBrowserComboBox);
     m_webBrowserComboBox = new QComboBox;

@@ -41,11 +41,11 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/detailswidget.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
-#include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QSpacerItem>
@@ -114,7 +114,7 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Utils::Id id)
 
     auto extraAppArgsAspect = addAspect<ArgumentsAspect>();
 
-    connect(extraAppArgsAspect, &ProjectConfigurationAspect::changed,
+    connect(extraAppArgsAspect, &BaseAspect::changed,
             this, [target, extraAppArgsAspect]() {
         if (target->buildConfigurations().first()->buildType() == BuildConfiguration::BuildType::Release) {
             const QString buildKey = target->activeBuildKey();

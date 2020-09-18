@@ -40,11 +40,11 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/environmentaspect.h>
-#include <projectexplorer/projectconfigurationaspects.h>
 
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
+#include <utils/aspects.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/mimetypes/mimedatabase.h>

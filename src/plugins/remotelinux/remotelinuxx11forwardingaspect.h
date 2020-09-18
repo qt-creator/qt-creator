@@ -27,15 +27,13 @@
 
 #include "remotelinux_export.h"
 
-#include <projectexplorer/projectconfigurationaspects.h>
-
-#include <QPointer>
+#include <utils/aspects.h>
 
 namespace Utils { class MacroExpander; }
 
 namespace RemoteLinux {
 
-class REMOTELINUX_EXPORT X11ForwardingAspect : public ProjectExplorer::StringAspect
+class REMOTELINUX_EXPORT X11ForwardingAspect : public Utils::StringAspect
 {
     Q_OBJECT
 

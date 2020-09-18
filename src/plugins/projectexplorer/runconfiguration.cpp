@@ -43,13 +43,14 @@
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/detailswidget.h>
+#include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
+#include <utils/variablechooser.h>
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/variablechooser.h>
 
 #include <QDir>
 #include <QFormLayout>
@@ -223,13 +224,13 @@ QWidget *RunConfiguration::createConfigurationWidget()
     auto widget = new QWidget;
     {
         LayoutBuilder builder(widget);
-        for (ProjectConfigurationAspect *aspect : m_aspects) {
+        for (BaseAspect *aspect : qAsConst(m_aspects)) {
             if (aspect->isVisible())
                 aspect->addToLayout(builder.startNewRow());
         }
     }
 
-    Core::VariableChooser::addSupportForChildWidgets(widget, &m_expander);
+    VariableChooser::addSupportForChildWidgets(widget, &m_expander);
 
     auto detailsWidget = new Utils::DetailsWidget;
     detailsWidget->setState(DetailsWidget::NoSummary);
@@ -245,7 +246,7 @@ void RunConfiguration::addAspectFactory(const AspectFactory &aspectFactory)
 QMap<Utils::Id, QVariantMap> RunConfiguration::aspectData() const
 {
     QMap<Utils::Id, QVariantMap> data;
-    for (ProjectConfigurationAspect *aspect : m_aspects)
+    for (BaseAspect *aspect : qAsConst(m_aspects))
         aspect->toMap(data[aspect->id()]);
     return data;
 }

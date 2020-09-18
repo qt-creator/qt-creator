@@ -44,7 +44,7 @@ namespace QmlProjectManager {
 class QmlProject;
 class QmlBuildSystem;
 
-class QMLPROJECTMANAGER_EXPORT QmlMainFileAspect : public ProjectExplorer::ProjectConfigurationAspect
+class QMLPROJECTMANAGER_EXPORT QmlMainFileAspect : public Utils::BaseAspect
 {
     Q_OBJECT
 public:
@@ -57,7 +57,7 @@ public:
         FileInSettings
     };
 
-    void addToLayout(ProjectExplorer::LayoutBuilder &builder) final;
+    void addToLayout(Utils::LayoutBuilder &builder) final;
     void toMap(QVariantMap &map) const final;
     void fromMap(const QVariantMap &map) final;
 

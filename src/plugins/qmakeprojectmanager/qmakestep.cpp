@@ -46,14 +46,15 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
-#include <coreplugin/variablechooser.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/qtsupportconstants.h>
+
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
+#include <utils/variablechooser.h>
 
 #include <QComboBox>
 #include <QDir>
@@ -580,7 +581,8 @@ BuildStepConfigWidget *QMakeStep::createConfigWidget()
         if (QmakeBuildConfiguration *bc = qmakeBuildConfiguration())
             BuildManager::buildLists({bc->cleanSteps()});
     });
-    auto chooser = new Core::VariableChooser(qmakeAdditonalArgumentsLineEdit);
+
+    auto chooser = new VariableChooser(qmakeAdditonalArgumentsLineEdit);
     chooser->addMacroExpanderProvider([this] { return macroExpander(); });
     chooser->addSupportedWidget(qmakeAdditonalArgumentsLineEdit);
 

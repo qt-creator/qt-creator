@@ -474,7 +474,7 @@ QString RunSettingsWidget::uniqueRCName(const QString &name)
 
 void RunSettingsWidget::addRunControlWidgets()
 {
-    for (ProjectConfigurationAspect *aspect : m_runConfiguration->aspects()) {
+    for (Utils::BaseAspect *aspect : m_runConfiguration->aspects()) {
         if (QWidget *rcw = aspect->createConfigWidget()) {
             auto label = new QLabel(this);
             label->setText(aspect->displayName());

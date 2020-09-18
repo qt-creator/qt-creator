@@ -40,14 +40,17 @@
 #include <projectexplorer/target.h>
 #include <qtsupport/qtbuildaspects.h>
 
+#include <utils/layoutbuilder.h>
+
 #include <QCheckBox>
 #include <QDebug>
 #include <QFormLayout>
 #include <QLabel>
 #include <QTextEdit>
 
-using namespace ProjectExplorer;
 using namespace Debugger::Internal;
+using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
@@ -58,7 +61,7 @@ enum DebuggerLanguageStatus {
     AutoEnabledLanguage
 };
 
-class DebuggerLanguageAspect : public ProjectConfigurationAspect
+class DebuggerLanguageAspect : public BaseAspect
 {
 public:
     DebuggerLanguageAspect() = default;

@@ -29,6 +29,7 @@
 
 #include "runconfiguration.h"
 
+#include <utils/aspects.h>
 #include <utils/environment.h>
 
 #include <QList>
@@ -36,7 +37,7 @@
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT EnvironmentAspect : public ProjectConfigurationAspect
+class PROJECTEXPLORER_EXPORT EnvironmentAspect : public Utils::BaseAspect
 {
     Q_OBJECT
 

@@ -93,7 +93,7 @@ public:
     CustomParserExpression warning;
 };
 
-class PROJECTEXPLORER_EXPORT CustomParsersAspect : public ProjectConfigurationAspect
+class PROJECTEXPLORER_EXPORT CustomParsersAspect : public Utils::BaseAspect
 {
     Q_OBJECT
 public:

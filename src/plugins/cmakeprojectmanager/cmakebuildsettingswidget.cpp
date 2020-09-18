@@ -44,6 +44,7 @@
 #include <utils/headerviewstretcher.h>
 #include <utils/infolabel.h>
 #include <utils/itemviews.h>
+#include <utils/layoutbuilder.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
 
@@ -54,6 +55,7 @@
 #include <QMenu>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -100,7 +102,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     int row = 0;
     auto buildDirAspect = bc->buildDirectoryAspect();
-    connect(buildDirAspect, &ProjectConfigurationAspect::changed, this, [this]() {
+    connect(buildDirAspect, &BaseAspect::changed, this, [this]() {
         m_configModel->flush(); // clear out config cache...;
     });
     auto initialCMakeAspect = bc->aspect<InitialCMakeArgumentsAspect>();

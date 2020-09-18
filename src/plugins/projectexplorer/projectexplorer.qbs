@@ -107,7 +107,6 @@ Project {
                 "processstep.cpp", "processstep.h",
                 "project.cpp", "project.h",
                 "projectconfiguration.cpp", "projectconfiguration.h",
-                "projectconfigurationaspects.cpp", "projectconfigurationaspects.h",
                 "projectconfigurationmodel.cpp", "projectconfigurationmodel.h",
                 "projectexplorer.cpp", "projectexplorer.h",
                 "projectexplorer.qrc",

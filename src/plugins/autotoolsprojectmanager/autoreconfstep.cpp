@@ -33,10 +33,13 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectconfigurationaspects.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
+#include <utils/aspects.h>
+
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace AutotoolsProjectManager {
 namespace Internal {
@@ -78,7 +81,7 @@ AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Utils::Id id)
     m_additionalArgumentsAspect->setDisplayStyle(StringAspect::LineEditDisplay);
     m_additionalArgumentsAspect->setHistoryCompleter("AutotoolsPM.History.AutoreconfStepArgs");
 
-    connect(m_additionalArgumentsAspect, &ProjectConfigurationAspect::changed, this, [this] {
+    connect(m_additionalArgumentsAspect, &BaseAspect::changed, this, [this] {
         m_runAutoreconf = true;
     });
 

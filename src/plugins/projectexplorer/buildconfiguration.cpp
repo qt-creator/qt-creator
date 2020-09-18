@@ -46,14 +46,15 @@
 #include "toolchain.h"
 
 #include <coreplugin/idocument.h>
-#include <coreplugin/variablechooser.h>
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
 #include <utils/macroexpander.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/mimetypes/mimetype.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
+#include <utils/variablechooser.h>
 
 #include <QCheckBox>
 #include <QDebug>
@@ -306,7 +307,7 @@ NamedWidget *BuildConfiguration::createConfigWidget()
     }
 
     LayoutBuilder builder(widget);
-    for (ProjectConfigurationAspect *aspect : aspects()) {
+    for (BaseAspect *aspect : aspects()) {
         if (aspect->isVisible())
             aspect->addToLayout(builder.startNewRow());
     }

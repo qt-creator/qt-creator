@@ -30,6 +30,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/infolabel.h>
+#include <utils/layoutbuilder.h>
 
 #include <QLayout>
 
