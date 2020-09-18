@@ -164,7 +164,8 @@ bool QtTestResult::matches(const TestTreeItem *item) const
         return matchesTestCase(item);
     case TestTreeItem::TestFunction:
     case TestTreeItem::TestSpecialFunction:
-        if (!isTestFunction())
+        // QuickTest data tags have no dedicated TestTreeItem, so treat these results as function
+        if (!isTestFunction() && !(m_type == TestType::QuickTest && isDataTag()))
             return false;
         if (parentItem->proFile() != m_projectFile)
             return false;
