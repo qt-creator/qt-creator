@@ -211,6 +211,11 @@ QVector4D GeneralHelper::focusObjectToCamera(QQuick3DCamera *camera, float defau
     return QVector4D(lookAt, cameraZoomFactor);
 }
 
+bool GeneralHelper::fuzzyCompare(double a, double b)
+{
+    return qFuzzyCompare(a, b);
+}
+
 void GeneralHelper::delayedPropertySet(QObject *obj, int delay, const QString &property,
                                        const QVariant &value)
 {

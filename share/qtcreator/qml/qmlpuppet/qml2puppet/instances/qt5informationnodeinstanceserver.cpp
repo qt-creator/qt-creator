@@ -541,18 +541,25 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
                                   Q_ARG(QVariant, QVariant::fromValue(renderSize.width())),
                                   Q_ARG(QVariant, QVariant::fromValue(renderSize.height())));
 
-        updateNodesRecursive(m_ModelNode3DImageViewContentItem);
+        QImage renderImage;
+        bool ready = false;
+        int count = 0; // Ensure we don't ever get stuck in an infinite loop
+        while (!ready && ++count < 10) {
+            updateNodesRecursive(m_ModelNode3DImageViewContentItem);
 
-        // Fake render loop signaling to update things like QML items as 3D textures
-        m_editView3D->beforeSynchronizing();
-        m_editView3D->beforeRendering();
+            // Fake render loop signaling to update things like QML items as 3D textures
+            m_ModelNode3DImageView->beforeSynchronizing();
+            m_ModelNode3DImageView->beforeRendering();
 
-        QSizeF size = qobject_cast<QQuickItem *>(m_ModelNode3DImageViewContentItem)->size();
-        QRectF renderRect(QPointF(0., 0.), size);
-        QImage renderImage = designerSupport()->renderImageForItem(m_ModelNode3DImageViewContentItem,
-                                                                   renderRect, size.toSize());
-        m_editView3D->afterRendering();
+            QSizeF size = qobject_cast<QQuickItem *>(m_ModelNode3DImageViewContentItem)->size();
+            QRectF renderRect(QPointF(0., 0.), size);
+            renderImage = designerSupport()->renderImageForItem(m_ModelNode3DImageViewContentItem,
+                                                                renderRect, size.toSize());
+            m_ModelNode3DImageView->afterRendering();
 
+            QMetaObject::invokeMethod(m_ModelNode3DImageViewRootItem, "afterRender");
+            ready = QQmlProperty::read(m_ModelNode3DImageViewRootItem, "ready").value<bool>();
+        }
         QMetaObject::invokeMethod(m_ModelNode3DImageViewRootItem, "destroyView");
 
         // Key number is selected so that it is unlikely to conflict other ImageContainer use.

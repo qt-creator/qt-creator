@@ -57,7 +57,7 @@ View3D {
             source: "#Sphere"
             materials: [
                 DefaultMaterial {
-                    diffuseColor: "green"
+                    diffuseColor: "#4aee45"
                 }
             ]
         }

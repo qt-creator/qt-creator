@@ -43,6 +43,7 @@
         <file>mockfiles/ModelNode3DImageView.qml</file>
         <file>mockfiles/MaterialNodeView.qml</file>
         <file>mockfiles/EffectNodeView.qml</file>
+        <file>mockfiles/ModelNodeView.qml</file>
         <file>mockfiles/meshes/arrow.mesh</file>
         <file>mockfiles/meshes/scalerod.mesh</file>
         <file>mockfiles/meshes/ring.mesh</file>

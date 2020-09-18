@@ -1412,6 +1412,9 @@ void DesignerActionManager::createDefaultModelNodePreviewImageHandlers()
     registerModelNodePreviewHandler(
                 ModelNodePreviewImageHandler("QtQuick3D.Material",
                                              ModelNodeOperations::previewImageDataFor3DNode));
+    registerModelNodePreviewHandler(
+                ModelNodePreviewImageHandler("QtQuick3D.Model",
+                                             ModelNodeOperations::previewImageDataFor3DNode));
 
     // TODO - Disabled until QTBUG-86616 is fixed
 //    registerModelNodePreviewHandler(

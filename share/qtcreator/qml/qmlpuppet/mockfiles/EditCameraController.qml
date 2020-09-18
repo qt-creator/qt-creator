@@ -46,10 +46,11 @@ Item {
     readonly property vector3d _defaultCameraPosition: Qt.vector3d(0, 600, 600)
     readonly property vector3d _defaultCameraRotation: Qt.vector3d(-45, 0, 0)
     readonly property real _defaultCameraLookAtDistance: _defaultCameraPosition.length()
+    property bool ignoreToolState: false
 
     function restoreCameraState(cameraState)
     {
-        if (!camera)
+        if (!camera || ignoreToolState)
             return;
 
         _lookAtPoint = cameraState[0];
@@ -75,7 +76,7 @@ Item {
 
     function storeCameraState(delay)
     {
-        if (!camera)
+        if (!camera || ignoreToolState)
             return;
 
         var cameraState = [];

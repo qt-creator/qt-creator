@@ -36,11 +36,17 @@ Item {
     property View3D view: null
     property alias contentItem: contentItem
 
+    property var previewObject
+
     property var materialViewComponent
     property var effectViewComponent
+    property var modelViewComponent
+
+    property bool ready: false
 
     function destroyView()
     {
+        previewObject = null;
         if (view) {
             // Destroy is async, so make sure we don't get any more updates for the old view
             _generalHelper.enableItemUpdate(view, false);
@@ -57,6 +63,10 @@ Item {
             createViewForMaterial(obj);
         else if (obj instanceof Effect)
             createViewForEffect(obj);
+        else if (obj instanceof Model)
+            createViewForModel(obj);
+
+        previewObject = obj;
     }
 
     function createViewForMaterial(material)
@@ -77,6 +87,26 @@ Item {
         // Always recreate the view to ensure effect is up to date
         if (effectViewComponent.status === Component.Ready)
             view = effectViewComponent.createObject(viewRect, {"previewEffect": effect});
+    }
+
+    function createViewForModel(model)
+    {
+        if (!modelViewComponent)
+            modelViewComponent = Qt.createComponent("ModelNodeView.qml");
+
+        // Always recreate the view to ensure model is up to date
+        if (modelViewComponent.status === Component.Ready)
+            view = modelViewComponent.createObject(viewRect, {"sourceModel": model});
+    }
+
+    function afterRender()
+    {
+        if (previewObject instanceof Model) {
+            view.fitModel();
+            ready = view.ready;
+        } else {
+            ready = true;
+        }
     }
 
     Item {
