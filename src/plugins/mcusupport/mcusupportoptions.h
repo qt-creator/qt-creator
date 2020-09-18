@@ -110,13 +110,18 @@ public:
         TypeIAR,
         TypeKEIL,
         TypeGHS,
-        TypeDesktop
+        TypeMSVC,
+        TypeGCC
     };
 
-    McuToolChainPackage(const QString &label, const QString &defaultPath,
-                        const QString &detectionPath, const QString &settingsKey, Type type);
+    McuToolChainPackage(const QString &label,
+                        const QString &defaultPath,
+                        const QString &detectionPath,
+                        const QString &settingsKey,
+                        Type type);
 
     Type type() const;
+    bool isDesktopToolchain() const;
     ProjectExplorer::ToolChain *toolChain(Utils::Id language) const;
     QString cmakeToolChainFileName() const;
     QVariant debuggerId() const;
@@ -136,15 +141,20 @@ public:
         FreeRTOS
     };
 
-    McuTarget(const QVersionNumber &qulVersion, const QString &vendor, const QString &platform,
-              OS os, const QVector<McuPackage *> &packages,
+    struct Platform {
+        QString name;
+        QString displayName;
+        QString vendor;
+    };
+
+    McuTarget(const QVersionNumber &qulVersion, const Platform &platform, OS os,
+              const QVector<McuPackage *> &packages,
               const McuToolChainPackage *toolChainPackage);
 
     QVersionNumber qulVersion() const;
-    QString vendor() const;
     QVector<McuPackage *> packages() const;
     const McuToolChainPackage *toolChainPackage() const;
-    QString qulPlatform() const;
+    Platform platform() const;
     OS os() const;
     void setColorDepth(int colorDepth);
     int colorDepth() const;
@@ -152,8 +162,7 @@ public:
 
 private:
     const QVersionNumber m_qulVersion;
-    const QString m_vendor;
-    const QString m_qulPlatform;
+    const Platform m_platform;
     const OS m_os = OS::BareMetal;
     const QVector<McuPackage*> m_packages;
     const McuToolChainPackage *m_toolChainPackage;

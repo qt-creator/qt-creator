@@ -61,7 +61,7 @@
 namespace McuSupport {
 namespace Internal {
 
-static const int KIT_VERSION = 6; // Bumps up whenever details in Kit creation change
+static const int KIT_VERSION = 7; // Bumps up whenever details in Kit creation change
 
 static QString packagePathFromSettings(const QString &settingsKey,
                                        QSettings::Scope scope = QSettings::UserScope,
@@ -227,8 +227,10 @@ void McuPackage::updateStatus()
                 m_path != m_defaultPath);
 }
 
-McuToolChainPackage::McuToolChainPackage(const QString &label, const QString &defaultPath,
-                                         const QString &detectionPath, const QString &settingsKey,
+McuToolChainPackage::McuToolChainPackage(const QString &label,
+                                         const QString &defaultPath,
+                                         const QString &detectionPath,
+                                         const QString &settingsKey,
                                          McuToolChainPackage::Type type)
     : McuPackage(label, defaultPath, detectionPath, settingsKey)
     , m_type(type)
@@ -240,15 +242,32 @@ McuToolChainPackage::Type McuToolChainPackage::type() const
     return m_type;
 }
 
-static ProjectExplorer::ToolChain *desktopToolChain(Utils::Id language)
+bool McuToolChainPackage::isDesktopToolchain() const
+{
+    return m_type == TypeMSVC || m_type == TypeGCC;
+}
+
+static ProjectExplorer::ToolChain *msvcToolChain(Utils::Id language)
 {
     using namespace ProjectExplorer;
 
     ToolChain *toolChain = ToolChainManager::toolChain([language](const ToolChain *t) {
         const Abi abi = t->targetAbi();
-        return (abi.os() != Abi::WindowsOS
-                || (abi.osFlavor() == Abi::WindowsMsvc2017Flavor
-                    || abi.osFlavor() == Abi::WindowsMsvc2019Flavor))
+        return  (abi.osFlavor() == Abi::WindowsMsvc2017Flavor || abi.osFlavor() == Abi::WindowsMsvc2019Flavor)
+                && abi.architecture() == Abi::X86Architecture
+                && abi.wordWidth() == 64
+                && t->language() == language;
+    });
+    return toolChain;
+}
+
+static ProjectExplorer::ToolChain *gccToolChain(Utils::Id language)
+{
+    using namespace ProjectExplorer;
+
+    ToolChain *toolChain = ToolChainManager::toolChain([language](const ToolChain *t) {
+        const Abi abi = t->targetAbi();
+        return  abi.os() != Abi::WindowsOS
                 && abi.architecture() == Abi::X86Architecture
                 && abi.wordWidth() == 64
                 && t->language() == language;
@@ -285,9 +304,11 @@ static ProjectExplorer::ToolChain* armGccToolChain(const Utils::FilePath &path, 
 ProjectExplorer::ToolChain *McuToolChainPackage::toolChain(Utils::Id language) const
 {
     ProjectExplorer::ToolChain *tc = nullptr;
-    if (m_type == TypeDesktop) {
-        tc = desktopToolChain(language);
-    } else {
+    if (m_type == TypeMSVC)
+        tc = msvcToolChain(language);
+    else if (m_type == TypeGCC)
+        tc = gccToolChain(language);
+    else {
         const QLatin1String compilerName(
                     language == ProjectExplorer::Constants::C_LANGUAGE_ID ? "gcc" : "g++");
         const Utils::FilePath compiler = Utils::FilePath::fromUserInput(
@@ -336,22 +357,16 @@ QVariant McuToolChainPackage::debuggerId() const
     return debuggerId;
 }
 
-McuTarget::McuTarget(const QVersionNumber &qulVersion, const QString &vendor,
-                     const QString &platform, OS os,
+McuTarget::McuTarget(const QVersionNumber &qulVersion,
+                     const Platform &platform, OS os,
                      const QVector<McuPackage *> &packages,
                      const McuToolChainPackage *toolChainPackage)
     : m_qulVersion(qulVersion)
-    , m_vendor(vendor)
-    , m_qulPlatform(platform)
+    , m_platform(platform)
     , m_os(os)
     , m_packages(packages)
     , m_toolChainPackage(toolChainPackage)
 {
-}
-
-QString McuTarget::vendor() const
-{
-    return m_vendor;
 }
 
 QVector<McuPackage *> McuTarget::packages() const
@@ -369,9 +384,9 @@ McuTarget::OS McuTarget::os() const
     return m_os;
 }
 
-QString McuTarget::qulPlatform() const
+McuTarget::Platform McuTarget::platform() const
 {
-    return m_qulPlatform;
+    return m_platform;
 }
 
 bool McuTarget::isValid() const
@@ -502,15 +517,15 @@ static void setKitProperties(const QString &kitName, ProjectExplorer::Kit *k,
     using namespace Constants;
 
     k->setUnexpandedDisplayName(kitName);
-    k->setValue(KIT_MCUTARGET_VENDOR_KEY, mcuTarget->vendor());
-    k->setValue(KIT_MCUTARGET_MODEL_KEY, mcuTarget->qulPlatform());
+    k->setValue(KIT_MCUTARGET_VENDOR_KEY, mcuTarget->platform().vendor);
+    k->setValue(KIT_MCUTARGET_MODEL_KEY, mcuTarget->platform().name);
     k->setValue(KIT_MCUTARGET_COLORDEPTH_KEY, mcuTarget->colorDepth());
     k->setValue(KIT_MCUTARGET_SDKVERSION_KEY, mcuTarget->qulVersion().toString());
     k->setValue(KIT_MCUTARGET_KITVERSION_KEY, KIT_VERSION);
     k->setValue(KIT_MCUTARGET_OS_KEY, static_cast<int>(mcuTarget->os()));
     k->setAutoDetected(true);
     k->makeSticky();
-    if (mcuTarget->toolChainPackage()->type() == McuToolChainPackage::TypeDesktop)
+    if (mcuTarget->toolChainPackage()->isDesktopToolchain())
         k->setDeviceTypeForIcon(DEVICE_TYPE);
     QSet<Utils::Id> irrelevant = {
         SysRootKitAspect::id(),
@@ -537,7 +552,7 @@ static void setKitDebugger(ProjectExplorer::Kit *k, const McuToolChainPackage *t
 {
     // Qt Creator seems to be smart enough to deduce the right Kit debugger from the ToolChain
     // We rely on that at least in the Desktop case.
-    if (tcPackage->type() == McuToolChainPackage::TypeDesktop
+    if (tcPackage->isDesktopToolchain()
             // No Green Hills debugger, because support for it is missing.
             || tcPackage->type() == McuToolChainPackage::TypeGHS)
         return;
@@ -548,7 +563,7 @@ static void setKitDebugger(ProjectExplorer::Kit *k, const McuToolChainPackage *t
 static void setKitDevice(ProjectExplorer::Kit *k, const McuTarget* mcuTarget)
 {
     // "Device Type" Desktop is the default. We use that for the Qt for MCUs Desktop Kit
-    if (mcuTarget->toolChainPackage()->type() == McuToolChainPackage::TypeDesktop)
+    if (mcuTarget->toolChainPackage()->isDesktopToolchain())
         return;
 
     ProjectExplorer::DeviceTypeKitAspect::setDeviceTypeId(k, Constants::DEVICE_TYPE);
@@ -565,7 +580,7 @@ static void setKitEnvironment(ProjectExplorer::Kit *k, const McuTarget* mcuTarge
     // The Desktop version depends on the Qt shared libs in Qul_DIR/bin.
     // If CMake's fileApi is avaialble, we can rely on the "Add library search path to PATH"
     // feature of the run configuration. Otherwise, we just prepend the path, here.
-    if (mcuTarget->toolChainPackage()->type() == McuToolChainPackage::TypeDesktop
+    if (mcuTarget->toolChainPackage()->isDesktopToolchain()
             && !CMakeProjectManager::CMakeToolManager::defaultCMakeTool()->hasFileApi())
         pathAdditions.append(QDir::toNativeSeparators(qtForMCUsSdkPackage->path() + "/bin"));
 
@@ -598,7 +613,7 @@ static void setKitCMakeOptions(ProjectExplorer::Kit *k, const McuTarget* mcuTarg
         config.append(CMakeConfigItem("CMAKE_CXX_COMPILER", "%{Compiler:Executable:Cxx}"));
         config.append(CMakeConfigItem("CMAKE_C_COMPILER", "%{Compiler:Executable:C}"));
     }
-    if (mcuTarget->toolChainPackage()->type() != McuToolChainPackage::TypeDesktop)
+    if (!mcuTarget->toolChainPackage()->isDesktopToolchain())
         config.append(CMakeConfigItem(
                           "CMAKE_TOOLCHAIN_FILE",
                           (qulDir + "/lib/cmake/Qul/toolchain/"
@@ -606,7 +621,7 @@ static void setKitCMakeOptions(ProjectExplorer::Kit *k, const McuTarget* mcuTarg
     config.append(CMakeConfigItem("QUL_GENERATORS",
                                   (qulDir + "/lib/cmake/Qul/QulGenerators.cmake").toUtf8()));
     config.append(CMakeConfigItem("QUL_PLATFORM",
-                                  mcuTarget->qulPlatform().toUtf8()));
+                                  mcuTarget->platform().name.toUtf8()));
 
     if (mcuTarget->qulVersion() <= QVersionNumber{1,3} // OS variable was removed in Qul 1.4
         && mcuTarget->os() == McuTarget::OS::FreeRTOS)
@@ -630,19 +645,16 @@ static void setKitQtVersionOptions(ProjectExplorer::Kit *k)
 QString McuSupportOptions::kitName(const McuTarget *mcuTarget)
 {
     QString os;
-    if (mcuTarget->qulVersion() <= QVersionNumber{1,3} && mcuTarget->os() == McuTarget::OS::FreeRTOS) {
+    if (mcuTarget->qulVersion() <= QVersionNumber{1,3} && mcuTarget->os() == McuTarget::OS::FreeRTOS)
         // Starting from Qul 1.4 each OS is a separate platform
         os = QLatin1String(" FreeRTOS");
-    }
 
     const QString colorDepth = mcuTarget->colorDepth() > 0
             ? QString::fromLatin1(" %1bpp").arg(mcuTarget->colorDepth())
             : "";
-    // Hack: Use the platform name in the kit name. Exception for the "Qt" platform: use "Desktop"
-    const QString targetName =
-            mcuTarget->toolChainPackage()->type() == McuToolChainPackage::TypeDesktop
-            ? "Desktop"
-            : mcuTarget->qulPlatform();
+    const QString targetName = mcuTarget->platform().displayName.isEmpty()
+            ? mcuTarget->platform().name
+            : mcuTarget->platform().displayName;
     return QString::fromLatin1("Qt for MCUs %1.%2 - %3%4%5")
             .arg(QString::number(mcuTarget->qulVersion().majorVersion()),
                  QString::number(mcuTarget->qulVersion().minorVersion()),
@@ -659,8 +671,8 @@ QList<ProjectExplorer::Kit *> McuSupportOptions::existingKits(const McuTarget *m
         return kit->isAutoDetected()
                 && kit->value(KIT_MCUTARGET_KITVERSION_KEY) == KIT_VERSION
                 && (!mcuTarget || (
-                        kit->value(KIT_MCUTARGET_VENDOR_KEY) == mcuTarget->vendor()
-                        && kit->value(KIT_MCUTARGET_MODEL_KEY) == mcuTarget->qulPlatform()
+                        kit->value(KIT_MCUTARGET_VENDOR_KEY) == mcuTarget->platform().vendor
+                        && kit->value(KIT_MCUTARGET_MODEL_KEY) == mcuTarget->platform().name
                         && kit->value(KIT_MCUTARGET_COLORDEPTH_KEY) == mcuTarget->colorDepth()
                         && kit->value(KIT_MCUTARGET_OS_KEY).toInt()
                            == static_cast<int>(mcuTarget->os())
