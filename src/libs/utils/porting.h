@@ -66,9 +66,16 @@ inline StringView make_stringview(const QString &s)
 inline QStringView midView(const QString &s, int offset, int length)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    if (offset > s.size())
+    const int size = s.size();
+    if (offset > size)
         return {};
-    if (offset + length > s.size())
+    if (offset < 0) {
+        if (length < 0 || length + offset >= size)
+            return QStringView(s);
+        if (length + offset <= 0)
+            return {};
+        return QStringView(s).left(length + offset);
+    } else if (length > size - offset)
         return QStringView(s).mid(offset);
     return QStringView(s).mid(offset, length);
 #else
