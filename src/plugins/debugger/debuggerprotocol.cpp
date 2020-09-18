@@ -657,7 +657,7 @@ QString decodeData(const QString &ba, const QString &encoding)
         case DebuggerEncoding::JulianDateAndMillisecondsSinceMidnight: {
             const int p = ba.indexOf('/');
             const QDate date = dateFromData(ba.left(p).toInt());
-            const QTime time = timeFromData(ba.midRef(p + 1 ).toInt());
+            const QTime time = timeFromData(ba.mid(p + 1).toInt());
             const QDateTime dateTime = QDateTime(date, time);
             return dateTime.isValid() ? dateTime.toString(Qt::TextDate) : "(invalid)";
         }
@@ -698,15 +698,15 @@ QString decodeData(const QString &ba, const QString &encoding)
 
             qint64 msecs = ba.left(p0).toLongLong();
             ++p0;
-            Qt::TimeSpec spec = Qt::TimeSpec(ba.midRef(p0, p1 - p0).toInt());
+            Qt::TimeSpec spec = Qt::TimeSpec(ba.mid(p0, p1 - p0).toInt());
             ++p1;
-            qulonglong offset = ba.midRef(p1, p2 - p1).toInt();
+            qulonglong offset = ba.mid(p1, p2 - p1).toInt();
             ++p2;
             QByteArray timeZoneId = QByteArray::fromHex(ba.mid(p2, p3 - p2).toUtf8());
             ++p3;
-            int status = ba.midRef(p3, p4 - p3).toInt();
+            int status = ba.mid(p3, p4 - p3).toInt();
             ++p4;
-            int tiVersion = ba.midRef(p4).toInt();
+            int tiVersion = ba.mid(p4).toInt();
 
             QDate date;
             QTime time;
@@ -861,9 +861,9 @@ QString DebuggerCommand::argsToString() const
 
 DebuggerEncoding::DebuggerEncoding(const QString &data)
 {
-    const QVector<QStringRef> l = data.splitRef(':');
+    const QStringList l = data.split(':');
 
-    const QStringRef &t = l.at(0);
+    const QString &t = l.at(0);
     if (t == "latin1") {
         type = HexEncodedLatin1;
         size = 1;

@@ -1026,20 +1026,19 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
             // Post an extension command producing one-line output with a callback,
             // pass along token for identification in hash.
             const QString prefix = m_extensionCommandPrefix + dbgCmd.function;
-            QList<QStringRef> splittedArguments;
             if (dbgCmd.args.isString()) {
                 const QString &arguments = dbgCmd.argsToString();
                 cmd = prefix + arguments;
                 int argumentSplitPos = 0;
-                QList<QStringRef> splittedArguments;
+                QList<QStringView> splittedArguments;
                 int maxArgumentSize = maxCommandLength - prefix.length() - maxTokenLength;
                 while (argumentSplitPos < arguments.size()) {
-                    splittedArguments << arguments.midRef(argumentSplitPos, maxArgumentSize);
+                    splittedArguments << Utils::midView(arguments, argumentSplitPos, maxArgumentSize);
                     argumentSplitPos += splittedArguments.last().length();
                 }
                 QTC_CHECK(argumentSplitPos == arguments.size());
                 int tokenPart = splittedArguments.size();
-                for (const QStringRef &part : qAsConst(splittedArguments))
+                for (const QStringView &part : qAsConst(splittedArguments))
                     str << prefix << " -t " << token << '.' << --tokenPart << ' ' << part << '\n';
             } else {
                 cmd = prefix;
@@ -1961,8 +1960,8 @@ void CdbEngine::ensureUsing32BitStackInWow64(const DebuggerResponse &response, c
 {
     // Parsing the header of the stack output to check which bitness
     // the cdb is currently using.
-    const QVector<QStringRef> lines = response.data.data().splitRef('\n');
-    for (const QStringRef &line : lines) {
+    const QStringList lines = response.data.data().split('\n');
+    for (const QString &line : lines) {
         if (!line.startsWith("Child"))
             continue;
         if (line.startsWith("ChildEBP")) {
@@ -2238,7 +2237,7 @@ static inline bool checkCommandToken(const QString &tokenPrefix, const QString &
     if (!c.startsWith(tokenPrefix))
         return false;
     bool ok;
-    *token = c.midRef(tokenPrefixSize, size - tokenPrefixSize - 1).toInt(&ok);
+    *token = c.mid(tokenPrefixSize, size - tokenPrefixSize - 1).toInt(&ok);
     return ok;
 }
 
@@ -2259,19 +2258,21 @@ void CdbEngine::parseOutputLine(QString line)
         const int tokenPos = creatorExtPrefix.size() + 2;
         const int tokenEndPos = line.indexOf('|', tokenPos);
         QTC_ASSERT(tokenEndPos != -1, return);
-        const int token = line.midRef(tokenPos, tokenEndPos - tokenPos).toInt();
+        const int token = line.mid(tokenPos, tokenEndPos - tokenPos).toInt();
         // remainingChunks
         const int remainingChunksPos = tokenEndPos + 1;
         const int remainingChunksEndPos = line.indexOf('|', remainingChunksPos);
         QTC_ASSERT(remainingChunksEndPos != -1, return);
-        const int remainingChunks = line.midRef(remainingChunksPos, remainingChunksEndPos - remainingChunksPos).toInt();
+        const int remainingChunks = line.mid(remainingChunksPos,
+                                             remainingChunksEndPos - remainingChunksPos)
+                                        .toInt();
         // const char 'serviceName'
         const int whatPos = remainingChunksEndPos + 1;
         const int whatEndPos = line.indexOf('|', whatPos);
         QTC_ASSERT(whatEndPos != -1, return);
         const QString what = line.mid(whatPos, whatEndPos - whatPos);
         // Build up buffer, call handler once last chunk was encountered
-        m_extensionMessageBuffer += line.midRef(whatEndPos + 1);
+        m_extensionMessageBuffer += line.mid(whatEndPos + 1);
         if (remainingChunks == 0) {
             handleExtensionMessage(type, token, what, m_extensionMessageBuffer);
             m_extensionMessageBuffer.clear();
@@ -2742,7 +2743,7 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
 
     const QString &verOutput = data.childAt(0).data();
     const QString firstToken = verOutput.split(' ').constFirst();
-    const QVector<QStringRef> pythonVersion = firstToken.splitRef('.');
+    const QStringList pythonVersion = firstToken.split('.');
 
     bool ok = false;
     if (pythonVersion.size() == 3) {
@@ -2849,7 +2850,7 @@ void CdbEngine::handleWidgetAt(const DebuggerResponse &response)
             break;
         }
         // 0x000 -> nothing found
-        if (!watchExp.midRef(sepPos + 1).toULongLong(nullptr, 0)) {
+        if (!watchExp.mid(sepPos + 1).toULongLong(nullptr, 0)) {
             message = QString("No widget could be found at %1, %2.").arg(m_watchPointX).arg(m_watchPointY);
             break;
         }

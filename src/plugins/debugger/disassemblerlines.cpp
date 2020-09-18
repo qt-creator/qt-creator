@@ -46,7 +46,7 @@ void DisassemblerLine::fromString(const QString &unparsed)
 
     // Mac gdb has an overflow reporting 64bit addresses causing the instruction
     // to follow the last digit "0x000000013fff4810mov 1,1". Truncate here.
-    if (pos > 19 && unparsed.midRef(3, 16).toULongLong())
+    if (pos > 19 && unparsed.mid(3, 16).toULongLong())
         pos = 19;
 
     QString addr = unparsed.left(pos);
@@ -190,7 +190,7 @@ void DisassemblerLines::appendUnparsed(const QString &unparsed)
             }
             dl.address = address.left(pos1 - 1).toULongLong(nullptr, 0);
             dl.function = m_lastFunction;
-            dl.offset = address.midRef(pos2).toUInt();
+            dl.offset = address.mid(pos2).toUInt();
         } else {
             // Plain data like "0x0000cd64:\tadd\tlr, pc, lr\n"
             dl.address = address.toULongLong(nullptr, 0);

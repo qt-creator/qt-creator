@@ -2128,7 +2128,9 @@ DebuggerPlugin::DebuggerPlugin()
     m_instance = this;
 
     qRegisterMetaType<PerspectiveState>("Utils::PerspectiveState");
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     qRegisterMetaTypeStreamOperators<PerspectiveState>("Utils::PerspectiveState");
+#endif
 }
 
 DebuggerPlugin::~DebuggerPlugin()

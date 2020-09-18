@@ -178,7 +178,7 @@ static QString msgWinException(const QString &data, unsigned *exCodeIn = nullptr
     const int addressPos = blankPos != -1 ? data.indexOf("0x", blankPos + 1) : -1;
     if (addressPos < 0)
         return GdbEngine::tr("An exception was triggered.");
-    const unsigned exCode = data.midRef(exCodePos, blankPos - exCodePos).toUInt(nullptr, 0);
+    const unsigned exCode = data.mid(exCodePos, blankPos - exCodePos).toUInt(nullptr, 0);
     if (exCodeIn)
         *exCodeIn = exCode;
     const quint64 address = data.mid(addressPos).trimmed().toULongLong(nullptr, 0);
@@ -1388,7 +1388,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
         const GdbMi wpt = data["wpt"];
         const QString rid = wpt["number"].data();
         const Breakpoint bp = breakHandler()->findBreakpointByResponseId(rid);
-        const quint64 bpAddress = wpt["exp"].data().midRef(1).toULongLong(nullptr, 0);
+        const quint64 bpAddress = wpt["exp"].data().mid(1).toULongLong(nullptr, 0);
         QString msg;
         if (bp) {
             if (bp->type() == WatchpointAtExpression)
@@ -2149,7 +2149,7 @@ void GdbEngine::handleWatchInsert(const DebuggerResponse &response, const Breakp
             bp->setResponseId(wpt["number"].data());
             QString exp = wpt["exp"].data();
             if (exp.startsWith('*'))
-                bp->setAddress(exp.midRef(1).toULongLong(nullptr, 0));
+                bp->setAddress(exp.mid(1).toULongLong(nullptr, 0));
             QTC_CHECK(!bp->needsChange());
             notifyBreakpointInsertOk(bp);
         } else if (ba.startsWith("Hardware watchpoint ")
@@ -2160,7 +2160,7 @@ void GdbEngine::handleWatchInsert(const DebuggerResponse &response, const Breakp
             const QString address = ba.mid(end + 2).trimmed();
             bp->setResponseId(ba.mid(begin, end - begin));
             if (address.startsWith('*'))
-                bp->setAddress(address.midRef(1).toULongLong(nullptr, 0));
+                bp->setAddress(address.mid(1).toULongLong(nullptr, 0));
             QTC_CHECK(!bp->needsChange());
             notifyBreakpointInsertOk(bp);
         } else {
@@ -3189,14 +3189,14 @@ void GdbEngine::handleRegisterListing(const DebuggerResponse &response)
     m_registers.clear();
     QStringList lines = response.consoleStreamOutput.split('\n');
     for (int i = 1; i < lines.size(); ++i) {
-        const QVector<QStringRef> parts = lines.at(i).splitRef(' ', Qt::SkipEmptyParts);
+        const QStringList parts = lines.at(i).split(' ', Qt::SkipEmptyParts);
         if (parts.size() < 7)
             continue;
         int gdbRegisterNumber = parts.at(1).toInt();
         Register reg;
-        reg.name = parts.at(0).toString();
+        reg.name = parts.at(0);
         reg.size = parts.at(4).toInt();
-        reg.reportedType = parts.at(5).toString();
+        reg.reportedType = parts.at(5);
         m_registers[gdbRegisterNumber] = reg;
     }
 }
@@ -3587,7 +3587,7 @@ void GdbEngine::setupEngine()
     }
 
     const QString tests = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_TESTS"));
-    foreach (const QStringRef &test, tests.splitRef(','))
+    foreach (const QString &test, tests.split(','))
         m_testCases.insert(test.toInt());
     foreach (int test, m_testCases)
         showMessage("ENABLING TEST CASE: " + QString::number(test));

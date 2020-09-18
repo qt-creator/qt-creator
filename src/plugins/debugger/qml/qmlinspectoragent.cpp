@@ -440,7 +440,7 @@ void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &objec
             const int firstIndex = int(strlen("inspect"));
             const int secondIndex = iname.indexOf('.', firstIndex + 1);
             if (secondIndex != -1)
-                engineId = iname.midRef(firstIndex + 1, secondIndex - firstIndex - 1).toInt();
+                engineId = iname.mid(firstIndex + 1, secondIndex - firstIndex - 1).toInt();
         }
 
         // Still not found? Maybe we're loading the engine itself.
@@ -465,7 +465,7 @@ void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &objec
             int lastIndex = iname.lastIndexOf('.');
             int secondLastIndex = iname.lastIndexOf('.', lastIndex - 1);
             if (secondLastIndex != WatchItem::InvalidId)
-                parentId = iname.midRef(secondLastIndex + 1, lastIndex - secondLastIndex - 1).toInt();
+                parentId = iname.mid(secondLastIndex + 1, lastIndex - secondLastIndex - 1).toInt();
             else
                 parentId = engineId;
         } else {

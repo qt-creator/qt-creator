@@ -104,8 +104,13 @@ void ConsoleView::mousePressEvent(QMouseEvent *event)
         bool handled = false;
         if (type == ConsoleItem::DefaultType) {
             bool showTypeIcon = index.parent() == QModelIndex();
-            ConsoleItemPositions positions(m_model, visualRect(index), viewOptions().font, showTypeIcon,
-                                           true);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+            const QStyleOptionViewItem option = viewOptions();
+#else
+            QStyleOptionViewItem option;
+            initViewItemOption(&option);
+#endif
+            ConsoleItemPositions positions(m_model, visualRect(index), option.font, showTypeIcon, true);
 
             if (positions.expandCollapseIcon().contains(pos)) {
                 if (isExpanded(index))

@@ -940,9 +940,9 @@ void DebuggerToolTipHolder::positionShow(const TextEditorWidget *editorWidget)
 //// Parse a 'yyyyMMdd' date
 static QDate dateFromString(const QString &date)
 {
-    return date.size() == 8 ?
-        QDate(date.leftRef(4).toInt(), date.midRef(4, 2).toInt(), date.midRef(6, 2).toInt()) :
-        QDate();
+    return date.size() == 8
+               ? QDate(date.left(4).toInt(), date.mid(4, 2).toInt(), date.mid(6, 2).toInt())
+               : QDate();
 }
 
 void DebuggerToolTipHolder::saveSessionData(QXmlStreamWriter &w) const
