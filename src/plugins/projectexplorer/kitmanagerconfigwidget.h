@@ -32,7 +32,6 @@
 #include <memory>
 
 QT_BEGIN_NAMESPACE
-class QGridLayout;
 class QLabel;
 class QLineEdit;
 class QToolButton;
@@ -92,7 +91,6 @@ private:
     void showEvent(QShowEvent *event) override;
     QLabel *createLabel(const QString &name, const QString &toolTip);
 
-    QGridLayout *m_layout;
     QToolButton *m_iconButton;
     QLineEdit *m_nameEdit;
     QLineEdit *m_fileSystemFriendlyNameLineEdit;
