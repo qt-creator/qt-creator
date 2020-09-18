@@ -60,7 +60,8 @@ LayoutBuilder::LayoutBuilder(QLayout *layout)
 
 LayoutBuilder::~LayoutBuilder()
 {
-    flushPendingFormItems();
+    if (m_formLayout)
+        flushPendingFormItems();
 }
 
 LayoutBuilder &LayoutBuilder::startNewRow()
