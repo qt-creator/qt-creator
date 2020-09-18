@@ -80,7 +80,8 @@ void DiagramView::dragEnterEvent(QDragEnterEvent *event)
             QString key;
             dataStream >> key;
             if (!key.isEmpty()) {
-                if (m_diagramSceneModel->diagramSceneController()->isAddingAllowed(Uid(key), m_diagramSceneModel->diagram()))
+                if (m_diagramSceneModel->diagramSceneController()
+                        ->isAddingAllowed(Uid(QUuid(key)), m_diagramSceneModel->diagram()))
                     accept = true;
             }
         }
@@ -122,8 +123,10 @@ void DiagramView::dropEvent(QDropEvent *event)
             QString key;
             dataStream >> key;
             if (!key.isEmpty()) {
-                if (diagramSceneController->isAddingAllowed(Uid(key), m_diagramSceneModel->diagram())) {
-                    diagramSceneController->addExistingModelElement(Uid(key), mapToScene(event->pos()),
+                if (diagramSceneController->isAddingAllowed(Uid(QUuid(key)),
+                                                            m_diagramSceneModel->diagram())) {
+                    diagramSceneController->addExistingModelElement(Uid(QUuid(key)),
+                                                                    mapToScene(event->pos()),
                                                                     m_diagramSceneModel->diagram());
                 }
             }

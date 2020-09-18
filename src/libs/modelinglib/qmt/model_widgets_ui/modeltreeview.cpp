@@ -207,7 +207,8 @@ void ModelTreeView::dropEvent(QDropEvent *event)
                     QString key;
                     dataStream >> key;
                     if (!key.isEmpty()) {
-                        MElement *modelElement = treeModel->modelController()->findElement(Uid(key));
+                        MElement *modelElement = treeModel->modelController()->findElement(
+                            Uid(QUuid(key)));
                         if (modelElement) {
                             if (auto modelObject = dynamic_cast<MObject*>(modelElement)) {
                                 if (auto targetModelPackage = dynamic_cast<MPackage *>(targetModelObject)) {
