@@ -65,6 +65,11 @@ ClangFormat::ClangFormat()
     menu->addAction(cmd);
     connect(m_formatFile, &QAction::triggered, this, &ClangFormat::formatFile);
 
+    m_formatLines = new QAction(BeautifierPlugin::msgFormatLines(), this);
+    cmd = Core::ActionManager::registerAction(m_formatLines, "ClangFormat.FormatLines");
+    menu->addAction(cmd);
+    connect(m_formatLines, &QAction::triggered, this, &ClangFormat::formatLines);
+
     m_formatRange = new QAction(BeautifierPlugin::msgFormatAtCursor(), this);
     cmd = Core::ActionManager::registerAction(m_formatRange, "ClangFormat.FormatAtCursor");
     menu->addAction(cmd);
@@ -121,6 +126,31 @@ void ClangFormat::formatAtCursor()
         const int length = block.length();
         formatCurrentFile(command(offset, length));
     }
+}
+
+void ClangFormat::formatLines()
+{
+    const TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
+    if (!widget)
+        return;
+
+    const QTextCursor tc = widget->textCursor();
+    // Current line by default
+    int lineStart = tc.blockNumber() + 1;
+    int lineEnd = lineStart;
+
+    // Note that clang-format will extend the range to the next bigger
+    // syntactic construct if needed.
+    if (tc.hasSelection()) {
+        const QTextBlock start = tc.document()->findBlock(tc.selectionStart());
+        const QTextBlock end = tc.document()->findBlock(tc.selectionEnd());
+        lineStart = start.blockNumber() + 1;
+        lineEnd = end.blockNumber() + 1;
+    }
+
+    auto cmd = command();
+    cmd.addOption(QString("-lines=%1:%2").arg(QString::number(lineStart)).arg(QString::number(lineEnd)));
+    formatCurrentFile(cmd);
 }
 
 void ClangFormat::disableFormattingSelectedText()

@@ -218,6 +218,12 @@ QString BeautifierPlugin::msgFormatAtCursor()
     return tr("&Format at Cursor");
 }
 
+QString BeautifierPlugin::msgFormatLines()
+{
+    //: Menu entry
+    return tr("Format &Line(s)");
+}
+
 QString BeautifierPlugin::msgDisableFormattingSelectedText()
 {
     //: Menu entry
