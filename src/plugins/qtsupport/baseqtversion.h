@@ -212,6 +212,7 @@ public:
 
     Utils::FilePath hostBinPath() const;
     Utils::FilePath hostDataPath() const;
+    Utils::FilePath hostPrefixPath() const;
 
     Utils::FilePath mkspecsPath() const;
     Utils::FilePath qmlBinPath() const;

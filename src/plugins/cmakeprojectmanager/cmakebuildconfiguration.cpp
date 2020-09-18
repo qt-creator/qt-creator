@@ -176,6 +176,11 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Utils::Id id)
 
             initialArgs.append(
                 QString::fromLatin1("-DCMAKE_FIND_ROOT_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}"));
+
+            if (qt->qtVersion() >= QtSupport::QtVersionNumber{6, 0, 0}) {
+                initialArgs.append(
+                    QString::fromLatin1("-DQT_HOST_PATH:PATH=%{Qt:QT_HOST_PREFIX}"));
+            }
         }
 
         if (info.buildDirectory.isEmpty()) {

@@ -126,6 +126,7 @@ public:
 
     Utils::FilePath hostBinPath;
     Utils::FilePath hostDataPath;
+    Utils::FilePath hostPrefixPath;
 
     Abis qtAbis;
 };
@@ -621,6 +622,12 @@ FilePath BaseQtVersion::hostDataPath() const // QT_HOST_DATA
 {
     d->updateVersionInfo();
     return d->m_data.hostDataPath;
+}
+
+FilePath BaseQtVersion::hostPrefixPath() const  // QT_HOST_PREFIX
+{
+    d->updateVersionInfo();
+    return d->m_data.hostPrefixPath;
 }
 
 FilePath BaseQtVersion::mkspecsPath() const
@@ -1267,6 +1274,7 @@ void BaseQtVersionPrivate::updateVersionInfo()
 
     m_data.hostBinPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_BINS"));
     m_data.hostDataPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_DATA"));
+    m_data.hostPrefixPath = FilePath::fromUserInput(qmakeProperty("QT_HOST_PREFIX"));
 
     const QString qtInstallBins = q->binPath().toString();
     const QString qtHeaderData = q->headerPath().toString();
@@ -1443,6 +1451,13 @@ BaseQtVersion::createMacroExpander(const std::function<const BaseQtVersion *()> 
                                    "The installation location of the current Qt version's data."),
                                versionProperty([](const BaseQtVersion *version) {
                                    return version->dataPath().toString();
+                               }));
+
+    expander->registerVariable("Qt:QT_HOST_PREFIX",
+                               QtKitAspect::tr(
+                                   "The host location of the current Qt version."),
+                               versionProperty([](const BaseQtVersion *version) {
+                                   return version->hostPrefixPath().toString();
                                }));
 
     expander->registerVariable(
