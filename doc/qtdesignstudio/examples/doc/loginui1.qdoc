@@ -58,12 +58,18 @@
         \li Select \uicontrol File > \uicontrol {New File or Project} >
             \uicontrol General > \uicontrol {Qt Quick Application - Empty} >
             \uicontrol Choose.
-        \li In the \uicontrol Name field, enter \e {loginui1}.
-        \li In the \uicontrol {Create in} field, enter the path for the project
-            files
+        \li In the \uicontrol Name field, enter the project name: \e {loginui1}.
+            When naming your own projects, keep in mind that they cannot be
+            easily renamed later.
+        \li In the \uicontrol {Create in} field, enter the path to the folder
+            where you want to store the project files. You can move project
+            folders later without problems.
         \li Select \uicontrol Next (or \uicontrol Continue on \macos) to
             continue to the \uicontrol {Define Project Details} page.
-        \li In the \uicontrol {Screen resolution} field, select \e {640 x 480}.
+        \li In the \uicontrol {Screen resolution} field, select the initial
+            size of the UI. In this example, we use the smallest predefined
+            size, \e {640 x 480}. You can easily change the screen size later
+            in \uicontrol Properties.
         \li Select \uicontrol Finish (or \uicontrol Done on \macos) to create
             the project.
     \endlist
@@ -113,15 +119,22 @@
     For more information about creating a QML file from scratch, see
     \l{First Steps with QML}.
 
-    Next, you will edit the properties of the UI elements to create the main
-    page of the UI.
+    Next, you will edit the values of the properties of the UI elements to
+    create the main page of the UI.
 
     \section1 Creating the Main Page
 
-    You will now change the properties of the \l Rectangle type to turn the UI
-    background white and those of the \l Text type to change the text and to use
-    a larger font size. In addition, you will use the \l Image type to add the
-    Qt logo to the page.
+    You will now change the values of the properties of the \l Rectangle
+    component to add a gradient to the UI background and those of the
+    \l Text component to set the title text in a larger strong font. In
+    addition, you will import an image as an asset and add it to the page.
+
+    To be able to use an image in the UI, you must add it to your project
+    in the \uicontrol Assets tab of \uicontrol Library. Click
+    \l {https://doc.qt.io/qtdesignstudio/images/used-in-examples/loginui1/qt_logo_green_64x64px.png}
+    {here} to open the Qt logo in a browser and save it as a file on your
+    computer. The image is only used for decoration, so you can also use
+    any other image or just leave it out.
 
     To preview the changes that you make to the UI while you make
     them, select the \inlineimage live_preview.png
@@ -142,25 +155,35 @@
        \li Select \e Rectangle in the \uicontrol Navigator view to display its
             properties in \uicontrol Properties.
         \li In the \uicontrol Color field, select the
-            \inlineimage icons/action-icon-binding.png
-            (\uicontrol Actions) menu, and then select \uicontrol Reset to
-            reset the rectangle background to the default color, white.
-        \li Select \e Text in \uicontrol Navigator.
-        \li In the \uicontrol id field, enter the id \e pageTitle.
-        \li In the \uicontrol Text field, enter \e {Qt Account}.
-        \li In the \uicontrol Font group, \uicontrol Size field, set the font
-            size to \e 24 pixels.
-        \li Drag and drop an \l Image type from \uicontrol Library >
-            \uicontrol {QML Types} > \uicontrol {Qt Quick Basic} to the
-            top-left corner of the rectangle.
+            \inlineimage icon_color_gradient.png
+            (\uicontrol Gradient) button to add a linear gradient to the
+            screen background. In this example, the color changes from
+            white to green (#41cd52), with a stop point set at position 0.5.
+            You can use your favorite colors or select a predefined gradient
+            in the \uicontrol {Gradient Picker}.
+            \image loginui1-background-gradient.png "Rectangle color properties"
+        \li Select \e Text in \uicontrol Navigator to display its properties in
+            \uicontrol Properties.
+            \image loginui1-text-properties.png "Text properties"
+            \list a
+                \li In the \uicontrol id field, enter the id \e pageTitle,
+                    so that you can easily find the title component in
+                    \uicontrol Navigator and other \QDS views.
+                \li In the \uicontrol Text field, enter the page title:
+                    \e {Qt Account}.
+                \li In the \uicontrol Font group, \uicontrol Size field,
+                    set the font size of the title: \e 24 pixels.
+                \li In the \uicontrol {Font style} field, select the
+                    \uicontrol B button to use a strong font.
+            \endlist
+        \li Drag and drop the Qt logo from the \uicontrol Assets tab of
+            \uicontrol Library to the top-left corner of the rectangle.
+            \image loginui1-library-assets.png "Library view Assets tab"
+            \QDS automatically creates a component of the \l Image type
+            for you with the path to the image file set as the value of
+            the \uicontrol Source field in \uicontrol Properties.
+            \image loginui1-image-properties.png "Image properties"
         \li In the \uicontrol id field, change the id of the image to \e logo.
-        \li In the \uicontrol Source field, select the \inlineimage browse-button.png
-            (\uicontrol Browse) button to locate the Qt logo image file. Click
-            \l {https://doc.qt.io/qtdesignstudio/images/used-in-examples/loginui1/qt_logo_green_64x64px.png}
-            {here} to open the Qt logo in a browser and save it as a file in the
-            folder where you created the project. The image is only used for
-            decoration, so you can also use any other image or just leave it
-            out.
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
             to save your changes.
     \endlist
@@ -189,9 +212,53 @@
     types, and they will be listed under \uicontrol {My QML Components}.
     This section is only visible if you have created custom QML components.
 
-    For more information about the \l Rectangle and \l Image types used in this
-    example, see \l{Use Case - Visual Elements In QML}. For descriptions of all
-    QML types, see \l{All QML Types} in the Qt reference documentation.
+    The \l [QtQuick] {Rectangle}, \l Text, and \l Image types used in this example are
+    based on the \l Item type. It is the base type for all visual elements,
+    with implementation of basic functions and properties, such as type
+    name, ID, position, size, and visibility.
+
+    For more information, see \l{Use Case - Visual Elements In QML}. For
+    descriptions of all QML types, see \l{All QML Types} in the Qt reference
+    documentation.
+
+    \section3 Regtangle Properties
+
+    The basic \l [QtQuick] {Rectangle} QML type is used for drawing shapes
+    with 4 sides and 4 corners. You can fill rectangles either with a solid
+    fill color or a gradient. You can specify the border color separately.
+    By setting the value of the radius property, you can create shapes with
+    rounded corners.
+
+    If you want to specify the radius of each corner separately, you can
+    use the \l Rectangle type from the Qt Quick Studio Components module
+    instead of the basic rectangle type. It is available in the
+    \uicontrol {Studio Components} tab of \uicontrol Library.
+
+    \section3 Text Properties
+
+    The \l Text type is used for adding static text to the UI, such as titles
+    and labels. You can select the font to use and specify extensive properties
+    for each text item, such as size in points or pixels, weight, style, and
+    spacing.
+
+    To display custom fonts in the list of available fonts in
+    \uicontrol Properties, add them in the \uicontrol Assets
+    tab of \uicontrol Library.
+
+    If you want to create a label with a background, use the \l Label type
+    from the Qt Quick Controls module instead of the Text type.
+
+    \section3 Image Properties
+
+    The \l Image type is used for adding images to the UI in several supported
+    formats, including bitmap formats such as PNG and JPEG and vector graphics
+    formats such as SVG. You must add the images to your project in the
+    \uicontrol Assets tab of \uicontrol Library to be able to use them in
+    designs.
+
+    If you need to display animated images, use the \l {AnimatedImage}
+    {Animated Image} type, also available in the \uicontrol {Qt Quick - Basic}
+    tab of \uicontrol Library.
 
     \section1 Creating a Push Button
 
@@ -201,9 +268,11 @@
     drag and drop it to \uicontrol {Form Editor} and modify its properties
     in \uicontrol Properties to change its appearance and functionality.
 
-    If you find that you cannot use the wizard template to create the kind of
-    push button that you want, you can create your button from scratch using
-    basic QML types. For more information, see \l {Creating Buttons} and
+    If you find that you cannot use the wizard template nor the ready-made
+    button controls available in the \uicontrol {Qt Quick Controls 2} tab
+    in \uicontrol Library to create the kind of push button that you want,
+    you can create your button from scratch using basic QML types. For more
+    information, see \l {Creating Buttons} and
     \l {Creating Scalable Buttons and Borders}.
 
     To create a push button:
@@ -212,7 +281,8 @@
         \li Select \uicontrol File > \uicontrol {New File or Project} >
             \uicontrol {Files and Classes} > \uicontrol {Qt Quick Controls} >
             \uicontrol {Custom Button} > \uicontrol Choose.
-        \li In the \uicontrol {Component name} field, enter \e {PushButton}.
+        \li In the \uicontrol {Component name} field, enter a name for your
+            button type: \e {PushButton}.
         \li Select \uicontrol Finish (or \uicontrol Done on \macos) to create
             the button.
     \endlist
@@ -269,24 +339,22 @@
             properties in the \uicontrol Properties view.
         \li In the \uicontrol Color field, select
             \inlineimage icons/action-icon.png
-            (\uicontrol Actions) > \uicontrol {Set Binding} and set the
-            button background color to \e #41cd52.
-        \li Press \key Enter or select \uicontrol OK to save the new value.
+            (\uicontrol Actions) > \uicontrol Reset to reset the button
+            background color to the default color, white.
+        \li In the \uicontrol {Border Color} field, select \uicontrol Actions >
+            \uicontrol {Set Binding} to use the gradient color (\e #41cd52) as
+            the border color. You can also use the color picker to change the
+            color.
             \image loginui1-binding-editor.png "Binding Editor"
-        \omit
-        \li In the \uicontrol {Border Color} field, set the button
-            border color to \e #21be2b. You could also use the color picker
-            to change the button color.
-        \li In the \uicontrol Radius field, enter 6 to give the button
+        \li Press \key Enter or select \uicontrol OK to save the new value.
+        \li In the \uicontrol Radius field, enter 20 to give the button
             rounded corners.
-        \endomit
         \li Select the text item in \uicontrol Navigator to display its
             properties in \uicontrol Properties.
-        \li In the \uicontrol {Text color} field, set the button text
-            color to white (\e #ffffff).
+        \li In the \uicontrol {Font style} field, select the \uicontrol B button
+            to use the strong font.
         \li In the \uicontrol States view, select the \e down state to set the
-            button text color to white and the background color to a darker
-            shade of green (\e #21be2b).
+            button text color to the same green as the border.
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
             to save your changes.
     \endlist
@@ -327,7 +395,7 @@
             to open it in \uicontrol {Form Editor}.
         \li Drag and drop two instances of the PushButton type from
             \uicontrol Library to \uicontrol {Form Editor}.
-            \image loginui1-library.png "Library view"
+            \image loginui1-library.png "My QML Components tab of Library view"
         \li Select one of the buttons in \uicontrol Navigator to modify
             its id and text label in \uicontrol Properties.
         \li In the \uicontrol Id field, enter \e loginButton.
