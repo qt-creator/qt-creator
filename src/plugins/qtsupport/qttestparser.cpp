@@ -78,8 +78,11 @@ OutputLineParser::Result QtTestParser::handleLine(const QString &line, OutputFor
         emitCurrentTask();
         return {Status::Done, linkSpecs};
     }
-    m_currentTask.details.append(theLine);
-    return Status::InProgress;
+    if (line.startsWith("   Actual") || line.startsWith("   Expected")) {
+        m_currentTask.details.append(theLine);
+        return Status::InProgress;
+    }
+    return Status::NotHandled;
 }
 
 void QtTestParser::emitCurrentTask()
