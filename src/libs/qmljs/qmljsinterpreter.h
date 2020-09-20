@@ -526,10 +526,6 @@ public:
     QString originId() const
     { return m_originId; }
 
-
-private:
-    bool checkPrototype(const ObjectValue *prototype, QSet<const ObjectValue *> *processed) const;
-
 private:
     ValueOwner *m_valueOwner;
     QHash<QString, PropertyData> m_members;

@@ -225,18 +225,6 @@ int ExpressionUnderCursor::startOfExpression_helper(BackwardsScanner &tk, int in
     return index;
 }
 
-bool ExpressionUnderCursor::isAccessToken(const Token &tk)
-{
-    switch (tk.kind()) {
-    case T_COLON_COLON:
-    case T_DOT:      case T_ARROW:
-    case T_DOT_STAR: case T_ARROW_STAR:
-        return true;
-    default:
-        return false;
-    } // switch
-}
-
 QString ExpressionUnderCursor::operator()(const QTextCursor &cursor)
 {
     BackwardsScanner scanner(cursor, _languageFeatures);
