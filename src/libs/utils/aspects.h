@@ -72,9 +72,9 @@ public:
     void setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator);
     QWidget *createConfigWidget() const;
 
-    virtual void fromMap(const QVariantMap &) {}
-    virtual void toMap(QVariantMap &) const {}
-    virtual void acquaintSiblings(const BaseAspects &) {}
+    virtual void fromMap(const QVariantMap &);
+    virtual void toMap(QVariantMap &) const;
+    virtual void acquaintSiblings(const BaseAspects &);
 
     virtual void addToLayout(LayoutBuilder &builder);
 
@@ -251,7 +251,7 @@ public:
     void toMap(QVariantMap &map) const override;
 
     Utils::FilePath filePath() const;
-    void setFilePath(const Utils::FilePath &val);
+    void setFilePath(const Utils::FilePath &value);
 
 signals:
     void checkedChanged();

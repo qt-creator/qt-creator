@@ -53,12 +53,11 @@ public:
     class LayoutItem
     {
     public:
-        LayoutItem() {} // For empty cells.
-        LayoutItem(QLayout *layout, int span = 1) : layout(layout), span(span) {}
-        LayoutItem(QWidget *widget, int span = 1, Qt::Alignment align = {})
-            : widget(widget), span(span), align(align) {}
-        LayoutItem(BaseAspect *aspect) : aspect(aspect) {}
-        LayoutItem(const QString &text) : text(text) {}
+        LayoutItem();
+        LayoutItem(QLayout *layout, int span = 1, Qt::Alignment align = {});
+        LayoutItem(QWidget *widget, int span = 1, Qt::Alignment align = {});
+        LayoutItem(BaseAspect *aspect);
+        LayoutItem(const QString &text);
 
         QLayout *layout = nullptr;
         QWidget *widget = nullptr;

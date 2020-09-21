@@ -48,46 +48,127 @@
 
 namespace Utils {
 
-// BaseAspect
+/*!
+    \class Utils::BaseAspect
+    \inmodule QtCreator
 
+    \brief The \c BaseAspect class provides a common base for classes implementing
+    aspects.
+
+    An aspect is a hunk of data like a property or collection of related
+    properties of some object, together with a description of its behavior
+    for common operations like visualizing or persisting.
+
+    Simple aspects are for example a boolean property represented by a QCheckBox
+    in the user interface, or a string property represented by a PathChooser,
+    selecting directories in the filesystem.
+
+    While aspects implementations usually have the ability to visualize and to persist
+    their data, or use an ID, neither of these is mandatory.
+*/
+
+/*!
+    Constructs a BaseAspect.
+*/
 BaseAspect::BaseAspect() = default;
 
+/*!
+    Destructs a BaseAspect.
+*/
 BaseAspect::~BaseAspect() = default;
 
+/*!
+    \internal
+*/
 void BaseAspect::setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator)
 {
     m_configWidgetCreator = configWidgetCreator;
 }
 
+/*!
+    \internal
+*/
 QWidget *BaseAspect::createConfigWidget() const
 {
     return m_configWidgetCreator ? m_configWidgetCreator() : nullptr;
 }
 
+/*!
+    Adds the visual representation of this aspect to a layout using
+    a layout builder.
+*/
 void BaseAspect::addToLayout(LayoutBuilder &)
 {
 }
 
+/*!
+    Retrieves the internal value of this BaseAspect from a \c QVariantMap.
+
+    This base implementation does nothing.
+*/
+void BaseAspect::fromMap(const QVariantMap &)
+{}
+
+/*!
+    Stores the internal value of this BaseAspect into a \c QVariantMap.
+
+    This base implementation does nothing.
+*/
+void BaseAspect::toMap(QVariantMap &) const
+{}
+
+/*!
+    \internal
+*/
+void BaseAspect::acquaintSiblings(const BaseAspects &)
+{}
+
 // BaseAspects
 
+/*!
+    \class BaseAspects
+    \inmodule QtCreator
+
+    \brief This class represent a collection of one or more aspects.
+
+    A BaseAspects object assumes ownership on its aspects.
+*/
+
+/*!
+    Constructs a BaseAspects object.
+*/
 BaseAspects::BaseAspects() = default;
 
+/*!
+    Destructs a BaseAspects object.
+*/
 BaseAspects::~BaseAspects()
 {
     qDeleteAll(base());
 }
 
+/*!
+    Retrieves a BaseAspect with a given \a id, or nullptr if no such aspect is contained.
+
+    \sa BaseAspect.
+*/
 BaseAspect *BaseAspects::aspect(Utils::Id id) const
 {
     return Utils::findOrDefault(base(), Utils::equal(&BaseAspect::id, id));
 }
 
+/*!
+    \internal
+*/
 void BaseAspects::fromMap(const QVariantMap &map) const
 {
     for (BaseAspect *aspect : *this)
         aspect->fromMap(map);
 }
 
+/*!
+    \internal
+*/
 void BaseAspects::toMap(QVariantMap &map) const
 {
     for (BaseAspect *aspect : *this)
@@ -211,24 +292,54 @@ public:
 
 /*!
     \class Utils::StringAspect
+    \inmodule QtCreator
+
+    \brief A string aspect is a string-like property of some object, together with
+    a description of its behavior for common operations like visualizing or
+    persisting.
+
+    String aspects can represent for example a parameter for an external commands,
+    paths in a file system, or simply strings.
+
+    The string can be displayed using a QLabel, QLineEdit, QTextEdit or
+    Utils::PathChooser.
+
+    The visual representation often contains a label in front of the display
+    of the actual value.
 */
+
+/*!
+    Constructs a StringAspect.
+ */
 
 StringAspect::StringAspect()
     : d(new Internal::StringAspectPrivate)
 {}
 
+/*!
+    \reimp
+*/
 StringAspect::~StringAspect() = default;
 
+/*!
+    \internal
+*/
 void StringAspect::setValueAcceptor(StringAspect::ValueAcceptor &&acceptor)
 {
     d->m_valueAcceptor = std::move(acceptor);
 }
 
+/*!
+    Returns the value of this StringAspect as an ordinary \c QString.
+*/
 QString StringAspect::value() const
 {
     return d->m_value;
 }
 
+/*!
+    Sets the value of this StringAspect from an ordinary \c QString.
+*/
 void StringAspect::setValue(const QString &value)
 {
     const bool isSame = value == d->m_value;
@@ -250,6 +361,9 @@ void StringAspect::setValue(const QString &value)
     emit changed();
 }
 
+/*!
+    \reimp
+*/
 void StringAspect::fromMap(const QVariantMap &map)
 {
     if (!settingsKey().isEmpty())
@@ -258,6 +372,9 @@ void StringAspect::fromMap(const QVariantMap &map)
         d->m_checker->fromMap(map);
 }
 
+/*!
+    \reimp
+*/
 void StringAspect::toMap(QVariantMap &map) const
 {
     if (!settingsKey().isEmpty())
@@ -266,16 +383,34 @@ void StringAspect::toMap(QVariantMap &map) const
         d->m_checker->toMap(map);
 }
 
+/*!
+    Returns the value of this string aspect as \c Utils::FilePath.
+
+    \note This simply uses \c FilePath::fromUserInput() for the
+    conversion. It does not use any check that the value is actually
+    a valid file path.
+*/
 FilePath StringAspect::filePath() const
 {
     return FilePath::fromUserInput(d->m_value);
 }
 
-void StringAspect::setFilePath(const FilePath &val)
+/*!
+    Sets the value of this string aspect to \a value.
+
+    \note This simply uses \c FilePath::toUserOutput() for the
+    conversion. It does not use any check that the value is actually
+    a file path.
+*/
+void StringAspect::setFilePath(const FilePath &value)
 {
-    setValue(val.toUserOutput());
+    setValue(value.toUserOutput());
 }
 
+/*!
+    Sets \a labelText as text for the separate label in the visual
+    representation of this string aspect.
+*/
 void StringAspect::setLabelText(const QString &labelText)
 {
     d->m_labelText = labelText;
@@ -283,6 +418,10 @@ void StringAspect::setLabelText(const QString &labelText)
         d->m_label->setText(labelText);
 }
 
+/*!
+    Sets \a labelPixmap as pixmap for the separate label in the visual
+    representation of this aspect.
+*/
 void StringAspect::setLabelPixmap(const QPixmap &labelPixmap)
 {
     d->m_labelPixmap = labelPixmap;
@@ -290,12 +429,19 @@ void StringAspect::setLabelPixmap(const QPixmap &labelPixmap)
         d->m_label->setPixmap(labelPixmap);
 }
 
+/*!
+    \internal
+*/
 void StringAspect::setShowToolTipOnLabel(bool show)
 {
     d->m_showToolTipOnLabel = show;
     update();
 }
 
+/*!
+    Returns the current text for the separate label in the visual
+    representation of this string aspect.
+*/
 QString StringAspect::labelText() const
 {
     return d->m_labelText;
@@ -546,7 +692,18 @@ void StringAspect::makeCheckable(CheckBoxPlacement checkBoxPlacement,
 
 /*!
     \class Utils::BoolAspect
+    \inmodule QtCreator
+
+    \brief A boolean aspect is a boolean property of some object, together with
+    a description of its behavior for common operations like visualizing or
+    persisting.
+
+    The boolean aspect is displayed using a QCheckBox.
+
+    The visual representation often contains a label in front or after
+    the display of the actual checkmark.
 */
+
 
 BoolAspect::BoolAspect(const QString &settingsKey)
     : d(new Internal::BoolAspectPrivate)
@@ -554,8 +711,14 @@ BoolAspect::BoolAspect(const QString &settingsKey)
     setSettingsKey(settingsKey);
 }
 
+/*!
+    \reimp
+*/
 BoolAspect::~BoolAspect() = default;
 
+/*!
+    \reimp
+*/
 void BoolAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_checkBox);
@@ -584,11 +747,17 @@ void BoolAspect::addToLayout(LayoutBuilder &builder)
     });
 }
 
+/*!
+    \reimp
+*/
 void BoolAspect::fromMap(const QVariantMap &map)
 {
     d->m_value = map.value(settingsKey(), d->m_defaultValue).toBool();
 }
 
+/*!
+    \reimp
+*/
 void BoolAspect::toMap(QVariantMap &data) const
 {
     data.insert(settingsKey(), d->m_value);
@@ -637,14 +806,27 @@ void BoolAspect::setEnabled(bool enabled)
 
 /*!
     \class Utils::SelectionAspect
+    \inmodule QtCreator
+
+    \brief A selection aspect represents a specific choice out of
+    several.
+
+    The selection aspect is displayed using a QComboBox or
+    QRadioButtons in a QButtonGroup.
 */
 
 SelectionAspect::SelectionAspect()
     : d(new Internal::SelectionAspectPrivate)
 {}
 
+/*!
+    \reimp
+*/
 SelectionAspect::~SelectionAspect() = default;
 
+/*!
+    \reimp
+*/
 void SelectionAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(d->m_buttonGroup == nullptr);
@@ -684,11 +866,17 @@ void SelectionAspect::addToLayout(LayoutBuilder &builder)
     }
 }
 
+/*!
+    \reimp
+*/
 void SelectionAspect::fromMap(const QVariantMap &map)
 {
     d->m_value = map.value(settingsKey(), d->m_defaultValue).toInt();
 }
 
+/*!
+    \reimp
+*/
 void SelectionAspect::toMap(QVariantMap &data) const
 {
     data.insert(settingsKey(), d->m_value);
@@ -751,6 +939,16 @@ void SelectionAspect::addOption(const QString &displayName, const QString &toolT
 
 /*!
     \class Utils::IntegerAspect
+    \inmodule QtCreator
+
+    \brief An integer aspect is a integral property of some object, together with
+    a description of its behavior for common operations like visualizing or
+    persisting.
+
+    The integer aspect is displayed using a \c QSpinBox.
+
+    The visual representation often contains a label in front
+    the display of the spin box.
 */
 
 // IntegerAspect
@@ -759,8 +957,14 @@ IntegerAspect::IntegerAspect()
     : d(new Internal::IntegerAspectPrivate)
 {}
 
+/*!
+    \reimp
+*/
 IntegerAspect::~IntegerAspect() = default;
 
+/*!
+    \reimp
+*/
 void IntegerAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_label);
@@ -787,11 +991,17 @@ void IntegerAspect::addToLayout(LayoutBuilder &builder)
     });
 }
 
+/*!
+    \reimp
+*/
 void IntegerAspect::fromMap(const QVariantMap &map)
 {
     d->m_value = map.value(settingsKey(), d->m_defaultValue).toLongLong();
 }
 
+/*!
+    \reimp
+*/
 void IntegerAspect::toMap(QVariantMap &data) const
 {
     if (d->m_value != d->m_defaultValue)
@@ -866,6 +1076,12 @@ void IntegerAspect::setToolTip(const QString &tooltip)
 
 /*!
     \class Utils::BaseTristateAspect
+    \inmodule QtCreator
+
+    \brief A tristate aspect is a property of some object that can have
+    three values: enabled, disabled, and unspecified.
+
+    Its visual representation is a QComboBox with three items.
 */
 
 TriStateAspect::TriStateAspect()
@@ -901,25 +1117,41 @@ TriState TriState::fromVariant(const QVariant &variant)
 
 /*!
     \class Utils::StringListAspect
+    \inmodule QtCreator
+
+    \brief A string list aspect represents a property of some object
+    that is a list of strings.
 */
 
 StringListAspect::StringListAspect()
     : d(new Internal::StringListAspectPrivate)
 {}
 
+/*!
+    \reimp
+*/
 StringListAspect::~StringListAspect() = default;
 
+/*!
+    \reimp
+*/
 void StringListAspect::addToLayout(LayoutBuilder &builder)
 {
     Q_UNUSED(builder)
     // TODO - when needed.
 }
 
+/*!
+    \reimp
+*/
 void StringListAspect::fromMap(const QVariantMap &map)
 {
     d->m_value = map.value(settingsKey()).toStringList();
 }
 
+/*!
+    \reimp
+*/
 void StringListAspect::toMap(QVariantMap &data) const
 {
     data.insert(settingsKey(), d->m_value);
@@ -937,8 +1169,18 @@ void StringListAspect::setValue(const QStringList &value)
 
 /*!
     \class Utils::TextDisplay
+
+    \brief A text display is a phony aspect with the sole purpose of providing
+    some text display using an Utils::InfoLabel in places where otherwise
+    more expensive Utils::StringAspect items would be used.
+
+    A text display does not have a real value.
 */
 
+/*!
+    Constructs a text display showing the \a message with an icon representing
+    type \a type.
+ */
 TextDisplay::TextDisplay(const QString &message, InfoLabel::InfoType type)
     : d(new Internal::TextDisplayPrivate)
 {
@@ -946,8 +1188,14 @@ TextDisplay::TextDisplay(const QString &message, InfoLabel::InfoType type)
     d->m_type = type;
 }
 
+/*!
+    \reimp
+*/
 TextDisplay::~TextDisplay() = default;
 
+/*!
+    \reimp
+*/
 void TextDisplay::addToLayout(LayoutBuilder &builder)
 {
     if (!d->m_label) {
@@ -961,6 +1209,10 @@ void TextDisplay::addToLayout(LayoutBuilder &builder)
     d->m_label->setVisible(isVisible());
 }
 
+/*!
+    Shows or hides this text display depending on the value of \a visible.
+    By default, the text display is visible.
+ */
 void TextDisplay::setVisible(bool visible)
 {
     BaseAspect::setVisible(visible);
@@ -968,6 +1220,9 @@ void TextDisplay::setVisible(bool visible)
         d->m_label->setVisible(visible);
 }
 
+/*!
+    Sets \a tooltip as tool tip for the visual representation of this aspect.
+ */
 void TextDisplay::setToolTip(const QString &tooltip)
 {
     d->m_tooltip = tooltip;
@@ -975,6 +1230,10 @@ void TextDisplay::setToolTip(const QString &tooltip)
         d->m_label->setToolTip(tooltip);
 }
 
+/*!
+    Sets \a t as the information label type for the visual representation
+    of this aspect.
+ */
 void TextDisplay::setIconType(InfoLabel::InfoType t)
 {
     d->m_type = t;
@@ -984,19 +1243,32 @@ void TextDisplay::setIconType(InfoLabel::InfoType t)
 
 /*!
     \class Utils::AspectContainer
+    \inmodule QtCreator
+
+    \brief The AspectContainer class wraps one or more aspects while providing
+    the interface of a single aspect.
 */
 
 AspectContainer::AspectContainer()
     : d(new Internal::AspectContainerPrivate)
 {}
 
+/*!
+    \reimp
+*/
 AspectContainer::~AspectContainer() = default;
 
+/*!
+    \internal
+*/
 void AspectContainer::addAspectHelper(BaseAspect *aspect)
 {
     d->m_items.append(aspect);
 }
 
+/*!
+    Adds all visible sub-aspects to \a builder.
+*/
 void AspectContainer::addToLayout(LayoutBuilder &builder)
 {
     for (BaseAspect *aspect : d->m_items) {
@@ -1005,12 +1277,18 @@ void AspectContainer::addToLayout(LayoutBuilder &builder)
     }
 }
 
+/*!
+    \reimp
+*/
 void AspectContainer::fromMap(const QVariantMap &map)
 {
     for (BaseAspect *aspect : d->m_items)
         aspect->fromMap(map);
 }
 
+/*!
+    \reimp
+*/
 void AspectContainer::toMap(QVariantMap &map) const
 {
     for (BaseAspect *aspect : d->m_items)
