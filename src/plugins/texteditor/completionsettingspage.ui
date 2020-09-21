@@ -318,7 +318,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <item>
          <widget class="QCheckBox" name="skipAutoComplete">
           <property name="toolTip">
-           <string>Skip automatically inserted character if re-typed manually after completion.</string>
+           <string>Skip automatically inserted character if re-typed manually after completion or by pressing tab.</string>
           </property>
           <property name="text">
            <string>Skip automatically inserted character when typing</string>

@@ -2484,6 +2484,21 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
             return;
         }
         QTextCursor cursor = textCursor();
+        if (d->m_skipAutoCompletedText && e->key() == Qt::Key_Tab) {
+            bool skippedAutoCompletedText = false;
+            while (!d->m_autoCompleteHighlightPos.isEmpty()
+                   && d->m_autoCompleteHighlightPos.last().selectionStart() == cursor.position()) {
+                skippedAutoCompletedText = true;
+                cursor.setPosition(d->m_autoCompleteHighlightPos.last().selectionEnd());
+                d->m_autoCompleteHighlightPos.pop_back();
+            }
+            if (skippedAutoCompletedText) {
+                setTextCursor(cursor);
+                e->accept();
+                d->updateAutoCompleteHighlight();
+                return;
+            }
+        }
         int newPosition;
         if (d->m_document->typingSettings().tabShouldIndent(document(), cursor, &newPosition)) {
             if (newPosition != cursor.position() && !cursor.hasSelection()) {
