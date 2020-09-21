@@ -163,6 +163,8 @@ enum { NExtraSelectionKinds = 12 };
 using TransformationMethod = QString(const QString &);
 using ListTransformationMethod = void(QStringList &);
 
+static constexpr char dropProperty[] = "dropProp";
+
 class LineColumnLabel : public FixedSizeClickLabel
 {
     Q_OBJECT
@@ -714,7 +716,7 @@ public:
     // block selection mode
     bool m_inBlockSelectionMode = false;
     QString copyBlockSelection();
-    void insertIntoBlockSelection(const QString &text = QString());
+    void insertIntoBlockSelection(const QString &text = QString(), const bool selectText = false);
     void setCursorToColumn(QTextCursor &cursor, int column,
                           QTextCursor::MoveMode moveMode = QTextCursor::MoveAnchor);
     void removeBlockSelection();
@@ -3802,7 +3804,7 @@ void TextEditorWidgetPrivate::setCursorToColumn(QTextCursor &cursor, int column,
                            cursor.block().text(), column), moveMode);
 }
 
-void TextEditorWidgetPrivate::insertIntoBlockSelection(const QString &text)
+void TextEditorWidgetPrivate::insertIntoBlockSelection(const QString &text, const bool selectText)
 {
     // TODO: add autocompleter support
     QTextCursor cursor = q->textCursor();
@@ -3828,6 +3830,7 @@ void TextEditorWidgetPrivate::insertIntoBlockSelection(const QString &text)
     int positionBlock = m_blockSelection.positionBlock;
     int anchorBlock = m_blockSelection.anchorBlock;
     int column = m_blockSelection.positionColumn;
+    const int anchorColumn = m_blockSelection.anchorColumn;
 
     const QTextBlock &firstBlock =
             m_document->document()->findBlockByNumber(m_blockSelection.firstBlockNumber());
@@ -3880,7 +3883,10 @@ void TextEditorWidgetPrivate::insertIntoBlockSelection(const QString &text)
     cursor.endEditBlock();
 
     column += textLength;
-    m_blockSelection.fromPostition(positionBlock, column, anchorBlock, column);
+    m_blockSelection.fromPostition(positionBlock,
+                                   column,
+                                   anchorBlock,
+                                   selectText ? anchorColumn : column);
     q->doSetTextCursor(m_blockSelection.selection(m_document.data()), true);
 }
 
@@ -7722,8 +7728,9 @@ void TextEditorWidget::insertFromMimeData(const QMimeData *source)
     if (d->m_codeAssistant.hasContext())
         d->m_codeAssistant.destroyContext();
 
+    const bool selectInsertedText = source->property(dropProperty).toBool();
     if (d->m_inBlockSelectionMode) {
-        d->insertIntoBlockSelection(text);
+        d->insertIntoBlockSelection(text, selectInsertedText);
         return;
     }
 
@@ -7738,7 +7745,16 @@ void TextEditorWidget::insertFromMimeData(const QMimeData *source)
     QTextCursor cursor = textCursor();
     if (!tps.m_autoIndent) {
         cursor.beginEditBlock();
-        cursor.insertText(text);
+        if (selectInsertedText) {
+            const int anchor = cursor.position();
+            cursor.insertText(text);
+            const int pos = cursor.position();
+            cursor.endEditBlock();
+            cursor.setPosition(anchor);
+            cursor.setPosition(pos, QTextCursor::KeepAnchor);
+        } else {
+            cursor.insertText(text);
+        }
         cursor.endEditBlock();
         setTextCursor(cursor);
         return;
@@ -7768,6 +7784,9 @@ void TextEditorWidget::insertFromMimeData(const QMimeData *source)
 
     int cursorPosition = cursor.position();
     cursor.insertText(text);
+    const QTextCursor endCursor = cursor;
+    QTextCursor startCursor = endCursor;
+    startCursor.setPosition(cursorPosition);
 
     int reindentBlockEnd = cursor.blockNumber() - (hasFinalNewline?1:0);
 
@@ -7788,7 +7807,31 @@ void TextEditorWidget::insertFromMimeData(const QMimeData *source)
     }
 
     cursor.endEditBlock();
+    if (selectInsertedText) {
+        cursor.setPosition(startCursor.position());
+        cursor.setPosition(endCursor.position(), QTextCursor::KeepAnchor);
+    }
     setTextCursor(cursor);
+}
+
+void TextEditorWidget::dropEvent(QDropEvent *e)
+{
+    const QMimeData *mime = e->mimeData();
+    if (mime && (mime->hasText() || mime->hasHtml())) {
+        QMimeData *mimeOverwrite = duplicateMimeData(mime);
+        mimeOverwrite->setProperty(dropProperty, true);
+        auto dropOverwrite = new QDropEvent(e->pos(),
+                                            e->possibleActions(),
+                                            mimeOverwrite,
+                                            e->mouseButtons(),
+                                            e->keyboardModifiers());
+        QPlainTextEdit::dropEvent(dropOverwrite);
+        e->setAccepted(dropOverwrite->isAccepted());
+        delete dropOverwrite;
+        delete mimeOverwrite;
+    } else {
+        QPlainTextEdit::dropEvent(e);
+    }
 }
 
 QMimeData *TextEditorWidget::duplicateMimeData(const QMimeData *source)

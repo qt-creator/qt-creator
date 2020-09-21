@@ -530,6 +530,7 @@ protected:
     QMimeData *createMimeDataFromSelection() const override;
     bool canInsertFromMimeData(const QMimeData *source) const override;
     void insertFromMimeData(const QMimeData *source) override;
+    void dropEvent(QDropEvent *e) override;
 
     virtual QString plainTextFromSelection(const QTextCursor &cursor) const;
     static QString convertToPlainText(const QString &txt);
