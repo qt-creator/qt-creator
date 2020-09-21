@@ -34,6 +34,8 @@
 #include <unsavedfiles.h>
 #include <sourcelocation.h>
 
+#include <utils/hostosinfo.h>
+
 #include <clang-c/Index.h>
 
 using ClangBackEnd::Diagnostic;
@@ -89,7 +91,7 @@ TEST_F(SourceLocation, Column)
 
 TEST_F(SourceLocation, Offset)
 {
-    ASSERT_THAT(sourceLocation.offset(), 18);
+    ASSERT_THAT(sourceLocation.offset(), Utils::HostOsInfo::isWindowsHost() ? 21 : 18);
 }
 
 TEST_F(SourceLocation, Create)
