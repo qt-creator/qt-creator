@@ -287,6 +287,13 @@ void OutputFormatter::overridePostPrintAction(const PostPrintAction &postPrintAc
 void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
 {
     QTextCharFormat charFmt = charFormat(format);
+
+    // This might cause insertion of a newline character.
+    if (text.isEmpty()) {
+        append(text, charFmt);
+        return;
+    }
+
     QList<FormattedText> formattedText = parseAnsi(text, charFmt);
     const QString cleanLine = std::accumulate(formattedText.begin(), formattedText.end(), QString(),
             [](const FormattedText &t1, const FormattedText &t2) { return t1.text + t2.text; });
