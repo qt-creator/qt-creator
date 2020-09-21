@@ -43,62 +43,88 @@ namespace Core {
     according to their MIME type.
 
     Whenever a user wants to edit or create a document, the EditorManager
-    scans all IEditorFactory interfaces for suitable editors. The selected
+    scans all IEditorFactory instances for suitable editors. The selected
     IEditorFactory is then asked to create an editor.
 
-    Guidelines for the implementation:
+    Implementations should set the properties of the IEditorFactory subclass in
+    their constructor.
 
-    \list
-        \li displayName() is used as a user visible description of the editor
-            type that is created. For example, the name displayed in the
-            \uicontrol {Open With} menu.
-        \li If duplication is supported (IEditor::duplicateSupported()), you
-            need to ensure that all duplicates return the same document().
-    \endlist
+    IEditorFactory instances automatically register themselves in \QC in their
+    constructor.
 
-    \sa Core::IEditor, Core::EditorManager
+    \sa Core::IEditor
+    \sa Core::IDocument
+    \sa Core::EditorManager
 */
 
 /*!
     \fn void Core::IEditorFactory::addMimeType(const QString &mimeType)
+
     Adds \a mimeType to the list of MIME types supported by this editor type.
+
+    \sa mimeTypes()
+    \sa setMimeTypes()
 */
 
 /*!
     \fn QString Core::IEditorFactory::displayName() const
+
     Returns a user-visible description of the editor type.
+
+    \sa setDisplayName()
 */
 
 /*!
     \fn Utils::Id Core::IEditorFactory::id() const
-    Returns the ID of the factory or editor type.
+
+    Returns the ID of the editors' document type.
+
+    \sa setId()
 */
 
 /*!
     \fn QString Core::IEditorFactory::mimeTypes() const
-    Returns a list of MIME types that the editor supports.
+
+    Returns the list of supported MIME types of this editor factory.
+
+    \sa addMimeType()
+    \sa setMimeTypes()
 */
 
 /*!
     \fn void Core::IEditorFactory::setDisplayName(const QString &displayName)
-    Sets the \a displayName of the factory or editor type.
+
+    Sets the \a displayName of the editor type. This is for example shown in
+    the \uicontrol {Open With} menu and the MIME type preferences.
+
+    \sa displayName()
 */
 
 /*!
-    \fn void Core::IEditorFactory::setId(Id id)
-    Sets the \a id of the factory or editor type.
+    \fn void Core::IEditorFactory::setId(Utils::Id id)
+
+    Sets the \a id of the editors' document type. This must be the same as the
+    IDocument::id() of the documents returned by created editors.
+
+    \sa id()
 */
 
 /*!
     \fn void Core::IEditorFactory::setMimeTypes(const QStringList &mimeTypes)
-    Sets the MIME types supported by the editor to \a mimeTypes.
+
+    Sets the MIME types supported by the editor type to \a mimeTypes.
+
+    \sa addMimeType()
+    \sa mimeTypes()
 */
 
 static QList<IEditorFactory *> g_editorFactories;
 static QHash<Utils::MimeType, IEditorFactory *> g_userPreferredEditorFactories;
 
 /*!
-    \internal
+    Creates an IEditorFactory.
+
+    Registers the IEditorFactory in \QC.
 */
 IEditorFactory::IEditorFactory()
 {
@@ -122,8 +148,8 @@ const EditorFactoryList IEditorFactory::allEditorFactories()
 }
 
 /*!
-    Returns all available editors for this \a mimeType in the default order
-    (editors ordered by MIME type hierarchy).
+    Returns all available editor factories for the \a mimeType in the default
+    order (editor types ordered by MIME type hierarchy).
 */
 const EditorFactoryList IEditorFactory::defaultEditorFactories(const Utils::MimeType &mimeType)
 {
@@ -134,10 +160,10 @@ const EditorFactoryList IEditorFactory::defaultEditorFactories(const Utils::Mime
 }
 
 /*!
-    Returns the available editors for \a fileName in order of preference.
-    That is the default order for the document's MIME type but with a user
-    overridden default editor first, and if the document is a too large
-    text file, with the binary editor as the very first.
+    Returns the available editor factories for \a fileName in order of
+    preference. That is the default order for the document's MIME type but with
+    a user overridden default editor first, and the binary editor as the very
+    first item if a text document is too large to be opened as a text file.
 */
 const EditorFactoryList IEditorFactory::preferredEditorFactories(const QString &fileName)
 {
@@ -167,8 +193,9 @@ const EditorFactoryList IEditorFactory::preferredEditorFactories(const QString &
 /*!
     Creates an editor.
 
-    Either override this in a subclass, or set the function to use for
-    creating an editor instance with setEditorCreator().
+    Uses the function set with setEditorCreator() to create the editor.
+
+    \sa setEditorCreator()
 */
 IEditor *IEditorFactory::createEditor() const
 {
@@ -178,7 +205,9 @@ IEditor *IEditorFactory::createEditor() const
 
 /*!
     Sets the function that is used to create an editor instance in
-    createEditor() by default to \a creator.
+    createEditor() to \a creator.
+
+    \sa createEditor()
 */
 void IEditorFactory::setEditorCreator(const std::function<IEditor *()> &creator)
 {
