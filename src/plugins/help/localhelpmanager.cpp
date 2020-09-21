@@ -93,6 +93,7 @@ static const char kLastSelectedTabKey[] = "Help/LastSelectedTab";
 static const char kViewerBackend[] = "Help/ViewerBackend";
 
 static const char kQtWebEngineBackend[] = "qtwebengine";
+static const char kLitehtmlBackend[] = "litehtml";
 static const char kTextBrowserBackend[] = "textbrowser";
 
 static const int kDefaultFallbackFontSize = 14;
@@ -326,9 +327,14 @@ HelpViewerFactory LocalHelpManager::defaultViewerBackend()
     }
     if (!backend.isEmpty())
         qWarning("Help viewer backend \"%s\" not found, using default.", backend.constData());
-    const Utils::optional<HelpViewerFactory> factory = backendForId(kQtWebEngineBackend);
-    if (factory)
-        return *factory;
+    const Utils::optional<HelpViewerFactory> webengineFactory = backendForId(kQtWebEngineBackend);
+    if (webengineFactory)
+        return *webengineFactory;
+
+    const Utils::optional<HelpViewerFactory> litehtmlFactory = backendForId(kLitehtmlBackend);
+    if (litehtmlFactory)
+        return *litehtmlFactory;
+
     return backendForId(kTextBrowserBackend).value_or(HelpViewerFactory());
 }
 
@@ -349,7 +355,7 @@ QVector<HelpViewerFactory> LocalHelpManager::viewerBackends()
         {kQtWebEngineBackend, tr("QtWebEngine"), []() { return new WebEngineHelpViewer; }});
 #endif
 #ifdef QTC_LITEHTML_HELPVIEWER
-    result.append({"litehtml", tr("litehtml"), []() { return new LiteHtmlHelpViewer; }});
+    result.append({kLitehtmlBackend, tr("litehtml"), []() { return new LiteHtmlHelpViewer; }});
 #endif
 #ifdef QTC_MAC_NATIVE_HELPVIEWER
     result.append({"native", tr("WebKit"), []() { return new MacWebKitHelpViewer; }});
