@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -24,28 +24,27 @@
 ****************************************************************************/
 
 /*!
-    \previouspage studio-simulink.html
-    \page studio-debugging.html
-    \nextpage creator-debugging-qml.html
+    \page studio-simulation-overview.html
+    \previouspage creator-editor-options-text.html
+    \nextpage studio-javascript.html
 
-    \title Debugging and Profiling
+    \title Simulating Data Input
+
+
+    \QDS enables you to connect UIs to different forms of data from various
+    sources, such as QML-based data models, JavaScript files, and backend
+    services. You can also connect your UI to Simulink to load live data from a
+    Simulink simulation.
 
     \list
-        \li \l{Debugging Qt Quick Projects}
+        \li \l{Simulating Application Logic}
 
-            You can use the integrated debugger to debug JavaScript functions,
-            to execute JavaScript expressions to get information about the state
-            of the UI, and to inspect QML properties and JavaScript
-            variables and change them temporarily at runtime.
-        \li \l{Debugging a Qt Quick Example Application}
+        You can use JavaScript to generate mock data for your UI.
 
-            This section uses the \l{QML Advanced Tutorial}{Same Game} example
-            application to illustrate how to debug Qt Quick applications in the
-            Debug mode.
-        \li \l{Profiling QML Applications}
+        \li \l{Simulating Dynamic Systems}
 
-            You can use the QML Profiler to find causes for typical performance
-            problems in your UIs, such as slowness, freezing, and stuttering.
-            The QML Profiler is installed and configured as part of \QDS.
+        Use the Simulink connector to connect a Simulink Simulation Model to
+        your UI. Simulink is a MATLAB-based graphical programming environment
+        for modeling, simulating, and analyzing multi-domain dynamic systems.
     \endlist
 */

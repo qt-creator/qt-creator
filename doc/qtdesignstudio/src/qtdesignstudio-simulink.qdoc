@@ -1,0 +1,197 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \previouspage studio-javascript.html
+    \page studio-simulink.html
+    \nextpage studio-debugging.html
+
+    \title Simulating Dynamic Systems
+
+    Use the Simulink connector to connect simulation to your UI. Simulink is a
+    MATLAB-based graphical programming environment for modeling, simulating,
+    and analyzing multi-domain dynamic systems. On Windows, \QDS provides
+    built-in support for connectivity to Simulink models, which allows them to
+    send and receive data with applications developed using \QDS. Install
+    Simulink on your computer and run it simultaneously with \QDS to enable
+    communication between the applications.
+
+    The information given here is mainly focused on the integration of the
+    Simulink connector in \QDS. For information on how to use the Simulink
+    environment, see the \l {https://se.mathworks.com/help/simulink/}
+    {documentation} provided by MathWorks.
+
+    \section1 The Qt Blockset for Simulink
+
+    Install the Simulink \l {https://git.qt.io/qt-design-studio/simulink-plugin-dependencies}
+    {Qt Blockset} to your computer in order to connect a Simulink model to your
+    application. The Qt Blockset installer adds the Simulink blocks needed to
+    establish connectivity to your application. After installation, the
+    \uicontrol SLQTLibrary blockset will be added to the Simulink blocks
+    library. The blocks allow sending and receiving of \uicontrol Property,
+    \uicontrol Signal, and \uicontrol Slot updates with your application. The
+    Qt Blockset includes the \uicontrol {Simulink-Qt Client}, \uicontrol
+    Address, \uicontrol {Qt/QML Send}, and \uicontrol {Qt/QML Receive} blocks.
+
+    \image simulink-qt-blockset-receive.png "The Qt Blockset in a Simulink Model"
+
+    \section2 Simulink-Qt Client
+
+    A \uicontrol {Simulink-Qt Client} block establishes the TCP/IP Client
+    connection with your application. The block has two inputs and two outputs:
+
+    \list
+        \li The \uicontrol Address input specifies the machine IP address
+            of the server to the client block. To ensure the address is
+            formatted correctly, use the \uicontrol Address block.
+        \li The \uicontrol Port input specifies the port value for the IP
+            address, which can be determined by using the \uicontrol Port block
+            or a valid Simulink integer value.
+        \li The \uicontrol IsConnected output is a Boolean signal. When true,
+            specifies the connection to the server has been established.
+        \li The \uicontrol Socket output sends a signal that presents the
+            socket ID of the connection. This signal needs to be delivered to
+            corresponding \uicontrol {Qt/QML Receive} and \uicontrol
+            {Qt/QML Send} blocks.
+    \endlist
+
+    \section2 Address and Port
+
+    An \uicontrol Address block delivers the IP address of a server to the
+    \uicontrol {Simulink-Qt Client} block as a typical IP address string.
+    A \uicontrol Port block determines the port value for the IP address. For
+    simulations where the Simulink model and your application are run on the
+    same machine, use the IP address 127.0.0.1 and any port available.
+
+    \section2 Qt/QML Send
+
+    \image simulink-qt-send-block.png "A Qt/QML Send Block"
+
+    A \uicontrol {Qt/QML Send} block sends a \uicontrol Signal or \uicontrol
+    Property value change from Simulink. It is used for each property that
+    Simulink needs to send to your application. The property name of the block
+    needs to correspond to the name of the property or slot in your application.
+
+    The block has two inputs and one output:
+    \list
+        \li The \uicontrol Socket input receives the socket signal from the
+            \uicontrol {Simulink-Qt Client} block.
+        \li The \uicontrol Data input receives the data to be sent as a
+            \uicontrol Signal or \uicontrol Property update.
+        \li The \uicontrol {Data Out} output outputs the passed-through data
+            to connect it to other Simulink blocks if needed.
+    \endlist
+
+    \section2 Qt/QML Receive
+
+    \image simulink-qt-receive-block.png "A Qt/QML Receive Block"
+
+    A \uicontrol {Qt/QML Receive} block receives \uicontrol Signal or
+    \uicontrol Property value changes from your application. It is used for
+    each property that Simulink needs to receive from your application.
+    The property name of the block needs to correspond to the name of the
+    property or slot in your application.
+
+   The block has one input and two outputs:
+
+    \list
+        \li The \uicontrol Socket input receives the socket signal from the
+            \uicontrol {Simulink-Qt Client} block.
+        \li The \uicontrol Fcn_Call output sends the function-call, which can
+            either be terminated if idle, or connected to a valid function call
+            subsystem.
+        \li The \uicontrol isReceived output emits a scalar Boolean signal
+            suggesting that a valid \uicontrol Signal or \uicontrol Property
+            update was acquired from the connection.
+        \li The \uicontrol Data output signals data payload from a \uicontrol
+            Signal or \uicontrol Property value.
+    \endlist
+
+    \section2 Specifying Property Names in Simulink
+
+    Double-click the \uicontrol {Qt/SML Send} or \uicontrol {Qt/QML Receive}
+    block in Simulink to specify a property name. A pop-up for \uicontrol
+    {Block Parameters} appears. Type the name of the property in the \uicontrol
+    {Qt Signal/Property Name} field and click \uicontrol OK. The name, for
+    example speedProp, needs to match a \uicontrol signal or a \uicontrol
+    property in \QDS.
+
+    \image simulink-qt-send-example-property.png "Example property of the Qt Send block"
+
+    \section1 Integrating the Simulink Model to \QDS
+
+    \section2 Importing the Simulink Connector
+
+    To integrate the Simulink model into \QDS, you first need to import the
+    Simulink connector in \uicontrol Library. Click the \uicontrol {QML Imports
+    Tab}, select the \uicontrol {<Add Import>} drop-down menu, and then select
+    \uicontrol SimulinkConnector. \QDS is now ready to communicate with the
+    Simulink model.
+
+    \image studio-qml-imports-slconnector.png "Simulink Connector in the QML Imports list"
+
+    If you need to change the IP address and/or port, you need to select the
+    \uicontrol SimulinkConnector item in \uicontrol Navigator and set the IP
+    address and/or port in the \uicontrol Properties view. If you cannot see
+    \uicontrol SimulinkConnector in \uicontrol Navigator, you need to click
+    \inlineimage filtericon.png
+    (\uicontrol {Filter Tree}) and unselect \uicontrol {Show only visible items}.
+
+    To communicate with a specific model in Simulink, you need to create
+    properties matching the send and receive properties in the root of the
+    application you are building. Select the root item in \uicontrol
+    Navigator to add the properties in the \uicontrol Properties tab in
+    \uicontrol {Connection View}.
+
+    See \l {Specifying Dynamic Properties} for a detailed description of how
+    to add a custom property. The name of the property and the data type
+    need to match those of the send or receive property of the Simulink model.
+
+    \image studio-connection-view-properties.png "The Properties tab in Connection View"
+
+    \section2 Creating Bindings
+
+    Next, you need to bind the value of the property you just created to the
+    desired properties of UI components.
+
+    By binding the root item property to a component property you can use it,
+    for example, to rotate an component. Binding a root item property of speed
+    to a component property of rotation would result in the item rotating in the
+    screen when the simulation is run.
+
+    To bind the root item property to a component property, select the component
+    either by clicking on it on the canvas or in \uicontrol Navigator. In the
+    \uicontrol Properties view, find the component property to which you want to
+    bind the root item property. Select the \inlineimage icons/action-icon.png
+    (\uicontrol Actions) menu next to a property, and then select
+    \uicontrol {Set Binding}. In the \uicontrol {Binding Editor}, select the
+    text field and type in \c {<id>.<property name>}, for example
+    \c rectangle.speedProp. For more information, see \l {Setting Bindings}.
+
+    \image studio-binding-editor.png "The Binding Editor window"
+
+    Run the simulation by first clicking the \uicontrol Run icon in \QDS and
+    then the \uicontrol Run icon in Simulink.
+*/
