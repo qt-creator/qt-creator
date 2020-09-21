@@ -88,7 +88,7 @@ FolderNode::AddNewInformation QbsGroupNode::addNewInformation(const QStringList 
     return info;
 }
 
-QVariant QbsGroupNode::data(Core::Id role) const
+QVariant QbsGroupNode::data(Id role) const
 {
     if (role == ProjectExplorer::Constants::QT_KEYWORDS_ENABLED) {
         QJsonObject modProps = m_groupData.value("module-properties").toObject();
@@ -151,7 +151,7 @@ QString QbsProductNode::getBuildKey(const QJsonObject &product)
             + product.value("multiplex-configuration-id").toString();
 }
 
-QVariant QbsProductNode::data(Core::Id role) const
+QVariant QbsProductNode::data(Id role) const
 {
     if (role == Android::Constants::AndroidDeploySettingsFile) {
         for (const auto &a : m_productData.value("generated-artifacts").toArray()) {

@@ -26,7 +26,8 @@
 #pragma once
 
 #include "icontext.h"
-#include "id.h"
+
+#include <utils/id.h>
 
 #include <QIcon>
 #include <QMenu>

@@ -28,9 +28,9 @@
 
 #include "inavigationwidgetfactory.h"
 #include "actionmanager/command.h"
-#include "id.h"
 
 #include <coreplugin/icore.h>
+
 #include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 

@@ -27,12 +27,12 @@
 
 #include "qprocessuniqueptr.h"
 
+#include <utils/id.h>
+
 #include <QString>
 #include <QProcessEnvironment>
 
 #include <designersettings.h>
-
-#include <coreplugin/id.h>
 
 namespace ProjectExplorer {
 class Target;

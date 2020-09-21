@@ -175,7 +175,8 @@ void CrumbleBar::onCrumblePathElementClicked(const QVariant &data)
         crumblePath()->popElement();
         nextFileIsCalledInternally();
         Core::EditorManager::openEditor(clickedCrumbleBarInfo.fileName.toString(),
-            Core::Id(), Core::EditorManager::DoNotMakeVisible);
+                                        Utils::Id(),
+                                        Core::EditorManager::DoNotMakeVisible);
         if (clickedCrumbleBarInfo.modelNode.isValid()) {
             currentDesignDocument()->changeToSubComponent(clickedCrumbleBarInfo.modelNode);
             QmlDesignerPlugin::instance()->viewManager().setComponentNode(clickedCrumbleBarInfo.modelNode);

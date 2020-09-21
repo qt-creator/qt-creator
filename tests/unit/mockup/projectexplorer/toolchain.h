@@ -28,8 +28,8 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/projectmacro.h>
-#include <coreplugin/id.h>
 #include <utils/cpplanguage_details.h>
+#include <utils/id.h>
 
 #include <functional>
 
@@ -41,7 +41,7 @@ class ToolChain
 {
 public:
     ToolChain() = default;
-    Core::Id typeId() const { return Core::Id(); }
+    Utils::Id typeId() const { return Utils::Id(); }
 
     Abi targetAbi() const { return Abi(); }
 

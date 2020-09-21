@@ -153,12 +153,12 @@ static bool checkIfEditorIsQtQuick(Core::IEditor *editor)
     return false;
 }
 
-static bool isDesignerMode(Core::Id mode)
+static bool isDesignerMode(Utils::Id mode)
 {
     return mode == Core::Constants::MODE_DESIGN;
 }
 
-static bool documentIsAlreadyOpen(DesignDocument *designDocument, Core::IEditor *editor, Core::Id newMode)
+static bool documentIsAlreadyOpen(DesignDocument *designDocument, Core::IEditor *editor, Utils::Id newMode)
 {
     return designDocument
             && editor == designDocument->editor()
@@ -334,21 +334,20 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
         }
     });
 
-    connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged,
-        [this] (Core::Id newMode, Core::Id oldMode) {
-
-        Core::IEditor *currentEditor = Core::EditorManager::currentEditor();
-        if (d && currentEditor && checkIfEditorIsQtQuick(currentEditor) &&
-                !documentIsAlreadyOpen(currentDesignDocument(), currentEditor, newMode)) {
-
-            if (isDesignerMode(newMode)) {
-                showDesigner();
-            } else if (currentDesignDocument() ||
-                     (!isDesignerMode(newMode) && isDesignerMode(oldMode))) {
-                    hideDesigner();
-            }
-        }
-    });
+    connect(Core::ModeManager::instance(),
+            &Core::ModeManager::currentModeChanged,
+            [this](Utils::Id newMode, Utils::Id oldMode) {
+                Core::IEditor *currentEditor = Core::EditorManager::currentEditor();
+                if (d && currentEditor && checkIfEditorIsQtQuick(currentEditor)
+                    && !documentIsAlreadyOpen(currentDesignDocument(), currentEditor, newMode)) {
+                    if (isDesignerMode(newMode)) {
+                        showDesigner();
+                    } else if (currentDesignDocument()
+                               || (!isDesignerMode(newMode) && isDesignerMode(oldMode))) {
+                        hideDesigner();
+                    }
+                }
+            });
 }
 
 void QmlDesignerPlugin::showDesigner()

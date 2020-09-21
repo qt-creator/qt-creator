@@ -295,7 +295,7 @@ void DesignModeWidget::setup()
 
     // Create a DockWidget for each QWidget and add them to the DockManager
     const Core::Context designContext(Core::Constants::C_DESIGN_MODE);
-    static const Core::Id actionToggle("QmlDesigner.Toggle");
+    static const Utils::Id actionToggle("QmlDesigner.Toggle");
 
     // First get all navigation views
     QList<Core::INavigationWidgetFactory *> factories = Core::INavigationWidgetFactory::allNavigationFactories();
@@ -426,21 +426,22 @@ void DesignModeWidget::setup()
 
     m_dockManager->initialize();
 
-    connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged,
-            this, [this](Core::Id mode, Core::Id oldMode) {
-        if (mode == Core::Constants::MODE_DESIGN) {
-            m_dockManager->reloadActiveWorkspace();
-            m_dockManager->setModeChangeState(false);
-        }
+    connect(Core::ModeManager::instance(),
+            &Core::ModeManager::currentModeChanged,
+            this,
+            [this](Utils::Id mode, Utils::Id oldMode) {
+                if (mode == Core::Constants::MODE_DESIGN) {
+                    m_dockManager->reloadActiveWorkspace();
+                    m_dockManager->setModeChangeState(false);
+                }
 
-        if (oldMode == Core::Constants::MODE_DESIGN
-            && mode != Core::Constants::MODE_DESIGN) {
-            m_dockManager->save();
-            m_dockManager->setModeChangeState(true);
-            for (auto floatingWidget : m_dockManager->floatingWidgets())
-                floatingWidget->hide();
-        }
-    });
+                if (oldMode == Core::Constants::MODE_DESIGN && mode != Core::Constants::MODE_DESIGN) {
+                    m_dockManager->save();
+                    m_dockManager->setModeChangeState(true);
+                    for (auto floatingWidget : m_dockManager->floatingWidgets())
+                        floatingWidget->hide();
+                }
+            });
 
     addSpacerToToolBar(toolBar);
 
@@ -526,7 +527,8 @@ void DesignModeWidget::toolBarOnGoBackClicked()
         --m_navigatorHistoryCounter;
         m_keepNavigatorHistory = true;
         Core::EditorManager::openEditor(m_navigatorHistory.at(m_navigatorHistoryCounter),
-                                        Core::Id(), Core::EditorManager::DoNotMakeVisible);
+                                        Utils::Id(),
+                                        Core::EditorManager::DoNotMakeVisible);
         m_keepNavigatorHistory = false;
     }
 }
@@ -537,7 +539,8 @@ void DesignModeWidget::toolBarOnGoForwardClicked()
         ++m_navigatorHistoryCounter;
         m_keepNavigatorHistory = true;
         Core::EditorManager::openEditor(m_navigatorHistory.at(m_navigatorHistoryCounter),
-                                        Core::Id(), Core::EditorManager::DoNotMakeVisible);
+                                        Utils::Id(),
+                                        Core::EditorManager::DoNotMakeVisible);
         m_keepNavigatorHistory = false;
     }
 }

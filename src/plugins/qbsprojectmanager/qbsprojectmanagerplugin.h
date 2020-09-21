@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <coreplugin/id.h>
 #include <extensionsystem/iplugin.h>
+#include <utils/id.h>
 #include <utils/parameteraction.h>
 
 namespace ProjectExplorer { class Target; }
@@ -58,15 +58,15 @@ private:
     void buildProductContextMenu();
     void cleanProductContextMenu();
     void rebuildProductContextMenu();
-    void runStepsForProductContextMenu(const QList<Core::Id> &stepTypes);
+    void runStepsForProductContextMenu(const QList<Utils::Id> &stepTypes);
     void buildProduct();
     void cleanProduct();
     void rebuildProduct();
-    void runStepsForProduct(const QList<Core::Id> &stepTypes);
+    void runStepsForProduct(const QList<Utils::Id> &stepTypes);
     void buildSubprojectContextMenu();
     void cleanSubprojectContextMenu();
     void rebuildSubprojectContextMenu();
-    void runStepsForSubprojectContextMenu(const QList<Core::Id> &stepTypes);
+    void runStepsForSubprojectContextMenu(const QList<Utils::Id> &stepTypes);
 
     void reparseSelectedProject();
     void reparseCurrentProject();
@@ -80,8 +80,9 @@ private:
                     const QStringList &activeFileTags);
     void buildSingleFile(QbsProject *project, const QString &file);
 
-    static void runStepsForProducts(QbsProject *project, const QStringList &products,
-                                    const QList<Core::Id> &stepTypes);
+    static void runStepsForProducts(QbsProject *project,
+                                    const QStringList &products,
+                                    const QList<Utils::Id> &stepTypes);
 
     QbsProjectManagerPluginPrivate *d = nullptr;
     QAction *m_reparseQbs = nullptr;

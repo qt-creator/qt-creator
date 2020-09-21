@@ -39,7 +39,6 @@
 #include "vcsmanager.h"
 #include "versiondialog.h"
 #include "statusbarmanager.h"
-#include "id.h"
 #include "manhattanstyle.h"
 #include "navigationwidget.h"
 #include "rightpane.h"
