@@ -27,7 +27,7 @@
     \page creator-project-managing-workspaces.html
     \if defined(qtdesignstudio)
     \previouspage creator-using-qt-quick-designer.html
-    \nextpage {Tutorials}
+    \nextpage creator-project-managing-sessions.html
     \else
     \previouspage creator-sidebars.html
     \nextpage creator-output-panes.html
