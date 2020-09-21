@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -58,23 +58,7 @@
 
             Copyright (c) 2008-2015 Jesse Beder.
 
-            Permission is hereby granted, free of charge, to any person obtaining a copy
-            of this software and associated documentation files (the "Software"), to deal
-            in the Software without restriction, including without limitation the rights
-            to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-            copies of the Software, and to permit persons to whom the Software is
-            furnished to do so, subject to the following conditions:
-
-            The above copyright notice and this permission notice shall be included in
-            all copies or substantial portions of the Software.
-
-            THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-            IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-            FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-            AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-            LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-            OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-            THE SOFTWARE.
+            \include license-mit.qdocinc
 
         \li \b{Syntax highlighting engine for Kate syntax definitions}
 
@@ -83,29 +67,285 @@
             text rendering (e.g. as HTML), supporting both integration with a custom editor
             as well as a ready-to-use QSyntaxHighlighter sub-class.
 
-            Distributed under the:
-            \badcode
-            MIT License
+            The following files are part of KDE's kate project, kdelibs/kate:
 
-            Permission is hereby granted, free of charge, to any person obtaining
-            a copy of this software and associated documentation files (the
-            "Software"), to deal in the Software without restriction, including
-            without limitation the rights to use, copy, modify, merge, publish,
-            distribute, sublicense, and/or sell copies of the Software, and to
-            permit persons to whom the Software is furnished to do so, subject to
-            the following conditions:
+            \list
+                \li \b alert.xml
 
-            The above copyright notice and this permission notice shall be included
-            in all copies or substantial portions of the Software.
+                    Author: Dominik Haumann (dhaumann@kde.org).
 
-            THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-            EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-            MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-            IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-            CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-            TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-            SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-            \endcode
+                    Distributed under the MIT license.
+
+                    \include license-mit.qdocinc
+
+                \li \b bash.xml
+
+                    Copyright (c) 2004 by Wilbert Berendsen (wilbert@kde.nl).
+
+                    Changes by: Matthew Woehlke (mw_triad@users.sourceforge.net),
+                    Sebastian Pipping (webmaster@hartwork.org), and
+                    Luiz Angelo Daros de Luca (luizluca@gmail.com).
+
+                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
+                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)}.
+
+                \li \b cmake.xml
+
+                    Copyright 2004 Alexander Neundorf (neundorf@kde.org).
+
+                    Copyright 2005 Dominik Haumann (dhdev@gmx.de).
+
+                    Copyright 2007,2008,2013,2014 Matthew Woehlke (mw_triad@users.sourceforge.net).
+
+                    Copyright 2013-2015,2017-2020 Alex Turbov (i.zaufi@gmail.com).
+
+                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
+                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)} or later.
+
+                    \badcode
+                    This library is free software; you can redistribute it and/or
+                    modify it under the terms of the GNU Lesser General Public
+                    License as published by the Free Software Foundation; either
+                    version 2 of the License, or (at your option) any later version.
+
+                    This library is distributed in the hope that it will be useful,
+                    but WITHOUT ANY WARRANTY; without even the implied warranty of
+                    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+                    Lesser General Public License for more details.
+
+                    You should have received a copy of the GNU Lesser General Public
+                    License along with this library; if not, write to the
+                    Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+                    Boston, MA  02110-1301, USA.
+                    \endcode
+
+                \li \b css.xml
+
+                    Author: Wilbert Berendsen (wilbert@kde.nl).
+
+                    Changes:
+                    Version 7 and 8 by Jonathan Poelen,
+                    Version 2.13 and 4 by Guo Yunhe (guoyunhebrave@gmail.com),
+                    Version 2.08 by Joseph Wenninger,
+                    Version 2.06 by Mte90,
+                    Version 2.03 by Milian Wolff.
+
+                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
+                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)}.
+
+                \li \b doxygen.xml
+
+                    Author: Dominik Haumann (dhaumann@kde.org).
+
+                    Distributed under the MIT license.
+
+                    \include license-mit.qdocinc
+
+                \li \b dtd.xml
+
+                    Author: Andriy Lesyuk (s-andy@in.if.ua).
+
+                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
+                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)}.
+
+                \li \b html.xml
+
+                    Author: Wilbert Berendsen (wilbert@kde.nl).
+
+                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
+                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)}.
+
+                \li \b ini.xml
+
+                    Author: Jan Janssen (medhefgo@web.de).
+
+                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
+                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)}.
+
+                \li \b java.xml
+
+                    Author: Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br).
+
+                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
+                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)}.
+
+                \li \b javadoc.xml
+
+                    Author: Alfredo Luiz Foltran Fialho (alfoltran@ig.com.br).
+
+                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
+                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)}.
+
+                \li \b json.xml
+
+                    Author: Sebastian Pipping (sebastian@pipping.org).
+
+                    Released under the \l{https://www.gnu.org/licenses/gpl-3.0.html}
+                    {GNU General Public License Version 3 (GPLv3)} or later.
+
+                \li \b makefile.xml
+
+                    Author: v0.9 by Per Wigren (wigren@home.se).
+
+                    Changes: Joseph Wenninger (jowenn@kde.org),
+                    Rui Santana (santana.rui@gmail.com),
+                    v2.0 by Andreas Nordal (andreas.nordal@gmail.com),
+                    v2.1 by Alex Turbov (i.zaufi@gmail.com),
+                    v4 by Alex Richardson (arichardson.kde@gmail.com).
+
+                \li \b markdown.xml
+
+                    Copyright 2008 Darrin Yeager (http://www.dyeager.org/).
+
+                    Dual-licensed under both the \l{https://www.gnu.org/licenses/gpl-2.0.html}
+                    {GNU General Public License Version 2 (GPLv2)} BSD licenses.
+
+                    Extended 2009 Claes Holmerson (http://github.com/claes/kate-markdown/).
+
+                    Extended 2019 Nibaldo Gonz\unicode{0x00E1}lez S. (nibgonz@gmail.com).
+                    Changes under MIT license.
+
+                    \badcode
+                    Redistribution and use in source and binary forms, with or without
+                    modification, are permitted provided that the following conditions are met:
+
+                      * Redistributions of source code must retain the above copyright
+                        notice, this list of conditions and the following disclaimer.
+                      * Redistributions in binary form must reproduce the above copyright
+                        notice, this list of conditions and the following disclaimer in the
+                        documentation and/or other materials provided with the distribution.
+
+                    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+                    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+                    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+                    ARE DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+                    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+                    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+                    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+                    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+                    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+                    THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+                    \endcode
+
+                    \include license-mit.qdocinc
+
+                \li \b modelines.xml
+
+                    Author: Alex Turbov (i.zaufi@gmail.com).
+
+                    Distributed under the MIT license.
+
+                    \include license-mit.qdocinc
+
+                \li \b perl.xml
+
+                    Copyright (C) 2001, 2002, 2003, 2004 Anders Lund (anders@alweb.dk).
+
+                    \badcode
+                    This library is free software; you can redistribute it and/or
+                    modify it under the terms of the GNU Library General Public
+                    License version 2 as published by the Free Software Foundation.
+
+                    This library is distributed in the hope that it will be useful,
+                    but WITHOUT ANY WARRANTY; without even the implied warranty of
+                    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+                    Library General Public License for more details.
+
+                    You should have received a copy of the GNU Library General Public License
+                    along with this library; see the file COPYING.LIB.  If not, write to
+                    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+                    Boston, MA 02110-1301, USA.
+                    \endcode
+
+                \li \b perl6.xml
+
+                    Author: Jonathan Poelen (jonathan.poelen@gmail.com).
+
+                    Distributed under the MIT license.
+
+                    \include license-mit.qdocinc
+
+                \li \b powershell.xml
+
+                    Authors: Motoki Kashihara (motoki8791@gmail.com),
+                    Michael Lombardi (Michael.T.Lombardi@outlook.com).
+
+                    Distributed under the MIT license.
+
+                    \include license-mit.qdocinc
+
+                \li \b python.xml
+
+                    Author: Michael Bueker
+
+                    Changes: v0.9 by Per Wigren,
+                    v1.9 by Michael Bueker,
+                    v1.97 by Paul Giannaros,
+                    v1.99 by Primoz Anzur,
+                    v2.01 by Paul Giannaros.
+
+                \li \b qdocconf.xml
+
+                    Author: Volker Krause (vkrause@kde.org).
+
+                    Distributed under the MIT license.
+
+                    \include license-mit.qdocinc
+
+                \li \b ruby.xml
+
+                    Copyright (C) 2004 by Sebastian Vuorinen (sebastian dot vuorinen at helsinki dot fi).
+
+                    Copyright (C) 2004 by Stefan Lang (langstefan@gmx.at).
+
+                    Copyright (C) 2008 by Robin Pedersen (robinpeder@gmail.com).
+
+                    Copyright (C) 2011 by Miquel Sabat\unicode{0xe9} (mikisabate@gmail.com).
+
+                    \badcode
+                    This library is free software; you can redistribute it and/or
+                    modify it under the terms of the GNU Library General Public
+                    License as published by the Free Software Foundation; either
+                    version 2 of the License, or (at your option) any later version.
+
+                    This library is distributed in the hope that it will be useful,
+                    but WITHOUT ANY WARRANTY; without even the implied warranty of
+                    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+                    Library General Public License for more details.
+
+                    You should have received a copy of the GNU Library General Public
+                    License along with this library; if not, write to the
+                    Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+                    Boston, MA  02110-1301, USA.
+                    \endcode
+
+                \li \b valgrind-suppression.xml
+
+                    Author: Milian Wolff (mail@milianw.de).
+
+                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
+                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)}.
+
+                \li \b xml.xml
+
+                    Author: Wilbert Berendsen (wilbert@kde.nl).
+
+                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
+                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)}.
+
+                \li \b yacc.xml
+
+                    YACC.XML supports syntax highlighting for Yacc/Bison source under Kate.
+
+                    Copyright (C) 2004, Jan Villat (jan.villat@net2000.ch).
+
+                    Changes by: Nibaldo Gonz\unicode{0x00E1}lez (nibgonz@gmail.com),
+                    Sebastian Pipping (webmaster@hartwork.org).
+
+                    Released under the \l{https://www.gnu.org/licenses/lgpl-2.1.html}
+                    {GNU Lesser General Public License Version 2.1 (LGPLv2.1)}.
+
+            \endlist
 
             The source code of KSyntaxHighlighting can be found
             here:
