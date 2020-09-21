@@ -39,7 +39,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/id.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/helpmanager.h>
@@ -55,6 +54,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
+#include <utils/id.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
