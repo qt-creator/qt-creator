@@ -1,0 +1,9 @@
+{
+    "files": [
+        "main.py",
+        "main.qml"
+    ],
+    "qmlImportPaths": [
+        "./imports"
+    ]
+}

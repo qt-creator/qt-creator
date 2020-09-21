@@ -4,6 +4,8 @@ QtcPlugin {
     name: "Python"
 
     Depends { name: "Qt.widgets" }
+
+    Depends { name: "QmlJS" }
     Depends { name: "Utils" }
 
     Depends { name: "Core" }

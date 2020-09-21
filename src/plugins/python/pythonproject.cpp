@@ -46,6 +46,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
+#include <qmljs/qmljsmodelmanagerinterface.h>
+
 #include <utils/fileutils.h>
 
 using namespace Core;
@@ -80,9 +82,11 @@ public:
 private:
     QStringList m_rawFileList;
     QStringList m_files;
+    QStringList m_rawQmlImportPathList;
+    QStringList m_qmlImportPaths;
     QHash<QString, QString> m_rawListEntries;
+    QHash<QString, QString> m_rawQmlImportPathEntries;
 };
-
 
 /**
  * @brief Provides displayName relative to project node
@@ -100,6 +104,38 @@ public:
 private:
     QString m_displayName;
 };
+
+static QJsonObject readObjJson(const FilePath &projectFile, QString *errorMessage)
+{
+    QFile file(projectFile.toString());
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        *errorMessage = PythonProject::tr("Unable to open \"%1\" for reading: %2")
+                            .arg(projectFile.toUserOutput(), file.errorString());
+        return QJsonObject();
+    }
+
+    const QByteArray content = file.readAll();
+
+    // This assumes the project file is formed with only one field called
+    // 'files' that has a list associated of the files to include in the project.
+    if (content.isEmpty()) {
+        *errorMessage = PythonProject::tr("Unable to read \"%1\": The file is empty.")
+                            .arg(projectFile.toUserOutput());
+        return QJsonObject();
+    }
+
+    QJsonParseError error;
+    const QJsonDocument doc = QJsonDocument::fromJson(content, &error);
+    if (doc.isNull()) {
+        const int line = content.left(error.offset).count('\n') + 1;
+        *errorMessage = PythonProject::tr("Unable to parse \"%1\":%2: %3")
+                            .arg(projectFile.toUserOutput()).arg(line)
+                            .arg(error.errorString());
+        return QJsonObject();
+    }
+
+    return doc.object();
+}
 
 static QStringList readLines(const FilePath &projectFile)
 {
@@ -127,37 +163,9 @@ static QStringList readLines(const FilePath &projectFile)
 
 static QStringList readLinesJson(const FilePath &projectFile, QString *errorMessage)
 {
-    const QString projectFileName = projectFile.fileName();
-    QStringList lines = { projectFileName };
+    QStringList lines = { projectFile.fileName() };
 
-    QFile file(projectFile.toString());
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        *errorMessage = PythonProject::tr("Unable to open \"%1\" for reading: %2")
-                        .arg(projectFile.toUserOutput(), file.errorString());
-        return lines;
-    }
-
-    const QByteArray content = file.readAll();
-
-    // This assumes the project file is formed with only one field called
-    // 'files' that has a list associated of the files to include in the project.
-    if (content.isEmpty()) {
-        *errorMessage = PythonProject::tr("Unable to read \"%1\": The file is empty.")
-                        .arg(projectFile.toUserOutput());
-        return lines;
-    }
-
-    QJsonParseError error;
-    const QJsonDocument doc = QJsonDocument::fromJson(content, &error);
-    if (doc.isNull()) {
-        const int line = content.left(error.offset).count('\n') + 1;
-        *errorMessage = PythonProject::tr("Unable to parse \"%1\":%2: %3")
-                        .arg(projectFile.toUserOutput()).arg(line)
-                        .arg(error.errorString());
-        return lines;
-    }
-
-    const QJsonObject obj = doc.object();
+    const QJsonObject obj = readObjJson(projectFile, errorMessage);
     if (obj.contains("files")) {
         const QJsonValue files = obj.value("files");
         const QJsonArray files_array = files.toArray();
@@ -169,6 +177,26 @@ static QStringList readLinesJson(const FilePath &projectFile, QString *errorMess
     }
 
     return lines;
+}
+
+static QStringList readImportPathsJson(const FilePath &projectFile, QString *errorMessage)
+{
+    QStringList importPaths;
+
+    const QJsonObject obj = readObjJson(projectFile, errorMessage);
+    if (obj.contains("qmlImportPaths")) {
+        const QJsonValue dirs = obj.value("qmlImportPaths");
+        const QJsonArray dirs_array = dirs.toArray();
+
+        QSet<QString> visited;
+
+        for (const auto &dir : dirs_array)
+            visited.insert(dir.toString());
+
+        importPaths.append(Utils::toList(visited));
+    }
+
+    return importPaths;
 }
 
 class PythonProjectNode : public ProjectNode
@@ -211,6 +239,7 @@ static FileType getFileType(const FilePath &f)
 void PythonBuildSystem::triggerParsing()
 {
     ParseGuard guard = guardParsingRun();
+
     parse();
 
     const QDir baseDir(projectDirectory().toString());
@@ -234,6 +263,18 @@ void PythonBuildSystem::triggerParsing()
     setRootProjectNode(std::move(newRoot));
 
     setApplicationTargets(appTargets);
+
+    auto modelManager = QmlJS::ModelManagerInterface::instance();
+    if (modelManager) {
+        auto projectInfo = modelManager->defaultProjectInfoForProject(project());
+
+        for (const QString &importPath : m_qmlImportPaths) {
+            const Utils::FilePath filePath = Utils::FilePath::fromString(importPath);
+            projectInfo.importPaths.maybeInsert(filePath, QmlJS::Dialect::Qml);
+        }
+
+        modelManager->updateProjectInfo(projectInfo, project());
+    }
 
     guard.markAsSuccess();
 
@@ -355,6 +396,8 @@ bool PythonBuildSystem::renameFile(Node *, const QString &filePath, const QStrin
 void PythonBuildSystem::parse()
 {
     m_rawListEntries.clear();
+    m_rawQmlImportPathEntries.clear();
+
     const FilePath filePath = projectFilePath();
     // The PySide project file is JSON based
     if (filePath.endsWith(".pyproject")) {
@@ -362,13 +405,19 @@ void PythonBuildSystem::parse()
         m_rawFileList = readLinesJson(filePath, &errorMessage);
         if (!errorMessage.isEmpty())
             MessageManager::write(errorMessage);
-    }
-    // To keep compatibility with PyQt we keep the compatibility with plain
-    // text files as project files.
-    else if (filePath.endsWith(".pyqtc"))
+
+        errorMessage.clear();
+        m_rawQmlImportPathList = readImportPathsJson(filePath, &errorMessage);
+        if (!errorMessage.isEmpty())
+            MessageManager::write(errorMessage);
+    } else if (filePath.endsWith(".pyqtc")) {
+        // To keep compatibility with PyQt we keep the compatibility with plain
+        // text files as project files.
         m_rawFileList = readLines(filePath);
+    }
 
     m_files = processEntries(m_rawFileList, &m_rawListEntries);
+    m_qmlImportPaths = processEntries(m_rawQmlImportPathList, &m_rawQmlImportPathEntries);
 }
 
 /**

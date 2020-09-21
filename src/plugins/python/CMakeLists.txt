@@ -1,4 +1,5 @@
 add_qtc_plugin(Python
+  DEPENDS QmlJS
   PLUGIN_DEPENDS Core LanguageClient ProjectExplorer TextEditor
   SOURCES
     python.qrc

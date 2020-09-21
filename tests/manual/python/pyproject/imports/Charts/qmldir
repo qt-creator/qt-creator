@@ -1,0 +1,2 @@
+module Charts
+ChartBackground 1.0 ./chartbackground.qml
