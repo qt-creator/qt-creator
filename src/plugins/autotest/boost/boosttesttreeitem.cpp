@@ -240,7 +240,7 @@ QList<TestConfiguration *> BoostTestTreeItem::getTestConfigurations(
             if (item->state().testFlag(BoostTestTreeItem::Templated))
                 tcName.append("<*");
             else if (item->state().testFlag(BoostTestTreeItem::Parameterized))
-                tcName.append('*');
+                tcName.append("_*");
             tcName = handleSpecialFunctionNames(tcName);
             testCasesForProjectFile[item->proFile()].testCases.append(
                         item->prependWithParentsSuitePaths(tcName));
@@ -293,7 +293,7 @@ TestConfiguration *BoostTestTreeItem::testConfiguration() const
                         if (boostItem->type() == TestSuite) // execute everything below a suite
                             tcName.append("/*");
                         else if (boostItem->state().testFlag(BoostTestTreeItem::Parameterized))
-                            tcName.append('*');
+                            tcName.append("_*");
                         else if (boostItem->state().testFlag(BoostTestTreeItem::Templated))
                             tcName.append("<*");
                         testCases.append(boostItem->prependWithParentsSuitePaths(tcName));
@@ -305,7 +305,7 @@ TestConfiguration *BoostTestTreeItem::testConfiguration() const
             if (state().testFlag(BoostTestTreeItem::Templated))
                 tcName.append("<*");
             else if (state().testFlag(BoostTestTreeItem::Parameterized))
-                tcName.append('*');
+                tcName.append("_*");
             testCases.append(prependWithParentsSuitePaths(handleSpecialFunctionNames(tcName)));
         }
 

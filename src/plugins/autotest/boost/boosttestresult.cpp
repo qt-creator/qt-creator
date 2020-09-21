@@ -85,10 +85,10 @@ const TestTreeItem *BoostTestResult::findTestTreeItem() const
     if (!rootNode)
         return nullptr;
 
-    const auto item = rootNode->findAnyChild([this](const Utils::TreeItem *item) {
+    const auto foundItem = rootNode->findAnyChild([this](const Utils::TreeItem *item) {
         return matches(static_cast<const BoostTestTreeItem *>(item));
     });
-    return static_cast<const TestTreeItem *>(item);
+    return static_cast<const TestTreeItem *>(foundItem);
 }
 
 bool BoostTestResult::matches(const BoostTestTreeItem *item) const
@@ -99,16 +99,26 @@ bool BoostTestResult::matches(const BoostTestTreeItem *item) const
         return false;
     if (m_testCase.isEmpty()) // a top level module node
         return item->proFile() == m_projectFile;
+    if (item->proFile() != m_projectFile)
+        return false;
+    if (!fileName().isEmpty() && fileName() != item->filePath())
+        return false;
 
-    if (item->state() & BoostTestTreeItem::Parameterized) {
-        if (!m_testCase.startsWith(item->name()))
-            return false;
-    } else {
-        if (item->name() != m_testCase)
-            return false;
+    QString fullName = "::" + m_testCase;
+    fullName.prepend(m_testSuite.isEmpty() ? QString(BoostTest::Constants::BOOST_MASTER_SUITE)
+                                           : m_testSuite);
+
+    BoostTestTreeItem::TestStates states = item->state();
+    if (states & BoostTestTreeItem::Templated) {
+        const QRegularExpression regex(
+            QRegularExpression::wildcardToRegularExpression(item->fullName() + "<*>"));
+        return regex.match(fullName).hasMatch();
+    } else if (states & BoostTestTreeItem::Parameterized) {
+        const QRegularExpression regex(
+            QRegularExpression::anchoredPattern(item->fullName() + "_\\d+"));
+        return regex.isValid() && regex.match(fullName).hasMatch();
     }
-
-    return item->filePath() == fileName() && item->proFile() == m_projectFile;
+    return item->fullName() == fullName;
 }
 
 } // namespace Internal

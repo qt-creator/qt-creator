@@ -26,6 +26,7 @@
 #include "boosttestoutputreader.h"
 #include "boosttestsettings.h"
 #include "boosttestresult.h"
+#include "boosttesttreeitem.h"
 
 #include <utils/qtcassert.h>
 
@@ -107,6 +108,9 @@ void BoostTestOutputReader::sendCompleteInformation()
     if (m_lineNumber) {
         result->setLine(m_lineNumber);
         result->setFileName(m_fileName);
+    } else if (const TestTreeItem *it = result->findTestTreeItem()) {
+        result->setLine(it->line());
+        result->setFileName(it->filePath());
     }
 
     result->setDescription(m_description);
