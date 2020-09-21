@@ -69,6 +69,13 @@
 #include <qtsystemexceptionhandler.h>
 #endif
 
+#ifdef ENABLE_CRASHPAD
+#define NOMINMAX
+#include "client/crashpad_client.h"
+#include "client/crash_report_database.h"
+#include "client/settings.h"
+#endif
+
 #ifdef Q_OS_LINUX
 #include <malloc.h>
 #endif
@@ -455,6 +462,54 @@ QStringList lastSessionArgument()
     return hasProjectExplorer ? QStringList({"-lastsession"}) : QStringList();
 }
 
+#ifdef ENABLE_CRASHPAD
+bool startCrashpad(const QString &libexecPath, bool crashReportingEnabled)
+{
+    using namespace crashpad;
+
+    // Cache directory that will store crashpad information and minidumps
+    QString databasePath = QDir::cleanPath(libexecPath + "/crashpad_reports");
+    QString handlerPath = QDir::cleanPath(libexecPath + "/crashpad_handler");
+#ifdef Q_OS_WIN
+    handlerPath += ".exe";
+    base::FilePath database(databasePath.toStdWString());
+    base::FilePath handler(handlerPath.toStdWString());
+#elif defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
+    base::FilePath database(databasePath.toStdString());
+    base::FilePath handler(handlerPath.toStdString());
+#endif
+
+    std::unique_ptr<CrashReportDatabase> db = CrashReportDatabase::Initialize(database);
+    if (db && db->GetSettings())
+        db->GetSettings()->SetUploadsEnabled(crashReportingEnabled);
+
+    // URL used to submit minidumps to
+    std::string url(CRASHPAD_BACKEND_URL);
+
+    // Optional annotations passed via --annotations to the handler
+    std::map<std::string, std::string> annotations;
+    annotations["app-version"] = Core::Constants::IDE_VERSION_DISPLAY;
+    annotations["qt-version"] = QT_VERSION_STR;
+
+    // Optional arguments to pass to the handler
+    std::vector<std::string> arguments;
+
+    CrashpadClient *client = new CrashpadClient();
+    bool success = client->StartHandler(
+        handler,
+        database,
+        database,
+        url,
+        annotations,
+        arguments,
+        /* restartable */ true,
+        /* asynchronous_start */ true
+    );
+
+    return success;
+}
+#endif
+
 int main(int argc, char **argv)
 {
     Restarter restarter(argc, argv);
@@ -493,7 +548,7 @@ int main(int argc, char **argv)
 
     Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/" + Core::Constants::IDE_CASED_ID + "-XXXXXX");
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     // increase the number of file that can be opened in Qt Creator.
     struct rlimit rl;
     getrlimit(RLIMIT_NOFILE, &rl);
@@ -560,6 +615,11 @@ int main(int argc, char **argv)
     // Display a backtrace once a serious signal is delivered (Linux only).
     CrashHandlerSetup setupCrashHandler(Core::Constants::IDE_DISPLAY_NAME,
                                         CrashHandlerSetup::EnableRestart, libexecPath);
+#endif
+
+#ifdef ENABLE_CRASHPAD
+    bool crashReportingEnabled = settings->value("CrashReportingEnabled", false).toBool();
+    startCrashpad(libexecPath, crashReportingEnabled);
 #endif
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)

@@ -32,9 +32,14 @@ Item {
 
     signal closeClicked
     signal checkBoxToggled
+    signal configureClicked
 
     property alias doNotShowAgain: welcome_splash.doNotShowAgain
-    property alias loadingPlugins: welcome_splash.loadingPlugins
+
+    function onPluginInitialized(crashReportingEnabled: bool, crashReportingOn: bool)
+    {
+        welcome_splash.onPluginInitialized(crashReportingEnabled, crashReportingOn);
+    }
 
     Welcome_splash {
         id: welcome_splash
@@ -42,5 +47,6 @@ Item {
         y: 0
         antialiasing: true
         onCloseClicked: root.closeClicked()
+        onConfigureClicked: root.configureClicked()
     }
 }

@@ -482,6 +482,14 @@ QString ICore::libexecPath()
     return QDir::cleanPath(QApplication::applicationDirPath() + '/' + RELATIVE_LIBEXEC_PATH);
 }
 
+QString ICore::crashReportsPath()
+{
+    if (Utils::HostOsInfo::isMacHost())
+        return libexecPath() + "/crashpad_reports/completed";
+    else
+        return libexecPath() + "/crashpad_reports/reports";
+}
+
 static QString clangIncludePath(const QString &clangVersion)
 {
     return "/lib/clang/" + clangVersion + "/include";

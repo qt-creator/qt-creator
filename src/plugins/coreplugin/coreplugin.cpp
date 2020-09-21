@@ -49,6 +49,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 #include <utils/algorithm.h>
+#include <utils/checkablemessagebox.h>
 #include <utils/infobar.h>
 #include <utils/macroexpander.h>
 #include <utils/mimetypes/mimedatabase.h>
@@ -62,6 +63,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QJsonObject>
+#include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
 #include <QSettings>
@@ -75,6 +77,7 @@ using namespace Utils;
 
 static CorePlugin *m_instance = nullptr;
 
+const char kWarnCrashReportingSetting[] = "WarnCrashReporting";
 const char kEnvironmentChanges[] = "Core/EnvironmentChanges";
 
 void CorePlugin::setupSystemEnvironment()
@@ -234,6 +237,11 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     Utils::PathChooser::setAboutToShowContextMenuHandler(&CorePlugin::addToPathChooserContextMenu);
 
+#ifdef ENABLE_CRASHPAD
+    connect(ICore::instance(), &ICore::coreOpened, this, &CorePlugin::warnAboutCrashReporing,
+            Qt::QueuedConnection);
+#endif
+
     return true;
 }
 
@@ -377,6 +385,59 @@ void CorePlugin::checkSettings()
             .arg(QDir::toNativeSeparators(userSettings->fileName()), errorDetails,
                  QLatin1String(Core::Constants::IDE_DISPLAY_NAME));
     showMsgBox(errorMsg, QMessageBox::Critical);
+}
+
+void CorePlugin::warnAboutCrashReporing()
+{
+    if (!ICore::infoBar()->canInfoBeAdded(kWarnCrashReportingSetting))
+        return;
+
+    QString warnStr = ICore::settings()->value("CrashReportingEnabled", false).toBool()
+            ? tr("%1 collects crash reports for the sole purpose of fixing bugs. "
+                 "To disable this feature go to %2.")
+            : tr("%1 can collect crash reports for the sole purpose of fixing bugs. "
+                 "to enable this feature go to %2.");
+
+    if (Utils::HostOsInfo::isMacHost()) {
+        warnStr = warnStr.arg(Core::Constants::IDE_DISPLAY_NAME)
+                         .arg(Core::Constants::IDE_DISPLAY_NAME + tr(" > Preferences > Environment > System"));
+    } else {
+        warnStr = warnStr.arg(Core::Constants::IDE_DISPLAY_NAME)
+                         .arg(tr("Tools > Options > Environment > System"));
+    }
+
+    Utils::InfoBarEntry info(kWarnCrashReportingSetting, warnStr,
+                             Utils::InfoBarEntry::GlobalSuppression::Enabled);
+    info.setCustomButtonInfo(tr("Configure..."), [] {
+        ICore::infoBar()->removeInfo(kWarnCrashReportingSetting);
+        ICore::infoBar()->globallySuppressInfo(kWarnCrashReportingSetting);
+        ICore::showOptionsDialog(Core::Constants::SETTINGS_ID_SYSTEM);
+    });
+
+    info.setDetailsWidgetCreator([]() -> QWidget * {
+        auto label = new QLabel;
+        label->setWordWrap(true);
+        label->setOpenExternalLinks(true);
+        label->setText(msgCrashpadInformation());
+        label->setContentsMargins(0, 0, 0, 8);
+        return label;
+    });
+    ICore::infoBar()->addInfo(info);
+}
+
+// static
+QString CorePlugin::msgCrashpadInformation()
+{
+    return tr("%1 uses Google Crashpad for collecting crashes and sending them to our backend "
+              "for processing. Crashpad may capture arbitrary contents from crashed process’ "
+              "memory, including user sensitive information, URLs, and whatever other content "
+              "users have trusted %1 with. The collected crash reports are however only used "
+              "for the sole purpose of fixing bugs.").arg(Core::Constants::IDE_DISPLAY_NAME)
+            + "<br><br>" + tr("More information:")
+            + "<br><a href='https://chromium.googlesource.com/crashpad/crashpad/+/master/doc/"
+                           "overview_design.md'>" + tr("Crashpad Overview") + "</a>"
+              "<br><a href='https://sentry.io/security/'>" + tr("%1 security policy").arg("Sentry.io")
+            + "</a>";
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()

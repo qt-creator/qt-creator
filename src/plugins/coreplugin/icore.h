@@ -99,6 +99,7 @@ public:
     static QString cacheResourcePath();
     static QString installerResourcePath();
     static QString libexecPath();
+    static QString crashReportsPath();
 
     static QString versionString();
 

@@ -44,6 +44,13 @@
 #include <qtsystemexceptionhandler.h>
 #endif
 
+#if defined(ENABLE_CRASHPAD) && defined(Q_OS_WIN)
+#define NOMINMAX
+#include "client/crashpad_client.h"
+#include "client/crash_report_database.h"
+#include "client/settings.h"
+#endif
+
 #ifdef Q_OS_WIN
 #include <Windows.h>
 #endif
@@ -95,6 +102,44 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
                 context.function);
         abort();
     }
+}
+#endif
+
+#if defined(ENABLE_CRASHPAD) && defined(Q_OS_WIN)
+bool startCrashpad()
+{
+    using namespace crashpad;
+
+    // Cache directory that will store crashpad information and minidumps
+    base::FilePath database(L"crashpad_reports");
+    base::FilePath handler(L"crashpad_handler.exe");
+
+    // URL used to submit minidumps to
+    std::string url(CRASHPAD_BACKEND_URL);
+
+    // Optional annotations passed via --annotations to the handler
+    std::map<std::string, std::string> annotations;
+    annotations["qt-version"] = QT_VERSION_STR;
+
+    // Optional arguments to pass to the handler
+    std::vector<std::string> arguments;
+
+    CrashpadClient *client = new CrashpadClient();
+    bool success = client->StartHandler(
+        handler,
+        database,
+        database,
+        url,
+        annotations,
+        arguments,
+        /* restartable */ true,
+        /* asynchronous_start */ true
+    );
+    // TODO: research using this method, should avoid creating a separate CrashpadClient for the
+    // puppet (needed only on windows according to docs).
+//    client->SetHandlerIPCPipe(L"\\\\.\\pipe\\qml2puppet");
+
+    return success;
 }
 #endif
 
@@ -178,6 +223,10 @@ int internalMain(QGuiApplication *application)
 #ifdef ENABLE_QT_BREAKPAD
     const QString libexecPath = QCoreApplication::applicationDirPath() + '/' + RELATIVE_LIBEXEC_PATH;
     QtSystemExceptionHandler systemExceptionHandler(libexecPath);
+#endif
+
+#if defined(ENABLE_CRASHPAD) && defined(Q_OS_WIN)
+    startCrashpad();
 #endif
 
     new QmlDesigner::Qt5NodeInstanceClientProxy(application);
