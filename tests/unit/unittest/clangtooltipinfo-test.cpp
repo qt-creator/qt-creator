@@ -397,11 +397,10 @@ TEST_F(ToolTipInfo, SizeForUnion)
 
 TEST_F(ToolTipInfo, constexprValue)
 {
-    // CLANG-UPGRADE-CHECK: Adapt the values below
     ASSERT_THAT(tooltip(204, 12).value.toInt(), 4);
-    ASSERT_THAT(tooltip(204, 27).value.toInt(), 4); // 3 in clang 11
+    ASSERT_THAT(tooltip(204, 27).value.toInt(), CINDEX_VERSION_MINOR > 59 ? 3 : 4);
     ASSERT_THAT(tooltip(204, 30).value.toInt(), 4);
-    ASSERT_THAT(tooltip(204, 32).value.toInt(), 4); // 1 in clang 11
+    ASSERT_THAT(tooltip(204, 32).value.toInt(), CINDEX_VERSION_MINOR > 59 ? 1 : 4);
 }
 
 TEST_F(ToolTipInfo, Namespace)
