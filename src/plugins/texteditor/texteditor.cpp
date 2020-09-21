@@ -1164,6 +1164,10 @@ void TextEditorWidgetPrivate::print(QPrinter *printer)
     if (!p.isActive())
         return;
 
+    QRectF pageRect(printer->pageRect());
+    if (pageRect.isEmpty())
+        return;
+
     doc = doc->clone(doc);
     Utils::ExecuteOnDestruction docDeleter([doc]() { delete doc; });
 
@@ -1217,7 +1221,6 @@ void TextEditorWidgetPrivate::print(QPrinter *printer)
     fmt.setMargin(margin);
     doc->rootFrame()->setFrameFormat(fmt);
 
-    QRectF pageRect(printer->pageRect());
     QRectF body = QRectF(0, 0, pageRect.width(), pageRect.height());
     QFontMetrics fontMetrics(doc->defaultFont(), p.device());
 
