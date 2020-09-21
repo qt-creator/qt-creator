@@ -85,7 +85,6 @@ add_qtc_plugin(Core
     helpmanager.cpp helpmanager.h helpmanager_implementation.h
     icontext.cpp icontext.h
     icore.cpp icore.h
-    id.cpp id.h
     idocument.cpp idocument.h
     idocumentfactory.cpp idocumentfactory.h
     ifilewizardextension.h

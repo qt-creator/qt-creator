@@ -92,8 +92,6 @@ Project {
                 "icontext.h",
                 "icore.cpp",
                 "icore.h",
-                "id.cpp",
-                "id.h",
                 "idocument.cpp",
                 "idocument.h",
                 "idocumentfactory.cpp",
