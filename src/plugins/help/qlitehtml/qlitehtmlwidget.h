@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "qlitehtml_global.h"
+
 #include <QAbstractScrollArea>
 #include <QTextDocument>
 
@@ -32,7 +34,7 @@
 
 class QLiteHtmlWidgetPrivate;
 
-class QLiteHtmlWidget : public QAbstractScrollArea
+class QLITEHTML_EXPORT QLiteHtmlWidget : public QAbstractScrollArea
 {
     Q_OBJECT
 public:

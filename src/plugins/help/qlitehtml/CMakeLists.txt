@@ -27,13 +27,15 @@ find_package(Qt5 COMPONENTS Widgets REQUIRED)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
-add_library(qlitehtml STATIC
-  container_qpainter.cpp container_qpainter.h
-  qlitehtmlwidget.cpp qlitehtmlwidget.h
+add_qtc_library(qlitehtml
+  PUBLIC_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}
+  DEPENDS Qt5::Widgets litehtml
+  PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+  SOURCES
+    container_qpainter.cpp container_qpainter.h
+    qlitehtml_global.h
+    qlitehtmlwidget.cpp qlitehtmlwidget.h
 )
-
-target_include_directories(qlitehtml PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(qlitehtml PRIVATE Qt5::Widgets litehtml)
-set_target_properties(qlitehtml PROPERTIES POSITION_INDEPENDENT_CODE ON)
