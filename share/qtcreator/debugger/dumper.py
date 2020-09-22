@@ -3539,7 +3539,8 @@ class DumperBase():
                 'long long': 'int:8',
                 'unsigned long long': 'uint:8',
                 'float': 'float:4',
-                'double': 'float:8'
+                'double': 'float:8',
+                'QChar': 'uint:2'
             }.get(self.name, None)
             return res
 
