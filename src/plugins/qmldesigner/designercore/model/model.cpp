@@ -26,7 +26,6 @@
 #include "model.h"
 #include "model_p.h"
 #include <modelnode.h>
-#include <qmldesignerconstants.h>
 #include "internalnode_p.h"
 #include "invalidpropertyexception.h"
 #include "invalidargumentexception.h"
@@ -284,111 +283,6 @@ void ModelPrivate::removeNodeFromModel(const InternalNodePointer &internalNodePo
     internalNodePointer->setValid(false);
     m_nodeSet.remove(internalNodePointer);
     m_internalIdNodeHash.remove(internalNodePointer->internalId());
-}
-
-struct ImageData {
-    QDateTime time;
-    QImage image;
-    QString type;
-    QString id;
-    QString info;
-};
-static QHash<QString, QHash<QString, ImageData>> imageDataMap;
-
-static QVariant imageDataToVariant(const ImageData &imageData)
-{
-    if (!imageData.image.isNull()) {
-        QVariantMap map;
-        map.insert("type", imageData.type);
-        map.insert("image", QVariant::fromValue<QImage>(imageData.image));
-        map.insert("id", imageData.id);
-        map.insert("info", imageData.info);
-        return map;
-    }
-    return {};
-}
-
-QVariant ModelPrivate::previewImageDataForImageNode(const ModelNode &modelNode)
-{
-    // Images on file system can be cached globally as they are found by absolute paths
-    QHash<QString, ImageData> &localDataMap = imageDataMap[{}];
-
-    VariantProperty prop = modelNode.variantProperty("source");
-    QString imageSource = prop.value().toString();
-    QFileInfo imageFi(imageSource);
-    if (imageFi.isRelative())
-        imageSource = QFileInfo(m_fileUrl.toLocalFile()).dir().absoluteFilePath(imageSource);
-
-    imageFi = QFileInfo(imageSource);
-    QDateTime modified = imageFi.lastModified();
-
-    ImageData imageData;
-    bool reload = true;
-    if (localDataMap.contains(imageSource)) {
-        imageData = localDataMap[imageSource];
-        if (modified == imageData.time)
-            reload = false;
-    }
-
-    if (reload) {
-        QImage originalImage;
-        originalImage.load(imageSource);
-        if (!originalImage.isNull()) {
-            imageData.image = originalImage.scaled(Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
-                                                   Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
-                                                   Qt::KeepAspectRatio);
-            imageData.image.setDevicePixelRatio(2.);
-
-            double imgSize = double(imageFi.size());
-            imageData.type = QStringLiteral("%1 (%2)").arg(QString::fromLatin1(modelNode.type())).arg(imageFi.suffix());
-            imageData.id = modelNode.id();
-            static QStringList units({QObject::tr("B"), QObject::tr("KB"), QObject::tr("MB"), QObject::tr("GB")});
-            int unitIndex = 0;
-            while (imgSize > 1024. && unitIndex < units.size() - 1) {
-                ++unitIndex;
-                imgSize /= 1024.;
-            }
-            imageData.info = QStringLiteral("%1 x %2  (%3%4)").arg(originalImage.width()).arg(originalImage.height())
-                    .arg(QString::number(imgSize, 'g', 3)).arg(units[unitIndex]);
-            localDataMap.insert(imageSource, imageData);
-        }
-    }
-
-    return imageDataToVariant(imageData);
-}
-
-QVariant ModelPrivate::previewImageDataFor3DNode(const ModelNode &modelNode)
-{
-    QFileInfo docFi = QFileInfo(m_fileUrl.toLocalFile());
-    QHash<QString, Internal::ImageData> &localDataMap = Internal::imageDataMap[docFi.absoluteFilePath()];
-    Internal::ImageData imageData;
-    static const QImage placeHolder(":/navigator/icon/tooltip_placeholder.png");
-
-    // We need puppet to generate the image, which needs to be asynchronous.
-    // Until the image is ready, we show a placeholder
-    const QString id = modelNode.id();
-    if (localDataMap.contains(id)) {
-        imageData = localDataMap[id];
-    } else {
-        imageData.type = QString::fromLatin1(modelNode.type());
-        imageData.id = id;
-        imageData.image = placeHolder;
-        localDataMap.insert(id, imageData);
-    }
-    modelNode.model()->nodeInstanceView()->requestModelNodePreviewImage(modelNode);
-
-    return imageDataToVariant(imageData);
-}
-
-void ModelPrivate::updatePreviewImageForNode(const ModelNode &modelNode, const QImage &image)
-{
-    QFileInfo docFi = QFileInfo(m_fileUrl.toLocalFile());
-    QString docPath = docFi.absoluteFilePath();
-    if (imageDataMap.contains(docPath)) {
-        QHash<QString, ImageData> &localDataMap = imageDataMap[docPath];
-        if (localDataMap.contains(modelNode.id()))
-            localDataMap[modelNode.id()].image = image;
-    }
 }
 
 void ModelPrivate::removeAllSubNodes(const InternalNode::Pointer &internalNodePointer)
@@ -808,8 +702,6 @@ void ModelPrivate::notifyUpdateActiveScene3D(const QVariantMap &sceneState)
 
 void ModelPrivate::notifyModelNodePreviewImageChanged(const ModelNode &node, const QImage &image)
 {
-    updatePreviewImageForNode(node, image);
-
     for (const QPointer<AbstractView> &view : qAsConst(m_viewList)) {
         Q_ASSERT(view != nullptr);
         view->modelNodePreviewImageChanged(node, image);
@@ -2181,16 +2073,6 @@ void Model::setDocumentMessages(const QList<DocumentMessage> &errors, const QLis
 QList<ModelNode> Model::selectedNodes(AbstractView *view) const
 {
     return d->toModelNodeList(d->selectedNodes(), view);
-}
-
-QVariant Model::previewImageDataFor3DNode(const ModelNode &modelNode)
-{
-    return d->previewImageDataFor3DNode(modelNode);
-}
-
-QVariant Model::previewImageDataForImageNode(const ModelNode &modelNode)
-{
-    return d->previewImageDataForImageNode(modelNode);
 }
 
 /*!

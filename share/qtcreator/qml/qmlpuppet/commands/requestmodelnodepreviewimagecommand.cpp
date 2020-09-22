@@ -32,9 +32,10 @@ namespace QmlDesigner {
 
 RequestModelNodePreviewImageCommand::RequestModelNodePreviewImageCommand() = default;
 
-RequestModelNodePreviewImageCommand::RequestModelNodePreviewImageCommand(qint32 id, const QSize &size)
+RequestModelNodePreviewImageCommand::RequestModelNodePreviewImageCommand(qint32 id, const QSize &size, const QString &componentPath)
     : m_instanceId(id)
     , m_size(size)
+    , m_componentPath(componentPath)
 {
 }
 
@@ -48,10 +49,16 @@ QSize QmlDesigner::RequestModelNodePreviewImageCommand::size() const
     return m_size;
 }
 
+QString RequestModelNodePreviewImageCommand::componentPath() const
+{
+    return m_componentPath;
+}
+
 QDataStream &operator<<(QDataStream &out, const RequestModelNodePreviewImageCommand &command)
 {
     out << int(command.instanceId());
     out << command.size();
+    out << command.componentPath();
 
     return out;
 }
@@ -60,6 +67,7 @@ QDataStream &operator>>(QDataStream &in, RequestModelNodePreviewImageCommand &co
 {
     in >> command.m_instanceId;
     in >> command.m_size;
+    in >> command.m_componentPath;
     return in;
 }
 
@@ -67,7 +75,8 @@ QDebug operator <<(QDebug debug, const RequestModelNodePreviewImageCommand &comm
 {
     return debug.nospace() << "RequestModelNodePreviewImageCommand("
                            << "instanceId: " << command.instanceId() << ", "
-                           << "size: " << command.size() << ")";
+                           << "size: " << command.size() << ", "
+                           << "componentPath: " << command.componentPath() << ")";
 }
 
 } // namespace QmlDesigner

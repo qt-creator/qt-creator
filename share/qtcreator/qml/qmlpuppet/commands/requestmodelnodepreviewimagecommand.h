@@ -40,14 +40,16 @@ class RequestModelNodePreviewImageCommand
 
 public:
     RequestModelNodePreviewImageCommand();
-    explicit RequestModelNodePreviewImageCommand(qint32 id, const QSize &size);
+    explicit RequestModelNodePreviewImageCommand(qint32 id, const QSize &size, const QString &componentPath);
 
     qint32 instanceId() const;
     QSize size() const;
+    QString componentPath() const;
 
 private:
     qint32 m_instanceId;
     QSize m_size;
+    QString m_componentPath;
 };
 
 QDataStream &operator<<(QDataStream &out, const RequestModelNodePreviewImageCommand &command);

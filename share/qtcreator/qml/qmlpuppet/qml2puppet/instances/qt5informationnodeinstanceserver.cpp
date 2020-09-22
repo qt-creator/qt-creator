@@ -533,37 +533,60 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
         if (!m_ModelNode3DImageViewContentItem)
             m_ModelNode3DImageViewContentItem = getContentItemForRendering(m_ModelNode3DImageViewRootItem);
 
-        ServerNodeInstance instance = instanceForId(m_modelNodelPreviewImageCommand.instanceId());
-        QObject *instanceObj = instance.internalObject();
-        QSize renderSize = m_modelNodelPreviewImageCommand.size() * 2;
-        QMetaObject::invokeMethod(m_ModelNode3DImageViewRootItem, "createViewForObject",
-                                  Q_ARG(QVariant, objectToVariant(instanceObj)),
-                                  Q_ARG(QVariant, QVariant::fromValue(renderSize.width())),
-                                  Q_ARG(QVariant, QVariant::fromValue(renderSize.height())));
-
-        QImage renderImage;
-        bool ready = false;
-        int count = 0; // Ensure we don't ever get stuck in an infinite loop
-        while (!ready && ++count < 10) {
-            updateNodesRecursive(m_ModelNode3DImageViewContentItem);
-
-            // Fake render loop signaling to update things like QML items as 3D textures
-            m_ModelNode3DImageView->beforeSynchronizing();
-            m_ModelNode3DImageView->beforeRendering();
-
-            QSizeF size = qobject_cast<QQuickItem *>(m_ModelNode3DImageViewContentItem)->size();
-            QRectF renderRect(QPointF(0., 0.), size);
-            renderImage = designerSupport()->renderImageForItem(m_ModelNode3DImageViewContentItem,
-                                                                renderRect, size.toSize());
-            m_ModelNode3DImageView->afterRendering();
-
-            QMetaObject::invokeMethod(m_ModelNode3DImageViewRootItem, "afterRender");
-            ready = QQmlProperty::read(m_ModelNode3DImageViewRootItem, "ready").value<bool>();
-        }
-        QMetaObject::invokeMethod(m_ModelNode3DImageViewRootItem, "destroyView");
-
         // Key number is selected so that it is unlikely to conflict other ImageContainer use.
-        auto imgContainer = ImageContainer(m_modelNodelPreviewImageCommand.instanceId(), renderImage, 2100000001);
+        auto imgContainer = ImageContainer(m_modelNodePreviewImageCommand.instanceId(), {}, 2100000001);
+        QImage renderImage;
+        if (m_modelNodePreviewImageCache.contains(m_modelNodePreviewImageCommand.componentPath())) {
+            renderImage = m_modelNodePreviewImageCache[m_modelNodePreviewImageCommand.componentPath()];
+        } else {
+            QObject *instanceObj = nullptr;
+            if (!m_modelNodePreviewImageCommand.componentPath().isEmpty()) {
+                QQmlComponent *component = new QQmlComponent(engine());
+                component->loadUrl(QUrl::fromLocalFile(m_modelNodePreviewImageCommand.componentPath()));
+                instanceObj = qobject_cast<QQuick3DObject *>(component->create());
+                if (!instanceObj) {
+                    qWarning() << "Could not create preview component: " << component->errors();
+                    nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::RenderModelNodePreviewImage,
+                                                                        QVariant::fromValue(imgContainer)});
+                    return;
+                }
+            } else {
+                ServerNodeInstance instance = instanceForId(m_modelNodePreviewImageCommand.instanceId());
+                instanceObj = instance.internalObject();
+            }
+            QSize renderSize = m_modelNodePreviewImageCommand.size() * 2;
+
+            QMetaObject::invokeMethod(m_ModelNode3DImageViewRootItem, "createViewForObject",
+                                      Q_ARG(QVariant, objectToVariant(instanceObj)),
+                                      Q_ARG(QVariant, QVariant::fromValue(renderSize.width())),
+                                      Q_ARG(QVariant, QVariant::fromValue(renderSize.height())));
+
+            bool ready = false;
+            int count = 0; // Ensure we don't ever get stuck in an infinite loop
+            while (!ready && ++count < 10) {
+                updateNodesRecursive(m_ModelNode3DImageViewContentItem);
+
+                // Fake render loop signaling to update things like QML items as 3D textures
+                m_ModelNode3DImageView->beforeSynchronizing();
+                m_ModelNode3DImageView->beforeRendering();
+
+                QSizeF size = qobject_cast<QQuickItem *>(m_ModelNode3DImageViewContentItem)->size();
+                QRectF renderRect(QPointF(0., 0.), size);
+                renderImage = designerSupport()->renderImageForItem(m_ModelNode3DImageViewContentItem,
+                                                                    renderRect, size.toSize());
+                m_ModelNode3DImageView->afterRendering();
+
+                QMetaObject::invokeMethod(m_ModelNode3DImageViewRootItem, "afterRender");
+                ready = QQmlProperty::read(m_ModelNode3DImageViewRootItem, "ready").value<bool>();
+            }
+            QMetaObject::invokeMethod(m_ModelNode3DImageViewRootItem, "destroyView");
+            if (!m_modelNodePreviewImageCommand.componentPath().isEmpty()) {
+                // If component changes, puppet will need a reset anyway, so we can cache the image
+                m_modelNodePreviewImageCache.insert(m_modelNodePreviewImageCommand.componentPath(), renderImage);
+            }
+        }
+
+        imgContainer.setImage(renderImage);
 
         // send the rendered image to creator process
         nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::RenderModelNodePreviewImage,
@@ -1319,9 +1342,9 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
 
 void Qt5InformationNodeInstanceServer::requestModelNodePreviewImage(const RequestModelNodePreviewImageCommand &command)
 {
-    m_modelNodelPreviewImageCommand = command;
+    m_modelNodePreviewImageCommand = command;
 
-    ServerNodeInstance instance = instanceForId(m_modelNodelPreviewImageCommand.instanceId());
+    ServerNodeInstance instance = instanceForId(m_modelNodePreviewImageCommand.instanceId());
     if (instance.isSubclassOf("QQuick3DObject"))
         renderModelNode3DImageView();
 }

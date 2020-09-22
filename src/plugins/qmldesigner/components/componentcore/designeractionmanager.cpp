@@ -207,42 +207,31 @@ QMultiHash<TypeName, ModelNodePreviewImageHandler> DesignerActionManager::modelN
 void DesignerActionManager::registerModelNodePreviewHandler(const ModelNodePreviewImageHandler &handler)
 {
     m_modelNodePreviewImageHandlers.insert(handler.type, handler);
-
-    // Registering a new handler potentially invalidates no-handler set
-    m_noModelNodePreviewImageHandlers.clear();
 }
 
 bool DesignerActionManager::hasModelNodePreviewHandler(const ModelNode &node) const
 {
-    if (m_modelNodePreviewImageHandlers.contains(node.type()))
-        return true;
-
-    if (m_noModelNodePreviewImageHandlers.contains(node.type()))
-        return false;
-
-    // Node may be a subclass of a registered type
+    const bool isComponent = node.isComponent();
     for (const auto &handler : qAsConst(m_modelNodePreviewImageHandlers)) {
-        if (node.isSubclassOf(handler.type)) {
+        if ((isComponent || !handler.componentOnly) && node.isSubclassOf(handler.type)) {
             ModelNodePreviewImageHandler subClassHandler = handler;
             return true;
         }
     }
-
-    m_noModelNodePreviewImageHandlers.insert(node.type());
     return false;
 }
 
 ModelNodePreviewImageOperation DesignerActionManager::modelNodePreviewOperation(const ModelNode &node) const
 {
     ModelNodePreviewImageOperation op = nullptr;
-    if (!m_noModelNodePreviewImageHandlers.contains(node.type())) {
-        int prio = -1;
-        for (const auto &handler : qAsConst(m_modelNodePreviewImageHandlers)) {
-            if (node.isSubclassOf(handler.type) && handler.priority > prio)
-                op = handler.operation;
+    int prio = -1;
+    const bool isComponent = node.isComponent();
+    for (const auto &handler : qAsConst(m_modelNodePreviewImageHandlers)) {
+        if ((isComponent || !handler.componentOnly) && handler.priority > prio
+                && node.isSubclassOf(handler.type)) {
+            op = handler.operation;
+            prio = handler.priority;
         }
-        if (!op)
-            m_noModelNodePreviewImageHandlers.insert(node.type());
     }
     return op;
 }
@@ -1415,6 +1404,10 @@ void DesignerActionManager::createDefaultModelNodePreviewImageHandlers()
     registerModelNodePreviewHandler(
                 ModelNodePreviewImageHandler("QtQuick3D.Model",
                                              ModelNodeOperations::previewImageDataFor3DNode));
+    registerModelNodePreviewHandler(
+                ModelNodePreviewImageHandler("QtQuick3D.Node",
+                                             ModelNodeOperations::previewImageDataFor3DNode,
+                                             true));
 
     // TODO - Disabled until QTBUG-86616 is fixed
 //    registerModelNodePreviewHandler(

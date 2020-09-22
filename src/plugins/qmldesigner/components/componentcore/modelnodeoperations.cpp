@@ -46,6 +46,7 @@
 #include <nodelistproperty.h>
 #include <nodeproperty.h>
 #include <signalhandlerproperty.h>
+#include <nodeinstanceview.h>
 
 #include <componentcore_constants.h>
 #include <stylesheetmerger.h>
@@ -1521,14 +1522,14 @@ void removeGroup(const SelectionContext &selectionContext)
 QVariant previewImageDataFor3DNode(const ModelNode &modelNode)
 {
     if (modelNode.isValid())
-        return modelNode.model()->previewImageDataFor3DNode(modelNode);
+        return modelNode.model()->nodeInstanceView()->previewImageDataFor3DNode(modelNode);
     return {};
 }
 
 QVariant previewImageDataForImageNode(const ModelNode &modelNode)
 {
     if (modelNode.isValid())
-        return modelNode.model()->previewImageDataForImageNode(modelNode);
+        return modelNode.model()->nodeInstanceView()->previewImageDataForImageNode(modelNode);
     return {};
 }
 

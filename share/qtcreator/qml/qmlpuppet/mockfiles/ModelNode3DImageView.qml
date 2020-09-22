@@ -41,6 +41,7 @@ Item {
     property var materialViewComponent
     property var effectViewComponent
     property var modelViewComponent
+    property var nodeViewComponent
 
     property bool ready: false
 
@@ -65,6 +66,8 @@ Item {
             createViewForEffect(obj);
         else if (obj instanceof Model)
             createViewForModel(obj);
+        else if (obj instanceof Node)
+            createViewForNode(obj);
 
         previewObject = obj;
     }
@@ -99,10 +102,20 @@ Item {
             view = modelViewComponent.createObject(viewRect, {"sourceModel": model});
     }
 
+    function createViewForNode(node)
+    {
+        if (!nodeViewComponent)
+            nodeViewComponent = Qt.createComponent("NodeNodeView.qml");
+
+        // Always recreate the view to ensure node is up to date
+        if (nodeViewComponent.status === Component.Ready)
+            view = nodeViewComponent.createObject(viewRect, {"importScene": node});
+    }
+
     function afterRender()
     {
-        if (previewObject instanceof Model) {
-            view.fitModel();
+        if (previewObject instanceof Node) {
+            view.fitToViewPort();
             ready = view.ready;
         } else {
             ready = true;

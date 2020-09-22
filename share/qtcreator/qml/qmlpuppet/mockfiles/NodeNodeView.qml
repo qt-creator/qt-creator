@@ -33,22 +33,28 @@ View3D {
     camera: theCamera
 
     property bool ready: false
+    property bool first: true
     property real prevZoomFactor: -1
-    property Model sourceModel
 
     function fitToViewPort()
     {
-        cameraControl.focusObject(model, theCamera.eulerRotation, true, false);
-
-        if (cameraControl._zoomFactor < 0.1) {
-            model.scale = model.scale.times(10);
-        } else if (cameraControl._zoomFactor > 10) {
-            model.scale = model.scale.times(0.1);
+        if (first) {
+            first = false;
+            selectionBox.targetNode = root.importScene;
         } else {
-            // We need one more render after zoom factor change, so only set ready when zoom factor
-            // or scaling hasn't changed from the previous frame
-            ready = _generalHelper.fuzzyCompare(cameraControl._zoomFactor, prevZoomFactor);
-            prevZoomFactor = cameraControl._zoomFactor;
+            cameraControl.focusObject(selectionBox.model, theCamera.eulerRotation, true, false);
+
+            if (cameraControl._zoomFactor < 0.1) {
+                root.importScene.scale = root.importScene.scale.times(10);
+            } else if (cameraControl._zoomFactor > 10) {
+                root.importScene.scale = root.importScene.scale.times(0.1);
+            } else {
+                // We need one more render after zoom factor change, so only set ready when zoom factor
+                // or scaling hasn't changed from the previous frame
+                ready = _generalHelper.fuzzyCompare(cameraControl._zoomFactor, prevZoomFactor);
+                prevZoomFactor = cameraControl._zoomFactor;
+                selectionBox.visible = false;
+            }
         }
     }
 
@@ -56,6 +62,12 @@ View3D {
         id: sceneEnv
         antialiasingMode: SceneEnvironment.MSAA
         antialiasingQuality: SceneEnvironment.High
+    }
+
+    SelectionBox {
+        id: selectionBox
+        view3D: root
+        geometryName: "NodeNodeViewSB"
     }
 
     EditCameraController {
@@ -75,22 +87,10 @@ View3D {
         id: theCamera
         z: 600
         y: 600
+        x: 600
         eulerRotation.x: -45
+        eulerRotation.y: -45
         clipFar: 10000
         clipNear: 1
-    }
-
-    Model {
-        id: model
-        eulerRotation.y: 45
-
-        source: sourceModel.source
-        geometry: sourceModel.geometry
-
-        materials: [
-            DefaultMaterial {
-                diffuseColor: "#4aee45"
-            }
-        ]
     }
 }

@@ -72,15 +72,18 @@ struct ModelNodePreviewImageHandler
 public:
     ModelNodePreviewImageHandler(const TypeName &t,
                                  ModelNodePreviewImageOperation op,
+                                 bool compOnly = false,
                                  int prio = 0)
         : type(t)
         , operation(op)
+        , componentOnly(compOnly)
         , priority(prio)
     {
     }
 
     TypeName type;
     ModelNodePreviewImageOperation operation = nullptr;
+    bool componentOnly = false;
     int priority = 0;
 };
 
@@ -137,7 +140,6 @@ private:
     DesignerActionManagerView *m_designerActionManagerView;
     QList<AddResourceHandler> m_addResourceHandler;
     QMultiHash<TypeName, ModelNodePreviewImageHandler> m_modelNodePreviewImageHandlers;
-    mutable QSet<TypeName> m_noModelNodePreviewImageHandlers;
 };
 
 } //QmlDesigner

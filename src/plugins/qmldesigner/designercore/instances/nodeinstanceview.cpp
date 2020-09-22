@@ -1495,7 +1495,7 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
             auto node = modelNodeForInternalId(container.instanceId());
             if (node.isValid()) {
                 image.setDevicePixelRatio(2.);
-                emitModelNodelPreviewImageChanged(node, image);
+                updatePreviewImageForNode(node, image);
             }
         }
     }
@@ -1527,11 +1527,15 @@ void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node)
     if (node.isValid()) {
         auto instance = instanceForModelNode(node);
         if (instance.isValid()) {
+            QString componentPath;
+            if (node.isComponent())
+                componentPath = node.metaInfo().componentFileName();
             m_nodeInstanceServer->requestModelNodePreviewImage(
                         RequestModelNodePreviewImageCommand(
                             instance.instanceId(),
                             QSize(Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS,
-                                  Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS)));
+                                  Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS),
+                            componentPath));
         }
     }
 }
@@ -1545,6 +1549,115 @@ void NodeInstanceView::timerEvent(QTimerEvent *event)
 {
     if (m_restartProcessTimerId == event->timerId())
         restartProcess();
+}
+
+struct ImageData {
+    QDateTime time;
+    QImage image;
+    QString type;
+    QString id;
+    QString info;
+};
+static QHash<QString, QHash<QString, ImageData>> imageDataMap;
+
+static QVariant imageDataToVariant(const ImageData &imageData)
+{
+    if (!imageData.image.isNull()) {
+        QVariantMap map;
+        map.insert("type", imageData.type);
+        map.insert("image", QVariant::fromValue<QImage>(imageData.image));
+        map.insert("id", imageData.id);
+        map.insert("info", imageData.info);
+        return map;
+    }
+    return {};
+}
+
+QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNode)
+{
+    if (!modelNode.isValid())
+        return {};
+
+    // Images on file system can be cached globally as they are found by absolute paths
+    QHash<QString, ImageData> &localDataMap = imageDataMap[{}];
+
+    VariantProperty prop = modelNode.variantProperty("source");
+    QString imageSource = prop.value().toString();
+    QFileInfo imageFi(imageSource);
+    if (imageFi.isRelative())
+        imageSource = QFileInfo(modelNode.model()->fileUrl().toLocalFile()).dir().absoluteFilePath(imageSource);
+
+    imageFi = QFileInfo(imageSource);
+    QDateTime modified = imageFi.lastModified();
+
+    ImageData imageData;
+    bool reload = true;
+    if (localDataMap.contains(imageSource)) {
+        imageData = localDataMap[imageSource];
+        if (modified == imageData.time)
+            reload = false;
+    }
+
+    if (reload) {
+        QImage originalImage;
+        originalImage.load(imageSource);
+        if (!originalImage.isNull()) {
+            imageData.image = originalImage.scaled(Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
+                                                   Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
+                                                   Qt::KeepAspectRatio);
+            imageData.image.setDevicePixelRatio(2.);
+
+            double imgSize = double(imageFi.size());
+            imageData.type = QStringLiteral("%1 (%2)").arg(QString::fromLatin1(modelNode.type())).arg(imageFi.suffix());
+            imageData.id = modelNode.id();
+            static QStringList units({QObject::tr("B"), QObject::tr("KB"), QObject::tr("MB"), QObject::tr("GB")});
+            int unitIndex = 0;
+            while (imgSize > 1024. && unitIndex < units.size() - 1) {
+                ++unitIndex;
+                imgSize /= 1024.;
+            }
+            imageData.info = QStringLiteral("%1 x %2  (%3%4)").arg(originalImage.width()).arg(originalImage.height())
+                    .arg(QString::number(imgSize, 'g', 3)).arg(units[unitIndex]);
+            localDataMap.insert(imageSource, imageData);
+        }
+    }
+
+    return imageDataToVariant(imageData);
+}
+
+QVariant NodeInstanceView::previewImageDataFor3DNode(const ModelNode &modelNode)
+{
+    QFileInfo docFi = QFileInfo(modelNode.model()->fileUrl().toLocalFile());
+    QHash<QString, ImageData> &localDataMap = imageDataMap[docFi.absoluteFilePath()];
+    ImageData imageData;
+    static const QImage placeHolder(":/navigator/icon/tooltip_placeholder.png");
+
+    // We need puppet to generate the image, which needs to be asynchronous.
+    // Until the image is ready, we show a placeholder
+    const QString id = modelNode.id();
+    if (localDataMap.contains(id)) {
+        imageData = localDataMap[id];
+    } else {
+        imageData.type = QString::fromLatin1(modelNode.type());
+        imageData.id = id;
+        imageData.image = placeHolder;
+        localDataMap.insert(id, imageData);
+    }
+    requestModelNodePreviewImage(modelNode);
+
+    return imageDataToVariant(imageData);
+}
+
+void NodeInstanceView::updatePreviewImageForNode(const ModelNode &modelNode, const QImage &image)
+{
+    QFileInfo docFi = QFileInfo(modelNode.model()->fileUrl().toLocalFile());
+    QString docPath = docFi.absoluteFilePath();
+    if (imageDataMap.contains(docPath)) {
+        QHash<QString, ImageData> &localDataMap = imageDataMap[docPath];
+        if (localDataMap.contains(modelNode.id()))
+            localDataMap[modelNode.id()].image = image;
+    }
+    emitModelNodelPreviewImageChanged(modelNode, image);
 }
 
 }

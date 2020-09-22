@@ -118,9 +118,6 @@ public:
 
     QList<ModelNode> selectedNodes(AbstractView *view) const;
 
-    QVariant previewImageDataFor3DNode(const ModelNode &modelNode);
-    QVariant previewImageDataForImageNode(const ModelNode &modelNode);
-
 protected:
     Model();
 

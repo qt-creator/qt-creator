@@ -34,6 +34,7 @@
 #include <QTimer>
 #include <QVariant>
 #include <QPointer>
+#include <QImage>
 
 QT_BEGIN_NAMESPACE
 class QDragMoveEvent;
@@ -126,7 +127,8 @@ private:
     QPointer<QQuickView> m_ModelNode3DImageView;
     QQuickItem *m_ModelNode3DImageViewRootItem = nullptr;
     QQuickItem *m_ModelNode3DImageViewContentItem = nullptr;
-    RequestModelNodePreviewImageCommand m_modelNodelPreviewImageCommand;
+    RequestModelNodePreviewImageCommand m_modelNodePreviewImageCommand;
+    QHash<QString, QImage> m_modelNodePreviewImageCache;
     QSet<QObject *> m_view3Ds;
     QMultiHash<QObject *, QObject *> m_3DSceneMap; // key: scene root, value: node
     QObject *m_active3DView = nullptr;

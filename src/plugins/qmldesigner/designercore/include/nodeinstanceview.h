@@ -143,6 +143,9 @@ public:
 
     void handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command) override;
 
+    QVariant previewImageDataFor3DNode(const ModelNode &modelNode);
+    QVariant previewImageDataForImageNode(const ModelNode &modelNode);
+
 protected:
     void timerEvent(QTimerEvent *event) override;
 
@@ -200,6 +203,8 @@ private: // functions
 
     // puppet to creator command handlers
     void handlePuppetKeyPress(int key, Qt::KeyboardModifiers modifiers);
+
+    void updatePreviewImageForNode(const ModelNode &modelNode, const QImage &image);
 
 private:
     NodeInstance m_rootNodeInstance;

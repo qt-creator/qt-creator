@@ -243,10 +243,6 @@ private: //functions
     QVector<ModelNode> toModelNodeVector(const QVector<InternalNodePointer> &internalNodeVector, AbstractView *view) const;
     QVector<InternalNodePointer> toInternalNodeVector(const QVector<ModelNode> &internalNodeVector) const;
 
-    QVariant previewImageDataFor3DNode(const ModelNode &modelNode);
-    QVariant previewImageDataForImageNode(const ModelNode &modelNode);
-    void updatePreviewImageForNode(const ModelNode &modelNode, const QImage &image);
-
 private:
     Model *m_q;
     MetaInfo m_metaInfo;
