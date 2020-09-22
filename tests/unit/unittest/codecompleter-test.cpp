@@ -545,7 +545,7 @@ TEST_F(CodeCompleterSlowTest, GlobalCompletionAfterForwardDeclaredClassPointer)
     auto myCompleter = setupCompleter(globalCompletionAfterForwardDeclaredClassPointer);
     const ClangBackEnd::CodeCompletions completions = myCompleter.complete(6, 4);
 
-    ASSERT_TRUE(!completions.isEmpty());
+    ASSERT_EQ(completions.isEmpty(), CINDEX_VERSION_MINOR != 59);
 }
 
 TEST_F(CodeCompleterSlowTest, ConstructorCompletionExists)
