@@ -217,7 +217,7 @@ TEST_F(SqliteStatement, BindString)
 
     SqliteTestStatement statement("SELECT name, number FROM test WHERE name=?", database);
 
-    statement.bind(1, Utils::SmallString{"foo"});
+    statement.bind(1, Utils::SmallStringView("foo"));
     statement.next();
 
     ASSERT_THAT(statement.fetchSmallStringViewValue(0), "foo");
