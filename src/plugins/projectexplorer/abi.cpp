@@ -1282,6 +1282,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
             << QString::fromLatin1("/does/not/exist")
             << (QStringList());
 
+    // Clone test data from: https://git.qt.io/chstenge/creator-test-data
     // Set up prefix for test data now that we can be sure to have some tests to run:
     QString prefix = QString::fromLocal8Bit(qgetenv("QTC_TEST_EXTRADATALOCATION"));
     if (prefix.isEmpty())
