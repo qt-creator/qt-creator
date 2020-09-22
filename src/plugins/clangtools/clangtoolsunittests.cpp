@@ -125,7 +125,7 @@ void ClangToolsUnitTests::testProject()
                     ClangToolsSettings::instance()->runSettings(),
                     diagnosticConfig);
     QSignalSpy waitForFinishedTool(tool, &ClangTool::finished);
-    QVERIFY(waitForFinishedTool.wait(30000));
+    QVERIFY(waitForFinishedTool.wait(90000));
 
     // Check for errors
     const QString errorText = waitForFinishedTool.takeFirst().first().toString();
