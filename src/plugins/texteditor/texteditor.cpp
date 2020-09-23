@@ -3003,12 +3003,12 @@ QByteArray TextEditorWidget::saveState() const
     return state;
 }
 
-bool TextEditorWidget::restoreState(const QByteArray &state)
+void TextEditorWidget::restoreState(const QByteArray &state)
 {
     if (state.isEmpty()) {
         if (d->m_displaySettings.m_autoFoldFirstComment)
             d->foldLicenseHeader();
-        return false;
+        return;
     }
     int version;
     int vval;
@@ -3036,7 +3036,7 @@ bool TextEditorWidget::restoreState(const QByteArray &state)
         }
         if (layoutChanged) {
             auto documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
-            QTC_ASSERT(documentLayout, return false);
+            QTC_ASSERT(documentLayout, return );
             documentLayout->requestUpdate();
             documentLayout->emitDocumentSizeChanged();
         }
@@ -3068,7 +3068,6 @@ bool TextEditorWidget::restoreState(const QByteArray &state)
     }
 
     d->saveCurrentCursorPositionForNavigation();
-    return true;
 }
 
 void TextEditorWidget::setParenthesesMatchingEnabled(bool b)
@@ -8446,9 +8445,9 @@ QByteArray BaseTextEditor::saveState() const
     return editorWidget()->saveState();
 }
 
-bool BaseTextEditor::restoreState(const QByteArray &state)
+void BaseTextEditor::restoreState(const QByteArray &state)
 {
-    return editorWidget()->restoreState(state);
+    editorWidget()->restoreState(state);
 }
 
 BaseTextEditor *BaseTextEditor::currentTextEditor()

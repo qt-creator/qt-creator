@@ -238,14 +238,12 @@ QByteArray ResourceEditorW::saveState() const
     return bytes;
 }
 
-bool ResourceEditorW::restoreState(const QByteArray &state)
+void ResourceEditorW::restoreState(const QByteArray &state)
 {
     QDataStream stream(state);
     QByteArray splitterState;
     stream >> splitterState;
-    if (!m_resourceEditor->restoreState(splitterState))
-        return false;
-    return true;
+    m_resourceEditor->restoreState(splitterState);
 }
 
 QWidget *ResourceEditorW::toolBar()

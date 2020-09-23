@@ -58,7 +58,7 @@ public:
     QmlJSEditorWidget();
 
     void finalizeInitialization() override;
-    bool restoreState(const QByteArray &state) override;
+    void restoreState(const QByteArray &state) override;
 
     QmlJSEditorDocument *qmlJsEditorDocument() const;
 

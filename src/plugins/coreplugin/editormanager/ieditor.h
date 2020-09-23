@@ -49,7 +49,7 @@ public:
     virtual IEditor *duplicate() { return nullptr; }
 
     virtual QByteArray saveState() const { return QByteArray(); }
-    virtual bool restoreState(const QByteArray &/*state*/) { return true; }
+    virtual void restoreState(const QByteArray & /*state*/) {}
 
     virtual int currentLine() const { return 0; }
     virtual int currentColumn() const { return 0; }

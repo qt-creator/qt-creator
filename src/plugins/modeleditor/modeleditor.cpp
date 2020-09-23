@@ -174,7 +174,7 @@ QByteArray ModelEditor::saveState() const
     return saveState(currentDiagram());
 }
 
-bool ModelEditor::restoreState(const QByteArray &state)
+void ModelEditor::restoreState(const QByteArray &state)
 {
     QDataStream stream(state);
     int version = 0;
@@ -198,11 +198,9 @@ bool ModelEditor::restoreState(const QByteArray &state)
             qmt::MDiagram *diagram = d->document->documentController()->modelController()->findObject<qmt::MDiagram>(uid);
             if (diagram) {
                 openDiagram(diagram, false);
-                return true;
             }
         }
     }
-    return false;
 }
 
 void ModelEditor::init()

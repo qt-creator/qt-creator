@@ -159,7 +159,7 @@ void QmlJSEditorWidget::finalizeInitialization()
     createToolBar();
 }
 
-bool QmlJSEditorWidget::restoreState(const QByteArray &state)
+void QmlJSEditorWidget::restoreState(const QByteArray &state)
 {
     QStringList qmlTypes { QmlJSTools::Constants::QML_MIMETYPE,
                 QmlJSTools::Constants::QBS_MIMETYPE,
@@ -174,7 +174,7 @@ bool QmlJSEditorWidget::restoreState(const QByteArray &state)
             foldAuxiliaryData();
     }
 
-    return TextEditorWidget::restoreState(state);
+    TextEditorWidget::restoreState(state);
 }
 
 QModelIndex QmlJSEditorWidget::outlineModelIndex()

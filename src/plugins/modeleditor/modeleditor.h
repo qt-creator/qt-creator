@@ -69,7 +69,7 @@ public:
     Core::IDocument *document() const override;
     QWidget *toolBar() override;
     QByteArray saveState() const override;
-    bool restoreState(const QByteArray &state) override;
+    void restoreState(const QByteArray &state) override;
 
     qmt::MDiagram *currentDiagram() const;
     void showDiagram(qmt::MDiagram *diagram);

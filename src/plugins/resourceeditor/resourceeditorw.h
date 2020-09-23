@@ -91,7 +91,7 @@ public:
     // IEditor
     Core::IDocument *document() const override { return m_resourceDocument; }
     QByteArray saveState() const override;
-    bool restoreState(const QByteArray &state) override;
+    void restoreState(const QByteArray &state) override;
     QWidget *toolBar() override;
 
 private:

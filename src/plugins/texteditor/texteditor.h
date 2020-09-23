@@ -130,7 +130,7 @@ public:
     IEditor *duplicate() override;
 
     QByteArray saveState() const override;
-    bool restoreState(const QByteArray &state) override;
+    void restoreState(const QByteArray &state) override;
     QWidget *toolBar() override;
 
     void contextHelp(const HelpCallback &callback) const override; // from IContext
@@ -190,7 +190,7 @@ public:
     virtual void openFinishedSuccessfully();
     // IEditor
     QByteArray saveState() const;
-    virtual bool restoreState(const QByteArray &state);
+    virtual void restoreState(const QByteArray &state);
     void gotoLine(int line, int column = 0, bool centerLine = true, bool animate = false);
     int position(TextPositionOperation posOp = CurrentPosition,
          int at = -1) const;
