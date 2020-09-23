@@ -15,7 +15,12 @@ Product {
     property string gumboHeaderDir: gumboSrcDir + "/include/gumbo"
     property string litehtmlHeaderDir: path + "/litehtml/include/litehtml"
     property string mainHeaderDir: litehtmlHeaderDir + '/..'
-    property stringList sharedDefines: qbs.targetOS.contains("windows") ? ["LITEHTML_UTF8"] : []
+    property stringList sharedDefines: {
+        var defines = ["QLITEHTML_STATIC_LIBRARY"];
+        if (qbs.targetOS.contains("windows"))
+            defines.push("LITEHTML_UTF8");
+        return defines;
+    }
 
     cpp.defines: sharedDefines
     cpp.includePaths: {
