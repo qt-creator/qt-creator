@@ -303,7 +303,7 @@ void ConnectionModel::addConnection()
                 ModelNode newNode = connectionView()->createModelNode("QtQuick.Connections",
                                                                       nodeMetaInfo.majorVersion(),
                                                                       nodeMetaInfo.minorVersion());
-                QString source = "print(\"clicked\")";
+                QString source = "console.log(\"clicked\")";
 
                 if (connectionView()->selectedModelNodes().count() == 1) {
                     ModelNode selectedNode = connectionView()->selectedModelNodes().constFirst();

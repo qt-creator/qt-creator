@@ -32,13 +32,16 @@
 
     You can purchase a \QBSK license from the \l{https://marketplace.qt.io/}
     {Qt Marketplace}, and then use the Qt online installer to have the \QBSK
-    installation package copied to the following path in your Qt installation
-    folder: \c {QtDesignStudio\sketch_bridge}. You can use the installation
-    package to install the \QBSK plugin to Sketch.
+    plugin package copied to the following path in your Qt installation
+    folder: \c {QtDesignStudio\sketch_bridge\io.qt.qtbridge.sketchplugin}.
 
     \note Install the Sketch app before installing the plugin.
 
-    To install the \QBSK plugin to Sketch, double-click the executable file.
+    To install the \QBSK plugin to Sketch, double-click
+    \c io.qt.qtbridge.sketchplugin in the \c sketch_bridge
+    folder in the installation directory of \QDS. Sketch
+    will automatically install \QBSK.
 
-    The plugin is available at \uicontrol Plugins > \uicontrol {\QB}.
+    You can launch the Sketch plugin from \uicontrol Plugins >
+    \uicontrol {\QB} in Sketch.
 */

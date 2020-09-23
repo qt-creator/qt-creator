@@ -64,18 +64,19 @@ Column {
         anchors.left: parent.left
         anchors.right: parent.right
         caption: "Rectangle"
-        visible: backendValues.border_color.isAvailable
 
         SectionLayout {
             rows: 2
             Label {
                 text: qsTr("Border")
+                disabledState: !backendValues.border_width.isAvailable
             }
             SecondColumnLayout {
                 SpinBox {
                     backendValue: backendValues.border_width
                     hasSlider: true
                     Layout.preferredWidth: 120
+                    enabled: backendValue.isAvailable
                 }
                 ExpandingSpacer {
 

@@ -240,7 +240,8 @@ void TextEditorActionHandlerPrivate::createActions()
     m_deleteEndOfWordCamelCaseAction = registerAction(DELETE_END_OF_WORD_CAMEL_CASE,
             [] (TextEditorWidget *w) { w->deleteEndOfWordCamelCase(); }, true, tr("Delete Word Camel Case from Cursor On"));
     m_deleteStartOfLineAction = registerAction(DELETE_START_OF_LINE,
-            [] (TextEditorWidget *w) { w->deleteStartOfLine(); }, true, tr("Delete Line up to Cursor"));
+            [] (TextEditorWidget *w) { w->deleteStartOfLine(); }, true, tr("Delete Line up to Cursor"),
+            Core::useMacShortcuts ? QKeySequence(tr("Ctrl+Backspace")) : QKeySequence());
     m_deleteStartOfWordAction = registerAction(DELETE_START_OF_WORD,
             [] (TextEditorWidget *w) { w->deleteStartOfWord(); }, true, tr("Delete Word up to Cursor"));
     m_deleteStartOfWordCamelCaseAction = registerAction(DELETE_START_OF_WORD_CAMEL_CASE,

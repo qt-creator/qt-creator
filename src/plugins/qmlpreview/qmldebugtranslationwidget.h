@@ -49,6 +49,8 @@ class RunControl;
 
 namespace QmlPreview {
 
+class ProjectFileSelectionsWidget;
+
 class QMLPREVIEW_EXPORT QmlDebugTranslationWidget : public QWidget
 {
     Q_OBJECT
@@ -62,6 +64,7 @@ public:
 private:
     void updateCurrentEditor(const Core::IEditor *editor);
     void updateCurrentTranslations(ProjectExplorer::Project *project);
+    void updateFiles();
     void runTest();
     void appendMessage(const QString &message, Utils::OutputFormat format);
     void clear();
@@ -81,6 +84,7 @@ private:
 
     QRadioButton *m_singleFileButton = nullptr;
     QRadioButton *m_multipleFileButton = nullptr;
+    ProjectFileSelectionsWidget *m_checkableProjectFileView = nullptr;
     QPushButton *m_runTestButton = nullptr;
 
     Utils::FilePath m_currentFilePath;
