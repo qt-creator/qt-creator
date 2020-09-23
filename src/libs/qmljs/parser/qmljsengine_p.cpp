@@ -133,13 +133,14 @@ MemoryPool *Engine::pool()
 
 QStringView Engine::newStringRef(const QString &text)
 {
-    const int pos = _extraCode.length();
-    _extraCode += text;
-    return Utils::midView(_extraCode, pos, text.length());
+    _extraCode.append(text);
+    return QStringView{_extraCode.last()};
 }
 
 QStringView Engine::newStringRef(const QChar *chars, int size)
-{ return newStringRef(QString(chars, size)); }
+{
+    return newStringRef(QString(chars, size));
+}
 
 } // end of namespace QmlJS
 
