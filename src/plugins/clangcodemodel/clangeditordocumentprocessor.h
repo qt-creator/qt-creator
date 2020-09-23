@@ -140,6 +140,7 @@ private:
     QFutureWatcher<void> m_parserWatcher;
     QTimer m_updateBackendDocumentTimer;
     unsigned m_parserRevision;
+    enum class InvalidationState { Off, Scheduled, Canceled } m_invalidationState;
 
     QVector<ClangBackEnd::TokenInfoContainer> m_tokenInfos;
     CppTools::SemanticHighlighter m_semanticHighlighter;
