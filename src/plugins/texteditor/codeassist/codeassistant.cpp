@@ -105,7 +105,6 @@ private:
     IAssistProposalWidget *m_proposalWidget = nullptr;
     QScopedPointer<IAssistProposal> m_proposal;
     bool m_receivedContentWhileWaiting = false;
-    bool m_proposalItemProcessed = false;
     QTimer m_automaticProposalTimer;
     CompletionSettings m_settings;
     int m_abortedBasePosition = -1;
@@ -193,13 +192,6 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
 
     if (m_editorWidget->hasBlockSelection())
         return; // TODO
-
-    if (m_proposalItemProcessed
-            && reason == IdleEditor
-            && m_assistKind == TextEditor::Completion
-            && !identifyActivationSequence()) {
-        return;
-    }
 
     if (!provider) {
         if (kind == Completion)
@@ -373,15 +365,6 @@ void CodeAssistantPrivate::processProposalItem(AssistProposalItemInterface *prop
     proposalItem->apply(manipulator, m_proposal->basePosition());
     destroyContext();
     m_editorWidget->encourageApply();
-    m_proposalItemProcessed = true;
-
-    auto connection = std::make_shared<QMetaObject::Connection>();
-    *connection = connect(m_editorWidget->textDocument(),
-                          &Core::IDocument::contentsChanged,
-                          this, [this, connection] {
-        m_proposalItemProcessed = false;
-        disconnect(*connection);
-    });
 }
 
 void CodeAssistantPrivate::handlePrefixExpansion(const QString &newPrefix)
