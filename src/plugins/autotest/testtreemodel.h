@@ -98,6 +98,8 @@ signals:
 
 private:
     void onParseResultReady(const TestParseResultPtr result);
+    void onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
+                       const QVector<int> &roles);
     void handleParseResult(const TestParseResult *result, TestTreeItem *rootNode);
     void removeAllTestItems();
     void removeFiles(const QStringList &files);

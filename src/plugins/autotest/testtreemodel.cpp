@@ -65,7 +65,8 @@ TestTreeModel::TestTreeModel(TestCodeParser *parser) :
             this, &TestTreeModel::markAllForRemoval);
     connect(m_parser, &TestCodeParser::requestRemoval,
             this, &TestTreeModel::markForRemoval);
-
+    connect(this, &QAbstractItemModel::dataChanged,
+            this, &TestTreeModel::onDataChanged);
     setupParsingConnections();
 }
 
@@ -119,7 +120,7 @@ bool TestTreeModel::setData(const QModelIndex &index, const QVariant &value, int
 
     TestTreeItem *item = static_cast<TestTreeItem *>(index.internalPointer());
     if (item && item->setData(index.column(), value, role)) {
-        emit dataChanged(index, index);
+        emit dataChanged(index, index, {role});
         if (role == Qt::CheckStateRole) {
             Qt::CheckState checked = item->checked();
             if (item->hasChildren() && checked != Qt::PartiallyChecked) {
@@ -505,7 +506,7 @@ void TestTreeModel::revalidateCheckState(TestTreeItem *item)
         newState = foundUnchecked ? Qt::Unchecked : Qt::Checked;
     if (oldState != newState) {
         item->setData(0, newState, Qt::CheckStateRole);
-        emit dataChanged(item->index(), item->index());
+        emit dataChanged(item->index(), item->index(), {Qt::CheckStateRole});
         if (item->parent() != rootItem() && item->parentItem()->checked() != newState)
             revalidateCheckState(item->parentItem());
     }
@@ -516,6 +517,21 @@ void TestTreeModel::onParseResultReady(const TestParseResultPtr result)
     TestTreeItem *rootNode = result->framework->rootNode();
     QTC_ASSERT(rootNode, return);
     handleParseResult(result.data(), rootNode);
+}
+
+void Autotest::TestTreeModel::onDataChanged(const QModelIndex &topLeft,
+                                            const QModelIndex &bottomRight,
+                                            const QVector<int> &roles)
+{
+    const QModelIndex parent = topLeft.parent();
+    QTC_ASSERT(parent == bottomRight.parent(), return);
+    if (!roles.isEmpty() && !roles.contains(Qt::CheckStateRole))
+        return;
+
+    for (int row = topLeft.row(), endRow = bottomRight.row(); row <= endRow; ++row) {
+        if (auto item = static_cast<TestTreeItem *>(itemForIndex(index(row, 0, parent))))
+            m_checkStateCache->insert(item, item->checked());
+    }
 }
 
 void TestTreeModel::handleParseResult(const TestParseResult *result, TestTreeItem *parentNode)
