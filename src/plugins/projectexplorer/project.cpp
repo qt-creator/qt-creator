@@ -776,6 +776,7 @@ void Project::createTargetFromMap(const QVariantMap &map, int index)
                         Utils::transform(KitManager::kits(), &Kit::unexpandedDisplayName));
                 kit->setUnexpandedDisplayName(tempKitName);
                 DeviceTypeKitAspect::setDeviceTypeId(kit, deviceTypeId);
+                kit->makeReplacementKit();
                 kit->setup();
         }, id);
         TaskHub::addTask(BuildSystemTask(Task::Warning, tr("Project \"%1\" was configured for "

@@ -132,6 +132,9 @@ public:
     void setMutable(Utils::Id id, bool b);
     bool isMutable(Utils::Id id) const;
 
+    void makeReplacementKit();
+    bool isReplacementKit() const;
+
     void setIrrelevantAspects(const QSet<Utils::Id> &irrelevant);
     QSet<Utils::Id> irrelevantAspects() const;
 

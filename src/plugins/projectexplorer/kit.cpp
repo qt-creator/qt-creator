@@ -736,4 +736,17 @@ void Kit::kitUpdated()
     d->m_mustNotify = false;
 }
 
+
+static Id replacementKey() { return "IsReplacementKit"; }
+
+void ProjectExplorer::Kit::makeReplacementKit()
+{
+    setValueSilently(replacementKey(), true);
+}
+
+bool Kit::isReplacementKit() const
+{
+    return value(replacementKey()).toBool();
+}
+
 } // namespace ProjectExplorer

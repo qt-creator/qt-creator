@@ -405,8 +405,10 @@ public:
     static bool isListViewInBaseState(const SelectionContext &selectionState)
     {
         return selectionState.isInBaseState() && selectionState.singleNodeIsSelected()
-               && selectionState.currentSingleSelectedNode().metaInfo().isSubclassOf(
-                   "QtQuick.ListView");
+               && (selectionState.currentSingleSelectedNode().metaInfo().isSubclassOf(
+                       "QtQuick.ListView")
+                   || selectionState.currentSingleSelectedNode().metaInfo().isSubclassOf(
+                       "QtQuick.GridView"));
     }
 
     bool isEnabled(const SelectionContext &) const override { return true; }

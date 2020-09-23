@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -30,9 +30,14 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-sharing-project-settings.html
     \page creator-project-managing-sessions.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-project-managing-workspaces.html
+    \nextpage {Tutorials}
+    \else
+    \previouspage creator-sharing-project-settings.html
     \nextpage creator-design-mode.html
+    \endif
 
     \title Managing Sessions
 
@@ -46,7 +51,10 @@
 
     \list
 
-        \li Projects with their dependencies (including SUBDIRS projects)
+        \li Projects
+            \if defined(qtcreator)
+            with their dependencies (including SUBDIRS projects)
+            \endif
 
         \li Editors
 
@@ -91,6 +99,7 @@
 
     To switch between sessions, select \uicontrol {Switch To}.
 
+    \if defined(qtcreator)
     When you launch \QC, a list of existing sessions is displayed in the
     \uicontrol Welcome mode. To open a session, select it or press
     \key Ctrl+Alt+<number>, where \e <number> is the number of the session to
@@ -109,5 +118,6 @@
     a session as argument and \QC will start with this session.
 
     For more information, see \l{Using Command Line Options}.
+    \endif
 
 */

@@ -66,12 +66,12 @@ private:
     void printProcessOutput(QProcess *process, const QString &connectionName);
     void closeSocketsAndKillProcesses();
 
+private:
+    std::unique_ptr<QLocalServer> m_localServer;
+
 protected:
     std::vector<Connection> m_connections;
     quint32 m_writeCommandCounter = 0;
-
-private:
-    std::unique_ptr<QLocalServer> m_localServer;
 };
 
 } // namespace QmlDesigner

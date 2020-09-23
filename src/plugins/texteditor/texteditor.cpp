@@ -1164,6 +1164,10 @@ void TextEditorWidgetPrivate::print(QPrinter *printer)
     if (!p.isActive())
         return;
 
+    QRectF pageRect(printer->pageRect());
+    if (pageRect.isEmpty())
+        return;
+
     doc = doc->clone(doc);
     Utils::ExecuteOnDestruction docDeleter([doc]() { delete doc; });
 
@@ -1217,7 +1221,6 @@ void TextEditorWidgetPrivate::print(QPrinter *printer)
     fmt.setMargin(margin);
     doc->rootFrame()->setFrameFormat(fmt);
 
-    QRectF pageRect(printer->pageRect());
     QRectF body = QRectF(0, 0, pageRect.width(), pageRect.height());
     QFontMetrics fontMetrics(doc->defaultFont(), p.device());
 
@@ -4724,8 +4727,7 @@ void TextEditorWidgetPrivate::setupSelections(const PaintEventData &data,
                 const QTextCharFormat selectionFormat = data.fontSettings.toTextCharFormat(C_SELECTION);
                 if (selectionFormat.background().style() != Qt::NoBrush)
                     o.format.setBackground(selectionFormat.background());
-                if (selectionFormat.foreground().style() != Qt::NoBrush)
-                    o.format.setForeground(selectionFormat.foreground());
+                o.format.setForeground(selectionFormat.foreground());
             }
             if ((data.textCursor.hasSelection() && i == data.context.selections.size() - 1)
                 || (o.format.foreground().style() == Qt::NoBrush

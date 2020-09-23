@@ -235,6 +235,13 @@ void KitManager::restoreKits()
     // Delete all loaded autodetected kits that were not rediscovered:
     kitsToCheck.clear();
 
+    // Remove replacement kits for which the original kit has turned up again.
+    erase(resultList, [&resultList](const std::unique_ptr<Kit> &k) {
+        return k->isReplacementKit() && contains(resultList, [&k](const std::unique_ptr<Kit> &other) {
+            return other->id() == k->id() && other != k;
+        });
+    });
+
     static const auto kitMatchesAbiList = [](const Kit *kit, const Abis &abis) {
         const QList<ToolChain *> toolchains = ToolChainKitAspect::toolChains(kit);
         for (const ToolChain * const tc : toolchains) {
