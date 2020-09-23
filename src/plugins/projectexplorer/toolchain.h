@@ -177,7 +177,7 @@ protected:
     const MacrosCache &predefinedMacrosCache() const;
     const HeaderPathsCache &headerPathsCache() const;
 
-    virtual void toolChainUpdated();
+    void toolChainUpdated();
 
     // Make sure to call this function when deriving!
     virtual bool fromMap(const QVariantMap &data);
