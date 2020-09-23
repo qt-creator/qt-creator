@@ -666,7 +666,9 @@ QString decodeData(const QString &ba, const QString &encoding)
             qDebug("not implemented"); // Only used in Arrays, see watchdata.cpp
             return QString();
         case DebuggerEncoding::HexEncodedFloat: {
-            const QByteArray s = QByteArray::fromHex(ba.toUtf8());
+            QByteArray s = QByteArray::fromHex(ba.toUtf8());
+            if (s.size() < enc.size)
+                s.prepend(QByteArray(enc.size - s.size(), '\0'));
             if (enc.size == 4) {
                 union { char c[4]; float f; } u = {{s[3], s[2], s[1], s[0]}};
                 return QString::number(u.f);
