@@ -62,16 +62,27 @@ bool BoostTestResult::isDirectParentOf(const TestResult *other, bool *needsInter
     if (!TestResult::isDirectParentOf(other, needsIntermediate))
         return false;
 
-    const BoostTestResult *boostOther = static_cast<const BoostTestResult *>(other);
-
-    if (m_testSuite != boostOther->m_testSuite)
+    if (result() != ResultType::TestStart)
         return false;
 
-    if (result() == ResultType::TestStart) {
-        if (!boostOther->m_testCase.isEmpty())
-            return boostOther->m_testSuite == m_testSuite && boostOther->result() != ResultType::TestStart;
+    bool weAreModule = (m_testCase.isEmpty() && m_testSuite.isEmpty());
+    bool weAreSuite = (m_testCase.isEmpty() && !m_testSuite.isEmpty());
+    bool weAreCase = (!m_testCase.isEmpty());
 
-        return boostOther->m_testCase == m_testCase;
+    const BoostTestResult *boostOther = static_cast<const BoostTestResult *>(other);
+    bool otherIsSuite = boostOther->m_testCase.isEmpty() && !boostOther->m_testSuite.isEmpty();
+    bool otherIsCase = !boostOther->m_testCase.isEmpty();
+
+    if (otherIsSuite)
+        return weAreSuite ? boostOther->m_testSuite.startsWith(m_testSuite + '/') : weAreModule;
+
+    if (otherIsCase) {
+        if (weAreCase)
+            return boostOther->m_testCase == m_testCase && boostOther->m_testSuite == m_testSuite;
+        if (weAreSuite)
+            return boostOther->m_testSuite == m_testSuite;
+        if (weAreModule)
+            return boostOther->m_testSuite.isEmpty();
     }
     return false;
 }

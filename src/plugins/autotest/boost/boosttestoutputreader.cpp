@@ -157,7 +157,11 @@ void BoostTestOutputReader::handleMessageMatch(const QRegularExpressionMatch &ma
             m_currentTest = match.captured(9);
             m_description = tr("Executing test case %1").arg(m_currentTest);
         } else if (type == "suite") {
-            m_currentSuite = match.captured(9);
+            if (m_currentSuite.isEmpty())
+                m_currentSuite = match.captured(9);
+            else
+                m_currentSuite.append("/").append(match.captured(9));
+            m_currentTest.clear();
             m_description = tr("Executing test suite %1").arg(m_currentSuite);
         }
     } else if (content.startsWith("Leaving")) {
@@ -168,8 +172,18 @@ void BoostTestOutputReader::handleMessageMatch(const QRegularExpressionMatch &ma
             m_result = ResultType::TestEnd;
             m_description = tr("Test execution took %1").arg(match.captured(12));
         } else if (type == "suite") {
-            if (m_currentSuite != match.captured(11) && m_currentSuite.isEmpty())
+            if (!m_currentSuite.isEmpty()) {
+                int index = m_currentSuite.lastIndexOf('/');
+                if (QTC_GUARD(m_currentSuite.mid(index + 1) == match.captured(11))) {
+                    if (index == -1)
+                        m_currentSuite.clear();
+                    else
+                        m_currentSuite = m_currentSuite.left(index);
+                }
+            } else if (match.capturedLength(11)) { // FIXME remove this branch?
+                QTC_CHECK(false);
                 m_currentSuite = match.captured(11);
+            }
             m_currentTest.clear();
             m_result = ResultType::TestEnd;
             m_description = tr("Test suite execution took %1").arg(match.captured(12));
