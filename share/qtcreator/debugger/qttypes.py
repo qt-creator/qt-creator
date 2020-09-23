@@ -2503,7 +2503,7 @@ def qdump_64__QV4__Value(d, value):
         d.putValue('%d' % vv)
     elif (v >> QV4_IsDouble_Shift):
         d.putBetterType('%sQV4::Value (double)' % ns)
-        d.putValue('%x' % (v ^ QV4_NaNEncodeMask), 'float:8')
+        d.putValue('%0.16x' % (v ^ QV4_NaNEncodeMask), 'float:8')
     elif tag == QV4_ValueType_Undefined_Type and not new:
         d.putBetterType('%sQV4::Value (undefined)' % ns)
         d.putValue('(undefined)')
