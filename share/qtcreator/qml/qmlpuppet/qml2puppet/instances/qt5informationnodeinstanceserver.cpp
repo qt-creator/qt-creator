@@ -529,6 +529,7 @@ void Qt5InformationNodeInstanceServer::renderModelNode3DImageView()
 
 void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
 {
+#ifdef QUICK3D_MODULE
     if (m_ModelNode3DImageViewRootItem) {
         if (!m_ModelNode3DImageViewContentItem)
             m_ModelNode3DImageViewContentItem = getContentItemForRendering(m_ModelNode3DImageViewRootItem);
@@ -592,6 +593,7 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
         nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::RenderModelNodePreviewImage,
                                                             QVariant::fromValue(imgContainer)});
     }
+#endif
 }
 
 Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
