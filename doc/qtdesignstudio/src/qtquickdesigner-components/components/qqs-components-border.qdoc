@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -43,7 +43,8 @@
     The \l radius property specifies whether the border corners are rounded.
     The radius can also be specified separately for each corner. Because this
     introduces curved edges to the corners, it may be appropriate to set the
-    \l antialiasing property to improve the appearance of the border.
+    \c antialiasing property that is inherited from \l Item to improve the
+    appearance of the border.
 
     The \l joinStyle property specifies how to connect two border line segments.
 
@@ -107,6 +108,8 @@
     \qmlproperty int Border::radius
 
     The radius used to draw rounded corners.
+
+    The default value is 10.
 
     If radius is non-zero, the corners will be rounded, otherwise they will
     be sharp. The radius can also be specified separately for each corner by
@@ -226,7 +229,7 @@
 
     When set to \c transparent, no line is drawn.
 
-    The default value is \c white.
+    The default value is \c red.
 
     \sa QColor
 */
@@ -252,7 +255,7 @@
 
     When set to a negative value, no line is drawn.
 
-    The default value is 1.
+    The default value is 4.
 */
 
 /*!
@@ -285,14 +288,6 @@
     Whether the top border is visible.
 
     The border segment is drawn if this property is set to \c true.
-*/
-
-/*!
-    \qmlproperty bool Border::antialiasing
-
-    Whether the border should be antialiased.
-
-    Antialiasing might require more memory and slow down drawing the type.
 */
 
 /*!

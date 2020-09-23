@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -49,7 +49,8 @@
     rounded.
 
     Because a pie has curved edges, it may be appropriate to set the
-    \l antialiasing property to improve its appearance.
+    \c antialiasing property that is inherited from \l Item to improve
+    its appearance.
 
     \section2 Example Usage
 
@@ -184,7 +185,7 @@
 
     When set to \c transparent, no line is drawn.
 
-    The default value is \c white.
+    The default value is \c red.
 
     \sa QColor
 */
@@ -210,7 +211,7 @@
 
     When set to a negative value, no line is drawn.
 
-    The default value is 1.
+    The default value is 4.
 */
 
 /*!
@@ -229,6 +230,8 @@
 
     The position in degrees where the pie ends.
 
+    The default value is 90.
+
     To create a circle, set the value of this property to 360 and the value of
     the \l begin property to 0.
 */
@@ -239,13 +242,6 @@
     The area between \l begin and \l end.
 */
 
-/*!
-    \qmlproperty bool Pie::antialiasing
-
-    Whether the pie should be antialiased.
-
-    Antialiasing might require more memory and slow down drawing the type.
-*/
 
 /*!
     \qmlproperty bool Pie::hideLine

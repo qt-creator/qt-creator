@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -47,7 +47,8 @@
     Rounded rectangles can be drawn using the \l radius property. The radius
     can also be specified separately for each corner. Because this introduces
     curved edges to the corners of a rectangle, it may be appropriate to set
-    the \l antialiasing property to improve the appearance of the rectangle.
+    the \c antialiasing property that is inherited from \l Item to improve the
+    appearance of the rectangle.
 
     \section2 Example Usage
 
@@ -142,6 +143,8 @@
     \qmlproperty int Rectangle::radius
 
     The radius used to draw rounded corners.
+
+    The default value is 10.
 
     If radius is non-zero, the corners will be rounded, otherwise they will
     be sharp. The radius can also be specified separately for each corner by
@@ -241,7 +244,7 @@
 
     When set to \c transparent, no line is drawn.
 
-    The default value is \c white.
+    The default value is \c red.
 
     \sa QColor
 */
@@ -265,6 +268,8 @@
 
     The width of the border of the rectangle.
 
+    The default value is 4.
+
     A width of 1 creates a thin line. For no line, use a negative value or a
     transparent color.
 
@@ -273,11 +278,4 @@
     used.
 
     The border is rendered within the rectangle's boundaries.
-*/
-
-/*!
-    \qmlproperty bool Rectangle::antialiasing
-
-    Whether the Rectangle should be antialiased. Antialiasing might
-    require more memory and slow down drawing the type.
 */

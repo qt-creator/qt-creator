@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -177,7 +177,7 @@
 
     When set to \c transparent, no line is drawn.
 
-    The default value is \c white.
+    The default value is \c red.
 
     \sa QColor
 */
@@ -201,6 +201,8 @@
 
     The width of the border of the rectangle.
 
+    The default value is 4.
+
     A width of 1 creates a thin line. For no line, use a negative value or a
     transparent color.
 
@@ -214,9 +216,14 @@
 /*!
     \qmlproperty int Triangle::radius
 
-    Defines the rotation of the triangle in degrees. The default value is 0.
+    The radius used to draw rounded corners.
 
-    This property can be used together with the \l radius property to
+    The default value is 5.
+
+    If radius is non-zero, the corners will be rounded, otherwise they will
+    be sharp.
+
+    This property can be used together with the \l arcRadius property to
     determine the shape of the triangle.
 
     \sa arcRadius
@@ -226,6 +233,8 @@
     \qmlproperty real Triangle::arcRadius
 
     The radius used to draw rounded corners.
+
+    The default value is 5.
 
     If radius is non-zero, the corners will be rounded, otherwise they will
     be sharp.
@@ -276,12 +285,4 @@
     away from the edge.
 
     \sa topMargin, leftMargin, rightMargin
-*/
-
-/*!
-    \qmlproperty bool Triangel::antialiasing
-
-    Whether the triangle should be antialiased.
-
-    Antialiasing might require more memory and slow down drawing the type.
 */
