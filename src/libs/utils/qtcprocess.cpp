@@ -663,7 +663,7 @@ bool QtcProcess::prepareCommand(const QString &command, const QString &arguments
         } else {
             if (err != QtcProcess::FoundMeta)
                 return false;
-            *outCmd = QLatin1String("/bin/sh");
+            *outCmd = qEnvironmentVariable("SHELL", "/bin/sh");
             *outArgs = Arguments::createUnixArgs(
                         QStringList({"-c", (quoteArg(command) + ' ' + arguments)}));
         }

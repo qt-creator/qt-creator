@@ -516,7 +516,7 @@ bool ConsoleProcess::start()
                                  " is currently not supported."));
             return false;
         }
-        pcmd = QLatin1String("/bin/sh");
+        pcmd = qEnvironmentVariable("SHELL", "/bin/sh");
         pargs = QtcProcess::Arguments::createUnixArgs(
                         {"-c", (QtcProcess::quoteArg(d->m_commandLine.executable().toString())
                          + ' ' + d->m_commandLine.arguments())});
