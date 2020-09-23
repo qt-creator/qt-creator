@@ -459,8 +459,18 @@ void QMakeEvaluator::runProcess(QProcess *proc, const QString &command) const
 {
     proc->setWorkingDirectory(currentDirectory());
 # ifdef PROEVALUATOR_SETENV
-    if (!m_option->environment.isEmpty())
-        proc->setProcessEnvironment(m_option->environment);
+    if (!m_option->environment.isEmpty()) {
+        QProcessEnvironment env = m_option->environment;
+        static const QString dummyVar = "__qtc_dummy";
+        static const QString notSetValue = "not set";
+        const QString oldValue = env.value(dummyVar, notSetValue); // Just in case.
+        env.insert(dummyVar, "QTCREATORBUG-23504"); // Force detach.
+        if (oldValue == notSetValue)
+            env.remove(dummyVar);
+        else
+            env.insert(dummyVar, oldValue);
+        proc->setProcessEnvironment(env);
+    }
 # endif
 # ifdef Q_OS_WIN
     proc->setNativeArguments(QLatin1String("/v:off /s /c \"") + command + QLatin1Char('"'));
