@@ -93,6 +93,7 @@ AndroidManifestEditorIconWidget::AndroidManifestEditorIconWidget(
     auto label = new QLabel(tr("Click to select..."), parent);
     iconLayout->addWidget(iconTitle);
     iconLayout->setAlignment(iconTitle, Qt::AlignHCenter);
+    iconLayout->addStretch(50);
     iconButtonLayout->setColumnMinimumWidth(0, 16);
     iconButtonLayout->addWidget(m_button, 0, 1, 1, 3);
     iconButtonLayout->setAlignment(m_button, Qt::AlignVCenter);
@@ -106,6 +107,7 @@ AndroidManifestEditorIconWidget::AndroidManifestEditorIconWidget(
     }
     iconLayout->addLayout(iconButtonLayout);
     iconLayout->setAlignment(iconButtonLayout, Qt::AlignHCenter);
+    iconLayout->addStretch(50);
     iconLayout->addWidget(label);
     iconLayout->setAlignment(label, Qt::AlignHCenter);
     this->setLayout(iconLayout);

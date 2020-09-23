@@ -35,6 +35,9 @@ namespace Android {
 namespace Internal {
 
 namespace {
+const QString extraExtraExtraHighDpiIconPath = QLatin1String("/res/drawable-xxxhdpi/");
+const QString extraExtraHighDpiIconPath = QLatin1String("/res/drawable-xxhdpi/");
+const QString extraHighDpiIconPath = QLatin1String("/res/drawable-xhdpi/");
 const QString highDpiIconPath = QLatin1String("/res/drawable-hdpi/");
 const QString mediumDpiIconPath = QLatin1String("/res/drawable-mdpi/");
 const QString lowDpiIconPath = QLatin1String("/res/drawable-ldpi/");
@@ -42,6 +45,9 @@ const QString imageSuffix = QLatin1String(".png");
 const QSize lowDpiIconSize{32, 32};
 const QSize mediumDpiIconSize{48, 48};
 const QSize highDpiIconSize{72, 72};
+const QSize extraHighDpiIconSize{96, 96};
+const QSize extraExtraHighDpiIconSize{144, 144};
+const QSize extraExtraExtraHighDpiIconSize{192, 192};
 }
 
 AndroidManifestEditorIconContainerWidget::AndroidManifestEditorIconContainerWidget(
@@ -69,7 +75,7 @@ AndroidManifestEditorIconContainerWidget::AndroidManifestEditorIconContainerWidg
     auto lIconButton = new AndroidManifestEditorIconWidget(this,
                                                         lowDpiIconSize,
                                                         lowDpiIconSize,
-                                                        tr("Low DPI icon"), tr("Select low DPI icon."),
+                                                        tr("LDPI icon"), tr("Select an icon suitable for low-density (ldpi) screens (~120dpi)."),
                                                         textEditorWidget,
                                                         lowDpiIconPath,
                                                         iconFileName);
@@ -80,7 +86,7 @@ AndroidManifestEditorIconContainerWidget::AndroidManifestEditorIconContainerWidg
     auto mIconButton = new AndroidManifestEditorIconWidget(this,
                                                         mediumDpiIconSize,
                                                         mediumDpiIconSize,
-                                                        tr("Medium DPI icon"), tr("Select medium DPI icon."),
+                                                        tr("MDPI icon"), tr("Select an icon for medium-density (mdpi) screens (~160dpi)."),
                                                         textEditorWidget,
                                                         mediumDpiIconPath,
                                                         iconFileName);
@@ -91,13 +97,46 @@ AndroidManifestEditorIconContainerWidget::AndroidManifestEditorIconContainerWidg
     auto hIconButton =  new AndroidManifestEditorIconWidget(this,
                                                          highDpiIconSize,
                                                          highDpiIconSize,
-                                                         tr("High DPI icon"), tr("Select high DPI icon."),
+                                                         tr("HDPI icon"), tr("Select an icon for high-density (hdpi) screens (~240dpi)."),
                                                          textEditorWidget,
                                                          highDpiIconPath,
                                                          iconFileName);
     iconLayout->addWidget(hIconButton);
     m_iconButtons.push_back(hIconButton);
-    iconLayout->addStretch(6);
+    iconLayout->addStretch(1);
+
+    auto xhIconButton =  new AndroidManifestEditorIconWidget(this,
+                                                         extraHighDpiIconSize,
+                                                         extraHighDpiIconSize,
+                                                         tr("XHDPI icon"), tr("Select an icon for extra-high-density (xhdpi) screens (~320dpi)."),
+                                                         textEditorWidget,
+                                                         extraHighDpiIconPath,
+                                                         iconFileName);
+    iconLayout->addWidget(xhIconButton);
+    m_iconButtons.push_back(xhIconButton);
+    iconLayout->addStretch(1);
+
+    auto xxhIconButton =  new AndroidManifestEditorIconWidget(this,
+                                                         extraExtraHighDpiIconSize,
+                                                         extraExtraHighDpiIconSize,
+                                                         tr("XXHDPI icon"), tr("Select an icon for extra-extra-high-density (xxhdpi) screens (~480dpi)."),
+                                                         textEditorWidget,
+                                                         extraExtraHighDpiIconPath,
+                                                         iconFileName);
+    iconLayout->addWidget(xxhIconButton);
+    m_iconButtons.push_back(xxhIconButton);
+    iconLayout->addStretch(1);
+
+    auto xxxhIconButton =  new AndroidManifestEditorIconWidget(this,
+                                                         extraExtraExtraHighDpiIconSize,
+                                                         extraExtraExtraHighDpiIconSize,
+                                                         tr("XXXHDPI icon"), tr("Select an icon for extra-extra-extra-high-density (xxxhdpi) screens (~640dpi)."),
+                                                         textEditorWidget,
+                                                         extraExtraExtraHighDpiIconPath,
+                                                         iconFileName);
+    iconLayout->addWidget(xxxhIconButton);
+    m_iconButtons.push_back(xxxhIconButton);
+    iconLayout->addStretch(3);
 
     for (auto &&iconButton : m_iconButtons) {
         connect(masterIconButton, &AndroidManifestEditorIconWidget::iconSelected,
