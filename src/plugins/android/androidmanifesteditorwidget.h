@@ -181,6 +181,7 @@ private:
     QLineEdit *m_activityNameLineEdit;
     QComboBox *m_targetLineEdit;
     QComboBox *m_styleExtractMethod;
+    QComboBox *m_screenOrientation;
     AndroidManifestEditorIconContainerWidget *m_iconButtons;
     SplashIconContainerWidget *m_splashButtons;
 

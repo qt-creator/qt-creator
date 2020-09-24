@@ -423,6 +423,44 @@ QGroupBox *Android::Internal::AndroidManifestEditorWidget::createApplicationGrou
         m_styleExtractMethod->addItem(styleMethodsMap.at(i).first());
         m_styleExtractMethod->setItemData(i, styleMethodsMap.at(i).at(1), Qt::ToolTipRole);
     }
+
+    m_screenOrientation = new QComboBox(applicationGroupBox);
+    formLayout->addRow(tr("Screen orientation:"), m_screenOrientation);
+    // https://developer.android.com/guide/topics/manifest/activity-element#screen
+    const QList<QStringList> screenOrientationMap = {
+        {"unspecified", "The default value. The system chooses the orientation. The policy it uses, and therefore the "
+                        "choices made in specific contexts, may differ from device to device."},
+        {"behind", "The same orientation as the activity that's immediately beneath it in the activity stack."},
+        {"landscape", "Landscape orientation (the display is wider than it is tall)."},
+        {"portrait", "Portrait orientation (the display is taller than it is wide)."},
+        {"reverseLandscape", "Landscape orientation in the opposite direction from normal landscape."},
+        {"reversePortrait", "Portrait orientation in the opposite direction from normal portrait."},
+        {"sensorLandscape", "Landscape orientation, but can be either normal or reverse landscape based on the device "
+                            "sensor. The sensor is used even if the user has locked sensor-based rotation."},
+        {"sensorPortrait", "Portrait orientation, but can be either normal or reverse portrait based on the device sensor. "
+                           "The sensor is used even if the user has locked sensor-based rotation."},
+        {"userLandscape", "Landscape orientation, but can be either normal or reverse landscape based on the device "
+                          "sensor and the user's preference."},
+        {"userPortrait", "Portrait orientation, but can be either normal or reverse portrait based on the device sensor "
+                         "and the user's preference."},
+        {"sensor", "The orientation is determined by the device orientation sensor. The orientation of the display "
+                   "depends on how the user is holding the device; it changes when the user rotates the device. "
+                   "Some devices, though, will not rotate to all four possible orientations, by default. To allow all four "
+                   "orientations, use \"fullSensor\" The sensor is used even if the user locked sensor-based rotation."},
+        {"fullSensor", "The orientation is determined by the device orientation sensor for any of the 4 orientations. This "
+                       "is similar to \"sensor\" except this allows any of the 4 possible screen orientations, regardless "
+                       "of what the device will normally do (for example, some devices won't normally use reverse "
+                       "portrait or reverse landscape, but this enables those)."},
+        {"nosensor", "The orientation is determined without reference to a physical orientation sensor. The sensor is "
+                     "ignored, so the display will not rotate based on how the user moves the device."},
+        {"user", "The user's current preferred orientation."},
+        {"fullUser", "If the user has locked sensor-based rotation, this behaves the same as user, otherwise it "
+                     "behaves the same as fullSensor and allows any of the 4 possible screen orientations."},
+        {"locked", "Locks the orientation to its current rotation, whatever that is."}};
+    for (int i = 0; i <screenOrientationMap.size(); ++i) {
+        m_screenOrientation->addItem(screenOrientationMap.at(i).first());
+        m_screenOrientation->setItemData(i, screenOrientationMap.at(i).at(1), Qt::ToolTipRole);
+    }
     applicationGroupBox->setLayout(formLayout);
 
     connect(m_appNameLineEdit, &QLineEdit::textEdited,
@@ -432,6 +470,9 @@ QGroupBox *Android::Internal::AndroidManifestEditorWidget::createApplicationGrou
     connect(m_targetLineEdit, &QComboBox::currentTextChanged,
             this, [this]() { setDirty(); });
     connect(m_styleExtractMethod,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, [this]() { setDirty(); });
+    connect(m_screenOrientation,
             QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, [this]() { setDirty(); });
 
@@ -818,6 +859,7 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
 
     QDomElement activityElem = applicationElement.firstChildElement(QLatin1String("activity"));
     m_activityNameLineEdit->setText(activityElem.attribute(QLatin1String("android:label")));
+    m_screenOrientation->setCurrentText(activityElem.attribute(QLatin1String("android:screenOrientation")));
 
     QString appIconValue = applicationElement.attribute(QLatin1String("android:icon"));
     if (!appIconValue.isEmpty()) {
@@ -1309,8 +1351,8 @@ void AndroidManifestEditorWidget::parseActivity(QXmlStreamReader &reader, QXmlSt
 
     writer.writeStartElement(reader.name().toString());
     QXmlStreamAttributes attributes = reader.attributes();
-    QStringList keys = { QLatin1String("android:label") };
-    QStringList values = { m_activityNameLineEdit->text() };
+    QStringList keys = { QLatin1String("android:label"), QLatin1String("android:screenOrientation") };
+    QStringList values = { m_activityNameLineEdit->text(), m_screenOrientation->currentText() };
     QXmlStreamAttributes result = modifyXmlStreamAttributes(attributes, keys, values);
     writer.writeAttributes(result);
 
