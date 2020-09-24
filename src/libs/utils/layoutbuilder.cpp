@@ -31,6 +31,7 @@
 
 #include <QFormLayout>
 #include <QGridLayout>
+#include <QLabel>
 #include <QWidget>
 
 namespace Utils {
@@ -96,7 +97,12 @@ LayoutBuilder::LayoutItem::LayoutItem(BaseAspect *aspect)
 /*!
     Constructs a layout item containing some static \a text.
  */
-LayoutBuilder::LayoutItem::LayoutItem(const QString &text) : text(text) {}
+LayoutBuilder::LayoutItem::LayoutItem(const QString &text)
+{
+    auto label = new QLabel(text);
+    label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    widget = label;
+}
 
 /*!
     \class Utils::LayoutBuilder
@@ -234,11 +240,8 @@ void LayoutBuilder::flushPendingFormItems()
                 m_formLayout->addRow(label, layout);
             else if (auto widget = m_pendingFormItems.at(1).widget)
                 m_formLayout->addRow(label, widget);
-        } else  {
-            if (auto layout = m_pendingFormItems.at(1).layout)
-                m_formLayout->addRow(m_pendingFormItems.at(0).text, layout);
-            else if (auto widget = m_pendingFormItems.at(1).widget)
-                m_formLayout->addRow(m_pendingFormItems.at(0).text, widget);
+        } else {
+            QTC_CHECK(false);
         }
     } else {
         QTC_CHECK(false);
