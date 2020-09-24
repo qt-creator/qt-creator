@@ -110,6 +110,7 @@ private:
 
     Internal::TestCodeParser *m_parser = nullptr;
     Internal::ItemDataCache<Qt::CheckState> *m_checkStateCache = nullptr; // not owned
+    Internal::ItemDataCache<bool> m_failedStateCache;
 };
 
 namespace Internal {

@@ -93,6 +93,7 @@ void TestTreeModel::setupParsingConnections()
         m_parser->onStartupProjectChanged(project);
         m_checkStateCache = project ? AutotestPlugin::projectSettings(project)->checkStateCache()
                                     : nullptr;
+        m_failedStateCache.clear();
     });
 
     CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
@@ -131,6 +132,8 @@ bool TestTreeModel::setData(const QModelIndex &index, const QVariant &value, int
             if (item->parent() != rootItem() && item->parentItem()->checked() != checked)
                 revalidateCheckState(item->parentItem()); // handle parent too
             return true;
+        } else if (role == FailedRole) {
+            m_failedStateCache.insert(item, true);
         }
     }
     return false;
@@ -328,6 +331,7 @@ void TestTreeModel::clearFailedMarks()
             child->setData(0, false, FailedRole);
         });
     }
+    m_failedStateCache.clear();
 }
 
 void TestTreeModel::removeFiles(const QStringList &files)
@@ -456,6 +460,10 @@ void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, b
             item->setData(0, cached.value(), Qt::CheckStateRole);
         else
             applyParentCheckState(parentNode, item);
+        // ..and the failed state if available
+        Utils::optional<bool> failed = m_failedStateCache.get(item);
+        if (failed.has_value())
+            item->setData(0, *failed, FailedRole);
         parentNode->appendChild(item);
         revalidateCheckState(parentNode);
     }
@@ -538,12 +546,15 @@ void TestTreeModel::handleParseResult(const TestParseResult *result, TestTreeIte
     TestTreeItem *newItem = result->createTestTreeItem();
     QTC_ASSERT(newItem, return);
 
-    // restore former check state if available
+    // restore former check state and fail state if available
     newItem->forAllChildren([this](Utils::TreeItem *child) {
         auto childItem = static_cast<TestTreeItem *>(child);
         Utils::optional<Qt::CheckState> cached = m_checkStateCache->get(childItem);
         if (cached.has_value())
             childItem->setData(0, cached.value(), Qt::CheckStateRole);
+        Utils::optional<bool> failed = m_failedStateCache.get(childItem);
+        if (failed.has_value())
+            childItem->setData(0, *failed, FailedRole);
     });
     // it might be necessary to "split" created item
     filterAndInsert(newItem, parentNode, groupingEnabled);
