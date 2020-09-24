@@ -86,15 +86,16 @@
             (\uicontrol Close) button in \e loginState and \e registerState
             to remove the states.
         \li Select the fields in \e fieldColumn in \uicontrol Navigator
-            and drag and drop them to \e loginPage.
+            and drag and drop them to their parent rectangle to prepare for
+            deleting the column component.
         \li Select \e fieldColumn in \uicontrol Navigator and press
             \key Delete to delete it.
         \li Select \e usernameField in \uicontrol Navigator.
         \li In \uicontrol Properties > \uicontrol Layout, select the
             \inlineimage anchor-top.png
             (\uicontrol Top) button to anchor the top of the field to the top
-            of its parent (\e loginPage). \QDS will suggest an appropriate
-            margin based on the current Y-position of the field.
+            of its parent. \QDS will suggest an appropriate margin based on
+            the current position of the field on the y axis, 200 pixels.
         \li Select the \inlineimage anchor-horizontal-center.png
             (\uicontrol {Horizontal Center}) button to anchor
             the horizontal center of the field to that of its parent.
@@ -112,7 +113,7 @@
             to save your changes.
     \endlist
 
-    You could also animate the Y-position property of the verify password
+    You could also animate the y-position property of the verify password
     field for a similar effect. In that case, you would need to use absolute
     positioning for the field. This is less flexible if you export your
     design from a design tool, such as Adobe Photoshop, and decide to change
@@ -168,15 +169,20 @@
         \li In \uicontrol Properties > \uicontrol Opacity > \uicontrol Settings,
             select \uicontrol {Insert Keyframe} to insert a keyframe for the
             opacity property of the button.
-        \li Check that the playhead is in frame 0, and select the
-            \inlineimage recordfill.png
-            (Per Property Recording) button for the \uicontrol opacity property
-            of \e backButton to start recording property changes.
+        \li In \uicontrol Timeline, check that the playhead is in
+            frame 0, and select the \inlineimage recordfill.png
+            (\uicontrol {Per Property Recording}) button for the
+            \uicontrol opacity property of \e backButton to start
+            recording property changes.
             \image loginui4-timeline-opacity.png "Record button for the opacity property"
         \li In the field next to the opacity property name on that same line,
             type 0 to hide the button, and press \key Enter to save the value.
         \li Move the playhead to frame 1000 and change the opacity value to 1
             to show the button.
+
+            To fine-tune the value of a keyframe, you can also right-click the
+            keyframe marker \inlineimage keyframe_linear_inactive.png
+            , and select \uicontrol {Edit Keyframe}.
         \li Select the record button again to stop recording property changes.
             If you forget this, all the following changes will be recorded, and
             the results will be unpredictable.
@@ -213,9 +219,10 @@
         \li In the field next to the property, set a negative value for the
             top anchor margin, -40, to place \e verifyPasswordField on top of
             \e passwordField.
-        \li Move the playhead to frame 1000 and change the top anchor margin to
-            5, so that \e verifyPasswordField appears to slide down and settle
-            below \e passwordField.
+        \li Move the playhead to frame 1000 and change the top anchor margin
+            to 5, so that, combined with the change in the opacity value,
+            \e verifyPasswordField appears to slide down and settle below
+            \e passwordField.
         \li Select the record button again to stop recording property changes.
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
             to save your changes.
@@ -247,8 +254,8 @@
 
     \image loginui4-timeline.png "Timeline view with the recorded property changes"
 
-    Next, you create states for the login and registration pages and bind them
-    to the animation settings.
+    Next, you'll create states for the login and registration pages and bind
+    them to the animation settings.
 
     \section1 Binding Animation to States
 

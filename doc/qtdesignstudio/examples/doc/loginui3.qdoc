@@ -38,7 +38,9 @@
     \e{Log In UI - Part 3} is the third in a series of examples that build
     on each other to illustrate how to use \QDS to create a simple UI with
     some basic UI components, such as pages, buttons, and entry fields. Part 3
-    describes how to use states to add a second page to the UI.
+    describes how to use \e states to add a second page to the UI. On the
+    first page, users can enter a username and password to log in. On the
+    second page, they can register if they do not already have an account.
 
     Because the second page will contain most of the same UI elements as the
     login page, you will use \e states to show and hide UI elements as necessary
@@ -59,7 +61,7 @@
     You will add another text field for verifying the password that users
     enter to create an account and a back button for returning to the login
     page. You are already familiar with the tasks in this section from Part 1
-    of this example.
+    and Part 2 of this example.
 
     To preview the changes that you make to the UI while you make
     them, select the \inlineimage live_preview.png
@@ -76,11 +78,12 @@
         \li In \uicontrol Properties, change the id of the text field to
             \e verifyPasswordField.
         \li In the \uicontrol Geometry group, \uicontrol Size field, set the
-            width of the field to \e 300 pixels.
+            width of the field to \e 300 pixels to match the size of the
+            existing fields.
         \li In the \uicontrol Placeholder field, set the placeholder text to
             \e {Verify password} and mark the text translatable.
         \li Drag and drop a PushButton type from \uicontrol Library >
-            \uicontrol {My QML Components} to \e loginPage in
+            \uicontrol {My QML Components} to their parent rectangle in
             \uicontrol Navigator.
         \li Select the button in \uicontrol Navigator and change its id to
             \e backButton in \uicontrol Properties.
@@ -92,8 +95,8 @@
         \li Under \uicontrol Layout, select the \inlineimage anchor-top.png
             (\uicontrol Top) and \inlineimage anchor-right.png
             (\uicontrol Right) anchor buttons to anchor \e backButton to
-            the top right corner of its parent (the \e loginPage) with 20-
-            and 10-pixel margins, respectively.
+            the top right corner of its parent with 20- and 10-pixel margins,
+            respectively.
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
             to save your changes.
     \endlist
@@ -111,7 +114,7 @@
     \section1 Using States to Simulate Page Changes
 
     You will now add \l{Adding States}{states} to the UI to show and hide UI
-    components in the \uicontrol {Form Editor}:
+    components in the \uicontrol {Form Editor}, depending on the current page:
 
     \list 1
         \li In the \uicontrol States view, select \uicontrol {Create New State}.
@@ -122,7 +125,7 @@
             \uicontrol Properties to hide the verify password field in
             the login state.
             \image loginui3-visibility.png
-        \li Repeat the above step for \e backButton.
+        \li Repeat the above step for \e backButton to hide it, too.
         \li In \uicontrol States, select \inlineimage icons/action-icon.png
             for \e loginState to open the \uicontrol Actions menu, and then
             select \uicontrol {Set as Default} to determine that \e loginState
@@ -217,8 +220,8 @@
     \section2 Learn Qt Quick - Signal and Event Handlers
 
     UI components need to communicate with each other. For example, a button
-    needs to know that the user has clicked on it. The button may change color
-    to indicate its state and perform an action.
+    needs to know that the user has clicked on it. In response, the button may
+    change color to indicate its state and perform an action.
 
     QML has a signal and handler mechanism, where the signal is the event that
     is responded to through a signal handler. When a signal is emitted, the

@@ -2,7 +2,7 @@
 
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the examples of the Qt Toolkit.
@@ -54,80 +54,93 @@ import loginui2 1.0
 import QtQuick.Controls 2.3
 
 Rectangle {
-    id: root
     width: Constants.width
     height: Constants.height
-
-    Rectangle {
-        id: loginPage
-        color: "#ffffff"
-        anchors.fill: parent
-
-        Image {
-            id: logo
-            width: 100
-            height: 100
-            anchors.topMargin: 10
-            anchors.left: parent.left
-            anchors.leftMargin: 10
-            anchors.top: parent.top
-            source: "qt_logo_green_64x64px.png"
-            fillMode: Image.PreserveAspectFit
+    gradient: Gradient {
+        GradientStop {
+            position: 0.50157
+            color: "#ffffff"
         }
 
-        Text {
-            id: pageTitle
-            width: 123
-            height: 40
-            text: qsTr("Qt Account")
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: parent.top
-            anchors.topMargin: 70
-            font.pixelSize: 24
+        GradientStop {
+            position: 1
+            color: "#41cd52"
         }
+    }
 
-        Column {
-            id: fieldColumn
+    Text {
+        id: pageTitle
+        x: 258
+        y: 70
+        width: 135
+        height: 40
+        text: qsTr("Qt Account")
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.topMargin: 70
+        font.pixelSize: 24
+        font.bold: true
+    }
+
+    Image {
+        id: logo
+        x: 10
+        y: 10
+        width: 100
+        height: 100
+        anchors.topMargin: 10
+        anchors.left: parent.left
+        anchors.leftMargin: 10
+        anchors.top: parent.top
+        source: "qt_logo_green_64x64px.png"
+        fillMode: Image.PreserveAspectFit
+    }
+
+    Column {
+        id: fieldColumn
+        x: 170
+        y: 200
+        width: 300
+        height: 85
+        spacing: 5
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.topMargin: 200
+
+        TextField {
+            id: usernameField
             width: 300
-            height: 85
-            spacing: 5
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: parent.top
-            anchors.topMargin: 200
-
-            TextField {
-                id: usernameField
-                width: 300
-                placeholderText: qsTr("Username")
-                font.pointSize: 10
-            }
-
-            TextField {
-                id: passwordField
-                width: 300
-                placeholderText: qsTr("Password")
-                font.pointSize: 10
-            }
+            placeholderText: qsTr("Username")
+            font.pointSize: 10
         }
 
-        Column {
-            id: buttonColumn
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 50
-            spacing: 5
-            anchors.horizontalCenter: parent.horizontalCenter
+        TextField {
+            id: passwordField
+            width: 300
+            placeholderText: qsTr("Password")
+            font.pointSize: 10
+        }
+    }
 
-            PushButton {
-                id: loginButton
-                width: 120
-                text: qsTr("Log In")
-            }
+    Column {
+        id: buttonColumn
+        x: 260
+        y: 345
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 50
+        spacing: 5
+        anchors.horizontalCenter: parent.horizontalCenter
 
-            PushButton {
-                id: registerButton
-                width: 120
-                text: qsTr("Create Account")
-            }
+        PushButton {
+            id: loginButton
+            width: 120
+            text: qsTr("Log In")
+        }
+
+        PushButton {
+            id: registerButton
+            width: 120
+            text: qsTr("Create Account")
         }
     }
 }
