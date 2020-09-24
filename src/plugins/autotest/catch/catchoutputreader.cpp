@@ -173,12 +173,12 @@ TestResultPtr CatchOutputReader::createDefaultResult() const
         result = new CatchResult(id(), m_testCaseInfo.first().name);
         result->setDescription(m_testCaseInfo.last().name);
         result->setLine(m_testCaseInfo.last().line);
-        const QFileInfo fileInfo(m_testCaseInfo.last().filename);
-        const Utils::FilePath filePath = Utils::FilePath::fromFileInfo(fileInfo);
-        if (!filePath.isEmpty()) {
-            result->setFileName(fileInfo.isAbsolute()
+        const QString givenPath = m_testCaseInfo.last().filename;
+        const Utils::FilePath filePath = Utils::FilePath::fromFileInfo(QFileInfo(givenPath));
+        if (!givenPath.isEmpty()) {
+            result->setFileName(QDir::isAbsolutePath(givenPath)
                                 ? filePath.toString()
-                                : QFileInfo(m_buildDir + '/' + filePath.toString()).canonicalFilePath());
+                                : QFileInfo(m_buildDir + '/' + givenPath).canonicalFilePath());
         }
     } else {
         result = new CatchResult(id(), QString());
