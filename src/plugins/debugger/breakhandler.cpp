@@ -94,8 +94,8 @@ public:
         setColor(Theme::Debugger_Breakpoint_TextMarkColor);
         setDefaultToolTip(QApplication::translate("BreakHandler", "Breakpoint"));
         setPriority(TextEditor::TextMark::NormalPriority);
-        setIcon(bp->icon());
-        setToolTip(bp->toolTip());
+        setIconProvider([bp] { return bp->icon(); });
+        setToolTipProvider([bp] { return bp->toolTip(); });
     }
 
     void updateLineNumber(int lineNumber) final
@@ -151,7 +151,8 @@ public:
     {
         setDefaultToolTip(QApplication::translate("BreakHandler", "Breakpoint"));
         setPriority(TextEditor::TextMark::NormalPriority);
-        setIcon(m_gbp->icon());
+        setIconProvider([this] { return m_gbp->icon(); });
+        setToolTipProvider([this] { return m_gbp->toolTip(); });
     }
 
     void removedFromEditor() final
@@ -1193,7 +1194,6 @@ void BreakHandler::requestBreakpointRemoval(const Breakpoint &bp)
 void BreakHandler::requestBreakpointEnabling(const Breakpoint &bp, bool enabled)
 {
     if (bp->m_parameters.enabled != enabled) {
-        bp->updateMarkerIcon();
         bp->update();
         requestBreakpointUpdate(bp);
     }
@@ -1858,15 +1858,6 @@ bool BreakpointItem::needsChange() const
     return false;
 }
 
-void BreakpointItem::updateMarkerIcon()
-{
-    if (m_marker) {
-        m_marker->setIcon(icon());
-        m_marker->setToolTip(toolTip());
-        m_marker->updateMarker();
-    }
-}
-
 void BreakpointItem::updateMarker()
 {
     const FilePath &file = markerFileName();
@@ -1876,9 +1867,6 @@ void BreakpointItem::updateMarker()
 
     if (!m_marker && !file.isEmpty() && line > 0)
         m_marker = new BreakpointMarker(this, file, line);
-
-    if (m_marker)
-        m_marker->setToolTip(toolTip());
 }
 
 QIcon BreakpointItem::icon() const
@@ -2285,15 +2273,6 @@ int GlobalBreakpointItem::markerLineNumber() const
     return m_params.lineNumber;
 }
 
-void GlobalBreakpointItem::updateMarkerIcon()
-{
-    if (m_marker) {
-        m_marker->setIcon(icon());
-        m_marker->setToolTip(toolTip());
-        m_marker->updateMarker();
-    }
-}
-
 void GlobalBreakpointItem::updateMarker()
 {
     if (usingEngine() != nullptr) {
@@ -2312,16 +2291,14 @@ void GlobalBreakpointItem::updateMarker()
     } else if (!m_params.fileName.isEmpty() && line > 0) {
         m_marker = new GlobalBreakpointMarker(this, m_params.fileName, line);
     }
-
-    if (m_marker)
-        m_marker->setToolTip(toolTip());
 }
 
 void GlobalBreakpointItem::setEnabled(bool enabled, bool descend)
 {
     if (m_params.enabled != enabled) {
         m_params.enabled = enabled;
-        updateMarkerIcon();
+        if (m_marker)
+            m_marker->updateMarker();
         update();
     }
 
