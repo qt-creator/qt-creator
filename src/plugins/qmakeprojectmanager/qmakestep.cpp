@@ -80,8 +80,6 @@ const char QMAKE_SELECTED_ABIS_KEY[] = "QtProjectManager.QMakeBuildStep.Selected
 QMakeStep::QMakeStep(BuildStepList *bsl, Utils::Id id)
     : AbstractProcessStep(bsl, id)
 {
-    //: QMakeStep default display name
-    setDefaultDisplayName(tr("qmake"));
     setLowPriority();
 }
 
@@ -778,6 +776,7 @@ QMakeStepFactory::QMakeStepFactory()
     registerStep<QMakeStep>(Constants::QMAKE_BS_ID);
     setSupportedConfiguration(Constants::QMAKE_BC_ID);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    //: QMakeStep default display name
     setDisplayName(QMakeStep::tr("qmake"));
     setFlags(BuildStepInfo::UniqueStep);
 }

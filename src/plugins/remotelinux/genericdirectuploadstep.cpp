@@ -73,8 +73,6 @@ GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl, Utils::Id i
     setRunPreparer([this, service] {
         service->setDeployableFiles(target()->deploymentData().allFiles());
     });
-
-    setDefaultDisplayName(displayName());
 }
 
 GenericDirectUploadStep::~GenericDirectUploadStep() = default;

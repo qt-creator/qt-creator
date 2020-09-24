@@ -76,8 +76,6 @@ struct TarFileHeader {
 TarPackageCreationStep::TarPackageCreationStep(BuildStepList *bsl, Utils::Id id)
     : AbstractPackagingStep(bsl, id)
 {
-    setDefaultDisplayName(displayName());
-
     m_ignoreMissingFilesAspect = addAspect<BoolAspect>();
     m_ignoreMissingFilesAspect->setLabel(tr("Ignore missing files"),
                                          BoolAspect::LabelPlacement::AtCheckBox);

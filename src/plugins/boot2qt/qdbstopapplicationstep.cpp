@@ -43,8 +43,6 @@ class QdbStopApplicationStep final : public RemoteLinux::AbstractRemoteLinuxDepl
 
 public:
     QdbStopApplicationStep(BuildStepList *bsl, Utils::Id id);
-
-    static QString stepDisplayName() { return tr("Stop already running application"); }
 };
 
 QdbStopApplicationStep::QdbStopApplicationStep(BuildStepList *bsl, Utils::Id id)
@@ -52,7 +50,6 @@ QdbStopApplicationStep::QdbStopApplicationStep(BuildStepList *bsl, Utils::Id id)
 {
     auto service = createDeployService<QdbStopApplicationService>();
 
-    setDefaultDisplayName(stepDisplayName());
     setWidgetExpandedByDefault(false);
 
     setInternalInitializer([service] { return service->isDeploymentPossible(); });
@@ -63,7 +60,7 @@ QdbStopApplicationStep::QdbStopApplicationStep(BuildStepList *bsl, Utils::Id id)
 QdbStopApplicationStepFactory::QdbStopApplicationStepFactory()
 {
     registerStep<QdbStopApplicationStep>(Constants::QdbStopApplicationStepId);
-    setDisplayName(QdbStopApplicationStep::stepDisplayName());
+    setDisplayName(QdbStopApplicationStep::tr("Stop already running application"));
     setSupportedDeviceType(Constants::QdbLinuxOsType);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
 }

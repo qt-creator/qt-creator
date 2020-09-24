@@ -153,8 +153,6 @@ BuildStepConfigWidget *IosBuildStep::createConfigWidget()
 IosBuildStep::IosBuildStep(BuildStepList *stepList, Id id)
     : AbstractProcessStep(stepList, id)
 {
-    setDefaultDisplayName(tr("xcodebuild"));
-
     setCommandLineProvider([this] { return CommandLine(buildCommand(), allArguments()); });
     setUseEnglishOutput();
 

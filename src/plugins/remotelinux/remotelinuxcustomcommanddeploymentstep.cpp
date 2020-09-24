@@ -47,8 +47,6 @@ RemoteLinuxCustomCommandDeploymentStep::RemoteLinuxCustomCommandDeploymentStep
     commandLine->setDisplayStyle(StringAspect::LineEditDisplay);
     commandLine->setHistoryCompleter("RemoteLinuxCustomCommandDeploymentStep.History");
 
-    setDefaultDisplayName(displayName());
-
     setInternalInitializer([service, commandLine] {
         service->setCommandLine(commandLine->value().trimmed());
         return service->isDeploymentPossible();

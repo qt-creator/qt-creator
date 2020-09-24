@@ -44,15 +44,11 @@ class QdbMakeDefaultAppStep final : public RemoteLinux::AbstractRemoteLinuxDeplo
 
 public:
     QdbMakeDefaultAppStep(BuildStepList *bsl, Utils::Id id);
-
-    static QString stepDisplayName() { return tr("Change default application"); }
 };
 
 QdbMakeDefaultAppStep::QdbMakeDefaultAppStep(BuildStepList *bsl, Utils::Id id)
     : AbstractRemoteLinuxDeployStep(bsl, id)
 {
-    setDefaultDisplayName(stepDisplayName());
-
     auto service = createDeployService<QdbMakeDefaultAppService>();
 
     auto selection = addAspect<SelectionAspect>();
@@ -71,7 +67,7 @@ QdbMakeDefaultAppStep::QdbMakeDefaultAppStep(BuildStepList *bsl, Utils::Id id)
 QdbMakeDefaultAppStepFactory::QdbMakeDefaultAppStepFactory()
 {
     registerStep<QdbMakeDefaultAppStep>(Constants::QdbMakeDefaultAppStepId);
-    setDisplayName(QdbMakeDefaultAppStep::stepDisplayName());
+    setDisplayName(QdbMakeDefaultAppStep::tr("Change default application"));
     setSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
 }

@@ -38,7 +38,6 @@ using namespace ProjectExplorer;
 DeviceCheckBuildStep::DeviceCheckBuildStep(BuildStepList *bsl, Utils::Id id)
     : BuildStep(bsl, id)
 {
-    setDefaultDisplayName(displayName());
     setWidgetExpandedByDefault(false);
 }
 

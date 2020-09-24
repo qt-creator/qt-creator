@@ -114,7 +114,6 @@ void IosDeployStep::updateDisplayNames()
 {
     IDevice::ConstPtr dev = DeviceKitAspect::device(kit());
     const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
-    setDefaultDisplayName(tr("Deploy to %1").arg(devName));
     setDisplayName(tr("Deploy to %1").arg(devName));
 }
 
@@ -316,7 +315,7 @@ IosSimulator::ConstPtr IosDeployStep::iossimulator() const
 IosDeployStepFactory::IosDeployStepFactory()
 {
     registerStep<IosDeployStep>(Constants::IOS_DEPLOY_STEP_ID);
-    setDisplayName(IosDeployStep::tr("Deploy to iOS device or emulator"));
+    setDisplayName(IosDeployStep::tr("Deploy to iOS device"));
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     setSupportedDeviceTypes({Constants::IOS_DEVICE_TYPE, Constants::IOS_SIMULATOR_TYPE});
     setRepeatable(false);

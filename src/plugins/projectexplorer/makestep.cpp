@@ -70,7 +70,6 @@ namespace ProjectExplorer {
 MakeStep::MakeStep(BuildStepList *parent, Id id)
     : AbstractProcessStep(parent, id)
 {
-    setDefaultDisplayName(defaultDisplayName());
     setLowPriority();
 
     setCommandLineProvider([this] { return effectiveMakeCommand(Execution); });

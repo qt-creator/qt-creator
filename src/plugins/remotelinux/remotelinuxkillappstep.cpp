@@ -41,7 +41,6 @@ RemoteLinuxKillAppStep::RemoteLinuxKillAppStep(BuildStepList *bsl, Utils::Id id)
 {
     auto service = createDeployService<RemoteLinuxKillAppService>();
 
-    setDefaultDisplayName(displayName());
     setWidgetExpandedByDefault(false);
 
     setInternalInitializer([this, service] {

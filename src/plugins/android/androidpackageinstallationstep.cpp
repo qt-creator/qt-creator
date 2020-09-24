@@ -78,9 +78,7 @@ private:
 AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bsl, Id id)
     : AbstractProcessStep(bsl, id)
 {
-    const QString name = tr("Copy application data");
-    setDefaultDisplayName(name);
-    setDisplayName(name);
+    setDisplayName(tr("Copy application data"));
     setWidgetExpandedByDefault(false);
     setImmutable(true);
     setSummaryUpdater([this] {

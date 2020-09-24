@@ -492,8 +492,6 @@ AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent, Utils::Id id)
       m_buildTargetSdk(AndroidConfig::apiLevelNameFor(AndroidConfigurations::
                                          sdkManager()->latestAndroidSdkPlatform()))
 {
-    //: AndroidBuildApkStep default display name
-    setDefaultDisplayName(tr("Build Android APK"));
     setImmutable(true);
 }
 

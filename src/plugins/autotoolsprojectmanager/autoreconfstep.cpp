@@ -72,8 +72,6 @@ private:
 AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Utils::Id id)
     : AbstractProcessStep(bsl, id)
 {
-    setDefaultDisplayName(tr("Autoreconf"));
-
     m_additionalArgumentsAspect = addAspect<StringAspect>();
     m_additionalArgumentsAspect->setSettingsKey("AutotoolsProjectManager.AutoreconfStep.AdditionalArguments");
     m_additionalArgumentsAspect->setLabelText(tr("Arguments:"));

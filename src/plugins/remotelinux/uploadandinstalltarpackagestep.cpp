@@ -66,7 +66,6 @@ UploadAndInstallTarPackageStep::UploadAndInstallTarPackageStep(BuildStepList *bs
 {
     auto service = createDeployService<UploadAndInstallTarPackageService>();
 
-    setDefaultDisplayName(displayName());
     setWidgetExpandedByDefault(false);
 
     setInternalInitializer([this, service] {

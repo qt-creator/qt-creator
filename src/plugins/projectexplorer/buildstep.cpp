@@ -467,12 +467,14 @@ Utils::Id BuildStepFactory::stepId() const
 
 BuildStep *BuildStepFactory::create(BuildStepList *parent)
 {
-    return m_info.creator(parent);
+    BuildStep *step = m_info.creator(parent);
+    step->setDefaultDisplayName(m_info.displayName);
+    return step;
 }
 
 BuildStep *BuildStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
 {
-    BuildStep *bs = m_info.creator(parent);
+    BuildStep *bs = create(parent);
     if (!bs)
         return nullptr;
     if (!bs->fromMap(map)) {

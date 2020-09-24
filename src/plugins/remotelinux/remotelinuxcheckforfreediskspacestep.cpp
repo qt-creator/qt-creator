@@ -40,8 +40,6 @@ RemoteLinuxCheckForFreeDiskSpaceStep::RemoteLinuxCheckForFreeDiskSpaceStep
     (BuildStepList *bsl, Utils::Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
 {
-    setDefaultDisplayName(displayName());
-
     auto service = createDeployService<RemoteLinuxCheckForFreeDiskSpaceService>();
 
     auto pathToCheckAspect = addAspect<StringAspect>();

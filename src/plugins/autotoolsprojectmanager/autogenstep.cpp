@@ -73,8 +73,6 @@ private:
 
 AutogenStep::AutogenStep(BuildStepList *bsl, Utils::Id id) : AbstractProcessStep(bsl, id)
 {
-    setDefaultDisplayName(tr("Autogen"));
-
     m_additionalArgumentsAspect = addAspect<StringAspect>();
     m_additionalArgumentsAspect->setSettingsKey(
                 "AutotoolsProjectManager.AutogenStep.AdditionalArguments");

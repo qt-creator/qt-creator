@@ -99,9 +99,6 @@ private:
 NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList, Id id)
     : AbstractProcessStep(parentList, id)
 {
-    setDefaultDisplayName(tr(Constants::C_NIMBLEBUILDSTEP_DISPLAY));
-    setDisplayName(tr(Constants::C_NIMBLEBUILDSTEP_DISPLAY));
-
     m_arguments = addAspect<ArgumentsAspect>();
     m_arguments->setSettingsKey(Constants::C_NIMBLEBUILDSTEP_ARGUMENTS);
     m_arguments->setResetter([this] { return defaultArguments(); });

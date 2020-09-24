@@ -195,8 +195,6 @@ RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Utils::Id id)
                                  BoolAspect::LabelPlacement::InExtraLabel);
     ignoreMissingFiles->setValue(false);
 
-    setDefaultDisplayName(displayName());
-
     setInternalInitializer([service, flags, ignoreMissingFiles] {
         service->setIgnoreMissingFiles(ignoreMissingFiles->value());
         service->setFlags(flags->value());

@@ -56,7 +56,6 @@ const char TOOL_ARGUMENTS_KEY[] = "MesonProjectManager.BuildStep.AdditionalArgum
 NinjaBuildStep::NinjaBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id)
     : ProjectExplorer::AbstractProcessStep{bsl, id}
 {
-    setDefaultDisplayName(tr("Meson Build"));
     if (m_targetName.isEmpty())
         setBuildTarget(defaultBuildTarget());
     setLowPriority();
@@ -215,7 +214,7 @@ MesonBuildStepFactory::MesonBuildStepFactory()
 {
     registerStep<NinjaBuildStep>(Constants::MESON_BUILD_STEP_ID);
     setSupportedProjectType(Constants::Project::ID);
-    setDisplayName(NinjaBuildStep::tr("Meson"));
+    setDisplayName(NinjaBuildStep::tr("Meson Build"));
 }
 
 void MesonProjectManager::Internal::NinjaBuildStep::setBuildTarget(const QString &targetName)

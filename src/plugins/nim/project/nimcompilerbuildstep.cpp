@@ -93,8 +93,6 @@ class NimParser : public ProjectExplorer::OutputTaskParser
 NimCompilerBuildStep::NimCompilerBuildStep(BuildStepList *parentList, Utils::Id id)
     : AbstractProcessStep(parentList, id)
 {
-    setDefaultDisplayName(tr(Constants::C_NIMCOMPILERBUILDSTEP_DISPLAY));
-    setDisplayName(tr(Constants::C_NIMCOMPILERBUILDSTEP_DISPLAY));
     setCommandLineProvider([this] { return commandLine(); });
 
     connect(project(), &ProjectExplorer::Project::fileListChanged,

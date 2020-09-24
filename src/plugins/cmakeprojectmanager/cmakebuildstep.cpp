@@ -172,9 +172,6 @@ Qt::ItemFlags CMakeTargetItem::flags(int) const
 CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Utils::Id id) :
     AbstractProcessStep(bsl, id)
 {
-    //: Default display name for the cmake make step.
-    setDefaultDisplayName(tr("CMake Build"));
-
     m_cmakeArguments = addAspect<StringAspect>();
     m_cmakeArguments->setSettingsKey(CMAKE_ARGUMENTS_KEY);
     m_cmakeArguments->setLabelText(tr("CMake arguments:"));
@@ -542,7 +539,7 @@ void CMakeBuildStep::processFinished(int exitCode, QProcess::ExitStatus status)
 CMakeBuildStepFactory::CMakeBuildStepFactory()
 {
     registerStep<CMakeBuildStep>(Constants::CMAKE_BUILD_STEP_ID);
-    setDisplayName(CMakeBuildStep::tr("Build", "Display name for CMakeProjectManager::CMakeBuildStep id."));
+    setDisplayName(CMakeBuildStep::tr("CMake Build", "Display name for CMakeProjectManager::CMakeBuildStep id."));
     setSupportedProjectType(Constants::CMAKE_PROJECT_ID);
 }
 

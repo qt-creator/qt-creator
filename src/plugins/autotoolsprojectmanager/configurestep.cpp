@@ -93,8 +93,6 @@ private:
 ConfigureStep::ConfigureStep(BuildStepList *bsl, Utils::Id id)
     : AbstractProcessStep(bsl, id)
 {
-    setDefaultDisplayName(tr("Configure"));
-
     m_additionalArgumentsAspect = addAspect<StringAspect>();
     m_additionalArgumentsAspect->setDisplayStyle(StringAspect::LineEditDisplay);
     m_additionalArgumentsAspect->setSettingsKey(

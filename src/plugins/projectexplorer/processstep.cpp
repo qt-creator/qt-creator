@@ -64,9 +64,6 @@ public:
 ProcessStep::ProcessStep(BuildStepList *bsl, Utils::Id id)
     : AbstractProcessStep(bsl, id)
 {
-    //: Default ProcessStep display name
-    setDefaultDisplayName(tr("Custom Process Step"));
-
     m_command = addAspect<StringAspect>();
     m_command->setSettingsKey(PROCESS_COMMAND_KEY);
     m_command->setDisplayStyle(StringAspect::PathChooserDisplay);
@@ -121,7 +118,8 @@ void ProcessStep::setupProcessParameters(ProcessParameters *pp)
 ProcessStepFactory::ProcessStepFactory()
 {
     registerStep<ProcessStep>("ProjectExplorer.ProcessStep");
-    setDisplayName(ProcessStep::tr("Custom Process Step", "item in combobox"));
+    //: Default ProcessStep display name
+    setDisplayName(ProcessStep::tr("Custom Process Step"));
 }
 
 } // Internal

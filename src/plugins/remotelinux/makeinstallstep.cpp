@@ -57,8 +57,6 @@ const char CustomCommandLineAspectId[] = "RemoteLinux.MakeInstall.CustomCommandL
 
 MakeInstallStep::MakeInstallStep(BuildStepList *parent, Utils::Id id) : MakeStep(parent, id)
 {
-    setDefaultDisplayName(displayName());
-
     const auto makeAspect = addAspect<ExecutableAspect>();
     makeAspect->setId(MakeAspectId);
     makeAspect->setSettingsKey(MakeAspectId);

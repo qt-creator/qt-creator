@@ -89,9 +89,6 @@ AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Utils::Id id)
     const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit());
     m_uninstallPreviousPackage = qt && qt->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0);
 
-    //: AndroidDeployQtStep default display name
-    setDefaultDisplayName(tr("Deploy to Android Device"));
-
     connect(this, &AndroidDeployQtStep::askForUninstall,
             this, &AndroidDeployQtStep::slotAskForUninstall,
             Qt::BlockingQueuedConnection);
@@ -606,7 +603,7 @@ AndroidDeployQtStepFactory::AndroidDeployQtStepFactory()
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     setSupportedDeviceType(Constants::ANDROID_DEVICE_TYPE);
     setRepeatable(false);
-    setDisplayName(AndroidDeployQtStep::tr("Deploy to Android device or emulator"));
+    setDisplayName(AndroidDeployQtStep::tr("Deploy to Android device"));
 }
 
 } // Internal
