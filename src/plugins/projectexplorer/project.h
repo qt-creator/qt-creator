@@ -165,8 +165,10 @@ public:
     // Set project files that will be watched and by default trigger the same callback
     // as the main project file.
     using DocGenerator = std::function<std::unique_ptr<Core::IDocument>(const Utils::FilePath &)>;
+    using DocUpdater = std::function<void(Core::IDocument *)>;
     void setExtraProjectFiles(const QSet<Utils::FilePath> &projectDocumentPaths,
-                              const DocGenerator docGenerator = {});
+                              const DocGenerator &docGenerator = {},
+                              const DocUpdater &docUpdater = {});
 
     void setDisplayName(const QString &name);
     void setProjectLanguage(Utils::Id id, bool enabled);

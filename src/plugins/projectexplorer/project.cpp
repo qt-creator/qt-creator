@@ -357,7 +357,8 @@ void Project::setNeedsInitialExpansion(bool needsExpansion)
 }
 
 void Project::setExtraProjectFiles(const QSet<Utils::FilePath> &projectDocumentPaths,
-                                   const DocGenerator docGenerator)
+                                   const DocGenerator &docGenerator,
+                                   const DocUpdater &docUpdater)
 {
     QSet<Utils::FilePath> uniqueNewFiles = projectDocumentPaths;
     uniqueNewFiles.remove(projectFilePath()); // Make sure to never add the main project file!
@@ -371,6 +372,10 @@ void Project::setExtraProjectFiles(const QSet<Utils::FilePath> &projectDocumentP
     Utils::erase(d->m_extraProjectDocuments, [&toRemove](const std::unique_ptr<Core::IDocument> &d) {
         return toRemove.contains(d->filePath());
     });
+    if (docUpdater) {
+        for (const auto &doc : qAsConst(d->m_extraProjectDocuments))
+            docUpdater(doc.get());
+    }
     for (const Utils::FilePath &p : toAdd) {
         if (docGenerator) {
             std::unique_ptr<Core::IDocument> doc = docGenerator(p);
