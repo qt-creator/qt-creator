@@ -42,6 +42,7 @@
 #include <QFontDatabase>
 #include <QMessageBox>
 #include <QQmlContext>
+#include <QWindow>
 
 #include <coreplugin/icore.h>
 
@@ -495,7 +496,9 @@ void PropertyEditorContextObject::hideCursor()
         return;
 
     QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
-    m_lastPos = QCursor::pos();
+
+    if (QWidget *w = QApplication::activeWindow())
+        m_lastPos = QCursor::pos(w->screen());
 }
 
 void PropertyEditorContextObject::restoreCursor()
@@ -503,8 +506,19 @@ void PropertyEditorContextObject::restoreCursor()
     if (!QApplication::overrideCursor())
         return;
 
-    QCursor::setPos(m_lastPos);
     QApplication::restoreOverrideCursor();
+
+    if (QWidget *w = QApplication::activeWindow())
+        QCursor::setPos(w->screen(), m_lastPos);
+}
+
+void PropertyEditorContextObject::holdCursorInPlace()
+{
+    if (!QApplication::overrideCursor())
+        return;
+
+    if (QWidget *w = QApplication::activeWindow())
+        QCursor::setPos(w->screen(), m_lastPos);
 }
 
 QStringList PropertyEditorContextObject::styleNamesForFamily(const QString &family)

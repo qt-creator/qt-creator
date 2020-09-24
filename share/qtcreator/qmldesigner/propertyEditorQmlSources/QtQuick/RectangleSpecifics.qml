@@ -63,7 +63,7 @@ Column {
     Section {
         anchors.left: parent.left
         anchors.right: parent.right
-        caption: "Rectangle"
+        caption: qsTr("Rectangle")
 
         SectionLayout {
             rows: 2
