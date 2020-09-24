@@ -307,6 +307,13 @@ class Dumper(DumperBase):
                 val.ldisplay += ' (%s)' % intval
         elif code == gdb.TYPE_CODE_COMPLEX:
             val.ldisplay = str(nativeValue)
+        elif code in [gdb.TYPE_CODE_BOOL, gdb.TYPE_CODE_INT]:
+            try:
+                # extract int presentation from native value and remember it
+                val.lvalue = int(nativeValue)
+            except:
+                # GDB only support converting integers of max. 64 bits to Python int as of now
+                pass
         #elif code == gdb.TYPE_CODE_ARRAY:
         #    val.type.ltarget = nativeValue[0].type.unqualified()
         return val

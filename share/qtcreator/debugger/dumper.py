@@ -2851,6 +2851,7 @@ class DumperBase():
             self.type = None
             self.ldata = None        # Target address in case of references and pointers.
             self.laddress = None     # Own address.
+            self.lvalue = None
             self.lIsInScope = True
             self.ldisplay = None
             self.summary = None      # Always hexencoded UTF-8.
@@ -2924,7 +2925,7 @@ class DumperBase():
         def integer(self, bitsize=None):
             if self.type.code == TypeCode.Typedef:
                 return self.detypedef().integer()
-            elif self.type.code == TypeCode.Bitfield:
+            elif isinstance(self.lvalue, int):
                 return self.lvalue
             # Could be something like 'short unsigned int'
             unsigned = self.type.name == 'unsigned' \
