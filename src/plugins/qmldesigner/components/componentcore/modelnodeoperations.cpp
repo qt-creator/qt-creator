@@ -1519,10 +1519,10 @@ void removeGroup(const SelectionContext &selectionContext)
     });
 }
 
-QVariant previewImageDataFor3DNode(const ModelNode &modelNode)
+QVariant previewImageDataForGenericNode(const ModelNode &modelNode)
 {
     if (modelNode.isValid())
-        return modelNode.model()->nodeInstanceView()->previewImageDataFor3DNode(modelNode);
+        return modelNode.model()->nodeInstanceView()->previewImageDataForGenericNode(modelNode);
     return {};
 }
 

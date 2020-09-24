@@ -54,6 +54,7 @@
 #include <QPointF>
 #include <QDir>
 #include <QFileInfo>
+#include <QPixmap>
 
 #include <coreplugin/messagebox.h>
 
@@ -857,9 +858,9 @@ void NavigatorTreeModel::resetModel()
     endResetModel();
 }
 
-void NavigatorTreeModel::updateToolTipImage(const ModelNode &node, const QImage &image)
+void NavigatorTreeModel::updateToolTipPixmap(const ModelNode &node, const QPixmap &pixmap)
 {
-    emit toolTipImageUpdated(node.id(), image);
+    emit toolTipPixmapUpdated(node.id(), pixmap);
 }
 
 } // QmlDesigner

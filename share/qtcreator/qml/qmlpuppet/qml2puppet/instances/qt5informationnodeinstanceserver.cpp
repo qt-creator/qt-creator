@@ -101,6 +101,26 @@ static QVariant objectToVariant(QObject *object)
     return QVariant::fromValue(object);
 }
 
+QQuickView *Qt5InformationNodeInstanceServer::createAuxiliaryQuickView(const QUrl &url,
+                                                                       QQuickItem *&rootItem)
+{
+    auto view = new QQuickView(quickView()->engine(), quickView());
+    view->setFormat(quickView()->format());
+    DesignerSupport::createOpenGLContext(view);
+    QQmlComponent component(engine());
+    component.loadUrl(url);
+    rootItem = qobject_cast<QQuickItem *>(component.create());
+
+    if (!rootItem) {
+        qWarning() << "Could not create view for: " << url.toString() << component.errors();
+        return nullptr;
+    }
+
+    DesignerSupport::setRootItem(view, rootItem);
+
+    return view;
+}
+
 void Qt5InformationNodeInstanceServer::createEditView3D()
 {
 #ifdef QUICK3D_MODULE
@@ -120,58 +140,26 @@ void Qt5InformationNodeInstanceServer::createEditView3D()
                                new QmlDesigner::Internal::IconGizmoImageProvider);
     m_3dHelper = helper;
 
-    m_editView3D = new QQuickView(quickView()->engine(), quickView());
-    m_editView3D->setFormat(quickView()->format());
-    DesignerSupport::createOpenGLContext(m_editView3D.data());
-    QQmlComponent component(engine());
-    component.loadUrl(QUrl("qrc:/qtquickplugin/mockfiles/EditView3D.qml"));
-    m_editView3DRootItem = qobject_cast<QQuickItem *>(component.create());
+    m_editView3D = createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/EditView3D.qml"), m_editView3DRootItem);
 
-    if (!m_editView3DRootItem) {
-        qWarning() << "Could not create edit view 3D: " << component.errors();
-        return;
+    if (m_editView3DRootItem) {
+        QObject::connect(m_editView3DRootItem, SIGNAL(selectionChanged(QVariant)),
+                         this, SLOT(handleSelectionChanged(QVariant)));
+        QObject::connect(m_editView3DRootItem, SIGNAL(commitObjectProperty(QVariant, QVariant)),
+                         this, SLOT(handleObjectPropertyCommit(QVariant, QVariant)));
+        QObject::connect(m_editView3DRootItem, SIGNAL(changeObjectProperty(QVariant, QVariant)),
+                         this, SLOT(handleObjectPropertyChange(QVariant, QVariant)));
+        QObject::connect(m_editView3DRootItem, SIGNAL(notifyActiveSceneChange()),
+                         this, SLOT(handleActiveSceneChange()));
+        QObject::connect(&m_propertyChangeTimer, &QTimer::timeout,
+                         this, &Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout);
+        QObject::connect(&m_selectionChangeTimer, &QTimer::timeout,
+                         this, &Qt5InformationNodeInstanceServer::handleSelectionChangeTimeout);
+        QObject::connect(&m_render3DEditViewTimer, &QTimer::timeout,
+                         this, &Qt5InformationNodeInstanceServer::doRender3DEditView);
+
+        helper->setParent(m_editView3DRootItem);
     }
-
-    DesignerSupport::setRootItem(m_editView3D, m_editView3DRootItem);
-
-    QObject::connect(m_editView3DRootItem, SIGNAL(selectionChanged(QVariant)),
-                     this, SLOT(handleSelectionChanged(QVariant)));
-    QObject::connect(m_editView3DRootItem, SIGNAL(commitObjectProperty(QVariant, QVariant)),
-                     this, SLOT(handleObjectPropertyCommit(QVariant, QVariant)));
-    QObject::connect(m_editView3DRootItem, SIGNAL(changeObjectProperty(QVariant, QVariant)),
-                     this, SLOT(handleObjectPropertyChange(QVariant, QVariant)));
-    QObject::connect(m_editView3DRootItem, SIGNAL(notifyActiveSceneChange()),
-                     this, SLOT(handleActiveSceneChange()));
-    QObject::connect(&m_propertyChangeTimer, &QTimer::timeout,
-                     this, &Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout);
-    QObject::connect(&m_selectionChangeTimer, &QTimer::timeout,
-                     this, &Qt5InformationNodeInstanceServer::handleSelectionChangeTimeout);
-    QObject::connect(&m_render3DEditViewTimer, &QTimer::timeout,
-                     this, &Qt5InformationNodeInstanceServer::doRender3DEditView);
-    QObject::connect(&m_renderModelNode3DImageViewTimer, &QTimer::timeout,
-                     this, &Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView);
-
-    helper->setParent(m_editView3DRootItem);
-#endif
-}
-
-void Qt5InformationNodeInstanceServer::create3DPreviewView()
-{
-#ifdef QUICK3D_MODULE
-    // This function assumes createEditView3D() has been called previously
-    m_ModelNode3DImageView = new QQuickView(quickView()->engine(), quickView());
-    m_ModelNode3DImageView->setFormat(quickView()->format());
-    DesignerSupport::createOpenGLContext(m_ModelNode3DImageView.data());
-    QQmlComponent component(engine());
-    component.loadUrl(QUrl("qrc:/qtquickplugin/mockfiles/ModelNode3DImageView.qml"));
-    m_ModelNode3DImageViewRootItem = qobject_cast<QQuickItem *>(component.create());
-
-    if (!m_ModelNode3DImageViewRootItem) {
-        qWarning() << "Could not create ModelNode preview image 3D view: " << component.errors();
-        return;
-    }
-
-    DesignerSupport::setRootItem(m_ModelNode3DImageView, m_ModelNode3DImageViewRootItem);
 #endif
 }
 
@@ -521,10 +509,20 @@ void Qt5InformationNodeInstanceServer::doRender3DEditView()
     }
 }
 
-void Qt5InformationNodeInstanceServer::renderModelNode3DImageView()
+void Qt5InformationNodeInstanceServer::renderModelNodeImageView()
 {
-    if (!m_renderModelNode3DImageViewTimer.isActive())
-        m_renderModelNode3DImageViewTimer.start(0);
+    if (!m_renderModelNodeImageViewTimer.isActive())
+        m_renderModelNodeImageViewTimer.start(0);
+}
+
+void Qt5InformationNodeInstanceServer::doRenderModelNodeImageView()
+{
+
+    ServerNodeInstance instance = instanceForId(m_modelNodePreviewImageCommand.instanceId());
+    if (instance.isSubclassOf("QQuick3DObject"))
+        doRenderModelNode3DImageView();
+    else if (instance.isSubclassOf("QQuickItem"))
+        doRenderModelNode2DImageView();
 }
 
 void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
@@ -542,13 +540,11 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
         } else {
             QObject *instanceObj = nullptr;
             if (!m_modelNodePreviewImageCommand.componentPath().isEmpty()) {
-                QQmlComponent *component = new QQmlComponent(engine());
-                component->loadUrl(QUrl::fromLocalFile(m_modelNodePreviewImageCommand.componentPath()));
-                instanceObj = qobject_cast<QQuick3DObject *>(component->create());
+                QQmlComponent component(engine());
+                component.loadUrl(QUrl::fromLocalFile(m_modelNodePreviewImageCommand.componentPath()));
+                instanceObj = qobject_cast<QQuick3DObject *>(component.create());
                 if (!instanceObj) {
-                    qWarning() << "Could not create preview component: " << component->errors();
-                    nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::RenderModelNodePreviewImage,
-                                                                        QVariant::fromValue(imgContainer)});
+                    qWarning() << "Could not create preview component: " << component.errors();
                     return;
                 }
             } else {
@@ -584,16 +580,103 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
             if (!m_modelNodePreviewImageCommand.componentPath().isEmpty()) {
                 // If component changes, puppet will need a reset anyway, so we can cache the image
                 m_modelNodePreviewImageCache.insert(m_modelNodePreviewImageCommand.componentPath(), renderImage);
+                delete instanceObj;
             }
         }
 
-        imgContainer.setImage(renderImage);
+        if (!renderImage.isNull()) {
+            imgContainer.setImage(renderImage);
 
-        // send the rendered image to creator process
-        nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::RenderModelNodePreviewImage,
-                                                            QVariant::fromValue(imgContainer)});
+            // send the rendered image to creator process
+            nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::RenderModelNodePreviewImage,
+                                                                QVariant::fromValue(imgContainer)});
+        }
     }
 #endif
+}
+
+static QRectF itemBoundingRect(QQuickItem *item)
+{
+    QRectF itemRect;
+    if (item) {
+        itemRect = item->boundingRect();
+        if (item->clip()) {
+            return itemRect;
+        } else {
+            const auto childItems = item->childItems();
+            for (const auto &childItem : childItems) {
+                QRectF mappedRect = childItem->mapRectToItem(item, itemBoundingRect(childItem));
+                // Sanity check for size
+                if (mappedRect.isValid() && (mappedRect.width() < 10000) && (mappedRect.height() < 10000))
+                    itemRect = itemRect.united(mappedRect);
+            }
+        }
+    }
+    return itemRect;
+}
+
+void Qt5InformationNodeInstanceServer::doRenderModelNode2DImageView()
+{
+    if (m_ModelNode2DImageViewRootItem) {
+        if (!m_ModelNode2DImageViewContentItem)
+            m_ModelNode2DImageViewContentItem = getContentItemForRendering(m_ModelNode2DImageViewRootItem);
+
+        // Key number is the same as in 3D case as they produce image for same purpose
+        auto imgContainer = ImageContainer(m_modelNodePreviewImageCommand.instanceId(), {}, 2100000001);
+        QImage renderImage;
+        if (m_modelNodePreviewImageCache.contains(m_modelNodePreviewImageCommand.componentPath())) {
+            renderImage = m_modelNodePreviewImageCache[m_modelNodePreviewImageCommand.componentPath()];
+        } else {
+            QQuickItem *instanceItem = nullptr;
+
+            if (!m_modelNodePreviewImageCommand.componentPath().isEmpty()) {
+                QQmlComponent component(engine());
+                component.loadUrl(QUrl::fromLocalFile(m_modelNodePreviewImageCommand.componentPath()));
+                instanceItem = qobject_cast<QQuickItem *>(component.create());
+                if (!instanceItem) {
+                    qWarning() << "Could not create preview component: " << component.errors();
+                    return;
+                }
+            } else {
+                qWarning() << "2D image preview is not supported for non-components.";
+                return;
+            }
+
+            instanceItem->setParentItem(m_ModelNode2DImageViewContentItem);
+
+            // Some component may expect to always be shown at certain size, so their layouts may
+            // not support scaling, so let's always render at the default size if item has one and
+            // scale the resulting image instead.
+            QSize finalSize = m_modelNodePreviewImageCommand.size() * 2;
+            QRectF renderRect = itemBoundingRect(instanceItem);
+            QSize renderSize = renderRect.size().toSize();
+            if (renderSize.isEmpty()) {
+                renderSize = finalSize;
+                renderRect = QRectF(QPointF(0., 0.), QSizeF(renderSize));
+                instanceItem->setSize(renderSize);
+            }
+
+            updateNodesRecursive(m_ModelNode2DImageViewContentItem);
+
+            renderImage = designerSupport()->renderImageForItem(m_ModelNode2DImageViewContentItem, renderRect, renderSize);
+
+            if (renderSize != finalSize)
+                renderImage = renderImage.scaled(finalSize, Qt::KeepAspectRatio);
+
+            delete instanceItem;
+
+            // If component changes, puppet will need a reset anyway, so we can cache the image
+            m_modelNodePreviewImageCache.insert(m_modelNodePreviewImageCommand.componentPath(), renderImage);
+        }
+
+        if (!renderImage.isNull()) {
+            imgContainer.setImage(renderImage);
+
+            // send the rendered image to creator process
+            nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::RenderModelNodePreviewImage,
+                                                                QVariant::fromValue(imgContainer)});
+        }
+    }
 }
 
 Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
@@ -603,7 +686,7 @@ Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceC
     m_propertyChangeTimer.setSingleShot(true);
     m_selectionChangeTimer.setSingleShot(true);
     m_render3DEditViewTimer.setSingleShot(true);
-    m_renderModelNode3DImageViewTimer.setSingleShot(true);
+    m_renderModelNodeImageViewTimer.setSingleShot(true);
 }
 
 void Qt5InformationNodeInstanceServer::sendTokenBack()
@@ -919,7 +1002,8 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
     add3DScenes(instanceList);
 
     createEditView3D();
-    create3DPreviewView();
+    m_ModelNode3DImageView = createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/ModelNode3DImageView.qml"),
+                                                      m_ModelNode3DImageViewRootItem);
 
     QString lastSceneId;
     auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
@@ -1095,6 +1179,11 @@ void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
 
     if (qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_MODE"))
         setup3DEditView(instanceList, command.edit3dToolStates());
+
+    m_ModelNode2DImageView = createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/ModelNode2DImageView.qml"),
+                                                      m_ModelNode2DImageViewRootItem);
+    QObject::connect(&m_renderModelNodeImageViewTimer, &QTimer::timeout,
+                     this, &Qt5InformationNodeInstanceServer::doRenderModelNodeImageView);
 }
 
 void Qt5InformationNodeInstanceServer::sendChildrenChangedCommand(const QList<ServerNodeInstance> &childList)
@@ -1345,10 +1434,7 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
 void Qt5InformationNodeInstanceServer::requestModelNodePreviewImage(const RequestModelNodePreviewImageCommand &command)
 {
     m_modelNodePreviewImageCommand = command;
-
-    ServerNodeInstance instance = instanceForId(m_modelNodePreviewImageCommand.instanceId());
-    if (instance.isSubclassOf("QQuick3DObject"))
-        renderModelNode3DImageView();
+    renderModelNodeImageView();
 }
 
 void Qt5InformationNodeInstanceServer::changeAuxiliaryValues(const ChangeAuxiliaryCommand &command)

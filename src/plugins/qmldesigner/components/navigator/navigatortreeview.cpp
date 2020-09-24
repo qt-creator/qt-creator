@@ -196,16 +196,16 @@ bool NavigatorTreeView::viewportEvent(QEvent *event)
                 m_toolTipHideTimer.stop();
                 if (!m_previewToolTip) {
                     m_previewToolTip = new PreviewToolTip(QApplication::activeWindow());
-                    connect(navModel, &NavigatorTreeModel::toolTipImageUpdated,
-                            [this](const QString &id, const QImage &image) {
+                    connect(navModel, &NavigatorTreeModel::toolTipPixmapUpdated,
+                            [this](const QString &id, const QPixmap &pixmap) {
                         if (m_previewToolTip && m_previewToolTip->id() == id)
-                            m_previewToolTip->setImage(image);
+                            m_previewToolTip->setPixmap(pixmap);
                     });
                 }
                 m_previewToolTip->setId(imgMap["id"].toString());
                 m_previewToolTip->setType(imgMap["type"].toString());
                 m_previewToolTip->setInfo(imgMap["info"].toString());
-                m_previewToolTip->setImage(imgMap["image"].value<QImage>());
+                m_previewToolTip->setPixmap(imgMap["pixmap"].value<QPixmap>());
                 m_previewToolTip->move(m_previewToolTip->parentWidget()->mapFromGlobal(helpEvent->globalPos())
                                        + QPoint(15, 15));
                 if (!m_previewToolTip->isVisible())

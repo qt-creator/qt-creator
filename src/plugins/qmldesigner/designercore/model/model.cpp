@@ -700,11 +700,11 @@ void ModelPrivate::notifyUpdateActiveScene3D(const QVariantMap &sceneState)
     }
 }
 
-void ModelPrivate::notifyModelNodePreviewImageChanged(const ModelNode &node, const QImage &image)
+void ModelPrivate::notifyModelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap)
 {
     for (const QPointer<AbstractView> &view : qAsConst(m_viewList)) {
         Q_ASSERT(view != nullptr);
-        view->modelNodePreviewImageChanged(node, image);
+        view->modelNodePreviewPixmapChanged(node, pixmap);
     }
 }
 

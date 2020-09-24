@@ -23,56 +23,17 @@
 **
 ****************************************************************************/
 
-#include "previewtooltip.h"
-#include "ui_previewtooltip.h"
+import QtQuick 2.15
 
-#include <utils/theme/theme.h>
+Item {
+    id: root
+    width: 150
+    height: 150
 
-#include <QtGui/qpixmap.h>
+    property alias contentItem: contentItem
 
-namespace QmlDesigner {
-
-PreviewToolTip::PreviewToolTip(QWidget *parent)
-    : QWidget(parent)
-    , m_ui(new Ui::PreviewToolTip)
-{
-    setAttribute(Qt::WA_TransparentForMouseEvents);
-    setWindowFlags(Qt::Widget);
-    m_ui->setupUi(this);
-    m_ui->idLabel->setElideMode(Qt::ElideLeft);
-    m_ui->typeLabel->setElideMode(Qt::ElideLeft);
-    m_ui->infoLabel->setElideMode(Qt::ElideLeft);
-    setStyleSheet(QString("QWidget { background-color: %1 }").arg(Utils::creatorTheme()->color(Utils::Theme::BackgroundColorNormal).name()));
-}
-
-PreviewToolTip::~PreviewToolTip()
-{
-    delete m_ui;
-}
-
-void PreviewToolTip::setId(const QString &id)
-{
-    m_ui->idLabel->setText(id);
-}
-
-void PreviewToolTip::setType(const QString &type)
-{
-    m_ui->typeLabel->setText(type);
-}
-
-void PreviewToolTip::setInfo(const QString &info)
-{
-    m_ui->infoLabel->setText(info);
-}
-
-void PreviewToolTip::setPixmap(const QPixmap &pixmap)
-{
-    m_ui->imageLabel->setPixmap(pixmap);
-}
-
-QString PreviewToolTip::id() const
-{
-    return m_ui->idLabel->text();
-}
-
+    Item {
+        id: contentItem
+        anchors.fill: parent
+    }
 }

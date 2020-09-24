@@ -35,6 +35,7 @@
 #include <QVariant>
 #include <QPointer>
 #include <QImage>
+#include <QUrl>
 
 QT_BEGIN_NAMESPACE
 class QDragMoveEvent;
@@ -119,8 +120,11 @@ private:
     QQuickItem *getContentItemForRendering(QQuickItem *rootItem);
     void render3DEditView(int count = 1);
     void doRender3DEditView();
-    void renderModelNode3DImageView();
+    void renderModelNodeImageView();
+    void doRenderModelNodeImageView();
     void doRenderModelNode3DImageView();
+    void doRenderModelNode2DImageView();
+    QQuickView *createAuxiliaryQuickView(const QUrl &url, QQuickItem *&rootItem);
 
     QPointer<QQuickView> m_editView3D;
     QQuickItem *m_editView3DRootItem = nullptr;
@@ -128,6 +132,9 @@ private:
     QPointer<QQuickView> m_ModelNode3DImageView;
     QQuickItem *m_ModelNode3DImageViewRootItem = nullptr;
     QQuickItem *m_ModelNode3DImageViewContentItem = nullptr;
+    QPointer<QQuickView> m_ModelNode2DImageView;
+    QQuickItem *m_ModelNode2DImageViewRootItem = nullptr;
+    QQuickItem *m_ModelNode2DImageViewContentItem = nullptr;
     RequestModelNodePreviewImageCommand m_modelNodePreviewImageCommand;
     QHash<QString, QImage> m_modelNodePreviewImageCache;
     QSet<QObject *> m_view3Ds;
@@ -141,7 +148,7 @@ private:
     QTimer m_propertyChangeTimer;
     QTimer m_selectionChangeTimer;
     QTimer m_render3DEditViewTimer;
-    QTimer m_renderModelNode3DImageViewTimer;
+    QTimer m_renderModelNodeImageViewTimer;
     QVariant m_changedNode;
     PropertyName m_changedProperty;
     ChangeSelectionCommand m_lastSelectionChangeCommand;

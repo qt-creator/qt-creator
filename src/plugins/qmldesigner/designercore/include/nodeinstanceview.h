@@ -143,7 +143,7 @@ public:
 
     void handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command) override;
 
-    QVariant previewImageDataFor3DNode(const ModelNode &modelNode);
+    QVariant previewImageDataForGenericNode(const ModelNode &modelNode);
     QVariant previewImageDataForImageNode(const ModelNode &modelNode);
 
 protected:

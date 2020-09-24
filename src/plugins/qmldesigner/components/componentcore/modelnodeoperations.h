@@ -85,7 +85,7 @@ void mergeWithTemplate(const SelectionContext &selectionContext);
 void removeGroup(const SelectionContext &selectionContext);
 
 // ModelNodePreviewImageOperations
-QVariant previewImageDataFor3DNode(const ModelNode &modelNode);
+QVariant previewImageDataForGenericNode(const ModelNode &modelNode);
 QVariant previewImageDataForImageNode(const ModelNode &modelNode);
 
 } // namespace ModelNodeOperationso

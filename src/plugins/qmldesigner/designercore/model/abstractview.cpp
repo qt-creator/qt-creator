@@ -382,7 +382,7 @@ void AbstractView::updateActiveScene3D(const QVariantMap & /*sceneState*/)
 {
 }
 
-void AbstractView::modelNodePreviewImageChanged(const ModelNode & /*node*/, const QImage & /*image*/)
+void AbstractView::modelNodePreviewPixmapChanged(const ModelNode & /*node*/, const QPixmap & /*pixmap*/)
 {
 }
 
@@ -770,10 +770,10 @@ void AbstractView::emitUpdateActiveScene3D(const QVariantMap &sceneState)
         model()->d->notifyUpdateActiveScene3D(sceneState);
 }
 
-void AbstractView::emitModelNodelPreviewImageChanged(const ModelNode &node, const QImage &image)
+void AbstractView::emitModelNodelPreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap)
 {
     if (model())
-        model()->d->notifyModelNodePreviewImageChanged(node, image);
+        model()->d->notifyModelNodePreviewPixmapChanged(node, pixmap);
 }
 
 void AbstractView::emitRewriterEndTransaction()

@@ -41,6 +41,7 @@
         <file>mockfiles/AxisHelperArm.qml</file>
         <file>mockfiles/Line3D.qml</file>
         <file>mockfiles/ModelNode3DImageView.qml</file>
+        <file>mockfiles/ModelNode2DImageView.qml</file>
         <file>mockfiles/MaterialNodeView.qml</file>
         <file>mockfiles/EffectNodeView.qml</file>
         <file>mockfiles/ModelNodeView.qml</file>

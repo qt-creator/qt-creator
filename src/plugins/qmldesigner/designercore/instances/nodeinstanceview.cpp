@@ -1553,7 +1553,7 @@ void NodeInstanceView::timerEvent(QTimerEvent *event)
 
 struct ImageData {
     QDateTime time;
-    QImage image;
+    QPixmap pixmap;
     QString type;
     QString id;
     QString info;
@@ -1562,10 +1562,10 @@ static QHash<QString, QHash<QString, ImageData>> imageDataMap;
 
 static QVariant imageDataToVariant(const ImageData &imageData)
 {
-    if (!imageData.image.isNull()) {
+    if (!imageData.pixmap.isNull()) {
         QVariantMap map;
         map.insert("type", imageData.type);
-        map.insert("image", QVariant::fromValue<QImage>(imageData.image));
+        map.insert("pixmap", QVariant::fromValue<QPixmap>(imageData.pixmap));
         map.insert("id", imageData.id);
         map.insert("info", imageData.info);
         return map;
@@ -1599,13 +1599,13 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
     }
 
     if (reload) {
-        QImage originalImage;
-        originalImage.load(imageSource);
-        if (!originalImage.isNull()) {
-            imageData.image = originalImage.scaled(Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
-                                                   Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
-                                                   Qt::KeepAspectRatio);
-            imageData.image.setDevicePixelRatio(2.);
+        QPixmap originalPixmap;
+        originalPixmap.load(imageSource);
+        if (!originalPixmap.isNull()) {
+            imageData.pixmap = originalPixmap.scaled(Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
+                                                     Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
+                                                     Qt::KeepAspectRatio);
+            imageData.pixmap.setDevicePixelRatio(2.);
 
             double imgSize = double(imageFi.size());
             imageData.type = QStringLiteral("%1 (%2)").arg(QString::fromLatin1(modelNode.type())).arg(imageFi.suffix());
@@ -1616,7 +1616,7 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
                 ++unitIndex;
                 imgSize /= 1024.;
             }
-            imageData.info = QStringLiteral("%1 x %2  (%3%4)").arg(originalImage.width()).arg(originalImage.height())
+            imageData.info = QStringLiteral("%1 x %2  (%3%4)").arg(originalPixmap.width()).arg(originalPixmap.height())
                     .arg(QString::number(imgSize, 'g', 3)).arg(units[unitIndex]);
             localDataMap.insert(imageSource, imageData);
         }
@@ -1625,12 +1625,12 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
     return imageDataToVariant(imageData);
 }
 
-QVariant NodeInstanceView::previewImageDataFor3DNode(const ModelNode &modelNode)
+QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &modelNode)
 {
     QFileInfo docFi = QFileInfo(modelNode.model()->fileUrl().toLocalFile());
     QHash<QString, ImageData> &localDataMap = imageDataMap[docFi.absoluteFilePath()];
     ImageData imageData;
-    static const QImage placeHolder(":/navigator/icon/tooltip_placeholder.png");
+    static const QPixmap placeHolder(":/navigator/icon/tooltip_placeholder.png");
 
     // We need puppet to generate the image, which needs to be asynchronous.
     // Until the image is ready, we show a placeholder
@@ -1640,7 +1640,7 @@ QVariant NodeInstanceView::previewImageDataFor3DNode(const ModelNode &modelNode)
     } else {
         imageData.type = QString::fromLatin1(modelNode.type());
         imageData.id = id;
-        imageData.image = placeHolder;
+        imageData.pixmap = placeHolder;
         localDataMap.insert(id, imageData);
     }
     requestModelNodePreviewImage(modelNode);
@@ -1652,12 +1652,13 @@ void NodeInstanceView::updatePreviewImageForNode(const ModelNode &modelNode, con
 {
     QFileInfo docFi = QFileInfo(modelNode.model()->fileUrl().toLocalFile());
     QString docPath = docFi.absoluteFilePath();
+    QPixmap pixmap = QPixmap::fromImage(image);
     if (imageDataMap.contains(docPath)) {
         QHash<QString, ImageData> &localDataMap = imageDataMap[docPath];
         if (localDataMap.contains(modelNode.id()))
-            localDataMap[modelNode.id()].image = image;
+            localDataMap[modelNode.id()].pixmap = pixmap;
     }
-    emitModelNodelPreviewImageChanged(modelNode, image);
+    emitModelNodelPreviewPixmapChanged(modelNode, pixmap);
 }
 
 }

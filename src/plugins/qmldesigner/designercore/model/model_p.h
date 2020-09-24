@@ -38,6 +38,7 @@
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
+class QPixmap;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -160,7 +161,7 @@ public:
 
     void notifyRenderImage3DChanged(const QImage &image);
     void notifyUpdateActiveScene3D(const QVariantMap &sceneState);
-    void notifyModelNodePreviewImageChanged(const ModelNode &node, const QImage &image);
+    void notifyModelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap);
 
     void setDocumentMessages(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings);
 

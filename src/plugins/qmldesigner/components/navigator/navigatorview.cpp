@@ -51,7 +51,7 @@
 
 #include <QHeaderView>
 #include <QTimer>
-
+#include <QPixmap>
 
 static inline void setScenePos(const QmlDesigner::ModelNode &modelNode,const QPointF &pos)
 {
@@ -263,9 +263,9 @@ void NavigatorView::enableWidget()
         m_widget->enableNavigator();
 }
 
-void NavigatorView::modelNodePreviewImageChanged(const ModelNode &node, const QImage &image)
+void NavigatorView::modelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap)
 {
-    m_treeModel->updateToolTipImage(node, image);
+    m_treeModel->updateToolTipPixmap(node, pixmap);
 }
 
 ModelNode NavigatorView::modelNodeForIndex(const QModelIndex &modelIndex) const

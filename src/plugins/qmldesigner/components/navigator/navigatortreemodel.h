@@ -34,6 +34,8 @@
 #include <QPointer>
 #include <QDateTime>
 
+QT_FORWARD_DECLARE_CLASS(QPixmap)
+
 namespace QmlDesigner {
 
 class Model;
@@ -94,10 +96,10 @@ public:
     void setOrder(bool reverseItemOrder) override;
     void resetModel() override;
 
-    void updateToolTipImage(const ModelNode &node, const QImage &image);
+    void updateToolTipPixmap(const ModelNode &node, const QPixmap &pixmap);
 
 signals:
-    void toolTipImageUpdated(const QString &id, const QImage &image) const;
+    void toolTipPixmapUpdated(const QString &id, const QPixmap &pixmap) const;
 
 private:
     void moveNodesInteractive(NodeAbstractProperty &parentProperty, const QList<ModelNode> &modelNodes,

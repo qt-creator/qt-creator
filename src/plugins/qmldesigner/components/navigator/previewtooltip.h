@@ -26,7 +26,7 @@
 #pragma once
 
 #include <QtWidgets/qwidget.h>
-#include <QtGui/qimage.h>
+#include <QtGui/qpixmap.h>
 
 namespace QmlDesigner {
 namespace Ui {
@@ -44,7 +44,7 @@ public:
     void setId(const QString &id);
     void setType(const QString &type);
     void setInfo(const QString &info);
-    void setImage(const QImage &image);
+    void setPixmap(const QPixmap &pixmap);
 
     QString id() const;
 
