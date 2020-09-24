@@ -97,8 +97,9 @@ public:
     void addToToolTipLayout(QGridLayout *target) const;
     virtual bool addToolTipContent(QLayout *target) const;
 
-    void setIcon(const QIcon &icon) { m_icon = icon; }
-    const QIcon &icon() const { return m_icon; }
+    void setIcon(const QIcon &icon);
+    void setIconProvider(const std::function<QIcon()> &iconProvider);
+    const QIcon icon() const;
     // call this if the icon has changed.
     void updateMarker();
     Priority priority() const { return m_priority;}
@@ -121,8 +122,9 @@ public:
     QString lineAnnotation() const { return m_lineAnnotation; }
     void setLineAnnotation(const QString &lineAnnotation) { m_lineAnnotation = lineAnnotation; }
 
-    QString toolTip() const { return m_toolTip; }
-    void setToolTip(const QString &toolTip) { m_toolTip = toolTip; }
+    QString toolTip() const;
+    void setToolTip(const QString &toolTip);
+    void setToolTipProvider(const std::function<QString ()> &toolTipProvider);
 
     QVector<QAction *> actions() const;
     void setActions(const QVector<QAction *> &actions); // Takes ownership
@@ -135,12 +137,14 @@ private:
     int m_lineNumber = 0;
     Priority m_priority = LowPriority;
     QIcon m_icon;
+    std::function<QIcon()> m_iconProvider;
     Utils::optional<Utils::Theme::Color> m_color;
     bool m_visible = false;
     Utils::Id m_category;
     double m_widthFactor = 1.0;
     QString m_lineAnnotation;
     QString m_toolTip;
+    std::function<QString()> m_toolTipProvider;
     QString m_defaultToolTip;
     QVector<QAction *> m_actions;
 };
