@@ -1862,6 +1862,7 @@ void BreakpointItem::updateMarkerIcon()
 {
     if (m_marker) {
         m_marker->setIcon(icon());
+        m_marker->setToolTip(toolTip());
         m_marker->updateMarker();
     }
 }
@@ -2288,6 +2289,7 @@ void GlobalBreakpointItem::updateMarkerIcon()
 {
     if (m_marker) {
         m_marker->setIcon(icon());
+        m_marker->setToolTip(toolTip());
         m_marker->updateMarker();
     }
 }
