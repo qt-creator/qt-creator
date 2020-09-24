@@ -1228,7 +1228,11 @@ class DumperBase():
     # This is shared by pointer and array formatting.
     def tryPutSimpleFormattedPointer(self, ptr, typeName, innerType, displayFormat, limit):
         if displayFormat == DisplayFormat.Automatic:
-            if innerType.name in ('char', 'signed char', 'unsigned char', 'CHAR'):
+            targetType = innerType
+            if innerType.code == TypeCode.Typedef:
+                targetType = innerType.ltarget
+
+            if targetType.name in ('char', 'signed char', 'unsigned char', 'CHAR'):
                 # Use UTF-8 as default for char *.
                 self.putType(typeName)
                 (elided, shown, data) = self.readToFirstZero(ptr, 1, limit)
@@ -1237,7 +1241,7 @@ class DumperBase():
                     self.putArrayData(ptr, shown, innerType)
                 return True
 
-            if innerType.name in ('wchar_t', 'WCHAR'):
+            if targetType.name in ('wchar_t', 'WCHAR'):
                 self.putType(typeName)
                 charSize = self.lookupType('wchar_t').size()
                 (elided, data) = self.encodeCArray(ptr, charSize, limit)
@@ -1336,10 +1340,7 @@ class DumperBase():
             return
 
         displayFormat = self.currentItemFormat(value.type.name)
-
         innerType = value.type.target()  # .unqualified()
-        if innerType.code == TypeCode.Typedef:
-            innerType = innerType.ltarget
 
         if innerType.name == 'void':
             #DumperBase.warn('VOID POINTER: %s' % displayFormat)
