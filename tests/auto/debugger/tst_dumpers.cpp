@@ -5944,7 +5944,7 @@ void tst_Dumpers::dumper_data()
                     "struct S\n"
                     "{\n"
                     "    S() : front(13), x(2), y(3), z(39), e(V2), c(1), b(0), f(5),"
-                    "          d(6), i(7) {}\n"
+                    "          g(46), h(47), d(6), i(7) {}\n"
                     "    unsigned int front;\n"
                     "    unsigned int x : 3;\n"
                     "    unsigned int y : 4;\n"
@@ -5953,6 +5953,8 @@ void tst_Dumpers::dumper_data()
                     "    bool c : 1;\n"
                     "    bool b;\n"
                     "    float f;\n"
+                    "    char g : 7;\n"
+                    "    char h;\n"
                     "    double d;\n"
                     "    int i;\n"
                     "} s;",
@@ -5970,11 +5972,29 @@ void tst_Dumpers::dumper_data()
                + Check("s.y", "3", "unsigned int : 4") % NoCdbEngine
                + Check("s.z", "39", "unsigned int : 18") % NoCdbEngine
                + Check("s.e", "V2 (1)", "E : 3") % GdbEngine
+               + Check("s.g", "46", "char : 7") % GdbEngine
+               + Check("s.h", "47", "char") % GdbEngine
                + Check("s.x", "2", "unsigned int") % CdbEngine
                + Check("s.y", "3", "unsigned int") % CdbEngine
                + Check("s.z", "39", "unsigned int") % CdbEngine
                + Check("s.front", "13", "unsigned int")
-               + Check("s.e", "V2 (1)", TypePattern("main::[a-zA-Z0-9_]*::E")) % CdbEngine;
+               + Check("s.e", "V2 (1)", TypePattern("main::[a-zA-Z0-9_]*::E")) % CdbEngine
+
+               // checks for the "Expressions" view, GDB-only for now
+               + Watcher("watch.1", "s;s.b;s.c;s.f;s.d;s.i;s.x;s.y;s.z;s.e;s.g;s.h;s.front")
+               + Check("watch.1.0", "s", "", "S") % GdbEngine
+               + Check("watch.1.1", "s.b", "0", "bool")  % GdbEngine
+               + Check("watch.1.2", "s.c", "1", "bool") % GdbEngine
+               + Check("watch.1.3", "s.f", FloatValue("5"), "float")  % GdbEngine
+               + Check("watch.1.4", "s.d", FloatValue("6"), "double") % GdbEngine
+               + Check("watch.1.5", "s.i", "7", "int") % GdbEngine
+               + Check("watch.1.6", "s.x", "2", "unsigned int") % GdbEngine
+               + Check("watch.1.7", "s.y", "3", "unsigned int") % GdbEngine
+               + Check("watch.1.8", "s.z", "39", "unsigned int") % GdbEngine
+               + Check("watch.1.9", "s.e", "V2 (1)", "E") % GdbEngine
+               + Check("watch.1.10", "s.g", "46", "char") % GdbEngine
+               + Check("watch.1.11", "s.h", "47", "char") % GdbEngine
+               + Check("watch.1.12", "s.front", "13", "unsigned int") % GdbEngine;
 
 
     QTest::newRow("Function")
