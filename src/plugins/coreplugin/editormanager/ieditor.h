@@ -39,7 +39,7 @@ class CORE_EXPORT IEditor : public IContext
     Q_OBJECT
 
 public:
-    IEditor(QObject *parent = nullptr);
+    IEditor();
 
     bool duplicateSupported() const;
     void setDuplicateSupported(bool duplicateSupported);

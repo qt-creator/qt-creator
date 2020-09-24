@@ -103,8 +103,8 @@ namespace Core {
 /*!
     \internal
 */
-IEditor::IEditor(QObject *parent)
-    : IContext(parent), m_duplicateSupported(false)
+IEditor::IEditor()
+    : m_duplicateSupported(false)
 {}
 
 /*!

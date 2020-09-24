@@ -46,7 +46,7 @@ class ImageViewer : public Core::IEditor
     Q_OBJECT
 
 public:
-    explicit ImageViewer(QWidget *parent = nullptr);
+    ImageViewer();
     ~ImageViewer() override;
 
     Core::IDocument *document() const override;
@@ -69,7 +69,7 @@ public:
     void togglePlay();
 
 private:
-    ImageViewer(const QSharedPointer<ImageViewerFile> &document, QWidget *parent = nullptr);
+    ImageViewer(const QSharedPointer<ImageViewerFile> &document);
     void ctor();
     void playToggled();
     void updatePauseAction();

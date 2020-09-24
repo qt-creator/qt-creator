@@ -63,8 +63,7 @@ class ModelEditor :
     class ModelEditorPrivate;
 
 public:
-    explicit ModelEditor(UiController *uiController, ActionHandler *actionHandler,
-                         QWidget *parent = nullptr);
+    ModelEditor(UiController *uiController, ActionHandler *actionHandler);
     ~ModelEditor();
 
     Core::IDocument *document() const override;
@@ -96,7 +95,7 @@ public:
     qmt::MPackage *guessSelectedPackage() const;
 
 private:
-    void init(QWidget *parent);
+    void init();
     void initDocument();
 
     void updateSelectedArea(SelectedArea selectedArea);

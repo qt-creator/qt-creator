@@ -75,17 +75,15 @@ static bool updateButtonIconByTheme(QAbstractButton *button, const QString &name
     return false;
 }
 
-ImageViewer::ImageViewer(QWidget *parent)
-    : IEditor(parent),
-    d(new ImageViewerPrivate)
+ImageViewer::ImageViewer()
+    : d(new ImageViewerPrivate)
 {
     d->file.reset(new ImageViewerFile);
     ctor();
 }
 
-ImageViewer::ImageViewer(const QSharedPointer<ImageViewerFile> &document, QWidget *parent)
-    : IEditor(parent),
-      d(new ImageViewerPrivate)
+ImageViewer::ImageViewer(const QSharedPointer<ImageViewerFile> &document)
+    : d(new ImageViewerPrivate)
 {
     d->file = document;
     ctor();

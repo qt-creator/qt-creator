@@ -141,16 +141,15 @@ public:
     QAction *syncEachOtherAction = nullptr;
 };
 
-ModelEditor::ModelEditor(UiController *uiController, ActionHandler *actionHandler, QWidget *parent)
-    : IEditor(parent),
-      d(new ModelEditorPrivate)
+ModelEditor::ModelEditor(UiController *uiController, ActionHandler *actionHandler)
+    : d(new ModelEditorPrivate)
 {
     setContext(Core::Context(Constants::MODEL_EDITOR_ID));
     d->uiController = uiController;
     d->actionHandler = actionHandler;
     d->document = new ModelDocument(this);
     connect(d->document, &ModelDocument::contentSet, this, &ModelEditor::onContentSet);
-    init(parent);
+    init();
 }
 
 ModelEditor::~ModelEditor()
@@ -206,13 +205,13 @@ bool ModelEditor::restoreState(const QByteArray &state)
     return false;
 }
 
-void ModelEditor::init(QWidget *parent)
+void ModelEditor::init()
 {
     // create and configure properties view
     d->propertiesView = new qmt::PropertiesView(this);
 
     // create and configure editor ui
-    d->rightSplitter = new Core::MiniSplitter(parent);
+    d->rightSplitter = new Core::MiniSplitter;
     connect(d->rightSplitter, &QSplitter::splitterMoved,
             this, &ModelEditor::onRightSplitterMoved);
     connect(d->uiController, &UiController::rightSplitterChanged,
