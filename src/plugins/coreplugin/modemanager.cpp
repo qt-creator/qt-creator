@@ -73,13 +73,13 @@ namespace Core {
 */
 
 /*!
-    \fn void ModeManager::currentModeAboutToChange(Core::Id mode)
+    \fn void ModeManager::currentModeAboutToChange(Utils::Id mode)
 
     Emitted before the current mode changes to \a mode.
 */
 
 /*!
-    \fn void ModeManager::currentModeChanged(Core::Id mode, Core::Id oldMode)
+    \fn void ModeManager::currentModeChanged(Utils::Id mode, Utils::Id oldMode)
 
     Emitted after the current mode changed from \a oldMode to \a mode.
 */
