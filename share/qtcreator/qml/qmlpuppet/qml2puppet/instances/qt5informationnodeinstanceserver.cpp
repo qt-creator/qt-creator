@@ -518,7 +518,12 @@ void Qt5InformationNodeInstanceServer::renderModelNodeImageView()
 void Qt5InformationNodeInstanceServer::doRenderModelNodeImageView()
 {
 
-    ServerNodeInstance instance = instanceForId(m_modelNodePreviewImageCommand.instanceId());
+    ServerNodeInstance instance;
+    if (m_modelNodePreviewImageCommand.renderItemId() >= 0)
+        instance = instanceForId(m_modelNodePreviewImageCommand.renderItemId());
+    else
+        instance = instanceForId(m_modelNodePreviewImageCommand.instanceId());
+
     if (instance.isSubclassOf("QQuick3DObject"))
         doRenderModelNode3DImageView();
     else if (instance.isSubclassOf("QQuickItem"))

@@ -79,6 +79,7 @@
 #include <modelnode.h>
 #include <nodehints.h>
 #include <rewriterview.h>
+#include <qmlitemnode.h>
 
 #ifndef QMLDESIGNER_TEST
 #include <qmldesignerplugin.h>
@@ -1522,20 +1523,28 @@ void NodeInstanceView::view3DAction(const View3DActionCommand &command)
     m_nodeInstanceServer->view3DAction(command);
 }
 
-void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node)
+void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node, const ModelNode &renderNode)
 {
     if (node.isValid()) {
         auto instance = instanceForModelNode(node);
         if (instance.isValid()) {
+            qint32 renderItemId = -1;
             QString componentPath;
-            if (node.isComponent())
+            if (renderNode.isValid()) {
+                auto renderInstance = instanceForModelNode(renderNode);
+                if (renderInstance.isValid())
+                    renderItemId = renderInstance.instanceId();
+                if (renderNode.isComponent())
+                    componentPath = renderNode.metaInfo().componentFileName();
+            } else if (node.isComponent()) {
                 componentPath = node.metaInfo().componentFileName();
+            }
             m_nodeInstanceServer->requestModelNodePreviewImage(
                         RequestModelNodePreviewImageCommand(
                             instance.instanceId(),
                             QSize(Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS,
                                   Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS),
-                            componentPath));
+                            componentPath, renderItemId));
         }
     }
 }
@@ -1562,15 +1571,17 @@ static QHash<QString, QHash<QString, ImageData>> imageDataMap;
 
 static QVariant imageDataToVariant(const ImageData &imageData)
 {
-    if (!imageData.pixmap.isNull()) {
-        QVariantMap map;
-        map.insert("type", imageData.type);
+    static const QPixmap placeHolder(":/navigator/icon/tooltip_placeholder.png");
+
+    QVariantMap map;
+    map.insert("type", imageData.type);
+    if (imageData.pixmap.isNull())
+        map.insert("pixmap", placeHolder);
+    else
         map.insert("pixmap", QVariant::fromValue<QPixmap>(imageData.pixmap));
-        map.insert("id", imageData.id);
-        map.insert("info", imageData.info);
-        return map;
-    }
-    return {};
+    map.insert("id", imageData.id);
+    map.insert("info", imageData.info);
+    return map;
 }
 
 QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNode)
@@ -1583,54 +1594,79 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
 
     VariantProperty prop = modelNode.variantProperty("source");
     QString imageSource = prop.value().toString();
-    QFileInfo imageFi(imageSource);
-    if (imageFi.isRelative())
-        imageSource = QFileInfo(modelNode.model()->fileUrl().toLocalFile()).dir().absoluteFilePath(imageSource);
-
-    imageFi = QFileInfo(imageSource);
-    QDateTime modified = imageFi.lastModified();
 
     ImageData imageData;
-    bool reload = true;
-    if (localDataMap.contains(imageSource)) {
-        imageData = localDataMap[imageSource];
-        if (modified == imageData.time)
-            reload = false;
-    }
+    imageData.id = modelNode.id();
+    imageData.type = QString::fromLatin1(modelNode.type());
 
-    if (reload) {
-        QPixmap originalPixmap;
-        originalPixmap.load(imageSource);
-        if (!originalPixmap.isNull()) {
-            imageData.pixmap = originalPixmap.scaled(Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
-                                                     Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
-                                                     Qt::KeepAspectRatio);
-            imageData.pixmap.setDevicePixelRatio(2.);
-
-            double imgSize = double(imageFi.size());
-            imageData.type = QStringLiteral("%1 (%2)").arg(QString::fromLatin1(modelNode.type())).arg(imageFi.suffix());
-            imageData.id = modelNode.id();
-            static QStringList units({QObject::tr("B"), QObject::tr("KB"), QObject::tr("MB"), QObject::tr("GB")});
-            int unitIndex = 0;
-            while (imgSize > 1024. && unitIndex < units.size() - 1) {
-                ++unitIndex;
-                imgSize /= 1024.;
+    if (imageSource.isEmpty() && modelNode.isSubclassOf("QtQuick3D.Texture")) {
+        // Texture node may have sourceItem instead
+        BindingProperty binding = modelNode.bindingProperty("sourceItem");
+        if (binding.isValid()) {
+            ModelNode boundNode = binding.resolveToModelNode();
+            if (boundNode.isValid()) {
+                // If bound node is a component, fall back to component render mechanism, as
+                // QmlItemNode::instanceRenderPixmap() often includes unnecessary empty space
+                // for those
+                if (boundNode.isComponent()) {
+                    return previewImageDataForGenericNode(modelNode, boundNode);
+                } else {
+                    QmlItemNode itemNode(boundNode);
+                    imageData.pixmap = itemNode.instanceRenderPixmap().scaled(
+                                Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
+                                Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
+                                Qt::KeepAspectRatio);
+                    imageData.pixmap.setDevicePixelRatio(2.);
+                }
+                imageData.info = QObject::tr("Source item: %1").arg(boundNode.id());
             }
-            imageData.info = QStringLiteral("%1 x %2  (%3%4)").arg(originalPixmap.width()).arg(originalPixmap.height())
-                    .arg(QString::number(imgSize, 'g', 3)).arg(units[unitIndex]);
-            localDataMap.insert(imageSource, imageData);
+        }
+    } else {
+        QFileInfo imageFi(imageSource);
+        if (imageFi.isRelative())
+            imageSource = QFileInfo(modelNode.model()->fileUrl().toLocalFile()).dir().absoluteFilePath(imageSource);
+
+        imageFi = QFileInfo(imageSource);
+        QDateTime modified = imageFi.lastModified();
+
+        bool reload = true;
+        if (localDataMap.contains(imageSource)) {
+            imageData = localDataMap[imageSource];
+            if (modified == imageData.time)
+                reload = false;
+        }
+
+        if (reload) {
+            QPixmap originalPixmap;
+            originalPixmap.load(imageSource);
+            if (!originalPixmap.isNull()) {
+                imageData.pixmap = originalPixmap.scaled(Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
+                                                         Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
+                                                         Qt::KeepAspectRatio);
+                imageData.pixmap.setDevicePixelRatio(2.);
+
+                double imgSize = double(imageFi.size());
+                static QStringList units({QObject::tr("B"), QObject::tr("KB"), QObject::tr("MB"), QObject::tr("GB")});
+                int unitIndex = 0;
+                while (imgSize > 1024. && unitIndex < units.size() - 1) {
+                    ++unitIndex;
+                    imgSize /= 1024.;
+                }
+                imageData.info = QStringLiteral("%1 x %2\n%3%4 (%5)").arg(originalPixmap.width()).arg(originalPixmap.height())
+                        .arg(QString::number(imgSize, 'g', 3)).arg(units[unitIndex]).arg(imageFi.suffix());
+                localDataMap.insert(imageSource, imageData);
+            }
         }
     }
 
     return imageDataToVariant(imageData);
 }
 
-QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &modelNode)
+QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &modelNode, const ModelNode &renderNode)
 {
     QFileInfo docFi = QFileInfo(modelNode.model()->fileUrl().toLocalFile());
     QHash<QString, ImageData> &localDataMap = imageDataMap[docFi.absoluteFilePath()];
     ImageData imageData;
-    static const QPixmap placeHolder(":/navigator/icon/tooltip_placeholder.png");
 
     // We need puppet to generate the image, which needs to be asynchronous.
     // Until the image is ready, we show a placeholder
@@ -1640,10 +1676,9 @@ QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &model
     } else {
         imageData.type = QString::fromLatin1(modelNode.type());
         imageData.id = id;
-        imageData.pixmap = placeHolder;
         localDataMap.insert(id, imageData);
     }
-    requestModelNodePreviewImage(modelNode);
+    requestModelNodePreviewImage(modelNode, renderNode);
 
     return imageDataToVariant(imageData);
 }

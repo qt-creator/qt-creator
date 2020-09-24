@@ -1522,7 +1522,7 @@ void removeGroup(const SelectionContext &selectionContext)
 QVariant previewImageDataForGenericNode(const ModelNode &modelNode)
 {
     if (modelNode.isValid())
-        return modelNode.model()->nodeInstanceView()->previewImageDataForGenericNode(modelNode);
+        return modelNode.model()->nodeInstanceView()->previewImageDataForGenericNode(modelNode, {});
     return {};
 }
 

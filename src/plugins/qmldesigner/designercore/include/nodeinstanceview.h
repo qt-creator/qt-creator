@@ -138,12 +138,12 @@ public:
 
     void sendInputEvent(QInputEvent *e) const;
     void view3DAction(const View3DActionCommand &command);
-    void requestModelNodePreviewImage(const ModelNode &node);
+    void requestModelNodePreviewImage(const ModelNode &node, const ModelNode &renderNode);
     void edit3DViewResized(const QSize &size) const;
 
     void handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command) override;
 
-    QVariant previewImageDataForGenericNode(const ModelNode &modelNode);
+    QVariant previewImageDataForGenericNode(const ModelNode &modelNode, const ModelNode &renderNode);
     QVariant previewImageDataForImageNode(const ModelNode &modelNode);
 
 protected:
