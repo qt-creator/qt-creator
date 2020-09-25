@@ -204,9 +204,19 @@ private: // functions
     // puppet to creator command handlers
     void handlePuppetKeyPress(int key, Qt::KeyboardModifiers modifiers);
 
+    struct ModelNodePreviewImageData {
+        QDateTime time;
+        QPixmap pixmap;
+        QString type;
+        QString id;
+        QString info;
+    };
+    QVariant modelNodePreviewImageDataToVariant(const ModelNodePreviewImageData &imageData);
     void updatePreviewImageForNode(const ModelNode &modelNode, const QImage &image);
 
 private:
+    QHash<QString, ModelNodePreviewImageData> m_imageDataMap;
+
     NodeInstance m_rootNodeInstance;
     NodeInstance m_activeStateInstance;
     QHash<ModelNode, NodeInstance> m_nodeInstanceHash;

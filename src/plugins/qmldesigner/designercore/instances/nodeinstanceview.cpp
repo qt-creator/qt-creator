@@ -494,11 +494,12 @@ void NodeInstanceView::fileUrlChanged(const QUrl &/*oldUrl*/, const QUrl &newUrl
     m_nodeInstanceServer->changeFileUrl(createChangeFileUrlCommand(newUrl));
 }
 
-void NodeInstanceView::nodeIdChanged(const ModelNode& node, const QString& /*newId*/, const QString& /*oldId*/)
+void NodeInstanceView::nodeIdChanged(const ModelNode& node, const QString& /*newId*/, const QString &oldId)
 {
     if (hasInstanceForModelNode(node)) {
         NodeInstance instance = instanceForModelNode(node);
         m_nodeInstanceServer->changeIds(createChangeIdsCommand({instance}));
+        m_imageDataMap.remove(oldId);
     }
 }
 
@@ -1560,16 +1561,7 @@ void NodeInstanceView::timerEvent(QTimerEvent *event)
         restartProcess();
 }
 
-struct ImageData {
-    QDateTime time;
-    QPixmap pixmap;
-    QString type;
-    QString id;
-    QString info;
-};
-static QHash<QString, QHash<QString, ImageData>> imageDataMap;
-
-static QVariant imageDataToVariant(const ImageData &imageData)
+QVariant NodeInstanceView::modelNodePreviewImageDataToVariant(const ModelNodePreviewImageData &imageData)
 {
     static const QPixmap placeHolder(":/navigator/icon/tooltip_placeholder.png");
 
@@ -1589,13 +1581,10 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
     if (!modelNode.isValid())
         return {};
 
-    // Images on file system can be cached globally as they are found by absolute paths
-    QHash<QString, ImageData> &localDataMap = imageDataMap[{}];
-
     VariantProperty prop = modelNode.variantProperty("source");
     QString imageSource = prop.value().toString();
 
-    ImageData imageData;
+    ModelNodePreviewImageData imageData;
     imageData.id = modelNode.id();
     imageData.type = QString::fromLatin1(modelNode.type());
 
@@ -1630,8 +1619,8 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
         QDateTime modified = imageFi.lastModified();
 
         bool reload = true;
-        if (localDataMap.contains(imageSource)) {
-            imageData = localDataMap[imageSource];
+        if (m_imageDataMap.contains(imageData.id)) {
+            imageData = m_imageDataMap[imageData.id];
             if (modified == imageData.time)
                 reload = false;
         }
@@ -1654,45 +1643,38 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
                 }
                 imageData.info = QStringLiteral("%1 x %2\n%3%4 (%5)").arg(originalPixmap.width()).arg(originalPixmap.height())
                         .arg(QString::number(imgSize, 'g', 3)).arg(units[unitIndex]).arg(imageFi.suffix());
-                localDataMap.insert(imageSource, imageData);
+                m_imageDataMap.insert(imageData.id, imageData);
             }
         }
     }
 
-    return imageDataToVariant(imageData);
+    return modelNodePreviewImageDataToVariant(imageData);
 }
 
 QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &modelNode, const ModelNode &renderNode)
 {
-    QFileInfo docFi = QFileInfo(modelNode.model()->fileUrl().toLocalFile());
-    QHash<QString, ImageData> &localDataMap = imageDataMap[docFi.absoluteFilePath()];
-    ImageData imageData;
+    ModelNodePreviewImageData imageData;
 
     // We need puppet to generate the image, which needs to be asynchronous.
     // Until the image is ready, we show a placeholder
     const QString id = modelNode.id();
-    if (localDataMap.contains(id)) {
-        imageData = localDataMap[id];
+    if (m_imageDataMap.contains(id)) {
+        imageData = m_imageDataMap[id];
     } else {
         imageData.type = QString::fromLatin1(modelNode.type());
         imageData.id = id;
-        localDataMap.insert(id, imageData);
+        m_imageDataMap.insert(id, imageData);
     }
     requestModelNodePreviewImage(modelNode, renderNode);
 
-    return imageDataToVariant(imageData);
+    return modelNodePreviewImageDataToVariant(imageData);
 }
 
 void NodeInstanceView::updatePreviewImageForNode(const ModelNode &modelNode, const QImage &image)
 {
-    QFileInfo docFi = QFileInfo(modelNode.model()->fileUrl().toLocalFile());
-    QString docPath = docFi.absoluteFilePath();
     QPixmap pixmap = QPixmap::fromImage(image);
-    if (imageDataMap.contains(docPath)) {
-        QHash<QString, ImageData> &localDataMap = imageDataMap[docPath];
-        if (localDataMap.contains(modelNode.id()))
-            localDataMap[modelNode.id()].pixmap = pixmap;
-    }
+    if (m_imageDataMap.contains(modelNode.id()))
+        m_imageDataMap[modelNode.id()].pixmap = pixmap;
     emitModelNodelPreviewPixmapChanged(modelNode, pixmap);
 }
 
