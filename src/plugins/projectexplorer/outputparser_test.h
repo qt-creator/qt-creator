@@ -79,7 +79,7 @@ class TestTerminator : public OutputTaskParser
     Q_OBJECT
 
 public:
-    TestTerminator(OutputParserTester *t);
+    explicit TestTerminator(OutputParserTester *t);
 
 private:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;

@@ -111,7 +111,12 @@ void OutputParserTester::reset()
 
 TestTerminator::TestTerminator(OutputParserTester *t) :
     m_tester(t)
-{ }
+{
+    if (!t->lineParsers().isEmpty()) {
+        for (const Utils::FilePath &searchDir : t->lineParsers().first()->searchDirectories())
+            addSearchDir(searchDir);
+    }
+}
 
 Utils::OutputLineParser::Result TestTerminator::handleLine(const QString &line, Utils::OutputFormat type)
 {
