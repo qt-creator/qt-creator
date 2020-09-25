@@ -3727,7 +3727,9 @@ void tst_Dumpers::dumper_data()
             << Data("#include <QByteArray>\n"
                     "#include <QString>\n"
                     "#include <QStringList>\n"
-                    "#include <QStringRef>\n",
+                    "#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)\n"
+                    "#include <QStringRef>\n"
+                    "#endif\n",
 
                     "QByteArray s0 = \"Hello\";\n"
                     "s0.prepend(\"Prefix: \");\n"
@@ -3748,16 +3750,21 @@ void tst_Dumpers::dumper_data()
                     "QString s5(\"String Test\");\n"
                     "QString *s6 = new QString(\"Pointer String Test\");\n"
 
+                    "QString str = \"Hello\";\n"
+
                     "const wchar_t *w = L\"aöa\";\n"
+                    "#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)\n"
                     "QString s7;\n"
                     "if (sizeof(wchar_t) == 4)\n"
                     "    s7 = QString::fromUcs4((uint *)w);\n"
                     "else\n"
                     "    s7 = QString::fromUtf16((ushort *)w);\n"
 
-                    "QString str = \"Hello\";\n"
                     "QStringRef s8(&str, 1, 2);\n"
                     "QStringRef s9;\n"
+                    "#else\n"
+                    "QString s7, s8, s9;\n"
+                    "#endif\n"
 
                     "QStringList l;\n"
                     "l << \"Hello \";\n"
@@ -3770,7 +3777,7 @@ void tst_Dumpers::dumper_data()
                     "QString str3(\"Hello\\rQt\");\n"
                     "QString str4(\"Hello\\tQt\");\n\n"
 
-                    "#if QT_VERSION > 0x50000\n"
+                    "#if QT_VERSION > 0x50000 && QT_VERSION < 0x60000\n"
                     "static const QStaticStringData<3> qstring_literal = {\n"
                     "    Q_STATIC_STRING_DATA_HEADER_INITIALIZER(3),\n"
                     "    QT_UNICODE_LITERAL(u\"ABC\") };\n"
@@ -3799,11 +3806,11 @@ void tst_Dumpers::dumper_data()
                + Check("s5", "\"String Test\"", "@QString")
                + Check("s6", "\"Pointer String Test\"", "@QString")
 
-               + Check("s7", QString::fromLatin1("\"a%1a\"").arg(oUmlaut), "@QString")
+               + Check("s7", QString::fromLatin1("\"a%1a\"").arg(oUmlaut), "@QString") % Qt5
                + CheckType("w", "w", "wchar_t *")
 
-               + Check("s8", "\"el\"", "@QStringRef")
-               + Check("s9", "(null)", "@QStringRef")
+               + Check("s8", "\"el\"", "@QStringRef") % Qt5
+               + Check("s9", "(null)", "@QStringRef") % Qt5
 
                + Check("l", "<2 items>", "@QStringList")
                + Check("l.0", "[0]", "\" big, \"", "@QString")
