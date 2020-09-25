@@ -324,7 +324,7 @@ private:
     {
         QTextCursor tc = m_editor->textCursor();
         m_currentPos = tc.position();
-        m_lineSpacing = m_editor->cursorRect(tc).height();
+        m_lineSpacing = m_editor->document()->documentLayout()->blockBoundingRect(tc.block()).height();
         setFont(m_editor->extraArea()->font());
 
         // Follow geometry of normal line numbers if visible,

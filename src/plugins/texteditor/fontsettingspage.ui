@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>639</width>
+    <width>752</width>
     <height>306</height>
    </rect>
   </property>
@@ -17,40 +17,23 @@
       <string>Font</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="4">
-       <widget class="QLabel" name="sizeLabel">
+      <item row="0" column="5">
+       <widget class="QComboBox" name="sizeComboBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
+          <horstretch>1</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="text">
-         <string>Size:</string>
+        <property name="editable">
+         <bool>true</bool>
         </property>
        </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QFontComboBox" name="fontComboBox"/>
       </item>
       <item row="0" column="7">
-       <widget class="QLabel" name="zoomLabel">
-        <property name="text">
-         <string>Zoom:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="familyLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Family:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="6">
        <spacer>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -66,7 +49,7 @@
         </property>
        </spacer>
       </item>
-      <item row="0" column="9">
+      <item row="0" column="14">
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -79,10 +62,49 @@
         </property>
        </spacer>
       </item>
+      <item row="0" column="4">
+       <widget class="QLabel" name="sizeLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Size:</string>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="0" colspan="3">
        <widget class="QCheckBox" name="antialias">
         <property name="text">
          <string>Antialias</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="9">
+       <widget class="QSpinBox" name="zoomSpinBox">
+        <property name="suffix">
+         <string>%</string>
+        </property>
+        <property name="minimum">
+         <number>10</number>
+        </property>
+        <property name="maximum">
+         <number>3000</number>
+        </property>
+        <property name="singleStep">
+         <number>10</number>
+        </property>
+        <property name="value">
+         <number>100</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="8">
+       <widget class="QLabel" name="zoomLabel">
+        <property name="text">
+         <string>Zoom:</string>
         </property>
        </widget>
       </item>
@@ -102,40 +124,60 @@
         </property>
        </spacer>
       </item>
-      <item row="0" column="8">
-       <widget class="QSpinBox" name="zoomSpinBox">
+      <item row="0" column="12">
+       <widget class="QSpinBox" name="lineSpacingSpinBox">
         <property name="suffix">
          <string>%</string>
         </property>
         <property name="minimum">
-         <number>10</number>
+         <number>50</number>
         </property>
         <property name="maximum">
          <number>3000</number>
-        </property>
-        <property name="singleStep">
-         <number>10</number>
         </property>
         <property name="value">
          <number>100</number>
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QFontComboBox" name="fontComboBox"/>
-      </item>
-      <item row="0" column="5">
-       <widget class="QComboBox" name="sizeComboBox">
+      <item row="0" column="0">
+       <widget class="QLabel" name="familyLabel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>1</horstretch>
+          <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="editable">
-         <bool>true</bool>
+        <property name="text">
+         <string>Family:</string>
         </property>
        </widget>
+      </item>
+      <item row="0" column="11">
+       <widget class="QLabel" name="lineSpacingLabel">
+        <property name="text">
+         <string>Line spacing:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="10">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Preferred</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="13">
+       <widget class="QLabel" name="lineSpacingWarningLabel"/>
       </item>
      </layout>
     </widget>
@@ -200,6 +242,7 @@
   <tabstop>fontComboBox</tabstop>
   <tabstop>sizeComboBox</tabstop>
   <tabstop>zoomSpinBox</tabstop>
+  <tabstop>lineSpacingSpinBox</tabstop>
   <tabstop>antialias</tabstop>
   <tabstop>schemeComboBox</tabstop>
   <tabstop>copyButton</tabstop>

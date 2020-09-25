@@ -24,8 +24,13 @@
 ****************************************************************************/
 
 #include "textdocumentlayout.h"
+
+#include "fontsettings.h"
 #include "textdocument.h"
+#include "texteditorsettings.h"
+
 #include <utils/qtcassert.h>
+
 #include <QDebug>
 
 namespace TextEditor {
@@ -625,6 +630,9 @@ void TextDocumentLayout::updateMarksBlock(const QTextBlock &block)
 QRectF TextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
 {
     QRectF boundingRect = QPlainTextDocumentLayout::blockBoundingRect(block);
+    if (boundingRect.isNull())
+        return boundingRect;
+    boundingRect.setHeight(TextEditorSettings::fontSettings().lineSpacing());
     if (TextBlockUserData *userData = textUserData(block))
         boundingRect.adjust(0, 0, 0, userData->additionalAnnotationHeight());
     return boundingRect;

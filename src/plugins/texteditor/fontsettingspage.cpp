@@ -31,9 +31,9 @@
 
 #include <coreplugin/icore.h>
 #include <utils/fileutils.h>
-#include <utils/stringutils.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
+#include <utils/utilsicons.h>
 
 #include <QFileDialog>
 #include <QFontDatabase>
@@ -128,6 +128,11 @@ public:
 
         m_ui.antialias->setChecked(m_value.antialias());
         m_ui.zoomSpinBox->setValue(m_value.fontZoom());
+        m_ui.lineSpacingSpinBox->setValue(m_value.relativeLineSpacing());
+        m_ui.lineSpacingWarningLabel->setPixmap(Utils::Icons::WARNING.pixmap());
+        m_ui.lineSpacingWarningLabel->setToolTip(tr("A line spacing less than 100% can result in "
+                                                    "overlapping and misaligned graphics."));
+        m_ui.lineSpacingWarningLabel->setVisible(m_value.relativeLineSpacing() < 100);
 
         m_ui.schemeEdit->setFormatDescriptions(fd);
         m_ui.schemeEdit->setBaseFont(m_value.font());
@@ -143,6 +148,8 @@ public:
                 this, &FontSettingsPageWidget::fontSizeSelected);
         connect(m_ui.zoomSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
                 this, &FontSettingsPageWidget::fontZoomChanged);
+        connect(m_ui.lineSpacingSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
+                this, &FontSettingsPageWidget::lineSpacingChanged);
         connect(m_ui.antialias, &QCheckBox::toggled,
                 this, &FontSettingsPageWidget::antialiasChanged);
         connect(m_ui.schemeComboBox,
@@ -166,6 +173,7 @@ public:
     void fontSelected(const QFont &font);
     void fontSizeSelected(int index);
     void fontZoomChanged();
+    void lineSpacingChanged(const int &value);
     void antialiasChanged();
     void colorSchemeSelected(int index);
     void openCopyColorSchemeDialog();
@@ -415,6 +423,12 @@ void FontSettingsPageWidget::fontSizeSelected(int index)
 void FontSettingsPageWidget::fontZoomChanged()
 {
     m_value.setFontZoom(m_ui.zoomSpinBox->value());
+}
+
+void FontSettingsPageWidget::lineSpacingChanged(const int &value)
+{
+    m_value.setRelativeLineSpacing(value);
+    m_ui.lineSpacingWarningLabel->setVisible(value < 100);
 }
 
 void FontSettingsPageWidget::antialiasChanged()
