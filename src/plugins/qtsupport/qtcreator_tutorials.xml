@@ -195,5 +195,9 @@
       <description><![CDATA[Building your first application for the NXP IMXRT1050 device.]]></description>
       <tags>qtformcus,mcus,qt,video,NXP IMXRT1050-EVKB,2020</tags>
     </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/videotutorialicon.png" difficulty="" projectPath="" name="Online: Creating dynamic UIs for a 'Qt for MCUs' application using Qt Design Studio and Photoshop" isVideo="true" videoUrl="https://youtu.be/USrLl6tRc00" videoLength="1:00:19">
+      <description><![CDATA[A step-by-step walkthrough showcasing how to create dynamic UIs using Qt Design Studio and Photoshop on MCUs.]]></description>
+      <tags>qtformcus,mcus,qt,video,2020</tags>
+    </tutorial>
     </tutorials>
 </instructionals>
