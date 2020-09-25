@@ -153,13 +153,8 @@ void ProjectTree::nodeChanged(ProjectTreeWidget *widget)
 void ProjectTree::update()
 {
     ProjectTreeWidget *focus = m_focusForContextMenu;
-    static QPointer<ProjectTreeWidget> lastFocusedProjectTreeWidget;
-    if (!focus) {
-        focus = currentWidget();
-        lastFocusedProjectTreeWidget = focus;
-    }
     if (!focus)
-        focus = lastFocusedProjectTreeWidget;
+        focus = currentWidget();
 
     if (focus)
         updateFromProjectTreeWidget(focus);
