@@ -31,24 +31,23 @@
 #include "projectexplorericons.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/coreicons.h>
 
-#include <utils/qtcassert.h>
 #include <utils/detailswidget.h>
 #include <utils/hostosinfo.h>
-#include <utils/theme/theme.h>
+#include <utils/qtcassert.h>
 
-#include <QLabel>
-#include <QPushButton>
-#include <QMenu>
-#include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QToolButton>
+#include <QLabel>
+#include <QMenu>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QToolButton>
+#include <QVBoxLayout>
 
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
 using namespace Utils;
+
+namespace ProjectExplorer {
+namespace Internal {
 
 ToolWidget::ToolWidget(QWidget *parent) : FadingPanel(parent)
 {
@@ -394,3 +393,6 @@ void BuildStepListWidget::updateBuildStepButtonsState()
         s->toolWidget->setUpVisible(m_buildStepList->count() != 1);
     }
 }
+
+} // Internal
+} // ProjectExplorer

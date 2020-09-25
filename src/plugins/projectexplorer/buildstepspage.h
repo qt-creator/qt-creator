@@ -34,16 +34,11 @@ class QPushButton;
 class QToolButton;
 class QLabel;
 class QVBoxLayout;
-class QGraphicsOpacityEffect;
 QT_END_NAMESPACE
 
 namespace Utils { class DetailsWidget; }
 
 namespace ProjectExplorer {
-
-class Target;
-class BuildConfiguration;
-
 namespace Internal {
 
 class ToolWidget : public Utils::FadingPanel
