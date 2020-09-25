@@ -2033,13 +2033,18 @@ def qform__QVector():
 def qdump__QVector(d, value):
     if d.qtVersion() >= 0x060000:
         dd, data, size = value.split('ppi')
-        _, _, alloc = d.split('iii', dd)
+        d.putItemCount(size)
+        d.putPlotData(data, size, value.type.ltarget[0])
+        # g++ 9.3 does not add the template parameter list to the debug info.
+        # Fake it for the common case:
+        if value.type.name == d.qtNamespace() + "QVector":
+            d.putBetterType(value.type.name + '<' + value.type.ltarget[0].name + '>')
     else:
         dd = d.extractPointer(value)
         data, size, alloc = d.vectorDataHelper(dd)
-    d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
-    d.putItemCount(size)
-    d.putPlotData(data, size, value.type[0])
+        d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
+        d.putItemCount(size)
+        d.putPlotData(data, size, value.type[0])
 
 
 if False:
