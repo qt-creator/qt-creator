@@ -119,6 +119,8 @@ void CurveItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidg
             } else {
                 if (locked())
                     pen.setColor(m_style.lockedColor);
+                else if (!segment.isLegal())
+                    pen.setColor(m_style.errorColor);
                 else if (isUnderMouse())
                     pen.setColor(m_style.hoverColor);
                 else if (hasSelectedKeyframe())
@@ -176,6 +178,36 @@ bool CurveItem::hasSelectedKeyframe() const
 bool CurveItem::hasEditableSegment(double time) const
 {
     return curve().segment(time).interpolation() != Keyframe::Interpolation::Easing;
+}
+
+bool CurveItem::isFirst(const KeyframeItem *key) const
+{
+    if (m_keyframes.empty())
+        return false;
+
+    return m_keyframes.first() == key;
+}
+
+bool CurveItem::isLast(const KeyframeItem *key) const
+{
+    if (m_keyframes.empty())
+        return false;
+
+    return m_keyframes.last() == key;
+}
+
+int CurveItem::indexOf(const KeyframeItem *key) const
+{
+    if (m_keyframes.empty())
+        return -1;
+
+    int out = 0;
+    for (auto &&el : m_keyframes) {
+        if (el == key)
+            return out;
+        out++;
+    }
+    return -1;
 }
 
 unsigned int CurveItem::id() const
@@ -281,6 +313,22 @@ QVector<HandleItem *> CurveItem::handles() const
             out.push_back(right);
     }
     return out;
+}
+
+CurveSegment CurveItem::segment(const KeyframeItem *keyframe, HandleItem::Slot slot) const
+{
+    auto finder = [keyframe](KeyframeItem *item) { return item == keyframe; };
+    auto iter = std::find_if(m_keyframes.begin(), m_keyframes.end(), finder);
+    if (iter == m_keyframes.end())
+        return CurveSegment();
+
+    int index = static_cast<int>(std::distance(m_keyframes.begin(), iter));
+    if (slot == HandleItem::Slot::Left && index > 0)
+        return CurveSegment(m_keyframes[index - 1]->keyframe(), keyframe->keyframe());
+    else if (slot == HandleItem::Slot::Right && index < (m_keyframes.size() - 1))
+        return CurveSegment(keyframe->keyframe(), m_keyframes[index + 1]->keyframe());
+
+    return CurveSegment();
 }
 
 void CurveItem::restore()

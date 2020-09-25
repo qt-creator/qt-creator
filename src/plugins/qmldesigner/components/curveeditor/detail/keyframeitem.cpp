@@ -35,15 +35,22 @@ namespace DesignTools {
 
 KeyframeItem::KeyframeItem(QGraphicsItem *parent)
     : SelectableItem(parent)
+    , m_transform()
+    , m_style()
     , m_frame()
+    , m_left(nullptr)
+    , m_right(nullptr)
+    , m_validPos()
 {}
 
 KeyframeItem::KeyframeItem(const Keyframe &keyframe, QGraphicsItem *parent)
     : SelectableItem(parent)
     , m_transform()
+    , m_style()
     , m_frame()
     , m_left(nullptr)
     , m_right(nullptr)
+    , m_validPos()
 {
     setKeyframe(keyframe);
 }
@@ -135,6 +142,14 @@ HandleItem *KeyframeItem::leftHandle() const
 HandleItem *KeyframeItem::rightHandle() const
 {
     return m_right;
+}
+
+CurveSegment KeyframeItem::segment(HandleItem::Slot slot) const
+{
+    if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(parentItem()))
+        return curveItem->segment(this, slot);
+
+    return CurveSegment();
 }
 
 QTransform KeyframeItem::transform() const
@@ -364,19 +379,51 @@ void KeyframeItem::updateHandle(HandleItem *handle, bool emitChanged)
 QVariant KeyframeItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
     if (change == ItemPositionChange) {
+        if (!scene())
+            return QGraphicsItem::itemChange(change, value);
+
+        CurveItem *curveItem = qgraphicsitem_cast<CurveItem *>(parentItem());
+        if (!curveItem)
+            return QGraphicsItem::itemChange(change, value);
+
+        CurveSegment lseg = segment(HandleItem::Slot::Left);
+        CurveSegment rseg = segment(HandleItem::Slot::Right);
+
+        auto legalLeft = [this, curveItem, &lseg]() {
+            if (curveItem->isFirst(this))
+                return true;
+            else
+                return lseg.isLegal();
+        };
+
+        auto legalRight = [this, curveItem, &rseg]() {
+            if (curveItem->isLast(this))
+                return true;
+            else
+                return rseg.isLegal();
+        };
+
         bool ok;
         QPointF position = m_transform.inverted(&ok).map(value.toPointF());
         if (ok) {
             position.setX(std::round(position.x()));
 
-            if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(parentItem())) {
-                if (curveItem->valueType() == ValueType::Integer)
-                    position.setY(std::round(position.y()));
-                else if (curveItem->valueType() == ValueType::Bool)
-                    position.setY(position.y() > 0.5 ? 1.0 : 0.0);
-            }
+            if (curveItem->valueType() == ValueType::Integer)
+                position.setY(std::round(position.y()));
+            else if (curveItem->valueType() == ValueType::Bool)
+                position.setY(position.y() > 0.5 ? 1.0 : 0.0);
 
-            return QVariant(m_transform.map(position));
+            if (!legalLeft() || !legalRight()) {
+                return QVariant(m_transform.map(position));
+            } else {
+                lseg.moveRightTo(position);
+                rseg.moveLeftTo(position);
+
+                if (legalLeft() && legalRight())
+                    m_validPos = position;
+
+                return QVariant(m_transform.map(m_validPos));
+            }
         }
     }
 

@@ -47,6 +47,8 @@ public:
 
     bool isValid() const;
 
+    bool isLegal() const;
+
     bool containsX(double x) const;
 
     Keyframe left() const;
@@ -82,6 +84,10 @@ public:
     void setLeft(const Keyframe &frame);
 
     void setRight(const Keyframe &frame);
+
+    void moveLeftTo(const QPointF &pos);
+
+    void moveRightTo(const QPointF &pos);
 
     void setInterpolation(const Keyframe::Interpolation &interpol);
 

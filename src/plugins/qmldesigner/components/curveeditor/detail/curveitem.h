@@ -81,6 +81,12 @@ public:
 
     bool hasEditableSegment(double time) const;
 
+    bool isFirst(const KeyframeItem *key) const;
+
+    bool isLast(const KeyframeItem *key) const;
+
+    int indexOf(const KeyframeItem *key) const;
+
     unsigned int id() const;
 
     ValueType valueType() const;
@@ -98,6 +104,8 @@ public:
     QVector<KeyframeItem *> selectedKeyframes() const;
 
     QVector<HandleItem *> handles() const;
+
+    CurveSegment segment(const KeyframeItem *keyframe, HandleItem::Slot slot) const;
 
     void restore();
 

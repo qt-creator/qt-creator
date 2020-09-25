@@ -31,6 +31,7 @@
 namespace DesignTools {
 
 class KeyframeItem;
+class CurveSegment;
 
 class HandleItem : public SelectableItem
 {
@@ -57,6 +58,8 @@ public:
 
     bool keyframeSelected() const;
 
+    CurveSegment segment() const;
+
     KeyframeItem *keyframe() const;
 
     Slot slot() const;
@@ -70,6 +73,8 @@ private:
     Slot m_slot;
 
     HandleItemStyleOption m_style;
+
+    QPointF m_validPos;
 };
 
 } // End namespace DesignTools.

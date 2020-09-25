@@ -78,6 +78,8 @@ public:
 
     HandleItem *rightHandle() const;
 
+    CurveSegment segment(HandleItem::Slot slot) const;
+
     QTransform transform() const;
 
     void setHandleVisibility(bool visible);
@@ -126,6 +128,8 @@ private:
     HandleItem *m_left;
 
     HandleItem *m_right;
+
+    QPointF m_validPos;
 
     bool m_visibleOverride = true;
 };

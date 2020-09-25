@@ -71,6 +71,7 @@ struct CurveItemStyleOption
 {
     double width = 1.0;
     QColor color = QColor(0, 200, 0);
+    QColor errorColor = QColor(200, 0, 0);
     QColor selectionColor = QColor(200, 200, 200);
     QColor easingCurveColor = QColor(200, 0, 200);
     QColor lockedColor = QColor(50, 50, 50);
