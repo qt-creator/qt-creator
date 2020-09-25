@@ -630,6 +630,7 @@ struct CheckType : public Check
 
 const QtVersion Qt4 = QtVersion(0, 0x4ffff);
 const QtVersion Qt5 = QtVersion(0x50000, 0x5ffff);
+const QtVersion Qt6 = QtVersion(0x60000, 0x6ffff);
 
 struct Check4 : Check
 {
@@ -654,6 +655,17 @@ struct Check5 : Check
 
 };
 
+struct Check6 : Check
+{
+    Check6(const QByteArray &iname, const Value &value, const Type &type)
+        : Check(QString::fromUtf8(iname), value, type)
+    { qtVersionForCheck = Qt6; }
+
+    Check6(const QByteArray &iname, const Name &name, const Value &value, const Type &type)
+        : Check(QString::fromUtf8(iname), name, value, type)
+    { qtVersionForCheck = Qt6; }
+
+};
 struct Profile
 {
     Profile(const QByteArray &contents) : contents(contents) {}
@@ -2631,9 +2643,11 @@ void tst_Dumpers::dumper_data()
                + Check("l7.0", "[0]", "101", "unsigned int")
                + Check("l7.2", "[2]", "102", "unsigned int")
 
-               + Check("l8", "<2 items>", "@QList<@QStringList>")
+               + Check5("l8", "<2 items>", "@QList<@QStringList>")
+               + Check6("l8", "<2 items>", "@QList<@QList<@QString>>")
                + Check("sl", "<1 items>", "@QStringList")
-               + Check("l8.1", "[1]", "<1 items>", "@QStringList")
+               + Check5("l8.1", "[1]", "<1 items>", "@QStringList")
+               + Check6("l8.1", "[1]", "<1 items>", "@QList<@QString>")
                + Check("l8.1.0", "[0]", "\"aaa\"", "@QString")
 
                + Check("l9", "<3 items>", "@QList<unsigned short>")
