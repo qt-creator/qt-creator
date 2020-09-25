@@ -1194,6 +1194,7 @@ void BreakHandler::requestBreakpointRemoval(const Breakpoint &bp)
 void BreakHandler::requestBreakpointEnabling(const Breakpoint &bp, bool enabled)
 {
     if (bp->m_parameters.enabled != enabled) {
+        bp->m_parameters.enabled = enabled;
         bp->update();
         requestBreakpointUpdate(bp);
     }
