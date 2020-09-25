@@ -125,13 +125,23 @@ Highlighter::Definitions Highlighter::definitionsForDocument(const TextDocument 
     // If we check the MIME type first and then skip the pattern, the definition for "*.rb.xml" is
     // never considered.
     // The KSyntaxHighlighting CLI also completely ignores MIME types.
-    const Definitions &fileNameDefinitions = definitionsForFileName(document->filePath());
-    if (!fileNameDefinitions.isEmpty())
-        return fileNameDefinitions;
-    const Utils::MimeType &mimeType = Utils::mimeTypeForName(document->mimeType());
-    if (!mimeType.isValid())
-        return fileNameDefinitions;
-    return definitionsForMimeType(mimeType.name());
+    const Utils::FilePath &filePath = document->filePath();
+    Definitions definitions = definitionsForFileName(filePath);
+    if (definitions.isEmpty()) {
+        // check for *.in filename since those are usually used for
+        // cmake configure_file input filenames without the .in extension
+        if (filePath.endsWith(".in")) {
+            definitions = definitionsForFileName(
+                Utils::FilePath::fromString(filePath.toFileInfo().completeBaseName()));
+        }
+    }
+    if (definitions.isEmpty()) {
+        const Utils::MimeType &mimeType = Utils::mimeTypeForName(document->mimeType());
+        if (mimeType.isValid())
+            definitions = definitionsForMimeType(mimeType.name());
+    }
+
+    return definitions;
 }
 
 static Highlighter::Definition definitionForSetting(const QString &settingsKey,
