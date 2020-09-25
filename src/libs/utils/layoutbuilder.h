@@ -50,7 +50,7 @@ public:
 
     ~LayoutBuilder();
 
-    class LayoutItem
+    class QTCREATOR_UTILS_EXPORT LayoutItem
     {
     public:
         LayoutItem();
