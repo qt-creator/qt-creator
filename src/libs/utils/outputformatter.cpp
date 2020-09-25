@@ -288,12 +288,6 @@ void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
 {
     QTextCharFormat charFmt = charFormat(format);
 
-    // This might cause insertion of a newline character.
-    if (text.isEmpty()) {
-        append(text, charFmt);
-        return;
-    }
-
     QList<FormattedText> formattedText = parseAnsi(text, charFmt);
     const QString cleanLine = std::accumulate(formattedText.begin(), formattedText.end(), QString(),
             [](const FormattedText &t1, const FormattedText &t2) { return t1.text + t2.text; });
@@ -315,8 +309,13 @@ void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
         append(res.newContent.value(), charFmt);
         return;
     }
-    for (const FormattedText &output : linkifiedText(formattedText, res.linkSpecs))
+
+    const QList<FormattedText> linkified = linkifiedText(formattedText, res.linkSpecs);
+    for (const FormattedText &output : linkified)
         append(output.text, output.format);
+    if (linkified.isEmpty())
+        append({}, charFmt); // This might cause insertion of a newline character.
+
     for (OutputLineParser * const p : qAsConst(involvedParsers)) {
         if (d->postPrintAction)
             d->postPrintAction(p);
