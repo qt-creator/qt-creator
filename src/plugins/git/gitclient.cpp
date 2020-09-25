@@ -3714,9 +3714,10 @@ QString GitClient::suggestedLocalBranchName(
     return suggestedName;
 }
 
-void GitClient::addChangeActions(QMenu *menu, const QString &workingDir, const QString &change)
+void GitClient::addChangeActions(QMenu *menu, const QString &source, const QString &change)
 {
     QTC_ASSERT(!change.isEmpty(), return);
+    const QString &workingDir = fileWorkingDirectory(source);
     menu->addAction(tr("Cherr&y-Pick Change %1").arg(change), [workingDir, change] {
         m_instance->synchronousCherryPick(workingDir, change);
     });
@@ -3733,6 +3734,13 @@ void GitClient::addChangeActions(QMenu *menu, const QString &workingDir, const Q
     QAction *logAction = menu->addAction(tr("&Log for Change %1").arg(change), [workingDir, change] {
         m_instance->log(workingDir, QString(), false, {change});
     });
+    const FilePath filePath = FilePath::fromString(source);
+    if (!filePath.isDir()) {
+        menu->addAction(tr("Sh&ow file \"%1\" on revision %2").arg(filePath.fileName()).arg(change),
+                        [workingDir, change, source] {
+            m_instance->openShowEditor(workingDir, change, source);
+        });
+    }
     if (change.contains(".."))
         menu->setDefaultAction(logAction);
     menu->addAction(tr("Add &Tag for Change %1...").arg(change), [workingDir, change] {
@@ -3779,6 +3787,45 @@ void GitClient::addChangeActions(QMenu *menu, const QString &workingDir, const Q
     menu->addAction(tr("&Save for Diff"), [change] {
         m_instance->m_diffCommit = change;
     });
+}
+
+QString GitClient::fileWorkingDirectory(const QString &file)
+{
+    Utils::FilePath path = Utils::FilePath::fromString(file);
+    if (!path.isEmpty() && !path.isDir())
+        path = path.parentDir();
+    while (!path.isEmpty() && !path.exists())
+        path = path.parentDir();
+    return path.toString();
+}
+
+IEditor *GitClient::openShowEditor(const QString &workingDirectory, const QString &ref,
+                                   const QString &path, ShowEditor showSetting)
+{
+    QString topLevel;
+    VcsManager::findVersionControlForDirectory(workingDirectory, &topLevel);
+    const QString relativePath = QDir(topLevel).relativeFilePath(path);
+    const QByteArray content = synchronousShow(topLevel, ref + ":" + relativePath);
+    if (showSetting == ShowEditor::OnlyIfDifferent) {
+        if (content.isEmpty())
+            return nullptr;
+        QByteArray fileContent;
+        if (TextFileFormat::readFileUTF8(path, nullptr, &fileContent, nullptr)
+                == TextFileFormat::ReadSuccess) {
+            if (fileContent == content)
+                return nullptr; // open the file for read/write
+        }
+    }
+
+    const QString documentId = QLatin1String(Git::Constants::GIT_PLUGIN)
+            + QLatin1String(".GitShow.") + topLevel
+            + QLatin1String(".") + relativePath;
+    QString title = tr("Git Show %1:%2").arg(ref).arg(relativePath);
+    IEditor *editor = EditorManager::openEditorWithContents(Id(), &title, content, documentId,
+                                                            EditorManager::DoNotSwitchToDesignMode);
+    editor->document()->setTemporary(true);
+    VcsBase::setSource(editor->document(), path);
+    return editor;
 }
 
 } // namespace Internal

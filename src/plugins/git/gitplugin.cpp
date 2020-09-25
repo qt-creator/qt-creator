@@ -1220,7 +1220,13 @@ void GitPluginPrivate::startChangeRelatedAction(const Id &id)
         return;
 
     if (dialog.command() == Show) {
-        m_gitClient.show(workingDirectory, change);
+        const int colon = change.indexOf(':');
+        if (colon > 0) {
+            const QString path = QDir(workingDirectory).absoluteFilePath(change.mid(colon + 1));
+            m_gitClient.openShowEditor(workingDirectory, change.left(colon), path);
+        } else {
+            m_gitClient.show(workingDirectory, change);
+        }
         return;
     }
 

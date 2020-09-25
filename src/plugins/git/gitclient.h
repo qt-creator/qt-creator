@@ -366,7 +366,11 @@ public:
     static QString suggestedLocalBranchName(
             const QString &workingDirectory, const QStringList &existingLocalNames,
             const QString &target, BranchTargetType targetType);
-    static void addChangeActions(QMenu *menu, const QString &workingDir, const QString &change);
+    static void addChangeActions(QMenu *menu, const QString &source, const QString &change);
+    static QString fileWorkingDirectory(const QString &file);
+    enum class ShowEditor { OnlyIfDifferent, Always };
+    Core::IEditor *openShowEditor(const QString &workingDirectory, const QString &ref,
+                                  const QString &path, ShowEditor showSetting = ShowEditor::Always);
 
 private:
     void finishSubmoduleUpdate();

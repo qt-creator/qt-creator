@@ -325,7 +325,7 @@ bool GitEditorWidget::isValidRevision(const QString &revision) const
 void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)
 {
     if (contentType() != OtherContent)
-        GitClient::addChangeActions(menu, sourceWorkingDirectory(), change);
+        GitClient::addChangeActions(menu, source(), change);
 }
 
 QString GitEditorWidget::revisionSubject(const QTextBlock &inBlock) const
@@ -364,12 +364,7 @@ QString GitEditorWidget::fileNameForLine(int line) const
 
 QString GitEditorWidget::sourceWorkingDirectory() const
 {
-    Utils::FilePath path = Utils::FilePath::fromString(source());
-    if (!path.isEmpty() && !path.isDir())
-        path = path.parentDir();
-    while (!path.isEmpty() && !path.exists())
-        path = path.parentDir();
-    return path.toString();
+    return GitClient::fileWorkingDirectory(source());
 }
 
 void GitEditorWidget::refresh()

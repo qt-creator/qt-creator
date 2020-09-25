@@ -316,25 +316,9 @@ IEditor *GitGrep::openEditor(const SearchResultItem &item,
         return nullptr;
     const QString path = QDir::fromNativeSeparators(item.path.first());
     const QString topLevel = parameters.additionalParameters.toString();
-    const QString relativePath = QDir(topLevel).relativeFilePath(path);
-    const QByteArray content = m_client->synchronousShow(topLevel, params.ref + ":./" + relativePath);
-    if (content.isEmpty())
-        return nullptr;
-    QByteArray fileContent;
-    if (TextFileFormat::readFileUTF8(path, nullptr, &fileContent, nullptr)
-            == TextFileFormat::ReadSuccess) {
-        if (fileContent == content)
-            return nullptr; // open the file for read/write
-    }
-
-    const QString documentId = QLatin1String(Git::Constants::GIT_PLUGIN)
-            + QLatin1String(".GitShow.") + params.id()
-            + QLatin1String(".") + relativePath;
-    QString title = tr("Git Show %1:%2").arg(params.ref).arg(relativePath);
-    IEditor *editor = EditorManager::openEditorWithContents(Id(), &title, content, documentId,
-                                                            EditorManager::DoNotSwitchToDesignMode);
+    IEditor *editor = m_client->openShowEditor(
+                topLevel, params.ref, path, GitClient::ShowEditor::OnlyIfDifferent);
     editor->gotoLine(item.mainRange.begin.line, item.mainRange.begin.column);
-    editor->document()->setTemporary(true);
     return editor;
 }
 
