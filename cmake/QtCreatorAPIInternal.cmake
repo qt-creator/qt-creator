@@ -387,7 +387,7 @@ function(extend_qtc_target target_name)
   cmake_parse_arguments(_arg
     ""
     "SOURCES_PREFIX;FEATURE_INFO"
-    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS"
+    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES"
     ${ARGN}
   )
 
@@ -456,4 +456,8 @@ function(extend_qtc_target target_name)
   endforeach()
 
   append_extra_translations(${target_name} "${_arg_EXTRA_TRANSLATIONS}")
+
+  if (_arg_PROPERTIES)
+    set_target_properties(${target_name} PROPERTIES ${_arg_PROPERTIES})
+  endif()
 endfunction()

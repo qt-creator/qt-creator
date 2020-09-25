@@ -38,7 +38,7 @@ if (APPLE)
   set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/QmlDesigner")
 endif()
 
-set_target_properties(QmlDesigner PROPERTIES QMLDESIGNER_PLUGIN_PATH "${QmlDesignerPluginInstallPrefix}")
+extend_qtc_plugin(QmlDesigner PROPERTIES QMLDESIGNER_PLUGIN_PATH "${QmlDesignerPluginInstallPrefix}")
 
 add_qtc_plugin(assetexporterplugin
   CONDITION TARGET QmlDesigner
