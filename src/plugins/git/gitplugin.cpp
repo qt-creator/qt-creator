@@ -239,7 +239,7 @@ public:
 
     bool managesDirectory(const QString &directory, QString *topLevel) const final;
     bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
-    QStringList unmanagedFiles(const QString &workingDir, const QStringList &filePaths) const final;
+    QStringList unmanagedFiles(const QStringList &filePaths) const final;
 
     bool isConfigured() const final;
     bool supportsOperation(Operation operation) const final;
@@ -1950,10 +1950,9 @@ bool GitPluginPrivate::managesFile(const QString &workingDirectory, const QStrin
     return m_gitClient.managesFile(workingDirectory, fileName);
 }
 
-QStringList GitPluginPrivate::unmanagedFiles(const QString &workingDir,
-                                              const QStringList &filePaths) const
+QStringList GitPluginPrivate::unmanagedFiles(const QStringList &filePaths) const
 {
-    return m_gitClient.unmanagedFiles(workingDir, filePaths);
+    return m_gitClient.unmanagedFiles(filePaths);
 }
 
 void GitPluginPrivate::vcsAnnotate(const QString &file, int line)

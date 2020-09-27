@@ -128,11 +128,9 @@ public:
     /*!
      * Returns the subset of \a filePaths that is not managed by this version control.
      *
-     * \a workingDirectory is assumed to be part of a valid repository (not necessarily its
-     * top level). The \a filePaths are expected to be absolute paths.
+     * The \a filePaths are expected to be absolute paths.
      */
-    virtual QStringList unmanagedFiles(const QString &workingDir,
-                                       const QStringList &filePaths) const;
+    virtual QStringList unmanagedFiles(const QStringList &filePaths) const;
 
     /*!
      * Returns true is the VCS is configured to run.

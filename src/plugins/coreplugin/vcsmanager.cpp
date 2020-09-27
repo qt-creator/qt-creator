@@ -436,7 +436,7 @@ void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNa
     if (!vc || !vc->supportsOperation(IVersionControl::AddOperation))
         return;
 
-    const QStringList unmanagedFiles = vc->unmanagedFiles(directory, fileNames);
+    const QStringList unmanagedFiles = vc->unmanagedFiles(fileNames);
     if (unmanagedFiles.isEmpty())
         return;
 

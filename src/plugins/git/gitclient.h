@@ -152,7 +152,7 @@ public:
     QString findRepositoryForDirectory(const QString &directory) const;
     QString findGitDirForRepository(const QString &repositoryDir) const;
     bool managesFile(const QString &workingDirectory, const QString &fileName) const;
-    QStringList unmanagedFiles(const QString &workingDirectory, const QStringList &filePaths) const;
+    QStringList unmanagedFiles(const QStringList &filePaths) const;
 
     void diffFile(const QString &workingDirectory, const QString &fileName) const;
     void diffFiles(const QString &workingDirectory,

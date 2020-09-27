@@ -840,22 +840,30 @@ bool GitClient::managesFile(const QString &workingDirectory, const QString &file
             == SynchronousProcessResponse::Finished;
 }
 
-QStringList GitClient::unmanagedFiles(const QString &workingDirectory,
-                                      const QStringList &filePaths) const
+QStringList GitClient::unmanagedFiles(const QStringList &filePaths) const
 {
-    QStringList args({"ls-files", "-z"});
-    QDir wd(workingDirectory);
-    args << transform(filePaths, [&wd](const QString &fp) { return wd.relativeFilePath(fp); });
-    const SynchronousProcessResponse response
-            = vcsFullySynchronousExec(workingDirectory, args, Core::ShellCommand::NoOutput);
-    if (response.result != SynchronousProcessResponse::Finished)
-        return filePaths;
-    const QStringList managedFilePaths
-            = transform(response.stdOut().split('\0', Qt::SkipEmptyParts),
-                        [&wd](const QString &fp) { return wd.absoluteFilePath(fp); });
-    return filtered(filePaths, [&managedFilePaths](const QString &fp) {
-        return !managedFilePaths.contains(fp);
-    });
+    QMap<QString, QStringList> filesForDir;
+    for (const QString &filePath : filePaths) {
+        const FilePath fp = FilePath::fromString(filePath);
+        filesForDir[fp.parentDir().toString()] << fp.fileName();
+    }
+    QStringList res;
+    for (auto it = filesForDir.begin(), end = filesForDir.end(); it != end; ++it) {
+        QStringList args({"ls-files", "-z"});
+        const QDir wd(it.key());
+        args << transform(it.value(), [&wd](const QString &fp) { return wd.relativeFilePath(fp); });
+        const SynchronousProcessResponse response
+                = vcsFullySynchronousExec(it.key(), args, Core::ShellCommand::NoOutput);
+        if (response.result != SynchronousProcessResponse::Finished)
+            return filePaths;
+        const QStringList managedFilePaths
+                = transform(response.stdOut().split('\0', Qt::SkipEmptyParts),
+                            [&wd](const QString &fp) { return wd.absoluteFilePath(fp); });
+        res += filtered(it.value(), [&managedFilePaths, &wd](const QString &fp) {
+            return !managedFilePaths.contains(wd.absoluteFilePath(fp));
+        });
+    }
+    return res;
 }
 
 QTextCodec *GitClient::codecFor(GitClient::CodecType codecType, const QString &source) const

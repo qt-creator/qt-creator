@@ -161,11 +161,11 @@ IVersionControl::~IVersionControl()
     delete m_topicCache;
 }
 
-QStringList IVersionControl::unmanagedFiles(const QString &workingDir,
-                                            const QStringList &filePaths) const
+QStringList IVersionControl::unmanagedFiles(const QStringList &filePaths) const
 {
-    return Utils::filtered(filePaths, [wd = QDir(workingDir), this](const QString &f) {
-        return !managesFile(wd.path(), wd.relativeFilePath(f));
+    return Utils::filtered(filePaths, [this](const QString &f) {
+        const Utils::FilePath fp = Utils::FilePath::fromString(f);
+        return !managesFile(fp.parentDir().toString(), fp.fileName());
     });
 }
 
