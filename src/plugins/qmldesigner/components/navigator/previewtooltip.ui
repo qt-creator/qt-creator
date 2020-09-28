@@ -112,7 +112,7 @@
        <widget class="QWidget" name="widget" native="true">
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <widget class="QLabel" name="idLabel">
+          <widget class="Utils::ElidingLabel" name="idLabel">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -131,10 +131,13 @@
            <property name="alignment">
             <set>Qt::AlignCenter</set>
            </property>
+           <property name="textInteractionFlags">
+            <set>Qt::NoTextInteraction</set>
+           </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="typeLabel">
+          <widget class="Utils::ElidingLabel" name="typeLabel">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -153,10 +156,13 @@
            <property name="alignment">
             <set>Qt::AlignCenter</set>
            </property>
+           <property name="textInteractionFlags">
+            <set>Qt::NoTextInteraction</set>
+           </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="infoLabel">
+          <widget class="Utils::ElidingLabel" name="infoLabel">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -175,6 +181,9 @@
            <property name="alignment">
             <set>Qt::AlignCenter</set>
            </property>
+           <property name="textInteractionFlags">
+            <set>Qt::NoTextInteraction</set>
+           </property>
           </widget>
          </item>
         </layout>
@@ -185,6 +194,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::ElidingLabel</class>
+   <extends>QLabel</extends>
+   <header location="global">utils/elidinglabel.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

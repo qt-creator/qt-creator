@@ -39,6 +39,9 @@ PreviewToolTip::PreviewToolTip(QWidget *parent)
     setAttribute(Qt::WA_TransparentForMouseEvents);
     setWindowFlags(Qt::Widget);
     m_ui->setupUi(this);
+    m_ui->idLabel->setElideMode(Qt::ElideLeft);
+    m_ui->typeLabel->setElideMode(Qt::ElideLeft);
+    m_ui->infoLabel->setElideMode(Qt::ElideLeft);
     setStyleSheet(QString("QWidget { background-color: %1 }").arg(Utils::creatorTheme()->color(Utils::Theme::BackgroundColorNormal).name()));
 }
 
