@@ -32,10 +32,10 @@
     <category>Linguist</category>
     <order>1</order>
     <executable>
-        <path>%{CurrentProject:QT_INSTALL_BINS}/lupdate</path>
+        <path>%{CurrentDocument:Project:QT_INSTALL_BINS}/lupdate</path>
         <path>lupdate</path>
-        <arguments>%{CurrentProject:FilePath}</arguments>
-        <workingdirectory>%{CurrentProject:Path}</workingdirectory>
-        <baseEnvironmentId>CurrentBuild:Env</baseEnvironmentId>
+        <arguments>%{CurrentDocument:Project:FilePath}</arguments>
+        <workingdirectory>%{CurrentDocument:Project:Path}</workingdirectory>
+        <baseEnvironmentId>CurrentDocument:Project:BuildConfig:Env</baseEnvironmentId>
     </executable>
 </externaltool>

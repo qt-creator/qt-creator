@@ -172,11 +172,18 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     expander->registerVariable("buildDir", tr("Build directory"),
             [this] { return buildDirectory().toUserOutput(); });
 
+    // TODO: Remove "Current" variants in ~4.16.
     expander->registerVariable(Constants::VAR_CURRENTBUILD_NAME, tr("Name of current build"),
             [this] { return displayName(); }, false);
 
+    expander->registerVariable("BuildConfig:Name", tr("Name of the build configuration"),
+            [this] { return displayName(); });
+
     expander->registerPrefix(Constants::VAR_CURRENTBUILD_ENV,
                              tr("Variables in the current build environment"),
+                             [this](const QString &var) { return environment().expandedValueForKey(var); }, false);
+    expander->registerPrefix("BuildConfig:Env",
+                             tr("Variables in the build configuration's environment"),
                              [this](const QString &var) { return environment().expandedValueForKey(var); });
 
     updateCacheAndEmitEnvironmentChanged();

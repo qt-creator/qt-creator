@@ -84,7 +84,7 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
         tr("<html><head/><body><p>The name of the kit suitable for generating "
            "directory names. This value is used for the variable <i>%1</i>, "
            "which for example determines the name of the shadow build directory."
-           "</p></body></html>").arg(QLatin1String(Constants::VAR_CURRENTKIT_FILESYSTEMNAME));
+           "</p></body></html>").arg(QLatin1String("Kit:FileSystemName"));
     m_fileSystemFriendlyNameLineEdit->setToolTip(toolTip);
     QRegularExpression fileSystemFriendlyNameRegexp(QLatin1String("^[A-Za-z0-9_-]*$"));
     Q_ASSERT(fileSystemFriendlyNameRegexp.isValid());

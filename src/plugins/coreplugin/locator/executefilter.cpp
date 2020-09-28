@@ -97,7 +97,7 @@ void ExecuteFilter::accept(LocatorFilterEntry selection,
     bool found;
     QString workingDirectory = Utils::globalMacroExpander()->value("CurrentDocument:Path", &found);
     if (!found || workingDirectory.isEmpty())
-        workingDirectory = Utils::globalMacroExpander()->value("CurrentProject:Path", &found);
+        workingDirectory = Utils::globalMacroExpander()->value("CurrentDocument:Project:Path", &found);
 
     ExecuteData d;
     d.workingDirectory = workingDirectory;

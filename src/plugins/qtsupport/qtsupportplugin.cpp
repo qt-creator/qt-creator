@@ -47,13 +47,11 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runcontrol.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 #include <utils/infobar.h>
 #include <utils/macroexpander.h>
-
-const char kHostBins[] = "CurrentProject:QT_HOST_BINS";
-const char kInstallBins[] = "CurrentProject:QT_INSTALL_BINS";
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -107,15 +105,6 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     return true;
 }
 
-static BaseQtVersion *qtVersion()
-{
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectTree::currentProject();
-    if (!project || !project->activeTarget())
-        return nullptr;
-
-    return QtKitAspect::qtVersion(project->activeTarget()->kit());
-}
-
 const char kLinkWithQtInstallationSetting[] = "LinkWithQtInstallation";
 
 static void askAboutQtInstallation()
@@ -144,21 +133,55 @@ void QtSupportPlugin::extensionsInitialized()
 {
     Utils::MacroExpander *expander = Utils::globalMacroExpander();
 
+    static const auto currentQtVersion = []() -> const BaseQtVersion * {
+        ProjectExplorer::Project *project = ProjectExplorer::ProjectTree::currentProject();
+        if (!project || !project->activeTarget())
+            return nullptr;
+        return QtKitAspect::qtVersion(project->activeTarget()->kit());
+    };
+    static const char kCurrentHostBins[] = "CurrentDocument:Project:QT_HOST_BINS";
     expander->registerVariable(
-        kHostBins,
-        tr("Full path to the host bin directory of the current project's Qt version."),
+        kCurrentHostBins,
+        tr("Full path to the host bin directory of the Qt version in the active kit "
+           "of the project containing the current document."),
         []() {
-            BaseQtVersion *qt = qtVersion();
+            const BaseQtVersion * const qt = currentQtVersion();
             return qt ? qt->hostBinPath().toUserOutput() : QString();
         });
 
     expander->registerVariable(
-        kInstallBins,
-        tr("Full path to the target bin directory of the current project's Qt version.<br>"
-           "You probably want %1 instead.")
-            .arg(QString::fromLatin1(kInstallBins)),
+        "CurrentDocument:Project:QT_INSTALL_BINS",
+        tr("Full path to the target bin directory of the Qt version in the active kit "
+           "of the project containing the current document.<br>You probably want %1 instead.")
+            .arg(QString::fromLatin1(kCurrentHostBins)),
         []() {
-            BaseQtVersion *qt = qtVersion();
+            const BaseQtVersion * const qt = currentQtVersion();
+            return qt ? qt->binPath().toUserOutput() : QString();
+        });
+
+    static const auto activeQtVersion = []() -> const BaseQtVersion * {
+        ProjectExplorer::Project *project = SessionManager::startupProject();
+        if (!project || !project->activeTarget())
+            return nullptr;
+        return QtKitAspect::qtVersion(project->activeTarget()->kit());
+    };
+    static const char kActiveHostBins[] = "ActiveProject:QT_HOST_BINS";
+    expander->registerVariable(
+        kActiveHostBins,
+        tr("Full path to the host bin directory of the Qt version in the active kit "
+           "of the active project."),
+        []() {
+            const BaseQtVersion * const qt = activeQtVersion();
+            return qt ? qt->hostBinPath().toUserOutput() : QString();
+        });
+
+    expander->registerVariable(
+        "ActiveProject:QT_INSTALL_BINS",
+        tr("Full path to the target bin directory of the Qt version in the active kit "
+           "of the active project.<br>You probably want %1 instead.")
+            .arg(QString::fromLatin1(kActiveHostBins)),
+        []() {
+            const BaseQtVersion * const qt = activeQtVersion();
             return qt ? qt->binPath().toUserOutput() : QString();
         });
 

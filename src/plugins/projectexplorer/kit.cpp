@@ -98,20 +98,30 @@ public:
         for (KitAspect *aspect : KitManager::kitAspects())
             aspect->addToMacroExpander(kit, &m_macroExpander);
 
-        // This provides the same global fall back as the global expander
-        // without relying on the currentKit() discovery process there.
-        m_macroExpander.registerVariable(Constants::VAR_CURRENTKIT_NAME,
+        // TODO: Remove the "Current" variants in ~4.16
+        m_macroExpander.registerVariable("CurrentKit:Name",
             tr("The name of the currently active kit."),
             [kit] { return kit->displayName(); },
             false);
-        m_macroExpander.registerVariable(Constants::VAR_CURRENTKIT_FILESYSTEMNAME,
+        m_macroExpander.registerVariable("Kit:Name",
+            tr("The name of the kit."),
+            [kit] { return kit->displayName(); });
+
+        m_macroExpander.registerVariable("CurrentKit:FileSystemName",
             tr("The name of the currently active kit in a filesystem-friendly version."),
             [kit] { return kit->fileSystemFriendlyName(); },
             false);
-        m_macroExpander.registerVariable(Constants::VAR_CURRENTKIT_ID,
+        m_macroExpander.registerVariable("Kit:FileSystemName",
+            tr("The name of the kit in a filesystem-friendly version."),
+            [kit] { return kit->fileSystemFriendlyName(); });
+
+        m_macroExpander.registerVariable("CurrentKit:Id",
             tr("The id of the currently active kit."),
             [kit] { return kit->id().toString(); },
             false);
+        m_macroExpander.registerVariable("Kit:Id",
+            tr("The id of the kit."),
+            [kit] { return kit->id().toString(); });
     }
 
     DisplayName m_unexpandedDisplayName;

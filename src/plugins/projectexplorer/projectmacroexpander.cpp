@@ -33,22 +33,33 @@ ProjectMacroExpander::ProjectMacroExpander(const Utils::FilePath &mainFilePath, 
                                            const Kit *kit, const QString &bcName,
                                            BuildConfiguration::BuildType buildType)
 {
+    // TODO: Remove "Current" variants in ~4.16
     registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX,
                      QCoreApplication::translate("ProjectExplorer", "Main file of current project"),
+                     [mainFilePath] { return mainFilePath.toString(); }, false);
+    registerFileVariables("Project",
+                     QCoreApplication::translate("ProjectExplorer", "Main file of the project"),
                      [mainFilePath] { return mainFilePath.toString(); });
-
     registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
                      QCoreApplication::translate("ProjectExplorer", "Name of current project"),
+                     [projectName] { return projectName; }, false);
+    registerVariable("Project:Name",
+                     QCoreApplication::translate("ProjectExplorer", "Name of the project"),
                      [projectName] { return projectName; });
-
     registerVariable(Constants::VAR_CURRENTBUILD_NAME,
                      QCoreApplication::translate("ProjectExplorer", "Name of current build"),
+                     [bcName] { return bcName; }, false);
+    registerVariable("BuildConfig:Name",
+                     QCoreApplication::translate(
+                         "ProjectExplorer", "Name of the project's active build configuration"),
                      [bcName] { return bcName; });
-
-    registerVariable(Constants::VAR_CURRENTBUILD_TYPE,
+    registerVariable("CurrentBuild:Type",
                      QCoreApplication::translate("ProjectExplorer", "Type of current build"),
+                     [buildType] { return BuildConfiguration::buildTypeName(buildType); }, false);
+    registerVariable("BuildConfig:Type",
+                     QCoreApplication::translate(
+                         "ProjectExplorer", "Type of the project's active build configuration"),
                      [buildType] { return BuildConfiguration::buildTypeName(buildType); });
-
     registerSubProvider([kit] { return kit->macroExpander(); });
 }
 

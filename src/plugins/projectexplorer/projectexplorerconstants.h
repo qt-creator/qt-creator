@@ -189,14 +189,8 @@ const char ANDROID_ABI_X86_64[] = "x86_64";
 // Variable Names:
 const char VAR_CURRENTPROJECT_PREFIX[] = "CurrentProject";
 const char VAR_CURRENTPROJECT_NAME[] = "CurrentProject:Name";
-const char VAR_CURRENTKIT_NAME[] = "CurrentKit:Name";
-const char VAR_CURRENTKIT_FILESYSTEMNAME[] = "CurrentKit:FileSystemName";
-const char VAR_CURRENTKIT_ID[] = "CurrentKit:Id";
 const char VAR_CURRENTBUILD_NAME[] = "CurrentBuild:Name";
-const char VAR_CURRENTBUILD_TYPE[] = "CurrentBuild:Type";
 const char VAR_CURRENTBUILD_ENV[] = "CurrentBuild:Env";
-const char VAR_CURRENTRUN_NAME[] = "CurrentRun:Name";
-const char VAR_CURRENTRUN_WORKINGDIR[] = "CurrentRun:WorkingDir";
 
 // JsonWizard:
 const char PAGE_ID_PREFIX[] = "PE.Wizard.Page.";

@@ -42,9 +42,9 @@ const char VCS_ID_SUBVERSION[] = "J.Subversion";
 const char VCS_ID_PERFORCE[] = "P.Perforce";
 const char VCS_ID_CVS[] = "Z.CVS";
 
-const char VAR_VCS_NAME[] = "CurrentProject:VcsName";
-const char VAR_VCS_TOPIC[] = "CurrentProject:VcsTopic";
-const char VAR_VCS_TOPLEVELPATH[] = "CurrentProject:VcsTopLevelPath";
+const char VAR_VCS_NAME[] = "CurrentDocument:Project:VcsName";
+const char VAR_VCS_TOPIC[] = "CurrentDocument:Project:VcsTopic";
+const char VAR_VCS_TOPLEVELPATH[] = "CurrentDocument:Project:VcsTopLevelPath";
 
 } // namespace Constants
 } // namespace VcsBase

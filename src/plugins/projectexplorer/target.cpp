@@ -34,6 +34,7 @@
 #include "deployconfiguration.h"
 #include "deploymentdata.h"
 #include "devicesupport/devicemanager.h"
+#include "environmentaspect.h"
 #include "kit.h"
 #include "kitinformation.h"
 #include "kitmanager.h"
@@ -43,6 +44,7 @@
 #include "projectexplorericons.h"
 #include "projectexplorersettings.h"
 #include "runconfiguration.h"
+#include "runconfigurationaspects.h"
 #include "session.h"
 
 #include <coreplugin/coreconstants.h>
@@ -157,11 +159,46 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
     d->m_macroExpander.registerVariable("sourceDir", tr("Source directory"),
             [project] { return project->projectDirectory().toUserOutput(); });
 
-    // Legacy support.
+    // TODO: Remove in ~4.16.
     d->m_macroExpander.registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
             QCoreApplication::translate("ProjectExplorer", "Name of current project"),
             [project] { return project->displayName(); },
             false);
+    d->m_macroExpander.registerVariable("Project:Name",
+            QCoreApplication::translate("ProjectExplorer", "Name of current project"),
+            [project] { return project->displayName(); });
+
+    d->m_macroExpander.registerVariable("CurrentRun:Name",
+        tr("The currently active run configuration's name."),
+        [this]() -> QString {
+            if (RunConfiguration * const rc = activeRunConfiguration())
+                return rc->displayName();
+            return QString();
+        });
+    d->m_macroExpander.registerFileVariables("CurrentRun:Executable",
+        tr("The currently active run configuration's executable (if applicable)."),
+        [this]() -> QString {
+            if (RunConfiguration * const rc = activeRunConfiguration())
+                return rc->commandLine().executable().toString();
+            return QString();
+        });
+    d->m_macroExpander.registerPrefix("CurrentRun:Env", tr("Variables in the current run environment"),
+                             [this](const QString &var) {
+        if (RunConfiguration * const rc = activeRunConfiguration()) {
+            if (const auto envAspect = rc->aspect<EnvironmentAspect>())
+                return envAspect->environment().expandedValueForKey(var);
+        }
+        return QString();
+    });
+    d->m_macroExpander.registerVariable("CurrentRun:WorkingDir",
+                               tr("The currently active run configuration's working directory"),
+                               [this] {
+        if (RunConfiguration * const rc = activeRunConfiguration()) {
+            if (const auto wdAspect = rc->aspect<WorkingDirectoryAspect>())
+                return wdAspect->workingDirectory(&d->m_macroExpander).toString();
+        }
+        return QString();
+    });
 }
 
 Target::~Target()

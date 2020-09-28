@@ -59,8 +59,8 @@ public:
 <snippet group="C++" trigger="lic" id="license-configured" complement="" removed="false" modified="false">%{Cpp:LicenseTemplate}
 $$</snippet>
 <snippet group="C++" trigger="licbsd" id="license-bsd" complement="" removed="false" modified="false">/**
-@if ('%{CurrentProject:Name}' !== '')
- ** This file is part of the %{CurrentProject:Name} project.
+@if ('%{CurrentDocument:Project:Name}' !== '')
+ ** This file is part of the %{CurrentDocument:Project:Name} project.
 @endif
 @if ('%{Env:QTC_COPYRIGHT_USER}' === '' || '%{Env:QTC_COPYRIGHT_EMAIL}' === '')
  ** Copyright %{CurrentDate:yyyy} $copyright_user$ &lt;$copyright_email$&gt;.
@@ -95,8 +95,8 @@ $$</snippet>
 
 $$</snippet>
 <snippet group="C++" trigger="licgpl" id="license-gpl" complement="" removed="false" modified="false">/**
-@if ('%{CurrentProject:Name}' !== '')
- ** This file is part of the %{CurrentProject:Name} project.
+@if ('%{CurrentDocument:Project:Name}' !== '')
+ ** This file is part of the %{CurrentDocument:Project:Name} project.
 @endif
 @if ('%{Env:QTC_COPYRIGHT_USER}' === '' || '%{Env:QTC_COPYRIGHT_EMAIL}' === '')
  ** Copyright %{CurrentDate:yyyy} $copyright_user$ &lt;$copyright_email$&gt;.
@@ -120,8 +120,8 @@ $$</snippet>
 
 $$</snippet>
 <snippet group="C++" trigger="liclgpl" id="license-lgpl" complement="" removed="false" modified="false">/**
-@if ('%{CurrentProject:Name}' !== '')
- ** This file is part of the %{CurrentProject:Name} project.
+@if ('%{CurrentDocument:Project:Name}' !== '')
+ ** This file is part of the %{CurrentDocument:Project:Name} project.
 @endif
 @if ('%{Env:QTC_COPYRIGHT_USER}' === '' || '%{Env:QTC_COPYRIGHT_EMAIL}' === '')
  ** Copyright %{CurrentDate:yyyy} $copyright_user$ &lt;$copyright_email$&gt;.
@@ -153,7 +153,7 @@ $$</snippet>
 @endif
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of %{CurrentProject:Name}
+** This file is part of %{CurrentDocument:Project:Name}
 **
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in

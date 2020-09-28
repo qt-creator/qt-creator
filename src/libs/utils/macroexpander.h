@@ -68,7 +68,7 @@ public:
     using IntFunction = std::function<int()>;
 
     void registerPrefix(const QByteArray &prefix,
-        const QString &description, const PrefixFunction &value);
+        const QString &description, const PrefixFunction &value, bool visible = true);
 
     void registerVariable(const QByteArray &variable,
         const QString &description, const StringFunction &value,

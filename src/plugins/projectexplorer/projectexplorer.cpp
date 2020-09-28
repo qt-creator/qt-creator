@@ -258,7 +258,7 @@ const char FOLDER_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.F.OpenLocation.CtxMe
 const char PROJECT_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.P.OpenLocation.CtxMenu";
 
 // Default directories:
-const char DEFAULT_BUILD_DIRECTORY_TEMPLATE[] = "../%{JS: Util.asciify(\"build-%{CurrentProject:Name}-%{CurrentKit:FileSystemName}-%{CurrentBuild:Name}\")}";
+const char DEFAULT_BUILD_DIRECTORY_TEMPLATE[] = "../%{JS: Util.asciify(\"build-%{Project:Name}-%{Kit:FileSystemName}-%{BuildConfig:Name}\")}";
 const char DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY[] = "Directories/BuildDirectory.Template";
 
 const char BUILD_BEFORE_DEPLOY_SETTINGS_KEY[] = "ProjectExplorer/Settings/BuildBeforeDeploy";
@@ -330,18 +330,6 @@ static BuildConfiguration *activeBuildConfiguration()
 {
     Target *target = activeTarget();
     return target ? target->activeBuildConfiguration() : nullptr;
-}
-
-static RunConfiguration *activeRunConfiguration()
-{
-    Target *target = activeTarget();
-    return target ? target->activeRunConfiguration() : nullptr;
-}
-
-static Kit *currentKit()
-{
-    Target *target = activeTarget();
-    return target ? target->kit() : nullptr;
 }
 
 static bool isTextFile(const QString &fileName)
@@ -1543,10 +1531,18 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             = s->value(Constants::ABORT_BUILD_ALL_ON_ERROR_SETTINGS_KEY, true).toBool();
     dd->m_projectExplorerSettings.lowBuildPriority
             = s->value(Constants::LOW_BUILD_PRIORITY_SETTINGS_KEY, false).toBool();
+
     dd->m_buildPropertiesSettings.buildDirectoryTemplate
             = s->value(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY).toString();
     if (dd->m_buildPropertiesSettings.buildDirectoryTemplate.isEmpty())
         dd->m_buildPropertiesSettings.buildDirectoryTemplate = Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE;
+    // TODO: Remove in ~4.16
+    dd->m_buildPropertiesSettings.buildDirectoryTemplate.replace("%{CurrentProject:Name}",
+                                                                 "%{Project:Name}");
+    dd->m_buildPropertiesSettings.buildDirectoryTemplate.replace("%{CurrentKit:FileSystemName}",
+                                                                 "%{Kit:FileSystemName}");
+    dd->m_buildPropertiesSettings.buildDirectoryTemplate.replace("%{CurrentBuild:Name}",
+                                                                 "%{BuildConfig:Name}");
 
     const auto loadTriStateValue = [&s](const QString &key) {
       return TriState::fromVariant(s->value(key, TriState::Default.toVariant()));
@@ -1745,6 +1741,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // FIXME: These are mostly "legacy"/"convenience" entries, relying on
     // the global entry point ProjectExplorer::currentProject(). They should
     // not be used in the Run/Build configuration pages.
+    // TODO: Remove the CurrentProject versions in ~4.16
     Utils::MacroExpander *expander = Utils::globalMacroExpander();
     expander->registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX,
         tr("Current project's main file."),
@@ -1753,115 +1750,39 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             if (Project *project = ProjectTree::currentProject())
                 projectFilePath = project->projectFilePath();
             return projectFilePath.toString();
-        });
-
-    expander->registerVariable("CurrentProject:BuildPath",
-        tr("Full build path of the current project's active build configuration."),
+        }, false);
+    expander->registerFileVariables("CurrentDocument:Project",
+        tr("Main file of the project the current document belongs to."),
         []() -> QString {
-            BuildConfiguration *bc = activeBuildConfiguration();
-            return bc ? bc->buildDirectory().toUserOutput() : QString();
-        });
+            Utils::FilePath projectFilePath;
+            if (Project *project = ProjectTree::currentProject())
+                projectFilePath = project->projectFilePath();
+            return projectFilePath.toString();
+        }, false);
 
     expander->registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
         tr("The name of the current project."),
         []() -> QString {
             Project *project = ProjectTree::currentProject();
             return project ? project->displayName() : QString();
-        });
-
-    expander->registerVariable(Constants::VAR_CURRENTKIT_NAME,
-        tr("The name of the currently active kit."),
+        }, false);
+    expander->registerVariable("CurrentDocument:Project:Name",
+        tr("The name of the project the current document belongs to."),
         []() -> QString {
-            Kit *kit = currentKit();
-            return kit ? kit->displayName() : QString();
-        });
-
-    expander->registerVariable(Constants::VAR_CURRENTKIT_FILESYSTEMNAME,
-        tr("The name of the currently active kit as a filesystem-friendly version."),
-        []() -> QString {
-            Kit *kit = currentKit();
-            return kit ? kit->fileSystemFriendlyName() : QString();
-        });
-
-    expander->registerVariable(Constants::VAR_CURRENTKIT_ID,
-        tr("The ID of the currently active kit."),
-        []() -> QString {
-            Kit *kit = currentKit();
-            return kit ? kit->id().toString() : QString();
-        });
-
-    expander->registerVariable("CurrentDevice:HostAddress",
-        tr("The host address of the device in the currently active kit."),
-        []() -> QString {
-            Kit *kit = currentKit();
-            const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
-            return device ? device->sshParameters().host() : QString();
-        });
-
-    expander->registerVariable("CurrentDevice:SshPort",
-        tr("The SSH port of the device in the currently active kit."),
-        []() -> QString {
-            Kit *kit = currentKit();
-            const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
-            return device ? QString::number(device->sshParameters().port()) : QString();
-        });
-
-    expander->registerVariable("CurrentDevice:UserName",
-        tr("The username with which to log into the device in the currently active kit."),
-        []() -> QString {
-            Kit *kit = currentKit();
-            const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
-            return device ? device->sshParameters().userName() : QString();
-        });
-
-
-    expander->registerVariable("CurrentDevice:PrivateKeyFile",
-        tr("The private key file with which to authenticate when logging into the device "
-           "in the currently active kit."),
-        []() -> QString {
-            Kit *kit = currentKit();
-            const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
-            return device ? device->sshParameters().privateKeyFile : QString();
-        });
-
-    expander->registerVariable(Constants::VAR_CURRENTBUILD_NAME,
-        tr("The currently active build configuration's name."),
-        [&]() -> QString {
-            BuildConfiguration *bc = activeBuildConfiguration();
-            return bc ? bc->displayName() : QString();
-        });
-
-    expander->registerVariable(Constants::VAR_CURRENTRUN_NAME,
-        tr("The currently active run configuration's name."),
-        []() -> QString {
-            if (Target *target = activeTarget()) {
-                if (RunConfiguration *rc = target->activeRunConfiguration())
-                    return rc->displayName();
-            }
-            return QString();
-        });
-
-    expander->registerFileVariables("CurrentRun:Executable",
-        tr("The currently active run configuration's executable (if applicable)."),
-        []() -> QString {
-            if (Target *target = activeTarget()) {
-                if (RunConfiguration *rc = target->activeRunConfiguration())
-                    return rc->commandLine().executable().toString();
-            }
-            return QString();
-        });
-
-    expander->registerVariable(Constants::VAR_CURRENTBUILD_TYPE,
-        tr("The currently active build configuration's type."),
-        [&]() -> QString {
-            BuildConfiguration *bc = activeBuildConfiguration();
-            const BuildConfiguration::BuildType type
-                                   = bc ? bc->buildType() : BuildConfiguration::Unknown;
-            return BuildConfiguration::buildTypeName(type);
+            Project *project = ProjectTree::currentProject();
+            return project ? project->displayName() : QString();
         });
 
     expander->registerPrefix(Constants::VAR_CURRENTBUILD_ENV,
                              BuildConfiguration::tr("Variables in the current build environment"),
+                             [](const QString &var) {
+                                 if (BuildConfiguration *bc = activeBuildConfiguration())
+                                     return bc->environment().expandedValueForKey(var);
+                                 return QString();
+                             }, false);
+    expander->registerPrefix("CurrentDocument:Project:BuildConfig:Env",
+                             BuildConfiguration::tr("Variables in the active build environment "
+                                     "of the project containing the currently open document"),
                              [](const QString &var) {
                                  if (BuildConfiguration *bc = activeBuildConfiguration())
                                      return bc->environment().expandedValueForKey(var);
@@ -1874,24 +1795,21 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                  return bc->environment();
              return Utils::Environment::systemEnvironment();
          }});
-
     Utils::EnvironmentProvider::addProvider(
-        {"CurrentRun:Env", tr("Current Run Environment"), []() {
-             if (RunConfiguration *rc = activeRunConfiguration())
-                if (auto envAspect = rc->aspect<EnvironmentAspect>())
-                    return envAspect->environment();
+        {"CurrentDocument:Project:BuildConfig:Env", tr("Current Build Environment"), []() {
+             if (BuildConfiguration *bc = activeBuildConfiguration())
+                 return bc->environment();
              return Utils::Environment::systemEnvironment();
          }});
 
-    QString fileDescription = tr("File where current session is saved.");
-    auto fileHandler = [] { return SessionManager::sessionNameToFileName(SessionManager::activeSession()).toString(); };
-    expander->registerFileVariables("Session", fileDescription, fileHandler);
-    expander->registerFileVariables("CurrentSession", fileDescription, fileHandler, false);
-
-    QString nameDescription = tr("Name of current session.");
-    auto nameHandler = [] { return SessionManager::activeSession(); };
-    expander->registerVariable("Session:Name", nameDescription, nameHandler);
-    expander->registerVariable("CurrentSession:Name", nameDescription, nameHandler, false);
+    const auto fileHandler = [] {
+        return SessionManager::sessionNameToFileName(SessionManager::activeSession()).toString();
+    };
+    expander->registerFileVariables("Session", tr("File where current session is saved."),
+                                    fileHandler);
+    expander->registerVariable("Session:Name", tr("Name of current session."), [] {
+        return SessionManager::activeSession();
+    });
 
     return true;
 }

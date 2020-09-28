@@ -343,10 +343,11 @@ static QByteArray fullPrefix(const QByteArray &prefix)
  * \sa registerVariables(), registerIntVariable(), registerFileVariables()
  */
 void MacroExpander::registerPrefix(const QByteArray &prefix, const QString &description,
-                                   const MacroExpander::PrefixFunction &value)
+                                   const MacroExpander::PrefixFunction &value, bool visible)
 {
     QByteArray tmp = fullPrefix(prefix);
-    d->m_descriptions.insert(tmp + "<value>", description);
+    if (visible)
+        d->m_descriptions.insert(tmp + "<value>", description);
     d->m_prefixMap.insert(tmp, value);
 }
 
