@@ -360,8 +360,7 @@ ProjectTreeWidget *ProjectTree::currentWidget() const
 void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &globalPos, Node *node)
 {
     QMenu *contextMenu = nullptr;
-    Project *project = projectForNode(node);
-    emit s_instance->aboutToShowContextMenu(project, node);
+    emit s_instance->aboutToShowContextMenu(node);
 
     if (!node) {
         contextMenu = Core::ActionManager::actionContainer(Constants::M_SESSIONCONTEXT)->menu();

@@ -102,8 +102,7 @@ signals:
     // Emitted whenever the model needs to send a update signal.
     void subtreeChanged(ProjectExplorer::FolderNode *node);
 
-    void aboutToShowContextMenu(ProjectExplorer::Project *project,
-                                ProjectExplorer::Node *node);
+    void aboutToShowContextMenu(ProjectExplorer::Node *node);
 
     // Emitted on any change to the tree
     void treeChanged();

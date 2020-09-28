@@ -81,7 +81,7 @@ public:
                              const qmt::MContainer &mcontainer);
 
 private:
-    void onAboutToShowContextMenu(ProjectExplorer::Project *project, ProjectExplorer::Node *node);
+    void onAboutToShowContextMenu(ProjectExplorer::Node *node);
     void onOpenDiagramFromProjectExplorer();
     void onOpenDefaultModel(const qmt::Uid &modelUid);
 

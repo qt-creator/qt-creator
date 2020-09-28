@@ -227,11 +227,8 @@ void ModelsManager::setDiagramClipboard(ExtDocumentController *documentControlle
     emit diagramClipboardChanged(isDiagramClipboardEmpty());
 }
 
-void ModelsManager::onAboutToShowContextMenu(ProjectExplorer::Project *project,
-                                             ProjectExplorer::Node *node)
+void ModelsManager::onAboutToShowContextMenu(ProjectExplorer::Node *node)
 {
-    Q_UNUSED(project)
-
     bool canOpenDiagram = false;
 
     foreach (const ManagedModel &managedModel, d->managedModels) {
