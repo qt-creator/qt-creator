@@ -579,7 +579,7 @@ void ScxmlTag::readXml(QXmlStreamReader &xml, bool checkCopyId)
     // Read and set attributes
     QXmlStreamAttributes attributes = xml.attributes();
     for (int i = 0; i < attributes.count(); ++i) {
-        if (m_tagType == Scxml && attributes[i].qualifiedName() == "initial")
+        if (m_tagType == Scxml && attributes[i].qualifiedName() == QLatin1String("initial"))
             scxmlInitial = attributes[i].value().toString();
         else {
             QString key = attributes[i].qualifiedName().toString();

@@ -728,11 +728,11 @@ namespace ADS
         while (stateReader.readNextStartElement()) {
             QWidget *childNode = nullptr;
             bool result = true;
-            if (stateReader.name() == "splitter") {
+            if (stateReader.name() == QLatin1String("splitter")) {
                 result = restoreSplitter(stateReader, childNode, testing);
-            } else if (stateReader.name() == "area") {
+            } else if (stateReader.name() == QLatin1String("area")) {
                 result = restoreDockArea(stateReader, childNode, testing);
-            } else if (stateReader.name() == "sizes") {
+            } else if (stateReader.name() == QLatin1String("sizes")) {
                 QString size = stateReader.readElementText().trimmed();
                 qCInfo(adsLog) << "Size: " << size;
                 QTextStream textStream(&size);
@@ -797,7 +797,7 @@ namespace ADS
             dockArea = new DockAreaWidget(m_dockManager, q);
 
         while (stateReader.readNextStartElement()) {
-            if (stateReader.name() != "widget")
+            if (stateReader.name() != QLatin1String("widget"))
                 continue;
 
             auto objectName = stateReader.attributes().value("name");
@@ -849,10 +849,10 @@ namespace ADS
     {
         bool result = true;
         while (stateReader.readNextStartElement()) {
-            if (stateReader.name() == "splitter") {
+            if (stateReader.name() == QLatin1String("splitter")) {
                 result = restoreSplitter(stateReader, createdWidget, testing);
                 qCInfo(adsLog) << "Splitter";
-            } else if (stateReader.name() == "area") {
+            } else if (stateReader.name() == QLatin1String("area")) {
                 result = restoreDockArea(stateReader, createdWidget, testing);
                 qCInfo(adsLog) << "DockAreaWidget";
             } else {
@@ -1302,7 +1302,7 @@ namespace ADS
 
         if (isFloating) {
             qCInfo(adsLog) << "Restore floating widget";
-            if (!stateReader.readNextStartElement() || stateReader.name() != "geometry")
+            if (!stateReader.readNextStartElement() || stateReader.name() != QLatin1String("geometry"))
                 return false;
 
             QByteArray geometryString = stateReader

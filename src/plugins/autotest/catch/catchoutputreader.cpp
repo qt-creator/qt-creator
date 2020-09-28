@@ -143,16 +143,16 @@ void CatchOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
         case QXmlStreamReader::EndElement: {
             const auto currentTag = m_xmlReader.name();
 
-            if (currentTag == CatchXml::SectionElement) {
+            if (currentTag == QLatin1String(CatchXml::SectionElement)) {
                 sendResult(ResultType::TestEnd);
                 testOutputNodeFinished(SectionNode);
-            } else if (currentTag == CatchXml::TestCaseElement) {
+            } else if (currentTag == QLatin1String(CatchXml::TestCaseElement)) {
                 sendResult(ResultType::TestEnd);
                 testOutputNodeFinished(TestCaseNode);
-            } else if (currentTag == CatchXml::GroupElement) {
+            } else if (currentTag == QLatin1String(CatchXml::GroupElement)) {
                 testOutputNodeFinished(GroupNode);
-            } else if (currentTag == CatchXml::ExpressionElement
-                       || currentTag == CatchXml::BenchmarkResults) {
+            } else if (currentTag == QLatin1String(CatchXml::ExpressionElement)
+                       || currentTag == QLatin1String(CatchXml::BenchmarkResults)) {
                 sendResult(m_currentResult);
                 m_currentExpression.clear();
                 m_testCaseInfo.pop();

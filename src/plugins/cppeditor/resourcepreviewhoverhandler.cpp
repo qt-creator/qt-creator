@@ -96,12 +96,12 @@ static QString findResourceInFile(const QString &resName, const QString &filePat
     while (!xmlr.atEnd() && !xmlr.hasError()) {
         const QXmlStreamReader::TokenType token = xmlr.readNext();
         if (token == QXmlStreamReader::StartElement) {
-            if (xmlr.name() == "qresource") {
+            if (xmlr.name() == QLatin1String("qresource")) {
                 const QXmlStreamAttributes sa = xmlr.attributes();
                 const QString prefixName = sa.value("prefix").toString();
                 if (!prefixName.isEmpty())
                     prefixStack.push_back(prefixName);
-            } else if (xmlr.name() == "file") {
+            } else if (xmlr.name() == QLatin1String("file")) {
                 const QXmlStreamAttributes sa = xmlr.attributes();
                 const QString aliasName = sa.value("alias").toString();
                 const QString fileName = xmlr.readElementText();
@@ -117,7 +117,7 @@ static QString findResourceInFile(const QString &resName, const QString &filePat
                     return fileName;
             }
         } else if (token == QXmlStreamReader::EndElement) {
-            if (xmlr.name() == "qresource") {
+            if (xmlr.name() == QLatin1String("qresource")) {
                 if (!prefixStack.isEmpty())
                     prefixStack.pop_back();
             }

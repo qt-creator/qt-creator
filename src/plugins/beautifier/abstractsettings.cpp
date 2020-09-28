@@ -319,7 +319,7 @@ void AbstractSettings::readDocumentation()
     QXmlStreamReader xml(&file);
     if (!xml.readNextStartElement())
         return;
-    if (xml.name() != Constants::DOCUMENTATION_XMLROOT) {
+    if (xml.name() != QLatin1String(Constants::DOCUMENTATION_XMLROOT)) {
         BeautifierPlugin::showError(tr("The file \"%1\" is not a valid documentation file.")
                                     .arg(filename));
         return;
