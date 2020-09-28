@@ -678,6 +678,10 @@ QtcProcess::QtcProcess(QObject *parent)
     static int qProcessProcessErrorMeta = qRegisterMetaType<QProcess::ProcessError>();
     Q_UNUSED(qProcessExitStatusMeta)
     Q_UNUSED(qProcessProcessErrorMeta)
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0) && defined(Q_OS_UNIX)
+    setChildProcessModifier([this] { setupChildProcess_impl(); });
+#endif
 }
 
 void QtcProcess::setUseCtrlCStub(bool enabled)
@@ -1220,7 +1224,14 @@ QString QtcProcess::expandMacros(const QString &str, AbstractMacroExpander *mx, 
     return ret;
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void QtcProcess::setupChildProcess()
+{
+    setupChildProcess_impl();
+}
+#endif
+
+void QtcProcess::setupChildProcess_impl()
 {
 #if defined Q_OS_UNIX
     // nice value range is -20 to +19 where -20 is highest, 0 default and +19 is lowest
@@ -1230,7 +1241,6 @@ void QtcProcess::setupChildProcess()
             perror("Failed to set nice value");
     }
 #endif
-    QProcess::setupChildProcess();
 }
 
 bool QtcProcess::ArgIterator::next()

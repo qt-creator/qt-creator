@@ -47,6 +47,9 @@ SshProcess::SshProcess()
             env.set("DISPLAY", ":0");
     }
     setProcessEnvironment(env.toProcessEnvironment());
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0) && defined(Q_OS_UNIX)
+    setChildProcessModifier([this] { setupChildProcess_impl(); });
+#endif
 }
 
 SshProcess::~SshProcess()
@@ -62,7 +65,14 @@ SshProcess::~SshProcess()
     waitForFinished(1000);
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void SshProcess::setupChildProcess()
+{
+    setupChildProcess_impl();
+}
+#endif
+
+void SshProcess::setupChildProcess_impl()
 {
 #ifdef Q_OS_UNIX
     setsid(); // Otherwise, ssh will ignore SSH_ASKPASS and read from /dev/tty directly.
