@@ -49,6 +49,7 @@
 #include <projectexplorer/taskhub.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qtsupport/qtcppkitinfo.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <app/app_version.h>
 
@@ -562,16 +563,6 @@ void CMakeBuildSystem::updateProjectData()
 
     CMakeConfig patchedConfig = cmakeBuildConfiguration()->configurationFromCMake();
     {
-        CMakeConfigItem settingFileItem;
-        settingFileItem.key = "ANDROID_DEPLOYMENT_SETTINGS_FILE";
-        settingFileItem.value = cmakeBuildConfiguration()
-                                    ->buildDirectory()
-                                    .pathAppended("android_deployment_settings.json")
-                                    .toString()
-                                    .toUtf8();
-        patchedConfig.append(settingFileItem);
-    }
-    {
         QSet<QString> res;
         QStringList apps;
         for (const auto &target : m_buildTargets) {
@@ -602,8 +593,32 @@ void CMakeBuildSystem::updateProjectData()
         auto newRoot = generateProjectTree(m_allFiles);
         if (newRoot) {
             setRootProjectNode(std::move(newRoot));
-            if (p->rootProjectNode())
-                p->setDisplayName(p->rootProjectNode()->displayName());
+            CMakeConfigItem settingFileItem;
+            settingFileItem.key = "ANDROID_DEPLOYMENT_SETTINGS_FILE";
+
+            const FilePath buildDir = cmakeBuildConfiguration()->buildDirectory();
+            if (p->rootProjectNode()) {
+                const QString nodeName = p->rootProjectNode()->displayName();
+                p->setDisplayName(nodeName);
+
+                const Kit *k = kit();
+                if (DeviceTypeKitAspect::deviceTypeId(k) == Android::Constants::ANDROID_DEVICE_TYPE) {
+                    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
+                    if (qt && qt->qtVersion() >= QtSupport::QtVersionNumber{6, 0, 0}) {
+                        const QLatin1String jsonFile("android-%1-deployment-settings.json");
+                        settingFileItem.value = buildDir.pathAppended(jsonFile.arg(nodeName))
+                                                    .toString()
+                                                    .toUtf8();
+                    }
+                }
+            }
+
+            if (settingFileItem.value.isEmpty()) {
+                settingFileItem.value = buildDir.pathAppended("android_deployment_settings.json")
+                                            .toString()
+                                            .toUtf8();
+            }
+            patchedConfig.append(settingFileItem);
 
             for (const CMakeBuildTarget &bt : m_buildTargets) {
                 const QString buildKey = bt.title;
@@ -646,7 +661,6 @@ void CMakeBuildSystem::updateProjectData()
     {
         updateQmlJSCodeModel();
     }
-
     emit cmakeBuildConfiguration()->buildTypeChanged();
 
     qCDebug(cmakeBuildSystemLog) << "All CMake project data up to date.";
