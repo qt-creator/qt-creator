@@ -217,6 +217,8 @@ SwitchLanguageComboboxAction::SwitchLanguageComboboxAction(QObject *parent)
 QWidget *SwitchLanguageComboboxAction::createWidget(QWidget *parent)
 {
     QPointer<QComboBox> comboBox = new QComboBox(parent);
+    // FIXME: this combobox does not work at the moment
+    comboBox->setDisabled(true);
     const QString toolTip(tr("Switch the language used by preview."));
     comboBox->setToolTip(toolTip);
     comboBox->addItem(tr("Default"));

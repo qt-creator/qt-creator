@@ -91,24 +91,6 @@ void QmlPreviewClientTest::testZoom()
     QVERIFY(packet.atEnd());
 }
 
-void QmlPreviewClientTest::testLanguate()
-{
-    TestableQmlPreviewClient client;
-    QUrl url("file:///some/file.qml");
-    QString locale("qt_QT");
-    client.language(url, locale);
-    QCOMPARE(client.messages.count(), 1);
-    QmlDebug::QPacket packet(client.dataStreamVersion(), client.messages.takeFirst());
-    qint8 command;
-    QUrl resultUrl;
-    QString resultLocale;
-    packet >> command >> resultUrl >> resultLocale;
-    QCOMPARE(static_cast<QmlPreviewClient::Command>(command), QmlPreviewClient::Language);
-    QCOMPARE(resultUrl, url);
-    QCOMPARE(resultLocale, locale);
-    QVERIFY(packet.atEnd());
-}
-
 void QmlPreviewClientTest::testMessageReceived()
 {
     TestableQmlPreviewClient client;

@@ -124,6 +124,7 @@ QmlDebugTranslationWidget::QmlDebugTranslationWidget(QWidget *parent)
     layout()->addWidget(elideWarningCheckBox);
     connect(elideWarningCheckBox, &QCheckBox::stateChanged, [this] (int state) {
         m_elideWarning = (state == Qt::Checked);
+
     });
 
     auto controlLayout = new QHBoxLayout;
@@ -298,14 +299,16 @@ void QmlDebugTranslationWidget::runTest()
         int timerCounter = 1;
         const auto testLanguageList = m_testLanguages;
 
+        if (m_elideWarning)
+            previewPlugin->changeElideWarning(true);
+
         auto testLanguages = [previewPlugin, runControl, testLanguageList](int timerCounter, const QString &previewedFile) {
-            qDebug() << "testLanguages" << previewedFile;
             for (auto language : testLanguageList) {
                 QTimer::singleShot(timerCounter * 1000, previewPlugin, [previewPlugin, runControl, language, previewedFile]() {
                     if (runControl && runControl->isRunning()) {
                         if (!previewedFile.isEmpty())
                             previewPlugin->setPreviewedFile(previewedFile);
-                        previewPlugin->setLocale(language);
+                        previewPlugin->setLocaleIsoCode(language);
                     }
                 });
             }
@@ -319,7 +322,7 @@ void QmlDebugTranslationWidget::runTest()
         //delete m_currentRunControl; // who deletes the runcontrol?
         m_currentRunControl = nullptr;
         if (auto previewPlugin = qobject_cast<Internal::QmlPreviewPlugin*>(getPreviewPlugin()))
-            previewPlugin->setLocale(m_lastUsedLanguageBeforeTest);
+            previewPlugin->setLocaleIsoCode(m_lastUsedLanguageBeforeTest);
     });
 
     connect(runControl, &ProjectExplorer::RunControl::appendMessage,
@@ -332,7 +335,7 @@ void QmlDebugTranslationWidget::runTest()
             if (auto runConfiguration = target->activeRunConfiguration()) {
                 runControl->setRunConfiguration(runConfiguration);
                 if (runControl->createMainWorker()) {
-                    previewPlugin->setLocale(QString());
+                    previewPlugin->setLocaleIsoCode(QString());
                     runControl->initiateStart();
                 }
             }
@@ -399,7 +402,7 @@ void QmlDebugTranslationWidget::appendMessage(const QString &message, Utils::Out
         return;
     }
     const QString serviceSeperator = ": QQmlDebugTranslationService: ";
-    if (!message.contains(serviceSeperator) || message.contains("DebugTranslation service - language changed"))
+    if (!message.contains(serviceSeperator))
         return;
     QString locationString = message;
     locationString = locationString.split(serviceSeperator).first();
