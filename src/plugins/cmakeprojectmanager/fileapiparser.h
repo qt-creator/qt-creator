@@ -57,6 +57,7 @@ class ReplyFileContents
 public:
     QString generator;
     QString cmakeExecutable;
+    QString ctestExecutable;
     QString cmakeRoot;
 
     QVector<ReplyObject> replies;

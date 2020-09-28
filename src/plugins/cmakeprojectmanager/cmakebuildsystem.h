@@ -89,6 +89,10 @@ public:
 
     CMakeBuildConfiguration *cmakeBuildConfiguration() const;
 
+    QList<ProjectExplorer::TestCaseInfo> const testcasesInfo() const final;
+    Utils::CommandLine commandLineForTests(const QList<QString> &tests,
+                                           const QStringList &options) const final;
+
     // Generic CMake helper functions:
     static CMakeConfig parseCMakeCacheDotTxt(const Utils::FilePath &cacheFile,
                                              QString *errorMessage);
@@ -143,6 +147,8 @@ private:
     void updateReparseParameters(const int parameters);
     int takeReparseParameters();
 
+    void runCTest();
+
     ProjectExplorer::TreeScanner m_treeScanner;
     QHash<QString, bool> m_mimeBinaryCache;
     QList<const ProjectExplorer::FileNode *> m_allFiles;
@@ -164,6 +170,10 @@ private:
         m_buildDirToTempDir;
     FileApiReader m_reader;
     mutable bool m_isHandlingError = false;
+
+    // CTest integration
+    QString m_ctestPath;
+    QList<ProjectExplorer::TestCaseInfo> m_testNames;
 };
 
 } // namespace Internal

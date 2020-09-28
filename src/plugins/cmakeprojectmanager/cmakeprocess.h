@@ -62,6 +62,7 @@ public:
     void processStandardOutput();
     void processStandardError();
 
+    int lastExitCode() const { return m_lastExitCode; }
 signals:
     void started();
     void finished(int exitCode, QProcess::ExitStatus exitStatus);
@@ -76,6 +77,7 @@ private:
     bool m_processWasCanceled = false;
     QTimer m_cancelTimer;
     QElapsedTimer m_elapsed;
+    int m_lastExitCode = 0;
 };
 
 } // namespace Internal

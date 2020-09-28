@@ -135,6 +135,7 @@ static ReplyFileContents readReplyFile(const QFileInfo &fi, QString &errorMessag
             const QJsonObject paths = cmakeObject.value("paths").toObject();
             {
                 result.cmakeExecutable = paths.value("cmake").toString();
+                result.ctestExecutable = paths.value("ctest").toString();
                 result.cmakeRoot = paths.value("root").toString();
             }
             const QJsonObject generator = cmakeObject.value("generator").toObject();

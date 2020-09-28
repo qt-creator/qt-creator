@@ -54,6 +54,7 @@ public:
     ProjectExplorer::RawProjectParts projectParts;
     std::unique_ptr<CMakeProjectNode> rootProjectNode;
     QSet<Utils::FilePath> knownHeaders;
+    QString ctestPath;
 };
 
 FileApiQtcData extractData(FileApiData &data,

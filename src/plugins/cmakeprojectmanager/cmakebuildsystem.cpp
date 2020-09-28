@@ -62,6 +62,9 @@
 #include <QDir>
 #include <QGuiApplication>
 #include <QHash>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLoggingCategory>
 #include <QPushButton>
 
@@ -543,8 +546,11 @@ void CMakeBuildSystem::combineScanAndParse()
     m_reader.resetData();
 
     m_currentGuard = {};
+    m_testNames.clear();
 
     emitBuildSystemUpdated();
+
+    QTimer::singleShot(0, this, &CMakeBuildSystem::runCTest);
 }
 
 void CMakeBuildSystem::checkAndReportError(QString &errorMessage)
@@ -715,6 +721,8 @@ void CMakeBuildSystem::handleParsingSucceeded()
         checkAndReportError(errorMessage);
     }
 
+    m_ctestPath = m_reader.ctestPath();
+
     setApplicationTargets(appTargets());
     setDeploymentData(deploymentData());
 
@@ -734,6 +742,8 @@ void CMakeBuildSystem::handleParsingFailed(const QString &msg)
         ci.inCMakeCache = true;
     cmakeBuildConfiguration()->setConfigurationFromCMake(cmakeConfig);
     // ignore errorMessage here, we already got one.
+
+    m_ctestPath.clear();
 
     QTC_CHECK(m_waitingForParse);
     m_waitingForParse = false;
@@ -871,6 +881,49 @@ int CMakeBuildSystem::takeReparseParameters()
     return result;
 }
 
+void CMakeBuildSystem::runCTest()
+{
+    if (!cmakeBuildConfiguration()->error().isEmpty() || m_ctestPath.isEmpty()) {
+        qCDebug(cmakeBuildSystemLog) << "Cancel ctest run after failed cmake run";
+        emit testInformationUpdated();
+        return;
+    }
+    qCDebug(cmakeBuildSystemLog) << "Requesting ctest run after cmake run";
+
+    CommandLine cmd{m_ctestPath, {"-N", "--show-only=json-v1"}};
+    SynchronousProcess ctest;
+    ctest.setTimeoutS(1);
+    ctest.setEnvironment(cmakeBuildConfiguration()->environment().toStringList());
+    ctest.setWorkingDirectory(cmakeBuildConfiguration()->buildDirectory().toString());
+
+    const SynchronousProcessResponse response = ctest.run(cmd);
+    if (response.result == SynchronousProcessResponse::Finished) {
+        const QJsonDocument json = QJsonDocument::fromJson(response.allRawOutput());
+        if (!json.isEmpty() && json.isObject()) {
+            const QJsonObject jsonObj = json.object();
+            const QJsonObject btGraph = jsonObj.value("backtraceGraph").toObject();
+            const QJsonArray cmakelists = btGraph.value("files").toArray();
+            const QJsonArray nodes = btGraph.value("nodes").toArray();
+            const QJsonArray tests = jsonObj.value("tests").toArray();
+            for (const QJsonValue &testVal : tests) {
+                const QJsonObject test = testVal.toObject();
+                QTC_ASSERT(!test.isEmpty(), continue);
+                const int bt = test.value("backtrace").toInt(-1);
+                QTC_ASSERT(bt != -1, continue);
+                const QJsonObject btRef = nodes.at(bt).toObject();
+                int file = btRef.value("file").toInt(-1);
+                int line = btRef.value("line").toInt(-1);
+                QTC_ASSERT(file != -1 && line != -1, continue);
+                m_testNames.append({test.value("name").toString(),
+                                    FilePath::fromString(cmakelists.at(file).toString()),
+                                    line
+                                   });
+            }
+        }
+    }
+    emit testInformationUpdated();
+}
+
 CMakeBuildConfiguration *CMakeBuildSystem::cmakeBuildConfiguration() const
 {
     return static_cast<CMakeBuildConfiguration *>(BuildSystem::buildConfiguration());
@@ -941,6 +994,26 @@ CMakeConfig CMakeBuildSystem::parseCMakeCacheDotTxt(const Utils::FilePath &cache
     if (!errorMessage->isEmpty())
         return {};
     return result;
+}
+
+const QList<TestCaseInfo> CMakeBuildSystem::testcasesInfo() const
+{
+    return m_testNames;
+}
+
+CommandLine CMakeBuildSystem::commandLineForTests(const QList<QString> &tests,
+                                                  const QStringList &options) const
+{
+    QStringList args = options;
+    auto current = Utils::transform<QSet<QString>>(m_testNames, &TestCaseInfo::name);
+    if (tests.isEmpty() || current == Utils::toSet(tests))
+        return {m_ctestPath, args};
+
+    const QString regex = Utils::transform(tests, [](const QString &current) {
+        return QRegularExpression::escape(current);
+    }).join('|');
+    args << "-R" << QString('(' + regex + ')');
+    return {m_ctestPath, args};
 }
 
 DeploymentData CMakeBuildSystem::deploymentData() const

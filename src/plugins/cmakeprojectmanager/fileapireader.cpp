@@ -192,6 +192,12 @@ CMakeConfig FileApiReader::takeParsedConfiguration(QString &errorMessage)
     return cache;
 }
 
+QString FileApiReader::ctestPath() const
+{
+    // if we failed to run cmake we should not offer ctest information either
+    return m_lastCMakeExitCode == 0 ? m_ctestPath : QString();
+}
+
 std::unique_ptr<CMakeProjectNode> FileApiReader::generateProjectTree(
     const QList<const FileNode *> &allFiles, QString &errorMessage, bool includeHeaderNodes)
 {
@@ -267,6 +273,7 @@ void FileApiReader::endState(const QFileInfo &replyFi)
         m_projectParts = std::move(value->projectParts);
         m_rootProjectNode = std::move(value->rootProjectNode);
         m_knownHeaders = std::move(value->knownHeaders);
+        m_ctestPath = std::move(value->ctestPath);
 
         if (value->errorMessage.isEmpty()) {
             emit this->dataAvailable();
@@ -296,6 +303,7 @@ void FileApiReader::cmakeFinishedState(int code, QProcess::ExitStatus status)
     Q_UNUSED(code)
     Q_UNUSED(status)
 
+    m_lastCMakeExitCode = m_cmakeProcess->lastExitCode();
     m_cmakeProcess.release()->deleteLater();
 
     endState(FileApiParser::scanForCMakeReplyFile(m_parameters.workDirectory));

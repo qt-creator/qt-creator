@@ -66,6 +66,7 @@ public:
     QSet<Utils::FilePath> projectFilesToWatch() const;
     QList<CMakeBuildTarget> takeBuildTargets(QString &errorMessage);
     CMakeConfig takeParsedConfiguration(QString &errorMessage);
+    QString ctestPath() const;
     std::unique_ptr<CMakeProjectNode> generateProjectTree(
         const QList<const ProjectExplorer::FileNode *> &allFiles,
         QString &errorMessage,
@@ -95,6 +96,8 @@ private:
     ProjectExplorer::RawProjectParts m_projectParts;
     std::unique_ptr<CMakeProjectNode> m_rootProjectNode;
     QSet<Utils::FilePath> m_knownHeaders;
+    QString m_ctestPath;
+    int m_lastCMakeExitCode = 0;
 
     Utils::optional<QFuture<FileApiQtcData *>> m_future;
 

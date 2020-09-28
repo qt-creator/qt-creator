@@ -689,6 +689,8 @@ FileApiQtcData extractData(FileApiData &input,
 
     setupLocationInfoForTargets(result.rootProjectNode.get(), result.buildTargets);
 
+    result.ctestPath = input.replyFile.ctestExecutable;
+
     return result;
 }
 
