@@ -62,6 +62,7 @@ public:
         QLayout *layout = nullptr;
         QWidget *widget = nullptr;
         BaseAspect *aspect = nullptr;
+        QString text;
         int span = 1;
         Qt::Alignment align;
     };
