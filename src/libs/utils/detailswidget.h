@@ -27,6 +27,8 @@
 
 #include "utils_global.h"
 
+#include "porting.h"
+
 #include <QWidget>
 
 namespace Utils {
@@ -94,7 +96,7 @@ private:
 
 protected:
     void paintEvent(QPaintEvent *paintEvent) override;
-    void enterEvent(QEvent *event) override;
+    void enterEvent(EnterEvent *event) override;
     void leaveEvent(QEvent *event) override;
 
 private:

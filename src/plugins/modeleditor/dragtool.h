@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/porting.h>
+
 #include <QWidget>
 #include <QIcon>
 
@@ -46,7 +48,7 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
-    void enterEvent(QEvent *event) override;
+    void enterEvent(Utils::EnterEvent *event) override;
     void leaveEvent(QEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;

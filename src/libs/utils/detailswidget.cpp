@@ -292,7 +292,7 @@ void DetailsWidget::paintEvent(QPaintEvent *paintEvent)
     }
 }
 
-void DetailsWidget::enterEvent(QEvent * event)
+void DetailsWidget::enterEvent(EnterEvent *event)
 {
     QWidget::enterEvent(event);
     d->changeHoverState(true);

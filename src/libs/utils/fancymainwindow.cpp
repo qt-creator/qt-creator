@@ -26,6 +26,7 @@
 #include "fancymainwindow.h"
 
 #include "algorithm.h"
+#include "porting.h"
 #include "qtcassert.h"
 #include "stringutils.h"
 
@@ -74,7 +75,7 @@ public:
     DockWidget(QWidget *inner, FancyMainWindow *parent, bool immutable = false);
 
     bool eventFilter(QObject *, QEvent *event) override;
-    void enterEvent(QEvent *event) override;
+    void enterEvent(EnterEvent *event) override;
     void leaveEvent(QEvent *event) override;
     void handleMouseTimeout();
     void handleToplevelChanged(bool floating);
@@ -114,7 +115,7 @@ public:
 
     QSize minimumSizeHint() const override { return sizeHint(); }
 
-    void enterEvent(QEvent *event) override
+    void enterEvent(EnterEvent *event) override
     {
         if (isEnabled())
             update();
@@ -193,7 +194,7 @@ public:
         setProperty("managed_titlebar", 1);
     }
 
-    void enterEvent(QEvent *event) override
+    void enterEvent(EnterEvent *event) override
     {
         setActive(true);
         QWidget::enterEvent(event);
@@ -303,7 +304,7 @@ bool DockWidget::eventFilter(QObject *, QEvent *event)
     return false;
 }
 
-void DockWidget::enterEvent(QEvent *event)
+void DockWidget::enterEvent(EnterEvent *event)
 {
     if (!m_immutable)
         QApplication::instance()->installEventFilter(this);

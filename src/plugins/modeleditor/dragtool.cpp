@@ -120,7 +120,7 @@ void DragTool::paintEvent(QPaintEvent *event)
     }
 }
 
-void DragTool::enterEvent(QEvent *event)
+void DragTool::enterEvent(Utils::EnterEvent *event)
 {
     Q_UNUSED(event)
     update();

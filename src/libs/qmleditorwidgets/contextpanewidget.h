@@ -26,6 +26,9 @@
 #pragma once
 
 #include "qmleditorwidgets_global.h"
+
+#include <utils/porting.h>
+
 #include <QFrame>
 #include <QPointer>
 
@@ -62,7 +65,7 @@ protected:
     void mouseMoveEvent(QMouseEvent * event) override;
     void virtual protectedMoved();
     void leaveEvent(QEvent *) override;
-    void enterEvent(QEvent *) override;
+    void enterEvent(Utils::EnterEvent *) override;
 
 private:
     QGraphicsDropShadowEffect *m_dropShadowEffect;

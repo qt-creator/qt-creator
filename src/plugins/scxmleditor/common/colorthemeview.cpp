@@ -73,7 +73,7 @@ void ColorThemeItem::openColorDialog()
     }
 }
 
-void ColorThemeItem::enterEvent(QEvent *e)
+void ColorThemeItem::enterEvent(Utils::EnterEvent *e)
 {
     m_pen.setWidth(isEnabled() ? 3 : 1);
 

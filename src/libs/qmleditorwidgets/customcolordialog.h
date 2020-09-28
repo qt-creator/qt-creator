@@ -26,6 +26,9 @@
 #pragma once
 
 #include "qmleditorwidgets_global.h"
+
+#include <utils/porting.h>
+
 #include <QFrame>
 
 QT_BEGIN_NAMESPACE
@@ -83,7 +86,7 @@ signals:
 protected:
     void setupWidgets();
     void leaveEvent(QEvent *) override;
-    void enterEvent(QEvent *) override;
+    void enterEvent(Utils::EnterEvent *) override;
 
 private:
     QFrame *m_beforeColorWidget;

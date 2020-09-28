@@ -28,6 +28,7 @@
 #include "core_global.h"
 
 #include <utils/id.h>
+#include <utils/porting.h>
 
 #include <QWidget>
 #include <QObject>
@@ -76,7 +77,7 @@ public:
     ~WelcomePageButton() override;
 
     void mousePressEvent(QMouseEvent *) override;
-    void enterEvent(QEvent *) override;
+    void enterEvent(Utils::EnterEvent *) override;
     void leaveEvent(QEvent *) override;
 
     void setText(const QString &text);

@@ -50,9 +50,10 @@
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
+#include <utils/porting.h>
+#include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/treemodel.h>
-#include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
 #include <QAbstractItemModel>
@@ -456,15 +457,9 @@ public:
 
     ~DebuggerToolTipWidget() override { DEBUG("DESTROY DEBUGGERTOOLTIP WIDGET"); }
 
-    void closeEvent(QCloseEvent *) override
-    {
-        DEBUG("CLOSE DEBUGGERTOOLTIP WIDGET");
-    }
+    void closeEvent(QCloseEvent *) override { DEBUG("CLOSE DEBUGGERTOOLTIP WIDGET"); }
 
-    void enterEvent(QEvent *) override
-    {
-        DEBUG("ENTER DEBUGGERTOOLTIP WIDGET");
-    }
+    void enterEvent(EnterEvent *) override { DEBUG("ENTER DEBUGGERTOOLTIP WIDGET"); }
 
     void leaveEvent(QEvent *) override
     {
@@ -1085,7 +1080,7 @@ void DebuggerToolTipManagerPrivate::loadSessionData()
     closeAllToolTips();
     const QString data = SessionManager::value(sessionSettingsKeyC).toString();
     QXmlStreamReader r(data);
-    if (r.readNextStartElement() && r.name() == sessionDocumentC) {
+    if (r.readNextStartElement() && r.name() == QLatin1String(sessionDocumentC)) {
         while (!r.atEnd()) {
             if (readStartElement(r, toolTipElementC)) {
                 const QXmlStreamAttributes attributes = r.attributes();

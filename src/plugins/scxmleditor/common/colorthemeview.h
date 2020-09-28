@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/porting.h>
+
 #include <QFrame>
 #include <QPen>
 
@@ -53,7 +55,7 @@ signals:
 
 protected:
     void paintEvent(QPaintEvent *e) override;
-    void enterEvent(QEvent *e) override;
+    void enterEvent(Utils::EnterEvent *e) override;
     void leaveEvent(QEvent *e) override;
     void mousePressEvent(QMouseEvent *e) override;
 

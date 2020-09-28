@@ -26,6 +26,7 @@
 #pragma once
 
 #include <utils/infobar.h>
+#include <utils/porting.h>
 
 #include <QIcon>
 #include <QWidget>
@@ -87,7 +88,7 @@ public:
     void paintTab(QPainter *painter, int tabIndex) const;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
-    void enterEvent(QEvent *event) override;
+    void enterEvent(Utils::EnterEvent *event) override;
     void leaveEvent(QEvent *event) override;
     bool validIndex(int index) const { return index >= 0 && index < m_tabs.count(); }
 

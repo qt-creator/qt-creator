@@ -41,13 +41,14 @@
 #include <coreplugin/modemanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/icon.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/icon.h>
+#include <utils/porting.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
-#include <utils/treemodel.h>
 #include <utils/theme/theme.h>
+#include <utils/treemodel.h>
 
 #include <QDesktopServices>
 #include <QHeaderView>
@@ -194,7 +195,7 @@ public:
         setLayout(layout);
     }
 
-    void enterEvent(QEvent *) override
+    void enterEvent(EnterEvent *) override
     {
         QPalette pal;
         pal.setColor(QPalette::Window, themeColor(Theme::Welcome_HoverColor));

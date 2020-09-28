@@ -27,6 +27,9 @@
 
 #include "utils_global.h"
 
+#ifdef QT_GUI_LIB
+#include <QEnterEvent>
+#endif
 #include <QString>
 
 namespace Utils {
@@ -82,6 +85,14 @@ inline QStringView midView(const QString &s, int offset, int length)
     return QStringView(s).mid(offset, length);
 #endif
 }
+#endif
+
+#ifdef QT_GUI_LIB
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+using EnterEvent = QEvent;
+#else
+using EnterEvent = QEnterEvent;
+#endif
 #endif
 
 } // namespace Utils
