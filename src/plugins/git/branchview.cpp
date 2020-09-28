@@ -262,10 +262,12 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
             contextMenu.addSeparator();
             contextMenu.addAction(tr("Cherry &Pick"), this, &BranchView::cherryPick);
         }
-        if (currentLocal && !currentSelected && !isTag) {
-            contextMenu.addAction(tr("&Track"), this, [this] {
-                m_model->setRemoteTracking(selectedIndex());
-            });
+        if (!currentSelected && !isTag) {
+            if (currentLocal) {
+                contextMenu.addAction(tr("&Track"), this, [this] {
+                    m_model->setRemoteTracking(selectedIndex());
+                });
+            }
             if (!isLocal) {
                 contextMenu.addSeparator();
                 contextMenu.addAction(tr("&Push"), this, &BranchView::push);
