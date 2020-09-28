@@ -30,6 +30,9 @@ import sys
 from optparse import OptionParser
 from toolfunctions import checkDirectory
 from toolfunctions import getFileContent
+if sys.version_info.major == 3:
+    from functools import reduce
+
 
 def parseCommandLine():
     global directory, tsv
@@ -43,10 +46,11 @@ def parseCommandLine():
     elif len(args) == 1:
         directory = os.path.abspath(args[0])
     else:
-        print "\nERROR: Too many arguments\n"
+        print("\nERROR: Too many arguments\n")
         parser.print_help()
         sys.exit(1)
     tsv = options.tsv
+
 
 def readProperties(line):
     def readOneProperty(rawProperties):
@@ -64,6 +68,7 @@ def readProperties(line):
         properties[name] = value
     return objectName, properties
 
+
 def main():
     global directory, tsv
     objMap = checkDirectory(directory)
@@ -71,22 +76,23 @@ def main():
 
     # Which properties have been used at least once?
     eachObjectsProperties = [set(properties.keys()) for properties in objects.values()]
-    usedProperties = list(reduce(lambda x,y: x | y, eachObjectsProperties))
+    usedProperties = list(reduce(lambda x, y: x | y, eachObjectsProperties))
 
     if tsv:
-        print "\t".join(["Squish internal name"] + usedProperties)
+        print("\t".join(["Squish internal name"] + usedProperties))
         for name, properties in objects.items():
             values = [name] + map(lambda x: properties.setdefault(x, ""), usedProperties)
-            print "\t".join(values)
+            print("\t".join(values))
     else:
         maxPropertyLength = max(map(len, usedProperties))
         for name, properties in objects.items():
-            print "Squish internal name: %s" % name
-            print "Properties:"
+            print("Squish internal name: %s" % name)
+            print("Properties:")
             for key, val in properties.items():
-                print "%s: %s" % (key.rjust(maxPropertyLength + 4), val)
-            print
+                print("%s: %s" % (key.rjust(maxPropertyLength + 4), val))
+            print()
     return 0
+
 
 if __name__ == '__main__':
     parseCommandLine()
