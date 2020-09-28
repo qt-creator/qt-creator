@@ -1395,6 +1395,13 @@ void Qt5InformationNodeInstanceServer::changeState(const ChangeStateCommand &com
     render3DEditView();
 }
 
+void Qt5InformationNodeInstanceServer::removeProperties(const RemovePropertiesCommand &command)
+{
+    Qt5NodeInstanceServer::removeProperties(command);
+
+    render3DEditView();
+}
+
 // update 3D view size when it changes in creator side
 void Qt5InformationNodeInstanceServer::update3DViewState(const Update3dViewStateCommand &command)
 {
