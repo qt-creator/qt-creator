@@ -62,7 +62,6 @@
 #include <QRegularExpression>
 #include <QString>
 #include <QStringList>
-#include <QTextCodec>
 #include <QPointer>
 #include <QScopedPointer>
 #include <QSharedPointer>
@@ -77,6 +76,8 @@ using Qt::dec;
 using Qt::showbase;
 using Qt::hex;
 using Qt::noforcesign;
+#else
+#include <QTextCodec>
 #endif
 
 #include <stdlib.h>
