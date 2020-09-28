@@ -1712,6 +1712,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(dd->m_filePropertiesAction, &QAction::triggered, this, []() {
                 const Node *currentNode = ProjectTree::currentNode();
                 QTC_ASSERT(currentNode && currentNode->asFileNode(), return);
+                ProjectTree::CurrentNodeKeeper nodeKeeper;
                 DocumentManager::showFilePropertiesDialog(currentNode->filePath());
             });
     connect(dd->m_removeFileAction, &QAction::triggered,
@@ -3618,6 +3619,8 @@ void ProjectExplorerPluginPrivate::removeFile()
     const Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode && currentNode->asFileNode(), return);
 
+    ProjectTree::CurrentNodeKeeper nodeKeeper;
+
     const Utils::FilePath filePath = currentNode->filePath();
     using NodeAndPath = QPair<const Node *, Utils::FilePath>;
     QList<NodeAndPath> filesToRemove{qMakePair(currentNode, currentNode->filePath())};
@@ -3685,6 +3688,8 @@ void ProjectExplorerPluginPrivate::duplicateFile()
     Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode && currentNode->asFileNode(), return);
 
+    ProjectTree::CurrentNodeKeeper nodeKeeper;
+
     FileNode *fileNode = currentNode->asFileNode();
     QString filePath = currentNode->filePath().toString();
     QFileInfo sourceFileInfo(filePath);
@@ -3724,6 +3729,8 @@ void ProjectExplorerPluginPrivate::deleteFile()
 {
     Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode && currentNode->asFileNode(), return);
+
+    ProjectTree::CurrentNodeKeeper nodeKeeper;
 
     FileNode *fileNode = currentNode->asFileNode();
 

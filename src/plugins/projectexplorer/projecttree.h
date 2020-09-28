@@ -60,6 +60,14 @@ public:
     static Node *currentNode();
     static Utils::FilePath currentFilePath();
 
+    class CurrentNodeKeeper {
+    public:
+        CurrentNodeKeeper();
+        ~CurrentNodeKeeper();
+    private:
+        const bool m_active = false;
+    };
+
     // Integration with ProjectTreeWidget
     static void registerWidget(Internal::ProjectTreeWidget *widget);
     static void unregisterWidget(Internal::ProjectTreeWidget *widget);
@@ -131,6 +139,7 @@ private:
     Node *m_currentNode = nullptr;
     Project *m_currentProject = nullptr;
     Internal::ProjectTreeWidget *m_focusForContextMenu = nullptr;
+    int m_keepCurrentNodeRequests = 0;
     Core::Context m_lastProjectContext;
 };
 

@@ -490,7 +490,23 @@ const QList<Node *> ProjectTree::siblingsWithSameBaseName(const Node *fileNode)
 
 void ProjectTree::hideContextMenu()
 {
-    m_focusForContextMenu = nullptr;
+    if (m_keepCurrentNodeRequests == 0)
+        m_focusForContextMenu = nullptr;
+}
+
+ProjectTree::CurrentNodeKeeper::CurrentNodeKeeper()
+    : m_active(ProjectTree::instance()->m_focusForContextMenu)
+{
+    if (m_active)
+        ++ProjectTree::instance()->m_keepCurrentNodeRequests;
+}
+
+ProjectTree::CurrentNodeKeeper::~CurrentNodeKeeper()
+{
+    if (m_active && --ProjectTree::instance()->m_keepCurrentNodeRequests == 0) {
+        ProjectTree::instance()->m_focusForContextMenu = nullptr;
+        ProjectTree::instance()->update();
+    }
 }
 
 } // namespace ProjectExplorer
