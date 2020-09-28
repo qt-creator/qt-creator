@@ -39,6 +39,7 @@
 #include <qmldesignerplugin.h>
 #include <qmldesignerconstants.h>
 #include <designeractionmanager.h>
+#include <designermcumanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/flowlayout.h>
@@ -351,8 +352,9 @@ void ItemLibraryWidget::reloadQmlSource()
 void ItemLibraryWidget::setupImportTagWidget()
 {
     QTC_ASSERT(m_model, return);
-    const DesignDocument *designDocument = QmlDesignerPlugin::instance()->currentDesignDocument();
-    const bool isQtForMCUs = designDocument && designDocument->isQtForMCUsProject();
+
+    const DesignerMcuManager &mcuManager = DesignerMcuManager::instance();
+    const bool isQtForMCUs = mcuManager.isMCUProject();
 
     const QStringList imports = m_model->metaInfo().itemLibraryInfo()->showTagsForImports();
 

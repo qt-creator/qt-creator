@@ -32,6 +32,7 @@
 #include <nodemetainfo.h>
 #include <qmldesignerplugin.h>
 #include <qmlobjectnode.h>
+#include <designermcumanager.h>
 
 #include <utils/qtcassert.h>
 
@@ -261,76 +262,12 @@ bool PropertyEditorValue::isTranslated() const
     return false;
 }
 
-static bool itemOrImage(const QmlDesigner::NodeMetaInfo &metaInfo)
+static bool isAllowedSubclassType(const QString &type, const QmlDesigner::NodeMetaInfo &metaInfo)
 {
     if (!metaInfo.isValid())
         return false;
 
-    if (metaInfo.isSubclassOf("QtQuick.Image") || metaInfo.isSubclassOf("QtQuick.Text"))
-        return true;
-
-    return false;
-}
-
-static QList<QByteArray> prepareNonMcuProperties()
-{
-    QList<QByteArray> result;
-
-    //Builtins:
-    const QList<QByteArray> itemProperties = {"layer", "opacity", "gradient", "smooth", "antialiasing",
-                                              "border", "baselineOffset", "focus", "activeFocusOnTab"};
-    const QList<QByteArray> mouseAreaProperties = {"propagateComposedEvents", "preventStealing", "cursorShape",
-                                                   "scrollGestureEnabled", "drag", "acceptedButtons", "hoverEnabled"};
-    const QList<QByteArray> flickableProperties = {"boundsBehavior", "boundsMovement",
-                                                   "flickDeceleration", "flickableDirection",
-                                                   "leftMargin", "rightMargin", "bottomMargin", "topMargin",
-                                                   "originX", "originY",
-                                                   "pixelAligned", "pressDelay", "synchronousDrag"};
-    const QList<QByteArray> imageProperties = {"mirror", "mipmap",  "cache", "autoTransform", "asynchronous",
-                                              "sourceSize", "smooth"};
-    const QList<QByteArray> textProperties = {"elide", "lineHeight", "lineHeightMode", "wrapMode", "style",
-                                              "styleColor", "minimumPointSize", "minimumPixelSize", "styleColor",
-                                              "fontSizeMode", "renderType", "textFormat", "maximumLineCount"};
-    const QList<QByteArray> paddingProperties = {"bottomPadding", "topPadding", "leftPadding", "rightPadding"};
-    const QList<QByteArray> columnRowProperties = {"layoutDirection"};
-    const QList<QByteArray> listViewProperties = {"cacheBuffer", "highlightRangeMode", "highlightMoveDuration",
-                                                  "highlightResizeDuration", "preferredHighlightBegin", "layoutDirection",
-                                                  "preferredHighlightEnd", "highlightFollowsCurrentItem", "keyNavigationWraps",
-                                                  "snapMode", "highlightMoveVelocity", "highlightResizeVelocity"};
-    //Animations:
-    const QList<QByteArray> animationProperties = {"paused"};
-
-    //QtQuick.Controls:
-    const QList<QByteArray> controlProperties = {"focusPolicy", "hoverEnabled", "wheelEnabled"};
-    const QList<QByteArray> abstractButtonProperties = {"display", "autoExclusive"};
-    const QList<QByteArray> buttonProperties = {"flat", "highlighted"};
-    const QList<QByteArray> dialProperties = {}; //nothing in propeditor
-    const QList<QByteArray> progressBarProperties = {"indeterminate"};
-    const QList<QByteArray> radioButton = {}; //nothing in propeditor
-    const QList<QByteArray> sliderProperties = {"live", "snapMode", "touchDragThreshold"};
-    const QList<QByteArray> swipeViewProperties = {}; //nothing in propeditor
-    const QList<QByteArray> switchProperties = {}; //nothing in propeditor
-
-    result.append(itemProperties);
-    result.append(mouseAreaProperties);
-    result.append(flickableProperties);
-    result.append(imageProperties);
-    result.append(textProperties);
-    result.append(paddingProperties);
-    result.append(columnRowProperties);
-    result.append(listViewProperties);
-    result.append(animationProperties);
-    result.append(controlProperties);
-    result.append(abstractButtonProperties);
-    result.append(buttonProperties);
-    result.append(dialProperties);
-    result.append(progressBarProperties);
-    result.append(radioButton);
-    result.append(sliderProperties);
-    result.append(swipeViewProperties);
-    result.append(switchProperties);
-
-    return result;
+    return (metaInfo.isSubclassOf(type.toUtf8()));
 }
 
 bool PropertyEditorValue::isAvailable() const
@@ -338,31 +275,38 @@ bool PropertyEditorValue::isAvailable() const
     if (!m_modelNode.isValid())
         return true;
 
-    const QList<QByteArray> nonMcuProperties = prepareNonMcuProperties();
+    const QmlDesigner::DesignerMcuManager &mcuManager = QmlDesigner::DesignerMcuManager::instance();
 
-    const QByteArray fontPrefix = {"font"};
-    const QList<QByteArray> nonMcuFontProperties = {"wordSpacing", "letterSpacing", "hintingPreference",
-                                                    "kerning", "preferShaping",  "capitalization",
-                                                    "strikeout", "underline", "styleName"};
+    if (mcuManager.isMCUProject()) {
+        const QSet<QString> nonMcuProperties = mcuManager.bannedProperties();
+        const auto mcuAllowedItemProperties = mcuManager.allowedItemProperties();
+        const auto mcuBannedComplexProperties = mcuManager.bannedComplexProperties();
 
-    const QList<QByteArray> mcuTransformProperties = {"rotation", "scale", "transformOrigin"};
+        const QList<QByteArray> list = name().split('.');
+        const QByteArray pureName = list.constFirst();
+        const QString pureNameStr = QString::fromUtf8(pureName);
 
-    const QList<QByteArray> list = name().split('.');
-    const QByteArray pureName = list.constFirst();
+        const QByteArray ending = list.constLast();
+        const QString endingStr = QString::fromUtf8(ending);
 
-    QmlDesigner::DesignDocument *designDocument = QmlDesigner::QmlDesignerPlugin::instance()
-                                                      ->documentManager()
-                                                      .currentDesignDocument();
-
-    if (designDocument && designDocument->isQtForMCUsProject()) {
-        if (pureName == fontPrefix) {
-            if (nonMcuFontProperties.contains(list.constLast()))
-                return false;
+        //allowed item properties:
+        const auto itemTypes = mcuAllowedItemProperties.keys();
+        for (const auto &itemType : itemTypes) {
+            if (isAllowedSubclassType(itemType, m_modelNode.metaInfo())
+                    && mcuAllowedItemProperties.value(itemType).contains(pureNameStr)) {
+                    return true;
+            }
         }
-        if (nonMcuProperties.contains(pureName))
+
+        //banned properties:
+        //with prefixes:
+        if (mcuBannedComplexProperties.value(pureNameStr).contains(endingStr))
             return false;
-        if (mcuTransformProperties.contains(pureName) && !itemOrImage(m_modelNode.metaInfo()))
+
+        //general group:
+        if (nonMcuProperties.contains(pureNameStr))
             return false;
+
     }
 
     return true;
