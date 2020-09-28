@@ -149,6 +149,9 @@
     You can use either a solid color (3) or a gradient (4). You can select the
     gradient in the \uicontrol {Gradient Picker} (5).
 
+    The gradient stops (6) specify the color used at a given position in a
+    gradient. Drag them along the slider to set their values.
+
     The \uicontrol Original field displays the original color of the item,
     whereas the \uicontrol New field displays the current color. The
     \uicontrol Recent field displays the colors that you have last selected.
