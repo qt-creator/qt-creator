@@ -49,7 +49,7 @@ public:
 private:
     void onCrumblePathElementClicked(const QVariant &data);
     void updateVisibility();
-    void showSaveDialog();
+    bool showSaveDialog();
 
 private:
     bool m_isInternalCalled = false;
