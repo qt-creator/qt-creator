@@ -30,6 +30,8 @@
 
 #include <utils/fileutils.h>
 
+#include <QSet>
+
 namespace ClangTools {
 namespace Internal {
 

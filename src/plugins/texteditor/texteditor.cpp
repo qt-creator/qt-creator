@@ -1164,7 +1164,7 @@ void TextEditorWidgetPrivate::print(QPrinter *printer)
     if (!p.isActive())
         return;
 
-    QRectF pageRect(printer->pageRect());
+    QRectF pageRect(printer->pageLayout().paintRectPixels(printer->resolution()));
     if (pageRect.isEmpty())
         return;
 
@@ -1236,9 +1236,9 @@ void TextEditorWidgetPrivate::print(QPrinter *printer)
     int pageCopies;
     if (printer->collateCopies() == true) {
         docCopies = 1;
-        pageCopies = printer->numCopies();
+        pageCopies = printer->copyCount();
     } else {
-        docCopies = printer->numCopies();
+        docCopies = printer->copyCount();
         pageCopies = 1;
     }
 
@@ -1262,7 +1262,7 @@ void TextEditorWidgetPrivate::print(QPrinter *printer)
     }
 
     qCDebug(printLog) << "Printing " << m_document->filePath() << ":\n"
-                      << "  number of copies:" << printer->numCopies() << '\n'
+                      << "  number of copies:" << printer->copyCount() << '\n'
                       << "  from page" << fromPage << "to" << toPage << '\n'
                       << "  document page count:" << doc->pageCount() << '\n'
                       << "  page rectangle:" << pageRect << '\n'

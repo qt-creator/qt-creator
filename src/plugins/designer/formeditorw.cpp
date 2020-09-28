@@ -851,7 +851,7 @@ void FormEditorData::print()
 
     QPrinter *printer = ICore::printer();
     const bool oldFullPage =  printer->fullPage();
-    const QPrinter::Orientation oldOrientation =  printer->orientation ();
+    const QPageLayout::Orientation oldOrientation = printer->pageLayout().orientation();
     printer->setFullPage(false);
     do {
         // Grab the image to be able to a suggest suitable orientation
@@ -863,7 +863,8 @@ void FormEditorData::print()
         }
 
         const QSizeF pixmapSize = pixmap.size();
-        printer->setOrientation( pixmapSize.width() > pixmapSize.height() ?  QPrinter::Landscape :  QPrinter::Portrait);
+        printer->setPageOrientation(pixmapSize.width() > pixmapSize.height() ? QPageLayout::Landscape
+                                                                             : QPageLayout::Portrait);
 
         // Printer parameters
         QPrintDialog dialog(printer, fw);
@@ -895,7 +896,7 @@ void FormEditorData::print()
 
     } while (false);
     printer->setFullPage(oldFullPage);
-    printer->setOrientation(oldOrientation);
+    printer->setPageOrientation(oldOrientation);
 }
 
 } // namespace Internal

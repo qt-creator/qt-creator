@@ -817,7 +817,7 @@ QVariant MacrosModel::data(const QModelIndex &index, int role) const
         else if (column == MacroColumn)
             return macro.toString();
     } else if (role == Qt::TextAlignmentRole) {
-        return Qt::AlignTop + Qt::AlignLeft;
+        return QVariant::fromValue(Qt::AlignTop | Qt::AlignLeft);
     }
     return QVariant();
 }
@@ -1067,7 +1067,7 @@ QVariant TokensModel::data(const QModelIndex &index, int role) const
         else if (column == NewlineColumn)
             return CMI::Utils::toString(token.newline());
     } else if (role == Qt::TextAlignmentRole) {
-        return Qt::AlignTop + Qt::AlignLeft;
+        return QVariant::fromValue(Qt::AlignTop | Qt::AlignLeft);
     }
     return QVariant();
 }
