@@ -34,7 +34,6 @@
 #include <utility>
 
 QT_FORWARD_DECLARE_CLASS(QString)
-QT_FORWARD_DECLARE_CLASS(QStringList)
 QT_FORWARD_DECLARE_CLASS(QDebug)
 
 namespace QmlJS {

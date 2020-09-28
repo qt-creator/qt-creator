@@ -30,10 +30,6 @@
 
 #include "definitionref_p.h"
 
-QT_BEGIN_NAMESPACE
-class QStringList;
-QT_END_NAMESPACE
-
 namespace KSyntaxHighlighting
 {
 class Context;

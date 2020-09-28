@@ -27,9 +27,10 @@
 
 #include "utils_global.h"
 
+#include <QStringList>
+
 QT_BEGIN_NAMESPACE
 class QTextStream;
-class QStringList;
 QT_END_NAMESPACE
 
 namespace Utils {

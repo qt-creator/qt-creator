@@ -25,12 +25,7 @@
 
 #pragma once
 
-#include <qnamespace.h>
-
-QT_BEGIN_NAMESPACE
-class QStringList;
-class QString;
-QT_END_NAMESPACE
+#include <QStringList>
 
 /* Helper functions to extract information from PE Win32 executable
  * files (cf dumpbin utility). */

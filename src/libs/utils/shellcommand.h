@@ -35,7 +35,6 @@
 
 QT_BEGIN_NAMESPACE
 class QMutex;
-class QStringList;
 class QVariant;
 class QProcessEnvironment;
 template <typename T>

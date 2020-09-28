@@ -55,8 +55,6 @@ namespace ClangBackEnd {
 class ProjectManagementServerInterface;
 }
 
-QT_FORWARD_DECLARE_CLASS(QStringList)
-
 #include <vector>
 
 namespace ClangPchManager {

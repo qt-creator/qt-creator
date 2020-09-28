@@ -33,7 +33,6 @@
 QT_BEGIN_NAMESPACE
 class QChar;
 class QString;
-class QStringList;
 QT_END_NAMESPACE
 
 namespace KSyntaxHighlighting

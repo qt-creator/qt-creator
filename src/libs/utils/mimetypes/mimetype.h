@@ -46,7 +46,6 @@
 
 QT_BEGIN_NAMESPACE
 class QFileinfo;
-class QStringList;
 QT_END_NAMESPACE
 
 namespace Utils {

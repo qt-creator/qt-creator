@@ -25,12 +25,7 @@
 
 #pragma once
 
-#include <QtGlobal>
-
-QT_BEGIN_NAMESPACE
-class QString;
-class QStringList;
-QT_END_NAMESPACE
+#include <QStringList>
 
 namespace Designer {
 namespace Internal {

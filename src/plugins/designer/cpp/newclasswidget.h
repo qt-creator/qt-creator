@@ -27,10 +27,6 @@
 
 #include <QWidget>
 
-QT_BEGIN_NAMESPACE
-class QStringList;
-QT_END_NAMESPACE
-
 namespace Designer {
 namespace Internal {
 

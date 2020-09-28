@@ -32,7 +32,6 @@
 #include <QVector>
 
 QT_BEGIN_NAMESPACE
-class QStringList;
 class QRegularExpression;
 QT_END_NAMESPACE
 

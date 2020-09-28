@@ -32,10 +32,6 @@
 #include <QObject>
 #include <QPair>
 
-QT_BEGIN_NAMESPACE
-class QStringList;
-QT_END_NAMESPACE
-
 namespace Utils { class FilePath; }
 
 namespace Core {

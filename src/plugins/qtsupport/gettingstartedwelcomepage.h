@@ -29,7 +29,6 @@
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
-class QStringList;
 QT_END_NAMESPACE
 
 namespace QtSupport {

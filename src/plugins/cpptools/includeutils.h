@@ -33,7 +33,6 @@
 #include <QList>
 #include <QString>
 
-QT_FORWARD_DECLARE_CLASS(QStringList)
 QT_FORWARD_DECLARE_CLASS(QTextDocument)
 
 namespace CppTools {

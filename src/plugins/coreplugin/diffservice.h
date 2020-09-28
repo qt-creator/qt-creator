@@ -29,8 +29,6 @@
 
 #include <QObject>
 
-QT_FORWARD_DECLARE_CLASS(QStringList)
-
 namespace Core {
 
 class CORE_EXPORT DiffService

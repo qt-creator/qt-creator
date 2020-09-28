@@ -33,8 +33,6 @@
 #include <QList>
 #include <QSet>
 
-QT_FORWARD_DECLARE_CLASS(QStringList)
-
 namespace CppTools {
 
 class CPPTOOLS_EXPORT TypeHierarchy

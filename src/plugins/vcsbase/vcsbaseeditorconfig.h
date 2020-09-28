@@ -33,7 +33,6 @@
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QToolButton;
-class QStringList;
 QT_END_NAMESPACE
 
 namespace VcsBase {

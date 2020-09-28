@@ -27,10 +27,10 @@
 
 #include "utils_global.h"
 
+#include <QStringList>
+
 QT_BEGIN_NAMESPACE
 class QTextCodec;
-class QStringList;
-class QString;
 class QByteArray;
 QT_END_NAMESPACE
 
