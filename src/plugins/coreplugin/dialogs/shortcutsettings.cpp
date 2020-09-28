@@ -117,12 +117,18 @@ static QKeySequence keySequenceFromEditString(const QString &editString)
     return QKeySequence::fromString(text, QKeySequence::PortableText);
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+using KeyCombination = int;
+#else
+using KeyCombination = QKeyCombination;
+#endif
+
 static bool keySequenceIsValid(const QKeySequence &sequence)
 {
     if (sequence.isEmpty())
         return false;
     for (int i = 0; i < sequence.count(); ++i) {
-        if (sequence[i] == Qt::Key_unknown)
+        if (sequence[i] == KeyCombination(Qt::Key_unknown))
             return false;
     }
     return true;

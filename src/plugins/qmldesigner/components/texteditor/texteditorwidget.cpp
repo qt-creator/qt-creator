@@ -185,11 +185,11 @@ bool TextEditorWidget::eventFilter( QObject *, QEvent *event)
     static std::vector<QKeySequence> overrideSequences = { QKeySequence::SelectAll, QKeySequence::Cut,
                                                            QKeySequence::Copy, QKeySequence::Delete,
                                                            QKeySequence::Paste, QKeySequence::Undo,
-                                                           QKeySequence::Redo, QKeySequence(Qt::CTRL + Qt::ALT),
-                                                           QKeySequence(Qt::Key_Left + Qt::CTRL),
-                                                           QKeySequence(Qt::Key_Right + Qt::CTRL),
-                                                           QKeySequence(Qt::Key_Up + Qt::CTRL),
-                                                           QKeySequence(Qt::Key_Down + Qt::CTRL)
+                                                           QKeySequence::Redo, QKeySequence(Qt::CTRL | Qt::ALT),
+                                                           QKeySequence(Qt::Key_Left | Qt::CTRL),
+                                                           QKeySequence(Qt::Key_Right | Qt::CTRL),
+                                                           QKeySequence(Qt::Key_Up | Qt::CTRL),
+                                                           QKeySequence(Qt::Key_Down | Qt::CTRL)
                                                          };
     if (event->type() == QEvent::ShortcutOverride) {
         auto keyEvent = static_cast<QKeyEvent *>(event);

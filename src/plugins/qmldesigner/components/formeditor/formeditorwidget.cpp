@@ -175,7 +175,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
                                                                       28, 28, textColorNormal);
 
     m_zoomInAction = new QAction(zoomInIcon, tr("Zoom in"), this);
-    m_zoomInAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Plus));
+    m_zoomInAction->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_Plus));
     connect(m_zoomInAction.data(), &QAction::triggered, this, [this] {
         if (!m_formEditorView)
             return;
@@ -187,7 +187,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     m_toolBox->addRightSideAction(m_zoomInAction.data());
 
     m_zoomOutAction = new QAction(zoomOutIcon, tr("Zoom out"), this);
-    m_zoomOutAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Minus));
+    m_zoomOutAction->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_Minus));
     connect(m_zoomOutAction.data(), &QAction::triggered, this, [this] {
         if (!m_formEditorView)
             return;
@@ -206,7 +206,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     m_toolBox->addRightSideAction(m_zoomAction.data());
 
     m_zoomAllAction = new QAction(zoomAllIcon, tr("Zoom screen to fit all content"), this);
-    m_zoomAllAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_0));
+    m_zoomAllAction->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_0));
     connect(m_zoomAllAction.data(), &QAction::triggered, this, [this] {
         if (!m_formEditorView)
             return;
@@ -218,7 +218,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     m_toolBox->addRightSideAction(m_zoomAllAction.data());
 
     m_zoomSelectionAction = new QAction(zoomSelectionIcon, tr("Zoom screen to fit current selection"), this);
-    m_zoomSelectionAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_I));
+    m_zoomSelectionAction->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_I));
     connect(m_zoomSelectionAction.data(), &QAction::triggered, this, [this] {
         if (!m_formEditorView)
             return;

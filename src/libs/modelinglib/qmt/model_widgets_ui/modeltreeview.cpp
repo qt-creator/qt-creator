@@ -260,8 +260,10 @@ void ModelTreeView::contextMenuEvent(QContextMenuEvent *event)
         if (melement->owner()) {
             if (addSeparator)
                 menu.addSeparator();
-            menu.addAction(new ContextMenuAction(tr("Delete"), "delete",
-                                                 QKeySequence(Qt::CTRL + Qt::Key_D), &menu));
+            menu.addAction(new ContextMenuAction(tr("Delete"),
+                                                 "delete",
+                                                 QKeySequence(Qt::CTRL | Qt::Key_D),
+                                                 &menu));
         }
         QAction *selectedAction = menu.exec(event->globalPos());
         if (selectedAction) {

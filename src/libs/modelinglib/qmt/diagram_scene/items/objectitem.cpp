@@ -1008,8 +1008,8 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         menu.addSeparator();
     menu.addAction(new ContextMenuAction(tr("Remove"), "remove",
                                          QKeySequence(QKeySequence::Delete), &menu));
-    menu.addAction(new ContextMenuAction(tr("Delete"), "delete",
-                                         QKeySequence(Qt::CTRL + Qt::Key_D), &menu));
+    menu.addAction(
+        new ContextMenuAction(tr("Delete"), "delete", QKeySequence(Qt::CTRL | Qt::Key_D), &menu));
     //menu.addAction(new ContextMenuAction(tr("Select in Model Tree"), "selectInModelTree", &menu));
     QMenu alignMenu;
     alignMenu.setTitle(tr("Align Objects"));
