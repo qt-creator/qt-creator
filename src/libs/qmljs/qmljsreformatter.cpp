@@ -632,6 +632,8 @@ protected:
     bool visit(UiPublicMember *ast) override
     {
         if (ast->type == UiPublicMember::Property) {
+            if (ast->isRequired)
+                out("required ", ast->requiredToken);
             if (ast->isDefaultMember)
                 out("default ", ast->defaultToken);
             else if (ast->isReadonlyMember)
