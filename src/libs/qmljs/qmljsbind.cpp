@@ -29,6 +29,9 @@
 #include "qmljsdocument.h"
 #include "qmljsmodelmanagerinterface.h"
 
+#include <QtCore/QVersionNumber>
+#include <QtCore/QLibraryInfo>
+
 #include <utils/algorithm.h>
 
 using namespace LanguageUtils;
@@ -203,7 +206,12 @@ bool Bind::visit(UiImport *ast)
         version = ComponentVersion(ast->version->majorVersion, ast->version->minorVersion);
 
     if (ast->importUri) {
-        if (!version.isValid()) {
+        QVersionNumber qtVersion = QLibraryInfo::version();
+        if (ModelManagerInterface *model = ModelManagerInterface::instance()) {
+            ModelManagerInterface::ProjectInfo pInfo = model->projectInfoForPath(_doc->fileName());
+            qtVersion = QVersionNumber::fromString(pInfo.qtVersionString);
+        }
+        if (!version.isValid() && qtVersion.majorVersion() < 6) {
             _diagnosticMessages->append(
                         errorMessage(ast, tr("package import requires a version number")));
         }
