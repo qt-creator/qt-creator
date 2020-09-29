@@ -5700,8 +5700,8 @@ void tst_Dumpers::dumper_data()
                     "&s, &t, &uu, &u, &w")
 
                + Check("str1", "\"abc\"", "char *")
-               + Check("str2", "\"abc\"", "gchar *")
-               + Check("str2.0", "[0]", "97", "gchar") // 97: ASCII 'a'
+               + Check("str2", "\"abc\"", TypeDef("char *", "gchar *"))
+               + Check("str2.0", "[0]", "97", TypeDef("char", "gchar")) // 97: ASCII 'a'
                + CheckType("u", "unsigned char *")
                + CheckType("uu", "unsigned char [3]")
                + CheckType("s", "char *")
