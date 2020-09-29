@@ -42,7 +42,7 @@ class AndroidManifestEditorIconWidget;
 
 class AndroidManifestEditorIconContainerWidget : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Android::Internal::AndroidManifestEditorIconContainerWidget)
+    Q_OBJECT
 
 public:
     explicit AndroidManifestEditorIconContainerWidget(QWidget *parent,
@@ -54,6 +54,9 @@ public:
 private:
     QVector<AndroidManifestEditorIconWidget *> m_iconButtons;
     QString m_iconFileName = QLatin1String("icon");
+    bool m_hasIcons = false;
+signals:
+    void iconsModified();
 };
 
 } // namespace Internal
