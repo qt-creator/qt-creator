@@ -235,6 +235,8 @@ public:
     InternalNodePointer currentStateNode() const;
     InternalNodePointer currentTimelineNode() const;
 
+    void updateEnabledViews();
+
 private: //functions
     void removePropertyWithoutNotification(const InternalPropertyPointer &property);
     void removeAllSubNodes(const InternalNodePointer &internalNodePointer);
@@ -244,13 +246,16 @@ private: //functions
     QVector<ModelNode> toModelNodeVector(const QVector<InternalNodePointer> &internalNodeVector, AbstractView *view) const;
     QVector<InternalNodePointer> toInternalNodeVector(const QVector<ModelNode> &internalNodeVector) const;
 
+    const QList<QPointer<AbstractView>> enabledViews() const;
+
 private:
     Model *m_q;
     MetaInfo m_metaInfo;
     QList<Import> m_imports;
     QList<Import> m_possibleImportList;
     QList<Import> m_usedImportList;
-    QList<QPointer<AbstractView> > m_viewList;
+    QList<QPointer<AbstractView>> m_viewList;
+    QList<QPointer<AbstractView>> m_enabledViewList;
     QList<InternalNodePointer> m_selectedInternalNodeList;
     QHash<QString,InternalNodePointer> m_idNodeHash;
     QHash<qint32, InternalNodePointer> m_internalIdNodeHash;

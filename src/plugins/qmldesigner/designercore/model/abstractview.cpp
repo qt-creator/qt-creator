@@ -169,6 +169,9 @@ The default implementation is setting the reference of the model to the view.
 void AbstractView::modelAttached(Model *model)
 {
     setModel(model);
+
+    if (model)
+        model->d->updateEnabledViews();
 }
 
 /*!
@@ -182,7 +185,11 @@ is removing the reference to the model from the view.
 */
 void AbstractView::modelAboutToBeDetached(Model *)
 {
+    Model *oldModel = model();
     removeModel();
+
+    if (oldModel)
+        oldModel->d->updateEnabledViews();
 }
 
 /*!
@@ -658,6 +665,19 @@ bool AbstractView::executeInTransaction(const QByteArray &identifier, const Abst
     }
 
     return true;
+}
+
+bool AbstractView::isEnabled() const
+{
+    return m_enabled;
+}
+
+void AbstractView::setEnabled(bool b)
+{
+    m_enabled = b;
+
+    if (model())
+        model()->d->updateEnabledViews();
 }
 
 QList<ModelNode> AbstractView::allModelNodes() const

@@ -280,6 +280,9 @@ public:
     using OperationBlock = std::function<void()>;
     bool executeInTransaction(const QByteArray &identifier, const OperationBlock &lambda);
 
+    bool isEnabled() const;
+    void setEnabled(bool b);
+
 protected:
     void setModel(Model * model);
     void removeModel();
@@ -292,7 +295,7 @@ protected:
 
 private: //functions
     QList<ModelNode> toModelNodeList(const QList<Internal::InternalNodePointer> &nodeList) const;
-
+    bool m_enabled = true;
 
 private:
     QPointer<Model> m_model;
