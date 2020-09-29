@@ -368,4 +368,10 @@ QString BuildSystem::disabledReason(const QString &buildKey) const
     return {};
 }
 
+CommandLine BuildSystem::commandLineForTests(const QList<QString> & /*tests*/,
+                                             const QStringList & /*options*/) const
+{
+    return {};
+}
+
 } // namespace ProjectExplorer

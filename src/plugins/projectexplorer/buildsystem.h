@@ -38,6 +38,13 @@ namespace ProjectExplorer {
 class BuildConfiguration;
 class Node;
 
+struct TestCaseInfo
+{
+    QString name;
+    Utils::FilePath path;
+    int line = 0;
+};
+
 // --------------------------------------------------------------------
 // BuildSystem:
 // --------------------------------------------------------------------
@@ -95,6 +102,10 @@ public:
 
     void setRootProjectNode(std::unique_ptr<ProjectNode> &&root);
 
+    virtual const QList<TestCaseInfo> testcasesInfo() const { return {}; }
+    virtual Utils::CommandLine commandLineForTests(const QList<QString> &tests,
+                                                   const QStringList &options) const;
+
     class PROJECTEXPLORER_EXPORT ParseGuard
     {
         friend class BuildSystem;
@@ -138,6 +149,7 @@ signals:
     void parsingFinished(bool success);
     void deploymentDataChanged();
     void applicationTargetsChanged();
+    void testInformationUpdated();
 
 protected:
     // Helper methods to manage parsing state and signalling
