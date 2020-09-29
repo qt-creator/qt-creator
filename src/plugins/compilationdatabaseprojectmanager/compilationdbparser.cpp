@@ -167,8 +167,8 @@ static QStringList jsonObjectFlags(const QJsonObject &object, QSet<QString> &fla
 
 static FilePath jsonObjectFilename(const QJsonObject &object)
 {
-    const QString workingDir = QDir::fromNativeSeparators(object["directory"].toString());
-    FilePath fileName = FilePath::fromString(QDir::fromNativeSeparators(object["file"].toString()));
+    const QString workingDir = QDir::cleanPath(object["directory"].toString());
+    FilePath fileName = FilePath::fromString(QDir::cleanPath(object["file"].toString()));
     if (fileName.toFileInfo().isRelative())
         fileName = FilePath::fromString(QDir::cleanPath(workingDir + "/" + fileName.toString()));
     return fileName;
