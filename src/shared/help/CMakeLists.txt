@@ -28,3 +28,8 @@ add_qtc_library(shared_help STATIC
     indexwindow.cpp indexwindow.h
     topicchooser.cpp topicchooser.h topicchooser.ui
 )
+
+extend_qtc_library(shared_help
+  CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 5.15.0
+  DEFINES HELP_NEW_FILTER_ENGINE
+)
