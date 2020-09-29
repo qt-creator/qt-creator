@@ -40,22 +40,31 @@ namespace Android {
 namespace Internal {
 
 namespace {
+const QString extraExtraExtraHighDpiImagePath = QLatin1String("/res/drawable-xxxhdpi/");
+const QString extraExtraHighDpiImagePath = QLatin1String("/res/drawable-xxhdpi/");
+const QString extraHighDpiImagePath = QLatin1String("/res/drawable-xhdpi/");
 const QString highDpiImagePath = QLatin1String("/res/drawable-hdpi/");
 const QString mediumDpiImagePath = QLatin1String("/res/drawable-mdpi/");
 const QString lowDpiImagePath = QLatin1String("/res/drawable-ldpi/");
+const QString extraExtraExtraHighDpiPortraitImagePath = QLatin1String("/res/drawable-port-xxxhdpi/");
+const QString extraExtraHighDpiPortraitImagePath = QLatin1String("/res/drawable-port-xxhdpi/");
+const QString extraHighDpiPortraitImagePath = QLatin1String("/res/drawable-port-xhdpi/");
 const QString highDpiPortraitImagePath = QLatin1String("/res/drawable-port-hdpi/");
 const QString mediumDpiPortraitImagePath = QLatin1String("/res/drawable-port-mdpi/");
 const QString lowDpiPortraitImagePath = QLatin1String("/res/drawable-port-ldpi/");
+const QString extraExtraExtraHighDpiLandscapeImagePath = QLatin1String("/res/drawable-land-xxxhdpi/");
+const QString extraExtraHighDpiLandscapeImagePath = QLatin1String("/res/drawable-land-xxhdpi/");
+const QString extraHighDpiLandscapeImagePath = QLatin1String("/res/drawable-land-xhdpi/");
 const QString highDpiLandscapeImagePath = QLatin1String("/res/drawable-land-hdpi/");
 const QString mediumDpiLandscapeImagePath = QLatin1String("/res/drawable-land-mdpi/");
 const QString lowDpiLandscapeImagePath = QLatin1String("/res/drawable-land-ldpi/");
 const QString imageSuffix = QLatin1String(".png");
 const QSize lowDpiImageSize{200, 320};
 const QSize mediumDpiImageSize{320, 480};
-const QSize highDpiImageSize{480, 720};
-const QSize lowDpiLandscapeImageSize{320, 200};
-const QSize mediumDpiLandscapeImageSize{480, 320};
-const QSize highDpiLandscapeImageSize{720, 480};
+const QSize highDpiImageSize{480, 800};
+const QSize extraHighDpiImageSize{720, 1280};
+const QSize extraExtraHighDpiImageSize{960, 1600};
+const QSize extraExtraExtraHighDpiImageSize{1280, 1920};
 const QSize displaySize{48, 72};
 const QSize landscapeDisplaySize{72, 48};
 QString manifestDir(TextEditor::TextEditorWidget *textEditorWidget)
@@ -163,37 +172,68 @@ SplashIconContainerWidget::SplashIconContainerWidget(
     m_stickyCheck->setToolTip(tr("A non-sticky splash screen is hidden automatically when an activity is drawn.\n"
                                  "To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen()."));
     QTabWidget *tab = new QTabWidget(this);
+    auto sizeToStr = [](const QSize &size) { return QString(" (%1x%2)").arg(size.width()).arg(size.height()); };
 
+    auto xxxHdpiPage = createPage(textEditorWidget,
+                               m_imageButtons, m_portraitImageButtons, m_landscapeImageButtons,
+                               extraExtraExtraHighDpiImageSize,
+                               extraExtraExtraHighDpiImageSize,
+                               extraExtraExtraHighDpiImageSize.transposed(),
+                               sizeToStr(extraExtraExtraHighDpiImageSize), sizeToStr(extraExtraExtraHighDpiImageSize), sizeToStr(extraExtraExtraHighDpiImageSize.transposed()),
+                               extraExtraExtraHighDpiImagePath, m_imageFileName,
+                               extraExtraExtraHighDpiImagePath, m_portraitImageFileName,
+                               extraExtraExtraHighDpiImagePath, m_landscapeImageFileName);
+    tab->addTab(xxxHdpiPage, tr("XXXHDPI splash screen"));
+    auto xxHdpiPage = createPage(textEditorWidget,
+                               m_imageButtons, m_portraitImageButtons, m_landscapeImageButtons,
+                               extraExtraHighDpiImageSize,
+                               extraExtraHighDpiImageSize,
+                               extraExtraHighDpiImageSize.transposed(),
+                               sizeToStr(extraExtraHighDpiImageSize), sizeToStr(extraExtraHighDpiImageSize), sizeToStr(extraExtraHighDpiImageSize.transposed()),
+                               extraExtraHighDpiImagePath, m_imageFileName,
+                               extraExtraHighDpiImagePath, m_portraitImageFileName,
+                               extraExtraHighDpiImagePath, m_landscapeImageFileName);
+    tab->addTab(xxHdpiPage, tr("XXHDPI splash screen"));
+    auto xHdpiPage = createPage(textEditorWidget,
+                               m_imageButtons, m_portraitImageButtons, m_landscapeImageButtons,
+                               extraHighDpiImageSize,
+                               extraHighDpiImageSize,
+                               extraHighDpiImageSize.transposed(),
+                               sizeToStr(extraHighDpiImageSize), sizeToStr(extraHighDpiImageSize), sizeToStr(extraHighDpiImageSize.transposed()),
+                               extraHighDpiImagePath, m_imageFileName,
+                               extraHighDpiImagePath, m_portraitImageFileName,
+                               extraHighDpiImagePath, m_landscapeImageFileName);
+    tab->addTab(xHdpiPage, tr("XHDPI splash screen"));
     auto hdpiPage = createPage(textEditorWidget,
                                m_imageButtons, m_portraitImageButtons, m_landscapeImageButtons,
                                highDpiImageSize,
                                highDpiImageSize,
-                               highDpiLandscapeImageSize,
-                               tr(" (480x720)"), tr(" (480x720)"), tr(" (720x480)"),
+                               highDpiImageSize.transposed(),
+                               sizeToStr(highDpiImageSize), sizeToStr(highDpiImageSize), sizeToStr(highDpiImageSize.transposed()),
                                highDpiImagePath, m_imageFileName,
                                highDpiImagePath, m_portraitImageFileName,
                                highDpiImagePath, m_landscapeImageFileName);
-    tab->addTab(hdpiPage, tr("High DPI splash screen"));
+    tab->addTab(hdpiPage, tr("HDPI splash screen"));
     auto mdpiPage = createPage(textEditorWidget,
                                m_imageButtons, m_portraitImageButtons, m_landscapeImageButtons,
                                mediumDpiImageSize,
                                mediumDpiImageSize,
-                               mediumDpiLandscapeImageSize,
-                               tr(" (320x480)"), tr(" (320x480)"), tr(" (320x480)"),
+                               mediumDpiImageSize.transposed(),
+                               sizeToStr(mediumDpiImageSize), sizeToStr(mediumDpiImageSize), sizeToStr(mediumDpiImageSize.transposed()),
                                mediumDpiImagePath, m_imageFileName,
                                mediumDpiImagePath, m_portraitImageFileName,
                                mediumDpiImagePath, m_landscapeImageFileName);
-    tab->addTab(mdpiPage, tr("Medium DPI splash screen"));
+    tab->addTab(mdpiPage, tr("MDPI splash screen"));
     auto ldpiPage = createPage(textEditorWidget,
                                m_imageButtons, m_portraitImageButtons, m_landscapeImageButtons,
                                lowDpiImageSize,
                                lowDpiImageSize,
-                               lowDpiLandscapeImageSize,
-                               tr(" (200x320)"), tr(" (200x320)"), tr(" (320x200)"),
+                               lowDpiImageSize.transposed(),
+                               sizeToStr(lowDpiImageSize), sizeToStr(lowDpiImageSize), sizeToStr(lowDpiImageSize.transposed()),
                                lowDpiImagePath, m_imageFileName,
                                lowDpiImagePath, m_portraitImageFileName,
                                lowDpiImagePath, m_landscapeImageFileName);
-    tab->addTab(ldpiPage, tr("Low DPI splash screen"));
+    tab->addTab(ldpiPage, tr("LDPI splash screen"));
     layout->addWidget(m_stickyCheck);
     layout->setAlignment(m_stickyCheck, Qt::AlignLeft);
     layout->addWidget(tab);
@@ -229,13 +269,22 @@ SplashIconContainerWidget::SplashIconContainerWidget(
 
 static void maybeChangeImagePath(AndroidManifestEditorIconWidget *widget,
                                  TextEditor::TextEditorWidget *m_textEditorWidget,
+                                 const QString &extraExtraExtraHighDpiAlternativePath,
+                                 const QString &extraExtraHighDpiAlternativePath,
+                                 const QString &extraHighDpiAlternativePath,
                                  const QString &highDpiAlternativePath,
                                  const QString &mediumDpiAlternativePath,
                                  const QString &lowDpiAlternativePath)
 {
     QString currentPath = widget->targetIconPath();
     QString alternativePath = currentPath;
-    if (currentPath == highDpiImagePath)
+    if (currentPath == extraExtraExtraHighDpiImagePath)
+        alternativePath = extraExtraExtraHighDpiAlternativePath;
+    else if (currentPath == extraExtraHighDpiImagePath)
+        alternativePath = extraExtraHighDpiAlternativePath;
+    else if (currentPath == extraHighDpiImagePath)
+        alternativePath = extraHighDpiAlternativePath;
+    else if (currentPath == highDpiImagePath)
         alternativePath = highDpiAlternativePath;
     else if (currentPath == mediumDpiImagePath)
         alternativePath = mediumDpiAlternativePath;
@@ -257,12 +306,14 @@ void SplashIconContainerWidget::loadImages()
     for (auto &&imageButton : m_portraitImageButtons) {
         imageButton->setTargetIconFileName(m_portraitImageFileName + imageSuffix);
         maybeChangeImagePath(imageButton, m_textEditorWidget,
+                             extraExtraExtraHighDpiPortraitImagePath, extraExtraHighDpiPortraitImagePath, extraHighDpiPortraitImagePath,
                              highDpiPortraitImagePath, mediumDpiPortraitImagePath, lowDpiPortraitImagePath);
         imageButton->loadIcon();
     }
     for (auto &&imageButton : m_landscapeImageButtons) {
         imageButton->setTargetIconFileName(m_landscapeImageFileName + imageSuffix);
         maybeChangeImagePath(imageButton, m_textEditorWidget,
+                             extraExtraExtraHighDpiLandscapeImagePath, extraExtraHighDpiLandscapeImagePath, extraHighDpiLandscapeImagePath,
                              highDpiLandscapeImagePath, mediumDpiLandscapeImagePath, lowDpiLandscapeImagePath);
         imageButton->loadIcon();
     }
