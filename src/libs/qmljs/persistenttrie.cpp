@@ -526,14 +526,14 @@ QDebug &TrieNode::describe(QDebug &dbg, const TrieNode::Ptr &trie,
     return dbg;
 }
 
-QDebug &operator<<(QDebug &dbg, const TrieNode::Ptr &trie)
+QDebug operator<<(QDebug dbg, const TrieNode::Ptr &trie)
 {
     dbg.nospace()<<"Trie{\n";
     TrieNode::describe(dbg,trie,0);
     dbg << "}";
     return dbg.space();
 }
-QDebug &operator<<(QDebug &dbg, const Trie &trie)
+QDebug operator<<(QDebug dbg, const Trie &trie)
 {
     dbg.nospace()<<"Trie{\n";
     TrieNode::describe(dbg,trie.trie,0);
