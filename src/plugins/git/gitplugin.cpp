@@ -1405,7 +1405,7 @@ void GitPluginPrivate::commitFromEditor()
     // Close the submit editor
     m_submitActionTriggered = true;
     QTC_ASSERT(submitEditor(), return);
-    EditorManager::closeDocument(submitEditor()->document());
+    EditorManager::closeDocuments({submitEditor()->document()});
 }
 
 bool GitPluginPrivate::submitEditorAboutToClose()

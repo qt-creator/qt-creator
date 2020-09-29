@@ -57,6 +57,8 @@ class MainWindow;
 class OpenEditorsViewFactory;
 class OpenEditorsWindow;
 
+enum MakeWritableResult { OpenedWithVersionControl, MadeWritable, SavedAs, Failed };
+
 class EditorManagerPrivate : public QObject
 {
     Q_OBJECT

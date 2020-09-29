@@ -75,7 +75,7 @@ SourceAgentPrivate::SourceAgentPrivate()
 SourceAgentPrivate::~SourceAgentPrivate()
 {
     if (editor)
-        EditorManager::closeDocument(editor->document());
+        EditorManager::closeDocuments({editor->document()});
     editor = nullptr;
     delete locationMark;
 }

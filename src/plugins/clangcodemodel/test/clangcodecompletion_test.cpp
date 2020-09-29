@@ -198,7 +198,7 @@ OpenEditorAtCursorPosition::OpenEditorAtCursorPosition(const TestDocument &testD
 OpenEditorAtCursorPosition::~OpenEditorAtCursorPosition()
 {
     if (m_editor)
-        Core::EditorManager::closeEditor(m_editor, /* askAboutModifiedEditors= */ false);
+        Core::EditorManager::closeEditors({m_editor}, /* askAboutModifiedEditors= */ false);
 }
 
 

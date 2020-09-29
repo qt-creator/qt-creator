@@ -147,7 +147,7 @@ void Internal::TextEditorPlugin::testBlockSelectionTransformation()
         }
         QCOMPARE(textEditor->textDocument()->plainText(), transformedText);
     }
-    Core::EditorManager::closeDocument(editor->document(), false);
+    Core::EditorManager::closeDocuments({editor->document()}, false);
 }
 
 static const char text[] =
@@ -362,7 +362,7 @@ void Internal::TextEditorPlugin::testBlockSelectionInsert()
 
         QCOMPARE(textEditor->textDocument()->plainText(), transformedText);
     }
-    Core::EditorManager::closeDocument(editor->document(), false);
+    Core::EditorManager::closeDocuments({editor->document()}, false);
 }
 
 
@@ -440,7 +440,7 @@ void Internal::TextEditorPlugin::testBlockSelectionRemove()
 
         QCOMPARE(textEditor->textDocument()->plainText(), transformedText);
     }
-    Core::EditorManager::closeDocument(editor->document(), false);
+    Core::EditorManager::closeDocuments({editor->document()}, false);
 }
 
 void Internal::TextEditorPlugin::testBlockSelectionCopy_data()
@@ -495,7 +495,7 @@ void Internal::TextEditorPlugin::testBlockSelectionCopy()
 
         QCOMPARE(QGuiApplication::clipboard()->text(), copiedText);
     }
-    Core::EditorManager::closeDocument(editor->document(), false);
+    Core::EditorManager::closeDocuments({editor->document()}, false);
 }
 
 QString tabPolicyToString(TabSettings::TabPolicy policy)

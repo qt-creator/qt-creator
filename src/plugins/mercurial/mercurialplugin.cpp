@@ -676,7 +676,7 @@ void MercurialPluginPrivate::commitFromEditor()
     // Close the submit editor
     m_submitActionTriggered = true;
     QTC_ASSERT(submitEditor(), return);
-    Core::EditorManager::closeDocument(submitEditor()->document());
+    Core::EditorManager::closeDocuments({submitEditor()->document()});
 }
 
 bool MercurialPluginPrivate::submitEditorAboutToClose()

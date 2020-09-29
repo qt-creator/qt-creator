@@ -2035,7 +2035,7 @@ void FakeVimPluginPrivate::handleDelayedQuit(bool forced, IEditor *editor)
     if (EditorManager::hasSplitter())
         triggerAction(Core::Constants::REMOVE_CURRENT_SPLIT);
     else
-        EditorManager::closeEditor(editor, !forced);
+        EditorManager::closeEditors({editor}, !forced);
 }
 
 void FakeVimPluginPrivate::handleDelayedQuitAll(bool forced)

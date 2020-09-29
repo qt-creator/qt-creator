@@ -284,7 +284,7 @@ MemoryAgent::MemoryAgent(const MemoryViewSetupData &data, DebuggerEngine *engine
 MemoryAgent::~MemoryAgent()
 {
     if (m_service && m_service->editor())
-        EditorManager::closeDocument(m_service->editor()->document());
+        EditorManager::closeDocuments({m_service->editor()->document()});
     if (m_service && m_service->widget()) // m_service might be set to null by closeDocument
         m_service->widget()->close();
 }

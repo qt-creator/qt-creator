@@ -1555,7 +1555,7 @@ void PerforcePluginPrivate::commitFromEditor()
 {
     m_submitActionTriggered = true;
     QTC_ASSERT(submitEditor(), return);
-    EditorManager::closeDocument(submitEditor()->document());
+    EditorManager::closeDocuments({submitEditor()->document()});
 }
 
 void PerforcePluginPrivate::cleanCommitMessageFile()

@@ -450,7 +450,7 @@ void BaseFileFind::openEditor(SearchResult *result, const SearchResultItem &item
     IEditor *openedEditor =
             d->m_searchEngines[parameters.searchEngineIndex]->openEditor(item, parameters);
     if (!openedEditor)
-        EditorManager::openEditorAtSearchResult(item, EditorManager::DoNotSwitchToDesignMode);
+        EditorManager::openEditorAtSearchResult(item, Id(), EditorManager::DoNotSwitchToDesignMode);
     if (d->m_currentFindSupport)
         d->m_currentFindSupport->clearHighlights();
     d->m_currentFindSupport = nullptr;

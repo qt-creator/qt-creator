@@ -1447,9 +1447,9 @@ void EditorManagerPrivate::closeEditorOrDocument(IEditor *editor)
                         [&editor](IEditor *other) {
                             return editor != other && other->document() == editor->document();
                         })) {
-        EditorManager::closeEditor(editor);
+        EditorManager::closeEditors({editor});
     } else {
-        EditorManager::closeDocument(editor->document());
+        EditorManager::closeDocuments({editor->document()});
     }
 }
 
@@ -2239,7 +2239,7 @@ void EditorManagerPrivate::closeEditorFromContextMenu()
     } else {
         IDocument *document = d->m_contextMenuEntry ? d->m_contextMenuEntry->document : nullptr;
         if (document)
-            EditorManager::closeDocument(document);
+            EditorManager::closeDocuments({document});
     }
 }
 
@@ -2785,29 +2785,6 @@ void EditorManager::revertToSaved()
 }
 
 /*!
-    Closes \a editor. If \a askAboutModifiedEditors is \c true, prompts
-    users to save their changes before closing the editor.
-*/
-void EditorManager::closeEditor(IEditor *editor, bool askAboutModifiedEditors)
-{
-    if (editor)
-        closeEditors({editor}, askAboutModifiedEditors);
-}
-
-/*!
-    Closes the document specified by \a entry.
-*/
-void EditorManager::closeDocument(DocumentModel::Entry *entry)
-{
-    if (!entry)
-        return;
-    if (entry->isSuspended)
-        DocumentModelPrivate::removeEntry(entry);
-    else
-        closeDocuments({entry->document});
-}
-
-/*!
     Closes the documents specified by \a entries.
 
     Returns whether all documents were closed.
@@ -2914,15 +2891,22 @@ IEditor *EditorManager::openEditorAt(const QString &fileName, int line, int colu
     Opens the document at the position of the search hit \a item in the editor
     using the settings specified by \a flags.
 */
-void EditorManager::openEditorAtSearchResult(const SearchResultItem &item, OpenEditorFlags flags)
+void EditorManager::openEditorAtSearchResult(const SearchResultItem &item,
+                                             Id editorId,
+                                             OpenEditorFlags flags,
+                                             bool *newEditor)
 {
     if (item.path.empty()) {
-        openEditor(QDir::fromNativeSeparators(item.text), Id(), flags);
+        openEditor(QDir::fromNativeSeparators(item.text), editorId, flags, newEditor);
         return;
     }
 
-    openEditorAt(QDir::fromNativeSeparators(item.path.first()), item.mainRange.begin.line,
-                 item.mainRange.begin.column, Id(), flags);
+    openEditorAt(QDir::fromNativeSeparators(item.path.first()),
+                 item.mainRange.begin.line,
+                 item.mainRange.begin.column,
+                 editorId,
+                 flags,
+                 newEditor);
 }
 
 /*!
@@ -3188,17 +3172,6 @@ QList<IEditor*> EditorManager::visibleEditors()
         }
     }
     return editors;
-}
-
-/*!
-    Closes \a document. If \a askAboutModifiedEditors is \c true, prompts
-    users to save their changes before closing the document.
-
-    Returns whether the document was closed.
-*/
-bool EditorManager::closeDocument(IDocument *document, bool askAboutModifiedEditors)
-{
-    return closeDocuments({document}, askAboutModifiedEditors);
 }
 
 /*!

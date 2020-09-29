@@ -1643,7 +1643,7 @@ void ClearCasePluginPrivate::commitFromEditor()
 {
     m_submitActionTriggered = true;
     QTC_ASSERT(submitEditor(), return);
-    EditorManager::closeDocument(submitEditor()->document());
+    EditorManager::closeDocuments({submitEditor()->document()});
 }
 
 QString ClearCasePluginPrivate::runCleartoolSync(const QString &workingDir,
@@ -2712,7 +2712,7 @@ public:
 
     ~TestCase()
     {
-        EditorManager::closeDocument(m_editor->document(), false);
+        EditorManager::closeDocuments({m_editor->document()}, false);
         QCoreApplication::processEvents(); // process any pending events
 
         QFile file(m_fileName);

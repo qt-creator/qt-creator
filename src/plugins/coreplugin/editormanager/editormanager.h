@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -47,13 +47,6 @@ namespace Core {
 class IDocument;
 class SearchResultItem;
 
-enum MakeWritableResult {
-    OpenedWithVersionControl,
-    MadeWritable,
-    SavedAs,
-    Failed
-};
-
 namespace Internal {
 class EditorManagerPrivate;
 class MainWindow;
@@ -98,13 +91,17 @@ public:
         int lineNumber; // extracted line number, -1 if none
         int columnNumber; // extracted column number, -1 if none
     };
+
     static FilePathInfo splitLineAndColumnNumber(const QString &filePath);
     static IEditor *openEditor(const QString &fileName, Utils::Id editorId = {},
         OpenEditorFlags flags = NoFlags, bool *newEditor = nullptr);
     static IEditor *openEditorAt(const QString &fileName,  int line, int column = 0,
                                  Utils::Id editorId = {}, OpenEditorFlags flags = NoFlags,
                                  bool *newEditor = nullptr);
-    static void openEditorAtSearchResult(const SearchResultItem &item, OpenEditorFlags flags = NoFlags);
+    static void openEditorAtSearchResult(const SearchResultItem &item,
+                                         Utils::Id editorId = {},
+                                         OpenEditorFlags flags = NoFlags,
+                                         bool *newEditor = nullptr);
     static IEditor *openEditorWithContents(Utils::Id editorId, QString *titlePattern = nullptr,
                                            const QByteArray &contents = QByteArray(),
                                            const QString &uniqueId = QString(),
@@ -125,9 +122,7 @@ public:
     static void activateEditorForEntry(DocumentModel::Entry *entry, OpenEditorFlags flags = NoFlags);
     static IEditor *activateEditorForDocument(IDocument *document, OpenEditorFlags flags = NoFlags);
 
-    static bool closeDocument(IDocument *document, bool askAboutModifiedEditors = true);
     static bool closeDocuments(const QList<IDocument *> &documents, bool askAboutModifiedEditors = true);
-    static void closeDocument(DocumentModel::Entry *entry);
     static bool closeDocuments(const QList<DocumentModel::Entry *> &entries);
     static void closeOtherDocuments(IDocument *document);
     static bool closeAllDocuments();
@@ -139,7 +134,6 @@ public:
     static bool saveDocument(IDocument *document);
 
     static bool closeEditors(const QList<IEditor *> &editorsToClose, bool askAboutModifiedEditors = true);
-    static void closeEditor(IEditor *editor, bool askAboutModifiedEditors = true);
 
     static QByteArray saveState();
     static bool restoreState(const QByteArray &state);
