@@ -149,7 +149,9 @@ int main(int argc, char *argv[])
 #endif
 
     //If a style different from Desktop is set we have to use QGuiApplication
-    bool useGuiApplication = qEnvironmentVariableIsSet("QT_QUICK_CONTROLS_STYLE")
+    bool useGuiApplication = (!qEnvironmentVariableIsSet("QMLDESIGNER_FORCE_QAPPLICATION")
+                              || qgetenv("QMLDESIGNER_FORCE_QAPPLICATION") != "true")
+            && qEnvironmentVariableIsSet("QT_QUICK_CONTROLS_STYLE")
             && qgetenv("QT_QUICK_CONTROLS_STYLE") != "Desktop";
 
     if (useGuiApplication) {

@@ -499,6 +499,9 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     QmlDesigner::Import import = QmlDesigner::Import::createLibraryImport("QtQuick3D", "1.0");
     if (m_model->hasImport(import, true, true))
         environment.set("QMLDESIGNER_QUICK3D_MODE", "true");
+    import = QmlDesigner::Import::createLibraryImport("QtCharts", "2.0");
+    if (m_model->hasImport(import, true, true))
+        environment.set("QMLDESIGNER_FORCE_QAPPLICATION", "true");
 #endif
 
     QStringList importPaths = m_model->importPaths();
