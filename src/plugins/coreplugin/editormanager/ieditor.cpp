@@ -91,14 +91,21 @@ namespace Core {
     \fn int IEditor::currentLine() const
 
     Returns the current line in the document, if appropriate. The default
-    implementation returns \c 0.
+    implementation returns \c 0. Line numbers start at \c 1 for the first line.
+
+    \sa currentColumn()
+    \sa gotoLine()
 */
 
 /*!
     \fn int IEditor::currentColumn() const
 
     Returns the current column in the document, if appropriate. The default
-    implementation returns \c 0.
+    implementation returns \c 0. Column numbers start at \c 0 for the first
+    column.
+
+    \sa currentLine()
+    \sa gotoLine()
 */
 
 /*!
@@ -107,7 +114,13 @@ namespace Core {
     Goes to \a line and \a column in the document. If \a centerLine is
     \c true, centers the line in the editor.
 
+    Line numbers start at \c 1 for the first line, column numbers start at \c 0
+    for the first column.
+
     The default implementation does nothing.
+
+    \sa currentLine()
+    \sa currentColumn()
 */
 
 /*!

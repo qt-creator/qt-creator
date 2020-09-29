@@ -308,7 +308,7 @@ Id IDocument::id() const
     The default implementation does nothing and returns
     CannotHandle.
 
-    \sa EditorManager::open()
+    \sa EditorManager::openEditor()
     \sa shouldAutoSave()
     \sa setFilePath()
 */
