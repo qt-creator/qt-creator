@@ -159,6 +159,7 @@
                 \endlist
             \li \l{Simulating Data Input}
             \list
+                \li \l{Loading Placeholder Data}
                 \li \l{Simulating Application Logic}
                 \li \l{Simulating Dynamic Systems}
             \endlist

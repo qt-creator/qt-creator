@@ -104,6 +104,7 @@
                         \li \l{Specifying Item Properties}
                         \li \l{Using Custom Fonts}
                         \li \l{Annotating Designs}
+                        \li \l{Loading Placeholder Data}
                         \li \l{Qt Quick UI Forms}
                    \endlist
                 \li \l {Adding Dynamics}

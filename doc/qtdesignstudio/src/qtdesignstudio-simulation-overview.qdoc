@@ -26,7 +26,7 @@
 /*!
     \page studio-simulation-overview.html
     \previouspage creator-editor-options-text.html
-    \nextpage studio-javascript.html
+    \nextpage qtquick-placeholder-data.html
 
     \title Simulating Data Input
 
@@ -37,6 +37,12 @@
     Simulink simulation.
 
     \list
+        \li \l{Loading Placeholder Data}
+
+            You can create QML files that contain placeholder data, so that
+            you can test grid, list, or path views, even though you don't
+            have access to real data.
+
         \li \l{Simulating Application Logic}
 
         You can use JavaScript to generate mock data for your UI.

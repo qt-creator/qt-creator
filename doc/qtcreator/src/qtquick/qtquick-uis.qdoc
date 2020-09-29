@@ -101,6 +101,15 @@
             You can annotate your designs to provide reviewers or developers
             with additional information about them.
 
+        \if defined(qtcreator)
+        \li \l {Loading Placeholder Data}
+
+            You can create QML files that contain placeholder data, so that
+            you can test grid, list, or path views, even though you don't
+            have access to real data.
+
+        \endif
+
     \if defined(qtdesignstudio)
     \endlist
 
