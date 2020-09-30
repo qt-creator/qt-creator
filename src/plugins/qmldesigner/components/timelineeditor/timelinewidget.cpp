@@ -537,16 +537,30 @@ void TimelineWidget::setFocus()
 void TimelineWidget::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event)
+
+    m_timelineView->setEnabled(true);
+
+    if (m_timelineView->model())
+        init();
+
     graphicsScene()->setWidth(m_graphicsView->viewport()->width());
     graphicsScene()->invalidateLayout();
     graphicsScene()->invalidate();
     graphicsScene()->onShow();
+
+    QWidget::showEvent(event);
 }
 
 void TimelineWidget::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
     graphicsScene()->setWidth(m_graphicsView->viewport()->width());
+}
+
+void TimelineWidget::hideEvent(QHideEvent *event)
+{
+    m_timelineView->setEnabled(false);
+    QWidget::hideEvent(event);
 }
 
 TimelineView *TimelineWidget::timelineView() const

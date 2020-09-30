@@ -81,6 +81,7 @@ public slots:
 protected:
     void showEvent(QShowEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
+    void hideEvent(QHideEvent *event) override;
 
 private:
     void connectToolbar();

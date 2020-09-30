@@ -77,6 +77,10 @@ TimelineView::~TimelineView() = default;
 void TimelineView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
+
+    if (!isEnabled())
+        return;
+
     if (m_timelineWidget)
         m_timelineWidget->init();
 }
