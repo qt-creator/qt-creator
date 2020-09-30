@@ -546,9 +546,9 @@ class Dumper(DumperBase):
         return targs
 
     def typeName(self, nativeType):
-        if hasattr(nativeType, 'GetDisplayTypeName'):
-            return nativeType.GetDisplayTypeName()  # Xcode 6 (lldb-320)
-        return nativeType.GetName()             # Xcode 5 (lldb-310)
+        # Don't use GetDisplayTypeName since LLDB removed the inline namespace __1
+        # https://reviews.llvm.org/D74478
+        return nativeType.GetName()
 
     def nativeTypeId(self, nativeType):
         name = self.typeName(nativeType)
@@ -804,7 +804,7 @@ class Dumper(DumperBase):
         typeobjlist = self.target.FindTypes(nonPrefixedName)
         if typeobjlist.IsValid():
             for typeobj in typeobjlist:
-                n = self.canonicalTypeName(self.removeTypePrefix(typeobj.GetDisplayTypeName()))
+                n = self.canonicalTypeName(self.removeTypePrefix(typeobj.GetName()))
                 if n == nonPrefixedName:
                     #DumperBase.warn('FOUND TYPE USING FindTypes : %s' % typeobj)
                     self.typeCache[name] = typeobj
