@@ -4,6 +4,10 @@ MetaInfo {
         name: "QtQuick.Item"
         icon: ":/qtquickplugin/images/item-icon16.png"
 
+       Hints {
+           visibleNonDefaultProperties: "layer.effect"
+       }
+
         ItemLibraryEntry {
             name: "Item"
             category: "Qt Quick - Basic"
