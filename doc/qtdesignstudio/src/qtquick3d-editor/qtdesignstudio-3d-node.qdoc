@@ -50,7 +50,7 @@
     show components. It is useful when you want to show a component in a
     particular state, but hide it in another state, for example.
 
-    \section1 Setting Transform Properties
+    \section1 Managing 3D Transformations
 
     The value of the \uicontrol Translation property contains the position
     translation of the component in the local coordinate space established by
