@@ -5,19 +5,58 @@ if (APPLE)
   string(APPEND DESTDIR "/qmldesigner")
 endif()
 
-add_qtc_executable(qml2puppet
+add_qtc_library(qml2puppet_static
+  STATIC
   DEPENDS
-    Qt5::CorePrivate Qt5::Widgets Qt5::QmlPrivate
-    Qt5::QuickPrivate Qt5::Network Qt5::GuiPrivate
+  Qt5::CorePrivate Qt5::Gui
+  PUBLIC_INCLUDES "${SRCDIR}/interfaces"
+  SOURCES_PREFIX "${SRCDIR}/interfaces"
   SOURCES
-    "${SRCDIR}/qml2puppet/qml2puppetmain.cpp"
-    "${SRCDIR}/qmlpuppet.qrc"
-  DESTINATION ${DESTDIR}
+    commondefines.h
+    nodeinstanceclientinterface.h
+    nodeinstanceglobal.h
+    nodeinstanceserverinterface.cpp nodeinstanceserverinterface.h
 )
 
-extend_qtc_executable(qml2puppet
+extend_qtc_library(qml2puppet_static
+  PUBLIC_INCLUDES "${SRCDIR}/types"
+  SOURCES "${SRCDIR}/types/enumeration.h"
+)
+
+extend_qtc_library(qml2puppet_static
+  PUBLIC_INCLUDES "${SRCDIR}/container"
+  SOURCES_PREFIX "${SRCDIR}/container"
+  SOURCES
+    addimportcontainer.cpp addimportcontainer.h
+    idcontainer.cpp idcontainer.h
+    imagecontainer.cpp imagecontainer.h
+    informationcontainer.cpp informationcontainer.h
+    instancecontainer.cpp instancecontainer.h
+    mockuptypecontainer.cpp mockuptypecontainer.h
+    propertyabstractcontainer.cpp propertyabstractcontainer.h
+    propertybindingcontainer.cpp propertybindingcontainer.h
+    propertyvaluecontainer.cpp propertyvaluecontainer.h
+    reparentcontainer.cpp reparentcontainer.h
+    sharedmemory.h
+)
+
+extend_qtc_library(qml2puppet_static
+  CONDITION UNIX
+  SOURCES_PREFIX "${SRCDIR}/container"
+  SOURCES
+    sharedmemory_unix.cpp
+)
+
+extend_qtc_library(qml2puppet_static
+  CONDITION NOT UNIX
+  SOURCES_PREFIX "${SRCDIR}/container"
+  SOURCES
+    sharedmemory_qt.cpp
+)
+
+extend_qtc_library(qml2puppet_static
+  PUBLIC_INCLUDES "${SRCDIR}/commands"
   SOURCES_PREFIX "${SRCDIR}/commands"
-  INCLUDES "${PROJECT_SOURCE_DIR}/src/libs"
   SOURCES
     changeauxiliarycommand.cpp changeauxiliarycommand.h
     changebindingscommand.cpp changebindingscommand.h
@@ -57,37 +96,20 @@ extend_qtc_executable(qml2puppet
     scenecreatedcommand.h
 )
 
-extend_qtc_executable(qml2puppet
-  SOURCES_PREFIX "${SRCDIR}/container"
+add_qtc_executable(qml2puppet
+  DEPENDS
+    Qt5::CorePrivate Qt5::Widgets Qt5::QmlPrivate
+    Qt5::QuickPrivate Qt5::Network Qt5::GuiPrivate
+    qml2puppet_static
   SOURCES
-    addimportcontainer.cpp addimportcontainer.h
-    idcontainer.cpp idcontainer.h
-    imagecontainer.cpp imagecontainer.h
-    informationcontainer.cpp informationcontainer.h
-    instancecontainer.cpp instancecontainer.h
-    mockuptypecontainer.cpp mockuptypecontainer.h
-    propertyabstractcontainer.cpp propertyabstractcontainer.h
-    propertybindingcontainer.cpp propertybindingcontainer.h
-    propertyvaluecontainer.cpp propertyvaluecontainer.h
-    reparentcontainer.cpp reparentcontainer.h
-    sharedmemory.h
+    "${SRCDIR}/qml2puppet/qml2puppetmain.cpp"
+    "${SRCDIR}/qmlpuppet.qrc"
+  DESTINATION ${DESTDIR}
 )
 
 extend_qtc_executable(qml2puppet
-  CONDITION UNIX
-  SOURCES_PREFIX "${SRCDIR}/container"
-  SOURCES
-    sharedmemory_unix.cpp
-)
-extend_qtc_executable(qml2puppet
   CONDITION UNIX AND (NOT APPLE)
   DEPENDS rt
-)
-extend_qtc_executable(qml2puppet
-  CONDITION NOT UNIX
-  SOURCES_PREFIX "${SRCDIR}/container"
-  SOURCES
-    sharedmemory_qt.cpp
 )
 
 extend_qtc_executable(qml2puppet
@@ -113,15 +135,6 @@ extend_qtc_executable(qml2puppet
     selectionboxgeometry.cpp selectionboxgeometry.h
     linegeometry.cpp linegeometry.h
     icongizmoimageprovider.cpp icongizmoimageprovider.h
-)
-
-extend_qtc_executable(qml2puppet
-  SOURCES_PREFIX "${SRCDIR}/interfaces"
-  SOURCES
-    commondefines.h
-    nodeinstanceclientinterface.h
-    nodeinstanceglobal.h
-    nodeinstanceserverinterface.cpp nodeinstanceserverinterface.h
 )
 
 extend_qtc_executable(qml2puppet
