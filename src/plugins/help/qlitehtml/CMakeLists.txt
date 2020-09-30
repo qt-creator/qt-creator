@@ -35,7 +35,7 @@ add_qtc_library(qlitehtml
   PROPERTIES
     POSITION_INDEPENDENT_CODE ON
   SOURCES
-    container_qpainter.cpp container_qpainter.h
+    container_qpainter.cpp container_qpainter.h container_qpainter_p.h
     qlitehtml_global.h
     qlitehtmlwidget.cpp qlitehtmlwidget.h
 )

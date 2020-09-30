@@ -41,6 +41,7 @@ Product {
             files: [
                 "container_qpainter.cpp",
                 "container_qpainter.h",
+                "container_qpainter_p.h",
                 "qlitehtmlwidget.cpp",
                 "qlitehtmlwidget.h",
             ]

@@ -147,6 +147,7 @@ exists($$PWD/litehtml/CMakeLists.txt) {
 
 HEADERS += \
     $$PWD/container_qpainter.h \
+    $$PWD/container_qpainter_p.h \
     $$PWD/qlitehtmlwidget.h
 
 SOURCES += \
