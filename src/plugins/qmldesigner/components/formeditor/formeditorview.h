@@ -103,6 +103,7 @@ public:
     void changeToDragTool();
     void changeToSelectionTool();
     void changeToSelectionTool(QGraphicsSceneMouseEvent *event);
+    void resetToSelectionTool();
     void changeToResizeTool();
     void changeToTransformTools();
     void changeToCustomTool();
@@ -129,6 +130,9 @@ public:
 
     void exportAsImage();
     QPicture renderToPicture() const;
+
+    void setupFormEditorWidget();
+    void cleanupToolsAndScene();
 
 protected:
     void reset();

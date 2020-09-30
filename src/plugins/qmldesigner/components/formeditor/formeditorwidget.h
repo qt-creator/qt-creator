@@ -91,6 +91,8 @@ protected:
     void wheelEvent(QWheelEvent *event) override;
     QActionGroup *toolActionGroup() const;
     DocumentWarningWidget *errorWidget();
+    void hideEvent(QHideEvent *event) override;
+    void showEvent(QShowEvent *event) override;
 
 private:
     void changeTransformTool(bool checked);

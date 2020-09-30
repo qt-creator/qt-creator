@@ -518,4 +518,25 @@ DocumentWarningWidget *FormEditorWidget::errorWidget()
     return m_documentErrorWidget;
 }
 
+void FormEditorWidget::hideEvent(QHideEvent *event)
+{
+    QWidget::hideEvent(event);
+
+    m_formEditorView->setEnabled(false);
+}
+
+void FormEditorWidget::showEvent(QShowEvent *event)
+{
+    QWidget::showEvent(event);
+
+    const bool wasEnabled = isEnabled();
+    m_formEditorView->setEnabled(true);
+
+    if (!wasEnabled && m_formEditorView->model()) {
+        m_formEditorView->cleanupToolsAndScene();
+        m_formEditorView->setupFormEditorWidget();
+        m_formEditorView->resetToSelectionTool();
+    }
+}
+
 } // namespace QmlDesigner

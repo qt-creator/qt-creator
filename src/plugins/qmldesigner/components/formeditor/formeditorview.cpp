@@ -77,25 +77,13 @@ FormEditorView::~FormEditorView()
 
 void FormEditorView::modelAttached(Model *model)
 {
-    Q_ASSERT(model);
-    temporaryBlockView();
-
     AbstractView::modelAttached(model);
 
-    Q_ASSERT(m_scene->formLayerItem());
+    if (!isEnabled())
+        return;
 
-    if (QmlItemNode::isValidQmlItemNode(rootModelNode()))
-        setupFormEditorItemTree(rootModelNode());
-
-    m_formEditorWidget->updateActions();
-
-    if (!rewriterView()->errors().isEmpty())
-        m_formEditorWidget->showErrorMessageBox(rewriterView()->errors());
-    else
-        m_formEditorWidget->hideErrorMessageBox();
-
-    if (!rewriterView()->warnings().isEmpty())
-        m_formEditorWidget->showWarningMessageBox(rewriterView()->warnings());
+    temporaryBlockView();
+    setupFormEditorWidget();
 }
 
 
@@ -256,9 +244,9 @@ void FormEditorView::nodeCreated(const ModelNode &node)
         setupFormEditorItemTree(QmlItemNode(node));
 }
 
-void FormEditorView::modelAboutToBeDetached(Model *model)
+void FormEditorView::cleanupToolsAndScene()
 {
-    m_currentTool->setItems(QList<FormEditorItem*>());
+    m_currentTool->setItems(QList<FormEditorItem *>());
     m_selectionTool->clear();
     m_moveTool->clear();
     m_resizeTool->clear();
@@ -270,8 +258,12 @@ void FormEditorView::modelAboutToBeDetached(Model *model)
     m_formEditorWidget->resetView();
     scene()->resetScene();
 
-    m_currentTool = m_selectionTool.get();
+    changeCurrentToolTo(m_selectionTool.get());
+}
 
+void FormEditorView::modelAboutToBeDetached(Model *model)
+{
+    cleanupToolsAndScene();
     AbstractView::modelAboutToBeDetached(model);
 }
 
@@ -551,6 +543,11 @@ void FormEditorView::changeToSelectionTool(QGraphicsSceneMouseEvent *event)
     m_selectionTool->selectUnderPoint(event);
 }
 
+void FormEditorView::resetToSelectionTool()
+{
+    changeCurrentToolTo(m_selectionTool.get());
+}
+
 void FormEditorView::changeToResizeTool()
 {
     if (m_currentTool == m_resizeTool.get())
@@ -593,8 +590,7 @@ void FormEditorView::changeCurrentToolTo(AbstractFormEditorTool *newTool)
     m_currentTool->clear();
     m_currentTool = newTool;
     m_currentTool->clear();
-    m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(
-        selectedModelNodes())));
+    m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedModelNodes())));
 
     m_currentTool->start();
 }
@@ -774,6 +770,26 @@ void FormEditorView::exportAsImage()
 QPicture FormEditorView::renderToPicture() const
 {
     return m_formEditorWidget->renderToPicture();
+}
+
+void FormEditorView::setupFormEditorWidget()
+{
+    Q_ASSERT(model());
+
+    Q_ASSERT(m_scene->formLayerItem());
+
+    if (QmlItemNode::isValidQmlItemNode(rootModelNode()))
+        setupFormEditorItemTree(rootModelNode());
+
+    m_formEditorWidget->updateActions();
+
+    if (!rewriterView()->errors().isEmpty())
+        m_formEditorWidget->showErrorMessageBox(rewriterView()->errors());
+    else
+        m_formEditorWidget->hideErrorMessageBox();
+
+    if (!rewriterView()->warnings().isEmpty())
+        m_formEditorWidget->showWarningMessageBox(rewriterView()->warnings());
 }
 
 QmlItemNode findRecursiveQmlItemNode(const QmlObjectNode &firstQmlObjectNode)
