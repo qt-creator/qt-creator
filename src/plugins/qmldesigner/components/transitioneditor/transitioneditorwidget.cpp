@@ -385,10 +385,24 @@ void TransitionEditorWidget::setupScrollbar(int min, int max, int current)
 void TransitionEditorWidget::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event)
+
+    m_transitionEditorView->setEnabled(true);
+
+    if (m_transitionEditorView->model())
+        init();
+
     graphicsScene()->setWidth(m_graphicsView->viewport()->width());
     graphicsScene()->invalidateLayout();
     graphicsScene()->invalidate();
     graphicsScene()->onShow();
+
+    QWidget::showEvent(event);
+}
+
+void TransitionEditorWidget::hideEvent(QHideEvent *event)
+{
+    m_transitionEditorView->setEnabled(false);
+    QWidget::hideEvent(event);
 }
 
 void TransitionEditorWidget::resizeEvent(QResizeEvent *event)
