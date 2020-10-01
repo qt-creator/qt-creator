@@ -157,6 +157,7 @@ public:
     DiagnosticFilterModel(QObject *parent = nullptr);
 
     void setProject(ProjectExplorer::Project *project);
+    void addSuppressedDiagnostics(const SuppressedDiagnosticsList &diags);
     void addSuppressedDiagnostic(const SuppressedDiagnostic &diag);
     ProjectExplorer::Project *project() const { return m_project; }
 

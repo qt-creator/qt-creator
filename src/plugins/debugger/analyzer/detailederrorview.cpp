@@ -56,9 +56,10 @@ DetailedErrorView::DetailedErrorView(QWidget *parent) :
     m_copyAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     connect(m_copyAction, &QAction::triggered, [this] {
         const QModelIndexList selectedRows = selectionModel()->selectedRows();
-        QTC_ASSERT(selectedRows.count() == 1, return);
-        QApplication::clipboard()->setText(model()->data(selectedRows.first(),
-                                                         FullTextRole).toString());
+        QStringList data;
+        for (const QModelIndex &index : selectedRows)
+            data << model()->data(index, FullTextRole).toString();
+        QApplication::clipboard()->setText(data.join('\n'));
     });
     connect(this, &QAbstractItemView::clicked, [](const QModelIndex &index) {
         if (index.column() == LocationColumn) {

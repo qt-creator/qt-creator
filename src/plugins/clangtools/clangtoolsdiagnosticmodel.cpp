@@ -538,6 +538,12 @@ void DiagnosticFilterModel::setProject(ProjectExplorer::Project *project)
     handleSuppressedDiagnosticsChanged();
 }
 
+void DiagnosticFilterModel::addSuppressedDiagnostics(const SuppressedDiagnosticsList &diags)
+{
+    m_suppressedDiagnostics << diags;
+    invalidate();
+}
+
 void DiagnosticFilterModel::addSuppressedDiagnostic(const SuppressedDiagnostic &diag)
 {
     QTC_ASSERT(!m_project, return);

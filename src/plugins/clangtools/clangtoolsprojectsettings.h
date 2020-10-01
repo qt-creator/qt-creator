@@ -82,6 +82,7 @@ public:
     void setSelectedFiles(const QSet<Utils::FilePath> &value);
 
     SuppressedDiagnosticsList suppressedDiagnostics() const { return m_suppressedDiagnostics; }
+    void addSuppressedDiagnostics(const SuppressedDiagnosticsList &diags);
     void addSuppressedDiagnostic(const SuppressedDiagnostic &diag);
     void removeSuppressedDiagnostic(const SuppressedDiagnostic &diag);
     void removeAllSuppressedDiagnostics();

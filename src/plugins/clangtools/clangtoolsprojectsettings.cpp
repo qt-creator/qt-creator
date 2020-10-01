@@ -93,6 +93,12 @@ void ClangToolsProjectSettings::setSelectedFiles(const QSet<Utils::FilePath> &va
     emit changed();
 }
 
+void ClangToolsProjectSettings::addSuppressedDiagnostics(const SuppressedDiagnosticsList &diags)
+{
+    m_suppressedDiagnostics << diags;
+    emit suppressedDiagnosticsChanged();
+}
+
 void ClangToolsProjectSettings::addSuppressedDiagnostic(const SuppressedDiagnostic &diag)
 {
     QTC_ASSERT(!m_suppressedDiagnostics.contains(diag), return);
