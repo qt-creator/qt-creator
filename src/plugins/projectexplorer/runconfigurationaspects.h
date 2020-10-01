@@ -81,7 +81,7 @@ public:
     Utils::FilePath workingDirectory(const Utils::MacroExpander *expander) const;
     Utils::FilePath defaultWorkingDirectory() const;
     Utils::FilePath unexpandedWorkingDirectory() const;
-    void setDefaultWorkingDirectory(const Utils::FilePath &defaultWorkingDir);
+    void setDefaultWorkingDirectory(const Utils::FilePath &defaultWorkingDirectory);
     Utils::PathChooser *pathChooser() const;
 
 private:

@@ -52,6 +52,12 @@ namespace ProjectExplorer {
 
 /*!
     \class ProjectExplorer::TerminalAspect
+    \inmodule QtCreator
+
+    \brief The TerminalAspect class lets a user specify that an executable
+    should be run in a separate terminal.
+
+    The initial value is provided as a hint from the build systems.
 */
 
 TerminalAspect::TerminalAspect()
@@ -64,6 +70,9 @@ TerminalAspect::TerminalAspect()
             this, &TerminalAspect::calculateUseTerminal);
 }
 
+/*!
+    \reimp
+*/
 void TerminalAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!m_checkBox);
@@ -77,6 +86,9 @@ void TerminalAspect::addToLayout(LayoutBuilder &builder)
     });
 }
 
+/*!
+    \reimp
+*/
 void TerminalAspect::fromMap(const QVariantMap &map)
 {
     if (map.contains(settingsKey())) {
@@ -90,6 +102,9 @@ void TerminalAspect::fromMap(const QVariantMap &map)
         m_checkBox->setChecked(m_useTerminal);
 }
 
+/*!
+    \reimp
+*/
 void TerminalAspect::toMap(QVariantMap &data) const
 {
     if (m_userSet)
@@ -114,17 +129,26 @@ void TerminalAspect::calculateUseTerminal()
         m_checkBox->setChecked(m_useTerminal);
 }
 
+/*!
+    Returns whether a separate terminal should be used.
+*/
 bool TerminalAspect::useTerminal() const
 {
     return m_useTerminal;
 }
 
+/*!
+    Sets the initial value to \a hint.
+*/
 void TerminalAspect::setUseTerminalHint(bool hint)
 {
     m_useTerminalHint = hint;
     calculateUseTerminal();
 }
 
+/*!
+    Returns whether the user set the value.
+*/
 bool TerminalAspect::isUserSet() const
 {
     return m_userSet;
@@ -132,6 +156,10 @@ bool TerminalAspect::isUserSet() const
 
 /*!
     \class ProjectExplorer::WorkingDirectoryAspect
+    \inmodule QtCreator
+
+    \brief The WorkingDirectoryAspect class lets the user specify a
+    working directory for running the executable.
 */
 
 WorkingDirectoryAspect::WorkingDirectoryAspect()
@@ -141,6 +169,9 @@ WorkingDirectoryAspect::WorkingDirectoryAspect()
     setSettingsKey("RunConfiguration.WorkingDirectory");
 }
 
+/*!
+    \reimp
+*/
 void WorkingDirectoryAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!m_chooser);
@@ -187,6 +218,9 @@ void WorkingDirectoryAspect::resetPath()
     m_chooser->setFilePath(m_defaultWorkingDirectory);
 }
 
+/*!
+    \reimp
+*/
 void WorkingDirectoryAspect::fromMap(const QVariantMap &map)
 {
     m_workingDirectory = FilePath::fromString(map.value(settingsKey()).toString());
@@ -199,6 +233,9 @@ void WorkingDirectoryAspect::fromMap(const QVariantMap &map)
         m_chooser->setFilePath(m_workingDirectory.isEmpty() ? m_defaultWorkingDirectory : m_workingDirectory);
 }
 
+/*!
+    \reimp
+*/
 void WorkingDirectoryAspect::toMap(QVariantMap &data) const
 {
     const QString wd = m_workingDirectory == m_defaultWorkingDirectory
@@ -207,6 +244,11 @@ void WorkingDirectoryAspect::toMap(QVariantMap &data) const
     data.insert(keyForDefaultWd(), m_defaultWorkingDirectory.toString());
 }
 
+/*!
+    Returns the selected directory.
+
+    Macros in the value are expanded using \a expander.
+*/
 FilePath WorkingDirectoryAspect::workingDirectory(const MacroExpander *expander) const
 {
     const Utils::Environment env = m_envAspect ? m_envAspect->environment()
@@ -222,11 +264,19 @@ FilePath WorkingDirectoryAspect::defaultWorkingDirectory() const
     return m_defaultWorkingDirectory;
 }
 
+/*!
+    Returns the selected directory.
+
+    Macros in the value are not expanded.
+*/
 FilePath WorkingDirectoryAspect::unexpandedWorkingDirectory() const
 {
     return m_workingDirectory;
 }
 
+/*!
+    Sets the default value to \a defaultWorkingDir.
+*/
 void WorkingDirectoryAspect::setDefaultWorkingDirectory(const FilePath &defaultWorkingDir)
 {
     if (defaultWorkingDir == m_defaultWorkingDirectory)
@@ -244,6 +294,9 @@ void WorkingDirectoryAspect::setDefaultWorkingDirectory(const FilePath &defaultW
     }
 }
 
+/*!
+    \internal
+*/
 PathChooser *WorkingDirectoryAspect::pathChooser() const
 {
     return m_chooser;
@@ -252,6 +305,10 @@ PathChooser *WorkingDirectoryAspect::pathChooser() const
 
 /*!
     \class ProjectExplorer::ArgumentsAspect
+    \inmodule QtCreator
+
+    \brief The ArgumentsAspect class lets a user specify command line
+    arguments for an executable.
 */
 
 ArgumentsAspect::ArgumentsAspect()
@@ -262,6 +319,11 @@ ArgumentsAspect::ArgumentsAspect()
     m_labelText = tr("Command line arguments:");
 }
 
+/*!
+    Returns the main value of this aspect.
+
+    Macros in the value are expanded using \a expander.
+*/
 QString ArgumentsAspect::arguments(const MacroExpander *expander) const
 {
     QTC_ASSERT(expander, return m_arguments);
@@ -274,11 +336,19 @@ QString ArgumentsAspect::arguments(const MacroExpander *expander) const
     return expanded;
 }
 
+/*!
+    Returns the main value of this aspect.
+
+    Macros in the value are not expanded.
+*/
 QString ArgumentsAspect::unexpandedArguments() const
 {
     return m_arguments;
 }
 
+/*!
+    Sets the main value of this aspect to \a arguments.
+*/
 void ArgumentsAspect::setArguments(const QString &arguments)
 {
     if (arguments != m_arguments) {
@@ -291,16 +361,26 @@ void ArgumentsAspect::setArguments(const QString &arguments)
         m_multiLineChooser->setPlainText(arguments);
 }
 
+/*!
+    Sets the displayes label text to \a labelText.
+*/
 void ArgumentsAspect::setLabelText(const QString &labelText)
 {
     m_labelText = labelText;
 }
 
+/*!
+    Adds a button to reset the main value of this aspect to the value
+    computed by \a resetter.
+*/
 void ArgumentsAspect::setResetter(const std::function<QString()> &resetter)
 {
     m_resetter = resetter;
 }
 
+/*!
+    Resets the main value of this aspect.
+*/
 void ArgumentsAspect::resetArguments()
 {
     QString arguments;
@@ -309,6 +389,9 @@ void ArgumentsAspect::resetArguments()
     setArguments(arguments);
 }
 
+/*!
+    \reimp
+*/
 void ArgumentsAspect::fromMap(const QVariantMap &map)
 {
     QVariant args = map.value(settingsKey());
@@ -328,12 +411,18 @@ void ArgumentsAspect::fromMap(const QVariantMap &map)
         m_multiLineChooser->setPlainText(m_arguments);
 }
 
+/*!
+    \reimp
+*/
 void ArgumentsAspect::toMap(QVariantMap &map) const
 {
     map.insert(settingsKey(), m_arguments);
     map.insert(settingsKey() + ".multi", m_multiLine);
 }
 
+/*!
+    \internal
+*/
 QWidget *ArgumentsAspect::setupChooser()
 {
     if (m_multiLine) {
@@ -354,6 +443,9 @@ QWidget *ArgumentsAspect::setupChooser()
     return m_chooser.data();
 }
 
+/*!
+    \reimp
+*/
 void ArgumentsAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!m_chooser && !m_multiLineChooser && !m_multiLineButton);
@@ -404,6 +496,13 @@ void ArgumentsAspect::addToLayout(LayoutBuilder &builder)
 
 /*!
     \class ProjectExplorer::ExecutableAspect
+    \inmodule QtCreator
+
+    \brief The ExecutableAspect class provides a building block to provide an
+    executable for a RunConfiguration.
+
+    It combines a StringAspect that is typically updated automatically
+    by the build system's parsing results with an optional manual override.
 */
 
 ExecutableAspect::ExecutableAspect()
@@ -419,12 +518,21 @@ ExecutableAspect::ExecutableAspect()
             this, &ExecutableAspect::changed);
 }
 
+/*!
+    \internal
+*/
 ExecutableAspect::~ExecutableAspect()
 {
     delete m_alternativeExecutable;
     m_alternativeExecutable = nullptr;
 }
 
+/*!
+   Sets the display style of the paths to the default used on \a osType,
+   backslashes on Windows, forward slashes elsewhere.
+
+   \sa Utils::StringAspect::setDisplayFilter()
+*/
 void ExecutableAspect::setExecutablePathStyle(OsType osType)
 {
     m_executable.setDisplayFilter([osType](const QString &pathName) {
@@ -432,6 +540,11 @@ void ExecutableAspect::setExecutablePathStyle(OsType osType)
     });
 }
 
+/*!
+   Sets the settings key for history completion to \a historyCompleterKey.
+
+   \sa Utils::PathChooser::setHistoryCompleter()
+*/
 void ExecutableAspect::setHistoryCompleter(const QString &historyCompleterKey)
 {
     m_executable.setHistoryCompleter(historyCompleterKey);
@@ -439,6 +552,11 @@ void ExecutableAspect::setHistoryCompleter(const QString &historyCompleterKey)
         m_alternativeExecutable->setHistoryCompleter(historyCompleterKey);
 }
 
+/*!
+   Sets the acceptable kind of path values to \a expectedKind.
+
+   \sa Utils::PathChooser::setExpectedKind()
+*/
 void ExecutableAspect::setExpectedKind(const PathChooser::Kind expectedKind)
 {
     m_executable.setExpectedKind(expectedKind);
@@ -446,6 +564,13 @@ void ExecutableAspect::setExpectedKind(const PathChooser::Kind expectedKind)
         m_alternativeExecutable->setExpectedKind(expectedKind);
 }
 
+/*!
+   Sets the environment in which paths will be searched when the expected kind
+   of paths is chosen as PathChooser::Command or PathChooser::ExistingCommand
+   to \a env.
+
+   \sa Utils::StringAspect::setEnvironment()
+*/
 void ExecutableAspect::setEnvironment(const Environment &env)
 {
     m_executable.setEnvironment(env);
@@ -453,11 +578,25 @@ void ExecutableAspect::setEnvironment(const Environment &env)
         m_alternativeExecutable->setEnvironment(env);
 }
 
+/*!
+   Sets the display \a style for aspect.
+
+   \sa Utils::StringAspect::setDisplayStyle()
+*/
 void ExecutableAspect::setDisplayStyle(StringAspect::DisplayStyle style)
 {
     m_executable.setDisplayStyle(style);
 }
 
+/*!
+   Makes an auto-detected executable overridable by the user.
+
+   The \a overridingKey specifies the settings key for the user-provided executable,
+   the \a useOverridableKey the settings key for the fact that it
+   is actually overridden the user.
+
+   \sa Utils::StringAspect::makeCheckable()
+*/
 void ExecutableAspect::makeOverridable(const QString &overridingKey, const QString &useOverridableKey)
 {
     QTC_ASSERT(!m_alternativeExecutable, return);
@@ -471,6 +610,13 @@ void ExecutableAspect::makeOverridable(const QString &overridingKey, const QStri
             this, &ExecutableAspect::changed);
 }
 
+/*!
+    Returns the path of the executable specified by this aspect. In case
+    the user selected a manual override this will be the value specified
+    by the user.
+
+    \sa makeOverridable()
+ */
 FilePath ExecutableAspect::executable() const
 {
     if (m_alternativeExecutable && m_alternativeExecutable->isChecked())
@@ -479,6 +625,9 @@ FilePath ExecutableAspect::executable() const
     return m_executable.filePath();
 }
 
+/*!
+    \reimp
+*/
 void ExecutableAspect::addToLayout(LayoutBuilder &builder)
 {
     m_executable.addToLayout(builder);
@@ -486,28 +635,49 @@ void ExecutableAspect::addToLayout(LayoutBuilder &builder)
         m_alternativeExecutable->addToLayout(builder.finishRow());
 }
 
+/*!
+    Sets the label text for the main chooser to
+    \a labelText.
+
+    \sa Utils::StringAspect::setLabelText()
+*/
 void ExecutableAspect::setLabelText(const QString &labelText)
 {
     m_executable.setLabelText(labelText);
 }
 
+/*!
+    Sets the place holder text for the main chooser to
+    \a placeHolderText.
+
+    \sa Utils::StringAspect::setPlaceHolderText()
+*/
 void ExecutableAspect::setPlaceHolderText(const QString &placeHolderText)
 {
     m_executable.setPlaceHolderText(placeHolderText);
 }
 
+/*!
+    Sets the value of the main chooser to \a executable.
+*/
 void ExecutableAspect::setExecutable(const FilePath &executable)
 {
    m_executable.setFilePath(executable);
    m_executable.setShowToolTipOnLabel(true);
 }
 
+/*!
+    Sets the settings key to \a key.
+*/
 void ExecutableAspect::setSettingsKey(const QString &key)
 {
     BaseAspect::setSettingsKey(key);
     m_executable.setSettingsKey(key);
 }
 
+/*!
+  \reimp
+*/
 void ExecutableAspect::fromMap(const QVariantMap &map)
 {
     m_executable.fromMap(map);
@@ -515,6 +685,9 @@ void ExecutableAspect::fromMap(const QVariantMap &map)
         m_alternativeExecutable->fromMap(map);
 }
 
+/*!
+   \reimp
+*/
 void ExecutableAspect::toMap(QVariantMap &map) const
 {
     m_executable.toMap(map);
@@ -525,6 +698,14 @@ void ExecutableAspect::toMap(QVariantMap &map) const
 
 /*!
     \class ProjectExplorer::UseLibraryPathsAspect
+    \inmodule QtCreator
+
+    \brief The UseLibraryPathsAspect class lets a user specify whether build
+    library search paths should be added to the relevant environment
+    variables.
+
+    This modifies DYLD_LIBRARY_PATH and DYLD_FRAMEWORK_PATH on Mac, PATH
+    on Windows and LD_LIBRARY_PATH everywhere else.
 */
 
 UseLibraryPathsAspect::UseLibraryPathsAspect()
@@ -543,8 +724,13 @@ UseLibraryPathsAspect::UseLibraryPathsAspect()
     setValue(ProjectExplorerPlugin::projectExplorerSettings().addLibraryPathsToRunEnv);
 }
 
+
 /*!
     \class ProjectExplorer::UseDyldSuffixAspect
+    \inmodule QtCreator
+
+    \brief The UseDyldSuffixAspect class lets a user specify whether the
+    DYLD_IMAGE_SUFFIX environment variable should be used on Mac.
 */
 
 UseDyldSuffixAspect::UseDyldSuffixAspect()
