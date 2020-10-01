@@ -325,6 +325,32 @@ public:
 } // Internal
 
 /*!
+    \enum Utils::StringAspect::DisplayStyle
+    \inmodule QtCreator
+
+    The DisplayStyle enum describes the main visual characteristics of a
+    string aspect.
+
+      \value LabelDisplay
+             Based on QLabel, used for text that cannot be changed by the
+             user in this place, for example names of executables that are
+             defined in the build system.
+
+      \value LineEditDisplay
+             Based on QLineEdit, used for user-editable strings that usually
+             fit on a line.
+
+      \value TextEditDisplay
+             Based on QTextEdit, used for user-editable strings that often
+             do not fit on a line.
+
+      \value PathChooserDisplay
+             Based on Utils::PathChooser.
+
+    \sa Utils::PathChooser
+*/
+
+/*!
     \class Utils::StringAspect
     \inmodule QtCreator
 
@@ -351,7 +377,7 @@ StringAspect::StringAspect()
 {}
 
 /*!
-    \reimp
+    \internal
 */
 StringAspect::~StringAspect() = default;
 
@@ -372,7 +398,7 @@ QString StringAspect::value() const
 }
 
 /*!
-    Sets the value of this StringAspect from an ordinary \c QString.
+    Sets the \a value of this StringAspect from an ordinary \c QString.
 */
 void StringAspect::setValue(const QString &value)
 {
@@ -494,27 +520,52 @@ QString StringAspect::labelText() const
     return d->m_labelText;
 }
 
+/*!
+    Sets a \a displayFilter for fine-tuning the visual appearance
+    of the value of this string aspect.
+*/
 void StringAspect::setDisplayFilter(const std::function<QString(const QString &)> &displayFilter)
 {
     d->m_displayFilter = displayFilter;
 }
 
+/*!
+    Returns the check box value.
+
+    \sa makeCheckable(), setChecked()
+*/
 bool StringAspect::isChecked() const
 {
     return !d->m_checker || d->m_checker->value();
 }
 
+/*!
+    Sets the check box of this aspect to \a checked.
+
+    \sa makeCheckable(), isChecked()
+*/
 void StringAspect::setChecked(bool checked)
 {
     QTC_ASSERT(d->m_checker, return);
     d->m_checker->setValue(checked);
 }
 
+/*!
+    Selects the main display characteristics of the aspect according to
+    \a displayStyle.
+
+    \note Not all StringAspect features are available with all display styles.
+
+    \sa Utils::StringAspect::DisplayStyle
+*/
 void StringAspect::setDisplayStyle(DisplayStyle displayStyle)
 {
     d->m_displayStyle = displayStyle;
 }
 
+/*!
+    Sets \a placeHolderText as place holder for line and text displays.
+*/
 void StringAspect::setPlaceHolderText(const QString &placeHolderText)
 {
     d->m_placeHolderText = placeHolderText;
@@ -524,6 +575,12 @@ void StringAspect::setPlaceHolderText(const QString &placeHolderText)
         d->m_textEditDisplay->setPlaceholderText(placeHolderText);
 }
 
+/*!
+    Sets \a historyCompleterKey as key for the history completer settings for
+    line edits and path chooser displays.
+
+    \sa Utils::PathChooser::setExpectedKind()
+*/
 void StringAspect::setHistoryCompleter(const QString &historyCompleterKey)
 {
     d->m_historyCompleterKey = historyCompleterKey;
@@ -533,6 +590,11 @@ void StringAspect::setHistoryCompleter(const QString &historyCompleterKey)
         d->m_pathChooserDisplay->setHistoryCompleter(historyCompleterKey);
 }
 
+/*!
+  Sets \a expectedKind as expected kind for path chooser displays.
+
+  \sa Utils::PathChooser::setExpectedKind()
+*/
 void StringAspect::setExpectedKind(const PathChooser::Kind expectedKind)
 {
     d->m_expectedKind = expectedKind;
@@ -742,6 +804,13 @@ void StringAspect::update()
     validateInput();
 }
 
+/*!
+    Adds a check box with a \a checkerLabel according to \a checkBoxPlacement
+    to the line edit.
+
+    The state of the check box is made persistent when using a non-emtpy
+    \a checkerKey.
+*/
 void StringAspect::makeCheckable(CheckBoxPlacement checkBoxPlacement,
                                      const QString &checkerLabel, const QString &checkerKey)
 {
