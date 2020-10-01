@@ -65,6 +65,8 @@ ProjectFile::Kind ProjectFile::classifyByMimeType(const QString &mt)
         return CXXSource;
     if (mt == CppTools::Constants::MOC_MIMETYPE)
         return CXXSource;
+    if (mt == CppTools::Constants::CUDA_SOURCE_MIMETYPE)
+        return CudaSource;
     if (mt == CppTools::Constants::AMBIGUOUS_HEADER_MIMETYPE)
         return AmbiguousHeader;
     return Unsupported;
@@ -144,6 +146,7 @@ bool ProjectFile::isCxx(ProjectFile::Kind kind)
     case ProjectFile::CXXSource:
     case ProjectFile::ObjCXXHeader:
     case ProjectFile::ObjCXXSource:
+    case ProjectFile::CudaSource:
         return true;
     default:
         return false;

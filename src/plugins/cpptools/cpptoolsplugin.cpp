@@ -277,18 +277,19 @@ static QStringList matchingCandidateSuffixes(ProjectFile::Kind kind)
     case ProjectFile::CXXHeader:
     case ProjectFile::ObjCHeader:
     case ProjectFile::ObjCXXHeader:
-        return Utils::mimeTypeForName(QLatin1String(Constants::C_SOURCE_MIMETYPE)).suffixes()
-                + Utils::mimeTypeForName(QLatin1String(Constants::CPP_SOURCE_MIMETYPE)).suffixes()
-                + Utils::mimeTypeForName(QLatin1String(Constants::OBJECTIVE_C_SOURCE_MIMETYPE)).suffixes()
-                + Utils::mimeTypeForName(QLatin1String(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)).suffixes();
+        return mimeTypeForName(Constants::C_SOURCE_MIMETYPE).suffixes()
+                + mimeTypeForName(Constants::CPP_SOURCE_MIMETYPE).suffixes()
+                + mimeTypeForName(Constants::OBJECTIVE_C_SOURCE_MIMETYPE).suffixes()
+                + mimeTypeForName(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE).suffixes()
+                + mimeTypeForName(Constants::CUDA_SOURCE_MIMETYPE).suffixes();
     case ProjectFile::CSource:
     case ProjectFile::ObjCSource:
-        return Utils::mimeTypeForName(QLatin1String(Constants::C_HEADER_MIMETYPE)).suffixes();
+        return mimeTypeForName(Constants::C_HEADER_MIMETYPE).suffixes();
     case ProjectFile::CXXSource:
     case ProjectFile::ObjCXXSource:
     case ProjectFile::CudaSource:
     case ProjectFile::OpenCLSource:
-        return Utils::mimeTypeForName(QLatin1String(Constants::CPP_HEADER_MIMETYPE)).suffixes();
+        return mimeTypeForName(Constants::CPP_HEADER_MIMETYPE).suffixes();
     default:
         return QStringList();
     }

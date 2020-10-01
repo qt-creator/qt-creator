@@ -36,6 +36,7 @@ const char OPEN_HEADER_SOURCE_IN_NEXT_SPLIT[] = "CppTools.OpenHeaderSourceInNext
 const char TASK_INDEX[]               = "CppTools.Task.Index";
 const char TASK_SEARCH[]              = "CppTools.Task.Search";
 const char C_SOURCE_MIMETYPE[] = "text/x-csrc";
+const char CUDA_SOURCE_MIMETYPE[] = "text/vnd.nvidia.cuda.csrc";
 const char C_HEADER_MIMETYPE[] = "text/x-chdr";
 const char CPP_SOURCE_MIMETYPE[] = "text/x-c++src";
 const char OBJECTIVE_C_SOURCE_MIMETYPE[] = "text/x-objcsrc";
