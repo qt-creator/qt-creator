@@ -55,6 +55,8 @@
     such as your own QML components, basic types, layouts, positioner types, and
     views.
 
+    \section1 QML Imports
+
     Sets of UI components with the look and feel of a particular mobile device
     platform have been defined for Qt Quick 1. Since Qt 5.1, ready-made Qt
     Quick Controls, Dialogs, and Layouts are available for creating user
@@ -66,8 +68,15 @@
     the import statements automatically. You can remove import statements in
     \uicontrol {QML Imports}.
 
+    \section1 Assets
+
     \uicontrol {Assets} displays the images and other files that you import to
     the project folder by selecting \uicontrol {Add New Assets}.
+
+    When you drag and drop assets from the tab to \uicontrol Navigator or
+    \uicontrol {Form Editor}, QML components with a suitable type are
+    automatically created for you. For example, when using graphical
+    assets to create components, the components will be of the Image type.
 
     \section1 Adding Components to Designs
 
@@ -103,7 +112,20 @@
             For more information, see \l{Creating Animations}.
     \endlist
 
-    \section1 Using Basic QML Types
+    \section1 Component Types
+
+    The following sections describe the types of components that you can create
+    in the Design mode.
+
+    \list
+        \li \l Shapes
+        \li Text
+        \li Images
+        \li UI controls
+        \li Screens
+    \endlist
+
+    \section2 Basic QML Types
 
     You can use the following QML types to create components:
 
@@ -129,7 +151,7 @@
             plain text that can be validated.
     \endlist
 
-    \section1 Using Data Models
+    \section2 Using Data Models
 
     You can create the following types of views to organize items provided by
     \l{Models and Views in Qt Quick}{data models}:
@@ -431,7 +453,7 @@
             application style and theme.
     \endlist
 
-    \section1 Adding User Interaction Methods
+    \section1 User Interaction Methods
 
     You can use the following QML types to add basic interaction methods to
     UIs:

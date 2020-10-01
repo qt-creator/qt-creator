@@ -1,0 +1,266 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page quick-shapes.html
+    \previouspage qtquick-form-editor.html
+    \nextpage quick-buttons.html
+
+    \title Shapes
+
+    \if defined(qtdesignstudio)
+    \QDS is a UI design tool rather than a generic drawing tool, and therefore,
+    the focus is on providing ready-made UI controls that you can modify
+    according to your needs. The values of some properties of the controls are
+    specified by using styling, and therefore you cannot change them.
+
+    However, you can use some of the components in \uicontrol Library to draw
+    basic shapes, such as rectangles. In addition, \QDS comes with a set of
+    more powerful and flexible graphical primitives, that allow creating more
+    complex shapes, such as lines, triangles, arcs, and pies in
+    \uicontrol {Form Editor}.
+
+    \image studio-shapes.png "Shapes in Form Editor"
+
+    \else
+    You can use the Rectangle type to draw basic shapes in
+    \uicontrol {Form Editor}.
+    \image qml-shapes.png "Shapes in Form Editor"
+    \endif
+
+    Most visual types in \uicontrol Library are based on the \l [QtQuick]
+    {Item} type. Even though it has no visual appearance itself (similarly
+    to a mouse area, for example), it defines all the properties that are
+    common across visual types, such as position, size, and visibility. For
+    more information, see \l{Specifying Basic Item Properties}.
+
+    In addition, each type has a set of properties that specify its visual
+    appearance and behavior. You can modify the property values to set fill
+    and border colors, stroke width, and other characteristics of the shapes.
+
+    The following sections describe the available shapes and their properties
+    in more detail. You can modify the values of the properties in the
+    \uicontrol Properties view.
+
+    \section1 Rectangle
+
+    The basic \l [QtQuick] {Rectangle} QML type is used for drawing shapes
+    with four sides and corners, as well as a solid border.
+
+    \if defined(qtdesignstudio)
+    \image qml-shapes-rectangle.png "A rectangle and its properties"
+    \endif
+
+    Rectangles can be filled either with a solid fill color or a linear
+    gradient that you set in the \uicontrol Color field. You can
+    also use a \l{Picking Colors}{color picker} to select colors and a
+    \l{Picking Gradients}{gradient picker} to select gradients from a
+    predefined set of \l{https://webgradients.com/}{WebGradients}.
+
+    An optional solid border can be added to a rectangle with its own color
+    and thickness by setting the values of the \uicontrol {Border Color} and
+    \uicontrol Border fields. To create a border without a fill color, select
+    the \inlineimage icons/transparent-icon.png
+    button that sets the color to \e transparent.
+
+    By setting the value of the \uicontrol Radius field, you can create shapes
+    with rounded corners. With the right combination of the values of the
+    rectangle width, height, and radius properties, you can create oval and
+    circular shapes. For example, to draw a full circle, first draw a rectangle
+    with all four sides equal, and then set its radius to half the side length.
+
+    When drawing curved edges, consider enabling the \uicontrol Antialiasing
+    check box in the \uicontrol Advanced tab of the \uicontrol Properties view
+    to improve the appearance of your shape.
+
+    \if defined(qtdesignstudio)
+    \section2 Studio Rectangle
+
+    If you want to draw asymmetric shapes or use a dashed border, for example,
+    select the Rectangle type in the \uicontrol {Studio Components} tab of
+    \uicontrol Library instead of the basic rectangle type. By setting the
+    values of properties in the \uicontrol {Corner Radiuses} and
+    \uicontrol {Corner Bevel} groups, you can create shapes with cut corners.
+
+    \image studio-shapes-rectangle.png "A studio rectangle with cut corners"
+
+    In addition to linear gradients, you can specify conical and radial
+    gradients in the \uicontrol {Fill Color} field.
+
+    In the \uicontrol {Stroke Details} group, you can specify the border
+    mode, line style, and dash pattern for dashed and dotted lines.
+    For more information, see \l{Strokes}.
+
+    \section1 Border
+
+    The Border type is used to create borders out of four segments:
+    left, top, right, and bottom. By selecting the \uicontrol {Draw top},
+    \uicontrol {Draw right}, \uicontrol {Draw bottom}, and
+    \uicontrol {Draw left} check boxes, you can determine whether each
+    of the segments is visible. This enables you to draw solid or dashed
+    lines with specified dash patterns and joint and cap styles.
+
+    \image studio-shapes-border.png "Border properties"
+
+    \section2 Strokes
+
+    In the \uicontrol {Stroke Details} group, you can specify the border mode,
+    line style, and dash pattern for dashed and dotted lines.
+
+    \image studio-shapes-stroke-properties.png "Stroke properties"
+
+    In the \uicontrol {Stroke width} field, you can set the thickness of the
+    line.
+
+    In the \uicontrol {Border mode} field, you can specify whether the border
+    is drawn along the inside or outside edge of the item, or on top of the
+    edge.
+
+    If you select a dashed or dotted pattern in the \uicontrol {Stroke style}
+    field, you can specify the dash pattern as the dashes and the gaps between
+    them in the \uicontrol {Dash pattern} field. The dash pattern is specified
+    in units of the stroke width. That is, a dash with the length 5 and width
+    10 is 50 pixels long.
+
+    The value of the \uicontrol {Dash offset} field specifies the starting point
+    of the dash pattern for a line. It is measured in terms of the units used to
+    specify the dash pattern. For example, a pattern where each stroke is four
+    units long, followed by a gap of two units, will begin with the stroke when
+    drawn as a line. However, if the dash offset is set to 4.0, any line drawn
+    will begin with the gap. Values of the offset up to 4.0 will cause part of
+    the stroke to be drawn first, and values of the offset between 4.0 and 6.0
+    will cause the line to begin with part of the gap.
+
+    In the \uicontrol {Joint style} field, select \uicontrol {Miter join} to
+    extend the outer edges of the lines to meet at an angle and to fill the
+    area between them. Select \uicontrol {Bevel join} to fill the triangular
+    notch between the two lines. Select \uicontrol {Round join} to fill a
+    circular arc between the two lines.
+
+    The value of the \uicontrol {Cap style} property specifies whether line
+    ends are square or rounded.
+
+    \section1 Triangle
+
+    The Triangle type can be used to draw triangles with different dimensions
+    and shapes. The type is enclosed in an invisible rectangle that determines
+    its size. The dimensions of the triangle can be changed to make it elongated
+    or squatter with space around it by setting the left, right, top, and bottom
+    margins in the \uicontrol Margins group. The margins are set between the
+    triangle and the edges of the parent rectangle.
+
+    \image studio-shapes-triangle.png "Triangle properties"
+
+    The fill color property values are set in the same way as for a rectangle.
+    The border property values are described in \l{Strokes}.
+
+    \section1 Arc
+
+    An arc is specified by setting values in degrees in the \uicontrol Begin and
+    \uicontrol End fields. The arc can be just a line or a filled outline.
+    The properties of the line or outline are described in \l{Strokes}.
+
+    \image studio-shapes-arc.png "Arc properties"
+
+    The area between the arc's start and end points or the area inside the
+    outline are painted using either a solid fill color or a gradient.
+
+    To create an arc with an outline, select the \uicontrol {Full outline}
+    check box. The \uicontrol {Arc outline width} field sets the width of
+    the arc outline, including the stroke. The \uicontrol {Arc outline begin}
+    and \uicontrol {Arc outline end} fields set the width of the start and
+    end points of the outline separately. The width of the outline between
+    them is calculated automatically. You can adjust the inner and outer
+    curves of the outline in the \uicontrol {Radius inner adjust} and
+    \uicontrol {Radius outer adjust} fields.
+
+    The \uicontrol {Round outline}, \uicontrol {Round begin outline}, and
+    \uicontrol {Round end outline} properties specify whether the end points
+    of the arc outline have rounded caps. For an arc that does not have an
+    outline, the \uicontrol {Cap style} property specifies whether the line
+    ends are square or rounded.
+
+    \section1 Pie
+
+    The Pie type is used to create a pie slice, a pie that is missing slices,
+    or just the pie rind (similar to an arc), depending on the values of the
+    \uicontrol Begin, \uicontrol End, and \uicontrol {Hide line} properties.
+
+    \image studio-shapes-pie.png "Pie properties"
+
+    The filling of the pie is painted using either a solid fill color or a
+    gradient. The fill color property values are set in the same way as for
+    a rectangle. The border property values are described in \l{Strokes}.
+
+    \section1 Summary of Shapes
+
+    The following table lists the QML types that you can use to draw shapes.
+    The \e Location column contains the tab name where you can find the type
+    in \uicontrol Library.
+
+    \table
+    \header
+        \li Icon
+        \li Name
+        \li Location
+        \li Purpose
+    \row
+        \li \inlineimage icons/item-arc-16px.png
+        \li \l Arc
+        \li Studio Components
+        \li An arc that begins and ends at given positions.
+    \row
+        \li \inlineimage icons/custom-border-16px.png
+        \li \l Border
+        \li Studio Components
+        \li A line with four segments that you can show and shape individually.
+    \row
+        \li \inlineimage icons/item-pie-16px.png
+        \li \l Pie
+        \li Studio Components
+        \li A pie slice or a pie with a slice missing from it.
+    \row
+        \li \inlineimage rect-icon16.png
+        \li \l Rectangle
+        \li Qt Quick - Basic
+        \li A rectangle that is painted with a solid fill color or linear
+            gradient and an optional border. You can use the radius property
+            to draw circles.
+    \row
+        \li \inlineimage icons/custom-rectangle-16px.png
+        \li \l{Studio Rectangle}{Rectangle}
+        \li Studio Components
+        \li An extended rectangle that is painted with a solid fill color or
+            linear, conical, or radial gradients, and corners that you can
+            shape independently of each other.
+    \row
+        \li \inlineimage icons/item-triangle-16px.png
+        \li \l Triangle
+        \li Studio Components
+        \li A triangle with different dimensions and shapes that is
+            enclosed in an invisible rectangle.
+    \endtable
+    \endif
+*/
