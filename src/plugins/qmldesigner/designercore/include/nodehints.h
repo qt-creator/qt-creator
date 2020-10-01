@@ -70,6 +70,7 @@ public:
     bool visibleInNavigator() const;
     bool visibleInLibrary() const;
     QString forceNonDefaultProperty() const;
+    QPair<QString, QVariant> setParentProperty() const;
 
     QHash<QString, QString> hints() const;
     static NodeHints fromModelNode(const ModelNode &modelNode);

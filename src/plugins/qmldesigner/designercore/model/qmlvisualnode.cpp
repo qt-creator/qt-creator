@@ -259,6 +259,8 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
 {
     QmlObjectNode newQmlObjectNode;
 
+    NodeHints hints = NodeHints::fromItemLibraryEntry(itemLibraryEntry);
+
     auto createNodeFunc = [=, &newQmlObjectNode, &parentProperty]() {
         NodeMetaInfo metaInfo = view->model()->metaInfo(itemLibraryEntry.typeName());
 
@@ -309,6 +311,14 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
         createNodeFunc();
 
     Q_ASSERT(newQmlObjectNode.isValid());
+
+    if (!hints.setParentProperty().first.isEmpty() && parentProperty.isValid()) {
+        ModelNode parent = parentProperty.parentModelNode();
+        const PropertyName property = hints.setParentProperty().first.toUtf8();
+        const QVariant value = hints.setParentProperty().second;
+
+        parent.variantProperty(property).setValue(value);
+    }
 
     return newQmlObjectNode;
 }
