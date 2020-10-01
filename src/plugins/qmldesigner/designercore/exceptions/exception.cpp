@@ -199,10 +199,10 @@ QDebug operator<<(QDebug debug, const Exception &exception)
                        "File:      " << exception.file() << "\n"
                        "Line:      " << exception.line() << "\n";
     if (!exception.description().isEmpty())
-        debug.nospace() << exception.description();
+        debug.nospace() << exception.description() << "\n";
 
     if (!exception.backTrace().isEmpty())
-        debug.nospace() << exception.backTrace();
+        debug.nospace().noquote() << exception.backTrace();
 
     return debug.space();
 }
