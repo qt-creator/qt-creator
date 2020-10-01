@@ -148,7 +148,7 @@ void FindUsages::reportResult(unsigned tokenIndex, const QList<LookupItem> &cand
 Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
 {
     const auto containsToken = [tokenIndex](const AST *ast) {
-        return ast->firstToken() <= tokenIndex && ast->lastToken() > tokenIndex;
+        return ast && ast->firstToken() <= tokenIndex && ast->lastToken() > tokenIndex;
     };
     const auto isAssignment = [this](int token) {
         switch (tokenKind(token)) {
