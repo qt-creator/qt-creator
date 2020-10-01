@@ -73,47 +73,50 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view,
     return QmlItemNode(createQmlObjectNode(view, itemLibraryEntry, position, parentQmlItemNode));
 }
 
-QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QString &imageName, const QPointF &position, QmlItemNode parentQmlItemNode)
+QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QString &imageName, const QPointF &position, QmlItemNode parentQmlItemNode, bool executeInTransaction)
 {
     if (!parentQmlItemNode.isValid())
         parentQmlItemNode = QmlItemNode(view->rootModelNode());
 
     NodeAbstractProperty parentProperty = parentQmlItemNode.defaultNodeAbstractProperty();
 
-    return QmlItemNode::createQmlItemNodeFromImage(view, imageName, position, parentProperty);
+    return QmlItemNode::createQmlItemNodeFromImage(view, imageName, position, parentProperty, executeInTransaction);
 }
 
-QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QString &imageName, const QPointF &position, NodeAbstractProperty parentproperty)
+QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QString &imageName, const QPointF &position, NodeAbstractProperty parentproperty, bool executeInTransaction)
 {
     QmlItemNode newQmlItemNode;
 
-    if (parentproperty.isValid() && view->model()->hasNodeMetaInfo("QtQuick.Image")) {
-        view->executeInTransaction("QmlItemNode::createQmlItemNodeFromImage", [=, &newQmlItemNode, &parentproperty](){
-            NodeMetaInfo metaInfo = view->model()->metaInfo("QtQuick.Image");
-            QList<QPair<PropertyName, QVariant> > propertyPairList;
-            propertyPairList.append({PropertyName("x"), QVariant(qRound(position.x()))});
-            propertyPairList.append({PropertyName("y"), QVariant(qRound(position.y()))});
+    auto doCreateQmlItemNodeFromImage = [=, &newQmlItemNode, &parentproperty]() {
+        NodeMetaInfo metaInfo = view->model()->metaInfo("QtQuick.Image");
+        QList<QPair<PropertyName, QVariant> > propertyPairList;
+        propertyPairList.append({PropertyName("x"), QVariant(qRound(position.x()))});
+        propertyPairList.append({PropertyName("y"), QVariant(qRound(position.y()))});
 
-            QString relativeImageName = imageName;
+        QString relativeImageName = imageName;
 
-            //use relative path
-            if (QFileInfo::exists(view->model()->fileUrl().toLocalFile())) {
-                QDir fileDir(QFileInfo(view->model()->fileUrl().toLocalFile()).absolutePath());
-                relativeImageName = fileDir.relativeFilePath(imageName);
-                propertyPairList.append({PropertyName("source"), QVariant(relativeImageName)});
-            }
+        //use relative path
+        if (QFileInfo::exists(view->model()->fileUrl().toLocalFile())) {
+            QDir fileDir(QFileInfo(view->model()->fileUrl().toLocalFile()).absolutePath());
+            relativeImageName = fileDir.relativeFilePath(imageName);
+            propertyPairList.append({PropertyName("source"), QVariant(relativeImageName)});
+        }
 
-            newQmlItemNode = QmlItemNode(view->createModelNode("QtQuick.Image", metaInfo.majorVersion(), metaInfo.minorVersion(), propertyPairList));
-            parentproperty.reparentHere(newQmlItemNode);
+        newQmlItemNode = QmlItemNode(view->createModelNode("QtQuick.Image", metaInfo.majorVersion(), metaInfo.minorVersion(), propertyPairList));
+        parentproperty.reparentHere(newQmlItemNode);
 
-            QFileInfo fi(relativeImageName);
-            newQmlItemNode.setId(view->generateNewId(fi.baseName(), "image"));
+        QFileInfo fi(relativeImageName);
+        newQmlItemNode.setId(view->generateNewId(fi.baseName(), "image"));
 
-            newQmlItemNode.modelNode().variantProperty("fillMode").setEnumeration("Image.PreserveAspectFit");
+        newQmlItemNode.modelNode().variantProperty("fillMode").setEnumeration("Image.PreserveAspectFit");
 
-            Q_ASSERT(newQmlItemNode.isValid());
-        });
-    }
+        Q_ASSERT(newQmlItemNode.isValid());
+    };
+
+    if (executeInTransaction)
+        view->executeInTransaction("QmlItemNode::createQmlItemNodeFromImage", doCreateQmlItemNodeFromImage);
+    else
+        doCreateQmlItemNodeFromImage();
 
     return newQmlItemNode;
 }

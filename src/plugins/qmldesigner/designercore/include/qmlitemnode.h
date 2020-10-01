@@ -61,11 +61,13 @@ public:
     static QmlItemNode createQmlItemNodeFromImage(AbstractView *view,
                                                   const QString &imageName,
                                                   const QPointF &position,
-                                                  QmlItemNode parentQmlItemNode);
+                                                  QmlItemNode parentQmlItemNode,
+                                                  bool executeInTransaction = true);
     static QmlItemNode createQmlItemNodeFromImage(AbstractView *view,
                                                   const QString &imageName,
                                                   const QPointF &position,
-                                                  NodeAbstractProperty parentproperty);
+                                                  NodeAbstractProperty parentproperty,
+                                                  bool executeInTransaction = true);
 
     QList<QmlItemNode> children() const;
     QList<QmlObjectNode> resources() const;

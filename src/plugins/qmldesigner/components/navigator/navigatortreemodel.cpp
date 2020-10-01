@@ -557,9 +557,10 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
     bool moveNodesAfter = true;
 
     if (foundTarget) {
-        if (!NodeHints::fromItemLibraryEntry(itemLibraryEntry).canBeDroppedInNavigator())
+        if (!hints.canBeDroppedInNavigator())
             return;
 
+        bool validContainer = false;
         QmlObjectNode newQmlObjectNode;
         m_view->executeInTransaction("NavigatorTreeModel::handleItemLibraryItemDrop", [&] {
             newQmlObjectNode = QmlItemNode::createQmlObjectNode(m_view, itemLibraryEntry, QPointF(), targetProperty, false);
@@ -587,6 +588,7 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                     ModelNode targetEnv;
                     if (targetProperty.parentModelNode().isSubclassOf("QtQuick3D.SceneEnvironment")) {
                         targetEnv = targetProperty.parentModelNode();
+                        validContainer = true;
                     } else if (targetProperty.parentModelNode().isSubclassOf("QtQuick3D.View3D")) {
                         // see if View3D has environment set to it
                         BindingProperty envNodeProp = targetProperty.parentModelNode().bindingProperty("environment");
@@ -595,6 +597,7 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                             if (envNode.isValid())
                                 targetEnv = envNode;
                         }
+                        validContainer = true;
                     }
                     insertIntoList("effects", targetEnv);
                 } else if (newModelNode.isSubclassOf("QtQuick3D.Material")) {
@@ -603,6 +606,7 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                         ModelNode targetModel;
                         targetModel = targetProperty.parentModelNode();
                         insertIntoList("materials", targetModel);
+                        validContainer = true;
                     }
                 } else {
                     const bool isShader = newModelNode.isSubclassOf("QtQuick3D.Shader");
@@ -627,22 +631,30 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                                 // want undo to place the node under invalid parent
                                 moveNodesAfter = false;
                                 moveNodesInteractive(targetProperty, {newQmlObjectNode}, targetRowNumber, false);
+                                validContainer = true;
                             }
                         }
                     }
                 }
+                if (!validContainer) {
+                    validContainer = NodeHints::fromModelNode(targetProperty.parentModelNode()).canBeContainerFor(newModelNode);
+                    if (!validContainer)
+                        newQmlObjectNode.destroy();
+                }
             }
         });
 
-        if (moveNodesAfter && newQmlObjectNode.isValid() && targetProperty.isNodeListProperty()) {
-            QList<ModelNode> newModelNodeList;
-            newModelNodeList.append(newQmlObjectNode);
+        if (validContainer) {
+            if (moveNodesAfter && newQmlObjectNode.isValid() && targetProperty.isNodeListProperty()) {
+                QList<ModelNode> newModelNodeList;
+                newModelNodeList.append(newQmlObjectNode);
 
-            moveNodesInteractive(targetProperty, newModelNodeList, targetRowNumber);
+                moveNodesInteractive(targetProperty, newModelNodeList, targetRowNumber);
+            }
+
+            if (newQmlObjectNode.isValid())
+                m_view->setSelectedModelNode(newQmlObjectNode.modelNode());
         }
-
-        if (newQmlObjectNode.isValid())
-            m_view->setSelectedModelNode(newQmlObjectNode.modelNode());
     }
 }
 
@@ -717,9 +729,14 @@ void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, i
             // if dropping an image on a texture, set the texture source
             targetNode.variantProperty("source").setValue(imagePath);
         } else {
-
-            // create an image
-            newModelNode = QmlItemNode::createQmlItemNodeFromImage(m_view, imageSource , QPointF(), targetProperty);
+            m_view->executeInTransaction("NavigatorTreeModel::handleItemLibraryImageDrop", [&] {
+                // create an image
+                QmlItemNode newItemNode = QmlItemNode::createQmlItemNodeFromImage(m_view, imageSource, QPointF(), targetProperty, false);
+                if (NodeHints::fromModelNode(targetProperty.parentModelNode()).canBeContainerFor(newItemNode.modelNode()))
+                    newModelNode = newItemNode.modelNode();
+                else
+                    newItemNode.destroy();
+            });
         }
 
         if (newModelNode.isValid()) {
