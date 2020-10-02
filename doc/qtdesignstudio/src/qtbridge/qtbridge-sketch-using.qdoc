@@ -197,6 +197,10 @@
             it as a \l Rectangle component.
             You can provide the import statement of the module where the QML
             type is defined in the \uicontrol {QML Imports} field.
+        \li Select the \uicontrol {Render Text} check box to render the text
+            layer as an asset. The layer will be exported as an asset and the
+            text data will not be exported. This allows the text layer to be
+            merged to parent artboard or group as well.
         \li In the \uicontrol {QML Imports} field, enter
             additional import statements to have them added to the generated QML
             file. For example, to use Qt Quick Controls 2.3, you need the
