@@ -138,7 +138,6 @@ WebAssemblyToolChain::WebAssemblyToolChain() :
     const CompilerConfiguration configuration = compilerConfiguration();
     const QString command = configuration.llvmRoot.toString()
             + Utils::HostOsInfo::withExecutableSuffix("/clang");
-    setLanguage(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     setCompilerCommand(Utils::FilePath::fromString(command));
     setSupportedAbis({toolChainAbi()});
     setTargetAbi(toolChainAbi());

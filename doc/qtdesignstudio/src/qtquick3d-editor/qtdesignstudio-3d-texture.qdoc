@@ -108,7 +108,7 @@
     rotation.
 
     For more information about rotating and pivoting components in the local
-    coordinate space, see \l {Setting Transform Properties}.
+    coordinate space, see \l {Managing 3D Transformations}.
 
     \section1 Applying Textures to Materials
 

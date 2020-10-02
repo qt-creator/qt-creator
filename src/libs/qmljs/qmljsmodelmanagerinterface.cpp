@@ -129,6 +129,7 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
 
     m_defaultProjectInfo.qtQmlPath = QFileInfo(
                 QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath)).canonicalFilePath();
+    m_defaultProjectInfo.qtVersionString = QLibraryInfo::version().toString();
 
     updateImportPaths();
 
@@ -607,8 +608,10 @@ ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfoForPath(
     ProjectInfo res;
     const auto allProjectInfos = allProjectInfosForPath(path);
     for (const ProjectInfo &pInfo : allProjectInfos) {
-        if (res.qtQmlPath.isEmpty())
+        if (res.qtQmlPath.isEmpty()) {
             res.qtQmlPath = pInfo.qtQmlPath;
+            res.qtVersionString = pInfo.qtVersionString;
+        }
         res.applicationDirectories.append(pInfo.applicationDirectories);
         for (const auto &importPath : pInfo.importPaths)
             res.importPaths.maybeInsert(importPath);
@@ -1429,8 +1432,10 @@ ViewerContext ModelManagerInterface::getVContext(const ViewerContext &vCtx,
         info = projectInfoForPath(doc->fileName());
     ViewerContext defaultVCtx = defaultVContext(res.language, Document::Ptr(nullptr), false);
     ProjectInfo defaultInfo = defaultProjectInfo();
-    if (info.qtQmlPath.isEmpty())
+    if (info.qtQmlPath.isEmpty()) {
         info.qtQmlPath = defaultInfo.qtQmlPath;
+        info.qtVersionString = defaultInfo.qtVersionString;
+    }
     info.applicationDirectories = Utils::filteredUnique(info.applicationDirectories
                                                         + defaultInfo.applicationDirectories);
     switch (res.flags) {

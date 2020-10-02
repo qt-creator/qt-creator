@@ -1,0 +1,56 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page studio-simulation-overview.html
+    \previouspage creator-editor-options-text.html
+    \nextpage qtquick-placeholder-data.html
+
+    \title Simulating Data Input
+
+
+    \QDS enables you to connect UIs to different forms of data from various
+    sources, such as QML-based data models, JavaScript files, and backend
+    services. You can also connect your UI to Simulink to load live data from a
+    Simulink simulation.
+
+    \list
+        \li \l{Loading Placeholder Data}
+
+            You can create QML files that contain placeholder data, so that
+            you can test grid, list, or path views, even though you don't
+            have access to real data.
+
+        \li \l{Simulating Application Logic}
+
+        You can use JavaScript to generate mock data for your UI.
+
+        \li \l{Simulating Dynamic Systems}
+
+        Use the Simulink connector to connect a Simulink Simulation Model to
+        your UI. Simulink is a MATLAB-based graphical programming environment
+        for modeling, simulating, and analyzing multi-domain dynamic systems.
+    \endlist
+*/

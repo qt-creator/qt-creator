@@ -57,97 +57,57 @@ Rectangle {
     state: "loginState"
     width: Constants.width
     height: Constants.height
-
-    Rectangle {
-        id: loginPage
-        color: "#ffffff"
-        anchors.fill: parent
-
-        Image {
-            id: logo
-            width: 100
-            height: 100
-            anchors.topMargin: 10
-            anchors.left: parent.left
-            anchors.leftMargin: 10
-            anchors.top: parent.top
-            source: "qt_logo_green_64x64px.png"
-            fillMode: Image.PreserveAspectFit
+    gradient: Gradient {
+        GradientStop {
+            position: 0.5
+            color: "#ffffff"
         }
 
-        Text {
-            id: pageTitle
-            width: 123
-            height: 40
-            text: qsTr("Qt Account")
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: parent.top
-            anchors.topMargin: 70
-            font.pixelSize: 24
+        GradientStop {
+            position: 1
+            color: "#41cd52"
         }
+    }
 
-        PushButton {
-            id: backButton
-            width: 40
-            text: "<"
-            font.pixelSize: 24
-            anchors.right: parent.right
-            anchors.rightMargin: 10
-            anchors.top: parent.top
-            anchors.topMargin: 20
-        }
+    PushButton {
+        id: backButton
+        x: 590
+        y: 20
+        width: 40
+        text: "<"
+        font.pixelSize: 24
+        anchors.right: parent.right
+        anchors.rightMargin: 10
+        anchors.top: parent.top
+        anchors.topMargin: 20
+    }
 
-        Column {
-            id: fieldColumn
-            width: 300
-            height: 130
-            spacing: 5
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: parent.top
-            anchors.topMargin: 200
+    Text {
+        id: pageTitle
+        x: 258
+        y: 70
+        width: 123
+        height: 40
+        text: qsTr("Qt Account")
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.topMargin: 70
+        font.pixelSize: 24
+        font.bold: true
+    }
 
-            TextField {
-                id: usernameField
-                width: 300
-                placeholderText: qsTr("Username")
-                font.pointSize: 10
-            }
-
-            TextField {
-                id: passwordField
-                width: 300
-                placeholderText: qsTr("Password")
-                font.pointSize: 10
-            }
-
-            TextField {
-                id: verifyPasswordField
-                width: 300
-                visible: true
-                font.pointSize: 10
-                placeholderText: qsTr("Verify password")
-            }
-        }
-
-        Column {
-            id: buttonColumn
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 50
-            spacing: 5
-            anchors.horizontalCenter: parent.horizontalCenter
-
-            PushButton {
-                id: loginButton
-                width: 120
-                text: qsTr("Log In")
-            }
-
-            PushButton {
-                id: registerButton
-                width: 120
-                text: qsTr("Create Account")
-            }
-        }
+    Image {
+        id: logo
+        x: 10
+        y: 10
+        width: 100
+        height: 100
+        anchors.topMargin: 10
+        anchors.left: parent.left
+        anchors.leftMargin: 10
+        anchors.top: parent.top
+        source: "qt_logo_green_64x64px.png"
+        fillMode: Image.PreserveAspectFit
     }
 
     Connections {
@@ -163,6 +123,7 @@ Rectangle {
             root.state = "loginState"
         }
     }
+
     states: [
         State {
             name: "loginState"
@@ -179,10 +140,6 @@ Rectangle {
         },
         State {
             name: "registerState"
-            PropertyChanges {
-                target: verifyPasswordField
-                visible: true
-            }
 
             PropertyChanges {
                 target: loginButton
@@ -190,4 +147,66 @@ Rectangle {
             }
         }
     ]
+    Column {
+        id: fieldColumn
+        x: 170
+        y: 200
+        width: 300
+        height: 130
+        spacing: 5
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.topMargin: 200
+
+        TextField {
+            id: usernameField
+            width: 300
+            placeholderText: qsTr("Username")
+            font.pointSize: 10
+        }
+
+        TextField {
+            id: passwordField
+            width: 300
+            placeholderText: qsTr("Password")
+            font.pointSize: 10
+        }
+
+        TextField {
+            id: verifyPasswordField
+            width: 300
+            visible: true
+            font.pointSize: 10
+            placeholderText: qsTr("Verify password")
+        }
+    }
+
+    Column {
+        id: buttonColumn
+        x: 260
+        y: 345
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 50
+        spacing: 5
+        anchors.horizontalCenter: parent.horizontalCenter
+
+        PushButton {
+            id: loginButton
+            width: 120
+            text: qsTr("Log In")
+        }
+
+        PushButton {
+            id: registerButton
+            width: 120
+            text: qsTr("Create Account")
+        }
+    }
 }
+
+/*##^##
+Designer {
+    D{i:0;formeditorZoom:0.5}
+}
+##^##*/
+

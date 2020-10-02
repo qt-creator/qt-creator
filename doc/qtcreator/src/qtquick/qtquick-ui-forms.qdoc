@@ -31,7 +31,11 @@
 
 /*!
     \page creator-quick-ui-forms.html
+    \if defined(qtdesignstudio)
     \previouspage qtquick-annotations.html
+    \else
+    \previouspage qtquick-placeholder-data.html
+    \endif
     \nextpage qtquick-adding-dynamics.html
 
     \title Qt Quick UI Forms

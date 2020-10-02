@@ -126,6 +126,8 @@ public:
         return true;
     }
 
+    void setPriFile(QmakePriFile *priFile) { m_priFile = priFile; }
+
 private:
     QmakePriFile *m_priFile;
 };
@@ -301,15 +303,24 @@ void QmakeBuildSystem::updateDocuments()
         projectDocuments.insert(n->filePath());
 
     });
-    project()->setExtraProjectFiles(projectDocuments, [p = project()](const FilePath &fp)
-            -> std::unique_ptr<Core::IDocument> {
+    const auto priFileForPath = [p = project()](const FilePath &fp) -> QmakePriFile * {
         const Node * const n = p->nodeForFilePath(fp, [](const Node *n) {
             return dynamic_cast<const QmakePriFileNode *>(n); });
-        QTC_ASSERT(n, return std::make_unique<Core::IDocument>());
-        QmakePriFile * const priFile = static_cast<const QmakePriFileNode *>(n)->priFile();
+        QTC_ASSERT(n, return nullptr);
+        return static_cast<const QmakePriFileNode *>(n)->priFile();
+    };
+    const auto docGenerator = [&](const FilePath &fp)
+            -> std::unique_ptr<Core::IDocument> {
+        QmakePriFile * const priFile = priFileForPath(fp);
         QTC_ASSERT(priFile, return std::make_unique<Core::IDocument>());
         return std::make_unique<QmakePriFileDocument>(priFile, fp);
-    });
+    };
+    const auto docUpdater = [&](Core::IDocument *doc) {
+        QmakePriFile * const priFile = priFileForPath(doc->filePath());
+        QTC_ASSERT(priFile, return);
+        static_cast<QmakePriFileDocument *>(doc)->setPriFile(priFile);
+    };
+    project()->setExtraProjectFiles(projectDocuments, docGenerator, docUpdater);
 }
 
 void QmakeBuildSystem::updateCppCodeModel()

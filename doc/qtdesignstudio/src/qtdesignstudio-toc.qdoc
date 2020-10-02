@@ -157,7 +157,12 @@
                         \li \l{Specifying Text Editor Settings}
                     \endlist
                 \endlist
-            \li \l{Simulating Application Logic}
+            \li \l{Simulating Data Input}
+            \list
+                \li \l{Loading Placeholder Data}
+                \li \l{Simulating Application Logic}
+                \li \l{Simulating Dynamic Systems}
+            \endlist
             \li \l{Debugging and Profiling}
                 \list
                     \li \l{Debugging Qt Quick Projects}

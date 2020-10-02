@@ -400,6 +400,7 @@ QSet<QString> QuickTestTreeItem::internalTargets() const
 
 void QuickTestTreeItem::markForRemovalRecursively(const QString &filePath)
 {
+    TestTreeItem::markForRemovalRecursively(filePath);
     auto parser = dynamic_cast<QuickTestParser *>(framework()->testParser());
     const QString proFile = parser->projectFileForMainCppFile(filePath);
     if (!proFile.isEmpty()) {

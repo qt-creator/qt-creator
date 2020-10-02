@@ -48,7 +48,7 @@
     You can use the toolbar buttons to \e transform 3D objects and manipulate
     the 3D scene. Transformation refers to moving, rotating, or scaling of an
     object. The \e pivot of the component is used as the origin for
-    transformations. You can set a \l{Setting Transform Properties}{local pivot
+    transformations. You can set a \l{Managing 3D Transformations}{local pivot
     offset} for an item in \uicontrol Properties to transform the component
     around a point other than its local origin. A line is drawn in \uicontrol
     {3D Editor} from the pivot point to the center of the component to provide

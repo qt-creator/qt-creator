@@ -144,6 +144,7 @@ void BoostTestOutputReader::handleMessageMatch(const QRegularExpressionMatch &ma
         if (m_currentTest.isEmpty() || m_logLevel > LogLevel::UnitScope)
             m_currentTest = caseFromContent(content);
         m_result = ResultType::MessageFatal;
+        ++m_summary[ResultType::MessageFatal];
         m_description = content;
     } else if (content.startsWith("last checkpoint:")) {
         if (m_currentTest.isEmpty() || m_logLevel > LogLevel::UnitScope)
@@ -355,8 +356,9 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLine)
             sendCompleteInformation();
         BoostTestResult *result = new BoostTestResult(id(), m_projectFile, QString());
         int failed = match.captured(1).toInt();
+        int fatals = m_summary.value(ResultType::MessageFatal);
         QString txt = tr("%1 failures detected in %2.").arg(failed).arg(match.captured(3));
-        int passed = (m_testCaseCount != -1) ? m_testCaseCount - failed : -1;
+        int passed = qMax(0, m_testCaseCount - failed);
         if (m_testCaseCount != -1)
             txt.append(' ').append(tr("%1 tests passed.").arg(passed));
         result->setDescription(txt);
@@ -364,7 +366,7 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLine)
         reportResult(TestResultPtr(result));
         if (m_reportLevel == ReportLevel::Confirm) { // for the final summary
             m_summary[ResultType::Pass] += passed;
-            m_summary[ResultType::Fail] += failed;
+            m_summary[ResultType::Fail] += failed - fatals;
         }
         m_testCaseCount = -1;
         return;

@@ -32,27 +32,16 @@
 
     The \uicontrol Properties view displays all the properties of the selected
     item. The properties are grouped by type. The top part of the view displays
-    properties that are common to all QML types, such as type, id, position,
-    size, and visibility.
+    properties that are common to all QML types, such as type name, id,
+    position, size, and visibility.
+
+    \image qtquick-item-properties-common.png "Basic item properties"
 
     The bottom part of the view displays properties that have been defined for
     the QML type. For example, the following image displays the predefined
     properties you can set for \uicontrol Rectangle and \uicontrol Text items.
 
-    \image qmldesigner-element-properties.png
-
-    When you create a component using a QML type, the component has all the
-    properties of the type you used. If you realize later that another
-    QML type with another set of predefined properties would be more suitable
-    for your purposes, you can change the component type by double-clicking the
-    \uicontrol Type field in the \uicontrol Properties view. Enter the name of
-    another QML type in the field.
-
-    If you have specified values for properties that are not supported by
-    the new type, \QC offers to remove them for you. If you'd rather do
-    this yourself, you can select the \inlineimage icons/action-icon.png
-    (\uicontrol Actions) menu next to the property name, and then select
-    \uicontrol Reset to remove the property values before trying again.
+    \image qmldesigner-element-properties.png "Rectangle and Text properties"
 
     To modify the values of common properties of multiple items simultaneously,
     select the items in the \uicontrol Navigator or on the canvas:
@@ -149,6 +138,9 @@
     You can use either a solid color (3) or a gradient (4). You can select the
     gradient in the \uicontrol {Gradient Picker} (5).
 
+    The gradient stops (6) specify the color used at a given position in a
+    gradient. Drag them along the slider to set their values.
+
     The \uicontrol Original field displays the original color of the item,
     whereas the \uicontrol New field displays the current color. The
     \uicontrol Recent field displays the colors that you have last selected.
@@ -203,102 +195,234 @@
     You can add other languages later by editing the project file.
     \endif
 
-    \section1 Loading Placeholder Data
+    \section1 Specifying Basic Item Properties
 
-    The Design mode supports views, models, and delegates, so that when you add
-    a Grid View, List View, or Path View item, the ListModel and the delegate
-    item are added automatically.
+    All QML types share a set of properties that you can specify in
+    \uicontrol Properties.
 
-    However, the missing context of the application presents a challenge.
-    Specific models defined in C++ are the most obvious case. Often,
-    the context is missing simple properties, which are either defined in C++,
-    or in other QML files. A typical example is an item that uses the
-    properties of its parent, such as \c parent.width.
+    \image qtquick-item-properties-common.png "Basic item properties"
 
-    \section2 Using Dummy Models
+    \section2 Type
 
-    If you open a file in the Design mode that references a C++ model, you see
-    nothing on
-    the canvas. If the data in the model is fetched from the internet, you have
-    no control over it. To get reliable data, \e {dummy data} was introduced.
+    When you create a component using a QML type, the component has all the
+    properties of the type you used. If you realize later that another QML
+    type with another set of predefined properties would be more suitable for
+    your purposes, you can change the component type by double-clicking the
+    \uicontrol Type field and entering the name of another QML type in the
+    field.
 
-    For example, the following code snippet describes the file example.qml that
-    contains a ListView that in turn specifies a C++ model:
+    If you have specified values for properties that are not supported by
+    the new type, \QC offers to remove them for you. If you'd rather do
+    this yourself, you can select the \inlineimage icons/action-icon.png
+    (\uicontrol Actions) menu next to the property name, and then select
+    \uicontrol Reset to remove the property values before trying again.
 
-    \qml
-        ListView {
-            model: dataModel
-            delegate: ContactDelegate {
-                name: name
-            }
-        }
-    \endqml
+    \section2 Id
 
-    Create a directory named \e dummydata in the root directory of the project,
-    so that it is not deployed to the device. In the \c dummydata directory,
-    create a QML file that has the same name as the value of \c model:
+    Each QML type and each instance of a QML type has an \e id that uniquely
+    identifies it and enables other items' properties to be bound to it.
+    You can specify ids for items in the \uicontrol Id field.
 
-    \code
-        qml/exampleapp/example.qml
-        dummydata/dataModel.qml
-    \endcode
+    An id must be unique, it must begin with a lower-case letter or an
+    underscore character, and it can contain only letters, numbers, and
+    underscore characters.
 
-    Then create the dataModel.qml file that contains the dummy data:
+    For more information, see \l{The id Attribute}.
 
-    \qml
-        import QtQuick 2.0
+    The value of the \uicontrol {Custom id} field specifies the name of an
+    \l{Annotating Designs}{annotation}.
 
-        ListModel {
-             ListElement {
-                 name: "Ariane"
-             }
-             ListElement {
-                 name: "Bella"
-             }
-             ListElement {
-                 name: "Corinna"
-             }
-        }
-    \endqml
+    \section2 Geometry
 
-    \section2 Creating Dummy Context
+    In the \uicontrol Position group, you can set the position of an item on
+    the x and y axis.
 
-    The following example presents a common pattern in QML:
+    The z position of an item determines its position in relation to its
+    sibling items in the type hierarchy. You can set it in the \uicontrol Z
+    field in the \uicontrol Advanced tab. However, you would typically set
+    it in \uicontrol Navigator by \l{Setting the Stacking Order}
+    {setting the stacking order} of items.
 
-    \qml
-        Item {
-            width: parent.width
-            height: parent.height
-        }
-    \endqml
+    In the \uicontrol Size group, you can set the width and height of
+    an item. You can also use selection handles to \l{Resizing Items}
+    {resize items} in \uicontrol {Form Editor}. The values in the
+    \uicontrol X and \uicontrol Y fields change accordingly.
 
-    This works nicely for applications but the Design mode displays a zero-sized
-    item. A parent for the opened file does not exist, because the context is
-    missing. To get around the missing context, the idea of a \e {dummy
-    context} is introduced. If you place a file with the same name as the
-    application (here, example.qml) in the \c {dummydata/context} directory,
-    you can fake a parent context:
+    The item size and position can also be managed automatically
+    when \l{Using Layouts}{using layouts}.
 
-    \qml
-        import QtQuick 2.0
-        import QmlDesigner 1.0
+    The width and height of the root item in a QML file determine the
+    size of a component. The component size might also be zero (0,0)
+    if its final size is determined by property bindings. For more
+    information, see \l {Previewing Component Size}.
 
-        DummyContextObject {
-            parent: Item {
-                width: 640
-                height: 300
-            }
-        }
-    \endqml
+    \section2 Visibility
 
-    \section1 Building Transformations on Items
+    You can use the properties in the \uicontrol Visibility group to show and
+    hide items.
 
-    The \uicontrol Advanced tab allows you to configure advanced
-    transformations, such as rotation, scale, and translation. You
-    can assign any number of transformations to an item. Each
-    transformation is applied in order, one at a time.
+    Deselect the \uicontrol {Is visible} check box to hide an item and all its
+    child items, unless they have explicitly been set to be visible. This might
+    have surprise effects when using property bindings. In such cases, it may be
+    better to use the \uicontrol Opacity property instead.
 
-    For more information on Transform types, see \l{Transform}.
+    If this property is disabled, the item will no longer receive mouse events,
+    but will continue to receive key events and will retain the keyboard focus
+    if it has been set by selecting the \uicontrol Enabled check box in the
+    \uicontrol Advanced tab.
+
+    The visibility value is only affected by changes to this property or the
+    parent's visible property. It does not change, for example, if this item
+    moves off-screen, or if the opacity changes to 0.
+
+    In the \uicontrol Opacity field, specify the opacity of an item as a number
+    between 0.0 (fully transparent) and 1.0 (fully opaque). The specified
+    opacity is also applied individually to child items, sometimes with
+    surprising effects.
+
+    Changing an item's opacity does not affect whether the item receives user
+    input events.
+
+    You can \l{Creating Animations}{animate} the opacity value to make items
+    fade in and out.
+
+    If the \uicontrol Clip check box is selected, the item and its children are
+    clipped to the bounding rectangle of the item.
+
+    \section1 Managing 2D Transformations
+
+    You can assign any number of transformations, such as rotation and scaling,
+    to an item in the \uicontrol Advanced tab of the \uicontrol Properties view.
+    Each transformation is applied in order, one at a time.
+
+    \image qtquick-item-properties-advanced.png "Advanced item properties"
+
+    In the \uicontrol Origin field, select the origin point for scaling and
+    rotation.
+
+    Set the scale factor in the \uicontrol Scale field. A value of less than
+    1.0 makes the component smaller, whereas a value greater than 1.0 makes
+    it larger. A negative value causes the component to be mirrored in
+    \uicontrol {Form Editor}.
+
+    In the \uicontrol Rotation field, specify the rotation of the component
+    in degrees clockwise around the origin point.
+
+    \section1 Specifying Developer Properties
+
+    In the \uicontrol Advanced tab of the \uicontrol Properties view, you can
+    manage the more advanced properties of QML types that are based on the
+    \l Item type and are mostly used by application developers.
+
+    Select the \uicontrol Smooth check box to activate smooth sampling. Smooth
+    sampling is performed using linear interpolation, while non-smooth sampling
+    is performed using the nearest neighbor. Because smooth sampling has minimal
+    impact on performance, it is activated by default.
+
+    The value of the \uicontrol {Baseline offset} specifies the position of the
+    item's baseline in local coordinates. The baseline of a Text item is the
+    imaginary line on which the text sits. Controls containing text usually set
+    their baseline to the baseline of their text. For non-text items, a default
+    baseline offset of 0 is used.
+
+    \section2 Managing Mouse and Keyboard Events
+
+    Select the \uicontrol Enabled check box to allow the item to receive mouse
+    and keyboard events. The children of the item inherit this behavior, unless
+    you explicitly set this value for them.
+
+    You can enable the \uicontrol Focus check box to specify that the item has
+    active focus and the \uicontrol {Active focus on tab} check box to add the
+    item to the \e {tab focus chain}. The tab focus chain traverses elements by
+    first visiting the parent, and then its children in the order they are
+    defined. Pressing \key Tab on an item in the tab focus chain moves
+    keyboard focus to the next item in the chain. Pressing back tab (usually,
+    \key {Shift+Tab}) moves focus to the previous item.
+
+    \section2 Using Layers
+
+    Qt Quick 2 makes use of a dedicated scene graph that is then traversed and
+    rendered via a graphics API such as OpenGL ES, OpenGL, Vulkan, Metal, or
+    Direct 3D. Using a scene graph for graphics rather than the traditional
+    imperative painting systems, means that the scene to be rendered can be
+    retained between frames and the complete set of primitives to render is
+    known before rendering starts. This opens up for a number of optimizations,
+    such as \l{Batching}{batch rendering} to minimize state changes and
+    discarding obscured primitives.
+
+    For example, if a user-interface contains a list of ten items where each
+    item has a background color, an icon and a text. Using the traditional
+    drawing techniques, this would result in 30 draw calls and a similar
+    amount of state changes. A scene graph, on the other hand, could reorganize
+    the primitives to render such that all backgrounds are drawn in one call,
+    then all icons, then all the text, reducing the total amount of draw calls
+    to only 3. Batching and state change reduction like this can greatly
+    improve performance on some hardware.
+
+    You need a basic understanding of how items are rendered in QML
+    to be able to set layer properties. Rendering is described in
+    \l {Qt Quick Scene Graph Default Renderer}.
+
+    \image qtquick-item-properties-layer.png "Layer properties"
+
+    Items are normally rendered directly into the window they belong to.
+    However, by selecting the \uicontrol Enabled check box in the
+    \uicontrol Layer group, you can delegate the item and its entire subtree
+    into an offscreen surface. Only the offscreen surface, a texture, will
+    then be drawn into the window. For more information, see \l{Item Layers}.
+
+    When layering is enabled, you can use the item directly as a texture,
+    in combination with the item you select in the \uicontrol Effect field.
+    Typically, this item should be a shader effect with a source texture
+    specified. You can use the effects in the \uicontrol Effects section
+    of \uicontrol Library that are based on the QML types in the
+    \l {Qt Graphical Effects} module.
+
+    To enable the item to pass the layer's offscreen surface to the effect
+    correctly, the \uicontrol {Sampler name} field is set to the source
+    property of the texture.
+
+    Note that when an item's layer is enabled, the scene graph will allocate
+    memory in the GPU equal to width x height x 4. In memory constrained
+    configurations, large layers should be used with care. Also, an item
+    using a layer cannot be batched during rendering. This means that a
+    scene with many layered items may have performance problems.
+
+    By default, multisampling is enabled for the entire window if the scenegraph
+    renderer is in use and the underlying graphics API supports it. By setting
+    the value in the \uicontrol Samples field, you can request multisampling for
+    a part of the scene. This way, multisampling is applied only to a particular
+    subtree, which can lead to significant performance gain. Even then, enabling
+    multisampling can be potentially expensive regardless of the layer's size,
+    as it incurs a hardware and driver dependent performance and memory cost. If
+    support for multisample renderbuffers and framebuffer blits is not
+    available, the value is silently ignored.
+
+    The value of the \uicontrol Format field specifies the internal OpenGL
+    format of the texture. Depending on the OpenGL implementation, it might
+    allow you to save some texture memory. However, use the \uicontrol RGB
+    and \uicontrol Alpha values with caution, because the underlying hardware
+    and driver might not support them.
+
+    In the \uicontrol {Texture mirroring} field, specify whether the generated
+    OpenGL texture should be mirrored by flipping it along the x or y axis.
+    Custom mirroring can be useful if the generated texture is directly accessed
+    by custom shaders. If no effect is specified for the layered item, mirroring
+    has no effect on the UI representation of the item.
+
+    The item will use linear interpolation for scaling if the \uicontrol Smooth
+    check box is selected. To use a mipmap for downsampling, select the
+    \uicontrol Mipmap check box. Mipmapping may improve the visual quality of
+    downscaled items. For mipmapping of single Image items, select the
+    \uicontrol Mipmap check box in the image properties, instead.
+
+    To use a texture with a size different from that of the item, specify the
+    width and height of the texture in the \uicontrol {Texture size} field.
+
+    The \uicontrol {Wrap mode} defines the OpenGL wrap modes associated with
+    the texture. You can clamp the texture to edges or repeat it horizontally
+    and vertically. Note that some OpenGL ES 2 implementations do not support
+    the \uicontrol Repeat wrap mode with non-power-of-two textures.
 
     \section1 Editing Properties Inline
 

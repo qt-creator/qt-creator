@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -53,11 +53,9 @@
 
     \section1 Anchoring UI Components
 
-    First, you will add a new rectangle to \uicontrol {Form Editor} and move
-    all the current UI components to it to create a new page. Then, you will
-    \l {Setting Anchors and Margins}{anchor} the static elements on the
-    page, that is the logo image (\e logo) and page title (\e pageTitle), to the
-    page. When you created the project using the new project wizard template
+    First, you will \l {Setting Anchors and Margins}{anchor} the static page
+    elements, logo image (\e logo) and page title (\e pageTitle), to the page.
+    When you created the project using the new project wizard template
     in Part 1 of this example, the wizard template anchored \e pageTitle to the
     vertical and horizontal center of the page. Therefore, you will only
     need to replace the vertical anchor of \e pageTitle with a top anchor
@@ -73,23 +71,11 @@
     \list 1
         \li Open \e {Screen01.ui.qml} for editing in the
             \uicontrol {Form Editor} view.
-        \li Select the rectangle that forms the UI background in the
-            \uicontrol Navigator view, and change its id to \e root in the
-            \uicontrol Properties view.
-        \li Drag and drop a \uicontrol Rectangle from the \uicontrol Library
-            view to \e root in \uicontrol Navigator, and change its id to
-            \e loginPage in \uicontrol Properties.
-        \li Under \uicontrol Layout, select the \inlineimage anchor-fill.png
-            (\uicontrol {Fill Parent Item}) button to anchor the page to the root
-            item on all sides.
-        \li Select all the other UI elements below \e root in
-            \uicontrol Navigator (press the \key Shift key for multiple
-            selection) and drag them to \e loginPage.
         \li Select \e logo in \uicontrol Navigator.
         \li Select the \inlineimage anchor-top.png
             (\uicontrol Top) and \inlineimage anchor-left.png
             (\uicontrol Left) anchor buttons to anchor \e logo to the top left
-            corner of its parent (\e loginPage) with 10-pixel margins.
+            corner of its parent with 10-pixel margins.
         \li Select \e pageTitle in \uicontrol Navigator.
         \li Deselect the \inlineimage anchor-vertical-center.png
             (\uicontrol {Vertical Center}) button to remove the
@@ -132,26 +118,33 @@
             \uicontrol {+ \QtQuick.Controls} button to display the
             \l {Qt Quick Controls 2} types in the tab:
             \image loginui2-imports.png
-        \li Drag and drop two instances of the \uicontrol {Text Field} type
-            to \uicontrol {Form Editor}.
+        \li Drag and drop two instances of the \uicontrol {Text Field}
+            type from the \uicontrol {Qt Quick Controls 2} tab to
+            \uicontrol {Form Editor}.
         \li Select one of the text fields in \uicontrol Navigator, and
             change its id to \e usernameField in \uicontrol Properties.
-        \li In the \uicontrol Geometry group, \uicontrol Size field, set the
-            width of the field to \e 300 pixels.
-        \li In the \uicontrol Placeholder field, enter \e Username and select
-            \uicontrol tr to mark the text translatable.
+        \li In the \uicontrol Geometry group, \uicontrol Size field,
+            make the field wide enough to accommodate long user names
+            by setting its width to \e 300 pixels.
+        \li In the \uicontrol Placeholder field, set the text to display
+            inside the field before users type in it to \e Username
+        \li Select \uicontrol tr to mark the text translatable.
             \image loginui2-field-properties.png "Text field properties"
         \li Select the other text field, and change its id to
             \e passwordField, placeholder text to \e Password,
             and width to \e 300 pixels.
     \endlist
 
+    The Text Field type has additional properties that you can use to change
+    its appearance. For example, you can change the color, font, alignment, or
+    word and letter spacing of the placeholder text.
+
     You will now position the fields and buttons as columns:
 
     \list 1
-        \li Select \e usernameField and \e passwordField in
-            \uicontrol Navigator, and right-click on either item
-            to open a context menu.
+        \li Select \e usernameField and \e passwordField in \uicontrol Navigator
+            (press the \key Shift key for multiple selection), and right-click
+            either of them to open a context menu.
         \li Select \uicontrol Position > \uicontrol {Position in Column}
             to position the fields on top of each other in
             \uicontrol {Form Editor}.
@@ -173,7 +166,7 @@
         \li Select \e fieldColumn in \uicontrol Navigator.
         \li In \uicontrol Properties > \uicontrol Layout, select the
             \uicontrol Top button to anchor the top of the button column to
-            the top of its parent (the \e loginPage) with a 200-pixel margin.
+            the top of its parent with a 200-pixel margin.
         \li Select the \inlineimage anchor-horizontal-center.png
             (\uicontrol {Horizontal Center}) button to center the field
             column horizontally on the page.
@@ -181,8 +174,7 @@
         \li In \uicontrol Properties > \uicontrol Layout, select the
             \inlineimage anchor-bottom.png
             (\uicontrol Bottom) button to anchor the bottom of the button
-            column to the bottom of its parent (the \e loginPage) with a
-            50-pixel margin.
+            column to the bottom of its parent with a 50-pixel margin.
         \li Select the \uicontrol {Horizontal Center} button to center
             the button column horizontally on the page.
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}

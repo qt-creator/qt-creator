@@ -41,6 +41,7 @@ public:
     static QString msgFormatCurrentFile();
     static QString msgFormatSelectedText();
     static QString msgFormatAtCursor();
+    static QString msgFormatLines();
     static QString msgDisableFormattingSelectedText();
     static QString msgCommandPromptDialogTitle(const QString &command);
     static void showError(const QString &error);

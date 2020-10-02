@@ -3394,14 +3394,17 @@ public:
 
     SourceLocation firstSourceLocation() const override
     {
-      if (defaultToken.isValid())
-        return defaultToken;
-      else if (readonlyToken.isValid())
-          return readonlyToken;
-      else if (requiredToken.isValid())
-          return requiredToken;
+        if (requiredToken.isValid()) {
+            if (defaultToken.isValid() && defaultToken.offset < requiredToken.offset)
+                return defaultToken;
+            return requiredToken;
+        }
+        if (defaultToken.isValid())
+            return defaultToken;
+        if (readonlyToken.isValid())
+            return readonlyToken;
 
-      return propertyToken;
+        return propertyToken;
     }
 
     SourceLocation lastSourceLocation() const override
