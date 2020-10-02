@@ -25,68 +25,90 @@
 
 #include "conaninstallstep.h"
 
-#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/processparameters.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <qtsupport/qtkitinformation.h>
-#include <qtsupport/qtparser.h>
-#include <utils/qtcprocess.h>
-
-#include <QVariantMap>
-#include <QLineEdit>
-#include <QFormLayout>
+#include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/task.h>
+#include <projectexplorer/toolchain.h>
 
 using namespace ProjectExplorer;
-using namespace ProjectExplorer::Constants;
 using namespace Utils;
 
 namespace ConanPackageManager {
 namespace Internal {
 
-const char INSTALL_STEP_ID[] = "ConanPackageManager.InstallStep";
-const char INSTALL_STEP_CONANFILE_SUBDIR_KEY[] = "ConanPackageManager.InstallStep.ConanfileSubdir";
-const char INSTALL_STEP_ADDITIONAL_ARGUMENTS_KEY[] = "ConanPackageManager.InstallStep.AdditionalArguments";
+// ConanInstallStep
 
-ConanInstallStepFactory::ConanInstallStepFactory()
+class ConanInstallStep final : public AbstractProcessStep
 {
-    registerStep<ConanInstallStep>(INSTALL_STEP_ID);
-    setDisplayName(ConanInstallStep::tr("conan install", "Install packages specified in Conanfile.txt"));
-}
+    Q_DECLARE_TR_FUNCTIONS(ConanPackageManager::Internal::ConanInstallStep)
 
-ConanInstallStep::ConanInstallStep(BuildStepList *bsl, Utils::Id id) : AbstractProcessStep(bsl, id)
+public:
+    ConanInstallStep(BuildStepList *bsl, Id id);
+
+private:
+    bool init() final;
+    void setupOutputFormatter(OutputFormatter *formatter) final;
+};
+
+ConanInstallStep::ConanInstallStep(BuildStepList *bsl, Id id)
+    : AbstractProcessStep(bsl, id)
 {
-    setDefaultDisplayName(tr("conan install"));
+    setUseEnglishOutput();
+    setDisplayName(ConanInstallStep::tr("Conan install"));
+
+    auto conanFile = addAspect<StringAspect>();
+    conanFile->setSettingsKey("ConanPackageManager.InstallStep.ConanFile");
+    conanFile->setFilePath(project()->projectDirectory() / "conanfile.txt");
+    conanFile->setLabelText(tr("Conan file:"));
+    conanFile->setToolTip(tr("Enter location of conanfile.txt or conanfile.py"));
+    conanFile->setDisplayStyle(StringAspect::PathChooserDisplay);
+    conanFile->setExpectedKind(PathChooser::File);
+
+    auto additionalArguments = addAspect<StringAspect>();
+    additionalArguments->setSettingsKey("ConanPackageManager.InstallStep.AdditionalArguments");
+    additionalArguments->setLabelText(tr("Additional arguments:"));
+    additionalArguments->setDisplayStyle(StringAspect::LineEditDisplay);
+
+    setCommandLineProvider([this, conanFile, additionalArguments] {
+        BuildConfiguration::BuildType bt = buildConfiguration()->buildType();
+        const QString buildType = bt == BuildConfiguration::Release ? QString("Release")
+                                                                    : QString("Debug");
+        CommandLine cmd("conan");
+        cmd.addArgs({"install", "-s", "build_type=" + buildType, conanFile->value()});
+        cmd.addArgs(additionalArguments->value(), CommandLine::Raw);
+        return cmd;
+    });
+
+    setSummaryUpdater([this]() -> QString {
+        QList<ToolChain *> tcList = ToolChainKitAspect::toolChains(target()->kit());
+        if (tcList.isEmpty())
+            return "<b>" + ToolChainKitAspect::msgNoToolChainInTarget() + "</b>";
+        ProcessParameters param;
+        setupProcessParameters(&param);
+        return param.summary(displayName());
+    });
 }
 
 bool ConanInstallStep::init()
 {
-    BuildConfiguration *bc = buildConfiguration();
-    QTC_ASSERT(bc, return false);
+    if (!AbstractProcessStep::init())
+        return false;
 
-    QList<ToolChain *> tcList = ToolChainKitAspect::toolChains(target()->kit());
-    if (tcList.isEmpty())
+    const QList<ToolChain *> tcList = ToolChainKitAspect::toolChains(target()->kit());
+    if (tcList.isEmpty()) {
         emit addTask(Task::compilerMissingTask());
-
-    if (tcList.isEmpty() || !bc) {
         emitFaultyConfigurationMessage();
         return false;
     }
 
-    ProcessParameters *pp = processParameters();
-    Utils::Environment env = bc->environment();
-    Utils::Environment::setupEnglishOutput(&env);
-    pp->setEnvironment(env);
-    pp->setWorkingDirectory(bc->buildDirectory());
-    pp->setCommandLine(Utils::CommandLine("conan", arguments()));
-
-    return AbstractProcessStep::init();
+    return true;
 }
 
 void ConanInstallStep::setupOutputFormatter(OutputFormatter *formatter)
@@ -97,156 +119,13 @@ void ConanInstallStep::setupOutputFormatter(OutputFormatter *formatter)
     AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
-BuildStepConfigWidget *ConanInstallStep::createConfigWidget()
+// ConanInstallStepFactory
+
+ConanInstallStepFactory::ConanInstallStepFactory()
 {
-    return new ConanInstallStepConfigWidget(this);
+    registerStep<ConanInstallStep>("ConanPackageManager.InstallStep");
+    setDisplayName(ConanInstallStep::tr("Run conan install"));
 }
 
-bool ConanInstallStep::immutable() const
-{
-    return false;
-}
-
-QStringList ConanInstallStep::arguments() const
-{
-    BuildConfiguration *bc = buildConfiguration();
-    if (!bc)
-        bc = target()->activeBuildConfiguration();
-
-    if (!bc)
-        return {};
-
-    const Utils::FilePath conanFileDir = relativeSubdir().isEmpty()
-                                             ? bc->buildDirectory()
-                                             : bc->buildDirectory().pathAppended(relativeSubdir());
-
-    const QString buildType = bc->buildType() == BuildConfiguration::Release ? QString("Release")
-                                                                             : QString("Debug");
-    const QString relativePath
-        = bc->project()->projectDirectory().relativeChildPath(conanFileDir).toString();
-    QStringList installArguments;
-    installArguments << "install";
-    if (!relativePath.isEmpty())
-        installArguments << relativePath;
-    installArguments << "-s";
-    installArguments << "build_type=" + buildType;
-    installArguments << conanFileDir.toString();
-    installArguments << additionalArguments();
-    return installArguments;
-}
-
-QString ConanInstallStep::relativeSubdir() const
-{
-    return m_relativeSubdir;
-}
-
-QStringList ConanInstallStep::additionalArguments() const
-{
-    return Utils::QtcProcess::splitArgs(m_additionalArguments);
-}
-
-void ConanInstallStep::setRelativeSubdir(const QString &subdir)
-{
-    if (subdir == m_relativeSubdir)
-        return;
-
-    m_relativeSubdir = subdir;
-    emit relativeSubdirChanged(subdir);
-}
-
-void ConanInstallStep::setAdditionalArguments(const QString &list)
-{
-    if (list == m_additionalArguments)
-        return;
-
-    m_additionalArguments = list;
-
-    emit additionalArgumentsChanged(list);
-}
-
-QVariantMap ConanInstallStep::toMap() const
-{
-    QVariantMap map = AbstractProcessStep::toMap();
-
-    map.insert(INSTALL_STEP_CONANFILE_SUBDIR_KEY, m_relativeSubdir);
-    map.insert(INSTALL_STEP_ADDITIONAL_ARGUMENTS_KEY, m_additionalArguments);
-    return map;
-}
-
-bool ConanInstallStep::fromMap(const QVariantMap &map)
-{
-    m_relativeSubdir = map.value(INSTALL_STEP_CONANFILE_SUBDIR_KEY).toString();
-    m_additionalArguments = map.value(INSTALL_STEP_ADDITIONAL_ARGUMENTS_KEY).toString();
-
-    return BuildStep::fromMap(map);
-}
-
-///////////////////////////////
-// ConanInstallStepConfigWidget class
-///////////////////////////////
-ConanInstallStepConfigWidget::ConanInstallStepConfigWidget(ConanInstallStep *installStep)
-    : ProjectExplorer::BuildStepConfigWidget(installStep)
-    , m_installStep(installStep)
-    , m_summaryText()
-    , m_relativeSubdir(nullptr)
-    , m_additionalArguments(nullptr)
-{
-    QFormLayout *fl = new QFormLayout(this);
-    fl->setMargin(0);
-    fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    setLayout(fl);
-
-    m_relativeSubdir = new QLineEdit(this);
-    fl->addRow(tr("conanfile.txt subdirectory:"), m_relativeSubdir);
-    m_relativeSubdir->setText(m_installStep->relativeSubdir());
-
-    m_additionalArguments = new QLineEdit(this);
-    fl->addRow(tr("Additional arguments:"), m_additionalArguments);
-    m_additionalArguments->setText(Utils::QtcProcess::joinArgs(m_installStep->additionalArguments()));
-
-    updateDetails();
-
-    connect(m_relativeSubdir, &QLineEdit::textChanged,
-            m_installStep, &ConanInstallStep::setRelativeSubdir);
-    connect(m_additionalArguments, &QLineEdit::textChanged,
-            m_installStep, &ConanInstallStep::setAdditionalArguments);
-
-    connect(m_installStep, &ConanInstallStep::relativeSubdirChanged,
-            this, &ConanInstallStepConfigWidget::updateDetails);
-    connect(m_installStep, &ConanInstallStep::additionalArgumentsChanged,
-            this, &ConanInstallStepConfigWidget::updateDetails);
-    connect(installStep->buildConfiguration(), &BuildConfiguration::environmentChanged,
-            this, &ConanInstallStepConfigWidget::updateDetails);
-}
-
-QString ConanInstallStepConfigWidget::displayName() const
-{
-    return tr("conan install", "ConanInstallStep::ConanInstallStepConfigWidget display name.");
-}
-
-QString ConanInstallStepConfigWidget::summaryText() const
-{
-    return m_summaryText;
-}
-
-void ConanInstallStepConfigWidget::updateDetails()
-{
-    BuildConfiguration *bc = m_installStep->buildConfiguration();
-    if (!bc)
-        bc = m_installStep->target()->activeBuildConfiguration();
-    QList<ToolChain *> tcList = ToolChainKitAspect::toolChains(m_installStep->target()->kit());
-
-    if (!tcList.isEmpty()) {
-        QString arguments = Utils::QtcProcess::joinArgs(m_installStep->arguments()
-                                                        + m_installStep->additionalArguments());
-        m_summaryText = "<b>conan install</b>: conan " + arguments;
-        setSummaryText(m_summaryText);
-    } else {
-        m_summaryText = "<b>" + ToolChainKitAspect::msgNoToolChainInTarget()  + "</b>";
-    }
-
-    emit updateSummary();
-}
-
-} // namespace Internal
-} // namespace ConanPackageManager
+} // Internal
+} // ConanPackageManager

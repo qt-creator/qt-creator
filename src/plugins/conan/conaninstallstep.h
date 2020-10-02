@@ -25,72 +25,15 @@
 
 #pragma once
 
-#include <projectexplorer/abstractprocessstep.h>
-#include <projectexplorer/task.h>
-
-QT_FORWARD_DECLARE_CLASS(QLineEdit)
+#include <projectexplorer/buildstep.h>
 
 namespace ConanPackageManager {
 namespace Internal {
 
-class AutotoolsProject;
-class ConanInstallStep;
-class ConanInstallStepFactory : public ProjectExplorer::BuildStepFactory
+class ConanInstallStepFactory final : public ProjectExplorer::BuildStepFactory
 {
 public:
     ConanInstallStepFactory();
-};
-
-class ConanInstallStep : public ProjectExplorer::AbstractProcessStep
-{
-    Q_OBJECT
-    friend class ConanInstallStepFactory;
-
-public:
-    ConanInstallStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
-
-    bool init() override;
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-    bool immutable() const;
-    QStringList arguments() const;
-    QString relativeSubdir() const;
-    QStringList additionalArguments() const;
-    QVariantMap toMap() const override;
-
-    void setRelativeSubdir(const QString &subdir);
-    void setAdditionalArguments(const QString &list);
-
-    void setupOutputFormatter(Utils::OutputFormatter *formatter) final;
-
-signals:
-    void relativeSubdirChanged(const QString &);
-    void additionalArgumentsChanged(const QString &);
-
-private:
-    bool fromMap(const QVariantMap &map) override;
-
-    QString m_arguments;
-    QString m_relativeSubdir;
-    QString m_additionalArguments;
-};
-
-class ConanInstallStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
-{
-    Q_OBJECT
-
-public:
-    ConanInstallStepConfigWidget(ConanInstallStep *installStep);
-
-    QString displayName() const;
-    QString summaryText() const;
-
-private:
-    void updateDetails();
-
-    ConanInstallStep *m_installStep;
-    QString m_summaryText;
-    QLineEdit *m_relativeSubdir;
-    QLineEdit *m_additionalArguments;
 };
 
 } // namespace Internal
