@@ -6,7 +6,6 @@ add_qtc_library(CPlusPlus
   DEPENDS Utils Qt5::Concurrent
   DEFINES CPLUSPLUS_BUILD_LIB
   PUBLIC_DEPENDS 3rd_cplusplus Qt5::Gui
-  PUBLIC_INCLUDES src/libs/3rdparty
   SOURCES
     ASTParent.cpp ASTParent.h
     ASTPath.cpp ASTPath.h

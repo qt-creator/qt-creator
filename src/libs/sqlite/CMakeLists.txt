@@ -17,6 +17,7 @@ add_qtc_library(Sqlite
     ../3rdparty/sqlite
   SOURCES
     ../3rdparty/sqlite/sqlite3.c
+    ../3rdparty/sqlite/sqlite3.h
     ../3rdparty/sqlite/carray.c
     constraints.h
     createtablesqlstatementbuilder.cpp createtablesqlstatementbuilder.h
@@ -25,6 +26,7 @@ add_qtc_library(Sqlite
     sqlitecolumn.h
     sqlitedatabase.cpp sqlitedatabase.h
     sqlitedatabasebackend.cpp sqlitedatabasebackend.h
+    sqlitedatabaseinterface.h
     sqliteexception.cpp sqliteexception.h
     sqliteglobal.cpp sqliteglobal.h
     sqliteindex.h
@@ -34,10 +36,12 @@ add_qtc_library(Sqlite
     sqlitesessions.cpp sqlitesessions.h
     sqlitetable.h
     sqlitetransaction.h
-    sqlitewritestatement.cpp sqlitewritestatement.h
+    sqlitetransaction.h
     sqlitevalue.h
+    sqlitewritestatement.cpp sqlitewritestatement.h
     sqlstatementbuilder.cpp sqlstatementbuilder.h
     sqlstatementbuilderexception.h
+    tableconstraints.h
     utf8string.cpp utf8string.h
     utf8stringvector.cpp utf8stringvector.h
 )
