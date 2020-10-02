@@ -101,6 +101,7 @@ void ModelPrivate::detachAllViews()
         detachView(view.data(), true);
 
     m_viewList.clear();
+    updateEnabledViews();
 
     if (m_nodeInstanceView) {
         m_nodeInstanceView->modelAboutToBeDetached(m_q);
@@ -951,6 +952,7 @@ void ModelPrivate::detachView(AbstractView *view, bool notifyView)
     if (notifyView)
         view->modelAboutToBeDetached(m_q);
     m_viewList.removeOne(view);
+    updateEnabledViews();
 }
 
 void ModelPrivate::notifyNodeCreated(const InternalNode::Pointer &newInternalNodePointer)

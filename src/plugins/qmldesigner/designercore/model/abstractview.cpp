@@ -185,11 +185,7 @@ is removing the reference to the model from the view.
 */
 void AbstractView::modelAboutToBeDetached(Model *)
 {
-    Model *oldModel = model();
     removeModel();
-
-    if (oldModel)
-        oldModel->d->updateEnabledViews();
 }
 
 /*!
