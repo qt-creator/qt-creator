@@ -36,6 +36,7 @@
 #include <QGuiApplication>
 #include <QLoggingCategory>
 #include <QPainter>
+#include <QPalette>
 #include <QRegularExpression>
 #include <QScreen>
 #include <QTextLayout>
