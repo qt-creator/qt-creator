@@ -73,6 +73,7 @@ NewClassWidget::NewClassWidget(QWidget *parent) :
     d->m_ui.classTypeLabel->setVisible(false);
     d->m_ui.classTypeComboBox->setVisible(false);
 
+    d->m_ui.classLineEdit->setNamespacesEnabled(true);
     setNamesDelimiter(QLatin1String("::"));
 
     connect(d->m_ui.classLineEdit, &Utils::ClassNameValidatingLineEdit::updateFileName,
