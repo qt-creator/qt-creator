@@ -10,7 +10,7 @@
 #  3. Run "cmake -DCMAKE_TOOLCHAIN_FILE=conan_paths.cmake /path/to/qtcreator/sources -GNinja"
 
 [requires]
-qt/5.13.2@bincrafters/stable
+qt/5.15.1@bincrafters/stable
 llvm/8.0.0@qtcreator/stable
 
 [generators]
