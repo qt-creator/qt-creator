@@ -83,7 +83,7 @@ private:
 
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    QWidget *createConfigWidget() override;
     void processStarted() override;
     void processFinished(int exitCode, QProcess::ExitStatus status) override;
     bool verifyKeystorePassword();

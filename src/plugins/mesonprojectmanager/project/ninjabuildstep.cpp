@@ -70,9 +70,9 @@ NinjaBuildStep::NinjaBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id
             &NinjaBuildStep::commandChanged);
 }
 
-BuildStepConfigWidget *NinjaBuildStep::createConfigWidget()
+QWidget *NinjaBuildStep::createConfigWidget()
 {
-    auto widget = new BuildStepConfigWidget{this};
+    auto widget = new QWidget;
     setDisplayName(tr("Build", "MesonProjectManager::MesonBuildStepConfigWidget display name."));
 
     auto buildTargetsList = new QListWidget(widget);

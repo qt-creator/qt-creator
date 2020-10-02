@@ -69,7 +69,7 @@ public:
     IosBuildStep(BuildStepList *stepList, Utils::Id id);
 
 private:
-    BuildStepConfigWidget *createConfigWidget() final;
+    QWidget *createConfigWidget() final;
     void setBaseArguments(const QStringList &args);
     void setExtraArguments(const QStringList &extraArgs);
     QStringList baseArguments() const;
@@ -88,9 +88,9 @@ private:
     bool m_useDefaultArguments = true;
 };
 
-BuildStepConfigWidget *IosBuildStep::createConfigWidget()
+QWidget *IosBuildStep::createConfigWidget()
 {
-    auto widget = new BuildStepConfigWidget(this);
+    auto widget = new QWidget;
 
     auto buildArgumentsLabel = new QLabel(tr("Base arguments:"), widget);
 

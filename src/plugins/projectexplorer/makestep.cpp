@@ -342,9 +342,9 @@ CommandLine MakeStep::effectiveMakeCommand(MakeCommandType type) const
     return cmd;
 }
 
-BuildStepConfigWidget *MakeStep::createConfigWidget()
+QWidget *MakeStep::createConfigWidget()
 {
-    auto widget = new BuildStepConfigWidget(this);
+    auto widget = new QWidget;
 
     auto targetsLabel = new QLabel(widget);
     targetsLabel->setText(tr("Targets:"));

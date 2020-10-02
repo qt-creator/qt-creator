@@ -83,7 +83,7 @@ private:
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     void doRun() override;
     void doCancel() override;
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    QWidget *createConfigWidget() override;
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 

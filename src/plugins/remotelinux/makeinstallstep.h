@@ -48,7 +48,7 @@ public:
 
 private:
     bool fromMap(const QVariantMap &map) override;
-    ProjectExplorer::BuildStepConfigWidget * createConfigWidget() override;
+    QWidget *createConfigWidget() override;
     bool init() override;
     void finish(bool success) override;
     void stdError(const QString &line) override;

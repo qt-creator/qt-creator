@@ -107,9 +107,9 @@ void NimCompilerBuildStep::setupOutputFormatter(OutputFormatter *formatter)
     AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
-BuildStepConfigWidget *NimCompilerBuildStep::createConfigWidget()
+QWidget *NimCompilerBuildStep::createConfigWidget()
 {
-    auto widget = new BuildStepConfigWidget(this);
+    auto widget = new QWidget;
 
     setDisplayName(tr("Nim build step"));
     setSummaryText(tr("Nim build step"));

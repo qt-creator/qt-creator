@@ -54,7 +54,7 @@ private:
     bool init() override;
     void doRun() override;
     void doCancel() override;
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    QWidget *createConfigWidget() override;
 
     const QbsBuildConfiguration *buildConfig() const;
     void installDone(const ErrorInfo &error);

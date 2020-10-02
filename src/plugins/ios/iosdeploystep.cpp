@@ -83,7 +83,7 @@ private:
     void updateDisplayNames();
 
     bool init() final;
-    BuildStepConfigWidget *createConfigWidget() final;
+    QWidget *createConfigWidget() final;
     IDevice::ConstPtr device() const;
     IosDevice::ConstPtr iosdevice() const;
     IosSimulator::ConstPtr iossimulator() const;
@@ -230,9 +230,9 @@ void IosDeployStep::handleErrorMsg(IosToolHandler *handler, const QString &msg)
     emit addOutput(msg, OutputFormat::ErrorMessage);
 }
 
-BuildStepConfigWidget *IosDeployStep::createConfigWidget()
+QWidget *IosDeployStep::createConfigWidget()
 {
-    auto widget = new BuildStepConfigWidget(this);
+    auto widget = new QWidget;
 
     widget->setObjectName("IosDeployStepWidget");
     setDisplayName(QString("<b>%1</b>").arg(displayName()));

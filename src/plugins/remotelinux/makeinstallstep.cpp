@@ -120,8 +120,9 @@ QString MakeInstallStep::displayName()
     return tr("Install into temporary host directory");
 }
 
-BuildStepConfigWidget *MakeInstallStep::createConfigWidget()
+QWidget *MakeInstallStep::createConfigWidget()
 {
+    // Note: this intentionally skips the MakeStep::createConfigWidget() level.
     return BuildStep::createConfigWidget();
 }
 

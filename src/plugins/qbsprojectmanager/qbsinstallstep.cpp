@@ -179,9 +179,9 @@ QbsBuildStepData QbsInstallStep::stepData() const
     return data;
 }
 
-BuildStepConfigWidget *QbsInstallStep::createConfigWidget()
+QWidget *QbsInstallStep::createConfigWidget()
 {
-    auto widget = new BuildStepConfigWidget(this);
+    auto widget = new QWidget;
 
     auto installRootValueLabel = new QLabel(installRoot());
 
