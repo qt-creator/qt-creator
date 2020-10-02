@@ -274,7 +274,7 @@
     and set the button text for each button instance, for example.
 
     For more information about positioning buttons on screens, see
-    \l{Positioning Items in UIs}.
+    \l{Positioning Items}.
 
     \image qmldesigner-borderimage.png "Button preview as part of a screen"
 */

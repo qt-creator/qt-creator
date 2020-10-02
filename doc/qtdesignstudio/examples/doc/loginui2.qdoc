@@ -200,7 +200,7 @@
     \section1 Next Steps
 
     To learn more about positioning items in \QDS, see
-    \l{Positioning Items in UIs}.
+    \l{Positioning Items}.
 
     To learn how to add a second page and move to it from the main page, see
     the next example in the series, \l {Log In UI - Part 3}.

@@ -1,0 +1,466 @@
+/****************************************************************************
+**
+** Copyright (C) 2020 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page qtquick-positioning.html
+    \previouspage qtquick-properties.html
+    \nextpage qtquick-fonts.html
+
+    \title Positioning Items
+
+    The position of an item in a UI can be either absolute or relative to
+    other items. The visual types exist at a particular location in the screen
+    coordinate system at any instant in time. The x and y coordinates of a
+    visual item are relative to those of its visual parent, with the top-left
+    corner having the coordinate (0, 0).
+
+    If you are designing a static UI,
+    \l{Important Concepts In Qt Quick - Positioning#manual-positioning}
+    {manual positioning} provides the most efficient form of positioning
+    items. For a dynamic UI, you can employ the following positioning
+    methods:
+
+    \list
+        \li \l{Setting Bindings}
+        \li \l{Setting Anchors and Margins}
+        \li \l{Aligning and Distributing Items}
+        \li \l{Using Positioners}
+        \li \l{Using Layouts}
+        \li \l{Organizing Items}
+    \endlist
+
+    \section2 Setting Bindings
+
+    \l{Positioning with Bindings} {Property binding} is a declarative way of
+    specifying the value of a property. Binding allows a property value to be
+    expressed as a JavaScript expression that defines the value relative to
+    other property values or data accessible in the application. The property
+    value is automatically kept up to date if the other properties or data
+    values change.
+
+    Property bindings are created implicitly in QML whenever a property is
+    assigned a JavaScript expression. To set JavaScript expressions as values
+    of properties in the \uicontrol Properties view, select the
+    \inlineimage icons/action-icon.png
+    (\uicontrol Actions) menu next to a property, and then select
+    \uicontrol {Set Binding}.
+
+    \image qmldesigner-set-expression.png "Type properties context menu"
+
+    In \uicontrol {Binding Editor}, select an item and a property from
+    lists of available items and their properties.
+
+    \image qmldesigner-binding-editor.png "Binding Editor"
+
+    Alternatively, start typing a
+    string and press \key Ctrl+Space to display a list of properties, IDs, and
+    code snippets. When you enter a period (.) after a property name, a list of
+    available values is displayed. Press \key Enter to accept the first
+    suggestion in the list and to complete the code.
+
+    When a binding is set, the \uicontrol Actions menu icon changes to
+    \inlineimage icons/action-icon-binding
+    . To remove bindings, select \uicontrol Actions > \uicontrol Reset.
+
+    You can set bindings also in the \uicontrol Connections view. For more
+    information, see \l {Adding Bindings Between Properties}.
+
+    For more information on the JavaScript environment provided by QML, see
+    \l{Integrating QML and JavaScript}.
+
+    Bindings are a black box for \QC and using them might have a
+    negative impact on performance, so consider setting anchors and margins for
+    items, instead. For example, instead of setting \c {parent.width} for an
+    item, you could anchor the item to its sibling items on the left and the
+    right.
+
+    \section2 Setting Anchors and Margins
+
+    In an \l{Important Concepts In Qt Quick - Positioning#anchors}
+    {anchor-based} layout, each QML type can be thought of as having a set of
+    invisible \e anchor lines: top, bottom, left, right, fill, horizontal
+    center, vertical center, and baseline.
+
+    In the \uicontrol Layout tab you can set anchors and margins for items. To
+    set the anchors of an item, click the anchor buttons. You can combine the
+    top/bottom, left/right, and horizontal/vertical anchors to anchor items in
+    the corners of the parent item or center them horizontally or vertically
+    within the parent item.
+
+    \image qmldesigner-anchor-buttons.png "Anchor buttons"
+
+    For convenience, you can click the \inlineimage anchor-fill.png
+    (\uicontrol {Fill to Parent}) toolbar button to apply fill anchors to an
+    item and the \inlineimage qtcreator-anchors-reset-icon.png
+    (\uicontrol {Reset Anchors}) button to reset the anchors to their saved
+    state.
+
+    You can specify the baseline anchor in \uicontrol {Text Editor}.
+
+    For performance reasons, you can only anchor an item to its siblings
+    and direct parent. By default, an item is anchored to its parent when
+    you use the anchor buttons. Select a sibling of the item in the
+    \uicontrol Target field to anchor to it, instead.
+
+    Arbitrary anchoring is not supported. For example, you cannot specify:
+    \c {anchor.left: parent.right}. You have to specify:
+    \c {anchor.left: parent.left}. When you use the anchor buttons, anchors to
+    the parent item are always specified to the same side. However, anchors to
+    sibling items are specified to the opposite side:
+    \c {anchor.left: sibling.right}. This allows you to keep sibling items
+    together.
+
+    In the following image, \uicontrol{Rectangle 2} is anchored to
+    \uicontrol {Rectangle 1} on its left and to the bottom of its parent.
+
+    \image qmldesigner-anchors.png "Anchoring sibling items"
+
+    The anchors for \uicontrol{Rectangle 2} are specified as follows in code:
+
+    \qml
+    Rectangle {
+        id: rectangle2
+        anchors.left: rectangle1.right
+        anchors.leftMargin: 10
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 10
+        //
+    }
+    \endqml
+
+    Margins specify the amount of empty space to leave to the outside of an
+    item. Margins only have meaning for anchors. They do not take any effect
+    when using layouts or absolute positioning.
+
+    \section2 Aligning and Distributing Items
+
+    When you're working with a group of items, you can select them to align
+    and distribute them evenly. As the positions of the items are fixed, you
+    cannot apply these functions to anchored items. For scalability, you can
+    anchor the aligned and distributed items when your design is ready.
+
+    \image qmldesigner-alignment.png "Aligning sibling items"
+
+    Select the buttons in the \uicontrol Align group to align the top/bottom
+    or left/right edges of the items in the group to the one farthest away from
+    the center of the group. For example, when left-aligning, the items are
+    aligned to the leftmost item. You can also align the horizontal/vertical
+    centers of items, or both, as in the image above.
+
+    In the \uicontrol {Align to} field, select whether to align the items in
+    respect to the selection, the root item, or a \e {key object} that you
+    select in the \uicontrol {Key object} field. The key object must be a part
+    of the selection.
+
+    You can distribute either \e objects or the \e spacing between them. If the
+    objects or spacing cannot be distributed to equal pixel values without
+    ending up with half pixels, you receive a notification. You can either allow
+    \QDS to distribute objects or spacing using the closest values possible or
+    tweak your design so that the objects and spacing can be distributed
+    perfectly.
+
+    When distributing objects, you can select whether the distance between
+    them is calculated from their top/bottom or left/right edges or their
+    horizontal/vertical center.
+
+    \image qmldesigner-distribute-objects.png "Distribute objects buttons"
+
+    You can distribute spacing either evenly within a target area or at
+    specified distances, calculated from a starting point.
+
+    You can select the orientation in which the objects are distributed evenly
+    within the target area: horizontally along the x axis or vertically along
+    the y axis.
+
+    \image qmldesigner-distribute-spacing-evenly.png "Distribute spacing evenly"
+
+    Alternatively, you can distribute spacing in pixels by selecting one of the
+    starting point buttons: left/right or top/bottom edge of the target area,
+    or its horizontal/vertical center. Note that some items might end up outside
+    the target area.
+
+    \image qmldesigner-distribute-spacing-pixels.png "Distribute spacing in pixels"
+
+    You can set the space between objects in pixels. You can
+    disable the distribution of spacing in pixels by clicking
+    the \inlineimage qmldesigner-distribute-spacing-x.png
+    button.
+
+    \section2 Using Positioners
+
+    Positioner items are container items that manage the positions of
+    items. For many use cases, the best positioner to use is a simple
+    column, row, flow, or grid. You can use the QML types available in
+    the \uicontrol {Qt Quick - Positioner} section of \uicontrol Library
+    to position the children of an item in these formations in the most
+    efficient manner possible.
+
+    To position several items in a \uicontrol Column, \uicontrol Row,
+    \uicontrol Flow, or \uicontrol Grid, select the items in
+    \uicontrol {Form Editor}, and then select \uicontrol Position in
+    the context menu.
+
+    \section3 Column Positioner
+
+    A \uicontrol Column positions its child items along a single column.
+    It can be used as a convenient way to vertically position a series of
+    items without using anchors.
+
+    \image qtquick-positioner-column-properties.png "Column properties"
+
+    For all positioners, you can specify the spacing between the child
+    items that they contain in the \uicontrol Spacing field.
+
+    In addition, you can specify the vertical and horizontal padding between
+    content and the left, right, top, and bottom edges of items as values of
+    the fields in the \uicontrol Padding group.
+
+    \section3 Row and Flow Positioners
+
+    A \uicontrol Row positions its child items along a single row. It can be
+    used as a convenient way to horizontally position a series of items without
+    using anchors.
+
+    The \uicontrol Flow type positions its child items like words on a page,
+    wrapping them to create rows or columns of items.
+
+    \image qtquick-positioner-flow-properties.png "Flow properties"
+
+    For flow and row positioners, you can also set the direction of a flow to
+    either left-to-right or top-to-bottom in the \uicontrol Flow field.
+    Items are positioned next to to each other according to the value you set
+    in the \uicontrol {Layout direction} field until the width or height of the
+    Flow item is exceeded, then wrapped to the next row or column.
+
+    You can set the layout direction to either \uicontrol LeftToRight or
+    \uicontrol RightToLeft in the \uicontrol {Layout direction} field. If
+    the width of the row is explicitly set, the left anchor remains to the
+    left of the row and the right anchor remains to the right of it.
+
+    \section3 Grid Positioner
+
+    A \uicontrol Grid creates a grid of cells that is large enough to hold all
+    of its child items, and places these items in the cells from left to right
+    and top to bottom. Each item is positioned at the top-left corner of its
+    cell with position (0, 0).
+
+    \QC generates the grid based on the positions of the child items in
+    \uicontrol {Form Editor}. You can modify the number of rows and columns
+    in the \uicontrol Rows and \uicontrol Columns fields.
+
+    \image qtquick-positioner-grid-properties.png "Grid properties"
+
+    In addition to the flow and layout direction, you can set the horizontal
+    and vertical alignment of grid items. By default, grid items are vertically
+    aligned to the top. Horizontal alignment follows the value of the
+    \uicontrol {Layout direction} field. For example, when layout direction is
+    set to \uicontrol LeftToRight, the items are aligned on the left.
+
+    To mirror the layout, set the layout direction to \uicontrol RightToLeft.
+    To also mirror the horizontal alignment of items, select
+    \uicontrol AlignRight in the \uicontrol {Horizontal item alignment} field.
+
+    \section3 Summary of Positioners
+
+    The following table lists the positioners that you can use to arrange items
+    in UIs. They are available in the \uicontrol {Qt Quick - Positioner} section
+    of \uicontrol Library.
+
+    \table
+    \header
+        \li Icon
+        \li Name
+        \li Purpose
+    \row
+        \li \inlineimage column-positioner-icon-16px.png
+        \li \l[QtQuick] {Column}
+        \li Arranges its child items vertically.
+    \row
+        \li \inlineimage row-positioner-icon-16px.png
+        \li \l[QtQuick] {Row}
+        \li Arranges its child items horizontally.
+    \row
+        \li \inlineimage grid-positioner-icon-16px.png
+        \li \l[QtQuick] {Grid}
+        \li Arranges its child items so that they are aligned in a grid and
+            are not overlapping.
+    \row
+        \li \inlineimage flow-positioner-icon-16px.png
+        \li \l[QtQuick] {Flow}
+        \li Arranges its child items side by side, wrapping as necessary.
+    \endtable
+
+    \section2 Using Layouts
+
+    \if defined(qtcreator)
+    Since Qt 5.1, you can use QML types in the \l{qtquicklayouts-index.html}
+    {Qt Quick Layouts} module to arrange items in UIs.
+    \else
+    You can use the QML types available in the \uicontrol {Qt Quick - Layouts}
+    section of \uicontrol Library to arrange items in UIs.
+    \endif
+    Unlike positioners, layouts manage both the positions and sizes of their
+    child items, and are therefore well suited for dynamic and resizable UIs.
+    However, this means that you should not specify fixed positions and sizes
+    for the child items in the \uicontrol Geometry group in their properties,
+    unless their implicit sizes are not satisfactory.
+
+    You can use anchors or the width and height properties of the layout itself
+    to specify its size in respect to its non-layout parent item. However, do
+    not anchor the child items within layouts.
+
+    To arrange several items in a column, row, grid, or
+    \uicontrol {Stack Layout}, select the items in \uicontrol {Form Editor},
+    and then select \uicontrol Layout in the context menu.
+
+    You can also click the \inlineimage column.png
+    (\uicontrol {Column Layout}), \inlineimage row.png
+    (\uicontrol {Row Layout}), and \inlineimage grid.png
+    (\uicontrol {Grid Layout}) toolbar buttons to apply
+    layouts to the selected items.
+
+    To make an item within a layout as wide as possible while respecting the
+    given constraints, select the item in \uicontrol {Form Editor}, and then
+    select \uicontrol Layout > \uicontrol {Fill Width} in the context menu. To
+    make the item as high as possible, select \uicontrol {Fill Height}.
+
+    \section3 Layout Properties
+
+    A \uicontrol {Grid Layout} type provides a way of dynamically arranging
+    items in a grid. If the grid layout is resized, all its child items are
+    rearranged. If you want a layout with just one row or one column, use the
+    \uicontrol {Row Layout} or \uicontrol {Column Layout} type.
+
+    The child items of row and column layout items are automatically positioned
+    either horizontally from left to right as rows or vertically from
+    top to bottom as columns. The number of the child items determines the width
+    of the row or the height of the column. You can specify the spacing between
+    the child items in the \uicontrol Spacing field.
+
+    The child items of grid layout items are arranged according to the
+    \uicontrol Flow property. When the direction of a flow is set to
+    \uicontrol LeftToRight, child items are positioned next to to each
+    other until the the number of \uicontrol Columns is reached. Then,
+    the auto-positioning wraps back to the beginning of the next row.
+
+    \image qtquick-layout-grid-properties.png "Grid Layout properties"
+
+    If you set the direction of the flow to \uicontrol TopToBottom, child
+    items are auto-positioned vertically using the value of the \uicontrol Rows
+    field to determine the maximum number of rows.
+
+    You can set the layout direction to either \uicontrol LeftToRight or
+    \uicontrol RightToLeft in the \uicontrol {Layout direction} field.
+    When you select \uicontrol RightToLeft, the alignment of the items
+    will be mirrored.
+
+    You can specify the spacing between rows and columns in the
+    \uicontrol {Row spacing} and \uicontrol {Column spacing} fields.
+
+    \section3 Stack Layout
+
+    \image qtquick-designer-stacked-view.png
+
+    To add items to a \uicontrol {Stack Layout}, select the
+    \inlineimage plus.png
+    button next to the type name in \uicontrol {Form Editor}. To move
+    between items, select the \inlineimage prev.png
+    (\uicontrol Previous) and \inlineimage next.png
+    (\uicontrol Next) buttons.
+
+    To add a tab bar to a stack layout, select \uicontrol {Stacked Container} >
+    \uicontrol {Add Tab Bar}.
+
+    To raise or lower the stacking order of an item, select
+    \uicontrol {Stacked Container} > \uicontrol {Increase Index} or
+    \uicontrol {Decrease Index}.
+
+    \section3 Summary of Layouts
+
+    The following table lists the layout types that you can use to arrange items
+    in UIs. They are available in the \uicontrol {Qt Quick - Layouts} section
+    of \uicontrol Library.
+
+    \table
+    \header
+        \li Icon
+        \li Name
+        \li Purpose
+    \row
+        \li \inlineimage column-layouts-icon-16px.png
+        \li \l{ColumnLayout}{Column Layout}
+        \li Provides a grid layout with only one column.
+    \row
+        \li\inlineimage row-layouts-icon-16px.png
+        \li \l{RowLayout}{Row Layout}
+        \li Provides a grid layout with only one row.
+    \row
+        \li \inlineimage grid-layouts-icon-16px.png
+        \li \l{GridLayout}{Grid Layout}
+        \li Provides a way of dynamically arranging items in a grid.
+    \row
+        \li \inlineimage stack-layouts-icon-16px.png
+        \li \l{StackLayout}{Stack Layout}
+        \li Provides a stack of items where only one item is visible at a time.
+    \endtable
+
+
+    \section2 Organizing Items
+
+    The following table lists the UI controls that you can use to
+    organize items in UIs (since Qt 5.7). They are available in the
+    \uicontrol {Qt Quick - Controls 2} section of \uicontrol Library.
+
+    \table
+    \header
+        \li Icon
+        \li Name
+        \li Purpose
+    \row
+        \li \inlineimage icons/frame-icon16.png
+        \li \l [QtQuickControls]{Frame}
+        \li A visual frame around a group of controls.
+    \row
+        \li \inlineimage icons/groupbox-icon16.png
+        \li \l [QtQuickControls]{GroupBox}{Group Box}
+        \li A titled visual frame around a group of controls.
+    \row
+        \li \inlineimage icons/label-icon16.png
+        \li \l [QtQuickControls]{Label}
+        \li A text label with inherited styling and font.
+    \row
+        \li \inlineimage icons/page-icon16.png
+        \li \l [QtQuickControls]{Page}
+        \li A styled page control with support for a header and footer.
+    \row
+        \li \inlineimage icons/pageindicator-icon16.png
+        \li \l [QtQuickControls]{PageIndicator}{Page Indicator}
+        \li An indicator for the currently active page.
+    \row
+        \li \inlineimage icons/pane-icon16.png
+        \li \l [QtQuickControls]{Pane}
+        \li A background that matches the application style and theme.
+    \endtable
+*/
