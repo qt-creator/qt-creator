@@ -28,8 +28,7 @@
 
     \section1 Studio Components
 
-    A set of ready-made studio components are available for creating differently
-    shaped objects, such as arcs, pies, or triangles, as well as objects with
+    A set of ready-made studio components are available for creating objects with
     particular abilities, such as being visibly \e flipped between their front
     and back sides, like a card. The studio components are built on top of
     \l {Qt Quick Shapes QML Types}, with some additional properties.
@@ -39,17 +38,10 @@
     \uicontrol Navigator:
 
     \list
-        \li \l Arc adds an arc that begins and ends at given positions.
-        \li \l Border adds a border with corners that you can shape
-            independently of each other.
         \li \l Flipable provides a surface that can be flipped.
         \li \l Group provides an item with the size property.
         \li \l {Iso}{Iso Icon} adds a container for an ISO 7000 icon.
-        \li \l Pie adds a pie slice or a pie with a slice missing from it.
-        \li \l Rectangle adds a rectangle with corners that you can shape
-            independently of each other.
         \li \l SvgPath adds an SVG path.
-        \li \l Triangle adds a triangle.
     \endlist
 
 //! [studio components]

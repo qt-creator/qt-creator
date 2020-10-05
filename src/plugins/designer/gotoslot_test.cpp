@@ -177,9 +177,11 @@ public:
 
         // Wait for updated documents
         for (TextEditor::BaseTextEditor *editor : qAsConst(editors)) {
+            QElapsedTimer t;
+            t.start();
             const QString filePath = editor->document()->filePath().toString();
             if (auto parser = BuiltinEditorDocumentParser::get(filePath)) {
-                forever {
+                while (t.elapsed() < 2000) {
                     if (Document::Ptr document = parser->document()) {
                         if (document->editorRevision() == 2)
                             break;
@@ -193,6 +195,7 @@ public:
         const auto cppDocumentParser = BuiltinEditorDocumentParser::get(cppFile);
         QVERIFY(cppDocumentParser);
         const Document::Ptr cppDocument = cppDocumentParser->document();
+        QCOMPARE(cppDocument->editorRevision(), 2);
         QVERIFY(checkDiagsnosticMessages(cppDocument));
 
         const auto hDocumentParser = BuiltinEditorDocumentParser::get(hFile);

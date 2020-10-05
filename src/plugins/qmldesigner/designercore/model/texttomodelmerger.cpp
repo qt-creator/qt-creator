@@ -2179,6 +2179,9 @@ QSet<QPair<QString, QString> > TextToModelMerger::qrcMapping() const
 QList<QmlTypeData> TextToModelMerger::getQMLSingletons() const
 {
     QList<QmlTypeData> list;
+    if (!m_scopeChain || !m_scopeChain->document())
+        return list;
+
     const QmlJS::Imports *imports = m_scopeChain->context()->imports(
         m_scopeChain->document().data());
 

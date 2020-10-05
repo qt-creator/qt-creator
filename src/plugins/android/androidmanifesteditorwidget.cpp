@@ -502,6 +502,8 @@ QGroupBox *AndroidManifestEditorWidget::createAdvancedGroupBox(QWidget *parent)
             this, &AndroidManifestEditorWidget::setInvalidServiceInfo);
     connect(m_splashButtons, &SplashIconContainerWidget::splashScreensModified,
             this, [this]() { setDirty(); });
+    connect(m_iconButtons, &AndroidManifestEditorIconContainerWidget::iconsModified,
+            this, [this]() { setDirty(); });
 
     formLayout->addRow(m_advanvedTabWidget);
     otherGroupBox->setLayout(formLayout);

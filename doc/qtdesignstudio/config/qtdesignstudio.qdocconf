@@ -35,6 +35,7 @@ imagedirs = ../images \
             ../../../src/plugins/qmldesigner/components/navigator \
             ../../../src/plugins/qmldesigner/components/timelineeditor/images \
             ../../../src/plugins/qmldesigner/qmlpreviewplugin/images \
+            ../../../src/plugins/qmldesigner/qtquickplugin/images \
             ../../../src/plugins/texteditor/images
 
 excludefiles += ../../qtcreator/src/qtcreator.qdoc \

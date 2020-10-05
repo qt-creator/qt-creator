@@ -53,7 +53,6 @@ def getOrModifyFilePatternsFor(mimeType, filter='', toBePresent=None):
 
     result = []
     invokeMenuItem("Tools", "Options...")
-    waitForObjectItem(":Options_QListView", "Environment")
     mouseClick(waitForObjectItem(":Options_QListView", "Environment"))
     waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' type='TabItem' "
                   "text='MIME Types'}")
@@ -117,7 +116,6 @@ def addHighlighterDefinition(*languages):
     toBeChecked = (os.path.join(syntaxDirectory, x + ".xml") for x in languages)
     test.log("Updating highlighter definitions...")
     invokeMenuItem("Tools", "Options...")
-    waitForObjectItem(":Options_QListView", "Text Editor")
     mouseClick(waitForObjectItem(":Options_QListView", "Text Editor"))
     waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' type='TabItem' "
                   "text='Generic Highlighter'}")

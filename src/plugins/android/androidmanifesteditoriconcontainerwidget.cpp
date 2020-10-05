@@ -138,10 +138,22 @@ AndroidManifestEditorIconContainerWidget::AndroidManifestEditorIconContainerWidg
     m_iconButtons.push_back(xxxhIconButton);
     iconLayout->addStretch(3);
 
+    auto handleIconModification = [this] {
+        bool iconsMaybeChanged = hasIcons();
+        if (m_hasIcons != iconsMaybeChanged)
+            iconsModified();
+        m_hasIcons = iconsMaybeChanged;
+    };
     for (auto &&iconButton : m_iconButtons) {
         connect(masterIconButton, &AndroidManifestEditorIconWidget::iconSelected,
                 iconButton, &AndroidManifestEditorIconWidget::setIconFromPath);
+        connect(iconButton, &AndroidManifestEditorIconWidget::iconRemoved,
+                this, handleIconModification);
+        connect(iconButton, &AndroidManifestEditorIconWidget::iconSelected,
+                this, handleIconModification);
     }
+    connect(masterIconButton, &AndroidManifestEditorIconWidget::iconSelected,
+            this, handleIconModification);
 }
 
 void AndroidManifestEditorIconContainerWidget::setIconFileName(const QString &name)
@@ -160,6 +172,7 @@ void AndroidManifestEditorIconContainerWidget::loadIcons()
         iconButton->setTargetIconFileName(m_iconFileName + imageSuffix);
         iconButton->loadIcon();
     }
+    m_hasIcons = hasIcons();
 }
 
 bool AndroidManifestEditorIconContainerWidget::hasIcons() const
