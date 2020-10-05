@@ -154,7 +154,7 @@ public:
     bool hasSingleSelectedModelNode() const;
     bool isSelectedModelNode(const ModelNode &modelNode) const;
 
-    QList<ModelNode> selectedModelNodes() const;
+    const QList<ModelNode> selectedModelNodes() const;
     ModelNode firstSelectedModelNode() const;
     ModelNode singleSelectedModelNode() const;
 
