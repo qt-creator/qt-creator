@@ -663,7 +663,13 @@ bool QtcProcess::prepareCommand(const QString &command, const QString &arguments
         } else {
             if (err != QtcProcess::FoundMeta)
                 return false;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
             *outCmd = qEnvironmentVariable("SHELL", "/bin/sh");
+#else
+            // for sdktool
+            *outCmd = qEnvironmentVariableIsSet("SHELL") ? QString::fromLocal8Bit(qgetenv("SHELL"))
+                                                         : QString("/bin/sh");
+#endif
             *outArgs = Arguments::createUnixArgs(
                         QStringList({"-c", (quoteArg(command) + ' ' + arguments)}));
         }
