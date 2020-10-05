@@ -113,38 +113,6 @@ void SavedAction::setDefaultValue(const QVariant &value)
 }
 
 
-/*!
-    Returns the key to be used when accessing the settings.
-
-    \sa settingsKey()
-*/
-QString SavedAction::settingsKey() const
-{
-    return m_settingsKey;
-}
-
-
-/*!
-    Sets the key to be used when accessing the settings.
-
-    \sa settingsKey()
-*/
-void SavedAction::setSettingsKey(const QString &key)
-{
-    m_settingsKey = key;
-}
-
-
-/*!
-    Sets the key and group to be used when accessing the settings.
-
-    \sa settingsKey()
-*/
-void SavedAction::setSettingsKey(const QString &group, const QString &key)
-{
-    m_settingsKey = group + "/" + key;
-}
-
 QString SavedAction::toString() const
 {
     return QLatin1String("value: ") + m_value.toString()

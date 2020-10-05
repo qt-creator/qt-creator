@@ -86,6 +86,36 @@ void BaseAspect::setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetC
 }
 
 /*!
+    Returns the key to be used when accessing the settings.
+
+    \sa setSettingsKey()
+*/
+QString BaseAspect::settingsKey() const
+{
+    return m_settingsKey;
+}
+
+/*!
+    Sets the key to be used when accessing the settings.
+
+    \sa settingsKey()
+*/
+void BaseAspect::setSettingsKey(const QString &key)
+{
+    m_settingsKey = key;
+}
+
+/*!
+    Sets the key and group to be used when accessing the settings.
+
+    \sa settingsKey()
+*/
+void BaseAspect::setSettingsKey(const QString &group, const QString &key)
+{
+    m_settingsKey = group + "/" + key;
+}
+
+/*!
     \internal
 */
 QWidget *BaseAspect::createConfigWidget() const

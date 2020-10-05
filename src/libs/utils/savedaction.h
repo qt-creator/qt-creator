@@ -54,11 +54,6 @@ public:
 
     void trigger(const QVariant &data);
 
-    // used for persistency
-    QString settingsKey() const;
-    void setSettingsKey(const QString &key);
-    void setSettingsKey(const QString &group, const QString &key);
-
     virtual void readSettings(const QSettings *settings);
     virtual void writeSettings(QSettings *settings);
 
@@ -88,7 +83,6 @@ private:
 
     QVariant m_value;
     QVariant m_defaultValue;
-    QString m_settingsKey;
     QString m_dialogText;
     QWidget *m_widget = nullptr;
     QAction m_action;
