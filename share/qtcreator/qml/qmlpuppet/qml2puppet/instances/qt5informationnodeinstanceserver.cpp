@@ -101,6 +101,30 @@ static QVariant objectToVariant(QObject *object)
     return QVariant::fromValue(object);
 }
 
+static QImage nonVisualComponentPreviewImage()
+{
+    static double ratio = qgetenv("FORMEDITOR_DEVICE_PIXEL_RATIO").toDouble();
+    if (ratio == 1.) {
+        static const QImage image(":/qtquickplugin/images/non-visual-component.png");
+        return image;
+    } else {
+        static const QImage image(":/qtquickplugin/images/non-visual-component@2x.png");
+        return image;
+    }
+}
+
+static bool imageHasContent(const QImage &image)
+{
+    // Check if any image pixel contains non-zero data
+    const uchar *pData = image.constBits();
+    const qsizetype size = image.sizeInBytes();
+    for (qsizetype i = 0; i < size; ++i) {
+        if (*(pData++) != 0)
+            return true;
+    }
+    return false;
+}
+
 QQuickView *Qt5InformationNodeInstanceServer::createAuxiliaryQuickView(const QUrl &url,
                                                                        QQuickItem *&rootItem)
 {
@@ -556,7 +580,7 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
                 ServerNodeInstance instance = instanceForId(m_modelNodePreviewImageCommand.instanceId());
                 instanceObj = instance.internalObject();
             }
-            QSize renderSize = m_modelNodePreviewImageCommand.size() * 2;
+            QSize renderSize = m_modelNodePreviewImageCommand.size();
 
             QMetaObject::invokeMethod(m_ModelNode3DImageViewRootItem, "createViewForObject",
                                       Q_ARG(QVariant, objectToVariant(instanceObj)),
@@ -652,7 +676,7 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode2DImageView()
             // Some component may expect to always be shown at certain size, so their layouts may
             // not support scaling, so let's always render at the default size if item has one and
             // scale the resulting image instead.
-            QSize finalSize = m_modelNodePreviewImageCommand.size() * 2;
+            QSize finalSize = m_modelNodePreviewImageCommand.size();
             QRectF renderRect = itemBoundingRect(instanceItem);
             QSize renderSize = renderRect.size().toSize();
             if (renderSize.isEmpty()) {
@@ -664,6 +688,9 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode2DImageView()
             updateNodesRecursive(m_ModelNode2DImageViewContentItem);
 
             renderImage = designerSupport()->renderImageForItem(m_ModelNode2DImageViewContentItem, renderRect, renderSize);
+
+            if (!imageHasContent(renderImage))
+                renderImage = nonVisualComponentPreviewImage();
 
             if (renderSize != finalSize)
                 renderImage = renderImage.scaled(finalSize, Qt::KeepAspectRatio);

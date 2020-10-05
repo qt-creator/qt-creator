@@ -1496,7 +1496,11 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
         if (hasModelNodeForInternalId(container.instanceId()) && !image.isNull()) {
             auto node = modelNodeForInternalId(container.instanceId());
             if (node.isValid()) {
-                image.setDevicePixelRatio(2.);
+                const double ratio = QmlDesignerPlugin::formEditorDevicePixelRatio();
+                const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
+                if (image.height() != dim || image.width() != dim)
+                    image = image.scaled(dim, dim, Qt::KeepAspectRatio);
+                image.setDevicePixelRatio(ratio);
                 updatePreviewImageForNode(node, image);
             }
         }
@@ -1540,12 +1544,10 @@ void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node, const
             } else if (node.isComponent()) {
                 componentPath = node.metaInfo().componentFileName();
             }
+            const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * QmlDesignerPlugin::formEditorDevicePixelRatio();
             m_nodeInstanceServer->requestModelNodePreviewImage(
-                        RequestModelNodePreviewImageCommand(
-                            instance.instanceId(),
-                            QSize(Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS,
-                                  Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS),
-                            componentPath, renderItemId));
+                        RequestModelNodePreviewImageCommand(instance.instanceId(), QSize(dim, dim),
+                                                            componentPath, renderItemId));
         }
     }
 }
@@ -1587,6 +1589,7 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
     ModelNodePreviewImageData imageData;
     imageData.id = modelNode.id();
     imageData.type = QString::fromLatin1(modelNode.type());
+    const double ratio = QmlDesignerPlugin::formEditorDevicePixelRatio();
 
     if (imageSource.isEmpty() && modelNode.isSubclassOf("QtQuick3D.Texture")) {
         // Texture node may have sourceItem instead
@@ -1601,11 +1604,10 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
                     return previewImageDataForGenericNode(modelNode, boundNode);
                 } else {
                     QmlItemNode itemNode(boundNode);
-                    imageData.pixmap = itemNode.instanceRenderPixmap().scaled(
-                                Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
-                                Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
-                                Qt::KeepAspectRatio);
-                    imageData.pixmap.setDevicePixelRatio(2.);
+                    const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
+                    imageData.pixmap = itemNode.instanceRenderPixmap().scaled(dim, dim, Qt::KeepAspectRatio);
+                    imageData.pixmap.setDevicePixelRatio(ratio);
+
                 }
                 imageData.info = QObject::tr("Source item: %1").arg(boundNode.id());
             }
@@ -1629,10 +1631,9 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
             QPixmap originalPixmap;
             originalPixmap.load(imageSource);
             if (!originalPixmap.isNull()) {
-                imageData.pixmap = originalPixmap.scaled(Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
-                                                         Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
-                                                         Qt::KeepAspectRatio);
-                imageData.pixmap.setDevicePixelRatio(2.);
+                const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
+                imageData.pixmap = originalPixmap.scaled(dim, dim, Qt::KeepAspectRatio);
+                imageData.pixmap.setDevicePixelRatio(ratio);
 
                 double imgSize = double(imageFi.size());
                 static QStringList units({QObject::tr("B"), QObject::tr("KB"), QObject::tr("MB"), QObject::tr("GB")});
