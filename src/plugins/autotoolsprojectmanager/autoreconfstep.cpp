@@ -55,38 +55,37 @@ namespace Internal {
  * It is possible for the user to specify custom arguments.
  */
 
-class AutoreconfStep : public AbstractProcessStep
+class AutoreconfStep final : public AbstractProcessStep
 {
     Q_DECLARE_TR_FUNCTIONS(AutotoolsProjectManager::Internal::AutoreconfStep)
 
 public:
-    AutoreconfStep(BuildStepList *bsl, Utils::Id id);
+    AutoreconfStep(BuildStepList *bsl, Id id);
 
     void doRun() override;
 
 private:
-    StringAspect *m_additionalArgumentsAspect = nullptr;
     bool m_runAutoreconf = false;
 };
 
-AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Utils::Id id)
+AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Id id)
     : AbstractProcessStep(bsl, id)
 {
-    m_additionalArgumentsAspect = addAspect<StringAspect>();
-    m_additionalArgumentsAspect->setSettingsKey("AutotoolsProjectManager.AutoreconfStep.AdditionalArguments");
-    m_additionalArgumentsAspect->setLabelText(tr("Arguments:"));
-    m_additionalArgumentsAspect->setValue("--force --install");
-    m_additionalArgumentsAspect->setDisplayStyle(StringAspect::LineEditDisplay);
-    m_additionalArgumentsAspect->setHistoryCompleter("AutotoolsPM.History.AutoreconfStepArgs");
+    auto arguments = addAspect<StringAspect>();
+    arguments->setSettingsKey("AutotoolsProjectManager.AutoreconfStep.AdditionalArguments");
+    arguments->setLabelText(tr("Arguments:"));
+    arguments->setValue("--force --install");
+    arguments->setDisplayStyle(StringAspect::LineEditDisplay);
+    arguments->setHistoryCompleter("AutotoolsPM.History.AutoreconfStepArgs");
 
-    connect(m_additionalArgumentsAspect, &BaseAspect::changed, this, [this] {
+    connect(arguments, &BaseAspect::changed, this, [this] {
         m_runAutoreconf = true;
     });
 
-    setCommandLineProvider([this] {
-        return Utils::CommandLine(Utils::FilePath::fromString("autoreconf"),
-                                  m_additionalArgumentsAspect->value(),
-                                  Utils::CommandLine::Raw);
+    setCommandLineProvider([arguments] {
+        return CommandLine(FilePath::fromString("autoreconf"),
+                           arguments->value(),
+                           CommandLine::Raw);
     });
 
     setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });
@@ -107,7 +106,7 @@ void AutoreconfStep::doRun()
         m_runAutoreconf = true;
 
     if (!m_runAutoreconf) {
-        emit addOutput(tr("Configuration unchanged, skipping autoreconf step."), BuildStep::OutputFormat::NormalMessage);
+        emit addOutput(tr("Configuration unchanged, skipping autoreconf step."), OutputFormat::NormalMessage);
         emit finished(true);
         return;
     }

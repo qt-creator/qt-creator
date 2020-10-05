@@ -57,36 +57,34 @@ namespace Internal {
  * It is possible for the user to specify custom arguments.
  */
 
-class AutogenStep : public AbstractProcessStep
+class AutogenStep final : public AbstractProcessStep
 {
     Q_DECLARE_TR_FUNCTIONS(AutotoolsProjectManager::Internal::AutogenStep)
 
 public:
-    AutogenStep(BuildStepList *bsl, Utils::Id id);
+    AutogenStep(BuildStepList *bsl, Id id);
 
 private:
-    void doRun() override;
+    void doRun() final;
 
-    StringAspect *m_additionalArgumentsAspect = nullptr;
     bool m_runAutogen = false;
 };
 
-AutogenStep::AutogenStep(BuildStepList *bsl, Utils::Id id) : AbstractProcessStep(bsl, id)
+AutogenStep::AutogenStep(BuildStepList *bsl, Id id) : AbstractProcessStep(bsl, id)
 {
-    m_additionalArgumentsAspect = addAspect<StringAspect>();
-    m_additionalArgumentsAspect->setSettingsKey(
-                "AutotoolsProjectManager.AutogenStep.AdditionalArguments");
-    m_additionalArgumentsAspect->setLabelText(tr("Arguments:"));
-    m_additionalArgumentsAspect->setDisplayStyle(StringAspect::LineEditDisplay);
-    m_additionalArgumentsAspect->setHistoryCompleter("AutotoolsPM.History.AutogenStepArgs");
+    auto arguments = addAspect<StringAspect>();
+    arguments->setSettingsKey("AutotoolsProjectManager.AutogenStep.AdditionalArguments");
+    arguments->setLabelText(tr("Arguments:"));
+    arguments->setDisplayStyle(StringAspect::LineEditDisplay);
+    arguments->setHistoryCompleter("AutotoolsPM.History.AutogenStepArgs");
 
-    connect(m_additionalArgumentsAspect, &BaseAspect::changed, this, [this] {
+    connect(arguments, &BaseAspect::changed, this, [this] {
         m_runAutogen = true;
     });
 
-    setCommandLineProvider([this] {
+    setCommandLineProvider([arguments] {
         return CommandLine(FilePath::fromString("./autogen.sh"),
-                           m_additionalArgumentsAspect->value(),
+                           arguments->value(),
                            CommandLine::Raw);
     });
 
