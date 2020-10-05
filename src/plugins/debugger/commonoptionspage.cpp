@@ -203,7 +203,7 @@ public:
         if (HostOsInfo::isWindowsHost()) {
             SavedAction *registerAction = action(RegisterForPostMortem);
             m_group.insert(registerAction, checkBoxRegisterForPostMortem);
-            connect(registerAction, &QAction::toggled,
+            connect(registerAction->action(), &QAction::toggled,
                     checkBoxRegisterForPostMortem, &QAbstractButton::setChecked);
         } else {
             checkBoxRegisterForPostMortem->setVisible(false);

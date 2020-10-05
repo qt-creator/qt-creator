@@ -1197,7 +1197,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
             this, &DebuggerPluginPrivate::updateBreakMenuItem);
 
     // Application interaction
-    connect(action(SettingsDialog), &QAction::triggered,
+    connect(action(SettingsDialog)->action(), &QAction::triggered,
             [] { ICore::showOptionsDialog(DEBUGGER_COMMON_SETTINGS_ID); });
 
     m_perspective.useSubPerspectiveSwitcher(EngineManager::engineChooser());
@@ -2047,7 +2047,7 @@ SavedAction *DebuggerPluginPrivate::action(int code)
 
 QWidget *DebuggerPluginPrivate::addSearch(BaseTreeView *treeView)
 {
-    QAction *act = action(UseAlternatingRowColors);
+    QAction *act = action(UseAlternatingRowColors)->action();
     treeView->setAlternatingRowColors(act->isChecked());
     treeView->setProperty(PerspectiveState::savesHeaderKey(), true);
     connect(act, &QAction::toggled, treeView, &BaseTreeView::setAlternatingRowColors);

@@ -204,7 +204,7 @@ CdbEngine::CdbEngine() :
     wh->addTypeFormats("QImage", imageFormats);
     wh->addTypeFormats("QImage *", imageFormats);
 
-    connect(action(CreateFullBacktrace), &QAction::triggered,
+    connect(action(CreateFullBacktrace)->action(), &QAction::triggered,
             this, &CdbEngine::createFullBacktrace);
     connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &CdbEngine::processFinished);
@@ -216,7 +216,7 @@ CdbEngine::CdbEngine() :
     connect(action(UseDebuggingHelpers), &SavedAction::valueChanged,
             this, &CdbEngine::updateLocals);
 
-    if (action(UseCodeModel)->isChecked())
+    if (action(UseCodeModel)->action()->isChecked())
         m_codeModelSnapshot = CppTools::CppModelManager::instance()->snapshot();
 }
 

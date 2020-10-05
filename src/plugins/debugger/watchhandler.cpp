@@ -1738,15 +1738,15 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
 
     menu->addSeparator();
 
-    menu->addAction(action(UseDebuggingHelpers));
-    menu->addAction(action(UseToolTipsInLocalsView));
-    menu->addAction(action(AutoDerefPointers));
-    menu->addAction(action(SortStructMembers));
-    menu->addAction(action(UseDynamicType));
-    menu->addAction(action(SettingsDialog));
+    menu->addAction(action(UseDebuggingHelpers)->action());
+    menu->addAction(action(UseToolTipsInLocalsView)->action());
+    menu->addAction(action(AutoDerefPointers)->action());
+    menu->addAction(action(SortStructMembers)->action());
+    menu->addAction(action(UseDynamicType)->action());
+    menu->addAction(action(SettingsDialog)->action());
 
     Internal::addHideColumnActions(menu, ev.view());
-    menu->addAction(action(SettingsDialog));
+    menu->addAction(action(SettingsDialog)->action());
     connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(ev.globalPos());
     return true;

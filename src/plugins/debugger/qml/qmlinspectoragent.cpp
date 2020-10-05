@@ -68,7 +68,7 @@ QmlInspectorAgent::QmlInspectorAgent(QmlEngine *engine, QmlDebugConnection *conn
     : m_qmlEngine(engine)
     , m_inspectorToolsContext("Debugger.QmlInspector")
     , m_selectAction(new QAction(this))
-    , m_showAppOnTopAction(action(ShowAppOnTop))
+    , m_showAppOnTopAction(action(ShowAppOnTop)->action())
 {
     m_debugIdToIname.insert(WatchItem::InvalidId, "inspect");
     connect(action(ShowQmlObjectTree),

@@ -27,6 +27,8 @@
 
 #include "utils_global.h"
 
+#include "aspects.h"
+
 #include <QAction>
 
 QT_BEGIN_NAMESPACE
@@ -37,7 +39,7 @@ namespace Utils {
 
 enum ApplyMode { ImmediateApply, DeferedApply };
 
-class QTCREATOR_UTILS_EXPORT SavedAction : public QAction
+class QTCREATOR_UTILS_EXPORT SavedAction : public BaseAspect
 {
     Q_OBJECT
 
@@ -72,6 +74,15 @@ public:
     QString dialogText() const;
     void setDialogText(const QString &dialogText);
 
+    QAction *action();
+
+    void setText(const QString &text) { m_action.setText(text); }
+    void setToolTip(const QString &toolTip) { m_action.setToolTip(toolTip); }
+    void setCheckable(bool checkable) { m_action.setCheckable(checkable); }
+    void setChecked(bool checked) { m_action.setChecked(checked); }
+    void setEnabled(bool enabled) { m_action.setEnabled(enabled); }
+    void setIcon(const QIcon &icon) { m_action.setIcon(icon); }
+
 signals:
     void valueChanged(const QVariant &newValue);
 
@@ -84,6 +95,7 @@ private:
     QString m_settingsGroup;
     QString m_dialogText;
     QWidget *m_widget = nullptr;
+    QAction m_action;
 };
 
 class QTCREATOR_UTILS_EXPORT SavedActionSet

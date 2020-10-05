@@ -54,9 +54,9 @@ namespace Utils {
 */
 
 SavedAction::SavedAction(QObject *parent)
-  : QAction(parent)
 {
-    connect(this, &QAction::triggered, this, &SavedAction::actionTriggered);
+    setParent(parent);
+    connect(&m_action, &QAction::triggered, this, &SavedAction::actionTriggered);
 }
 
 
@@ -82,8 +82,8 @@ void SavedAction::setValue(const QVariant &value, bool doemit)
     if (value == m_value)
         return;
     m_value = value;
-    if (this->isCheckable())
-        this->setChecked(m_value.toBool());
+    if (m_action.isCheckable())
+        m_action.setChecked(m_value.toBool());
     if (doemit)
         emit valueChanged(m_value);
 }
@@ -187,7 +187,7 @@ void SavedAction::readSettings(const QSettings *settings)
         return;
     QVariant var = settings->value(m_settingsGroup + QLatin1Char('/') + m_settingsKey, m_defaultValue);
     // work around old ini files containing @Invalid() entries
-    if (isCheckable() && !var.isValid())
+    if (m_action.isCheckable() && !var.isValid())
         var = false;
     setValue(var);
 }
@@ -274,7 +274,7 @@ void SavedAction::connectWidget(QWidget *widget, ApplyMode applyMode)
 
     // Copy tooltip, but only if there's nothing explcitly set on the widget yet.
     if (widget->toolTip().isEmpty())
-        widget->setToolTip(toolTip());
+        widget->setToolTip(m_action.toolTip());
 }
 
 /*
@@ -329,21 +329,26 @@ void SavedAction::setDialogText(const QString &dialogText)
 
 void SavedAction::actionTriggered(bool)
 {
-    if (isCheckable())
-        setValue(isChecked());
-    if (actionGroup() && actionGroup()->isExclusive()) {
+    if (m_action.isCheckable())
+        setValue(m_action.isChecked());
+    if (m_action.actionGroup() && m_action.actionGroup()->isExclusive()) {
         // FIXME: should be taken care of more directly
-        const QList<QAction *> actions = actionGroup()->actions();
+        const QList<QAction *> actions = m_action.actionGroup()->actions();
         for (QAction *act : actions)
             if (auto dact = qobject_cast<SavedAction *>(act))
-                dact->setValue(bool(act == this));
+                dact->setValue(bool(act == &m_action));
     }
+}
+
+QAction *SavedAction::action()
+{
+    return &m_action;
 }
 
 void SavedAction::trigger(const QVariant &data)
 {
-    setData(data);
-    QAction::trigger();
+    m_action.setData(data);
+    m_action.trigger();
 }
 
 //////////////////////////////////////////////////////////////////////////
