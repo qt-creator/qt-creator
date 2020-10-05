@@ -33,6 +33,7 @@
 #include "qt5previewnodeinstanceserver.h"
 #include "qt5rendernodeinstanceserver.h"
 #include "qt5testnodeinstanceserver.h"
+#include "quickitemnodeinstance.h"
 
 #include <designersupportdelegate.h>
 
@@ -56,7 +57,19 @@ Qt5NodeInstanceClientProxy::Qt5NodeInstanceClientProxy(QObject *parent) :
     NodeInstanceClientProxy(parent)
 {
     prioritizeDown();
-    DesignerSupport::activateDesignerWindowManager();
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    const bool qt6 = false;
+#else
+    const bool qt6 = true;
+#endif
+
+    const bool unifiedRenderPath = qt6 || qEnvironmentVariableIsSet("QMLPUPPET_UNIFIED_RENDER_PATH");
+
+    if (unifiedRenderPath)
+        Internal::QuickItemNodeInstance::enableUnifiedRenderPath(true);
+    else
+        DesignerSupport::activateDesignerWindowManager();
+
     if (QCoreApplication::arguments().at(1) == QLatin1String("--readcapturedstream")) {
         qputenv("DESIGNER_DONT_USE_SHARED_MEMORY", "1");
         setNodeInstanceServer(std::make_unique<Qt5TestNodeInstanceServer>(this));

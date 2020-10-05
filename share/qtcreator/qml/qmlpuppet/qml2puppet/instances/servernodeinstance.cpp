@@ -120,6 +120,11 @@ QImage ServerNodeInstance::renderPreviewImage(const QSize &previewImageSize) con
     return m_nodeInstance->renderPreviewImage(previewImageSize);
 }
 
+QSharedPointer<QQuickItemGrabResult> ServerNodeInstance::createGrabResult() const
+{
+    return m_nodeInstance->createGrabResult();
+}
+
 bool ServerNodeInstance::isRootNodeInstance() const
 {
     return isValid() && m_nodeInstance->isRootNodeInstance();

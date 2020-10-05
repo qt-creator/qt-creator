@@ -72,22 +72,23 @@
 #include <requestmodelnodepreviewimagecommand.h>
 #include <changelanguagecommand.h>
 
+#include <designersupportdelegate.h>
+#include <QAbstractAnimation>
 #include <QDebug>
-#include <QQmlEngine>
-#include <QQmlApplicationEngine>
-#include <QFileSystemWatcher>
-#include <QUrl>
-#include <QSet>
 #include <QDir>
-#include <QVariant>
+#include <QFileSystemWatcher>
 #include <QMetaType>
+#include <QMutableVectorIterator>
+#include <QQmlApplicationEngine>
 #include <QQmlComponent>
 #include <QQmlContext>
-#include <qqmllist.h>
-#include <QAbstractAnimation>
+#include <QQmlEngine>
+#include <QQuickItemGrabResult>
 #include <QQuickView>
 #include <QSet>
-#include <designersupportdelegate.h>
+#include <QUrl>
+#include <QVariant>
+#include <qqmllist.h>
 
 #include <algorithm>
 
@@ -1459,6 +1460,21 @@ void NodeInstanceServer::handleExtraRender()
 void NodeInstanceServer::disableTimer()
 {
     m_timerMode = TimerMode::DisableTimer;
+}
+
+void NodeInstanceServer::sheduleRootItemRender()
+{
+    QSharedPointer<QQuickItemGrabResult> result = m_rootNodeInstance.createGrabResult();
+    qint32 instanceId = m_rootNodeInstance.instanceId();
+
+    if (result) {
+        connect(result.data(), &QQuickItemGrabResult::ready, [this, result, instanceId] {
+            QVector<ImageContainer> imageVector;
+            ImageContainer container(instanceId, result->image(), instanceId);
+            imageVector.append(container);
+            nodeInstanceClient()->pixmapChanged(PixmapChangedCommand(imageVector));
+        });
+    }
 }
 
 } // namespace QmlDesigner

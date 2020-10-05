@@ -40,6 +40,7 @@ class QGraphicsItem;
 class QGraphicsTransform;
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 class QQuickItem;
+class QQuickItemGrabResult;
 #endif
 QT_END_NAMESPACE
 
@@ -101,6 +102,8 @@ public:
 
     QImage renderImage() const;
     QImage renderPreviewImage(const QSize &previewImageSize) const;
+
+    QSharedPointer<QQuickItemGrabResult> createGrabResult() const;
 
     ServerNodeInstance parent() const;
     bool hasParent() const;

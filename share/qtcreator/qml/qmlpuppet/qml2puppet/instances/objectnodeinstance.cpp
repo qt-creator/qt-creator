@@ -908,6 +908,11 @@ QImage ObjectNodeInstance::renderPreviewImage(const QSize & /*previewImageSize*/
     return QImage();
 }
 
+QSharedPointer<QQuickItemGrabResult> ObjectNodeInstance::createGrabResult() const
+{
+    return {};
+}
+
 QObject *ObjectNodeInstance::parent() const
 {
     if (!object())

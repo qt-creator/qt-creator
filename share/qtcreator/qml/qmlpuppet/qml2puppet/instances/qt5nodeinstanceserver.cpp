@@ -64,6 +64,8 @@ void Qt5NodeInstanceServer::initializeView()
 
     m_quickView = new QQuickView;
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    /* enables grab window without show */
     QSurfaceFormat surfaceFormat = m_quickView->requestedFormat();
     surfaceFormat.setVersion(4, 1);
     surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
@@ -72,6 +74,7 @@ void Qt5NodeInstanceServer::initializeView()
     m_quickView->setFormat(surfaceFormat);
 
     DesignerSupport::createOpenGLContext(m_quickView.data());
+#endif
 
     if (qEnvironmentVariableIsSet("QML_FILE_SELECTORS")) {
         QQmlFileSelector *fileSelector = new QQmlFileSelector(engine(), engine());
