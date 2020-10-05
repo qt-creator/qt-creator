@@ -131,8 +131,10 @@ void DynamicPropertiesModel::resetModel()
     setHorizontalHeaderLabels(
         QStringList({tr("Item"), tr("Property"), tr("Property Type"), tr("Property Value")}));
 
-    for (const ModelNode modelNode : connectionView()->selectedModelNodes())
-        addModelNode(modelNode);
+    if (connectionView()->isAttached()) {
+        for (const ModelNode modelNode : connectionView()->selectedModelNodes())
+            addModelNode(modelNode);
+    }
 
     endResetModel();
 }

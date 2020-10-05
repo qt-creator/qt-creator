@@ -56,8 +56,10 @@ void BindingModel::resetModel()
     setHorizontalHeaderLabels(
         QStringList({tr("Item"), tr("Property"), tr("Source Item"), tr("Source Property")}));
 
-    for (const ModelNode modelNode : connectionView()->selectedModelNodes())
-        addModelNode(modelNode);
+    if (connectionView()->isAttached()) {
+        for (const ModelNode modelNode : connectionView()->selectedModelNodes())
+            addModelNode(modelNode);
+    }
 
     endResetModel();
 }
