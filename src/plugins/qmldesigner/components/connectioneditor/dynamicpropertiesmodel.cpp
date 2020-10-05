@@ -128,10 +128,10 @@ void DynamicPropertiesModel::resetModel()
 {
     beginResetModel();
     clear();
-    setHorizontalHeaderLabels(QStringList({ tr("Item"), tr("Property"), tr("Property Type"),
-                                            tr("Property Value") }));
+    setHorizontalHeaderLabels(
+        QStringList({tr("Item"), tr("Property"), tr("Property Type"), tr("Property Value")}));
 
-    foreach (const ModelNode modelNode, m_selectedModelNodes)
+    for (const ModelNode modelNode : connectionView()->selectedModelNodes())
         addModelNode(modelNode);
 
     endResetModel();
@@ -279,7 +279,6 @@ void DynamicPropertiesModel::bindingRemoved(const BindingProperty &bindingProper
 void DynamicPropertiesModel::selectionChanged(const QList<ModelNode> &selectedNodes)
 {
     m_handleDataChanged = false;
-    m_selectedModelNodes = selectedNodes;
     resetModel();
     m_handleDataChanged = true;
 }
