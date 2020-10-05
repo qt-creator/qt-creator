@@ -39,7 +39,7 @@
     However, you can use some of the components in \uicontrol Library to draw
     basic shapes, such as rectangles. In addition, \QDS comes with a set of
     more powerful and flexible graphical primitives, that allow creating more
-    complex shapes, such as lines, triangles, arcs, and pies in
+    complex shapes, such as borders, triangles, arcs, and pies in
     \uicontrol {Form Editor}.
 
     \image studio-shapes.png "Shapes in Form Editor"
@@ -98,11 +98,15 @@
     \if defined(qtdesignstudio)
     \section2 Studio Rectangle
 
-    If you want to draw asymmetric shapes or use a dashed border, for example,
-    select the Rectangle type in the \uicontrol {Studio Components} tab of
-    \uicontrol Library instead of the basic rectangle type. By setting the
-    values of properties in the \uicontrol {Corner Radiuses} and
-    \uicontrol {Corner Bevel} groups, you can create shapes with cut corners.
+    If you want to modify each corner of the rectangle independently
+    or use a dashed border, select the Rectangle type in the
+    \uicontrol {Studio Components} tab of \uicontrol Library instead
+    of the basic rectangle type.
+
+    By setting the values of properties in the \uicontrol {Corner Radiuses}
+    group, you can draw each corner independently. By using radius values
+    in combination with the values in the \uicontrol {Corner Bevel} group,
+    you can create shapes with cut corners.
 
     \image studio-shapes-rectangle.png "A studio rectangle with cut corners"
 
