@@ -59,9 +59,6 @@ public:
     void setSettingsKey(const QString &key);
     void setSettingsKey(const QString &group, const QString &key);
 
-    QString settingsGroup() const;
-    void setSettingsGroup(const QString &group);
-
     virtual void readSettings(const QSettings *settings);
     virtual void writeSettings(QSettings *settings);
 
@@ -92,7 +89,6 @@ private:
     QVariant m_value;
     QVariant m_defaultValue;
     QString m_settingsKey;
-    QString m_settingsGroup;
     QString m_dialogText;
     QWidget *m_widget = nullptr;
     QAction m_action;

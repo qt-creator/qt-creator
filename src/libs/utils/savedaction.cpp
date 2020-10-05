@@ -142,37 +142,14 @@ void SavedAction::setSettingsKey(const QString &key)
 */
 void SavedAction::setSettingsKey(const QString &group, const QString &key)
 {
-    m_settingsKey = key;
-    m_settingsGroup = group;
-}
-
-
-/*!
-    Sets the key to be used when accessing the settings.
-
-    \sa settingsKey()
-*/
-QString SavedAction::settingsGroup() const
-{
-    return m_settingsGroup;
-}
-
-/*!
-    Sets the group to be used when accessing the settings.
-
-    \sa settingsGroup()
-*/
-void SavedAction::setSettingsGroup(const QString &group)
-{
-    m_settingsGroup = group;
+    m_settingsKey = group + "/" + key;
 }
 
 QString SavedAction::toString() const
 {
     return QLatin1String("value: ") + m_value.toString()
         + QLatin1String("  defaultvalue: ") + m_defaultValue.toString()
-        + QLatin1String("  settingskey: ") + m_settingsGroup
-        + QLatin1Char('/') + m_settingsKey;
+        + QLatin1String("  settingskey: ") + m_settingsKey;
 }
 
 /*
@@ -183,9 +160,9 @@ QString SavedAction::toString() const
 */
 void SavedAction::readSettings(const QSettings *settings)
 {
-    if (m_settingsGroup.isEmpty() || m_settingsKey.isEmpty())
+    if (m_settingsKey.isEmpty())
         return;
-    QVariant var = settings->value(m_settingsGroup + QLatin1Char('/') + m_settingsKey, m_defaultValue);
+    QVariant var = settings->value(m_settingsKey, m_defaultValue);
     // work around old ini files containing @Invalid() entries
     if (m_action.isCheckable() && !var.isValid())
         var = false;
@@ -200,11 +177,9 @@ void SavedAction::readSettings(const QSettings *settings)
 */
 void SavedAction::writeSettings(QSettings *settings)
 {
-    if (m_settingsGroup.isEmpty() || m_settingsKey.isEmpty())
+    if (m_settingsKey.isEmpty())
         return;
-    settings->beginGroup(m_settingsGroup);
     settings->setValue(m_settingsKey, m_value);
-    settings->endGroup();
 }
 
 /*
