@@ -696,6 +696,7 @@ struct BoostProfile : public Profile
         const QByteArray &boostLibPath = qgetenv("QTC_BOOST_LIBRARY_PATH_FOR_TEST");
         if (!boostLibPath.isEmpty())
             contents += QByteArray("\nLIBS += \"-L") + boostLibPath.constData() + QByteArray("\"");
+        contents += '\n'; // ensure newline at end no matter what has been added before
         includes = "#include <boost/version.hpp>\n";
     }
 };
