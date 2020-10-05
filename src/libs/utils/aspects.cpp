@@ -235,7 +235,11 @@ public:
     QPixmap m_labelPixmap;
     FilePath m_baseFileName;
     StringAspect::ValueAcceptor m_valueAcceptor;
+    FancyLineEdit::ValidationFunction m_validator;
+
     bool m_readOnly = false;
+    bool m_undoRedoEnabled = false;
+    bool m_enabled = true;
     bool m_showToolTipOnLabel = false;
     bool m_fileDialogOnly = false;
 
@@ -438,6 +442,19 @@ void StringAspect::setShowToolTipOnLabel(bool show)
     update();
 }
 
+void StringAspect::setEnabled(bool enabled)
+{
+    d->m_enabled = enabled;
+    if (d->m_labelDisplay)
+        d->m_labelDisplay->setEnabled(enabled);
+    if (d->m_lineEditDisplay)
+        d->m_lineEditDisplay->setEnabled(enabled);
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setEnabled(enabled);
+    if (d->m_textEditDisplay)
+        d->m_textEditDisplay->setEnabled(enabled);
+}
+
 /*!
     Returns the current text for the separate label in the visual
     representation of this string aspect.
@@ -536,9 +553,23 @@ void StringAspect::setReadOnly(bool readOnly)
         d->m_textEditDisplay->setReadOnly(readOnly);
 }
 
+void StringAspect::setUndoRedoEnabled(bool undoRedoEnabled)
+{
+    d->m_undoRedoEnabled = undoRedoEnabled;
+    if (d->m_textEditDisplay)
+        d->m_textEditDisplay->setUndoRedoEnabled(undoRedoEnabled);
+}
+
 void StringAspect::setMacroExpanderProvider(const MacroExpanderProvider &expanderProvider)
 {
     d->m_expanderProvider = expanderProvider;
+}
+
+void StringAspect::setValidationFunction(const FancyLineEdit::ValidationFunction &validator)
+{
+    d->m_validator = validator;
+    if (d->m_lineEditDisplay)
+        d->m_lineEditDisplay->setValidationFunction(d->m_validator);
 }
 
 void StringAspect::validateInput()
@@ -588,6 +619,7 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
             d->m_pathChooserDisplay->setHistoryCompleter(d->m_historyCompleterKey);
         d->m_pathChooserDisplay->setEnvironment(d->m_environment);
         d->m_pathChooserDisplay->setBaseDirectory(d->m_baseFileName);
+        d->m_pathChooserDisplay->setEnabled(d->m_enabled);
         d->m_pathChooserDisplay->setReadOnly(d->m_readOnly);
         useMacroExpander(d->m_pathChooserDisplay->lineEdit());
         connect(d->m_pathChooserDisplay, &PathChooser::pathChanged,
@@ -600,7 +632,10 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         d->m_lineEditDisplay->setPlaceholderText(d->m_placeHolderText);
         if (!d->m_historyCompleterKey.isEmpty())
             d->m_lineEditDisplay->setHistoryCompleter(d->m_historyCompleterKey);
+        d->m_lineEditDisplay->setEnabled(d->m_enabled);
         d->m_lineEditDisplay->setReadOnly(d->m_readOnly);
+        if (d->m_validator)
+            d->m_lineEditDisplay->setValidationFunction(d->m_validator);
         useMacroExpander(d->m_lineEditDisplay);
         connect(d->m_lineEditDisplay, &FancyLineEdit::textEdited,
                 this, &StringAspect::setValue);
@@ -609,7 +644,11 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
     case TextEditDisplay:
         d->m_textEditDisplay = new QTextEdit;
         d->m_textEditDisplay->setPlaceholderText(d->m_placeHolderText);
+        d->m_textEditDisplay->setEnabled(d->m_enabled);
         d->m_textEditDisplay->setReadOnly(d->m_readOnly);
+        d->m_textEditDisplay->setUndoRedoEnabled(d->m_undoRedoEnabled);
+        d->m_textEditDisplay->setTextInteractionFlags
+                (Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
         useMacroExpander(d->m_textEditDisplay);
         connect(d->m_textEditDisplay, &QTextEdit::textChanged, this, [this] {
             const QString value = d->m_textEditDisplay->document()->toPlainText();
@@ -622,6 +661,7 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         break;
     case LabelDisplay:
         d->m_labelDisplay = new QLabel;
+        d->m_labelDisplay->setEnabled(d->m_enabled);
         d->m_labelDisplay->setTextInteractionFlags(Qt::TextSelectableByMouse);
         builder.addItem(d->m_labelDisplay.data());
         break;
