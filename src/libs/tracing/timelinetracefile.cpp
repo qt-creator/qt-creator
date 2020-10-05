@@ -25,6 +25,8 @@
 
 #include "timelinetracefile.h"
 
+#include <QIODevice>
+
 namespace Timeline {
 
 TimelineTraceFile::TimelineTraceFile(QObject *parent) : QObject(parent)
