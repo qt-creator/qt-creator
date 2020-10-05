@@ -55,18 +55,18 @@ const int PANEL_LEFT_MARGIN = 70;
 // PanelsWidget
 ///
 
-PanelsWidget::PanelsWidget(QWidget *parent) : QWidget(parent)
+PanelsWidget::PanelsWidget(QWidget *parent)
+    : QWidget(parent), m_splitter(new Core::MiniSplitter(this))
 {
-    const auto splitter = new Core::MiniSplitter(this);
     m_root = new QWidget(nullptr);
     m_root->setFocusPolicy(Qt::NoFocus);
     m_root->setContentsMargins(0, 0, 40, 0);
-    splitter->addWidget(m_root);
-    splitter->addWidget(new QWidget);
-    splitter->setStretchFactor(1, 100); // Force root widget to its minimum size initially
+    m_splitter->addWidget(m_root);
+    m_splitter->addWidget(new QWidget);
+    m_splitter->setStretchFactor(1, 100); // Force root widget to its minimum size initially
 
     const auto scroller = new QScrollArea(this);
-    scroller->setWidget(splitter);
+    scroller->setWidget(m_splitter);
     scroller->setFrameStyle(QFrame::NoFrame);
     scroller->setWidgetResizable(true);
     scroller->setFocusPolicy(Qt::NoFocus);
@@ -151,6 +151,16 @@ void PanelsWidget::addPropertiesPanel(const QString &displayName, const QIcon &i
                                BELOW_CONTENTS_MARGIN);
     widget->setParent(m_root);
     m_layout->addWidget(widget, widgetRow, 0, 1, 2);
+}
+
+QByteArray PanelsWidget::saveSplitterState() const
+{
+    return m_splitter->saveState().toHex();
+}
+
+void PanelsWidget::loadSplitterState(const QByteArray &state)
+{
+    m_splitter->restoreState(QByteArray::fromHex(state));
 }
 
 } // ProjectExplorer
