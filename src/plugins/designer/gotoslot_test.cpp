@@ -195,7 +195,7 @@ public:
         const auto cppDocumentParser = BuiltinEditorDocumentParser::get(cppFile);
         QVERIFY(cppDocumentParser);
         const Document::Ptr cppDocument = cppDocumentParser->document();
-        QCOMPARE(cppDocument->editorRevision(), 2);
+        QVERIFY(cppDocument->editorRevision() >= 2);
         QVERIFY(checkDiagsnosticMessages(cppDocument));
 
         const auto hDocumentParser = BuiltinEditorDocumentParser::get(hFile);
