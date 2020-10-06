@@ -84,7 +84,7 @@ QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) con
     if (!testSets.isEmpty())
         arguments << "--gtest_filter=" + testSets.join(':');
 
-    auto gSettings = dynamic_cast<GTestSettings *>(framework()->frameworkSettings());
+    auto gSettings = dynamic_cast<GTestSettings *>(framework()->testSettings());
     if (!gSettings)
         return arguments;
 

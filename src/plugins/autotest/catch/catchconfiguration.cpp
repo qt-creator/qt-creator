@@ -104,7 +104,7 @@ QStringList CatchConfiguration::argumentsForTestRunner(QStringList *omitted) con
                                            ' ', Qt::SkipEmptyParts), omitted);
     }
 
-    auto settings = dynamic_cast<CatchTestSettings *>(framework()->frameworkSettings());
+    auto settings = dynamic_cast<CatchTestSettings *>(framework()->testSettings());
     if (!settings)
         return arguments;
 

@@ -41,7 +41,7 @@ QString BoostTestSettings::name() const
     return QString("BoostTest");
 }
 
-void BoostTestSettings::fromFrameworkSettings(const QSettings *s)
+void BoostTestSettings::fromTestSettings(const QSettings *s)
 
 {
     logLevel = LogLevel((s->value(logLevelKey, int(LogLevel::All)).toInt()));
@@ -53,7 +53,7 @@ void BoostTestSettings::fromFrameworkSettings(const QSettings *s)
     seed = s->value(seedKey, 0).toInt();
 }
 
-void BoostTestSettings::toFrameworkSettings(QSettings *s) const
+void BoostTestSettings::toTestSettings(QSettings *s) const
 {
     s->setValue(logLevelKey, int(logLevel));
     s->setValue(reportLevelKey, int(reportLevel));

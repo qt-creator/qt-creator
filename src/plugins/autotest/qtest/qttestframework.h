@@ -43,7 +43,7 @@ private:
     unsigned priority() const override;
     ITestParser *createTestParser() override;
     TestTreeItem *createRootNode() override;
-    IFrameworkSettings *frameworkSettings() override { return &m_settings; }
+    ITestSettings *testSettings() override { return &m_settings; }
 
     QtTestSettings m_settings;
     QtTestSettingsPage m_settingsPage{&m_settings, settingsId()};

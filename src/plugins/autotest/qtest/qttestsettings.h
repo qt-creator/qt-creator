@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "../iframeworksettings.h"
+#include "../itestsettings.h"
 
 namespace Autotest {
 namespace Internal {
@@ -39,7 +39,7 @@ enum MetricsType
     Perf
 };
 
-class QtTestSettings : public IFrameworkSettings
+class QtTestSettings : public ITestSettings
 {
 public:
     QtTestSettings() {}
@@ -53,8 +53,8 @@ public:
     bool logSignalsSlots = false;
 
 protected:
-    void fromFrameworkSettings(const QSettings *s) override;
-    void toFrameworkSettings(QSettings *s) const override;
+    void fromTestSettings(const QSettings *s) override;
+    void toTestSettings(QSettings *s) const override;
 };
 
 } // namespace Internal

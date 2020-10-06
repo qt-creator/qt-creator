@@ -87,7 +87,7 @@ TestSettings TestSettingsWidget::settings() const
     result.popupOnFinish = m_ui.openResultsOnFinishCB->isChecked();
     result.popupOnFail = m_ui.openResultsOnFailCB->isChecked();
     result.runAfterBuild = RunAfterBuildMode(m_ui.runAfterBuildCB->currentIndex());
-    frameworkSettings(result);
+    testSettings(result);
     return result;
 }
 
@@ -111,7 +111,7 @@ void TestSettingsWidget::populateFrameworksListWidget(const QHash<Utils::Id, boo
     }
 }
 
-void TestSettingsWidget::frameworkSettings(TestSettings &settings) const
+void TestSettingsWidget::testSettings(TestSettings &settings) const
 {
     const QAbstractItemModel *model = m_ui.frameworkTreeWidget->model();
     QTC_ASSERT(model, return);

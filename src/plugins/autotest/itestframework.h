@@ -30,7 +30,7 @@
 
 namespace Autotest {
 
-class IFrameworkSettings;
+class ITestSettings;
 
 class ITestBase
 {
@@ -40,6 +40,8 @@ public:
 
     virtual const char *name() const = 0;
     virtual unsigned priority() const = 0;          // should this be modifyable?
+
+    virtual ITestSettings *testSettings() { return nullptr; }
 
     TestTreeItem *rootNode();
 
@@ -64,8 +66,6 @@ class ITestFramework : public ITestBase
 public:
     explicit ITestFramework(bool activeByDefault);
     ~ITestFramework() override;
-
-    virtual IFrameworkSettings *frameworkSettings() { return nullptr; }
 
     ITestParser *testParser();
 

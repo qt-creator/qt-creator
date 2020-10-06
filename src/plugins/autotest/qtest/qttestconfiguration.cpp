@@ -40,7 +40,7 @@ namespace Internal {
 TestOutputReader *QtTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
                                                     QProcess *app) const
 {
-    auto qtSettings = dynamic_cast<QtTestSettings *>(framework()->frameworkSettings());
+    auto qtSettings = dynamic_cast<QtTestSettings *>(framework()->testSettings());
     const QtTestOutputReader::OutputMode mode = qtSettings && qtSettings->useXMLOutput
             ? QtTestOutputReader::XML
             : QtTestOutputReader::PlainText;
@@ -55,7 +55,7 @@ QStringList QtTestConfiguration::argumentsForTestRunner(QStringList *omitted) co
                              runnable().commandLineArguments.split(' ', Qt::SkipEmptyParts),
                              omitted, false));
     }
-    auto qtSettings = dynamic_cast<QtTestSettings *>(framework()->frameworkSettings());
+    auto qtSettings = dynamic_cast<QtTestSettings *>(framework()->testSettings());
     if (!qtSettings)
         return arguments;
     if (qtSettings->useXMLOutput)

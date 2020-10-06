@@ -78,10 +78,10 @@ HEADERS += \
     autotestconstants.h \
     autotesticons.h \
     autotestplugin.h \
-    iframeworksettings.h \
     itemdatacache.h \
     itestframework.h \
     itestparser.h \
+    itestsettings.h \
     projectsettingswidget.h \
     testcodeparser.h \
     testconfiguration.h \

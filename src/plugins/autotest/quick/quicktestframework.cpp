@@ -54,12 +54,12 @@ unsigned QuickTestFramework::priority() const
     return 5;
 }
 
-IFrameworkSettings *QuickTestFramework::frameworkSettings()
+ITestSettings *QuickTestFramework::testSettings()
 {
     static const Utils::Id id
             = Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME);
     ITestFramework *qtTestFramework = TestFrameworkManager::frameworkForId(id);
-    return qtTestFramework->frameworkSettings();
+    return qtTestFramework->testSettings();
 }
 
 } // namespace Internal

@@ -40,7 +40,7 @@ namespace Internal {
 TestOutputReader *BoostTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
                                                        QProcess *app) const
 {
-    auto settings = dynamic_cast<BoostTestSettings *>(framework()->frameworkSettings());
+    auto settings = dynamic_cast<BoostTestSettings *>(framework()->testSettings());
     return new BoostTestOutputReader(fi, app, buildDirectory(), projectFile(),
                                      settings->logLevel, settings->reportLevel);
 }
@@ -107,7 +107,7 @@ static QStringList filterInterfering(const QStringList &provided, QStringList *o
 
 QStringList BoostTestConfiguration::argumentsForTestRunner(QStringList *omitted) const
 {
-    auto boostSettings = dynamic_cast<BoostTestSettings *>(framework()->frameworkSettings());
+    auto boostSettings = dynamic_cast<BoostTestSettings *>(framework()->testSettings());
     QStringList arguments;
     arguments << "-l" << BoostTestSettings::logLevelToOption(boostSettings->logLevel);
     arguments << "-r" << BoostTestSettings::reportLevelToOption(boostSettings->reportLevel);

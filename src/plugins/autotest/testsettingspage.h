@@ -47,7 +47,7 @@ public:
 
 private:
     void populateFrameworksListWidget(const QHash<Utils::Id, bool> &frameworks);
-    void frameworkSettings(TestSettings &settings) const;
+    void testSettings(TestSettings &settings) const;
     void onFrameworkItemChanged();
     Ui::TestSettingsPage m_ui;
 

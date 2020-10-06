@@ -31,11 +31,11 @@
 
 namespace Autotest {
 
-class IFrameworkSettings
+class ITestSettings
 {
 public:
-    IFrameworkSettings() {}
-    virtual ~IFrameworkSettings() {}
+    ITestSettings() {}
+    virtual ~ITestSettings() {}
 
     virtual QString name() const = 0;
 
@@ -43,7 +43,7 @@ public:
     {
         s->beginGroup(Constants::SETTINGSGROUP);
         s->beginGroup(name());
-        toFrameworkSettings(s);
+        toTestSettings(s);
         s->endGroup();
         s->endGroup();
     }
@@ -52,14 +52,14 @@ public:
     {
         s->beginGroup(Constants::SETTINGSGROUP);
         s->beginGroup(name());
-        fromFrameworkSettings(s);
+        fromTestSettings(s);
         s->endGroup();
         s->endGroup();
     }
 
 protected:
-    virtual void toFrameworkSettings(QSettings *s) const = 0;
-    virtual void fromFrameworkSettings(const QSettings *s) = 0;
+    virtual void toTestSettings(QSettings *s) const = 0;
+    virtual void fromTestSettings(const QSettings *s) = 0;
 };
 
 } // namespace Autotest

@@ -25,12 +25,12 @@
 
 #pragma once
 
-#include "../iframeworksettings.h"
+#include "../itestsettings.h"
 
 namespace Autotest {
 namespace Internal {
 
-class CatchTestSettings : public IFrameworkSettings
+class CatchTestSettings : public ITestSettings
 {
 public:
     CatchTestSettings() = default;
@@ -54,8 +54,8 @@ public:
     bool warnOnEmpty = false;
 
 protected:
-    void toFrameworkSettings(QSettings *s) const override;
-    void fromFrameworkSettings(const QSettings *s) override;
+    void toTestSettings(QSettings *s) const override;
+    void fromTestSettings(const QSettings *s) override;
 };
 
 } // namespace Internal

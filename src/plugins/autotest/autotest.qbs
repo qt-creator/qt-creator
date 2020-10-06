@@ -79,7 +79,7 @@ QtcPlugin {
         "itestparser.h",
         "itestframework.cpp",
         "itestframework.h",
-        "iframeworksettings.h",
+        "itestsettings.h",
         "testframeworkmanager.cpp",
         "testframeworkmanager.h",
         "testrunconfiguration.h"

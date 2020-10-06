@@ -25,13 +25,13 @@
 
 #pragma once
 
-#include "../iframeworksettings.h"
+#include "../itestsettings.h"
 #include "gtestconstants.h"
 
 namespace Autotest {
 namespace Internal {
 
-class GTestSettings : public IFrameworkSettings
+class GTestSettings : public ITestSettings
 {
 public:
     GTestSettings() {}
@@ -48,8 +48,8 @@ public:
     QString gtestFilter{GTest::Constants::DEFAULT_FILTER};
 
 protected:
-    void fromFrameworkSettings(const QSettings *s) override;
-    void toFrameworkSettings(QSettings *s) const override;
+    void fromTestSettings(const QSettings *s) override;
+    void toTestSettings(QSettings *s) const override;
 };
 
 } // namespace Internal

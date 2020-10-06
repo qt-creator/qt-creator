@@ -50,7 +50,7 @@ QString CatchTestSettings::name() const
     return QString("Catch2");
 }
 
-void CatchTestSettings::toFrameworkSettings(QSettings *s) const
+void CatchTestSettings::toTestSettings(QSettings *s) const
 {
     s->setValue(abortAfterCheckedKey, abortAfterChecked);
     s->setValue(abortAfterKey, abortAfter);
@@ -70,7 +70,7 @@ void CatchTestSettings::toFrameworkSettings(QSettings *s) const
     s->setValue(warnOnEmptyKey, warnOnEmpty);
 }
 
-void CatchTestSettings::fromFrameworkSettings(const QSettings *s)
+void CatchTestSettings::fromTestSettings(const QSettings *s)
 {
     abortAfterChecked = s->value(abortAfterCheckedKey, false).toBool();
     abortAfter = s->value(abortAfterKey, 0).toInt();

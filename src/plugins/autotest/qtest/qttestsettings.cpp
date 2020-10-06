@@ -57,7 +57,7 @@ QString QtTestSettings::name() const
     return QString("QtTest");
 }
 
-void QtTestSettings::fromFrameworkSettings(const QSettings *s)
+void QtTestSettings::fromTestSettings(const QSettings *s)
 {
     metrics = intToMetrics(s->value(metricsKey, Walltime).toInt());
     noCrashHandler = s->value(noCrashhandlerKey, true).toBool();
@@ -66,7 +66,7 @@ void QtTestSettings::fromFrameworkSettings(const QSettings *s)
     logSignalsSlots = s->value(logSignalsSlotsKey, false).toBool();
 }
 
-void QtTestSettings::toFrameworkSettings(QSettings *s) const
+void QtTestSettings::toTestSettings(QSettings *s) const
 {
     s->setValue(metricsKey, metrics);
     s->setValue(noCrashhandlerKey, noCrashHandler);

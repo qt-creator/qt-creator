@@ -46,7 +46,7 @@ QuickTestConfiguration::QuickTestConfiguration(ITestFramework *framework)
 TestOutputReader *QuickTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
                                                        QProcess *app) const
 {
-    auto qtSettings = dynamic_cast<QtTestSettings *>(framework()->frameworkSettings());
+    auto qtSettings = dynamic_cast<QtTestSettings *>(framework()->testSettings());
     const QtTestOutputReader::OutputMode mode = qtSettings && qtSettings->useXMLOutput
             ? QtTestOutputReader::XML
             : QtTestOutputReader::PlainText;
@@ -63,7 +63,7 @@ QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted)
                           omitted, true));
     }
 
-    auto qtSettings = dynamic_cast<QtTestSettings *>(framework()->frameworkSettings());
+    auto qtSettings = dynamic_cast<QtTestSettings *>(framework()->testSettings());
     if (!qtSettings)
         return arguments;
     if (qtSettings->useXMLOutput)

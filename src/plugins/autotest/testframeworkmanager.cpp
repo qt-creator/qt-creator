@@ -26,7 +26,7 @@
 #include "testframeworkmanager.h"
 #include "autotestconstants.h"
 #include "autotestplugin.h"
-#include "iframeworksettings.h"
+#include "itestsettings.h"
 #include "testsettings.h"
 
 #include <utils/algorithm.h>
@@ -87,7 +87,7 @@ void TestFrameworkManager::synchronizeSettings(QSettings *s)
 {
     Internal::AutotestPlugin::settings()->fromSettings(s);
     for (ITestFramework *framework : qAsConst(m_registeredFrameworks)) {
-        if (IFrameworkSettings *fSettings = framework->frameworkSettings())
+        if (ITestSettings *fSettings = framework->testSettings())
             fSettings->fromSettings(s);
     }
 }

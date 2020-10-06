@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "../iframeworksettings.h"
+#include "../itestsettings.h"
 
 namespace Autotest {
 namespace Internal {
@@ -53,7 +53,7 @@ enum class ReportLevel
     No
 };
 
-class BoostTestSettings : public IFrameworkSettings
+class BoostTestSettings : public ITestSettings
 {
 public:
     BoostTestSettings() = default;
@@ -70,8 +70,8 @@ public:
     bool memLeaks = true;
 
 protected:
-    void fromFrameworkSettings(const QSettings *s) override;
-    void toFrameworkSettings(QSettings *s) const override;
+    void fromTestSettings(const QSettings *s) override;
+    void toTestSettings(QSettings *s) const override;
 };
 
 } // namespace Internal
