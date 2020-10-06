@@ -259,6 +259,7 @@ ArgumentsAspect::ArgumentsAspect()
     setDisplayName(tr("Arguments"));
     setId("ArgumentsAspect");
     setSettingsKey("RunConfiguration.Arguments");
+    m_labelText = tr("Command line arguments:");
 }
 
 QString ArgumentsAspect::arguments(const MacroExpander *expander) const
@@ -288,6 +289,11 @@ void ArgumentsAspect::setArguments(const QString &arguments)
         m_chooser->setText(arguments);
     if (m_multiLineChooser && m_multiLineChooser->toPlainText() != arguments)
         m_multiLineChooser->setPlainText(arguments);
+}
+
+void ArgumentsAspect::setLabelText(const QString &labelText)
+{
+    m_labelText = labelText;
 }
 
 void ArgumentsAspect::setResetter(const std::function<QString()> &resetter)
@@ -351,7 +357,6 @@ QWidget *ArgumentsAspect::setupChooser()
 void ArgumentsAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!m_chooser && !m_multiLineChooser && !m_multiLineButton);
-    builder.addItem(tr("Command line arguments:"));
 
     const auto container = new QWidget;
     const auto containerLayout = new QHBoxLayout(container);
@@ -394,7 +399,7 @@ void ArgumentsAspect::addToLayout(LayoutBuilder &builder)
         containerLayout->setAlignment(m_resetButton, Qt::AlignTop);
     }
 
-    builder.addItem(container);
+    builder.addItems({m_labelText, container});
 }
 
 /*!
