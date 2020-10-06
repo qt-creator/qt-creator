@@ -34,30 +34,32 @@ find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 @endif
 
-if(ANDROID)
-  add_library(%{ProjectName} SHARED
-    %{MainFileName}
-    %{SrcFileName}
-    %{HdrFileName}
-  @if %{GenerateForm}
-    %{FormFileName}
-  @endif
-  @if %{HasTranslation}
-    ${TS_FILES}
-  @endif
-  )
+set(PROJECT_SOURCES
+        %{MainFileName}
+        %{SrcFileName}
+        %{HdrFileName}
+    @if %{GenerateForm}
+        %{FormFileName}
+    @endif
+    @if %{HasTranslation}
+        ${TS_FILES}
+    @endif
+)
+
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    qt_add_executable(%{ProjectName}
+        ${PROJECT_SOURCES}
+    )
 else()
-  add_executable(%{ProjectName}
-    %{MainFileName}
-    %{SrcFileName}
-    %{HdrFileName}
-  @if %{GenerateForm}
-    %{FormFileName}
-  @endif
-  @if %{HasTranslation}
-    ${TS_FILES}
-  @endif
-  )
+    if(ANDROID)
+        add_library(%{ProjectName} SHARED
+            ${PROJECT_SOURCES}
+        )
+    else()
+        add_executable(%{ProjectName}
+            ${PROJECT_SOURCES}
+        )
+    endif()
 endif()
 
 target_link_libraries(%{ProjectName} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
