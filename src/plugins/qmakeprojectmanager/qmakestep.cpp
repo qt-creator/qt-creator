@@ -83,6 +83,12 @@ QMakeStep::QMakeStep(BuildStepList *bsl, Utils::Id id)
 {
     setLowPriority();
 
+    m_buildType = addAspect<SelectionAspect>();
+    m_buildType->setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    m_buildType->setDisplayName(tr("qmake build configuration:"));
+    m_buildType->addOption(tr("Debug"));
+    m_buildType->addOption(tr("Release"));
+
     auto updateSummary = [this] {
         BaseQtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
         if (!qtVersion)
@@ -507,25 +513,6 @@ QWidget *QMakeStep::createConfigWidget()
 {
     auto widget = new QWidget;
 
-    auto label_0 = new QLabel(tr("qmake build configuration:"), widget);
-
-    auto buildConfigurationWidget = new QWidget(widget);
-
-    buildConfigurationComboBox = new QComboBox(buildConfigurationWidget);
-    buildConfigurationComboBox->addItem(tr("Debug"));
-    buildConfigurationComboBox->addItem(tr("Release"));
-
-    QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    sizePolicy.setHorizontalStretch(0);
-    sizePolicy.setVerticalStretch(0);
-    sizePolicy.setHeightForWidth(buildConfigurationComboBox->sizePolicy().hasHeightForWidth());
-    buildConfigurationComboBox->setSizePolicy(sizePolicy);
-
-    auto horizontalLayout_0 = new QHBoxLayout(buildConfigurationWidget);
-    horizontalLayout_0->setContentsMargins(0, 0, 0, 0);
-    horizontalLayout_0->addWidget(buildConfigurationComboBox);
-    horizontalLayout_0->addItem(new QSpacerItem(71, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
-
     auto qmakeArgsLabel = new QLabel(tr("Additional arguments:"), widget);
 
     qmakeAdditonalArgumentsLineEdit = new QLineEdit(widget);
@@ -545,7 +532,7 @@ QWidget *QMakeStep::createConfigWidget()
     qmakeAdditonalArgumentsLineEdit->setText(m_userArgs);
 
     LayoutBuilder builder(widget);
-    builder.addRow({label_0, buildConfigurationWidget});
+    builder.addRow(m_buildType);
     builder.addRow({qmakeArgsLabel, qmakeAdditonalArgumentsLineEdit});
     builder.addRow({label, qmakeArgumentsEdit});
     builder.addRow({abisLabel, abisListWidget});
@@ -558,8 +545,8 @@ QWidget *QMakeStep::createConfigWidget()
 
     connect(qmakeAdditonalArgumentsLineEdit, &QLineEdit::textEdited,
             this, &QMakeStep::qmakeArgumentsLineEdited);
-    connect(buildConfigurationComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &QMakeStep::buildConfigurationSelected);
+    connect(m_buildType, &BaseAspect::changed,
+            widget, [this] { buildConfigurationSelected(); });
 
     connect(qmakeBuildConfiguration(), &QmakeBuildConfiguration::qmlDebuggingChanged,
             widget, [this] {
@@ -604,7 +591,7 @@ void QMakeStep::qmakeBuildConfigChanged()
     QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
     bool debug = bc->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild;
     m_ignoreChange = true;
-    buildConfigurationComboBox->setCurrentIndex(debug? 0 : 1);
+    m_buildType->setValue(debug? 0 : 1);
     m_ignoreChange = false;
     updateAbiWidgets();
     updateEffectiveQMakeCall();
@@ -686,7 +673,7 @@ void QMakeStep::buildConfigurationSelected()
         return;
     QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
     BaseQtVersion::QmakeBuildConfigs buildConfiguration = bc->qmakeBuildConfiguration();
-    if (buildConfigurationComboBox->currentIndex() == 0) { // debug
+    if (m_buildType->value() == 0) { // debug
         buildConfiguration = buildConfiguration | BaseQtVersion::DebugBuild;
     } else {
         buildConfiguration = buildConfiguration & ~BaseQtVersion::DebugBuild;

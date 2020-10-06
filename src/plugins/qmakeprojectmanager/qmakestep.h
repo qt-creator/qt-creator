@@ -210,7 +210,7 @@ private:
     bool m_ignoreChange = false;
 
     QLabel *abisLabel = nullptr;
-    QComboBox *buildConfigurationComboBox = nullptr;
+    Utils::SelectionAspect *m_buildType = nullptr;
     QLineEdit *qmakeAdditonalArgumentsLineEdit = nullptr;
     QPlainTextEdit *qmakeArgumentsEdit = nullptr;
     QListWidget *abisListWidget = nullptr;
