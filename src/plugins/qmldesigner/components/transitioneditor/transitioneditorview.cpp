@@ -142,6 +142,18 @@ void TransitionEditorView::selectedNodesChanged(const QList<ModelNode> & /*selec
 
 }
 
+void TransitionEditorView::auxiliaryDataChanged(const ModelNode &modelNode,
+                                                const PropertyName &name,
+                                                const QVariant &data)
+{
+    if (name == QmlDesigner::lockedProperty && data.toBool() && modelNode.isValid()) {
+        for (const auto &node : modelNode.allSubModelNodesAndThisNode()) {
+            if (node.hasAuxiliaryData("transition_expanded"))
+                m_transitionEditorWidget->graphicsScene()->invalidateHeightForTarget(node);
+        }
+    }
+}
+
 void TransitionEditorView::propertiesAboutToBeRemoved(
     const QList<AbstractProperty> & /*propertyList */)
 {
@@ -217,7 +229,7 @@ ModelNode TransitionEditorView::addNewTransition()
                     QStringList newlist = idPropertyList.value(targetId);
                     for (const QString  &str :locList)
                         if (!newlist.contains(str))
-                                newlist.append(str);
+                            newlist.append(str);
                     idPropertyList.insert(targetId, newlist);
                 } else {
                     if (!locList.isEmpty())

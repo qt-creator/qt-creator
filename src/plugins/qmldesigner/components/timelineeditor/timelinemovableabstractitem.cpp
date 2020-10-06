@@ -156,4 +156,9 @@ TimelineFrameHandle *TimelineMovableAbstractItem::asTimelineFrameHandle()
     return nullptr;
 }
 
+bool TimelineMovableAbstractItem::isLocked() const
+{
+    return false;
+}
+
 } // namespace QmlDesigner

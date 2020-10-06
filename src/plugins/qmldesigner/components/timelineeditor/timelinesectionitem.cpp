@@ -171,6 +171,17 @@ void TimelineSectionItem::updateFramesForTarget(QGraphicsItem *item, const Model
     }
 }
 
+void TimelineSectionItem::updateHeightForTarget(QGraphicsItem *item, const ModelNode &target)
+{
+    if (!target.isValid())
+        return;
+
+    if (auto sectionItem = qgraphicsitem_cast<TimelineSectionItem *>(item)) {
+        if (sectionItem->targetNode() == target)
+            sectionItem->updateHeight();
+    }
+}
+
 void TimelineSectionItem::moveAllFrames(qreal offset)
 {
     if (m_timeline.isValid())
@@ -313,7 +324,8 @@ void TimelineSectionItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 
     if (event->button() == Qt::LeftButton) {
         event->accept();
-        toggleCollapsed();
+        if (!ModelNode::isThisOrAncestorLocked(m_targetNode))
+            toggleCollapsed();
     }
 }
 
@@ -345,7 +357,8 @@ void TimelineSectionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         if (m_targetNode.isValid())
             m_targetNode.view()->setSelectedModelNode(m_targetNode);
     } else {
-        toggleCollapsed();
+        if (!ModelNode::isThisOrAncestorLocked(m_targetNode))
+            toggleCollapsed();
     }
     update();
 }
@@ -414,6 +427,12 @@ void TimelineSectionItem::updateFrames()
     update();
 }
 
+void TimelineSectionItem::updateHeight()
+{
+    invalidateHeight();
+    update();
+}
+
 void TimelineSectionItem::invalidateHeight()
 {
     int height = 0;
@@ -464,7 +483,8 @@ void TimelineSectionItem::invalidateFrames()
 
 bool TimelineSectionItem::collapsed() const
 {
-    return m_targetNode.isValid() && !m_targetNode.hasAuxiliaryData("timeline_expanded");
+    return m_targetNode.isValid()
+            && (!m_targetNode.hasAuxiliaryData("timeline_expanded") || m_targetNode.locked());
 }
 
 void TimelineSectionItem::createPropertyItems()
@@ -845,6 +865,11 @@ void TimelineBarItem::commitPosition(const QPointF & /*point*/)
     m_oldRect = QRectF();
 }
 
+bool TimelineBarItem::isLocked() const
+{
+    return sectionItem()->targetNode().isValid() && sectionItem()->targetNode().locked();
+}
+
 void TimelineBarItem::scrollOffsetChanged()
 {
     sectionItem()->invalidateBar();
@@ -904,7 +929,9 @@ void TimelineBarItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
     const auto p = event->pos();
 
     QRectF left, right;
-    if (handleRects(rect(), left, right)) {
+    if (isLocked() && rect().contains(p)) {
+        setCursor(QCursor(Qt::ForbiddenCursor));
+    } else if (handleRects(rect(), left, right)) {
         if (left.contains(p) || right.contains(p)) {
             if (cursor().shape() != Qt::SizeHorCursor)
                 setCursor(QCursor(Qt::SizeHorCursor));
@@ -920,6 +947,9 @@ void TimelineBarItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 
 void TimelineBarItem::contextMenuEvent(QGraphicsSceneContextMenuEvent* event)
 {
+    if (isLocked())
+        return;
+
     QMenu menu;
     QAction* overrideColor = menu.addAction(tr("Override Color"));
 

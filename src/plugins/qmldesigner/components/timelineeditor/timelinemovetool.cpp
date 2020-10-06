@@ -70,6 +70,9 @@ void TimelineMoveTool::mousePressEvent(TimelineMovableAbstractItem *item,
 {
     Q_UNUSED(item)
 
+    if (currentItem() && currentItem()->isLocked())
+        return;
+
     if (auto *current = currentItem()->asTimelineKeyframeItem()) {
         const qreal sourceFrame = qRound(current->mapFromSceneToFrame(current->rect().center().x()));
         const qreal targetFrame = qRound(current->mapFromSceneToFrame(event->scenePos().x()));
@@ -83,6 +86,9 @@ void TimelineMoveTool::mouseMoveEvent(TimelineMovableAbstractItem *item,
     Q_UNUSED(item)
 
     if (!currentItem())
+        return;
+
+    if (currentItem()->isLocked())
         return;
 
     if (auto *current = currentItem()->asTimelineKeyframeItem()) {

@@ -49,6 +49,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <utils/algorithm.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
@@ -57,6 +58,7 @@
 #include <QDebug>
 
 #include <QApplication>
+#include <QMessageBox>
 #include <QPlainTextEdit>
 #include <QRandomGenerator>
 
@@ -375,9 +377,41 @@ void DesignDocument::deleteSelected()
     if (!currentModel())
         return;
 
+    QStringList lockedNodes;
+    for (const ModelNode &modelNode : view()->selectedModelNodes()) {
+        for (const ModelNode &node : modelNode.allSubModelNodesAndThisNode()) {
+            if (node.isValid() && !node.isRootNode() && node.locked())
+                lockedNodes.push_back(node.id());
+        }
+    }
+
+    if (!lockedNodes.empty()) {
+        Utils::sort(lockedNodes);
+        QString detailedText = QString("<b>" + tr("Locked items:") + "</b><br>");
+
+        for (const auto &id : qAsConst(lockedNodes))
+            detailedText.append("- " + id + "<br>");
+
+        detailedText.chop(QString("<br>").size());
+
+        QMessageBox msgBox;
+        msgBox.setTextFormat(Qt::RichText);
+        msgBox.setIcon(QMessageBox::Question);
+        msgBox.setWindowTitle(tr("Delete/Cut Item"));
+        msgBox.setText(QString(tr("Deleting or cutting this item will modify locked items.") + "<br><br>%1")
+                               .arg(detailedText));
+        msgBox.setInformativeText(tr("Do you want to continue by removing the item (Delete) or removing it and copying it to the clipboard (Cut)?"));
+        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Ok);
+
+        if (msgBox.exec() == QMessageBox::Cancel)
+            return;
+    }
+
     rewriterView()->executeInTransaction("DesignDocument::deleteSelected", [this](){
         QList<ModelNode> toDelete = view()->selectedModelNodes();
-        foreach (ModelNode node, toDelete) {
+
+        for (ModelNode node : toDelete) {
             if (node.isValid() && !node.isRootNode() && QmlObjectNode::isValidQmlObjectNode(node))
                 QmlObjectNode(node).destroy();
         }

@@ -50,6 +50,8 @@ public:
     void itemMoved(const QPointF &start, const QPointF &end) override;
     void commitPosition(const QPointF &point) override;
 
+    bool isLocked() const override;
+
 protected:
     void scrollOffsetChanged() override;
     void paint(QPainter *painter,
@@ -100,6 +102,7 @@ public:
     static void updateData(QGraphicsItem *item);
     static void updateDataForTarget(QGraphicsItem *item, const ModelNode &target, bool *b);
     static void updateFramesForTarget(QGraphicsItem *item, const ModelNode &target);
+    static void updateHeightForTarget(QGraphicsItem *item, const ModelNode &target);
 
     void moveAllFrames(qreal offset);
     void scaleAllFrames(qreal scale);
@@ -121,6 +124,7 @@ protected:
 private:
     void updateData();
     void updateFrames();
+    void updateHeight();
     void invalidateHeight();
     void invalidateProperties();
     void invalidateFrames();

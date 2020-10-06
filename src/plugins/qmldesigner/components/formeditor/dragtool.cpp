@@ -250,7 +250,6 @@ void DragTool::dropEvent(const QList<QGraphicsItem *> &/*itemList*/, QGraphicsSc
         if (m_dragNode.isValid())
             view()->setSelectedModelNode(m_dragNode);
 
-
         m_dragNode = QmlItemNode();
 
         view()->changeToSelectionTool();

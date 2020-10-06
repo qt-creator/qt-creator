@@ -236,6 +236,18 @@ void TimelineView::selectedNodesChanged(const QList<ModelNode> & /*selectedNodeL
         m_timelineWidget->graphicsScene()->update();
 }
 
+void TimelineView::auxiliaryDataChanged(const ModelNode &modelNode,
+                                        const PropertyName &name,
+                                        const QVariant &data)
+{
+    if (name == QmlDesigner::lockedProperty && data.toBool() && modelNode.isValid()) {
+        for (const auto &node : modelNode.allSubModelNodesAndThisNode()) {
+            if (node.hasAuxiliaryData("timeline_expanded"))
+                m_timelineWidget->graphicsScene()->invalidateHeightForTarget(node);
+        }
+    }
+}
+
 void TimelineView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList)
 {
     for (const auto &property : propertyList) {

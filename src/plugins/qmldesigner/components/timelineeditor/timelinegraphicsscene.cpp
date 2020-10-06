@@ -428,6 +428,18 @@ void TimelineGraphicsScene::invalidateKeyframesForTarget(const ModelNode &target
         TimelineSectionItem::updateFramesForTarget(child, target);
 }
 
+void TimelineGraphicsScene::invalidateHeightForTarget(const ModelNode &target)
+{
+    if (!target.isValid())
+        return;
+
+    const auto children = m_layout->childItems();
+    for (auto child : children)
+        TimelineSectionItem::updateHeightForTarget(child, target);
+
+    invalidateLayout();
+}
+
 void TimelineGraphicsScene::invalidateScene()
 {
     ModelNode node = timelineView()->modelNodeForId(

@@ -534,11 +534,11 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
                                             const PropertyName &name,
                                             const QVariant &value)
 {
-    if (((node.isRootNode() && (name == "width" || name == "height")) || name == "invisible")
+    if (((node.isRootNode() && (name == "width" || name == "height")) || name == "invisible" || name == "locked")
             || name.endsWith(PropertyName("@NodeInstance"))) {
         if (hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
-            if (value.isValid() || name == "invisible") {
+            if (value.isValid() || name == "invisible" || name == "locked") {
                 PropertyValueContainer container{instance.instanceId(), name, value, TypeName()};
                 m_nodeInstanceServer->changeAuxiliaryValues({{container}});
             } else {

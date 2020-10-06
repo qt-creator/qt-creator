@@ -196,6 +196,17 @@ void TransitionEditorSectionItem::updateData(QGraphicsItem *item)
         sectionItem->updateData();
 }
 
+void TransitionEditorSectionItem::updateHeightForTarget(QGraphicsItem *item, const ModelNode &target)
+{
+    if (!target.isValid())
+        return;
+
+    if (auto sectionItem = qgraphicsitem_cast<TransitionEditorSectionItem *>(item)) {
+        if (sectionItem->targetNode() == target)
+            sectionItem->updateHeight();
+    }
+}
+
 void TransitionEditorSectionItem::invalidateBar(QGraphicsItem *item)
 {
     if (auto sectionItem = qgraphicsitem_cast<TransitionEditorSectionItem *>(item))
@@ -360,7 +371,8 @@ void TransitionEditorSectionItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent
 
     if (event->button() == Qt::LeftButton) {
         event->accept();
-        toggleCollapsed();
+        if (!ModelNode::isThisOrAncestorLocked(m_targetNode))
+            toggleCollapsed();
     }
 }
 
@@ -392,7 +404,8 @@ void TransitionEditorSectionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *ev
         if (m_targetNode.isValid())
             m_targetNode.view()->setSelectedModelNode(m_targetNode);
     } else {
-        toggleCollapsed();
+        if (!ModelNode::isThisOrAncestorLocked(m_targetNode))
+            toggleCollapsed();
     }
     update();
 }
@@ -414,6 +427,12 @@ void TransitionEditorSectionItem::updateData()
     invalidateBar();
     resize(rulerWidth(), size().height());
     invalidateProperties();
+    update();
+}
+
+void TransitionEditorSectionItem::updateHeight()
+{
+    invalidateHeight();
     update();
 }
 
@@ -488,7 +507,8 @@ void TransitionEditorSectionItem::invalidateProperties()
 
 bool TransitionEditorSectionItem::collapsed() const
 {
-    return m_targetNode.isValid() && !m_targetNode.hasAuxiliaryData("timeline_expanded");
+    return m_targetNode.isValid()
+            && (!m_targetNode.hasAuxiliaryData("transition_expanded") || m_targetNode.locked());
 }
 
 qreal TransitionEditorSectionItem::rulerWidth() const
@@ -501,9 +521,9 @@ void TransitionEditorSectionItem::toggleCollapsed()
     QTC_ASSERT(m_targetNode.isValid(), return );
 
     if (collapsed())
-        m_targetNode.setAuxiliaryData("timeline_expanded", true);
+        m_targetNode.setAuxiliaryData("transition_expanded", true);
     else
-        m_targetNode.removeAuxiliaryData("timeline_expanded");
+        m_targetNode.removeAuxiliaryData("transition_expanded");
 
     invalidateHeight();
 }
@@ -592,6 +612,11 @@ void TransitionEditorBarItem::commitPosition(const QPointF & /*point*/)
     scrollOffsetChanged();
 }
 
+bool TransitionEditorBarItem::isLocked() const
+{
+    return sectionItem() && sectionItem()->targetNode().isValid() && sectionItem()->targetNode().locked();
+}
+
 void TransitionEditorBarItem::scrollOffsetChanged()
 {
     if (sectionItem())
@@ -637,7 +662,9 @@ void TransitionEditorBarItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
     const auto p = event->pos();
 
     QRectF left, right;
-    if (handleRects(rect(), left, right)) {
+    if (isLocked() && rect().contains(p)) {
+        setCursor(QCursor(Qt::ForbiddenCursor));
+    } else if (handleRects(rect(), left, right)) {
         if (left.contains(p) || right.contains(p)) {
             if (cursor().shape() != Qt::SizeHorCursor)
                 setCursor(QCursor(Qt::SizeHorCursor));

@@ -30,6 +30,7 @@
 
 #include <QDebug>
 #include <QRegularExpression>
+#include <QMessageBox>
 #include <cmath>
 #include <memory>
 
@@ -42,6 +43,7 @@
 #include <qmlitemnode.h>
 #include <qmlstate.h>
 #include <annotationeditor/annotationeditor.h>
+#include <utils/algorithm.h>
 
 
 namespace QmlDesigner {
@@ -92,18 +94,52 @@ void StatesEditorView::removeState(int nodeId)
         if (nodeId > 0 && hasModelNodeForInternalId(nodeId)) {
             ModelNode stateNode(modelNodeForInternalId(nodeId));
             Q_ASSERT(stateNode.metaInfo().isSubclassOf("QtQuick.State"));
+
+            QmlModelState modelState(stateNode);
+            if (modelState.isValid()) {
+                QStringList lockedTargets;
+                const auto propertyChanges = modelState.propertyChanges();
+                for (const QmlPropertyChanges &change : propertyChanges) {
+                    const ModelNode target = change.target();
+                    if (target.locked())
+                        lockedTargets.push_back(target.id());
+                }
+
+                if (!lockedTargets.empty()) {
+                    Utils::sort(lockedTargets);
+                    QString detailedText = QString("<b>" + tr("Locked items:") + "</b><br>");
+
+                    for (const auto &id : qAsConst(lockedTargets))
+                        detailedText.append("- " + id + "<br>");
+
+                    detailedText.chop(QString("<br>").size());
+
+                    QMessageBox msgBox;
+                    msgBox.setTextFormat(Qt::RichText);
+                    msgBox.setIcon(QMessageBox::Question);
+                    msgBox.setWindowTitle(tr("Remove State"));
+                    msgBox.setText(QString(tr("Removing this state will modify locked items.") + "<br><br>%1")
+                                           .arg(detailedText));
+                    msgBox.setInformativeText(tr("Do you want to continue by removing the state?"));
+                    msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+                    msgBox.setDefaultButton(QMessageBox::Ok);
+
+                    if (msgBox.exec() == QMessageBox::Cancel)
+                        return;
+                }
+            }
+
             NodeListProperty parentProperty = stateNode.parentProperty().toNodeListProperty();
 
             if (parentProperty.count() <= 1) {
                 setCurrentState(baseState());
-            } else if (parentProperty.isValid()){
+            } else if (parentProperty.isValid()) {
                 int index = parentProperty.indexOf(stateNode);
                 if (index == 0)
                     setCurrentState(parentProperty.at(1));
                 else
                     setCurrentState(parentProperty.at(index - 1));
             }
-
 
             stateNode.destroy();
         }

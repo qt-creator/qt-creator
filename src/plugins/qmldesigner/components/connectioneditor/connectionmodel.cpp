@@ -75,6 +75,23 @@ ConnectionModel::ConnectionModel(ConnectionView *parent)
     connect(this, &QStandardItemModel::dataChanged, this, &ConnectionModel::handleDataChanged);
 }
 
+Qt::ItemFlags ConnectionModel::flags(const QModelIndex &modelIndex) const
+{
+    if (!modelIndex.isValid())
+        return Qt::ItemIsEnabled;
+
+    if (!m_connectionView || !m_connectionView->model())
+        return Qt::ItemIsEnabled;
+
+    const int internalId = data(index(modelIndex.row(), TargetModelNodeRow), UserRoles::InternalIdRole).toInt();
+    ModelNode modelNode = m_connectionView->modelNodeForInternalId(internalId);
+
+    if (modelNode.isValid() && ModelNode::isThisOrAncestorLocked(modelNode))
+        return Qt::ItemIsEnabled;
+
+    return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled;
+}
+
 void ConnectionModel::resetModel()
 {
     beginResetModel();
@@ -82,7 +99,7 @@ void ConnectionModel::resetModel()
     setHorizontalHeaderLabels(QStringList({ tr("Target"), tr("Signal Handler"), tr("Action") }));
 
     if (connectionView()->isAttached()) {
-        for (const ModelNode modelNode : connectionView()->allModelNodes())
+        for (const ModelNode &modelNode : connectionView()->allModelNodes())
             addModelNode(modelNode);
     }
 
@@ -94,8 +111,8 @@ void ConnectionModel::resetModel()
 
 SignalHandlerProperty ConnectionModel::signalHandlerPropertyForRow(int rowNumber) const
 {
-    const int internalId = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 1).toInt();
-    const QString targetPropertyName = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 2).toString();
+    const int internalId = data(index(rowNumber, TargetModelNodeRow), UserRoles::InternalIdRole).toInt();
+    const QString targetPropertyName = data(index(rowNumber, TargetModelNodeRow), UserRoles::TargetPropertyNameRole).toString();
 
     ModelNode modelNode = connectionView()->modelNodeForInternalId(internalId);
     if (modelNode.isValid())
@@ -256,8 +273,8 @@ void ConnectionModel::updateTargetNode(int rowNumber)
 
 void ConnectionModel::updateCustomData(QStandardItem *item, const SignalHandlerProperty &signalHandlerProperty)
 {
-    item->setData(signalHandlerProperty.parentModelNode().internalId(), Qt::UserRole + 1);
-    item->setData(signalHandlerProperty.name(), Qt::UserRole + 2);
+    item->setData(signalHandlerProperty.parentModelNode().internalId(), UserRoles::InternalIdRole);
+    item->setData(signalHandlerProperty.name(), UserRoles::TargetPropertyNameRole);
 }
 
 ModelNode ConnectionModel::getTargetNodeForConnection(const ModelNode &connection) const

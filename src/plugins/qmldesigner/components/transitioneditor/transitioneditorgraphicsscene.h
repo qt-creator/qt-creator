@@ -93,6 +93,7 @@ public:
     void setRulerScaling(int scaling);
 
     void invalidateSectionForTarget(const ModelNode &modelNode);
+    void invalidateHeightForTarget(const ModelNode &modelNode);
 
     void invalidateScene();
     void invalidateCurrentValues();

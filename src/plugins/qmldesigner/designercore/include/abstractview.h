@@ -147,6 +147,7 @@ public:
 
     void setSelectedModelNodes(const QList<ModelNode> &selectedNodeList);
     void setSelectedModelNode(const ModelNode &modelNode);
+
     void selectModelNode(const ModelNode &node);
     void deselectModelNode(const ModelNode &node);
     void clearSelectedModelNodes();

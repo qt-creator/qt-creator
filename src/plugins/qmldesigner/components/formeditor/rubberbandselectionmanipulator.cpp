@@ -90,10 +90,10 @@ void RubberBandSelectionManipulator::select(SelectionType selectionType)
     if (!m_beginFormEditorItem)
         return;
 
-    QList<QGraphicsItem*> itemList = m_editorView->scene()->items(m_selectionRectangleElement.rect(), Qt::IntersectsItemBoundingRect);
+    QList<QGraphicsItem *> itemList = m_editorView->scene()->items(m_selectionRectangleElement.rect(), Qt::IntersectsItemBoundingRect);
     QList<QmlItemNode> newNodeList;
 
-    foreach (QGraphicsItem* item, itemList)
+    for (QGraphicsItem *item : itemList)
     {
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
 
@@ -137,7 +137,7 @@ void RubberBandSelectionManipulator::select(SelectionType selectionType)
 }
 
 
-void RubberBandSelectionManipulator::setItems(const QList<FormEditorItem*> &itemList)
+void RubberBandSelectionManipulator::setItems(const QList<FormEditorItem *> &itemList)
 {
     m_itemList = itemList;
 }

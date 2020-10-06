@@ -158,6 +158,7 @@ public:
 
     void invalidateSectionForTarget(const ModelNode &modelNode);
     void invalidateKeyframesForTarget(const ModelNode &modelNode);
+    void invalidateHeightForTarget(const ModelNode &modelNode);
 
     void invalidateScene();
     void invalidateScrollbar() override;

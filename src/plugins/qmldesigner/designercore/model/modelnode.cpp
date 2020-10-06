@@ -1228,6 +1228,53 @@ void ModelNode::removeGlobalStatus()
     }
 }
 
+bool ModelNode::locked() const
+{
+    if (hasLocked())
+        return auxiliaryData(lockedProperty).toBool();
+
+    return false;
+}
+
+bool ModelNode::hasLocked() const
+{
+    return hasAuxiliaryData(lockedProperty);
+}
+
+void ModelNode::setLocked(bool value)
+{
+    setAuxiliaryData(lockedProperty, value);
+
+    if (value) {
+        // Remove newly locked node and all its descendants from potential selection
+        for (ModelNode node : allSubModelNodesAndThisNode()) {
+            node.deselectNode();
+            node.removeAuxiliaryData("timeline_expanded");
+            node.removeAuxiliaryData("transition_expanded");
+        }
+    }
+}
+
+void ModelNode::removeLocked()
+{
+    if (hasLocked())
+        removeAuxiliaryData(lockedProperty);
+}
+
+bool ModelNode::isThisOrAncestorLocked(const ModelNode &node)
+{
+    if (!node.isValid())
+        return false;
+
+    if (node.locked())
+        return true;
+
+    if (node.isRootNode() || !node.hasParentProperty())
+        return false;
+
+    return isThisOrAncestorLocked(node.parentProperty().parentModelNode());
+}
+
 void  ModelNode::setScriptFunctions(const QStringList &scriptFunctionList)
 {
     model()->d->setScriptFunctions(internalNode(), scriptFunctionList);

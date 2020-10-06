@@ -65,7 +65,9 @@ QMLDESIGNERCORE_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(c
 
 using PropertyListType = QList<QPair<PropertyName, QVariant> >;
 
-class QMLDESIGNERCORE_EXPORT  ModelNode
+static const PropertyName lockedProperty = {("locked")};
+
+class QMLDESIGNERCORE_EXPORT ModelNode
 {
     friend QMLDESIGNERCORE_EXPORT bool operator ==(const ModelNode &firstNode, const ModelNode &secondNode);
     friend QMLDESIGNERCORE_EXPORT bool operator !=(const ModelNode &firstNode, const ModelNode &secondNode);
@@ -216,6 +218,11 @@ public:
     void setGlobalStatus(const GlobalAnnotationStatus &status);
     void removeGlobalStatus();
 
+    bool locked() const;
+    void setLocked(bool value);
+
+    static bool isThisOrAncestorLocked(const ModelNode &node);
+
     qint32 internalId() const;
 
     void setNodeSource(const QString&);
@@ -241,6 +248,8 @@ public:
 private: // functions
     Internal::InternalNodePointer internalNode() const;
 
+    void removeLocked();
+    bool hasLocked() const;
 
 private: // variables
     Internal::InternalNodePointer m_internalNode;

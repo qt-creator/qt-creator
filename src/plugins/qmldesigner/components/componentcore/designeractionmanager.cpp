@@ -347,25 +347,27 @@ public:
                     && !selectionContext().currentSingleSelectedNode().isRootNode()
                     && selectionContext().currentSingleSelectedNode().hasParentProperty()) {
 
-                ActionTemplate *selectionAction = new ActionTemplate(QString(), &ModelNodeOperations::select);
-                selectionAction->setParent(menu());
-
                 parentNode = selectionContext().currentSingleSelectedNode().parentProperty().parentModelNode();
 
-                selectionAction->setText(QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select parent: %1")).arg(
-                                             captionForModelNode(parentNode)));
+                if (!ModelNode::isThisOrAncestorLocked(parentNode)) {
+                    ActionTemplate *selectionAction = new ActionTemplate(QString(), &ModelNodeOperations::select);
+                    selectionAction->setParent(menu());
+                    selectionAction->setText(QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select parent: %1")).arg(
+                                                 captionForModelNode(parentNode)));
 
-                SelectionContext nodeSelectionContext = selectionContext();
-                nodeSelectionContext.setTargetNode(parentNode);
-                selectionAction->setSelectionContext(nodeSelectionContext);
+                    SelectionContext nodeSelectionContext = selectionContext();
+                    nodeSelectionContext.setTargetNode(parentNode);
+                    selectionAction->setSelectionContext(nodeSelectionContext);
 
-                menu()->addAction(selectionAction);
+                    menu()->addAction(selectionAction);
+                }
             }
-            foreach (const ModelNode &node, selectionContext().view()->allModelNodes()) {
+            for (const ModelNode &node : selectionContext().view()->allModelNodes()) {
                 if (node != selectionContext().currentSingleSelectedNode()
                         && node != parentNode
                         && contains(node, selectionContext().scenePosition())
-                        && !node.isRootNode()) {
+                        && !node.isRootNode()
+                        && !ModelNode::isThisOrAncestorLocked(node)) {
                     selectionContext().setTargetNode(node);
                     QString what = QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select: %1")).arg(captionForModelNode(node));
                     ActionTemplate *selectionAction = new ActionTemplate(what, &ModelNodeOperations::select);
@@ -377,6 +379,9 @@ public:
                     menu()->addAction(selectionAction);
                 }
             }
+
+            if (menu()->isEmpty())
+                action()->setEnabled(false);
         }
     }
 };

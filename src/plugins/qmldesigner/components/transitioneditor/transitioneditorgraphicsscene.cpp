@@ -218,12 +218,24 @@ void TransitionEditorGraphicsScene::invalidateSectionForTarget(const ModelNode &
 
     const QList<QGraphicsItem *> items = m_layout->childItems();
     for (auto child : items)
-        TimelineSectionItem::updateDataForTarget(child, target, &found);
+        TransitionEditorSectionItem::updateDataForTarget(child, target, &found);
 
     if (!found)
         invalidateScene();
 
     clearSelection();
+    invalidateLayout();
+}
+
+void TransitionEditorGraphicsScene::invalidateHeightForTarget(const ModelNode &target)
+{
+    if (!target.isValid())
+        return;
+
+    const auto children = m_layout->childItems();
+    for (auto child : children)
+        TransitionEditorSectionItem::updateHeightForTarget(child, target);
+
     invalidateLayout();
 }
 

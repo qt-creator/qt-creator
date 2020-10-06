@@ -82,7 +82,7 @@ public:
     void propertiesRemoved(const QList<AbstractProperty>& propertyList) override;
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList ,
-                                      const QList<ModelNode> &lastSelectedNodeList) override;
+                              const QList<ModelNode> &lastSelectedNodeList) override;
     void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data) override;
     void instanceErrorChanged(const QVector<ModelNode> &errorNodeList) override;
 
