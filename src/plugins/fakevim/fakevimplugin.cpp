@@ -1194,7 +1194,7 @@ bool FakeVimPluginPrivate::initialize()
     readSettings();
 
     Command *cmd = nullptr;
-    cmd = ActionManager::registerAction(theFakeVimSetting(ConfigUseFakeVim),
+    cmd = ActionManager::registerAction(theFakeVimSetting(ConfigUseFakeVim)->action(),
         INSTALL_HANDLER, Context(Core::Constants::C_GLOBAL), true);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Shift+V,Meta+Shift+V") : Tr::tr("Alt+V,Alt+V")));
 

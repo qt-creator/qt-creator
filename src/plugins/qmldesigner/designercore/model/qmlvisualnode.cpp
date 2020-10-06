@@ -213,11 +213,20 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
     NodeHints hints = NodeHints::fromItemLibraryEntry(itemLibraryEntry);
     const PropertyName forceNonDefaultProperty = hints.forceNonDefaultProperty().toUtf8();
 
-    QmlObjectNode newNode = QmlItemNode::createQmlObjectNode(view, itemLibraryEntry, position, parentProperty);
+    QmlObjectNode newNode = QmlItemNode::createQmlObjectNode(view,
+                                                             itemLibraryEntry,
+                                                             position,
+                                                             parentProperty);
 
     if (!forceNonDefaultProperty.isEmpty()) {
-        if (parentQmlItemNode.modelNode().metaInfo().hasProperty(forceNonDefaultProperty))
+        const NodeMetaInfo metaInfo = parentQmlItemNode.modelNode().metaInfo();
+        if (metaInfo.hasProperty(forceNonDefaultProperty)) {
+            if (!metaInfo.propertyIsListProperty(forceNonDefaultProperty)
+                && parentQmlItemNode.modelNode().hasNodeProperty(forceNonDefaultProperty)) {
+                parentQmlItemNode.removeProperty(forceNonDefaultProperty);
+            }
             parentQmlItemNode.nodeListProperty(forceNonDefaultProperty).reparentHere(newNode);
+        }
     }
 
     return newNode;
@@ -288,8 +297,18 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
             newQmlObjectNode = createQmlObjectNodeFromSource(view, itemLibraryEntry.qmlSource(), position);
         }
 
-        if (parentProperty.isValid())
-            parentProperty.reparentHere(newQmlObjectNode);
+        if (parentProperty.isValid()) {
+            const PropertyName propertyName = parentProperty.name();
+            const ModelNode parentNode = parentProperty.parentModelNode();
+            const NodeMetaInfo metaInfo = parentNode.metaInfo();
+
+            if (metaInfo.isValid() && !metaInfo.propertyIsListProperty(propertyName)
+                && parentProperty.isNodeProperty()) {
+                parentNode.removeProperty(propertyName);
+            }
+
+            parentNode.nodeAbstractProperty(propertyName).reparentHere(newQmlObjectNode);
+        }
 
         if (!newQmlObjectNode.isValid())
             return;

@@ -31,6 +31,23 @@ const TextEditor::Keywords &QmakeProjectManager::Internal::qmakeKeywords()
 {
     static TextEditor::Keywords keywords(
                 QStringList{ // variables
+                    "ANDROID_ABIS",
+                    "ANDROID_API_VERSION",
+                    "ANDROID_APPLICATION_ARGUMENTS",
+                    "ANDROID_BUNDLED_JAR_DEPENDENCIES",
+                    "ANDROID_DEPLOYMENT_DEPENDENCIES",
+                    "ANDROID_DEPLOYMENT_SETTINGS_FILE",
+                    "ANDROID_EXTRA_LIBS",
+                    "ANDROID_EXTRA_PLUGINS",
+                    "ANDROID_FEATURES",
+                    "ANDROID_LIB_DEPENDENCIES",
+                    "ANDROID_MIN_SDK_VERSION",
+                    "ANDROID_PACKAGE_SOURCE_DIR",
+                    "ANDROID_PERMISSIONS",
+                    "ANDROID_TARGET_SDK_VERSION",
+                    "ANDROID_TARGET_ARCH",
+                    "ANDROID_VERSION_CODE",
+                    "ANDROID_VERSION_NAME",
                     "ARGC",
                     "ARGS",
                     "BUILDS",

@@ -224,7 +224,7 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
               [this, modulePath] { engine->requestModuleSections(modulePath); });
 
     Internal::addHideColumnActions(menu, ev.view());
-    menu->addAction(action(SettingsDialog));
+    menu->addAction(action(SettingsDialog)->action());
 
     menu->popup(ev.globalPos());
     return true;

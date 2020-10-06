@@ -473,9 +473,9 @@ void AndroidDeployQtStep::runCommand(const CommandLine &command)
     }
 }
 
-BuildStepConfigWidget *AndroidDeployQtStep::createConfigWidget()
+QWidget *AndroidDeployQtStep::createConfigWidget()
 {
-    auto widget = new BuildStepConfigWidget(this);
+    auto widget = new QWidget;
 
     setDisplayName(QString("<b>%1</b>").arg(displayName()));
     setSummaryText(displayName());

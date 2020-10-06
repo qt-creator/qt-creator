@@ -72,7 +72,7 @@ using namespace Utils;
 namespace QbsProjectManager {
 namespace Internal {
 
-class QbsBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
+class QbsBuildStepConfigWidget : public QWidget
 {
     Q_OBJECT
 public:
@@ -191,7 +191,7 @@ void QbsBuildStep::doRun()
     parseProject();
 }
 
-ProjectExplorer::BuildStepConfigWidget *QbsBuildStep::createConfigWidget()
+QWidget *QbsBuildStep::createConfigWidget()
 {
     return new QbsBuildStepConfigWidget(this);
 }
@@ -544,7 +544,6 @@ void QbsBuildStep::dropSession()
 // --------------------------------------------------------------------
 
 QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
-    BuildStepConfigWidget(step),
     m_qbsStep(step),
     m_ignoreChange(false)
 {

@@ -89,7 +89,7 @@ LldbEngine::LldbEngine()
 
     connect(action(AutoDerefPointers), &SavedAction::valueChanged,
             this, &LldbEngine::updateLocals);
-    connect(action(CreateFullBacktrace), &QAction::triggered,
+    connect(action(CreateFullBacktrace)->action(), &QAction::triggered,
             this, &LldbEngine::fetchFullBacktrace);
     connect(action(UseDebuggingHelpers), &SavedAction::valueChanged,
             this, &LldbEngine::updateLocals);

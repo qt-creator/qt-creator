@@ -89,7 +89,7 @@ private:
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     void doRun() override;
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    QWidget *createConfigWidget() override;
 
     QString defaultBuildTarget() const;
 

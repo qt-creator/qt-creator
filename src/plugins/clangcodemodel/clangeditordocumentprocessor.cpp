@@ -196,6 +196,8 @@ void ClangEditorDocumentProcessor::updateCodeWarnings(
         uint documentRevision)
 {
     if (documentRevision == revision()) {
+        if (m_invalidationState == InvalidationState::Scheduled)
+            m_invalidationState = InvalidationState::Canceled;
         m_diagnosticManager.processNewDiagnostics(diagnostics, m_isProjectFile);
         const auto codeWarnings = m_diagnosticManager.takeExtraSelections();
         const auto fixitAvailableMarkers = m_diagnosticManager.takeFixItAvailableMarkers();
@@ -298,11 +300,14 @@ TextEditor::QuickFixOperations ClangEditorDocumentProcessor::extraRefactoringOpe
 void ClangEditorDocumentProcessor::editorDocumentTimerRestarted()
 {
     m_updateBackendDocumentTimer.stop(); // Wait for the next call to run().
+    m_invalidationState = InvalidationState::Scheduled;
 }
 
 void ClangEditorDocumentProcessor::invalidateDiagnostics()
 {
-    m_diagnosticManager.invalidateDiagnostics();
+    if (m_invalidationState != InvalidationState::Canceled)
+        m_diagnosticManager.invalidateDiagnostics();
+    m_invalidationState = InvalidationState::Off;
 }
 
 TextEditor::TextMarks ClangEditorDocumentProcessor::diagnosticTextMarksAt(uint line,

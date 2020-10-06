@@ -108,9 +108,9 @@ Console::Console()
     m_showDebugButtonAction->setCheckable(true);
     m_showDebugButtonAction->setChecked(true);
     m_showDebugButtonAction->setIcon(Utils::Icons::INFO_TOOLBAR.icon());
-    connect(m_showDebugButtonAction, &Utils::SavedAction::toggled,
+    connect(m_showDebugButtonAction->action(), &QAction::toggled,
             proxyModel, &ConsoleProxyModel::setShowLogs);
-    m_showDebugButton->setDefaultAction(m_showDebugButtonAction);
+    m_showDebugButton->setDefaultAction(m_showDebugButtonAction->action());
 
     m_showWarningButton = new QToolButton(m_consoleWidget);
 
@@ -121,9 +121,9 @@ Console::Console()
     m_showWarningButtonAction->setCheckable(true);
     m_showWarningButtonAction->setChecked(true);
     m_showWarningButtonAction->setIcon(Utils::Icons::WARNING_TOOLBAR.icon());
-    connect(m_showWarningButtonAction, &Utils::SavedAction::toggled,
+    connect(m_showWarningButtonAction->action(), &QAction::toggled,
             proxyModel, &ConsoleProxyModel::setShowWarnings);
-    m_showWarningButton->setDefaultAction(m_showWarningButtonAction);
+    m_showWarningButton->setDefaultAction(m_showWarningButtonAction->action());
 
     m_showErrorButton = new QToolButton(m_consoleWidget);
 
@@ -134,9 +134,9 @@ Console::Console()
     m_showErrorButtonAction->setCheckable(true);
     m_showErrorButtonAction->setChecked(true);
     m_showErrorButtonAction->setIcon(Utils::Icons::CRITICAL_TOOLBAR.icon());
-    connect(m_showErrorButtonAction, &Utils::SavedAction::toggled,
+    connect(m_showErrorButtonAction->action(), &QAction::toggled,
             proxyModel, &ConsoleProxyModel::setShowErrors);
-    m_showErrorButton->setDefaultAction(m_showErrorButtonAction);
+    m_showErrorButton->setDefaultAction(m_showErrorButtonAction->action());
 
     m_spacer = new QWidget(m_consoleWidget);
     m_spacer->setMinimumWidth(30);

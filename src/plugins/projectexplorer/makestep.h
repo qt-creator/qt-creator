@@ -34,8 +34,6 @@ namespace Utils { class Environment; }
 
 namespace ProjectExplorer {
 
-namespace Internal { class MakeStepConfigWidget; }
-
 class PROJECTEXPLORER_EXPORT MakeStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
@@ -52,7 +50,7 @@ public:
 
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    QWidget *createConfigWidget() override;
     bool buildsTarget(const QString &target) const;
     void setBuildTarget(const QString &target, bool on);
     QStringList availableTargets() const;
@@ -86,8 +84,6 @@ protected:
     virtual QStringList displayArguments() const;
 
 private:
-    friend class Internal::MakeStepConfigWidget;
-
     static int defaultJobCount();
     QStringList jobArguments() const;
 

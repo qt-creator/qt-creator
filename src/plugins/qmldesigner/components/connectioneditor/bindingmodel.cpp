@@ -53,11 +53,13 @@ void BindingModel::resetModel()
 {
     beginResetModel();
     clear();
-    setHorizontalHeaderLabels(QStringList({ tr("Item"), tr("Property"), tr("Source Item"),
-                                            tr("Source Property") }));
+    setHorizontalHeaderLabels(
+        QStringList({tr("Item"), tr("Property"), tr("Source Item"), tr("Source Property")}));
 
-    foreach (const ModelNode modelNode, m_selectedModelNodes)
-        addModelNode(modelNode);
+    if (connectionView()->isAttached()) {
+        for (const ModelNode modelNode : connectionView()->selectedModelNodes())
+            addModelNode(modelNode);
+    }
 
     endResetModel();
 }
@@ -100,7 +102,6 @@ void BindingModel::bindingRemoved(const BindingProperty &bindingProperty)
 void BindingModel::selectionChanged(const QList<ModelNode> &selectedNodes)
 {
     m_handleDataChanged = false;
-    m_selectedModelNodes = selectedNodes;
     resetModel();
     m_handleDataChanged = true;
 }

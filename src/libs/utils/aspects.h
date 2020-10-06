@@ -217,6 +217,7 @@ public:
     void setLabelText(const QString &labelText);
     void setLabelPixmap(const QPixmap &labelPixmap);
     void setShowToolTipOnLabel(bool show);
+    void setEnabled(bool enabled);
 
     void setDisplayFilter(const std::function<QString (const QString &)> &displayFilter);
     void setPlaceHolderText(const QString &placeHolderText);
@@ -227,7 +228,9 @@ public:
     void setBaseFileName(const Utils::FilePath &baseFileName);
     void setToolTip(const QString &tooltip);
     void setReadOnly(bool readOnly);
+    void setUndoRedoEnabled(bool readOnly);
     void setMacroExpanderProvider(const Utils::MacroExpanderProvider &expanderProvider);
+    void setValidationFunction(const Utils::FancyLineEdit::ValidationFunction &validator);
 
     void validateInput();
 

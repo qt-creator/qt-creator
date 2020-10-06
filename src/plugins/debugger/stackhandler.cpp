@@ -70,10 +70,10 @@ StackHandler::StackHandler(DebuggerEngine *engine)
     setObjectName("StackModel");
     setHeader({tr("Level"), tr("Function"), tr("File"), tr("Line"), tr("Address") });
 
-    connect(action(ExpandStack), &QAction::triggered,
-        this, &StackHandler::reloadFullStack);
-    connect(action(MaximalStackDepth), &QAction::triggered,
-        this, &StackHandler::reloadFullStack);
+    connect(action(ExpandStack)->action(), &QAction::triggered,
+            this, &StackHandler::reloadFullStack);
+    connect(action(MaximalStackDepth)->action(), &QAction::triggered,
+            this, &StackHandler::reloadFullStack);
 
     // For now there's always only "the" current thread.
     rootItem()->appendChild(new ThreadDummyItem);
@@ -390,13 +390,13 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
         frame = frameAt(row);
     const quint64 address = frame.address;
 
-    menu->addAction(action(ExpandStack));
+    menu->addAction(action(ExpandStack)->action());
 
     addAction(menu, tr("Copy Contents to Clipboard"), true, [this] { copyContentsToClipboard(); });
     addAction(menu, tr("Save as Task File..."), true, [this] { saveTaskFile(); });
 
     if (m_engine->hasCapability(CreateFullBacktraceCapability))
-        menu->addAction(action(CreateFullBacktrace));
+        menu->addAction(action(CreateFullBacktrace)->action());
 
     if (m_engine->hasCapability(AdditionalQmlStackCapability))
         addAction(menu, tr("Load QML Stack"), true, [this] { m_engine->loadAdditionalQmlStack(); });
@@ -444,9 +444,9 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
     }
 
     menu->addSeparator();
-    menu->addAction(action(UseToolTipsInStackView));
+    menu->addAction(action(UseToolTipsInStackView)->action());
     Internal::addHideColumnActions(menu, ev.view());
-    menu->addAction(action(SettingsDialog));
+    menu->addAction(action(SettingsDialog)->action());
     menu->popup(ev.globalPos());
     return true;
 }

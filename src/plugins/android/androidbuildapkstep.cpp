@@ -127,7 +127,7 @@ private:
 
 // AndroidBuildApkWidget
 
-class AndroidBuildApkWidget : public BuildStepConfigWidget
+class AndroidBuildApkWidget : public QWidget
 {
     Q_DECLARE_TR_FUNCTIONS(Android::Internal::AndroidBuildApkStep)
 
@@ -157,7 +157,7 @@ private:
 };
 
 AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
-    : BuildStepConfigWidget(step), m_step(step)
+    : m_step(step)
 {
     auto vbox = new QVBoxLayout(this);
     vbox->addWidget(createSignPackageGroup());
@@ -662,7 +662,7 @@ void AndroidBuildApkStep::showInGraphicalShell()
     Core::FileUtils::showInGraphicalShell(Core::ICore::dialogParent(), m_packagePath);
 }
 
-ProjectExplorer::BuildStepConfigWidget *AndroidBuildApkStep::createConfigWidget()
+QWidget *AndroidBuildApkStep::createConfigWidget()
 {
     return new AndroidBuildApkWidget(this);
 }

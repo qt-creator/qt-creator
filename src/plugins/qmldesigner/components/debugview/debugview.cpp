@@ -242,6 +242,18 @@ void DebugView::selectedNodesChanged(const QList<ModelNode> &selectedNodes /*sel
             message << lineBreak;
             message << selectedNode.metaInfo().typeName();
             message << lineBreak;
+
+            message << "Node Source" << selectedNode.nodeSource();
+            message << lineBreak;
+
+            message << "Is Component" << selectedNode.isComponent();
+            message << lineBreak;
+
+            message << "Node Source Type" << selectedNode.nodeSourceType();
+            message << lineBreak;
+
+            message << lineBreak;
+
             for (const PropertyName &name : selectedNode.metaInfo().slotNames())
                 message << name << " ";
 

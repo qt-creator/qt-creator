@@ -135,7 +135,7 @@ GdbEngine::GdbEngine()
 
     connect(action(AutoDerefPointers), &SavedAction::valueChanged,
             this, &GdbEngine::reloadLocals);
-    connect(action(CreateFullBacktrace), &QAction::triggered,
+    connect(action(CreateFullBacktrace)->action(), &QAction::triggered,
             this, &GdbEngine::createFullBacktrace);
     connect(action(UseDebuggingHelpers), &SavedAction::valueChanged,
             this, &GdbEngine::reloadLocals);

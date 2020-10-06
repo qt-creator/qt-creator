@@ -54,7 +54,7 @@ WatchTreeView::WatchTreeView(WatchType type)
     connect(this, &QTreeView::expanded, this, &WatchTreeView::expandNode);
     connect(this, &QTreeView::collapsed, this, &WatchTreeView::collapseNode);
 
-    connect(action(LogTimeStamps), &QAction::triggered,
+    connect(action(LogTimeStamps)->action(), &QAction::triggered,
             this, &WatchTreeView::updateTimeColumn);
 }
 

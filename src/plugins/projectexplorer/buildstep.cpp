@@ -157,17 +157,15 @@ void BuildStep::cancel()
     doCancel();
 }
 
-BuildStepConfigWidget *BuildStep::createConfigWidget()
+QWidget *BuildStep::createConfigWidget()
 {
-    auto widget = new BuildStepConfigWidget(this);
+    auto widget = new QWidget;
 
-    {
-        LayoutBuilder builder(widget);
-        for (BaseAspect *aspect : qAsConst(m_aspects)) {
-            if (aspect->isVisible())
-                aspect->addToLayout(builder.finishRow());
-            connect(aspect, &BaseAspect::changed, this, &BuildStep::recreateSummary);
-        }
+    LayoutBuilder builder(widget);
+    for (BaseAspect *aspect : qAsConst(m_aspects)) {
+        if (aspect->isVisible())
+            aspect->addToLayout(builder.finishRow());
+        connect(aspect, &BaseAspect::changed, this, &BuildStep::recreateSummary);
     }
 
     connect(buildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
@@ -481,10 +479,6 @@ BuildStep *BuildStepFactory::restore(BuildStepList *parent, const QVariantMap &m
         return nullptr;
     }
     return bs;
-}
-
-BuildStepConfigWidget::BuildStepConfigWidget(BuildStep *)
-{
 }
 
 QString BuildStep::summaryText() const
