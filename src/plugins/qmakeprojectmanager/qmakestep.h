@@ -211,7 +211,7 @@ private:
 
     QLabel *abisLabel = nullptr;
     Utils::SelectionAspect *m_buildType = nullptr;
-    QPlainTextEdit *qmakeArgumentsEdit = nullptr;
+    Utils::StringAspect *m_effectiveCall = nullptr;
     QListWidget *abisListWidget = nullptr;
 };
 

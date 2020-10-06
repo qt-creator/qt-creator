@@ -91,6 +91,13 @@ QMakeStep::QMakeStep(BuildStepList *bsl, Utils::Id id)
     m_userArgs->setSettingsKey(QMAKE_ARGUMENTS_KEY);
     m_userArgs->setLabelText(tr("Additional arguments:"));
 
+    m_effectiveCall = addAspect<StringAspect>();
+    m_effectiveCall->setDisplayStyle(StringAspect::TextEditDisplay);
+    m_effectiveCall->setLabelText(tr("Effective qmake call:"));
+    m_effectiveCall->setReadOnly(true);
+    m_effectiveCall->setUndoRedoEnabled(false);
+    m_effectiveCall->setEnabled(true);
+
     auto updateSummary = [this] {
         BaseQtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
         if (!qtVersion)
@@ -506,14 +513,6 @@ QWidget *QMakeStep::createConfigWidget()
 {
     auto widget = new QWidget;
 
-    auto label = new QLabel(tr("Effective qmake call:"), widget);
-    label->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
-
-    qmakeArgumentsEdit = new QPlainTextEdit(widget);
-    qmakeArgumentsEdit->setEnabled(true);
-    qmakeArgumentsEdit->setMaximumSize(QSize(16777215, 120));
-    qmakeArgumentsEdit->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
-
     abisLabel = new QLabel(tr("ABIs:"), widget);
     abisLabel->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
 
@@ -522,7 +521,7 @@ QWidget *QMakeStep::createConfigWidget()
     LayoutBuilder builder(widget);
     builder.addRow(m_buildType);
     builder.addRow(m_userArgs);
-    builder.addRow({label, qmakeArgumentsEdit});
+    builder.addRow(m_effectiveCall);
     builder.addRow({abisLabel, abisListWidget});
 
     qmakeBuildConfigChanged();
@@ -725,8 +724,7 @@ void QMakeStep::updateAbiWidgets()
 
 void QMakeStep::updateEffectiveQMakeCall()
 {
-    if (qmakeArgumentsEdit)
-        qmakeArgumentsEdit->setPlainText(effectiveQMakeCall());
+    m_effectiveCall->setValue(effectiveQMakeCall());
 }
 
 void QMakeStep::recompileMessageBoxFinished(int button)
