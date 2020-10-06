@@ -661,7 +661,37 @@ void ProjectWindow::activateProjectPanel(Utils::Id panelId)
     d->activateProjectPanel(panelId);
 }
 
+void ProjectWindow::hideEvent(QHideEvent *event)
+{
+    savePersistentSettings();
+    FancyMainWindow::hideEvent(event);
+}
+
+void ProjectWindow::showEvent(QShowEvent *event)
+{
+    loadPersistentSettings();
+    FancyMainWindow::showEvent(event);
+}
+
 ProjectWindow::~ProjectWindow() = default;
+
+const char PROJECT_WINDOW_KEY[] = "ProjectExplorer.ProjectWindow";
+
+void ProjectWindow::savePersistentSettings() const
+{
+    QSettings * const settings = ICore::settings();
+    settings->beginGroup(PROJECT_WINDOW_KEY);
+    saveSettings(settings);
+    settings->endGroup();
+}
+
+void ProjectWindow::loadPersistentSettings()
+{
+    QSettings * const settings = ICore::settings();
+    settings->beginGroup(PROJECT_WINDOW_KEY);
+    restoreSettings(settings);
+    settings->endGroup();
+}
 
 QSize SelectorDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {

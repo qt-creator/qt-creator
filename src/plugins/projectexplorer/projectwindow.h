@@ -64,6 +64,12 @@ public:
     void activateProjectPanel(Utils::Id panelId);
 
 private:
+    void hideEvent(QHideEvent *event) override;
+    void showEvent(QShowEvent *event) override;
+
+    void savePersistentSettings() const;
+    void loadPersistentSettings();
+
     const std::unique_ptr<ProjectWindowPrivate> d;
 };
 
