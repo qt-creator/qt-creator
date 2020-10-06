@@ -146,8 +146,8 @@ public:
     QString toolchainHost(const QtSupport::BaseQtVersion *qtVersion) const;
     QString toolchainHostFromNdk(const Utils::FilePath &ndkPath) const;
 
-    unsigned partitionSize() const;
-    void setPartitionSize(unsigned partitionSize);
+    QStringList emulatorArgs() const;
+    void setEmulatorArgs(const QStringList &args);
 
     bool automaticKitCreation() const;
     void setAutomaticKitCreation(bool b);
@@ -215,7 +215,7 @@ private:
     Utils::FilePath m_openJDKLocation;
     Utils::FilePath m_keystoreLocation;
     Utils::FilePath m_openSslLocation;
-    unsigned m_partitionSize = 1024;
+    QStringList m_emulatorArgs;
     bool m_automaticKitCreation = true;
     QUrl m_sdkToolsUrl;
     QByteArray m_sdkToolsSha256;

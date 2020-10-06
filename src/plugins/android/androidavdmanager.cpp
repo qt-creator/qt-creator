@@ -278,7 +278,7 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
     if (AndroidConfigurations::force32bitEmulator())
         arguments << "-force-32bit";
 
-    arguments << "-partition-size" << QString::number(m_config.partitionSize())
+    arguments << m_config.emulatorArgs()
               << "-avd" << avdName;
     qCDebug(avdManagerLog) << "Running command (startAvdAsync):"
                            << CommandLine(m_config.emulatorToolPath(), arguments).toUserOutput();

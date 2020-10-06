@@ -116,7 +116,7 @@ namespace {
     const QLatin1String OpenJDKLocationKey("OpenJDKLocation");
     const QLatin1String OpenSslPriLocationKey("OpenSSLPriLocation");
     const QLatin1String AutomaticKitCreationKey("AutomatiKitCreation");
-    const QLatin1String PartitionSizeKey("PartitionSize");
+    const QLatin1String EmulatorArgsKey("EmulatorArgs");
 
     const QLatin1String ArmToolchainPrefix("arm-linux-androideabi");
     const QLatin1String X86ToolchainPrefix("x86");
@@ -224,7 +224,8 @@ QLatin1String AndroidConfig::displayName(const Abi &abi)
 void AndroidConfig::load(const QSettings &settings)
 {
     // user settings
-    m_partitionSize = settings.value(PartitionSizeKey, 1024).toInt();
+    m_emulatorArgs = settings.value(EmulatorArgsKey,
+                         QStringList({"-netdelay", "none", "-netspeed", "full"})).toStringList();
     m_sdkLocation = FilePath::fromString(settings.value(SDKLocationKey).toString());
     m_customNdkList = settings.value(CustomNdkLocationsKey).toStringList();
     m_sdkManagerToolArgs = settings.value(SDKManagerToolArgsKey).toStringList();
@@ -262,7 +263,7 @@ void AndroidConfig::save(QSettings &settings) const
     settings.setValue(SDKManagerToolArgsKey, m_sdkManagerToolArgs);
     settings.setValue(OpenJDKLocationKey, m_openJDKLocation.toString());
     settings.setValue(OpenSslPriLocationKey, m_openSslLocation.toString());
-    settings.setValue(PartitionSizeKey, m_partitionSize);
+    settings.setValue(EmulatorArgsKey, m_emulatorArgs);
     settings.setValue(AutomaticKitCreationKey, m_automaticKitCreation);
     settings.setValue(SdkFullyConfiguredKey, m_sdkFullyConfigured);
 }
@@ -990,14 +991,14 @@ QString AndroidConfig::toolchainHostFromNdk(const FilePath &ndkPath) const
     return toolchainHost;
 }
 
-unsigned AndroidConfig::partitionSize() const
+QStringList AndroidConfig::emulatorArgs() const
 {
-    return m_partitionSize;
+    return m_emulatorArgs;
 }
 
-void AndroidConfig::setPartitionSize(unsigned partitionSize)
+void AndroidConfig::setEmulatorArgs(const QStringList &args)
 {
-    m_partitionSize = partitionSize;
+    m_emulatorArgs = args;
 }
 
 bool AndroidConfig::automaticKitCreation() const
