@@ -52,6 +52,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 #include <utils/variablechooser.h>
@@ -543,11 +544,11 @@ QWidget *QMakeStep::createConfigWidget()
     abisListWidget = new QListWidget(widget);
     qmakeAdditonalArgumentsLineEdit->setText(m_userArgs);
 
-    auto formLayout = new QFormLayout(widget);
-    formLayout->addRow(label_0, buildConfigurationWidget);
-    formLayout->addRow(qmakeArgsLabel, qmakeAdditonalArgumentsLineEdit);
-    formLayout->addRow(label, qmakeArgumentsEdit);
-    formLayout->addRow(abisLabel, abisListWidget);
+    LayoutBuilder builder(widget);
+    builder.addRow({label_0, buildConfigurationWidget});
+    builder.addRow({qmakeArgsLabel, qmakeAdditonalArgumentsLineEdit});
+    builder.addRow({label, qmakeArgumentsEdit});
+    builder.addRow({abisLabel, abisListWidget});
 
     qmakeBuildConfigChanged();
 
