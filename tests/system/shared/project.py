@@ -507,7 +507,7 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
     if templateName.startswith("Qt Quick Application - "):
         result = set([Targets.DESKTOP_5_10_1_DEFAULT, Targets.DESKTOP_5_14_1_DEFAULT])
     elif 'Supported Platforms' in text:
-        supports = text[text.find('Supported Platforms'):].split(":")[1].strip().split(" ")
+        supports = text[text.find('Supported Platforms'):].split(":")[1].strip().split("\n")
         result = set()
         if 'Desktop' in supports:
             if (version == None or version < "5.0") and not templateName.startswith("Qt Quick 2"):
