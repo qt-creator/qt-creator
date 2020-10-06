@@ -28,16 +28,11 @@
 
 namespace Autotest {
 
-ITestFramework::ITestFramework(bool activeByDefault)
+ITestBase::ITestBase(bool activeByDefault)
     : m_active(activeByDefault)
 {}
 
-ITestFramework::~ITestFramework()
-{
-    delete m_testParser;
-}
-
-TestTreeItem *ITestFramework::rootNode()
+TestTreeItem *ITestBase::rootNode()
 {
     if (!m_rootNode)
         m_rootNode = createRootNode();
@@ -45,25 +40,18 @@ TestTreeItem *ITestFramework::rootNode()
     return m_rootNode;
 }
 
-ITestParser *ITestFramework::testParser()
-{
-    if (!m_testParser)
-        m_testParser = createTestParser();
-    return m_testParser;
-}
-
-Utils::Id ITestFramework::settingsId() const
+Utils::Id ITestBase::settingsId() const
 {
     return Utils::Id(Constants::SETTINGSPAGE_PREFIX)
             .withSuffix(QString("%1.%2").arg(priority()).arg(QLatin1String(name())));
 }
 
-Utils::Id ITestFramework::id() const
+Utils::Id ITestBase::id() const
 {
     return Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix(name());
 }
 
-void ITestFramework::resetRootNode()
+void ITestBase::resetRootNode()
 {
     if (!m_rootNode)
         return;
@@ -71,6 +59,23 @@ void ITestFramework::resetRootNode()
         static_cast<TestTreeModel *>(m_rootNode->model())->takeItem(m_rootNode);
     delete m_rootNode;
     m_rootNode = nullptr;
+}
+
+
+ITestFramework::ITestFramework(bool activeByDefault)
+    : ITestBase(activeByDefault)
+{}
+
+ITestFramework::~ITestFramework()
+{
+    delete m_testParser;
+}
+
+ITestParser *ITestFramework::testParser()
+{
+    if (!m_testParser)
+        m_testParser = createTestParser();
+    return m_testParser;
 }
 
 } // namespace Autotest

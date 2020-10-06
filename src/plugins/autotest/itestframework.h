@@ -32,40 +32,53 @@ namespace Autotest {
 
 class IFrameworkSettings;
 
-class ITestFramework
+class ITestBase
 {
 public:
-    explicit ITestFramework(bool activeByDefault);
-    virtual ~ITestFramework();
+    explicit ITestBase(bool activeByDefault);
+    virtual ~ITestBase() = default;
 
     virtual const char *name() const = 0;
     virtual unsigned priority() const = 0;          // should this be modifyable?
 
-    virtual IFrameworkSettings *frameworkSettings() { return nullptr; }
-
     TestTreeItem *rootNode();
-    ITestParser *testParser();
 
     Utils::Id settingsId() const;
     Utils::Id id() const;
 
     bool active() const { return m_active; }
     void setActive(bool active) { m_active = active; }
+
+    void resetRootNode();
+
+protected:
+    virtual TestTreeItem *createRootNode() = 0;
+
+private:
+    TestTreeItem *m_rootNode = nullptr;
+    bool m_active = false;
+};
+
+class ITestFramework : public ITestBase
+{
+public:
+    explicit ITestFramework(bool activeByDefault);
+    ~ITestFramework() override;
+
+    virtual IFrameworkSettings *frameworkSettings() { return nullptr; }
+
+    ITestParser *testParser();
+
     bool grouping() const { return m_grouping; }
     void setGrouping(bool group) { m_grouping = group; }
     // framework specific tool tip to be displayed on the general settings page
     virtual QString groupingToolTip() const { return QString(); }
 
-    void resetRootNode();
-
 protected:
     virtual ITestParser *createTestParser() = 0;
-    virtual TestTreeItem *createRootNode() = 0;
 
 private:
-    TestTreeItem *m_rootNode = nullptr;
     ITestParser *m_testParser = nullptr;
-    bool m_active = false;
     bool m_grouping = false;
 };
 
