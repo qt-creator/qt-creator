@@ -230,13 +230,21 @@ void emitComponentComplete(QObject *item)
 
     QQmlData *data = QQmlData::get(item);
     if (data && data->context) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         QQmlComponentAttached *componentAttached = data->context->componentAttached;
+#else
+        QQmlComponentAttached *componentAttached = data->context->componentAttacheds();
+#endif
         while (componentAttached) {
             if (componentAttached->parent())
                 if (componentAttached->parent() == item)
                     emit componentAttached->completed();
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
             componentAttached = componentAttached->next;
+#else
+            componentAttached = componentAttached->next();
+#endif
         }
     }
 }

@@ -122,7 +122,7 @@ public:
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     void doRun() override;
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    QWidget *createConfigWidget() override;
     void setForced(bool b);
 
     enum class ArgumentFlag {

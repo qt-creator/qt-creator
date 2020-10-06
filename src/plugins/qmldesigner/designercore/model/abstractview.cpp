@@ -453,7 +453,7 @@ bool AbstractView::isSelectedModelNode(const ModelNode &modelNode) const
     Sets the list of nodes to the actual selected nodes. Returns a list of the
     selected nodes.
 */
-QList<ModelNode> AbstractView::selectedModelNodes() const
+const QList<ModelNode> AbstractView::selectedModelNodes() const
 {
     return toModelNodeList(model()->d->selectedNodes());
 }

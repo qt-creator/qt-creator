@@ -87,7 +87,7 @@ private:
 
     bool runImpl();
 
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    QWidget *createConfigWidget() override;
 
     void processReadyReadStdOutput(DeployErrorCode &errorCode);
     void stdOutput(const QString &line);

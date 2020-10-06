@@ -50,12 +50,10 @@ class OutputFormatter;
 namespace ProjectExplorer {
 
 class BuildConfiguration;
-class BuildStepConfigWidget;
 class BuildStepFactory;
 class BuildStepList;
 class BuildSystem;
 class DeployConfiguration;
-class Target;
 class Task;
 
 // Documentation inside.
@@ -72,7 +70,7 @@ public:
     virtual bool init() = 0;
     void run();
     void cancel();
-    virtual BuildStepConfigWidget *createConfigWidget();
+    virtual QWidget *createConfigWidget();
 
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
@@ -229,13 +227,6 @@ private:
     QList<Utils::Id> m_supportedStepLists;
     Utils::Id m_supportedConfiguration;
     bool m_isRepeatable = true;
-};
-
-class PROJECTEXPLORER_EXPORT BuildStepConfigWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    explicit BuildStepConfigWidget(BuildStep *step);
 };
 
 } // namespace ProjectExplorer

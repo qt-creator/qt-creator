@@ -432,9 +432,9 @@ QString CMakeBuildStep::activeRunConfigTarget() const
     return rc ? rc->buildKey() : QString();
 }
 
-BuildStepConfigWidget *CMakeBuildStep::createConfigWidget()
+QWidget *CMakeBuildStep::createConfigWidget()
 {
-    auto widget = new BuildStepConfigWidget(this);
+    auto widget = new QWidget;
 
     auto updateDetails = [this] {
         ProcessParameters param;

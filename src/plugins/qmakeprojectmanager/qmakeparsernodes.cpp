@@ -233,6 +233,7 @@ QmakePriFile::~QmakePriFile()
 
 void QmakePriFile::scheduleUpdate()
 {
+    QTC_ASSERT(m_buildSystem, return);
     QtSupport::ProFileCacheManager::instance()->discardFile(
                 filePath().toString(), m_buildSystem->qmakeVfs());
     m_qmakeProFile->scheduleUpdate(QmakeProFile::ParseLater);

@@ -60,7 +60,7 @@ public:
     NimbleTaskStep(BuildStepList *parentList, Id id);
 
 private:
-    BuildStepConfigWidget *createConfigWidget() final;
+    QWidget *createConfigWidget() final;
 
     void setTaskName(const QString &name);
 
@@ -100,9 +100,9 @@ NimbleTaskStep::NimbleTaskStep(BuildStepList *parentList, Id id)
     m_taskArgs->setLabelText(tr("Task arguments:"));
 }
 
-BuildStepConfigWidget *NimbleTaskStep::createConfigWidget()
+QWidget *NimbleTaskStep::createConfigWidget()
 {
-    auto widget = new BuildStepConfigWidget(this);
+    auto widget = new QWidget;
 
     auto taskList = new QListView(widget);
     taskList->setFrameShape(QFrame::StyledPanel);

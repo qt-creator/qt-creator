@@ -82,7 +82,7 @@ public:
     ~BuildStepsWidgetData();
 
     BuildStep *step;
-    BuildStepConfigWidget *widget;
+    QWidget *widget;
     Utils::DetailsWidget *detailsWidget;
     ToolWidget *toolWidget;
 };

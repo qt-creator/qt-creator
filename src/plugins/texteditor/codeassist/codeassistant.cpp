@@ -88,6 +88,7 @@ public:
     bool eventFilter(QObject *o, QEvent *e) override;
 
 private:
+    bool requestActivationCharProposal();
     void processProposalItem(AssistProposalItemInterface *proposalItem);
     void handlePrefixExpansion(const QString &newPrefix);
     void finalizeProposal();
@@ -161,6 +162,19 @@ void CodeAssistantPrivate::invoke(AssistKind kind, IAssistProvider *provider)
     }
 }
 
+bool CodeAssistantPrivate::requestActivationCharProposal()
+{
+    if (m_assistKind == Completion && m_settings.m_completionTrigger != ManualCompletion) {
+        if (CompletionAssistProvider *provider = identifyActivationSequence()) {
+            if (isWaitingForProposal())
+                cancelCurrentRequest();
+            requestProposal(ActivationCharacter, Completion, provider);
+            return true;
+        }
+    }
+    return false;
+}
+
 void CodeAssistantPrivate::process()
 {
     if (!isConfigured())
@@ -169,16 +183,8 @@ void CodeAssistantPrivate::process()
     stopAutomaticProposalTimer();
 
     if (m_assistKind == TextEditor::Completion) {
-        if (m_settings.m_completionTrigger != ManualCompletion) {
-            if (CompletionAssistProvider *provider = identifyActivationSequence()) {
-                if (isWaitingForProposal())
-                    cancelCurrentRequest();
-                requestProposal(ActivationCharacter, Completion, provider);
-                return;
-            }
-        }
-
-        startAutomaticProposalTimer();
+        if (!requestActivationCharProposal())
+            startAutomaticProposalTimer();
     } else if (m_assistKind != FunctionHint){
         m_assistKind = TextEditor::Completion;
     }
@@ -365,6 +371,8 @@ void CodeAssistantPrivate::processProposalItem(AssistProposalItemInterface *prop
     proposalItem->apply(manipulator, m_proposal->basePosition());
     destroyContext();
     m_editorWidget->encourageApply();
+    if (!proposalItem->isSnippet())
+        requestActivationCharProposal();
 }
 
 void CodeAssistantPrivate::handlePrefixExpansion(const QString &newPrefix)
@@ -404,7 +412,7 @@ void CodeAssistantPrivate::finalizeProposal()
 
 bool CodeAssistantPrivate::isDisplayingProposal() const
 {
-    return m_proposalWidget != nullptr;
+    return m_proposalWidget != nullptr && m_proposalWidget->isVisible();
 }
 
 bool CodeAssistantPrivate::isWaitingForProposal() const
@@ -457,6 +465,8 @@ void CodeAssistantPrivate::notifyChange()
             m_proposalWidget->updateProposal(
                 m_editorWidget->textAt(m_proposal->basePosition(),
                                      m_editorWidget->position() - m_proposal->basePosition()));
+            if (!isDisplayingProposal())
+                requestActivationCharProposal();
         } else {
             destroyContext();
             requestProposal(ExplicitlyInvoked, m_assistKind, m_requestProvider);

@@ -502,9 +502,9 @@ bool QMakeStep::fromMap(const QVariantMap &map)
     return BuildStep::fromMap(map);
 }
 
-BuildStepConfigWidget *QMakeStep::createConfigWidget()
+QWidget *QMakeStep::createConfigWidget()
 {
-    auto widget = new BuildStepConfigWidget(this);
+    auto widget = new QWidget;
 
     auto label_0 = new QLabel(tr("qmake build configuration:"), widget);
 

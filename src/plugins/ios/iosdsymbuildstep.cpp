@@ -203,9 +203,9 @@ QStringList IosDsymBuildStep::arguments() const
 }
 
 
-BuildStepConfigWidget *IosDsymBuildStep::createConfigWidget()
+QWidget *IosDsymBuildStep::createConfigWidget()
 {
-    auto widget = new BuildStepConfigWidget(this);
+    auto widget = new QWidget;
 
     auto commandLabel = new QLabel(tr("Command:"), widget);
 

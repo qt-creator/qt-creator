@@ -696,6 +696,7 @@ struct BoostProfile : public Profile
         const QByteArray &boostLibPath = qgetenv("QTC_BOOST_LIBRARY_PATH_FOR_TEST");
         if (!boostLibPath.isEmpty())
             contents += QByteArray("\nLIBS += \"-L") + boostLibPath.constData() + QByteArray("\"");
+        contents += '\n'; // ensure newline at end no matter what has been added before
         includes = "#include <boost/version.hpp>\n";
     }
 };
@@ -7502,8 +7503,8 @@ void tst_Dumpers::dumper_data()
             ;
 
 
-    const QtVersion jsonv1{0, 0x50e00};
-    const QtVersion jsonv2{0x50e00};
+    const QtVersion jsonv1{0, 0x50f00};
+    const QtVersion jsonv2{0x50f00};
 
     QTest::newRow("QJson")
             << Data("#include <QString>\n"
