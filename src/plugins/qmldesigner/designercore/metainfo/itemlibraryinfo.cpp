@@ -50,6 +50,7 @@ public:
     QString qmlSource;
     QString requiredImport;
     QHash<QString, QString> hints;
+    QString customComponentSource;
 };
 
 } // namespace Internal
@@ -102,6 +103,11 @@ QString ItemLibraryEntry::qmlSource() const
 QString ItemLibraryEntry::requiredImport() const
 {
     return m_data->requiredImport;
+}
+
+QString ItemLibraryEntry::customComponentSource() const
+{
+    return m_data->customComponentSource;
 }
 
 int ItemLibraryEntry::majorVersion() const
@@ -178,6 +184,11 @@ void ItemLibraryEntry::addHints(const QHash<QString, QString> &hints)
     Utils::addToHash(&m_data->hints, hints);
 }
 
+void ItemLibraryEntry::setCustomComponentSource(const QString &source)
+{
+    m_data->customComponentSource = source;
+}
+
 void ItemLibraryEntry::addProperty(PropertyName &name, QString &type, QVariant &value)
 {
     Property property;
@@ -200,6 +211,7 @@ QDataStream& operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibrary
     stream << itemLibraryEntry.m_data->properties;
     stream << itemLibraryEntry.m_data->qml;
     stream << itemLibraryEntry.m_data->qmlSource;
+    stream << itemLibraryEntry.m_data->customComponentSource;
 
     return stream;
 }
@@ -223,6 +235,7 @@ QDataStream& operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry)
     stream >> itemLibraryEntry.m_data->properties;
     stream >> itemLibraryEntry.m_data->qml;
     stream >> itemLibraryEntry.m_data->qmlSource;
+    stream >> itemLibraryEntry.m_data->customComponentSource;
 
     return stream;
 }
@@ -242,6 +255,7 @@ QDebug operator<<(QDebug debug, const ItemLibraryEntry &itemLibraryEntry)
     debug << itemLibraryEntry.m_data->properties;
     debug << itemLibraryEntry.m_data->qml;
     debug << itemLibraryEntry.m_data->qmlSource;
+    debug << itemLibraryEntry.m_data->customComponentSource;
 
     return debug.space();
 }
