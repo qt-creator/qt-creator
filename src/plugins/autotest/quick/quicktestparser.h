@@ -37,7 +37,7 @@ namespace Internal {
 class QuickTestParseResult : public TestParseResult
 {
 public:
-    explicit QuickTestParseResult(ITestFramework *framework) : TestParseResult(framework) {}
+    explicit QuickTestParseResult(ITestBase *base) : TestParseResult(base) {}
     TestTreeItem *createTestTreeItem() const override;
 };
 

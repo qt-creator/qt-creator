@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "quicktestparser.h"
+#include "quicktestframework.h"
 #include "quicktesttreeitem.h"
 #include "quicktestvisitors.h"
 #include "quicktest_utils.h"
@@ -49,7 +50,7 @@ TestTreeItem *QuickTestParseResult::createTestTreeItem() const
     if (itemType == TestTreeItem::Root || itemType == TestTreeItem::TestDataTag)
         return nullptr;
 
-    QuickTestTreeItem *item = new QuickTestTreeItem(framework, name, fileName, itemType);
+    QuickTestTreeItem *item = new QuickTestTreeItem(base, name, fileName, itemType);
     item->setProFile(proFile);
     item->setLine(line);
     item->setColumn(column);

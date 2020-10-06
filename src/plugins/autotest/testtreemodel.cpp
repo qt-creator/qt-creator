@@ -514,7 +514,7 @@ void TestTreeModel::revalidateCheckState(TestTreeItem *item)
 
 void TestTreeModel::onParseResultReady(const TestParseResultPtr result)
 {
-    TestTreeItem *rootNode = result->framework->rootNode();
+    TestTreeItem *rootNode = result->base->rootNode();
     QTC_ASSERT(rootNode, return);
     handleParseResult(result.data(), rootNode);
 }
@@ -536,7 +536,7 @@ void Autotest::TestTreeModel::onDataChanged(const QModelIndex &topLeft,
 
 void TestTreeModel::handleParseResult(const TestParseResult *result, TestTreeItem *parentNode)
 {
-    const bool groupingEnabled = result->framework->grouping();
+    const bool groupingEnabled = static_cast<ITestFramework *>(result->base)->grouping();
     // lookup existing items
     if (TestTreeItem *toBeModified = parentNode->find(result)) {
         // found existing item... Do not remove

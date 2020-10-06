@@ -35,18 +35,18 @@
 
 namespace Autotest {
 
-class ITestFramework;
+class ITestBase;
 
 class TestParseResult
 {
 public:
-    explicit TestParseResult(ITestFramework *framework) : framework(framework) {}
+    explicit TestParseResult(ITestBase *base) : base(base) {}
     virtual ~TestParseResult() { qDeleteAll(children); }
 
     virtual TestTreeItem *createTestTreeItem() const = 0;
 
     QVector<TestParseResult *> children;
-    ITestFramework *framework;
+    ITestBase *base;
     TestTreeItem::Type itemType = TestTreeItem::Root;
     QString displayName;
     QString fileName;

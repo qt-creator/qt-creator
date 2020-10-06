@@ -377,7 +377,7 @@ TestTreeItem *GTestTreeItem::find(const TestParseResult *result)
         states |= GTestTreeItem::Typed;
     switch (type()) {
     case Root:
-        if (result->framework->grouping()) {
+        if (static_cast<GTestFramework *>(result->base)->grouping()) {
             if (GTestFramework::groupMode() == GTest::Constants::Directory) {
                 const QFileInfo fileInfo(parseResult->fileName);
                 const QFileInfo base(fileInfo.absolutePath());

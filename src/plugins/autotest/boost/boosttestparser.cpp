@@ -25,6 +25,7 @@
 
 #include "boosttestparser.h"
 #include "boostcodeparser.h"
+#include "boosttestframework.h"
 #include "boosttesttreeitem.h"
 
 #include <cpptools/cppmodelmanager.h>
@@ -56,7 +57,7 @@ TestTreeItem *BoostTestParseResult::createTestTreeItem() const
     if (itemType == TestTreeItem::Root)
         return nullptr;
 
-    BoostTestTreeItem *item = new BoostTestTreeItem(framework, displayName, fileName, itemType);
+    BoostTestTreeItem *item = new BoostTestTreeItem(base, displayName, fileName, itemType);
     item->setProFile(proFile);
     item->setLine(line);
     item->setColumn(column);
@@ -98,10 +99,10 @@ static bool hasBoostTestMacros(const CPlusPlus::Document::Ptr &doc)
 }
 
 static BoostTestParseResult *createParseResult(const QString &name, const QString &filePath,
-                                               const QString &projectFile, ITestFramework *framework,
+                                               const QString &projectFile, ITestBase *base,
                                                TestTreeItem::Type type, const BoostTestInfo &info)
 {
-    BoostTestParseResult *partialSuite = new BoostTestParseResult(framework);
+    BoostTestParseResult *partialSuite = new BoostTestParseResult(base);
     partialSuite->itemType = type;
     partialSuite->fileName = filePath;
     partialSuite->name = info.fullName;
@@ -117,7 +118,7 @@ static BoostTestParseResult *createParseResult(const QString &name, const QStrin
 static bool handleBoostTest(QFutureInterface<TestParseResultPtr> futureInterface,
                             const CPlusPlus::Document::Ptr &doc,
                             const CPlusPlus::Snapshot &snapshot,
-                            ITestFramework *framework)
+                            ITestBase *base)
 {
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
     const QString &filePath = doc->fileName();
@@ -139,7 +140,7 @@ static bool handleBoostTest(QFutureInterface<TestParseResultPtr> futureInterface
         BoostTestInfo firstSuite = suitesStates.first();
         QStringList suites = firstSuite.fullName.split('/');
         BoostTestParseResult *topLevelSuite = createParseResult(suites.first(), filePath,
-                                                                projectFile, framework,
+                                                                projectFile, base,
                                                                 TestTreeItem::TestSuite,
                                                                 firstSuite);
         BoostTestParseResult *currentSuite = topLevelSuite;
@@ -148,7 +149,7 @@ static bool handleBoostTest(QFutureInterface<TestParseResultPtr> futureInterface
             firstSuite = suitesStates.first();
             suites = firstSuite.fullName.split('/');
             BoostTestParseResult *suiteResult = createParseResult(suites.last(), filePath,
-                                                                  projectFile, framework,
+                                                                  projectFile, base,
                                                                   TestTreeItem::TestSuite,
                                                                   firstSuite);
             currentSuite->children.append(suiteResult);
@@ -161,7 +162,7 @@ static bool handleBoostTest(QFutureInterface<TestParseResultPtr> futureInterface
                 locationAndType.m_suitesState.last().fullName + "::" + locationAndType.m_name,
                         locationAndType.m_state, locationAndType.m_line};
             BoostTestParseResult *funcResult = createParseResult(locationAndType.m_name, filePath,
-                                                                 projectFile, framework,
+                                                                 projectFile, base,
                                                                  locationAndType.m_type,
                                                                  tmpInfo);
             currentSuite->children.append(funcResult);

@@ -33,8 +33,8 @@ namespace Internal {
 class QtTestTreeItem : public TestTreeItem
 {
 public:
-    explicit QtTestTreeItem(ITestFramework *framework, const QString &name = QString(), const QString &filePath = QString(),
-                            Type type = Root);
+    explicit QtTestTreeItem(ITestBase *framework, const QString &name = QString(),
+                            const QString &filePath = QString(), Type type = Root);
 
     TestTreeItem *copyWithoutChildren() override;
     QVariant data(int column, int role) const override;

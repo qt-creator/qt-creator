@@ -48,11 +48,11 @@ public:
     Q_FLAGS(TestState)
     Q_DECLARE_FLAGS(TestStates, TestState)
 
-    explicit BoostTestTreeItem(ITestFramework *framework,
+    explicit BoostTestTreeItem(ITestBase *base,
                                const QString &name = QString(),
                                const QString &filePath = QString(),
                                Type type = Root)
-        : TestTreeItem(framework, name, filePath, type)
+        : TestTreeItem(base, name, filePath, type)
     {}
 
 public:

@@ -25,6 +25,7 @@
 #include "catchtestparser.h"
 
 #include "catchcodeparser.h"
+#include "catchframework.h"
 #include "catchtreeitem.h"
 
 #include <cpptools/cppmodelmanager.h>
@@ -97,7 +98,7 @@ static bool hasCatchNames(const CPlusPlus::Document::Ptr &document)
 
 static bool handleCatchDocument(QFutureInterface<TestParseResultPtr> futureInterface,
                                 const CPlusPlus::Document::Ptr &doc,
-                                ITestFramework *framework)
+                                ITestBase *base)
 {
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
     const QString &filePath = doc->fileName();
@@ -113,7 +114,7 @@ static bool handleCatchDocument(QFutureInterface<TestParseResultPtr> futureInter
     CatchCodeParser codeParser(fileContent, projectPart->languageFeatures);
     const CatchTestCodeLocationList foundTests = codeParser.findTests();
 
-    CatchParseResult *parseResult = new CatchParseResult(framework);
+    CatchParseResult *parseResult = new CatchParseResult(base);
     parseResult->itemType = TestTreeItem::TestSuite;
     parseResult->fileName = filePath;
     parseResult->name = filePath;
@@ -121,7 +122,7 @@ static bool handleCatchDocument(QFutureInterface<TestParseResultPtr> futureInter
     parseResult->proFile = projectParts.first()->projectFile;
 
     for (const CatchTestCodeLocationAndType & testLocation : foundTests) {
-        CatchParseResult *testCase = new CatchParseResult(framework);
+        CatchParseResult *testCase = new CatchParseResult(base);
         testCase->fileName = filePath;
         testCase->name = testLocation.m_name;
         testCase->proFile = proFile;
@@ -152,7 +153,7 @@ TestTreeItem *CatchParseResult::createTestTreeItem() const
     if (itemType == TestTreeItem::Root)
         return nullptr;
 
-    CatchTreeItem *item = new CatchTreeItem(framework, name, fileName, itemType);
+    CatchTreeItem *item = new CatchTreeItem(base, name, fileName, itemType);
     item->setProFile(proFile);
     item->setLine(line);
     item->setColumn(column);

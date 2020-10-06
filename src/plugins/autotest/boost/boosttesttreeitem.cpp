@@ -26,6 +26,7 @@
 #include "boosttesttreeitem.h"
 #include "boosttestconstants.h"
 #include "boosttestconfiguration.h"
+#include "boosttestframework.h"
 #include "boosttestparser.h"
 #include "../testframeworkmanager.h"
 
@@ -74,7 +75,7 @@ TestTreeItem *BoostTestTreeItem::find(const TestParseResult *result)
 
     switch (type()) {
     case Root:
-        if (result->framework->grouping()) {
+        if (static_cast<BoostTestFramework *>(result->base)->grouping()) {
             const QFileInfo fileInfo(bResult->fileName);
             const QFileInfo base(fileInfo.absolutePath());
             for (int row = 0; row < childCount(); ++row) {

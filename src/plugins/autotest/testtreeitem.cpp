@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "autotestconstants.h"
+#include "itestframework.h"
 #include "itestparser.h"
 #include "testconfiguration.h"
 #include "testtreeitem.h"
@@ -38,9 +39,9 @@
 
 namespace Autotest {
 
-TestTreeItem::TestTreeItem(ITestFramework *framework, const QString &name,
+TestTreeItem::TestTreeItem(ITestBase *testBase, const QString &name,
                            const QString &filePath, Type type)
-    : m_framework(framework),
+    : m_testBase(testBase),
       m_name(name),
       m_filePath(filePath),
       m_type(type)
@@ -369,7 +370,7 @@ inline bool TestTreeItem::modifyName(const QString &name)
 
 ITestFramework *TestTreeItem::framework() const
 {
-    return m_framework;
+    return static_cast<ITestFramework *>(m_testBase);
 }
 
 /*

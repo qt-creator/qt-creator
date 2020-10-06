@@ -47,6 +47,7 @@ namespace Utils { class FilePath; }
 
 namespace Autotest {
 
+class ITestBase;
 class ITestFramework;
 class TestConfiguration;
 class TestParseResult;
@@ -73,7 +74,7 @@ public:
         Naturally
     };
 
-    explicit TestTreeItem(ITestFramework *framework,
+    explicit TestTreeItem(ITestBase *testBase,
                           const QString &name = QString(),
                           const QString &filePath = QString(),
                           Type type = Root);
@@ -154,7 +155,7 @@ private:
         Cleared
     };
 
-    ITestFramework *m_framework = nullptr;
+    ITestBase *m_testBase = nullptr;
     QString m_name;
     QString m_filePath;
     Qt::CheckState m_checked;

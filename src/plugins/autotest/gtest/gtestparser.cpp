@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "gtestparser.h"
+#include "gtestframework.h"
 #include "gtesttreeitem.h"
 #include "gtestvisitors.h"
 #include "gtest_utils.h"
@@ -38,7 +39,7 @@ TestTreeItem *GTestParseResult::createTestTreeItem() const
 {
     if (itemType != TestTreeItem::TestSuite && itemType != TestTreeItem::TestCase)
         return nullptr;
-    GTestTreeItem *item = new GTestTreeItem(framework, name, fileName, itemType);
+    GTestTreeItem *item = new GTestTreeItem(base, name, fileName, itemType);
     item->setProFile(proFile);
     item->setLine(line);
     item->setColumn(column);
@@ -89,7 +90,7 @@ static bool hasGTestNames(const CPlusPlus::Document::Ptr &document)
 static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
                         const CPlusPlus::Document::Ptr &doc,
                         const CPlusPlus::Snapshot &snapshot,
-                        ITestFramework *framework)
+                        ITestBase *base)
 {
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
     const QString &filePath = doc->fileName();
@@ -109,7 +110,7 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
         return false; // happens if shutting down while parsing
 
     for (const GTestCaseSpec &testSpec : result.keys()) {
-        GTestParseResult *parseResult = new GTestParseResult(framework);
+        GTestParseResult *parseResult = new GTestParseResult(base);
         parseResult->itemType = TestTreeItem::TestSuite;
         parseResult->fileName = filePath;
         parseResult->name = testSpec.testCaseName;
@@ -119,7 +120,7 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
         parseResult->proFile = proFile;
 
         for (const GTestCodeLocationAndType &location : result.value(testSpec)) {
-            GTestParseResult *testSet = new GTestParseResult(framework);
+            GTestParseResult *testSet = new GTestParseResult(base);
             testSet->name = location.m_name;
             testSet->fileName = filePath;
             testSet->line = location.m_line;

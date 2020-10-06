@@ -34,7 +34,7 @@ namespace Internal {
 class BoostTestParseResult : public TestParseResult
 {
 public:
-    explicit BoostTestParseResult(ITestFramework *framework) : TestParseResult(framework) {}
+    explicit BoostTestParseResult(ITestBase *base) : TestParseResult(base) {}
     TestTreeItem *createTestTreeItem() const override;
     // TODO special attributes/states (labeled, timeout,...?)
     BoostTestTreeItem::TestStates state = BoostTestTreeItem::Enabled;

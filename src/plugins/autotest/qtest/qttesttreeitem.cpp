@@ -26,7 +26,7 @@
 #include "qttesttreeitem.h"
 #include "qttestconfiguration.h"
 #include "qttestparser.h"
-#include "../testframeworkmanager.h"
+#include "qttestframework.h"
 
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
@@ -34,9 +34,9 @@
 namespace Autotest {
 namespace Internal {
 
-QtTestTreeItem::QtTestTreeItem(ITestFramework *framework, const QString &name,
+QtTestTreeItem::QtTestTreeItem(ITestBase *testBase, const QString &name,
                                const QString &filePath, TestTreeItem::Type type)
-    : TestTreeItem(framework, name, filePath, type)
+    : TestTreeItem(testBase, name, filePath, type)
 {
     if (type == TestDataTag)
         setData(0, Qt::Checked, Qt::CheckStateRole);
@@ -311,7 +311,7 @@ TestTreeItem *QtTestTreeItem::find(const TestParseResult *result)
 
     switch (type()) {
     case Root:
-        if (result->framework->grouping()) {
+        if (static_cast<QtTestFramework *>(result->base)->grouping()) {
             const QString path = QFileInfo(result->fileName).absolutePath();
             for (int row = 0; row < childCount(); ++row) {
                 TestTreeItem *group = childAt(row);

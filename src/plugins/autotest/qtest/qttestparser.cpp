@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "qttestparser.h"
+#include "qttestframework.h"
 #include "qttesttreeitem.h"
 #include "qttestvisitors.h"
 #include "qttest_utils.h"
@@ -41,7 +42,7 @@ TestTreeItem *QtTestParseResult::createTestTreeItem() const
     if (itemType == TestTreeItem::Root)
         return nullptr;
 
-    QtTestTreeItem *item = new QtTestTreeItem(framework, displayName, fileName, itemType);
+    QtTestTreeItem *item = new QtTestTreeItem(base, displayName, fileName, itemType);
     item->setProFile(proFile);
     item->setLine(line);
     item->setColumn(column);
@@ -284,7 +285,7 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
                          const CPlusPlus::Snapshot &snapshot,
                          const QString &oldTestCaseName,
                          const QStringList &alternativeFiles,
-                         ITestFramework *framework)
+                         ITestBase *base)
 {
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
     const QString &fileName = document->fileName();
@@ -321,7 +322,7 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
         for (const QString &file : files)
             Utils::addToHash(&dataTags, checkForDataTags(file, snapshot));
 
-        QtTestParseResult *parseResult = new QtTestParseResult(framework);
+        QtTestParseResult *parseResult = new QtTestParseResult(base);
         parseResult->itemType = TestTreeItem::TestCase;
         parseResult->fileName = declaringDoc->fileName();
         parseResult->name = testCaseName;
@@ -338,7 +339,7 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
             const QtTestCodeLocationAndType &location = it.value();
             QString functionName = it.key();
             functionName = functionName.mid(functionName.lastIndexOf(':') + 1);
-            QtTestParseResult *func = new QtTestParseResult(framework);
+            QtTestParseResult *func = new QtTestParseResult(base);
             func->itemType = location.m_type;
             func->name = testCaseName + "::" + functionName;
             func->displayName = functionName;
@@ -349,7 +350,7 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
 
             const QtTestCodeLocationList &tagLocations = tagLocationsFor(func, dataTags);
             for (const QtTestCodeLocationAndType &tag : tagLocations) {
-                QtTestParseResult *dataTag = new QtTestParseResult(framework);
+                QtTestParseResult *dataTag = new QtTestParseResult(base);
                 dataTag->itemType = tag.m_type;
                 dataTag->name = tag.m_name;
                 dataTag->displayName = tag.m_name;

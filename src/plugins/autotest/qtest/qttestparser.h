@@ -33,7 +33,7 @@ namespace Internal {
 class QtTestParseResult : public TestParseResult
 {
 public:
-    explicit QtTestParseResult(ITestFramework *framework) : TestParseResult(framework) {}
+    explicit QtTestParseResult(ITestBase *base) : TestParseResult(base) {}
     void setInherited(bool inherited) { m_inherited = inherited; }
     bool inherited() const { return m_inherited; }
     TestTreeItem *createTestTreeItem() const override;
