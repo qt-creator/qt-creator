@@ -12,3 +12,4 @@ SUBDIRS += simplifytypes.pro
 SUBDIRS += dumpers.pro
 SUBDIRS += disassembler.pro
 SUBDIRS += offsets.pro
+SUBDIRS += protocol.pro

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 Jochen Seemann
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,41 +23,38 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "conanplugin.h"
+#include "conaninstallstep.h"
 
-#include "projectexplorer_export.h"
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/buildmanager.h>
 
-#include <QWidget>
+namespace ConanPackageManager {
+namespace Internal {
 
-QT_BEGIN_NAMESPACE
-class QGridLayout;
-class QIcon;
-QT_END_NAMESPACE
-
-namespace Core { class MiniSplitter; }
-
-namespace ProjectExplorer {
-
-class PROJECTEXPLORER_EXPORT PanelsWidget : public QWidget
+class ConanPluginRunData
 {
-    Q_OBJECT
-
 public:
-    explicit PanelsWidget(QWidget *parent = nullptr);
-    PanelsWidget(const QString &displayName, const QIcon &icon,
-                 QWidget *widget);
-    ~PanelsWidget() override;
-
-    void addPropertiesPanel(const QString &displayName, const QIcon &icon,
-                            QWidget *widget);
-
-    QByteArray saveSplitterState() const;
-    void loadSplitterState(const QByteArray &state);
-
-private:
-    QGridLayout *m_layout;
-    Core::MiniSplitter * const m_splitter;
-    QWidget *m_root;
+    ConanInstallStepFactory installStepFactory;
 };
 
-} // namespace ProjectExplorer
+ConanPlugin::~ConanPlugin()
+{
+    delete m_runData;
+}
+
+void ConanPlugin::extensionsInitialized()
+{ }
+
+bool ConanPlugin::initialize(const QStringList &arguments, QString *errorString)
+{
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorString)
+
+    m_runData = new ConanPluginRunData;
+
+    return true;
+}
+
+} // namespace Internal
+} // namespace ConanPackageManager

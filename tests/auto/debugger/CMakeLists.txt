@@ -32,6 +32,15 @@ add_qtc_test(tst_debugger_gdb
     "${DEBUGGERDIR}/debuggerprotocol.cpp" "${DEBUGGERDIR}/debuggerprotocol.h"
 )
 
+add_qtc_test(tst_debugger_protocol
+  DEPENDS Qt5::Network Utils
+  INCLUDES
+    "${DEBUGGERDIR}"
+  SOURCES
+    "${DEBUGGERDIR}/debuggerprotocol.cpp" "${DEBUGGERDIR}/debuggerprotocol.h"
+    tst_protocol.cpp
+)
+
 add_qtc_test(tst_debugger_offsets
   DEPENDS Qt5::CorePrivate
   INCLUDES "${DEBUGGERDIR}"

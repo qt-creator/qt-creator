@@ -170,13 +170,9 @@ bool IosBuildStep::init()
     if (!AbstractProcessStep::init())
         return false;
 
-    BuildConfiguration *bc = buildConfiguration();
-
     ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit());
-    if (!tc)
+    if (!tc) {
         emit addTask(Task::compilerMissingTask());
-
-    if (!bc || !tc) {
         emitFaultyConfigurationMessage();
         return false;
     }

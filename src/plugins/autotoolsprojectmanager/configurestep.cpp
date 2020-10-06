@@ -74,43 +74,41 @@ static QString projectDirRelativeToBuildDir(BuildConfiguration *bc)
 // * represented by an instance of the class MakeStepConfigWidget.
 // */
 
-class ConfigureStep : public ProjectExplorer::AbstractProcessStep
+class ConfigureStep final : public AbstractProcessStep
 {
     Q_DECLARE_TR_FUNCTIONS(AutotoolsProjectManager::Internal::ConfigureStep)
 
 public:
-    ConfigureStep(BuildStepList *bsl, Utils::Id id);
+    ConfigureStep(BuildStepList *bsl, Id id);
 
     void setAdditionalArguments(const QString &list);
 
 private:
-    void doRun() override;
+    void doRun() final;
 
-    StringAspect *m_additionalArgumentsAspect = nullptr;
     bool m_runConfigure = false;
 };
 
-ConfigureStep::ConfigureStep(BuildStepList *bsl, Utils::Id id)
+ConfigureStep::ConfigureStep(BuildStepList *bsl, Id id)
     : AbstractProcessStep(bsl, id)
 {
-    m_additionalArgumentsAspect = addAspect<StringAspect>();
-    m_additionalArgumentsAspect->setDisplayStyle(StringAspect::LineEditDisplay);
-    m_additionalArgumentsAspect->setSettingsKey(
-                "AutotoolsProjectManager.ConfigureStep.AdditionalArguments");
-    m_additionalArgumentsAspect->setLabelText(tr("Arguments:"));
-    m_additionalArgumentsAspect->setHistoryCompleter("AutotoolsPM.History.ConfigureArgs");
+    auto arguments = addAspect<StringAspect>();
+    arguments->setDisplayStyle(StringAspect::LineEditDisplay);
+    arguments->setSettingsKey("AutotoolsProjectManager.ConfigureStep.AdditionalArguments");
+    arguments->setLabelText(tr("Arguments:"));
+    arguments->setHistoryCompleter("AutotoolsPM.History.ConfigureArgs");
 
-    connect(m_additionalArgumentsAspect, &BaseAspect::changed, this, [this] {
+    connect(arguments, &BaseAspect::changed, this, [this] {
         m_runConfigure = true;
     });
 
     setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });
 
-    setCommandLineProvider([this] {
+    setCommandLineProvider([this, arguments] {
         BuildConfiguration *bc = buildConfiguration();
 
         return CommandLine({FilePath::fromString(projectDirRelativeToBuildDir(bc) + "configure"),
-                            m_additionalArgumentsAspect->value(),
+                            arguments->value(),
                             CommandLine::Raw});
     });
 
@@ -135,7 +133,7 @@ void ConfigureStep::doRun()
     }
 
     if (!m_runConfigure) {
-        emit addOutput(tr("Configuration unchanged, skipping configure step."), BuildStep::OutputFormat::NormalMessage);
+        emit addOutput(tr("Configuration unchanged, skipping configure step."), OutputFormat::NormalMessage);
         emit finished(true);
         return;
     }

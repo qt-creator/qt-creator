@@ -89,104 +89,111 @@ void GdbMi::parseResultOrValue(const QChar *&from, const QChar *to)
     }
 }
 
+// Reads one \ooo entity.
+static bool parseOctalEscapedHelper(const QChar *&from, const QChar *to, QByteArray &buffer)
+{
+    if (to - from < 4)
+        return false;
+    if (*from != '\\')
+        return false;
+
+    const char c1 = from[1].unicode();
+    const char c2 = from[2].unicode();
+    const char c3 = from[3].unicode();
+    if (!isdigit(c1) || !isdigit(c2) || !isdigit(c3))
+        return false;
+
+    buffer += char((c1 - '0') * 64 + (c2 - '0') * 8 + (c3 - '0'));
+    from += 4;
+    return true;
+}
+
+static bool parseHexEscapedHelper(const QChar *&from, const QChar *to, QByteArray &buffer)
+{
+    if (to - from < 4)
+        return false;
+    if (from[0]!= '\\')
+        return false;
+    if (from[1] != 'x')
+        return false;
+
+    const char c1 = from[2].unicode();
+    const char c2 = from[3].unicode();
+    if (!isxdigit(c1) || !isxdigit(c2))
+        return false;
+
+    buffer += char(16 * fromhex(c1) + fromhex(c2));
+    from += 4;
+    return true;
+}
+
+static void parseSimpleEscape(const QChar *&from, const QChar *to, QString &result)
+{
+    if (from == to) {
+        qDebug() << "MI Parse Error, unterminated backslash escape";
+        return;
+    }
+
+    QChar c = *from++;
+    switch (c.unicode()) {
+    case 'a': result += '\a'; break;
+    case 'b': result += '\b'; break;
+    case 'f': result += '\f'; break;
+    case 'n': result += '\n'; break;
+    case 'r': result += '\r'; break;
+    case 't': result += '\t'; break;
+    case 'v': result += '\v'; break;
+    case '"': result += '"'; break;
+    case '\'': result += '\''; break;
+    case '\\': result += '\\'; break;
+    default:
+        qDebug() << "MI Parse Error, unrecognized backslash escape";
+    }
+}
+
+// Reads subsequent \123 or \x12 entities and converts to Utf8,
+// *or* one escaped char, *or* one unescaped char.
+static void parseCharOrEscape(const QChar *&from, const QChar *to, QString &result)
+{
+    QByteArray buffer;
+    while (parseOctalEscapedHelper(from, to, buffer))
+        ;
+    while (parseHexEscapedHelper(from, to, buffer))
+        ;
+
+    if (!buffer.isEmpty())
+        result.append(QString::fromUtf8(buffer));
+    else if (*from == '\\')
+        parseSimpleEscape(++from, to, result);
+    else
+        result += *from++;
+}
+
 QString GdbMi::parseCString(const QChar *&from, const QChar *to)
 {
-    QString result;
+    if (to == from)
+        return QString();
+
     //qDebug() << "parseCString: " << QString(from, to - from);
     if (*from != '"') {
         qDebug() << "MI Parse Error, double quote expected";
         ++from; // So we don't hang
         return QString();
     }
-    const QChar *ptr = from;
-    ++ptr;
-    while (ptr < to) {
-        if (*ptr == '"') {
-            ++ptr;
-            result = QString(from + 1, ptr - from - 2);
-            break;
-        }
-        if (*ptr == '\\') {
-            ++ptr;
-            if (ptr == to) {
-                qDebug() << "MI Parse Error, unterminated backslash escape";
-                from = ptr; // So we don't hang
-                return QString();
-            }
-        }
-        ++ptr;
-    }
-    from = ptr;
 
-    int idx = result.indexOf('\\');
-    if (idx >= 0) {
-        QChar *dst = result.data() + idx;
-        const QChar *src = dst + 1, *end = result.data() + result.length();
-        do {
-            QChar c = *src++;
-            switch (c.unicode()) {
-                case 'a': *dst++ = '\a'; break;
-                case 'b': *dst++ = '\b'; break;
-                case 'f': *dst++ = '\f'; break;
-                case 'n': *dst++ = '\n'; break;
-                case 'r': *dst++ = '\r'; break;
-                case 't': *dst++ = '\t'; break;
-                case 'v': *dst++ = '\v'; break;
-                case '"': *dst++ = '"'; break;
-                case '\\': *dst++ = '\\'; break;
-                case 'x': {
-                        c = *src++;
-                        int chars = 0;
-                        uchar prod = 0;
-                        while (true) {
-                            uchar val = fromhex(c.unicode());
-                            if (val == UCHAR_MAX)
-                                break;
-                            prod = prod * 16 + val;
-                            if (++chars == 3 || src == end)
-                                break;
-                            c = *src++;
-                        }
-                        if (!chars) {
-                            qDebug() << "MI Parse Error, unrecognized hex escape";
-                            return QString();
-                        }
-                        *dst++ = prod;
-                        break;
-                    }
-                default:
-                    {
-                        int chars = 0;
-                        uchar prod = 0;
-                        forever {
-                            if (c < '0' || c > '7') {
-                                --src;
-                                break;
-                            }
-                            prod = prod * 8 + c.unicode() - '0';
-                            if (++chars == 3 || src == end)
-                                break;
-                            c = *src++;
-                        }
-                        if (!chars) {
-                            qDebug() << "MI Parse Error, unrecognized backslash escape";
-                            return QString();
-                        }
-                        *dst++ = prod;
-                    }
-            }
-            while (src != end) {
-                QChar c = *src++;
-                if (c == '\\')
-                    break;
-                *dst++ = c;
-            }
-        } while (src != end);
-        *dst = 0;
-        result.truncate(dst - result.data());
+    ++from; // Skip initial quote.
+    QString result;
+    result.reserve(to - from);
+    while (from < to) {
+        if (*from == '"') {
+            ++from;
+            return result;
+        }
+        parseCharOrEscape(from, to, result);
     }
 
-    return result;
+    qDebug() << "MI Parse Error, unfinished string";
+    return QString();
 }
 
 void GdbMi::parseValue(const QChar *&from, const QChar *to)

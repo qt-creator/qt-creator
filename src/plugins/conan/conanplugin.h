@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 Jochen Seemann
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,39 +25,25 @@
 
 #pragma once
 
-#include "projectexplorer_export.h"
+#include <extensionsystem/iplugin.h>
 
-#include <QWidget>
+namespace ConanPackageManager {
+namespace Internal {
 
-QT_BEGIN_NAMESPACE
-class QGridLayout;
-class QIcon;
-QT_END_NAMESPACE
+class ConanPluginRunData;
 
-namespace Core { class MiniSplitter; }
-
-namespace ProjectExplorer {
-
-class PROJECTEXPLORER_EXPORT PanelsWidget : public QWidget
+class ConanPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Conan.json")
 
-public:
-    explicit PanelsWidget(QWidget *parent = nullptr);
-    PanelsWidget(const QString &displayName, const QIcon &icon,
-                 QWidget *widget);
-    ~PanelsWidget() override;
+    ~ConanPlugin() final;
 
-    void addPropertiesPanel(const QString &displayName, const QIcon &icon,
-                            QWidget *widget);
+    void extensionsInitialized() final;
+    bool initialize(const QStringList &arguments, QString *errorString) final;
 
-    QByteArray saveSplitterState() const;
-    void loadSplitterState(const QByteArray &state);
-
-private:
-    QGridLayout *m_layout;
-    Core::MiniSplitter * const m_splitter;
-    QWidget *m_root;
+    ConanPluginRunData *m_runData = nullptr;
 };
 
-} // namespace ProjectExplorer
+} // namespace Internal
+} // namespace ConanPackageManager
