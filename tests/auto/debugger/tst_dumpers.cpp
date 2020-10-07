@@ -668,7 +668,7 @@ struct Check6 : Check
 };
 struct Profile
 {
-    Profile(const QByteArray &contents) : contents(contents) {}
+    Profile(const QByteArray &contents) : contents(contents + '\n') {}
 
     QByteArray includes;
     QByteArray contents;
