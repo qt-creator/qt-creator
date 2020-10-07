@@ -376,7 +376,7 @@ int TestResultModel::resultTypeCount(ResultType type) const
 {
     int result = 0;
 
-    for (const auto &id : m_reportedSummary.keys()) {
+    for (const auto &id : m_testResultCount.keys()) {
         // if we got a result count from the framework prefer that over our counted results
         int reported = m_reportedSummary[id].value(type);
         result += reported != 0 ? reported : m_testResultCount.value(id).value(type);
