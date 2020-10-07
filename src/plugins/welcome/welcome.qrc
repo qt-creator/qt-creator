@@ -23,5 +23,7 @@
         <file>images/expandarrow.png</file>
         <file>images/expandarrow@2x.png</file>
         <file>images/border.png</file>
+        <file>images/download.png</file>
+        <file>images/download@2x.png</file>
     </qresource>
 </RCC>
