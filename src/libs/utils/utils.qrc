@@ -231,10 +231,8 @@
         <file>images/dir.png</file>
         <file>images/online.png</file>
         <file>images/online@2x.png</file>
-        <file>images/download_arrow.png</file>
-        <file>images/download_arrow@2x.png</file>
-        <file>images/download_base.png</file>
-        <file>images/download_base@2x.png</file>
+        <file>images/download.png</file>
+        <file>images/download@2x.png</file>
         <file alias="mimetypes/freedesktop.org.xml" compression-algorithm="best">../3rdparty/xdg/freedesktop.org.xml</file>
     </qresource>
     <qresource prefix="/codemodel">
