@@ -360,7 +360,8 @@ function(enable_pch target)
       endif()
 
       unset(PCH_TARGET)
-      if ("Qt5::Widgets" IN_LIST dependencies)
+      if ("Qt5::Widgets" IN_LIST dependencies OR
+          "Qt5::Gui" IN_LIST dependencies)
         set(PCH_TARGET QtCreatorPchGui)
       elseif ("Qt5::Core" IN_LIST dependencies)
         set(PCH_TARGET QtCreatorPchConsole)
