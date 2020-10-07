@@ -33,6 +33,7 @@
 #include <qmldesignerplugin.h>
 #include <qmlobjectnode.h>
 #include <designermcumanager.h>
+#include <qmlitemnode.h>
 
 #include <utils/qtcassert.h>
 
@@ -292,9 +293,17 @@ bool PropertyEditorValue::isAvailable() const
         //allowed item properties:
         const auto itemTypes = mcuAllowedItemProperties.keys();
         for (const auto &itemType : itemTypes) {
-            if (isAllowedSubclassType(itemType, m_modelNode.metaInfo())
-                    && mcuAllowedItemProperties.value(itemType).contains(pureNameStr)) {
-                    return true;
+            if (isAllowedSubclassType(itemType, m_modelNode.metaInfo())) {
+                const QmlDesigner::DesignerMcuManager::ItemProperties allowedItemProps =
+                        mcuAllowedItemProperties.value(itemType);
+                if (allowedItemProps.properties.contains(pureNameStr)) {
+                    if (QmlDesigner::QmlItemNode::isValidQmlItemNode(m_modelNode)) {
+                        const bool itemHasChildren = QmlDesigner::QmlItemNode(m_modelNode).hasChildren();
+
+                        if (allowedItemProps.allowChildren == itemHasChildren)
+                            return true;
+                    }
+                }
             }
         }
 

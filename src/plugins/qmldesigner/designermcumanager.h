@@ -43,6 +43,11 @@ public:
     };
     using VersionsList = QList<Version>;
 
+    struct ItemProperties {
+        QStringList properties;
+        bool allowChildren = true;
+    };
+
     static DesignerMcuManager& instance();
 
     static QString mcuResourcesPath();
@@ -62,7 +67,7 @@ public:
     QStringList allowedImports() const;
     QStringList bannedImports() const;
 
-    QHash<QString, QStringList> allowedItemProperties() const;
+    QHash<QString, ItemProperties> allowedItemProperties() const;
     QHash<QString, QStringList> bannedComplexProperties() const;
 
     DesignerMcuManager(DesignerMcuManager const&) = delete;
@@ -80,7 +85,7 @@ private:
     QSet<QString> m_bannedProperties;
     QStringList m_allowedImports;
     QStringList m_bannedImports;
-    QHash<QString, QStringList> m_allowedItemProperties;
+    QHash<QString, ItemProperties> m_allowedItemProperties;
     QHash<QString, QStringList> m_bannedComplexProperties;
 
     DesignerMcuManager::VersionsList m_versionsList;

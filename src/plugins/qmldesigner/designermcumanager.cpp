@@ -170,9 +170,16 @@ void DesignerMcuManager::readVersionData(const DesignerMcuManager::Version &vers
 
         //handling allowed properties:
         if (child->propertyNames().contains("allowedProperties")) {
-            const QStringList allowedProperties(readPropertyList("allowedProperties", child));
+            ItemProperties allowedProperties;
 
-            if (!allowedProperties.isEmpty())
+            const QVariant childrenPropertyVar = child->property("allowChildren");
+
+            if (!childrenPropertyVar.isNull() && childrenPropertyVar.isValid())
+                allowedProperties.allowChildren = childrenPropertyVar.toBool();
+
+            allowedProperties.properties = readPropertyList("allowedProperties", child);
+
+            if (!allowedProperties.properties.isEmpty())
                 m_allowedItemProperties.insert(child->name(), allowedProperties);
         }
 
@@ -235,7 +242,7 @@ QStringList DesignerMcuManager::bannedImports() const
     return m_bannedImports;
 }
 
-QHash<QString, QStringList> DesignerMcuManager::allowedItemProperties() const
+QHash<QString, DesignerMcuManager::ItemProperties> DesignerMcuManager::allowedItemProperties() const
 {
     return m_allowedItemProperties;
 }

@@ -98,12 +98,14 @@ VersionData {
     }
 
     QtQuick.Image {
+        allowChildren: false
         allowedProperties: ["rotation", "scale", "transformOrigin"]
         bannedProperties: ["mirror", "mipmap",  "cache", "autoTransform", "asynchronous",
             "sourceSize", "smooth"]
     }
 
     QtQuick.Text {
+        allowChildren: false
         allowedProperties: ["rotation", "scale", "transformOrigin"]
         bannedProperties: ["elide", "lineHeight", "lineHeightMode", "wrapMode", "style",
             "styleColor", "minimumPointSize", "minimumPixelSize", "styleColor",
