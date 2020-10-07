@@ -48,9 +48,7 @@ jobs:
     - name: Checkout submodules
       run: |
         git submodule set-url -- perfparser https://code.qt.io/qt-creator/perfparser.git
-        git submodule update --init src/plugins/help/qlitehtml/litehtml
-        git submodule update --init src/tools/perfparser
-        git submodule update --init tests/unit/unittest/3rdparty/googletest
+        git submodule update --init
 
     - name: Download Ninja and CMake
       shell: cmake -P {0}
