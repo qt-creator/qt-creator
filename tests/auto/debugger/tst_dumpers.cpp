@@ -3769,12 +3769,7 @@ void tst_Dumpers::dumper_data()
 
                     "const wchar_t *w = L\"aöa\";\n"
                     "#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)\n"
-                    "QString s7;\n"
-                    "if (sizeof(wchar_t) == 4)\n"
-                    "    s7 = QString::fromUcs4((uint *)w);\n"
-                    "else\n"
-                    "    s7 = QString::fromUtf16((ushort *)w);\n"
-
+                    "QString s7 = QString::fromWCharArray(w);\n"
                     "QStringRef s8(&str, 1, 2);\n"
                     "QStringRef s9;\n"
                     "#else\n"
