@@ -81,6 +81,7 @@ public:
     TransitionEditorWidget *transitionEditorWidget() const;
     TransitionEditorToolBar *toolBar() const;
 
+    int zoom() const override;
     qreal rulerScaling() const override;
     int rulerWidth() const override;
     qreal rulerDuration() const override;
@@ -90,7 +91,8 @@ public:
     qreal mapToScene(qreal x) const;
     qreal mapFromScene(qreal x) const;
 
-    void setRulerScaling(int scaling);
+    void setZoom(int scaling);
+    void setZoom(int scaling, double pivot);
 
     void invalidateSectionForTarget(const ModelNode &modelNode);
     void invalidateHeightForTarget(const ModelNode &modelNode);

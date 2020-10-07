@@ -27,6 +27,7 @@
 #include "axis.h"
 #include "curveeditormodel.h"
 #include "curveitem.h"
+#include "navigation2d.h"
 #include "treeitem.h"
 #include "utils.h"
 
@@ -79,6 +80,13 @@ GraphicsView::GraphicsView(CurveEditorModel *model, QWidget *parent)
 
     applyZoom(m_zoomX, m_zoomY);
     update();
+
+    QmlDesigner::Navigation2dFilter *filter = new QmlDesigner::Navigation2dFilter(this);
+    auto zoomChanged = &QmlDesigner::Navigation2dFilter::zoomChanged;
+    connect(filter, zoomChanged, [this](double scale, const QPointF &pos) {
+        applyZoom(m_zoomX + scale, m_zoomY, mapToGlobal(pos.toPoint()));
+    });
+    installEventFilter(filter);
 }
 
 GraphicsView::~GraphicsView()

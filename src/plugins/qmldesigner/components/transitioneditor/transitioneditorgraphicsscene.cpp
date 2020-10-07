@@ -104,9 +104,9 @@ TransitionEditorGraphicsScene::TransitionEditorGraphicsScene(TransitionEditorWid
 
     auto changeScale = [this](int factor) {
         transitionEditorWidget()->changeScaleFactor(factor);
-        setRulerScaling(qreal(factor));
+        setZoom(factor);
     };
-    connect(m_layout, &TransitionEditorGraphicsLayout::scaleFactorChanged, changeScale);
+    connect(m_layout, &TransitionEditorGraphicsLayout::zoomChanged, changeScale);
 }
 
 TransitionEditorGraphicsScene::~TransitionEditorGraphicsScene()
@@ -125,7 +125,7 @@ void TransitionEditorGraphicsScene::invalidateScrollbar()
 
 void TransitionEditorGraphicsScene::onShow()
 {
-    emit m_layout->scaleFactorChanged(0);
+    emit m_layout->zoomChanged(0);
 }
 
 void TransitionEditorGraphicsScene::setTransition(const ModelNode &transition)
@@ -157,7 +157,12 @@ void TransitionEditorGraphicsScene::setDuration(int duration)
         m_transition.setAuxiliaryData("transitionDuration", duration);
     m_layout->setDuration(duration);
     qreal scaling = m_layout->rulerScaling();
-    setRulerScaling(scaling);
+    setZoom(scaling);
+}
+
+int TransitionEditorGraphicsScene::zoom() const
+{
+    return m_layout->zoom();
 }
 
 qreal TransitionEditorGraphicsScene::rulerScaling() const
@@ -199,11 +204,40 @@ qreal TransitionEditorGraphicsScene::mapFromScene(qreal x) const
     return xPosOffset / rulerScaling() + startFrame();
 }
 
-void TransitionEditorGraphicsScene::setRulerScaling(int scaleFactor)
+void TransitionEditorGraphicsScene::setZoom(int scaleFactor)
 {
-    m_layout->setRulerScaleFactor(scaleFactor);
+    m_layout->setZoom(scaleFactor);
 
     setScrollOffset(0);
+    invalidateSections();
+    invalidateScrollbar();
+    update();
+}
+
+void TransitionEditorGraphicsScene::setZoom(int scaling, double pivot)
+{
+    const qreal oldOffset = scrollOffset();
+    const qreal oldScaling = m_layout->rulerScaling();
+    const qreal oldPosition = mapToScene(pivot);
+    m_layout->setZoom(scaling);
+
+    const qreal newScaling = m_layout->rulerScaling();
+    const qreal newPosition = mapToScene(pivot);
+
+    const qreal newOffset = oldOffset + (newPosition - oldPosition);
+
+    if (std::isinf(oldScaling) || std::isinf(newScaling))
+        setScrollOffset(0);
+    else {
+        setScrollOffset(std::round(newOffset));
+
+        const qreal start = mapToScene(startFrame());
+        const qreal head = TimelineConstants::sectionWidth + TimelineConstants::timelineLeftOffset;
+
+        if (start - head > 0)
+            setScrollOffset(0);
+    }
+
     invalidateSections();
     invalidateScrollbar();
     update();

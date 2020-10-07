@@ -569,9 +569,9 @@ void TimelineRulerSectionItem::invalidateRulerSize(const qreal length)
     m_end = length;
 }
 
-void TimelineRulerSectionItem::setRulerScaleFactor(int scaling)
+void TimelineRulerSectionItem::setZoom(int zoom)
 {
-    qreal blend = qreal(scaling) / 100.0;
+    qreal blend = qreal(zoom) / 100.0;
 
     qreal width = size().width() - qreal(TimelineConstants::sectionWidth);
     qreal duration = rulerDuration();
@@ -592,7 +592,7 @@ void TimelineRulerSectionItem::setRulerScaleFactor(int scaling)
     update();
 }
 
-int TimelineRulerSectionItem::getRulerScaleFactor() const
+int TimelineRulerSectionItem::zoom() const
 {
     qreal width = size().width() - qreal(TimelineConstants::sectionWidth);
     qreal duration = rulerDuration();
@@ -609,7 +609,7 @@ int TimelineRulerSectionItem::getRulerScaleFactor() const
     qreal rcount = width / m_scaling;
     qreal rblend = TimelineUtils::reverseLerp(rcount, minCount, maxCount);
 
-    int rfactor = std::round(rblend * 100);
+    int rfactor = static_cast<int>(std::round(rblend * 100));
     return TimelineUtils::clamp(rfactor, 0, 100);
 }
 
@@ -786,7 +786,7 @@ void TimelineRulerSectionItem::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
     QGraphicsWidget::resizeEvent(event);
 
-    auto factor = getRulerScaleFactor();
+    auto factor = zoom();
 
     if (factor < 0) {
         if (event->oldSize().width() < event->newSize().width())
@@ -795,7 +795,7 @@ void TimelineRulerSectionItem::resizeEvent(QGraphicsSceneResizeEvent *event)
             factor = 100;
     }
 
-    emit scaleFactorChanged(factor);
+    emit zoomChanged(factor);
 }
 
 void TimelineRulerSectionItem::setSizeHints(int width)

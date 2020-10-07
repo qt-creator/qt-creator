@@ -22,70 +22,46 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
 #pragma once
 
-#include "timelineitem.h"
+#include <QScrollBar>
 
-QT_FORWARD_DECLARE_CLASS(QGraphicsLinearLayout)
+QT_FORWARD_DECLARE_CLASS(QGestureEvent)
+QT_FORWARD_DECLARE_CLASS(QWheelEvent)
 
 namespace QmlDesigner {
 
-class TimelineItem;
-class TimelineRulerSectionItem;
-class TimelinePlaceholder;
+class Navigation2dScrollBar : public QScrollBar
+{
+    Q_OBJECT
 
-class ModelNode;
+public:
+    Navigation2dScrollBar(QWidget *parent = nullptr);
 
-class TransitionEditorGraphicsLayout : public TimelineItem
+    bool postEvent(QEvent *event);
+
+protected:
+    void wheelEvent(QWheelEvent *event) override;
+};
+
+
+class Navigation2dFilter : public QObject
 {
     Q_OBJECT
 
 signals:
-    void rulerClicked(const QPointF &pos);
-
-    void zoomChanged(int factor);
+    void zoomChanged(double scale, const QPointF &pos);
 
 public:
-    TransitionEditorGraphicsLayout(QGraphicsScene *scene, TimelineItem *parent = nullptr);
+    Navigation2dFilter(QWidget *parent = nullptr, Navigation2dScrollBar *scrollbar = nullptr);
 
-    ~TransitionEditorGraphicsLayout() override;
-
-public:
-    int zoom() const;
-
-    double rulerWidth() const;
-
-    double rulerScaling() const;
-
-    double rulerDuration() const;
-
-    double endFrame() const;
-
-    void setWidth(int width);
-
-    void setTransition(const ModelNode &transition);
-
-    void setDuration(qreal duration);
-
-    void setZoom(int factor);
-
-    void invalidate();
-
-    int maximumScrollValue() const;
-
-    void activate();
-
-    TimelineRulerSectionItem *ruler() const;
+protected:
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
-    QGraphicsLinearLayout *m_layout = nullptr;
-
-    TimelineRulerSectionItem *m_rulerItem = nullptr;
-
-    TimelinePlaceholder *m_placeholder1 = nullptr;
-
-    TimelinePlaceholder *m_placeholder2 = nullptr;
+    bool gestureEvent(QGestureEvent *event);
+    bool wheelEvent(QWheelEvent *event);
+    Navigation2dScrollBar *m_scrollbar = nullptr;
 };
 
 } // namespace QmlDesigner

@@ -41,7 +41,10 @@ struct HandleGeometry
         handle = QRectF(topLeft, -topLeft);
         toKeyframe = QLineF(QPointF(0.0, 0.0), -pos);
         angle = -toKeyframe.angle() + 45.0;
+        bbox = handle.united(QRectF(-pos, QSizeF(1.0,1.0)));
     }
+
+    QRectF bbox;
 
     QRectF handle;
 
@@ -97,7 +100,7 @@ HandleItem::Slot HandleItem::slot() const
 QRectF HandleItem::boundingRect() const
 {
     HandleGeometry geom(pos(), m_style);
-    return geom.handle;
+    return geom.bbox;
 }
 
 bool HandleItem::contains(const QPointF &point) const

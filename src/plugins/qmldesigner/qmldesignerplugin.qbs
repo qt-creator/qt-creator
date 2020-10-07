@@ -446,6 +446,8 @@ Project {
                 "componentcore/modelnodecontextmenu_helper.h",
                 "componentcore/modelnodeoperations.cpp",
                 "componentcore/modelnodeoperations.h",
+                "componentcore/navigation2d.cpp",
+                "componentcore/navigation2d.h",
                 "componentcore/selectioncontext.cpp",
                 "componentcore/selectioncontext.h",
                 "componentcore/qmldesignericonprovider.cpp",

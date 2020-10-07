@@ -34,6 +34,7 @@
 #include "timelinepropertyitem.h"
 #include "timelinetoolbar.h"
 #include "timelineview.h"
+#include "navigation2d.h"
 
 #include <qmldesignerplugin.h>
 #include <qmlstate.h>
@@ -59,6 +60,8 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 #include <QSpacerItem>
+
+#include <cmath>
 
 namespace QmlDesigner {
 
@@ -114,7 +117,7 @@ TimelineWidget::TimelineWidget(TimelineView *view)
     , m_toolbar(new TimelineToolBar(this))
     , m_rulerView(new QGraphicsView(this))
     , m_graphicsView(new QGraphicsView(this))
-    , m_scrollbar(new QScrollBar(this))
+    , m_scrollbar(new Navigation2dScrollBar(this))
     , m_statusBar(new QLabel(this))
     , m_timelineView(view)
     , m_graphicsScene(new TimelineGraphicsScene(this))
@@ -153,6 +156,7 @@ TimelineWidget::TimelineWidget(TimelineView *view)
     m_graphicsView->setFrameShape(QFrame::NoFrame);
     m_graphicsView->setFrameShadow(QFrame::Plain);
     m_graphicsView->setLineWidth(0);
+    m_graphicsView->setVerticalScrollBar(new Navigation2dScrollBar);
     m_graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     m_graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
@@ -247,6 +251,14 @@ TimelineWidget::TimelineWidget(TimelineView *view)
     connect(m_addButton, &QPushButton::clicked, this, [this]() {
         m_timelineView->addNewTimelineDialog();
     });
+
+    Navigation2dFilter *filter = new Navigation2dFilter(this, m_scrollbar);
+    connect(filter, &Navigation2dFilter::zoomChanged, [this](double scale, const QPointF& pos) {
+        int s = static_cast<int>(std::round(scale*100.));
+        double ps = m_graphicsScene->mapFromScene(pos.x());
+        m_graphicsScene->setZoom(std::clamp(m_graphicsScene->zoom() + s, 0, 100), ps);
+    });
+    installEventFilter(filter);
 }
 
 void TimelineWidget::connectToolbar()
@@ -258,8 +270,8 @@ void TimelineWidget::connectToolbar()
 
     connect(graphicsScene(), &TimelineGraphicsScene::scroll, this, &TimelineWidget::scroll);
 
-    auto setRulerScaling = [this](int val) { m_graphicsScene->setRulerScaling(val); };
-    connect(m_toolbar, &TimelineToolBar::scaleFactorChanged, setRulerScaling);
+    auto setZoomFactor = [this](int val) { m_graphicsScene->setZoom(val); };
+    connect(m_toolbar, &TimelineToolBar::scaleFactorChanged, setZoomFactor);
 
     auto setToFirstFrame = [this]() {
         graphicsScene()->setCurrentFrame(graphicsScene()->startFrame());
@@ -428,7 +440,7 @@ void TimelineWidget::init()
 
     // setScaleFactor uses QSignalBlocker.
     m_toolbar->setScaleFactor(0);
-    m_graphicsScene->setRulerScaling(0);
+    m_graphicsScene->setZoom(0);
 }
 
 void TimelineWidget::reset()

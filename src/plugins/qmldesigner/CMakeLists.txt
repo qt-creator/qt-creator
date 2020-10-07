@@ -208,6 +208,7 @@ extend_qtc_plugin(QmlDesigner
     modelnodecontextmenu.cpp modelnodecontextmenu.h
     modelnodecontextmenu_helper.cpp modelnodecontextmenu_helper.h
     modelnodeoperations.cpp modelnodeoperations.h
+    navigation2d.cpp navigation2d.h
     qmldesignericonprovider.cpp qmldesignericonprovider.h
     selectioncontext.cpp selectioncontext.h
     theme.cpp theme.h

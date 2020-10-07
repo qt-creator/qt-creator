@@ -149,7 +149,7 @@ class TimelineRulerSectionItem : public TimelineItem
 signals:
     void rulerClicked(const QPointF &pos);
 
-    void scaleFactorChanged(int scale);
+    void zoomChanged(int zoom);
 
 public:
     static TimelineRulerSectionItem *create(QGraphicsScene *parentScene, TimelineItem *parent);
@@ -157,9 +157,9 @@ public:
     void invalidateRulerSize(const QmlTimeline &timeline);
     void invalidateRulerSize(const qreal length);
 
-    void setRulerScaleFactor(int scaling);
+    void setZoom(int zoom);
 
-    int getRulerScaleFactor() const;
+    int zoom() const;
     qreal getFrameTick() const;
 
     qreal rulerScaling() const;

@@ -65,6 +65,11 @@ TransitionEditorGraphicsLayout::TransitionEditorGraphicsLayout(QGraphicsScene *s
 
 TransitionEditorGraphicsLayout::~TransitionEditorGraphicsLayout() = default;
 
+int TransitionEditorGraphicsLayout::zoom() const
+{
+    return m_rulerItem->zoom();
+}
+
 double TransitionEditorGraphicsLayout::rulerWidth() const
 {
     return m_rulerItem->preferredWidth();
@@ -133,7 +138,7 @@ void TransitionEditorGraphicsLayout::setTransition(const ModelNode &transition)
     if (auto *scene = timelineScene())
         if (auto *view = scene->timelineView())
             if (!transition.isValid() && view->isAttached())
-                emit scaleFactorChanged(0);
+                emit zoomChanged(0);
 }
 
 void TransitionEditorGraphicsLayout::setDuration(qreal duration)
@@ -141,9 +146,9 @@ void TransitionEditorGraphicsLayout::setDuration(qreal duration)
     m_rulerItem->invalidateRulerSize(duration);
 }
 
-void TransitionEditorGraphicsLayout::setRulerScaleFactor(int factor)
+void TransitionEditorGraphicsLayout::setZoom(int factor)
 {
-    m_rulerItem->setRulerScaleFactor(factor);
+    m_rulerItem->setZoom(factor);
 }
 
 void TransitionEditorGraphicsLayout::invalidate()

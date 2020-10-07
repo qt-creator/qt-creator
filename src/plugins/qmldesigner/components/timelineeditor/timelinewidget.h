@@ -36,7 +36,6 @@ QT_FORWARD_DECLARE_CLASS(QComboBox)
 QT_FORWARD_DECLARE_CLASS(QGraphicsView)
 QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QResizeEvent)
-QT_FORWARD_DECLARE_CLASS(QScrollBar)
 QT_FORWARD_DECLARE_CLASS(QShowEvent)
 QT_FORWARD_DECLARE_CLASS(QString)
 QT_FORWARD_DECLARE_CLASS(QPushButton)
@@ -47,6 +46,7 @@ class TimelineToolBar;
 class TimelineView;
 class TimelineGraphicsScene;
 class QmlTimeline;
+class Navigation2dScrollBar;
 
 class TimelineWidget : public QWidget
 {
@@ -94,7 +94,7 @@ private:
 
     QGraphicsView *m_graphicsView = nullptr;
 
-    QScrollBar *m_scrollbar = nullptr;
+    Navigation2dScrollBar *m_scrollbar = nullptr;
 
     QLabel *m_statusBar = nullptr;
 

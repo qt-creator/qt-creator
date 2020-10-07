@@ -58,7 +58,6 @@ class AbstractScrollGraphicsScene : public QGraphicsScene
 
 public:
     AbstractScrollGraphicsScene(QWidget *parent);
-    ;
 
     int scrollOffset() const;
     void setScrollOffset(int offset);
@@ -74,6 +73,7 @@ public:
     bool isKeyframeSelected(TimelineKeyframeItem *keyframe) const;
     bool multipleKeyframesSelected() const;
 
+    virtual int zoom() const = 0;
     virtual qreal rulerScaling() const = 0;
     virtual int rulerWidth() const = 0;
     virtual qreal rulerDuration() const = 0;
@@ -134,6 +134,7 @@ public:
     TimelineWidget *timelineWidget() const;
     TimelineToolBar *toolBar() const;
 
+    int zoom() const override;
     qreal rulerScaling() const override;
     int rulerWidth() const override;
     qreal rulerDuration() const override;
@@ -152,7 +153,8 @@ public:
 
     qreal snap(qreal frame, bool snapToPlayhead = true) override;
 
-    void setRulerScaling(int scaling);
+    void setZoom(int scaling);
+    void setZoom(int scaling, double pivot);
 
     void commitCurrentFrame(qreal frame);
 
@@ -204,7 +206,6 @@ private:
     QList<QGraphicsItem *> itemsAt(const QPointF &pos);
 
 private:
-
     TimelineWidget *m_parent = nullptr;
 
     TimelineGraphicsLayout *m_layout = nullptr;

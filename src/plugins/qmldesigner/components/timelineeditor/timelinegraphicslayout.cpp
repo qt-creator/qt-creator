@@ -63,6 +63,11 @@ TimelineGraphicsLayout::TimelineGraphicsLayout(TimelineGraphicsScene *scene, Tim
 
 TimelineGraphicsLayout::~TimelineGraphicsLayout() = default;
 
+int TimelineGraphicsLayout::zoom() const
+{
+    return m_rulerItem->zoom();
+}
+
 double TimelineGraphicsLayout::rulerWidth() const
 {
     return m_rulerItem->preferredWidth();
@@ -133,12 +138,12 @@ void TimelineGraphicsLayout::setTimeline(const QmlTimeline &timeline)
     if (auto *scene = timelineScene())
         if (auto *view = scene->timelineView())
             if (!timeline.isValid() && view->isAttached())
-                emit scaleFactorChanged(0);
+                emit zoomChanged(0);
 }
 
-void TimelineGraphicsLayout::setRulerScaleFactor(int factor)
+void TimelineGraphicsLayout::setZoom(int factor)
 {
-    m_rulerItem->setRulerScaleFactor(factor);
+    m_rulerItem->setZoom(factor);
 }
 
 void TimelineGraphicsLayout::invalidate()

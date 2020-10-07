@@ -44,7 +44,7 @@ class TimelineGraphicsLayout : public TimelineItem
 signals:
     void rulerClicked(const QPointF &pos);
 
-    void scaleFactorChanged(int factor);
+    void zoomChanged(int factor);
 
 public:
     TimelineGraphicsLayout(TimelineGraphicsScene *scene, TimelineItem *parent = nullptr);
@@ -52,6 +52,8 @@ public:
     ~TimelineGraphicsLayout() override;
 
 public:
+    int zoom() const;
+
     double rulerWidth() const;
 
     double rulerScaling() const;
@@ -66,7 +68,7 @@ public:
 
     void setTimeline(const QmlTimeline &timeline);
 
-    void setRulerScaleFactor(int factor);
+    void setZoom(int factor);
 
     void invalidate();
 
