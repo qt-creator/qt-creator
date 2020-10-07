@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -31,7 +31,7 @@
     \title Completing Code
 
     As you write code, \QC suggests properties, IDs, and code snippets to
-    complete the code. It provides a list of context-sensitive suggestions to
+    complete the code. It provides a list of suggestions to
     the statement currently under your cursor. Press \key Tab
     or \key Enter to accept the selected suggestion and complete the code.
 
@@ -48,16 +48,38 @@
     To open the list of suggestions at any time, press \key {Ctrl+Space}.
     If only one option is available, \QC inserts it automatically.
 
-    When completion is invoked manually, \QC completes the common prefix of the
-    list of suggestions. This is especially useful for classes with several
-    similarly named members. To disable this functionality, uncheck
-    \uicontrol {Autocomplete common prefix} in the code completion preferences.
-    Select \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor}
-    > \uicontrol Completion.
+    \section1 Specifying Completion Settings
+
+    To specify settings for code completion, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Text Editor} > \uicontrol Completion.
+
+    \image qtcreator-options-texteditor-completion.png "Text Editor Completion options"
 
     By default, code completion does not consider case. To apply full or
     first-letter case-sensitivity, select \uicontrol Full or
     \uicontrol {First Letter} in the \uicontrol {Case-sensitivity} field.
+
+    By default, code completion is always invoked, but you can change this
+    behavior in the \uicontrol {Activate completion} field to invoke
+    it \uicontrol Manually or \uicontrol {When Triggered}.
+
+    You can set a timeout in milliseconds for code completion in the
+    \uicontrol {Timeout in ms} field.
+
+    In the \uicontrol {Character threshold} field, specify the number of
+    characters you need to enter before code completion is triggered.
+
+    When completion is invoked manually, \QC completes the common prefix of the
+    list of suggestions. This is especially useful for classes with several
+    similarly named members. To disable this functionality, deselect the
+    \uicontrol {Autocomplete common prefix} check box.
+
+    Select the \uicontrol {Automatically split strings} check box to split
+    a string to two lines by adding an end quote at the cursor position when
+    you press \key Enter and a start quote at the beginning of the next line,
+    before the rest of the string. In addition, pressing \key {Shift+Enter}
+    inserts an escape character at the cursor position and moves the rest of
+    the string to the next line.
 
     \section1 Summary of Available Types
 
