@@ -46,7 +46,7 @@ static void printErrorAndExit()
     exit(EXIT_FAILURE);
 }
 
-static bool hasProcessOriginFromQtCreatorBuildDir(Q_PID pid)
+static bool hasProcessOriginFromQtCreatorBuildDir(qint64 pid)
 {
     const QString executable = QFile::symLinkTarget(QString::fromLatin1("/proc/%1/exe")
         .arg(QString::number(pid)));
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     if (positionalArguments.size() != 2)
         printErrorAndExit();
 
-    Q_PID parentPid = getppid();
+    qint64 parentPid = getppid();
     if (!hasProcessOriginFromQtCreatorBuildDir(parentPid))
         printErrorAndExit();
 

@@ -26,8 +26,10 @@
 #include "valueschangedcommand.h"
 
 #include "sharedmemory.h"
+
 #include <QCache>
 #include <QDebug>
+#include <QIODevice>
 
 #include <cstring>
 
