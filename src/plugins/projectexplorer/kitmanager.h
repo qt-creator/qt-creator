@@ -150,9 +150,6 @@ public:
 
     Kit *kit() const { return m_kit; }
 
-signals:
-    void dirty();
-
 protected:
     Kit *m_kit;
     const KitAspect *m_kitInformation;
