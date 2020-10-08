@@ -34,6 +34,7 @@
 #include <QSettings>
 #include <QVBoxLayout>
 #include <QLabel>
+#include <QPaintEngine>
 #include <QToolButton>
 #include <QComboBox>
 
@@ -43,7 +44,38 @@ namespace Utils {
 
 QSet<Id> InfoBar::globallySuppressed;
 QSettings *InfoBar::m_settings = nullptr;
-Utils::Theme *InfoBar::m_theme = nullptr;
+
+class InfoBarWidget : public QWidget
+{
+public:
+    InfoBarWidget(Qt::Edge edge, QWidget *parent = nullptr);
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+
+private:
+    const Qt::Edge m_edge;
+};
+
+InfoBarWidget::InfoBarWidget(Qt::Edge edge, QWidget *parent)
+    : QWidget(parent)
+    , m_edge(edge)
+{
+    const bool topEdge = m_edge == Qt::TopEdge;
+    setContentsMargins(2, topEdge ? 0 : 1, 0, topEdge ? 1 : 0);
+}
+
+void InfoBarWidget::paintEvent(QPaintEvent *event)
+{
+    QWidget::paintEvent(event);
+    QPainter p(this);
+    p.fillRect(rect(), creatorTheme()->color(Theme::InfoBarBackground));
+    const QRectF adjustedRect = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
+    const bool topEdge = m_edge == Qt::TopEdge;
+    p.setPen(creatorTheme()->color(Theme::FancyToolBarSeparatorColor));
+    p.drawLine(QLineF(topEdge ? adjustedRect.bottomLeft() : adjustedRect.topLeft(),
+                      topEdge ? adjustedRect.bottomRight() : adjustedRect.topRight()));
+}
 
 InfoBarEntry::InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppression _globalSuppression)
     : m_id(_id)
@@ -146,10 +178,9 @@ void InfoBar::globallyUnsuppressInfo(Id id)
     writeGloballySuppressedToSettings();
 }
 
-void InfoBar::initialize(QSettings *settings, Theme *theme)
+void InfoBar::initialize(QSettings *settings)
 {
     m_settings = settings;
-    m_theme = theme;
 
     if (QTC_GUARD(m_settings)) {
         const QStringList list = m_settings->value(QLatin1String(C_SUPPRESSED_WARNINGS)).toStringList();
@@ -204,9 +235,9 @@ void InfoBarDisplay::setInfoBar(InfoBar *infoBar)
     update();
 }
 
-void InfoBarDisplay::setStyle(QFrame::Shadow style)
+void InfoBarDisplay::setEdge(Qt::Edge edge)
 {
-    m_style = style;
+    m_edge = edge;
     update();
 }
 
@@ -235,18 +266,7 @@ void InfoBarDisplay::update()
         return;
 
     for (const InfoBarEntry &info : m_infoBar->m_infoBarEntries) {
-        QFrame *infoWidget = new QFrame;
-
-        QPalette pal;
-        if (QTC_GUARD(InfoBar::m_theme)) {
-            pal.setColor(QPalette::Window, InfoBar::m_theme->color(Theme::InfoBarBackground));
-            pal.setColor(QPalette::WindowText, InfoBar::m_theme->color(Theme::InfoBarText));
-        }
-
-        infoWidget->setPalette(pal);
-        infoWidget->setFrameStyle(QFrame::Panel | m_style);
-        infoWidget->setLineWidth(1);
-        infoWidget->setAutoFillBackground(true);
+        auto infoWidget = new InfoBarWidget(m_edge);
 
         auto hbox = new QHBoxLayout;
         hbox->setContentsMargins(2, 2, 2, 2);

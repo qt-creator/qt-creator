@@ -519,7 +519,7 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
     vlayout->addWidget(m_statusBar);
 
     m_infoBarDisplay.setTarget(vlayout, 1);
-    m_infoBarDisplay.setStyle(QFrame::Sunken);
+    m_infoBarDisplay.setEdge(Qt::BottomEdge);
 
     auto mainLayout = new QHBoxLayout;
     mainLayout->setContentsMargins(0, 0, 0, 0);

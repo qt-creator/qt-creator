@@ -150,7 +150,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     Theme *themeFromArg = ThemeEntry::createTheme(args.themeId);
     setCreatorTheme(themeFromArg ? themeFromArg
                                  : ThemeEntry::createTheme(ThemeEntry::themeSetting()));
-    InfoBar::initialize(ICore::settings(), creatorTheme());
+    InfoBar::initialize(ICore::settings());
     new ActionManager(this);
     ActionManager::setPresentationModeEnabled(args.presentationMode);
     m_mainWindow = new MainWindow;

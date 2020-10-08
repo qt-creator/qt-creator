@@ -100,7 +100,7 @@ public:
     static void clearGloballySuppressed();
     static bool anyGloballySuppressed();
 
-    static void initialize(QSettings *settings, Theme *theme);
+    static void initialize(QSettings *settings);
 
 signals:
     void changed();
@@ -114,7 +114,6 @@ private:
 
     static QSet<Id> globallySuppressed;
     static QSettings *m_settings;
-    static Theme *m_theme;
 
     friend class InfoBarDisplay;
 };
@@ -127,7 +126,7 @@ public:
     InfoBarDisplay(QObject *parent = nullptr);
     void setTarget(QBoxLayout *layout, int index);
     void setInfoBar(InfoBar *infoBar);
-    void setStyle(QFrame::Shadow style);
+    void setEdge(Qt::Edge edge);
 
     InfoBar *infoBar() const;
 
@@ -139,7 +138,7 @@ private:
     QList<QWidget *> m_infoWidgets;
     InfoBar *m_infoBar = nullptr;
     QBoxLayout *m_boxLayout = nullptr;
-    QFrame::Shadow m_style = QFrame::Raised;
+    Qt::Edge m_edge = Qt::TopEdge;
     int m_boxIndex = 0;
     bool m_isShowingDetailsWidget = false;
 };

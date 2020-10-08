@@ -89,7 +89,7 @@ public:
         FancyToolButtonSelectedColor,
         FutureProgressBackgroundColor,
         InfoBarBackground,
-        InfoBarText,
+        InfoBarText, // TODO: Deprecate. Unused.
         MenuBarEmptyAreaBackgroundColor,
         MenuBarItemBackgroundColor,
         MenuBarItemTextColorDisabled,
