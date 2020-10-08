@@ -36,7 +36,6 @@ private slots:
     void testLoadFile();
     void testAnnounceFile();
     void testZoom();
-    void testLanguate();
     void testMessageReceived();
 };
 

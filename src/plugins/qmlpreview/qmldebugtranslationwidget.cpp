@@ -91,8 +91,9 @@ QObject *getPreviewPlugin()
 
 namespace QmlPreview {
 
-QmlDebugTranslationWidget::QmlDebugTranslationWidget(QWidget *parent)
+QmlDebugTranslationWidget::QmlDebugTranslationWidget(QWidget *parent, TestLanguageGetter languagesGetterMethod)
     : QWidget(parent)
+    , m_testLanguagesGetter(languagesGetterMethod)
 {
     auto mainLayout = new QVBoxLayout(this);
 
@@ -124,6 +125,7 @@ QmlDebugTranslationWidget::QmlDebugTranslationWidget(QWidget *parent)
     layout()->addWidget(elideWarningCheckBox);
     connect(elideWarningCheckBox, &QCheckBox::stateChanged, [this] (int state) {
         m_elideWarning = (state == Qt::Checked);
+
     });
 
     auto controlLayout = new QHBoxLayout;
@@ -232,6 +234,7 @@ void QmlDebugTranslationWidget::updateStartupProjectTranslations()
 
 void QmlDebugTranslationWidget::updateCurrentTranslations(ProjectExplorer::Project *project)
 {
+    m_testLanguages.clear();
     for (int i = m_selectLanguageLayout->count()-1; i >= 0; --i) {
         auto layoutItem = m_selectLanguageLayout->takeAt(i);
         delete layoutItem->widget();
@@ -244,28 +247,23 @@ void QmlDebugTranslationWidget::updateCurrentTranslations(ProjectExplorer::Proje
         connect(multiLanguageAspect, &QmlProjectManager::QmlMultiLanguageAspect::changed,
                 this, &QmlDebugTranslationWidget::updateStartupProjectTranslations,
                 Qt::UniqueConnection);
+        auto languageLabel = new QLabel();
+        languageLabel->setText(tr("Select which language should be tested:"));
+        m_selectLanguageLayout->addWidget(languageLabel);
         if (multiLanguageAspect->value()) {
-            m_selectLanguageLayout->addWidget(new QLabel(
-                tr("Current language is \'<b>%1</b>\' can be changed in the 'Translation' tab.")
-                    .arg(multiLanguageAspect->currentLocale())));
-            m_testLanguages.clear();
-            m_testLanguages.append(multiLanguageAspect->currentLocale());
-        } else {
-            m_selectLanguageLayout->addWidget(new QLabel(tr("Select which language should be tested:")));
-            QString errorMessage;
-            for (auto language : project->availableQmlPreviewTranslations(&errorMessage)) {
-                auto languageCheckBox = new QCheckBox(language);
-                m_selectLanguageLayout->addWidget(languageCheckBox);
-                connect(languageCheckBox, &QCheckBox::stateChanged, [this, language] (int state) {
-                    if (state == Qt::Checked)
-                        m_testLanguages.append(language);
-                    else
-                        m_testLanguages.removeAll(language);
+            addLanguageCheckBoxes({multiLanguageAspect->currentLocale()});
+            if (m_testLanguagesGetter) {
+                auto addTestLanguages = new QPushButton(tr("Add Test Languages"));
+                m_selectLanguageLayout->addWidget(addTestLanguages);
+                connect(addTestLanguages, &QPushButton::clicked, [this]() {
+                    addLanguageCheckBoxes(m_testLanguagesGetter());
                 });
-                languageCheckBox->setChecked(true);
             }
-            m_selectLanguageLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
+        } else {
+            QString errorMessage;
+            addLanguageCheckBoxes(project->availableQmlPreviewTranslations(&errorMessage));
         }
+        m_selectLanguageLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
     }
 }
 
@@ -298,14 +296,16 @@ void QmlDebugTranslationWidget::runTest()
         int timerCounter = 1;
         const auto testLanguageList = m_testLanguages;
 
+        if (m_elideWarning)
+            previewPlugin->changeElideWarning(true);
+
         auto testLanguages = [previewPlugin, runControl, testLanguageList](int timerCounter, const QString &previewedFile) {
-            qDebug() << "testLanguages" << previewedFile;
             for (auto language : testLanguageList) {
                 QTimer::singleShot(timerCounter * 1000, previewPlugin, [previewPlugin, runControl, language, previewedFile]() {
                     if (runControl && runControl->isRunning()) {
                         if (!previewedFile.isEmpty())
                             previewPlugin->setPreviewedFile(previewedFile);
-                        previewPlugin->setLocale(language);
+                        previewPlugin->setLocaleIsoCode(language);
                     }
                 });
             }
@@ -319,7 +319,7 @@ void QmlDebugTranslationWidget::runTest()
         //delete m_currentRunControl; // who deletes the runcontrol?
         m_currentRunControl = nullptr;
         if (auto previewPlugin = qobject_cast<Internal::QmlPreviewPlugin*>(getPreviewPlugin()))
-            previewPlugin->setLocale(m_lastUsedLanguageBeforeTest);
+            previewPlugin->setLocaleIsoCode(m_lastUsedLanguageBeforeTest);
     });
 
     connect(runControl, &ProjectExplorer::RunControl::appendMessage,
@@ -332,7 +332,7 @@ void QmlDebugTranslationWidget::runTest()
             if (auto runConfiguration = target->activeRunConfiguration()) {
                 runControl->setRunConfiguration(runConfiguration);
                 if (runControl->createMainWorker()) {
-                    previewPlugin->setLocale(QString());
+                    previewPlugin->setLocaleIsoCode(QString());
                     runControl->initiateStart();
                 }
             }
@@ -399,7 +399,7 @@ void QmlDebugTranslationWidget::appendMessage(const QString &message, Utils::Out
         return;
     }
     const QString serviceSeperator = ": QQmlDebugTranslationService: ";
-    if (!message.contains(serviceSeperator) || message.contains("DebugTranslation service - language changed"))
+    if (!message.contains(serviceSeperator))
         return;
     QString locationString = message;
     locationString = locationString.split(serviceSeperator).first();
@@ -447,6 +447,21 @@ QString QmlDebugTranslationWidget::runButtonText(bool isRunning)
         return tr("Stop");
     }
     return tr("Run language tests");
+}
+
+void QmlDebugTranslationWidget::addLanguageCheckBoxes(const QStringList &languages)
+{
+    for (auto language : languages) {
+        auto languageCheckBox = new QCheckBox(language);
+        m_selectLanguageLayout->addWidget(languageCheckBox);
+        connect(languageCheckBox, &QCheckBox::stateChanged, [this, language] (int state) {
+            if (state == Qt::Checked)
+                m_testLanguages.append(language);
+            else
+                m_testLanguages.removeAll(language);
+        });
+        languageCheckBox->setChecked(true);
+    }
 }
 
 } // namespace QmlPreview

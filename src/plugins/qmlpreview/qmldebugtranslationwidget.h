@@ -51,11 +51,13 @@ namespace QmlPreview {
 
 class ProjectFileSelectionsWidget;
 
+
 class QMLPREVIEW_EXPORT QmlDebugTranslationWidget : public QWidget
 {
+    using TestLanguageGetter = std::function<QStringList()>;
     Q_OBJECT
 public:
-    explicit QmlDebugTranslationWidget(QWidget *parent = nullptr);
+    explicit QmlDebugTranslationWidget(QWidget *parent = nullptr, TestLanguageGetter languagesGetterMethod = {});
     ~QmlDebugTranslationWidget() override;
 
     void setCurrentFile(const Utils::FilePath &filepath);
@@ -75,6 +77,7 @@ private:
 
     QString singleFileButtonText(const QString &filePath);
     QString runButtonText(bool isRunning = false);
+    void addLanguageCheckBoxes(const QStringList &languages);
 
     QStringList m_testLanguages;
     QString m_lastUsedLanguageBeforeTest;
@@ -94,6 +97,7 @@ private:
     QString m_lastDir;
 
     QHBoxLayout *m_selectLanguageLayout;
+    TestLanguageGetter m_testLanguagesGetter;
 };
 
 } // namespace QmlPreview
