@@ -8,7 +8,7 @@ endif()
 add_qtc_library(qml2puppet_static
   STATIC
   DEPENDS
-  Qt5::CorePrivate Qt5::Gui
+  Qt5::CorePrivate Qt5::Widgets
   PUBLIC_INCLUDES "${SRCDIR}/interfaces"
   SOURCES_PREFIX "${SRCDIR}/interfaces"
   SOURCES
