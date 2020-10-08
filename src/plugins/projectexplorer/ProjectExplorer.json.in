@@ -22,7 +22,7 @@
         },
         {
             \"Name\" : \"-ensure-kit-for-binary\",
-            \"Parameter\" : \"<file path>\",
+            \"Parameter\" : \"file path\",
             \"Description\" : \"Create kit with architecture matching a given application or library\"
         },
         {
