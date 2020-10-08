@@ -35,6 +35,7 @@ class PROJECTEXPLORER_EXPORT BuildPropertiesSettings
 {
 public:
     QString buildDirectoryTemplate;
+    QString buildDirectoryTemplateOld; // TODO: Remove in ~4.16
     Utils::TriState separateDebugInfo;
     Utils::TriState qmlDebugging;
     Utils::TriState qtQuickCompiler;
