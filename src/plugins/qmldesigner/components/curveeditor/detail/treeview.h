@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "curveitem.h"
 #include "selectionmodel.h"
 
 #include <QTreeView>
@@ -33,7 +34,6 @@ namespace DesignTools {
 
 class AnimationCurve;
 class CurveEditorModel;
-class CurveItem;
 
 struct CurveEditorStyle;
 
