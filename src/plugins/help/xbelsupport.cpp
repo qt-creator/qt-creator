@@ -110,9 +110,8 @@ bool XbelReader::readFromFile(QIODevice *device)
         readNext();
 
         if (isStartElement()) {
-            if (name() == "xbel"
-                && attributes().value("version")
-                    == "1.0") {
+            if (name() == QLatin1String("xbel")
+                && attributes().value("version") == QLatin1String("1.0")) {
                 readXBEL();
             } else {
                 raiseError(QCoreApplication::translate("Help::Internal::XbelReader", "The file is not an XBEL version 1.0 file."));
@@ -132,9 +131,9 @@ void XbelReader::readXBEL()
             break;
 
         if (isStartElement()) {
-            if (name() == "folder")
+            if (name() == QLatin1String("folder"))
                 readFolder(nullptr);
-            else if (name() == "bookmark")
+            else if (name() == QLatin1String("bookmark"))
                 readBookmark(nullptr);
             else
                 readUnknownElement();
@@ -161,8 +160,7 @@ void XbelReader::readFolder(QStandardItem *item)
     folder->setIcon(folderIcon);
     folder->setData("Folder", Qt::UserRole + 10);
 
-    bool expanded =
-        (attributes().value("folded") != "no");
+    const bool expanded = attributes().value("folded") != QLatin1String("no");
     folder->setData(expanded, Qt::UserRole + 11);
 
     while (!atEnd()) {
@@ -172,11 +170,11 @@ void XbelReader::readFolder(QStandardItem *item)
             break;
 
         if (isStartElement()) {
-            if (name() == "title")
+            if (name() == QLatin1String("title"))
                 folder->setText(readElementText());
-            else if (name() == "folder")
+            else if (name() == QLatin1String("folder"))
                 readFolder(folder);
-            else if (name() == "bookmark")
+            else if (name() == QLatin1String("bookmark"))
                 readBookmark(folder);
             else
                 readUnknownElement();
@@ -199,7 +197,7 @@ void XbelReader::readBookmark(QStandardItem *item)
             break;
 
         if (isStartElement()) {
-            if (name() == "title")
+            if (name() == QLatin1String("title"))
                 bookmark->setText(readElementText());
             else
                 readUnknownElement();
