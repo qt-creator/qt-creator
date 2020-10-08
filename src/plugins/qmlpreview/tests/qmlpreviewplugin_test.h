@@ -42,7 +42,6 @@ public:
 private slots:
     void testFileLoaderProperty();
     void testZoomFactorProperty();
-    void testLocaleProperty();
     void testFpsHandlerProperty();
 };
 

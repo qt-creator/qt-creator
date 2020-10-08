@@ -36,15 +36,13 @@
 namespace QmlPreview {
 namespace Internal {
 
-QmlPreviewConnectionManager::~QmlPreviewConnectionManager()
-{
-}
-
 QmlPreviewConnectionManager::QmlPreviewConnectionManager(QObject *parent) :
     QmlDebug::QmlDebugConnectionManager(parent)
 {
     setTarget(nullptr);
 }
+
+QmlPreviewConnectionManager::~QmlPreviewConnectionManager() = default;
 
 void QmlPreviewConnectionManager::setTarget(ProjectExplorer::Target *target)
 {
@@ -117,13 +115,11 @@ void QmlPreviewConnectionManager::createDebugTranslationClient()
 {
     m_qmlDebugTranslationClient = new QmlDebugTranslationClient(connection());
     connect(this, &QmlPreviewConnectionManager::language,
-                     m_qmlDebugTranslationClient.data(), [this](const QString &locale) {
-
-        if (m_lastLoadedUrl.isEmpty()) {
-            // findValidI18nDirectoryAsUrl does not work if we didn't load any file
-            m_initLocale = locale;
-        } else {
-            // service expects a context URL.
+                     m_qmlDebugTranslationClient, [this](const QString &locale) {
+        m_lastUsedLanguage = locale;
+        // findValidI18nDirectoryAsUrl does not work if we didn't load any file
+        // service expects a context URL.
+        if (!m_lastLoadedUrl.isEmpty()) {
             // Search the parent directories of the last loaded URL for i18n files.
             m_qmlDebugTranslationClient->changeLanguage(findValidI18nDirectoryAsUrl(locale), locale);
         }
@@ -159,10 +155,9 @@ void QmlPreviewConnectionManager::createPreviewClient()
 
         m_lastLoadedUrl = m_targetFileFinder.findUrl(filename);
         m_qmlPreviewClient->loadUrl(m_lastLoadedUrl);
-        if (!m_initLocale.isEmpty()) {
-            emit language(m_initLocale);
-            m_initLocale.clear();
-        }
+        // emit language after a file was loaded and do it every time,
+        // because this also triggers the check for missing translations
+        emit language(m_lastUsedLanguage);
     });
 
     connect(this, &QmlPreviewConnectionManager::rerun,
@@ -170,19 +165,6 @@ void QmlPreviewConnectionManager::createPreviewClient()
 
     connect(this, &QmlPreviewConnectionManager::zoom,
                      m_qmlPreviewClient.data(), &QmlPreviewClient::zoom);
-
-    connect(this, &QmlPreviewConnectionManager::language,
-                     m_qmlPreviewClient.data(), [this](const QString &locale) {
-
-        if (m_lastLoadedUrl.isEmpty()) {
-            // findValidI18nDirectoryAsUrl does not work if we didn't load any file
-            m_initLocale = locale;
-        } else {
-            // service expects a context URL.
-            // Search the parent directories of the last loaded URL for i18n files.
-            m_qmlPreviewClient->language(findValidI18nDirectoryAsUrl(locale), locale);
-        }
-    });
 
     connect(m_qmlPreviewClient.data(), &QmlPreviewClient::pathRequested,
                      this, [this](const QString &path) {

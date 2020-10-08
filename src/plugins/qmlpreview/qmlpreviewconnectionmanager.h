@@ -76,10 +76,10 @@ private:
     QPointer<QmlDebugTranslationClient> m_qmlDebugTranslationClient;
     Utils::FileSystemWatcher m_fileSystemWatcher;
     QUrl m_lastLoadedUrl;
+    QString m_lastUsedLanguage;
     QmlPreviewFileLoader m_fileLoader = nullptr;
     QmlPreviewFileClassifier m_fileClassifier = nullptr;
     QmlPreviewFpsHandler m_fpsHandler = nullptr;
-    QString m_initLocale;
 };
 
 } // namespace Internal
