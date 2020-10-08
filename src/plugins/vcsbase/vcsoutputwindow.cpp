@@ -363,12 +363,6 @@ void VcsOutputWindow::clearContents()
     d->widget.clear();
 }
 
-void VcsOutputWindow::visibilityChanged(bool visible)
-{
-    if (visible)
-        d->widget.setFocus();
-}
-
 void VcsOutputWindow::setFocus()
 {
     d->widget.setFocus();
