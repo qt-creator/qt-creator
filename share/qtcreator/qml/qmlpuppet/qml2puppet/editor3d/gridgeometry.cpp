@@ -41,6 +41,19 @@ GridGeometry::~GridGeometry()
 {
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+QString GridGeometry::name() const
+{
+    return objectName();
+}
+
+void GridGeometry::setName(const QString &name)
+{
+    setObjectName(name);
+    emit nameChanged();
+}
+#endif
+
 int GridGeometry::lines() const
 {
     return m_lines;

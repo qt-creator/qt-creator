@@ -37,6 +37,17 @@ class LightGeometry : public QQuick3DGeometry
     Q_OBJECT
     Q_PROPERTY(LightType lightType READ lightType WRITE setLightType NOTIFY lightTypeChanged)
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    // Name property was removed in Qt 6, so define it here for compatibility.
+    // Name maps to object name.
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+public:
+    QString name() const;
+    void setName(const QString &name);
+signals:
+    void nameChanged();
+#endif
+
 public:
     enum class LightType {
         Invalid,
@@ -52,10 +63,10 @@ public:
 
     LightType lightType() const;
 
-public Q_SLOTS:
+public slots:
     void setLightType(LightType lightType);
 
-Q_SIGNALS:
+signals:
     void lightTypeChanged();
 
 protected:

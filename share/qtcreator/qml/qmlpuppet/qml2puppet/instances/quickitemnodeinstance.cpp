@@ -262,10 +262,8 @@ QStringList QuickItemNodeInstance::allStates() const
 
 void QuickItemNodeInstance::updateDirtyNode(QQuickItem *item)
 {
-    if (s_unifiedRenderPath) {
-        item->update();
+    if (s_unifiedRenderPath)
         return;
-    }
     DesignerSupport::updateDirtyNode(item);
 }
 
@@ -417,22 +415,23 @@ QImage QuickItemNodeInstance::renderImage() const
     static double devicePixelRatio = qgetenv("FORMEDITOR_DEVICE_PIXEL_RATIO").toDouble();
     size *= devicePixelRatio;
 
-    // Fake render loop signaling to update things like QML items as 3D textures
-    nodeInstanceServer()->quickView()->beforeSynchronizing();
-    nodeInstanceServer()->quickView()->beforeRendering();
-
     QImage renderImage;
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    if (s_unifiedRenderPath)
+    if (s_unifiedRenderPath) {
         renderImage = nodeInstanceServer()->quickView()->grabWindow();
-    else
+    } else {
+        // Fake render loop signaling to update things like QML items as 3D textures
+        nodeInstanceServer()->quickView()->beforeSynchronizing();
+        nodeInstanceServer()->quickView()->beforeRendering();
+
         renderImage = designerSupport()->renderImageForItem(quickItem(), renderBoundingRect, size);
+
+        nodeInstanceServer()->quickView()->afterRendering();
+    }
 #else
     renderImage = nodeInstanceServer()->quickView()->grabWindow();
 #endif
-
-    nodeInstanceServer()->quickView()->afterRendering();
 
     renderImage.setDevicePixelRatio(devicePixelRatio);
 
@@ -447,26 +446,26 @@ QImage QuickItemNodeInstance::renderPreviewImage(const QSize &previewImageSize) 
         static double devicePixelRatio = qgetenv("FORMEDITOR_DEVICE_PIXEL_RATIO").toDouble();
         const QSize size = previewImageSize * devicePixelRatio;
         if (quickItem()->isVisible()) {
-            // Fake render loop signaling to update things like QML items as 3D textures
-            nodeInstanceServer()->quickView()->beforeSynchronizing();
-            nodeInstanceServer()->quickView()->beforeRendering();
-
             QImage image;
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-            if (s_unifiedRenderPath)
+            if (s_unifiedRenderPath) {
                 image = nodeInstanceServer()->quickView()->grabWindow();
-            else
+            } else {
+                // Fake render loop signaling to update things like QML items as 3D textures
+                nodeInstanceServer()->quickView()->beforeSynchronizing();
+                nodeInstanceServer()->quickView()->beforeRendering();
+
                 image = designerSupport()->renderImageForItem(quickItem(),
                                                               previewItemBoundingRect,
                                                               size);
 
+                nodeInstanceServer()->quickView()->afterRendering();
+            }
 #else
             image = nodeInstanceServer()->quickView()->grabWindow();
 #endif
 
             image = image.scaledToWidth(size.width());
-
-            nodeInstanceServer()->quickView()->afterRendering();
 
             return image;
         } else {
@@ -686,7 +685,8 @@ void QuickItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParen
 
     if (quickItem()->parentItem()) {
         refresh();
-        DesignerSupport::updateDirtyNode(quickItem());
+
+        updateDirtyNode(quickItem());
 
         if (instanceIsValidLayoutable(oldParentInstance, oldParentProperty))
             oldParentInstance->refreshLayoutable();

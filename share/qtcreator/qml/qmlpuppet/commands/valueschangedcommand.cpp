@@ -109,7 +109,11 @@ QDataStream &operator<<(QDataStream &out, const ValuesChangedCommand &command)
         ++keyCounter;
         command.m_keyNumber = keyCounter;
         QByteArray outDataStreamByteArray;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         QDataStream temporaryOutDataStream(&outDataStreamByteArray, QIODevice::WriteOnly);
+#else
+        QDataStream temporaryOutDataStream(&outDataStreamByteArray, QDataStream::WriteOnly);
+#endif
         temporaryOutDataStream.setVersion(QDataStream::Qt_4_8);
 
         temporaryOutDataStream << propertyValueContainer;

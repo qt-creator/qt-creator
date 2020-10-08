@@ -23,22 +23,44 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.15
-import QtQuick3D 1.15
+#pragma once
 
-Item {
-    id: root
-    width: 150
-    height: 150
+#ifdef QUICK3D_MODULE
 
-    property alias contentItem: contentItem
+// This is a dummy class for Qt 5 compatibility purposes only
 
-    View3D {
-        // Dummy view to hold the context in case View3D items are used in the component
-        // TODO remove when QTBUG-87678 is fixed
-    }
+#include <QtQuick3D/private/qquick3dabstractlight_p.h>
 
-    Item {
-        id: contentItem
-    }
+namespace QmlDesigner::Internal {
+
+class QQuick3DAreaLight : public QQuick3DAbstractLight
+{
+    Q_OBJECT
+    Q_PROPERTY(float width READ width WRITE setWidth NOTIFY widthChanged)
+    Q_PROPERTY(float height READ height WRITE setHeight NOTIFY heightChanged)
+
+public:
+    QQuick3DAreaLight() : QQuick3DAbstractLight() {}
+    ~QQuick3DAreaLight() override {}
+
+    float width() const;
+    float height() const;
+
+public slots:
+    void setWidth(float width);
+    void setHeight(float height);
+
+signals:
+    void widthChanged();
+    void heightChanged();
+
+private:
+    float m_width = 100.0f;
+    float m_height = 100.0f;
+};
+
 }
+
+QML_DECLARE_TYPE(QmlDesigner::Internal::QQuick3DAreaLight)
+
+#endif

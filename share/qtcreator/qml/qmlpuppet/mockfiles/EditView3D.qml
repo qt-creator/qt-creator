@@ -25,8 +25,6 @@
 
 import QtQuick 2.12
 import QtQuick3D 1.15
-import QtQuick.Controls 2.0
-import QtGraphicalEffects 1.0
 import MouseArea3D 1.0
 
 Item {
@@ -100,6 +98,7 @@ Item {
         if (editView) {
             // Destroy is async, so make sure we don't get any more updates for the old editView
             _generalHelper.enableItemUpdate(editView, false);
+            editView.visible = false;
             editView.destroy();
         }
 
@@ -299,13 +298,21 @@ Item {
 
     function addLightGizmo(scene, obj)
     {
-        // Insert into first available gizmo
+        // Insert into first available gizmo if we don't already have gizmo for this object
+        var slotFound = -1;
         for (var i = 0; i < lightIconGizmos.length; ++i) {
             if (!lightIconGizmos[i].targetNode) {
+                slotFound = i;
+            } else if (lightIconGizmos[i].targetNode === obj) {
                 lightIconGizmos[i].scene = scene;
-                lightIconGizmos[i].targetNode = obj;
                 return;
             }
+        }
+
+        if (slotFound !== -1) {
+            lightIconGizmos[slotFound].scene = scene;
+            lightIconGizmos[slotFound].targetNode = obj;
+            return;
         }
 
         // No free gizmos available, create a new one
@@ -324,14 +331,23 @@ Item {
 
     function addCameraGizmo(scene, obj)
     {
-        // Insert into first available gizmo
+        // Insert into first available gizmo if we don't already have gizmo for this object
+        var slotFound = -1;
         for (var i = 0; i < cameraGizmos.length; ++i) {
             if (!cameraGizmos[i].targetNode) {
+                slotFound = i;
+            } else if (cameraGizmos[i].targetNode === obj) {
                 cameraGizmos[i].scene = scene;
-                cameraGizmos[i].targetNode = obj;
                 return;
             }
         }
+
+        if (slotFound !== -1) {
+            cameraGizmos[slotFound].scene = scene;
+            cameraGizmos[slotFound].targetNode = obj;
+            return;
+        }
+
         // No free gizmos available, create a new one
         var gizmoComponent = Qt.createComponent("CameraGizmo.qml");
         var frustumComponent = Qt.createComponent("CameraFrustum.qml");

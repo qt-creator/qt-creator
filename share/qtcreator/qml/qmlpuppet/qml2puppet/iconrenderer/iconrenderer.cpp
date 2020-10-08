@@ -58,102 +58,123 @@ IconRenderer::IconRenderer(int size, const QString &filePath, const QString &sou
 void IconRenderer::setupRender()
 {
     DesignerSupport::activateDesignerMode();
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     DesignerSupport::activateDesignerWindowManager();
+#endif
 
     m_quickView = new QQuickView;
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QSurfaceFormat surfaceFormat = m_quickView->requestedFormat();
     surfaceFormat.setVersion(4, 1);
     surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
     m_quickView->setFormat(surfaceFormat);
 
     DesignerSupport::createOpenGLContext(m_quickView);
+#else
+    m_quickView->setDefaultAlphaBuffer(true);
+    m_quickView->setColor(Qt::transparent);
+    m_ratio = m_quickView->devicePixelRatio();
+    m_quickView->installEventFilter(this);
+#endif
 
     QQmlComponent component(m_quickView->engine());
     component.loadUrl(QUrl::fromLocalFile(m_source));
     QObject *iconItem = component.create();
 
     if (iconItem) {
-        QQuickItem *containerItem = nullptr;
-        bool is3D = false;
 #ifdef QUICK3D_MODULE
         if (auto scene = qobject_cast<QQuick3DNode *>(iconItem)) {
             qmlRegisterType<QmlDesigner::Internal::SelectionBoxGeometry>("SelectionBoxGeometry", 1, 0, "SelectionBoxGeometry");
             QQmlComponent component(m_quickView->engine());
             component.loadUrl(QUrl("qrc:/qtquickplugin/mockfiles/IconRenderer3D.qml"));
-            containerItem = qobject_cast<QQuickItem *>(component.create());
-            DesignerSupport::setRootItem(m_quickView, containerItem);
+            m_containerItem = qobject_cast<QQuickItem *>(component.create());
+            DesignerSupport::setRootItem(m_quickView, m_containerItem);
 
             auto helper = new QmlDesigner::Internal::GeneralHelper();
             m_quickView->engine()->rootContext()->setContextProperty("_generalHelper", helper);
 
-            m_contentItem = QQmlProperty::read(containerItem, "view3D").value<QQuickItem *>();
+            m_contentItem = QQmlProperty::read(m_containerItem, "view3D").value<QQuickItem *>();
             auto view3D = qobject_cast<QQuick3DViewport *>(m_contentItem);
             view3D->setImportScene(scene);
-            is3D = true;
+            m_is3D = true;
         } else
 #endif
         if (auto scene = qobject_cast<QQuickItem *>(iconItem)) {
             m_contentItem = scene;
-            containerItem = new QQuickItem();
-            containerItem->setSize(QSizeF(1024, 1024));
-            DesignerSupport::setRootItem(m_quickView, containerItem);
-            m_contentItem->setParentItem(containerItem);
+            m_containerItem = new QQuickItem();
+            m_containerItem->setSize(QSizeF(1024, 1024));
+            DesignerSupport::setRootItem(m_quickView, m_containerItem);
+            m_contentItem->setParentItem(m_containerItem);
         }
 
-        if (containerItem && m_contentItem) {
-            m_contentItem->setSize(QSizeF(m_size, m_size));
-            if (m_contentItem->width() > containerItem->width())
-                containerItem->setWidth(m_contentItem->width());
-            if (m_contentItem->height() > containerItem->height())
-                containerItem->setHeight(m_contentItem->height());
-
-            QTimer::singleShot(0, this, [this, is3D, containerItem]() {
-                m_designerSupport.refFromEffectItem(m_quickView->rootObject(), false);
-                QQuickDesignerSupportItems::disableNativeTextRendering(m_quickView->rootObject());
-
-#ifdef QUICK3D_MODULE
-                if (is3D) {
-                    // Render once to make sure scene is up to date before we set up the selection box
-                    render({});
-                    QMetaObject::invokeMethod(containerItem, "setSceneToBox");
-                    int tries = 0;
-                    while (tries < 10) {
-                        ++tries;
-                        render({});
-                        QMetaObject::invokeMethod(containerItem, "fitAndHideBox");
-                    }
-                }
+        if (m_containerItem && m_contentItem) {
+            resizeContent(m_size);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+            QTimer::singleShot(0, this, &IconRenderer::createIcon);
 #else
-                Q_UNUSED(is3D)
-                Q_UNUSED(containerItem)
+            m_quickView->show();
+            m_quickView->lower();
+
+            // Failsafe to exit eventually if window fails to expose
+            QTimer::singleShot(10000, qGuiApp, &QGuiApplication::quit);
 #endif
-                QFileInfo fi(m_filePath);
-
-                // Render regular size image
-                render(fi.absoluteFilePath());
-
-                // Render @2x image
-                m_contentItem->setSize(QSizeF(m_size * 2, m_size * 2));
-
-                QString saveFile;
-                saveFile = fi.absolutePath() + '/' + fi.completeBaseName() + "@2x";
-                if (!fi.suffix().isEmpty())
-                    saveFile += '.' + fi.suffix();
-
-                fi.absoluteDir().mkpath(".");
-
-                render(saveFile);
-
-                // Allow little time for file operations to finish
-                QTimer::singleShot(1000, qGuiApp, &QGuiApplication::quit);
-            });
         } else {
             QTimer::singleShot(0, qGuiApp, &QGuiApplication::quit);
         }
     } else {
         QTimer::singleShot(0, qGuiApp, &QGuiApplication::quit);
     }
+}
+
+bool IconRenderer::eventFilter(QObject *watched, QEvent *event)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    if (watched == m_quickView && event->type() == QEvent::Expose)
+        QTimer::singleShot(0, this, &IconRenderer::createIcon);
+#endif
+    return false;
+}
+
+void IconRenderer::createIcon()
+{
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    m_designerSupport.refFromEffectItem(m_quickView->rootObject(), false);
+#endif
+    QQuickDesignerSupportItems::disableNativeTextRendering(m_quickView->rootObject());
+
+#ifdef QUICK3D_MODULE
+    if (m_is3D) {
+        // Render once to make sure scene is up to date before we set up the selection box
+        render({});
+        QMetaObject::invokeMethod(m_containerItem, "setSceneToBox");
+        int tries = 0;
+        while (tries < 10) {
+            ++tries;
+            render({});
+            QMetaObject::invokeMethod(m_containerItem, "fitAndHideBox");
+        }
+    }
+#endif
+    QFileInfo fi(m_filePath);
+
+    // Render regular size image
+    render(fi.absoluteFilePath());
+
+    // Render @2x image
+    resizeContent(m_size * 2);
+
+    QString saveFile;
+    saveFile = fi.absolutePath() + '/' + fi.completeBaseName() + "@2x";
+    if (!fi.suffix().isEmpty())
+        saveFile += '.' + fi.suffix();
+
+    fi.absoluteDir().mkpath(".");
+
+    render(saveFile);
+
+    // Allow little time for file operations to finish
+    QTimer::singleShot(1000, qGuiApp, &QGuiApplication::quit);
 }
 
 void IconRenderer::render(const QString &fileName)
@@ -163,18 +184,48 @@ void IconRenderer::render(const QString &fileName)
         const auto childItems = item->childItems();
         for (QQuickItem *childItem : childItems)
             updateNodesRecursive(childItem);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         DesignerSupport::updateDirtyNode(item);
+#else
+        if (item->flags() & QQuickItem::ItemHasContents)
+            item->update();
+#endif
     };
     updateNodesRecursive(m_quickView->rootObject());
 
     QRect rect(QPoint(), m_contentItem->size().toSize());
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QImage renderImage = m_designerSupport.renderImageForItem(m_quickView->rootObject(),
                                                               rect, rect.size());
+#else
+    QImage renderImage = m_quickView->grabWindow();
+#endif
     if (!fileName.isEmpty()) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        if (m_ratio != 1.) {
+            rect.setWidth(qRound(rect.size().width() * m_ratio));
+            rect.setHeight(qRound(rect.size().height() * m_ratio));
+        }
+        renderImage = renderImage.copy(rect);
+#endif
         QFileInfo fi(fileName);
         if (fi.suffix().isEmpty())
             renderImage.save(fileName, "PNG");
         else
             renderImage.save(fileName);
     }
+}
+
+void IconRenderer::resizeContent(int size)
+{
+    int theSize = size;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    if (m_ratio != 1.)
+        theSize = qRound(qreal(size) / m_quickView->devicePixelRatio());
+#endif
+    m_contentItem->setSize(QSizeF(theSize, theSize));
+    if (m_contentItem->width() > m_containerItem->width())
+        m_containerItem->setWidth(m_contentItem->width());
+    if (m_contentItem->height() > m_containerItem->height())
+        m_containerItem->setHeight(m_contentItem->height());
 }

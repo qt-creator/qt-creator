@@ -39,6 +39,17 @@ class CameraGeometry : public QQuick3DGeometry
     Q_PROPERTY(QQuick3DCamera *camera READ camera WRITE setCamera NOTIFY cameraChanged)
     Q_PROPERTY(QRectF viewPortRect READ viewPortRect WRITE setViewPortRect NOTIFY viewPortRectChanged)
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    // Name property was removed in Qt 6, so define it here for compatibility.
+    // Name maps to object name.
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+public:
+    QString name() const;
+    void setName(const QString &name);
+signals:
+    void nameChanged();
+#endif
+
 public:
     CameraGeometry();
     ~CameraGeometry() override;
@@ -46,12 +57,12 @@ public:
     QQuick3DCamera *camera() const;
     QRectF viewPortRect() const;
 
-public Q_SLOTS:
+public slots:
     void setCamera(QQuick3DCamera *camera);
     void setViewPortRect(const QRectF &rect);
     void handleCameraPropertyChange();
 
-Q_SIGNALS:
+signals:
     void cameraChanged();
     void viewPortRectChanged();
 

@@ -81,6 +81,14 @@ void Qt5NodeInstanceServer::initializeView()
         QStringList customSelectors = QString::fromUtf8(qgetenv("QML_FILE_SELECTORS")).split(',');
         fileSelector->setExtraSelectors(customSelectors);
     }
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    // View needs to be shown for all puppets before any instances are created in case there is a View3D
+    quickView()->show();
+    quickView()->lower();
+#endif
+
+    initializeAuxiliaryViews();
 }
 
 QQmlView *Qt5NodeInstanceServer::declarativeView() const

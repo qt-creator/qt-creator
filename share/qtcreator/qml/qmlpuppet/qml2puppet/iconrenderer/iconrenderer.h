@@ -44,13 +44,21 @@ public:
 
     void setupRender();
 
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
 private:
+    void createIcon();
     void render(const QString &fileName);
+    void resizeContent(int size);
 
     int m_size = 16;
+    double m_ratio = 1.;
     QString m_filePath;
     QString m_source;
     QQuickView *m_quickView = nullptr;
     QQuickItem *m_contentItem = nullptr;
+    QQuickItem *m_containerItem = nullptr;
     DesignerSupport m_designerSupport;
+    bool m_is3D = false;
 };

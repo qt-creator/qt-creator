@@ -78,7 +78,6 @@
 #include <QDir>
 #include <QFileSystemWatcher>
 #include <QMetaType>
-#include <QMutableVectorIterator>
 #include <QQmlApplicationEngine>
 #include <QQmlComponent>
 #include <QQmlContext>
@@ -1475,6 +1474,10 @@ void NodeInstanceServer::sheduleRootItemRender()
             nodeInstanceClient()->pixmapChanged(PixmapChangedCommand(imageVector));
         });
     }
+}
+
+void NodeInstanceServer::initializeAuxiliaryViews()
+{
 }
 
 } // namespace QmlDesigner

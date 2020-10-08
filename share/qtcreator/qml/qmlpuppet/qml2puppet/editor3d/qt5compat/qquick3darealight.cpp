@@ -23,22 +23,37 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.15
-import QtQuick3D 1.15
+#ifdef QUICK3D_MODULE
 
-Item {
-    id: root
-    width: 150
-    height: 150
+#include "qquick3darealight_p.h"
+#include <QtQuick3D/private/qquick3dobject_p.h>
 
-    property alias contentItem: contentItem
+#include <QtQuick3DRuntimeRender/private/qssgrenderlight_p.h>
 
-    View3D {
-        // Dummy view to hold the context in case View3D items are used in the component
-        // TODO remove when QTBUG-87678 is fixed
-    }
+namespace QmlDesigner::Internal {
 
-    Item {
-        id: contentItem
-    }
+float QQuick3DAreaLight::width() const
+{
+    return m_width;
 }
+
+float QQuick3DAreaLight::height() const
+{
+    return m_height;
+}
+
+void QQuick3DAreaLight::setWidth(float width)
+{
+    m_width = width;
+    emit widthChanged();
+}
+
+void QQuick3DAreaLight::setHeight(float height)
+{
+    m_height = height;
+    emit heightChanged();
+}
+
+}
+
+#endif

@@ -49,6 +49,7 @@ class Qt5InformationNodeInstanceServer : public Qt5NodeInstanceServer
 
 public:
     explicit Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
+    ~Qt5InformationNodeInstanceServer() override;
 
     void reparentInstances(const ReparentInstancesCommand &command) override;
     void clearScene(const ClearSceneCommand &command) override;
@@ -89,6 +90,7 @@ protected:
     void selectInstances(const QList<ServerNodeInstance> &instanceList);
     void modifyProperties(const QVector<InstancePropertyValueTriple> &properties);
     QList<ServerNodeInstance> createInstances(const QVector<InstanceContainer> &container) override;
+    void initializeAuxiliaryViews() override;
 
 private:
     void handleObjectPropertyChangeTimeout();
@@ -129,6 +131,7 @@ private:
     QPointer<QQuickView> m_editView3D;
     QQuickItem *m_editView3DRootItem = nullptr;
     QQuickItem *m_editView3DContentItem = nullptr;
+    bool m_editView3DSetupDone = false;
     QPointer<QQuickView> m_ModelNode3DImageView;
     QQuickItem *m_ModelNode3DImageViewRootItem = nullptr;
     QQuickItem *m_ModelNode3DImageViewContentItem = nullptr;

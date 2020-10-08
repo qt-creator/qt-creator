@@ -76,6 +76,7 @@
 
 #include <designersupportdelegate.h>
 #include <qmlprivategate.h>
+#include <quickitemnodeinstance.h>
 
 #include <QVector3D>
 #include <QQmlProperty>
@@ -92,6 +93,9 @@
 #include <QtQuick3D/private/qquick3dabstractlight_p.h>
 #include <QtQuick3D/private/qquick3dviewport_p.h>
 #include <QtQuick3D/private/qquick3dscenerootnode_p.h>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include "../editor3d/qt5compat/qquick3darealight_p.h"
+#endif
 #endif
 
 namespace QmlDesigner {
@@ -128,9 +132,14 @@ static bool imageHasContent(const QImage &image)
 QQuickView *Qt5InformationNodeInstanceServer::createAuxiliaryQuickView(const QUrl &url,
                                                                        QQuickItem *&rootItem)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     auto view = new QQuickView(quickView()->engine(), quickView());
     view->setFormat(quickView()->format());
     DesignerSupport::createOpenGLContext(view);
+#else
+    auto view = new QQuickView(quickView()->engine(), nullptr);
+    view->setFormat(quickView()->format());
+#endif
     QQmlComponent component(engine());
     component.loadUrl(url);
     rootItem = qobject_cast<QQuickItem *>(component.create());
@@ -151,10 +160,13 @@ void Qt5InformationNodeInstanceServer::createEditView3D()
     qmlRegisterRevision<QQuick3DNode, 1>("MouseArea3D", 1, 0);
     qmlRegisterType<QmlDesigner::Internal::MouseArea3D>("MouseArea3D", 1, 0, "MouseArea3D");
     qmlRegisterType<QmlDesigner::Internal::CameraGeometry>("CameraGeometry", 1, 0, "CameraGeometry");
-    qmlRegisterType<QmlDesigner::Internal::LightGeometry>("LightGeometry", 1, 0, "LightGeometry");
+    qmlRegisterType<QmlDesigner::Internal::LightGeometry>("LightUtils", 1, 0, "LightGeometry");
     qmlRegisterType<QmlDesigner::Internal::GridGeometry>("GridGeometry", 1, 0, "GridGeometry");
     qmlRegisterType<QmlDesigner::Internal::SelectionBoxGeometry>("SelectionBoxGeometry", 1, 0, "SelectionBoxGeometry");
     qmlRegisterType<QmlDesigner::Internal::LineGeometry>("LineGeometry", 1, 0, "LineGeometry");
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    qmlRegisterType<QmlDesigner::Internal::QQuick3DAreaLight>("LightUtils", 1, 0, "AreaLight");
+#endif
 
     auto helper = new QmlDesigner::Internal::GeneralHelper();
     QObject::connect(helper, &QmlDesigner::Internal::GeneralHelper::toolStateChanged,
@@ -166,24 +178,8 @@ void Qt5InformationNodeInstanceServer::createEditView3D()
 
     m_editView3D = createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/EditView3D.qml"), m_editView3DRootItem);
 
-    if (m_editView3DRootItem) {
-        QObject::connect(m_editView3DRootItem, SIGNAL(selectionChanged(QVariant)),
-                         this, SLOT(handleSelectionChanged(QVariant)));
-        QObject::connect(m_editView3DRootItem, SIGNAL(commitObjectProperty(QVariant, QVariant)),
-                         this, SLOT(handleObjectPropertyCommit(QVariant, QVariant)));
-        QObject::connect(m_editView3DRootItem, SIGNAL(changeObjectProperty(QVariant, QVariant)),
-                         this, SLOT(handleObjectPropertyChange(QVariant, QVariant)));
-        QObject::connect(m_editView3DRootItem, SIGNAL(notifyActiveSceneChange()),
-                         this, SLOT(handleActiveSceneChange()));
-        QObject::connect(&m_propertyChangeTimer, &QTimer::timeout,
-                         this, &Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout);
-        QObject::connect(&m_selectionChangeTimer, &QTimer::timeout,
-                         this, &Qt5InformationNodeInstanceServer::handleSelectionChangeTimeout);
-        QObject::connect(&m_render3DEditViewTimer, &QTimer::timeout,
-                         this, &Qt5InformationNodeInstanceServer::doRender3DEditView);
-
+    if (m_editView3DRootItem)
         helper->setParent(m_editView3DRootItem);
-    }
 #endif
 }
 
@@ -380,6 +376,9 @@ void Qt5InformationNodeInstanceServer::updateView3DRect(QObject *view3D)
 void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D()
 {
 #ifdef QUICK3D_MODULE
+    if (!m_editView3DSetupDone)
+        return;
+
     // Active scene change handling on qml side is async, so a deleted importScene would crash
     // editView when it updates next. Disable/enable edit view update synchronously to avoid this.
     QVariant activeSceneVar = objectToVariant(m_active3DScene);
@@ -431,6 +430,9 @@ void Qt5InformationNodeInstanceServer::removeNode3D(QObject *node)
 void Qt5InformationNodeInstanceServer::resolveSceneRoots()
 {
 #ifdef QUICK3D_MODULE
+    if (!m_editView3DSetupDone)
+        return;
+
     const auto oldMap = m_3DSceneMap;
     m_3DSceneMap.clear();
     auto it = oldMap.begin();
@@ -477,16 +479,23 @@ ServerNodeInstance Qt5InformationNodeInstanceServer::active3DSceneInstance() con
 
 void Qt5InformationNodeInstanceServer::updateNodesRecursive(QQuickItem *item)
 {
-    for (QQuickItem *childItem : item->childItems())
+    const auto childItems = item->childItems();
+    for (QQuickItem *childItem : childItems)
         updateNodesRecursive(childItem);
-    DesignerSupport::updateDirtyNode(item);
+    if (Internal::QuickItemNodeInstance::unifiedRenderPath()) {
+        if (item->flags() & QQuickItem::ItemHasContents)
+            item->update();
+    } else {
+        DesignerSupport::updateDirtyNode(item);
+    }
 }
 
 QQuickItem *Qt5InformationNodeInstanceServer::getContentItemForRendering(QQuickItem *rootItem)
 {
     QQuickItem *contentItem = QQmlProperty::read(rootItem, "contentItem").value<QQuickItem *>();
     if (contentItem) {
-        designerSupport()->refFromEffectItem(contentItem, false);
+        if (!Internal::QuickItemNodeInstance::unifiedRenderPath())
+            designerSupport()->refFromEffectItem(contentItem, false);
         QmlDesigner::Internal::QmlPrivateGate::disableNativeTextRendering(contentItem);
     }
     return contentItem;
@@ -502,22 +511,32 @@ void Qt5InformationNodeInstanceServer::render3DEditView(int count)
 // render the 3D edit view and send the result to creator process
 void Qt5InformationNodeInstanceServer::doRender3DEditView()
 {
-    if (m_editView3DRootItem) {
+    if (m_editView3DSetupDone) {
         if (!m_editView3DContentItem)
             m_editView3DContentItem = getContentItemForRendering(m_editView3DRootItem);
 
+        QImage renderImage;
+
         updateNodesRecursive(m_editView3DContentItem);
 
-        // Fake render loop signaling to update things like QML items as 3D textures
-        m_editView3D->beforeSynchronizing();
-        m_editView3D->beforeRendering();
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        if (Internal::QuickItemNodeInstance::unifiedRenderPath()) {
+            renderImage = m_editView3D->grabWindow();
+        } else {
+            // Fake render loop signaling to update things like QML items as 3D textures
+            m_editView3D->beforeSynchronizing();
+            m_editView3D->beforeRendering();
 
-        QSizeF size = qobject_cast<QQuickItem *>(m_editView3DContentItem)->size();
-        QRectF renderRect(QPointF(0., 0.), size);
-        QImage renderImage = designerSupport()->renderImageForItem(m_editView3DContentItem,
-                                                                   renderRect, size.toSize());
+            QSizeF size = qobject_cast<QQuickItem *>(m_editView3DContentItem)->size();
+            QRectF renderRect(QPointF(0., 0.), size);
+            renderImage = designerSupport()->renderImageForItem(m_editView3DContentItem,
+                                                                renderRect, size.toSize());
 
-        m_editView3D->afterRendering();
+            m_editView3D->afterRendering();
+        }
+#else
+        renderImage = m_editView3D->grabWindow();
+#endif
 
         // There's no instance related to image, so instance id is -1.
         // Key number is selected so that it is unlikely to conflict other ImageContainer use.
@@ -581,27 +600,42 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView()
                 instanceObj = instance.internalObject();
             }
             QSize renderSize = m_modelNodePreviewImageCommand.size();
+            if (Internal::QuickItemNodeInstance::unifiedRenderPath()) {
+                // Requested size is already adjusted for target pixel ratio, so we have to adjust
+                // back if ratio is not default for our window.
+                double ratio = m_ModelNode3DImageView->devicePixelRatio();
+                renderSize.setWidth(qRound(qreal(renderSize.width()) / ratio));
+                renderSize.setHeight(qRound(qreal(renderSize.height()) / ratio));
+            }
 
             QMetaObject::invokeMethod(m_ModelNode3DImageViewRootItem, "createViewForObject",
                                       Q_ARG(QVariant, objectToVariant(instanceObj)),
                                       Q_ARG(QVariant, QVariant::fromValue(renderSize.width())),
                                       Q_ARG(QVariant, QVariant::fromValue(renderSize.height())));
 
+
             bool ready = false;
             int count = 0; // Ensure we don't ever get stuck in an infinite loop
             while (!ready && ++count < 10) {
                 updateNodesRecursive(m_ModelNode3DImageViewContentItem);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+                if (Internal::QuickItemNodeInstance::unifiedRenderPath()) {
+                    renderImage = m_ModelNode3DImageView->grabWindow();
+                } else {
+                    // Fake render loop signaling to update things like QML items as 3D textures
+                    m_ModelNode3DImageView->beforeSynchronizing();
+                    m_ModelNode3DImageView->beforeRendering();
 
-                // Fake render loop signaling to update things like QML items as 3D textures
-                m_ModelNode3DImageView->beforeSynchronizing();
-                m_ModelNode3DImageView->beforeRendering();
+                    QSizeF size = qobject_cast<QQuickItem *>(m_ModelNode3DImageViewContentItem)->size();
+                    QRectF renderRect(QPointF(0., 0.), size);
+                    renderImage = designerSupport()->renderImageForItem(m_ModelNode3DImageViewContentItem,
+                                                                        renderRect, size.toSize());
 
-                QSizeF size = qobject_cast<QQuickItem *>(m_ModelNode3DImageViewContentItem)->size();
-                QRectF renderRect(QPointF(0., 0.), size);
-                renderImage = designerSupport()->renderImageForItem(m_ModelNode3DImageViewContentItem,
-                                                                    renderRect, size.toSize());
-                m_ModelNode3DImageView->afterRendering();
-
+                    m_ModelNode3DImageView->afterRendering();
+                }
+#else
+                renderImage = m_ModelNode3DImageView->grabWindow();
+#endif
                 QMetaObject::invokeMethod(m_ModelNode3DImageViewRootItem, "afterRender");
                 ready = QQmlProperty::read(m_ModelNode3DImageViewRootItem, "ready").value<bool>();
             }
@@ -682,12 +716,23 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode2DImageView()
             if (renderSize.isEmpty()) {
                 renderSize = finalSize;
                 renderRect = QRectF(QPointF(0., 0.), QSizeF(renderSize));
-                instanceItem->setSize(renderSize);
             }
+            m_ModelNode2DImageView->resize(renderSize);
+            m_ModelNode2DImageViewRootItem->setSize(renderSize);
+            m_ModelNode2DImageViewContentItem->setPosition(QPointF(-renderRect.x(), -renderRect.y()));
 
             updateNodesRecursive(m_ModelNode2DImageViewContentItem);
 
-            renderImage = designerSupport()->renderImageForItem(m_ModelNode2DImageViewContentItem, renderRect, renderSize);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+                if (Internal::QuickItemNodeInstance::unifiedRenderPath()) {
+                    renderImage = m_ModelNode2DImageView->grabWindow();
+                } else {
+                    renderImage = designerSupport()->renderImageForItem(m_ModelNode2DImageViewContentItem,
+                                                                        renderRect, renderSize);
+                }
+#else
+                renderImage = m_ModelNode2DImageView->grabWindow();
+#endif
 
             if (!imageHasContent(renderImage))
                 renderImage = nonVisualComponentPreviewImage();
@@ -719,6 +764,12 @@ Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceC
     m_selectionChangeTimer.setSingleShot(true);
     m_render3DEditViewTimer.setSingleShot(true);
     m_renderModelNodeImageViewTimer.setSingleShot(true);
+}
+
+Qt5InformationNodeInstanceServer::~Qt5InformationNodeInstanceServer()
+{
+    for (auto view : qAsConst(m_view3Ds))
+        QObject::disconnect(view, nullptr, this, nullptr);
 }
 
 void Qt5InformationNodeInstanceServer::sendTokenBack()
@@ -795,7 +846,7 @@ QList<ServerNodeInstance> Qt5InformationNodeInstanceServer::createInstances(
 {
     const auto createdInstances = NodeInstanceServer::createInstances(container);
 
-    if (m_editView3DRootItem) {
+    if (m_editView3DSetupDone) {
         add3DViewPorts(createdInstances);
         add3DScenes(createdInstances);
         createCameraAndLightGizmos(createdInstances);
@@ -804,6 +855,37 @@ QList<ServerNodeInstance> Qt5InformationNodeInstanceServer::createInstances(
     render3DEditView();
 
     return createdInstances;
+}
+
+void Qt5InformationNodeInstanceServer::initializeAuxiliaryViews()
+{
+#ifdef QUICK3D_MODULE
+    if (qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_MODE")) {
+        createEditView3D();
+        m_ModelNode3DImageView = createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/ModelNode3DImageView.qml"),
+                                                          m_ModelNode3DImageViewRootItem);
+    }
+#endif
+
+    m_ModelNode2DImageView = createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/ModelNode2DImageView.qml"),
+                                                      m_ModelNode2DImageViewRootItem);
+    m_ModelNode2DImageView->setDefaultAlphaBuffer(true);
+    m_ModelNode2DImageView->setColor(Qt::transparent);
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    if (!m_editView3D.isNull()) {
+        m_editView3D->show();
+        m_editView3D->lower();
+    }
+    if (!m_ModelNode3DImageView.isNull()) {
+        m_ModelNode3DImageView->show();
+        m_ModelNode3DImageView->lower();
+    }
+    if (!m_ModelNode2DImageView.isNull()) {
+        m_ModelNode2DImageView->show();
+        m_ModelNode2DImageView->lower();
+    }
+#endif
 }
 
 void Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout()
@@ -1028,14 +1110,28 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
                                                        const QHash<QString, QVariantMap> &toolStates)
 {
 #ifdef QUICK3D_MODULE
+    if (!m_editView3DRootItem)
+        return;
+
     ServerNodeInstance root = rootNodeInstance();
 
     add3DViewPorts(instanceList);
     add3DScenes(instanceList);
 
-    createEditView3D();
-    m_ModelNode3DImageView = createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/ModelNode3DImageView.qml"),
-                                                      m_ModelNode3DImageViewRootItem);
+    QObject::connect(m_editView3DRootItem, SIGNAL(selectionChanged(QVariant)),
+                     this, SLOT(handleSelectionChanged(QVariant)));
+    QObject::connect(m_editView3DRootItem, SIGNAL(commitObjectProperty(QVariant, QVariant)),
+                     this, SLOT(handleObjectPropertyCommit(QVariant, QVariant)));
+    QObject::connect(m_editView3DRootItem, SIGNAL(changeObjectProperty(QVariant, QVariant)),
+                     this, SLOT(handleObjectPropertyChange(QVariant, QVariant)));
+    QObject::connect(m_editView3DRootItem, SIGNAL(notifyActiveSceneChange()),
+                     this, SLOT(handleActiveSceneChange()));
+    QObject::connect(&m_propertyChangeTimer, &QTimer::timeout,
+                     this, &Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout);
+    QObject::connect(&m_selectionChangeTimer, &QTimer::timeout,
+                     this, &Qt5InformationNodeInstanceServer::handleSelectionChangeTimeout);
+    QObject::connect(&m_render3DEditViewTimer, &QTimer::timeout,
+                     this, &Qt5InformationNodeInstanceServer::doRender3DEditView);
 
     QString lastSceneId;
     auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
@@ -1056,7 +1152,7 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
     // Find a scene to show
     m_active3DScene = nullptr;
     m_active3DView = nullptr;
-    if (m_editView3DRootItem && !m_3DSceneMap.isEmpty()) {
+    if (!m_3DSceneMap.isEmpty()) {
         // Restore the previous scene if possible
         if (!lastSceneId.isEmpty()) {
             const auto keys = m_3DSceneMap.uniqueKeys();
@@ -1072,6 +1168,8 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeIns
             m_active3DView = findView3DForSceneRoot(m_active3DScene);
         }
     }
+
+    m_editView3DSetupDone = true;
 
     if (toolStates.contains({})) {
         // Update tool state to an existing no-scene state before updating the active scene to
@@ -1175,7 +1273,7 @@ void Qt5InformationNodeInstanceServer::reparentInstances(const ReparentInstances
 
     Qt5NodeInstanceServer::reparentInstances(command);
 
-    if (m_editView3DRootItem)
+    if (m_editView3DSetupDone)
         resolveSceneRoots();
 
     // Make sure selection is in sync after all reparentings are done
@@ -1195,12 +1293,12 @@ void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
     Qt5NodeInstanceServer::createScene(command);
 
     QList<ServerNodeInstance> instanceList;
-    foreach (const InstanceContainer &container, command.instances()) {
+    const auto instances = command.instances();
+    for (const InstanceContainer &container : instances) {
         if (hasInstanceForId(container.instanceId())) {
             ServerNodeInstance instance = instanceForId(container.instanceId());
-            if (instance.isValid()) {
+            if (instance.isValid())
                 instanceList.append(instance);
-            }
         }
     }
 
@@ -1212,8 +1310,6 @@ void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
     if (qEnvironmentVariableIsSet("QMLDESIGNER_QUICK3D_MODE"))
         setup3DEditView(instanceList, command.edit3dToolStates());
 
-    m_ModelNode2DImageView = createAuxiliaryQuickView(QUrl("qrc:/qtquickplugin/mockfiles/ModelNode2DImageView.qml"),
-                                                      m_ModelNode2DImageViewRootItem);
     QObject::connect(&m_renderModelNodeImageViewTimer, &QTimer::timeout,
                      this, &Qt5InformationNodeInstanceServer::doRenderModelNodeImageView);
 }
@@ -1274,7 +1370,7 @@ void QmlDesigner::Qt5InformationNodeInstanceServer::removeSharedMemory(const Qml
 
 void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionCommand &command)
 {
-    if (!m_editView3DRootItem)
+    if (!m_editView3DSetupDone)
         return;
 
     m_lastSelectionChangeCommand = command;
@@ -1380,7 +1476,7 @@ void Qt5InformationNodeInstanceServer::removeInstances(const RemoveInstancesComm
         resolveSceneRoots();
     }
 
-    if (m_editView3DRootItem && (!m_active3DScene || !m_active3DView)) {
+    if (m_editView3DSetupDone && (!m_active3DScene || !m_active3DView)) {
         if (!m_active3DScene && !m_3DSceneMap.isEmpty())
             m_active3DScene = m_3DSceneMap.begin().key();
         m_active3DView = findView3DForSceneRoot(m_active3DScene);
@@ -1417,6 +1513,9 @@ void Qt5InformationNodeInstanceServer::inputEvent(const InputEventCommand &comma
 
 void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &command)
 {
+    if (!m_editView3DSetupDone)
+        return;
+
     QVariantMap updatedState;
     int renderCount = 1;
 
@@ -1486,20 +1585,22 @@ void Qt5InformationNodeInstanceServer::changeIds(const ChangeIdsCommand &command
     Qt5NodeInstanceServer::changeIds(command);
 
 #ifdef QUICK3D_MODULE
-    ServerNodeInstance sceneInstance = active3DSceneInstance();
-    if (m_active3DSceneUpdatePending) {
-        const QString sceneId = sceneInstance.id();
-        if (!sceneId.isEmpty())
-            updateActiveSceneToEditView3D();
-    } else {
-        qint32 sceneInstanceId = sceneInstance.instanceId();
-        for (const auto &id : command.ids) {
-            if (sceneInstanceId == id.instanceId()) {
-                QMetaObject::invokeMethod(m_editView3DRootItem, "handleActiveSceneIdChange",
-                                          Qt::QueuedConnection,
-                                          Q_ARG(QVariant, QVariant(sceneInstance.id())));
-                render3DEditView();
-                break;
+    if (m_editView3DSetupDone) {
+        ServerNodeInstance sceneInstance = active3DSceneInstance();
+        if (m_active3DSceneUpdatePending) {
+            const QString sceneId = sceneInstance.id();
+            if (!sceneId.isEmpty())
+                updateActiveSceneToEditView3D();
+        } else {
+            qint32 sceneInstanceId = sceneInstance.instanceId();
+            for (const auto &id : command.ids) {
+                if (sceneInstanceId == id.instanceId()) {
+                    QMetaObject::invokeMethod(m_editView3DRootItem, "handleActiveSceneIdChange",
+                                              Qt::QueuedConnection,
+                                              Q_ARG(QVariant, QVariant(sceneInstance.id())));
+                    render3DEditView();
+                    break;
+                }
             }
         }
     }
@@ -1525,7 +1626,7 @@ void Qt5InformationNodeInstanceServer::update3DViewState(const Update3dViewState
 {
 #ifdef QUICK3D_MODULE
     if (command.type() == Update3dViewStateCommand::SizeChange) {
-        if (m_editView3DRootItem) {
+        if (m_editView3DSetupDone) {
             m_editView3DRootItem->setSize(command.size());
             auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
             if (helper)

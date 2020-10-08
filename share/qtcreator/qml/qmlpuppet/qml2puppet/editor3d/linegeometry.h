@@ -39,6 +39,17 @@ class LineGeometry : public QQuick3DGeometry
     Q_PROPERTY(QVector3D startPos READ startPos WRITE setStartPos NOTIFY startPosChanged)
     Q_PROPERTY(QVector3D endPos READ endPos WRITE setEndPos NOTIFY endPosChanged)
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    // Name property was removed in Qt 6, so define it here for compatibility.
+    // Name maps to object name.
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+public:
+    QString name() const;
+    void setName(const QString &name);
+signals:
+    void nameChanged();
+#endif
+
 public:
     LineGeometry();
     ~LineGeometry() override;
@@ -46,11 +57,11 @@ public:
     QVector3D startPos() const;
     QVector3D endPos() const;
 
-public Q_SLOTS:
+public slots:
     void setStartPos(const QVector3D &pos);
     void setEndPos(const QVector3D &pos);
 
-Q_SIGNALS:
+signals:
     void startPosChanged();
     void endPosChanged();
 

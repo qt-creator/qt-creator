@@ -147,11 +147,6 @@ void Qt5RenderNodeInstanceServer::createScene(const CreateSceneCommand &command)
     }
 
     nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(instanceList));
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-#else
-    quickView()->show();
-#endif
 }
 
 void Qt5RenderNodeInstanceServer::clearScene(const ClearSceneCommand &command)

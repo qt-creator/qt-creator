@@ -31,6 +31,7 @@
 #include <QtCore/qtimer.h>
 #include <QtCore/qhash.h>
 #include <QtCore/qpointer.h>
+#include <QtCore/qvariant.h>
 #include <QtGui/qvector3d.h>
 #include <QtGui/qmatrix4x4.h>
 
@@ -81,6 +82,8 @@ public:
     QString globalStateId() const;
     QString lastSceneIdKey() const;
     QString rootSizeKey() const;
+
+    Q_INVOKABLE double brightnessScaler() const;
 
     bool isMacOS() const;
 
