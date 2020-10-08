@@ -2951,14 +2951,12 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
 
     const SynchronousProcessResponse resp = vcsSynchronousExec(repositoryDirectory, arguments,
                                                                VcsCommand::NoFullySync);
-    const QString stdErr = resp.stdErr();
     if (resp.result == SynchronousProcessResponse::Finished) {
         VcsOutputWindow::appendMessage(msgCommitted(amendSHA1, commitCount));
-        VcsOutputWindow::appendError(stdErr);
         GitPlugin::updateCurrentBranch();
         return true;
     } else {
-        VcsOutputWindow::appendError(tr("Cannot commit %n files: %1\n", nullptr, commitCount).arg(stdErr));
+        VcsOutputWindow::appendError(tr("Cannot commit %n files\n", nullptr, commitCount));
         return false;
     }
 }
