@@ -37,9 +37,14 @@
 
 #include <functional>
 
+QT_BEGIN_NAMESPACE
+class QLabel;
+QT_END_NAMESPACE
+
 namespace Utils {
 class Environment;
 class FilePath;
+class LayoutBuilder;
 class MacroExpander;
 class OutputLineParser;
 } // namespace Utils
@@ -136,6 +141,9 @@ public:
     virtual QWidget *mainWidget() const = 0;
     virtual QWidget *buttonWidget() const { return nullptr; }
 
+    void addToLayout(Utils::LayoutBuilder &builder);
+    void setVisible(bool visible);
+
     bool isSticky() const { return m_isSticky; }
 
     static QString msgManage();
@@ -149,6 +157,7 @@ protected:
     Kit *m_kit;
     const KitAspect *m_kitInformation;
     bool m_isSticky;
+    QLabel *m_label = nullptr;
 };
 
 class PROJECTEXPLORER_EXPORT KitManager : public QObject

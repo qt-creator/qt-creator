@@ -31,6 +31,7 @@
 
 #include <QFormLayout>
 #include <QGridLayout>
+#include <QStyle>
 #include <QWidget>
 
 namespace Utils {
@@ -69,7 +70,7 @@ LayoutBuilder::LayoutItem::LayoutItem()
     Constructs a layout item proxy for \a layout, spanning the number
     of cells specified by \a span in the target layout, with alignment \a align.
  */
-LayoutBuilder::LayoutItem::LayoutItem(QLayout *layout, int span, Qt::Alignment align)
+LayoutBuilder::LayoutItem::LayoutItem(QLayout *layout, int span, Alignment align)
     : layout(layout), span(span), align(align)
 {}
 
@@ -77,7 +78,7 @@ LayoutBuilder::LayoutItem::LayoutItem(QLayout *layout, int span, Qt::Alignment a
     Constructs a layout item proxy for \a widget, spanning the number
     of cell specified by \a span in the target layout, with alignment \a align.
  */
-LayoutBuilder::LayoutItem::LayoutItem(QWidget *widget, int span, Qt::Alignment align)
+LayoutBuilder::LayoutItem::LayoutItem(QWidget *widget, int span, Alignment align)
     : widget(widget), span(span), align(align)
 {}
 
@@ -269,8 +270,12 @@ LayoutBuilder &LayoutBuilder::addItem(const LayoutItem &item)
         item.aspect->addToLayout(*this);
     } else {
         if (m_gridLayout) {
-            if (auto widget = item.widget)
-                m_gridLayout->addWidget(widget, m_currentGridRow, m_currentGridColumn, 1, item.span, item.align);
+            if (auto widget = item.widget) {
+                Qt::Alignment align;
+                if (item.align == AlignAsFormLabel)
+                    align = Qt::Alignment(widget->style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
+                m_gridLayout->addWidget(widget, m_currentGridRow, m_currentGridColumn, 1, item.span, align);
+            }
             m_currentGridColumn += item.span;
         } else {
             m_pendingFormItems.append(item);

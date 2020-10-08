@@ -45,6 +45,8 @@ class QTCREATOR_UTILS_EXPORT LayoutBuilder
 {
 public:
     enum LayoutType { GridLayout, FormLayout };
+    enum Alignment { DefaultAlignment, AlignAsFormLabel };
+
     explicit LayoutBuilder(QWidget *parent, LayoutType layoutType = FormLayout);
     explicit LayoutBuilder(QLayout *layout); // Adds to existing layout.
 
@@ -54,8 +56,8 @@ public:
     {
     public:
         LayoutItem();
-        LayoutItem(QLayout *layout, int span = 1, Qt::Alignment align = {});
-        LayoutItem(QWidget *widget, int span = 1, Qt::Alignment align = {});
+        LayoutItem(QLayout *layout, int span = 1, Alignment align = {});
+        LayoutItem(QWidget *widget, int span = 1, Alignment align = {});
         LayoutItem(BaseAspect *aspect);
         LayoutItem(const QString &text);
 
@@ -64,7 +66,7 @@ public:
         BaseAspect *aspect = nullptr;
         QString text;
         int span = 1;
-        Qt::Alignment align;
+        Alignment align;
     };
 
     LayoutBuilder &addItem(const LayoutItem &item);
