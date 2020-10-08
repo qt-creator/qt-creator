@@ -886,8 +886,10 @@ void SelectionAspect::addToLayout(LayoutBuilder &builder)
             d->m_buttons.append(button);
             d->m_buttonGroup->addButton(button);
             connect(button, &QAbstractButton::clicked, this, [this, i] {
-                d->m_value = i;
-                emit changed();
+                if (d->m_value != i) {
+                    d->m_value = i;
+                    emit changed();
+                }
             });
         }
         break;
@@ -899,7 +901,12 @@ void SelectionAspect::addToLayout(LayoutBuilder &builder)
         for (int i = 0, n = d->m_options.size(); i < n; ++i)
             d->m_comboBox->addItem(d->m_options.at(i).displayName);
         connect(d->m_comboBox.data(), QOverload<int>::of(&QComboBox::activated), this,
-                [this](int index) { d->m_value = index; emit changed(); });
+                [this](int index) {
+            if (d->m_value != index) {
+                d->m_value = index;
+                emit changed();
+            }
+        });
         d->m_comboBox->setCurrentIndex(d->m_value);
         builder.addItems({d->m_label.data(), d->m_comboBox.data()});
         break;

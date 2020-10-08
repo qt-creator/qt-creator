@@ -52,6 +52,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 #include <utils/variablechooser.h>
@@ -81,6 +82,17 @@ QMakeStep::QMakeStep(BuildStepList *bsl, Utils::Id id)
     : AbstractProcessStep(bsl, id)
 {
     setLowPriority();
+
+    auto updateSummary = [this] {
+        BaseQtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
+        if (!qtVersion)
+            return tr("<b>qmake:</b> No Qt version set. Cannot run qmake.");
+        const QString program = qtVersion->qmakeCommand().fileName();
+        return tr("<b>qmake:</b> %1 %2").arg(program, project()->projectFilePath().fileName());
+    };
+    setSummaryUpdater(updateSummary);
+
+    connect(target(), &Target::kitChanged, this, updateSummary);
 }
 
 QmakeBuildConfiguration *QMakeStep::qmakeBuildConfiguration() const
@@ -532,22 +544,13 @@ QWidget *QMakeStep::createConfigWidget()
     abisListWidget = new QListWidget(widget);
     qmakeAdditonalArgumentsLineEdit->setText(m_userArgs);
 
-    auto formLayout = new QFormLayout(widget);
-    formLayout->addRow(label_0, buildConfigurationWidget);
-    formLayout->addRow(qmakeArgsLabel, qmakeAdditonalArgumentsLineEdit);
-    formLayout->addRow(label, qmakeArgumentsEdit);
-    formLayout->addRow(abisLabel, abisListWidget);
+    LayoutBuilder builder(widget);
+    builder.addRow({label_0, buildConfigurationWidget});
+    builder.addRow({qmakeArgsLabel, qmakeAdditonalArgumentsLineEdit});
+    builder.addRow({label, qmakeArgumentsEdit});
+    builder.addRow({abisLabel, abisListWidget});
 
     qmakeBuildConfigChanged();
-
-    auto updateSummary = [this] {
-        BaseQtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
-        if (!qtVersion)
-            return tr("<b>qmake:</b> No Qt version set. Cannot run qmake.");
-        const QString program = qtVersion->qmakeCommand().fileName();
-        return tr("<b>qmake:</b> %1 %2").arg(program, project()->projectFilePath().fileName());
-    };
-    setSummaryUpdater(updateSummary);
 
     updateSummary();
     updateAbiWidgets();
@@ -557,24 +560,27 @@ QWidget *QMakeStep::createConfigWidget()
             this, &QMakeStep::qmakeArgumentsLineEdited);
     connect(buildConfigurationComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &QMakeStep::buildConfigurationSelected);
+
     connect(qmakeBuildConfiguration(), &QmakeBuildConfiguration::qmlDebuggingChanged,
-            this, [this] {
+            widget, [this] {
         linkQmlDebuggingLibraryChanged();
         askForRebuild(tr("QML Debugging"));
     });
+
     connect(project(), &Project::projectLanguagesUpdated,
-            this, &QMakeStep::linkQmlDebuggingLibraryChanged);
+            widget, [this] { linkQmlDebuggingLibraryChanged(); });
     connect(target(), &Target::parsingFinished,
-            qmakeArgumentsEdit, [this]() { updateEffectiveQMakeCall(); });
+            widget, [this] { updateEffectiveQMakeCall(); });
     connect(qmakeBuildConfiguration(), &QmakeBuildConfiguration::useQtQuickCompilerChanged,
-            this, &QMakeStep::useQtQuickCompilerChanged);
+            widget, [this] { useQtQuickCompilerChanged(); });
     connect(qmakeBuildConfiguration(), &QmakeBuildConfiguration::separateDebugInfoChanged,
-            this, &QMakeStep::separateDebugInfoChanged);
+            widget, [this] { separateDebugInfoChanged(); });
     connect(qmakeBuildConfiguration(), &QmakeBuildConfiguration::qmakeBuildConfigurationChanged,
-            this, &QMakeStep::qmakeBuildConfigChanged);
-    connect(target(), &Target::kitChanged, this, &QMakeStep::qtVersionChanged);
-    connect(target(), &Target::kitChanged, this, updateSummary);
-    connect(abisListWidget, &QListWidget::itemChanged, this, [this]{
+            widget, [this] { qmakeBuildConfigChanged(); });
+    connect(target(), &Target::kitChanged,
+            widget, [this] { qtVersionChanged(); });
+
+    connect(abisListWidget, &QListWidget::itemChanged, this, [this] {
         abisChanged();
         if (QmakeBuildConfiguration *bc = qmakeBuildConfiguration())
             BuildManager::buildLists({bc->cleanSteps()});

@@ -35,6 +35,7 @@
 
 #include <designdocument.h>
 #include <qmldesignerplugin.h>
+#include <designermcumanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -200,52 +201,12 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
             forceVisiblity = isItem;
         }
 
-        DesignDocument *designDocument = QmlDesignerPlugin::instance()
-                                             ->documentManager()
-                                             .currentDesignDocument();
+        const DesignerMcuManager &mcuManager = DesignerMcuManager::instance();
 
-        if (designDocument && designDocument->isQtForMCUsProject()) {
-            const QList<TypeName> blockTypes = {"QtQuick.AnimatedImage",
-                                                "QtQuick.BorderImage",
-                                                "QtQuick.FocusScope",
-                                                "QtQuick.TextInput",
-                                                "QtQuick.TextEdit",
-                                                "QtQuick.Flow",
-                                                "QtQuick.Grid",
-                                                "QtQuick.GridView",
-                                                "QtQuick.PathView",
-                                                "QtQuick.Controls",
-                                                "QtQuick.Controls.BusyIndicator",
-                                                "QtQuick.Controls.ButtonGroup",
-                                                "QtQuick.Controls.CheckDelegate",
-                                                "QtQuick.Controls.Container",
-                                                "QtQuick.Controls.ComboBox",
-                                                "QtQuick.Controls.DelayButton",
-                                                "QtQuick.Controls.Frame",
-                                                "QtQuick.Controls.GroupBox",
-                                                "QtQuick.Controls.ItemDelegate",
-                                                "QtQuick.Controls.Label",
-                                                "QtQuick.Controls.Page",
-                                                "QtQuick.Controls.PageIndicator",
-                                                "QtQuick.Controls.Pane",
-                                                "QtQuick.Controls.RadioDelegate",
-                                                "QtQuick.Controls.RangeSlider",
-                                                "QtQuick.Controls.RoundButton",
-                                                "QtQuick.Controls.ScrollView",
-                                                "QtQuick.Controls.SpinBox",
-                                                "QtQuick.Controls.StackView",
-                                                "QtQuick.Controls.SwipeDelegate",
-                                                "QtQuick.Controls.SwitchDelegate",
-                                                "QtQuick.Controls.ToolBar",
-                                                "QtQuick.Controls.ToolButton",
-                                                "QtQuick.Controls.TabBar",
-                                                "QtQuick.Controls.TabButton",
-                                                "QtQuick.Controls.TextArea",
-                                                "QtQuick.Controls.TextField",
-                                                "QtQuick.Controls.ToolSeparator",
-                                                "QtQuick.Controls.Tumbler"};
+        if (mcuManager.isMCUProject()) {
+            const QSet<QString> blockTypes = mcuManager.bannedItems();
 
-            if (blockTypes.contains(entry.typeName()))
+            if (blockTypes.contains(QString::fromUtf8(entry.typeName())))
                 valid = false;
         }
 

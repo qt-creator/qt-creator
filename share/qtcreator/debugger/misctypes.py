@@ -36,36 +36,42 @@ import re
 
 def qdump____m128(d, value):
     d.putEmptyValue()
+    d.putExpandable()
     if d.isExpanded():
         d.putArrayData(value.address(), 4, d.lookupType('float'))
 
 
 def qdump____m256(d, value):
     d.putEmptyValue()
+    d.putExpandable()
     if d.isExpanded():
         d.putArrayData(value.address(), 8, d.lookupType('float'))
 
 
 def qdump____m512(d, value):
     d.putEmptyValue()
+    d.putExpandable()
     if d.isExpanded():
         d.putArrayData(value.address(), 16, d.lookupType('float'))
 
 
 def qdump____m128d(d, value):
     d.putEmptyValue()
+    d.putExpandable()
     if d.isExpanded():
         d.putArrayData(value.address(), 2, d.lookupType('double'))
 
 
 def qdump____m256d(d, value):
     d.putEmptyValue()
+    d.putExpandable()
     if d.isExpanded():
         d.putArrayData(value.address(), 4, d.lookupType('double'))
 
 
 def qdump____m512d(d, value):
     d.putEmptyValue()
+    d.putExpandable()
     if d.isExpanded():
         d.putArrayData(value.address(), 8, d.lookupType('double'))
 
@@ -73,6 +79,7 @@ def qdump____m512d(d, value):
 def qdump____m128i(d, value):
     data = d.hexencode(value.data(16))
     d.putValue(':'.join('%04x' % int(data[i:i + 4], 16) for i in range(0, 32, 4)))
+    d.putExpandable()
     if d.isExpanded():
         with Children(d):
             addr = value.address()
@@ -85,6 +92,7 @@ def qdump____m128i(d, value):
 def qdump____m256i(d, value):
     data = d.hexencode(value.data(32))
     d.putValue(':'.join('%04x' % int(data[i:i + 4], 16) for i in range(0, 64, 4)))
+    d.putExpandable()
     if d.isExpanded():
         with Children(d):
             addr = value.address()
@@ -98,6 +106,7 @@ def qdump____m512i(d, value):
     data = d.hexencode(value.data(64))
     d.putValue(':'.join('%04x' % int(data[i:i + 4], 16) for i in range(0, 64, 4))
                + ', ' + ':'.join('%04x' % int(data[i:i + 4], 16) for i in range(64, 128, 4)))
+    d.putExpandable()
     if d.isExpanded():
         with Children(d):
             d.putArrayItem('uint32x16', value.address(), 16, 'unsigned int')

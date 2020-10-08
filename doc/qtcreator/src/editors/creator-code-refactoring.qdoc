@@ -508,6 +508,19 @@
                 \c {protected slot}, or \c {private slot}.
             \li Function name
         \row
+            \li Add Class Member
+            \li Adds a member declaration for the class member being
+                initialized if it is not yet declared. You must enter
+                the data type of the member.
+            \li Identifier
+        \row
+            \li Create Implementations for Member Functions
+            \li Creates implementations for all member functions in one go.
+                In the \uicontrol {Member Function Implementations} dialog,
+                you can specify whether the member functions are generated
+                inline or outside the class.
+            \li Function name
+        \row
             \li Switch with Next/Previous Parameter
             \li Moves a parameter down or up one position in a parameter list.
             \li Parameter in the declaration or definition of a function
@@ -795,6 +808,17 @@
                 Also, the coding style for pointers and references is not
                 respected yet.
             \li Stack Variable
+        \row
+            \li Remove \c {using namespace} and Adjust Type Names Accordingly
+            \li Remove occurrences of \c {using namespace} in the local scope
+                and adjust type names accordingly.
+            \li \c using directive
+       \row
+            \li Remove All Occurrences of \c {using namespace} in Global Scope
+                and Adjust Type Names Accordingly
+            \li Remove all occurrences of \c {using namespace} in the global
+                scope and adjust type names accordingly.
+            \li \c using directive
         \row
             \li Convert connect() to Qt 5 Style
             \li Converts a Qt 4 QObject::connect() to Qt 5 style.

@@ -97,11 +97,10 @@
     \uicontrol Options > \uicontrol {Text Editor} > \uicontrol Behavior, and
     then select a suitable option in \uicontrol {Default encoding}.
 
-    Qt 5 requires UTF-8 encoded source files, and therefore the default encoding
-    was changed from \uicontrol System to \uicontrol UTF-8 in \QC version 2.6.
-    However, the \uicontrol {Default encoding} field still displays the value
-    \uicontrol System if the default system encoding is set to UTF-8.
+    \image qtcreator-options-texteditor-behavior-file-encodings.png "File encoding options"
 
+    Qt 5 and Qt 6 require UTF-8 encoded source files, and therefore the default
+    encoding is set to \uicontrol UTF-8.
     Detecting the correct encoding is tricky, so \QC will not try to do so.
     Instead, it displays the following error message when you try to edit a file
     that is not UTF-8 encoded: \uicontrol {Error: Could not decode "filename" with

@@ -65,7 +65,7 @@ endfunction()
 
 function(add_qtc_library name)
   cmake_parse_arguments(_arg "STATIC;OBJECT;SKIP_TRANSLATION;BUILD_BY_DEFAULT;ALLOW_ASCII_CASTS;UNVERSIONED"
-    "DESTINATION;COMPONENT"
+    "DESTINATION;COMPONENT;SOURCES_PREFIX"
     "DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES" ${ARGN}
   )
 
@@ -94,6 +94,20 @@ function(add_qtc_library name)
     endif()
   endif()
 
+  # TODO copied from extend_qtc_target.
+  # Instead require CMake 3.11 and use extend_qtc_target for setting SOURCES.
+  # Requiring cmake 3.11 is necessary because before that add_library requires
+  # at least one source file.
+  if (_arg_SOURCES_PREFIX)
+    foreach(source IN LISTS _arg_SOURCES)
+      list(APPEND prefixed_sources "${_arg_SOURCES_PREFIX}/${source}")
+    endforeach()
+    if (NOT IS_ABSOLUTE ${_arg_SOURCES_PREFIX})
+      set(_arg_SOURCES_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/${_arg_SOURCES_PREFIX}")
+    endif()
+    set(_arg_SOURCES ${prefixed_sources})
+  endif()
+
   compare_sources_with_existing_disk_files(${name} "${_arg_SOURCES}")
 
   set(library_type SHARED)
@@ -113,6 +127,11 @@ function(add_qtc_library name)
   add_library(${name} ${library_type} ${_exclude_from_all} ${_arg_SOURCES})
   add_library(${IDE_CASED_ID}::${name} ALIAS ${name})
   set_public_headers(${name} "${_arg_SOURCES}")
+
+  # TODO remove, see above
+  if (_arg_SOURCES_PREFIX)
+    target_include_directories(${name} PRIVATE $<BUILD_INTERFACE:${_arg_SOURCES_PREFIX}>)
+  endif()
 
   if (${name} MATCHES "^[^0-9-]+$")
     string(TOUPPER "${name}_LIBRARY" EXPORT_SYMBOL)
@@ -134,15 +153,18 @@ function(add_qtc_library name)
     EXTRA_TRANSLATIONS ${_arg_EXTRA_TRANSLATIONS}
   )
 
-  get_filename_component(public_build_interface_dir "${CMAKE_CURRENT_SOURCE_DIR}/.." ABSOLUTE)
-  file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/..")
-  target_include_directories(${name}
-    PRIVATE
-      "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
-    PUBLIC
-      "$<BUILD_INTERFACE:${public_build_interface_dir}>"
-      "$<INSTALL_INTERFACE:include/${include_dir_relative_path}>"
-  )
+  # everything is different with SOURCES_PREFIX
+  if (NOT _arg_SOURCES_PREFIX)
+    get_filename_component(public_build_interface_dir "${CMAKE_CURRENT_SOURCE_DIR}/.." ABSOLUTE)
+    file(RELATIVE_PATH include_dir_relative_path ${PROJECT_SOURCE_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/..")
+    target_include_directories(${name}
+      PRIVATE
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+      PUBLIC
+        "$<BUILD_INTERFACE:${public_build_interface_dir}>"
+        "$<INSTALL_INTERFACE:include/${include_dir_relative_path}>"
+    )
+  endif()
 
   set(skip_translation OFF)
   if (_arg_SKIP_TRANSLATION)
@@ -244,7 +266,7 @@ function(add_qtc_plugin target_name)
   cmake_parse_arguments(_arg
     "EXPERIMENTAL;SKIP_DEBUG_CMAKE_FILE_CHECK;SKIP_INSTALL;INTERNAL_ONLY;SKIP_TRANSLATION"
     "VERSION;COMPAT_VERSION;PLUGIN_JSON_IN;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME;BUILD_DEFAULT"
-    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS"
+    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;PROPERTIES"
     ${ARGN}
   )
 

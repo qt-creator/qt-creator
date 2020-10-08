@@ -928,6 +928,8 @@ Project {
             "settingspage.ui",
             "shortcutmanager.cpp",
             "shortcutmanager.h",
+            "designermcumanager.cpp",
+            "designermcumanager.h",
         ]
     }
 }

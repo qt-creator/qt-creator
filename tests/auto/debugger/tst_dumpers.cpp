@@ -668,7 +668,7 @@ struct Check6 : Check
 };
 struct Profile
 {
-    Profile(const QByteArray &contents) : contents(contents) {}
+    Profile(const QByteArray &contents) : contents(contents + '\n') {}
 
     QByteArray includes;
     QByteArray contents;
@@ -1466,6 +1466,8 @@ void tst_Dumpers::dumper()
                 projectFile.write("DEFINES += _GLIBCXX_DEBUG\n");
             if (m_debuggerEngine == GdbEngine && m_debuggerVersion < 70500)
                 projectFile.write("QMAKE_CXXFLAGS += -gdwarf-3\n");
+            if (m_debuggerEngine == CdbEngine)
+                projectFile.write("CONFIG += utf8_source\n");
             projectFile.write(data.profileExtra.toUtf8());
         } else {
             projectFile.write(data.allProfile.toUtf8());
@@ -3769,12 +3771,7 @@ void tst_Dumpers::dumper_data()
 
                     "const wchar_t *w = L\"aöa\";\n"
                     "#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)\n"
-                    "QString s7;\n"
-                    "if (sizeof(wchar_t) == 4)\n"
-                    "    s7 = QString::fromUcs4((uint *)w);\n"
-                    "else\n"
-                    "    s7 = QString::fromUtf16((ushort *)w);\n"
-
+                    "QString s7 = QString::fromWCharArray(w);\n"
                     "QStringRef s8(&str, 1, 2);\n"
                     "QStringRef s9;\n"
                     "#else\n"
@@ -5673,16 +5670,13 @@ void tst_Dumpers::dumper_data()
 
                     "&s, &t, &w, &ch, &wch")
 
-               + CheckType("s", "char [5]") % NoCdbEngine
-               + CheckType("s", "char [4]") % CdbEngine
+               + CheckType("s", "char [5]")
                + Check("s.0", "[0]", "97", "char")
-               + CheckType("t", "char [6]") % NoCdbEngine
-               + CheckType("t", "char [5]") % CdbEngine
+               + CheckType("t", "char [6]")
                + Check("t.0", "[0]", "97", "char")
                + CheckType("w", "wchar_t [4]")
                + Check("ch.0", "[0]", "97", TypeDef("char", "CHAR"))
-               + CheckType("ch", "CHAR [5]") % NoCdbEngine
-               + CheckType("ch", "char [4]") % CdbEngine
+               + CheckType("ch", TypeDef("char [5]", "CHAR [5]"))
                + Check("wch.0", "[0]", "97", TypeDef("wchar_t", "WCHAR"))
                + CheckType("wch", TypeDef("wchar_t[4]", "WCHAR [4]"));
 

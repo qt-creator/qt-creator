@@ -150,8 +150,8 @@ public:
     QmlPreview::QmlPreviewFileClassifier m_fileClassifer = nullptr;
     float m_zoomFactor = -1.0;
     QmlPreview::QmlPreviewFpsHandler m_fpsHandler = nullptr;
-    QString m_locale;
-    bool elideWarning = false;
+    QString m_localeIsoCode;
+    bool m_translationElideWarning = false;
     QPointer<QmlDebugTranslationWidget> m_qmlDebugTranslationWidget;
 
     RunWorkerFactory localRunWorkerFactory{
@@ -163,8 +163,15 @@ public:
 
     RunWorkerFactory runWorkerFactory{
         [this](RunControl *runControl) {
-            QmlPreviewRunner *runner = new QmlPreviewRunner(runControl, m_fileLoader, m_fileClassifer,
-                                                            m_fpsHandler, m_zoomFactor);
+            QmlPreviewRunner *runner = new QmlPreviewRunner(QmlPreviewRunnerSetting{
+                runControl,
+                m_fileLoader,
+                m_fileClassifer,
+                m_fpsHandler,
+                m_zoomFactor,
+                m_localeIsoCode,
+                m_translationElideWarning
+            });
             connect(q, &QmlPreviewPlugin::updatePreviews,
                     runner, &QmlPreviewRunner::loadFile);
             connect(q, &QmlPreviewPlugin::rerunPreviews,
@@ -173,7 +180,7 @@ public:
                     this, &QmlPreviewPluginPrivate::previewCurrentFile);
             connect(q, &QmlPreviewPlugin::zoomFactorChanged,
                     runner, &QmlPreviewRunner::zoom);
-            connect(q, &QmlPreviewPlugin::localeChanged,
+            connect(q, &QmlPreviewPlugin::localeIsoCodeChanged,
                     runner, &QmlPreviewRunner::language);
             connect(q, &QmlPreviewPlugin::elideWarningChanged,
                     runner, &QmlPreviewRunner::changeElideWarning);
@@ -207,7 +214,7 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
             &QAction::setEnabled);
     connect(action, &QAction::triggered, this, [this]() {
         if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current())
-            m_locale = multiLanguageAspect->currentLocale();
+            m_localeIsoCode = multiLanguageAspect->currentLocale();
 
         ProjectExplorerPlugin::runStartupProject(Constants::QML_PREVIEW_RUN_MODE);
     });
@@ -387,30 +394,31 @@ void QmlPreviewPlugin::setFpsHandler(QmlPreviewFpsHandler fpsHandler)
     emit fpsHandlerChanged(d->m_fpsHandler);
 }
 
-QString QmlPreviewPlugin::locale() const
+QString QmlPreviewPlugin::localeIsoCode() const
 {
-    return d->m_locale;
+    return d->m_localeIsoCode;
 }
 
-void QmlPreviewPlugin::setLocale(const QString &locale)
+void QmlPreviewPlugin::setLocaleIsoCode(const QString &localeIsoCode)
 {
     if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current())
-        multiLanguageAspect->setCurrentLocale(locale);
-    if (d->m_locale == locale)
+        multiLanguageAspect->setCurrentLocale(localeIsoCode);
+    if (d->m_localeIsoCode == localeIsoCode)
         return;
 
-    d->m_locale = locale;
-    emit localeChanged(d->m_locale);
+    d->m_localeIsoCode = localeIsoCode;
+    emit localeIsoCodeChanged(d->m_localeIsoCode);
 }
 
 bool QmlPreviewPlugin::elideWarning() const
 {
-    return d->elideWarning;
+    return d->m_translationElideWarning;
 }
 
 void QmlPreviewPlugin::changeElideWarning(bool elideWarning)
 {
-    d->elideWarning = elideWarning;
+    d->m_translationElideWarning = elideWarning;
+    emit elideWarningChanged(elideWarning);
 }
 
 void QmlPreviewPlugin::setFileLoader(QmlPreviewFileLoader fileLoader)

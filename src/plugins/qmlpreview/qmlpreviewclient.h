@@ -43,8 +43,7 @@ public:
         Directory,
         ClearCache,
         Zoom,
-        Fps,
-        Language
+        Fps
     };
 
     struct FpsInfo {
@@ -64,7 +63,6 @@ public:
     void loadUrl(const QUrl &url);
     void rerun();
     void zoom(float zoomFactor);
-    void language(const QUrl &context, const QString &locale);
     void announceFile(const QString &path, const QByteArray &contents);
     void announceDirectory(const QString &path, const QStringList &entries);
     void announceError(const QString &path);

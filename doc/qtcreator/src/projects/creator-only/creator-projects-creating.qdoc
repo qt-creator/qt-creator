@@ -373,7 +373,8 @@
 
     The wizard supports namespaces. To use a namespace, enter a qualified
     class name in the \uicontrol {Class name} field. For example:
-    MyNamespace::MySubNamespace::MyClass.
+    \c MyNamespace::MySubNamespace::MyClass. The wizard suggests
+    existing namespaces and class names as you type.
 
     \image qtcreator-cpp-class-wizard.png "Enter Class Name dialog"
 

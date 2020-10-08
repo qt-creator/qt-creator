@@ -82,8 +82,11 @@ jobs:
 
         # Add to PATH environment variable
         file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/${cmake_dir}" cmake_dir)
-        message("::add-path::$ENV{GITHUB_WORKSPACE}")
-        message("::add-path::${cmake_dir}")
+        set(path_separator ":")
+        if ("${{ runner.os }}" STREQUAL "Windows")
+          set(path_separator ";")
+        endif()
+        file(APPEND "$ENV{GITHUB_PATH}" "$ENV{GITHUB_WORKSPACE}${path_separator}${cmake_dir}")
 
         if (NOT "${{ runner.os }}" STREQUAL "Windows")
           execute_process(

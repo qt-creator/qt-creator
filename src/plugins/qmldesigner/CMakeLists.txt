@@ -1,3 +1,8 @@
+set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/qmldesigner")
+if (APPLE)
+  set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/QmlDesigner")
+endif()
+
 add_qtc_plugin(QmlDesigner
   DEPENDS
     QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
@@ -25,20 +30,16 @@ add_qtc_plugin(QmlDesigner
     settingspage.cpp settingspage.h settingspage.ui
     shortcutmanager.cpp shortcutmanager.h
     switchsplittabwidget.cpp switchsplittabwidget.h
+    designermcumanager.cpp designermcumanager.h
   EXPLICIT_MOC
     components/propertyeditor/propertyeditorvalue.h
     components/connectioneditor/connectionviewwidget.h
   SKIP_DEBUG_CMAKE_FILE_CHECK
   EXTRA_TRANSLATIONS
     "${PROJECT_SOURCE_DIR}/share/qtcreator/qmldesigner"
+  PROPERTIES
+    QMLDESIGNER_PLUGIN_PATH "${QmlDesignerPluginInstallPrefix}"
 )
-
-set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/qmldesigner")
-if (APPLE)
-  set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/QmlDesigner")
-endif()
-
-extend_qtc_plugin(QmlDesigner PROPERTIES QMLDESIGNER_PLUGIN_PATH "${QmlDesignerPluginInstallPrefix}")
 
 add_qtc_plugin(assetexporterplugin
   CONDITION TARGET QmlDesigner

@@ -81,7 +81,7 @@ public:
     Utils::FilePath workingDirectory(const Utils::MacroExpander *expander) const;
     Utils::FilePath defaultWorkingDirectory() const;
     Utils::FilePath unexpandedWorkingDirectory() const;
-    void setDefaultWorkingDirectory(const Utils::FilePath &defaultWorkingDir);
+    void setDefaultWorkingDirectory(const Utils::FilePath &defaultWorkingDirectory);
     Utils::PathChooser *pathChooser() const;
 
 private:
@@ -111,6 +111,7 @@ public:
     QString unexpandedArguments() const;
 
     void setArguments(const QString &arguments);
+    void setLabelText(const QString &labelText);
     void setResetter(const std::function<QString()> &resetter);
     void resetArguments();
 
@@ -121,6 +122,7 @@ private:
     QWidget *setupChooser();
 
     QString m_arguments;
+    QString m_labelText;
     QPointer<Utils::FancyLineEdit> m_chooser;
     QPointer<QPlainTextEdit> m_multiLineChooser;
     QPointer<Utils::ExpandButton> m_multiLineButton;

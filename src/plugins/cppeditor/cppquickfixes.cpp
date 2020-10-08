@@ -3228,7 +3228,7 @@ public:
         : CppQuickFixOperation(interface), m_class(theClass), m_member(member), m_type(type)
     {
         setDescription(QCoreApplication::translate("CppTools::Quickfix",
-                                                   "Add class member \"%1\"").arg(m_member));
+                                                   "Add Class Member \"%1\"").arg(m_member));
     }
 
 private:
@@ -3238,7 +3238,7 @@ private:
         if (type.isEmpty()) {
             type = QInputDialog::getText(
                         Core::ICore::dialogParent(),
-                        QCoreApplication::translate("CppTools::Quickfix","Please provide the type"),
+                        QCoreApplication::translate("CppTools::Quickfix","Provide the type"),
                         QCoreApplication::translate("CppTools::Quickfix","Data type:"),
                         QLineEdit::Normal);
         }
@@ -7568,13 +7568,13 @@ public:
         if (m_removeAllAtGlobalScope) {
             setDescription(QApplication::translate(
                                "CppTools::QuickFix",
-                               "Remove all occurrences of 'using namespace %1' at the global scope "
-                               "and adjust type names accordingly")
+                               "Remove All Occurrences of \"using namespace %1\" in Global Scope "
+                               "and Adjust Type Names Accordingly")
                                .arg(name));
         } else {
             setDescription(QApplication::translate("CppTools::QuickFix",
-                                                   "Remove 'using namespace %1' and "
-                                                   "adjust type names accordingly")
+                                                   "Remove \"using namespace %1\" and "
+                                                   "Adjust Type Names Accordingly")
                                .arg(name));
         }
     }

@@ -224,32 +224,6 @@ BuildStepListWidget::~BuildStepListWidget()
     m_buildStepsData.clear();
 }
 
-void BuildStepListWidget::updateSummary()
-{
-    auto step = qobject_cast<BuildStep *>(sender());
-    if (step) {
-        foreach (const BuildStepsWidgetData *s, m_buildStepsData) {
-            if (s->step == step) {
-                s->detailsWidget->setSummaryText(step->summaryText());
-                break;
-            }
-        }
-    }
-}
-
-void BuildStepListWidget::updateEnabledState()
-{
-    auto step = qobject_cast<BuildStep *>(sender());
-    if (step) {
-        foreach (const BuildStepsWidgetData *s, m_buildStepsData) {
-            if (s->step == step) {
-                s->toolWidget->setBuildStepEnabled(step->enabled());
-                break;
-            }
-        }
-    }
-}
-
 void BuildStepListWidget::updateAddBuildStepMenu()
 {
     QMenu *menu = m_addButton->menu();
@@ -285,11 +259,14 @@ void BuildStepListWidget::addBuildStep(int pos)
 
     m_vbox->insertWidget(pos, s->detailsWidget);
 
-    connect(s->step, &BuildStep::updateSummary,
-            this, &BuildStepListWidget::updateSummary);
+    connect(s->step, &BuildStep::updateSummary, this, [s] {
+        s->detailsWidget->setSummaryText(s->step->summaryText());
+    });
 
-    connect(s->step, &BuildStep::enabledChanged,
-            this, &BuildStepListWidget::updateEnabledState);
+    connect(s->step, &BuildStep::enabledChanged, this, [s] {
+        s->toolWidget->setBuildStepEnabled(s->step->enabled());
+    });
+
 
     // Expand new build steps by default
     const bool expand = newStep->hasUserExpansionState()

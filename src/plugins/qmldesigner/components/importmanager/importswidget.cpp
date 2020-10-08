@@ -29,6 +29,7 @@
 
 #include <designdocument.h>
 #include <qmldesignerplugin.h>
+#include <designermcumanager.h>
 
 #include <utils/algorithm.h>
 
@@ -94,20 +95,20 @@ void ImportsWidget::setPossibleImports(QList<Import> possibleImports)
     Utils::sort(possibleImports, importLess);
     m_addImportComboBox->clear();
 
-    const DesignDocument *designDocument = QmlDesignerPlugin::instance()->currentDesignDocument();
-    const bool isQtForMCUs = designDocument && designDocument->isQtForMCUsProject();
+    const DesignerMcuManager &mcuManager = DesignerMcuManager::instance();
+    const bool isQtForMCUs = mcuManager.isMCUProject();
 
     QList<Import> filteredImports;
 
-    const QStringList mcuPostiveList = {"QtQuick", "QtQuick.Controls", "QtQuick.Timeline"};
-    const QStringList mcuNegativeList = {"FlowView"};
+    const QStringList mcuAllowedList = mcuManager.allowedImports();
+    const QStringList mcuBannedList = mcuManager.bannedImports();
 
     if (isQtForMCUs) {
         filteredImports = Utils::filtered(possibleImports,
-                                          [mcuPostiveList, mcuNegativeList](const Import &import) {
-                                              return (mcuPostiveList.contains(import.url())
+                                          [mcuAllowedList, mcuBannedList](const Import &import) {
+                                              return (mcuAllowedList.contains(import.url())
                                                       || !import.url().startsWith("Qt"))
-                                                     && !mcuNegativeList.contains(import.url());
+                                                     && !mcuBannedList.contains(import.url());
                                           });
     } else {
         filteredImports = possibleImports;

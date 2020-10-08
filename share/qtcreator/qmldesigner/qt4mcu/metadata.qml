@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,21 +23,15 @@
 **
 ****************************************************************************/
 
-#include <QObject>
+//list of files in the current system
+Metadata {
+    id: metadataFile
 
-namespace QmlPreview {
-namespace Internal {
+    defaultVersion: v14
 
-class QmlPreviewClientTest : public QObject
-{
-    Q_OBJECT
-
-private slots:
-    void testLoadFile();
-    void testAnnounceFile();
-    void testZoom();
-    void testMessageReceived();
-};
-
-} // namespace Internal
-} // namespace QmlPreview
+    VersionData {
+        id: v14
+        name: "QUL 1.4"
+        path: "qul-14.qml"
+    }
+}

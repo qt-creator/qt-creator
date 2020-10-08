@@ -929,9 +929,14 @@ static bool isOnlyControlModifier(const Qt::KeyboardModifiers &mods)
     return (mods ^ ControlModifier) == Qt::NoModifier;
 }
 
-static bool hasControlModifier(const Qt::KeyboardModifiers &mods)
+static bool isAcceptableModifier(const Qt::KeyboardModifiers &mods)
 {
-    return mods.testFlag(ControlModifier);
+    if (mods & ControlModifier) {
+        // Generally, CTRL is not fine, except in combination with ALT.
+        // See QTCREATORBUG-24673
+        return mods & AltModifier;
+    }
+    return true;
 }
 
 
@@ -1106,7 +1111,7 @@ public:
 
     bool is(int c) const
     {
-        return m_xkey == c && !hasControlModifier(m_modifiers);
+        return m_xkey == c && isAcceptableModifier(m_modifiers);
     }
 
     bool isControl() const

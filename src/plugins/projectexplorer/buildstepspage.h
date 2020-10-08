@@ -98,8 +98,6 @@ public:
 private:
     void updateAddBuildStepMenu();
     void addBuildStep(int pos);
-    void updateSummary();
-    void updateEnabledState();
     void stepMoved(int from, int to);
     void removeBuildStep(int pos);
 

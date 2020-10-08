@@ -78,21 +78,6 @@ void QmlPreviewPluginTest::testZoomFactorProperty()
     QCOMPARE(spy.count(), 2);
 }
 
-void QmlPreviewPluginTest::testLocaleProperty()
-{
-    ExtensionSystem::IPlugin *plugin = getPlugin();
-    QVERIFY(plugin);
-
-    QSignalSpy spy(plugin, SIGNAL(localeChanged(QString)));
-
-    QCOMPARE(plugin->property("locale").toString(), QString());
-    plugin->setProperty("locale", "de_DE");
-    QCOMPARE(plugin->property("locale").toString(), QString("de_DE"));
-    plugin->setProperty("locale", "qt_QT");
-    QCOMPARE(plugin->property("locale").toString(), QString("qt_QT"));
-    QCOMPARE(spy.count(), 2);
-}
-
 void QmlPreviewPluginTest::testFpsHandlerProperty()
 {
     ExtensionSystem::IPlugin *plugin = getPlugin();

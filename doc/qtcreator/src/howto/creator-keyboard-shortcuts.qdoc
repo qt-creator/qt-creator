@@ -283,6 +283,12 @@
             \li  Esc
         \row
             \li  Exit \QC
+
+                 By default, \QC exits without asking for confirmation, unless
+                 there are unsaved changes in open files. To always be asked,
+                 select the \uicontrol {Ask for confirmation before exiting}
+                 check box in \uicontrol Tools > \uicontrol Options >
+                 \uicontrol Environment > \uicontrol System.
             \li  Ctrl+Q
     \endtable
 
@@ -304,6 +310,10 @@
         \row
             \li  Trigger a completion in this scope
             \li  Ctrl+Space
+        \row
+            \li  Display tooltips for function signatures regardless of the
+                 cursor position in the function call
+            \li  Ctrl+Shift+D
         \row
             \li  Copy line
             \li  Ctrl+Ins

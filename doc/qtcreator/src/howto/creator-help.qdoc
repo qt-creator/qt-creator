@@ -47,6 +47,9 @@
             is not available, the tooltip displays type information for the
             symbol.
 
+        \li To display tooltips for function signatures regardless of the
+            cursor position in the function call, press \key {Ctrl+Shift+D}.
+
         \li To display the full help on a Qt class or function, press \key F1 or
             select \uicontrol {Context Help} in the context menu.
             The documentation is displayed in a
@@ -75,24 +78,11 @@
     To switch to the editor context when you close the last help page, select
     the \uicontrol {Return to editor on closing the last page} check box.
 
-    \section1 Selecting the Help Viewer Backend
-
     The help viewer backend determines the style sheet that is used to display
-    the help files. A help viewer backend that is based on the \l {QTextBrowser}
-    is used by default. However, it has several issues that have been fixed when
-    using litehtml as the help viewer backend.
-
-    On \macos, you can also use a help viewer backend that is based on the
-    system WebView component.
-
-    To switch the help viewer backend:
-
-    \list 1
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Help >
-        \uicontrol General.
-        \li In the \uicontrol {Viewer backend} field, select a viewer backend.
-        \li Reload the help page to take the new backend to use.
-    \endlist
+    the help files. The default help viewer backend that is based on litehtml
+    is recommended for viewing Qt documentation. You can choose another help
+    viewer backend in the \uicontrol {Viewer backend} field. To take the new
+    backend to use, reload the help page.
 
     \section1 Viewing Function Tooltips
 

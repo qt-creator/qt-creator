@@ -3821,7 +3821,7 @@
          sodipodi:nodetypes="cccccc" />
     </g>
     <g
-       id="src/libs/utils/images/download_arrow">
+       id="src/libs/utils/images/download">
       <use
          style="display:inline"
          transform="translate(1932,132)"
@@ -3837,22 +3837,10 @@
          d="m 1925,578 h -2 v -8 h 2 z m -1,-0.5 4,-4 v 2 l -4,4 -4,-4 v -2 z"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cccccccccccc" />
-    </g>
-    <g
-       id="src/libs/utils/images/download_base">
-      <use
-         x="0"
-         y="0"
-         xlink:href="#backgroundRect"
-         id="use2547"
-         width="100%"
-         height="100%"
-         transform="translate(1948,132)"
-         style="display:inline" />
       <path
-         style="fill:none;stroke:#000000"
-         d="m 1934.5,579 v 2.5 h 11 V 579"
-         id="path2553"
+         style="display:inline;fill:none;stroke:#000000"
+         d="m 1918.5,580 v 1.5 h 11 V 580"
+         id="path2553-4"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cccc" />
     </g>

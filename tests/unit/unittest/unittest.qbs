@@ -84,7 +84,6 @@ Project {
                         "QT_RESTRICTED_CAST_FROM_ASCII",
                         "QT_USE_FAST_OPERATOR_PLUS",
                         "QT_USE_FAST_CONCATENATION",
-                        "CLANG_UNIT_TESTS",
                         "CLANGPCHMANAGER_STATIC_LIB",
                         "CLANGSUPPORT_BUILD_STATIC_LIB",
                         "CLANGTOOLS_STATIC_LIBRARY",
@@ -101,8 +100,11 @@ Project {
                                                                        FileInfo.joinPaths(project.sourceDirectory, "share", "qtcreator")) + '"',
                         'CPPTOOLS_JSON="' + FileInfo.joinPaths(destinationDirectory, "CppTools.json") + '"',
                     ];
-            if (libclang.present && libclang.toolingEnabled)
-                defines = defines.concat(libclang.llvmToolingDefines);
+            if (libclang.present) {
+                defines.push("CLANG_UNIT_TESTS");
+                if (libclang.toolingEnabled)
+                    defines = defines.concat(libclang.llvmToolingDefines);
+            }
             return defines;
         }
         cpp.cxxFlags: {

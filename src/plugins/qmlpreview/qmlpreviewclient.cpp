@@ -56,13 +56,6 @@ void QmlPreviewClient::zoom(float zoomFactor)
     sendMessage(packet.data());
 }
 
-void QmlPreviewClient::language(const QUrl &context, const QString &locale)
-{
-    QmlDebug::QPacket packet(dataStreamVersion());
-    packet << static_cast<qint8>(Language) << context << locale;
-    sendMessage(packet.data());
-}
-
 void QmlPreviewClient::announceFile(const QString &path, const QByteArray &contents)
 {
     QmlDebug::QPacket packet(dataStreamVersion());
