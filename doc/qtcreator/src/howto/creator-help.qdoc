@@ -47,6 +47,9 @@
             is not available, the tooltip displays type information for the
             symbol.
 
+        \li To display tooltips for function signatures regardless of the
+            cursor position in the function call, press \key {Ctrl+Shift+D}.
+
         \li To display the full help on a Qt class or function, press \key F1 or
             select \uicontrol {Context Help} in the context menu.
             The documentation is displayed in a

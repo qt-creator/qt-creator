@@ -311,6 +311,10 @@
             \li  Trigger a completion in this scope
             \li  Ctrl+Space
         \row
+            \li  Display tooltips for function signatures regardless of the
+                 cursor position in the function call
+            \li  Ctrl+Shift+D
+        \row
             \li  Copy line
             \li  Ctrl+Ins
         \row
