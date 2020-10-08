@@ -293,9 +293,6 @@ public:
         { return _beginLine; }
 
     private:
-        void setArguments(const QVector<Block> &arguments)
-        { _arguments = arguments; }
-
         void addArgument(const Block &block)
         { _arguments.append(block); }
 

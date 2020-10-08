@@ -52,6 +52,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QFutureWatcher>
+#include <QInputDialog>
 #include <QList>
 #include <QLoggingCategory>
 #include <QMessageBox>
@@ -119,7 +120,7 @@ private:
     void removeAVD();
     void startAVD();
     void avdActivated(const QModelIndex &);
-    void dataPartitionSizeEditingFinished();
+    void editEmulatorArgsAVD();
     void createKitToggled();
 
     void updateUI();
@@ -428,7 +429,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         m_androidConfig.setOpenSslLocation(m_androidConfig.sdkLocation() / ("android_openssl"));
     m_ui.openSslPathChooser->setFilePath(m_androidConfig.openSslLocation());
 
-    m_ui.DataPartitionSizeSpinBox->setValue(m_androidConfig.partitionSize());
     m_ui.CreateKitCheckBox->setChecked(m_androidConfig.automaticKitCreation());
     m_ui.AVDTableView->setModel(&m_AVDModel);
     m_ui.AVDTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -489,8 +489,8 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             this, &AndroidSettingsWidget::avdActivated);
     connect(m_ui.AVDTableView, &QAbstractItemView::clicked,
             this, &AndroidSettingsWidget::avdActivated);
-    connect(m_ui.DataPartitionSizeSpinBox, &QAbstractSpinBox::editingFinished,
-            this, &AndroidSettingsWidget::dataPartitionSizeEditingFinished);
+    connect(m_ui.AVDAdvancedOptionsPushButton, &QAbstractButton::clicked,
+            this, &AndroidSettingsWidget::editEmulatorArgsAVD);
     connect(m_ui.CreateKitCheckBox, &QAbstractButton::toggled,
             this, &AndroidSettingsWidget::createKitToggled);
     connect(m_ui.downloadNDKToolButton, &QAbstractButton::clicked,
@@ -807,9 +807,25 @@ void AndroidSettingsWidget::avdActivated(const QModelIndex &index)
     m_ui.AVDStartPushButton->setEnabled(index.isValid());
 }
 
-void AndroidSettingsWidget::dataPartitionSizeEditingFinished()
+void AndroidSettingsWidget::editEmulatorArgsAVD()
 {
-    m_androidConfig.setPartitionSize(m_ui.DataPartitionSizeSpinBox->value());
+    const QString helpUrl =
+            "https://developer.android.com/studio/run/emulator-commandline#startup-options";
+
+    QInputDialog dialog(this);
+    dialog.setWindowTitle(tr("Emulator Command-line Startup Options"));
+    dialog.setLabelText(tr("Emulator command-line startup options (<a href=\"%1\">Help Web Page</a>):").arg(helpUrl));
+    dialog.setTextValue(m_androidConfig.emulatorArgs().join(' '));
+
+    if (auto label = dialog.findChild<QLabel*>()) {
+        label->setOpenExternalLinks(true);
+        label->setMinimumWidth(500);
+    }
+
+    if (dialog.exec() != QDialog::Accepted)
+        return;
+
+    m_androidConfig.setEmulatorArgs(QtcProcess::splitArgs(dialog.textValue()));
 }
 
 void AndroidSettingsWidget::createKitToggled()

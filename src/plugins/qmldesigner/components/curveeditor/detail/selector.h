@@ -50,10 +50,6 @@ public:
     void mouseRelease(QMouseEvent *event, GraphicsScene *scene);
 
 private:
-    bool isOverSelectedKeyframe(const QPointF &pos, GraphicsScene *scene);
-
-    bool isOverMovableItem(const QPointF &pos, GraphicsScene *scene);
-
     bool select(const SelectionTool &tool, const QPointF &pos, GraphicsScene *scene);
 
     bool pressSelection(SelectionMode mode, const QPointF &pos, GraphicsScene *scene);

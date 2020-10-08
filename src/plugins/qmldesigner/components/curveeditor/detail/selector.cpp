@@ -136,41 +136,6 @@ void Selector::mouseRelease(QMouseEvent *event, GraphicsScene *scene)
     m_rect = QRectF();
 }
 
-bool Selector::isOverMovableItem(const QPointF &pos, GraphicsScene *scene)
-{
-    auto intersect = [pos](QGraphicsObject *item) {
-        return item->mapRectToScene(item->boundingRect()).contains(pos);
-    };
-
-    const auto frames = scene->keyframes();
-    for (auto *frame : frames) {
-        if (intersect(frame))
-            return true;
-
-        if (auto *leftHandle = frame->leftHandle()) {
-            if (intersect(leftHandle))
-                return true;
-        }
-
-        if (auto *rightHandle = frame->rightHandle()) {
-            if (intersect(rightHandle))
-                return true;
-        }
-    }
-    return false;
-}
-
-bool Selector::isOverSelectedKeyframe(const QPointF &pos, GraphicsScene *scene)
-{
-    const auto frames = scene->selectedKeyframes();
-    for (auto *frame : frames) {
-        QRectF frameRect = frame->mapRectToScene(frame->boundingRect());
-        if (frameRect.contains(pos))
-            return true;
-    }
-    return false;
-}
-
 bool Selector::select(const SelectionTool &tool, const QPointF &pos, GraphicsScene *scene)
 {
     auto selectWidthTool = [this,

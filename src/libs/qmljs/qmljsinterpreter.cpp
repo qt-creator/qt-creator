@@ -1080,25 +1080,6 @@ void ObjectValue::accept(ValueVisitor *visitor) const
     visitor->visit(this);
 }
 
-bool ObjectValue::checkPrototype(const ObjectValue *, QSet<const ObjectValue *> *) const
-{
-#if 0
-    const int previousSize = processed->size();
-    processed->insert(this);
-
-    if (previousSize != processed->size()) {
-        if (this == proto)
-            return false;
-
-        if (prototype() && ! prototype()->checkPrototype(proto, processed))
-            return false;
-
-        return true;
-    }
-#endif
-    return false;
-}
-
 void ObjectValue::processMembers(MemberProcessor *processor) const
 {
     for (auto it = m_members.cbegin(), end = m_members.cend(); it != end; ++it) {
