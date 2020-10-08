@@ -343,10 +343,6 @@ void TestResultsPane::clearContents()
     clearMarks();
 }
 
-void TestResultsPane::visibilityChanged(bool /*visible*/)
-{
-}
-
 void TestResultsPane::setFocus()
 {
 }

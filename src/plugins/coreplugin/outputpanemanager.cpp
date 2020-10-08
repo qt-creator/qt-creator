@@ -126,6 +126,10 @@ QList<QWidget *> IOutputPane::toolBarWidgets() const
     return widgets << m_zoomInButton << m_zoomOutButton;
 }
 
+void IOutputPane::visibilityChanged(bool /*visible*/)
+{
+}
+
 void IOutputPane::setFont(const QFont &font)
 {
     emit fontChanged(font);

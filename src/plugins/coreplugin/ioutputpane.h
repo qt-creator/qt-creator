@@ -58,7 +58,7 @@ public:
     virtual int priorityInStatusBar() const = 0;
 
     virtual void clearContents() = 0;
-    virtual void visibilityChanged(bool visible) = 0;
+    virtual void visibilityChanged(bool visible);
 
     virtual void setFocus() = 0;
     virtual bool hasFocus() const = 0;

@@ -105,10 +105,6 @@ QString MessageOutputWindow::displayName() const
     return tr("General Messages");
 }
 
-void MessageOutputWindow::visibilityChanged(bool /*b*/)
-{
-}
-
 void MessageOutputWindow::append(const QString &text)
 {
     m_widget->appendMessage(text, Utils::DebugFormat);

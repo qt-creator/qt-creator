@@ -215,9 +215,6 @@ void CompileOutputWindow::clearContents()
     m_taskPositions.clear();
 }
 
-void CompileOutputWindow::visibilityChanged(bool)
-{ }
-
 int CompileOutputWindow::priorityInStatusBar() const
 {
     return 50;

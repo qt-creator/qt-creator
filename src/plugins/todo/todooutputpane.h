@@ -60,7 +60,6 @@ public:
     QString displayName() const override;
     int priorityInStatusBar() const override;
     void clearContents() override;
-    void visibilityChanged(bool visible) override;
     void setFocus() override;
     bool hasFocus() const override;
     bool canFocus() const override;

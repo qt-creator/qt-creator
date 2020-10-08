@@ -210,11 +210,6 @@ void SerialOutputPane::clearContents()
         currentWindow->clear();
 }
 
-void SerialOutputPane::visibilityChanged(bool)
-{
-    // Unused but pure virtual
-}
-
 bool SerialOutputPane::canFocus() const
 {
     return m_tabWidget->currentWidget();
