@@ -179,8 +179,8 @@ QVariantMap PerfTimelineModel::details(int index) const
             result.insert(tr("Name"), orUnknown(manager->string(tracePoint.name)));
             const QHash<qint32, QVariant> &extraData = m_extraData[index];
             for (auto it = extraData.constBegin(), end = extraData.constEnd(); it != end; ++it) {
-                result.insertMulti(QString::fromUtf8(manager->string(it.key())),
-                                   prettyPrintTraceData(it.value()));
+                result.insert(QString::fromUtf8(manager->string(it.key())),
+                              prettyPrintTraceData(it.value()));
             }
         }
         if (!m_resourceBlocks.isEmpty()) {
