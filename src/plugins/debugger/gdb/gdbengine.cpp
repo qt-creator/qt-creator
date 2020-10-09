@@ -4166,7 +4166,7 @@ void GdbEngine::setupInferior()
         }
 
         if (!symbolFile.isEmpty()) {
-            runCommand({"-file-exec-and-symbols \"" + symbolFile + '"',
+            runCommand({"-file-symbol-file \"" + symbolFile + '"',
                         CB(handleFileExecAndSymbols)});
         }
 
