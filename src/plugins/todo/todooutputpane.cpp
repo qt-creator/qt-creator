@@ -94,11 +94,6 @@ void TodoOutputPane::clearContents()
     clearKeywordFilter();
 }
 
-void TodoOutputPane::visibilityChanged(bool visible)
-{
-    Q_UNUSED(visible)
-}
-
 void TodoOutputPane::setFocus()
 {
     m_todoTreeView->setFocus();

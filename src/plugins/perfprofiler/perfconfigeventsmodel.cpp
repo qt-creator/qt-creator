@@ -355,7 +355,7 @@ PerfConfigEventsModel::EventDescription PerfConfigEventsModel::parseEvent(
 
     if (event.startsWith('r') && event.length() == 4) {
         bool ok = false;
-        const uint eventNumber = event.midRef(1).toUInt(&ok, 16);
+        const uint eventNumber = event.mid(1).toUInt(&ok, 16);
         if (ok) {
             description.eventType = EventTypeRaw;
             description.numericEvent = eventNumber;

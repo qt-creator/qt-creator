@@ -106,13 +106,16 @@ static Utf8String getPropertyType(const SourceLocation &location, uint propertyP
     uint offset;
     clang_getFileLocation(location.cx(), &cxFile, nullptr, nullptr, &offset);
     const char *const contents = clang_getFileContents(location.tu(), cxFile, nullptr);
-    const char *const lineContents = &contents[offset - propertyPosition];
-
-    const char *typeStart = std::strstr(lineContents, "Q_PROPERTY") + 10;
+    const int keywordOffset = QByteArray::fromRawData(contents, propertyPosition)
+            .lastIndexOf("Q_PROPERTY");
+    if (keywordOffset == -1)
+        return {};
+    const char * const keywordStart = contents + keywordOffset;
+    const char *typeStart = keywordStart + 10;
     typeStart += std::strspn(typeStart, "( \t\n\r");
-    if (typeStart - lineContents >= propertyPosition)
+    if (typeStart - keywordStart >= propertyPosition)
         return Utf8String();
-    auto typeEnd = std::find_if(std::reverse_iterator<const char*>(lineContents + propertyPosition),
+    auto typeEnd = std::find_if(std::reverse_iterator<const char*>(keywordStart + propertyPosition),
                                 std::reverse_iterator<const char*>(typeStart),
                                 Utils::unequalTo(' '));
 

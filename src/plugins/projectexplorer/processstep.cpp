@@ -51,37 +51,43 @@ class ProcessStep final : public AbstractProcessStep
     Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::ProcessStep)
 
 public:
-    ProcessStep(BuildStepList *bsl, Utils::Id id);
+    ProcessStep(BuildStepList *bsl, Id id);
 
-    void setupOutputFormatter(Utils::OutputFormatter *formatter);
-    void setupProcessParameters(ProcessParameters *pp);
-
-    StringAspect *m_command;
-    StringAspect *m_arguments;
-    StringAspect *m_workingDirectory;
+    void setupOutputFormatter(OutputFormatter *formatter);
 };
 
-ProcessStep::ProcessStep(BuildStepList *bsl, Utils::Id id)
+ProcessStep::ProcessStep(BuildStepList *bsl, Id id)
     : AbstractProcessStep(bsl, id)
 {
-    m_command = addAspect<StringAspect>();
-    m_command->setSettingsKey(PROCESS_COMMAND_KEY);
-    m_command->setDisplayStyle(StringAspect::PathChooserDisplay);
-    m_command->setLabelText(tr("Command:"));
-    m_command->setExpectedKind(Utils::PathChooser::Command);
-    m_command->setHistoryCompleter("PE.ProcessStepCommand.History");
+    auto command = addAspect<StringAspect>();
+    command->setSettingsKey(PROCESS_COMMAND_KEY);
+    command->setDisplayStyle(StringAspect::PathChooserDisplay);
+    command->setLabelText(tr("Command:"));
+    command->setExpectedKind(PathChooser::Command);
+    command->setHistoryCompleter("PE.ProcessStepCommand.History");
 
-    m_arguments = addAspect<StringAspect>();
-    m_arguments->setSettingsKey(PROCESS_ARGUMENTS_KEY);
-    m_arguments->setDisplayStyle(StringAspect::LineEditDisplay);
-    m_arguments->setLabelText(tr("Arguments:"));
+    auto arguments = addAspect<StringAspect>();
+    arguments->setSettingsKey(PROCESS_ARGUMENTS_KEY);
+    arguments->setDisplayStyle(StringAspect::LineEditDisplay);
+    arguments->setLabelText(tr("Arguments:"));
 
-    m_workingDirectory = addAspect<StringAspect>();
-    m_workingDirectory->setSettingsKey(PROCESS_WORKINGDIRECTORY_KEY);
-    m_workingDirectory->setValue(Constants::DEFAULT_WORKING_DIR);
-    m_workingDirectory->setDisplayStyle(StringAspect::PathChooserDisplay);
-    m_workingDirectory->setLabelText(tr("Working directory:"));
-    m_workingDirectory->setExpectedKind(Utils::PathChooser::Directory);
+    auto workingDirectory = addAspect<StringAspect>();
+    workingDirectory->setSettingsKey(PROCESS_WORKINGDIRECTORY_KEY);
+    workingDirectory->setValue(Constants::DEFAULT_WORKING_DIR);
+    workingDirectory->setDisplayStyle(StringAspect::PathChooserDisplay);
+    workingDirectory->setLabelText(tr("Working directory:"));
+    workingDirectory->setExpectedKind(PathChooser::Directory);
+
+    setWorkingDirectoryProvider([this, workingDirectory] {
+        const FilePath workingDir = workingDirectory->filePath();
+        if (workingDir.isEmpty())
+            return FilePath::fromString(fallbackWorkingDirectory());
+        return workingDir;
+    });
+
+    setCommandLineProvider([command, arguments] {
+        return CommandLine{command->filePath(), arguments->value(), CommandLine::Raw};
+    });
 
     setSummaryUpdater([this] {
         QString display = displayName();
@@ -99,18 +105,6 @@ void ProcessStep::setupOutputFormatter(OutputFormatter *formatter)
 {
     formatter->addLineParsers(kit()->createOutputParsers());
     AbstractProcessStep::setupOutputFormatter(formatter);
-}
-
-void ProcessStep::setupProcessParameters(ProcessParameters *pp)
-{
-    QString workingDirectory = m_workingDirectory->value();
-    if (workingDirectory.isEmpty())
-        workingDirectory = fallbackWorkingDirectory();
-
-    pp->setMacroExpander(macroExpander());
-    pp->setEnvironment(buildEnvironment());
-    pp->setWorkingDirectory(FilePath::fromString(workingDirectory));
-    pp->setCommandLine({m_command->filePath(), m_arguments->value(), CommandLine::Raw});
 }
 
 // ProcessStepFactory

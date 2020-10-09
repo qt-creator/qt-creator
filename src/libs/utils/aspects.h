@@ -59,11 +59,12 @@ public:
 
     void setId(Utils::Id id) { m_id = id; }
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
-    void setSettingsKey(const QString &settingsKey) { m_settingsKey = settingsKey; }
+    void setSettingsKey(const QString &settingsKey);
+    void setSettingsKey(const QString &group, const QString &key);
 
     Utils::Id id() const { return m_id; }
     QString displayName() const { return m_displayName; }
-    QString settingsKey() const { return  m_settingsKey; }
+    QString settingsKey() const;
 
     bool isVisible() const { return m_visible; }
     void setVisible(bool visible) { m_visible = visible; }

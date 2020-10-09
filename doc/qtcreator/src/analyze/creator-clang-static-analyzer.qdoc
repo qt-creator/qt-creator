@@ -113,9 +113,14 @@
     icon, hover the mouse pointer over the line.
 
     Select the \inlineimage settings.png
-    button to configure Clang diagnostics globally for Clang tools.
+    button to customize Clang diagnostics for the current project.
 
     \image qtcreator-clang-tools-options-customized.png "Clang Tools customized settings"
+
+    To restore the global settings, select \uicontrol {Restore Global Settings}.
+    To view and modify the global settings, select
+    \uicontrol {Open Global Settings}. To open the Clang static analyzer,
+    select \uicontrol {Go to Analyzer}.
 
     \section1 Configuring Clang Tools
 
@@ -138,6 +143,9 @@
             generated during the build. For big projects, not building the
             project might save some time.
 
+        \li To disable automatic analysis of open documents, deselect the
+            \uicontrol {Analyze open files} check box.
+
         \li In the \uicontrol {Parallel jobs} field, select the number of jobs
             to run in parallel to make the analysis faster on multi-core
             processors.
@@ -147,7 +155,7 @@
 
         \li Select \uicontrol Copy to create a custom Clang configuration.
 
-            \image qtcreator-diagnostics-configuration.png "Diagnostics Configuration dialog"
+            \image qtcreator-clang-copy-diagnostic-configuration.png "Copy Diagnostic Configuration dialog"
 
         \li In the \uicontrol {Diagnostic configuration name} field, give the
             configuration a name, and then select \uicontrol OK.
@@ -157,6 +165,8 @@
             to forward diagnostic flags, such as warning flags, from the build
             system to the Clang code model for displaying annotations in the
             code editor.
+
+            \image qtcreator-diagnostics-configuration.png "Diagnostics Configuration dialog"
 
         \li In the \uicontrol {Clang-Tidy Checks} tab, select
             \uicontrol {Select Checks} to select the checks to perform.

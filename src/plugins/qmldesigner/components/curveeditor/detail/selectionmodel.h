@@ -25,13 +25,13 @@
 
 #pragma once
 
+#include "curveitem.h"
 #include "treeitem.h"
 
 #include <QItemSelectionModel>
 
 namespace DesignTools {
 
-class CurveItem;
 class TreeItem;
 class NodeTreeItem;
 class PropertyTreeItem;

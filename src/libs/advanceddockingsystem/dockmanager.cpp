@@ -191,7 +191,7 @@ namespace ADS
         if (!stateReader.readNextStartElement())
             return false;
 
-        if (stateReader.name() != "QtAdvancedDockingSystem")
+        if (stateReader.name() != QLatin1String("QtAdvancedDockingSystem"))
             return false;
 
         qCInfo(adsLog) << stateReader.attributes().value("version");
@@ -219,7 +219,7 @@ namespace ADS
 #endif
         int dockContainerCount = 0;
         while (stateReader.readNextStartElement()) {
-            if (stateReader.name() == "container") {
+            if (stateReader.name() == QLatin1String("container")) {
                 result = restoreContainer(dockContainerCount, stateReader, testing);
                 if (!result)
                     break;

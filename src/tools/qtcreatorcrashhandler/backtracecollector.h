@@ -36,7 +36,7 @@ public:
     explicit BacktraceCollector(QObject *parent = 0);
     ~BacktraceCollector();
 
-    void run(Q_PID pid);
+    void run(qint64 pid);
     bool isRunning() const;
     void kill();
 

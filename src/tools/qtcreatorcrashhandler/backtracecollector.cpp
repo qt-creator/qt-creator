@@ -63,7 +63,7 @@ BacktraceCollector::~BacktraceCollector()
     delete d;
 }
 
-void BacktraceCollector::run(Q_PID pid)
+void BacktraceCollector::run(qint64 pid)
 {
     d->debugger.start(QLatin1String("gdb"), QStringList({
         "--nw",    // Do not use a window interface.

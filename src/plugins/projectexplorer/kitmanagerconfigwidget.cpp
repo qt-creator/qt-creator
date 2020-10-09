@@ -46,16 +46,11 @@
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 #include <QFileDialog>
-#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
-#include <QPainter>
-#include <QPushButton>
 #include <QToolButton>
-#include <QScrollArea>
 #include <QSizePolicy>
-#include <QStyle>
 
 static const char WORKING_COPY_KIT_ID[] = "modified kit";
 
@@ -71,14 +66,12 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     m_kit(k),
     m_modifiedKit(std::make_unique<Kit>(Utils::Id(WORKING_COPY_KIT_ID)))
 {
-    static auto alignment
-            = static_cast<const Qt::Alignment>(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
-
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
     LayoutBuilder builder(this, LayoutBuilder::GridLayout);
-    QLabel *label = createLabel(tr("Name:"), tr("Kit name and icon."));
-    builder.addRow({{label, 1, alignment}, m_nameEdit, m_iconButton});
+    QLabel *label = new QLabel(tr("Name:"));
+    label->setToolTip(tr("Kit name and icon."));
+    builder.addRow({{label, 1, LayoutBuilder::AlignAsFormLabel}, m_nameEdit, m_iconButton});
 
     QString toolTip =
         tr("<html><head/><body><p>The name of the kit suitable for generating "
@@ -90,8 +83,9 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     Q_ASSERT(fileSystemFriendlyNameRegexp.isValid());
     m_fileSystemFriendlyNameLineEdit->setValidator(new QRegularExpressionValidator(fileSystemFriendlyNameRegexp, m_fileSystemFriendlyNameLineEdit));
 
-    label = createLabel(tr("File system name:"), toolTip);
-    builder.addRow({{label, 1, alignment}, m_fileSystemFriendlyNameLineEdit});
+    label = new QLabel(tr("File system name:"));
+    label->setToolTip(toolTip);
+    builder.addRow({{label, 1, LayoutBuilder::AlignAsFormLabel}, m_fileSystemFriendlyNameLineEdit});
     connect(m_fileSystemFriendlyNameLineEdit, &QLineEdit::textChanged,
             this, &KitManagerConfigWidget::setFileSystemFriendlyName);
 
@@ -222,9 +216,6 @@ void KitManagerConfigWidget::addAspectToWorkingCopy(KitAspect *aspect)
     QTC_ASSERT(widget, return);
     QTC_ASSERT(!m_widgets.contains(widget), return);
 
-    const QString name = aspect->displayName() + ':';
-    QString toolTip = aspect->description();
-
     auto action = new QAction(tr("Mark as Mutable"), nullptr);
     action->setCheckable(true);
     action->setChecked(workingCopy()->isMutable(aspect->id()));
@@ -239,14 +230,9 @@ void KitManagerConfigWidget::addAspectToWorkingCopy(KitAspect *aspect)
 
     m_actions << action;
 
-    static auto alignment
-        = static_cast<const Qt::Alignment>(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
-
-    QLabel *label = createLabel(name, toolTip);
     LayoutBuilder builder(layout());
-    builder.addRow({{label, 1, alignment}, widget->mainWidget(), widget->buttonWidget()});
+    widget->addToLayout(builder);
     m_widgets.append(widget);
-    m_labels.append(label);
 }
 
 void KitManagerConfigWidget::updateVisibility()
@@ -256,10 +242,7 @@ void KitManagerConfigWidget::updateVisibility()
         KitAspectWidget *widget = m_widgets.at(i);
         const bool visible = widget->visibleInKit()
                 && !m_modifiedKit->irrelevantAspects().contains(widget->kitInformationId());
-        widget->mainWidget()->setVisible(visible);
-        if (widget->buttonWidget())
-            widget->buttonWidget()->setVisible(visible);
-        m_labels.at(i)->setVisible(visible);
+        widget->setVisible(visible);
     }
 }
 
@@ -408,13 +391,6 @@ void KitManagerConfigWidget::showEvent(QShowEvent *event)
     Q_UNUSED(event)
     foreach (KitAspectWidget *widget, m_widgets)
         widget->refresh();
-}
-
-QLabel *KitManagerConfigWidget::createLabel(const QString &name, const QString &toolTip)
-{
-    auto label = new QLabel(name);
-    label->setToolTip(toolTip);
-    return label;
 }
 
 } // namespace Internal

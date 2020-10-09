@@ -175,10 +175,6 @@ void Console::clearContents()
     m_consoleItemModel->clear();
 }
 
-void Console::visibilityChanged(bool /*visible*/)
-{
-}
-
 bool Console::canFocus() const
 {
     return true;

@@ -244,14 +244,16 @@ void AvdDialog::updateApiLevelComboBox()
     if (installedSystemImages.isEmpty()) {
         m_avdDialog.targetApiComboBox->setEnabled(false);
         m_avdDialog.warningText->setVisible(true);
-        m_avdDialog.warningText->setText(tr("Cannot create a new AVD. No sufficiently recent Android SDK available.\n"
-                                            "Install an SDK of at least API version %1.")
-                                         .arg(m_minApiLevel));
+        m_avdDialog.warningText->setText(
+            tr("Cannot create a new AVD. No suitable Android system image is installed.\n"
+               "Install a system image of at least API version %1 from the SDK Manager tab.")
+                .arg(m_minApiLevel));
     } else if (filteredList.isEmpty()) {
         m_avdDialog.targetApiComboBox->setEnabled(false);
         m_avdDialog.warningText->setVisible(true);
-        m_avdDialog.warningText->setText(tr("Cannot create a AVD for ABI %1. Install an image for it.")
-                                         .arg(abi()));
+        m_avdDialog.warningText->setText(tr("Cannot create an AVD for ABI %1. Install a system "
+                                            "image for it from the SDK Manager tab first.")
+                                             .arg(abi()));
     } else {
         m_avdDialog.warningText->setVisible(false);
         m_avdDialog.targetApiComboBox->setEnabled(true);

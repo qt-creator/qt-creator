@@ -61,7 +61,6 @@ public:
     QString displayName() const override { return tr("QML Debugger Console"); }
     int priorityInStatusBar() const override;
     void clearContents() override;
-    void visibilityChanged(bool visible) override;
     bool canFocus() const override;
     bool hasFocus() const override;
     void setFocus() override;

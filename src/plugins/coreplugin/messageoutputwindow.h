@@ -45,7 +45,6 @@ public:
     QString displayName() const override;
     int priorityInStatusBar() const override;
     void clearContents() override;
-    void visibilityChanged(bool visible) override;
 
     void append(const QString &text);
     bool canFocus() const override;

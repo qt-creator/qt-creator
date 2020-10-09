@@ -511,6 +511,20 @@ struct Watcher : DumperOptions
     {}
 };
 
+enum AdditionalCriteria
+{
+    NeedsInferiorCall = 0x1,
+};
+
+static bool matchesAdditionalCriteria(int criteria)
+{
+#ifdef Q_OS_UNIX
+    return true;
+#else
+    return !(criteria & NeedsInferiorCall);
+#endif
+}
+
 struct Check
 {
     Check() {}
@@ -533,7 +547,8 @@ struct Check
             && gccVersionForCheck.covers(context.gccVersion)
             && clangVersionForCheck.covers(context.clangVersion)
             && msvcVersionForCheck.covers(context.msvcVersion)
-            && qtVersionForCheck.covers(context.qtVersion);
+            && qtVersionForCheck.covers(context.qtVersion)
+            && matchesAdditionalCriteria(additionalCriteria);
     }
 
     const Check &operator%(Optional) const
@@ -595,6 +610,12 @@ struct Check
         return *this;
     }
 
+    const Check &operator%(AdditionalCriteria criteria) const
+    {
+        additionalCriteria = criteria;
+        return *this;
+    }
+
     QString iname;
     Name expectedName;
     Value expectedValue;
@@ -607,6 +628,7 @@ struct Check
     mutable VersionBase msvcVersionForCheck;
     mutable QtVersion qtVersionForCheck;
     mutable BoostVersion boostVersionForCheck;
+    mutable int additionalCriteria = 0;
     mutable bool optionallyPresent = false;
 };
 
@@ -2212,29 +2234,29 @@ void tst_Dumpers::dumper_data()
 
                + Check("d0", "(invalid)", "@QDate")
                + Check("d1", "Tue Jan 1 1980", "@QDate")
-               + Check("d1.(ISO)", "\"1980-01-01\"", "@QString") % Optional()
-               + Check("d1.toString", "\"Tue Jan 1 1980\"", "@QString") % Optional()
-               + CheckType("d1.(Locale)", "@QString") % Optional()
-               + CheckType("d1.(SystemLocale)", "@QString") % Optional()
+               + Check("d1.(ISO)", "\"1980-01-01\"", "@QString") % NeedsInferiorCall
+               + Check("d1.toString", "\"Tue Jan 1 1980\"", "@QString") % NeedsInferiorCall
+               + CheckType("d1.(Locale)", "@QString") % NeedsInferiorCall
+               + CheckType("d1.(SystemLocale)", "@QString") % NeedsInferiorCall
 
                + Check("t0", "(invalid)", "@QTime")
                + Check("t1", "13:15:32", "@QTime")
-               + Check("t1.(ISO)", "\"13:15:32\"", "@QString") % Optional()
-               + Check("t1.toString", "\"13:15:32\"", "@QString") % Optional()
-               + CheckType("t1.(Locale)", "@QString") % Optional()
-               + CheckType("t1.(SystemLocale)", "@QString") % Optional()
+               + Check("t1.(ISO)", "\"13:15:32\"", "@QString") % NeedsInferiorCall
+               + Check("t1.toString", "\"13:15:32\"", "@QString") % NeedsInferiorCall
+               + CheckType("t1.(Locale)", "@QString") % NeedsInferiorCall
+               + CheckType("t1.(SystemLocale)", "@QString") % NeedsInferiorCall
 
                + Check("dt0", "(invalid)", "@QDateTime")
                + Check("dt1", Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime")
                + Check("dt1", Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime")
                + Check("dt1.(ISO)",
-                    "\"1980-01-01T13:15:32Z\"", "@QString") % Optional()
-               + CheckType("dt1.(Locale)", "@QString") % Optional()
-               + CheckType("dt1.(SystemLocale)", "@QString") % Optional()
+                    "\"1980-01-01T13:15:32Z\"", "@QString") % NeedsInferiorCall
+               + CheckType("dt1.(Locale)", "@QString") % NeedsInferiorCall
+               + CheckType("dt1.(SystemLocale)", "@QString") % NeedsInferiorCall
                + Check("dt1.toString",
-                    Value4("\"Tue Jan 1 13:15:32 1980\""), "@QString") % Optional()
+                    Value4("\"Tue Jan 1 13:15:32 1980\""), "@QString") % NeedsInferiorCall
                + Check("dt1.toString",
-                    Value5("\"Tue Jan 1 13:15:32 1980 GMT\""), "@QString") % Optional();
+                    Value5("\"Tue Jan 1 13:15:32 1980 GMT\""), "@QString") % NeedsInferiorCall;
                //+ Check("dt1.toUTC",
                //     Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime") % Optional()
                //+ Check("dt1.toUTC",
@@ -2724,7 +2746,7 @@ void tst_Dumpers::dumper_data()
 
               + CheckType("loc", "@QLocale")
               + CheckType("m", "@QLocale::MeasurementSystem")
-              + Check("loc1", "\"en_US\"", "@QLocale")
+              + Check("loc1", "\"en_US\"", "@QLocale") % NeedsInferiorCall
               + Check("loc1.country", "@QLocale::UnitedStates (225)", "@QLocale::Country") % Qt5
               + Check("loc1.language", "@QLocale::English (31)", "@QLocale::Language") % Qt5
               + Check("loc1.numberOptions", "@QLocale::DefaultNumberOptions (0)", "@QLocale::NumberOptions")
@@ -3306,7 +3328,7 @@ void tst_Dumpers::dumper_data()
                     "QT_BEGIN_NAMESPACE\n"
                     "uint qHash(const QMap<int, int> &) { return 0; }\n"
                     "uint qHash(const double & f) { return int(f); }\n"
-                    "uint qHash(const QPointer<QObject> &p) { return (ulong)p.data(); }\n"
+                    "uint qHash(const QPointer<QObject> &p) { return (quintptr)p.data(); }\n"
                     "QT_END_NAMESPACE\n",
 
                     "QSet<int> s1;\n"

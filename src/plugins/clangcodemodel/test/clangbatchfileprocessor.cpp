@@ -469,7 +469,7 @@ bool CompleteCommand::run()
     auto *processor = ClangEditorDocumentProcessor::get(documentFilePath);
     QTC_ASSERT(processor, return false);
 
-    return completionResults(editor, QStringList(), timeOutInMs());
+    return !completionResults(editor, QStringList(), timeOutInMs()).isNull();
 }
 
 Command::Ptr CompleteCommand::parse(BatchFileLineTokenizer &arguments,

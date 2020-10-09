@@ -44,12 +44,14 @@
 #include <remotelinux/remotelinux_constants.h>
 
 #include <utils/environment.h>
+#include <utils/layoutbuilder.h>
 #include <utils/persistentsettings.h>
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
 #include <QHash>
+#include <QLabel>
 #include <QSettings>
 #include <QStyle>
 
@@ -727,6 +729,24 @@ KitAspectWidget::KitAspectWidget(Kit *kit, const KitAspect *ki) : m_kit(kit),
 Utils::Id KitAspectWidget::kitInformationId() const
 {
     return m_kitInformation->id();
+}
+
+void KitAspectWidget::addToLayout(LayoutBuilder &builder)
+{
+    QTC_ASSERT(!m_label, delete m_label);
+    m_label = new QLabel(m_kitInformation->displayName() + ':');
+    m_label->setToolTip(m_kitInformation->description());
+
+    builder.addRow({{m_label, 1, LayoutBuilder::AlignAsFormLabel}, mainWidget(), buttonWidget()});
+}
+
+void KitAspectWidget::setVisible(bool visible)
+{
+    mainWidget()->setVisible(visible);
+    if (buttonWidget())
+        buttonWidget()->setVisible(visible);
+    QTC_ASSERT(m_label, return);
+    m_label->setVisible(visible);
 }
 
 QString KitAspectWidget::msgManage()

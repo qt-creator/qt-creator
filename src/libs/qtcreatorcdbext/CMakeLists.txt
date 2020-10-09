@@ -52,14 +52,15 @@ if (_library_enabled)
     return()
   endif()
 
-  set(PythonRegex "^(.*)/(.*)/(python[0-9]+)${CMAKE_IMPORT_LIBRARY_SUFFIX}$")
+  set(PythonRegex "^(.*)/(.*)/(python([0-9]+))${CMAKE_IMPORT_LIBRARY_SUFFIX}$")
   if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(PythonRegex "^(.*)/(.*)/(python[0-9]+_d)${CMAKE_IMPORT_LIBRARY_SUFFIX}$")
+    set(PythonRegex "^(.*)/(.*)/(python([0-9]+)_d)${CMAKE_IMPORT_LIBRARY_SUFFIX}$")
   endif()
 
   foreach(lib IN LISTS PYTHON_LIBRARIES)
     if (lib MATCHES ${PythonRegex})
       set(PythonDll "${CMAKE_MATCH_1}/${CMAKE_MATCH_3}${CMAKE_SHARED_LIBRARY_SUFFIX}")
+      set(PythonZip "${CMAKE_MATCH_1}/python${CMAKE_MATCH_4}.zip")
       break()
     endif()
   endforeach()
@@ -84,13 +85,16 @@ if (_library_enabled)
       pyvalue.cpp pyvalue.h
   )
 
-  install(FILES "${PythonDll}"
+  install(FILES
+            "${PythonDll}"
+            "${PythonZip}"
           DESTINATION lib/qtcreatorcdbext${ArchSuffix}/
           COMPONENT qtcreatorcdbext)
 
   add_custom_target(copy_python_dll ALL VERBATIM)
   add_custom_command(TARGET copy_python_dll POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy "${PythonDll}" "${PROJECT_BINARY_DIR}/lib/qtcreatorcdbext${ArchSuffix}/"
+    COMMAND "${CMAKE_COMMAND}" -E copy "${PythonZip}" "${PROJECT_BINARY_DIR}/lib/qtcreatorcdbext${ArchSuffix}/"
     VERBATIM
   )
 endif()

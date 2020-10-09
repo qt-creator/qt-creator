@@ -137,7 +137,9 @@ bool navigateToSlot(const QString &uiFileName,
     SearchFunction searchFunc(setupUiC);
     const SearchFunction::FunctionList funcs = searchFunc(generatedHeaderDoc);
     if (funcs.size() != 1) {
-        *errorMessage = QString::fromLatin1("Internal error: The function \"%1\" could not be found in %2").arg(setupUiC, generatedHeaderFile);
+        *errorMessage = QString::fromLatin1(
+                            "Internal error: The function \"%1\" could not be found in %2")
+                            .arg(QLatin1String(setupUiC), generatedHeaderFile);
         return false;
     }
     return true;

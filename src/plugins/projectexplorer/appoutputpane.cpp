@@ -341,10 +341,6 @@ void AppOutputPane::clearContents()
         currentWindow->clear();
 }
 
-void AppOutputPane::visibilityChanged(bool /* b */)
-{
-}
-
 bool AppOutputPane::hasFocus() const
 {
     QWidget *widget = m_tabWidget->currentWidget();

@@ -76,7 +76,6 @@ public:
 
     int priorityInStatusBar() const final;
     void clearContents() final;
-    void visibilityChanged(bool) final;
     bool canFocus() const final;
     bool hasFocus() const final;
     void setFocus() final;
