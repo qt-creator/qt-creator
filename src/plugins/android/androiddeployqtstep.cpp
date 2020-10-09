@@ -51,6 +51,7 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/algorithm.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
@@ -86,8 +87,18 @@ AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Utils::Id id)
     : BuildStep(parent, id)
 {
     setImmutable(true);
+
+    m_uninstallPreviousPackage = addAspect<BoolAspect>();
+    m_uninstallPreviousPackage->setSettingsKey(UninstallPreviousPackageKey);
+    m_uninstallPreviousPackage->setLabel(tr("Uninstall the existing app first"));
+    m_uninstallPreviousPackage->setValue(false);
+
     const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit());
-    m_uninstallPreviousPackage = qt && qt->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0);
+    const bool forced = qt && qt->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0);
+    if (forced) {
+        m_uninstallPreviousPackage->setValue(true);
+        m_uninstallPreviousPackage->setEnabled(false);
+    }
 
     connect(this, &AndroidDeployQtStep::askForUninstall,
             this, &AndroidDeployQtStep::slotAskForUninstall,
@@ -167,7 +178,7 @@ bool AndroidDeployQtStep::init()
 
     emit addOutput(tr("Deploying to %1").arg(m_serialNumber), OutputFormat::Stdout);
 
-    m_uninstallPreviousPackageRun = m_uninstallPreviousPackage;
+    m_uninstallPreviousPackageRun = m_uninstallPreviousPackage->value();
     if (m_uninstallPreviousPackageRun)
         m_manifestName = AndroidManager::manifestPath(target());
 
@@ -480,14 +491,6 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
     setDisplayName(QString("<b>%1</b>").arg(displayName()));
     setSummaryText(displayName());
 
-    auto uninstallPreviousCheckBox = new QCheckBox(widget);
-    uninstallPreviousCheckBox->setText(tr("Uninstall the existing app first"));
-    uninstallPreviousCheckBox->setChecked(uninstallPreviousPackage() > Keep);
-    uninstallPreviousCheckBox->setEnabled(uninstallPreviousPackage() != ForceUninstall);
-
-    connect(uninstallPreviousCheckBox, &QAbstractButton::toggled,
-            this, &AndroidDeployQtStep::setUninstallPreviousPackage);
-
     auto resetDefaultDevices = new QPushButton(widget);
     resetDefaultDevices->setText(tr("Reset Default Deployment Devices"));
 
@@ -508,10 +511,10 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
             AndroidManager::installQASIPackage(target(), packagePath);
     });
 
-    auto layout = new QVBoxLayout(widget);
-    layout->addWidget(uninstallPreviousCheckBox);
-    layout->addWidget(resetDefaultDevices);
-    layout->addWidget(installCustomApkButton);
+    LayoutBuilder builder(widget);
+    builder.addRow(m_uninstallPreviousPackage);
+    builder.addRow(resetDefaultDevices);
+    builder.addRow(installCustomApkButton);
 
     return widget;
 }
@@ -567,32 +570,6 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::parseDeployErrors(QStr
         errorCode |= VersionDowngrade;
 
     return errorCode;
-}
-
-bool AndroidDeployQtStep::fromMap(const QVariantMap &map)
-{
-    m_uninstallPreviousPackage = map.value(UninstallPreviousPackageKey, m_uninstallPreviousPackage).toBool();
-    return ProjectExplorer::BuildStep::fromMap(map);
-}
-
-QVariantMap AndroidDeployQtStep::toMap() const
-{
-    QVariantMap map = ProjectExplorer::BuildStep::toMap();
-    map.insert(UninstallPreviousPackageKey, m_uninstallPreviousPackage);
-    return map;
-}
-
-void AndroidDeployQtStep::setUninstallPreviousPackage(bool uninstall)
-{
-    m_uninstallPreviousPackage = uninstall;
-}
-
-AndroidDeployQtStep::UninstallType AndroidDeployQtStep::uninstallPreviousPackage()
-{
-    const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit());
-    if (qt && qt->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0))
-        return ForceUninstall;
-    return m_uninstallPreviousPackage ? Uninstall : Keep;
 }
 
 // AndroidDeployQtStepFactory
