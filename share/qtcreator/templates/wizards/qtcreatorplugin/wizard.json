@@ -190,12 +190,12 @@
                     "openAsProject": true
                 },
                 {
-                    "source": "github_workflow_build_qmake.yml",
-                    "target": ".github/workflow/build_qmake.yml"
+                    "source": "github_workflows_build_qmake.yml",
+                    "target": ".github/workflows/build_qmake.yml"
                 },
                 {
-                    "source": "github_workflow_README.md",
-                    "target": ".github/workflow/README.md"
+                    "source": "github_workflows_README.md",
+                    "target": ".github/workflows/README.md"
                 },
                 {
                     "source": "myplugin.cpp",

@@ -11,8 +11,8 @@ HEADERS += \\
         %{ConstantsHdrFileName}
 
 DISTFILES += \\
-        .github/workflow/build_qmake.yml \\
-        .github/workflow/README.md
+        .github/workflows/build_qmake.yml \\
+        .github/workflows/README.md
 
 # Qt Creator linking
 
