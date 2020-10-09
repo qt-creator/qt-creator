@@ -270,6 +270,9 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
 
     instance.internalInstance()->initialize(instance.m_nodeInstance, instanceContainer.metaFlags());
 
+    // Handle hidden state to initialize pickable state
+    nodeInstanceServer->handleInstanceHidden(instance, false, false);
+
     return instance;
 }
 
@@ -346,9 +349,16 @@ void ServerNodeInstance::setPropertyBinding(const PropertyName &name, const QStr
     m_nodeInstance->setPropertyBinding(name, expression);
 }
 
-void ServerNodeInstance::setHideInEditor(bool b)
+void ServerNodeInstance::setHiddenInEditor(bool b)
 {
-    m_nodeInstance->setHideInEditor(b);
+    m_nodeInstance->setHiddenInEditor(b);
+    m_nodeInstance->nodeInstanceServer()->handleInstanceHidden(*this, b, true);
+}
+
+void ServerNodeInstance::setLockedInEditor(bool b)
+{
+    m_nodeInstance->setLockedInEditor(b);
+    m_nodeInstance->nodeInstanceServer()->handleInstanceLocked(*this, b, true);
 }
 
 void ServerNodeInstance::resetProperty(const PropertyName &name)

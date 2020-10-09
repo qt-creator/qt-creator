@@ -74,6 +74,12 @@ public:
     Q_INVOKABLE void delayedPropertySet(QObject *obj, int delay, const QString &property,
                                         const QVariant& value);
     Q_INVOKABLE QQuick3DNode *resolvePick(QQuick3DNode *pickNode);
+
+    Q_INVOKABLE void registerGizmoTarget(QQuick3DNode *node);
+    Q_INVOKABLE void unregisterGizmoTarget(QQuick3DNode *node);
+    Q_INVOKABLE bool isLocked(QQuick3DNode *node);
+    Q_INVOKABLE bool isHidden(QQuick3DNode *node);
+
     Q_INVOKABLE void storeToolState(const QString &sceneId, const QString &tool,
                                     const QVariant &state, int delayEmit = 0);
     void initToolStates(const QString &sceneId, const QVariantMap &toolStates);
@@ -90,6 +96,11 @@ public:
 signals:
     void overlayUpdateNeeded();
     void toolStateChanged(const QString &sceneId, const QString &tool, const QVariant &toolState);
+    void hiddenStateChanged(QQuick3DNode *node);
+    void lockedStateChanged(QQuick3DNode *node);
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
 
 private:
     void handlePendingToolStateUpdate();
@@ -98,6 +109,7 @@ private:
     QTimer m_toolStateUpdateTimer;
     QHash<QString, QVariantMap> m_toolStates;
     QHash<QString, QVariantMap> m_toolStatesPending;
+    QSet<QQuick3DNode *> m_gizmoTargets;
 };
 
 }

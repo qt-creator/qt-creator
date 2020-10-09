@@ -998,9 +998,17 @@ void NodeInstanceServer::setInstanceAuxiliaryData(const PropertyValueContainer &
         if (hasInstanceForId(auxiliaryContainer.instanceId())) {
             ServerNodeInstance instance = instanceForId(auxiliaryContainer.instanceId());
             if (!auxiliaryContainer.value().isNull())
-                instance.setHideInEditor(auxiliaryContainer.value().toBool());
+                instance.setHiddenInEditor(auxiliaryContainer.value().toBool());
             else
-                instance.setHideInEditor(false);
+                instance.setHiddenInEditor(false);
+        }
+    } else if (auxiliaryContainer.name() == "locked") {
+        if (hasInstanceForId(auxiliaryContainer.instanceId())) {
+            ServerNodeInstance instance = instanceForId(auxiliaryContainer.instanceId());
+            if (!auxiliaryContainer.value().isNull())
+                instance.setLockedInEditor(auxiliaryContainer.value().toBool());
+            else
+                instance.setLockedInEditor(false);
         }
     }
 }
@@ -1477,6 +1485,16 @@ void NodeInstanceServer::sheduleRootItemRender()
 }
 
 void NodeInstanceServer::initializeAuxiliaryViews()
+{
+}
+
+void NodeInstanceServer::handleInstanceLocked(const ServerNodeInstance &/*instance*/, bool /*enable*/,
+                                              bool /*checkAncestors*/)
+{
+}
+
+void NodeInstanceServer::handleInstanceHidden(const ServerNodeInstance &/*instance*/, bool /*enable*/,
+                                              bool /*checkAncestors*/)
 {
 }
 
