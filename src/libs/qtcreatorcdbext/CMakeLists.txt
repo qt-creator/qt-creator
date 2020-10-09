@@ -59,8 +59,12 @@ if (_library_enabled)
 
   foreach(lib IN LISTS PYTHON_LIBRARIES)
     if (lib MATCHES ${PythonRegex})
+      set(PythonZipFileName "python${CMAKE_MATCH_4}.zip")
+
       set(PythonDll "${CMAKE_MATCH_1}/${CMAKE_MATCH_3}${CMAKE_SHARED_LIBRARY_SUFFIX}")
-      set(PythonZip "${CMAKE_MATCH_1}/python${CMAKE_MATCH_4}.zip")
+      set(PythonExe "${CMAKE_MATCH_1}/python${CMAKE_EXECUTABLE_SUFFIX}")
+      set(PythonZip "${CMAKE_MATCH_1}/${PythonZipFileName}")
+
       break()
     endif()
   endforeach()
@@ -85,16 +89,27 @@ if (_library_enabled)
       pyvalue.cpp pyvalue.h
   )
 
-  install(FILES
-            "${PythonDll}"
-            "${PythonZip}"
+  if (NOT EXISTS "${PythonZip}" AND
+      NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/${PythonZipFileName}")
+    include(CreatePythonXY)
+    create_python_xy("${PythonExe}" "${CMAKE_CURRENT_BINARY_DIR}/${PythonZipFileName}")
+  endif()
+
+  if (NOT EXISTS "${PythonZip}" AND
+      EXISTS "${CMAKE_CURRENT_BINARY_DIR}/${PythonZipFileName}")
+    set(PythonZip "${CMAKE_CURRENT_BINARY_DIR}/${PythonZipFileName}")
+  endif()
+
+  list(APPEND deployPythonFiles "${PythonDll}")
+  list(APPEND deployPythonFiles "${PythonZip}")
+
+  install(FILES ${deployPythonFiles}
           DESTINATION lib/qtcreatorcdbext${ArchSuffix}/
           COMPONENT qtcreatorcdbext)
 
   add_custom_target(copy_python_dll ALL VERBATIM)
   add_custom_command(TARGET copy_python_dll POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy "${PythonDll}" "${PROJECT_BINARY_DIR}/lib/qtcreatorcdbext${ArchSuffix}/"
-    COMMAND "${CMAKE_COMMAND}" -E copy "${PythonZip}" "${PROJECT_BINARY_DIR}/lib/qtcreatorcdbext${ArchSuffix}/"
+    COMMAND "${CMAKE_COMMAND}" -E copy ${deployPythonFiles} "${PROJECT_BINARY_DIR}/lib/qtcreatorcdbext${ArchSuffix}/"
     VERBATIM
   )
 endif()
