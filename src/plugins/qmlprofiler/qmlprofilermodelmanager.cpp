@@ -395,7 +395,7 @@ QmlProfilerModelManager::rangeFilter(qint64 rangeStart, qint64 rangeEnd) const
                 if (type.rangeType() != MaximumRangeType) {
                     if (event.rangeStage() == RangeStart)
                         stack.push(event);
-                    else if (event.rangeStage() == RangeEnd)
+                    else if (event.rangeStage() == RangeEnd && !stack.isEmpty())
                         stack.pop();
                     return true;
                 } else if (isStateful(type)) {
