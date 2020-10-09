@@ -82,6 +82,12 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
                                      const QStyleOptionViewItem &styleOption,
                                      const QModelIndex &modelIndex) const
 {
+    bool isVisibilityIcon = modelIndex.column() != NavigatorTreeModel::ColumnType::Visibility;
+    // We need to invert the check status if visibility icon
+    bool checked = isVisibilityIcon ? isChecked(modelIndex) : !isChecked(modelIndex);
+    if (!(styleOption.state & QStyle::State_MouseOver) && !checked)
+        return;
+
     if (rowIsPropertyRole(modelIndex.model(), modelIndex))
         return; //Do not paint icons for property rows
 
