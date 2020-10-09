@@ -596,6 +596,32 @@ void CppEditorPlugin::test_quickfix_data()
         ""
     );
 
+    // Checks: complete switch statement where enum is goes via a template type parameter
+    QTest::newRow("CompleteSwitchCaseStatement_QTCREATORBUG-24752")
+        << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
+        "enum E {EA, EB};\n"
+        "template<typename T> struct S {\n"
+        "    static T theType() { return T(); }\n"
+        "};\n"
+        "int main() {\n"
+        "    @switch (S<E>::theType()) {\n"
+        "    }\n"
+        "}\n"
+        ) << _(
+        "enum E {EA, EB};\n"
+        "template<typename T> struct S {\n"
+        "    static T theType() { return T(); }\n"
+        "};\n"
+        "int main() {\n"
+        "    switch (S<E>::theType()) {\n"
+        "    case EA:\n"
+        "        break;\n"
+        "    case EB:\n"
+        "        break;\n"
+        "    }\n"
+        "}\n"
+    );
+
     // Checks:
     // 1. If the name does not start with ("m_" or "_") and does not
     //    end with "_", we are forced to prefix the getter with "get".

@@ -2744,6 +2744,7 @@ Enum *conditionEnum(const CppQuickFixInterface &interface, SwitchStatementAST *s
     Block *block = statement->symbol;
     Scope *scope = interface.semanticInfo().doc->scopeAt(block->line(), block->column());
     TypeOfExpression typeOfExpression;
+    typeOfExpression.setExpandTemplates(true);
     typeOfExpression.init(interface.semanticInfo().doc, interface.snapshot());
     const QList<LookupItem> results = typeOfExpression(statement->condition,
                                                        interface.semanticInfo().doc,
