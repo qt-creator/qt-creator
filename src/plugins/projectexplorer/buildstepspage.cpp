@@ -170,7 +170,7 @@ void ToolWidget::setDownVisible(bool b)
 BuildStepsWidgetData::BuildStepsWidgetData(BuildStep *s) :
     step(s), widget(nullptr), detailsWidget(nullptr)
 {
-    widget = s->createConfigWidget();
+    widget = s->doCreateConfigWidget();
     Q_ASSERT(widget);
 
     detailsWidget = new DetailsWidget;
