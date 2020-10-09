@@ -24,54 +24,56 @@
 ****************************************************************************/
 
 #include "autotestplugin.h"
+
 #include "autotestconstants.h"
 #include "autotesticons.h"
 #include "projectsettingswidget.h"
 #include "testcodeparser.h"
 #include "testframeworkmanager.h"
+#include "testnavigationwidget.h"
 #include "testprojectsettings.h"
+#include "testresultspane.h"
 #include "testrunner.h"
 #include "testsettings.h"
 #include "testsettingspage.h"
 #include "testtreeitem.h"
-#include "testtreeview.h"
 #include "testtreemodel.h"
-#include "testresultspane.h"
-#include "testnavigationwidget.h"
+#include "testtreeview.h"
 
-#include "qtest/qttestframework.h"
-#include "quick/quicktestframework.h"
-#include "gtest/gtestframework.h"
 #include "boost/boosttestframework.h"
 #include "catch/catchframework.h"
+#include "gtest/gtestframework.h"
+#include "qtest/qttestframework.h"
+#include "quick/quicktestframework.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/icontext.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projectpanelfactory.h>
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
-#include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 #include <utils/textutils.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QList>
-#include <QMap>
-#include <QMessageBox>
 #include <QMainWindow>
+#include <QMap>
 #include <QMenu>
+#include <QMessageBox>
 #include <QTextCursor>
 
 #ifdef WITH_TESTS

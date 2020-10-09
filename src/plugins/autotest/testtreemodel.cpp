@@ -23,20 +23,21 @@
 **
 ****************************************************************************/
 
+#include "testtreemodel.h"
+
 #include "autotestconstants.h"
 #include "autotestplugin.h"
 #include "testcodeparser.h"
 #include "testframeworkmanager.h"
 #include "testprojectsettings.h"
 #include "testsettings.h"
-#include "testtreeitem.h"
-#include "testtreemodel.h"
 
 #include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <texteditor/texteditor.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;

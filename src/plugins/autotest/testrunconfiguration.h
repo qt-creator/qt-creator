@@ -25,15 +25,13 @@
 
 #pragma once
 
-#include "autotestplugin.h"
 #include "testconfiguration.h"
 
 #include <debugger/debuggerrunconfigurationaspect.h>
 
-#include <projectexplorer/applicationlauncher.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/runconfiguration.h>
 
 #include <utils/qtcassert.h>

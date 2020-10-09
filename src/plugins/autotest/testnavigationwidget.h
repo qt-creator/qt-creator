@@ -26,7 +26,6 @@
 #pragma once
 
 #include "itemdatacache.h"
-#include "testrunner.h"
 
 #include <coreplugin/inavigationwidgetfactory.h>
 
@@ -53,6 +52,7 @@ class TestTreeModel;
 
 namespace Internal {
 
+class TestRunner;
 class TestTreeSortFilterModel;
 class TestTreeView;
 

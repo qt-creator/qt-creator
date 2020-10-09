@@ -28,6 +28,7 @@
 #include "../testframeworkmanager.h"
 
 #include <utils/id.h>
+#include <utils/qtcassert.h>
 
 namespace Autotest {
 namespace Internal {

@@ -28,10 +28,9 @@
 #include "autotest_global.h"
 
 #include "itemdatacache.h"
-#include "testconfiguration.h"
 #include "testtreeitem.h"
 
-#include <utils/algorithm.h>
+#include <utils/id.h>
 #include <utils/treemodel.h>
 
 #include <QSortFilterProxyModel>

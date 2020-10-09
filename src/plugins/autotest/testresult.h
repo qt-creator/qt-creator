@@ -27,10 +27,10 @@
 
 #include "autotestconstants.h"
 
-#include <QString>
 #include <QColor>
 #include <QMetaType>
 #include <QSharedPointer>
+#include <QString>
 
 namespace Autotest {
 

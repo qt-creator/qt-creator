@@ -23,15 +23,17 @@
 **
 ****************************************************************************/
 
-#include "autotestconstants.h"
-#include "testcodeparser.h"
-#include "testframeworkmanager.h"
 #include "testsettingspage.h"
+
+#include "autotestconstants.h"
+#include "autotestplugin.h"
+#include "testframeworkmanager.h"
 #include "testsettings.h"
 #include "testtreemodel.h"
-#include "autotestplugin.h"
 
 #include <coreplugin/icore.h>
+#include <utils/algorithm.h>
+#include <utils/id.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 

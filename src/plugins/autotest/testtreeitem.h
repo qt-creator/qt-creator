@@ -28,9 +28,9 @@
 #include <utils/treemodel.h>
 
 #include <QList>
+#include <QMetaType>
 #include <QSet>
 #include <QString>
-#include <QMetaType>
 
 namespace {
     enum ItemRole {

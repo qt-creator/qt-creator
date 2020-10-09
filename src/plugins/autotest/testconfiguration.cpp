@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "testconfiguration.h"
+
 #include "testoutputreader.h"
 #include "testrunconfiguration.h"
 

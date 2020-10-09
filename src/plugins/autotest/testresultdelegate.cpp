@@ -23,8 +23,9 @@
 **
 ****************************************************************************/
 
-#include "autotestplugin.h"
 #include "testresultdelegate.h"
+
+#include "autotestplugin.h"
 #include "testresultmodel.h"
 #include "testsettings.h"
 

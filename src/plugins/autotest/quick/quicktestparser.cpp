@@ -29,6 +29,7 @@
 #include "quicktestvisitors.h"
 #include "quicktest_utils.h"
 #include "../testcodeparser.h"
+#include "../testtreemodel.h"
 
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/projectpart.h>

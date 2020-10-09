@@ -23,11 +23,12 @@
 **
 ****************************************************************************/
 
+#include "testtreeitem.h"
+
 #include "autotestconstants.h"
 #include "itestframework.h"
 #include "itestparser.h"
 #include "testconfiguration.h"
-#include "testtreeitem.h"
 
 #include <cplusplus/Icons.h>
 #include <cpptools/cppmodelmanager.h>

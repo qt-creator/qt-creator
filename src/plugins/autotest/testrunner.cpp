@@ -27,11 +27,11 @@
 
 #include "autotestconstants.h"
 #include "autotestplugin.h"
+#include "testoutputreader.h"
 #include "testprojectsettings.h"
 #include "testresultspane.h"
 #include "testrunconfiguration.h"
 #include "testsettings.h"
-#include "testoutputreader.h"
 #include "testtreeitem.h"
 #include "testtreemodel.h"
 

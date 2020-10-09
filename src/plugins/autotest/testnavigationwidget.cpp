@@ -24,26 +24,28 @@
 ****************************************************************************/
 
 #include "testnavigationwidget.h"
-#include "testframeworkmanager.h"
-#include "testtreemodel.h"
-#include "testtreeview.h"
-#include "testtreeitemdelegate.h"
-#include "testcodeparser.h"
-#include "testrunner.h"
+
 #include "autotestconstants.h"
 #include "autotesticons.h"
+#include "testcodeparser.h"
+#include "testframeworkmanager.h"
+#include "testrunner.h"
 #include "testtreeitem.h"
+#include "testtreeitemdelegate.h"
+#include "testtreemodel.h"
+#include "testtreeview.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icore.h>
-#include <texteditor/texteditor.h>
+#include <projectexplorer/buildmanager.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
+#include <utils/algorithm.h>
+#include <utils/link.h>
 #include <utils/progressindicator.h>
 #include <utils/utilsicons.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <projectexplorer/buildmanager.h>
-#include <projectexplorer/session.h>
 
 #include <QAction>
 #include <QMenu>

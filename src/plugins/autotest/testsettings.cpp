@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "testsettings.h"
+
 #include "autotestconstants.h"
 #include "testframeworkmanager.h"
 

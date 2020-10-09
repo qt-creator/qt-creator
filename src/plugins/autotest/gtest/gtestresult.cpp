@@ -29,6 +29,7 @@
 #include "../testtreeitem.h"
 
 #include <utils/id.h>
+#include <utils/qtcassert.h>
 
 #include <QRegularExpression>
 

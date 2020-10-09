@@ -25,10 +25,10 @@
 
 #pragma once
 
+#include "itemdatacache.h"
 #include "testsettings.h"
-#include "testtreemodel.h"
 
-#include <projectexplorer/project.h>
+namespace ProjectExplorer { class Project; }
 
 namespace Autotest {
 

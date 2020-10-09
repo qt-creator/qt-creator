@@ -29,6 +29,7 @@
 #include "gtest_utils.h"
 #include "../autotestconstants.h"
 #include "../testframeworkmanager.h"
+#include "../testtreemodel.h"
 
 #include "ui_gtestsettingspage.h"
 #include <coreplugin/icore.h>

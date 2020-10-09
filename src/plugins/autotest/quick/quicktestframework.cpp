@@ -27,6 +27,7 @@
 #include "quicktestparser.h"
 #include "quicktesttreeitem.h"
 
+#include "../autotestconstants.h"
 #include "../testframeworkmanager.h"
 #include "../qtest/qttestconstants.h"
 

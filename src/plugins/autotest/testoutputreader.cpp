@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "testoutputreader.h"
+
 #include "testresult.h"
 #include "testresultspane.h"
 

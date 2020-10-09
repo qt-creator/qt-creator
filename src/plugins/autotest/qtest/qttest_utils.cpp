@@ -30,6 +30,7 @@
 #include "../testsettings.h"
 
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/qtcassert.h>
 
 #include <QByteArrayList>

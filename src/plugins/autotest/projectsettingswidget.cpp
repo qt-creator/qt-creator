@@ -23,10 +23,14 @@
 **
 ****************************************************************************/
 
-#include "autotestplugin.h"
 #include "projectsettingswidget.h"
+
+#include "autotestplugin.h"
 #include "testframeworkmanager.h"
 #include "testprojectsettings.h"
+#include "testtreemodel.h"
+
+#include <utils/algorithm.h>
 
 #include <QBoxLayout>
 #include <QComboBox>

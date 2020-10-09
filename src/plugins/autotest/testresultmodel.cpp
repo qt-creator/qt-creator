@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "testresultmodel.h"
+
 #include "autotesticons.h"
 #include "autotestplugin.h"
 #include "testresultdelegate.h"

@@ -28,9 +28,9 @@
 #include "testresult.h"
 
 #include <QAbstractItemModel>
-#include <QSortFilterProxyModel>
 #include <QFont>
 #include <QSet>
+#include <QSortFilterProxyModel>
 
 #include <utils/optional.h>
 #include <utils/treemodel.h>

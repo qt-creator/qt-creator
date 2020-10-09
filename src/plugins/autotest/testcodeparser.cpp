@@ -23,17 +23,18 @@
 **
 ****************************************************************************/
 
-#include "autotestconstants.h"
-#include "autotestplugin.h"
 #include "testcodeparser.h"
+
+#include "autotestconstants.h"
 #include "testframeworkmanager.h"
 #include "testsettings.h"
+#include "testtreemodel.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpptoolsconstants.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <qmljstools/qmljsmodelmanager.h>
@@ -43,7 +44,6 @@
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 
-#include <QDirIterator>
 #include <QFuture>
 #include <QFutureInterface>
 #include <QLoggingCategory>

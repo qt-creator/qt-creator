@@ -24,11 +24,15 @@
 ****************************************************************************/
 
 #include "testprojectsettings.h"
+
 #include "autotestconstants.h"
 #include "testframeworkmanager.h"
 
+#include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <utils/algorithm.h>
+
+#include <QLoggingCategory>
 
 namespace Autotest {
 namespace Internal {

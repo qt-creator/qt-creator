@@ -23,9 +23,9 @@
 **
 ****************************************************************************/
 
+#include "autotestunittests.h"
 #include "autotestconstants.h"
 #include "autotestplugin.h"
-#include "autotestunittests.h"
 #include "testcodeparser.h"
 #include "testsettings.h"
 #include "testtreemodel.h"

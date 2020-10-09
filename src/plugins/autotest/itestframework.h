@@ -25,12 +25,13 @@
 
 #pragma once
 
-#include "testtreeitem.h"
-#include "itestparser.h"
+#include <utils/id.h>
 
 namespace Autotest {
 
+class ITestParser;
 class ITestSettings;
+class TestTreeItem;
 
 class ITestBase
 {

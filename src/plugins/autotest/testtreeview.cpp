@@ -23,12 +23,11 @@
 **
 ****************************************************************************/
 
-#include "autotestconstants.h"
-#include "testtreeitem.h"
-#include "testtreemodel.h"
 #include "testtreeview.h"
 
-#include <coreplugin/coreconstants.h>
+#include "autotestconstants.h"
+#include "testtreemodel.h"
+
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 

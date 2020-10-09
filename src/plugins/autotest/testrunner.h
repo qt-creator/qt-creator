@@ -26,8 +26,6 @@
 #pragma once
 
 #include "autotest_global.h"
-
-#include "testconfiguration.h"
 #include "testresult.h"
 
 #include <QDialog>
@@ -43,13 +41,13 @@ class QLabel;
 class QProcess;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer {
-class Project;
-}
+namespace ProjectExplorer { class Project; }
 
 namespace Autotest {
 
 enum class TestRunMode;
+class TestConfiguration;
+class TestOutputReader;
 
 namespace Internal {
 

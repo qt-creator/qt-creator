@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "testframeworkmanager.h"
+
 #include "autotestconstants.h"
 #include "autotestplugin.h"
 #include "itestsettings.h"
@@ -34,7 +35,6 @@
 
 #include <QSettings>
 
-using namespace Core;
 using namespace Utils;
 
 namespace Autotest {

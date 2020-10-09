@@ -28,15 +28,18 @@
 #include "itestparser.h"
 
 #include <qmljs/qmljsdocument.h>
+#include <utils/id.h>
 
-#include <QObject>
-#include <QMap>
 #include <QFutureWatcher>
+#include <QMap>
+#include <QObject>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QThreadPool;
 QT_END_NAMESPACE
+
+namespace ProjectExplorer { class Project; }
 
 namespace Autotest {
 

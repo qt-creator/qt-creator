@@ -23,8 +23,9 @@
 **
 ****************************************************************************/
 
-#include "testtreeitem.h"
 #include "testtreeitemdelegate.h"
+
+#include "testtreeitem.h"
 
 #include <QPainter>
 

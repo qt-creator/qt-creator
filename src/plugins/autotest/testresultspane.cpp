@@ -23,17 +23,16 @@
 **
 ****************************************************************************/
 
-#include "autotestplugin.h"
-#include "autotesticons.h"
 #include "testresultspane.h"
-#include "testresultmodel.h"
+
+#include "autotesticons.h"
+#include "autotestplugin.h"
+#include "testeditormark.h"
 #include "testresultdelegate.h"
+#include "testresultmodel.h"
 #include "testrunner.h"
 #include "testsettings.h"
 #include "testtreemodel.h"
-#include "testcodeparser.h"
-#include "testeditormark.h"
-#include "testoutputreader.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/actionmanager/actionmanager.h>

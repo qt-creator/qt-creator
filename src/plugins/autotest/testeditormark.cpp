@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "testeditormark.h"
+
 #include "testresultspane.h"
 
 namespace Autotest {

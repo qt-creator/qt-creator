@@ -32,7 +32,6 @@
 #include <utils/environment.h>
 
 #include <QFutureInterface>
-#include <QObject>
 #include <QPointer>
 #include <QStringList>
 
