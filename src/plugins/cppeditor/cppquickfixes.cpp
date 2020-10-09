@@ -7291,6 +7291,33 @@ private:
 };
 
 /**
+ * @brief getBaseName returns the base name of a qualified name or nullptr.
+ * E.g.: foo::bar => foo; bar => bar
+ * @param name The Name, maybe qualified
+ * @return The base name of the qualified name or nullptr
+ */
+const Identifier *getBaseName(const Name *name)
+{
+    class GetBaseName : public NameVisitor
+    {
+        void visit(const Identifier *name) override { baseName = name; }
+        void visit(const QualifiedNameId *name) override
+        {
+            if (name->base())
+                accept(name->base());
+            else
+                accept(name->name());
+        }
+
+    public:
+        const Identifier *baseName = nullptr;
+    };
+    GetBaseName getter;
+    getter.accept(name);
+    return getter.baseName;
+}
+
+/**
  * @brief countNames counts the parts of the Name.
  * E.g. if the name is std::vector, the function returns 2, if the name is variant, returns 1
  * @param name The name that should be counted
@@ -7489,11 +7516,24 @@ private:
     {
         if (m_start) {
             Scope *scope = m_file->scopeAt(ast->firstToken());
-            const QList<LookupItem> lookups = m_context.lookup(ast->name->name, scope);
+            const Name *wantToLookup = ast->name->name;
+            // first check if the base name is a typedef. Consider the following example:
+            // using namespace std;
+            // using vec = std::vector<int>;
+            // vec::iterator it; // we have to lookup 'vec' and not iterator (would result in
+            //   std::vector<int>::iterator => std::vec::iterator, which is wrong)
+            const Name *baseName = getBaseName(wantToLookup);
+            QList<LookupItem> typedefCandidates = m_context.lookup(baseName, scope);
+            if (!typedefCandidates.isEmpty()) {
+                if (typedefCandidates.front().declaration()->isTypedef())
+                    wantToLookup = baseName;
+            }
+
+            const QList<LookupItem> lookups = m_context.lookup(wantToLookup, scope);
             if (!lookups.empty()) {
                 QList<const Name *> fullName = m_context.fullyQualifiedName(
                     lookups.first().declaration());
-                const int currentNameCount = countNames(ast->name->name);
+                const int currentNameCount = countNames(wantToLookup);
                 const bool needNamespace = needMissingNamespaces(std::move(fullName),
                                                                  currentNameCount);
                 if (needNamespace)

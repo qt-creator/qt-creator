@@ -6479,6 +6479,49 @@ void CppEditorPlugin::test_quickfix_removeUsingNamespace()
     QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), operation);
 }
 
+void CppEditorPlugin::test_quickfix_removeUsingNamespace_simple_data()
+{
+    QTest::addColumn<QByteArray>("header");
+    QTest::addColumn<QByteArray>("expected");
+
+    const QByteArray common = R"--(
+namespace N{
+    template<typename T>
+    struct vector{
+        using iterator = T*;
+    };
+    using int_vector = vector<int>;
+}
+)--";
+    const QByteArray header = common + R"--(
+using namespace N@;
+int_vector ints;
+int_vector::iterator intIter;
+using vec = vector<int>;
+vec::iterator it;
+)--";
+    const QByteArray expected = common + R"--(
+N::int_vector ints;
+N::int_vector::iterator intIter;
+using vec = N::vector<int>;
+vec::iterator it;
+)--";
+
+    QTest::newRow("nested typedefs with Namespace") << header << expected;
+}
+
+void CppEditorPlugin::test_quickfix_removeUsingNamespace_simple()
+{
+    QFETCH(QByteArray, header);
+    QFETCH(QByteArray, expected);
+
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+    testDocuments << QuickFixTestDocument::create("header.h", header, expected);
+
+    RemoveUsingNamespace factory;
+    QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths());
+}
+
 void CppEditorPlugin::test_quickfix_removeUsingNamespace_differentSymbols()
 {
     QByteArray header = "namespace test{\n"
