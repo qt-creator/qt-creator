@@ -477,6 +477,7 @@ void BuildManager::finish()
 {
     const QString elapsedTime = Utils::formatElapsedTime(d->m_elapsed.elapsed());
     m_instance->addToOutputWindow(elapsedTime, BuildStep::OutputFormat::NormalMessage);
+    d->m_outputWindow->flush();
 
     QApplication::alert(ICore::dialogParent(), 3000);
 }
