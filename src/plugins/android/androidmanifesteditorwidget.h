@@ -58,7 +58,7 @@ class AndroidManifestEditor;
 class AndroidManifestEditorIconContainerWidget;
 class AndroidManifestEditorWidget;
 class AndroidServiceWidget;
-class SplashIconContainerWidget;
+class SplashScreenContainerWidget;
 
 class PermissionsModel: public QAbstractListModel
 {
@@ -167,6 +167,8 @@ private:
     bool m_stayClean;
     int m_errorLine;
     int m_errorColumn;
+    QString m_currentsplashImageName[3];
+    bool m_currentsplashSticky = false;
 
     QLineEdit *m_packageNameLineEdit;
     QLabel *m_packageNameWarningIcon;
@@ -183,7 +185,7 @@ private:
     QComboBox *m_styleExtractMethod;
     QComboBox *m_screenOrientation;
     AndroidManifestEditorIconContainerWidget *m_iconButtons;
-    SplashIconContainerWidget *m_splashButtons;
+    SplashScreenContainerWidget *m_splashButtons;
 
     // Permissions
     QCheckBox *m_defaultPermissonsCheckBox;

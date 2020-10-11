@@ -49,5 +49,6 @@ add_qtc_plugin(Android
     javaeditor.cpp javaeditor.h
     javaindenter.cpp javaindenter.h
     javaparser.cpp javaparser.h
-    splashiconcontainerwidget.cpp splashiconcontainerwidget.h
+    splashscreencontainerwidget.cpp splashscreencontainerwidget.h
+    splashscreenwidget.cpp splashscreenwidget.h
 )

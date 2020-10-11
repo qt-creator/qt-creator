@@ -31,7 +31,7 @@
 #include "androidmanifestdocument.h"
 #include "androidmanager.h"
 #include "androidservicewidget.h"
-#include "splashiconcontainerwidget.h"
+#include "splashscreencontainerwidget.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -492,7 +492,8 @@ QGroupBox *AndroidManifestEditorWidget::createAdvancedGroupBox(QWidget *parent)
     m_services = new AndroidServiceWidget(otherGroupBox);
     m_advanvedTabWidget->addTab(m_services, tr("Android services"));
 
-    m_splashButtons = new SplashIconContainerWidget(otherGroupBox, m_textEditorWidget);
+    m_splashButtons = new SplashScreenContainerWidget(otherGroupBox,
+                                                      m_textEditorWidget);
     m_advanvedTabWidget->addTab(m_splashButtons, tr("Splash screen"));
 
     connect(m_services, &AndroidServiceWidget::servicesModified, this, [this]() { setDirty(); });
@@ -500,7 +501,7 @@ QGroupBox *AndroidManifestEditorWidget::createAdvancedGroupBox(QWidget *parent)
             this, &AndroidManifestEditorWidget::clearInvalidServiceInfo);
     connect(m_services, &AndroidServiceWidget::servicesInvalid,
             this, &AndroidManifestEditorWidget::setInvalidServiceInfo);
-    connect(m_splashButtons, &SplashIconContainerWidget::splashScreensModified,
+    connect(m_splashButtons, &SplashScreenContainerWidget::splashScreensModified,
             this, [this]() { setDirty(); });
     connect(m_iconButtons, &AndroidManifestEditorIconContainerWidget::iconsModified,
             this, [this]() { setDirty(); });
@@ -892,7 +893,8 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
                    == QLatin1String("android.app.splash_screen_sticky")
                    && !(activityParseGuard & ActivityParseGuard::stickySplash)) {
             QString sticky = metadataElem.attribute(QLatin1String("android:value"));
-            m_splashButtons->setSticky(sticky == QLatin1String("true"));
+            m_currentsplashSticky = (sticky == QLatin1String("true"));
+            m_splashButtons->setSticky(m_currentsplashSticky);
             activityParseGuard |= ActivityParseGuard::stickySplash;
         } else if (metadataElem.attribute(QLatin1String("android:name"))
                    .startsWith(QLatin1String("android.app.splash_screen_drawable"))
@@ -902,17 +904,20 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
             QLatin1String drawable = QLatin1String("@drawable/");
             QString splashImageValue = metadataElem.attribute(QLatin1String("android:resource"));
             QString splashImageName;
-            if (splashImageValue.startsWith(drawable)) {
-                splashImageName = splashImageValue.mid(drawable.size());
-            }
+            if (!splashImageValue.startsWith(drawable))
+                continue;
+            splashImageName = splashImageValue.mid(drawable.size());
             if (attrName == QLatin1String("android.app.splash_screen_drawable")) {
-                m_splashButtons->setImageFileName(splashImageName);
+                m_splashButtons->checkSplashscreenImage(splashImageName);
+                m_currentsplashImageName[0] = splashImageName;
                 splashParseGuard |= SplashImageParseGuard::splash;
             } else if (attrName == QLatin1String("android.app.splash_screen_drawable_portrait")) {
-                    m_splashButtons->setPortraitImageFileName(splashImageName);
-                    splashParseGuard |= SplashImageParseGuard::portraitSplash;
+                m_splashButtons->checkSplashscreenImage(splashImageName);
+                m_currentsplashImageName[1] = splashImageName;
+                splashParseGuard |= SplashImageParseGuard::portraitSplash;
             } else if (attrName == QLatin1String("android.app.splash_screen_drawable_landscape")) {
-                m_splashButtons->setLandscapeImageFileName(splashImageName);
+                m_splashButtons->checkSplashscreenImage(splashImageName);
+                m_currentsplashImageName[2] = splashImageName;
                 splashParseGuard |= SplashImageParseGuard::landscapeSplash;
             }
             if (splashParseGuard & SplashImageParseGuard::splashDone)
@@ -1203,19 +1208,36 @@ static void writeMetadataElement(const char *name,
 
 void AndroidManifestEditorWidget::parseSplashScreen(QXmlStreamWriter &writer)
 {
-    if (m_splashButtons->hasImages())
+    QString splashImageName[3];
+    bool splashSticky;
+
+    if (m_splashButtons->isSplashscreenEnabled()) {
+        if (m_splashButtons->hasImages())
+            splashImageName[0] = m_splashButtons->imageName();
+        if (m_splashButtons->hasPortraitImages())
+            splashImageName[1] = m_splashButtons->portraitImageName();
+        if (m_splashButtons->hasLandscapeImages())
+            splashImageName[2] = m_splashButtons->landscapeImageName();
+        splashSticky = m_splashButtons->isSticky();
+    } else {
+        for (int i = 0; i < 3; i++)
+            splashImageName[i] = m_currentsplashImageName[i];
+        splashSticky = m_currentsplashSticky;
+    }
+
+    if (!splashImageName[0].isEmpty())
         writeMetadataElement("android.app.splash_screen_drawable",
-                             "android:resource", QLatin1String("@drawable/") + m_splashButtons->imageFileName(),
+                             "android:resource", QLatin1String("@drawable/%1").arg(splashImageName[0]),
                              writer);
-    if (m_splashButtons->hasPortraitImages())
+    if (!splashImageName[1].isEmpty())
         writeMetadataElement("android.app.splash_screen_drawable_portrait",
-                             "android:resource", QLatin1String("@drawable/") + m_splashButtons->portraitImageFileName(),
+                             "android:resource", QLatin1String("@drawable/%1").arg(splashImageName[1]),
                              writer);
-    if (m_splashButtons->hasLandscapeImages())
+    if (!splashImageName[2].isEmpty())
         writeMetadataElement("android.app.splash_screen_drawable_landscape",
-                             "android:resource", QLatin1String("@drawable/") + m_splashButtons->landscapeImageFileName(),
+                             "android:resource", QLatin1String("@drawable/%1").arg(splashImageName[2]),
                              writer);
-    if (m_splashButtons->isSticky())
+    if (splashSticky)
         writeMetadataElement("android.app.splash_screen_sticky",
                              "android:value", "true",
                              writer);
@@ -1355,7 +1377,14 @@ void AndroidManifestEditorWidget::parseActivity(QXmlStreamReader &reader, QXmlSt
     QXmlStreamAttributes attributes = reader.attributes();
     QStringList keys = { QLatin1String("android:label"), QLatin1String("android:screenOrientation") };
     QStringList values = { m_activityNameLineEdit->text(), m_screenOrientation->currentText() };
-    QXmlStreamAttributes result = modifyXmlStreamAttributes(attributes, keys, values);
+    QStringList removes;
+    if (m_splashButtons->hasImages() || m_splashButtons->hasPortraitImages() || m_splashButtons->hasLandscapeImages()) {
+        keys << QLatin1String("android:theme");
+        values << QLatin1String("@style/splashScreenTheme");
+    } else {
+        removes << QLatin1String("android:theme");
+    }
+    QXmlStreamAttributes result = modifyXmlStreamAttributes(attributes, keys, values, removes);
     writer.writeAttributes(result);
 
     reader.readNext();
