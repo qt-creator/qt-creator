@@ -32,27 +32,17 @@ urlDictionary = { "abundance":"qthelp://com.trolltech.qt.487/qdoc/gettingstarted
 
 
 def __getSelectedText__():
-    hv = getHelpViewer()
     try:
-        return hv.textCursor().selectedText()
-    except:
-        pass
-    try:
-        test.log("Falling back to searching for selection in HTML.")
-        return getHighlightsInHtml(str(hv.toHtml()))
+        return str(getHelpViewer().selectedText())
     except:
         test.warning("Could not get highlighted text.")
         return str("")
 
 def __getUrl__():
-    helpViewer = getHelpViewer()
     try:
-        url = helpViewer.url
+        url = getHelpViewer().url()
     except:
-        try:
-            url = helpViewer.source
-        except:
-            return ""
+        return ""
     return str(url.scheme) + "://" + str(url.host) + str(url.path)
 
 def getHighlightsInHtml(htmlCode):

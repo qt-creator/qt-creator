@@ -41,10 +41,11 @@ public:
     explicit QLiteHtmlWidget(QWidget *parent = nullptr);
     ~QLiteHtmlWidget() override;
 
+    // declaring the getters Q_INVOKABLE to make them Squish-testable
     void setUrl(const QUrl &url);
-    QUrl url() const;
+    Q_INVOKABLE QUrl url() const;
     void setHtml(const QString &content);
-    QString title() const;
+    Q_INVOKABLE QString title() const;
 
     void setZoomFactor(qreal scale);
     qreal zoomFactor() const;
@@ -62,7 +63,8 @@ public:
     using ResourceHandler = std::function<QByteArray(QUrl)>;
     void setResourceHandler(const ResourceHandler &handler);
 
-    QString selectedText() const;
+    // declaring this Q_INVOKABLE to make it Squish-testable
+    Q_INVOKABLE QString selectedText() const;
 
 signals:
     void linkClicked(const QUrl &url);
