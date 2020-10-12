@@ -38,7 +38,7 @@ template<class T>
 class ItemDataCache
 {
 public:
-    void insert(TestTreeItem *item, const T &value) { m_cache[item->cacheName()] = {0, value}; }
+    void insert(ITestTreeItem *item, const T &value) { m_cache[item->cacheName()] = {0, value}; }
     void evolve()
     {
         auto it = m_cache.begin(), end = m_cache.end();
@@ -46,7 +46,7 @@ public:
             it = it->generation++ >= maxGen ? m_cache.erase(it) : ++it;
     }
 
-    Utils::optional<T> get(TestTreeItem *item)
+    Utils::optional<T> get(ITestTreeItem *item)
     {
         auto entry = m_cache.find(item->cacheName());
         if (entry == m_cache.end())

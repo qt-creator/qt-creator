@@ -53,7 +53,7 @@ class TestConfiguration;
 class TestParseResult;
 enum class TestRunMode;
 
-class TestTreeItem : public Utils::TypedTreeItem<TestTreeItem>
+class ITestTreeItem : public Utils::TypedTreeItem<ITestTreeItem>
 {
 public:
 
@@ -74,6 +74,51 @@ public:
         Naturally
     };
 
+    explicit ITestTreeItem(ITestBase *testBase,
+                           const QString &name = QString(),
+                           const QString &filePath = QString(),
+                           Type type = Root);
+
+    virtual QVariant data(int column, int role) const override;
+    virtual bool setData(int column, const QVariant &data, int role) override;
+    virtual Qt::ItemFlags flags(int column) const override;
+
+    virtual Qt::CheckState checked() const;
+    virtual bool canProvideTestConfiguration() const { return false; }
+    virtual TestConfiguration *testConfiguration() const { return nullptr; }
+
+    virtual QList<TestConfiguration *> getAllTestConfigurations() const { return {}; }
+    virtual QList<TestConfiguration *> getSelectedTestConfigurations() const { return {}; }
+    virtual QList<TestConfiguration *> getFailedTestConfigurations() const { return {}; }
+
+    const QString name() const { return m_name; }
+    void setName(const QString &name) { m_name = name; }
+    const QString filePath() const { return m_filePath; }
+    void setFilePath(const QString &filePath) { m_filePath = filePath; }
+    Type type() const { return m_type; }
+    int line() const { return m_line; }
+    void setLine(int line) { m_line = line;}
+    ITestBase *testBase() const { return m_testBase; }
+
+    virtual bool lessThan(const ITestTreeItem *other, SortMode mode) const;
+    QString cacheName() const { return m_filePath + ':' + m_name; }
+
+protected:
+    void setType(Type type) { m_type = type; }
+    Qt::CheckState m_checked = Qt::Checked;
+
+private:
+    ITestBase *m_testBase = nullptr; // not owned
+    QString m_name;
+    QString m_filePath;
+    Type m_type;
+    int m_line = 0;
+    bool m_failed = false;
+};
+
+class TestTreeItem : public ITestTreeItem
+{
+public:
     explicit TestTreeItem(ITestBase *testBase,
                           const QString &name = QString(),
                           const QString &filePath = QString(),
@@ -81,32 +126,23 @@ public:
 
     virtual TestTreeItem *copyWithoutChildren() = 0;
     virtual QVariant data(int column, int role) const override;
-    virtual bool setData(int column, const QVariant &data, int role) override;
-    virtual Qt::ItemFlags flags(int column) const override;
     bool modifyTestCaseOrSuiteContent(const TestParseResult *result);
     bool modifyTestFunctionContent(const TestParseResult *result);
     bool modifyDataTagContent(const TestParseResult *result);
     bool modifyLineAndColumn(const TestParseResult *result);
 
     ITestFramework *framework() const;
-    const QString name() const { return m_name; }
-    void setName(const QString &name) { m_name = name; }
-    const QString filePath() const { return m_filePath; }
-    void setFilePath(const QString &filePath) { m_filePath = filePath; }
-    void setLine(int line) { m_line = line;}
-    int line() const { return m_line; }
     void setColumn(int column) { m_column = column; }
     int column() const { return m_column; }
     QString proFile() const { return m_proFile; }
     void setProFile(const QString &proFile) { m_proFile = proFile; }
-    virtual Qt::CheckState checked() const;
-    Type type() const { return m_type; }
     void markForRemoval(bool mark);
     void markForRemovalRecursively(bool mark);
-    virtual void markForRemovalRecursively(const QString &filePath);
-    virtual bool removeOnSweepIfEmpty() const { return m_type == GroupNode; }
+    virtual void markForRemovalRecursively(const QString &filepath);
+    virtual bool removeOnSweepIfEmpty() const { return type() == GroupNode; }
     bool markedForRemoval() const { return m_status == MarkedForRemoval; }
     bool newlyAdded() const { return m_status == NewlyAdded; }
+    TestTreeItem *childItem(int at) const;
     TestTreeItem *parentItem() const;
 
     TestTreeItem *findChildByName(const QString &name);
@@ -114,16 +150,10 @@ public:
     TestTreeItem *findChildByFileAndType(const QString &filePath, Type type);
     TestTreeItem *findChildByNameAndFile(const QString &name, const QString &filePath);
 
-    virtual bool canProvideTestConfiguration() const { return false; }
-    virtual bool canProvideDebugConfiguration() const { return false; }
-    virtual TestConfiguration *testConfiguration() const { return nullptr; }
     virtual TestConfiguration *debugConfiguration() const { return nullptr; }
+    virtual bool canProvideDebugConfiguration() const { return false; }
     TestConfiguration *asConfiguration(TestRunMode mode) const;
-    virtual QList<TestConfiguration *> getAllTestConfigurations() const;
-    virtual QList<TestConfiguration *> getSelectedTestConfigurations() const;
-    virtual QList<TestConfiguration *> getFailedTestConfigurations() const;
     virtual QList<TestConfiguration *> getTestConfigurationsForFile(const Utils::FilePath &fileName) const;
-    virtual bool lessThan(const TestTreeItem *other, SortMode mode) const;
     virtual TestTreeItem *find(const TestParseResult *result) = 0;
     virtual TestTreeItem *findChild(const TestTreeItem *other) = 0;
     virtual bool modify(const TestParseResult *result) = 0;
@@ -137,7 +167,9 @@ public:
     virtual bool shouldBeAddedAfterFiltering() const { return true; }
     virtual QSet<QString> internalTargets() const;
 
-    QString cacheName() const { return m_filePath + ':' + m_name; }
+    void forAllChildItems(const std::function<void(TestTreeItem *)> &pred) const;
+    void forFirstLevelChildItems(const std::function<void(TestTreeItem *)> &pred) const;
+    TestTreeItem *findFirstLevelChildItem(const std::function<bool(TestTreeItem *)> &pred) const;
 protected:
     void copyBasicDataFrom(const TestTreeItem *other);
     typedef std::function<bool(const TestTreeItem *)> CompareFunction;
@@ -145,7 +177,7 @@ protected:
                                                   const QString &file);
 
 private:
-    bool modifyFilePath(const QString &filePath);
+    bool modifyFilePath(const QString &filepath);
     bool modifyName(const QString &name);
 
     enum Status
@@ -155,13 +187,6 @@ private:
         Cleared
     };
 
-    ITestBase *m_testBase = nullptr;
-    QString m_name;
-    QString m_filePath;
-    Qt::CheckState m_checked;
-    bool m_failed = false;
-    Type m_type;
-    int m_line = 0;
     int m_column = 0;
     QString m_proFile;
     Status m_status = NewlyAdded;

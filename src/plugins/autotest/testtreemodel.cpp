@@ -119,7 +119,7 @@ bool TestTreeModel::setData(const QModelIndex &index, const QVariant &value, int
     if (!index.isValid())
         return false;
 
-    TestTreeItem *item = static_cast<TestTreeItem *>(index.internalPointer());
+    ITestTreeItem *item = static_cast<ITestTreeItem *>(index.internalPointer());
     if (item && item->setData(index.column(), value, role)) {
         emit dataChanged(index, index, {role});
         if (role == Qt::CheckStateRole) {
@@ -131,11 +131,14 @@ bool TestTreeModel::setData(const QModelIndex &index, const QVariant &value, int
                     setData(idx, checked ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
                 }
             }
-            if (item->parent() != rootItem() && item->parentItem()->checked() != checked)
-                revalidateCheckState(item->parentItem()); // handle parent too
+            if (item->parent() != rootItem()) {
+                auto parent = static_cast<ITestTreeItem *>(item->parent());
+                if (parent->checked() != checked)
+                    revalidateCheckState(parent); // handle parent too
+            }
             return true;
-        } else if (role == FailedRole) {
-            m_failedStateCache.insert(item, true);
+        } else if (role == FailedRole) { // FIXME limit to Frameworks
+            m_failedStateCache.insert(static_cast<TestTreeItem *>(item), true);
         }
     }
     return false;
@@ -146,7 +149,7 @@ Qt::ItemFlags TestTreeModel::flags(const QModelIndex &index) const
     if (!index.isValid())
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
-    TestTreeItem *item = static_cast<TestTreeItem *>(itemForIndex(index));
+    ITestTreeItem *item = static_cast<ITestTreeItem *>(itemForIndex(index));
     return item->flags(index.column());
 }
 
@@ -163,7 +166,7 @@ QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
 {
     QList<TestConfiguration *> result;
     for (Utils::TreeItem *frameworkRoot : *rootItem())
-        result.append(static_cast<TestTreeItem *>(frameworkRoot)->getAllTestConfigurations());
+        result.append(static_cast<ITestTreeItem *>(frameworkRoot)->getAllTestConfigurations());
     return result;
 }
 
@@ -171,7 +174,7 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
 {
     QList<TestConfiguration *> result;
     for (Utils::TreeItem *frameworkRoot : *rootItem())
-        result.append(static_cast<TestTreeItem *>(frameworkRoot)->getSelectedTestConfigurations());
+        result.append(static_cast<ITestTreeItem *>(frameworkRoot)->getSelectedTestConfigurations());
     return result;
 }
 
@@ -179,7 +182,7 @@ QList<TestConfiguration *> TestTreeModel::getFailedTests() const
 {
     QList<TestConfiguration *> result;
     for (Utils::TreeItem *frameworkRoot : *rootItem())
-        result.append(static_cast<TestTreeItem *>(frameworkRoot)->getFailedTestConfigurations());
+        result.append(static_cast<ITestTreeItem *>(frameworkRoot)->getFailedTestConfigurations());
     return result;
 }
 
@@ -195,13 +198,13 @@ QList<TestTreeItem *> TestTreeModel::testItemsByName(TestTreeItem *root, const Q
 {
     QList<TestTreeItem *> result;
 
-    root->forFirstLevelChildren([&testName, &result, this](TestTreeItem *node) {
+    root->forFirstLevelChildItems([&testName, &result, this](TestTreeItem *node) {
         if (node->type() == TestTreeItem::TestSuite || node->type() == TestTreeItem::TestCase) {
             if (node->name() == testName) {
                 result << node;
                 return; // prioritize test suites and cases over test functions
             }
-            TestTreeItem *testCase = node->findFirstLevelChild([&testName](TestTreeItem *it) {
+            TestTreeItem *testCase = node->findFirstLevelChildItem([&testName](TestTreeItem *it) {
                 QTC_ASSERT(it, return false);
                 return (it->type() == TestTreeItem::TestCase
                         || it->type() == TestTreeItem::TestFunction) && it->name() == testName;
@@ -218,6 +221,7 @@ QList<TestTreeItem *> TestTreeModel::testItemsByName(TestTreeItem *root, const Q
 QList<TestTreeItem *> TestTreeModel::testItemsByName(const QString &testName)
 {
     QList<TestTreeItem *> result;
+    // FIXME limit to frameworks
     for (Utils::TreeItem *frameworkRoot : *rootItem())
         result << testItemsByName(static_cast<TestTreeItem *>(frameworkRoot), testName);
 
@@ -286,12 +290,12 @@ void TestTreeModel::rebuild(const QList<Utils::Id> &frameworkIds)
         TestTreeItem *frameworkRoot = framework->rootNode();
         const bool groupingEnabled = framework->grouping();
         for (int row = frameworkRoot->childCount() - 1; row >= 0; --row) {
-            auto testItem = frameworkRoot->childAt(row);
+            auto testItem = frameworkRoot->childItem(row);
             if (testItem->type() == TestTreeItem::GroupNode) {
                 // process children of group node and delete it afterwards if necessary
                 for (int childRow = testItem->childCount() - 1; childRow >= 0; --childRow) {
                     // FIXME should this be done recursively until we have a non-GroupNode?
-                    TestTreeItem *childTestItem = testItem->childAt(childRow);
+                    TestTreeItem *childTestItem = testItem->childItem(childRow);
                     takeItem(childTestItem);
                     filterAndInsert(childTestItem, frameworkRoot, groupingEnabled);
                 }
@@ -311,8 +315,9 @@ void TestTreeModel::updateCheckStateCache()
     m_checkStateCache->evolve();
 
     for (Utils::TreeItem *rootNode : *rootItem()) {
+        // FIXME limit to framework items
         rootNode->forAllChildren([this](Utils::TreeItem *child) {
-            auto childItem = static_cast<TestTreeItem *>(child);
+            auto childItem = static_cast<ITestTreeItem *>(child);
             m_checkStateCache->insert(childItem, childItem->checked());
         });
     }
@@ -359,7 +364,7 @@ void TestTreeModel::markForRemoval(const QString &filePath)
     for (Utils::TreeItem *frameworkRoot : *rootItem()) {
         TestTreeItem *root = static_cast<TestTreeItem *>(frameworkRoot);
         for (int childRow = root->childCount() - 1; childRow >= 0; --childRow) {
-            TestTreeItem *child = root->childAt(childRow);
+            TestTreeItem *child = root->childItem(childRow);
             child->markForRemovalRecursively(filePath);
         }
     }
@@ -387,7 +392,7 @@ bool TestTreeModel::sweepChildren(TestTreeItem *item)
 {
     bool hasChanged = false;
     for (int row = item->childCount() - 1; row >= 0; --row) {
-        TestTreeItem *child = item->childAt(row);
+        TestTreeItem *child = item->childItem(row);
 
         if (child->type() != TestTreeItem::Root && child->markedForRemoval()) {
             destroyItem(child);
@@ -411,11 +416,11 @@ static TestTreeItem *fullCopyOf(TestTreeItem *other)
     QTC_ASSERT(other, return nullptr);
     TestTreeItem *result = other->copyWithoutChildren();
     for (int row = 0, count = other->childCount(); row < count; ++row)
-        result->appendChild(fullCopyOf(other->childAt(row)));
+        result->appendChild(fullCopyOf(other->childItem(row)));
     return result;
 }
 
-static void applyParentCheckState(TestTreeItem *parent, TestTreeItem *newItem)
+static void applyParentCheckState(ITestTreeItem *parent, ITestTreeItem *newItem)
 {
     QTC_ASSERT(parent && newItem, return);
 
@@ -433,7 +438,7 @@ void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, b
 {
     TestTreeItem *parentNode = root;
     if (groupingEnabled && item->isGroupable()) {
-        parentNode = root->findFirstLevelChild([item] (const TestTreeItem *it) {
+        parentNode = root->findFirstLevelChildItem([item] (const TestTreeItem *it) {
             return it->isGroupNodeFor(item);
         });
         if (!parentNode) {
@@ -448,7 +453,7 @@ void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, b
     if (auto otherItem = parentNode->findChild(item)) {
         // only handle item's children and add them to the already present one
         for (int row = 0, count = item->childCount(); row < count; ++row) {
-            TestTreeItem *child = fullCopyOf(item->childAt(row));
+            TestTreeItem *child = fullCopyOf(item->childItem(row));
             // use check state of the original
             child->setData(0, item->childAt(row)->checked(), Qt::CheckStateRole);
             otherItem->appendChild(child);
@@ -471,26 +476,22 @@ void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, b
     }
 }
 
-void TestTreeModel::revalidateCheckState(TestTreeItem *item)
+static Qt::CheckState computeCheckStateByChildren(ITestTreeItem *item)
 {
-    QTC_ASSERT(item, return);
-
-    const TestTreeItem::Type type = item->type();
-    if (type == TestTreeItem::TestSpecialFunction || type == TestTreeItem::TestDataFunction
-            || type == TestTreeItem::TestDataTag) {
-        return;
-    }
-    const Qt::CheckState oldState = Qt::CheckState(item->data(0, Qt::CheckStateRole).toInt());
     Qt::CheckState newState = Qt::Checked;
     bool foundChecked = false;
     bool foundUnchecked = false;
     bool foundPartiallyChecked = false;
-    for (int row = 0, count = item->childCount(); row < count; ++row) {
-        TestTreeItem *child = item->childAt(row);
+
+    item->forFirstLevelChildren([&](ITestTreeItem *child) {
+        if (foundPartiallyChecked || (foundChecked && foundUnchecked)) {
+            newState = Qt::PartiallyChecked;
+            return;
+        }
         switch (child->type()) {
         case TestTreeItem::TestDataFunction:
         case TestTreeItem::TestSpecialFunction:
-            continue;
+            return;
         default:
             break;
         }
@@ -498,18 +499,32 @@ void TestTreeModel::revalidateCheckState(TestTreeItem *item)
         foundChecked |= (child->checked() == Qt::Checked);
         foundUnchecked |= (child->checked() == Qt::Unchecked);
         foundPartiallyChecked |= (child->checked() == Qt::PartiallyChecked);
-        if (foundPartiallyChecked || (foundChecked && foundUnchecked)) {
-            newState = Qt::PartiallyChecked;
-            break;
-        }
-    }
+    });
+
     if (newState != Qt::PartiallyChecked)
         newState = foundUnchecked ? Qt::Unchecked : Qt::Checked;
+    return newState;
+}
+
+void TestTreeModel::revalidateCheckState(ITestTreeItem *item)
+{
+    QTC_ASSERT(item, return);
+
+    const ITestTreeItem::Type type = item->type();
+    if (type == ITestTreeItem::TestSpecialFunction || type == ITestTreeItem::TestDataFunction
+            || type == ITestTreeItem::TestDataTag) {
+        return;
+    }
+    const Qt::CheckState oldState = Qt::CheckState(item->data(0, Qt::CheckStateRole).toInt());
+    Qt::CheckState newState = computeCheckStateByChildren(item);
     if (oldState != newState) {
         item->setData(0, newState, Qt::CheckStateRole);
         emit dataChanged(item->index(), item->index(), {Qt::CheckStateRole});
-        if (item->parent() != rootItem() && item->parentItem()->checked() != newState)
-            revalidateCheckState(item->parentItem());
+        if (item->parent() != rootItem()) {
+            auto parent = static_cast<ITestTreeItem *>(item->parent());
+            if (parent->checked() != newState)
+                revalidateCheckState(parent);
+        }
     }
 }
 
@@ -530,7 +545,7 @@ void Autotest::TestTreeModel::onDataChanged(const QModelIndex &topLeft,
         return;
 
     for (int row = topLeft.row(), endRow = bottomRight.row(); row <= endRow; ++row) {
-        if (auto item = static_cast<TestTreeItem *>(itemForIndex(index(row, 0, parent))))
+        if (auto item = static_cast<ITestTreeItem *>(itemForIndex(index(row, 0, parent))))
             m_checkStateCache->insert(item, item->checked());
     }
 }
@@ -564,8 +579,7 @@ void TestTreeModel::handleParseResult(const TestParseResult *result, TestTreeIte
     QTC_ASSERT(newItem, return);
 
     // restore former check state and fail state if available
-    newItem->forAllChildren([this](Utils::TreeItem *child) {
-        auto childItem = static_cast<TestTreeItem *>(child);
+    newItem->forAllChildItems([this](TestTreeItem *childItem) {
         Utils::optional<Qt::CheckState> cached = m_checkStateCache->get(childItem);
         if (cached.has_value())
             childItem->setData(0, cached.value(), Qt::CheckStateRole);
@@ -635,7 +649,7 @@ TestTreeItem *TestTreeModel::unnamedQuickTests() const
     if (!rootNode)
         return nullptr;
 
-    return rootNode->findFirstLevelChild([](TestTreeItem *it) { return it->name().isEmpty(); });
+    return rootNode->findFirstLevelChildItem([](TestTreeItem *it) { return it->name().isEmpty(); });
 }
 
 int TestTreeModel::namedQuickTestsCount() const
@@ -660,8 +674,8 @@ int TestTreeModel::dataTagsCount() const
         return 0;
 
     int dataTagCount = 0;
-    rootNode->forFirstLevelChildren([&dataTagCount](TestTreeItem *classItem) {
-        classItem->forFirstLevelChildren([&dataTagCount](TestTreeItem *functionItem) {
+    rootNode->forFirstLevelChildren([&dataTagCount](ITestTreeItem *classItem) {
+        classItem->forFirstLevelChildren([&dataTagCount](ITestTreeItem *functionItem) {
             dataTagCount += functionItem->childCount();
         });
     });
@@ -679,7 +693,7 @@ QMultiMap<QString, int> TestTreeModel::gtestNamesAndSets() const
     QMultiMap<QString, int> result;
 
     if (TestTreeItem *rootNode = gtestRootNode()) {
-        rootNode->forFirstLevelChildren([&result](TestTreeItem *child) {
+        rootNode->forFirstLevelChildren([&result](ITestTreeItem *child) {
             result.insert(child->name(), child->childCount());
         });
     }
@@ -697,7 +711,7 @@ QMap<QString, int> TestTreeModel::boostTestSuitesAndTests() const
     QMap<QString, int> result;
 
     if (TestTreeItem *rootNode = boostTestRootNode()) {
-        rootNode->forFirstLevelChildren([&result](TestTreeItem *child) {
+        rootNode->forFirstLevelChildItems([&result](TestTreeItem *child) {
             result.insert(child->name() + '|' + child->proFile(), child->childCount());
         });
     }
@@ -749,11 +763,11 @@ TestTreeSortFilterModel::FilterMode TestTreeSortFilterModel::toFilterMode(int f)
 bool TestTreeSortFilterModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
     // root items keep the intended order
-    const TestTreeItem *leftItem = static_cast<TestTreeItem *>(left.internalPointer());
-    if (leftItem->type() == TestTreeItem::Root)
+    const ITestTreeItem *leftItem = static_cast<ITestTreeItem *>(left.internalPointer());
+    if (leftItem->type() == ITestTreeItem::Root)
         return left.row() > right.row();
 
-    const TestTreeItem *rightItem = static_cast<TestTreeItem *>(right.internalPointer());
+    const ITestTreeItem *rightItem = static_cast<ITestTreeItem *>(right.internalPointer());
     return leftItem->lessThan(rightItem, m_sortMode);
 }
 
@@ -763,12 +777,12 @@ bool TestTreeSortFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex 
     if (!index.isValid())
         return false;
 
-    const TestTreeItem *item = static_cast<TestTreeItem *>(index.internalPointer());
+    const ITestTreeItem *item = static_cast<ITestTreeItem *>(index.internalPointer());
 
     switch (item->type()) {
-    case TestTreeItem::TestDataFunction:
+    case ITestTreeItem::TestDataFunction:
         return m_filterMode & ShowTestData;
-    case TestTreeItem::TestSpecialFunction:
+    case ITestTreeItem::TestSpecialFunction:
         return m_filterMode & ShowInitAndCleanup;
     default:
         return true;

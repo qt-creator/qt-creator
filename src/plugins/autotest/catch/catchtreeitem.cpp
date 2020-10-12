@@ -89,7 +89,7 @@ TestTreeItem *CatchTreeItem::find(const TestParseResult *result)
         if (static_cast<CatchFramework *>(result->base)->grouping()) {
             const QString path = QFileInfo(result->fileName).absolutePath();
             for (int row = 0; row < childCount(); ++row) {
-                TestTreeItem *group = childAt(row);
+                TestTreeItem *group = childItem(row);
                 if (group->filePath() != path)
                     continue;
                 if (auto groupChild = group->findChildByFile(result->fileName))
@@ -192,7 +192,7 @@ static void collectTestInfo(const TestTreeItem *item,
     QTC_ASSERT(item, return);
     const int childCount = item->childCount();
     if (item->type() == TestTreeItem::GroupNode) {
-        item->forFirstLevelChildren([&testCasesForProfile, ignoreCheckState](TestTreeItem *it) {
+        item->forFirstLevelChildItems([&testCasesForProfile, ignoreCheckState](TestTreeItem *it) {
             collectTestInfo(it, testCasesForProfile, ignoreCheckState);
         });
         return;
@@ -201,14 +201,14 @@ static void collectTestInfo(const TestTreeItem *item,
     QTC_ASSERT(childCount != 0, return);
     QTC_ASSERT(item->type() == TestTreeItem::TestSuite, return);
     if (ignoreCheckState || item->checked() == Qt::Checked) {
-        const QString &projectFile = item->childAt(0)->proFile();
-        item->forAllChildren([&testCasesForProfile, &projectFile](TestTreeItem *it) {
+        const QString &projectFile = item->childItem(0)->proFile();
+        item->forAllChildItems([&testCasesForProfile, &projectFile](TestTreeItem *it) {
             CatchTreeItem *current = static_cast<CatchTreeItem *>(it);
             testCasesForProfile[projectFile].names.append(current->testCasesString());
         });
         testCasesForProfile[projectFile].internalTargets.unite(item->internalTargets());
     } else if (item->checked() == Qt::PartiallyChecked) {
-        item->forFirstLevelChildren([&testCasesForProfile](TestTreeItem *child) {
+        item->forFirstLevelChildItems([&testCasesForProfile](TestTreeItem *child) {
             QTC_ASSERT(child->type() == TestTreeItem::TestCase, return);
             if (child->checked() == Qt::Checked) {
                 CatchTreeItem *current = static_cast<CatchTreeItem *>(child);
@@ -227,7 +227,7 @@ static void collectFailedTestInfo(const CatchTreeItem *item,
     QTC_ASSERT(item, return);
     QTC_ASSERT(item->type() == TestTreeItem::Root, return);
 
-    item->forAllChildren([&testCasesForProfile](TestTreeItem *it) {
+    item->forAllChildItems([&testCasesForProfile](TestTreeItem *it) {
         QTC_ASSERT(it, return);
         CatchTreeItem *parent = static_cast<CatchTreeItem *>(it->parentItem());
         QTC_ASSERT(parent, return);
@@ -283,7 +283,7 @@ QList<TestConfiguration *> CatchTreeItem::getTestConfigurationsForFile(const Uti
 
     const QString filePath = fileName.toString();
     for (int row = 0, count = childCount(); row < count; ++row) {
-        const TestTreeItem *item = childAt(row);
+        const TestTreeItem *item = childItem(row);
         QTC_ASSERT(item, continue);
 
         if (childAt(row)->name() != filePath)
@@ -292,7 +292,7 @@ QList<TestConfiguration *> CatchTreeItem::getTestConfigurationsForFile(const Uti
         CatchConfiguration *testConfig = nullptr;
         QStringList testCases;
 
-        item->forFirstLevelChildren([&testCases](TestTreeItem *child) {
+        item->forFirstLevelChildItems([&testCases](TestTreeItem *child) {
             CatchTreeItem *current = static_cast<CatchTreeItem *>(child);
             testCases << current->testCasesString();
         });
@@ -326,9 +326,8 @@ QList<TestConfiguration *> CatchTreeItem::getTestConfigurations(bool ignoreCheck
         return result;
 
     QHash<QString, CatchTestCases> testCasesForProfile;
-    forFirstLevelChildren([&testCasesForProfile, ignoreCheckState](TestTreeItem *item) {
-        collectTestInfo(item, testCasesForProfile, ignoreCheckState);
-    });
+    for (int row = 0, end = childCount(); row < end; ++row)
+        collectTestInfo(childItem(row), testCasesForProfile, ignoreCheckState);
 
     for (auto it = testCasesForProfile.begin(), end = testCasesForProfile.end(); it != end; ++it) {
         for (const QString &target : qAsConst(it.value().internalTargets)) {

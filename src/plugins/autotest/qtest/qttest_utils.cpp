@@ -53,10 +53,10 @@ QHash<QString, QString> testCaseNamesForFiles(ITestFramework *framework, const Q
     TestTreeItem *rootNode = framework->rootNode();
     QTC_ASSERT(rootNode, return result);
 
-    rootNode->forFirstLevelChildren([&result, &files](TestTreeItem *child) {
+    rootNode->forFirstLevelChildren([&result, &files](ITestTreeItem *child) {
         if (files.contains(child->filePath()))
             result.insert(child->filePath(), child->name());
-        child->forFirstLevelChildren([&result, &files, child](TestTreeItem *grandChild) {
+        child->forFirstLevelChildren([&result, &files, child](ITestTreeItem *grandChild) {
             if (files.contains(grandChild->filePath()))
                 result.insert(grandChild->filePath(), child->name());
         });
@@ -70,7 +70,7 @@ QMultiHash<QString, QString> alternativeFiles(ITestFramework *framework, const Q
     TestTreeItem *rootNode = framework->rootNode();
     QTC_ASSERT(rootNode, return result);
 
-    rootNode->forFirstLevelChildren([&result, &files](TestTreeItem *child) {
+    rootNode->forFirstLevelChildren([&result, &files](ITestTreeItem *child) {
         const QString &baseFilePath = child->filePath();
         for (int childRow = 0, count = child->childCount(); childRow < count; ++childRow) {
             auto grandChild = static_cast<const QtTestTreeItem *>(child->childAt(childRow));

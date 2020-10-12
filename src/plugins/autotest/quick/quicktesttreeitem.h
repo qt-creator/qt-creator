@@ -54,7 +54,7 @@ public:
     TestTreeItem *find(const TestParseResult *result) override;
     TestTreeItem *findChild(const TestTreeItem *other) override;
     bool modify(const TestParseResult *result) override;
-    bool lessThan(const TestTreeItem *other, SortMode mode) const override;
+    bool lessThan(const ITestTreeItem *other, SortMode mode) const override;
     bool isGroupNodeFor(const TestTreeItem *other) const override;
     bool removeOnSweepIfEmpty() const override;
     TestTreeItem *createParentGroupNode() const override;

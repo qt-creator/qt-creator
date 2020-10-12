@@ -286,7 +286,7 @@ TestConfiguration *BoostTestTreeItem::testConfiguration() const
     if (itemType == TestSuite || itemType == TestCase) {
         QStringList testCases;
         if (itemType == TestSuite) {
-            forFirstLevelChildren([&testCases](TestTreeItem *child) {
+            forFirstLevelChildItems([&testCases](TestTreeItem *child) {
                 QTC_ASSERT(child, return);
                 if (auto boostItem = static_cast<BoostTestTreeItem *>(child)) {
                     if (boostItem->enabled()) {

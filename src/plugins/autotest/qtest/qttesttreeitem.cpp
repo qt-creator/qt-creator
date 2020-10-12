@@ -154,7 +154,7 @@ static void fillTestConfigurationsFromCheckState(const TestTreeItem *item,
     QTC_ASSERT(item, return);
     if (item->type() == TestTreeItem::GroupNode) {
         for (int row = 0, count = item->childCount(); row < count; ++row)
-            fillTestConfigurationsFromCheckState(item->childAt(row), testConfigurations);
+            fillTestConfigurationsFromCheckState(item->childItem(row), testConfigurations);
         return;
     }
     QTC_ASSERT(item->type() == TestTreeItem::TestCase, return);
@@ -169,12 +169,12 @@ static void fillTestConfigurationsFromCheckState(const TestTreeItem *item,
         return;
     case Qt::PartiallyChecked:
         QStringList testCases;
-        item->forFirstLevelChildren([&testCases](TestTreeItem *grandChild) {
+        item->forFirstLevelChildren([&testCases](ITestTreeItem *grandChild) {
             if (grandChild->checked() == Qt::Checked) {
                 testCases << grandChild->name();
             } else if (grandChild->checked() == Qt::PartiallyChecked) {
                 const QString funcName = grandChild->name();
-                grandChild->forFirstLevelChildren([&testCases, &funcName](TestTreeItem *dataTag) {
+                grandChild->forFirstLevelChildren([&testCases, &funcName](ITestTreeItem *dataTag) {
                     if (dataTag->checked() == Qt::Checked)
                         testCases << funcName + ':' + dataTag->name();
                 });
@@ -195,16 +195,16 @@ static void collectFailedTestInfo(TestTreeItem *item, QList<TestConfiguration *>
     QTC_ASSERT(item, return);
     if (item->type() == TestTreeItem::GroupNode) {
         for (int row = 0, count = item->childCount(); row < count; ++row)
-            collectFailedTestInfo(item->childAt(row), testConfigs);
+            collectFailedTestInfo(item->childItem(row), testConfigs);
         return;
     }
     QTC_ASSERT(item->type() == TestTreeItem::TestCase, return);
     QStringList testCases;
-    item->forFirstLevelChildren([&testCases](TestTreeItem *func) {
+    item->forFirstLevelChildren([&testCases](ITestTreeItem *func) {
         if (func->data(0, FailedRole).toBool()) {
             testCases << func->name();
         } else {
-            func->forFirstLevelChildren([&testCases, func](TestTreeItem *dataTag) {
+            func->forFirstLevelChildren([&testCases, func](ITestTreeItem *dataTag) {
                 if (dataTag->data(0, FailedRole).toBool())
                     testCases << func->name() + ':' + dataTag->name();
             });
@@ -237,13 +237,13 @@ QList<TestConfiguration *> QtTestTreeItem::getAllTestConfigurations() const
     if (!project || type() != Root)
         return result;
 
-    forFirstLevelChildren([&result](TestTreeItem *child) {
+    forFirstLevelChildren([&result](ITestTreeItem *child) {
         if (child->type() == TestCase) {
             TestConfiguration *tc = child->testConfiguration();
             QTC_ASSERT(tc, return);
             result << tc;
         } else if (child->type() == GroupNode) {
-            child->forFirstLevelChildren([&result](TestTreeItem *groupChild) {
+            child->forFirstLevelChildren([&result](ITestTreeItem *groupChild) {
                 TestConfiguration *tc = groupChild->testConfiguration();
                 QTC_ASSERT(tc, return);
                 result << tc;
@@ -261,7 +261,7 @@ QList<TestConfiguration *> QtTestTreeItem::getSelectedTestConfigurations() const
         return result;
 
     for (int row = 0, count = childCount(); row < count; ++row)
-        fillTestConfigurationsFromCheckState(childAt(row), result);
+        fillTestConfigurationsFromCheckState(childItem(row), result);
 
     return result;
 }
@@ -270,9 +270,8 @@ QList<TestConfiguration *> QtTestTreeItem::getFailedTestConfigurations() const
 {
     QList<TestConfiguration *> result;
     QTC_ASSERT(type() == TestTreeItem::Root, return result);
-    forFirstLevelChildren([&result](TestTreeItem *child) {
-        collectFailedTestInfo(child, result);
-    });
+    for (int row = 0, end = childCount(); row < end; ++row)
+        collectFailedTestInfo(childItem(row), result);
     return result;
 }
 
@@ -286,7 +285,7 @@ QList<TestConfiguration *> QtTestTreeItem::getTestConfigurationsForFile(const Ut
 
     QHash<TestTreeItem *, QStringList> testFunctions;
     const QString &file = fileName.toString();
-    forAllChildren([&testFunctions, &file](TestTreeItem *node) {
+    forAllChildItems([&testFunctions, &file](TestTreeItem *node) {
         if (node->type() == Type::TestFunction && node->filePath() == file) {
             QTC_ASSERT(node->parentItem(), return);
             TestTreeItem *testCase = node->parentItem();
@@ -314,7 +313,7 @@ TestTreeItem *QtTestTreeItem::find(const TestParseResult *result)
         if (static_cast<QtTestFramework *>(result->base)->grouping()) {
             const QString path = QFileInfo(result->fileName).absolutePath();
             for (int row = 0; row < childCount(); ++row) {
-                TestTreeItem *group = childAt(row);
+                TestTreeItem *group = childItem(row);
                 if (group->filePath() != path)
                     continue;
                 if (auto groupChild = group->findChildByFile(result->fileName))
@@ -394,7 +393,7 @@ bool QtTestTreeItem::isGroupable() const
 
 TestTreeItem *QtTestTreeItem::findChildByNameAndInheritance(const QString &name, bool inherited) const
 {
-    return findFirstLevelChild([name, inherited](const TestTreeItem *other) {
+    return findFirstLevelChildItem([name, inherited](const TestTreeItem *other) {
         const QtTestTreeItem *qtOther = static_cast<const QtTestTreeItem *>(other);
         return qtOther->inherited() == inherited && qtOther->name() == name;
     });
