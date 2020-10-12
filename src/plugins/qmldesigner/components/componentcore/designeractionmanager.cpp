@@ -574,11 +574,6 @@ bool multiSelection(const SelectionContext &context)
     return !singleSelection(context) && selectionNotEmpty(context);
 }
 
-bool singleSelectionAndInBaseState(const SelectionContext &context)
-{
-    return singleSelection(context) && inBaseState(context);
-}
-
 bool multiSelectionAndInBaseState(const SelectionContext &context)
 {
     return multiSelection(context) && inBaseState(context);
@@ -887,6 +882,12 @@ bool raiseAvailable(const SelectionContext &selectionState)
     return parentProperty.indexOf(modelNode) < parentProperty.count() - 1;
 }
 
+bool anchorsMenuEnabled(const SelectionContext &context)
+{
+    return singleSelectionItemIsNotAnchoredAndSingleSelectionNotRoot(context)
+           || singleSelectionItemIsAnchored(context);
+}
+
 void DesignerActionManager::createDefaultDesignerActions()
 {
     using namespace SelectionContextFunctors;
@@ -1001,11 +1002,10 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &setVisible,
                           &singleSelectedItem));
 
-    addDesignerAction(new ActionGroup(
-                          anchorsCategoryDisplayName,
-                          anchorsCategory,
-                          priorityAnchorsCategory,
-                          &singleSelectionAndInBaseState));
+    addDesignerAction(new ActionGroup(anchorsCategoryDisplayName,
+                                      anchorsCategory,
+                                      priorityAnchorsCategory,
+                                      &anchorsMenuEnabled));
 
     addDesignerAction(new ModelNodeAction(
                           anchorsFillCommandId,
