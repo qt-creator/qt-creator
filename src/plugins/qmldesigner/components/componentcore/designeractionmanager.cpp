@@ -828,6 +828,11 @@ bool studioComponentsAvailable(const SelectionContext &context)
     return context.view()->model()->isImportPossible(import, true, true);
 }
 
+bool studioComponentsAvailableAndSelectionCanBeLayouted(const SelectionContext &context)
+{
+    return selectionCanBeLayouted(context) && studioComponentsAvailable(context);
+}
+
 bool singleSelectedAndUiFile(const SelectionContext &context)
 {
     if (!singleSelection(context))
@@ -1042,7 +1047,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ActionGroup(groupCategoryDisplayName,
                                       groupCategory,
                                       priorityGroupCategory,
-                                      &studioComponentsAvailable));
+                                      &studioComponentsAvailableAndSelectionCanBeLayouted));
 
     addDesignerAction(new ActionGroup(
         flowCategoryDisplayName,
