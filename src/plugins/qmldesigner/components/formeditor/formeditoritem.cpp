@@ -286,6 +286,7 @@ bool FormEditorItem::flowHitTest(const QPointF & ) const
 void FormEditorItem::setFrameColor(const QColor &color)
 {
     m_frameColor = color;
+    update();
 }
 
 FormEditorItem::~FormEditorItem()
