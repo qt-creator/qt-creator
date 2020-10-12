@@ -63,6 +63,9 @@ public:
     void setCurrentFile(const Utils::FilePath &filepath);
     void setFiles(const Utils::FilePaths &filePathes);
     void updateStartupProjectTranslations();
+
+    QColor warningColor();
+    QColor foundTrColor();
 private:
     void updateCurrentEditor(const Core::IEditor *editor);
     void updateCurrentTranslations(ProjectExplorer::Project *project);
@@ -98,6 +101,10 @@ private:
 
     QHBoxLayout *m_selectLanguageLayout;
     TestLanguageGetter m_testLanguagesGetter;
+    QColor m_warningColor;
+    QColor m_foundTrColor;
+    QColor m_lastWarningColor;
+    QColor m_lastfoundTrColor;
 };
 
 } // namespace QmlPreview

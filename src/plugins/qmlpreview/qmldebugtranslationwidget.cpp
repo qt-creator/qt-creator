@@ -38,6 +38,7 @@
 #include <utils/outputformatter.h>
 #include <utils/utilsicons.h>
 #include <utils/fileutils.h>
+#include <utils/qtcolorbutton.h>
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
@@ -94,6 +95,11 @@ namespace QmlPreview {
 QmlDebugTranslationWidget::QmlDebugTranslationWidget(QWidget *parent, TestLanguageGetter languagesGetterMethod)
     : QWidget(parent)
     , m_testLanguagesGetter(languagesGetterMethod)
+    , m_warningColor(Qt::red)
+    //, m_foundTrColor(Qt::green) // invalid color -> init without the frame
+    , m_lastWarningColor(m_warningColor)
+    , m_lastfoundTrColor(Qt::green)
+
 {
     auto mainLayout = new QVBoxLayout(this);
 
@@ -121,12 +127,54 @@ QmlDebugTranslationWidget::QmlDebugTranslationWidget(QWidget *parent, TestLangua
     m_selectLanguageLayout = new QHBoxLayout;
     mainLayout->addLayout(m_selectLanguageLayout);
 
+    auto settingsLayout = new QHBoxLayout();
+    mainLayout->addLayout(settingsLayout);
+
     auto elideWarningCheckBox = new QCheckBox(tr("Enable elide warning"));
-    layout()->addWidget(elideWarningCheckBox);
     connect(elideWarningCheckBox, &QCheckBox::stateChanged, [this] (int state) {
         m_elideWarning = (state == Qt::Checked);
-
     });
+    settingsLayout->addWidget(elideWarningCheckBox);
+
+    auto warningColorCheckbox = new QCheckBox(tr("select Warning color: "));
+    settingsLayout->addWidget(warningColorCheckbox);
+    auto warningColorButton = new Utils::QtColorButton();
+    connect(warningColorCheckbox, &QCheckBox::stateChanged, [warningColorButton, this] (int state) {
+        if (state == Qt::Checked) {
+            warningColorButton->setColor(m_lastWarningColor);
+            warningColorButton->setEnabled(true);
+        } else {
+            m_lastWarningColor = warningColorButton->color();
+            warningColorButton->setColor({});
+            warningColorButton->setEnabled(false);
+        }
+    });
+    connect(warningColorButton, &Utils::QtColorButton::colorChanged, [this](const QColor &color) {
+        m_warningColor = color;
+    });
+    warningColorCheckbox->setCheckState(Qt::Checked);
+    settingsLayout->addWidget(warningColorButton);
+
+    auto foundTrColorCheckbox = new QCheckBox(tr("select found 'tr' color: "));
+    settingsLayout->addWidget(foundTrColorCheckbox);
+    auto foundTrColorButton = new Utils::QtColorButton();
+    foundTrColorButton->setDisabled(true);
+    connect(foundTrColorCheckbox, &QCheckBox::stateChanged, [foundTrColorButton, this] (int state) {
+        if (state == Qt::Checked) {
+            foundTrColorButton->setColor(m_lastfoundTrColor);
+            foundTrColorButton->setEnabled(true);
+        } else {
+            m_lastfoundTrColor = foundTrColorButton->color();
+            foundTrColorButton->setColor({});
+            foundTrColorButton->setEnabled(false);
+        }
+    });
+    connect(foundTrColorButton, &Utils::QtColorButton::colorChanged, [this](const QColor &color) {
+        m_foundTrColor = color;
+    });
+    settingsLayout->addWidget(foundTrColorButton);
+
+    settingsLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding));
 
     auto controlLayout = new QHBoxLayout;
     mainLayout->addLayout(controlLayout);
@@ -230,6 +278,16 @@ void QmlDebugTranslationWidget::updateCurrentEditor(const Core::IEditor *editor)
 void QmlDebugTranslationWidget::updateStartupProjectTranslations()
 {
     updateCurrentTranslations(ProjectExplorer::SessionManager::startupProject());
+}
+
+QColor QmlDebugTranslationWidget::warningColor()
+{
+    return m_warningColor;
+}
+
+QColor QmlDebugTranslationWidget::foundTrColor()
+{
+    return m_foundTrColor;
 }
 
 void QmlDebugTranslationWidget::updateCurrentTranslations(ProjectExplorer::Project *project)
