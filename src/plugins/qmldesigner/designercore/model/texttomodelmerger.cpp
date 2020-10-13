@@ -1119,8 +1119,11 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         differenceHandler.typeDiffers(isRootNode, modelNode, typeName,
                                       majorVersion, minorVersion,
                                       astNode, context);
-        if (!isRootNode)
+        if (!isRootNode && modelNode.majorVersion() != -1 && modelNode.minorVersion() != -1) {
+            qWarning() << "Preempting Node sync. Type differs" << modelNode <<
+                          modelNode.majorVersion() << modelNode.minorVersion();
             return; // the difference handler will create a new node, so we're done.
+        }
     }
 
     if (isComponentType(typeName) || isImplicitComponent)
