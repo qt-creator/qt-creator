@@ -1839,15 +1839,24 @@ QStringList QmakeProFile::includePaths(QtSupport::ProFileReader *reader, const F
     }
 
     bool tryUnfixified = false;
+
+    // These paths should not be checked for existence, to ensure consistent include path lists
+    // before and after building.
+    const QString mocDir = mocDirPath(reader, buildDir);
+    const QString uiDir = uiDirPath(reader, buildDir);
+
     foreach (const ProFileEvaluator::SourceFile &el,
              reader->fixifiedValues(QLatin1String("INCLUDEPATH"), projectDir, buildDir.toString(),
                                     false)) {
         const QString sysrootifiedPath = sysrootify(el.fileName, sysroot.toString(), projectDir,
                                                     buildDir.toString());
-        if (IoUtils::isAbsolutePath(sysrootifiedPath) && IoUtils::exists(sysrootifiedPath))
+        if (IoUtils::isAbsolutePath(sysrootifiedPath)
+                && (IoUtils::exists(sysrootifiedPath) || sysrootifiedPath == mocDir
+                    || sysrootifiedPath == uiDir)) {
             paths << sysrootifiedPath;
-        else
+        } else {
             tryUnfixified = true;
+        }
     }
 
     // If sysrootifying a fixified path does not yield a valid path, try again with the
@@ -1862,10 +1871,6 @@ QStringList QmakeProFile::includePaths(QtSupport::ProFileReader *reader, const F
         }
     }
 
-    // paths already contains moc dir and ui dir, due to corrrectly parsing uic.prf and moc.prf
-    // except if those directories don't exist at the time of parsing
-    // thus we add those directories manually (without checking for existence)
-    paths << mocDirPath(reader, buildDir) << uiDirPath(reader, buildDir);
     paths.removeDuplicates();
     return paths;
 }
