@@ -25,6 +25,7 @@
 
 #include "nodemetainfo.h"
 #include "model.h"
+#include "model/model_p.h"
 
 #include "metainfo.h"
 #include <enumeration.h>
@@ -620,8 +621,6 @@ public:
     QSet<QByteArray> &prototypeCachePositives();
     QSet<QByteArray> &prototypeCacheNegatives();
 
-    static void clearCache();
-
 private:
     NodeMetaInfoPrivate(Model *model, TypeName type, int maj = -1, int min = -1);
 
@@ -657,12 +656,9 @@ private:
     const Document *document() const;
 
     QPointer<Model> m_model;
-    static QHash<TypeName, Pointer> m_nodeMetaInfoCache;
     const ObjectValue *m_objectValue = nullptr;
     bool m_propertiesSetup = false;
 };
-
-QHash<TypeName, NodeMetaInfoPrivate::Pointer> NodeMetaInfoPrivate::m_nodeMetaInfoCache;
 
 bool NodeMetaInfoPrivate::isFileComponent() const
 {
@@ -705,11 +701,6 @@ QSet<QByteArray> &NodeMetaInfoPrivate::prototypeCacheNegatives()
     return m_prototypeCacheNegatives;
 }
 
-void NodeMetaInfoPrivate::clearCache()
-{
-    m_nodeMetaInfoCache.clear();
-}
-
 PropertyName NodeMetaInfoPrivate::defaultPropertyName() const
 {
     if (!m_defaultPropertyName.isEmpty())
@@ -724,17 +715,12 @@ static inline TypeName stringIdentifier( const TypeName &type, int maj, int min)
 
 NodeMetaInfoPrivate::Pointer NodeMetaInfoPrivate::create(Model *model, const TypeName &type, int major, int minor)
 {
-    if (m_nodeMetaInfoCache.contains(stringIdentifier(type, major, minor))) {
-        const Pointer &info = m_nodeMetaInfoCache.value(stringIdentifier(type, major, minor));
-        if (info->model() == model)
-            return info;
-        else
-            m_nodeMetaInfoCache.clear();
-    }
+    if (model->d->m_nodeMetaInfoCache.contains(stringIdentifier(type, major, minor)))
+        return model->d->m_nodeMetaInfoCache.value(stringIdentifier(type, major, minor));
 
     Pointer newData(new NodeMetaInfoPrivate(model, type, major, minor));
     if (newData->isValid())
-        m_nodeMetaInfoCache.insert(stringIdentifier(type, major, minor), newData);
+        model->d->m_nodeMetaInfoCache.insert(stringIdentifier(type, major, minor), newData);
     return newData;
 }
 
@@ -1669,11 +1655,6 @@ bool NodeMetaInfo::isQmlItem() const
 {
     return isSubclassOf("QtQuick.QtObject")
             || isSubclassOf("QtQml.QtObject");
-}
-
-void NodeMetaInfo::clearCache()
-{
-    Internal::NodeMetaInfoPrivate::clearCache();
 }
 
 bool NodeMetaInfo::isLayoutable() const

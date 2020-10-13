@@ -579,7 +579,7 @@ void DesignDocument::paste()
             }
             view.setSelectedModelNodes({pastedNode});
         });
-        NodeMetaInfo::clearCache();
+        view.model()->clearMetaInfoCache();
     }
 }
 

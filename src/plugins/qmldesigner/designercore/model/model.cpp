@@ -161,7 +161,7 @@ void ModelPrivate::notifyImportsChanged(const QList<Import> &addedImports, const
         resetModel = true;
     }
 
-    NodeMetaInfo::clearCache();
+    m_nodeMetaInfoCache.clear();
 
     if (nodeInstanceView())
         nodeInstanceView()->importsChanged(addedImports, removedImports);
@@ -2078,6 +2078,11 @@ void Model::setDocumentMessages(const QList<DocumentMessage> &errors, const QLis
 QList<ModelNode> Model::selectedNodes(AbstractView *view) const
 {
     return d->toModelNodeList(d->selectedNodes(), view);
+}
+
+void Model::clearMetaInfoCache()
+{
+    d->m_nodeMetaInfoCache.clear();
 }
 
 /*!

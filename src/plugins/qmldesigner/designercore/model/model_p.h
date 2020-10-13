@@ -85,6 +85,7 @@ class ModelPrivate : public QObject {
 
     friend class QmlDesigner::Model;
     friend class QmlDesigner::Internal::WriteLocker;
+    friend class QmlDesigner::Internal::NodeMetaInfoPrivate;
 
 public:
      ModelPrivate(Model *model);
@@ -268,6 +269,7 @@ private:
     QPointer<NodeInstanceView> m_nodeInstanceView;
     QPointer<TextModifier> m_textModifier;
     QPointer<Model> m_metaInfoProxyModel;
+    QHash<TypeName, QSharedPointer<NodeMetaInfoPrivate>> m_nodeMetaInfoCache;
     bool m_writeLock;
     qint32 m_internalIdCounter;
 };

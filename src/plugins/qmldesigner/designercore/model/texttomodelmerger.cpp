@@ -989,7 +989,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
     m_rewriterView->setIncompleteTypeInformation(false);
 
     // maybe the project environment (kit, ...) changed, so we need to clean old caches
-    NodeMetaInfo::clearCache();
+    m_rewriterView->model()->clearMetaInfoCache();
 
     try {
         Snapshot snapshot = m_rewriterView->textModifier()->qmljsSnapshot();
