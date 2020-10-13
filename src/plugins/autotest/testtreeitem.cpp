@@ -151,6 +151,17 @@ bool ITestTreeItem::lessThan(const ITestTreeItem *other, ITestTreeItem::SortMode
     return true;
 }
 
+ITestConfiguration *ITestTreeItem::asConfiguration(TestRunMode mode) const
+{
+    switch (mode) {
+    case TestRunMode::Run:
+    case TestRunMode::RunWithoutDeploy:
+        return testConfiguration();
+    default:
+        return nullptr;
+    }
+}
+
 /****************************** TestTreeItem ********************************************/
 
 TestTreeItem::TestTreeItem(ITestBase *testBase, const QString &name,
@@ -278,24 +289,20 @@ TestTreeItem *TestTreeItem::findChildByNameAndFile(const QString &name, const QS
     });
 }
 
-TestConfiguration *TestTreeItem::asConfiguration(TestRunMode mode) const
+ITestConfiguration *TestTreeItem::asConfiguration(TestRunMode mode) const
 {
     switch (mode) {
-    case TestRunMode::Run:
-    case TestRunMode::RunWithoutDeploy:
-        return testConfiguration();
     case TestRunMode::Debug:
     case TestRunMode::DebugWithoutDeploy:
         return debugConfiguration();
     default:
-        break;
+        return ITestTreeItem::asConfiguration(mode);
     }
-    return nullptr;
 }
 
-QList<TestConfiguration *> TestTreeItem::getTestConfigurationsForFile(const Utils::FilePath &) const
+QList<ITestConfiguration *> TestTreeItem::getTestConfigurationsForFile(const Utils::FilePath &) const
 {
-    return QList<TestConfiguration *>();
+    return QList<ITestConfiguration *>();
 }
 
 bool TestTreeItem::isGroupNodeFor(const TestTreeItem *other) const

@@ -123,7 +123,7 @@ bool QuickTestTreeItem::canProvideDebugConfiguration() const
     return canProvideTestConfiguration();
 }
 
-TestConfiguration *QuickTestTreeItem::testConfiguration() const
+ITestConfiguration *QuickTestTreeItem::testConfiguration() const
 {
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     QTC_ASSERT(project, return nullptr);
@@ -160,7 +160,7 @@ TestConfiguration *QuickTestTreeItem::testConfiguration() const
     return config;
 }
 
-static QList<TestConfiguration *> testConfigurationsFor(
+static QList<ITestConfiguration *> testConfigurationsFor(
         const TestTreeItem *rootNode, const std::function<bool(TestTreeItem *)> &predicate)
 {
     QTC_ASSERT(rootNode, return {});
@@ -197,10 +197,10 @@ static QList<TestConfiguration *> testConfigurationsFor(
         return false;
     });
 
-    return Utils::static_container_cast<TestConfiguration *>(configurationForProFiles.values());
+    return Utils::static_container_cast<ITestConfiguration *>(configurationForProFiles.values());
 }
 
-TestConfiguration *QuickTestTreeItem::debugConfiguration() const
+ITestConfiguration *QuickTestTreeItem::debugConfiguration() const
 {
     QuickTestConfiguration *config = static_cast<QuickTestConfiguration *>(testConfiguration());
     if (config)
@@ -219,9 +219,9 @@ static void addTestsForItem(Tests &tests, const TestTreeItem *item)
     tests.internalTargets = item->internalTargets();
 }
 
-QList<TestConfiguration *> QuickTestTreeItem::getAllTestConfigurations() const
+QList<ITestConfiguration *> QuickTestTreeItem::getAllTestConfigurations() const
 {
-    QList<TestConfiguration *> result;
+    QList<ITestConfiguration *> result;
 
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     if (!project || type() != Root)
@@ -259,21 +259,21 @@ QList<TestConfiguration *> QuickTestTreeItem::getAllTestConfigurations() const
     return result;
 }
 
-QList<TestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() const
+QList<ITestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() const
 {
     return testConfigurationsFor(this, [](TestTreeItem *it) {
         return it->checked() == Qt::Checked && it->type() == TestTreeItem::TestFunction;
     });
 }
 
-QList<TestConfiguration *> QuickTestTreeItem::getFailedTestConfigurations() const
+QList<ITestConfiguration *> QuickTestTreeItem::getFailedTestConfigurations() const
 {
     return testConfigurationsFor(this, [](TestTreeItem *it) {
         return it->data(0, FailedRole).toBool();
     });
 }
 
-QList<TestConfiguration *> QuickTestTreeItem::getTestConfigurationsForFile(
+QList<ITestConfiguration *> QuickTestTreeItem::getTestConfigurationsForFile(
         const Utils::FilePath &fileName) const
 {
     const QString &file = fileName.toString();

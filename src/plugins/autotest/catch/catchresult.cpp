@@ -63,7 +63,7 @@ bool CatchResult::isDirectParentOf(const TestResult *other, bool *needsIntermedi
     return name() == catchOther->name();
 }
 
-const TestTreeItem *CatchResult::findTestTreeItem() const
+const ITestTreeItem *CatchResult::findTestTreeItem() const
 {
     auto id = Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix("Catch");
     ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
@@ -82,7 +82,7 @@ const TestTreeItem *CatchResult::findTestTreeItem() const
         return parameterized ? tcName.startsWith(treeItem->name() + " - ")
                              : tcName == treeItem->name();
     });
-    return static_cast<const TestTreeItem *>(item);
+    return static_cast<const ITestTreeItem *>(item);
 }
 
 } // namespace Internal

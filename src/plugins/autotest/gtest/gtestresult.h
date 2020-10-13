@@ -28,6 +28,9 @@
 #include "../testresult.h"
 
 namespace Autotest {
+
+class TestTreeItem;
+
 namespace Internal {
 
 class GTestResult : public TestResult
@@ -39,7 +42,7 @@ public:
     void setTestCaseName(const QString &testSetName) { m_testCaseName = testSetName; }
     void setIteration(int iteration) { m_iteration = iteration; }
     bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const override;
-    virtual const TestTreeItem *findTestTreeItem() const override;
+    virtual const ITestTreeItem *findTestTreeItem() const override;
 
 private:
     bool isTestSuite() const { return m_testCaseName.isEmpty(); }

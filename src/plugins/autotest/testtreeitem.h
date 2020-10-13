@@ -49,7 +49,7 @@ namespace Autotest {
 
 class ITestBase;
 class ITestFramework;
-class TestConfiguration;
+class ITestConfiguration;
 class TestParseResult;
 enum class TestRunMode;
 
@@ -85,11 +85,12 @@ public:
 
     virtual Qt::CheckState checked() const;
     virtual bool canProvideTestConfiguration() const { return false; }
-    virtual TestConfiguration *testConfiguration() const { return nullptr; }
+    virtual ITestConfiguration *testConfiguration() const { return nullptr; }
+    virtual ITestConfiguration *asConfiguration(TestRunMode mode) const;
 
-    virtual QList<TestConfiguration *> getAllTestConfigurations() const { return {}; }
-    virtual QList<TestConfiguration *> getSelectedTestConfigurations() const { return {}; }
-    virtual QList<TestConfiguration *> getFailedTestConfigurations() const { return {}; }
+    virtual QList<ITestConfiguration *> getAllTestConfigurations() const { return {}; }
+    virtual QList<ITestConfiguration *> getSelectedTestConfigurations() const { return {}; };
+    virtual QList<ITestConfiguration *> getFailedTestConfigurations() const { return {}; }
 
     const QString name() const { return m_name; }
     void setName(const QString &name) { m_name = name; }
@@ -150,10 +151,10 @@ public:
     TestTreeItem *findChildByFileAndType(const QString &filePath, Type type);
     TestTreeItem *findChildByNameAndFile(const QString &name, const QString &filePath);
 
-    virtual TestConfiguration *debugConfiguration() const { return nullptr; }
+    virtual ITestConfiguration *debugConfiguration() const { return nullptr; }
     virtual bool canProvideDebugConfiguration() const { return false; }
-    TestConfiguration *asConfiguration(TestRunMode mode) const;
-    virtual QList<TestConfiguration *> getTestConfigurationsForFile(const Utils::FilePath &fileName) const;
+    ITestConfiguration *asConfiguration(TestRunMode mode) const final;
+    virtual QList<ITestConfiguration *> getTestConfigurationsForFile(const Utils::FilePath &fileName) const;
     virtual TestTreeItem *find(const TestParseResult *result) = 0;
     virtual TestTreeItem *findChild(const TestTreeItem *other) = 0;
     virtual bool modify(const TestParseResult *result) = 0;

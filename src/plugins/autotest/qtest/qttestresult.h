@@ -29,6 +29,9 @@
 #include "qttestconstants.h"
 
 namespace Autotest {
+
+class TestTreeItem;
+
 namespace Internal {
 
 class QtTestResult : public TestResult
@@ -44,7 +47,7 @@ public:
     bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const override;
     bool isIntermediateFor(const TestResult *other) const override;
     TestResult *createIntermediateResultFor(const TestResult *other) override;
-    const TestTreeItem *findTestTreeItem() const override;
+    const ITestTreeItem *findTestTreeItem() const override;
 private:
     bool isTestCase() const     { return m_function.isEmpty()  && m_dataTag.isEmpty(); }
     bool isTestFunction() const { return !m_function.isEmpty() && m_dataTag.isEmpty(); }

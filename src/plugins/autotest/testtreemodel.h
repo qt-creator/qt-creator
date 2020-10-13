@@ -60,10 +60,10 @@ public:
 
     Internal::TestCodeParser *parser() const { return m_parser; }
     bool hasTests() const;
-    QList<TestConfiguration *> getAllTestCases() const;
-    QList<TestConfiguration *> getSelectedTests() const;
-    QList<TestConfiguration *> getFailedTests() const;
-    QList<TestConfiguration *> getTestsForFile(const Utils::FilePath &fileName) const;
+    QList<ITestConfiguration *> getAllTestCases() const;
+    QList<ITestConfiguration *> getSelectedTests() const;
+    QList<ITestConfiguration *> getFailedTests() const;
+    QList<ITestConfiguration *> getTestsForFile(const Utils::FilePath &fileName) const;
     QList<TestTreeItem *> testItemsByName(const QString &testName);
     void synchronizeTestFrameworks();
     void rebuild(const QList<Utils::Id> &frameworkIds);

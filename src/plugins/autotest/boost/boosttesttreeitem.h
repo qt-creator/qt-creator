@@ -69,13 +69,13 @@ public:
     void setState(TestState state) { m_state |= state; }
     TestStates state() const { return m_state; }
 
-    QList<TestConfiguration *> getAllTestConfigurations() const override;
-    QList<TestConfiguration *> getSelectedTestConfigurations() const override;
-    QList<TestConfiguration *> getFailedTestConfigurations() const override;
+    QList<ITestConfiguration *> getAllTestConfigurations() const override;
+    QList<ITestConfiguration *> getSelectedTestConfigurations() const override;
+    QList<ITestConfiguration *> getFailedTestConfigurations() const override;
     bool canProvideTestConfiguration() const override { return type() != Root; }
     bool canProvideDebugConfiguration() const override { return canProvideTestConfiguration(); }
-    TestConfiguration *testConfiguration() const override;
-    TestConfiguration *debugConfiguration() const override;
+    ITestConfiguration *testConfiguration() const override;
+    ITestConfiguration *debugConfiguration() const override;
 
 private:
     QString nameSuffix() const;
@@ -84,7 +84,7 @@ private:
                                               BoostTestTreeItem::TestStates state,
                                               const QString &proFile) const;
     QString prependWithParentsSuitePaths(const QString &testName) const;
-    QList<TestConfiguration *> getTestConfigurations(
+    QList<ITestConfiguration *> getTestConfigurations(
             std::function<bool(BoostTestTreeItem *)> predicate) const;
     bool modifyTestContent(const BoostTestParseResult *result);
     TestStates m_state = Enabled;

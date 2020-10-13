@@ -43,7 +43,7 @@ const QString TestResult::outputString(bool selected) const
     return selected ? m_description : m_description.split('\n').first();
 }
 
-const TestTreeItem *TestResult::findTestTreeItem() const
+const ITestTreeItem *TestResult::findTestTreeItem() const
 {
     return nullptr;
 }

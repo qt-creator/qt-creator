@@ -322,7 +322,7 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
     }
 
     if (isFailed(testResult->result())) {
-        if (const TestTreeItem *it = testResult->findTestTreeItem()) {
+        if (const ITestTreeItem *it = testResult->findTestTreeItem()) {
             TestTreeModel *model = TestTreeModel::instance();
             model->setData(model->indexForItem(it), true, FailedRole);
         }

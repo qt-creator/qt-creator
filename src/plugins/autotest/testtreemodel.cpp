@@ -162,33 +162,35 @@ bool TestTreeModel::hasTests() const
     return false;
 }
 
-QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
+QList<ITestConfiguration *> TestTreeModel::getAllTestCases() const
 {
-    QList<TestConfiguration *> result;
+    QList<ITestConfiguration *> result;
     for (Utils::TreeItem *frameworkRoot : *rootItem())
         result.append(static_cast<ITestTreeItem *>(frameworkRoot)->getAllTestConfigurations());
     return result;
 }
 
-QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
+QList<ITestConfiguration *> TestTreeModel::getSelectedTests() const
 {
-    QList<TestConfiguration *> result;
+    QList<ITestConfiguration *> result;
     for (Utils::TreeItem *frameworkRoot : *rootItem())
         result.append(static_cast<ITestTreeItem *>(frameworkRoot)->getSelectedTestConfigurations());
     return result;
 }
 
-QList<TestConfiguration *> TestTreeModel::getFailedTests() const
+QList<ITestConfiguration *> TestTreeModel::getFailedTests() const
 {
-    QList<TestConfiguration *> result;
+    QList<ITestConfiguration *> result;
+    // FIXME limit to frameworks
     for (Utils::TreeItem *frameworkRoot : *rootItem())
         result.append(static_cast<ITestTreeItem *>(frameworkRoot)->getFailedTestConfigurations());
     return result;
 }
 
-QList<TestConfiguration *> TestTreeModel::getTestsForFile(const Utils::FilePath &fileName) const
+QList<ITestConfiguration *> TestTreeModel::getTestsForFile(const Utils::FilePath &fileName) const
 {
-    QList<TestConfiguration *> result;
+    QList<ITestConfiguration *> result;
+    // FIXME limit to frameworks
     for (Utils::TreeItem *frameworkRoot : *rootItem())
         result.append(static_cast<TestTreeItem *>(frameworkRoot)->getTestConfigurationsForFile(fileName));
     return result;

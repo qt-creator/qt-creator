@@ -34,7 +34,7 @@
 
 namespace Autotest {
 
-class TestTreeItem;
+class ITestTreeItem;
 
 enum class ResultType {
     // result types (have icon, color, short text)
@@ -86,7 +86,7 @@ public:
     virtual ~TestResult() {}
 
     virtual const QString outputString(bool selected) const;
-    virtual const TestTreeItem *findTestTreeItem() const;
+    virtual const ITestTreeItem *findTestTreeItem() const;
 
     QString id() const { return m_id; }
     QString name() const { return m_name; }

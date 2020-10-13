@@ -90,7 +90,7 @@ bool BoostTestResult::isDirectParentOf(const TestResult *other, bool *needsInter
     return false;
 }
 
-const TestTreeItem *BoostTestResult::findTestTreeItem() const
+const ITestTreeItem *BoostTestResult::findTestTreeItem() const
 {
     auto id = Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix(BoostTest::Constants::FRAMEWORK_NAME);
     ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
@@ -102,7 +102,7 @@ const TestTreeItem *BoostTestResult::findTestTreeItem() const
     const auto foundItem = rootNode->findAnyChild([this](const Utils::TreeItem *item) {
         return matches(static_cast<const BoostTestTreeItem *>(item));
     });
-    return static_cast<const TestTreeItem *>(foundItem);
+    return static_cast<const ITestTreeItem *>(foundItem);
 }
 
 bool BoostTestResult::matches(const BoostTestTreeItem *item) const

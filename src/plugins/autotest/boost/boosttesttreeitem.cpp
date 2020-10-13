@@ -174,9 +174,9 @@ static QString handleSpecialFunctionNames(const QString &name)
     return result;
 }
 
-QList<TestConfiguration *> BoostTestTreeItem::getAllTestConfigurations() const
+QList<ITestConfiguration *> BoostTestTreeItem::getAllTestConfigurations() const
 {
-    QList<TestConfiguration *> result;
+    QList<ITestConfiguration *> result;
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     if (!project || type() != Root)
         return result;
@@ -216,10 +216,10 @@ QList<TestConfiguration *> BoostTestTreeItem::getAllTestConfigurations() const
     return result;
 }
 
-QList<TestConfiguration *> BoostTestTreeItem::getTestConfigurations(
+QList<ITestConfiguration *> BoostTestTreeItem::getTestConfigurations(
         std::function<bool(BoostTestTreeItem *)> predicate) const
 {
-    QList<TestConfiguration *> result;
+    QList<ITestConfiguration *> result;
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     if (!project || type() != Root)
         return result;
@@ -263,21 +263,21 @@ QList<TestConfiguration *> BoostTestTreeItem::getTestConfigurations(
     return result;
 }
 
-QList<TestConfiguration *> BoostTestTreeItem::getSelectedTestConfigurations() const
+QList<ITestConfiguration *> BoostTestTreeItem::getSelectedTestConfigurations() const
 {
     return getTestConfigurations([](BoostTestTreeItem *it) {
         return it->checked() == Qt::Checked;
     });
 }
 
-QList<TestConfiguration *> BoostTestTreeItem::getFailedTestConfigurations() const
+QList<ITestConfiguration *> BoostTestTreeItem::getFailedTestConfigurations() const
 {
     return getTestConfigurations([](BoostTestTreeItem *it) {
         return it->data(0, FailedRole).toBool();
     });
 }
 
-TestConfiguration *BoostTestTreeItem::testConfiguration() const
+ITestConfiguration *BoostTestTreeItem::testConfiguration() const
 {
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     QTC_ASSERT(project, return nullptr);
@@ -320,7 +320,7 @@ TestConfiguration *BoostTestTreeItem::testConfiguration() const
     return nullptr;
 }
 
-TestConfiguration *BoostTestTreeItem::debugConfiguration() const
+ITestConfiguration *BoostTestTreeItem::debugConfiguration() const
 {
     BoostTestConfiguration *config = static_cast<BoostTestConfiguration *>(testConfiguration());
     if (config)

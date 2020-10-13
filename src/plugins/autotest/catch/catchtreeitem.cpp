@@ -153,7 +153,7 @@ bool CatchTreeItem::canProvideDebugConfiguration() const
     return canProvideTestConfiguration();
 }
 
-TestConfiguration *CatchTreeItem::testConfiguration() const
+ITestConfiguration *CatchTreeItem::testConfiguration() const
 {
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     QTC_ASSERT(project, return nullptr);
@@ -171,7 +171,7 @@ TestConfiguration *CatchTreeItem::testConfiguration() const
     return config;
 }
 
-TestConfiguration *CatchTreeItem::debugConfiguration() const
+ITestConfiguration *CatchTreeItem::debugConfiguration() const
 {
     CatchConfiguration *config = static_cast<CatchConfiguration *>(testConfiguration());
     if (config)
@@ -240,19 +240,19 @@ static void collectFailedTestInfo(const CatchTreeItem *item,
     });
 }
 
-QList<TestConfiguration *> CatchTreeItem::getAllTestConfigurations() const
+QList<ITestConfiguration *> CatchTreeItem::getAllTestConfigurations() const
 {
     return getTestConfigurations(true);
 }
 
-QList<TestConfiguration *> CatchTreeItem::getSelectedTestConfigurations() const
+QList<ITestConfiguration *> CatchTreeItem::getSelectedTestConfigurations() const
 {
     return getTestConfigurations(false);
 }
 
-QList<TestConfiguration *> CatchTreeItem::getFailedTestConfigurations() const
+QList<ITestConfiguration *> CatchTreeItem::getFailedTestConfigurations() const
 {
-    QList<TestConfiguration *> result;
+    QList<ITestConfiguration *> result;
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     if (!project || type() != Root)
         return result;
@@ -274,9 +274,9 @@ QList<TestConfiguration *> CatchTreeItem::getFailedTestConfigurations() const
     return result;
 }
 
-QList<TestConfiguration *> CatchTreeItem::getTestConfigurationsForFile(const Utils::FilePath &fileName) const
+QList<ITestConfiguration *> CatchTreeItem::getTestConfigurationsForFile(const Utils::FilePath &fileName) const
 {
-    QList<TestConfiguration *> result;
+    QList<ITestConfiguration *> result;
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     if (!project || type() != Root)
         return result;
@@ -318,9 +318,9 @@ QString CatchTreeItem::stateSuffix() const
     return types.isEmpty() ? QString() : QString(" [" + types.join(", ") + ']');
 }
 
-QList<TestConfiguration *> CatchTreeItem::getTestConfigurations(bool ignoreCheckState) const
+QList<ITestConfiguration *> CatchTreeItem::getTestConfigurations(bool ignoreCheckState) const
 {
-    QList<TestConfiguration *> result;
+    QList<ITestConfiguration *> result;
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     if (!project || type() != Root)
         return result;

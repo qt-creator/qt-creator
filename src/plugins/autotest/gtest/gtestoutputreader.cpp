@@ -202,11 +202,11 @@ TestResultPtr GTestOutputReader::createDefaultResult() const
     result->setTestCaseName(m_currentTestCase);
     result->setIteration(m_iteration);
 
-    const TestTreeItem *testItem = result->findTestTreeItem();
+    const ITestTreeItem *testItem = result->findTestTreeItem();
 
     if (testItem && testItem->line()) {
         result->setFileName(testItem->filePath());
-        result->setLine(static_cast<int>(testItem->line()));
+        result->setLine(testItem->line());
     }
 
     return TestResultPtr(result);

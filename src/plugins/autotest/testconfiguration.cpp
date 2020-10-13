@@ -25,6 +25,7 @@
 
 #include "testconfiguration.h"
 
+#include "itestframework.h"
 #include "testoutputreader.h"
 #include "testrunconfiguration.h"
 
@@ -50,8 +51,59 @@ using namespace Utils;
 
 namespace Autotest {
 
+
+ITestConfiguration::ITestConfiguration(Autotest::ITestBase *testBase)
+    : m_testBase(testBase)
+{
+}
+
+void ITestConfiguration::setWorkingDirectory(const QString &workingDirectory)
+{
+    m_runnable.workingDirectory = workingDirectory;
+}
+
+QString ITestConfiguration::workingDirectory() const
+{
+    if (!m_runnable.workingDirectory.isEmpty()) {
+        const QFileInfo info(m_runnable.workingDirectory);
+        if (info.isDir()) // ensure wanted working dir does exist
+            return info.absoluteFilePath();
+    }
+
+    const QString executable = executableFilePath();
+    return executable.isEmpty() ? executable : QFileInfo(executable).absolutePath();
+}
+
+bool ITestConfiguration::hasExecutable() const
+{
+    return !m_runnable.executable.isEmpty();
+}
+
+QString ITestConfiguration::executableFilePath() const
+{
+    if (!hasExecutable())
+        return QString();
+
+    QFileInfo commandFileInfo = m_runnable.executable.toFileInfo();
+    if (commandFileInfo.isExecutable() && commandFileInfo.path() != ".") {
+        return commandFileInfo.absoluteFilePath();
+    } else if (commandFileInfo.path() == "."){
+        QString fullCommandFileName = m_runnable.executable.toString();
+        // TODO: check if we can use searchInPath() from Utils::Environment
+        const QStringList &pathList = m_runnable.environment.toProcessEnvironment().value("PATH")
+                .split(Utils::HostOsInfo::pathListSeparator());
+
+        for (const QString &path : pathList) {
+            QString filePath(path + QDir::separator() + fullCommandFileName);
+            if (QFileInfo(filePath).isExecutable())
+                return commandFileInfo.absoluteFilePath();
+        }
+    }
+    return QString();
+}
+
 TestConfiguration::TestConfiguration(ITestFramework *framework)
-    : m_framework(framework)
+    : ITestConfiguration(framework)
 {
 }
 
@@ -77,17 +129,17 @@ void TestConfiguration::completeTestInformation(ProjectExplorer::RunConfiguratio
                                                 TestRunMode runMode)
 {
     QTC_ASSERT(rc, return);
-    QTC_ASSERT(m_project, return);
+    QTC_ASSERT(project(), return);
 
     if (hasExecutable()) {
         qCDebug(LOG) << "Executable has been set already - not completing configuration again.";
         return;
     }
-    Project *project = SessionManager::startupProject();
-    if (!project || project != m_project)
+    Project *startupProject = SessionManager::startupProject();
+    if (!startupProject || startupProject != project())
         return;
 
-    Target *target = project->activeTarget();
+    Target *target = startupProject->activeTarget();
     if (!target)
         return;
 
@@ -95,7 +147,7 @@ void TestConfiguration::completeTestInformation(ProjectExplorer::RunConfiguratio
         return;
 
     m_runnable = rc->runnable();
-    m_displayName = rc->displayName();
+    setDisplayName(rc->displayName());
 
     BuildTargetInfo targetInfo = rc->buildTargetInfo();
     if (!targetInfo.targetFilePath.isEmpty())
@@ -104,7 +156,7 @@ void TestConfiguration::completeTestInformation(ProjectExplorer::RunConfiguratio
     QString buildBase;
     if (auto buildConfig = target->activeBuildConfiguration()) {
         buildBase = buildConfig->buildDirectory().toString();
-        const QString projBase = m_project->projectDirectory().toString();
+        const QString projBase = startupProject->projectDirectory().toString();
         if (m_projectFile.startsWith(projBase))
             m_buildDir = QFileInfo(buildBase + m_projectFile.mid(projBase.length())).absolutePath();
     }
@@ -116,7 +168,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
 {
     QTC_ASSERT(!m_projectFile.isEmpty(), return);
     QTC_ASSERT(!m_buildTargets.isEmpty(), return);
-    QTC_ASSERT(m_project, return);
+    QTC_ASSERT(project(), return);
 
     if (m_origRunConfig) {
         qCDebug(LOG) << "Using run configuration specified by user or found by first call";
@@ -129,13 +181,13 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
         }
         qCDebug(LOG) << "Failed to complete - using 'normal' way.";
     }
-    Project *project = SessionManager::startupProject();
-    if (!project || project != m_project) {
-        m_project = nullptr;
+    Project *startupProject = SessionManager::startupProject();
+    if (!startupProject || startupProject != project()) {
+        setProject(nullptr);
         return;
     }
 
-    Target *target = project->activeTarget();
+    Target *target = startupProject->activeTarget();
     if (!target)
         return;
     qCDebug(LOG) << "ActiveTargetName\n    " << target->displayName();
@@ -171,7 +223,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     QString buildBase;
     if (auto buildConfig = target->activeBuildConfiguration()) {
         buildBase = buildConfig->buildDirectory().toString();
-        const QString projBase = project->projectDirectory().toString();
+        const QString projBase = startupProject->projectDirectory().toString();
         if (m_projectFile.startsWith(projBase))
             m_buildDir = QFileInfo(buildBase + m_projectFile.mid(projBase.length())).absolutePath();
     }
@@ -211,7 +263,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
             m_origRunConfig = runConfig;
             m_runnable = runnable;
             m_runnable.executable = currentExecutable;
-            m_displayName = runConfig->displayName();
+            setDisplayName(runConfig->displayName());
             if (runMode == TestRunMode::Debug || runMode == TestRunMode::DebugWithoutDeploy)
                 m_runConfig = new Internal::TestRunConfiguration(target, this);
             break;
@@ -224,7 +276,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     // before installation) to have at least something to execute
     if (!hasExecutable() && !localExecutable.isEmpty())
         m_runnable.executable = localExecutable;
-    if (m_displayName.isEmpty() && hasExecutable()) {
+    if (displayName().isEmpty() && hasExecutable()) {
         qCDebug(LOG) << "   Fallback";
         // we failed to find a valid runconfiguration - but we've got the executable already
         if (auto rc = target->activeRunConfiguration()) {
@@ -242,8 +294,8 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
         }
     }
 
-    if (m_displayName.isEmpty()) // happens e.g. when deducing the TestConfiguration or error
-        m_displayName = (*buildSystemTargets.begin());
+    if (displayName().isEmpty()) // happens e.g. when deducing the TestConfiguration or error
+        setDisplayName(*buildSystemTargets.begin());
 }
 
 /**
@@ -258,12 +310,7 @@ void TestConfiguration::setTestCases(const QStringList &testCases)
 {
     m_testCases.clear();
     m_testCases << testCases;
-    m_testCaseCount = m_testCases.size();
-}
-
-void TestConfiguration::setTestCaseCount(int count)
-{
-    m_testCaseCount = count;
+    setTestCaseCount(m_testCases.size());
 }
 
 void TestConfiguration::setExecutableFile(const QString &executableFile)
@@ -276,29 +323,9 @@ void TestConfiguration::setProjectFile(const QString &projectFile)
     m_projectFile = projectFile;
 }
 
-void TestConfiguration::setWorkingDirectory(const QString &workingDirectory)
-{
-    m_runnable.workingDirectory = workingDirectory;
-}
-
 void TestConfiguration::setBuildDirectory(const QString &buildDirectory)
 {
     m_buildDir = buildDirectory;
-}
-
-void TestConfiguration::setDisplayName(const QString &displayName)
-{
-    m_displayName = displayName;
-}
-
-void TestConfiguration::setEnvironment(const Utils::Environment &env)
-{
-    m_runnable.environment = env;
-}
-
-void TestConfiguration::setProject(Project *project)
-{
-    m_project = project;
 }
 
 void TestConfiguration::setInternalTarget(const QString &target)
@@ -317,54 +344,14 @@ void TestConfiguration::setOriginalRunConfiguration(RunConfiguration *runConfig)
     m_origRunConfig = runConfig;
 }
 
-QString TestConfiguration::executableFilePath() const
-{
-    if (!hasExecutable())
-        return QString();
-
-    QFileInfo commandFileInfo = m_runnable.executable.toFileInfo();
-    if (commandFileInfo.isExecutable() && commandFileInfo.path() != ".") {
-        return commandFileInfo.absoluteFilePath();
-    } else if (commandFileInfo.path() == "."){
-        QString fullCommandFileName = m_runnable.executable.toString();
-        // TODO: check if we can use searchInPath() from Utils::Environment
-        const QStringList &pathList = m_runnable.environment.toProcessEnvironment().value("PATH")
-                .split(Utils::HostOsInfo::pathListSeparator());
-
-        foreach (const QString &path, pathList) {
-            QString filePath(path + QDir::separator() + fullCommandFileName);
-            if (QFileInfo(filePath).isExecutable())
-                return commandFileInfo.absoluteFilePath();
-        }
-    }
-    return QString();
-}
-
-QString TestConfiguration::workingDirectory() const
-{
-    if (!m_runnable.workingDirectory.isEmpty()) {
-        const QFileInfo info(m_runnable.workingDirectory);
-        if (info.isDir()) // ensure wanted working dir does exist
-            return info.absoluteFilePath();
-    }
-
-    const QString executable = executableFilePath();
-    return executable.isEmpty() ? executable : QFileInfo(executable).absolutePath();
-}
-
 bool DebuggableTestConfiguration::isDebugRunMode() const
 {
     return m_runMode == TestRunMode::Debug || m_runMode == TestRunMode::DebugWithoutDeploy;
 }
 
-bool TestConfiguration::hasExecutable() const
-{
-    return !m_runnable.executable.isEmpty();
-}
-
 ITestFramework *TestConfiguration::framework() const
 {
-    return m_framework;
+    return static_cast<ITestFramework *>(testBase());
 }
 
 } // namespace Autotest

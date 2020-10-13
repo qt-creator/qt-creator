@@ -631,7 +631,9 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
     menu.addAction(action);
 
     action = new QAction(tr("Debug This Test"), &menu);
-    action->setEnabled(correlatingItem && correlatingItem->canProvideDebugConfiguration());
+    // FIXME limit to Test Frameworks
+    auto testTreeItem = static_cast<const TestTreeItem *>(correlatingItem);
+    action->setEnabled(testTreeItem && testTreeItem->canProvideDebugConfiguration());
     connect(action, &QAction::triggered, this, [this, clicked] {
         onRunThisTestTriggered(TestRunMode::Debug, clicked);
     });
@@ -681,7 +683,7 @@ void TestResultsPane::onRunThisTestTriggered(TestRunMode runMode, const TestResu
 {
     QTC_ASSERT(result, return);
 
-    const TestTreeItem *item = result->findTestTreeItem();
+    const ITestTreeItem *item = result->findTestTreeItem();
 
     if (item)
         TestRunner::instance()->runTest(runMode, item);

@@ -108,7 +108,7 @@ void BoostTestOutputReader::sendCompleteInformation()
     if (m_lineNumber) {
         result->setLine(m_lineNumber);
         result->setFileName(m_fileName);
-    } else if (const TestTreeItem *it = result->findTestTreeItem()) {
+    } else if (const ITestTreeItem *it = result->findTestTreeItem()) {
         result->setLine(it->line());
         result->setFileName(it->filePath());
     }

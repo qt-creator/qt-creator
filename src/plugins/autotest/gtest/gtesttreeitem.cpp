@@ -162,7 +162,7 @@ QVariant GTestTreeItem::data(int column, int role) const
     return TestTreeItem::data(column, role);
 }
 
-TestConfiguration *GTestTreeItem::testConfiguration() const
+ITestConfiguration *GTestTreeItem::testConfiguration() const
 {
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     QTC_ASSERT(project, return nullptr);
@@ -199,7 +199,7 @@ TestConfiguration *GTestTreeItem::testConfiguration() const
     return config;
 }
 
-TestConfiguration *GTestTreeItem::debugConfiguration() const
+ITestConfiguration *GTestTreeItem::debugConfiguration() const
 {
     GTestConfiguration *config = static_cast<GTestConfiguration *>(testConfiguration());
     if (config)
@@ -267,9 +267,9 @@ static void collectFailedTestInfo(const GTestTreeItem *item,
     });
 }
 
-QList<TestConfiguration *> GTestTreeItem::getTestConfigurations(bool ignoreCheckState) const
+QList<ITestConfiguration *> GTestTreeItem::getTestConfigurations(bool ignoreCheckState) const
 {
-    QList<TestConfiguration *> result;
+    QList<ITestConfiguration *> result;
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     if (!project || type() != Root)
         return result;
@@ -296,19 +296,19 @@ QList<TestConfiguration *> GTestTreeItem::getTestConfigurations(bool ignoreCheck
     return result;
 }
 
-QList<TestConfiguration *> GTestTreeItem::getAllTestConfigurations() const
+QList<ITestConfiguration *> GTestTreeItem::getAllTestConfigurations() const
 {
     return getTestConfigurations(true);
 }
 
-QList<TestConfiguration *> GTestTreeItem::getSelectedTestConfigurations() const
+QList<ITestConfiguration *> GTestTreeItem::getSelectedTestConfigurations() const
 {
     return getTestConfigurations(false);
 }
 
-QList<TestConfiguration *> GTestTreeItem::getFailedTestConfigurations() const
+QList<ITestConfiguration *> GTestTreeItem::getFailedTestConfigurations() const
 {
-    QList<TestConfiguration *> result;
+    QList<ITestConfiguration *> result;
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     if (!project || type() != Root)
         return result;
@@ -331,9 +331,9 @@ QList<TestConfiguration *> GTestTreeItem::getFailedTestConfigurations() const
     return result;
 }
 
-QList<TestConfiguration *> GTestTreeItem::getTestConfigurationsForFile(const Utils::FilePath &fileName) const
+QList<ITestConfiguration *> GTestTreeItem::getTestConfigurationsForFile(const Utils::FilePath &fileName) const
 {
-    QList<TestConfiguration *> result;
+    QList<ITestConfiguration *> result;
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     if (!project || type() != Root)
         return result;

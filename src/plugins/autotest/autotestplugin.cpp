@@ -329,7 +329,7 @@ void AutotestPluginPrivate::onRunSelectedTriggered()
 
 void AutotestPluginPrivate::onRunFailedTriggered()
 {
-    const QList<TestConfiguration *> failed = m_testTreeModel.getFailedTests();
+    const QList<ITestConfiguration *> failed = m_testTreeModel.getFailedTests();
     if (failed.isEmpty()) // the framework might not be able to provide them
         return;
     m_testRunner.setSelectedTests(failed);
@@ -346,7 +346,7 @@ void AutotestPluginPrivate::onRunFileTriggered()
     if (fileName.isEmpty())
         return;
 
-    const QList<TestConfiguration *> tests = m_testTreeModel.getTestsForFile(fileName);
+    const QList<ITestConfiguration *> tests = m_testTreeModel.getTestsForFile(fileName);
     if (tests.isEmpty())
         return;
 
@@ -354,12 +354,12 @@ void AutotestPluginPrivate::onRunFileTriggered()
     m_testRunner.prepareToRunTests(TestRunMode::Run);
 }
 
-static QList<TestConfiguration *> testItemsToTestConfigurations(const QList<TestTreeItem *> &items,
+static QList<ITestConfiguration *> testItemsToTestConfigurations(const QList<TestTreeItem *> &items,
                                                                 TestRunMode mode)
 {
-    QList<TestConfiguration *> configs;
+    QList<ITestConfiguration *> configs;
     for (const TestTreeItem * item : items) {
-        if (TestConfiguration *currentConfig = item->asConfiguration(mode))
+        if (ITestConfiguration *currentConfig = item->asConfiguration(mode))
             configs << currentConfig;
     }
     return configs;
@@ -385,7 +385,7 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
         return it->line() == line && it->filePath() == filePath;
     });
 
-    const QList<TestConfiguration *> testsToRun = testItemsToTestConfigurations(
+    const QList<ITestConfiguration *> testsToRun = testItemsToTestConfigurations(
                 filteredItems.size() == 1 ? filteredItems : testsItems, mode);
 
     if (testsToRun.isEmpty()) {

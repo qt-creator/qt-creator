@@ -57,12 +57,12 @@ public:
     QVariant data(int column, int role) const override;
     bool canProvideTestConfiguration() const override { return type() != Root; }
     bool canProvideDebugConfiguration() const override { return type() != Root; }
-    TestConfiguration *testConfiguration() const override;
-    TestConfiguration *debugConfiguration() const override;
-    QList<TestConfiguration *> getAllTestConfigurations() const override;
-    QList<TestConfiguration *> getSelectedTestConfigurations() const override;
-    QList<TestConfiguration *> getFailedTestConfigurations() const override;
-    QList<TestConfiguration *> getTestConfigurationsForFile(const Utils::FilePath &fileName) const override;
+    ITestConfiguration *testConfiguration() const override;
+    ITestConfiguration *debugConfiguration() const override;
+    QList<ITestConfiguration *> getAllTestConfigurations() const override;
+    QList<ITestConfiguration *> getSelectedTestConfigurations() const override;
+    QList<ITestConfiguration *> getFailedTestConfigurations() const override;
+    QList<ITestConfiguration *> getTestConfigurationsForFile(const Utils::FilePath &fileName) const override;
     TestTreeItem *find(const TestParseResult *result) override;
     TestTreeItem *findChild(const TestTreeItem *other) override;
     bool modify(const TestParseResult *result) override;
@@ -82,7 +82,7 @@ public:
     bool shouldBeAddedAfterFiltering() const override;
 private:
     bool modifyTestSetContent(const GTestParseResult *result);
-    QList<TestConfiguration *> getTestConfigurations(bool ignoreCheckState) const;
+    QList<ITestConfiguration *> getTestConfigurations(bool ignoreCheckState) const;
     GTestTreeItem::TestStates m_state;
 };
 

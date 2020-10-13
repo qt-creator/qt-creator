@@ -46,7 +46,7 @@ namespace ProjectExplorer { class Project; }
 namespace Autotest {
 
 enum class TestRunMode;
-class TestConfiguration;
+class ITestConfiguration;
 class TestOutputReader;
 
 namespace Internal {
@@ -63,8 +63,8 @@ public:
 
     static TestRunner* instance();
 
-    void setSelectedTests(const QList<TestConfiguration *> &selected);
-    void runTest(TestRunMode mode, const TestTreeItem *item);
+    void setSelectedTests(const QList<ITestConfiguration *> &selected);
+    void runTest(TestRunMode mode, const ITestTreeItem *item);
     bool isTestRunning() const { return m_executingTests; }
 
     void prepareToRunTests(TestRunMode mode);
@@ -84,6 +84,9 @@ private:
     void onFinished();
 
     int precheckTestConfigurations();
+    bool currentConfigValid();
+    void setUpProcess();
+    void setUpProcessEnv();
     void scheduleNext();
     void cancelCurrent(CancelReason reason);
     void onProcessFinished();
@@ -98,10 +101,10 @@ private:
 
     QFutureWatcher<TestResultPtr> m_futureWatcher;
     QFutureInterface<TestResultPtr> *m_fakeFutureInterface = nullptr;
-    QQueue<TestConfiguration *> m_selectedTests;
+    QQueue<ITestConfiguration *> m_selectedTests;
     bool m_executingTests = false;
     bool m_canceled = false;
-    TestConfiguration *m_currentConfig = nullptr;
+    ITestConfiguration *m_currentConfig = nullptr;
     QProcess *m_currentProcess = nullptr;
     TestOutputReader *m_currentOutputReader = nullptr;
     TestRunMode m_runMode = TestRunMode::None;

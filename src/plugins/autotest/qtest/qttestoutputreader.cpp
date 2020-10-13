@@ -479,10 +479,10 @@ void QtTestOutputReader::sendCompleteInformation()
         testResult->setFileName(m_file);
         testResult->setLine(m_lineNumber);
     } else {
-        const TestTreeItem *testItem = testResult->findTestTreeItem();
+        const ITestTreeItem *testItem = testResult->findTestTreeItem();
         if (testItem && testItem->line()) {
             testResult->setFileName(testItem->filePath());
-            testResult->setLine(static_cast<int>(testItem->line()));
+            testResult->setLine(testItem->line());
         }
     }
     testResult->setDescription(m_description);
@@ -503,10 +503,10 @@ void QtTestOutputReader::sendStartMessage(bool isFunction)
     testResult->setResult(ResultType::TestStart);
     testResult->setDescription(isFunction ? tr("Executing test function %1").arg(m_testCase)
                                           : tr("Executing test case %1").arg(m_className));
-    const TestTreeItem *testItem = testResult->findTestTreeItem();
+    const ITestTreeItem *testItem = testResult->findTestTreeItem();
     if (testItem && testItem->line()) {
         testResult->setFileName(testItem->filePath());
-        testResult->setLine(static_cast<int>(testItem->line()));
+        testResult->setLine(testItem->line());
     }
     reportResult(testResult);
 }

@@ -59,16 +59,16 @@ public:
 
     bool canProvideTestConfiguration() const override;
     bool canProvideDebugConfiguration() const override;
-    TestConfiguration *testConfiguration() const override;
-    TestConfiguration *debugConfiguration() const override;
-    QList<TestConfiguration *> getAllTestConfigurations() const override;
-    QList<TestConfiguration *> getSelectedTestConfigurations() const override;
-    QList<TestConfiguration *> getFailedTestConfigurations() const override;
-    QList<TestConfiguration *> getTestConfigurationsForFile(const Utils::FilePath &fileName) const override;
+    ITestConfiguration *testConfiguration() const override;
+    ITestConfiguration *debugConfiguration() const override;
+    QList<ITestConfiguration *> getAllTestConfigurations() const override;
+    QList<ITestConfiguration *> getSelectedTestConfigurations() const override;
+    QList<ITestConfiguration *> getFailedTestConfigurations() const override;
+    QList<ITestConfiguration *> getTestConfigurationsForFile(const Utils::FilePath &fileName) const override;
 
 private:
     QString stateSuffix() const;
-    QList<TestConfiguration *> getTestConfigurations(bool ignoreCheckState) const;
+    QList<ITestConfiguration *> getTestConfigurations(bool ignoreCheckState) const;
     TestStates m_state = Normal;
 };
 
