@@ -76,7 +76,18 @@ bool Type::isReferencingConstant() const
 
 bool Type::isOutputArgument() const
 {
-    return isLValueReference() && !pointeeType().isConstant();
+    if (isLValueReference() && !pointeeType().isConstant())
+        return true;
+
+    // We consider a pointer an output argument if it is non-const at any level.
+    // This is consistent with how we categorize references in CppTools.
+    Type t = *this;
+    while (t.isPointer()) {
+        t = t.pointeeType();
+        if (!t.isConstant())
+            return true;
+    }
+    return false;
 }
 
 bool Type::isBuiltinType() const
