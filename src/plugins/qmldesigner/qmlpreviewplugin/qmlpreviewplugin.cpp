@@ -84,7 +84,9 @@ QmlPreviewPlugin::QmlPreviewPlugin()
     if (s_previewPlugin) {
         auto fpsAction = new FpsAction;
         designerActionManager.addDesignerAction(fpsAction);
-        s_previewPlugin->setProperty("fpsHandler", QVariant::fromValue<QmlPreview::QmlPreviewFpsHandler>(FpsLabelAction::fpsHandler));
+        bool hasFpsHandler =
+            s_previewPlugin->setProperty("fpsHandler", QVariant::fromValue<QmlPreview::QmlPreviewFpsHandler>(FpsLabelAction::fpsHandler));
+        QTC_CHECK(hasFpsHandler);
         auto switchLanguageAction = new SwitchLanguageAction;
         designerActionManager.addDesignerAction(switchLanguageAction);
     }
@@ -132,7 +134,9 @@ void QmlPreviewPlugin::setQmlFile()
     if (s_previewPlugin) {
         const Utils::FilePath qmlFileName =
                 QmlDesignerPlugin::instance()->currentDesignDocument()->fileName();
-        s_previewPlugin->setProperty("previewedFile", qmlFileName.toString());
+        bool hasPreviewedFile =
+            s_previewPlugin->setProperty("previewedFile", qmlFileName.toString());
+        QTC_CHECK(hasPreviewedFile);
     }
 }
 
@@ -146,14 +150,18 @@ float QmlPreviewPlugin::zoomFactor()
 
 void QmlPreviewPlugin::setZoomFactor(float zoomFactor)
 {
-    if (s_previewPlugin)
-        s_previewPlugin->setProperty("zoomFactor", zoomFactor);
+    if (s_previewPlugin) {
+        bool hasZoomFactor = s_previewPlugin->setProperty("zoomFactor", zoomFactor);
+        QTC_CHECK(hasZoomFactor);
+    }
 }
 
 void QmlPreviewPlugin::setLanguageLocale(const QString &locale)
 {
-    if (auto s_previewPlugin = getPreviewPlugin())
-        s_previewPlugin->setProperty("locale", locale);
+    if (auto s_previewPlugin = getPreviewPlugin()) {
+        bool hasLocaleIsoCode = s_previewPlugin->setProperty("localeIsoCode", locale);
+        QTC_CHECK(hasLocaleIsoCode);
+    }
 }
 
 QObject *QmlPreviewPlugin::getPreviewPlugin()
