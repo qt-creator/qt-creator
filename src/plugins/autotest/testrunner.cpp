@@ -307,13 +307,14 @@ void TestRunner::onProcessFinished()
         QTC_CHECK(m_fakeFutureInterface);
         m_fakeFutureInterface->setProgressValue(m_fakeFutureInterface->progressValue()
                                                 + m_currentConfig->testCaseCount());
-        if (!m_fakeFutureInterface->isCanceled()) {
+        if (m_currentProcess && !m_fakeFutureInterface->isCanceled()) {
             if (m_currentProcess->exitStatus() == QProcess::CrashExit) {
-                m_currentOutputReader->reportCrash();
+                if (m_currentOutputReader)
+                    m_currentOutputReader->reportCrash();
                 reportResult(ResultType::MessageFatal,
                         tr("Test for project \"%1\" crashed.").arg(m_currentConfig->displayName())
                         + processInformation(m_currentProcess) + rcInfo(m_currentConfig));
-            } else if (!m_currentOutputReader->hadValidOutput()) {
+            } else if (m_currentOutputReader && !m_currentOutputReader->hadValidOutput()) {
                 reportResult(ResultType::MessageFatal,
                     tr("Test for project \"%1\" did not produce any expected output.")
                     .arg(m_currentConfig->displayName()) + processInformation(m_currentProcess)
