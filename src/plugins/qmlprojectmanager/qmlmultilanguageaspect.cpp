@@ -95,7 +95,7 @@ void QmlMultiLanguageAspect::setCurrentLocale(const QString &locale)
         return;
     m_currentLocale = locale;
     if (auto previewPlugin = getPreviewPlugin())
-        previewPlugin->setProperty("locale", locale);
+        previewPlugin->setProperty("localeIsoCode", locale);
 }
 
 QString QmlMultiLanguageAspect::currentLocale() const
