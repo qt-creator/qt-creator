@@ -1119,6 +1119,10 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         differenceHandler.typeDiffers(isRootNode, modelNode, typeName,
                                       majorVersion, minorVersion,
                                       astNode, context);
+
+        if (!modelNode.isValid())
+            return;
+
         if (!isRootNode && modelNode.majorVersion() != -1 && modelNode.minorVersion() != -1) {
             qWarning() << "Preempting Node sync. Type differs" << modelNode <<
                           modelNode.majorVersion() << modelNode.minorVersion();
