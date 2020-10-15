@@ -24,8 +24,6 @@ Help
 Editing
 -------
 
-* Added option to adjust line spacing (QTCREATORBUG-13727)
-
 ### C++
 
 * Added refactoring action that creates getters and setters for all class members
