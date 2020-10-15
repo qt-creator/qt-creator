@@ -870,16 +870,18 @@ TEST_F(TokenProcessor, LessThanOperator)
 
 TEST_F(TokenProcessor, LessThanPunctuation)
 {
-    const auto infos = translationUnit.tokenInfosInRange(sourceRange(247, 19));
+    const auto infos = translationUnit.tokenInfosInRange(sourceRange(247, 10));
 
-    ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Punctuation));
+    ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Punctuation,
+                                      HighlightingType::AngleBracketOpen));
 }
 
 TEST_F(TokenProcessor, GreaterThanPunctuation)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(247, 19));
 
-    ASSERT_THAT(infos[4], HasOnlyType(HighlightingType::Punctuation));
+    ASSERT_THAT(infos[4], HasTwoTypes(HighlightingType::Punctuation,
+                                      HighlightingType::AngleBracketClose));
 }
 
 TEST_F(TokenProcessor, Comment)
@@ -1139,7 +1141,8 @@ TEST_F(TokenProcessor, StaticCastPunctation)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(328, 64));
 
-    ASSERT_THAT(infos[1], HasOnlyType(HighlightingType::Punctuation));
+    ASSERT_THAT(infos[1], HasTwoTypes(HighlightingType::Punctuation,
+                                      HighlightingType::AngleBracketOpen));
     ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::Punctuation));
     ASSERT_THAT(infos[5], HasOnlyType(HighlightingType::Punctuation));
 }

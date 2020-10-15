@@ -112,6 +112,8 @@ bool ignore(ClangBackEnd::HighlightingType type)
     case HighlightingType::ObjectiveCMethod:
     case HighlightingType::TemplateTypeParameter:
     case HighlightingType::TemplateTemplateParameter:
+    case HighlightingType::AngleBracketOpen:
+    case HighlightingType::AngleBracketClose:
         return true;
     }
 
@@ -136,9 +138,15 @@ TextEditor::TextStyles toTextStyles(ClangBackEnd::HighlightingTypes types)
 TextEditor::HighlightingResult toHighlightingResult(
         const ClangBackEnd::TokenInfoContainer &tokenInfo)
 {
+    using ClangBackEnd::HighlightingType;
     const auto textStyles = toTextStyles(tokenInfo.types);
-
-    return {tokenInfo.line, tokenInfo.column, tokenInfo.length, textStyles};
+    TextEditor::HighlightingResult result(tokenInfo.line, tokenInfo.column, tokenInfo.length,
+                                          textStyles);
+    if (tokenInfo.types.mixinHighlightingTypes.contains(HighlightingType::AngleBracketOpen))
+        result.kind = 1;
+    else if (tokenInfo.types.mixinHighlightingTypes.contains(HighlightingType::AngleBracketClose))
+        result.kind = 2;
+    return result;
 }
 
 } // anonymous

@@ -591,6 +591,14 @@ void TokenInfo::punctuationOrOperatorKind()
             break;
     }
 
+    if (m_types.mixinHighlightingTypes.empty() && kind != CXCursor_InclusionDirective) {
+        const ClangString spelling = m_token->spelling();
+        if (spelling == "<")
+            m_types.mixinHighlightingTypes.push_back(HighlightingType::AngleBracketOpen);
+        else if (spelling == ">")
+            m_types.mixinHighlightingTypes.push_back(HighlightingType::AngleBracketClose);
+    }
+
     if (isOutputArgument())
         m_types.mixinHighlightingTypes.push_back(HighlightingType::OutputArgument);
 }

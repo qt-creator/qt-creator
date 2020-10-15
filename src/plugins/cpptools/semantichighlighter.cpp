@@ -29,6 +29,7 @@
 #include <texteditor/semantichighlighter.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
+#include <texteditor/textdocumentlayout.h>
 
 #include <utils/qtcassert.h>
 
@@ -159,6 +160,28 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
     QTC_ASSERT(highlighter, return);
     incrementalApplyExtraAdditionalFormats(highlighter, m_watcher->future(), from, to, m_formatMap,
                                            &splitRawStringLiteral);
+
+    // Add information about angle brackets, so they can be highlighted/animated.
+    QPair<QTextBlock, Parentheses> parentheses;
+    for (int i = from; i < to; ++i) {
+        const HighlightingResult &result = m_watcher->future().resultAt(i);
+        if (result.kind == 0)
+            continue;
+        if (parentheses.first.isValid() && result.line - 1 > parentheses.first.blockNumber()) {
+            TextDocumentLayout::setParentheses(parentheses.first, parentheses.second);
+            parentheses = {};
+        }
+        if (!parentheses.first.isValid()) {
+            parentheses.first = m_baseTextDocument->document()->findBlockByNumber(result.line - 1);
+            parentheses.second = TextDocumentLayout::parentheses(parentheses.first);
+        }
+        if (result.kind == 1)
+            parentheses.second << Parenthesis(Parenthesis::Opened, '<', result.column - 1);
+        else
+            parentheses.second << Parenthesis(Parenthesis::Closed, '>', result.column - 1);
+    }
+    if (parentheses.first.isValid())
+        TextDocumentLayout::setParentheses(parentheses.first, parentheses.second);
 }
 
 void SemanticHighlighter::onHighlighterFinished()
