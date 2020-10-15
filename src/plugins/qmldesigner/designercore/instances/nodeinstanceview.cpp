@@ -1496,7 +1496,11 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
         if (hasModelNodeForInternalId(container.instanceId()) && !image.isNull()) {
             auto node = modelNodeForInternalId(container.instanceId());
             if (node.isValid()) {
+#ifndef QMLDESIGNER_TEST
                 const double ratio = QmlDesignerPlugin::formEditorDevicePixelRatio();
+#else
+                const double ratio = 1;
+#endif
                 const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
                 if (image.height() != dim || image.width() != dim)
                     image = image.scaled(dim, dim, Qt::KeepAspectRatio);
@@ -1544,7 +1548,12 @@ void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node, const
             } else if (node.isComponent()) {
                 componentPath = node.metaInfo().componentFileName();
             }
-            const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * QmlDesignerPlugin::formEditorDevicePixelRatio();
+#ifndef QMLDESIGNER_TEST
+                const double ratio = QmlDesignerPlugin::formEditorDevicePixelRatio();
+#else
+                const double ratio = 1;
+#endif
+            const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
             m_nodeInstanceServer->requestModelNodePreviewImage(
                         RequestModelNodePreviewImageCommand(instance.instanceId(), QSize(dim, dim),
                                                             componentPath, renderItemId));
@@ -1589,7 +1598,11 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
     ModelNodePreviewImageData imageData;
     imageData.id = modelNode.id();
     imageData.type = QString::fromLatin1(modelNode.type());
-    const double ratio = QmlDesignerPlugin::formEditorDevicePixelRatio();
+#ifndef QMLDESIGNER_TEST
+                const double ratio = QmlDesignerPlugin::formEditorDevicePixelRatio();
+#else
+                const double ratio = 1;
+#endif
 
     if (imageSource.isEmpty() && modelNode.isSubclassOf("QtQuick3D.Texture")) {
         // Texture node may have sourceItem instead
