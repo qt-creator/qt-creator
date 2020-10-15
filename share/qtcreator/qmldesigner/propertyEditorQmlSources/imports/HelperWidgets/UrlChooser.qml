@@ -221,7 +221,7 @@ RowLayout {
         onClicked: {
             fileModel.openFileDialog()
             if (fileModel.path !== "")
-                urlChooser.backendValue.value = fileModel.path
+                urlChooser.backendValue.value = fileModel.fileName
         }
     }
 }
