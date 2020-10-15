@@ -75,6 +75,17 @@ using namespace QmakeProjectManager::Internal;
 
 namespace QmakeProjectManager {
 
+class RunSystemAspect : public TriStateAspect
+{
+    Q_OBJECT
+public:
+    RunSystemAspect() : TriStateAspect(tr("Run"), tr("Ignore"), tr("Use global setting"))
+    {
+        setSettingsKey("RunSystemFunction");
+        setDisplayName(tr("qmake system() behavior when parsing:"));
+    }
+};
+
 QmakeExtraBuildInfo::QmakeExtraBuildInfo()
 {
     const BuildPropertiesSettings &settings = ProjectExplorerPlugin::buildPropertiesSettings();
@@ -198,6 +209,8 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Utils::Id id)
         emit qmakeBuildConfigurationChanged();
         qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
     });
+
+    addAspect<RunSystemAspect>();
 }
 
 QmakeBuildConfiguration::~QmakeBuildConfiguration()
@@ -437,6 +450,17 @@ TriState QmakeBuildConfiguration::useQtQuickCompiler() const
 void QmakeBuildConfiguration::forceQtQuickCompiler(bool enable)
 {
     aspect<QtQuickCompilerAspect>()->setSetting(enable ? TriState::Enabled : TriState::Disabled);
+}
+
+bool QmakeBuildConfiguration::runSystemFunction() const
+{
+    switch (aspect<RunSystemAspect>()->value()) {
+    case 0:
+        return true;
+    case 1:
+        return false;
+    }
+    return QmakeSettings::runSystemFunction();
 }
 
 QStringList QmakeBuildConfiguration::configCommandLineArguments() const
@@ -875,3 +899,5 @@ void QmakeBuildConfiguration::restrictNextBuild(const RunConfiguration *rc)
 }
 
 } // namespace QmakeProjectManager
+
+#include <qmakebuildconfiguration.moc>

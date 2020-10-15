@@ -931,8 +931,10 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
                     else if (!m_tmp2.compare(QLatin1String("lines"), Qt::CaseInsensitive))
                         lines = true;
                 }
-                int exitCode;
-                QByteArray bytes = getCommandOutput(args.at(0).toQString(), &exitCode);
+                int exitCode = 0;
+                QByteArray bytes;
+                if (m_option->runSystemFunction)
+                     bytes = getCommandOutput(args.at(0).toQString(), &exitCode);
                 if (args.count() > 2 && !args.at(2).isEmpty()) {
                     m_valuemapStack.top()[args.at(2).toKey()] =
                             ProStringList(ProString(QString::number(exitCode)));
@@ -1778,6 +1780,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             evalError(fL1S("system(exec) requires one argument."));
             return ReturnFalse;
         }
+        if (!m_option->runSystemFunction)
+            return ReturnTrue;
         if (m_cumulative) // Anything else would be insanity
             return ReturnFalse;
 #ifndef QT_BOOTSTRAPPED

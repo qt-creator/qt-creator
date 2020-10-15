@@ -37,6 +37,7 @@ class QmakeSettingsData {
 public:
     bool warnAgainstUnalignedBuildDir = false;
     bool alwaysRunQmake = false;
+    bool runSystemFunction = false;
 };
 
 class QmakeSettings : public QObject
@@ -46,6 +47,7 @@ public:
     static QmakeSettings &instance();
     static bool warnAgainstUnalignedBuildDir();
     static bool alwaysRunQmake();
+    static bool runSystemFunction();
     static void setSettingsData(const QmakeSettingsData &settings);
 
 signals:

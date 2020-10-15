@@ -797,6 +797,7 @@ QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFi
             m_qmakeGlobals->environment.insert(env.key(eit), env.expandedValueForKey(env.key(eit)));
 
         m_qmakeGlobals->setCommandLineArguments(buildDir(rootProFile()->filePath()).toString(), qmakeArgs);
+        m_qmakeGlobals->runSystemFunction = bc->runSystemFunction();
 
         QtSupport::ProFileCacheManager::instance()->incRefCount();
 

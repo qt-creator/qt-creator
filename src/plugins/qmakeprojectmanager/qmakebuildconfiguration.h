@@ -106,6 +106,8 @@ public:
     Utils::TriState useQtQuickCompiler() const;
     void forceQtQuickCompiler(bool enable);
 
+    bool runSystemFunction() const;
+
 signals:
     /// emitted for setQMakeBuildConfig, not emitted for Qt version changes, even
     /// if those change the qmakebuildconfig
