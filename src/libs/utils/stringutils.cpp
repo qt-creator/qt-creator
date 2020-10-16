@@ -393,4 +393,68 @@ QString formatElapsedTime(qint64 elapsed)
     return QCoreApplication::translate("StringUtils", "Elapsed time: %1.").arg(time);
 }
 
+/*
+ * Basically QRegularExpression::wildcardToRegularExpression(), but let wildcards match
+ * path separators as well
+ */
+QString wildcardToRegularExpression(const QString &original)
+{
+    const qsizetype wclen = original.size();
+    QString rx;
+    rx.reserve(wclen + wclen / 16);
+    qsizetype i = 0;
+    const QChar *wc = original.data();
+
+    const QLatin1String starEscape(".*");
+    const QLatin1String questionMarkEscape(".");
+
+    while (i < wclen) {
+        const QChar c = wc[i++];
+        switch (c.unicode()) {
+        case '*':
+            rx += starEscape;
+            break;
+        case '?':
+            rx += questionMarkEscape;
+            break;
+        case '\\':
+        case '$':
+        case '(':
+        case ')':
+        case '+':
+        case '.':
+        case '^':
+        case '{':
+        case '|':
+        case '}':
+            rx += QLatin1Char('\\');
+            rx += c;
+            break;
+        case '[':
+            rx += c;
+            // Support for the [!abc] or [!a-c] syntax
+            if (i < wclen) {
+                if (wc[i] == QLatin1Char('!')) {
+                    rx += QLatin1Char('^');
+                    ++i;
+                }
+
+                if (i < wclen && wc[i] == QLatin1Char(']'))
+                    rx += wc[i++];
+
+                while (i < wclen && wc[i] != QLatin1Char(']')) {
+                    if (wc[i] == QLatin1Char('\\'))
+                        rx += QLatin1Char('\\');
+                    rx += wc[i++];
+                }
+            }
+            break;
+        default:
+            rx += c;
+            break;
+        }
+    }
+
+    return QRegularExpression::anchoredPattern(rx);
+}
 } // namespace Utils

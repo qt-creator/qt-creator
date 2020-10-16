@@ -38,6 +38,7 @@
 #include <utils/algorithm.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QThread>
 
@@ -67,7 +68,7 @@ void CppcheckTool::updateOptions(const CppcheckOptions &options)
         if (trimmedPattern.isEmpty())
             continue;
 
-        const QRegularExpression re(QRegularExpression::wildcardToRegularExpression(trimmedPattern));
+        const QRegularExpression re(Utils::wildcardToRegularExpression(trimmedPattern));
         if (re.isValid())
             m_filters.push_back(re);
     }

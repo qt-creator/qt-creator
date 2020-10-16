@@ -29,6 +29,7 @@
 #include "fileutils.h"
 #include "mapreduce.h"
 #include "qtcassert.h"
+#include "stringutils.h"
 
 #include <QCoreApplication>
 #include <QMutex>
@@ -474,7 +475,7 @@ QString matchCaseReplacement(const QString &originalText, const QString &replace
 static QList<QRegularExpression> filtersToRegExps(const QStringList &filters)
 {
     return Utils::transform(filters, [](const QString &filter) {
-        return QRegularExpression(QRegularExpression::wildcardToRegularExpression(filter),
+        return QRegularExpression(Utils::wildcardToRegularExpression(filter),
                                   QRegularExpression::CaseInsensitiveOption);
     });
 }
