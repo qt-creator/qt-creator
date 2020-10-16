@@ -39,10 +39,10 @@
 
 namespace DesignTools {
 
-CurveEditorModel::CurveEditorModel(double minTime, double maxTime, QObject *parent)
+CurveEditorModel::CurveEditorModel(QObject *parent)
     : TreeModel(parent)
-    , m_minTime(minTime)
-    , m_maxTime(maxTime)
+    , m_minTime(CurveEditorStyle::defaultTimeMin)
+    , m_maxTime(CurveEditorStyle::defaultTimeMax)
 {}
 
 CurveEditorModel::~CurveEditorModel() {}

@@ -67,6 +67,10 @@ public:
 
     double maximumValue() const;
 
+    double animationRangeMin() const;
+
+    double animationRangeMax() const;
+
     QRectF rect() const;
 
     QVector<CurveItem *> curves() const;

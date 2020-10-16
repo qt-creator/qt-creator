@@ -57,7 +57,7 @@ signals:
     void curveChanged(PropertyTreeItem *item);
 
 public:
-    CurveEditorModel(double minTime, double maxTime, QObject *parent = nullptr);
+    CurveEditorModel(QObject *parent = nullptr);
 
     ~CurveEditorModel() override;
 

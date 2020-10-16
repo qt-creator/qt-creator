@@ -105,6 +105,13 @@ struct Shortcuts
 
 struct CurveEditorStyle
 {
+    static constexpr double defaultTimeMin = 0.0;
+    static constexpr double defaultTimeMax = 100.0;
+    static constexpr double defaultValueMin = -1.0;
+    static constexpr double defaultValueMax = 1.0;
+
+    static double defaultValueRange() { return std::abs(defaultValueMin - defaultValueMax); }
+
     Shortcuts shortcuts;
 
     QBrush backgroundBrush = QBrush(QColor(5, 0, 100));
@@ -124,7 +131,7 @@ struct CurveEditorStyle
     double valueAxisWidth = 60.0;
     double valueOffsetTop = 10.0;
     double valueOffsetBottom = 10.0;
-    double labelDensityY = 1.5;
+    double labelDensityY = 2.0;
 
     HandleItemStyleOption handleStyle;
     KeyframeItemStyleOption keyframeStyle;
