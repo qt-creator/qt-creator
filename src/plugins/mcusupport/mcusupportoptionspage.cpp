@@ -37,6 +37,7 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
+#include <QCheckBox>
 #include <QComboBox>
 #include <QDir>
 #include <QHBoxLayout>
@@ -76,6 +77,7 @@ private:
     QGroupBox *m_mcuTargetsGroupBox = nullptr;
     QComboBox *m_mcuTargetsComboBox = nullptr;
     QGroupBox *m_kitCreationGroupBox = nullptr;
+    QCheckBox *m_kitAutomaticCreationCheckBox = nullptr;
     Utils::InfoLabel *m_kitCreationInfoLabel = nullptr;
     Utils::InfoLabel *m_statusInfoLabel = nullptr;
     QPushButton *m_kitCreationPushButton = nullptr;
@@ -124,6 +126,14 @@ McuSupportOptionsWidget::McuSupportOptionsWidget()
         mainLayout->addWidget(m_packagesGroupBox);
         m_packagesLayout = new QFormLayout;
         m_packagesGroupBox->setLayout(m_packagesLayout);
+    }
+
+    {
+        m_kitAutomaticCreationCheckBox = new QCheckBox(tr("Automatically create kits for all available targets on start"));
+        connect(m_kitAutomaticCreationCheckBox, &QCheckBox::stateChanged, this, [this] (int state) {
+            m_options.qtForMCUsSdkPackage->setAutomaticKitCreationEnabled(state == Qt::CheckState::Checked);
+        });
+        mainLayout->addWidget(m_kitAutomaticCreationCheckBox);
     }
 
     {
@@ -196,6 +206,9 @@ void McuSupportOptionsWidget::updateStatus()
         }
     }
 
+    // Automatic Kit creation
+    m_kitAutomaticCreationCheckBox->setChecked(m_options.qtForMCUsSdkPackage->automaticKitCreationEnabled());
+
     // Status label in the bottom
     {
         m_statusInfoLabel->setVisible(!cMakeAvailable);
@@ -246,6 +259,7 @@ void McuSupportOptionsWidget::showEvent(QShowEvent *event)
 
 void McuSupportOptionsWidget::apply()
 {
+    m_options.qtForMCUsSdkPackage->writeGeneralSettings();
     m_options.qtForMCUsSdkPackage->writeToSettings();
     for (auto package : m_options.packages)
         package->writeToSettings();

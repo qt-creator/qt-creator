@@ -71,8 +71,12 @@ public:
     void setEnvironmentVariableName(const QString &name);
     void setAddToPath(bool addToPath);
     bool addToPath() const;
+    void writeGeneralSettings() const;
     void writeToSettings() const;
     void setRelativePathModifier(const QString &path);
+
+    bool automaticKitCreationEnabled() const;
+    void setAutomaticKitCreationEnabled(const bool enabled);
 
     QWidget *widget();
 
@@ -98,6 +102,7 @@ private:
     QString m_downloadUrl;
     QString m_environmentVariableName;
     bool m_addToPath = false;
+    bool m_automaticKitCreation = true;
 
     Status m_status = InvalidPath;
 };
@@ -190,6 +195,7 @@ public:
     static QList<ProjectExplorer::Kit *> outdatedKits();
     static void removeOutdatedKits();
     static ProjectExplorer::Kit *newKit(const McuTarget *mcuTarget, const McuPackage *qtForMCUsSdk);
+    static void createAutomaticKits();
     void populatePackagesAndTargets();
     static void registerQchFiles();
     static void registerExamples();

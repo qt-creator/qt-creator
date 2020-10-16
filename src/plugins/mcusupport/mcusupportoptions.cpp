@@ -70,12 +70,20 @@ static QString packagePathFromSettings(const QString &settingsKey,
                                        QSettings::Scope scope = QSettings::UserScope,
                                        const QString &defaultPath = {})
 {
-    QSettings *s = Core::ICore::settings(scope);
-    s->beginGroup(Constants::SETTINGS_GROUP);
-    const QString path = s->value(QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX)
-                                  + settingsKey, defaultPath).toString();
-    s->endGroup();
+    QSettings *settings = Core::ICore::settings(scope);
+    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/' +
+            QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX) + settingsKey;
+    const QString path = settings->value(key, defaultPath).toString();
     return FilePath::fromFileInfo(path).toString();
+}
+
+static bool automaticKitCreationFromSettings(QSettings::Scope scope = QSettings::UserScope)
+{
+    QSettings *settings = Core::ICore::settings(scope);
+    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/' +
+            QLatin1String(Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION);
+    bool automaticKitCreation = settings->value(key, true).toBool();
+    return automaticKitCreation;
 }
 
 static bool kitNeedsQtVersion()
@@ -93,11 +101,13 @@ McuPackage::McuPackage(const QString &label, const QString &defaultPath,
     , m_settingsKey(settingsKey)
 {
     m_path = packagePathFromSettings(settingsKey, QSettings::UserScope, m_defaultPath);
+    m_automaticKitCreation = automaticKitCreationFromSettings(QSettings::UserScope);
 }
 
 QString McuPackage::path() const
 {
-    return QFileInfo(m_fileChooser->filePath().toString() + m_relativePathModifier).absoluteFilePath();
+    QString basePath = m_fileChooser != nullptr ? m_fileChooser->filePath().toString() : m_path;
+    return QFileInfo(basePath + m_relativePathModifier).absoluteFilePath();
 }
 
 QString McuPackage::label() const
@@ -187,20 +197,38 @@ bool McuPackage::addToPath() const
     return m_addToPath;
 }
 
+void McuPackage::writeGeneralSettings() const
+{
+    const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/' +
+            QLatin1String(Constants::SETTINGS_KEY_AUTOMATIC_KIT_CREATION);
+    QSettings *settings = Core::ICore::settings();
+    settings->setValue(key, m_automaticKitCreation);
+}
+
 void McuPackage::writeToSettings() const
 {
     const QString key = QLatin1String(Constants::SETTINGS_GROUP) + '/' +
             QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX) + m_settingsKey;
-    QSettings *uS = Core::ICore::settings();
+    QSettings *settings = Core::ICore::settings();
     if (m_path == m_defaultPath)
-        uS->remove(key);
+        settings->remove(key);
     else
-        uS->setValue(key, m_path);
+        settings->setValue(key, m_path);
 }
 
 void McuPackage::setRelativePathModifier(const QString &path)
 {
     m_relativePathModifier = path;
+}
+
+bool McuPackage::automaticKitCreationEnabled() const
+{
+    return m_automaticKitCreation;
+}
+
+void McuPackage::setAutomaticKitCreationEnabled(const bool enabled)
+{
+    m_automaticKitCreation = enabled;
 }
 
 void McuPackage::updateStatus()
@@ -711,6 +739,30 @@ Kit *McuSupportOptions::newKit(const McuTarget *mcuTarget, const McuPackage *qtF
     };
 
     return KitManager::registerKit(init);
+}
+
+void McuSupportOptions::createAutomaticKits()
+{
+    if (qulDirFromSettings().isEmpty())
+        return;
+
+    auto qtForMCUsPackage = Sdk::createQtForMCUsPackage();
+
+    if (qtForMCUsPackage->automaticKitCreationEnabled()) {
+        auto dir = FilePath::fromUserInput(qtForMCUsPackage->path());
+        QVector<McuPackage*> packages;
+        QVector<McuTarget*> mcuTargets;
+        Sdk::targetsAndPackages(dir, &packages, &mcuTargets);
+
+        for (auto target: qAsConst(mcuTargets))
+            if (existingKits(target).isEmpty())
+                newKit(target, qtForMCUsPackage);
+
+        qDeleteAll(packages);
+        qDeleteAll(mcuTargets);
+    }
+
+    delete qtForMCUsPackage;
 }
 
 } // Internal
