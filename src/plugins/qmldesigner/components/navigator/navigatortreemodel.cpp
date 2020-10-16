@@ -770,7 +770,8 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
 
     auto doMoveNodesInteractive = [&parentProperty, modelNodes, targetIndex](){
         const TypeName propertyQmlType = parentProperty.parentModelNode().metaInfo().propertyTypeName(parentProperty.name());
-        foreach (const ModelNode &modelNode, modelNodes) {
+        int idx = targetIndex;
+        for (const ModelNode &modelNode : modelNodes) {
             if (modelNode.isValid()
                     && modelNode != parentProperty.parentModelNode()
                     && !modelNode.isAncestorOf(parentProperty.parentModelNode())
@@ -779,10 +780,9 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
                 //once the MetaInfo is part of instances we can do this right
 
                 bool nodeCanBeMovedToParentProperty = removeModelNodeFromNodeProperty(parentProperty, modelNode);
-
                 if (nodeCanBeMovedToParentProperty) {
                     reparentModelNodeToNodeProperty(parentProperty, modelNode);
-                    slideModelNodeInList(parentProperty, modelNode, targetIndex);
+                    slideModelNodeInList(parentProperty, modelNode, idx++);
                 }
             }
         }
