@@ -52,7 +52,7 @@ public:
 
     Range range(int start, int end) const;
     Range range(unsigned tokenIndex) const;
-    Range range(CPlusPlus::AST *ast) const;
+    Range range(const CPlusPlus::AST *ast) const;
 
     const CPlusPlus::Token &tokenAt(unsigned index) const;
 
