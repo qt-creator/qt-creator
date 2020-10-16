@@ -26,6 +26,7 @@
 #include "clangcodecompletion_test.h"
 
 #include "clangautomationutils.h"
+#include "clangbatchfileprocessor.h"
 #include "../clangcompletionassistinterface.h"
 #include "../clangmodelmanagersupport.h"
 
@@ -344,7 +345,7 @@ public:
         if (!textToInsert.isEmpty())
             openEditor.editor()->insert(textToInsert);
 
-        proposal = completionResults(openEditor.editor(), includePaths, 15000);
+        proposal = completionResults(openEditor.editor(), includePaths, timeOutInMs());
     }
 
     TextEditor::ProposalModelPtr proposal;
@@ -657,7 +658,8 @@ void ClangCodeCompletionTest::testCompleteProjectDependingCode()
     OpenEditorAtCursorPosition openEditor(testDocument);
     QVERIFY(openEditor.succeeded());
 
-    TextEditor::ProposalModelPtr proposal = completionResults(openEditor.editor());
+    TextEditor::ProposalModelPtr proposal = completionResults(openEditor.editor(), {},
+                                                              timeOutInMs());
     QVERIFY(hasItem(proposal, "projectConfiguration1"));
 }
 
@@ -670,7 +672,8 @@ void ClangCodeCompletionTest::testCompleteProjectDependingCodeAfterChangingProje
     QVERIFY(openEditor.succeeded());
 
     // Check completion without project
-    TextEditor::ProposalModelPtr proposal = completionResults(openEditor.editor());
+    TextEditor::ProposalModelPtr proposal = completionResults(openEditor.editor(), {},
+                                                              timeOutInMs());
     QVERIFY(hasItem(proposal, "noProjectConfigurationDetected"));
 
     {
@@ -681,7 +684,7 @@ void ClangCodeCompletionTest::testCompleteProjectDependingCodeAfterChangingProje
         QVERIFY(projectLoader.load());
         openEditor.waitUntilProjectPartChanged(QLatin1String("myproject.project"));
 
-        proposal = completionResults(openEditor.editor());
+        proposal = completionResults(openEditor.editor(), {}, timeOutInMs());
 
         QVERIFY(hasItem(proposal, "projectConfiguration1"));
         QVERIFY(!hasItem(proposal, "projectConfiguration2"));
@@ -689,7 +692,7 @@ void ClangCodeCompletionTest::testCompleteProjectDependingCodeAfterChangingProje
         // Check completion with project configuration 2
         QVERIFY(projectLoader.updateProject({{"PROJECT_CONFIGURATION_2"}}));
         openEditor.waitUntilBackendIsNotified();
-        proposal = completionResults(openEditor.editor());
+        proposal = completionResults(openEditor.editor(), {}, timeOutInMs());
 
         QVERIFY(!hasItem(proposal, "projectConfiguration1"));
         QVERIFY(hasItem(proposal, "projectConfiguration2"));
@@ -697,7 +700,7 @@ void ClangCodeCompletionTest::testCompleteProjectDependingCodeAfterChangingProje
 
     // Check again completion without project
     openEditor.waitUntilProjectPartChanged(QLatin1String(""));
-    proposal = completionResults(openEditor.editor());
+    proposal = completionResults(openEditor.editor(), {}, timeOutInMs());
     QVERIFY(hasItem(proposal, "noProjectConfigurationDetected"));
 }
 
@@ -723,7 +726,8 @@ void ClangCodeCompletionTest::testCompleteProjectDependingCodeInGeneratedUiFile(
     QVERIFY(openSource.succeeded());
 
     // ...and check comletions
-    TextEditor::ProposalModelPtr proposal = completionResults(openSource.editor());
+    TextEditor::ProposalModelPtr proposal = completionResults(openSource.editor(), {},
+                                                              timeOutInMs());
     QVERIFY(hasItem(proposal, "menuBar"));
     QVERIFY(hasItem(proposal, "statusBar"));
     QVERIFY(hasItem(proposal, "centralWidget"));
