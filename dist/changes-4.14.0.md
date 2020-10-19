@@ -14,6 +14,7 @@ General
 -------
 
 * Added option for asking for confirmation before closing (QTCREATORBUG-7637)
+* Improved visibility of controls in dark themes (QTCREATORBUG-23505)
 
 Help
 ----
@@ -39,6 +40,7 @@ Editing
 * Added action for showing function arguments hint (QTCREATORBUG-19394)
 * Added option for after how many characters auto-completion may trigger (QTCREATORBUG-19920)
 * Restricted completion for second argument of `connect` calls to signals (QTCREATORBUG-13558)
+* Fixed crash of backend with multiline `Q_PROPERTY` declarations (QTCREATORBUG-24746)
 * Fixed duplicate items appearing in include completion (QTCREATORBUG-24515)
 * Fixed missing namespace when generating getters and setters (QTCREATORBUG-14886)
 * Fixed missing `inline` when generating method definitions in header files
@@ -49,6 +51,7 @@ Editing
 * Fixed that `Insert virtual functions of base class` refactoring action added already
   implemented operators (QTCREATORBUG-12218)
 * Fixed that `Complete switch statement` indents unrelated code (QTCREATORBUG-12445)
+* Fixed `Complete switch statement` with templates (QTCREATORBUG-24752)
 * Fixed that `Apply function signature change` removed return values from `std::function`
   arguments (QTCREATORBUG-13698)
 * Fixed handling of multiple inheritance in `Insert Virtual Functions` (QTCREATORBUG-12223)
@@ -81,6 +84,10 @@ Projects
 * Fixed `Embedding of the UI Class` option for widget applications (QTCREATORBUG-24422)
 * Fixed shell used for console applications (QTCREATORBUG-24659)
 
+### qmake
+
+* Added option to not execute `system` directives (QTCREATORBUG-24551)
+
 ### Wizards
 
 * Fixed creation of form editor class with namespace (QTCREATORBUG-24723)
@@ -98,6 +105,10 @@ Debugging
 ---------
 
 * Fixed disabling and enabling breakpoints (QTCREATORBUG-24669)
+
+### GDB
+
+* Fixed loading of symbol files with `Load Core File` (QTCREATORBUG-24541)
 
 Analyzer
 --------
