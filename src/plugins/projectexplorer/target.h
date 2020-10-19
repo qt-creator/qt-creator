@@ -53,9 +53,11 @@ class PROJECTEXPLORER_EXPORT Target : public QObject
     friend class SessionManager; // for setActiveBuild and setActiveDeployConfiguration
     Q_OBJECT
 
-    struct _constructor_tag { explicit _constructor_tag() = default; };
-
 public:
+    struct _constructor_tag
+    {
+        explicit _constructor_tag() = default;
+    };
     Target(Project *parent, Kit *k, _constructor_tag);
     ~Target() override;
 

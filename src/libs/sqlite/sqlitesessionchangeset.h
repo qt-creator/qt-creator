@@ -25,9 +25,8 @@
 
 #pragma once
 
+#include "sqliteblob.h"
 #include "sqliteglobal.h"
-
-#include <utils/span.h>
 
 #include <memory>
 #include <vector>
@@ -41,7 +40,7 @@ class Sessions;
 class SessionChangeSet
 {
 public:
-    SessionChangeSet(Utils::span<const byte> blob);
+    SessionChangeSet(BlobView blob);
     SessionChangeSet(Sessions &session);
     ~SessionChangeSet();
     SessionChangeSet(const SessionChangeSet &) = delete;
@@ -54,7 +53,7 @@ public:
     }
     void operator=(SessionChangeSet &);
 
-    Utils::span<const byte> asSpan() const;
+    BlobView asBlobView() const;
 
     friend void swap(SessionChangeSet &first, SessionChangeSet &second) noexcept
     {

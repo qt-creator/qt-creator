@@ -46,7 +46,7 @@ void checkResultCode(int resultCode)
 
 } // namespace
 
-SessionChangeSet::SessionChangeSet(Utils::span<const byte> blob)
+SessionChangeSet::SessionChangeSet(BlobView blob)
     : data(sqlite3_malloc64(blob.size()))
     , size(int(blob.size()))
 {
@@ -64,7 +64,7 @@ SessionChangeSet::~SessionChangeSet()
     sqlite3_free(data);
 }
 
-Utils::span<const byte> SessionChangeSet::asSpan() const
+BlobView SessionChangeSet::asBlobView() const
 {
     return {static_cast<const byte *>(data), static_cast<std::size_t>(size)};
 }

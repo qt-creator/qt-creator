@@ -27,6 +27,8 @@
 
 #include <qmlitemnode.h>
 
+#include <utils/filesystemwatcher.h>
+
 #include <QDir>
 #include <QObject>
 #include <QStringList>
@@ -60,6 +62,7 @@ public:
     QStringList fullPathModel() const;
     QStringList fileNameModel() const;
     void setupModel();
+    void refreshModel();
 
     Q_INVOKABLE void openFileDialog();
 
@@ -79,12 +82,11 @@ private:
     QUrl m_path;
     QDir m_dirPath;
     QString m_filter;
-    bool m_lock;
     QString m_currentPath;
     QString m_lastModelPath;
     QStringList m_fullPathModel;
     QStringList m_fileNameModel;
-
+    Utils::FileSystemWatcher *m_fileSystemWatcher;
 };
 
 QML_DECLARE_TYPE(FileResourcesModel)

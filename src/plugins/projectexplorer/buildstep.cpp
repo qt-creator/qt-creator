@@ -157,6 +157,26 @@ void BuildStep::cancel()
     doCancel();
 }
 
+QWidget *BuildStep::doCreateConfigWidget()
+{
+    QWidget *widget = createConfigWidget();
+
+    const auto recreateSummary = [this] {
+        if (m_summaryUpdater)
+            setSummaryText(m_summaryUpdater());
+    };
+
+    for (BaseAspect *aspect : qAsConst(m_aspects))
+        connect(aspect, &BaseAspect::changed, widget, recreateSummary);
+
+    connect(buildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
+            widget, recreateSummary);
+
+    recreateSummary();
+
+    return widget;
+}
+
 QWidget *BuildStep::createConfigWidget()
 {
     auto widget = new QWidget;
@@ -165,11 +185,7 @@ QWidget *BuildStep::createConfigWidget()
     for (BaseAspect *aspect : qAsConst(m_aspects)) {
         if (aspect->isVisible())
             aspect->addToLayout(builder.finishRow());
-        connect(aspect, &BaseAspect::changed, this, &BuildStep::recreateSummary);
     }
-
-    connect(buildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
-            this, &BuildStep::recreateSummary);
 
     if (m_addMacroExpander)
         VariableChooser::addSupportForChildWidgets(widget, macroExpander());
@@ -500,13 +516,6 @@ void BuildStep::setSummaryText(const QString &summaryText)
 void BuildStep::setSummaryUpdater(const std::function<QString()> &summaryUpdater)
 {
     m_summaryUpdater = summaryUpdater;
-    recreateSummary();
-}
-
-void BuildStep::recreateSummary()
-{
-    if (m_summaryUpdater)
-        setSummaryText(m_summaryUpdater());
 }
 
 } // ProjectExplorer

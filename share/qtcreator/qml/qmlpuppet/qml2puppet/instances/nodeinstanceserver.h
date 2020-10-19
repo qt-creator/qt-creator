@@ -241,6 +241,8 @@ protected:
     ComponentCompletedCommand createComponentCompletedCommand(const QList<ServerNodeInstance> &instanceList);
     ChangeSelectionCommand createChangeSelectionCommand(const QList<ServerNodeInstance> &instanceList);
 
+    void sheduleRootItemRender();
+
     void addChangedProperty(const InstancePropertyPair &property);
 
     virtual void startRenderTimer();

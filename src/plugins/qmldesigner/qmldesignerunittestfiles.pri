@@ -1,5 +1,6 @@
 INCLUDEPATH += $$PWD
 INCLUDEPATH += $$PWD/designercore/include
+INCLUDEPATH += $$PWD/designercore/imagecache
 INCLUDEPATH += $$PWD/designercore
 INCLUDEPATH += $$PWD/../../../share/qtcreator/qml/qmlpuppet/interfaces
 INCLUDEPATH += $$PWD/../../../share/qtcreator/qml/qmlpuppet/types
@@ -30,9 +31,18 @@ SOURCES += \
     $$PWD/designercore/model/variantproperty.cpp\
     $$PWD/designercore/model/annotation.cpp \
     $$PWD/designercore/rewritertransaction.cpp \
-    $$PWD/components/listmodeleditor/listmodeleditormodel.cpp
+    $$PWD/components/listmodeleditor/listmodeleditormodel.cpp \
+    $$PWD/designercore/imagecache/imagecache.cpp \
+    $$PWD/designercore/imagecache/imagecachegenerator.cpp
 
 HEADERS += \
+    $$PWD/designercore/imagecache/imagecachecollectorinterface.h \
+    $$PWD/designercore/imagecache/imagecachestorage.h \
+    $$PWD/designercore/imagecache/imagecachegenerator.h \
+    $$PWD/designercore/imagecache/imagecachestorageinterface.h \
+    $$PWD/designercore/imagecache/imagecachegeneratorinterface.h \
+    $$PWD/designercore/imagecache/timestampproviderinterface.h \
+    $$PWD/designercore/include/imagecache.h \
     $$PWD/designercore/include/modelnode.h \
     $$PWD/designercore/include/model.h \
     $$PWD/../../../share/qtcreator/qml/qmlpuppet/interfaces/commondefines.h \

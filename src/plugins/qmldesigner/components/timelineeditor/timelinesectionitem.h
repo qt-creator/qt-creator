@@ -50,6 +50,8 @@ public:
     void itemMoved(const QPointF &start, const QPointF &end) override;
     void commitPosition(const QPointF &point) override;
 
+    bool isLocked() const override;
+
 protected:
     void scrollOffsetChanged() override;
     void paint(QPainter *painter,
@@ -100,6 +102,7 @@ public:
     static void updateData(QGraphicsItem *item);
     static void updateDataForTarget(QGraphicsItem *item, const ModelNode &target, bool *b);
     static void updateFramesForTarget(QGraphicsItem *item, const ModelNode &target);
+    static void updateHeightForTarget(QGraphicsItem *item, const ModelNode &target);
 
     void moveAllFrames(qreal offset);
     void scaleAllFrames(qreal scale);
@@ -121,6 +124,7 @@ protected:
 private:
     void updateData();
     void updateFrames();
+    void updateHeight();
     void invalidateHeight();
     void invalidateProperties();
     void invalidateFrames();
@@ -145,7 +149,7 @@ class TimelineRulerSectionItem : public TimelineItem
 signals:
     void rulerClicked(const QPointF &pos);
 
-    void scaleFactorChanged(int scale);
+    void zoomChanged(int zoom);
 
 public:
     static TimelineRulerSectionItem *create(QGraphicsScene *parentScene, TimelineItem *parent);
@@ -153,9 +157,9 @@ public:
     void invalidateRulerSize(const QmlTimeline &timeline);
     void invalidateRulerSize(const qreal length);
 
-    void setRulerScaleFactor(int scaling);
+    void setZoom(int zoom);
 
-    int getRulerScaleFactor() const;
+    int zoom() const;
     qreal getFrameTick() const;
 
     qreal rulerScaling() const;

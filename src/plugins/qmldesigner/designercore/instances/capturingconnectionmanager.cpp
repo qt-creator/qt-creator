@@ -34,11 +34,12 @@
 
 namespace QmlDesigner {
 
-void CapturingConnectionManager::setUp(NodeInstanceServerProxy *nodeInstanceServerProxy,
+void CapturingConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServer,
                                        const QString &qrcMappingString,
-                                       ProjectExplorer::Target *target)
+                                       ProjectExplorer::Target *target,
+                                       AbstractView *view)
 {
-    InteractiveConnectionManager::setUp(nodeInstanceServerProxy, qrcMappingString, target);
+    InteractiveConnectionManager::setUp(nodeInstanceServer, qrcMappingString, target, view);
 
     int indexOfCapturePuppetStream = QCoreApplication::arguments().indexOf(
         "-capture-puppet-stream");
@@ -72,7 +73,7 @@ void CapturingConnectionManager::writeCommand(const QVariant &command)
 
     if (m_captureFileForTest.isWritable()) {
         qDebug() << "command name: " << QMetaType::typeName(command.userType());
-        writeCommandToIODevice(command, &m_captureFileForTest, m_writeCommandCounter);
+        writeCommandToIODevice(command, &m_captureFileForTest, writeCommandCounter());
         qDebug() << "\tcatpure file offset: " << m_captureFileForTest.pos();
     }
 }

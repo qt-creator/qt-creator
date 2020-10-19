@@ -107,8 +107,6 @@ public:
 
     QString importDirectoryPath() const;
 
-    static void clearCache();
-
 private:
     QSharedPointer<Internal::NodeMetaInfoPrivate> m_privateData;
 };

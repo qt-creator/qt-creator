@@ -125,7 +125,7 @@ void ClangToolsUnitTests::testProject()
                     ClangToolsSettings::instance()->runSettings(),
                     diagnosticConfig);
     QSignalSpy waitForFinishedTool(tool, &ClangTool::finished);
-    QVERIFY(waitForFinishedTool.wait(90000));
+    QVERIFY(waitForFinishedTool.wait(m_timeout));
 
     // Check for errors
     const QString errorText = waitForFinishedTool.takeFirst().first().toString();
@@ -184,6 +184,12 @@ void ClangToolsUnitTests::addTestRow(const QByteArray &relativeFilePath,
 
     QTest::newRow(fileName.toUtf8().constData())
         << absoluteFilePath << expectedDiagCount << diagnosticConfig;
+}
+
+int ClangToolsUnitTests::getTimeout()
+{
+    const int t = qEnvironmentVariableIntValue("QTC_CLANGTOOLS_TEST_TIMEOUT");
+    return t > 0 ? t : 480000;
 }
 
 } // namespace Internal

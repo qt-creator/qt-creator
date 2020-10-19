@@ -44,7 +44,7 @@ class TransitionEditorGraphicsLayout : public TimelineItem
 signals:
     void rulerClicked(const QPointF &pos);
 
-    void scaleFactorChanged(int factor);
+    void zoomChanged(int factor);
 
 public:
     TransitionEditorGraphicsLayout(QGraphicsScene *scene, TimelineItem *parent = nullptr);
@@ -52,6 +52,8 @@ public:
     ~TransitionEditorGraphicsLayout() override;
 
 public:
+    int zoom() const;
+
     double rulerWidth() const;
 
     double rulerScaling() const;
@@ -66,7 +68,7 @@ public:
 
     void setDuration(qreal duration);
 
-    void setRulerScaleFactor(int factor);
+    void setZoom(int factor);
 
     void invalidate();
 

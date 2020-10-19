@@ -49,6 +49,14 @@ class NavigatorTreeModel : public QAbstractItemModel, public NavigatorModelInter
 
 public:
 
+    enum ColumnType {
+        Name = 0,
+        Alias,
+        Visibility,
+        Lock,
+        Count
+    };
+
     explicit NavigatorTreeModel(QObject *parent = nullptr);
     ~NavigatorTreeModel() override;
 

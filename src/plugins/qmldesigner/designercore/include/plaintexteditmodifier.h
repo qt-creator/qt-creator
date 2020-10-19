@@ -47,6 +47,7 @@ private:
 
 public:
     PlainTextEditModifier(QPlainTextEdit *textEdit);
+    PlainTextEditModifier(QTextDocument *document, const QTextCursor &textCursor);
     ~PlainTextEditModifier() override;
 
     QTextDocument *textDocument() const override;
@@ -76,20 +77,17 @@ public:
     bool moveToComponent(int /* nodeOffset */) override
     { return false; }
 
-protected:
-    QPlainTextEdit *plainTextEdit() const
-    { return m_textEdit; }
-
 private:
     void textEditChanged();
     void runRewriting(Utils::ChangeSet *writer);
 
 private:
-    Utils::ChangeSet *m_changeSet;
-    QPlainTextEdit *m_textEdit;
-    bool m_changeSignalsEnabled;
-    bool m_pendingChangeSignal;
-    bool m_ongoingTextChange;
+    Utils::ChangeSet *m_changeSet = nullptr;
+    QTextDocument *m_textDocument;
+    QTextCursor m_textCursor;
+    bool m_changeSignalsEnabled{true};
+    bool m_pendingChangeSignal{false};
+    bool m_ongoingTextChange{false};
 };
 
 class QMLDESIGNERCORE_EXPORT NotIndentingTextEditModifier: public PlainTextEditModifier
@@ -97,6 +95,10 @@ class QMLDESIGNERCORE_EXPORT NotIndentingTextEditModifier: public PlainTextEditM
 public:
     NotIndentingTextEditModifier(QPlainTextEdit *textEdit)
         : PlainTextEditModifier(textEdit)
+    {}
+
+    NotIndentingTextEditModifier(QTextDocument *document, const QTextCursor &textCursor)
+        : PlainTextEditModifier{document, textCursor}
     {}
 
     void indent(int /*offset*/, int /*length*/) override

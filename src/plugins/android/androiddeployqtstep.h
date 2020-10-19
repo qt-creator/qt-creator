@@ -59,19 +59,7 @@ class AndroidDeployQtStep : public ProjectExplorer::BuildStep
     };
 
 public:
-    enum UninstallType {
-        Keep,
-        Uninstall,
-        ForceUninstall
-    };
-
     AndroidDeployQtStep(ProjectExplorer::BuildStepList *bc, Utils::Id id);
-
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
-
-    UninstallType uninstallPreviousPackage();
-    void setUninstallPreviousPackage(bool uninstall);
 
 signals:
     void askForUninstall(DeployErrorCode errorCode);
@@ -105,7 +93,7 @@ private:
     QMap<QString, QString> m_filesToPull;
 
     QStringList m_androidABIs;
-    bool m_uninstallPreviousPackage = false;
+    Utils::BoolAspect *m_uninstallPreviousPackage = nullptr;
     bool m_uninstallPreviousPackageRun = false;
     bool m_useAndroiddeployqt = false;
     bool m_askForUninstall = false;

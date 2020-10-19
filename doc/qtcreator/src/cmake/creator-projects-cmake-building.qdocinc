@@ -46,24 +46,32 @@
     of the parameters that are passed to CMake. Parameter names are listed
     in the \uicontrol Key column. Names with a common prefix (up to the first
     underscore character) are grouped under the prefix. To view all parameters,
-     select the \uicontrol Advanced check box.
+    select the \uicontrol Advanced check box.
 
     To add parameters, select \uicontrol Add, and then select the type of
     the parameter that you are adding: \uicontrol Boolean, \uicontrol String,
     \uicontrol Directory, or \uicontrol File.
 
-    To change the type of the selected parameter, select
+    To change the type of the selected parameter, right-click the
+    parameter name in the \uicontrol Key column, and then select
     \uicontrol {Force to bool}, \uicontrol {Force to file},
-    \uicontrol {Force to directory}, or \uicontrol {Force to string}.
+    \uicontrol {Force to directory}, or \uicontrol {Force to string}
+    in the context menu.
 
     To modify the value of a parameter, double-click it, or select it,
-    and then select \uicontrol Edit. To save the changes, select
-    \uicontrol {Apply Configuration Changes}. Keep in mind that a
-    configuration change might trigger a follow-up configuration change.
+    and then select \uicontrol Edit.
 
-    To remove a parameter, select \uicontrol Unset.
+    You can apply actions to multiple parameters at a time. To clear
+    the selection, select \uicontrol {Clear Selection}.
 
-    To reset the changes that you made, select \uicontrol Reset.
+    To remove the selected parameters, select \uicontrol Unset. To undo
+    the removal, select \uicontrol Set.
+
+    To reset all the changes that you made, select \uicontrol Reset.
+
+    To save the changes, select \uicontrol {Apply Configuration Changes}.
+    Keep in mind that a configuration change might trigger a follow-up
+    configuration change.
 
     The parameter values that you change are passed via \c -D<option>=<value>
     to CMake, which stores the options in the CMakeCache.txt file. This means

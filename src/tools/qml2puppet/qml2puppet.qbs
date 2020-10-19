@@ -224,6 +224,8 @@ QtcTool {
             "instances/servernodeinstance.h",
             "instances/qt5capturepreviewnodeinstanceserver.cpp",
             "instances/qt5capturepreviewnodeinstanceserver.h",
+            "instances/qt5captureimagenodeinstanceserver.cpp",
+            "instances/qt5captureimagenodeinstanceserver.h",
             "instances/nodeinstanceserverdispatcher.cpp",
             "instances/nodeinstanceserverdispatcher.h",
             "instances/capturenodeinstanceserverdispatcher.cpp",

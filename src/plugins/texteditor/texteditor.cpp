@@ -4745,7 +4745,8 @@ void TextEditorWidgetPrivate::setupSelections(const PaintEventData &data,
                 o.start = ts.positionAtColumn(text, m_blockSelection.firstVisualColumn());
                 o.length = ts.positionAtColumn(text, m_blockSelection.lastVisualColumn()) - o.start;
             }
-            if (data.textCursor.hasSelection() && data.textCursor == range.cursor) {
+            if (data.textCursor.hasSelection() && data.textCursor == range.cursor
+                && data.textCursor.anchor() == range.cursor.anchor()) {
                 const QTextCharFormat selectionFormat = data.fontSettings.toTextCharFormat(C_SELECTION);
                 if (selectionFormat.background().style() != Qt::NoBrush)
                     o.format.setBackground(selectionFormat.background());

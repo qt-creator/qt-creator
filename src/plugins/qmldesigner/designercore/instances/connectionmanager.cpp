@@ -46,19 +46,19 @@ ConnectionManager::ConnectionManager() = default;
 
 ConnectionManager::~ConnectionManager() = default;
 
-void ConnectionManager::setUp(NodeInstanceServerProxy *nodeInstanceServerProxy,
+void ConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServerProxy,
                               const QString &qrcMappingString,
-                              ProjectExplorer::Target *target)
+                              ProjectExplorer::Target *target,
+                              AbstractView *view)
 {
-    BaseConnectionManager::setUp(nodeInstanceServerProxy, qrcMappingString, target);
+    BaseConnectionManager::setUp(nodeInstanceServerProxy, qrcMappingString, target, view);
 
     m_localServer = std::make_unique<QLocalServer>();
     QString socketToken(QUuid::createUuid().toString());
     m_localServer->listen(socketToken);
     m_localServer->setMaxPendingConnections(3);
 
-    NodeInstanceView *nodeInstanceView = nodeInstanceServerProxy->nodeInstanceView();
-    PuppetCreator puppetCreator(target, nodeInstanceView->model());
+    PuppetCreator puppetCreator(target, view->model());
     puppetCreator.setQrcMappingString(qrcMappingString);
 
     puppetCreator.createQml2PuppetExecutableIfMissing();
@@ -67,7 +67,6 @@ void ConnectionManager::setUp(NodeInstanceServerProxy *nodeInstanceServerProxy,
         connection.qmlPuppetProcess = puppetCreator.createPuppetProcess(
             connection.mode,
             socketToken,
-            nodeInstanceView,
             [&] { printProcessOutput(connection.qmlPuppetProcess.get(), connection.name); },
             [&](int exitCode, QProcess::ExitStatus exitStatus) {
                 processFinished(exitCode, exitStatus);
@@ -90,7 +89,7 @@ void ConnectionManager::setUp(NodeInstanceServerProxy *nodeInstanceServerProxy,
 
         if (connectedToPuppet) {
             connection.socket.reset(m_localServer->nextPendingConnection());
-            QObject::connect(connection.socket.get(), &QIODevice::readyRead, [&] {
+            QObject::connect(connection.socket.get(), &QIODevice::readyRead, this, [&] {
                 readDataStream(connection);
             });
         } else {
@@ -101,11 +100,6 @@ void ConnectionManager::setUp(NodeInstanceServerProxy *nodeInstanceServerProxy,
     }
 
     m_localServer->close();
-
-    connect(this,
-            &ConnectionManager::processCrashed,
-            nodeInstanceServerProxy,
-            &NodeInstanceServerProxy::processCrashed);
 }
 
 void ConnectionManager::shutDown()
@@ -143,7 +137,7 @@ void ConnectionManager::processFinished(int exitCode, QProcess::ExitStatus exitS
     closeSocketsAndKillProcesses();
 
     if (exitStatus == QProcess::CrashExit)
-        emit processCrashed();
+        callCrashCallback();
 }
 
 void ConnectionManager::closeSocketsAndKillProcesses()

@@ -43,6 +43,7 @@ namespace QmlDesigner {
 namespace Internal {
 class ModelPrivate;
 class WriteLocker;
+class NodeMetaInfoPrivate;
 } //Internal
 
 class AnchorLine;
@@ -68,6 +69,7 @@ class QMLDESIGNERCORE_EXPORT Model : public QObject
     friend class QmlDesigner::AbstractView;
     friend class Internal::ModelPrivate;
     friend class Internal::WriteLocker;
+    friend class QmlDesigner::Internal::NodeMetaInfoPrivate;
 
     Q_OBJECT
 
@@ -117,6 +119,8 @@ public:
     void setDocumentMessages(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings);
 
     QList<ModelNode> selectedNodes(AbstractView *view) const;
+
+    void clearMetaInfoCache();
 
 protected:
     Model();

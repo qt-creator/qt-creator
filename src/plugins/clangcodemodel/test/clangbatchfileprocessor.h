@@ -30,6 +30,8 @@
 namespace ClangCodeModel {
 namespace Internal {
 
+int timeOutInMs();
+
 bool runClangBatchFile(const QString &filePath);
 
 } // namespace Internal

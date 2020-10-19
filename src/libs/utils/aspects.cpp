@@ -1161,13 +1161,14 @@ void IntegerAspect::setToolTip(const QString &tooltip)
     Its visual representation is a QComboBox with three items.
 */
 
-TriStateAspect::TriStateAspect()
+TriStateAspect::TriStateAspect(const QString onString, const QString &offString,
+                               const QString &defaultString)
 {
     setDisplayStyle(DisplayStyle::ComboBox);
     setDefaultValue(2);
-    addOption(tr("Enable"));
-    addOption(tr("Disable"));
-    addOption(tr("Leave at Default"));
+    addOption(onString);
+    addOption(offString);
+    addOption(defaultString);
 }
 
 TriState TriStateAspect::setting() const

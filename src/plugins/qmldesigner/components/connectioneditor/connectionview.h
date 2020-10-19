@@ -69,6 +69,7 @@ public:
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
+    void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data) override;
 
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
 

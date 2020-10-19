@@ -66,6 +66,9 @@ SOURCES += \
     filepathview-test.cpp \
     gtest-creator-printing.cpp \
     gtest-qt-printing.cpp \
+    imagecache-test.cpp \
+    imagecachegenerator-test.cpp \
+    imagecachestorage-test.cpp \
     lastchangedrowid-test.cpp \
     lineprefixer-test.cpp \
     listmodeleditor-test.cpp \
@@ -134,7 +137,9 @@ SOURCES += \
     sqlitestatement-test.cpp \
     sqlitetable-test.cpp \
     sqlstatementbuilder-test.cpp \
-    createtablesqlstatementbuilder-test.cpp
+    createtablesqlstatementbuilder-test.cpp \
+    sqlitereadstatementmock.cpp \
+    sqlitewritestatementmock.cpp
 
 !isEmpty(QTC_UNITTEST_BUILD_CPP_PARSER):SOURCES += matchingtext-test.cpp
 
@@ -240,12 +245,15 @@ HEADERS += \
     gtest-llvm-printing.h \
     gtest-qt-printing.h \
     gtest-std-printing.h \
+    imagecachecollectormock.h \
     mimedatabase-utilities.h \
     mockclangcodemodelclient.h \
     mockclangcodemodelserver.h \
     mockclangpathwatcher.h \
     mockclangpathwatchernotifier.h \
     mockfilesystem.h \
+    mockimagecachegenerator.h \
+    mockimagecachestorage.h \
     mocklistmodeleditorview.h \
     mockpchcreator.h \
     mockpchmanagerclient.h \
@@ -258,6 +266,8 @@ HEADERS += \
     mocksearchhandle.h \
     mocksearchresult.h \
     mocksyntaxhighligher.h \
+    mocktimestampprovider.h \
+    notification.h \
     processevents-utilities.h \
     sourcerangecontainer-matcher.h \
     spydummy.h \
@@ -301,7 +311,12 @@ HEADERS += \
     mockpchtaskgenerator.h \
     ../mockup/qmldesigner/designercore/include/nodeinstanceview.h \
     ../mockup/qmldesigner/designercore/include/rewriterview.h \
-    ../mockup/qmldesigner/designercore/include/itemlibraryitem.h
+    ../mockup/qmldesigner/designercore/include/itemlibraryitem.h\
+    sqlitedatabasemock.h \
+    sqlitereadstatementmock.h \
+    sqlitestatementmock.h \
+    sqlitetransactionbackendmock.h \
+    sqlitewritestatementmock.h
 
 
 !isEmpty(LIBCLANG_LIBS) {

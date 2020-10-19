@@ -84,6 +84,8 @@ public:
     virtual QImage renderImage() const;
     virtual QImage renderPreviewImage(const QSize &previewImageSize) const;
 
+    virtual QSharedPointer<QQuickItemGrabResult> createGrabResult() const;
+
     virtual QObject *parent() const;
 
     Pointer parentInstance() const;

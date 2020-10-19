@@ -29,15 +29,21 @@
 
 #include <model.h>
 
+#include <utils/algorithm.h>
+
 #include <QFileDialog>
 #include <QDirIterator>
 #include <qmlmodelnodeproxy.h>
 
 static QString s_lastBrowserPath;
 
-FileResourcesModel::FileResourcesModel(QObject *parent) :
-    QObject(parent), m_filter(QLatin1String("(*.*)")), m_lock(false)
+FileResourcesModel::FileResourcesModel(QObject *parent)
+    : QObject(parent)
+    , m_filter(QLatin1String("(*.*)"))
+    , m_fileSystemWatcher(new Utils::FileSystemWatcher(this))
 {
+    connect(m_fileSystemWatcher, &Utils::FileSystemWatcher::directoryChanged,
+            this, &FileResourcesModel::refreshModel);
 }
 
 void FileResourcesModel::setModelNodeBackend(const QVariant &modelNodeBackend)
@@ -163,7 +169,6 @@ QVariant FileResourcesModel::modelNodeBackend() const
 
 bool filterMetaIcons(const QString &fileName)
 {
-
     QFileInfo info(fileName);
 
     if (info.dir().path().split('/').contains("designer")) {
@@ -189,11 +194,19 @@ bool filterMetaIcons(const QString &fileName)
 
 void FileResourcesModel::setupModel()
 {
-    m_lock = true;
+    m_dirPath = QFileInfo(m_path.toLocalFile()).dir();
+
+    refreshModel();
+
+    m_fileSystemWatcher->removeDirectories(m_fileSystemWatcher->directories());
+    m_fileSystemWatcher->addDirectory(m_dirPath.absolutePath(),
+                                      Utils::FileSystemWatcher::WatchAllChanges);
+}
+
+void FileResourcesModel::refreshModel()
+{
     m_fullPathModel.clear();
     m_fileNameModel.clear();
-
-    m_dirPath = QFileInfo(m_path.toLocalFile()).dir();
 
     QStringList filterList = m_filter.split(QLatin1Char(' '));
 
@@ -203,11 +216,15 @@ void FileResourcesModel::setupModel()
         if (filterMetaIcons(absolutePath)) {
             QString filePath = m_dirPath.relativeFilePath(absolutePath);
             m_fullPathModel.append(filePath);
-            m_fileNameModel.append(filePath.mid(filePath.lastIndexOf('/') + 1));
         }
     }
 
-    m_lock = false;
+    Utils::sort(m_fullPathModel, [](const QString &s1, const QString &s2) {
+        return s1.mid(s1.lastIndexOf('/') + 1).toLower() < s2.mid(s2.lastIndexOf('/') + 1).toLower();
+    });
+
+    for (const QString &fullPath : qAsConst(m_fullPathModel))
+        m_fileNameModel.append(fullPath.mid(fullPath.lastIndexOf('/') + 1));
 
     emit fullPathModelChanged();
     emit fileNameModelChanged();

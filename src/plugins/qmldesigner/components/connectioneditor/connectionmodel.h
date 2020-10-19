@@ -48,7 +48,14 @@ public:
         TargetPropertyNameRow = 1,
         SourceRow = 2
     };
+    enum UserRoles {
+        InternalIdRole = Qt::UserRole + 1,
+        TargetPropertyNameRole
+    };
     ConnectionModel(ConnectionView *parent = nullptr);
+
+    Qt::ItemFlags flags(const QModelIndex &modelIndex) const override;
+
     void resetModel();
     SignalHandlerProperty signalHandlerPropertyForRow(int rowNumber) const;
     ConnectionView *connectionView() const;

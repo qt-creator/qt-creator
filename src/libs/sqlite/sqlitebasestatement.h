@@ -27,6 +27,7 @@
 
 #include "sqliteglobal.h"
 
+#include "sqliteblob.h"
 #include "sqliteexception.h"
 #include "sqlitevalue.h"
 
@@ -70,7 +71,7 @@ public:
     double fetchDoubleValue(int column) const;
     Utils::SmallStringView fetchSmallStringViewValue(int column) const;
     ValueView fetchValueView(int column) const;
-    Utils::span<const byte> fetchBlobValue(int column) const;
+    BlobView fetchBlobValue(int column) const;
     template<typename Type>
     Type fetchValue(int column) const;
     int columnCount() const;
@@ -82,7 +83,7 @@ public:
     void bind(int index, void *pointer);
     void bind(int index, Utils::SmallStringView fetchValue);
     void bind(int index, const Value &fetchValue);
-    void bind(int index, Utils::span<const byte> bytes);
+    void bind(int index, BlobView blobView);
 
     void bind(int index, uint value) { bind(index, static_cast<long long>(value)); }
 
@@ -358,7 +359,7 @@ private:
         operator long long() { return statement.fetchLongLongValue(column); }
         operator double() { return statement.fetchDoubleValue(column); }
         operator Utils::SmallStringView() { return statement.fetchSmallStringViewValue(column); }
-        operator Utils::span<const Sqlite::byte>() { return statement.fetchBlobValue(column); }
+        operator BlobView() { return statement.fetchBlobValue(column); }
         operator ValueView() { return statement.fetchValueView(column); }
 
         StatementImplementation &statement;

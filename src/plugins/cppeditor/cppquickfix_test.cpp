@@ -606,6 +606,32 @@ void CppEditorPlugin::test_quickfix_data()
         ""
     );
 
+    // Checks: complete switch statement where enum is goes via a template type parameter
+    QTest::newRow("CompleteSwitchCaseStatement_QTCREATORBUG-24752")
+        << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
+        "enum E {EA, EB};\n"
+        "template<typename T> struct S {\n"
+        "    static T theType() { return T(); }\n"
+        "};\n"
+        "int main() {\n"
+        "    @switch (S<E>::theType()) {\n"
+        "    }\n"
+        "}\n"
+        ) << _(
+        "enum E {EA, EB};\n"
+        "template<typename T> struct S {\n"
+        "    static T theType() { return T(); }\n"
+        "};\n"
+        "int main() {\n"
+        "    switch (S<E>::theType()) {\n"
+        "    case EA:\n"
+        "        break;\n"
+        "    case EB:\n"
+        "        break;\n"
+        "    }\n"
+        "}\n"
+    );
+
     // Checks: No special treatment for reference to non const.
 
     // Check: Quick fix is not triggered on a member function.
@@ -7081,6 +7107,49 @@ void CppEditorPlugin::test_quickfix_removeUsingNamespace()
 
     RemoveUsingNamespace factory;
     QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), operation);
+}
+
+void CppEditorPlugin::test_quickfix_removeUsingNamespace_simple_data()
+{
+    QTest::addColumn<QByteArray>("header");
+    QTest::addColumn<QByteArray>("expected");
+
+    const QByteArray common = R"--(
+namespace N{
+    template<typename T>
+    struct vector{
+        using iterator = T*;
+    };
+    using int_vector = vector<int>;
+}
+)--";
+    const QByteArray header = common + R"--(
+using namespace N@;
+int_vector ints;
+int_vector::iterator intIter;
+using vec = vector<int>;
+vec::iterator it;
+)--";
+    const QByteArray expected = common + R"--(
+N::int_vector ints;
+N::int_vector::iterator intIter;
+using vec = N::vector<int>;
+vec::iterator it;
+)--";
+
+    QTest::newRow("nested typedefs with Namespace") << header << expected;
+}
+
+void CppEditorPlugin::test_quickfix_removeUsingNamespace_simple()
+{
+    QFETCH(QByteArray, header);
+    QFETCH(QByteArray, expected);
+
+    QList<QuickFixTestDocument::Ptr> testDocuments;
+    testDocuments << QuickFixTestDocument::create("header.h", header, expected);
+
+    RemoveUsingNamespace factory;
+    QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths());
 }
 
 void CppEditorPlugin::test_quickfix_removeUsingNamespace_differentSymbols()

@@ -48,19 +48,20 @@ public:
     ~ConnectionManager() override;
     enum PuppetStreamType { FirstPuppetStream, SecondPuppetStream, ThirdPuppetStream };
 
-    void setUp(NodeInstanceServerProxy *nodeInstanceServerProxy,
+    void setUp(NodeInstanceServerInterface *nodeInstanceServerProxy,
                const QString &qrcMappingString,
-               ProjectExplorer::Target *target) override;
+               ProjectExplorer::Target *target,
+               AbstractView *view) override;
     void shutDown() override;
 
     void writeCommand(const QVariant &command) override;
 
-signals:
-    void processCrashed();
-
 protected:
     using BaseConnectionManager::processFinished;
     void processFinished(int exitCode, QProcess::ExitStatus exitStatus) override;
+    std::vector<Connection> &connections() { return m_connections; }
+
+    quint32 &writeCommandCounter() { return m_writeCommandCounter; }
 
 private:
     void printProcessOutput(QProcess *process, const QString &connectionName);
@@ -69,7 +70,6 @@ private:
 private:
     std::unique_ptr<QLocalServer> m_localServer;
 
-protected:
     std::vector<Connection> m_connections;
     quint32 m_writeCommandCounter = 0;
 };

@@ -100,7 +100,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
     if (instanceViewBenchmark().isInfoEnabled())
         m_benchmarkTimer.start();
 
-    m_connectionManager.setUp(this, qrcMappingString(), target);
+    m_connectionManager.setUp(this, qrcMappingString(), target, nodeInstanceView);
 
     qCInfo(instanceViewBenchmark) << "puppets setup:" << m_benchmarkTimer.elapsed();
 }

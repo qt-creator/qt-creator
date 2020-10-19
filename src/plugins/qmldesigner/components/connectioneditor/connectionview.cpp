@@ -36,6 +36,8 @@
 #include <variantproperty.h>
 #include <signalhandlerproperty.h>
 
+#include <QTableView>
+
 namespace QmlDesigner {
 
 namespace  Internal {
@@ -160,6 +162,33 @@ void ConnectionView::selectedNodesChanged(const QList<ModelNode> & selectedNodeL
     if (connectionViewWidget()->currentTab() == ConnectionViewWidget::BindingTab
             || connectionViewWidget()->currentTab() == ConnectionViewWidget::DynamicPropertiesTab)
         emit connectionViewWidget()->setEnabledAddButton(selectedNodeList.count() == 1);
+}
+
+void ConnectionView::auxiliaryDataChanged(const ModelNode &node,
+                                          const PropertyName &name,
+                                          const QVariant &data)
+{
+    Q_UNUSED(node)
+
+    // Check if the auxiliary data is actually the locked property or if it is unlocked
+    if (name != QmlDesigner::lockedProperty || !data.toBool())
+        return;
+
+    QItemSelectionModel *selectionModel = connectionTableView()->selectionModel();
+    if (!selectionModel->hasSelection())
+        return;
+
+    QModelIndex modelIndex = selectionModel->currentIndex();
+    if (!modelIndex.isValid() || !model())
+        return;
+
+    const int internalId = connectionModel()->data(connectionModel()->index(modelIndex.row(),
+                                                                            ConnectionModel::TargetModelNodeRow),
+                                                   ConnectionModel::UserRoles::InternalIdRole).toInt();
+    ModelNode modelNode = modelNodeForInternalId(internalId);
+
+    if (modelNode.isValid() && ModelNode::isThisOrAncestorLocked(modelNode))
+        selectionModel->clearSelection();
 }
 
 void ConnectionView::importsChanged(const QList<Import> & /*addedImports*/, const QList<Import> & /*removedImports*/)

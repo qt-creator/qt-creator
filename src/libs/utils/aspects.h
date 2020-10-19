@@ -322,7 +322,10 @@ class QTCREATOR_UTILS_EXPORT TriStateAspect : public SelectionAspect
 {
     Q_OBJECT
 public:
-    TriStateAspect();
+    TriStateAspect(
+            const QString onString = tr("Enable"),
+            const QString &offString = tr("Disable"),
+            const QString &defaultString = tr("Leave at Default"));
 
     TriState setting() const;
     void setSetting(TriState setting);

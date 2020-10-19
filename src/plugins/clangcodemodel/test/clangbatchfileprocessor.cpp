@@ -58,9 +58,10 @@
 #include <QThread>
 
 using namespace ClangBackEnd;
-using namespace ClangCodeModel;
-using namespace ClangCodeModel::Internal;
 using namespace ProjectExplorer;
+
+namespace ClangCodeModel {
+namespace Internal {
 
 static Q_LOGGING_CATEGORY(debug, "qtc.clangcodemodel.batch", QtWarningMsg);
 
@@ -78,7 +79,7 @@ static int timeOutFromEnvironmentVariable()
     return intervalAsInt;
 }
 
-static int timeOutInMs()
+int timeOutInMs()
 {
     static int timeOut = timeOutFromEnvironmentVariable();
     return timeOut;
@@ -746,9 +747,6 @@ bool BatchFileParser::parseLine(const QString &line)
 }
 
 } // anonymous namespace
-
-namespace ClangCodeModel {
-namespace Internal {
 
 static QString applySubstitutions(const QString &filePath, const QString &text)
 {

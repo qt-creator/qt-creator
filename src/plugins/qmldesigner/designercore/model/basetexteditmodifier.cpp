@@ -38,8 +38,9 @@
 
 using namespace QmlDesigner;
 
-BaseTextEditModifier::BaseTextEditModifier(TextEditor::TextEditorWidget *textEdit):
-        PlainTextEditModifier(textEdit)
+BaseTextEditModifier::BaseTextEditModifier(TextEditor::TextEditorWidget *textEdit)
+    : PlainTextEditModifier(textEdit)
+    , m_textEdit{textEdit}
 {
 }
 
@@ -47,21 +48,20 @@ void BaseTextEditModifier::indentLines(int startLine, int endLine)
 {
     if (startLine < 0)
         return;
-    auto baseTextEditorWidget = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit());
-    if (!baseTextEditorWidget)
+
+    if (!m_textEdit)
         return;
 
-    QTextDocument *textDocument = plainTextEdit()->document();
-    TextEditor::TextDocument *baseTextEditorDocument = baseTextEditorWidget->textDocument();
+    TextEditor::TextDocument *baseTextEditorDocument = m_textEdit->textDocument();
     TextEditor::TabSettings tabSettings = baseTextEditorDocument->tabSettings();
-    QTextCursor tc(textDocument);
+    QTextCursor tc(textDocument());
 
     tc.beginEditBlock();
     for (int i = startLine; i <= endLine; i++) {
-        QTextBlock start = textDocument->findBlockByNumber(i);
+        QTextBlock start = textDocument()->findBlockByNumber(i);
 
         if (start.isValid()) {
-            QmlJSEditor::Internal::Indenter indenter(textDocument);
+            QmlJSEditor::Internal::Indenter indenter(textDocument());
             indenter.indentBlock(start, QChar::Null, tabSettings);
         }
     }
@@ -82,22 +82,23 @@ void BaseTextEditModifier::indent(int offset, int length)
 
 int BaseTextEditModifier::indentDepth() const
 {
-    if (auto bte = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit()))
-        return bte->textDocument()->tabSettings().m_indentSize;
+    if (m_textEdit)
+        return m_textEdit->textDocument()->tabSettings().m_indentSize;
     else
         return 0;
 }
 
 bool BaseTextEditModifier::renameId(const QString &oldId, const QString &newId)
 {
-    if (auto bte = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit())) {
-        if (auto document = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(bte->textDocument())) {
+    if (m_textEdit) {
+        if (auto document = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(
+                m_textEdit->textDocument())) {
             Utils::ChangeSet changeSet;
             foreach (const QmlJS::SourceLocation &loc,
                     document->semanticInfo().idLocations.value(oldId)) {
                 changeSet.replace(loc.begin(), loc.end(), newId);
             }
-            QTextCursor tc = bte->textCursor();
+            QTextCursor tc = textCursor();
             changeSet.apply(&tc);
             return true;
         }
@@ -120,10 +121,9 @@ static QmlJS::AST::UiObjectDefinition *getObjectDefinition(const QList<QmlJS::AS
 
 bool BaseTextEditModifier::moveToComponent(int nodeOffset)
 {
-    if (auto bte = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit())) {
-        if (auto document
-                = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(bte->textDocument())) {
-
+    if (m_textEdit) {
+        if (auto document = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(
+                m_textEdit->textDocument())) {
             auto qualifiedId = QmlJS::AST::cast<QmlJS::AST::UiQualifiedId *>(document->semanticInfo().astNodeAt(nodeOffset));
             QList<QmlJS::AST::Node *> path = document->semanticInfo().rangePath(nodeOffset);
             QmlJS::AST::UiObjectDefinition *object = getObjectDefinition(path, qualifiedId);
@@ -140,9 +140,9 @@ bool BaseTextEditModifier::moveToComponent(int nodeOffset)
 
 QStringList BaseTextEditModifier::autoComplete(QTextDocument *textDocument, int position, bool explicitComplete)
 {
-    if (auto bte = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit()))
-        if (auto document
-                = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(bte->textDocument()))
+    if (m_textEdit)
+        if (auto document = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(
+                m_textEdit->textDocument()))
             return QmlJSEditor::qmlJSAutoComplete(textDocument,
                                                   position,
                                                   document->filePath(),

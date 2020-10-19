@@ -28,12 +28,12 @@
 #include "assetexportpluginconstants.h"
 #include "filepathmodel.h"
 
-#include "coreplugin/fileutils.h"
-#include "coreplugin/icore.h"
-#include "projectexplorer/task.h"
-#include "projectexplorer/taskhub.h"
-#include "utils/fileutils.h"
-#include "utils/outputformatter.h"
+#include <coreplugin/fileutils.h>
+#include <coreplugin/icore.h>
+#include <projectexplorer/task.h>
+#include <projectexplorer/taskhub.h>
+#include <utils/fileutils.h>
+#include <utils/outputformatter.h>
 
 #include <QCheckBox>
 #include <QPushButton>

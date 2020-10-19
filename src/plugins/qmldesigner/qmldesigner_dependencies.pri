@@ -3,7 +3,8 @@ QTC_LIB_DEPENDS += \
     utils \
     qmljs \
     qmleditorwidgets \
-    advanceddockingsystem
+    advanceddockingsystem \
+    sqlite
 QTC_PLUGIN_DEPENDS += \
     coreplugin \
     texteditor \

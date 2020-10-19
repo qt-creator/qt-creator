@@ -1117,12 +1117,12 @@ void CppToolsPlugin::test_modelmanager_renameIncludesInEditor()
 
     const MyTestDataDir testDir2(_("testdata_project2"));
     QFile foobar2000Header(testDir2.file("foobar2000.h"));
-    QVERIFY(foobar2000Header.open(QFile::ReadOnly));
+    QVERIFY(foobar2000Header.open(QFile::ReadOnly | QFile::Text));
     const auto foobar2000HeaderContents = foobar2000Header.readAll();
     foobar2000Header.close();
 
     QFile renamedHeader(renamedHeaderWithNormalGuard);
-    QVERIFY(renamedHeader.open(QFile::ReadOnly));
+    QVERIFY(renamedHeader.open(QFile::ReadOnly | QFile::Text));
     auto renamedHeaderContents = renamedHeader.readAll();
     renamedHeader.close();
     QCOMPARE(renamedHeaderContents, foobar2000HeaderContents);
@@ -1133,12 +1133,12 @@ void CppToolsPlugin::test_modelmanager_renameIncludesInEditor()
                                         Core::HandleIncludeGuards::Yes));
 
     QFile foobar4000Header(testDir2.file("foobar4000.h"));
-    QVERIFY(foobar4000Header.open(QFile::ReadOnly));
+    QVERIFY(foobar4000Header.open(QFile::ReadOnly | QFile::Text));
     const auto foobar4000HeaderContents = foobar4000Header.readAll();
     foobar4000Header.close();
 
     renamedHeader.setFileName(renamedHeaderWithUnderscoredGuard);
-    QVERIFY(renamedHeader.open(QFile::ReadOnly));
+    QVERIFY(renamedHeader.open(QFile::ReadOnly | QFile::Text));
     renamedHeaderContents = renamedHeader.readAll();
     renamedHeader.close();
     QCOMPARE(renamedHeaderContents, foobar4000HeaderContents);
@@ -1146,7 +1146,7 @@ void CppToolsPlugin::test_modelmanager_renameIncludesInEditor()
     // test the renaming of a header with a malformed guard to verify we do not make
     // accidental refactors
     renamedHeader.setFileName(headerWithMalformedGuard);
-    QVERIFY(renamedHeader.open(QFile::ReadOnly));
+    QVERIFY(renamedHeader.open(QFile::ReadOnly | QFile::Text));
     auto originalMalformedGuardContents = renamedHeader.readAll();
     renamedHeader.close();
 
@@ -1154,7 +1154,7 @@ void CppToolsPlugin::test_modelmanager_renameIncludesInEditor()
                                         Core::HandleIncludeGuards::Yes));
 
     renamedHeader.setFileName(renamedHeaderWithMalformedGuard);
-    QVERIFY(renamedHeader.open(QFile::ReadOnly));
+    QVERIFY(renamedHeader.open(QFile::ReadOnly | QFile::Text));
     renamedHeaderContents = renamedHeader.readAll();
     renamedHeader.close();
     QCOMPARE(renamedHeaderContents, originalMalformedGuardContents);

@@ -196,10 +196,7 @@ void NodeInstanceView::modelAttached(Model *model)
     AbstractView::modelAttached(model);
     m_nodeInstanceServer = createNodeInstanceServerProxy();
     m_lastCrashTime.start();
-    connect(m_nodeInstanceServer.get(),
-            &NodeInstanceServerProxy::processCrashed,
-            this,
-            &NodeInstanceView::handleCrash);
+    m_connectionManager.setCrashCallback(m_crashCallback);
 
     if (!isSkippedRootNode(rootModelNode())) {
         m_nodeInstanceServer->createScene(createCreateSceneCommand());
@@ -215,6 +212,8 @@ void NodeInstanceView::modelAttached(Model *model)
 
 void NodeInstanceView::modelAboutToBeDetached(Model * model)
 {
+    m_connectionManager.setCrashCallback({});
+
     removeAllInstanceNodeRelationships();
     if (m_nodeInstanceServer) {
         m_nodeInstanceServer->clearScene(createClearSceneCommand());
@@ -280,11 +279,6 @@ void NodeInstanceView::restartProcess()
     if (model()) {
         m_nodeInstanceServer.reset();
         m_nodeInstanceServer = createNodeInstanceServerProxy();
-
-        connect(m_nodeInstanceServer.get(),
-                &NodeInstanceServerProxy::processCrashed,
-                this,
-                &NodeInstanceView::handleCrash);
 
         if (!isSkippedRootNode(rootModelNode())) {
             m_nodeInstanceServer->createScene(createCreateSceneCommand());
@@ -534,11 +528,11 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
                                             const PropertyName &name,
                                             const QVariant &value)
 {
-    if (((node.isRootNode() && (name == "width" || name == "height")) || name == "invisible")
+    if (((node.isRootNode() && (name == "width" || name == "height")) || name == "invisible" || name == "locked")
             || name.endsWith(PropertyName("@NodeInstance"))) {
         if (hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
-            if (value.isValid() || name == "invisible") {
+            if (value.isValid() || name == "invisible" || name == "locked") {
                 PropertyValueContainer container{instance.instanceId(), name, value, TypeName()};
                 m_nodeInstanceServer->changeAuxiliaryValues({{container}});
             } else {
@@ -1496,7 +1490,15 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
         if (hasModelNodeForInternalId(container.instanceId()) && !image.isNull()) {
             auto node = modelNodeForInternalId(container.instanceId());
             if (node.isValid()) {
-                image.setDevicePixelRatio(2.);
+#ifndef QMLDESIGNER_TEST
+                const double ratio = QmlDesignerPlugin::formEditorDevicePixelRatio();
+#else
+                const double ratio = 1;
+#endif
+                const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
+                if (image.height() != dim || image.width() != dim)
+                    image = image.scaled(dim, dim, Qt::KeepAspectRatio);
+                image.setDevicePixelRatio(ratio);
                 updatePreviewImageForNode(node, image);
             }
         }
@@ -1540,12 +1542,15 @@ void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node, const
             } else if (node.isComponent()) {
                 componentPath = node.metaInfo().componentFileName();
             }
+#ifndef QMLDESIGNER_TEST
+                const double ratio = QmlDesignerPlugin::formEditorDevicePixelRatio();
+#else
+                const double ratio = 1;
+#endif
+            const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
             m_nodeInstanceServer->requestModelNodePreviewImage(
-                        RequestModelNodePreviewImageCommand(
-                            instance.instanceId(),
-                            QSize(Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS,
-                                  Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS),
-                            componentPath, renderItemId));
+                        RequestModelNodePreviewImageCommand(instance.instanceId(), QSize(dim, dim),
+                                                            componentPath, renderItemId));
         }
     }
 }
@@ -1587,6 +1592,11 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
     ModelNodePreviewImageData imageData;
     imageData.id = modelNode.id();
     imageData.type = QString::fromLatin1(modelNode.type());
+#ifndef QMLDESIGNER_TEST
+                const double ratio = QmlDesignerPlugin::formEditorDevicePixelRatio();
+#else
+                const double ratio = 1;
+#endif
 
     if (imageSource.isEmpty() && modelNode.isSubclassOf("QtQuick3D.Texture")) {
         // Texture node may have sourceItem instead
@@ -1601,11 +1611,10 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
                     return previewImageDataForGenericNode(modelNode, boundNode);
                 } else {
                     QmlItemNode itemNode(boundNode);
-                    imageData.pixmap = itemNode.instanceRenderPixmap().scaled(
-                                Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
-                                Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
-                                Qt::KeepAspectRatio);
-                    imageData.pixmap.setDevicePixelRatio(2.);
+                    const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
+                    imageData.pixmap = itemNode.instanceRenderPixmap().scaled(dim, dim, Qt::KeepAspectRatio);
+                    imageData.pixmap.setDevicePixelRatio(ratio);
+
                 }
                 imageData.info = QObject::tr("Source item: %1").arg(boundNode.id());
             }
@@ -1629,10 +1638,9 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
             QPixmap originalPixmap;
             originalPixmap.load(imageSource);
             if (!originalPixmap.isNull()) {
-                imageData.pixmap = originalPixmap.scaled(Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
-                                                         Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * 2,
-                                                         Qt::KeepAspectRatio);
-                imageData.pixmap.setDevicePixelRatio(2.);
+                const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
+                imageData.pixmap = originalPixmap.scaled(dim, dim, Qt::KeepAspectRatio);
+                imageData.pixmap.setDevicePixelRatio(ratio);
 
                 double imgSize = double(imageFi.size());
                 static QStringList units({QObject::tr("B"), QObject::tr("KB"), QObject::tr("MB"), QObject::tr("GB")});

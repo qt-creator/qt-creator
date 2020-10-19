@@ -168,6 +168,7 @@ NavigatorTreeView::NavigatorTreeView(QWidget *parent)
     setMinimumWidth(240);
     setRootIsDecorated(false);
     setIndentation(indentation() * 0.5);
+    viewport()->setAttribute(Qt::WA_Hover);
 
     m_toolTipHideTimer.setSingleShot(true);
     connect(&m_toolTipHideTimer, &QTimer::timeout, [this]() {

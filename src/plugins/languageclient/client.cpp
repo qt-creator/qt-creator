@@ -325,10 +325,9 @@ void Client::sendContent(const IContent &content)
     QString error;
     if (!QTC_GUARD(content.isValid(&error)))
         Core::MessageManager::write(error);
-    LanguageClientManager::logBaseMessage(LspLogMessage::ClientMessage,
-                                          name(),
-                                          content.toBaseMessage());
-    m_clientInterface->sendMessage(content.toBaseMessage());
+    const BaseMessage message = content.toBaseMessage();
+    LanguageClientManager::logBaseMessage(LspLogMessage::ClientMessage, name(), message);
+    m_clientInterface->sendMessage(message);
 }
 
 void Client::sendContent(const DocumentUri &uri, const IContent &content)

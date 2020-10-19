@@ -124,9 +124,6 @@ QWidget *NimbleTaskStep::createConfigWidget()
 
     connect(buildSystem, &NimbleBuildSystem::tasksChanged, this, &NimbleTaskStep::updateTaskList);
 
-    connect(m_taskName, &StringAspect::changed, this, &BuildStep::recreateSummary);
-    connect(m_taskArgs, &StringAspect::changed, this, &BuildStep::recreateSummary);
-
     setSummaryUpdater([this] {
         return QString("<b>%1:</b> nimble %2 %3")
                 .arg(displayName(), m_taskName->value(), m_taskArgs->value());

@@ -200,10 +200,10 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
     if (!modelNode.isValid())
         return QVariant();
 
-    if (role == ItemIsVisibleRole) //independent of column
+    if (role == ItemIsVisibleRole) // independent of column
         return m_view->isNodeInvisible(modelNode) ? Qt::Unchecked : Qt::Checked;
 
-    if (index.column() == 0) {
+    if (index.column() == ColumnType::Name) {
         if (role == Qt::DisplayRole) {
             return modelNode.displayName();
         } else if (role == Qt::DecorationRole) {
@@ -240,18 +240,24 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
         } else if (role == ModelNodeRole) {
             return QVariant::fromValue<ModelNode>(modelNode);
         }
-    } else if (index.column() == 1) { //export
+    } else if (index.column() == ColumnType::Alias) { // export
         if (role == Qt::CheckStateRole)
-            return currentQmlObjectNode.isAliasExported()  ? Qt::Checked : Qt::Unchecked;
+            return currentQmlObjectNode.isAliasExported() ? Qt::Checked : Qt::Unchecked;
         else if (role == Qt::ToolTipRole)
             return tr("Toggles whether this item is exported as an "
                       "alias property of the root item.");
-    } else if (index.column() == 2) { //visible
+    } else if (index.column() == ColumnType::Visibility) { // visible
         if (role == Qt::CheckStateRole)
             return m_view->isNodeInvisible(modelNode) ? Qt::Unchecked : Qt::Checked;
         else if (role == Qt::ToolTipRole)
             return tr("Toggles the visibility of this item in the form editor.\n"
                       "This is independent of the visibility property in QML.");
+    } else if (index.column() == ColumnType::Lock) { // lock
+        if (role == Qt::CheckStateRole)
+            return modelNode.locked() ? Qt::Checked : Qt::Unchecked;
+        else if (role == Qt::ToolTipRole)
+            return tr("Toggles whether this item is locked.\n"
+                      "Locked items can't be modified or selected.");
     }
 
     return QVariant();
@@ -259,7 +265,16 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
 
 Qt::ItemFlags NavigatorTreeModel::flags(const QModelIndex &index) const
 {
-    if (index.column() == 0)
+    if (index.column() == ColumnType::Alias
+        || index.column() == ColumnType::Visibility
+        || index.column() == ColumnType::Lock)
+        return Qt::ItemIsEnabled | Qt::ItemIsUserCheckable | Qt::ItemNeverHasChildren;
+
+    const ModelNode modelNode = modelNodeForIndex(index);
+    if (ModelNode::isThisOrAncestorLocked(modelNode))
+        return Qt::NoItemFlags;
+
+    if (index.column() == ColumnType::Name)
         return Qt::ItemIsEditable | Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable
@@ -378,7 +393,7 @@ int NavigatorTreeModel::columnCount(const QModelIndex &parent) const
     if (parent.column() > 0)
         return 0;
 
-    return 3;
+    return ColumnType::Count;
 }
 
 ModelNode NavigatorTreeModel::modelNodeForIndex(const QModelIndex &index) const
@@ -755,7 +770,8 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
 
     auto doMoveNodesInteractive = [&parentProperty, modelNodes, targetIndex](){
         const TypeName propertyQmlType = parentProperty.parentModelNode().metaInfo().propertyTypeName(parentProperty.name());
-        foreach (const ModelNode &modelNode, modelNodes) {
+        int idx = targetIndex;
+        for (const ModelNode &modelNode : modelNodes) {
             if (modelNode.isValid()
                     && modelNode != parentProperty.parentModelNode()
                     && !modelNode.isAncestorOf(parentProperty.parentModelNode())
@@ -764,10 +780,9 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
                 //once the MetaInfo is part of instances we can do this right
 
                 bool nodeCanBeMovedToParentProperty = removeModelNodeFromNodeProperty(parentProperty, modelNode);
-
                 if (nodeCanBeMovedToParentProperty) {
                     reparentModelNodeToNodeProperty(parentProperty, modelNode);
-                    slideModelNodeInList(parentProperty, modelNode, targetIndex);
+                    slideModelNodeInList(parentProperty, modelNode, idx++);
                 }
             }
         }
@@ -792,11 +807,13 @@ Qt::DropActions NavigatorTreeModel::supportedDragActions() const
 bool NavigatorTreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     ModelNode modelNode = modelNodeForIndex(index);
-    if (index.column() == 1 && role == Qt::CheckStateRole) {
+    if (index.column() == ColumnType::Alias && role == Qt::CheckStateRole) {
         QTC_ASSERT(m_view, return false);
         m_view->handleChangedExport(modelNode, value.toInt() != 0);
-    } else if (index.column() == 2 && role == Qt::CheckStateRole) {
+    } else if (index.column() == ColumnType::Visibility && role == Qt::CheckStateRole) {
         QmlVisualNode(modelNode).setVisibilityOverride(value.toInt() == 0);
+    } else if (index.column() == ColumnType::Lock && role == Qt::CheckStateRole) {
+        modelNode.setLocked(value.toInt() != 0);
     }
 
     return true;
@@ -806,7 +823,7 @@ void NavigatorTreeModel::notifyDataChanged(const ModelNode &modelNode)
 {
     const QModelIndex index = indexForModelNode(modelNode);
     const QAbstractItemModel *model = index.model();
-    const QModelIndex sibling = model ? model->sibling(index.row(), 2, index) : QModelIndex();
+    const QModelIndex sibling = model ? model->sibling(index.row(), ColumnType::Count - 1, index) : QModelIndex();
     emit dataChanged(index, sibling);
 }
 

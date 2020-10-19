@@ -185,8 +185,11 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
 
     qCDebug(LOG) << " LocalExecutable" << localExecutable;
     qCDebug(LOG) << " DeployedExecutable" << deployedExecutable;
-    qCDebug(LOG) << "Iterating run configurations";
-    for (RunConfiguration *runConfig : target->runConfigurations()) {
+    qCDebug(LOG) << "Iterating run configurations - prefer active over others";
+    QList<RunConfiguration *> runConfigurations = target->runConfigurations();
+    runConfigurations.removeOne(target->activeRunConfiguration());
+    runConfigurations.prepend(target->activeRunConfiguration());
+    for (RunConfiguration *runConfig : qAsConst(runConfigurations)) {
         qCDebug(LOG) << "RunConfiguration" << runConfig->id();
         if (!isLocal(target)) { // TODO add device support
             qCDebug(LOG) << " Skipped as not being local";

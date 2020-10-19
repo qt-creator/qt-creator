@@ -41,6 +41,7 @@
 #include <qmlitemnode.h>
 #include <rewritingexception.h>
 #include <nodeinstanceview.h>
+#include <theme.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -48,6 +49,7 @@
 #include <utils/algorithm.h>
 #include <utils/icon.h>
 #include <utils/utilsicons.h>
+#include <utils/stylehelper.h>
 
 #include <QHeaderView>
 #include <QTimer>
@@ -138,12 +140,13 @@ void NavigatorView::modelAttached(Model *model)
 
     QTreeView *treeView = treeWidget();
 
-    treeView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
-    treeView->header()->resizeSection(1,26);
+    treeView->header()->setSectionResizeMode(NavigatorTreeModel::ColumnType::Name, QHeaderView::Stretch);
+    treeView->header()->resizeSection(NavigatorTreeModel::ColumnType::Alias, 26);
+    treeView->header()->resizeSection(NavigatorTreeModel::ColumnType::Visibility, 26);
+    treeView->header()->resizeSection(NavigatorTreeModel::ColumnType::Lock, 26);
     treeView->setIndentation(20);
 
     m_currentModelInterface->setFilter(false);
-
 
     QTimer::singleShot(0, this, [this, treeView]() {
         m_currentModelInterface->setFilter(
@@ -166,10 +169,6 @@ void NavigatorView::modelAttached(Model *model)
             }
         }
     });
-
-#ifdef _LOCK_ITEMS_
-    treeView->header()->resizeSection(2,20);
-#endif
 }
 
 void NavigatorView::modelAboutToBeDetached(Model *model)
@@ -304,7 +303,7 @@ void NavigatorView::nodeIdChanged(const ModelNode& modelNode, const QString & /*
     m_currentModelInterface->notifyDataChanged(modelNode);
 }
 
-void NavigatorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& /*propertyList*/)
+void NavigatorView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &/*propertyList*/)
 {
 }
 
@@ -321,7 +320,7 @@ void NavigatorView::propertiesRemoved(const QList<AbstractProperty> &propertyLis
     m_currentModelInterface->notifyModelNodesRemoved(modelNodes);
 }
 
-void NavigatorView::rootNodeTypeChanged(const QString & /*type*/, int /*majorVersion*/, int /*minorVersion*/)
+void NavigatorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
     m_currentModelInterface->notifyDataChanged(rootModelNode());
 }
@@ -332,9 +331,12 @@ void NavigatorView::nodeTypeChanged(const ModelNode &modelNode, const TypeName &
 }
 
 void NavigatorView::auxiliaryDataChanged(const ModelNode &modelNode,
-                                         const PropertyName & /*name*/,
-                                         const QVariant & /*data*/)
+                                         const PropertyName &name,
+                                         const QVariant &data)
 {
+    Q_UNUSED(name)
+    Q_UNUSED(data)
+
     m_currentModelInterface->notifyDataChanged(modelNode);
 }
 
@@ -344,8 +346,8 @@ void NavigatorView::instanceErrorChanged(const QVector<ModelNode> &errorNodeList
         m_currentModelInterface->notifyDataChanged(modelNode);
 }
 
-void NavigatorView::nodeOrderChanged(const NodeListProperty & listProperty,
-                                     const ModelNode & /*node*/,
+void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty,
+                                     const ModelNode &/*node*/,
                                      int /*oldIndex*/)
 {
     m_currentModelInterface->notifyModelNodesMoved(listProperty.directSubNodes());
@@ -613,33 +615,50 @@ void NavigatorView::setupWidget()
     connect(m_widget.data(), &NavigatorWidget::reverseOrderToggled, this, &NavigatorView::reverseOrderToggled);
 
 #ifndef QMLDESIGNER_TEST
+    const QString fontName = "qtds_propertyIconFont.ttf";
+
+    const QIcon visibilityOnIcon =
+            Utils::StyleHelper::getIconFromIconFont(fontName,
+                                                    Theme::getIconUnicode(Theme::Icon::visibilityOn),
+                                                    28, 28, QColor(Qt::white));
+    const QIcon visibilityOffIcon =
+            Utils::StyleHelper::getIconFromIconFont(fontName,
+                                                    Theme::getIconUnicode(Theme::Icon::visibilityOff),
+                                                    28, 28, QColor(Qt::white));
+
+    const QIcon aliasOnIcon =
+            Utils::StyleHelper::getIconFromIconFont(fontName,
+                                                    Theme::getIconUnicode(Theme::Icon::idAliasOn),
+                                                    28, 28, QColor(Qt::red));
+    const QIcon aliasOffIcon =
+            Utils::StyleHelper::getIconFromIconFont(fontName,
+                                                    Theme::getIconUnicode(Theme::Icon::idAliasOff),
+                                                    28, 28, QColor(Qt::white));
+
+    const QIcon lockOnIcon =
+            Utils::StyleHelper::getIconFromIconFont(fontName,
+                                                    Theme::getIconUnicode(Theme::Icon::lockOn),
+                                                    28, 28, QColor(Qt::white));
+    const QIcon lockOffIcon =
+            Utils::StyleHelper::getIconFromIconFont(fontName,
+                                                    Theme::getIconUnicode(Theme::Icon::lockOff),
+                                                    28, 28, QColor(Qt::white));
+
     auto idDelegate = new NameItemDelegate(this);
-    IconCheckboxItemDelegate *showDelegate =
-            new IconCheckboxItemDelegate(this,
-                                         Utils::Icons::EYE_OPEN_TOOLBAR.icon(),
-                                         Utils::Icons::EYE_CLOSED_TOOLBAR.icon());
 
-    IconCheckboxItemDelegate *exportDelegate =
-            new IconCheckboxItemDelegate(this,
-                                         Icons::EXPORT_CHECKED.icon(),
-                                         Icons::EXPORT_UNCHECKED.icon());
+    IconCheckboxItemDelegate *visibilityDelegate =
+            new IconCheckboxItemDelegate(this, visibilityOnIcon, visibilityOffIcon);
 
-#ifdef _LOCK_ITEMS_
+    IconCheckboxItemDelegate *aliasDelegate =
+            new IconCheckboxItemDelegate(this, aliasOnIcon, aliasOffIcon);
+
     IconCheckboxItemDelegate *lockDelegate =
-            new IconCheckboxItemDelegate(this,
-                                         Utils::Icons::LOCKED_TOOLBAR.icon(),
-                                         Utils::Icons::UNLOCKED_TOOLBAR.icon());
-#endif
+            new IconCheckboxItemDelegate(this, lockOnIcon, lockOffIcon);
 
-
-    treeWidget()->setItemDelegateForColumn(0, idDelegate);
-#ifdef _LOCK_ITEMS_
-    treeWidget()->setItemDelegateForColumn(1,lockDelegate);
-    treeWidget()->setItemDelegateForColumn(2,showDelegate);
-#else
-    treeWidget()->setItemDelegateForColumn(1, exportDelegate);
-    treeWidget()->setItemDelegateForColumn(2, showDelegate);
-#endif
+    treeWidget()->setItemDelegateForColumn(NavigatorTreeModel::ColumnType::Name, idDelegate);
+    treeWidget()->setItemDelegateForColumn(NavigatorTreeModel::ColumnType::Alias, aliasDelegate);
+    treeWidget()->setItemDelegateForColumn(NavigatorTreeModel::ColumnType::Visibility, visibilityDelegate);
+    treeWidget()->setItemDelegateForColumn(NavigatorTreeModel::ColumnType::Lock, lockDelegate);
 
 #endif //QMLDESIGNER_TEST
 }

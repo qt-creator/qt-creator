@@ -69,6 +69,8 @@ public:
     virtual TimelineKeyframeItem *asTimelineKeyframeItem();
     virtual TimelineFrameHandle *asTimelineFrameHandle();
 
+    virtual bool isLocked() const;
+
 protected:
     int scrollOffset() const;
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;

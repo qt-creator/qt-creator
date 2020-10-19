@@ -416,8 +416,6 @@ QWidget *MakeStep::createConfigWidget()
         m_nonOverrideWarning->setVisible(makeflagsJobCountMismatch()
                                          && !jobCountOverridesMakeflags());
         disableInSubDirsCheckBox->setChecked(!m_enabledForSubDirs);
-
-        recreateSummary();
     };
 
     updateDetails();

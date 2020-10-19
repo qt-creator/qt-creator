@@ -78,7 +78,7 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view)
 #endif
 }
 
-void NavigatorWidget::setTreeModel(QAbstractItemModel* model)
+void NavigatorWidget::setTreeModel(QAbstractItemModel *model)
 {
     m_treeView->setModel(model);
 }
@@ -91,7 +91,6 @@ QTreeView *NavigatorWidget::treeView() const
 QList<QToolButton *> NavigatorWidget::createToolBarWidgets()
 {
     QList<QToolButton *> buttons;
-
 
     auto button = new QToolButton();
     button->setIcon(Icons::ARROW_LEFT.icon());
@@ -179,7 +178,6 @@ void NavigatorWidget::enableNavigator()
 {
     m_treeView->setEnabled(true);
 }
-
 
 NavigatorView *NavigatorWidget::navigatorView() const
 {

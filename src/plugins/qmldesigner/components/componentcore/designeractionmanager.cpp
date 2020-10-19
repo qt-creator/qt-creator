@@ -347,25 +347,27 @@ public:
                     && !selectionContext().currentSingleSelectedNode().isRootNode()
                     && selectionContext().currentSingleSelectedNode().hasParentProperty()) {
 
-                ActionTemplate *selectionAction = new ActionTemplate(QString(), &ModelNodeOperations::select);
-                selectionAction->setParent(menu());
-
                 parentNode = selectionContext().currentSingleSelectedNode().parentProperty().parentModelNode();
 
-                selectionAction->setText(QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select parent: %1")).arg(
-                                             captionForModelNode(parentNode)));
+                if (!ModelNode::isThisOrAncestorLocked(parentNode)) {
+                    ActionTemplate *selectionAction = new ActionTemplate(QString(), &ModelNodeOperations::select);
+                    selectionAction->setParent(menu());
+                    selectionAction->setText(QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select parent: %1")).arg(
+                                                 captionForModelNode(parentNode)));
 
-                SelectionContext nodeSelectionContext = selectionContext();
-                nodeSelectionContext.setTargetNode(parentNode);
-                selectionAction->setSelectionContext(nodeSelectionContext);
+                    SelectionContext nodeSelectionContext = selectionContext();
+                    nodeSelectionContext.setTargetNode(parentNode);
+                    selectionAction->setSelectionContext(nodeSelectionContext);
 
-                menu()->addAction(selectionAction);
+                    menu()->addAction(selectionAction);
+                }
             }
-            foreach (const ModelNode &node, selectionContext().view()->allModelNodes()) {
+            for (const ModelNode &node : selectionContext().view()->allModelNodes()) {
                 if (node != selectionContext().currentSingleSelectedNode()
                         && node != parentNode
                         && contains(node, selectionContext().scenePosition())
-                        && !node.isRootNode()) {
+                        && !node.isRootNode()
+                        && !ModelNode::isThisOrAncestorLocked(node)) {
                     selectionContext().setTargetNode(node);
                     QString what = QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select: %1")).arg(captionForModelNode(node));
                     ActionTemplate *selectionAction = new ActionTemplate(what, &ModelNodeOperations::select);
@@ -377,6 +379,9 @@ public:
                     menu()->addAction(selectionAction);
                 }
             }
+
+            if (menu()->isEmpty())
+                action()->setEnabled(false);
         }
     }
 };
@@ -572,11 +577,6 @@ using namespace SelectionContextFunctors;
 bool multiSelection(const SelectionContext &context)
 {
     return !singleSelection(context) && selectionNotEmpty(context);
-}
-
-bool singleSelectionAndInBaseState(const SelectionContext &context)
-{
-    return singleSelection(context) && inBaseState(context);
 }
 
 bool multiSelectionAndInBaseState(const SelectionContext &context)
@@ -828,6 +828,11 @@ bool studioComponentsAvailable(const SelectionContext &context)
     return context.view()->model()->isImportPossible(import, true, true);
 }
 
+bool studioComponentsAvailableAndSelectionCanBeLayouted(const SelectionContext &context)
+{
+    return selectionCanBeLayouted(context) && studioComponentsAvailable(context);
+}
+
 bool singleSelectedAndUiFile(const SelectionContext &context)
 {
     if (!singleSelection(context))
@@ -880,6 +885,12 @@ bool raiseAvailable(const SelectionContext &selectionState)
 
     NodeListProperty parentProperty = modelNode.parentProperty().toNodeListProperty();
     return parentProperty.indexOf(modelNode) < parentProperty.count() - 1;
+}
+
+bool anchorsMenuEnabled(const SelectionContext &context)
+{
+    return singleSelectionItemIsNotAnchoredAndSingleSelectionNotRoot(context)
+           || singleSelectionItemIsAnchored(context);
 }
 
 void DesignerActionManager::createDefaultDesignerActions()
@@ -996,11 +1007,10 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &setVisible,
                           &singleSelectedItem));
 
-    addDesignerAction(new ActionGroup(
-                          anchorsCategoryDisplayName,
-                          anchorsCategory,
-                          priorityAnchorsCategory,
-                          &singleSelectionAndInBaseState));
+    addDesignerAction(new ActionGroup(anchorsCategoryDisplayName,
+                                      anchorsCategory,
+                                      priorityAnchorsCategory,
+                                      &anchorsMenuEnabled));
 
     addDesignerAction(new ModelNodeAction(
                           anchorsFillCommandId,
@@ -1042,7 +1052,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ActionGroup(groupCategoryDisplayName,
                                       groupCategory,
                                       priorityGroupCategory,
-                                      &studioComponentsAvailable));
+                                      &studioComponentsAvailableAndSelectionCanBeLayouted));
 
     addDesignerAction(new ActionGroup(
         flowCategoryDisplayName,

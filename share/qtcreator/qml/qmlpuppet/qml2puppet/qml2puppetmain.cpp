@@ -42,8 +42,10 @@
 #endif
 
 #ifdef Q_OS_WIN
-#include <windows.h>
+#include <Windows.h>
 #endif
+
+namespace {
 
 int internalMain(QGuiApplication *application)
 {
@@ -138,6 +140,7 @@ int internalMain(QGuiApplication *application)
 
     return application->exec();
 }
+} // namespace
 
 int main(int argc, char *argv[])
 {

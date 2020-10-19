@@ -34,9 +34,12 @@ class InteractiveConnectionManager : public ConnectionManager
 public:
     InteractiveConnectionManager();
 
-    void setUp(NodeInstanceServerProxy *nodeInstanceServerProxy,
+    void setUp(NodeInstanceServerInterface *nodeInstanceServer,
                const QString &qrcMappingString,
-               ProjectExplorer::Target *target) override;
+               ProjectExplorer::Target *target,
+               AbstractView *view) override;
+
+    void shutDown() override;
 
     void showCannotConnectToPuppetWarningAndSwitchToEditMode() override;
 
@@ -46,6 +49,9 @@ protected:
 private:
     void puppetTimeout(Connection &connection);
     void puppetAlive(Connection &connection);
+
+private:
+    AbstractView *m_view{};
 };
 
 } // namespace QmlDesigner

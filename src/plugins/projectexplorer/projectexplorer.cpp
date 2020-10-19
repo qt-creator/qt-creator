@@ -259,7 +259,8 @@ const char PROJECT_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.P.OpenLocation.CtxM
 
 // Default directories:
 const char DEFAULT_BUILD_DIRECTORY_TEMPLATE[] = "../%{JS: Util.asciify(\"build-%{Project:Name}-%{Kit:FileSystemName}-%{BuildConfig:Name}\")}";
-const char DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY[] = "Directories/BuildDirectory.Template";
+const char DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY_OLD[] = "Directories/BuildDirectory.Template"; // TODO: Remove in ~4.16
+const char DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY[] = "Directories/BuildDirectory.TemplateV2";
 
 const char BUILD_BEFORE_DEPLOY_SETTINGS_KEY[] = "ProjectExplorer/Settings/BuildBeforeDeploy";
 const char DEPLOY_BEFORE_RUN_SETTINGS_KEY[] = "ProjectExplorer/Settings/DeployBeforeRun";
@@ -1532,8 +1533,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_projectExplorerSettings.lowBuildPriority
             = s->value(Constants::LOW_BUILD_PRIORITY_SETTINGS_KEY, false).toBool();
 
+    dd->m_buildPropertiesSettings.buildDirectoryTemplateOld
+            = s->value(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY_OLD).toString();
     dd->m_buildPropertiesSettings.buildDirectoryTemplate
             = s->value(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY).toString();
+    if (dd->m_buildPropertiesSettings.buildDirectoryTemplate.isEmpty()) {
+        dd->m_buildPropertiesSettings.buildDirectoryTemplate
+                = dd->m_buildPropertiesSettings.buildDirectoryTemplateOld;
+    }
     if (dd->m_buildPropertiesSettings.buildDirectoryTemplate.isEmpty())
         dd->m_buildPropertiesSettings.buildDirectoryTemplate = Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE;
     // TODO: Remove in ~4.16
@@ -2110,6 +2117,8 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
     s->setValue(Constants::STOP_BEFORE_BUILD_SETTINGS_KEY, int(dd->m_projectExplorerSettings.stopBeforeBuild));
 
     // Store this in the Core directory scope for backward compatibility!
+    s->setValue(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY_OLD,
+                dd->m_buildPropertiesSettings.buildDirectoryTemplateOld);
     s->setValue(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY,
                 dd->m_buildPropertiesSettings.buildDirectoryTemplate);
 

@@ -27,6 +27,7 @@ Project {
         Depends { name: "LanguageUtils" }
         Depends { name: "QtSupport" }
         Depends { name: "app_version_header" }
+        Depends { name: "Sqlite" }
 
         cpp.defines: base.concat([
             "DESIGNER_CORE_LIBRARY",
@@ -411,6 +412,21 @@ Project {
                 "pluginmanager/widgetpluginmanager.h",
                 "pluginmanager/widgetpluginpath.cpp",
                 "pluginmanager/widgetpluginpath.h",
+                "include/imagecache.h",
+                "imagecache/imagecachecollector.cpp",
+                "imagecache/imagecachecollector.h",
+                "imagecache/imagecache.cpp",
+                "imagecache/imagecachecollectorinterface.h",
+                "imagecache/imagecacheconnectionmanager.cpp",
+                "imagecache/imagecacheconnectionmanager.h",
+                "imagecache/imagecachegeneratorinterface.h",
+                "imagecache/imagecachegenerator.cpp",
+                "imagecache/imagecachegenerator.h",
+                "imagecache/imagecachestorageinterface.h",
+                "imagecache/imagecachestorage.h",
+                "imagecache/timestampproviderinterface.h",
+                "imagecache/timestampprovider.h",
+                "imagecache/timestampprovider.cpp",
             ]
         }
 
@@ -446,6 +462,8 @@ Project {
                 "componentcore/modelnodecontextmenu_helper.h",
                 "componentcore/modelnodeoperations.cpp",
                 "componentcore/modelnodeoperations.h",
+                "componentcore/navigation2d.cpp",
+                "componentcore/navigation2d.h",
                 "componentcore/selectioncontext.cpp",
                 "componentcore/selectioncontext.h",
                 "componentcore/qmldesignericonprovider.cpp",
@@ -600,6 +618,8 @@ Project {
                 "itemlibrary/itemlibrarywidget.h",
                 "itemlibrary/customfilesystemmodel.cpp",
                 "itemlibrary/customfilesystemmodel.h",
+                "itemlibrary/itemlibraryiconimageprovider.cpp",
+                "itemlibrary/itemlibraryiconimageprovider.h",
                 "navigator/iconcheckboxitemdelegate.cpp",
                 "navigator/iconcheckboxitemdelegate.h",
                 "navigator/nameitemdelegate.cpp",
@@ -791,6 +811,11 @@ Project {
                 "pathtool/pathtool.h",
                 "pathtool/pathtoolview.cpp",
                 "pathtool/pathtoolview.h",
+                "previewtooltip/previewimagetooltip.cpp",
+                "previewtooltip/previewimagetooltip.h",
+                "previewtooltip/previewimagetooltip.ui",
+                "previewtooltip/previewtooltipbackend.cpp",
+                "previewtooltip/previewtooltipbackend.h",
                 "richtexteditor/hyperlinkdialog.cpp",
                 "richtexteditor/hyperlinkdialog.h",
                 "richtexteditor/hyperlinkdialog.ui",

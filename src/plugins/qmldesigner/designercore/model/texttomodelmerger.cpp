@@ -989,7 +989,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
     m_rewriterView->setIncompleteTypeInformation(false);
 
     // maybe the project environment (kit, ...) changed, so we need to clean old caches
-    NodeMetaInfo::clearCache();
+    m_rewriterView->model()->clearMetaInfoCache();
 
     try {
         Snapshot snapshot = m_rewriterView->textModifier()->qmljsSnapshot();
@@ -1119,8 +1119,15 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         differenceHandler.typeDiffers(isRootNode, modelNode, typeName,
                                       majorVersion, minorVersion,
                                       astNode, context);
-        if (!isRootNode)
+
+        if (!modelNode.isValid())
+            return;
+
+        if (!isRootNode && modelNode.majorVersion() != -1 && modelNode.minorVersion() != -1) {
+            qWarning() << "Preempting Node sync. Type differs" << modelNode <<
+                          modelNode.majorVersion() << modelNode.minorVersion();
             return; // the difference handler will create a new node, so we're done.
+        }
     }
 
     if (isComponentType(typeName) || isImplicitComponent)

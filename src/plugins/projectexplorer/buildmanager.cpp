@@ -477,6 +477,7 @@ void BuildManager::finish()
 {
     const QString elapsedTime = Utils::formatElapsedTime(d->m_elapsed.elapsed());
     m_instance->addToOutputWindow(elapsedTime, BuildStep::OutputFormat::NormalMessage);
+    d->m_outputWindow->flush();
 
     QApplication::alert(ICore::dialogParent(), 3000);
 }
@@ -696,7 +697,7 @@ void BuildManager::nextStep()
         }
 
         static const auto finishedHandler = [](bool success)  {
-            d->m_outputWindow->outputFormatter()->flush();
+            d->m_outputWindow->flush();
             d->m_lastStepSucceeded = success;
             disconnect(d->m_currentBuildStep, nullptr, instance(), nullptr);
             BuildManager::nextBuildQueue();

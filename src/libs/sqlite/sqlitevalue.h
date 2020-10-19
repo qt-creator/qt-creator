@@ -23,6 +23,8 @@
 **
 ****************************************************************************/
 
+#pragma once
+
 #include "sqliteexception.h"
 
 #include <utils/smallstring.h>
@@ -31,9 +33,6 @@
 #include <QVariant>
 
 #include <cstddef>
-
-
-#pragma once
 
 namespace Sqlite {
 

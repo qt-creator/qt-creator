@@ -70,6 +70,7 @@
 #include <usedmacro.h>
 #include <utils/link.h>
 #include <variantproperty.h>
+#include <qmldesigner/designercore/imagecache/imagecachestorageinterface.h>
 
 #include <sqlite3ext.h>
 
@@ -1468,6 +1469,15 @@ std::ostream &operator<<(std::ostream &out, const VariantProperty &property)
     return out << "(" << property.parentModelNode() << ", " << property.name() << ", "
                << property.value() << ")";
 }
+
+namespace Internal {
+std::ostream &operator<<(std::ostream &out, const ImageCacheStorageEntry &entry)
+{
+    return out << "(" << entry.image << ", " << entry.hasEntry << ")";
+}
+
+} // namespace Internal
+
 } // namespace QmlDesigner
 
 void setFilePathCache(ClangBackEnd::FilePathCaching *cache)

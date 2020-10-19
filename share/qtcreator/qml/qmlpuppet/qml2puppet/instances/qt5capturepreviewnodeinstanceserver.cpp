@@ -100,7 +100,7 @@ void Qt5CapturePreviewNodeInstanceServer::collectItemChangesAndSendChangeCommand
             stateInstance.deactivateState();
         }
 
-        nodeInstanceClient()->capturedData(CapturedDataCommand{stateDatas});
+        nodeInstanceClient()->capturedData(CapturedDataCommand{std::move(stateDatas)});
 
         slowDownRenderTimer();
         inFunction = false;

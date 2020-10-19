@@ -70,7 +70,6 @@ public:
     virtual bool init() = 0;
     void run();
     void cancel();
-    virtual QWidget *createConfigWidget();
 
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
@@ -120,7 +119,7 @@ public:
     QString summaryText() const;
     void setSummaryText(const QString &summaryText);
 
-    void recreateSummary();
+    QWidget *doCreateConfigWidget();
 
 signals:
     void updateSummary();
@@ -141,6 +140,8 @@ signals:
     void finished(bool result);
 
 protected:
+    virtual QWidget *createConfigWidget();
+
     void runInThread(const std::function<bool()> &syncImpl);
 
     std::function<bool()> cancelChecker() const;

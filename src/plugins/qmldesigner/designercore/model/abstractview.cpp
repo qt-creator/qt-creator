@@ -35,6 +35,7 @@
 #ifndef QMLDESIGNER_TEST
 #include <qmldesignerplugin.h>
 #include <viewmanager.h>
+#include <nodeabstractproperty.h>
 #endif
 
 #include <coreplugin/helpmanager.h>
@@ -397,7 +398,7 @@ QList<ModelNode> AbstractView::toModelNodeList(const QList<Internal::InternalNod
 QList<ModelNode> toModelNodeList(const QList<Internal::InternalNode::Pointer> &nodeList, AbstractView *view)
 {
     QList<ModelNode> newNodeList;
-    foreach (const Internal::InternalNode::Pointer &node, nodeList)
+    for (const Internal::InternalNode::Pointer &node : nodeList)
         newNodeList.append(ModelNode(node, view->model(), view));
 
     return newNodeList;
@@ -406,7 +407,7 @@ QList<ModelNode> toModelNodeList(const QList<Internal::InternalNode::Pointer> &n
 QList<Internal::InternalNode::Pointer> toInternalNodeList(const QList<ModelNode> &nodeList)
 {
     QList<Internal::InternalNode::Pointer> newNodeList;
-    foreach (const ModelNode &node, nodeList)
+    for (const ModelNode &node : nodeList)
         newNodeList.append(node.internalNode());
 
     return newNodeList;
@@ -414,15 +415,26 @@ QList<Internal::InternalNode::Pointer> toInternalNodeList(const QList<ModelNode>
 
 /*!
     Sets the list of nodes to the actual selected nodes specified by
-    \a selectedNodeList.
+    \a selectedNodeList if the node or its ancestors are not locked.
 */
 void AbstractView::setSelectedModelNodes(const QList<ModelNode> &selectedNodeList)
 {
-    model()->d->setSelectedNodes(toInternalNodeList(selectedNodeList));
+    QList<ModelNode> unlockedNodes;
+
+    for (const auto &modelNode : selectedNodeList) {
+        if (!ModelNode::isThisOrAncestorLocked(modelNode))
+            unlockedNodes.push_back(modelNode);
+    }
+
+    model()->d->setSelectedNodes(toInternalNodeList(unlockedNodes));
 }
 
 void AbstractView::setSelectedModelNode(const ModelNode &modelNode)
 {
+    if (ModelNode::isThisOrAncestorLocked(modelNode)) {
+        clearSelectedModelNodes();
+        return;
+    }
     setSelectedModelNodes({modelNode});
 }
 
