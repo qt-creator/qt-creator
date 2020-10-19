@@ -333,19 +333,6 @@ Project {
             "unittests-main.cpp",
             "usedmacrofilter-test.cpp",
             "utf8-test.cpp",
-        "imagecache-test.cpp",
-        "imagecachegenerator-test.cpp",
-        "imagecachestorage-test.cpp",
-        "sqlitedatabasemock.h",
-        "sqlitereadstatementmock.h",
-        "sqlitestatementmock.h",
-        "sqlitetransactionbackendmock.h",
-        "sqlitewritestatementmock.h",
-        "notification.h",
-        "mocktimestampprovider.h",
-        "imagecachecollectormock.h",
-        "mockimagecachegenerator.h",
-        "mockimagecachestorage.h",
         ]
 
         Group {
