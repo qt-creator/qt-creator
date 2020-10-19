@@ -485,9 +485,10 @@ void CodeAssistantPrivate::destroyContext()
 
     if (isWaitingForProposal()) {
         cancelCurrentRequest();
-    } else if (isDisplayingProposal()) {
+    } else if (m_proposalWidget) {
         m_editorWidget->keepAutoCompletionHighlight(false);
-        m_proposalWidget->closeProposal();
+        if (m_proposalWidget->isVisible())
+            m_proposalWidget->closeProposal();
         disconnect(m_proposalWidget, &QObject::destroyed,
                    this, &CodeAssistantPrivate::finalizeProposal);
         finalizeProposal();
