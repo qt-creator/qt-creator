@@ -29,6 +29,7 @@
 #include <sourcelocationscontainer.h>
 #include <sourcerangescontainer.h>
 
+#include <clang/Basic/FileManager.h>
 #include <clang/Basic/SourceManager.h>
 #include <clang/Lex/Lexer.h>
 #include <llvm/Support/FileSystem.h>
