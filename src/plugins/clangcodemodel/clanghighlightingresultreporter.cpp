@@ -197,13 +197,8 @@ void HighlightingResultReporter::run_internal()
 
     using ClangBackEnd::HighlightingType;
 
-    for (const auto &tokenInfo : m_tokenInfos) {
-        const HighlightingType mainType = tokenInfo.types.mainHighlightingType;
-        if (mainType == HighlightingType::StringLiteral)
-            continue;
-
+    for (const auto &tokenInfo : qAsConst(m_tokenInfos))
         reportChunkWise(toHighlightingResult(tokenInfo));
-    }
 
     if (isCanceled())
         return;

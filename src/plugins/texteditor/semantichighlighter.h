@@ -33,6 +33,13 @@
 #include <QFuture>
 #include <QTextCharFormat>
 
+#include <functional>
+#include <utility>
+
+QT_BEGIN_NAMESPACE
+class QTextBlock;
+QT_END_NAMESPACE
+
 namespace TextEditor {
 
 class SyntaxHighlighter;
@@ -76,6 +83,9 @@ using HighlightingResults = QList<HighlightingResult>;
 
 namespace SemanticHighlighter {
 
+using Splitter = std::function<const QList<std::pair<HighlightingResult, QTextBlock>>
+        (const HighlightingResult &, const QTextBlock &)>;
+
 // Applies the future results [from, to) and applies the extra formats
 // indicated by Result::kind and kindToFormat to the correct location using
 // SyntaxHighlighter::setExtraAdditionalFormats.
@@ -87,7 +97,8 @@ void TEXTEDITOR_EXPORT incrementalApplyExtraAdditionalFormats(
         SyntaxHighlighter *highlighter,
         const QFuture<HighlightingResult> &future,
         int from, int to,
-        const QHash<int, QTextCharFormat> &kindToFormat);
+        const QHash<int, QTextCharFormat> &kindToFormat,
+        const Splitter &splitter = {});
 
 // Clears all extra highlights and applies the extra formats
 // indicated by Result::kind and kindToFormat to the correct location using
