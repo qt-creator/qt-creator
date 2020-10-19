@@ -30,25 +30,52 @@
 
 #include <utils/qtcassert.h>
 
-#include <QTextDocument>
 #include <QTextBlock>
+#include <QTextDocument>
+
+#include <algorithm>
 
 using namespace TextEditor;
 using namespace TextEditor::SemanticHighlighter;
 
 namespace {
 
-QTextLayout::FormatRange rangeForResult(const HighlightingResult &result,
-                                        const QHash<int, QTextCharFormat> &kindToFormat)
-{
+class Range {
+public:
     QTextLayout::FormatRange formatRange;
+    QTextBlock block;
+};
+using Ranges = QVector<Range>;
 
-    formatRange.start = int(result.column) - 1;
-    formatRange.length = int(result.length);
-    formatRange.format = result.useTextSyles
+Ranges rangesForResult(const HighlightingResult &result,
+                       QTextDocument *doc,
+                       const QHash<int, QTextCharFormat> &kindToFormat)
+{
+    const QTextCharFormat format = result.useTextSyles
         ? TextEditorSettings::fontSettings().toTextCharFormat(result.textStyles)
         : kindToFormat.value(result.kind);
-    return formatRange;
+    if (!format.isValid())
+        return {};
+
+    HighlightingResult curResult = result;
+    QTextBlock curBlock = doc->findBlockByNumber(curResult.line - 1);
+    Ranges ranges;
+    while (curBlock.isValid()) {
+        Range range;
+        range.block = curBlock;
+        range.formatRange.format = format;
+        range.formatRange.start = curResult.column - 1;
+        range.formatRange.length = std::min(curResult.length,
+                                            curBlock.length() - range.formatRange.start);
+        ranges << range;
+        if (range.formatRange.length == curResult.length)
+            break;
+        curBlock = curBlock.next();
+        curResult.column = 1;
+        curResult.length -= range.formatRange.length;
+    }
+
+    return ranges;
 }
 
 }
@@ -81,39 +108,22 @@ void SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
 
     QTextDocument *doc = highlighter->document();
     QTC_ASSERT(currentBlockNumber < doc->blockCount(), return);
-    QTextBlock b = doc->findBlockByNumber(currentBlockNumber);
+    QTextBlock currentBlock = doc->findBlockByNumber(currentBlockNumber);
 
-    HighlightingResult result = future.resultAt(from);
-    for (int i = from; i < to && b.isValid(); ) {
-        const int blockNumber = int(result.line) - 1;
-        QTC_ASSERT(blockNumber < doc->blockCount(), return);
+    std::map<QTextBlock, QVector<QTextLayout::FormatRange>> formatRanges;
+    for (int i = from; i < to; ++i) {
+        const Ranges ranges = rangesForResult(future.resultAt(i), doc, kindToFormat);
+        for (const Range &range : ranges)
+            formatRanges[range.block].append(range.formatRange);
+    }
 
-        // clear formats of blocks until blockNumber
-        while (currentBlockNumber < blockNumber) {
-            highlighter->clearExtraFormats(b);
-            b = b.next();
-            ++currentBlockNumber;
+    for (auto &[block, ranges] : formatRanges) {
+        while (currentBlock < block) {
+            highlighter->clearExtraFormats(currentBlock);
+            currentBlock = currentBlock.next();
         }
-
-        // collect all the formats for the current line
-        QVector<QTextLayout::FormatRange> formats;
-        formats.reserve(to - from);
-        forever {
-            const QTextLayout::FormatRange formatRange = rangeForResult(result, kindToFormat);
-            if (formatRange.format.isValid())
-                formats.append(formatRange);
-
-            ++i;
-            if (i >= to)
-                break;
-            result = future.resultAt(i);
-            const int nextBlockNumber = int(result.line) - 1;
-            if (nextBlockNumber != blockNumber)
-                break;
-        }
-        highlighter->setExtraFormats(b, std::move(formats));
-        b = b.next();
-        ++currentBlockNumber;
+        highlighter->setExtraFormats(block, std::move(ranges));
+        currentBlock = block.next();
     }
 }
 
@@ -128,21 +138,16 @@ void SemanticHighlighter::setExtraAdditionalFormats(SyntaxHighlighter *highlight
     QTextDocument *doc = highlighter->document();
     QTC_ASSERT(doc, return );
 
-    QVector<QVector<QTextLayout::FormatRange>> ranges(doc->blockCount());
+    std::map<QTextBlock, QVector<QTextLayout::FormatRange>> formatRanges;
 
     for (auto result : results) {
-        const QTextLayout::FormatRange formatRange = rangeForResult(result, kindToFormat);
-        if (formatRange.format.isValid())
-            ranges[int(result.line) - 1].append(formatRange);
+        const Ranges ranges = rangesForResult(result, doc, kindToFormat);
+        for (const Range &range : ranges)
+            formatRanges[range.block].append(range.formatRange);
     }
 
-    for (int blockNumber = 0; blockNumber < ranges.count(); ++blockNumber) {
-        if (!ranges[blockNumber].isEmpty()) {
-            QTextBlock b = doc->findBlockByNumber(blockNumber);
-            QTC_ASSERT(b.isValid(), return );
-            highlighter->setExtraFormats(b, std::move(ranges[blockNumber]));
-        }
-    }
+    for (auto &[block, ranges] : formatRanges)
+        highlighter->setExtraFormats(block, std::move(ranges));
 }
 
 void SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
