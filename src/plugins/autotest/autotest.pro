@@ -7,6 +7,10 @@ DEFINES += AUTOTEST_LIBRARY
 
 SOURCES += \
     autotestplugin.cpp \
+    ctest/ctestconfiguration.cpp \
+    ctest/ctestoutputreader.cpp \
+    ctest/ctesttool.cpp \
+    ctest/ctesttreeitem.cpp \
     itestframework.cpp \
     itestparser.cpp \
     projectsettingswidget.cpp \
@@ -78,6 +82,10 @@ HEADERS += \
     autotestconstants.h \
     autotesticons.h \
     autotestplugin.h \
+    ctest/ctestconfiguration.h \
+    ctest/ctestoutputreader.h \
+    ctest/ctesttool.h \
+    ctest/ctesttreeitem.h \
     itemdatacache.h \
     itestframework.h \
     itestparser.h \

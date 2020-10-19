@@ -42,6 +42,7 @@
 
 #include "boost/boosttestframework.h"
 #include "catch/catchframework.h"
+#include "ctest/ctesttool.h"
 #include "gtest/gtestframework.h"
 #include "qtest/qttestframework.h"
 #include "quick/quicktestframework.h"
@@ -140,6 +141,8 @@ AutotestPluginPrivate::AutotestPluginPrivate()
     m_frameworkManager.registerTestFramework(new GTestFramework);
     m_frameworkManager.registerTestFramework(new BoostTestFramework);
     m_frameworkManager.registerTestFramework(new CatchFramework);
+
+    m_frameworkManager.registerTestTool(new CTestTool);
 
     m_frameworkManager.synchronizeSettings(ICore::settings());
     m_navigationWidgetFactory = new TestNavigationWidgetFactory;

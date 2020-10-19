@@ -121,6 +121,13 @@ QtcPlugin {
     }
 
     Group {
+        name: "CTest support files"
+        files: [
+            "ctest/*"
+        ]
+    }
+
+    Group {
         name: "Test sources"
         condition: qtc.testsEnabled
         files: [
