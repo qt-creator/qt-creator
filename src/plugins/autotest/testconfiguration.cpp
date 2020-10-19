@@ -102,6 +102,11 @@ QString ITestConfiguration::executableFilePath() const
     return QString();
 }
 
+Environment ITestConfiguration::filteredEnvironment(const Environment &original) const
+{
+    return original;
+}
+
 TestConfiguration::TestConfiguration(ITestFramework *framework)
     : ITestConfiguration(framework)
 {

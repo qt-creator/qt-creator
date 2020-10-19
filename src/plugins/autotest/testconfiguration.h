@@ -67,7 +67,7 @@ public:
 
     virtual TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
                                            QProcess *app) const = 0;
-    virtual Utils::Environment filteredEnvironment(const Utils::Environment &original) const = 0;
+    virtual Utils::Environment filteredEnvironment(const Utils::Environment &original) const;
 
     ITestBase *testBase() const { return m_testBase; }
     void setProject(ProjectExplorer::Project *project) { m_project = project; }
@@ -143,6 +143,17 @@ public:
 private:
     TestRunMode m_runMode;
     bool m_mixedDebugging = false;
+};
+
+class TestToolConfiguration : public ITestConfiguration
+{
+public:
+    explicit TestToolConfiguration(ITestBase *testBase) : ITestConfiguration(testBase) {}
+    Utils::CommandLine commandLine() const { return m_commandLine; }
+    void setCommandLine(const Utils::CommandLine &cmdline) { m_commandLine = cmdline; }
+
+private:
+    Utils::CommandLine m_commandLine;
 };
 
 } // namespace Autotest

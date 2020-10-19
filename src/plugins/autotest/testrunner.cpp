@@ -148,7 +148,8 @@ static QString processInformation(const QProcess *proc)
 
 static QString rcInfo(const ITestConfiguration * const config)
 {
-    // FIXME early return for test tools
+    if (config->testBase()->asTestTool())
+        return {};
     const TestConfiguration *current = static_cast<const TestConfiguration *>(config);
     QString info;
     if (current->isDeduced())
@@ -175,44 +176,48 @@ static QString constructOmittedVariablesDetailsString(const Utils::EnvironmentIt
 
 bool TestRunner::currentConfigValid()
 {
-    if (true) { // FIXME do this for frameworks
+    QString commandFilePath;
+    if (m_currentConfig->testBase()->asFramework()) {
         TestConfiguration *current = static_cast<TestConfiguration *>(m_currentConfig);
-        QString commandFilePath = current->executableFilePath();
-        if (commandFilePath.isEmpty()) {
-            reportResult(ResultType::MessageFatal,
-                tr("Executable path is empty. (%1)").arg(current->displayName()));
-            delete m_currentConfig;
-            m_currentConfig = nullptr;
-            if (m_selectedTests.isEmpty()) {
-                if (m_fakeFutureInterface)
-                    m_fakeFutureInterface->reportFinished();
-                onFinished();
-            } else {
-                onProcessFinished();
-            }
-            return false;
-        }
-        return true;
+        commandFilePath = current->executableFilePath();
+    } else {
+        TestToolConfiguration *current = static_cast<TestToolConfiguration *>(m_currentConfig);
+        commandFilePath = current->commandLine().executable().toString();
     }
-    // FIXME check TestTools as well
-    return false;
+    if (commandFilePath.isEmpty()) {
+        reportResult(ResultType::MessageFatal,
+                     tr("Executable path is empty. (%1)").arg(m_currentConfig->displayName()));
+        delete m_currentConfig;
+        m_currentConfig = nullptr;
+        if (m_selectedTests.isEmpty()) {
+            if (m_fakeFutureInterface)
+                m_fakeFutureInterface->reportFinished();
+            onFinished();
+        } else {
+            onProcessFinished();
+        }
+        return false;
+    }
+    return true;
 }
 
 void TestRunner::setUpProcess()
 {
     QTC_ASSERT(m_currentConfig, return);
-    if (true) { // FIXME do this for frameworks
+    m_currentProcess = new QProcess;
+    m_currentProcess->setReadChannel(QProcess::StandardOutput);
+    if (m_currentConfig->testBase()->asFramework()) {
         TestConfiguration *current = static_cast<TestConfiguration *>(m_currentConfig);
-        m_currentProcess = new QProcess;
-        m_currentProcess->setReadChannel(QProcess::StandardOutput);
         m_currentProcess->setProgram(current->executableFilePath());
+    } else {
+        TestToolConfiguration *current = static_cast<TestToolConfiguration *>(m_currentConfig);
+        m_currentProcess->setProgram(current->commandLine().executable().toString());
     }
-    // FIXME prepare for TestTools as well
 }
 
 void TestRunner::setUpProcessEnv()
 {
-    if (true) { // do this for frameworks
+    if (m_currentConfig->testBase()->asFramework()) {
         TestConfiguration *current = static_cast<TestConfiguration *>(m_currentConfig);
 
         QStringList omitted;
@@ -221,21 +226,24 @@ void TestRunner::setUpProcessEnv()
             const QString &details = constructOmittedDetailsString(omitted);
             reportResult(ResultType::MessageWarn, details.arg(current->displayName()));
         }
-        m_currentProcess->setWorkingDirectory(current->workingDirectory());
-        const Utils::Environment &original = current->environment();
-        Utils::Environment environment =  current->filteredEnvironment(original);
-        const Utils::EnvironmentItems removedVariables = Utils::filtered(
-                    original.diff(environment), [](const Utils::EnvironmentItem &it) {
-            return it.operation == Utils::EnvironmentItem::Unset;
-        });
-        if (!removedVariables.isEmpty()) {
-            const QString &details = constructOmittedVariablesDetailsString(removedVariables)
-                    .arg(current->displayName());
-            reportResult(ResultType::MessageWarn, details);
-        }
-        m_currentProcess->setProcessEnvironment(environment.toProcessEnvironment());
+    } else {
+        TestToolConfiguration *current = static_cast<TestToolConfiguration *>(m_currentConfig);
+        m_currentProcess->setArguments(current->commandLine().splitArguments());
     }
-    // FIXME prepare for TestTools as well
+
+    m_currentProcess->setWorkingDirectory(m_currentConfig->workingDirectory());
+    const Utils::Environment &original = m_currentConfig->environment();
+    Utils::Environment environment =  m_currentConfig->filteredEnvironment(original);
+    const Utils::EnvironmentItems removedVariables = Utils::filtered(
+                original.diff(environment), [](const Utils::EnvironmentItem &it) {
+        return it.operation == Utils::EnvironmentItem::Unset;
+    });
+    if (!removedVariables.isEmpty()) {
+        const QString &details = constructOmittedVariablesDetailsString(removedVariables)
+                .arg(m_currentConfig->displayName());
+        reportResult(ResultType::MessageWarn, details);
+    }
+    m_currentProcess->setProcessEnvironment(environment.toProcessEnvironment());
 }
 
 void TestRunner::scheduleNext()
@@ -469,7 +477,16 @@ int TestRunner::precheckTestConfigurations()
     const bool omitWarnings = AutotestPlugin::settings()->omitRunConfigWarn;
     int testCaseCount = 0;
     for (ITestConfiguration *itc : qAsConst(m_selectedTests)) {
-        // FIXME handle test tools
+        if (itc->testBase()->asTestTool()) {
+            if (itc->project()) {
+                testCaseCount += itc->testCaseCount();
+            } else {
+                reportResult(ResultType::MessageWarn,
+                             tr("Project is null for \"%1\". Removing from test run.\n"
+                                "Check the test environment.").arg(itc->displayName()));
+            }
+            continue;
+        }
         TestConfiguration *config = static_cast<TestConfiguration *>(itc);
         config->completeTestInformation(TestRunMode::Run);
         if (config->project()) {
@@ -507,7 +524,13 @@ void TestRunner::runTests()
     QList<ITestConfiguration *> toBeRemoved;
     bool projectChanged = false;
     for (ITestConfiguration *itc : qAsConst(m_selectedTests)) {
-        // FIXME handle test tools
+        if (itc->testBase()->asTestTool()) {
+            if (itc->project() != SessionManager::startupProject()) {
+                projectChanged = true;
+                toBeRemoved.append(itc);
+            }
+            continue;
+        }
         TestConfiguration *config = static_cast<TestConfiguration *>(itc);
         config->completeTestInformation(TestRunMode::Run);
         if (!config->project()) {
@@ -581,7 +604,8 @@ void TestRunner::debugTests()
     QTC_ASSERT(m_selectedTests.size() == 1, onFinished();return);
 
     ITestConfiguration *itc = m_selectedTests.first();
-    // FIXME handle test tools as well
+    QTC_ASSERT(itc->testBase()->asFramework(), onFinished();return);
+
     TestConfiguration *config = static_cast<TestConfiguration *>(itc);
     config->completeTestInformation(TestRunMode::Debug);
     if (!config->project()) {
