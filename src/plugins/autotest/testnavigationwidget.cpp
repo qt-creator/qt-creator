@@ -136,7 +136,7 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
         const QModelIndex index = list.first();
         QRect rect(m_view->visualRect(index));
         if (rect.contains(event->pos())) {
-            TestTreeItem *item = static_cast<TestTreeItem *>(
+            ITestTreeItem *item = static_cast<ITestTreeItem *>(
                         m_model->itemForIndex(m_sortFilterModel->mapToSource(index)));
             if (item->canProvideTestConfiguration()) {
                 runThisTest = new QAction(tr("Run This Test"), &menu);
@@ -152,7 +152,9 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
                     onRunThisTestTriggered(TestRunMode::RunWithoutDeploy);
                 });
             }
-            if (item->canProvideDebugConfiguration()) {
+            auto ttitem = item->testBase()->asFramework() ? static_cast<TestTreeItem *>(item)
+                                                          : nullptr;
+            if (ttitem && ttitem->canProvideDebugConfiguration()) {
                 debugThisTest = new QAction(tr("Debug This Test"), &menu);
                 debugThisTest->setEnabled(enabled);
                 connect(debugThisTest, &QAction::triggered,
@@ -313,7 +315,7 @@ void TestNavigationWidget::onRunThisTestTriggered(TestRunMode runMode)
     if (!sourceIndex.isValid())
         return;
 
-    TestTreeItem *item = static_cast<TestTreeItem *>(sourceIndex.internalPointer());
+    ITestTreeItem *item = static_cast<ITestTreeItem *>(sourceIndex.internalPointer());
     TestRunner::instance()->runTest(runMode, item);
 }
 

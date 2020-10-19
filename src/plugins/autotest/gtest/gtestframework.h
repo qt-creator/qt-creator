@@ -47,7 +47,7 @@ private:
     QString groupingToolTip() const override;
     ITestSettings *testSettings() override { return &m_settings; }
     ITestParser *createTestParser() override;
-    TestTreeItem *createRootNode() override;
+    ITestTreeItem *createRootNode() override;
 
     GTestSettings m_settings;
     GTestSettingsPage m_settingsPage{&m_settings, settingsId()};

@@ -37,13 +37,13 @@ ITestParser *BoostTestFramework::createTestParser()
     return new BoostTestParser(this);
 }
 
-TestTreeItem *BoostTestFramework::createRootNode()
+ITestTreeItem *BoostTestFramework::createRootNode()
 {
     return new BoostTestTreeItem(
                 this,
                 QCoreApplication::translate("BoostTestFramework",
                                             BoostTest::Constants::FRAMEWORK_SETTINGS_CATEGORY),
-                QString(), TestTreeItem::Root);
+                QString(), ITestTreeItem::Root);
 }
 
 const char *BoostTestFramework::name() const

@@ -45,11 +45,11 @@ ITestParser *CatchFramework::createTestParser()
     return new CatchTestParser(this);
 }
 
-TestTreeItem *CatchFramework::createRootNode()
+ITestTreeItem *CatchFramework::createRootNode()
 {
     return new CatchTreeItem(this,
                              QCoreApplication::translate("CatchFramework", "Catch Test"),
-                             QString(), TestTreeItem::Root);
+                             QString(), ITestTreeItem::Root);
 }
 
 } // namespace Internal

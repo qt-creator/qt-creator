@@ -62,8 +62,8 @@ TestTreeModel::TestTreeModel(TestCodeParser *parser) :
             this, &TestTreeModel::sweep, Qt::QueuedConnection);
     connect(m_parser, &TestCodeParser::parsingFailed,
             this, &TestTreeModel::sweep, Qt::QueuedConnection);
-    connect(m_parser, &TestCodeParser::requestRemoveAll,
-            this, &TestTreeModel::markAllForRemoval);
+    connect(m_parser, &TestCodeParser::requestRemoveAllFrameworkItems,
+            this, &TestTreeModel::markAllFrameworkItemsForRemoval);
     connect(m_parser, &TestCodeParser::requestRemoval,
             this, &TestTreeModel::markForRemoval);
     connect(this, &QAbstractItemModel::dataChanged,
@@ -137,8 +137,9 @@ bool TestTreeModel::setData(const QModelIndex &index, const QVariant &value, int
                     revalidateCheckState(parent); // handle parent too
             }
             return true;
-        } else if (role == FailedRole) { // FIXME limit to Frameworks
-            m_failedStateCache.insert(static_cast<TestTreeItem *>(item), true);
+        } else if (role == FailedRole) {
+            if (item->testBase()->asFramework())
+                m_failedStateCache.insert(static_cast<TestTreeItem *>(item), true);
         }
     }
     return false;
@@ -181,7 +182,6 @@ QList<ITestConfiguration *> TestTreeModel::getSelectedTests() const
 QList<ITestConfiguration *> TestTreeModel::getFailedTests() const
 {
     QList<ITestConfiguration *> result;
-    // FIXME limit to frameworks
     for (Utils::TreeItem *frameworkRoot : *rootItem())
         result.append(static_cast<ITestTreeItem *>(frameworkRoot)->getFailedTestConfigurations());
     return result;
@@ -190,9 +190,10 @@ QList<ITestConfiguration *> TestTreeModel::getFailedTests() const
 QList<ITestConfiguration *> TestTreeModel::getTestsForFile(const Utils::FilePath &fileName) const
 {
     QList<ITestConfiguration *> result;
-    // FIXME limit to frameworks
-    for (Utils::TreeItem *frameworkRoot : *rootItem())
-        result.append(static_cast<TestTreeItem *>(frameworkRoot)->getTestConfigurationsForFile(fileName));
+    for (Utils::TreeItem *frameworkRoot : *rootItem()) {
+        if (static_cast<ITestTreeItem *>(frameworkRoot)->testBase()->asFramework())
+            result.append(static_cast<TestTreeItem *>(frameworkRoot)->getTestConfigurationsForFile(fileName));
+    }
     return result;
 }
 
@@ -223,9 +224,11 @@ QList<TestTreeItem *> TestTreeModel::testItemsByName(TestTreeItem *root, const Q
 QList<TestTreeItem *> TestTreeModel::testItemsByName(const QString &testName)
 {
     QList<TestTreeItem *> result;
-    // FIXME limit to frameworks
-    for (Utils::TreeItem *frameworkRoot : *rootItem())
-        result << testItemsByName(static_cast<TestTreeItem *>(frameworkRoot), testName);
+    for (Utils::TreeItem *frameworkRoot : *rootItem()) {
+        ITestTreeItem *root = static_cast<ITestTreeItem *>(frameworkRoot);
+        if (root->testBase()->asFramework())
+            result << testItemsByName(static_cast<TestTreeItem *>(root), testName);
+    }
 
     return result;
 }
@@ -350,9 +353,12 @@ void TestTreeModel::removeFiles(const QStringList &files)
     sweep();
 }
 
-void TestTreeModel::markAllForRemoval()
+void TestTreeModel::markAllFrameworkItemsForRemoval()
 {
     for (Utils::TreeItem *frameworkRoot : *rootItem()) {
+        // skip buildsystem based frameworks
+        if (static_cast<ITestTreeItem *>(frameworkRoot)->testBase()->asTestTool())
+            continue;
         for (Utils::TreeItem *item : *frameworkRoot)
             static_cast<TestTreeItem *>(item)->markForRemovalRecursively(true);
     }
@@ -364,9 +370,11 @@ void TestTreeModel::markForRemoval(const QString &filePath)
         return;
 
     for (Utils::TreeItem *frameworkRoot : *rootItem()) {
-        TestTreeItem *root = static_cast<TestTreeItem *>(frameworkRoot);
+        ITestTreeItem *root = static_cast<ITestTreeItem *>(frameworkRoot);
+        if (root->testBase()->asTestTool())
+            continue;
         for (int childRow = root->childCount() - 1; childRow >= 0; --childRow) {
-            TestTreeItem *child = root->childItem(childRow);
+            TestTreeItem *child = static_cast<TestTreeItem *>(root->childAt(childRow));
             child->markForRemovalRecursively(filePath);
         }
     }
@@ -375,9 +383,12 @@ void TestTreeModel::markForRemoval(const QString &filePath)
 void TestTreeModel::sweep()
 {
     for (Utils::TreeItem *frameworkRoot : *rootItem()) {
-        TestTreeItem *root = static_cast<TestTreeItem *>(frameworkRoot);
-        sweepChildren(root);
-        revalidateCheckState(root);
+        ITestTreeItem *root = static_cast<ITestTreeItem *>(frameworkRoot);
+        if (root->testBase()->asTestTool())
+            continue;
+        TestTreeItem *ttRoot = static_cast<TestTreeItem *>(root);
+        sweepChildren(ttRoot);
+        revalidateCheckState(ttRoot);
     }
     // even if nothing has changed by the sweeping we might had parse which added or modified items
     emit testTreeModelChanged();
@@ -532,7 +543,9 @@ void TestTreeModel::revalidateCheckState(ITestTreeItem *item)
 
 void TestTreeModel::onParseResultReady(const TestParseResultPtr result)
 {
-    TestTreeItem *rootNode = result->base->rootNode();
+    ITestFramework *framework = result->base->asFramework();
+    QTC_ASSERT(framework, return);
+    TestTreeItem *rootNode = framework->rootNode();
     QTC_ASSERT(rootNode, return);
     handleParseResult(result.data(), rootNode);
 }
@@ -554,7 +567,7 @@ void Autotest::TestTreeModel::onDataChanged(const QModelIndex &topLeft,
 
 void TestTreeModel::handleParseResult(const TestParseResult *result, TestTreeItem *parentNode)
 {
-    const bool groupingEnabled = static_cast<ITestFramework *>(result->base)->grouping();
+    const bool groupingEnabled = result->base->asFramework()->grouping();
     // lookup existing items
     if (TestTreeItem *toBeModified = parentNode->find(result)) {
         // found existing item... Do not remove

@@ -75,7 +75,7 @@ TestTreeItem *BoostTestTreeItem::find(const TestParseResult *result)
 
     switch (type()) {
     case Root:
-        if (static_cast<BoostTestFramework *>(result->base)->grouping()) {
+        if (result->base->asFramework()->grouping()) {
             const QFileInfo fileInfo(bResult->fileName);
             const QFileInfo base(fileInfo.absolutePath());
             for (int row = 0; row < childCount(); ++row) {
@@ -188,13 +188,12 @@ QList<ITestConfiguration *> BoostTestTreeItem::getAllTestConfigurations() const
 
     // we only need the unique project files (and number of test cases for the progress indicator)
     QHash<QString, BoostTestCases> testsPerProjectfile;
-    forAllChildren([&testsPerProjectfile](TreeItem *it){
-        auto item = static_cast<BoostTestTreeItem *>(it);
+    forAllChildItems([&testsPerProjectfile](TestTreeItem *item){
         if (item->type() != TestSuite)
             return;
         int funcChildren = 0;
-        item->forAllChildren([&funcChildren](TreeItem *child){
-            if (static_cast<BoostTestTreeItem *>(child)->type() == TestCase)
+        item->forAllChildItems([&funcChildren](TestTreeItem *child){
+            if (child->type() == TestCase)
                 ++funcChildren;
         });
         if (funcChildren) {

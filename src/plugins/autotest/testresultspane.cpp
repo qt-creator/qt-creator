@@ -27,8 +27,10 @@
 
 #include "autotesticons.h"
 #include "autotestplugin.h"
+#include "itestframework.h"
 #include "testeditormark.h"
 #include "testresultdelegate.h"
+#include "testresultmodel.h"
 #include "testresultmodel.h"
 #include "testrunner.h"
 #include "testsettings.h"
@@ -631,9 +633,14 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
     menu.addAction(action);
 
     action = new QAction(tr("Debug This Test"), &menu);
-    // FIXME limit to Test Frameworks
-    auto testTreeItem = static_cast<const TestTreeItem *>(correlatingItem);
-    action->setEnabled(testTreeItem && testTreeItem->canProvideDebugConfiguration());
+    bool debugEnabled = false;
+    if (correlatingItem) {
+        if (correlatingItem->testBase()->asFramework()) {
+            auto testTreeItem = static_cast<const TestTreeItem *>(correlatingItem);
+            debugEnabled = testTreeItem && testTreeItem->canProvideDebugConfiguration();
+        }
+    }
+    action->setEnabled(debugEnabled);
     connect(action, &QAction::triggered, this, [this, clicked] {
         onRunThisTestTriggered(TestRunMode::Debug, clicked);
     });

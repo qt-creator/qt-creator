@@ -77,7 +77,7 @@ signals:
     void parsingFinished();
     void parsingFailed();
     void requestRemoval(const QString &filePath);
-    void requestRemoveAll();
+    void requestRemoveAllFrameworkItems();
 
 public:
     void emitUpdateTestTree(ITestParser *parser = nullptr);

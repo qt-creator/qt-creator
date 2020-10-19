@@ -120,7 +120,7 @@ void TestCodeParser::syncTestFrameworks(const QList<ITestFramework *> &framework
     qCDebug(LOG) << "Setting" << frameworks << "as current parsers";
     for (ITestFramework *framework : frameworks) {
         ITestParser *testParser = framework->testParser();
-        QTC_ASSERT(testParser, continue);
+        QTC_ASSERT(testParser, continue); // buildsystem based frameworks have no code parser
         m_testCodeParsers.append(testParser);
     }
 }
@@ -341,18 +341,22 @@ void TestCodeParser::scanForTests(const QStringList &fileList, const QList<ITest
             return !fn.endsWith(".qml");
         });
         if (!parsers.isEmpty()) {
-            for (ITestFramework *framework : parsers)
+            for (ITestFramework *framework : parsers) {
+                QTC_ASSERT(framework->testParser(), continue); // mark only frameworks with a parser
                 framework->rootNode()->markForRemovalRecursively(true);
+            }
         } else {
-            emit requestRemoveAll();
+            emit requestRemoveAllFrameworkItems();
         }
     } else if (!parsers.isEmpty()) {
         for (ITestFramework *framework : parsers) {
-            for (const QString &filePath : list)
+            for (const QString &filePath : qAsConst(list)) {
+                QTC_ASSERT(framework->testParser(), continue);
                 framework->rootNode()->markForRemovalRecursively(filePath);
+            }
         }
     } else {
-        for (const QString &filePath : list)
+        for (const QString &filePath : qAsConst(list))
             emit requestRemoval(filePath);
     }
 
@@ -484,7 +488,7 @@ void TestCodeParser::parsePostponedFiles()
 
 void TestCodeParser::releaseParserInternals()
 {
-    for (ITestParser *parser : m_testCodeParsers)
+    for (ITestParser *parser : qAsConst(m_testCodeParsers))
         parser->release();
 }
 

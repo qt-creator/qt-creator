@@ -43,7 +43,7 @@ private:
     unsigned priority() const override;
     ITestSettings *testSettings() override { return &m_settings; }
     ITestParser *createTestParser() override;
-    TestTreeItem *createRootNode() override;
+    ITestTreeItem *createRootNode() override;
 
     BoostTestSettings m_settings;
     BoostTestSettingsPage m_settingsPage{&m_settings, settingsId()};

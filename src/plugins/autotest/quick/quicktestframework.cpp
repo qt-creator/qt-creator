@@ -39,10 +39,10 @@ ITestParser *QuickTestFramework::createTestParser()
     return new QuickTestParser(this);
 }
 
-TestTreeItem *QuickTestFramework::createRootNode()
+ITestTreeItem *QuickTestFramework::createRootNode()
 {
     return new QuickTestTreeItem(this, QCoreApplication::translate("QuickTestFramework", "Quick Test"),
-                                 QString(), TestTreeItem::Root);
+                                 QString(), ITestTreeItem::Root);
 }
 
 const char *QuickTestFramework::name() const

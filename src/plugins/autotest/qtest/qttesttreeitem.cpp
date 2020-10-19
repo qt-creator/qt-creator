@@ -310,7 +310,7 @@ TestTreeItem *QtTestTreeItem::find(const TestParseResult *result)
 
     switch (type()) {
     case Root:
-        if (static_cast<QtTestFramework *>(result->base)->grouping()) {
+        if (result->base->asFramework()->grouping()) {
             const QString path = QFileInfo(result->fileName).absolutePath();
             for (int row = 0; row < childCount(); ++row) {
                 TestTreeItem *group = childItem(row);

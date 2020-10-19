@@ -86,7 +86,7 @@ TestTreeItem *CatchTreeItem::find(const TestParseResult *result)
 
     switch (type()) {
     case Root:
-        if (static_cast<CatchFramework *>(result->base)->grouping()) {
+        if (result->base->asFramework()->grouping()) {
             const QString path = QFileInfo(result->fileName).absolutePath();
             for (int row = 0; row < childCount(); ++row) {
                 TestTreeItem *group = childItem(row);
@@ -229,8 +229,7 @@ static void collectFailedTestInfo(const CatchTreeItem *item,
 
     item->forAllChildItems([&testCasesForProfile](TestTreeItem *it) {
         QTC_ASSERT(it, return);
-        CatchTreeItem *parent = static_cast<CatchTreeItem *>(it->parentItem());
-        QTC_ASSERT(parent, return);
+        QTC_ASSERT(it->parentItem(), return);
         if (it->type() == TestTreeItem::TestCase && it->data(0, FailedRole).toBool()) {
             CatchTreeItem *current = static_cast<CatchTreeItem *>(it);
             testCasesForProfile[it->proFile()].names.append(current->testCasesString());

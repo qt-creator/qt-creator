@@ -290,7 +290,7 @@ TestTreeItem *QuickTestTreeItem::find(const TestParseResult *result)
     case Root:
         if (result->name.isEmpty())
             return unnamedQuickTests();
-        if (static_cast<QuickTestFramework *>(result->base)->grouping()) {
+        if (result->base->asFramework()->grouping()) {
             const QString path = QFileInfo(result->fileName).absolutePath();
             TestTreeItem *group = findFirstLevelChildItem([path](TestTreeItem *group) {
                     return group->filePath() == path;

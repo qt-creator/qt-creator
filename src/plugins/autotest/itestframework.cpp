@@ -36,14 +36,6 @@ ITestBase::ITestBase(bool activeByDefault)
     : m_active(activeByDefault)
 {}
 
-TestTreeItem *ITestBase::rootNode()
-{
-    if (!m_rootNode)
-        m_rootNode = createRootNode();
-    // These are stored in the TestTreeModel and destroyed on shutdown there.
-    return m_rootNode;
-}
-
 Utils::Id ITestBase::settingsId() const
 {
     return Utils::Id(Constants::SETTINGSPAGE_PREFIX)
@@ -75,11 +67,27 @@ ITestFramework::~ITestFramework()
     delete m_testParser;
 }
 
+TestTreeItem *ITestFramework::rootNode()
+{
+    if (!m_rootNode)
+        m_rootNode = createRootNode();
+    // These are stored in the TestTreeModel and destroyed on shutdown there.
+    return static_cast<TestTreeItem *>(m_rootNode);
+}
+
 ITestParser *ITestFramework::testParser()
 {
     if (!m_testParser)
         m_testParser = createTestParser();
     return m_testParser;
+}
+
+ITestTreeItem *ITestTool::rootNode()
+{
+    if (!m_rootNode)
+        m_rootNode = createRootNode();
+    // These are stored in the TestTreeModel and destroyed on shutdown there.
+    return m_rootNode;
 }
 
 } // namespace Autotest

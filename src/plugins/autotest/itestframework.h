@@ -27,10 +27,15 @@
 
 #include <utils/id.h>
 
+namespace ProjectExplorer { struct TestCaseInfo; }
+
 namespace Autotest {
 
+class ITestFramework;
 class ITestParser;
 class ITestSettings;
+class ITestTool;
+class ITestTreeItem;
 class TestTreeItem;
 
 class ITestBase
@@ -44,8 +49,6 @@ public:
 
     virtual ITestSettings *testSettings() { return nullptr; }
 
-    TestTreeItem *rootNode();
-
     Utils::Id settingsId() const;
     Utils::Id id() const;
 
@@ -54,12 +57,18 @@ public:
 
     void resetRootNode();
 
+    virtual ITestFramework *asFramework() { return nullptr; }
+    virtual ITestTool *asTestTool() { return nullptr; }
+
 protected:
-    virtual TestTreeItem *createRootNode() = 0;
+    virtual ITestTreeItem *createRootNode() = 0;
 
 private:
-    TestTreeItem *m_rootNode = nullptr;
+    ITestTreeItem *m_rootNode = nullptr;
     bool m_active = false;
+
+    friend class ITestFramework;
+    friend class ITestTool;
 };
 
 class ITestFramework : public ITestBase
@@ -68,12 +77,15 @@ public:
     explicit ITestFramework(bool activeByDefault);
     ~ITestFramework() override;
 
+    TestTreeItem *rootNode();
     ITestParser *testParser();
 
     bool grouping() const { return m_grouping; }
     void setGrouping(bool group) { m_grouping = group; }
     // framework specific tool tip to be displayed on the general settings page
     virtual QString groupingToolTip() const { return QString(); }
+
+    ITestFramework *asFramework() final { return this; }
 
 protected:
     virtual ITestParser *createTestParser() = 0;
@@ -84,5 +96,24 @@ private:
 };
 
 using TestFrameworks = QList<ITestFramework *>;
+
+class ITestTool : public ITestBase
+{
+public:
+    explicit ITestTool(bool activeByDefault) : ITestBase(activeByDefault) {}
+
+    ITestTreeItem *rootNode();
+
+    virtual Utils::Id buildSystemId() const = 0;
+
+    virtual ITestTreeItem *createItemFromTestCaseInfo(const ProjectExplorer::TestCaseInfo &tci) = 0;
+
+    ITestTool *asTestTool() final { return this; }
+
+private:
+    unsigned priority() const final { return 255; }
+};
+
+using TestTools = QList<ITestTool *>;
 
 } // namespace Autotest

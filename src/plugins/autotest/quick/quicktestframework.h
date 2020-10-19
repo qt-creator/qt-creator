@@ -48,7 +48,7 @@ public:
 
 protected:
     ITestParser *createTestParser() override;
-    TestTreeItem *createRootNode() override;
+    ITestTreeItem *createRootNode() override;
 };
 
 } // namespace Internal

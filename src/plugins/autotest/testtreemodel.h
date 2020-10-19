@@ -84,7 +84,7 @@ public:
     QMap<QString, int> boostTestSuitesAndTests() const;
 #endif
 
-    void markAllForRemoval();
+    void markAllFrameworkItemsForRemoval();
     void markForRemoval(const QString &filePath);
     void sweep();
 

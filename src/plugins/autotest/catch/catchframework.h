@@ -42,7 +42,7 @@ public:
 
 protected:
     ITestParser *createTestParser() override;
-    TestTreeItem *createRootNode() override;
+    ITestTreeItem *createRootNode() override;
 
 private:
     ITestSettings * testSettings() override { return &m_settings; }

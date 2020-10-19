@@ -44,13 +44,13 @@ ITestParser *GTestFramework::createTestParser()
     return new GTestParser(this);
 }
 
-TestTreeItem *GTestFramework::createRootNode()
+ITestTreeItem *GTestFramework::createRootNode()
 {
     return new GTestTreeItem(
                 this,
                 QCoreApplication::translate("GTestFramework",
                                             GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY),
-                QString(), TestTreeItem::Root);
+                QString(), ITestTreeItem::Root);
 }
 
 const char *GTestFramework::name() const
