@@ -2555,13 +2555,6 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
     </message>
 </context>
 <context>
-    <name>AnnotationToolAction</name>
-    <message>
-        <source>Edit Annotation</source>
-        <translation>Изменить аннотацию</translation>
-    </message>
-</context>
-<context>
     <name>Application</name>
     <message>
         <source>Failed to load core: %1</source>
@@ -39437,13 +39430,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
     </message>
     <message>
         <source>Annotation</source>
-        <translation>Аннотация</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::AnnotationTool</name>
-    <message>
-        <source>Annotation Tool</source>
         <translation>Аннотация</translation>
     </message>
 </context>

@@ -712,8 +712,6 @@ Project {
                 "annotationeditor/globalannotationeditordialog.cpp",
                 "annotationeditor/globalannotationeditordialog.h",
                 "annotationeditor/globalannotationeditordialog.ui",
-                "annotationeditor/annotationtool.cpp",
-                "annotationeditor/annotationtool.h",
                 "bindingeditor/bindingeditor.cpp",
                 "bindingeditor/bindingeditor.h",
                 "bindingeditor/actioneditor.cpp",
