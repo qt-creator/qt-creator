@@ -189,7 +189,7 @@ protected:
 private:
     void handleResponse(const LanguageServerProtocol::MessageId &id, const QByteArray &content,
                         QTextCodec *codec);
-    void handleMethod(const QString &method, LanguageServerProtocol::MessageId id,
+    void handleMethod(const QString &method, const LanguageServerProtocol::MessageId &id,
                       const LanguageServerProtocol::IContent *content);
 
     void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params);
