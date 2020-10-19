@@ -28,18 +28,34 @@
 
 #include "richtexteditor/richtexteditor.h"
 
+#include "QStringListModel"
+
 namespace QmlDesigner {
 
-AnnotationCommentTab::AnnotationCommentTab(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::AnnotationCommentTab)
+AnnotationCommentTab::AnnotationCommentTab(QWidget *parent)
+    : QWidget(parent)
+    , ui(new Ui::AnnotationCommentTab)
 {
     ui->setupUi(this);
 
     m_editor = new RichTextEditor;
     ui->formLayout->setWidget(3, QFormLayout::FieldRole, m_editor);
 
-    connect(ui->titleEdit, &QLineEdit::textEdited,
+    ui->titleEdit->setModel(new QStringListModel{QStringList{"Description",
+                                                             "Display Condition",
+                                                             "helper_lines"
+                                                             "highlight"
+                                                             "project author",
+                                                             "project confirmed",
+                                                             "project developer",
+                                                             "project distributor",
+                                                             "project modified",
+                                                             "project type"
+                                                             "project version",
+                                                             "Screen Description"
+                                                             "Section"}});
+
+    connect(ui->titleEdit, &QComboBox::currentTextChanged,
             this, &AnnotationCommentTab::commentTitleChanged);
 }
 
@@ -52,7 +68,7 @@ Comment AnnotationCommentTab::currentComment() const
 {
     Comment result;
 
-    result.setTitle(ui->titleEdit->text().trimmed());
+    result.setTitle(ui->titleEdit->currentText().trimmed());
     result.setAuthor(ui->authorEdit->text().trimmed());
     result.setText(m_editor->richText().trimmed());
 
@@ -77,7 +93,7 @@ void AnnotationCommentTab::setComment(const Comment &comment)
 
 void AnnotationCommentTab::resetUI()
 {
-    ui->titleEdit->setText(m_comment.title());
+    ui->titleEdit->setCurrentText(m_comment.title());
     ui->authorEdit->setText(m_comment.author());
     m_editor->setRichText(m_comment.deescapedText());
 
