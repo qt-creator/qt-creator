@@ -41,6 +41,13 @@ class TestTreeItem;
 class ITestBase
 {
 public:
+    enum TestBaseType
+    {
+        None      = 0x0,
+        Framework = 0x1,
+        Tool      = 0x2
+    };
+
     explicit ITestBase(bool activeByDefault);
     virtual ~ITestBase() = default;
 

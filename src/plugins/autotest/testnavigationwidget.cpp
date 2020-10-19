@@ -252,7 +252,7 @@ QList<QToolButton *> TestNavigationWidget::createToolButtons()
 
 void TestNavigationWidget::updateExpandedStateCache()
 {
-    m_expandedStateCache.evolve();
+    m_expandedStateCache.evolve(ITestBase::Framework);
 
     for (Utils::TreeItem *rootNode : *m_model->rootItem()) {
         rootNode->forAllChildren([this](Utils::TreeItem *child) {

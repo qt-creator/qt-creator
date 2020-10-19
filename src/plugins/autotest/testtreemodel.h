@@ -35,6 +35,8 @@
 
 #include <QSortFilterProxyModel>
 
+namespace ProjectExplorer { class Target; }
+
 namespace Autotest {
 namespace Internal {
 class AutotestPluginPrivate;
@@ -66,6 +68,7 @@ public:
     QList<ITestConfiguration *> getTestsForFile(const Utils::FilePath &fileName) const;
     QList<TestTreeItem *> testItemsByName(const QString &testName);
     void synchronizeTestFrameworks();
+    void synchronizeTestTools();
     void rebuild(const QList<Utils::Id> &frameworkIds);
 
     void updateCheckStateCache();
@@ -101,6 +104,7 @@ private:
                        const QVector<int> &roles);
     void handleParseResult(const TestParseResult *result, TestTreeItem *rootNode);
     void removeAllTestItems();
+    void removeAllTestToolItems();
     void removeFiles(const QStringList &files);
     bool sweepChildren(TestTreeItem *item);
     void insertItemInParent(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled);
@@ -108,6 +112,8 @@ private:
     void setupParsingConnections();
     void filterAndInsert(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled);
     QList<TestTreeItem *> testItemsByName(TestTreeItem *root, const QString &testName);
+    void onTargetChanged(ProjectExplorer::Target *target);
+    void onBuildSystemTestsUpdated();
 
     Internal::TestCodeParser *m_parser = nullptr;
     Internal::ItemDataCache<Qt::CheckState> *m_checkStateCache = nullptr; // not owned

@@ -46,8 +46,10 @@ public:
     TestSettings settings() const;
 
 private:
-    void populateFrameworksListWidget(const QHash<Utils::Id, bool> &frameworks);
+    void populateFrameworksListWidget(const QHash<Utils::Id, bool> &frameworks,
+                                      const QHash<Utils::Id, bool> &testTools);
     void testSettings(TestSettings &settings) const;
+    void testToolsSettings(TestSettings &settings) const;
     void onFrameworkItemChanged();
     Ui::TestSettingsPage m_ui;
 

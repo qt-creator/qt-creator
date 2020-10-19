@@ -74,6 +74,9 @@ void TestSettings::toSettings(QSettings *s) const
         s->setValue(id.toString(), frameworks.value(id));
         s->setValue(id.toString() + groupSuffix, frameworksGrouping.value(id));
     }
+    // ..and the testtools as well
+    for (const Utils::Id &id : tools.keys())
+        s->setValue(id.toString(), tools.value(id));
     s->endGroup();
 }
 
@@ -103,6 +106,13 @@ void TestSettings::fromSettings(QSettings *s)
         frameworks.insert(id, s->value(key, framework->active()).toBool());
         // and whether grouping is enabled
         frameworksGrouping.insert(id, s->value(key + groupSuffix, framework->grouping()).toBool());
+    }
+    // ..and for test tools as well
+    const TestTools &registeredTools = TestFrameworkManager::registeredTestTools();
+    tools.clear();
+    for (const ITestTool *testTool : registeredTools) {
+        const Utils::Id id = testTool->id();
+        tools.insert(id, s->value(id.toString(), testTool->active()).toBool());
     }
     s->endGroup();
 }

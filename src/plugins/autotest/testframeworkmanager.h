@@ -44,14 +44,18 @@ public:
     ~TestFrameworkManager();
 
     bool registerTestFramework(ITestFramework *framework);
+    bool registerTestTool(ITestTool *testTool);
     void synchronizeSettings(QSettings *s);
 
     static ITestFramework *frameworkForId(Utils::Id frameworkId);
-    static void activateFrameworksFromSettings(const Internal::TestSettings *settings);
-    static TestFrameworks registeredFrameworks();
+    static ITestTool *testToolForBuildSystemId(Utils::Id buildSystemId);
+    static void activateFrameworksAndToolsFromSettings(const Internal::TestSettings *settings);
+    static const TestFrameworks registeredFrameworks();
+    static const TestTools registeredTestTools();
 
 private:
     TestFrameworks m_registeredFrameworks;
+    TestTools m_registeredTestTools;
 };
 
 } // namespace Autotest

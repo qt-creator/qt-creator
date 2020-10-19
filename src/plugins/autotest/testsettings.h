@@ -64,6 +64,7 @@ struct TestSettings
     RunAfterBuildMode runAfterBuild = RunAfterBuildMode::None;
     QHash<Utils::Id, bool> frameworks;
     QHash<Utils::Id, bool> frameworksGrouping;
+    QHash<Utils::Id, bool> tools;
 };
 
 } // namespace Internal

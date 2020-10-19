@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "itestframework.h"
 #include "testtreeitem.h"
 
 #include <utils/optional.h>
@@ -38,12 +39,22 @@ template<class T>
 class ItemDataCache
 {
 public:
-    void insert(ITestTreeItem *item, const T &value) { m_cache[item->cacheName()] = {0, value}; }
-    void evolve()
+    void insert(ITestTreeItem *item, const T &value)
+    {
+        m_cache[item->cacheName()] = {
+                0, value, item->testBase()->asTestTool() ? ITestBase::Tool : ITestBase::Framework };
+    }
+
+    /* \a type represents an OR'ed value of ITestBase::TestBaseType */
+    void evolve(int type)
     {
         auto it = m_cache.begin(), end = m_cache.end();
-        while (it != end)
-            it = it->generation++ >= maxGen ? m_cache.erase(it) : ++it;
+        while (it != end) {
+            if ((it->type & type) && it->generation++ >= maxGen)
+                it = m_cache.erase(it);
+            else
+                ++it;
+        }
     }
 
     Utils::optional<T> get(ITestTreeItem *item)
@@ -62,15 +73,22 @@ public:
     {
         QVariantMap result;
         for (auto it = m_cache.cbegin(), end = m_cache.cend(); it != end; ++it)
-            result.insert(it.key(), QVariant::fromValue(it.value().value));
+            result.insert(QString::number(it.value().type) + '@'
+                          + it.key(), QVariant::fromValue(it.value().value));
         return result;
     }
 
     void fromSettings(const QVariantMap &stored)
     {
+        const QRegularExpression regex("^((\\d+)@)?(.*)$");
         m_cache.clear();
-        for (auto it = stored.cbegin(), end = stored.cend(); it != end; ++it)
-            m_cache[it.key()] = {0, qvariant_cast<T>(it.value())};
+        for (auto it = stored.cbegin(), end = stored.cend(); it != end; ++it) {
+            const QRegularExpressionMatch match = regex.match(it.key());
+            ITestBase::TestBaseType type = match.hasMatch()
+                    ? static_cast<ITestBase::TestBaseType>(match.captured(2).toInt())
+                    : ITestBase::Framework;
+            m_cache[match.captured(3)] = {0, qvariant_cast<T>(it.value()), type};
+        }
     }
 
 private:
@@ -79,6 +97,7 @@ private:
     {
         int generation = 0;
         T value;
+        ITestBase::TestBaseType type;
     };
     QHash<QString, Entry> m_cache;
 };
