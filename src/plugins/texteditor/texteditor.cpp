@@ -4175,6 +4175,13 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
         q->viewport()->update(updateRect);
 }
 
+QColor blendRightMarginColor(const FontSettings &settings, bool areaColor)
+{
+    const QColor baseColor = settings.toTextCharFormat(C_TEXT).background().color();
+    const QColor col = (baseColor.value() > 128) ? Qt::black : Qt::white;
+    return blendColors(baseColor, col, areaColor ? 16 : 32);
+}
+
 void TextEditorWidgetPrivate::paintRightMarginArea(PaintEventData &data, QPainter &painter) const
 {
     if (m_visibleWrapColumn <= 0)
@@ -4189,7 +4196,7 @@ void TextEditorWidgetPrivate::paintRightMarginArea(PaintEventData &data, QPainte
                                   data.eventRect.top(),
                                   data.viewportRect.width() - data.rightMargin,
                                   data.eventRect.height());
-        painter.fillRect(behindMargin, data.ifdefedOutFormat.background());
+        painter.fillRect(behindMargin, blendRightMarginColor(m_document->fontSettings(), true));
     }
 }
 
@@ -4199,11 +4206,8 @@ void TextEditorWidgetPrivate::paintRightMarginLine(const PaintEventData &data,
     if (m_visibleWrapColumn <= 0 || data.rightMargin >= data.viewportRect.width())
         return;
 
-    const QBrush background = data.ifdefedOutFormat.background();
-    const QColor baseColor = m_document->fontSettings().toTextCharFormat(C_TEXT).background().color();
-    const QColor col = (baseColor.value() > 128) ? Qt::black : Qt::white;
     const QPen pen = painter.pen();
-    painter.setPen(blendColors(background.isOpaque() ? background.color() : baseColor, col, 32));
+    painter.setPen(blendRightMarginColor(m_document->fontSettings(), false));
     painter.drawLine(QPointF(data.rightMargin, data.eventRect.top()),
                      QPointF(data.rightMargin, data.eventRect.bottom()));
     painter.setPen(pen);
