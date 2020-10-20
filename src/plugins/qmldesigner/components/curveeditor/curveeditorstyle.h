@@ -110,7 +110,7 @@ struct CurveEditorStyle
     static constexpr double defaultValueMin = -1.0;
     static constexpr double defaultValueMax = 1.0;
 
-    static double defaultValueRange() { return std::abs(defaultValueMin - defaultValueMax); }
+    static double defaultValueRange() { return std::fabs(defaultValueMin - defaultValueMax); }
 
     Shortcuts shortcuts;
 
