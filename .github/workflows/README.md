@@ -1,6 +1,6 @@
 # GitHub Actions & Workflows
 
-The `build_qmake.yml` in this directory adds a [GitHub action][1] and workflow that builds
+The `build_cmake.yml` in this directory adds a [GitHub action][1] and workflow that builds
 your plugin anytime you push commits to GitHub on Windows, Linux and macOS.
 
 The build artifacts can be downloaded from GitHub and be installed into an existing Qt Creator
