@@ -1,5 +1,10 @@
+if (WITH_TESTS)
+  set(QT_TEST_COMPONENT Test)
+  set(IMPLICIT_DEPENDS Qt5::Test)
+endif()
+
 find_package(QtCreator COMPONENTS Core TextEditor ProjectExplorer VcsBase REQUIRED)
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Widgets ${QT_TEST_COMPONENT} REQUIRED)
 
 add_qtc_plugin(Fossil
   PLUGIN_DEPENDS
