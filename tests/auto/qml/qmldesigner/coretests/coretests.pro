@@ -52,6 +52,7 @@ INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/components/propertyedit
 INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/components/debugview
 INCLUDEPATH += $$IDE_SOURCE_TREE/src/plugins/qmldesigner/components/edit3d
 INCLUDEPATH *= $$IDE_SOURCE_TREE/src/libs/3rdparty
+INCLUDEPATH *= $$IDE_SOURCE_TREE/src/libs/sqlite
 
 include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore/designercore-lib.pri)
 
