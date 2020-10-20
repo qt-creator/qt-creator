@@ -2,7 +2,6 @@ HEADERS += $$PWD/qmldesignerconstants.h \
     $$PWD/shortcutmanager.h \
     $$PWD/qmldesignerplugin.h \
     $$PWD/designmodewidget.h \
-    $$PWD/switchsplittabwidget.h \
     $$PWD/designersettings.h \
     $$PWD/generateresource.h \
     $$PWD/settingspage.h \
@@ -16,7 +15,6 @@ HEADERS += $$PWD/qmldesignerconstants.h \
 SOURCES += $$PWD/qmldesignerplugin.cpp \
     $$PWD/shortcutmanager.cpp \
     $$PWD/designmodewidget.cpp \
-    $$PWD/switchsplittabwidget.cpp \
     $$PWD/designersettings.cpp \
     $$PWD/generateresource.cpp \
     $$PWD/settingspage.cpp \
