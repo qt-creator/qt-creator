@@ -641,6 +641,28 @@ QString memberBaseName(const QString &name)
     return baseName;
 }
 
+// Returns a non-null value if and only if the cursor is on the name of a (proper) class
+// declaration or at some place inside the body of a class declaration that does not
+// correspond to an AST of its own, i.e. on "empty space".
+ClassSpecifierAST *astForClassOperations(const CppQuickFixInterface &interface)
+{
+    const QList<AST *> &path = interface.path();
+    if (path.isEmpty())
+        return nullptr;
+    if (const auto classSpec = path.last()->asClassSpecifier()) // Cursor inside class decl?
+        return classSpec;
+
+    // Cursor on a class name?
+    if (path.size() < 2)
+        return nullptr;
+    const SimpleNameAST * const nameAST = path.at(path.size() - 1)->asSimpleName();
+    if (!nameAST || !interface.isCursorOn(nameAST))
+       return nullptr;
+    if (const auto classSpec = path.at(path.size() - 2)->asClassSpecifier())
+        return classSpec;
+    return nullptr;
+}
+
 } // anonymous namespace
 
 namespace {
@@ -3476,15 +3498,7 @@ public:
     {
         setDescription(CppQuickFixFactory::tr("Create Implementations for Member Functions"));
 
-        const QList<AST *> &path = interface.path();
-        if (path.size() < 2)
-            return;
-
-        // Determine if cursor is on a class
-        const SimpleNameAST * const nameAST = path.at(path.size() - 1)->asSimpleName();
-        if (!nameAST || !interface.isCursorOn(nameAST))
-           return;
-        m_classAST = path.at(path.size() - 2)->asClassSpecifier();
+        m_classAST = astForClassOperations(interface);
         if (!m_classAST)
             return;
         const Class * const theClass = m_classAST->symbol;
@@ -4834,19 +4848,10 @@ public:
     {
         setDescription(CppQuickFixFactory::tr("Create Getter and Setter Member Functions"));
 
-        const QList<AST *> &path = interface.path();
-        if (path.size() < 2)
-            return;
-
-        // Determine if cursor is on a class
-        const SimpleNameAST *const nameAST = path.at(path.size() - 1)->asSimpleName();
-        if (!nameAST || !interface.isCursorOn(nameAST))
-            return;
-        m_classAST = path.at(path.size() - 2)->asClassSpecifier();
+        m_classAST = astForClassOperations(interface);
         if (!m_classAST)
             return;
-
-        Class *const theClass = m_classAST->symbol;
+        Class * const theClass = m_classAST->symbol;
         if (!theClass)
             return;
 
@@ -6682,18 +6687,7 @@ private:
 
 void MoveAllFuncDefOutside::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
 {
-    const QList<AST *> &path = interface.path();
-    const int pathSize = path.size();
-    if (pathSize < 2)
-        return;
-
-    // Determine if cursor is on a class which is not a base class
-    ClassSpecifierAST *classAST = nullptr;
-    if (SimpleNameAST *nameAST = path.at(pathSize - 1)->asSimpleName()) {
-        if (!interface.isCursorOn(nameAST))
-            return;
-        classAST = path.at(pathSize - 2)->asClassSpecifier();
-    }
+    ClassSpecifierAST * const classAST = astForClassOperations(interface);
     if (!classAST)
         return;
 

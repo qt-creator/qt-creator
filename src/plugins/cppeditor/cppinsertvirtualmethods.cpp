@@ -538,6 +538,11 @@ public:
                     m_classAST = path.at(index)->asClassSpecifier();
             }
         }
+
+        // Also offer the operation if we are on some "empty" part of the class declaration.
+        if (!m_classAST)
+            m_classAST = path.at(pathSize - 1)->asClassSpecifier();
+
         if (!m_classAST || !m_classAST->base_clause_list)
             return;
 

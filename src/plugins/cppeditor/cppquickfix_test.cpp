@@ -3108,13 +3108,13 @@ void CppEditorPlugin::test_quickfix_GenerateGettersSetters_data()
     QTest::addColumn<QByteArray>("expected");
 
     const QByteArray onlyReset = R"(
-class @Foo {
+class Foo {
 public:
     int bar() const;
     void setBar(int bar);
 private:
     int m_bar;
-};)";
+@};)";
 
     const QByteArray onlyResetAfter = R"(
 class @Foo {
@@ -6374,7 +6374,7 @@ void CppEditorPlugin::test_quickfix_MoveAllFuncDefOutside_MemberFuncToCpp()
 
     // Header File
     original =
-        "class Fo@o {\n"
+        "class Foo {@\n"
         "  int numberA() const\n"
         "  {\n"
         "    return 5;\n"
