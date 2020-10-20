@@ -386,7 +386,7 @@ endfunction()
 function(extend_qtc_target target_name)
   cmake_parse_arguments(_arg
     ""
-    "SOURCES_PREFIX;FEATURE_INFO"
+    "SOURCES_PREFIX;SOURCES_PREFIX_FROM_TARGET;FEATURE_INFO"
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES"
     ${ARGN}
   )
@@ -409,6 +409,14 @@ function(extend_qtc_target target_name)
   endif()
   if (NOT _feature_enabled)
     return()
+  endif()
+
+  if (_arg_SOURCES_PREFIX_FROM_TARGET)
+    if (NOT TARGET ${_arg_SOURCES_PREFIX_FROM_TARGET})
+      return()
+    else()
+      get_target_property(_arg_SOURCES_PREFIX ${_arg_SOURCES_PREFIX_FROM_TARGET} SOURCES_DIR)
+    endif()
   endif()
 
   add_qtc_depends(${target_name}

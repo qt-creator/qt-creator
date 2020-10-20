@@ -40,7 +40,6 @@ add_qtc_test(unittest GTEST
     clientserveroutsideprocess-test.cpp
     commandlinebuilder-test.cpp
     compare-operators.h
-    compilationdatabaseutils-test.cpp
     compileroptionsbuilder-test.cpp
     conditionally-disabled-tests.h
     cppprojectfilecategorizer-test.cpp
@@ -319,7 +318,7 @@ extend_qtc_test(unittest
 )
 
 extend_qtc_test(unittest
-  CONDITION TARGET clangFormat
+  CONDITION TARGET ClangFormat
   DEPENDS clangFormat
   SOURCES
     clangformat-test.cpp
@@ -421,9 +420,8 @@ extend_qtc_test_with_target_sources(CPlusPlus DEFINES CPLUSPLUS_BUILD_STATIC_LIB
 extend_qtc_test_with_target_sources(3rd_cplusplus DEFINES CPLUSPLUS_BUILD_LIB)
 extend_qtc_test_with_target_sources(ClangSupport DEFINES CLANGSUPPORT_BUILD_LIB)
 
-get_target_property(ClangCodeModelSourcesDir ClangCodeModel SOURCES_DIR)
 extend_qtc_test(unittest
-  SOURCES_PREFIX "${ClangCodeModelSourcesDir}"
+  SOURCES_PREFIX_FROM_TARGET ClangCodeModel
   SOURCES
     clangactivationsequencecontextprocessor.cpp clangactivationsequencecontextprocessor.h
     clangactivationsequenceprocessor.cpp clangactivationsequenceprocessor.h
@@ -436,16 +434,20 @@ extend_qtc_test(unittest
     clangisdiagnosticrelatedtolocation.h
 )
 
-get_target_property(CompilationDatabasePMSourcesDir CompilationDatabaseProjectManager SOURCES_DIR)
 extend_qtc_test(unittest
-  SOURCES_PREFIX "${CompilationDatabasePMSourcesDir}"
+  SOURCES_PREFIX_FROM_TARGET CompilationDatabaseProjectManager
   SOURCES
     compilationdatabaseutils.cpp compilationdatabaseutils.h
 )
 
-get_target_property(CoreSourcesDir Core SOURCES_DIR)
 extend_qtc_test(unittest
-  SOURCES_PREFIX "${CoreSourcesDir}"
+  CONDITION TARGET CompilationDatabaseProjectManager
+  SOURCES
+    compilationdatabaseutils-test.cpp
+)
+
+extend_qtc_test(unittest
+  SOURCES_PREFIX_FROM_TARGET Core
   DEFINES CORE_STATIC_LIBRARY
   SOURCES
     coreicons.cpp coreicons.h
@@ -453,9 +455,8 @@ extend_qtc_test(unittest
     locator/ilocatorfilter.cpp locator/ilocatorfilter.h
 )
 
-get_target_property(CppToolsSourcesDir CppTools SOURCES_DIR)
 extend_qtc_test(unittest
-  SOURCES_PREFIX "${CppToolsSourcesDir}"
+  SOURCES_PREFIX_FROM_TARGET CppTools
   DEFINES CPPTOOLS_STATIC_LIBRARY
   SOURCES
     cppprojectfile.cpp cppprojectfile.h
@@ -469,9 +470,8 @@ extend_qtc_test(unittest
     headerpathfilter.cpp headerpathfilter.h
 )
 
-get_target_property(ProjectExplorerSourcesDir ProjectExplorer SOURCES_DIR)
 extend_qtc_test(unittest
-  SOURCES_PREFIX "${ProjectExplorerSourcesDir}"
+  SOURCES_PREFIX_FROM_TARGET ProjectExplorer
   DEFINES PROJECTEXPLORER_STATIC_LIBRARY
   SOURCES
     projectmacro.cpp projectmacro.h
@@ -517,9 +517,8 @@ extend_qtc_test(unittest
     progressmanagerinterface.h
 )
 
-get_target_property(ClangFormatSourcesDir ClangFormat SOURCES_DIR)
 extend_qtc_test(unittest
-  SOURCES_PREFIX "${ClangFormatSourcesDir}"
+  SOURCES_PREFIX_FROM_TARGET ClangFormat
   DEFINES CLANGPCHMANAGER_STATIC_LIB
   SOURCES
     clangformatconstants.h
