@@ -36,6 +36,8 @@
 #include <QIcon>
 #include <QKeySequence>
 
+#include <cmath>
+
 namespace DesignTools {
 
 struct TreeItemStyleOption
