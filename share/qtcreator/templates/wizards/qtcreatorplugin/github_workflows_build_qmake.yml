@@ -62,11 +62,11 @@ jobs:
         if ("${{ runner.os }}" STREQUAL "Windows")
           set(url_os "windows_x86")
           if ("${{ matrix.config.environment_script }}" MATCHES "vcvars64.bat")
-            set(qt_package_name "qt.qt5.${qt_version_dotless}.win64_msvc2017_64")
-            set(qt_dir_prefix "${qt_version}/msvc2017_64")
+            set(qt_package_name "qt.qt5.${qt_version_dotless}.win64_msvc2019_64")
+            set(qt_dir_prefix "${qt_version}/msvc2019_64")
           elseif ("${{ matrix.config.environment_script }}" MATCHES "vcvars32.bat")
-            set(qt_package_name "qt.qt5.${qt_version_dotless}.win32_msvc2017")
-            set(qt_dir_prefix "${qt_version}/msvc2017")
+            set(qt_package_name "qt.qt5.${qt_version_dotless}.win32_msvc2019")
+            set(qt_dir_prefix "${qt_version}/msvc2019")
           else()
           endif()
         elseif ("${{ runner.os }}" STREQUAL "Linux")
@@ -131,14 +131,14 @@ jobs:
           set(qtc_output_directory "qtcreator/lib/qtcreator/plugins")
           set(qtc_binary_name "$ENV{PLUGIN_NAME}4.dll")
           if ("${{ matrix.config.environment_script }}" MATCHES "vcvars64.bat")
-            set(qtc_platform "windows_msvc2017_x64")
+            set(qtc_platform "windows_x64")
           elseif ("${{ matrix.config.environment_script }}" MATCHES "vcvars32.bat")
-            set(qtc_platform "windows_msvc2017_x86")
+            set(qtc_platform "windows_x86")
           endif()
         elseif ("${{ runner.os }}" STREQUAL "Linux")
           set(qtc_output_directory "qtcreator/lib/qtcreator/plugins")
           set(qtc_binary_name "lib$ENV{PLUGIN_NAME}.so")
-          set(qtc_platform "linux_gcc_64_rhel72")
+          set(qtc_platform "linux_x64")
         elseif ("${{ runner.os }}" STREQUAL "macOS")
           set(qtc_output_directory "qtcreator/bin/Qt Creator.app/Contents/PlugIns")
           set(qtc_binary_name "lib$ENV{PLUGIN_NAME}.dylib")
@@ -167,7 +167,7 @@ jobs:
           )
         endif()
 
-    - name: Configure
+    - name: Build
       shell: cmake -P {0}
       run: |
         if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
@@ -179,9 +179,6 @@ jobs:
           foreach(line IN LISTS output_lines)
             if (line MATCHES "^([a-zA-Z0-9_-]+)=(.*)$")
               set(ENV{${CMAKE_MATCH_1}} "${CMAKE_MATCH_2}")
-
-              # Set for other steps
-              message("::set-env name=${CMAKE_MATCH_1}::${CMAKE_MATCH_2}")
             endif()
           endforeach()
         endif()
@@ -200,9 +197,6 @@ jobs:
           message(FATAL_ERROR "Bad exit status")
         endif()
 
-    - name: Build
-      shell: cmake -P {0}
-      run: |
         if ("${{ runner.os }}" STREQUAL "Windows")
           set(ENV{PATH} "${{ steps.qt.outputs.qt_dir }}/bin/;$ENV{PATH}")
         else()
