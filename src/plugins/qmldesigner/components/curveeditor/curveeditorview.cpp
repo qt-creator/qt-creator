@@ -42,7 +42,7 @@ namespace QmlDesigner {
 CurveEditorView::CurveEditorView(QObject *parent)
     : AbstractView(parent)
     , m_block(false)
-    , m_model(new DesignTools::CurveEditorModel(0., 500.))
+    , m_model(new DesignTools::CurveEditorModel())
     , m_editor(new DesignTools::CurveEditor(m_model))
 {
     Q_UNUSED(parent);
@@ -267,7 +267,7 @@ ModelNode getTargetNode1(DesignTools::PropertyTreeItem *item, const QmlTimeline 
         QString targetId = nodeItem->name();
         if (timeline.isValid()) {
             for (auto &&target : timeline.allTargets()) {
-                if (target.displayName() == targetId)
+                if (target.isValid() && target.displayName() == targetId)
                     return target;
             }
         }

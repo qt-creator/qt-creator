@@ -213,7 +213,7 @@ Utils::ChangeSet::Range CppRefactoringFile::range(unsigned tokenIndex) const
     return {start, start + token.utf16chars()};
 }
 
-Utils::ChangeSet::Range CppRefactoringFile::range(AST *ast) const
+Utils::ChangeSet::Range CppRefactoringFile::range(const AST *ast) const
 {
     return {startOf(ast), endOf(ast)};
 }

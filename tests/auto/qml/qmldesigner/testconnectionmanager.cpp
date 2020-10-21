@@ -32,26 +32,26 @@ namespace QmlDesigner {
 
 TestConnectionManager::TestConnectionManager()
 {
-    m_connections.emplace_back("Editor", "editormode");
+    connections().emplace_back("Editor", "editormode");
 }
 
 void TestConnectionManager::writeCommand(const QVariant &command)
 {
-    TestConnectionManager::writeCommand(command);
+    ConnectionManager::writeCommand(command);
 
-    m_writeCommandCounter++;
+    writeCommandCounter()++;
 
     static int synchronizeId = 0;
     synchronizeId++;
     SynchronizeCommand synchronizeCommand(synchronizeId);
 
-    QLocalSocket *socket = m_connections.front().socket.get();
+    QLocalSocket *socket = connections().front().socket.get();
 
-    writeCommandToIODevice(QVariant::fromValue(synchronizeCommand), socket, m_writeCommandCounter);
-    m_writeCommandCounter++;
+    writeCommandToIODevice(QVariant::fromValue(synchronizeCommand), socket, writeCommandCounter());
+    writeCommandCounter()++;
 
     while (socket->waitForReadyRead(100)) {
-        readDataStream(m_connections.front());
+        readDataStream(connections().front());
         if (m_synchronizeId == synchronizeId)
             return;
     }

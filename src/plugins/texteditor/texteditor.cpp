@@ -1107,9 +1107,9 @@ void TextEditorWidget::print(QPrinter *printer)
     delete dlg;
 }
 
-static int foldBoxWidth()
+static int foldBoxWidth(const QFontMetrics &fm)
 {
-    const int lineSpacing = TextEditorSettings::fontSettings().lineSpacing();
+    const int lineSpacing = fm.lineSpacing();
     return lineSpacing + lineSpacing % 2 + 1;
 }
 
@@ -3606,9 +3606,9 @@ QRect TextEditorWidgetPrivate::foldBox()
     QRectF br = q->blockBoundingGeometry(begin).translated(q->contentOffset());
     QRectF er = q->blockBoundingGeometry(end).translated(q->contentOffset());
 
-    return QRect(m_extraArea->width() - foldBoxWidth(),
+    return QRect(m_extraArea->width() - foldBoxWidth(q->fontMetrics()),
                  int(br.top()),
-                 foldBoxWidth(),
+                 foldBoxWidth(q->fontMetrics()),
                  int(er.bottom() - br.top()));
 }
 
@@ -4089,9 +4089,7 @@ bool TextEditorWidgetPrivate::updateAnnotationBounds(TextBlockUserData *blockUse
 {
     const bool additionalHeightNeeded = annotationsVisible
             && m_displaySettings.m_annotationAlignment == AnnotationAlignment::BetweenLines;
-    const int additionalHeight = additionalHeightNeeded
-                                     ? TextEditorSettings::fontSettings().lineSpacing()
-                                     : 0;
+    const int additionalHeight = additionalHeightNeeded ? q->fontMetrics().lineSpacing() : 0;
     if (blockUserData->additionalAnnotationHeight() == additionalHeight)
         return false;
     blockUserData->setAdditionalAnnotationHeight(additionalHeight);
@@ -4132,7 +4130,7 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
         return mark1->priority() > mark2->priority();
     });
 
-    const qreal itemOffset = blockData.boundingRect.height();
+    const qreal itemOffset = q->fontMetrics().lineSpacing();
     const qreal initialOffset = m_displaySettings.m_annotationAlignment == AnnotationAlignment::BetweenLines ? itemOffset / 2 : itemOffset * 2;
     const qreal minimalContentWidth = q->fontMetrics().horizontalAdvance('X')
             * m_displaySettings.m_minimalAnnotationContent;
@@ -4177,6 +4175,13 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
         q->viewport()->update(updateRect);
 }
 
+QColor blendRightMarginColor(const FontSettings &settings, bool areaColor)
+{
+    const QColor baseColor = settings.toTextCharFormat(C_TEXT).background().color();
+    const QColor col = (baseColor.value() > 128) ? Qt::black : Qt::white;
+    return blendColors(baseColor, col, areaColor ? 16 : 32);
+}
+
 void TextEditorWidgetPrivate::paintRightMarginArea(PaintEventData &data, QPainter &painter) const
 {
     if (m_visibleWrapColumn <= 0)
@@ -4191,7 +4196,7 @@ void TextEditorWidgetPrivate::paintRightMarginArea(PaintEventData &data, QPainte
                                   data.eventRect.top(),
                                   data.viewportRect.width() - data.rightMargin,
                                   data.eventRect.height());
-        painter.fillRect(behindMargin, data.ifdefedOutFormat.background());
+        painter.fillRect(behindMargin, blendRightMarginColor(m_document->fontSettings(), true));
     }
 }
 
@@ -4201,11 +4206,8 @@ void TextEditorWidgetPrivate::paintRightMarginLine(const PaintEventData &data,
     if (m_visibleWrapColumn <= 0 || data.rightMargin >= data.viewportRect.width())
         return;
 
-    const QBrush background = data.ifdefedOutFormat.background();
-    const QColor baseColor = m_document->fontSettings().toTextCharFormat(C_TEXT).background().color();
-    const QColor col = (baseColor.value() > 128) ? Qt::black : Qt::white;
     const QPen pen = painter.pen();
-    painter.setPen(blendColors(background.isOpaque() ? background.color() : baseColor, col, 32));
+    painter.setPen(blendRightMarginColor(m_document->fontSettings(), false));
     painter.drawLine(QPointF(data.rightMargin, data.eventRect.top()),
                      QPointF(data.rightMargin, data.eventRect.bottom()));
     painter.setPen(pen);
@@ -5027,7 +5029,7 @@ int TextEditorWidget::extraAreaWidth(int *markWidthPtr) const
     int markWidth = 0;
 
     if (d->m_marksVisible) {
-        markWidth += documentLayout->maxMarkWidthFactor * TextEditorSettings::fontSettings().lineSpacing() + 2;
+        markWidth += documentLayout->maxMarkWidthFactor * fm.lineSpacing() + 2;
 
 //     if (documentLayout->doubleMarkCount)
 //         markWidth += fm.lineSpacing() / 3;
@@ -5042,7 +5044,7 @@ int TextEditorWidget::extraAreaWidth(int *markWidthPtr) const
     space += 4;
 
     if (d->m_codeFoldingVisible)
-        space += foldBoxWidth();
+        space += foldBoxWidth(fm);
 
     if (viewportMargins() != QMargins{isLeftToRight() ? space : 0, 0, isLeftToRight() ? 0 : space, 0})
         d->slotUpdateExtraAreaWidth(space);
@@ -5068,9 +5070,9 @@ struct Internal::ExtraAreaPaintEventData
         , selectionStart(editor->textCursor().selectionStart())
         , selectionEnd(editor->textCursor().selectionEnd())
         , fontMetrics(d->m_extraArea->font())
-        , lineSpacing(TextEditorSettings::fontSettings().lineSpacing())
+        , lineSpacing(fontMetrics.lineSpacing())
         , markWidth(d->m_marksVisible ? lineSpacing : 0)
-        , collapseColumnWidth(d->m_codeFoldingVisible ? foldBoxWidth() : 0)
+        , collapseColumnWidth(d->m_codeFoldingVisible ? foldBoxWidth(fontMetrics) : 0)
         , extraAreaWidth(d->m_extraArea->width() - collapseColumnWidth)
         , currentLineNumberFormat(
               editor->textDocument()->fontSettings().toTextCharFormat(C_CURRENT_LINE_NUMBER))
@@ -5194,7 +5196,7 @@ void TextEditorWidgetPrivate::paintCodeFolding(QPainter &painter,
     bool hovered = blockNumber >= extraAreaHighlightFoldBlockNumber
             && blockNumber <= extraAreaHighlightFoldEndBlockNumber;
 
-    int boxWidth = foldBoxWidth();
+    int boxWidth = foldBoxWidth(data.fontMetrics);
     if (hovered) {
         int itop = qRound(blockBoundingRect.top());
         int ibottom = qRound(blockBoundingRect.bottom());
@@ -5567,10 +5569,8 @@ void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
                     if (cursor.positionInBlock() == cursor.block().length()-1)
                         column += (e->pos().x() - cursorRect().center().x()) / QFontMetricsF(font()).horizontalAdvance(QLatin1Char(' '));
                     int block = cursor.blockNumber();
-                    if (block == blockCount() - 1) {
-                        block += (e->pos().y() - cursorRect().center().y())
-                                 / TextEditorSettings::fontSettings().lineSpacing();
-                    }
+                    if (block == blockCount() - 1)
+                        block += (e->pos().y() - cursorRect().center().y()) / QFontMetricsF(font()).lineSpacing();
                     d->enableBlockSelection(block, column, block, column);
                 }
             } else {
@@ -5620,11 +5620,8 @@ void TextEditorWidget::mousePressEvent(QMouseEvent *e)
             if (cursor.positionInBlock() == cursor.block().length()-1)
                 column += (e->pos().x() - cursorRect(cursor).center().x()) / QFontMetricsF(font()).horizontalAdvance(QLatin1Char(' '));
             int block = cursor.blockNumber();
-            if (block == blockCount() - 1) {
-                block += (e->pos().y() - cursorRect(cursor).center().y())
-                         / TextEditorSettings::fontSettings().lineSpacing();
-            }
-
+            if (block == blockCount() - 1)
+                block += (e->pos().y() - cursorRect(cursor).center().y()) / QFontMetricsF(font()).lineSpacing();
             if (d->m_inBlockSelectionMode) {
                 d->m_blockSelection.positionBlock = block;
                 d->m_blockSelection.positionColumn = column;
@@ -5798,7 +5795,7 @@ void TextEditorWidget::updateFoldingHighlight(const QPoint &pos)
     const int highlightBlockNumber = d->extraAreaHighlightFoldedBlockNumber;
     d->extraAreaHighlightFoldedBlockNumber = -1;
 
-    if (pos.x() > extraArea()->width() - foldBoxWidth()) {
+    if (pos.x() > extraArea()->width() - foldBoxWidth(fontMetrics())) {
         d->extraAreaHighlightFoldedBlockNumber = cursor.blockNumber();
     } else if (d->m_displaySettings.m_highlightBlocks) {
         QTextCursor cursor = textCursor();
@@ -5841,7 +5838,7 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
             int dist = (e->pos() - d->m_markDragStart).manhattanLength();
             if (dist > QApplication::startDragDistance()) {
                 d->m_markDragging = true;
-                const int height = TextEditorSettings::fontSettings().lineSpacing() - 1;
+                const int height = fontMetrics().lineSpacing() - 1;
                 const int width = int(.5 + height * d->m_dragMark->widthFactor());
                 d->m_markDragCursor = QCursor(d->m_dragMark->icon().pixmap({height, width}));
                 d->m_dragMark->setVisible(false);
@@ -5859,7 +5856,7 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
 
     if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonDblClick) {
         if (e->button() == Qt::LeftButton) {
-            int boxWidth = foldBoxWidth();
+            int boxWidth = foldBoxWidth(fontMetrics());
             if (d->m_codeFoldingVisible && e->pos().x() > extraArea()->width() - boxWidth) {
                 if (!cursor.block().next().isVisible()) {
                     d->toggleBlockVisible(cursor.block());
@@ -6386,7 +6383,7 @@ void TextEditorWidgetPrivate::adjustScrollBarRanges()
 {
     if (!m_highlightScrollBarController)
         return;
-    const double lineSpacing = TextEditorSettings::fontSettings().lineSpacing();
+    const double lineSpacing = QFontMetricsF(q->font()).lineSpacing();
     if (lineSpacing == 0)
         return;
 

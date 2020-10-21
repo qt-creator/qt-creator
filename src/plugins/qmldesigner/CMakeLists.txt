@@ -29,7 +29,6 @@ add_qtc_plugin(QmlDesigner
     qmldesignerplugin.cpp qmldesignerplugin.h
     settingspage.cpp settingspage.h settingspage.ui
     shortcutmanager.cpp shortcutmanager.h
-    switchsplittabwidget.cpp switchsplittabwidget.h
     designermcumanager.cpp designermcumanager.h
   EXPLICIT_MOC
     components/propertyeditor/propertyeditorvalue.h
@@ -627,7 +626,6 @@ extend_qtc_plugin(QmlDesigner
   annotationeditordialog.cpp annotationeditordialog.h annotationeditordialog.ui
   globalannotationeditordialog.cpp globalannotationeditordialog.h globalannotationeditordialog.ui
   annotationeditor.cpp annotationeditor.h
-  annotationtool.cpp annotationtool.h
   globalannotationeditor.cpp globalannotationeditor.h
 )
 

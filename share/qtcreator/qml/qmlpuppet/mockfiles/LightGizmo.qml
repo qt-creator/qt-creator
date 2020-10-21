@@ -26,7 +26,7 @@
 import QtQuick 2.0
 import QtQuick3D 1.15
 import MouseArea3D 1.0
-import LightGeometry 1.0
+import LightUtils 1.0
 
 Node {
     id: lightGizmo
@@ -35,7 +35,6 @@ Node {
     property Node targetNode: null
     property MouseArea3D dragHelper: null
     property color color: Qt.rgba(1, 1, 0, 1)
-    property real brightnessScale: targetNode ? Math.max(1.0, 1.0 + targetNode.brightness) : 100
     property real fadeScale: {
         // Value indicates area where intensity is above certain percent of total brightness.
         if (lightGizmo.targetNode instanceof SpotLight || lightGizmo.targetNode instanceof PointLight) {
@@ -64,6 +63,8 @@ Node {
                                      || pointLightFadeHandle.dragging
     property point currentMousePos
     property string currentLabel
+    property int brightnessDecimals: _generalHelper.brightnessScaler() > 10. ? 0 : 2;
+    property real brightnessMultiplier: Math.pow(10, brightnessDecimals);
 
     signal propertyValueCommit(string propName)
     signal propertyValueChange(string propName)
@@ -226,7 +227,6 @@ Node {
                 onValueCommit: lightGizmo.propertyValueCommit(propName)
             }
         }
-
         Node {
             id: areaParts
             visible: lightGizmo.targetNode instanceof AreaLight
@@ -305,15 +305,19 @@ Node {
             active: lightGizmo.visible
             dragHelper: lightGizmo.dragHelper
             scale: autoScaler.getScale(Qt.vector3d(5, 5, 5))
-            length: (lightGizmo.brightnessScale / 10) + 3
+            length: targetNode ? Math.max(1.0, 1.0 + targetNode.brightness / _generalHelper.brightnessScaler() * 10.0) + 3 : 10
 
             property real _startBrightness
 
             function updateBrightness(relativeDistance, screenPos)
             {
-                var currentValue = Math.round(Math.max(0, _startBrightness + relativeDistance * 10));
+                var currentValue = Math.max(0, (_startBrightness + relativeDistance * _generalHelper.brightnessScaler() / 10.0));
+                currentValue *= brightnessMultiplier;
+                currentValue = Math.round(currentValue);
+                currentValue /= brightnessMultiplier;
+
                 var l = Qt.locale();
-                lightGizmo.currentLabel = "brightness" + qsTr(": ") + Number(currentValue).toLocaleString(l, 'f', 0);
+                lightGizmo.currentLabel = "brightness" + qsTr(": ") + Number(currentValue).toLocaleString(l, 'f', brightnessDecimals);
                 lightGizmo.currentMousePos = screenPos;
                 targetNode.brightness = currentValue;
             }

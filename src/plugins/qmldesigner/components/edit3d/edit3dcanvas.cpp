@@ -92,7 +92,7 @@ void Edit3DCanvas::paintEvent(QPaintEvent *e)
 
     QPainter painter(this);
 
-    painter.drawImage(rect(), m_image, rect());
+    painter.drawImage(rect(), m_image, QRect(0, 0, m_image.width(), m_image.height()));
 }
 
 void Edit3DCanvas::resizeEvent(QResizeEvent *e)

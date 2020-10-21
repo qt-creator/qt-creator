@@ -36,6 +36,7 @@
 #include <QtQuick3D/private/qquick3dmodel_p.h>
 #include <QtQuick3D/private/qquick3dviewport_p.h>
 #include <QtQuick3D/private/qquick3ddefaultmaterial_p.h>
+#include <QtQuick3D/private/qquick3dscenemanager_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrendercontextcore_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrenderbuffermanager_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrendermodel_p.h>
@@ -166,7 +167,12 @@ QVector4D GeneralHelper::focusObjectToCamera(QQuick3DCamera *camera, float defau
         if (auto renderModel = static_cast<QSSGRenderModel *>(targetPriv->spatialNode)) {
             QWindow *window = static_cast<QWindow *>(viewPort->window());
             if (window) {
-                auto context = QSSGRenderContextInterface::getRenderContextInterface(quintptr(window));
+                QSSGRef<QSSGRenderContextInterface> context;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+                context = QSSGRenderContextInterface::getRenderContextInterface(quintptr(window));
+#else
+                context = targetPriv->sceneManager->rci;
+#endif
                 if (!context.isNull()) {
                     QSSGBounds3 bounds;
                     auto geometry = qobject_cast<SelectionBoxGeometry *>(modelNode->geometry());
@@ -295,6 +301,16 @@ QString GeneralHelper::lastSceneIdKey() const
 QString GeneralHelper::rootSizeKey() const
 {
     return _rootSizeKey;
+}
+
+double GeneralHelper::brightnessScaler() const
+{
+    // Light brightness was rescaled in Qt6 from 100 -> 1.
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    return 100.;
+#else
+    return 1.;
+#endif
 }
 
 bool GeneralHelper::isMacOS() const

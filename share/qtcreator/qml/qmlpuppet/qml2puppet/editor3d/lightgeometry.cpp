@@ -45,6 +45,19 @@ LightGeometry::~LightGeometry()
 {
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+QString LightGeometry::name() const
+{
+    return objectName();
+}
+
+void LightGeometry::setName(const QString &name)
+{
+    setObjectName(name);
+    emit nameChanged();
+}
+#endif
+
 LightGeometry::LightType LightGeometry::lightType() const
 {
     return m_lightType;

@@ -34,6 +34,7 @@
 #include <utils/linecolumn.h>
 #include <utils/optional.h>
 
+#include <clang/Basic/FileManager.h>
 #include <clang/Basic/SourceLocation.h>
 #include <clang/Basic/SourceManager.h>
 #include <clang/Index/USRGeneration.h>

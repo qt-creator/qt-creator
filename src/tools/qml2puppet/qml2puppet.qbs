@@ -19,6 +19,8 @@ QtcTool {
     property bool useQuick3d: Utilities.versionCompare(Qt.core.version, "5.15") >= 0
                               && Qt["quick3d-private"].present
 
+    property bool useQt5Compat: Utilities.versionCompare(Qt.core.version, "6.0") >= 0
+
     cpp.defines: {
         var defines = base.filter(function(d) { return d != "QT_CREATOR"; });
         if (useQuick3d)
@@ -255,6 +257,20 @@ QtcTool {
                 "editor3d/selectionboxgeometry.h",
                 "editor3d/mousearea3d.h",
             ]
+            fileTags: product.useQuick3d ? [] : ["unmocable"]
+            overrideTags: false
+        }
+
+        Group {
+            name: "puppet2 Qt 5 compatibility sources"
+            condition: useQt5Compat
+            files: ["editor3d/qt5compat/qquick3darealight.cpp"]
+        }
+
+        Group {
+            name: "puppet2 Qt 5 compatibility headers"
+            condition: useQt5Compat
+            files: ["editor3d/qt5compat/qquick3darealight_p.h"]
             fileTags: product.useQuick3d ? [] : ["unmocable"]
             overrideTags: false
         }

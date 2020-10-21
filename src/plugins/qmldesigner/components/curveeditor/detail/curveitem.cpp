@@ -87,6 +87,16 @@ QRectF CurveItem::boundingRect() const
     for (auto *item : m_keyframes)
         bbox(bounds, item->keyframe());
 
+    if (auto *s = qobject_cast<GraphicsScene *>(scene())) {
+        bounds.setLeft(s->animationRangeMin());
+        bounds.setRight(s->animationRangeMax());
+    }
+
+    if (qFuzzyCompare(bounds.height(), 0.0)) {
+        auto tmp = CurveEditorStyle::defaultValueRange() / 2.0;
+        bounds.adjust(0.0, -tmp, 0.0, tmp);
+    }
+
     return m_transform.mapRect(bounds);
 }
 

@@ -41,6 +41,19 @@ LineGeometry::~LineGeometry()
 {
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+QString LineGeometry::name() const
+{
+    return objectName();
+}
+
+void LineGeometry::setName(const QString &name)
+{
+    setObjectName(name);
+    emit nameChanged();
+}
+#endif
+
 QVector3D LineGeometry::startPos() const
 {
     return m_startPos;

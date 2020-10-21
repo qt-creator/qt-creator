@@ -221,7 +221,12 @@ public:
 class ConvertToCamelCase : public CppQuickFixFactory
 {
 public:
+    ConvertToCamelCase(bool test = false) : CppQuickFixFactory(), m_test(test) {}
+
     void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
+
+private:
+    const bool m_test;
 };
 
 /*!

@@ -32,6 +32,7 @@
 #include <QtQuick3DRuntimeRender/private/qssgrendercontextcore_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrenderbuffermanager_p.h>
 #include <QtQuick3D/private/qquick3dmodel_p.h>
+#include <QtQuick3D/private/qquick3dscenemanager_p.h>
 #include <QtQuick3D/qquick3dobject.h>
 #include <QtQuick/qquickwindow.h>
 #include <QtCore/qvector.h>
@@ -58,6 +59,19 @@ SelectionBoxGeometry::~SelectionBoxGeometry()
         QObject::disconnect(connection);
     m_connections.clear();
 }
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+QString SelectionBoxGeometry::name() const
+{
+    return objectName();
+}
+
+void SelectionBoxGeometry::setName(const QString &name)
+{
+    setObjectName(name);
+    emit nameChanged();
+}
+#endif
 
 QQuick3DNode *SelectionBoxGeometry::targetNode() const
 {
@@ -291,8 +305,12 @@ void SelectionBoxGeometry::getBounds(
         if (auto renderModel = static_cast<QSSGRenderModel *>(renderNode)) {
             QWindow *window = static_cast<QWindow *>(m_view3D->window());
             if (window) {
-                auto context = QSSGRenderContextInterface::getRenderContextInterface(
-                            quintptr(window));
+                QSSGRef<QSSGRenderContextInterface> context;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+                context = QSSGRenderContextInterface::getRenderContextInterface(quintptr(window));
+#else
+                context = QQuick3DObjectPrivate::get(this)->sceneManager->rci;
+#endif
                 if (!context.isNull()) {
                     auto bufferManager = context->bufferManager();
                     QSSGBounds3 bounds = renderModel->getModelBounds(bufferManager);

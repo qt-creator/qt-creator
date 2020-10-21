@@ -2010,9 +2010,13 @@ namespace {
 class ConvertToCamelCaseOp: public CppQuickFixOperation
 {
 public:
-    ConvertToCamelCaseOp(const CppQuickFixInterface &interface, const QString &newName)
+    ConvertToCamelCaseOp(const CppQuickFixInterface &interface, const QString &name,
+                         const AST *nameAst, bool test)
         : CppQuickFixOperation(interface, -1)
-        , m_name(newName)
+        , m_name(name)
+        , m_nameAst(nameAst)
+        , m_isAllUpper(name.isUpper())
+        , m_test(test)
     {
         setDescription(QApplication::translate("CppTools::QuickFix", "Convert to Camel Case"));
     }
@@ -2022,17 +2026,24 @@ public:
         CppRefactoringChanges refactoring(snapshot());
         CppRefactoringFilePtr currentFile = refactoring.file(filePath().toString());
 
-        for (int i = 1; i < m_name.length(); ++i) {
-            const QChar c = m_name.at(i);
-            if (c.isUpper()) {
-                m_name[i] = c.toLower();
-            } else if (i < m_name.length() - 1
-                       && isConvertibleUnderscore(m_name, i)) {
-                m_name.remove(i, 1);
-                m_name[i] = m_name.at(i).toUpper();
+        QString newName = m_isAllUpper ? m_name.toLower() : m_name;
+        for (int i = 1; i < newName.length(); ++i) {
+            const QChar c = newName.at(i);
+            if (c.isUpper() && m_isAllUpper) {
+                newName[i] = c.toLower();
+            } else if (i < newName.length() - 1 && isConvertibleUnderscore(newName, i)) {
+                newName.remove(i, 1);
+                newName[i] = newName.at(i).toUpper();
             }
         }
-        editor()->renameUsages(m_name);
+        if (m_test) {
+            ChangeSet changeSet;
+            changeSet.replace(currentFile->range(m_nameAst), newName);
+            currentFile->setChangeSet(changeSet);
+            currentFile->apply();
+        } else {
+            editor()->renameUsages(newName);
+        }
     }
 
     static bool isConvertibleUnderscore(const QString &name, int pos)
@@ -2042,7 +2053,10 @@ public:
     }
 
 private:
-    QString m_name;
+    const QString m_name;
+    const AST * const m_nameAst;
+    const bool m_isAllUpper;
+    const bool m_test;
 };
 
 } // anonymous namespace
@@ -2056,22 +2070,26 @@ void ConvertToCamelCase::match(const CppQuickFixInterface &interface, QuickFixOp
 
     AST * const ast = path.last();
     const Name *name = nullptr;
+    const AST *astForName = nullptr;
     if (const NameAST * const nameAst = ast->asName()) {
-        if (nameAst->name && nameAst->name->asNameId())
+        if (nameAst->name && nameAst->name->asNameId()) {
+            astForName = nameAst;
             name = nameAst->name;
+        }
     } else if (const NamespaceAST * const namespaceAst = ast->asNamespace()) {
+        astForName = namespaceAst;
         name = namespaceAst->symbol->name();
     }
 
     if (!name)
         return;
 
-    QString newName = QString::fromUtf8(name->identifier()->chars());
-    if (newName.length() < 3)
+    QString nameString = QString::fromUtf8(name->identifier()->chars());
+    if (nameString.length() < 3)
         return;
-    for (int i = 1; i < newName.length() - 1; ++i) {
-        if (ConvertToCamelCaseOp::isConvertibleUnderscore(newName, i)) {
-            result << new ConvertToCamelCaseOp(interface, newName);
+    for (int i = 1; i < nameString.length() - 1; ++i) {
+        if (ConvertToCamelCaseOp::isConvertibleUnderscore(nameString, i)) {
+            result << new ConvertToCamelCaseOp(interface, nameString, astForName, m_test);
             return;
         }
     }

@@ -31,8 +31,11 @@
 
 #include <iostream>
 
-#include <qt5nodeinstanceclientproxy.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "iconrenderer/iconrenderer.h"
+#include <qt5nodeinstanceclientproxy.h>
 
 #include <QQmlComponent>
 #include <QQmlEngine>
@@ -46,6 +49,54 @@
 #endif
 
 namespace {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QByteArray localMsg = msg.toLocal8Bit();
+    switch (type) {
+    case QtDebugMsg:
+        fprintf(stderr,
+                "Debug: %s (%s:%u, %s)\n",
+                localMsg.constData(),
+                context.file,
+                context.line,
+                context.function);
+        break;
+    case QtInfoMsg:
+        fprintf(stderr,
+                "Info: %s (%s:%u, %s)\n",
+                localMsg.constData(),
+                context.file,
+                context.line,
+                context.function);
+        break;
+    case QtWarningMsg:
+        fprintf(stderr,
+                "Warning: %s (%s:%u, %s)\n",
+                localMsg.constData(),
+                context.file,
+                context.line,
+                context.function);
+        break;
+    case QtCriticalMsg:
+        fprintf(stderr,
+                "Critical: %s (%s:%u, %s)\n",
+                localMsg.constData(),
+                context.file,
+                context.line,
+                context.function);
+        break;
+    case QtFatalMsg:
+        fprintf(stderr,
+                "Fatal: %s (%s:%u, %s)\n",
+                localMsg.constData(),
+                context.file,
+                context.line,
+                context.function);
+        abort();
+    }
+}
+#endif
 
 int internalMain(QGuiApplication *application)
 {
@@ -144,6 +195,9 @@ int internalMain(QGuiApplication *application)
 
 int main(int argc, char *argv[])
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    qInstallMessageHandler(myMessageOutput);
+#endif
     // Since we always render text into an FBO, we need to globally disable
     // subpixel antialiasing and instead use gray.
     qputenv("QSG_DISTANCEFIELD_ANTIALIASING", "gray");

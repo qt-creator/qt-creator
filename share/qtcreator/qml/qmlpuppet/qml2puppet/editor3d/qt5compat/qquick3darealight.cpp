@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,41 +23,37 @@
 **
 ****************************************************************************/
 
-#pragma once
+#ifdef QUICK3D_MODULE
 
-#include <QWidget>
+#include "qquick3darealight_p.h"
+#include <QtQuick3D/private/qquick3dobject_p.h>
 
-QT_BEGIN_NAMESPACE
-class QTabBar;
-class QSplitter;
-class QPushButton;
-QT_END_NAMESPACE
+#include <QtQuick3DRuntimeRender/private/qssgrenderlight_p.h>
 
-namespace QmlDesigner {
-class SwitchSplitTabWidget : public QWidget
+namespace QmlDesigner::Internal {
+
+float QQuick3DAreaLight::width() const
 {
-    Q_OBJECT
+    return m_width;
+}
 
-    enum Mode { SplitMode, TabMode };
+float QQuick3DAreaLight::height() const
+{
+    return m_height;
+}
 
-public:
-    explicit SwitchSplitTabWidget(QWidget *parent = nullptr);
-    int count() const;
-    QWidget *currentWidget() const;
+void QQuick3DAreaLight::setWidth(float width)
+{
+    m_width = width;
+    emit widthChanged();
+}
 
-    int addTab(QWidget *widget, const QString &label);
-    QWidget *takeTabWidget(const int index);
-    void switchTo(QWidget *widget);
+void QQuick3DAreaLight::setHeight(float height)
+{
+    m_height = height;
+    emit heightChanged();
+}
 
-private:
-    void updateSplitterSizes(int index = -1);
-    void updateSplitButtons();
-    void selectFakeTab();
-    Mode mode() const;
+}
 
-    QSplitter *m_splitter = nullptr;
-    QTabBar *m_tabBar = nullptr;
-    QWidget *m_tabBarBackground = nullptr;
-    const int fakeTab = 1;
-};
-} // namespace QmlDesigner
+#endif

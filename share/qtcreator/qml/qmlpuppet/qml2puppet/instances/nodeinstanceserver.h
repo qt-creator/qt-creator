@@ -253,6 +253,7 @@ protected:
     void setSlowRenderTimerInterval(int timerInterval);
 
     virtual void initializeView() = 0;
+    virtual void initializeAuxiliaryViews();
     virtual void setupScene(const CreateSceneCommand &command) = 0;
     void setTranslationLanguage(const QString &language);
     void loadDummyDataFiles(const QString& directory);

@@ -138,6 +138,14 @@ extend_qtc_executable(qml2puppet
 )
 
 extend_qtc_executable(qml2puppet
+  CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0
+
+  SOURCES_PREFIX "${SRCDIR}/qml2puppet/editor3d/qt5compat"
+  SOURCES
+    qquick3darealight.cpp qquick3darealight_p.h
+)
+
+extend_qtc_executable(qml2puppet
   SOURCES_PREFIX "${SRCDIR}/qml2puppet/iconrenderer"
   SOURCES
     iconrenderer.cpp iconrenderer.h

@@ -126,12 +126,12 @@ double GraphicsView::maximumTime() const
 
 double GraphicsView::minimumValue() const
 {
-    return m_scene->empty() ? -1.0 : m_scene->minimumValue();
+    return m_scene->empty() ? CurveEditorStyle::defaultValueMin : m_scene->minimumValue();
 }
 
 double GraphicsView::maximumValue() const
 {
-    return m_scene->empty() ? 1.0 : m_scene->maximumValue();
+    return m_scene->empty() ? CurveEditorStyle::defaultValueMax : m_scene->maximumValue();
 }
 
 double GraphicsView::zoomX() const

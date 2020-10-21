@@ -938,10 +938,10 @@ void Client::handleMessage(const BaseMessage &message)
     if (auto handler = m_contentHandler[message.mimeType]) {
         QString parseError;
         handler(message.content, message.codec, parseError,
-                [this](MessageId id, const QByteArray &content, QTextCodec *codec){
+                [this](const MessageId &id, const QByteArray &content, QTextCodec *codec){
                     this->handleResponse(id, content, codec);
                 },
-                [this](const QString &method, MessageId id, const IContent *content){
+                [this](const QString &method, const MessageId &id, const IContent *content){
                     this->handleMethod(method, id, content);
                 });
         if (!parseError.isEmpty())
@@ -1072,7 +1072,7 @@ void Client::handleResponse(const MessageId &id, const QByteArray &content, QTex
         handler(content, codec);
 }
 
-void Client::handleMethod(const QString &method, MessageId id, const IContent *content)
+void Client::handleMethod(const QString &method, const MessageId &id, const IContent *content)
 {
     ErrorHierarchy error;
     auto logError = [&](const JsonObject &content) {

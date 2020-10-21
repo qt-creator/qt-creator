@@ -43,6 +43,17 @@ class SelectionBoxGeometry : public QQuick3DGeometry
     Q_PROPERTY(QQuick3DViewport *view3D READ view3D WRITE setView3D NOTIFY view3DChanged)
     Q_PROPERTY(bool isEmpty READ isEmpty NOTIFY isEmptyChanged)
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    // Name property was removed in Qt 6, so define it here for compatibility.
+    // Name maps to object name.
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+public:
+    QString name() const;
+    void setName(const QString &name);
+signals:
+    void nameChanged();
+#endif
+
 public:
     SelectionBoxGeometry();
     ~SelectionBoxGeometry() override;
@@ -54,12 +65,12 @@ public:
 
     QSSGBounds3 bounds() const;
 
-public Q_SLOTS:
+public slots:
     void setTargetNode(QQuick3DNode *targetNode);
     void setRootNode(QQuick3DNode *rootNode);
     void setView3D(QQuick3DViewport *view);
 
-Q_SIGNALS:
+signals:
     void targetNodeChanged();
     void rootNodeChanged();
     void view3DChanged();

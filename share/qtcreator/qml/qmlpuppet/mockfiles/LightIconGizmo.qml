@@ -25,6 +25,7 @@
 
 import QtQuick 2.0
 import QtQuick3D 1.15
+import LightUtils 1.0
 
 IconGizmo {
     id: lightIconGizmo

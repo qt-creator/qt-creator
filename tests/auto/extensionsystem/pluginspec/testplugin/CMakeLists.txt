@@ -22,4 +22,6 @@ add_qtc_plugin(testplugin
 )
 
 # The empty string gets removed if I put it above
-set_target_properties(testplugin PROPERTIES PREFIX "")
+if (TARGET testplugin)
+  set_target_properties(testplugin PROPERTIES PREFIX "")
+endif()

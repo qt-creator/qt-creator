@@ -85,8 +85,8 @@ void JsonRpcMessageHandler::registerMessageProvider(
 void JsonRpcMessageHandler::parseContent(const QByteArray &content,
                                          QTextCodec *codec,
                                          QString &parseError,
-                                         ResponseHandlers responseHandlers,
-                                         MethodHandler methodHandler)
+                                         const ResponseHandlers &responseHandlers,
+                                         const MethodHandler &methodHandler)
 {
     const QJsonObject &jsonObject = toJsonObject(content, codec, parseError);
     if (jsonObject.isEmpty())

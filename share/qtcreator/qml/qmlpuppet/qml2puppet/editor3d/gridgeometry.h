@@ -41,6 +41,17 @@ class GridGeometry : public QQuick3DGeometry
     Q_PROPERTY(bool isCenterLine READ isCenterLine WRITE setIsCenterLine NOTIFY isCenterLineChanged)
     Q_PROPERTY(bool isSubdivision MEMBER m_isSubdivision)
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    // Name property was removed in Qt 6, so define it here for compatibility.
+    // Name maps to object name.
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+public:
+    QString name() const;
+    void setName(const QString &name);
+signals:
+    void nameChanged();
+#endif
+
 public:
     GridGeometry();
     ~GridGeometry() override;
@@ -49,12 +60,12 @@ public:
     float step() const;
     bool isCenterLine() const;
 
-public Q_SLOTS:
+public slots:
     void setLines(int count);
     void setStep(float step);
     void setIsCenterLine(bool enabled);
 
-Q_SIGNALS:
+signals:
     void linesChanged();
     void stepChanged();
     void isCenterLineChanged();

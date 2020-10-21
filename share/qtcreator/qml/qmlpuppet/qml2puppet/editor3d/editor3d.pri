@@ -15,3 +15,8 @@ SOURCES += $$PWD/generalhelper.cpp \
            $$PWD/selectionboxgeometry.cpp \
            $$PWD/linegeometry.cpp \
            $$PWD/icongizmoimageprovider.cpp
+
+versionAtLeast(QT_VERSION, 6.0.0) {
+    HEADERS += $$PWD/qt5compat/qquick3darealight_p.h
+    SOURCES += $$PWD/qt5compat/qquick3darealight.cpp
+}

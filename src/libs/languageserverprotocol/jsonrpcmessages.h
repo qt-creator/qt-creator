@@ -76,8 +76,8 @@ public:
     }
     static QByteArray jsonRpcMimeType();
     static void parseContent(const QByteArray &content, QTextCodec *codec, QString &errorMessage,
-                             ResponseHandlers responseHandlers,
-                             MethodHandler methodHandler);
+                             const ResponseHandlers &responseHandlers,
+                             const MethodHandler &methodHandler);
     static QJsonObject toJsonObject(const QByteArray &content, QTextCodec *codec, QString &parseError);
 
 private:

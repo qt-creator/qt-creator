@@ -183,10 +183,18 @@ void SessionModel::sort(int column, Qt::SortOrder order)
     beginResetModel();
     const auto cmp = [column, order](const QString &s1, const QString &s2) {
         bool isLess;
-        if (column == 0)
+        if (column == 0) {
+            if (s1 == s2)
+                return false;
             isLess = s1 < s2;
-        else
-            isLess = SessionManager::sessionDateTime(s1) < SessionManager::sessionDateTime(s2);
+        }
+        else {
+            const auto s1time = SessionManager::sessionDateTime(s1);
+            const auto s2time = SessionManager::sessionDateTime(s2);
+            if (s1time == s2time)
+                return false;
+            isLess = s1time < s2time;
+        }
         if (order == Qt::DescendingOrder)
             isLess = !isLess;
         return isLess;

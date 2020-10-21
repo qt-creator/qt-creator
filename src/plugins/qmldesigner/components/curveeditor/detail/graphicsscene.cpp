@@ -114,9 +114,29 @@ double GraphicsScene::maximumValue() const
     return limits().top();
 }
 
+double GraphicsScene::animationRangeMin() const
+{
+    if (GraphicsView *gview = graphicsView())
+        return gview->minimumTime();
+
+    return minimumTime();
+}
+
+double GraphicsScene::animationRangeMax() const
+{
+    if (GraphicsView *gview = graphicsView())
+        return gview->maximumTime();
+
+    return maximumTime();
+}
+
 QRectF GraphicsScene::rect() const
 {
-    return sceneRect();
+    QRectF rect;
+    for (auto *curve : curves())
+        rect |= curve->boundingRect();
+
+    return rect;
 }
 
 QVector<CurveItem *> GraphicsScene::curves() const
@@ -410,6 +430,11 @@ QRectF GraphicsScene::limits() const
         }
 
         m_limits = QRectF(QPointF(min.x(), max.y()), QPointF(max.x(), min.y()));
+        if (qFuzzyCompare(m_limits.height(), 0.0)) {
+            auto tmp = CurveEditorStyle::defaultValueRange() / 2.0;
+            m_limits.adjust(0.0, tmp, 0.0, -tmp);
+        }
+
         m_dirty = false;
     }
     return m_limits;

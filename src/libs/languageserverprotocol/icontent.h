@@ -90,8 +90,8 @@ public:
 };
 
 using ResponseHandler = std::function<void(const QByteArray &, QTextCodec *)>;
-using ResponseHandlers = std::function<void(MessageId, const QByteArray &, QTextCodec *)>;
-using MethodHandler = std::function<void(const QString, MessageId, const IContent *)>;
+using ResponseHandlers = std::function<void(const MessageId &, const QByteArray &, QTextCodec *)>;
+using MethodHandler = std::function<void(const QString &, const MessageId &, const IContent *)>;
 
 inline uint qHash(const LanguageServerProtocol::MessageId &id)
 {

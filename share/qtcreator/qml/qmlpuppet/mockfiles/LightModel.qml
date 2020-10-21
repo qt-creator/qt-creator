@@ -25,7 +25,7 @@
 
 import QtQuick 2.0
 import QtQuick3D 1.15
-import LightGeometry 1.0
+import LightUtils 1.0
 
 Model {
     id: lightModel

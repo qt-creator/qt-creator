@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "designmodewidget.h"
-#include "switchsplittabwidget.h"
 
 #include <designeractionmanager.h>
 
