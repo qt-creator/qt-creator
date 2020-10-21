@@ -193,16 +193,22 @@ bool CppLocalRenaming::handleKeyPressEvent(QKeyEvent *e)
     startRenameChange();
 
     const bool wantEditBlock = isWithinRenameSelection(cursorPosition);
+    const int undoSizeBeforeEdit = m_editorWidget->document()->availableUndoSteps();
     if (wantEditBlock) {
         if (m_firstRenameChangeExpected) // Change inside rename selection
             cursor.beginEditBlock();
         else
             cursor.joinPreviousEditBlock();
-        m_firstRenameChangeExpected = false;
     }
     emit processKeyPressNormally(e);
-    if (wantEditBlock)
+    if (wantEditBlock) {
         cursor.endEditBlock();
+        if (m_firstRenameChangeExpected
+                // QTCREATORBUG-16350
+                && m_editorWidget->document()->availableUndoSteps() != undoSizeBeforeEdit) {
+            m_firstRenameChangeExpected = false;
+        }
+    }
     finishRenameChange();
     return true;
 }
