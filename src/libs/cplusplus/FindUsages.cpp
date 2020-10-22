@@ -348,6 +348,8 @@ Usage::Type FindUsages::getType(int line, int column, int tokenIndex)
         }
         if ((*it)->asCall())
             return checkPotentialWrite(getUsageTypeForCall(it), it + 1);
+        if ((*it)->asDeleteExpression())
+            return Usage::Type::Write;
         if (const auto binExpr = (*it)->asBinaryExpression()) {
             if (binExpr->left_expression == *(it - 1) && isAssignment(binExpr->binary_op_token))
                 return checkPotentialWrite(Usage::Type::Write, it + 1);

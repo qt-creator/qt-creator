@@ -3487,20 +3487,17 @@ public:
         m_classAST = path.at(path.size() - 2)->asClassSpecifier();
         if (!m_classAST)
             return;
-
         const Class * const theClass = m_classAST->symbol;
         if (!theClass)
             return;
 
-        // Collect all member functions without an implementation.
+        // Collect all member functions.
         for (auto it = theClass->memberBegin(); it != theClass->memberEnd(); ++it) {
             Symbol * const s = *it;
             if (!s->identifier() || !s->type() || !s->isDeclaration() || s->asFunction())
                 continue;
             Function * const func = s->type()->asFunctionType();
             if (!func || func->isSignal() || func->isFriend())
-                continue;
-            if (SymbolFinder().findMatchingDefinition(s, interface.snapshot()))
                 continue;
             m_declarations << s;
         }
@@ -3512,7 +3509,14 @@ public:
 private:
     void perform() override
     {
-        QTC_ASSERT(!m_declarations.isEmpty(), return);
+        QList<Symbol *> unimplemented;
+        SymbolFinder symbolFinder;
+        for (Symbol * const s : qAsConst(m_declarations)) {
+            if (!symbolFinder.findMatchingDefinition(s, snapshot()))
+                unimplemented << s;
+        }
+        if (unimplemented.isEmpty())
+            return;
 
         CppRefactoringChanges refactoring(snapshot());
         const bool isHeaderFile = ProjectFile::isHeader(ProjectFile::classify(filePath().toString()));
@@ -3520,7 +3524,7 @@ private:
         if (isHeaderFile) {
             InsertionPointLocator locator(refactoring);
             for (const InsertionLocation &location
-                 : locator.methodDefinition(m_declarations.first(), false, {})) {
+                 : locator.methodDefinition(unimplemented.first(), false, {})) {
                 if (!location.isValid())
                     continue;
                 const QString fileName = location.fileName();
@@ -3538,7 +3542,7 @@ private:
         MemberFunctionImplSettings settings;
         switch (m_mode) {
         case InsertDefsFromDecls::Mode::User: {
-            AddImplementationsDialog dlg(m_declarations, Utils::FilePath::fromString(cppFile));
+            AddImplementationsDialog dlg(unimplemented, Utils::FilePath::fromString(cppFile));
             if (dlg.exec() == QDialog::Accepted)
                 settings = dlg.settings();
             break;
@@ -3548,7 +3552,7 @@ private:
             const auto incDefPos = [&defPos] {
                 defPos = (defPos + 1) % (DefPosImplementationFile + 2);
             };
-            for (Symbol * const func : qAsConst(m_declarations)) {
+            for (Symbol * const func : qAsConst(unimplemented)) {
                 incDefPos();
                 if (defPos > DefPosImplementationFile)
                     continue;
@@ -3618,8 +3622,8 @@ private:
     }
 
     ClassSpecifierAST *m_classAST = nullptr;
-    QList<Symbol *> m_declarations;
     InsertDefsFromDecls::Mode m_mode;
+    QList<Symbol *> m_declarations;
 };
 
 

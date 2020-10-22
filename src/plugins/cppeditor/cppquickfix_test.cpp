@@ -4283,6 +4283,23 @@ void CppEditorPlugin::test_quickfix_InsertDefsFromDecls_data()
 
         } // namespace N)";
     QTest::addRow("no candidates")
+            << QByteArrayList{origHeader, origHeader}
+            << QByteArrayList{origSource, origSource}
+            << int(InsertDefsFromDecls::Mode::Alternating);
+
+    origHeader = R"(
+        namespace N {
+        class @C
+        {
+        public:
+            friend void ignoredFriend();
+            void ignoredImplemented() {};
+
+        signals:
+            void ignoredSignal();
+        };
+        } // namespace N)";
+    QTest::addRow("no member functions")
             << QByteArrayList{origHeader, ""}
             << QByteArrayList{origSource, ""}
             << int(InsertDefsFromDecls::Mode::Alternating);

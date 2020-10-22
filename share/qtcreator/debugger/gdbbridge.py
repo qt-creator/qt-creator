@@ -1117,7 +1117,8 @@ class Dumper(DumperBase):
         self.qtCustomEventPltFunc = self.findSymbol(sym)
 
         sym = '_ZNK%s7QObject8propertyEPKc' % strns
-        self.qtPropertyFunc = self.findSymbol(sym)
+        if not self.isWindowsTarget(): # prevent calling the property function on windows
+            self.qtPropertyFunc = self.findSymbol(sym)
 
     def assignValue(self, args):
         typeName = self.hexdecode(args['type'])

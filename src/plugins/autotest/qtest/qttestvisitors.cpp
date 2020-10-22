@@ -226,6 +226,9 @@ bool TestDataFunctionVisitor::visit(CallAST *ast)
                     bool ok = false;
                     QString name = extractNameFromAST(stringLiteral, &ok);
                     if (ok) {
+                        // if it's a format string we skip as we cannot assure correct tag name
+                        if (name.contains('%') && expressionListAST->next != nullptr)
+                            return true;
                         int line = 0;
                         int column = 0;
                         m_currentDoc->translationUnit()->getTokenStartPosition(
@@ -279,10 +282,12 @@ bool TestDataFunctionVisitor::newRowCallFound(CallAST *ast, unsigned *firstToken
             return false;
 
         if (const auto qualifiedNameAST = exp->name->asQualifiedName()) {
-            found = m_overview.prettyName(qualifiedNameAST->name) == "QTest::newRow";
+            const QString name = m_overview.prettyName(qualifiedNameAST->name);
+            found = (name == "QTest::newRow" || name == "QTest::addRow");
             *firstToken = qualifiedNameAST->firstToken();
         } else if (m_insideUsingQTest) {
-            found = m_overview.prettyName(exp->name->name) == "newRow";
+            const QString name = m_overview.prettyName(exp->name->name);
+            found = (name == "newRow" || name == "addRow");
             *firstToken = exp->name->firstToken();
         }
     }
