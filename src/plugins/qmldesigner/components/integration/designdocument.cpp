@@ -217,6 +217,7 @@ Utils::FilePath DesignDocument::fileName() const
 {
     if (editor())
         return editor()->document()->filePath();
+
     return Utils::FilePath();
 }
 
@@ -239,14 +240,11 @@ void DesignDocument::loadDocument(QPlainTextEdit *edit)
 {
     Q_CHECK_PTR(edit);
 
-    connect(edit, &QPlainTextEdit::undoAvailable,
-            this, &DesignDocument::undoAvailable);
-    connect(edit, &QPlainTextEdit::redoAvailable,
-            this, &DesignDocument::redoAvailable);
-    connect(edit, &QPlainTextEdit::modificationChanged,
-            this, &DesignDocument::dirtyStateChanged);
+    connect(edit, &QPlainTextEdit::undoAvailable, this, &DesignDocument::undoAvailable);
+    connect(edit, &QPlainTextEdit::redoAvailable, this, &DesignDocument::redoAvailable);
+    connect(edit, &QPlainTextEdit::modificationChanged, this, &DesignDocument::dirtyStateChanged);
 
-    m_documentTextModifier.reset(new BaseTextEditModifier(dynamic_cast<TextEditor::TextEditorWidget*>(plainTextEdit())));
+    m_documentTextModifier.reset(new BaseTextEditModifier(qobject_cast<TextEditor::TextEditorWidget *>(plainTextEdit())));
 
     connect(m_documentTextModifier.data(), &TextModifier::textChanged, this, &DesignDocument::updateQrcFiles);
 
@@ -265,7 +263,6 @@ void DesignDocument::changeToDocumentModel()
 {
     viewManager().detachRewriterView();
     viewManager().detachViewsExceptRewriterAndComponetView();
-
 
     m_inFileComponentModel.reset();
 
@@ -299,7 +296,8 @@ void DesignDocument::updateQrcFiles()
     ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(fileName());
 
     if (currentProject) {
-        for (const Utils::FilePath &fileName : currentProject->files(ProjectExplorer::Project::SourceFiles)) {
+        const auto srcFiles = currentProject->files(ProjectExplorer::Project::SourceFiles);
+        for (const Utils::FilePath &fileName : srcFiles) {
             if (fileName.endsWith(".qrc"))
                 QmlJS::ModelManagerInterface::instance()->updateQrcFile(fileName.toString());
         }
@@ -350,6 +348,7 @@ bool DesignDocument::isUndoAvailable() const
 {
     if (plainTextEdit())
         return plainTextEdit()->document()->isUndoAvailable();
+
     return false;
 }
 
@@ -357,6 +356,7 @@ bool DesignDocument::isRedoAvailable() const
 {
     if (plainTextEdit())
         return plainTextEdit()->document()->isRedoAvailable();
+
     return false;
 }
 
@@ -408,9 +408,8 @@ void DesignDocument::deleteSelected()
             return;
     }
 
-    rewriterView()->executeInTransaction("DesignDocument::deleteSelected", [this](){
-        QList<ModelNode> toDelete = view()->selectedModelNodes();
-
+    rewriterView()->executeInTransaction("DesignDocument::deleteSelected", [this]() {
+        const QList<ModelNode> toDelete = view()->selectedModelNodes();
         for (ModelNode node : toDelete) {
             if (node.isValid() && !node.isRootNode() && QmlObjectNode::isValidQmlObjectNode(node))
                 QmlObjectNode(node).destroy();
@@ -442,32 +441,33 @@ static void scatterItem(const ModelNode &pastedNode, const ModelNode &targetNode
         return;
 
     bool scatter = false;
-    foreach (const ModelNode &childNode, targetNode.directSubModelNodes()) {
-        if ((childNode.variantProperty("x").value() == pastedNode.variantProperty("x").value()) &&
-            (childNode.variantProperty("y").value() == pastedNode.variantProperty("y").value()))
+    for (const ModelNode &childNode : targetNode.directSubModelNodes()) {
+        if (childNode.variantProperty("x").value() == pastedNode.variantProperty("x").value() &&
+            childNode.variantProperty("y").value() == pastedNode.variantProperty("y").value()) {
             scatter = true;
+            break;
+        }
     }
     if (!scatter)
         return;
 
-    if (offset == -2000) {
+    if (offset == -2000) { // scatter in range
         double x = pastedNode.variantProperty("x").value().toDouble();
         double y = pastedNode.variantProperty("y").value().toDouble();
-        double targetWidth = 20;
-        double targetHeight = 20;
-        x = x + double(QRandomGenerator::global()->generate()) / RAND_MAX * targetWidth
-            - targetWidth / 2;
-        y = y + double(QRandomGenerator::global()->generate()) / RAND_MAX * targetHeight
-            - targetHeight / 2;
+
+        const double scatterRange = 20.;
+        x += QRandomGenerator::global()->generateDouble() * scatterRange - scatterRange / 2;
+        y += QRandomGenerator::global()->generateDouble() * scatterRange - scatterRange / 2;
+
         pastedNode.variantProperty("x").setValue(int(x));
         pastedNode.variantProperty("y").setValue(int(y));
-    } else {
-        double x = pastedNode.variantProperty("x").value().toDouble();
-        double y = pastedNode.variantProperty("y").value().toDouble();
-        x = x + offset;
-        y = y + offset;
-        pastedNode.variantProperty("x").setValue(int(x));
-        pastedNode.variantProperty("y").setValue(int(y));
+    } else { // offset
+        int x = pastedNode.variantProperty("x").value().toInt();
+        int y = pastedNode.variantProperty("y").value().toInt();
+        x += offset;
+        y += offset;
+        pastedNode.variantProperty("x").setValue(x);
+        pastedNode.variantProperty("y").setValue(y);
     }
 }
 
@@ -495,7 +495,7 @@ void DesignDocument::paste()
         if (!view.selectedModelNodes().isEmpty())
             targetNode = view.selectedModelNodes().constFirst();
 
-        //In case we copy and paste a selection we paste in the parent item
+        // in case we copy and paste a selection we paste in the parent item
         if ((view.selectedModelNodes().count() == selectedNodes.count()) && targetNode.isValid() && targetNode.hasParentProperty()) {
             targetNode = targetNode.parentProperty().parentModelNode();
         } else {
@@ -516,19 +516,20 @@ void DesignDocument::paste()
         if (!targetNode.isValid())
             targetNode = view.rootModelNode();
 
-        foreach (const ModelNode &node, selectedNodes) {
-            foreach (const ModelNode &node2, selectedNodes) {
+        for (const ModelNode &node : qAsConst(selectedNodes)) {
+            for (const ModelNode &node2 : qAsConst(selectedNodes)) {
                 if (node.isAncestorOf(node2))
                     selectedNodes.removeAll(node2);
             }
         }
 
-        rewriterView()->executeInTransaction("DesignDocument::paste1", [&view, selectedNodes, targetNode](){
+        rewriterView()->executeInTransaction("DesignDocument::paste1", [&view, selectedNodes, targetNode]() {
             QList<ModelNode> pastedNodeList;
 
-            int offset = double(QRandomGenerator::global()->generate()) / RAND_MAX * 20 - 10;
+            const double scatterRange = 20.;
+            int offset = QRandomGenerator::global()->generateDouble() * scatterRange - scatterRange / 2;
 
-            foreach (const ModelNode &node, selectedNodes) {
+            for (const ModelNode &node : qAsConst(selectedNodes)) {
                 PropertyName defaultProperty(targetNode.metaInfo().defaultPropertyName());
                 ModelNode pastedNode(view.insertModel(node));
                 pastedNodeList.append(pastedNode);
@@ -572,11 +573,11 @@ void DesignDocument::paste()
             PropertyName defaultProperty(targetNode.metaInfo().defaultPropertyName());
 
             scatterItem(pastedNode, targetNode);
-            if (targetNode.metaInfo().propertyIsListProperty(defaultProperty)) {
+            if (targetNode.metaInfo().propertyIsListProperty(defaultProperty))
                 targetNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
-            } else {
+            else
                 qWarning() << "Cannot reparent to" << targetNode;
-            }
+
             view.setSelectedModelNodes({pastedNode});
         });
         view.model()->clearMetaInfoCache();
@@ -590,7 +591,6 @@ void DesignDocument::selectAll()
 
     DesignDocumentView view;
     currentModel()->attachView(&view);
-
 
     QList<ModelNode> allNodesExceptRootNode(view.allModelNodes());
     allNodesExceptRootNode.removeOne(view.rootModelNode());
@@ -607,7 +607,6 @@ void DesignDocument::setEditor(Core::IEditor *editor)
     m_textEditor = editor;
     // if the user closed the file explicit we do not want to do anything with it anymore
 
-
     connect(Core::EditorManager::instance(), &Core::EditorManager::aboutToSave,
             this, [this](Core::IDocument *document) {
         if (m_textEditor && m_textEditor->document() == document) {
@@ -622,8 +621,7 @@ void DesignDocument::setEditor(Core::IEditor *editor)
             m_textEditor.clear();
     });
 
-    connect(editor->document(), &Core::IDocument::filePathChanged,
-            this, &DesignDocument::updateFileName);
+    connect(editor->document(), &Core::IDocument::filePathChanged, this, &DesignDocument::updateFileName);
 
     updateActiveTarget();
     updateActiveTarget();
@@ -677,7 +675,6 @@ static Target *getActiveTarget(DesignDocument *designDocument)
 
     if (!currentProject)
         return nullptr;
-
 
     QObject::connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
                      designDocument, &DesignDocument::updateActiveTarget, Qt::UniqueConnection);
