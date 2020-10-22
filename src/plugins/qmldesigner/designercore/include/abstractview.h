@@ -284,6 +284,23 @@ public:
     bool isEnabled() const;
     void setEnabled(bool b);
 
+    bool isBlockingNotifications() const { return m_isBlockingNotifications; }
+
+    class NotificationBlocker
+    {
+    public:
+        NotificationBlocker(AbstractView *view)
+            : m_view{view}
+        {
+            m_view->m_isBlockingNotifications = true;
+        }
+
+        ~NotificationBlocker() { m_view->m_isBlockingNotifications = false; }
+
+    private:
+        AbstractView *m_view;
+    };
+
 protected:
     void setModel(Model * model);
     void removeModel();
@@ -296,10 +313,11 @@ protected:
 
 private: //functions
     QList<ModelNode> toModelNodeList(const QList<Internal::InternalNodePointer> &nodeList) const;
-    bool m_enabled = true;
 
 private:
     QPointer<Model> m_model;
+    bool m_enabled = true;
+    bool m_isBlockingNotifications = false;
 };
 
 QMLDESIGNERCORE_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);

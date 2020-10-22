@@ -397,17 +397,19 @@ void ModelPrivate::notifyNodeInstanceViewLast(Callable call)
     QString description;
 
     try {
-        if (rewriterView())
+        if (rewriterView() && !rewriterView()->isBlockingNotifications())
             call(rewriterView());
     } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
 
-    for (QPointer<AbstractView> view : enabledViews())
-        call(view.data());
+    for (QPointer<AbstractView> view : enabledViews()) {
+        if (!view->isBlockingNotifications())
+            call(view.data());
+    }
 
-    if (nodeInstanceView())
+    if (nodeInstanceView() && !nodeInstanceView()->isBlockingNotifications())
         call(nodeInstanceView());
 
     if (resetModel)
@@ -421,18 +423,20 @@ void ModelPrivate::notifyNormalViewsLast(Callable call)
     QString description;
 
     try {
-        if (rewriterView())
+        if (rewriterView() && !rewriterView()->isBlockingNotifications())
             call(rewriterView());
     } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
 
-    if (nodeInstanceView())
+    if (nodeInstanceView() && !nodeInstanceView()->isBlockingNotifications())
         call(nodeInstanceView());
 
-    for (QPointer<AbstractView> view : enabledViews())
-        call(view.data());
+    for (QPointer<AbstractView> view : enabledViews()) {
+        if (!view->isBlockingNotifications())
+            call(view.data());
+    }
 
     if (resetModel)
         resetModelByRewriter(description);
@@ -441,8 +445,10 @@ void ModelPrivate::notifyNormalViewsLast(Callable call)
 template<typename Callable>
 void ModelPrivate::notifyInstanceChanges(Callable call)
 {
-    for (QPointer<AbstractView> view : enabledViews())
-        call(view.data());
+    for (QPointer<AbstractView> view : enabledViews()) {
+        if (!view->isBlockingNotifications())
+            call(view.data());
+    }
 }
 
 void ModelPrivate::notifyAuxiliaryDataChanged(const InternalNodePointer &internalNode,
