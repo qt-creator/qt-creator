@@ -94,9 +94,9 @@ public:
     // Editing sub-components:
 
     // Imports:
-    QList<Import> imports() const;
-    QList<Import> possibleImports() const;
-    QList<Import> usedImports() const;
+    const QList<Import> &imports() const;
+    const QList<Import> &possibleImports() const;
+    const QList<Import> &usedImports() const;
     void changeImports(const QList<Import> &importsToBeAdded, const QList<Import> &importsToBeRemoved);
     void setPossibleImports(const QList<Import> &possibleImports);
     void setUsedImports(const QList<Import> &usedImports);

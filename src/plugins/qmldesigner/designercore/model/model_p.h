@@ -122,9 +122,15 @@ public:
     void detachView(AbstractView *view, bool notifyView);
     void detachAllViews();
 
+    Model *model() const { return m_model; }
+    void setModel(Model *model) { m_model = model; }
 
-    Model *model() const { return m_q; }
-    void setModel(Model *q) { m_q = q; }
+    template<typename Callable>
+    void notifyNodeInstanceViewLast(Callable call);
+    template<typename Callable>
+    void notifyNormalViewsLast(Callable call);
+    template<typename Callable>
+    void notifyInstanceChanges(Callable call);
 
     void notifyNodeCreated(const InternalNodePointer &newInternalNodePointer);
     void notifyNodeAboutToBeReparent(const InternalNodePointer &internalNodePointer, const InternalNodeAbstractPropertyPointer &newPropertyParent, const InternalNodePointer &oldParent, const PropertyName &oldPropertyName, AbstractView::PropertyChangeFlags propertyChange);
@@ -179,11 +185,10 @@ public:
 
     void setAuxiliaryData(const InternalNodePointer& node, const PropertyName &name, const QVariant &data);
     void removeAuxiliaryData(const InternalNodePointer& node, const PropertyName &name);
-    void resetModelByRewriter(const QString &description);
-
+    [[noreturn]] void resetModelByRewriter(const QString &description);
 
     // Imports:
-    QList<Import> imports() const { return m_imports; }
+    const QList<Import> &imports() const { return m_imports; }
     void addImport(const Import &import);
     void removeImport(const Import &import);
     void changeImports(const QList<Import> &importsToBeAdded, const QList<Import> &importToBeRemoved);
@@ -250,7 +255,7 @@ private: //functions
     const QList<QPointer<AbstractView>> enabledViews() const;
 
 private:
-    Model *m_q;
+    Model *m_model;
     MetaInfo m_metaInfo;
     QList<Import> m_imports;
     QList<Import> m_possibleImportList;
