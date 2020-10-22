@@ -214,7 +214,7 @@ function(add_qtc_library name)
   endif()
 
   install(TARGETS ${name}
-    EXPORT ${IDE_CASED_ID}
+    EXPORT QtCreator
     RUNTIME
       DESTINATION "${_DESTINATION}"
       ${COMPONENT_OPTION}
@@ -460,7 +460,7 @@ function(add_qtc_plugin target_name)
 
   if (NOT _arg_SKIP_INSTALL)
     install(TARGETS ${target_name}
-      EXPORT ${IDE_CASED_ID}
+      EXPORT QtCreator
       RUNTIME DESTINATION "${plugin_dir}" OPTIONAL
       LIBRARY DESTINATION "${plugin_dir}" OPTIONAL
       ARCHIVE
