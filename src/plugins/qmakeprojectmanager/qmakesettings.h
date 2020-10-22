@@ -37,7 +37,7 @@ class QmakeSettingsData {
 public:
     bool warnAgainstUnalignedBuildDir = false;
     bool alwaysRunQmake = false;
-    bool runSystemFunction = false;
+    bool runSystemFunction = true;
 };
 
 class QmakeSettings : public QObject
