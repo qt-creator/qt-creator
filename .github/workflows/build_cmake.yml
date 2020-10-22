@@ -426,12 +426,13 @@ jobs:
         set(ENV{CTEST_OUTPUT_ON_FAILURE} "ON")
 
         execute_process(
-          COMMAND ctest -j ${N}
+          COMMAND ctest -j ${N} --timeout 5
           WORKING_DIRECTORY build/build
           RESULT_VARIABLE result
           OUTPUT_VARIABLE output
           ERROR_VARIABLE output
           ECHO_OUTPUT_VARIABLE ECHO_ERROR_VARIABLE
+          TIMEOUT 600
         )
         if (NOT result EQUAL 0)
           string(REGEX MATCH "[0-9]+% tests.*[0-9.]+ sec.*$" test_results "${output}")

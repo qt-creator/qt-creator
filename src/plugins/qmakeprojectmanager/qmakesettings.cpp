@@ -92,7 +92,7 @@ void QmakeSettings::loadSettings()
     m_settings.warnAgainstUnalignedBuildDir = s->value(
                 BUILD_DIR_WARNING_KEY, Utils::HostOsInfo::isWindowsHost()).toBool();
     m_settings.alwaysRunQmake = s->value(ALWAYS_RUN_QMAKE_KEY, false).toBool();
-    m_settings.runSystemFunction = s->value(RUN_SYSTEM_KEY, false).toBool();
+    m_settings.runSystemFunction = s->value(RUN_SYSTEM_KEY, true).toBool();
 }
 
 void QmakeSettings::storeSettings() const
@@ -121,8 +121,8 @@ public:
         m_alwaysRunQmakeCheckbox.setChecked(QmakeSettings::alwaysRunQmake());
         m_ignoreSystemCheckbox.setText(tr("Ignore qmake's system() function "
                                        "when parsing a project"));
-        m_ignoreSystemCheckbox.setToolTip(tr("Unchecking this option can help getting more exact "
-                "parsing results, but can have unwanted side effects."));
+        m_ignoreSystemCheckbox.setToolTip(tr("Checking this option avoids unwanted side effects, "
+                "but may result in inexact parsing results."));
         m_ignoreSystemCheckbox.setChecked(!QmakeSettings::runSystemFunction());
         const auto layout = new QVBoxLayout(this);
         layout->addWidget(&m_warnAgainstUnalignedBuildDirCheckbox);

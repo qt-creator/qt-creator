@@ -3992,22 +3992,22 @@ void tst_Dumpers::dumper_data()
                + Check("my.1.value", "<1 items>", "@QStringList")
                + Check("my.1.value.0", "[0]", "\"World\"", "@QString")
                //+ CheckType("v2", "@QVariant (MyType)")
-               + Check("v2.data.0.key", "1", "unsigned int") % NoCdbEngine
-               + Check("v2.data.0.value", "<1 items>", "@QStringList") % NoCdbEngine
-               + Check("v2.data.0.value.0", "[0]", "\"Hello\"", "@QString") % NoCdbEngine
-               + Check("v2.data.1.key", "3", "unsigned int") % NoCdbEngine
-               + Check("v2.data.1.value", "<1 items>", "@QStringList") % NoCdbEngine
-               + Check("v2.data.1.value.0", "[0]", "\"World\"", "@QString") % NoCdbEngine
+               + Check("v2.data.0.key", "1", "unsigned int") % NeedsInferiorCall
+               + Check("v2.data.0.value", "<1 items>", "@QStringList") % NeedsInferiorCall
+               + Check("v2.data.0.value.0", "[0]", "\"Hello\"", "@QString") % NeedsInferiorCall
+               + Check("v2.data.1.key", "3", "unsigned int") % NeedsInferiorCall
+               + Check("v2.data.1.value", "<1 items>", "@QStringList") % NeedsInferiorCall
+               + Check("v2.data.1.value.0", "[0]", "\"World\"", "@QString") % NeedsInferiorCall
 
                + Check("list", "<3 items>", "@QList<int>")
                + Check("list.0", "[0]", "1", "int")
                + Check("list.1", "[1]", "2", "int")
                + Check("list.2", "[2]", "3", "int")
                //+ Check("v3", "", "@QVariant (@QList<int>)")
-               + Check("v3.data", "<3 items>", TypePattern(".*QList<int>")) % NoCdbEngine
-               + Check("v3.data.0", "[0]", "1", "int") % NoCdbEngine
-               + Check("v3.data.1", "[1]", "2", "int") % NoCdbEngine
-               + Check("v3.data.2", "[2]", "3", "int") % NoCdbEngine;
+               + Check("v3.data", "<3 items>", TypePattern(".*QList<int>")) % NeedsInferiorCall
+               + Check("v3.data.0", "[0]", "1", "int") % NeedsInferiorCall
+               + Check("v3.data.1", "[1]", "2", "int") % NeedsInferiorCall
+               + Check("v3.data.2", "[2]", "3", "int") % NeedsInferiorCall;
 
 
     QTest::newRow("QVariant2")
@@ -4221,8 +4221,8 @@ void tst_Dumpers::dumper_data()
                //+ Check("ha1.protocol", "IPv4Protocol",
                //        "@QAbstractSocket::NetworkLayerProtocol") % LldbEngine
                + Check("ha1.scopeId", "\"\"", "@QString")
-               + Check("var", "", "@QVariant (@QHostAddress)") % NoCdbEngine
-               + Check("var.data", ValuePattern(".*127.0.0.1.*"), "@QHostAddress") % NoCdbEngine;
+               + Check("var", "", "@QVariant (@QHostAddress)") % NeedsInferiorCall
+               + Check("var.data", ValuePattern(".*127.0.0.1.*"), "@QHostAddress") % NeedsInferiorCall;
 
 
     QTest::newRow("QVariantList")

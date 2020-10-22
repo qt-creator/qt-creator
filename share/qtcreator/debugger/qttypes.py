@@ -1982,18 +1982,9 @@ def qdump__QVariant(d, value):
     if d.isExpanded():
         innerType = None
         with Children(d):
-            ev = d.parseAndEvaluate
-            p = None
-            if p is None:
-                # Without debug info.
-                symbol = d.mangleName(d.qtNamespace() + 'QMetaType::typeName') + 'i'
-                p = ev('((const char *(*)(int))%s)(%d)' % (symbol, variantType))
-            #if p is None:
-            #    p = ev('((const char *(*)(int))%sQMetaType::typeName)(%d)' % (ns, variantType))
-            if p is None:
-                # LLDB on Linux
-                p = ev('((const char *(*)(int))QMetaType::typeName)(%d)' % variantType)
-            if p is None:
+            try:
+                p = d.call('const char *', value, 'typeName')
+            except:
                 d.putSpecialValue('notcallable')
                 return None
             ptr = p.pointer()

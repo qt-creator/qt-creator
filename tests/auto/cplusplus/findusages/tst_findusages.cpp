@@ -2081,6 +2081,7 @@ int main()
     s.n.constFunc();
     s.n.nonConstFunc();
     s.n.constFunc(s.value);
+    delete s.p;
 }
 )";
 
@@ -2165,7 +2166,7 @@ int main()
     QVERIFY(varS);
     QCOMPARE(varS->name()->identifier()->chars(), "s");
     find(varS);
-    QCOMPARE(find.usages().size(), 30);
+    QCOMPARE(find.usages().size(), 31);
     QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
     QCOMPARE(find.usages().at(1).type, Usage::Type::WritableRef);
     QCOMPARE(find.usages().at(2).type, Usage::Type::WritableRef);
@@ -2184,6 +2185,7 @@ int main()
     QCOMPARE(find.usages().at(15).type, Usage::Type::WritableRef);
     QCOMPARE(find.usages().at(16).type, Usage::Type::Read);
     QCOMPARE(find.usages().at(17).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(18).type, Usage::Type::Write);
 
     // Direct access to struct variable
     QCOMPARE(find.usages().at(18).type, Usage::Type::Write);

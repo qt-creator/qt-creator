@@ -263,13 +263,13 @@ QtcTool {
 
         Group {
             name: "puppet2 Qt 5 compatibility sources"
-            condition: useQt5Compat
+            condition: product.useQt5Compat
             files: ["editor3d/qt5compat/qquick3darealight.cpp"]
         }
 
         Group {
             name: "puppet2 Qt 5 compatibility headers"
-            condition: useQt5Compat
+            condition: product.useQt5Compat
             files: ["editor3d/qt5compat/qquick3darealight_p.h"]
             fileTags: product.useQuick3d ? [] : ["unmocable"]
             overrideTags: false

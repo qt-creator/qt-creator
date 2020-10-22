@@ -1326,7 +1326,7 @@ TEST_F(TokenProcessor, NonConstPointerArgument)
     infos[1];
 
     ASSERT_THAT(infos[2],
-                HasOnlyType(HighlightingType::LocalVariable));
+                HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
 }
 
 TEST_F(TokenProcessor, PointerToConstArgument)
@@ -1346,7 +1346,7 @@ TEST_F(TokenProcessor, ConstPointerArgument)
     infos[1];
 
     ASSERT_THAT(infos[2],
-                HasOnlyType(HighlightingType::LocalVariable));
+                HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
 }
 
 TEST_F(TokenProcessor, NonConstPointerGetterAsArgument)
@@ -1400,7 +1400,7 @@ TEST_F(TokenProcessor, NonConstPointerArgumentAsExpression)
     infos[1];
 
     ASSERT_THAT(infos[3],
-                HasOnlyType(HighlightingType::LocalVariable));
+                HasTwoTypes(HighlightingType::LocalVariable, HighlightingType::OutputArgument));
 }
 
 TEST_F(TokenProcessor, NonConstPointerArgumentAsInstanceWithMember)
