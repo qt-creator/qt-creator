@@ -27,6 +27,7 @@
 #include "assetexportpluginconstants.h"
 
 #include <QColor>
+#include <QFontInfo>
 #include <QHash>
 
 namespace  {
@@ -68,10 +69,14 @@ QJsonObject TextNodeParser::json(Component &component) const
 
     QJsonObject textDetails;
     textDetails.insert(TextContentTag, propertyValue("text").toString());
-    textDetails.insert(FontFamilyTag, propertyValue("font.family").toString());
-    textDetails.insert(FontStyleTag, propertyValue("font.styleName").toString());
-    textDetails.insert(FontSizeTag, propertyValue("font.pixelSize").toInt());
-    textDetails.insert(LetterSpacingTag, propertyValue("font.letterSpacing").toFloat());
+
+    QFont font = propertyValue("font").value<QFont>();
+    QFontInfo fontInfo(font);
+    textDetails.insert(FontFamilyTag, fontInfo.family());
+    textDetails.insert(FontStyleTag, fontInfo.styleName());
+    textDetails.insert(FontSizeTag, fontInfo.pixelSize());
+    textDetails.insert(LetterSpacingTag, font.letterSpacing());
+
 
     QColor fontColor(propertyValue("font.color").toString());
     textDetails.insert(TextColorTag, fontColor.name(QColor::HexArgb));
