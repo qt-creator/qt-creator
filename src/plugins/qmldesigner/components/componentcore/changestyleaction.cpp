@@ -64,11 +64,18 @@ QWidget *ChangeStyleWidgetAction::createWidget(QWidget *parent)
 {
     auto comboBox = new QComboBox(parent);
     comboBox->setToolTip(tr(enabledTooltip));
+    // The Default style was renamed to Basic in Qt 6. In Qt 6, "Default"
+    // will result in a platform-specific style being chosen.
+    comboBox->addItem("Basic");
     comboBox->addItem("Default");
     comboBox->addItem("Fusion");
     comboBox->addItem("Imagine");
+    if (Utils::HostOsInfo::isMacHost())
+        comboBox->addItem("macOS");
     comboBox->addItem("Material");
     comboBox->addItem("Universal");
+    if (Utils::HostOsInfo::isWindowsHost())
+        comboBox->addItem("Windows");
     comboBox->setEditable(true);
     comboBox->setCurrentIndex(0);
 
@@ -132,7 +139,7 @@ void ChangeStyleAction::currentContextChanged(const SelectionContext &selectionC
 
         if (Utils::FilePath::fromString(confFileName).exists()) {
             QSettings infiFile(confFileName, QSettings::IniFormat);
-            m_action->handleModelUpdate(infiFile.value("Controls/Style", "Default").toString());
+            m_action->handleModelUpdate(infiFile.value("Controls/Style", "Basic").toString());
         } else {
             m_action->handleModelUpdate("");
         }

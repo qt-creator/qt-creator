@@ -178,17 +178,9 @@
                     "type": "ComboBox",
                     "data":
                     {
-                        "index": 1,
+                        "index": 0,
                         "items":
                         [
-                            {
-                                "trKey": "Default",
-                                "value":
-                                {
-                                    "QtQuickControlsStyle": "Default",
-                                    "QtQuickControlsStyleTheme": ""
-                                }
-                            },
                             {
                                 "trKey": "Material Light",
                                 "value":

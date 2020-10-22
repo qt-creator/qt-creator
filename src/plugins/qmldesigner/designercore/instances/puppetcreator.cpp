@@ -487,7 +487,7 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
 #else
     const QString controlsStyle;
 #endif
-    if (!controlsStyle.isEmpty() && controlsStyle != "Default") {
+    if (!controlsStyle.isEmpty()) {
         environment.set("QT_QUICK_CONTROLS_STYLE", controlsStyle);
         environment.set("QT_LABS_CONTROLS_STYLE", controlsStyle);
     }
@@ -497,13 +497,6 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
 #endif
 
     const QString styleConfigFileName = getStyleConfigFileName();
-
-    /* QT_QUICK_CONTROLS_CONF is not supported for Qt Version < 5.8.1,
-     * but we can manually at least set the correct style. */
-    if (!styleConfigFileName.isEmpty()) {
-        QSettings infiFile(styleConfigFileName, QSettings::IniFormat);
-        environment.set("QT_QUICK_CONTROLS_STYLE", infiFile.value("Controls/Style", "Default").toString());
-    }
 
     if (!m_qrcMapping.isEmpty()) {
         environment.set("QMLDESIGNER_RC_PATHS", m_qrcMapping);
