@@ -145,6 +145,7 @@ void NavigatorView::modelAttached(Model *model)
     treeView->header()->resizeSection(NavigatorTreeModel::ColumnType::Visibility, 26);
     treeView->header()->resizeSection(NavigatorTreeModel::ColumnType::Lock, 26);
     treeView->setIndentation(20);
+    treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     m_currentModelInterface->setFilter(false);
 
@@ -493,7 +494,6 @@ void NavigatorView::changeSelection(const QItemSelection & /*newSelection*/, con
     QSet<ModelNode> nodeSet;
 
     for (const QModelIndex &index : treeWidget()->selectionModel()->selectedIndexes()) {
-
         const ModelNode modelNode = modelNodeForIndex(index);
         if (modelNode.isValid())
             nodeSet.insert(modelNode);
@@ -539,7 +539,7 @@ void NavigatorView::updateItemSelection()
     }
 
     bool blocked = blockSelectionChangedSignal(true);
-    treeWidget()->selectionModel()->select(itemSelection, QItemSelectionModel::ClearAndSelect);
+    treeWidget()->selectionModel()->select(itemSelection, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     blockSelectionChangedSignal(blocked);
 
     if (!selectedModelNodes().isEmpty())
@@ -586,7 +586,7 @@ void NavigatorView::reparentAndCatch(NodeAbstractProperty property, const ModelN
 {
     try {
         property.reparentHere(modelNode);
-    }  catch (Exception &exception) {
+    } catch (Exception &exception) {
         exception.showException();
     }
 }
@@ -620,29 +620,29 @@ void NavigatorView::setupWidget()
     const QIcon visibilityOnIcon =
             Utils::StyleHelper::getIconFromIconFont(fontName,
                                                     Theme::getIconUnicode(Theme::Icon::visibilityOn),
-                                                    28, 28, QColor(Qt::white));
+                                                    20, 20, QColor(Qt::white));
     const QIcon visibilityOffIcon =
             Utils::StyleHelper::getIconFromIconFont(fontName,
                                                     Theme::getIconUnicode(Theme::Icon::visibilityOff),
-                                                    28, 28, QColor(Qt::white));
+                                                    20, 20, QColor(Qt::white));
 
     const QIcon aliasOnIcon =
             Utils::StyleHelper::getIconFromIconFont(fontName,
                                                     Theme::getIconUnicode(Theme::Icon::idAliasOn),
-                                                    28, 28, QColor(Qt::red));
+                                                    20, 20, QColor(Qt::red));
     const QIcon aliasOffIcon =
             Utils::StyleHelper::getIconFromIconFont(fontName,
                                                     Theme::getIconUnicode(Theme::Icon::idAliasOff),
-                                                    28, 28, QColor(Qt::white));
+                                                    20, 20, QColor(Qt::white));
 
     const QIcon lockOnIcon =
             Utils::StyleHelper::getIconFromIconFont(fontName,
                                                     Theme::getIconUnicode(Theme::Icon::lockOn),
-                                                    28, 28, QColor(Qt::white));
+                                                    20, 20, QColor(Qt::white));
     const QIcon lockOffIcon =
             Utils::StyleHelper::getIconFromIconFont(fontName,
                                                     Theme::getIconUnicode(Theme::Icon::lockOff),
-                                                    28, 28, QColor(Qt::white));
+                                                    20, 20, QColor(Qt::white));
 
     auto idDelegate = new NameItemDelegate(this);
 

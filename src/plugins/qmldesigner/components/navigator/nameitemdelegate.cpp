@@ -34,6 +34,7 @@
 #include <metainfo.h>
 #include <modelnodecontextmenu.h>
 #include <qmlobjectnode.h>
+#include <theme.h>
 
 #include <coreplugin/messagebox.h>
 #include <utils/qtcassert.h>
@@ -46,6 +47,8 @@
 #include <QPainterPath>
 
 namespace QmlDesigner {
+
+int NameItemDelegate::iconOffset = 0;
 
 static QPixmap generateWavyPixmap(qreal maxRadius, const QPen &pen)
 {
@@ -111,13 +114,15 @@ NameItemDelegate::NameItemDelegate(QObject *parent)
 
 static int drawIcon(QPainter *painter, const QStyleOptionViewItem &styleOption, const QModelIndex &modelIndex)
 {
-    QIcon icon = modelIndex.data(Qt::DecorationRole).value<QIcon>();
-
-    const int pixmapSize = icon.isNull() ? 4 : 16;
-
+    const QIcon icon = modelIndex.data(Qt::DecorationRole).value<QIcon>();
+    int pixmapSize = icon.isNull() ? 4 : 16;
     QPixmap pixmap = icon.pixmap(pixmapSize, pixmapSize);
 
-    painter->drawPixmap(styleOption.rect.x() + 1 , styleOption.rect.y() + 2, pixmap);
+    painter->drawPixmap(styleOption.rect.x() + 1 + delegateMargin,
+                        styleOption.rect.y() + 2 + delegateMargin,
+                        pixmap);
+
+    pixmapSize += delegateMargin;
 
     return pixmapSize;
 }
@@ -128,19 +133,20 @@ static QRect drawText(QPainter *painter,
                       int iconOffset)
 {
     QString displayString = modelIndex.data(Qt::DisplayRole).toString();
-    if (displayString.isEmpty())
-        displayString = modelIndex.data(Qt::DisplayRole).toString();
     QPoint displayStringOffset;
     int width = 0;
 
     // Check text length does not exceed available space
-    int extraSpace = 12 + iconOffset;
+    const int extraSpace = 12 + iconOffset;
 
-    displayString = styleOption.fontMetrics.elidedText(displayString, Qt::ElideMiddle, styleOption.rect.width() - extraSpace);
-    displayStringOffset = QPoint(5 + iconOffset, -5);
+    displayString = styleOption.fontMetrics.elidedText(displayString,
+                                                       Qt::ElideMiddle,
+                                                       styleOption.rect.width() - extraSpace);
+    displayStringOffset = QPoint(5 + iconOffset, -5 - delegateMargin);
+
     width = styleOption.fontMetrics.horizontalAdvance(displayString);
 
-    QPoint textPosition = styleOption.rect.bottomLeft() + displayStringOffset;
+    const QPoint textPosition = styleOption.rect.bottomLeft() + displayStringOffset;
     painter->drawText(textPosition, displayString);
 
     QRect textFrame;
@@ -150,9 +156,9 @@ static QRect drawText(QPainter *painter,
     return textFrame;
 }
 
-static bool isVisible(const QModelIndex &modelIndex)
+static bool isThisOrAncestorLocked(const QModelIndex &modelIndex)
 {
-    return modelIndex.model()->data(modelIndex, ItemIsVisibleRole).toBool();
+    return modelIndex.model()->data(modelIndex, ItemOrAncestorLocked).toBool();
 }
 
 static ModelNode getModelNode(const QModelIndex &modelIndex)
@@ -175,17 +181,56 @@ static void drawRedWavyUnderLine(QPainter *painter,
     painter->fillRect(textFrame.x(), 0, qCeil(textFrame.width()), qMin(wave.height(), descent), wave);
 }
 
+static void setId(const QModelIndex &index, const QString &newId)
+{
+    ModelNode modelNode = getModelNode(index);
+
+    if (!modelNode.isValid())
+        return;
+
+    if (modelNode.id() == newId)
+        return;
+
+    if (!modelNode.isValidId(newId)) {
+        Core::AsynchronousMessageBox::warning(NavigatorTreeView::tr("Invalid Id"),
+                                              NavigatorTreeView::tr("%1 is an invalid id.").arg(newId));
+    } else if (modelNode.view()->hasId(newId)) {
+        Core::AsynchronousMessageBox::warning(NavigatorTreeView::tr("Invalid Id"),
+                                              NavigatorTreeView::tr("%1 already exists.").arg(newId));
+    } else {
+        modelNode.setIdWithRefactoring(newId);
+    }
+}
+
+static void openContextMenu(const QModelIndex &index, const QPoint &pos)
+{
+    const ModelNode modelNode = getModelNode(index);
+    QTC_ASSERT(modelNode.isValid(), return);
+    ModelNodeContextMenu::showContextMenu(modelNode.view(), pos, QPoint(), false);
+}
+
+QSize NameItemDelegate::sizeHint(const QStyleOptionViewItem & /*option*/,
+                                 const QModelIndex & /*modelIndex*/) const
+{
+    return {15, 20 + (2 * delegateMargin)};
+}
+
 void NameItemDelegate::paint(QPainter *painter,
                              const QStyleOptionViewItem &styleOption,
                              const QModelIndex &modelIndex) const
 {
     painter->save();
+
+    if (styleOption.state & QStyle::State_MouseOver && !isThisOrAncestorLocked(modelIndex))
+        painter->fillRect(styleOption.rect.adjusted(0, delegateMargin, 0, -delegateMargin),
+                          Theme::getColor(Theme::Color::DSsliderHandle));
+
     if (styleOption.state & QStyle::State_Selected)
         NavigatorTreeView::drawSelectionBackground(painter, styleOption);
 
-    int iconOffset = drawIcon(painter, styleOption, modelIndex);
+    iconOffset = drawIcon(painter, styleOption, modelIndex);
 
-    if (!isVisible(modelIndex))
+    if (isThisOrAncestorLocked(modelIndex))
         painter->setOpacity(0.5);
 
     QRect textFrame = drawText(painter, styleOption, modelIndex, iconOffset);
@@ -196,28 +241,8 @@ void NameItemDelegate::paint(QPainter *painter,
     painter->restore();
 }
 
-static void openContextMenu(const QModelIndex &index, const QPoint &pos)
-{
-    const ModelNode modelNode = getModelNode(index);
-    QTC_ASSERT(modelNode.isValid(), return);
-    ModelNodeContextMenu::showContextMenu(modelNode.view(), pos, QPoint(), false);
-}
-
-bool NameItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *, const QStyleOptionViewItem &, const QModelIndex &index)
-{
-    if (event->type() == QEvent::MouseButtonRelease) {
-        auto mouseEvent = static_cast<QMouseEvent *>(event);
-        if (mouseEvent->button() == Qt::RightButton) {
-            openContextMenu(index, mouseEvent->globalPos());
-            mouseEvent->accept();
-            return true;
-        }
-    }
-    return false;
-}
-
 QWidget *NameItemDelegate::createEditor(QWidget *parent,
-                                        const QStyleOptionViewItem & /*option*/,
+                                        const QStyleOptionViewItem &/*option*/,
                                         const QModelIndex &index) const
 {
     if (!getModelNode(index).isValid())
@@ -235,42 +260,35 @@ void NameItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) 
     lineEdit->setText(value);
 }
 
-static void setId(const QModelIndex &index, const QString &newId)
-{
-    ModelNode modelNode = getModelNode(index);
-
-    if (!modelNode.isValid())
-        return;
-
-    if (modelNode.id() == newId)
-        return;
-
-    if (!modelNode.isValidId(newId)) {
-        Core::AsynchronousMessageBox::warning(NavigatorTreeView::tr("Invalid Id"),
-                                              NavigatorTreeView::tr("%1 is an invalid id.").arg(newId));
-    } else if (modelNode.view()->hasId(newId)) {
-        Core::AsynchronousMessageBox::warning(NavigatorTreeView::tr("Invalid Id"),
-                                              NavigatorTreeView::tr("%1 already exists.").arg(newId));
-    } else  {
-        modelNode.setIdWithRefactoring(newId);
-    }
-}
-
-
 void NameItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
     Q_UNUSED(model)
     auto lineEdit = static_cast<QLineEdit*>(editor);
-    setId(index,lineEdit->text());
+    setId(index, lineEdit->text());
     lineEdit->clearFocus();
+}
+
+bool NameItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *, const QStyleOptionViewItem &, const QModelIndex &index)
+{
+    if (event->type() == QEvent::MouseButtonRelease) {
+        auto mouseEvent = static_cast<QMouseEvent *>(event);
+        if (mouseEvent->button() == Qt::RightButton) {
+            openContextMenu(index, mouseEvent->globalPos());
+            mouseEvent->accept();
+            return true;
+        }
+    }
+    return false;
 }
 
 void NameItemDelegate::updateEditorGeometry(QWidget *editor,
                                             const QStyleOptionViewItem &option,
-                                            const QModelIndex & /*index*/) const
+                                            const QModelIndex &/*index*/) const
 {
     auto lineEdit = static_cast<QLineEdit*>(editor);
-    lineEdit->setGeometry(option.rect);
+    lineEdit->setTextMargins(0, 0, 0, 2);
+    // + 2 is shifting the QLineEdit to the left so it will align with the text when activated
+    lineEdit->setGeometry(option.rect.adjusted(iconOffset + 2, delegateMargin, 0, -delegateMargin));
 }
 
 } // namespace QmlDesigner
