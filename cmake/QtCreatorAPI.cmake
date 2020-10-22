@@ -29,6 +29,9 @@ list(APPEND DEFAULT_DEFINES
   RELATIVE_DOC_PATH="${RELATIVE_DOC_PATH}"
 )
 
+# use CMAKE_CURRENT_FUNCTION_LIST_DIR when we can require CMake 3.17
+set(_THIS_MODULE_BASE_DIR "${CMAKE_CURRENT_LIST_DIR}")
+
 option(BUILD_PLUGINS_BY_DEFAULT "Build plugins by default. This can be used to build all plugins by default, or none." ON)
 option(BUILD_EXECUTABLES_BY_DEFAULT "Build executables by default. This can be used to build all executables by default, or none." ON)
 option(BUILD_LIBRARIES_BY_DEFAULT "Build libraries by default. This can be used to build all libraries by default, or none." ON)
@@ -264,7 +267,7 @@ endfunction(add_qtc_library)
 
 function(add_qtc_plugin target_name)
   cmake_parse_arguments(_arg
-    "EXPERIMENTAL;SKIP_DEBUG_CMAKE_FILE_CHECK;SKIP_INSTALL;INTERNAL_ONLY;SKIP_TRANSLATION"
+    "EXPERIMENTAL;SKIP_DEBUG_CMAKE_FILE_CHECK;SKIP_INSTALL;INTERNAL_ONLY;SKIP_TRANSLATION;EXPORT"
     "VERSION;COMPAT_VERSION;PLUGIN_JSON_IN;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME;BUILD_DEFAULT"
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;PROPERTIES"
     ${ARGN}
@@ -459,8 +462,14 @@ function(add_qtc_plugin target_name)
   enable_pch(${target_name})
 
   if (NOT _arg_SKIP_INSTALL)
+    if (_arg_EXPORT)
+      set(export QtCreator${target_name})
+    else()
+      set(export QtCreator)
+    endif()
+
     install(TARGETS ${target_name}
-      EXPORT QtCreator
+      EXPORT ${export}
       RUNTIME DESTINATION "${plugin_dir}" OPTIONAL
       LIBRARY DESTINATION "${plugin_dir}" OPTIONAL
       ARCHIVE
@@ -468,6 +477,30 @@ function(add_qtc_plugin target_name)
         COMPONENT Devel EXCLUDE_FROM_ALL
         OPTIONAL
     )
+
+    if (_arg_EXPORT)
+      # export of external plugins
+      install(EXPORT ${export}
+        FILE ${export}Targets.cmake
+        DESTINATION lib/cmake/${export}
+        COMPONENT Devel EXCLUDE_FROM_ALL
+        NAMESPACE QtCreator::
+      )
+      include(CMakePackageConfigHelpers)
+      configure_package_config_file(${_THIS_MODULE_BASE_DIR}/Config.cmake.in
+        "${CMAKE_BINARY_DIR}/cmake/${export}Config.cmake"
+        INSTALL_DESTINATION lib/cmake/${export}
+      )
+      install(
+        FILES ${CMAKE_BINARY_DIR}/cmake/${export}Config.cmake
+        DESTINATION lib/cmake/${export}
+        COMPONENT Devel EXCLUDE_FROM_ALL
+      )
+      export(EXPORT ${export}
+        NAMESPACE QtCreator::
+        FILE ${CMAKE_BINARY_DIR}/cmake/${export}Targets.cmake
+      )
+    endif()
     get_target_property(target_suffix ${target_name} SUFFIX)
     get_target_property(target_prefix ${target_name} PREFIX)
     if (target_suffix STREQUAL "target_suffix-NOTFOUND")

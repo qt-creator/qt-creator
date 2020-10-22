@@ -76,6 +76,7 @@ file(COPY
   ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPI.cmake
   ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPIInternal.cmake
   ${PROJECT_SOURCE_DIR}/cmake/FindQt5.cmake
+  ${PROJECT_SOURCE_DIR}/cmake/Config.cmake.in
   DESTINATION ${CMAKE_BINARY_DIR}/cmake
 )
 
@@ -88,6 +89,7 @@ install(
     ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPI.cmake
     ${PROJECT_SOURCE_DIR}/cmake/QtCreatorAPIInternal.cmake
     ${PROJECT_SOURCE_DIR}/cmake/FindQt5.cmake
+    ${PROJECT_SOURCE_DIR}/cmake/Config.cmake.in
     ${CMAKE_BINARY_DIR}/cmake/QtCreatorConfig.cmake
   DESTINATION lib/cmake/QtCreator
   COMPONENT Devel EXCLUDE_FROM_ALL

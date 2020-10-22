@@ -1,0 +1,5 @@
+@PACKAGE_INIT@
+
+if (NOT TARGET QtCreator::@target_name@)
+  include ("${CMAKE_CURRENT_LIST_DIR}/@export@Targets.cmake")
+endif()
