@@ -28,6 +28,7 @@
 #include "selectionindicator.h"
 #include "resizeindicator.h"
 #include "anchorindicator.h"
+#include "rotationindicator.h"
 #include "resizemanipulator.h"
 
 namespace QmlDesigner {
@@ -69,6 +70,7 @@ private:
     SelectionIndicator m_selectionIndicator;
     ResizeIndicator m_resizeIndicator;
     AnchorIndicator m_anchorIndicator;
+    RotationIndicator m_rotationIndicator;
     ResizeManipulator m_resizeManipulator;
 };
 

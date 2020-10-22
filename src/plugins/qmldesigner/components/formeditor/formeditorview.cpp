@@ -26,6 +26,7 @@
 #include "formeditorview.h"
 #include "nodeinstanceview.h"
 #include "selectiontool.h"
+#include "rotationtool.h"
 #include "movetool.h"
 #include "resizetool.h"
 #include "dragtool.h"
@@ -207,6 +208,7 @@ void FormEditorView::createFormEditorWidget()
 
     m_moveTool = std::make_unique<MoveTool>(this);
     m_selectionTool = std::make_unique<SelectionTool>(this);
+    m_rotationTool = std::make_unique<RotationTool>(this);
     m_resizeTool = std::make_unique<ResizeTool>(this);
     m_dragTool = std::make_unique<DragTool>(this);
 
@@ -248,6 +250,7 @@ void FormEditorView::cleanupToolsAndScene()
 {
     m_currentTool->setItems(QList<FormEditorItem *>());
     m_selectionTool->clear();
+    m_rotationTool->clear();
     m_moveTool->clear();
     m_resizeTool->clear();
     m_dragTool->clear();
@@ -548,6 +551,12 @@ void FormEditorView::resetToSelectionTool()
     changeCurrentToolTo(m_selectionTool.get());
 }
 
+void FormEditorView::changeToRotationTool() {
+    if (m_currentTool == m_rotationTool.get())
+        return;
+    changeCurrentToolTo(m_rotationTool.get());
+}
+
 void FormEditorView::changeToResizeTool()
 {
     if (m_currentTool == m_resizeTool.get())
@@ -558,8 +567,9 @@ void FormEditorView::changeToResizeTool()
 void FormEditorView::changeToTransformTools()
 {
     if (m_currentTool == m_moveTool.get() ||
-       m_currentTool == m_resizeTool.get() ||
-       m_currentTool == m_selectionTool.get())
+            m_currentTool == m_resizeTool.get() ||
+            m_currentTool == m_rotationTool.get() ||
+            m_currentTool == m_selectionTool.get())
         return;
     changeToSelectionTool();
 }
@@ -854,6 +864,7 @@ void FormEditorView::reset()
 void FormEditorView::delayedReset()
 {
     m_selectionTool->clear();
+    m_rotationTool->clear();
     m_moveTool->clear();
     m_resizeTool->clear();
     m_dragTool->clear();

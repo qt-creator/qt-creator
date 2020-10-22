@@ -23,74 +23,73 @@
 **
 ****************************************************************************/
 
-#include "resizeindicator.h"
+#include "rotationindicator.h"
 
 #include "formeditoritem.h"
 
 namespace QmlDesigner {
 
-ResizeIndicator::ResizeIndicator(LayerItem *layerItem)
+RotationIndicator::RotationIndicator(LayerItem *layerItem)
     : m_layerItem(layerItem)
 {
     Q_ASSERT(layerItem);
 }
 
-ResizeIndicator::~ResizeIndicator()
+RotationIndicator::~RotationIndicator()
 {
     m_itemControllerHash.clear();
 }
 
-void ResizeIndicator::show()
+void RotationIndicator::show()
 {
-    for (ResizeController controller : m_itemControllerHash)
+    for (RotationController controller : m_itemControllerHash)
         controller.show();
 }
 
-void ResizeIndicator::hide()
+void RotationIndicator::hide()
 {
-    for (ResizeController controller : m_itemControllerHash)
+    for (RotationController controller : m_itemControllerHash)
         controller.hide();
 }
 
-void ResizeIndicator::clear()
+void RotationIndicator::clear()
 {
     m_itemControllerHash.clear();
 }
 
-static bool itemIsResizable(const QmlItemNode &qmlItemNode)
+static bool itemIsRotatable(const QmlItemNode &qmlItemNode)
 {
     return qmlItemNode.isValid()
             && qmlItemNode.instanceIsResizable()
             && qmlItemNode.modelIsMovable()
-            && qmlItemNode.modelIsResizable()
-            && !qmlItemNode.instanceHasRotationTransform()
+            && qmlItemNode.modelIsRotatable()
             && !qmlItemNode.instanceIsInLayoutable();
 }
 
-void ResizeIndicator::setItems(const QList<FormEditorItem*> &itemList)
+void RotationIndicator::setItems(const QList<FormEditorItem*> &itemList)
 {
     clear();
 
-    foreach (FormEditorItem* item, itemList) {
-        if (item && itemIsResizable(item->qmlItemNode())) {
-            ResizeController controller(m_layerItem, item);
+    for (FormEditorItem *item : itemList) {
+        if (item && itemIsRotatable(item->qmlItemNode())) {
+            RotationController controller(m_layerItem, item);
             m_itemControllerHash.insert(item, controller);
         }
     }
 }
 
-void ResizeIndicator::updateItems(const QList<FormEditorItem*> &itemList)
+void RotationIndicator::updateItems(const QList<FormEditorItem*> &itemList)
 {
-    foreach (FormEditorItem* item, itemList) {
+    for (FormEditorItem *item : itemList) {
         if (m_itemControllerHash.contains(item)) {
-            if (!item || !itemIsResizable(item->qmlItemNode())) {
+            if (!item || !itemIsRotatable(item->qmlItemNode())) {
                 m_itemControllerHash.take(item);
             } else {
-                ResizeController controller(m_itemControllerHash.value(item));
+                RotationController controller(m_itemControllerHash.value(item));
                 controller.updatePosition();
             }
-        } else if (item && itemIsResizable(item->qmlItemNode())) {
-            ResizeController controller(m_layerItem, item);
+        } else if (item && itemIsRotatable(item->qmlItemNode())) {
+            RotationController controller(m_layerItem, item);
             m_itemControllerHash.insert(item, controller);
         }
     }

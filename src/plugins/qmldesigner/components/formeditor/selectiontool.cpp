@@ -30,6 +30,7 @@
 #include "formeditorgraphicsview.h"
 
 #include "resizehandleitem.h"
+#include "rotationhandleitem.h"
 
 #include <nodemetainfo.h>
 
@@ -42,14 +43,15 @@ const int s_startDragDistance = 20;
 const int s_startDragTime = 50;
 
 SelectionTool::SelectionTool(FormEditorView *editorView)
-    : AbstractFormEditorTool(editorView),
-    m_rubberbandSelectionManipulator(editorView->scene()->manipulatorLayerItem(), editorView),
-    m_singleSelectionManipulator(editorView),
-    m_selectionIndicator(editorView->scene()->manipulatorLayerItem()),
-    m_resizeIndicator(editorView->scene()->manipulatorLayerItem()),
-    m_anchorIndicator(editorView->scene()->manipulatorLayerItem()),
-    m_bindingIndicator(editorView->scene()->manipulatorLayerItem()),
-    m_contentNotEditableIndicator(editorView->scene()->manipulatorLayerItem())
+    : AbstractFormEditorTool(editorView)
+    , m_rubberbandSelectionManipulator(editorView->scene()->manipulatorLayerItem(), editorView)
+    , m_singleSelectionManipulator(editorView)
+    , m_selectionIndicator(editorView->scene()->manipulatorLayerItem())
+    , m_resizeIndicator(editorView->scene()->manipulatorLayerItem())
+    , m_rotationIndicator(editorView->scene()->manipulatorLayerItem())
+    , m_anchorIndicator(editorView->scene()->manipulatorLayerItem())
+    , m_bindingIndicator(editorView->scene()->manipulatorLayerItem())
+    , m_contentNotEditableIndicator(editorView->scene()->manipulatorLayerItem())
 {
     m_selectionIndicator.setCursor(Qt::ArrowCursor);
 }
@@ -132,6 +134,12 @@ void SelectionTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
         ResizeHandleItem* resizeHandle = ResizeHandleItem::fromGraphicsItem(itemList.constFirst());
         if (resizeHandle) {
             view()->changeToResizeTool();
+            return;
+        }
+
+        RotationHandleItem* rotationHandle = RotationHandleItem::fromGraphicsItem(itemList.constFirst());
+        if (rotationHandle) {
+            view()->changeToRotationTool();
             return;
         }
 
@@ -245,6 +253,7 @@ void SelectionTool::clear()
     m_singleSelectionManipulator.clear();
     m_selectionIndicator.clear();
     m_resizeIndicator.clear();
+    m_rotationIndicator.clear();
     m_anchorIndicator.clear();
     m_bindingIndicator.clear();
     m_contentNotEditableIndicator.clear();
@@ -256,6 +265,7 @@ void SelectionTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList)
 {
     m_selectionIndicator.setItems(itemList);
     m_resizeIndicator.setItems(itemList);
+    m_rotationIndicator.setItems(itemList);
     m_anchorIndicator.setItems(itemList);
     m_bindingIndicator.setItems(itemList);
 }
@@ -266,6 +276,7 @@ void SelectionTool::formEditorItemsChanged(const QList<FormEditorItem*> &itemLis
 
     m_selectionIndicator.updateItems(selectedItemList);
     m_resizeIndicator.updateItems(selectedItemList);
+    m_rotationIndicator.updateItems(selectedItemList);
     m_anchorIndicator.updateItems(selectedItemList);
     m_bindingIndicator.updateItems(selectedItemList);
     m_contentNotEditableIndicator.updateItems(selectedItemList);

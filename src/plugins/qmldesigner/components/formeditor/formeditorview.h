@@ -47,6 +47,7 @@ class AbstractFormEditorTool;
 class AbstractCustomTool;
 class MoveTool;
 class SelectionTool;
+class RotationTool;
 class ResizeTool;
 class DragTool;
 class ItemLibraryEntry;
@@ -104,6 +105,7 @@ public:
     void changeToSelectionTool();
     void changeToSelectionTool(QGraphicsSceneMouseEvent *event);
     void resetToSelectionTool();
+    void changeToRotationTool();
     void changeToResizeTool();
     void changeToTransformTools();
     void changeToCustomTool();
@@ -152,6 +154,7 @@ private:
     QList<AbstractCustomTool*> m_customToolList;
     std::unique_ptr<MoveTool> m_moveTool;
     std::unique_ptr<SelectionTool> m_selectionTool;
+    std::unique_ptr<RotationTool> m_rotationTool;
     std::unique_ptr<ResizeTool> m_resizeTool;
     std::unique_ptr<DragTool> m_dragTool;
     AbstractFormEditorTool *m_currentTool = nullptr;
