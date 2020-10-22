@@ -141,11 +141,10 @@ const ITestTreeItem *QtTestResult::findTestTreeItem() const
     const TestTreeItem *rootNode = framework->rootNode();
     QTC_ASSERT(rootNode, return nullptr);
 
-    const auto item = rootNode->findAnyChild([this](const Utils::TreeItem *item) {
+    return rootNode->findAnyChild([this](const Utils::TreeItem *item) {
         const TestTreeItem *treeItem = static_cast<const TestTreeItem *>(item);
         return treeItem && matches(treeItem);
     });
-    return static_cast<const ITestTreeItem *>(item);
 }
 
 bool QtTestResult::matches(const TestTreeItem *item) const

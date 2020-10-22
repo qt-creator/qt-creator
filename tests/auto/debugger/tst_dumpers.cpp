@@ -1936,9 +1936,9 @@ void tst_Dumpers::dumper()
         }
 
         const QString iname = check.iname;
-        WatchItem *item = static_cast<WatchItem *>(local.findAnyChild([iname](Utils::TreeItem *item) {
+        WatchItem *item = local.findAnyChild([iname](Utils::TreeItem *item) {
             return static_cast<WatchItem *>(item)->internalName() == iname;
-        }));
+        });
         if (!item) {
             if (check.optionallyPresent)
                 return true;

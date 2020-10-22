@@ -149,6 +149,11 @@ public:
         TreeItem::insertOrderedChild(item, cmp0);
     }
 
+    ChildType *findAnyChild(const std::function<bool(TreeItem *)> &pred) const
+    {
+        return static_cast<ChildType *>(TreeItem::findAnyChild(pred));
+    }
+
     ChildType *reverseFindAnyChild(const std::function<bool(TreeItem *)> &pred) const
     {
         return static_cast<ChildType *>(TreeItem::reverseFindAnyChild(pred));

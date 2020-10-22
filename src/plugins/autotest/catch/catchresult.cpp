@@ -74,7 +74,7 @@ const ITestTreeItem *CatchResult::findTestTreeItem() const
 
     const QString tcName = name();
     const QString tcFilePath = fileName();
-    const auto item = rootNode->findAnyChild([&tcName, &tcFilePath](const Utils::TreeItem *item) {
+    return rootNode->findAnyChild([&tcName, &tcFilePath](const Utils::TreeItem *item) {
         const auto treeItem = static_cast<const CatchTreeItem *>(item);
         if (!treeItem || treeItem->filePath() != tcFilePath)
             return false;
@@ -82,7 +82,6 @@ const ITestTreeItem *CatchResult::findTestTreeItem() const
         return parameterized ? tcName.startsWith(treeItem->name() + " - ")
                              : tcName == treeItem->name();
     });
-    return static_cast<const ITestTreeItem *>(item);
 }
 
 } // namespace Internal

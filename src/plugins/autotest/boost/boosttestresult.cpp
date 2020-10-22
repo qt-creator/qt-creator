@@ -99,10 +99,9 @@ const ITestTreeItem *BoostTestResult::findTestTreeItem() const
     if (!rootNode)
         return nullptr;
 
-    const auto foundItem = rootNode->findAnyChild([this](const Utils::TreeItem *item) {
+    return rootNode->findAnyChild([this](const Utils::TreeItem *item) {
         return matches(static_cast<const BoostTestTreeItem *>(item));
     });
-    return static_cast<const ITestTreeItem *>(foundItem);
 }
 
 bool BoostTestResult::matches(const BoostTestTreeItem *item) const

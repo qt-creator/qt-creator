@@ -103,11 +103,10 @@ const ITestTreeItem *GTestResult::findTestTreeItem() const
     if (!rootNode)
         return nullptr;
 
-    const auto item = rootNode->findAnyChild([this](const Utils::TreeItem *item) {
+    return rootNode->findAnyChild([this](const Utils::TreeItem *item) {
         const auto treeItem = static_cast<const TestTreeItem *>(item);
         return treeItem && matches(treeItem);
     });
-    return static_cast<const ITestTreeItem *>(item);
 }
 
 bool GTestResult::matches(const TestTreeItem *treeItem) const
