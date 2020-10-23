@@ -380,7 +380,7 @@ void DesignDocument::deleteSelected()
     QStringList lockedNodes;
     for (const ModelNode &modelNode : view()->selectedModelNodes()) {
         for (const ModelNode &node : modelNode.allSubModelNodesAndThisNode()) {
-            if (node.isValid() && !node.isRootNode() && node.locked())
+            if (node.isValid() && !node.isRootNode() && node.locked() && !lockedNodes.contains(node.id()))
                 lockedNodes.push_back(node.id());
         }
     }
