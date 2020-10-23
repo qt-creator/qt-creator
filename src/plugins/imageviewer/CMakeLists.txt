@@ -1,5 +1,10 @@
+find_package(Qt5 COMPONENTS SvgWidgets QUIET)
+if (TARGET Qt5::SvgWidgets)
+  set(SVG_WIDGETS Qt5::SvgWidgets)
+endif()
+
 add_qtc_plugin(ImageViewer
-  DEPENDS OptionalSvg
+  DEPENDS OptionalSvg ${SVG_WIDGETS}
   PLUGIN_DEPENDS Core
   SOURCES
     exportdialog.cpp exportdialog.h

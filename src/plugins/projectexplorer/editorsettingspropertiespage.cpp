@@ -26,7 +26,12 @@
 #include "editorsettingspropertiespage.h"
 #include "editorconfiguration.h"
 #include "project.h"
+
+#include <texteditor/behaviorsettings.h>
+#include <texteditor/extraencodingsettings.h>
 #include <texteditor/marginsettings.h>
+#include <texteditor/storagesettings.h>
+#include <texteditor/typingsettings.h>
 
 #include <QTextCodec>
 

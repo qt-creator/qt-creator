@@ -30,6 +30,7 @@
 #include "qmljsindenter.h"
 #include "qmljsqtstylecodeformatter.h"
 
+#include <texteditor/fontsettings.h>
 #include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/simplecodestylepreferences.h>

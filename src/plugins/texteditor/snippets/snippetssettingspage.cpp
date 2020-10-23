@@ -32,6 +32,7 @@
 #include "ui_snippetssettingspage.h"
 
 #include <coreplugin/icore.h>
+#include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>

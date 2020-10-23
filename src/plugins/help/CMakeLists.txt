@@ -32,7 +32,7 @@ extend_qtc_plugin(Help
 )
 
 extend_qtc_plugin(Help
-  CONDITION FWWebKit AND FWAppKit
+  CONDITION FWWebKit AND FWAppKit AND Qt5_VERSION VERSION_LESS 6.0.0
   FEATURE_INFO "Native WebKit help viewer"
   DEPENDS ${FWWebKit} ${FWAppKit}
   DEFINES QTC_MAC_NATIVE_HELPVIEWER
