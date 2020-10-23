@@ -374,6 +374,7 @@ void TokenInfo::identifierKind(const Cursor &cursor, Recursion recursion)
         case CXCursor_ParmDecl:
         case CXCursor_VarDecl:
         case CXCursor_VariableRef:
+        case CXCursor_UnexposedDecl: // structured bindings; see https://reviews.llvm.org/D78213
             variableKind(cursor.referenced());
             break;
         case CXCursor_DeclRefExpr:
