@@ -541,7 +541,7 @@ endfunction()
 
 function(add_qtc_executable name)
   cmake_parse_arguments(_arg "SKIP_INSTALL;SKIP_TRANSLATION;ALLOW_ASCII_CASTS"
-    "DESTINATION;COMPONENT"
+    "DESTINATION;COMPONENT;BUILD_DEFAULT"
     "DEPENDS;DEFINES;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES" ${ARGN})
 
   if ($_arg_UNPARSED_ARGUMENTS)
@@ -556,7 +556,11 @@ function(add_qtc_executable name)
   update_cached_list(__QTC_EXECUTABLES "${name}")
 
   string(TOUPPER "BUILD_EXECUTABLE_${name}" _build_executable_var)
-  set(_build_executable_default ${BUILD_EXECUTABLES_BY_DEFAULT})
+  if (DEFINED _arg_BUILD_DEFAULT)
+    set(_build_executable_default ${_arg_BUILD_DEFAULT})
+  else()
+    set(_build_executable_default ${BUILD_EXECUTABLES_BY_DEFAULT})
+  endif()
   if (DEFINED ENV{QTC_${_build_executable_var}})
     set(_build_executable_default "$ENV{QTC_${_build_executable_var}}")
   endif()

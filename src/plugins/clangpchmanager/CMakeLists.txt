@@ -1,6 +1,5 @@
 add_qtc_plugin(ClangPchManager
-  BUILD_DEFAULT OFF
-  CONDITION TARGET libclang
+  CONDITION TARGET libclang AND TARGET clangpchmanagerbackend
   DEPENDS ClangSupport CPlusPlus
   DEFINES CLANGPCHMANAGER_LIB
   PLUGIN_DEPENDS Core CppTools
