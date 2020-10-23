@@ -693,35 +693,33 @@ void ModelNode::removeProperty(const PropertyName &name) const
         model()->d->removeProperty(internalNode()->property(name));
 }
 
-
 /*! \brief removes this node from the node tree
 */
-
-static QList<ModelNode> descendantNodes(const ModelNode &parent)
+static QList<ModelNode> descendantNodes(const ModelNode &node)
 {
-    QList<ModelNode> descendants(parent.directSubModelNodes());
-    foreach (const ModelNode &child, parent.directSubModelNodes()) {
+    const QList<ModelNode> children = node.directSubModelNodes();
+    QList<ModelNode> descendants = children;
+    for (const ModelNode &child : children)
         descendants += descendantNodes(child);
-    }
+
     return descendants;
 }
 
 static void removeModelNodeFromSelection(const ModelNode &node)
 {
-    { // remove nodes from the active selection:
-        QList<ModelNode> selectedList = node.view()->selectedModelNodes();
+    // remove nodes from the active selection
+    QList<ModelNode> selectedList = node.view()->selectedModelNodes();
 
-        foreach (const ModelNode &childModelNode, descendantNodes(node))
-            selectedList.removeAll(childModelNode);
-        selectedList.removeAll(node);
+    const QList<ModelNode> descendants = descendantNodes(node);
+    for (const ModelNode &descendantNode : descendants)
+        selectedList.removeAll(descendantNode);
 
-        node.view()->setSelectedModelNodes(selectedList);
-    }
+    selectedList.removeAll(node);
+
+    node.view()->setSelectedModelNodes(selectedList);
 }
 
-
 /*! \brief complete removes this ModelNode from the Model
-
 */
 void ModelNode::destroy()
 {
