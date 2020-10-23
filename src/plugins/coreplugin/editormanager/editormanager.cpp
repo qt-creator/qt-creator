@@ -1650,62 +1650,91 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
     if (acceptedEditors.isEmpty())
         return false;
 
-    QList<EditorView*> closedViews;
-    EditorView *focusView = nullptr;
-
-    // remove the editors
-    foreach (IEditor *editor, acceptedEditors) {
-        emit m_instance->editorAboutToClose(editor);
-        if (!editor->document()->filePath().isEmpty()
-                && !editor->document()->isTemporary()) {
+    // save editor states
+    for (IEditor *editor : qAsConst(acceptedEditors)) {
+        if (!editor->document()->filePath().isEmpty() && !editor->document()->isTemporary()) {
             QByteArray state = editor->saveState();
             if (!state.isEmpty())
                 d->m_editorStates.insert(editor->document()->filePath().toString(), QVariant(state));
         }
+    }
 
+    EditorView *focusView = nullptr;
+
+    // Remove accepted editors from document model/manager and context list,
+    // and sort them per view, so we can remove them from views in an orderly
+    // manner.
+    QMultiHash<EditorView *, IEditor *> editorsPerView;
+    for (IEditor *editor : qAsConst(acceptedEditors)) {
+        emit m_instance->editorAboutToClose(editor);
         removeEditor(editor, flag != CloseFlag::Suspend);
         if (EditorView *view = viewForEditor(editor)) {
-            if (QApplication::focusWidget() && QApplication::focusWidget() == editor->widget()->focusWidget())
+            editorsPerView.insert(view, editor);
+            if (QApplication::focusWidget()
+                && QApplication::focusWidget() == editor->widget()->focusWidget()) {
                 focusView = view;
-            if (editor == view->currentEditor())
-                closedViews += view;
-            if (d->m_currentEditor == editor) {
-                // avoid having a current editor without view
-                setCurrentView(view);
-                setCurrentEditor(nullptr);
             }
-            view->removeEditor(editor);
         }
     }
+    QTC_CHECK(!focusView || focusView == currentView);
 
-    // TODO doesn't work as expected with multiple areas in main window and some other cases
-    // instead each view should have its own file history and handle solely themselves
-    // which editor is shown if their current editor closes
-    EditorView *forceViewToShowEditor = nullptr;
-    if (!closedViews.isEmpty() && EditorManager::visibleEditors().isEmpty()) {
-        if (closedViews.contains(currentView))
-            forceViewToShowEditor = currentView;
-        else
-            forceViewToShowEditor = closedViews.first();
-    }
-    foreach (EditorView *view, closedViews) {
-        IEditor *newCurrent = view->currentEditor();
-        if (!newCurrent && forceViewToShowEditor == view)
-            newCurrent = pickUnusedEditor();
-        if (newCurrent) {
-            activateEditor(view, newCurrent, EditorManager::DoNotChangeCurrentEditor);
-        } else if (forceViewToShowEditor == view) {
-            DocumentModel::Entry *entry = DocumentModelPrivate::firstSuspendedEntry();
-            if (entry) {
-                activateEditorForEntry(view, entry, EditorManager::DoNotChangeCurrentEditor);
-            } else { // no "suspended" ones, so any entry left should have a document
-                const QList<DocumentModel::Entry *> documents = DocumentModel::entries();
-                if (!documents.isEmpty()) {
-                    if (IDocument *document = documents.last()->document) {
-                        activateEditorForDocument(view, document, EditorManager::DoNotChangeCurrentEditor);
+    // Go through views, remove the editors from them.
+    // Sort such that views for which the current editor is closed come last,
+    // and if the global current view is one of them, that comes very last.
+    // When handling the last view in the list we handle the case where all
+    // visible editors are closed, and we need to e.g. revive an invisible or
+    // a suspended editor
+    QList<EditorView *> views = editorsPerView.keys();
+    Utils::sort(views, [editorsPerView, currentView](EditorView *a, EditorView *b) {
+        if (a == b)
+            return false;
+        const bool aHasCurrent = editorsPerView.values(a).contains(a->currentEditor());
+        const bool bHasCurrent = editorsPerView.values(b).contains(b->currentEditor());
+        const bool aHasGlobalCurrent = (a == currentView && aHasCurrent);
+        const bool bHasGlobalCurrent = (b == currentView && bHasCurrent);
+        if (bHasGlobalCurrent && !aHasGlobalCurrent)
+            return true;
+        if (bHasCurrent && !aHasCurrent)
+            return true;
+        return false;
+    });
+    for (EditorView *view : qAsConst(views)) {
+        QList<IEditor *> editors = editorsPerView.values(view);
+        // handle current editor in view last
+        IEditor *viewCurrentEditor = view->currentEditor();
+        if (editors.contains(viewCurrentEditor) && editors.last() != viewCurrentEditor) {
+            editors.removeAll(viewCurrentEditor);
+            editors.append(viewCurrentEditor);
+        }
+        for (IEditor *editor : qAsConst(editors)) {
+            if (editor == viewCurrentEditor && view == views.last()) {
+                // Avoid removing the globally current editor from its view,
+                // set a new current editor before.
+                const EditorManager::OpenEditorFlags flags = view != currentView
+                                                                 ? EditorManager::DoNotChangeCurrentEditor
+                                                                 : EditorManager::NoFlags;
+                const QList<IEditor *> viewEditors = view->editors();
+                IEditor *newCurrent = viewEditors.size() > 1 ? viewEditors.at(viewEditors.size() - 2)
+                                                             : nullptr;
+                if (!newCurrent)
+                    newCurrent = pickUnusedEditor();
+                if (newCurrent) {
+                    activateEditor(view, newCurrent, flags);
+                } else {
+                    DocumentModel::Entry *entry = DocumentModelPrivate::firstSuspendedEntry();
+                    if (entry) {
+                        activateEditorForEntry(view, entry, flags);
+                    } else { // no "suspended" ones, so any entry left should have a document
+                        const QList<DocumentModel::Entry *> documents = DocumentModel::entries();
+                        if (!documents.isEmpty()) {
+                            if (IDocument *document = documents.last()->document) {
+                                activateEditorForDocument(view, document, flags);
+                            }
+                        }
                     }
                 }
             }
+            view->removeEditor(editor);
         }
     }
 
