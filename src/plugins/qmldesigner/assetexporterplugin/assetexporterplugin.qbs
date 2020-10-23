@@ -10,6 +10,12 @@ QtcProduct {
     Depends { name: "ProjectExplorer" }
     Depends { name: "QmlDesigner" }
     Depends { name: "Utils" }
+    Depends {
+        name: "Qt"
+        submodules: [
+            "quick-private"
+        ]
+    }
 
     cpp.includePaths: base.concat([
         "./",

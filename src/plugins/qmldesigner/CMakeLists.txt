@@ -42,7 +42,7 @@ add_qtc_plugin(QmlDesigner
 
 add_qtc_plugin(assetexporterplugin
   CONDITION TARGET QmlDesigner
-  DEPENDS Core ProjectExplorer QmlDesigner Utils Qt5::Qml
+  DEPENDS Core ProjectExplorer QmlDesigner Utils Qt5::Qml Qt5::QuickPrivate
   PUBLIC_INCLUDES assetexporterplugin
   SOURCES
     assetexporterplugin/assetexportdialog.h assetexporterplugin/assetexportdialog.cpp assetexporterplugin/assetexportdialog.ui
