@@ -305,23 +305,17 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
     // TODO: The proposal should own the model until someone takes it explicitly away.
     QScopedPointer<IAssistProposal> proposalCandidate(newProposal);
 
-    bool destroyCurrentContext = false;
-    if (isDisplayingProposal()) {
-        if (!m_proposal->isFragile())
-            return;
-        destroyCurrentContext = true;
-    }
+    if (isDisplayingProposal() && !m_proposal->isFragile())
+        return;
 
     int basePosition = proposalCandidate->basePosition();
     if (m_editorWidget->position() < basePosition) {
-        if (destroyCurrentContext)
-            destroyContext();
+        destroyContext();
         return;
     }
 
     if (m_abortedBasePosition == basePosition && reason != ExplicitlyInvoked) {
-        if (destroyCurrentContext)
-            destroyContext();
+        destroyContext();
         return;
     }
 
@@ -333,8 +327,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
         return;
     }
 
-    if (destroyCurrentContext)
-        destroyContext();
+    destroyContext();
 
     clearAbortedPosition();
     m_proposal.reset(proposalCandidate.take());
