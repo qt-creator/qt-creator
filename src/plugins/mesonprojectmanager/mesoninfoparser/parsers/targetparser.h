@@ -66,6 +66,7 @@ class TargetParser
                  targetObj["id"].toString(),
                  targetObj["defined_in"].toString(),
                  targetObj["filename"].toVariant().toStringList(),
+                 targetObj["extra_files"].toVariant().toStringList(),
                  targetObj["subproject"].toString(),
                  extract_sources(targetObj["target_sources"].toArray())};
         return t;

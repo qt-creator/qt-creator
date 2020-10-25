@@ -75,6 +75,7 @@ struct Target
     const QString id;
     const QString definedIn;
     const QStringList fileName;
+    const QStringList extraFiles;
     const Utils::optional<QString> subproject;
     const SourceGroupList sources;
 
@@ -114,6 +115,7 @@ struct Target
            QString &&id,
            QString &&definedIn,
            QStringList &&fileName,
+           QStringList &&extraFiles,
            QString &&subproject,
            SourceGroupList &&sources)
         : type{toType(type)}
@@ -121,6 +123,7 @@ struct Target
         , id{std::move(id)}
         , definedIn{QDir::cleanPath(definedIn)}
         , fileName{cleanPath(std::move(fileName))}
+        , extraFiles{cleanPath(std::move(extraFiles))}
         , subproject{subproject.isNull() ? Utils::nullopt
                                          : Utils::optional<QString>{std::move(subproject)}}
         , sources{std::move(sources)}

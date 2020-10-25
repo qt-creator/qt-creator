@@ -38,6 +38,11 @@ void buildTargetTree(std::unique_ptr<MesonProjectNode> &root, const Target &targ
                                                             ProjectExplorer::FileType::Source));
         }
     }
+    for (const auto &extraFile : target.extraFiles) {
+        root->addNestedNode(
+            std::make_unique<ProjectExplorer::FileNode>(Utils::FilePath::fromString(extraFile),
+                                                        ProjectExplorer::FileType::Unknown));
+    }
 }
 
 void addTargetNode(std::unique_ptr<MesonProjectNode> &root, const Target &target)
