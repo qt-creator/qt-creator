@@ -196,7 +196,7 @@ void MesonBuildSystem::init()
                                .pathAppended(Constants::MESON_INFO_DIR)
                                .pathAppended(Constants::MESON_INFO)
                                .toString(),
-                           Utils::FileSystemWatcher::WatchAllChanges);
+                           Utils::FileSystemWatcher::WatchModifiedDate);
 }
 
 bool MesonBuildSystem::parseProject()
