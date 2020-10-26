@@ -4157,6 +4157,8 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
     }
 
     for (const TextMark *mark : qAsConst(marks)) {
+        if (!mark->isVisible())
+            continue;
         boundingRect = QRectF(x, boundingRect.top(), q->viewport()->width() - x, boundingRect.height());
         if (boundingRect.isEmpty())
             break;
