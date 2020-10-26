@@ -58,6 +58,10 @@
                         \li \l{Managing Sessions}
                      \endlist
                 \li \l{Tutorials}
+                \li \l{Qt Quick Best Practices}
+                    \list
+                         \li \l{Creating Optimized 3D Scenes}
+                    \endlist
             \endlist
         \li \l{Managing Projects}
             \list

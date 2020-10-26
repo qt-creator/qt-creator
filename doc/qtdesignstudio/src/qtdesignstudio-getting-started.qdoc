@@ -75,5 +75,9 @@
             Describes how to use \QDS to create a simple animated UI with some
             basic UI components, such as pages, buttons, and fields. Some of
             the buttons can be used for moving between the pages.
+        \li \l {Qt Quick Best Practices}
+
+            Describes how to create UIs that work efficiently on the intended
+            platforms.
      \endlist
 */

@@ -92,6 +92,10 @@
     layer in \uicontrol Navigator to reflect the QML code model. You
     can view the QML code in \uicontrol {Text Editor}.
 
+    After importing the metadata files, wait a few moments to allow all
+    imported assets to appear in your project files before selecting your
+    metadata filename from \uicontrol {QML Imports} > \uicontrol {Add Imports}.
+
     If asset importer conflicts, warnings, and errors are displayed in the
     \uicontrol {Asset Import} dialog while importing, fix the issues in
     design tool and export the assets again.

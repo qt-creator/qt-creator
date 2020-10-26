@@ -45,6 +45,18 @@
     Depending on the 3D graphics tool, you might need to install export plugins
     to be able to export files to a particular format.
 
+    For complex 3D models, we recommend leaving the files exported from 3D
+    graphics tools unmerged, so if there are performance issues, you can easily
+    delete individual meshes within \QDS.
+
+    Consider how much detail is necessary for your 3D model prior to exporting
+    from 3D graphics tools. If the models will be far from camera view, optimize
+    the models to the least amount of polygons necessary without compromising
+    the model. For high-detailed models in close distance to the camera, use
+    image maps a much as possible for detail. If the model is only viewed from
+    certain angles, consider further optimization of parts not in direct camera
+    view for optimal performance.
+
     To get the best results when exporting 3D assets and importing them to
     \QDS, follow the general guidelines in the following sections. For more
     information about using the export plugins for a particular tool, see
@@ -132,6 +144,10 @@
 
     You need to bake actions to export animations that are using custom curves
     or object constraints to control the animation.
+
+    We recommend using the export panel in 3D graphics tools to bake animations
+    to the 3D graphics you are about to export. This will only bake your set
+    keyframes, rather than each individual keyframe along the timeline.
 
     \e Actions are data-blocks containing animation data. If you are exporting
     animations, you need to bake actions.

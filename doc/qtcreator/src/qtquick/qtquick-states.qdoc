@@ -181,7 +181,8 @@
     \endtable
 
     In addition, you can use arithmetic operators to compare numbers before
-    checks.
+    checks. However, we recommend that you create separate properties for this
+    purpose whenever possible.
 
     \section2 Examples of when Conditions
 

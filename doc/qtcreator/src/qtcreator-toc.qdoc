@@ -157,7 +157,14 @@
             \list
                 \li  \l{Adding Qt Designer Plugins}
             \endlist
-            \li \l{Optimizing Applications for Mobile Devices}
+            \li \l {Best Practices}
+            \list
+                \li \l{Optimizing Applications for Mobile Devices}
+                \li \l{Qt Quick Best Practices}
+                    \list
+                        \li \l{Creating Optimized 3D Scenes}
+                    \endlist
+            \endlist
         \endlist
         \li \l{Coding}
         \list
