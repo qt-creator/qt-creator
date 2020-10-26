@@ -34,7 +34,7 @@
 
 #include <cmath>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 constexpr double g_playheadMargin = 5.0;
 
@@ -149,6 +149,7 @@ void Playhead::mouseMoveOutOfBounds(GraphicsView *view)
 
 void Playhead::mouseRelease(GraphicsView *view)
 {
+    Q_UNUSED(view);
     m_moving = false;
 }
 
@@ -188,4 +189,4 @@ void Playhead::paint(QPainter *painter, GraphicsView *view) const
     painter->restore();
 }
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

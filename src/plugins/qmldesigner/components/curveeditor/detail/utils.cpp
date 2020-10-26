@@ -29,7 +29,7 @@
 #include <QRectF>
 #include <QTransform>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 double scaleX(const QTransform &transform)
 {
@@ -92,4 +92,4 @@ QPalette singleColorPalette(const QColor &color)
     return palette;
 }
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

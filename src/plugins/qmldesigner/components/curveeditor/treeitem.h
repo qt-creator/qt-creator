@@ -38,7 +38,7 @@ class QIcon;
 class QVariant;
 QT_END_NAMESPACE
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 class NodeTreeItem;
 class PropertyTreeItem;
@@ -47,6 +47,10 @@ class TreeItem
 {
 public:
     using Path = std::vector<QString>;
+
+    virtual bool implicitlyLocked() const { return false; }
+
+    virtual bool implicitlyPinned() const { return false; }
 
 public:
     TreeItem(const QString &name);
@@ -81,15 +85,23 @@ public:
 
     int columnCount() const;
 
+    TreeItem *root() const;
+
     TreeItem *parent() const;
 
     TreeItem *child(int row) const;
 
-    TreeItem *find(unsigned int row) const;
+    TreeItem *find(unsigned int id) const;
+
+    TreeItem *find(const QString &id) const;
+
+    std::vector<TreeItem *> children() const;
 
     QVariant data(int column) const;
 
     QVariant headerData(int column) const;
+
+    bool operator==(unsigned int id) const;
 
     void setId(unsigned int &id);
 
@@ -116,9 +128,13 @@ protected:
 class NodeTreeItem : public TreeItem
 {
 public:
-    NodeTreeItem(const QString &name, const QIcon &icon);
+    NodeTreeItem(const QString &name, const QIcon &icon, const std::vector<QString> &parentIds);
 
     NodeTreeItem *asNodeItem() override;
+
+    bool implicitlyLocked() const override;
+
+    bool implicitlyPinned() const override;
 
     QIcon icon() const override;
 
@@ -126,26 +142,30 @@ public:
 
 private:
     QIcon m_icon;
-};
 
-enum class ValueType {
-    Undefined,
-    Bool,
-    Integer,
-    Double,
+    std::vector<QString> m_parentIds;
 };
-
-std::string toString(ValueType type);
 
 class PropertyTreeItem : public TreeItem
 {
 public:
     enum class Component { Generic, R, G, B, A, X, Y, Z, W };
 
+    enum class ValueType {
+        Undefined,
+        Bool,
+        Integer,
+        Double,
+    };
+
 public:
     PropertyTreeItem(const QString &name, const AnimationCurve &curve, const ValueType &type);
 
     PropertyTreeItem *asPropertyItem() override;
+
+    bool implicitlyLocked() const override;
+
+    bool implicitlyPinned() const override;
 
     const NodeTreeItem *parentNodeTreeItem() const;
 
@@ -173,4 +193,6 @@ private:
     AnimationCurve m_curve;
 };
 
-} // End namespace DesignTools.
+std::string toString(PropertyTreeItem::ValueType type);
+
+} // End namespace QmlDesigner.

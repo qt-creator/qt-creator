@@ -36,7 +36,7 @@
 
 #include <cmath>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 Selector::Selector() {}
 
@@ -139,7 +139,7 @@ void Selector::mouseRelease(QMouseEvent *event, GraphicsScene *scene)
 bool Selector::select(const SelectionTool &tool, const QPointF &pos, GraphicsScene *scene)
 {
     auto selectWidthTool = [this,
-                            tool](SelectionMode mode, const QPointF &pos, GraphicsScene *scene) {
+                            tool](SelectableItem::SelectionMode mode, const QPointF &pos, GraphicsScene *scene) {
         switch (tool) {
         case SelectionTool::Lasso:
             return lassoSelection(mode, pos, scene);
@@ -152,19 +152,19 @@ bool Selector::select(const SelectionTool &tool, const QPointF &pos, GraphicsSce
 
     if (m_shortcut == m_shortcuts.newSelection) {
         clearSelection(scene);
-        return selectWidthTool(SelectionMode::New, pos, scene);
+        return selectWidthTool(SelectableItem::SelectionMode::New, pos, scene);
     } else if (m_shortcut == m_shortcuts.addToSelection) {
-        return selectWidthTool(SelectionMode::Add, pos, scene);
+        return selectWidthTool(SelectableItem::SelectionMode::Add, pos, scene);
     } else if (m_shortcut == m_shortcuts.removeFromSelection) {
-        return selectWidthTool(SelectionMode::Remove, pos, scene);
+        return selectWidthTool(SelectableItem::SelectionMode::Remove, pos, scene);
     } else if (m_shortcut == m_shortcuts.toggleSelection) {
-        return selectWidthTool(SelectionMode::Toggle, pos, scene);
+        return selectWidthTool(SelectableItem::SelectionMode::Toggle, pos, scene);
     }
 
     return false;
 }
 
-bool Selector::pressSelection(SelectionMode mode, const QPointF &pos, GraphicsScene *scene)
+bool Selector::pressSelection(SelectableItem::SelectionMode mode, const QPointF &pos, GraphicsScene *scene)
 {
     bool out = false;
     const auto itemList = scene->items();
@@ -190,7 +190,7 @@ bool Selector::pressSelection(SelectionMode mode, const QPointF &pos, GraphicsSc
     return out;
 }
 
-bool Selector::rectangleSelection(SelectionMode mode, const QPointF &pos, GraphicsScene *scene)
+bool Selector::rectangleSelection(SelectableItem::SelectionMode mode, const QPointF &pos, GraphicsScene *scene)
 {
     bool out = false;
     m_rect.setBottomRight(pos);
@@ -201,14 +201,14 @@ bool Selector::rectangleSelection(SelectionMode mode, const QPointF &pos, Graphi
                 keyframeItem->setPreselected(mode);
                 out = true;
             } else {
-                keyframeItem->setPreselected(SelectionMode::Undefined);
+                keyframeItem->setPreselected(SelectableItem::SelectionMode::Undefined);
             }
         }
     }
     return out;
 }
 
-bool Selector::lassoSelection(SelectionMode mode, const QPointF &pos, GraphicsScene *scene)
+bool Selector::lassoSelection(SelectableItem::SelectionMode mode, const QPointF &pos, GraphicsScene *scene)
 {
     bool out = false;
     m_lasso.lineTo(pos);
@@ -219,7 +219,7 @@ bool Selector::lassoSelection(SelectionMode mode, const QPointF &pos, GraphicsSc
                 keyframeItem->setPreselected(mode);
                 out = true;
             } else {
-                keyframeItem->setPreselected(SelectionMode::Undefined);
+                keyframeItem->setPreselected(SelectableItem::SelectionMode::Undefined);
             }
         }
     }
@@ -231,7 +231,7 @@ void Selector::clearSelection(GraphicsScene *scene)
     const auto itemList = scene->items();
     for (auto *item : itemList) {
         if (auto *frameItem = qgraphicsitem_cast<KeyframeItem *>(item)) {
-            frameItem->setPreselected(SelectionMode::Clear);
+            frameItem->setPreselected(SelectableItem::SelectionMode::Clear);
             frameItem->applyPreselection();
             frameItem->setActivated(false, HandleItem::Slot::Left);
             frameItem->setActivated(false, HandleItem::Slot::Right);
@@ -248,4 +248,4 @@ void Selector::applyPreSelection(GraphicsScene *scene)
     }
 }
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

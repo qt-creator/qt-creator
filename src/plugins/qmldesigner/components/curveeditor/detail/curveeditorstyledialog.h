@@ -34,9 +34,11 @@ class QSpinBox;
 class QDoubleSpinBox;
 QT_END_NAMESPACE
 
-namespace DesignTools {
+namespace QmlDesigner {
 
+namespace StyleEditor {
 class ColorControl;
+}
 
 struct CurveEditorStyle;
 
@@ -60,13 +62,13 @@ private:
 private:
     QPushButton *m_printButton;
 
-    ColorControl *m_background;
+    StyleEditor::ColorControl *m_background;
 
-    ColorControl *m_backgroundAlternate;
+    StyleEditor::ColorControl *m_backgroundAlternate;
 
-    ColorControl *m_fontColor;
+    StyleEditor::ColorControl *m_fontColor;
 
-    ColorControl *m_gridColor;
+    StyleEditor::ColorControl *m_gridColor;
 
     QDoubleSpinBox *m_canvasMargin;
 
@@ -80,9 +82,9 @@ private:
 
     QDoubleSpinBox *m_timeOffsetRight;
 
-    ColorControl *m_rangeBarColor;
+    StyleEditor::ColorControl *m_rangeBarColor;
 
-    ColorControl *m_rangeBarCapsColor;
+    StyleEditor::ColorControl *m_rangeBarCapsColor;
 
     QDoubleSpinBox *m_valueAxisWidth;
 
@@ -95,23 +97,23 @@ private:
 
     QDoubleSpinBox *m_handleLineWidth;
 
-    ColorControl *m_handleColor;
+    StyleEditor::ColorControl *m_handleColor;
 
-    ColorControl *m_handleSelectionColor;
+    StyleEditor::ColorControl *m_handleSelectionColor;
 
     // KeyframeItem
     QDoubleSpinBox *m_keyframeSize;
 
-    ColorControl *m_keyframeColor;
+    StyleEditor::ColorControl *m_keyframeColor;
 
-    ColorControl *m_keyframeSelectionColor;
+    StyleEditor::ColorControl *m_keyframeSelectionColor;
 
     // CurveItem
     QDoubleSpinBox *m_curveWidth;
 
-    ColorControl *m_curveColor;
+    StyleEditor::ColorControl *m_curveColor;
 
-    ColorControl *m_curveSelectionColor;
+    StyleEditor::ColorControl *m_curveSelectionColor;
 
     // TreeItem
     QDoubleSpinBox *m_treeMargins;
@@ -121,7 +123,7 @@ private:
 
     QDoubleSpinBox *m_playheadRadius;
 
-    ColorControl *m_playheadColor;
+    StyleEditor::ColorControl *m_playheadColor;
 };
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

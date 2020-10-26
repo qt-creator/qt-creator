@@ -33,7 +33,7 @@
 
 #include <sstream>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 AnimationCurve::AnimationCurve()
     : m_fromData(false)
@@ -395,4 +395,4 @@ void AnimationCurve::analyze()
     }
 }
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

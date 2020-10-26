@@ -35,7 +35,7 @@ QT_BEGIN_NAMESPACE
 class QPointF;
 QT_END_NAMESPACE
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 struct CurveEditorStyle;
 
@@ -54,7 +54,7 @@ signals:
 
     void commitEndFrame(int frame);
 
-    void curveChanged(PropertyTreeItem *item);
+    void curveChanged(TreeItem *item);
 
 public:
     CurveEditorModel(QObject *parent = nullptr);
@@ -65,7 +65,7 @@ public:
 
     double maximumTime() const;
 
-    DesignTools::CurveEditorStyle style() const;
+    CurveEditorStyle style() const;
 
 public:
     void setTimeline(const QmlDesigner::QmlTimeline &timeline);
@@ -78,19 +78,23 @@ public:
 
     void setCurve(unsigned int id, const AnimationCurve &curve);
 
+    void setLocked(TreeItem *item, bool val);
+
+    void setPinned(TreeItem *item, bool val);
+
     void reset(const std::vector<TreeItem *> &items);
 
 private:
-    DesignTools::TreeItem *createTopLevelItem(const QmlDesigner::QmlTimeline &timeline,
-                                              const QmlDesigner::ModelNode &node);
+    TreeItem *createTopLevelItem(const QmlDesigner::QmlTimeline &timeline,
+                                 const QmlDesigner::ModelNode &node);
 
-    DesignTools::AnimationCurve createAnimationCurve(const QmlDesigner::QmlTimelineKeyframeGroup &group);
+    AnimationCurve createAnimationCurve(const QmlDesigner::QmlTimelineKeyframeGroup &group);
 
-    DesignTools::AnimationCurve createDoubleCurve(const QmlDesigner::QmlTimelineKeyframeGroup &group);
+    AnimationCurve createDoubleCurve(const QmlDesigner::QmlTimelineKeyframeGroup &group);
 
     double m_minTime = 0.;
 
     double m_maxTime = 0.;
 };
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

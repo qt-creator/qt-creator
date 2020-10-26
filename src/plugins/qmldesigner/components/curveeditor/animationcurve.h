@@ -33,7 +33,7 @@
 QT_FORWARD_DECLARE_CLASS(QEasingCurve);
 QT_FORWARD_DECLARE_CLASS(QPainterPath);
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 class CurveSegment;
 
@@ -100,4 +100,4 @@ private:
     std::vector<Keyframe> m_frames;
 };
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

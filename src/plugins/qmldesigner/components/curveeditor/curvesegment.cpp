@@ -33,7 +33,7 @@
 
 #include <assert.h>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 class CubicPolynomial
 {
@@ -566,4 +566,4 @@ void CurveSegment::setInterpolation(const Keyframe::Interpolation &interpol)
     }
 }
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

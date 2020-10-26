@@ -27,7 +27,7 @@
 
 #include <sstream>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 Keyframe::Keyframe()
     : m_interpolation(Interpolation::Undefined)
@@ -193,4 +193,4 @@ std::string toString(Keyframe::Interpolation interpol)
     }
 }
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

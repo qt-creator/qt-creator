@@ -35,7 +35,7 @@
 #include <string>
 #include <QGraphicsObject>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 class AnimationCurve;
 class KeyframeItem;
@@ -89,7 +89,7 @@ public:
 
     unsigned int id() const;
 
-    ValueType valueType() const;
+    PropertyTreeItem::ValueType valueType() const;
 
     PropertyTreeItem::Component component() const;
 
@@ -113,7 +113,7 @@ public:
 
     void setHandleVisibility(bool visible);
 
-    void setValueType(ValueType type);
+    void setValueType(PropertyTreeItem::ValueType type);
 
     void setComponent(PropertyTreeItem::Component comp);
 
@@ -140,7 +140,7 @@ private:
 
     CurveItemStyleOption m_style;
 
-    ValueType m_type;
+    PropertyTreeItem::ValueType m_type;
 
     PropertyTreeItem::Component m_component;
 
@@ -151,4 +151,4 @@ private:
     bool m_itemDirty;
 };
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

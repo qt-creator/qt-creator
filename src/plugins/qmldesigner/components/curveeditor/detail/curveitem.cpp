@@ -35,13 +35,13 @@
 #include <cmath>
 #include <sstream>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 CurveItem::CurveItem(QGraphicsItem *parent)
     : CurveEditorItem(parent)
     , m_id(0)
     , m_style()
-    , m_type(ValueType::Undefined)
+    , m_type(PropertyTreeItem::ValueType::Undefined)
     , m_component(PropertyTreeItem::Component::Generic)
     , m_transform()
     , m_keyframes()
@@ -52,7 +52,7 @@ CurveItem::CurveItem(unsigned int id, const AnimationCurve &curve, QGraphicsItem
     : CurveEditorItem(parent)
     , m_id(id)
     , m_style()
-    , m_type(ValueType::Undefined)
+    , m_type(PropertyTreeItem::ValueType::Undefined)
     , m_component(PropertyTreeItem::Component::Generic)
     , m_transform()
     , m_keyframes()
@@ -225,7 +225,7 @@ unsigned int CurveItem::id() const
     return m_id;
 }
 
-ValueType CurveItem::valueType() const
+PropertyTreeItem::ValueType CurveItem::valueType() const
 {
     return m_type;
 }
@@ -385,7 +385,7 @@ void CurveItem::setHandleVisibility(bool visible)
         frame->setHandleVisibility(visible);
 }
 
-void CurveItem::setValueType(ValueType type)
+void CurveItem::setValueType(PropertyTreeItem::ValueType type)
 {
     m_type = type;
 }
@@ -508,4 +508,4 @@ void CurveItem::emitCurveChanged()
     update();
 }
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

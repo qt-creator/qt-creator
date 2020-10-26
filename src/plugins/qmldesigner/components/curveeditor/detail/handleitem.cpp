@@ -31,7 +31,7 @@
 
 #include <QPainter>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 struct HandleGeometry
 {
@@ -196,4 +196,4 @@ QVariant HandleItem::itemChange(QGraphicsItem::GraphicsItemChange change, const 
     return QGraphicsItem::itemChange(change, value);
 }
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

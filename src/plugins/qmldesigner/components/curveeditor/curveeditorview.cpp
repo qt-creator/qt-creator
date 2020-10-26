@@ -27,6 +27,7 @@
 #include "curveeditor.h"
 #include "curveeditormodel.h"
 #include "curvesegment.h"
+#include "treeitem.h"
 
 #include <bindingproperty.h>
 #include <easingcurve.h>
@@ -42,29 +43,14 @@ namespace QmlDesigner {
 CurveEditorView::CurveEditorView(QObject *parent)
     : AbstractView(parent)
     , m_block(false)
-    , m_model(new DesignTools::CurveEditorModel())
-    , m_editor(new DesignTools::CurveEditor(m_model))
+    , m_model(new CurveEditorModel())
+    , m_editor(new CurveEditor(m_model))
 {
     Q_UNUSED(parent);
-    connect(m_model,
-            &DesignTools::CurveEditorModel::commitCurrentFrame,
-            this,
-            &CurveEditorView::commitCurrentFrame);
-
-    connect(m_model,
-            &DesignTools::CurveEditorModel::commitStartFrame,
-            this,
-            &CurveEditorView::commitStartFrame);
-
-    connect(m_model,
-            &DesignTools::CurveEditorModel::commitEndFrame,
-            this,
-            &CurveEditorView::commitEndFrame);
-
-    connect(m_model,
-            &DesignTools::CurveEditorModel::curveChanged,
-            this,
-            &CurveEditorView::commitKeyframes);
+    connect(m_model, &CurveEditorModel::commitCurrentFrame, this, &CurveEditorView::commitCurrentFrame);
+    connect(m_model, &CurveEditorModel::commitStartFrame, this, &CurveEditorView::commitStartFrame);
+    connect(m_model, &CurveEditorModel::commitEndFrame, this, &CurveEditorView::commitEndFrame);
+    connect(m_model, &CurveEditorModel::curveChanged, this, &CurveEditorView::commitKeyframes);
 }
 
 CurveEditorView::~CurveEditorView() {}
@@ -132,6 +118,18 @@ void CurveEditorView::nodeReparented(const ModelNode &node,
         updateKeyframes();
     else if (QmlTimelineKeyframeGroup::checkKeyframesType(node))
         updateKeyframes();
+}
+
+void CurveEditorView::auxiliaryDataChanged(const ModelNode &node,
+                                           const PropertyName &name,
+                                           const QVariant &data)
+{
+    if (name == "locked") {
+        if (auto *item = m_model->find(node.id())) {
+            QSignalBlocker blocker(m_model);
+            m_model->setLocked(item, data.toBool());
+        }
+    }
 }
 
 void CurveEditorView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName>> &propertyList)
@@ -261,9 +259,9 @@ void CurveEditorView::updateEndFrame(const ModelNode &node)
         m_model->setMaximumTime(static_cast<int>(std::round(timeline.endKeyframe())));
 }
 
-ModelNode getTargetNode1(DesignTools::PropertyTreeItem *item, const QmlTimeline &timeline)
+ModelNode getTargetNode(PropertyTreeItem *item, const QmlTimeline &timeline)
 {
-    if (const DesignTools::NodeTreeItem *nodeItem = item->parentNodeTreeItem()) {
+    if (const NodeTreeItem *nodeItem = item->parentNodeTreeItem()) {
         QString targetId = nodeItem->name();
         if (timeline.isValid()) {
             for (auto &&target : timeline.allTargets()) {
@@ -275,17 +273,16 @@ ModelNode getTargetNode1(DesignTools::PropertyTreeItem *item, const QmlTimeline 
     return ModelNode();
 }
 
-QmlTimelineKeyframeGroup timelineKeyframeGroup1(QmlTimeline &timeline,
-                                                DesignTools::PropertyTreeItem *item)
+QmlTimelineKeyframeGroup timelineKeyframeGroup(QmlTimeline &timeline, PropertyTreeItem *item)
 {
-    ModelNode node = getTargetNode1(item, timeline);
+    ModelNode node = getTargetNode(item, timeline);
     if (node.isValid())
         return timeline.keyframeGroup(node, item->name().toLatin1());
 
     return QmlTimelineKeyframeGroup();
 }
 
-void attachEasingCurve1(double frame, const QEasingCurve &curve, const QmlTimelineKeyframeGroup &group)
+void attachEasingCurve(const QmlTimelineKeyframeGroup &group, double frame, const QEasingCurve &curve)
 {
     ModelNode frameNode = group.keyframe(frame);
     if (frameNode.isValid()) {
@@ -294,61 +291,73 @@ void attachEasingCurve1(double frame, const QEasingCurve &curve, const QmlTimeli
     }
 }
 
-void CurveEditorView::commitKeyframes(DesignTools::PropertyTreeItem *item)
+void commitAuxiliaryData(ModelNode &node, TreeItem *item)
 {
-    QmlTimeline currentTimeline = activeTimeline();
-    QmlTimelineKeyframeGroup group = timelineKeyframeGroup1(currentTimeline, item);
+    if (node.isValid()) {
+        if (item->locked())
+            node.setAuxiliaryData("locked", true);
+        else
+            node.removeAuxiliaryData("locked");
 
-    if (group.isValid()) {
-        ModelNode groupNode = group.modelNode();
+        if (item->pinned())
+            node.setAuxiliaryData("pinned", true);
+        else
+            node.removeAuxiliaryData("pinned");
 
-        if (groupNode.isValid()) {
-            if (item->locked())
-                groupNode.setAuxiliaryData("locked", true);
+        if (auto *pitem = item->asPropertyItem()) {
+            if (pitem->hasUnified())
+                node.setAuxiliaryData("unified", pitem->unifyString());
             else
-                groupNode.removeAuxiliaryData("locked");
-
-            if (item->pinned())
-                groupNode.setAuxiliaryData("pinned", true);
-            else
-                groupNode.removeAuxiliaryData("pinned");
-
-            if (item->hasUnified())
-                groupNode.setAuxiliaryData("unified", item->unifyString());
-            else
-                groupNode.removeAuxiliaryData("unified");
+                node.removeAuxiliaryData("unified");
         }
+    }
+}
 
-        auto replaceKeyframes = [&group, item, this]() {
-            m_block = true;
-            for (auto frame : group.keyframes())
-                frame.destroy();
+void CurveEditorView::commitKeyframes(TreeItem *item)
+{
+    if (auto *nitem = item->asNodeItem()) {
+        ModelNode node = modelNodeForId(nitem->name());
+        commitAuxiliaryData(node, item);
 
-            DesignTools::Keyframe previous;
-            for (auto &&frame : item->curve().keyframes()) {
-                QPointF pos = frame.position();
-                group.setValue(QVariant(pos.y()), pos.x());
+    } else if (auto *pitem = item->asPropertyItem()) {
+        QmlTimeline currentTimeline = activeTimeline();
+        QmlTimelineKeyframeGroup group = timelineKeyframeGroup(currentTimeline, pitem);
 
-                if (previous.isValid()) {
-                    if (frame.interpolation() == DesignTools::Keyframe::Interpolation::Bezier) {
-                        DesignTools::CurveSegment segment(previous, frame);
-                        if (segment.isValid())
-                            attachEasingCurve1(pos.x(), segment.easingCurve(), group);
-                    } else if (frame.interpolation() == DesignTools::Keyframe::Interpolation::Easing) {
-                        QVariant data = frame.data();
-                        if (data.type() == static_cast<int>(QMetaType::QEasingCurve))
-                            attachEasingCurve1(pos.x(), data.value<QEasingCurve>(), group);
-                    } else if (frame.interpolation() == DesignTools::Keyframe::Interpolation::Step) {
-                        // Warning: Keyframe::Interpolation::Step not yet implemented
+        if (group.isValid()) {
+            ModelNode groupNode = group.modelNode();
+            commitAuxiliaryData(groupNode, item);
+
+            auto replaceKeyframes = [&group, pitem, this]() {
+                m_block = true;
+                for (auto frame : group.keyframes())
+                    frame.destroy();
+
+                Keyframe previous;
+                for (auto &&frame : pitem->curve().keyframes()) {
+                    QPointF pos = frame.position();
+                    group.setValue(QVariant(pos.y()), pos.x());
+
+                    if (previous.isValid()) {
+                        if (frame.interpolation() == Keyframe::Interpolation::Bezier) {
+                            CurveSegment segment(previous, frame);
+                            if (segment.isValid())
+                                attachEasingCurve(group, pos.x(), segment.easingCurve());
+                        } else if (frame.interpolation() == Keyframe::Interpolation::Easing) {
+                            QVariant data = frame.data();
+                            if (data.type() == static_cast<int>(QMetaType::QEasingCurve))
+                                attachEasingCurve(group, pos.x(), data.value<QEasingCurve>());
+                        } else if (frame.interpolation() == Keyframe::Interpolation::Step) {
+                            // Warning: Keyframe::Interpolation::Step not yet implemented
+                        }
                     }
+
+                    previous = frame;
                 }
+                m_block = false;
+            };
 
-                previous = frame;
-            }
-            m_block = false;
-        };
-
-        executeInTransaction("CurveEditor::commitKeyframes", replaceKeyframes);
+            executeInTransaction("CurveEditor::commitKeyframes", replaceKeyframes);
+        }
     }
 }
 

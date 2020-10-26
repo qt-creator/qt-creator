@@ -30,7 +30,7 @@
 
 #include <QTreeView>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 class AnimationCurve;
 class CurveEditorModel;
@@ -44,9 +44,9 @@ class TreeView : public QTreeView
 signals:
     void curvesSelected(const std::vector<CurveItem *> &curves);
 
-    void treeItemLocked(PropertyTreeItem *item);
+    void treeItemLocked(TreeItem *item, bool val);
 
-    void treeItemPinned(PropertyTreeItem *item);
+    void treeItemPinned(TreeItem *item, bool val);
 
 public:
     TreeView(CurveEditorModel *model, QWidget *parent = nullptr);
@@ -63,4 +63,4 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
 };
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

@@ -28,7 +28,7 @@
 #include <QPointF>
 #include <QVariant>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 class Keyframe
 {
@@ -93,4 +93,4 @@ private:
 
 std::string toString(Keyframe::Interpolation interpol);
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

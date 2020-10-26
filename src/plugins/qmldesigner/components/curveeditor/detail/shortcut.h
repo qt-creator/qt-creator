@@ -27,7 +27,7 @@
 
 #include <QMouseEvent>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 class Shortcut
 {
@@ -58,4 +58,4 @@ private:
     Qt::KeyboardModifiers m_modifiers;
 };
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

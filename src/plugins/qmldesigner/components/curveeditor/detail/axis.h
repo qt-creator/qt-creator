@@ -28,7 +28,7 @@
 #include <QToolBar>
 #include <QWidget>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 struct Axis
 {
@@ -39,4 +39,4 @@ struct Axis
     double lstep;
 };
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

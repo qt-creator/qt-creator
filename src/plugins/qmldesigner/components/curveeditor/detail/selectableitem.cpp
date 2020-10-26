@@ -26,7 +26,7 @@
 #include "selectableitem.h"
 #include "keyframeitem.h"
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 CurveEditorItem::CurveEditorItem(QGraphicsItem *parent)
     : QGraphicsObject(parent)
@@ -193,4 +193,4 @@ void SelectableItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     activationCallback();
 }
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

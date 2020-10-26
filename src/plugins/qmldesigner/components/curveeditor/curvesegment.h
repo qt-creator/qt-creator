@@ -36,7 +36,7 @@ class QEasingCurve;
 class QPainterPath;
 QT_END_NAMESPACE
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 class CurveSegment
 {
@@ -97,4 +97,4 @@ private:
     Keyframe m_right;
 };
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

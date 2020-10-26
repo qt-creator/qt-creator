@@ -347,41 +347,6 @@ void TimelineWidget::scroll(const TimelineUtils::Side &side)
         m_scrollbar->setValue(m_scrollbar->value() + m_scrollbar->singleStep());
 }
 
-ModelNode getTargetNode(DesignTools::PropertyTreeItem *item, const QmlTimeline &timeline)
-{
-    if (const DesignTools::NodeTreeItem *nodeItem = item->parentNodeTreeItem()) {
-        QString targetId = nodeItem->name();
-        if (timeline.isValid()) {
-            for (auto &&target : timeline.allTargets()) {
-                if (target.displayName() == targetId)
-                    return target;
-            }
-        }
-    }
-    return ModelNode();
-}
-
-QmlTimelineKeyframeGroup timelineKeyframeGroup(QmlTimeline &timeline,
-                                               DesignTools::PropertyTreeItem *item)
-{
-    ModelNode node = getTargetNode(item, timeline);
-    if (node.isValid())
-        return timeline.keyframeGroup(node, item->name().toLatin1());
-
-    return QmlTimelineKeyframeGroup();
-}
-
-void attachEasingCurve(double frame,
-                       const QEasingCurve &curve,
-                       const QmlTimelineKeyframeGroup &group)
-{
-    ModelNode frameNode = group.keyframe(frame);
-    if (frameNode.isValid()) {
-        auto expression = EasingCurve(curve).toString();
-        frameNode.bindingProperty("easing.bezierCurve").setExpression(expression);
-    }
-}
-
 void TimelineWidget::selectionChanged()
 {
     if (graphicsScene()->hasSelection())

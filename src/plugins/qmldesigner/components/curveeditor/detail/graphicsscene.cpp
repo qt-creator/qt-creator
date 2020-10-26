@@ -33,7 +33,7 @@
 
 #include <cmath>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 GraphicsScene::GraphicsScene(QObject *parent)
     : QGraphicsScene(parent)
@@ -236,9 +236,34 @@ void GraphicsScene::doNotMoveItems(bool val)
     m_doNotMoveItems = val;
 }
 
+void GraphicsScene::removeCurveItem(unsigned int id)
+{
+    CurveItem *tmp = nullptr;
+    for (auto *curve : m_curves) {
+        if (curve->id() == id) {
+            removeItem(curve);
+            tmp = curve;
+            break;
+        }
+    }
+
+    if (tmp) {
+        Q_UNUSED(m_curves.removeOne(tmp));
+        delete tmp;
+    }
+
+    m_dirty = true;
+}
+
 void GraphicsScene::addCurveItem(CurveItem *item)
 {
-    m_dirty = true;
+    for (auto *curve : m_curves) {
+        if (curve->id() == item->id()) {
+            delete item;
+            return;
+        }
+    }
+
     item->setDirty(false);
     item->connect(this);
     addItem(item);
@@ -249,6 +274,8 @@ void GraphicsScene::addCurveItem(CurveItem *item)
         m_curves.push_back(item);
 
     resetZValues();
+
+    m_dirty = true;
 }
 
 void GraphicsScene::moveToBottom(CurveItem *item)
@@ -449,4 +476,4 @@ void GraphicsScene::resetZValues()
     }
 }
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

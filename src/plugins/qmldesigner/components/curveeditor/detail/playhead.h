@@ -32,7 +32,7 @@ QT_BEGIN_NAMESPACE
 class QPainter;
 QT_END_NAMESPACE
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 class GraphicsView;
 
@@ -69,4 +69,4 @@ private:
     QTimer m_timer;
 };
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

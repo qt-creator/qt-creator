@@ -29,7 +29,7 @@
 
 #include <QGraphicsScene>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 class AnimationCurve;
 class CurveItem;
@@ -95,6 +95,8 @@ public:
 
     void doNotMoveItems(bool tmp);
 
+    void removeCurveItem(unsigned int id);
+
     void addCurveItem(CurveItem *item);
 
     void moveToBottom(CurveItem *item);
@@ -140,4 +142,4 @@ private:
     bool m_doNotMoveItems;
 };
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

@@ -32,7 +32,7 @@
 
 #include <QGraphicsObject>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 class HandleItem;
 
@@ -134,4 +134,4 @@ private:
     bool m_visibleOverride = true;
 };
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.

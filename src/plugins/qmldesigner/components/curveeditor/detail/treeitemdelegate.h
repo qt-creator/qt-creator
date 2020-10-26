@@ -29,7 +29,7 @@
 
 #include <QStyledItemDelegate>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
 class TreeItemDelegate : public QStyledItemDelegate
 {
@@ -60,4 +60,4 @@ private:
     QPoint m_mousePos;
 };
 
-} // End namespace DesignTools.
+} // End namespace QmlDesigner.
