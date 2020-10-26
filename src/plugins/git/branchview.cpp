@@ -164,6 +164,11 @@ void BranchView::refresh(const QString &repository, bool force)
         m_addButton->setToolTip(tr("Add Branch..."));
         m_branchView->setEnabled(true);
     }
+
+    // Do not refresh the model when the view is hidden
+    if (!isVisible())
+        return;
+
     QString errorMessage;
     if (!m_model->refresh(m_repository, &errorMessage))
         VcsBase::VcsOutputWindow::appendError(errorMessage);
@@ -172,6 +177,11 @@ void BranchView::refresh(const QString &repository, bool force)
 void BranchView::refreshCurrentBranch()
 {
     m_model->refreshCurrentBranch();
+}
+
+void BranchView::showEvent(QShowEvent *)
+{
+    refreshCurrentRepository();
 }
 
 QToolButton *BranchView::addButton() const
