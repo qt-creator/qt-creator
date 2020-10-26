@@ -5573,7 +5573,24 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_template()
         "class Foo { void fu@nc(); };\n"
         "\n"
         "template<class T>\n"
-        "void Foo::func() {}\n"; // Should be Foo<T>::func
+        "void Foo<T>::func() {}\n";
+       ;
+
+    MoveFuncDefOutside factory;
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
+}
+
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_unnamedTemplate()
+{
+    QByteArray original =
+        "template<typename T, typename>\n"
+        "class Foo { void fu@nc() {} };\n";
+    QByteArray expected =
+        "template<typename T, typename>\n"
+        "class Foo { void fu@nc(); };\n"
+        "\n"
+        "template<typename T, typename T2>\n"
+        "void Foo<T, T2>::func() {}\n";
        ;
 
     MoveFuncDefOutside factory;

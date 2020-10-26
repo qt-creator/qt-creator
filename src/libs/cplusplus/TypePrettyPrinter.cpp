@@ -383,6 +383,31 @@ static bool endsWithPtrOrRef(const QString &type)
 
 void TypePrettyPrinter::visit(Function *type)
 {
+    if (_overview->showTemplateParameters) {
+        QStringList nameParts = _name.split("::");
+        int i = nameParts.length() - 1;
+        for (Scope *s = type->enclosingScope(); s && i >= 0; s = s->enclosingScope()) {
+            if (Template *templ = s->asTemplate()) {
+                QString &n = nameParts[i];
+                n += '<';
+                for (int index = 0; index < templ->templateParameterCount(); ++index) {
+                    if (index)
+                        n += QLatin1String(", ");
+                    QString arg = _overview->prettyName(templ->templateParameterAt(index)->name());
+                    if (arg.isEmpty()) {
+                        arg += 'T';
+                        arg += QString::number(index + 1);
+                    }
+                    n += arg;
+                }
+                n += '>';
+            }
+            if (s->identifier())
+                --i;
+        }
+        _name = nameParts.join("::");
+    }
+
     if (_needsParens) {
         _text.prepend(QLatin1Char('('));
         if (! _name.isEmpty()) {
@@ -417,7 +442,10 @@ void TypePrettyPrinter::visit(Function *type)
                     if (TypenameArgument *typenameArg = param->asTypenameArgument()) {
                         templateScope.append(QLatin1String(typenameArg->isClassDeclarator()
                                                            ? "class " : "typename "));
-                        templateScope.append(_overview->prettyName(typenameArg->name()));
+                        QString name = _overview->prettyName(typenameArg->name());
+                        if (name.isEmpty())
+                            name.append('T').append(QString::number(i + 1));
+                        templateScope.append(name);
                     } else if (Argument *arg = param->asArgument()) {
                         templateScope.append(operator()(arg->type(),
                                                         _overview->prettyName(arg->name())));
