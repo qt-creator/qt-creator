@@ -614,7 +614,8 @@ void QMakeStep::userArgumentsChanged()
 {
     if (m_ignoreChange)
         return;
-    qmakeAdditonalArgumentsLineEdit->setText(m_userArgs);
+    if (qmakeAdditonalArgumentsLineEdit)
+        qmakeAdditonalArgumentsLineEdit->setText(m_userArgs);
     updateAbiWidgets();
     updateEffectiveQMakeCall();
 }
@@ -723,6 +724,9 @@ bool QMakeStep::isAndroidKit() const
 
 void QMakeStep::updateAbiWidgets()
 {
+    if (!abisLabel)
+        return;
+
     BaseQtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
     if (!qtVersion)
         return;
@@ -762,7 +766,8 @@ void QMakeStep::updateAbiWidgets()
 
 void QMakeStep::updateEffectiveQMakeCall()
 {
-    qmakeArgumentsEdit->setPlainText(effectiveQMakeCall());
+    if (qmakeArgumentsEdit)
+        qmakeArgumentsEdit->setPlainText(effectiveQMakeCall());
 }
 
 void QMakeStep::recompileMessageBoxFinished(int button)
