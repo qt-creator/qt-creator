@@ -131,6 +131,9 @@ void ListModelEditorDialog::removeColumns()
 
 void ListModelEditorDialog::changeHeader(int column)
 {
+    if (column < 0)
+        return;
+
     const QString propertyName = QString::fromUtf8(m_model->propertyNames()[column]);
 
     bool ok;
