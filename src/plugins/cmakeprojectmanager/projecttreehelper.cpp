@@ -208,5 +208,31 @@ void addHeaderNodes(ProjectNode *root,
         root->addNode(std::move(headerNode));
 }
 
+void addFileSystemNodes(ProjectNode *root, const QList<const FileNode *> &allFiles)
+{
+    QTC_ASSERT(root, return );
+
+    static QIcon fileSystemNodeIcon = Core::FileIconProvider::directoryIcon(
+        ProjectExplorer::Constants::FILEOVERLAY_UNKNOWN);
+    auto fileSystemNode = std::make_unique<VirtualFolderNode>(root->filePath());
+    fileSystemNode->setPriority(Node::DefaultPriority - 6);
+    fileSystemNode->setDisplayName(
+        QCoreApplication::translate("CMakeProjectManager::Internal::ProjectTreeHelper",
+                                    "<File System>"));
+    fileSystemNode->setIcon(fileSystemNodeIcon);
+
+    for (const FileNode *fn : allFiles) {
+        if (!fn->filePath().isChildOf(root->filePath()))
+            continue;
+
+        std::unique_ptr<FileNode> node(fn->clone());
+        node->setEnabled(false);
+        fileSystemNode->addNestedNode(std::move(node));
+    }
+
+    if (!fileSystemNode->isEmpty())
+        root->addNode(std::move(fileSystemNode));
+}
+
 } // namespace Internal
 } // namespace CMakeProjectManager

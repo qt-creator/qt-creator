@@ -692,5 +692,29 @@ FileApiQtcData extractData(FileApiData &input,
     return result;
 }
 
+FileApiQtcData generateFallbackData(const FilePath &topCmakeFile,
+                                    const FilePath &sourceDirectory,
+                                    const FilePath &buildDirectory,
+                                    QString errorMessage)
+{
+    FileApiQtcData result;
+
+    result.rootProjectNode.reset(new CMakeProjectNode{sourceDirectory});
+    result.rootProjectNode->setDisplayName(sourceDirectory.fileName());
+    result.errorMessage = errorMessage;
+
+    if (!topCmakeFile.isEmpty()) {
+        auto node = std::make_unique<FileNode>(topCmakeFile, FileType::Project);
+        node->setIsGenerated(false);
+
+        std::vector<std::unique_ptr<FileNode>> fileNodes;
+        fileNodes.emplace_back(std::move(node));
+
+        addCMakeLists(result.rootProjectNode.get(), std::move(fileNodes));
+    }
+
+    return result;
+}
+
 } // namespace Internal
 } // namespace CMakeProjectManager

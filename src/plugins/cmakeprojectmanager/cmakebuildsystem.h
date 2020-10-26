@@ -123,11 +123,11 @@ private:
     void combineScanAndParse();
 
     std::unique_ptr<CMakeProjectNode> generateProjectTree(
-        const QList<const ProjectExplorer::FileNode *> &allFiles);
-
+        const QList<const ProjectExplorer::FileNode *> &allFiles, bool includeHeadersNode);
     void checkAndReportError(QString &errorMessage);
 
     void updateProjectData();
+    void updateFallbackProjectData();
     QList<ProjectExplorer::ExtraCompiler *> findExtraCompilers();
     void updateQmlJSCodeModel();
 

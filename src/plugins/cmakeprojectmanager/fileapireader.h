@@ -67,7 +67,9 @@ public:
     QList<CMakeBuildTarget> takeBuildTargets(QString &errorMessage);
     CMakeConfig takeParsedConfiguration(QString &errorMessage);
     std::unique_ptr<CMakeProjectNode> generateProjectTree(
-        const QList<const ProjectExplorer::FileNode *> &allFiles, QString &errorMessage);
+        const QList<const ProjectExplorer::FileNode *> &allFiles,
+        QString &errorMessage,
+        bool includeHeaderNodes);
     ProjectExplorer::RawProjectParts createRawProjectParts(QString &errorMessage);
 
 signals:

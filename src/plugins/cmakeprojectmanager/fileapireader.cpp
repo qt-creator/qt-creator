@@ -193,11 +193,14 @@ CMakeConfig FileApiReader::takeParsedConfiguration(QString &errorMessage)
 }
 
 std::unique_ptr<CMakeProjectNode> FileApiReader::generateProjectTree(
-    const QList<const FileNode *> &allFiles, QString &errorMessage)
+    const QList<const FileNode *> &allFiles, QString &errorMessage, bool includeHeaderNodes)
 {
     Q_UNUSED(errorMessage)
 
-    addHeaderNodes(m_rootProjectNode.get(), m_knownHeaders, allFiles);
+    if (includeHeaderNodes) {
+        addHeaderNodes(m_rootProjectNode.get(), m_knownHeaders, allFiles);
+    }
+    addFileSystemNodes(m_rootProjectNode.get(), allFiles);
     return std::move(m_rootProjectNode);
 }
 
@@ -230,19 +233,23 @@ void FileApiReader::endState(const QFileInfo &replyFi)
 
     const FilePath sourceDirectory = m_parameters.sourceDirectory;
     const FilePath buildDirectory = m_parameters.workDirectory;
+    const FilePath topCmakeFile = m_cmakeFiles.size() == 1 ? *m_cmakeFiles.begin() : FilePath{};
 
     m_lastReplyTimestamp = replyFi.lastModified();
 
     m_future = runAsync(ProjectExplorerPlugin::sharedThreadPool(),
-                        [replyFi, sourceDirectory, buildDirectory]() {
+                        [replyFi, sourceDirectory, buildDirectory, topCmakeFile]() {
                             auto result = std::make_unique<FileApiQtcData>();
-                            FileApiData data = FileApiParser::parseData(replyFi,
-                                                                        result->errorMessage);
+                            FileApiData data = FileApiParser::parseData(replyFi, result->errorMessage);
                             if (!result->errorMessage.isEmpty()) {
                                 qWarning() << result->errorMessage;
-                                return result.release();
+                                *result = generateFallbackData(topCmakeFile,
+                                                               sourceDirectory,
+                                                               buildDirectory,
+                                                               result->errorMessage);
+                            } else {
+                                *result = extractData(data, sourceDirectory, buildDirectory);
                             }
-                            *result = extractData(data, sourceDirectory, buildDirectory);
                             if (!result->errorMessage.isEmpty()) {
                                 qWarning() << result->errorMessage;
                             }

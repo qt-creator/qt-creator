@@ -68,5 +68,7 @@ void addHeaderNodes(ProjectExplorer::ProjectNode *root,
                     QSet<Utils::FilePath> &seenHeaders,
                     const QList<const ProjectExplorer::FileNode *> &allFiles);
 
+void addFileSystemNodes(ProjectExplorer::ProjectNode *root,
+                        const QList<const ProjectExplorer::FileNode *> &allFiles);
 } // namespace Internal
 } // namespace CMakeProjectManager

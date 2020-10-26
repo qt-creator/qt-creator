@@ -517,11 +517,11 @@ void CMakeBuildSystem::clearCMakeCache()
         Utils::FileUtils::removeRecursively(cmakeFiles);
 }
 
-std::unique_ptr<CMakeProjectNode>
-    CMakeBuildSystem::generateProjectTree(const QList<const FileNode *> &allFiles)
+std::unique_ptr<CMakeProjectNode> CMakeBuildSystem::generateProjectTree(
+    const QList<const FileNode *> &allFiles, bool includeHeaderNodes)
 {
     QString errorMessage;
-    auto root = m_reader.generateProjectTree(allFiles, errorMessage);
+    auto root = m_reader.generateProjectTree(allFiles, errorMessage, includeHeaderNodes);
     checkAndReportError(errorMessage);
     return root;
 }
@@ -535,6 +535,8 @@ void CMakeBuildSystem::combineScanAndParse()
         if (m_combinedScanAndParseResult) {
             updateProjectData();
             m_currentGuard.markAsSuccess();
+        } else {
+            updateFallbackProjectData();
         }
     }
 
@@ -590,7 +592,7 @@ void CMakeBuildSystem::updateProjectData()
 
     Project *p = project();
     {
-        auto newRoot = generateProjectTree(m_allFiles);
+        auto newRoot = generateProjectTree(m_allFiles, true);
         if (newRoot) {
             setRootProjectNode(std::move(newRoot));
             CMakeConfigItem settingFileItem;
@@ -669,6 +671,18 @@ void CMakeBuildSystem::updateProjectData()
     emit cmakeBuildConfiguration()->buildTypeChanged();
 
     qCDebug(cmakeBuildSystemLog) << "All CMake project data up to date.";
+}
+
+void CMakeBuildSystem::updateFallbackProjectData()
+{
+    qCDebug(cmakeBuildSystemLog) << "Updating fallback CMake project data";
+
+    QTC_ASSERT(m_treeScanner.isFinished() && !m_reader.isParsing(), return );
+
+    auto newRoot = generateProjectTree(m_allFiles, false);
+    setRootProjectNode(std::move(newRoot));
+
+    qCDebug(cmakeBuildSystemLog) << "All fallback CMake project data up to date.";
 }
 
 void CMakeBuildSystem::handleParsingSucceeded()
