@@ -46,10 +46,7 @@ class ImageCacheStorageInterface;
 class ImageCacheGenerator final : public ImageCacheGeneratorInterface
 {
 public:
-    ImageCacheGenerator(ImageCacheCollectorInterface &collector, ImageCacheStorageInterface &storage)
-        : m_collector{collector}
-        , m_storage(storage)
-    {}
+    ImageCacheGenerator(ImageCacheCollectorInterface &collector, ImageCacheStorageInterface &storage);
 
     ~ImageCacheGenerator();
 
@@ -79,17 +76,21 @@ private:
         Sqlite::TimeStamp timeStamp;
     };
 
-    void startGeneration(std::shared_ptr<std::mutex> threadMutex);
-    void startGenerationAsynchronously();
+    void startGeneration();
+
+    void waitForEntries();
+    void stopThread();
+    bool isRunning();
 
 private:
+private:
     std::unique_ptr<QThread> m_backgroundThread;
-    std::mutex m_dataMutex;
-    std::shared_ptr<std::mutex> m_threadMutex{std::make_shared<std::mutex>()};
+    mutable std::mutex m_mutex;
+    std::condition_variable m_condition;
     std::vector<Task> m_tasks;
     ImageCacheCollectorInterface &m_collector;
     ImageCacheStorageInterface &m_storage;
-    std::atomic_flag m_processing = ATOMIC_FLAG_INIT;
+    bool m_finishing{false};
 };
 
 } // namespace QmlDesigner
