@@ -90,7 +90,8 @@ AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Utils::Id id)
 
     m_uninstallPreviousPackage = addAspect<BoolAspect>();
     m_uninstallPreviousPackage->setSettingsKey(UninstallPreviousPackageKey);
-    m_uninstallPreviousPackage->setLabel(tr("Uninstall the existing app first"));
+    m_uninstallPreviousPackage->setLabel(tr("Uninstall the existing app first"),
+                                         BoolAspect::LabelPlacement::AtCheckBox);
     m_uninstallPreviousPackage->setValue(false);
 
     const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit());

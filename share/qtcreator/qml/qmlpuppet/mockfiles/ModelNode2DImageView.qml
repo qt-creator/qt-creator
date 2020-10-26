@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 import QtQuick 2.15
-import QtQuick3D 1.15
 
 Item {
     id: root
@@ -33,10 +32,12 @@ Item {
 
     property alias contentItem: contentItem
 
+    /*
     View3D {
         // Dummy view to hold the context in case View3D items are used in the component
         // TODO remove when QTBUG-87678 is fixed
     }
+    */
 
     Item {
         id: contentItem

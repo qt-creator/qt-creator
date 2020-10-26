@@ -32,7 +32,8 @@
 #include "navigatortreemodel.h"
 #include "qproxystyle.h"
 
-#include "metainfo.h"
+#include <metainfo.h>
+#include <theme.h>
 
 #include <utils/qtcassert.h>
 
@@ -55,7 +56,7 @@ IconCheckboxItemDelegate::IconCheckboxItemDelegate(QObject *parent,
 QSize IconCheckboxItemDelegate::sizeHint(const QStyleOptionViewItem & /*option*/,
                                          const QModelIndex & /*modelIndex*/) const
 {
-   return {15, 20};
+    return {15, 20};
 }
 
 static bool isChecked(const QModelIndex &modelIndex)
@@ -63,9 +64,9 @@ static bool isChecked(const QModelIndex &modelIndex)
     return modelIndex.model()->data(modelIndex, Qt::CheckStateRole) == Qt::Checked;
 }
 
-static bool isVisible(const QModelIndex &modelIndex)
+static bool isThisOrAncestorLocked(const QModelIndex &modelIndex)
 {
-    return modelIndex.model()->data(modelIndex, ItemIsVisibleRole).toBool();
+    return modelIndex.model()->data(modelIndex, ItemOrAncestorLocked).toBool();
 }
 
 static ModelNode getModelNode(const QModelIndex &modelIndex)
@@ -82,6 +83,13 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
                                      const QStyleOptionViewItem &styleOption,
                                      const QModelIndex &modelIndex) const
 {
+    if (styleOption.state & QStyle::State_MouseOver && !isThisOrAncestorLocked(modelIndex))
+        painter->fillRect(styleOption.rect.adjusted(0, delegateMargin, 0, -delegateMargin),
+                          Theme::getColor(Theme::Color::DSsliderHandle));
+
+    if (styleOption.state & QStyle::State_Selected)
+        NavigatorTreeView::drawSelectionBackground(painter, styleOption);
+
     bool isVisibilityIcon = modelIndex.column() != NavigatorTreeModel::ColumnType::Visibility;
     // We need to invert the check status if visibility icon
     bool checked = isVisibilityIcon ? isChecked(modelIndex) : !isChecked(modelIndex);
@@ -89,10 +97,7 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
         return;
 
     if (rowIsPropertyRole(modelIndex.model(), modelIndex))
-        return; //Do not paint icons for property rows
-
-    if (styleOption.state & QStyle::State_Selected)
-        NavigatorTreeView::drawSelectionBackground(painter, styleOption);
+        return; // Do not paint icons for property rows
 
     if (!getModelNode(modelIndex).isRootNode()) {
         QWindow *window = dynamic_cast<QWidget*>(painter->device())->window()->windowHandle();
@@ -101,17 +106,15 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
         const QRect iconRect(styleOption.rect.left() + 2, styleOption.rect.top() + 2, 16, 16);
         const QIcon &icon = isChecked(modelIndex) ? m_checkedIcon : m_uncheckedIcon;
         const QPixmap iconPixmap = icon.pixmap(window, iconRect.size());
-        const bool visible = isVisible(modelIndex);
 
-        if (!visible) {
-            painter->save();
+        painter->save();
+
+        if (isThisOrAncestorLocked(modelIndex))
             painter->setOpacity(0.5);
-        }
 
-        painter->drawPixmap(iconRect.topLeft(), iconPixmap);
+        painter->drawPixmap(iconRect.topLeft() + QPoint(0, delegateMargin), iconPixmap);
 
-        if (!visible)
-            painter->restore();
+        painter->restore();
     }
 }
 

@@ -36,6 +36,7 @@
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <texteditor/codestyleeditor.h>
+#include <texteditor/fontsettings.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/displaysettings.h>

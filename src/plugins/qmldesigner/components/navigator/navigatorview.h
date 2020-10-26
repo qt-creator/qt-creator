@@ -43,6 +43,8 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
+static int delegateMargin = 2;
+
 class NavigatorWidget;
 class NavigatorTreeModel;
 
@@ -50,7 +52,8 @@ enum NavigatorRoles {
     ItemIsVisibleRole = Qt::UserRole,
     RowIsPropertyRole = Qt::UserRole + 1,
     ModelNodeRole = Qt::UserRole + 2,
-    ToolTipImageRole = Qt::UserRole + 3
+    ToolTipImageRole = Qt::UserRole + 3,
+    ItemOrAncestorLocked = Qt::UserRole + 4
 };
 
 class NavigatorView : public AbstractView

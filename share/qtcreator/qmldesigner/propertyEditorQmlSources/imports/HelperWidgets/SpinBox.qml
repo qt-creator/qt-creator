@@ -45,7 +45,10 @@ Item {
     width: 96
     implicitHeight: spinBox.height
 
-    onFocusChanged: transaction.end();
+    onFocusChanged: {
+        restoreCursor();
+        transaction.end();
+    }
 
     StudioControls.RealSpinBox {
         id: spinBox
@@ -59,6 +62,8 @@ Item {
             restoreCursor();
             transaction.end();
         }
+
+        onDragging: holdCursorInPlace();
 
         onRealValueModified: {
             if (transaction.active())

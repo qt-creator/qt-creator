@@ -70,61 +70,25 @@ TextInput {
         height: StudioTheme.Values.height
     }
 
-    DragHandler {
-        id: dragHandler
-        target: null
-        acceptedDevices: PointerDevice.Mouse
-        enabled: true
-
-        property real initialValue: myControl.realValue
-        property real multiplier: 1.0
-
-        onActiveChanged: {
-            if (dragHandler.active) {
-                dragHandler.initialValue = myControl.realValue
-                mouseArea.cursorShape = Qt.ClosedHandCursor // TODO
-                myControl.drag = true
-                myControl.dragStarted()
-                // Force focus on the non visible component to receive key events
-                dragModifierWorkaround.forceActiveFocus()
-            } else {
-                if (myControl.compressedValueTimer.running) {
-                    myControl.compressedValueTimer.stop()
-                    calcValue(myControl.compressedRealValueModified)
-                }
-                mouseArea.cursorShape = Qt.PointingHandCursor // TODO
-                myControl.drag = false
-                myControl.dragEnded()
-                // Avoid active focus on the component after dragging
-                dragModifierWorkaround.focus = false
-                textInput.focus = false
-                myControl.focus = false
-            }
-        }
-        onTranslationChanged: calcValue(myControl.realValueModified)
-        onMultiplierChanged: calcValue(myControl.realValueModified)
-
-        function calcValue(callback) {
-            var tmp = myControl.realDragRange / StudioTheme.Values.dragLength
-            myControl.setRealValue(dragHandler.initialValue + (tmp * dragHandler.translation.x * dragHandler.multiplier))
-            callback()
-        }
-    }
-
     Item {
         id: dragModifierWorkaround
         Keys.onPressed: {
             event.accepted = true
 
-            if (event.modifiers & Qt.ControlModifier)
-                dragHandler.multiplier = 0.1
+            if (event.modifiers & Qt.ControlModifier) {
+                mouseArea.stepSize = myControl.minStepSize
+                mouseArea.calcValue(myControl.realValueModified)
+            }
 
-            if (event.modifiers & Qt.ShiftModifier)
-                dragHandler.multiplier = 10.0
+            if (event.modifiers & Qt.ShiftModifier) {
+                mouseArea.stepSize = myControl.maxStepSize
+                mouseArea.calcValue(myControl.realValueModified)
+            }
         }
         Keys.onReleased: {
             event.accepted = true
-            dragHandler.multiplier = 1.0
+            mouseArea.stepSize = myControl.realStepSize
+            mouseArea.calcValue(myControl.realValueModified)
         }
     }
 
@@ -133,20 +97,20 @@ TextInput {
         event.accepted = (event.key === Qt.Key_Up || event.key === Qt.Key_Down)
     }
 
-    TapHandler {
-        id: tapHandler
-        acceptedDevices: PointerDevice.Mouse
-        enabled: true
-        onTapped: {
-            textInput.forceActiveFocus()
-            textInput.deselect() // QTBUG-75862
-        }
-    }
-
     MouseArea {
         id: mouseArea
 
         property real stepSize: myControl.realStepSize
+
+        property bool dragging: false
+        property bool wasDragging: false
+        property bool potentialDragStart: false
+
+        property real initialValue: myControl.realValue
+
+        property real pressStartX: 0.0
+        property real dragStartX: 0.0
+        property real translationX: 0.0
 
         anchors.fill: parent
         enabled: true
@@ -156,7 +120,90 @@ TextInput {
         cursorShape: Qt.PointingHandCursor
         // Sets the global hover
         onContainsMouseChanged: myControl.hover = containsMouse
-        onPressed: mouse.accepted = false
+
+        onPositionChanged: {
+            if (!mouseArea.dragging
+                    && !myControl.edit
+                    && Math.abs(mouseArea.pressStartX - mouse.x) > StudioTheme.Values.dragThreshold
+                    && mouse.buttons === 1
+                    && mouseArea.potentialDragStart) {
+                mouseArea.dragging = true
+                mouseArea.potentialDragStart = false
+                mouseArea.initialValue = myControl.realValue
+                mouseArea.cursorShape = Qt.ClosedHandCursor
+                mouseArea.dragStartX = mouseArea.mouseX
+
+                myControl.drag = true
+                myControl.dragStarted()
+                // Force focus on the non visible component to receive key events
+                dragModifierWorkaround.forceActiveFocus()
+                textInput.deselect()
+            }
+
+            if (!mouseArea.dragging)
+                return
+
+            mouse.accepted = true
+
+            mouseArea.translationX += (mouseArea.mouseX - mouseArea.dragStartX)
+            mouseArea.calcValue(myControl.realValueModified)
+        }
+
+        onCanceled: mouseArea.endDrag()
+
+        onClicked: {
+            if (mouseArea.wasDragging) {
+                mouseArea.wasDragging = false
+                return
+            }
+
+            textInput.forceActiveFocus()
+            textInput.deselect() // QTBUG-75862
+        }
+
+        onPressed: {
+            mouseArea.potentialDragStart = true
+            mouseArea.pressStartX = mouseArea.mouseX
+        }
+
+        onReleased: mouseArea.endDrag()
+
+        function endDrag() {
+            if (!mouseArea.dragging)
+                return
+
+            mouseArea.dragging = false
+            mouseArea.wasDragging = true
+
+            if (myControl.compressedValueTimer.running) {
+                myControl.compressedValueTimer.stop()
+                mouseArea.calcValue(myControl.compressedRealValueModified)
+            }
+            mouseArea.cursorShape = Qt.PointingHandCursor
+            myControl.drag = false
+            myControl.dragEnded()
+            // Avoid active focus on the component after dragging
+            dragModifierWorkaround.focus = false
+            textInput.focus = false
+            myControl.focus = false
+
+            mouseArea.translationX = 0
+        }
+
+        function calcValue(callback) {
+            var minTranslation = (myControl.realFrom - mouseArea.initialValue) / mouseArea.stepSize
+            var maxTranslation = (myControl.realTo - mouseArea.initialValue) / mouseArea.stepSize
+
+            mouseArea.translationX = Math.min(Math.max(mouseArea.translationX, minTranslation), maxTranslation)
+
+            myControl.setRealValue(mouseArea.initialValue + (mouseArea.translationX * mouseArea.stepSize))
+
+            if (mouseArea.dragging)
+                myControl.dragging()
+
+            callback()
+        }
+
         onWheel: {
             if (!myControl.__wheelEnabled)
                 return
@@ -188,14 +235,6 @@ TextInput {
                 border.color: StudioTheme.Values.themeControlOutline
             }
             PropertyChanges {
-                target: dragHandler
-                enabled: true
-            }
-            PropertyChanges {
-                target: tapHandler
-                enabled: true
-            }
-            PropertyChanges {
                 target: mouseArea
                 cursorShape: Qt.PointingHandCursor
             }
@@ -216,14 +255,6 @@ TextInput {
                 target: textInputArea
                 color: StudioTheme.Values.themeFocusEdit
                 border.color: StudioTheme.Values.themeInteraction
-            }
-            PropertyChanges {
-                target: dragHandler
-                enabled: false
-            }
-            PropertyChanges {
-                target: tapHandler
-                enabled: false
             }
             PropertyChanges {
                 target: mouseArea

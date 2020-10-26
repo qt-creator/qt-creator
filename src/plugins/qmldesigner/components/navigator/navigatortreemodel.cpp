@@ -203,6 +203,12 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
     if (role == ItemIsVisibleRole) // independent of column
         return m_view->isNodeInvisible(modelNode) ? Qt::Unchecked : Qt::Checked;
 
+    if (role == ItemOrAncestorLocked)
+        return ModelNode::isThisOrAncestorLocked(modelNode);
+
+    if (role == ModelNodeRole)
+        return QVariant::fromValue<ModelNode>(modelNode);
+
     if (index.column() == ColumnType::Name) {
         if (role == Qt::DisplayRole) {
             return modelNode.displayName();
@@ -237,8 +243,6 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
             auto op = m_actionManager->modelNodePreviewOperation(modelNode);
             if (op)
                 return op(modelNode);
-        } else if (role == ModelNodeRole) {
-            return QVariant::fromValue<ModelNode>(modelNode);
         }
     } else if (index.column() == ColumnType::Alias) { // export
         if (role == Qt::CheckStateRole)
@@ -268,7 +272,7 @@ Qt::ItemFlags NavigatorTreeModel::flags(const QModelIndex &index) const
     if (index.column() == ColumnType::Alias
         || index.column() == ColumnType::Visibility
         || index.column() == ColumnType::Lock)
-        return Qt::ItemIsEnabled | Qt::ItemIsUserCheckable | Qt::ItemNeverHasChildren;
+        return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable | Qt::ItemNeverHasChildren;
 
     const ModelNode modelNode = modelNodeForIndex(index);
     if (ModelNode::isThisOrAncestorLocked(modelNode))
@@ -277,8 +281,7 @@ Qt::ItemFlags NavigatorTreeModel::flags(const QModelIndex &index) const
     if (index.column() == ColumnType::Name)
         return Qt::ItemIsEditable | Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 
-    return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable
-            | Qt::ItemNeverHasChildren;
+    return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable | Qt::ItemNeverHasChildren;
 }
 
 void static appendForcedNodes(const NodeListProperty &property, QList<ModelNode> &list)

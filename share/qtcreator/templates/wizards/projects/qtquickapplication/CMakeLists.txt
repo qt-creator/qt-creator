@@ -34,22 +34,28 @@ find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Quick REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick REQUIRED)
 @endif
 
-if(ANDROID)
-    add_library(%{ProjectName} SHARED
-      %{MainCppFileName}
-      qml.qrc
-@if %{HasTranslation}
-      ${TS_FILES}
-@endif
+set(PROJECT_SOURCES
+        %{MainCppFileName}
+        qml.qrc
+    @if %{HasTranslation}
+        ${TS_FILES}
+    @endif
+)
+
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    qt_add_executable(%{ProjectName}
+        ${PROJECT_SOURCES}
     )
 else()
-    add_executable(%{ProjectName}
-      %{MainCppFileName}
-      qml.qrc
-@if %{HasTranslation}
-      ${TS_FILES}
-@endif
-    )
+    if(ANDROID)
+        add_library(%{ProjectName} SHARED
+            ${PROJECT_SOURCES}
+        )
+    else()
+        add_executable(%{ProjectName}
+          ${PROJECT_SOURCES}
+        )
+    endif()
 endif()
 
 target_compile_definitions(%{ProjectName}

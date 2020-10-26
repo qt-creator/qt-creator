@@ -55,7 +55,8 @@ Rectangle {
         visible: text !== StudioTheme.Constants.actionIcon || actionIndicator.forceVisible
                  || (myControl !== undefined &&
                      ((myControl.edit !== undefined && myControl.edit)
-                      || (myControl.hover !== undefined && myControl.hover)))
+                      || (myControl.hover !== undefined && myControl.hover)
+                      || (myControl.drag !== undefined && myControl.drag)))
         color: StudioTheme.Values.themeTextColor
         font.family: StudioTheme.Constants.iconFont.family
         font.pixelSize: StudioTheme.Values.myIconFontSize

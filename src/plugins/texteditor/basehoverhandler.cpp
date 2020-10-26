@@ -143,9 +143,9 @@ void BaseHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, Re
 
 void BaseHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoint &point)
 {
-    const QVariant helpItem = m_lastHelpItemIdentified.isEmpty()
-                                  ? QVariant()
-                                  : QVariant::fromValue(m_lastHelpItemIdentified);
+    const QVariant helpItem = m_lastHelpItemIdentified.isValid()
+                                  ? QVariant::fromValue(m_lastHelpItemIdentified)
+                                  : QVariant();
     const bool extractHelp = m_lastHelpItemIdentified.isValid()
                              && !m_lastHelpItemIdentified.isFuzzyMatch();
     const QString helpContents = extractHelp ? m_lastHelpItemIdentified.firstParagraph()

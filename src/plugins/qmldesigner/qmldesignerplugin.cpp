@@ -208,6 +208,8 @@ QmlDesignerPlugin::~QmlDesignerPlugin()
 ////////////////////////////////////////////////////
 bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage/* = 0*/)
 {
+    QDir{}.mkpath(Core::ICore::cacheResourcePath());
+
     if (!Utils::HostOsInfo::canCreateOpenGLContext(errorMessage))
         return false;
     d = new QmlDesignerPluginPrivate;

@@ -1121,13 +1121,13 @@ void QbsBuildSystem::updateApplicationTargets()
             if (result.error().hasError()) {
                 Core::MessageManager::write(tr("Error retrieving run environment: %1")
                                             .arg(result.error().toString()));
-            } else {
-                QProcessEnvironment fullEnv = result.environment();
-                QTC_ASSERT(!fullEnv.isEmpty(), fullEnv = procEnv);
-                env = Utils::Environment();
-                for (const QString &key : fullEnv.keys())
-                    env.set(key, fullEnv.value(key));
+                return;
             }
+            QProcessEnvironment fullEnv = result.environment();
+            QTC_ASSERT(!fullEnv.isEmpty(), fullEnv = procEnv);
+            env = Utils::Environment();
+            for (const QString &key : fullEnv.keys())
+                env.set(key, fullEnv.value(key));
             m_envCache.insert(key, env);
         };
 

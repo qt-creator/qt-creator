@@ -50,7 +50,7 @@ QtObject {
     property real sliderControlSize: 12
     property real sliderControlSizeMulti: values.sliderControlSize * values.scaleFactor
 
-    property int dragLength: 400 // px
+    property int dragThreshold: 10 // px
     property real spinControlIconSize: 8
     property real spinControlIconSizeMulti: values.spinControlIconSize * values.scaleFactor
 

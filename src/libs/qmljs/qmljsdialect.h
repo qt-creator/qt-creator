@@ -29,6 +29,7 @@
 
 #include <utils/fileutils.h>
 
+#include <QDebug>
 #include <QString>
 
 namespace QmlJS {

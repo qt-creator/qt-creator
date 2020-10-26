@@ -86,32 +86,32 @@ QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::fixifiedValues(
     QVector<SourceFile> result;
     foreach (const ProString &str, d->values(ProKey(variable))) {
         const QString &el = d->m_option->expandEnvVars(str.toQString());
-        if (IoUtils::isAbsolutePath(el)) {
-            result << SourceFile{QDir::cleanPath(el), str.sourceFile()};
+        const QString fn = IoUtils::isAbsolutePath(el)
+                ? QDir::cleanPath(el) : QDir::cleanPath(baseDirectory + QLatin1Char('/') + el);
+        if (IoUtils::exists(fn)) {
+            result << SourceFile{fn, str.sourceFile()};
+            continue;
+        }
+        QStringView fileNamePattern;
+        if (expandWildcards) {
+            fileNamePattern = IoUtils::fileName(fn);
+            expandWildcards = fileNamePattern.contains('*') || fileNamePattern.contains('?');
+        }
+        if (expandWildcards) {
+            const QString patternBaseDir = IoUtils::pathName(fn).toString();
+            const QDir::Filters filters = QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot;
+            for (const QString &fileName : QDir(patternBaseDir).entryList(
+                     QStringList(fileNamePattern.toString()), filters)) {
+                const QString fullFilePath
+                        = QDir::cleanPath(patternBaseDir + '/' + fileName);
+                result << SourceFile({fullFilePath, str.sourceFile()});
+            }
         } else {
-            QString fn = QDir::cleanPath(baseDirectory + QLatin1Char('/') + el);
-            if (IoUtils::exists(fn)) {
+            if (IoUtils::isAbsolutePath(el)) {
                 result << SourceFile{fn, str.sourceFile()};
             } else {
-                QStringView fileNamePattern;
-                if (expandWildcards) {
-                    fileNamePattern = IoUtils::fileName(fn);
-                    expandWildcards = fileNamePattern.contains('*')
-                            || fileNamePattern.contains('?');
-                }
-                if (expandWildcards) {
-                    const QString patternBaseDir = IoUtils::pathName(fn).toString();
-                    const QDir::Filters filters = QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot;
-                    for (const QString &fileName : QDir(patternBaseDir).entryList(
-                             QStringList(fileNamePattern.toString()), filters)) {
-                        const QString fullFilePath
-                                = QDir::cleanPath(patternBaseDir + '/' + fileName);
-                        result << SourceFile({fullFilePath, str.sourceFile()});
-                    }
-                } else {
-                    result << SourceFile{QDir::cleanPath(buildDirectory + QLatin1Char('/') + el),
-                              str.sourceFile()};
-                }
+                result << SourceFile{QDir::cleanPath(buildDirectory + QLatin1Char('/') + el),
+                          str.sourceFile()};
             }
         }
     }

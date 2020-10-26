@@ -31,7 +31,6 @@
 #include <imagecache.h>
 
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QMetaObject>
 
 namespace QmlDesigner {
@@ -65,8 +64,7 @@ void PreviewTooltipBackend::showTooltip()
         },
         [] {});
 
-    auto desktopWidget = QApplication::desktop();
-    auto mousePosition = desktopWidget->cursor().pos();
+    auto mousePosition = QCursor::pos();
 
     mousePosition += {20, 20};
     m_tooltip->move(mousePosition);

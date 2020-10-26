@@ -519,6 +519,7 @@ enum AdditionalCriteria
 static bool matchesAdditionalCriteria(int criteria)
 {
 #ifdef Q_OS_UNIX
+    Q_UNUSED(criteria)
     return true;
 #else
     return !(criteria & NeedsInferiorCall);

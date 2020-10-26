@@ -445,7 +445,7 @@ void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNa
     if (dlg.exec() == QDialog::Accepted) {
         QStringList notAddedToVc;
         foreach (const QString &file, unmanagedFiles) {
-            if (!vc->vcsAdd(file))
+            if (!vc->vcsAdd(QDir(directory).filePath(file)))
                 notAddedToVc << file;
         }
 

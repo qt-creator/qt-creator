@@ -997,13 +997,13 @@ Container<T> static_container_cast(const Container<Base> &container)
 template <typename Container>
 inline void sort(Container &container)
 {
-    std::sort(std::begin(container), std::end(container));
+    std::stable_sort(std::begin(container), std::end(container));
 }
 
 template <typename Container, typename Predicate>
 inline void sort(Container &container, Predicate p)
 {
-    std::sort(std::begin(container), std::end(container), p);
+    std::stable_sort(std::begin(container), std::end(container), p);
 }
 
 // pointer to member
@@ -1012,7 +1012,7 @@ inline void sort(Container &container, R S::*member)
 {
     auto f = std::mem_fn(member);
     using const_ref = typename Container::const_reference;
-    std::sort(std::begin(container), std::end(container),
+    std::stable_sort(std::begin(container), std::end(container),
               [&f](const_ref a, const_ref b) {
         return f(a) < f(b);
     });
@@ -1024,7 +1024,7 @@ inline void sort(Container &container, R (S::*function)() const)
 {
     auto f = std::mem_fn(function);
     using const_ref = typename Container::const_reference;
-    std::sort(std::begin(container), std::end(container),
+    std::stable_sort(std::begin(container), std::end(container),
               [&f](const_ref a, const_ref b) {
         return f(a) < f(b);
     });

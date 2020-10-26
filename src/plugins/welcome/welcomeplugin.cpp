@@ -287,6 +287,7 @@ public:
             auto l = new QVBoxLayout;
             l->setContentsMargins(0, 0, 0, 0);
             l->setSpacing(5);
+            l->addWidget(new IconAndLink("download", tr("Get Qt"), "https://www.qt.io/download", this));
             l->addWidget(new IconAndLink("qtaccount", tr("Qt Account"), "https://account.qt.io", this));
             l->addWidget(new IconAndLink("community", tr("Online Community"), "https://forum.qt.io", this));
             l->addWidget(new IconAndLink("blogs", tr("Blogs"), "https://planet.qt.io", this));

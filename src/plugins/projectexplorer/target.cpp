@@ -775,7 +775,10 @@ void Target::setNamedSettings(const QString &name, const QVariant &value)
 
 QVariant Target::additionalData(Utils::Id id) const
 {
-    return buildSystem()->additionalData(id);
+    if (const BuildSystem *bs = buildSystem())
+        return bs->additionalData(id);
+
+    return {};
 }
 
 MakeInstallCommand Target::makeInstallCommand(const QString &installRoot) const
