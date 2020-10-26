@@ -58,9 +58,9 @@ namespace Internal {
 
 // Helpers:
 
-static const char compilerCommandKeyC[] = "BareMetal.IarToolChain.CompilerPath";
-static const char compilerPlatformCodeGenFlagsKeyC[] = "BareMetal.IarToolChain.PlatformCodeGenFlags";
-static const char targetAbiKeyC[] = "BareMetal.IarToolChain.TargetAbi";
+static const char compilerCommandKeyC[] = "CompilerPath";
+static const char compilerPlatformCodeGenFlagsKeyC[] = "PlatformCodeGenFlags";
+static const char targetAbiKeyC[] = "TargetAbi";
 
 static bool compilerExists(const FilePath &compilerPath)
 {

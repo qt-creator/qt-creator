@@ -44,10 +44,10 @@ using namespace Utils;
 namespace BareMetal {
 namespace Internal {
 
-const char executableFileKeyC[] = "BareMetal.OpenOcdGdbServerProvider.ExecutableFile";
-const char rootScriptsDirKeyC[] = "BareMetal.OpenOcdGdbServerProvider.RootScriptsDir";
-const char configurationFileKeyC[] = "BareMetal.OpenOcdGdbServerProvider.ConfigurationPath";
-const char additionalArgumentsKeyC[] = "BareMetal.OpenOcdGdbServerProvider.AdditionalArguments";
+const char executableFileKeyC[] = "ExecutableFile";
+const char rootScriptsDirKeyC[] = "RootScriptsDir";
+const char configurationFileKeyC[] = "ConfigurationPath";
+const char additionalArgumentsKeyC[] = "AdditionalArguments";
 
 // OpenOcdGdbServerProvider
 
@@ -57,7 +57,6 @@ OpenOcdGdbServerProvider::OpenOcdGdbServerProvider()
     setInitCommands(defaultInitCommands());
     setResetCommands(defaultResetCommands());
     setChannel("localhost", 3333);
-    setSettingsKeyBase("BareMetal.OpenOcdGdbServerProvider");
     setTypeDisplayName(GdbServerProvider::tr("OpenOCD"));
     setConfigurationWidgetCreator([this] { return new OpenOcdGdbServerProviderConfigWidget(this); });
 }

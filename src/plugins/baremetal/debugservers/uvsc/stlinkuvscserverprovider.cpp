@@ -52,9 +52,9 @@ namespace Internal {
 
 using namespace Uv;
 
-constexpr char adapterOptionsKeyC[] = "BareMetal.StLinkUvscServerProvider.AdapterOptions";
-constexpr char adapterPortKeyC[] = "BareMetal.StLinkUvscServerProvider.AdapterPort";
-constexpr char adapterSpeedKeyC[] = "BareMetal.StLinkUvscServerProvider.AdapterSpeed";
+constexpr char adapterOptionsKeyC[] = "AdapterOptions";
+constexpr char adapterPortKeyC[] = "AdapterPort";
+constexpr char adapterSpeedKeyC[] = "AdapterSpeed";
 
 static QString buildAdapterOptions(const StLinkUvscAdapterOptions &opts)
 {

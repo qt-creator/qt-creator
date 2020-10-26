@@ -58,9 +58,9 @@ namespace Internal {
 using namespace Uv;
 
 // Whole software package selection keys.
-constexpr char toolsIniKeyC[] = "BareMetal.UvscServerProvider.ToolsIni";
-constexpr char deviceSelectionKeyC[] = "BareMetal.UvscServerProvider.DeviceSelection";
-constexpr char driverSelectionKeyC[] = "BareMetal.UvscServerProvider.DriverSelection";
+constexpr char toolsIniKeyC[] = "ToolsIni";
+constexpr char deviceSelectionKeyC[] = "DeviceSelection";
+constexpr char driverSelectionKeyC[] = "DriverSelection";
 
 constexpr int defaultPortNumber = 5101;
 

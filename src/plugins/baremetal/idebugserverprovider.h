@@ -104,7 +104,6 @@ public:
 protected:
     void setTypeDisplayName(const QString &typeDisplayName);
     void setEngineType(Debugger::DebuggerEngineType engineType);
-    void setSettingsKeyBase(const QString &settingsBase);
 
     void providerUpdated();
     void resetId();
@@ -112,7 +111,6 @@ protected:
     QString m_id;
     mutable QString m_displayName;
     QString m_typeDisplayName;
-    QString m_settingsBase;
     QUrl m_channel;
     Debugger::DebuggerEngineType m_engineType = Debugger::NoEngineType;
     QSet<BareMetalDevice *> m_devices;

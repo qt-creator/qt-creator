@@ -49,11 +49,11 @@ using namespace Utils;
 namespace BareMetal {
 namespace Internal {
 
-const char startupModeKeyC[] = "BareMetal.GdbServerProvider.Mode";
-const char peripheralDescriptionFileKeyC[] = "BareMetal.GdbServerProvider.PeripheralDescriptionFile";
-const char initCommandsKeyC[] = "BareMetal.GdbServerProvider.InitCommands";
-const char resetCommandsKeyC[] = "BareMetal.GdbServerProvider.ResetCommands";
-const char useExtendedRemoteKeyC[] = "BareMetal.GdbServerProvider.UseExtendedRemote";
+const char startupModeKeyC[] = "Mode";
+const char peripheralDescriptionFileKeyC[] = "PeripheralDescriptionFile";
+const char initCommandsKeyC[] = "InitCommands";
+const char resetCommandsKeyC[] = "ResetCommands";
+const char useExtendedRemoteKeyC[] = "UseExtendedRemote";
 
 // GdbServerProvider
 

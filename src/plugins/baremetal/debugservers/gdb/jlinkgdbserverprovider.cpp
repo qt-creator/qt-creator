@@ -46,13 +46,13 @@ using namespace Utils;
 namespace BareMetal {
 namespace Internal {
 
-const char executableFileKeyC[] = "BareMetal.JLinkGdbServerProvider.ExecutableFile";
-const char jlinkDeviceKeyC[] = "BareMetal.JLinkGdbServerProvider.JLinkDevice";
-const char jlinkHostInterfaceKeyC[] = "BareMetal.JLinkGdbServerProvider.JLinkHostInterface";
-const char jlinkHostInterfaceIPAddressKeyC[] = "BareMetal.JLinkGdbServerProvider.JLinkHostInterfaceIPAddress";
-const char jlinkTargetInterfaceKeyC[] = "BareMetal.JLinkGdbServerProvider.JLinkTargetInterface";
-const char jlinkTargetInterfaceSpeedKeyC[] = "BareMetal.JLinkGdbServerProvider.JLinkTargetInterfaceSpeed";
-const char additionalArgumentsKeyC[] = "BareMetal.JLinkGdbServerProvider.AdditionalArguments";
+const char executableFileKeyC[] = "ExecutableFile";
+const char jlinkDeviceKeyC[] = "JLinkDevice";
+const char jlinkHostInterfaceKeyC[] = "JLinkHostInterface";
+const char jlinkHostInterfaceIPAddressKeyC[] = "JLinkHostInterfaceIPAddress";
+const char jlinkTargetInterfaceKeyC[] = "JLinkTargetInterface";
+const char jlinkTargetInterfaceSpeedKeyC[] = "JLinkTargetInterfaceSpeed";
+const char additionalArgumentsKeyC[] = "AdditionalArguments";
 
 // JLinkGdbServerProvider
 
@@ -62,7 +62,6 @@ JLinkGdbServerProvider::JLinkGdbServerProvider()
     setInitCommands(defaultInitCommands());
     setResetCommands(defaultResetCommands());
     setChannel("localhost", 2331);
-    setSettingsKeyBase("BareMetal.JLinkGdbServerProvider");
     setTypeDisplayName(GdbServerProvider::tr("JLink"));
     setConfigurationWidgetCreator([this] { return new JLinkGdbServerProviderConfigWidget(this); });
 }

@@ -44,11 +44,11 @@ using namespace Utils;
 namespace BareMetal {
 namespace Internal {
 
-const char executableFileKeyC[] = "BareMetal.StLinkUtilGdbServerProvider.ExecutableFile";
-const char verboseLevelKeyC[] = "BareMetal.StLinkUtilGdbServerProvider.VerboseLevel";
-const char extendedModeKeyC[] = "BareMetal.StLinkUtilGdbServerProvider.ExtendedMode";
-const char resetBoardKeyC[] = "BareMetal.StLinkUtilGdbServerProvider.ResetBoard";
-const char transportLayerKeyC[] = "BareMetal.StLinkUtilGdbServerProvider.TransportLayer";
+const char executableFileKeyC[] = "ExecutableFile";
+const char verboseLevelKeyC[] = "VerboseLevel";
+const char extendedModeKeyC[] = "ExtendedMode";
+const char resetBoardKeyC[] = "ResetBoard";
+const char transportLayerKeyC[] = "TransportLayer";
 
 // StLinkUtilGdbServerProvider
 
@@ -58,7 +58,6 @@ StLinkUtilGdbServerProvider::StLinkUtilGdbServerProvider()
     setInitCommands(defaultInitCommands());
     setResetCommands(defaultResetCommands());
     setChannel("localhost", 4242);
-    setSettingsKeyBase("BareMetal.StLinkUtilGdbServerProvider");
     setTypeDisplayName(GdbServerProvider::tr("ST-LINK Utility"));
     setConfigurationWidgetCreator([this] { return new StLinkUtilGdbServerProviderConfigWidget(this); });
 }

@@ -117,7 +117,13 @@ void DebugServerProviderManager::restoreProviders()
         if (!data.contains(key))
             break;
 
-        const QVariantMap map = data.value(key).toMap();
+        QVariantMap map = data.value(key).toMap();
+        const QStringList keys = map.keys();
+        for (const QString &key : keys) {
+            const int lastDot = key.lastIndexOf('.');
+            if (lastDot != -1)
+                map[key.mid(lastDot + 1)] = map[key];
+        }
         bool restored = false;
         for (IDebugServerProviderFactory *f : qAsConst(m_factories)) {
             if (f->canRestore(map)) {

@@ -38,39 +38,39 @@ namespace Internal {
 namespace Uv {
 
 // Software package data keys.
-constexpr char packageDescrKeyC[] = "BareMetal.UvscServerProvider.PackageDescription";
-constexpr char packageFileKeyC[] = "BareMetal.UvscServerProvider.PackageFile";
-constexpr char packageNameKeyC[] = "BareMetal.UvscServerProvider.PackageName";
-constexpr char packageUrlKeyC[] = "BareMetal.UvscServerProvider.PackageUrl";
-constexpr char packageVendorNameKeyC[] = "BareMetal.UvscServerProvider.PackageVendorName";
-constexpr char packageVendorIdKeyC[] = "BareMetal.UvscServerProvider.PackageVendorId";
-constexpr char packageVersionKeyC[] = "BareMetal.UvscServerProvider.PackageVersion";
+constexpr char packageDescrKeyC[] = "PackageDescription";
+constexpr char packageFileKeyC[] = "PackageFile";
+constexpr char packageNameKeyC[] = "PackageName";
+constexpr char packageUrlKeyC[] = "PackageUrl";
+constexpr char packageVendorNameKeyC[] = "PackageVendorName";
+constexpr char packageVendorIdKeyC[] = "PackageVendorId";
+constexpr char packageVersionKeyC[] = "PackageVersion";
 // Device data keys.
-constexpr char deviceNameKeyC[] = "BareMetal.UvscServerProvider.DeviceName";
-constexpr char deviceDescrKeyC[] = "BareMetal.UvscServerProvider.DeviceDescription";
-constexpr char deviceFamilyKeyC[] = "BareMetal.UvscServerProvider.DeviceFamily";
-constexpr char deviceSubFamilyKeyC[] = "BareMetal.UvscServerProvider.DeviceSubFamily";
-constexpr char deviceVendorNameKeyC[] = "BareMetal.UvscServerProvider.DeviceVendorName";
-constexpr char deviceVendorIdKeyC[] = "BareMetal.UvscServerProvider.DeviceVendorId";
-constexpr char deviceSvdKeyC[] = "BareMetal.UvscServerProvider.DeviceSVD";
+constexpr char deviceNameKeyC[] = "DeviceName";
+constexpr char deviceDescrKeyC[] = "DeviceDescription";
+constexpr char deviceFamilyKeyC[] = "DeviceFamily";
+constexpr char deviceSubFamilyKeyC[] = "DeviceSubFamily";
+constexpr char deviceVendorNameKeyC[] = "DeviceVendorName";
+constexpr char deviceVendorIdKeyC[] = "DeviceVendorId";
+constexpr char deviceSvdKeyC[] = "DeviceSVD";
 // Device CPU data keys.
-constexpr char deviceClockKeyC[] = "BareMetal.UvscServerProvider.DeviceClock";
-constexpr char deviceCoreKeyC[] = "BareMetal.UvscServerProvider.DeviceCore";
-constexpr char deviceFpuKeyC[] = "BareMetal.UvscServerProvider.DeviceFPU";
-constexpr char deviceMpuKeyC[] = "BareMetal.UvscServerProvider.DeviceMPU";
+constexpr char deviceClockKeyC[] = "DeviceClock";
+constexpr char deviceCoreKeyC[] = "DeviceCore";
+constexpr char deviceFpuKeyC[] = "DeviceFPU";
+constexpr char deviceMpuKeyC[] = "DeviceMPU";
 // Device MEMORY data keys.
-constexpr char deviceMemoryKeyC[] = "BareMetal.UvscServerProvider.DeviceMemory";
-constexpr char deviceMemoryIdKeyC[] = "BareMetal.UvscServerProvider.DeviceMemoryId";
-constexpr char deviceMemoryStartKeyC[] = "BareMetal.UvscServerProvider.DeviceMemoryStart";
-constexpr char deviceMemorySizeKeyC[] = "BareMetal.UvscServerProvider.DeviceMemorySize";
+constexpr char deviceMemoryKeyC[] = "DeviceMemory";
+constexpr char deviceMemoryIdKeyC[] = "DeviceMemoryId";
+constexpr char deviceMemoryStartKeyC[] = "DeviceMemoryStart";
+constexpr char deviceMemorySizeKeyC[] = "DeviceMemorySize";
 // Device ALGORITHM data keys.
-constexpr char deviceAlgorithmKeyC[] = "BareMetal.UvscServerProvider.DeviceAlgorithm";
-constexpr char deviceAlgorithmPathKeyC[] = "BareMetal.UvscServerProvider.DeviceAlgorithmPath";
-constexpr char deviceAlgorithmFlashStartKeyC[] = "BareMetal.UvscServerProvider.DeviceAlgorithmStart";
-constexpr char deviceAlgorithmFlashSizeKeyC[] = "BareMetal.UvscServerProvider.DeviceAlgorithmSize";
-constexpr char deviceAlgorithmRamStartKeyC[] = "BareMetal.UvscServerProvider.DeviceAlgorithmRamStart";
-constexpr char deviceAlgorithmRamSizeKeyC[] = "BareMetal.UvscServerProvider.DeviceAlgorithmRamSize";
-constexpr char deviceAlgorithmIndexKeyC[] = "BareMetal.UvscServerProvider.DeviceAlgorithmIndex";
+constexpr char deviceAlgorithmKeyC[] = "DeviceAlgorithm";
+constexpr char deviceAlgorithmPathKeyC[] = "DeviceAlgorithmPath";
+constexpr char deviceAlgorithmFlashStartKeyC[] = "DeviceAlgorithmStart";
+constexpr char deviceAlgorithmFlashSizeKeyC[] = "DeviceAlgorithmSize";
+constexpr char deviceAlgorithmRamStartKeyC[] = "DeviceAlgorithmRamStart";
+constexpr char deviceAlgorithmRamSizeKeyC[] = "DeviceAlgorithmRamSize";
+constexpr char deviceAlgorithmIndexKeyC[] = "DeviceAlgorithmIndex";
 
 // DeviceSelection
 

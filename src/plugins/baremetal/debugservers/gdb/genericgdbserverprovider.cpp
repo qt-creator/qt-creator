@@ -44,7 +44,6 @@ GenericGdbServerProvider::GenericGdbServerProvider()
     : GdbServerProvider(Constants::GDBSERVER_GENERIC_PROVIDER_ID)
 {
     setChannel("localhost", 3333);
-    setSettingsKeyBase("BareMetal.GenericGdbServerProvider");
     setTypeDisplayName(GdbServerProvider::tr("Generic"));
     setConfigurationWidgetCreator([this] { return new GenericGdbServerProviderConfigWidget(this); });
 }

@@ -43,12 +43,12 @@ using namespace ProjectExplorer;
 namespace BareMetal {
 namespace Internal {
 
-const char idKeyC[] = "BareMetal.IDebugServerProvider.Id";
-const char displayNameKeyC[] = "BareMetal.IDebugServerProvider.DisplayName";
-const char engineTypeKeyC[] = "BareMetal.IDebugServerProvider.EngineType";
+const char idKeyC[] = "Id";
+const char displayNameKeyC[] = "DisplayName";
+const char engineTypeKeyC[] = "EngineType";
 
-const char hostKeySuffixC[] = ".Host";
-const char portKeySuffixC[] = ".Port";
+const char hostKeyC[] = "Host";
+const char portKeyC[] = "Port";
 
 static QString createId(const QString &id)
 {
@@ -139,11 +139,6 @@ void IDebugServerProvider::setEngineType(DebuggerEngineType engineType)
     providerUpdated();
 }
 
-void IDebugServerProvider::setSettingsKeyBase(const QString &settingsBase)
-{
-    m_settingsBase = settingsBase;
-}
-
 bool IDebugServerProvider::operator==(const IDebugServerProvider &other) const
 {
     if (this == &other)
@@ -170,8 +165,8 @@ QVariantMap IDebugServerProvider::toMap() const
         {idKeyC, m_id},
         {displayNameKeyC, m_displayName},
         {engineTypeKeyC, m_engineType},
-        {m_settingsBase + hostKeySuffixC, m_channel.host()},
-        {m_settingsBase + portKeySuffixC, m_channel.port()},
+        {hostKeyC, m_channel.host()},
+        {portKeyC, m_channel.port()},
     };
 }
 
@@ -201,8 +196,8 @@ bool IDebugServerProvider::fromMap(const QVariantMap &data)
     m_displayName = data.value(displayNameKeyC).toString();
     m_engineType = static_cast<DebuggerEngineType>(
                 data.value(engineTypeKeyC, NoEngineType).toInt());
-    m_channel.setHost(data.value(m_settingsBase + hostKeySuffixC).toString());
-    m_channel.setPort(data.value(m_settingsBase + portKeySuffixC).toInt());
+    m_channel.setHost(data.value(hostKeyC).toString());
+    m_channel.setPort(data.value(portKeyC).toInt());
     return true;
 }
 
@@ -238,9 +233,7 @@ IDebugServerProvider *IDebugServerProviderFactory::create() const
 IDebugServerProvider *IDebugServerProviderFactory::restore(const QVariantMap &data) const
 {
     IDebugServerProvider *p = m_creator();
-    const auto updated = data;
-
-    if (p->fromMap(updated))
+    if (p->fromMap(data))
         return p;
     delete p;
     return nullptr;

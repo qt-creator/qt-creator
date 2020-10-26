@@ -46,17 +46,17 @@ using namespace Utils;
 namespace BareMetal {
 namespace Internal {
 
-const char executableFileKeyC[] = "BareMetal.EBlinkGdbServerProvider.ExecutableFile";
-const char verboseLevelKeyC[] = "BareMetal.EBlinkGdbServerProvider.VerboseLevel";
-const char deviceScriptC[] = "BareMetal.EBlinkGdbServerProvider.DeviceScript";
-const char interfaceTypeC[] = "BareMetal.EBlinkGdbServerProvider.InterfaceType";
-const char interfaceResetOnConnectC[] = "BareMetal.EBlinkGdbServerProvider.interfaceResetOnConnect";
-const char interfaceSpeedC[] = "BareMetal.EBlinkGdbServerProvider.InterfaceSpeed";
-const char interfaceExplicidDeviceC[] = "BareMetal.EBlinkGdbServerProvider.InterfaceExplicidDevice";
-const char targetNameC[] = "BareMetal.EBlinkGdbServerProvider.TargetName";
-const char targetDisableStackC[] = "BareMetal.EBlinkGdbServerProvider.TargetDisableStack";
-const char gdbShutDownAfterDisconnectC[] = "BareMetal.EBlinkGdbServerProvider.GdbShutDownAfterDisconnect";
-const char gdbNotUseCacheC[] = "BareMetal.EBlinkGdbServerProvider.GdbNotUseCache";
+const char executableFileKeyC[] = "ExecutableFile";
+const char verboseLevelKeyC[] = "VerboseLevel";
+const char deviceScriptC[] = "DeviceScript";
+const char interfaceTypeC[] = "InterfaceType";
+const char interfaceResetOnConnectC[] = "interfaceResetOnConnect";
+const char interfaceSpeedC[] = "InterfaceSpeed";
+const char interfaceExplicidDeviceC[] = "InterfaceExplicidDevice";
+const char targetNameC[] = "TargetName";
+const char targetDisableStackC[] = "TargetDisableStack";
+const char gdbShutDownAfterDisconnectC[] = "GdbShutDownAfterDisconnect";
+const char gdbNotUseCacheC[] = "GdbNotUseCache";
 
 // EBlinkGdbServerProvider
 
@@ -66,7 +66,6 @@ EBlinkGdbServerProvider::EBlinkGdbServerProvider()
     setInitCommands(defaultInitCommands());
     setResetCommands(defaultResetCommands());
     setChannel("127.0.0.1", 2331);
-    setSettingsKeyBase("BareMetal.EBlinkGdbServerProvider");
     setTypeDisplayName(GdbServerProvider::tr("EBlink"));
     setConfigurationWidgetCreator([this] { return new EBlinkGdbServerProviderConfigWidget(this); });
 }
