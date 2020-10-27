@@ -331,6 +331,28 @@ std::ostream &operator<<(std::ostream &out, const Value &value)
     return out << ")";
 }
 
+std::ostream &operator<<(std::ostream &out, const ValueView &value)
+{
+    out << "(";
+
+    switch (value.type()) {
+    case Sqlite::ValueType::Integer:
+        out << value.toInteger();
+        break;
+    case Sqlite::ValueType::Float:
+        out << value.toFloat();
+        break;
+    case Sqlite::ValueType::String:
+        out << "\"" << value.toStringView() << "\"";
+        break;
+    case Sqlite::ValueType::Null:
+        out << "null";
+        break;
+    }
+
+    return out << ")";
+}
+
 namespace {
 Utils::SmallStringView operationText(int operation)
 {
@@ -398,7 +420,7 @@ std::ostream &operator<<(std::ostream &out, sqlite3_changeset_iter *iter)
 std::ostream &operator<<(std::ostream &out, const SessionChangeSet &changeset)
 {
     sqlite3_changeset_iter *iter = nullptr;
-    sqlite3changeset_start(&iter, changeset.size, const_cast<void *>(changeset.data));
+    sqlite3changeset_start(&iter, changeset.size(), const_cast<void *>(changeset.data()));
 
     out << "ChangeSets([";
 
@@ -414,6 +436,79 @@ std::ostream &operator<<(std::ostream &out, const SessionChangeSet &changeset)
 
     return out;
 }
+
+namespace SessionChangeSetInternal {
+namespace {
+
+const char *toText(Operation operation)
+{
+    switch (operation) {
+    case Operation::Invalid:
+        return "Invalid";
+    case Operation::Insert:
+        return "Invalid";
+    case Operation::Update:
+        return "Invalid";
+    case Operation::Delete:
+        return "Invalid";
+    }
+
+    return "";
+}
+
+const char *toText(State state)
+{
+    switch (state) {
+    case State::Invalid:
+        return "Invalid";
+    case State::Row:
+        return "Row";
+    case State::Done:
+        return "Done";
+    }
+
+    return "";
+}
+} // namespace
+
+std::ostream &operator<<(std::ostream &out, SentinelIterator)
+{
+    return out << "sentinel";
+}
+
+std::ostream &operator<<(std::ostream &out, Operation operation)
+{
+    return out << toText(operation);
+}
+
+std::ostream &operator<<(std::ostream &out, State state)
+{
+    return out << toText(state);
+}
+
+std::ostream &operator<<(std::ostream &out, const Tuple &tuple)
+{
+    return out << "(" << tuple.operation << ", " << tuple.columnCount << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const ValueViews &valueViews)
+{
+    return out << "(" << valueViews.newValue << ", " << valueViews.oldValue << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const ConstIterator &iterator)
+{
+    return out << "(" << (*iterator) << ", " << iterator.state() << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const ConstTupleIterator &iterator)
+{
+    auto value = *iterator;
+
+    return out << "(" << value.newValue << ", " << value.newValue << ")";
+}
+
+} // namespace SessionChangeSetInternal
 } // namespace Sqlite
 
 namespace ClangBackEnd {

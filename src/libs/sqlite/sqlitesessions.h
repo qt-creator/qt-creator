@@ -26,6 +26,7 @@
 #pragma once
 
 #include "sqlitedatabase.h"
+#include "sqlitesessionchangeset.h"
 #include "sqlitewritestatement.h"
 
 extern "C" {
@@ -80,6 +81,8 @@ public:
     void apply();
     void applyAndUpdateSessions();
     void deleteAll();
+
+    SessionChangeSets changeSets() const;
 
 private:
     void attachTables(const Utils::SmallStringVector &tables);

@@ -136,8 +136,8 @@ void Sessions::revert()
 
     for (auto &changeSet : changeSets) {
         int resultCode = sqlite3changeset_apply_v2(database.backend().sqliteDatabaseHandle(),
-                                                   changeSet.size,
-                                                   changeSet.data,
+                                                   changeSet.size(),
+                                                   changeSet.data(),
                                                    nullptr,
                                                    xConflict,
                                                    nullptr,
@@ -160,8 +160,8 @@ void Sessions::apply()
 
     for (auto &changeSet : changeSets) {
         int resultCode = sqlite3changeset_apply_v2(database.backend().sqliteDatabaseHandle(),
-                                                   changeSet.size,
-                                                   changeSet.data,
+                                                   changeSet.size(),
+                                                   changeSet.data(),
                                                    nullptr,
                                                    xConflict,
                                                    nullptr,
@@ -183,6 +183,16 @@ void Sessions::applyAndUpdateSessions()
 void Sessions::deleteAll()
 {
     WriteStatement{Utils::SmallString{"DELETE FROM ", sessionsTableName}, database}.execute();
+}
+
+SessionChangeSets Sessions::changeSets() const
+{
+    ReadStatement selectChangeSets{Utils::PathString{"SELECT changeset FROM ",
+                                                     sessionsTableName,
+                                                     " ORDER BY id DESC"},
+                                   database};
+
+    return selectChangeSets.values<SessionChangeSet>(1024);
 }
 
 } // namespace Sqlite
