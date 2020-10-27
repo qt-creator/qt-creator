@@ -20,6 +20,7 @@ DISTFILES += dist/copyright_template.txt \
     $$files(dist/changes-*) \
     qtcreator.qbs \
     $$files(qbs/*, true) \
+    $$files(cmake/*) \
     $$files(scripts/*.py) \
     $$files(scripts/*.sh) \
     $$files(scripts/*.pl)
