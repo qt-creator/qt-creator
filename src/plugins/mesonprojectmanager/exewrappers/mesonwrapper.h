@@ -47,7 +47,7 @@ bool containsFiles(const QString &path, const File_t &file)
 }
 
 template<typename File_t, typename... T>
-bool containsFiles(const QString &path, const File_t &file, const T &... files)
+bool containsFiles(const QString &path, const File_t &file, const T &...files)
 {
     return containsFiles(path, file) && containsFiles(path, files...);
 }
@@ -69,14 +69,14 @@ inline bool isSetup(const Utils::FilePath &buildPath)
 {
     using namespace Utils;
     return containsFiles(buildPath.pathAppended(Constants::MESON_INFO_DIR).toString(),
-                                  Constants::MESON_INTRO_TESTS,
-                                  Constants::MESON_INTRO_TARGETS,
-                                  Constants::MESON_INTRO_INSTALLED,
-                                  Constants::MESON_INTRO_BENCHMARKS,
-                                  Constants::MESON_INTRO_BUIDOPTIONS,
-                                  Constants::MESON_INTRO_PROJECTINFO,
-                                  Constants::MESON_INTRO_DEPENDENCIES,
-                                  Constants::MESON_INTRO_BUILDSYSTEM_FILES);
+                         Constants::MESON_INTRO_TESTS,
+                         Constants::MESON_INTRO_TARGETS,
+                         Constants::MESON_INTRO_INSTALLED,
+                         Constants::MESON_INTRO_BENCHMARKS,
+                         Constants::MESON_INTRO_BUIDOPTIONS,
+                         Constants::MESON_INTRO_PROJECTINFO,
+                         Constants::MESON_INTRO_DEPENDENCIES,
+                         Constants::MESON_INTRO_BUILDSYSTEM_FILES);
 }
 
 class MesonWrapper final : public ToolWrapper
@@ -92,13 +92,13 @@ public:
                       const QStringList &options = {}) const;
 
     Command regenerate(const Utils::FilePath &sourceDirectory,
-                       const Utils::FilePath &buildDirectory)const;
+                       const Utils::FilePath &buildDirectory) const;
 
     Command introspect(const Utils::FilePath &sourceDirectory) const;
 
     static inline Utils::optional<Utils::FilePath> find()
     {
-        return ToolWrapper::findTool({"meson.py","meson"});
+        return ToolWrapper::findTool({"meson.py", "meson"});
     }
 
     static inline QString toolName() { return {"Meson"}; };

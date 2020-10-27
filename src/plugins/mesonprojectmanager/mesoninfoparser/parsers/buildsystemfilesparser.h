@@ -38,8 +38,7 @@ namespace Internal {
 class BuildSystemFilesParser
 {
     std::vector<Utils::FilePath> m_files;
-    static void appendFiles(const Utils::optional<QJsonArray> &arr,
-                            std::vector<Utils::FilePath> &dest)
+    static void appendFiles(const Utils::optional<QJsonArray> &arr, std::vector<Utils::FilePath> &dest)
     {
         if (arr)
             std::transform(std::cbegin(*arr),

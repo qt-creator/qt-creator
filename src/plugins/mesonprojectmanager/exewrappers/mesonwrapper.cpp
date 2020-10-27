@@ -36,14 +36,14 @@ void impl_option_cat(QStringList &list, const First &first)
 }
 
 template<typename First, typename... T>
-void impl_option_cat(QStringList &list, const First &first, const T &... args)
+void impl_option_cat(QStringList &list, const First &first, const T &...args)
 {
     impl_option_cat(list, first);
     impl_option_cat(list, args...);
 }
 
 template<typename... T>
-QStringList options_cat(const T &... args)
+QStringList options_cat(const T &...args)
 {
     QStringList result;
     impl_option_cat(result, args...);

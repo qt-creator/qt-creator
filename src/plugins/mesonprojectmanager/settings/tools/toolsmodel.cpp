@@ -81,13 +81,12 @@ void ToolsModel::apply()
         if (item->hasUnsavedChanges()) {
             MesonTools::updateTool(item->id(), item->name(), item->executable());
             item->setSaved();
-            emit this->dataChanged(item->index(),item->index());
+            emit this->dataChanged(item->index(), item->index());
         }
     });
     while (!m_itemsToRemove.isEmpty()) {
         MesonTools::removeTool(m_itemsToRemove.dequeue());
     }
-
 }
 
 void ToolsModel::addMesonTool(const MesonTools::Tool_t &tool)

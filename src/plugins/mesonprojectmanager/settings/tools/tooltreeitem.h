@@ -26,8 +26,8 @@
 #pragma once
 #include "toolssettingspage.h"
 #include <exewrappers/mesontools.h>
-#include <utils/id.h>
 #include <utils/fileutils.h>
+#include <utils/id.h>
 #include <utils/optional.h>
 #include <utils/treemodel.h>
 #include <QCoreApplication>

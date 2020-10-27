@@ -101,9 +101,7 @@ inline Utils::optional<QJsonObject> get<QJsonObject>(const QJsonObject &obj, con
 }
 
 template<typename T, typename... Strings>
-inline Utils::optional<T> get(const QJsonObject &obj,
-                              const QString &firstPath,
-                              const Strings &... path)
+inline Utils::optional<T> get(const QJsonObject &obj, const QString &firstPath, const Strings &...path)
 {
     if (obj.contains(firstPath))
         return get<T>(obj[firstPath].toObject(), path...);

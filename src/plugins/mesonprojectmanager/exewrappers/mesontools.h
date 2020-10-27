@@ -46,7 +46,6 @@ class MesonTools : public QObject
 public:
     using Tool_t = std::shared_ptr<ToolWrapper>;
 
-
     static bool isMesonWrapper(const Tool_t &tool);
     static bool isNinjaWrapper(const Tool_t &tool);
 

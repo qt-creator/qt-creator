@@ -32,7 +32,6 @@
 #include <QTimer>
 #include <QWidget>
 
-
 namespace MesonProjectManager {
 namespace Internal {
 
