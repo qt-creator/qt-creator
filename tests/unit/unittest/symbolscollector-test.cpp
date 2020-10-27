@@ -190,7 +190,7 @@ TEST_F(SymbolsCollector, CollectSymbolName)
                 Contains(HasSymbolName("function")));
 }
 
-TEST_F(SymbolsCollector, SymbolMatchesLocation)
+TEST_F(SymbolsCollector, DISABLED_SymbolMatchesLocation)
 {
     collector.setFile(filePathId(TESTDATA_DIR "/symbolscollector/simple.cpp"), {"cc"});
 
@@ -202,7 +202,7 @@ TEST_F(SymbolsCollector, SymbolMatchesLocation)
                           HasLineColumn(1, 6))));
 }
 
-TEST_F(SymbolsCollector, OtherSymboldMatchesLocation)
+TEST_F(SymbolsCollector, DISABLED_OtherSymboldMatchesLocation)
 {
     collector.setFile(filePathId(TESTDATA_DIR "/symbolscollector/simple.cpp"), {"cc"});
 
@@ -250,7 +250,7 @@ TEST_F(SymbolsCollector, CollectReference)
                           Field(&SourceLocationEntry::kind, SourceLocationKind::DeclarationReference))));
 }
 
-TEST_F(SymbolsCollector, ReferencedSymboldMatchesLocation)
+TEST_F(SymbolsCollector, DISABLED_ReferencedSymboldMatchesLocation)
 {
     collector.setFile(filePathId(TESTDATA_DIR "/symbolscollector/simple.cpp"), {"cc"});
 
