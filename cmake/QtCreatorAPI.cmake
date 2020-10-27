@@ -774,19 +774,6 @@ function(finalize_qtc_gtest test_name exclude_sources_regex)
   endforeach()
 endfunction()
 
-# This is the CMake equivalent of "RESOURCES = $$files()" from qmake
-function(qtc_glob_resources)
-  cmake_parse_arguments(_arg "" "QRC_FILE;ROOT;GLOB" "" ${ARGN})
-
-  file(GLOB_RECURSE fileList RELATIVE "${_arg_ROOT}" "${_arg_ROOT}/${_arg_GLOB}")
-  set(qrcData "<RCC><qresource>\n")
-  foreach(file IN LISTS fileList)
-    string(APPEND qrcData "  <file alias=\"${file}\">${_arg_ROOT}/${file}</file>\n")
-  endforeach()
-  string(APPEND qrcData "</qresource></RCC>")
-  file(WRITE "${_arg_QRC_FILE}" "${qrcData}")
-endfunction()
-
 function(qtc_copy_to_builddir custom_target_name)
   cmake_parse_arguments(_arg "CREATE_SUBDIRS" "DESTINATION" "FILES;DIRECTORIES" ${ARGN})
   set(timestampFiles)
