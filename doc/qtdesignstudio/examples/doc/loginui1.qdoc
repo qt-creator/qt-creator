@@ -156,11 +156,14 @@
             properties in \uicontrol Properties.
         \li In the \uicontrol Color field, select the
             \inlineimage icon_color_gradient.png
-            (\uicontrol Gradient) button to add a linear gradient to the
-            screen background. In this example, the color changes from
-            white to green (#41cd52), with a stop point set at position 0.5.
-            You can use your favorite colors or select a predefined gradient
-            in the \uicontrol {Gradient Picker}.
+            (\uicontrol {Linear Gradient}) button to add a linear gradient to
+            the screen background. Click the start point (1) and end point (2)
+            to specify the gradient colors. Drag and drop the points along the
+            gradient bar to specify where the gradient starts and ends. In this
+            tutorial, the color changes from white to green (#41cd52), starting
+            mid-screen, at position 0.5. You can use your favorite colors or
+            select a predefined gradient in the \uicontrol {Gradient Picker}.
+            For more information, see \l{Picking Gradients}.
             \image loginui1-background-gradient.png "Rectangle color properties"
         \li Select \e Text in \uicontrol Navigator to display its properties in
             \uicontrol Properties.
