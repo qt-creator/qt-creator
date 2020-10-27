@@ -513,7 +513,7 @@ QPixmap ExamplesListModel::fetchPixmapAndUpdatePixmapCache(const QString &url) c
         if (!fetchedData.isEmpty()) {
             QBuffer imgBuffer(&fetchedData);
             imgBuffer.open(QIODevice::ReadOnly);
-            QImageReader reader(&imgBuffer);
+            QImageReader reader(&imgBuffer, QFileInfo(url).suffix().toLatin1());
             QImage img = reader.read();
             img = ScreenshotCropper::croppedImage(img, url, ListModel::defaultImageSize);
             pixmap = QPixmap::fromImage(img);
