@@ -64,9 +64,7 @@ if [ -d "$assetimporterSrcDir" ]; then
     if [ ! -d "$assetimporterDestDir" ]; then
         echo "- Copying 3d assetimporter plugins"
         mkdir -p "$assetimporterDestDir"
-        for plugin in "$assetimporterSrcDir"/*.dylib; do
-            cp "$plugin" "$assetimporterDestDir"/ || exit 1
-        done
+        find "$assetimporterSrcDir" -iname "*.dylib" -maxdepth 1 -exec cp {} "$assetimporterDestDir"/ \;
     fi
 fi
 
