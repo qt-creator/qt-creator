@@ -381,9 +381,10 @@ void SectionedProducts::onImageDownloadFinished(QNetworkReply *reply)
     if (reply->error() == QNetworkReply::NoError) {
         const QByteArray data = reply->readAll();
         QPixmap pixmap;
-        const QString imageFormat = QFileInfo(reply->request().url().fileName()).suffix();
+        const QUrl imageUrl = reply->request().url();
+        const QString imageFormat = QFileInfo(imageUrl.fileName()).suffix();
         if (pixmap.loadFromData(data, imageFormat.toLatin1())) {
-            const QString url = reply->request().url().toString();
+            const QString url = imageUrl.toString();
             QPixmapCache::insert(url, pixmap.scaled(ProductListModel::defaultImageSize,
                                                     Qt::KeepAspectRatio, Qt::SmoothTransformation));
             for (ProductListModel *model : m_productModels.values())
